@@ -78,6 +78,18 @@ def _check_target(
         )
 
 
+def check_review_target(
+    *,
+    project_path: Path,
+    target: Path,
+    timeout_sec: int = 300,
+) -> dict:
+    """Run the deterministic Review preflight for one completed target."""
+    return asdict(
+        _check_target(project_path, target.resolve(), timeout_sec=timeout_sec)
+    )
+
+
 def run_parallel_review_preflight(
     *,
     project_path: Path,

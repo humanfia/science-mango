@@ -56,6 +56,9 @@ class GroundingCandidate:
             return "PhysLean"
         if "mathlib" in hay:
             return "Mathlib"
+        module_package = self.module.split(".", 1)[0].strip()
+        if module_package:
+            return module_package
         return "unknown"
 
 
@@ -247,7 +250,7 @@ def _api_searcher(
 class _LocalSearcher:
     """Synchronous adapter around one reusable LeanExplore local service."""
 
-    def __init__(self) -> None:
+    def __init__(self, project_path: Path | None = None) -> None:
         from importlib.util import find_spec
 
         missing = [
@@ -264,7 +267,25 @@ class _LocalSearcher:
 
         from lean_explore.search import SearchEngine, Service
 
-        self._service = Service(engine=SearchEngine(use_local_data=False))
+        self._base_service = Service(engine=SearchEngine(use_local_data=False))
+        self._service = self._base_service
+        if project_path is not None:
+            index_path = (
+                project_path.resolve()
+                / ".archon"
+                / "lean-explore"
+                / "project-index.json"
+            )
+            if index_path.is_file():
+                from archon.commands.tooling.lean_explore_overlay import (
+                    CompositeLeanExploreService,
+                    ProjectOverlayIndex,
+                )
+
+                self._service = CompositeLeanExploreService(
+                    self._base_service,
+                    ProjectOverlayIndex(index_path),
+                )
         self._loop = asyncio.new_event_loop()
 
     def __call__(
@@ -285,19 +306,20 @@ class _LocalSearcher:
 
     def close(self) -> None:
         try:
-            engine = self._service.engine.engine
+            engine = self._base_service.engine.engine
             self._loop.run_until_complete(engine.dispose())
         finally:
             self._loop.close()
 
 
-def _local_searcher() -> SearchFn:
+def _local_searcher(project_path: Path | None = None) -> SearchFn:
     """Build a local LeanExplore searcher from fetched cache data."""
-    return _LocalSearcher()
+    return _LocalSearcher(project_path)
 
 
 def _resolve_searcher(
     *,
+    project_path: Path | None = None,
     backend: str,
     api_key: str | None,
     timeout: float,
@@ -324,7 +346,20 @@ def _resolve_searcher(
         return _api_searcher(api_key=api_key, timeout=timeout), "api", None, False
 
     try:
-        return _local_searcher(), "local", None, True
+        index_path = (
+            project_path.resolve()
+            / ".archon"
+            / "lean-explore"
+            / "project-index.json"
+            if project_path is not None
+            else None
+        )
+        local = (
+            _local_searcher(project_path)
+            if index_path is not None and index_path.is_file()
+            else _local_searcher()
+        )
+        return local, "local", None, True
     except Exception as exc:
         prefix = "LeanExplore local backend is unavailable"
         suffix = "Run `lean-explore data fetch` to install its local index."
@@ -607,6 +642,7 @@ def run_physics_grounding(
 
     api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
     real_searcher, resolved_backend, backend_error, owns_searcher = _resolve_searcher(
+        project_path=project_path,
         backend=backend,
         api_key=api_key,
         timeout=timeout,

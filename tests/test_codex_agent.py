@@ -86,6 +86,12 @@ class BuildArgvTest(unittest.TestCase):
         self.assertNotIn("--ignore-user-config", argv)
         self.assertIn("-m", argv)
 
+    def test_ephemeral_can_be_disabled_for_older_codex(self):
+        a = _agent(model="m", raw={"runner": "codex", "ephemeral": False})
+        argv = a.build_argv("P", env_source={})
+        self.assertNotIn("--ephemeral", argv)
+        self.assertIn("--sandbox", argv)
+
 
     def test_interactive_argv_uses_tui_entrypoint(self):
         argv = _agent(model="m", effort="xhigh").build_interactive_argv(

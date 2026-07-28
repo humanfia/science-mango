@@ -728,6 +728,45 @@ class WriteReportsTest(unittest.TestCase):
         self.assertIn("asymptotic-tag-fallback", kinds)
         self.assertIn("jacobian-record-fallback", kinds)
 
+    def test_physlean_coverage_exemption_suppresses_only_domain_import(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n"
+            "% archon:covers Exempt.lean\n"
+            "% NOTE: PhysLean-coverage exemption: no matching domain module.\n"
+            "\\label{thm:foo}\n",
+        )
+        (self.root / "Exempt.lean").write_text(
+            "import Mathlib\n"
+            "theorem foo : True := by trivial\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        kinds = {kind for _, kind, _ in r.physics_modeling_problems}
+        self.assertNotIn("missing-physlib-import", kinds)
+        self.assertNotIn("missing-mathlib-import", kinds)
+
+    def test_physlean_coverage_exemption_does_not_hide_mathlib_requirement(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n"
+            "% archon:covers Exempt.lean\n"
+            "% NOTE: PhysLean-coverage exemption: no matching domain module.\n"
+            "\\label{thm:foo}\n",
+        )
+        (self.root / "Exempt.lean").write_text(
+            "theorem foo : True := by trivial\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        kinds = {kind for _, kind, _ in r.physics_modeling_problems}
+        self.assertNotIn("missing-physlib-import", kinds)
+        self.assertIn("missing-mathlib-import", kinds)
+
     def test_does_not_hardcode_fake_physics_statement_semantics(self):
         self.bp.write_chapter(
             "Good",

@@ -55,6 +55,8 @@ from pathlib import Path
 
 import typer
 
+from archon.commands.tooling.domain_profile import load_domain_profile
+
 
 _INPUT_RE = re.compile(r"\\(?:input|include)\s*\{\s*([^{}]+?)\s*\}")
 # ``*`` (not ``+``) on the inner class so empty ``\label{}`` matches and
@@ -72,6 +74,17 @@ _AXIOM_RE = re.compile(
     re.MULTILINE,
 )
 _PHYSICS_MARKER = "% archon:physics"
+# Planner/review-recorded PhysLean-coverage exemption convention: a physics
+# chapter may document (in a `% NOTE:` line, owned by the plan/review agents)
+# that the configured domain library has no usable module for the part's
+# physics, with the file's LeanExplore grounding log cited as evidence.  The
+# marker text this recognizes is deliberately liberal about the suffix so
+# long-standing project conventions keep working; the load-bearing phrase is
+# "PhysLean-coverage exemption".
+_PHYSLEAN_COVERAGE_EXEMPTION_RE = re.compile(
+    r"^%\s*NOTE:.*PhysLean-coverage\s+exemption",
+    re.MULTILINE | re.IGNORECASE,
+)
 _PHYSICS_SCALAR_FALLBACK_RE = re.compile(
     r"^\s*(?:noncomputable\s+)?(?:abbrev|def)\s+([A-Za-z_][\w.']*)\b"
     r"[^:\n]*:=\s*(ℝ|Real)\b",
@@ -955,17 +968,65 @@ def _physics_chapter_targets(project_path: Path, chapter_files: list[Path]) -> l
     return sorted(targets)
 
 
+def _physics_exempt_targets(project_path: Path, chapter_files: list[Path]) -> set[Path]:
+    """Lean targets whose covering chapter records a PhysLean-coverage exemption.
+
+    Mirrors ``_physics_chapter_targets`` but keeps only chapters carrying a
+    documented `% NOTE:` exemption, e.g.::
+
+        % NOTE: PhysLean-coverage exemption (planner-recorded, iter-NNN): ...
+
+    The exemption forgives ONLY the missing-domain-library check inside
+    ``_scan_physics_target_import_problems`` — a missing Mathlib baseline and
+    every other modeling check still fire, so chapters cannot use the NOTE to
+    launder untyped or unchecked physics.
+    """
+    try:
+        from archon.commands.tooling.blueprint import parse_chapter_covers
+    except Exception:
+        parse_chapter_covers = None
+
+    targets: set[Path] = set()
+    for tex in chapter_files:
+        try:
+            text = tex.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if _PHYSICS_MARKER not in text:
+            continue
+        if not _PHYSLEAN_COVERAGE_EXEMPTION_RE.search(text):
+            continue
+        covers: list[str] = []
+        if parse_chapter_covers is not None:
+            try:
+                covers = parse_chapter_covers(text)
+            except Exception:
+                covers = []
+        if not covers:
+            covers = [f"{tex.stem}.lean"]
+        for rel in covers:
+            rel_path = Path(rel)
+            candidate = rel_path if rel_path.is_absolute() else project_path / rel_path
+            if candidate.is_file() and candidate.suffix == ".lean":
+                targets.add(candidate.resolve())
+    return targets
+
+
 def _scan_physics_target_import_problems(
     project_path: Path,
     chapter_files: list[Path],
     *,
     enabled: bool,
+    require_explicit_mathlib: bool = True,
+    target_import_prefixes: tuple[str, ...] = ("Physlib", "PhysLean"),
+    domain_display_name: str = "physics",
 ) -> list[tuple[Path, str, str]]:
-    """Require physics Lean targets to visibly use the real Lean libraries."""
+    """Require domain targets to visibly import their configured Lean library."""
     if not enabled:
         return []
 
     out: list[tuple[Path, str, str]] = []
+    exempt = _physics_exempt_targets(project_path, chapter_files)
     for lean_file in _physics_chapter_targets(project_path, chapter_files):
         try:
             text = lean_file.read_text(encoding="utf-8", errors="ignore")
@@ -973,14 +1034,12 @@ def _scan_physics_target_import_problems(
             continue
         imports = _LEAN_IMPORT_RE.findall(text)
         has_mathlib = any(pkg == "Mathlib" or pkg.startswith("Mathlib.") for pkg in imports)
-        has_physlib = any(
-            pkg == "Physlib"
-            or pkg.startswith("Physlib.")
-            or pkg == "PhysLean"
-            or pkg.startswith("PhysLean.")
+        has_domain_library = any(
+            pkg == prefix or pkg.startswith(prefix + ".")
             for pkg in imports
+            for prefix in target_import_prefixes
         )
-        if not has_mathlib:
+        if require_explicit_mathlib and not has_mathlib:
             out.append((
                 lean_file,
                 "missing-mathlib-import",
@@ -988,12 +1047,17 @@ def _scan_physics_target_import_problems(
                 "must be checked in a real Lake/Mathlib environment, not as "
                 "a standalone Lean smoke file",
             ))
-        if not has_physlib:
+        if target_import_prefixes and not has_domain_library and lean_file.resolve() not in exempt:
+            expected = "/".join(target_import_prefixes)
             out.append((
                 lean_file,
-                "missing-physlib-import",
-                "physics target does not import Physlib/PhysLean; attempted "
-                "grounding should use the available formal physics library "
+                (
+                    "missing-physlib-import"
+                    if target_import_prefixes == ("Physlib", "PhysLean")
+                    else "missing-domain-library-import"
+                ),
+                f"{domain_display_name} target does not import {expected}; "
+                "grounding should use the configured domain library "
                 "before introducing local abstractions",
             ))
     return out
@@ -1056,16 +1120,26 @@ def _candidate_grounding_reports(project_path: Path, lean_file: Path) -> list[Pa
     return out
 
 
-def _grounding_report_missing_terms(text: str) -> list[str]:
+def _grounding_report_missing_terms(
+    text: str,
+    *,
+    expected_packages: tuple[str, ...] = ("Mathlib", "Physlib"),
+) -> list[str]:
     hay = text.lower()
     missing: list[str] = []
     for label, terms in _PHYSICS_GROUNDING_REQUIRED_TERMS:
         if not any(term in hay for term in terms):
             missing.append(label)
-    if "mathlib" not in hay:
-        missing.append("Mathlib package")
-    if "physlean" not in hay and "physlib" not in hay:
-        missing.append("PhysLean package")
+    for package in expected_packages:
+        normalized = package.lower()
+        if normalized in {"physlib", "physlean"}:
+            aliases = ("physlean", "physlib")
+            label = "PhysLean package"
+        else:
+            aliases = (normalized,)
+            label = f"{package} package"
+        if not any(alias in hay for alias in aliases):
+            missing.append(label)
     if (
         "grounding status: incomplete" in hay
         or "leanexplore_api_key is missing" in hay
@@ -1080,6 +1154,7 @@ def _scan_physics_grounding_problems(
     chapter_files: list[Path],
     *,
     enabled: bool,
+    expected_packages: tuple[str, ...] = ("Mathlib", "Physlib"),
 ) -> list[tuple[Path, str, str]]:
     """Flag missing/incomplete LeanExplore grounding logs for physics targets."""
     if not enabled:
@@ -1111,7 +1186,10 @@ def _scan_physics_grounding_problems(
                 text = report.read_text(encoding="utf-8", errors="ignore")
             except OSError:
                 continue
-            missing = _grounding_report_missing_terms(text)
+            missing = _grounding_report_missing_terms(
+                text,
+                expected_packages=expected_packages,
+            )
             if not missing:
                 best_missing = []
                 best_report = report
@@ -1229,21 +1307,31 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
         _has_physics_blueprint_marker(chapters_included or chapters_present)
         if has_blueprint else False
     )
+    domain_profile = load_domain_profile(project_path)
     physics_modeling_problems = _scan_physics_modeling_problems(
         project_path,
-        enabled=physics_enabled,
+        enabled=(
+            physics_enabled
+            and domain_profile.enforce_classical_physics_modeling
+        ),
     )
     physics_modeling_problems.extend(
         _scan_physics_target_import_problems(
             project_path,
             chapters_included or chapters_present,
             enabled=physics_enabled,
+            require_explicit_mathlib=(
+                domain_profile.require_explicit_mathlib_import
+            ),
+            target_import_prefixes=domain_profile.target_import_prefixes,
+            domain_display_name=domain_profile.display_name,
         )
     )
     physics_grounding_problems = _scan_physics_grounding_problems(
         project_path,
         chapters_included or chapters_present,
         enabled=physics_enabled,
+        expected_packages=domain_profile.lean_search_packages,
     )
 
     if (

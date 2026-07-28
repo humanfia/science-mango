@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Callable
 
 from archon.agent import ClaudeBackend, build_runner
+from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.commands.tooling.project_config import HarnessDescriptor
 
 from .proof_review_gate import (
@@ -18,6 +19,9 @@ from .proof_review_gate import (
     PROOF_REVIEW_SCHEMA_VERSION,
     REDRAFT_KINDS,
 )
+
+PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
+PIPELINED_REVIEW_SCHEMA_VERSION = 1
 
 
 @dataclass(frozen=True)
@@ -36,6 +40,18 @@ class TargetReviewOutcome:
     runner_ok: bool
     milestone: dict | None
     error: str = ""
+
+
+@dataclass(frozen=True)
+class PipelinedTargetReviewConfig:
+    """Configuration for Review/redraft work sharing the prover pool."""
+
+    requested_jobs: int
+    max_attempts: int = 3
+    backoff_sec: float = 5.0
+    preflight_timeout_sec: int = 300
+    harness: HarnessDescriptor | None = None
+    formalizer_harness: HarnessDescriptor | None = None
 
 
 def _utcnow() -> str:
@@ -151,6 +167,18 @@ def build_target_review_prompt(
     ]
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
+    profile = load_domain_profile(project_path)
+    blueprint_label = f"{profile.display_name.title()} blueprint"
+    if profile.enforce_classical_physics_modeling:
+        semantic_checks = (
+            "3. faithful physical semantics relative to the source comments and blueprint,\n"
+            "4. honest use of hypotheses, units, answer choice, and numerical tolerance,"
+        )
+    else:
+        semantic_checks = (
+            f"3. faithful {profile.display_name} semantics relative to the natural-language source and blueprint,\n"
+            "4. honest use of every binder, hypothesis, side condition, convention, bound, and requested conclusion,"
+        )
     return f"""You are one target-scoped proof Review worker for Archon iteration {iter_num}.
 
 Assigned target (the only target you may review):
@@ -158,7 +186,7 @@ Assigned target (the only target you may review):
 
 Read these bounded sources completely:
 - Lean statement/proof: {target}
-- Physics blueprint: {chapter}
+- {blueprint_label}: {chapter}
 - Prover trace: {prover_log}
 - Matching prover task results, newest first:
   {json.dumps(result_evidence, ensure_ascii=False)}
@@ -168,8 +196,7 @@ Read these bounded sources completely:
 Review the actual theorem contract and proof for:
 1. direct Lean compilation and zero active sorry/admit/axiom laundering,
 2. signature preservation and no weakened/trivialized statement,
-3. faithful physical semantics relative to the source comments and blueprint,
-4. honest use of hypotheses, units, answer choice, and numerical tolerance,
+{semantic_checks}
 5. whether the current prover trace and newest matching task result support
    the claimed proof.
 
@@ -181,6 +208,9 @@ report the missing result as a process warning, not a semantic proof failure.
 
 The deterministic preflight already ran. Do not run lake, Lean, leandag, or
 repository-wide searches unless the supplied preflight reports timeout/error.
+The mechanical \\leanok marker sync may run after this target-scoped Review.
+Judge proof validity from the Lean source and preflight; do not fail a target
+solely because a blueprint \\leanok marker is temporarily stale.
 
 Write permissions are restricted to:
 - {milestone}
@@ -317,6 +347,132 @@ def write_parallel_review_session(
     (session_dir / "recommendations.md").write_text(
         "\n".join(recommendations) + "\n", encoding="utf-8",
     )
+
+
+def validate_parallel_review_session(
+    *,
+    session_dir: Path,
+    expected_rels: list[str],
+) -> str:
+    """Validate the durable aggregate before Review consumes it."""
+    milestone_path = session_dir / "milestones.jsonl"
+    try:
+        lines = milestone_path.read_text(
+            encoding="utf-8", errors="ignore",
+        ).splitlines()
+    except OSError as exc:
+        return f"pipelined Review session is missing: {exc}"
+
+    rows: dict[str, dict] = {}
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            return f"invalid pipelined Review milestone JSON: {exc}"
+        if not isinstance(row, dict):
+            return "pipelined Review milestone row is not an object"
+        target = row.get("target")
+        if not isinstance(target, dict):
+            return "pipelined Review milestone target is missing"
+        rel = str(target.get("file") or "").lstrip("./")
+        if not rel:
+            return "pipelined Review milestone file is missing"
+        if rel in rows:
+            return f"duplicate pipelined Review milestone for {rel!r}"
+        status = str(row.get("status") or "").strip().lower()
+        if status not in {"solved", "partial", "blocked", "not_started"}:
+            return f"unsupported pipelined Review status {status!r}"
+        route_error = _validate_proof_review_route(row, status)
+        if route_error:
+            return f"{rel}: {route_error}"
+        rows[rel] = row
+
+    expected = sorted(set(expected_rels))
+    actual = sorted(rows)
+    if actual != expected:
+        return (
+            "pipelined Review target mismatch: "
+            f"expected={expected!r}, actual={actual!r}"
+        )
+    return ""
+
+
+def write_pipelined_review_report(*, iter_dir: Path, report: dict) -> Path:
+    """Atomically publish the hand-off consumed by :class:`ReviewPhase`."""
+    path = iter_dir / PIPELINED_REVIEW_REPORT_FILENAME
+    payload = {
+        "schema_version": PIPELINED_REVIEW_SCHEMA_VERSION,
+        **report,
+    }
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    tmp.replace(path)
+    return path
+
+
+def load_pipelined_review_report(
+    *,
+    project_path: Path,
+    state_dir: Path,
+    iter_dir: Path,
+    iter_num: int,
+    objectives: list[Path],
+) -> tuple[dict | None, str]:
+    """Load a complete, exact-target pipeline hand-off or fail closed."""
+    path = iter_dir / PIPELINED_REVIEW_REPORT_FILENAME
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        return None, f"pipelined Review report unavailable: {exc}"
+    except json.JSONDecodeError as exc:
+        return None, f"invalid pipelined Review report: {exc}"
+    if not isinstance(report, dict):
+        return None, "pipelined Review report is not an object"
+    try:
+        schema_version = int(report.get("schema_version") or 0)
+        report_iteration = int(report.get("iteration") or 0)
+    except (TypeError, ValueError):
+        return None, "pipelined Review report has invalid numeric metadata"
+    if schema_version != PIPELINED_REVIEW_SCHEMA_VERSION:
+        return None, "unsupported pipelined Review report schema"
+    if report_iteration != int(iter_num):
+        return None, "pipelined Review report iteration mismatch"
+    if report.get("complete") is not True:
+        return None, "pipelined Review report is incomplete"
+
+    expected: list[str] = []
+    for objective in objectives:
+        try:
+            rel = objective.resolve().relative_to(project_path.resolve()).as_posix()
+        except ValueError:
+            rel = str(objective)
+        expected.append(rel.lstrip("./"))
+    expected = sorted(set(expected))
+    raw_targets = report.get("target_files")
+    if not isinstance(raw_targets, list):
+        return None, "pipelined Review report target_files is not a list"
+    actual = sorted(
+        set(str(x).lstrip("./") for x in raw_targets)
+    )
+    if actual != expected:
+        return None, (
+            "pipelined Review report target mismatch: "
+            f"expected={expected!r}, actual={actual!r}"
+        )
+
+    session_dir = state_dir / "proof-journal" / "sessions" / f"session_{iter_num}"
+    error = validate_parallel_review_session(
+        session_dir=session_dir,
+        expected_rels=expected,
+    )
+    if error:
+        return None, error
+    return report, ""
 
 
 def run_parallel_target_reviews(

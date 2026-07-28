@@ -370,7 +370,8 @@ def deterministic_plan_prompt_prefix(
         f"actionable per-target proof strategy to `{plan_sidecar}`.",
         "You may edit only the listed blueprint chapters when an excerpt has "
         "a concrete strategy defect; do not edit Lean source files in Plan.",
-        "Preserve physical hypotheses and do not weaken theorem statements.",
+        "Preserve every source hypothesis, side condition, and requested conclusion; "
+        "do not weaken theorem statements.",
         "Finish immediately after the bounded plan sidecar and any necessary "
         "listed-chapter corrections are written.",
     ]

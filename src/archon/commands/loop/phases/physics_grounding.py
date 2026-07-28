@@ -6,6 +6,7 @@ import time
 
 from archon import log
 from archon.state import parse_objective_files
+from archon.commands.tooling.domain_profile import load_domain_profile
 
 from ..physics_grounding import run_physics_grounding
 from .base import Phase, PhaseResult
@@ -41,11 +42,17 @@ class PhysicsGroundingPhase(Phase):
                 ctx.progress_file,
                 ctx.project_path,
             )
+            profile = load_domain_profile(ctx.project_path)
+            grounding_kwargs = {
+                "backend": backend,
+                "lean_files": objective_files,
+                "reuse_unchanged": True,
+            }
+            if profile.lean_search_packages != ("Mathlib", "Physlib"):
+                grounding_kwargs["packages"] = profile.lean_search_packages
             reports = run_physics_grounding(
                 ctx.project_path,
-                backend=backend,
-                lean_files=objective_files,
-                reuse_unchanged=True,
+                **grounding_kwargs,
             )
         except Exception as exc:  # defensive: grounding must not break the loop
             log.warn(f"physics grounding crashed: {exc}")

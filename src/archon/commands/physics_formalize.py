@@ -25,6 +25,10 @@ import typer
 from archon import log
 from archon.commands.init.utils import data_path
 from archon.commands.tooling.blueprint import BlueprintChapter, BlueprintStructure
+from archon.commands.tooling.domain_profile import (
+    DEFAULT_PHYSICS_PREFLIGHT_IMPORTS,
+    load_domain_profile,
+)
 
 
 PHYSICS_FORMALIZE_MODE = "physics-formalize"
@@ -40,30 +44,9 @@ PHYSLEAN_REQUIRE_TOML = (
     f'git = "{PHYSLEAN_GIT_URL}"\n'
     'rev = "master"\n'
 )
+# Backwards-compatible public constant used by existing callers/tests.
 PHYSICS_PREFLIGHT_IMPORTS = [
-    "import Mathlib",
-    "import Physlib.Units.Basic",
-    "import Physlib.Units.Dimension",
-    "import Physlib.Units.WithDim.Basic",
-    "import Physlib.Units.WithDim.Mass",
-    "import Physlib.Units.WithDim.Velocity",
-    "import Physlib.Units.WithDim.Energy",
-    "import Physlib.SpaceAndTime.Space.Basic",
-    "import Physlib.SpaceAndTime.Time.Basic",
-    "import Physlib.SpaceAndTime.Space.Derivatives.Basic",
-    "import Physlib.Mathematics.InnerProductSpace.Basic",
-    "import Physlib.ClassicalMechanics.Basic",
-    "import Physlib.ClassicalMechanics.EulerLagrange",
-    "import Physlib.ClassicalMechanics.HarmonicOscillator.Basic",
-    "import Physlib.ClassicalMechanics.RigidBody.Basic",
-    "import Physlib.Electromagnetism.Basic",
-    "import Physlib.Electromagnetism.Dynamics.Basic",
-    "import Physlib.Thermodynamics.Basic",
-    "import Physlib.Thermodynamics.Temperature.Basic",
-    "import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
-    "import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Basic",
-    "import Physlib.Relativity.LorentzGroup.Basic",
-    "import Physlib.Relativity.Special.ProperTime",
+    f"import {module}" for module in DEFAULT_PHYSICS_PREFLIGHT_IMPORTS
 ]
 
 
@@ -101,6 +84,7 @@ class PhysicsFormalizeCommand:
         rethlas_timeout: int = 180,
     ) -> None:
         self.project_path = Path(project_path).resolve()
+        self.domain_profile = load_domain_profile(self.project_path)
         self.question = question
         self.question_file = question_file
         self.input_jsonl = input_jsonl
@@ -286,7 +270,10 @@ class PhysicsFormalizeCommand:
         else:
             text = (self.question or "").strip()
         if not text:
-            log.error("A physics problem is required via --question or --question-file.")
+            log.error(
+                f"A {self.domain_profile.display_name} problem is required via "
+                "--question or --question-file."
+            )
             raise typer.Exit(1)
         return text
 
@@ -329,7 +316,10 @@ class PhysicsFormalizeCommand:
                     break
 
         if not entries:
-            log.error(f"Input JSONL contains no usable physics problems: {path}")
+            log.error(
+                f"Input JSONL contains no usable {self.domain_profile.display_name} "
+                f"problems: {path}"
+            )
             raise typer.Exit(1)
         return path, entries
 
@@ -877,7 +867,10 @@ class PhysicsFormalizeCommand:
         )
         if self.update_progress:
             self._update_progress_records(records)
-        log.success(f"Prepared {len(records)} physics subquestion target(s) for archon loop.")
+        log.success(
+            f"Prepared {len(records)} {self.domain_profile.display_name} "
+            "subquestion target(s) for archon loop."
+        )
 
     # preparation artifacts ------------------------------------------
 
@@ -934,8 +927,8 @@ class PhysicsFormalizeCommand:
             "project_path": str(self.project_path),
             "output_lean": str(out_path),
             "source_report": str(report_path),
-            "domain": "physics",
-            "lean_search_packages": ["Mathlib", "Physlib"],
+            "domain": self.domain_profile.name,
+            "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "entry": entry,
             "problem_id": entry.get("problem_id"),
             "part_id": entry.get("part_id"),
@@ -955,7 +948,10 @@ class PhysicsFormalizeCommand:
         structure = BlueprintStructure(self.project_path)
         structure.blueprint_src.mkdir(parents=True, exist_ok=True)
         if not structure.content_tex.exists():
-            structure.content_tex.write_text("% Archon physics blueprint.\n", encoding="utf-8")
+            structure.content_tex.write_text(
+                f"% Archon {self.domain_profile.display_name} blueprint.\n",
+                encoding="utf-8",
+            )
 
         chapter = BlueprintChapter(self.project_path, rel_lean)
         generated = self._physics_blueprint_block(
@@ -987,7 +983,9 @@ class PhysicsFormalizeCommand:
         index = str(entry.get("index") or "physics")
         answer = str(entry.get("answer") or "")
         question = str(entry.get("question") or "")
-        title = self._latex_escape(f"Physics problem {index}")
+        title = self._latex_escape(
+            f"{self.domain_profile.display_name.title()} problem {index}"
+        )
         lines = [
             "% --- Archon physics formalization source begin ---",
             "% archon:physics",
@@ -1038,27 +1036,44 @@ class PhysicsFormalizeCommand:
             lines.extend(["", "\\paragraph{Reusable previous-part conclusions.}"])
             lines.extend(self._previous_parts_latex(entry.get("previous_parts") or []))
 
+        packages = "/".join(self.domain_profile.lean_search_packages)
+        if self.domain_profile.enforce_classical_physics_modeling:
+            contract = [
+                "The Lean declarations must preserve the physical quantities, "
+                "dimensions or dimensional roles, figure labels, governing-law "
+                "hypotheses, and final relation expressed by this problem.",
+                f"Use {packages} names found through LeanExplore where available. "
+                "If a domain API is missing, introduce faithful local abstractions "
+                "rather than scalar placeholder aliases.",
+            ]
+        else:
+            contract = [
+                "The Lean declarations must preserve every mathematical object, "
+                "quantifier, hypothesis, side condition, approximation/error "
+                "guarantee, and requested conclusion from the source statement.",
+                f"Use {packages} names found through LeanExplore where available. "
+                "Prefer the configured benchmark Base library; introduce a local "
+                "definition only when the source genuinely requires an object that "
+                "the environment does not expose.",
+            ]
         lines.extend([
             "",
             "\\paragraph{Formalization target.}",
             "create a compiling Lean file with sorry bodies at "
-            f"`{self._latex_escape(rel_lean)}`. The Lean declarations must preserve "
-            "the physical quantities, dimensions or dimensional roles, figure labels, "
-            "governing-law hypotheses, and final relation expressed by this problem.",
-            "Use Mathlib/Physlib names found through LeanExplore where available. "
-            "If a physics API is missing, introduce faithful local abstractions rather "
-            "than scalar placeholder aliases.",
+            f"`{self._latex_escape(rel_lean)}`.",
+            *contract,
             "",
-            "\\begin{theorem}[Physics formalization target]",
+            f"\\begin{{theorem}}[{self._latex_escape(self.domain_profile.display_name.title())} formalization target]",
             f"\\label{{thm:physics:{self._safe_label(index)}:target}}",
-            "The assigned autoformalize agent should translate this physics problem "
-            "into Lean declarations in the covered file, with theorem and lemma proof "
+            f"The assigned autoformalize agent should translate this "
+            f"{self._latex_escape(self.domain_profile.display_name)} problem into "
+            "Lean declarations in the covered file, with theorem and lemma proof "
             "bodies written as `by sorry`.",
             "\\end{theorem}",
             "\\begin{proof}",
-            "This is an autoformalization task, not a proof task. Produce statements "
-            "that can later be proved by the physics prover without weakening the "
-            "physical model.",
+            "This is an autoformalization task, not a proof task. Produce faithful "
+            "statements that can later be proved without weakening the source "
+            "contract.",
             "\\end{proof}",
         ])
 
@@ -1151,12 +1166,38 @@ class PhysicsFormalizeCommand:
         return existing.rstrip() + "\n\n" + generated
 
     def _ensure_loop_assets(self) -> None:
-        self._copy_archon_asset("prover-modes", f"{PHYSICS_FORMALIZE_MODE}.md")
-        self._copy_archon_asset("prover-modes", f"{PHYSICS_PROVER_MODE}.md")
-        self._copy_archon_asset("subagents", f"{PHYSICS_REVIEWER}.md")
+        if self.domain_profile.is_legacy_physics:
+            formalize_src = f"{PHYSICS_FORMALIZE_MODE}.md"
+            prover_src = f"{PHYSICS_PROVER_MODE}.md"
+            reviewer_src = f"{PHYSICS_REVIEWER}.md"
+        else:
+            formalize_src = "quantum-formalize.md"
+            prover_src = "quantum.md"
+            reviewer_src = "quantum-reviewer.md"
+        self._copy_archon_asset(
+            "prover-modes",
+            f"{PHYSICS_FORMALIZE_MODE}.md",
+            source_filename=formalize_src,
+        )
+        self._copy_archon_asset(
+            "prover-modes",
+            f"{PHYSICS_PROVER_MODE}.md",
+            source_filename=prover_src,
+        )
+        self._copy_archon_asset(
+            "subagents",
+            f"{PHYSICS_REVIEWER}.md",
+            source_filename=reviewer_src,
+        )
 
-    def _copy_archon_asset(self, folder: str, filename: str) -> None:
-        src = data_path(f"{folder}/{filename}")
+    def _copy_archon_asset(
+        self,
+        folder: str,
+        filename: str,
+        *,
+        source_filename: str | None = None,
+    ) -> None:
+        src = data_path(f"{folder}/{source_filename or filename}")
         dst = self.project_path / ".archon" / folder / filename
         if not src.is_file():
             raise RuntimeError(f"Bundled Archon asset missing: {src}")
@@ -1248,11 +1289,11 @@ class PhysicsFormalizeCommand:
             "output_lean": str(out_path),
             "source_report": str(report_path),
             "output_report": str(report_path),
-            "domain": "physics",
+            "domain": self.domain_profile.name,
             "next_stage": "autoformalize",
             "prover_mode": PHYSICS_FORMALIZE_MODE,
             "proof_mode": PHYSICS_PROVER_MODE,
-            "lean_search_packages": ["Mathlib", "Physlib"],
+            "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "physlean_dependency": self._metadata_physlean_dependency(ensure_result),
             "physlean_build": self._metadata_physlean_build(build_result),
             "preflight": self._metadata_preflight(preflight_result),
@@ -1326,11 +1367,11 @@ class PhysicsFormalizeCommand:
             "output_dir": str(out_dir),
             "report_dir": str(report_dir),
             "image_root": str(image_root) if image_root else None,
-            "domain": "physics",
+            "domain": self.domain_profile.name,
             "next_stage": "autoformalize",
             "prover_mode": PHYSICS_FORMALIZE_MODE,
             "proof_mode": PHYSICS_PROVER_MODE,
-            "lean_search_packages": ["Mathlib", "Physlib"],
+            "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "limit": self.limit,
             "entry_count": len(entries),
             "missing_images": self._missing_images(entries, image_root),
@@ -1386,11 +1427,11 @@ class PhysicsFormalizeCommand:
             "output_dir": str(out_dir),
             "report_dir": str(report_dir),
             "image_root": str(image_root) if image_root else None,
-            "domain": "physics",
+            "domain": self.domain_profile.name,
             "next_stage": "autoformalize",
             "prover_mode": PHYSICS_FORMALIZE_MODE,
             "proof_mode": PHYSICS_PROVER_MODE,
-            "lean_search_packages": ["Mathlib", "Physlib"],
+            "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "limit": self.limit,
             "dependencies": dependencies,
             "missing_images": self._missing_images(entries, image_root),
@@ -1440,7 +1481,11 @@ class PhysicsFormalizeCommand:
     def _metadata_preflight(self, preflight_result: dict | None) -> dict:
         if preflight_result:
             return preflight_result
-        return {"requested": self.preflight, "passed": None, "packages": ["Mathlib", "Physlib"]}
+        return {
+            "requested": self.preflight,
+            "passed": None,
+            "packages": list(self.domain_profile.lean_search_packages),
+        }
 
     # progress --------------------------------------------------------
 
@@ -1456,7 +1501,7 @@ class PhysicsFormalizeCommand:
             rel_chapter = record["rel_chapter"]
             objective_parts.append(
                 f"### {number}. **`{rel_lean}`** [prover-mode: {PHYSICS_FORMALIZE_MODE}]\n"
-                f"- Autoformalize this physics blueprint chapter into Lean declarations with `by sorry` bodies.\n"
+                f"- Autoformalize this {self.domain_profile.display_name} blueprint chapter into Lean declarations with `by sorry` bodies.\n"
                 f"- Blueprint chapter: `{rel_chapter}`.\n"
                 f"- Source report: `{rel_report}`.\n"
                 f"- After this file compiles with expected sorry warnings, move it to prover mode `{PHYSICS_PROVER_MODE}`.\n"
@@ -1480,7 +1525,10 @@ class PhysicsFormalizeCommand:
         text = self._mark_stage_checkboxes_for_autoformalize(text)
         text = self._replace_or_add_section(text, "## Current Objectives", objective, before=None)
         progress.write_text(text, encoding="utf-8")
-        log.success(f"Updated PROGRESS.md with {len(records)} physics autoformalize target(s).")
+        log.success(
+            f"Updated PROGRESS.md with {len(records)} "
+            f"{self.domain_profile.display_name} autoformalize target(s)."
+        )
 
     @staticmethod
     def _replace_or_add_section(text: str, heading: str, body: str, *, before: str | None) -> str:
@@ -1634,10 +1682,10 @@ class PhysicsFormalizeCommand:
             log.error("Lean preflight failed: target project has no lakefile.")
             raise typer.Exit(1)
         preflight_path = work_dir / "physics_preflight.lean"
-        preflight_code = "\n".join(PHYSICS_PREFLIGHT_IMPORTS) + "\n\n#check True\n"
+        preflight_code = "\n".join(self.domain_profile.preflight_lines) + "\n\n#check True\n"
         preflight_path.write_text(preflight_code, encoding="utf-8")
         command = [lake, "env", "lean", str(preflight_path)]
-        log.phase(0, "Lean/PhysLean preflight")
+        log.phase(0, f"Lean/{self.domain_profile.display_name} preflight")
         try:
             proc = subprocess.run(
                 command,
@@ -1660,14 +1708,18 @@ class PhysicsFormalizeCommand:
             "passed": proc.returncode == 0,
             "file": str(preflight_path),
             "command": " ".join(command),
-            "packages": ["Mathlib", "Physlib"],
+            "packages": list(self.domain_profile.lean_search_packages),
         }
         if proc.returncode == 0:
-            log.success("Lean preflight passed: Mathlib/Physlib imports compile.")
+            packages = ", ".join(self.domain_profile.lean_search_packages)
+            log.success(f"Lean preflight passed: {packages} imports compile.")
             return result
         output = (proc.stderr or proc.stdout or "").strip()
         result["error"] = output[:4000]
-        log.error("Lean preflight failed: Mathlib/Physlib imports did not compile.")
+        log.error(
+            f"Lean preflight failed for {self.domain_profile.display_name}: "
+            "configured domain imports did not compile."
+        )
         if output:
             log.info(output[:1200])
             hint = self._preflight_hint(output)

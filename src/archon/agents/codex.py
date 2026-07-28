@@ -714,7 +714,9 @@ class CodexAgent:
             ]
 
         argv += self._mcp_overrides(lake_root, env_source or os.environ)
-        argv += ["--sandbox", self.sandbox, "--ephemeral"]
+        argv += ["--sandbox", self.sandbox]
+        if self.descriptor.raw.get("ephemeral", True):
+            argv.append("--ephemeral")
         argv += self._descriptor_extra_args()
         if extra_args:
             argv += list(extra_args)

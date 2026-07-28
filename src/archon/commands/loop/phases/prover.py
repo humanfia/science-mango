@@ -6,12 +6,14 @@ import time
 
 from archon import log
 from archon.commands.tooling.iteration import commit_phase
+from archon.commands.tooling.project_config import load_project_config
 from archon.multilane.config import multilane_config_from_simple
 from archon.state import write_meta
 
 from ..formalization_review_gate import enforce_progress_review_gate
 from ..proof_review_gate import filter_objectives_for_proof_review_gate
 from ..lane_round import LaneRoundExecutor, LaneRoundPreviewRunner
+from ..parallel_review import PipelinedTargetReviewConfig
 from ..prover import ParallelProverRunner, SerialProverRunner
 from ..sorry_count import count_sorries
 from .base import Phase, PhaseResult
@@ -209,6 +211,43 @@ class ProverPhase(Phase):
 
     def _run_parallel(self) -> None:
         ctx = self.ctx
+        cfg = load_project_config(ctx.project_path)
+        loop_cfg = cfg.loop_section()
+        pipeline_review = None
+        pipeline_requested = bool(
+            loop_cfg.get("pipeline_target_review", False)
+        )
+        pipeline_eligible = (
+            pipeline_requested
+            and not ctx.options.no_review
+            and getattr(ctx.options, "proof_review_gate", False)
+            and ctx.current_stage.strip().lower().startswith("prover")
+            and bool(loop_cfg.get("deterministic_review", False))
+            and bool(loop_cfg.get("parallel_target_review", False))
+        )
+        if pipeline_eligible:
+            pipeline_review = PipelinedTargetReviewConfig(
+                requested_jobs=max(1, int(loop_cfg.get(
+                    "parallel_target_review_jobs", ctx.options.max_parallel,
+                ))),
+                max_attempts=max(1, int(loop_cfg.get(
+                    "parallel_target_review_max_attempts", 3,
+                ))),
+                backoff_sec=max(0.0, float(loop_cfg.get(
+                    "parallel_target_review_backoff_sec", 5,
+                ))),
+                preflight_timeout_sec=max(1, int(loop_cfg.get(
+                    "review_preflight_timeout_sec", 300,
+                ))),
+                harness=ctx.harness_descriptor_for("review"),
+                formalizer_harness=ctx.harness_descriptor_for("prover"),
+            )
+        elif pipeline_requested:
+            log.warn(
+                "pipeline_target_review requires prover stage, Review, "
+                "proof_review_gate, deterministic_review, and "
+                "parallel_target_review; using the normal phase barrier."
+            )
         runner = ParallelProverRunner(
             project_name=ctx.project_name,
             project_path=ctx.project_path,
@@ -228,6 +267,7 @@ class ProverPhase(Phase):
             resume_enabled=self._resume_enabled(),
             backend=ctx.backend,
             harness=ctx.harness_descriptor_for("prover"),
+            pipeline_review=pipeline_review,
         )
         runner.run(dry_run=ctx.dry_run)
 

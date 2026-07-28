@@ -9,6 +9,7 @@ dispatched in the ``prover`` stage.  The state is deliberately independent of
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -79,6 +80,37 @@ def load_gate_state(state_dir: Path) -> dict[str, Any] | None:
 
 def _utcnow() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _file_sha256(path: Path) -> str:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return ""
+
+
+def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
+    slug = "_".join(Path(rel).with_suffix("").parts)
+    result_root = state_dir / "task_results"
+    candidates = {
+        result_root / f"{rel}.md",
+        result_root / f"{Path(rel).name}.md",
+        result_root / f"{slug}.lean.md",
+        result_root / f"{slug}.md",
+    }
+    fingerprints: dict[str, str] = {}
+    for path in candidates:
+        digest = _file_sha256(path)
+        if digest:
+            fingerprints[str(path)] = digest
+    return fingerprints
+
+
+def _int_or(value: Any, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _relative_file(raw: str, project_path: Path) -> str:
@@ -349,6 +381,7 @@ def reopen_formalization_targets(
     redrafts: Mapping[str, Mapping[str, Any] | str],
     iter_num: int,
     max_iterations: int,
+    completed_redrafts: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> tuple[str, ...]:
     """Revoke prior pass certificates and route exact targets to redrafting.
 
@@ -362,6 +395,7 @@ def reopen_formalization_targets(
     targets: dict[str, Any] = data.setdefault("targets", {})
     reopened: list[str] = []
     objective_details: dict[str, tuple[str, str]] = {}
+    completed_redrafts = completed_redrafts or {}
 
     for raw_rel, raw_proof_record in redrafts.items():
         rel = _relative_file(str(raw_rel), project_path)
@@ -393,7 +427,7 @@ def reopen_formalization_targets(
             "previous_reason": old.get("reason"),
             "previous_certificate": old.get("certificate"),
         })
-        targets[rel] = {
+        next_record = {
             **old,
             "status": "retry",
             "reason": f"proof Review requested redraft: {reason}",
@@ -406,6 +440,50 @@ def reopen_formalization_targets(
             "redraft_kind": redraft_kind,
             "reopen_history": reopen_history[-20:],
         }
+        # A target-scoped formalizer may already have materialized this
+        # redraft while peer provers/Reviewers were still running. Carry a
+        # hash-bound hand-off into the gate so the next autoformalize phase
+        # can skip duplicate model work and proceed directly to Review.
+        raw_handoff = completed_redrafts.get(rel)
+        handoff = dict(raw_handoff) if isinstance(raw_handoff, Mapping) else {}
+        digest = str(handoff.get("lean_sha256") or "").strip().lower()
+        current_digest = _file_sha256(project_path / rel)
+        raw_result_fingerprints = handoff.get("task_result_fingerprints")
+        result_fingerprints = (
+            {
+                str(path): str(value).strip().lower()
+                for path, value in raw_result_fingerprints.items()
+            }
+            if isinstance(raw_result_fingerprints, Mapping) else {}
+        )
+        current_result_fingerprints = _task_result_fingerprints(state_dir, rel)
+        preflight = handoff.get("preflight")
+        if (
+            str(handoff.get("status") or "") == "materialized"
+            and str(handoff.get("file") or "").lstrip("./") == rel
+            and handoff.get("changed") is True
+            and handoff.get("task_result_updated") is True
+            and isinstance(preflight, Mapping)
+            and preflight.get("compiles") is True
+            and len(digest) == 64
+            and digest == current_digest
+            and bool(result_fingerprints)
+            and result_fingerprints == current_result_fingerprints
+        ):
+            next_record["materialized_redraft"] = {
+                "status": "ready_for_review",
+                "source_iter": _int_or(handoff.get("iteration"), iter_num),
+                "lean_sha256": digest,
+                "task_result_fingerprints": result_fingerprints,
+                "review_attempt": _int_or(handoff.get("review_attempt"), 0),
+                "redraft_kind": redraft_kind,
+                "reason": reason[:2000],
+                "runner_ok": bool(handoff.get("runner_ok")),
+                "recorded_at": _utcnow(),
+            }
+        else:
+            next_record.pop("materialized_redraft", None)
+        targets[rel] = next_record
         objective_details[rel] = (redraft_kind, reason[:800])
         reopened.append(rel)
 
@@ -467,7 +545,10 @@ def apply_formalization_review(
 
         old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
         reviews = int(old.get("reviews") or 0)
-        if int(old.get("last_review_iter") or -1) != iter_num:
+        if (
+            reviews < max_iterations
+            and int(old.get("last_review_iter") or -1) != iter_num
+        ):
             reviews += 1
         if decision == "passed":
             status = "passed"
@@ -475,7 +556,7 @@ def apply_formalization_review(
             status = "review_exhausted"
         else:
             status = "retry"
-        targets[rel] = {
+        next_record = {
             **old,
             "status": status,
             "reviews": reviews,
@@ -485,6 +566,14 @@ def apply_formalization_review(
             "review_schema_version": REVIEW_SCHEMA_VERSION,
             "certificate": certificate,
         }
+        materialized = old.get("materialized_redraft")
+        if isinstance(materialized, dict):
+            next_record["materialized_redraft"] = {
+                **materialized,
+                "status": "reviewed",
+                "reviewed_iter": iter_num,
+            }
+        targets[rel] = next_record
 
     data["last_review_iter"] = iter_num
     data["updated_at"] = _utcnow()
@@ -580,6 +669,63 @@ def filter_objectives_for_review_gate(
 
         kept.append(path)
     return kept, dropped
+
+
+def filter_materialized_redrafts_for_dispatch(
+    objectives: Iterable[Path],
+    *,
+    state_dir: Path,
+    project_path: Path,
+    stage: str,
+    enabled: bool,
+) -> tuple[list[Path], list[tuple[Path, str]]]:
+    """Skip hash-identical early redrafts but leave them in PROGRESS.
+
+    The caller must not rewrite ``PROGRESS.md`` from the returned list:
+    skipped targets still need the immediately following formalization
+    Review. A changed/missing file fails open to a normal formalizer run.
+    """
+    items = list(objectives)
+    if not enabled or not stage.strip().lower().startswith("autoformalize"):
+        return items, []
+    state = load_gate_state(state_dir)
+    targets = state.get("targets", {}) if state else {}
+    kept: list[Path] = []
+    skipped: list[tuple[Path, str]] = []
+    for path in items:
+        rel = _relative_file(str(path), project_path)
+        record = targets.get(rel) if isinstance(targets, dict) else None
+        marker = (
+            record.get("materialized_redraft")
+            if isinstance(record, dict) else None
+        )
+        digest = (
+            str(marker.get("lean_sha256") or "").strip().lower()
+            if isinstance(marker, dict) else ""
+        )
+        result_fingerprints = (
+            marker.get("task_result_fingerprints")
+            if isinstance(marker, dict) else None
+        )
+        if (
+            isinstance(record, dict)
+            and record.get("status") == "retry"
+            and isinstance(marker, dict)
+            and marker.get("status") == "ready_for_review"
+            and len(digest) == 64
+            and digest == _file_sha256(project_path / rel)
+            and isinstance(result_fingerprints, dict)
+            and bool(result_fingerprints)
+            and result_fingerprints == _task_result_fingerprints(state_dir, rel)
+        ):
+            skipped.append((
+                path,
+                "pipelined redraft already materialized; awaiting "
+                "formalization Review",
+            ))
+        else:
+            kept.append(path)
+    return kept, skipped
 
 
 def enforce_progress_review_gate(

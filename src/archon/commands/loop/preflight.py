@@ -85,11 +85,11 @@ def _project_is_physics_aware(project_path: Path) -> bool:
 
 
 def require_physics_lean_environment(project_path: Path, state_dir: Path) -> None:
-    """Hard gate for physics loop runs: require real Lake + Mathlib/Physlib.
+    """Hard gate for physics-style loop runs: require the configured Lake domain.
 
     A physics-aware loop must not fall back to standalone Lean files with local
     scalar/type-tag scaffolding. The formalizer/prover needs a real Lake project
-    where `lake env lean` can import Mathlib and Physlib modules.
+    where ``lake env lean`` can import the profile's exact modules.
     """
     if not _project_is_physics_aware(project_path):
         return
@@ -105,19 +105,21 @@ def require_physics_lean_environment(project_path: Path, state_dir: Path) -> Non
     ):
         log.error(
             "Physics Lean preflight failed: target project has no lakefile. "
-            "Physics formalization must run inside a real Lake project with "
-            "Mathlib/Physlib available; standalone self-contained Lean files "
+            "Physics-style formalization must run inside a real Lake project "
+            "with its configured domain library available; standalone Lean files "
             "are not accepted."
         )
         raise typer.Exit(1)
 
-    from archon.commands.physics_formalize import PHYSICS_PREFLIGHT_IMPORTS
+    from archon.commands.tooling.domain_profile import load_domain_profile
+
+    profile = load_domain_profile(project_path)
 
     preflight_dir = state_dir / "preflight"
     preflight_dir.mkdir(parents=True, exist_ok=True)
     preflight_file = preflight_dir / "physics_loop_preflight.lean"
     preflight_file.write_text(
-        "\n".join(PHYSICS_PREFLIGHT_IMPORTS) + "\n\n#check True\n",
+        "\n".join(profile.preflight_lines) + "\n\n#check True\n",
         encoding="utf-8",
     )
 
@@ -142,11 +144,18 @@ def require_physics_lean_environment(project_path: Path, state_dir: Path) -> Non
         raise typer.Exit(1)
 
     if proc.returncode == 0:
-        log.success("Physics Lean preflight passed: Mathlib/Physlib imports compile.")
+        packages = ", ".join(profile.lean_search_packages)
+        log.success(
+            f"Physics Lean preflight passed for {profile.display_name}: "
+            f"{packages} imports compile."
+        )
         return
 
     output = (proc.stderr or proc.stdout or "").strip()
-    log.error("Physics Lean preflight failed: Mathlib/Physlib imports did not compile.")
+    log.error(
+        f"Physics Lean preflight failed for {profile.display_name}: "
+        "configured domain imports did not compile."
+    )
     if output:
         log.info(output[:1200])
     raise typer.Exit(1)

@@ -10,9 +10,21 @@ dashboard can surface live state.
 
 from __future__ import annotations
 
+import hashlib
+import heapq
 import json
-from concurrent.futures import ProcessPoolExecutor, as_completed
+import time
+from collections import deque
+from concurrent.futures import (
+    FIRST_COMPLETED,
+    ProcessPoolExecutor,
+    ThreadPoolExecutor,
+    as_completed,
+    wait,
+)
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from itertools import count
 from pathlib import Path
 
 from archon import log
@@ -33,9 +45,24 @@ from archon.state import (
     archive_task_results,
     parse_objective_files,
     parse_objectives_with_modes,
+    read_meta,
     write_meta,
 )
 
+from ..formalization_review_gate import (
+    filter_materialized_redrafts_for_dispatch,
+)
+from ..parallel_review import (
+    PipelinedTargetReviewConfig,
+    TargetReviewOutcome,
+    TargetReviewSpec,
+    _run_review_worker,
+    build_target_review_prompt,
+    write_parallel_review_session,
+    write_pipelined_review_report,
+)
+from ..proof_review_gate import load_proof_review_state
+from ..review_preflight import check_review_target
 from ..resume import PROVER_CONTINUE, persist_session_id, pick_resume_session
 from ..utils import file_slug, relpath
 from .environment import ProverEnvironment, snapshot_baseline
@@ -120,6 +147,82 @@ def select_prover_mode_for_target(
     return default_prover_mode_for_stage(state_dir, stage)
 
 
+def _target_sha256(target: Path) -> str:
+    try:
+        return hashlib.sha256(target.read_bytes()).hexdigest()
+    except OSError:
+        return ""
+
+
+def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
+    result_root = state_dir / "task_results"
+    slug = file_slug(rel)
+    candidates = {
+        result_root / f"{rel}.md",
+        result_root / f"{Path(rel).name}.md",
+        result_root / f"{slug}.lean.md",
+        result_root / f"{slug}.md",
+    }
+    fingerprints: dict[str, str] = {}
+    for path in candidates:
+        digest = _target_sha256(path)
+        if digest:
+            fingerprints[str(path)] = digest
+    return fingerprints
+
+
+def build_immediate_redraft_prompt(
+    *,
+    project_name: str,
+    project_path: Path,
+    state_dir: Path,
+    iter_num: int,
+    target: Path,
+    review_certificate: dict,
+    debug_feedback: bool,
+) -> str:
+    """Build a target-only formalizer prompt from a proof Review route."""
+    rel = relpath(target, project_path)
+    mode_name = select_prover_mode_for_target(
+        state_dir, "autoformalize", project_path, target, explicit_mode=None,
+    )
+    base_prompt = build_parallel_prover_prompt(
+        project_name,
+        project_path,
+        state_dir,
+        "autoformalize",
+        iter_num,
+        assigned_rel_lean_path=rel,
+        debug_feedback=debug_feedback,
+        mode_name=mode_name,
+        mode_content=_load_mode_content(state_dir, mode_name),
+    )
+    certificate = json.dumps(review_certificate, ensure_ascii=False, indent=2)
+    return f"""{base_prompt}
+
+Your assigned file: {rel}
+
+## Immediate proof-Review redraft hand-off
+
+The global PROGRESS stage intentionally remains `prover` until the batch's
+atomic Review aggregation finishes. Ignore that stage for task routing: the
+validated target Review certificate below authorizes an immediate, target-only
+`autoformalize` redraft.
+
+{certificate}
+
+Repair the certificate's stated root cause in the theorem contract, not just
+the last proof error. You may change unprotected statements in `{rel}` and
+replace proof bodies invalidated by those statement changes with explicit
+`by sorry` stubs. Never violate `archon-protected.yaml`; report a protected
+contract as blocked. Do not continue proving the old contract. Keep the file
+compiling, update only the assigned task-result report, and do not edit
+PROGRESS.md, gate files, AUTO_NOTES.md, blueprint files, or any other Lean file.
+Return only after the
+assigned Lean file compiles and the redraft evidence is durable on disk.
+"""
+
+
 def _run_single_prover(
     prompt: str,
     cwd: Path,
@@ -159,6 +262,17 @@ def _run_single_prover(
         prompt, cwd=cwd, log_base=log_base, verbose_logs=verbose_logs,
         resume_session_id=resume_session_id,
     )
+
+
+@dataclass(frozen=True)
+class _PipelineWork:
+    kind: str
+    target: Path
+    rel: str
+    slug: str
+    attempt: int = 0
+    baseline_sha256: str = ""
+    result_fingerprints: tuple[tuple[str, str], ...] = ()
 
 
 class SerialProverRunner:
@@ -279,6 +393,12 @@ class ParallelProverRunner:
         resume_enabled: bool = False,
         backend: ClaudeBackend | None = None,
         harness: HarnessDescriptor | None = None,
+        pipeline_review: PipelinedTargetReviewConfig | None = None,
+        executor_factory=ProcessPoolExecutor,
+        prover_worker=_run_single_prover,
+        review_worker=_run_review_worker,
+        formalizer_worker=None,
+        preflight_checker=check_review_target,
     ) -> None:
         self.project_name = project_name
         self.project_path = project_path
@@ -298,6 +418,14 @@ class ParallelProverRunner:
         self.resume_enabled = resume_enabled
         self.backend = backend or ClaudeBackend()
         self.harness = harness if harness is not None else _default_harness()
+        self.pipeline_review = pipeline_review
+        self.executor_factory = executor_factory
+        self.prover_worker = prover_worker
+        self.review_worker = review_worker
+        self.formalizer_worker = (
+            formalizer_worker if formalizer_worker is not None else prover_worker
+        )
+        self.preflight_checker = preflight_checker
 
     def run(self, *, dry_run: bool) -> None:
         progress = self.state_dir / "PROGRESS.md"
@@ -357,7 +485,13 @@ class ParallelProverRunner:
         from ..sorry_count import filter_noop_objectives
 
         noop_dropped: list[Path] = []
-        if not self.stage.strip().lower().startswith("autoformalize"):
+        pipeline_resume = (
+            self.pipeline_review is not None and self.resume_enabled
+        )
+        if (
+            not self.stage.strip().lower().startswith("autoformalize")
+            and not pipeline_resume
+        ):
             sorry_files, noop_dropped = filter_noop_objectives(
                 sorry_files,
                 progress_file=progress,
@@ -374,6 +508,26 @@ class ParallelProverRunner:
                 "Every objective was a no-op (zero open sorries); "
                 "skipping prover dispatch."
             )
+            return
+
+        # A prior prover→Review lane may already have materialized a requested
+        # statement redraft. Keep those targets in PROGRESS for the upcoming
+        # formalization Review, but do not pay for the same formalizer twice.
+        sorry_files, materialized_redrafts = (
+            filter_materialized_redrafts_for_dispatch(
+                sorry_files,
+                state_dir=self.state_dir,
+                project_path=self.project_path,
+                stage=self.stage,
+                enabled=True,
+            )
+        )
+        if materialized_redrafts:
+            log.success(
+                f"Skipping {len(materialized_redrafts)} already-materialized "
+                "pipelined redraft(s); they remain queued for formalization Review."
+            )
+        if not sorry_files:
             return
 
         # Hard cap on dispatched provers. plan_validate already warned
@@ -402,9 +556,14 @@ class ParallelProverRunner:
                 log.step(f"dry-run Prover: {relpath(f, self.project_path)}{mode_tag}")
             return
 
-        archive_task_results(self.state_dir, self.iter_dir)
+        if materialized_redrafts:
+            # Their target-scoped reports were written after the preceding
+            # iteration's archive and are evidence for the imminent Review.
+            log.info("Preserving task_results for pipelined redraft Review")
+        else:
+            archive_task_results(self.state_dir, self.iter_dir)
 
-        if file_count == 1:
+        if file_count == 1 and self.pipeline_review is None:
             self._run_single_file(sorry_files[0], mode_name=file_modes.get(str(sorry_files[0])))
             return
 
@@ -488,6 +647,12 @@ class ParallelProverRunner:
             log.step(f"Blueprint:       {self.blueprint_url}")
         log.step(f"tail -f {self.iter_dir}/provers/*.jsonl")
         log.step(f"watch -n10 'ls -lt {self.state_dir}/task_results/'")
+
+        if self.pipeline_review is not None:
+            self._run_pipelined_fanout(
+                sorry_files, file_modes=file_modes,
+            )
+            return
 
         file_modes = file_modes or {}
         futures = {}
@@ -589,6 +754,656 @@ class ParallelProverRunner:
         result_count = len(list(results_dir.glob("*.md"))) if results_dir.exists() else 0
         log.info(f"Task result files: {result_count}/{file_count}")
 
+        self._emit_round_end(file_count, failed)
+
+    def _run_pipelined_fanout(
+        self,
+        sorry_files: list[Path],
+        *,
+        file_modes: dict[str, str | None] | None = None,
+    ) -> None:
+        """Share one bounded pool between prover, Review, and redraft work."""
+        config = self.pipeline_review
+        if config is None:
+            raise RuntimeError("pipelined fanout requires Review configuration")
+
+        file_modes = file_modes or {}
+        file_count = len(sorry_files)
+        workers = max(1, min(self.max_parallel, file_count))
+        review_jobs = max(1, min(config.requested_jobs, workers))
+        max_attempts = max(1, int(config.max_attempts))
+        prior_state = load_proof_review_state(self.state_dir)
+        prior_targets = prior_state.get("targets", {})
+        if not isinstance(prior_targets, dict):
+            prior_targets = {}
+
+        pending_provers: deque[Path] = deque()
+        resumed_completed: list[tuple[Path, str, str]] = []
+        for target in sorry_files:
+            rel = relpath(target, self.project_path)
+            slug = file_slug(rel)
+            prior_status = (
+                read_meta(self.iter_meta, f"provers.{slug}.status")
+                if self.resume_enabled else None
+            )
+            if prior_status == "done":
+                resumed_completed.append((target, rel, slug))
+            else:
+                pending_provers.append(target)
+        review_queue: list[tuple[float, int, Path, str, str, int]] = []
+        formalizer_queue: deque[
+            tuple[Path, str, str, int, dict]
+        ] = deque()
+        sequence = count()
+        futures: dict[object, _PipelineWork] = {}
+        outcomes: dict[str, TargetReviewOutcome] = {}
+        preflight_rows: dict[str, dict] = {}
+        formalizer_results: dict[str, dict] = {}
+        unresolved: dict[str, str] = {}
+        review_rounds: dict[int, dict[str, int]] = {}
+        active_reviews = 0
+        failed = 0
+        started = time.monotonic()
+        target_rels = sorted(relpath(path, self.project_path) for path in sorry_files)
+
+        log.info(
+            "Pipelined target Review enabled: each completed prover is "
+            "reviewed immediately, and needs_redraft starts that target's "
+            "formalizer immediately; combined concurrency "
+            f"is capped at {workers}."
+        )
+        write_meta(self.iter_meta, **{
+            "prover.pipelineReviewEnabled": True,
+            "prover.pipelineImmediateRedraftEnabled": True,
+            "prover.pipelineReviewMaxCombined": workers,
+            "prover.pipelineReviewMaxReviewers": review_jobs,
+        })
+        write_pipelined_review_report(
+            iter_dir=self.iter_dir,
+            report={
+                "iteration": self.iter_num,
+                "complete": False,
+                "status": "running",
+                "target_files": target_rels,
+                "targets": file_count,
+                "reviewed": 0,
+                "unresolved": target_rels,
+                "formalizers": {"requested": 0, "materialized": 0, "failed": 0},
+            },
+        )
+
+        def enqueue_review(
+            target: Path,
+            rel: str,
+            slug: str,
+            attempt: int,
+            *,
+            delay: float = 0.0,
+        ) -> None:
+            heapq.heappush(
+                review_queue,
+                (
+                    time.monotonic() + max(0.0, delay),
+                    next(sequence),
+                    target,
+                    rel,
+                    slug,
+                    attempt,
+                ),
+            )
+
+        def run_preflight(target: Path, rel: str) -> dict:
+            try:
+                return self.preflight_checker(
+                    project_path=self.project_path,
+                    target=target,
+                    timeout_sec=config.preflight_timeout_sec,
+                )
+            except Exception as exc:
+                return {
+                    "file": rel,
+                    "status": "error",
+                    "compiles": False,
+                    "returncode": None,
+                    "sorry_count": None,
+                    "duration_secs": 0.0,
+                    "diagnostics": f"{type(exc).__name__}: {exc}",
+                }
+
+        if resumed_completed:
+            preflight_jobs = min(review_jobs, len(resumed_completed))
+            log.info(
+                f"Resume detected {len(resumed_completed)} completed prover "
+                "lane(s); skipping re-proving and preparing their Reviews."
+            )
+            with ThreadPoolExecutor(max_workers=preflight_jobs) as check_pool:
+                checks = {
+                    check_pool.submit(run_preflight, target, rel): (
+                        target, rel, slug,
+                    )
+                    for target, rel, slug in resumed_completed
+                }
+                for future in as_completed(checks):
+                    target, rel, slug = checks[future]
+                    preflight_rows[rel] = future.result()
+                    enqueue_review(target, rel, slug, 1)
+
+        def submit_prover(pool, target: Path) -> None:
+            rel = relpath(target, self.project_path)
+            slug = file_slug(rel)
+            prover_log = self.iter_dir / "provers" / slug
+            mode_name = select_prover_mode_for_target(
+                self.state_dir,
+                self.stage,
+                self.project_path,
+                target,
+                explicit_mode=file_modes.get(str(target)),
+            )
+            mode_content = _load_mode_content(self.state_dir, mode_name)
+            base_prompt = build_parallel_prover_prompt(
+                self.project_name,
+                self.project_path,
+                self.state_dir,
+                self.stage,
+                self.iter_num,
+                assigned_rel_lean_path=rel,
+                debug_feedback=self.debug_feedback,
+                mode_name=mode_name,
+                mode_content=mode_content,
+            )
+            prompt = f"{base_prompt}\nYour assigned file: {rel}"
+            snap_dir = self.iter_dir / "snapshots" / slug
+            snapshot_baseline(target, snap_dir)
+            resume_sid = pick_resume_session(
+                self.iter_meta,
+                f"provers.{slug}.sessionId",
+                enabled=self.resume_enabled,
+                label=f"prover[{slug}]",
+                cwd=self.project_path,
+                jsonl_fallback=Path(str(prover_log) + ".jsonl"),
+            )
+            submit_prompt = PROVER_CONTINUE if resume_sid else prompt
+            meta_update: dict[str, object] = {
+                f"provers.{slug}.file": rel,
+                f"provers.{slug}.status": "running",
+            }
+            if mode_name:
+                meta_update[f"provers.{slug}.mode"] = mode_name
+            write_meta(self.iter_meta, **meta_update)
+            log.step(f"Starting prover for {rel}")
+            future = pool.submit(
+                self.prover_worker,
+                submit_prompt,
+                self.project_path,
+                prover_log,
+                self.verbose_logs,
+                self.model,
+                snap_dir,
+                self.project_path,
+                resume_sid,
+                self.backend,
+                self.harness,
+            )
+            futures[future] = _PipelineWork(
+                kind="prover", target=target, rel=rel, slug=slug,
+            )
+
+        def submit_review(
+            pool,
+            target: Path,
+            rel: str,
+            slug: str,
+            attempt: int,
+        ) -> None:
+            nonlocal active_reviews
+            output_dir = (
+                self.iter_dir / "review-targets" / slug / f"attempt-{attempt}"
+            )
+            prompt = build_target_review_prompt(
+                project_path=self.project_path,
+                state_dir=self.state_dir,
+                iter_dir=self.iter_dir,
+                iter_num=self.iter_num,
+                target=target,
+                output_dir=output_dir,
+                preflight=preflight_rows.get(rel, {}),
+                prior_gate_record=(
+                    prior_targets.get(rel)
+                    if isinstance(prior_targets.get(rel), dict)
+                    else None
+                ),
+            )
+            spec = TargetReviewSpec(
+                rel=rel,
+                prompt=prompt,
+                output_dir=str(output_dir),
+                log_base=str(output_dir / "agent"),
+                attempt=attempt,
+            )
+            future = pool.submit(
+                self.review_worker,
+                spec,
+                project_path=self.project_path,
+                verbose_logs=self.verbose_logs,
+                model=self.model,
+                backend=self.backend,
+                harness=config.harness or self.harness,
+            )
+            futures[future] = _PipelineWork(
+                kind="review",
+                target=target,
+                rel=rel,
+                slug=slug,
+                attempt=attempt,
+            )
+            active_reviews += 1
+            stats = review_rounds.setdefault(
+                attempt,
+                {"attempt": attempt, "submitted": 0, "completed": 0, "failed": 0},
+            )
+            stats["submitted"] += 1
+            write_meta(self.iter_meta, **{
+                f"pipelineReviews.{slug}.status": "running",
+                f"pipelineReviews.{slug}.attempt": attempt,
+            })
+            log.step(f"Starting immediate proof Review for {rel}")
+
+        def submit_formalizer(
+            pool,
+            target: Path,
+            rel: str,
+            slug: str,
+            review_attempt: int,
+            certificate: dict,
+        ) -> None:
+            formalizer_log = self.iter_dir / "formalizers" / slug
+            snap_dir = self.iter_dir / "formalizer-snapshots" / slug
+            baseline_sha256 = _target_sha256(target)
+            baseline_results = _task_result_fingerprints(self.state_dir, rel)
+            snapshot_baseline(target, snap_dir)
+            prompt = build_immediate_redraft_prompt(
+                project_name=self.project_name,
+                project_path=self.project_path,
+                state_dir=self.state_dir,
+                iter_num=self.iter_num,
+                target=target,
+                review_certificate=certificate,
+                debug_feedback=self.debug_feedback,
+            )
+            resume_sid = pick_resume_session(
+                self.iter_meta,
+                f"pipelineFormalizers.{slug}.sessionId",
+                enabled=self.resume_enabled,
+                label=f"formalizer[{slug}]",
+                cwd=self.project_path,
+                jsonl_fallback=Path(str(formalizer_log) + ".jsonl"),
+            )
+            submit_prompt = PROVER_CONTINUE if resume_sid else prompt
+            write_meta(self.iter_meta, **{
+                f"pipelineFormalizers.{slug}.file": rel,
+                f"pipelineFormalizers.{slug}.status": "running",
+                f"pipelineFormalizers.{slug}.reviewAttempt": review_attempt,
+            })
+            log.step(f"Starting immediate formalizer for {rel}")
+            future = pool.submit(
+                self.formalizer_worker,
+                submit_prompt,
+                self.project_path,
+                formalizer_log,
+                self.verbose_logs,
+                self.model,
+                snap_dir,
+                self.project_path,
+                resume_sid,
+                self.backend,
+                config.formalizer_harness or self.harness,
+            )
+            futures[future] = _PipelineWork(
+                kind="formalizer",
+                target=target,
+                rel=rel,
+                slug=slug,
+                attempt=review_attempt,
+                baseline_sha256=baseline_sha256,
+                result_fingerprints=tuple(sorted(baseline_results.items())),
+            )
+
+        def fill_slots(pool) -> None:
+            while len(futures) < workers:
+                now = time.monotonic()
+                review_ready = (
+                    bool(review_queue)
+                    and review_queue[0][0] <= now
+                    and active_reviews < review_jobs
+                )
+                if review_ready:
+                    _, _, target, rel, slug, attempt = heapq.heappop(review_queue)
+                    submit_review(pool, target, rel, slug, attempt)
+                elif formalizer_queue:
+                    target, rel, slug, attempt, certificate = (
+                        formalizer_queue.popleft()
+                    )
+                    submit_formalizer(
+                        pool, target, rel, slug, attempt, certificate,
+                    )
+                elif pending_provers:
+                    submit_prover(pool, pending_provers.popleft())
+                else:
+                    break
+
+        with self.executor_factory(max_workers=workers) as pool:
+            fill_slots(pool)
+            while futures or pending_provers or review_queue or formalizer_queue:
+                fill_slots(pool)
+                if not futures:
+                    delay = max(0.0, review_queue[0][0] - time.monotonic())
+                    if delay:
+                        time.sleep(delay)
+                    continue
+
+                timeout = None
+                if (
+                    review_queue
+                    and active_reviews < review_jobs
+                    and not pending_provers
+                ):
+                    timeout = max(
+                        0.0, review_queue[0][0] - time.monotonic(),
+                    )
+                done, _ = wait(
+                    tuple(futures),
+                    timeout=timeout,
+                    return_when=FIRST_COMPLETED,
+                )
+                if not done:
+                    continue
+
+                for future in done:
+                    work = futures.pop(future)
+                    if work.kind == "prover":
+                        try:
+                            ok = bool(future.result())
+                        except QuotaExhaustedError:
+                            raise
+                        except Exception:
+                            ok = False
+                        prover_log = self.iter_dir / "provers" / work.slug
+                        persist_session_id(
+                            self.iter_meta,
+                            Path(str(prover_log) + ".jsonl"),
+                            f"provers.{work.slug}.sessionId",
+                        )
+                        status = "done" if ok else "error"
+                        write_meta(
+                            self.iter_meta,
+                            **{f"provers.{work.slug}.status": status},
+                        )
+                        if ok:
+                            log.success(f"Prover finished: {work.rel}")
+                        else:
+                            failed += 1
+                            log.error(f"Prover failed: {work.rel}")
+                        preflight = run_preflight(work.target, work.rel)
+                        preflight_rows[work.rel] = preflight
+                        enqueue_review(
+                            work.target, work.rel, work.slug, 1,
+                        )
+                        continue
+
+                    if work.kind == "formalizer":
+                        runner_error = ""
+                        try:
+                            runner_ok = bool(future.result())
+                        except QuotaExhaustedError:
+                            raise
+                        except Exception as exc:
+                            runner_ok = False
+                            runner_error = f"{type(exc).__name__}: {exc}"
+                        formalizer_log = (
+                            self.iter_dir / "formalizers" / work.slug
+                        )
+                        persist_session_id(
+                            self.iter_meta,
+                            Path(str(formalizer_log) + ".jsonl"),
+                            f"pipelineFormalizers.{work.slug}.sessionId",
+                        )
+                        digest = _target_sha256(work.target)
+                        changed = bool(
+                            digest
+                            and work.baseline_sha256
+                            and digest != work.baseline_sha256
+                        )
+                        postflight = run_preflight(work.target, work.rel)
+                        compiles = bool(postflight.get("compiles"))
+                        before_results = dict(work.result_fingerprints)
+                        after_results = _task_result_fingerprints(
+                            self.state_dir, work.rel,
+                        )
+                        result_updated = any(
+                            before_results.get(path) != digest
+                            for path, digest in after_results.items()
+                        )
+                        materialized = changed and compiles and result_updated
+                        errors = [runner_error] if runner_error else []
+                        if not changed:
+                            errors.append("formalizer did not change the Lean target")
+                        if not compiles:
+                            errors.append("redrafted Lean target did not compile")
+                        if not result_updated:
+                            errors.append("formalizer did not update its task result")
+                        result = {
+                            "iteration": self.iter_num,
+                            "file": work.rel,
+                            "status": "materialized" if materialized else "error",
+                            "review_attempt": work.attempt,
+                            "runner_ok": runner_ok,
+                            "baseline_sha256": work.baseline_sha256,
+                            "lean_sha256": digest,
+                            "changed": changed,
+                            "task_result_updated": result_updated,
+                            "task_result_fingerprints": after_results,
+                            "preflight": postflight,
+                            "error": "; ".join(errors),
+                        }
+                        formalizer_results[work.rel] = result
+                        write_meta(self.iter_meta, **{
+                            f"pipelineFormalizers.{work.slug}.status": (
+                                "materialized" if materialized else "error"
+                            ),
+                            f"pipelineFormalizers.{work.slug}.runnerOk": runner_ok,
+                            f"pipelineFormalizers.{work.slug}.changed": changed,
+                            f"pipelineFormalizers.{work.slug}.compiles": compiles,
+                            f"pipelineFormalizers.{work.slug}.taskResultUpdated": (
+                                result_updated
+                            ),
+                            f"pipelineFormalizers.{work.slug}.leanSha256": digest,
+                            f"pipelineFormalizers.{work.slug}.error": "; ".join(errors),
+                        })
+                        if materialized:
+                            log.success(
+                                f"Immediate formalizer materialized: {work.rel}"
+                            )
+                        else:
+                            log.error(
+                                f"Immediate formalizer incomplete: {work.rel}; "
+                                f"{'; '.join(errors)}"
+                            )
+                        continue
+
+                    active_reviews -= 1
+                    try:
+                        outcome = future.result()
+                    except Exception as exc:
+                        outcome = TargetReviewOutcome(
+                            rel=work.rel,
+                            attempt=work.attempt,
+                            runner_ok=False,
+                            milestone=None,
+                            error=f"{type(exc).__name__}: {exc}",
+                        )
+                    stats = review_rounds[work.attempt]
+                    if (
+                        isinstance(outcome, TargetReviewOutcome)
+                        and outcome.rel == work.rel
+                        and outcome.milestone is not None
+                    ):
+                        outcomes[work.rel] = outcome
+                        stats["completed"] += 1
+                        certificate = outcome.milestone.get("proof_review")
+                        route = (
+                            str(certificate.get("route") or "")
+                            if isinstance(certificate, dict)
+                            else ""
+                        )
+                        write_meta(self.iter_meta, **{
+                            f"pipelineReviews.{work.slug}.status": "done",
+                            f"pipelineReviews.{work.slug}.route": route,
+                        })
+                        log.success(f"Proof Review finished: {work.rel} ({route})")
+                        if route == "needs_redraft" and isinstance(certificate, dict):
+                            formalizer_queue.append((
+                                work.target,
+                                work.rel,
+                                work.slug,
+                                work.attempt,
+                                dict(certificate),
+                            ))
+                            write_meta(self.iter_meta, **{
+                                f"pipelineFormalizers.{work.slug}.status": "queued",
+                            })
+                    else:
+                        stats["failed"] += 1
+                        error = (
+                            outcome.error
+                            if isinstance(outcome, TargetReviewOutcome)
+                            else "invalid Review worker outcome"
+                        )
+                        if work.attempt < max_attempts:
+                            write_meta(self.iter_meta, **{
+                                f"pipelineReviews.{work.slug}.status": "retrying",
+                                f"pipelineReviews.{work.slug}.error": error,
+                            })
+                            enqueue_review(
+                                work.target,
+                                work.rel,
+                                work.slug,
+                                work.attempt + 1,
+                                delay=config.backoff_sec * work.attempt,
+                            )
+                        else:
+                            unresolved[work.rel] = error
+                            write_meta(self.iter_meta, **{
+                                f"pipelineReviews.{work.slug}.status": "error",
+                                f"pipelineReviews.{work.slug}.error": error,
+                            })
+                            log.error(
+                                f"Proof Review failed after {max_attempts} "
+                                f"harness attempt(s): {work.rel}"
+                            )
+
+        complete = not unresolved and len(outcomes) == file_count
+        session_dir = (
+            self.state_dir / "proof-journal" / "sessions"
+            / f"session_{self.iter_num}"
+        )
+        if complete:
+            write_parallel_review_session(
+                session_dir=session_dir,
+                iter_num=self.iter_num,
+                outcomes=outcomes,
+            )
+
+        checks = [preflight_rows[rel] for rel in sorted(preflight_rows)]
+        preflight = {
+            "iteration": self.iter_num,
+            "jobs": 1,
+            "duration_secs": round(sum(
+                float(row.get("duration_secs") or 0.0) for row in checks
+            ), 3),
+            "summary": {
+                "total": len(checks),
+                "passed": sum(bool(row.get("compiles")) for row in checks),
+                "failed": sum(not bool(row.get("compiles")) for row in checks),
+            },
+            "targets": checks,
+        }
+        rounds = [review_rounds[key] for key in sorted(review_rounds)]
+        materialized_redrafts = {
+            rel: result
+            for rel, result in sorted(formalizer_results.items())
+            if result.get("status") == "materialized"
+        }
+        failed_redrafts = {
+            rel: result for rel, result in sorted(formalizer_results.items())
+            if result.get("status") != "materialized"
+        }
+        report_path = write_pipelined_review_report(
+            iter_dir=self.iter_dir,
+            report={
+                "iteration": self.iter_num,
+                "complete": complete,
+                "status": "complete" if complete else "incomplete",
+                "target_files": sorted(preflight_rows),
+                "targets": file_count,
+                "reviewed": len(outcomes),
+                "unresolved": sorted(unresolved),
+                "errors": unresolved,
+                "requested_jobs": config.requested_jobs,
+                "max_combined_workers": workers,
+                "max_reviewers": review_jobs,
+                "max_attempts": max_attempts,
+                "rounds": rounds,
+                "duration_secs": round(time.monotonic() - started, 3),
+                "preflight": preflight,
+                "session_dir": str(session_dir),
+                "formalizers": {
+                    "requested": len(formalizer_results),
+                    "materialized": len(materialized_redrafts),
+                    "failed": len(failed_redrafts),
+                },
+                "formalizer_results": formalizer_results,
+                "formalization_handoffs": materialized_redrafts,
+            },
+        )
+        write_meta(self.iter_meta, **{
+            "prover.pipelineReviewComplete": complete,
+            "prover.pipelineReviewTargets": file_count,
+            "prover.pipelineReviewReviewed": len(outcomes),
+            "prover.pipelineReviewUnresolved": len(unresolved),
+            "prover.pipelineReviewReport": str(report_path),
+            "prover.pipelineFormalizersRequested": len(formalizer_results),
+            "prover.pipelineFormalizersMaterialized": len(materialized_redrafts),
+            "prover.pipelineFormalizersFailed": len(failed_redrafts),
+        })
+        if complete:
+            log.success(
+                f"Pipelined proof Review finished for all {file_count} target(s)"
+            )
+        else:
+            log.warn(
+                "Pipelined proof Review hand-off is incomplete; ReviewPhase "
+                "will fail closed and rerun the normal target Review batch."
+            )
+
+        if materialized_redrafts:
+            log.success(
+                f"Immediate redrafts materialized: {len(materialized_redrafts)}"
+            )
+        if failed_redrafts:
+            log.warn(
+                f"Immediate redrafts incomplete: {len(failed_redrafts)}; "
+                "normal autoformalize fallback remains enabled"
+            )
+
+        if failed:
+            log.warn(f"{failed}/{file_count} prover(s) had errors")
+        else:
+            log.success(f"All {file_count} prover(s) finished")
+        results_dir = self.state_dir / "task_results"
+        result_count = (
+            len(list(results_dir.glob("*.md"))) if results_dir.exists() else 0
+        )
+        log.info(f"Task result files: {result_count}/{file_count}")
         self._emit_round_end(file_count, failed)
 
     def _emit_round_end(self, prover_count: int, failed: int) -> None:

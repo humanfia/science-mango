@@ -480,8 +480,18 @@ class LoopCommand:
                 mode="parallel" if opts.parallel else "serial",
                 startedAt=utcnow_iso(),
             )
+        plan_skipped = "plan" in ctx.skip_now
+        # A resume target after Plan means Plan is already complete for this
+        # iteration.  Persisting "skipped" here makes the next --resume
+        # misdiagnose Plan as the first interrupted phase and can overwrite a
+        # live prover objective queue.
+        plan_status = (
+            "done" if plan_skipped and opts.resume
+            else "skipped" if plan_skipped
+            else "running"
+        )
         write_meta(ctx.iter_meta, **{
-            "plan.status": "running" if "plan" not in ctx.skip_now else "skipped",
+            "plan.status": plan_status,
         })
         log.step(f"Log dir: {ctx.iter_dir}")
 

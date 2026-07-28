@@ -9,23 +9,27 @@ unsound dependency surface silently grows through clean-compiling
 delegates.
 
 This module runs the bundled ``check_axioms_inline.sh`` — which
-temporarily appends ``#print axioms`` to each Lean file, recompiles, and
-reverts (with backup/restore + an EXIT/INT/TERM trap) — over the
-project's top-level declarations, and reports any that depend on
-``sorryAx`` (and, secondarily, any other non-standard axiom).
+temporarily appends ``#print axioms`` to a Lean file and recompiles — once per
+selected target, concurrently, on private disposable copies. It reports any
+top-level declaration that depends on ``sorryAx`` (and, secondarily, any other
+non-standard axiom).
 
-Informational only: it never blocks the loop and never mutates project
-state beyond the script's own backup/restore. It is comparatively
-expensive (a per-file recompile), so the phase that calls it is gated
-behind ``loop.axiom_sweep`` (off by default).
+Informational only: it never blocks the loop and does not modify source files.
+It is comparatively expensive (a per-file recompile), so the phase that calls
+it is gated behind ``loop.axiom_sweep`` (off by default).
 """
 
 from __future__ import annotations
 
 import re
+import shutil
 import subprocess
+import tempfile
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Callable, Iterable
 
 from archon import log
 
@@ -39,8 +43,8 @@ _FINDING_RE = re.compile(
     r"(?P<axiom>[A-Za-z0-9_.]+)"
 )
 
-# Generous: the sweep recompiles every file, so a large project can take
-# many minutes. Still bounded so a hung ``lake`` can't wedge the loop.
+# Generous per-target bound. Full polish sweeps can still take many minutes,
+# but one hung ``lake`` cannot wedge a worker indefinitely.
 DEFAULT_TIMEOUT_S = 1800
 
 
@@ -48,6 +52,7 @@ DEFAULT_TIMEOUT_S = 1800
 class AxiomFinding:
     decl: str
     axiom: str
+    file: str = ""
 
     @property
     def is_sorry(self) -> bool:
@@ -62,6 +67,11 @@ class AxiomSweepReport:
     ran: bool = False
     error: str | None = None
     duration_s: int = 0
+
+    jobs: int = 1
+    scope: str = "full"
+    target_files: list[str] = field(default_factory=list)
+    failed_files: list[str] = field(default_factory=list)
 
     @property
     def sorry_launderings(self) -> list[AxiomFinding]:
@@ -83,19 +93,132 @@ def _script_path() -> Path:
     return data_path("skills/lean4/lib/scripts/check_axioms_inline.sh")
 
 
+@dataclass(frozen=True)
+class _AxiomFileResult:
+    rel: str
+    findings: tuple[AxiomFinding, ...] = ()
+    files_checked: int = 0
+    error: str = ""
+
+
+def _relative(path: Path, project_path: Path) -> str:
+    try:
+        return path.resolve().relative_to(project_path.resolve()).as_posix()
+    except (OSError, ValueError):
+        return str(path)
+
+
+def _project_lean_files(project_path: Path) -> list[Path]:
+    """Return source Lean files, excluding caches and Archon runtime copies."""
+    files: list[Path] = []
+    for path in project_path.rglob("*.lean"):
+        try:
+            rel = path.resolve().relative_to(project_path.resolve())
+        except (OSError, ValueError):
+            continue
+        if any(part.startswith(".") for part in rel.parts[:-1]):
+            continue
+        files.append(path.resolve())
+    return sorted(set(files), key=lambda path: _relative(path, project_path))
+
+
+def _normalize_targets(
+    project_path: Path,
+    targets: Iterable[Path] | None,
+) -> list[Path]:
+    if targets is None:
+        return _project_lean_files(project_path)
+    normalized: dict[str, Path] = {}
+    root = project_path.resolve()
+    for raw in targets:
+        try:
+            path = Path(raw).resolve()
+            path.relative_to(root)
+        except (OSError, ValueError):
+            continue
+        if path.is_file() and path.suffix == ".lean":
+            normalized[_relative(path, project_path)] = path
+    return [normalized[key] for key in sorted(normalized)]
+
+
+def _run_isolated_axiom_check(
+    *,
+    project_path: Path,
+    source: Path,
+    script: Path,
+    scratch_root: Path,
+    timeout_s: int,
+) -> _AxiomFileResult:
+    """Run the mutating shell checker against a private disposable copy."""
+    rel = _relative(source, project_path)
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix="target-", dir=scratch_root,
+        ) as temp_dir:
+            probe = Path(temp_dir) / source.name
+            shutil.copy2(source, probe)
+            result = subprocess.run(
+                ["bash", str(script), str(probe), "--report-only"],
+                cwd=project_path,
+                capture_output=True,
+                text=True,
+                timeout=timeout_s,
+            )
+    except subprocess.TimeoutExpired:
+        return _AxiomFileResult(
+            rel=rel, error=f"timed out after {timeout_s}s",
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        return _AxiomFileResult(
+            rel=rel, error=f"{type(exc).__name__}: {exc}",
+        )
+
+    clean = _ANSI_RE.sub("", result.stdout or "")
+    findings = tuple(
+        AxiomFinding(
+            decl=match.group("decl"),
+            axiom=match.group("axiom"),
+            file=rel,
+        )
+        for match in _FINDING_RE.finditer(clean)
+    )
+    files_checked = sum(
+        1 for line in clean.splitlines() if line.startswith("File:")
+    )
+    if result.returncode != 0:
+        details = ((result.stderr or "") + "\n" + clean).strip()
+        return _AxiomFileResult(
+            rel=rel,
+            findings=findings,
+            files_checked=files_checked,
+            error=(
+                f"checker exited {result.returncode}: "
+                f"{details[-600:] or 'no diagnostics'}"
+            ),
+        )
+    return _AxiomFileResult(
+        rel=rel,
+        findings=findings,
+        files_checked=files_checked,
+    )
+
+
 def run_axiom_sweep(
     project_path: Path,
     *,
     timeout_s: int = DEFAULT_TIMEOUT_S,
+    targets: Iterable[Path] | None = None,
+    jobs: int = 1,
+    scratch_root: Path | None = None,
+    worker_fn: Callable[..., _AxiomFileResult] = _run_isolated_axiom_check,
+    executor_factory=ThreadPoolExecutor,
 ) -> AxiomSweepReport | None:
     """Run the axiom sweep over ``project_path``.
 
     Returns ``None`` when there's nothing to check (no Lean project /
-    script missing) so the caller can silently skip. Otherwise returns
-    an :class:`AxiomSweepReport`; ``report.error`` is set (and ``ran``
-    is False) when the sweep couldn't complete.
+    script missing) so the caller can silently skip. Explicit ``targets``
+    request an incremental sweep; ``None`` requests a full source scan.
     """
-    # No lakefile → not a Lean project we can `lake env lean` against.
     has_lake = any(
         (project_path / name).exists()
         for name in ("lakefile.lean", "lakefile.toml")
@@ -108,51 +231,57 @@ def run_axiom_sweep(
         log.warn(f"check_axioms_inline.sh not found at {script}")
         return None
 
-    import time
+    selected = _normalize_targets(project_path, targets)
+    scope = "full" if targets is None else "current-objectives"
+    workers = max(1, min(int(jobs), len(selected) or 1))
+    scratch = (
+        scratch_root
+        if scratch_root is not None
+        else project_path / ".archon" / "tmp" / "axiom-sweep"
+    )
+    scratch.mkdir(parents=True, exist_ok=True)
     start = time.monotonic()
-    try:
-        r = subprocess.run(
-            ["bash", str(script), ".", "--report-only"],
-            cwd=project_path,
-            capture_output=True,
-            text=True,
-            timeout=timeout_s,
-        )
-    except subprocess.TimeoutExpired:
-        return AxiomSweepReport(
-            ran=False,
-            error=f"axiom sweep timed out after {timeout_s}s",
-            duration_s=int(time.monotonic() - start),
-        )
-    except (OSError, subprocess.SubprocessError) as e:
-        return AxiomSweepReport(ran=False, error=f"axiom sweep failed: {e}")
+    by_rel: dict[str, _AxiomFileResult] = {}
+    with executor_factory(max_workers=workers) as pool:
+        pending = {
+            pool.submit(
+                worker_fn,
+                project_path=project_path,
+                source=source,
+                script=script,
+                scratch_root=scratch,
+                timeout_s=timeout_s,
+            ): _relative(source, project_path)
+            for source in selected
+        }
+        for future in as_completed(pending):
+            rel = pending[future]
+            try:
+                by_rel[rel] = future.result()
+            except Exception as exc:
+                by_rel[rel] = _AxiomFileResult(
+                    rel=rel, error=f"{type(exc).__name__}: {exc}",
+                )
 
-    secs = int(time.monotonic() - start)
-
-    # ``--report-only`` makes the script exit 0 even when it finds custom
-    # axioms; a non-zero code therefore means a real failure (e.g. a file
-    # that doesn't compile for unrelated reasons).
-    if r.returncode != 0:
-        return AxiomSweepReport(
-            ran=False,
-            error=(
-                f"check_axioms_inline.sh exited {r.returncode}: "
-                f"{(r.stderr or '').strip()[:300]}"
-            ),
-            duration_s=secs,
-        )
-
-    clean = _ANSI_RE.sub("", r.stdout or "")
+    ordered = [by_rel[_relative(path, project_path)] for path in selected]
     findings = [
-        AxiomFinding(decl=m.group("decl"), axiom=m.group("axiom"))
-        for m in _FINDING_RE.finditer(clean)
+        finding for result in ordered for finding in result.findings
     ]
-    files_checked = sum(1 for line in clean.splitlines() if line.startswith("File:"))
+    failures = [result.rel for result in ordered if result.error]
+    errors = [
+        f"{result.rel}: {result.error}" for result in ordered if result.error
+    ]
+    secs = int(time.monotonic() - start)
     return AxiomSweepReport(
         findings=findings,
-        files_checked=files_checked,
-        ran=True,
+        files_checked=sum(result.files_checked for result in ordered),
+        ran=not failures,
+        error="; ".join(errors)[:4000] or None,
         duration_s=secs,
+        jobs=workers,
+        scope=scope,
+        target_files=[_relative(path, project_path) for path in selected],
+        failed_files=failures,
     )
 
 
@@ -175,16 +304,29 @@ def write_reports(
         "error": report.error,
         "filesChecked": report.files_checked,
         "durationSecs": report.duration_s,
+        "jobs": report.jobs,
+        "scope": report.scope,
+        "targetFiles": report.target_files,
+        "failedFiles": report.failed_files,
         "sorryLaunderings": [
-            {"decl": f.decl, "axiom": f.axiom} for f in report.sorry_launderings
+            {"decl": f.decl, "axiom": f.axiom, "file": f.file}
+            for f in report.sorry_launderings
         ],
         "otherNonStandardAxioms": [
-            {"decl": f.decl, "axiom": f.axiom} for f in report.other_axioms
+            {"decl": f.decl, "axiom": f.axiom, "file": f.file}
+            for f in report.other_axioms
         ],
     }
     json_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
-    lines = ["# Axiom sweep", ""]
+    lines = [
+        "# Axiom sweep",
+        "",
+        f"- Scope: {report.scope}",
+        f"- Jobs: {report.jobs}",
+        f"- Selected targets: {len(report.target_files)}",
+        "",
+    ]
     if not report.ran:
         lines += [f"Sweep did not complete: {report.error or 'unknown error'}.", ""]
     else:
@@ -203,14 +345,18 @@ def write_reports(
                 "",
             ]
             for f in report.sorry_launderings:
-                lines.append(f"- `{f.decl}` — depends on `{f.axiom}`")
+                where = f" in `{f.file}`" if f.file else ""
+                lines.append(
+                    f"- `{f.decl}`{where} — depends on `{f.axiom}`"
+                )
             lines.append("")
         else:
             lines += ["No `sorryAx` laundering detected.", ""]
         if report.other_axioms:
             lines += ["## Other non-standard axioms", ""]
             for f in report.other_axioms:
-                lines.append(f"- `{f.decl}` — `{f.axiom}`")
+                where = f" in `{f.file}`" if f.file else ""
+                lines.append(f"- `{f.decl}`{where} — `{f.axiom}`")
             lines.append("")
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return json_path, md_path

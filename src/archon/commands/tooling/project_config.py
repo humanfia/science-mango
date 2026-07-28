@@ -68,6 +68,22 @@ def default_config() -> dict[str, Any]:
                 "`% archon:physics` markers."
             ),
             'physics_aware': False,
+            '_domain_profile_help': (
+                "Optional domain-library override for physics-style pipelines. "
+                "Set name/display_name, preflight_imports, "
+                "lean_search_packages, and target_import_prefixes for projects "
+                "that use a benchmark-local library instead of Physlib. "
+                "Omitting this block preserves the Mathlib/Physlib defaults."
+            ),
+            'domain_profile': {
+                'name': 'physics',
+                'display_name': 'physics',
+                'preflight_imports': None,
+                'lean_search_packages': ['Mathlib', 'Physlib'],
+                'target_import_prefixes': ['Physlib', 'PhysLean'],
+                'enforce_classical_physics_modeling': True,
+                'require_explicit_mathlib_import': True,
+            },
             '_debug_feedback_help': (
                 "If true, agents may append notes to "
                 ".archon/.debug-feedback/debug_feedback.md about missing "
@@ -97,6 +113,14 @@ def default_config() -> dict[str, Any]:
                 "Slower (recompiles); on for soundness-critical projects."
             ),
             'axiom_sweep': False,
+            '_axiom_sweep_parallel_help': (
+                "Normal iterations inspect only current objectives on isolated "
+                "copies; polish/COMPLETE performs a full source sweep. Jobs are "
+                "bounded separately because Lean compilation is memory-heavy."
+            ),
+            'axiom_sweep_scope': 'current_objectives',
+            'axiom_sweep_jobs': 8,
+            'axiom_sweep_timeout_sec': 1800,
             '_deterministic_plan_help': (
                 "If true in prover/polish, the loop selects a Review-safe "
                 "objective frontier itself and gives the plan agent only a "
@@ -122,6 +146,15 @@ def default_config() -> dict[str, Any]:
                 "the per-target milestones. Requires deterministic_review."
             ),
             'parallel_target_review': False,
+            '_pipeline_target_review_help': (
+                "If true, start each isolated proof Reviewer as soon as its "
+                "prover finishes. A needs_redraft verdict immediately starts "
+                "that target's formalizer; prover, Review, and redraft work "
+                "share max_parallel. ReviewPhase validates the atomic hand-off "
+                "before consuming it. Requires deterministic_review, "
+                "parallel_target_review, and proof_review_gate."
+            ),
+            'pipeline_target_review': False,
             'parallel_target_review_jobs': 16,
             'parallel_target_review_max_attempts': 3,
             'parallel_target_review_backoff_sec': 5,
@@ -131,6 +164,17 @@ def default_config() -> dict[str, Any]:
                 "you see 'sync_leanok ... timed out'. Default 1800 (30 min)."
             ),
             'sync_leanok_timeout_sec': 1800,
+            '_parallel_formalization_review_help': (
+                "If true during autoformalize Review, run one isolated semantic "
+                "Reviewer per target, retry malformed/infrastructure failures "
+                "with concurrency backoff, and atomically merge certificates "
+                "before updating the formalization gate. Requires "
+                "deterministic_review and formalization_review_gate."
+            ),
+            'parallel_formalization_review': False,
+            'parallel_formalization_review_jobs': 16,
+            'parallel_formalization_review_max_attempts': 3,
+            'parallel_formalization_review_backoff_sec': 5,
         },
         'subagents': {
             '_help': (

@@ -113,6 +113,15 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertEqual(state["targets"]["Problems/p.lean"]["reviews"], 3)
         self.assertEqual(read_stage(self.progress), "prover")
 
+    def test_review_count_stays_capped_after_exhaustion(self):
+        self._review(1, "failed")
+        self._review(2, "failed")
+        self._review(3, "failed")
+        result = self._review(4, "failed")
+        state = load_gate_state(self.state)
+        self.assertEqual(result.exhausted, ("Problems/p.lean",))
+        self.assertEqual(state["targets"]["Problems/p.lean"]["reviews"], 3)
+
     def test_passed_target_is_eligible_for_prover(self):
         result = self._review(1, "passed")
         self.assertEqual(result.passed, ("Problems/p.lean",))

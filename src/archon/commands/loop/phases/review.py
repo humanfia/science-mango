@@ -32,9 +32,17 @@ from archon.subagents.audit import check_mandatory_dispatched
 
 from ..formalization_review_gate import (
     apply_formalization_review,
+    load_gate_state as load_formalization_review_state,
     reopen_formalization_targets,
 )
-from ..parallel_review import run_parallel_target_reviews
+from ..parallel_formalization_review import (
+    FORMALIZATION_REVIEW_REPORT_FILENAME,
+    run_parallel_formalization_reviews,
+)
+from ..parallel_review import (
+    load_pipelined_review_report,
+    run_parallel_target_reviews,
+)
 from ..proof_review_gate import apply_proof_review, load_proof_review_state
 from ..review_preflight import (
     deterministic_review_prompt_prefix,
@@ -397,22 +405,77 @@ class ReviewPhase(Phase):
         self._review_candidate_pack: Path | None = None
         self._review_preflight: dict | None = None
         cfg = load_project_config(ctx.project_path)
-        deterministic_review = bool(
-            cfg.loop_section().get("deterministic_review", False)
-        )
+        loop_cfg = cfg.loop_section()
+        deterministic_review = bool(loop_cfg.get("deterministic_review", False))
         exact_objectives = (
             proof_reviewed_objectives
             or reviewed_objectives
             or parse_objective_files(ctx.progress_file, ctx.project_path)
         )
-        if deterministic_review and exact_objectives and ctx.iter_dir is not None:
+        parallel_target_review = (
+            deterministic_review
+            and proof_gate_active
+            and bool(loop_cfg.get("parallel_target_review", False))
+        )
+        parallel_formalization_review = (
+            deterministic_review
+            and formalization_gate_active
+            and bool(loop_cfg.get("parallel_formalization_review", False))
+        )
+        pipelined_report = None
+        pipeline_requested = (
+            parallel_target_review
+            and bool(loop_cfg.get("pipeline_target_review", False))
+            and ctx.iter_dir is not None
+        )
+        if pipeline_requested:
+            report_path = ctx.iter_dir / "pipelined-review.json"
+            if report_path.exists():
+                pipelined_report, pipeline_error = load_pipelined_review_report(
+                    project_path=ctx.project_path,
+                    state_dir=ctx.state_dir,
+                    iter_dir=ctx.iter_dir,
+                    iter_num=ctx.iter_num,
+                    objectives=proof_reviewed_objectives,
+                )
+                if pipeline_error:
+                    log.warn(
+                        f"pipelined Review hand-off rejected: {pipeline_error}; "
+                        "falling back to the normal target Review batch"
+                    )
+                else:
+                    self._review_preflight = pipelined_report.get("preflight", {})
+                    summary = self._review_preflight.get("summary", {})
+                    log.success(
+                        "consuming target Reviews produced during prover fanout: "
+                        f"{pipelined_report.get('reviewed', 0)}/"
+                        f"{pipelined_report.get('targets', 0)}"
+                    )
+                    write_meta(ctx.iter_meta, **{
+                        "review.pipelineTargetConsumed": True,
+                        "review.pipelineTargetReport": str(report_path),
+                        "review.deterministic": True,
+                        "review.preflightJobs": self._review_preflight.get("jobs", 1),
+                        "review.preflightDurationSecs": self._review_preflight.get(
+                            "duration_secs", 0.0,
+                        ),
+                        "review.preflightPassed": summary.get("passed", 0),
+                        "review.preflightFailed": summary.get("failed", 0),
+                    })
+
+        if (
+            deterministic_review
+            and exact_objectives
+            and ctx.iter_dir is not None
+            and pipelined_report is None
+        ):
             jobs = int(
-                cfg.loop_section().get(
+                loop_cfg.get(
                     "review_preflight_jobs", ctx.options.max_parallel
                 )
             )
             timeout_sec = int(
-                cfg.loop_section().get("review_preflight_timeout_sec", 300)
+                loop_cfg.get("review_preflight_timeout_sec", 300)
             )
             preflight = run_parallel_review_preflight(
                 project_path=ctx.project_path,
@@ -449,14 +512,16 @@ class ReviewPhase(Phase):
                 "review.candidatePackPath": str(self._review_candidate_pack),
             })
 
-        parallel_target_review = (
-            deterministic_review
-            and proof_gate_active
-            and bool(cfg.loop_section().get("parallel_target_review", False))
-        )
-        if parallel_target_review:
+        if pipelined_report is not None:
+            review_ok = True
+        elif parallel_target_review:
             review_ok = self._invoke_parallel_target_review(
                 proof_reviewed_objectives,
+                cfg=cfg,
+            )
+        elif parallel_formalization_review:
+            review_ok = self._invoke_parallel_formalization_review(
+                reviewed_objectives,
                 cfg=cfg,
             )
         else:
@@ -535,6 +600,13 @@ class ReviewPhase(Phase):
                     )
                     for rel in proof_result.needs_redraft
                 }
+                completed_redrafts = {}
+                if isinstance(pipelined_report, dict):
+                    raw_handoffs = pipelined_report.get(
+                        "formalization_handoffs", {}
+                    )
+                    if isinstance(raw_handoffs, dict):
+                        completed_redrafts = raw_handoffs
                 proof_redrafts_reopened = reopen_formalization_targets(
                     state_dir=ctx.state_dir,
                     project_path=ctx.project_path,
@@ -544,6 +616,7 @@ class ReviewPhase(Phase):
                     max_iterations=getattr(
                         ctx.options, "formalization_review_max_iterations", 3,
                     ),
+                    completed_redrafts=completed_redrafts,
                 )
                 ctx.current_stage = read_stage(ctx.progress_file)
                 log.warn(
@@ -650,6 +723,94 @@ class ReviewPhase(Phase):
                 f"physics blockers; reset stage to '{ctx.current_stage}'."
             )
         return blockers, reset_complete
+
+    def _invoke_parallel_formalization_review(
+        self,
+        objectives: list[Path],
+        *,
+        cfg,
+    ) -> bool:
+        """Run one isolated semantic Reviewer per formalized target."""
+        ctx = self.ctx
+        loop_cfg = cfg.loop_section()
+        requested_jobs = max(
+            1,
+            int(loop_cfg.get(
+                "parallel_formalization_review_jobs",
+                ctx.options.max_parallel,
+            )),
+        )
+        max_attempts = max(
+            1,
+            int(loop_cfg.get("parallel_formalization_review_max_attempts", 3)),
+        )
+        backoff_sec = max(
+            0.0,
+            float(loop_cfg.get("parallel_formalization_review_backoff_sec", 5)),
+        )
+        prior_state = load_formalization_review_state(ctx.state_dir) or {}
+        prior_targets = prior_state.get("targets", {})
+        if not isinstance(prior_targets, dict):
+            prior_targets = {}
+
+        start = time.monotonic()
+        report = run_parallel_formalization_reviews(
+            project_path=ctx.project_path,
+            state_dir=ctx.state_dir,
+            iter_dir=ctx.iter_dir,
+            iter_num=ctx.iter_num,
+            objectives=list(objectives),
+            preflight=self._review_preflight or {},
+            prior_gate_targets=prior_targets,
+            requested_jobs=requested_jobs,
+            max_attempts=max_attempts,
+            backoff_sec=backoff_sec,
+            verbose_logs=ctx.verbose_logs,
+            model=ctx.model,
+            backend=ctx.backend,
+            harness=ctx.harness_descriptor_for("review"),
+        )
+        secs = round(time.monotonic() - start, 3)
+        rounds = report.get("rounds", [])
+        write_meta(ctx.iter_meta, **{
+            "review.parallelFormalizationEnabled": True,
+            "review.parallelFormalizationRequestedJobs": requested_jobs,
+            "review.parallelFormalizationTargets": report.get("targets", 0),
+            "review.parallelFormalizationReviewed": report.get("reviewed", 0),
+            "review.parallelFormalizationUnresolved": len(
+                report.get("unresolved", [])
+            ),
+            "review.parallelFormalizationRounds": rounds,
+            "review.parallelFormalizationDurationSecs": secs,
+            "review.parallelFormalizationReport": str(
+                ctx.iter_dir / FORMALIZATION_REVIEW_REPORT_FILENAME
+            ),
+        })
+        if not report.get("complete"):
+            unresolved = report.get("unresolved", [])
+            log.error(
+                "parallel formalization Review incomplete after automatic "
+                f"concurrency backoff: {len(unresolved)} unresolved target(s)"
+            )
+            return False
+
+        log.success(
+            "parallel formalization Review: "
+            f"{report.get('reviewed', 0)}/{report.get('targets', 0)} "
+            f"target(s) reviewed in {secs:.3f}s; "
+            f"requested concurrency={requested_jobs}"
+        )
+        validate_script = data_path("scripts/validate-review.py")
+        session_dir = (
+            ctx.state_dir / "proof-journal" / "sessions"
+            / f"session_{ctx.iter_num}"
+        )
+        if validate_script.exists():
+            subprocess.run(
+                [sys.executable, str(validate_script), str(session_dir)],
+                capture_output=True,
+            )
+        return True
 
     def _invoke_parallel_target_review(
         self,
