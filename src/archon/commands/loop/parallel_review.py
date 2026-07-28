@@ -470,10 +470,36 @@ def load_pipelined_review_report(
             f"expected={expected!r}, actual={actual!r}"
         )
 
+    proof_expected = expected
+    if str(report.get("pipeline_mode") or "") == "target_lifecycle":
+        raw_settled = report.get("settled_target_files")
+        if not isinstance(raw_settled, list):
+            return None, "target lifecycle report settled_target_files is not a list"
+        settled = sorted({
+            str(item).lstrip("./") for item in raw_settled
+            if str(item).strip()
+        })
+        if settled != expected:
+            return None, (
+                "target lifecycle settled-target mismatch: "
+                f"expected={expected!r}, actual={settled!r}"
+            )
+        raw_proof_targets = report.get("proof_review_target_files")
+        if not isinstance(raw_proof_targets, list):
+            return None, (
+                "target lifecycle report proof_review_target_files is not a list"
+            )
+        proof_expected = sorted({
+            str(item).lstrip("./") for item in raw_proof_targets
+            if str(item).strip()
+        })
+        if any(rel not in expected for rel in proof_expected):
+            return None, "target lifecycle proof Review target is out of scope"
+
     session_dir = state_dir / "proof-journal" / "sessions" / f"session_{iter_num}"
     error = validate_parallel_review_session(
         session_dir=session_dir,
-        expected_rels=expected,
+        expected_rels=proof_expected,
     )
     if error:
         return None, error

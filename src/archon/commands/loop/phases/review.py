@@ -31,6 +31,7 @@ from archon.state.progress import read_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
 from ..formalization_review_gate import (
+    GateResult,
     _replace_objectives,
     apply_formalization_review,
     load_gate_state as load_formalization_review_state,
@@ -429,9 +430,21 @@ class ReviewPhase(Phase):
         )
         pipelined_report = None
         pipeline_requested = (
-            parallel_target_review
-            and bool(loop_cfg.get("pipeline_target_review", False))
+            bool(loop_cfg.get("pipeline_target_review", False))
             and ctx.iter_dir is not None
+            and (
+                parallel_target_review
+                or (
+                    formalization_gate_active
+                    and parallel_formalization_review
+                    and getattr(ctx.options, "proof_review_gate", False)
+                    and bool(loop_cfg.get("parallel_target_review", False))
+                )
+            )
+        )
+        pipeline_objectives = (
+            proof_reviewed_objectives
+            if proof_gate_active else reviewed_objectives
         )
         if pipeline_requested:
             report_path = ctx.iter_dir / "pipelined-review.json"
@@ -441,7 +454,7 @@ class ReviewPhase(Phase):
                     state_dir=ctx.state_dir,
                     iter_dir=ctx.iter_dir,
                     iter_num=ctx.iter_num,
-                    objectives=proof_reviewed_objectives,
+                    objectives=pipeline_objectives,
                 )
                 if pipeline_error:
                     log.warn(
@@ -549,56 +562,83 @@ class ReviewPhase(Phase):
         formalization_result = None
         proof_result = None
         proof_redrafts_reopened: tuple[str, ...] = ()
+        pipeline_gates_applied = (
+            isinstance(pipelined_report, dict)
+            and pipelined_report.get("gate_events_applied") is True
+        )
+        pipeline_lifecycle = (
+            isinstance(pipelined_report, dict)
+            and pipelined_report.get("pipeline_mode") == "target_lifecycle"
+        )
+
+        def pipeline_items(raw_gate: dict, name: str) -> tuple[str, ...]:
+            raw_items = raw_gate.get(name, [])
+            if not isinstance(raw_items, list):
+                return ()
+            return tuple(sorted({
+                str(item).lstrip("./")
+                for item in raw_items
+                if str(item).strip()
+            }))
+
         if formalization_gate_active:
-            formalization_result = apply_formalization_review(
-                state_dir=ctx.state_dir,
-                project_path=ctx.project_path,
-                progress_file=ctx.progress_file,
-                session_dir=(
-                    ctx.state_dir / "proof-journal" / "sessions"
-                    / f"session_{ctx.iter_num}"
-                ),
-                iter_num=ctx.iter_num,
-                reviewed_objectives=reviewed_objectives,
-                max_iterations=ctx.options.formalization_review_max_iterations,
-                blockers=blockers,
-            )
-            ctx.current_stage = read_stage(ctx.progress_file)
-            log.info(
-                "formalization Review gate: "
-                f"passed={len(formalization_result.passed)}, "
-                f"retry={len(formalization_result.retry)}, "
-                f"exhausted={len(formalization_result.exhausted)}; "
-                f"next stage={ctx.current_stage}"
-            )
-        if proof_gate_active:
-            pipeline_gates_applied = (
-                isinstance(pipelined_report, dict)
-                and pipelined_report.get("gate_events_applied") is True
-            )
+            if pipeline_gates_applied and pipeline_lifecycle:
+                raw_formalization_gate = pipelined_report.get(
+                    "formalization_gate_result", {}
+                )
+                raw_formalization_gate = (
+                    raw_formalization_gate
+                    if isinstance(raw_formalization_gate, dict) else {}
+                )
+                formalization_result = GateResult(
+                    passed=pipeline_items(raw_formalization_gate, "passed"),
+                    retry=pipeline_items(raw_formalization_gate, "retry"),
+                    exhausted=pipeline_items(raw_formalization_gate, "exhausted"),
+                    reviewed=pipeline_items(raw_formalization_gate, "reviewed"),
+                )
+                log.info(
+                    "consuming per-target formalization gate events: "
+                    f"passed={len(formalization_result.passed)}, "
+                    f"retry={len(formalization_result.retry)}, "
+                    f"exhausted={len(formalization_result.exhausted)}"
+                )
+            else:
+                formalization_result = apply_formalization_review(
+                    state_dir=ctx.state_dir,
+                    project_path=ctx.project_path,
+                    progress_file=ctx.progress_file,
+                    session_dir=(
+                        ctx.state_dir / "proof-journal" / "sessions"
+                        / f"session_{ctx.iter_num}"
+                    ),
+                    iter_num=ctx.iter_num,
+                    reviewed_objectives=reviewed_objectives,
+                    max_iterations=ctx.options.formalization_review_max_iterations,
+                    blockers=blockers,
+                )
+                ctx.current_stage = read_stage(ctx.progress_file)
+                log.info(
+                    "formalization Review gate: "
+                    f"passed={len(formalization_result.passed)}, "
+                    f"retry={len(formalization_result.retry)}, "
+                    f"exhausted={len(formalization_result.exhausted)}; "
+                    f"next stage={ctx.current_stage}"
+                )
+        if proof_gate_active or (
+            pipeline_lifecycle and pipeline_gates_applied
+        ):
             if pipeline_gates_applied:
                 raw_gate = pipelined_report.get("proof_gate_result", {})
                 raw_gate = raw_gate if isinstance(raw_gate, dict) else {}
-
-                def report_items(name: str) -> tuple[str, ...]:
-                    raw_items = raw_gate.get(name, [])
-                    if not isinstance(raw_items, list):
-                        return ()
-                    return tuple(sorted({
-                        str(item).lstrip("./")
-                        for item in raw_items
-                        if str(item).strip()
-                    }))
-
                 proof_result = ProofReviewResult(
-                    solved=report_items("solved"),
-                    retry=report_items("retry"),
-                    needs_redraft=report_items("needs_redraft"),
-                    blocked_infrastructure=report_items(
-                        "blocked_infrastructure"
+                    solved=pipeline_items(raw_gate, "solved"),
+                    retry=pipeline_items(raw_gate, "retry"),
+                    needs_redraft=pipeline_items(raw_gate, "needs_redraft"),
+                    blocked_infrastructure=pipeline_items(
+                        raw_gate, "blocked_infrastructure"
                     ),
-                    exhausted=report_items("exhausted"),
-                    reviewed=report_items("reviewed"),
+                    exhausted=pipeline_items(raw_gate, "exhausted"),
+                    reviewed=pipeline_items(raw_gate, "reviewed"),
                 )
                 raw_reopened = pipelined_report.get(
                     "proof_redrafts_reopened", []
@@ -634,6 +674,24 @@ class ReviewPhase(Phase):
                         "target pipeline left "
                         f"{len(pending_formalization)} formalization(s) "
                         "for the normal autoformalize fallback"
+                    )
+                elif pipeline_lifecycle and formalization_gate_active:
+                    write_stage(ctx.progress_file, "prover")
+                    if proof_result.retry:
+                        _replace_objectives(ctx.progress_file, [
+                            f"- **`{rel}`** — Continue the target-local proof "
+                            "retry requested by Proof Review."
+                            for rel in proof_result.retry
+                        ])
+                    else:
+                        _replace_objectives(ctx.progress_file, [
+                            "(no dispatch — selected target lifecycles are "
+                            "settled; plan the next eligible frontier)"
+                        ])
+                    ctx.current_stage = read_stage(ctx.progress_file)
+                    log.success(
+                        "target lifecycle batch has no pending "
+                        "formalization; continuing in prover stage"
                     )
                 write_meta(ctx.iter_meta, **{
                     "review.pipelineGateEventsConsumed": True,

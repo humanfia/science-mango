@@ -76,6 +76,7 @@ from ..proof_review_gate import (
 )
 from ..review_preflight import check_review_target
 from ..resume import PROVER_CONTINUE, persist_session_id, pick_resume_session
+from ..sorry_count import file_open_sorry_count
 from ..utils import file_slug, relpath
 from .environment import ProverEnvironment, snapshot_baseline
 
@@ -527,9 +528,11 @@ class ParallelProverRunner:
             return
 
         # A prior prover→Review lane may already have materialized a requested
-        # statement redraft. Keep those targets in PROGRESS for the upcoming
-        # formalization Review, but do not pay for the same formalizer twice.
-        sorry_files, materialized_redrafts = (
+        # statement redraft. A full target lifecycle resumes those files at
+        # formalization Review; the legacy phase-barrier path leaves them in
+        # PROGRESS and skips a duplicate formalizer.
+        all_review_candidates = list(sorry_files)
+        filtered_files, materialized_redrafts = (
             filter_materialized_redrafts_for_dispatch(
                 sorry_files,
                 state_dir=self.state_dir,
@@ -538,11 +541,30 @@ class ParallelProverRunner:
                 enabled=True,
             )
         )
-        if materialized_redrafts:
+        lifecycle_autoformalize = (
+            self.pipeline_review is not None
+            and self.pipeline_review.formalization_review_enabled
+            and normalize_stage_for_prompt_path(self.stage) == "autoformalize"
+        )
+        self._materialized_lifecycle_targets: set[str] = set()
+        if lifecycle_autoformalize and materialized_redrafts:
+            self._materialized_lifecycle_targets = {
+                relpath(path, self.project_path)
+                for path, _reason in materialized_redrafts
+            }
+            sorry_files = all_review_candidates
             log.success(
-                f"Skipping {len(materialized_redrafts)} already-materialized "
-                "pipelined redraft(s); they remain queued for formalization Review."
+                f"Resuming {len(materialized_redrafts)} already-materialized "
+                "redraft(s) directly at per-target formalization Review."
             )
+        else:
+            sorry_files = filtered_files
+            if materialized_redrafts:
+                log.success(
+                    f"Skipping {len(materialized_redrafts)} already-materialized "
+                    "pipelined redraft(s); they remain queued for "
+                    "formalization Review."
+                )
         if not sorry_files:
             return
 
@@ -789,6 +811,14 @@ class ParallelProverRunner:
         review_jobs = max(1, min(config.requested_jobs, workers))
         max_attempts = max(1, int(config.max_attempts))
         full_pipeline = bool(config.formalization_review_enabled)
+        initial_formalization = (
+            normalize_stage_for_prompt_path(self.stage) == "autoformalize"
+        )
+        if initial_formalization and not full_pipeline:
+            raise RuntimeError(
+                "autoformalize target lifecycle requires immediate "
+                "formalization Review"
+            )
         formalization_max_attempts = max(
             1, int(config.formalization_review_max_attempts),
         )
@@ -808,7 +838,9 @@ class ParallelProverRunner:
             prior_formalization_targets = {}
 
         pending_provers: deque[tuple[Path, int]] = deque()
+        pending_initial_formalizers: deque[tuple[Path, int]] = deque()
         resumed_completed: list[tuple[Path, str, str]] = []
+        resumed_formalized: list[tuple[Path, str, str]] = []
         proof_cycles: dict[str, int] = {}
         formalization_cycles: dict[str, int] = {}
         shadow_proof_attempts: dict[str, int] = {}
@@ -818,8 +850,8 @@ class ParallelProverRunner:
         for target in sorry_files:
             rel = relpath(target, self.project_path)
             slug = file_slug(rel)
-            proof_cycles[rel] = 1
-            formalization_cycles[rel] = 0
+            proof_cycles[rel] = 0 if initial_formalization else 1
+            formalization_cycles[rel] = 1 if initial_formalization else 0
             prior_proof = prior_targets.get(rel)
             prior_proof = prior_proof if isinstance(prior_proof, dict) else {}
             shadow_proof_attempts[rel] = int(prior_proof.get("attempts") or 0)
@@ -833,6 +865,38 @@ class ParallelProverRunner:
                 prior_formalization.get("reviews") or 0
             )
             shadow_formalization_records[rel] = dict(prior_formalization)
+            if initial_formalization:
+                prior_status = (
+                    read_meta(
+                        self.iter_meta,
+                        f"pipelineFormalizers.{slug}.status",
+                    )
+                    if self.resume_enabled else None
+                )
+                legacy_status = (
+                    read_meta(self.iter_meta, f"provers.{slug}.status")
+                    if self.resume_enabled else None
+                )
+                legacy_baseline = _target_sha256(
+                    self.iter_dir / "snapshots" / slug / "baseline.lean"
+                )
+                legacy_materialized = bool(
+                    legacy_status == "done"
+                    and legacy_baseline
+                    and _target_sha256(target) != legacy_baseline
+                    and _task_result_fingerprints(self.state_dir, rel)
+                )
+                if (
+                    rel in getattr(
+                        self, "_materialized_lifecycle_targets", set()
+                    )
+                    or prior_status == "materialized"
+                    or legacy_materialized
+                ):
+                    resumed_formalized.append((target, rel, slug))
+                else:
+                    pending_initial_formalizers.append((target, 1))
+                continue
             prior_status = (
                 read_meta(self.iter_meta, f"provers.{slug}.status")
                 if self.resume_enabled else None
@@ -858,6 +922,7 @@ class ParallelProverRunner:
         formalizer_history: dict[str, list[dict]] = {}
         gate_events: list[dict] = []
         pending_formalization: set[str] = set()
+        settled_targets: set[str] = set()
         unresolved: dict[str, str] = {}
         review_rounds: dict[int, dict[str, int]] = {}
         formalization_review_rounds: dict[
@@ -868,12 +933,20 @@ class ParallelProverRunner:
         started = time.monotonic()
         target_rels = sorted(relpath(path, self.project_path) for path in sorry_files)
 
-        log.info(
-            "Pipelined target Review enabled: each completed prover is "
-            "reviewed immediately, and needs_redraft starts that target's "
-            "formalizer immediately; combined concurrency "
-            f"is capped at {workers}."
-        )
+        if initial_formalization:
+            log.info(
+                "Independent target lifecycle enabled: each target starts "
+                "with its own formalizer, then advances immediately through "
+                "formalization Review, prover, and proof Review; combined "
+                f"concurrency is capped at {workers}."
+            )
+        else:
+            log.info(
+                "Pipelined target Review enabled: each completed prover is "
+                "reviewed immediately, and needs_redraft starts that target's "
+                "formalizer immediately; combined concurrency "
+                f"is capped at {workers}."
+            )
         if full_pipeline:
             log.info(
                 "Full target loop enabled: each materialized redraft gets an "
@@ -884,6 +957,9 @@ class ParallelProverRunner:
             "prover.pipelineReviewEnabled": True,
             "prover.pipelineImmediateRedraftEnabled": True,
             "prover.pipelineFormalizationReviewEnabled": full_pipeline,
+            "prover.pipelineStartsAt": (
+                "formalizer" if initial_formalization else "prover"
+            ),
             "prover.pipelineReviewMaxCombined": workers,
             "prover.pipelineReviewMaxReviewers": review_jobs,
         })
@@ -893,6 +969,12 @@ class ParallelProverRunner:
                 "iteration": self.iter_num,
                 "complete": False,
                 "status": "running",
+                "pipeline_mode": (
+                    "target_lifecycle" if full_pipeline else "proof_review"
+                ),
+                "starts_at": (
+                    "formalizer" if initial_formalization else "prover"
+                ),
                 "target_files": target_rels,
                 "targets": file_count,
                 "reviewed": 0,
@@ -1084,6 +1166,120 @@ class ParallelProverRunner:
             cycle_label = f" (cycle {cycle})" if cycle > 1 else ""
             log.step(f"Starting immediate proof Review for {rel}{cycle_label}")
 
+        def submit_initial_formalizer(
+            pool,
+            target: Path,
+            cycle: int,
+        ) -> None:
+            rel = relpath(target, self.project_path)
+            slug = file_slug(rel)
+            formalizer_log = self.iter_dir / "formalizers" / slug
+            snap_dir = self.iter_dir / "formalizer-snapshots" / slug
+            mode_name = select_prover_mode_for_target(
+                self.state_dir,
+                self.stage,
+                self.project_path,
+                target,
+                explicit_mode=file_modes.get(str(target)),
+            )
+            mode_content = _load_mode_content(self.state_dir, mode_name)
+            base_prompt = build_parallel_prover_prompt(
+                self.project_name,
+                self.project_path,
+                self.state_dir,
+                self.stage,
+                self.iter_num,
+                assigned_rel_lean_path=rel,
+                debug_feedback=self.debug_feedback,
+                mode_name=mode_name,
+                mode_content=mode_content,
+            )
+            prompt = f"{base_prompt}\nYour assigned file: {rel}"
+            baseline_sha256 = _target_sha256(target)
+            baseline_results = _task_result_fingerprints(self.state_dir, rel)
+            resume_sid = pick_resume_session(
+                self.iter_meta,
+                f"pipelineFormalizers.{slug}.sessionId",
+                enabled=self.resume_enabled and cycle == 1,
+                label=f"formalizer[{slug}]",
+                cwd=self.project_path,
+                jsonl_fallback=Path(str(formalizer_log) + ".jsonl"),
+            )
+            legacy_resume = False
+            if not resume_sid and self.resume_enabled and cycle == 1:
+                resume_sid = pick_resume_session(
+                    self.iter_meta,
+                    f"provers.{slug}.sessionId",
+                    enabled=True,
+                    label=f"legacy-formalizer[{slug}]",
+                    cwd=self.project_path,
+                    jsonl_fallback=(
+                        self.iter_dir / "provers" / f"{slug}.jsonl"
+                    ),
+                )
+                legacy_resume = bool(resume_sid)
+            if resume_sid:
+                stored_baseline = str(
+                    read_meta(
+                        self.iter_meta,
+                        f"pipelineFormalizers.{slug}.baselineSha256",
+                    ) or ""
+                )
+                baseline_candidates = (
+                    stored_baseline,
+                    _target_sha256(snap_dir / "baseline.lean"),
+                    _target_sha256(
+                        self.iter_dir / "snapshots" / slug / "baseline.lean"
+                    ),
+                )
+                baseline_sha256 = next((
+                    digest for digest in baseline_candidates if len(digest) == 64
+                ), baseline_sha256)
+                baseline_results = {}
+                snap_dir.mkdir(parents=True, exist_ok=True)
+            else:
+                snapshot_baseline(target, snap_dir)
+            submit_prompt = PROVER_CONTINUE if resume_sid else prompt
+            meta_update: dict[str, object] = {
+                f"pipelineFormalizers.{slug}.file": rel,
+                f"pipelineFormalizers.{slug}.status": "running",
+                f"pipelineFormalizers.{slug}.cycle": cycle,
+                f"pipelineFormalizers.{slug}.origin": (
+                    "legacy-autoformalize-resume"
+                    if legacy_resume else "initial"
+                ),
+                f"pipelineFormalizers.{slug}.baselineSha256": (
+                    baseline_sha256
+                ),
+            }
+            if mode_name:
+                meta_update[f"pipelineFormalizers.{slug}.mode"] = mode_name
+            write_meta(self.iter_meta, **meta_update)
+            log.step(f"Starting target formalizer for {rel}")
+            future = pool.submit(
+                self.formalizer_worker,
+                submit_prompt,
+                self.project_path,
+                formalizer_log,
+                self.verbose_logs,
+                self.model,
+                snap_dir,
+                self.project_path,
+                resume_sid,
+                self.backend,
+                config.formalizer_harness or self.harness,
+            )
+            futures[future] = _PipelineWork(
+                kind="initial_formalizer",
+                target=target,
+                rel=rel,
+                slug=slug,
+                attempt=cycle,
+                cycle=cycle,
+                baseline_sha256=baseline_sha256,
+                result_fingerprints=tuple(sorted(baseline_results.items())),
+            )
+
         def submit_formalizer(
             pool,
             target: Path,
@@ -1241,6 +1437,27 @@ class ParallelProverRunner:
                 f"(cycle {cycle})"
             )
 
+        if resumed_formalized:
+            preflight_jobs = min(review_jobs, len(resumed_formalized))
+            log.info(
+                f"Resume detected {len(resumed_formalized)} materialized "
+                "formalizer lane(s); skipping duplicate formalization and "
+                "preparing their semantic Reviews."
+            )
+            with ThreadPoolExecutor(max_workers=preflight_jobs) as check_pool:
+                checks = {
+                    check_pool.submit(run_preflight, target, rel): (
+                        target, rel, slug,
+                    )
+                    for target, rel, slug in resumed_formalized
+                }
+                for future in as_completed(checks):
+                    target, rel, slug = checks[future]
+                    preflight_rows[rel] = future.result()
+                    enqueue_formalization_review(
+                        target, rel, slug, 1, 1,
+                    )
+
         def fill_slots(pool) -> None:
             while len(futures) < workers:
                 now = time.monotonic()
@@ -1282,6 +1499,9 @@ class ParallelProverRunner:
                 elif pending_provers:
                     target, cycle = pending_provers.popleft()
                     submit_prover(pool, target, cycle)
+                elif pending_initial_formalizers:
+                    target, cycle = pending_initial_formalizers.popleft()
+                    submit_initial_formalizer(pool, target, cycle)
                 else:
                     break
 
@@ -1290,6 +1510,7 @@ class ParallelProverRunner:
             while (
                 futures
                 or pending_provers
+                or pending_initial_formalizers
                 or review_queue
                 or formalizer_queue
                 or formalization_review_queue
@@ -1356,7 +1577,7 @@ class ParallelProverRunner:
                         )
                         continue
 
-                    if work.kind == "formalizer":
+                    if work.kind in {"formalizer", "initial_formalizer"}:
                         runner_error = ""
                         try:
                             runner_ok = bool(future.result())
@@ -1375,9 +1596,7 @@ class ParallelProverRunner:
                         )
                         digest = _target_sha256(work.target)
                         changed = bool(
-                            digest
-                            and work.baseline_sha256
-                            and digest != work.baseline_sha256
+                            digest and digest != work.baseline_sha256
                         )
                         postflight = run_preflight(work.target, work.rel)
                         compiles = bool(postflight.get("compiles"))
@@ -1442,6 +1661,7 @@ class ParallelProverRunner:
                                 )
                         else:
                             pending_formalization.add(work.rel)
+                            settled_targets.add(work.rel)
                             log.error(
                                 f"Immediate formalizer incomplete: {work.rel}; "
                                 f"{'; '.join(errors)}"
@@ -1529,11 +1749,32 @@ class ParallelProverRunner:
                                 }
                                 next_cycle = proof_cycles[work.rel] + 1
                                 proof_cycles[work.rel] = next_cycle
-                                pending_provers.append((work.target, next_cycle))
-                                log.step(
-                                    "Formalization Review passed; immediately "
-                                    f"re-enqueued prover for {work.rel}"
-                                )
+                                open_sorries = file_open_sorry_count(work.target)
+                                if open_sorries == 0:
+                                    preflight_rows[work.rel] = run_preflight(
+                                        work.target, work.rel,
+                                    )
+                                    enqueue_review(
+                                        work.target,
+                                        work.rel,
+                                        work.slug,
+                                        1,
+                                        next_cycle,
+                                    )
+                                    log.step(
+                                        "Formalization Review passed with no "
+                                        "open proof holes; immediately queued "
+                                        f"proof Review for {work.rel}"
+                                    )
+                                else:
+                                    pending_provers.append(
+                                        (work.target, next_cycle)
+                                    )
+                                    log.step(
+                                        "Formalization Review passed; "
+                                        "immediately re-enqueued prover for "
+                                        f"{work.rel}"
+                                    )
                             elif status == "retry":
                                 next_cycle = formalization_cycles[work.rel] + 1
                                 formalization_cycles[work.rel] = next_cycle
@@ -1555,6 +1796,7 @@ class ParallelProverRunner:
                                 ))
                             else:
                                 pending_formalization.discard(work.rel)
+                                settled_targets.add(work.rel)
                         else:
                             stats["failed"] += 1
                             error = (
@@ -1576,6 +1818,7 @@ class ParallelProverRunner:
                                 )
                             else:
                                 pending_formalization.add(work.rel)
+                                settled_targets.add(work.rel)
                                 write_meta(self.iter_meta, **{
                                     f"pipelineFormalizationReviews.{work.slug}.status": "error",
                                     f"pipelineFormalizationReviews.{work.slug}.error": error,
@@ -1648,7 +1891,9 @@ class ParallelProverRunner:
                             f"pipelineReviews.{work.slug}.route": route,
                         })
                         log.success(f"Proof Review finished: {work.rel} ({route})")
-                        if route == "needs_redraft" and isinstance(certificate, dict):
+                        if route == "needs_redraft" and isinstance(
+                            certificate, dict
+                        ):
                             budget_available = (
                                 not full_pipeline
                                 or shadow_formalization_reviews[work.rel]
@@ -1685,11 +1930,31 @@ class ParallelProverRunner:
                                 })
                             else:
                                 pending_formalization.discard(work.rel)
+                                settled_targets.add(work.rel)
                                 log.warn(
                                     "Formalization Review budget exhausted; "
                                     f"cannot redraft {work.rel} after proof "
                                     f"Review: {reason}"
                                 )
+                            if not full_pipeline:
+                                settled_targets.add(work.rel)
+                        elif not full_pipeline:
+                            settled_targets.add(work.rel)
+                        elif route in {"solved", "blocked_infrastructure"}:
+                            settled_targets.add(work.rel)
+                        elif route == "retry_proof":
+                            if proof_status == "retry":
+                                next_cycle = proof_cycles[work.rel] + 1
+                                proof_cycles[work.rel] = next_cycle
+                                pending_provers.append((work.target, next_cycle))
+                                log.step(
+                                    "Proof Review requested a proof-only retry; "
+                                    f"immediately re-enqueued prover for {work.rel}"
+                                )
+                            else:
+                                settled_targets.add(work.rel)
+                        else:
+                            settled_targets.add(work.rel)
                     else:
                         stats["failed"] += 1
                         error = (
@@ -1721,7 +1986,13 @@ class ParallelProverRunner:
                                 f"harness attempt(s): {work.rel}"
                             )
 
-        complete = not unresolved and len(outcomes) == file_count
+        complete = (
+            not unresolved
+            and (
+                len(settled_targets) == file_count
+                if full_pipeline else len(outcomes) == file_count
+            )
+        )
         session_dir = (
             self.state_dir / "proof-journal" / "sessions"
             / f"session_{self.iter_num}"
@@ -1802,16 +2073,21 @@ class ParallelProverRunner:
                 if isinstance(formalization_records, dict) else {}
             )
             for rel in target_rels:
+                proof_was_reviewed = any(
+                    event["kind"] == "proof" and event["rel"] == rel
+                    for event in gate_events
+                )
                 proof_record = proof_records.get(rel)
                 proof_status = (
                     str(proof_record.get("status") or "retry")
                     if isinstance(proof_record, dict) else "retry"
                 )
-                if proof_status == "proof_review_exhausted":
-                    proof_gate_result["exhausted"].append(rel)
-                elif proof_status in proof_gate_result:
-                    proof_gate_result[proof_status].append(rel)
-                proof_gate_result["reviewed"].append(rel)
+                if proof_was_reviewed:
+                    if proof_status == "proof_review_exhausted":
+                        proof_gate_result["exhausted"].append(rel)
+                    elif proof_status in proof_gate_result:
+                        proof_gate_result[proof_status].append(rel)
+                    proof_gate_result["reviewed"].append(rel)
 
                 formalization_record = formalization_records.get(rel)
                 formalization_status = (
@@ -1904,7 +2180,15 @@ class ParallelProverRunner:
                 "iteration": self.iter_num,
                 "complete": complete,
                 "status": "complete" if complete else "incomplete",
-                "target_files": sorted(preflight_rows),
+                "pipeline_mode": (
+                    "target_lifecycle" if full_pipeline else "proof_review"
+                ),
+                "starts_at": (
+                    "formalizer" if initial_formalization else "prover"
+                ),
+                "target_files": target_rels,
+                "settled_target_files": sorted(settled_targets),
+                "proof_review_target_files": sorted(outcomes),
                 "targets": file_count,
                 "reviewed": len(outcomes),
                 "unresolved": sorted(unresolved),
@@ -1958,9 +2242,16 @@ class ParallelProverRunner:
             "prover.pipelineGateEvents": len(gate_event_summaries),
         })
         if complete:
-            log.success(
-                f"Pipelined proof Review finished for all {file_count} target(s)"
-            )
+            if initial_formalization:
+                log.success(
+                    "Independent target lifecycle settled all "
+                    f"{file_count} target(s)"
+                )
+            else:
+                log.success(
+                    "Pipelined proof Review finished for all "
+                    f"{file_count} target(s)"
+                )
         else:
             log.warn(
                 "Pipelined proof Review hand-off is incomplete; ReviewPhase "

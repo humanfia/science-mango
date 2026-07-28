@@ -217,11 +217,18 @@ class ProverPhase(Phase):
         pipeline_requested = bool(
             loop_cfg.get("pipeline_target_review", False)
         )
+        pipeline_stage = ctx.current_stage.strip().lower()
+        pipeline_from_prover = pipeline_stage.startswith("prover")
+        pipeline_from_formalizer = (
+            pipeline_stage.startswith("autoformalize")
+            and bool(ctx.options.formalization_review_gate)
+            and bool(loop_cfg.get("parallel_formalization_review", False))
+        )
         pipeline_eligible = (
             pipeline_requested
             and not ctx.options.no_review
             and getattr(ctx.options, "proof_review_gate", False)
-            and ctx.current_stage.strip().lower().startswith("prover")
+            and (pipeline_from_prover or pipeline_from_formalizer)
             and bool(loop_cfg.get("deterministic_review", False))
             and bool(loop_cfg.get("parallel_target_review", False))
         )
@@ -262,9 +269,11 @@ class ProverPhase(Phase):
             )
         elif pipeline_requested:
             log.warn(
-                "pipeline_target_review requires prover stage, Review, "
-                "proof_review_gate, deterministic_review, and "
-                "parallel_target_review; using the normal phase barrier."
+                "pipeline_target_review requires Review, proof_review_gate, "
+                "deterministic_review, parallel_target_review, and either "
+                "prover stage or autoformalize with "
+                "parallel_formalization_review; using the normal phase "
+                "barrier."
             )
         runner = ParallelProverRunner(
             project_name=ctx.project_name,
