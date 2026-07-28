@@ -135,6 +135,50 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertEqual(kept, [self.target])
         self.assertEqual(dropped, [])
 
+    def test_legacy_string_target_replay_preserves_review_count(self):
+        (self.state / "formalization-review-gate.json").write_text(
+            json.dumps({
+                "version": 2,
+                "max_iterations": 3,
+                "targets": {
+                    "Problems/p.lean": {
+                        "status": "retry",
+                        "reviews": 2,
+                        "last_review_iter": 2,
+                        "certificate": {},
+                    },
+                },
+            }),
+            encoding="utf-8",
+        )
+        session = self.state / "proof-journal" / "sessions" / "session_2"
+        session.mkdir(parents=True)
+        milestone = {
+            "status": "solved",
+            "target": "Problems/p.lean",
+            "formalization_review": self._passing_certificate(),
+        }
+        (session / "milestones.jsonl").write_text(
+            json.dumps(milestone) + "\n", encoding="utf-8",
+        )
+
+        result = apply_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            session_dir=session,
+            iter_num=2,
+            reviewed_objectives=[self.target],
+            max_iterations=3,
+        )
+
+        self.assertEqual(result.passed, ("Problems/p.lean",))
+        state = load_gate_state(self.state)
+        record = state["targets"]["Problems/p.lean"]
+        self.assertEqual(record["reviews"], 2)
+        self.assertEqual(record["status"], "passed")
+        self.assertEqual(len(record["certificate"]["milestones"]), 1)
+
     def test_bare_pass_without_structured_checks_fails_closed(self):
         result = self._review(
             1,

@@ -64,6 +64,19 @@ class ProofReviewResult:
     reviewed: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class TargetProofReviewUpdate:
+    """One idempotent proof Review transition used by target pipelines."""
+
+    rel: str
+    status: str
+    route: str
+    attempts: int
+    reason: str
+    redraft_kind: str
+    applied: bool
+
+
 def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
@@ -181,6 +194,13 @@ def _proof_review_decision(
     if not reason:
         reason = fallback_reason or f"proof Review route={route}"
     return route, reason, evidence, redraft_kind, True
+
+
+def proof_review_decision(
+    row: dict[str, Any] | None,
+) -> tuple[str, str, str, str, bool]:
+    """Public, side-effect-free proof Review route normalization."""
+    return _proof_review_decision(row)
 
 
 def _load_milestones(session_dir: Path, project_path: Path) -> dict[str, dict]:
@@ -437,6 +457,133 @@ def apply_proof_review(
         blocked_infrastructure=tuple(sorted(blocked_infrastructure)),
         exhausted=tuple(sorted(exhausted)),
         reviewed=tuple(sorted(reviewed)),
+    )
+
+
+def apply_target_proof_review(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    target: Path,
+    milestone: dict[str, Any],
+    iter_num: int,
+    max_iterations: int,
+    event_id: str,
+) -> TargetProofReviewUpdate:
+    """Apply one proof Review event exactly once without routing PROGRESS.
+
+    A target can be reviewed more than once in one outer iteration after a
+    statement redraft.  A stable event id makes that sequence idempotent on
+    crash/resume while preserving the normal proof-attempt budget.
+    """
+    max_iterations = max(1, int(max_iterations))
+    rel = _relative_file(str(target), project_path)
+    raw_target = milestone.get("target")
+    milestone_rel = (
+        _relative_file(str(raw_target.get("file") or ""), project_path)
+        if isinstance(raw_target, dict) else ""
+    )
+    if not rel or milestone_rel != rel:
+        raise ValueError(
+            f"proof Review milestone target {milestone_rel!r} != {rel!r}"
+        )
+    if not event_id.strip():
+        raise ValueError("proof Review pipeline event_id is required")
+
+    state = load_proof_review_state(state_dir)
+    targets = state.get("targets")
+    if not isinstance(targets, dict):
+        targets = {}
+    previous = targets.get(rel)
+    if not isinstance(previous, dict):
+        previous = {}
+    history = previous.get("history")
+    history = list(history) if isinstance(history, list) else []
+    for entry in history:
+        if isinstance(entry, dict) and entry.get("event_id") == event_id:
+            return TargetProofReviewUpdate(
+                rel=rel,
+                status=str(previous.get("status") or "retry"),
+                route=str(entry.get("route") or "retry_proof"),
+                attempts=int(previous.get("attempts") or 0),
+                reason=str(previous.get("reason") or ""),
+                redraft_kind=str(
+                    previous.get("redraft_kind") or "not_applicable"
+                ),
+                applied=False,
+            )
+
+    prior_status = str(previous.get("status") or "")
+    if prior_status in _NON_DISPATCH_STATUSES:
+        raise ValueError(
+            f"proof Review target {rel} is not dispatchable: {prior_status}"
+        )
+
+    raw_status = str(milestone.get("status") or "")
+    route, reason, evidence, redraft_kind, explicit_route = (
+        _proof_review_decision(milestone)
+    )
+    try:
+        prior_attempts = int(previous.get("attempts") or 0)
+    except (TypeError, ValueError):
+        prior_attempts = 0
+    attempts = prior_attempts + 1
+    if route == "solved":
+        status = "solved"
+    elif route == "needs_redraft":
+        status = "needs_redraft"
+    elif route == "blocked_infrastructure":
+        status = "blocked_infrastructure"
+    elif attempts >= max_iterations:
+        status = "proof_review_exhausted"
+        reason = f"{reason}; maximum proof attempts reached"
+    else:
+        status = "retry"
+
+    history.append({
+        "event_id": event_id,
+        "iter": iter_num,
+        "route": route,
+        "resulting_status": status,
+        "top_level_status": raw_status,
+        "attempt": attempts,
+        "reason": reason,
+        "evidence": evidence,
+        "redraft_kind": redraft_kind,
+        "explicit_route": explicit_route,
+        "reviewed_at": _utcnow(),
+    })
+    targets[rel] = {
+        **previous,
+        "status": status,
+        "attempts": attempts,
+        "last_review_iter": iter_num,
+        "reason": reason,
+        "evidence": evidence,
+        "redraft_kind": redraft_kind,
+        "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+        "history": history[-50:],
+        "updated_at": _utcnow(),
+    }
+    state = {
+        **state,
+        "version": STATE_VERSION,
+        "max_iterations": max_iterations,
+        "last_review_iter": iter_num,
+        "updated_at": _utcnow(),
+        "targets": targets,
+    }
+    _write_state(state_dir, state)
+    _write_report(state_dir, state)
+    _write_routing_notes(state_dir, state)
+    return TargetProofReviewUpdate(
+        rel=rel,
+        status=status,
+        route=route,
+        attempts=attempts,
+        reason=reason,
+        redraft_kind=redraft_kind,
+        applied=True,
     )
 
 

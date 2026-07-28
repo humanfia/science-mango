@@ -61,6 +61,18 @@ class GateResult:
     reviewed: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class TargetFormalizationReviewUpdate:
+    """One idempotent formalization Review transition."""
+
+    rel: str
+    status: str
+    reviews: int
+    reason: str
+    passed: bool
+    applied: bool
+
+
 def state_path(state_dir: Path) -> Path:
     return state_dir / STATE_FILENAME
 
@@ -238,6 +250,31 @@ def _decision_from_milestone(
     return "failed", blocker or "missing explicit formalization Review pass verdict", {}
 
 
+def formalization_review_decision(
+    row: dict[str, Any],
+) -> tuple[str, str, dict[str, Any]]:
+    """Public, side-effect-free formalization Review normalization."""
+    return _decision_from_milestone(row)
+
+
+def _milestone_target_file(item: Mapping[str, Any], project_path: Path) -> str:
+    """Normalize current and legacy milestone target encodings.
+
+    Review schema v2 writes ``target`` as an object containing ``file``.
+    Early parallel formalization Review sessions wrote the Lean path directly
+    as a string. Both forms identify the same target and pass through the same
+    path-safety normalization.
+    """
+    target = item.get("target")
+    if isinstance(target, Mapping):
+        raw_file = target.get("file")
+    elif isinstance(target, str):
+        raw_file = target
+    else:
+        return ""
+    return _relative_file(str(raw_file or ""), project_path)
+
+
 def _load_milestone_decisions(
     session_dir: Path,
     project_path: Path,
@@ -257,10 +294,7 @@ def _load_milestone_decisions(
             continue
         if not isinstance(item, dict):
             continue
-        target = item.get("target")
-        if not isinstance(target, dict):
-            continue
-        rel = _relative_file(str(target.get("file") or ""), project_path)
+        rel = _milestone_target_file(item, project_path)
         if not rel:
             continue
         decisions.setdefault(rel, []).append(_decision_from_milestone(item))
@@ -382,6 +416,8 @@ def reopen_formalization_targets(
     iter_num: int,
     max_iterations: int,
     completed_redrafts: Mapping[str, Mapping[str, Any]] | None = None,
+    route_progress: bool = True,
+    enforce_budget: bool = False,
 ) -> tuple[str, ...]:
     """Revoke prior pass certificates and route exact targets to redrafting.
 
@@ -417,6 +453,18 @@ def reopen_formalization_targets(
         redraft_kind = str(
             proof_record.get("redraft_kind") or "other_modeling_defect"
         ).strip()
+        prior_reviews = int(old.get("reviews") or 0)
+        budget_exhausted = enforce_budget and prior_reviews >= max_iterations
+        pipeline_event_id = str(
+            proof_record.get("pipeline_event_id") or ""
+        ).strip()
+        if (
+            pipeline_event_id
+            and old.get("last_reopen_event_id") == pipeline_event_id
+        ):
+            objective_details[rel] = (redraft_kind, reason[:800])
+            reopened.append(rel)
+            continue
         reopen_history.append({
             "reopened_at": _utcnow(),
             "proof_review_iter": iter_num,
@@ -429,14 +477,21 @@ def reopen_formalization_targets(
         })
         next_record = {
             **old,
-            "status": "retry",
-            "reason": f"proof Review requested redraft: {reason}",
+            "status": "review_exhausted" if budget_exhausted else "retry",
+            "reason": (
+                "proof Review requested redraft, but maximum formalization "
+                f"Review attempts were already reached ({prior_reviews}/"
+                f"{max_iterations}): {reason}"
+                if budget_exhausted
+                else f"proof Review requested redraft: {reason}"
+            ),
             "updated_at": _utcnow(),
             "review_schema_version": REVIEW_SCHEMA_VERSION,
             "certificate": {},
             "certificate_revoked_at": _utcnow(),
             "reopened_by": "proof_review",
             "last_reopened_iter": iter_num,
+            "last_reopen_event_id": pipeline_event_id or None,
             "redraft_kind": redraft_kind,
             "reopen_history": reopen_history[-20:],
         }
@@ -493,13 +548,14 @@ def reopen_formalization_targets(
     data["updated_at"] = _utcnow()
     _write_state(state_dir, data)
     _write_report(state_dir, data)
-    write_stage(progress_file, "autoformalize")
-    _replace_objectives(progress_file, [
-        f"- **`{rel}`** — Proof Review routed this target to statement redraft "
-        f"({objective_details[rel][0]}): {objective_details[rel][1]} "
-        "[prover-mode: physics-formalize]"
-        for rel in sorted(set(reopened))
-    ])
+    if route_progress:
+        write_stage(progress_file, "autoformalize")
+        _replace_objectives(progress_file, [
+            f"- **`{rel}`** — Proof Review routed this target to statement redraft "
+            f"({objective_details[rel][0]}): {objective_details[rel][1]} "
+            "[prover-mode: physics-formalize]"
+            for rel in sorted(set(reopened))
+        ])
     return tuple(sorted(set(reopened)))
 
 
@@ -628,6 +684,121 @@ def apply_formalization_review(
         retry=retry,
         exhausted=exhausted,
         reviewed=tuple(sorted(review_scope)),
+    )
+
+
+def apply_target_formalization_review(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    target: Path,
+    milestone: dict[str, Any],
+    iter_num: int,
+    max_iterations: int,
+    event_id: str,
+) -> TargetFormalizationReviewUpdate:
+    """Apply one semantic formalization verdict without routing PROGRESS.
+
+    Unlike the batch transition, distinct target events in the same outer
+    iteration each consume one formalization Review opportunity.  Stable event
+    ids keep crash/resume replay from consuming an opportunity twice.
+    """
+    max_iterations = max(1, int(max_iterations))
+    rel = _relative_file(str(target), project_path)
+    milestone_rel = _milestone_target_file(milestone, project_path)
+    if not rel or milestone_rel != rel:
+        raise ValueError(
+            f"formalization Review milestone target {milestone_rel!r} != {rel!r}"
+        )
+    if not event_id.strip():
+        raise ValueError("formalization Review pipeline event_id is required")
+
+    data = load_gate_state(state_dir) or _initial_state(max_iterations)
+    data["max_iterations"] = max_iterations
+    targets: dict[str, Any] = data.setdefault("targets", {})
+    old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
+    events = old.get("review_events")
+    events = list(events) if isinstance(events, list) else []
+    for entry in events:
+        if isinstance(entry, dict) and entry.get("event_id") == event_id:
+            status = str(old.get("status") or "retry")
+            return TargetFormalizationReviewUpdate(
+                rel=rel,
+                status=status,
+                reviews=int(old.get("reviews") or 0),
+                reason=str(old.get("reason") or ""),
+                passed=status == "passed",
+                applied=False,
+            )
+
+    reviews = int(old.get("reviews") or 0)
+    if reviews >= max_iterations:
+        status = "review_exhausted"
+        reason = (
+            f"maximum formalization Review attempts already reached "
+            f"({reviews}/{max_iterations})"
+        )
+        certificate: dict[str, Any] = {}
+        decision = "failed"
+    else:
+        decision, reason, certificate = _decision_from_milestone(milestone)
+        reviews += 1
+        if decision == "passed":
+            status = "passed"
+        elif reviews >= max_iterations:
+            status = "review_exhausted"
+        else:
+            status = "retry"
+
+    events.append({
+        "event_id": event_id,
+        "iter": iter_num,
+        "decision": decision,
+        "resulting_status": status,
+        "attempt": reviews,
+        "reason": reason,
+        "reviewed_at": _utcnow(),
+    })
+    next_record = {
+        **old,
+        "status": status,
+        "reviews": reviews,
+        "last_review_iter": iter_num,
+        "reason": reason,
+        "updated_at": _utcnow(),
+        "review_schema_version": REVIEW_SCHEMA_VERSION,
+        "certificate": certificate,
+        "review_events": events[-50:],
+    }
+    materialized = old.get("materialized_redraft")
+    if isinstance(materialized, dict):
+        next_record["materialized_redraft"] = {
+            **materialized,
+            "status": "reviewed",
+            "reviewed_iter": iter_num,
+        }
+    targets[rel] = next_record
+    data["last_review_iter"] = iter_num
+    data["updated_at"] = _utcnow()
+    _write_state(state_dir, data)
+    _write_report(state_dir, data)
+
+    if status == "passed":
+        from .proof_review_gate import reset_proof_review_targets_after_redraft
+
+        reset_proof_review_targets_after_redraft(
+            state_dir=state_dir,
+            targets=(rel,),
+            iter_num=iter_num,
+        )
+
+    return TargetFormalizationReviewUpdate(
+        rel=rel,
+        status=status,
+        reviews=reviews,
+        reason=reason,
+        passed=status == "passed",
+        applied=True,
     )
 
 

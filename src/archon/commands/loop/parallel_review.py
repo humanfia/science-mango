@@ -52,6 +52,11 @@ class PipelinedTargetReviewConfig:
     preflight_timeout_sec: int = 300
     harness: HarnessDescriptor | None = None
     formalizer_harness: HarnessDescriptor | None = None
+    formalization_review_enabled: bool = False
+    formalization_review_max_attempts: int = 3
+    formalization_review_backoff_sec: float = 5.0
+    formalization_review_max_iterations: int = 3
+    proof_review_max_iterations: int = 3
 
 
 def _utcnow() -> str:

@@ -241,6 +241,24 @@ class ProverPhase(Phase):
                 ))),
                 harness=ctx.harness_descriptor_for("review"),
                 formalizer_harness=ctx.harness_descriptor_for("prover"),
+                formalization_review_enabled=(
+                    bool(ctx.options.formalization_review_gate)
+                    and bool(loop_cfg.get("parallel_formalization_review", False))
+                ),
+                formalization_review_max_attempts=max(1, int(loop_cfg.get(
+                    "parallel_formalization_review_max_attempts", 3,
+                ))),
+                formalization_review_backoff_sec=max(0.0, float(loop_cfg.get(
+                    "parallel_formalization_review_backoff_sec", 5,
+                ))),
+                formalization_review_max_iterations=max(1, int(getattr(
+                    ctx.options,
+                    "formalization_review_max_iterations",
+                    3,
+                ))),
+                proof_review_max_iterations=max(1, int(getattr(
+                    ctx.options, "proof_review_max_iterations", 3,
+                ))),
             )
         elif pipeline_requested:
             log.warn(

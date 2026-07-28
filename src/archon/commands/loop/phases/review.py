@@ -31,6 +31,7 @@ from archon.state.progress import read_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
 from ..formalization_review_gate import (
+    _replace_objectives,
     apply_formalization_review,
     load_gate_state as load_formalization_review_state,
     reopen_formalization_targets,
@@ -43,7 +44,11 @@ from ..parallel_review import (
     load_pipelined_review_report,
     run_parallel_target_reviews,
 )
-from ..proof_review_gate import apply_proof_review, load_proof_review_state
+from ..proof_review_gate import (
+    ProofReviewResult,
+    apply_proof_review,
+    load_proof_review_state,
+)
 from ..review_preflight import (
     deterministic_review_prompt_prefix,
     run_parallel_review_preflight,
@@ -567,17 +572,128 @@ class ReviewPhase(Phase):
                 f"next stage={ctx.current_stage}"
             )
         if proof_gate_active:
-            proof_result = apply_proof_review(
-                state_dir=ctx.state_dir,
-                project_path=ctx.project_path,
-                session_dir=(
-                    ctx.state_dir / "proof-journal" / "sessions"
-                    / f"session_{ctx.iter_num}"
-                ),
-                iter_num=ctx.iter_num,
-                reviewed_objectives=proof_reviewed_objectives,
-                max_iterations=getattr(ctx.options, "proof_review_max_iterations", 3),
+            pipeline_gates_applied = (
+                isinstance(pipelined_report, dict)
+                and pipelined_report.get("gate_events_applied") is True
             )
+            if pipeline_gates_applied:
+                raw_gate = pipelined_report.get("proof_gate_result", {})
+                raw_gate = raw_gate if isinstance(raw_gate, dict) else {}
+
+                def report_items(name: str) -> tuple[str, ...]:
+                    raw_items = raw_gate.get(name, [])
+                    if not isinstance(raw_items, list):
+                        return ()
+                    return tuple(sorted({
+                        str(item).lstrip("./")
+                        for item in raw_items
+                        if str(item).strip()
+                    }))
+
+                proof_result = ProofReviewResult(
+                    solved=report_items("solved"),
+                    retry=report_items("retry"),
+                    needs_redraft=report_items("needs_redraft"),
+                    blocked_infrastructure=report_items(
+                        "blocked_infrastructure"
+                    ),
+                    exhausted=report_items("exhausted"),
+                    reviewed=report_items("reviewed"),
+                )
+                raw_reopened = pipelined_report.get(
+                    "proof_redrafts_reopened", []
+                )
+                if isinstance(raw_reopened, list):
+                    proof_redrafts_reopened = tuple(sorted({
+                        str(item).lstrip("./")
+                        for item in raw_reopened
+                        if str(item).strip()
+                    }))
+                raw_pending = pipelined_report.get(
+                    "pending_formalization_targets", []
+                )
+                pending_formalization = (
+                    tuple(sorted({
+                        str(item).lstrip("./")
+                        for item in raw_pending
+                        if str(item).strip()
+                    }))
+                    if isinstance(raw_pending, list)
+                    else ()
+                )
+                if pending_formalization:
+                    write_stage(ctx.progress_file, "autoformalize")
+                    _replace_objectives(ctx.progress_file, [
+                        f"- **`{rel}`** — Resume the target-local redraft "
+                        "that could not finish inside the prover pipeline. "
+                        "[prover-mode: physics-formalize]"
+                        for rel in pending_formalization
+                    ])
+                    ctx.current_stage = read_stage(ctx.progress_file)
+                    log.warn(
+                        "target pipeline left "
+                        f"{len(pending_formalization)} formalization(s) "
+                        "for the normal autoformalize fallback"
+                    )
+                write_meta(ctx.iter_meta, **{
+                    "review.pipelineGateEventsConsumed": True,
+                    "review.pipelineFormalizationPending": len(
+                        pending_formalization
+                    ),
+                })
+            else:
+                proof_result = apply_proof_review(
+                    state_dir=ctx.state_dir,
+                    project_path=ctx.project_path,
+                    session_dir=(
+                        ctx.state_dir / "proof-journal" / "sessions"
+                        / f"session_{ctx.iter_num}"
+                    ),
+                    iter_num=ctx.iter_num,
+                    reviewed_objectives=proof_reviewed_objectives,
+                    max_iterations=getattr(
+                        ctx.options, "proof_review_max_iterations", 3,
+                    ),
+                )
+                if proof_result.needs_redraft:
+                    proof_state = load_proof_review_state(ctx.state_dir)
+                    proof_targets = proof_state.get("targets", {})
+                    if not isinstance(proof_targets, dict):
+                        proof_targets = {}
+                    redraft_records = {
+                        rel: (
+                            proof_targets.get(rel)
+                            if isinstance(proof_targets.get(rel), dict)
+                            else "proof Review requested statement redraft"
+                        )
+                        for rel in proof_result.needs_redraft
+                    }
+                    completed_redrafts = {}
+                    if isinstance(pipelined_report, dict):
+                        raw_handoffs = pipelined_report.get(
+                            "formalization_handoffs", {}
+                        )
+                        if isinstance(raw_handoffs, dict):
+                            completed_redrafts = raw_handoffs
+                    proof_redrafts_reopened = reopen_formalization_targets(
+                        state_dir=ctx.state_dir,
+                        project_path=ctx.project_path,
+                        progress_file=ctx.progress_file,
+                        redrafts=redraft_records,
+                        iter_num=ctx.iter_num,
+                        max_iterations=getattr(
+                            ctx.options,
+                            "formalization_review_max_iterations",
+                            3,
+                        ),
+                        completed_redrafts=completed_redrafts,
+                    )
+                    ctx.current_stage = read_stage(ctx.progress_file)
+                    log.warn(
+                        "proof Review routed "
+                        f"{len(proof_redrafts_reopened)} target(s) back to "
+                        f"'{ctx.current_stage}' and revoked their pass certificates"
+                    )
             log.info(
                 "proof Review routing gate: "
                 f"solved={len(proof_result.solved)}, "
@@ -587,43 +703,6 @@ class ReviewPhase(Phase):
                 f"{len(proof_result.blocked_infrastructure)}, "
                 f"exhausted={len(proof_result.exhausted)}"
             )
-            if proof_result.needs_redraft:
-                proof_state = load_proof_review_state(ctx.state_dir)
-                proof_targets = proof_state.get("targets", {})
-                if not isinstance(proof_targets, dict):
-                    proof_targets = {}
-                redraft_records = {
-                    rel: (
-                        proof_targets.get(rel)
-                        if isinstance(proof_targets.get(rel), dict)
-                        else "proof Review requested statement redraft"
-                    )
-                    for rel in proof_result.needs_redraft
-                }
-                completed_redrafts = {}
-                if isinstance(pipelined_report, dict):
-                    raw_handoffs = pipelined_report.get(
-                        "formalization_handoffs", {}
-                    )
-                    if isinstance(raw_handoffs, dict):
-                        completed_redrafts = raw_handoffs
-                proof_redrafts_reopened = reopen_formalization_targets(
-                    state_dir=ctx.state_dir,
-                    project_path=ctx.project_path,
-                    progress_file=ctx.progress_file,
-                    redrafts=redraft_records,
-                    iter_num=ctx.iter_num,
-                    max_iterations=getattr(
-                        ctx.options, "formalization_review_max_iterations", 3,
-                    ),
-                    completed_redrafts=completed_redrafts,
-                )
-                ctx.current_stage = read_stage(ctx.progress_file)
-                log.warn(
-                    "proof Review routed "
-                    f"{len(proof_redrafts_reopened)} target(s) back to "
-                    f"'{ctx.current_stage}' and revoked their pass certificates"
-                )
 
         review_secs = int(time.monotonic() - review_start)
         log.info(f"Review phase finished ({review_secs}s)")
