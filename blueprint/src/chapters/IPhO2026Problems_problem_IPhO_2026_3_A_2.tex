@@ -42,9 +42,145 @@ Use Mathlib/Physlib names found through LeanExplore where available. If a domain
 
 \begin{theorem}[Physics formalization target]
 \label{thm:physics:IPhO_2026_3_A_2:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_A_2:work_emf_eq_V_mul_H_mul_dB}
 The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
 This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-003): the file carries the ONE genuinely-used targeted import `Physlib.Electromagnetism.Dynamics.Basic` (for `FreeSpace.mu0` in the constitutive law `B = mu0*H + mu0*M`) plus `import Mathlib` for `Real.pi`. PhysLean has no circuit-level Faraday/EMF induction law or source-work energy type (LeanExplore query log in this file's task\_results record only relativistic-EM near misses), so `InducedEMFChange.faraday` and `WorkOnSource` are faithful local laws. The blanket-domain import check is satisfied by the targeted Physlib import — no further import is added; the iter-002 review's complaint was about the noise-only deterministic preflight grounding log, not the import set.
 % --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 3-a-2-entries) ---
+% NOTE: import policy (mirrors the reconciliation NOTE above, iter-003): the
+% covered file carries exactly one targeted PhysLean import,
+% `Physlib.Electromagnetism.Dynamics.Basic' (the `FreeSpace' record, `mu_0',
+% used in the constitutive law `B = mu_0*H + mu_0*M'), on top of the
+% `import Mathlib' baseline (`Real.pi').  PhysLean has no circuit-level
+% Faraday/EMF induction law or source-work energy type, so
+% `InducedEMFChange.faraday' and `WorkOnSource' are faithful local laws; no
+% further import is added.
+
+\subsection*{Quantities and geometry}
+
+\begin{definition}[Strictly positive scalar]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:IsPositive}
+\lean{IPhO2026_3_A_2.IsPositive}
+A local positive-real constraint, $\mathtt{IsPositive}\ x \leftrightarrow 0 < x$,
+carrying the physical role ``this scalar is a strictly positive amount''
+(length, area, volume, turn count, elapsed time).  Local stand-in for the
+PhysLean constraint of the same intent; no governing-law content.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Toroid geometry and winding data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:ToroidData}
+\lean{IPhO2026_3_A_2.ToroidData}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:IsPositive}
+The geometry of the torus and its winding: mean radius $R$, inner radius $r$
+with $r < R$ (thin-ring regime), cross-sectional area $A$, volume $V$ of the
+paramagnetic material, and the number $N$ of densely wound turns, all bundled
+with positivity certificates.  Carries geometric-law content: the ring-volume
+identity $V = 2\pi R\,A$ used implicitly in Part A.1, recorded as a bundled
+field (an assumed geometric input, not derived).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Uniform operating point of the magnetized torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:UniformToroidOperatingPoint}
+\lean{IPhO2026_3_A_2.UniformToroidOperatingPoint}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:ToroidData}
+The operating state at one instant: the instantaneous current $I$ in the
+winding and the uniform fields $H$, $B$, $M$ inside the torus, over a PhysLean
+$\mathtt{FreeSpace}$ record.  Carries governing-law content as bundled
+hypothesis fields (assumed, not conclusions): the constitutive relation
+$B = \mu_0 H + \mu_0 M$ and Ampère's law along the mean circumference,
+$H = N I/(2\pi R)$.  The A.2 work identity is not among the fields.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Quasistatic change with induced EMF (Faraday's law)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:InducedEMFChange}
+\lean{IPhO2026_3_A_2.InducedEMFChange}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:ToroidData, def:IPhO2026Problems_problem_IPhO_2026_3_A_2:IsPositive}
+A small quasistatic change: the EMF $\varepsilon$ induced in the $N$-turn
+winding over the elapsed time $dt > 0$ while the flux density changes by $dB$.
+Carries governing-law content: Faraday's law of induction integrated over the
+change, $\varepsilon\,dt = N A\,dB$ (each of the $N$ turns sees the flux
+change $A\,dB$), bundled as an equation field.  The Part A.2 answer does not
+appear here.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Work delivered by the source, as a typed readout]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:WorkOnSource}
+\lean{IPhO2026_3_A_2.WorkOnSource}
+The energy delivered by the external voltage source to the torus circuit as a
+typed scalar quantity: $\mathtt{val}$ is positive when work enters the
+paramagnetic torus (the IPhO T3 sign convention); withdrawal of energy
+($\mathtt{val} < 0$, as when $B$ decreases) is physical, so no nonnegativity
+invariant is bundled.  Packaging wrapper only; no governing-law content.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Source work over an induced-EMF change]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:sourceWork}
+\lean{IPhO2026_3_A_2.sourceWork}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:UniformToroidOperatingPoint, def:IPhO2026Problems_problem_IPhO_2026_3_A_2:InducedEMFChange, def:IPhO2026Problems_problem_IPhO_2026_3_A_2:WorkOnSource}
+The work performed by the external voltage source over an induced-EMF change at
+a given operating point: the electrical power $\varepsilon\,I$ integrated over
+the elapsed time, read out as the scalar $\varepsilon\,I\,dt$.  Carries
+governing-law content: the energy-balance law of a voltage source
+($P = \varepsilon I$); by itself it does not state the Part A.2 answer.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[A.1 bridge: field strength in $A/V$ parameters]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_2:fieldStrength_eq_N_mul_I_mul_A_div_V}
+\lean{IPhO2026_3_A_2.fieldStrength_eq_N_mul_I_mul_A_div_V}
+\leanok
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:UniformToroidOperatingPoint, def:IPhO2026Problems_problem_IPhO_2026_3_A_2:ToroidData}
+The field magnitude written in the Part-A.1 recorded form,
+$H = N I A / V$.  A derivable bridge from the present file's data, not an
+assumption: Ampère's law restated through the ring-volume identity.
+\end{lemma}
+\begin{proof}
+Substitute $1/(2\pi R) = A/V$ — the volume law $V = 2\pi R A$ cleared by
+$A > 0$, $V > 0$ — into the bundled Ampère equation $H = N I/(2\pi R)$.
+\end{proof}
+
+\subsection*{Value theorems}
+
+\begin{theorem}[A.2 target: source work $dW_{\mathrm{emf}} = V H\,dB$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_A_2:work_emf_eq_V_mul_H_mul_dB}
+\lean{IPhO2026_3_A_2.work_emf_eq_V_mul_H_mul_dB}
+\leanok
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_2:sourceWork, def:IPhO2026Problems_problem_IPhO_2026_3_A_2:InducedEMFChange, lem:IPhO2026Problems_problem_IPhO_2026_3_A_2:fieldStrength_eq_N_mul_I_mul_A_div_V}
+When the magnetic flux density changes by $dB$, the work performed by the
+external voltage source is $dW_{\mathrm{emf}} = V H\,dB$ — the recorded
+official answer of Part A.2, conclusion-side only: the hypotheses are the
+governing laws (Faraday's law, Ampère's law via the A.1 bridge, the
+ring-volume law, the source power law), and the conclusion is not among them.
+\end{theorem}
+\begin{proof}
+Expand the source work as $\varepsilon\,I\,dt = (\varepsilon\,dt)\,I$ and
+replace $\varepsilon\,dt$ by $N A\,dB$ from Faraday's law, obtaining
+$N A I\,dB$; then rewrite $N A I = V H$ using the A.1 bridge
+$H = N I A / V$ (cleared by $V > 0$), concluding $dW_{\mathrm{emf}} = V H\,dB$.
+\end{proof}

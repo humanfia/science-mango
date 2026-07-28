@@ -40,9 +40,199 @@ Use Mathlib/Physlib names found through LeanExplore where available. If a domain
 
 \begin{theorem}[Physics formalization target]
 \label{thm:physics:IPhO_2026_3_B_2:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabatic_temperature_change}
 The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
 This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-004): positive targeted-import case — the covered file genuinely uses `Physlib.Electromagnetism.Dynamics.Basic` (the `FreeSpace` structure, `mu0`, in the magnetic constitutive laws of the paramagnetic torus), alongside `Mathlib.Analysis.Calculus.Deriv.Basic` and `Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic` for the derivative/integral work identities; the blanket domain-import check is satisfied and no further import is added. PhysLean has no cyclic-magnetization-work or heat-budget library (LeanExplore near misses only), so the work/hysteresis identities are faithful local laws.
 % --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 3-b-2-entries) ---
+% NOTE: import policy (mirrors the reconciliation note above, iter-004):
+% the covered file imports `Physlib.Electromagnetism.Dynamics.Basic` together
+% with `Mathlib.Analysis.Calculus.Deriv.Basic` and
+% `Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic` for the
+% derivative/integral work identities along quasistatic paths; PhysLean has no
+% paramagnetic-torus heat-budget or adiabatic-invariant module, so the
+% thermodynamic state, laws, and invariant are faithful local abstractions.
+% Every named non-private Lean declaration of the covered file gets a block
+% below; \uses{} reflects the actual Lean dependency structure read
+% first-hand.  The official B.2 temperature-change value appears only in the
+% conclusion-side target theorem at the end of this ledger.
+
+\subsection*{Named quantities and geometry data}
+
+\begin{definition}[Fixed torus parameters]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:TorusParameters}
+\lean{IPhO2026_3_B_2.TorusParameters}
+The constant parameters of the paramagnetic torus experiment: the fixed
+volume $V$, the amount of paramagnetic substance $n$, the Curie-type material
+constant $K$ of the equation of state $T M V = n K H$, the heat-capacity
+coefficient $\lambda$ of $C_M = n\lambda/T^2$, and the permeability of free
+space $\mu_0$ entering the magnetic work $dW = \mu_0 V H\,dM$ of part A.3 ---
+all recorded as positive real scalars.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Paramagnetic torus state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:ParamagneticTorusState}
+\lean{IPhO2026_3_B_2.ParamagneticTorusState}
+A macrostate of the torus: the applied magnetic field strength $H$, the
+magnetization $M$ (both scalar components along the torus axis), and the
+absolute temperature $T$.  The volume is fixed, so it lives in
+\cref{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:TorusParameters} rather
+than here.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Quasistatic state path]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:StatePath}
+\lean{IPhO2026_3_B_2.StatePath}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:ParamagneticTorusState}
+A path of quasistatic states, indexed by a real parameter (e.g.\ rescaled
+time); the adiabatic field change of part B.2 follows such a path.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Adiabatic ramp initial data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:AdiabaticEndpoints}
+\lean{IPhO2026_3_B_2.AdiabaticEndpoints}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:StatePath}
+The initial data of the adiabatic ramp: the path passes through field $H_i$
+at temperature $T_i$, with $H_i \ge 0$ and $T_i > 0$, matching the physical
+setup in which the signed ramp starts from a nonnegative field.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Adiabatic invariant]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabaticInvariant}
+\lean{IPhO2026_3_B_2.adiabaticInvariant}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:TorusParameters}
+The quantity $T^2\,(\lambda + \mu_0 K H^2)$, the combination of temperature
+and field conserved along any adiabatic path of the torus.  This only names
+the invariant; its conservation is proved in
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabatic_invariant_along_path}.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Paramagnetic torus laws along a path]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:ParamagneticTorusLaws}
+\lean{IPhO2026_3_B_2.ParamagneticTorusLaws}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:TorusParameters, def:IPhO2026Problems_problem_IPhO_2026_3_B_2:StatePath}
+The physical laws of the problem, bundled along a quasistatic path: positive
+temperature at every point (regularity needed for $C_M = n\lambda/T^2$ and
+division by $T$); the equation of state $T M V = n K H$; a heat-capacity
+function $C_M(t) = n\lambda/T(t)^2$, integrable on every interval; and the
+magnetic-work rate $\mu_0 V H(t)\,dM/dt$ of part A.3, likewise integrable.
+The integrability clauses bundle the smoothness of the quasistatic process
+needed to integrate the differential forms.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Adiabatic process law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:IsAdiabaticPath}
+\lean{IPhO2026_3_B_2.IsAdiabaticPath}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:ParamagneticTorusLaws}
+Along an adiabatic path no heat enters the torus, so the first law
+$dU = \delta Q + dW$ with the stated sign convention and $dU = C_M\,dT$
+forces the heat-capacity term to balance the magnetic work rate pointwise
+along the path: $C_M(t)\,dT/dt = -w(t)$.  This is the physical first law
+for zero heat transfer, not the final temperature formula.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Adiabatic invariant along a path]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabatic_invariant_along_path}
+\lean{IPhO2026_3_B_2.adiabatic_invariant_along_path}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:ParamagneticTorusLaws, def:IPhO2026Problems_problem_IPhO_2026_3_B_2:IsAdiabaticPath, def:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabaticInvariant}
+Under the governing laws and the adiabatic first-law balance, any two states
+of one adiabatic path share the same value of $T^2\,(\lambda + \mu_0 K H^2)$.
+This is the carrier of the integration step
+$dT/T = -(\mu_0 K/\lambda)\,H\,dH$.
+\end{lemma}
+\begin{proof}
+From the first-law balance, $(\lambda/T^2)\,dT = -(\mu_0 K)\,H\,dH/T$ after
+substituting the equation of state $M = nKH/(TV)$ into $dW = \mu_0 V H\,dM$
+and cancelling $n$ and $V$; equivalently the logarithmic derivative of $T^2$
+matches that of $(\lambda + \mu_0 K H^2)^{-1}$ along the path, so the product
+$T^2\,(\lambda + \mu_0 K H^2)$ has vanishing derivative and is constant.
+\end{proof}
+
+\begin{lemma}[Endpoint relation]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:endpoint_relation}
+\lean{IPhO2026_3_B_2.endpoint_relation}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabatic_invariant_along_path, def:IPhO2026Problems_problem_IPhO_2026_3_B_2:AdiabaticEndpoints}
+Specialized to the recorded endpoints $(H_i, T_i)$ and $(H_f, T_f)$ of the
+ramp, the conserved invariant gives
+$T_f^2\,(\lambda + \mu_0 K H_f^2) = T_i^2\,(\lambda + \mu_0 K H_i^2)$.
+\end{lemma}
+\begin{proof}
+Apply
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabatic_invariant_along_path}
+to any two path-parameter values realizing the initial state $(H_i, T_i)$
+(supplied by the endpoint data) and the witnessed final state $(H_f, T_f)$,
+then unfold the invariant at both points.
+\end{proof}
+
+\begin{lemma}[Positivity of the bracket]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:lam_add_mu0_K_sq_pos}
+\lean{IPhO2026_3_B_2.lam_add_mu0_K_sq_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:TorusParameters}
+For the positive parameters of the problem and any signed field $H$,
+$\lambda + \mu_0 K H^2 > 0$; this certifies that the square root and the
+quotient in the final answer are well-defined for either ramp direction.
+\end{lemma}
+\begin{proof}
+$H^2 \ge 0$ and $\mu_0, K > 0$ make $\mu_0 K H^2 \ge 0$; adding $\lambda > 0$
+forces the sum to be strictly positive.
+\end{proof}
+
+\subsection*{Target value theorem}
+
+\begin{theorem}[Adiabatic temperature change]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_B_2:adiabatic_temperature_change}
+\lean{IPhO2026_3_B_2.adiabatic_temperature_change}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_2:ParamagneticTorusLaws, def:IPhO2026Problems_problem_IPhO_2026_3_B_2:IsAdiabaticPath, def:IPhO2026Problems_problem_IPhO_2026_3_B_2:AdiabaticEndpoints, lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:endpoint_relation, lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:lam_add_mu0_K_sq_pos}
+\textbf{(Target, T3-B.2.)}  For an adiabatic change $H_i \to H_f$ of the
+paramagnetic torus starting at temperature $T_i$, with final temperature
+$T_f > 0$, the temperature change is
+\[
+\Delta T = T_f - T_i
+  = T_i\,\biggl(\sqrt{\frac{\lambda + \mu_0 K H_f^2}
+                          {\lambda + \mu_0 K H_i^2}} - 1\biggr),
+\]
+the recorded official answer of part B.2.  The relation is conclusion-side
+only: the hypotheses carry the governing laws, the adiabatic balance, the
+positive parameters, and the endpoint and regularity data $H_i \ge 0$,
+$T_i > 0$, $T_f > 0$ --- the square-root expression appears in no premise.
+\end{theorem}
+\begin{proof}
+From the endpoint relation of
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:endpoint_relation},
+$T_f^2 = T_i^2\,(\lambda + \mu_0 K H_f^2)/(\lambda + \mu_0 K H_i^2)$; the
+denominator is strictly positive by
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_2:lam_add_mu0_K_sq_pos}, so
+taking square roots with $T_i > 0$ and the assumed $T_f > 0$ gives
+$T_f = T_i\,\sqrt{(\lambda + \mu_0 K H_f^2)/(\lambda + \mu_0 K H_i^2)}$,
+hence $T_f - T_i$ has the displayed form.
+\end{proof}

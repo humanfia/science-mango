@@ -43,9 +43,322 @@ Use Mathlib/Physlib names found through LeanExplore where available. If a domain
 
 \begin{theorem}[Physics formalization target]
 \label{thm:physics:IPhO_2026_2_B_2:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_2_B_2:power_ratio_in_terms_of_theta_max}
 The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
 This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
 % --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 2-b-2-entries; restored planner-side iter-009 after the chapter body was found truncated back to the 51-line iter-002 skeleton) ---
+% NOTE: import policy (mirrors the iter-002 PhysLean-coverage exemption NOTE of
+% this chapter family, e.g. 2-b-1): the covered file builds on the
+% `import Mathlib` baseline alone; PhysLean has no specular-reflection /
+% geometric-optics module for the Figure-2f half-cylinder mirror regime, so no
+% Physlib import is added (see the physics-grounding log for this file).  This
+% NOTE records the resolved import policy for the blueprint-doctor
+% `missing-physlib-import` check.
+
+\subsection*{Cross-section geometry and data}
+
+\begin{definition}[Cross-section plane]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:Plane}
+\lean{IPhO2026_2_B_2.Plane}
+The transverse cross-sectional plane of the cooker, the Euclidean plane
+$\mathbb{E}^2 \cong \mathbb{R}^2$ with its inner product.  The physical
+system is translationally invariant along the cylinder axes, so a single
+cross-section captures all the geometry; points have units of length.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooker parameters]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams}
+\lean{IPhO2026_2_B_2.CookerParams}
+Dimensionful parameters of the cooker: the mirror radius $R$ and the
+container radius $a$ (both lengths), bundled with their positivity
+certificates $0 < R$ and $0 < a$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooker cross-section geometry]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerGeometry}
+\lean{IPhO2026_2_B_2.CookerGeometry}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:Plane}
+The geometry of the cross-section (Figure~2f): the mirror centre $C$, the
+container centre $A$, the unit vector $e$ along the optical axis pointing
+from $C$ towards the open half of the half-cylinder mirror, and the
+in-plane unit normal $n$ ($n \perp e$, chosen on the container's side),
+with the container centre lying $R/2$ from $C$ along $n$:
+$A - C = (R/2) \bullet n$.  Sunlight arrives in the direction $-e$.
+The bundled fields record $\|e\| = 1$, $\|n\| = 1$,
+$\langle n, e \rangle = 0$, and the offset law.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Mirror circle]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:mirrorCircle}
+\lean{IPhO2026_2_B_2.mirrorCircle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerGeometry}
+The full circle of radius $R$ centred at $C$: the cross-sectional profile
+of the cylindrical mirror.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Container disk]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:containerDisk}
+\lean{IPhO2026_2_B_2.containerDisk}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerGeometry}
+The absorbing disc: the closed disk of radius $a$ centred at $A$, the
+cross-section of the cylindrical container.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Half-mirror arc]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:halfMirrorArc}
+\lean{IPhO2026_2_B_2.halfMirrorArc}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:mirrorCircle}
+The half-cylinder mirror arc: the semicircle of
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:mirrorCircle} lying in
+the $0 \le \langle m - C, e\rangle$ half-plane --- the
+``half-hollow-cylinder mirror'' of Figure~2f.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Absorbed-ray bookkeeping]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:AbsorbedRays}
+\lean{IPhO2026_2_B_2.AbsorbedRays}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:halfMirrorArc, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:containerDisk, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams}
+Single-bounce bookkeeping for the sun rays absorbed by the container.  The
+carrier pairs the incidence-point map $\mathrm{incidentPt} : \mathbb{R} \to
+\mathbb{E}^2$ with the impact-parameter hit set; the bundled hypotheses
+record the governing physical laws, kept as assumptions rather than
+redefined locally: every absorbed ray (a) strikes the half-cylinder arc of
+the mirror (incidence points land in
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:halfMirrorArc}), (b)
+obeys the specular reflection law on the circular profile --- the reflected
+ray reaches an absorbed endpoint $q$ in
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:containerDisk} with
+$q - \mathrm{incidentPt}\,y = (2\langle \mathrm{incidentPt}\,y - C, n\rangle - R) \bullet n$ ---
+and the Figure-2f branch information (c) the axial (central) ray is
+absorbed, (d) the absorbed family is gap-free right of the axis
+(contiguity of the single-bounce fan), and (e) every impact parameter in
+$(0, R)$ is realized (strengthened at iter-009, see the NOTE below), so
+the collected fan is exactly the open half aperture: it fills one side
+from the axis to the aperture edge and $\theta_{\max}$ is a maximum over
+a connected family.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+% NOTE: Statement reconciliation (planner-recorded, iter-009; review-gate
+% session-8 R1).  Clause (e) previously read ``every impact parameter in
+% $(0, a)$ is realized'', quantifying only over the container silhouette
+% band.  That form cannot entail the advertised
+% $\mathrm{collectedWidth} = R$: at container radius $a \ll R$ a thin
+% absorbed fan inside $(0, a)$ satisfies every field while the supremum
+% stays $\le a$ (constructive countermodel at $R = 1$, $a = 0.1$:
+% $P/P_0 = R/(2a) = 5 \neq 1/(1-\cos\theta_{\max}) \approx 1.005$).
+% The field was therefore strengthened to quantify over $(0, R)$, the full
+% Figure-2f half aperture the proof of
+% \cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth_eq_radius}
+% already narrates.  Source warrant: under the B.1 calibration
+% $a = R\sin\theta\,(1-\cos\theta)$, $\theta \in (0, \/2)$, a
+% figure-realizable family at arbitrarily small $a$ exists only if coverage
+% reaches arbitrarily close to $R$ --- its $\theta$-value must also realize
+% the $\theta_{\max}$ specification of
+% \cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:ThetaMaxSpec}.  With
+% the strengthened field the $\mathrm{collectedWidth} = R$ proof closes
+% (supremum over the open half aperture); without it the target theorem is
+% false.
+% End of NOTE.
+
+\begin{definition}[Collected width]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth}
+\lean{IPhO2026_2_B_2.collectedWidth}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:AbsorbedRays}
+The transverse width (impact-parameter support) of the rays that the mirror
+concentrates onto the container: the supremum of the axial readouts
+$\langle \mathrm{incidentPt}\,y - C, e\rangle$ over the hit set.  With
+uniform parallel sunlight this width is proportional to the received power
+$P$ (per unit axial length).  At the Figure-2f operating point the
+hit-set readouts fill the open half aperture $(0, R)$ (full side
+coverage), so the supremum is $R$ --- the physical content of
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth_eq_radius}.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Uniform sunlight intensity]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:UniformIntensity}
+\lean{IPhO2026_2_B_2.UniformIntensity}
+Uniform parallel sunlight: the incoming intensity $I$ (power per unit area)
+is constant across the aperture and certified positive by a bundled field
+$0 < I$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Power budget]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:PowerBudget}
+\lean{IPhO2026_2_B_2.PowerBudget}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:UniformIntensity, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams}
+The power budget for the configuration: $P$, the power actually received by
+the absorbing container from the mirror, and $P_0$, the power it would
+receive without the mirror.  The bundled hypotheses state the physical
+accounting under uniform intensity $I$: both quantities are proportional to
+their transverse collected widths per unit axial length, namely
+$P = I \cdot \mathrm{collectedWidth}$ and $P_0 = I \cdot (2a)$ (the
+container's unmirrored geometric width, its diameter).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[B.1 calibration]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:B1Calibration}
+\lean{IPhO2026_2_B_2.B1Calibration}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams}
+The previous-part (B.1, $\alpha = R$, $\beta = -R/2$) result, kept as a
+calibration hypothesis for the geometry: the container radius relates to
+the maximum incidence angle by
+$a = R \sin\theta - (R/2) \sin(2\theta)$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Incidence angle]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:incidenceAngle}
+\lean{IPhO2026_2_B_2.incidenceAngle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerGeometry}
+The incidence angle at a mirror point $m$ on the circular profile of
+radius $R$, measured against the normal at $m$:
+$\arccos\bigl(|\langle m - C, e\rangle| / R\bigr)$ --- the angle
+between the incoming direction $e$ and the radius to $m$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Maximum incidence angle specification]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:ThetaMaxSpec}
+\lean{IPhO2026_2_B_2.ThetaMaxSpec}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:AbsorbedRays, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:incidenceAngle}
+The specification of $\theta_{\max}$: the largest angle of incidence on
+the mirror (measured against the normal at the point of incidence) among
+all reflected rays striking the container, lying in $(0, \/2)$ --- the
+branch of nontrivial, non-grazing rays seen in Figure~2f.  Concretely:
+$\theta$ is attained at some absorbed impact parameter and bounds the
+incidence angle of every absorbed ray.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Impact parameters bounded by the aperture]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:impactParam_le_aperture}
+\lean{IPhO2026_2_B_2.impactParam_le_aperture}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:AbsorbedRays, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:mirrorCircle}
+Every mirror-collected impact parameter is bounded in absolute value by
+the aperture radius: for every absorbed impact parameter $y$,
+$|\langle \mathrm{incidentPt}\,y - C, e\rangle| \le R$.
+\end{lemma}
+\begin{proof}
+The incidence point lies on the mirror circle, so
+$\|\mathrm{incidentPt}\,y - C\| = R$; since $\|e\| = 1$,
+Cauchy--Schwarz for the inner product gives
+$|\langle \mathrm{incidentPt}\,y - C, e\rangle| \le
+\|\mathrm{incidentPt}\,y - C\| \cdot \|e\| = R$.
+\end{proof}
+
+\begin{lemma}[Collected width equals the radius]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth_eq_radius}
+\lean{IPhO2026_2_B_2.collectedWidth_eq_radius}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:AbsorbedRays, lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:impactParam_le_aperture, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:CookerParams}
+The transverse width collected by the half-cylinder mirror on the
+container's side equals $R$ (one full half of the aperture $2R$):
+$\mathrm{collectedWidth} = R$.
+\end{lemma}
+\begin{proof}
+Upper bound: every impact-parameter readout is at most $R$ by
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:impactParam_le_aperture}
+(incidence points lie on the mirror circle; Cauchy--Schwarz with
+$\|e\| = 1$), so the defining supremum does not exceed $R$; the readout
+family is bounded and nonempty (the central ray $0$ is absorbed).
+Lower bound: the (iter-009 strengthened) full side coverage realizes every
+impact parameter $y \in (0, R)$ as an absorbed readout, so the readout
+set contains the whole open half aperture $(0, R)$, whose supremum in
+$\mathbb{R}$ is $R$.  Hence the supremum of the full readout family is at
+least $R$; combined with the upper bound it equals $R$.
+\end{proof}
+
+\begin{lemma}[Power ratio as width ratio]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:power_ratio_eq_width_ratio}
+\lean{IPhO2026_2_B_2.power_ratio_eq_width_ratio}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:PowerBudget, lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth_eq_radius}
+Power ratio from the width accounting only:
+$P / P_0 = R / (2a)$.  With the B.1 calibration this becomes the target
+trigonometric form.
+\end{lemma}
+\begin{proof}
+Substitute the two budget identities
+$P = I \cdot \mathrm{collectedWidth}$ and $P_0 = I \cdot (2a)$; the
+common positive intensity $I$ cancels in the ratio, and
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:collectedWidth_eq_radius}
+replaces $\mathrm{collectedWidth}$ by $R$.
+\end{proof}
+
+\begin{lemma}[Radius-over-diameter trigonometric bridge]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:radius_over_diameter_eq}
+\lean{IPhO2026_2_B_2.radius_over_diameter_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_2:B1Calibration}
+For $\theta \in (0, \/2)$ satisfying the B.1 calibration,
+$R / (2a) = 1 / (1 - \cos\theta)$.
+\end{lemma}
+\begin{proof}
+By the double-angle identity and the calibration,
+$2a = 2R\sin\theta - R\sin(2\theta)
+= 2R\sin\theta\,(1 - \cos\theta)$,
+so $R/(2a) = 1/(1 - \cos\theta)$ after cancelling the positive factor
+$2R\sin\theta$ (positivity from $\theta \in (0, \/2)$ and $0 < R$);
+this leaves $R/(2a) = 1/(1 - \cos\theta)$.
+\end{proof}
+
+\begin{theorem}[Power ratio in terms of $\theta_{\max}$ (T2-B.2 target)]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_B_2:power_ratio_in_terms_of_theta_max}
+\lean{IPhO2026_2_B_2.power_ratio_in_terms_of_theta_max}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:power_ratio_eq_width_ratio, lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:radius_over_diameter_eq, def:IPhO2026Problems_problem_IPhO_2026_2_B_2:ThetaMaxSpec}
+For the cooker of Figure~2f with absorbed-ray bookkeeping, power budget,
+and maximum-incidence-angle specification $\theta_{\max}$, the ratio of
+the received power $P$ to the unmirrored power $P_0$ is
+$P / P_0 = 1 / (1 - \cos\theta_{\max})$ --- the recorded official
+answer of part B.2.
+\end{theorem}
+\begin{proof}
+The B.1 calibration at the specified maximum angle yields
+$R/(2a) = 1/(1 - \cos\theta_{\max})$ by
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:radius_over_diameter_eq};
+chaining with
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_2:power_ratio_eq_width_ratio},
+$P/P_0 = R/(2a)$, yields the claim.
+\end{proof}

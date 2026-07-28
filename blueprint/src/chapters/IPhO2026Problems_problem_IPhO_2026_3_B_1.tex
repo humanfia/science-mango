@@ -40,9 +40,259 @@ Use Mathlib/Physlib names found through LeanExplore where available. If a domain
 
 \begin{theorem}[Physics formalization target]
 \label{thm:physics:IPhO_2026_3_B_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_B_1:OfficialAnswerValue}
 The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
 This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean's thermodynamics modules do not cover this paramagnetic-torus magnetic-work/isothermal-first-law model (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
 % --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 3-b-1-entries) ---
+% NOTE: import policy (mirrors the reconciliation note above, iter-002 exemption):
+% the covered file builds on the `import Mathlib` baseline alone; PhysLean has no
+% paramagnetic-torus magnetic-work or isothermal first-law module, so no Physlib
+% import is added.  This NOTE records the resolved import policy for the chapter.
+\subsection*{Quantities and data}
+
+\begin{definition}[Torus parameters]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams}
+\lean{IPhO2026.Problem3.B1.TorusParams}
+The constant parameters of the paramagnetic torus experiment: the
+permeability of free space $\mu_0$, the fixed torus volume $V$, the amount
+of paramagnetic material $n$ (moles), the material constant $K$ appearing
+in the equation of state $T M V = n K H$, and the heat-capacity coefficient
+$\lambda$ of $C_M = n\lambda/T^2$.  All fields are physical scalars;
+positivity and regularity constraints enter separately as hypotheses where
+they are needed.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Torus state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusState}
+\lean{IPhO2026.Problem3.B1.TorusState}
+The variables that vary along a quasistatic process of the torus: the
+temperature $T$, the magnetization $M$ (magnetic moment per unit volume),
+and the applied magnetic field strength $H$.  The volume is fixed, so it
+lives in the parameters record rather than here.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Heat capacity at constant magnetization]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatCapacityConstM}
+\lean{IPhO2026.Problem3.B1.heatCapacityConstM}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams}
+The heat capacity at constant magnetization as given in the problem
+statement, $C_M(T) = n\lambda/T^2$, as a real-valued readout of the torus
+parameters at temperature $T$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Equation of state of the paramagnet]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:SatisfiesEOS}
+\lean{IPhO2026.Problem3.B1.SatisfiesEOS}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusState}
+The magnetic equation of state of the torus material as a predicate on a
+parameter record and a state: $T\,M\,V = n\,K\,H$.  This is a governing law
+recorded from the problem statement, not a target.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Heat-capacity law for the internal energy]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HasHeatCapacityLaw}
+\lean{IPhO2026.Problem3.B1.HasHeatCapacityLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatCapacityConstM}
+The characterization of the material's internal energy $U$: at constant
+magnetization $dU = C_M\,dT$; that is, $U$ is a function of temperature
+alone, differentiable at every nonzero $T$ with derivative
+$C_M(T) = n\lambda/T^2$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Magnetic work-on density]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:IsMagneticWorkDensity}
+\lean{IPhO2026.Problem3.B1.IsMagneticWorkDensity}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams}
+The pointwise record of the magnetic work differential of part A.3,
+$dW_{\mathrm{on}} = \mu_0\,V\,H\,dM$, along a quasistatic process
+parametrized by the magnetization: a density function satisfies
+$\mathit{workDensity}(M) = \mu_0\,V\,H(M)$ for every $M$, so the work done
+on the material from $M_0$ to $M_1$ is
+$\int_{M_0}^{M_1} \mathit{workDensity}(M)\,dM$.  Natural-language
+prerequisite of part A.3, recorded as a governing law.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[First law with magnetic work, isothermal form]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic}
+\lean{IPhO2026.Problem3.B1.ObeysFirstLawMagnetic}
+\lean{IPhO2026.Problem3.B1.IsothermalFieldChange}
+\lean{IPhO2026.Problem3.B1.IsothermalFieldChange.field_increases}
+\lean{IPhO2026.Problem3.B1.IsothermalFieldChange.h_branch}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:SatisfiesEOS, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HasHeatCapacityLaw, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:IsMagneticWorkDensity}
+The first law of thermodynamics for the torus along a quasistatic
+isothermal process at temperature $T_{\mathrm{iso}}$, under the source sign
+convention (work and heat entering the torus are positive): given
+$\mathit{HasHeatCapacityLaw}$, the internal-energy bracket vanishes over
+every isothermal leg, so for all $M_0, M_{\mathrm{target}}$,
+\[
+Q_{\mathrm{in}}(M_{\mathrm{target}}) - Q_{\mathrm{in}}(M_0)
+= \bigl(U(T_{\mathrm{iso}}) - U(T_{\mathrm{iso}})\bigr)
+- \int_{M_0}^{M_{\mathrm{target}}} \mathit{heatDensity}(M)\,dM .
+\]
+The accompanying \texttt{IsothermalFieldChange} record packages the process
+data of one isothermal field change $H_i \to H_f$ at fixed $T \neq 0$: the
+magnetization branch $H \mapsto M(H)$ obeying the equation of state on the
+whole tracked range (the convex hull of $H_i$, $H_f$, and the demagnetized
+reference field $0$), the cumulative heat readout $Q_{\mathrm{in}}(M)$
+normalized by $Q_{\mathrm{in}}(0) = 0$, and a Boolean orientation flag for
+the field ramp certified against the endpoint magnetizations.
+\end{definition}
+\begin{proof}
+Definition; no claim.  The first law yields the leg balance by
+$\Delta U = 0$ along an isotherm; the field-change record only packages
+data and certifications.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Magnetization fixed by the equation of state]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:MagnetizationEqEosSolution}
+\lean{IPhO2026.Problem3.B1.magnetization_eq_eos_solution}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:SatisfiesEOS, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic}
+Along the tracked isotherm of an \texttt{IsothermalFieldChange} with
+$V \neq 0$, the pointwise solution of the equation of state pins the
+magnetization to a linear function of the applied field,
+$M(H) = n K H / (T V)$, at every $H$ in the recorded range.
+\end{lemma}
+\begin{proof}
+Solve $T M V = n K H$ for $M$ using $T \neq 0$ and $V \neq 0$: divide
+$T M V = n K H$ through by $T V$.
+\end{proof}
+
+\begin{lemma}[Leg stays in the tracked range]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:LegMemTrackedRange}
+\lean{IPhO2026.Problem3.B1.leg_mem_tracked_range}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic, lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:MagnetizationEqEosSolution}
+The magnetization-ramp leg from the demagnetized reference $0$ to any
+tracked endpoint magnetization $M(H)$ stays inside the tracked field range,
+so the equation of state --- hence
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:MagnetizationEqEosSolution}
+--- applies to every point of the work integrals
+$\int_{0}^{M(H)} \mathit{workDensity}(M)\,dM$.
+\end{lemma}
+\begin{proof}
+Case analysis on the position of $M \in [0, M(H)]$ against the endpoint
+membership bounds; both range endpoints are $\min$/$\max$ combinations, so
+bound chaining closes the pure set-inclusion obligation --- physical
+content is only the convexity of the tracked range.
+\end{proof}
+
+\begin{lemma}[Evaluation of one isothermal work leg]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:LegWorkIntegralEval}
+\lean{IPhO2026.Problem3.B1.leg_work_integral_eval}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:IsMagneticWorkDensity, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic, lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:MagnetizationEqEosSolution, lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:LegMemTrackedRange}
+The magnetic work delivered on the torus along the isothermal ramp from the
+demagnetized reference to a tracked field $H$ evaluates to
+\[
+\int_{0}^{M(H)} \mu_0 V M(H(M))\,dM
+= \frac{\mu_0 n K}{2 T}\,\bigl(M(H)\bigr)^2 ,
+\]
+the micro-evaluation used once per endpoint in the target proof.
+\end{lemma}
+\begin{proof}
+Rewrite the integrand pointwise via
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:MagnetizationEqEosSolution}
+(applicable on the whole leg by
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:LegMemTrackedRange}),
+so the integrand becomes $\mu_0 V \cdot M$ times a constant scalar; then
+evaluate $\int c\,M\,dM = c\,M(H)^2/2$.
+\end{proof}
+
+\subsection*{Isothermal heat and value theorems}
+
+\begin{definition}[Heat transferred into the torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatTransferredIntoTorus}
+\lean{IPhO2026.Problem3.B1.heatTransferredIntoTorus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic}
+The physical heat transferred into the torus between the initial and final
+states of the isothermal field change: the difference of the tracked
+cumulative heat readout,
+$Q_{\mathrm{in}}(M(H_f)) - Q_{\mathrm{in}}(M(H_i))$.  This is the quantity
+the target theorem characterizes; its closed form must still be derived.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Closed-form heat value carrier]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatIntoTorusValue}
+\lean{IPhO2026.Problem3.B1.heat_into_torus_value}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic}
+The named closed-form value of the heat transferred into the torus along an
+isothermal field change, $-(\mu_0 n K/(2T))(H_f^2 - H_i^2)$.  This only
+\emph{names} the quantity the target theorem speaks about; no hypothesis
+states that the physical heat equals this value --- deriving the equality
+from the equation of state, the work law, and the first law is the proof
+obligation.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{theorem}[Isothermal heat into the torus]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_B_1:IsothermalHeatIntoTorus}
+\lean{IPhO2026.Problem3.B1.isothermal_heat_into_torus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HasHeatCapacityLaw, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:IsMagneticWorkDensity, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatTransferredIntoTorus, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatIntoTorusValue, lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:MagnetizationEqEosSolution, lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:LegWorkIntegralEval}
+Along an isothermal field change of the paramagnetic torus obeying the
+equation of state, with the magnetic work $dW = \mu_0 V H\,dM$ of part A.3
+and the first law of thermodynamics, the heat transferred into the torus
+(the difference of the tracked heat readout between the final and initial
+states) equals the closed-form value carrier:
+$Q = -(\mu_0 n K/(2T))(H_f^2 - H_i^2)$.  No hypothesis states this closed
+form in advance: the first-law hypothesis only supplies leg balances
+against the demagnetized reference, and deriving the value of each work
+integral is the proof obligation.
+\end{theorem}
+\begin{proof}
+Apply the first-law leg balance to the two legs $0 \to M(H_i)$ and
+$0 \to M(H_f)$; the internal-energy brackets vanish by the heat-capacity
+law along the isotherm, so
+$Q = -\bigl(W_{\mathrm{on}}(H_f) - W_{\mathrm{on}}(H_i)\bigr)$ with each
+$W_{\mathrm{on}}$ evaluated by
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_3_B_1:LegWorkIntegralEval};
+substituting the equation-of-state solution
+$M(H) = n K H /(T V)$ at both endpoints and cancelling $V$ reduces the
+difference to the closed form by algebra.
+\end{proof}
+
+\begin{theorem}[Recorded official answer]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_B_1:OfficialAnswerValue}
+\lean{IPhO2026.Problem3.B1.official_answer_value}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_B_1:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:ObeysFirstLawMagnetic, def:IPhO2026Problems_problem_IPhO_2026_3_B_1:HeatIntoTorusValue}
+The closed value of the heat transferred into the torus carried by the
+target theorem equals the closed form recorded in the official answer key,
+\[
+Q = -\frac{\mu_0\,n\,K}{2 T}\,\bigl(H_f^2 - H_i^2\bigr).
+\]
+This entry is conclusion-side only: it pins the value of the answer
+carrier; it is not a hypothesis of any theorem.
+\end{theorem}
+\begin{proof}
+Definitional unfolding of the value carrier; reflexivity.
+\end{proof}

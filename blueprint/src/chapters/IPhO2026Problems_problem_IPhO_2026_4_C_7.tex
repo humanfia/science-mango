@@ -41,9 +41,161 @@ Use Mathlib/Physlib names found through LeanExplore where available. If a domain
 
 \begin{theorem}[Physics formalization target]
 \label{thm:physics:IPhO_2026_4_C_7:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_C_7:acrylicConductivity_officialSample}
 The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
 This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-004): positive targeted-import case — the covered file genuinely uses `Physlib.Thermodynamics.Temperature.Basic` (typed temperature quantities for the C.7 thermal readouts); the blanket domain-import check is satisfied and no further import is added. PhysLean has no apparatus-calibration/uncertainty-band library, so the remaining C.7 carriers are faithful local laws on the typed-temperature baseline.
 % --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 4-c-7-entries) ---
+% Entries for the full C.7 radial-Fourier-conduction / acrylic-conductivity
+% readout layer, transcribed first-hand from the Lean source (0 errors,
+% 2 sorried value theorems at last audit --- the on-disk statements are the
+% frozen contract).  On-disk namespace is `IPhO2026.Problem4.C7` (the
+% iter-008 directive's `IPhO2026.Problem3.C4` was stale).  \uses{} mirrors
+% the actual Lean dependency structure; the projections
+% `CylindricalWallGeometry.lateralArea` and
+% `RadialFourierConduction.wall_current` are folded as extra \lean{} lines
+% (lateralArea into its parent structure entry; wall_current, a theorem on
+% disk, gets its own bridge lemma block).  The official sample value
+% lambda = 0.25 +/- 0.01 W/(m*K) appears only in the conclusion-side entry
+% `acrylicConductivity_officialSample` (and in the skeleton's
+% recorded-answer paragraph, kept verbatim); the C.6 inputs (wall
+% resistance, Figure-17 radii, wetted height) and both governing laws stay
+% assumption-side.
+
+\subsection*{Quantities and readout data}
+
+\begin{definition}[Thermal experiment readout data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:ThermalExperimentData}
+\lean{IPhO2026.Problem4.C7.ThermalExperimentData}
+The scalar experiment readout package in SI units: the effective wall
+thermal resistance $R_{Th}$ (K/W) measured in part C.6 as
+$1.17 \pm 0.03\ \mathrm{K/W}$ (of which only the interval is used here),
+together with the recorded water temperatures $T_{IC}$ and $T_{OC}$ (K) of
+the inner and outer cylinders. This is readout content: it carries no
+governing law --- Equation (4) lives instead in
+\cref{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:LumpedHeatFlowLaw}.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cylindrical wall geometry and lateral area]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:CylindricalWallGeometry}
+\lean{IPhO2026.Problem4.C7.CylindricalWallGeometry}
+\lean{IPhO2026.Problem4.C7.CylindricalWallGeometry.lateralArea}
+The Figure-17 geometry of the acrylic wall separating the two cylinders:
+inner radius $r_1 = 33.7/2\ \mathrm{mm} = 16.85\ \mathrm{mm}$ (the IC
+bore radius), outer radius $r_2 = r_1 + 6.4\ \mathrm{mm} = 23.25$
+mm (wall thickness $6.4 \pm 0.1\ \mathrm{mm}$), and wetted
+wall height $h = 10\ \mathrm{cm}$, the IC water level of Procedure
+step 3; lengths are stored in metres with certificates $0 < r_1$,
+$r_1 < r_2$, $0 < h$. The folded projection \texttt{lateralArea} is the
+lateral cylinder area $A(r) = 2\pi r h$ at radius $r$ --- the area $A$
+appearing in Fourier's law (6) for radial conduction through a slim wall.
+All geometry entries are figure/procedure readouts (assumption side).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures (assumption side)}
+
+\begin{definition}[Lumped heat-flow law, Eq.\ (4)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:LumpedHeatFlowLaw}
+\lean{IPhO2026.Problem4.C7.LumpedHeatFlowLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:ThermalExperimentData}
+Equation (4) of the problem, the lumped heat-flow model: the heat received
+by the IC water through the wall per unit time is
+$P = (T_{OC} - T_{IC})/R_{Th}$. Taken as a modeling hypothesis (governing
+law) on an already-given current $P$; it is not the definition of
+$R_{Th}$ nor of $P$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Radial Fourier conduction, Eq.\ (6)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:RadialFourierConduction}
+\lean{IPhO2026.Problem4.C7.RadialFourierConduction}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:CylindricalWallGeometry}
+Steady 1-D radial Fourier conduction through the slim cylindrical wall:
+the \texttt{steady} field (the pump homogenizes the water temperatures, so
+the profile is stationary) asserts constancy of the outward heat current
+$P(r)$ across the whole wall $r \in [r_1, r_2]$, and the
+\texttt{fourier} field is Fourier's law (6) at every radius,
+$P(r) = -\lambda\,A(r)\,\mathrm{d}T/\mathrm{d}r$ with
+$A(r) = 2\pi r h$. An assumed governing-law structure; the C.7 answer
+never appears among its fields.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Constancy of the wall heat current]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_C_7:RadialFourierConduction.wall_current}
+\lean{IPhO2026.Problem4.C7.RadialFourierConduction.wall_current}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:RadialFourierConduction}
+The constant wall heat current delivered by the steady state: for any two
+radii $r, r' \in [r_1, r_2]$ inside the wall, $P(r) = P(r')$. This is the
+eliminable content that the C.7 derivation integrates against.
+\end{lemma}
+\begin{proof}
+Direct application of the \texttt{steady} field of the
+radial-Fourier-conduction witness at the two radii --- an intentional
+projection extracting the constant-current value.
+\end{proof}
+
+\subsection*{Value theorems (conclusion side)}
+
+\begin{theorem}[C.7 derivation formula: acrylic conductivity from the data]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_C_7:acrylicConductivity_formula}
+\lean{IPhO2026.Problem4.C7.acrylicConductivity_formula}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_7:CylindricalWallGeometry, def:IPhO2026Problems_problem_IPhO_2026_4_C_7:ThermalExperimentData, def:IPhO2026Problems_problem_IPhO_2026_4_C_7:LumpedHeatFlowLaw, def:IPhO2026Problems_problem_IPhO_2026_4_C_7:RadialFourierConduction}
+Combining the lumped heat-flow law (4) with steady radial Fourier
+conduction (6) through the wall $[r_1, r_2]$, imposing the boundary
+temperatures $T(r_1) = T_{IC}$, $T(r_2) = T_{OC}$ and the drive
+$T_{IC} < T_{OC}$ (with $R_{Th} \ne 0$, $\lambda \ne 0$), the acrylic
+conductivity is
+\[ \lambda \;=\; \frac{\ln(r_2/r_1)}{2\pi h\,R_{Th}}. \]
+This is the recorded C.7 answer formula --- the conclusion of the
+derivation, never a hypothesis.
+\end{theorem}
+\begin{proof}
+Constancy and positivity of $P = (T_{OC}-T_{IC})/R_{Th} > 0$ give
+$\mathrm{d}T/\mathrm{d}r < 0$ (outward-decreasing profile, so the
+derivative exists almost everywhere on $(r_1, r_2)$); integrating
+$P/(2\pi\lambda h r) = -\mathrm{d}T/\mathrm{d}r$ over $[r_1, r_2]$ yields
+$P\ln(r_2/r_1)/(2\pi\lambda h) = T_{IC} - T_{OC}$ via
+$\int r^{-1} = \ln$; substituting Eq.\ (4) for $P$ and solving for
+$\lambda$ gives the claimed formula. The certified integration is the
+sorried proof body left to the prover stage.
+\end{proof}
+
+\begin{theorem}[C.7 official sample value with propagated uncertainty]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_C_7:acrylicConductivity_officialSample}
+\lean{IPhO2026.Problem4.C7.acrylicConductivity_officialSample}
+For $\lambda$ given by the C.7 formula at the official sample inputs ---
+the C.6 central measurement $R_{Th} = 1.17\ \mathrm{K/W}$, the Figure-17
+geometry $r_2/r_1 = 23.25/16.85$ and wetted height $h = 0.10$
+m --- the official sample report
+$\lambda = 0.25 \pm 0.01\ \mathrm{W/(m\cdot K)}$ holds:
+$\lvert \lambda - 0.25 \rvert \le 0.01$. The official band lives only
+here, on the conclusion side; the formula itself is taken as the
+hypothesis \texttt{hformula} because
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_4_C_7:acrylicConductivity_formula}
+is proved independently.
+\end{theorem}
+\begin{proof}
+Direct numerical evaluation of the formula at $R_{Th} = 1.17$:
+$\ln(23.25/16.85)/(2\pi \cdot 0.10 \cdot 1.17) \approx 0.25$
+W/(m$\cdot$K), inside the recorded $\pm 0.01$ window; certified
+interval/refinement arithmetic is the sorried proof body left to the
+prover stage.
+\end{proof}

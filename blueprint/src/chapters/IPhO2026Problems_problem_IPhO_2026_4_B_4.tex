@@ -42,9 +42,201 @@ Use Mathlib/Physlib names found through LeanExplore where available. If a domain
 
 \begin{theorem}[Physics formalization target]
 \label{thm:physics:IPhO_2026_4_B_4:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_B_4:target}
 The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
 This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no module covering this experimental-physics part as modeled (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
 % --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 4-b-4-entries) ---
+% NOTE: import policy (mirrors the exemption note above): the covered file
+% builds on the `import Mathlib` baseline; PhysLean has no module covering
+% this experimental vapor-pressure part as modeled, so no Physlib import is
+% added.  Verified on disk: namespace `IPhO2026_4_B_4` (flat), 0 errors,
+% 2 contracted sorries (`vaporPressure_eq`, `target`) --- the on-disk
+% statements are the frozen contract, transcribed first-hand.
+% Entries below cover the full B.4 readout layer in dependency order:
+% geometry/quantities first, governing-law structures, derivation bridges,
+% value/target theorems last.  The official B.4 answer
+% P_v = P_atm*(1 - (H_0*T)/(H*T_0)) is confined to the two value/target
+% theorem entries (and the skeleton's recorded-answer paragraph, kept
+% verbatim); every law field stays assumption-side.
+
+\subsection*{Quantities and data}
+
+\begin{definition}[Gas column geometry]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:GasColumnGeometry}
+\lean{IPhO2026_4_B_4.GasColumnGeometry}
+The geometry of the gas column trapped in the inner cylinder (Figure 19):
+a uniform cross-sectional area $A$ (in $\mathrm{m}^2$) together with a
+positivity certificate $0 < A$, so that the recorded water-level height
+$H$ determines the headspace volume.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Trapped gas volume]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:gasVolume}
+\lean{IPhO2026_4_B_4.gasVolume}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:GasColumnGeometry}
+The headspace volume of the trapped gas at recorded water-level height
+$H$: $\mathit{gasVolume}\,H = A \cdot H$.  Defined for arbitrary real
+$H$; the physical law fields restrict it to positive heights, so $H$
+plays the role of volume per unit cross-sectional area in the gas laws.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[B.4 physical data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:GasColumnGeometry, def:IPhO2026Problems_problem_IPhO_2026_4_B_4:gasVolume}
+The full physical data package of subquestion B.4: the gas-column
+geometry; the constant total pressure $P_{atm} > 0$ held fixed by the
+syringe; the gas constant $R > 0$; the fixed dry-air content
+$n_{\mathrm{air}} > 0$ of the sealed headspace; the reference temperature
+$T_0$ fixed at the $0\,^\circ\mathrm{C}$ reference of the exam and the
+extrapolated height $H_0 > 0$ at $T_0$ (B.3 result); the dry-air partial
+pressure $p_{\mathrm{air}}(T',H')$, vapor pressure $P_v(T',H')$, and
+vapor molar content $n_{\mathrm{vap}}(T',H')$ at each admitted state,
+with $n_{\mathrm{vap}} \ge 0$.  Its law fields are Dalton's law with the
+syringe arrangement, $p_{\mathrm{air}}(T',H') + P_v(T',H') = P_{atm}$ at
+every admitted state; the B.4 hypothesis $P_v(T_0, H_0) = 0$; and the
+ideal-gas law for each trapped component,
+$p_{\mathrm{air}}\,(A H') = n_{\mathrm{air}} R T'$ and
+$P_v\,(A H') = n_{\mathrm{vap}} R T'$.  Assumption side: the B.4 answer
+appears nowhere among its fields.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Admissible measured state and reference state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:MeasuredState}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.MeasuredState}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.referenceState}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data}
+An admissible measured state of the B.4 data table: a pair $(T, H)$ of an
+absolute-temperature readout and the recorded water-level height at that
+temperature, both carrying positivity certificates $0 < T$ and $0 < H$.
+The reference state $(T_0, H_0)$ is admitted: its positivity facts come
+from the fixed reference-temperature value and the certificate
+$0 < H_0$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Clausius--Clapeyron vapor-pressure relation]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:ClausiusClapeyron}
+\lean{IPhO2026_4_B_4.ClausiusClapeyron}
+The Clausius--Clapeyron relation, Eq.\ (3) of the exam, as a predicate on
+a vapor-pressure curve $P_v$: at every absolute temperature $T > 0$,
+$P_v(T) = P_{v0}\,\exp\bigl(-(Q_v/R)\,(1/T - 1/T_0)\bigr)$, with $Q_v$
+the molar latent heat of vaporization and $P_{v0}$ the vapor pressure at
+the reference temperature $T_0$.  Context for B.4 (it drives parts
+B.5/B.6); it is \emph{not} a hypothesis of the B.4 target, which needs
+only the vanishing of the vapor pressure at $T_0$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Dry air carries the whole pressure at the reference state]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:dryAirPartialPressure_at_T0}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.dryAirPartialPressure_at_T₀}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data}
+At the reference state $(T_0, H_0)$, with $0 < T_0$, the dry-air partial
+pressure equals the full total pressure:
+$p_{\mathrm{air}}(T_0, H_0) = P_{atm}$.
+\end{lemma}
+\begin{proof}
+Dalton's law at $(T_0, H_0)$ gives
+$p_{\mathrm{air}}(T_0, H_0) + P_v(T_0, H_0) = P_{atm}$, and the B.4
+hypothesis $P_v(T_0, H_0) = 0$ collapses the sum.
+\end{proof}
+
+\begin{lemma}[Combined gas-law form at an admitted state]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:total_pressure_mul_volume}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.total_pressure_mul_volume}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data, def:IPhO2026Problems_problem_IPhO_2026_4_B_4:gasVolume}
+At every admitted state $(T', H')$ with $0 < T'$ and $0 < H'$, the total
+pressure times the headspace volume equals the total trapped molar
+content times $R T'$:
+$P_{atm}\,(A H') = \bigl(n_{\mathrm{air}} + n_{\mathrm{vap}}(T',H')\bigr)\, R\, T'$.
+\end{lemma}
+\begin{proof}
+Rewrite $P_{atm}$ via Dalton's law, distribute the volume over the two
+component pressures, replace each component term by its ideal-gas-law
+right-hand side, and regroup.
+\end{proof}
+
+\begin{lemma}[Zero reference value forces identically zero vapor pressure]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:eq_zero_of_clausiusClapeyron_zero}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.eq_zero_of_clausiusClapeyron_zero}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:ClausiusClapeyron, def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data}
+Consistency checkpoint between Eq.\ (3) and the B.4 zero hypothesis:
+under the Clausius--Clapeyron context at reference value $P_{v0}$ for the
+curve $T \mapsto P_v(T, H_0)$, if $P_{v0} = 0$ then the vapor pressure
+vanishes at every temperature $T > 0$.  Context lemma for B.5/B.6; not
+used by the B.4 target.
+\end{lemma}
+\begin{proof}
+Instantiate the Clausius--Clapeyron relation at $T$ and substitute
+$P_{v0} = 0$, making the right-hand side zero.
+\end{proof}
+
+\subsection*{Value and target theorems (conclusion side)}
+
+\begin{theorem}[B.4 vapor-pressure readout formula]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_B_4:vaporPressure_eq}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.vaporPressure_eq}
+\leanok
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data, def:IPhO2026Problems_problem_IPhO_2026_4_B_4:MeasuredState, lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:dryAirPartialPressure_at_T0, lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:total_pressure_mul_volume}
+At every admissible measured state $(T, H)$ of the trapped dry air plus
+water vapor mixture, the vapor pressure is the recorded B.4 answer
+\[ P_v \;=\; P_{atm}\Bigl(1 - \frac{H_0\,T}{H\,T_0}\Bigr). \]
+The Clausius--Clapeyron relation is \emph{not} assumed: B.4 uses only
+Dalton's law at constant total pressure, the ideal-gas law for the fixed
+dry-air content, and the vanishing of the vapor pressure at $T_0$.  The
+official formula lives only here and in
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_4_B_4:target}, on the
+conclusion side.
+\end{theorem}
+\begin{proof}
+Apply the combined gas law at $(T, H)$ and at the reference state
+$(T_0, H_0)$, where the dry air alone carries $P_{atm}$
+(\cref{lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:dryAirPartialPressure_at_T0}),
+so the dry-air ideal-gas law gives
+$P_{atm} A H_0 = n_{\mathrm{air}} R T_0$.  Eliminating the fixed dry-air
+content $n_{\mathrm{air}}$ between this reference balance and the state
+balance yields $p_{\mathrm{air}}(T,H)\,H T_0 = P_{atm} H_0 T$, and
+subtracting from $P_{atm}$ via Dalton's law gives the claimed closed
+form; the contracted sorried proof body is left to the prover stage.
+\end{proof}
+
+\begin{theorem}[B.4 target relation]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_B_4:target}
+\lean{IPhO2026_4_B_4.VaporPressureB4Data.target}
+\leanok
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_4:VaporPressureB4Data, def:IPhO2026Problems_problem_IPhO_2026_4_B_4:MeasuredState, lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:dryAirPartialPressure_at_T0, lem:IPhO2026Problems_problem_IPhO_2026_4_B_4:total_pressure_mul_volume}
+The B.4 target relation at an arbitrary admissible measured state
+$(T, H)$, matching the recorded official answer:
+$P_v = P_{atm}\,\bigl(1 - (H_0 T)/(H T_0)\bigr)$.
+This is the exact statement the umbrella autoformalization entry
+\cref{thm:physics:IPhO_2026_4_B_4:target} points at.
+\end{theorem}
+\begin{proof}
+The same Dalton plus ideal-gas elimination as in
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_4_B_4:vaporPressure_eq};
+the contracted sorried proof body is left to the prover stage.
+\end{proof}
