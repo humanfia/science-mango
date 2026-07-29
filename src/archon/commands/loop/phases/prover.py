@@ -145,6 +145,11 @@ class ProverPhase(Phase):
                     "prover.formalizationReviewGateEligible": len(proof_kept),
                 })
 
+        if not ctx.dry_run:
+            write_meta(ctx.iter_meta, **{
+                "prover.dispatchEligible": len(proof_kept),
+                "prover.dispatchSkippedNoEligible": not bool(proof_kept),
+            })
         if proof_kept:
             return True
         log.warn("prover dispatch skipped: no Review-passed objective is eligible")
@@ -209,6 +214,76 @@ class ProverPhase(Phase):
     def _resume_enabled(self) -> bool:
         return self.ctx.resume_phase == self.skip_token
 
+    def _pipeline_review_config(self, loop_cfg) -> PipelinedTargetReviewConfig:
+        ctx = self.ctx
+        return PipelinedTargetReviewConfig(
+            requested_jobs=max(1, int(loop_cfg.get(
+                "parallel_target_review_jobs", ctx.options.max_parallel,
+            ))),
+            max_attempts=max(1, int(loop_cfg.get(
+                "parallel_target_review_max_attempts", 3,
+            ))),
+            backoff_sec=max(0.0, float(loop_cfg.get(
+                "parallel_target_review_backoff_sec", 5,
+            ))),
+            preflight_timeout_sec=max(1, int(loop_cfg.get(
+                "review_preflight_timeout_sec", 300,
+            ))),
+            harness=ctx.harness_descriptor_for("review"),
+            formalizer_harness=ctx.harness_descriptor_for("prover"),
+            formalization_review_enabled=(
+                bool(ctx.options.formalization_review_gate)
+                and bool(loop_cfg.get("parallel_formalization_review", False))
+            ),
+            formalization_review_max_attempts=max(1, int(loop_cfg.get(
+                "parallel_formalization_review_max_attempts", 3,
+            ))),
+            formalization_review_backoff_sec=max(0.0, float(loop_cfg.get(
+                "parallel_formalization_review_backoff_sec", 5,
+            ))),
+            formalization_review_max_iterations=max(1, int(getattr(
+                ctx.options,
+                "formalization_review_max_iterations",
+                3,
+            ))),
+            proof_review_max_iterations=max(1, int(getattr(
+                ctx.options, "proof_review_max_iterations", 3,
+            ))),
+        )
+
+    def _parallel_runner(
+        self,
+        pipeline_review: PipelinedTargetReviewConfig | None,
+        *,
+        stage: str | None = None,
+        resume_enabled: bool | None = None,
+    ) -> ParallelProverRunner:
+        ctx = self.ctx
+        return ParallelProverRunner(
+            project_name=ctx.project_name,
+            project_path=ctx.project_path,
+            state_dir=ctx.state_dir,
+            stage=stage or ctx.current_stage,
+            iter_dir=ctx.iter_dir,
+            iter_meta=ctx.iter_meta,
+            iter_num=ctx.iter_num,
+            max_parallel=ctx.options.max_parallel,
+            max_objectives=ctx.options.max_objectives,
+            block_on_blocked_deps=ctx.options.block_on_blocked_deps,
+            verbose_logs=ctx.verbose_logs,
+            model=ctx.model,
+            dashboard_url=ctx.dashboard_url,
+            blueprint_url=ctx.blueprint_url,
+            debug_feedback=ctx.options.debug_feedback,
+            resume_enabled=(
+                self._resume_enabled()
+                if resume_enabled is None else resume_enabled
+            ),
+            backend=ctx.backend,
+            harness=ctx.harness_descriptor_for("prover"),
+            pipeline_review=pipeline_review,
+        )
+
     def _run_parallel(self) -> None:
         ctx = self.ctx
         cfg = load_project_config(ctx.project_path)
@@ -233,40 +308,7 @@ class ProverPhase(Phase):
             and bool(loop_cfg.get("parallel_target_review", False))
         )
         if pipeline_eligible:
-            pipeline_review = PipelinedTargetReviewConfig(
-                requested_jobs=max(1, int(loop_cfg.get(
-                    "parallel_target_review_jobs", ctx.options.max_parallel,
-                ))),
-                max_attempts=max(1, int(loop_cfg.get(
-                    "parallel_target_review_max_attempts", 3,
-                ))),
-                backoff_sec=max(0.0, float(loop_cfg.get(
-                    "parallel_target_review_backoff_sec", 5,
-                ))),
-                preflight_timeout_sec=max(1, int(loop_cfg.get(
-                    "review_preflight_timeout_sec", 300,
-                ))),
-                harness=ctx.harness_descriptor_for("review"),
-                formalizer_harness=ctx.harness_descriptor_for("prover"),
-                formalization_review_enabled=(
-                    bool(ctx.options.formalization_review_gate)
-                    and bool(loop_cfg.get("parallel_formalization_review", False))
-                ),
-                formalization_review_max_attempts=max(1, int(loop_cfg.get(
-                    "parallel_formalization_review_max_attempts", 3,
-                ))),
-                formalization_review_backoff_sec=max(0.0, float(loop_cfg.get(
-                    "parallel_formalization_review_backoff_sec", 5,
-                ))),
-                formalization_review_max_iterations=max(1, int(getattr(
-                    ctx.options,
-                    "formalization_review_max_iterations",
-                    3,
-                ))),
-                proof_review_max_iterations=max(1, int(getattr(
-                    ctx.options, "proof_review_max_iterations", 3,
-                ))),
-            )
+            pipeline_review = self._pipeline_review_config(loop_cfg)
         elif pipeline_requested:
             log.warn(
                 "pipeline_target_review requires Review, proof_review_gate, "
@@ -275,28 +317,31 @@ class ProverPhase(Phase):
                 "parallel_formalization_review; using the normal phase "
                 "barrier."
             )
-        runner = ParallelProverRunner(
-            project_name=ctx.project_name,
-            project_path=ctx.project_path,
-            state_dir=ctx.state_dir,
-            stage=ctx.current_stage,
-            iter_dir=ctx.iter_dir,
-            iter_meta=ctx.iter_meta,
-            iter_num=ctx.iter_num,
-            max_parallel=ctx.options.max_parallel,
-            max_objectives=ctx.options.max_objectives,
-            block_on_blocked_deps=ctx.options.block_on_blocked_deps,
-            verbose_logs=ctx.verbose_logs,
-            model=ctx.model,
-            dashboard_url=ctx.dashboard_url,
-            blueprint_url=ctx.blueprint_url,
-            debug_feedback=ctx.options.debug_feedback,
-            resume_enabled=self._resume_enabled(),
-            backend=ctx.backend,
-            harness=ctx.harness_descriptor_for("prover"),
-            pipeline_review=pipeline_review,
-        )
+        runner = self._parallel_runner(pipeline_review)
         runner.run(dry_run=ctx.dry_run)
+
+    def resume_incomplete_pipeline(
+        self,
+        objectives,
+        *,
+        starts_at: str,
+    ) -> None:
+        """Resume only unresolved lanes from a durable pipeline checkpoint."""
+        ctx = self.ctx
+        cfg = load_project_config(ctx.project_path)
+        pipeline_review = self._pipeline_review_config(cfg.loop_section())
+        if not pipeline_review.formalization_review_enabled:
+            raise RuntimeError(
+                "incomplete target lifecycle recovery requires immediate "
+                "formalization Review"
+            )
+        stage = "autoformalize" if starts_at == "formalizer" else "prover"
+        runner = self._parallel_runner(
+            pipeline_review,
+            stage=stage,
+            resume_enabled=True,
+        )
+        runner._run_pipelined_fanout(list(objectives), file_modes={})
 
     def _run_serial(self) -> None:
         ctx = self.ctx

@@ -104,9 +104,12 @@ def _file_sha256(path: Path) -> str:
 def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
     slug = "_".join(Path(rel).with_suffix("").parts)
     result_root = state_dir / "task_results"
+    rel_path = Path(rel)
     candidates = {
         result_root / f"{rel}.md",
-        result_root / f"{Path(rel).name}.md",
+        result_root / f"{rel_path.with_suffix('')}.md",
+        result_root / f"{rel_path.name}.md",
+        result_root / f"{rel_path.stem}.md",
         result_root / f"{slug}.lean.md",
         result_root / f"{slug}.md",
     }
