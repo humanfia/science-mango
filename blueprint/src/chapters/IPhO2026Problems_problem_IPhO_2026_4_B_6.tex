@@ -1,0 +1,236 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_B_6.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_4_B_6.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id B.6
+% archon:previous-part IPhO_2026_4_B_5
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_B\_6}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_B_6}
+
+\paragraph{Problem source.}
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+Current subquestion:
+Convert Q\_v into latent heat per unit mass L\_v and state the formula.
+
+\paragraph{Current subquestion.}
+Convert Q\_v into latent heat per unit mass L\_v and state the formula.
+
+\paragraph{Recorded answer/context.}
+L\_v = Q\_v/M\_0 = 2190 +/- 110 kJ/kg.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-12.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.5. Question: Construct a Clausius-Clapeyron graph and use it to determine the molar latent heat Q\_v. Reusable conclusions: Plot ln(P\_v/P\_atm) against 1/T; official sample slope is -4700 +/- 200 K and Q\_v = 39 +/- 2 kJ/mol. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_B\_6.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_B_6:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_B_6:latent_heat_per_unit_mass_target}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-004): positive targeted-import case — the covered file genuinely uses `Physlib.Thermodynamics.Basic` and `Physlib.Thermodynamics.Temperature.Basic` (typed `Temperature` quantities for the measured temperature process); the blanket domain-import check is satisfied and no further import is added. PhysLean covers no experimental-calibration graph readouts, so the B-part measurement carriers are documented local laws on the typed-temperature baseline.
+
+% --- Archon autoformalization helper ledger (added iter-007, coverage-debt batch 2) ---
+% Every named Lean declaration of the covered file gets a blueprint entry;
+% \uses{} reflects the actual Lean dependency structure read first-hand.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Typed habitats and catalog constants}
+
+\begin{definition}[Dimensional length and pressure aliases]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:DimLength}
+\lean{IPhO2026.Problem4.DimLength}
+\lean{IPhO2026.Problem4.Pressure}
+\lean{IPhO2026.Problem4.InnerCylinderExperiment}
+The water-level heights $H_0, H$ carry PhysLean's dimensional length type
+(dimension $L$), and the pressures $P_{\mathrm{atm}}, P_v$ carry PhysLean's
+dimensional pressure type (dimension $M L^{-1} T^{-2}$); the
+\texttt{InnerCylinderExperiment} structure packages the apparatus readouts of
+the B-parts ($P_{\mathrm{atm}}$, the vapor-pressure function $P_v(T)$, the
+reference temperature $T_0 = 273.15$ K with its real-valued readout, the
+extrapolated height $H_0$, and the vanishing-extrapolation anchor) on these
+typed habitats.
+\end{definition}
+
+\begin{definition}[Abstract molar and specific wrappers]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:MolarEnergy}
+\lean{IPhO2026.Problem4.MolarEnergy}
+\lean{IPhO2026.Problem4.MolarHeatCapacity}
+\lean{IPhO2026.Problem4.MolarMass}
+\lean{IPhO2026.Problem4.SpecificLatentHeat}
+PhysLean has no amount-of-substance dimension, so the molar latent heat
+$Q_v$ (J/mol), the gas constant $R$ (J/(mol$\cdot$K)), the molar mass of
+water $M_0$ (kg/mol) and the specific latent heat $L_v$ (J/kg) are carried
+by smallest faithful local wrappers, deliberately opaque (no field
+projection) so that conversion and uncertainty relations cannot be
+discharged by unfolding.
+\end{definition}
+
+\begin{definition}[Catalog opaque constants]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:catalog_opaques}
+\lean{IPhO2026.Problem4.catalogMolarLatentHeatQv}
+\lean{IPhO2026.Problem4.catalogGasConstantR}
+\lean{IPhO2026.Problem4.catalogMolarMassWaterM0}
+\lean{IPhO2026.Problem4.catalogGasConstantRMolarHeatCapacity}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:MolarEnergy}
+Catalog-level named inhabitants of the abstract wrappers: the B.5 central
+molar latent heat $Q_v = 39 \pm 2$ kJ/mol, the gas constant in both
+molar-energy and molar-heat-capacity form
+($R = 8.314$ J/(mol$\cdot$K)), and the molar mass of water
+$M_0 = 18.0 \times 10^{-3}$ kg/mol.
+\end{definition}
+
+\subsection*{Governing law and experiment data}
+
+\begin{definition}[Integrated Clausius--Clapeyron law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:SatisfiesClausiusClapeyron}
+\lean{IPhO2026.Problem4.SatisfiesClausiusClapeyron}
+\lean{IPhO2026.Problem4.IsClausiusClapeyronSlope}
+The physical law itself: for every pair of absolute temperatures,
+$\ln(P_v(T)/P_v(T_0)) = -(Q_v/R)\,(1/T - 1/T_0)$, expressed between the
+scalar readouts $\mathrm{lnRatio}$ and $\mathrm{invTdiff}$ with slope carrier
+$Q_v/R > 0$; \texttt{IsClausiusClapeyronSlope} records the B.5 extraction
+that the slope $s$ of the $\ln(P_v/P_{\mathrm{atm}})$ vs $1/T$ graph equals
+$-Q_v/R$.
+\end{definition}
+
+\begin{definition}[Part-B.5 measurements and B.6 input package]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:PartB5Measurements}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:DimLength}
+\lean{IPhO2026.Problem4.PartB5Measurements}
+\lean{IPhO2026.Problem4.PartB6Input}
+The natural-language previous-part prerequisite in Lean form: the measured
+slope $-4700 \pm 200$ K of the Clausius--Clapeyron graph, the resulting
+$Q_v = 39 \pm 2$ kJ/mol, and the problem-stated $R = 8.31$ J/(mol$\cdot$K),
+with official sample values recorded as field equations;
+\texttt{PartB6Input} is the conjunction of the apparatus record and the
+B.5 measurements, containing no field committal to the B.6 formula
+$L_v = Q_v/M_0$.
+\end{definition}
+
+\subsection*{Conversion relation and official-answer record}
+
+\begin{definition}[Molar-to-specific conversion relation]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:IsSpecificLatentHeatOf}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:MolarEnergy}
+\lean{IPhO2026.Problem4.IsSpecificLatentHeatOf}
+\lean{IPhO2026.Problem4.ConvertsMolarLatentHeatToSpecific}
+The unit-carrying conversion at the heart of B.6: a witness carrying the
+magnitudes of $Q_v$ (kJ/mol), $M_0$ (kg/mol) and $L_v$ (kJ/kg) together
+with the physical conversion equation
+$L_v = Q_{v\mathrm{mag}} / M_{0\mathrm{mag}}$ and the positivity of
+$M_0$; \texttt{ConvertsMolarLatentHeatToSpecific} names its nonemptiness as
+a proposition. The relation is hypothesis material for the prover, never a
+definition making the target true by unfolding.
+\end{definition}
+
+\begin{definition}[Official-answer value record]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:SpecificLatentHeatValue}
+\lean{IPhO2026.Problem4.SpecificLatentHeatValue}
+\lean{IPhO2026.Problem4.SpecificLatentHeatValue.withinUncertainty}
+\lean{IPhO2026.Problem4.officialSpecificLatentHeatValue}
+\lean{IPhO2026.Problem4.catalogQvValue}
+\lean{IPhO2026.Problem4.catalogMolarMassWaterValue}
+\lean{IPhO2026.Problem4.catalogQvUncertainty}
+The scalar, unit-tagged record of the official result
+$L_v = 2190 \pm 110$ kJ/kg (central value and absolute uncertainty), the
+uncertainty-band relation $|measured - 2190| \le 110$ (kJ/kg), and the
+catalog scalars $Q_v = 39$ kJ/mol, $M_0 = 18.0 \times 10^{-3}$ kg/mol,
+$\Delta Q_v = 2$ kJ/mol.
+\end{definition}
+
+\subsection*{Target theorems}
+
+\begin{theorem}[B.6 main target: conversion with official consistency]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_B_6:latent_heat_per_unit_mass_target}
+\lean{IPhO2026.Problem4.latent_heat_per_unit_mass_target}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:PartB5Measurements, def:IPhO2026Problems_problem_IPhO_2026_4_B_6:IsSpecificLatentHeatOf, def:IPhO2026Problems_problem_IPhO_2026_4_B_6:SpecificLatentHeatValue}
+Under the B.6 input package there exists a conversion witness
+$L_v = Q_v/M_0$ whose magnitudes match the catalog central values
+($39$ kJ/mol, $18.0 \times 10^{-3}$ kg/mol), and the reported specific
+latent heat lies within the official uncertainty interval
+$2190 \pm 110$ kJ/kg.
+\end{theorem}
+\begin{proof}
+Take the catalog magnitudes as the witness components; the conversion
+equation holds by the scalar division $39/(18.0\mathrm{e}{-3})$ and the
+band membership follows from
+$|39/(18.0\mathrm{e}{-3}) - 2190| \approx 23.3 \le 110$; the existential
+packaging is left to the prover stage.
+\end{proof}
+
+\begin{theorem}[B.6 formula, explicit scalar form]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_B_6:latent_heat_per_unit_mass_formula}
+\lean{IPhO2026.Problem4.latent_heat_per_unit_mass_formula}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:SpecificLatentHeatValue}
+For the catalog central values,
+$L_v = Q_v/M_0 = 39/(18.0 \times 10^{-3}) \approx 2190$ kJ/kg, within the
+official $\pm 110$ kJ/kg.
+\end{theorem}
+\begin{proof}
+Pure scalar arithmetic: $39/(18.0\mathrm{e}{-3}) = 2166.\overline{6}$ and
+$|2166.\overline{6} - 2190| = 23.\overline{3} \le 110$.
+\end{proof}
+
+\begin{theorem}[Computed value within official uncertainty]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_B_6:computed_value_within_official_uncertainty}
+\lean{IPhO2026.Problem4.computed_value_within_official_uncertainty}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:SpecificLatentHeatValue}
+The computed central value $L_v = 39/(18.0 \times 10^{-3}) \approx 2167$
+kJ/kg lies within the official interval $2190 \pm 110$ kJ/kg.
+\end{theorem}
+\begin{proof}
+Same scalar evaluation:
+$|2166.\overline{6} - 2190| = 23.\overline{3} \le 110$.
+\end{proof}
+
+\begin{lemma}[B.5 bridge: $Q_v$ from the Clausius--Clapeyron slope]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_B_6:qv_from_clausius_clapeyron_slope}
+\lean{IPhO2026.Problem4.qv_from_clausius_clapeyron_slope}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:PartB5Measurements, def:IPhO2026Problems_problem_IPhO_2026_4_B_6:SatisfiesClausiusClapeyron}
+The B.5 slope $s = -4700 \pm 200$ K with $R = 8.31$ J/(mol$\cdot$K) fixes
+the molar latent heat at $Q_v = -s \cdot R \approx 39.1$ kJ/mol, consistent
+with the official $Q_v = 39 \pm 2$ kJ/mol:
+$Q_v = -\mathtt{slope\_K}\cdot\mathtt{R}/1000$ and
+$|Q_v^{\mathrm{computed}} - Q_v^{\mathrm{input}}| \le \Delta Q_v$.
+\end{lemma}
+\begin{proof}
+Substitute the recorded field equations: $-(-4700)\cdot 8.31/1000 = 39.057$
+kJ/mol and $|39.057 - 39| = 0.057 \le 2$.
+\end{proof}
+
+\begin{lemma}[Reference-temperature calibration]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_B_6:reference_temperature_calibration}
+\lean{IPhO2026.Problem4.reference_temperature_calibration}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_B_6:PartB5Measurements}
+The reference temperature readout of the setup is
+$T_0 = 273.15$ K, captured for the formalization even though B.6 does not
+use it directly.
+\end{lemma}
+\begin{proof}
+Immediate from the recorded field equation
+\texttt{T\_0\_value\_K\_eq}.
+\end{proof}
+
+% --- Archon physics formalization source end ---

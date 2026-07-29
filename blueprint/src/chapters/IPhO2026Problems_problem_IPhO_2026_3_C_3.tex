@@ -1,0 +1,423 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_3.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_3_C_3.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_3_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_3_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_3}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Using the supplied potassium-chromate and liquid-helium data, find the helium temperature after one cycle.
+
+\paragraph{Current subquestion.}
+Using the supplied potassium-chromate and liquid-helium data, find the helium temperature after one cycle.
+
+\paragraph{Recorded answer/context.}
+Q\_c = 1.29e-1 J, so |Delta T| = 9.92e-3 K and T\_final = 0.99008 K.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus. Reusable conclusions: Q = -(mu\_0*n*K/(2*T))*(H\_f\textasciicircum{}2 - H\_i\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Express M\_1 in terms of M\_2, M\_3, and M\_4. Reusable conclusions: M\_1 = sqrt(M\_2\textasciicircum{}2 - M\_3\textasciicircum{}2 + M\_4\textasciicircum{}2), taking the nonnegative magnitude. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_3.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_3:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_C_3:final_temperature_value}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-003): PhysLean has no classical-paramagnet thermodynamic-cycle module (Curie-style EOS `T*M*V = n*K*H`, adiabatic demagnetization calorimetry); nearest LeanExplore hits were generic MagneticField/Temperature fields (see task\_results/physics-grounding-IPhO2026Problems\_problem\_IPhO\_2026\_3\_C\_3.md). The Carnot-cycle-on-(M,H,T) model stays local over the `import Mathlib` baseline; no irrelevant Physlib import is added.
+% --- Archon autoformalization helper ledger (added iter-007, coverage-debt batch 1) ---
+% Every named Lean declaration of the covered file gets a blueprint entry;
+% \uses{} reflects the actual Lean dependency structure read first-hand.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Named quantities and dimensional roles}
+
+\begin{definition}[Kinds of cycle legs]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:ProcessKind}
+\lean{IPhO2026.Problem3.C3.ProcessKind}
+The kind of one leg of the Figure-3b cycle: isothermal or adiabatic, with the
+field direction (decreasing/increasing) recorded so the branch information of
+the figure is preserved; constructors
+\lean{IPhO2026.Problem3.C3.ProcessKind.isothermal} and
+\lean{IPhO2026.Problem3.C3.ProcessKind.adiabatic}.
+\end{definition}
+
+\begin{definition}[Cycle vertex labels]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:Vertex}
+\lean{IPhO2026.Problem3.C3.Vertex}
+The vertex labels $v_1, v_2, v_3, v_4$ of the cycle $1 \to 2 \to 3 \to 4 \to 1$
+in Figure 3b.
+\end{definition}
+
+\begin{definition}[Carnot-cycle state record]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:CarnotCycle}
+\lean{IPhO2026.Problem3.C3.CarnotCycle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:ProcessKind, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:Vertex}
+The thermodynamic state of the torus at the four vertices of Figure 3b —
+temperature $T$, applied-field magnitude $H$, magnetization magnitude $M$ per
+vertex — together with the \emph{ProcessKind} label of each of the four legs.
+\end{definition}
+
+\begin{definition}[Paramagnetic-torus parameters]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusParams}
+\lean{IPhO2026.Problem3.C3.TorusParams}
+The physical parameters of the paramagnetic torus: vacuum permeability
+$\mu_0$, amount $n$ of paramagnetic ions, material constant $K$ of the
+equation of state $T M V = n K H$, and fixed volume $V$, bundled with
+positivity certificates $\mu_0, n, K, V > 0$.
+\end{definition}
+
+\begin{definition}[Ideal-paramagnet equation of state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:EquationOfStateParamagnet}
+\lean{IPhO2026.Problem3.C3.EquationOfStateParamagnet}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusParams}
+The governing law of the ideal paramagnet, $T\,M\,V = n\,K\,H$, as an
+assumed equation (not a local definition): an instance of the law at one
+thermodynamic state $(T, H, M)$.
+\end{definition}
+
+\begin{definition}[Isothermal heat relation (part B.1)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:IsothermalHeatIntoTorus}
+\lean{IPhO2026.Problem3.C3.IsothermalHeatIntoTorus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusParams}
+The previous-part (B.1) governing law, assumed here: when the applied field
+changes $H_i \to H_f$ at constant temperature $T$, the heat transferred
+\emph{into} the torus is $Q = -(\mu_0 n K / (2 T))\,(H_f^2 - H_i^2)$; the
+transfer direction is carried by the sign of $Q$.
+\end{definition}
+
+\begin{definition}[Carnot heat ratio]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:CarnotHeatRatio}
+\lean{IPhO2026.Problem3.C3.CarnotHeatRatio}
+The second-law relation for the reversible refrigeration cycle,
+$Q_h\,T_c = Q_c\,T_h$, with $Q_h, Q_c$ the \emph{magnitudes} of the heats
+delivered to the hot reservoir and absorbed from the cold reservoir (zero
+net entropy change around the cycle; the adiabatic legs carry no heat).
+\end{definition}
+
+\begin{definition}[Figure-3b vertex assignment (part C.1)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:Figure3bAssignment}
+\lean{IPhO2026.Problem3.C3.Figure3bAssignment}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:CarnotCycle}
+The part-C.1 figure reading, assumed here: vertices $1,4$ sit at $T_h$,
+vertices $2,3$ sit at $T_c$, legs $1{\to}2$ and $3{\to}4$ are isothermal
+(field decreasing, resp.\ increasing) and legs $2{\to}3$ and $4{\to}1$ are
+adiabatic.
+\end{definition}
+
+\begin{definition}[Torus volume from source density (B-part result)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusVolumeFromSource}
+\lean{IPhO2026.Problem3.C3.TorusVolumeFromSource}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusParams}
+The previous-part (B) result, assumed here: the torus volume is its mass
+over its source density, $V = n\,M_{\mathrm{mol}} / \rho_{\mathrm{source}}$,
+with the mass written as amount times molar mass.
+\end{definition}
+
+\begin{definition}[Constant-capacity calorimetry]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:ConstantCapacityCalorimetry}
+\lean{IPhO2026.Problem3.C3.ConstantCapacityCalorimetry}
+The calorimetric law of the cooled body in the constant-$c$ regime stated by
+the problem: a body of mass $m$ and specific heat capacity $c$ exchanging
+heat $Q$ changes temperature by $\Delta T$ with $Q = m\,c\,\Delta T$.
+\end{definition}
+
+\subsection*{Supplied T3-C3 data (opaque readouts)}
+
+\begin{definition}[Supplied material data bundle]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:SuppliedMaterialData}
+\lean{IPhO2026.Problem3.C3.SuppliedMaterialData}
+The supplied potassium-chromate and liquid-helium material data — amount
+$n = 2.0$ mol, material constant $K = 1.87{\cdot}10^{-6}$ K\cdot m\textsuperscript{3}/mol,
+source density $2730$ kg/m\textsuperscript{3}, molar mass $0.19$ kg/mol,
+helium density $130$ kg/m\textsuperscript{3}, helium specific heat
+$100$ J/(kg\cdot K) — bundled as opaque data readouts with positivity
+certificates only; no answer value can be unfolded out of them.
+\end{definition}
+
+\begin{definition}[Supplied-data constant]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:suppliedData}
+\lean{IPhO2026.Problem3.C3.suppliedData}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:SuppliedMaterialData}
+The concrete supplied-data record of the T3-C3 block, given by the problem
+statement's numbers ($n = 2.0$ mol, $K = 1.87{\cdot}10^{-6}$ K·m³/mol,
+source density $2730$ kg/m³, molar mass $0.19$ kg/mol, helium density
+$130$ kg/m³, helium specific heat $100$ J/(kg·K)).  The Lean constant is
+transparent (`noncomputable`, not `opaque`): the components are readable
+statement data carrying the listed literal values, so the record exposes
+them definitionally; the positivity fields are by-norm\_num certificates
+of those literals.
+\end{definition}
+
+\begin{lemma}[Supplied-data projections and readout values]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:pmtAmount}
+\lean{IPhO2026.Problem3.C3.pmtAmount}
+\lean{IPhO2026.Problem3.C3.pmtMaterialK}
+\lean{IPhO2026.Problem3.C3.pmtSourceDensity}
+\lean{IPhO2026.Problem3.C3.pmtMolarMass}
+\lean{IPhO2026.Problem3.C3.heliumDensity}
+\lean{IPhO2026.Problem3.C3.heliumSpecificHeat}
+\lean{IPhO2026.Problem3.C3.pmtAmount_pos}
+\lean{IPhO2026.Problem3.C3.pmtMaterialK_pos}
+\lean{IPhO2026.Problem3.C3.pmtSourceDensity_pos}
+\lean{IPhO2026.Problem3.C3.pmtMolarMass_pos}
+\lean{IPhO2026.Problem3.C3.heliumDensity_pos}
+\lean{IPhO2026.Problem3.C3.heliumSpecificHeat_pos}
+\lean{IPhO2026.Problem3.C3.pmtAmount_value}
+\lean{IPhO2026.Problem3.C3.pmtMaterialK_value}
+\lean{IPhO2026.Problem3.C3.pmtSourceDensity_value}
+\lean{IPhO2026.Problem3.C3.pmtMolarMass_value}
+\lean{IPhO2026.Problem3.C3.heliumDensity_value}
+\lean{IPhO2026.Problem3.C3.heliumSpecificHeat_value}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:suppliedData}
+The named projections of the supplied data are the corresponding components
+of the record; each is strictly positive (the \_pos certificates) and equals
+its stated literal value (the \_value readout lemmas $n = 2.0$,
+$K = 1.87{\cdot}10^{-6}$, $\rho_{\mathrm{source}} = 2730$,
+$M_{\mathrm{mol}} = 0.19$, $\rho_{\mathrm{He}} = 130$,
+$c_{\mathrm{He}} = 100$ — statement data, not answers; the numeric-final
+band theorems consume them).
+\end{lemma}
+\begin{proof}
+Each projection unfolds to the corresponding field of \texttt{suppliedData}
+(the \_value lemmas hold by definitional equality), and each positivity
+lemma is the corresponding positivity field of the record.
+\end{proof}
+
+\begin{definition}[Helium bath volume]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:heliumBathVolume}
+\lean{IPhO2026.Problem3.C3.heliumBathVolume}
+The liquid-helium bath volume $1.00\ \mathrm{L} = 1.00{\cdot}10^{-3}\ \mathrm{m}^3$;
+a transparent unit-conversion constant, not a physical law.
+\end{definition}
+
+\begin{definition}[Vacuum permeability readout]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:vacuumPermeability}
+\lean{IPhO2026.Problem3.C3.vacuumPermeability}
+\lean{IPhO2026.Problem3.C3.vacuumPermeability_pos}
+Vacuum permeability $\mu_0 = 4\pi{\cdot}10^{-7}$ H/m — the exact magnetic
+constant of the problem statement, a universal-constant readout (not a C.3
+answer value and not derivable from the problem data), bundled with its
+positivity certificate (from $0 < \pi$).
+\end{definition}
+\begin{proof}
+Definition (the certificate follows from $0 < \pi$).
+\end{proof}
+
+\begin{definition}[Packaged potassium-chromate torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:potassiumChromateTorus}
+\lean{IPhO2026.Problem3.C3.potassiumChromateTorus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusParams, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:pmtAmount}
+The Pm-T torus built from the supplied potassium-chromate data via the
+anonymous constructor: amount \texttt{pmtAmount}, material constant
+\texttt{pmtMaterialK}, volume $n\,M_{\mathrm{mol}} / \rho_{\mathrm{source}}$
+(the B-part volume formula), with the positivity certificates assembled from
+the supplied-data certificates ($V > 0$ by positivity of the quotient of
+positive reals).
+\end{definition}
+
+\begin{lemma}[Torus projections]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:potassiumChromateTorus_n}
+\lean{IPhO2026.Problem3.C3.potassiumChromateTorus_n}
+\lean{IPhO2026.Problem3.C3.potassiumChromateTorus_K}
+\lean{IPhO2026.Problem3.C3.potassiumChromateTorus_V}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:potassiumChromateTorus, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:pmtAmount}
+The projections of the packaged torus reduce definitionally.
+
+\end{lemma}
+\begin{proof}
+Each is a definitional equality (\texttt{rfl}) through the anonymous
+constructor of \texttt{TorusParams}.
+\end{proof}
+
+\subsection*{The C.3 cooling-run model}
+
+\begin{definition}[Potassium-chromate cooling run]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:CarnotCycle, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:Figure3bAssignment, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:TorusVolumeFromSource, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:EquationOfStateParamagnet, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:IsothermalHeatIntoTorus, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:CarnotHeatRatio, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:ConstantCapacityCalorimetry, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:pmtAmount, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:heliumBathVolume}
+The full model of subquestion C.3: one operating cycle of the Pm-T Carnot
+refrigerator absorbing heat from a constant-capacity liquid-helium bath.
+Fields record the torus (matching the supplied amount, material constant, and
+B-part volume), the Figure-3b cycle with the supplied vertex fields
+$H_1 = 411624$, $H_2 = 311306$, $H_3 = 204618$, $H_4 = 240446$ A/m, reservoir
+temperatures $0 < T_c < T_h$, heat magnitudes $Q_h, Q_c > 0$, the helium mass
+$m_{\mathrm{He}} = \rho_{\mathrm{He}} V_{\mathrm{He}}$, initial temperature
+$T_{\mathrm{initial}} = T_c = 1.00$ K, the equation of state at each vertex,
+the B.1 heat law on both isothermal legs (heat $+Q_c$ into the torus on the
+field-decreasing cold leg, $-Q_h$ on the field-increasing hot leg), the
+Carnot ratio, and the helium calorimetry in the explicit cooling branch
+$Q_c = m\,c\,(T_{\mathrm{initial}} - T_{\mathrm{final}})$. The C.3 target
+values occur nowhere among the fields.
+\end{definition}
+
+\begin{definition}[Vertex-field abbreviations]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:H1}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.H1}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun}
+The vertex applied-field magnitudes of a run $r$, abbreviated
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.H1},
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.H2},
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.H3},
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.H4}
+for the values of $\texttt{cyc.Hmag}$ at vertices $v_1, v_2, v_3, v_4$.
+\end{definition}
+
+\begin{lemma}[Torus-volume value]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:torus_volume_value}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.torus_volume_value}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:pmtAmount}
+The torus volume is forced by the supplied data:
+$V = n\,M_{\mathrm{mol}} / \rho_{\mathrm{source}}$ with the supplied amount.
+\end{lemma}
+\begin{proof}
+Unfold the \texttt{p\_volume} field (an instance of the B-part volume law)
+and rewrite the amount through the \texttt{p\_amount} field.
+\end{proof}
+
+\begin{lemma}[Cold-leg heat balance]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:Qc_cold_leg}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.Qc_cold_leg}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:H1}
+The heat absorbed from the helium on the cold isothermal leg $1 \to 2$ is
+$Q_c = (\mu_0 n K / (2 T_c))\,(H_1^2 - H_2^2)$.
+\end{lemma}
+\begin{proof}
+Unfold the \texttt{heat\_12} field (the signed B.1 law with heat into the
+torus equal to $+Q_c$): the two negations cancel, giving the displayed
+magnitude form; positivity follows from $H_2 < H_1$ on the field-decreasing
+leg recorded by the figure assignment and vertex fields.
+\end{proof}
+
+\begin{lemma}[Hot-leg heat balance]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:Qh_hot_leg}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.Qh_hot_leg}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:H1}
+The heat delivered to the hot reservoir on the isothermal leg $3 \to 4$ is
+$Q_h = (\mu_0 n K / (2 T_h))\,(H_4^2 - H_3^2)$.
+\end{lemma}
+\begin{proof}
+Unfold the \texttt{heat\_34} field (the signed B.1 law with heat into the
+torus equal to $-Q_h$) and cancel the negations; positivity follows from
+$H_4 > H_3$.
+\end{proof}
+
+\begin{lemma}[Reservoir-temperature consistency]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:reservoir_temperature_consistency}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.reservoir_temperature_consistency}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:Qc_cold_leg, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:Qh_hot_leg, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:CarnotHeatRatio}
+The supplied vertex data are consistent with the reversible cycle:
+$(H_1^2 - H_2^2)\,T_h^2 = (H_4^2 - H_3^2)\,T_c^2$, the exact relation that
+fixes $T_h$ from $T_c$ and the vertex fields.
+\end{lemma}
+\begin{proof}
+Substitute the cold- and hot-leg identities into the Carnot ratio
+$Q_h T_c = Q_c T_h$, cancel the common factor $\mu_0 n K / 2$ and the nonzero
+factors $T_h$, $T_c$, $Q_c$ (consequences of the assumed positivity fields —
+no numeric value is used), and cross-multiply.
+\end{proof}
+
+\begin{lemma}[Final temperature from calorimetry]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:TFinal_from_calorimetry}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.TFinal_from_calorimetry}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:pmtAmount}
+The helium temperature after one cycle is
+$T_{\mathrm{final}} = T_{\mathrm{initial}} - Q_c / (m_{\mathrm{He}}\,c)$.
+\end{lemma}
+\begin{proof}
+Unfold the \texttt{helium\_calorimetry} field
+($Q_c = m\,c\,(T_{\mathrm{initial}} - T_{\mathrm{final}})$) and solve for
+$T_{\mathrm{final}}$ using $m_{\mathrm{He}}, c \neq 0$ (the
+\texttt{heliumMass\_pos} and supplied specific-heat positivity fields).
+\end{proof}
+
+\begin{lemma}[Cooling branch certificate]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:helium_cools}
+\lean{IPhO2026.Problem3.C3.PotassiumChromateCoolingRun.helium_cools}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:TFinal_from_calorimetry}
+The helium cools: $T_{\mathrm{final}} < T_{\mathrm{initial}}$.
+\end{lemma}
+\begin{proof}
+From the calorimetry form the drop is $Q_c / (m_{\mathrm{He}} c)$ with
+$Q_c > 0$ (the \texttt{Qc\_pos} field) and $m_{\mathrm{He}}, c > 0$, so the
+quotient is strictly positive.
+\end{proof}
+
+\subsection*{Official answer (conclusion side only)}
+
+\begin{theorem}[C.3 target (i): absorbed heat]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_3:absorbed_heat_value}
+\lean{IPhO2026.Problem3.C3.absorbed_heat_value}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:Qc_cold_leg, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:reservoir_temperature_consistency, def:IPhO2026Problems_problem_IPhO_2026_3_C_3:PotassiumChromateCoolingRun, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:torus_volume_value}
+One operating cycle absorbs $Q_c \approx 1.29{\cdot}10^{-1}$ J from the helium
+bath: $|Q_c - 1.29\mathrm{e}{-1}| < 5.0\mathrm{e}{-4}$ (band = official
+rounding of the marked answer).
+\end{theorem}
+\begin{proof}
+Numerically evaluate the cold-leg identity at the supplied vertex fields and
+the supplied torus data (volume from the B-part formula, $T_c = 1.00$ K):
+$Q_c = (\mu_0\, n K / (2 T_c))\,(H_1^2 - H_2^2)$, with\ $n K$ from the
+supplied record and $\mu_0 = 4\pi{\cdot}10^{-7}$ H/m, lands inside the
+recorded band around $0.129$ J; the certified-interval evaluation is left to
+the prover stage.
+\end{proof}
+
+\begin{theorem}[C.3 target (ii): temperature drop]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_3:temperature_drop_value}
+\lean{IPhO2026.Problem3.C3.temperature_drop_value}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_C_3:absorbed_heat_value, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:TFinal_from_calorimetry}
+The helium temperature drops by $|\Delta T| \approx 9.92{\cdot}10^{-3}$ K in
+one cycle: $|(T_{\mathrm{initial}} - T_{\mathrm{final}}) - 9.92\mathrm{e}{-3}| < 5.0\mathrm{e}{-5}$.
+\end{theorem}
+\begin{proof}
+Divide the absorbed-heat value by the helium heat capacity
+$m_{\mathrm{He}}\,c = (\rho_{\mathrm{He}} V_{\mathrm{He}})\,c$
+($= 130 \cdot 1.00\mathrm{e}{-3} \cdot 100 = 13.0$ J/K): the drop is
+$Q_c/(m_{\mathrm{He}} c) \approx 0.129/13.0 \approx 9.92{\cdot}10^{-3}$ K,
+inside the recorded band.
+\end{proof}
+
+\begin{theorem}[C.3 target (iii): final temperature]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_3:final_temperature_value}
+\lean{IPhO2026.Problem3.C3.final_temperature_value}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_C_3:temperature_drop_value, lem:IPhO2026Problems_problem_IPhO_2026_3_C_3:helium_cools}
+After one operating cycle the liquid helium is at
+$T_{\mathrm{final}} \approx 0.99008$ K:
+$|T_{\mathrm{final}} - 0.99008| < 5.0\mathrm{e}{-5}$.
+\end{theorem}
+\begin{proof}
+Subtract the drop from the initial temperature $T_{\mathrm{initial}} = 1.00$ K
+(the \texttt{initial\_is\_Tc} field); the cooling branch
+($T_{\mathrm{final}} < T_{\mathrm{initial}}$) fixes the sign:
+$1.00 - 9.92{\cdot}10^{-3} = 0.99008$ K, inside the recorded band.
+\end{proof}
+
+% --- Archon physics formalization source end ---

@@ -1,0 +1,455 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_A_1.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_1_A_1.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_1\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_A_1}
+
+\paragraph{Problem source.}
+Two water reservoirs are separated by a vertical wall MN.  A square slot of
+vertical size a*sqrt(2)/2 is sealed by a fully submerged solid cube of side a
+and density 3*rho\_0, where rho\_0 is the density of water.  The cube is hinged
+frictionlessly at O and may rotate about an axis perpendicular to the figure.
+The maximum permitted difference in water levels is Delta h = 1.41 m.  Use
+Figure 1a on the source page for the exact geometry and lever arms.
+
+Current subquestion:
+Calculate the side length a that makes Delta h = 1.41 m the maximum permissible water-level difference.
+
+\paragraph{Current subquestion.}
+Calculate the side length a that makes Delta h = 1.41 m the maximum permissible water-level difference.
+
+\paragraph{Recorded answer/context.}
+a = Delta h/(2*sqrt(2)) = 0.50 m.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-1.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_A\_1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_A_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_1_A_1:hydrostatic_gate_side_length_a_target}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no hydrostatics/fluid-statics module; nearest hits are Path.topological lemmas (see task\_results/physics-grounding-IPhO2026Problems\_problem\_IPhO\_2026\_1\_A\_1.md). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon declaration ledger (added iter-008, helper-layer coverage) ---
+% One block per live declaration of the covered file, restated first-hand
+% from the Lean source; \uses{} mirrors the real logical dependencies.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Setup: parameters and figure constants}
+
+\begin{definition}[Transverse figure plane]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:GatePlane}
+\lean{IPhO2026_1_A_1.GatePlane}
+The transverse plane of Figure 1a: the gate apparatus is translationally
+invariant along the hinge axis, so the configuration lives in a Euclidean
+2-space over $\mathbb{R}$ and lever arms are intrinsic vectors of this plane.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Water density]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0}
+\lean{IPhO2026_1_A_1.rho0}
+The density $\rho_0$ of water ($\mathrm{kg/m^3}$), carried as an abstract
+scalar parameter of the model.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cube side length]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+\lean{IPhO2026_1_A_1.a}
+The side length $a$ of the cubic gate block (m). Its critical value is the
+object of this subquestion, so $a$ itself stays an abstract datum and no
+hypothesis fixes it.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Level-difference bound]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:DeltaH}
+\lean{IPhO2026_1_A_1.DeltaH}
+The maximum permissible difference $\Delta h$ of the two free-surface levels
+(m); the design fixes $\Delta h = 1.41$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Gravitational field magnitude]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g}
+\lean{IPhO2026_1_A_1.g}
+The magnitude $g$ of the uniform downward gravitational field
+($\mathrm{m/s^2}$); it cancels in the final balance, but the weight law and
+the hydrostatic law are stated through it.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Positivity regime]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:PhysicalParameters}
+\lean{IPhO2026_1_A_1.PhysicalParameters}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:DeltaH, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g}
+The physical regime of the problem: $0 < \rho_0$, $0 < a$, $0 < \Delta h$ and
+$0 < g$. Every later hypothesis bundle extends this regime.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cube mass]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:cubeMass}
+\lean{IPhO2026_1_A_1.cubeMass}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+The mass $m_c = 3\rho_0 a^3$ of the cubic block (kg): volume $a^3$ times the
+material density $3\rho_0$ (the cube is three times as dense as water).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Displaced water mass]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:displacedWaterMass}
+\lean{IPhO2026_1_A_1.displacedWaterMass}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+The mass $\rho_0 a^3$ of water displaced by the fully submerged cube (kg).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Slot vertical size]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:slotVerticalSize}
+\lean{IPhO2026_1_A_1.slotVerticalSize}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+Figure-1a readout (the $45^\circ$ diamond seal): with the cube's sides at
+$45^\circ$ to the horizontal, the square slot in the vertical wall MN has
+vertical size $a\sqrt{2}/2$, the horizontal thickness of the cube.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Frictionless hinge axis]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:HingeAxis}
+\lean{IPhO2026_1_A_1.HingeAxis}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:GatePlane}
+Figure content, assumed: the frictionless hinge at the cube's bottom vertex O,
+recorded as a fixed point of the figure plane; the plane of the figure passes
+through O perpendicular to the hinge axis.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing laws (assumption side)}
+
+\begin{definition}[Weight law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsWeightForce}
+\lean{IPhO2026_1_A_1.IsWeightForce}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g}
+Governing law, assumed: a body of mass $m$ in the uniform field experiences
+the downward weight force $F = m \cdot g$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Uniform gravity field]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsUniformGravityField}
+\lean{IPhO2026_1_A_1.IsUniformGravityField}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsWeightForce}
+Governing law, assumed: the field strength is the same scalar $g$ at every
+point of the apparatus, so two bodies of equal mass receive the same weight
+wherever they are placed.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Hydrostatic pressure law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsHydrostaticPressure}
+\lean{IPhO2026_1_A_1.IsHydrostaticPressure}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g}
+Governing law, assumed: at depth $d$ below a free surface in a liquid of
+density $\rho$ the gauge pressure obeys the linear depth law
+$p = \rho \cdot g \cdot d$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Archimedes buoyancy law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsBuoyantForce}
+\lean{IPhO2026_1_A_1.IsBuoyantForce}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g}
+Governing law, assumed: a fully submerged body experiences the upward buoyant
+force $B = \rho_0 \cdot V \cdot g$, the weight of the displaced water.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Net immersed weight law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsNetImmersedWeight}
+\lean{IPhO2026_1_A_1.IsNetImmersedWeight}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsWeightForce, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsBuoyantForce, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:cubeMass, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+Governing law, assumed: the effective vertical force carried by the block is
+$F = W - B$, where $W = m_c g$ is the cube's weight and
+$B = \rho_0 a^3 g$ is the buoyancy on the displaced volume $a^3$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Weight lever arm at $45^\circ$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:weightHorizontalLeverArm}
+\lean{IPhO2026_1_A_1.weightHorizontalLeverArm}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+Figure-1a readout: the cube's centre lies $a/2$ above O along the vertical
+diagonal and the sides lie at $\pi/4$, so the horizontal lever arm of the
+immersed weight about O is $(a/2)\sin(\pi/4)$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Pressure moment readout]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:PressureMomentReadout}
+\lean{IPhO2026_1_A_1.PressureMomentReadout}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:DeltaH, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:slotVerticalSize, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+Figure-1a readout combined with the hydrostatic law, assumed: in the critical
+wetted regime both faces of the cube stay fully wetted,
+$\Delta h \le a\sqrt{2}/2$, and the net driving couple about O per unit
+hinge-axis length is
+$\tau = \rho_0 g\, \Delta h \cdot (a\sqrt{2}/2) \cdot (a/2) \cdot
+(a\sqrt{2}/4)$, the head times the slot's vertical size times the figure
+lever arms, with $a\sqrt{2}/4$ the horizontal arm read off the figure.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Critical torque balance about O]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsCriticalTorqueBalance}
+\lean{IPhO2026_1_A_1.IsCriticalTorqueBalance}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:weightHorizontalLeverArm, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:slotVerticalSize, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:DeltaH, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+Governing equilibrium law, assumed: the cube is static about the frictionless
+hinge, so the sum of moments about O vanishes — the anticlockwise restoring
+moment $F \cdot (a/2)\sin(\pi/4)$ of the net immersed weight balances the
+clockwise hydrostatic couple
+$\rho_0 g\, \Delta h \cdot (a\sqrt{2}/2) \cdot (a/2) \cdot (a\sqrt{2}/4)$ at
+the maximum permissible $\Delta h$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Full gate assumption bundle]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:HydrostaticGateSetup}
+\lean{IPhO2026_1_A_1.HydrostaticGateSetup}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:PhysicalParameters, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsUniformGravityField, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsHydrostaticPressure, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:PressureMomentReadout, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsCriticalTorqueBalance, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsNetImmersedWeight}
+The complete assumption side of the problem: the positive parameter regime,
+the uniform gravity field, the hydrostatic law holding at the hinge O for
+some head $h_O$, the Figure-1a pressure readout on the wetted faces, and the
+existence of a critically torque-balanced configuration carrying the net
+immersed weight. The official answer closed form appears nowhere among these
+fields.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation chain to the official value}
+
+\begin{definition}[Net immersed weight magnitude]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:netImmersedWeight}
+\lean{IPhO2026_1_A_1.netImmersedWeight}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:cubeMass, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:displacedWaterMass, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g}
+The derived force magnitude $F = (m_c - \rho_0 a^3)\, g$ carried on the
+restoring side of the moment balance: weight minus buoyancy.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Restoring moment about O]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:restoringMoment}
+\lean{IPhO2026_1_A_1.restoringMoment}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:netImmersedWeight, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:weightHorizontalLeverArm}
+The anticlockwise restoring moment of the net immersed weight about O: the
+force times its horizontal lever arm.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Pressure couple magnitude]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:pressureCoupleMagnitude}
+\lean{IPhO2026_1_A_1.pressureCoupleMagnitude}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:rho0, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:g, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:DeltaH, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:slotVerticalSize, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:a}
+The magnitude of the hydrostatic driving couple about O per unit axis length
+in the critical regime,
+$\rho_0 g\, \Delta h \cdot (a\sqrt{2}/2) \cdot (a/2) \cdot (a\sqrt{2}/4)$ —
+the Figure-1a readout side of the balance law (the slot factor $a\sqrt{2}/2$
+and the arm $a\sqrt{2}/4$ are figure readouts).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{lemma}[Step 1: mass--displacement law]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:net_immersed_weight_eq}
+\lean{IPhO2026_1_A_1.net_immersed_weight_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:netImmersedWeight, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:cubeMass, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:displacedWaterMass}
+Under positivity of the parameters the net immersed weight equals
+$2\rho_0 a^3 g$.
+\end{lemma}
+\begin{proof}
+Substituting $m_c = 3\rho_0 a^3$ and the displaced mass $\rho_0 a^3$, the
+difference $3\rho_0 a^3 - \rho_0 a^3$ collects to $2\rho_0 a^3$; multiplying
+by $g$ gives the claim.
+\end{proof}
+
+\begin{lemma}[Step 2: lever arm at $45^\circ$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:weight_lever_arm_eq}
+\lean{IPhO2026_1_A_1.weight_lever_arm_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:weightHorizontalLeverArm}
+The horizontal lever arm of the immersed weight about O equals
+$a/(2\sqrt{2})$.
+\end{lemma}
+\begin{proof}
+The sine special value $\sin(\pi/4) = \sqrt{2}/2$ gives
+$(a/2)(\sqrt{2}/2)$, which equals $a/(2\sqrt{2})$ since
+$\sqrt{2}\cdot\sqrt{2} = 2$.
+\end{proof}
+
+\begin{lemma}[Step 3: restoring moment]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:restoring_moment_eq}
+\lean{IPhO2026_1_A_1.restoring_moment_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:restoringMoment, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:net_immersed_weight_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:weight_lever_arm_eq}
+The restoring moment about O equals $\rho_0 g a^4/\sqrt{2}$.
+\end{lemma}
+\begin{proof}
+Multiply the results of Steps 1 and 2,
+$2\rho_0 a^3 g \cdot a/(2\sqrt{2})$, and cancel the factor $2$.
+\end{proof}
+
+\begin{lemma}[Step 4: hydrostatic couple]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:pressure_couple_eq}
+\lean{IPhO2026_1_A_1.pressure_couple_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:pressureCoupleMagnitude, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:slotVerticalSize}
+The driving pressure couple about O simplifies to
+$\rho_0 g\, \Delta h\, a^3/4$.
+\end{lemma}
+\begin{proof}
+Insert the slot's vertical size $a\sqrt{2}/2$ into the readout expression and
+collect $\sqrt{2}\cdot\sqrt{2} = 2$: the product
+$\rho_0 g\, \Delta h \cdot (a\sqrt{2}/2) \cdot (a/2) \cdot (a\sqrt{2}/4)$
+becomes $\rho_0 g\, \Delta h\, a^3 \cdot 2/16 = \rho_0 g\, \Delta h\, a^3/4$.
+\end{proof}
+
+\begin{lemma}[Step 5: critical balance equation]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:critical_balance_eq}
+\lean{IPhO2026_1_A_1.critical_balance_eq}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:restoring_moment_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:pressure_couple_eq}
+In the critical configuration, where the restoring moment equals the pressure
+couple, the balance reduces to the scalar equation
+$\rho_0 g a^4/\sqrt{2} = \rho_0 g\, \Delta h\, a^3/4$.
+\end{lemma}
+\begin{proof}
+Rewrite the left and right sides of the moment-balance hypothesis by the
+closed evaluations of Steps 3 and 4.
+\end{proof}
+
+\begin{lemma}[Step 6: couple-position trace]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:pressure_couple_position_trace}
+\lean{IPhO2026_1_A_1.pressure_couple_position_trace}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:slotVerticalSize}
+The arm of the pressure couple is one quarter of the figure readout
+$a\sqrt{2}$: $4 \cdot (a\sqrt{2}/4) = a\sqrt{2}$. A purely geometrical
+Figure-1a trace of where the couple acts, consistently with the top face
+sitting flush at the slot's upper lip in the critical configuration.
+\end{lemma}
+\begin{proof}
+Four quarters make a whole: $4 \cdot (x/4) = x$ for $x = a\sqrt{2}$ by direct
+rational arithmetic.
+\end{proof}
+
+\begin{lemma}[Step 7: solving for the side length]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:side_length_eq_delta_h_over}
+\lean{IPhO2026_1_A_1.side_length_eq_delta_h_over}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:critical_balance_eq}
+From the critical balance equation
+$\rho_0 g a^4/\sqrt{2} = \rho_0 g\, \Delta h\, a^3/4$ and the positivity of
+the parameters, $a = \Delta h/(2\sqrt{2})$.
+\end{lemma}
+\begin{proof}
+Cancel the nonzero factor $\rho_0 g a^3$ from both sides, leaving
+$a/\sqrt{2} = \Delta h/4$; hence $a = \Delta h\, \sqrt{2}/4 =
+\Delta h/(2\sqrt{2})$ using $\sqrt{2}^{\,2} = 2$.
+\end{proof}
+
+\begin{lemma}[Numerical readout at $\Delta h = 1.41$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:numerical_value}
+\lean{IPhO2026_1_A_1.numerical_value}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:side_length_eq_delta_h_over}
+For the design value $\Delta h = 1.41$ and $a = \Delta h/(2\sqrt{2})$, the
+final readout is $a = 0.50 \;\lor\; |a - 0.50| < 1/200$.
+\end{lemma}
+\begin{proof}
+The closed form gives $1.41/(2\sqrt{2}) = 0.4984\ldots$; the rational bounds
+$1.414 < \sqrt{2} < 1.415$ place this value within $1/200$ of $0.50$.
+\end{proof}
+
+\begin{lemma}[Balance-law consistency bridge]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:torque_balance_contract}
+\lean{IPhO2026_1_A_1.torque_balance_contract}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:HydrostaticGateSetup, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:IsCriticalTorqueBalance}
+The torque-balance existential bundled in the gate setup, re-expressed with
+the derived magnitudes: a critical torque balance holds between the pressure
+couple magnitude and the net immersed weight.
+\end{lemma}
+\begin{proof}
+Project the torque-balance field of the setup bundle and identify its force
+and couple with the defined magnitudes; no new physical input enters.
+\end{proof}
+
+\begin{theorem}[T1-A1 target: the gate side length]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_A_1:hydrostatic_gate_side_length_a_target}
+\lean{IPhO2026_1_A_1.hydrostatic_gate_side_length_a_target}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_A_1:HydrostaticGateSetup, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:PhysicalParameters, def:IPhO2026Problems_problem_IPhO_2026_1_A_1:PressureMomentReadout, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:net_immersed_weight_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:weight_lever_arm_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:restoring_moment_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:pressure_couple_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:critical_balance_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:side_length_eq_delta_h_over, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:numerical_value, lem:IPhO2026Problems_problem_IPhO_2026_1_A_1:torque_balance_contract}
+For the hydrostatic gate of Figure 1a in its critical (maximum-$\Delta h$)
+configuration, with $\Delta h = 1.41$ m and the moment balance about O
+holding, the side length of the cubic block is
+$a = \Delta h/(2\sqrt{2})$ with $|a - 0.50| < 1/200$ — the official answer
+$0.50$ m at the stated precision, appearing here conclusion-side only.
+\end{theorem}
+\begin{proof}
+Positivity of $\rho_0$, $a$, $\Delta h$, $g$ comes from the parameter regime
+inside the setup bundle. The consistency bridge re-expresses the bundled
+balance as restoring moment equals pressure couple; Steps 5 and 7 turn this
+into the scalar balance equation and solve it to $a = \Delta h/(2\sqrt{2})$.
+The numerical readout at $\Delta h = 1.41$ then yields the neighbourhood of
+$0.50$; the equality alternative trivially implies the bound since
+$0 < 1/200$.
+\end{proof}

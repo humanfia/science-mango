@@ -1,0 +1,244 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_A_1.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_3_A_1.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_3\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_A_1}
+
+\paragraph{Problem source.}
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+Current subquestion:
+Write the field magnitude H inside the torus in terms of N, I, A, and V.
+
+\paragraph{Current subquestion.}
+Write the field magnitude H inside the torus in terms of N, I, A, and V.
+
+\paragraph{Recorded answer/context.}
+H = N*I*A/V.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_A\_1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_A_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_A_1:paramagneticTorus_H_eq_meanRadius}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-003): PhysLean's electromagnetism modules have no Ampere-circulation / toroid H-field assembly API for this part's current-operating-point model (see this file's physics-grounding log); the typed `InstantaneousCurrent` amount+dimension wrapper is local by design over the `import Mathlib` baseline. No irrelevant Physlib import is added.
+
+% --- Archon autoformalization helper ledger (added iter-007, coverage-debt batch 2) ---
+% Every named Lean declaration of the covered file gets a blueprint entry;
+% \uses{} reflects the actual Lean dependency structure read first-hand.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Basic habitats and carrier structures}
+
+\begin{definition}[Free space and instantaneous current]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FreeSpace}
+\lean{IPhO2026.Problem3.PartA1.FreeSpace}
+\lean{IPhO2026.Problem3.PartA1.InstantaneousCurrent}
+\lean{IPhO2026.Problem3.PartA1.InstantaneousCurrent.ext}
+The permeability of free space $\mu_0$ packaged as a named positive record,
+and the instantaneous current in the wire as an amount-with-readout wrapper
+(its scalar readout in amperes); the extensionality theorem identifies two
+currents with equal readouts.
+\end{definition}
+
+\begin{definition}[Radial profile and H-field readouts]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:RadialProfile}
+\lean{IPhO2026.Problem3.PartA1.RadialProfile}
+\lean{IPhO2026.Problem3.PartA1.HFieldReadouts}
+Function-space habitats: a radial profile is a real-valued function of the
+radial coordinate, and an H-field readout on a turn-index type is a
+per-turn real magnitude readout (A/m).
+\end{definition}
+
+\begin{definition}[Amperian filament]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmperianFilament}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FreeSpace}
+\lean{IPhO2026.Problem3.PartA1.AmperianFilament}
+\lean{IPhO2026.Problem3.PartA1.AmperianFilament.is_free}
+\lean{IPhO2026.Problem3.PartA1.AmperianFilament.current_nonneg}
+A single turn of the winding treated as an amperian filament: an indexed
+turn carrying an instantaneous current certified free and nonnegative;
+the consequence theorems re-export freeness and nonnegativity of the
+readout.
+\end{definition}
+
+\begin{definition}[Ampère circulation law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmpereLaw}
+\lean{IPhO2026.Problem3.PartA1.AmpereLaw}
+\lean{IPhO2026.Problem3.PartA1.AmpereLaw.circulation}
+\lean{IPhO2026.Problem3.PartA1.AmpereLaw.circulation_constant}
+Ampère's law on a finite index of loops: the circulation of the field
+magnitude along each loop equals the enclosed free current; the
+\texttt{circulation} theorem extracts the per-loop equation and
+\texttt{circulation\_constant} its constant-magnitude specialization.
+\end{definition}
+
+\begin{definition}[Finite winding]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FiniteWinding}
+\lean{IPhO2026.Problem3.PartA1.FiniteWinding}
+\lean{IPhO2026.Problem3.PartA1.FiniteWinding.card}
+A dense winding of $N$ turns: a finite turn-index type with its equivalence
+to $\mathrm{Fin}\,N$; \texttt{card} certifies the turn count is exactly $N$.
+\end{definition}
+
+\subsection*{Thin-mean-path law and uniformity}
+
+\begin{definition}[Ampère law on the thin mean path]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmpereLawThinMeanPath}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmpereLaw, def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FiniteWinding}
+\lean{IPhO2026.Problem3.PartA1.AmpereLawThinMeanPath}
+\lean{IPhO2026.Problem3.PartA1.AmpereLawThinMeanPath.ampere_sum_const}
+\lean{IPhO2026.Problem3.PartA1.AmpereLawThinMeanPath.mean_circumference_eq}
+\lean{IPhO2026.Problem3.PartA1.AmpereLawThinMeanPath.mean_circumference_mul_eq}
+\lean{IPhO2026.Problem3.PartA1.AmpereLawThinMeanPath.mean_circumference_pos}
+The thin-torus ($r \ll R$) specialization of Ampère's law: the mean path of
+length $2\pi R$ encloses all $N$ turns, each carrying its
+current, with per-turn magnitude readout; carries the geometry parameters
+$R, r, A, V$ (positive, $V = 2\pi R A$). Consequences: the sum form
+$\sum_t 2\pi R\, H_t = \sum_t I_t$, the mean-circumference identities, and
+positivity of $2\pi R$.
+\end{definition}
+
+\begin{definition}[Uniform field magnitude interface]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:UniformFieldMag}
+\lean{IPhO2026.Problem3.PartA1.UniformFieldMag}
+\lean{IPhO2026.Problem3.PartA1.UniformFieldMag.piecewise_eq_H}
+\lean{IPhO2026.Problem3.PartA1.UniformFieldMag.uniform_across}
+The uniformity interface for an approximately uniform field inside the
+torus: a constant magnitude $H$ agreeing with every per-turn readout, so
+the piecewise readout equals $H$ and any two turns read the same value.
+\end{definition}
+
+\begin{definition}[Uniform-material winding law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmperianFilamentLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmpereLawThinMeanPath, def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmperianFilament, def:IPhO2026Problems_problem_IPhO_2026_3_A_1:UniformFieldMag}
+\lean{IPhO2026.Problem3.PartA1.AmperianFilamentLaw}
+\lean{IPhO2026.Problem3.PartA1.AmperianFilamentLaw.circulation_eq_filament_current}
+\lean{IPhO2026.Problem3.PartA1.AmperianFilamentLaw.filament_is_free}
+Along the mean path each turn behaves as an amperian filament carrying the
+winding current, and the circulation of the per-turn magnitude equals the
+total filament (free) current — the official hint's reading of $I_C$ in
+$\oint \vec{H}\cdot d\vec{\ell} = I_C$; the two named theorems are its
+elimination and freeness re-export.
+\end{definition}
+
+\begin{definition}[Vacuum-core constitutive identity]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:VacuumCoreIdentity}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FreeSpace}
+\lean{IPhO2026.Problem3.PartA1.VacuumCoreIdentity}
+\lean{IPhO2026.Problem3.PartA1.VacuumCoreIdentity.b_eq_scaled}
+\lean{IPhO2026.Problem3.PartA1.VacuumCoreIdentity.b_uniform}
+The electromagnetic material law recorded for downstream parts (not needed
+for A.1 itself): pointwise $B = \mu_0 H + \mu_0 M$ with $H$ and $M$
+constant-magnitude in the region and $M$ parallel to $H$ (paramagnetic
+branch, $M = \chi H$, $\chi \ge 0$); consequences rewrite $B$ as the scaled
+field and certify uniformity.
+\end{definition}
+
+\subsection*{The paramagnetic torus and the A.1 derivation route}
+
+\begin{definition}[Paramagnetic torus of Part A.1]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:ParamagneticTorusA1}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FiniteWinding, def:IPhO2026Problems_problem_IPhO_2026_3_A_1:FreeSpace, def:IPhO2026Problems_problem_IPhO_2026_3_A_1:AmpereLawThinMeanPath}
+\lean{IPhO2026.Problem3.PartA1.ParamagneticTorusA1}
+\lean{IPhO2026.Problem3.PartA1.ParamagneticTorusA1.winding_card}
+The full problem-parameter package: $N \ge 1$ turns of dense winding, mean
+radius $R > 0$, tube radius $r$ with $0 < r < R$ (thin-torus regime),
+cross-section $A > 0$, volume $V = 2\pi R A > 0$, series wire current $I$
+(same through every turn), the interior field magnitude $H \ge 0$ under
+measurement (never fixed by fiat), and the embedding equations tying the
+thin-mean-path Ampère law to these parameters with uniform per-turn
+readout $H$. No field states the target $H = NIA/V$.
+\end{definition}
+
+\begin{lemma}[Bridge 1 — Ampère in the uniform regime]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:ampere_uniform_eq}
+\lean{IPhO2026.Problem3.PartA1.ParamagneticTorusA1.ampere_uniform_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:ParamagneticTorusA1}
+The circulation of the uniform magnitude along the mean path equals the
+total threading free current: $2\pi R \cdot (N H) = N I$.
+\end{lemma}
+\begin{proof}
+Sum the per-turn magnitudes (all equal to $H$ by uniformity) against the
+per-turn currents (all equal to $I$ by the series winding) in the embedded
+thin-mean-path Ampère equation; left to the prover stage.
+\end{proof}
+
+\begin{lemma}[Bridge 2 — solve for $H$ along the mean path]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:fieldMagnitude_eq_meanRadius_form}
+\lean{IPhO2026.Problem3.PartA1.ParamagneticTorusA1.fieldMagnitude_eq_meanRadius_form}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:ampere_uniform_eq}
+$H = N I / (2\pi R)$.
+\end{lemma}
+\begin{proof}
+Divide Bridge 1 by $N \cdot 2\pi R \neq 0$ (uses $N \ge 1$, $R > 0$,
+$\pi > 0$).
+\end{proof}
+
+\begin{lemma}[Bridge 3 — geometry rewrite of the mean circumference]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:mean_circumference_eq}
+\lean{IPhO2026.Problem3.PartA1.ParamagneticTorusA1.mean_circumference_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_1:ParamagneticTorusA1}
+$2\pi R = V / A$.
+\end{lemma}
+\begin{proof}
+Field-simplify the thin-torus volume law $V = 2\pi R A$ using $A > 0$.
+\end{proof}
+
+\begin{lemma}[Bridge 4 — figure parametrization of the answer]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:meanRadius_form_eq_volume_form}
+\lean{IPhO2026.Problem3.PartA1.ParamagneticTorusA1.meanRadius_form_eq_volume_form}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:mean_circumference_eq}
+$N I / (2\pi R) = N I A / V$.
+\end{lemma}
+\begin{proof}
+Substitute Bridge 3 into the denominator
+(uses $2\pi R > 0$, $V > 0$).
+\end{proof}
+
+\begin{theorem}[A.1 main target: $H = NIA/V$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_A_1:paramagneticTorus_H_eq}
+\lean{IPhO2026.Problem3.PartA1.paramagneticTorus_H_eq}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:fieldMagnitude_eq_meanRadius_form, lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:meanRadius_form_eq_volume_form}
+The magnitude of $\vec{H}$ inside the paramagnetic torus, in terms of
+$N$, $A$, $V$ and the instantaneous current $I$, is
+$H = N I A / V$.
+\end{theorem}
+\begin{proof}
+Chain Bridge 2 ($H = NI/(2\pi R)$) with Bridge 4
+($NI/(2\pi R) = NIA/V$).
+\end{proof}
+
+\begin{theorem}[A.1 answer in mean-radius form]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_A_1:paramagneticTorus_H_eq_meanRadius}
+\lean{IPhO2026.Problem3.PartA1.paramagneticTorus_H_eq_meanRadius}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_A_1:fieldMagnitude_eq_meanRadius_form}
+Equivalent form obtained directly from Ampère's law before the geometry
+substitution: $H = N I / (2\pi R)$.
+\end{theorem}
+\begin{proof}
+Restatement of Bridge 2.
+\end{proof}
+
+% --- Archon physics formalization source end ---

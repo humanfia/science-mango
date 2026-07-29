@@ -1,0 +1,414 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_4.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_3_C_4.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.4
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_4}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time.
+
+\paragraph{Current subquestion.}
+A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time.
+
+\paragraph{Recorded answer/context.}
+t = (C\_c*T\_h/P)*[ln(T\_0/T) - (T\_0 - T)/T\_h].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_4.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_4:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:c4_elapsed_time}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean's thermodynamics modules do not cover this paramagnetic-torus infinitesimal-cycle (M,H,T) model; the formalization uses the local `CoolingRun` density-formulation with Mathlib interval-integral anchors (see the physics-grounding log for this file). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% NOTE: import policy mirrored from the covered file's header (iter-002 ruling, re-confirmed iter-008): the file imports `Mathlib` outright (no targeted PhysLean import) because PhysLean's thermodynamics coverage does not reach this $(M,H,T)$ infinitesimal-cycle model; the density formulation below stays on the Mathlib measure/interval-integral baseline.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 3-c-4-entries) ---
+% Every non-private Lean declaration of the covered file gets a blueprint
+% entry below, in dependency order; the uses-edges reflect the actual
+% dependency structure read first-hand from the carriers named in the
+% proof bodies.
+% The official C.4 cooling-time value appears ONLY in the conclusion-side
+% entry thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:c4_elapsed_time (and
+% in the skeleton's recorded-answer paragraph, kept verbatim); blocks
+% marked "assumed/governing-law/figure content" carry assumption-side
+% data only.
+
+\subsection*{Named quantities}
+
+\begin{definition}[Global scalar quantities of the run]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities}
+\lean{IPhO2026.Problem3.C4.tempHot}
+\lean{IPhO2026.Problem3.C4.tempInitial}
+\lean{IPhO2026.Problem3.C4.tempFinal}
+\lean{IPhO2026.Problem3.C4.heatCapacityBody}
+\lean{IPhO2026.Problem3.C4.inputPower}
+\lean{IPhO2026.Problem3.C4.elapsedTime}
+The six named scalars of subquestion C.4 (opaque physical parameters,
+not transparent aliases, so later contracts cannot be closed by
+unfolding): the constant hot-reservoir temperature $T_h$ (K), the
+body's initial and final temperatures $T_0$ and $T$ (K), the body's
+constant heat capacity $C_c$ (J/K), the constant refrigerator input
+power $P$ (W), and the elapsed time $t$ (s) of the cooling run from
+$T_0$ to $T$ --- the quantity the subquestion asks to determine.
+Their positivity and ordering constraints live in the regime block
+below; the \emph{value} of $t$ is only ever a conclusion.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Torus parameters $\mu_0, n, K, V$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:TorusParams}
+\lean{IPhO2026.Problem3.C4.TorusParams}
+Constant parameters of the paramagnetic-torus working substance
+(potassium chromate): the vacuum permeability $\mu_0$ (H/m), amount of
+substance $n$ (mol), material constant $K$ entering the equation of
+state $T\,M\,V = n\,K\,H$, and fixed torus volume $V$ (m$^3$), together
+with positivity certificates $0 < \mu_0, n, K, V$. Setup content:
+these values drop out of the C.4 elapsed time but are part of the
+per-cycle proof route (and $K$ is read from the statement).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Working state $(T,H,M)$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:WorkingState}
+\lean{IPhO2026.Problem3.C4.WorkingState}
+Thermodynamic state of the working substance at one corner of the
+cycle: scalar readouts of temperature $T$ (K), applied-field magnitude
+$H$ and magnetization magnitude $M$ (both A/m).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cycle corners $1,2,3,4$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CycleCorners}
+\lean{IPhO2026.Problem3.C4.CycleCorners}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:WorkingState}
+The four corner states $1, 2, 3, 4$ of the Carnot cycle of Figure~3b in
+the $H$-versus-$T$ plane (processes $1 \to 2 \to 3 \to 4 \to 1$): pure
+figure content, preserved for the per-cycle route even though the C.4
+elapsed time is independent of the corner values.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooling-run densities]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun}
+\lean{IPhO2026.Problem3.C4.CoolingRun}
+Operating history of the cooling run as temperature-window densities.
+For every instantaneous cold (control) temperature $T'$ visited
+between $T_0$ and $T$, the four fields give, per unit temperature drop
+$\Delta T' > 0$ of the body at $T'$: the heat drawn from the body
+$\delta Q_c / \Delta T'$ (J/K), the heat dumped to the hot reservoir
+$\delta Q_h / \Delta T'$ (J/K), the work supplied $\delta W / \Delta T'$
+(J/K), and the residence time $\delta s / \Delta T'$ (s/K) of the
+refrigerator. Densities per unit \emph{drop} record the cooling branch
+explicitly (along the run $dT' < 0$).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Regime assumptions of the cooling branch]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:RegimeAssumptions}
+\lean{IPhO2026.Problem3.C4.RegimeAssumptions}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities}
+Prop-carrier of the physical regime (assumed, never derived): positive
+absolute temperatures $0 < T, T_0, T_h$ with the ordering
+$T < T_0 < T_h$ (the reservoirs straddle the visited temperatures of a
+cooling run), positive heat capacity $C_c > 0$, constant positive
+input power $P > 0$, and positive elapsed time $t > 0$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Equation of state of the ideal paramagnet]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:ParamagnetEOS}
+\lean{IPhO2026.Problem3.C4.ParamagnetEOS}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:WorkingState}
+Governing law (assumed input from the problem setup), stated as the
+rewritable equation $T\,M\,V = n\,K\,H$ relating a corner state to the
+torus parameters.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Isothermal heat relation into the torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsothermalHeatIntoTorus}
+\lean{IPhO2026.Problem3.C4.IsothermalHeatIntoTorus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:TorusParams}
+Governing law carried over from part B (assumed input): at constant
+temperature $T$, when the applied field changes from $H_i$ to $H_f$
+the heat transferred \emph{into} the torus is
+$Q = -\bigl(\mu_0\,n\,K / (2T)\bigr)\,(H_f^{\,2} - H_i^{\,2})$; the
+sign of $Q$ carries the transfer direction (into the torus positive).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Carnot heat ratio, refrigerator branch]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CarnotHeatRatio}
+\lean{IPhO2026.Problem3.C4.CarnotHeatRatio}
+Governing law (assumed input from the reversible cycle): for reservoir
+temperatures $T_h$ (hot), $T_c$ (cold) and heat \emph{magnitudes}
+$Q_h, Q_c$, the product-form identity $Q_h\,T_c = Q_c\,T_h$ (so
+$Q_h / Q_c = T_h / T_c$ off $T_c, Q_c \neq 0$) together with the sign
+conditions $0 < Q_c$ and $0 \le Q_h$ recording the refrigerator branch
+(heat actually extracted from the cold end).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[First law over one cycle (work--heat balance)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CycleWorkHeatBalance}
+\lean{IPhO2026.Problem3.C4.CycleWorkHeatBalance}
+Governing law (assumed input): over one infinitesimal refrigeration
+cycle the working substance returns to its initial state, so its
+internal-energy change vanishes and $W = Q_h - Q_c$ with all three
+quantities as magnitudes per unit temperature drop.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Constant-power law, density form]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:ConstantPowerDensityLaw}
+\lean{IPhO2026.Problem3.C4.ConstantPowerDensityLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities}
+Governing law (assumed input from the constant-power running of the
+refrigerator): per unit temperature drop, the supplied work density
+equals the constant input power times the residence-time density,
+$\delta W/\Delta T' = P\;\delta s/\Delta T'$; its whole-run
+accumulation is $W_{\mathrm{total}} = P\,t$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Calorimetric law of the cooled body]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:BodyCalorimeterDensityLaw}
+\lean{IPhO2026.Problem3.C4.BodyCalorimeterDensityLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities}
+Governing law (assumed input; this \emph{is} the meaning of ``a body
+of heat capacity $C_c$'' on the cooling branch, $dQ_c = -C_c\,dT'$
+with $dT' < 0$): per unit temperature drop, the heat drawn from the
+body equals the heat capacity, $\delta Q_c/\Delta T' = C_c$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Infinitesimal Carnot cycle at control temperature $T'$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:InfinitesimalCycleLaw}
+\lean{IPhO2026.Problem3.C4.InfinitesimalCycleLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CarnotHeatRatio, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CycleWorkHeatBalance, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:ConstantPowerDensityLaw, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:BodyCalorimeterDensityLaw}
+Governing-law conjunction (assumed input) at one control temperature
+$T'$ with $T < T' < T_0$: the run data at $T'$ obey the Carnot heat
+ratio at cold temperature $T'$, the first law, the constant-power
+law, the calorimetric law, and the residence time is positive (the
+refrigerator branch: the cooling actually takes time). The predicate
+quantifies over $T'$; it does not sum the run.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooling-run predicate]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsCoolingRun}
+\lean{IPhO2026.Problem3.C4.IsCoolingRun}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:InfinitesimalCycleLaw}
+The cooling-run hypothesis (assumed input): at every control
+temperature $T'$ strictly between $T$ and $T_0$ the refrigerator
+executes the infinitesimal Carnot cycle; the endpoint densities are
+left unconstrained (windows of zero width carry no accumulated time).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Figure-3b corners at cold temperature $T'$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:Figure3bCorners}
+\lean{IPhO2026.Problem3.C4.Figure3bCorners}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CycleCorners, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:ParamagnetEOS}
+Figure content of the cycle of Figure~3b at control temperature $T'$:
+states $1$ and $4$ sit at $T_h$, states $2$ and $3$ sit at $T'$, and
+the equation of state holds at every corner. (Figure data; the C.4
+result does not depend on the corner values, but the per-cycle
+justifications of the Carnot ratio do.)
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Context consequences of the EOS and the isothermal heat law}
+
+\begin{lemma}[Magnetization from the equation of state]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:magnetization_of_eos}
+\lean{IPhO2026.Problem3.C4.magnetization_of_eos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:WorkingState, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:ParamagnetEOS}
+The equation of state determines the magnetization from the field:
+off $T \neq 0$, $M = (n\,K\,H)/(V\,T)$ --- the transport form of the
+EOS used when the isothermal heat relation is moved between $H$-data
+and $M$-data. This is the intended role of the EOS packaging: an
+elimination form constraining the model.
+\end{lemma}
+\begin{proof}
+Rearrange $T\,M\,V = n\,K\,H$ by dividing by $V\,T \neq 0$
+($V > 0$ from the torus parameters, $T \neq 0$ by hypothesis).
+\end{proof}
+
+\begin{lemma}[Heat leaves the torus on field increase]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:heat_leaves_torus_on_field_increase}
+\lean{IPhO2026.Problem3.C4.heat_leaves_torus_on_field_increase}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsothermalHeatIntoTorus}
+Sign content of the isothermal heat relation: when the field is
+increased at fixed positive temperature ($0 \le H_i < H_f$, $T > 0$),
+the heat into the torus is negative, $Q < 0$ --- the orientation of
+the $3 \to 4$ leg of Figure~3b, and the reason $Q_h$ is a heat
+\emph{delivered to} the hot reservoir.
+\end{lemma}
+\begin{proof}
+In $Q = -(\mu_0 n K/(2T))\,(H_f^{\,2} - H_i^{\,2})$ the prefactor is
+strictly positive (all torus parameters and $T$ positive) and
+$H_f^{\,2} - H_i^{\,2} > 0$ for $0 \le H_i < H_f$; the leading minus
+sign forces $Q < 0$.
+\end{proof}
+
+\subsection*{Derivation bridges: per-cycle densities}
+
+\begin{lemma}[Heat-dumped density]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:heatDumpedDensity_eq}
+\lean{IPhO2026.Problem3.C4.heatDumpedDensity_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CarnotHeatRatio, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:BodyCalorimeterDensityLaw, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsCoolingRun}
+Per-cycle heat dumped to the hot reservoir, in density form: at every
+control temperature $T' \in (T, T_0)$ of a cooling run,
+$\delta Q_h/\Delta T' = C_c\,T_h/T'$.
+\end{lemma}
+\begin{proof}
+Divide the product-form Carnot ratio
+$(\delta Q_h/\Delta T')\,T' = (\delta Q_c/\Delta T')\,T_h$ by
+$T' \neq 0$ and substitute the calorimetric law
+$\delta Q_c/\Delta T' = C_c$.
+\end{proof}
+
+\begin{lemma}[Work density]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:workDensity_eq}
+\lean{IPhO2026.Problem3.C4.workDensity_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CycleWorkHeatBalance, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:BodyCalorimeterDensityLaw, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsCoolingRun, lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:heatDumpedDensity_eq}
+Per-cycle work density: at every control temperature
+$T' \in (T, T_0)$ of a cooling run,
+$\delta W/\Delta T' = C_c\,(T_h/T' - 1)$.
+\end{lemma}
+\begin{proof}
+First law
+$\delta W/\Delta T' = \delta Q_h/\Delta T' - \delta Q_c/\Delta T'$;
+substitute the heat-dumped density $C_c\,T_h/T'$ and the calorimetric
+law $C_c$, then factor $C_c$.
+\end{proof}
+
+\begin{lemma}[Residence-time density]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:residenceDensity_eq}
+\lean{IPhO2026.Problem3.C4.residenceDensity_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:ConstantPowerDensityLaw, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsCoolingRun, lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:workDensity_eq}
+Residence-time density: at every control temperature
+$T' \in (T, T_0)$ of a cooling run,
+$\delta s/\Delta T' = (C_c/P)\,(T_h/T' - 1)$ --- the informal
+differential relation $P\,ds = C_c\,(T_h/T' - 1)\,(-dT')$ with the
+cooling branch ($\Delta T' > 0$ per drop) built in.
+\end{lemma}
+\begin{proof}
+Divide the constant-power law
+$\delta W/\Delta T' = P\,\delta s/\Delta T'$ by $P > 0$ (regime) and
+substitute the work-density identity.
+\end{proof}
+
+\subsection*{Value theorems: accumulation and the C.4 elapsed time}
+
+\begin{theorem}[Accumulation bridge: $t$ as the residence-density integral]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:elapsedTime_eq_integral}
+\lean{IPhO2026.Problem3.C4.elapsedTime_eq_integral}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:RegimeAssumptions, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsCoolingRun, lem:IPhO2026Problems_problem_IPhO_2026_3_C_4:residenceDensity_eq}
+The elapsed time of the cooling run, defined operationally as the
+integral of the residence-time density over the visited temperatures
+(additivity of time over the run, hypothesis \texttt{haccum}), equals
+the integral of the explicit residence density:
+$t = \int_{T' \in [T,\,T_0]} (C_c/P)\,(T_h/T' - 1)\,dT'$.
+\end{theorem}
+\begin{proof}
+Rewrite the integrand by the residence-density identity on the open
+interval $(T, T_0)$; set-integral congruence extends the rewrite to
+the closed interval since the two endpoints form a measure-zero set.
+\end{proof}
+
+\begin{theorem}[Evaluation bridge: the residence-time integral]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:cooling_time_integral_eval}
+\lean{IPhO2026.Problem3.C4.cooling_time_integral_eval}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:RegimeAssumptions}
+The residence-time integral evaluates in closed form:
+$\int_{[T,\,T_0]} (C_c/P)\,(T_h/T' - 1)\,dT'
+= (C_c/P)\,\bigl(T_h\,\ln(T_0/T) - (T_0 - T)\bigr)$.
+(Conclusion-side intermediate value; not the official C.4 answer
+form.)
+\end{theorem}
+\begin{proof}
+Fundamental theorem of calculus on $0 < T \le T' \le T_0$:
+$\int T_h/T' \, dT' = T_h \ln(T_0/T)$ off $T' \neq 0$ and
+$\int 1\,dT' = T_0 - T$; pull the constant $C_c/P$ out.
+\end{proof}
+
+\begin{theorem}[Subquestion C.4: elapsed cooling time]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:c4_elapsed_time}
+\lean{IPhO2026.Problem3.C4.c4_elapsed_time}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_4:globalQuantities, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:RegimeAssumptions, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:CoolingRun, def:IPhO2026Problems_problem_IPhO_2026_3_C_4:IsCoolingRun, thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:elapsedTime_eq_integral, thm:IPhO2026Problems_problem_IPhO_2026_3_C_4:cooling_time_integral_eval}
+The body of heat capacity $C_c$, cooled from $T_0$ to $T$ at constant
+input power $P$ and constant hot-reservoir temperature $T_h$, reaches
+$T$ in elapsed time
+\[
+t = \frac{C_c\,T_h}{P}\Bigl(\ln\frac{T_0}{T} - \frac{T_0 - T}{T_h}\Bigr).
+\]
+The right-hand side is the recorded official answer of subquestion
+C.4; it is purely conclusion-side --- the hypotheses only bundle the
+per-cycle governing laws (the cooling-run predicate, composed of the
+Carnot heat ratio, the first law, the constant-power law, and the
+calorimetric law) and the operational definition of the elapsed time.
+\end{theorem}
+\begin{proof}
+Chain the accumulation bridge with the evaluation bridge, then apply
+the field algebra
+$(C_c/P)\,(T_h \ln(T_0/T) - (T_0 - T))
+= (C_c T_h/P)\,(\ln(T_0/T) - (T_0 - T)/T_h)$,
+factoring $T_h$ out of the parenthesis.
+\end{proof}

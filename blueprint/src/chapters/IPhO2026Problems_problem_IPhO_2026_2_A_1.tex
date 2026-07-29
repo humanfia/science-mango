@@ -1,0 +1,167 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_A_1.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_2_A_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_2\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_A_1}
+
+\paragraph{Problem source.}
+Parallel rays strike the inside of a half-cylindrical mirror of radius R.  For
+an incident ray with transverse coordinate x, let N be its number of
+reflections.  The positive threshold x\_N is the largest distance from the
+optical axis for which a ray undergoes at most N reflections.  Use Figures
+2c--2e for the mirror and limiting-ray geometry.
+
+Current subquestion:
+Find the general expression for the threshold x\_N in terms of R and the positive integer N.
+
+\paragraph{Current subquestion.}
+Find the general expression for the threshold x\_N in terms of R and the positive integer N.
+
+\paragraph{Recorded answer/context.}
+x\_N = R*sin((2*N - 1)*pi/(4*N + 2)) = R*cos(pi/(2*N + 1)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_A\_1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_A_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N, thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:limiting_ray_reflection_count}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no geometric/reflection-optics module (nearest LeanExplore hits are manifold/sphere and semiformal-result metaprogramming; see the physics-grounding log for this file). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 2-a-1-entries) ---
+% NOTE: import policy (mirrors the exemption note above, iter-002): the covered
+% file builds on the `import Mathlib` baseline alone (verified on disk: a single
+% `import Mathlib` line); PhysLean has no geometric/reflection-optics module for
+% the Figure-2c--2e half-cylinder regime, so no Physlib import is added.  This
+% NOTE records the resolved import policy for the chapter.
+\subsection*{Threshold geometry and data}
+
+\begin{definition}[Half-cylindrical mirror and threshold bookkeeping]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_A_1:HalfCylindricalMirror}
+\lean{IPhO2026_2_A_1.HalfCylindricalMirror}
+The physical setup of Figures 2c--2e, packaged as one structure: the mirror
+radius $R$ (a length) with its positivity certificate; the reflection-count
+staircase $N_{\mathrm{refl}} : \mathbb{R} \to \mathbb{N}$ of Figure~2e, defined
+for every transverse coordinate $x$; and the threshold sequence
+$x_{N\mathrm{At}} : \mathbb{N} \to \mathbb{R}$ ($0$-based, $0 < x_{N\mathrm{At}}\,n < R$)
+whose general term for the positive integer $N$ is recorded at index $N - 1$.
+Bundled Figure-2e readouts and the governing law, all assumption-side:
+mirror symmetry $N_{\mathrm{refl}}(-x) = N_{\mathrm{refl}}(x)$; the axial ray
+reflected exactly once ($N_{\mathrm{refl}}\,0 = 1$); the threshold property
+(below $|x| < x_{N\mathrm{At}}\,n$ the count is at most $n + 1$, and from the
+edge onward within $(-R, R)$ it exceeds $n + 1$); the edge value
+$N_{\mathrm{refl}}(x_{N\mathrm{At}}\,n) = n + 2$ (the rim impact of
+Figure~2e's filled dots counts as a reflection); and the geometric
+reflection-count law (specular reflection on the circular mirror makes the
+impact polar angles the odd multiples $\alpha, 3\alpha, 5\alpha, \dots$, so
+for $\alpha \in (0, \pi/2]$ the count $N_{\mathrm{refl}}(R\cos\alpha)$ is the
+number of odd multiples $(2k+1)\alpha$ not exceeding $\pi$, rim impact
+included).  No threshold value is fixed by any field: the closed forms are
+derived conclusion-side below.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{theorem}[The limiting ray undergoes exactly $N + 1$ reflections]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:limiting_ray_reflection_count}
+\lean{IPhO2026_2_A_1.HalfCylindricalMirror.limiting_ray_reflection_count}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_A_1:HalfCylindricalMirror}
+For the ray whose first impact has polar angle $\alpha = \pi/(2N+1)$ across
+the threshold ($N = n + 1$ in $0$-based indexing), the impact points are the
+odd multiples $\pi/(2N+1), 3\pi/(2N+1), \dots, (2N+1)\pi/(2N+1) = \pi$, so
+its $(N+1)$-st impact lands exactly on the rim and
+$N_{\mathrm{refl}}\bigl(R\cos(\pi/(2N+1))\bigr) = N + 1$ ($n + 2$, $0$-based).
+\end{theorem}
+\begin{proof}
+By the bundled reflection-count law, $N_{\mathrm{refl}}(R\cos\alpha)$ counts
+the odd multiples of $\alpha = \pi/(2N+1)$ not exceeding $\pi$; these are
+exactly $(2k+1)\pi/(2N+1)$ for $0 \le k \le N$, i.e.\ $N + 1$ impacts, the
+last being the rim impact, which counts.
+\end{proof}
+
+\begin{theorem}[The two recorded forms agree]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_forms_agree}
+\lean{IPhO2026_2_A_1.HalfCylindricalMirror.threshold_forms_agree}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_A_1:HalfCylindricalMirror}
+Cosine--sine bridge (recorded answer, both forms conclusion-side): for the
+positive integer $N$ ($N = n + 1$, $0$-based),
+\[
+R\sin\!\frac{(2N-1)\pi}{4N+2} \;=\; R\cos\!\frac{\pi}{2N+1} .
+\]
+\end{theorem}
+\begin{proof}
+Pure trigonometry: $(2N-1)\pi/(4N+2) = \pi/2 - \pi/(2N+1)$ and
+$\sin(\pi/2 - \theta) = \cos\theta$.
+\end{proof}
+
+\subsection*{Target value theorems}
+
+\begin{theorem}[A.1 answer, cosine form]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N_cos}
+\lean{IPhO2026_2_A_1.HalfCylindricalMirror.threshold_x_N_cos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_A_1:HalfCylindricalMirror, thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:limiting_ray_reflection_count}
+\textbf{(Target, T2-A1.)}  The threshold sequence of Figure~2e is
+\[
+x_N = R\cos\!\frac{\pi}{2N+1}
+\]
+for the positive integer $N$ ($x_{N\mathrm{At}}\,n$ with $N = n + 1$,
+$0$-based).  This is the recorded answer in cosine form; the value appears
+only conclusion-side (it is no field of the structure).
+\end{theorem}
+\begin{proof}
+Write $x_* = R\cos(\pi/(2N+1))$.  By the limiting-ray count, the ray at
+$x_*$ undergoes $N + 1$ reflections, so $x_*$ sits on the next plateau and
+the defining threshold property of $x_{N\mathrm{At}}\,n$ (at most $n + 1$
+below the edge, more than $n + 1$ from the edge on, within $(-R, R)$)
+identifies $x_{N\mathrm{At}}\,n = x_*$.
+\end{proof}
+
+\begin{theorem}[A.1 answer, sine form]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N_sin}
+\lean{IPhO2026_2_A_1.HalfCylindricalMirror.threshold_x_N_sin}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_A_1:HalfCylindricalMirror, thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N_cos, thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_forms_agree}
+\textbf{(Target, T2-A1.)}  The threshold sequence of Figure~2e is
+\[
+x_N = R\sin\!\frac{(2N-1)\pi}{4N+2}
+\]
+for the positive integer $N$ ($x_{N\mathrm{At}}\,n$ with $N = n + 1$,
+$0$-based).  This is the recorded answer in sine form; the value appears
+only conclusion-side.
+\end{theorem}
+\begin{proof}
+Chain the cosine-form threshold with the forms-agree bridge.
+\end{proof}
+
+\begin{theorem}[A.1 answer, combined]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N}
+\lean{IPhO2026_2_A_1.HalfCylindricalMirror.threshold_x_N}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_A_1:HalfCylindricalMirror, thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N_sin, thm:IPhO2026Problems_problem_IPhO_2026_2_A_1:threshold_x_N_cos}
+\textbf{(Target, T2-A1.)}  Both closed forms of the general threshold agree:
+\[
+x_N = R\sin\!\frac{(2N-1)\pi}{4N+2} = R\cos\!\frac{\pi}{2N+1}
+\]
+for the positive integer $N$ ($N = n + 1$, $0$-based).  Conclusion-side
+only: the conjunction of the sine- and cosine-form recorded answers.
+\end{theorem}
+\begin{proof}
+Conjoin the sine-form and cosine-form target theorems.
+\end{proof}
+% --- Archon physics formalization source end ---

@@ -1,0 +1,214 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_5.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_3_C_5.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.5
+% archon:previous-part IPhO_2026_3_C_4
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_5}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_5}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Determine the overall coefficient of performance COP = Q\_c/W for all cycles up to the time found in C4.
+
+\paragraph{Current subquestion.}
+Determine the overall coefficient of performance COP = Q\_c/W for all cycles up to the time found in C4.
+
+\paragraph{Recorded answer/context.}
+COP = [(T\_h/(T\_0 - T))*ln(T\_0/T) - 1]\textasciicircum{}(-1).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.4. Question: A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time. Reusable conclusions: t = (C\_c*T\_h/P)*[ln(T\_0/T) - (T\_0 - T)/T\_h]. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_5.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_5:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_C_5:overall_coefficient_of_performance}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean's thermodynamics modules do not cover this paramagnetic-torus cycle part (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+% --- Archon named-quantities coverage (blueprint-writer 3-c-5-entries) ---
+% Every named Lean declaration of the covered file gets a blueprint entry;
+% \uses{} reflects the actual Lean dependency structure read first-hand.
+% The opaque scalar constants of the Quantities section (T, T_h, T_0, Q_c, W,
+% t, C_c, P, m, V, n, K) are context data pinned by the declarations below,
+% not standalone blueprint blocks; the official C.5 answer value appears only
+% in the conclusion-side theorem entries at the end of this ledger.
+
+\subsection*{Named quantities and cycle data}
+
+\begin{definition}[Carnot-cycle corner fields]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:CycleFields}
+\lean{IPhO2026.Problem3.C5.CycleFields}
+The four field values $H_1, H_2, H_3, H_4$ (A/m) labelling the corners of the
+Carnot refrigeration cycle $1 \to 2 \to 3 \to 4 \to 1$ of Figure 3b in the
+$H$-versus-$T$ plane; figure-content carrier, not an assumption on the totals.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Regime assumptions]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:RegimeAssumptions}
+\lean{IPhO2026.Problem3.C5.RegimeAssumptions}
+The physical regime of parts C.4--C.5: positive absolute temperatures with
+$T < T_0 < T_h$, a body of positive heat capacity $C_c$, constant positive
+input power $P$, and a positive elapsed time $t$. Assumed regime input; no
+equation of the answer appears here.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Coefficient of performance as a ratio]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:coefficientOfPerformance}
+\lean{IPhO2026.Problem3.C5.coefficientOfPerformance}
+The refrigerator coefficient of performance as a defined quantity, the
+dimensionless ratio $\mathrm{COP} = Q_c / W$ of the total heat extracted from
+the cooled body to the total work input. This is only the definition of the
+quantity asked for in T3-C.5; its value is the target theorem below.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Constant-power work bridge]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:ConstantPowerWork}
+\lean{IPhO2026.Problem3.C5.ConstantPowerWork}
+Constant input-power assumption (part C.4 hypothesis): the total work over
+elapsed time $t$ is $W = P\,t$. Assumed governing-law bridge.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooled-body calorimetric bridge]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:CooledBodyHeatBalance}
+\lean{IPhO2026.Problem3.C5.CooledBodyHeatBalance}
+Constant heat capacity of the body: the heat released in cooling from $T_0$
+to $T$ is $Q_c = C_c\,(T_0 - T)$. Assumed governing-law bridge.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Accumulated Carnot heat relation]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:AccumulatedCarnotHeatRelation}
+\lean{IPhO2026.Problem3.C5.AccumulatedCarnotHeatRelation}
+Previous-part Carnot law accumulated over all infinitesimal cycles: with
+$dQ_c/dQ_h = T_c/T_h$ per cycle and $T_h$ constant, the totals obey
+$Q_h = Q_c\,T_h\,\ln(T_0/T)\,/\,(T_0 - T)$. An equation constraining the
+totals; it does not mention the COP formula.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Refrigerator energy balance]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:RefrigeratorEnergyBalance}
+\lean{IPhO2026.Problem3.C5.RefrigeratorEnergyBalance}
+First law for the accumulated operation: the heat delivered to the hot
+reservoir equals the extracted heat plus the supplied work,
+$Q_h = Q_c + W$. Assumed governing-law bridge.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[C.4 elapsed-time law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:C4ElapsedTimeLaw}
+\lean{IPhO2026.Problem3.C5.C4ElapsedTimeLaw}
+Part C.4 result, reused as a licensed natural-language prerequisite: at
+constant power the cooling time is
+$t = (C_c\,T_h/P)\,\bigl(\ln(T_0/T) - (T_0 - T)/T_h\bigr)$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Paramagnetic equation of state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:ParamagneticEquationOfState}
+\lean{IPhO2026.Problem3.C5.ParamagneticEquationOfState}
+Equation of state of the paramagnetic torus (part C context):
+$T\,M\,V = n\,K\,H$ relating temperature, magnetization, volume, amount of
+substance, the material constant $K$, and the field $H$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Operating-history bridge}
+
+\begin{definition}[Operating history of the accumulated cycles]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:OperatingHistory}
+\lean{IPhO2026.Problem3.C5.OperatingHistory}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:ConstantPowerWork, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:CooledBodyHeatBalance, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:AccumulatedCarnotHeatRelation, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:RefrigeratorEnergyBalance, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:C4ElapsedTimeLaw}
+Packaging structure: the accumulated totals $Q_c$, $Q_h$, $W$, $t$ of the
+operating history simultaneously satisfy the constant-power work law, the
+calorimetric body balance, the accumulated Carnot heat relation, the
+refrigerator energy balance, and the C.4 elapsed-time law.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Coefficient-of-performance value theorems}
+
+\begin{theorem}[C.5 target: overall coefficient of performance]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_5:overall_coefficient_of_performance}
+\lean{IPhO2026.Problem3.C5.overall_coefficient_of_performance}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:coefficientOfPerformance, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:RegimeAssumptions, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:OperatingHistory}
+T3-C.5, 1.5 points: the overall coefficient of performance of the
+refrigerator over all cycles up to the time found in C.4 is
+\[ \mathrm{COP} \;=\; \left[\frac{T_h}{T_0 - T}\,\ln\!\frac{T_0}{T} - 1\right]^{-1},\]
+the recorded official answer, expressed in terms of $T_0$, $T_h$ and $T$
+alone. Conclusion-side only: this equation never appears as a hypothesis.
+\end{theorem}
+\begin{proof}
+From the operating history, $W = P t$ together with the C.4 elapsed-time law
+gives $W = C_c\,T_h\,\bigl(\ln(T_0/T) - (T_0 - T)/T_h\bigr)$; dividing
+$Q_c = C_c\,(T_0 - T)$ by this $W$ and cancelling $C_c$ yields the displayed
+formula (equivalently, the energy-balance route of the next theorem with the
+C.4 time substituted back).
+\end{proof}
+
+\begin{theorem}[Direct energy-balance route to the C.5 value]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_5:coefficient_of_performance_via_energy_balance}
+\lean{IPhO2026.Problem3.C5.coefficient_of_performance_via_energy_balance}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_5:coefficientOfPerformance, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:RegimeAssumptions, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:CooledBodyHeatBalance, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:AccumulatedCarnotHeatRelation, def:IPhO2026Problems_problem_IPhO_2026_3_C_5:RefrigeratorEnergyBalance}
+Independent intermediate contract: the same conclusion
+$\mathrm{COP} = \bigl[(T_h/(T_0 - T))\,\ln(T_0/T) - 1\bigr]^{-1}$ follows
+from the accumulated totals and the first law alone, without invoking the
+explicit C.4 elapsed time.
+\end{theorem}
+\begin{proof}
+From the first law $W = Q_h - Q_c$; substituting
+$Q_h = Q_c\,T_h\,\ln(T_0/T)/(T_0 - T)$ gives
+$W = Q_c\,\bigl[(T_h/(T_0 - T))\ln(T_0/T) - 1\bigr]$, hence $Q_c/W$ is the
+displayed inverse. No constant-power step and no C.4 time law is used.
+\end{proof}

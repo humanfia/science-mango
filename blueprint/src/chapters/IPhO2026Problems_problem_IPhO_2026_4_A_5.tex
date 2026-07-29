@@ -1,0 +1,372 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_A_5.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_4_A_5.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id A.5
+% archon:previous-part IPhO_2026_4_A_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_A\_5}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_A_5}
+
+\paragraph{Problem source.}
+The experimental apparatus contains a sealed air column (CA) in the inner
+cylinder.  Propylene glycol is introduced to h = 4.5 cm so the air volume is
+fixed.  Use the cylinder dimensions in Figure 17, ambient air density
+rho\_a = 1.12 kg/m\textasciicircum{}3, and the ideal-gas law P*V = n*R*T.  The outer-cylinder
+water bath is heated while pressure and temperature are recorded.
+
+Current subquestion:
+Determine the constant-volume thermal pressure coefficient beta\_0 = (1/P\_0)*(Delta P/Delta T).
+
+\paragraph{Current subquestion.}
+Determine the constant-volume thermal pressure coefficient beta\_0 = (1/P\_0)*(Delta P/Delta T).
+
+\paragraph{Recorded answer/context.}
+Official sample: beta\_0 = 0.0034 +/- 0.0007 K\textasciicircum{}(-1); ideal-gas reference 1/273.15 K = 0.0037 K\textasciicircum{}(-1).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-9.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.3. Question: Plot pressure as a function of temperature from A2. Reusable conclusions: The expected isochoric ideal-gas plot is linear: P is proportional to absolute T. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_A\_5.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_A_5:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:main}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-004): positive targeted-import case — the covered file genuinely uses `Physlib.Thermodynamics.Basic`, `Physlib.Thermodynamics.Temperature.Basic` (typed `Temperature`/`absTemp`) and `Physlib.StatisticalMechanics.MicroCanonicalEnsemble.IdealGas` (ideal-gas modeling for the Eq.-(1) state law `P V = n R T`); the blanket domain-import check is satisfied and no further import is added. PhysLean has no gas-expansion-work integral identity, so `IsIdealGasLaw` and the expansion-work carrier are faithful local laws.
+% NOTE: Statement reconciliation (planner-recorded, iter-007, review session_6 primary blocker): the A.2 readout protocol records the two pressure readouts around the reference temperature for a finite-difference slope, so the covered file's `IsochoricReadout` structure MUST carry the non-degeneracy field `hT12 : T₁ ≠ T₂` (analogous to the `hvar` guard `main` already carries for the slope bridge). Without it the degenerate instance `T₁ = T₂` satisfies every hypothesis of `beta0_uncertainty_bound` and `main` conjunct 3 (deviation premise `0 ≤ 0` for all `β₀`) while the conclusion `|β₀ − 1/T₀| ≤ σ` fails, e.g. at `β₀ = 2/T₀ + σ` — the uncertainty conjunct is false as stated. With `hT12` the propagation algebra closes: deviation `= P₀·|T₂ − T₁|·|β₀ − 1/T₀|` via the two readout equalities, and `P₀·|T₂ − T₁| > 0` cancels (`IsReferenceState.hP₀` + `hT12`). All construction-free consumers take `readouts` as a hypothesis, so the field is interface-compatible; no answer value moves off the conclusion side.
+% --- Archon physics formalization source end ---
+
+% --- Archon declaration ledger (added iter-008, coverage-debt repair) ---
+% Entries for the full ideal-gas / isochoric-thermometry layer of the
+% covered file, transcribed first-hand from the Lean source (review
+% certificate PASSED, iter-007 --- the on-disk statements are the frozen
+% contract).  \uses{} mirrors the actual Lean dependency structure; field
+% projections are folded into their parent structure entries as extra
+% \lean{} lines.  Every physical answer value (1/T_0, 0.0037 K^{-1},
+% 0.0034 \pm 0.0007 K^{-1}) stays strictly conclusion-side: Eq. (1), the
+% Eq.-(2) definition, the A.3 isochore and the A.2 readouts are
+% assumption-side data.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Recorded constants and the temperature projection}
+
+\begin{definition}[Time-averaged ambient air density (Bucaramanga)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:ambientAirDensity}
+\lean{IPhO2026_4_A_5.ambientAirDensity}
+The figure readout $\rho_a = 1.12\ \mathrm{kg/m^3}$: the source notes the
+ambient air density varies with local temperature and pressure and
+prescribes this time-averaged value throughout Part A.  Recorded as data,
+keeping its measured value.
+\end{definition}
+
+\begin{definition}[Propylene-glycol seal height]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:pgHeight}
+\lean{IPhO2026_4_A_5.pgHeight}
+The height $h = 0.045\ \mathrm{m}$ ($4.5$ cm, Figure 18) of propylene
+glycol introduced into the inner cylinder; introducing PG to this height
+and closing valves D and E seals the air column CA at fixed volume,
+enabling the isochoric process.
+\end{definition}
+
+\begin{definition}[Reference absolute temperature]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:referenceAbsTemperature}
+\lean{IPhO2026_4_A_5.referenceAbsTemperature}
+The reference absolute temperature $T_0 = 273.15\ \mathrm{K}$ of the
+reference-constants table --- the temperature at which the reference
+pressure $P_0$ of Eq. (2) is recorded.  Assumption-side equipment data;
+the reciprocal $1/T_0$ enters only in conclusions.
+\end{definition}
+
+\begin{definition}[Real-valued absolute-temperature projection]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+\lean{IPhO2026_4_A_5.absTemp}
+The projection of PhysLean's typed absolute-temperature type
+\texttt{Temperature} (an arbitrary-unit absolute temperature wrapping
+nonnegative reals) to its real-number value; zero is absolute zero in any
+such unit system.
+\end{definition}
+
+\begin{lemma}[\texttt{absTemp} agrees with the real coercion]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp_eq_toReal}
+\lean{IPhO2026_4_A_5.absTemp_eq_toReal}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+For every absolute temperature $\mathrm{temp}$,
+$\mathrm{absTemp}\ \mathrm{temp} = (\mathrm{temp} : \mathbb{R})$.
+\end{lemma}
+\begin{proof}
+Unfold the projection; both sides are the PhysLean real value of the
+wrapped temperature.
+\end{proof}
+
+\begin{lemma}[Absolute temperatures are nonnegative]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp_nonneg}
+\lean{IPhO2026_4_A_5.absTemp_nonneg}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+For every absolute temperature $\mathrm{temp}$,
+$0 \le \mathrm{absTemp}\ \mathrm{temp}$.
+\end{lemma}
+\begin{proof}
+The wrapped real of a PhysLean absolute temperature is nonnegative by
+construction.
+\end{proof}
+
+\begin{definition}[Ideal-gas reference coefficient]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:idealThermalPressureCoefficient}
+\lean{IPhO2026_4_A_5.idealThermalPressureCoefficient}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:referenceAbsTemperature}
+The constant-volume thermal pressure coefficient predicted by the ideal
+gas law at the reference temperature: exactly $1/T_0$ (Eq. (1) makes $P$
+proportional to the absolute temperature at fixed $V$ and $n$).  A named
+definition only; its numeric evaluation is a separate proof obligation.
+\end{definition}
+
+\begin{lemma}[Numerical value of the ideal coefficient]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:idealThermalPressureCoefficient_value}
+\lean{IPhO2026_4_A_5.idealThermalPressureCoefficient_value}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:idealThermalPressureCoefficient, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:referenceAbsTemperature}
+The ideal-gas reference coefficient evaluates to
+$1/273.15\ \mathrm{K^{-1}}$ ($\approx 0.0037\ \mathrm{K^{-1}}$, the
+recorded ideal-gas reference value).
+\end{lemma}
+\begin{proof}
+Unfold the coefficient and the recorded reference temperature
+$T_0 = 273.15\ \mathrm{K}$; the equality is definitionally the identity
+$1/273.15 = 1/273.15$.
+\end{proof}
+
+\subsection*{Governing laws: ideal gas and isochore}
+
+\begin{definition}[Isochoric process record]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess}
+\lean{IPhO2026_4_A_5.IsochoricProcess}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+An isochoric (constant-volume) process of a fixed amount of gas: an
+inhabited process-time index type, the measured absolute-temperature
+history $T : \mathrm{ProcessTime} \to \mathrm{Temperature}$ (the A.2
+table), and the recorded absolute pressure
+$P : \mathrm{ProcessTime} \to \mathbb{R}$ of the sealed column CA at each
+instant.  Plain data; the physics is assigned by the law predicates below.
+\end{definition}
+
+\begin{definition}[Ideal-gas law on the sealed column (Eq. (1))]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw}
+\lean{IPhO2026_4_A_5.IsIdealGasLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+The governing equation of state (Eq. (1) of the source): there are amount
+$n > 0$ (mol), fixed volume $V > 0$ ($\mathrm{m^3}$, constant because PG
+seals CA) and universal gas constant $R > 0$ with
+$P(t)\,V = n\,R\,\mathrm{absTemp}(T(t))$ at every recorded instant.  The
+constant $R$ is a free positive parameter because Part A.4 notes the
+sensors may be intentionally decalibrated, shifting the expected value of
+$R$ from its reference value --- no numeric $R$ is assumed anywhere.
+\end{definition}
+
+\begin{lemma}[Positive pressure at positive temperature]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw_pressure_pos_of_temp_pos}
+\lean{IPhO2026_4_A_5.IsIdealGasLaw.pressure_pos_of_temp_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess}
+In any ideal-gas isochoric process the recorded pressure is strictly
+positive wherever the absolute temperature is strictly positive:
+$0 < \mathrm{absTemp}(T(t)) \Rightarrow 0 < P(t)$.
+\end{lemma}
+\begin{proof}
+From the state equation $P(t) = n R\, \mathrm{absTemp}(T(t))/V$; the
+right-hand side is a quotient of positive quantities since
+$n, R, V > 0$.
+\end{proof}
+
+\begin{lemma}[Isochoric pressure ratio equals temperature ratio]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw_pressure_ratio_eq_temp_ratio}
+\lean{IPhO2026_4_A_5.IsIdealGasLaw.pressure_ratio_eq_temp_ratio}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+The bridge between Eq. (1) and the target coefficient: at fixed $V$ and
+$n$, for any two instants with strictly positive absolute temperatures,
+$P_2/P_1 = T_2/T_1$ --- Eq. (1) divided state-to-state.
+\end{lemma}
+\begin{proof}
+Write both state equations $P_i V = n R T_i$, divide, and cancel the
+common positive factor $nR/V$.
+\end{proof}
+
+\begin{definition}[Linear isochore (A.3 result, affine law)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear}
+\lean{IPhO2026_4_A_5.IsIsochoricLinear}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+The A.3 graphical result as a hypothesis interface: the recorded pressure
+is affine in the absolute temperature,
+$P(t) = \mathrm{offset} + \mathrm{slope}\cdot\mathrm{absTemp}(T(t))$,
+with $\mathrm{slope} = \Delta P/\Delta T > 0$.  For an ideal gas at fixed
+$V$ the offset vanishes; it is kept general since experimental data need
+not pass exactly through the origin.  This is assumption-side
+(previous-part natural-language prerequisite), not a conclusion.
+\end{definition}
+
+\begin{lemma}[Slope equals the finite-difference quotient]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear_slope_eq_div}
+\lean{IPhO2026_4_A_5.IsIsochoricLinear.slope_eq_div}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess}
+Between any two readout instants with distinct absolute temperatures, the
+isochore slope is exactly the finite-difference quotient
+$\mathrm{slope} = (P(t_1) - P(t_2))/(\mathrm{absTemp}(T(t_1)) -
+\mathrm{absTemp}(T(t_2)))$.
+\end{lemma}
+\begin{proof}
+Subtract the affine law at $t_2$ from the affine law at $t_1$; the offsets
+cancel and division by the nonzero temperature difference isolates the
+slope.
+\end{proof}
+
+\begin{definition}[Reference state $(T_0, P_0)$ with positivity certificate]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsReferenceState}
+\lean{IPhO2026_4_A_5.IsReferenceState}
+\lean{IPhO2026_4_A_5.IsReferenceState.referenceTemperature}
+\lean{IPhO2026_4_A_5.IsReferenceState.referencePressure}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricProcess, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:absTemp}
+The reference configuration of Eq. (2): a chosen reference instant $t_0$
+whose temperature is the reference temperature $T_0$ of the reference
+configuration, with the positivity certificate $hP_0 : 0 < P(t_0)$.  The
+folded projections give the reference temperature
+$T_0 = \mathrm{absTemp}(T(t_0))$ as a real number and the reference
+pressure $P_0 = P(t_0)$ --- the pressure of the system at $T_0$.
+Everything here is apparatus data; the value $1/T_0$ appears only in
+later conclusions.
+\end{definition}
+
+\begin{definition}[Thermal pressure coefficient on the isochore (Eq. (2))]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear_thermalPressureCoefficient}
+\lean{IPhO2026_4_A_5.IsIsochoricLinear.thermalPressureCoefficient}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsReferenceState}
+The constant-volume thermal pressure coefficient of Eq. (2),
+$\beta_0 = (1/P_0)\,(\Delta P/\Delta T)$, instantiated on the A.3
+isochoric line: the finite-difference quotient $\Delta P/\Delta T$ is the
+slope of the isochore, so $\beta_0 = \mathrm{slope}/P_0$.  Only the
+Eq.-(2) definition is recorded here; the ideal-gas value $1/T_0$ is a
+conclusion-side theorem, not this definition.
+\end{definition}
+
+\subsection*{The two-readout dataset (A.2 protocol)}
+
+\begin{definition}[Two-readout dataset around the reference state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricReadout}
+\lean{IPhO2026_4_A_5.IsochoricReadout}
+The sparse A.2 dataset, parametrized by the reference pressure $P_0$, the
+reference temperature $T_0$ and the coefficient $\beta_0$: temperatures
+$T_1, T_2$ sampled around the reference temperature, the measured
+pressures at those temperatures, the measured reference pressure, and the
+readout equalities
+$\mathrm{measuredPressure}\ T_1 = P_0 + \beta_0\,P_0\,(T_1 - T_0)$ and
+$\mathrm{measuredPressure}\ T_2 = P_0 + \beta_0\,P_0\,(T_2 - T_0)$
+recording that the readouts follow the isochoric finite-difference law, so
+that $\Delta P/\Delta T = \beta_0 P_0$ on the recorded data; the measured
+reference pressure is identified with $P_0$.  The non-degeneracy field
+$hT12 : T_1 \ne T_2$ (added iter-007, source-warranted by the A.2
+finite-difference protocol) guarantees the slope carrier is
+degenerate-free: without it the instance $T_1 = T_2$ satisfies every
+hypothesis of the uncertainty theorem while its conclusion fails --- see
+the NOTE at the file end.
+\end{definition}
+
+\subsection*{Official answer (conclusion side only)}
+
+\begin{theorem}[A.5 ideal value: $\beta_0 = 1/T_0$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_close_to_ideal}
+\lean{IPhO2026_4_A_5.beta0_close_to_ideal}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsReferenceState, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear_thermalPressureCoefficient, lem:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw_pressure_ratio_eq_temp_ratio}
+Under the ideal-gas law (Eq. (1)) and a linear isochore, the measured
+Eq.-(2) coefficient equals the ideal value $\beta_0 = 1/T_0$
+(numerically $1/273.15\ \mathrm{K} = 0.0037\ \mathrm{K^{-1}}$ at
+$T_0 = 273.15\ \mathrm{K}$) --- the value the official sample compares
+against.  Conclusion-side.
+\end{theorem}
+\begin{proof}
+By the isochoric ratio bridge, between any two recorded states
+$P_2/P_1 = T_2/T_1$; eliminating via
+$\beta_0 = (1/P_0)(\Delta P/\Delta T)$ and the Eq.-(1) proportionality of
+$P$ to $T$ at fixed $n, V$ collapses the finite-difference quotient to
+$P_0/T_0$, hence $\beta_0 = 1/T_0$.
+\end{proof}
+
+\begin{theorem}[Finite-difference consistency (Eq. (2) on A.2 data)]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_eq_ideal_of_linear}
+\lean{IPhO2026_4_A_5.beta0_eq_ideal_of_linear}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIdealGasLaw, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsReferenceState, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear_thermalPressureCoefficient}
+Between any two recorded temperatures the isochoric pressure increment
+satisfies $\mathrm{slope}\cdot\Delta T = \beta_0\,P_0\,\Delta T$; with
+$\beta_0 = 1/T_0$ the measured increment matches the ideal-gas increment
+$P_0\,\Delta T/T_0$.  This is Eq. (2) evaluated on the A.2 data table.
+Conclusion-side.
+\end{theorem}
+\begin{proof}
+Subtract the ideal increment: the measured increment equals
+$\beta_0\,P_0\,\Delta T$ by the two readout equalities; divide by
+$P_0\,\Delta T \neq 0$.
+\end{proof}
+
+\begin{theorem}[Uncertainty propagation: $|\beta_0 - 1/T_0| \le \sigma$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_uncertainty_bound}
+\lean{IPhO2026_4_A_5.beta0_uncertainty_bound}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricReadout, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsReferenceState, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsIsochoricLinear, thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_eq_ideal_of_linear}
+If the two-readout pressure increment deviates from the ideal-gas
+increment $P_0\,\Delta T/T_0$ by at most $P_0\,|\Delta T|\,\sigma$
+(with $\sigma > 0$), then the measured coefficient obeys the propagated
+bound $|\beta_0 - 1/T_0| \le \sigma$.  This is the formal content of the
+official sample $\beta_0 = 0.0034 \pm 0.0007\ \mathrm{K^{-1}}$ covering
+the ideal-gas reference $0.0037\ \mathrm{K^{-1}}$:
+$|0.0034 - 0.0037| = 0.0003 \le 0.0007$.  Conclusion-side.
+\end{theorem}
+\begin{proof}
+By the two readout equalities the deviation equals
+$P_0\,|T_2 - T_1|\cdot|\beta_0 - 1/T_0|$ (the measured increment is
+$\beta_0\,P_0\,\Delta T$, and the ideal increment is $P_0\,\Delta T/T_0$
+via the finite-difference consistency).  The factor
+$P_0\,|T_2 - T_1|$ is strictly positive by the reference-state
+certificate $hP_0$ and the readout non-degeneracy $hT12 : T_1 \ne T_2$,
+so it cancels the matching factor on the right-hand side of the deviation
+bound, leaving $|\beta_0 - 1/T_0| \le \sigma$.
+\end{proof}
+
+\begin{theorem}[A.5 main target: value, consistency, and uncertainty]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:main}
+\lean{IPhO2026_4_A_5.main}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_close_to_ideal, thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_eq_ideal_of_linear, thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_uncertainty_bound, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:IsochoricReadout, def:IPhO2026Problems_problem_IPhO_2026_4_A_5:idealThermalPressureCoefficient}
+The A.5 target conjunction for a process with reference state
+$(T_0, P_0)$, $T_0 > 0$, a non-degenerate temperature history, and a
+two-readout dataset: (1) $\beta_0 = 1/T_0$, the ideal-gas prediction,
+numerically $1/273.15\ \mathrm{K} = 0.0037\ \mathrm{K^{-1}}$ at
+$T_0 = 273.15\ \mathrm{K}$; (2) the finite-difference bridge
+$\mathrm{slope}\cdot\Delta T = \beta_0\,P_0\,\Delta T$ between any two
+recorded temperatures; (3) the uncertainty bound
+$|\beta_0 - 1/T_0| \le \sigma$ whenever the readout deviation is
+$\le P_0\,|\Delta T|\,\sigma$.  The official sample band
+$0.0034 \pm 0.0007\ \mathrm{K^{-1}}$ is the A.5-band-side reading of (3):
+the reported band covers the ideal reference since
+$|0.0034 - 0.0037| = 0.0003 \le 0.0007$.  All numeric answer values
+appear only here, in conclusions.
+\end{theorem}
+\begin{proof}
+Conjoin the three component theorems:
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_close_to_ideal},
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_eq_ideal_of_linear},
+and
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_4_A_5:beta0_uncertainty_bound}
+--- each is available under the packaged hypotheses by verbatim
+transcription (the formal proof is the prover stage's remaining
+obligation).
+\end{proof}

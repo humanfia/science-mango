@@ -1,0 +1,215 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_A_3.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_3_A_3.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id A.3
+% archon:previous-part IPhO_2026_3_A_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_A\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_A_3}
+
+\paragraph{Problem source.}
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+Current subquestion:
+Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material.
+
+\paragraph{Current subquestion.}
+Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material.
+
+\paragraph{Recorded answer/context.}
+dW = mu\_0*V*H*dM.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-2.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.2. Question: Find the work dW\_emf performed by the external voltage source when B changes by dB. Reusable conclusions: dW\_emf = V*H*dB. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_A\_3.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_A_3:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_3_A_3:dW_eq_mu0_V_H_dM}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-004): positive targeted-import case — the covered file genuinely uses `Physlib.Electromagnetism.Dynamics.Basic` (the `FreeSpace` structure, `μ₀`, in the constitutive law `ConstitutiveBH` and the `PmTVariation`/`PmTWorkBudget` structures); the blanket domain-import check is satisfied and no further import is added. PhysLean has no thermodynamic work-identity/First-Law library for magnetic media (LeanExplore near misses only), so `dW = μ₀ V H dM` and the heat/energy budgets are faithful local laws.
+% --- Archon autoformalization helper ledger (added iter-008, coverage-debt batch for T3-A3) ---
+% Every named Lean declaration of the covered file gets a blueprint entry;
+% \uses{} reflects the actual Lean dependency structure read first-hand.
+
+\subsection*{Named quantities and governing-law hypotheses}
+
+\begin{definition}[Thin paramagnetic torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTTorus}
+\lean{IPhO2026.T3A3.PmTTorus}
+Geometry of the thin paramagnetic torus: mean radius $R$, winding radius
+$r \ll R$, cross-sectional area $A$, volume $V$, with positivity
+certificates $0 < r$, $r < R$, $A > 0$, $V > 0$ and the thin-torus volume
+identity $V = 2\pi R\,A$ (an assumed geometric input, not derived).
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{definition}[Dense winding]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTWinding}
+\lean{IPhO2026.T3A3.PmTWinding}
+The insulated wire wound densely around the torus: $N$ turns with $N \ge 1$,
+carrying an instantaneous signed current $I$ (A); the sign of $I$ fixes the
+orientation of the drive relative to the chosen positive $H$ direction.
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{definition}[Ampère's-law predicate for the torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:AmpereLawTorus}
+\lean{IPhO2026.T3A3.AmpereLawTorus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTTorus, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTWinding}
+Ampère's law $\oint \vec{H}\cdot d\vec{\ell} = I_C$ specialized to the
+densely wound thin torus: $H = N\,I\,A / V$, with the enclosed free current
+$I_C = N I$ through the mean circle. Assumed governing-law input.
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{lemma}[Mean circumference in $V/A$ form]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_3:meanCircumference_eq}
+\lean{IPhO2026.T3A3.meanCircumference_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTTorus}
+The mean circumference of the thin torus is $2\pi R = V/A$ — the geometric
+bridge from the loop form of Ampère's law to the $V/A$ form.
+\end{lemma}
+\begin{proof}
+Divide the thin-torus identity $V = 2\pi R\,A$ by $A > 0$ and rearrange.
+\end{proof}
+
+\begin{definition}[Uniform core field state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTFieldState}
+\lean{IPhO2026.T3A3.PmTFieldState}
+The instantaneous, approximately uniform electromagnetic state of the core:
+field intensity $H$ (A/m), flux density $B$ (T), magnetization $M$ (A/m).
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{definition}[Constitutive law $B = \mu_0(H+M)$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:ConstitutiveBH}
+\lean{IPhO2026.T3A3.ConstitutiveBH}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTFieldState}
+The material's constitutive relation $B = \mu_0 H + \mu_0 M$, an assumed
+governing-law input, with $\mu_0$ the free-space permeability supplied by
+the PhysLean \texttt{FreeSpace} record $\mathcal{F}$.
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{definition}[Admissible infinitesimal process]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTVariation}
+\lean{IPhO2026.T3A3.PmTVariation}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTTorus, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTWinding, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:AmpereLawTorus, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTFieldState, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:ConstitutiveBH}
+A current core state together with increments $dB$, $dH$, $dM$ (T, A/m,
+A/m) produced by a slight change of the source current. Hypothesis fields
+(all assumed governing-law inputs, not conclusions): Ampère's law holds for
+the state $H$, the constitutive law holds for the state, and the linearized
+constitutive law $dB = \mu_0\,dH + \mu_0\,dM$ holds for the increments.
+The increments are formal differentials packaged as reals — a named scalar
+projection of the one-form language; this is the documented modeling choice
+of this file.
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{lemma}[Vacuum-core $B$-increment]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_3:dB_of_vacuum_core}
+\lean{IPhO2026.T3A3.dB_of_vacuum_core}
+For a vacuum core ($M = 0$, hence $dM = 0$) the linearized constitutive law
+reduces to $dB = \mu_0\,dH$: from $dB = \mu_0\,dH + \mu_0\cdot 0$ conclude
+$dB = \mu_0\,dH$. This justifies the vacuum-core contribution in the work
+budget below.
+\end{lemma}
+\begin{proof}
+Simplify the additive term $\mu_0\cdot 0$ to zero and cancel.
+\end{proof}
+
+\begin{definition}[Infinitesimal work budget of the Pm-T]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTWorkBudget}
+\lean{IPhO2026.T3A3.PmTWorkBudget}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTVariation}
+The three licensed inputs of subquestion A.3 (all work entries in joules,
+with the sign convention that work entering the paramagnetic torus is
+positive): the part-A.2 source-work law $dW_{\mathrm{emf}} = V\,H\,dB$;
+the problem statement's split
+$dW_{\mathrm{emf}} = dW_{\mathrm{vac}} + dW$ into a vacuum-core part and
+the work done on the material itself; and the vacuum-core contribution
+$dW_{\mathrm{vac}} = \mu_0\,V\,H\,dH$ (the A.2 law applied to a core with
+$M = 0$, with $H$ unchanged because Ampère's law sees only the free
+current). The A.3 answer $dW = \mu_0 V H dM$ is \emph{not} among these
+fields.
+\end{definition}
+\begin{proof}
+Packaging/definition; nothing derived.
+\end{proof}
+
+\begin{lemma}[Material work as the source-minus-vacuum difference]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_3:dW_eq_sub_vac}
+\lean{IPhO2026.T3A3.dW_eq_sub_vac}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTWorkBudget}
+Subtracting the vacuum-core contribution isolates the work done on the
+material: $dW = dW_{\mathrm{emf}} - dW_{\mathrm{vac}}$.
+\end{lemma}
+\begin{proof}
+Rearrange the split identity
+$dW_{\mathrm{emf}} = dW_{\mathrm{vac}} + dW$ by subtracting
+$dW_{\mathrm{vac}}$ from both sides.
+\end{proof}
+
+\begin{lemma}[Material work through the increments of $H$ and $B$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_A_3:dW_eq_VH_dB_sub_mu0_dH}
+\lean{IPhO2026.T3A3.dW_eq_VH_dB_sub_mu0_dH}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_A_3:dW_eq_sub_vac}
+Substituting the licensed inputs expresses the material work as
+$dW = V\,H\,(dB - \mu_0\,dH)$.
+\end{lemma}
+\begin{proof}
+Replace $dW_{\mathrm{emf}}$ by $V\,H\,dB$ (part A.2) and
+$dW_{\mathrm{vac}}$ by $\mu_0\,V\,H\,dH$ in the difference
+$dW = dW_{\mathrm{emf}} - dW_{\mathrm{vac}}$, then factor out $V\,H$.
+\end{proof}
+
+\begin{theorem}[A.3 target: work done on the paramagnetic material]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_A_3:dW_eq_mu0_V_H_dM}
+\lean{IPhO2026.T3A3.dW_eq_mu0_V_H_dM}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_3_A_3:dW_eq_VH_dB_sub_mu0_dH, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:ConstitutiveBH, def:IPhO2026Problems_problem_IPhO_2026_3_A_3:PmTVariation}
+The work done on the paramagnetic material itself when the magnetization
+changes by $dM$ is
+\[ dW = \mu_0\,V\,H\,dM, \]
+the recorded official answer $dW = \alpha\,V\,\mu_0\,H\,dM$ at $\alpha = 1$.
+This is the conclusion of the derivation; it never appears as a hypothesis.
+\end{theorem}
+\begin{proof}
+Start from $dW = V\,H\,(dB - \mu_0\,dH)$ and substitute the linearized
+constitutive law $dB = \mu_0\,dH + \mu_0\,dM$ of the admissible process;
+the terms $V\,H\,\mu_0\,dH$ cancel, leaving $dW = \mu_0\,V\,H\,dM$.
+\end{proof}
+% --- Archon physics formalization source end ---

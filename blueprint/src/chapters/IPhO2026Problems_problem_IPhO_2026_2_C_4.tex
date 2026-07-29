@@ -1,0 +1,194 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_4.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_2_C_4.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.4
+% archon:previous-part IPhO_2026_2_C_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_4}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+For theta << 1, put the caustic in the form Y\_c = v*|X\_c|\textasciicircum{}(p/q) + u. Determine u, v, and the integers p,q.
+
+\paragraph{Current subquestion.}
+For theta << 1, put the caustic in the form Y\_c = v*|X\_c|\textasciicircum{}(p/q) + u. Determine u, v, and the integers p,q.
+
+\paragraph{Recorded answer/context.}
+u = R/2, v = (3/4)*R\textasciicircum{}(1/3), p = 2, and q = 3.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.3. Question: Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays. Reusable conclusions: X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_4.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_C_4:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_2_C_4:caustic_small_angle_power_law}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no caustic/power-law asymptotics module for the small-angle caustic part (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 2-c-4-entries) ---
+% NOTE: import policy (mirrors the exemption note above, iter-002): the covered
+% file builds on the `import Mathlib` baseline alone; PhysLean has no
+% caustic/power-law asymptotics module for the small-angle caustic part, so no
+% Physlib import is added.  Every named Lean declaration of the covered file
+% (namespace `IPhO2026_2_C_4`, flat underscore form) gets a blueprint entry
+% below; \uses{} reflects the actual dependency structure read first-hand.
+
+\subsection*{Named quantities and modeling structures}
+
+\begin{definition}[Half-cylindrical mirror caustic data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:HalfCylindricalMirrorCaustic}
+\lean{IPhO2026_2_C_4.HalfCylindricalMirrorCaustic}
+The physical setup of the C-parts of IPhO 2026 Problem 2: the
+half-cylindrical mirror of Figure~2g recorded by its radius $R$ with a
+positivity certificate, the slopes and intercepts
+$y = m_A\,x + b_A$, $y = m_B\,x + b_B$ of the lines reflected from ray A
+(incidence angle $\theta$) and from the neighboring parallel ray B
+(incidence angle $\theta + \Delta\theta$), and the limiting intersection
+coordinates $(X_c\,\theta, Y_c\,\theta)$ of the two reflected lines as
+$\Delta\theta \to 0$.  All coordinates are Cartesian reals in the plane of
+Figure~2g; $R$, $X_c$, $Y_c$ carry the dimension of length.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Small-angle filter]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:smallAngleFilter}
+\lean{IPhO2026_2_C_4.smallAngleFilter}
+The small-$\theta$ regime $\theta \ll 1$ stipulated in the subquestion,
+carried by the filter of neighborhoods of $0$ within the positive
+incidence angles.  Taking the positive side is the branch/orientation data:
+it makes the absolute value $|X_c|$ of the source statement harmless ($X_c$
+is positive for small positive $\theta$) and selects the physical branch of
+the power law.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Small-angle regime predicate]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:InSmallAngleRegime}
+\lean{IPhO2026_2_C_4.InSmallAngleRegime}
+The plain-English reading of $\theta \ll 1$ as a predicate on an incidence
+angle: $\theta$ is positive and strictly smaller than one radian.  The
+neighborhoods of the small-angle filter carry the operative asymptotic
+notion; this predicate only names the regime.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Caustic power-law form]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:CausticPowerLawForm}
+\lean{IPhO2026_2_C_4.CausticPowerLawForm}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:smallAngleFilter}
+The $\theta \ll 1$ power-law form of a parametric plane curve
+$\theta \mapsto (X\,\theta, Y\,\theta)$: the exponent $p/q$ is a positive
+rational, the coordinate functions have a well-defined positive
+leading-order balance as $\theta \to 0^{+}$ along the small-angle filter ---
+$Y$ agrees to leading order with $v\,X^{p/q} + u$ and $X$ with a positive
+scale times $\theta^{q}$, in the sense of asymptotic equivalence.  Here $u$
+and $v$ carry the dimension of length and $p/q$ is dimensionless.  This is
+the genuine asymptotic content of the subquestion: the two sides agree to
+leading order without being required to coincide exactly (they do not for
+the mirror caustic).  All quantities are parameters of the definition, so
+nothing here is specialized to the recorded answer.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Caustic power law with the C.4 constants]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:SatisfiesCausticPowerLaw}
+\lean{IPhO2026_2_C_4.SatisfiesCausticPowerLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:CausticPowerLawForm}
+The power-law form with the recorded constants of subquestion C.4 made
+explicit: the vertical shift $u$ and the prefactor $v$ are the ones
+determined from the mirror geometry, and the exponent is $p/q = 2/3$.
+Packaging predicate over the generic power-law form; it asserts no value by
+itself.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Small-angle regime is a filter neighborhood]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_C_4:smallAngleRegime_mem_filter}
+\lean{IPhO2026_2_C_4.smallAngleRegime_mem_filter}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:InSmallAngleRegime, def:IPhO2026Problems_problem_IPhO_2026_2_C_4:smallAngleFilter}
+The set of incidence angles satisfying the small-angle regime predicate is a
+neighborhood of $0$ within the positive angles, so statements eventually
+true along the small-angle filter apply to the whole regime.
+\end{lemma}
+\begin{proof}
+The open half-line below one radian is an open set containing $0$, and
+inside it membership in the regime predicate is exactly positivity; hence
+the predicate set agrees with the positive half-line on a neighborhood of
+$0$.
+\end{proof}
+
+\subsection*{Target value theorem}
+
+\begin{theorem}[C.4 target: small-angle caustic power law]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_C_4:caustic_small_angle_power_law}
+\lean{IPhO2026_2_C_4.HalfCylindricalMirrorCaustic.caustic_small_angle_power_law}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_4:HalfCylindricalMirrorCaustic, def:IPhO2026Problems_problem_IPhO_2026_2_C_4:SatisfiesCausticPowerLaw}
+\textbf{(Target, T2-C.4.)}  In the small-angle regime $\theta \ll 1$, the
+caustic of the half-cylindrical mirror of radius $R$ has the power-law form
+\[
+Y_c = v\,|X_c|^{p/q} + u
+\quad\text{with}\quad
+u = \frac{R}{2},\qquad
+v = \frac{3}{4}\,R^{1/3},\qquad
+p = 2,\qquad q = 3,
+\]
+read as asymptotic agreement to leading order as $\theta \to 0^{+}$.  The
+$|X_c|$ of the source statement is subsumed by the positive-angle branch of
+the small-angle filter, where $X_c\,\theta$ is positive.  This is the
+recorded official answer of part C.4; the values are conclusion-side only,
+confined to this target theorem (no hypothesis or structure field states
+them in advance).
+\end{theorem}
+\begin{proof}
+Insert the previous-part coordinates of the caustic (part C.3, recorded as
+hypotheses on the caustic data) into both sides and expand about
+$\theta = 0$: $Y_c\,\theta$ is $R/2$ plus its leading quadratic term, while
+$|X_c\,\theta|^{2/3}$ carries the matching leading quadratic term with
+prefactor fixed by the geometry, and $X_c$ itself matches a positive
+multiple of $\theta^{3}$; the recorded constants are exactly the ones making
+the leading terms coincide, so the two sides are asymptotically equivalent
+along the small-angle filter.  An exact identity at every small $\theta$ is
+false for this caustic --- the residual is higher order --- which is why the
+agreement is stated to leading order.  All expansions are at the informal
+level here; the formal counterpart is the prover stage's (currently
+sorried) proof body in Lean.
+\end{proof}

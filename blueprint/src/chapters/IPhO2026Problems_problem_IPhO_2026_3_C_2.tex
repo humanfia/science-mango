@@ -1,0 +1,385 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_2.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_3_C_2.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_3_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_3_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_2}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Express M\_1 in terms of M\_2, M\_3, and M\_4.
+
+\paragraph{Current subquestion.}
+Express M\_1 in terms of M\_2, M\_3, and M\_4.
+
+\paragraph{Recorded answer/context.}
+M\_1 = sqrt(M\_2\textasciicircum{}2 - M\_3\textasciicircum{}2 + M\_4\textasciicircum{}2), taking the nonnegative magnitude.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus. Reusable conclusions: Q = -(mu\_0*n*K/(2*T))*(H\_f\textasciicircum{}2 - H\_i\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.1. Question: Label T\_h and T\_c on Figure 3b and identify the processes on which Q\_h and Q\_c are transferred. Reusable conclusions: States 1 and 4 lie at T\_h; states 2 and 3 lie at T\_c. Q\_c is absorbed on 2->3, and Q\_h is delivered on 4->1. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_2.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_2:target}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_eq_sqrt}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no Carnot-cycle-on-(M,H,T) module for this magnetization-relation part (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 3-c-2-entries) ---
+% Every non-private Lean declaration of the covered file gets a blueprint
+% entry below, in dependency order; the uses-edges reflect the actual
+% dependency structure read first-hand from the carriers named in the
+% docstrings and Lean statements.
+% NOTE: import policy mirrored from the covered file's header (iter-002
+% ruling, re-confirmed iter-008): the file imports `Mathlib` outright (no
+% targeted PhysLean import) because PhysLean's thermodynamics coverage
+% does not reach this Carnot-cycle-on-(M,H,T) magnetization model; the
+% derivation below stays on the Mathlib real-algebra baseline.
+% The official C.2 magnetization value appears ONLY in the conclusion-side
+% entries thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_sq and
+% thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_eq_sqrt (and in the
+% skeleton's recorded-answer paragraph, kept verbatim); blocks marked
+% "assumed/governing-law/figure carrier" carry assumption-side data only.
+
+\subsection*{Named quantities and cycle geometry}
+
+\begin{definition}[Torus parameters]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:TorusParams}
+\lean{IPhO2026.Problem3.C2.TorusParams}
+The constant physical parameters of the paramagnetic torus (Pm-T) and
+its material: the vacuum permeability $\mu_0$, the amount of
+paramagnetic ions $n$ (mol), the material constant $K$ of the equation
+of state $T\,M\,V = n\,K\,H$, and the fixed torus volume $V$
+(m\textsuperscript{3}), with the packaged positivity witness
+$0 < \mu_0, n, K, V$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cycle vertex labels]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Vertex}
+\lean{IPhO2026.Problem3.C2.Vertex}
+Pure figure content: the four vertex labels $1, 2, 3, 4$ of the cycle
+$1 \to 2 \to 3 \to 4 \to 1$ of Figure~3b in the $H$-versus-$T$ plane,
+as a four-element index type.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Process kinds of the four legs]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:ProcessKind}
+\lean{IPhO2026.Problem3.C2.ProcessKind}
+Pure figure content: the kind of one leg of the cycle --- isothermal
+or adiabatic, carrying the field direction (decreasing or increasing)
+so the branch information of Figure~3b is preserved.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Paramagnet state at a corner]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:ParamagnetState}
+\lean{IPhO2026.Problem3.C2.ParamagnetState}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:EquationOfStateParamagnet}
+A thermodynamic state of the torus: scalar readouts of temperature
+$T$ (K), applied-field magnitude $H$ and magnetization magnitude $M$
+(both A/m), packaged with a positive-temperature witness, nonnegative
+field and magnetization magnitudes, and the equation of state
+satisfied at the state.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Carnot refrigeration cycle of Figure 3b]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotCycle}
+\lean{IPhO2026.Problem3.C2.CarnotCycle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Vertex, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:ProcessKind}
+Figure carrier: the thermodynamic state of the working substance at
+the four vertices of Figure~3b --- scalar readouts of temperature
+$T$, applied-field magnitude $H$, and magnetization magnitude $M$ at
+each vertex --- together with the process labels of the four legs
+$1\to2$, $2\to3$, $3\to4$, $4\to1$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Figure-3b assignment]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment}
+\lean{IPhO2026.Problem3.C2.Figure3bAssignment}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Vertex, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:ProcessKind, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotCycle}
+Figure-3b reading carried over from part C.1 (natural-language
+prerequisite; figure carrier, not a governing law): states $1$ and $4$
+lie at $T_h$, states $2$ and $3$ lie at $T_c$, and the legs
+$1\to2$, $2\to3$, $3\to4$, $4\to1$ are respectively isothermal with
+$H$ decreasing, adiabatic with $H$ decreasing, isothermal with $H$
+increasing, and adiabatic with $H$ increasing.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+\subsection*{Governing-law structures}
+
+\begin{definition}[Equation of state of the ideal paramagnet]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:EquationOfStateParamagnet}
+\lean{IPhO2026.Problem3.C2.EquationOfStateParamagnet}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:TorusParams}
+Governing law (assumed input from the problem setup), stated as the
+rewritable equation $T\,M\,V = n\,K\,H$; its consequence used
+downstream is the elimination form $H = T\,M\,V/(n\,K)$, contracted
+into the isothermal heat law on the isothermal legs.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Isothermal heat relation into the torus]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:IsothermalHeatIntoTorus}
+\lean{IPhO2026.Problem3.C2.IsothermalHeatIntoTorus}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:TorusParams}
+Governing law carried over from part B.1 (previous-part result,
+assumed here, not proved): at constant temperature $T$, when the
+applied field changes from $H_i$ to $H_f$ the heat transferred
+\emph{into} the torus is
+$Q = -\bigl(\mu_0\,n\,K/(2T)\bigr)\,\bigl(H_f^{\,2} - H_i^{\,2}\bigr)$;
+the sign of $Q$ carries the transfer direction.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Carnot heat ratio]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotHeatRatio}
+\lean{IPhO2026.Problem3.C2.CarnotHeatRatio}
+Governing law (second law applied along the reversible cycle; assumed
+input): for reservoir temperatures $T_h, T_c$ and heat
+\emph{magnitudes} $Q_h, Q_c$, the product-form relation
+$Q_h\,T_c = Q_c\,T_h$ (i.e. $Q_h/Q_c = T_h/T_c$), carrying no sign
+because both heats are magnitudes.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Carnot magnetization model (C.2 hypothesis bundle)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotCycle, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:EquationOfStateParamagnet, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:IsothermalHeatIntoTorus, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotHeatRatio}
+Hypothesis bundle for subquestion C.2: the cycle of Figure~3b; the
+reservoir temperatures $T_h, T_c$ and heat magnitudes $Q_h, Q_c$ with
+$0 < T_c < T_h$ and $0 \le Q_h, Q_c$; the Figure-3b assignment;
+nonnegativity of the field and magnetization magnitudes at the
+vertices; the equation of state at every vertex; the B.1 isothermal
+heat relation applied on the heating leg $3 \to 4$ (heat $-Q_h$ into
+the torus) and on the cooling leg $1 \to 2$ (heat $+Q_c$ into the
+torus); and the Carnot heat ratio. The C.2 answer does not occur
+among these fields: it stays on the conclusion side.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[State function and vertex magnetizations of the model]
+\label{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:q}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.M1}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.M2}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.M3}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.M4}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.q}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Vertex, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel}
+Readout names inside the model: $M_1, M_2, M_3, M_4$ are the
+magnetization magnitudes at the four vertices, and
+$q_i = T_i\,M_i^{\,2}$ is the state function which via the equation of
+state is proportional to $\mu_0\,n\,K\,H_i^{\,2}/(V\,T_i)$ and hence
+to the isothermal heat increments of the B.1 law --- the quantity
+conserved along the adiabatic legs. These abbreviations only
+\emph{name} quantities; they carry no equations among them.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges: the adiabatic-leg algebra}
+
+\begin{lemma}[Vertex temperatures are positive]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:vertex_T_pos}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.vertex_T_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment}
+$0 < T_i$ at every vertex $i = 1, 2, 3, 4$ of the cycle.
+\end{lemma}
+\begin{proof}
+The Figure-3b assignment identifies the vertex temperatures with
+$T_h$ or $T_c$, both positive in the model.
+\end{proof}
+
+\begin{lemma}[Isothermal heat via the state function $q$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:heat_isothermal_via_q}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.heat_isothermal_via_q}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:TorusParams, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:ParamagnetState, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:EquationOfStateParamagnet, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:IsothermalHeatIntoTorus}
+Bridge between the B.1 heat law (in its $H$-form) and the equation of
+state: along an isothermal leg at temperature $T$ between two states
+with magnetization magnitudes $M_i, M_f$, the heat into the torus
+becomes
+$Q = \frac{\mu_0\,V}{2}\,\bigl(T\,M_f^{\,2} - T\,M_i^{\,2}\bigr)
+ = \frac{\mu_0\,V}{2}\,(q_f - q_i)$.
+\end{lemma}
+\begin{proof}
+Substitute the elimination form $H = T\,M\,V/(n\,K)$ of the equation
+of state at both endpoints into the B.1 isothermal heat relation and
+simplify the resulting square of the ratio.
+\end{proof}
+
+\begin{lemma}[Hot-leg heat in $q$-form]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:Qh_eq}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.Qh_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotCycle, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:heat_isothermal_via_q}
+Along the heating leg $3 \to 4$:
+$Q_h = \frac{\mu_0\,V}{2}\,(q_4 - q_3)$.
+\end{lemma}
+\begin{proof}
+Apply the $q$-form bridge to the leg $3 \to 4$ heat datum of the
+model, using Figure-3b for $T_3 = T_4 = T_h$; the minus sign of
+$-Q_h$ flips the increments.
+\end{proof}
+
+\begin{lemma}[Cold-leg heat in $q$-form]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:Qc_eq}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.Qc_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotCycle, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:heat_isothermal_via_q}
+Along the cooling leg $1 \to 2$:
+$Q_c = \frac{\mu_0\,V}{2}\,(q_3 - q_2)$, with both $q_3$ and $q_2$
+taken at $T_c$ since Figure-3b gives $T_2 = T_3 = T_c$.
+\end{lemma}
+\begin{proof}
+Apply the $q$-form bridge to the leg $1 \to 2$ heat datum of the
+model, using Figure-3b for the cold temperature shared by states
+$2, 3$.
+\end{proof}
+
+\begin{lemma}[Carnot-ratio scalar relation among the $q_i$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q_relation}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.q_relation}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotHeatRatio, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:Qh_eq, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:Qc_eq}
+The Carnot heat ratio combined with the two leg identities gives the
+scalar relation
+$T_c\,q_1 = (T_c - T_h)\,q_4 + T_h\,q_3$
+among the state-function values at the vertices.
+\end{lemma}
+\begin{proof}
+Substitute the $q$-form expressions of $Q_h$ and $Q_c$ into the
+Carnot heat ratio $Q_h\,T_c = Q_c\,T_h$, cancel the common positive
+factor $\mu_0\,V/2$, and collect terms linearly.
+\end{proof}
+
+\begin{lemma}[Adiabatic-leg book-keeping at vertex $4$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q4_eq_adiabatic_41}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.q4_eq_adiabatic_41}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:q, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q3_eq}
+$q_4 = T_c\,M_2^{\,2}$: the state function at vertex $4$ equals the
+common value of $q$ on the adiabat through states $2$ and $3$ (the
+adiabatic legs transfer no heat and retrace the same adiabat between
+the same two field endpoints). This is adiabatic-leg algebra; it does
+not mention $M_1$ and cannot unfold to the C.2 answer.
+\end{lemma}
+\begin{proof}
+Adiabatic-leg book-keeping from the leg identities, the scalar
+relation, and the common-adiabat value $q_3 = T_c\,M_2^{\,2}$; the
+equation is stated without $M_1$ so it rewrites cleanly downstream.
+\end{proof}
+
+\begin{lemma}[Cold-vertex state-function value]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q3_eq}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.q3_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:q, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotCycle}
+$q_3 = T_c\,M_2^{\,2}$: states $2$ and $3$ lie on the same adiabat at
+the cold temperature; equivalently $q_3 = T_c\,M_3^{\,2}$, the two
+forms expressing $M_3$ in terms of $M_2$ along the adiabatic leg
+$2 \to 3$.
+\end{lemma}
+\begin{proof}
+By definition $q_3 = T_c\,M_3^{\,2}$ (Figure-3b gives
+$T_3 = T_c$), and the common adiabat through $2$ and $3$ gives
+$q_3 = q_2 = T_c\,M_2^{\,2}$.
+\end{proof}
+
+\subsection*{Value theorems: the C.2 magnetization relation}
+
+\begin{theorem}[Vertex-$1$ magnetization squared]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_sq}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.m1_sq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:q, def:IPhO2026Problems_problem_IPhO_2026_3_C_2:Figure3bAssignment, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q_relation, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q4_eq_adiabatic_41, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:q3_eq, lem:IPhO2026Problems_problem_IPhO_2026_3_C_2:vertex_T_pos}
+(Conclusion-side value.) The squared vertex-$1$ magnetization is the
+recorded official combination
+$M_1^{\,2} = M_2^{\,2} - M_3^{\,2} + M_4^{\,2}$.
+\end{theorem}
+\begin{proof}
+Divide the scalar relation
+$T_c\,q_1 = (T_c - T_h)\,q_4 + T_h\,q_3$ by $T_h > 0$, then rewrite
+with $q_1 = T_h\,M_1^{\,2}$, $q_4 = T_h\,M_4^{\,2}$ (the Figure-3b
+hot temperatures) and the adiabatic-leg values
+$q_4 = q_3 = T_c\,M_2^{\,2}$.
+\end{proof}
+
+\begin{theorem}[Subquestion C.2 (main target): $M_1$ in terms of $M_2, M_3, M_4$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_eq_sqrt}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.m1_eq_sqrt}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_sq}
+(Conclusion-side official answer.) The magnitude of $\vec M$ at
+vertex $1$ of the Carnot refrigeration cycle is
+\[
+M_1 = \sqrt{M_2^{\,2} - M_3^{\,2} + M_4^{\,2}},
+\]
+the recorded official answer of subquestion C.2, with the nonnegative
+square root selected because $M_1$ is a magnitude.
+\end{theorem}
+\begin{proof}
+Take nonnegative square roots of the squared relation
+$M_1^{\,2} = M_2^{\,2} - M_3^{\,2} + M_4^{\,2}$ using
+$0 \le M_1$ (the model's magnitude nonnegativity at vertex $1$).
+\end{proof}
+
+\begin{theorem}[Nonnegativity of the radicand]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_sq_arg_nonneg}
+\lean{IPhO2026.Problem3.C2.CarnotMagnetizationModel.m1_sq_arg_nonneg}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_3_C_2:CarnotMagnetizationModel, thm:IPhO2026Problems_problem_IPhO_2026_3_C_2:m1_sq}
+(Conclusion-side consistency consequence.)
+$0 \le M_2^{\,2} - M_3^{\,2} + M_4^{\,2}$: the quantity under the
+square root is nonnegative, as it must be for a physical
+magnetization magnitude.
+\end{theorem}
+\begin{proof}
+Rewrite the combination as $M_1^{\,2}$ via the squared relation,
+then use that a square is nonnegative.
+\end{proof}

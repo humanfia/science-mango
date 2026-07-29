@@ -1,0 +1,180 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_3.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_2_C_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_2_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_3}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Current subquestion.}
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Recorded answer/context.}
+X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R. Reusable conclusions: m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Expand m\_B and b\_B to first order in Delta theta. Reusable conclusions: m\_B = cot(2*theta) - 2*csc(2*theta)\textasciicircum{}2*Delta theta; b\_B = [R/(2*cos(theta))]*(1 + tan(theta)*Delta theta), up to O(Delta theta\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_3.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_C_3:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_2_C_3:limitingIntersectionCoordinates}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract. The caustic-limit content this task pins to is the target theorem \cref{thm:IPhO2026Problems_problem_IPhO_2026_2_C_3:limitingIntersectionCoordinates}.
+\end{proof}
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 2-c-3-entries) ---
+\subsection*{Named quantities and modeling structures}
+
+\begin{definition}[Physical length]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:PhysicalLength}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.PhysicalLength}
+A physical length as a dimensionful quantity of the Physlib units API
+(a value of the length dimension over $\mathbb{R}$): one value packages
+its numerical readouts in every unit system, related by the dimensional
+scaling law, rather than a bare real number in an implicit unit.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Figure-2g length projection]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gLengthProjection}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gLengthProjection}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gLengthProjection.readout}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:PhysicalLength}
+The fixed length-unit choice \texttt{unitChoice : UnitChoices} for all
+Figure-2g coordinate readouts, together with the named scalar projection
+sending a physical length to its real coordinate readout
+$(\textit{length}\ \textit{unitChoice}).\textit{val} : \mathbb{R}$ in that
+unit.  \emph{Modeling choice (typed readout):} every Figure-2g coordinate
+appearing below is read through this \emph{single} projection and this one
+fixed unit, so physical lengths are never silently identified with bare
+real numbers and no equation mixes two unit systems.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Half-cylindrical mirror of Figure 2g]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gMirror}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gMirror}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gMirror.OnReflectingSurface}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:PhysicalLength, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gLengthProjection, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gPoint}
+The half-cylindrical mirror: a physical-length \texttt{radius} $R$ with a
+positivity certificate at every unit choice.  Its reflecting upper
+semicircle is the predicate $x^2 + y^2 = R^2 \wedge 0 \le y$ on Figure-2g
+points, expressed through the fixed unit readout.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Point of Figure 2g]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gPoint}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gPoint}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:PhysicalLength}
+A point of the Figure-2g coordinate plane: two physical-length
+coordinates \texttt{xCoordinate}, \texttt{yCoordinate} (not bare reals).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Supporting line of a reflected ray]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:ReflectedRayLine}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.ReflectedRayLine}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.ReflectedRayLine.Contains}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:PhysicalLength, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gLengthProjection, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gPoint}
+The supporting affine line $y = m x + b$ of a reflected optical ray in
+Figure 2g: a dimensionless \texttt{slopeRatio} $m$ and a physical-length
+\texttt{yIntercept} $b$; a point lies on the line when
+$y_{\mathrm{rd}} = m\,x_{\mathrm{rd}} + b_{\mathrm{rd}}$ under the fixed
+unit readout.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Intersection of neighboring reflected rays]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:IsNeighboringReflectedIntersection}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.IsNeighboringReflectedIntersection}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gLengthProjection, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gPoint, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:ReflectedRayLine}
+Simultaneous membership of a Figure-2g point in the reflected line at
+incidence angle $\theta$ (ray A) and in the reflected line at the
+neighboring incidence angle $\theta + \Delta\theta$ (ray B): both line
+equations hold at once.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+% --- Archon physics formalization source end ---
+
+% --- Archon autoformalization link (added by autoformalize agent) ---
+\begin{theorem}[Limiting intersection of neighboring reflected rays]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_C_3:limitingIntersectionCoordinates}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.limitingIntersectionCoordinates}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_C_3:Figure2gMirror, def:IPhO2026Problems_problem_IPhO_2026_2_C_3:IsNeighboringReflectedIntersection}
+For the half-cylindrical mirror of radius $R$ in the coordinate system of
+Figure~2g, the intersection of the reflected ray A (incidence angle $\theta$)
+with the reflected neighboring ray B (incidence angle $\theta+\Delta\theta$)
+tends, as $\Delta\theta\to 0$, to the caustic point
+\[
+X_c = R\sin^3\theta, \qquad Y_c = \frac{R}{2}\cos\theta\,\bigl(2-\cos 2\theta\bigr).
+\]
+Here the exact line of part C.1 ($m_A = \cot 2\theta$,
+$b_A = R/(2\cos\theta)$), the first-order $O(\Delta\theta^2)$ expansions of
+$m_B, b_B$ of part C.2, and the existence of the intersection for all
+sufficiently small nonzero $\Delta\theta$ enter as natural-language
+hypotheses recorded in the theorem's hypothesis structures; only the two
+limit coordinate statements are conclusion-side.
+\end{theorem}
+\begin{proof}
+Subtracting the two line equations at the intersection point gives
+$b_B - b_A = -(m_B - m_A)\cdot X$.  By the C.1 values and the C.2
+expansions, $m_B - m_A = -\bigl(2/\sin^2 2\theta + O(\Delta\theta)\bigr)
+\,\Delta\theta$ and
+$b_B - b_A = \bigl(\partial b/\partial\theta + O(\Delta\theta)\bigr)
+\,\Delta\theta$ with
+$\partial b/\partial\theta = R\sin\theta/(2\cos^2\theta)$; substituting and
+dividing through by $\Delta\theta \to 0$ yields
+$X_c = R\sin^3\theta$, and then $Y_c = \frac{R}{2}\cos\theta\,(2-\cos 2\theta)$
+follows from the ray-A line $Y_c = \cot 2\theta\cdot X_c + R/(2\cos\theta)$
+via the trig identity
+$\frac{R}{2}\cos\theta\,(2-\cos 2\theta)
+= \cot 2\theta\cdot R\sin^3\theta + R/(2\cos\theta)$.
+All trigonometric manipulations and the limit passage are at the informal
+level here; the formal counterpart is the prover stage's (currently
+sorried) proof body in Lean.
+\end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-004): positive targeted-import case — the covered file genuinely uses `Physlib.Units.WithDim.Basic` (`WithDim Dimension.L𝓭 ℝ`) for the mirror-length line geometry; the blanket domain-import check is satisfied and no further import is added. PhysLean has no specular-reflection/caustic-envelope geometry library (nearest LeanExplore hits: EM field APIs), so mirror geometry stays a local typed model on the Mathlib+Physlib-units baseline.
+% --- Archon physics formalization source end ---

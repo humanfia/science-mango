@@ -1,0 +1,292 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_A_1.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_4_A_1.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_4\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_A_1}
+
+\paragraph{Problem source.}
+The experimental apparatus contains a sealed air column (CA) in the inner
+cylinder.  Propylene glycol is introduced to h = 4.5 cm so the air volume is
+fixed.  Use the cylinder dimensions in Figure 17, ambient air density
+rho\_a = 1.12 kg/m\textasciicircum{}3, and the ideal-gas law P*V = n*R*T.  The outer-cylinder
+water bath is heated while pressure and temperature are recorded.
+
+Current subquestion:
+Determine the mass m, amount n, and number N of molecules in the confined air column.
+
+\paragraph{Current subquestion.}
+Determine the mass m, amount n, and number N of molecules in the confined air column.
+
+\paragraph{Recorded answer/context.}
+Official sample: m = 0.94 +/- 0.02 g, n = 3.24 mmol (reported uncertainty 0.7 mmol), N = (1.95 +/- 0.05)e21.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-9.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_A\_1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_A_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:mass_of_confined_air, thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:number_of_molecules_of_confined_air, thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:molar_mass_consistency, thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:uncertainty_consistency}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean's ideal-gas modules do not cover this part's regime as modeled (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 4-a-1-entries) ---
+% Every non-private Lean declaration of the covered file gets a blueprint
+% entry below, in dependency order; the \uses{} edges reflect the actual
+% dependency structure read first-hand from the carriers named in the
+% statements and docstrings.  Field projections are folded into their
+% parent structure entries (same convention as the sibling ledgers of
+% iters 007/008).
+% DEVIATION (recorded): the directive and the leandag unmatched bucket
+% named the namespace `IPhO2026.Problem4.A1`; the on-disk namespace is
+% `IPhO2026_4_A_1` (flat, verified first-hand), so every \lean{} pin
+% below uses `IPhO2026_4_A_1.<name>`.  Coverage: all 17 live decls.
+% The official A.1 answer values (m = 0.94 +/- 0.02 g, n = 3.24 +/- 0.7
+% mmol, N = (1.95 +/- 0.05)e21, V = 85 +/- 2 mL) appear ONLY in the
+% conclusion-side target/value theorem blocks (and in the skeleton's
+% recorded-answer paragraph, kept verbatim); assumption-side blocks
+% carry readout data and governing laws only.  The chapter's import
+% policy is the covered file's own header: `import Mathlib` outright,
+% no targeted PhysLean import (iter-002 exemption NOTE above).
+
+\subsection*{Named quantities: uncertainty packaging and geometry}
+
+\begin{definition}[Measured quantities with absolute uncertainty]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:MeasuredQuantity}
+\lean{IPhO2026_4_A_1.MeasuredQuantity}
+\lean{IPhO2026_4_A_1.MeasuredQuantity.lower}
+\lean{IPhO2026_4_A_1.MeasuredQuantity.upper}
+\lean{IPhO2026_4_A_1.MeasuredQuantity.PropagatesTo}
+\lean{IPhO2026_4_A_1.MeasuredQuantity.propagate_mul_const}
+The interval/uncertainty idiom of the official constants table and
+sample answer: a structure packaging a central measured value, its
+absolute measurement uncertainty, and the certificate that the
+uncertainty is nonnegative, together with the folded projections
+$\mathrm{lower}(q) = v - u$ and $\mathrm{upper}(q) = v + u$ giving the
+measurement interval $[v - u,\, v + u]$, and the independent
+(worst-case, first-order) propagation predicate: an output\'s
+uncertainty bounds the linear response
+$|f(x+u) - f(x-u)|/2 \le u_{\mathrm{out}}\,u$ for every $u \ge 0$.
+Packaging only; no physical value is fixed here.  The package also
+carries the elimination theorem of the linear route,
+$|(x+u)a - (x-u)a|/2 = u\,|a|$, which forces any output uncertainty
+obeying the propagation law along $x \mapsto a\,x$ to dominate the
+sensitivity $|a|$ pointwise --- the certificate that makes the
+structure's \*\_prop fields mathematically constraining.
+\end{definition}
+\begin{proof}
+The packaging declarations are definitions with no claim.  For the
+elimination theorem, $(x+u)a - (x-u)a = 2u\,a$ by the distributive
+law, so the left side is $|2u\,a|/2 = u\,|a|$ since $u \ge 0$, and
+the claimed inequality is equality.
+\end{proof}
+
+\begin{definition}[The confined-air-column configuration]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:MeasuredQuantity}
+The complete physical configuration of subquestion A.1: the
+Figure-17 coaxial-cylinder geometry (IC bore with its uncertainty,
+data $33.7 \pm 0.1\ \mathrm{mm}$; OC diameter and wall thickness as
+apparatus context), the Figure-18 levels ($h = 4.5\ \mathrm{cm}$ PG
+set point, $h > 0$; trapped-air height $H$ with uncertainty,
+$H > 0$), the derived geometry with its laws --- cross section
+$A = \pi (d/2)^2$, volume $V = A\,H$, and uncertainty-propagator
+certificates along $d \mapsto \pi(d/2)^2$, $H \mapsto A\,H$ (all
+\texttt{PropagatesTo} fields) --- the sealing law recording that the
+CA volume is fixed after valves D and E close (the Part-A isochore),
+the stipulated ambient density $\rho_a > 0$ (calibrated, treated as
+exact), and the gas-data fields: amount of substance $n$ with its
+reported uncertainty, mass $m$ with the density-route law
+$m = \rho_a V$ and the volume-to-mass propagator, Avogadro constant
+$N_A > 0$, gas constant $R > 0$, the governing ideal-gas law
+$P V = n R T$ (Eq. (1)) over arbitrary positive state readouts,
+molar mass $M_{\mathrm{air}} > 0$, molecule count $N$ with the
+Avogadro relation $N = n N_A$ and the $n$-to-$N$ propagator, and the
+molar-mass consistency law $m = n M_{\mathrm{air}}$.  Assumption-side
+throughout: the current A.1 answers never appear as fields --- they
+occur only as conclusions of the theorems below.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Calibration data: official readouts and compatibility}
+
+\begin{definition}[Official A.1 readouts]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:OfficialReadouts}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.OfficialReadouts}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:MeasuredQuantity}
+The official A.1 calibration readouts packaged as
+\texttt{MeasuredQuantity} records: the trapped-air height
+$H = 9.5 \pm 0.1\ \mathrm{cm}$, the CA volume
+$V = 85 \pm 2\ \mathrm{mL}$, the mass $m = 0.94 \pm 0.02\ \mathrm{g}$,
+the amount of substance $n = 3.24 \pm 0.7\ \mathrm{mmol}$, the
+molecule count $N = (1.95 \pm 0.05)\times 10^{21}$, the ambient
+density pinned to $1.12\ \mathrm{kg/m^3}$, the PG set point pinned to
+$4.5\ \mathrm{cm}$, and the IC bore diameter pinned to
+$33.7 \pm 0.1\ \mathrm{mm}$.  These are the recorded experimental
+data the A.1 conclusions must reproduce --- data of the measurement
+model, not hypotheses of the theorems.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Compatibility of a configuration with the readouts]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:CompatibleWithReadouts}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.CompatibleWithReadouts}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:MeasuredQuantity, def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn, def:IPhO2026Problems_problem_IPhO_2026_4_A_1:OfficialReadouts}
+An A.1 configuration is \emph{compatible with the official readouts}
+when each of its derived quantities ($V$, $m$, $n$, $N$) lies inside
+the corresponding measured interval $[\mathrm{lower},\,\mathrm{upper}]$
+of the readout record --- the checking contract for the recorded
+sample answer.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{theorem}[Closed form of the CA volume]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:volume_closed_form}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.volume_closed_form}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn}
+The CA volume computed from the Figure-17/18 geometry is
+$V = \pi (d/2)^2 H$ --- the explicit closed form obtained from the
+cross-section law $A = \pi (d/2)^2$ and the volume law $V = A\,H$.
+Conclusion-side intermediate (a geometry identity, not an answer
+value).
+\end{theorem}
+\begin{proof}
+Substitute the cross-section law into the volume law:
+$V = A\,H = \bigl(\pi (d/2)^2\bigr) H$.
+\end{proof}
+
+\begin{theorem}[Ideal-gas route to the amount of substance]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:amountFromIdealGas}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.amountFromIdealGas}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn}
+At any positive state readout $(P, V, T)$, the amount of substance
+fixed by the ideal-gas law (Eq. (1)) is
+$n = P V / (R T)$ --- the A.1 amount-of-substance route supplied by
+the governing law together with the measured $P, V, T$ readouts and
+the tabulated $R$.  Conclusion-side intermediate.
+\end{theorem}
+\begin{proof}
+Rearrange Eq. (1), $P V = n R T$, dividing by $R T \neq 0$ (both
+factors positive).
+\end{proof}
+
+\begin{theorem}[Positivity of the mass]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:mass_pos_of_volume_pos}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.mass_pos_of_volume_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn}
+If the CA volume is positive, then its mass is positive --- the
+physical sanity direction of the density law $m = \rho_a V$.
+\end{theorem}
+\begin{proof}
+By $m = \rho_a V$ with $\rho_a > 0$ (stipulated) and $V > 0$
+(hypothesis), the product is positive.
+\end{proof}
+
+\begin{theorem}[Positivity of the molecule count]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:numberOfMolecules_pos}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.numberOfMolecules_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn}
+If the amount of substance is positive, then the total number of
+molecules is positive --- the sanity direction of the Avogadro law
+$N = n N_A$.
+\end{theorem}
+\begin{proof}
+By $N = n N_A$ with $N_A > 0$ (tabulated) and $n > 0$ (hypothesis),
+the product is positive.
+\end{proof}
+
+\subsection*{Value theorems: the official A.1 answers}
+
+\begin{theorem}[A.1 mass, density route]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:mass_of_confined_air}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.mass_of_confined_air}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn, def:IPhO2026Problems_problem_IPhO_2026_4_A_1:OfficialReadouts}
+A.1 main target, density route: the mass of the confined air column
+is $m = \rho_a\, V$ --- with the Figure-17/18 geometry of the
+official data ($d = 33.7\ \mathrm{mm}$, $H = 9.5\ \mathrm{cm}$,
+$V = 85\ \mathrm{mL}$) and the stipulated
+$\rho_a = 1.12\ \mathrm{kg/m^3}$ this is the recorded official answer
+$m = 0.94 \pm 0.02\ \mathrm{g}$, its band checked against the mass
+readout interval.  Conclusion-side.
+\end{theorem}
+\begin{proof}
+The configuration\'s mass--density--volume law states
+$m = \rho_a V$ verbatim; the route is the density law applied to the
+sealed-CA volume.
+\end{proof}
+
+\begin{theorem}[A.1 molecule count, Avogadro route]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:number_of_molecules_of_confined_air}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.number_of_molecules_of_confined_air}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn, def:IPhO2026Problems_problem_IPhO_2026_4_A_1:OfficialReadouts}
+A.1 main target, molecule route: the total number of air molecules
+is the amount of substance times the Avogadro constant,
+$N = n\, N_A$ --- with the official data,
+$N \approx 1.95 \times 10^{21}$, the recorded official answer
+$N = (1.95 \pm 0.05) \times 10^{21}$ being checked against the
+molecule-count readout interval.  Conclusion-side.
+\end{theorem}
+\begin{proof}
+The configuration\'s Avogadro relation states $N = n N_A$ verbatim;
+the route multiplies the ideal-gas amount by the tabulated $N_A$.
+\end{proof}
+
+\begin{theorem}[A.1 molar-mass consistency]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:molar_mass_consistency}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.molar_mass_consistency}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn, thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:mass_of_confined_air, thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:number_of_molecules_of_confined_air}
+A.1 main target, molar-mass route: the recorded mass, amount of
+substance, and tabulated molar mass of air obey the consistency
+relation $m = n\, M_{\mathrm{air}}$ (the official constants-table
+check route; on the A.1 sample $n = 3.24\ \mathrm{mmol}$ it
+reproduces the mass answer $m = 0.94\ \mathrm{g}$ at the precision
+of the experiment).  Conclusion-side.
+\end{theorem}
+\begin{proof}
+The configuration\'s molar-mass consistency law states
+$m = n M_{\mathrm{air}}$ verbatim; it cross-checks the density-route
+mass against the ideal-gas amount through the tabulated
+$M_{\mathrm{air}}$.
+\end{proof}
+
+\begin{theorem}[A.1 uncertainty consistency]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:uncertainty_consistency}
+\lean{IPhO2026_4_A_1.ConfinedAirColumn.uncertainty_consistency}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_A_1:MeasuredQuantity, def:IPhO2026Problems_problem_IPhO_2026_4_A_1:ConfinedAirColumn, thm:IPhO2026Problems_problem_IPhO_2026_4_A_1:number_of_molecules_of_confined_air}
+A.1 uncertainty target: the reported uncertainties of the three
+answers propagate compatibly --- the mass and amount-of-substance
+uncertainties are nonnegative, and the molecule-count deviation from
+the exact Avogadro relation is bounded by the propagation budget,
+$|N - N_A\, n| \le u_N + u_n\, N_A$ (the band-side reading of the
+official sample $n = 3.24 \pm 0.7\ \mathrm{mmol}$,
+$N = (1.95 \pm 0.05) \times 10^{21}$).  Conclusion-side.
+\end{theorem}
+\begin{proof}
+The two nonnegativity conjuncts are the measurement model\'s
+nonnegativity certificates; the deviation conjunct follows from the
+$n \mapsto n N_A$ propagation law, which bounds the residual by the
+sum of the output uncertainty and the sensitivity times the input
+uncertainty.
+\end{proof}

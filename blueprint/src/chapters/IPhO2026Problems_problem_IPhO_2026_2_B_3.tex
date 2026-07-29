@@ -1,0 +1,238 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_3.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_2_B_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.3
+% archon:previous-part IPhO_2026_2_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_B_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_3}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+For R = 1.0 m, find a such that P = 5*P\_0, and report it in cm.
+
+\paragraph{Current subquestion.}
+For R = 1.0 m, find a such that P = 5*P\_0, and report it in cm.
+
+\paragraph{Recorded answer/context.}
+cos(theta\_max) = 4/5 and a = 0.12 m = 12 cm.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R. Reusable conclusions: alpha = R and beta = -R/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source B.2. Question: Express the power ratio P/P\_0 in terms of theta\_max. Reusable conclusions: P/P\_0 = 1/(1 - cos(theta\_max)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_3.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_B_3:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_2_B_3:container_diameter_for_quintuple_power}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no geometric/reflection-optics module for this mirror part (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 2-b-3-entries) ---
+% NOTE: import policy (mirrors the reconciliation note above, iter-002 exemption):
+% the covered file builds on the `import Mathlib` baseline alone; PhysLean has no
+% geometric/reflection-optics module for this mirror part, so no Physlib import is
+% added.  This NOTE records the resolved import policy for the chapter.
+% NOTE (scan-invisible pins): the covered file opens with `noncomputable section`,
+% which hides its defining declarations (`abbrev`/`def` companions) from the hybrid
+% decl scan; the `Prop`-valued structures and the theorems are scanned.  All ten
+% entries below name live ROOT-level declarations (no namespace prefix on disk).
+\subsection*{Unit scale and symbolic constants}
+
+\begin{definition}[Recorded incidence angle]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded}
+\lean{thetaMaxRecorded}
+Symbolic abbreviation for the maximal incidence angle of Figure~2f,
+$\theta_{\max}$.  It is defined as the acute angle of the 3-4-5 triangle
+recorded in the official solution.  This is a pure abbreviation: the
+physical content of the official answer (the cosine of this angle) is
+PROVED on the conclusion side of
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_2_B_3:container_diameter_for_quintuple_power},
+not defined here.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Metre in centimetres]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:metreInCentimetres}
+\lean{metreInCentimetres}
+Unit scale: one metre expressed in centimetres, the conversion factor used
+to report the final container radius in cm as the subquestion requests.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Cross-section geometry}
+
+\begin{definition}[Cross-sectional plane]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:CrossSectionPlane}
+\lean{CrossSectionPlane}
+The Euclidean plane $\mathbb{E}^2$ containing the transverse cross-section
+of the mirror/container system of Figure~2f.  The physical system is
+translationally invariant along the cylinder axes, so a single cross-section
+captures all the geometry; lengths in this plane are identified with real
+numbers via the norm.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Solar cooker geometry]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:SolarCookerGeometry}
+\lean{SolarCookerGeometry}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:CrossSectionPlane}
+The geometric configuration of Figure~2f: the mirror radius $R$, the
+container radius $a$, the container centre, and the unit sunlight direction
+along the optical axis, with the bundled figure readouts $0 < a < R$ and the
+problem datum that the container centre lies $R/2$ from the mirror centre on
+the symmetry plane.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing laws and previous-part interfaces}
+
+\begin{definition}[Half-cylindrical mirror physics]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:HalfCylindricalMirrorPhysics}
+\lean{HalfCylindricalMirrorPhysics}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:SolarCookerGeometry, def:IPhO2026Problems_problem_IPhO_2026_2_B_3:CrossSectionPlane}
+The governing-law carrier at a reflection point $x$ of the mirror: $x$ lies
+on the mirror surface ($\|x\| = R$) on the illuminated half, the outgoing
+ray is the law-of-reflection image of the incoming direction in the radial
+normal line at $x$ (specular reflection at the cylindrical surface), the
+incidence angle at $x$ is measured from the normal drawn at the point of
+incidence and is related to the geometry by the cosine law, and it is acute
+(the single-reflection/uniform-irradiance regime: any ray absorbed by the
+container reflects from the mirror at most once).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Previous-part results (B.1 and B.2 interfaces)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:PreviousPartResults}
+\lean{PreviousPartResults}
+The named natural-language prerequisite interfaces of subquestions B.1 and
+B.2 packaged over an incidence angle $\theta \in (0, \pi/2)$ with $P, P_0 > 0$:
+the B.1 geometric relation
+$a = R \sin\theta - (R/2)\sin(2\theta)$
+(the determined coefficients $\alpha = R$, $\beta = -R/2$) and the B.2 power
+ratio $P/P_0 = 1/(1 - \cos\theta)$.  Nothing in this structure fixes the
+value of $\theta$ or of $a$, so the B.3 conclusions are not smuggled in.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Trigonometric certificates of the 3-4-5 triangle}
+
+\begin{lemma}[The recorded angle is acute]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded_mem_Ioo}
+\lean{thetaMaxRecorded_mem_Ioo}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded}
+The recorded maximal incidence angle lies in the acute range:
+$\theta_{\max} \in (0, \pi/2)$, as required of every ray on the
+single-reflection branch that reaches the container.
+\end{lemma}
+\begin{proof}
+The angle is an arccosine of a value lying strictly between $0$ and $1$, and
+arccosine sends the interior of $[-1, 1]$ to $(0, \pi)$ in a strictly
+decreasing way, so the value sits strictly between $\arccos 1 = 0$ and
+$\arccos 0 = \pi/2$.
+\end{proof}
+
+\begin{lemma}[The sine of the recorded angle]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_thetaMaxRecorded}
+\lean{sin_thetaMaxRecorded}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded}
+3-4-5 triangle certificate:
+$\sin\theta_{\max} = 3/5$.
+\end{lemma}
+\begin{proof}
+On the acute range of
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded_mem_Ioo},
+$\sin\theta_{\max} = \sqrt{1 - \cos^2\theta_{\max}}$; the 3-4-5 ratio gives
+$1 - (4/5)^2 = 9/25$, whose square root is $3/5$.
+\end{proof}
+
+\begin{lemma}[The sine of the doubled recorded angle]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_two_mul_thetaMaxRecorded}
+\lean{sin_two_mul_thetaMaxRecorded}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_thetaMaxRecorded, def:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded}
+Double-angle certificate: $\sin(2\theta_{\max}) = 24/25$.
+\end{lemma}
+\begin{proof}
+Apply the double-angle identity $\sin(2\theta) = 2\sin\theta\cos\theta$ to the
+3-4-5 ratio and
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_thetaMaxRecorded}:
+$2 \cdot (3/5) \cdot (4/5) = 24/25$.
+\end{proof}
+
+\subsection*{Target value theorem}
+
+\begin{theorem}[Container radius for quintuple power]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_B_3:container_diameter_for_quintuple_power}
+\lean{container_diameter_for_quintuple_power}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:SolarCookerGeometry, def:IPhO2026Problems_problem_IPhO_2026_2_B_3:HalfCylindricalMirrorPhysics, def:IPhO2026Problems_problem_IPhO_2026_2_B_3:PreviousPartResults, lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded_mem_Ioo, lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_thetaMaxRecorded, lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_two_mul_thetaMaxRecorded, def:IPhO2026Problems_problem_IPhO_2026_2_B_3:metreInCentimetres, def:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded}
+\textbf{(Target, T2-B3.)}  For a solar-cooker geometry
+(\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:SolarCookerGeometry})
+governed by the mirror physics
+(\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:HalfCylindricalMirrorPhysics})
+at a reflection point reaching the container, with mirror radius
+$R = 1\,\mathrm{m}$, container radius $a$, received power $P$ and no-mirror
+power $P_0$ satisfying the previous-part relations B.1 and B.2
+(\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:PreviousPartResults}),
+if $P = 5\,P_0$ then: $\theta_{\max}$ equals the recorded angle
+($\cos\theta_{\max} = 4/5$), the container radius is
+$a = 0.12\,\mathrm{m}$, and reported in centimetres $a = 12\,\mathrm{cm}$.
+The official answers $\cos\theta_{\max} = 4/5$ and $12\,\mathrm{cm}$ appear
+here conclusion-side only; no hypothesis fixes them in advance.
+\end{theorem}
+\begin{proof}
+Invert the B.2 ratio: $P/P_0 = 5 = 1/(1-\cos\theta_{\max})$ forces
+$1-\cos\theta_{\max} = 1/5$, hence $\cos\theta_{\max} = 4/5$; since both
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:PreviousPartResults} and
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:HalfCylindricalMirrorPhysics}
+confine $\theta_{\max}$ to the acute range $(0, \pi/2)$, on which cosine is
+strictly monotone (so arccosine is its inverse there),
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:thetaMaxRecorded_mem_Ioo}
+identifies $\theta_{\max}$ with the recorded angle.  Substitute into the B.1
+relation $a = R\sin\theta_{\max} - (R/2)\sin(2\theta_{\max})$ at $R = 1$
+with
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_thetaMaxRecorded} and
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_3:sin_two_mul_thetaMaxRecorded}:
+$a = 3/5 - (1/2)(24/25) = 3/25 = 0.12\,\mathrm{m}$, and the conversion scale
+of
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_3:metreInCentimetres} turns
+this into $a \cdot 100 = 12$, i.e. $a = 12\,\mathrm{cm}$.
+\end{proof}

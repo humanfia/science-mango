@@ -1,0 +1,301 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_C_1.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_1_C_1.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id C.1
+
+\chapter{Physics problem IPhO\_2026\_1\_C\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_C_1}
+
+\paragraph{Problem source.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+Current subquestion:
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Current subquestion.}
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Recorded answer/context.}
+For theta <= pi/2, omega\_min = 3*m*c\textasciicircum{}2*[1 - sqrt(1 - (Delta U/(3*m*c\textasciicircum{}2))*(2*sin(theta)\textasciicircum{}2 + 1))]/[hbar*(2*sin(theta)\textasciicircum{}2 + 1)]. For theta >= pi/2 use the same threshold evaluated at theta = pi/2.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_C\_1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_C_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:minimum_angular_frequency_T1_C1, thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin_pi_sub}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no module for relativistic two-body photodissociation kinematics (see this file's physics-grounding log for the near-miss query results). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 1-c-1-entries) ---
+% NOTE: import policy (mirrors the reconciliation note above, iter-002 exemption):
+% the covered file builds on the `import Mathlib` baseline alone; PhysLean has no
+% module for relativistic two-body photodissociation kinematics, so no Physlib
+% import is added.  This NOTE records the resolved import policy for the chapter.
+\subsection*{Quantities and data}
+
+\begin{definition}[Dissociation energy gap]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:dissociationEnergyGap}
+\lean{IPhO2026.Problem1.C1.dissociationEnergyGap}
+The dissociation gap of the ozone breakup, $\Delta U = U_f - U_i$: the
+difference of the ground-state energy of the fragments $O_2 + O$ and of
+the ozone molecule $O_3$, which are opaque constants of the formalization.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Positive-constant regime]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ConstantRegime}
+\lean{IPhO2026.Problem1.C1.ConstantRegime}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:dissociationEnergyGap}
+The physical regime of the problem: the reduced Planck constant $\hbar$,
+the speed of light $c$, and the oxygen-atom mass $m$ are positive, and the
+dissociation is endothermic, $\Delta U > 0$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Reaction geometry}
+
+\begin{definition}[Reaction plane]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ReactionPlane}
+\lean{IPhO2026.Problem1.C1.ReactionPlane}
+The plane containing the incident photon and the outgoing fragments of
+Figure~1c, modelled as an abstract two-dimensional real Euclidean space so
+that the angle between momentum vectors is intrinsic.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Incident photon line]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:PhotonLine}
+\lean{IPhO2026.Problem1.C1.PhotonLine}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ReactionPlane}
+The direction of the incident photon (and of its momentum) in the reaction
+plane: a vector $\hat{k}$ certified to be a unit vector,
+$\|\hat{k}\| = 1$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Scattering angle readout]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsScatteringAngle}
+\lean{IPhO2026.Problem1.C1.IsScatteringAngle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ReactionPlane, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:PhotonLine}
+The Figure-1c readout that $\theta$ is the angle between the outgoing
+$O_2$ momentum $p$ and the incident photon direction $\hat{k}$: the
+fragment is strictly outgoing, $p \neq 0$, and the cosine-law component
+statement $\langle \hat{k}, p \rangle = \|p\| \cos\theta$ holds.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Angular range of the problem]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsAngularRange}
+\lean{IPhO2026.Problem1.C1.IsAngularRange}
+The figure range of the scattering angle: $\theta \in [0, \pi]$.  Branch
+information is preserved by hypothesis, not selected in conclusions.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Forward branch]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsForwardBranch}
+\lean{IPhO2026.Problem1.C1.IsForwardBranch}
+The forward, non-backscattering branch of the official solution:
+$\theta \le \pi/2$, the branch in which the tangent-line critical
+configuration of Figure~1c exists.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Governing-law structures}
+
+\begin{definition}[Lawful two-body dissociation]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsTwoBodyDissociation}
+\lean{IPhO2026.Problem1.C1.IsTwoBodyDissociation}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:PhotonLine, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ReactionPlane, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsScatteringAngle}
+The governing-law structure of the absorption and two-body breakup
+$\gamma + O_3 \to O_2 + O$ at photon angular frequency $\omega$: vector
+momentum conservation fixes the oxygen-atom momentum
+$q = (\hbar\omega/c)\,\hat{k} - p$; its eliminated cosine-law shadow is
+$\|q\|^2 = (\hbar\omega/c)^2 + \|p\|^2 - 2(\hbar\omega/c)\,\|p\|\cos\theta$;
+$\theta$ is the Figure-1c scattering angle; and non-relativistic energy
+balance reads $\hbar\omega = \Delta U + \|p\|^2/(2\cdot 2m) + \|q\|^2/(2m)$
+with fragment masses $2m$ and $m$.  No field mentions the threshold value.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{lemma}[Cosine-law elimination from vector momentum balance]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_1:momentum_q_sq_of_vector_balance}
+\lean{IPhO2026.Problem1.C1.momentum_q_sq_of_vector_balance}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:PhotonLine, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsScatteringAngle}
+If $q = (\hbar\omega/c)\,\hat{k} - p$ and $\theta$ is the scattering angle
+between $\hat{k}$ and $p$, then
+$\|q\|^2 = (\hbar\omega/c)^2 + \|p\|^2 - 2(\hbar\omega/c)\,\|p\|\cos\theta$:
+the scalar magnitude field of the dissociation structure is a genuine
+consequence of the vector law, not an independent modelling assumption.
+\end{lemma}
+\begin{proof}
+Expand $\|q\|^2 = \langle q, q \rangle$ with $q$ given by the vector
+balance, use $\|\hat{k}\| = 1$ for the quadratic term, and insert the
+readout $\langle \hat{k}, p \rangle = \|p\|\cos\theta$ for the cross term.
+\end{proof}
+
+\begin{definition}[Reachable frequency]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ReachableFrequency}
+\lean{IPhO2026.Problem1.C1.ReachableFrequency}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsTwoBodyDissociation}
+A photon angular frequency $\omega$ is reachable at outgoing $O_2$ angle
+$\theta$ (atom mass $m$, dissociation gap $\Delta U$) iff some lawful
+dissociation configuration realizes that frequency: an existential over
+photon directions and fragment momenta, not a formula.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Dissociation threshold]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsDissociationThreshold}
+\lean{IPhO2026.Problem1.C1.IsDissociationThreshold}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ReachableFrequency}
+$\omega_0$ is a dissociation threshold at angle $\theta$ iff it is
+reachable and no strictly smaller positive frequency is reachable: a pure
+minimality property that leaves the numerical value of the threshold open.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Threshold candidate and derivation bridges}
+
+\begin{definition}[Candidate threshold expression]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin}
+\lean{IPhO2026.Problem1.C1.hbarOmegaMin}
+The candidate closed-form forward-branch threshold
+$\Omega(m, c, \Delta U, \theta)$ of the official solution, named as a bare
+real-valued expression of the problem data (built from the angular factor
+$2\sin^2\theta + 1$ and the square root of its discriminant).  By itself it
+asserts nothing about dissociation; the claim that it \emph{is} the minimum
+reachable frequency is the content of the target theorems below.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{lemma}[Angular-factor identity]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_1:two_sin_sq_add_one_eq}
+\lean{IPhO2026.Problem1.C1.two_sin_sq_add_one_eq}
+For every angle $\theta$, $2\sin^2\theta + 1 = 2 - \cos 2\theta$: the
+angular factor of the threshold formula equals the coefficient appearing in
+the official quadratic characterization.
+\end{lemma}
+\begin{proof}
+The double-angle identity $\cos 2\theta = 1 - 2\sin^2\theta$ rearranged.
+\end{proof}
+
+\begin{lemma}[Quadratic characterization of the candidate threshold]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_1:quadratic_characterization_of_threshold}
+\lean{IPhO2026.Problem1.C1.quadratic_characterization_of_threshold}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsForwardBranch, lem:IPhO2026Problems_problem_IPhO_2026_1_C_1:two_sin_sq_add_one_eq}
+For positive $m, c, \Delta U$, a forward angle $0 < \theta \le \pi/2$ with
+nondegenerate angular factor $2 - \cos 2\theta \neq 0$ and a real square
+root in the candidate formula, the scaled candidate
+$E_0 = \hbar\,\Omega(m,c,\Delta U,\theta)$ is positive, solves
+$(2 - \cos 2\theta)\,E^2 - 6 m c^2 E + 6\,\Delta U\,m c^2 = 0$,
+and is smaller than every other positive root: it is the smallest positive
+root of the official-solution quadratic.
+\end{lemma}
+\begin{proof}
+Rewrite $2\sin^2\theta + 1$ as $2 - \cos 2\theta$ via the angular-factor
+identity, so the candidate becomes the root of the displayed quadratic in
+$E = \hbar\omega$ selected by the minus sign of the quadratic formula;
+positivity follows from the positive regime and the real square root, and
+minimality among positive roots because the two roots are ordered by that
+sign choice.
+\end{proof}
+
+\subsection*{Value and target theorems}
+
+\begin{theorem}[Minimum angular frequency, forward branch]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:minimum_angular_frequency_T1_C1}
+\lean{IPhO2026.Problem1.C1.minimum_angular_frequency_T1_C1}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ConstantRegime, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsAngularRange, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsForwardBranch, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsDissociationThreshold, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin, lem:IPhO2026Problems_problem_IPhO_2026_1_C_1:quadratic_characterization_of_threshold, lem:IPhO2026Problems_problem_IPhO_2026_1_C_1:momentum_q_sq_of_vector_balance}
+In the positive-constant regime, for a nondegenerate forward angle
+$0 < \theta \le \pi/2$ with a real square root, the candidate expression
+\[
+\Omega(m,c,\Delta U,\theta)
+= \frac{3 m c^2 \left(1 - \sqrt{1 - \frac{\Delta U}{3 m c^2}\,(2\sin^2\theta + 1)}\right)}{\hbar\,(2\sin^2\theta + 1)}
+\]
+is the dissociation threshold at $\theta$: some lawful two-body
+configuration realizes it, and no smaller positive frequency is reachable.
+The recorded closed form appears strictly on the conclusion side; the
+hypotheses carry only the physical regime, the figure angle range, and the
+algebraic nondegeneracy.
+\end{theorem}
+\begin{proof}
+Eliminate $\|p\|$ between the energy-balance and cosine-law fields of a
+lawful configuration at frequency $\omega$: reachability at forward angle
+$\theta$ reduces to the official-solution quadratic in $\hbar\omega$
+having a real solution, which holds exactly at and above its smallest
+positive root.  By the quadratic characterization that root is
+$\hbar\,\Omega$, so $\Omega$ is reachable and minimal.
+\end{proof}
+
+\begin{theorem}[Minimum angular frequency, backward branch]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:minimum_angular_frequency_backward_branch_T1_C1}
+\lean{IPhO2026.Problem1.C1.minimum_angular_frequency_backward_branch_T1_C1}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:ConstantRegime, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsAngularRange, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:IsDissociationThreshold, def:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin, thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:minimum_angular_frequency_T1_C1, thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin_pi_sub}
+In the positive-constant regime, for a backward angle
+$\pi/2 \le \theta \le \pi$ with a real square root (at $\theta = \pi/2$),
+the dissociation threshold freezes at its $\theta = \pi/2$ value: the
+threshold at $\theta$ is the forward-branch candidate evaluated at
+$\pi/2$, $\Omega(m, c, \Delta U, \pi/2)$.  The recorded answer again
+occurs only in the conclusion.
+\end{theorem}
+\begin{proof}
+The tangent-line critical configuration of Figure~1c exists only in the
+forward branch, so for $\theta \ge \pi/2$ the binding constraint is the
+$\pi/2$ one; formally this rests on the forward-branch threshold theorem
+at $\pi/2$ together with the reflection symmetry of the candidate formula.
+\end{proof}
+
+\begin{theorem}[Reflection symmetry of the candidate threshold]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin_pi_sub}
+\lean{IPhO2026.Problem1.C1.hbarOmegaMin_pi_sub}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_1:hbarOmegaMin}
+The candidate threshold is invariant under the reflection
+$\theta \mapsto \pi - \theta$:
+$\Omega(m, c, \Delta U, \pi - \theta) = \Omega(m, c, \Delta U, \theta)$,
+the pure-math symmetry justifying the backward-branch freeze.
+\end{theorem}
+\begin{proof}
+The candidate expression depends on $\theta$ only through $\sin^2\theta$,
+and $\sin(\pi - \theta) = \sin\theta$.
+\end{proof}

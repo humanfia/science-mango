@@ -1,0 +1,337 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_C_6.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_4_C_6.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id C.6
+% archon:previous-part IPhO_2026_4_C_5
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_C\_6}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_C_6}
+
+\paragraph{Problem source.}
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+Current subquestion:
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Current subquestion.}
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Recorded answer/context.}
+R\_Th = 1/(c\_0*m*slope). Official sample: R\_Th = 1.17 +/- 0.03 K/W.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-13.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.5. Question: Graph the finite-difference rate (T\_IC,j-T\_IC,j-1)/(t\_j-t\_j-1) against the corresponding average T\_OC-T\_IC. Reusable conclusions: The graph is linear, with slope 1/(c\_0*m*R\_Th) under the stated model. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_C\_6.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_C_6:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:official_sample_uncertainty}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean grounding reconciliation (planner-recorded, iter-003; UPDATED iter-005 after the iter-004 repair lane): this file is a positive targeted-import case — six Physlib/units imports are genuinely used for the SI-typed quantities (`SIQuantity`, `WithDim`, dimension families); the domain-import check is satisfied. The iter-002 numeric defect is RESOLVED: the iter-004 lane recovered the official sample run's microdata from the official solution material (slope `a = (2.28 +/- 0.06)*10^-3 1/s`, water mass `m = (89 +/- 1) g`, `c0 = 4186 J/(kg*K)` treated as exact) and restated `official_sample_value` against it — the inverted value `1/(4186*0.089*2.28e-3) = 1.1773 K/W` lies inside the recorded `1.17 +/- 0.03 K/W` band (deviation 0.0073, 4x margin), and the NEW `official_sample_uncertainty` records the propagation inputs (`Da/a = 0.06/2.28`, `Dm/m = 1/89`, mean-error half-budget 0.0220 <= 0.03; the /2 combining convention is documented in the Lean docstring, worst-case sum 0.045 would exceed the band). The superseded readouts (m = 0.55 kg, s = 7.3e-4, which gave 0.595 K/W) are deleted. Provenance caveat (iter-004 review): the microdata citation currently rests on the lane's task-report quote of `raw/E1_solution.pdf`, which is absent from this checkout — arithmetic verified, citation verification is a TO_USER escalation, not a statement defect. `wall_thermal_resistance_from_C5` (the inversion `R_Th = 1/(c0*m*s)`) and the propagation carrier are faithful and stay.
+% --- Archon autoformalization helper ledger (added iter-007, coverage-debt batch 1) ---
+% Every named Lean declaration of the covered file gets a blueprint entry;
+% \uses{} reflects the actual Lean dependency structure read first-hand.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Dimension-carrying SI quantities}
+
+\begin{definition}[SI-valued quantity]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:SIQuantity}
+\lean{IPhO2026_4_C_6.SIQuantity}
+A physical quantity carrying PhysLean dimension $d$, accessed through its
+SI-unit representative (metre, second, kilogram, coulomb, kelvin): a record
+whose single field \texttt{valSI} is the \texttt{WithDim d $\mathbb{R}$}
+value of the quantity in SI units.
+\end{definition}
+
+\begin{lemma}[Coherence of the SI liftings]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:valSI_mul}
+\lean{IPhO2026_4_C_6.SIQuantity.valSI_mul}
+\lean{IPhO2026_4_C_6.SIQuantity.valSI_div}
+\lean{IPhO2026_4_C_6.SIQuantity.castTo_valSI}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:SIQuantity}
+Multiplication and division of dimension-carrying quantities lift to
+\texttt{SIQuantity} (instances
+\lean{IPhO2026_4_C_6.instHMul},
+\lean{IPhO2026_4_C_6.instHDiv}),
+and the SI value of a product/quotient is the product/quotient of the SI
+values (\lean{IPhO2026_4_C_6.SIQuantity.valSI_mul},
+\lean{IPhO2026_4_C_6.SIQuantity.valSI_div}); the dimension cast
+\lean{IPhO2026_4_C_6.SIQuantity.castTo} along $d_1 = d_2$ preserves the
+SI value (\lean{IPhO2026_4_C_6.SIQuantity.castTo_valSI}).
+\end{lemma}
+\begin{proof}
+Each is a definitional equality (\texttt{rfl}): SI is coherent, and
+\texttt{castTo} is PhysLean \texttt{WithDim.cast} lifted to the record.
+\end{proof}
+
+\begin{definition}[Named dimension aliases]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ}
+\lean{IPhO2026_4_C_6.DimMassQ}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:SIQuantity}
+The dimension families of the problem, as \texttt{SIQuantity} aliases:
+water mass \lean{IPhO2026_4_C_6.DimMassQ} ($\mathsf{M}$),
+specific heat \lean{IPhO2026_4_C_6.DimSpecificHeat}
+($\mathsf{L}^2\mathsf{T}^{-2}\Theta^{-1}$, i.e.\ J/(kg\cdot K)),
+wall thermal resistance \lean{IPhO2026_4_C_6.DimThermalResistance}
+($\Theta\,\mathsf{T}^3\mathsf{L}^{-2}\mathsf{M}^{-1}$, i.e.\ K/W),
+C.5-graph slope \lean{IPhO2026_4_C_6.DimC5Slope} ($\mathsf{T}^{-1}$),
+temperature difference \lean{IPhO2026_4_C_6.DimTempDiffQ} ($\Theta$),
+heat current \lean{IPhO2026_4_C_6.DimWattQ}
+($\mathsf{M}\mathsf{L}^2\mathsf{T}^{-3}$, i.e.\ watt).
+\end{definition}
+
+\begin{definition}[Strict band and measured value]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:StrictBand}
+\lean{IPhO2026_4_C_6.StrictBand}
+\texttt{StrictBand lo hi v} locates a value $v$ in the band
+$lo < v \le hi$ (one-sided at the upper edge);
+\lean{IPhO2026_4_C_6.MeasuredValue} $\;v$ certifies that the physical value
+lies in the open band $(v - \delta, v + \delta)$ around the central readout
+$v$, with the propagated uncertainty half-width $\delta > 0$ part of the
+contract.
+\end{definition}
+
+\subsection*{Physical rate/drive constructs}
+
+\begin{definition}[Temperature-difference and rate quantities]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:tempDiffSI}
+\lean{IPhO2026_4_C_6.tempDiffSI}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ}
+The dimension-carrying constructs on the temperature record:
+\lean{IPhO2026_4_C_6.tempDiffSI} (a temperature difference in kelvin, on the
+real readouts of PhysLean \texttt{Temperature}),
+\lean{IPhO2026_4_C_6.coolingRateSI} (the time derivative of the
+inner-cylinder temperature, K/s),
+\lean{IPhO2026_4_C_6.finiteDiffRateSI} (the finite-difference rate
+$(T_{IC}(t_1) - T_{IC}(t_0))/(t_1 - t_0)$ of Equation 5, K/s).
+\end{definition}
+
+\begin{definition}[Inner heat capacity and wall drive]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:innerHeatCapacitySI}
+\lean{IPhO2026_4_C_6.innerHeatCapacitySI}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:SIQuantity, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ, lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:valSI_mul}
+\lean{IPhO2026_4_C_6.innerHeatCapacitySI} is the heat capacity $c_0\,m$ of
+the inner-cylinder water in J/K (dimension
+$\mathsf{M}\mathsf{L}^2\mathsf{T}^{-2}\Theta^{-1}$, via a dimension cast
+proved by the file-local \texttt{dim\_component} macro);
+\lean{IPhO2026_4_C_6.driveSI} is the thermal drive $\Delta T / R_{Th}$ of
+the wall as a heat current in watts (the formal identification
+$\Theta\cdot(\Theta\mathsf{T}^3\mathsf{L}^{-2}\mathsf{M}^{-1})^{-1} = \mathsf{M}\mathsf{L}^2\mathsf{T}^{-3}$).
+\end{definition}
+
+\subsection*{Governing laws (assumption side)}
+
+\begin{definition}[Cooling model (Eq.\ 4 + energy conservation)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:CoolingModel}
+\lean{IPhO2026_4_C_6.CoolingModel}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:innerHeatCapacitySI, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:tempDiffSI}
+With the apparatus heat capacity ignored, the heat flowing through the wall
+per unit time is absorbed by the inner water:
+$c_0\,m\,\mathrm{d}T_{IC}/\mathrm{d}t = (T_{OC} - T_{IC})/R_{Th}$ for all
+$t$, stated on SI values. A governing law of the problem (assumption side);
+the C.6 target is not part of it.
+\end{definition}
+
+\begin{definition}[Finite-difference model (Eq.\ 5)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:FiniteDifferenceModel}
+\lean{IPhO2026_4_C_6.FiniteDifferenceModel}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:innerHeatCapacitySI, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:tempDiffSI}
+On every measurement interval $[t_0, t_1]$ with $t_0 \ne t_1$, the
+finite-difference rate $(T_{IC}(t_1) - T_{IC}(t_0))/(t_1 - t_0)$ tracks the
+model rate $\overline{\Delta T}/(R_{Th}\,c_0\,m)$, where
+$\overline{\Delta T} = \bar T_{OC} - \bar T_{IC}$ is the interval-averaged
+temperature difference (Equation 5 of the source).
+\end{definition}
+
+\begin{definition}[Fourier radial-conduction law (Eq.\ 6)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:FourierRadialConductionLaw}
+\lean{IPhO2026_4_C_6.FourierRadialConductionLaw}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:innerHeatCapacitySI, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ}
+The conductive heat current through the wall satisfies
+$\mathrm{d}Q/\mathrm{d}t = -\lambda\,A\,\mathrm{d}T/\mathrm{d}r$ AND equals
+the lumped wall drive $(T_{OC} - T_{IC})/R_{Th}$ — the conjunction that
+makes $R_{Th}$ the \emph{effective} wall resistance determined by the wall
+material ($\lambda$, acrylic) and geometry (Figure 17 dimensions).
+\end{definition}
+
+\begin{definition}[Least-squares line under an exactly linear law]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:IsLeastSquaresLine}
+\lean{IPhO2026_4_C_6.IsLeastSquaresLine}
+The C.5 graphing step: the fitted slope $s$ and intercept $b$ reproduce
+every data point ($y_j = s\,x_j + b$ for each of the $n$ samples) and $s$
+equals the least-squares estimator
+$\Sigma(x - \bar x)(y - \bar y) / \Sigma(x - \bar x)^2$ — the physical
+content of ``the C.5 graph is linear with slope $s$'' without making the
+C.6 conclusion an assumption.
+\end{definition}
+
+\subsection*{The E1 Part-C experiment record}
+
+\begin{definition}[Experiment record (E1 Part C)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:ExperimentC}
+\lean{IPhO2026_4_C_6.ExperimentC}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:StrictBand, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:innerHeatCapacitySI, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:CoolingModel, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:FiniteDifferenceModel, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:FourierRadialConductionLaw, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:IsLeastSquaresLine}
+The IPhO 2026 E1 Part-C apparatus and measurement record: the calibrations
+$c_0$, $m$, the effective wall resistance $R_{Th} > 0$ (the quantity C.6
+determines — its value unconstrained), the temperature records
+$T_{IC}, T_{OC}$, the interval-average $\overline{\Delta T}$, the C.4
+equilibrium temperature (natural-language prerequisite), the two cooling
+models (Eq.\ 4/conservation and Eq.\ 5), the wall material/geometric data
+with Fourier's law (Eq.\ 6), the C.5 sample record with $\ge 2$ samples, the
+fitted slope $s > 0$ and intercept, positivity of $c_0\,m$, the
+non-degeneracy certificate $x_{\mathrm{varies}}$ (the abscissae are not all
+equal), the least-squares fit (C.5 prerequisite), and the slope's
+\texttt{MeasuredValue} uncertainty readout. The C.6 conclusion appears
+nowhere among the fields.
+\end{definition}
+
+\begin{lemma}[Positive sample count]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:samples_pos}
+\lean{IPhO2026_4_C_6.ExperimentC.samples_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:ExperimentC}
+Structural bookkeeping: the record carries a positive sample count, since at
+least two measurements are needed for the C.5 graph.
+\end{lemma}
+\begin{proof}
+$0 < 2 \le \texttt{samples}$ by the \texttt{samples\_ge} field.
+\end{proof}
+
+\begin{lemma}[First-point reproduction]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:c5_first_point}
+\lean{IPhO2026_4_C_6.ExperimentC.c5_first_point}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:ExperimentC, lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:samples_pos}
+Data readout: the least-squares line reproduces the first recorded ordinate,
+$y_0 = s\,x_0 + b$.
+\end{lemma}
+\begin{proof}
+Pure unfolding of the C.5 fit hypothesis at index $0$ (valid since
+$0 < \texttt{samples}$); a helper expansion, not the C.6 answer.
+\end{proof}
+
+\begin{lemma}[Dimensional correctness of the slope--resistance inversion]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:slope_inversion_is_dimensionally_correct}
+\lean{IPhO2026_4_C_6.ExperimentC.slope_inversion_is_dimensionally_correct}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ}
+Physical bridge on the dimensional side: the product
+$(c_0\,m)\,R_{Th}$ has the action dimension $\mathrm{J\,s} =
+\mathsf{M}\mathsf{L}^2\mathsf{T}^{-2}\Theta^{-1}\cdot
+\Theta\mathsf{T}^3\mathsf{L}^{-2}\mathsf{M}^{-1}$
+which reduces to $\mathsf{T}$ — so the graphed slope
+$s = 1/(c_0\,m\,R_{Th})$ carries $\mathsf{T}^{-1}$, certifying the
+dimensional arithmetic of the C.6 inversion.
+\end{lemma}
+\begin{proof}
+Component-wise dimension arithmetic on the named basis dimensions
+(\texttt{Dimension.ext} followed by the file-local \texttt{dim\_component}
+macro).
+\end{proof}
+
+\subsection*{C.6 results (conclusion side only)}
+
+\begin{theorem}[C.6 main target: wall resistance from the C.5 graph]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:wall_thermal_resistance_from_C5}
+\lean{IPhO2026_4_C_6.wall_thermal_resistance_from_C5}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_4_C_6:ExperimentC, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:FiniteDifferenceModel, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:IsLeastSquaresLine, lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:slope_inversion_is_dimensionally_correct}
+From the governing cooling model, its finite-difference form on the
+measurement intervals, and the calibrated linear C.5 graph readout, the
+effective wall thermal resistance is determined by the C.5 slope as
+$R_{Th} = 1/(c_0\,m\,s)$ (equality of real SI values, kelvin per watt);
+multiplied through, this is the source form $c_0\,m\,s\,R_{Th} = 1$.
+\end{theorem}
+\begin{proof}
+Differentiate/average the \texttt{CoolingModel} and read it against the
+\texttt{FiniteDifferenceModel}: the graph's ordinate per unit abscissa is
+$1/(c_0\,m\,R_{Th})$, which the least-squares fit identifies with the
+fitted slope $s$ (the \texttt{x\_varies} field rules out a degenerate fit);
+invert using $R_{Th} > 0$, $s > 0$, $c_0 m > 0$. Conclusion side only.
+\end{proof}
+
+\begin{lemma}[Exact inversion key]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:cooling_model_inversion_key}
+\lean{IPhO2026_4_C_6.cooling_model_inversion_key}
+The central model value $R_0 = 1/(c_0\,m\,s)$ obeys the recorded identity
+$(c_0\,m)\,s\,R_0 = 1$ exactly, for any nonzero $c_0 m$ and $s$; this
+separates the exact algebraic content of the C.6 conclusion from the
+uncertainty band of the actual measurement.
+\end{lemma}
+\begin{proof}
+One division: $x \cdot (1/x) = 1$ for $x = (c_0 m)\,s \ne 0$ (product of
+nonzero reals), via Mathlib \texttt{mul\_inv\_cancel₀}.
+\end{proof}
+
+\begin{theorem}[Uncertainty propagation to C.6]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:uncertainty_propagates_to_resistance}
+\lean{IPhO2026_4_C_6.uncertainty_propagates_to_resistance}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_4_C_6:cooling_model_inversion_key}
+For $R_{Th} = 1/(c_0\,m\,s)$ the relative uncertainties add in worst-case
+(single-sided) form, $|\delta R/R| = |\delta s/s| + |\delta(c_0 m)/(c_0 m)|$:
+a measurand $q$ known within strict relative half-width $u_q < 1/2$, inverted
+jointly with the slope $s$ known within $u_s < 1/2$, determines the model
+value $1/(q\,s)$ within the relative band $u_s + u_q$ of the central
+resistance.
+\end{theorem}
+\begin{proof}
+Write $|1/(q s) - 1/(c\,m\,s)| = |(c m - q)/(q\,c m\,s)|$; the strict
+bands bound the denominator away from zero (each budget $< 1/2$), and the
+worst-case addition of the budgets closes the estimate. Certified interval
+arithmetic is left to the prover stage.
+\end{proof}
+
+\begin{theorem}[Official sample value]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:official_sample_value}
+\lean{IPhO2026_4_C_6.official_sample_value}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:wall_thermal_resistance_from_C5, def:IPhO2026Problems_problem_IPhO_2026_4_C_6:DimMassQ}
+The recorded official answer $R_{Th} = 1.17 \pm 0.03$ K/W is consistent with
+the official sample run's microdata (C.5 rate-slope
+$a = (2.28 \pm 0.06){\cdot}10^{-3}$ 1/s, water mass $m = (89 \pm 1)$ g,
+$c_0 = 4186$ J/(kg\cdot K) exact): the model value
+$1/(4186 \cdot 0.089 \cdot 2.28{\cdot}10^{-3}) \approx 1.177$ K/W lies
+inside the recorded band (deviation $\approx 0.007 \le 0.03$).
+\end{theorem}
+\begin{proof}
+Numerical evaluation of the inversion at the sample microdata against the
+recorded band; certified interval arithmetic is left to the prover stage.
+(Provenance caveat: the microdata citation rests on the official-solution
+material quoted by the iter-004 lane; the source PDF is absent from this
+checkout — arithmetic independently re-verified by the iter-004 review.)
+\end{proof}
+
+\begin{theorem}[Official sample uncertainty budget]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:official_sample_uncertainty}
+\lean{IPhO2026_4_C_6.official_sample_uncertainty}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_4_C_6:uncertainty_propagates_to_resistance}
+The recorded half-width $0.03$ K/W dominates the official sample's mean-error
+budget $1.17 \cdot (\Delta a/a + \Delta m/m)/2$
+($= 1.17 \cdot (0.06/2.28 + 1/89)/2 \approx 0.022$; the $/2$ combining
+convention is the official practice for the independent graphical and scale
+readouts and is documented load-bearing: the worst-case full sum
+$\approx 0.044$ would exceed the band).
+\end{theorem}
+\begin{proof}
+Direct numerical comparison of the budget against $0.03$; certified interval
+arithmetic is left to the prover stage.
+\end{proof}
+
+% --- Archon physics formalization source end ---

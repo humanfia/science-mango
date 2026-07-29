@@ -1,0 +1,294 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_1.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_2_B_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.1
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_1}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Current subquestion.}
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Recorded answer/context.}
+alpha = R and beta = -R/2.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_B_1:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_2_B_1:alpha_beta_in_terms_of_R}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no specular-reflection/geometric-optics module; the incidence system is stated over a 2D Cartesian incidence model with Mathlib analytic-geometry anchors (see the physics-grounding log for this file). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon named-quantities coverage (blueprint-writer 2-b-1-entries) ---
+% NOTE: import policy (mirrors the exemption note above, iter-002): the covered
+% file builds on the `import Mathlib` baseline alone; PhysLean has no
+% specular-reflection/geometric-optics module for the Figure-2f mirror regime,
+% so no Physlib import is added.  This NOTE records the resolved import policy
+% for the chapter.
+\subsection*{Cross-section geometry and data}
+
+\begin{definition}[Cross-sectional vector]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Vec}
+\lean{IPhO2026_2_B_1.Vec}
+Points and vectors of the transverse cross-sectional plane: pairs of real
+coordinates carrying the dimension of length.  The system of Figure~2f is
+translationally invariant along the cylinder axes, so a single cross-section
+captures all the geometry.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Euclidean norm of a cross-sectional vector]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:vnorm}
+\lean{IPhO2026_2_B_1.vnorm}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Vec}
+The Euclidean norm $\mathrm{vnorm}(v) = \sqrt{v_1^2 + v_2^2}$ of a
+cross-sectional vector: a length (dimensionless for unit direction vectors).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Non-vertical line in the cross-section]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Line2D}
+\lean{IPhO2026_2_B_1.Line2D}
+A non-vertical line $Y = m X + b$ in the cross-sectional plane, recorded by
+its slope $m$ (dimensionless) and intercept $b$ (a length).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Signed point-to-line distance]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:distToLine}
+\lean{IPhO2026_2_B_1.distToLine}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Vec, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Line2D}
+The signed distance from the point $q$ to the line $r$,
+$\mathrm{distToLine}\,r\,q = (q_2 - m_r q_1 - b_r)/\sqrt{m_r^2 + 1}$: a
+length; it vanishes exactly when $q$ lies on $r$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooker dimensionful parameters]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams}
+\lean{IPhO2026_2_B_1.CookerParams}
+The dimensionful parameters of the cooker of Figure~2f: the mirror radius
+$R$ and the container radius $a$, both lengths and both certified positive
+by bundled fields $0 < R$ and $0 < a$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Cooker specular bookkeeping]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerB1}
+\lean{IPhO2026_2_B_1.CookerB1}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Vec, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:vnorm, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:Line2D, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams}
+The single-bounce ray bookkeeping of the Figure-2f cooker: the mirror centre
+$C = (0,0)$, the container centre $A = (0, -R/2)$ on the symmetry axis toward
+the mirrored belly, the sunlit lower half of the circle of radius $R$ about
+$C$ as mirror profile, the closed disc of radius $a$ about $A$ as absorbing
+container, the reflected line $x \mapsto \mathrm{reflectedLine}\,x$, and the
+set of absorbed impact parameters, constrained by bundled physical laws:
+every absorbed ray reflects on the half-mirror arc, satisfies the specular
+reflection law on the circular profile (with direction reversal of the
+incoming axial ray recorded as a two-by-two linear system on slope and
+intercept), reaches the container disc, lies inside the open aperture
+$(-R, R)$, and forms a contiguous fan centred on the symmetry axis
+(no-gap).
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Incidence angle of a column]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:incidenceAngle}
+\lean{IPhO2026_2_B_1.incidenceAngle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams}
+The incidence angle of the ray with impact parameter $x$ on the circular
+mirror profile, measured against the radial normal at the mirror point:
+$\arcsin(|x| / R)$.  Dimensionless; the absolute value absorbs the two
+mirror-image branches $\pm|x|$ of Figure~2f.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Maximum-incidence-angle specification]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:IsThetaMax}
+\lean{IPhO2026_2_B_1.IsThetaMax}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerB1, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:incidenceAngle}
+The specification of $\theta_{\max}$: it is attained by a ray of the
+absorbed family, it bounds the incidence angles of all absorbed rays, and
+it lies on the acute branch $0 < \theta_{\max} < \pi/2$ seen in Figure~2f.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Extremal-ray tangency bookkeeping]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:ExtremalRaySpec}
+\lean{IPhO2026_2_B_1.ExtremalRaySpec}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerB1, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:incidenceAngle, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:distToLine}
+Extremality and tangency data at a limiting ray (one attaining
+$\theta_{\max}$): an impact parameter $x$ in the absorbed family with
+incidence angle exactly the extremal angle, off the symmetry axis
+($x \neq 0$, the two mirror-image tangent columns $\pm|x|$ of Figure~2f),
+whose reflected line is tangent to the container circle --- its signed
+distance from the container centre has magnitude exactly $a$.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Coefficient ansatz specification]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CoeffSpec}
+\lean{IPhO2026_2_B_1.CoeffSpec}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:IsThetaMax, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:ExtremalRaySpec}
+The given ansatz of the subquestion, in the family sense the problem itself
+uses in its later parts: one coefficient pair $\alpha, \beta$ expresses the
+container radius as
+$a = \alpha \sin\theta_1 + \beta \sin(2\theta_1)$ at every extremal
+(tangent) configuration of every cooker of the same mirror radius $R$.
+The scalars $\alpha, \beta$ parametrize the ansatz; the specification never
+evaluates them.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{definition}[Second extremal configuration]
+\label{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:SecondExtremalConfig}
+\lean{IPhO2026_2_B_1.SecondExtremalConfig}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:IsThetaMax, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:ExtremalRaySpec}
+A second extremal configuration in the same mirror-radius family: a cooker
+of the same mirror radius $R$ with extremal angle $\theta'$, together with
+its extremal-ray tangency bookkeeping.  Its existence is a readout of the
+physical family (the later parts vary the container size at fixed $R$); the
+identity holding at two distinct extremal angles cuts a two-by-two linear
+system with determinant $2(\cos\theta' - \cos\theta) \neq 0$, which is what
+makes the coefficient pair unique.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\subsection*{Derivation bridges}
+
+\begin{lemma}[Impact parameter from incidence angle]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_1:impactParam_eq_sin}
+\lean{IPhO2026_2_B_1.impactParam_eq_sin}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:incidenceAngle}
+Inside the open aperture the impact-parameter magnitude is recovered from
+the incidence angle as $|x| = R \sin\theta$; the absolute value absorbs the
+two mirror-image branches $\pm|x|$ of Figure~2f.
+\end{lemma}
+\begin{proof}
+Unfold the incidence angle $\arcsin(|x|/R) = \theta$: on the open aperture
+$|x|/R < 1$ lies in the range of $\sin$ on the acute branch, so applying
+$\sin$ to both sides gives $|x| = R\sin\theta$.
+\end{proof}
+
+\begin{lemma}[Positivity of $\sin(2\theta)$ on the acute branch]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_2_B_1:sin_two_pos}
+\lean{IPhO2026_2_B_1.sin_two_pos}
+For $\theta \in (0, \pi/2)$ one has $0 < \sin(2\theta)$; the positivity
+flashpoint that keeps the coefficient identification nondegenerate.
+\end{lemma}
+\begin{proof}
+On $\theta \in (0, \pi/2)$ the double angle $2\theta$ lies in $(0, \pi)$,
+where the sine is strictly positive.
+\end{proof}
+
+\begin{theorem}[Tangency relation at the limiting ray]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_B_1:container_radius_at_extremal_angle}
+\lean{IPhO2026_2_B_1.container_radius_at_extremal_angle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerB1, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:ExtremalRaySpec, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:distToLine, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:incidenceAngle, lem:IPhO2026Problems_problem_IPhO_2026_2_B_1:impactParam_eq_sin}
+At an extremal angle $\theta \in (0, \pi/2)$ with extremal-ray tangency
+bookkeeping, specular reflection at the mirror point
+$(|x|, -\sqrt{R^2 - |x|^2})$ with $|x| = R\sin\theta$, the container offset
+$A = (0, -R/2)$, and the tangency distance condition force the container
+radius to be
+\[
+a = R \sin\theta - \tfrac{R}{2}\sin(2\theta) .
+\]
+This is the load-bearing geometric identity of part B.1.
+\end{theorem}
+\begin{proof}
+The specular law at the extremal column is a two-by-two linear system for
+the slope and intercept of the reflected line, with nonzero determinant
+$-(2x)(x^2 + y^2)$; solving gives the intercept
+$b = -R^2/(2\sqrt{R^2 - x^2})$, always negative with $|b| \ge R/2$.
+The tangency distance condition then evaluates (on either mirror-image
+branch, via $|x|$) since the signed-distance numerator $-R/2 - b$ is
+strictly positive; substituting $|x| = R\sin\theta$ from
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_1:impactParam_eq_sin}
+and eliminating the double angle gives the claimed identity.
+\end{proof}
+
+\subsection*{Target value theorem}
+
+\begin{theorem}[Coefficients of the given ansatz in terms of $R$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_B_1:alpha_beta_in_terms_of_R}
+\lean{IPhO2026_2_B_1.alpha_beta_in_terms_of_R}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerParams, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CookerB1, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:IsThetaMax, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:ExtremalRaySpec, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CoeffSpec, def:IPhO2026Problems_problem_IPhO_2026_2_B_1:SecondExtremalConfig, lem:IPhO2026Problems_problem_IPhO_2026_2_B_1:sin_two_pos, thm:IPhO2026Problems_problem_IPhO_2026_2_B_1:container_radius_at_extremal_angle}
+\textbf{(Target, T2-B1.)}  For the Figure-2f cooker with extremal absorbed
+ray at maximum incidence angle $\theta_{\max}$, a coefficient pair
+$\alpha, \beta$ fulfilling the family ansatz
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CoeffSpec}, and a
+second extremal configuration of the same mirror radius at a distinct
+extremal angle $\theta' \neq \theta_{\max}$, the coefficients of the given
+ansatz $a = \alpha \sin\theta_{\max} + \beta \sin(2\theta_{\max})$ are
+\[
+\alpha = R, \qquad \beta = -\frac{R}{2} .
+\]
+This is the recorded official answer of part B.1; the values are
+conclusion-side only, confined to this target theorem (no hypothesis or
+structure field states them in advance).
+\end{theorem}
+\begin{proof}
+Apply
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_2_B_1:container_radius_at_extremal_angle}
+at the given extremal ray and at the second configuration
+$\theta'$: both angles satisfy the tangency identity, while the ansatz of
+\cref{def:IPhO2026Problems_problem_IPhO_2026_2_B_1:CoeffSpec} gives the
+family identity at the same two configurations.  Subtracting at
+$\theta_{\max}$ and $\theta'$ yields a two-by-two homogeneous linear
+system in $(\alpha - R, \beta + R/2)$ whose determinant
+$2\sin\theta_{\max}\sin\theta'\,(\cos\theta' - \cos\theta_{\max})$ is
+nonzero --- both sines are positive by
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_2_B_1:sin_two_pos} (and
+$\sin\theta > 0$ on the acute branch), and $\cos$ is strictly
+antitone on $(0, \pi/2)$, so $\theta' \neq \theta_{\max}$ gives
+$\cos\theta' \neq \cos\theta_{\max}$ --- forcing $\alpha = R$ and
+$\beta = -R/2$.
+\end{proof}

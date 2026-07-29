@@ -1,0 +1,509 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_B_2.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_1_B_2.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id B.2
+
+\chapter{Physics problem IPhO\_2026\_1\_B\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_B_2}
+
+\paragraph{Problem source.}
+At one instant a positron and an electron, each of mass m and charges of equal
+magnitude and opposite sign, are separated by 100*a\_0.  Their velocities are
+antiparallel and perpendicular to their separation.  Each particle has angular
+momentum of magnitude mu*hbar about the center of mass.  The system is isolated,
+classical, non-relativistic, and has only electrostatic interaction.  The Bohr
+radius is a\_0 = 4*pi*epsilon\_0*hbar\textasciicircum{}2/(m*e\textasciicircum{}2), and k = 1/(4*pi*epsilon\_0).
+
+Current subquestion:
+For mu = 15/2 the pair is unbound. Find the angle between the asymptotic relative velocity u\_infinity and the initial positron line of motion.
+
+\paragraph{Current subquestion.}
+For mu = 15/2 the pair is unbound. Find the angle between the asymptotic relative velocity u\_infinity and the initial positron line of motion.
+
+\paragraph{Recorded answer/context.}
+The signed deflection is -16.60 degrees, i.e. 16.60 degrees below the initial line of motion.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_B\_2.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_B_2:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_angle_T1_B2, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:unsigned_deflection_angle_in_degrees_T1_B2}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-003): PhysLean has no Coulomb/Rutherford-scattering module (hyperbolic-orbit asymptotes, deflection-angle relations); this part models particle-pair classical scattering over the `import Mathlib` baseline (see this file's physics-grounding log for the near-miss query results). No irrelevant Physlib import is added.
+% --- Archon physics formalization source end ---
+
+% --- Archon declaration ledger (added iter-008, coverage-debt repair) ---
+% Entries for the full Coulomb-scattering formalization layer of the covered
+% file, restated first-hand from the Lean source; \uses{} mirrors the Lean
+% dependencies.  The two official hints on the problem page (Hint 1: the
+% eccentricity formula; Hint 2: the polar conic equation) are encoded as
+% \emph{derivable bridge lemmas}, not assumed laws; every numeric answer
+% value (-16.60, the rounding bands, the 67/4 consequences) is conclusion-side.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Ambient plane and constants}
+
+\begin{definition}[Scattering plane, dot product, and perpendicular bracket]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane}
+\lean{IPhO2026.Problem1.B2.Plane}
+\lean{IPhO2026.Problem1.B2.dot}
+\lean{IPhO2026.Problem1.B2.perp}
+The ambient centre-of-mass plane $\mathrm{Plane} = \mathbb{R}^2$ (the
+Euclidean space on $\mathrm{Fin}\ 2$) on which the relative motion lives,
+with the standard scalar product $\langle v, w\rangle = v_x w_x + v_y w_y$
+and the oriented planar bracket $\mathrm{perp}\ v\ w = v_x w_y - v_y w_x$ --
+the signed $z$-component of the 2D cross product, positive exactly when $w$
+is reached from $v$ by a counterclockwise rotation of less than
+$180^{\circ}$.  The bracket carries the rotation sense of the deflection
+(branch/orientation bookkeeping) and the planar angular momentum.
+\end{definition}
+
+\begin{definition}[Universal constants of the scenario]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:constants}
+\lean{IPhO2026.Problem1.B2.particleMass}
+\lean{IPhO2026.Problem1.B2.hbar}
+\lean{IPhO2026.Problem1.B2.coulombK}
+\lean{IPhO2026.Problem1.B2.elementaryCharge}
+\lean{IPhO2026.Problem1.B2.bohrRadius}
+The fixed physical constants, kept abstract (opaque) so that nothing about
+the target can be obtained by unfolding: the inertial mass $m$ of each
+particle (electron and positron, kg), the reduced Planck constant $\hbar$
+(J\,s), the Coulomb constant $k = 1/(4\pi\varepsilon_0)$
+(N\,m$^2$\,C$^{-2}$), the elementary charge
+magnitude $e$ (the electron carries $-e$, the positron $+e$; C), and the
+Bohr radius $a_0 = 4\pi\varepsilon_0\hbar^2/(m e^2) = \hbar^2/(k m e^2)$
+(m).
+\end{definition}
+
+\begin{definition}[Scaling regime certificates]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:ScalingRegime}
+\lean{IPhO2026.Problem1.B2.ScalingRegime}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:constants}
+The positivity certificates for all constants, $m, \hbar, k, e, a_0 > 0$,
+together with the defining Bohr-radius identity
+$a_0 = \hbar^2/(k\,m\,e^2)$ (the page's
+$a_0 = 4\pi\varepsilon_0\hbar^2/(m e^2)$ with $k = 1/(4\pi\varepsilon_0)$),
+packaged as a single hypothesis structure carried by everything downstream.
+\end{definition}
+
+\subsection*{Angular-momentum factor}
+
+\begin{definition}[Angular-momentum factor predicate]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAngularMomentumFactor}
+\lean{IPhO2026.Problem1.B2.IsAngularMomentumFactor}
+The predicate on a real $\mu$ asserting $\mu > 0$, i.e.\ that $\mu$ is a
+legitimate dimensionless factor making the per-particle angular momentum
+$\mu\hbar$ about the centre of mass positive.
+\end{definition}
+
+\begin{definition}[The unbound-case value $\mu = 15/2$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu}
+\lean{IPhO2026.Problem1.B2.unboundMu}
+The value $\mu = 15/2$ of subquestion B.2 (the unbound, hyperbolic case).
+\end{definition}
+
+\begin{lemma}[$15/2$ is an angular-momentum factor]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu_isAngularMomentumFactor}
+\lean{IPhO2026.Problem1.B2.unboundMu_isAngularMomentumFactor}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAngularMomentumFactor, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu}
+$\mathrm{IsAngularMomentumFactor}(15/2)$ holds.
+\end{lemma}
+\begin{proof}
+Unfold both definitions; $15/2 > 0$ by arithmetic.
+\end{proof}
+
+\subsection*{Scattering data and governing laws}
+
+\begin{definition}[Two-body Coulomb scattering data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:constants, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:ScalingRegime, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu}
+The B.1-style two-body record of the isolated, classical, non-relativistic
+electron--positron pair with purely electrostatic interaction, with the
+two-body-to-one-body reduction encoded.  Data: the CM-frame relative
+curve $\mathrm{sep} : \mathbb{R} \to \mathrm{Plane}$
+($r_{e+}(t) - r_{e-}(t)$, m), initial data ($r_0 = 100\,a_0$, antiparallel
+CM velocities $\pm v_0$ perpendicular to the separation with the Fig.-1b
+orientation $\mathrm{perp}\ \mathrm{sep0}\ v_0 = r_0 v_0$, relative speed
+$2v_0$, per-particle angular momentum $\mu\hbar$ certified by
+$m v_0 (r_0/2) = \mu \hbar$), the reduced mass $m_{\mathrm{red}} = m/2$,
+the total angular momentum $L = 2\mu\hbar$ and total energy $E$, and a
+continuous polar angle.  Governing-law fields: Coulomb's law for the
+conserved energy, Newton's equation for the reduced particle under the
+attractive Coulomb force, angular-momentum conservation
+$\mathrm{perp}(\mathrm{sep}, \dot{\mathrm{sep}}) = L/m_{\mathrm{red}}$, the
+radial-energy identity multiplied out by $r^2 > 0$, the turning point at
+$t = 0$ (radial speed zero), twice-continuous-differentiable regularity,
+and $\mathrm{sep}\,t \neq 0$ for all $t$.  No orbit shape, asymptotic
+velocity, or deflection angle appears among the fields; those are
+conclusion-side.
+\end{definition}
+
+\begin{lemma}[Initial separation is positive]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:initial_separation_pos}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData.initial_separation_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:ScalingRegime}
+The Fig.-1b readout satisfies $0 < r_0$.
+\end{lemma}
+\begin{proof}
+Rewrite $r_0 = 100\,a_0$; the product $100 \cdot a_0$ is positive since
+$a_0 > 0$.
+\end{proof}
+
+\begin{lemma}[Total angular momentum value]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_angular_momentum_value}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData.total_angular_momentum_value}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu}
+The total angular momentum has the value $L = 2\,(\mu\hbar) = 15\hbar$ for
+$\mu = 15/2$.
+\end{lemma}
+\begin{proof}
+Rewrite $L$ by its defining field as twice the per-particle contribution,
+then substitute the given identity $m v_0 (r_0/2) = \mu\hbar$.
+\end{proof}
+
+\begin{definition}[Turning-point quadratic]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:turningQuadratic}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData.turningQuadratic}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:constants}
+The effective radial quadratic
+$Q(r) = E r^2 + k e^2 r - L^2/(2 m_{\mathrm{red}})$: along the trajectory
+the radial-energy identity gives
+$Q(r) = \tfrac{1}{2} m_{\mathrm{red}}\, \dot r^{\,2} r^2$, so $Q(r) = 0$
+exactly at turning points.
+\end{definition}
+
+\begin{lemma}[Periapsis at the initial separation]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:turningQuadratic_periapsis}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData.turningQuadratic_periapsis}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:turningQuadratic, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+The initial separation is a turning point (the periapsis of the unbound
+orbit): $Q(r_0) = 0$.
+\end{lemma}
+\begin{proof}
+Evaluate the radial-energy law at $t = 0$: $\mathrm{sep}\,0 = \mathrm{sep0}$
+has norm $r_0$ and the radial speed vanishes there, so the right-hand side
+is zero; unfold $Q$ and read off the equality.
+\end{proof}
+
+\begin{definition}[Semilatus rectum]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:semilatusRectum}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData.semilatusRectum}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:constants}
+The semilatus rectum $p = L^2/(m_{\mathrm{red}}\,k\,e^2)$ of the reduced
+one-body problem (m): the geometric scale of the conic in Hint 2.
+\end{definition}
+
+\begin{definition}[Squared eccentricity]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricitySq}
+\lean{IPhO2026.Problem1.B2.CoulombScatteringData.eccentricitySq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:constants}
+The dimensionless squared eccentricity
+$\varepsilon^2 = 1 + 2 E L^2/(m_{\mathrm{red}} (k e^2)^2)$; for equal
+masses $m_{\mathrm{red}} = m/2$ reconciles the denominator with the page's
+Hint-1 form $\varepsilon^2 = 1 + 4 E L^2/(k^2 e^4 m)$.
+\end{definition}
+
+\subsection*{Unboundness and conic bridges}
+
+\begin{theorem}[Positivity of the total energy (unboundness)]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_energy_pos}
+\lean{IPhO2026.Problem1.B2.total_energy_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:ScalingRegime, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAngularMomentumFactor}
+For $\mu = 15/2$ the total energy is the Fig.-1b value
+$E = \mu^2/2500 - 1/200$ in units of $\hbar^2/(m a_0^2)$, i.e.\
+$E = 7/400 > 0$: the pair is unbound (hyperbolic scattering).
+\end{theorem}
+\begin{proof}
+Evaluate the energy law at $t = 0$: by the transverse configuration the
+energy is kinetic plus Coulomb,
+$E = 2\cdot\tfrac12 m v_0^2 - k e^2/r_0$; eliminate $v_0$ via
+$m v_0 (r_0/2) = \mu\hbar$ with $r_0 = 100\,a_0$ and the Bohr-radius identity
+$a_0 = \hbar^2/(k m e^2)$, giving
+$E = (\mu^2/2500 - 1/200)\,\hbar^2/(m a_0^2) = 7/400 > 0$ in those units.
+Pure algebra; no angle content.
+\end{proof}
+
+\begin{lemma}[Eccentricity exceeds one]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_gt_one}
+\lean{IPhO2026.Problem1.B2.eccentricity_gt_one}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricitySq, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_energy_pos, lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_angular_momentum_value, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:ScalingRegime}
+At $\mu = 15/2$ the squared eccentricity strictly exceeds $1$: the conic is
+a hyperbola, not an ellipse.
+\end{lemma}
+\begin{proof}
+The added Hint-1 term $2 E L^2/(m_{\mathrm{red}} (k e^2)^2)$ is a quotient
+of positive quantities: $E > 0$
+(\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_energy_pos}),
+$m_{\mathrm{red}} = m/2 > 0$, $L = 15\hbar \neq 0$, and $k, e > 0$; hence
+$\varepsilon^2 = 1 + (\text{positive}) > 1$.
+\end{proof}
+
+\begin{theorem}[Eccentricity value (Hint 1, derivable)]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_sq_eq}
+\lean{IPhO2026.Problem1.B2.eccentricity_sq_eq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricitySq, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:ScalingRegime, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAngularMomentumFactor}
+Evaluation of the official Hint-1 formula for this scenario:
+$\varepsilon^2 = 67/4$ (so $\varepsilon = \sqrt{67}/2 > 1$).  This is the
+page's first hint recorded as a \emph{derivable bridge lemma}, not an
+assumed law; it is conclusion-free of angle data.
+\end{theorem}
+\begin{proof}
+From the same laws as
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_energy_pos}:
+substitute $E = 7/400$ (in units $\hbar^2/(m a_0^2)$), $L = 15\hbar$,
+$m_{\mathrm{red}} = m/2$, and the Bohr-radius identity into
+$1 + 2 E L^2/(m_{\mathrm{red}}(k e^2)^2)$; the units cancel and the
+rational arithmetic gives $67/4$.
+\end{proof}
+
+\begin{theorem}[Polar conic form of the orbit (Hint 2, derivable)]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:orbit_eq_conic}
+\lean{IPhO2026.Problem1.B2.orbit_eq_conic}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:semilatusRectum, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricitySq, lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:turningQuadratic_periapsis, lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_gt_one, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+The page's second hint as a derivable bridge: the trajectory
+$r = \lVert \mathrm{sep}\,t \rVert$ as a function of its own polar angle
+$\theta(t)$ is a conic -- there exist $\varepsilon = \sqrt{\varepsilon^2} > 1$
+and a symmetry-axis direction $\theta_0$ (a priori unknown) such that for
+all $t$, $\varepsilon\cos(\theta(t) - \theta_0) - 1 > 0$ and
+$r = p/(\varepsilon\cos(\theta(t) - \theta_0) - 1)$ (the periapsis branch
+of the page's form $r = a/(1 - \varepsilon\cos\theta)$ up to the axis
+orientation).
+\end{theorem}
+\begin{proof}
+Set $u = 1/r$; angular-momentum conservation
+$\dot\theta = L/(m_{\mathrm{red}} r^2)$
+turns Newton's radial equation into Binet's linear equation
+$u'' + u = m_{\mathrm{red}} k e^2/L^2$, whose solution with the periapsis
+initial condition (radial speed zero at $t = 0$,
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:turningQuadratic_periapsis})
+is $u = p^{-1}(\varepsilon\cos(\theta - \theta_0) - 1)$ with
+$p = L^2/(m_{\mathrm{red}} k e^2)$ and $\varepsilon$ matching
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricitySq};
+the unboundness $\varepsilon > 1$
+(\cref{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_gt_one})
+selects the physical branch with positive denominator.
+\end{proof}
+
+\subsection*{Asymptotic relative velocity}
+
+\begin{definition}[Initial line of motion of the positron]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:initialDirection}
+\lean{IPhO2026.Problem1.B2.initialDirection}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane}
+The initial line of motion of $e^+$: the unit vector
+$\hat u_0 = \lVert v_0 \rVert^{-1} v_0$ along the initial positron velocity
+(Fig. 1b) -- the reference direction of the asked angle.
+\end{definition}
+
+\begin{definition}[Candidate relative-velocity vector]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:RelativeVelocityVector}
+\lean{IPhO2026.Problem1.B2.RelativeVelocityVector}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane}
+A planar vector record (single plane-vector field, m/s): plain data to
+which the predicate
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAsymptoticRelativeVelocity}
+then assigns the physical role of $u_\infty$.
+\end{definition}
+
+\begin{definition}[Asymptotic relative velocity predicate]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAsymptoticRelativeVelocity}
+\lean{IPhO2026.Problem1.B2.IsAsymptoticRelativeVelocity}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:RelativeVelocityVector, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:initialDirection, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane}
+The predicate assigning $u_\infty$ its physical role: the candidate vector
+is a nonzero planar vector that is the limit of the relative velocity
+$\dot{\mathrm{sep}}\,t$ as $t \to +\infty$ (energy conservation keeps the
+speed bounded, so future time infinity and infinite separation coincide
+for the unbound orbit), together with the figure/body branch assumption:
+the deflection bends the trajectory toward the line connecting the pair
+(clockwise in the Fig.-1b orientation), recorded as
+$\mathrm{perp}\ \hat u_0\ u_\infty \le 0$.  The limit condition pins
+down at most one vector, so existence is a theorem to be proved, not an
+assumption.
+\end{definition}
+
+\begin{theorem}[Existence of the asymptotic relative velocity]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:exists_asymptoticRelativeVelocity}
+\lean{IPhO2026.Problem1.B2.exists_asymptoticRelativeVelocity}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAsymptoticRelativeVelocity, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:orbit_eq_conic, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_energy_pos, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+For the unbound orbit ($\mu = 15/2$, $E > 0$) there is a well-defined
+asymptotic relative velocity of $e^+$ with respect to $e^-$ on the outward
+(post-periapsis) hyperbolic branch.
+\end{theorem}
+\begin{proof}
+The conic form
+(\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:orbit_eq_conic}) makes
+$\theta(t)$ tend to the asymptote angle as $r \to \infty$ on the outward
+branch, while energy conservation
+(\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:total_energy_pos})
+fixes the limiting speed $\sqrt{2E/m_{\mathrm{red}}} \neq 0$; the velocity
+vectors converge to that speed times the asymptote direction, and the
+Fig.-1b rolling branch gives the nonpositive bracket.
+\end{proof}
+
+\subsection*{Deflection angle}
+
+\begin{definition}[Angle between planar vectors]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:angleBetween}
+\lean{IPhO2026.Problem1.B2.angleBetween}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane}
+The angle between two planar vectors,
+$\arccos\!\big(\langle a, b\rangle / (\lVert a \rVert \lVert b
+\rVert)\big) \in [0, \pi]$.
+\end{definition}
+
+\begin{theorem}[Deflection magnitude and formula]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_eq_formula}
+\lean{IPhO2026.Problem1.B2.signed_deflection_eq_formula}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:angleBetween, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAsymptoticRelativeVelocity, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:initialDirection, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricitySq, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:orbit_eq_conic, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+Any asymptotic relative velocity satisfies
+$\lVert u_\infty \rVert = \sqrt{2E/m_{\mathrm{red}}}$ and
+$\mathrm{angleBetween}\ \hat u_0\ u_\infty
+= \pi - 2\arctan\!\big(1/\sqrt{\varepsilon^2 - 1}\big)$.
+Contains the sign/orientation input but no numeric deflection value.
+\end{theorem}
+\begin{proof}
+The magnitude follows from the energy law at infinity, where the Coulomb
+term vanishes and $E = \tfrac12 m_{\mathrm{red}} \lVert u_\infty \rVert^2$.
+For the direction, the hyperbola of
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:orbit_eq_conic} with
+$\varepsilon > 1$ has asymptote directions making the acute angle
+$\arctan\sqrt{\varepsilon^2 - 1}$ with the symmetry axis; traversed outward
+from periapsis, the total change of direction between the incoming line and
+the outgoing asymptote is
+$\pi - 2\arctan\!\big(1/\sqrt{\varepsilon^2-1}\big)$, read off on the
+branch side recorded in
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAsymptoticRelativeVelocity}.
+\end{proof}
+
+\begin{definition}[Signed deflection]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:signedDeflection}
+\lean{IPhO2026.Problem1.B2.signedDeflection}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:angleBetween, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:initialDirection, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:Plane, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:RelativeVelocityVector}
+The oriented (signed) deflection angle of the scattering, in radians:
+$\pm\, \mathrm{angleBetween}\ \hat u_0\ u_\infty$ with sign $+1$ when the
+deflection is counterclockwise from the initial line of motion of $e^+$
+($0 \le \mathrm{perp}\ \hat u_0\ u_\infty$) and $-1$ when clockwise.  The
+Fig.-1b orientation selects the clockwise case.
+\end{definition}
+
+\begin{definition}[Radians to degrees]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:radiansToDegrees}
+\lean{IPhO2026.Problem1.B2.radiansToDegrees}
+The conversion $\theta \mapsto \theta \cdot 180/\pi$.
+\end{definition}
+
+\begin{lemma}[Branch sign: signed deflection is the negated angle]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:signedDeflection_eq_neg_angle}
+\lean{IPhO2026.Problem1.B2.signedDeflection_eq_neg_angle}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:signedDeflection, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAsymptoticRelativeVelocity}
+Under the strict Fig.-1b branch condition
+$\mathrm{perp}\ \hat u_0\ u_\infty < 0$, the signed deflection satisfies
+$\mathrm{signedDeflection}\ u = -\mathrm{angleBetween}\ \hat u_0\ u_\infty$.
+\end{lemma}
+\begin{proof}
+Unfold the definition; the strict negativity is precisely the failing
+condition of the sign test, so the $-1$ branch is selected and the formula
+becomes the negation.  (The degenerate zero-deflection case is excluded by
+the physics side: the branch condition together with the nonzero
+deflection from
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_eq_formula}
+makes the remaining branch strict.)
+\end{proof}
+
+\subsection*{Official answer (conclusion side only)}
+
+\begin{definition}[Rounding band for the official signed value]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:roundsToOfficialDegrees}
+\lean{IPhO2026.Problem1.B2.roundsToOfficialDegrees}
+The predicate on a real $x$ asserting that $x$ rounds to the official
+printed value $-16.60$ degrees in the sense of the official marking scheme:
+$-16.605 \le x < -16.595$.
+\end{definition}
+
+\begin{theorem}[Main target: signed deflection angle (T1-B2)]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_angle_T1_B2}
+\lean{IPhO2026.Problem1.B2.signed_deflection_angle_T1_B2}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:exists_asymptoticRelativeVelocity, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_eq_formula, lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:signedDeflection_eq_neg_angle, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_sq_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:asymptote_factor_certificate, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:signedDeflection, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:radiansToDegrees, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:roundsToOfficialDegrees, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:unboundMu, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:IsAngularMomentumFactor, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+Under the two-body Coulomb model of Fig. 1b with $\mu = 15/2$ (unbound
+case), there exists an asymptotic relative velocity $u_\infty$ of $e^+$
+with respect to $e^-$, and its signed deflection $\delta$ from the initial
+line of motion of $e^+$ equals the exact value
+$-(\pi - 2\arctan(2/\sqrt{63}))$ radians, whose degree reading rounds to
+the official $-16.60$ degrees -- the negative sign being the official
+``$16.60$ degrees below the initial line of motion''.  The recorded
+official value first appears here, conclusion-side.
+\end{theorem}
+\begin{proof}
+Existence of $u_\infty$ is
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:exists_asymptoticRelativeVelocity}.
+The formula
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_eq_formula}
+with $\varepsilon^2 = 67/4$
+(\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_sq_eq})
+and the asymptote factor $2/\sqrt{63}$
+(\cref{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:asymptote_factor_certificate})
+gives the unsigned angle $\pi - 2\arctan(2/\sqrt{63})$.  The deflection is
+nonzero, so the branch condition sharpens to
+$\mathrm{perp}\ \hat u_0\ u_\infty < 0$ and
+\cref{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:signedDeflection_eq_neg_angle}
+attaches the negative sign.  Converting by
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:radiansToDegrees} gives
+$-(\pi - 2\arctan(2/\sqrt{63})) \cdot 180/\pi \approx -16.60$, which lies
+in $[-16.605, -16.595)$ and hence rounds to $-16.60$ by
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:roundsToOfficialDegrees}.
+\end{proof}
+
+\begin{lemma}[Asymptote factor certificate]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:asymptote_factor_certificate}
+\lean{IPhO2026.Problem1.B2.asymptote_factor_certificate}
+The hyperbola $\varepsilon^2 = 67/4$ makes the scattering asymptote factor
+$1/\sqrt{\varepsilon^2 - 1} = 1/\sqrt{67/4 - 1} = 2/\sqrt{63}$.
+\end{lemma}
+\begin{proof}
+$67/4 - 1 = 63/4 = (\sqrt{63}/2)^2$ using $\sqrt{63}^{\,2} = 63$; taking
+the positive square root gives $\sqrt{63/4} = \sqrt{63}/2$, and inverting
+yields $2/\sqrt{63}$.  Pure algebra up to that square-root identity.
+\end{proof}
+
+\begin{definition}[Rounding band for the official magnitude]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:roundsToOfficialDegreesAbs}
+\lean{IPhO2026.Problem1.B2.roundsToOfficialDegreesAbs}
+The predicate on a real $x$ asserting that $x$ rounds to the official
+printed magnitude $16.60$ degrees: $16.595 \le x < 16.615$.
+\end{definition}
+
+\begin{theorem}[Magnitude corollary: unsigned deflection in degrees]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:unsigned_deflection_angle_in_degrees_T1_B2}
+\lean{IPhO2026.Problem1.B2.unsigned_deflection_angle_in_degrees_T1_B2}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:exists_asymptoticRelativeVelocity, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_eq_formula, thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_sq_eq, lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:asymptote_factor_certificate, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:angleBetween, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:initialDirection, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:radiansToDegrees, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:roundsToOfficialDegreesAbs, def:IPhO2026Problems_problem_IPhO_2026_1_B_2:CoulombScatteringData}
+The unsigned deflection angle between $u_\infty$ and the initial line of
+motion of $e^+$ equals the exact value $\pi - 2\arctan(2/\sqrt{63})$
+radians, whose degree reading rounds to the official $16.60$ degrees
+below the initial line of motion.
+\end{theorem}
+\begin{proof}
+Take $u_\infty$ from
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:exists_asymptoticRelativeVelocity};
+\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:signed_deflection_eq_formula}
+with $\varepsilon^2 = 67/4$
+(\cref{thm:IPhO2026Problems_problem_IPhO_2026_1_B_2:eccentricity_sq_eq})
+and the factor $2/\sqrt{63}$
+(\cref{lem:IPhO2026Problems_problem_IPhO_2026_1_B_2:asymptote_factor_certificate})
+identify the angle; its degree reading lies in $[16.595, 16.615)$, so it
+rounds to $16.60$ by
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_B_2:roundsToOfficialDegreesAbs}.
+\end{proof}

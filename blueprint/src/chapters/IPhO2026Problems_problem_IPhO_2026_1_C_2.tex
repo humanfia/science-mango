@@ -1,0 +1,433 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_C_2.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_1_C_2.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_1_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_1\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_C_2}
+
+\paragraph{Problem source.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+Current subquestion:
+For theta = pi/6, Delta U = 1.10 eV, and m = 16.0 amu, calculate hbar*omega\_min - Delta U in eV.
+
+\paragraph{Current subquestion.}
+For theta = pi/6, Delta U = 1.10 eV, and m = 16.0 amu, calculate hbar*omega\_min - Delta U in eV.
+
+\paragraph{Recorded answer/context.}
+hbar*omega\_min - Delta U = 2.03e-11 eV.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m. Reusable conclusions: For theta <= pi/2, omega\_min = 3*m*c\textasciicircum{}2*[1 - sqrt(1 - (Delta U/(3*m*c\textasciicircum{}2))*(2*sin(theta)\textasciicircum{}2 + 1))]/[hbar*(2*sin(theta)\textasciicircum{}2 + 1)]. For theta >= pi/2 use the same threshold evaluated at theta = pi/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_C\_2.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_C_2:target}
+\uses{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:excess_photon_energy_pi_div_six_form}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% NOTE: PhysLean-coverage exemption (planner-recorded, iter-002): PhysLean has no module for this photodissociation-threshold regime (see this file's physics-grounding log). Self-containment is kept with the `import Mathlib` baseline; no irrelevant Physlib import is added. This documents the resolved import policy (iter-001 review ruling) for the blueprint-doctor `missing-physlib-import` check.
+% --- Archon physics formalization source end ---
+
+% --- Archon declaration ledger (added iter-008, reaction-structure coverage) ---
+% Entries for the modeling structures of the covered file, restated
+% first-hand from the Lean source; \uses{} mirrors the Lean dependencies.
+
+\section*{Declaration ledger (autoformalization contracts)}
+
+\subsection*{Reaction-energy structures}
+
+\begin{definition}[Photodissociation constants bundle]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants}
+\lean{IPhO2026_1_C_2.PhotoDissociationConstants}
+\lean{IPhO2026_1_C_2.PhotoDissociationConstants.trusted}
+The physical constants of the C.2 scenario: the speed of light both as the
+PhysLean typed positive real \texttt{SpeedOfLight} (\texttt{c}) and as its SI
+value $\texttt{cSI} = 299792458\ \mathrm{m\,s^{-1}}$ (used to convert amu to
+kg), one electron-volt $\texttt{eV} = 1.602176634{\cdot}10^{-19}$ J, and one
+unified atomic mass unit $\texttt{amu} = 1.66053906660{\cdot}10^{-27}$ kg,
+bundled with positivity certificates $\texttt{cSI}, \texttt{eV},
+\texttt{amu} > 0$.  $\hbar$ itself is grounded directly in PhysLean's
+\texttt{Constants.\hbar} (J\,s), so it is not a field.  The instance
+\lean{IPhO2026_1_C_2.PhotoDissociationConstants.trusted} is the trusted
+certificate bundle filling every field with its exact SI value (all
+certificates closed by \texttt{norm\_num}/\texttt{rfl}).
+\end{definition}
+
+\begin{definition}[Dissociation kinematic state]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:DissociationState}
+\lean{IPhO2026_1_C_2.DissociationState}
+\lean{IPhO2026_1_C_2.DissociationState.ΔU}
+The kinematic state of $\gamma + \mathrm{O_3} \to \mathrm{O_2} + \mathrm{O}$
+with the parent $\mathrm{O_3}$ at rest: photon angular frequency $\omega$
+(rad\,s\textsuperscript{-1}), outgoing $\mathrm{O_2}$ momentum magnitude
+$P_{\mathrm{O_2}} \ge 0$ (kg\,m\,s\textsuperscript{-1}), O-atom momentum
+components $p_{Ox}, p_{Oy}$ parallel/perpendicular to the photon
+(kg\,m\,s\textsuperscript{-1}), angle $\theta$ between the $\mathrm{O_2}$
+momentum and the photon (rad), ground-state energies $U_i$ of $\mathrm{O_3}$
+and $U_f$ of $\mathrm{O_2}+\mathrm{O}$ (J), and oxygen-atom mass $m > 0$ (kg)
+— so the fragments have masses $2m$ and $m$ and the parent $3m$.  The
+projection \lean{IPhO2026_1_C_2.DissociationState.ΔU} is the internal-energy
+change $\Delta U := U_f - U_i$ (J), the dissociation threshold energy.
+\end{definition}
+
+\begin{definition}[Ozone-photodissociation reaction predicate]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:IsOzonePhotodissociation}
+\lean{IPhO2026_1_C_2.IsOzonePhotodissociation}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:DissociationState}
+The governing physical laws of the model, \emph{assumed} as conservation-law
+hypotheses: the Planck--Einstein photon relations $E_\gamma = \hbar\omega$ and
+$p_\gamma = \hbar\omega/c \ge 0$; momentum conservation parallel and
+perpendicular to the beam,
+$\hbar\omega/c = P_{\mathrm{O_2}}\cos\theta + p_{Ox}$ and
+$0 = P_{\mathrm{O_2}}\sin\theta + p_{Oy}$; energy conservation with classical
+non-relativistic fragment kinetic energies,
+$\hbar\omega + U_i = U_f + P_{\mathrm{O_2}}^2/(2\cdot 2m) +
+(p_{Ox}^2 + p_{Oy}^2)/(2m)$; and the needed nonnegativity of the
+dissociation energy, $\Delta U \ge 0$.  The numeric threshold
+($\hbar\omega_{\min}$ values) stays conclusion-side; it is not among these
+fields.
+\end{definition}
+
+\begin{lemma}[Positivity of the photon energy]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:photon_energy_pos}
+\lean{IPhO2026_1_C_2.IsOzonePhotodissociation.photon_energy_pos_of_omega_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:IsOzonePhotodissociation}
+In any lawful dissociation state, $\omega > 0$ implies $\hbar\omega > 0$.
+\end{lemma}
+\begin{proof}
+$\hbar > 0$ by PhysLean's \texttt{Constants.\hbar.property}, so the product of
+positive reals is positive.
+\end{proof}
+
+\begin{lemma}[Released kinetic energy is nonnegative]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:rest_energy_gap_nonneg}
+\lean{IPhO2026_1_C_2.IsOzonePhotodissociation.rest_energy_gap_nonneg}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:IsOzonePhotodissociation}
+In any lawful dissociation state the photon energy in excess of the
+threshold satisfies $0 \le \hbar\omega - \Delta U$: by energy conservation
+this gap is exactly the total non-relativistic fragment kinetic energy
+(masses $2m$ and $m$).
+\end{lemma}
+\begin{proof}
+Both kinetic terms are quotients of sums of squares by positive masses, hence
+nonnegative; unfold $\Delta U = U_f - U_i$ in the energy-conservation field
+and close by \texttt{linarith}.
+\end{proof}
+
+% --- Archon declaration ledger continued (added iter-008, threshold-calibration coverage) ---
+% Entries for the 8 live Lean declarations of the covered file that the
+% structure round left unmatched; \uses{} mirrors the Lean dependencies read
+% first-hand.  Every official numeric value stays conclusion-side.
+
+\subsection*{Threshold calibration and the $\pi/6$ official value}
+
+\begin{definition}[C.2 calibrated input data]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:C2CalibratedData}
+\lean{IPhO2026_1_C_2.C2CalibratedData}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants}
+The problem-given input readouts of part C.2, recorded over a constants
+bundle $K$: the scattering angle $\theta = \pi/6$ (rad), the dissociation
+energy in electron-volts $\Delta U_{\mathrm{eV}} = 1.10$ and in joules
+$\Delta U_{\mathrm{J}} = \Delta U_{\mathrm{eV}}\cdot K.\texttt{eV}$, the
+oxygen-atom mass in atomic units $m_{\mathrm{amu}} = 16.0$ and in kilograms
+$m_{\mathrm{kg}} = m_{\mathrm{amu}}\cdot K.\texttt{amu}$, and the derived
+dimensionless threshold parameter of the C.1 formula,
+$\texttt{ratio} = \Delta U_{\mathrm{J}}/(3 m_{\mathrm{kg}}
+K.\texttt{cSI}^2)$.  The equation certificates ($\theta = \pi/6$, the two
+unit conversions, the defining quotient for $\texttt{ratio}$) keep every
+later use non-degenerate: no numeric conclusion is hidden in the data layer.
+\end{definition}
+
+\begin{definition}[C.1 threshold photon energy $\hbar\omega_{\min}(\theta)$]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin}
+\lean{IPhO2026_1_C_2.hbarOmegaMin}
+The minimum photon energy required for dissociation at outgoing O$_2$ angle
+$\theta \le \pi/2$, inherited from part C.1 as a natural-language
+prerequisite and written (as an energy, keeping $\hbar$ outside the
+quotient) as a function of the rest scale $mc^2$ and the gap $\Delta U$:
+\[
+\hbar\omega_{\min}(\theta) =
+\frac{3 m c^2\Bigl(1 - \sqrt{1 - \tfrac{\Delta U}{3 m c^2}
+\bigl(2\sin^2\theta + 1\bigr)}\Bigr)}{2\sin^2\theta + 1} .
+\]
+This is a formula over the physical parameters, not the numeric C.2 answer.
+\end{definition}
+\begin{proof}[Derivation sketch]
+Energy conservation $\hbar\omega = \Delta U + T_{\mathrm{O_2}} + T_{\mathrm{O}}$
+with $T_{\mathrm{O_2}} = P^2/(4m)$, $T_{\mathrm{O}} = q^2/(2m)$, and momentum
+conservation with the parent at rest, $p_\gamma = \hbar\omega/c = \vec P + \vec q$
+at relative angle $\theta$, eliminate the O-atom momentum $q$; minimizing the
+resulting one-parameter family $\hbar\omega(P)$ at fixed $\theta, \Delta U$ by
+setting its derivative to zero gives the minimum-energy (threshold) condition,
+whose solution is the displayed expression (the minimum is approached at
+nearly collinear fragment emission).
+\end{proof}
+
+\begin{lemma}[Angular factor at $\theta = \pi/6$]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:angular_factor_at_pi_div_six}
+\lean{IPhO2026_1_C_2.angular_factor_at_pi_div_six}
+The $2\sin^2\theta + 1$ multiplier of the C.1 threshold at the calibrated
+angle is $2\sin^2(\pi/6) + 1 = 3/2$.
+\end{lemma}
+\begin{proof}
+Equivalently $2 - \cos(2\theta) = 2 - \cos(\pi/3) = 2 - \tfrac12 = \tfrac32$
+(the $\cos(\pi/6) = \sqrt{3}/2$ datum of the momentum-direction geometry):
+substitute $\sin(\pi/6) = 1/2$ and simplify the pure rational arithmetic.
+\end{proof}
+
+\begin{definition}[Threshold at $\theta = \pi/6$ in calibrated form]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMinAtPiDivSix}
+\lean{IPhO2026_1_C_2.hbarOmegaMinAtPiDivSix}
+\uses{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:angular_factor_at_pi_div_six}
+The C.1 threshold specialized to $\theta = \pi/6$, as a function of the rest
+scale $mc^2$ and of the dimensionless ratio $r = \Delta U/(3 m c^2)$:
+$\hbar\omega_{\min}(\pi/6) = \tfrac{1}{3/2}\cdot 3 m c^2
+\bigl(1 - \sqrt{1 - \tfrac{3 r}{2}}\bigr)$, written with the
+$1/(3/2)$--$(3 m c^2)$ normalization kept explicit so the collapse
+$3/(3/2) = 2$ to the compact form $2 m c^2(1 - \sqrt{1 - 3r/2})$ is visible.
+\end{definition}
+
+\begin{theorem}[Bridge: C.1 threshold evaluated at $\pi/6$]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin_at_pi_div_six}
+\lean{IPhO2026_1_C_2.hbarOmegaMin_at_pi_div_six}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin, lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:angular_factor_at_pi_div_six, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMinAtPiDivSix}
+For $3 m c^2 \ne 0$, evaluating the C.1 threshold at $\theta = \pi/6$ yields
+exactly the calibrated form:
+$\hbar\omega_{\min}(\pi/6) = \texttt{hbarOmegaMinAtPiDivSix}\,mc^2\,
+(\Delta U/(3 m c^2))$.
+\end{theorem}
+\begin{proof}
+Substitute the angular factor $2\sin^2(\pi/6) + 1 = 3/2$ into the defining
+quotient of $\hbar\omega_{\min}$; both sides then share the radicand
+$1 - (\Delta U/(3mc^2))\cdot 3/2 = 1 - 3r/2$ (well-defined by the
+non-degeneracy of the denominator), and the two expressions agree by the
+field identities $x/(3/2) = (1/(3/2))\,x$ and
+$(1/(3/2))\,x\bigl(1-\sqrt{1-3r/2}\bigr)
+= (1/(3/2))(3mc^2)\bigl(1-\sqrt{1-(\Delta U/(3mc^2))(3/2)}\bigr)$ for
+$x = 3mc^2 \ne 0$.
+\end{proof}
+
+\begin{definition}[Physical realizability of the threshold]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdRealizable}
+\lean{IPhO2026_1_C_2.ThresholdRealizable}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:DissociationState, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:IsOzonePhotodissociation, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:C2CalibratedData}
+A photon energy $E$ is physically realizable at the C.2 calibration data
+when there exists a lawful dissociation state $s$ (satisfying
+\texttt{IsOzonePhotodissociation}), at the calibrated angle $\theta = \pi/6$,
+mass $m = m_{\mathrm{kg}}$ and gap $\Delta U = \Delta U_{\mathrm{J}}$, whose
+photon energy equals $E$: $\hbar\omega_s = E$.  At the threshold value this
+asserts existence of the minimizing state in which energy and momentum
+conservation hold with equality --- the minimum-energy condition itself.
+\end{definition}
+
+\begin{theorem}[C.2 target: excess photon energy at threshold]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:excess_photon_energy_at_threshold}
+\lean{IPhO2026_1_C_2.excess_photon_energy_at_threshold}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:C2CalibratedData, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdRealizable, lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:rest_energy_gap_nonneg, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdBalance, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:LowerRootBranch, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted, thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:threshold_excess_enclosure, lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:thresholdBalance_to_ev_units, lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:angular_factor_at_pi_div_six, thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin_at_pi_div_six}
+Assume the trusted constants, the C.2 calibration data, the smallness and
+positivity of the threshold parameter ($0 < \texttt{ratio} < 2/3$, so the
+square root is real), and physical realizability of the C.1 threshold.  Then
+the minimum photon energy in excess of the dissociation gap, in eV, is the
+tiny positive value recorded in the problem, certified by the rigorous
+two-sided enclosure
+$0 < \bigl(\hbar\omega_{\min}(\pi/6) - \Delta U\bigr)/\mathrm{eV}$ and
+$\bigl|\bigl(\hbar\omega_{\min}(\pi/6) - \Delta U\bigr)/\mathrm{eV}
+- 2.03{\cdot}10^{-11}\bigr| < 5{\cdot}10^{-14}$ --- the strict
+``remaining kinetic energy vanishes at minimum photon energy'' marker that
+identifies the recorded official threshold ($\hbar\omega_{\min} - \Delta U
+\approx 2.03{\cdot}10^{-11}$ eV appears only here, conclusion-side).
+\end{theorem}
+\begin{proof}
+Rewrite the threshold at $\theta = \pi/6$ through the bridge to the
+calibrated $\pi/6$ form and linearize $1 - \sqrt{1 - \varepsilon}
+= \varepsilon/2 + \varepsilon^2/8 + O(\varepsilon^3)$ at
+$\varepsilon = 3\,\texttt{ratio}/2 \approx 3.7{\cdot}10^{-11}$: the linear
+term reproduces exactly $\Delta U$, so the surviving
+$\varepsilon^2/8$ contribution is the whole gap,
+$\Delta U\, \cdot 3\,\texttt{ratio}/8 \approx 2.03{\cdot}10^{-11}$ eV,
+certified by rational two-sided squaring bounds on the square root at the
+trusted SI readouts; positivity of the gap already follows from energy
+conservation (the released kinetic energy is nonnegative).
+\end{proof}
+
+\begin{theorem}[C.2 target: specialized $\pi/6$ form of the excess]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:excess_photon_energy_pi_div_six_form}
+\lean{IPhO2026_1_C_2.excess_photon_energy_pi_div_six_form}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:C2CalibratedData, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMinAtPiDivSix, thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin_at_pi_div_six, thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:excess_photon_energy_at_threshold, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdBalance, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:LowerRootBranch, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted, thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:threshold_excess_enclosure, lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:thresholdBalance_to_ev_units}
+Helper form of the main target with the calibrated
+$\theta = \pi/6$ threshold in place: with
+$r = \Delta U/(3 m c^2)$, the excess in eV
+$\bigl(\tfrac{3mc^2}{3/2}\bigl(1-\sqrt{1-\tfrac{3r}{2}}\bigr)
+- \Delta U\bigr)/\mathrm{eV}$ is positive and within
+$5{\cdot}10^{-14}$ of the recorded value $2.03{\cdot}10^{-11}$ eV.
+\end{theorem}
+\begin{proof}
+Rewrite $\hbar\omega_{\min}(\pi/6)$ by the bridge theorem
+\ref{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:hbarOmegaMin_at_pi_div_six}
+(the mass-energy scale $3mc^2$ at $m = 16.0$ amu is nonzero), then apply the
+same $1 - \sqrt{1-\varepsilon}$ linearization and the two-sided rational
+enclosure at the trusted constants as in
+\ref{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:excess_photon_energy_at_threshold}.
+\end{proof}
+
+\begin{lemma}[Squared momentum balance]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:momentum_balance_sq}
+\lean{IPhO2026_1_C_2.IsOzonePhotodissociation.momentum_balance_sq}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:IsOzonePhotodissociation}
+Eliminating the O-atom angle between the two momentum-conservation equations
+gives the ellipse-like constraint used downstream by the C.1 minimization:
+with $p_\gamma = \hbar\omega/c$,
+$(p_\gamma - P_{\mathrm{O_2}}\cos\theta)^2 + (P_{\mathrm{O_2}}\sin\theta)^2
+= p_{Ox}^2 + p_{Oy}^2$.
+\end{lemma}
+\begin{proof}
+Solve the parallel/perpendicular momentum fields for $p_{Ox}$ and $p_{Oy}$,
+substitute, and close by \texttt{ring}.
+\end{proof}
+
+% --- Archon post-review ledger restatement (planner-side, iter-009; review-gate session-8 R2) ---
+% The iter-008 redraft replaced the frozen C.1 sqrt-linearization (FALSE as
+% arithmetic at the C.2 ratio) by the momentum-energy balance root form
+% `ThresholdBalance`/`LowerRootBranch`.  The blocks below enter the new
+% declarations and rewire the two C.2 target theorems' `\uses{}` onto them.
+
+\begin{definition}[Threshold balance (momentum-energy root form)]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdBalance}
+\lean{IPhO2026_1_C_2.ThresholdBalance}
+The scalar threshold condition `S·E²/(6·mc²) − E + ΔU = 0`: the photon
+energy splits into the dissociation gap plus the recoil kinetic energy of
+the fragments, with the quadratic coefficient fixed by momentum
+conservation at the minimizing configuration (`mc2` the atomic rest scale
+`m·c²`, since the O₂ and O recoil masses are `2m` and `m`).  With
+`S(θ) = 2 sin²θ + 1` this is exactly the C.1 threshold lower root
+rationalized (`S·E²/(6·mc2) − E + ΔU = 0` ⇔ `E = (3mc²/S)(1 − √(1 − S·ΔU/(3mc²)))`),
+but unlike the √-form it is well conditioned for exact rational enclosure
+proofs at the tiny C.2 ratio.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+% NOTE (upstream source-report data fix, TO_USER-level since session-8):
+% the recorded C.1 textbook √-formula in the source report appears to drop
+% a factor 2 inside its radicand; the balance-root form above is the one
+% consistent with the recorded C.2 answer 2.03e-11 eV, which the formalized
+% enclosure theorems DO reproduce.  No file action; the discrepancy lives in
+% the upstream report, not in the Lean statements.  End of NOTE.
+
+\begin{definition}[Lower-root (physical) branch of the threshold]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:LowerRootBranch}
+\lean{IPhO2026_1_C_2.LowerRootBranch}
+The physical (minimum-energy / lower-root) branch of the threshold
+quadratic: the threshold energy lies below the root-crossing,
+`E ≤ 3·mc²/S`.  Both roots of
+\cref{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdBalance} are
+positive when real; the smaller one is the minimum photon energy.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{theorem}[Threshold-excess enclosure at generic scales]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_1_C_2:threshold_excess_enclosure}
+\lean{IPhO2026_1_C_2.threshold_excess_enclosure}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdBalance, def:IPhO2026Problems_problem_IPhO_2026_1_C_2:LowerRootBranch}
+Let `F` be a nonnegative solution of the threshold balance on the
+lower-root branch, with `0 < ΔU`, `0 < mc²`, `0 < S` and the smallness
+certificate `2·ΔU·S ≤ mc²`.  Then the threshold excess over the gap is
+enclosed between the leading recoil coefficient `b = S·ΔU²/(6·mc²)` and
+its one-step bootstrap `b·(1 + 3·(S/(6·mc²))·(2ΔU))`:
+`b < F − ΔU ≤ b·(1 + 3·(S/(6·mc²))·(2ΔU))`.
+\end{theorem}
+\begin{proof}
+With `c := 3·mc²/S` the balance rewrites as `c·(F−ΔU) = F²/2`, i.e.
+`(F−ΔU)·(2c−F) = F·ΔU`; the branch condition and the smallness certificate
+give `F ≤ 2ΔU < c`, and bootstrapping the quotient
+`F−ΔU = F·ΔU/(2c−F)` once against `F ≤ 2ΔU` and then against the
+resulting bound yields `F−ΔU ≤ ΔU²/(2c−3ΔU) ≤ b·(1 + 3·B·(2ΔU))` with
+`B := S/(6·mc²)`; the lower bound `F−ΔU = B·F² > B·ΔU² = b` is immediate
+from `ΔU < F`.
+\end{proof}
+
+\begin{definition}[Atomic rest-energy readout in eV]
+\label{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted}
+\lean{IPhO2026_1_C_2.mc2eV_trusted}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:PhotoDissociationConstants}
+The rest-energy scale `mc²` of one oxygen atom at the trusted SI readouts,
+expressed in eV as an exact rational:
+`mc² = 16·amu·cSI²/eV`
+with `amu = 8302695333/5·10³⁶ kg` and `eV = 801088317/5·10²⁷ J`, i.e.
+the rational `16·8302695333·299792458²/(801088317·10⁹)`.
+\end{definition}
+\begin{proof}
+Definition; no claim.
+\end{proof}
+
+\begin{lemma}[Atomic rest-energy readout is positive]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted_pos}
+\lean{IPhO2026_1_C_2.mc2eV_trusted_pos}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted}
+`0 < mc2eV_trusted`.
+\end{lemma}
+\begin{proof}
+All factors of the defining rational are positive.
+\end{proof}
+
+\begin{lemma}[Atomic rest-energy readout lower bound]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted_big}
+\lean{IPhO2026_1_C_2.mc2eV_trusted_big}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted}
+`2·(11/10)·(3/2) ≤ mc2eV_trusted` — the atomic rest scale dwarfs the
+1.10 eV gap with margin, the analytic input to the smallness certificate
+`2·ΔU·S ≤ mc²`.
+\end{lemma}
+\begin{proof}
+Exact rational arithmetic on the defining numeral.
+\end{proof}
+
+\begin{lemma}[Normal form of the atomic rest-energy readout]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_num_form}
+\lean{IPhO2026_1_C_2.mc2eV_num_form}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:mc2eV_trusted}
+`mc2eV_trusted = 16·8302695333·299792458²/(801088317·10⁹)` — the definitional
+unfolding, kept as a named rewriting handle for downstream arithmetic.
+\end{lemma}
+\begin{proof}
+Definitional equality (reflexivity).
+\end{proof}
+
+\begin{lemma}[Threshold balance survives eV unit conversion]
+\label{lem:IPhO2026Problems_problem_IPhO_2026_1_C_2:thresholdBalance_to_ev_units}
+\lean{IPhO2026_1_C_2.thresholdBalance_to_ev_units}
+\uses{def:IPhO2026Problems_problem_IPhO_2026_1_C_2:ThresholdBalance}
+Dividing all energies by the joule value of one eV preserves the threshold
+balance: from `ThresholdBalance S mc2_J ΔU_J E_J` at positive `mc2_J` and
+eV, `S·(E_J/eV)²/(6·(mc2_J/eV)) − E_J/eV + ΔU_J/eV = 0`.
+\end{lemma}
+\begin{proof}
+The converted left-hand side equals the original balance divided by eV;
+substituting the hypothesis closes the identity by field arithmetic.
+\end{proof}
