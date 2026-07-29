@@ -31,6 +31,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
 
+from evaluation.proof_runtime import proof_runtime_fingerprint
+
 from .flow import (
     FlowConfig,
     HumanizeFlow,
@@ -1599,7 +1601,7 @@ class FiveStagePipeline:
                 f"cannot hash {label} {path}: {exc}",
             ) from exc
 
-    def _audit_source_provenance(self) -> dict[str, str]:
+    def _audit_source_provenance(self) -> dict[str, Any]:
         registry = self.config.repo_dir / "results" / "known_code_registry.json"
         return {
             "controller_source_sha256": self._source_file_sha256(
@@ -1621,9 +1623,10 @@ class FiveStagePipeline:
                 registry,
                 label="known-code registry",
             ),
+            "proof_runtime": proof_runtime_fingerprint(),
         }
 
-    def _strict_source_provenance(self) -> dict[str, str]:
+    def _strict_source_provenance(self) -> dict[str, Any]:
         registry = self.config.repo_dir / "results" / "known_code_registry.json"
         runner = self.config.repo_dir / "tests" / "verify_known_answer_gate.py"
         return {
@@ -1646,9 +1649,10 @@ class FiveStagePipeline:
                 runner,
                 label="strict known-answer runner",
             ),
+            "proof_runtime": proof_runtime_fingerprint(),
         }
 
-    def _stage1_source_provenance(self) -> dict[str, str]:
+    def _stage1_source_provenance(self) -> dict[str, Any]:
         return {
             "controller_source_sha256": self._source_file_sha256(
                 self.config.repo_dir / "humanize" / "pipeline.py",
@@ -1665,6 +1669,7 @@ class FiveStagePipeline:
                 self.config.repo_dir / "main.py",
                 self.config.repo_dir / "results" / "known_code_registry.json",
             ),
+            "proof_runtime": proof_runtime_fingerprint(),
         }
 
     @staticmethod
@@ -3923,6 +3928,7 @@ class FiveStagePipeline:
             ],
             "strict_source_fingerprint": strict_source["source_fingerprint"],
             "strict_runner_sha256": strict_source["strict_runner_sha256"],
+            "proof_runtime": source["proof_runtime"],
             "strict_inputs": strict_inputs,
             "proof_config_sha256": _canonical_sha256(base_config),
             "stage1_outputs_sha256": _canonical_sha256(

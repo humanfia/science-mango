@@ -5,11 +5,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import importlib.metadata
 import json
 import math
 import os
-import platform
 import sys
 import time
 import uuid
@@ -28,6 +26,10 @@ from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
     positive_wall_timeout,
     terminate_process_pool,
+)
+from evaluation.proof_runtime import (
+    SOLVER_RUNTIME_PACKAGES,
+    proof_runtime_fingerprint,
 )
 from evaluation.proof_triage import (
     candidate_identity,
@@ -64,13 +66,6 @@ DEFAULT_KNOWN_ANSWER = PROJECT / "results" / "known_answer_gate.json"
 CACHE_SCHEMA_VERSION = 2
 SELECTION_LEDGER_SCHEMA_VERSION = 1
 SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
-SOLVER_RUNTIME_PACKAGES = (
-    "numpy",
-    "ortools",
-    "qldpc",
-    "scipy",
-    "highspy",
-)
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
 
 
@@ -470,23 +465,7 @@ def _json_sha256(value: Mapping[str, Any]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
-def _package_version(name: str) -> str:
-    try:
-        return importlib.metadata.version(name)
-    except importlib.metadata.PackageNotFoundError:
-        return "unavailable"
-
-
-def solver_runtime_fingerprint() -> dict[str, Any]:
-    """Return the runtime identity that makes solver caches reproducible."""
-
-    return {
-        "python": platform.python_version(),
-        "packages": {
-            name: _package_version(name)
-            for name in SOLVER_RUNTIME_PACKAGES
-        },
-    }
+solver_runtime_fingerprint = proof_runtime_fingerprint
 
 
 def certificate_source_fingerprint() -> str:

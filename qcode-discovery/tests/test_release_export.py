@@ -15,6 +15,10 @@ from pathlib import Path
 import pytest
 
 import humanize.release_export as release_export_module
+from evaluation.proof_runtime import (
+    known_answer_environment,
+    proof_runtime_fingerprint,
+)
 from evaluation.release_gate import canonical_sha256, validate_release_manifest
 from humanize.release_export import (
     ReleaseExportError,
@@ -127,6 +131,7 @@ def _strict_stage_binding(
         "source_fingerprint": source_fingerprint,
         "known_code_registry_sha256": _file_sha256(registry),
         "strict_runner_sha256": _file_sha256(strict_runner),
+        "proof_runtime": proof_runtime_fingerprint(),
         "known_answer_timeout_per_logical": config[
             "known_answer_timeout_per_logical"
         ],
@@ -237,12 +242,7 @@ def _make_synthetic_completed_win(
     known_answer.write_text('{"gate":"known-answer","passed":true}\n')
     _write_json(results / "known_code_registry.json", {"schema_version": 1})
     known_answer_sha = _file_sha256(known_answer)
-    environment = {
-        "python": "test",
-        "numpy": "test",
-        "scipy": "test",
-        "qldpc": "test",
-    }
+    environment = known_answer_environment()
     trust = {
         "schema_version": 1,
         "artifact_sha256": known_answer_sha,
@@ -511,6 +511,7 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     assert len(source["stage5"]["source_fingerprint"]) == 64
     assert len(source["stage5"]["known_code_registry_sha256"]) == 64
     assert len(source["stage5"]["strict_runner_sha256"]) == 64
+    assert source["stage5"]["proof_runtime"] == proof_runtime_fingerprint()
     assert manifest["source_total"] == 2
     assert manifest["accepted"] == 2
     assert manifest["rejected"] == 0
@@ -535,6 +536,34 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     second = export_release(repo_dir=repo, run_id=run_id)
 
     assert second == {**first, "status": "already-exported"}
+
+
+@pytest.mark.parametrize(
+    ("package", "classification"),
+    [
+        ("ortools", "STAGE5_PROVENANCE_MISMATCH"),
+        ("numpy", "TRUST_INVALID"),
+    ],
+)
+def test_export_release_rejects_stale_proof_runtime(
+    tmp_path,
+    monkeypatch,
+    package,
+    classification,
+):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    changed = json.loads(json.dumps(proof_runtime_fingerprint()))
+    changed["packages"][package] = "runtime-changed"
+    monkeypatch.setattr(
+        release_export_module,
+        "proof_runtime_fingerprint",
+        lambda: changed,
+    )
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == classification
 
 
 def test_export_release_publishes_only_strict_accepted_subset(tmp_path):

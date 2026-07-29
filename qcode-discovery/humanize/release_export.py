@@ -28,6 +28,10 @@ from pathlib import Path
 from typing import Any
 
 from evaluation.final_gate import classify_win
+from evaluation.proof_runtime import (
+    known_answer_environment,
+    proof_runtime_fingerprint,
+)
 from evaluation.release_gate import canonical_sha256, validate_release_manifest
 
 _RUN_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}")
@@ -542,6 +546,7 @@ def _validate_current_stage5_provenance(
     source_fingerprint: str,
     known_code_registry_sha256: str,
     strict_runner_sha256: str,
+    proof_runtime: Mapping[str, Any],
 ) -> dict[str, Any]:
     python_executable = config.get("python_executable")
     resume = config.get("resume")
@@ -651,6 +656,7 @@ def _validate_current_stage5_provenance(
         "source_fingerprint": source_fingerprint,
         "known_code_registry_sha256": known_code_registry_sha256,
         "strict_runner_sha256": strict_runner_sha256,
+        "proof_runtime": dict(proof_runtime),
         "known_answer_timeout_per_logical": known_answer_timeout,
         "known_answer_total_timeout": known_answer_total_timeout,
         "verification_timeout_per_logical": verification_timeout,
@@ -685,6 +691,7 @@ def _validate_current_stage5_provenance(
         "source_fingerprint": source_fingerprint,
         "known_code_registry_sha256": known_code_registry_sha256,
         "strict_runner_sha256": strict_runner_sha256,
+        "proof_runtime": dict(proof_runtime),
     }
 
 
@@ -854,6 +861,7 @@ def _validate_trust(
     trust: Mapping[str, Any],
     *,
     artifact_sha256: str,
+    proof_runtime: Mapping[str, Any],
 ) -> None:
     _require_schema_one(trust, label="known-answer trust")
     if not _is_lower_sha256(trust.get("artifact_sha256")):
@@ -867,6 +875,17 @@ def _validate_trust(
         _fail("TRUST_INVALID", "known-answer trust semantic_sha256 is invalid")
     if not isinstance(trust.get("environment"), dict):
         _fail("TRUST_INVALID", "known-answer trust environment must be an object")
+    try:
+        current_environment = known_answer_environment(proof_runtime)
+    except ValueError as exc:
+        _fail("RUNTIME_INVALID", f"current proof runtime is invalid: {exc}")
+    if _payload_sha256(trust["environment"]) != _payload_sha256(
+        current_environment
+    ):
+        _fail(
+            "TRUST_INVALID",
+            "known-answer trust environment differs from current proof runtime",
+        )
 
 
 def _validate_integrity(
@@ -2019,7 +2038,12 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
         known_code_registry_raw = strict_source_files[known_code_registry_path]
         controller_source_raw = strict_source_files[controller_source_path]
         known_answer_sha = _sha256_bytes(known_answer_raw)
-        _validate_trust(trust, artifact_sha256=known_answer_sha)
+        current_proof_runtime = proof_runtime_fingerprint()
+        _validate_trust(
+            trust,
+            artifact_sha256=known_answer_sha,
+            proof_runtime=current_proof_runtime,
+        )
 
         stages = state.get("stages")
         if not isinstance(stages, dict):
@@ -2070,6 +2094,7 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             source_fingerprint=strict_source_fingerprint,
             known_code_registry_sha256=_sha256_bytes(known_code_registry_raw),
             strict_runner_sha256=_sha256_bytes(strict_runner_raw),
+            proof_runtime=current_proof_runtime,
         )
         certificate_hashes = _validate_stage4(
             summary=stage4_summary,

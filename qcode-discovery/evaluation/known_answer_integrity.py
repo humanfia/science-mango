@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import hashlib
-import importlib.metadata
 import json
 import math
-import platform
 import subprocess
 import sys
 import tempfile
@@ -14,22 +12,11 @@ from pathlib import Path
 from typing import Any
 
 from evaluation.final_gate import validate_known_answer_artifact
-
-
-def _package_version(name: str) -> str | None:
-    try:
-        return importlib.metadata.version(name)
-    except importlib.metadata.PackageNotFoundError:
-        return None
+from evaluation.proof_runtime import known_answer_environment
 
 
 def current_environment() -> dict[str, str | None]:
-    return {
-        "python": platform.python_version(),
-        "numpy": _package_version("numpy"),
-        "scipy": _package_version("scipy"),
-        "qldpc": _package_version("qldpc"),
-    }
+    return known_answer_environment()
 
 
 def file_sha256(path: Path | str) -> str:

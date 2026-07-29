@@ -16,6 +16,10 @@ import pytest
 
 import humanize.pipeline as pipeline_module
 from evaluation.final_gate import classify_win
+from evaluation.proof_runtime import (
+    known_answer_environment,
+    proof_runtime_fingerprint,
+)
 from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
@@ -403,7 +407,7 @@ def _repo(tmp_path: Path) -> tuple[Path, Path]:
                     known_answer.read_bytes()
                 ).hexdigest(),
                 "semantic_sha256": "a" * 64,
-                "environment": {"python": "test"},
+                "environment": known_answer_environment(),
             }
         )
         + "\n"
@@ -942,6 +946,7 @@ def test_proof_retry_controller_escalates_1x_2x_4x_then_caps(tmp_path):
     assert active["binding"]["selected_digests"] == ["retry-me"]
     assert active["binding"]["page_sha256"]
     assert active["binding"]["source_fingerprint"]
+    assert active["binding"]["proof_runtime"] == proof_runtime_fingerprint()
     assert active["binding"]["proof_config_sha256"]
     assert state["proof_retry"]["resume_required"] is True
 
@@ -2546,6 +2551,58 @@ def test_humanize_audit_dependency_change_invalidates_proof_stages(
         assert second["stages"][stage]["attempt"] == 2
 
 
+def test_proof_runtime_change_invalidates_stage2_and_stage5_caches(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="proof-runtime-change")
+    winner, _ = _certificate(config, "proof-runtime-change-win")
+    runner = ScenarioRunner(
+        stage2=[_plan([winner]), _plan([winner])],
+        strict=[_plan(), _plan()],
+    )
+    runtime = {"current": proof_runtime_fingerprint()}
+    monkeypatch.setattr(
+        pipeline_module,
+        "proof_runtime_fingerprint",
+        lambda: runtime["current"],
+    )
+
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+    assert first["status"] == "COMPLETED_WIN"
+
+    runtime["current"] = json.loads(json.dumps(runtime["current"]))
+    runtime["current"]["packages"]["ortools"] = "runtime-changed"
+    second = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 2}
+    assert second["stages"]["stage1_search"]["attempt"] == 1
+    for stage in STAGE_ORDER[1:]:
+        assert second["stages"][stage]["attempt"] == 2
+    assert (
+        second["stages"]["stage2_sector_audit"]["stage_config"][
+            "proof_runtime"
+        ]
+        == runtime["current"]
+    )
+    assert (
+        second["stages"]["stage5_strict_gate"]["stage_config"][
+            "proof_runtime"
+        ]
+        == runtime["current"]
+    )
+
+
 def test_registry_change_invalidates_every_proof_and_strict_stage(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="registry-change")
@@ -2913,6 +2970,73 @@ def test_stage1_real_humanize_inherits_campaign_lease_without_relocking(
         assert pipeline._stage1_inputs() == [candidates.resolve()]
 
     assert observed == {"run_id": run_id}
+
+
+def test_stage1_humanize_cache_is_invalidated_by_proof_runtime_change(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(f"# fake {name}\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "stage1-runtime-change"
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage_review=False,
+    )
+    runtime = {"current": proof_runtime_fingerprint()}
+    monkeypatch.setattr(
+        pipeline_module,
+        "proof_runtime_fingerprint",
+        lambda: runtime["current"],
+    )
+    flow_calls = []
+
+    class SearchFlow:
+        pipeline_candidate_inputs = (candidates,)
+
+        def run(self):
+            flow_calls.append(runtime["current"])
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidates)],
+            }
+
+    runner = ScenarioRunner()
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        flow_factory=lambda _config: SearchFlow(),
+    ).run()
+    assert first["status"] == "COMPLETED_NO_WIN"
+
+    runtime["current"] = json.loads(json.dumps(runtime["current"]))
+    runtime["current"]["packages"]["highspy"] = "runtime-changed"
+    second = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        flow_factory=lambda _config: SearchFlow(),
+    ).run()
+
+    assert second["status"] == "COMPLETED_NO_WIN"
+    assert len(flow_calls) == 2
+    assert second["stages"]["stage1_search"]["attempt"] == 2
+    assert (
+        second["stages"]["stage1_search"]["stage_config"]["proof_runtime"]
+        == runtime["current"]
+    )
 
 
 def test_stage1_unresolved_exhaustion_hands_candidates_to_proof_stages(

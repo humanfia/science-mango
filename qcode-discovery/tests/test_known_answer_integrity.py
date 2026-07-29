@@ -13,6 +13,22 @@ from evaluation.known_answer_integrity import (
     file_sha256,
     semantic_sha256,
 )
+from evaluation.proof_runtime import (
+    SOLVER_RUNTIME_PACKAGES,
+    proof_runtime_fingerprint,
+)
+
+
+def test_proof_runtime_fingerprint_is_complete_and_json_serializable():
+    runtime = proof_runtime_fingerprint()
+
+    assert runtime["schema_version"] == 1
+    assert runtime["python"]["implementation"]
+    assert runtime["python"]["version"]
+    assert set(runtime["packages"]) == set(SOLVER_RUNTIME_PACKAGES)
+    assert json.loads(
+        json.dumps(runtime, allow_nan=False),
+    ) == runtime
 
 
 def test_repository_pinned_known_answer_passes_fast_mode():
