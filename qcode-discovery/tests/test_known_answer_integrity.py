@@ -22,10 +22,16 @@ from evaluation.proof_runtime import (
 def test_proof_runtime_fingerprint_is_complete_and_json_serializable():
     runtime = proof_runtime_fingerprint()
 
-    assert runtime["schema_version"] == 1
+    assert runtime["schema_version"] == 2
     assert runtime["python"]["implementation"]
     assert runtime["python"]["version"]
     assert set(runtime["packages"]) == set(SOLVER_RUNTIME_PACKAGES)
+    assert set(runtime["package_artifacts"]) == set(
+        SOLVER_RUNTIME_PACKAGES
+    )
+    assert runtime["package_artifacts"]["scipy"]["files_sha256"]
+    assert runtime["interpreter"]["realpath"]
+    assert runtime["interpreter"]["executable_file"]["sha256"]
     assert json.loads(
         json.dumps(runtime, allow_nan=False),
     ) == runtime

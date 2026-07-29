@@ -206,7 +206,37 @@ def test_export_release_forwards_fixed_run_and_repo(tmp_path, monkeypatch):
         str(repo),
         "--run-id",
         "release-run",
+        "--python-executable",
+        str(python),
     ]
+
+
+def test_export_release_forwards_explicit_authorized_worker(
+    tmp_path,
+    monkeypatch,
+):
+    project, repo, _python, _config = _campaign_tree(tmp_path)
+    worker = tmp_path / "custom-worker" / "bin" / "python"
+    worker.parent.mkdir(parents=True)
+    worker.write_text("#!/bin/sh\n")
+    worker.chmod(0o755)
+    calls = _record_subprocess(monkeypatch)
+
+    result = runner.invoke(
+        app,
+        [
+            "qcode-campaign",
+            "export-release",
+            str(project),
+            "--run-id",
+            "release-run",
+            "--python-executable",
+            str(worker),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls[0][0][-2:] == ["--python-executable", str(worker)]
 
 
 def test_pipeline_exit_code_is_preserved(tmp_path, monkeypatch):

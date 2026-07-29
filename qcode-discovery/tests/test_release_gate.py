@@ -2,6 +2,7 @@
 
 import json
 
+from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.release_gate import canonical_sha256, validate_release_manifest
 from scripts.verify_release import compare_strict_provenance
 
@@ -40,6 +41,7 @@ def _write_release(tmp_path, *, integrity=_MISSING, trust=_MISSING):
     )
     cert_path = tmp_path / "certificate.json"
     cert_path.write_text(json.dumps(certificate))
+    runtime = proof_runtime_fingerprint()
     manifest = {
         "schema_version": 1,
         "gate": "qldpc-challenge-release",
@@ -53,7 +55,11 @@ def _write_release(tmp_path, *, integrity=_MISSING, trust=_MISSING):
         "eligible_candidates": 1,
         "stage5_artifact_sha256": "b" * 64,
         "source_pipeline": {
-            "stage5": {"final_gate_sha256": "b" * 64},
+            "stage5": {
+                "final_gate_sha256": "b" * 64,
+                "proof_runtime": runtime,
+                "proof_interpreter": runtime["interpreter"],
+            },
         },
         "certificates": [{
             "file": "certificate.json",
@@ -76,6 +82,25 @@ def _write_release(tmp_path, *, integrity=_MISSING, trust=_MISSING):
 def test_release_manifest_accepts_strict_known_answer_provenance(tmp_path):
     path, _, trust = _write_release(tmp_path)
     assert validate_release_manifest(path, known_answer_trust_path=trust, expected_run_id="test-run")["passed"]
+
+
+def test_release_manifest_rejects_missing_worker_runtime_provenance(tmp_path):
+    path, _, trust = _write_release(tmp_path)
+    manifest = json.loads(path.read_text())
+    manifest["source_pipeline"]["stage5"].pop("proof_runtime")
+    manifest["manifest_sha256"] = canonical_sha256(
+        manifest,
+        omit="manifest_sha256",
+    )
+    path.write_text(json.dumps(manifest))
+
+    result = validate_release_manifest(
+        path,
+        known_answer_trust_path=trust,
+    )
+
+    assert result["passed"] is False
+    assert any("proof runtime" in failure for failure in result["failures"])
 
 
 def test_release_manifest_rejects_missing_known_answer_provenance(tmp_path):

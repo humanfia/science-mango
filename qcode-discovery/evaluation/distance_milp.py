@@ -38,6 +38,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal, Mapping
+from functools import lru_cache
 
 import fcntl
 import numpy as np
@@ -45,6 +46,7 @@ from scipy.optimize import milp, LinearConstraint, Bounds
 from scipy.sparse import csr_matrix, eye, hstack, vstack
 
 from qldpc.objects import Pauli
+from evaluation.proof_runtime import proof_runtime_fingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +116,13 @@ def _dependency_version(distribution: str) -> str:
         return "unavailable"
 
 
+@lru_cache(maxsize=1)
+def _checkpoint_proof_runtime() -> dict[str, Any]:
+    """One process cannot safely change its imported solver stack in place."""
+
+    return proof_runtime_fingerprint()
+
+
 def _implementation_fingerprint() -> dict[str, Any]:
     """Bind durable proofs to the exact implementation and solver stack."""
     if _DISTANCE_MILP_SOURCE_SHA256 is None:
@@ -126,6 +135,11 @@ def _implementation_fingerprint() -> dict[str, Any]:
             "scipy": _dependency_version("scipy"),
             "qldpc": _dependency_version("qldpc"),
         },
+        # This full schema-2 identity includes the invoked venv path,
+        # executable/symlink file identities, and every proof dependency.
+        # Consequently, a pipeline-level rerun cannot silently resume an old
+        # NO_WIN checkpoint under a replaced but same-version interpreter.
+        "proof_runtime": _checkpoint_proof_runtime(),
     }
     fingerprint["fingerprint_sha256"] = _canonical_sha256(fingerprint)
     return fingerprint

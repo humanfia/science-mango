@@ -29,8 +29,11 @@ from typing import Any
 
 from evaluation.final_gate import classify_win
 from evaluation.proof_runtime import (
+    RuntimeProbeError,
     known_answer_environment,
-    proof_runtime_fingerprint,
+    probe_python_runtime,
+    resolve_python_executable,
+    validate_proof_runtime_fingerprint,
 )
 from evaluation.release_gate import canonical_sha256, validate_release_manifest
 
@@ -547,6 +550,7 @@ def _validate_current_stage5_provenance(
     known_code_registry_sha256: str,
     strict_runner_sha256: str,
     proof_runtime: Mapping[str, Any],
+    proof_interpreter: Mapping[str, Any],
 ) -> dict[str, Any]:
     python_executable = config.get("python_executable")
     resume = config.get("resume")
@@ -628,6 +632,8 @@ def _validate_current_stage5_provenance(
     finalizer_path = repo / "scripts" / "finalize_challenge.py"
     expected_command = [
         python_executable,
+        "-I",
+        "-B",
         str(finalizer_path),
         str(stage4_certificates_path),
         "--known-answer-artifact",
@@ -657,6 +663,7 @@ def _validate_current_stage5_provenance(
         "known_code_registry_sha256": known_code_registry_sha256,
         "strict_runner_sha256": strict_runner_sha256,
         "proof_runtime": dict(proof_runtime),
+        "proof_interpreter": dict(proof_interpreter),
         "known_answer_timeout_per_logical": known_answer_timeout,
         "known_answer_total_timeout": known_answer_total_timeout,
         "verification_timeout_per_logical": verification_timeout,
@@ -692,6 +699,7 @@ def _validate_current_stage5_provenance(
         "known_code_registry_sha256": known_code_registry_sha256,
         "strict_runner_sha256": strict_runner_sha256,
         "proof_runtime": dict(proof_runtime),
+        "proof_interpreter": dict(proof_interpreter),
     }
 
 
@@ -1948,7 +1956,12 @@ def _publish_snapshot(
             )
 
 
-def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
+def export_release(
+    *,
+    repo_dir: Path,
+    run_id: str,
+    python_executable: str = sys.executable,
+) -> dict[str, Any]:
     """Export one completed five-stage win into the formal release layout.
 
     The source and destination are intentionally fixed beneath ``repo_dir``.
@@ -2040,7 +2053,66 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
         known_code_registry_raw = strict_source_files[known_code_registry_path]
         controller_source_raw = strict_source_files[controller_source_path]
         known_answer_sha = _sha256_bytes(known_answer_raw)
-        current_proof_runtime = proof_runtime_fingerprint()
+        config = state.get("config")
+        if not isinstance(config, Mapping):
+            _fail("STATE_INVALID", "pipeline state config must be an object")
+        configured_python = config.get("python_executable")
+        if not isinstance(configured_python, str) or not configured_python:
+            _fail("STATE_INVALID", "pipeline config python_executable is invalid")
+        try:
+            authorized_invocation, _authorized_realpath = (
+                resolve_python_executable(
+                    python_executable,
+                    cwd=repo,
+                )
+            )
+            configured_invocation, _configured_realpath = (
+                resolve_python_executable(
+                    configured_python,
+                    cwd=repo,
+                )
+            )
+            if configured_invocation != authorized_invocation:
+                _fail(
+                    "RUNTIME_INVALID",
+                    "pipeline worker interpreter is not the explicitly "
+                    "authorized release interpreter",
+                )
+            current_runtime_provenance = probe_python_runtime(
+                python_executable,
+                cwd=repo,
+            )
+        except RuntimeProbeError as exc:
+            _fail(
+                "RUNTIME_INVALID",
+                f"cannot identify configured proof interpreter: {exc}",
+            )
+        current_proof_runtime = current_runtime_provenance.get("runtime")
+        current_proof_interpreter = current_runtime_provenance.get("interpreter")
+        if not isinstance(current_proof_runtime, Mapping) or not isinstance(
+            current_proof_interpreter, Mapping
+        ):
+            _fail(
+                "RUNTIME_INVALID",
+                "configured proof interpreter returned malformed provenance",
+            )
+        try:
+            current_proof_runtime = validate_proof_runtime_fingerprint(
+                current_proof_runtime,
+            )
+        except ValueError as exc:
+            _fail(
+                "RUNTIME_INVALID",
+                f"configured proof runtime is malformed: {exc}",
+            )
+        if current_proof_runtime["interpreter"] != dict(
+            current_proof_interpreter
+        ):
+            _fail(
+                "RUNTIME_INVALID",
+                "configured proof runtime has conflicting interpreter identity",
+            )
+        current_proof_interpreter = current_proof_runtime["interpreter"]
         _validate_trust(
             trust,
             artifact_sha256=known_answer_sha,
@@ -2097,6 +2169,7 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             known_code_registry_sha256=_sha256_bytes(known_code_registry_raw),
             strict_runner_sha256=_sha256_bytes(strict_runner_raw),
             proof_runtime=current_proof_runtime,
+            proof_interpreter=current_proof_interpreter,
         )
         certificate_hashes = _validate_stage4(
             summary=stage4_summary,

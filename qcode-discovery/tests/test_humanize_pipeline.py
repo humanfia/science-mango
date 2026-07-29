@@ -15,9 +15,11 @@ from pathlib import Path
 import pytest
 
 import humanize.pipeline as pipeline_module
+import humanize.release_export as release_export_module
 from evaluation.final_gate import classify_win
 from evaluation.proof_runtime import (
     known_answer_environment,
+    probe_python_runtime,
     proof_runtime_fingerprint,
 )
 from humanize.flow import (
@@ -38,8 +40,39 @@ from humanize.pipeline import (
 from humanize.release_export import export_release
 
 
+@pytest.fixture(autouse=True)
+def _stable_worker_runtime_probe(monkeypatch):
+    """Keep orchestration tests fast; the real FD probe has dedicated tests."""
+
+    runtime = proof_runtime_fingerprint()
+    provenance = {
+        "runtime": runtime,
+        "interpreter": runtime["interpreter"],
+    }
+    probe = lambda *_args, **_kwargs: provenance
+    monkeypatch.setattr(pipeline_module, "probe_python_runtime", probe)
+    monkeypatch.setattr(release_export_module, "probe_python_runtime", probe)
+
+
 def _argument(command: list[str], name: str) -> Path:
     return Path(command[command.index(name) + 1])
+
+
+def _stage_script(command: list[str]) -> str:
+    return next(
+        Path(value).name
+        for value in command[1:]
+        if str(value).endswith(".py")
+    )
+
+
+def _stage_positional(command: list[str], offset: int = 1) -> Path:
+    script_index = next(
+        index
+        for index, value in enumerate(command)
+        if str(value).endswith(".py")
+    )
+    return Path(command[script_index + offset])
 
 
 def _write_json(path: Path, value: dict) -> None:
@@ -105,7 +138,7 @@ class ScenarioRunner:
         self, command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         assert cwd.is_dir()
-        script = Path(command[1]).name
+        script = _stage_script(command)
         if script == "audit_candidate_pool.py":
             stage = "stage2"
             expected_gate = "qldpc-proof-oriented-candidate-pool"
@@ -206,7 +239,7 @@ class ScenarioRunner:
         elif plan["write_outputs"] and stage == "strict":
             certificates = [
                 json.loads(line)
-                for line in Path(command[2]).read_text().splitlines()
+                for line in _stage_positional(command).read_text().splitlines()
                 if line.strip()
             ]
             trust = json.loads(_argument(command, "--known-answer-trust").read_text())
@@ -553,7 +586,7 @@ def test_stage2_proof_bypasses_stage3_solver_and_reaches_strict_gate(tmp_path):
         review = config.root / "reviews" / stage / "review.json"
         assert review.is_file()
     strict = runner.commands("strict")[0]
-    assert Path(strict[1]).name == "finalize_challenge.py"
+    assert _stage_script(strict) == "finalize_challenge.py"
     assert "fast" not in strict
     assert "--known-answer-trust" in strict
     assert (
@@ -956,6 +989,10 @@ def test_proof_retry_controller_escalates_1x_2x_4x_then_caps(tmp_path):
     assert active["binding"]["page_sha256"]
     assert active["binding"]["source_fingerprint"]
     assert active["binding"]["proof_runtime"] == proof_runtime_fingerprint()
+    assert (
+        active["binding"]["proof_interpreter"]
+        == proof_runtime_fingerprint()["interpreter"]
+    )
     assert active["binding"]["proof_config_sha256"]
     assert state["proof_retry"]["resume_required"] is True
 
@@ -1035,7 +1072,7 @@ def test_proof_retry_direction_progress_holds_budget_before_escalating(tmp_path)
     ) -> subprocess.CompletedProcess[str]:
         completed = underlying(command, cwd=cwd)
         if (
-            Path(command[1]).name == "audit_direction_pool.py"
+            _stage_script(command) == "audit_direction_pool.py"
             and underlying.counts["stage3"] == 2
         ):
             _write_json(
@@ -1530,7 +1567,7 @@ def test_paginated_stage2_interruption_replays_pending_second_page(tmp_path):
         nonlocal interrupted
         completed = underlying(command, cwd=cwd)
         if (
-            Path(command[1]).name == "audit_candidate_pool.py"
+            _stage_script(command) == "audit_candidate_pool.py"
             and underlying.counts["stage2"] == 2
             and not interrupted
         ):
@@ -1656,7 +1693,7 @@ def test_paginated_page_digest_order_must_match_results(tmp_path):
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         completed = underlying(command, cwd=cwd)
-        if Path(command[1]).name == "audit_candidate_pool.py":
+        if _stage_script(command) == "audit_candidate_pool.py":
             summary_path = _argument(command, "--summary-output")
             summary = json.loads(summary_path.read_text())
             page = summary["selection_page"]
@@ -2461,7 +2498,7 @@ def test_corrupt_pool_result_cannot_route_to_completed_no_win(tmp_path):
     def corrupt_runner(
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
-        assert Path(command[1]).name == "audit_candidate_pool.py"
+        assert _stage_script(command) == "audit_candidate_pool.py"
         _write_jsonl(_argument(command, "--ranked-output"), [])
         _write_json(
             _argument(command, "--summary-output"),
@@ -2561,9 +2598,11 @@ def test_humanize_audit_dependency_change_invalidates_proof_stages(
         assert second["stages"][stage]["attempt"] == 2
 
 
-def test_proof_runtime_change_invalidates_stage2_and_stage5_caches(
+@pytest.mark.parametrize("runtime_mutation", ["version", "installed-content"])
+def test_worker_runtime_change_invalidates_stage1_and_all_proof_caches(
     tmp_path,
     monkeypatch,
+    runtime_mutation,
 ):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="proof-runtime-change")
@@ -2572,11 +2611,16 @@ def test_proof_runtime_change_invalidates_stage2_and_stage5_caches(
         stage2=[_plan([winner]), _plan([winner])],
         strict=[_plan(), _plan()],
     )
-    runtime = {"current": proof_runtime_fingerprint()}
+    runtime = {
+        "current": probe_python_runtime(
+            config.python_executable,
+            cwd=repo,
+        )
+    }
     monkeypatch.setattr(
         pipeline_module,
-        "proof_runtime_fingerprint",
-        lambda: runtime["current"],
+        "probe_python_runtime",
+        lambda *_args, **_kwargs: runtime["current"],
     )
 
     first = FiveStagePipeline(
@@ -2587,7 +2631,17 @@ def test_proof_runtime_change_invalidates_stage2_and_stage5_caches(
     assert first["status"] == "COMPLETED_WIN"
 
     runtime["current"] = json.loads(json.dumps(runtime["current"]))
-    runtime["current"]["packages"]["ortools"] = "runtime-changed"
+    if runtime_mutation == "version":
+        runtime["current"]["runtime"]["packages"]["ortools"] = (
+            "runtime-changed"
+        )
+        runtime["current"]["runtime"]["package_artifacts"]["ortools"][
+            "version"
+        ] = "runtime-changed"
+    else:
+        runtime["current"]["runtime"]["package_artifacts"]["ortools"][
+            "files_sha256"
+        ] = "f" * 64
     second = FiveStagePipeline(
         config,
         command_runner=runner,
@@ -2596,20 +2650,19 @@ def test_proof_runtime_change_invalidates_stage2_and_stage5_caches(
 
     assert second["status"] == "COMPLETED_WIN"
     assert runner.counts == {"stage2": 2, "strict": 2}
-    assert second["stages"]["stage1_search"]["attempt"] == 1
-    for stage in STAGE_ORDER[1:]:
+    for stage in STAGE_ORDER:
         assert second["stages"][stage]["attempt"] == 2
     assert (
         second["stages"]["stage2_sector_audit"]["stage_config"][
             "proof_runtime"
         ]
-        == runtime["current"]
+        == runtime["current"]["runtime"]
     )
     assert (
         second["stages"]["stage5_strict_gate"]["stage_config"][
             "proof_runtime"
         ]
-        == runtime["current"]
+        == runtime["current"]["runtime"]
     )
 
 
@@ -3033,6 +3086,9 @@ def test_stage1_humanize_cache_is_invalidated_by_proof_runtime_change(
 
     runtime["current"] = json.loads(json.dumps(runtime["current"]))
     runtime["current"]["packages"]["highspy"] = "runtime-changed"
+    runtime["current"]["package_artifacts"]["highspy"]["version"] = (
+        "runtime-changed"
+    )
     second = FiveStagePipeline(
         config,
         command_runner=runner,
@@ -3044,7 +3100,7 @@ def test_stage1_humanize_cache_is_invalidated_by_proof_runtime_change(
     assert len(flow_calls) == 2
     assert second["stages"]["stage1_search"]["attempt"] == 2
     assert (
-        second["stages"]["stage1_search"]["stage_config"]["proof_runtime"]
+        second["stages"]["stage1_search"]["stage_config"]["controller_runtime"]
         == runtime["current"]
     )
 
@@ -3208,7 +3264,7 @@ def test_restored_source_mutation_during_stage_fails_closed(
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         completed = underlying(command, cwd=cwd)
-        if Path(command[1]).name == stage_script:
+        if _stage_script(command) == stage_script:
             source.write_bytes(original + b"# temporary replacement\n")
             source.write_bytes(original)
         return completed
@@ -3291,7 +3347,7 @@ def test_stage5_dependency_change_during_command_fails_closed(
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         completed = underlying(command, cwd=cwd)
-        if Path(command[1]).name == "finalize_challenge.py":
+        if _stage_script(command) == "finalize_challenge.py":
             dependency = repo / relative_path
             dependency.write_bytes(dependency.read_bytes() + b"# mutated in Stage 5\n")
         return completed
@@ -3319,7 +3375,7 @@ def test_strict_gate_rejects_passed_flag_without_strict_evaluations(tmp_path):
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         result = underlying(command, cwd=cwd)
-        if Path(command[1]).name == "finalize_challenge.py":
+        if _stage_script(command) == "finalize_challenge.py":
             output = _argument(command, "--output")
             artifact = json.loads(output.read_text())
             artifact["evaluations"] = []
@@ -3347,7 +3403,7 @@ def test_strict_gate_rejects_evaluation_bound_to_wrong_certificate(tmp_path):
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         result = underlying(command, cwd=cwd)
-        if Path(command[1]).name == "finalize_challenge.py":
+        if _stage_script(command) == "finalize_challenge.py":
             output = _argument(command, "--output")
             artifact = json.loads(output.read_text())
             artifact["evaluations"][0]["certificate_sha256"] = "0" * 64
@@ -3379,7 +3435,7 @@ def test_strict_gate_rejects_incomplete_replay_checks(tmp_path):
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
         result = underlying(command, cwd=cwd)
-        if Path(command[1]).name == "finalize_challenge.py":
+        if _stage_script(command) == "finalize_challenge.py":
             output = _argument(command, "--output")
             artifact = json.loads(output.read_text())
             artifact["evaluations"][0]["result"]["checks"].pop("milp_rerun")
@@ -3483,7 +3539,7 @@ def test_selected_candidate_without_audit_annotation_fails_closed(tmp_path):
     def missing_annotation_runner(
         command: list[str], *, cwd: Path
     ) -> subprocess.CompletedProcess[str]:
-        assert Path(command[1]).name == "audit_candidate_pool.py"
+        assert _stage_script(command) == "audit_candidate_pool.py"
         _write_jsonl(
             _argument(command, "--ranked-output"),
             [

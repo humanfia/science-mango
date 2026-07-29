@@ -110,6 +110,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_repo_argument(export)
     export.add_argument("--run-id", required=True)
+    export.add_argument(
+        "--python-executable",
+        default=sys.executable,
+        help=(
+            "explicitly authorize the exact proof interpreter recorded by "
+            "Stage 5"
+        ),
+    )
 
     # Private entry point used only by ``start``.  Archon may call the public
     # helpers directly and is not required to route through this CLI.
@@ -213,6 +221,7 @@ def _export_release_command(args: argparse.Namespace) -> int:
     result = export_release(
         repo_dir=resolve_repo_dir(args.repo_dir),
         run_id=validate_run_id(args.run_id),
+        python_executable=args.python_executable,
     )
     _print_json(result)
     return 0

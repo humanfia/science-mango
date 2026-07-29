@@ -27,6 +27,22 @@ from humanize.release_export import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _stable_release_runtime_probe(monkeypatch):
+    """Release semantics use a stable valid worker; probe attacks test elsewhere."""
+
+    runtime = proof_runtime_fingerprint()
+    provenance = {
+        "runtime": runtime,
+        "interpreter": runtime["interpreter"],
+    }
+    monkeypatch.setattr(
+        release_export_module,
+        "probe_python_runtime",
+        lambda *_args, **_kwargs: provenance,
+    )
+
+
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -123,6 +139,11 @@ def _strict_stage_binding(
             for path in sorted(set(source_files))
         }
     )
+    runtime = proof_runtime_fingerprint()
+    runtime_provenance = {
+        "runtime": runtime,
+        "interpreter": runtime["interpreter"],
+    }
     stage_config = {
         "controller_source_sha256": _file_sha256(
             repo / "humanize" / "pipeline.py"
@@ -131,7 +152,8 @@ def _strict_stage_binding(
         "source_fingerprint": source_fingerprint,
         "known_code_registry_sha256": _file_sha256(registry),
         "strict_runner_sha256": _file_sha256(strict_runner),
-        "proof_runtime": proof_runtime_fingerprint(),
+        "proof_runtime": runtime_provenance["runtime"],
+        "proof_interpreter": runtime_provenance["interpreter"],
         "known_answer_timeout_per_logical": config[
             "known_answer_timeout_per_logical"
         ],
@@ -144,6 +166,8 @@ def _strict_stage_binding(
     }
     command = [
         config["python_executable"],
+        "-I",
+        "-B",
         str(finalizer),
         str(stage4_certificates),
         "--known-answer-artifact",
@@ -401,7 +425,7 @@ def _make_synthetic_completed_win(
         "run_id": run_id,
         "known_answer_artifact": str(known_answer),
         "known_answer_trust": str(trust_path),
-        "python_executable": "/test/python",
+        "python_executable": sys.executable,
         "resume": True,
         "certificate_solver_workers": 1,
         "known_answer_timeout_per_logical": 300,
@@ -512,7 +536,16 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     assert len(source["stage5"]["source_fingerprint"]) == 64
     assert len(source["stage5"]["known_code_registry_sha256"]) == 64
     assert len(source["stage5"]["strict_runner_sha256"]) == 64
-    assert source["stage5"]["proof_runtime"] == proof_runtime_fingerprint()
+    runtime = proof_runtime_fingerprint()
+    runtime_provenance = {
+        "runtime": runtime,
+        "interpreter": runtime["interpreter"],
+    }
+    assert source["stage5"]["proof_runtime"] == runtime_provenance["runtime"]
+    assert (
+        source["stage5"]["proof_interpreter"]
+        == runtime_provenance["interpreter"]
+    )
     assert manifest["source_total"] == 2
     assert manifest["accepted"] == 2
     assert manifest["rejected"] == 0
@@ -555,16 +588,113 @@ def test_export_release_rejects_stale_proof_runtime(
     repo, run_id = _make_synthetic_completed_win(tmp_path)
     changed = json.loads(json.dumps(proof_runtime_fingerprint()))
     changed["packages"][package] = "runtime-changed"
+    changed["package_artifacts"][package]["version"] = "runtime-changed"
+    state = json.loads(
+        (
+            _pipeline_root(repo, run_id)
+            / "state.json"
+        ).read_text()
+    )
+    interpreter = state["stages"]["stage5_strict_gate"]["stage_config"][
+        "proof_interpreter"
+    ]
+    changed["interpreter"] = interpreter
     monkeypatch.setattr(
         release_export_module,
-        "proof_runtime_fingerprint",
-        lambda: changed,
+        "probe_python_runtime",
+        lambda *_args, **_kwargs: {
+            "runtime": changed,
+            "interpreter": interpreter,
+        },
     )
 
     with pytest.raises(ReleaseExportError) as failure:
         export_release(repo_dir=repo, run_id=run_id)
 
     assert failure.value.classification == classification
+
+
+def test_export_release_rejects_changed_worker_interpreter_identity(
+    tmp_path,
+    monkeypatch,
+):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state = json.loads(
+        (_pipeline_root(repo, run_id) / "state.json").read_text()
+    )
+    recorded = state["stages"]["stage5_strict_gate"]["stage_config"]
+    changed_runtime = json.loads(json.dumps(recorded["proof_runtime"]))
+    changed_interpreter = json.loads(
+        json.dumps(recorded["proof_interpreter"])
+    )
+    changed_interpreter["invocation_lstat"]["inode"] += 1
+    changed_runtime["interpreter"] = changed_interpreter
+    monkeypatch.setattr(
+        release_export_module,
+        "probe_python_runtime",
+        lambda *_args, **_kwargs: {
+            "runtime": changed_runtime,
+            "interpreter": changed_interpreter,
+        },
+    )
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STAGE5_PROVENANCE_MISMATCH"
+
+
+def test_export_release_rejects_changed_installed_package_contents(
+    tmp_path,
+    monkeypatch,
+):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state = json.loads(
+        (_pipeline_root(repo, run_id) / "state.json").read_text()
+    )
+    recorded = state["stages"]["stage5_strict_gate"]["stage_config"]
+    changed_runtime = json.loads(json.dumps(recorded["proof_runtime"]))
+    changed_runtime["package_artifacts"]["scipy"]["files_sha256"] = "f" * 64
+    interpreter = recorded["proof_interpreter"]
+    monkeypatch.setattr(
+        release_export_module,
+        "probe_python_runtime",
+        lambda *_args, **_kwargs: {
+            "runtime": changed_runtime,
+            "interpreter": interpreter,
+        },
+    )
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STAGE5_PROVENANCE_MISMATCH"
+
+
+def test_export_release_never_executes_state_named_unapproved_interpreter(
+    tmp_path,
+    monkeypatch,
+):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    state["config"]["python_executable"] = "/bin/false"
+    state["config_fingerprint"] = _pipeline_fingerprint(state["config"])
+    _write_json(state_path, state)
+
+    def must_not_probe(*_args, **_kwargs):
+        raise AssertionError("unapproved state interpreter was executed")
+
+    monkeypatch.setattr(
+        release_export_module,
+        "probe_python_runtime",
+        must_not_probe,
+    )
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "RUNTIME_INVALID"
 
 
 def test_export_release_publishes_only_strict_accepted_subset(tmp_path):

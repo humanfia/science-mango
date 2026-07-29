@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 import scripts.audit_candidate_pool as candidate_pool
+from evaluation.proof_runtime import proof_runtime_fingerprint
 
 from scripts.audit_candidate_pool import (
     AuditConfig,
@@ -763,6 +764,86 @@ def test_certificate_cache_is_invalidated_by_source_fingerprint(
     assert json.loads(paths["verification"].read_text())[
         "source_fingerprint"
     ] == "source-v2"
+
+
+def test_selection_and_certificate_caches_bind_installed_package_contents(
+    tmp_path,
+    monkeypatch,
+):
+    known_answer = tmp_path / "known.json"
+    known_answer.write_text("{}\n")
+    runtime = {"current": proof_runtime_fingerprint()}
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: runtime["current"],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-stable",
+    )
+    rows = [_construction(1)]
+    binding_before = candidate_pool._selection_binding(
+        rows,
+        top=1,
+        known_answer_artifact=known_answer,
+    )
+    build_calls = []
+    verification_calls = []
+
+    def build(claim, **kwargs):
+        build_calls.append(kwargs)
+        return _fake_certificate(
+            f"runtime-{len(build_calls)}",
+            passed=True,
+            exact=True,
+        )
+
+    def verify(certificate, **kwargs):
+        verification_calls.append(kwargs)
+        return {"passed": True}
+
+    config = AuditConfig(
+        state_dir=tmp_path / "state",
+        known_answer_artifact=known_answer,
+    )
+    certify_candidate(
+        rows[0],
+        "runtime-bound",
+        config,
+        builder=build,
+        verifier=verify,
+    )
+
+    runtime["current"] = json.loads(json.dumps(runtime["current"]))
+    runtime["current"]["package_artifacts"]["networkx"]["files_sha256"] = (
+        "f" * 64
+    )
+    binding_after = candidate_pool._selection_binding(
+        rows,
+        top=1,
+        known_answer_artifact=known_answer,
+    )
+    second = certify_candidate(
+        rows[0],
+        "runtime-bound",
+        config,
+        builder=build,
+        verifier=verify,
+    )
+
+    assert binding_after != binding_before
+    assert len(build_calls) == len(verification_calls) == 2
+    assert second["certificate_resumed"] is False
+    assert second["verification_resumed"] is False
+    metadata = json.loads(
+        state_paths(
+            config.state_dir,
+            "runtime-bound",
+        )["certificate_metadata"].read_text()
+    )
+    assert metadata["solver_runtime"] == runtime["current"]
 
 
 @pytest.mark.parametrize("dependency", ["audit_state.py", "state.py"])

@@ -446,8 +446,12 @@ def test_export_release_command_uses_resolved_repo_and_safe_run_id(
 
     monkeypatch.setattr(pipeline_cli, "resolve_repo_dir", lambda _path: repo)
 
-    def fake_export_release(*, repo_dir, run_id):
-        captured.update(repo_dir=repo_dir, run_id=run_id)
+    def fake_export_release(*, repo_dir, run_id, python_executable):
+        captured.update(
+            repo_dir=repo_dir,
+            run_id=run_id,
+            python_executable=python_executable,
+        )
         return output
 
     printed = []
@@ -460,11 +464,19 @@ def test_export_release_command_uses_resolved_repo_and_safe_run_id(
 
     assert (
         pipeline_cli._export_release_command(
-            SimpleNamespace(repo_dir=repo, run_id="release-run")
+            SimpleNamespace(
+                repo_dir=repo,
+                run_id="release-run",
+                python_executable="/trusted/python",
+            )
         )
         == 0
     )
-    assert captured == {"repo_dir": repo, "run_id": "release-run"}
+    assert captured == {
+        "repo_dir": repo,
+        "run_id": "release-run",
+        "python_executable": "/trusted/python",
+    }
     assert printed == [output]
 
 

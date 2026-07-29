@@ -31,7 +31,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
 
-from evaluation.proof_runtime import proof_runtime_fingerprint
+from evaluation.proof_runtime import (
+    RuntimeProbeError,
+    probe_python_runtime,
+    proof_runtime_fingerprint,
+    validate_proof_runtime_fingerprint,
+)
 
 from .flow import (
     FlowConfig,
@@ -604,6 +609,31 @@ class PipelineConfig:
         repo = Path(self.repo_dir).resolve()
         object.__setattr__(self, "repo_dir", repo)
         object.__setattr__(self, "run_id", _safe_run_id(self.run_id))
+        raw_python = self.python_executable
+        if (
+            not isinstance(raw_python, str)
+            or not raw_python
+            or "\x00" in raw_python
+            or (
+                os.path.sep not in raw_python
+                and (
+                    os.path.altsep is None
+                    or os.path.altsep not in raw_python
+                )
+            )
+        ):
+            raise ValueError(
+                "python_executable must be an explicit path, not a "
+                "PATH-resolved command"
+            )
+        python_path = Path(raw_python)
+        if not python_path.is_absolute():
+            python_path = repo / python_path
+        object.__setattr__(
+            self,
+            "python_executable",
+            str(Path(os.path.abspath(python_path))),
+        )
         control_base = _reject_symlink_components(
             repo / "results" / "humanize" / "pipelines",
             classification="UNSAFE_CONTROL_PATH",
@@ -1623,7 +1653,7 @@ class FiveStagePipeline:
                 registry,
                 label="known-code registry",
             ),
-            "proof_runtime": proof_runtime_fingerprint(),
+            **self._worker_runtime_provenance(),
         }
 
     def _strict_source_provenance(self) -> dict[str, Any]:
@@ -1649,7 +1679,7 @@ class FiveStagePipeline:
                 runner,
                 label="strict known-answer runner",
             ),
-            "proof_runtime": proof_runtime_fingerprint(),
+            **self._worker_runtime_provenance(),
         }
 
     def _stage1_source_provenance(self) -> dict[str, Any]:
@@ -1669,7 +1699,48 @@ class FiveStagePipeline:
                 self.config.repo_dir / "main.py",
                 self.config.repo_dir / "results" / "known_code_registry.json",
             ),
-            "proof_runtime": proof_runtime_fingerprint(),
+            # HumanizeFlow itself executes in this controller process, while
+            # every proof subprocess uses config.python_executable.  Bind both:
+            # either environment changing must invalidate Stage 1.
+            "controller_runtime": proof_runtime_fingerprint(),
+            **self._worker_runtime_provenance(),
+        }
+
+    def _worker_runtime_provenance(self) -> dict[str, Any]:
+        try:
+            provenance = probe_python_runtime(
+                self.config.python_executable,
+                cwd=self.config.repo_dir,
+            )
+        except RuntimeProbeError as exc:
+            raise PipelineError(
+                "RUNTIME_INVALID",
+                f"cannot identify configured proof interpreter: {exc}",
+            ) from exc
+        runtime = provenance.get("runtime")
+        interpreter = provenance.get("interpreter")
+        if not isinstance(runtime, Mapping) or not isinstance(
+            interpreter, Mapping
+        ):
+            raise PipelineError(
+                "RUNTIME_INVALID",
+                "configured proof interpreter returned malformed provenance",
+            )
+        try:
+            runtime = validate_proof_runtime_fingerprint(runtime)
+        except ValueError as exc:
+            raise PipelineError(
+                "RUNTIME_INVALID",
+                f"configured proof runtime is malformed: {exc}",
+            ) from exc
+        if runtime["interpreter"] != dict(interpreter):
+            raise PipelineError(
+                "RUNTIME_INVALID",
+                "configured proof runtime has conflicting interpreter identity",
+            )
+        return {
+            "proof_runtime": runtime,
+            "proof_interpreter": dict(runtime["interpreter"]),
         }
 
     @staticmethod
@@ -2112,8 +2183,20 @@ class FiveStagePipeline:
         if self.config.candidate_inputs:
             candidates = list(self.config.candidate_inputs)
             command = ["internal:existing-candidate-inputs", *map(str, candidates)]
-            stage_config = {"mode": "existing-inputs"}
-            stage_config_revalidator = None
+
+            def current_stage_config() -> dict[str, Any]:
+                return {
+                    "mode": "existing-inputs",
+                    # There is no Humanize search implementation in this mode,
+                    # but the handoff still belongs to the proof campaign and
+                    # must be invalidated when either process environment
+                    # changes.
+                    "controller_runtime": proof_runtime_fingerprint(),
+                    **self._worker_runtime_provenance(),
+                }
+
+            stage_config = current_stage_config()
+            stage_config_revalidator = current_stage_config
             machine = lambda: 0
         else:
             flow_config = self._flow_config()
@@ -2364,6 +2447,8 @@ class FiveStagePipeline:
     def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
         command = [
             self.config.python_executable,
+            "-I",
+            "-B",
             str(self.config.repo_dir / "scripts" / "audit_candidate_pool.py"),
             *map(str, candidates),
             "--top",
@@ -2454,6 +2539,8 @@ class FiveStagePipeline:
     def _stage3_command(self) -> list[str]:
         command = [
             self.config.python_executable,
+            "-I",
+            "-B",
             str(self.config.repo_dir / "scripts" / "audit_direction_pool.py"),
             str(self.paths.stage2_ranked),
             "--state-dir",
@@ -3482,6 +3569,8 @@ class FiveStagePipeline:
     def _strict_command(self) -> list[str]:
         return [
             self.config.python_executable,
+            "-I",
+            "-B",
             str(self.config.repo_dir / "scripts" / "finalize_challenge.py"),
             str(self.paths.stage4_certificates),
             "--known-answer-artifact",
@@ -3931,6 +4020,7 @@ class FiveStagePipeline:
             "strict_source_fingerprint": strict_source["source_fingerprint"],
             "strict_runner_sha256": strict_source["strict_runner_sha256"],
             "proof_runtime": source["proof_runtime"],
+            "proof_interpreter": source["proof_interpreter"],
             "strict_inputs": strict_inputs,
             "proof_config_sha256": _canonical_sha256(base_config),
             "stage1_outputs_sha256": _canonical_sha256(

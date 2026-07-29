@@ -28,6 +28,7 @@ from evaluation.bb_code import build_bb_code
 from evaluation.challenge_gate import evaluate_challenge_gate
 from evaluation.distance_milp import get_code_matrices
 from evaluation.final_gate import _matrix_sha256, _rank_f2
+from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.registry import check_code_novelty
 
 
@@ -136,6 +137,7 @@ def _solver_environment() -> dict[str, Any]:
         "python": platform.python_version(),
         "numpy": _package_version("numpy"),
         "qldpc": _package_version("qldpc"),
+        "proof_runtime": proof_runtime_fingerprint(),
     }
 
 

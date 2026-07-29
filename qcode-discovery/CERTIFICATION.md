@@ -201,9 +201,13 @@ qcode-discovery/.venv/bin/python \
 stored PID start time, uid, command hash, process group, and session before it
 sends a signal; it refuses a stale or reused PID.
 
-`export-release` accepts only the run id and the optional fixed repository
-location. It snapshots the completed Stage 4 certificate set and the matching
-Stage 5 strict replay while holding the pipeline lock, rejects any count,
+`export-release` accepts the run id, the optional fixed repository location,
+and `--python-executable`. The latter is an explicit authorization boundary:
+it defaults to the qcode repository runtime and must identify the exact worker
+interpreter recorded by Stage 5. Pass the campaign's configured worker path
+when it differs from `qcode-discovery/.venv/bin/python`. The exporter snapshots
+the completed Stage 4 certificate set and the matching Stage 5 strict replay
+while holding the pipeline lock, rejects any count,
 claim, certificate-hash, output-hash, or strict-provenance mismatch, and emits
 only safe relative certificate paths. Publication is atomic and immutable: an
 identical second export is a no-op, while an existing different release is

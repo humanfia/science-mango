@@ -217,6 +217,8 @@ def check_strict(
         rerun_path = Path(directory) / "known_answer_gate.json"
         command = [
             sys.executable,
+            "-I",
+            "-B",
             str(project / "tests" / "verify_known_answer_gate.py"),
             "--output", str(rerun_path),
             "--timeout-per-logical", str(timeout_per_logical),

@@ -670,6 +670,10 @@ def test_css_checkpoint_rejects_candidate_matrix_and_budget_mismatch(
         isinstance(version, str) and version
         for version in implementation["versions"].values()
     )
+    assert implementation["proof_runtime"]["schema_version"] == 2
+    assert implementation["proof_runtime"]["interpreter"][
+        "executable_file"
+    ]["sha256"]
 
     with pytest.raises(ValueError, match="binding mismatch"):
         distance_milp.compute_distance_milp(

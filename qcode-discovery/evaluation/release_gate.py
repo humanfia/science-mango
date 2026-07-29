@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from evaluation.proof_runtime import validate_proof_runtime_fingerprint
+
 
 def _is_lower_sha256(value: Any) -> bool:
     return (
@@ -157,6 +159,28 @@ def validate_release_manifest(
         or source_stage5.get("final_gate_sha256") != stage5_artifact_sha256
     ):
         failures.append("release Stage 5 artifact SHA-256 binding is invalid")
+    if isinstance(source_stage5, dict):
+        proof_runtime = source_stage5.get("proof_runtime")
+        proof_interpreter = source_stage5.get("proof_interpreter")
+        try:
+            if not isinstance(proof_runtime, dict):
+                raise ValueError("proof_runtime must be an object")
+            normalized_runtime = validate_proof_runtime_fingerprint(
+                proof_runtime,
+            )
+        except ValueError as exc:
+            failures.append(
+                f"release Stage 5 proof runtime is invalid: {exc}",
+            )
+        else:
+            if (
+                not isinstance(proof_interpreter, dict)
+                or proof_interpreter
+                != normalized_runtime["interpreter"]
+            ):
+                failures.append(
+                    "release Stage 5 proof interpreter binding is invalid",
+                )
     verified = 0
     for index, entry in enumerate(entries):
         if not isinstance(entry, dict):

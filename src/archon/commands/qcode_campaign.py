@@ -43,6 +43,20 @@ def _runtime(repo: Path) -> tuple[Path, dict[str, str]]:
     return Path(sys.executable), os.environ.copy()
 
 
+def _authorized_python(repo: Path, value: Optional[Path]) -> Path:
+    """Resolve an explicit invocation path without dereferencing venv links."""
+
+    selected = _runtime(repo)[0] if value is None else value.expanduser()
+    if not selected.is_absolute():
+        selected = Path.cwd() / selected
+    selected = Path(os.path.abspath(selected))
+    if not selected.is_file() or not os.access(selected, os.X_OK):
+        raise typer.BadParameter(
+            f"authorized qcode proof interpreter is not executable: {selected}"
+        )
+    return selected
+
+
 def _invoke_pipeline_cli(repo: Path, arguments: list[str]) -> None:
     python, env = _runtime(repo)
     command = [str(python), "-m", "humanize.pipeline_cli", *arguments]
@@ -174,10 +188,19 @@ def export_campaign_release(
         None, "--repo-dir", help="Vendored or standalone qcode-discovery path."
     ),
     run_id: str = typer.Option(..., "--run-id"),
+    python_executable: Optional[Path] = typer.Option(
+        None,
+        "--python-executable",
+        help=(
+            "Explicitly authorize the proof interpreter recorded by Stage 5; "
+            "defaults to the qcode repository runtime."
+        ),
+    ),
 ) -> None:
     """Export one completed WIN into the immutable release layout."""
 
     repo = _resolve_repo(project_path, repo_dir)
+    authorized_python = _authorized_python(repo, python_executable)
     _invoke_pipeline_cli(
         repo,
         [
@@ -186,6 +209,8 @@ def export_campaign_release(
             str(repo),
             "--run-id",
             run_id,
+            "--python-executable",
+            str(authorized_python),
         ],
     )
 
