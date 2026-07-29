@@ -74,6 +74,14 @@ LOCAL_EVOLUTION_DEPENDENCIES = {
     "evaluation_final_gate": "evaluation/final_gate.py",
     "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
 }
+# Transactions prepared before ``evaluation_final_gate`` was added have no
+# explicit binding-schema field.  Keep the exact historical shape allowlisted
+# so an *unbound* prepared transaction can abandon its old slice and rebind.
+# Do not accept arbitrary subsets: a missing dependency could otherwise turn
+# manifest corruption into an unaudited source upgrade.
+LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
+    frozenset({"evaluation_final_gate"}),
+)
 EVOLUTION_INVOCATION_FIELDS = frozenset({
     "model_names",
     "reasoning_effort",
@@ -1690,12 +1698,29 @@ def _binding_identity_sha256(
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _is_legacy_evolution_launch_shape(
+    launch: Any,
+    current_launch: dict[str, dict[str, Any]],
+) -> bool:
+    if not isinstance(launch, dict):
+        return False
+    launch_fields = set(launch)
+    current_fields = set(current_launch)
+    return any(
+        launch_fields == current_fields - missing
+        and missing <= current_fields
+        for missing in LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS
+    )
+
+
 def _validate_stored_binding_shape(
     config: FlowConfig,
     launch: Any,
     invocation: Any,
     round_dir: Path,
     current_launch: dict[str, dict[str, Any]],
+    *,
+    allow_legacy: bool = False,
 ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     """Validate an old identity without requiring old source bytes to exist.
 
@@ -1704,12 +1729,24 @@ def _validate_stored_binding_shape(
     and the round context (which is transaction data rather than source code)
     must remain byte-identical.
     """
-    if not isinstance(launch, dict) or set(launch) != set(current_launch):
+    if not isinstance(launch, dict):
         raise RoundTransactionError(
             "managed OpenEvolve launch binding fields are incomplete"
         )
-    for name, current in current_launch.items():
-        descriptor = launch.get(name)
+    launch_fields = set(launch)
+    current_fields = set(current_launch)
+    legacy_shape = _is_legacy_evolution_launch_shape(
+        launch, current_launch
+    )
+    if launch_fields != current_fields and not (
+        allow_legacy and legacy_shape
+    ):
+        raise RoundTransactionError(
+            "managed OpenEvolve launch binding fields are incomplete"
+        )
+    for name in launch_fields:
+        current = current_launch[name]
+        descriptor = launch[name]
         expected_fields = {"path", "sha256", "bytes"}
         if name == "codex_executable":
             expected_fields.add("mode")
@@ -1807,7 +1844,7 @@ def _binding_change_reason(
     changed = [
         f"launch:{name}"
         for name in sorted(current_launch)
-        if old_launch[name] != current_launch[name]
+        if old_launch.get(name) != current_launch[name]
     ]
     changed.extend(
         f"invocation:{name}"
@@ -2936,6 +2973,7 @@ class HumanizeFlow:
         pending_seen = False
         previous_launch: dict[str, dict[str, Any]] | None = None
         previous_invocation: dict[str, Any] | None = None
+        previous_was_legacy: bool | None = None
         required = {
             "attempt",
             "status",
@@ -3002,6 +3040,10 @@ class HumanizeFlow:
                 record["old_invocation_binding"],
                 round_dir,
                 current_launch,
+                allow_legacy=True,
+            )
+            old_is_legacy = _is_legacy_evolution_launch_shape(
+                old_launch, current_launch
             )
             if record["old_binding_sha256"] != _binding_identity_sha256(
                 old_launch, old_invocation
@@ -3016,6 +3058,10 @@ class HumanizeFlow:
                 raise RoundTransactionError(
                     "evolution binding rebind history is not a continuous chain"
                 )
+            if previous_was_legacy is False and old_is_legacy:
+                raise RoundTransactionError(
+                    "evolution binding rebind history downgrades its schema"
+                )
 
             if status == "rebinding":
                 if pending_seen or index != len(history):
@@ -3025,6 +3071,7 @@ class HumanizeFlow:
                 pending_seen = True
                 previous_launch = old_launch
                 previous_invocation = old_invocation
+                previous_was_legacy = old_is_legacy
             else:
                 new_launch, new_invocation = _validate_stored_binding_shape(
                     self.config,
@@ -3032,7 +3079,15 @@ class HumanizeFlow:
                     record["new_invocation_binding"],
                     round_dir,
                     current_launch,
+                    allow_legacy=True,
                 )
+                new_is_legacy = _is_legacy_evolution_launch_shape(
+                    new_launch, current_launch
+                )
+                if not old_is_legacy and new_is_legacy:
+                    raise RoundTransactionError(
+                        "evolution binding rebind history downgrades its schema"
+                    )
                 if record["new_binding_sha256"] != _binding_identity_sha256(
                     new_launch, new_invocation
                 ):
@@ -3066,6 +3121,7 @@ class HumanizeFlow:
                     )
                 previous_launch = new_launch
                 previous_invocation = new_invocation
+                previous_was_legacy = new_is_legacy
 
         if history and (
             transaction.get("launch_binding") != previous_launch
@@ -3314,6 +3370,13 @@ class HumanizeFlow:
                     transaction.get("invocation_binding"),
                     round_dir,
                     current_launch,
+                    allow_legacy=(
+                        status == "prepared"
+                        and allow_prepared_rebind
+                        and self._prepared_transaction_has_no_bound_source(
+                            transaction
+                        )
+                    ),
                 )
             )
             history = self._validate_binding_rebind_history(

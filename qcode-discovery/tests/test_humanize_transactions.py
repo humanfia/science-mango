@@ -1066,6 +1066,178 @@ def test_prepared_transaction_rebinds_changed_sources_and_archives_old_attempt(
     assert manifest["abandoned_checkpoints"][0]["attempt"] == 1
 
 
+def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="prepared-legacy-binding",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    old_row = candidate(33)
+    new_row = candidate(34)
+    runner_calls = []
+
+    def runner(_config, _state, runner_round):
+        runner_calls.append(True)
+        assert flow.candidate_log.read_bytes() == b""
+        flow.candidate_log.write_bytes(jsonl(new_row))
+        checkpoint = write_checkpoint(repo, config.run_id, 3)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    manifest_path = round_dir / "evolution-transaction.json"
+    manifest = json.loads(manifest_path.read_text())
+    legacy_launch = dict(manifest["launch_binding"])
+    legacy_launch.pop("evaluation_final_gate")
+    invocation = manifest["invocation_binding"]
+    legacy_sha256 = flow_module._binding_identity_sha256(
+        legacy_launch, invocation
+    )
+    manifest["launch_binding"] = legacy_launch
+    manifest["evolution_binding_rebinds"] = [{
+        "attempt": 1,
+        "status": "rebound",
+        "reason": "historical launch binding schema",
+        "old_launch_binding": legacy_launch,
+        "old_invocation_binding": invocation,
+        "old_binding_sha256": legacy_sha256,
+        "candidate_start_offset": manifest["candidate_start_offset"],
+        "evolution_attempts_before": 0,
+        "abandoned_ranges_before": 0,
+        "abandoned_checkpoints_before": 0,
+        "planned_at": "legacy",
+        "new_launch_binding": legacy_launch,
+        "new_invocation_binding": invocation,
+        "new_binding_sha256": legacy_sha256,
+        "evolution_attempts_after": 0,
+        "abandoned_ranges_after": 0,
+        "abandoned_checkpoints_after": 0,
+        "rebound_at": "legacy",
+    }]
+    atomic_write_json(manifest_path, manifest)
+    flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+    flow.candidate_log.write_bytes(jsonl(old_row))
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="binding fields are incomplete",
+    ):
+        flow._load_transaction(state, 1, round_dir)
+    assert flow.candidate_log.read_bytes() == jsonl(old_row)
+
+    rows = flow._capture_round_candidates(state, 1, round_dir)
+
+    assert rows == [new_row]
+    assert runner_calls == [True]
+    durable = json.loads(manifest_path.read_text())
+    assert durable["status"] == "committed"
+    assert len(durable["evolution_binding_rebinds"]) == 2
+    migration = durable["evolution_binding_rebinds"][1]
+    assert migration["status"] == "rebound"
+    assert "launch:evaluation_final_gate" in migration["reason"]
+    assert (
+        "evaluation_final_gate"
+        not in migration["old_launch_binding"]
+    )
+    assert "evaluation_final_gate" in migration["new_launch_binding"]
+    assert (
+        round_dir / "abandoned-candidate-complete-001.jsonl"
+    ).read_bytes() == jsonl(old_row)
+    flow._validate_completed_transaction(1, round_dir)
+
+
+@pytest.mark.parametrize(
+    "missing_field",
+    ("evaluation_evaluator", "evaluation_results"),
+)
+def test_prepared_transaction_rejects_unallowlisted_legacy_shape(
+    tmp_path, missing_field
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id=f"prepared-bad-legacy-{missing_field}",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    manifest_path = round_dir / "evolution-transaction.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["launch_binding"].pop(missing_field)
+    atomic_write_json(manifest_path, manifest)
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="binding fields are incomplete",
+    ):
+        flow._capture_round_candidates(state, 1, round_dir)
+    assert json.loads(manifest_path.read_text())[
+        "evolution_binding_rebinds"
+    ] == []
+
+
+@pytest.mark.parametrize(
+    ("status", "bind_source"),
+    (
+        ("prepared", True),
+        ("source-ready", False),
+        ("batch-ready", False),
+        ("committed", False),
+    ),
+)
+def test_legacy_binding_is_not_migrated_after_source_binding(
+    tmp_path, status, bind_source
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id=f"bound-legacy-{status}",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    manifest_path = round_dir / "evolution-transaction.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["launch_binding"].pop("evaluation_final_gate")
+    manifest["status"] = status
+    if bind_source:
+        manifest["candidate_end_offset"] = manifest[
+            "candidate_start_offset"
+        ]
+    atomic_write_json(manifest_path, manifest)
+    before = manifest_path.read_bytes()
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="binding fields are incomplete",
+    ):
+        flow._load_transaction(
+            state, 1, round_dir, allow_prepared_rebind=True
+        )
+    assert manifest_path.read_bytes() == before
+
+
 def test_interrupted_prepared_binding_rebind_resumes_from_its_wal(
     tmp_path, monkeypatch
 ):
