@@ -53,10 +53,14 @@ STAGE2_LATTICES : list[tuple[int, int]]
 
 from __future__ import annotations
 
+import fcntl
 import importlib.util
+import json
 import logging
 import math
+import os
 import sys
+import time
 from pathlib import Path
 
 # Ensure the project root is on sys.path so we can import evaluation.*
@@ -79,6 +83,10 @@ from evaluation.structural_dedup import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class CandidateLogWriteError(RuntimeError):
+    """A discovered candidate could not be durably persisted."""
 
 
 def _definition_key(result: dict) -> tuple:
@@ -212,6 +220,47 @@ def _structural_feedback(result: dict) -> str:
     return "\n  ".join(lines)
 
 
+def _append_candidate_jsonl(log_file: Path, payload: bytes) -> None:
+    """Append exactly one locked and durable JSONL record."""
+    # Evaluators run in separate worker processes.  O_APPEND prevents stale
+    # offsets, while flock keeps a short/partial write from interleaving with
+    # another JSON record.  Flush the record to stable storage before reporting
+    # the evaluation as successful: a candidate that influenced evolution must
+    # not disappear from the Stage 1 input log.
+    flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(log_file, flags, 0o600)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        original_size = os.fstat(descriptor).st_size
+        try:
+            written = 0
+            while written < len(payload):
+                count = os.write(descriptor, payload[written:])
+                if count <= 0:
+                    raise OSError("candidate JSONL append made no progress")
+                written += count
+            os.fsync(descriptor)
+        except BaseException:
+            # All writers in this module honor the same inode lock, so rollback
+            # can safely remove a short record before surfacing the failure.
+            try:
+                os.ftruncate(descriptor, original_size)
+                os.fsync(descriptor)
+            except OSError:
+                logger.exception(
+                    "Failed to roll back partial candidate JSONL append: %s",
+                    log_file,
+                )
+            raise
+    finally:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
+
+
 def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
     """Append a code result to the run-specific all_codes.jsonl file.
 
@@ -223,15 +272,10 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
     2. ``QCODE_RUN_NAME`` environment variable (set by run_evolution.py)
     3. Fallback to ``results/evolution/all_codes.jsonl``
     """
-    import json
-    import os
-    import time
-
     d = result.get("d", 0)
     if d <= 0:
         return
 
-    # Resolve run_name from argument or environment
     if not run_name:
         run_name = os.environ.get("QCODE_RUN_NAME")
 
@@ -258,14 +302,17 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution" / run_name
     else:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "all_codes.jsonl"
-
     try:
-        with open(log_file, "a") as f:
-            f.write(json.dumps(record, default=str) + "\n")
-    except OSError:
-        pass  # Don't fail evaluation over logging
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "all_codes.jsonl"
+        payload = (
+            json.dumps(record, ensure_ascii=False, default=str) + "\n"
+        ).encode("utf-8")
+        _append_candidate_jsonl(log_file, payload)
+    except OSError as exc:
+        raise CandidateLogWriteError(
+            f"failed to persist discovered candidate in {log_dir}"
+        ) from exc
 
 
 def _error_result(error: str) -> dict:
@@ -462,6 +509,11 @@ def _run_evaluation(
             # Log ALL codes with d > 0 to JSONL for Phase D pattern extraction
             for r in results:
                 _log_code_jsonl(r, run_name=run_name)
+        except CandidateLogWriteError:
+            # Persistence is part of a successful evaluation contract.  Let the
+            # worker fail visibly instead of returning fitness for an unlogged
+            # candidate that Stage 1 can never audit.
+            raise
         except Exception as e:
             errors.append(f"({ell},{m}): {type(e).__name__}: {e}")
 

@@ -2472,6 +2472,13 @@ class HumanizeFlow:
             raise RoundTransactionError("transaction candidate offsets are invalid")
         if not isinstance(transaction.get("abandoned_ranges"), list):
             raise RoundTransactionError("transaction abandoned_ranges is invalid")
+        partial_recoveries = transaction.setdefault(
+            "candidate_partial_recoveries", []
+        )
+        if not isinstance(partial_recoveries, list):
+            raise RoundTransactionError(
+                "transaction candidate_partial_recoveries is invalid"
+            )
         if not isinstance(transaction.get("evolution_attempts"), list):
             raise RoundTransactionError("transaction evolution_attempts is invalid")
         if not isinstance(transaction.get("abandoned_checkpoints"), list):
@@ -2615,6 +2622,7 @@ class HumanizeFlow:
             "candidate_start_offset": start_offset,
             "candidate_end_offset": None,
             "abandoned_ranges": [],
+            "candidate_partial_recoveries": [],
             "abandoned_checkpoints": [],
             "evolution_attempts": [],
             "candidate_source_sha256": None,
@@ -2816,6 +2824,141 @@ class HumanizeFlow:
             "partial_bytes": len(payload) - complete_length,
         }
 
+    @staticmethod
+    def _abandoned_candidate_batch_path(
+        round_dir: Path,
+        attempt_number: int,
+    ) -> Path:
+        return (
+            round_dir
+            / f"abandoned-candidate-complete-{attempt_number:03d}.jsonl"
+        )
+
+    def _materialize_abandoned_candidate_batch(
+        self,
+        round_dir: Path,
+        attempt_number: int,
+        payload: bytes,
+        tail: dict[str, Any],
+    ) -> tuple[Path, dict[str, Any]]:
+        """Materialize the complete JSONL prefix of an abandoned raw tail."""
+        complete_length = (
+            int(tail["last_complete_offset"]) - int(tail["start_offset"])
+        )
+        complete_payload = payload[:complete_length]
+        batch_path = self._abandoned_candidate_batch_path(
+            round_dir, attempt_number
+        )
+        if batch_path.is_symlink():
+            raise RoundTransactionError(
+                f"abandoned candidate batch may not be a symlink: {batch_path}"
+            )
+        expected = {
+            "path": str(batch_path.resolve()),
+            "sha256": hashlib.sha256(complete_payload).hexdigest(),
+            "bytes": len(complete_payload),
+            "rows": int(tail["complete_rows"]),
+        }
+        if batch_path.exists():
+            descriptor = _file_descriptor(
+                batch_path, "abandoned complete candidate batch"
+            )
+            observed = {
+                **descriptor,
+                "rows": int(tail["complete_rows"]),
+            }
+            if observed != expected or batch_path.read_bytes() != complete_payload:
+                raise RoundTransactionError(
+                    "abandoned complete candidate batch changed"
+                )
+        else:
+            descriptor = atomic_write_bytes(batch_path, complete_payload)
+            observed = {
+                "path": str(batch_path.resolve()),
+                **descriptor,
+                "rows": int(tail["complete_rows"]),
+            }
+            if observed != expected:
+                raise RoundTransactionError(
+                    "abandoned complete candidate batch identity is inconsistent"
+                )
+        try:
+            rows, end_offset, source_sha256 = read_jsonl_range(batch_path, 0)
+        except ValueError as exc:
+            raise RoundTransactionError(str(exc)) from exc
+        if (
+            len(rows) != expected["rows"]
+            or end_offset != expected["bytes"]
+            or source_sha256 != expected["sha256"]
+        ):
+            raise RoundTransactionError(
+                "abandoned complete candidate batch is not valid bound JSONL"
+            )
+        return batch_path, expected
+
+    def _abandoned_candidate_inputs(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+    ) -> tuple[Path, ...]:
+        """Validate and return salvaged complete rows in attempt order.
+
+        Pre-hotfix manifests did not record the derived batch descriptor.  Their
+        immutable raw archive already binds the exact bytes, so materializing
+        the complete prefix remains a safe, backward-compatible migration.
+        """
+        inputs: list[Path] = []
+        abandoned = transaction.get("abandoned_ranges", [])
+        if not isinstance(abandoned, list):
+            raise RoundTransactionError("transaction abandoned_ranges is invalid")
+        start_offset = int(transaction["candidate_start_offset"])
+        for attempt_number, record in enumerate(abandoned, 1):
+            if not isinstance(record, dict):
+                raise RoundTransactionError(
+                    "abandoned-tail record is not an object"
+                )
+            archive_path = (
+                round_dir
+                / f"abandoned-candidate-tail-{attempt_number:03d}.bin"
+            )
+            descriptor = _file_descriptor(
+                archive_path, "abandoned candidate-tail archive"
+            )
+            payload = archive_path.read_bytes()
+            tail = self._inspect_abandoned_payload(
+                payload, start_offset=start_offset
+            )
+            expected_archive = {
+                **tail,
+                "archive_path": descriptor["path"],
+                "archive_sha256": descriptor["sha256"],
+                "archive_bytes": descriptor["bytes"],
+            }
+            for key, value in expected_archive.items():
+                if record.get(key) != value:
+                    raise RoundTransactionError(
+                        f"abandoned-tail record mismatch for {key}"
+                    )
+            batch_path, batch_identity = (
+                self._materialize_abandoned_candidate_batch(
+                    round_dir,
+                    attempt_number,
+                    payload,
+                    tail,
+                )
+            )
+            recorded_identity = record.get("complete_candidate_batch")
+            if (
+                recorded_identity is not None
+                and recorded_identity != batch_identity
+            ):
+                raise RoundTransactionError(
+                    "abandoned complete candidate batch binding mismatch"
+                )
+            if batch_identity["rows"]:
+                inputs.append(batch_path)
+        return tuple(inputs)
+
     def _atomic_restore_candidate_prefix(self, start_offset: int) -> None:
         path = self.candidate_log
         if start_offset == 0 and not path.exists():
@@ -2837,6 +2980,158 @@ class HumanizeFlow:
         atomic_write_bytes(path, prefix)
         if path.stat().st_size != start_offset:
             raise RoundTransactionError("candidate log prefix restore was not durable")
+
+    def _validate_candidate_partial_recoveries(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+    ) -> None:
+        history = transaction.get("candidate_partial_recoveries", [])
+        if not isinstance(history, list):
+            raise RoundTransactionError(
+                "transaction candidate_partial_recoveries is invalid"
+            )
+        start_offset = int(transaction["candidate_start_offset"])
+        for recovery_number, record in enumerate(history, 1):
+            if not isinstance(record, dict):
+                raise RoundTransactionError(
+                    "candidate partial recovery record is not an object"
+                )
+            archive_path = (
+                round_dir
+                / f"candidate-final-partial-{recovery_number:03d}.bin"
+            )
+            descriptor = _file_descriptor(
+                archive_path, "candidate partial-tail archive"
+            )
+            payload = archive_path.read_bytes()
+            tail = self._inspect_abandoned_payload(
+                payload, start_offset=start_offset
+            )
+            if tail["partial_bytes"] < 1:
+                raise RoundTransactionError(
+                    "candidate partial-tail archive has no partial record"
+                )
+            expected = {
+                **tail,
+                "archive_path": descriptor["path"],
+                "archive_sha256": descriptor["sha256"],
+                "archive_bytes": descriptor["bytes"],
+            }
+            for key, value in expected.items():
+                if record.get(key) != value:
+                    raise RoundTransactionError(
+                        f"candidate partial recovery mismatch for {key}"
+                    )
+
+    def _recover_final_partial_candidate_tail(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+    ) -> int:
+        """Archive and remove only an unterminated final candidate record.
+
+        The archive contains the entire transaction tail, not just the fragment.
+        This makes an interruption between archive creation, atomic truncation,
+        and manifest publication unambiguous on the next resume.
+        """
+        self._validate_candidate_partial_recoveries(transaction, round_dir)
+        history = transaction.setdefault("candidate_partial_recoveries", [])
+        start_offset = int(transaction["candidate_start_offset"])
+        recovery_number = len(history) + 1
+        archive_path = (
+            round_dir / f"candidate-final-partial-{recovery_number:03d}.bin"
+        )
+        if archive_path.is_symlink():
+            raise RoundTransactionError(
+                f"candidate partial-tail archive may not be a symlink: {archive_path}"
+            )
+        source_size = self._candidate_log_size(start_offset=start_offset)
+
+        if archive_path.exists():
+            descriptor = _file_descriptor(
+                archive_path, "orphan candidate partial-tail archive"
+            )
+            payload = archive_path.read_bytes()
+            tail = self._inspect_abandoned_payload(
+                payload, start_offset=start_offset
+            )
+            if tail["partial_bytes"] < 1:
+                raise RoundTransactionError(
+                    "orphan candidate partial-tail archive has no fragment"
+                )
+            complete_length = (
+                int(tail["last_complete_offset"]) - start_offset
+            )
+            if source_size == tail["end_offset"]:
+                with self.candidate_log.open("rb") as stream:
+                    stream.seek(start_offset)
+                    observed = stream.read()
+                if observed != payload:
+                    raise RoundTransactionError(
+                        "orphan candidate partial-tail archive disagrees "
+                        "with candidate log"
+                    )
+                self._atomic_restore_candidate_prefix(
+                    int(tail["last_complete_offset"])
+                )
+            elif source_size == tail["last_complete_offset"]:
+                with self.candidate_log.open("rb") as stream:
+                    stream.seek(start_offset)
+                    observed = stream.read(complete_length)
+                if observed != payload[:complete_length]:
+                    raise RoundTransactionError(
+                        "recovered candidate prefix disagrees with its "
+                        "partial-tail archive"
+                    )
+            else:
+                raise RoundTransactionError(
+                    "cannot reconcile orphan candidate partial-tail archive "
+                    "with candidate log"
+                )
+        else:
+            if source_size == start_offset:
+                return source_size
+            with self.candidate_log.open("rb") as stream:
+                observed_size = os.fstat(stream.fileno()).st_size
+                stream.seek(start_offset)
+                payload = stream.read()
+                final_size = os.fstat(stream.fileno()).st_size
+            if observed_size != source_size or final_size != source_size:
+                raise RoundTransactionError(
+                    "candidate log changed while inspecting its final record"
+                )
+            tail = self._inspect_abandoned_payload(
+                payload, start_offset=start_offset
+            )
+            if tail["partial_bytes"] == 0:
+                return source_size
+            descriptor = atomic_write_bytes(archive_path, payload)
+            descriptor["path"] = str(archive_path.resolve())
+            self._atomic_restore_candidate_prefix(
+                int(tail["last_complete_offset"])
+            )
+
+        if (
+            descriptor["sha256"] != tail["sha256"]
+            or descriptor["bytes"] != tail["bytes"]
+        ):
+            raise RoundTransactionError(
+                "candidate partial-tail archive identity mismatch"
+            )
+        record = {
+            **tail,
+            "archive_path": descriptor["path"],
+            "archive_sha256": descriptor["sha256"],
+            "archive_bytes": descriptor["bytes"],
+            "reason": "unterminated final candidate JSONL record",
+            "recovered_at": utc_now(),
+        }
+        history.append(record)
+        atomic_write_json(
+            self._transaction_paths(round_dir)["manifest"], transaction
+        )
+        return int(tail["last_complete_offset"])
 
     def _abandon_uncommitted_tail(
         self,
@@ -2902,10 +3197,17 @@ class HumanizeFlow:
         )
         if descriptor["sha256"] != tail["sha256"] or descriptor["bytes"] != tail["bytes"]:
             raise RoundTransactionError("abandoned-tail archive identity mismatch")
+        _batch_path, batch_identity = self._materialize_abandoned_candidate_batch(
+            round_dir,
+            attempt_number,
+            payload,
+            tail,
+        )
         tail.update({
             "archive_path": descriptor["path"],
             "archive_sha256": descriptor["sha256"],
             "archive_bytes": descriptor["bytes"],
+            "complete_candidate_batch": batch_identity,
             "reason": "expected checkpoint absent before safe replay",
             "abandoned_at": utc_now(),
         })
@@ -3314,8 +3616,14 @@ class HumanizeFlow:
                     state, transaction, round_dir, lease
                 )
 
-            source_end = self._candidate_log_size(
-                start_offset=int(transaction["candidate_start_offset"])
+            source_end = (
+                self._recover_final_partial_candidate_tail(
+                    transaction, round_dir
+                )
+                if transaction["mode"] == "openevolve"
+                else self._candidate_log_size(
+                    start_offset=int(transaction["candidate_start_offset"])
+                )
             )
             try:
                 source_rows, observed_end, source_sha256 = read_jsonl_range(
@@ -3502,40 +3810,22 @@ class HumanizeFlow:
             )
 
         abandoned = transaction.get("abandoned_ranges")
+        partial_recoveries = transaction.get(
+            "candidate_partial_recoveries", []
+        )
         quarantined = transaction.get("abandoned_checkpoints")
         attempts = transaction.get("evolution_attempts")
         if (
             not isinstance(abandoned, list)
+            or not isinstance(partial_recoveries, list)
             or not isinstance(quarantined, list)
             or not isinstance(attempts, list)
         ):
             raise RoundTransactionError(
                 "completed transaction recovery history is invalid"
             )
-        for index, record in enumerate(abandoned, 1):
-            if not isinstance(record, dict):
-                raise RoundTransactionError("abandoned-tail record is not an object")
-            archive_path = (
-                round_dir / f"abandoned-candidate-tail-{index:03d}.bin"
-            )
-            descriptor = _file_descriptor(
-                archive_path, "abandoned candidate-tail archive"
-            )
-            payload = archive_path.read_bytes()
-            observed = self._inspect_abandoned_payload(
-                payload, start_offset=initial_offset
-            )
-            expected_record = {
-                **observed,
-                "archive_path": descriptor["path"],
-                "archive_sha256": descriptor["sha256"],
-                "archive_bytes": descriptor["bytes"],
-            }
-            for key, value in expected_record.items():
-                if record.get(key) != value:
-                    raise RoundTransactionError(
-                        f"abandoned-tail record mismatch for {key}"
-                    )
+        self._abandoned_candidate_inputs(transaction, round_dir)
+        self._validate_candidate_partial_recoveries(transaction, round_dir)
         for index, record in enumerate(quarantined, 1):
             if (
                 not isinstance(record, dict)
@@ -3593,6 +3883,7 @@ class HumanizeFlow:
                 or transaction.get("completion_marker_sha256") is not None
                 or transaction.get("completion_witness_sha256") is not None
                 or abandoned
+                or partial_recoveries
                 or quarantined
                 or attempts
             ):
@@ -3906,6 +4197,9 @@ class HumanizeFlow:
                         raise RoundTransactionError(
                             "completed transaction result checkpoint path is non-canonical"
                         )
+                paths.extend(
+                    self._abandoned_candidate_inputs(transaction, round_dir)
+                )
                 paths.append(Path(transaction["candidate_batch"]))
                 previous = transaction
                 legacy_boundary = False

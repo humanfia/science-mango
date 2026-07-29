@@ -272,17 +272,31 @@ def test_first_v1_round_archives_legacy_tail_and_partial_line(tmp_path):
         (round_two / "evolution-transaction.json").read_text()
     )
     assert manifest["abandoned_ranges"][0]["partial_bytes"] == 11
+    salvaged = round_two / "abandoned-candidate-complete-001.jsonl"
+    assert salvaged.read_bytes() == jsonl(abandoned_row)
+    assert manifest["abandoned_ranges"][0]["complete_candidate_batch"] == {
+        "path": str(salvaged.resolve()),
+        "sha256": hashlib.sha256(jsonl(abandoned_row)).hexdigest(),
+        "bytes": len(jsonl(abandoned_row)),
+        "rows": 1,
+    }
 
     state["current_round"] = 2
     state.pop("pending_round", None)
     state.pop("round_phase", None)
     flow.store.write_state(state)
     inputs = flow.pipeline_candidate_inputs
-    assert len(inputs) == 2
-    assert inputs[1].read_bytes() == jsonl(retry_row)
-    assert abandoned_row not in [
-        json.loads(line) for line in inputs[1].read_text().splitlines()
-    ]
+    assert len(inputs) == 3
+    assert inputs[1] == salvaged
+    assert inputs[1].read_bytes() == jsonl(abandoned_row)
+    assert inputs[2].read_bytes() == jsonl(retry_row)
+
+    salvaged.write_bytes(jsonl(candidate(99)))
+    with pytest.raises(
+        RoundTransactionError,
+        match="abandoned complete candidate batch changed",
+    ):
+        _ = flow.pipeline_candidate_inputs
 
 
 def test_first_prepare_rejects_stale_intermediate_checkpoint(tmp_path):
@@ -361,6 +375,66 @@ def test_prepared_transaction_adopts_complete_checkpoint_after_crash(tmp_path):
     marker = json.loads((round_dir / "openevolve-completed.json").read_text())
     assert marker["schema_version"] == 2
     assert (round_dir / "openevolve-slice-witness.json").is_file()
+
+
+def test_complete_checkpoint_archives_and_truncates_final_partial_candidate(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="adopt-checkpoint-partial",
+        iterations_per_round=25,
+        milp_top=0,
+    )
+    row = candidate(5)
+    fragment = b'{"partial":'
+    original_tail = jsonl(row) + fragment
+    calls = []
+
+    def crashes_after_checkpoint(_config, _state, _round_dir):
+        calls.append(True)
+        flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+        flow.candidate_log.write_bytes(original_tail)
+        checkpoint = write_checkpoint(repo, config.run_id, 25)
+        write_full_slice_proof(flow, _round_dir, checkpoint, None)
+        raise SystemExit(99)
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=crashes_after_checkpoint
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    with pytest.raises(SystemExit):
+        flow._capture_round_candidates(state, 1, round_dir)
+
+    def must_not_rerun(*_args):
+        raise AssertionError("completed checkpoint was rerun")
+
+    resumed = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=must_not_rerun
+    )
+    recovered = resumed.store.load_state()
+    rows = resumed._capture_round_candidates(recovered, 1, round_dir)
+
+    assert calls == [True]
+    assert rows == [row]
+    assert resumed.candidate_log.read_bytes() == jsonl(row)
+    archive = round_dir / "candidate-final-partial-001.bin"
+    assert archive.read_bytes() == original_tail
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    recovery = manifest["candidate_partial_recoveries"]
+    assert len(recovery) == 1
+    assert recovery[0]["last_complete_offset"] == len(jsonl(row))
+    assert recovery[0]["partial_bytes"] == len(fragment)
+    assert recovery[0]["archive_sha256"] == hashlib.sha256(
+        original_tail
+    ).hexdigest()
+    assert manifest["candidate_end_offset"] == len(jsonl(row))
 
 
 def test_swallowed_interrupt_without_checkpoint_cannot_commit_round(tmp_path):
