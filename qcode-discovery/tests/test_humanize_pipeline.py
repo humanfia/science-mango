@@ -40,16 +40,26 @@ from humanize.pipeline import (
 from humanize.release_export import export_release
 
 
-@pytest.fixture(autouse=True)
-def _stable_worker_runtime_probe(monkeypatch):
-    """Keep orchestration tests fast; the real FD probe has dedicated tests."""
+@pytest.fixture(scope="session")
+def _stable_runtime_identity():
+    return proof_runtime_fingerprint()
 
-    runtime = proof_runtime_fingerprint()
+
+@pytest.fixture(autouse=True)
+def _stable_worker_runtime_probe(monkeypatch, _stable_runtime_identity):
+    """Keep orchestration tests fast; runtime hashing has dedicated tests."""
+
+    runtime = json.loads(json.dumps(_stable_runtime_identity))
     provenance = {
         "runtime": runtime,
         "interpreter": runtime["interpreter"],
     }
     probe = lambda *_args, **_kwargs: provenance
+    monkeypatch.setattr(
+        pipeline_module,
+        "proof_runtime_fingerprint",
+        lambda: runtime,
+    )
     monkeypatch.setattr(pipeline_module, "probe_python_runtime", probe)
     monkeypatch.setattr(release_export_module, "probe_python_runtime", probe)
 
