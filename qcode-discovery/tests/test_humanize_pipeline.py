@@ -1188,6 +1188,108 @@ def test_proof_retry_win_stops_before_later_budgets(tmp_path):
     ]
 
 
+def test_proof_retry_retries_hard_wall_error_then_stops_on_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-hard-wall"),
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    hard_wall_error = {
+        "canonical_digest": "hard-wall-retry",
+        "status": "ERROR",
+        "error": "TimeoutError: candidate process hard-wall timeout",
+        "hard_wall": {
+            "timed_out": True,
+            "candidate_timeout_s": 300,
+        },
+    }
+    winner, _ = _certificate(config, "hard-wall-retry")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan([hard_wall_error], returncode=2),
+            _plan([winner]),
+        ],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 1}
+    stage2_commands = runner.commands("stage2")
+    assert [
+        float(command[command.index("--timeout") + 1])
+        for command in stage2_commands
+    ] == [300, 600]
+    assert [
+        int(command[command.index("--max-total-workers") + 1])
+        for command in stage2_commands
+    ] == [config.max_total_workers, config.max_total_workers]
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )
+    assert controller["active"]["status"] == "COMPLETED_WIN"
+    assert [item["multiplier"] for item in controller["active"]["attempts"]] == [
+        1,
+        2,
+    ]
+
+
+def test_verified_win_survives_peer_certificate_hard_wall(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-peer-hard-wall"),
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    winner, _ = _certificate(config, "hard-wall-surviving-win")
+    timed_out_peer = {
+        "canonical_digest": "hard-wall-certificate-peer",
+        "status": "THRESHOLD_PROVEN",
+        "certificate": {
+            "attempted": True,
+            "certificate_passed": False,
+            "verification_passed": False,
+            "error": "certificate/verification candidate hard-wall timeout",
+            "hard_wall": {
+                "timed_out": True,
+                "candidate_timeout_s": 600,
+            },
+        },
+    }
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [winner, timed_out_peer],
+                operational_errors=1,
+                returncode=2,
+            )
+        ],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "strict": 1}
+    assert state["result"]["verified_certificates"] == 1
+    assert state["stages"]["stage2_sector_audit"][
+        "accepted_nonzero_output"
+    ] is True
+    assert not (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    ).exists()
+
+
 def test_exact_certificate_loser_is_terminal_no_win(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="exact-loser")
