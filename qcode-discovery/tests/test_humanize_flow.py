@@ -2,7 +2,10 @@ import json
 
 import pytest
 
-from humanize.audit_state import authoritative_candidate_digest
+from humanize.audit_state import (
+    authoritative_candidate_digest,
+    create_unresolved_entry,
+)
 from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
@@ -60,6 +63,47 @@ def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
     assert select_for_milp(
         [row], archive, set(), 1, {digest}
     ) == []
+
+
+def test_unresolved_queue_uses_all_lanes_and_blocks_fresh_admission(tmp_path):
+    repo = tmp_path / "qcode"
+    repo.mkdir()
+    source = repo / "offline.jsonl"
+    source.write_text("")
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="retry-drain",
+            max_rounds=1,
+            milp_top=3,
+            candidate_file=source,
+        ),
+        reviewer=FakeReviewer(),
+    )
+    unresolved_rows = [
+        candidate(k=8, shift=shift) for shift in range(3)
+    ]
+    entries = [
+        create_unresolved_entry(row, round_number=1)
+        for row in unresolved_rows
+    ]
+    state = {
+        "unresolved_candidates": {
+            entry["candidate_key"]: entry for entry in entries
+        },
+        "audited_keys": [],
+        "audited_structural_digests": [],
+    }
+
+    selected = flow._select_audit_candidates(
+        [candidate(k=8, shift=3)],
+        state,
+    )
+
+    assert {code_key(row) for row in selected} == set(
+        state["unresolved_candidates"]
+    )
+    assert len(selected) == 3
 
 
 def test_forged_structural_digest_cannot_hide_candidate_before_audit(tmp_path):

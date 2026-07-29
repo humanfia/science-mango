@@ -2278,7 +2278,7 @@ class HumanizeFlow:
             raise AuditStateError("unresolved_candidates must be an object")
         retry_entries = select_retry_lane(
             unresolved,
-            limit=1 if unresolved else 0,
+            limit=self.config.milp_top if unresolved else 0,
         )
         retry_candidates = [dict(entry["candidate"]) for entry in retry_entries]
         blocked_keys = set(state.get("audited_keys", [])) | set(unresolved)
@@ -2288,12 +2288,20 @@ class HumanizeFlow:
             for entry in unresolved.values()
             if entry.get("canonical_digest")
         )
-        new_candidates = select_for_milp(
-            candidates,
-            self.archive,
-            blocked_keys,
-            self.config.milp_top - len(retry_candidates),
-            blocked_digests,
+        # Drain the retry queue before admitting new candidates.  Mixing one
+        # retry with fresh work lets a persistent timeout queue grow by up to
+        # milp_top-1 entries per round, so Stage 1 can exhaust max_rounds even
+        # though every retry is making progress under its larger budget.
+        new_candidates = (
+            []
+            if unresolved
+            else select_for_milp(
+                candidates,
+                self.archive,
+                blocked_keys,
+                self.config.milp_top,
+                blocked_digests,
+            )
         )
         return retry_candidates + new_candidates
 
