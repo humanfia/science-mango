@@ -55,6 +55,7 @@ def _plan(
     operational_errors: int = 0,
     write_outputs: bool = True,
     gate_passed: bool = True,
+    strict_dispositions: list[str] | None = None,
     selection_exhausted: bool = True,
     selection_page: tuple[int, int] | None = None,
     canonicalization_errors: int = 0,
@@ -65,6 +66,7 @@ def _plan(
         "operational_errors": operational_errors,
         "write_outputs": write_outputs,
         "gate_passed": gate_passed,
+        "strict_dispositions": strict_dispositions,
         "selection_exhausted": selection_exhausted,
         "selection_page": selection_page,
         "canonicalization_errors": canonicalization_errors,
@@ -204,55 +206,93 @@ class ScenarioRunner:
                 if line.strip()
             ]
             trust = json.loads(_argument(command, "--known-answer-trust").read_text())
-            passed = plan["gate_passed"]
+            dispositions = plan["strict_dispositions"]
+            if dispositions is None:
+                dispositions = [
+                    "ACCEPTED" if plan["gate_passed"] else "REJECTED"
+                    for _certificate in certificates
+                ]
+            assert len(dispositions) == len(certificates)
             evaluations = [
                 {
                     "source_index": index,
                     "claim": certificate.get("claim"),
                     "certificate_sha256": certificate.get("certificate_sha256"),
+                    "disposition": disposition,
                     "result": {
-                        "passed": passed,
+                        "passed": disposition == "ACCEPTED",
+                        "replay_complete": disposition != "INCOMPLETE",
                         "checks": {
-                            "schema": passed,
-                            "certificate_sha256": passed,
-                            "known_answer_sha256": passed,
-                            "matrix_sha256": passed,
-                            "direction_count": passed,
-                            "stored_direction_evidence": passed,
-                            "milp_rerun": passed,
-                            "distance_recomputed": passed,
-                            "final_gate": passed,
-                            "certificate_passed_flag": passed,
+                            "schema": disposition == "ACCEPTED",
+                            "certificate_sha256": disposition == "ACCEPTED",
+                            "known_answer_sha256": disposition == "ACCEPTED",
+                            "matrix_sha256": disposition == "ACCEPTED",
+                            "direction_count": disposition == "ACCEPTED",
+                            "stored_direction_evidence": disposition == "ACCEPTED",
+                            "milp_rerun": disposition == "ACCEPTED",
+                            "distance_recomputed": disposition == "ACCEPTED",
+                            "final_gate": disposition == "ACCEPTED",
+                            "certificate_passed_flag": disposition == "ACCEPTED",
                         },
-                        "failures": [] if passed else ["final_gate"],
+                        "failures": (
+                            []
+                            if disposition == "ACCEPTED"
+                            else [
+                                "strict replay timeout"
+                                if disposition == "INCOMPLETE"
+                                else "final_gate"
+                            ]
+                        ),
                         "distance": certificate["claim"]["d"],
                         "directions_verified": 2 * certificate["claim"]["k"],
                         "directions_total": 2 * certificate["claim"]["k"],
                         "final_gate": (
-                            certificate["final_gate"] if passed else {"accepted": False}
+                            certificate["final_gate"]
+                            if disposition == "ACCEPTED"
+                            else {"accepted": False}
                         ),
                     },
                 }
-                for index, certificate in enumerate(certificates)
+                for index, (certificate, disposition) in enumerate(
+                    zip(certificates, dispositions, strict=True)
+                )
             ]
+            accepted = sum(
+                item["disposition"] == "ACCEPTED" for item in evaluations
+            )
+            rejected = sum(
+                item["disposition"] == "REJECTED" for item in evaluations
+            )
+            incomplete = sum(
+                item["disposition"] == "INCOMPLETE" for item in evaluations
+            )
+            outcome = (
+                "WIN"
+                if accepted
+                else "INCOMPLETE"
+                if incomplete
+                else "NO_WIN"
+            )
             _write_json(
                 _argument(command, "--output"),
                 {
                     "schema_version": 1,
                     "gate": expected_gate,
-                    "passed": passed,
+                    "passed": outcome == "WIN",
+                    "outcome": outcome,
                     "known_answer_integrity": {
                         "mode": "strict",
-                        "passed": passed,
+                        "passed": True,
                         "artifact_sha256": trust["artifact_sha256"],
                         "semantic_sha256": trust["semantic_sha256"],
                         "rerun_semantic_sha256": trust["semantic_sha256"],
                         "environment": trust["environment"],
-                        "failures": [] if passed else ["strict replay failed"],
+                        "failures": [],
                     },
                     "summary": {
-                        "accepted": len(evaluations) if passed else 0,
-                        "rejected": 0 if passed else len(evaluations),
+                        "accepted": accepted,
+                        "rejected": rejected,
+                        "incomplete": incomplete,
                         "total": len(evaluations),
                     },
                     "evaluations": evaluations,
@@ -1556,6 +1596,112 @@ def test_strict_gate_rejection_is_fail_closed_and_retried_on_resume(tmp_path):
     assert runner.counts == {"stage2": 1, "strict": 2}
     assert completed["stages"]["stage2_sector_audit"]["attempt"] == 1
     assert completed["stages"]["stage5_strict_gate"]["attempt"] == 2
+
+
+def test_stage5_winner_survives_peer_timeout(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-existential-win")
+    winner, _ = _certificate(config, "strict-winner")
+    peer, _ = _certificate(config, "strict-timeout-peer")
+    runner = ScenarioRunner(
+        stage2=[_plan([winner, peer])],
+        strict=[
+            _plan(strict_dispositions=["ACCEPTED", "INCOMPLETE"]),
+        ],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    gate = json.loads(
+        (config.root / "artifacts" / "stage5-final-gate.json").read_text()
+    )
+    assert gate["outcome"] == "WIN"
+    assert gate["summary"] == {
+        "accepted": 1,
+        "rejected": 0,
+        "incomplete": 1,
+        "total": 2,
+    }
+
+
+def test_stage5_all_terminal_rejections_are_no_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-all-rejected")
+    first, _ = _certificate(config, "strict-rejected-1")
+    second, _ = _certificate(config, "strict-rejected-2")
+    runner = ScenarioRunner(
+        stage2=[_plan([first, second])],
+        strict=[_plan(strict_dispositions=["REJECTED", "REJECTED"])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    assert state["stages"]["stage5_strict_gate"]["machine_status"] == "COMPLETED"
+
+
+def test_stage5_without_winner_and_with_timeout_is_retryable(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-no-winner-timeout")
+    rejected, _ = _certificate(config, "strict-terminal-reject")
+    timeout, _ = _certificate(config, "strict-incomplete-peer")
+    runner = ScenarioRunner(
+        stage2=[_plan([rejected, timeout])],
+        strict=[_plan(strict_dispositions=["REJECTED", "INCOMPLETE"])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert state["result"]["incomplete"] == str(
+        config.root / "artifacts" / "stage5-final-gate.json"
+    )
+    assert state["stages"]["stage5_strict_gate"]["machine_status"] == "INCOMPLETE"
+
+
+def test_stage5_timeout_keeps_current_proof_page_pending(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-timeout-pins-page")
+    rejected, _ = _certificate(config, "strict-page-reject")
+    timeout, _ = _certificate(config, "strict-page-timeout")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [rejected, timeout],
+                selection_exhausted=False,
+                selection_page=(0, 2),
+            )
+        ],
+        strict=[_plan(strict_dispositions=["REJECTED", "INCOMPLETE"])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert state["result"]["stage5_outcome"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 1, "strict": 1}
+    ledger = json.loads(
+        (config.root / "solver-state" / "stage2-selection-ledger.json").read_text()
+    )
+    assert ledger["cursor"] == 0
+    assert ledger["pending"] is not None
 
 
 def test_pipeline_run_id_cannot_escape_pipeline_root(tmp_path):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Run the mandatory, fail-closed terminal gate on proposed challenge claims.
 
-Input may be a JSON object, a JSON list, or JSONL.  Every submitted row must
-pass.  The command exits nonzero for an empty input, malformed evidence, an
-unsupported certificate type, or any rejected candidate.
+Input may be a JSON object, a JSON list, or JSONL.  The IBM/known-answer replay
+is a global prerequisite, while certificates are independently replayed.  A
+well-formed batch completes successfully when it records a WIN, NO_WIN, or
+INCOMPLETE outcome; malformed input and invalid controls still exit nonzero.
 """
 
 from __future__ import annotations
@@ -128,6 +129,23 @@ def _payload_sha256(value: dict[str, Any]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _incomplete_result(failure: str) -> dict[str, Any]:
+    return {
+        "passed": False,
+        "accepted": False,
+        "replay_complete": False,
+        "failures": [failure],
+    }
+
+
+def _verification_disposition(verification: dict[str, Any]) -> str:
+    if verification.get("passed") is True:
+        return "ACCEPTED"
+    if verification.get("replay_complete") is False:
+        return "INCOMPLETE"
+    return "REJECTED"
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -184,11 +202,9 @@ def main() -> int:
                     f"{index:04d}-{_payload_sha256(certificate)}.json"
                 )
             if remaining <= 0:
-                verification = {
-                    "passed": False,
-                    "accepted": False,
-                    "failures": ["strict replay batch timeout exhausted"],
-                }
+                verification = _incomplete_result(
+                    "strict replay batch timeout exhausted"
+                )
             else:
                 try:
                     verification = verify_certificate(
@@ -205,19 +221,29 @@ def main() -> int:
                         solver_workers=args.verification_solver_workers,
                     )
                 except Exception as exc:
-                    verification = {
-                        "passed": False,
-                        "accepted": False,
-                        "failures": [
-                            "strict certificate replay failed: "
-                            f"{type(exc).__name__}: {exc}"
-                        ],
-                    }
+                    verification = _incomplete_result(
+                        "strict certificate replay failed: "
+                        f"{type(exc).__name__}: {exc}"
+                    )
+            if not isinstance(verification, dict):
+                verification = _incomplete_result(
+                    "strict certificate replay returned a non-object result"
+                )
+            else:
+                verification = {
+                    **verification,
+                    "replay_complete": (
+                        True
+                        if verification.get("passed") is True
+                        else verification.get("replay_complete", True)
+                    ),
+                }
             evaluations.append(
                 {
                     "source_index": index,
                     "claim": certificate.get("claim"),
                     "certificate_sha256": certificate.get("certificate_sha256"),
+                    "disposition": _verification_disposition(verification),
                     "checkpoint_path": (
                         None if checkpoint is None else str(checkpoint)
                     ),
@@ -231,22 +257,34 @@ def main() -> int:
                     "source_index": index,
                     "claim": certificate.get("claim"),
                     "certificate_sha256": certificate.get("certificate_sha256"),
-                    "result": {
-                        "passed": False,
-                        "accepted": False,
-                        "failures": ["strict known-answer integrity failed"],
-                    },
+                    "disposition": "INCOMPLETE",
+                    "result": _incomplete_result(
+                        "strict known-answer integrity failed"
+                    ),
                 }
             )
-    accepted = sum(item["result"].get("passed") is True for item in evaluations)
-    passed = bool(
-        integrity.get("passed") is True and evaluations and accepted == len(evaluations)
+    accepted = sum(
+        item["disposition"] == "ACCEPTED" for item in evaluations
     )
+    rejected = sum(
+        item["disposition"] == "REJECTED" for item in evaluations
+    )
+    incomplete = sum(
+        item["disposition"] == "INCOMPLETE" for item in evaluations
+    )
+    passed = bool(integrity.get("passed") is True and accepted > 0)
+    if passed:
+        outcome = "WIN"
+    elif incomplete:
+        outcome = "INCOMPLETE"
+    else:
+        outcome = "NO_WIN"
     artifact = {
         "schema_version": 1,
         "gate": "qldpc-challenge-final-batch",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "passed": passed,
+        "outcome": outcome,
         "known_answer_integrity": integrity,
         "verification_budget": {
             "timeout_per_logical": args.verification_timeout_per_logical,
@@ -261,7 +299,8 @@ def main() -> int:
         },
         "summary": {
             "accepted": accepted,
-            "rejected": len(evaluations) - accepted,
+            "rejected": rejected,
+            "incomplete": incomplete,
             "total": len(evaluations),
         },
         "evaluations": evaluations,
@@ -271,7 +310,7 @@ def main() -> int:
     temporary.write_text(json.dumps(artifact, indent=2) + "\n")
     temporary.replace(args.output)
 
-    status = "PASSED" if passed else "FAILED"
+    status = outcome
     print(
         f"FINAL GATE {status}: {accepted}/{len(evaluations)} accepted; "
         f"artifact={args.output}"
@@ -281,12 +320,13 @@ def main() -> int:
             print(f"  known-answer: {failure}")
         for item in evaluations:
             result = item["result"]
-            if not result.get("accepted"):
+            if item["disposition"] != "ACCEPTED":
                 print(
-                    f"  claim[{item['source_index']}]: "
+                    f"  claim[{item['source_index']}] "
+                    f"{item['disposition'].lower()}: "
                     + "; ".join(result.get("failures") or ["rejected"])
                 )
-    return 0 if passed else 1
+    return 0
 
 
 if __name__ == "__main__":

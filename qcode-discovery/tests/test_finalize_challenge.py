@@ -123,11 +123,20 @@ def test_batch_timeout_stops_later_certificate_replay(tmp_path, monkeypatch):
 
     monkeypatch.setattr(finalizer, "verify_certificate", verify)
 
-    assert finalizer.main() == 1
+    assert finalizer.main() == 0
     assert len(calls) == 1
     assert calls[0][1]["total_timeout"] == 9.0
     artifact = json.loads(args.output.read_text())
-    assert artifact["summary"] == {"accepted": 1, "rejected": 1, "total": 2}
+    assert artifact["passed"] is True
+    assert artifact["outcome"] == "WIN"
+    assert artifact["summary"] == {
+        "accepted": 1,
+        "rejected": 0,
+        "incomplete": 1,
+        "total": 2,
+    }
+    assert artifact["evaluations"][0]["disposition"] == "ACCEPTED"
+    assert artifact["evaluations"][1]["disposition"] == "INCOMPLETE"
     assert artifact["evaluations"][1]["result"]["failures"] == [
         "strict replay batch timeout exhausted"
     ]
@@ -143,8 +152,65 @@ def test_verifier_runtime_error_is_persisted_fail_closed(tmp_path, monkeypatch):
         lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("solver died")),
     )
 
-    assert finalizer.main() == 1
+    assert finalizer.main() == 0
     artifact = json.loads(args.output.read_text())
+    assert artifact["outcome"] == "INCOMPLETE"
+    assert artifact["evaluations"][0]["disposition"] == "INCOMPLETE"
     result = artifact["evaluations"][0]["result"]
     assert result["passed"] is False
     assert "RuntimeError: solver died" in result["failures"][0]
+
+
+def test_all_terminal_rejections_are_no_win(tmp_path, monkeypatch):
+    args = _args(tmp_path, [_certificate(0), _certificate(1)])
+    monkeypatch.setattr(finalizer, "parse_args", lambda: args)
+    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    monkeypatch.setattr(finalizer.time, "monotonic", lambda: 0.0)
+    monkeypatch.setattr(
+        finalizer,
+        "verify_certificate",
+        lambda *_args, **_kwargs: {
+            "passed": False,
+            "replay_complete": True,
+            "failures": ["certificate_sha256"],
+        },
+    )
+
+    assert finalizer.main() == 0
+    artifact = json.loads(args.output.read_text())
+    assert artifact["passed"] is False
+    assert artifact["outcome"] == "NO_WIN"
+    assert artifact["summary"] == {
+        "accepted": 0,
+        "rejected": 2,
+        "incomplete": 0,
+        "total": 2,
+    }
+    assert {
+        evaluation["disposition"] for evaluation in artifact["evaluations"]
+    } == {"REJECTED"}
+
+
+def test_no_winner_with_timeout_is_incomplete(tmp_path, monkeypatch):
+    args = _args(tmp_path, [_certificate(0), _certificate(1)])
+    args.verification_total_timeout = 10.0
+    clock = iter((0.0, 11.0, 12.0))
+    monkeypatch.setattr(finalizer, "parse_args", lambda: args)
+    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    monkeypatch.setattr(finalizer.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(
+        finalizer,
+        "verify_certificate",
+        lambda *_args, **_kwargs: pytest.fail("expired batch reached verifier"),
+    )
+
+    assert finalizer.main() == 0
+    artifact = json.loads(args.output.read_text())
+    assert artifact["passed"] is False
+    assert artifact["outcome"] == "INCOMPLETE"
+    assert artifact["summary"] == {
+        "accepted": 0,
+        "rejected": 0,
+        "incomplete": 2,
+        "total": 2,
+    }

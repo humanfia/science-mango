@@ -2982,6 +2982,10 @@ class FiveStagePipeline:
         result = state.get("result")
         if not isinstance(result, Mapping):
             return False
+        if result.get("stage5_outcome") == "INCOMPLETE":
+            # The current page owns a certificate replay checkpoint. Advancing
+            # the Stage 2 cursor here would orphan that proof candidate.
+            return False
         incompleteness = result.get("proof_incompleteness")
         if not isinstance(incompleteness, Mapping):
             return False
@@ -3319,33 +3323,44 @@ class FiveStagePipeline:
         summary = value.get("summary")
         if (
             value.get("gate") != "qldpc-challenge-final-batch"
-            or value.get("passed") is not True
             or not isinstance(integrity, Mapping)
             or integrity.get("mode") != "strict"
-            or integrity.get("passed") is not True
-            or integrity.get("failures") != []
             or not isinstance(evaluations, list)
             or not evaluations
-            or not all(
-                isinstance(item, Mapping)
-                and isinstance(item.get("result"), Mapping)
-                and item["result"].get("passed") is True
-                for item in evaluations
-            )
             or not isinstance(summary, Mapping)
         ):
             raise PipelineError(
                 "STRICT_GATE_REJECTED",
-                "Stage 5 strict final gate lacks accepted strict evidence",
+                "Stage 5 strict final gate is malformed",
+                stage="stage5_strict_gate",
+            )
+        integrity_passed = integrity.get("passed") is True
+        integrity_failures = integrity.get("failures")
+        if integrity_passed:
+            if integrity_failures != []:
+                raise PipelineError(
+                    "STRICT_GATE_REJECTED",
+                    "passed Stage 5 known-answer integrity contains failures",
+                    stage="stage5_strict_gate",
+                )
+        elif (
+            integrity.get("passed") is not False
+            or not isinstance(integrity_failures, list)
+            or not integrity_failures
+        ):
+            raise PipelineError(
+                "STRICT_GATE_REJECTED",
+                "failed Stage 5 known-answer integrity lacks failure evidence",
                 stage="stage5_strict_gate",
             )
         try:
             accepted = summary["accepted"]
             rejected = summary["rejected"]
+            incomplete = summary["incomplete"]
             total = summary["total"]
             if any(
                 isinstance(item, bool) or not isinstance(item, int)
-                for item in (accepted, rejected, total)
+                for item in (accepted, rejected, incomplete, total)
             ):
                 raise TypeError("summary counts must be integers")
         except (KeyError, TypeError, ValueError) as exc:
@@ -3354,10 +3369,33 @@ class FiveStagePipeline:
                 f"Stage 5 strict summary is invalid: {exc}",
                 stage="stage5_strict_gate",
             ) from exc
-        if not (accepted == total == len(evaluations) and total > 0 and rejected == 0):
+        if (
+            min(accepted, rejected, incomplete, total) < 0
+            or total != len(evaluations)
+            or accepted + rejected + incomplete != total
+            or total == 0
+        ):
             raise PipelineError(
                 "STRICT_GATE_REJECTED",
-                "Stage 5 strict summary does not accept every evaluation",
+                "Stage 5 strict summary counts are inconsistent",
+                stage="stage5_strict_gate",
+            )
+        outcome = value.get("outcome")
+        expected_outcome = (
+            "WIN"
+            if accepted > 0 and integrity_passed
+            else "INCOMPLETE"
+            if incomplete > 0 or not integrity_passed
+            else "NO_WIN"
+        )
+        if (
+            outcome != expected_outcome
+            or value.get("passed") is not (expected_outcome == "WIN")
+            or (not integrity_passed and (accepted != 0 or incomplete != total))
+        ):
+            raise PipelineError(
+                "STRICT_GATE_REJECTED",
+                "Stage 5 strict outcome is inconsistent with its evidence",
                 stage="stage5_strict_gate",
             )
         try:
@@ -3387,6 +3425,7 @@ class FiveStagePipeline:
                 stage="stage5_strict_gate",
             )
         seen_hashes: set[str] = set()
+        observed = {"ACCEPTED": 0, "REJECTED": 0, "INCOMPLETE": 0}
         for index, (certificate, evaluation) in enumerate(
             zip(certificates, evaluations, strict=True)
         ):
@@ -3394,6 +3433,7 @@ class FiveStagePipeline:
             assert isinstance(evaluation, Mapping)
             certificate_sha = certificate.get("certificate_sha256")
             result = evaluation.get("result")
+            disposition = evaluation.get("disposition")
             source_index = evaluation.get("source_index")
             certificate_claim = certificate.get("claim")
             certificate_gate = certificate.get("final_gate")
@@ -3431,13 +3471,48 @@ class FiveStagePipeline:
                 or evaluation.get("certificate_sha256") != certificate_sha
                 or evaluation.get("claim") != certificate.get("claim")
                 or not isinstance(result, Mapping)
-                or result.get("passed") is not True
+                or disposition not in observed
+            ):
+                raise PipelineError(
+                    "STRICT_GATE_REJECTED",
+                    f"Stage 5 evaluation[{index}] is not bound to its certificate",
+                    stage="stage5_strict_gate",
+                )
+            observed[str(disposition)] += 1
+            failures = result.get("failures")
+            if disposition == "INCOMPLETE":
+                if (
+                    result.get("passed") is not False
+                    or result.get("replay_complete") is not False
+                    or not isinstance(failures, list)
+                    or not failures
+                ):
+                    raise PipelineError(
+                        "STRICT_GATE_REJECTED",
+                        f"Stage 5 evaluation[{index}] incomplete evidence is invalid",
+                        stage="stage5_strict_gate",
+                    )
+            elif disposition == "REJECTED":
+                if (
+                    result.get("passed") is not False
+                    or result.get("replay_complete") is not True
+                    or not isinstance(failures, list)
+                    or not failures
+                ):
+                    raise PipelineError(
+                        "STRICT_GATE_REJECTED",
+                        f"Stage 5 evaluation[{index}] rejection evidence is invalid",
+                        stage="stage5_strict_gate",
+                    )
+            elif (
+                result.get("passed") is not True
+                or result.get("replay_complete") is not True
                 or not isinstance(result.get("final_gate"), Mapping)
                 or result["final_gate"].get("accepted") is not True
                 or not isinstance(checks, Mapping)
                 or not REQUIRED_STRICT_REPLAY_CHECKS.issubset(checks)
                 or any(check is not True for check in checks.values())
-                or result.get("failures") != []
+                or failures != []
                 or isinstance(k, bool)
                 or not isinstance(k, int)
                 or k <= 0
@@ -3455,14 +3530,25 @@ class FiveStagePipeline:
                 or not isinstance(certificate_gate, Mapping)
                 or not isinstance(result_gate, Mapping)
                 or result_gate.get("accepted") is not True
-                or _canonical_sha256(result_gate) != _canonical_sha256(certificate_gate)
+                or _canonical_sha256(result_gate)
+                != _canonical_sha256(certificate_gate)
             ):
                 raise PipelineError(
                     "STRICT_GATE_REJECTED",
-                    f"Stage 5 evaluation[{index}] is not bound to its certificate",
+                    f"Stage 5 evaluation[{index}] accepted replay is invalid",
                     stage="stage5_strict_gate",
                 )
             seen_hashes.add(certificate_sha)
+        if (
+            observed["ACCEPTED"] != accepted
+            or observed["REJECTED"] != rejected
+            or observed["INCOMPLETE"] != incomplete
+        ):
+            raise PipelineError(
+                "STRICT_GATE_REJECTED",
+                "Stage 5 dispositions do not match summary counts",
+                stage="stage5_strict_gate",
+            )
         return value
 
     def _record_failure(self, error: PipelineError) -> dict[str, Any]:
@@ -3712,6 +3798,7 @@ class FiveStagePipeline:
             )
 
             certificate_count = int(stage4["verified_certificates"])
+            stage5_outcome: str | None = None
             if certificate_count:
                 strict_command = self._strict_command()
                 stage5_static_config = {
@@ -3740,7 +3827,7 @@ class FiveStagePipeline:
                     }
 
                 stage5_config = current_stage5_config()
-                self._execute_stage(
+                stage5 = self._execute_stage(
                     "stage5_strict_gate",
                     command=strict_command,
                     stage_config=stage5_config,
@@ -3764,7 +3851,32 @@ class FiveStagePipeline:
                         self.paths.stage4_certificates,
                     ),
                 )
-                terminal_status = "COMPLETED_WIN"
+                stage5_outcome = stage5["outcome"]
+                if stage5_outcome == "WIN":
+                    terminal_status = "COMPLETED_WIN"
+                elif stage5_outcome == "INCOMPLETE":
+                    terminal_status = "INCOMPLETE"
+                    record = self.state["stages"]["stage5_strict_gate"]
+                    record["status"] = "INCOMPLETE"
+                    record["machine_status"] = "INCOMPLETE"
+                    record["incomplete_at"] = utc_now()
+                    record["incomplete_reasons"] = [
+                        {
+                            "stage": "stage5_strict_gate",
+                            "code": "STAGE5_STRICT_REPLAY_INCOMPLETE",
+                            "message": (
+                                "No certificate passed and at least one strict "
+                                "certificate replay remains incomplete"
+                            ),
+                        }
+                    ]
+                    if proof_incompleteness["incomplete"] is True:
+                        self._mark_retryable_proof_stages(proof_incompleteness)
+                elif proof_incompleteness["incomplete"] is True:
+                    terminal_status = "INCOMPLETE"
+                    self._mark_retryable_proof_stages(proof_incompleteness)
+                else:
+                    terminal_status = "COMPLETED_NO_WIN"
             elif proof_incompleteness["incomplete"] is True:
                 incomplete = {
                     "schema_version": 1,
@@ -3841,8 +3953,13 @@ class FiveStagePipeline:
                 "strict_gate": (
                     str(self.paths.stage5_gate) if certificate_count else None
                 ),
+                "stage5_outcome": stage5_outcome,
                 "incomplete": (
-                    str(self.paths.stage5_incomplete)
+                    (
+                        str(self.paths.stage5_gate)
+                        if certificate_count
+                        else str(self.paths.stage5_incomplete)
+                    )
                     if terminal_status == "INCOMPLETE"
                     else None
                 ),

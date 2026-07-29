@@ -453,6 +453,7 @@ def verify_noncss_certificate(
     except (KeyError, TypeError, ValueError, OSError) as exc:
         return {
             "passed": False,
+            "replay_complete": True,
             "checks": checks,
             "failures": [f"certificate reconstruction failed: {exc}"],
         }
@@ -464,6 +465,7 @@ def verify_noncss_certificate(
         logicals.shape == (2 * k, 2 * n) and len(directions) == 2 * k
     )
     direction_failures: list[str] = []
+    replay_complete = True
     for index, target in enumerate(logicals):
         if index >= len(directions):
             direction_failures.append(f"logical[{index}]: missing")
@@ -479,6 +481,7 @@ def verify_noncss_certificate(
                 remaining = total_timeout - (time.monotonic() - verify_started)
             if remaining is not None and remaining <= 0:
                 local.append("rerun total timeout exhausted")
+                replay_complete = False
                 rerun = None
             else:
                 raw_timeout = timeout_per_logical
@@ -492,6 +495,7 @@ def verify_noncss_certificate(
                     timeout = math.nan
                 if not math.isfinite(timeout) or timeout <= 0:
                     local.append("invalid rerun timeout")
+                    replay_complete = False
                     rerun = None
                 else:
                     effective_timeout = timeout
@@ -503,6 +507,13 @@ def verify_noncss_certificate(
                         timeout=effective_timeout,
                         solver_workers=workers,
                     )
+                    rerun_status = rerun.get("status")
+                    if (
+                        isinstance(rerun_status, bool)
+                        or not isinstance(rerun_status, int)
+                        or rerun_status not in {0, 2, 3}
+                    ):
+                        replay_complete = False
             if rerun is not None and not (
                 rerun["success"] is True
                 and rerun["mip_gap"] == 0.0
@@ -543,6 +554,7 @@ def verify_noncss_certificate(
     failures.extend(direction_failures)
     return {
         "passed": not failures,
+        "replay_complete": replay_complete,
         "checks": checks,
         "failures": failures,
         "distance": distance,

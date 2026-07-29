@@ -949,7 +949,12 @@ def verify_css_certificate(
             raise TypeError("every MILP direction must be an object")
     except (KeyError, TypeError, ValueError, OSError) as exc:
         failures.append(f"certificate reconstruction failed: {exc}")
-        return {"passed": False, "checks": checks, "failures": failures}
+        return {
+            "passed": False,
+            "replay_complete": True,
+            "checks": checks,
+            "failures": failures,
+        }
 
     expected_objectives: dict[str, Any] = {}
     for position, spec in enumerate(specs):
@@ -988,6 +993,7 @@ def verify_css_certificate(
     direction_failures: list[dict[str, Any]] = []
     stored_direction_failures: list[dict[str, Any]] = []
     rerun_matches = True
+    replay_complete = True
     reused_directions = 0
     for position, spec in enumerate(specs):
         logical_type, index, check_name, checks_matrix, target = spec
@@ -1036,6 +1042,7 @@ def verify_css_certificate(
                 if remaining is not None and remaining <= 0:
                     local.append("rerun total timeout exhausted")
                     rerun_matches = False
+                    replay_complete = False
                     rerun = None
                 else:
                     raw_timeout = timeout_per_logical
@@ -1050,6 +1057,7 @@ def verify_css_certificate(
                     if not math.isfinite(timeout) or timeout <= 0:
                         local.append("invalid rerun timeout")
                         rerun_matches = False
+                        replay_complete = False
                         rerun = None
                     else:
                         effective_timeout = float(timeout)
@@ -1069,6 +1077,13 @@ def verify_css_certificate(
                             "check_matrix": check_name,
                             "target_logical": pack_vector(target),
                         })
+                        rerun_status = rerun.get("status")
+                        if (
+                            isinstance(rerun_status, bool)
+                            or not isinstance(rerun_status, int)
+                            or rerun_status not in {0, 2, 3}
+                        ):
+                            replay_complete = False
                         rerun_valid = (
                             not verify_direction_evidence(
                                 rerun, checks_matrix, target,
@@ -1130,6 +1145,7 @@ def verify_css_certificate(
     )
     return {
         "passed": not failures,
+        "replay_complete": replay_complete,
         "checks": checks,
         "failures": failures,
         "distance": stored_distance,

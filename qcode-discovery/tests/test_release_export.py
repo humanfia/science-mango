@@ -326,8 +326,10 @@ def _make_synthetic_completed_win(
                 "source_index": index,
                 "claim": certificate["claim"],
                 "certificate_sha256": certificate["certificate_sha256"],
+                "disposition": "ACCEPTED",
                 "result": {
                     "passed": True,
+                    "replay_complete": True,
                     "checks": {
                         "schema": True,
                         "certificate_sha256": True,
@@ -382,10 +384,12 @@ def _make_synthetic_completed_win(
             "gate": "qldpc-challenge-final-batch",
             "generated_at": "2026-07-27T00:01:00+00:00",
             "passed": True,
+            "outcome": "WIN",
             "known_answer_integrity": integrity,
             "summary": {
                 "accepted": certificate_count,
                 "rejected": 0,
+                "incomplete": 0,
                 "total": certificate_count,
             },
             "evaluations": evaluations,
@@ -507,6 +511,14 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     assert len(source["stage5"]["source_fingerprint"]) == 64
     assert len(source["stage5"]["known_code_registry_sha256"]) == 64
     assert len(source["stage5"]["strict_runner_sha256"]) == 64
+    assert manifest["source_total"] == 2
+    assert manifest["accepted"] == 2
+    assert manifest["rejected"] == 0
+    assert manifest["incomplete"] == 0
+    assert (
+        manifest["stage5_artifact_sha256"]
+        == source["stage5"]["final_gate_sha256"]
+    )
     assert all(
         entry["file"].startswith("certificates/")
         and not Path(entry["file"]).is_absolute()
@@ -523,6 +535,79 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     second = export_release(repo_dir=repo, run_id=run_id)
 
     assert second == {**first, "status": "already-exported"}
+
+
+def test_export_release_publishes_only_strict_accepted_subset(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    stage5_path = (
+        _pipeline_root(repo, run_id) / "artifacts" / "stage5-final-gate.json"
+    )
+    stage5 = json.loads(stage5_path.read_text())
+    stage5["evaluations"][1]["disposition"] = "INCOMPLETE"
+    stage5["evaluations"][1]["result"] = {
+        "passed": False,
+        "replay_complete": False,
+        "failures": ["strict replay batch timeout exhausted"],
+    }
+    stage5["summary"] = {
+        "accepted": 1,
+        "rejected": 0,
+        "incomplete": 1,
+        "total": 2,
+    }
+    _write_json(stage5_path, stage5)
+    _refresh_state_hashes(repo, run_id)
+
+    result = export_release(repo_dir=repo, run_id=run_id)
+
+    assert result["certificates"] == 1
+    manifest = json.loads(Path(result["manifest"]).read_text())
+    assert {
+        name: manifest[name]
+        for name in ("source_total", "accepted", "rejected", "incomplete")
+    } == {
+        "source_total": 2,
+        "accepted": 1,
+        "rejected": 0,
+        "incomplete": 1,
+    }
+    assert len(manifest["certificates"]) == 1
+    certificate_dir = Path(result["manifest"]).parent / "certificates"
+    assert {path.name for path in certificate_dir.iterdir()} == {
+        f"{manifest['certificates'][0]['certificate_sha256']}.json"
+    }
+    assert validate_release_manifest(
+        result["manifest"],
+        known_answer_trust_path=repo / "results" / "known_answer_trust.json",
+        expected_run_id=run_id,
+    )["passed"]
+
+
+def test_export_release_rejects_promoted_unaccepted_peer(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    stage5_path = (
+        _pipeline_root(repo, run_id) / "artifacts" / "stage5-final-gate.json"
+    )
+    stage5 = json.loads(stage5_path.read_text())
+    stage5["evaluations"][1]["disposition"] = "ACCEPTED"
+    stage5["evaluations"][1]["result"] = {
+        "passed": False,
+        "replay_complete": False,
+        "failures": ["strict replay batch timeout exhausted"],
+    }
+    stage5["summary"] = {
+        "accepted": 2,
+        "rejected": 0,
+        "incomplete": 0,
+        "total": 2,
+    }
+    _write_json(stage5_path, stage5)
+    _refresh_state_hashes(repo, run_id)
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STAGE5_BINDING_MISMATCH"
 
 
 def test_export_release_reports_completed_no_win_separately(tmp_path):

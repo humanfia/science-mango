@@ -1081,13 +1081,19 @@ def _validate_stage5(
     certificates: list[dict[str, Any]],
     certificate_hashes: list[str],
     trust: Mapping[str, Any],
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+) -> tuple[
+    dict[str, Any],
+    list[int],
+    list[dict[str, Any]],
+    dict[str, int],
+]:
     _require_schema_one(gate, label="Stage 5 final gate")
     if (
         gate.get("gate") != "qldpc-challenge-final-batch"
         or gate.get("passed") is not True
+        or gate.get("outcome") != "WIN"
     ):
-        _fail("STAGE5_INVALID", "Stage 5 strict final gate did not pass")
+        _fail("STAGE5_INVALID", "Stage 5 strict final gate is not a WIN")
     integrity = _validate_integrity(
         gate.get("known_answer_integrity"),
         trust=trust,
@@ -1102,23 +1108,32 @@ def _validate_stage5(
         )
     if not isinstance(summary, dict):
         _fail("STAGE5_INVALID", "Stage 5 summary must be an object")
-    counts = (
-        summary.get("accepted"),
-        summary.get("rejected"),
-        summary.get("total"),
-    )
+    counts = {
+        name: summary.get(name)
+        for name in ("accepted", "rejected", "incomplete", "total")
+    }
     if any(
-        isinstance(item, bool) or not isinstance(item, int) for item in counts
-    ) or counts != (count, 0, count):
-        _fail("STAGE5_INVALID", "Stage 5 summary does not accept every certificate")
+        isinstance(item, bool) or not isinstance(item, int) or item < 0
+        for item in counts.values()
+    ):
+        _fail("STAGE5_INVALID", "Stage 5 summary counts are invalid")
+    if (
+        counts["total"] != count
+        or counts["accepted"] <= 0
+        or counts["accepted"] + counts["rejected"] + counts["incomplete"] != count
+    ):
+        _fail("STAGE5_INVALID", "Stage 5 summary counts are inconsistent")
 
+    accepted_indices: list[int] = []
     verifications: list[dict[str, Any]] = []
+    observed = {"ACCEPTED": 0, "REJECTED": 0, "INCOMPLETE": 0}
     for index, (evaluation, certificate, certificate_sha) in enumerate(
         zip(evaluations, certificates, certificate_hashes)
     ):
         if not isinstance(evaluation, dict):
             _fail("STAGE5_INVALID", f"Stage 5 evaluation[{index}] is malformed")
         result = evaluation.get("result")
+        disposition = evaluation.get("disposition")
         evaluation_claim = evaluation.get("claim")
         certificate_claim = certificate.get("claim")
         if (
@@ -1129,11 +1144,50 @@ def _validate_stage5(
             or not isinstance(certificate_claim, dict)
             or _payload_sha256(evaluation_claim) != _payload_sha256(certificate_claim)
             or not isinstance(result, dict)
-            or result.get("passed") is not True
+            or disposition not in observed
         ):
             _fail(
                 "STAGE5_BINDING_MISMATCH",
                 f"Stage 5 evaluation[{index}] is not bound to Stage 4 certificate[{index}]",
+            )
+        observed[str(disposition)] += 1
+        failures = result.get("failures")
+        if disposition == "INCOMPLETE":
+            if (
+                result.get("passed") is not False
+                or result.get("replay_complete") is not False
+                or not isinstance(failures, list)
+                or not failures
+            ):
+                _fail(
+                    "STAGE5_INVALID",
+                    f"Stage 5 evaluation[{index}] incomplete evidence is invalid",
+                )
+            continue
+        if disposition == "REJECTED":
+            if (
+                result.get("passed") is not False
+                or result.get("replay_complete") is not True
+                or not isinstance(failures, list)
+                or not failures
+            ):
+                _fail(
+                    "STAGE5_INVALID",
+                    f"Stage 5 evaluation[{index}] rejection evidence is invalid",
+                )
+            continue
+        final_gate = result.get("final_gate")
+        certificate_gate = certificate.get("final_gate")
+        if (
+            result.get("passed") is not True
+            or result.get("replay_complete") is not True
+            or not isinstance(final_gate, dict)
+            or not isinstance(certificate_gate, dict)
+            or _payload_sha256(final_gate) != _payload_sha256(certificate_gate)
+        ):
+            _fail(
+                "STAGE5_BINDING_MISMATCH",
+                f"Stage 5 evaluation[{index}] accepted result is not bound",
             )
         checks = result.get("checks")
         k = certificate_claim["k"]
@@ -1145,7 +1199,7 @@ def _validate_stage5(
             or not checks
             or not _REQUIRED_REPLAY_CHECKS.issubset(checks)
             or any(value is not True for value in checks.values())
-            or result.get("failures") != []
+            or failures != []
             or isinstance(distance, bool)
             or not isinstance(distance, int)
             or distance != certificate_claim["d"]
@@ -1160,24 +1214,21 @@ def _validate_stage5(
                 "STAGE5_INVALID",
                 f"Stage 5 evaluation[{index}] replay evidence is inconsistent",
             )
-        final_gate = result.get("final_gate")
-        certificate_gate = certificate.get("final_gate")
-        if (
-            not isinstance(final_gate, dict)
-            or not isinstance(certificate_gate, dict)
-            or _payload_sha256(final_gate) != _payload_sha256(certificate_gate)
-        ):
-            _fail(
-                "STAGE5_BINDING_MISMATCH",
-                f"Stage 5 evaluation[{index}] final gate differs from its certificate",
-            )
         _validate_win_gate(
             certificate_claim,
             final_gate,
             label=f"Stage 5 evaluation[{index}]",
         )
+        accepted_indices.append(index)
         verifications.append(result)
-    return integrity, verifications
+    if (
+        observed["ACCEPTED"] != counts["accepted"]
+        or observed["REJECTED"] != counts["rejected"]
+        or observed["INCOMPLETE"] != counts["incomplete"]
+        or len(accepted_indices) != counts["accepted"]
+    ):
+        _fail("STAGE5_INVALID", "Stage 5 dispositions do not match summary counts")
+    return integrity, accepted_indices, verifications, counts
 
 
 def _validate_stage_topology(state: Mapping[str, Any]) -> None:
@@ -1978,12 +2029,23 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             pipeline_root=pipeline_root,
             known_answer_sha256=known_answer_sha,
         )
-        integrity, verifications = _validate_stage5(
+        (
+            integrity,
+            accepted_indices,
+            verifications,
+            stage5_counts,
+        ) = _validate_stage5(
             gate=stage5,
             certificates=certificates,
             certificate_hashes=certificate_hashes,
             trust=trust,
         )
+        accepted_certificates = [
+            certificates[index] for index in accepted_indices
+        ]
+        accepted_hashes = [
+            certificate_hashes[index] for index in accepted_indices
+        ]
         config_fingerprint = state.get("config_fingerprint")
         if not _is_lower_sha256(config_fingerprint):
             _fail("STATE_INVALID", "pipeline config_fingerprint is invalid")
@@ -2033,10 +2095,12 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
                 "verification": verification,
             }
             for certificate_sha, verification in zip(
-                certificate_hashes,
+                accepted_hashes,
                 verifications,
+                strict=True,
             )
         ]
+        stage5_artifact_sha256 = _sha256_bytes(stage5_raw)
         manifest: dict[str, Any] = {
             "schema_version": 1,
             "gate": "qldpc-challenge-release",
@@ -2045,6 +2109,11 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             "passed": True,
             "known_answer_integrity": integrity,
             "source_evaluations": len(certificates),
+            "source_total": stage5_counts["total"],
+            "accepted": stage5_counts["accepted"],
+            "rejected": stage5_counts["rejected"],
+            "incomplete": stage5_counts["incomplete"],
+            "stage5_artifact_sha256": stage5_artifact_sha256,
             "source_pipeline": {
                 "schema_version": 1,
                 "gate": "qcode-humanize-five-stage-pipeline",
@@ -2058,12 +2127,12 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
                 },
                 "stage5": {
                     **stage_provenance[_STAGE5],
-                    "final_gate_sha256": _sha256_bytes(stage5_raw),
+                    "final_gate_sha256": stage5_artifact_sha256,
                     "finalizer_sha256": _sha256_bytes(finalizer_raw),
                     **stage5_current_provenance,
                 },
             },
-            "eligible_candidates": len(certificates),
+            "eligible_candidates": len(accepted_certificates),
             "certificates": entries,
         }
         manifest["manifest_sha256"] = canonical_sha256(
@@ -2086,7 +2155,7 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             runs_root=runs_root,
             destination=destination,
             manifest=manifest,
-            certificates=certificates,
+            certificates=accepted_certificates,
             repo=repo,
             trust_path=trust_path,
             run_id=run_id,

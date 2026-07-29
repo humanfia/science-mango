@@ -125,6 +125,38 @@ def validate_release_manifest(
     if not isinstance(entries, list) or not entries:
         failures.append("release manifest has no certificates")
         entries = []
+    source_counts = {
+        name: manifest.get(name)
+        for name in ("source_total", "accepted", "rejected", "incomplete")
+    }
+    if any(
+        isinstance(value, bool) or not isinstance(value, int) or value < 0
+        for value in source_counts.values()
+    ):
+        failures.append("release source disposition counts are invalid")
+    elif (
+        source_counts["source_total"]
+        != source_counts["accepted"]
+        + source_counts["rejected"]
+        + source_counts["incomplete"]
+        or source_counts["accepted"] != len(entries)
+        or manifest.get("source_evaluations") != source_counts["source_total"]
+        or manifest.get("eligible_candidates") != source_counts["accepted"]
+    ):
+        failures.append("release source disposition counts are inconsistent")
+    stage5_artifact_sha256 = manifest.get("stage5_artifact_sha256")
+    source_pipeline = manifest.get("source_pipeline")
+    source_stage5 = (
+        source_pipeline.get("stage5")
+        if isinstance(source_pipeline, dict)
+        else None
+    )
+    if (
+        not _is_lower_sha256(stage5_artifact_sha256)
+        or not isinstance(source_stage5, dict)
+        or source_stage5.get("final_gate_sha256") != stage5_artifact_sha256
+    ):
+        failures.append("release Stage 5 artifact SHA-256 binding is invalid")
     verified = 0
     for index, entry in enumerate(entries):
         if not isinstance(entry, dict):

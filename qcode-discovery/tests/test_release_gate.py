@@ -45,6 +45,16 @@ def _write_release(tmp_path, *, integrity=_MISSING, trust=_MISSING):
         "gate": "qldpc-challenge-release",
         "run_id": "test-run",
         "passed": True,
+        "source_evaluations": 1,
+        "source_total": 1,
+        "accepted": 1,
+        "rejected": 0,
+        "incomplete": 0,
+        "eligible_candidates": 1,
+        "stage5_artifact_sha256": "b" * 64,
+        "source_pipeline": {
+            "stage5": {"final_gate_sha256": "b" * 64},
+        },
         "certificates": [{
             "file": "certificate.json",
             "certificate_sha256": certificate["certificate_sha256"],
