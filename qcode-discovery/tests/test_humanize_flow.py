@@ -275,7 +275,7 @@ def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
     ) == []
 
 
-def test_unresolved_queue_uses_all_lanes_and_blocks_fresh_admission(tmp_path):
+def test_unresolved_queue_reserves_one_lane_for_fresh_candidate(tmp_path):
     repo = tmp_path / "qcode"
     repo.mkdir()
     source = repo / "offline.jsonl"
@@ -305,15 +305,107 @@ def test_unresolved_queue_uses_all_lanes_and_blocks_fresh_admission(tmp_path):
         "audited_structural_digests": [],
     }
 
+    fresh = candidate(k=8, shift=3)
     selected = flow._select_audit_candidates(
-        [candidate(k=8, shift=3)],
+        [fresh],
         state,
+        screened_history=[fresh],
+    )
+
+    selected_keys = {code_key(row) for row in selected}
+    assert code_key(fresh) in selected_keys
+    assert len(selected_keys & set(state["unresolved_candidates"])) == 2
+    assert len(selected) == 3
+
+
+def test_unresolved_queue_fills_idle_fresh_lane_with_retry(tmp_path):
+    repo = tmp_path / "qcode"
+    repo.mkdir()
+    source = repo / "offline.jsonl"
+    source.write_text("")
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="retry-fill",
+            max_rounds=1,
+            milp_top=3,
+            candidate_file=source,
+        ),
+        reviewer=FakeReviewer(),
+    )
+    entries = [
+        create_unresolved_entry(
+            candidate(k=8, shift=shift),
+            round_number=1,
+        )
+        for shift in range(3)
+    ]
+    state = {
+        "current_round": 1,
+        "unresolved_candidates": {
+            entry["candidate_key"]: entry for entry in entries
+        },
+        "audited_keys": [],
+        "audited_structural_digests": [],
+    }
+
+    selected = flow._select_audit_candidates(
+        [],
+        state,
+        screened_history=[],
     )
 
     assert {code_key(row) for row in selected} == set(
         state["unresolved_candidates"]
     )
     assert len(selected) == 3
+
+
+def test_single_milp_lane_alternates_fresh_and_retry_turns(tmp_path):
+    repo = tmp_path / "qcode"
+    repo.mkdir()
+    source = repo / "offline.jsonl"
+    source.write_text("")
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="retry-alternation",
+            max_rounds=3,
+            milp_top=1,
+            candidate_file=source,
+        ),
+        reviewer=FakeReviewer(),
+    )
+    unresolved = create_unresolved_entry(
+        candidate(k=8, shift=0),
+        round_number=1,
+    )
+    fresh = candidate(k=8, shift=1)
+    state = {
+        "current_round": 1,
+        "unresolved_candidates": {
+            unresolved["candidate_key"]: unresolved,
+        },
+        "audited_keys": [],
+        "audited_structural_digests": [],
+    }
+
+    fresh_turn = flow._select_audit_candidates(
+        [fresh],
+        state,
+        screened_history=[fresh],
+    )
+    state["current_round"] = 2
+    retry_turn = flow._select_audit_candidates(
+        [fresh],
+        state,
+        screened_history=[fresh],
+    )
+
+    assert [code_key(row) for row in fresh_turn] == [code_key(fresh)]
+    assert [code_key(row) for row in retry_turn] == [
+        unresolved["candidate_key"]
+    ]
 
 
 def test_forged_structural_digest_cannot_hide_candidate_before_audit(tmp_path):

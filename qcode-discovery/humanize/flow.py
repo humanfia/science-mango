@@ -2714,11 +2714,6 @@ class HumanizeFlow:
         unresolved = state.get("unresolved_candidates", {})
         if not isinstance(unresolved, dict):
             raise AuditStateError("unresolved_candidates must be an object")
-        retry_entries = select_retry_lane(
-            unresolved,
-            limit=self.config.milp_top if unresolved else 0,
-        )
-        retry_candidates = [dict(entry["candidate"]) for entry in retry_entries]
         blocked_keys = set(state.get("audited_keys", [])) | set(unresolved)
         blocked_digests = set(state.get("audited_structural_digests", []))
         blocked_digests.update(
@@ -2726,23 +2721,73 @@ class HumanizeFlow:
             for entry in unresolved.values()
             if entry.get("canonical_digest")
         )
-        # Drain the retry queue before admitting new candidates.  Mixing one
-        # retry with fresh work lets a persistent timeout queue grow by up to
-        # milp_top-1 entries per round, so Stage 1 can exhaust max_rounds even
-        # though every retry is making progress under its larger budget.
-        if unresolved:
-            return retry_candidates
         if screened_history is None:
             screened_history, _rejected = (
                 self._replay_screened_candidate_pool(candidates)
             )
+
+        # An unresolved solver call is evidence that the candidate needs more
+        # budget, not permission to monopolize every future discovery round.
+        # With two or more lanes, reserve one for a never-audited candidate and
+        # use the remainder for least-recently-attempted retries.  A one-lane
+        # campaign alternates retry/fresh turns using the durable completed
+        # round number.  Selection itself is written transactionally by the
+        # caller, so a resumed pending round cannot change sides of the
+        # alternation.
+        retry_capacity = 0
+        if unresolved:
+            if self.config.milp_top == 1:
+                current_round = state.get("current_round", 0)
+                if (
+                    isinstance(current_round, bool)
+                    or not isinstance(current_round, int)
+                    or current_round < 0
+                ):
+                    raise AuditStateError(
+                        "current_round must be a non-negative integer"
+                    )
+                next_round = current_round + 1
+                retry_capacity = int(next_round % 2 == 1)
+            else:
+                retry_capacity = self.config.milp_top - 1
+        retry_entries = select_retry_lane(
+            unresolved,
+            limit=retry_capacity,
+        )
+        retry_candidates = [
+            dict(entry["candidate"]) for entry in retry_entries
+        ]
+        fresh_capacity = self.config.milp_top - len(retry_candidates)
         new_candidates = select_for_milp(
             screened_history,
             None,
             blocked_keys,
-            self.config.milp_top,
+            fresh_capacity,
             blocked_digests,
         )
+
+        # Do not leave compute idle when the fresh pool is empty (including a
+        # one-lane fresh turn).  Filling only the unused capacity preserves
+        # retry fairness without taking away the reserved fresh slot when one
+        # exists.
+        remaining = self.config.milp_top - (
+            len(retry_candidates) + len(new_candidates)
+        )
+        if remaining > 0 and unresolved:
+            selected_retry_keys = {
+                str(entry["candidate_key"]) for entry in retry_entries
+            }
+            for entry in select_retry_lane(
+                unresolved,
+                limit=self.config.milp_top,
+            ):
+                if entry["candidate_key"] in selected_retry_keys:
+                    continue
+                retry_candidates.append(dict(entry["candidate"]))
+                selected_retry_keys.add(str(entry["candidate_key"]))
+                remaining -= 1
+                if remaining == 0:
+                    break
         return retry_candidates + new_candidates
 
     def _attempt_plan(
