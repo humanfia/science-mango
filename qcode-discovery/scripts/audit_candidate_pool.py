@@ -19,7 +19,11 @@ from typing import Any, Callable, Iterable, Mapping
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.bb_code import build_bb_code
+from evaluation.bb_code import (
+    build_bb_code,
+    get_code_params_fast,
+    validate_terms,
+)
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
 from evaluation.final_gate import classify_win, minimum_winning_distance
 from evaluation.process_hard_wall import (
@@ -67,6 +71,15 @@ CACHE_SCHEMA_VERSION = 2
 SELECTION_LEDGER_SCHEMA_VERSION = 1
 SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
+_AUTHORITATIVE_GEOMETRY = "authoritative_geometry"
+_INPUT_TERMINAL_MARKERS = (
+    _TRUSTED_STAGE1_OUTCOME,
+    "trusted_stage1_audit",
+    "campaign_selected",
+    "campaign_audit",
+    "campaign_skip_reason",
+    "campaign_skip_error",
+)
 
 
 class NoveltyReplayError(RuntimeError):
@@ -171,17 +184,17 @@ def read_candidate_jsonl(
 def _trusted_stage1_outcome(
     record: Mapping[str, Any],
     required_distance: int,
-) -> str | None:
+) -> tuple[str | None, bool]:
     """Replay a formal Stage 1 audit before using it as a priority lane."""
 
     attempt = record.get("audit_attempt")
     if not isinstance(attempt, Mapping) or attempt.get("schema_version") != 2:
-        return None
+        return None, False
     outcome = classify_evaluation(record)
     if outcome is AuditOutcome.THRESHOLD_REJECTED:
-        return "REJECTED"
+        return "REJECTED", True
     if outcome is not AuditOutcome.EXACT:
-        return None
+        return None, True
     try:
         n = int(record["n"])
         k = int(record["k"])
@@ -192,7 +205,10 @@ def _trusted_stage1_outcome(
     expected = minimum_winning_distance(n, k)
     if expected != required_distance:
         raise AuditStateError("formal Stage 1 threshold binding changed")
-    return "THRESHOLD_PROVEN" if gate["passed"] is True else "REJECTED"
+    return (
+        "THRESHOLD_PROVEN" if gate["passed"] is True else "REJECTED",
+        True,
+    )
 
 
 def _promote_trusted_stage1_rows(
@@ -306,6 +322,172 @@ def _demote_input_identity_claims(
     return sanitized
 
 
+def _normalise_bb_terms(value: Any, label: str) -> list[tuple[int, int]]:
+    """Return a strict integer exponent list for an authoritative rebuild."""
+
+    if not isinstance(value, (list, tuple)):
+        raise TypeError(f"{label}_terms must be a sequence")
+    terms: list[tuple[int, int]] = []
+    for index, term in enumerate(value):
+        if (
+            not isinstance(term, (list, tuple))
+            or len(term) != 2
+            or any(type(item) is not int for item in term)
+        ):
+            raise TypeError(
+                f"{label}_terms[{index}] must contain two integer exponents"
+            )
+        left, right = term
+        terms.append((left, right))
+    return terms
+
+
+def _authoritative_css_geometry(
+    record: Mapping[str, Any],
+    cache: dict[str, tuple[int, int]],
+) -> tuple[dict[str, Any], int, int]:
+    """Rebuild one CSS BB construction and overwrite untrusted reported n/k."""
+
+    normalized = normalize_record(record)
+    required = ("ell", "m", "A_terms", "B_terms")
+    missing = [name for name in required if normalized.get(name) is None]
+    if missing:
+        raise ValueError(
+            "candidate lacks BB construction fields: " + ", ".join(missing)
+        )
+    if type(normalized["ell"]) is not int or type(normalized["m"]) is not int:
+        raise TypeError("ell and m must be integers")
+    ell = normalized["ell"]
+    m = normalized["m"]
+    if ell <= 0 or m <= 0:
+        raise ValueError("ell and m must be positive")
+    a_terms = _normalise_bb_terms(normalized["A_terms"], "A")
+    b_terms = _normalise_bb_terms(normalized["B_terms"], "B")
+    validate_terms(ell, m, a_terms, "A")
+    validate_terms(ell, m, b_terms, "B")
+    construction_sha256 = _json_sha256({
+        "ell": ell,
+        "m": m,
+        "A_terms": a_terms,
+        "B_terms": b_terms,
+    })
+    parameters = cache.get(construction_sha256)
+    if parameters is None:
+        code = build_bb_code(ell, m, a_terms, b_terms)
+        rebuilt_n, rebuilt_k = get_code_params_fast(code)
+        if type(rebuilt_n) is not int or type(rebuilt_k) is not int:
+            raise ValueError(
+                "rebuilt BB code returned non-integer n/k parameters"
+            )
+        parameters = (rebuilt_n, rebuilt_k)
+        cache[construction_sha256] = parameters
+    rebuilt_n, rebuilt_k = parameters
+
+    updated = dict(normalized)
+    reported_n = updated.get("n")
+    reported_k = updated.get("k")
+    updated.update({
+        "ell": ell,
+        "m": m,
+        "A_terms": [list(term) for term in a_terms],
+        "B_terms": [list(term) for term in b_terms],
+        "n": rebuilt_n,
+        "k": rebuilt_k,
+        _AUTHORITATIVE_GEOMETRY: {
+            "reconstructed": True,
+            "construction_sha256": construction_sha256,
+            "n": rebuilt_n,
+            "k": rebuilt_k,
+            "reported_n": reported_n,
+            "reported_k": reported_k,
+            "reported_n_matches": (
+                type(reported_n) is int and reported_n == rebuilt_n
+            ),
+            "reported_k_matches": (
+                type(reported_k) is int and reported_k == rebuilt_k
+            ),
+        },
+    })
+    return updated, rebuilt_n, rebuilt_k
+
+
+def _demote_untrusted_proof_evidence(
+    row: Mapping[str, Any],
+    *,
+    reported_required_distance: Any,
+    required_distance: int,
+) -> dict[str, Any]:
+    """Move every unsealed proof/status assertion out of the ranking domain."""
+
+    updated = dict(row)
+    proof_fields = (
+        "directions",
+        "direction",
+        "sectors",
+        "expected_directions",
+        "completed_directions",
+        "status",
+        "proof_score",
+        "d_is_exact",
+        "milp_attempted",
+        "milp_details",
+        "distance_trusted",
+        "distance_source",
+        "audit_attempt",
+    )
+    advisory = {
+        name: updated.pop(name)
+        for name in proof_fields
+        if name in updated
+    }
+    if reported_required_distance is not None:
+        advisory["required_distance"] = reported_required_distance
+    updated["required_distance"] = required_distance
+    if not advisory:
+        return updated
+    updated["input_proof_advisory"] = {
+        "trusted": False,
+        "reason": (
+            "input proof/status fields were not replayed from a sealed "
+            "Stage 1 audit"
+        ),
+        "evidence": advisory,
+    }
+    return updated
+
+
+def _demote_input_terminal_markers(
+    row: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Strip terminal campaign state that only this process may generate."""
+
+    updated = dict(row)
+    advisory = {
+        name: updated.pop(name)
+        for name in _INPUT_TERMINAL_MARKERS
+        if name in updated
+    }
+    if advisory:
+        updated["input_terminal_marker_advisory"] = {
+            "trusted": False,
+            "reason": (
+                "terminal campaign markers are accepted only after local "
+                "formal replay"
+            ),
+            "evidence": advisory,
+        }
+    return updated
+
+
+def _is_trusted_terminal_rejection(row: Mapping[str, Any]) -> bool:
+    trusted = row.get("trusted_stage1_audit")
+    return bool(
+        isinstance(trusted, Mapping)
+        and trusted.get("validated") is True
+        and trusted.get("outcome") == "REJECTED"
+    )
+
+
 def rank_candidate_files(
     paths: Iterable[Path],
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -316,18 +498,40 @@ def rank_candidate_files(
     prepared_sources: list[str] = []
     ineligible_records = 0
     malformed_records = 0
+    invalid_audit_records = 0
+    geometry_cache: dict[str, tuple[int, int]] = {}
     for record, source in zip(records, sources, strict=True):
+        enriched = _demote_input_identity_claims(record)
         try:
-            normalized = normalize_record(record)
-            n = normalized.get("n")
-            k = normalized.get("k")
-            if (
-                isinstance(n, bool)
-                or not isinstance(n, int)
-                or isinstance(k, bool)
-                or not isinstance(k, int)
-            ):
-                raise TypeError("candidate n and k must be integers")
+            normalized = normalize_record(enriched)
+            if normalized.get("C_terms") or normalized.get("D_terms"):
+                # The current proof path does not support non-CSS candidates.
+                # Retain a rankable row so selection records an explicit global
+                # incompleteness instead of silently dropping it.
+                n = normalized.get("n")
+                k = normalized.get("k")
+                if (
+                    isinstance(n, bool)
+                    or not isinstance(n, int)
+                    or isinstance(k, bool)
+                    or not isinstance(k, int)
+                    or n <= 0
+                    or k <= 0
+                ):
+                    raise TypeError(
+                        "unsupported non-CSS candidate requires positive integer n/k"
+                    )
+                authoritative = dict(normalized)
+                authoritative[_AUTHORITATIVE_GEOMETRY] = {
+                    "reconstructed": False,
+                    "unsupported": "NONCSS",
+                    "reported_n": n,
+                    "reported_k": k,
+                }
+            else:
+                authoritative, n, k = _authoritative_css_geometry(
+                    enriched, geometry_cache
+                )
             if n <= 0 or k <= 0:
                 ineligible_records += 1
                 continue
@@ -336,28 +540,39 @@ def rank_candidate_files(
             malformed_records += 1
             continue
 
-        # Stage 1 search rows intentionally contain distance estimates rather
-        # than a proof threshold.  Derive the threshold from the authoritative
-        # final-gate rules here, and overwrite any stale caller-supplied value.
-        # A top-level value wins for flat, nested-claim, and wrapped-artifact
-        # records when proof_triage normalizes the row.
+        # Stage 1 search rows intentionally contain distance and parameter
+        # estimates. Derive n, k, and the proof threshold from the rebuilt
+        # construction; caller-supplied geometry is provenance only.
         # Registry/canonical metadata came from an external JSONL row and is
         # not authenticated.  In particular it must not merge two distinct
         # constructions before Stage 2 has rebuilt both of them.
-        enriched = _demote_input_identity_claims(record)
-        enriched.pop(_TRUSTED_STAGE1_OUTCOME, None)
-        enriched["required_distance"] = required_distance
+        authoritative = _demote_input_terminal_markers(authoritative)
+        reported_required_distance = authoritative.get("required_distance")
+        authoritative["required_distance"] = required_distance
         try:
-            trusted_outcome = _trusted_stage1_outcome(
-                enriched,
+            trusted_outcome, sealed_evidence = _trusted_stage1_outcome(
+                authoritative,
                 required_distance,
             )
-        except AuditStateError:
-            malformed_records += 1
-            continue
+        except AuditStateError as exc:
+            # A broken seal is malformed evidence, not a reason to discard the
+            # independently reconstructable candidate.
+            invalid_audit_records += 1
+            authoritative["input_audit_advisory"] = {
+                "trusted": False,
+                "error": str(exc),
+            }
+            trusted_outcome = None
+            sealed_evidence = False
+        if not sealed_evidence:
+            authoritative = _demote_untrusted_proof_evidence(
+                authoritative,
+                reported_required_distance=reported_required_distance,
+                required_distance=required_distance,
+            )
         if trusted_outcome is not None:
-            enriched[_TRUSTED_STAGE1_OUTCOME] = trusted_outcome
-        prepared.append(enriched)
+            authoritative[_TRUSTED_STAGE1_OUTCOME] = trusted_outcome
+        prepared.append(authoritative)
         prepared_sources.append(source)
 
     ranked = deduplicate_ranked(prepared, prepared_sources)
@@ -395,8 +610,7 @@ def rank_candidate_files(
     ranked.sort(key=selection_key)
     eligible = [
         row for row in ranked
-        if row["proof_score"].get("rejected") is not True
-        and row["proof_score"].get("status") != "REJECTED"
+        if not _is_trusted_terminal_rejection(row)
     ]
     counts = {
         "input_records": len(records),
@@ -409,6 +623,11 @@ def rank_candidate_files(
         counts["ineligible_records"] = ineligible_records
     if malformed_records:
         counts["malformed_records"] = malformed_records
+    if invalid_audit_records:
+        counts["malformed_records"] = (
+            counts.get("malformed_records", 0) + invalid_audit_records
+        )
+        counts["invalid_stage1_audit_records"] = invalid_audit_records
     counts.update({
         key: value for key, value in trusted_counts.items() if value
     })
@@ -651,12 +870,62 @@ def canonicalize_for_audit(
     )
     if candidate.get("C_terms") or candidate.get("D_terms"):
         raise ValueError("XOR audit canonicalization supports CSS BB only")
-    code = code_builder(
-        int(candidate["ell"]),
-        int(candidate["m"]),
-        candidate["A_terms"],
-        candidate["B_terms"],
+    ell = candidate["ell"]
+    m = candidate["m"]
+    if type(ell) is not int or type(m) is not int:
+        raise TypeError("ell and m must be integers")
+    if ell <= 0 or m <= 0:
+        raise ValueError("ell and m must be positive")
+    a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
+    b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
+    validate_terms(ell, m, a_terms, "A")
+    validate_terms(ell, m, b_terms, "B")
+    code = code_builder(ell, m, a_terms, b_terms)
+    try:
+        rebuilt_n, rebuilt_k = get_code_params_fast(code)
+    except (AttributeError, TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(
+            "rebuilt BB code returned invalid n/k parameters"
+        ) from exc
+    if type(rebuilt_n) is not int or type(rebuilt_k) is not int:
+        raise ValueError("rebuilt BB code returned non-integer n/k parameters")
+    if rebuilt_n <= 0 or rebuilt_k <= 0:
+        raise ValueError("rebuilt BB code must have positive n and k")
+    reported_n = updated.get("n")
+    reported_k = updated.get("k")
+    updated["n"] = rebuilt_n
+    updated["k"] = rebuilt_k
+    updated["required_distance"] = minimum_winning_distance(
+        rebuilt_n, rebuilt_k
     )
+    selection_geometry = {
+        "reconstructed": True,
+        "n": rebuilt_n,
+        "k": rebuilt_k,
+        "reported_n": reported_n,
+        "reported_k": reported_k,
+        "reported_n_matches": (
+            type(reported_n) is int and reported_n == rebuilt_n
+        ),
+        "reported_k_matches": (
+            type(reported_k) is int and reported_k == rebuilt_k
+        ),
+    }
+    prior_geometry = updated.get(_AUTHORITATIVE_GEOMETRY)
+    if (
+        isinstance(prior_geometry, Mapping)
+        and prior_geometry.get("reconstructed") is True
+        and prior_geometry.get("n") == reported_n
+        and prior_geometry.get("k") == reported_k
+    ):
+        # rank_candidate_files already performed an authoritative rebuild.
+        # Preserve the original caller-reported n/k mismatch and append the
+        # independent selection-time replay instead of erasing provenance.
+        geometry = dict(prior_geometry)
+        geometry["selection_rebuild"] = selection_geometry
+        updated[_AUTHORITATIVE_GEOMETRY] = geometry
+    else:
+        updated[_AUTHORITATIVE_GEOMETRY] = selection_geometry
 
     registry_path = Path(registry_path).resolve()
     initial_registry_sha256 = _file_sha256(registry_path)
@@ -741,8 +1010,7 @@ def _select_audit_page(
     }
     if top == 0:
         unscanned = sum(
-            row["proof_score"].get("rejected") is not True
-            and row["proof_score"].get("status") != "REJECTED"
+            not _is_trusted_terminal_rejection(row)
             for row in ranked[start_index:]
         )
         stats["unscanned_eligible_candidates"] = unscanned
@@ -752,10 +1020,7 @@ def _select_audit_page(
     next_index = len(ranked)
     for index in range(start_index, len(ranked)):
         row = ranked[index]
-        if (
-            row["proof_score"].get("rejected") is True
-            or row["proof_score"].get("status") == "REJECTED"
-        ):
+        if _is_trusted_terminal_rejection(row):
             continue
         if row.get("C_terms") or row.get("D_terms"):
             row["campaign_skip_reason"] = "UNSUPPORTED_NONCSS"
@@ -787,8 +1052,7 @@ def _select_audit_page(
         selected.append(updated)
         if len(selected) == top:
             unscanned = sum(
-                remaining["proof_score"].get("rejected") is not True
-                and remaining["proof_score"].get("status") != "REJECTED"
+                not _is_trusted_terminal_rejection(remaining)
                 for remaining in ranked[index + 1 :]
             )
             stats["unscanned_eligible_candidates"] = unscanned

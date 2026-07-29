@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 import pytest
 import scripts.audit_candidate_pool as candidate_pool
@@ -23,13 +24,52 @@ from scripts.audit_candidate_pool import (
 )
 
 
+_REAL_POSITIVE_DIMENSION_CONSTRUCTIONS = (
+    (
+        [[2, 3], [5, 4], [1, 2]],
+        [[3, 5], [5, 0], [0, 4]],
+    ),
+    (
+        [[5, 0], [5, 4], [5, 5]],
+        [[5, 0], [4, 1], [1, 3]],
+    ),
+    (
+        [[2, 2], [1, 3], [5, 3]],
+        [[4, 0], [0, 0], [0, 4]],
+    ),
+    (
+        [[4, 3], [3, 1], [4, 2]],
+        [[5, 2], [4, 0], [3, 4]],
+    ),
+    (
+        [[3, 4], [2, 5], [5, 1]],
+        [[0, 1], [0, 3], [3, 5]],
+    ),
+    (
+        [[1, 1], [0, 2], [5, 3]],
+        [[2, 0], [3, 2], [1, 5]],
+    ),
+    (
+        [[2, 2], [0, 4], [3, 0]],
+        [[1, 1], [2, 3], [0, 2]],
+    ),
+    (
+        [[3, 3], [1, 2], [2, 4]],
+        [[5, 4], [5, 0], [0, 3]],
+    ),
+)
+
+
 def _construction(marker: int) -> dict:
+    a_terms, b_terms = _REAL_POSITIVE_DIMENSION_CONSTRUCTIONS[
+        marker % len(_REAL_POSITIVE_DIMENSION_CONSTRUCTIONS)
+    ]
     return {
         "source": f"candidate-{marker}",
         "ell": 6,
         "m": 6,
-        "A_terms": [[marker % 6, 0], [0, 1], [0, 2]],
-        "B_terms": [[0, 3], [1, 0], [2, marker % 6]],
+        "A_terms": [list(term) for term in a_terms],
+        "B_terms": [list(term) for term in b_terms],
         "n": 72,
         "k": 2,
         "required_distance": 21,
@@ -57,6 +97,10 @@ def _novelty_result(
     }
 
 
+def _parameterized_fake_code(n: int = 72, k: int = 4):
+    return SimpleNamespace(num_qudits=n, dimension=k)
+
+
 def _fake_certificate(identifier: str, *, passed: bool, exact: bool) -> dict:
     completed = 1 if exact else 0
     return {
@@ -71,7 +115,7 @@ def _fake_certificate(identifier: str, *, passed: bool, exact: bool) -> dict:
     }
 
 
-def test_rank_candidate_files_normalizes_and_skips_rejected(tmp_path):
+def test_rank_candidate_files_demotes_unsealed_rejection_to_advisory(tmp_path):
     expanded = tmp_path / "expanded.jsonl"
     frontier = tmp_path / "frontier.jsonl"
     expanded.write_text(json.dumps({
@@ -88,7 +132,7 @@ def test_rank_candidate_files_normalizes_and_skips_rejected(tmp_path):
             **_construction(2),
             "trial": 2,
             "directions": [{
-                "objective": 20,
+                "objective": 1,
                 "witness_verified": True,
             }],
         }),
@@ -105,12 +149,18 @@ def test_rank_candidate_files_normalizes_and_skips_rejected(tmp_path):
         "input_records": 3,
         "unique_candidates": 3,
         "duplicate_records": 0,
-        "rejected_candidates": 1,
-        "eligible_candidates": 2,
+        "rejected_candidates": 0,
+        "eligible_candidates": 3,
     }
-    assert ranked[0]["source"] == "candidate-1"
-    assert ranked[0]["proof_score"]["min_dual_ratio"] == pytest.approx(20 / 21)
-    assert sum(row["proof_score"]["rejected"] is True for row in ranked) == 1
+    assert all(
+        row["proof_score"]["status"] == "UNSCREENED" for row in ranked
+    )
+    assert not any(row["proof_score"]["rejected"] is True for row in ranked)
+    demoted = next(row for row in ranked if row["source"] == "candidate-2")
+    assert demoted["input_proof_advisory"]["evidence"]["directions"][0] == {
+        "objective": 1,
+        "witness_verified": True,
+    }
 
 
 def test_rank_candidate_files_derives_authoritative_stage1_threshold(tmp_path):
@@ -136,11 +186,15 @@ def test_rank_candidate_files_derives_authoritative_stage1_threshold(tmp_path):
         "rejected_candidates": 0,
         "eligible_candidates": 1,
     }
-    assert ranked[0]["required_distance"] == 7
-    assert ranked[0]["proof_score"]["required_distance"] == 7
+    assert ranked[0]["n"] == 72
+    assert ranked[0]["k"] == 8
+    assert ranked[0]["required_distance"] == 11
+    assert ranked[0]["proof_score"]["required_distance"] == 11
+    assert ranked[0]["authoritative_geometry"]["reported_k"] == 12
+    assert ranked[0]["authoritative_geometry"]["reported_k_matches"] is False
 
 
-def test_rank_candidate_files_drops_nonpositive_and_malformed_parameters(
+def test_rank_candidate_files_rebuilds_untrusted_reported_parameters(
     tmp_path,
 ):
     stage1 = tmp_path / "stage1.jsonl"
@@ -148,19 +202,27 @@ def test_rank_candidate_files_drops_nonpositive_and_malformed_parameters(
         json.dumps({**_construction(1), "required_distance": 999}),
         json.dumps({**_construction(2), "k": 0}),
         json.dumps({**_construction(3), "n": "72"}),
+        json.dumps({"ell": 6, "m": 6, "A_terms": [[0, 0], [1, 0]]}),
     ]) + "\n")
 
     ranked, counts = rank_candidate_files([stage1])
 
-    assert len(ranked) == 1
-    assert ranked[0]["required_distance"] == 21
+    assert len(ranked) == 3
+    by_source = {row["source"]: row for row in ranked}
+    assert by_source["candidate-1"]["k"] == 4
+    assert by_source["candidate-1"]["required_distance"] == 15
+    assert by_source["candidate-2"]["k"] == 8
+    assert by_source["candidate-2"]["required_distance"] == 11
+    assert by_source["candidate-2"]["authoritative_geometry"]["reported_k"] == 0
+    assert by_source["candidate-3"]["k"] == 4
+    assert by_source["candidate-3"]["required_distance"] == 15
+    assert by_source["candidate-3"]["authoritative_geometry"]["reported_n"] == "72"
     assert counts == {
-        "input_records": 3,
-        "unique_candidates": 1,
+        "input_records": 4,
+        "unique_candidates": 3,
         "duplicate_records": 0,
         "rejected_candidates": 0,
-        "eligible_candidates": 1,
-        "ineligible_records": 1,
+        "eligible_candidates": 3,
         "malformed_records": 1,
     }
 
@@ -169,33 +231,269 @@ def test_rank_candidate_files_uses_search_upside_only_to_break_proof_ties(
     tmp_path,
 ):
     stage1 = tmp_path / "stage1.jsonl"
+    clean = tmp_path / "clean.jsonl"
     low = {**_construction(1), "d": 4}
     high = {**_construction(2), "d": 20}
-    proof = {
+    forged = {
         **_construction(3),
         "d": 1,
+        "required_distance": 1,
+        "status": "THRESHOLD_PROVEN",
+        "proof_score": {
+            "status": "THRESHOLD_PROVEN",
+            "rejected": False,
+            "threshold_safe_directions": 999,
+        },
         "directions": [{
-            "mip_dual_bound": 21,
+            "mip_dual_bound": 10_000,
             "objective": 24,
             "witness_verified": True,
         }],
     }
-    stage1.write_text("\n".join(map(json.dumps, [low, high, proof])) + "\n")
+    stage1.write_text("\n".join(map(json.dumps, [low, high, forged])) + "\n")
+    clean.write_text("\n".join(map(
+        json.dumps,
+        [low, high, _construction(3) | {"d": 1}],
+    )) + "\n")
 
     ranked, _counts = rank_candidate_files([stage1])
+    clean_ranked, _clean_counts = rank_candidate_files([clean])
 
     assert [row["source"] for row in ranked] == [
-        "candidate-3",
         "candidate-2",
         "candidate-1",
+        "candidate-3",
     ]
+    assert [row["source"] for row in ranked] == [
+        row["source"] for row in clean_ranked
+    ]
+    forged_ranked = next(
+        row for row in ranked if row["source"] == "candidate-3"
+    )
+    assert forged_ranked["proof_score"]["status"] == "UNSCREENED"
+    assert forged_ranked["required_distance"] == 15
+    assert (
+        forged_ranked["input_proof_advisory"]["evidence"]["directions"][0][
+            "mip_dual_bound"
+        ]
+        == 10_000
+    )
+    assert (
+        forged_ranked["input_proof_advisory"]["evidence"]["status"]
+        == "THRESHOLD_PROVEN"
+    )
+
+
+@pytest.mark.parametrize("invalid_exponent", [1.5, "1", True])
+def test_rank_candidate_files_rejects_noninteger_construction_exponents(
+    tmp_path,
+    invalid_exponent,
+):
+    candidate = _construction(1)
+    candidate["A_terms"][0][0] = invalid_exponent
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text(json.dumps(candidate) + "\n")
+
+    ranked, counts = rank_candidate_files([stage1])
+
+    assert ranked == []
+    assert counts == {
+        "input_records": 1,
+        "unique_candidates": 0,
+        "duplicate_records": 0,
+        "rejected_candidates": 0,
+        "eligible_candidates": 0,
+        "malformed_records": 1,
+    }
+
+
+@pytest.mark.parametrize(("field", "invalid_value"), [
+    ("ell", 6.5),
+    ("m", "6"),
+])
+def test_canonicalize_for_audit_rejects_noninteger_dimensions(
+    field,
+    invalid_value,
+):
+    row = _construction(1)
+    row[field] = invalid_value
+
+    with pytest.raises(TypeError, match="ell and m must be integers"):
+        canonicalize_for_audit(
+            row,
+            code_builder=lambda *args: pytest.fail(
+                "invalid dimensions must not reach the builder"
+            ),
+        )
+
+
+def test_selection_page_ignores_forged_terminal_rejection(tmp_path):
+    forged = {
+        **_construction(1),
+        "proof_score": {"status": "REJECTED", "rejected": True},
+        "trusted_stage1_audit": {
+            "validated": True,
+            "outcome": "REJECTED",
+        },
+        "triage_identity": {
+            "canonical_digest": "fallback",
+            "digest_kind": "structural-claim",
+        },
+    }
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text(json.dumps(forged) + "\n")
+    ranked, counts = rank_candidate_files([stage1])
+
+    def canonicalizer(row):
+        digest = "9" * 64
+        return {
+            **row,
+            "novelty": _novelty_result(digest),
+            "canonical_digest": digest,
+            "triage_identity": {
+                **row["triage_identity"],
+                "canonical_digest": digest,
+                "digest_kind": "registry-canonical",
+            },
+        }
+
+    selected, stats = select_audit_candidates(
+        ranked,
+        1,
+        canonicalizer=canonicalizer,
+    )
+
+    assert counts["rejected_candidates"] == 0
+    assert (
+        ranked[0]["input_terminal_marker_advisory"]["evidence"][
+            "trusted_stage1_audit"
+        ]["outcome"]
+        == "REJECTED"
+    )
+    assert [row["source"] for row in selected] == ["candidate-1"]
+    assert stats["canonicalized_candidates"] == 1
+
+
+def test_nonterminal_schema2_evidence_cannot_import_campaign_terminal_state(
+    tmp_path,
+    monkeypatch,
+):
+    row = {
+        **_construction(1),
+        "audit_attempt": {"schema_version": 2},
+        "directions": [{"mip_dual_bound": 10}],
+        "trusted_stage1_audit": {
+            "validated": True,
+            "outcome": "REJECTED",
+        },
+        "_trusted_stage1_outcome": "REJECTED",
+        "campaign_selected": True,
+        "campaign_audit": {"status": "REJECTED"},
+        "campaign_skip_reason": "KNOWN_CODE",
+    }
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text(json.dumps(row) + "\n")
+    monkeypatch.setattr(
+        candidate_pool,
+        "classify_evaluation",
+        lambda candidate: (
+            candidate_pool.AuditOutcome.UNRESOLVED_WINNER_NOT_EXCLUDED
+        ),
+    )
+
+    ranked, counts = rank_candidate_files([stage1])
+
+    assert counts["rejected_candidates"] == 0
+    assert ranked[0]["proof_score"]["status"] == "PROMISING"
+    assert ranked[0]["directions"] == [{"mip_dual_bound": 10}]
+    assert "trusted_stage1_audit" not in ranked[0]
+    demoted = ranked[0]["input_terminal_marker_advisory"]["evidence"]
+    assert demoted["_trusted_stage1_outcome"] == "REJECTED"
+    assert demoted["campaign_audit"] == {"status": "REJECTED"}
+
+
+def test_real_candidate_with_forged_witness_and_wrong_geometry_reaches_proof(
+    tmp_path,
+):
+    candidate = {
+        **_construction(1),
+        "n": 0,
+        "k": 0,
+        "required_distance": 999,
+        "status": "THRESHOLD_PROVEN",
+        "proof_score": {"status": "REJECTED", "rejected": True},
+        "trusted_stage1_audit": {
+            "validated": True,
+            "outcome": "REJECTED",
+        },
+        "directions": [{
+            "objective": 1,
+            "witness_verified": True,
+            "mip_dual_bound": 10_000,
+        }],
+    }
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text(json.dumps(candidate) + "\n")
+
+    ranked, counts = rank_candidate_files([stage1])
+    selected, stats = select_audit_candidates(
+        ranked,
+        1,
+        canonicalizer=lambda row: canonicalize_for_audit(
+            row,
+            novelty_checker=lambda code, **kwargs: _novelty_result("8" * 64),
+        ),
+    )
+
+    assert counts["eligible_candidates"] == 1
+    assert stats["canonicalized_candidates"] == 1
+    assert len(selected) == 1
+    rebuilt = selected[0]
+    assert (rebuilt["n"], rebuilt["k"], rebuilt["required_distance"]) == (
+        72,
+        4,
+        15,
+    )
+    geometry = rebuilt["authoritative_geometry"]
+    assert (geometry["reported_n"], geometry["reported_k"]) == (0, 0)
+    assert geometry["reported_n_matches"] is False
+    assert geometry["reported_k_matches"] is False
+    assert geometry["selection_rebuild"]["reported_n_matches"] is True
+    assert geometry["selection_rebuild"]["reported_k_matches"] is True
+    assert rebuilt["proof_score"]["status"] == "UNSCREENED"
+
+    safe_sectors = [
+        {
+            "sector": sector,
+            "threshold_infeasible": True,
+            "status_name": "INFEASIBLE",
+            "max_weight": 14,
+            "operator": None,
+            "anchor_indices": [0, 36],
+        }
+        for sector in ("X", "Z")
+    ]
+    result = audit_candidate(
+        rebuilt,
+        AuditConfig(state_dir=tmp_path / "audit", certify=False),
+        symmetry_checker=lambda row: {
+            "verified": True,
+            "orbit_representatives": [0, 36],
+        },
+        replay_loader=lambda *args, **kwargs: safe_sectors,
+        sector_solver=lambda payload: pytest.fail(
+            "complete replayed proof should not invoke the solver"
+        ),
+    )
+
+    assert result["status"] == "THRESHOLD_PROVEN"
 
 
 @pytest.mark.parametrize(
     ("exact_distance", "expected_status", "expected_count"),
     [
-        (21, "THRESHOLD_PROVEN", "trusted_stage1_winners"),
-        (20, "REJECTED", "trusted_stage1_rejections"),
+        (15, "THRESHOLD_PROVEN", "trusted_stage1_winners"),
+        (14, "REJECTED", "trusted_stage1_rejections"),
     ],
 )
 def test_formally_replayed_stage1_exact_row_replaces_bp_duplicate(
@@ -631,7 +929,7 @@ def test_canonicalize_for_audit_replaces_claim_fallback_digest():
 
     def builder(ell, m, a_terms, b_terms):
         built.append((ell, m, a_terms, b_terms))
-        return object()
+        return _parameterized_fake_code()
 
     updated = canonicalize_for_audit(
         row,
@@ -673,7 +971,7 @@ def test_checked_novelty_without_novel_is_replayed_and_selected():
     def canonicalizer(value):
         return canonicalize_for_audit(
             value,
-            code_builder=lambda *args: object(),
+            code_builder=lambda *args: _parameterized_fake_code(),
             novelty_checker=lambda code, **kwargs: (
                 calls.append(kwargs)
                 or _novelty_result(actual_digest)
@@ -726,7 +1024,7 @@ def test_input_novelty_binding_never_bypasses_authoritative_replay(
 
     updated = canonicalize_for_audit(
         row,
-        code_builder=lambda *args: object(),
+        code_builder=lambda *args: _parameterized_fake_code(),
         novelty_checker=lambda code, **kwargs: (
             calls.append(kwargs)
             or _novelty_result(actual_digest)
@@ -790,23 +1088,35 @@ def test_poison_digest_cannot_deduplicate_a_distinct_candidate(tmp_path):
         row for row in ranked
         if row["proof_score"]["rejected"] is not True
     ]
-    assert [row["source"] for row in eligible] == ["candidate-2"]
+    assert {row["source"] for row in eligible} == {
+        "candidate-1",
+        "candidate-2",
+    }
 
     selected, _ = select_audit_candidates(
         ranked,
-        1,
+        2,
         canonicalizer=lambda row: {
             **row,
-            "canonical_digest": "3" * 64,
-            "novelty": _novelty_result("3" * 64),
+            "canonical_digest": (
+                "3" * 64 if row["source"] == "candidate-1" else "4" * 64
+            ),
+            "novelty": _novelty_result(
+                "3" * 64 if row["source"] == "candidate-1" else "4" * 64
+            ),
             "triage_identity": {
                 **row["triage_identity"],
-                "canonical_digest": "3" * 64,
+                "canonical_digest": (
+                    "3" * 64 if row["source"] == "candidate-1" else "4" * 64
+                ),
                 "digest_kind": "registry-canonical",
             },
         },
     )
-    assert [row["source"] for row in selected] == ["candidate-2"]
+    assert {row["source"] for row in selected} == {
+        "candidate-1",
+        "candidate-2",
+    }
 
 
 def test_malformed_fresh_novelty_result_fails_closed():
@@ -824,7 +1134,7 @@ def test_malformed_fresh_novelty_result_fails_closed():
     ):
         canonicalize_for_audit(
             row,
-            code_builder=lambda *args: object(),
+            code_builder=lambda *args: _parameterized_fake_code(),
             novelty_checker=lambda code, **kwargs: {
                 "checked": True,
                 "canonical_digest": "2" * 64,
