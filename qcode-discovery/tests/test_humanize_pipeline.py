@@ -1434,6 +1434,71 @@ def test_paginated_stage2_automatically_reaches_win_on_second_page(tmp_path):
     assert state["stage2_pagination"]["completed_pages"] == 1
 
 
+def test_max_attempts_one_binds_cache_to_acknowledged_ledger_prestate(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="page-cache-ledger-prestate")
+    first = {
+        "canonical_digest": "cache-page-one-rejected",
+        "status": "REJECTED",
+    }
+    winner, _ = _certificate(config, "cache-page-two-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [first],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ]
+    )
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    )
+    acknowledge = pipeline._acknowledge_completed_stage2_page
+
+    def force_cache_eligible_after_ack(state):
+        advanced = acknowledge(state)
+        if advanced:
+            # Reproduce the dangerous cache shape directly: all ordinary
+            # command/config/input/output fields still describe page zero,
+            # while only the transaction-owned ledger moved to page one.
+            record = pipeline.state["stages"]["stage2_sector_audit"]
+            record["status"] = "COMPLETED"
+            record["machine_status"] = "COMPLETED"
+            pipeline._write_state()
+        return advanced
+
+    pipeline._acknowledge_completed_stage2_page = (
+        force_cache_eligible_after_ack
+    )
+    state = pipeline.run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 1}
+    stage2 = state["stages"]["stage2_sector_audit"]
+    ledger_digest = hashlib.sha256(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_bytes()
+    ).hexdigest()
+    # The latest cache key captured the acknowledged prestate before page two
+    # itself installed a new pending page.
+    assert stage2["stage_config"][
+        "selection_ledger_prestate_sha256"
+    ] != ledger_digest
+
+
 def test_paginated_terminal_page_advances_past_global_input_diagnostic(
     tmp_path,
 ):
@@ -1750,6 +1815,103 @@ def test_no_win_with_deferred_backlog_remains_incomplete(tmp_path):
         "deferred-no-win-zero",
         "terminal-rejected-one",
     ]
+
+
+def test_higher_base_budget_rotates_deferred_generation_and_retries(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    first_config = replace(
+        _config(repo, candidates, run_id="deferred-budget-generation"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+        stage2_timeout=100,
+    )
+    digest = "terminal-poison-then-win"
+    unresolved = {"canonical_digest": digest, "status": "UNRESOLVED"}
+    winner, _ = _certificate(first_config, digest)
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+    )
+
+    first_state = FiveStagePipeline(
+        first_config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert first_state["status"] == "INCOMPLETE"
+    ledger_path = (
+        first_config.root
+        / "solver-state"
+        / "stage2-selection-ledger.json"
+    )
+    first_ledger = json.loads(ledger_path.read_text())
+    assert first_ledger["cursor"] == 1
+    assert first_ledger.get("generation", 0) == 0
+    assert first_ledger["deferred_pages"][0]["selected_digests"] == [
+        digest
+    ]
+    deferred_manifest = (
+        first_config.root
+        / "solver-state"
+        / first_ledger["deferred_pages"][0]["manifest_path"]
+    )
+    deferred_manifest_sha256 = hashlib.sha256(
+        deferred_manifest.read_bytes()
+    ).hexdigest()
+
+    second_config = replace(first_config, stage2_timeout=400)
+    second_state = FiveStagePipeline(
+        second_config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert second_state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 3, "stage3": 2, "strict": 1}
+    second_ledger = json.loads(ledger_path.read_text())
+    assert second_ledger["generation"] == 1
+    assert second_ledger["cursor"] == 0
+    assert second_ledger["committed_digests"] == []
+    assert second_ledger["deferred_pages"] == []
+    assert second_ledger["pending"]["selected_digests"] == [digest]
+    assert len(second_ledger["generation_history"]) == 1
+    generation = second_ledger["generation_history"][0]
+    archived_ledger = (
+        second_config.root
+        / "solver-state"
+        / generation["ledger_path"]
+    )
+    assert hashlib.sha256(archived_ledger.read_bytes()).hexdigest() == (
+        generation["ledger_sha256"]
+    )
+    archived_value = json.loads(archived_ledger.read_text())
+    assert archived_value["deferred_pages"] == first_ledger[
+        "deferred_pages"
+    ]
+    assert hashlib.sha256(deferred_manifest.read_bytes()).hexdigest() == (
+        deferred_manifest_sha256
+    )
 
 
 def test_deferred_page_atomic_commit_resumes_without_skipping_digest(

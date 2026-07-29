@@ -59,6 +59,7 @@ PROOF_RETRY_CONTROLLER_GATE = "qldpc-proof-retry-controller"
 STAGE2_DEFERRED_PAGE_SCHEMA_VERSION = 1
 STAGE2_DEFERRED_PAGE_GATE = "qldpc-stage2-deferred-proof-page"
 STAGE2_DEFERRED_PAGE_CODE = "STAGE2_DEFERRED_PROOF_PAGE"
+STAGE2_LEDGER_GENERATION_GATE = "qldpc-stage2-ledger-generation"
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
 STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
     {
@@ -2505,6 +2506,26 @@ class FiveStagePipeline:
             "--resume" if self.config.resume else "--no-resume",
         ]
         return command
+
+    def _stage2_selection_ledger_prestate_sha256(self) -> str | None:
+        """Bind Stage 2 caching to the ledger state seen before its machine.
+
+        The proof CLI is the transaction owner and may legitimately replace
+        this ledger while it runs.  Callers must therefore capture this value
+        once for the cache key and must not dynamically re-read it during the
+        post-machine source/config replay.
+        """
+
+        self._ensure_solver_state_tree_safe()
+        hashes = _hash_paths(
+            [self.paths.stage2_selection_ledger],
+            require=False,
+            classification="UNSAFE_CONTROL_PATH",
+            label="Stage 2 selection ledger prestate",
+        )
+        return hashes[
+            str(_lexical_absolute(self.paths.stage2_selection_ledger))
+        ]
 
     def _write_skipped_stage3(self, stage2: Mapping[str, Any]) -> int:
         """Materialize a durable empty Stage 3 without starting a solver."""
@@ -5177,6 +5198,172 @@ class FiveStagePipeline:
             {"selection_ledger": ledger_state, "retry_active": active_state}
         )
 
+    def _rotate_deferred_generation_for_budget_change(self) -> bool:
+        """Start a fresh finite scan when the base proof budget changes.
+
+        Automatic retry multipliers never alter ``_proof_retry_base_config``;
+        only an explicit campaign configuration change can rotate a ledger.
+        The old ledger is archived before the one atomic live-ledger replace.
+        """
+
+        if not self.paths.stage2_selection_ledger.is_file():
+            return False
+        self._ensure_solver_state_tree_safe()
+        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        deferred_pages = self._validate_deferred_stage2_pages(ledger)
+        if not deferred_pages:
+            return False
+
+        deferred_proof_configs: set[str] = set()
+        for entry in deferred_pages:
+            manifest_path = (
+                self.paths.solver_state / str(entry["manifest_path"])
+            )
+            manifest = _read_json_object(manifest_path)
+            active = manifest.get("proof_retry_active")
+            binding = (
+                active.get("binding")
+                if isinstance(active, Mapping)
+                else None
+            )
+            proof_config_sha256 = (
+                binding.get("proof_config_sha256")
+                if isinstance(binding, Mapping)
+                else None
+            )
+            if not isinstance(proof_config_sha256, str):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "deferred page lacks its base proof configuration",
+                    stage="stage2_sector_audit",
+                )
+            deferred_proof_configs.add(proof_config_sha256)
+        if len(deferred_proof_configs) != 1:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "one Stage 2 generation mixes base proof configurations",
+                stage="stage2_sector_audit",
+            )
+        previous_proof_config_sha256 = next(
+            iter(deferred_proof_configs)
+        )
+        current_proof_config_sha256 = _canonical_sha256(
+            self._proof_retry_base_config()
+        )
+        if previous_proof_config_sha256 == current_proof_config_sha256:
+            return False
+
+        generation = ledger.get("generation", 0)
+        history = ledger.get("generation_history", [])
+        if (
+            isinstance(generation, bool)
+            or not isinstance(generation, int)
+            or generation < 0
+            or not isinstance(history, list)
+            or any(not isinstance(item, Mapping) for item in history)
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 ledger generation metadata is malformed",
+                stage="stage2_sector_audit",
+            )
+        old_ledger_bytes = _read_regular_nofollow(
+            self.paths.stage2_selection_ledger
+        )
+        old_ledger_sha256 = hashlib.sha256(old_ledger_bytes).hexdigest()
+        archive_relative = (
+            Path("selection-ledger-generations")
+            / (
+                f"generation-{generation:06d}-"
+                f"{old_ledger_sha256[:16]}.json"
+            )
+        )
+        archive_path = _reject_symlink_components(
+            self.paths.solver_state / archive_relative,
+            classification="UNSAFE_CONTROL_PATH",
+            label="Stage 2 ledger generation archive",
+        )
+        archive_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        if archive_path.is_file():
+            if _read_regular_nofollow(archive_path) != old_ledger_bytes:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "existing Stage 2 ledger generation archive differs",
+                    stage="stage2_sector_audit",
+                )
+        else:
+            try:
+                archive_text = old_ledger_bytes.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 selection ledger is not UTF-8 JSON",
+                    stage="stage2_sector_audit",
+                ) from exc
+            _atomic_write_text(archive_path, archive_text)
+        if _file_sha256(archive_path) != old_ledger_sha256:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 ledger generation archive hash does not replay",
+                stage="stage2_sector_audit",
+            )
+
+        history_payload = {
+            "schema_version": 1,
+            "gate": STAGE2_LEDGER_GENERATION_GATE,
+            "generation": generation,
+            "binding_sha256": ledger.get("binding_sha256"),
+            "proof_config_sha256": previous_proof_config_sha256,
+            "ledger_path": archive_relative.as_posix(),
+            "ledger_sha256": old_ledger_sha256,
+            "deferred_pages": len(deferred_pages),
+            "deferred_candidates": sum(
+                len(entry["selected_digests"])
+                for entry in deferred_pages
+            ),
+            "archived_at": utc_now(),
+        }
+        history_entry = {
+            **history_payload,
+            "entry_sha256": _canonical_sha256(history_payload),
+        }
+        reset_ledger = {
+            "schema_version": STAGE2_SELECTION_LEDGER_SCHEMA_VERSION,
+            "gate": STAGE2_SELECTION_LEDGER_GATE,
+            "binding_sha256": ledger.get("binding_sha256"),
+            "cursor": 0,
+            "committed_digests": [],
+            "completed_pages": 0,
+            "pending": None,
+            "deferred_pages": [],
+            "generation": generation + 1,
+            "proof_config_sha256": current_proof_config_sha256,
+            "generation_history": [*history, history_entry],
+        }
+        # Generation archive is durable before this single transaction point.
+        atomic_write_json(
+            self.paths.stage2_selection_ledger, reset_ledger
+        )
+        self._ensure_solver_state_tree_safe()
+        pagination = self.state.setdefault("stage2_pagination", {})
+        pagination.update(
+            {
+                "generation": generation + 1,
+                "cursor": 0,
+                "completed_pages": 0,
+                "deferred_pages": 0,
+                "selection_exhausted": False,
+                "proof_config_sha256": current_proof_config_sha256,
+                "previous_proof_config_sha256": (
+                    previous_proof_config_sha256
+                ),
+                "generation_rotated_at": utc_now(),
+                "generation_archive": archive_relative.as_posix(),
+            }
+        )
+        self._write_state()
+        return True
+
     def _restore_completed_deferred_scan(self) -> bool:
         """Recover a crash after the terminal cursor commit, before state."""
 
@@ -5290,6 +5477,11 @@ class FiveStagePipeline:
             self._strict_source_provenance()
 
             stage2_command = self._stage2_command(candidates)
+            # Capture once. audit_candidate_pool.py owns this transaction and
+            # may advance pending/cursor while the machine is running.
+            stage2_selection_ledger_prestate_sha256 = (
+                self._stage2_selection_ledger_prestate_sha256()
+            )
             stage2_static_config = {
                 "top": self.config.stage2_top,
                 "timeout": self._scaled_proof_timeout(
@@ -5318,6 +5510,9 @@ class FiveStagePipeline:
                 ],
                 "max_total_workers": self.config.max_total_workers,
                 "resume": self.config.resume,
+                "selection_ledger_prestate_sha256": (
+                    stage2_selection_ledger_prestate_sha256
+                ),
             }
 
             def current_stage2_config() -> dict[str, Any]:
@@ -5733,6 +5928,7 @@ class FiveStagePipeline:
         with self._exclusive_lock():
             self._load_or_initialize_state()
             try:
+                self._rotate_deferred_generation_for_budget_change()
                 if self._restore_completed_deferred_scan():
                     return self.state
             except PipelineError as exc:
