@@ -29,7 +29,11 @@ from evaluation.proof_triage import (
     rank_record,
     stable_sort_key,
 )
-from evaluation.registry import check_code_novelty
+from evaluation.registry import (
+    DEFAULT_REGISTRY,
+    check_code_novelty,
+    load_registry,
+)
 from humanize.audit_state import (
     AuditOutcome,
     AuditStateError,
@@ -61,6 +65,10 @@ SOLVER_RUNTIME_PACKAGES = (
     "highspy",
 )
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
+
+
+class NoveltyReplayError(RuntimeError):
+    """The authoritative novelty checker could not produce trusted evidence."""
 
 
 @dataclass(frozen=True)
@@ -266,6 +274,33 @@ def _promote_trusted_stage1_rows(
     return result, counts
 
 
+def _demote_input_identity_claims(
+    record: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Keep caller identity metadata as provenance, never as a dedup key."""
+
+    sanitized = dict(record)
+    sanitized.pop("_input_identity_advisory", None)
+    advisory = {
+        name: sanitized.pop(name)
+        for name in (
+            "canonical_digest",
+            "bliss_hash",
+            "novelty",
+            "structural_novelty",
+            "triage_identity",
+        )
+        if name in sanitized
+    }
+    if advisory:
+        sanitized["_input_identity_advisory"] = advisory
+    for wrapper in ("claim", "candidate"):
+        nested = sanitized.get(wrapper)
+        if isinstance(nested, Mapping):
+            sanitized[wrapper] = _demote_input_identity_claims(nested)
+    return sanitized
+
+
 def rank_candidate_files(
     paths: Iterable[Path],
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -301,7 +336,10 @@ def rank_candidate_files(
         # final-gate rules here, and overwrite any stale caller-supplied value.
         # A top-level value wins for flat, nested-claim, and wrapped-artifact
         # records when proof_triage normalizes the row.
-        enriched = dict(record)
+        # Registry/canonical metadata came from an external JSONL row and is
+        # not authenticated.  In particular it must not merge two distinct
+        # constructions before Stage 2 has rebuilt both of them.
+        enriched = _demote_input_identity_claims(record)
         enriched.pop(_TRUSTED_STAGE1_OUTCOME, None)
         enriched["required_distance"] = required_distance
         try:
@@ -533,18 +571,79 @@ def _load_json_object(path: Path) -> dict[str, Any] | None:
     return value if isinstance(value, dict) else None
 
 
+def _novelty_source_fingerprint() -> str:
+    """Hash the code paths that reconstruct and canonicalize CSS candidates."""
+
+    paths = {
+        Path(__file__).resolve(),
+        PROJECT / "evaluation" / "bb_code.py",
+        PROJECT / "evaluation" / "registry.py",
+        PROJECT / "evaluation" / "structural_dedup.py",
+        PROJECT / "evaluation" / "tanner_equivalence.py",
+    }
+    digest = hashlib.sha256()
+    for path in sorted(
+        paths,
+        key=lambda item: item.relative_to(PROJECT).as_posix(),
+    ):
+        relative = path.relative_to(PROJECT).as_posix().encode("utf-8")
+        payload = path.read_bytes()
+        digest.update(len(relative).to_bytes(8, "big"))
+        digest.update(relative)
+        digest.update(len(payload).to_bytes(8, "big"))
+        digest.update(payload)
+    return digest.hexdigest()
+
+
+def _require_novelty_replay(
+    value: Any,
+    *,
+    registry: Mapping[str, Any],
+    registry_content_sha256: str,
+    checker_source_fingerprint: str,
+) -> dict[str, Any]:
+    """Validate and bind a freshly computed registry answer fail-closed."""
+
+    if not isinstance(value, Mapping):
+        raise NoveltyReplayError("novelty checker did not return an object")
+    novelty = dict(value)
+    canonical_digest = novelty.get("canonical_digest")
+    matched_entries = novelty.get("matched_entries")
+    if (
+        novelty.get("checked") is not True
+        or type(novelty.get("novel")) is not bool
+        or novelty.get("code_type") != "css"
+        or not isinstance(canonical_digest, str)
+        or len(canonical_digest) != 64
+        or any(character not in "0123456789abcdef" for character in canonical_digest)
+        or novelty.get("registry_version") != registry.get("registry_version")
+        or novelty.get("registry_sha256") != registry.get("registry_sha256")
+        or not isinstance(matched_entries, list)
+        or any(not isinstance(entry, Mapping) for entry in matched_entries)
+        or novelty["novel"] is bool(matched_entries)
+    ):
+        raise NoveltyReplayError(
+            "novelty checker returned malformed or stale registry evidence",
+        )
+    novelty["registry_content_sha256"] = registry_content_sha256
+    novelty["checker_source_fingerprint"] = checker_source_fingerprint
+    novelty["replayed_from_construction"] = True
+    return novelty
+
+
 def canonicalize_for_audit(
     ranked: Mapping[str, Any],
     *,
     code_builder: Callable[..., Any] | None = None,
     novelty_checker: Callable[..., dict[str, Any]] | None = None,
+    registry_path: str | Path = DEFAULT_REGISTRY,
 ) -> dict[str, Any]:
-    """Bind one selected historical row to the real registry digest.
+    """Rebuild a selected row and replay novelty against the current registry.
 
-    Older expanded-search rows did not compute canonical novelty unless their
-    short MILP screen finished. Proof triage uses an exact-claim hash as a safe
-    fallback, but before expensive XOR work we reconstruct the BB code and
-    replace that fallback with the registry's canonical graph digest.
+    All input novelty and canonical-digest fields are advisory, including
+    apparently complete cache bindings.  They are never authentication, so
+    Stage 2 reconstructs the BB code and invokes the current checker for every
+    scanned candidate before deduplication or known-code filtering.
     """
 
     code_builder = build_bb_code if code_builder is None else code_builder
@@ -556,28 +655,51 @@ def canonicalize_for_audit(
     if not isinstance(identity, Mapping):
         identity = candidate_identity(updated)
     identity = dict(identity)
-    existing_novelty = updated.get("novelty")
-    has_checked_novelty = (
-        isinstance(existing_novelty, Mapping)
-        and existing_novelty.get("checked") is True
-        and existing_novelty.get("canonical_digest")
+    candidate = _construction_candidate(
+        updated, str(identity["canonical_digest"]),
     )
-    if has_checked_novelty:
-        actual_digest = str(existing_novelty["canonical_digest"])
-    else:
-        candidate = _construction_candidate(
-            updated, str(identity["canonical_digest"]),
+    if candidate.get("C_terms") or candidate.get("D_terms"):
+        raise ValueError("XOR audit canonicalization supports CSS BB only")
+    code = code_builder(
+        int(candidate["ell"]),
+        int(candidate["m"]),
+        candidate["A_terms"],
+        candidate["B_terms"],
+    )
+
+    registry_path = Path(registry_path).resolve()
+    initial_registry_sha256 = _file_sha256(registry_path)
+    if initial_registry_sha256 is None:
+        raise NoveltyReplayError("known-code registry is unavailable")
+    initial_source_fingerprint = _novelty_source_fingerprint()
+    try:
+        # load_registry is cached by path. Clear it before the replay so an
+        # in-process registry update can never retain a stale novelty verdict.
+        load_registry.cache_clear()
+        registry = load_registry(registry_path)
+        replayed = novelty_checker(
+            code,
+            code_type="css",
+            registry_path=registry_path,
         )
-        if candidate.get("C_terms") or candidate.get("D_terms"):
-            raise ValueError("XOR audit canonicalization supports CSS BB only")
-        code = code_builder(
-            int(candidate["ell"]),
-            int(candidate["m"]),
-            candidate["A_terms"],
-            candidate["B_terms"],
+    except (OSError, TypeError, ValueError) as exc:
+        raise NoveltyReplayError(
+            "authoritative novelty replay failed",
+        ) from exc
+    if (
+        _file_sha256(registry_path) != initial_registry_sha256
+        or _novelty_source_fingerprint() != initial_source_fingerprint
+    ):
+        raise NoveltyReplayError(
+            "novelty dependencies changed during authoritative replay",
         )
-        existing_novelty = novelty_checker(code, code_type="css")
-        actual_digest = str(existing_novelty["canonical_digest"])
+    existing_novelty = _require_novelty_replay(
+        replayed,
+        registry=registry,
+        registry_content_sha256=initial_registry_sha256,
+        checker_source_fingerprint=initial_source_fingerprint,
+    )
+    actual_digest = str(existing_novelty["canonical_digest"])
 
     digest_kind = str(identity.get("digest_kind", ""))
     claimed_digest = str(identity.get("canonical_digest", ""))

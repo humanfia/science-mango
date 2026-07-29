@@ -36,6 +36,27 @@ def _construction(marker: int) -> dict:
     }
 
 
+def _novelty_result(
+    canonical_digest: str,
+    *,
+    novel: bool = True,
+) -> dict:
+    registry = candidate_pool.load_registry()
+    return {
+        "checked": True,
+        "novel": novel,
+        "code_type": "css",
+        "canonical_digest": canonical_digest,
+        "registry_version": registry["registry_version"],
+        "registry_sha256": registry["registry_sha256"],
+        "matched_entries": [] if novel else [{
+            "id": "known",
+            "family": "test",
+            "provenance": "test",
+        }],
+    }
+
+
 def _fake_certificate(identifier: str, *, passed: bool, exact: bool) -> dict:
     completed = 1 if exact else 0
     return {
@@ -564,6 +585,7 @@ def test_no_certify_stops_after_threshold_proof(tmp_path):
 
 
 def test_canonicalize_for_audit_replaces_claim_fallback_digest():
+    actual_digest = "a" * 64
     row = {
         **_construction(2),
         "triage_identity": {
@@ -581,21 +603,200 @@ def test_canonicalize_for_audit_replaces_claim_fallback_digest():
     updated = canonicalize_for_audit(
         row,
         code_builder=builder,
-        novelty_checker=lambda code, **kwargs: {
-            "checked": True,
-            "novel": True,
-            "canonical_digest": "actual-digest",
-        },
+        novelty_checker=lambda code, **kwargs: _novelty_result(
+            actual_digest,
+        ),
     )
 
     assert len(built) == 1
-    assert updated["canonical_digest"] == "actual-digest"
-    assert updated["triage_identity"]["canonical_digest"] == "actual-digest"
+    assert updated["canonical_digest"] == actual_digest
+    assert updated["triage_identity"]["canonical_digest"] == actual_digest
     assert (
         updated["triage_identity"]["precanonical_digest"]
         == "claim-sha256:fallback"
     )
     assert updated["triage_identity"]["digest_kind"] == "registry-canonical"
+    assert updated["novelty"]["replayed_from_construction"] is True
+    assert len(updated["novelty"]["registry_content_sha256"]) == 64
+    assert len(updated["novelty"]["checker_source_fingerprint"]) == 64
+
+
+def test_checked_novelty_without_novel_is_replayed_and_selected():
+    actual_digest = "b" * 64
+    row = {
+        **_construction(2),
+        "proof_score": {"status": "PROMISING", "rejected": False},
+        "triage_identity": {
+            "canonical_digest": "claim-sha256:fallback",
+            "digest_kind": "structural-claim",
+        },
+        "novelty": {
+            "checked": True,
+            "canonical_digest": "c" * 64,
+        },
+    }
+    calls = []
+
+    def canonicalizer(value):
+        return canonicalize_for_audit(
+            value,
+            code_builder=lambda *args: object(),
+            novelty_checker=lambda code, **kwargs: (
+                calls.append(kwargs)
+                or _novelty_result(actual_digest)
+            ),
+        )
+
+    selected, stats = select_audit_candidates(
+        [row],
+        1,
+        canonicalizer=canonicalizer,
+    )
+
+    assert len(calls) == 1
+    assert calls[0]["code_type"] == "css"
+    assert selected[0]["canonical_digest"] == actual_digest
+    assert selected[0]["novelty"]["novel"] is True
+    assert stats["known_codes_skipped"] == 0
+
+
+@pytest.mark.parametrize("registry_binding", ["stale", "current"])
+def test_input_novelty_binding_never_bypasses_authoritative_replay(
+    registry_binding,
+):
+    registry = candidate_pool.load_registry()
+    cached_registry_sha256 = (
+        registry["registry_sha256"]
+        if registry_binding == "current"
+        else "0" * 64
+    )
+    actual_digest = "d" * 64
+    row = {
+        **_construction(3),
+        "triage_identity": {
+            "canonical_digest": "claim-sha256:fallback",
+            "digest_kind": "structural-claim",
+        },
+        "novelty": {
+            "checked": True,
+            "novel": False,
+            "code_type": "css",
+            "canonical_digest": "e" * 64,
+            "registry_version": registry["registry_version"],
+            "registry_sha256": cached_registry_sha256,
+            "matched_entries": [{"id": "poison"}],
+            "registry_content_sha256": "f" * 64,
+            "checker_source_fingerprint": "f" * 64,
+        },
+    }
+    calls = []
+
+    updated = canonicalize_for_audit(
+        row,
+        code_builder=lambda *args: object(),
+        novelty_checker=lambda code, **kwargs: (
+            calls.append(kwargs)
+            or _novelty_result(actual_digest)
+        ),
+    )
+
+    assert len(calls) == 1
+    assert updated["canonical_digest"] == actual_digest
+    assert updated["novelty"]["novel"] is True
+    assert updated["novelty"]["registry_sha256"] == registry["registry_sha256"]
+
+
+def test_poison_digest_cannot_deduplicate_a_distinct_candidate(tmp_path):
+    shared_forged_digest = "1" * 64
+    poison = {
+        **_construction(1),
+        "canonical_digest": shared_forged_digest,
+        "novelty": {
+            "checked": True,
+            "novel": True,
+            "canonical_digest": shared_forged_digest,
+        },
+        "structural_novelty": {
+            "checked": True,
+            "novel": True,
+            "canonical_digest": shared_forged_digest,
+        },
+        "directions": [{
+            "objective": 1,
+            "witness_verified": True,
+        }],
+    }
+    survivor = {
+        **_construction(2),
+        "canonical_digest": shared_forged_digest,
+        "novelty": {
+            "checked": True,
+            "novel": False,
+            "canonical_digest": shared_forged_digest,
+        },
+    }
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text(
+        "\n".join(map(json.dumps, [poison, survivor])) + "\n",
+    )
+
+    ranked, counts = rank_candidate_files([stage1])
+
+    assert counts["unique_candidates"] == 2
+    assert counts["duplicate_records"] == 0
+    assert {row["source"] for row in ranked} == {
+        "candidate-1",
+        "candidate-2",
+    }
+    assert all(
+        row["triage_identity"]["canonical_digest"]
+        != shared_forged_digest
+        for row in ranked
+    )
+    eligible = [
+        row for row in ranked
+        if row["proof_score"]["rejected"] is not True
+    ]
+    assert [row["source"] for row in eligible] == ["candidate-2"]
+
+    selected, _ = select_audit_candidates(
+        ranked,
+        1,
+        canonicalizer=lambda row: {
+            **row,
+            "canonical_digest": "3" * 64,
+            "novelty": _novelty_result("3" * 64),
+            "triage_identity": {
+                **row["triage_identity"],
+                "canonical_digest": "3" * 64,
+                "digest_kind": "registry-canonical",
+            },
+        },
+    )
+    assert [row["source"] for row in selected] == ["candidate-2"]
+
+
+def test_malformed_fresh_novelty_result_fails_closed():
+    row = {
+        **_construction(4),
+        "triage_identity": {
+            "canonical_digest": "claim-sha256:fallback",
+            "digest_kind": "structural-claim",
+        },
+    }
+
+    with pytest.raises(
+        candidate_pool.NoveltyReplayError,
+        match="malformed or stale",
+    ):
+        canonicalize_for_audit(
+            row,
+            code_builder=lambda *args: object(),
+            novelty_checker=lambda code, **kwargs: {
+                "checked": True,
+                "canonical_digest": "2" * 64,
+            },
+        )
 
 
 def test_select_queue_skips_known_and_canonical_duplicates():
