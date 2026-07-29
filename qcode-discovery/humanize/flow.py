@@ -104,7 +104,11 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
     """Run or resume a bounded OpenEvolve slice for one RLCR round."""
     evolution_name = f"humanize_{config.run_id}"
     output_dir = config.repo_dir / "results" / "evolution" / evolution_name
-    target_iterations = int(state["current_round"] + 1) * config.iterations_per_round
+    # OpenEvolve interprets ``--iterations`` as the number of *additional*
+    # iterations to execute, including when resuming from a checkpoint. Passing
+    # a cumulative round target here would grow the slices as N, 2N, 3N, ...
+    # instead of executing exactly N iterations per RLCR round.
+    iterations_this_round = config.iterations_per_round
     memory_path = config.repo_dir / "results" / "humanize" / config.run_id / "bitlesson.md"
     context_parts = [memory_path.read_text()] if memory_path.is_file() else []
     previous_review = round_dir.parent / f"round-{int(state["current_round"]):03d}" / "review.json"
@@ -119,7 +123,7 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         sys.executable,
         "evolve/run_evolution.py",
         "--run-name", evolution_name,
-        "--iterations", str(target_iterations),
+        "--iterations", str(iterations_this_round),
         "--model", config.model,
         "--reasoning-effort", config.reasoning_effort,
         "--humanize-context", str(context_path),
@@ -419,6 +423,7 @@ class HumanizeFlow:
         contract = {
             "round": round_number,
             "build": {
+                "openevolve_iterations_this_round": self.config.iterations_per_round,
                 "openevolve_target_iterations": round_number * self.config.iterations_per_round,
                 "model": self.config.model,
                 "reasoning_effort": self.config.reasoning_effort,

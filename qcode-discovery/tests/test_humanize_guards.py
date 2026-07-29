@@ -71,12 +71,49 @@ def test_openevolve_config_and_seed_are_forwarded(tmp_path, monkeypatch):
         repo_dir=repo,
         run_id="server-profile",
         max_rounds=1,
+        iterations_per_round=25,
         evolution_config=config_path,
         evolution_seed=seed_path,
     )
     run_openevolve(config, {"current_round": 0, "last_checkpoint": None}, round_dir)
 
     command = captured["command"]
+    assert command[command.index("--iterations") + 1] == "25"
     assert command[command.index("--config") + 1] == str(config_path)
     assert command[command.index("--seed") + 1] == str(seed_path)
+    assert captured["kwargs"]["cwd"] == repo
+
+
+def test_openevolve_resume_runs_one_increment_not_cumulative(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    round_dir = repo / "round-003"
+    round_dir.mkdir()
+    checkpoint = (
+        repo
+        / "results/evolution/humanize_incremental/checkpoints/checkpoint_50"
+    )
+    checkpoint.mkdir(parents=True)
+    captured = {}
+
+    def fake_run(command, **kwargs):
+        captured["command"] = command
+        captured["kwargs"] = kwargs
+
+    monkeypatch.setattr("humanize.flow.subprocess.run", fake_run)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="incremental",
+        max_rounds=3,
+        iterations_per_round=25,
+    )
+    run_openevolve(
+        config,
+        {"current_round": 2, "last_checkpoint": str(checkpoint)},
+        round_dir,
+    )
+
+    command = captured["command"]
+    assert command[command.index("--iterations") + 1] == "25"
+    assert command[command.index("--resume") + 1] == str(checkpoint)
     assert captured["kwargs"]["cwd"] == repo
