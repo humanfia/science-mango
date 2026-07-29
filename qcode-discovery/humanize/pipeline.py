@@ -855,6 +855,18 @@ class PipelineConfig:
         def pick(flat: str, group: str, nested: str, default: Any) -> Any:
             return value.get(flat, section(group).get(nested, default))
 
+        def parse_int(name: str, raw: Any) -> int:
+            # bool is an int subclass, so converting first would turn a JSON
+            # true/false into a valid-looking 1/0 before validate() can reject it.
+            if isinstance(raw, bool):
+                raise ValueError(f"{name} must not be boolean")
+            return int(raw)
+
+        def parse_float(name: str, raw: Any) -> float:
+            if isinstance(raw, bool):
+                raise ValueError(f"{name} must not be boolean")
+            return float(raw)
+
         raw_inputs = value.get("candidate_inputs", value.get("stage1_inputs", ()))
         if isinstance(raw_inputs, (str, os.PathLike)):
             raw_inputs = [raw_inputs]
@@ -904,27 +916,41 @@ class PipelineConfig:
             ),
             python_executable=str(value.get("python_executable", sys.executable)),
             resume=bool(value.get("resume", True)),
-            stage2_top=int(pick("stage2_top", "stage2", "top", 20)),
-            stage2_timeout=float(pick("stage2_timeout", "stage2", "timeout", 300)),
-            stage2_candidate_workers=int(
+            stage2_top=parse_int(
+                "stage2_top", pick("stage2_top", "stage2", "top", 20)
+            ),
+            stage2_timeout=parse_float(
+                "stage2_timeout", pick("stage2_timeout", "stage2", "timeout", 300)
+            ),
+            stage2_candidate_workers=parse_int(
+                "stage2_candidate_workers",
                 pick("stage2_candidate_workers", "stage2", "candidate_workers", 2)
             ),
-            stage2_solver_workers=int(
+            stage2_solver_workers=parse_int(
+                "stage2_solver_workers",
                 pick("stage2_solver_workers", "stage2", "solver_workers", 4)
             ),
-            stage3_top=int(pick("stage3_top", "stage3", "top", 0)),
-            stage3_timeout=float(pick("stage3_timeout", "stage3", "timeout", 300)),
-            stage3_candidate_workers=int(
+            stage3_top=parse_int(
+                "stage3_top", pick("stage3_top", "stage3", "top", 0)
+            ),
+            stage3_timeout=parse_float(
+                "stage3_timeout", pick("stage3_timeout", "stage3", "timeout", 300)
+            ),
+            stage3_candidate_workers=parse_int(
+                "stage3_candidate_workers",
                 pick("stage3_candidate_workers", "stage3", "candidate_workers", 1)
             ),
-            stage3_direction_workers=int(
+            stage3_direction_workers=parse_int(
+                "stage3_direction_workers",
                 pick("stage3_direction_workers", "stage3", "direction_workers", 4)
             ),
             stage3_exact=bool(pick("stage3_exact", "stage3", "exact", False)),
-            certificate_workers=int(
+            certificate_workers=parse_int(
+                "certificate_workers",
                 pick("certificate_workers", "certificate", "workers", 1)
             ),
-            certificate_solver_workers=int(
+            certificate_solver_workers=parse_int(
+                "certificate_solver_workers",
                 pick(
                     "certificate_solver_workers",
                     "certificate",
@@ -932,8 +958,11 @@ class PipelineConfig:
                     1,
                 )
             ),
-            max_total_workers=int(value.get("max_total_workers", 8)),
-            certificate_timeout_per_logical=float(
+            max_total_workers=parse_int(
+                "max_total_workers", value.get("max_total_workers", 8)
+            ),
+            certificate_timeout_per_logical=parse_float(
+                "certificate_timeout_per_logical",
                 pick(
                     "certificate_timeout_per_logical",
                     "certificate",
@@ -941,7 +970,8 @@ class PipelineConfig:
                     300,
                 )
             ),
-            certificate_total_timeout=float(
+            certificate_total_timeout=parse_float(
+                "certificate_total_timeout",
                 pick(
                     "certificate_total_timeout",
                     "certificate",
@@ -949,7 +979,8 @@ class PipelineConfig:
                     7200,
                 )
             ),
-            verification_timeout_per_logical=float(
+            verification_timeout_per_logical=parse_float(
+                "verification_timeout_per_logical",
                 pick(
                     "verification_timeout_per_logical",
                     "certificate",
@@ -957,7 +988,8 @@ class PipelineConfig:
                     300,
                 )
             ),
-            verification_total_timeout=float(
+            verification_total_timeout=parse_float(
+                "verification_total_timeout",
                 pick(
                     "verification_total_timeout",
                     "certificate",
@@ -965,7 +997,8 @@ class PipelineConfig:
                     7200,
                 )
             ),
-            proof_retry_max_attempts=int(
+            proof_retry_max_attempts=parse_int(
+                "proof_retry_max_attempts",
                 pick(
                     "proof_retry_max_attempts",
                     "proof_retry",
@@ -973,7 +1006,8 @@ class PipelineConfig:
                     6,
                 )
             ),
-            proof_retry_max_multiplier=float(
+            proof_retry_max_multiplier=parse_float(
+                "proof_retry_max_multiplier",
                 pick(
                     "proof_retry_max_multiplier",
                     "proof_retry",
@@ -981,7 +1015,8 @@ class PipelineConfig:
                     4,
                 )
             ),
-            proof_retry_campaign_total_timeout=float(
+            proof_retry_campaign_total_timeout=parse_float(
+                "proof_retry_campaign_total_timeout",
                 pick(
                     "proof_retry_campaign_total_timeout",
                     "proof_retry",
@@ -989,7 +1024,8 @@ class PipelineConfig:
                     86400,
                 )
             ),
-            proof_retry_backoff_seconds=float(
+            proof_retry_backoff_seconds=parse_float(
+                "proof_retry_backoff_seconds",
                 pick(
                     "proof_retry_backoff_seconds",
                     "proof_retry",
@@ -1003,7 +1039,8 @@ class PipelineConfig:
             known_answer_trust=(
                 None if known_trust is None else _resolve_path(known_trust, base)
             ),
-            known_answer_timeout_per_logical=int(
+            known_answer_timeout_per_logical=parse_int(
+                "known_answer_timeout_per_logical",
                 pick(
                     "known_answer_timeout_per_logical",
                     "strict",
@@ -1011,7 +1048,8 @@ class PipelineConfig:
                     300,
                 )
             ),
-            known_answer_total_timeout=int(
+            known_answer_total_timeout=parse_int(
+                "known_answer_total_timeout",
                 pick(
                     "known_answer_total_timeout",
                     "strict",
