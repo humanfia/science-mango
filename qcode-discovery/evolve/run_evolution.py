@@ -778,8 +778,10 @@ class _SliceObserver:
             or not isinstance(metadata, dict)
             or metadata.get("migrant") is not True
             or metadata.get("island") != target_island
-            or getattr(program, "iteration_found", None) is not None
-            or getattr(stored, "iteration_found", None) is not None
+            # The pinned OpenEvolve Program dataclass defaults omitted
+            # ``iteration_found`` to zero for migration copies.
+            or getattr(program, "iteration_found", None) != 0
+            or getattr(stored, "iteration_found", None) != 0
             or getattr(program, "code", None) != getattr(parent, "code", None)
             or getattr(program, "metrics", None)
             != getattr(parent, "metrics", None)

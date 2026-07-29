@@ -201,7 +201,8 @@ class FakeDatabase:
         del target_island
         if self.fail_add_at is not None and iteration == self.fail_add_at:
             raise RuntimeError("database add failed")
-        program.iteration_found = iteration
+        if iteration is not None:
+            program.iteration_found = iteration
         if self.mutate_at is not None and iteration == self.mutate_at:
             program.code = "content-replaced-after-future"
         self.programs[program.id] = program
@@ -287,7 +288,7 @@ class FakeParallelController:
                             id=f"migrant-{iteration}",
                             code=child.code,
                             metrics=dict(child.metrics),
-                            iteration_found=None,
+                            iteration_found=0,
                             parent_id=child.id,
                             metadata={"migrant": True, "island": 1},
                         ),
@@ -401,9 +402,9 @@ def test_observer_rejects_unclassified_iterationless_database_add():
             code="code",
             metrics={},
             metadata={},
-            iteration_found=None,
+            iteration_found=0,
         ),
-        stored=SimpleNamespace(id="not-a-migrant", iteration_found=None),
+        stored=SimpleNamespace(id="not-a-migrant", iteration_found=0),
         parent=SimpleNamespace(id="parent", code="code", metrics={}),
         target_island=0,
         num_islands=2,
