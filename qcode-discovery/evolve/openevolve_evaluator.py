@@ -500,6 +500,21 @@ def _select_quick_exploration(
     return selected
 
 
+def _winner_capable_definitions(rows: list[dict]) -> list[dict]:
+    """Return every unique positive-k definition with a feasible win window."""
+    eligible: list[dict] = []
+    seen: set[tuple] = set()
+    for row in rows:
+        if int(row.get("k", 0) or 0) <= 0:
+            continue
+        definition = _definition_key(row)
+        if definition in seen or not _annotate_winner_capability(row):
+            continue
+        seen.add(definition)
+        eligible.append(row)
+    return eligible
+
+
 def _zero_distance_persistence_row(
     row: dict,
     *,
@@ -713,12 +728,12 @@ def _structural_feedback(result: dict) -> str:
 
 
 def _append_candidate_jsonl(log_file: Path, payload: bytes) -> None:
-    """Append exactly one locked and durable JSONL record."""
+    """Append a non-interleaved batch; roll back caught I/O failures."""
     # Evaluators run in separate worker processes.  O_APPEND prevents stale
-    # offsets, while flock keeps a short/partial write from interleaving with
-    # another JSON record.  Flush the record to stable storage before reporting
-    # the evaluation as successful: a candidate that influenced evolution must
-    # not disappear from the Stage 1 input log.
+    # offsets, while flock keeps a short/partial batch from interleaving with
+    # another cooperating append. Flush the batch to stable storage before
+    # reporting the evaluation as successful: a candidate that influenced
+    # evolution must not disappear from the Stage 1 input log.
     flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -753,18 +768,8 @@ def _append_candidate_jsonl(log_file: Path, payload: bytes) -> None:
             os.close(descriptor)
 
 
-def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
-    """Append a code result to the run-specific all_codes.jsonl file.
-
-    Logs all codes with ``d > 0`` plus statically eligible quick-only
-    candidates in the explicit winner-capable exploration lane.  The latter
-    closes the old top-k handoff gap without making arbitrary FOM claims.
-
-    The run_name is resolved from (in priority order):
-    1. Explicit ``run_name`` argument
-    2. ``QCODE_RUN_NAME`` environment variable (set by run_evolution.py)
-    3. Fallback to ``results/evolution/all_codes.jsonl``
-    """
+def _candidate_jsonl_record(result: dict) -> dict | None:
+    """Build one candidate-log record, or return ``None`` when ineligible."""
     d = result.get("d", 0)
     exploration_lane = (
         result.get("candidate_persistence_lane")
@@ -772,10 +777,7 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
         and result.get("winner_capable_parameters") is True
     )
     if d <= 0 and not exploration_lane:
-        return
-
-    if not run_name:
-        run_name = os.environ.get("QCODE_RUN_NAME")
+        return None
 
     record = {
         "ell": result.get("ell"),
@@ -821,22 +823,65 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
             record["distance_backend_error"] = dict(
                 result["distance_backend_error"]
             )
+    return record
 
+
+def _log_codes_jsonl(
+    results: list[dict],
+    run_name: str | None = None,
+) -> int:
+    """Durably append a candidate batch under one lock and one ``fsync``.
+
+    Serialisation finishes before the file is opened.  Once opened, the whole
+    batch cannot interleave with cooperating writers; caught short writes and
+    ``fsync`` failures are rolled back to the pre-batch offset.  SIGKILL can
+    still leave a complete prefix, which the Humanize transaction's trusted
+    offset truncation/archive protocol handles during recovery.  The returned
+    count lets callers enforce full-persistence invariants.
+    """
+    records = [
+        record
+        for result in results
+        if (record := _candidate_jsonl_record(result)) is not None
+    ]
+    if not records:
+        return 0
+
+    if not run_name:
+        run_name = os.environ.get("QCODE_RUN_NAME")
     if run_name:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution" / run_name
     else:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution"
+    payload = b"".join(
+        (json.dumps(record, ensure_ascii=False, default=str) + "\n").encode(
+            "utf-8"
+        )
+        for record in records
+    )
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
-        log_file = log_dir / "all_codes.jsonl"
-        payload = (
-            json.dumps(record, ensure_ascii=False, default=str) + "\n"
-        ).encode("utf-8")
-        _append_candidate_jsonl(log_file, payload)
+        _append_candidate_jsonl(log_dir / "all_codes.jsonl", payload)
     except OSError as exc:
         raise CandidateLogWriteError(
-            f"failed to persist discovered candidate in {log_dir}"
+            f"failed to persist discovered candidate batch in {log_dir}"
         ) from exc
+    return len(records)
+
+
+def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
+    """Append a code result to the run-specific all_codes.jsonl file.
+
+    Logs all codes with ``d > 0`` plus statically eligible quick-only
+    candidates in the explicit winner-capable exploration lane.  The latter
+    closes the old top-k handoff gap without making arbitrary FOM claims.
+
+    The run_name is resolved from (in priority order):
+    1. Explicit ``run_name`` argument
+    2. ``QCODE_RUN_NAME`` environment variable (set by run_evolution.py)
+    3. Fallback to ``results/evolution/all_codes.jsonl``
+    """
+    _log_codes_jsonl([result], run_name=run_name)
 
 
 def _error_result(error: str) -> dict:
@@ -884,6 +929,7 @@ def _run_evaluation(
     sampling_salt: str = "",
     candidate_limit: int = MAX_CANDIDATES_PER_LATTICE,
     persist_quick_exploration: bool = False,
+    persist_all_quick_exploration: bool = False,
 ) -> dict:
     """Run evaluation across lattices and compute aggregate metrics.
 
@@ -898,13 +944,20 @@ def _run_evaluation(
         or candidate_limit < 2
     ):
         raise ValueError("candidate_limit must be an integer of at least two")
+    if persist_all_quick_exploration and not persist_quick_exploration:
+        raise ValueError(
+            "persist_all_quick_exploration requires "
+            "persist_quick_exploration"
+        )
 
     all_results = []
     total_candidates = 0
     unique_candidates = 0
     evaluated_candidate_definitions = 0
     duplicate_candidate_occurrences = 0
+    quick_exploration_eligible = 0
     quick_exploration_persisted = 0
+    quick_exploration_omitted = 0
     distance_pending_persisted = 0
     unresolved_top_persisted = 0
     distance_error_top_persisted = 0
@@ -981,16 +1034,17 @@ def _run_evaluation(
                 results, static_rejected = _filter_static_eligible(results)
                 tier0_rejected_count += len(static_rejected)
                 if persist_quick_exploration:
-                    persisted_quick = _select_quick_exploration(
-                        [
-                            result
-                            for result in results
-                            if result.get("k", 0) > 0
-                        ],
-                        ell=ell,
-                        m=m,
-                        sampling_salt=sampling_salt,
-                    )
+                    eligible_quick = _winner_capable_definitions(results)
+                    quick_exploration_eligible += len(eligible_quick)
+                    if persist_all_quick_exploration:
+                        persisted_quick = eligible_quick
+                    else:
+                        persisted_quick = _select_quick_exploration(
+                            eligible_quick,
+                            ell=ell,
+                            m=m,
+                            sampling_salt=sampling_salt,
+                        )
                     for result in persisted_quick:
                         result["candidate_persistence_lane"] = (
                             WINNER_CAPABLE_EXPLORATION_LANE
@@ -998,12 +1052,28 @@ def _run_evaluation(
                         result["candidate_persistence_reason"] = (
                             QUICK_EXPLORATION_PERSISTENCE_REASON
                         )
-                        _log_code_jsonl(result, run_name=run_name)
+                    if persist_all_quick_exploration:
+                        persisted_count = _log_codes_jsonl(
+                            persisted_quick,
+                            run_name=run_name,
+                        )
+                        if persisted_count != len(eligible_quick):
+                            raise CandidateLogWriteError(
+                                f"({ell},{m}): full preflight persistence "
+                                f"logged {persisted_count} of "
+                                f"{len(eligible_quick)} eligible definitions"
+                            )
+                    else:
+                        for result in persisted_quick:
+                            _log_code_jsonl(result, run_name=run_name)
                     prelogged_quick_keys = {
                         _definition_key(result)
                         for result in persisted_quick
                     }
                     quick_exploration_persisted += len(persisted_quick)
+                    quick_exploration_omitted += (
+                        len(eligible_quick) - len(persisted_quick)
+                    )
             else:
                 # Two-pass: quick screen, then distance on top candidates.
                 # MILP path uses evaluate_batch_milp(quick=True) to get
@@ -1300,8 +1370,14 @@ def _run_evaluation(
         "unique_candidates": unique_candidates,
         "evaluated_candidate_definitions": evaluated_candidate_definitions,
         "duplicate_candidate_occurrences": duplicate_candidate_occurrences,
+        "winner_capable_quick_exploration_eligible": (
+            quick_exploration_eligible
+        ),
         "winner_capable_quick_exploration_persisted": (
             quick_exploration_persisted
+        ),
+        "winner_capable_quick_exploration_omitted": (
+            quick_exploration_omitted
         ),
         "winner_capable_distance_pending_persisted": (
             distance_pending_persisted
@@ -1426,7 +1502,8 @@ def evaluate_stage1(program_path: str) -> dict:
 def _evaluate_stage2_impl(program_path: str) -> dict:
     """Stage 2: bounded target preflight plus deep distance evaluation.
 
-    Every contracted lattice is screened and durably sampled before a
+    Every contracted lattice is screened and every evaluated, statically
+    eligible winner-capable definition is durably retained before a
     blocking distance backend runs.  Deep BP-OSD scoring then uses the
     historical Pareto/fitness lattice basis.
     """
@@ -1443,6 +1520,7 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         sampling_salt=sampling_salt,
         candidate_limit=STAGE2_PREFLIGHT_CANDIDATE_LIMIT,
         persist_quick_exploration=True,
+        persist_all_quick_exploration=True,
     )
     metrics = dict(_run_evaluation(
         generate_fn, STAGE2_DEEP_LATTICES,
@@ -1477,6 +1555,27 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             "winner_capable_quick_exploration_persisted", 0
         )
     )
+    metrics["target_preflight_winner_capable_eligible"] = preflight.get(
+        "winner_capable_quick_exploration_eligible", 0
+    )
+    metrics["target_preflight_winner_capable_persisted"] = preflight.get(
+        "winner_capable_quick_exploration_persisted", 0
+    )
+    metrics["target_preflight_winner_capable_omitted"] = preflight.get(
+        "winner_capable_quick_exploration_omitted", 0
+    )
+    if (
+        metrics["target_preflight_winner_capable_omitted"] != 0
+        or metrics["target_preflight_winner_capable_persisted"]
+        != metrics["target_preflight_winner_capable_eligible"]
+    ):
+        raise CandidateLogWriteError(
+            "Stage 2 preflight persistence invariant failed: "
+            f"eligible={metrics['target_preflight_winner_capable_eligible']}, "
+            "persisted="
+            f"{metrics['target_preflight_winner_capable_persisted']}, "
+            f"omitted={metrics['target_preflight_winner_capable_omitted']}"
+        )
     metrics["target_preflight_lattices"] = len(STAGE2_LATTICES)
     metrics["target_preflight_candidates_generated"] = preflight.get(
         "total_candidates", 0
@@ -1602,6 +1701,13 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         f"{metrics.get('target_preflight_candidates_generated', 0)} "
         f"generated candidates sampled across "
         f"{metrics.get('target_preflight_lattices', 0)} lattices.\n"
+        "Target preflight winner-capable persistence: "
+        f"{metrics.get('target_preflight_winner_capable_eligible', 0)} "
+        "eligible, "
+        f"{metrics.get('target_preflight_winner_capable_persisted', 0)} "
+        "persisted, "
+        f"{metrics.get('target_preflight_winner_capable_omitted', 0)} "
+        "omitted.\n"
         f"Deep evaluation: {metrics['total_candidates']} generated "
         f"candidates across {len(STAGE2_DEEP_LATTICES)} lattices.\n"
         f"Canonical definitions: {metrics['unique_candidates']} generated, "
@@ -1704,6 +1810,15 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         ),
         "target_preflight_candidates_evaluated": float(
             metrics.get("target_preflight_candidates_evaluated", 0)
+        ),
+        "target_preflight_winner_capable_eligible": float(
+            metrics.get("target_preflight_winner_capable_eligible", 0)
+        ),
+        "target_preflight_winner_capable_persisted": float(
+            metrics.get("target_preflight_winner_capable_persisted", 0)
+        ),
+        "target_preflight_winner_capable_omitted": float(
+            metrics.get("target_preflight_winner_capable_omitted", 0)
         ),
         "term_count": s2_tc,
         "pattern_type": s2_pattern,
@@ -2391,6 +2506,15 @@ def _write_metrics_jsonl(metrics: dict) -> None:
         "num_above_6": metrics.get("num_above_6", 0),
         "num_above_12": metrics.get("num_above_12", 0),
         "total_candidates": metrics.get("total_candidates", 0),
+        "target_preflight_winner_capable_eligible": metrics.get(
+            "target_preflight_winner_capable_eligible", 0
+        ),
+        "target_preflight_winner_capable_persisted": metrics.get(
+            "target_preflight_winner_capable_persisted", 0
+        ),
+        "target_preflight_winner_capable_omitted": metrics.get(
+            "target_preflight_winner_capable_omitted", 0
+        ),
         "winner_capable_distance_pending_persisted": metrics.get(
             "winner_capable_distance_pending_persisted", 0
         ),

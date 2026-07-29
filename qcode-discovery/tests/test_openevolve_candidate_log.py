@@ -51,6 +51,19 @@ def _append_worker(
         )
 
 
+def _batch_append_worker(
+    project_root: str,
+    run_name: str,
+    worker: int,
+    count: int,
+) -> None:
+    evaluator._PROJECT_ROOT = project_root
+    evaluator._log_codes_jsonl(
+        [_result(worker, index) for index in range(count)],
+        run_name=run_name,
+    )
+
+
 def test_candidate_jsonl_is_complete_under_multiprocess_append(tmp_path):
     workers = 4
     per_worker = 12
@@ -117,6 +130,81 @@ def test_candidate_jsonl_write_failure_propagates_and_rolls_back(
         / "all_codes.jsonl"
     )
     assert path.read_bytes() == b""
+
+
+def test_candidate_jsonl_batch_write_failure_rolls_back_entire_batch(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    original_write = os.write
+    calls = 0
+
+    def partial_batch_then_fail(descriptor: int, payload: bytes) -> int:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return original_write(descriptor, payload[:31])
+        raise OSError("simulated batch append failure")
+
+    monkeypatch.setattr(evaluator.os, "write", partial_batch_then_fail)
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="failed to persist discovered candidate batch",
+    ):
+        evaluator._log_codes_jsonl(
+            [_result(0, index) for index in range(12)],
+            run_name="batch-write-failure",
+        )
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "batch-write-failure"
+        / "all_codes.jsonl"
+    )
+    assert path.read_bytes() == b""
+
+
+def test_candidate_jsonl_concurrent_batches_never_interleave_records(tmp_path):
+    workers = 4
+    per_worker = 12
+    run_name = "multiprocess-batch-log"
+    context = multiprocessing.get_context("fork")
+    processes = [
+        context.Process(
+            target=_batch_append_worker,
+            args=(str(tmp_path), run_name, worker, per_worker),
+        )
+        for worker in range(workers)
+    ]
+
+    for process in processes:
+        process.start()
+    for process in processes:
+        process.join(timeout=30)
+        assert process.exitcode == 0
+
+    path = (
+        tmp_path / "results" / "evolution" / run_name / "all_codes.jsonl"
+    )
+    rows = [json.loads(line) for line in path.read_bytes().splitlines()]
+    assert len(rows) == workers * per_worker
+
+    worker_order = [row["ell"] - 6 for row in rows]
+    batch_order = [
+        worker
+        for index, worker in enumerate(worker_order)
+        if index == 0 or worker_order[index - 1] != worker
+    ]
+    assert len(batch_order) == workers
+    assert set(batch_order) == set(range(workers))
+    for worker in range(workers):
+        assert [
+            row["m"] - 6
+            for row in rows
+            if row["ell"] - 6 == worker
+        ] == list(range(per_worker))
 
 
 def test_evaluation_does_not_downgrade_candidate_log_failure(monkeypatch):
@@ -248,6 +336,7 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
     assert calls[0][0] == EVOLUTION_LATTICES
     assert calls[0][1]["quick"] is True
     assert calls[0][1]["persist_quick_exploration"] is True
+    assert calls[0][1]["persist_all_quick_exploration"] is True
     assert (
         calls[0][1]["candidate_limit"]
         == evaluator.STAGE2_PREFLIGHT_CANDIDATE_LIMIT
@@ -870,6 +959,135 @@ def test_run_deduplicates_permutations_and_preserves_occurrence_count(
     ) == [1, 36]
 
 
+def test_stage2_full_preflight_persists_every_eligible_definition_in_one_batch(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    candidates = [
+        (
+            [[0, 0], [0, 1], [index + 1, 0]],
+            [[0, 0], [0, 2], [index + 2, 0]],
+        )
+        for index in range(20)
+    ]
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / 72,
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    real_append = evaluator._append_candidate_jsonl
+    batch_sizes = []
+
+    def track_batch(path, payload):
+        batch_sizes.append(payload.count(b"\n"))
+        return real_append(path, payload)
+
+    monkeypatch.setattr(evaluator, "_append_candidate_jsonl", track_batch)
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: candidates,
+        [(6, 6)],
+        quick=True,
+        run_name="full-stage2-preflight",
+        sampling_salt="program-a",
+        persist_quick_exploration=True,
+        persist_all_quick_exploration=True,
+    )
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "full-stage2-preflight"
+        / "all_codes.jsonl"
+    )
+    persisted = [json.loads(line) for line in path.read_text().splitlines()]
+    assert len(persisted) == len(candidates)
+    assert len(persisted) > (
+        evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
+    )
+    assert batch_sizes == [len(candidates)]
+    assert metrics["winner_capable_quick_exploration_eligible"] == len(
+        candidates
+    )
+    assert metrics["winner_capable_quick_exploration_persisted"] == len(
+        candidates
+    )
+    assert metrics["winner_capable_quick_exploration_omitted"] == 0
+    assert all(
+        row["winner_capable_parameters"] is True
+        and row["candidate_persistence_reason"]
+        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+        for row in persisted
+    )
+
+
+def test_normal_stage1_quick_evaluation_does_not_persist_k_only_pool(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.delenv("QCODE_RUN_NAME", raising=False)
+    program = tmp_path / "stage1-program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate = (
+        [[0, 0], [0, 1], [1, 0]],
+        [[0, 0], [0, 2], [2, 0]],
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [candidate] * 20,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 2 * ell * m,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / (2 * ell * m),
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / (2 * ell * m),
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    result = evaluator.evaluate_stage1(str(program))
+
+    assert result["num_valid"] == float(len(evaluator.STAGE1_LATTICES))
+    assert not list(tmp_path.rglob("all_codes.jsonl"))
+
+
 def test_dynamic_distance_lane_keeps_k4_and_bounds_quick_persistence(
     tmp_path, monkeypatch
 ):
@@ -1182,6 +1400,11 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
         "simulated distance backend failure"
     ]
 
+    preflight_metrics = dict(metrics)
+    preflight_metrics["winner_capable_quick_exploration_eligible"] = len(
+        quick
+    )
+    preflight_metrics["winner_capable_quick_exploration_omitted"] = 0
     monkeypatch.setattr(
         evaluator,
         "_load_generate_candidates",
@@ -1190,7 +1413,9 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
     monkeypatch.setattr(
         evaluator,
         "_run_evaluation",
-        lambda *_args, **_kwargs: metrics,
+        lambda *_args, **kwargs: (
+            preflight_metrics if kwargs.get("quick") is True else metrics
+        ),
     )
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
     evaluated = evaluator._evaluate_stage2_impl(
