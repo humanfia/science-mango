@@ -24,6 +24,8 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Callable, Iterator, Protocol
 
+from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
+
 from .audit_state import (
     AuditOutcome,
     AuditStateError,
@@ -63,24 +65,24 @@ ROUND_TRANSACTION_SCHEMA_VERSION = 2
 LEGACY_BATCH_SCHEMA_VERSION = 1
 EVOLUTION_COMPLETION_SCHEMA_VERSION = 2
 EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 2
-LOCAL_EVOLUTION_DEPENDENCIES = {
-    "evaluation_evaluator": "evaluation/evaluator.py",
-    "evaluation_results": "evaluation/results.py",
-    "evaluation_structural_dedup": "evaluation/structural_dedup.py",
-    "evaluation_bb_code": "evaluation/bb_code.py",
-    "evaluation_pbb_code": "evaluation/pbb_code.py",
-    "evaluation_distance": "evaluation/distance.py",
-    "evaluation_distance_milp": "evaluation/distance_milp.py",
-    "evaluation_final_gate": "evaluation/final_gate.py",
-    "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
-}
+LOCAL_EVOLUTION_DEPENDENCIES = LOCAL_EVALUATOR_DEPENDENCIES
 # Transactions prepared before ``evaluation_final_gate`` was added have no
 # explicit binding-schema field.  Keep the exact historical shape allowlisted
 # so an *unbound* prepared transaction can abandon its old slice and rebind.
 # Do not accept arbitrary subsets: a missing dependency could otherwise turn
 # manifest corruption into an unaudited source upgrade.
 LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
-    frozenset({"evaluation_final_gate"}),
+    frozenset({
+        "evaluation_final_gate",
+        "evaluation_proof_runtime",
+        "evaluation_search_contract",
+        "evolution_dependency_contract",
+    }),
+    frozenset({
+        "evaluation_proof_runtime",
+        "evaluation_search_contract",
+        "evolution_dependency_contract",
+    }),
 )
 EVOLUTION_INVOCATION_FIELDS = frozenset({
     "model_names",
@@ -1698,18 +1700,37 @@ def _binding_identity_sha256(
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _evolution_launch_shape_rank(
+    launch: Any,
+    current_launch: dict[str, dict[str, Any]],
+) -> int | None:
+    """Return the append-only dependency-schema rank for a launch binding."""
+
+    if not isinstance(launch, dict):
+        return None
+    launch_fields = set(launch)
+    current_fields = set(current_launch)
+    if launch_fields == current_fields:
+        return len(LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS)
+    for rank, missing in enumerate(
+        LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS
+    ):
+        if (
+            missing <= current_fields
+            and launch_fields == current_fields - missing
+        ):
+            return rank
+    return None
+
+
 def _is_legacy_evolution_launch_shape(
     launch: Any,
     current_launch: dict[str, dict[str, Any]],
 ) -> bool:
-    if not isinstance(launch, dict):
-        return False
-    launch_fields = set(launch)
-    current_fields = set(current_launch)
-    return any(
-        launch_fields == current_fields - missing
-        and missing <= current_fields
-        for missing in LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS
+    rank = _evolution_launch_shape_rank(launch, current_launch)
+    return (
+        rank is not None
+        and rank < len(LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS)
     )
 
 
@@ -2973,7 +2994,7 @@ class HumanizeFlow:
         pending_seen = False
         previous_launch: dict[str, dict[str, Any]] | None = None
         previous_invocation: dict[str, Any] | None = None
-        previous_was_legacy: bool | None = None
+        previous_schema_rank: int | None = None
         required = {
             "attempt",
             "status",
@@ -3042,9 +3063,13 @@ class HumanizeFlow:
                 current_launch,
                 allow_legacy=True,
             )
-            old_is_legacy = _is_legacy_evolution_launch_shape(
+            old_schema_rank = _evolution_launch_shape_rank(
                 old_launch, current_launch
             )
+            if old_schema_rank is None:
+                raise RoundTransactionError(
+                    "evolution binding rebind history has unknown schema"
+                )
             if record["old_binding_sha256"] != _binding_identity_sha256(
                 old_launch, old_invocation
             ):
@@ -3058,7 +3083,10 @@ class HumanizeFlow:
                 raise RoundTransactionError(
                     "evolution binding rebind history is not a continuous chain"
                 )
-            if previous_was_legacy is False and old_is_legacy:
+            if (
+                previous_schema_rank is not None
+                and old_schema_rank < previous_schema_rank
+            ):
                 raise RoundTransactionError(
                     "evolution binding rebind history downgrades its schema"
                 )
@@ -3071,7 +3099,7 @@ class HumanizeFlow:
                 pending_seen = True
                 previous_launch = old_launch
                 previous_invocation = old_invocation
-                previous_was_legacy = old_is_legacy
+                previous_schema_rank = old_schema_rank
             else:
                 new_launch, new_invocation = _validate_stored_binding_shape(
                     self.config,
@@ -3081,10 +3109,14 @@ class HumanizeFlow:
                     current_launch,
                     allow_legacy=True,
                 )
-                new_is_legacy = _is_legacy_evolution_launch_shape(
+                new_schema_rank = _evolution_launch_shape_rank(
                     new_launch, current_launch
                 )
-                if not old_is_legacy and new_is_legacy:
+                if new_schema_rank is None:
+                    raise RoundTransactionError(
+                        "evolution binding rebind history has unknown schema"
+                    )
+                if new_schema_rank < old_schema_rank:
                     raise RoundTransactionError(
                         "evolution binding rebind history downgrades its schema"
                     )
@@ -3121,7 +3153,7 @@ class HumanizeFlow:
                     )
                 previous_launch = new_launch
                 previous_invocation = new_invocation
-                previous_was_legacy = new_is_legacy
+                previous_schema_rank = new_schema_rank
 
         if history and (
             transaction.get("launch_binding") != previous_launch

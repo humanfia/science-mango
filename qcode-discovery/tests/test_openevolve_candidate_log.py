@@ -5,6 +5,10 @@ from __future__ import annotations
 import json
 import multiprocessing
 import os
+import signal
+import subprocess
+import sys
+import time
 from itertools import permutations
 from pathlib import Path
 
@@ -12,6 +16,11 @@ import pytest
 
 import evolve.openevolve_evaluator as evaluator
 from evaluation.final_gate import classify_win
+from evaluation.search_contract import (
+    EVOLUTION_LATTICES,
+    FINAL_GATE_PARETO_LATTICES,
+    TARGET_LATTICES,
+)
 
 
 def _result(worker: int, index: int) -> dict:
@@ -160,9 +169,11 @@ def test_distance_backend_error_record_is_json_safe_and_bounded():
 
 def test_production_full_evaluation_covers_final_gate_pareto_lattices():
     required = {(6, 6), (15, 3), (9, 6)}
+    contracted = set(FINAL_GATE_PARETO_LATTICES) | set(TARGET_LATTICES)
 
     assert set(evaluator.FINAL_GATE_PARETO_LATTICES) == required
-    assert required <= set(evaluator.STAGE2_LATTICES)
+    assert set(evaluator.STAGE2_LATTICES) == contracted
+    assert tuple(evaluator.STAGE2_LATTICES) == EVOLUTION_LATTICES
     assert required <= set(evaluator.STAGE2_LATTICES_MILP)
     assert evaluator.STAGE2_LATTICES[:3] == (
         evaluator.FINAL_GATE_PARETO_LATTICES
@@ -171,6 +182,420 @@ def test_production_full_evaluation_covers_final_gate_pareto_lattices():
         2 * ell * m for ell, m in evaluator.FINAL_GATE_PARETO_LATTICES
     } == {72, 90, 108}
     assert evaluator.MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE == 4
+
+
+def test_full_evaluation_calls_generator_on_every_contracted_lattice():
+    called = []
+
+    def recorder(ell, m):
+        called.append((ell, m))
+        return []
+
+    evaluator._run_evaluation(
+        recorder,
+        evaluator.STAGE2_LATTICES,
+        quick=True,
+    )
+
+    assert called == list(EVOLUTION_LATTICES)
+
+
+def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
+    tmp_path, monkeypatch
+):
+    calls = []
+    empty_metrics = {
+        "best_fom": 0.0,
+        "mean_fom": 0.0,
+        "num_valid": 0,
+        "num_above_6": 0,
+        "num_above_12": 0,
+        "total_candidates": 0,
+        "unique_candidates": 0,
+        "evaluated_candidate_definitions": 0,
+        "duplicate_candidate_occurrences": 0,
+        "winner_capable_quick_exploration_persisted": 0,
+        "winner_capable_distance_pending_persisted": 0,
+        "winner_capable_unresolved_top_persisted": 0,
+        "winner_capable_distance_error_persisted": 0,
+        "distance_backend_error_count": 0,
+        "malformed_candidate_definitions": 0,
+        "tier0_rejected": 0,
+        "structural_rejected": 0,
+        "best_encoding_rate": 0.0,
+        "num_high_k": 0,
+        "lattices_with_high_k": 0,
+        "best_code": None,
+        "all_results": [],
+        "errors": [],
+    }
+
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [],
+    )
+
+    def fake_run(_generate, lattices, **kwargs):
+        calls.append((tuple(lattices), dict(kwargs)))
+        return dict(empty_metrics)
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
+    monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _rows: None)
+
+    evaluator._evaluate_stage2_impl(str(tmp_path / "program.py"))
+
+    assert calls[0][0] == EVOLUTION_LATTICES
+    assert calls[0][1]["quick"] is True
+    assert calls[0][1]["persist_quick_exploration"] is True
+    assert (
+        calls[0][1]["candidate_limit"]
+        == evaluator.STAGE2_PREFLIGHT_CANDIDATE_LIMIT
+    )
+    assert calls[1][0] == tuple(evaluator.STAGE2_DEEP_LATTICES)
+    assert calls[1][1]["quick"] is False
+    assert (
+        calls[1][1]["refine_trials"]
+        == evaluator.STAGE2_REFINE_TRIALS
+    )
+    assert (
+        calls[1][1]["max_distance_per_lattice"]
+        == evaluator.STAGE2_DEEP_DISTANCE_PER_LATTICE
+    )
+    assert (
+        calls[1][1]["candidate_limit"]
+        == evaluator.STAGE2_DEEP_CANDIDATE_LIMIT
+    )
+
+
+def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
+    observed = {}
+
+    class FakeProcess:
+        pid = 4321
+
+        def __init__(self, command, **kwargs):
+            observed["command"] = command
+            observed["kwargs"] = kwargs
+            Path(command[4]).write_text(json.dumps({
+                "schema_version": 1,
+                "status": "completed",
+                "metrics": {"combined_score": 7.5},
+                "artifacts": {"summary": "bounded"},
+            }))
+
+        def wait(self, timeout=None):
+            observed.setdefault("timeouts", []).append(timeout)
+            return 0
+
+    monkeypatch.setattr(evaluator.subprocess, "Popen", FakeProcess)
+
+    result = evaluator.evaluate_stage2("/tmp/generated program.py")
+    metrics = getattr(result, "metrics", result)
+    artifacts = getattr(result, "artifacts", {})
+
+    assert metrics["combined_score"] == 7.5
+    assert artifacts["summary"] == "bounded"
+    assert observed["command"][1] == str(Path(evaluator.__file__).resolve())
+    assert observed["command"][2] == "--stage2-worker"
+    assert observed["command"][3] == "/tmp/generated program.py"
+    assert observed["kwargs"]["start_new_session"] is True
+    assert all(
+        observed["kwargs"]["env"][variable] == "1"
+        for variable in evaluator.STAGE2_NUMERIC_THREAD_ENV
+    )
+    assert observed["timeouts"] == [evaluator._stage2_hard_timeout_s()]
+
+
+def test_stage2_hard_timeout_stays_below_bound_outer_timeout(
+    monkeypatch,
+):
+    monkeypatch.setenv(evaluator.STAGE2_OUTER_TIMEOUT_ENV, "1200")
+    assert evaluator._stage2_hard_timeout_s() == 1050
+    monkeypatch.setenv(evaluator.STAGE2_OUTER_TIMEOUT_ENV, "900")
+    assert evaluator._stage2_hard_timeout_s() == 840
+    monkeypatch.setenv(evaluator.STAGE2_OUTER_TIMEOUT_ENV, "30")
+    with pytest.raises(RuntimeError, match="no hard-timeout margin"):
+        evaluator._stage2_hard_timeout_s()
+
+
+def test_stage2_killable_wrapper_terminates_group_on_timeout(monkeypatch):
+    kills = []
+
+    class TimedOutProcess:
+        pid = 8765
+
+        def __init__(self, _command, **_kwargs):
+            self.wait_calls = 0
+
+        def wait(self, timeout=None):
+            self.wait_calls += 1
+            if self.wait_calls == 1:
+                raise evaluator.subprocess.TimeoutExpired(
+                    "stage2", timeout
+                )
+            return -evaluator.signal.SIGTERM
+
+    monkeypatch.setattr(
+        evaluator.subprocess, "Popen", TimedOutProcess
+    )
+    monkeypatch.setattr(
+        evaluator.os,
+        "killpg",
+        lambda pid, sig: kills.append((pid, sig)),
+    )
+
+    result = evaluator.evaluate_stage2("/tmp/slow-program.py")
+    metrics = getattr(result, "metrics", result)
+
+    assert metrics["stage2_hard_timeout"] == 1.0
+    assert metrics["stage2_subprocess_failed"] == 1.0
+    assert kills == [
+        (8765, evaluator.signal.SIGTERM),
+        (8765, evaluator.signal.SIGKILL),
+    ]
+
+
+@pytest.mark.skipif(
+    not Path("/proc").is_dir(),
+    reason="requires Linux process-group semantics",
+)
+def test_stage2_termination_kills_term_ignoring_descendant(tmp_path):
+    child_pid_path = tmp_path / "child.pid"
+    child_code = (
+        "import signal,time; "
+        "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+        "time.sleep(300)"
+    )
+    leader_code = (
+        "import pathlib,subprocess,sys,time; "
+        f"child=subprocess.Popen([sys.executable, '-c', {child_code!r}]); "
+        f"pathlib.Path({str(child_pid_path)!r}).write_text(str(child.pid)); "
+        "time.sleep(300)"
+    )
+    leader = subprocess.Popen(
+        [sys.executable, "-c", leader_code],
+        start_new_session=True,
+    )
+    child_pid = None
+    try:
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            try:
+                child_pid = int(child_pid_path.read_text())
+                break
+            except (FileNotFoundError, ValueError):
+                time.sleep(0.05)
+        assert child_pid is not None
+
+        evaluator._terminate_stage2_process_group(leader)
+
+        deadline = time.monotonic() + 10
+        while (
+            time.monotonic() < deadline
+            and Path(f"/proc/{child_pid}").exists()
+        ):
+            time.sleep(0.05)
+        assert not Path(f"/proc/{child_pid}").exists()
+    finally:
+        if leader.poll() is None:
+            try:
+                os.killpg(leader.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            leader.wait(timeout=10)
+
+
+def test_stage2_worker_writes_strict_atomic_result(tmp_path, monkeypatch):
+    result_path = tmp_path / "stage2-result.json"
+    monkeypatch.setattr(
+        evaluator,
+        "_evaluate_stage2_impl",
+        lambda _program: {
+            "combined_score": 4.0,
+            "term_count": 3.0,
+        },
+    )
+
+    assert (
+        evaluator._stage2_worker_main("program.py", str(result_path))
+        == 0
+    )
+    assert json.loads(result_path.read_text()) == {
+        "schema_version": 1,
+        "status": "completed",
+        "metrics": {
+            "combined_score": 4.0,
+            "term_count": 3.0,
+        },
+        "artifacts": {},
+    }
+    assert not list(tmp_path.glob(".*.tmp-*"))
+
+
+def test_stage2_actual_subprocess_smoke(tmp_path):
+    program = tmp_path / "empty-generator.py"
+    program.write_text(
+        "def generate_candidates(ell, m):\n"
+        "    return []\n"
+    )
+
+    result = evaluator.evaluate_stage2(str(program))
+    metrics = getattr(result, "metrics", result)
+
+    assert "stage2_subprocess_failed" not in metrics
+    assert metrics["combined_score"] == 0.0
+    assert metrics["target_preflight_lattices"] == float(
+        len(EVOLUTION_LATTICES)
+    )
+
+
+@pytest.mark.skipif(
+    not Path("/proc").is_dir() or not hasattr(os, "fork"),
+    reason="requires Linux process lifecycle semantics",
+)
+def test_stage2_process_group_dies_when_owner_is_killed(tmp_path):
+    program = tmp_path / "blocking-generator.py"
+    program.write_text(
+        "import time\n"
+        "def generate_candidates(ell, m):\n"
+        "    time.sleep(300)\n"
+        "    return []\n"
+    )
+    qcode_root = Path(evaluator.__file__).resolve().parent.parent
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = os.pathsep.join(
+        filter(
+            None,
+            (
+                str(qcode_root),
+                environment.get("PYTHONPATH", ""),
+            ),
+        )
+    )
+    owner = subprocess.Popen(
+        [
+            sys.executable,
+            "-c",
+            (
+                "from evolve.openevolve_evaluator import evaluate_stage2; "
+                f"evaluate_stage2({str(program)!r})"
+            ),
+        ],
+        cwd=qcode_root,
+        env=environment,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    stage2_pid = None
+    guardian_pid = None
+
+    def child_pids(pid):
+        path = Path(f"/proc/{pid}/task/{pid}/children")
+        try:
+            return [int(value) for value in path.read_text().split()]
+        except (FileNotFoundError, ProcessLookupError):
+            return []
+
+    try:
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline:
+            children = child_pids(owner.pid)
+            if children:
+                stage2_pid = children[0]
+                break
+            if owner.poll() is not None:
+                pytest.fail("Stage 2 owner exited before spawning its worker")
+            time.sleep(0.05)
+        assert stage2_pid is not None
+
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline:
+            children = child_pids(stage2_pid)
+            if children:
+                guardian_pid = children[0]
+                break
+            time.sleep(0.05)
+        assert guardian_pid is not None
+
+        os.kill(owner.pid, signal.SIGKILL)
+        owner.wait(timeout=10)
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            if not Path(f"/proc/{stage2_pid}").exists() and not Path(
+                f"/proc/{guardian_pid}"
+            ).exists():
+                break
+            time.sleep(0.05)
+        assert not Path(f"/proc/{stage2_pid}").exists()
+        assert not Path(f"/proc/{guardian_pid}").exists()
+    finally:
+        if owner.poll() is None:
+            owner.kill()
+            owner.wait(timeout=10)
+        if stage2_pid is not None and Path(
+            f"/proc/{stage2_pid}"
+        ).exists():
+            try:
+                os.killpg(stage2_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    (
+        ("bad", "shape", "entry"),
+        ("not-terms", [[0, 0], [0, 1]]),
+        ([[0, 0], [0, 1]], [[0, "bad"], [1, 0]]),
+    ),
+)
+@pytest.mark.parametrize("bad_first", (False, True))
+def test_malformed_generator_item_does_not_hide_valid_peer(
+    monkeypatch, malformed, bad_first
+):
+    valid = (
+        [(0, 0), (0, 1), (1, 0)],
+        [(0, 0), (0, 2), (2, 0)],
+    )
+    evaluated = []
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        evaluated.extend(rows)
+        return [{
+            "ell": ell,
+            "m": m,
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+            "n": 72,
+            "k": 12,
+            "d": 0,
+            "fom": 0.0,
+            "score": 12 / 72,
+            "stage": "quick_k_only",
+            "encoding_rate": 12 / 72,
+        } for a_terms, b_terms in rows]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    generated = [malformed, valid] if bad_first else [valid, malformed]
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: generated,
+        [(6, 6)],
+        quick=True,
+    )
+
+    assert evaluated == [valid]
+    assert metrics["num_valid"] == 1
+    assert metrics["malformed_candidate_definitions"] == 1
+    assert len(metrics["errors"]) == 1
+    assert "candidate[" in metrics["errors"][0]
+    assert "malformed" in metrics["errors"][0]
 
 
 def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
@@ -231,7 +656,9 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
     monkeypatch.setattr(evaluator, "save_code", lambda _row: None)
     monkeypatch.setattr(evaluator, "update_pareto_front", lambda _rows: None)
 
-    evaluated = evaluator.evaluate_stage2(str(tmp_path / "program.py"))
+    evaluated = evaluator._evaluate_stage2_impl(
+        str(tmp_path / "program.py")
+    )
     result = getattr(evaluated, "metrics", evaluated)
 
     assert result["best_fom"] == critical["fom"]
@@ -766,7 +1193,9 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
         lambda *_args, **_kwargs: metrics,
     )
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
-    evaluated = evaluator.evaluate_stage2(str(tmp_path / "program.py"))
+    evaluated = evaluator._evaluate_stage2_impl(
+        str(tmp_path / "program.py")
+    )
     result = getattr(evaluated, "metrics", evaluated)
     artifacts = getattr(evaluated, "artifacts", {})
     assert result["distance_backend_error_count"] == 1.0

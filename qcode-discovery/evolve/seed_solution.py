@@ -40,6 +40,8 @@ Sources:
 
 from __future__ import annotations
 
+from evaluation.search_contract import TARGET_LATTICES as _TARGET_LATTICES
+
 # ---------------------------------------------------------------------------
 # Known BB codes -- verified against qldpc (n, k match exactly)
 # ---------------------------------------------------------------------------
@@ -185,16 +187,7 @@ KNOWN_CODES = [
 
 
 # Target lattice dimensions for the search
-TARGET_LATTICES = [
-    # n=144: ell*m = 72
-    (12, 6), (6, 12), (9, 8), (8, 9), (24, 3), (36, 2),
-    # n=200: ell*m = 100
-    (10, 10), (20, 5), (25, 4), (50, 2),
-    # n=288: ell*m = 144
-    (12, 12), (16, 9), (18, 8), (24, 6),
-    # n=360: ell*m = 180
-    (15, 12), (18, 10), (20, 9), (30, 6),
-]
+TARGET_LATTICES = list(_TARGET_LATTICES)
 
 
 # EVOLVE-BLOCK-START

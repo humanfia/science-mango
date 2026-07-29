@@ -10,8 +10,8 @@ compute in more promising candidates:
 
 2. **Build & compute k** (milliseconds) -- Constructs a
    :class:`qldpc.codes.BBCode` and reads ``(n, k)`` via GF(2) rank.
-   Rejects codes with ``k = 0`` (stage ``k_zero``) or ``k < 4``
-   (stage ``k_low``, score ``-1000 + k``).
+   Rejects only codes with ``k = 0`` (stage ``k_zero``); every positive
+   dimension remains eligible for the formal challenge.
 
 3. **Quick distance estimate** (seconds) -- Runs
    :func:`evaluation.distance.estimate_distance` with ``quick_trials``
@@ -113,7 +113,10 @@ DISTANCE_TRUST_RATIO = 1.3
 DISTANCE_UNTRUST_RATIO = 2.0
 
 
-MIN_K_THRESHOLD = 4
+# The formal challenge accepts every positive dimension.  Keeping the old
+# k>=4 heuristic here made k=1..3 candidates return before a proof checkpoint
+# existed, so Humanize could neither seal nor retry them.
+MIN_K_THRESHOLD = 1
 SCORE_K_LOW_PENALTY = -1000.0
 
 

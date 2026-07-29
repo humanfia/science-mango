@@ -18,11 +18,12 @@ Two-stage cascade
     not an absolute exclusion rule.
     Score: ``0.1 base + best_encoding_rate + log1p(num_high_k) / 10``.
 
-**Stage 2** -- Full evaluation with distance estimation (~30-60 s)
-    Evaluates on 11 lattices with BP-OSD distance (1000 OSD_0 trials +
-    200 OSD-CS order-10 trials for top candidates).  The primary fitness
-    metric is ``combined_score`` -- the sum of the best *credible* FOM per
-    lattice, where credibility is determined by a trust filter on
+**Stage 2** -- Bounded preflight and distance-guided fitness
+    Calls the generator on every contracted target and Pareto lattice before
+    any blocking distance work.  A bounded deep pass uses 250-trial BP-OSD
+    batches on the historical fitness/Pareto lattice basis.  The primary
+    fitness metric is ``combined_score`` -- the sum of the best *credible*
+    FOM per lattice, where credibility is determined by a trust filter on
     ``d / sqrt(n)``:
 
     * ``d / sqrt(n) <= 1.3`` -- full trust: use raw FOM.
@@ -49,13 +50,13 @@ Constants
 STAGE1_LATTICES : list[tuple[int, int]]
     ``[(6, 6), (12, 6)]`` -- quick screening lattices.
 STAGE2_LATTICES : list[tuple[int, int]]
-    11 lattices for full evaluation, including the n=72/90/108 Pareto
-    reference lattices accepted by the final gate. Excludes ``(9,8)``,
-    ``(10,10)``, ``(18,10)`` which produce zero ``k > 0`` codes.
+    Pareto-first union of the n=72/90/108 reference lattices and every
+    formal target lattice declared by the search contract.
 """
 
 from __future__ import annotations
 
+import ctypes
 import fcntl
 import hashlib
 import importlib.util
@@ -63,10 +64,62 @@ import json
 import logging
 import math
 import os
+import signal
+import subprocess
 import sys
+import tempfile
 import time
 from functools import lru_cache
 from pathlib import Path
+
+
+def _install_stage2_parent_guard(
+    expected_parent_pid: int,
+    lifecycle_fd: int,
+) -> None:
+    """Kill the private Stage 2 process group when its owner disappears."""
+
+    if expected_parent_pid < 2 or lifecycle_fd < 0:
+        raise RuntimeError("invalid Stage 2 parent guard")
+    guardian_pid = os.fork()
+    if guardian_pid == 0:
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        try:
+            while os.read(lifecycle_fd, 4096):
+                pass
+        except OSError:
+            pass
+        finally:
+            try:
+                os.killpg(os.getpgrp(), signal.SIGKILL)
+            finally:
+                os._exit(128 + signal.SIGKILL)
+    os.close(lifecycle_fd)
+
+    # Linux parent-death signalling closes the small race between exec and the
+    # guardian reaching its blocking read.  The guardian remains responsible
+    # for killing every descendant in this private session.
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
+        error_number = ctypes.get_errno()
+        os.killpg(os.getpgrp(), signal.SIGKILL)
+        raise OSError(error_number, "prctl(PR_SET_PDEATHSIG) failed")
+    if os.getppid() != expected_parent_pid:
+        os.killpg(os.getpgrp(), signal.SIGKILL)
+
+
+# Arm the lifecycle contract before importing scipy/qldpc-backed evaluation
+# modules.  This path runs only in the private Stage 2 subprocess.
+if (
+    __name__ == "__main__"
+    and len(sys.argv) == 6
+    and sys.argv[1] == "--stage2-worker"
+):
+    _install_stage2_parent_guard(
+        int(sys.argv[4]),
+        int(sys.argv[5]),
+    )
+
 
 # Ensure the project root is on sys.path so we can import evaluation.*
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
@@ -83,6 +136,10 @@ from evaluation.evaluator import (
 )
 from evaluation.final_gate import minimum_winning_distance
 from evaluation.results import save_code, update_pareto_front
+from evaluation.search_contract import (
+    EVOLUTION_LATTICES,
+    FINAL_GATE_PARETO_LATTICES as CONTRACT_PARETO_LATTICES,
+)
 from evaluation.structural_dedup import (
     check_css_static_eligibility,
     deduplicate_css_results,
@@ -105,6 +162,22 @@ MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
 MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE = 4
 MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS = 2048
+STAGE2_PREFLIGHT_CANDIDATE_LIMIT = MAX_CANDIDATES_PER_LATTICE
+STAGE2_DEEP_CANDIDATE_LIMIT = MAX_CANDIDATES_PER_LATTICE
+STAGE2_DEEP_DISTANCE_PER_LATTICE = 3
+STAGE2_REFINE_TRIALS = 250
+STAGE2_HARD_TIMEOUT_MAX_S = 1050.0
+STAGE2_OUTER_TIMEOUT_DEFAULT_S = 900.0
+STAGE2_OUTER_TIMEOUT_MARGIN_S = 60.0
+STAGE2_OUTER_TIMEOUT_ENV = "QCODE_EVALUATOR_OUTER_TIMEOUT_S"
+STAGE2_NUMERIC_THREAD_ENV = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+)
 
 
 def _definition_key(result: dict) -> tuple:
@@ -185,20 +258,6 @@ def _candidate_definition_payload(
 ) -> bytes:
     """Return the canonical defining payload for one generated candidate."""
 
-    def strict_terms(value, label: str) -> list[list[int]]:
-        if not isinstance(value, (list, tuple)):
-            raise TypeError(f"{label} must be a list or tuple")
-        normalised = []
-        for index, term in enumerate(value):
-            if not isinstance(term, (list, tuple)) or len(term) != 2:
-                raise TypeError(f"{label}[{index}] must be an exponent pair")
-            if any(type(coordinate) is not int for coordinate in term):
-                raise TypeError(
-                    f"{label}[{index}] coordinates must be strict integers"
-                )
-            normalised.append([term[0], term[1]])
-        return sorted(normalised)
-
     def typed_malformed(value):
         if isinstance(value, (list, tuple)):
             return {
@@ -211,14 +270,12 @@ def _candidate_definition_payload(
         }
 
     try:
-        if not isinstance(candidate, (list, tuple)) or len(candidate) != 2:
-            raise TypeError("candidate must contain A and B")
-        a_terms, b_terms = candidate
+        a_terms, b_terms = _normalize_candidate_definition(candidate)
         defining = {
             "ell": int(ell),
             "m": int(m),
-            "A_terms": strict_terms(a_terms, "A_terms"),
-            "B_terms": strict_terms(b_terms, "B_terms"),
+            "A_terms": [list(term) for term in sorted(a_terms)],
+            "B_terms": [list(term) for term in sorted(b_terms)],
         }
         payload = json.dumps(
             defining,
@@ -237,6 +294,55 @@ def _candidate_definition_payload(
             separators=(",", ":"),
         ).encode("utf-8", errors="replace")
     return payload
+
+
+def _normalize_candidate_definition(
+    candidate,
+) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
+    """Return one strict A/B pair without validating its mathematics."""
+
+    if not isinstance(candidate, (list, tuple)) or len(candidate) != 2:
+        raise TypeError("candidate must contain exactly A_terms and B_terms")
+
+    def strict_terms(value, label: str) -> list[tuple[int, int]]:
+        if not isinstance(value, (list, tuple)):
+            raise TypeError(f"{label} must be a list or tuple")
+        normalized: list[tuple[int, int]] = []
+        for index, term in enumerate(value):
+            if not isinstance(term, (list, tuple)) or len(term) != 2:
+                raise TypeError(f"{label}[{index}] must be an exponent pair")
+            if any(type(coordinate) is not int for coordinate in term):
+                raise TypeError(
+                    f"{label}[{index}] coordinates must be strict integers"
+                )
+            normalized.append((term[0], term[1]))
+        return normalized
+
+    return (
+        strict_terms(candidate[0], "A_terms"),
+        strict_terms(candidate[1], "B_terms"),
+    )
+
+
+def _normalize_generated_candidates(
+    candidates: list,
+    *,
+    ell: int,
+    m: int,
+) -> tuple[list[tuple[list[tuple[int, int]], list[tuple[int, int]]]], list[str]]:
+    """Isolate malformed generator entries instead of losing a whole lattice."""
+
+    normalized = []
+    errors = []
+    for index, candidate in enumerate(candidates):
+        try:
+            normalized.append(_normalize_candidate_definition(candidate))
+        except (TypeError, ValueError) as exc:
+            errors.append(
+                f"({ell},{m}) candidate[{index}] malformed: "
+                f"{type(exc).__name__}: {exc}"
+            )
+    return normalized, errors
 
 
 def _candidate_sample_key(
@@ -484,7 +590,7 @@ STAGE1_LATTICES = [(6, 6), (12, 6)]
 # references.  They run first in the full evaluator so every accepted win class
 # has a durable OpenEvolve -> Humanize route even if a later large lattice uses
 # the remainder of the evaluator wall budget.
-FINAL_GATE_PARETO_LATTICES = [(6, 6), (15, 3), (9, 6)]
+FINAL_GATE_PARETO_LATTICES = list(CONTRACT_PARETO_LATTICES)
 # Preserve the historical fitness basis when the persistence-only final-gate
 # lattices are added. This keeps resumed OpenEvolve checkpoint scores and
 # MAP-Elites cells comparable across the source upgrade.
@@ -494,10 +600,20 @@ STAGE2_FITNESS_LATTICES = [
     (15, 12), (30, 6),
     (16, 9), (18, 8),
 ]
-# Stage 2: final-gate persistence coverage plus the historical fitness set.
-STAGE2_LATTICES = [
+# Stage 2 calls the generator on the complete shared contract. Fitness below
+# remains restricted to STAGE2_FITNESS_LATTICES so resumed MAP-Elites scores
+# stay comparable; the additional lattices are durable discovery probes.
+STAGE2_LATTICES = list(EVOLUTION_LATTICES)
+# Deep BP-OSD work stays on the historical fitness/Pareto basis.  A bounded
+# quick preflight covers every contracted target before any blocking distance
+# call, so the external soft timeout cannot make a tail lattice unreachable.
+STAGE2_DEEP_LATTICES = [
     *FINAL_GATE_PARETO_LATTICES,
-    *STAGE2_FITNESS_LATTICES,
+    *(
+        lattice
+        for lattice in STAGE2_FITNESS_LATTICES
+        if lattice not in FINAL_GATE_PARETO_LATTICES
+    ),
 ]
 # Historical MILP fitness basis. Keep it separate from the added persistence
 # probes for the same checkpoint-compatibility reason as
@@ -766,6 +882,8 @@ def _run_evaluation(
     milp_early_stop: int = 4,
     run_name: str | None = None,
     sampling_salt: str = "",
+    candidate_limit: int = MAX_CANDIDATES_PER_LATTICE,
+    persist_quick_exploration: bool = False,
 ) -> dict:
     """Run evaluation across lattices and compute aggregate metrics.
 
@@ -774,6 +892,13 @@ def _run_evaluation(
     2. Distance estimation for the top `max_distance_per_lattice` candidates,
        using either BP-OSD (default) or MILP (when use_milp=True).
     """
+    if (
+        isinstance(candidate_limit, bool)
+        or not isinstance(candidate_limit, int)
+        or candidate_limit < 2
+    ):
+        raise ValueError("candidate_limit must be an integer of at least two")
+
     all_results = []
     total_candidates = 0
     unique_candidates = 0
@@ -784,6 +909,7 @@ def _run_evaluation(
     unresolved_top_persisted = 0
     distance_error_top_persisted = 0
     distance_backend_error_count = 0
+    malformed_candidate_definitions = 0
     errors = []
     tier0_rejected_count = 0
     structural_rejected_count = 0
@@ -798,6 +924,13 @@ def _run_evaluation(
 
             raw_candidate_count = len(candidates)
             total_candidates += raw_candidate_count
+            candidates, malformed_errors = _normalize_generated_candidates(
+                candidates,
+                ell=ell,
+                m=m,
+            )
+            malformed_candidate_definitions += len(malformed_errors)
+            errors.extend(malformed_errors)
             candidates, candidate_occurrences = (
                 _deduplicate_candidate_definitions(
                     candidates,
@@ -811,15 +944,16 @@ def _run_evaluation(
             )
 
             # Cap candidates per lattice without a fixed-prefix blind spot.
-            if len(candidates) > MAX_CANDIDATES_PER_LATTICE:
+            if len(candidates) > candidate_limit:
                 errors.append(
                     f"({ell},{m}): {len(candidates)} unique candidates, "
-                    f"sampled to {MAX_CANDIDATES_PER_LATTICE}"
+                    f"sampled to {candidate_limit}"
                 )
                 candidates = _bounded_candidate_sample(
                     candidates,
                     ell=ell,
                     m=m,
+                    limit=candidate_limit,
                     sampling_salt=sampling_salt,
                 )
             evaluated_candidate_definitions += len(candidates)
@@ -846,6 +980,30 @@ def _run_evaluation(
                 )
                 results, static_rejected = _filter_static_eligible(results)
                 tier0_rejected_count += len(static_rejected)
+                if persist_quick_exploration:
+                    persisted_quick = _select_quick_exploration(
+                        [
+                            result
+                            for result in results
+                            if result.get("k", 0) > 0
+                        ],
+                        ell=ell,
+                        m=m,
+                        sampling_salt=sampling_salt,
+                    )
+                    for result in persisted_quick:
+                        result["candidate_persistence_lane"] = (
+                            WINNER_CAPABLE_EXPLORATION_LANE
+                        )
+                        result["candidate_persistence_reason"] = (
+                            QUICK_EXPLORATION_PERSISTENCE_REASON
+                        )
+                        _log_code_jsonl(result, run_name=run_name)
+                    prelogged_quick_keys = {
+                        _definition_key(result)
+                        for result in persisted_quick
+                    }
+                    quick_exploration_persisted += len(persisted_quick)
             else:
                 # Two-pass: quick screen, then distance on top candidates.
                 # MILP path uses evaluate_batch_milp(quick=True) to get
@@ -999,6 +1157,7 @@ def _run_evaluation(
                             ell, m, top_candidates,
                             quick=False,
                             quick_trials=refine_trials,
+                            refine_trials=refine_trials,
                             fom_threshold_refine=6.0,
                             fom_threshold_exact=float("inf"),
                         )
@@ -1152,6 +1311,7 @@ def _run_evaluation(
             distance_error_top_persisted
         ),
         "distance_backend_error_count": distance_backend_error_count,
+        "malformed_candidate_definitions": malformed_candidate_definitions,
         "tier0_rejected": tier0_rejected_count,
         "structural_rejected": structural_rejected_count,
         "best_encoding_rate": best_encoding_rate,
@@ -1263,20 +1423,66 @@ def evaluate_stage1(program_path: str) -> dict:
     }
 
 
-def evaluate_stage2(program_path: str) -> dict:
-    """Stage 2: Full evaluation with distance estimation (~30-60s).
+def _evaluate_stage2_impl(program_path: str) -> dict:
+    """Stage 2: bounded target preflight plus deep distance evaluation.
 
-    Runs across all target lattices with distance estimation.
+    Every contracted lattice is screened and durably sampled before a
+    blocking distance backend runs.  Deep BP-OSD scoring then uses the
+    historical Pareto/fitness lattice basis.
     """
     try:
         generate_fn = _load_generate_candidates(program_path)
     except Exception as e:
         return _error_result(str(e))
 
-    metrics = _run_evaluation(
-        generate_fn, STAGE2_LATTICES,
-        quick=False, refine_trials=1000,
-        sampling_salt=_program_source_sha256(program_path),
+    sampling_salt = _program_source_sha256(program_path)
+    preflight = _run_evaluation(
+        generate_fn,
+        STAGE2_LATTICES,
+        quick=True,
+        sampling_salt=sampling_salt,
+        candidate_limit=STAGE2_PREFLIGHT_CANDIDATE_LIMIT,
+        persist_quick_exploration=True,
+    )
+    metrics = dict(_run_evaluation(
+        generate_fn, STAGE2_DEEP_LATTICES,
+        quick=False,
+        refine_trials=STAGE2_REFINE_TRIALS,
+        max_distance_per_lattice=(
+            STAGE2_DEEP_DISTANCE_PER_LATTICE
+        ),
+        sampling_salt=sampling_salt,
+        candidate_limit=STAGE2_DEEP_CANDIDATE_LIMIT,
+    ))
+    preflight_errors = [
+        error
+        for error in preflight.get("errors", [])
+        if not error.endswith(
+            f"sampled to {STAGE2_PREFLIGHT_CANDIDATE_LIMIT}"
+        )
+    ]
+    metrics["errors"] = list(dict.fromkeys([
+        *preflight_errors,
+        *metrics.get("errors", []),
+    ]))
+    metrics["malformed_candidate_definitions"] = (
+        preflight.get("malformed_candidate_definitions", 0)
+        + metrics.get("malformed_candidate_definitions", 0)
+    )
+    metrics["winner_capable_quick_exploration_persisted"] = (
+        preflight.get(
+            "winner_capable_quick_exploration_persisted", 0
+        )
+        + metrics.get(
+            "winner_capable_quick_exploration_persisted", 0
+        )
+    )
+    metrics["target_preflight_lattices"] = len(STAGE2_LATTICES)
+    metrics["target_preflight_candidates_generated"] = preflight.get(
+        "total_candidates", 0
+    )
+    metrics["target_preflight_candidates_evaluated"] = preflight.get(
+        "evaluated_candidate_definitions", 0
     )
 
     # --- Combined score ---
@@ -1391,8 +1597,13 @@ def evaluate_stage2(program_path: str) -> dict:
         )
 
     artifacts["summary"] = (
-        f"Evaluated {metrics['total_candidates']} candidates across "
-        f"{len(STAGE2_LATTICES)} lattices.\n"
+        "Target preflight: "
+        f"{metrics.get('target_preflight_candidates_evaluated', 0)} of "
+        f"{metrics.get('target_preflight_candidates_generated', 0)} "
+        f"generated candidates sampled across "
+        f"{metrics.get('target_preflight_lattices', 0)} lattices.\n"
+        f"Deep evaluation: {metrics['total_candidates']} generated "
+        f"candidates across {len(STAGE2_DEEP_LATTICES)} lattices.\n"
         f"Canonical definitions: {metrics['unique_candidates']} generated, "
         f"{metrics['evaluated_candidate_definitions']} evaluated, "
         f"{metrics['duplicate_candidate_occurrences']} duplicate occurrences "
@@ -1409,8 +1620,10 @@ def evaluate_stage2(program_path: str) -> dict:
         f"{metrics.get('distance_backend_error_count', 0)}.\n"
         f"Valid codes (k>0): {metrics['num_valid']}\n"
         f"High-k codes (k>=8): {metrics['num_high_k']}\n"
-        f"Lattices with high-k: {metrics['lattices_with_high_k']}/{len(STAGE2_LATTICES)}\n"
-        f"Best raw FOM (BP-OSD, 1000 trials + OSD-CS check): {best_fom:.2f}\n"
+        f"Lattices with high-k: {metrics['lattices_with_high_k']}/"
+        f"{len(STAGE2_DEEP_LATTICES)}\n"
+        f"Best raw FOM (BP-OSD, {STAGE2_REFINE_TRIALS} trials): "
+        f"{best_fom:.2f}\n"
         f"Combined score: {combined:.1f} = sum of best credible FOM per lattice "
         f"(full trust d/sqrt(n) <= {TRUST_FULL}, soft decay to {TRUST_NONE})\n"
         f"Per-lattice breakdown:\n" + "\n".join(lattice_lines)
@@ -1486,6 +1699,12 @@ def evaluate_stage2(program_path: str) -> dict:
         "distance_backend_error_count": float(
             metrics.get("distance_backend_error_count", 0)
         ),
+        "target_preflight_lattices": float(
+            metrics.get("target_preflight_lattices", 0)
+        ),
+        "target_preflight_candidates_evaluated": float(
+            metrics.get("target_preflight_candidates_evaluated", 0)
+        ),
         "term_count": s2_tc,
         "pattern_type": s2_pattern,
     }
@@ -1495,6 +1714,235 @@ def evaluate_stage2(program_path: str) -> dict:
         return EvaluationResult(metrics=result, artifacts=artifacts)
     except ImportError:
         return result
+
+
+def _stage2_failure_result(
+    message: str,
+    *,
+    timed_out: bool,
+    stderr_tail: str = "",
+):
+    metrics = _error_result(message)
+    metrics.update({
+        "stage2_hard_timeout": float(timed_out),
+        "stage2_subprocess_failed": 1.0,
+    })
+    artifacts = {
+        "failure_stage": "stage2",
+        "stage2_subprocess_error": message,
+    }
+    if stderr_tail:
+        artifacts["stage2_stderr"] = stderr_tail
+    try:
+        from openevolve.evaluation_result import EvaluationResult
+        return EvaluationResult(metrics=metrics, artifacts=artifacts)
+    except ImportError:
+        return metrics
+
+
+def _terminate_stage2_process_group(process: subprocess.Popen) -> None:
+    """Terminate a private Stage 2 process group without leaving descendants."""
+
+    leader_reaped = False
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        process.wait()
+        return
+    try:
+        process.wait(timeout=5)
+        leader_reaped = True
+    except subprocess.TimeoutExpired:
+        pass
+    # The lifecycle guardian deliberately ignores SIGTERM, keeping this PGID
+    # owned until the whole group is killed.  Always escalate even when the
+    # leader exited promptly: another descendant may ignore TERM.
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    if not leader_reaped:
+        process.wait()
+
+
+def _read_stage2_stderr_tail(path: Path, limit: int = 8192) -> str:
+    try:
+        return path.read_bytes()[-limit:].decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def _stage2_hard_timeout_s() -> float:
+    raw = os.environ.get(
+        STAGE2_OUTER_TIMEOUT_ENV,
+        str(STAGE2_OUTER_TIMEOUT_DEFAULT_S),
+    )
+    try:
+        outer_timeout = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            f"{STAGE2_OUTER_TIMEOUT_ENV} must be numeric"
+        ) from exc
+    if (
+        not math.isfinite(outer_timeout)
+        or outer_timeout <= STAGE2_OUTER_TIMEOUT_MARGIN_S
+    ):
+        raise RuntimeError(
+            f"{STAGE2_OUTER_TIMEOUT_ENV} leaves no hard-timeout margin"
+        )
+    return min(
+        STAGE2_HARD_TIMEOUT_MAX_S,
+        outer_timeout - STAGE2_OUTER_TIMEOUT_MARGIN_S,
+    )
+
+
+def evaluate_stage2(program_path: str) -> dict:
+    """Run Stage 2 behind a killable wall-clock boundary.
+
+    OpenEvolve 0.2.26 applies ``asyncio.wait_for`` to an executor thread.
+    Cancelling that await does not stop the thread, so a timed-out evaluator
+    can otherwise keep consuming CPU and appending candidates after its
+    iteration was finalized.  A private subprocess group makes the deadline
+    real and leaves headroom below the bound outer evaluator timeout.
+    """
+
+    evaluator_path = Path(__file__).resolve()
+    with tempfile.TemporaryDirectory(prefix="qcode-stage2-") as temp_dir:
+        temp_root = Path(temp_dir)
+        result_path = temp_root / "result.json"
+        stdout_path = temp_root / "stdout.log"
+        stderr_path = temp_root / "stderr.log"
+        command = [
+            sys.executable,
+            str(evaluator_path),
+            "--stage2-worker",
+            os.path.abspath(program_path),
+            str(result_path),
+            str(os.getpid()),
+        ]
+        lifecycle_read_fd, lifecycle_write_fd = os.pipe()
+        command.append(str(lifecycle_read_fd))
+        child_environment = os.environ.copy()
+        for variable in STAGE2_NUMERIC_THREAD_ENV:
+            child_environment[variable] = "1"
+        try:
+            with stdout_path.open("wb") as stdout_file, stderr_path.open(
+                "wb"
+            ) as stderr_file:
+                try:
+                    process = subprocess.Popen(
+                        command,
+                        stdin=subprocess.DEVNULL,
+                        stdout=stdout_file,
+                        stderr=stderr_file,
+                        close_fds=True,
+                        env=child_environment,
+                        pass_fds=(lifecycle_read_fd,),
+                        start_new_session=True,
+                    )
+                finally:
+                    os.close(lifecycle_read_fd)
+                try:
+                    return_code = process.wait(
+                        timeout=_stage2_hard_timeout_s()
+                    )
+                except subprocess.TimeoutExpired:
+                    _terminate_stage2_process_group(process)
+                    return _stage2_failure_result(
+                        "Stage 2 exceeded its killable wall timeout",
+                        timed_out=True,
+                        stderr_tail=_read_stage2_stderr_tail(stderr_path),
+                    )
+                except BaseException:
+                    _terminate_stage2_process_group(process)
+                    raise
+        finally:
+            os.close(lifecycle_write_fd)
+
+        stderr_tail = _read_stage2_stderr_tail(stderr_path)
+        if return_code != 0:
+            return _stage2_failure_result(
+                f"Stage 2 subprocess exited with status {return_code}",
+                timed_out=False,
+                stderr_tail=stderr_tail,
+            )
+        try:
+            payload = json.loads(result_path.read_text())
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            return _stage2_failure_result(
+                f"Stage 2 result is unreadable: {type(exc).__name__}",
+                timed_out=False,
+                stderr_tail=stderr_tail,
+            )
+        if (
+            not isinstance(payload, dict)
+            or set(payload) != {
+                "schema_version",
+                "status",
+                "metrics",
+                "artifacts",
+            }
+            or payload.get("schema_version") != 1
+            or payload.get("status") != "completed"
+            or not isinstance(payload.get("metrics"), dict)
+            or not isinstance(payload.get("artifacts"), dict)
+        ):
+            return _stage2_failure_result(
+                "Stage 2 result schema is invalid",
+                timed_out=False,
+                stderr_tail=stderr_tail,
+            )
+        try:
+            from openevolve.evaluation_result import EvaluationResult
+            return EvaluationResult(
+                metrics=payload["metrics"],
+                artifacts=payload["artifacts"],
+            )
+        except ImportError:
+            return payload["metrics"]
+
+
+def _stage2_worker_main(program_path: str, result_path: str) -> int:
+    result = _evaluate_stage2_impl(program_path)
+    metrics = getattr(result, "metrics", result)
+    artifacts = getattr(result, "artifacts", {})
+    if not isinstance(metrics, dict) or not isinstance(artifacts, dict):
+        raise TypeError("Stage 2 worker returned an invalid result")
+    payload = {
+        "schema_version": 1,
+        "status": "completed",
+        "metrics": metrics,
+        "artifacts": artifacts,
+    }
+    destination = Path(result_path)
+    if destination.is_symlink() or destination.exists():
+        raise FileExistsError(f"refusing to overwrite Stage 2 result: {destination}")
+    temporary = destination.with_name(
+        f".{destination.name}.tmp-{os.getpid()}"
+    )
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    descriptor = os.open(
+        temporary,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC,
+        0o600,
+    )
+    try:
+        written = 0
+        while written < len(encoded):
+            count = os.write(descriptor, encoded[written:])
+            if count <= 0:
+                raise OSError("Stage 2 result write made no progress")
+            written += count
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+    os.replace(temporary, destination)
+    return 0
 
 
 def evaluate_stage2_milp(program_path: str) -> dict:
@@ -1967,3 +2415,12 @@ def _write_metrics_jsonl(metrics: dict) -> None:
             f.write(json.dumps(record) + "\n")
     except OSError:
         pass  # Don't fail evaluation over metrics logging
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 6 or sys.argv[1] != "--stage2-worker":
+        raise SystemExit(
+            "usage: openevolve_evaluator.py --stage2-worker "
+            "PROGRAM_PATH RESULT_PATH EXPECTED_PARENT_PID LIFECYCLE_FD"
+        )
+    raise SystemExit(_stage2_worker_main(sys.argv[2], sys.argv[3]))

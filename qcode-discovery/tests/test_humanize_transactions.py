@@ -1098,33 +1098,70 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
     flow._prepare_transaction(state, 1, round_dir)
     manifest_path = round_dir / "evolution-transaction.json"
     manifest = json.loads(manifest_path.read_text())
-    legacy_launch = dict(manifest["launch_binding"])
-    legacy_launch.pop("evaluation_final_gate")
+    oldest_launch = dict(manifest["launch_binding"])
+    for field in (
+        "evaluation_final_gate",
+        "evaluation_proof_runtime",
+        "evaluation_search_contract",
+        "evolution_dependency_contract",
+    ):
+        oldest_launch.pop(field)
+    previous_launch = dict(manifest["launch_binding"])
+    for field in (
+        "evaluation_proof_runtime",
+        "evaluation_search_contract",
+        "evolution_dependency_contract",
+    ):
+        previous_launch.pop(field)
     invocation = manifest["invocation_binding"]
-    legacy_sha256 = flow_module._binding_identity_sha256(
-        legacy_launch, invocation
+    oldest_sha256 = flow_module._binding_identity_sha256(
+        oldest_launch, invocation
     )
-    manifest["launch_binding"] = legacy_launch
-    manifest["evolution_binding_rebinds"] = [{
-        "attempt": 1,
-        "status": "rebound",
-        "reason": "historical launch binding schema",
-        "old_launch_binding": legacy_launch,
-        "old_invocation_binding": invocation,
-        "old_binding_sha256": legacy_sha256,
-        "candidate_start_offset": manifest["candidate_start_offset"],
-        "evolution_attempts_before": 0,
-        "abandoned_ranges_before": 0,
-        "abandoned_checkpoints_before": 0,
-        "planned_at": "legacy",
-        "new_launch_binding": legacy_launch,
-        "new_invocation_binding": invocation,
-        "new_binding_sha256": legacy_sha256,
-        "evolution_attempts_after": 0,
-        "abandoned_ranges_after": 0,
-        "abandoned_checkpoints_after": 0,
-        "rebound_at": "legacy",
-    }]
+    previous_sha256 = flow_module._binding_identity_sha256(
+        previous_launch, invocation
+    )
+
+    def historical_rebind(
+        attempt, old_launch, old_sha256, new_launch, new_sha256
+    ):
+        return {
+            "attempt": attempt,
+            "status": "rebound",
+            "reason": "historical launch binding schema",
+            "old_launch_binding": old_launch,
+            "old_invocation_binding": invocation,
+            "old_binding_sha256": old_sha256,
+            "candidate_start_offset": manifest["candidate_start_offset"],
+            "evolution_attempts_before": 0,
+            "abandoned_ranges_before": 0,
+            "abandoned_checkpoints_before": 0,
+            "planned_at": "legacy",
+            "new_launch_binding": new_launch,
+            "new_invocation_binding": invocation,
+            "new_binding_sha256": new_sha256,
+            "evolution_attempts_after": 0,
+            "abandoned_ranges_after": 0,
+            "abandoned_checkpoints_after": 0,
+            "rebound_at": "legacy",
+        }
+
+    manifest["launch_binding"] = previous_launch
+    manifest["evolution_binding_rebinds"] = [
+        historical_rebind(
+            1,
+            oldest_launch,
+            oldest_sha256,
+            oldest_launch,
+            oldest_sha256,
+        ),
+        historical_rebind(
+            2,
+            oldest_launch,
+            oldest_sha256,
+            previous_launch,
+            previous_sha256,
+        ),
+    ]
     atomic_write_json(manifest_path, manifest)
     flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
     flow.candidate_log.write_bytes(jsonl(old_row))
@@ -1142,19 +1179,88 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
     assert runner_calls == [True]
     durable = json.loads(manifest_path.read_text())
     assert durable["status"] == "committed"
-    assert len(durable["evolution_binding_rebinds"]) == 2
-    migration = durable["evolution_binding_rebinds"][1]
+    assert len(durable["evolution_binding_rebinds"]) == 3
+    migration = durable["evolution_binding_rebinds"][2]
     assert migration["status"] == "rebound"
-    assert "launch:evaluation_final_gate" in migration["reason"]
+    assert "launch:evaluation_search_contract" in migration["reason"]
     assert (
-        "evaluation_final_gate"
+        "evaluation_search_contract"
         not in migration["old_launch_binding"]
     )
-    assert "evaluation_final_gate" in migration["new_launch_binding"]
+    assert (
+        "evaluation_search_contract"
+        in migration["new_launch_binding"]
+    )
     assert (
         round_dir / "abandoned-candidate-complete-001.jsonl"
     ).read_bytes() == jsonl(old_row)
     flow._validate_completed_transaction(1, round_dir)
+
+
+def test_prepared_binding_history_rejects_legacy_schema_downgrade(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="prepared-legacy-schema-downgrade",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    manifest_path = round_dir / "evolution-transaction.json"
+    manifest = json.loads(manifest_path.read_text())
+    invocation = manifest["invocation_binding"]
+    previous_launch = dict(manifest["launch_binding"])
+    for field in (
+        "evaluation_proof_runtime",
+        "evaluation_search_contract",
+        "evolution_dependency_contract",
+    ):
+        previous_launch.pop(field)
+    oldest_launch = dict(previous_launch)
+    oldest_launch.pop("evaluation_final_gate")
+    previous_sha256 = flow_module._binding_identity_sha256(
+        previous_launch, invocation
+    )
+    oldest_sha256 = flow_module._binding_identity_sha256(
+        oldest_launch, invocation
+    )
+    manifest["launch_binding"] = oldest_launch
+    manifest["evolution_binding_rebinds"] = [{
+        "attempt": 1,
+        "status": "rebound",
+        "reason": "tampered schema downgrade",
+        "old_launch_binding": previous_launch,
+        "old_invocation_binding": invocation,
+        "old_binding_sha256": previous_sha256,
+        "candidate_start_offset": manifest["candidate_start_offset"],
+        "evolution_attempts_before": 0,
+        "abandoned_ranges_before": 0,
+        "abandoned_checkpoints_before": 0,
+        "planned_at": "legacy",
+        "new_launch_binding": oldest_launch,
+        "new_invocation_binding": invocation,
+        "new_binding_sha256": oldest_sha256,
+        "evolution_attempts_after": 0,
+        "abandoned_ranges_after": 0,
+        "abandoned_checkpoints_after": 0,
+        "rebound_at": "legacy",
+    }]
+    atomic_write_json(manifest_path, manifest)
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="downgrades its schema",
+    ):
+        flow._load_transaction(
+            state, 1, round_dir, allow_prepared_rebind=True
+        )
 
 
 @pytest.mark.parametrize(
@@ -1219,7 +1325,12 @@ def test_legacy_binding_is_not_migrated_after_source_binding(
     flow._prepare_transaction(state, 1, round_dir)
     manifest_path = round_dir / "evolution-transaction.json"
     manifest = json.loads(manifest_path.read_text())
-    manifest["launch_binding"].pop("evaluation_final_gate")
+    for field in (
+        "evaluation_proof_runtime",
+        "evaluation_search_contract",
+        "evolution_dependency_contract",
+    ):
+        manifest["launch_binding"].pop(field)
     manifest["status"] = status
     if bind_source:
         manifest["candidate_end_offset"] = manifest[

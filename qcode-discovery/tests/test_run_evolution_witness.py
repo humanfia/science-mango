@@ -15,6 +15,7 @@ from typing import Any
 import pytest
 
 import evolve.run_evolution as launcher
+import humanize.flow as flow_module
 
 
 @dataclass
@@ -22,6 +23,21 @@ class FakeResult:
     child_program_dict: dict[str, Any] | None = None
     iteration: int = 0
     error: str | None = None
+
+
+def test_parent_and_child_share_managed_evaluator_dependency_contract():
+    assert (
+        launcher.LOCAL_EVALUATOR_DEPENDENCIES
+        == flow_module.LOCAL_EVOLUTION_DEPENDENCIES
+    )
+    assert "evaluation_final_gate" in launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    assert (
+        "evaluation_search_contract"
+        in launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
+    assert "evaluation_proof_runtime" in (
+        launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
 
 
 class FakeFuture:
@@ -596,6 +612,10 @@ def test_managed_build_config_system_exit_does_not_reference_unbound_observer(
 
 
 def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
+    monkeypatch.delenv(
+        "QCODE_EVALUATOR_OUTER_TIMEOUT_S",
+        raising=False,
+    )
     lease_path = (tmp_path / "lease.lock").resolve()
     lease_fd = os.open(lease_path, os.O_RDWR | os.O_CREAT, 0o600)
     fcntl.flock(lease_fd, fcntl.LOCK_EX)
@@ -604,7 +624,10 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
             models=[SimpleNamespace(name="fake-model")],
             evaluator_models=[],
         ),
-        evaluator=SimpleNamespace(parallel_evaluations=1),
+        evaluator=SimpleNamespace(
+            parallel_evaluations=1,
+            timeout=1200,
+        ),
     )
 
     @contextmanager
@@ -627,6 +650,7 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
     finally:
         os.close(lease_fd)
     assert raised.value.code == 130
+    assert os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] == "1200.0"
     assert not (tmp_path / "completed.json").exists()
     assert not (tmp_path / "witness.json").exists()
 
@@ -738,7 +762,8 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
     assert marker_payload["result_checkpoint_sha256"] == "b" * 64
     assert marker_payload["context_sha256"] == witness_payload["context_sha256"]
     assert marker_payload["model_names"] == ["fake-model"]
-    assert (
-        marker_payload["evaluation_distance_milp_sha256"]
-        == dependency_identities["evaluation_distance_milp"]["sha256"]
-    )
+    for name, identity in dependency_identities.items():
+        for field in ("path", "sha256", "bytes"):
+            key = f"{name}_{field}"
+            assert witness_payload[key] == identity[field]
+            assert marker_payload[key] == identity[field]

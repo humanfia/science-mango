@@ -69,6 +69,7 @@ import asyncio
 import fcntl
 import hashlib
 import json
+import math
 import os
 import platform as platform_module
 import shutil
@@ -87,6 +88,8 @@ from typing import Any
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+
+from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
 
 SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
 SEED_SOLUTION_MILP = str(Path(__file__).parent / "seed_solution_milp.py")
@@ -203,18 +206,6 @@ SUPPORTED_OPENEVOLVE_SHA256 = {
     "database": "4ae70c309d7c33a3f92ad181437ec71f9ca77575d57bd673249791ecf38d754b",
     "api": "c85fcafe18f288148a5dea918b6af5c2312717f39de2a416d26e158b84924eae",
 }
-
-LOCAL_EVALUATOR_DEPENDENCIES = {
-    "evaluation_evaluator": "evaluation/evaluator.py",
-    "evaluation_results": "evaluation/results.py",
-    "evaluation_structural_dedup": "evaluation/structural_dedup.py",
-    "evaluation_bb_code": "evaluation/bb_code.py",
-    "evaluation_pbb_code": "evaluation/pbb_code.py",
-    "evaluation_distance": "evaluation/distance.py",
-    "evaluation_distance_milp": "evaluation/distance_milp.py",
-    "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
-}
-
 
 def _evaluator_dependency_identities() -> dict[str, dict[str, Any]]:
     project_root = Path(PROJECT_ROOT)
@@ -1990,6 +1981,19 @@ def main():
             ) = _resolve_codex_execution_binding()
             codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
+        evaluator_timeout = getattr(config.evaluator, "timeout", None)
+        if (
+            isinstance(evaluator_timeout, bool)
+            or not isinstance(evaluator_timeout, (int, float))
+            or not math.isfinite(float(evaluator_timeout))
+            or evaluator_timeout <= 0
+        ):
+            raise RuntimeError(
+                "config evaluator.timeout must be a positive finite number"
+            )
+        os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] = str(
+            float(evaluator_timeout)
+        )
         if args.codex_cli:
             from evolve.codex_cli_llm import make_codex_cli_client
             for model_config in config.llm.models + config.llm.evaluator_models:

@@ -151,6 +151,34 @@ def test_dynamic_cutoff_handles_parameter_sets_with_no_possible_winner():
     assert evaluator.compute_challenge_rejection_cutoff(4, 1, 12.0) == 4
 
 
+def test_positive_k_below_former_cutoff_writes_formal_checkpoint(tmp_path):
+    checkpoint = tmp_path / "k2-formal-checkpoint.json"
+
+    result = evaluator.evaluate_candidate_milp(
+        12,
+        6,
+        [(6, 5), (11, 2), (5, 4), (4, 0)],
+        [(1, 4), (10, 4)],
+        milp_timeout_per_logical=2,
+        milp_total_timeout=8,
+        milp_target_fom=12.0,
+        milp_checkpoint_path=checkpoint,
+        milp_hard_timeout_per_logical=3,
+    )
+
+    assert result["n"] == 144
+    assert result["k"] == 2
+    assert result["stage"] != "k_low"
+    assert checkpoint.is_file()
+    durable = json.loads(checkpoint.read_text())
+    assert durable["status"] in {
+        "threshold_rejected",
+        "unresolved",
+        "exact",
+    }
+    assert durable["proof_binding"]["k"] == 2
+
+
 def test_css_incumbent_at_cutoff_stops_after_first_direction(monkeypatch):
     hx = np.zeros((1, 4), dtype=int)
     hz = np.zeros((1, 4), dtype=int)
