@@ -1608,6 +1608,8 @@ class FiveStagePipeline:
             ),
             "source_fingerprint": self._source_fingerprint(
                 self.config.repo_dir / "humanize" / "pipeline.py",
+                self.config.repo_dir / "humanize" / "audit_state.py",
+                self.config.repo_dir / "humanize" / "state.py",
                 self.config.repo_dir / "evaluation",
                 self.config.repo_dir / "scripts" / "audit_candidate_pool.py",
                 self.config.repo_dir / "scripts" / "audit_direction_pool.py",

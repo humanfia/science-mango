@@ -498,6 +498,8 @@ def certificate_source_fingerprint() -> str:
         PROJECT / "scripts" / "finalize_challenge.py",
         PROJECT / "tests" / "verify_known_answer_gate.py",
         PROJECT / "results" / "known_code_registry.json",
+        PROJECT / "humanize" / "audit_state.py",
+        PROJECT / "humanize" / "state.py",
         *(PROJECT / "evaluation").rglob("*.py"),
     }
     digest = hashlib.sha256()

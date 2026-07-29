@@ -381,7 +381,8 @@ def _repo(tmp_path: Path) -> tuple[Path, Path]:
     (evaluation / "verifier.py").write_text("# fake imported verifier\n")
     humanize = repo / "humanize"
     humanize.mkdir()
-    (humanize / "pipeline.py").write_text("# fake pipeline controller\n")
+    for name in ("pipeline.py", "audit_state.py", "state.py"):
+        (humanize / name).write_text(f"# fake humanize/{name}\n")
     tests = repo / "tests"
     tests.mkdir()
     (tests / "verify_known_answer_gate.py").write_text(
@@ -2507,6 +2508,34 @@ def test_imported_verifier_source_change_invalidates_proof_stages(tmp_path):
     first = FiveStagePipeline(config, command_runner=runner, reviewer=reviewer).run()
     assert first["status"] == "COMPLETED_NO_WIN"
     (repo / "evaluation" / "verifier.py").write_text("# changed imported verifier\n")
+
+    second = FiveStagePipeline(config, command_runner=runner, reviewer=reviewer).run()
+
+    assert second["status"] == "COMPLETED_NO_WIN"
+    assert runner.counts == {"stage2": 2}
+    assert second["stages"]["stage1_search"]["attempt"] == 1
+    for stage in STAGE_ORDER[1:]:
+        assert second["stages"][stage]["attempt"] == 2
+
+
+@pytest.mark.parametrize("dependency", ["audit_state.py", "state.py"])
+def test_humanize_audit_dependency_change_invalidates_proof_stages(
+    tmp_path,
+    dependency,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"humanize-source-change-{dependency}",
+    )
+    runner = ScenarioRunner()
+    reviewer = RecordingReviewer()
+
+    first = FiveStagePipeline(config, command_runner=runner, reviewer=reviewer).run()
+    assert first["status"] == "COMPLETED_NO_WIN"
+    source = repo / "humanize" / dependency
+    source.write_text(source.read_text() + "# changed audit dependency\n")
 
     second = FiveStagePipeline(config, command_runner=runner, reviewer=reviewer).run()
 

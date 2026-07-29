@@ -467,6 +467,39 @@ def test_certificate_cache_is_invalidated_by_source_fingerprint(
     ] == "source-v2"
 
 
+@pytest.mark.parametrize("dependency", ["audit_state.py", "state.py"])
+def test_certificate_source_fingerprint_includes_humanize_audit_dependencies(
+    tmp_path,
+    monkeypatch,
+    dependency,
+):
+    project = tmp_path / "qcode"
+    for path in (
+        project / "scripts" / "audit_candidate_pool.py",
+        project / "scripts" / "audit_direction_pool.py",
+        project / "scripts" / "finalize_challenge.py",
+        project / "tests" / "verify_known_answer_gate.py",
+        project / "results" / "known_code_registry.json",
+        project / "humanize" / "audit_state.py",
+        project / "humanize" / "state.py",
+        project / "evaluation" / "verifier.py",
+    ):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"# fake {path.name}\n")
+    monkeypatch.setattr(candidate_pool, "PROJECT", project)
+    monkeypatch.setattr(
+        candidate_pool,
+        "__file__",
+        str(project / "scripts" / "audit_candidate_pool.py"),
+    )
+
+    before = candidate_pool.certificate_source_fingerprint()
+    source = project / "humanize" / dependency
+    source.write_text(source.read_text() + "# changed audit dependency\n")
+
+    assert candidate_pool.certificate_source_fingerprint() != before
+
+
 def test_incomplete_certificate_is_retried_from_checkpoint(tmp_path):
     calls = []
 
