@@ -86,6 +86,27 @@ def merge_bp_milp_result(bp: dict, milp_result: dict) -> dict:
         merged["distance_source"] = "bp_osd"
         merged["stage"] = "bp_osd_after_milp"
 
+    for field in (
+        "fom_target",
+        "fom_target_numerator",
+        "fom_target_denominator",
+        "fom_rejection_cutoff",
+        "challenge_rejection_cutoff",
+        "minimum_passing_distance",
+        "milp_early_stop_objective",
+        "milp_effective_early_stop",
+        "milp_early_stop_triggered",
+        "milp_solver_attempted",
+        "fom_target_excluded_by_upper_bound",
+        "final_gate_excluded_by_upper_bound",
+        "threshold_rejection_proven",
+        "threshold_proof_lhs",
+        "threshold_proof_rhs",
+        "threshold_proof_distance",
+        "threshold_proof_source",
+    ):
+        if field in milp_result:
+            merged[field] = milp_result[field]
     merged["bp_osd_d"] = bp_d
     merged["milp_attempted"] = True
     return merged

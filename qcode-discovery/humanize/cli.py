@@ -40,6 +40,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--milp-timeout-per-logical", type=int, default=300)
     parser.add_argument("--milp-total-timeout", type=int, default=7200)
     parser.add_argument("--milp-early-stop", type=int, default=0)
+    parser.add_argument(
+        "--max-total-workers", type=int, default=None,
+        help="Shared cap for OpenEvolve evaluation lanes and Stage 1 MILP candidates.",
+    )
     parser.add_argument("--patience", type=int, default=3)
     parser.add_argument("--min-improvement", type=float, default=0.01)
     parser.add_argument(
@@ -74,6 +78,7 @@ def main() -> None:
         min_improvement=args.min_improvement,
         candidate_file=args.candidate_file.resolve() if args.candidate_file else None,
         codex_cli=args.codex_cli,
+        max_total_workers=args.max_total_workers,
     )
     state = HumanizeFlow(config).run()
     print(json.dumps({

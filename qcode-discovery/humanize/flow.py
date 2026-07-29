@@ -52,11 +52,16 @@ class FlowConfig:
     min_improvement: float = 0.01
     candidate_file: Path | None = None
     codex_cli: bool = False
+    # Operational scheduling cap. The outer pipeline fingerprints and persists
+    # it, so Humanize omits it from logical search identity to allow safe
+    # checkpoint resume with a changed resource allocation.
+    max_total_workers: int | None = None
 
     def serializable(self) -> dict[str, Any]:
         value = asdict(self)
         value["repo_dir"] = str(self.repo_dir)
         value["candidate_file"] = str(self.candidate_file) if self.candidate_file else None
+        value.pop("max_total_workers", None)
         # Omit unset optional launch fields so pre-fix failed runs retain an
         # identical serialized configuration and can resume their audit.
         for name in ("evolution_config", "evolution_seed"):
@@ -76,6 +81,15 @@ class FlowConfig:
             raise ValueError("milp_top must be non-negative")
         if self.milp_early_stop < 0:
             raise ValueError("milp_early_stop must be non-negative")
+        if (
+            self.max_total_workers is not None
+            and (
+                isinstance(self.max_total_workers, bool)
+                or not isinstance(self.max_total_workers, int)
+                or self.max_total_workers < 1
+            )
+        ):
+            raise ValueError("max_total_workers must be a positive integer")
         if self.patience < 1:
             raise ValueError("patience must be positive")
 
@@ -129,6 +143,11 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         "--humanize-context", str(context_path),
         "--no-temperature",
     ]
+    if config.max_total_workers is not None:
+        command.extend([
+            "--max-parallel-evaluations",
+            str(config.max_total_workers),
+        ])
     checkpoint = state.get("last_checkpoint")
     if checkpoint and Path(checkpoint).is_dir():
         command.extend(["--resume", checkpoint])
@@ -172,6 +191,7 @@ def _milp_is_fully_exact(row: dict[str, Any]) -> bool:
 def evaluate_with_milp(candidate: dict[str, Any], config: FlowConfig) -> dict[str, Any]:
     """Use qcode's evaluator and preserve the strict partial-MILP semantics."""
     from evaluation.evaluator import evaluate_candidate_milp
+    from evaluation.final_gate import FOM_THRESHOLD
     from main import merge_bp_milp_result
 
     result = evaluate_candidate_milp(
@@ -182,6 +202,7 @@ def evaluate_with_milp(candidate: dict[str, Any], config: FlowConfig) -> dict[st
         milp_timeout_per_logical=config.milp_timeout_per_logical,
         milp_total_timeout=config.milp_total_timeout,
         milp_early_stop=(config.milp_early_stop or None),
+        milp_target_fom=FOM_THRESHOLD,
     )
     merged = merge_bp_milp_result(candidate, result)
     # Preserve pre-MILP machine gates when an exact result replaces the BP row;
@@ -264,6 +285,16 @@ def select_for_milp(
         add_from(exploratory, len(selected) + 1)
     add_from(credible + exploratory, limit)
     return selected
+
+
+def _stage1_milp_worker_count(config: FlowConfig, pending_count: int) -> int:
+    """Return the Stage 1 candidate lanes allowed by the shared worker cap."""
+    if pending_count < 1:
+        return 0
+    budget = config.max_total_workers
+    if budget is None:
+        budget = 3
+    return min(3, budget, pending_count)
 
 
 class HumanizeFlow:
@@ -375,10 +406,10 @@ class HumanizeFlow:
             candidate = pending[0]
             persist(candidate, self.milp_evaluator(candidate, self.config))
         elif pending:
-            # Candidate-level parallelism is intentionally capped at three for
-            # the 64 GiB cgroup. HiGHS releases the GIL and is thread-safe, so
-            # this also supports non-pickleable test evaluators.
-            with ThreadPoolExecutor(max_workers=min(3, len(pending))) as pool:
+            # Candidate-level parallelism retains the 64 GiB safety cap of
+            # three while also obeying the campaign-wide resource budget.
+            workers = _stage1_milp_worker_count(self.config, len(pending))
+            with ThreadPoolExecutor(max_workers=workers) as pool:
                 futures = {
                     pool.submit(self.milp_evaluator, candidate, self.config): candidate
                     for candidate in pending
@@ -410,6 +441,7 @@ class HumanizeFlow:
             "rounds_completed": state["current_round"],
             "total_evaluations": len(state.get("audited_keys", [])),
             "best_fom": state.get("best_fom", 0.0),
+            "max_total_workers": self.config.max_total_workers,
             "config": state["config"],
             "state_path": str(self.store.state_path),
             "updated_at": utc_now(),
@@ -427,6 +459,7 @@ class HumanizeFlow:
                 "openevolve_target_iterations": round_number * self.config.iterations_per_round,
                 "model": self.config.model,
                 "reasoning_effort": self.config.reasoning_effort,
+                "max_total_workers": self.config.max_total_workers,
             },
             "promotion_gates": {
                 "static": "commuting, weight/degree <= 6, connected Tanner graph",
@@ -490,6 +523,7 @@ class HumanizeFlow:
                 "Refusing to resume a Humanize run with different configuration"
             )
         state = self.store.initialize(serialized_config)
+        state["runtime_worker_budget"] = self.config.max_total_workers
         if state["status"] in {"completed", "search-complete"}:
             return state
         state.pop("failure", None)

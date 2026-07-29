@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from evaluation.final_gate import classify_win
+from humanize.flow import FlowConfig
 from humanize.pipeline import (
     STAGE_ORDER,
     FiveStagePipeline,
@@ -1022,6 +1023,32 @@ def test_stage4_rejects_inconsistent_exact_certificate_flags(tmp_path):
     assert state["failure"]["classification"] == "OUTPUT_INVALID"
     assert state["failure"]["stage"] == "stage4_certificate_merge"
 
+
+
+def test_pipeline_injects_one_shared_stage1_worker_budget(tmp_path):
+    repo, _candidates = _repo(tmp_path)
+    flow = FlowConfig(repo_dir=repo, run_id="shared-worker-budget")
+    legacy_identity = flow.serializable()
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id="shared-worker-budget",
+        flow_config=flow,
+        max_total_workers=4,
+        stage2_candidate_workers=1,
+    )
+
+    assert config.flow_config is not None
+    assert config.flow_config.max_total_workers == 4
+    assert config.flow_config.serializable() == legacy_identity
+
+    with pytest.raises(ValueError, match="conflicts"):
+        PipelineConfig(
+            repo_dir=repo,
+            run_id="shared-worker-budget",
+            flow_config=replace(flow, max_total_workers=2),
+            max_total_workers=4,
+            stage2_candidate_workers=1,
+        )
 
 def test_certificate_solver_workers_rejects_unsupported_highs_thread_count(
     tmp_path,

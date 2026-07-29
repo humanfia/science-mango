@@ -35,7 +35,24 @@ def test_partial_milp_is_never_promoted_to_exact():
 
 
 def test_tighter_bp_upper_bound_wins_over_milp_incumbent():
-    result = merge_bp_milp_result(_bp(8), _milp(10, exact=False, checked=8, optimal=7))
+    milp = _milp(10, exact=False, checked=8, optimal=7)
+    milp.update({
+        "fom_target": 12.0,
+        "fom_rejection_cutoff": 16,
+        "challenge_rejection_cutoff": 16,
+        "milp_effective_early_stop": 16,
+        "milp_solver_attempted": True,
+        "fom_target_excluded_by_upper_bound": True,
+        "final_gate_excluded_by_upper_bound": True,
+        "threshold_rejection_proven": True,
+        "threshold_proof_distance": 10,
+        "threshold_proof_source": "milp_feasible_upper_bound",
+    })
+    result = merge_bp_milp_result(_bp(8), milp)
     assert result["d"] == 8
     assert result["d_is_exact"] is False
     assert result["distance_source"] == "bp_osd"
+    assert result["milp_effective_early_stop"] == 16
+    assert result["threshold_rejection_proven"] is True
+    assert result["threshold_proof_distance"] == 10
+    assert result["threshold_proof_source"] == "milp_feasible_upper_bound"

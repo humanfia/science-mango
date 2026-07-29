@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import logging
 import math
+from fractions import Fraction
 
 from evaluation.bb_code import build_bb_code, validate_terms, get_code_params_fast
 from evaluation.distance import estimate_distance, estimate_distance_osd_cs, compute_distance_exact
@@ -96,6 +97,48 @@ def compute_fom(n: int, k: int, d: int) -> float:
     if n == 0 or k == 0 or d == 0:
         return 0.0
     return k * d * d / n
+
+
+def compute_fom_rejection_cutoff(n: int, k: int, target_fom: float) -> int:
+    """Return the largest integer distance that cannot strictly beat a FOM target.
+
+    A witnessed logical operator of weight ``d`` is a valid upper bound on the
+    true distance and excludes ``FOM > target`` iff ``k*d² <= target*n``.
+    The calculation is exact so equality at a boundary such as FOM 12 cannot
+    be changed by floating-point rounding.
+    """
+    if n <= 0 or k <= 0:
+        raise ValueError("n and k must be positive")
+    try:
+        target = Fraction(str(target_fom))
+    except (ValueError, ZeroDivisionError) as exc:
+        raise ValueError("target_fom must be a finite non-negative number") from exc
+    if target < 0:
+        raise ValueError("target_fom must be a finite non-negative number")
+    squared_cutoff = (target.numerator * n) // (target.denominator * k)
+    return math.isqrt(squared_cutoff)
+
+
+def compute_challenge_rejection_cutoff(
+    n: int, k: int, target_fom: float
+) -> int:
+    """Return the largest distance proving that the final gate cannot pass.
+
+    At the official scalar threshold, the challenge also has fixed-coordinate
+    Pareto win rules. Those can admit a code that ties the scalar FOM at a
+    smaller ``n``, so the Stage 1 cutoff must preserve them.
+    """
+    scalar_cutoff = compute_fom_rejection_cutoff(n, k, target_fom)
+    from evaluation.final_gate import FOM_THRESHOLD, minimum_winning_distance
+
+    if Fraction(str(target_fom)) != Fraction(str(FOM_THRESHOLD)):
+        return scalar_cutoff
+    try:
+        minimum_passing = minimum_winning_distance(n, k)
+    except ValueError:
+        # No distance allowed by this block length can pass any final-gate rule.
+        return min(scalar_cutoff, n)
+    return min(scalar_cutoff, minimum_passing - 1)
 
 
 def _make_result_template(
@@ -352,6 +395,7 @@ def evaluate_candidate_milp(
     milp_timeout_per_logical: int = 30,
     milp_total_timeout: int = 120,
     milp_early_stop: int | None = 4,
+    milp_target_fom: float | None = None,
 ) -> dict:
     """Evaluate a BB code candidate using MILP for exact distance.
 
@@ -360,7 +404,9 @@ def evaluate_candidate_milp(
       2. Quick k-only return if quick=True  (microseconds)
       3. MILP exact distance  (sub-second for d≤4, seconds to minutes for d≥6)
 
-    All distances are exact -- no trust ratio filtering needed.
+    Incumbents and symplectic witnesses are valid upper bounds; ``d_is_exact``
+    is true only when every required direction was proven or a structural rule
+    applies.
 
     Args:
         ell: Cyclic group order for x.
@@ -371,6 +417,10 @@ def evaluate_candidate_milp(
         milp_timeout_per_logical: Timeout per individual ILP solve.
         milp_total_timeout: Total timeout for all logicals combined.
         milp_early_stop: Stop immediately when d ≤ this value.
+        milp_target_fom: If set, derive a safe per-candidate early-stop cutoff
+            from reconstructed n and k. At the official threshold this also
+            preserves all final-gate Pareto win rules and supersedes the fixed
+            ``milp_early_stop`` value.
 
     Returns:
         Dict with keys: n, k, d, d_is_exact, distance_trusted, fom,
@@ -382,6 +432,33 @@ def evaluate_candidate_milp(
     if built is None:
         return result
     code, n, k = built
+
+    effective_early_stop = milp_early_stop
+    result["milp_solver_attempted"] = False
+    if milp_target_fom is not None:
+        scalar_cutoff = compute_fom_rejection_cutoff(n, k, milp_target_fom)
+        challenge_cutoff = compute_challenge_rejection_cutoff(
+            n, k, milp_target_fom
+        )
+        target = Fraction(str(milp_target_fom))
+        # In target-aware Stage 1 mode this cutoff is authoritative. A larger
+        # fixed cutoff could discard a valid Pareto winner; a smaller one would
+        # forfeit the intended performance gain.
+        effective_early_stop = challenge_cutoff
+        result.update({
+            "fom_target": float(milp_target_fom),
+            "fom_target_numerator": target.numerator,
+            "fom_target_denominator": target.denominator,
+            "fom_rejection_cutoff": scalar_cutoff,
+            "challenge_rejection_cutoff": challenge_cutoff,
+            "minimum_passing_distance": challenge_cutoff + 1,
+            "milp_early_stop_objective": "challenge_final_gate",
+            "fom_target_excluded_by_upper_bound": False,
+            "final_gate_excluded_by_upper_bound": False,
+            "threshold_rejection_proven": False,
+            "milp_early_stop_triggered": False,
+        })
+    result["milp_effective_early_stop"] = effective_early_stop
 
     # Symplectic weight: instant upper bound on d from Gaussian elimination
     d_symp, _, _ = symplectic_weight_bound(code)
@@ -395,12 +472,14 @@ def evaluate_candidate_milp(
     # Pre-filter using symplectic weight bound (instant, no MILP needed).
     # d_symp is an upper bound on d from Gaussian elimination.
     # - d_symp ≤ 2: provably exact (BB codes with k>0 have d ≥ 2)
-    # - d_symp ≤ early_stop: MILP would solve in <1s anyway (d ≤ d_symp ≤ 4),
-    #   but we can report d_symp directly as a valid upper bound and skip MILP.
-    #   This saves hundreds of MILP calls per iteration.
+    # - d_symp ≤ effective early_stop: this valid upper bound already proves
+    #   that the configured search objective cannot win, so MILP can be skipped.
     if (
         d_symp <= 2
-        or (milp_early_stop is not None and d_symp <= milp_early_stop)
+        or (
+            effective_early_stop is not None
+            and d_symp <= effective_early_stop
+        )
     ):
         result["d"] = d_symp
         result["d_is_exact"] = d_symp <= 2  # Only d≤2 is provably exact
@@ -408,14 +487,37 @@ def evaluate_candidate_milp(
         result["fom"] = compute_fom(n, k, d_symp)
         result["score"] = result["fom"]
         result["stage"] = "symplectic_low_d"
+        if milp_target_fom is not None:
+            result["fom_target_excluded_by_upper_bound"] = (
+                d_symp <= result["fom_rejection_cutoff"]
+            )
+            result["final_gate_excluded_by_upper_bound"] = (
+                d_symp <= result["challenge_rejection_cutoff"]
+            )
+            result["threshold_rejection_proven"] = result[
+                "final_gate_excluded_by_upper_bound"
+            ]
+            result["milp_early_stop_triggered"] = (
+                effective_early_stop is not None
+                and d_symp <= effective_early_stop
+            )
+            result["threshold_proof_lhs"] = (
+                k * d_symp * d_symp * result["fom_target_denominator"]
+            )
+            result["threshold_proof_rhs"] = (
+                result["fom_target_numerator"] * n
+            )
+            result["threshold_proof_distance"] = d_symp
+            result["threshold_proof_source"] = "symplectic_upper_bound"
         return result
 
     # Stage 3: MILP exact distance
+    result["milp_solver_attempted"] = True
     d, details = compute_distance_milp(
         code,
         timeout_per_logical=milp_timeout_per_logical,
         total_timeout=milp_total_timeout,
-        early_stop=milp_early_stop,
+        early_stop=effective_early_stop,
     )
 
     result["milp_details"] = details
@@ -437,7 +539,29 @@ def evaluate_candidate_milp(
         result["distance_trusted"] = True  # Incumbent or optimal -- valid upper bound
         result["fom"] = compute_fom(n, k, d)
         result["score"] = result["fom"]
-        if milp_early_stop is not None and d <= milp_early_stop:
+        if milp_target_fom is not None:
+            result["fom_target_excluded_by_upper_bound"] = (
+                d <= result["fom_rejection_cutoff"]
+            )
+            result["final_gate_excluded_by_upper_bound"] = (
+                d <= result["challenge_rejection_cutoff"]
+            )
+            result["threshold_rejection_proven"] = result[
+                "final_gate_excluded_by_upper_bound"
+            ]
+            result["threshold_proof_lhs"] = (
+                k * d * d * result["fom_target_denominator"]
+            )
+            result["threshold_proof_rhs"] = (
+                result["fom_target_numerator"] * n
+            )
+            result["threshold_proof_distance"] = d
+            result["threshold_proof_source"] = (
+                "milp_exact" if details["exact"] else "milp_feasible_upper_bound"
+            )
+        if effective_early_stop is not None and d <= effective_early_stop:
+            if milp_target_fom is not None:
+                result["milp_early_stop_triggered"] = not details["exact"]
             result["stage"] = "milp_low_d"
         elif details["exact"]:
             result["stage"] = "milp_exact"

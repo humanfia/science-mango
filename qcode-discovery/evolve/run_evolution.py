@@ -89,6 +89,27 @@ EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
 
 
+def _cap_parallel_evaluations(config, cap: int | None) -> tuple[int, int]:
+    """Cap OpenEvolve evaluation lanes without increasing the YAML setting."""
+    configured = getattr(config.evaluator, "parallel_evaluations", None)
+    if (
+        isinstance(configured, bool)
+        or not isinstance(configured, int)
+        or configured < 1
+    ):
+        raise ValueError(
+            "config evaluator.parallel_evaluations must be a positive integer"
+        )
+    if cap is not None:
+        if isinstance(cap, bool) or not isinstance(cap, int) or cap < 1:
+            raise ValueError("max parallel evaluations must be a positive integer")
+        effective = min(configured, cap)
+    else:
+        effective = configured
+    config.evaluator.parallel_evaluations = effective
+    return configured, effective
+
+
 def _resolve_api_base(args) -> str:
     """Resolve the API base URL from args or environment."""
     if args.api_base:
@@ -138,6 +159,10 @@ def _build_config(args, api_base: str, model_names: list[str] | None):
 
     config = Config.from_yaml(args.config)
     config.max_iterations = args.iterations
+    _cap_parallel_evaluations(
+        config,
+        getattr(args, "max_parallel_evaluations", None),
+    )
 
     # Propagate api_base to all model configs.
     # Setting config.llm.api_base alone does NOT propagate because
@@ -378,6 +403,10 @@ def main():
         help="Explicit output directory (overrides --run-name).",
     )
     parser.add_argument(
+        "--max-parallel-evaluations", type=int, default=None,
+        help="Cap OpenEvolve evaluator workers without increasing the YAML value.",
+    )
+    parser.add_argument(
         "--wandb", action="store_true",
         help="Enable Weights & Biases tracking.",
     )
@@ -549,6 +578,14 @@ def main():
             for name in active_models:
                 print(f"    - {name}")
         print(f"  Iterations: {args.iterations}")
+        parallel = config.evaluator.parallel_evaluations
+        if args.max_parallel_evaluations is None:
+            print(f"  Parallel evaluations: {parallel}")
+        else:
+            print(
+                f"  Parallel evaluations: {parallel} "
+                f"(cap: {args.max_parallel_evaluations})"
+            )
         print(f"  Model backend: {'Codex CLI' if args.codex_cli else api_base}")
         print(f"  Seed: {seed_path}")
         if args.noncss:

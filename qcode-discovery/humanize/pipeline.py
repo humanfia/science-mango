@@ -20,7 +20,7 @@ import subprocess
 import sys
 import uuid
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
@@ -342,6 +342,24 @@ class PipelineConfig:
                 self,
                 "known_answer_trust",
                 _resolve_path(self.known_answer_trust, repo),
+            )
+        if self.flow_config is not None:
+            declared_budget = self.flow_config.max_total_workers
+            if (
+                declared_budget is not None
+                and declared_budget != self.max_total_workers
+            ):
+                raise ValueError(
+                    "flow_config.max_total_workers conflicts with the "
+                    "pipeline max_total_workers"
+                )
+            object.__setattr__(
+                self,
+                "flow_config",
+                replace(
+                    self.flow_config,
+                    max_total_workers=self.max_total_workers,
+                ),
             )
         self.validate()
 
@@ -881,6 +899,7 @@ class FiveStagePipeline:
             run_id=self.config.run_id,
             review_model=self.config.reviewer_model,
             review_effort=self.config.reviewer_effort,
+            max_total_workers=self.config.max_total_workers,
         )
 
     @contextmanager

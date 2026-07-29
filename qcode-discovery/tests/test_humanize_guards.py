@@ -1,9 +1,16 @@
 import json
+from types import SimpleNamespace
 
 import pytest
 
+from evolve.run_evolution import _cap_parallel_evaluations
 from humanize.flow import (
-    FlowConfig, HumanizeFlow, _milp_is_fully_exact, run_openevolve,
+    FlowConfig,
+    HumanizeFlow,
+    _milp_is_fully_exact,
+    _stage1_milp_worker_count,
+    evaluate_with_milp,
+    run_openevolve,
 )
 from humanize.reviewer import validate_review
 
@@ -74,11 +81,13 @@ def test_openevolve_config_and_seed_are_forwarded(tmp_path, monkeypatch):
         iterations_per_round=25,
         evolution_config=config_path,
         evolution_seed=seed_path,
+        max_total_workers=4,
     )
     run_openevolve(config, {"current_round": 0, "last_checkpoint": None}, round_dir)
 
     command = captured["command"]
     assert command[command.index("--iterations") + 1] == "25"
+    assert command[command.index("--max-parallel-evaluations") + 1] == "4"
     assert command[command.index("--config") + 1] == str(config_path)
     assert command[command.index("--seed") + 1] == str(seed_path)
     assert captured["kwargs"]["cwd"] == repo
@@ -106,6 +115,7 @@ def test_openevolve_resume_runs_one_increment_not_cumulative(tmp_path, monkeypat
         run_id="incremental",
         max_rounds=3,
         iterations_per_round=25,
+        max_total_workers=2,
     )
     run_openevolve(
         config,
@@ -115,5 +125,85 @@ def test_openevolve_resume_runs_one_increment_not_cumulative(tmp_path, monkeypat
 
     command = captured["command"]
     assert command[command.index("--iterations") + 1] == "25"
+    assert command[command.index("--max-parallel-evaluations") + 1] == "2"
     assert command[command.index("--resume") + 1] == str(checkpoint)
     assert captured["kwargs"]["cwd"] == repo
+
+
+def test_stage1_milp_uses_official_dynamic_fom_target(tmp_path, monkeypatch):
+    from evaluation.final_gate import FOM_THRESHOLD
+
+    captured = {}
+
+    def fake_evaluator(*_args, **kwargs):
+        captured.update(kwargs)
+        return {"d": 16, "d_is_exact": False, "stage": "milp_low_d"}
+
+    monkeypatch.setattr(
+        "evaluation.evaluator.evaluate_candidate_milp", fake_evaluator
+    )
+    monkeypatch.setattr(
+        "main.merge_bp_milp_result",
+        lambda _candidate, milp_result: dict(milp_result),
+    )
+    candidate = {
+        "ell": 18,
+        "m": 10,
+        "A_terms": [[0, 0], [1, 0], [0, 1]],
+        "B_terms": [[0, 0], [2, 0], [0, 2]],
+    }
+    config = FlowConfig(repo_dir=tmp_path, run_id="dynamic-cutoff")
+
+    evaluate_with_milp(candidate, config)
+
+    assert captured["milp_target_fom"] == FOM_THRESHOLD
+
+
+@pytest.mark.parametrize(
+    ("configured", "cap", "effective"),
+    ((6, 4, 4), (1, 4, 1), (24, 4, 4), (6, None, 6)),
+)
+def test_openevolve_parallel_evaluations_are_capped_not_increased(
+    configured, cap, effective,
+):
+    config = SimpleNamespace(
+        evaluator=SimpleNamespace(parallel_evaluations=configured)
+    )
+
+    observed = _cap_parallel_evaluations(config, cap)
+
+    assert observed == (configured, effective)
+    assert config.evaluator.parallel_evaluations == effective
+
+
+@pytest.mark.parametrize("invalid", (0, -1, True, 1.5, None))
+def test_openevolve_rejects_invalid_configured_worker_count(invalid):
+    config = SimpleNamespace(
+        evaluator=SimpleNamespace(parallel_evaluations=invalid)
+    )
+    with pytest.raises(ValueError, match="positive integer"):
+        _cap_parallel_evaluations(config, 4)
+
+
+def test_stage1_milp_workers_obey_shared_budget(tmp_path):
+    base = dict(repo_dir=tmp_path, run_id="worker-cap")
+    assert _stage1_milp_worker_count(FlowConfig(**base), 9) == 3
+    assert _stage1_milp_worker_count(
+        FlowConfig(**base, max_total_workers=2), 9
+    ) == 2
+    assert _stage1_milp_worker_count(
+        FlowConfig(**base, max_total_workers=8), 2
+    ) == 2
+    assert _stage1_milp_worker_count(
+        FlowConfig(**base, max_total_workers=1), 0
+    ) == 0
+
+
+def test_worker_budget_does_not_break_legacy_checkpoint_identity(tmp_path):
+    base = FlowConfig(repo_dir=tmp_path, run_id="resume-compatible")
+    capped = FlowConfig(
+        repo_dir=tmp_path,
+        run_id="resume-compatible",
+        max_total_workers=4,
+    )
+    assert capped.serializable() == base.serializable()
