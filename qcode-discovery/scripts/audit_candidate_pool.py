@@ -21,14 +21,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import build_bb_code
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
-from evaluation.final_gate import minimum_winning_distance
+from evaluation.final_gate import classify_win, minimum_winning_distance
 from evaluation.proof_triage import (
     candidate_identity,
     deduplicate_ranked,
     normalize_record,
+    rank_record,
     stable_sort_key,
 )
 from evaluation.registry import check_code_novelty
+from humanize.audit_state import (
+    AuditOutcome,
+    AuditStateError,
+    classify_evaluation,
+)
 from scripts.screen_frontier_candidate import (
     STAGE3_GATE,
     claim_from_threshold_artifact,
@@ -52,6 +58,7 @@ SOLVER_RUNTIME_PACKAGES = (
     "scipy",
     "highspy",
 )
+_TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
 
 
 @dataclass(frozen=True)
@@ -146,6 +153,117 @@ def read_candidate_jsonl(
     return records, sources
 
 
+def _trusted_stage1_outcome(
+    record: Mapping[str, Any],
+    required_distance: int,
+) -> str | None:
+    """Replay a formal Stage 1 audit before using it as a priority lane."""
+
+    attempt = record.get("audit_attempt")
+    if not isinstance(attempt, Mapping) or attempt.get("schema_version") != 2:
+        return None
+    outcome = classify_evaluation(record)
+    if outcome is AuditOutcome.THRESHOLD_REJECTED:
+        return "REJECTED"
+    if outcome is not AuditOutcome.EXACT:
+        return None
+    try:
+        n = int(record["n"])
+        k = int(record["k"])
+        d = int(record["d"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise AuditStateError("formal Stage 1 exact row has invalid n/k/d") from exc
+    gate = classify_win(n, k, d)
+    expected = minimum_winning_distance(n, k)
+    if expected != required_distance:
+        raise AuditStateError("formal Stage 1 threshold binding changed")
+    return "THRESHOLD_PROVEN" if gate["passed"] is True else "REJECTED"
+
+
+def _promote_trusted_stage1_rows(
+    ranked: list[dict[str, Any]],
+    prepared: list[dict[str, Any]],
+    sources: list[str],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Replace each duplicate group with its formally replayed Stage 1 row."""
+
+    trusted: dict[str, dict[str, Any]] = {}
+    for line_number, (record, source) in enumerate(
+        zip(prepared, sources, strict=True),
+        start=1,
+    ):
+        outcome = record.get(_TRUSTED_STAGE1_OUTCOME)
+        if outcome not in {"THRESHOLD_PROVEN", "REJECTED"}:
+            continue
+        promoted = rank_record(record, source=source, line_number=line_number)
+        digest = str(promoted["triage_identity"]["canonical_digest"])
+        current = trusted.get(digest)
+        if (
+            current is not None
+            and current[_TRUSTED_STAGE1_OUTCOME] != outcome
+        ):
+            raise ValueError(
+                "formal Stage 1 audits disagree for one canonical candidate"
+            )
+        promoted[_TRUSTED_STAGE1_OUTCOME] = outcome
+        trusted[digest] = promoted
+
+    counts = {
+        "trusted_stage1_winners": 0,
+        "trusted_stage1_rejections": 0,
+    }
+    result: list[dict[str, Any]] = []
+    for existing in ranked:
+        digest = str(existing["triage_identity"]["canonical_digest"])
+        promoted = trusted.get(digest)
+        if promoted is None:
+            result.append(existing)
+            continue
+        row = dict(promoted)
+        identity = dict(existing["triage_identity"])
+        identity["source_identity"] = promoted["triage_identity"][
+            "source_identity"
+        ]
+        row["triage_identity"] = identity
+        outcome = str(row.pop(_TRUSTED_STAGE1_OUTCOME))
+        k = int(row["k"])
+        expected = max(2 * k, 1)
+        score = dict(row["proof_score"])
+        if outcome == "THRESHOLD_PROVEN":
+            score.update({
+                "status": "THRESHOLD_PROVEN",
+                "rejected": False,
+                "expected_directions": expected,
+                "completed_directions": expected,
+                "threshold_safe_directions": expected,
+                "threshold_safe_fraction": 1.0,
+                "coverage": 1.0,
+                "dual_coverage": 1.0,
+                "min_dual_ratio": 1.0,
+                "terminal_dual_ratio": 1.0,
+                "rank_vector": [expected, 1.0, 1.0, 1.0, 1.0],
+            })
+            counts["trusted_stage1_winners"] += 1
+        else:
+            score.update({
+                "status": "REJECTED",
+                "rejected": True,
+                "completed_directions": expected,
+                "coverage": 1.0,
+                "rank_vector": [0, -1.0, -1.0, 1.0, 0.0],
+            })
+            counts["trusted_stage1_rejections"] += 1
+        row["proof_score"] = score
+        row["trusted_stage1_audit"] = {
+            "validated": True,
+            "outcome": outcome,
+            "audit_attempt_schema": 2,
+        }
+        result.append(row)
+    result.sort(key=stable_sort_key)
+    return result, counts
+
+
 def rank_candidate_files(
     paths: Iterable[Path],
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -182,11 +300,27 @@ def rank_candidate_files(
         # A top-level value wins for flat, nested-claim, and wrapped-artifact
         # records when proof_triage normalizes the row.
         enriched = dict(record)
+        enriched.pop(_TRUSTED_STAGE1_OUTCOME, None)
         enriched["required_distance"] = required_distance
+        try:
+            trusted_outcome = _trusted_stage1_outcome(
+                enriched,
+                required_distance,
+            )
+        except AuditStateError:
+            malformed_records += 1
+            continue
+        if trusted_outcome is not None:
+            enriched[_TRUSTED_STAGE1_OUTCOME] = trusted_outcome
         prepared.append(enriched)
         prepared_sources.append(source)
 
     ranked = deduplicate_ranked(prepared, prepared_sources)
+    ranked, trusted_counts = _promote_trusted_stage1_rows(
+        ranked,
+        prepared,
+        prepared_sources,
+    )
 
     def selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
         """Preserve proof priority, then rank proof ties by search upside."""
@@ -230,6 +364,9 @@ def rank_candidate_files(
         counts["ineligible_records"] = ineligible_records
     if malformed_records:
         counts["malformed_records"] = malformed_records
+    counts.update({
+        key: value for key, value in trusted_counts.items() if value
+    })
     return ranked, counts
 
 
@@ -300,6 +437,28 @@ def solver_runtime_fingerprint() -> dict[str, Any]:
             for name in SOLVER_RUNTIME_PACKAGES
         },
     }
+
+
+def certificate_source_fingerprint() -> str:
+    """Bind certificate caches to all code and registry inputs they execute."""
+
+    paths = {
+        Path(__file__).resolve(),
+        PROJECT / "scripts" / "audit_direction_pool.py",
+        PROJECT / "scripts" / "finalize_challenge.py",
+        PROJECT / "tests" / "verify_known_answer_gate.py",
+        PROJECT / "results" / "known_code_registry.json",
+        *(PROJECT / "evaluation").rglob("*.py"),
+    }
+    digest = hashlib.sha256()
+    for path in sorted(paths, key=lambda item: item.relative_to(PROJECT).as_posix()):
+        relative = path.relative_to(PROJECT).as_posix().encode("utf-8")
+        payload = path.read_bytes()
+        digest.update(len(relative).to_bytes(8, "big"))
+        digest.update(relative)
+        digest.update(len(payload).to_bytes(8, "big"))
+        digest.update(payload)
+    return digest.hexdigest()
 
 
 def state_paths(
@@ -552,6 +711,7 @@ def _cache_binding_matches(
     candidate_payload_sha256: str,
     known_answer_sha256: str | None,
     solver_runtime: Mapping[str, Any],
+    source_fingerprint: str,
 ) -> bool:
     return bool(
         isinstance(metadata, Mapping)
@@ -560,6 +720,7 @@ def _cache_binding_matches(
         and metadata.get("candidate_payload_sha256") == candidate_payload_sha256
         and metadata.get("known_answer_sha256") == known_answer_sha256
         and metadata.get("solver_runtime") == solver_runtime
+        and metadata.get("source_fingerprint") == source_fingerprint
     )
 
 
@@ -571,6 +732,7 @@ def _certificate_cache_reusable(
     known_answer_sha256: str | None,
     candidate_payload_sha256: str,
     solver_runtime: Mapping[str, Any],
+    source_fingerprint: str,
 ) -> tuple[bool, bool]:
     """Return (reusable, checkpoint-compatible) for a certificate cache."""
 
@@ -580,6 +742,7 @@ def _certificate_cache_reusable(
         candidate_payload_sha256=candidate_payload_sha256,
         known_answer_sha256=known_answer_sha256,
         solver_runtime=solver_runtime,
+        source_fingerprint=source_fingerprint,
     )
     if certificate is None or not binding_matches:
         return False, False
@@ -625,6 +788,7 @@ def certify_candidate(
     paths = state_paths(config.state_dir, canonical_digest)
     known_answer_sha256 = _file_sha256(config.known_answer_artifact)
     solver_runtime = solver_runtime_fingerprint()
+    source_fingerprint = certificate_source_fingerprint()
     build_budget = _certificate_budget(config)
     candidate_payload_sha256 = _json_sha256(candidate)
 
@@ -642,6 +806,7 @@ def certify_candidate(
         known_answer_sha256=known_answer_sha256,
         candidate_payload_sha256=candidate_payload_sha256,
         solver_runtime=solver_runtime,
+        source_fingerprint=source_fingerprint,
     )
     certificate_resumed = reusable
     if not reusable:
@@ -676,6 +841,7 @@ def certify_candidate(
                 "known_answer_sha256": known_answer_sha256,
                 "candidate_payload_sha256": candidate_payload_sha256,
                 "solver_runtime": solver_runtime,
+                "source_fingerprint": source_fingerprint,
                 "budget": build_budget,
                 "exact": _certificate_is_exact(certificate),
                 "passed": certificate.get("passed") is True,
@@ -703,6 +869,7 @@ def certify_candidate(
             candidate_payload_sha256=candidate_payload_sha256,
             known_answer_sha256=known_answer_sha256,
             solver_runtime=solver_runtime,
+            source_fingerprint=source_fingerprint,
         )
         and verification_envelope.get("certificate_payload_sha256")
         == certificate_payload_sha256
@@ -760,6 +927,7 @@ def certify_candidate(
                 "known_answer_sha256": known_answer_sha256,
                 "candidate_payload_sha256": candidate_payload_sha256,
                 "solver_runtime": solver_runtime,
+                "source_fingerprint": source_fingerprint,
                 "budget": verify_budget,
                 "certificate_sha256": certificate_sha256,
                 "certificate_payload_sha256": certificate_payload_sha256,

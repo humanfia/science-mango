@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+import scripts.audit_candidate_pool as candidate_pool
 
 from scripts.audit_candidate_pool import (
     AuditConfig,
@@ -169,6 +170,59 @@ def test_rank_candidate_files_uses_search_upside_only_to_break_proof_ties(
     ]
 
 
+@pytest.mark.parametrize(
+    ("exact_distance", "expected_status", "expected_count"),
+    [
+        (21, "THRESHOLD_PROVEN", "trusted_stage1_winners"),
+        (20, "REJECTED", "trusted_stage1_rejections"),
+    ],
+)
+def test_formally_replayed_stage1_exact_row_replaces_bp_duplicate(
+    tmp_path,
+    monkeypatch,
+    exact_distance,
+    expected_status,
+    expected_count,
+):
+    candidate = _construction(1)
+    raw = {
+        **candidate,
+        "source": "raw-bp-upper-bound",
+        "d": 40,
+    }
+    exact = {
+        **candidate,
+        "source": "formal-stage1-milp",
+        "d": exact_distance,
+        "d_is_exact": True,
+        "audit_attempt": {"schema_version": 2},
+    }
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text("\n".join(map(json.dumps, [raw, exact])) + "\n")
+    monkeypatch.setattr(
+        candidate_pool,
+        "classify_evaluation",
+        lambda row: candidate_pool.AuditOutcome.EXACT,
+    )
+
+    ranked, counts = rank_candidate_files([stage1])
+
+    assert len(ranked) == 1
+    assert ranked[0]["source"] == "formal-stage1-milp"
+    assert ranked[0]["d"] == exact_distance
+    assert ranked[0]["proof_score"]["status"] == expected_status
+    assert ranked[0]["trusted_stage1_audit"] == {
+        "validated": True,
+        "outcome": expected_status,
+        "audit_attempt_schema": 2,
+    }
+    assert counts[expected_count] == 1
+    assert counts["duplicate_records"] == 1
+    assert counts["eligible_candidates"] == (
+        1 if expected_status == "THRESHOLD_PROVEN" else 0
+    )
+
+
 def test_jsonl_reader_ignores_only_unterminated_trailing_fragment(tmp_path):
     live = tmp_path / "live.jsonl"
     complete = _construction(1)
@@ -330,6 +384,66 @@ def test_completed_certificate_and_verification_are_resumed(tmp_path):
     assert second["verification_resumed"] is True
     assert "/" not in safe_digest(digest)
     assert len(safe_digest(digest)) == 64
+
+
+def test_certificate_cache_is_invalidated_by_source_fingerprint(
+    tmp_path,
+    monkeypatch,
+):
+    build_calls = []
+    verification_calls = []
+
+    def build(claim, **kwargs):
+        build_calls.append(kwargs)
+        return _fake_certificate(
+            f"source-{len(build_calls)}",
+            passed=True,
+            exact=True,
+        )
+
+    def verify(certificate, **kwargs):
+        verification_calls.append(kwargs)
+        return {"passed": True}
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    config = AuditConfig(state_dir=tmp_path)
+    certify_candidate(
+        _construction(1),
+        "source-bound",
+        config,
+        builder=build,
+        verifier=verify,
+    )
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v2",
+    )
+    second = certify_candidate(
+        _construction(1),
+        "source-bound",
+        config,
+        builder=build,
+        verifier=verify,
+    )
+
+    assert len(build_calls) == len(verification_calls) == 2
+    assert build_calls[1]["resume"] is False
+    assert verification_calls[1]["resume"] is False
+    assert second["certificate_resumed"] is False
+    assert second["verification_resumed"] is False
+    paths = state_paths(tmp_path, "source-bound")
+    assert json.loads(paths["certificate_metadata"].read_text())[
+        "source_fingerprint"
+    ] == "source-v2"
+    assert json.loads(paths["verification"].read_text())[
+        "source_fingerprint"
+    ] == "source-v2"
 
 
 def test_incomplete_certificate_is_retried_from_checkpoint(tmp_path):
