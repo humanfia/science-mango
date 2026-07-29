@@ -423,6 +423,7 @@ def _config(
         run_id=run_id,
         candidate_inputs=(candidates,),
         stage_review=True,
+        proof_retry_max_attempts=1,
     )
 
 
@@ -889,6 +890,302 @@ def test_partial_stage2_certificate_is_incomplete_and_retried(tmp_path):
     assert second["status"] == "COMPLETED_WIN"
     assert runner.counts == {"stage2": 2, "strict": 1}
     assert second["stages"]["stage2_sector_audit"]["attempt"] == 2
+
+
+def test_proof_retry_controller_escalates_1x_2x_4x_then_caps(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-escalation"),
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {"canonical_digest": "retry-me", "status": "UNRESOLVED"}
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            )
+        ],
+        stage3=[_plan([unresolved])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 3, "stage3": 3}
+    stage2_commands = [
+        command for stage, command in runner.calls if stage == "stage2"
+    ]
+    assert [
+        float(command[command.index("--timeout") + 1])
+        for command in stage2_commands
+    ] == [300, 600, 1200]
+    assert [
+        int(command[command.index("--max-total-workers") + 1])
+        for command in stage2_commands
+    ] == [config.max_total_workers] * 3
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )
+    active = controller["active"]
+    assert active["status"] == "CAPPED"
+    assert active["cap_reason"] == "NO_PROGRESS_AT_MAX_MULTIPLIER"
+    assert [item["multiplier"] for item in active["attempts"]] == [1, 2, 4]
+    assert active["binding"]["selected_digests"] == ["retry-me"]
+    assert active["binding"]["page_sha256"]
+    assert active["binding"]["source_fingerprint"]
+    assert active["binding"]["proof_config_sha256"]
+    assert state["proof_retry"]["resume_required"] is True
+
+
+def test_proof_retry_max_attempts_caps_before_next_budget(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-max-attempts"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {"canonical_digest": "attempt-cap", "status": "UNRESOLVED"}
+    runner = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([unresolved])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 2, "stage3": 2}
+    assert state["proof_retry"]["cap_reason"] == "MAX_ATTEMPTS_REACHED"
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )
+    assert [item["multiplier"] for item in controller["active"]["attempts"]] == [
+        1,
+        2,
+    ]
+
+
+def test_proof_retry_does_not_spin_on_non_solver_input_errors(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-bad-input"),
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    runner = ScenarioRunner(
+        stage2=[_plan([], canonicalization_errors=1)],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 1}
+    assert not (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    ).exists()
+
+
+def test_proof_retry_direction_progress_holds_budget_before_escalating(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-progress"),
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {"canonical_digest": "progressing", "status": "UNRESOLVED"}
+    underlying = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([unresolved])],
+    )
+
+    def progress_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if (
+            Path(command[1]).name == "audit_direction_pool.py"
+            and underlying.counts["stage3"] == 2
+        ):
+            _write_json(
+                config.root
+                / "solver-state"
+                / "directions"
+                / "progress.json",
+                {
+                    "completed_directions": 1,
+                    "directions": [{"objective": 9}],
+                },
+            )
+        return completed
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=progress_runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    stage2_commands = [
+        command for stage, command in underlying.calls if stage == "stage2"
+    ]
+    assert [
+        float(command[command.index("--timeout") + 1])
+        for command in stage2_commands
+    ] == [300, 600, 1200]
+    stage3_commands = [
+        command for stage, command in underlying.calls if stage == "stage3"
+    ]
+    assert [
+        float(command[command.index("--timeout") + 1])
+        for command in stage3_commands
+    ] == [300, 600, 600, 1200]
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )
+    attempts = controller["active"]["attempts"]
+    assert [item["multiplier"] for item in attempts] == [1, 2, 2, 4]
+    assert attempts[1]["made_progress"] is True
+    assert attempts[1]["progress_after"]["completed_units"] == 1
+
+
+def test_proof_retry_prepared_attempt_survives_crash_and_resumes(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-crash"),
+        proof_retry_max_attempts=4,
+        proof_retry_backoff_seconds=1,
+    )
+    unresolved = {"canonical_digest": "crash-retry", "status": "UNRESOLVED"}
+    winner, _ = _certificate(config, "crash-retry")
+    runner = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([unresolved]), _plan([winner])],
+    )
+
+    def interrupt_backoff(_seconds: float) -> None:
+        raise KeyboardInterrupt
+
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+            sleeper=interrupt_backoff,
+        ).run()
+
+    controller_path = (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    )
+    interrupted = json.loads(controller_path.read_text())
+    assert [item["status"] for item in interrupted["active"]["attempts"]] == [
+        "COMPLETED_INCOMPLETE",
+        "PREPARED",
+    ]
+    assert interrupted["active"]["attempts"][-1]["multiplier"] == 2
+    assert runner.counts == {"stage2": 1, "stage3": 1}
+
+    sleeps: list[float] = []
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=sleeps.append,
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert sleeps == [1]
+    assert runner.counts == {"stage2": 2, "stage3": 2, "strict": 1}
+    completed = json.loads(controller_path.read_text())["active"]
+    assert [item["attempt"] for item in completed["attempts"]] == [1, 2]
+    assert completed["attempts"][-1]["status"] == "COMPLETED_WIN"
+
+
+def test_proof_retry_campaign_total_timeout_caps_after_current_attempt(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-total-timeout"),
+        proof_retry_max_attempts=6,
+        proof_retry_campaign_total_timeout=0.5,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {"canonical_digest": "total-timeout", "status": "UNRESOLVED"}
+    runner = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([unresolved])],
+    )
+    clock = iter([0.0, 1.0])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+        monotonic=lambda: next(clock),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 1, "stage3": 1}
+    assert state["proof_retry"]["cap_reason"] == (
+        "CAMPAIGN_TOTAL_TIMEOUT_REACHED"
+    )
+
+
+def test_proof_retry_win_stops_before_later_budgets(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-win"),
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {"canonical_digest": "retry-win", "status": "UNRESOLVED"}
+    winner, _ = _certificate(config, "retry-win")
+    runner = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([unresolved]), _plan([winner])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "stage3": 2, "strict": 1}
+    stage2_commands = [
+        command for stage, command in runner.calls if stage == "stage2"
+    ]
+    assert [
+        float(command[command.index("--timeout") + 1])
+        for command in stage2_commands
+    ] == [300, 600]
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )
+    assert controller["active"]["status"] == "COMPLETED_WIN"
+    assert [item["multiplier"] for item in controller["active"]["attempts"]] == [
+        1,
+        2,
+    ]
 
 
 def test_exact_certificate_loser_is_terminal_no_win(tmp_path):

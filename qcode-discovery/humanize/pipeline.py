@@ -22,6 +22,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import types
 import uuid
 from contextlib import ExitStack, contextmanager
@@ -46,6 +47,8 @@ PIPELINE_SCHEMA_VERSION = 1
 REVIEW_PROMPT_VERSION = 1
 STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = 1
 STAGE2_SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
+PROOF_RETRY_CONTROLLER_SCHEMA_VERSION = 1
+PROOF_RETRY_CONTROLLER_GATE = "qldpc-proof-retry-controller"
 MAX_AUTOMATIC_PROOF_PASSES = 64
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
 STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
@@ -581,6 +584,10 @@ class PipelineConfig:
     certificate_total_timeout: float = 7200
     verification_timeout_per_logical: float = 300
     verification_total_timeout: float = 7200
+    proof_retry_max_attempts: int = 6
+    proof_retry_max_multiplier: float = 4
+    proof_retry_campaign_total_timeout: float = 86400
+    proof_retry_backoff_seconds: float = 2
 
     known_answer_artifact: Path | None = None
     known_answer_trust: Path | None = None
@@ -706,6 +713,10 @@ class PipelineConfig:
             "certificate_total_timeout": self.certificate_total_timeout,
             "verification_timeout_per_logical": self.verification_timeout_per_logical,
             "verification_total_timeout": self.verification_total_timeout,
+            "proof_retry_max_multiplier": self.proof_retry_max_multiplier,
+            "proof_retry_campaign_total_timeout": (
+                self.proof_retry_campaign_total_timeout
+            ),
             "known_answer_timeout_per_logical": self.known_answer_timeout_per_logical,
             "known_answer_total_timeout": self.known_answer_total_timeout,
         }
@@ -720,10 +731,21 @@ class PipelineConfig:
             "certificate_workers": self.certificate_workers,
             "certificate_solver_workers": self.certificate_solver_workers,
             "max_total_workers": self.max_total_workers,
+            "proof_retry_max_attempts": self.proof_retry_max_attempts,
         }
         for name, value in worker_values.items():
             if isinstance(value, bool) or not isinstance(value, int) or value < 1:
                 raise ValueError(f"{name} must be a positive integer")
+        if (
+            isinstance(self.proof_retry_backoff_seconds, bool)
+            or not math.isfinite(float(self.proof_retry_backoff_seconds))
+            or self.proof_retry_backoff_seconds < 0
+        ):
+            raise ValueError(
+                "proof_retry_backoff_seconds must be finite and non-negative"
+            )
+        if self.proof_retry_max_multiplier < 1:
+            raise ValueError("proof_retry_max_multiplier must be at least 1")
         if self.certificate_solver_workers > 8:
             raise ValueError("certificate_solver_workers must be between 1 and 8")
         for candidates, solvers, label in (
@@ -785,6 +807,12 @@ class PipelineConfig:
             "certificate_total_timeout": self.certificate_total_timeout,
             "verification_timeout_per_logical": self.verification_timeout_per_logical,
             "verification_total_timeout": self.verification_total_timeout,
+            "proof_retry_max_attempts": self.proof_retry_max_attempts,
+            "proof_retry_max_multiplier": self.proof_retry_max_multiplier,
+            "proof_retry_campaign_total_timeout": (
+                self.proof_retry_campaign_total_timeout
+            ),
+            "proof_retry_backoff_seconds": self.proof_retry_backoff_seconds,
             "known_answer_artifact": str(self.known_answer_artifact),
             "known_answer_trust": str(self.known_answer_trust),
             "known_answer_timeout_per_logical": (self.known_answer_timeout_per_logical),
@@ -937,6 +965,38 @@ class PipelineConfig:
                     7200,
                 )
             ),
+            proof_retry_max_attempts=int(
+                pick(
+                    "proof_retry_max_attempts",
+                    "proof_retry",
+                    "max_attempts",
+                    6,
+                )
+            ),
+            proof_retry_max_multiplier=float(
+                pick(
+                    "proof_retry_max_multiplier",
+                    "proof_retry",
+                    "max_multiplier",
+                    4,
+                )
+            ),
+            proof_retry_campaign_total_timeout=float(
+                pick(
+                    "proof_retry_campaign_total_timeout",
+                    "proof_retry",
+                    "campaign_total_timeout",
+                    86400,
+                )
+            ),
+            proof_retry_backoff_seconds=float(
+                pick(
+                    "proof_retry_backoff_seconds",
+                    "proof_retry",
+                    "backoff_seconds",
+                    2,
+                )
+            ),
             known_answer_artifact=(
                 None if known_artifact is None else _resolve_path(known_artifact, base)
             ),
@@ -990,6 +1050,7 @@ class PipelinePaths:
     stage2_ranked: Path = field(init=False)
     stage2_summary: Path = field(init=False)
     stage2_selection_ledger: Path = field(init=False)
+    proof_retry_controller: Path = field(init=False)
     stage3_ranked: Path = field(init=False)
     stage3_summary: Path = field(init=False)
     stage3_thresholds: Path = field(init=False)
@@ -1017,6 +1078,11 @@ class PipelinePaths:
             self,
             "stage2_selection_ledger",
             root / "solver-state" / "stage2-selection-ledger.json",
+        )
+        object.__setattr__(
+            self,
+            "proof_retry_controller",
+            root / "solver-state" / "proof-retry-controller.json",
         )
         object.__setattr__(
             self, "stage3_ranked", root / "artifacts" / "stage3-ranked.jsonl"
@@ -1060,12 +1126,17 @@ class FiveStagePipeline:
         command_runner: CommandRunner = default_command_runner,
         flow_factory: FlowFactory = HumanizeFlow,
         reviewer: StageReviewer | Callable[..., dict[str, Any]] | None = None,
+        sleeper: Callable[[float], None] = time.sleep,
+        monotonic: Callable[[], float] = time.monotonic,
     ):
         self.config = config
         self.paths = PipelinePaths(config.root)
         self.command_runner = command_runner
         self.flow_factory = flow_factory
         self.reviewer = reviewer
+        self._sleeper = sleeper
+        self._monotonic = monotonic
+        self._proof_budget_multiplier = 1.0
         self._humanize_run_lease: _HumanizeRunLease | None = None
         if self.reviewer is None and config.stage_review:
             self.reviewer = CodexReviewer(
@@ -2216,6 +2287,17 @@ class FiveStagePipeline:
             values = [values]
         return [_resolve_path(value, self.config.repo_dir) for value in values]
 
+    def _scaled_proof_timeout(self, value: float) -> float:
+        """Scale proof time only; retry attempts never increase concurrency."""
+
+        scaled = float(value) * float(self._proof_budget_multiplier)
+        if not math.isfinite(scaled) or scaled <= 0:
+            raise PipelineError(
+                "INVALID_PROOF_RETRY_BUDGET",
+                "scaled proof timeout must be positive and finite",
+            )
+        return scaled
+
     def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
         command = [
             self.config.python_executable,
@@ -2232,7 +2314,7 @@ class FiveStagePipeline:
             "--selection-ledger",
             str(self.paths.stage2_selection_ledger),
             "--timeout",
-            str(self.config.stage2_timeout),
+            str(self._scaled_proof_timeout(self.config.stage2_timeout)),
             "--candidate-workers",
             str(self.config.stage2_candidate_workers),
             "--solver-workers",
@@ -2247,13 +2329,29 @@ class FiveStagePipeline:
             "--known-answer-artifact",
             str(self.config.known_answer_artifact),
             "--certificate-timeout-per-logical",
-            str(self.config.certificate_timeout_per_logical),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.certificate_timeout_per_logical
+                )
+            ),
             "--certificate-total-timeout",
-            str(self.config.certificate_total_timeout),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.certificate_total_timeout
+                )
+            ),
             "--verification-timeout-per-logical",
-            str(self.config.verification_timeout_per_logical),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.verification_timeout_per_logical
+                )
+            ),
             "--verification-total-timeout",
-            str(self.config.verification_total_timeout),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.verification_total_timeout
+                )
+            ),
             "--resume" if self.config.resume else "--no-resume",
         ]
         return command
@@ -2306,7 +2404,7 @@ class FiveStagePipeline:
             "--top",
             str(self.config.stage3_top),
             "--timeout",
-            str(self.config.stage3_timeout),
+            str(self._scaled_proof_timeout(self.config.stage3_timeout)),
             "--candidate-workers",
             str(self.config.stage3_candidate_workers),
             "--direction-workers",
@@ -2321,13 +2419,29 @@ class FiveStagePipeline:
             "--known-answer-artifact",
             str(self.config.known_answer_artifact),
             "--certificate-timeout-per-logical",
-            str(self.config.certificate_timeout_per_logical),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.certificate_timeout_per_logical
+                )
+            ),
             "--certificate-total-timeout",
-            str(self.config.certificate_total_timeout),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.certificate_total_timeout
+                )
+            ),
             "--verification-timeout-per-logical",
-            str(self.config.verification_timeout_per_logical),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.verification_timeout_per_logical
+                )
+            ),
             "--verification-total-timeout",
-            str(self.config.verification_total_timeout),
+            str(
+                self._scaled_proof_timeout(
+                    self.config.verification_total_timeout
+                )
+            ),
             "--resume" if self.config.resume else "--no-resume",
         ]
         if self.config.stage3_exact:
@@ -3567,6 +3681,582 @@ class FiveStagePipeline:
             )
         return value
 
+    def _proof_retry_base_config(self) -> dict[str, Any]:
+        """Return the immutable retry binding; workers are never multiplied."""
+
+        return {
+            "stage2_top": self.config.stage2_top,
+            "stage2_timeout": self.config.stage2_timeout,
+            "stage2_candidate_workers": self.config.stage2_candidate_workers,
+            "stage2_solver_workers": self.config.stage2_solver_workers,
+            "stage3_top": self.config.stage3_top,
+            "stage3_timeout": self.config.stage3_timeout,
+            "stage3_candidate_workers": self.config.stage3_candidate_workers,
+            "stage3_direction_workers": self.config.stage3_direction_workers,
+            "stage3_exact": self.config.stage3_exact,
+            "certificate_workers": self.config.certificate_workers,
+            "certificate_solver_workers": self.config.certificate_solver_workers,
+            "certificate_timeout_per_logical": (
+                self.config.certificate_timeout_per_logical
+            ),
+            "certificate_total_timeout": self.config.certificate_total_timeout,
+            "verification_timeout_per_logical": (
+                self.config.verification_timeout_per_logical
+            ),
+            "verification_total_timeout": (
+                self.config.verification_total_timeout
+            ),
+            "max_total_workers": self.config.max_total_workers,
+            "max_attempts": self.config.proof_retry_max_attempts,
+            "max_multiplier": self.config.proof_retry_max_multiplier,
+            "campaign_total_timeout": (
+                self.config.proof_retry_campaign_total_timeout
+            ),
+        }
+
+    @staticmethod
+    def _proof_retry_eligible(incompleteness: Mapping[str, Any]) -> bool:
+        """Retry only solver/certificate liveness failures, not bad inputs."""
+
+        retryable_codes = {
+            "STAGE2_CERTIFICATE_INCOMPLETE",
+            "STAGE2_OPERATIONAL_ERROR",
+            "STAGE2_OPERATIONAL_ERRORS",
+            "STAGE2_CERTIFICATE_OPERATIONAL_ERRORS",
+            "STAGE3_RESULT_MISSING",
+            "STAGE3_PROOF_INCOMPLETE",
+            "STAGE3_OPERATIONAL_ERROR",
+            "STAGE3_OPERATIONAL_ERRORS",
+            "STAGE3_CERTIFICATE_INCOMPLETE",
+        }
+        return any(
+            isinstance(reason, Mapping)
+            and reason.get("code") in retryable_codes
+            for reason in incompleteness.get("reasons", [])
+        )
+
+    def _current_proof_retry_binding(self) -> dict[str, Any] | None:
+        """Bind retries to exactly one durable page and current proof sources."""
+
+        if not self.paths.stage2_summary.is_file():
+            return None
+        try:
+            summary = _read_json_object(self.paths.stage2_summary)
+        except PipelineError:
+            return None
+        if summary.get("gate") != "qldpc-proof-oriented-candidate-pool":
+            return None
+        page = summary.get("selection_page")
+        selected_digests: list[str] = []
+        if isinstance(page, Mapping):
+            raw_digests = page.get("selected_digests")
+            if not isinstance(raw_digests, list) or any(
+                not isinstance(item, str) or not item for item in raw_digests
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 retry page has invalid selected_digests",
+                    stage="stage2_sector_audit",
+                )
+            selected_digests = list(raw_digests)
+            page_payload = {
+                "binding_sha256": page.get("binding_sha256"),
+                "start_index": page.get("start_index"),
+                "next_index": page.get("next_index"),
+                "selected_digests": selected_digests,
+            }
+            page_sha256 = _canonical_sha256(page_payload)
+            if page.get("page_sha256") != page_sha256:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 retry page hash does not replay",
+                    stage="stage2_sector_audit",
+                )
+            selection_binding = page.get("binding_sha256")
+            if self.paths.stage2_selection_ledger.is_file():
+                ledger = _read_json_object(
+                    self.paths.stage2_selection_ledger
+                )
+                if (
+                    ledger.get("schema_version")
+                    != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
+                    or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
+                    or ledger.get("binding_sha256") != selection_binding
+                ):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "proof retry selection ledger has an invalid binding",
+                        stage="stage2_sector_audit",
+                    )
+                # A crash after page acknowledgement but before the pipeline
+                # state update must start the new cursor at 1x.  It may not
+                # spend an old page's prepared retry on a different page.
+                if (
+                    ledger.get("pending") != dict(page)
+                    or ledger.get("cursor") != page.get("start_index")
+                ):
+                    return None
+        else:
+            for result in summary.get("results", []):
+                if not isinstance(result, Mapping):
+                    continue
+                digest = result.get("canonical_digest")
+                if isinstance(digest, str) and digest:
+                    selected_digests.append(digest)
+            selection_binding = None
+            page_sha256 = _canonical_sha256(
+                {
+                    "legacy_page": True,
+                    "selected_digests": selected_digests,
+                    "stage2_inputs": self.state.get("stages", {})
+                    .get("stage2_sector_audit", {})
+                    .get("input_hashes", {}),
+                }
+            )
+        if len(set(selected_digests)) != len(selected_digests):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 retry page repeats a canonical digest",
+                stage="stage2_sector_audit",
+            )
+        source = self._audit_source_provenance()
+        base_config = self._proof_retry_base_config()
+        binding = {
+            "page_sha256": page_sha256,
+            "selection_binding_sha256": selection_binding,
+            "selected_digests": selected_digests,
+            "candidate_digests_sha256": _canonical_sha256(selected_digests),
+            "source_fingerprint": source["source_fingerprint"],
+            "controller_source_sha256": source["controller_source_sha256"],
+            "known_code_registry_sha256": source[
+                "known_code_registry_sha256"
+            ],
+            "proof_config_sha256": _canonical_sha256(base_config),
+            "stage1_outputs_sha256": _canonical_sha256(
+                self.state.get("stages", {})
+                .get("stage1_search", {})
+                .get("output_hashes", {})
+            ),
+        }
+        return {
+            **binding,
+            "binding_sha256": _canonical_sha256(binding),
+        }
+
+    def _proof_progress_snapshot(self) -> dict[str, Any]:
+        """Count durable sector/direction checkpoints without trusting results."""
+
+        self._ensure_solver_state_tree_safe()
+        roots = (
+            self.paths.solver_state / "xor",
+            self.paths.solver_state / "directions",
+            self.paths.solver_state / "checkpoints",
+        )
+        units: dict[str, dict[str, Any]] = {}
+        for root in roots:
+            if not root.is_dir():
+                continue
+            for path in sorted(root.glob("*.json")):
+                try:
+                    value = json.loads(path.read_text())
+                except (OSError, UnicodeError, json.JSONDecodeError):
+                    continue
+                if not isinstance(value, Mapping):
+                    continue
+                candidates: list[int] = []
+                for key in ("completed_directions", "completed_sectors"):
+                    raw = value.get(key)
+                    if (
+                        isinstance(raw, int)
+                        and not isinstance(raw, bool)
+                        and raw >= 0
+                    ):
+                        candidates.append(raw)
+                for key in ("directions", "sectors"):
+                    raw = value.get(key)
+                    if isinstance(raw, list):
+                        candidates.append(len(raw))
+                completed = max(candidates, default=0)
+                if completed:
+                    relative = path.relative_to(self.paths.solver_state).as_posix()
+                    units[relative] = {
+                        "completed_units": completed,
+                        "sha256": _file_sha256(path),
+                    }
+        return {
+            "completed_units": sum(
+                int(item["completed_units"]) for item in units.values()
+            ),
+            "checkpoint_count": len(units),
+            "checkpoints_sha256": _canonical_sha256(units),
+            "units": units,
+        }
+
+    def _load_proof_retry_controller(self) -> dict[str, Any]:
+        if not self.paths.proof_retry_controller.is_file():
+            return {
+                "schema_version": PROOF_RETRY_CONTROLLER_SCHEMA_VERSION,
+                "gate": PROOF_RETRY_CONTROLLER_GATE,
+                "created_at": utc_now(),
+                "active": None,
+                "history": [],
+            }
+        value = _read_json_object(self.paths.proof_retry_controller)
+        if (
+            value.get("schema_version")
+            != PROOF_RETRY_CONTROLLER_SCHEMA_VERSION
+            or value.get("gate") != PROOF_RETRY_CONTROLLER_GATE
+            or not isinstance(value.get("history"), list)
+            or (
+                value.get("active") is not None
+                and not isinstance(value.get("active"), Mapping)
+            )
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "invalid durable proof retry controller",
+                stage="stage2_sector_audit",
+            )
+        active = value.get("active")
+        if isinstance(active, Mapping):
+            binding = active.get("binding")
+            attempts = active.get("attempts")
+            binding_sha256 = active.get("binding_sha256")
+            if not isinstance(binding, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "proof retry controller lacks its binding",
+                    stage="stage2_sector_audit",
+                )
+            unsigned_binding = dict(binding)
+            embedded_sha256 = unsigned_binding.pop("binding_sha256", None)
+            if not (
+                isinstance(binding_sha256, str)
+                and embedded_sha256 == binding_sha256
+                and _canonical_sha256(unsigned_binding) == binding_sha256
+                and isinstance(attempts, list)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "proof retry controller binding does not replay",
+                    stage="stage2_sector_audit",
+                )
+            prepared_seen = False
+            for index, attempt in enumerate(attempts, start=1):
+                if (
+                    not isinstance(attempt, Mapping)
+                    or attempt.get("attempt") != index
+                    or attempt.get("status")
+                    not in {
+                        "PREPARED",
+                        "COMPLETED_INCOMPLETE",
+                        "COMPLETED_WIN",
+                        "COMPLETED_NO_WIN",
+                        "FAILED",
+                    }
+                ):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "proof retry controller has invalid attempt history",
+                        stage="stage2_sector_audit",
+                    )
+                multiplier = attempt.get("multiplier")
+                if (
+                    isinstance(multiplier, bool)
+                    or not isinstance(multiplier, (int, float))
+                    or not math.isfinite(float(multiplier))
+                    or multiplier < 1
+                    or prepared_seen
+                ):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "proof retry controller has an invalid multiplier/order",
+                        stage="stage2_sector_audit",
+                    )
+                prepared_seen = attempt.get("status") == "PREPARED"
+                if prepared_seen and index != len(attempts):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "only the last proof retry attempt may be prepared",
+                        stage="stage2_sector_audit",
+                    )
+        return value
+
+    def _write_proof_retry_controller(
+        self,
+        controller: Mapping[str, Any],
+    ) -> None:
+        atomic_write_json(self.paths.proof_retry_controller, controller)
+        self._ensure_solver_state_tree_safe()
+
+    def _activate_proof_retry_binding(
+        self,
+        controller: dict[str, Any],
+        binding: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        active = controller.get("active")
+        if (
+            isinstance(active, Mapping)
+            and active.get("binding_sha256") == binding.get("binding_sha256")
+        ):
+            return dict(active)
+        if isinstance(active, Mapping):
+            archived = dict(active)
+            archived["archived_at"] = utc_now()
+            if archived.get("status") == "ACTIVE":
+                archived["status"] = "SUPERSEDED"
+            controller.setdefault("history", []).append(archived)
+            controller["history"] = controller["history"][-128:]
+        active = {
+            "binding": dict(binding),
+            "binding_sha256": binding["binding_sha256"],
+            "status": "ACTIVE",
+            "started_at": utc_now(),
+            "elapsed_seconds": 0.0,
+            "attempts": [],
+        }
+        controller["active"] = active
+        self._write_proof_retry_controller(controller)
+        return active
+
+    @staticmethod
+    def _proof_progress_made(
+        before: Mapping[str, Any],
+        after: Mapping[str, Any],
+    ) -> bool:
+        before_units = before.get("units", {})
+        after_units = after.get("units", {})
+        if not isinstance(before_units, Mapping) or not isinstance(
+            after_units, Mapping
+        ):
+            return False
+        for path, raw_after in after_units.items():
+            if not isinstance(raw_after, Mapping):
+                continue
+            raw_before = before_units.get(path, {})
+            previous = (
+                raw_before.get("completed_units", 0)
+                if isinstance(raw_before, Mapping)
+                else 0
+            )
+            current = raw_after.get("completed_units", 0)
+            if (
+                isinstance(previous, int)
+                and isinstance(current, int)
+                and current > previous
+            ):
+                return True
+        return False
+
+    def _adopt_initial_proof_attempt(
+        self,
+        controller: dict[str, Any],
+        active: dict[str, Any],
+        *,
+        duration: float,
+        incompleteness: Mapping[str, Any],
+    ) -> None:
+        progress = self._proof_progress_snapshot()
+        empty_progress = {
+            "completed_units": 0,
+            "checkpoint_count": 0,
+            "checkpoints_sha256": _canonical_sha256({}),
+            "units": {},
+        }
+        attempts = active.setdefault("attempts", [])
+        attempts.append(
+            {
+                "attempt": len(attempts) + 1,
+                "multiplier": 1.0,
+                "status": "COMPLETED_INCOMPLETE",
+                "adopted_initial_attempt": True,
+                "prepared_at": self.state.get("incomplete_at", utc_now()),
+                "completed_at": utc_now(),
+                "duration_seconds": max(0.0, float(duration)),
+                "progress_before": empty_progress,
+                "progress_after": progress,
+                "made_progress": self._proof_progress_made(
+                    empty_progress, progress
+                ),
+                "proof_incompleteness_sha256": _canonical_sha256(
+                    incompleteness
+                ),
+            }
+        )
+        active["elapsed_seconds"] = float(
+            active.get("elapsed_seconds", 0)
+        ) + max(0.0, float(duration))
+        controller["active"] = active
+        self._write_proof_retry_controller(controller)
+
+    def _proof_retry_decision(
+        self,
+        active: Mapping[str, Any],
+    ) -> tuple[float | None, str | None]:
+        attempts = active.get("attempts", [])
+        if not isinstance(attempts, list) or not attempts:
+            return 1.0, None
+        if len(attempts) >= self.config.proof_retry_max_attempts:
+            return None, "MAX_ATTEMPTS_REACHED"
+        elapsed = active.get("elapsed_seconds", 0)
+        if (
+            not isinstance(elapsed, (int, float))
+            or isinstance(elapsed, bool)
+            or elapsed >= self.config.proof_retry_campaign_total_timeout
+        ):
+            return None, "CAMPAIGN_TOTAL_TIMEOUT_REACHED"
+        latest = attempts[-1]
+        if not isinstance(latest, Mapping):
+            return None, "INVALID_ATTEMPT_HISTORY"
+        if latest.get("status") == "PREPARED":
+            multiplier = latest.get("multiplier")
+            if isinstance(multiplier, (int, float)) and not isinstance(
+                multiplier, bool
+            ) and 1 <= float(multiplier) <= float(
+                self.config.proof_retry_max_multiplier
+            ):
+                return float(multiplier), None
+            return None, "INVALID_PREPARED_BUDGET"
+        multiplier = float(latest.get("multiplier", 1))
+        if latest.get("made_progress") is True:
+            return multiplier, None
+        maximum = float(self.config.proof_retry_max_multiplier)
+        if multiplier >= maximum:
+            return None, "NO_PROGRESS_AT_MAX_MULTIPLIER"
+        return min(maximum, multiplier * 2), None
+
+    def _prepare_proof_retry_attempt(
+        self,
+        controller: dict[str, Any],
+        active: dict[str, Any],
+        multiplier: float,
+    ) -> dict[str, Any]:
+        attempts = active.setdefault("attempts", [])
+        if attempts and attempts[-1].get("status") == "PREPARED":
+            attempt = attempts[-1]
+        else:
+            attempt = {
+                "attempt": len(attempts) + 1,
+                "multiplier": float(multiplier),
+                "status": "PREPARED",
+                "prepared_at": utc_now(),
+                "execution_attempt_before": int(
+                    self.state.get("execution_attempt", 0)
+                ),
+                "binding_sha256": active["binding_sha256"],
+                "selected_digests": list(
+                    active.get("binding", {}).get("selected_digests", [])
+                ),
+                "budget": {
+                    "stage2_timeout": self.config.stage2_timeout * multiplier,
+                    "stage3_timeout": self.config.stage3_timeout * multiplier,
+                    "certificate_timeout_per_logical": (
+                        self.config.certificate_timeout_per_logical * multiplier
+                    ),
+                    "certificate_total_timeout": (
+                        self.config.certificate_total_timeout * multiplier
+                    ),
+                    "verification_timeout_per_logical": (
+                        self.config.verification_timeout_per_logical * multiplier
+                    ),
+                    "verification_total_timeout": (
+                        self.config.verification_total_timeout * multiplier
+                    ),
+                    "max_total_workers": self.config.max_total_workers,
+                },
+                "progress_before": self._proof_progress_snapshot(),
+            }
+            attempts.append(attempt)
+            controller["active"] = active
+            self._write_proof_retry_controller(controller)
+        if attempt.get("backoff_completed_at") is None:
+            self._sleeper(float(self.config.proof_retry_backoff_seconds))
+            attempt["backoff_completed_at"] = utc_now()
+            self._write_proof_retry_controller(controller)
+        return attempt
+
+    def _complete_prepared_proof_attempt(
+        self,
+        controller: dict[str, Any],
+        active: dict[str, Any],
+        *,
+        status: str,
+        duration: float,
+        incompleteness: Mapping[str, Any] | None,
+    ) -> None:
+        attempts = active.get("attempts", [])
+        if not attempts or attempts[-1].get("status") != "PREPARED":
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "proof retry completion lacks its durable prepared attempt",
+                stage="stage2_sector_audit",
+            )
+        attempt = attempts[-1]
+        after = self._proof_progress_snapshot()
+        before = attempt.get("progress_before", {})
+        attempt.update(
+            {
+                "status": status,
+                "completed_at": utc_now(),
+                "duration_seconds": max(0.0, float(duration)),
+                "progress_after": after,
+                "made_progress": self._proof_progress_made(before, after),
+                "execution_attempt_after": int(
+                    self.state.get("execution_attempt", 0)
+                ),
+            }
+        )
+        if incompleteness is not None:
+            attempt["proof_incompleteness_sha256"] = _canonical_sha256(
+                incompleteness
+            )
+        active["elapsed_seconds"] = float(
+            active.get("elapsed_seconds", 0)
+        ) + max(0.0, float(duration))
+        if status in {"COMPLETED_WIN", "COMPLETED_NO_WIN"}:
+            active["status"] = status
+            active["finished_at"] = utc_now()
+        controller["active"] = active
+        self._write_proof_retry_controller(controller)
+
+    def _mark_proof_retry_capped(
+        self,
+        controller: dict[str, Any],
+        active: dict[str, Any],
+        reason: str,
+    ) -> dict[str, Any]:
+        active.update(
+            {
+                "status": "CAPPED",
+                "cap_reason": reason,
+                "capped_at": utc_now(),
+                "resume_required": True,
+            }
+        )
+        controller["active"] = active
+        self._write_proof_retry_controller(controller)
+        public = {
+            "binding_sha256": active["binding_sha256"],
+            "status": "CAPPED",
+            "cap_reason": reason,
+            "attempts": len(active.get("attempts", [])),
+            "elapsed_seconds": active.get("elapsed_seconds", 0),
+            "resume_required": True,
+            "controller_path": str(self.paths.proof_retry_controller),
+        }
+        self.state["proof_retry"] = public
+        self.state.setdefault("stage2_pagination", {}).update(
+            {
+                "resume_required": True,
+                "proof_retry_cap_reason": reason,
+            }
+        )
+        result = self.state.get("result")
+        if isinstance(result, dict):
+            result["proof_retry"] = public
+        self._write_state()
+        return self.state
+
     def _record_failure(self, error: PipelineError) -> dict[str, Any]:
         stage = error.stage or self.state.get("active_stage")
         if stage in self.state.get("stages", {}):
@@ -3636,7 +4326,10 @@ class FiveStagePipeline:
             stage2_command = self._stage2_command(candidates)
             stage2_static_config = {
                 "top": self.config.stage2_top,
-                "timeout": self.config.stage2_timeout,
+                "timeout": self._scaled_proof_timeout(
+                    self.config.stage2_timeout
+                ),
+                "proof_budget_multiplier": self._proof_budget_multiplier,
                 "candidate_workers": self.config.stage2_candidate_workers,
                 "solver_workers": self.config.stage2_solver_workers,
                 "certificate_workers": self.config.certificate_workers,
@@ -3644,10 +4337,18 @@ class FiveStagePipeline:
                     self.config.certificate_solver_workers
                 ),
                 "certificate_timeouts": [
-                    self.config.certificate_timeout_per_logical,
-                    self.config.certificate_total_timeout,
-                    self.config.verification_timeout_per_logical,
-                    self.config.verification_total_timeout,
+                    self._scaled_proof_timeout(
+                        self.config.certificate_timeout_per_logical
+                    ),
+                    self._scaled_proof_timeout(
+                        self.config.certificate_total_timeout
+                    ),
+                    self._scaled_proof_timeout(
+                        self.config.verification_timeout_per_logical
+                    ),
+                    self._scaled_proof_timeout(
+                        self.config.verification_total_timeout
+                    ),
                 ],
                 "max_total_workers": self.config.max_total_workers,
                 "resume": self.config.resume,
@@ -3716,7 +4417,10 @@ class FiveStagePipeline:
             stage3_static_config = {
                 "routing": "audit" if has_unresolved else "skip-no-unresolved",
                 "top": self.config.stage3_top,
-                "timeout": self.config.stage3_timeout,
+                "timeout": self._scaled_proof_timeout(
+                    self.config.stage3_timeout
+                ),
+                "proof_budget_multiplier": self._proof_budget_multiplier,
                 "candidate_workers": self.config.stage3_candidate_workers,
                 "direction_workers": self.config.stage3_direction_workers,
                 "exact": self.config.stage3_exact,
@@ -3725,10 +4429,18 @@ class FiveStagePipeline:
                     self.config.certificate_solver_workers
                 ),
                 "certificate_timeouts": [
-                    self.config.certificate_timeout_per_logical,
-                    self.config.certificate_total_timeout,
-                    self.config.verification_timeout_per_logical,
-                    self.config.verification_total_timeout,
+                    self._scaled_proof_timeout(
+                        self.config.certificate_timeout_per_logical
+                    ),
+                    self._scaled_proof_timeout(
+                        self.config.certificate_total_timeout
+                    ),
+                    self._scaled_proof_timeout(
+                        self.config.verification_timeout_per_logical
+                    ),
+                    self._scaled_proof_timeout(
+                        self.config.verification_total_timeout
+                    ),
                 ],
                 "max_total_workers": self.config.max_total_workers,
                 "resume": self.config.resume,
@@ -4011,30 +4723,207 @@ class FiveStagePipeline:
         """Run synchronously, advancing terminal proof pages under one lock."""
 
         with self._exclusive_lock():
+            # max_attempts=1 is the explicit compatibility/diagnostic mode:
+            # one proof pass per invocation and no in-process retry sleep.
+            if self.config.proof_retry_max_attempts == 1:
+                state: dict[str, Any] = {}
+                for automatic_pass in range(
+                    1, MAX_AUTOMATIC_PROOF_PASSES + 1
+                ):
+                    state = self._run_locked()
+                    if state.get("status") != "INCOMPLETE":
+                        return state
+                    try:
+                        advanced = self._acknowledge_completed_stage2_page(
+                            state
+                        )
+                    except PipelineError as exc:
+                        return self._record_failure(exc)
+                    if not advanced:
+                        return state
+                    self.state.setdefault("stage2_pagination", {})[
+                        "automatic_passes"
+                    ] = automatic_pass
+                    self._write_state()
+                self.state.setdefault("stage2_pagination", {}).update(
+                    {
+                        "automatic_pass_limit": (
+                            MAX_AUTOMATIC_PROOF_PASSES
+                        ),
+                        "resume_required": True,
+                        "limit_reached_at": utc_now(),
+                    }
+                )
+                self._write_state()
+                return self.state
+
+            # Load once before selecting a recovered PREPARED retry.  Each
+            # _run_locked call reloads again before executing its stage state
+            # machine, so a killed process can resume the same prepared budget.
+            self._load_or_initialize_state()
+            controller = self._load_proof_retry_controller()
+            force_fresh_page = False
             state: dict[str, Any] = {}
             for automatic_pass in range(1, MAX_AUTOMATIC_PROOF_PASSES + 1):
-                state = self._run_locked()
+                active: dict[str, Any] | None = None
+                prepared: dict[str, Any] | None = None
+                multiplier = 1.0
+                binding = (
+                    None
+                    if force_fresh_page
+                    else self._current_proof_retry_binding()
+                )
+                force_fresh_page = False
+                raw_active = controller.get("active")
+                if (
+                    isinstance(binding, Mapping)
+                    and isinstance(raw_active, Mapping)
+                    and raw_active.get("binding_sha256")
+                    == binding.get("binding_sha256")
+                ):
+                    active = dict(raw_active)
+                    attempts = active.get("attempts", [])
+                    latest = (
+                        attempts[-1]
+                        if isinstance(attempts, list) and attempts
+                        else None
+                    )
+                    if active.get("status") == "CAPPED":
+                        return self._mark_proof_retry_capped(
+                            controller,
+                            active,
+                            str(
+                                active.get(
+                                    "cap_reason",
+                                    "RETRY_CONTROLLER_ALREADY_CAPPED",
+                                )
+                            ),
+                        )
+                    should_resume_prepared = bool(
+                        isinstance(latest, Mapping)
+                        and latest.get("status") == "PREPARED"
+                    )
+                    current_result = self.state.get("result")
+                    current_incompleteness = (
+                        current_result.get("proof_incompleteness")
+                        if isinstance(current_result, Mapping)
+                        else None
+                    )
+                    should_schedule = bool(
+                        self.state.get("status") == "INCOMPLETE"
+                        and active.get("status") == "ACTIVE"
+                        and isinstance(current_incompleteness, Mapping)
+                        and self._proof_retry_eligible(
+                            current_incompleteness
+                        )
+                    )
+                    if should_resume_prepared or should_schedule:
+                        multiplier, cap_reason = self._proof_retry_decision(
+                            active
+                        )
+                        if multiplier is None:
+                            return self._mark_proof_retry_capped(
+                                controller,
+                                active,
+                                cap_reason or "RETRY_BUDGET_EXHAUSTED",
+                            )
+                        prepared = self._prepare_proof_retry_attempt(
+                            controller,
+                            active,
+                            multiplier,
+                        )
+
+                self._proof_budget_multiplier = multiplier
+                started = self._monotonic()
+                try:
+                    state = self._run_locked()
+                finally:
+                    duration = max(0.0, self._monotonic() - started)
+                    self._proof_budget_multiplier = 1.0
+
+                incompleteness: Mapping[str, Any] | None = None
+                result = state.get("result")
+                if isinstance(result, Mapping) and isinstance(
+                    result.get("proof_incompleteness"), Mapping
+                ):
+                    incompleteness = result["proof_incompleteness"]
+                if prepared is not None and active is not None:
+                    completion_status = {
+                        "COMPLETED_WIN": "COMPLETED_WIN",
+                        "COMPLETED_NO_WIN": "COMPLETED_NO_WIN",
+                        "INCOMPLETE": "COMPLETED_INCOMPLETE",
+                    }.get(str(state.get("status")), "FAILED")
+                    self._complete_prepared_proof_attempt(
+                        controller,
+                        active,
+                        status=completion_status,
+                        duration=duration,
+                        incompleteness=incompleteness,
+                    )
                 if state.get("status") != "INCOMPLETE":
                     return state
                 try:
                     advanced = self._acknowledge_completed_stage2_page(state)
                 except PipelineError as exc:
                     return self._record_failure(exc)
-                if not advanced:
-                    # Unresolved/partial proof work deliberately retains the
-                    # pending page. A later invocation resumes its checkpoints
-                    # without either skipping it or spinning in this process.
+                if advanced:
+                    if active is not None:
+                        active["status"] = "PAGE_COMPLETED"
+                        active["finished_at"] = utc_now()
+                        controller["active"] = active
+                        self._write_proof_retry_controller(controller)
+                    force_fresh_page = True
+                    self.state.setdefault("stage2_pagination", {})[
+                        "automatic_passes"
+                    ] = automatic_pass
+                    self._write_state()
+                    continue
+
+                binding = self._current_proof_retry_binding()
+                if (
+                    binding is None
+                    or incompleteness is None
+                    or not self._proof_retry_eligible(incompleteness)
+                ):
                     return state
+                active = self._activate_proof_retry_binding(
+                    controller, binding
+                )
+                # The first 1x pass creates the page. Adopt it into the retry
+                # ledger only after its complete INCOMPLETE artifact exists.
+                if prepared is None:
+                    self._adopt_initial_proof_attempt(
+                        controller,
+                        active,
+                        duration=duration,
+                        incompleteness=incompleteness,
+                    )
+                next_multiplier, cap_reason = self._proof_retry_decision(active)
+                if next_multiplier is None:
+                    return self._mark_proof_retry_capped(
+                        controller,
+                        active,
+                        cap_reason or "RETRY_BUDGET_EXHAUSTED",
+                    )
                 self.state.setdefault("stage2_pagination", {})[
                     "automatic_passes"
                 ] = automatic_pass
                 self._write_state()
 
-            self.state.setdefault("stage2_pagination", {}).update({
-                "automatic_pass_limit": MAX_AUTOMATIC_PROOF_PASSES,
-                "resume_required": True,
-                "limit_reached_at": utc_now(),
-            })
+            active = controller.get("active")
+            if isinstance(active, Mapping):
+                return self._mark_proof_retry_capped(
+                    controller,
+                    dict(active),
+                    "AUTOMATIC_PASS_LIMIT_REACHED",
+                )
+            self.state.setdefault("stage2_pagination", {}).update(
+                {
+                    "automatic_pass_limit": MAX_AUTOMATIC_PROOF_PASSES,
+                    "resume_required": True,
+                    "limit_reached_at": utc_now(),
+                }
+            )
             self._write_state()
             return self.state
 
