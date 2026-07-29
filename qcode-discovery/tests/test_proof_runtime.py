@@ -3,19 +3,25 @@ from __future__ import annotations
 import copy
 import base64
 import hashlib
+import importlib.metadata
 import os
 import platform
 import shutil
 import stat
 import sys
+import time
 from pathlib import Path
 
 import pytest
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 
 from evaluation import proof_runtime as proof_runtime_module
 from evaluation.proof_runtime import (
+    PROOF_RUNTIME_ROOT_PACKAGES,
     PROOF_RUNTIME_PROBE_MAX_OUTPUT_BYTES,
     PROOF_RUNTIME_SCHEMA_VERSION,
+    PROOF_RUNTIME_TRANSITIVE_PACKAGES,
     RuntimeProbeError,
     SOLVER_RUNTIME_PACKAGES,
     probe_python_runtime,
@@ -32,6 +38,93 @@ NEW_PROOF_PACKAGES = {
     "galois",
     "networkx",
 }
+PROOF_CRITICAL_TRANSITIVE_PACKAGES = {
+    "absl-py",
+    "clarabel",
+    "cffi",
+    "contourpy",
+    "cvxpy",
+    "cycler",
+    "diskcache",
+    "fonttools",
+    "immutabledict",
+    "jinja2",
+    "joblib",
+    "kiwisolver",
+    "llvmlite",
+    "markupsafe",
+    "matplotlib",
+    "mpmath",
+    "numba",
+    "osqp",
+    "packaging",
+    "pandas",
+    "pillow",
+    "platformdirs",
+    "protobuf",
+    "pycparser",
+    "pymatching",
+    "pyparsing",
+    "python-dateutil",
+    "pytz",
+    "scs",
+    "setuptools",
+    "sinter",
+    "six",
+    "stim",
+    "texttable",
+    "tqdm",
+    "typing-extensions",
+}
+PROOF_CRITICAL_DEPENDENCY_EDGES = {
+    "ortools": {
+        "absl-py",
+        "immutabledict",
+        "numpy",
+        "pandas",
+        "protobuf",
+        "typing-extensions",
+    },
+    "qldpc": {
+        "cvxpy",
+        "diskcache",
+        "galois",
+        "ldpc",
+        "networkx",
+        "numpy",
+        "platformdirs",
+        "pymatching",
+        "scipy",
+        "stim",
+        "sympy",
+    },
+    "galois": {"numba", "numpy", "typing-extensions"},
+    "numba": {"llvmlite", "numpy"},
+    "cvxpy": {"clarabel", "highspy", "numpy", "osqp", "scipy", "scs"},
+    "pandas": {"numpy", "python-dateutil"},
+    "python-igraph": {"igraph"},
+    "igraph": {"texttable"},
+    "sympy": {"mpmath"},
+    "ldpc": {"numpy", "pymatching", "scipy", "sinter", "stim", "tqdm"},
+    "pymatching": {"matplotlib", "networkx", "numpy", "scipy"},
+    "sinter": {"matplotlib", "numpy", "scipy", "stim"},
+    "matplotlib": {
+        "contourpy",
+        "cycler",
+        "fonttools",
+        "kiwisolver",
+        "numpy",
+        "packaging",
+        "pillow",
+        "pyparsing",
+        "python-dateutil",
+    },
+    "osqp": {"jinja2", "joblib", "numpy", "scipy", "setuptools"},
+    "jinja2": {"markupsafe"},
+    "clarabel": {"cffi", "numpy", "scipy"},
+    "cffi": {"pycparser"},
+    "python-dateutil": {"six"},
+}
 
 
 @pytest.fixture(scope="module")
@@ -40,8 +133,21 @@ def local_runtime() -> dict[str, object]:
 
 
 def _copy_current_python(destination: Path) -> Path:
+    destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(Path(sys.executable).resolve(), destination)
     destination.chmod(destination.stat().st_mode | stat.S_IXUSR)
+    venv_root = destination.parent.parent
+    (venv_root / "pyvenv.cfg").write_text(
+        "\n".join(
+            [
+                f"home = {Path(sys.base_prefix) / 'bin'}",
+                "include-system-site-packages = false",
+                f"version = {platform.python_version()}",
+                f"executable = {Path(sys.executable).resolve()}",
+                "",
+            ]
+        )
+    )
     return destination
 
 
@@ -51,9 +157,12 @@ def _record_digest(value: bytes) -> str:
     ).rstrip(b"=").decode("ascii")
 
 
-def _fake_networkx_venv(
+def _fake_single_file_distribution_venv(
     root: Path,
     *,
+    distribution_name: str,
+    import_path: str,
+    version: str,
     package_source: str,
 ) -> tuple[Path, Path]:
     python = root / "bin" / "python"
@@ -73,14 +182,18 @@ def _fake_networkx_venv(
     site = root / "lib" / (
         f"python{sys.version_info.major}.{sys.version_info.minor}"
     ) / "site-packages"
-    package = site / "networkx" / "__init__.py"
+    package = site / import_path
     package.parent.mkdir(parents=True)
     package.write_text(package_source)
-    metadata_dir = site / "networkx-9.9.9.dist-info"
+    metadata_dir = site / (
+        f"{distribution_name.replace('-', '_')}-{version}.dist-info"
+    )
     metadata_dir.mkdir()
     metadata = metadata_dir / "METADATA"
     metadata.write_text(
-        "Metadata-Version: 2.1\nName: networkx\nVersion: 9.9.9\n"
+        "Metadata-Version: 2.1\n"
+        f"Name: {distribution_name}\n"
+        f"Version: {version}\n"
     )
     record = metadata_dir / "RECORD"
     package_relative = package.relative_to(site).as_posix()
@@ -104,6 +217,20 @@ def _fake_networkx_venv(
         )
     )
     return python, package
+
+
+def _fake_networkx_venv(
+    root: Path,
+    *,
+    package_source: str,
+) -> tuple[Path, Path]:
+    return _fake_single_file_distribution_venv(
+        root,
+        distribution_name="networkx",
+        import_path="networkx/__init__.py",
+        version="9.9.9",
+        package_source=package_source,
+    )
 
 
 def _expect_probe_rejection(
@@ -174,11 +301,37 @@ def test_solver_runtime_package_set_covers_all_proof_dependencies() -> None:
     assert NEW_PROOF_PACKAGES <= set(SOLVER_RUNTIME_PACKAGES)
 
 
+def test_runtime_package_set_covers_fixed_proof_dependency_closure() -> None:
+    bound = {canonicalize_name(name) for name in SOLVER_RUNTIME_PACKAGES}
+
+    assert set(PROOF_RUNTIME_ROOT_PACKAGES) <= set(SOLVER_RUNTIME_PACKAGES)
+    assert PROOF_CRITICAL_TRANSITIVE_PACKAGES == set(
+        PROOF_RUNTIME_TRANSITIVE_PACKAGES,
+    )
+    assert PROOF_CRITICAL_TRANSITIVE_PACKAGES <= bound
+    for parent, expected_dependencies in (
+        PROOF_CRITICAL_DEPENDENCY_EDGES.items()
+    ):
+        declared = {
+            canonicalize_name(Requirement(requirement).name)
+            for requirement in (
+                importlib.metadata.requires(parent) or ()
+            )
+        }
+        expected = {
+            canonicalize_name(name) for name in expected_dependencies
+        }
+        assert expected <= declared, parent
+        assert expected <= bound, parent
+
+
 def test_configured_worker_runtime_is_distinct_from_controller_runtime(
     local_runtime: dict[str, object],
     tmp_path: Path,
 ) -> None:
-    worker_python = _copy_current_python(tmp_path / "worker-python")
+    worker_python = _copy_current_python(
+        tmp_path / "worker" / "bin" / "python",
+    )
     worker = probe_python_runtime(
         str(worker_python),
         cwd=tmp_path,
@@ -271,6 +424,65 @@ def test_probe_timeout_fails_closed(
     assert "timed out" in str(error)
 
 
+def test_probe_timeout_kills_child_after_leader_exits(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    child_identity = tmp_path / "probe-child.txt"
+    program = f"""
+import os
+import time
+from pathlib import Path
+
+child = os.fork()
+if child:
+    os._exit(0)
+Path({str(child_identity)!r}).write_text(
+    f"{{os.getpid()}} {{os.getpgrp()}} {{os.getsid(0)}}"
+)
+time.sleep(60)
+""".strip()
+
+    error = _expect_probe_rejection(
+        monkeypatch,
+        tmp_path,
+        program,
+        timeout=0.25,
+    )
+
+    assert "timed out" in str(error)
+    child_pid, child_pgid, child_session = map(
+        int,
+        child_identity.read_text().split(),
+    )
+    assert child_pid != child_pgid
+    assert child_pgid == child_session
+    deadline = time.monotonic() + 2
+    while time.monotonic() < deadline:
+        stat_path = Path("/proc") / str(child_pid) / "stat"
+        try:
+            fields = stat_path.read_text().rsplit(")", 1)[1].split()
+        except (FileNotFoundError, IndexError):
+            break
+        if fields[0] == "Z":
+            break
+        time.sleep(0.01)
+    else:
+        pytest.fail(f"probe descendant survived cleanup: pid={child_pid}")
+
+
+def test_probe_cleanup_refuses_current_process_group() -> None:
+    _state, identity = proof_runtime_module._read_probe_process_identity(
+        os.getpid(),
+    )
+
+    with pytest.raises(RuntimeProbeError, match="current proof controller"):
+        proof_runtime_module._validate_isolated_probe_identity(
+            identity,
+            expected_pid=os.getpid(),
+        )
+
+
 def test_probe_protocol_output_over_limit_fails_closed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -299,9 +511,18 @@ os.close(descriptor)
 def test_symlink_retarget_changes_interpreter_identity(
     tmp_path: Path,
 ) -> None:
-    first_python = _copy_current_python(tmp_path / "python-first")
-    second_python = _copy_current_python(tmp_path / "python-second")
-    invocation = tmp_path / "python-worker"
+    first_python = _copy_current_python(
+        tmp_path / "first" / "bin" / "python",
+    )
+    second_python = _copy_current_python(
+        tmp_path / "second" / "bin" / "python",
+    )
+    invocation_root = tmp_path / "invocation"
+    invocation = invocation_root / "bin" / "python-worker"
+    invocation.parent.mkdir(parents=True)
+    (invocation_root / "pyvenv.cfg").write_text(
+        (first_python.parent.parent / "pyvenv.cfg").read_text()
+    )
     invocation.symlink_to(first_python)
     first = probe_python_runtime(
         str(invocation),
@@ -327,7 +548,9 @@ def test_symlink_retarget_changes_interpreter_identity(
 def test_executable_content_change_changes_file_identity(
     tmp_path: Path,
 ) -> None:
-    worker_python = _copy_current_python(tmp_path / "worker-python")
+    worker_python = _copy_current_python(
+        tmp_path / "worker" / "bin" / "python",
+    )
     before = probe_python_runtime(
         str(worker_python),
         cwd=tmp_path,
@@ -368,6 +591,40 @@ def test_same_version_different_distribution_contents_change_identity(
         str(second_python),
         cwd=tmp_path,
     )["runtime"]["package_artifacts"]["networkx"]
+
+    assert first["version"] == second["version"] == "9.9.9"
+    assert first["files_sha256"] != second["files_sha256"]
+    assert first["import_origin"]["file_identity"]["sha256"] != (
+        second["import_origin"]["file_identity"]["sha256"]
+    )
+
+
+def test_same_version_transitive_dependency_contents_change_identity(
+    tmp_path: Path,
+) -> None:
+    first_python, _ = _fake_single_file_distribution_venv(
+        tmp_path / "transitive-first",
+        distribution_name="typing-extensions",
+        import_path="typing_extensions.py",
+        version="9.9.9",
+        package_source="BUILD = 'first'\n",
+    )
+    second_python, _ = _fake_single_file_distribution_venv(
+        tmp_path / "transitive-second",
+        distribution_name="typing-extensions",
+        import_path="typing_extensions.py",
+        version="9.9.9",
+        package_source="BUILD = 'second'\n",
+    )
+
+    first = probe_python_runtime(
+        str(first_python),
+        cwd=tmp_path,
+    )["runtime"]["package_artifacts"]["typing-extensions"]
+    second = probe_python_runtime(
+        str(second_python),
+        cwd=tmp_path,
+    )["runtime"]["package_artifacts"]["typing-extensions"]
 
     assert first["version"] == second["version"] == "9.9.9"
     assert first["files_sha256"] != second["files_sha256"]

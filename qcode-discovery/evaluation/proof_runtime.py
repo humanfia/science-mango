@@ -24,6 +24,7 @@ import subprocess
 import sys
 import sysconfig
 import time
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
@@ -34,15 +35,27 @@ PROOF_INTERPRETER_SCHEMA_VERSION = 1
 PROOF_RUNTIME_PROBE_PROTOCOL = "qcode-proof-runtime-probe-v2"
 PROOF_RUNTIME_PROBE_TIMEOUT_SECONDS = 30.0
 PROOF_RUNTIME_PROBE_MAX_OUTPUT_BYTES = 64 * 1024
+PROOF_RUNTIME_PROBE_TERMINATION_GRACE_SECONDS = 0.25
 PROOF_RUNTIME_MAX_FILES_PER_DISTRIBUTION = 5_000
 PROOF_RUNTIME_MAX_BYTES_PER_DISTRIBUTION = 512 * 1024 * 1024
 PROOF_RUNTIME_MAX_TOTAL_FILES = 20_000
 PROOF_RUNTIME_MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
 
-# Keys are distribution names understood by importlib.metadata. ``igraph`` is
-# the distribution containing the imported implementation in current releases,
-# while ``python-igraph`` is its separately versioned meta distribution.
-SOLVER_RUNTIME_PACKAGES = (
+# Keys are distribution names understood by importlib.metadata.  This is a
+# fixed, audited closure of the production proof imports and their active
+# runtime requirements:
+#
+# * qldpc imports galois/ldpc/stim/pymatching/cvxpy while constructing BB codes;
+# * galois executes numba/llvmlite for finite-field operations;
+# * OR-Tools CP-SAT imports protobuf and its Python support stack;
+# * cvxpy imports its installed solver interfaces even though qcode's final MILP
+#   is implemented with scipy/HiGHS; and
+# * the remaining entries close the non-extra metadata requirements of those
+#   packages on the supported Linux runtime.
+#
+# ``igraph`` contains the imported implementation, while ``python-igraph`` is
+# its separately versioned meta distribution.
+PROOF_RUNTIME_ROOT_PACKAGES = (
     "numpy",
     "ortools",
     "qldpc",
@@ -54,6 +67,48 @@ SOLVER_RUNTIME_PACKAGES = (
     "ldpc",
     "galois",
     "networkx",
+)
+PROOF_RUNTIME_TRANSITIVE_PACKAGES = (
+    "absl-py",
+    "clarabel",
+    "cffi",
+    "contourpy",
+    "cvxpy",
+    "cycler",
+    "diskcache",
+    "fonttools",
+    "immutabledict",
+    "jinja2",
+    "joblib",
+    "kiwisolver",
+    "llvmlite",
+    "markupsafe",
+    "matplotlib",
+    "mpmath",
+    "numba",
+    "osqp",
+    "packaging",
+    "pandas",
+    "pillow",
+    "platformdirs",
+    "protobuf",
+    "pycparser",
+    "pymatching",
+    "pyparsing",
+    "python-dateutil",
+    "pytz",
+    "scs",
+    "setuptools",
+    "sinter",
+    "six",
+    "stim",
+    "texttable",
+    "tqdm",
+    "typing-extensions",
+)
+SOLVER_RUNTIME_PACKAGES = (
+    *PROOF_RUNTIME_ROOT_PACKAGES,
+    *PROOF_RUNTIME_TRANSITIVE_PACKAGES,
 )
 KNOWN_ANSWER_RUNTIME_PACKAGES = ("numpy", "scipy", "qldpc")
 PACKAGE_IMPORT_NAMES = {
@@ -68,6 +123,42 @@ PACKAGE_IMPORT_NAMES = {
     "ldpc": "ldpc",
     "galois": "galois",
     "networkx": "networkx",
+    "absl-py": "absl",
+    "clarabel": "clarabel",
+    "cffi": "cffi",
+    "contourpy": "contourpy",
+    "cvxpy": "cvxpy",
+    "cycler": "cycler",
+    "diskcache": "diskcache",
+    "fonttools": "fontTools",
+    "immutabledict": "immutabledict",
+    "jinja2": "jinja2",
+    "joblib": "joblib",
+    "kiwisolver": "kiwisolver",
+    "llvmlite": "llvmlite",
+    "markupsafe": "markupsafe",
+    "matplotlib": "matplotlib",
+    "mpmath": "mpmath",
+    "numba": "numba",
+    "osqp": "osqp",
+    "packaging": "packaging",
+    "pandas": "pandas",
+    "pillow": "PIL",
+    "platformdirs": "platformdirs",
+    "protobuf": "google.protobuf",
+    "pycparser": "pycparser",
+    "pymatching": "pymatching",
+    "pyparsing": "pyparsing",
+    "python-dateutil": "dateutil",
+    "pytz": "pytz",
+    "scs": "scs",
+    "setuptools": "setuptools",
+    "sinter": "sinter",
+    "six": "six",
+    "stim": "stim",
+    "texttable": "texttable",
+    "tqdm": "tqdm",
+    "typing-extensions": "typing_extensions",
 }
 
 _RUNTIME_KEYS = frozenset(
@@ -164,9 +255,48 @@ _IMPORT_ORIGIN_KEYS = frozenset(
     }
 )
 
-# This fixed bootstrap writes one length-prefixed canonical frame to a
-# parent-created pipe. stdout and stderr are deliberately not protocol
-# channels, so site diagnostics or wrapper noise cannot inject a fingerprint.
+# The immutable bootstrap completes an isolated-session identity handshake
+# before it executes the replaceable payload used by the probe tests.  Keeping
+# the handshake outside ``_PROBE_PROGRAM`` means even an early-exiting payload
+# cannot bypass the process-group identity that cleanup relies on.
+_PROBE_HANDSHAKE_MAGIC = b"QPR2"
+_PROBE_HANDSHAKE_STRUCT = struct.Struct(">4sQQQ")
+_PROBE_BOOTSTRAP_PROGRAM = r"""
+import base64
+import os
+import struct
+import sys
+
+handshake_fd = int(sys.argv[1])
+protocol_fd = int(sys.argv[2])
+payload = base64.b64decode(
+    sys.argv[3].encode("ascii"),
+    validate=True,
+).decode("utf-8", errors="strict")
+handshake = struct.pack(
+    ">4sQQQ",
+    b"QPR2",
+    os.getpid(),
+    os.getpgrp(),
+    os.getsid(0),
+)
+offset = 0
+while offset < len(handshake):
+    written = os.write(handshake_fd, handshake[offset:])
+    if written <= 0:
+        raise RuntimeError("proof runtime handshake pipe closed")
+    offset += written
+os.close(handshake_fd)
+sys.argv = [sys.argv[0], str(protocol_fd), *sys.argv[4:]]
+exec(
+    compile(payload, "<qcode-proof-runtime-probe>", "exec"),
+    {"__name__": "__main__"},
+)
+""".strip()
+
+# This payload writes one length-prefixed canonical frame to a parent-created
+# pipe. stdout and stderr are deliberately not protocol channels, so site
+# diagnostics or wrapper noise cannot inject a fingerprint.
 _PROBE_PROGRAM = r"""
 import importlib.util
 import json
@@ -186,6 +316,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is None or spec.loader is None:
     raise RuntimeError("cannot load proof runtime implementation")
 module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
 spec.loader.exec_module(module)
 sys.path.insert(0, project_root)
 runtime = module._runtime_core()
@@ -275,6 +406,11 @@ def _require_runtime_file_beneath_prefix(path: Path) -> Path:
 def _import_origin_identity(import_name: str) -> dict[str, Any]:
     try:
         spec = importlib.util.find_spec(import_name)
+    except ModuleNotFoundError:
+        # ``find_spec("parent.child")`` raises rather than returning ``None``
+        # when the parent is absent.  The distribution lookup below still
+        # fails closed if metadata claims that this import should be installed.
+        spec = None
     except (ImportError, AttributeError, ValueError) as exc:
         raise RuntimeProbeError(
             f"cannot resolve proof import {import_name}: {exc}",
@@ -1175,23 +1311,261 @@ def validate_proof_runtime_fingerprint(
     return core
 
 
-def _terminate_probe(process: subprocess.Popen[Any]) -> None:
-    if process.poll() is None:
+@dataclass(frozen=True)
+class _ProbeProcessIdentity:
+    pid: int
+    pgid: int
+    session_id: int
+    uid: int
+    starttime: int
+
+
+def _read_probe_process_identity(pid: int) -> tuple[str, _ProbeProcessIdentity]:
+    """Read the Linux process identity without trusting a reusable PID alone."""
+
+    try:
+        stat_text = (Path("/proc") / str(pid) / "stat").read_text()
+        proc_metadata = (Path("/proc") / str(pid)).stat()
+    except (OSError, UnicodeError) as exc:
+        raise RuntimeProbeError(
+            f"cannot establish proof runtime probe process identity: {exc}",
+        ) from exc
+    closing_parenthesis = stat_text.rfind(")")
+    if closing_parenthesis < 0:
+        raise RuntimeProbeError(
+            "proof runtime probe process identity is malformed",
+        )
+    fields = stat_text[closing_parenthesis + 2 :].split()
+    try:
+        state = fields[0]
+        pgid = int(fields[2])
+        session_id = int(fields[3])
+        starttime = int(fields[19])
+    except (IndexError, TypeError, ValueError) as exc:
+        raise RuntimeProbeError(
+            "proof runtime probe process identity is malformed",
+        ) from exc
+    return state, _ProbeProcessIdentity(
+        pid=pid,
+        pgid=pgid,
+        session_id=session_id,
+        uid=int(proc_metadata.st_uid),
+        starttime=starttime,
+    )
+
+
+def _validate_isolated_probe_identity(
+    identity: _ProbeProcessIdentity,
+    *,
+    expected_pid: int,
+) -> None:
+    current_pgid = os.getpgrp()
+    current_session = os.getsid(0)
+    if (
+        identity.pgid == current_pgid
+        or identity.session_id == current_session
+    ):
+        raise RuntimeProbeError(
+            "refusing to signal the current proof controller process group",
+        )
+    if (
+        identity.pid != expected_pid
+        or identity.pgid != expected_pid
+        or identity.session_id != expected_pid
+        or identity.pid <= 1
+        or identity.uid != os.getuid()
+        or identity.starttime <= 0
+    ):
+        raise RuntimeProbeError(
+            "proof runtime probe did not establish a private process group",
+        )
+
+
+def _read_probe_handshake(
+    descriptor: int,
+    process: subprocess.Popen[Any],
+    observed: _ProbeProcessIdentity,
+    *,
+    timeout: float,
+) -> _ProbeProcessIdentity:
+    os.set_blocking(descriptor, False)
+    frame = bytearray()
+    deadline = time.monotonic() + timeout
+    while len(frame) < _PROBE_HANDSHAKE_STRUCT.size:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            _terminate_probe(process, observed)
+            raise RuntimeProbeError(
+                f"proof runtime probe handshake timed out after {timeout} seconds",
+            )
+        readable, _, _ = select.select(
+            [descriptor],
+            [],
+            [],
+            min(remaining, 0.1),
+        )
+        if not readable:
+            continue
         try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        except OSError:
-            process.kill()
+            chunk = os.read(
+                descriptor,
+                _PROBE_HANDSHAKE_STRUCT.size - len(frame),
+            )
+        except BlockingIOError:
+            continue
+        if not chunk:
+            _terminate_probe(process, observed)
+            raise RuntimeProbeError(
+                "proof runtime probe returned an incomplete process handshake",
+            )
+        frame.extend(chunk)
+    magic, pid, pgid, session_id = _PROBE_HANDSHAKE_STRUCT.unpack(frame)
+    if (
+        magic != _PROBE_HANDSHAKE_MAGIC
+        or pid != observed.pid
+        or pgid != observed.pgid
+        or session_id != observed.session_id
+    ):
+        _terminate_probe(process, observed)
+        raise RuntimeProbeError(
+            "proof runtime probe process handshake identity is invalid",
+        )
+    _validate_isolated_probe_identity(observed, expected_pid=process.pid)
+    return observed
+
+
+def _probe_identity_is_pinned(identity: _ProbeProcessIdentity) -> bool:
+    """The unreaped leader pins its PID, PGID, and SID against numeric reuse."""
+
+    try:
+        _state, current = _read_probe_process_identity(identity.pid)
+    except RuntimeProbeError:
+        return False
+    return current == identity
+
+
+def _live_probe_group_members(
+    identity: _ProbeProcessIdentity,
+) -> list[int]:
+    """Return live members of exactly the handshaken session and group."""
+
+    members: list[int] = []
+    try:
+        entries = list(Path("/proc").iterdir())
+    except OSError as exc:
+        raise RuntimeProbeError(
+            f"cannot inspect proof runtime probe process group: {exc}",
+        ) from exc
+    for entry in entries:
+        if not entry.name.isdigit():
+            continue
+        pid = int(entry.name)
+        try:
+            state, member = _read_probe_process_identity(pid)
+        except RuntimeProbeError:
+            continue
+        if (
+            member.pgid == identity.pgid
+            and member.session_id == identity.session_id
+        ):
+            if member.uid != identity.uid or member.starttime < identity.starttime:
+                raise RuntimeProbeError(
+                    "proof runtime probe process group identity became unsafe",
+                )
+            if state != "Z":
+                members.append(pid)
+    return members
+
+
+def _wait_for_probe_leader_zombie(
+    identity: _ProbeProcessIdentity,
+    *,
+    deadline: float,
+) -> bool:
+    """Observe exit without waitpid so the leader keeps the PGID pinned."""
+
+    while time.monotonic() < deadline:
+        try:
+            state, current = _read_probe_process_identity(identity.pid)
+        except RuntimeProbeError:
+            return False
+        if current != identity:
+            return False
+        if state == "Z":
+            return True
+        time.sleep(0.01)
+    return False
+
+
+def _signal_probe_group(
+    identity: _ProbeProcessIdentity,
+    signal_number: int,
+) -> None:
+    _validate_isolated_probe_identity(identity, expected_pid=identity.pid)
+    if not _probe_identity_is_pinned(identity):
+        raise RuntimeProbeError(
+            "refusing to signal an unpinned proof runtime probe process group",
+        )
+    # A live or zombie, unreaped leader pins the numeric PGID and SID through
+    # this exact killpg call, so neither can be recycled between validation and
+    # signalling.
+    try:
+        os.killpg(identity.pgid, signal_number)
+    except ProcessLookupError:
+        return
+    except OSError as exc:
+        raise RuntimeProbeError(
+            f"cannot terminate proof runtime probe process group: {exc}",
+        ) from exc
+
+
+def _terminate_probe(
+    process: subprocess.Popen[Any],
+    identity: _ProbeProcessIdentity,
+) -> None:
+    """Terminate the whole verified probe group before reaping its leader."""
+
+    _validate_isolated_probe_identity(identity, expected_pid=process.pid)
+    if process.returncode is not None:
+        # Reaping the leader releases the numeric PID/PGID pin.  At that point
+        # killpg would risk signalling an unrelated, recycled group.
+        if _live_probe_group_members(identity):
+            raise RuntimeProbeError(
+                "proof runtime probe leader was reaped before group cleanup",
+            )
+        return
+    _signal_probe_group(identity, signal.SIGTERM)
+    grace_deadline = (
+        time.monotonic() + PROOF_RUNTIME_PROBE_TERMINATION_GRACE_SECONDS
+    )
+    members = _live_probe_group_members(identity)
+    while members and time.monotonic() < grace_deadline:
+        time.sleep(0.01)
+        members = _live_probe_group_members(identity)
+    if members:
+        _signal_probe_group(identity, signal.SIGKILL)
+        kill_deadline = time.monotonic() + 5.0
+        while (
+            _live_probe_group_members(identity)
+            and time.monotonic() < kill_deadline
+        ):
+            time.sleep(0.01)
     try:
         process.wait(timeout=5)
-    except (OSError, subprocess.TimeoutExpired):
-        pass
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeProbeError(
+            "proof runtime probe leader could not be reaped after termination",
+        ) from exc
+    if _live_probe_group_members(identity):
+        raise RuntimeProbeError(
+            "proof runtime probe process group survived forced termination",
+        )
 
 
 def _read_probe_frame(
     descriptor: int,
     process: subprocess.Popen[Any],
+    identity: _ProbeProcessIdentity,
     *,
     timeout: float,
 ) -> tuple[bytes, bytes, bytes]:
@@ -1215,7 +1589,7 @@ def _read_probe_frame(
     while open_descriptors:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            _terminate_probe(process)
+            _terminate_probe(process, identity)
             raise RuntimeProbeError(
                 f"proof runtime probe timed out after {timeout} seconds",
             )
@@ -1246,17 +1620,28 @@ def _read_probe_frame(
                 continue
             buffers[channel].extend(chunk)
             if len(buffers[channel]) > limit:
-                _terminate_probe(process)
+                _terminate_probe(process, identity)
                 raise RuntimeProbeError(
                     f"proof runtime probe {channel} exceeded the limit",
                 )
-    remaining = max(0.001, deadline - time.monotonic())
-    try:
-        returncode = process.wait(timeout=remaining)
-    except subprocess.TimeoutExpired as exc:
-        _terminate_probe(process)
+    if not _wait_for_probe_leader_zombie(identity, deadline=deadline):
+        _terminate_probe(process, identity)
         raise RuntimeProbeError(
             f"proof runtime probe timed out after {timeout} seconds",
+        )
+    live_members = _live_probe_group_members(identity)
+    if live_members:
+        _terminate_probe(process, identity)
+        raise RuntimeProbeError(
+            "proof runtime probe left unexpected child processes",
+        )
+    try:
+        returncode = process.wait(timeout=max(0.001, deadline - time.monotonic()))
+    except subprocess.TimeoutExpired as exc:
+        # This is not expected after observing the exact leader as a zombie,
+        # but fail closed without ever signalling a potentially recycled PGID.
+        raise RuntimeProbeError(
+            f"proof runtime probe could not reap its exited leader: {exc}",
         ) from exc
     if returncode != 0:
         raise RuntimeProbeError(
@@ -1316,15 +1701,21 @@ def probe_python_runtime(
     )
     nonce = secrets.token_hex(32)
     read_fd, write_fd = os.pipe()
+    handshake_read_fd, handshake_write_fd = os.pipe()
     process: subprocess.Popen[Any] | None = None
+    process_identity: _ProbeProcessIdentity | None = None
     try:
         process = subprocess.Popen(
             [
                 str(lexical),
                 "-I",
                 "-c",
-                _PROBE_PROGRAM,
+                _PROBE_BOOTSTRAP_PROGRAM,
+                str(handshake_write_fd),
                 str(write_fd),
+                base64.b64encode(
+                    _PROBE_PROGRAM.encode("utf-8"),
+                ).decode("ascii"),
                 PROOF_RUNTIME_PROBE_PROTOCOL,
                 nonce,
                 str(Path(__file__).resolve()),
@@ -1335,26 +1726,55 @@ def probe_python_runtime(
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             close_fds=True,
-            pass_fds=(write_fd,),
+            pass_fds=(write_fd, handshake_write_fd),
             start_new_session=True,
+        )
+        _state, process_identity = _read_probe_process_identity(process.pid)
+        _validate_isolated_probe_identity(
+            process_identity,
+            expected_pid=process.pid,
         )
     except OSError as exc:
         os.close(read_fd)
         os.close(write_fd)
+        os.close(handshake_read_fd)
+        os.close(handshake_write_fd)
         raise RuntimeProbeError(
             f"proof runtime probe could not start: {exc}",
         ) from exc
+    except RuntimeProbeError:
+        os.close(read_fd)
+        os.close(write_fd)
+        os.close(handshake_read_fd)
+        os.close(handshake_write_fd)
+        if process is not None:
+            try:
+                process.kill()
+                process.wait(timeout=5)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+        raise
     os.close(write_fd)
+    os.close(handshake_write_fd)
+    assert process_identity is not None
     try:
+        process_identity = _read_probe_handshake(
+            handshake_read_fd,
+            process,
+            process_identity,
+            timeout=float(timeout),
+        )
         encoded, _stdout, _stderr = _read_probe_frame(
             read_fd,
             process,
+            process_identity,
             timeout=float(timeout),
         )
     finally:
         os.close(read_fd)
-        if process.poll() is None:
-            _terminate_probe(process)
+        os.close(handshake_read_fd)
+        if process.returncode is None:
+            _terminate_probe(process, process_identity)
         if process.stdout is not None:
             process.stdout.close()
         if process.stderr is not None:
@@ -1476,8 +1896,10 @@ def known_answer_environment(
 __all__ = [
     "KNOWN_ANSWER_RUNTIME_PACKAGES",
     "PROOF_INTERPRETER_SCHEMA_VERSION",
+    "PROOF_RUNTIME_ROOT_PACKAGES",
     "PROOF_RUNTIME_PROBE_PROTOCOL",
     "PROOF_RUNTIME_SCHEMA_VERSION",
+    "PROOF_RUNTIME_TRANSITIVE_PACKAGES",
     "RuntimeProbeError",
     "SOLVER_RUNTIME_PACKAGES",
     "known_answer_environment",

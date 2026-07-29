@@ -3150,7 +3150,10 @@ def test_humanize_audit_dependency_change_invalidates_proof_stages(
         assert second["stages"][stage]["attempt"] == 2
 
 
-@pytest.mark.parametrize("runtime_mutation", ["version", "installed-content"])
+@pytest.mark.parametrize(
+    "runtime_mutation",
+    ["version", "installed-content", "transitive-content"],
+)
 def test_worker_runtime_change_invalidates_stage1_and_all_proof_caches(
     tmp_path,
     monkeypatch,
@@ -3191,7 +3194,12 @@ def test_worker_runtime_change_invalidates_stage1_and_all_proof_caches(
             "version"
         ] = "runtime-changed"
     else:
-        runtime["current"]["runtime"]["package_artifacts"]["ortools"][
+        package = (
+            "ortools"
+            if runtime_mutation == "installed-content"
+            else "llvmlite"
+        )
+        runtime["current"]["runtime"]["package_artifacts"][package][
             "files_sha256"
         ] = "f" * 64
     second = FiveStagePipeline(
