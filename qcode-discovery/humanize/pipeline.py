@@ -47,6 +47,14 @@ REVIEW_PROMPT_VERSION = 1
 STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = 1
 STAGE2_SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
 MAX_AUTOMATIC_PROOF_PASSES = 64
+RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
+STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
+    {
+        "STAGE2_CANONICALIZATION_ERRORS",
+        "STAGE2_MALFORMED_RECORDS",
+        "STAGE2_UNSUPPORTED_CANDIDATES_SKIPPED",
+    }
+)
 STAGE_ORDER = (
     "stage1_search",
     "stage2_sector_audit",
@@ -1819,6 +1827,8 @@ class FiveStagePipeline:
         outputs: Sequence[Path],
         machine: Callable[[], int],
         validator: Callable[[], Mapping[str, Any]],
+        recoverable_exit_codes: frozenset[int] = frozenset(),
+        nonzero_validator: Callable[[], Mapping[str, Any]] | None = None,
         machine_status: str = "COMPLETED",
     ) -> dict[str, Any]:
         self._ensure_solver_state_tree_safe()
@@ -1857,18 +1867,26 @@ class FiveStagePipeline:
                 record["exit_code"] = exit_code
                 self._require_inputs_unchanged(stage, inputs, input_hashes)
                 if exit_code != 0:
-                    classification = (
-                        "STRICT_GATE_REJECTED"
-                        if stage == "stage5_strict_gate" and exit_code == 1
-                        else "STAGE_EXIT_NONZERO"
-                    )
-                    raise PipelineError(
-                        classification,
-                        f"{stage} exited with status {exit_code}",
-                        stage=stage,
-                        exit_code=exit_code,
-                    )
-                context = dict(validator())
+                    if (
+                        exit_code not in recoverable_exit_codes
+                        or nonzero_validator is None
+                    ):
+                        classification = (
+                            "STRICT_GATE_REJECTED"
+                            if stage == "stage5_strict_gate" and exit_code == 1
+                            else "STAGE_EXIT_NONZERO"
+                        )
+                        raise PipelineError(
+                            classification,
+                            f"{stage} exited with status {exit_code}",
+                            stage=stage,
+                            exit_code=exit_code,
+                        )
+                    context = dict(nonzero_validator())
+                    record["accepted_nonzero_output"] = True
+                else:
+                    context = dict(validator())
+                    record.pop("accepted_nonzero_output", None)
                 output_hashes = _hash_paths(
                     outputs,
                     classification="UNSAFE_OUTPUT_PATH",
@@ -1894,7 +1912,14 @@ class FiveStagePipeline:
             self._write_state()
         else:
             try:
-                context = dict(validator())
+                if (
+                    record.get("accepted_nonzero_output") is True
+                    and record.get("exit_code") in recoverable_exit_codes
+                    and nonzero_validator is not None
+                ):
+                    context = dict(nonzero_validator())
+                else:
+                    context = dict(validator())
                 self._require_inputs_unchanged(stage, inputs, input_hashes)
                 self._require_stage_config_unchanged(
                     stage, stage_config, stage_config_revalidator
@@ -2264,6 +2289,8 @@ class FiveStagePipeline:
         path: Path,
         ranked: Path,
         expected_gate: str,
+        *,
+        allow_operational_errors: bool = False,
     ) -> dict[str, Any]:
         summary = _read_json_object(path)
         if summary.get("gate") != expected_gate:
@@ -2352,7 +2379,10 @@ class FiveStagePipeline:
                     f"{path}.{field_name} must be a non-negative integer",
                 )
             operational_error_total += count
-        if operational_error_total or computed_counts.get("ERROR", 0):
+        has_operational_errors = bool(
+            operational_error_total or computed_counts.get("ERROR", 0)
+        )
+        if has_operational_errors and not allow_operational_errors:
             raise PipelineError(
                 "OPERATIONAL_ERROR", f"{path} reports solver operational errors"
             )
@@ -2544,6 +2574,57 @@ class FiveStagePipeline:
                 )
         return summary
 
+    @classmethod
+    def _validate_recoverable_pool_summary(
+        cls,
+        path: Path,
+        ranked: Path,
+        expected_gate: str,
+    ) -> dict[str, Any]:
+        """Validate a proof CLI's exit-2 artifact without trusting its flags.
+
+        Solver/certificate errors are retained as incomplete proof work.  The
+        only route from such an artifact to WIN is the independent Stage 4
+        certificate replay below; a poison-only artifact therefore remains
+        fail closed.
+        """
+
+        summary = cls._validate_pool_summary(
+            path,
+            ranked,
+            expected_gate,
+            allow_operational_errors=True,
+        )
+        counts = summary.get("status_counts")
+        reported_error = bool(
+            isinstance(counts, Mapping)
+            and isinstance(counts.get("ERROR", 0), int)
+            and not isinstance(counts.get("ERROR", 0), bool)
+            and counts.get("ERROR", 0) > 0
+        )
+        for field in (
+            "operational_errors",
+            "certificate_operational_errors",
+        ):
+            value = summary.get(field, 0)
+            reported_error = reported_error or bool(
+                isinstance(value, int)
+                and not isinstance(value, bool)
+                and value > 0
+            )
+        if not reported_error:
+            raise PipelineError(
+                "STAGE_EXIT_NONZERO",
+                f"{path} exited 2 without a bound operational-error record",
+                stage=(
+                    "stage2_sector_audit"
+                    if expected_gate == "qldpc-proof-oriented-candidate-pool"
+                    else "stage3_direction_audit"
+                ),
+                exit_code=2,
+            )
+        return summary
+
     @staticmethod
     def _certificate_rows(
         summary: Mapping[str, Any], source: str
@@ -2651,12 +2732,36 @@ class FiveStagePipeline:
                     f"{description}: {count}",
                     code=f"STAGE2_{field.upper()}",
                 )
+        for field in ("operational_errors", "certificate_operational_errors"):
+            try:
+                count = int(stage2.get(field, 0) or 0)
+            except (TypeError, ValueError):
+                count = 1
+            if count:
+                add(
+                    "stage2_sector_audit",
+                    f"Stage 2 reports {field}: {count}",
+                    code=f"STAGE2_{field.upper()}",
+                )
 
         if stage3.get("selection_exhausted", True) is not True:
             add(
                 "stage3_direction_audit",
                 "Stage 3 unresolved-candidate selection was truncated",
                 code="STAGE3_SELECTION_TRUNCATED",
+            )
+        try:
+            stage3_operational_errors = int(
+                stage3.get("operational_errors", 0) or 0
+            )
+        except (TypeError, ValueError):
+            stage3_operational_errors = 1
+        if stage3_operational_errors:
+            add(
+                "stage3_direction_audit",
+                f"Stage 3 reports operational_errors: "
+                f"{stage3_operational_errors}",
+                code="STAGE3_OPERATIONAL_ERRORS",
             )
 
         stage3_by_digest = {
@@ -2699,6 +2804,13 @@ class FiveStagePipeline:
                         digest,
                         code="STAGE3_PROOF_INCOMPLETE",
                     )
+            elif status == "ERROR":
+                add(
+                    "stage2_sector_audit",
+                    "Stage 2 candidate audit ended in an operational error",
+                    digest,
+                    code="STAGE2_OPERATIONAL_ERROR",
+                )
 
         for result in stage3.get("results", []):
             if not isinstance(result, Mapping):
@@ -2710,6 +2822,13 @@ class FiveStagePipeline:
                     "Stage 3 logical-direction audit remains unresolved",
                     digest,
                     code="STAGE3_PROOF_INCOMPLETE",
+                )
+            elif result.get("status") == "ERROR":
+                add(
+                    "stage3_direction_audit",
+                    "Stage 3 candidate audit ended in an operational error",
+                    digest,
+                    code="STAGE3_OPERATIONAL_ERROR",
                 )
             elif (
                 result.get("status") in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}
@@ -2732,6 +2851,65 @@ class FiveStagePipeline:
         return {
             "incomplete": bool(deduplicated),
             "reasons": deduplicated,
+            "retry_stages": [
+                stage for stage in STAGE_ORDER if stage in retry_stages
+            ],
+        }
+
+    def _carry_paginated_input_incompleteness(
+        self,
+        stage2: Mapping[str, Any],
+        incompleteness: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Carry global input diagnostics across acknowledged proof pages."""
+
+        page = stage2.get("selection_page")
+        if not isinstance(page, Mapping):
+            return dict(incompleteness)
+        binding = page.get("binding_sha256")
+        if not isinstance(binding, str):
+            return dict(incompleteness)
+
+        pagination = self.state.setdefault("stage2_pagination", {})
+        persisted: list[Mapping[str, Any]] = []
+        if pagination.get("binding_sha256") == binding:
+            raw_persisted = pagination.get("global_input_incompleteness", [])
+            if isinstance(raw_persisted, list):
+                persisted = [
+                    reason
+                    for reason in raw_persisted
+                    if isinstance(reason, Mapping)
+                    and reason.get("code")
+                    in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+                ]
+        else:
+            pagination.pop("global_input_incompleteness", None)
+
+        reasons = [
+            dict(reason)
+            for reason in incompleteness.get("reasons", [])
+            if isinstance(reason, Mapping)
+        ]
+        seen = {_canonical_sha256(reason) for reason in reasons}
+        for reason in persisted:
+            item = dict(reason)
+            key = _canonical_sha256(item)
+            if key not in seen:
+                seen.add(key)
+                reasons.append(item)
+        retry_stages = {
+            str(stage)
+            for stage in incompleteness.get("retry_stages", [])
+            if stage in STAGE_ORDER
+        }
+        retry_stages.update(
+            str(reason["stage"])
+            for reason in reasons
+            if reason.get("stage") in STAGE_ORDER
+        )
+        return {
+            "incomplete": bool(reasons),
+            "reasons": reasons,
             "retry_stages": [
                 stage for stage in STAGE_ORDER if stage in retry_stages
             ],
@@ -2774,13 +2952,20 @@ class FiveStagePipeline:
         if not isinstance(incompleteness, Mapping):
             return False
         reasons = incompleteness.get("reasons")
+        if not isinstance(reasons, list) or not reasons:
+            return False
+        codes = [
+            reason.get("code")
+            for reason in reasons
+            if isinstance(reason, Mapping)
+        ]
         if (
-            not isinstance(reasons, list)
-            or not reasons
+            len(codes) != len(reasons)
+            or "STAGE2_SELECTION_TRUNCATED" not in codes
             or any(
-                not isinstance(reason, Mapping)
-                or reason.get("code") != "STAGE2_SELECTION_TRUNCATED"
-                for reason in reasons
+                code != "STAGE2_SELECTION_TRUNCATED"
+                and code not in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+                for code in codes
             )
         ):
             return False
@@ -2842,6 +3027,26 @@ class FiveStagePipeline:
             self._write_state()
             return False
 
+        global_input_incompleteness = [
+            dict(reason)
+            for reason in reasons
+            if (
+                isinstance(reason, Mapping)
+                and reason.get("code")
+                in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+            )
+        ]
+        # Persist the fail-closed diagnostic before acknowledging the page. If
+        # the ledger write is interrupted, replaying the same pending page can
+        # only duplicate (and later deduplicate) this evidence.
+        pagination = self.state.setdefault("stage2_pagination", {})
+        pagination.update({
+            "binding_sha256": page["binding_sha256"],
+            "global_input_incompleteness": global_input_incompleteness,
+            "pending_page_sha256": page["page_sha256"],
+        })
+        self._write_state()
+
         updated = dict(ledger)
         updated["cursor"] = next_index
         updated["committed_digests"] = [*committed, *selected_digests]
@@ -2852,7 +3057,6 @@ class FiveStagePipeline:
         atomic_write_json(self.paths.stage2_selection_ledger, updated)
         self._ensure_solver_state_tree_safe()
 
-        pagination = self.state.setdefault("stage2_pagination", {})
         pagination.update({
             "binding_sha256": page["binding_sha256"],
             "cursor": next_index,
@@ -3342,6 +3546,12 @@ class FiveStagePipeline:
                     self.paths.stage2_ranked,
                     "qldpc-proof-oriented-candidate-pool",
                 ),
+                recoverable_exit_codes=RECOVERABLE_PROOF_EXIT_CODES,
+                nonzero_validator=lambda: self._validate_recoverable_pool_summary(
+                    self.paths.stage2_summary,
+                    self.paths.stage2_ranked,
+                    "qldpc-proof-oriented-candidate-pool",
+                ),
             )
 
             has_unresolved = any(
@@ -3412,10 +3622,20 @@ class FiveStagePipeline:
                     self.paths.stage3_ranked,
                     "qldpc-direction-candidate-pool",
                 ),
+                recoverable_exit_codes=RECOVERABLE_PROOF_EXIT_CODES,
+                nonzero_validator=lambda: self._validate_recoverable_pool_summary(
+                    self.paths.stage3_summary,
+                    self.paths.stage3_ranked,
+                    "qldpc-direction-candidate-pool",
+                ),
                 machine_status=stage3_machine_status,
             )
 
             proof_incompleteness = self._proof_incompleteness(stage2, stage3)
+            proof_incompleteness = self._carry_paginated_input_incompleteness(
+                stage2,
+                proof_incompleteness,
+            )
             controller_source_sha256 = self._source_file_sha256(
                 controller_source,
                 label="pipeline controller source",

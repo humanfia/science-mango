@@ -57,6 +57,7 @@ def _plan(
     gate_passed: bool = True,
     selection_exhausted: bool = True,
     selection_page: tuple[int, int] | None = None,
+    canonicalization_errors: int = 0,
 ) -> dict:
     return {
         "results": list(results or []),
@@ -66,6 +67,7 @@ def _plan(
         "gate_passed": gate_passed,
         "selection_exhausted": selection_exhausted,
         "selection_page": selection_page,
+        "canonicalization_errors": canonicalization_errors,
     }
 
 
@@ -146,6 +148,9 @@ class ScenarioRunner:
             }
             if stage == "stage2":
                 summary["certificate_operational_errors"] = plan["operational_errors"]
+                summary["canonicalization_errors"] = plan[
+                    "canonicalization_errors"
+                ]
                 summary["unique_candidates"] = len(results)
                 if plan["selection_page"] is not None:
                     start_index, next_index = plan["selection_page"]
@@ -823,6 +828,103 @@ def test_paginated_stage2_automatically_reaches_win_on_second_page(tmp_path):
     assert state["stage2_pagination"]["completed_pages"] == 1
 
 
+def test_paginated_terminal_page_advances_past_global_input_diagnostic(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="paginated-global-diagnostic-win"),
+        stage2_top=1,
+    )
+    loser, _ = _certificate(
+        config,
+        "global-diagnostic-loser",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    winner, _ = _certificate(config, "global-diagnostic-winner")
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [loser],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+            canonicalization_errors=1,
+        ),
+        _plan(
+            [winner],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 1}
+    assert state["stage2_pagination"]["cursor"] == 1
+    assert state["stage2_pagination"]["global_input_incompleteness"] == [
+        {
+            "stage": "stage2_sector_audit",
+            "reason": (
+                "Stage 2 candidates failed authoritative canonicalization: 1"
+            ),
+            "code": "STAGE2_CANONICALIZATION_ERRORS",
+        }
+    ]
+
+
+def test_paginated_global_input_diagnostic_still_blocks_final_no_win(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="paginated-global-diagnostic-no-win"),
+        stage2_top=1,
+    )
+    first, _ = _certificate(
+        config,
+        "global-diagnostic-first-loser",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    second, _ = _certificate(
+        config,
+        "global-diagnostic-second-loser",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [first],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+            canonicalization_errors=1,
+        ),
+        _plan(
+            [second],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 2}
+    reasons = state["result"]["proof_incompleteness"]["reasons"]
+    assert {
+        reason["code"] for reason in reasons
+    } == {"STAGE2_CANONICALIZATION_ERRORS"}
+
+
 def test_paginated_stage2_interruption_replays_pending_second_page(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="paginated-interrupt-resume")
@@ -1081,6 +1183,93 @@ def test_rc_zero_operational_error_is_fail_closed(tmp_path):
     assert state["failure"]["classification"] == "OPERATIONAL_ERROR"
     assert state["failure"]["stage"] == "stage2_sector_audit"
     assert runner.counts == {"stage2": 1}
+
+
+def test_stage2_poison_does_not_mask_replay_verified_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="poison-plus-win")
+    poison = {
+        "canonical_digest": "poison",
+        "status": "ERROR",
+        "error": "solver worker crashed",
+    }
+    winner, _ = _certificate(config, "surviving-win")
+    runner = ScenarioRunner(
+        stage2=[_plan([poison, winner], returncode=2)],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "strict": 1}
+    stage2 = state["stages"]["stage2_sector_audit"]
+    assert stage2["exit_code"] == 2
+    assert stage2["accepted_nonzero_output"] is True
+
+
+def test_stage2_poison_only_is_incomplete_and_fail_closed(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="poison-only")
+    poison = {
+        "canonical_digest": "only-poison",
+        "status": "ERROR",
+        "error": "solver worker crashed",
+    }
+    runner = ScenarioRunner(
+        stage2=[_plan([poison], returncode=2)],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 1}
+    assert (
+        state["stages"]["stage2_sector_audit"]["machine_status"]
+        == "INCOMPLETE"
+    )
+    assert {
+        reason["code"]
+        for reason in state["result"]["proof_incompleteness"]["reasons"]
+    } >= {"STAGE2_OPERATIONAL_ERROR"}
+
+
+def test_stage3_nonzero_poison_does_not_mask_replay_verified_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="stage3-poison-plus-win")
+    stage2_results = [
+        {"canonical_digest": "stage3-poison", "status": "UNRESOLVED"},
+        {"canonical_digest": "stage3-surviving-win", "status": "UNRESOLVED"},
+    ]
+    poison = {
+        "canonical_digest": "stage3-poison",
+        "status": "ERROR",
+        "error": "direction worker crashed",
+    }
+    winner, _ = _certificate(config, "stage3-surviving-win")
+    runner = ScenarioRunner(
+        stage2=[_plan(stage2_results)],
+        stage3=[_plan([poison, winner], returncode=2)],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "stage3": 1, "strict": 1}
+    stage3 = state["stages"]["stage3_direction_audit"]
+    assert stage3["exit_code"] == 2
+    assert stage3["accepted_nonzero_output"] is True
 
 
 def test_passed_flags_cannot_hide_a_failed_certificate_artifact(tmp_path):
