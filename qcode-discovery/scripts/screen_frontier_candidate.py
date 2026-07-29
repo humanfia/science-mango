@@ -8,6 +8,7 @@ import json
 import math
 import os
 import sys
+import time
 import uuid
 from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 from pathlib import Path
@@ -28,6 +29,11 @@ from evaluation.certificate import (
     verify_css_witness,
 )
 from evaluation.final_gate import minimum_winning_distance
+from evaluation.process_hard_wall import (
+    DEFAULT_TERMINATION_GRACE_S,
+    positive_wall_timeout,
+    terminate_process_pool,
+)
 from evaluation.noncss_certificate import (
     FORMULATION as SYMPLECTIC_EXACT_FORMULATION,
     solve_symplectic_direction,
@@ -549,6 +555,9 @@ def screen_candidate(
     threshold_only: bool = False,
     resume: bool = True,
     progress: Callable[[Mapping[str, Any]], None] | None = None,
+    hard_timeout: float | None = None,
+    candidate_timeout: float | None = None,
+    termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
 ) -> dict[str, Any]:
     """Run one resumable direction audit and return its durable artifact."""
     if not 1 <= workers <= 8:
@@ -556,6 +565,13 @@ def screen_candidate(
     timeout = float(timeout)
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("timeout must be a positive finite number")
+    direction_hard_timeout = positive_wall_timeout(
+        timeout + 5.0 if hard_timeout is None else hard_timeout,
+        "direction hard timeout",
+    )
+    termination_grace = positive_wall_timeout(
+        termination_grace, "hard-wall termination grace",
+    )
     if threshold_only and (
         candidate.get("C_terms") or candidate.get("D_terms")
     ):
@@ -584,6 +600,16 @@ def screen_candidate(
     if artifact["status"] in {"REJECTED", "THRESHOLD_PROVEN"}:
         return artifact
     completed = {int(item["position"]) for item in directions}
+    pending_count = expected - len(completed)
+    candidate_hard_timeout = positive_wall_timeout(
+        (
+            math.ceil(pending_count / workers) * direction_hard_timeout
+            + 5.0
+        )
+        if candidate_timeout is None else candidate_timeout,
+        "candidate hard timeout",
+    )
+    candidate_deadline = time.monotonic() + candidate_hard_timeout
     positions = iter(
         position for position in position_order if position not in completed
     )
@@ -592,19 +618,35 @@ def screen_candidate(
         initializer=initialize_worker,
         initargs=(candidate,),
     )
-    active: dict[Any, int] = {}
+    active: dict[Any, tuple[int, float]] = {}
+    pool_terminated = False
     try:
         for _ in range(min(workers, expected - len(completed))):
             position = next(positions)
             future = executor.submit(
                 solve_position, (position, timeout, max_weight),
             )
-            active[future] = position
+            active[future] = (
+                position,
+                min(
+                    candidate_deadline,
+                    time.monotonic() + direction_hard_timeout,
+                ),
+            )
         rejected = False
         while active and not rejected:
-            done, _ = wait(active, return_when=FIRST_COMPLETED)
+            now = time.monotonic()
+            next_deadline = min(
+                candidate_deadline,
+                *(deadline for _, deadline in active.values()),
+            )
+            done, _ = wait(
+                active,
+                timeout=max(0.0, next_deadline - now),
+                return_when=FIRST_COMPLETED,
+            )
             for future in done:
-                position = active.pop(future)
+                position, _ = active.pop(future)
                 evidence = future.result()
                 directions.append(evidence)
                 artifact = write_artifact(
@@ -632,11 +674,65 @@ def screen_candidate(
                     next_future = executor.submit(
                         solve_position, (next_position, timeout, max_weight),
                     )
-                    active[next_future] = next_position
-        for future in active:
-            future.cancel()
+                    active[next_future] = (
+                        next_position,
+                        min(
+                            candidate_deadline,
+                            time.monotonic() + direction_hard_timeout,
+                        ),
+                    )
+            if rejected and active:
+                terminate_process_pool(
+                    executor,
+                    grace_s=termination_grace,
+                )
+                pool_terminated = True
+                active.clear()
+                break
+            now = time.monotonic()
+            overdue = {
+                future
+                for future, (_, deadline) in active.items()
+                if deadline <= now or candidate_deadline <= now
+            }
+            if overdue:
+                timed_out_positions = sorted(
+                    position for position, _ in active.values()
+                )
+                terminate_process_pool(
+                    executor,
+                    grace_s=termination_grace,
+                )
+                pool_terminated = True
+                active.clear()
+                artifact = write_artifact(
+                    output,
+                    candidate,
+                    directions,
+                    expected_directions=expected,
+                    threshold_only=threshold_only,
+                    reconstructed_parameters=geometry,
+                )
+                artifact["hard_wall"] = {
+                    "timed_out": True,
+                    "direction_timeout_s": direction_hard_timeout,
+                    "candidate_timeout_s": candidate_hard_timeout,
+                    "timed_out_positions": timed_out_positions,
+                    "completed_directions_retained": len(directions),
+                }
+                _atomic_write_json(output, artifact)
+                return artifact
+    except BaseException:
+        if not pool_terminated:
+            terminate_process_pool(
+                executor,
+                grace_s=termination_grace,
+            )
+            pool_terminated = True
+        raise
     finally:
-        executor.shutdown(wait=True, cancel_futures=True)
+        if not pool_terminated:
+            executor.shutdown(wait=True, cancel_futures=True)
     return write_artifact(
         output,
         candidate,

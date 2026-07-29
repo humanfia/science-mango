@@ -20,6 +20,7 @@ from scripts.screen_frontier_candidate import (
     claim_from_threshold_artifact,
     screen_candidate,
 )
+from evaluation.process_hard_wall import DEFAULT_TERMINATION_GRACE_S
 
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -194,6 +195,9 @@ def _screen_one(
     direction_workers: int,
     threshold_only: bool,
     resume: bool,
+    direction_hard_timeout: float | None = None,
+    candidate_hard_timeout: float | None = None,
+    termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
     screener: Callable[..., dict[str, Any]] = screen_candidate,
 ) -> dict[str, Any]:
     path = direction_state_path(state_dir, digest)
@@ -205,6 +209,9 @@ def _screen_one(
             workers=direction_workers,
             threshold_only=threshold_only,
             resume=resume,
+            hard_timeout=direction_hard_timeout,
+            candidate_timeout=candidate_hard_timeout,
+            termination_grace=termination_grace,
         )
         return {
             "canonical_digest": digest,
@@ -223,7 +230,18 @@ def _screen_one(
 
 
 def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
-    digest, candidate, state_dir, timeout, workers, threshold_only, resume = payload
+    (
+        digest,
+        candidate,
+        state_dir,
+        timeout,
+        workers,
+        threshold_only,
+        resume,
+        direction_hard_timeout,
+        candidate_hard_timeout,
+        termination_grace,
+    ) = payload
     return _screen_one(
         digest,
         candidate,
@@ -232,6 +250,9 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
         direction_workers=workers,
         threshold_only=threshold_only,
         resume=resume,
+        direction_hard_timeout=direction_hard_timeout,
+        candidate_hard_timeout=candidate_hard_timeout,
+        termination_grace=termination_grace,
     )
 
 
@@ -244,6 +265,9 @@ def screen_selected_candidates(
     direction_workers: int,
     threshold_only: bool,
     resume: bool,
+    direction_hard_timeout: float | None = None,
+    candidate_hard_timeout: float | None = None,
+    termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
     screener: Callable[..., dict[str, Any]] = screen_candidate,
 ) -> list[dict[str, Any]]:
     if candidate_workers == 1:
@@ -254,6 +278,9 @@ def screen_selected_candidates(
                 direction_workers=direction_workers,
                 threshold_only=threshold_only,
                 resume=resume,
+                direction_hard_timeout=direction_hard_timeout,
+                candidate_hard_timeout=candidate_hard_timeout,
+                termination_grace=termination_grace,
                 screener=screener,
             )
             for digest, candidate in selected
@@ -263,7 +290,8 @@ def screen_selected_candidates(
         futures = {
             executor.submit(_screen_worker, (
                 digest, candidate, state_dir, timeout, direction_workers,
-                threshold_only, resume,
+                threshold_only, resume, direction_hard_timeout,
+                candidate_hard_timeout, termination_grace,
             )): (digest, direction_state_path(state_dir, digest))
             for digest, candidate in selected
         }
@@ -364,6 +392,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--certificate-total-timeout", type=float, default=7200)
     parser.add_argument("--verification-timeout-per-logical", type=float, default=300)
     parser.add_argument("--verification-total-timeout", type=float, default=7200)
+    parser.add_argument("--direction-hard-timeout", type=float)
+    parser.add_argument("--candidate-hard-timeout", type=float)
+    parser.add_argument("--certificate-hard-timeout", type=float)
+    parser.add_argument(
+        "--hard-wall-termination-grace",
+        type=float,
+        default=DEFAULT_TERMINATION_GRACE_S,
+    )
     return parser
 
 
@@ -381,9 +417,18 @@ def main(argv: list[str] | None = None) -> int:
         "certificate_total_timeout",
         "verification_timeout_per_logical",
         "verification_total_timeout",
+        "hard_wall_termination_grace",
     ):
         value = getattr(args, name)
         if not math.isfinite(value) or value <= 0:
+            parser.error(f"{name.replace('_', '-')} must be positive")
+    for name in (
+        "direction_hard_timeout",
+        "candidate_hard_timeout",
+        "certificate_hard_timeout",
+    ):
+        value = getattr(args, name)
+        if value is not None and (not math.isfinite(value) or value <= 0):
             parser.error(f"{name.replace('_', '-')} must be positive")
     try:
         validate_worker_budget(
@@ -409,6 +454,9 @@ def main(argv: list[str] | None = None) -> int:
         direction_workers=args.direction_workers,
         threshold_only=not args.exact,
         resume=args.resume,
+        direction_hard_timeout=args.direction_hard_timeout,
+        candidate_hard_timeout=args.candidate_hard_timeout,
+        termination_grace=args.hard_wall_termination_grace,
     )
     atomic_write_jsonl(
         args.ranked_output,
@@ -448,6 +496,10 @@ def main(argv: list[str] | None = None) -> int:
                 args.verification_timeout_per_logical
             ),
             verification_total_timeout_s=args.verification_total_timeout,
+            certificate_hard_timeout_s=args.certificate_hard_timeout,
+            hard_wall_termination_grace_s=(
+                args.hard_wall_termination_grace
+            ),
         )
         certifications = certify_selected_candidates(
             artifacts,
@@ -469,6 +521,16 @@ def main(argv: list[str] | None = None) -> int:
         "gate": "qldpc-direction-candidate-pool",
         **counts,
         "threshold_only": not args.exact,
+        "hard_wall_budget": {
+            "direction_timeout_s": (
+                args.direction_hard_timeout
+                if args.direction_hard_timeout is not None
+                else args.timeout + 5.0
+            ),
+            "candidate_timeout_s": args.candidate_hard_timeout,
+            "certificate_timeout_s": args.certificate_hard_timeout,
+            "termination_grace_s": args.hard_wall_termination_grace,
+        },
         "worker_budget": {
             "phases_overlap": False,
             "stage3": {
