@@ -669,6 +669,127 @@ def test_unresolved_stage2_routes_through_stage3_then_joins_stage4(tmp_path):
     assert summary["entries"][0]["source_stage"] == "stage3_direction_audit"
 
 
+def test_stage3_audits_entire_bounded_stage2_page_and_finds_second_win(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="stage3-entire-stage2-page"),
+        stage2_top=2,
+        stage3_top=0,
+    )
+    first_digest = "stage3-first-loser"
+    second_digest = "stage3-second-winner"
+    stage2_results = [
+        {"canonical_digest": first_digest, "status": "UNRESOLVED"},
+        {"canonical_digest": second_digest, "status": "UNRESOLVED"},
+    ]
+    first_loser, _ = _certificate(
+        config,
+        first_digest,
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    second_winner, _ = _certificate(config, second_digest)
+    runner = ScenarioRunner(
+        stage2=[_plan(stage2_results)],
+        stage3=[_plan([first_loser, second_winner])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "stage3": 1, "strict": 1}
+    stage3_command = runner.commands("stage3")[0]
+    assert stage3_command[stage3_command.index("--top") + 1] == "0"
+    stage4 = json.loads(
+        (config.root / "artifacts" / "stage4-summary.json").read_text()
+    )
+    assert [entry["canonical_digest"] for entry in stage4["entries"]] == [
+        second_digest
+    ]
+
+
+def test_stage3_incomplete_page_is_pinned_and_replayed_before_later_work(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="stage3-pinned-page-resume"),
+        stage2_top=2,
+        stage3_top=0,
+    )
+    first_digest = "stage3-pinned-loser"
+    second_digest = "stage3-pinned-winner"
+    unresolved = [
+        {"canonical_digest": first_digest, "status": "UNRESOLVED"},
+        {"canonical_digest": second_digest, "status": "UNRESOLVED"},
+    ]
+    first_loser, _ = _certificate(
+        config,
+        first_digest,
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    incomplete, _ = _certificate(
+        config,
+        second_digest,
+        verification_passed=False,
+    )
+    winner, _ = _certificate(config, second_digest)
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                unresolved,
+                selection_exhausted=False,
+                selection_page=(0, 2),
+            ),
+            _plan(
+                unresolved,
+                selection_exhausted=False,
+                selection_page=(0, 2),
+            ),
+        ],
+        stage3=[
+            _plan([first_loser, incomplete]),
+            _plan([first_loser, winner]),
+        ],
+    )
+
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert first["status"] == "INCOMPLETE"
+    ledger_path = config.root / "solver-state" / "stage2-selection-ledger.json"
+    pending_before_resume = json.loads(ledger_path.read_text())["pending"]
+    assert pending_before_resume["start_index"] == 0
+    assert pending_before_resume["selected_digests"] == [
+        first_digest,
+        second_digest,
+    ]
+
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "stage3": 2, "strict": 1}
+    assert json.loads(ledger_path.read_text())["pending"] == pending_before_resume
+    assert all(
+        command[command.index("--top") + 1] == "0"
+        for command in runner.commands("stage3")
+    )
+
+
 def test_stage2_and_stage3_verified_certificates_merge_and_deduplicate(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="merge")
@@ -2623,6 +2744,28 @@ def test_pipeline_injects_one_shared_stage1_worker_budget(tmp_path):
             max_total_workers=4,
             stage2_candidate_workers=1,
         )
+
+
+def test_production_proof_page_bounds_are_live_and_stage3_is_exhaustive(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="proof-page-bounds")
+
+    compatible = replace(config, stage2_top=1, stage3_top=0)
+    assert compatible.stage2_top == 1
+    assert compatible.stage3_top == 0
+
+    with pytest.raises(ValueError, match="stage2_top must be a positive integer"):
+        replace(config, stage2_top=0)
+    with pytest.raises(ValueError, match="stage2_top must be a positive integer"):
+        replace(config, stage2_top=True)
+    with pytest.raises(
+        ValueError,
+        match="stage3_top must be 0",
+    ):
+        replace(config, stage3_top=1)
+
 
 def test_certificate_solver_workers_rejects_unsupported_highs_thread_count(
     tmp_path,

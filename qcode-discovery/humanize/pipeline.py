@@ -681,8 +681,24 @@ class PipelineConfig:
         )
 
     def validate(self) -> None:
-        if self.stage2_top < 0 or self.stage3_top < 0:
-            raise ValueError("stage2_top and stage3_top must be non-negative")
+        if (
+            isinstance(self.stage2_top, bool)
+            or not isinstance(self.stage2_top, int)
+            or self.stage2_top < 1
+        ):
+            raise ValueError(
+                "stage2_top must be a positive integer so every proof page "
+                "can advance"
+            )
+        if (
+            isinstance(self.stage3_top, bool)
+            or not isinstance(self.stage3_top, int)
+            or self.stage3_top != 0
+        ):
+            raise ValueError(
+                "stage3_top must be 0: Stage 3 must audit every unresolved "
+                "candidate in the bounded current Stage 2 page"
+            )
         positive_numbers = {
             "stage2_timeout": self.stage2_timeout,
             "stage3_timeout": self.stage3_timeout,
