@@ -99,8 +99,12 @@ def build_review_prompt(
     audited: list[dict[str, Any]],
     archive_top: list[dict[str, Any]],
     memory: str,
+    trusted_exact_history: list[dict[str, Any]] | None = None,
+    trusted_exact_wins: list[dict[str, Any]] | None = None,
 ) -> str:
     """Build an evidence-only review prompt with explicit trust boundaries."""
+    trusted_exact_history = trusted_exact_history or []
+    trusted_exact_wins = trusted_exact_wins or []
     evidence = {
         "round": round_number,
         "contract": contract,
@@ -108,6 +112,14 @@ def build_review_prompt(
         "new_candidates": candidates[:20],
         "milp_audited": audited,
         "archive_top": archive_top[:20],
+        "trusted_exact_policy": {
+            "source": "canonical evaluations.jsonl",
+            "classification": "AuditOutcome.EXACT",
+            "formal_checkpoint_replay_required": True,
+            "challenge_win_rule": "evaluation.final_gate.classify_win",
+        },
+        "trusted_exact_history": trusted_exact_history[:20],
+        "trusted_exact_wins": trusted_exact_wins[:20],
     }
     return f"""You are the independent reviewer in a Humanize-style RLCR loop for
 quantum error-correcting code discovery. Review the round evidence below. You
@@ -118,6 +130,9 @@ Trust boundary:
 - BP-OSD returns an upper bound on distance, never a lower bound or exact d.
 - A MILP result is exact only when every logical direction was solved to proven
   optimality and milp_details.exact is true.
+- Only trusted_exact_history was independently replayed from the canonical
+  audit log. trusted_exact_wins is its machine-classified challenge-WIN subset.
+- archive_top and new_candidates remain advisory BP-OSD upper bounds.
 - Your review cannot upgrade any numerical claim. Only MILP certificates and
   later Lean compilation can do so.
 - Flag stale or physically implausible FOM claims, duplicated candidates,
@@ -126,7 +141,8 @@ Trust boundary:
 Verdicts:
 - continue: search another round with the recommended focus.
 - promote: the audited set is worth sending to Lean now; search may continue.
-- stop: enough exact, high-quality evidence exists to end search.
+- stop: recommend stopping; the controller will honor this only when
+  trusted_exact_wins is non-empty.
 - reject_round: evidence is corrupt or misleading; do not learn from it.
 
 Long-term BitLesson memory (may be empty):

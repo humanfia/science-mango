@@ -25,8 +25,10 @@ from pathlib import Path
 from typing import Any, Callable, Iterator, Protocol
 
 from .audit_state import (
+    AuditOutcome,
     AuditStateError,
     authoritative_candidate_digest,
+    classify_evaluation,
     is_fully_exact,
     rebuild_audit_state,
     retry_budget,
@@ -1869,7 +1871,7 @@ def _deduplicate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def select_for_milp(
     new_elites: list[dict[str, Any]],
-    archive: EliteArchive,
+    archive: EliteArchive | None,
     audited_keys: set[str],
     limit: int,
     audited_digests: set[str] | None = None,
@@ -1881,7 +1883,8 @@ def select_for_milp(
     """
     if limit <= 0:
         return []
-    pool = _deduplicate(new_elites + archive.ranked())
+    archive_rows = [] if archive is None else archive.ranked()
+    pool = _deduplicate(new_elites + archive_rows)
     eligible = []
     for row in pool:
         if code_key(row) in audited_keys:
@@ -2166,6 +2169,70 @@ class HumanizeFlow:
         self.store.write_state(state)
         return rows, rebuilt
 
+    def _trusted_exact_audit_view(
+        self,
+        rows: list[dict[str, Any]],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Return formally replayed exact rows and the subset that are WINs."""
+        from evaluation.final_gate import classify_win
+
+        # Validate the whole append-only history before promoting any one row.
+        rebuild_audit_state(
+            rows,
+            fully_exact=is_fully_exact,
+            checkpoint_path_for=lambda key: self._milp_checkpoint_path(key),
+        )
+        exact_by_key: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            if (
+                classify_evaluation(
+                    row,
+                    fully_exact=is_fully_exact,
+                )
+                is AuditOutcome.EXACT
+            ):
+                exact_by_key[code_key(row)] = copy.deepcopy(row)
+
+        wins_by_key: dict[str, dict[str, Any]] = {}
+        for key, row in exact_by_key.items():
+            try:
+                result = classify_win(
+                    int(row["n"]),
+                    int(row["k"]),
+                    int(row["d"]),
+                )
+            except (KeyError, TypeError, ValueError, OverflowError) as exc:
+                raise AuditStateError(
+                    f"trusted exact row {key} has invalid win coordinates"
+                ) from exc
+            if result.get("passed") is True:
+                wins_by_key[key] = row
+
+        exact = sorted(
+            exact_by_key.values(),
+            key=lambda row: (
+                code_key(row) in wins_by_key,
+                candidate_fom(row),
+                code_key(row),
+            ),
+            reverse=True,
+        )
+        wins = [row for row in exact if code_key(row) in wins_by_key]
+        return exact, wins
+
+    @staticmethod
+    def _record_trusted_audit_view(
+        state: dict[str, Any],
+        exact: list[dict[str, Any]],
+        wins: list[dict[str, Any]],
+    ) -> None:
+        state["trusted_exact_count"] = len(exact)
+        state["trusted_win_count"] = len(wins)
+        state["best_exact_fom"] = max(
+            (candidate_fom(row) for row in exact),
+            default=0.0,
+        )
+
     @staticmethod
     def _canonical_row_identity(row: dict[str, Any]) -> str:
         try:
@@ -2270,6 +2337,8 @@ class HumanizeFlow:
         self,
         candidates: list[dict[str, Any]],
         state: dict[str, Any],
+        *,
+        screened_history: list[dict[str, Any]] | None = None,
     ) -> list[dict[str, Any]]:
         if self.config.milp_top <= 0:
             return []
@@ -2292,16 +2361,18 @@ class HumanizeFlow:
         # retry with fresh work lets a persistent timeout queue grow by up to
         # milp_top-1 entries per round, so Stage 1 can exhaust max_rounds even
         # though every retry is making progress under its larger budget.
-        new_candidates = (
-            []
-            if unresolved
-            else select_for_milp(
-                candidates,
-                self.archive,
-                blocked_keys,
-                self.config.milp_top,
-                blocked_digests,
+        if unresolved:
+            return retry_candidates
+        if screened_history is None:
+            screened_history, _rejected = (
+                self._replay_screened_candidate_pool(candidates)
             )
+        new_candidates = select_for_milp(
+            screened_history,
+            None,
+            blocked_keys,
+            self.config.milp_top,
+            blocked_digests,
         )
         return retry_candidates + new_candidates
 
@@ -4140,12 +4211,33 @@ class HumanizeFlow:
         }
         self.store.write_state(state)
 
-    @property
-    def pipeline_candidate_inputs(self) -> tuple[Path, ...]:
+    @staticmethod
+    def _read_validated_candidate_input(path: Path) -> list[dict[str, Any]]:
+        try:
+            rows, end_offset, _source_sha256 = read_jsonl_range(path, 0)
+        except ValueError as exc:
+            raise RoundTransactionError(str(exc)) from exc
+        if end_offset != path.stat().st_size:
+            raise RoundTransactionError(
+                f"candidate input is not complete bound JSONL: {path}"
+            )
+        return rows
+
+    def _validated_committed_candidate_history(
+        self,
+    ) -> tuple[tuple[Path, ...], list[dict[str, Any]]]:
+        """Return transaction-replayed candidate inputs and all of their rows.
+
+        ``archive.json`` is only a disposable MAP-Elites cache.  Scheduling
+        must instead be rebuilt from the immutable per-round transactions so a
+        high BP upper bound cannot permanently hide a runner-up in the same
+        archive cell.
+        """
         state = self.store.load_state()
         if state is None:
-            return ()
+            return (), []
         paths: list[Path] = []
+        rows: list[dict[str, Any]] = []
         previous: dict[str, Any] | None = None
         legacy_boundary = False
         seen_v2 = False
@@ -4158,7 +4250,7 @@ class HumanizeFlow:
                     f"round {number} has both legacy and v2 candidate batches"
                 )
             if transaction_path.exists():
-                transaction, _rows = self._validate_completed_transaction(
+                transaction, batch_rows = self._validate_completed_transaction(
                     number, round_dir
                 )
                 start_offset = int(transaction["candidate_start_offset"])
@@ -4197,10 +4289,14 @@ class HumanizeFlow:
                         raise RoundTransactionError(
                             "completed transaction result checkpoint path is non-canonical"
                         )
-                paths.extend(
-                    self._abandoned_candidate_inputs(transaction, round_dir)
+                abandoned_inputs = self._abandoned_candidate_inputs(
+                    transaction, round_dir
                 )
+                for path in abandoned_inputs:
+                    paths.append(path)
+                    rows.extend(self._read_validated_candidate_input(path))
                 paths.append(Path(transaction["candidate_batch"]))
+                rows.extend(batch_rows)
                 previous = transaction
                 legacy_boundary = False
                 seen_v2 = True
@@ -4209,36 +4305,96 @@ class HumanizeFlow:
                     raise RoundTransactionError(
                         "legacy candidate batch may not follow a v2 transaction"
                     )
-                paths.append(
-                    self._validate_legacy_batch_sidecar(number, round_dir)
-                )
+                path = self._validate_legacy_batch_sidecar(number, round_dir)
+                paths.append(path)
+                rows.extend(self._read_validated_candidate_input(path))
                 previous = None
                 legacy_boundary = True
             else:
                 raise RoundTransactionError(
                     f"round {number} has no canonical committed candidate batch"
                 )
+        return tuple(paths), rows
+
+    def _validated_canonical_evaluations(
+        self,
+        state: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Strictly replay the canonical Stage 1 audit log for handoff."""
+        rows = self._read_canonical_evaluations(
+            recover_final_partial=False
+        )
+        rebuilt = rebuild_audit_state(
+            rows,
+            fully_exact=is_fully_exact,
+            checkpoint_path_for=lambda key: self._milp_checkpoint_path(key),
+        )
+        recorded_count = state.get("audit_evaluations_seen")
+        if (
+            recorded_count is not None
+            and recorded_count != rebuilt.evaluations_seen
+        ):
+            raise AuditStateError(
+                "canonical evaluation count disagrees with durable state"
+            )
+        for name, expected in rebuilt.as_state_fields().items():
+            recorded = state.get(name)
+            if recorded is not None and recorded != expected:
+                raise AuditStateError(
+                    f"canonical evaluation state disagrees for {name}"
+                )
+        return rows
+
+    @property
+    def pipeline_candidate_inputs(self) -> tuple[Path, ...]:
+        state = self.store.load_state()
+        if state is None:
+            return ()
+        candidate_paths, _rows = (
+            self._validated_committed_candidate_history()
+        )
+        paths = list(candidate_paths)
+        if self.evaluations_path.exists():
+            self._validated_canonical_evaluations(state)
+            paths.append(self.evaluations_path.resolve())
         return tuple(paths)
+
+    def _replay_screened_candidate_pool(
+        self,
+        current: list[dict[str, Any]],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Rebuild the eligible pool from bound history, never archive cache."""
+        from evaluation.structural_dedup import deduplicate_css_results
+
+        _paths, historical = self._validated_committed_candidate_history()
+        combined = _deduplicate(historical + current)
+        combined.sort(key=candidate_fom, reverse=True)
+        return deduplicate_css_results(combined)
+
+    def _screen_candidates_with_pool(
+        self, rows: list[dict[str, Any]]
+    ) -> tuple[
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+    ]:
+        """Apply static and BLISS gates before archive ranking or MILP.
+
+        The persistent archive is regenerated only as an advisory cache.
+        Selection separately replays all transaction-bound history, retaining
+        same-cell runners-up that MAP-Elites intentionally omits.
+        """
+        current = _deduplicate(rows)
+        current_keys = {code_key(row) for row in current}
+        kept, rejected = self._replay_screened_candidate_pool(current)
+        self.archive.replace(kept)
+        accepted = [row for row in kept if code_key(row) in current_keys]
+        return accepted, rejected, kept
 
     def _screen_candidates(
         self, rows: list[dict[str, Any]]
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        """Apply static and BLISS gates before archive ranking or MILP.
-
-        Existing archive rows participate in the same pass. This both performs
-        cross-round structural deduplication and purges polluted archives left
-        by runs created before the gate moved to Tier 0.
-        """
-        from evaluation.structural_dedup import deduplicate_css_results
-
-        current = _deduplicate(rows)
-        current.sort(key=candidate_fom, reverse=True)
-        current_keys = {code_key(row) for row in current}
-        combined = _deduplicate(self.archive.ranked() + current)
-        combined.sort(key=candidate_fom, reverse=True)
-        kept, rejected = deduplicate_css_results(combined)
-        self.archive.replace(kept)
-        accepted = [row for row in kept if code_key(row) in current_keys]
+        accepted, rejected, _pool = self._screen_candidates_with_pool(rows)
         return accepted, rejected
 
     def _audit_selected(
@@ -4409,6 +4565,9 @@ class HumanizeFlow:
             "total_evaluations": int(state.get("audit_evaluations_seen", 0)),
             "unresolved": len(state.get("unresolved_candidates", {})),
             "best_fom": state.get("best_fom", 0.0),
+            "best_exact_fom": state.get("best_exact_fom", 0.0),
+            "trusted_exact": int(state.get("trusted_exact_count", 0)),
+            "trusted_wins": int(state.get("trusted_win_count", 0)),
             "max_total_workers": self.config.max_total_workers,
             "config": state["config"],
             "state_path": str(self.store.state_path),
@@ -4464,6 +4623,11 @@ class HumanizeFlow:
             "milp_audited": len(audited),
             "milp_exact": exact,
             "best_fom": max((candidate_fom(r) for r in candidates), default=0.0),
+            "trusted_exact_total": int(
+                state.get("trusted_exact_count", 0)
+            ),
+            "trusted_win_total": int(state.get("trusted_win_count", 0)),
+            "best_exact_fom": float(state.get("best_exact_fom", 0.0)),
             "review_verdict": review["verdict"],
             "review_summary": review["summary"],
         }
@@ -4475,6 +4639,14 @@ class HumanizeFlow:
                 f"- New candidates: {len(candidates)}",
                 f"- MILP audited: {len(audited)}",
                 f"- Fully exact MILP: {exact}",
+                (
+                    "- Trusted exact history: "
+                    f"{int(state.get('trusted_exact_count', 0))}"
+                ),
+                (
+                    "- Trusted exact WINs: "
+                    f"{int(state.get('trusted_win_count', 0))}"
+                ),
                 f"- Reviewer verdict: `{review['verdict']}`", "",
                 "## Review", "", review["summary"], "",
                 "## BitLesson Delta", "",
@@ -4579,10 +4751,17 @@ class HumanizeFlow:
                 )
         state = self.store.initialize(serialized_config)
         state["runtime_worker_budget"] = self.config.max_total_workers
-        _global_rows, rebuilt = self._rebuild_global_audit_state(
+        global_rows, rebuilt = self._rebuild_global_audit_state(
             state,
             recover_final_partial=True,
         )
+        trusted_exact, trusted_wins = self._trusted_exact_audit_view(
+            global_rows
+        )
+        self._record_trusted_audit_view(
+            state, trusted_exact, trusted_wins
+        )
+        self.store.write_state(state)
         transaction_version = state.get("round_transaction_version")
         if transaction_version is None:
             self._migrate_legacy_completed_rounds(state)
@@ -4596,9 +4775,24 @@ class HumanizeFlow:
             raise RoundTransactionError(
                 f"unsupported round transaction version: {transaction_version!r}"
             )
+        if trusted_wins and state.get("pending_round") is None:
+            already_complete = state.get("status") == "search-complete"
+            state["status"] = "search-complete"
+            self.store.write_state(state)
+            self._write_run_meta(state)
+            if not already_complete:
+                self.store.event(
+                    "search_completed_from_trusted_history",
+                    rounds=state["current_round"],
+                    trusted_exact=len(trusted_exact),
+                    trusted_wins=len(trusted_wins),
+                    unresolved_handed_off=len(rebuilt.unresolved),
+                )
+            return state
         if (
             state["status"] in {"completed", "search-complete"}
-            and not rebuilt.unresolved
+            and state.get("pending_round") is None
+            and (not rebuilt.unresolved or trusted_wins)
         ):
             self._write_run_meta(state)
             return state
@@ -4666,6 +4860,7 @@ class HumanizeFlow:
                         phase=phase,
                     )
                 else:
+                    screened_history: list[dict[str, Any]] | None = None
                     if pending and phase not in {"screen", "audit"}:
                         raise RoundTransactionError(
                             f"cannot resume pending round phase {phase!r}"
@@ -4687,7 +4882,11 @@ class HumanizeFlow:
                         )
 
                     if state.get("round_phase") == "screen":
-                        candidates, rejected = self._screen_candidates(candidates)
+                        (
+                            candidates,
+                            rejected,
+                            screened_history,
+                        ) = self._screen_candidates_with_pool(candidates)
                         self._write_jsonl(candidate_path, candidates)
                         self._write_jsonl(rejected_path, rejected)
                     elif state.get("round_phase") == "audit":
@@ -4707,6 +4906,7 @@ class HumanizeFlow:
                         selected = self._select_audit_candidates(
                             candidates,
                             state,
+                            screened_history=screened_history,
                         )
                         self._write_jsonl(selected_path, selected)
                     else:
@@ -4732,6 +4932,12 @@ class HumanizeFlow:
                     state["round_phase"] = "review"
                     self.store.write_state(state)
 
+                canonical_rows = self._read_canonical_evaluations(
+                    recover_final_partial=False
+                )
+                trusted_exact, trusted_wins = (
+                    self._trusted_exact_audit_view(canonical_rows)
+                )
                 memory = self.store.memory_path.read_text() if self.store.memory_path.exists() else ""
                 prompt = build_review_prompt(
                     round_number=number,
@@ -4739,6 +4945,8 @@ class HumanizeFlow:
                     candidates=candidates,
                     audited=audited,
                     archive_top=self.archive.ranked(),
+                    trusted_exact_history=trusted_exact,
+                    trusted_exact_wins=trusted_wins,
                     memory=memory,
                 )
                 (round_dir / "review-request.md").write_text(prompt)
@@ -4764,26 +4972,25 @@ class HumanizeFlow:
                         state.get("no_improvement_rounds", 0)
                     ) + 1
 
+                self._record_trusted_audit_view(
+                    state, trusted_exact, trusted_wins
+                )
                 self._finish_round(state, number, candidates, audited, review, round_dir)
-                canonical_rows = self._read_canonical_evaluations(
-                    recover_final_partial=False
-                )
-                exact_total = sum(
-                    is_fully_exact(row) for row in canonical_rows
-                )
                 unresolved_count = len(
                     state.get("unresolved_candidates", {})
                 )
-                should_stop = not unresolved_count and (
-                    (review["verdict"] == "stop" and exact_total > 0)
-                    or int(state["no_improvement_rounds"])
-                    >= self.config.patience
-                )
+                # Search termination is a machine decision.  Reviewer advice
+                # and BP-based patience can never stop a no-WIN run.  A
+                # formally replayed exact WIN, however, is enough to hand off
+                # immediately even if unrelated candidates remain unresolved.
+                should_stop = bool(trusted_wins)
                 self.store.event(
                     "round_completed",
                     round_number=number,
                     reviewer_verdict=review["verdict"],
-                    exact_total=exact_total,
+                    exact_total=len(trusted_exact),
+                    trusted_win_total=len(trusted_wins),
+                    unresolved=unresolved_count,
                     stop=should_stop,
                 )
                 state["round_transaction_version"] = (
@@ -4806,8 +5013,17 @@ class HumanizeFlow:
                 )
                 raise
 
+        canonical_rows = self._read_canonical_evaluations(
+            recover_final_partial=False
+        )
+        trusted_exact, trusted_wins = self._trusted_exact_audit_view(
+            canonical_rows
+        )
+        self._record_trusted_audit_view(
+            state, trusted_exact, trusted_wins
+        )
         unresolved_count = len(state.get("unresolved_candidates", {}))
-        if unresolved_count:
+        if unresolved_count and not trusted_wins:
             state["status"] = "incomplete-unresolved"
             self.store.write_state(state)
             self._write_run_meta(state)
@@ -4824,5 +5040,11 @@ class HumanizeFlow:
         state["status"] = "search-complete"
         self.store.write_state(state)
         self._write_run_meta(state)
-        self.store.event("search_completed", rounds=state["current_round"])
+        self.store.event(
+            "search_completed",
+            rounds=state["current_round"],
+            trusted_exact=len(trusted_exact),
+            trusted_wins=len(trusted_wins),
+            unresolved_handed_off=unresolved_count,
+        )
         return state

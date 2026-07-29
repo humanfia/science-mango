@@ -227,6 +227,8 @@ def test_debug_exact_results_remain_unresolved_but_persist_review_memory(
     )
     assert state["audited_keys"] == []
     assert len(state["unresolved_candidates"]) == 2
+    assert state["trusted_exact_count"] == 0
+    assert state["trusted_win_count"] == 0
     memory = (repo / "results/humanize/test-humanize/bitlesson.md").read_text()
     assert "Require complete logical-direction coverage" in memory
 
