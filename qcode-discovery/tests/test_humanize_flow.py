@@ -137,6 +137,51 @@ def test_milp_selection_never_takes_more_than_one_quick_exploration():
     )
 
 
+def test_unresolved_distance_selection_precedes_arbitrary_quick_lane():
+    quick = candidate(k=4, d=0, fom=0.0, shift=1)
+    unresolved = candidate(k=4, d=0, fom=0.0, shift=2)
+    for row in (quick, unresolved):
+        row.update({
+            "stage": "quick_k_only",
+            "candidate_persistence_lane": (
+                "winner_capable_quick_exploration"
+            ),
+            "winner_capable_parameters": True,
+            "minimum_winning_distance": 15,
+            "singleton_distance_upper_bound": 35,
+        })
+    quick["candidate_persistence_reason"] = "quick_distance_budget"
+    unresolved["candidate_persistence_reason"] = (
+        "selected_distance_unresolved"
+    )
+
+    selected = select_for_milp([quick, unresolved], None, set(), 3)
+
+    assert selected == [unresolved]
+
+
+def test_duplicate_zero_distance_rows_preserve_unresolved_provenance():
+    quick = candidate(k=4, d=0, fom=0.0)
+    quick.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "candidate_persistence_reason": "quick_distance_budget",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": 15,
+        "singleton_distance_upper_bound": 35,
+    })
+    unresolved = dict(quick)
+    unresolved["candidate_persistence_reason"] = (
+        "selected_distance_unresolved"
+    )
+
+    [selected] = _deduplicate([quick, unresolved])
+
+    assert selected["candidate_persistence_reason"] == (
+        "selected_distance_unresolved"
+    )
+
+
 def test_milp_selection_rejects_forged_or_malformed_quick_lane_marker():
     malformed = candidate(k=4, d=0, fom=0.0)
     malformed.update({

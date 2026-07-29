@@ -19,7 +19,7 @@ Two-stage cascade
     Score: ``0.1 base + best_encoding_rate + log1p(num_high_k) / 10``.
 
 **Stage 2** -- Full evaluation with distance estimation (~30-60 s)
-    Evaluates on 8 lattices with BP-OSD distance (1000 OSD_0 trials +
+    Evaluates on 11 lattices with BP-OSD distance (1000 OSD_0 trials +
     200 OSD-CS order-10 trials for top candidates).  The primary fitness
     metric is ``combined_score`` -- the sum of the best *credible* FOM per
     lattice, where credibility is determined by a trust filter on
@@ -49,8 +49,9 @@ Constants
 STAGE1_LATTICES : list[tuple[int, int]]
     ``[(6, 6), (12, 6)]`` -- quick screening lattices.
 STAGE2_LATTICES : list[tuple[int, int]]
-    8 lattices for full evaluation.  Excludes ``(9,8)``, ``(10,10)``,
-    ``(18,10)`` which produce zero ``k > 0`` codes.
+    11 lattices for full evaluation, including the n=72/90/108 Pareto
+    reference lattices accepted by the final gate. Excludes ``(9,8)``,
+    ``(10,10)``, ``(18,10)`` which produce zero ``k > 0`` codes.
 """
 
 from __future__ import annotations
@@ -95,17 +96,20 @@ class CandidateLogWriteError(RuntimeError):
 
 
 WINNER_CAPABLE_EXPLORATION_LANE = "winner_capable_quick_exploration"
+QUICK_EXPLORATION_PERSISTENCE_REASON = "quick_distance_budget"
+UNRESOLVED_TOP_PERSISTENCE_REASON = "selected_distance_unresolved"
 STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
 MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
+MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE = 4
 
 
 def _definition_key(result: dict) -> tuple:
     return (
         int(result.get("ell", 0) or 0),
         int(result.get("m", 0) or 0),
-        tuple(map(tuple, result.get("A_terms", []))),
-        tuple(map(tuple, result.get("B_terms", []))),
+        tuple(sorted(tuple(map(int, term)) for term in result.get("A_terms", []))),
+        tuple(sorted(tuple(map(int, term)) for term in result.get("B_terms", []))),
     )
 
 
@@ -170,21 +174,48 @@ def _has_positive_distance(result: dict) -> bool:
         return False
 
 
-def _candidate_sample_key(
+def _candidate_definition_payload(
     candidate,
     *,
     ell: int,
     m: int,
-    sampling_salt: str,
 ) -> bytes:
-    """Return a stable order-independent key for an oversized candidate pool."""
+    """Return the canonical defining payload for one generated candidate."""
+
+    def strict_terms(value, label: str) -> list[list[int]]:
+        if not isinstance(value, (list, tuple)):
+            raise TypeError(f"{label} must be a list or tuple")
+        normalised = []
+        for index, term in enumerate(value):
+            if not isinstance(term, (list, tuple)) or len(term) != 2:
+                raise TypeError(f"{label}[{index}] must be an exponent pair")
+            if any(type(coordinate) is not int for coordinate in term):
+                raise TypeError(
+                    f"{label}[{index}] coordinates must be strict integers"
+                )
+            normalised.append([term[0], term[1]])
+        return sorted(normalised)
+
+    def typed_malformed(value):
+        if isinstance(value, (list, tuple)):
+            return {
+                "type": type(value).__name__,
+                "items": [typed_malformed(item) for item in value],
+            }
+        return {
+            "type": f"{type(value).__module__}.{type(value).__qualname__}",
+            "repr": repr(value),
+        }
+
     try:
+        if not isinstance(candidate, (list, tuple)) or len(candidate) != 2:
+            raise TypeError("candidate must contain A and B")
         a_terms, b_terms = candidate
         defining = {
             "ell": int(ell),
             "m": int(m),
-            "A_terms": sorted([list(map(int, term)) for term in a_terms]),
-            "B_terms": sorted([list(map(int, term)) for term in b_terms]),
+            "A_terms": strict_terms(a_terms, "A_terms"),
+            "B_terms": strict_terms(b_terms, "B_terms"),
         }
         payload = json.dumps(
             defining,
@@ -193,8 +224,59 @@ def _candidate_sample_key(
             allow_nan=False,
         ).encode()
     except (TypeError, ValueError):
-        payload = repr(candidate).encode("utf-8", errors="replace")
+        payload = json.dumps(
+            {
+                "ell": int(ell),
+                "m": int(m),
+                "malformed_candidate": typed_malformed(candidate),
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8", errors="replace")
+    return payload
+
+
+def _candidate_sample_key(
+    candidate,
+    *,
+    ell: int,
+    m: int,
+    sampling_salt: str,
+) -> bytes:
+    """Return a stable order-independent key for an oversized candidate pool."""
+    payload = _candidate_definition_payload(candidate, ell=ell, m=m)
     return hashlib.sha256(sampling_salt.encode() + b"\0" + payload).digest()
+
+
+def _deduplicate_candidate_definitions(
+    candidates: list,
+    *,
+    ell: int,
+    m: int,
+) -> tuple[list, dict[bytes, int]]:
+    """Keep the first canonical definition and count generator occurrences."""
+    unique: list = []
+    occurrences: dict[bytes, int] = {}
+    for candidate in candidates:
+        payload = _candidate_definition_payload(candidate, ell=ell, m=m)
+        occurrences[payload] = occurrences.get(payload, 0) + 1
+        if occurrences[payload] == 1:
+            unique.append(candidate)
+    return unique, occurrences
+
+
+def _annotate_generator_occurrences(
+    rows: list[dict],
+    *,
+    ell: int,
+    m: int,
+    occurrences: dict[bytes, int],
+) -> None:
+    """Bind each evaluated row to its raw generator multiplicity."""
+    for row in rows:
+        candidate = (row.get("A_terms", []), row.get("B_terms", []))
+        payload = _candidate_definition_payload(candidate, ell=ell, m=m)
+        row["generator_occurrence_count"] = occurrences.get(payload, 1)
 
 
 def _bounded_candidate_sample(
@@ -213,8 +295,13 @@ def _bounded_candidate_sample(
     changes.  The first and last definitions are also retained explicitly so a
     fixed generator tail is covered by regression tests and operational logs.
     """
+    candidates, _occurrences = _deduplicate_candidate_definitions(
+        candidates,
+        ell=ell,
+        m=m,
+    )
     if len(candidates) <= limit:
-        return list(candidates)
+        return candidates
     if limit < 2:
         raise ValueError("candidate sample limit must be at least two")
     endpoints = {0, len(candidates) - 1}
@@ -329,18 +416,37 @@ def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]
 # Lattice subsets for staged evaluation
 # Stage 1: small/fast lattices for quick screening
 STAGE1_LATTICES = [(6, 6), (12, 6)]
-# Stage 2: full set
-STAGE2_LATTICES = [
+# These are the defining lattices for the n=72, 90 and 108 final-gate Pareto
+# references.  They run first in the full evaluator so every accepted win class
+# has a durable OpenEvolve -> Humanize route even if a later large lattice uses
+# the remainder of the evaluator wall budget.
+FINAL_GATE_PARETO_LATTICES = [(6, 6), (15, 3), (9, 6)]
+# Preserve the historical fitness basis when the persistence-only final-gate
+# lattices are added. This keeps resumed OpenEvolve checkpoint scores and
+# MAP-Elites cells comparable across the source upgrade.
+STAGE2_FITNESS_LATTICES = [
     (12, 6), (6, 12),
     (12, 12), (24, 6),
     (15, 12), (30, 6),
     (16, 9), (18, 8),
 ]
-# Stage 2 for MILP: drop (16,9) and (18,8) which produce 0 valid x/y-swap codes
-STAGE2_LATTICES_MILP = [
+# Stage 2: final-gate persistence coverage plus the historical fitness set.
+STAGE2_LATTICES = [
+    *FINAL_GATE_PARETO_LATTICES,
+    *STAGE2_FITNESS_LATTICES,
+]
+# Historical MILP fitness basis. Keep it separate from the added persistence
+# probes for the same checkpoint-compatibility reason as
+# ``STAGE2_FITNESS_LATTICES`` above.
+STAGE2_MILP_FITNESS_LATTICES = [
     (12, 6), (6, 12),
     (12, 12), (24, 6),
     (15, 12), (30, 6),
+]
+# Stage 2 for MILP: drop (16,9) and (18,8) which produce 0 valid x/y-swap codes.
+STAGE2_LATTICES_MILP = [
+    *FINAL_GATE_PARETO_LATTICES,
+    *STAGE2_MILP_FITNESS_LATTICES,
 ]
 
 
@@ -507,11 +613,18 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
         "term_count": _count_terms(
             result.get("A_terms", []), result.get("B_terms", [])
         ),
+        "generator_occurrence_count": result.get(
+            "generator_occurrence_count", 1
+        ),
         "timestamp": time.time(),
     }
     if exploration_lane:
         record.update({
             "candidate_persistence_lane": WINNER_CAPABLE_EXPLORATION_LANE,
+            "candidate_persistence_reason": result.get(
+                "candidate_persistence_reason",
+                QUICK_EXPLORATION_PERSISTENCE_REASON,
+            ),
             "winner_capable_parameters": True,
             "minimum_winning_distance": result["minimum_winning_distance"],
             "singleton_distance_upper_bound": result[
@@ -589,6 +702,11 @@ def _run_evaluation(
     """
     all_results = []
     total_candidates = 0
+    unique_candidates = 0
+    evaluated_candidate_definitions = 0
+    duplicate_candidate_occurrences = 0
+    quick_exploration_persisted = 0
+    unresolved_top_persisted = 0
     errors = []
     tier0_rejected_count = 0
     structural_rejected_count = 0
@@ -600,12 +718,24 @@ def _run_evaluation(
                 errors.append(f"({ell},{m}): generate_candidates returned {type(candidates)}, not list")
                 continue
 
-            total_candidates += len(candidates)
+            raw_candidate_count = len(candidates)
+            total_candidates += raw_candidate_count
+            candidates, candidate_occurrences = (
+                _deduplicate_candidate_definitions(
+                    candidates,
+                    ell=ell,
+                    m=m,
+                )
+            )
+            unique_candidates += len(candidates)
+            duplicate_candidate_occurrences += (
+                raw_candidate_count - len(candidates)
+            )
 
             # Cap candidates per lattice without a fixed-prefix blind spot.
             if len(candidates) > MAX_CANDIDATES_PER_LATTICE:
                 errors.append(
-                    f"({ell},{m}): {len(candidates)} candidates, "
+                    f"({ell},{m}): {len(candidates)} unique candidates, "
                     f"sampled to {MAX_CANDIDATES_PER_LATTICE}"
                 )
                 candidates = _bounded_candidate_sample(
@@ -613,6 +743,13 @@ def _run_evaluation(
                     ell=ell,
                     m=m,
                     sampling_salt=sampling_salt,
+                )
+            evaluated_candidate_definitions += len(candidates)
+            distance_selection_limit = max_distance_per_lattice
+            if (ell, m) in FINAL_GATE_PARETO_LATTICES:
+                distance_selection_limit = min(
+                    distance_selection_limit,
+                    MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE,
                 )
 
             if quick:
@@ -622,6 +759,12 @@ def _run_evaluation(
                     quick_trials=quick_trials,
                     fom_threshold_refine=6.0,
                     fom_threshold_exact=8.0,
+                )
+                _annotate_generator_occurrences(
+                    results,
+                    ell=ell,
+                    m=m,
+                    occurrences=candidate_occurrences,
                 )
                 results, static_rejected = _filter_static_eligible(results)
                 tier0_rejected_count += len(static_rejected)
@@ -637,6 +780,12 @@ def _run_evaluation(
                     quick_results = evaluate_batch(
                         ell, m, candidates, quick=True,
                     )
+                _annotate_generator_occurrences(
+                    quick_results,
+                    ell=ell,
+                    m=m,
+                    occurrences=candidate_occurrences,
+                )
                 quick_results, static_rejected = _filter_static_eligible(quick_results)
                 tier0_rejected_count += len(static_rejected)
 
@@ -662,21 +811,26 @@ def _run_evaluation(
                 seen_k: set[int] = set()
                 top: list[dict] = []
                 for r in promising:
-                    if r["k"] not in seen_k and len(top) < max_distance_per_lattice:
+                    if (
+                        r["k"] not in seen_k
+                        and len(top) < distance_selection_limit
+                    ):
                         seen_k.add(r["k"])
                         top.append(r)
                 # Pass 2: one per distinct A polynomial (among same-k codes)
-                seen_a: set[tuple] = {tuple(map(tuple, r["A_terms"])) for r in top}
+                seen_a: set[tuple] = {
+                    tuple(sorted(map(tuple, r["A_terms"]))) for r in top
+                }
                 for r in promising:
-                    if len(top) >= max_distance_per_lattice:
+                    if len(top) >= distance_selection_limit:
                         break
-                    a_key = tuple(map(tuple, r["A_terms"]))
+                    a_key = tuple(sorted(map(tuple, r["A_terms"])))
                     if a_key not in seen_a and r not in top:
                         seen_a.add(a_key)
                         top.append(r)
                 # Pass 3: fill remaining slots
                 for r in promising:
-                    if len(top) >= max_distance_per_lattice:
+                    if len(top) >= distance_selection_limit:
                         break
                     if r not in top:
                         top.append(r)
@@ -693,6 +847,7 @@ def _run_evaluation(
                 top_candidates = [
                     (r["A_terms"], r["B_terms"]) for r in top
                 ]
+                top_keys = {_definition_key(result) for result in top}
 
                 if use_milp:
                     # MILP: scale timeout with n.  The adaptive per-logical
@@ -728,10 +883,16 @@ def _run_evaluation(
                         fom_threshold_refine=6.0,
                         fom_threshold_exact=float("inf"),
                     )
+                _annotate_generator_occurrences(
+                    results,
+                    ell=ell,
+                    m=m,
+                    occurrences=candidate_occurrences,
+                )
                 # Include quick-only results for aggregate counting
                 quick_only = [
                     r for r in quick_results if r.get("k", 0) > 0
-                    and r not in top
+                    and _definition_key(r) not in top_keys
                 ]
                 # Distance estimation can itself return an unresolved ``d=0``
                 # row. Treat those selected-but-unresolved definitions exactly
@@ -745,20 +906,70 @@ def _run_evaluation(
                         and not _has_positive_distance(result)
                     )
                 ]
-                # A top-k distance budget is an allocation policy, not a proof
-                # that the remaining objects cannot win. Persist a bounded,
-                # k-stratified and deterministically rotating sample in a
-                # dedicated zero-distance lane. Humanize reserves at most one
-                # MILP slot per round for this lane.
-                for result in _select_quick_exploration(
-                    quick_only + unresolved_top,
+                # Every unresolved result from the already-bounded top-k
+                # universe is persisted first.  It must never compete with the
+                # separate quick-only exploration quota: it already consumed a
+                # distance slot and is stronger search evidence than an
+                # arbitrary unmeasured definition.
+                winner_capable_unresolved = [
+                    result for result in unresolved_top
+                    if _annotate_winner_capability(result)
+                ]
+                persisted_unresolved = _select_quick_exploration(
+                    winner_capable_unresolved,
                     ell=ell,
                     m=m,
                     sampling_salt=sampling_salt,
-                ):
+                    # The producer contract bounds this list by the selected
+                    # top-k universe. Use its observed size here so even a
+                    # future batch adapter that violates that contract cannot
+                    # turn the safety check itself into candidate loss.
+                    limit=len(winner_capable_unresolved),
+                )
+                expected_unresolved = len({
+                    _definition_key(result)
+                    for result in winner_capable_unresolved
+                })
+                if expected_unresolved > distance_selection_limit:
+                    raise CandidateLogWriteError(
+                        f"({ell},{m}): distance batch returned "
+                        f"{expected_unresolved} unresolved definitions for a "
+                        f"top-{distance_selection_limit} selection"
+                    )
+                if len(persisted_unresolved) != expected_unresolved:
+                    raise CandidateLogWriteError(
+                        f"({ell},{m}): unresolved persistence invariant "
+                        f"selected {len(persisted_unresolved)} of "
+                        f"{expected_unresolved} canonical definitions"
+                    )
+                for result in persisted_unresolved:
                     result["candidate_persistence_lane"] = (
                         WINNER_CAPABLE_EXPLORATION_LANE
                     )
+                    result["candidate_persistence_reason"] = (
+                        UNRESOLVED_TOP_PERSISTENCE_REASON
+                    )
+                unresolved_top_persisted += len(persisted_unresolved)
+
+                # A top-k distance budget is an allocation policy, not a proof
+                # that the remaining quick-only objects cannot win. Persist a
+                # bounded, k-stratified and deterministically rotating sample
+                # from that independent pool. Humanize reserves at most one
+                # MILP slot per round for the resulting zero-distance lane.
+                persisted_quick = _select_quick_exploration(
+                    quick_only,
+                    ell=ell,
+                    m=m,
+                    sampling_salt=sampling_salt,
+                )
+                for result in persisted_quick:
+                    result["candidate_persistence_lane"] = (
+                        WINNER_CAPABLE_EXPLORATION_LANE
+                    )
+                    result["candidate_persistence_reason"] = (
+                        QUICK_EXPLORATION_PERSISTENCE_REASON
+                    )
+                quick_exploration_persisted += len(persisted_quick)
                 results.extend(quick_only)
 
             all_results.extend(results)
@@ -806,6 +1017,13 @@ def _run_evaluation(
         "num_above_6": num_above_6,
         "num_above_12": num_above_12,
         "total_candidates": total_candidates,
+        "unique_candidates": unique_candidates,
+        "evaluated_candidate_definitions": evaluated_candidate_definitions,
+        "duplicate_candidate_occurrences": duplicate_candidate_occurrences,
+        "winner_capable_quick_exploration_persisted": (
+            quick_exploration_persisted
+        ),
+        "winner_capable_unresolved_top_persisted": unresolved_top_persisted,
         "tier0_rejected": tier0_rejected_count,
         "structural_rejected": structural_rejected_count,
         "best_encoding_rate": best_encoding_rate,
@@ -960,6 +1178,11 @@ def evaluate_stage2(program_path: str) -> dict:
         if k <= 0 or n <= 0:
             continue
         key = (r["ell"], r["m"])
+        if key not in STAGE2_FITNESS_LATTICES:
+            # These small final-gate lattices feed the durable candidate log
+            # but intentionally do not change the historical OpenEvolve
+            # fitness scale of a resumed checkpoint.
+            continue
         fallback = k / n  # encoding rate, always available
         if d_raw <= 0:
             credible_fom = fallback
@@ -1042,6 +1265,14 @@ def evaluate_stage2(program_path: str) -> dict:
     artifacts["summary"] = (
         f"Evaluated {metrics['total_candidates']} candidates across "
         f"{len(STAGE2_LATTICES)} lattices.\n"
+        f"Canonical definitions: {metrics['unique_candidates']} generated, "
+        f"{metrics['evaluated_candidate_definitions']} evaluated, "
+        f"{metrics['duplicate_candidate_occurrences']} duplicate occurrences "
+        "collapsed.\n"
+        "Zero-distance persistence: "
+        f"{metrics['winner_capable_unresolved_top_persisted']} unresolved "
+        "top-k, "
+        f"{metrics['winner_capable_quick_exploration_persisted']} quick-only.\n"
         f"Valid codes (k>0): {metrics['num_valid']}\n"
         f"High-k codes (k>=8): {metrics['num_high_k']}\n"
         f"Lattices with high-k: {metrics['lattices_with_high_k']}/{len(STAGE2_LATTICES)}\n"
@@ -1073,7 +1304,14 @@ def evaluate_stage2(program_path: str) -> dict:
     _write_metrics_jsonl(metrics)
 
     # MAP-Elites features from best credible code
-    best_credible_code = max(credible_codes, key=lambda r: r.get("fom", 0)) if credible_codes else None
+    fitness_credible_codes = [
+        row for row in credible_codes
+        if (row["ell"], row["m"]) in STAGE2_FITNESS_LATTICES
+    ]
+    best_credible_code = (
+        max(fitness_credible_codes, key=lambda r: r.get("fom", 0))
+        if fitness_credible_codes else None
+    )
     if best_credible_code:
         s2_tc = _count_terms(best_credible_code["A_terms"], best_credible_code["B_terms"])
         s2_pattern = _classify_pattern(best_credible_code["A_terms"], best_credible_code["B_terms"])
@@ -1092,6 +1330,19 @@ def evaluate_stage2(program_path: str) -> dict:
         "num_above_6": float(metrics["num_above_6"]),
         "num_above_12": float(metrics["num_above_12"]),
         "total_candidates": float(metrics["total_candidates"]),
+        "unique_candidates": float(metrics["unique_candidates"]),
+        "evaluated_candidate_definitions": float(
+            metrics["evaluated_candidate_definitions"]
+        ),
+        "duplicate_candidate_occurrences": float(
+            metrics["duplicate_candidate_occurrences"]
+        ),
+        "winner_capable_quick_exploration_persisted": float(
+            metrics["winner_capable_quick_exploration_persisted"]
+        ),
+        "winner_capable_unresolved_top_persisted": float(
+            metrics["winner_capable_unresolved_top_persisted"]
+        ),
         "term_count": s2_tc,
         "pattern_type": s2_pattern,
     }
@@ -1260,6 +1511,10 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         if k <= 0:
             continue
         key = (r["ell"], r["m"])
+        if key not in STAGE2_MILP_FITNESS_LATTICES:
+            # Final-gate probes are persistence coverage, not a change to the
+            # historical score of resumed --milp checkpoints.
+            continue
         if d >= MIN_RELEVANT_D and fom > 0:
             per_lattice_best[key] = max(per_lattice_best.get(key, 0.0), fom)
         elif d > 0 and d < MIN_RELEVANT_D:
@@ -1467,7 +1722,13 @@ def evaluate_stage2_milp(program_path: str) -> dict:
 
     # MAP-Elites features from best MILP-verified code
     milp_best = max(
-        (r for r in all_results if r.get("d", 0) > 0),
+        (
+            r for r in all_results
+            if (
+                r.get("d", 0) > 0
+                and (r["ell"], r["m"]) in STAGE2_MILP_FITNESS_LATTICES
+            )
+        ),
         key=lambda r: r.get("fom", 0), default=None,
     )
     if milp_best:

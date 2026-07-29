@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import multiprocessing
 import os
+from itertools import permutations
 from pathlib import Path
 
 import pytest
@@ -144,6 +145,158 @@ def test_k_below_eight_can_pass_the_real_win_rule_and_singleton_bound():
     assert evaluator._winning_distance_window(72, 4) == (15, 35)
 
 
+def test_production_full_evaluation_covers_final_gate_pareto_lattices():
+    required = {(6, 6), (15, 3), (9, 6)}
+
+    assert set(evaluator.FINAL_GATE_PARETO_LATTICES) == required
+    assert required <= set(evaluator.STAGE2_LATTICES)
+    assert required <= set(evaluator.STAGE2_LATTICES_MILP)
+    assert evaluator.STAGE2_LATTICES[:3] == (
+        evaluator.FINAL_GATE_PARETO_LATTICES
+    )
+    assert {
+        2 * ell * m for ell, m in evaluator.FINAL_GATE_PARETO_LATTICES
+    } == {72, 90, 108}
+    assert evaluator.MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE == 4
+
+
+def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
+    tmp_path, monkeypatch
+):
+    critical = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0]],
+        "B_terms": [[0, 0]],
+        "n": 72,
+        "k": 16,
+        "d": 10,
+        "fom": 16 * 10 * 10 / 72,
+        "encoding_rate": 16 / 72,
+    }
+    historical = {
+        "ell": 12,
+        "m": 6,
+        "A_terms": [[0, 0], [0, 1], [1, 0]],
+        "B_terms": [[0, 0], [0, 2], [2, 0]],
+        "n": 144,
+        "k": 12,
+        "d": 12,
+        "fom": 12.0,
+        "encoding_rate": 12 / 144,
+    }
+    metrics = {
+        "best_fom": critical["fom"],
+        "mean_fom": (critical["fom"] + historical["fom"]) / 2,
+        "num_valid": 2,
+        "num_high_k": 2,
+        "lattices_with_high_k": 2,
+        "best_encoding_rate": critical["encoding_rate"],
+        "num_above_6": 2,
+        "num_above_12": 2,
+        "total_candidates": 2,
+        "unique_candidates": 2,
+        "evaluated_candidate_definitions": 2,
+        "duplicate_candidate_occurrences": 0,
+        "winner_capable_quick_exploration_persisted": 0,
+        "winner_capable_unresolved_top_persisted": 0,
+        "best_code": critical,
+        "all_results": [critical, historical],
+        "errors": [],
+    }
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [],
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_evaluation",
+        lambda *_args, **_kwargs: metrics,
+    )
+    monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
+    monkeypatch.setattr(evaluator, "save_code", lambda _row: None)
+    monkeypatch.setattr(evaluator, "update_pareto_front", lambda _rows: None)
+
+    evaluated = evaluator.evaluate_stage2(str(tmp_path / "program.py"))
+    result = getattr(evaluated, "metrics", evaluated)
+
+    assert result["best_fom"] == critical["fom"]
+    assert result["combined_score"] == historical["fom"]
+    assert result["term_count"] == 3
+
+
+def test_quick_only_lane_is_k_stratified_and_keeps_low_k_reachable():
+    rows = []
+    for index in range(24):
+        # Deliberately flood the pool with k=8 definitions; a global hash-only
+        # sample can crowd out the lone [[72,4,*]]-capable definition.
+        rows.append({
+            "ell": 6,
+            "m": 6,
+            "A_terms": [[0, 0], [0, 1], [index + 1, 0]],
+            "B_terms": [[0, 0], [0, 2], [index + 2, 0]],
+            "n": 72,
+            "k": 8,
+            "d": 0,
+        })
+    low_k = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [0, 3], [31, 0]],
+        "B_terms": [[0, 0], [0, 4], [32, 0]],
+        "n": 72,
+        "k": 4,
+        "d": 0,
+    }
+    high_k = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [0, 5], [33, 0]],
+        "B_terms": [[0, 0], [0, 6], [34, 0]],
+        "n": 72,
+        "k": 12,
+        "d": 0,
+    }
+
+    selected = evaluator._select_quick_exploration(
+        [*rows, low_k, high_k],
+        ell=6,
+        m=6,
+        sampling_salt="fixed-production-salt",
+        limit=3,
+    )
+
+    assert {row["k"] for row in selected} == {4, 8, 12}
+    assert low_k in selected
+
+    # With more k strata than the bounded quota, the program-derived salt
+    # rotates which strata enter the lane. This fixed production salt proves
+    # that k=4 remains reachable even in that crowded case.
+    crowded_strata = [
+        {
+            "ell": 6,
+            "m": 6,
+            "A_terms": [[0, 0], [0, 1], [index + 1, 0]],
+            "B_terms": [[0, 0], [0, 2], [index + 2, 0]],
+            "n": 72,
+            "k": k,
+            "d": 0,
+        }
+        for index, k in enumerate(range(4, 38, 2))
+    ]
+    crowded_selected = evaluator._select_quick_exploration(
+        crowded_strata,
+        ell=6,
+        m=6,
+        sampling_salt="fixed-production-salt-0",
+        limit=evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE,
+    )
+
+    assert len(crowded_selected) == 8
+    assert 4 in {row["k"] for row in crowded_selected}
+
+
 def test_oversized_candidate_sample_is_bounded_and_not_a_prefix():
     candidates = [
         (
@@ -172,6 +325,109 @@ def test_oversized_candidate_sample_is_bounded_and_not_a_prefix():
         limit=6,
         sampling_salt="program-a",
     )
+
+
+def test_candidate_sampling_deduplicates_term_order_before_any_cap():
+    base_a = [(0, 0), (1, 0), (0, 1)]
+    base_b = [(0, 0), (2, 0), (0, 2)]
+    permuted = [
+        (list(a_terms), list(b_terms))
+        for a_terms in permutations(base_a)
+        for b_terms in permutations(base_b)
+    ]
+    unique = (
+        [(0, 0), (3, 0), (0, 1)],
+        list(base_b),
+    )
+
+    sampled = evaluator._bounded_candidate_sample(
+        [*permuted, unique],
+        ell=6,
+        m=6,
+        limit=8,
+        sampling_salt="p0",
+    )
+
+    assert len(sampled) == 2
+    assert unique in sampled
+
+
+def test_malformed_candidate_cannot_hide_strict_integer_definition():
+    malformed = (
+        [(0, 0), (True, 0), (0, 1)],
+        [(0, 0), (2, 0), (0, 2)],
+    )
+    valid = (
+        [(0, 0), (1, 0), (0, 1)],
+        [(0, 0), (2, 0), (0, 2)],
+    )
+
+    unique, occurrences = evaluator._deduplicate_candidate_definitions(
+        [malformed, valid],
+        ell=6,
+        m=6,
+    )
+
+    assert unique == [malformed, valid]
+    assert sorted(occurrences.values()) == [1, 1]
+
+
+def test_run_deduplicates_permutations_and_preserves_occurrence_count(
+    monkeypatch,
+):
+    base_a = [(0, 0), (1, 0), (0, 1)]
+    base_b = [(0, 0), (2, 0), (0, 2)]
+    permuted = [
+        (list(a_terms), list(b_terms))
+        for a_terms in permutations(base_a)
+        for b_terms in permutations(base_b)
+    ]
+    unique = (
+        [(0, 0), (3, 0), (0, 1)],
+        list(base_b),
+    )
+    evaluated = []
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        evaluated.extend(rows)
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / 72,
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: [*permuted, unique],
+        [(6, 6)],
+        quick=True,
+    )
+
+    assert len(evaluated) == 2
+    assert metrics["total_candidates"] == 37
+    assert metrics["unique_candidates"] == 2
+    assert metrics["evaluated_candidate_definitions"] == 2
+    assert metrics["duplicate_candidate_occurrences"] == 35
+    assert sorted(
+        row["generator_occurrence_count"]
+        for row in metrics["all_results"]
+    ) == [1, 36]
 
 
 def test_dynamic_distance_lane_keeps_k4_and_bounds_quick_persistence(
@@ -331,6 +587,202 @@ def test_unresolved_top_candidate_is_logged_exactly_once(tmp_path, monkeypatch):
     assert persisted[0]["candidate_persistence_lane"] == (
         evaluator.WINNER_CAPABLE_EXPLORATION_LANE
     )
+    assert persisted[0]["candidate_persistence_reason"] == (
+        evaluator.UNRESOLVED_TOP_PERSISTENCE_REASON
+    )
+    assert metrics["winner_capable_unresolved_top_persisted"] == 1
+    assert metrics["winner_capable_quick_exploration_persisted"] == 0
+
+
+def test_all_unresolved_top_are_persisted_before_independent_quick_quota(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "deduplicate_css_results",
+        lambda rows: (rows, []),
+    )
+    candidates = [
+        (
+            [[0, 0], [0, 1], [index + 1, 0]],
+            [[0, 0], [0, 2], [index + 2, 0]],
+        )
+        for index in range(40)
+    ]
+    distance_keys = set()
+
+    def fake_batch(ell, m, rows, **kwargs):
+        quick = kwargs.get("quick") is True
+        if not quick:
+            distance_keys.update(
+                (
+                    tuple(sorted(map(tuple, a_terms))),
+                    tuple(sorted(map(tuple, b_terms))),
+                )
+                for a_terms, b_terms in rows
+            )
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / 72,
+                "stage": (
+                    "quick_k_only" if quick else "refined_estimate"
+                ),
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: candidates,
+        [(6, 6)],
+        quick=False,
+        max_distance_per_lattice=2,
+        run_name="mixed-unresolved-top",
+        sampling_salt="p0",
+    )
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "mixed-unresolved-top"
+        / "all_codes.jsonl"
+    )
+    persisted = [json.loads(line) for line in path.read_text().splitlines()]
+    unresolved = [
+        row for row in persisted
+        if row.get("candidate_persistence_reason")
+        == evaluator.UNRESOLVED_TOP_PERSISTENCE_REASON
+    ]
+    quick = [
+        row for row in persisted
+        if row.get("candidate_persistence_reason")
+        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+    ]
+    unresolved_keys = {
+        (
+            tuple(sorted(map(tuple, row["A_terms"]))),
+            tuple(sorted(map(tuple, row["B_terms"]))),
+        )
+        for row in unresolved
+    }
+
+    assert unresolved_keys == distance_keys
+    assert len(unresolved) == 2
+    assert len(quick) == (
+        evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
+    )
+    assert metrics["winner_capable_unresolved_top_persisted"] == 2
+    assert metrics["winner_capable_quick_exploration_persisted"] == len(quick)
+
+
+def test_distance_adapter_cannot_overproduce_unresolved_top_silently(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "deduplicate_css_results",
+        lambda rows: (rows, []),
+    )
+    candidates = [
+        (
+            [[0, 0], [0, 1], [index + 1, 0]],
+            [[0, 0], [0, 2], [index + 2, 0]],
+        )
+        for index in range(2)
+    ]
+
+    def result(ell, m, a_terms, b_terms, *, stage):
+        return {
+            "ell": ell,
+            "m": m,
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+            "n": 72,
+            "k": 4,
+            "d": 0,
+            "fom": 0.0,
+            "score": 4 / 72,
+            "stage": stage,
+            "encoding_rate": 4 / 72,
+        }
+
+    def fake_batch(ell, m, rows, **kwargs):
+        if kwargs.get("quick") is True:
+            return [
+                result(
+                    ell,
+                    m,
+                    a_terms,
+                    b_terms,
+                    stage="quick_k_only",
+                )
+                for a_terms, b_terms in rows
+            ]
+        # The selected universe is top-1. Returning an unrelated second row is
+        # an adapter-contract violation and must abort, never truncate.
+        selected_a, selected_b = rows[0]
+        extra_a, extra_b = candidates[1]
+        return [
+            result(
+                ell,
+                m,
+                selected_a,
+                selected_b,
+                stage="refined_estimate",
+            ),
+            result(
+                ell,
+                m,
+                extra_a,
+                extra_b,
+                stage="refined_estimate",
+            ),
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="returned 2 unresolved definitions for a top-1 selection",
+    ):
+        evaluator._run_evaluation(
+            lambda _ell, _m: candidates,
+            [(6, 6)],
+            quick=False,
+            max_distance_per_lattice=1,
+            run_name="invalid-distance-adapter",
+            sampling_salt="fixed-production-salt",
+        )
+
+    assert not (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "invalid-distance-adapter"
+        / "all_codes.jsonl"
+    ).exists()
 
 
 def test_large_lattice_specialist_has_low_frequency_escape_hatch(

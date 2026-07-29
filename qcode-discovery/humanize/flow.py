@@ -2106,6 +2106,16 @@ def _prefer_duplicate_evidence(
     if proposed_rank == 0:
         current_lane = current.get("candidate_persistence_lane")
         proposed_lane = proposed.get("candidate_persistence_lane")
+        current_unresolved = (
+            current.get("candidate_persistence_reason")
+            == "selected_distance_unresolved"
+        )
+        proposed_unresolved = (
+            proposed.get("candidate_persistence_reason")
+            == "selected_distance_unresolved"
+        )
+        if proposed_unresolved != current_unresolved:
+            return proposed if proposed_unresolved else current
         if proposed_lane and not current_lane:
             return proposed
     return current
@@ -2156,7 +2166,7 @@ def _deduplicate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _quick_exploration_priority(
     row: dict[str, Any],
-) -> tuple[float, str] | None:
+) -> tuple[int, float, str] | None:
     """Validate an explicit quick-only marker and return its stable priority."""
     if (
         row.get("candidate_persistence_lane")
@@ -2176,7 +2186,11 @@ def _quick_exploration_priority(
         or singleton_upper < required
     ):
         return None
-    return singleton_upper / required, code_key(row)
+    unresolved_top = int(
+        row.get("candidate_persistence_reason")
+        == "selected_distance_unresolved"
+    )
+    return unresolved_top, singleton_upper / required, code_key(row)
 
 
 def select_for_milp(
