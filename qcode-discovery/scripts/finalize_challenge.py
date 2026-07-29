@@ -27,12 +27,20 @@ from evaluation.certificate_dispatch import (
     SUPPORTED_CERTIFICATE_TYPES,
     verify_certificate,
 )
-from evaluation.known_answer_integrity import check_known_answer_integrity
+from evaluation.known_answer_integrity import (
+    _strict_wall_timeout,
+    check_known_answer_integrity,
+)
+from evaluation.process_hard_wall import (
+    DEFAULT_TERMINATION_GRACE_S,
+    run_isolated_call,
+)
 
 
 SCHEDULER_SCHEMA_VERSION = 1
 SCHEDULER_GATE = "qldpc-strict-replay-round-robin"
 SCHEDULER_FILENAME = "strict-replay-scheduler.json"
+KNOWN_ANSWER_OUTER_CUSHION_S = 5.0
 
 
 def load_rows(path: Path) -> list[dict[str, Any]]:
@@ -261,6 +269,126 @@ def _verification_disposition(verification: dict[str, Any]) -> str:
     return "REJECTED"
 
 
+def _known_answer_outer_timeout(total_timeout_per_code: int) -> float:
+    """Add a process kill boundary outside the baseline runner's own timeout."""
+
+    return (
+        float(_strict_wall_timeout(total_timeout_per_code))
+        + KNOWN_ANSWER_OUTER_CUSHION_S
+    )
+
+
+def _strict_integrity_with_hard_wall(args: argparse.Namespace) -> dict[str, Any]:
+    timeout = _known_answer_outer_timeout(
+        args.known_answer_total_timeout,
+    )
+    try:
+        outcome = run_isolated_call(
+            check_known_answer_integrity,
+            args=(args.known_answer_artifact, args.known_answer_trust),
+            kwargs={
+                "mode": "strict",
+                "timeout_per_logical": args.known_answer_timeout_per_logical,
+                "total_timeout_per_code": args.known_answer_total_timeout,
+            },
+            timeout_s=timeout,
+            termination_grace_s=DEFAULT_TERMINATION_GRACE_S,
+        )
+    except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
+        return {
+            "passed": False,
+            "mode": "strict",
+            "failures": [
+                "strict known-answer integrity hard-wall setup failed: "
+                f"{type(exc).__name__}: {exc}"
+            ],
+        }
+    if outcome.status == "completed" and isinstance(outcome.value, dict):
+        integrity = dict(outcome.value)
+        if outcome.hard_wall is not None:
+            integrity["hard_wall_cleanup"] = dict(outcome.hard_wall)
+        return integrity
+    failure = (
+        "strict known-answer integrity exceeded its process hard wall"
+        if outcome.status == "timeout"
+        else "strict known-answer integrity worker failed"
+    )
+    if outcome.error:
+        failure += f": {outcome.error}"
+    return {
+        "passed": False,
+        "mode": "strict",
+        "failures": [failure],
+        "hard_wall": dict(outcome.hard_wall or {}),
+    }
+
+
+def _verify_certificate_with_hard_wall(
+    certificate: dict[str, Any],
+    *,
+    known_answer_artifact: Path,
+    timeout_per_logical: float,
+    checkpoint_path: Path | None,
+    resume: bool,
+    total_timeout: float,
+    solver_workers: int,
+) -> dict[str, Any]:
+    """Replay one certificate in a killable process, preserving checkpoints."""
+
+    # The fair scheduler's per-certificate share includes forced cleanup.
+    # Reserve a small slice for TERM->KILL so a wedged native solver cannot
+    # consume the next peer's entire share after its mathematical deadline.
+    termination_grace = min(
+        DEFAULT_TERMINATION_GRACE_S,
+        max(0.001, total_timeout * 0.05),
+        total_timeout * 0.5,
+    )
+    solver_timeout = total_timeout - termination_grace
+    try:
+        outcome = run_isolated_call(
+            verify_certificate,
+            args=(certificate,),
+            kwargs={
+                "known_answer_artifact": known_answer_artifact,
+                "rerun_milp": True,
+                "timeout_per_logical": min(
+                    timeout_per_logical,
+                    solver_timeout,
+                ),
+                "checkpoint_path": checkpoint_path,
+                "resume": resume,
+                "total_timeout": solver_timeout,
+                "solver_workers": solver_workers,
+            },
+            timeout_s=solver_timeout,
+            termination_grace_s=termination_grace,
+        )
+    except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
+        return {
+            **_incomplete_result(
+                "strict certificate replay hard-wall setup failed: "
+                f"{type(exc).__name__}: {exc}"
+            ),
+            "hard_wall": {"setup_failed": True},
+        }
+    if outcome.status == "completed" and isinstance(outcome.value, dict):
+        verification = dict(outcome.value)
+        if outcome.hard_wall is not None:
+            verification["hard_wall_cleanup"] = dict(outcome.hard_wall)
+        return verification
+    failure = (
+        "strict certificate replay exceeded its process hard wall"
+        if outcome.status == "timeout"
+        else "strict certificate replay worker failed"
+    )
+    if outcome.error:
+        failure += f": {outcome.error}"
+    return {
+        **_incomplete_result(failure),
+        "hard_wall": dict(outcome.hard_wall or {}),
+    }
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -295,20 +423,7 @@ def main() -> int:
         )
         return 2
 
-    try:
-        integrity = check_known_answer_integrity(
-            args.known_answer_artifact,
-            args.known_answer_trust,
-            mode="strict",
-            timeout_per_logical=args.known_answer_timeout_per_logical,
-            total_timeout_per_code=args.known_answer_total_timeout,
-        )
-    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
-        integrity = {
-            "passed": False,
-            "mode": "strict",
-            "failures": [f"strict known-answer integrity failed: {exc}"],
-        }
+    integrity = _strict_integrity_with_hard_wall(args)
 
     evaluations_by_index: dict[int, dict[str, Any]] = {}
     if integrity.get("passed") is True:
@@ -374,10 +489,9 @@ def main() -> int:
                 remaining / remaining_certificates
             )
             try:
-                verification = verify_certificate(
+                verification = _verify_certificate_with_hard_wall(
                     certificate,
                     known_answer_artifact=args.known_answer_artifact,
-                    rerun_milp=True,
                     timeout_per_logical=min(
                         args.verification_timeout_per_logical,
                         certificate_total_timeout,

@@ -43,25 +43,32 @@ def _strict_integrity(*_args, **_kwargs) -> dict:
     return {"mode": "strict", "passed": True, "failures": []}
 
 
+def _bypass_strict_hard_wall(monkeypatch) -> None:
+    monkeypatch.setattr(
+        finalizer,
+        "_strict_integrity_with_hard_wall",
+        lambda _args: _strict_integrity(),
+    )
+
+
 def test_main_forwards_strict_replay_budget_and_checkpoint(tmp_path, monkeypatch):
     args = _args(tmp_path)
     calls = []
     clock = iter((100.0, 102.0))
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
-    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    _bypass_strict_hard_wall(monkeypatch)
     monkeypatch.setattr(finalizer.time, "monotonic", lambda: next(clock))
 
     def verify(certificate, **kwargs):
         calls.append((certificate, kwargs))
         return {"passed": True, "accepted": True, "failures": []}
 
-    monkeypatch.setattr(finalizer, "verify_certificate", verify)
+    monkeypatch.setattr(finalizer, "_verify_certificate_with_hard_wall", verify)
 
     assert finalizer.main() == 0
     assert len(calls) == 1
     certificate, controls = calls[0]
     assert certificate == _certificate()
-    assert controls["rerun_milp"] is True
     assert controls["timeout_per_logical"] == 11.0
     assert controls["total_timeout"] == 38.0
     assert controls["solver_workers"] == 3
@@ -102,7 +109,7 @@ def test_invalid_verification_budget_fails_before_replay(
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
     monkeypatch.setattr(
         finalizer,
-        "verify_certificate",
+        "_verify_certificate_with_hard_wall",
         lambda *_args, **_kwargs: pytest.fail("invalid budget reached replay"),
     )
 
@@ -119,7 +126,7 @@ def test_batch_timeout_rotates_to_later_certificate_after_restart(
     args.verification_total_timeout = 10.0
     calls = []
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
-    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    _bypass_strict_hard_wall(monkeypatch)
 
     def verify(certificate, **kwargs):
         calls.append((certificate, kwargs))
@@ -131,7 +138,7 @@ def test_batch_timeout_rotates_to_later_certificate_after_restart(
             }
         return {"passed": True, "accepted": True, "failures": []}
 
-    monkeypatch.setattr(finalizer, "verify_certificate", verify)
+    monkeypatch.setattr(finalizer, "_verify_certificate_with_hard_wall", verify)
 
     first_clock = iter((0.0, 1.0, 11.0))
     monkeypatch.setattr(
@@ -200,14 +207,14 @@ def test_scheduler_advances_before_crashed_verifier_and_resumes_peer(
     args = _args(tmp_path, certificates)
     calls = []
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
-    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    _bypass_strict_hard_wall(monkeypatch)
     monkeypatch.setattr(finalizer.time, "monotonic", lambda: 0.0)
 
     def crash(certificate, **kwargs):
         calls.append((certificate, kwargs))
         raise KeyboardInterrupt
 
-    monkeypatch.setattr(finalizer, "verify_certificate", crash)
+    monkeypatch.setattr(finalizer, "_verify_certificate_with_hard_wall", crash)
     with pytest.raises(KeyboardInterrupt):
         finalizer.main()
 
@@ -227,7 +234,7 @@ def test_scheduler_advances_before_crashed_verifier_and_resumes_peer(
         calls.append((certificate, kwargs))
         return {"passed": True, "accepted": True, "failures": []}
 
-    monkeypatch.setattr(finalizer, "verify_certificate", accept)
+    monkeypatch.setattr(finalizer, "_verify_certificate_with_hard_wall", accept)
     assert finalizer.main() == 0
 
     assert [certificate for certificate, _ in calls] == certificates
@@ -240,10 +247,10 @@ def test_scheduler_advances_before_crashed_verifier_and_resumes_peer(
 def test_verifier_runtime_error_is_persisted_fail_closed(tmp_path, monkeypatch):
     args = _args(tmp_path)
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
-    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    _bypass_strict_hard_wall(monkeypatch)
     monkeypatch.setattr(
         finalizer,
-        "verify_certificate",
+        "_verify_certificate_with_hard_wall",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("solver died")),
     )
 
@@ -259,11 +266,11 @@ def test_verifier_runtime_error_is_persisted_fail_closed(tmp_path, monkeypatch):
 def test_all_terminal_rejections_are_no_win(tmp_path, monkeypatch):
     args = _args(tmp_path, [_certificate(0), _certificate(1)])
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
-    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    _bypass_strict_hard_wall(monkeypatch)
     monkeypatch.setattr(finalizer.time, "monotonic", lambda: 0.0)
     monkeypatch.setattr(
         finalizer,
-        "verify_certificate",
+        "_verify_certificate_with_hard_wall",
         lambda *_args, **_kwargs: {
             "passed": False,
             "replay_complete": True,
@@ -291,11 +298,11 @@ def test_no_winner_with_timeout_is_incomplete(tmp_path, monkeypatch):
     args.verification_total_timeout = 10.0
     clock = iter((0.0, 11.0, 12.0))
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
-    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    _bypass_strict_hard_wall(monkeypatch)
     monkeypatch.setattr(finalizer.time, "monotonic", lambda: next(clock))
     monkeypatch.setattr(
         finalizer,
-        "verify_certificate",
+        "_verify_certificate_with_hard_wall",
         lambda *_args, **_kwargs: pytest.fail("expired batch reached verifier"),
     )
 

@@ -44,6 +44,14 @@ def _candidate() -> dict:
     }
 
 
+def _fake_unresolved_screen(candidate, **kwargs):
+    return {
+        "status": "UNRESOLVED",
+        "completed_directions": 0,
+        "expected_directions": 24,
+    }
+
+
 def _bounded(spec, position: int, max_weight: int = 6) -> dict:
     logical_type, index, check_name, _, target = spec
     return {
@@ -242,13 +250,6 @@ def test_stage3_pool_selects_only_unresolved_and_enforces_budget(tmp_path):
     with pytest.raises(ValueError, match="exceeds"):
         validate_worker_budget(3, 4, 8)
 
-    def fake_screen(candidate, **kwargs):
-        return {
-            "status": "UNRESOLVED",
-            "completed_directions": 0,
-            "expected_directions": 24,
-        }
-
     results = screen_selected_candidates(
         selected,
         tmp_path,
@@ -257,7 +258,7 @@ def test_stage3_pool_selects_only_unresolved_and_enforces_budget(tmp_path):
         direction_workers=2,
         threshold_only=True,
         resume=True,
-        screener=fake_screen,
+        screener=_fake_unresolved_screen,
     )
     assert results[0]["status"] == "UNRESOLVED"
     assert "digest/unsafe" not in results[0]["artifact_path"]
@@ -308,26 +309,12 @@ def test_stage3_top_and_duplicate_annotations_are_explicit():
 def test_stage3_pool_isolates_outer_worker_and_artifact_failures(
     tmp_path, monkeypatch,
 ):
-    class FailedFuture:
-        def result(self):
-            raise RuntimeError("worker crashed")
-
-    class FakeExecutor:
-        def __init__(self, **kwargs):
-            pass
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args):
-            return False
-
-        def submit(self, *args):
-            return FailedFuture()
-
-    monkeypatch.setattr(direction_pool, "ProcessPoolExecutor", FakeExecutor)
     monkeypatch.setattr(
-        direction_pool, "as_completed", lambda futures: list(futures),
+        direction_pool,
+        "start_isolated_call",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("worker crashed")
+        ),
     )
     results = screen_selected_candidates(
         [("digest", _candidate())],

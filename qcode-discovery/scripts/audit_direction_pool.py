@@ -9,8 +9,9 @@ import json
 import math
 import os
 import sys
+import time
 import uuid
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from collections import deque
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
@@ -20,7 +21,14 @@ from scripts.screen_frontier_candidate import (
     claim_from_threshold_artifact,
     screen_candidate,
 )
-from evaluation.process_hard_wall import DEFAULT_TERMINATION_GRACE_S
+from evaluation.process_hard_wall import (
+    DEFAULT_TERMINATION_GRACE_S,
+    IsolatedCallOutcome,
+    IsolatedCallStartupTimeout,
+    poll_isolated_call,
+    positive_wall_timeout,
+    start_isolated_call,
+)
 
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -256,6 +264,87 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
     )
 
 
+def _candidate_wall_timeout(
+    candidate: Mapping[str, Any],
+    *,
+    timeout: float,
+    direction_workers: int,
+    direction_hard_timeout: float | None,
+    candidate_hard_timeout: float | None,
+) -> float:
+    """Bound setup, replay, every direction, and worker cleanup from submit."""
+
+    k = candidate.get("k")
+    if isinstance(k, bool) or not isinstance(k, int) or k <= 0:
+        raise ValueError("Stage 3 candidate k must be a positive integer")
+    if candidate_hard_timeout is not None:
+        return positive_wall_timeout(
+            candidate_hard_timeout,
+            "candidate hard timeout",
+        )
+    per_direction = positive_wall_timeout(
+        timeout + 5.0
+        if direction_hard_timeout is None
+        else direction_hard_timeout,
+        "direction hard timeout",
+    )
+    expected = 2 * k
+    return positive_wall_timeout(
+        math.ceil(expected / direction_workers) * per_direction + 5.0,
+        "candidate hard timeout",
+    )
+
+
+def _load_partial_artifact(path: Path) -> dict[str, Any] | None:
+    try:
+        value = json.loads(path.read_text())
+    except (FileNotFoundError, OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    return dict(value) if isinstance(value, Mapping) else None
+
+
+def _hard_wall_result(
+    digest: str,
+    candidate: Mapping[str, Any],
+    path: Path,
+    outcome: IsolatedCallOutcome,
+    *,
+    timeout_s: float,
+) -> dict[str, Any]:
+    """Recover durable progress after killing exactly one candidate session."""
+
+    artifact = _load_partial_artifact(path)
+    expected = 2 * int(candidate["k"])
+    completed = 0
+    if artifact is not None:
+        raw_completed = artifact.get("completed_directions", 0)
+        if (
+            isinstance(raw_completed, int)
+            and not isinstance(raw_completed, bool)
+            and 0 <= raw_completed <= expected
+        ):
+            completed = raw_completed
+    result = {
+        "canonical_digest": digest,
+        # A killed worker never promotes terminal mathematics in the same
+        # attempt.  A subsequent resume can validate the durable directions
+        # and return a terminal artifact without recomputing them.
+        "status": "UNRESOLVED",
+        "artifact_path": str(path),
+        "completed_directions": completed,
+        "expected_directions": expected,
+        "hard_wall": {
+            "timed_out": True,
+            "candidate_timeout_s": timeout_s,
+            "completed_directions_retained": completed,
+            **dict(outcome.hard_wall or {}),
+        },
+    }
+    if outcome.error:
+        result["hard_wall"]["error"] = outcome.error
+    return result
+
+
 def screen_selected_candidates(
     selected: list[tuple[str, dict[str, Any]]],
     state_dir: Path,
@@ -270,43 +359,144 @@ def screen_selected_candidates(
     termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
     screener: Callable[..., dict[str, Any]] = screen_candidate,
 ) -> list[dict[str, Any]]:
-    if candidate_workers == 1:
-        return [
-            _screen_one(
-                digest, candidate, state_dir,
-                timeout=timeout,
-                direction_workers=direction_workers,
-                threshold_only=threshold_only,
-                resume=resume,
-                direction_hard_timeout=direction_hard_timeout,
-                candidate_hard_timeout=candidate_hard_timeout,
-                termination_grace=termination_grace,
-                screener=screener,
-            )
-            for digest, candidate in selected
-        ]
+    if candidate_workers < 1:
+        raise ValueError("candidate_workers must be positive")
+    grace = positive_wall_timeout(
+        termination_grace,
+        "hard-wall termination grace",
+    )
+    queued = deque(selected)
     results: dict[str, dict[str, Any]] = {}
-    with ProcessPoolExecutor(max_workers=candidate_workers) as executor:
-        futures = {
-            executor.submit(_screen_worker, (
-                digest, candidate, state_dir, timeout, direction_workers,
-                threshold_only, resume, direction_hard_timeout,
-                candidate_hard_timeout, termination_grace,
-            )): (digest, direction_state_path(state_dir, digest))
-            for digest, candidate in selected
-        }
-        for future in as_completed(futures):
-            digest, path = futures[future]
+    active: dict[
+        str,
+        tuple[Any, dict[str, Any], Path, float],
+    ] = {}
+
+    def submit_available() -> None:
+        while queued and len(active) < candidate_workers:
+            digest, candidate = queued.popleft()
+            path = direction_state_path(state_dir, digest)
             try:
-                result = future.result()
+                wall_timeout = _candidate_wall_timeout(
+                    candidate,
+                    timeout=timeout,
+                    direction_workers=direction_workers,
+                    direction_hard_timeout=direction_hard_timeout,
+                    candidate_hard_timeout=candidate_hard_timeout,
+                )
+                handle = start_isolated_call(
+                    _screen_one,
+                    args=(digest, candidate, state_dir),
+                    kwargs={
+                        "timeout": timeout,
+                        "direction_workers": direction_workers,
+                        "threshold_only": threshold_only,
+                        "resume": resume,
+                        "direction_hard_timeout": direction_hard_timeout,
+                        "candidate_hard_timeout": candidate_hard_timeout,
+                        "termination_grace": termination_grace,
+                        "screener": screener,
+                    },
+                    timeout_s=wall_timeout,
+                    termination_grace_s=grace,
+                )
+            except IsolatedCallStartupTimeout as exc:
+                results[digest] = _hard_wall_result(
+                    digest,
+                    candidate,
+                    path,
+                    IsolatedCallOutcome(
+                        status="timeout",
+                        error=str(exc),
+                        hard_wall=dict(exc.hard_wall),
+                    ),
+                    timeout_s=wall_timeout,
+                )
+                continue
             except Exception as exc:
-                result = {
+                results[digest] = {
                     "canonical_digest": digest,
                     "status": "ERROR",
                     "artifact_path": str(path),
                     "error": f"{type(exc).__name__}: {exc}",
                 }
-            results[str(result["canonical_digest"])] = result
+                continue
+            active[digest] = (handle, candidate, path, wall_timeout)
+
+    submit_available()
+    while active:
+        made_progress = False
+        for digest, (handle, candidate, path, wall_timeout) in list(
+            active.items()
+        ):
+            try:
+                outcome = poll_isolated_call(handle)
+            except Exception as exc:
+                made_progress = True
+                del active[digest]
+                if handle.remaining() <= 0:
+                    results[digest] = _hard_wall_result(
+                        digest,
+                        candidate,
+                        path,
+                        IsolatedCallOutcome(
+                            status="timeout",
+                            error=(
+                                "candidate hard-wall cleanup failed: "
+                                f"{type(exc).__name__}: {exc}"
+                            ),
+                            hard_wall={"cleanup_failed": True},
+                        ),
+                        timeout_s=wall_timeout,
+                    )
+                else:
+                    results[digest] = {
+                        "canonical_digest": digest,
+                        "status": "ERROR",
+                        "artifact_path": str(path),
+                        "error": (
+                            "isolated Stage 3 worker poll failed: "
+                            f"{type(exc).__name__}: {exc}"
+                        ),
+                    }
+                continue
+            if outcome is None:
+                continue
+            made_progress = True
+            del active[digest]
+            if outcome.status == "completed" and isinstance(
+                outcome.value, Mapping
+            ):
+                result = dict(outcome.value)
+                if outcome.hard_wall is not None:
+                    result["hard_wall_cleanup"] = dict(outcome.hard_wall)
+            elif outcome.status == "timeout":
+                result = _hard_wall_result(
+                    digest,
+                    candidate,
+                    path,
+                    outcome,
+                    timeout_s=wall_timeout,
+                )
+            else:
+                result = {
+                    "canonical_digest": digest,
+                    "status": "ERROR",
+                    "artifact_path": str(path),
+                    "error": outcome.error or "isolated Stage 3 worker failed",
+                }
+            if result.get("canonical_digest") != digest:
+                result = {
+                    "canonical_digest": digest,
+                    "status": "ERROR",
+                    "artifact_path": str(path),
+                    "error": "isolated Stage 3 worker returned the wrong digest",
+                }
+            results[digest] = result
+        submit_available()
+        if active and not made_progress:
+            nearest = min(handle.deadline for handle, *_ in active.values())
+            time.sleep(min(0.01, max(0.0, nearest - time.monotonic())))
     return [results[digest] for digest, _ in selected]
 
 

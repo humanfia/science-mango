@@ -17,6 +17,7 @@ import marshal
 import math
 import os
 import re
+import signal
 import stat
 import subprocess
 import sys
@@ -31,6 +32,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
 
+from evaluation.process_hard_wall import (
+    linux_process_start_time,
+    positive_wall_timeout,
+    process_group_alive,
+)
 from evaluation.proof_runtime import (
     RuntimeProbeError,
     probe_python_runtime,
@@ -548,19 +554,178 @@ def default_command_runner(
     command: list[str],
     *,
     cwd: Path,
+    hard_timeout: float | None = None,
+    termination_grace: float = 5.0,
 ) -> subprocess.CompletedProcess[str]:
-    """Run one stage synchronously; stages can never overlap."""
+    """Run one stage in a private session with an optional outer hard wall."""
 
+    if hard_timeout is not None:
+        hard_timeout = positive_wall_timeout(
+            hard_timeout,
+            "stage hard timeout",
+        )
+    termination_grace = positive_wall_timeout(
+        termination_grace,
+        "stage termination grace",
+    )
     with tempfile.TemporaryDirectory(prefix="qcode-stage-pycache-") as cache:
         environment = os.environ.copy()
         environment["PYTHONPYCACHEPREFIX"] = cache
-        return subprocess.run(
+        process = subprocess.Popen(
             command,
             cwd=cwd,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            check=False,
             env=environment,
+            start_new_session=True,
+        )
+        pgid = os.getpgid(process.pid)
+        session_id = os.getsid(process.pid)
+        leader_start_time = linux_process_start_time(process.pid)
+        if (
+            pgid != process.pid
+            or session_id != process.pid
+            or (
+                sys.platform.startswith("linux")
+                and leader_start_time is None
+            )
+        ):
+            process.kill()
+            process.wait()
+            raise RuntimeError("stage subprocess did not establish a private session")
+
+        def stop_private_session() -> None:
+            leader_alive = process.poll() is None
+            identity_changed = False
+            if leader_alive:
+                try:
+                    if (
+                        os.getpgid(process.pid) != pgid
+                        or os.getsid(process.pid) != session_id
+                    ):
+                        identity_changed = True
+                except ProcessLookupError:
+                    leader_alive = False
+            if identity_changed:
+                try:
+                    process.terminate()
+                except ProcessLookupError:
+                    pass
+                try:
+                    process.wait(timeout=termination_grace)
+                except subprocess.TimeoutExpired:
+                    try:
+                        process.kill()
+                    except ProcessLookupError:
+                        pass
+                    process.wait(timeout=termination_grace)
+                raise RuntimeError(
+                    "stage subprocess identity changed; exact leader was killed"
+                )
+            if not leader_alive and not process_group_alive(
+                pgid,
+                session_id=session_id,
+                session_leader_start_time=leader_start_time,
+            ):
+                return
+            try:
+                os.killpg(pgid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            deadline = time.monotonic() + termination_grace
+            while process_group_alive(
+                pgid,
+                session_id=session_id,
+                session_leader_start_time=leader_start_time,
+            ) and time.monotonic() < deadline:
+                process.poll()
+                time.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
+            if process_group_alive(
+                pgid,
+                session_id=session_id,
+                session_leader_start_time=leader_start_time,
+            ):
+                try:
+                    os.killpg(pgid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                kill_deadline = time.monotonic() + termination_grace
+                while (
+                    process_group_alive(
+                        pgid,
+                        session_id=session_id,
+                        session_leader_start_time=leader_start_time,
+                    )
+                    and time.monotonic() < kill_deadline
+                ):
+                    process.poll()
+                    time.sleep(
+                        min(
+                            0.01,
+                            max(0.0, kill_deadline - time.monotonic()),
+                        )
+                    )
+            try:
+                process.wait(timeout=termination_grace)
+            except subprocess.TimeoutExpired as exc:
+                raise RuntimeError(
+                    "stage subprocess leader survived SIGKILL"
+                ) from exc
+            if process_group_alive(
+                pgid,
+                session_id=session_id,
+                session_leader_start_time=leader_start_time,
+            ):
+                raise RuntimeError(
+                    "stage subprocess group survived SIGKILL"
+                )
+
+        try:
+            stdout, stderr = process.communicate(timeout=hard_timeout)
+        except subprocess.TimeoutExpired as exc:
+            stop_private_session()
+            try:
+                stdout, stderr = process.communicate(
+                    timeout=termination_grace
+                )
+            except subprocess.TimeoutExpired as drain_exc:
+                # A malicious or broken descendant may have escaped the
+                # verified session while retaining an inherited pipe.  Never
+                # turn output draining into a second unbounded wait.
+                stdout = drain_exc.stdout or exc.stdout or exc.output
+                stderr = drain_exc.stderr or exc.stderr
+                for stream in (process.stdout, process.stderr):
+                    if stream is not None:
+                        stream.close()
+            raise subprocess.TimeoutExpired(
+                command,
+                hard_timeout,
+                output=stdout if stdout else exc.output,
+                stderr=stderr if stderr else exc.stderr,
+            ) from exc
+        except BaseException:
+            stop_private_session()
+            raise
+        residual_descendants = process_group_alive(
+            pgid,
+            session_id=session_id,
+            session_leader_start_time=leader_start_time,
+        )
+        if residual_descendants:
+            stop_private_session()
+            diagnostic = (
+                "stage leader exited while private-session descendants "
+                "remained; descendants were terminated"
+            )
+            stderr = (stderr + "\n" if stderr else "") + diagnostic
+            if process.returncode == 0:
+                process.returncode = 70
+        return subprocess.CompletedProcess(
+            command,
+            process.returncode,
+            stdout,
+            stderr,
         )
 
 
@@ -1891,7 +2056,17 @@ class FiveStagePipeline:
 
     def _run_command(self, stage: str, command: list[str], log_path: Path) -> int:
         try:
-            completed = self.command_runner(command, cwd=self.config.repo_dir)
+            if self.command_runner is default_command_runner:
+                completed = default_command_runner(
+                    command,
+                    cwd=self.config.repo_dir,
+                    hard_timeout=self._stage_outer_hard_timeout(stage),
+                )
+            else:
+                completed = self.command_runner(
+                    command,
+                    cwd=self.config.repo_dir,
+                )
         except FileNotFoundError as exc:
             raise PipelineError("COMMAND_NOT_FOUND", str(exc), stage=stage) from exc
         except subprocess.TimeoutExpired as exc:
@@ -1905,6 +2080,107 @@ class FiveStagePipeline:
             stdout + (("\n[stderr]\n" + stderr) if stderr else ""),
         )
         return int(completed.returncode)
+
+    def _stage_outer_hard_timeout(self, stage: str) -> float | None:
+        """Return a final process wall beyond each proof stage's inner walls."""
+
+        if stage == "stage3_direction_audit":
+            try:
+                rows = [
+                    json.loads(line)
+                    for line in self.paths.stage2_ranked.read_text().splitlines()
+                    if line.strip()
+                ]
+            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+                raise PipelineError(
+                    "STAGE_TIMEOUT_BUDGET",
+                    f"cannot derive Stage 3 outer wall: {exc}",
+                    stage=stage,
+                ) from exc
+            if not all(isinstance(row, Mapping) for row in rows):
+                raise PipelineError(
+                    "STAGE_TIMEOUT_BUDGET",
+                    "cannot derive Stage 3 outer wall from non-object rows",
+                    stage=stage,
+                )
+            seen: set[str] = set()
+            candidate_ks: list[int] = []
+            for index, row in enumerate(rows):
+                audit = row.get("campaign_audit")
+                if not isinstance(audit, Mapping) or (
+                    audit.get("status") != "UNRESOLVED"
+                ):
+                    continue
+                identity = row.get("triage_identity")
+                digest = (
+                    identity.get("canonical_digest")
+                    if isinstance(identity, Mapping)
+                    else row.get("canonical_digest")
+                )
+                key = str(digest) if isinstance(digest, str) else f"row-{index}"
+                if key in seen:
+                    continue
+                seen.add(key)
+                k = row.get("k")
+                # Invalid candidates fail before worker launch.  One keeps the
+                # bound finite and conservative for controller bookkeeping.
+                candidate_ks.append(
+                    k
+                    if isinstance(k, int) and not isinstance(k, bool) and k > 0
+                    else 1
+                )
+            direction_workers = self.config.stage3_direction_workers
+            direction_wall = (
+                self._scaled_proof_timeout(self.config.stage3_timeout) + 5.0
+            )
+            screening_wall = sum(
+                (
+                    (2 * k + direction_workers - 1) // direction_workers
+                )
+                * direction_wall
+                + 6.0
+                for k in candidate_ks
+            )
+            certificate_wall = (
+                self._scaled_proof_timeout(
+                    self.config.certificate_total_timeout
+                )
+                + self._scaled_proof_timeout(
+                    self.config.verification_total_timeout
+                )
+                + 6.0
+            )
+            certificate_waves = math.ceil(
+                len(candidate_ks) / self.config.certificate_workers
+            )
+            outer = screening_wall + certificate_waves * certificate_wall + 60.0
+            if not math.isfinite(outer) or outer <= 0:
+                raise PipelineError(
+                    "STAGE_TIMEOUT_BUDGET",
+                    "derived Stage 3 outer wall is not positive and finite",
+                    stage=stage,
+                )
+            return outer
+        if stage != "stage5_strict_gate":
+            return None
+        multiplier = float(self._proof_budget_multiplier)
+        known_answer_total = math.ceil(
+            float(self.config.known_answer_total_timeout) * multiplier
+        )
+        known_answer_margin = max(
+            60,
+            (known_answer_total + 19) // 20,
+        )
+        known_answer_outer = (
+            3 * known_answer_total + known_answer_margin + 5
+        )
+        verification_total = (
+            float(self.config.verification_total_timeout) * multiplier
+        )
+        # Internal workers own the mathematical timeout and checkpoint result.
+        # This small outer cushion only covers serialization and interpreter
+        # cleanup if the finalizer itself becomes wedged.
+        return known_answer_outer + verification_total + 30.0
 
     @staticmethod
     def _compact_context(value: Mapping[str, Any]) -> dict[str, Any]:

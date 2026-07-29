@@ -32,6 +32,7 @@ from evaluation.final_gate import minimum_winning_distance
 from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
     positive_wall_timeout,
+    set_linux_parent_death_signal,
     terminate_process_pool,
 )
 from evaluation.noncss_certificate import (
@@ -158,9 +159,14 @@ _WORKER_CODE = None
 _WORKER_SPECS = None
 
 
-def initialize_worker(claim: dict[str, Any]) -> None:
+def initialize_worker(
+    claim: dict[str, Any],
+    expected_parent_pid: int | None = None,
+) -> None:
     """Build the candidate and its logical basis once in each worker."""
     global _WORKER_CLAIM, _WORKER_CODE, _WORKER_SPECS
+    if expected_parent_pid is not None:
+        set_linux_parent_death_signal(expected_parent_pid)
     _WORKER_CLAIM = claim
     _WORKER_CODE = build_candidate_code(claim)
     _WORKER_SPECS = (
@@ -616,7 +622,7 @@ def screen_candidate(
     executor = ProcessPoolExecutor(
         max_workers=workers,
         initializer=initialize_worker,
-        initargs=(candidate,),
+        initargs=(candidate, os.getpid()),
     )
     active: dict[Any, tuple[int, float]] = {}
     pool_terminated = False

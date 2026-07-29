@@ -474,6 +474,49 @@ def _config(
     )
 
 
+def test_proof_stage_outer_walls_cover_stage3_and_stage5(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id="outer-wall-budget",
+        candidate_inputs=(candidates,),
+        stage2_candidate_workers=1,
+        stage2_solver_workers=1,
+        stage3_timeout=2,
+        stage3_candidate_workers=1,
+        stage3_direction_workers=2,
+        certificate_workers=1,
+        certificate_solver_workers=1,
+        certificate_total_timeout=3,
+        verification_total_timeout=4,
+        known_answer_total_timeout=1,
+        max_total_workers=6,
+        stage_review=False,
+    )
+    pipeline = FiveStagePipeline(config)
+    _write_jsonl(
+        pipeline.paths.stage2_ranked,
+        [
+            {
+                "k": 2,
+                "triage_identity": {"canonical_digest": "candidate"},
+                "campaign_audit": {"status": "UNRESOLVED"},
+            }
+        ],
+    )
+
+    # Stage 3: candidate wall 2 directions * (2 + 5) + 5, one
+    # termination second, certificate wall 3 + 4 + 5, one termination
+    # second, and the stage-level 60 second controller cushion.
+    assert pipeline._stage_outer_hard_timeout(
+        "stage3_direction_audit"
+    ) == pytest.approx(93)
+    assert pipeline._stage_outer_hard_timeout(
+        "stage5_strict_gate"
+    ) == pytest.approx(102)
+    assert pipeline._stage_outer_hard_timeout("stage2_sector_audit") is None
+
+
 def _certificate(
     config: PipelineConfig,
     digest: str,
