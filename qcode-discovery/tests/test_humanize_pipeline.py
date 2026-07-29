@@ -948,13 +948,7 @@ def test_proof_retry_controller_escalates_1x_2x_4x_then_caps(tmp_path):
     )
     unresolved = {"canonical_digest": "retry-me", "status": "UNRESOLVED"}
     runner = ScenarioRunner(
-        stage2=[
-            _plan(
-                [unresolved],
-                selection_exhausted=False,
-                selection_page=(0, 1),
-            )
-        ],
+        stage2=[_plan([unresolved])],
         stage3=[_plan([unresolved])],
     )
 
@@ -1620,10 +1614,363 @@ def test_paginated_stage2_stops_when_cursor_makes_no_progress(tmp_path):
         reviewer=RecordingReviewer(),
     ).run()
 
-    assert state["status"] == "INCOMPLETE"
+    assert state["status"] == "FAILED"
     assert runner.counts == {"stage2": 1}
     assert state["stage2_pagination"]["no_progress"] is True
     assert state["stage2_pagination"]["cursor"] == 0
+    assert state["failure"]["classification"] == "NO_PAGINATION_PROGRESS"
+
+
+def test_capped_first_page_is_deferred_and_later_page_can_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="deferred-page-later-win"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {
+        "canonical_digest": "deferred-page-zero",
+        "status": "UNRESOLVED",
+    }
+    winner, _ = _certificate(config, "later-page-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 3, "stage3": 2, "strict": 1}
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 1
+    assert ledger["pending"]["selected_digests"] == ["later-page-winner"]
+    assert ledger["committed_digests"] == ["deferred-page-zero"]
+    assert len(ledger["deferred_pages"]) == 1
+    deferred = ledger["deferred_pages"][0]
+    assert deferred["selected_digests"] == ["deferred-page-zero"]
+    assert deferred["cap_reason"] == "MAX_ATTEMPTS_REACHED"
+    manifest = (
+        config.root / "solver-state" / deferred["manifest_path"]
+    )
+    assert hashlib.sha256(manifest.read_bytes()).hexdigest() == deferred[
+        "manifest_sha256"
+    ]
+
+
+def test_no_win_with_deferred_backlog_remains_incomplete(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="deferred-page-no-win"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {
+        "canonical_digest": "deferred-no-win-zero",
+        "status": "UNRESOLVED",
+    }
+    rejected = {
+        "canonical_digest": "terminal-rejected-one",
+        "status": "REJECTED",
+    }
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [rejected],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 3, "stage3": 2}
+    reasons = state["result"]["proof_incompleteness"]["reasons"]
+    assert "STAGE2_DEFERRED_PROOF_PAGE" in {
+        reason["code"] for reason in reasons
+    }
+    assert not (
+        config.root / "artifacts" / "stage5-no-win.json"
+    ).exists()
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 2
+    assert ledger["pending"] is None
+    assert ledger["committed_digests"] == [
+        "deferred-no-win-zero",
+        "terminal-rejected-one",
+    ]
+
+
+def test_deferred_page_atomic_commit_resumes_without_skipping_digest(
+    tmp_path, monkeypatch
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="deferred-page-crash-resume"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {
+        "canonical_digest": "deferred-before-crash",
+        "status": "UNRESOLVED",
+    }
+    winner, _ = _certificate(config, "winner-after-crash")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+    )
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    original_atomic_write_json = pipeline_module.atomic_write_json
+    interrupted = False
+
+    def interrupt_after_ledger_commit(path: Path, value: dict) -> None:
+        nonlocal interrupted
+        original_atomic_write_json(path, value)
+        if (
+            path == ledger_path
+            and value.get("deferred_pages")
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(
+        pipeline_module, "atomic_write_json", interrupt_after_ledger_commit
+    )
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+        ).run()
+
+    committed = json.loads(ledger_path.read_text())
+    assert committed["cursor"] == 1
+    assert committed["pending"] is None
+    assert committed["committed_digests"] == ["deferred-before-crash"]
+    assert committed["deferred_pages"][0]["selected_digests"] == [
+        "deferred-before-crash"
+    ]
+
+    monkeypatch.setattr(
+        pipeline_module, "atomic_write_json", original_atomic_write_json
+    )
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 3, "stage3": 2, "strict": 1}
+    replayed = json.loads(ledger_path.read_text())
+    assert replayed["deferred_pages"] == committed["deferred_pages"]
+    assert replayed["pending"]["selected_digests"] == [
+        "winner-after-crash"
+    ]
+
+
+def test_deferred_page_prepare_replays_after_crash_before_ledger_commit(
+    tmp_path, monkeypatch
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="deferred-prepare-crash"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {
+        "canonical_digest": "prepared-before-crash",
+        "status": "UNRESOLVED",
+    }
+    winner, _ = _certificate(config, "winner-after-prepare-replay")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+    )
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    original_atomic_write_json = pipeline_module.atomic_write_json
+    interrupted = False
+
+    def interrupt_before_ledger_commit(path: Path, value: dict) -> None:
+        nonlocal interrupted
+        if (
+            path == ledger_path
+            and value.get("deferred_pages")
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+        original_atomic_write_json(path, value)
+
+    monkeypatch.setattr(
+        pipeline_module, "atomic_write_json", interrupt_before_ledger_commit
+    )
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+        ).run()
+
+    prepared = json.loads(ledger_path.read_text())
+    assert prepared["cursor"] == 0
+    assert prepared["pending"]["selected_digests"] == [
+        "prepared-before-crash"
+    ]
+    assert not prepared.get("deferred_pages")
+    manifests = list(
+        (config.root / "solver-state" / "deferred-pages").glob(
+            "*/manifest.json"
+        )
+    )
+    assert len(manifests) == 1
+    prepared_manifest_sha256 = hashlib.sha256(
+        manifests[0].read_bytes()
+    ).hexdigest()
+
+    monkeypatch.setattr(
+        pipeline_module, "atomic_write_json", original_atomic_write_json
+    )
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 3, "stage3": 2, "strict": 1}
+    committed = json.loads(ledger_path.read_text())
+    assert committed["committed_digests"] == ["prepared-before-crash"]
+    assert committed["deferred_pages"][0]["selected_digests"] == [
+        "prepared-before-crash"
+    ]
+    assert (
+        hashlib.sha256(manifests[0].read_bytes()).hexdigest()
+        == prepared_manifest_sha256
+    )
+
+
+def test_paginated_stage2_scans_more_than_64_pages_without_resume(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="pagination-more-than-64-pages"),
+        stage_review=False,
+    )
+    page_count = 66
+    plans = [
+        _plan(
+            [
+                {
+                    "canonical_digest": f"terminal-reject-{index}",
+                    "status": "REJECTED",
+                }
+            ],
+            selection_exhausted=index == page_count - 1,
+            selection_page=(index, index + 1),
+        )
+        for index in range(page_count)
+    ]
+    runner = ScenarioRunner(stage2=plans)
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    assert runner.counts == {"stage2": page_count}
+    assert state["execution_attempt"] == page_count
+    assert state["stage2_pagination"]["automatic_passes"] == page_count - 1
+    assert "automatic_pass_limit" not in state["stage2_pagination"]
 
 
 def test_paginated_page_advances_after_stage3_rejects_unresolved(tmp_path):

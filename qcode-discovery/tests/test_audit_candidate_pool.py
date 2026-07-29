@@ -1387,9 +1387,15 @@ def test_selection_ledger_replays_pending_page_then_advances(tmp_path, monkeypat
     ledger["committed_digests"] = first_page["selected_digests"]
     ledger["completed_pages"] = 1
     ledger["pending"] = None
+    deferred_sentinel = {
+        "page_sha256": first_page["page_sha256"],
+        "selected_digests": first_page["selected_digests"],
+        "opaque_pipeline_owned_field": True,
+    }
+    ledger["deferred_pages"] = [deferred_sentinel]
     candidate_pool.atomic_write_json(ledger_path, ledger)
 
-    second, second_stats, second_page, _ = (
+    second, second_stats, second_page, round_tripped_ledger = (
         candidate_pool._prepare_selection_page(
             rows(),
             top=1,
@@ -1401,3 +1407,7 @@ def test_selection_ledger_replays_pending_page_then_advances(tmp_path, monkeypat
     assert [row["source"] for row in second] == ["candidate-2"]
     assert second_page["start_index"] == first_page["next_index"]
     assert second_stats["selection_exhausted"] is True
+    assert round_tripped_ledger["deferred_pages"] == [deferred_sentinel]
+    assert json.loads(ledger_path.read_text())["deferred_pages"] == [
+        deferred_sentinel
+    ]

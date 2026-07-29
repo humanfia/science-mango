@@ -56,7 +56,9 @@ STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = 1
 STAGE2_SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
 PROOF_RETRY_CONTROLLER_SCHEMA_VERSION = 1
 PROOF_RETRY_CONTROLLER_GATE = "qldpc-proof-retry-controller"
-MAX_AUTOMATIC_PROOF_PASSES = 64
+STAGE2_DEFERRED_PAGE_SCHEMA_VERSION = 1
+STAGE2_DEFERRED_PAGE_GATE = "qldpc-stage2-deferred-proof-page"
+STAGE2_DEFERRED_PAGE_CODE = "STAGE2_DEFERRED_PROOF_PAGE"
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
 STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
     {
@@ -3251,6 +3253,638 @@ class FiveStagePipeline:
             record["incomplete_reasons"] = stage_reasons
         self._write_state()
 
+    @staticmethod
+    def _deferred_page_hash(entry: Mapping[str, Any]) -> str:
+        unsigned = dict(entry)
+        unsigned.pop("entry_sha256", None)
+        return _canonical_sha256(unsigned)
+
+    def _validate_deferred_stage2_pages(
+        self,
+        ledger: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Replay every parked page and its immutable evidence manifest."""
+
+        raw_pages = ledger.get("deferred_pages", [])
+        if not isinstance(raw_pages, list):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection ledger has an invalid deferred page list",
+                stage="stage2_sector_audit",
+            )
+        binding_sha256 = ledger.get("binding_sha256")
+        committed = ledger.get("committed_digests")
+        cursor = ledger.get("cursor")
+        completed_pages = ledger.get("completed_pages")
+        if (
+            not isinstance(binding_sha256, str)
+            or not isinstance(committed, list)
+            or any(
+                not isinstance(digest, str) or not digest
+                for digest in committed
+            )
+            or len(set(committed)) != len(committed)
+            or isinstance(cursor, bool)
+            or not isinstance(cursor, int)
+            or cursor < 0
+            or isinstance(completed_pages, bool)
+            or not isinstance(completed_pages, int)
+            or completed_pages < len(raw_pages)
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection ledger cannot bind deferred pages",
+                stage="stage2_sector_audit",
+            )
+        committed_set = set(committed)
+        pages: list[dict[str, Any]] = []
+        seen_pages: set[str] = set()
+        seen_digests: set[str] = set()
+        previous_start_index = -1
+        solver_root = self.paths.solver_state.resolve(strict=True)
+        for raw_entry in raw_pages:
+            if not isinstance(raw_entry, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 deferred page entry is not an object",
+                    stage="stage2_sector_audit",
+                )
+            entry = dict(raw_entry)
+            page = entry.get("page")
+            selected = entry.get("selected_digests")
+            page_sha256 = entry.get("page_sha256")
+            if (
+                entry.get("schema_version")
+                != STAGE2_DEFERRED_PAGE_SCHEMA_VERSION
+                or entry.get("gate") != STAGE2_DEFERRED_PAGE_GATE
+                or entry.get("binding_sha256") != binding_sha256
+                or not isinstance(page, Mapping)
+                or not isinstance(page_sha256, str)
+                or not isinstance(entry.get("selection_exhausted"), bool)
+                or page.get("page_sha256") != page_sha256
+                or not isinstance(selected, list)
+                or not selected
+                or selected != page.get("selected_digests")
+                or any(
+                    not isinstance(digest, str) or not digest
+                    for digest in selected
+                )
+                or len(set(selected)) != len(selected)
+                or entry.get("entry_sha256")
+                != self._deferred_page_hash(entry)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 deferred page entry does not replay",
+                    stage="stage2_sector_audit",
+                )
+            page_payload = {
+                "binding_sha256": page.get("binding_sha256"),
+                "start_index": page.get("start_index"),
+                "next_index": page.get("next_index"),
+                "selected_digests": selected,
+            }
+            start_index = page_payload["start_index"]
+            next_index = page_payload["next_index"]
+            if (
+                page_payload["binding_sha256"] != binding_sha256
+                or isinstance(start_index, bool)
+                or not isinstance(start_index, int)
+                or start_index < 0
+                or isinstance(next_index, bool)
+                or not isinstance(next_index, int)
+                or next_index <= start_index
+                or next_index > cursor
+                or start_index <= previous_start_index
+                or page_sha256 != _audit_json_sha256(page_payload)
+                or page_sha256 in seen_pages
+                or seen_digests.intersection(selected)
+                or not set(selected).issubset(committed_set)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 deferred page binding/digests are inconsistent",
+                    stage="stage2_sector_audit",
+                )
+            expected_manifest_relative = (
+                f"deferred-pages/{page_sha256}/manifest.json"
+            )
+            if entry.get("manifest_path") != expected_manifest_relative:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 deferred page manifest path is not canonical",
+                    stage="stage2_sector_audit",
+                )
+            manifest_path = (
+                self.paths.solver_state / expected_manifest_relative
+            )
+            manifest = _read_json_object(manifest_path)
+            unsigned_manifest = dict(manifest)
+            manifest_sha256 = unsigned_manifest.pop("manifest_sha256", None)
+            manifest_incompleteness = manifest.get("proof_incompleteness")
+            manifest_active = manifest.get("proof_retry_active")
+            if (
+                manifest.get("schema_version")
+                != STAGE2_DEFERRED_PAGE_SCHEMA_VERSION
+                or manifest.get("gate") != STAGE2_DEFERRED_PAGE_GATE
+                or manifest.get("page") != dict(page)
+                or manifest.get("selected_digests") != selected
+                or manifest.get("selection_exhausted")
+                != entry.get("selection_exhausted")
+                or manifest.get("proof_incompleteness_sha256")
+                != entry.get("proof_incompleteness_sha256")
+                or not isinstance(manifest_incompleteness, Mapping)
+                or _canonical_sha256(manifest_incompleteness)
+                != manifest.get("proof_incompleteness_sha256")
+                or manifest.get("controller_binding_sha256")
+                != entry.get("controller_binding_sha256")
+                or manifest.get("controller_active_sha256")
+                != entry.get("controller_active_sha256")
+                or not isinstance(manifest_active, Mapping)
+                or _canonical_sha256(manifest_active)
+                != manifest.get("controller_active_sha256")
+                or not isinstance(manifest_sha256, str)
+                or manifest_sha256 != _canonical_sha256(unsigned_manifest)
+                or entry.get("manifest_sha256") != _file_sha256(manifest_path)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 deferred page manifest does not replay",
+                    stage="stage2_sector_audit",
+                )
+            artifacts = manifest.get("artifacts")
+            if not isinstance(artifacts, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 deferred page lacks artifact hashes",
+                    stage="stage2_sector_audit",
+                )
+            for metadata in artifacts.values():
+                if not isinstance(metadata, Mapping):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "Stage 2 deferred artifact metadata is malformed",
+                        stage="stage2_sector_audit",
+                    )
+                archived_path = metadata.get("archived_path")
+                expected_sha256 = metadata.get("sha256")
+                if not isinstance(expected_sha256, str):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "Stage 2 deferred artifact lacks a hash",
+                        stage="stage2_sector_audit",
+                    )
+                if archived_path is None:
+                    continue
+                if not isinstance(archived_path, str):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "Stage 2 deferred artifact path is malformed",
+                        stage="stage2_sector_audit",
+                    )
+                archived = (
+                    self.paths.solver_state / archived_path
+                ).resolve(strict=True)
+                try:
+                    archived.relative_to(solver_root)
+                except ValueError as exc:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "Stage 2 deferred artifact escapes solver state",
+                        stage="stage2_sector_audit",
+                    ) from exc
+                if _file_sha256(archived) != expected_sha256:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "Stage 2 deferred artifact hash does not replay",
+                        stage="stage2_sector_audit",
+                    )
+            seen_pages.add(page_sha256)
+            seen_digests.update(selected)
+            previous_start_index = start_index
+            pages.append(entry)
+        return pages
+
+    def _archive_deferred_stage2_page(
+        self,
+        *,
+        page: Mapping[str, Any],
+        selection_exhausted: bool,
+        incompleteness: Mapping[str, Any],
+        active: Mapping[str, Any],
+    ) -> tuple[str, str]:
+        """Persist the complete proof-page evidence before moving its cursor."""
+
+        page_sha256 = str(page["page_sha256"])
+        relative_root = Path("deferred-pages") / page_sha256
+        archive_root = _reject_symlink_components(
+            self.paths.solver_state / relative_root,
+            classification="UNSAFE_CONTROL_PATH",
+            label="deferred proof page archive",
+        )
+        archive_root.mkdir(mode=0o700, parents=True, exist_ok=True)
+        self._ensure_solver_state_tree_safe()
+        manifest_path = archive_root / "manifest.json"
+        expected_incompleteness_sha256 = _canonical_sha256(incompleteness)
+        expected_active_sha256 = _canonical_sha256(active)
+        if manifest_path.is_file():
+            # PREPARE is deliberately idempotent. A crash before the ledger
+            # rename may update live state during restart; the already-written
+            # immutable archive remains authoritative for this exact page.
+            manifest = _read_json_object(manifest_path)
+            unsigned_manifest = dict(manifest)
+            embedded_manifest_sha256 = unsigned_manifest.pop(
+                "manifest_sha256", None
+            )
+            if (
+                manifest.get("schema_version")
+                != STAGE2_DEFERRED_PAGE_SCHEMA_VERSION
+                or manifest.get("gate") != STAGE2_DEFERRED_PAGE_GATE
+                or manifest.get("page") != dict(page)
+                or manifest.get("selected_digests")
+                != list(page["selected_digests"])
+                or manifest.get("selection_exhausted")
+                is not selection_exhausted
+                or manifest.get("proof_incompleteness_sha256")
+                != expected_incompleteness_sha256
+                or manifest.get("controller_binding_sha256")
+                != active.get("binding_sha256")
+                or manifest.get("controller_active_sha256")
+                != expected_active_sha256
+                or embedded_manifest_sha256
+                != _canonical_sha256(unsigned_manifest)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "existing deferred proof page PREPARE does not replay",
+                    stage="stage2_sector_audit",
+                )
+            archived_artifacts = manifest.get("artifacts")
+            if not isinstance(archived_artifacts, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "existing deferred proof page PREPARE lacks artifacts",
+                    stage="stage2_sector_audit",
+                )
+            solver_root = self.paths.solver_state.resolve(strict=True)
+            for metadata in archived_artifacts.values():
+                if not isinstance(metadata, Mapping):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "deferred PREPARE artifact metadata is malformed",
+                        stage="stage2_sector_audit",
+                    )
+                archived_path = metadata.get("archived_path")
+                expected_sha256 = metadata.get("sha256")
+                if archived_path is None:
+                    continue
+                if not isinstance(archived_path, str) or not isinstance(
+                    expected_sha256, str
+                ):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "deferred PREPARE artifact binding is malformed",
+                        stage="stage2_sector_audit",
+                    )
+                archived = (
+                    self.paths.solver_state / archived_path
+                ).resolve(strict=True)
+                try:
+                    archived.relative_to(solver_root)
+                except ValueError as exc:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "deferred PREPARE artifact escapes solver state",
+                        stage="stage2_sector_audit",
+                    ) from exc
+                if _file_sha256(archived) != expected_sha256:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "deferred PREPARE artifact hash does not replay",
+                        stage="stage2_sector_audit",
+                    )
+            return (
+                (relative_root / "manifest.json").as_posix(),
+                _file_sha256(manifest_path),
+            )
+
+        # Ranked files may contain the entire campaign pool and can be very
+        # large. Their hashes are retained, while the page-local summaries,
+        # certificates, and strict outcome are copied into the durable archive.
+        sources: tuple[tuple[str, Path, bool], ...] = (
+            ("stage2_ranked", self.paths.stage2_ranked, False),
+            ("stage2_summary", self.paths.stage2_summary, True),
+            ("stage3_ranked", self.paths.stage3_ranked, False),
+            ("stage3_summary", self.paths.stage3_summary, True),
+            ("stage3_thresholds", self.paths.stage3_thresholds, True),
+            ("stage4_certificates", self.paths.stage4_certificates, True),
+            ("stage4_summary", self.paths.stage4_summary, True),
+            ("stage5_gate", self.paths.stage5_gate, True),
+            ("stage5_incomplete", self.paths.stage5_incomplete, True),
+            ("stage5_no_win", self.paths.stage5_no_win, True),
+            (
+                "selection_ledger",
+                self.paths.stage2_selection_ledger,
+                True,
+            ),
+            (
+                "proof_retry_controller",
+                self.paths.proof_retry_controller,
+                True,
+            ),
+        )
+        artifacts: dict[str, dict[str, Any]] = {}
+        for label, source, should_copy in sources:
+            hashes = _hash_paths(
+                [source],
+                require=False,
+                classification="UNSAFE_CONTROL_PATH",
+                label=f"deferred {label}",
+            )
+            source_sha256 = hashes[str(_lexical_absolute(source))]
+            if source_sha256 is None:
+                continue
+            archived_relative: str | None = None
+            if should_copy:
+                destination = archive_root / f"{label}{source.suffix}"
+                _atomic_write_text(destination, source.read_text())
+                if (
+                    _file_sha256(destination) != source_sha256
+                    or _file_sha256(source) != source_sha256
+                ):
+                    raise PipelineError(
+                        "INPUT_CHANGED_DURING_STAGE",
+                        f"{label} changed while parking a deferred proof page",
+                        stage="stage2_sector_audit",
+                    )
+                archived_relative = (
+                    relative_root / destination.name
+                ).as_posix()
+            artifacts[label] = {
+                "source_path": str(source),
+                "archived_path": archived_relative,
+                "sha256": source_sha256,
+            }
+
+        manifest_payload = {
+            "schema_version": STAGE2_DEFERRED_PAGE_SCHEMA_VERSION,
+            "gate": STAGE2_DEFERRED_PAGE_GATE,
+            "page": dict(page),
+            "selected_digests": list(page["selected_digests"]),
+            "selection_exhausted": selection_exhausted,
+            "proof_incompleteness": dict(incompleteness),
+            "proof_incompleteness_sha256": (
+                expected_incompleteness_sha256
+            ),
+            "proof_retry_active": dict(active),
+            "controller_binding_sha256": active.get("binding_sha256"),
+            "controller_active_sha256": expected_active_sha256,
+            "controller_file_sha256": _file_sha256(
+                self.paths.proof_retry_controller
+            ),
+            "artifacts": artifacts,
+        }
+        manifest = {
+            **manifest_payload,
+            "manifest_sha256": _canonical_sha256(manifest_payload),
+        }
+        atomic_write_json(manifest_path, manifest)
+        self._ensure_solver_state_tree_safe()
+        return (
+            (relative_root / "manifest.json").as_posix(),
+            _file_sha256(manifest_path),
+        )
+
+    def _defer_capped_stage2_page(
+        self,
+        controller: dict[str, Any],
+        active: dict[str, Any],
+        reason: str,
+    ) -> tuple[bool, bool]:
+        """Atomically park a capped page and advance to later candidates.
+
+        Returns ``(deferred, has_later_page)``. Legacy, unpaginated runs return
+        ``(False, False)`` and retain the old explicit capped state.
+        """
+
+        if not self.paths.stage2_summary.is_file():
+            return False, False
+        summary = _read_json_object(self.paths.stage2_summary)
+        page = summary.get("selection_page")
+        if not isinstance(page, Mapping):
+            return False, False
+        result = self.state.get("result")
+        incompleteness = (
+            result.get("proof_incompleteness")
+            if isinstance(result, Mapping)
+            else None
+        )
+        if (
+            self.state.get("status") != "INCOMPLETE"
+            or not isinstance(incompleteness, Mapping)
+            or not self._proof_retry_eligible(incompleteness)
+        ):
+            return False, False
+        selection_exhausted = summary.get("selection_exhausted")
+        if not isinstance(selection_exhausted, bool):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 deferred page lacks selection exhaustion status",
+                stage="stage2_sector_audit",
+            )
+
+        if active.get("status") == "CAPPED":
+            if active.get("cap_reason") != reason:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "proof retry cap reason changed before page deferral",
+                    stage="stage2_sector_audit",
+                )
+        else:
+            active.update(
+                {
+                    "status": "CAPPED",
+                    "cap_reason": reason,
+                    "capped_at": utc_now(),
+                }
+            )
+            controller["active"] = active
+            self._write_proof_retry_controller(controller)
+
+        manifest_path, manifest_sha256 = (
+            self._archive_deferred_stage2_page(
+                page=page,
+                selection_exhausted=selection_exhausted,
+                incompleteness=incompleteness,
+                active=active,
+            )
+        )
+        self._ensure_solver_state_tree_safe()
+        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        if (
+            ledger.get("schema_version")
+            != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
+            or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
+            or ledger.get("binding_sha256") != page.get("binding_sha256")
+            or ledger.get("pending") != dict(page)
+            or ledger.get("cursor") != page.get("start_index")
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 capped page does not match its selection ledger",
+                stage="stage2_sector_audit",
+            )
+        existing_deferred = self._validate_deferred_stage2_pages(ledger)
+        selected_digests = page.get("selected_digests")
+        start_index = page.get("start_index")
+        next_index = page.get("next_index")
+        committed = ledger.get("committed_digests")
+        completed_pages = ledger.get("completed_pages")
+        if (
+            not isinstance(selected_digests, list)
+            or not selected_digests
+            or isinstance(start_index, bool)
+            or not isinstance(start_index, int)
+            or isinstance(next_index, bool)
+            or not isinstance(next_index, int)
+            or next_index <= start_index
+            or not isinstance(committed, list)
+            or set(committed).intersection(selected_digests)
+            or isinstance(completed_pages, bool)
+            or not isinstance(completed_pages, int)
+            or completed_pages < 0
+        ):
+            raise PipelineError(
+                "NO_PAGINATION_PROGRESS",
+                "capped Stage 2 page cannot advance its durable cursor",
+                stage="stage2_sector_audit",
+            )
+        entry_payload = {
+            "schema_version": STAGE2_DEFERRED_PAGE_SCHEMA_VERSION,
+            "gate": STAGE2_DEFERRED_PAGE_GATE,
+            "binding_sha256": page["binding_sha256"],
+            "page_sha256": page["page_sha256"],
+            "page": dict(page),
+            "selected_digests": list(selected_digests),
+            "selection_exhausted": selection_exhausted,
+            "cap_reason": reason,
+            "proof_incompleteness_sha256": _canonical_sha256(
+                incompleteness
+            ),
+            "controller_binding_sha256": active["binding_sha256"],
+            "controller_active_sha256": _canonical_sha256(active),
+            "manifest_path": manifest_path,
+            "manifest_sha256": manifest_sha256,
+            "deferred_at": utc_now(),
+        }
+        entry = {
+            **entry_payload,
+            "entry_sha256": _canonical_sha256(entry_payload),
+        }
+        updated = dict(ledger)
+        updated["cursor"] = next_index
+        updated["committed_digests"] = [*committed, *selected_digests]
+        updated["completed_pages"] = completed_pages + 1
+        updated["pending"] = None
+        updated["deferred_pages"] = [*existing_deferred, entry]
+        updated["last_acknowledged_page_sha256"] = page["page_sha256"]
+        updated["last_acknowledged_at"] = utc_now()
+        # This is the transaction boundary: cursor movement and durable
+        # deferred evidence become visible in the same atomic replacement.
+        atomic_write_json(self.paths.stage2_selection_ledger, updated)
+        self._ensure_solver_state_tree_safe()
+
+        active.update(
+            {
+                "status": "DEFERRED",
+                "deferred_page_sha256": page["page_sha256"],
+                "deferred_at": utc_now(),
+            }
+        )
+        controller["active"] = active
+        self._write_proof_retry_controller(controller)
+        public = {
+            "binding_sha256": active["binding_sha256"],
+            "status": "DEFERRED",
+            "cap_reason": reason,
+            "attempts": len(active.get("attempts", [])),
+            "elapsed_seconds": active.get("elapsed_seconds", 0),
+            "deferred_page_sha256": page["page_sha256"],
+            "controller_path": str(self.paths.proof_retry_controller),
+        }
+        self.state["proof_retry"] = public
+        deferred_incompleteness = (
+            self._carry_deferred_stage2_incompleteness(incompleteness)
+        )
+        pagination = self.state.setdefault("stage2_pagination", {})
+        pagination.update(
+            {
+                "binding_sha256": page["binding_sha256"],
+                "cursor": next_index,
+                "completed_pages": updated["completed_pages"],
+                "deferred_pages": len(updated["deferred_pages"]),
+                "selection_exhausted": selection_exhausted,
+                "last_page_sha256": page["page_sha256"],
+                "last_advanced_at": utc_now(),
+            }
+        )
+        if isinstance(result, dict):
+            result["proof_retry"] = public
+            result["proof_incompleteness"] = deferred_incompleteness
+        self._write_state()
+        return True, not selection_exhausted
+
+    def _carry_deferred_stage2_incompleteness(
+        self,
+        incompleteness: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Make a deferred backlog permanently block a false NO_WIN."""
+
+        if not self.paths.stage2_selection_ledger.is_file():
+            return dict(incompleteness)
+        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        pages = self._validate_deferred_stage2_pages(ledger)
+        if not pages:
+            return dict(incompleteness)
+        reasons = [
+            dict(reason)
+            for reason in incompleteness.get("reasons", [])
+            if isinstance(reason, Mapping)
+        ]
+        reason = {
+            "stage": "stage2_sector_audit",
+            "reason": (
+                f"{len(pages)} Stage 2 proof page(s) exhausted their bounded "
+                "retry budgets and remain deferred"
+            ),
+            "code": STAGE2_DEFERRED_PAGE_CODE,
+            "deferred_pages": len(pages),
+            "deferred_candidates": sum(
+                len(page["selected_digests"]) for page in pages
+            ),
+            "deferred_page_digests_sha256": _canonical_sha256(
+                [page["page_sha256"] for page in pages]
+            ),
+        }
+        if not any(
+            existing.get("code") == STAGE2_DEFERRED_PAGE_CODE
+            for existing in reasons
+        ):
+            reasons.append(reason)
+        retry_stages = {
+            str(stage)
+            for stage in incompleteness.get("retry_stages", [])
+            if stage in STAGE_ORDER
+        }
+        retry_stages.add("stage2_sector_audit")
+        return {
+            "incomplete": True,
+            "reasons": reasons,
+            "retry_stages": [
+                stage for stage in STAGE_ORDER if stage in retry_stages
+            ],
+        }
+
     def _acknowledge_completed_stage2_page(
         self,
         state: Mapping[str, Any],
@@ -3272,27 +3906,43 @@ class FiveStagePipeline:
         reasons = incompleteness.get("reasons")
         if not isinstance(reasons, list) or not reasons:
             return False
-        codes = [
-            reason.get("code")
-            for reason in reasons
-            if isinstance(reason, Mapping)
-        ]
-        if (
-            len(codes) != len(reasons)
-            or "STAGE2_SELECTION_TRUNCATED" not in codes
-            or any(
-                code != "STAGE2_SELECTION_TRUNCATED"
-                and code not in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
-                for code in codes
-            )
-        ):
-            return False
-
         summary = _read_json_object(self.paths.stage2_summary)
         page = summary.get("selection_page")
         # Old runs did not have a durable page. Returning INCOMPLETE is safer
         # than guessing a cursor and preserves backwards compatibility.
         if not isinstance(page, Mapping):
+            return False
+        selection_exhausted = summary.get("selection_exhausted")
+        if not isinstance(selection_exhausted, bool):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 page lacks selection exhaustion status",
+                stage="stage2_sector_audit",
+            )
+        codes = [
+            reason.get("code")
+            for reason in reasons
+            if isinstance(reason, Mapping)
+        ]
+        carry_codes = {
+            *STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES,
+            STAGE2_DEFERRED_PAGE_CODE,
+        }
+        if len(codes) != len(reasons):
+            return False
+        if selection_exhausted:
+            # The terminal page may be acknowledged when only durable,
+            # campaign-wide diagnostics keep the final result incomplete.
+            if not codes or any(code not in carry_codes for code in codes):
+                return False
+        elif (
+            "STAGE2_SELECTION_TRUNCATED" not in codes
+            or any(
+                code != "STAGE2_SELECTION_TRUNCATED"
+                and code not in carry_codes
+                for code in codes
+            )
+        ):
             return False
         self._ensure_solver_state_tree_safe()
         ledger = _read_json_object(self.paths.stage2_selection_ledger)
@@ -3309,6 +3959,7 @@ class FiveStagePipeline:
                 "Stage 2 selection ledger does not match its pending page",
                 stage="stage2_sector_audit",
             )
+        self._validate_deferred_stage2_pages(ledger)
         start_index = page.get("start_index")
         next_index = page.get("next_index")
         selected_digests = page.get("selected_digests")
@@ -3343,7 +3994,11 @@ class FiveStagePipeline:
                 "detected_at": utc_now(),
             })
             self._write_state()
-            return False
+            raise PipelineError(
+                "NO_PAGINATION_PROGRESS",
+                "Stage 2 page did not advance its finite candidate cursor",
+                stage="stage2_sector_audit",
+            )
 
         global_input_incompleteness = [
             dict(reason)
@@ -3379,6 +4034,7 @@ class FiveStagePipeline:
             "binding_sha256": page["binding_sha256"],
             "cursor": next_index,
             "completed_pages": updated["completed_pages"],
+            "selection_exhausted": selection_exhausted,
             "last_page_sha256": page["page_sha256"],
             "last_advanced_at": utc_now(),
         })
@@ -4474,6 +5130,124 @@ class FiveStagePipeline:
         self._write_state()
         return self.state
 
+    def _proof_scheduler_signature(
+        self,
+        controller: Mapping[str, Any],
+    ) -> str:
+        """Hash only monotone scheduler state used to justify another pass."""
+
+        ledger_state: dict[str, Any] | None = None
+        if self.paths.stage2_selection_ledger.is_file():
+            ledger = _read_json_object(self.paths.stage2_selection_ledger)
+            ledger_state = {
+                "binding_sha256": ledger.get("binding_sha256"),
+                "cursor": ledger.get("cursor"),
+                "committed_digests": ledger.get("committed_digests"),
+                "pending": ledger.get("pending"),
+                "deferred_page_hashes": [
+                    entry.get("entry_sha256")
+                    for entry in ledger.get("deferred_pages", [])
+                    if isinstance(entry, Mapping)
+                ]
+                if isinstance(ledger.get("deferred_pages", []), list)
+                else None,
+            }
+        active = controller.get("active")
+        active_state: dict[str, Any] | None = None
+        if isinstance(active, Mapping):
+            attempts = active.get("attempts")
+            active_state = {
+                "binding_sha256": active.get("binding_sha256"),
+                "status": active.get("status"),
+                "cap_reason": active.get("cap_reason"),
+                "attempts": [
+                    {
+                        "attempt": attempt.get("attempt"),
+                        "multiplier": attempt.get("multiplier"),
+                        "status": attempt.get("status"),
+                        "made_progress": attempt.get("made_progress"),
+                    }
+                    for attempt in attempts
+                    if isinstance(attempt, Mapping)
+                ]
+                if isinstance(attempts, list)
+                else None,
+            }
+        return _canonical_sha256(
+            {"selection_ledger": ledger_state, "retry_active": active_state}
+        )
+
+    def _restore_completed_deferred_scan(self) -> bool:
+        """Recover a crash after the terminal cursor commit, before state."""
+
+        if (
+            self.state.get("status") != "INCOMPLETE"
+            or not self.paths.stage2_selection_ledger.is_file()
+        ):
+            return False
+        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        pages = self._validate_deferred_stage2_pages(ledger)
+        if not pages or ledger.get("pending") is not None:
+            return False
+        pagination = self.state.get("stage2_pagination")
+        state_says_exhausted = bool(
+            isinstance(pagination, Mapping)
+            and pagination.get("selection_exhausted") is True
+            and pagination.get("cursor") == ledger.get("cursor")
+        )
+        last_page_sha256 = ledger.get("last_acknowledged_page_sha256")
+        artifact_says_exhausted = False
+        if self.paths.stage2_summary.is_file():
+            summary = _read_json_object(self.paths.stage2_summary)
+            page = summary.get("selection_page")
+            artifact_says_exhausted = bool(
+                isinstance(page, Mapping)
+                and page.get("page_sha256") == last_page_sha256
+                and summary.get("selection_exhausted") is True
+            )
+        deferred_terminal = bool(
+            pages[-1].get("page_sha256") == last_page_sha256
+            and pages[-1].get("selection_exhausted") is True
+        )
+        if not (
+            state_says_exhausted
+            or artifact_says_exhausted
+            or deferred_terminal
+        ):
+            return False
+
+        result = self.state.get("result")
+        if not isinstance(result, dict):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "terminal deferred scan lacks its fail-closed result",
+                stage="stage2_sector_audit",
+            )
+        incompleteness = result.get("proof_incompleteness")
+        if not isinstance(incompleteness, Mapping):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "terminal deferred scan lacks proof incompleteness",
+                stage="stage2_sector_audit",
+            )
+        result["proof_incompleteness"] = (
+            self._carry_deferred_stage2_incompleteness(incompleteness)
+        )
+        repaired = self.state.setdefault("stage2_pagination", {})
+        repaired.update(
+            {
+                "binding_sha256": ledger.get("binding_sha256"),
+                "cursor": ledger.get("cursor"),
+                "completed_pages": ledger.get("completed_pages"),
+                "deferred_pages": len(pages),
+                "selection_exhausted": True,
+                "last_page_sha256": last_page_sha256,
+                "recovered_terminal_commit_at": utc_now(),
+            }
+        )
+        self._write_state()
+        return True
+
     def _run_locked(self) -> dict[str, Any]:
         self._load_or_initialize_state()
         previous_status = self.state.get("status")
@@ -4675,6 +5449,11 @@ class FiveStagePipeline:
             proof_incompleteness = self._carry_paginated_input_incompleteness(
                 stage2,
                 proof_incompleteness,
+            )
+            proof_incompleteness = (
+                self._carry_deferred_stage2_incompleteness(
+                    proof_incompleteness
+                )
             )
             controller_source_sha256 = self._source_file_sha256(
                 controller_source,
@@ -4952,13 +5731,19 @@ class FiveStagePipeline:
         """Run synchronously, advancing terminal proof pages under one lock."""
 
         with self._exclusive_lock():
+            self._load_or_initialize_state()
+            try:
+                if self._restore_completed_deferred_scan():
+                    return self.state
+            except PipelineError as exc:
+                return self._record_failure(exc)
             # max_attempts=1 is the explicit compatibility/diagnostic mode:
             # one proof pass per invocation and no in-process retry sleep.
             if self.config.proof_retry_max_attempts == 1:
                 state: dict[str, Any] = {}
-                for automatic_pass in range(
-                    1, MAX_AUTOMATIC_PROOF_PASSES + 1
-                ):
+                automatic_pass = 0
+                while True:
+                    automatic_pass += 1
                     state = self._run_locked()
                     if state.get("status") != "INCOMPLETE":
                         return state
@@ -4968,23 +5753,27 @@ class FiveStagePipeline:
                         )
                     except PipelineError as exc:
                         return self._record_failure(exc)
-                    if not advanced:
-                        return state
-                    self.state.setdefault("stage2_pagination", {})[
-                        "automatic_passes"
-                    ] = automatic_pass
-                    self._write_state()
-                self.state.setdefault("stage2_pagination", {}).update(
-                    {
-                        "automatic_pass_limit": (
-                            MAX_AUTOMATIC_PROOF_PASSES
-                        ),
-                        "resume_required": True,
-                        "limit_reached_at": utc_now(),
-                    }
-                )
-                self._write_state()
-                return self.state
+                    if advanced:
+                        summary = _read_json_object(self.paths.stage2_summary)
+                        selection_exhausted = summary.get(
+                            "selection_exhausted"
+                        )
+                        if not isinstance(selection_exhausted, bool):
+                            return self._record_failure(
+                                PipelineError(
+                                    "OUTPUT_INVALID",
+                                    "Stage 2 page lacks selection exhaustion status",
+                                    stage="stage2_sector_audit",
+                                )
+                            )
+                        self.state.setdefault("stage2_pagination", {})[
+                            "automatic_passes"
+                        ] = automatic_pass
+                        self._write_state()
+                        if selection_exhausted:
+                            return state
+                        continue
+                    return state
 
             # Load once before selecting a recovered PREPARED retry.  Each
             # _run_locked call reloads again before executing its stage state
@@ -4993,7 +5782,10 @@ class FiveStagePipeline:
             controller = self._load_proof_retry_controller()
             force_fresh_page = False
             state: dict[str, Any] = {}
-            for automatic_pass in range(1, MAX_AUTOMATIC_PROOF_PASSES + 1):
+            automatic_pass = 0
+            while True:
+                automatic_pass += 1
+                scheduler_before = self._proof_scheduler_signature(controller)
                 active: dict[str, Any] | None = None
                 prepared: dict[str, Any] | None = None
                 multiplier = 1.0
@@ -5018,16 +5810,45 @@ class FiveStagePipeline:
                         else None
                     )
                     if active.get("status") == "CAPPED":
-                        return self._mark_proof_retry_capped(
-                            controller,
-                            active,
-                            str(
-                                active.get(
-                                    "cap_reason",
-                                    "RETRY_CONTROLLER_ALREADY_CAPPED",
-                                )
-                            ),
+                        reason = str(
+                            active.get(
+                                "cap_reason",
+                                "RETRY_CONTROLLER_ALREADY_CAPPED",
+                            )
                         )
+                        try:
+                            deferred, has_later_page = (
+                                self._defer_capped_stage2_page(
+                                    controller,
+                                    active,
+                                    reason,
+                                )
+                            )
+                        except PipelineError as exc:
+                            return self._record_failure(exc)
+                        if not deferred:
+                            return self._mark_proof_retry_capped(
+                                controller, active, reason
+                            )
+                        force_fresh_page = True
+                        self.state.setdefault("stage2_pagination", {})[
+                            "automatic_passes"
+                        ] = automatic_pass
+                        self._write_state()
+                        if not has_later_page:
+                            return self.state
+                        if (
+                            self._proof_scheduler_signature(controller)
+                            == scheduler_before
+                        ):
+                            return self._record_failure(
+                                PipelineError(
+                                    "NO_PROOF_SCHEDULER_PROGRESS",
+                                    "deferred proof page did not move scheduler state",
+                                    stage="stage2_sector_audit",
+                                )
+                            )
+                        continue
                     should_resume_prepared = bool(
                         isinstance(latest, Mapping)
                         and latest.get("status") == "PREPARED"
@@ -5051,11 +5872,42 @@ class FiveStagePipeline:
                             active
                         )
                         if multiplier is None:
-                            return self._mark_proof_retry_capped(
-                                controller,
-                                active,
-                                cap_reason or "RETRY_BUDGET_EXHAUSTED",
+                            reason = (
+                                cap_reason or "RETRY_BUDGET_EXHAUSTED"
                             )
+                            try:
+                                deferred, has_later_page = (
+                                    self._defer_capped_stage2_page(
+                                        controller,
+                                        active,
+                                        reason,
+                                    )
+                                )
+                            except PipelineError as exc:
+                                return self._record_failure(exc)
+                            if not deferred:
+                                return self._mark_proof_retry_capped(
+                                    controller, active, reason
+                                )
+                            force_fresh_page = True
+                            self.state.setdefault(
+                                "stage2_pagination", {}
+                            )["automatic_passes"] = automatic_pass
+                            self._write_state()
+                            if not has_later_page:
+                                return self.state
+                            if (
+                                self._proof_scheduler_signature(controller)
+                                == scheduler_before
+                            ):
+                                return self._record_failure(
+                                    PipelineError(
+                                        "NO_PROOF_SCHEDULER_PROGRESS",
+                                        "capped proof page did not advance its cursor",
+                                        stage="stage2_sector_audit",
+                                    )
+                                )
+                            continue
                         prepared = self._prepare_proof_retry_attempt(
                             controller,
                             active,
@@ -5106,6 +5958,31 @@ class FiveStagePipeline:
                         "automatic_passes"
                     ] = automatic_pass
                     self._write_state()
+                    summary = _read_json_object(self.paths.stage2_summary)
+                    selection_exhausted = summary.get(
+                        "selection_exhausted"
+                    )
+                    if not isinstance(selection_exhausted, bool):
+                        return self._record_failure(
+                            PipelineError(
+                                "OUTPUT_INVALID",
+                                "Stage 2 page lacks selection exhaustion status",
+                                stage="stage2_sector_audit",
+                            )
+                        )
+                    if selection_exhausted:
+                        return state
+                    if (
+                        self._proof_scheduler_signature(controller)
+                        == scheduler_before
+                    ):
+                        return self._record_failure(
+                            PipelineError(
+                                "NO_PROOF_SCHEDULER_PROGRESS",
+                                "Stage 2 cursor acknowledgement made no progress",
+                                stage="stage2_sector_audit",
+                            )
+                        )
                     continue
 
                 binding = self._current_proof_retry_binding()
@@ -5129,32 +6006,55 @@ class FiveStagePipeline:
                     )
                 next_multiplier, cap_reason = self._proof_retry_decision(active)
                 if next_multiplier is None:
-                    return self._mark_proof_retry_capped(
-                        controller,
-                        active,
-                        cap_reason or "RETRY_BUDGET_EXHAUSTED",
-                    )
+                    reason = cap_reason or "RETRY_BUDGET_EXHAUSTED"
+                    try:
+                        deferred, has_later_page = (
+                            self._defer_capped_stage2_page(
+                                controller,
+                                active,
+                                reason,
+                            )
+                        )
+                    except PipelineError as exc:
+                        return self._record_failure(exc)
+                    if not deferred:
+                        return self._mark_proof_retry_capped(
+                            controller, active, reason
+                        )
+                    force_fresh_page = True
+                    self.state.setdefault("stage2_pagination", {})[
+                        "automatic_passes"
+                    ] = automatic_pass
+                    self._write_state()
+                    if not has_later_page:
+                        return self.state
+                    if (
+                        self._proof_scheduler_signature(controller)
+                        == scheduler_before
+                    ):
+                        return self._record_failure(
+                            PipelineError(
+                                "NO_PROOF_SCHEDULER_PROGRESS",
+                                "proof deferral made no scheduler progress",
+                                stage="stage2_sector_audit",
+                            )
+                        )
+                    continue
                 self.state.setdefault("stage2_pagination", {})[
                     "automatic_passes"
                 ] = automatic_pass
                 self._write_state()
-
-            active = controller.get("active")
-            if isinstance(active, Mapping):
-                return self._mark_proof_retry_capped(
-                    controller,
-                    dict(active),
-                    "AUTOMATIC_PASS_LIMIT_REACHED",
-                )
-            self.state.setdefault("stage2_pagination", {}).update(
-                {
-                    "automatic_pass_limit": MAX_AUTOMATIC_PROOF_PASSES,
-                    "resume_required": True,
-                    "limit_reached_at": utc_now(),
-                }
-            )
-            self._write_state()
-            return self.state
+                if (
+                    self._proof_scheduler_signature(controller)
+                    == scheduler_before
+                ):
+                    return self._record_failure(
+                        PipelineError(
+                            "NO_PROOF_SCHEDULER_PROGRESS",
+                            "proof retry controller scheduled no new bounded work",
+                            stage="stage2_sector_audit",
+                        )
+                    )
 
 
 def run_pipeline(
