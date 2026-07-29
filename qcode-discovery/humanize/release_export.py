@@ -559,17 +559,64 @@ def _validate_current_stage5_provenance(
             "STATE_INVALID",
             "pipeline config certificate_solver_workers must be positive",
         )
-    known_answer_timeout = _positive_config_number(
+    base_known_answer_timeout = _positive_config_number(
         config, "known_answer_timeout_per_logical"
     )
-    known_answer_total_timeout = _positive_config_number(
+    base_known_answer_total_timeout = _positive_config_number(
         config, "known_answer_total_timeout"
     )
-    verification_timeout = _positive_config_number(
+    base_verification_timeout = _positive_config_number(
         config, "verification_timeout_per_logical"
     )
-    verification_total_timeout = _positive_config_number(
+    base_verification_total_timeout = _positive_config_number(
         config, "verification_total_timeout"
+    )
+    stage_config = record.get("stage_config")
+    if not isinstance(stage_config, Mapping):
+        _fail(
+            "STAGE5_PROVENANCE_MISMATCH",
+            "Stage 5 stage_config must be an object",
+        )
+    raw_multiplier = stage_config.get("proof_budget_multiplier", 1.0)
+    configured_max_multiplier = config.get("proof_retry_max_multiplier", 1.0)
+    if (
+        isinstance(raw_multiplier, bool)
+        or not isinstance(raw_multiplier, (int, float))
+        or not math.isfinite(float(raw_multiplier))
+        or float(raw_multiplier) < 1.0
+        or isinstance(configured_max_multiplier, bool)
+        or not isinstance(configured_max_multiplier, (int, float))
+        or not math.isfinite(float(configured_max_multiplier))
+        or float(configured_max_multiplier) < 1.0
+        or float(raw_multiplier) > float(configured_max_multiplier)
+    ):
+        _fail(
+            "STAGE5_PROVENANCE_MISMATCH",
+            "Stage 5 proof retry multiplier is outside the configured budget",
+        )
+    multiplier = float(raw_multiplier)
+    known_answer_timeout = (
+        base_known_answer_timeout
+        if multiplier == 1.0
+        else max(1, math.ceil(float(base_known_answer_timeout) * multiplier))
+    )
+    known_answer_total_timeout = (
+        base_known_answer_total_timeout
+        if multiplier == 1.0
+        else max(
+            1,
+            math.ceil(float(base_known_answer_total_timeout) * multiplier),
+        )
+    )
+    verification_timeout = (
+        base_verification_timeout
+        if multiplier == 1.0
+        else float(base_verification_timeout) * multiplier
+    )
+    verification_total_timeout = (
+        base_verification_total_timeout
+        if multiplier == 1.0
+        else float(base_verification_total_timeout) * multiplier
     )
     known_answer_path = repo / "results" / "known_answer_gate.json"
     trust_path = repo / "results" / "known_answer_trust.json"
@@ -610,6 +657,8 @@ def _validate_current_stage5_provenance(
         "verification_total_timeout": verification_total_timeout,
         "verification_solver_workers": solver_workers,
     }
+    if multiplier != 1.0:
+        expected_stage_config["proof_budget_multiplier"] = multiplier
     if record.get("command") != expected_command:
         _fail(
             "STAGE5_PROVENANCE_MISMATCH",

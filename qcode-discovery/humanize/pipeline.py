@@ -2336,6 +2336,24 @@ class FiveStagePipeline:
             )
         return scaled
 
+    def _scaled_strict_timeout(self, value: float) -> int | float:
+        """Scale a Stage 5 float budget without changing its 1x command shape."""
+
+        if float(self._proof_budget_multiplier) == 1.0:
+            return value
+        return self._scaled_proof_timeout(value)
+
+    def _scaled_strict_integer_timeout(self, value: int) -> int:
+        """Scale one argparse integer timeout for the strict IBM replay."""
+
+        scaled = float(value) * float(self._proof_budget_multiplier)
+        if not math.isfinite(scaled) or scaled <= 0:
+            raise PipelineError(
+                "INVALID_PROOF_RETRY_BUDGET",
+                "scaled strict integer timeout must be positive and finite",
+            )
+        return max(1, math.ceil(scaled))
+
     def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
         command = [
             self.config.python_executable,
@@ -3464,13 +3482,29 @@ class FiveStagePipeline:
             "--known-answer-trust",
             str(self.config.known_answer_trust),
             "--known-answer-timeout-per-logical",
-            str(self.config.known_answer_timeout_per_logical),
+            str(
+                self._scaled_strict_integer_timeout(
+                    self.config.known_answer_timeout_per_logical
+                )
+            ),
             "--known-answer-total-timeout",
-            str(self.config.known_answer_total_timeout),
+            str(
+                self._scaled_strict_integer_timeout(
+                    self.config.known_answer_total_timeout
+                )
+            ),
             "--verification-timeout-per-logical",
-            str(self.config.verification_timeout_per_logical),
+            str(
+                self._scaled_strict_timeout(
+                    self.config.verification_timeout_per_logical
+                )
+            ),
             "--verification-total-timeout",
-            str(self.config.verification_total_timeout),
+            str(
+                self._scaled_strict_timeout(
+                    self.config.verification_total_timeout
+                )
+            ),
             "--verification-solver-workers",
             str(self.config.certificate_solver_workers),
             "--verification-state-dir",
@@ -3744,6 +3778,12 @@ class FiveStagePipeline:
             "verification_total_timeout": (
                 self.config.verification_total_timeout
             ),
+            "known_answer_timeout_per_logical": (
+                self.config.known_answer_timeout_per_logical
+            ),
+            "known_answer_total_timeout": (
+                self.config.known_answer_total_timeout
+            ),
             "max_total_workers": self.config.max_total_workers,
             "max_attempts": self.config.proof_retry_max_attempts,
             "max_multiplier": self.config.proof_retry_max_multiplier,
@@ -3766,6 +3806,7 @@ class FiveStagePipeline:
             "STAGE3_OPERATIONAL_ERROR",
             "STAGE3_OPERATIONAL_ERRORS",
             "STAGE3_CERTIFICATE_INCOMPLETE",
+            "STAGE5_STRICT_REPLAY_INCOMPLETE",
         }
         return any(
             isinstance(reason, Mapping)
@@ -3858,7 +3899,16 @@ class FiveStagePipeline:
                 stage="stage2_sector_audit",
             )
         source = self._audit_source_provenance()
+        strict_source = self._strict_source_provenance()
         base_config = self._proof_retry_base_config()
+        strict_inputs = _hash_paths(
+            [
+                self.paths.stage4_certificates,
+                self.config.known_answer_artifact,
+                self.config.known_answer_trust,
+            ],
+            require=False,
+        )
         binding = {
             "page_sha256": page_sha256,
             "selection_binding_sha256": selection_binding,
@@ -3869,6 +3919,9 @@ class FiveStagePipeline:
             "known_code_registry_sha256": source[
                 "known_code_registry_sha256"
             ],
+            "strict_source_fingerprint": strict_source["source_fingerprint"],
+            "strict_runner_sha256": strict_source["strict_runner_sha256"],
+            "strict_inputs": strict_inputs,
             "proof_config_sha256": _canonical_sha256(base_config),
             "stage1_outputs_sha256": _canonical_sha256(
                 self.state.get("stages", {})
@@ -3889,6 +3942,7 @@ class FiveStagePipeline:
             self.paths.solver_state / "xor",
             self.paths.solver_state / "directions",
             self.paths.solver_state / "checkpoints",
+            self.paths.solver_state / "strict-verification",
         )
         units: dict[str, dict[str, Any]] = {}
         for root in roots:
@@ -4570,21 +4624,33 @@ class FiveStagePipeline:
                 stage5_static_config = {
                     "mode": "strict",
                     "known_answer_timeout_per_logical": (
-                        self.config.known_answer_timeout_per_logical
+                        self._scaled_strict_integer_timeout(
+                            self.config.known_answer_timeout_per_logical
+                        )
                     ),
                     "known_answer_total_timeout": (
-                        self.config.known_answer_total_timeout
+                        self._scaled_strict_integer_timeout(
+                            self.config.known_answer_total_timeout
+                        )
                     ),
                     "verification_timeout_per_logical": (
-                        self.config.verification_timeout_per_logical
+                        self._scaled_strict_timeout(
+                            self.config.verification_timeout_per_logical
+                        )
                     ),
                     "verification_total_timeout": (
-                        self.config.verification_total_timeout
+                        self._scaled_strict_timeout(
+                            self.config.verification_total_timeout
+                        )
                     ),
                     "verification_solver_workers": (
                         self.config.certificate_solver_workers
                     ),
                 }
+                if float(self._proof_budget_multiplier) != 1.0:
+                    stage5_static_config["proof_budget_multiplier"] = float(
+                        self._proof_budget_multiplier
+                    )
 
                 def current_stage5_config() -> dict[str, Any]:
                     return {
@@ -4622,22 +4688,47 @@ class FiveStagePipeline:
                     terminal_status = "COMPLETED_WIN"
                 elif stage5_outcome == "INCOMPLETE":
                     terminal_status = "INCOMPLETE"
+                    stage5_reason = {
+                        "stage": "stage5_strict_gate",
+                        "code": "STAGE5_STRICT_REPLAY_INCOMPLETE",
+                        "message": (
+                            "No certificate passed and at least one strict "
+                            "certificate replay remains incomplete"
+                        ),
+                    }
+                    existing_reasons = [
+                        dict(reason)
+                        for reason in proof_incompleteness.get("reasons", [])
+                        if isinstance(reason, Mapping)
+                    ]
+                    if not any(
+                        reason.get("code") == stage5_reason["code"]
+                        for reason in existing_reasons
+                    ):
+                        existing_reasons.append(stage5_reason)
+                    retry_stages = {
+                        str(stage)
+                        for stage in proof_incompleteness.get(
+                            "retry_stages", []
+                        )
+                        if stage in STAGE_ORDER
+                    }
+                    retry_stages.add("stage5_strict_gate")
+                    proof_incompleteness = {
+                        "incomplete": True,
+                        "reasons": existing_reasons,
+                        "retry_stages": [
+                            stage
+                            for stage in STAGE_ORDER
+                            if stage in retry_stages
+                        ],
+                    }
                     record = self.state["stages"]["stage5_strict_gate"]
                     record["status"] = "INCOMPLETE"
                     record["machine_status"] = "INCOMPLETE"
                     record["incomplete_at"] = utc_now()
-                    record["incomplete_reasons"] = [
-                        {
-                            "stage": "stage5_strict_gate",
-                            "code": "STAGE5_STRICT_REPLAY_INCOMPLETE",
-                            "message": (
-                                "No certificate passed and at least one strict "
-                                "certificate replay remains incomplete"
-                            ),
-                        }
-                    ]
-                    if proof_incompleteness["incomplete"] is True:
-                        self._mark_retryable_proof_stages(proof_incompleteness)
+                    record["incomplete_reasons"] = [stage5_reason]
+                    self._mark_retryable_proof_stages(proof_incompleteness)
                 elif proof_incompleteness["incomplete"] is True:
                     terminal_status = "INCOMPLETE"
                     self._mark_retryable_proof_stages(proof_incompleteness)

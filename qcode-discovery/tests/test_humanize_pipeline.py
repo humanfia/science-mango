@@ -2224,6 +2224,139 @@ def test_stage5_timeout_keeps_current_proof_page_pending(tmp_path):
     assert ledger["pending"] is not None
 
 
+def test_stage5_incomplete_automatically_retries_with_scaled_strict_budget(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    run_id = "strict-timeout-auto-retry"
+    config = replace(
+        _config(repo, candidates, run_id=run_id),
+        proof_retry_max_attempts=4,
+        proof_retry_backoff_seconds=0,
+    )
+    winner, _ = _certificate(config, "strict-timeout-eventual-win")
+    runner = ScenarioRunner(
+        stage2=[_plan([winner])],
+        strict=[
+            _plan(strict_dispositions=["INCOMPLETE"]),
+            _plan(strict_dispositions=["ACCEPTED"]),
+        ],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 2}
+    strict_commands = runner.commands("strict")
+    assert [
+        float(command[command.index("--verification-timeout-per-logical") + 1])
+        for command in strict_commands
+    ] == [300, 600]
+    assert [
+        float(command[command.index("--verification-total-timeout") + 1])
+        for command in strict_commands
+    ] == [7200, 14400]
+    assert [
+        int(command[command.index("--known-answer-timeout-per-logical") + 1])
+        for command in strict_commands
+    ] == [300, 600]
+    assert [
+        int(command[command.index("--known-answer-total-timeout") + 1])
+        for command in strict_commands
+    ] == [7200, 14400]
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )
+    active = controller["active"]
+    assert active["status"] == "COMPLETED_WIN"
+    assert [attempt["multiplier"] for attempt in active["attempts"]] == [1, 2]
+    assert active["binding"]["strict_source_fingerprint"]
+    assert active["binding"]["strict_runner_sha256"]
+    assert active["binding"]["strict_inputs"][str(
+        config.root / "artifacts" / "stage4-certificates.jsonl"
+    )]
+
+    exported = export_release(repo_dir=repo, run_id=run_id)
+    assert exported["status"] == "exported"
+    assert exported["certificates"] == 1
+
+
+def test_stage5_prepared_retry_survives_restart_and_keeps_pending_page(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="strict-timeout-prepared-resume"),
+        proof_retry_max_attempts=4,
+        proof_retry_backoff_seconds=1,
+    )
+    winner, _ = _certificate(config, "strict-timeout-resumed-win")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            )
+        ],
+        strict=[
+            _plan(strict_dispositions=["INCOMPLETE"]),
+            _plan(strict_dispositions=["ACCEPTED"]),
+        ],
+    )
+
+    def interrupt_backoff(_seconds: float) -> None:
+        raise KeyboardInterrupt
+
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+            sleeper=interrupt_backoff,
+        ).run()
+
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    pending_before = json.loads(ledger_path.read_text())["pending"]
+    controller_path = (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    )
+    interrupted = json.loads(controller_path.read_text())["active"]
+    assert [attempt["status"] for attempt in interrupted["attempts"]] == [
+        "COMPLETED_INCOMPLETE",
+        "PREPARED",
+    ]
+    assert interrupted["attempts"][-1]["multiplier"] == 2
+    assert runner.counts == {"stage2": 1, "strict": 1}
+
+    sleeps: list[float] = []
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=sleeps.append,
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert sleeps == [1]
+    assert runner.counts == {"stage2": 2, "strict": 2}
+    assert json.loads(ledger_path.read_text())["pending"] == pending_before
+    strict_commands = runner.commands("strict")
+    assert [
+        float(command[command.index("--verification-total-timeout") + 1])
+        for command in strict_commands
+    ] == [7200, 14400]
+    completed = json.loads(controller_path.read_text())["active"]
+    assert completed["attempts"][-1]["status"] == "COMPLETED_WIN"
+
+
 def test_pipeline_run_id_cannot_escape_pipeline_root(tmp_path):
     repo, candidates = _repo(tmp_path)
     for run_id in ("..", ".", "../escape", "/absolute", "space name"):
