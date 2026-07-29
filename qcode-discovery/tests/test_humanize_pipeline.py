@@ -1115,7 +1115,7 @@ def test_paginated_page_digest_order_must_match_results(tmp_path):
     assert state["failure"]["stage"] == "stage2_sector_audit"
 
 
-def test_reviewer_failure_is_fail_closed_and_resume_retries_only_review(
+def test_proof_reviewer_failure_is_advisory_and_resume_retries_only_review(
     tmp_path,
 ):
     repo, candidates = _repo(tmp_path)
@@ -1123,12 +1123,22 @@ def test_reviewer_failure_is_fail_closed_and_resume_retries_only_review(
     runner = ScenarioRunner(stage2=[_plan([])])
     flaky = RecordingReviewer(fail_once={"stage2_sector_audit"})
 
-    failed = FiveStagePipeline(config, command_runner=runner, reviewer=flaky).run()
-    assert failed["status"] == "FAILED"
-    assert failed["failure"]["classification"] == "REVIEW_FAILED"
-    stage2 = failed["stages"]["stage2_sector_audit"]
+    first = FiveStagePipeline(config, command_runner=runner, reviewer=flaky).run()
+    assert first["status"] == "COMPLETED_NO_WIN"
+    assert "failure" not in first
+    stage2 = first["stages"]["stage2_sector_audit"]
     assert stage2["machine_status"] == "COMPLETED"
-    assert stage2["review_status"] == "FAILED"
+    assert stage2["status"] == "COMPLETED"
+    assert stage2["review_status"] == "ADVISORY_FAILED"
+    assert stage2["advisory_failure"] == {
+        "classification": "ADVISORY_FAILED",
+        "error": (
+            "RuntimeError: simulated stage2_sector_audit reviewer outage"
+        ),
+        "attempt": 1,
+        "timestamp": stage2["review_finished_at"],
+    }
+    assert not (config.root / "reviews" / "stage2_sector_audit" / "review.json").exists()
     assert runner.counts["stage2"] == 1
 
     completed = FiveStagePipeline(config, command_runner=runner, reviewer=flaky).run()
@@ -1136,6 +1146,126 @@ def test_reviewer_failure_is_fail_closed_and_resume_retries_only_review(
     assert runner.counts["stage2"] == 1
     assert flaky.calls.count("stage2_sector_audit") == 2
     assert completed["stages"]["stage2_sector_audit"]["attempt"] == 1
+    assert (
+        completed["stages"]["stage2_sector_audit"]["review_attempt"]
+        == 2
+    )
+    assert (
+        completed["stages"]["stage2_sector_audit"]["review_status"]
+        == "COMPLETED"
+    )
+    assert (
+        "advisory_failure"
+        not in completed["stages"]["stage2_sector_audit"]
+    )
+
+
+def test_stage2_through_stage4_advisory_failures_preserve_machine_routing(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="proof-advisory-routing")
+    unresolved = {
+        "canonical_digest": "advisory-route",
+        "status": "UNRESOLVED",
+    }
+    proven, _ = _certificate(config, "advisory-proof")
+    runner = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([proven])],
+    )
+    failed_reviews = {
+        "stage2_sector_audit",
+        "stage3_direction_audit",
+        "stage4_certificate_merge",
+    }
+    reviewer = RecordingReviewer(fail_once=failed_reviews)
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert "failure" not in state
+    assert runner.counts == {"stage2": 1, "stage3": 1, "strict": 1}
+    for stage in failed_reviews:
+        record = state["stages"][stage]
+        assert record["review_status"] == "ADVISORY_FAILED"
+        assert record["status"] == record["machine_status"]
+        assert record["advisory_failure"]["classification"] == "ADVISORY_FAILED"
+        assert record["advisory_failure"]["attempt"] == 1
+        assert not (config.root / "reviews" / stage / "review.json").exists()
+
+
+def test_stage5_strict_win_survives_advisory_reviewer_failure(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-win-advisory")
+    proven, _ = _certificate(config, "strict-win-advisory")
+    runner = ScenarioRunner(stage2=[_plan([proven])])
+    reviewer = RecordingReviewer(fail_once={"stage5_strict_gate"})
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert "failure" not in state
+    assert runner.counts == {"stage2": 1, "strict": 1}
+    strict = state["stages"]["stage5_strict_gate"]
+    assert strict["machine_status"] == "COMPLETED"
+    assert strict["status"] == "COMPLETED"
+    assert strict["review_status"] == "ADVISORY_FAILED"
+    assert strict["advisory_failure"]["classification"] == "ADVISORY_FAILED"
+    assert (config.root / "artifacts" / "stage5-final-gate.json").is_file()
+    assert not (config.root / "reviews" / "stage5_strict_gate" / "review.json").exists()
+
+
+def test_proof_reviewer_schema_error_is_advisory(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="proof-review-schema-error")
+
+    class MalformedReviewer(RecordingReviewer):
+        def review(self, stage: str, prompt: str, stage_dir: Path) -> dict:
+            if stage == "stage4_certificate_merge":
+                self.calls.append(stage)
+                return {"verdict": "continue"}
+            return super().review(stage, prompt, stage_dir)
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=MalformedReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    stage4 = state["stages"]["stage4_certificate_merge"]
+    assert stage4["review_status"] == "ADVISORY_FAILED"
+    assert stage4["advisory_failure"]["classification"] == "ADVISORY_FAILED"
+    assert stage4["advisory_failure"]["error"].startswith("ReviewError:")
+
+
+def test_stage1_reviewer_failure_remains_fail_closed(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="stage1-review-fail-closed")
+    runner = ScenarioRunner()
+    reviewer = RecordingReviewer(fail_once={"stage1_search"})
+
+    failed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert failed["status"] == "FAILED"
+    assert failed["failure"]["classification"] == "REVIEW_FAILED"
+    stage1 = failed["stages"]["stage1_search"]
+    assert stage1["machine_status"] == "COMPLETED"
+    assert stage1["review_status"] == "FAILED"
+    assert runner.counts == {}
 
 
 def test_nonzero_stage_is_not_cached_and_blocks_downstream_until_resume(

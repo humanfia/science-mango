@@ -1770,6 +1770,13 @@ class FiveStagePipeline:
         record["review_fingerprint"] = review_fingerprint
         self._write_state()
         try:
+            if stage != "stage1_search":
+                # A refreshed advisory review must not leave an older successful
+                # artifact looking current when the new attempt later fails.
+                for name in ("review.json", "bitlesson-suggestions.json"):
+                    (review_dir / name).unlink(missing_ok=True)
+                record.pop("review_machine_output_hashes", None)
+                record.pop("bitlesson_ids", None)
             reviewer = self.reviewer
             if reviewer is None:
                 raise RuntimeError("stage review is enabled without a reviewer")
@@ -1798,19 +1805,46 @@ class FiveStagePipeline:
                     review["lessons"], STAGE_ORDER.index(stage) + 1
                 )
         except Exception as exc:
-            record["review_status"] = "FAILED"
-            record["review_finished_at"] = utc_now()
-            record["review_error"] = f"{type(exc).__name__}: {exc}"
-            record["status"] = "REVIEW_FAILED"
+            finished_at = utc_now()
+            error = f"{type(exc).__name__}: {exc}"
+            record["review_finished_at"] = finished_at
+            record["review_error"] = error
+            if stage == "stage1_search":
+                # Stage 1's reviewer participates in the search loop and keeps
+                # its existing fail-closed semantics.
+                record["review_status"] = "FAILED"
+                record["status"] = "REVIEW_FAILED"
+                self._write_state()
+                raise PipelineError(
+                    "REVIEW_FAILED",
+                    error,
+                    stage=stage,
+                ) from exc
+
+            # Reviews after search are advisory by contract. Record the failure
+            # durably, but preserve the deterministic machine result and routing.
+            for name in ("review.json", "bitlesson-suggestions.json"):
+                try:
+                    (review_dir / name).unlink(missing_ok=True)
+                except OSError:
+                    # State is authoritative; a stale artifact is never accepted
+                    # unless review_status is COMPLETED with matching hashes.
+                    pass
+            record["review_status"] = "ADVISORY_FAILED"
+            record["advisory_failure"] = {
+                "classification": "ADVISORY_FAILED",
+                "error": error,
+                "attempt": record["review_attempt"],
+                "timestamp": finished_at,
+            }
+            record["status"] = record["machine_status"]
+            record["finished_at"] = finished_at
             self._write_state()
-            raise PipelineError(
-                "REVIEW_FAILED",
-                record["review_error"],
-                stage=stage,
-            ) from exc
+            return
         record["review_status"] = "COMPLETED"
         record["review_finished_at"] = utc_now()
         record.pop("review_error", None)
+        record.pop("advisory_failure", None)
         record["review_machine_output_hashes"] = record.get("output_hashes", {})
         record["status"] = record["machine_status"]
         record["finished_at"] = utc_now()
