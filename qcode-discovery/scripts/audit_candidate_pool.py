@@ -51,6 +51,8 @@ from scripts.screen_frontier_xor import (
 PROJECT = Path(__file__).resolve().parent.parent
 DEFAULT_KNOWN_ANSWER = PROJECT / "results" / "known_answer_gate.json"
 CACHE_SCHEMA_VERSION = 2
+SELECTION_LEDGER_SCHEMA_VERSION = 1
+SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
 SOLVER_RUNTIME_PACKAGES = (
     "numpy",
     "ortools",
@@ -596,21 +598,25 @@ def canonicalize_for_audit(
     return updated
 
 
-def select_audit_candidates(
+def _select_audit_page(
     ranked: list[dict[str, Any]],
     top: int,
     *,
+    start_index: int,
+    seen_digests: Iterable[str],
     canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
-) -> tuple[list[dict[str, Any]], dict[str, int]]:
-    """Fill the audit queue with unique, registry-novel CSS candidates."""
+) -> tuple[list[dict[str, Any]], dict[str, int], int]:
+    """Fill one durable audit page from a stable raw-rank cursor."""
 
     if top < 0:
         raise ValueError("top must be non-negative")
+    if start_index < 0 or start_index > len(ranked):
+        raise ValueError("selection start_index is outside the ranked pool")
     canonicalizer = (
         canonicalize_for_audit if canonicalizer is None else canonicalizer
     )
     selected: list[dict[str, Any]] = []
-    seen_digests: set[str] = set()
+    seen_digests = {str(value) for value in seen_digests}
     stats = {
         "canonicalized_candidates": 0,
         "canonical_duplicates_skipped": 0,
@@ -624,13 +630,15 @@ def select_audit_candidates(
         unscanned = sum(
             row["proof_score"].get("rejected") is not True
             and row["proof_score"].get("status") != "REJECTED"
-            for row in ranked
+            for row in ranked[start_index:]
         )
         stats["unscanned_eligible_candidates"] = unscanned
         stats["selection_exhausted"] = unscanned == 0
-        return selected, stats
+        return selected, stats, start_index
 
-    for index, row in enumerate(ranked):
+    next_index = len(ranked)
+    for index in range(start_index, len(ranked)):
+        row = ranked[index]
         if (
             row["proof_score"].get("rejected") is True
             or row["proof_score"].get("status") == "REJECTED"
@@ -672,8 +680,203 @@ def select_audit_candidates(
             )
             stats["unscanned_eligible_candidates"] = unscanned
             stats["selection_exhausted"] = unscanned == 0
+            next_index = index + 1
             break
+    return selected, stats, next_index
+
+
+def select_audit_candidates(
+    ranked: list[dict[str, Any]],
+    top: int,
+    *,
+    canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Fill the first audit page with unique, registry-novel CSS candidates."""
+
+    selected, stats, _ = _select_audit_page(
+        ranked,
+        top,
+        start_index=0,
+        seen_digests=(),
+        canonicalizer=canonicalizer,
+    )
     return selected, stats
+
+
+def _selection_binding(
+    ranked: Iterable[Mapping[str, Any]],
+    *,
+    top: int,
+    known_answer_artifact: Path,
+) -> str:
+    """Bind a cursor to every input that can alter candidate selection."""
+
+    return _json_sha256({
+        "schema_version": SELECTION_LEDGER_SCHEMA_VERSION,
+        "top": top,
+        "ranked": list(ranked),
+        "known_answer_sha256": _file_sha256(known_answer_artifact),
+        "solver_runtime": solver_runtime_fingerprint(),
+        "source_fingerprint": certificate_source_fingerprint(),
+    })
+
+
+def _selection_page_sha256(
+    *,
+    binding_sha256: str,
+    start_index: int,
+    next_index: int,
+    selected_digests: Iterable[str],
+) -> str:
+    return _json_sha256({
+        "binding_sha256": binding_sha256,
+        "start_index": start_index,
+        "next_index": next_index,
+        "selected_digests": list(selected_digests),
+    })
+
+
+def _new_selection_ledger(binding_sha256: str) -> dict[str, Any]:
+    return {
+        "schema_version": SELECTION_LEDGER_SCHEMA_VERSION,
+        "gate": SELECTION_LEDGER_GATE,
+        "binding_sha256": binding_sha256,
+        "cursor": 0,
+        "committed_digests": [],
+        "completed_pages": 0,
+        "pending": None,
+    }
+
+
+def _load_selection_ledger(
+    path: Path,
+    *,
+    binding_sha256: str,
+    ranked_size: int,
+) -> dict[str, Any]:
+    """Load a cursor fail-closed; stale bindings safely restart at rank zero."""
+
+    if path.is_symlink():
+        raise ValueError("selection ledger may not be a symlink")
+    value = _load_json_object(path)
+    if value is None or value.get("binding_sha256") != binding_sha256:
+        return _new_selection_ledger(binding_sha256)
+    if (
+        value.get("schema_version") != SELECTION_LEDGER_SCHEMA_VERSION
+        or value.get("gate") != SELECTION_LEDGER_GATE
+    ):
+        raise ValueError("selection ledger has an unsupported schema")
+    cursor = value.get("cursor")
+    completed_pages = value.get("completed_pages")
+    committed = value.get("committed_digests")
+    pending = value.get("pending")
+    if (
+        isinstance(cursor, bool)
+        or not isinstance(cursor, int)
+        or not 0 <= cursor <= ranked_size
+        or isinstance(completed_pages, bool)
+        or not isinstance(completed_pages, int)
+        or completed_pages < 0
+        or not isinstance(committed, list)
+        or any(not isinstance(item, str) or not item for item in committed)
+        or len(set(committed)) != len(committed)
+        or (pending is not None and not isinstance(pending, Mapping))
+    ):
+        raise ValueError("selection ledger is malformed")
+    if pending is not None:
+        pending_binding = pending.get("binding_sha256")
+        start_index = pending.get("start_index")
+        next_index = pending.get("next_index")
+        selected_digests = pending.get("selected_digests")
+        page_sha256 = pending.get("page_sha256")
+        if (
+            pending_binding != binding_sha256
+            or isinstance(start_index, bool)
+            or not isinstance(start_index, int)
+            or start_index != cursor
+            or isinstance(next_index, bool)
+            or not isinstance(next_index, int)
+            or not start_index <= next_index <= ranked_size
+            or not isinstance(selected_digests, list)
+            or any(
+                not isinstance(item, str) or not item
+                for item in selected_digests
+            )
+            or len(set(selected_digests)) != len(selected_digests)
+            or page_sha256
+            != _selection_page_sha256(
+                binding_sha256=binding_sha256,
+                start_index=start_index,
+                next_index=next_index,
+                selected_digests=selected_digests,
+            )
+        ):
+            raise ValueError("selection ledger pending page is malformed")
+    return {
+        **value,
+        "committed_digests": list(committed),
+        "pending": None if pending is None else dict(pending),
+    }
+
+
+def _prepare_selection_page(
+    ranked: list[dict[str, Any]],
+    *,
+    top: int,
+    ledger_path: Path,
+    known_answer_artifact: Path,
+    canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
+) -> tuple[
+    list[dict[str, Any]],
+    dict[str, int],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    """Create or replay one pending page before any expensive solver work."""
+
+    binding_sha256 = _selection_binding(
+        ranked,
+        top=top,
+        known_answer_artifact=known_answer_artifact,
+    )
+    ledger = _load_selection_ledger(
+        ledger_path,
+        binding_sha256=binding_sha256,
+        ranked_size=len(ranked),
+    )
+    pending = ledger.get("pending")
+    start_index = int(
+        pending["start_index"] if isinstance(pending, Mapping)
+        else ledger["cursor"]
+    )
+    selected, stats, next_index = _select_audit_page(
+        ranked,
+        top,
+        start_index=start_index,
+        seen_digests=ledger["committed_digests"],
+        canonicalizer=canonicalizer,
+    )
+    selected_digests = [
+        str(row["triage_identity"]["canonical_digest"])
+        for row in selected
+    ]
+    page = {
+        "binding_sha256": binding_sha256,
+        "start_index": start_index,
+        "next_index": next_index,
+        "selected_digests": selected_digests,
+        "page_sha256": _selection_page_sha256(
+            binding_sha256=binding_sha256,
+            start_index=start_index,
+            next_index=next_index,
+            selected_digests=selected_digests,
+        ),
+    }
+    if pending is not None and dict(pending) != page:
+        raise ValueError("pending selection page no longer replays exactly")
+    ledger["pending"] = page
+    atomic_write_json(ledger_path, ledger)
+    return selected, stats, page, ledger
 
 
 def _certificate_budget(config: AuditConfig) -> dict[str, float | int]:
@@ -1328,6 +1531,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-dir", type=Path, required=True)
     parser.add_argument("--ranked-output", type=Path, required=True)
     parser.add_argument("--summary-output", type=Path, required=True)
+    parser.add_argument(
+        "--selection-ledger",
+        type=Path,
+        help=(
+            "durable Stage 2 pagination ledger; an unacknowledged page is "
+            "replayed exactly after interruption"
+        ),
+    )
     parser.add_argument("--timeout", type=float, default=300)
     parser.add_argument("--candidate-workers", type=int, default=2)
     parser.add_argument("--solver-workers", type=int, default=4)
@@ -1404,9 +1615,26 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
 
-    selected, selection_counts = select_audit_candidates(
-        ranked, args.top,
-    )
+    selection_page: dict[str, Any] | None = None
+    try:
+        if args.selection_ledger is None:
+            selected, selection_counts = select_audit_candidates(
+                ranked, args.top,
+            )
+        else:
+            (
+                selected,
+                selection_counts,
+                selection_page,
+                _,
+            ) = _prepare_selection_page(
+                ranked,
+                top=args.top,
+                ledger_path=args.selection_ledger,
+                known_answer_artifact=args.known_answer_artifact,
+            )
+    except (OSError, TypeError, ValueError) as exc:
+        parser.error(str(exc))
     selected_digests = {
         str(row["triage_identity"]["canonical_digest"])
         for row in selected
@@ -1527,6 +1755,8 @@ def main(argv: list[str] | None = None) -> int:
         "state_dir": str(args.state_dir),
         "results": results,
     }
+    if selection_page is not None:
+        summary["selection_page"] = selection_page
     atomic_write_json(args.summary_output, summary)
     print(json.dumps(summary, indent=2))
     return 0 if not (

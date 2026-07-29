@@ -56,6 +56,7 @@ def _plan(
     write_outputs: bool = True,
     gate_passed: bool = True,
     selection_exhausted: bool = True,
+    selection_page: tuple[int, int] | None = None,
 ) -> dict:
     return {
         "results": list(results or []),
@@ -64,6 +65,7 @@ def _plan(
         "write_outputs": write_outputs,
         "gate_passed": gate_passed,
         "selection_exhausted": selection_exhausted,
+        "selection_page": selection_page,
     }
 
 
@@ -145,6 +147,47 @@ class ScenarioRunner:
             if stage == "stage2":
                 summary["certificate_operational_errors"] = plan["operational_errors"]
                 summary["unique_candidates"] = len(results)
+                if plan["selection_page"] is not None:
+                    start_index, next_index = plan["selection_page"]
+                    selected_digests = [
+                        str(result["canonical_digest"])
+                        for result in results
+                    ]
+                    binding = "a" * 64
+                    page_payload = {
+                        "binding_sha256": binding,
+                        "start_index": start_index,
+                        "next_index": next_index,
+                        "selected_digests": selected_digests,
+                    }
+                    page = {
+                        **page_payload,
+                        "page_sha256": hashlib.sha256(
+                            json.dumps(
+                                page_payload,
+                                sort_keys=True,
+                                separators=(",", ":"),
+                            ).encode()
+                        ).hexdigest(),
+                    }
+                    summary["selection_page"] = page
+                    ledger_path = _argument(command, "--selection-ledger")
+                    if ledger_path.is_file():
+                        ledger = json.loads(ledger_path.read_text())
+                    else:
+                        ledger = {
+                            "schema_version": 1,
+                            "gate": "qldpc-stage2-selection-ledger",
+                            "binding_sha256": binding,
+                            "cursor": start_index,
+                            "committed_digests": [],
+                            "completed_pages": 0,
+                            "pending": None,
+                        }
+                    assert ledger["cursor"] == start_index
+                    assert ledger["pending"] is None or ledger["pending"] == page
+                    ledger["pending"] = page
+                    _write_json(ledger_path, ledger)
             else:
                 summary["operational_errors"] = plan["operational_errors"]
                 _write_jsonl(_argument(command, "--stage4-manifest"), [])
@@ -738,6 +781,236 @@ def test_truncated_selection_is_incomplete_unless_verified_certificate_wins(
         )["routing"]
         == ("STRICT_GATE" if with_certificate else "INCOMPLETE")
     )
+
+
+def test_paginated_stage2_automatically_reaches_win_on_second_page(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="paginated-second-page-win")
+    loser, _ = _certificate(
+        config,
+        "page-one-loser",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    winner, _ = _certificate(config, "page-two-winner")
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [loser],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+        ),
+        _plan(
+            [winner],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 1}
+    ledger = json.loads(
+        (config.root / "solver-state" / "stage2-selection-ledger.json").read_text()
+    )
+    assert ledger["cursor"] == 1
+    assert ledger["committed_digests"] == ["page-one-loser"]
+    assert ledger["pending"]["selected_digests"] == ["page-two-winner"]
+    assert state["stage2_pagination"]["completed_pages"] == 1
+
+
+def test_paginated_stage2_interruption_replays_pending_second_page(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="paginated-interrupt-resume")
+    loser, _ = _certificate(
+        config,
+        "interrupt-page-one",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    winner, _ = _certificate(config, "interrupt-page-two")
+    underlying = ScenarioRunner(stage2=[
+        _plan(
+            [loser],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+        ),
+        _plan(
+            [winner],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+        ),
+    ])
+    interrupted = False
+
+    def interrupt_second_page(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        nonlocal interrupted
+        completed = underlying(command, cwd=cwd)
+        if (
+            Path(command[1]).name == "audit_candidate_pool.py"
+            and underlying.counts["stage2"] == 2
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+        return completed
+
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=interrupt_second_page,
+            reviewer=RecordingReviewer(),
+        ).run()
+
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    interrupted_ledger = json.loads(ledger_path.read_text())
+    assert interrupted_ledger["cursor"] == 1
+    assert interrupted_ledger["pending"]["start_index"] == 1
+
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=interrupt_second_page,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert underlying.counts == {"stage2": 3, "strict": 1}
+    assert resumed["stages"]["stage2_sector_audit"]["attempt"] == 3
+    resumed_ledger = json.loads(ledger_path.read_text())
+    assert resumed_ledger["cursor"] == 1
+    assert resumed_ledger["pending"] == interrupted_ledger["pending"]
+
+
+def test_paginated_stage2_stops_when_cursor_makes_no_progress(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="pagination-no-progress")
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [],
+            selection_exhausted=False,
+            selection_page=(0, 0),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 1}
+    assert state["stage2_pagination"]["no_progress"] is True
+    assert state["stage2_pagination"]["cursor"] == 0
+
+
+def test_paginated_page_advances_after_stage3_rejects_unresolved(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="pagination-stage3-reject")
+    unresolved = {
+        "canonical_digest": "stage3-page-one",
+        "status": "UNRESOLVED",
+    }
+    rejected = {
+        "canonical_digest": "stage3-page-one",
+        "status": "REJECTED",
+    }
+    winner, _ = _certificate(config, "stage3-page-two-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([rejected])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "stage3": 1, "strict": 1}
+    assert state["stage2_pagination"]["cursor"] == 1
+    assert state["stage2_pagination"]["completed_pages"] == 1
+
+
+def test_paginated_page_digest_order_must_match_results(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="pagination-order-binding")
+    first, _ = _certificate(
+        config,
+        "pagination-order-first",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    second, _ = _certificate(
+        config,
+        "pagination-order-second",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    underlying = ScenarioRunner(stage2=[
+        _plan(
+            [first, second],
+            selection_exhausted=False,
+            selection_page=(0, 2),
+        ),
+    ])
+
+    def reordered_page_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if Path(command[1]).name == "audit_candidate_pool.py":
+            summary_path = _argument(command, "--summary-output")
+            summary = json.loads(summary_path.read_text())
+            page = summary["selection_page"]
+            page["selected_digests"].reverse()
+            page["page_sha256"] = hashlib.sha256(
+                json.dumps(
+                    {
+                        key: page[key]
+                        for key in (
+                            "binding_sha256",
+                            "start_index",
+                            "next_index",
+                            "selected_digests",
+                        )
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            ).hexdigest()
+            _write_json(summary_path, summary)
+        return completed
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=reordered_page_runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "OUTPUT_INVALID"
+    assert state["failure"]["stage"] == "stage2_sector_audit"
 
 
 def test_reviewer_failure_is_fail_closed_and_resume_retries_only_review(

@@ -44,6 +44,9 @@ from .state import RunStore
 
 PIPELINE_SCHEMA_VERSION = 1
 REVIEW_PROMPT_VERSION = 1
+STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = 1
+STAGE2_SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
+MAX_AUTOMATIC_PROOF_PASSES = 64
 STAGE_ORDER = (
     "stage1_search",
     "stage2_sector_audit",
@@ -962,6 +965,7 @@ class PipelinePaths:
     solver_state: Path = field(init=False)
     stage2_ranked: Path = field(init=False)
     stage2_summary: Path = field(init=False)
+    stage2_selection_ledger: Path = field(init=False)
     stage3_ranked: Path = field(init=False)
     stage3_summary: Path = field(init=False)
     stage3_thresholds: Path = field(init=False)
@@ -984,6 +988,11 @@ class PipelinePaths:
         )
         object.__setattr__(
             self, "stage2_summary", root / "artifacts" / "stage2-summary.json"
+        )
+        object.__setattr__(
+            self,
+            "stage2_selection_ledger",
+            root / "solver-state" / "stage2-selection-ledger.json",
         )
         object.__setattr__(
             self, "stage3_ranked", root / "artifacts" / "stage3-ranked.jsonl"
@@ -2145,6 +2154,8 @@ class FiveStagePipeline:
             str(self.paths.stage2_ranked),
             "--summary-output",
             str(self.paths.stage2_summary),
+            "--selection-ledger",
+            str(self.paths.stage2_selection_ledger),
             "--timeout",
             str(self.config.stage2_timeout),
             "--candidate-workers",
@@ -2187,6 +2198,7 @@ class FiveStagePipeline:
             "skip_reason": "Stage 2 produced no UNRESOLVED candidates",
             "input_rows": int(stage2.get("unique_candidates", 0) or 0),
             "selected_candidates": 0,
+            "selection_exhausted": True,
             "malformed_unresolved_rows": 0,
             "duplicate_digests_skipped": 0,
             "threshold_only": not self.config.stage3_exact,
@@ -2471,6 +2483,65 @@ class FiveStagePipeline:
                 "OUTPUT_INVALID",
                 f"{path} selection markers do not match audited results",
             )
+        selection_exhausted = summary.get("selection_exhausted")
+        if not isinstance(selection_exhausted, bool):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                f"{path}.selection_exhausted must be boolean",
+            )
+        selection_page = summary.get("selection_page")
+        if selection_page is not None:
+            if expected_gate != "qldpc-proof-oriented-candidate-pool":
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path} unexpectedly contains a Stage 2 selection page",
+                )
+            if not isinstance(selection_page, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.selection_page must be an object",
+                )
+            binding = selection_page.get("binding_sha256")
+            start_index = selection_page.get("start_index")
+            next_index = selection_page.get("next_index")
+            page_digests = selection_page.get("selected_digests")
+            page_sha256 = selection_page.get("page_sha256")
+            if (
+                not isinstance(binding, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", binding)
+                or isinstance(start_index, bool)
+                or not isinstance(start_index, int)
+                or start_index < 0
+                or isinstance(next_index, bool)
+                or not isinstance(next_index, int)
+                or next_index < start_index
+                or not isinstance(page_digests, list)
+                or any(
+                    not isinstance(item, str) or not item
+                    for item in page_digests
+                )
+                or len(set(page_digests)) != len(page_digests)
+                or page_digests
+                != [
+                    str(result["canonical_digest"])
+                    for result in results
+                ]
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.selection_page is malformed",
+                )
+            expected_page_sha256 = _audit_json_sha256({
+                "binding_sha256": binding,
+                "start_index": start_index,
+                "next_index": next_index,
+                "selected_digests": page_digests,
+            })
+            if page_sha256 != expected_page_sha256:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.selection_page has an invalid page hash",
+                )
         return summary
 
     @staticmethod
@@ -2540,8 +2611,14 @@ class FiveStagePipeline:
         reasons: list[dict[str, str]] = []
         retry_stages: set[str] = set()
 
-        def add(stage: str, reason: str, digest: str | None = None) -> None:
-            item = {"stage": stage, "reason": reason}
+        def add(
+            stage: str,
+            reason: str,
+            digest: str | None = None,
+            *,
+            code: str,
+        ) -> None:
+            item = {"stage": stage, "reason": reason, "code": code}
             if digest:
                 item["canonical_digest"] = digest
             reasons.append(item)
@@ -2551,6 +2628,7 @@ class FiveStagePipeline:
             add(
                 "stage2_sector_audit",
                 "Stage 2 candidate selection was truncated before exhaustion",
+                code="STAGE2_SELECTION_TRUNCATED",
             )
         for field, description in (
             (
@@ -2568,12 +2646,17 @@ class FiveStagePipeline:
             except (TypeError, ValueError):
                 count = 1
             if count:
-                add("stage2_sector_audit", f"{description}: {count}")
+                add(
+                    "stage2_sector_audit",
+                    f"{description}: {count}",
+                    code=f"STAGE2_{field.upper()}",
+                )
 
         if stage3.get("selection_exhausted", True) is not True:
             add(
                 "stage3_direction_audit",
                 "Stage 3 unresolved-candidate selection was truncated",
+                code="STAGE3_SELECTION_TRUNCATED",
             )
 
         stage3_by_digest = {
@@ -2594,6 +2677,7 @@ class FiveStagePipeline:
                     "stage2_sector_audit",
                     "Stage 2 threshold proof has incomplete or unverified certificate",
                     digest,
+                    code="STAGE2_CERTIFICATE_INCOMPLETE",
                 )
             elif status == "UNRESOLVED":
                 escalated = stage3_by_digest.get(digest)
@@ -2602,6 +2686,7 @@ class FiveStagePipeline:
                         "stage3_direction_audit",
                         "Stage 2 unresolved candidate lacks a Stage 3 result",
                         digest,
+                        code="STAGE3_RESULT_MISSING",
                     )
                 elif escalated.get("status") not in {
                     "REJECTED",
@@ -2612,6 +2697,7 @@ class FiveStagePipeline:
                         "stage3_direction_audit",
                         "Stage 3 did not reach a terminal proof result",
                         digest,
+                        code="STAGE3_PROOF_INCOMPLETE",
                     )
 
         for result in stage3.get("results", []):
@@ -2623,6 +2709,7 @@ class FiveStagePipeline:
                     "stage3_direction_audit",
                     "Stage 3 logical-direction audit remains unresolved",
                     digest,
+                    code="STAGE3_PROOF_INCOMPLETE",
                 )
             elif (
                 result.get("status") in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}
@@ -2632,6 +2719,7 @@ class FiveStagePipeline:
                     "stage3_direction_audit",
                     "Stage 3 threshold proof has incomplete or unverified certificate",
                     digest,
+                    code="STAGE3_CERTIFICATE_INCOMPLETE",
                 )
 
         deduplicated: list[dict[str, str]] = []
@@ -2670,6 +2758,110 @@ class FiveStagePipeline:
             record["incomplete_at"] = utc_now()
             record["incomplete_reasons"] = stage_reasons
         self._write_state()
+
+    def _acknowledge_completed_stage2_page(
+        self,
+        state: Mapping[str, Any],
+    ) -> bool:
+        """Advance the durable cursor only after the current proof page closes."""
+
+        if state.get("status") != "INCOMPLETE":
+            return False
+        result = state.get("result")
+        if not isinstance(result, Mapping):
+            return False
+        incompleteness = result.get("proof_incompleteness")
+        if not isinstance(incompleteness, Mapping):
+            return False
+        reasons = incompleteness.get("reasons")
+        if (
+            not isinstance(reasons, list)
+            or not reasons
+            or any(
+                not isinstance(reason, Mapping)
+                or reason.get("code") != "STAGE2_SELECTION_TRUNCATED"
+                for reason in reasons
+            )
+        ):
+            return False
+
+        summary = _read_json_object(self.paths.stage2_summary)
+        page = summary.get("selection_page")
+        # Old runs did not have a durable page. Returning INCOMPLETE is safer
+        # than guessing a cursor and preserves backwards compatibility.
+        if not isinstance(page, Mapping):
+            return False
+        self._ensure_solver_state_tree_safe()
+        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        if (
+            ledger.get("schema_version")
+            != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
+            or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
+            or ledger.get("binding_sha256") != page.get("binding_sha256")
+            or ledger.get("pending") != dict(page)
+            or ledger.get("cursor") != page.get("start_index")
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection ledger does not match its pending page",
+                stage="stage2_sector_audit",
+            )
+        start_index = page.get("start_index")
+        next_index = page.get("next_index")
+        selected_digests = page.get("selected_digests")
+        committed = ledger.get("committed_digests")
+        completed_pages = ledger.get("completed_pages")
+        if (
+            isinstance(start_index, bool)
+            or not isinstance(start_index, int)
+            or isinstance(next_index, bool)
+            or not isinstance(next_index, int)
+            or not isinstance(selected_digests, list)
+            or not isinstance(committed, list)
+            or any(
+                not isinstance(item, str) or not item
+                for item in committed
+            )
+            or set(committed).intersection(selected_digests)
+            or isinstance(completed_pages, bool)
+            or not isinstance(completed_pages, int)
+            or completed_pages < 0
+        ):
+            raise PipelineError(
+                "NO_PAGINATION_PROGRESS",
+                "Stage 2 pending page cannot advance its durable cursor",
+                stage="stage2_sector_audit",
+            )
+        if next_index <= start_index or not selected_digests:
+            self.state.setdefault("stage2_pagination", {}).update({
+                "no_progress": True,
+                "cursor": start_index,
+                "pending_page_sha256": page.get("page_sha256"),
+                "detected_at": utc_now(),
+            })
+            self._write_state()
+            return False
+
+        updated = dict(ledger)
+        updated["cursor"] = next_index
+        updated["committed_digests"] = [*committed, *selected_digests]
+        updated["completed_pages"] = completed_pages + 1
+        updated["pending"] = None
+        updated["last_acknowledged_page_sha256"] = page["page_sha256"]
+        updated["last_acknowledged_at"] = utc_now()
+        atomic_write_json(self.paths.stage2_selection_ledger, updated)
+        self._ensure_solver_state_tree_safe()
+
+        pagination = self.state.setdefault("stage2_pagination", {})
+        pagination.update({
+            "binding_sha256": page["binding_sha256"],
+            "cursor": next_index,
+            "completed_pages": updated["completed_pages"],
+            "last_page_sha256": page["page_sha256"],
+            "last_advanced_at": utc_now(),
+        })
+        self._write_state()
+        return True
 
     def _merge_certificates(
         self,
@@ -3429,10 +3621,35 @@ class FiveStagePipeline:
             )
 
     def run(self) -> dict[str, Any]:
-        """Run synchronously under an exclusive campaign lock."""
+        """Run synchronously, advancing terminal proof pages under one lock."""
 
         with self._exclusive_lock():
-            return self._run_locked()
+            state: dict[str, Any] = {}
+            for automatic_pass in range(1, MAX_AUTOMATIC_PROOF_PASSES + 1):
+                state = self._run_locked()
+                if state.get("status") != "INCOMPLETE":
+                    return state
+                try:
+                    advanced = self._acknowledge_completed_stage2_page(state)
+                except PipelineError as exc:
+                    return self._record_failure(exc)
+                if not advanced:
+                    # Unresolved/partial proof work deliberately retains the
+                    # pending page. A later invocation resumes its checkpoints
+                    # without either skipping it or spinning in this process.
+                    return state
+                self.state.setdefault("stage2_pagination", {})[
+                    "automatic_passes"
+                ] = automatic_pass
+                self._write_state()
+
+            self.state.setdefault("stage2_pagination", {}).update({
+                "automatic_pass_limit": MAX_AUTOMATIC_PROOF_PASSES,
+                "resume_required": True,
+                "limit_reached_at": utc_now(),
+            })
+            self._write_state()
+            return self.state
 
 
 def run_pipeline(

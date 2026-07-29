@@ -694,3 +694,85 @@ def test_top_truncation_is_reported_as_unexhausted():
     assert len(selected) == 1
     assert stats["unscanned_eligible_candidates"] == 1
     assert stats["selection_exhausted"] is False
+
+
+def test_selection_ledger_replays_pending_page_then_advances(tmp_path, monkeypatch):
+    def rows():
+        return [
+            {
+                **_construction(marker),
+                "proof_score": {"status": "PROMISING", "rejected": False},
+                "triage_identity": {
+                    "canonical_digest": f"fallback-{marker}",
+                    "digest_kind": "structural-claim",
+                },
+            }
+            for marker in (1, 2)
+        ]
+
+    def canonicalizer(row):
+        marker = int(str(row["source"]).split("-")[-1])
+        digest = f"canonical-{marker}"
+        return {
+            **row,
+            "canonical_digest": digest,
+            "novelty": {
+                "checked": True,
+                "novel": True,
+                "canonical_digest": digest,
+            },
+            "triage_identity": {
+                **row["triage_identity"],
+                "canonical_digest": digest,
+                "digest_kind": "registry-canonical",
+            },
+        }
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "_selection_binding",
+        lambda *args, **kwargs: "b" * 64,
+    )
+    ledger_path = tmp_path / "selection.json"
+    first, first_stats, first_page, _ = candidate_pool._prepare_selection_page(
+        rows(),
+        top=1,
+        ledger_path=ledger_path,
+        known_answer_artifact=tmp_path / "known.json",
+        canonicalizer=canonicalizer,
+    )
+    replay, replay_stats, replay_page, _ = (
+        candidate_pool._prepare_selection_page(
+            rows(),
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+
+    assert [row["source"] for row in first] == ["candidate-1"]
+    assert [row["source"] for row in replay] == ["candidate-1"]
+    assert first_page == replay_page
+    assert first_stats == replay_stats
+    assert first_stats["selection_exhausted"] is False
+
+    ledger = json.loads(ledger_path.read_text())
+    ledger["cursor"] = first_page["next_index"]
+    ledger["committed_digests"] = first_page["selected_digests"]
+    ledger["completed_pages"] = 1
+    ledger["pending"] = None
+    candidate_pool.atomic_write_json(ledger_path, ledger)
+
+    second, second_stats, second_page, _ = (
+        candidate_pool._prepare_selection_page(
+            rows(),
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+    assert [row["source"] for row in second] == ["candidate-2"]
+    assert second_page["start_index"] == first_page["next_index"]
+    assert second_stats["selection_exhausted"] is True
