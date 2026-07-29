@@ -263,6 +263,26 @@ def test_verifier_runtime_error_is_persisted_fail_closed(tmp_path, monkeypatch):
     assert "RuntimeError: solver died" in result["failures"][0]
 
 
+def test_missing_replay_completeness_is_incomplete(tmp_path, monkeypatch):
+    args = _args(tmp_path)
+    monkeypatch.setattr(finalizer, "parse_args", lambda: args)
+    _bypass_strict_hard_wall(monkeypatch)
+    monkeypatch.setattr(
+        finalizer,
+        "_verify_certificate_with_hard_wall",
+        lambda *_args, **_kwargs: {
+            "passed": False,
+            "failures": ["verifier omitted replay completion"],
+        },
+    )
+
+    assert finalizer.main() == 0
+    artifact = json.loads(args.output.read_text())
+    assert artifact["outcome"] == "INCOMPLETE"
+    assert artifact["evaluations"][0]["disposition"] == "INCOMPLETE"
+    assert artifact["evaluations"][0]["result"]["replay_complete"] is False
+
+
 def test_all_terminal_rejections_are_no_win(tmp_path, monkeypatch):
     args = _args(tmp_path, [_certificate(0), _certificate(1)])
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)

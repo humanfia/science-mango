@@ -317,6 +317,49 @@ def test_verify_checkpoint_and_global_timeout(tmp_path, monkeypatch):
     )
 
 
+@pytest.mark.parametrize("solver_status", [2, 3])
+def test_verifier_retries_contradictory_terminal_solver_status(
+    monkeypatch, solver_status,
+):
+    certificate = build_css_certificate(
+        _tiny_claim(),
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=30,
+        total_timeout=120,
+    )
+
+    def contradictory_result(*_args, **_kwargs):
+        return {
+            "formulation": certificate_module.FORMULATION,
+            "solver": "test-double",
+            "backend": "HiGHS",
+            "success": False,
+            "status": solver_status,
+            "message": "contradicts stored feasible optimum",
+            "objective": None,
+            "mip_dual_bound": None,
+            "mip_gap": None,
+            "mip_node_count": 0,
+            "elapsed_s": 0.0,
+            "operator": None,
+        }
+
+    monkeypatch.setattr(
+        certificate_module, "solve_css_direction", contradictory_result,
+    )
+    result = verify_css_certificate(
+        certificate,
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=30,
+        total_timeout=120,
+    )
+
+    assert result["checks"]["stored_direction_evidence"] is True
+    assert result["checks"]["milp_rerun"] is False
+    assert result["passed"] is False
+    assert result["replay_complete"] is False
+
+
 def test_verifier_fails_closed_on_malformed_directions():
     certificate = build_css_certificate(
         _tiny_claim(),

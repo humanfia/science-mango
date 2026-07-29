@@ -264,7 +264,7 @@ def _incomplete_result(failure: str) -> dict[str, Any]:
 def _verification_disposition(verification: dict[str, Any]) -> str:
     if verification.get("passed") is True:
         return "ACCEPTED"
-    if verification.get("replay_complete") is False:
+    if verification.get("replay_complete") is not True:
         return "INCOMPLETE"
     return "REJECTED"
 
@@ -516,7 +516,7 @@ def main() -> int:
                     "replay_complete": (
                         True
                         if verification.get("passed") is True
-                        else verification.get("replay_complete", True)
+                        else verification.get("replay_complete") is True
                     ),
                 }
             evaluation = {

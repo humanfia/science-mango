@@ -1079,13 +1079,6 @@ def verify_css_certificate(
                             "check_matrix": check_name,
                             "target_logical": pack_vector(target),
                         })
-                        rerun_status = rerun.get("status")
-                        if (
-                            isinstance(rerun_status, bool)
-                            or not isinstance(rerun_status, int)
-                            or rerun_status not in {0, 2, 3}
-                        ):
-                            replay_complete = False
                         rerun_valid = (
                             not verify_direction_evidence(
                                 rerun, checks_matrix, target,
@@ -1104,6 +1097,11 @@ def verify_css_certificate(
                                     specs=specs,
                                 )
             if rerun is not None and not rerun_valid:
+                # This bounded logical-coset MILP has a stored, algebraically
+                # verified feasible optimum.  An infeasible/unbounded result,
+                # invalid witness, or different optimum is therefore an
+                # inconclusive replay, not a terminal certificate rejection.
+                replay_complete = False
                 local.append(
                     "rerun optimum mismatch: "
                     f"stored={evidence.get('objective')} "

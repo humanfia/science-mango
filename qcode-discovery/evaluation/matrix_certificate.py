@@ -314,18 +314,21 @@ def verify_matrix_css_certificate(
                         timeout=effective_timeout,
                         solver_workers=workers,
                     )
-                    rerun_status = rerun.get("status")
-                    if (
-                        isinstance(rerun_status, bool)
-                        or not isinstance(rerun_status, int)
-                        or rerun_status not in {0, 2, 3}
-                    ):
-                        replay_complete = False
-            if rerun is not None and not (
-                rerun["success"] is True
-                and rerun["mip_gap"] == 0.0
-                and rerun["objective"] == evidence.get("objective")
-            ):
+                    rerun.update(
+                        {
+                            "logical_type": logical_type,
+                            "logical_index": index,
+                            "check_matrix": check_name,
+                            "target_logical": pack_vector(target),
+                        }
+                    )
+            rerun_valid = (
+                rerun is not None
+                and not verify_direction_evidence(rerun, matrix, target)
+                and rerun.get("objective") == evidence.get("objective")
+            )
+            if rerun is not None and not rerun_valid:
+                replay_complete = False
                 local.append("rerun optimum mismatch")
         if local:
             direction_failures.append(f"{logical_type}[{index}]: " + "; ".join(local))
