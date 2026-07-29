@@ -245,6 +245,24 @@ def install_fake_popen(monkeypatch, captured, config):
     )
 
 
+def test_managed_process_interrupt_terminates_private_group(monkeypatch):
+    class InterruptedProcess:
+        def wait(self):
+            raise KeyboardInterrupt("outer worker cancelled")
+
+    process = InterruptedProcess()
+    terminated = []
+    monkeypatch.setattr(
+        flow_module,
+        "_terminate_process_group",
+        lambda child: terminated.append(child),
+    )
+
+    with pytest.raises(KeyboardInterrupt, match="outer worker cancelled"):
+        flow_module._wait_for_managed_process(process, ["openevolve"])
+    assert terminated == [process]
+
+
 def frozen_runner_state(
     config: FlowConfig,
     state: dict,

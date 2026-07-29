@@ -211,10 +211,31 @@ def _export_release_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def _interrupt_worker_on_sigterm(
+    _signum: int,
+    _frame: Any,
+) -> None:
+    """Turn detached-worker cancellation into a normal Python unwind.
+
+    Stage 1 deliberately launches OpenEvolve in its own session so a crashed
+    launcher cannot leave solver workers in the pipeline worker's group.
+    Consequently, terminating only the outer detached group is insufficient:
+    Python must unwind through ``_wait_for_managed_process`` so that it can
+    terminate the inner private process group as well.
+    """
+    # Avoid a second SIGTERM interrupting the cleanup that the first one
+    # initiates.  SIGKILL remains available to the process controller.
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    raise KeyboardInterrupt("detached pipeline worker received SIGTERM")
+
+
 def _worker_command(args: argparse.Namespace) -> int:
     # start_new_session prevents a terminal hangup from reaching the worker;
     # explicitly ignoring SIGHUP also gives nohup-equivalent behaviour.
     signal.signal(signal.SIGHUP, signal.SIG_IGN)
+    # SIGTERM must unwind Python rather than applying the default immediate
+    # exit, otherwise Stage 1's separately-sessioned OpenEvolve tree survives.
+    signal.signal(signal.SIGTERM, _interrupt_worker_on_sigterm)
     repo = resolve_repo_dir(args.repo_dir)
     config = resolve_config_path(args.config)
     run_id = _load_run_id(config, args.run_id)

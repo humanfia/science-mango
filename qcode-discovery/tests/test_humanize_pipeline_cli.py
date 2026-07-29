@@ -322,6 +322,55 @@ def test_terminal_result_controls_process_status_and_cli_exit(
     assert pipeline_cli._worker_command(worker_args) == expected_exit
 
 
+def test_detached_worker_sigterm_unwinds_pipeline_cleanup(
+    tmp_path,
+    monkeypatch,
+):
+    repo = _repo(tmp_path)
+    config = repo / "pipeline.json"
+    config.write_text('{"run_id": "cancel-cascade"}\n')
+    paths = process_control.control_paths(repo, "cancel-cascade", create=True)
+    handlers = {}
+    registrations = []
+
+    def fake_signal(signum, handler):
+        handlers[signum] = handler
+        registrations.append((signum, handler))
+
+    def interrupted_pipeline(**_kwargs):
+        handlers[signal.SIGTERM](signal.SIGTERM, None)
+        raise AssertionError("SIGTERM handler must interrupt execute_pipeline")
+
+    monkeypatch.setattr(pipeline_cli.signal, "signal", fake_signal)
+    monkeypatch.setattr(pipeline_cli, "resolve_repo_dir", lambda _path: repo)
+    monkeypatch.setattr(pipeline_cli, "resolve_config_path", lambda _path: config)
+    monkeypatch.setattr(
+        pipeline_cli,
+        "_load_run_id",
+        lambda *_args: "cancel-cascade",
+    )
+    monkeypatch.setattr(pipeline_cli, "control_paths", lambda *_args, **_kwargs: paths)
+    monkeypatch.setattr(pipeline_cli, "execute_pipeline", interrupted_pipeline)
+    monkeypatch.setattr(pipeline_cli.traceback, "print_exc", lambda: None)
+    args = SimpleNamespace(
+        repo_dir=repo,
+        config=config,
+        run_id="cancel-cascade",
+        stage_review=None,
+        reviewer_model=None,
+        reviewer_effort=None,
+        lock_fd=10,
+        start_fd=11,
+    )
+
+    assert pipeline_cli._worker_command(args) == 1
+    assert registrations[:2] == [
+        (signal.SIGHUP, signal.SIG_IGN),
+        (signal.SIGTERM, pipeline_cli._interrupt_worker_on_sigterm),
+    ]
+    assert registrations[-1] == (signal.SIGTERM, signal.SIG_IGN)
+
+
 def test_status_and_cancel_reject_process_record_copied_from_another_run(
     tmp_path,
 ):
