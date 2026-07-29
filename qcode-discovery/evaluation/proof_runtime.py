@@ -47,6 +47,8 @@ PROOF_RUNTIME_MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
 #
 # * qldpc imports galois/ldpc/stim/pymatching/cvxpy while constructing BB codes;
 # * galois executes numba/llvmlite for finite-field operations;
+# * numba imports PyYAML for its runtime configuration;
+# * NumPy's imported F2PY stack imports charset-normalizer;
 # * OR-Tools CP-SAT imports protobuf and its Python support stack;
 # * cvxpy imports its installed solver interfaces even though qcode's final MILP
 #   is implemented with scipy/HiGHS; and
@@ -72,6 +74,7 @@ PROOF_RUNTIME_TRANSITIVE_PACKAGES = (
     "absl-py",
     "clarabel",
     "cffi",
+    "charset-normalizer",
     "contourpy",
     "cvxpy",
     "cycler",
@@ -96,6 +99,7 @@ PROOF_RUNTIME_TRANSITIVE_PACKAGES = (
     "pymatching",
     "pyparsing",
     "python-dateutil",
+    "pyyaml",
     "pytz",
     "scs",
     "setuptools",
@@ -126,6 +130,7 @@ PACKAGE_IMPORT_NAMES = {
     "absl-py": "absl",
     "clarabel": "clarabel",
     "cffi": "cffi",
+    "charset-normalizer": "charset_normalizer",
     "contourpy": "contourpy",
     "cvxpy": "cvxpy",
     "cycler": "cycler",
@@ -150,6 +155,7 @@ PACKAGE_IMPORT_NAMES = {
     "pymatching": "pymatching",
     "pyparsing": "pyparsing",
     "python-dateutil": "dateutil",
+    "pyyaml": "yaml",
     "pytz": "pytz",
     "scs": "scs",
     "setuptools": "setuptools",
