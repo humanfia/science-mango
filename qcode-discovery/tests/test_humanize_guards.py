@@ -2,8 +2,10 @@ import fcntl
 import hashlib
 import json
 import os
+import signal
 import subprocess
 import sys
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
@@ -261,6 +263,99 @@ def test_managed_process_interrupt_terminates_private_group(monkeypatch):
     with pytest.raises(KeyboardInterrupt, match="outer worker cancelled"):
         flow_module._wait_for_managed_process(process, ["openevolve"])
     assert terminated == [process]
+
+
+def test_managed_process_interrupt_during_cleanup_retries(monkeypatch):
+    class CompletedProcess:
+        def wait(self):
+            return 0
+
+    process = CompletedProcess()
+    calls = []
+
+    def interrupt_once(child):
+        calls.append(child)
+        if len(calls) == 1:
+            raise KeyboardInterrupt("cancelled during cleanup")
+
+    monkeypatch.setattr(
+        flow_module,
+        "_terminate_process_group",
+        interrupt_once,
+    )
+
+    with pytest.raises(KeyboardInterrupt, match="cancelled during cleanup"):
+        flow_module._wait_for_managed_process(process, ["openevolve"])
+    assert calls == [process, process]
+
+
+@pytest.mark.skipif(not Path("/proc").is_dir(), reason="requires Linux /proc")
+def test_real_sigterm_removes_managed_private_process_group():
+    inner = (
+        "import subprocess,sys,time;"
+        "subprocess.Popen([sys.executable,'-c','import time;time.sleep(60)']);"
+        "time.sleep(60)"
+    )
+    outer = (
+        "import signal,subprocess,sys;"
+        "from humanize.flow import _wait_for_managed_process;"
+        "from humanize.pipeline_cli import _interrupt_pipeline_on_sigterm;"
+        "signal.signal(signal.SIGTERM,_interrupt_pipeline_on_sigterm);"
+        f"p=subprocess.Popen([sys.executable,'-c',{inner!r}],"
+        "stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,"
+        "start_new_session=True);"
+        "print(p.pid,flush=True);"
+        "_wait_for_managed_process(p,['managed-test'])"
+    )
+    environment = os.environ.copy()
+    module_root = str(Path(flow_module.__file__).resolve().parents[1])
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value
+        for value in (module_root, environment.get("PYTHONPATH"))
+        if value
+    )
+    worker = subprocess.Popen(
+        [sys.executable, "-c", outer],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+        env=environment,
+    )
+    assert worker.stdout is not None
+    child_line = worker.stdout.readline().strip()
+    if not child_line.isdigit():
+        assert worker.stderr is not None
+        pytest.fail(worker.stderr.read())
+    child_pgid = int(child_line)
+
+    def live_group_members() -> list[int]:
+        members = []
+        for stat_path in Path("/proc").glob("[0-9]*/stat"):
+            try:
+                fields = stat_path.read_text().rsplit(")", 1)[1].split()
+                state, process_group = fields[0], int(fields[2])
+            except (IndexError, OSError, ValueError):
+                continue
+            if process_group == child_pgid and state != "Z":
+                members.append(int(stat_path.parent.name))
+        return members
+
+    try:
+        os.kill(worker.pid, signal.SIGTERM)
+        assert worker.wait(timeout=10) != 0
+        deadline = time.monotonic() + 5
+        while live_group_members() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert live_group_members() == []
+    finally:
+        if worker.poll() is None:
+            os.killpg(worker.pid, signal.SIGKILL)
+            worker.wait(timeout=5)
+        try:
+            os.killpg(child_pgid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
 
 
 def frozen_runner_state(

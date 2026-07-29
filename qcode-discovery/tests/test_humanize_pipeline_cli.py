@@ -366,7 +366,7 @@ def test_detached_worker_sigterm_unwinds_pipeline_cleanup(
     assert pipeline_cli._worker_command(args) == 1
     assert registrations[:2] == [
         (signal.SIGHUP, signal.SIG_IGN),
-        (signal.SIGTERM, pipeline_cli._interrupt_worker_on_sigterm),
+        (signal.SIGTERM, pipeline_cli._interrupt_pipeline_on_sigterm),
     ]
     assert registrations[-1] == (signal.SIGTERM, signal.SIG_IGN)
 

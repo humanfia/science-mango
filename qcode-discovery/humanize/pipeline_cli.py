@@ -148,14 +148,21 @@ def _run_command(args: argparse.Namespace) -> int:
     repo = resolve_repo_dir(args.repo_dir)
     config = resolve_config_path(args.config)
     run_id = _load_run_id(config, args.run_id)
-    result = run_foreground(
-        repo_dir=repo,
-        config_path=config,
-        run_id=run_id,
-        stage_review=args.stage_review,
-        reviewer_model=args.reviewer_model,
-        reviewer_effort=args.reviewer_effort,
+    previous_sigterm = signal.signal(
+        signal.SIGTERM,
+        _interrupt_pipeline_on_sigterm,
     )
+    try:
+        result = run_foreground(
+            repo_dir=repo,
+            config_path=config,
+            run_id=run_id,
+            stage_review=args.stage_review,
+            reviewer_model=args.reviewer_model,
+            reviewer_effort=args.reviewer_effort,
+        )
+    finally:
+        signal.signal(signal.SIGTERM, previous_sigterm)
     _print_json(result)
     return 0 if pipeline_result_succeeded(result) else 1
 
@@ -211,7 +218,7 @@ def _export_release_command(args: argparse.Namespace) -> int:
     return 0
 
 
-def _interrupt_worker_on_sigterm(
+def _interrupt_pipeline_on_sigterm(
     _signum: int,
     _frame: Any,
 ) -> None:
@@ -235,7 +242,7 @@ def _worker_command(args: argparse.Namespace) -> int:
     signal.signal(signal.SIGHUP, signal.SIG_IGN)
     # SIGTERM must unwind Python rather than applying the default immediate
     # exit, otherwise Stage 1's separately-sessioned OpenEvolve tree survives.
-    signal.signal(signal.SIGTERM, _interrupt_worker_on_sigterm)
+    signal.signal(signal.SIGTERM, _interrupt_pipeline_on_sigterm)
     repo = resolve_repo_dir(args.repo_dir)
     config = resolve_config_path(args.config)
     run_id = _load_run_id(config, args.run_id)

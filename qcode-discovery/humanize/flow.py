@@ -816,10 +816,13 @@ def _wait_for_managed_process(
 ) -> None:
     try:
         return_code = process.wait()
+        _terminate_process_group(process)
     except BaseException:
+        # A first SIGTERM can arrive during normal post-wait cleanup.  The
+        # pipeline handler masks subsequent SIGTERM before raising, so retry
+        # the cleanup here to avoid abandoning surviving group members.
         _terminate_process_group(process)
         raise
-    _terminate_process_group(process)
     if return_code:
         raise subprocess.CalledProcessError(return_code, command)
 
