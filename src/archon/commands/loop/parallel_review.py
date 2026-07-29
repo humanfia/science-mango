@@ -57,6 +57,9 @@ class PipelinedTargetReviewConfig:
     formalization_review_backoff_sec: float = 5.0
     formalization_review_max_iterations: int = 3
     proof_review_max_iterations: int = 3
+    foundation_build_enabled: bool = False
+    foundation_build_max_iterations: int = 3
+    foundation_root: str = "ArchonFoundations"
 
 
 def _utcnow() -> str:

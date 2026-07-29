@@ -12,7 +12,13 @@ from archon.commands.loop.deterministic_plan import (
     write_deterministic_candidate_pack,
     write_deterministic_objectives,
 )
-from archon.commands.loop.formalization_review_gate import STATE_VERSION
+from archon.commands.loop.formalization_review_gate import (
+    STATE_VERSION,
+    filter_objectives_for_review_gate,
+)
+from archon.commands.loop.proof_review_gate import (
+    filter_objectives_for_proof_review_gate,
+)
 from archon.state import parse_objective_files, read_stage
 
 
@@ -129,6 +135,163 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
             )
             self.assertEqual([item.relative_path for item in selected], ["A.lean", "B.lean"])
             self.assertEqual(skipped, [])
+
+    def test_foundation_build_reopens_review_exhausted_target(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, chapters = self._project(root)
+            rel = "A.lean"
+            target = root / rel
+            self._target(
+                root,
+                chapters,
+                rel,
+                "theorem a : True := by exact True.intro\n",
+            )
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "targets": {
+                        rel: {"status": "review_exhausted", "reviews": 3},
+                    },
+                }),
+                encoding="utf-8",
+            )
+            (state / "proof-review-gate.json").write_text(
+                json.dumps({
+                    "targets": {
+                        rel: {
+                            "status": "needs_redraft",
+                            "attempts": 1,
+                            "redraft_kind": "missing_foundational_bridge",
+                            "reason": "missing reusable entropy bridge",
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+
+            disabled = select_deterministic_candidates(
+                project_path=root,
+                state_dir=state,
+                stage="prover",
+                limit=1,
+                formalization_gate_enabled=True,
+                proof_gate_enabled=True,
+            )
+            formal_blocked, formal_dropped = filter_objectives_for_review_gate(
+                [target],
+                state_dir=state,
+                project_path=root,
+                stage="prover",
+                enabled=True,
+            )
+            proof_blocked, proof_dropped = (
+                filter_objectives_for_proof_review_gate(
+                    [target],
+                    state_dir=state,
+                    project_path=root,
+                    stage="prover",
+                    enabled=True,
+                )
+            )
+            self.assertEqual(disabled, [])
+            self.assertEqual(formal_blocked, [])
+            self.assertEqual(len(formal_dropped), 1)
+            self.assertEqual(proof_blocked, [])
+            self.assertEqual(len(proof_dropped), 1)
+
+            enabled = select_deterministic_candidates(
+                project_path=root,
+                state_dir=state,
+                stage="prover",
+                limit=1,
+                formalization_gate_enabled=True,
+                proof_gate_enabled=True,
+                foundation_build_enabled=True,
+                foundation_build_max_iterations=3,
+            )
+            formal_kept, formal_dropped = filter_objectives_for_review_gate(
+                [target],
+                state_dir=state,
+                project_path=root,
+                stage="prover",
+                enabled=True,
+                foundation_build_enabled=True,
+                foundation_build_max_iterations=3,
+            )
+            proof_kept, proof_dropped = (
+                filter_objectives_for_proof_review_gate(
+                    [target],
+                    state_dir=state,
+                    project_path=root,
+                    stage="prover",
+                    enabled=True,
+                    foundation_build_enabled=True,
+                    foundation_build_max_iterations=3,
+                )
+            )
+            self.assertEqual([item.relative_path for item in enabled], [rel])
+            self.assertTrue(enabled[0].foundation)
+            self.assertEqual(enabled[0].sorry_count, 0)
+            self.assertEqual(formal_kept, [target])
+            self.assertEqual(formal_dropped, [])
+            self.assertEqual(proof_kept, [target])
+            self.assertEqual(proof_dropped, [])
+
+            write_deterministic_objectives(
+                progress_file=state / "PROGRESS.md",
+                state_dir=state,
+                iter_num=3,
+                candidates=enabled,
+            )
+            pack = write_deterministic_candidate_pack(
+                project_path=root,
+                iter_dir=state / "logs" / "iter-003",
+                iter_num=3,
+                candidates=enabled,
+            )
+            progress = (state / "PROGRESS.md").read_text(encoding="utf-8")
+            self.assertIn("[prover-mode: mathlib-build]", progress)
+            self.assertIn(
+                "Foundation lifecycle: required",
+                pack.read_text(encoding="utf-8"),
+            )
+
+            (state / "foundation-build-gate.json").write_text(
+                json.dumps({
+                    "version": 1,
+                    "targets": {
+                        rel: {
+                            "status": "foundation_exhausted",
+                            "attempts": 3,
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+            exhausted = select_deterministic_candidates(
+                project_path=root,
+                state_dir=state,
+                stage="prover",
+                limit=1,
+                formalization_gate_enabled=True,
+                proof_gate_enabled=True,
+                foundation_build_enabled=True,
+                foundation_build_max_iterations=3,
+            )
+            reopened = select_deterministic_candidates(
+                project_path=root,
+                state_dir=state,
+                stage="prover",
+                limit=1,
+                formalization_gate_enabled=True,
+                proof_gate_enabled=True,
+                foundation_build_enabled=True,
+                foundation_build_max_iterations=4,
+            )
+            self.assertEqual(exhausted, [])
+            self.assertEqual([item.relative_path for item in reopened], [rel])
 
     def test_fast_sorry_count_ignores_comments_and_strings(self):
         with tempfile.TemporaryDirectory() as td:

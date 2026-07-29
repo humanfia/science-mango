@@ -20,6 +20,7 @@ from typing import Any, Iterable, Mapping
 from archon.state import parse_objective_files
 from archon.state.progress import write_stage
 
+from .foundation_build_gate import foundation_build_is_dispatchable
 from .sorry_count import file_open_sorry_count
 
 
@@ -562,6 +563,89 @@ def reopen_formalization_targets(
     return tuple(sorted(set(reopened)))
 
 
+def reset_formalization_review_budget_after_foundation(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    target: Path,
+    foundation_record: Mapping[str, Any],
+    iter_num: int,
+    max_iterations: int,
+    event_id: str,
+) -> bool:
+    """Open a fresh semantic-Review budget after validated foundation work."""
+    if not event_id.strip():
+        raise ValueError("foundation budget-reset event_id is required")
+    rel = _relative_file(str(target), project_path)
+    if not rel:
+        raise ValueError("foundation budget-reset target is required")
+    foundation_rel = _relative_file(
+        str(foundation_record.get("foundation_file") or ""), project_path,
+    )
+    target_digest = str(foundation_record.get("target_sha256") or "")
+    foundation_digest = str(
+        foundation_record.get("foundation_sha256") or ""
+    )
+    if not (
+        foundation_record.get("status") == "materialized"
+        and foundation_rel
+        and len(target_digest) == 64
+        and len(foundation_digest) == 64
+        and _file_sha256(project_path / rel) == target_digest
+        and _file_sha256(project_path / foundation_rel) == foundation_digest
+    ):
+        raise ValueError(
+            "foundation budget reset requires a current digest-bound "
+            "materialized hand-off"
+        )
+    max_iterations = max(1, int(max_iterations))
+    data = load_gate_state(state_dir) or _initial_state(max_iterations)
+    data["max_iterations"] = max_iterations
+    targets: dict[str, Any] = data.setdefault("targets", {})
+    old = targets.get(rel)
+    old = dict(old) if isinstance(old, dict) else {}
+    if old.get("last_foundation_reset_event_id") == event_id:
+        return False
+
+    reset_history = old.get("budget_reset_history")
+    reset_history = (
+        list(reset_history) if isinstance(reset_history, list) else []
+    )
+    reset_history.append({
+        "event_id": event_id,
+        "iter": iter_num,
+        "reset_at": _utcnow(),
+        "cause": "validated_foundation_build",
+        "previous_status": old.get("status"),
+        "previous_reviews": int(old.get("reviews") or 0),
+        "previous_reason": old.get("reason"),
+        "previous_certificate": old.get("certificate"),
+        "foundation_file": foundation_record.get("foundation_file"),
+        "foundation_sha256": foundation_record.get("foundation_sha256"),
+        "target_sha256": foundation_record.get("target_sha256"),
+    })
+    targets[rel] = {
+        **old,
+        "status": "retry",
+        "reviews": 0,
+        "reason": (
+            "validated shared foundation materialized; formalization Review "
+            "budget reset before target semantic re-review"
+        ),
+        "certificate": {},
+        "redraft_kind": "missing_foundational_bridge",
+        "foundation_handoff": dict(foundation_record),
+        "last_foundation_reset_event_id": event_id,
+        "last_foundation_reset_iter": iter_num,
+        "budget_reset_history": reset_history[-20:],
+        "updated_at": _utcnow(),
+    }
+    data["updated_at"] = _utcnow()
+    _write_state(state_dir, data)
+    _write_report(state_dir, data)
+    return True
+
+
 def apply_formalization_review(
     *,
     state_dir: Path,
@@ -812,6 +896,8 @@ def filter_objectives_for_review_gate(
     project_path: Path,
     stage: str,
     enabled: bool,
+    foundation_build_enabled: bool = False,
+    foundation_build_max_iterations: int = 3,
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     """Apply the persisted gate before any formalizer/prover dispatch."""
     items = list(objectives)
@@ -826,6 +912,14 @@ def filter_objectives_for_review_gate(
         rel = _relative_file(str(path), project_path)
         record = targets.get(rel) if rel else None
         status = str(record.get("status") or "") if isinstance(record, dict) else ""
+        if foundation_build_enabled and foundation_build_is_dispatchable(
+            state_dir=state_dir,
+            project_path=project_path,
+            target_rel=rel,
+            max_iterations=foundation_build_max_iterations,
+        ):
+            kept.append(path)
+            continue
         if canonical.startswith("autoformalize"):
             if status in {"passed", "review_exhausted"}:
                 dropped.append((path, status))
@@ -909,6 +1003,8 @@ def enforce_progress_review_gate(
     project_path: Path,
     stage: str,
     enabled: bool,
+    foundation_build_enabled: bool = False,
+    foundation_build_max_iterations: int = 3,
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     """Filter PROGRESS objectives in place before a worker can dispatch."""
     objectives = parse_objective_files(progress_file, project_path)
@@ -918,6 +1014,8 @@ def enforce_progress_review_gate(
         project_path=project_path,
         stage=stage,
         enabled=enabled,
+        foundation_build_enabled=foundation_build_enabled,
+        foundation_build_max_iterations=foundation_build_max_iterations,
     )
     if not dropped:
         return kept, dropped

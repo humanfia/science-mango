@@ -16,6 +16,7 @@ from typing import Any, Iterable
 from archon.commands.tooling.blueprint import chapter_coverage_map
 from archon.state.iter_state import objectives_sidecar_path
 
+from .foundation_build_gate import foundation_build_is_dispatchable
 from .formalization_review_gate import load_gate_state
 from .proof_review_gate import load_proof_review_state
 
@@ -36,6 +37,7 @@ class DeterministicCandidate:
     proof_reason: str
     chapter: Path | None
     physics: bool
+    foundation: bool
 
 
 def _strip_lean_line(line: str, block_depth: int) -> tuple[str, int]:
@@ -126,27 +128,47 @@ def select_deterministic_candidates(
     limit: int,
     formalization_gate_enabled: bool,
     proof_gate_enabled: bool,
+    foundation_build_enabled: bool = False,
+    foundation_build_max_iterations: int = 3,
 ) -> list[DeterministicCandidate]:
     """Select a stable, Review-safe prover frontier with retries first."""
     canonical = stage.strip().lower()
     if not canonical.startswith(("prover", "polish")) or limit <= 0:
         return []
 
+    proof_state = (
+        load_proof_review_state(state_dir) if proof_gate_enabled else {}
+    )
+    proof_targets = (
+        proof_state.get("targets", {}) if isinstance(proof_state, dict) else {}
+    )
+    if not isinstance(proof_targets, dict):
+        proof_targets = {}
+    foundation_rels = {
+        rel
+        for rel in proof_targets
+        if foundation_build_enabled
+        and foundation_build_is_dispatchable(
+            state_dir=state_dir,
+            project_path=project_path,
+            target_rel=rel,
+            max_iterations=foundation_build_max_iterations,
+        )
+    }
+
     formal_state = load_gate_state(state_dir) if formalization_gate_enabled else None
     formal_targets = formal_state.get("targets", {}) if formal_state else {}
     if formalization_gate_enabled:
-        universe = [
-            (project_path / rel).resolve()
+        eligible_rels = {
+            rel
             for rel, record in formal_targets.items()
             if isinstance(record, dict) and record.get("status") == "passed"
+        } | foundation_rels
+        universe = [
+            (project_path / rel).resolve() for rel in eligible_rels
         ]
     else:
         universe = _all_project_lean_files(project_path)
-
-    proof_state = load_proof_review_state(state_dir) if proof_gate_enabled else {}
-    proof_targets = proof_state.get("targets", {}) if isinstance(proof_state, dict) else {}
-    if not isinstance(proof_targets, dict):
-        proof_targets = {}
 
     chapters_by_rel = _chapter_lookup(project_path)
     ranked: list[tuple[tuple[int, int, str], Path, str, dict[str, Any]]] = []
@@ -162,24 +184,28 @@ def select_deterministic_candidates(
         raw_record = proof_targets.get(rel, {}) if proof_gate_enabled else {}
         record = raw_record if isinstance(raw_record, dict) else {}
         status = str(record.get("status") or "new")
+        foundation = rel in foundation_rels
         if status in {
             "solved", "proof_review_exhausted", "needs_redraft",
             "blocked_infrastructure",
-        }:
+        } and not foundation:
             continue
         attempts = int(record.get("attempts") or 0)
-        retry_rank = 0 if status == "retry" else 1
+        retry_rank = -1 if foundation else (0 if status == "retry" else 1)
         ranked.append(((retry_rank, -attempts, rel), path, rel, record))
 
     candidates: list[DeterministicCandidate] = []
     for _rank, path, rel, record in sorted(ranked, key=lambda item: item[0]):
         sorry_count = fast_open_sorry_count(path)
         status = str(record.get("status") or "new")
+        foundation = rel in foundation_rels
         # A Review retry may have no remaining `sorry`: the prior prover can
         # replace the placeholder with a term that fails direct elaboration.
         # Those targets still need a repair lane and must remain ahead of new
         # open-sorry work.
-        if sorry_count is None or (sorry_count == 0 and status != "retry"):
+        if sorry_count is None or (
+            sorry_count == 0 and status != "retry" and not foundation
+        ):
             continue
         chapter = chapters_by_rel.get(rel)
         physics = False
@@ -200,6 +226,7 @@ def select_deterministic_candidates(
                 proof_reason=str(record.get("reason") or ""),
                 chapter=chapter,
                 physics=physics,
+                foundation=foundation,
             )
         )
         if len(candidates) >= limit:
@@ -226,7 +253,13 @@ def deterministic_objective_lines(
 ) -> list[str]:
     lines: list[str] = []
     for index, candidate in enumerate(candidates, start=1):
-        if candidate.proof_status == "retry":
+        if candidate.foundation:
+            task = (
+                "mandatory missing-foundation construction; build a reusable "
+                "zero-sorry bridge, validate it, then resume this target's "
+                "semantic Review lifecycle"
+            )
+        elif candidate.proof_status == "retry":
             task = (
                 f"mandatory proof-Review retry {candidate.proof_attempts}; "
                 "repair the reviewed Lean elaboration/faithfulness failure"
@@ -236,7 +269,12 @@ def deterministic_objective_lines(
                 f"new proof target; fill {candidate.sorry_count} open Lean "
                 "placeholder(s)"
             )
-        mode = " [prover-mode: physics]" if candidate.physics else ""
+        if candidate.foundation:
+            mode = " [prover-mode: mathlib-build]"
+        elif candidate.physics:
+            mode = " [prover-mode: physics]"
+        else:
+            mode = ""
         lines.append(
             f"{index}. **`{candidate.relative_path}`** — Deterministically "
             f"selected {task} without weakening the statement.{mode}"
@@ -314,7 +352,14 @@ def write_deterministic_candidate_pack(
             f"## {index}. `{candidate.relative_path}`",
             "",
             f"- Open placeholders: {candidate.sorry_count}",
-            f"- Proof Review: {candidate.proof_status}; attempts={candidate.proof_attempts}",
+            (
+                f"- Proof Review: {candidate.proof_status}; "
+                f"attempts={candidate.proof_attempts}"
+            ),
+            (
+                "- Foundation lifecycle: "
+                f"{'required' if candidate.foundation else 'not required'}"
+            ),
             f"- Review reason: {candidate.proof_reason or '(none)' }",
             f"- Blueprint: `{chapter_rel}`",
             "",

@@ -49,12 +49,22 @@ from archon.state import (
     write_meta,
 )
 
+from ..foundation_build_gate import (
+    foundation_build_is_dispatchable,
+    foundation_materialization_matches_proof_review,
+    foundation_record,
+    foundation_relpath,
+    latest_proof_review_event_id,
+    normalize_foundation_root,
+    record_foundation_build_attempt,
+)
 from ..formalization_review_gate import (
     apply_target_formalization_review,
     filter_materialized_redrafts_for_dispatch,
     formalization_review_decision,
     load_gate_state as load_formalization_review_state,
     reopen_formalization_targets,
+    reset_formalization_review_budget_after_foundation,
 )
 from ..parallel_formalization_review import (
     _run_formalization_review_worker,
@@ -435,6 +445,86 @@ assigned Lean file compiles and the redraft evidence is durable on disk.
 """
 
 
+def build_foundation_build_prompt(
+    *,
+    project_name: str,
+    project_path: Path,
+    state_dir: Path,
+    iter_num: int,
+    target: Path,
+    foundation_rel: str,
+    review_certificate: dict,
+    attempt: int,
+    max_attempts: int,
+    prior_failure: str,
+    debug_feedback: bool,
+) -> str:
+    """Build an isolated shared-foundation task from a proof certificate."""
+    rel = relpath(target, project_path)
+    mode_name = (
+        "mathlib-build"
+        if _mode_file_exists(state_dir, "mathlib-build") else None
+    )
+    base_prompt = build_parallel_prover_prompt(
+        project_name,
+        project_path,
+        state_dir,
+        "prover",
+        iter_num,
+        assigned_rel_lean_path=foundation_rel,
+        debug_feedback=debug_feedback,
+        mode_name=mode_name,
+        mode_content=_load_mode_content(state_dir, mode_name),
+    )
+    certificate = json.dumps(
+        review_certificate, ensure_ascii=False, indent=2,
+    )
+    result_rel = f".archon/task_results/{file_slug(rel)}.md"
+    prior = prior_failure.strip() or "No earlier foundation attempt."
+    return f"""{base_prompt}
+
+## Automatic missing-foundation hand-off
+
+Source target: `{rel}`
+Shared foundation file: `{foundation_rel}`
+Foundation attempt: {attempt}/{max_attempts}
+Task-result report: `{result_rel}`
+
+The proof Review issued this validated routing certificate:
+
+{certificate}
+
+Previous foundation-attempt failure, if any:
+
+{prior}
+
+This is a separate foundation-construction lifecycle, not another attempt to
+hammer the final theorem. Build the reusable mathematical bridge bottom-up in
+`{foundation_rel}`. Add the corresponding import and hand-off in `{rel}` so
+the original target compiles against the new infrastructure. You may repair an
+unprotected contract only when the certificate shows that its abstraction was
+insufficient; never add an assumption equivalent to the requested conclusion.
+
+Hard acceptance conditions:
+1. `{foundation_rel}` exists, compiles independently, and contains no `sorry`,
+   `admit`, placeholder axiom, or answer-bearing hypothesis.
+2. Every new public declaration is proved and its `#print axioms` evidence is
+   recorded in `{result_rel}`; only standard trusted Lean/Mathlib axioms may
+   remain.
+3. `{rel}` changes, imports/uses the shared bridge, and still compiles. Its
+   final target proof may remain an explicit `by sorry` for the later proof
+   lane, but the bridge itself may not.
+4. `{result_rel}` is updated with declarations built, commands run, exact
+   remaining blocker, and the Proof Review reason/evidence that triggered this
+   task.
+
+Write permissions are exactly `{foundation_rel}`, `{rel}`, and `{result_rel}`.
+Do not edit PROGRESS.md, blueprint files, gate files, AUTO_NOTES.md, STRATEGY,
+other Lean files, or Git history. Do not commit. Return only after both Lean
+files compile and the report is durable.
+"""
+
+
 def _run_single_prover(
     prompt: str,
     cwd: Path,
@@ -487,6 +577,9 @@ class _PipelineWork:
     baseline_sha256: str = ""
     result_fingerprints: tuple[tuple[str, str], ...] = ()
     result_mtimes: tuple[tuple[str, int], ...] = ()
+    foundation: Path | None = None
+    foundation_baseline_sha256: str = ""
+    foundation_initial_target_sha256: str = ""
 
 
 class SerialProverRunner:
@@ -704,15 +797,47 @@ class ParallelProverRunner:
         pipeline_resume = (
             self.pipeline_review is not None and self.resume_enabled
         )
+        foundation_noop_exempt: set[Path] = set()
+        if (
+            self.pipeline_review is not None
+            and self.pipeline_review.formalization_review_enabled
+            and self.pipeline_review.foundation_build_enabled
+        ):
+            foundation_max_iterations = max(
+                1,
+                int(self.pipeline_review.foundation_build_max_iterations),
+            )
+            foundation_noop_exempt = {
+                path.resolve()
+                for path in sorry_files
+                if foundation_build_is_dispatchable(
+                    state_dir=self.state_dir,
+                    project_path=self.project_path,
+                    target_rel=relpath(path, self.project_path),
+                    max_iterations=foundation_max_iterations,
+                )
+            }
         if (
             not self.stage.strip().lower().startswith("autoformalize")
             and not pipeline_resume
         ):
-            sorry_files, noop_dropped = filter_noop_objectives(
-                sorry_files,
+            filterable = [
+                path for path in sorry_files
+                if path.resolve() not in foundation_noop_exempt
+            ]
+            filtered, noop_dropped = filter_noop_objectives(
+                filterable,
                 progress_file=progress,
                 state_dir=self.state_dir,
             )
+            retained = {path.resolve() for path in filtered}
+            sorry_files = [
+                path for path in sorry_files
+                if (
+                    path.resolve() in foundation_noop_exempt
+                    or path.resolve() in retained
+                )
+            ]
         if noop_dropped:
             log.warn(
                 f"Dropped {len(noop_dropped)} objective(s) naming an "
@@ -1026,6 +1151,13 @@ class ParallelProverRunner:
             1, int(config.formalization_review_max_iterations),
         )
         proof_max_iterations = max(1, int(config.proof_review_max_iterations))
+        foundation_enabled = bool(
+            full_pipeline and config.foundation_build_enabled
+        )
+        foundation_max_iterations = max(
+            1, int(config.foundation_build_max_iterations),
+        )
+        foundation_root = normalize_foundation_root(config.foundation_root)
         target_by_rel = {
             relpath(target, self.project_path): target for target in sorry_files
         }
@@ -1140,6 +1272,10 @@ class ParallelProverRunner:
         resumed_redrafts: list[
             tuple[Path, str, str, int, dict, str]
         ] = []
+        resumed_foundations: list[
+            tuple[Path, str, str, int, dict, int, str]
+        ] = []
+        foundation_exhausted_rels: set[str] = set()
         resume_settled = set()
         resume_pending_formalization = set()
         resume_outcomes: dict[str, TargetReviewOutcome] = {}
@@ -1291,6 +1427,82 @@ class ParallelProverRunner:
                 prior_formalization.get("reviews") or 0
             )
             shadow_formalization_records[rel] = dict(prior_formalization)
+            foundation_needed = bool(
+                foundation_enabled
+                and prior_proof.get("status") == "needs_redraft"
+                and prior_proof.get("redraft_kind")
+                == "missing_foundational_bridge"
+            )
+            if foundation_needed:
+                resume_settled.discard(rel)
+                source_event_id = latest_proof_review_event_id(
+                    prior_proof
+                )
+                certificate = {
+                    "schema_version": prior_proof.get(
+                        "proof_review_schema_version", 1,
+                    ),
+                    "route": "needs_redraft",
+                    "reason": prior_proof.get("reason") or (
+                        "proof Review found a missing foundational bridge"
+                    ),
+                    "evidence": prior_proof.get("evidence") or (
+                        "persisted proof Review routing record"
+                    ),
+                    "redraft_kind": "missing_foundational_bridge",
+                }
+                if source_event_id:
+                    certificate["source_proof_event_id"] = source_event_id
+                record = foundation_record(self.state_dir, rel)
+                if foundation_materialization_matches_proof_review(
+                    state_dir=self.state_dir,
+                    project_path=self.project_path,
+                    target_rel=rel,
+                    proof_record=prior_proof,
+                ):
+                    reset_event_id = (
+                        f"foundation-reset:{record.get('last_event_id', rel)}"
+                    )
+                    reset_formalization_review_budget_after_foundation(
+                        state_dir=self.state_dir,
+                        project_path=self.project_path,
+                        target=target,
+                        foundation_record=record,
+                        iter_num=self.iter_num,
+                        max_iterations=formalization_max_iterations,
+                        event_id=reset_event_id,
+                    )
+                    shadow_formalization_reviews[rel] = 0
+                    shadow_formalization_records[rel] = {
+                        **shadow_formalization_records[rel],
+                        "status": "retry",
+                        "reviews": 0,
+                        "reason": "validated foundation ready for semantic Review",
+                        "foundation_handoff": record,
+                    }
+                    formalization_cycles[rel] += 1
+                    resumed_formalized.append((target, rel, slug))
+                else:
+                    attempts = int(record.get("attempts") or 0)
+                    if attempts < foundation_max_iterations:
+                        formalization_cycles[rel] += 1
+                        resumed_foundations.append((
+                            target,
+                            rel,
+                            slug,
+                            formalization_cycles[rel],
+                            certificate,
+                            attempts + 1,
+                            str(record.get("reason") or ""),
+                        ))
+                    else:
+                        foundation_exhausted_rels.add(rel)
+                        resume_settled.add(rel)
+                        log.warn(
+                            "Foundation build budget already exhausted for "
+                            f"{rel} ({attempts}/{foundation_max_iterations})"
+                        )
+                continue
             if rel in resume_settled:
                 continue
             if rel in resume_pending_formalization:
@@ -1366,6 +1578,9 @@ class ParallelProverRunner:
         formalizer_queue: deque[
             tuple[Path, str, str, int, dict, str]
         ] = deque(resumed_redrafts)
+        foundation_queue: deque[
+            tuple[Path, str, str, int, dict, int, str]
+        ] = deque(resumed_foundations)
         formalization_review_queue: list[
             tuple[float, int, Path, str, str, int, int]
         ] = []
@@ -1377,9 +1592,16 @@ class ParallelProverRunner:
         formalizer_history: dict[str, list[dict]] = dict(
             resume_formalizer_history
         )
+        foundation_results: dict[str, dict] = {}
+        foundation_history: dict[str, list[dict]] = {}
         gate_events: list[dict] = list(recovered_gate_events)
-        pending_formalization: set[str] = set(resume_pending_formalization)
-        settled_targets: set[str] = set(resume_settled)
+        pending_foundation = {item[1] for item in resumed_foundations}
+        pending_formalization: set[str] = (
+            set(resume_pending_formalization) | pending_foundation
+        ) - foundation_exhausted_rels
+        settled_targets: set[str] = (
+            set(resume_settled) | foundation_exhausted_rels
+        )
         unresolved: dict[str, str] = {}
         review_rounds: dict[int, dict[str, int]] = {}
         formalization_review_rounds: dict[
@@ -1409,6 +1631,12 @@ class ParallelProverRunner:
                 "immediate formalization Review and a passing target is "
                 "re-enqueued to prover without a phase barrier."
             )
+        if foundation_enabled:
+            log.info(
+                "Foundation lifecycle enabled: missing_foundational_bridge "
+                "gets an independent zero-sorry mathlib-build budget before "
+                "the target's semantic Review budget is reset."
+            )
         write_meta(self.iter_meta, **{
             "prover.pipelineReviewEnabled": True,
             "prover.pipelineImmediateRedraftEnabled": True,
@@ -1418,6 +1646,10 @@ class ParallelProverRunner:
             ),
             "prover.pipelineReviewMaxCombined": workers,
             "prover.pipelineReviewMaxReviewers": review_jobs,
+            "prover.pipelineFoundationBuildEnabled": foundation_enabled,
+            "prover.pipelineFoundationBuildMaxIterations": (
+                foundation_max_iterations
+            ),
         })
         def pipeline_event_summaries() -> list[dict]:
             summaries: list[dict] = []
@@ -1454,6 +1686,15 @@ class ParallelProverRunner:
             failed_invocations = [
                 result for result in formalizer_invocations
                 if result.get("status") != "materialized"
+            ]
+            foundation_invocations = [
+                result
+                for rel in sorted(foundation_history)
+                for result in foundation_history[rel]
+            ]
+            foundation_materialized = [
+                result for result in foundation_invocations
+                if result.get("status") == "materialized"
             ]
             event_summaries = pipeline_event_summaries()
             report = dict(resume_report or {})
@@ -1507,6 +1748,20 @@ class ParallelProverRunner:
                     for rel, result in sorted(formalizer_results.items())
                     if result.get("status") == "materialized"
                 },
+                "foundation_builds": {
+                    "enabled": foundation_enabled,
+                    "max_iterations": foundation_max_iterations,
+                    "root": foundation_root,
+                    "requested": len(foundation_invocations),
+                    "materialized": len(foundation_materialized),
+                    "failed": (
+                        len(foundation_invocations)
+                        - len(foundation_materialized)
+                    ),
+                    "pending": sorted(pending_foundation),
+                    "results": foundation_results,
+                    "history": foundation_history,
+                },
                 "formalization_reviews": {
                     "enabled": full_pipeline,
                     "reviewed": sum(
@@ -1525,6 +1780,7 @@ class ParallelProverRunner:
                 ),
                 "gate_events": event_summaries,
                 "pending_formalization_targets": sorted(pending_formalization),
+                "pending_foundation_targets": sorted(pending_foundation),
             })
             write_pipelined_review_report(
                 iter_dir=self.iter_dir,
@@ -1913,6 +2169,100 @@ class ParallelProverRunner:
                 result_mtimes=tuple(sorted(baseline_result_mtimes.items())),
             )
 
+        def submit_foundation(
+            pool,
+            target: Path,
+            rel: str,
+            slug: str,
+            cycle: int,
+            certificate: dict,
+            attempt: int,
+            prior_failure: str,
+        ) -> None:
+            foundation_rel = foundation_relpath(rel, foundation_root)
+            foundation = self.project_path / foundation_rel
+            foundation_log = (
+                self.iter_dir / "foundation-builds" / slug
+                / f"attempt-{attempt}" / "agent"
+            )
+            foundation_log.parent.mkdir(parents=True, exist_ok=True)
+            snap_dir = (
+                self.iter_dir / "foundation-snapshots" / slug
+                / f"attempt-{attempt}"
+            )
+            baseline_sha256 = _target_sha256(target)
+            prior_foundation = foundation_record(self.state_dir, rel)
+            initial_target_sha256 = str(
+                prior_foundation.get("initial_target_sha256")
+                or baseline_sha256
+            )
+            foundation_baseline_sha256 = _target_sha256(foundation)
+            baseline_results = _task_result_fingerprints(self.state_dir, rel)
+            baseline_result_mtimes = _task_result_mtimes(self.state_dir, rel)
+            snapshot_baseline(target, snap_dir)
+            prompt = build_foundation_build_prompt(
+                project_name=self.project_name,
+                project_path=self.project_path,
+                state_dir=self.state_dir,
+                iter_num=self.iter_num,
+                target=target,
+                foundation_rel=foundation_rel,
+                review_certificate=certificate,
+                attempt=attempt,
+                max_attempts=foundation_max_iterations,
+                prior_failure=prior_failure,
+                debug_feedback=self.debug_feedback,
+            )
+            resume_sid = pick_resume_session(
+                self.iter_meta,
+                f"pipelineFoundations.{slug}.attempts.{attempt}.sessionId",
+                enabled=self.resume_enabled,
+                label=f"foundation[{slug}]",
+                cwd=self.project_path,
+                jsonl_fallback=Path(str(foundation_log) + ".jsonl"),
+            )
+            submit_prompt = PROVER_CONTINUE if resume_sid else prompt
+            write_meta(self.iter_meta, **{
+                f"pipelineFoundations.{slug}.file": rel,
+                f"pipelineFoundations.{slug}.foundationFile": foundation_rel,
+                f"pipelineFoundations.{slug}.status": "running",
+                f"pipelineFoundations.{slug}.attempt": attempt,
+                f"pipelineFoundations.{slug}.cycle": cycle,
+            })
+            log.step(
+                f"Starting foundation build for {rel} "
+                f"({attempt}/{foundation_max_iterations})"
+            )
+            future = pool.submit(
+                self.formalizer_worker,
+                submit_prompt,
+                self.project_path,
+                foundation_log,
+                self.verbose_logs,
+                self.model,
+                snap_dir,
+                self.project_path,
+                resume_sid,
+                self.backend,
+                config.formalizer_harness or self.harness,
+            )
+            futures[future] = _PipelineWork(
+                kind="foundation",
+                target=target,
+                rel=rel,
+                slug=slug,
+                attempt=attempt,
+                cycle=cycle,
+                baseline_sha256=baseline_sha256,
+                result_fingerprints=tuple(sorted(baseline_results.items())),
+                result_mtimes=tuple(sorted(baseline_result_mtimes.items())),
+                foundation=foundation,
+                foundation_baseline_sha256=foundation_baseline_sha256,
+                foundation_initial_target_sha256=(
+                    initial_target_sha256
+                ),
+            )
+
         def enqueue_formalization_review(
             target: Path,
             rel: str,
@@ -2055,6 +2405,14 @@ class ParallelProverRunner:
                         review_queue
                     )
                     submit_review(pool, target, rel, slug, attempt, cycle)
+                elif foundation_queue:
+                    target, rel, slug, cycle, certificate, attempt, prior = (
+                        foundation_queue.popleft()
+                    )
+                    submit_foundation(
+                        pool, target, rel, slug, cycle, certificate,
+                        attempt, prior,
+                    )
                 elif formalizer_queue:
                     target, rel, slug, cycle, certificate, handoff_label = (
                         formalizer_queue.popleft()
@@ -2084,6 +2442,7 @@ class ParallelProverRunner:
                 or pending_provers
                 or pending_initial_formalizers
                 or review_queue
+                or foundation_queue
                 or formalizer_queue
                 or formalization_review_queue
             ):
@@ -2147,6 +2506,261 @@ class ParallelProverRunner:
                         enqueue_review(
                             work.target, work.rel, work.slug, 1, work.cycle,
                         )
+                        continue
+
+                    if work.kind == "foundation":
+                        runner_error = ""
+                        try:
+                            runner_ok = bool(future.result())
+                        except QuotaExhaustedError:
+                            raise
+                        except Exception as exc:
+                            runner_ok = False
+                            runner_error = f"{type(exc).__name__}: {exc}"
+                        foundation_log = (
+                            self.iter_dir / "foundation-builds" / work.slug
+                            / f"attempt-{work.attempt}" / "agent"
+                        )
+                        persist_session_id(
+                            self.iter_meta,
+                            Path(str(foundation_log) + ".jsonl"),
+                            f"pipelineFoundations.{work.slug}.attempts.{work.attempt}.sessionId",
+                        )
+                        foundation = work.foundation
+                        if foundation is None:
+                            raise RuntimeError(
+                                f"foundation work missing path for {work.rel}"
+                            )
+                        foundation_rel = relpath(
+                            foundation, self.project_path,
+                        )
+                        target_digest = _target_sha256(work.target)
+                        attempt_target_changed = bool(
+                            target_digest
+                            and target_digest != work.baseline_sha256
+                        )
+                        target_changed = bool(
+                            target_digest
+                            and target_digest
+                            != work.foundation_initial_target_sha256
+                        )
+                        foundation_digest = _target_sha256(foundation)
+                        foundation_changed = bool(
+                            foundation_digest
+                            and foundation_digest
+                            != work.foundation_baseline_sha256
+                        )
+                        target_postflight = run_preflight(
+                            work.target, work.rel,
+                        )
+                        foundation_postflight = run_preflight(
+                            foundation, foundation_rel,
+                        )
+                        foundation_sorries = foundation_postflight.get(
+                            "sorry_count"
+                        )
+                        if foundation_sorries is None:
+                            foundation_sorries = file_open_sorry_count(
+                                foundation
+                            )
+                        try:
+                            foundation_lines = foundation.read_text(
+                                encoding="utf-8"
+                            ).splitlines()
+                        except OSError:
+                            foundation_lines = []
+                        forbidden_declarations = [
+                            {"line": number, "text": line.strip()[:300]}
+                            for number, line in enumerate(
+                                foundation_lines, start=1,
+                            )
+                            if line.strip().startswith(("axiom ", "constant "))
+                        ]
+                        foundation_clean = bool(
+                            foundation_sorries == 0 and not forbidden_declarations
+                        )
+                        before_results = dict(work.result_fingerprints)
+                        before_result_mtimes = dict(work.result_mtimes)
+                        after_results = _task_result_fingerprints(
+                            self.state_dir, work.rel,
+                        )
+                        after_result_mtimes = _task_result_mtimes(
+                            self.state_dir, work.rel,
+                        )
+                        result_updated = any(
+                            before_results.get(path) != result_digest
+                            for path, result_digest in after_results.items()
+                        )
+                        if not result_updated:
+                            result_updated = any(
+                                mtime > before_result_mtimes.get(path, -1)
+                                for path, mtime in after_result_mtimes.items()
+                            )
+                        materialized = bool(
+                            target_changed
+                            and target_postflight.get("compiles") is True
+                            and foundation_digest
+                            and foundation_postflight.get("compiles") is True
+                            and foundation_clean
+                            and result_updated
+                        )
+                        errors = [runner_error] if runner_error else []
+                        if not target_changed:
+                            errors.append(
+                                "foundation builder did not change the target hand-off"
+                            )
+                        if target_postflight.get("compiles") is not True:
+                            errors.append("target hand-off did not compile")
+                        if not foundation_digest:
+                            errors.append("foundation file is missing")
+                        elif foundation_postflight.get("compiles") is not True:
+                            errors.append("foundation file did not compile")
+                        if foundation_sorries != 0:
+                            errors.append(
+                                "foundation file contains open sorry/admit"
+                            )
+                        if forbidden_declarations:
+                            errors.append(
+                                "foundation file declares explicit axioms/constants"
+                            )
+                        if not result_updated:
+                            errors.append(
+                                "foundation builder did not update its task result"
+                            )
+                        result = {
+                            "iteration": self.iter_num,
+                            "file": work.rel,
+                            "foundation_file": foundation_rel,
+                            "cycle": work.cycle,
+                            "attempt": work.attempt,
+                            "status": (
+                                "materialized" if materialized else "error"
+                            ),
+                            "runner_ok": runner_ok,
+                            "target_changed": target_changed,
+                            "attempt_target_changed": attempt_target_changed,
+                            "target_sha256": target_digest,
+                            "baseline_target_sha256": work.baseline_sha256,
+                            "initial_target_sha256": (
+                                work.foundation_initial_target_sha256
+                            ),
+                            "foundation_changed": foundation_changed,
+                            "foundation_sha256": foundation_digest,
+                            "foundation_sorry_count": foundation_sorries,
+                            "forbidden_declarations": forbidden_declarations,
+                            "task_result_updated": result_updated,
+                            "task_result_fingerprints": after_results,
+                            "task_result_mtimes": after_result_mtimes,
+                            "target_preflight": target_postflight,
+                            "foundation_preflight": foundation_postflight,
+                            "error": "; ".join(errors),
+                        }
+                        proof_state = load_proof_review_state(self.state_dir)
+                        proof_targets = proof_state.get("targets", {})
+                        persisted_proof = (
+                            proof_targets.get(work.rel)
+                            if isinstance(proof_targets, dict) else None
+                        )
+                        proof_record = (
+                            persisted_proof
+                            if isinstance(persisted_proof, dict)
+                            else shadow_proof_records.get(work.rel, {})
+                        )
+                        certificate = {
+                            "schema_version": proof_record.get(
+                                "proof_review_schema_version", 1,
+                            ),
+                            "route": "needs_redraft",
+                            "reason": proof_record.get("reason") or (
+                                "proof Review found a missing foundational bridge"
+                            ),
+                            "evidence": proof_record.get("evidence") or (
+                                "persisted proof Review routing record"
+                            ),
+                            "redraft_kind": "missing_foundational_bridge",
+                        }
+                        source_event_id = latest_proof_review_event_id(
+                            proof_record
+                        )
+                        if source_event_id:
+                            certificate["source_proof_event_id"] = source_event_id
+                        event_id = (
+                            f"pipeline:{self.iter_num}:{work.rel}:"
+                            f"foundation:{work.attempt}"
+                        )
+                        update = record_foundation_build_attempt(
+                            state_dir=self.state_dir,
+                            project_path=self.project_path,
+                            target_rel=work.rel,
+                            foundation_file=foundation_rel,
+                            certificate=certificate,
+                            result=result,
+                            iter_num=self.iter_num,
+                            max_iterations=foundation_max_iterations,
+                            event_id=event_id,
+                        )
+                        result["gate_status"] = update.status
+                        foundation_results[work.rel] = result
+                        foundation_history.setdefault(work.rel, []).append(
+                            result
+                        )
+                        write_meta(self.iter_meta, **{
+                            f"pipelineFoundations.{work.slug}.status": update.status,
+                            f"pipelineFoundations.{work.slug}.runnerOk": runner_ok,
+                            f"pipelineFoundations.{work.slug}.attempts": update.attempts,
+                            f"pipelineFoundations.{work.slug}.error": update.reason,
+                        })
+                        if update.status == "materialized":
+                            pending_foundation.discard(work.rel)
+                            persisted = foundation_record(
+                                self.state_dir, work.rel,
+                            )
+                            reset_formalization_review_budget_after_foundation(
+                                state_dir=self.state_dir,
+                                project_path=self.project_path,
+                                target=work.target,
+                                foundation_record=persisted,
+                                iter_num=self.iter_num,
+                                max_iterations=formalization_max_iterations,
+                                event_id=f"foundation-reset:{event_id}",
+                            )
+                            shadow_formalization_reviews[work.rel] = 0
+                            shadow_formalization_records[work.rel] = {
+                                **shadow_formalization_records.get(work.rel, {}),
+                                "status": "retry",
+                                "reviews": 0,
+                                "reason": (
+                                    "validated foundation ready for semantic Review"
+                                ),
+                                "certificate": {},
+                                "foundation_handoff": persisted,
+                            }
+                            preflight_rows[work.rel] = target_postflight
+                            enqueue_formalization_review(
+                                work.target, work.rel, work.slug,
+                                work.cycle, 1,
+                            )
+                            log.success(
+                                f"Foundation materialized and validated: {work.rel}"
+                            )
+                        elif update.status == "retry":
+                            foundation_queue.append((
+                                work.target, work.rel, work.slug, work.cycle,
+                                certificate, update.attempts + 1, update.reason,
+                            ))
+                            log.warn(
+                                f"Foundation build retry queued for {work.rel}: "
+                                f"{update.reason}"
+                            )
+                        else:
+                            pending_foundation.discard(work.rel)
+                            pending_formalization.discard(work.rel)
+                            settled_targets.add(work.rel)
+                            log.error(
+                                "Foundation build budget exhausted for "
+                                f"{work.rel}: {update.reason}"
+                            )
+                        write_pipeline_checkpoint()
                         continue
 
                     if work.kind in {"formalizer", "initial_formalizer"}:
@@ -2507,48 +3121,128 @@ class ParallelProverRunner:
                         if route == "needs_redraft" and isinstance(
                             certificate, dict
                         ):
-                            budget_available = (
-                                not full_pipeline
-                                or shadow_formalization_reviews[work.rel]
-                                < formalization_max_iterations
+                            foundation_route = bool(
+                                full_pipeline
+                                and foundation_enabled
+                                and redraft_kind
+                                == "missing_foundational_bridge"
                             )
-                            if budget_available:
-                                shadow_formalization_records[work.rel] = {
-                                    **shadow_formalization_records.get(
-                                        work.rel, {}
-                                    ),
-                                    "status": "retry",
-                                    "reason": f"proof Review redraft: {reason}",
-                                    "certificate": {},
-                                    "redraft_kind": redraft_kind,
-                                }
+                            if foundation_route:
                                 pending_formalization.add(work.rel)
+                                pending_foundation.add(work.rel)
+                                settled_targets.discard(work.rel)
                                 next_cycle = formalization_cycles[work.rel] + 1
                                 formalization_cycles[work.rel] = next_cycle
-                                formalizer_queue.append((
-                                    work.target,
-                                    work.rel,
-                                    work.slug,
-                                    next_cycle,
-                                    dict(certificate),
-                                    "proof Review",
-                                ))
-                                write_meta(self.iter_meta, **{
-                                    f"pipelineFormalizers.{work.slug}.status": (
-                                        "queued"
-                                    ),
-                                    f"pipelineFormalizers.{work.slug}.cycle": (
-                                        next_cycle
-                                    ),
-                                })
-                            else:
-                                pending_formalization.discard(work.rel)
-                                settled_targets.add(work.rel)
-                                log.warn(
-                                    "Formalization Review budget exhausted; "
-                                    f"cannot redraft {work.rel} after proof "
-                                    f"Review: {reason}"
+                                record = foundation_record(
+                                    self.state_dir, work.rel,
                                 )
+                                if foundation_materialization_matches_proof_review(
+                                    state_dir=self.state_dir,
+                                    project_path=self.project_path,
+                                    target_rel=work.rel,
+                                ):
+                                    pending_foundation.discard(work.rel)
+                                    reset_formalization_review_budget_after_foundation(
+                                        state_dir=self.state_dir,
+                                        project_path=self.project_path,
+                                        target=work.target,
+                                        foundation_record=record,
+                                        iter_num=self.iter_num,
+                                        max_iterations=(
+                                            formalization_max_iterations
+                                        ),
+                                        event_id=(
+                                            "foundation-reset:"
+                                            f"{record.get('last_event_id', work.rel)}"
+                                        ),
+                                    )
+                                    shadow_formalization_reviews[work.rel] = 0
+                                    shadow_formalization_records[work.rel] = {
+                                        **shadow_formalization_records.get(
+                                            work.rel, {}
+                                        ),
+                                        "status": "retry",
+                                        "reviews": 0,
+                                        "reason": (
+                                            "validated foundation ready for "
+                                            "semantic Review"
+                                        ),
+                                        "foundation_handoff": record,
+                                    }
+                                    enqueue_formalization_review(
+                                        work.target, work.rel, work.slug,
+                                        next_cycle, 1,
+                                    )
+                                else:
+                                    prior_foundation_attempts = int(
+                                        record.get("attempts") or 0
+                                    )
+                                    if (
+                                        prior_foundation_attempts
+                                        < foundation_max_iterations
+                                    ):
+                                        foundation_queue.append((
+                                            work.target,
+                                            work.rel,
+                                            work.slug,
+                                            next_cycle,
+                                            dict(certificate),
+                                            prior_foundation_attempts + 1,
+                                            str(record.get("reason") or ""),
+                                        ))
+                                        write_meta(self.iter_meta, **{
+                                            f"pipelineFoundations.{work.slug}.status": "queued",
+                                            f"pipelineFoundations.{work.slug}.attempt": (
+                                                prior_foundation_attempts + 1
+                                            ),
+                                        })
+                                    else:
+                                        pending_foundation.discard(work.rel)
+                                        pending_formalization.discard(work.rel)
+                                        settled_targets.add(work.rel)
+                                        log.warn(
+                                            "Foundation build budget exhausted; "
+                                            f"cannot construct bridge for {work.rel}"
+                                        )
+                            else:
+                                budget_available = (
+                                    not full_pipeline
+                                    or shadow_formalization_reviews[work.rel]
+                                    < formalization_max_iterations
+                                )
+                                if budget_available:
+                                    shadow_formalization_records[work.rel] = {
+                                        **shadow_formalization_records.get(
+                                            work.rel, {}
+                                        ),
+                                        "status": "retry",
+                                        "reason": f"proof Review redraft: {reason}",
+                                        "certificate": {},
+                                        "redraft_kind": redraft_kind,
+                                    }
+                                    pending_formalization.add(work.rel)
+                                    next_cycle = formalization_cycles[work.rel] + 1
+                                    formalization_cycles[work.rel] = next_cycle
+                                    formalizer_queue.append((
+                                        work.target,
+                                        work.rel,
+                                        work.slug,
+                                        next_cycle,
+                                        dict(certificate),
+                                        "proof Review",
+                                    ))
+                                    write_meta(self.iter_meta, **{
+                                        f"pipelineFormalizers.{work.slug}.status": "queued",
+                                        f"pipelineFormalizers.{work.slug}.cycle": next_cycle,
+                                    })
+                                else:
+                                    pending_formalization.discard(work.rel)
+                                    settled_targets.add(work.rel)
+                                    log.warn(
+                                        "Formalization Review budget exhausted; "
+                                        f"cannot redraft {work.rel} after proof "
+                                        f"Review: {reason}"
+                                    )
                             if not full_pipeline:
                                 settled_targets.add(work.rel)
                         elif not full_pipeline:
@@ -2738,6 +3432,19 @@ class ParallelProverRunner:
             rel: result for rel, result in sorted(formalizer_results.items())
             if result.get("status") != "materialized"
         }
+        foundation_invocations = [
+            result
+            for rel in sorted(foundation_history)
+            for result in foundation_history[rel]
+        ]
+        materialized_foundations = [
+            result for result in foundation_invocations
+            if result.get("status") == "materialized"
+        ]
+        failed_foundations = [
+            result for result in foundation_invocations
+            if result.get("status") != "materialized"
+        ]
         report_path = write_pipelined_review_report(
             iter_dir=self.iter_dir,
             report={
@@ -2773,6 +3480,17 @@ class ParallelProverRunner:
                 "formalizer_results": formalizer_results,
                 "formalizer_history": formalizer_history,
                 "formalization_handoffs": materialized_redrafts,
+                "foundation_builds": {
+                    "enabled": foundation_enabled,
+                    "max_iterations": foundation_max_iterations,
+                    "root": foundation_root,
+                    "requested": len(foundation_invocations),
+                    "materialized": len(materialized_foundations),
+                    "failed": len(failed_foundations),
+                    "pending": sorted(pending_foundation),
+                    "results": foundation_results,
+                    "history": foundation_history,
+                },
                 "formalization_reviews": {
                     "enabled": full_pipeline,
                     "reviewed": len(formalization_gate_result["reviewed"]),
@@ -2785,6 +3503,7 @@ class ParallelProverRunner:
                 "formalization_gate_result": formalization_gate_result,
                 "proof_redrafts_reopened": proof_redrafts_reopened,
                 "pending_formalization_targets": sorted(pending_formalization),
+                "pending_foundation_targets": sorted(pending_foundation),
             },
         )
         write_meta(self.iter_meta, **{
@@ -2804,6 +3523,10 @@ class ParallelProverRunner:
             "prover.pipelineFormalizationPending": len(pending_formalization),
             "prover.pipelineGateEventsApplied": gate_events_applied,
             "prover.pipelineGateEvents": len(gate_event_summaries),
+            "prover.pipelineFoundationsRequested": len(foundation_invocations),
+            "prover.pipelineFoundationsMaterialized": len(
+                materialized_foundations
+            ),
         })
         if complete:
             if initial_formalization:
@@ -2831,6 +3554,15 @@ class ParallelProverRunner:
             log.warn(
                 f"Immediate redrafts incomplete: {len(failed_redrafts)}; "
                 "their target-local lifecycle remains recoverable"
+            )
+
+        if materialized_foundations:
+            log.success(
+                f"Validated foundations materialized: {len(materialized_foundations)}"
+            )
+        if failed_foundations:
+            log.warn(
+                f"Foundation attempts incomplete: {len(failed_foundations)}"
             )
 
         if failed:

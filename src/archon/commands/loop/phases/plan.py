@@ -251,9 +251,14 @@ class PlanPhase(Phase):
         captured_auto_notes = _capture_auto_notes(ctx.state_dir)
         deterministic_candidates = []
         deterministic_candidate_pack = None
-        deterministic_enabled = bool(
-            cfg.loop_section().get("deterministic_plan", False)
+        loop_cfg = cfg.loop_section()
+        deterministic_enabled = bool(loop_cfg.get("deterministic_plan", False))
+        foundation_build_enabled = bool(
+            loop_cfg.get("pipeline_foundation_build", False)
         )
+        foundation_build_max_iterations = max(1, int(loop_cfg.get(
+            "pipeline_foundation_build_max_iterations", 3,
+        )))
         pack_iter_dir = ctx.iter_dir
         if pack_iter_dir is None and ctx.dry_run:
             pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
@@ -271,6 +276,10 @@ class PlanPhase(Phase):
                 limit=ctx.options.max_objectives,
                 formalization_gate_enabled=ctx.options.formalization_review_gate,
                 proof_gate_enabled=getattr(ctx.options, "proof_review_gate", False),
+                foundation_build_enabled=foundation_build_enabled,
+                foundation_build_max_iterations=(
+                    foundation_build_max_iterations
+                ),
             )
             if deterministic_candidates and pack_iter_dir is not None:
                 if not ctx.dry_run:

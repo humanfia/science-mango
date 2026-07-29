@@ -155,6 +155,28 @@ def default_config() -> dict[str, Any]:
                 "parallel_target_review, and proof_review_gate."
             ),
             'pipeline_target_review': False,
+            '_pipeline_foundation_build_help': (
+                "If true, proof Review route needs_redraft with "
+                "redraft_kind=missing_foundational_bridge starts an "
+                "independent mathlib-build lane. The lane must materialize "
+                "a compiling, zero-sorry shared Lean foundation and a "
+                "compiling target hand-off before the target receives a "
+                "fresh formalization Review budget and resumes its own "
+                "formalization→proof lifecycle. Other redraft kinds keep the "
+                "normal target-only path. Requires pipeline_target_review "
+                "and parallel_formalization_review."
+            ),
+            'pipeline_foundation_build': False,
+            '_pipeline_foundation_build_max_iterations_help': (
+                "Independent per-target model budget for constructing a "
+                "missing shared foundation. This does not consume proof or "
+                "formalization Review attempts."
+            ),
+            'pipeline_foundation_build_max_iterations': 3,
+            '_pipeline_foundation_root_help': (
+                "Project-relative directory for generated shared Lean files."
+            ),
+            'pipeline_foundation_root': 'ArchonFoundations',
             'parallel_target_review_jobs': 16,
             'parallel_target_review_max_attempts': 3,
             'parallel_target_review_backoff_sec': 5,

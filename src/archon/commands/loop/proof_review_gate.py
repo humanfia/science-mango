@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from .foundation_build_gate import foundation_build_is_dispatchable
+
 
 STATE_FILENAME = "proof-review-gate.json"
 REPORT_FILENAME = "PROOF_REVIEW_GATE.md"
@@ -645,6 +647,8 @@ def filter_objectives_for_proof_review_gate(
     project_path: Path,
     enabled: bool,
     stage: str | None = None,
+    foundation_build_enabled: bool = False,
+    foundation_build_max_iterations: int = 3,
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     items = list(objectives)
     canonical_stage = str(stage or "").strip().lower()
@@ -661,7 +665,16 @@ def filter_objectives_for_proof_review_gate(
         rel = _relative_file(str(path), project_path)
         record = targets.get(rel) if isinstance(targets, dict) else None
         status = str(record.get("status") or "") if isinstance(record, dict) else ""
-        if status in _NON_DISPATCH_STATUSES:
+        foundation_dispatch = bool(
+            foundation_build_enabled
+            and foundation_build_is_dispatchable(
+                state_dir=state_dir,
+                project_path=project_path,
+                target_rel=rel,
+                max_iterations=foundation_build_max_iterations,
+            )
+        )
+        if status in _NON_DISPATCH_STATUSES and not foundation_dispatch:
             dropped.append((path, status))
         else:
             kept.append(path)

@@ -11,6 +11,13 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from archon.commands.loop.foundation_build_gate import (
+    foundation_build_is_dispatchable,
+    foundation_materialization_is_current,
+    foundation_materialization_matches_proof_review,
+    foundation_relpath,
+    record_foundation_build_attempt,
+)
 from archon.commands.loop.formalization_review_gate import (
     apply_target_formalization_review,
 )
@@ -62,6 +69,20 @@ def _redraft_milestone(rel: str) -> dict:
     }
     row["findings"]["blocker"] = "answer is encoded as an assumption"
     row["next_steps"] = "remove h_answer and encode the governing law"
+    return row
+
+
+def _foundation_redraft_milestone(rel: str) -> dict:
+    row = _redraft_milestone(rel)
+    row["proof_review"] = {
+        "schema_version": 1,
+        "route": "needs_redraft",
+        "reason": "the faithful target needs a missing entropy bridge",
+        "evidence": "no local strong-subadditivity eliminator is available",
+        "redraft_kind": "missing_foundational_bridge",
+    }
+    row["findings"]["blocker"] = "missing reusable entropy theorem"
+    row["next_steps"] = "build the bridge before retrying the target"
     return row
 
 
@@ -224,6 +245,8 @@ class PipelinedReviewTest(unittest.TestCase):
         full_pipeline: bool = False,
         formalization_review_worker=_process_formalization_review,
         formalization_max_iterations: int = 3,
+        foundation_enabled: bool = False,
+        foundation_max_iterations: int = 3,
         stage: str = "prover",
     ) -> ParallelProverRunner:
         return ParallelProverRunner(
@@ -249,6 +272,9 @@ class PipelinedReviewTest(unittest.TestCase):
                 formalization_review_max_attempts=3,
                 formalization_review_backoff_sec=0,
                 formalization_review_max_iterations=formalization_max_iterations,
+                foundation_build_enabled=foundation_enabled,
+                foundation_build_max_iterations=foundation_max_iterations,
+                foundation_root="ArchonFoundations",
             ),
             executor_factory=executor_factory,
             prover_worker=prover_worker,
@@ -1329,6 +1355,431 @@ class PipelinedReviewTest(unittest.TestCase):
                     + (["proof"] if formalization_verdicts[-1] else []),
                 )
 
+    def test_foundation_gate_is_digest_bound_and_idempotent(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            state.mkdir()
+            target = root / "QIT" / "A.lean"
+            target.parent.mkdir()
+            target.write_text("theorem a : True := by trivial\n", encoding="utf-8")
+            foundation_rel = foundation_relpath(
+                "QIT/A.lean", "ArchonFoundations",
+            )
+            foundation = root / foundation_rel
+            foundation.parent.mkdir()
+            foundation.write_text(
+                "theorem entropyBridge : True := by trivial\n",
+                encoding="utf-8",
+            )
+            proof_record = {
+                "status": "needs_redraft",
+                "attempts": 1,
+                "redraft_kind": "missing_foundational_bridge",
+                "history": [{"event_id": "proof:event:1"}],
+            }
+            (state / "proof-review-gate.json").write_text(
+                json.dumps({
+                    "targets": {"QIT/A.lean": proof_record},
+                }),
+                encoding="utf-8",
+            )
+            result = {"status": "materialized", "error": ""}
+            certificate = _foundation_redraft_milestone(
+                "QIT/A.lean"
+            )["proof_review"]
+            certificate["source_proof_event_id"] = "proof:event:1"
+
+            first = record_foundation_build_attempt(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+                foundation_file=foundation_rel,
+                certificate=certificate,
+                result=result,
+                iter_num=1,
+                max_iterations=3,
+                event_id="foundation:event:1",
+            )
+            replay = record_foundation_build_attempt(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+                foundation_file=foundation_rel,
+                certificate=certificate,
+                result=result,
+                iter_num=1,
+                max_iterations=3,
+                event_id="foundation:event:1",
+            )
+
+            self.assertEqual(first.status, "materialized")
+            self.assertEqual(first.attempts, 1)
+            self.assertFalse(replay.applied)
+            self.assertEqual(replay.attempts, 1)
+            self.assertTrue(foundation_materialization_is_current(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+            ))
+            self.assertTrue(
+                foundation_materialization_matches_proof_review(
+                    state_dir=state,
+                    project_path=root,
+                    target_rel="QIT/A.lean",
+                )
+            )
+            proof_record["history"].append({"event_id": "proof:event:2"})
+            (state / "proof-review-gate.json").write_text(
+                json.dumps({
+                    "targets": {"QIT/A.lean": proof_record},
+                }),
+                encoding="utf-8",
+            )
+            self.assertFalse(
+                foundation_materialization_matches_proof_review(
+                    state_dir=state,
+                    project_path=root,
+                    target_rel="QIT/A.lean",
+                )
+            )
+            self.assertTrue(foundation_build_is_dispatchable(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+                max_iterations=2,
+            ))
+            self.assertFalse(foundation_build_is_dispatchable(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+                max_iterations=1,
+            ))
+            target.write_text(
+                "theorem a : True := by\n  trivial\n", encoding="utf-8",
+            )
+            self.assertFalse(foundation_materialization_is_current(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+            ))
+
+    def test_zero_sorry_foundation_target_bypasses_noop_filter(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by exact True.intro\n",
+                encoding="utf-8",
+            )
+            (state / "PROGRESS.md").write_text(
+                "# Progress\n\n## Current Stage\n\nprover\n\n"
+                "## Current Objectives\n\n"
+                "1. **`A.lean`** — build missing foundation. "
+                "[prover-mode: mathlib-build]\n",
+                encoding="utf-8",
+            )
+            (state / "proof-review-gate.json").write_text(
+                json.dumps({
+                    "targets": {
+                        "A.lean": {
+                            "status": "needs_redraft",
+                            "attempts": 1,
+                            "redraft_kind": "missing_foundational_bridge",
+                            "reason": "missing reusable entropy bridge",
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=lambda *_args, **_kwargs: True,
+                review_worker=lambda *_args, **_kwargs: True,
+                full_pipeline=True,
+                foundation_enabled=True,
+                foundation_max_iterations=2,
+            )
+            with (
+                patch.object(runner, "_run_fanout") as run_fanout,
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "archive_task_results"
+                ),
+            ):
+                runner.run(dry_run=False)
+
+            run_fanout.assert_called_once()
+            dispatched = run_fanout.call_args.args[0]
+            self.assertEqual(dispatched, [target])
+
+
+    def test_missing_bridge_builds_foundation_then_resumes_target(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text("theorem a : True := by sorry\n", encoding="utf-8")
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": 2,
+                    "max_iterations": 3,
+                    "targets": {
+                        "A.lean": {
+                            "status": "review_exhausted",
+                            "reviews": 3,
+                            "reason": "old statement Review budget exhausted",
+                            "certificate": {"old": True},
+                        }
+                    },
+                }),
+                encoding="utf-8",
+            )
+            prover_calls = 0
+            proof_review_calls = 0
+            foundation_prompts: list[str] = []
+            formalization_prompts: list[str] = []
+
+            def fake_prover(*_args, **_kwargs):
+                nonlocal prover_calls
+                prover_calls += 1
+                return True
+
+            def fake_proof_review(spec, **_kwargs):
+                nonlocal proof_review_calls
+                proof_review_calls += 1
+                milestone = (
+                    _foundation_redraft_milestone(spec.rel)
+                    if proof_review_calls == 1 else _milestone(spec.rel)
+                )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=milestone,
+                )
+
+            def fake_foundation_builder(*args, **_kwargs):
+                foundation_prompts.append(args[0])
+                foundation = root / "ArchonFoundations" / "A_Foundation.lean"
+                foundation.parent.mkdir(parents=True, exist_ok=True)
+                foundation.write_text(
+                    "theorem entropyBridge : True := by trivial\n",
+                    encoding="utf-8",
+                )
+                target.write_text(
+                    "import ArchonFoundations.A_Foundation\n\n"
+                    "theorem a : True := by sorry\n",
+                    encoding="utf-8",
+                )
+                (state / "task_results" / "A.lean.md").write_text(
+                    "# Foundation\n\nBuilt `entropyBridge`; #print axioms clean.\n",
+                    encoding="utf-8",
+                )
+                return True
+
+            def fake_formalization_review(spec, **_kwargs):
+                formalization_prompts.append(spec.prompt)
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_formalization_milestone(spec.rel, passed=True),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=fake_prover,
+                review_worker=fake_proof_review,
+                formalizer_worker=fake_foundation_builder,
+                formalization_review_worker=fake_formalization_review,
+                max_parallel=1,
+                full_pipeline=True,
+                formalization_max_iterations=3,
+                foundation_enabled=True,
+                foundation_max_iterations=2,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="work",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.persist_session_id"
+                ),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(prover_calls, 2)
+            self.assertEqual(proof_review_calls, 2)
+            self.assertEqual(len(foundation_prompts), 1)
+            self.assertEqual(len(formalization_prompts), 1)
+            self.assertIn("missing entropy bridge", foundation_prompts[0])
+            self.assertIn(
+                "no local strong-subadditivity eliminator",
+                foundation_prompts[0],
+            )
+            self.assertIn("ArchonFoundations/A_Foundation.lean", foundation_prompts[0])
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["foundation_builds"]["requested"], 1)
+            self.assertEqual(report["foundation_builds"]["materialized"], 1)
+            foundation_gate = json.loads(
+                (state / "foundation-build-gate.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                foundation_gate["targets"]["A.lean"]["status"],
+                "materialized",
+            )
+            formalization_gate = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            formalization_record = formalization_gate["targets"]["A.lean"]
+            self.assertEqual(formalization_record["status"], "passed")
+            self.assertEqual(formalization_record["reviews"], 1)
+            self.assertEqual(
+                formalization_record["budget_reset_history"][-1][
+                    "previous_reviews"
+                ],
+                3,
+            )
+            proof_gate = json.loads(
+                (state / "proof-review-gate.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(proof_gate["targets"]["A.lean"]["status"], "solved")
+            self.assertEqual(proof_gate["targets"]["A.lean"]["attempts"], 1)
+
+    def test_foundation_exhaustion_does_not_consume_review_budget(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text("theorem a : True := by sorry\n", encoding="utf-8")
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": 2,
+                    "max_iterations": 3,
+                    "targets": {"A.lean": {
+                        "status": "review_exhausted",
+                        "reviews": 3,
+                        "reason": "old budget exhausted",
+                    }},
+                }),
+                encoding="utf-8",
+            )
+            foundation_calls = 0
+
+            def fake_builder(*_args, **_kwargs):
+                nonlocal foundation_calls
+                foundation_calls += 1
+                foundation = root / "ArchonFoundations" / "A_Foundation.lean"
+                foundation.parent.mkdir(parents=True, exist_ok=True)
+                foundation.write_text(
+                    "axiom fraudulentBridge : True\n",
+                    encoding="utf-8",
+                )
+                if foundation_calls == 1:
+                    target.write_text(
+                        "import ArchonFoundations.A_Foundation\n\n"
+                        "theorem a : True := by sorry\n",
+                        encoding="utf-8",
+                    )
+                (state / "task_results" / "A.lean.md").write_text(
+                    f"# Invalid foundation attempt {foundation_calls}\n",
+                    encoding="utf-8",
+                )
+                return True
+
+            def fake_review(spec, **_kwargs):
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_foundation_redraft_milestone(spec.rel),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=lambda *_args, **_kwargs: True,
+                review_worker=fake_review,
+                formalizer_worker=fake_builder,
+                max_parallel=1,
+                full_pipeline=True,
+                foundation_enabled=True,
+                foundation_max_iterations=2,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="work",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.persist_session_id"
+                ),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(foundation_calls, 2)
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["foundation_builds"]["failed"], 2)
+            history = report["foundation_builds"]["history"]["A.lean"]
+            first_attempt = history[0]
+            second_attempt = history[1]
+            self.assertEqual(first_attempt["forbidden_declarations"][0]["line"], 1)
+            self.assertFalse(second_attempt["attempt_target_changed"])
+            self.assertTrue(second_attempt["target_changed"])
+            gate = json.loads(
+                (state / "foundation-build-gate.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                gate["targets"]["A.lean"]["status"],
+                "foundation_exhausted",
+            )
+            form_gate = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(form_gate["targets"]["A.lean"]["reviews"], 3)
+
     def test_prover_phase_enables_lifecycle_from_autoformalize(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1341,6 +1792,9 @@ class PipelinedReviewTest(unittest.TestCase):
                     "deterministic_review": True,
                     "parallel_target_review": True,
                     "parallel_formalization_review": True,
+                    "pipeline_foundation_build": True,
+                    "pipeline_foundation_build_max_iterations": 7,
+                    "pipeline_foundation_root": "QITFoundations",
                 }
             }), encoding="utf-8")
             captured: dict = {}
@@ -1390,6 +1844,9 @@ class PipelinedReviewTest(unittest.TestCase):
             pipeline = captured["pipeline_review"]
             self.assertIsNotNone(pipeline)
             self.assertTrue(pipeline.formalization_review_enabled)
+            self.assertTrue(pipeline.foundation_build_enabled)
+            self.assertEqual(pipeline.foundation_build_max_iterations, 7)
+            self.assertEqual(pipeline.foundation_root, "QITFoundations")
             self.assertEqual(captured["stage"], "autoformalize")
             self.assertEqual(captured["max_parallel"], 28)
             self.assertFalse(captured["dry_run"])

@@ -85,12 +85,23 @@ class ProverPhase(Phase):
 
     def _review_gate_allows_dispatch(self) -> bool:
         ctx = self.ctx
+        loop_cfg = load_project_config(ctx.project_path).loop_section()
+        foundation_build_enabled = bool(
+            loop_cfg.get("pipeline_foundation_build", False)
+        )
+        foundation_build_max_iterations = max(1, int(loop_cfg.get(
+            "pipeline_foundation_build_max_iterations", 3,
+        )))
         kept, dropped = enforce_progress_review_gate(
             progress_file=ctx.progress_file,
             state_dir=ctx.state_dir,
             project_path=ctx.project_path,
             stage=ctx.current_stage,
             enabled=ctx.options.formalization_review_gate,
+            foundation_build_enabled=foundation_build_enabled,
+            foundation_build_max_iterations=(
+                foundation_build_max_iterations
+            ),
         )
         proof_kept, proof_dropped = filter_objectives_for_proof_review_gate(
             kept,
@@ -98,6 +109,10 @@ class ProverPhase(Phase):
             project_path=ctx.project_path,
             enabled=getattr(ctx.options, "proof_review_gate", False),
             stage=ctx.current_stage,
+            foundation_build_enabled=foundation_build_enabled,
+            foundation_build_max_iterations=(
+                foundation_build_max_iterations
+            ),
         )
 
         if proof_dropped:
@@ -249,6 +264,15 @@ class ProverPhase(Phase):
             proof_review_max_iterations=max(1, int(getattr(
                 ctx.options, "proof_review_max_iterations", 3,
             ))),
+            foundation_build_enabled=bool(loop_cfg.get(
+                "pipeline_foundation_build", False,
+            )),
+            foundation_build_max_iterations=max(1, int(loop_cfg.get(
+                "pipeline_foundation_build_max_iterations", 3,
+            ))),
+            foundation_root=str(loop_cfg.get(
+                "pipeline_foundation_root", "ArchonFoundations",
+            )),
         )
 
     def _parallel_runner(
