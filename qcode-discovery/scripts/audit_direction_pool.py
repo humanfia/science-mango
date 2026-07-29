@@ -128,7 +128,7 @@ def select_unresolved(
 ) -> tuple[list[tuple[str, dict[str, Any]]], dict[str, int]]:
     selected: list[tuple[str, dict[str, Any]]] = []
     seen: set[str] = set()
-    malformed = duplicates = 0
+    malformed = duplicates = unselected = 0
     for row in rows:
         audit = row.get("campaign_audit")
         if not isinstance(audit, Mapping) or audit.get("status") != "UNRESOLVED":
@@ -143,14 +143,17 @@ def select_unresolved(
             duplicates += 1
             continue
         seen.add(digest)
-        selected.append((digest, candidate))
         if top > 0 and len(selected) >= top:
-            break
+            unselected += 1
+        else:
+            selected.append((digest, candidate))
     return selected, {
         "input_rows": len(rows),
         "selected_candidates": len(selected),
         "malformed_unresolved_rows": malformed,
         "duplicate_digests_skipped": duplicates,
+        "unselected_unresolved_candidates": unselected,
+        "selection_exhausted": unselected == 0,
     }
 
 
@@ -289,6 +292,7 @@ def annotate_rows(
         str(result["canonical_digest"]): dict(result) for result in results
     }
     annotated = []
+    remaining_selected = set(selected_digests)
     for row in rows:
         updated = dict(row)
         try:
@@ -296,9 +300,14 @@ def annotate_rows(
         except ValueError:
             annotated.append(updated)
             continue
-        updated["campaign_direction_selected"] = digest in selected_digests
-        if digest in by_digest:
+        is_selected = digest in remaining_selected
+        updated["campaign_direction_selected"] = is_selected
+        if is_selected:
+            remaining_selected.remove(digest)
+        if is_selected and digest in by_digest:
             updated["campaign_direction_audit"] = by_digest[digest]
+        else:
+            updated.pop("campaign_direction_audit", None)
         annotated.append(updated)
     return annotated
 

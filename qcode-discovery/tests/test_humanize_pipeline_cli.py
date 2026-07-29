@@ -165,18 +165,19 @@ def test_status_marks_reused_pid_as_stale(tmp_path):
     assert "proc_starttime" in status["identity_reason"]
 
 
-def test_status_preserves_core_failed_terminal_state(tmp_path):
+@pytest.mark.parametrize("core_status", ["FAILED", "INCOMPLETE"])
+def test_status_preserves_core_non_success_state(tmp_path, core_status):
     repo = _repo(tmp_path)
     paths = process_control.control_paths(repo, "failed-run", create=True)
     process_control.atomic_write_json(paths.process, _metadata("failed-run", repo=repo))
-    process_control.atomic_write_json(paths.state, {"status": "FAILED"})
+    process_control.atomic_write_json(paths.state, {"status": core_status})
 
     status = process_control.status_for_run(
         repo_dir=repo,
         run_id="failed-run",
         identity_reader=lambda _pid: None,
     )
-    assert status["status"] == "FAILED"
+    assert status["status"] == core_status
     assert status["alive"] is False
 
 
@@ -266,6 +267,7 @@ def test_cancel_escalates_only_the_same_verified_group(tmp_path, monkeypatch):
     ("terminal_status", "expected_process_status", "expected_exit"),
     [
         ("FAILED", "failed", 1),
+        ("INCOMPLETE", "failed", 1),
         ("COMPLETED_WIN", "completed", 0),
         ("COMPLETED_NO_WIN", "completed", 0),
     ],

@@ -767,6 +767,7 @@ def status_for_run(
         "cancelled",
         "COMPLETED_NO_WIN",
         "COMPLETED_WIN",
+        "INCOMPLETE",
     }:
         status = state_status
     elif stored_status in {"completed", "failed", "cancelled"}:

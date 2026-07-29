@@ -458,8 +458,17 @@ def select_audit_candidates(
         "known_codes_skipped": 0,
         "unsupported_candidates_skipped": 0,
         "canonicalization_errors": 0,
+        "unscanned_eligible_candidates": 0,
+        "selection_exhausted": True,
     }
     if top == 0:
+        unscanned = sum(
+            row["proof_score"].get("rejected") is not True
+            and row["proof_score"].get("status") != "REJECTED"
+            for row in ranked
+        )
+        stats["unscanned_eligible_candidates"] = unscanned
+        stats["selection_exhausted"] = unscanned == 0
         return selected, stats
 
     for index, row in enumerate(ranked):
@@ -497,6 +506,13 @@ def select_audit_candidates(
         seen_digests.add(digest)
         selected.append(updated)
         if len(selected) == top:
+            unscanned = sum(
+                remaining["proof_score"].get("rejected") is not True
+                and remaining["proof_score"].get("status") != "REJECTED"
+                for remaining in ranked[index + 1 :]
+            )
+            stats["unscanned_eligible_candidates"] = unscanned
+            stats["selection_exhausted"] = unscanned == 0
             break
     return selected, stats
 
@@ -1121,12 +1137,18 @@ def _annotate_ranked(
         for result in results
     }
     annotated = []
+    remaining_selected = set(selected_digests)
     for row in ranked:
         updated = dict(row)
         digest = str(row["triage_identity"]["canonical_digest"])
-        updated["campaign_selected"] = digest in selected_digests
-        if digest in by_digest:
+        selected = digest in remaining_selected
+        updated["campaign_selected"] = selected
+        if selected:
+            remaining_selected.remove(digest)
+        if selected and digest in by_digest:
             updated["campaign_audit"] = by_digest[digest]
+        else:
+            updated.pop("campaign_audit", None)
         annotated.append(updated)
     return annotated
 

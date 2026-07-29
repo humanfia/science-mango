@@ -8,6 +8,7 @@ import pytest
 
 from scripts.audit_candidate_pool import (
     AuditConfig,
+    _annotate_ranked,
     audit_candidate,
     canonicalize_for_audit,
     certify_candidate,
@@ -531,6 +532,51 @@ def test_select_queue_skips_known_and_canonical_duplicates():
         "known_codes_skipped": 1,
         "unsupported_candidates_skipped": 0,
         "canonicalization_errors": 0,
+        "unscanned_eligible_candidates": 0,
+        "selection_exhausted": True,
     }
     assert rows[1]["campaign_skip_reason"] == "CANONICAL_DUPLICATE"
     assert rows[2]["campaign_skip_reason"] == "KNOWN_CODE"
+
+    annotated = _annotate_ranked(
+        rows,
+        {"same", "unique"},
+        [{"canonical_digest": "same", "status": "UNRESOLVED"}],
+    )
+    same_rows = [
+        row
+        for row in annotated
+        if row["triage_identity"]["canonical_digest"] == "same"
+    ]
+    assert sum(row["campaign_selected"] is True for row in same_rows) == 1
+    assert sum("campaign_audit" in row for row in same_rows) == 1
+
+
+def test_top_truncation_is_reported_as_unexhausted():
+    rows = [
+        {
+            **_construction(marker),
+            "proof_score": {"status": "PROMISING", "rejected": False},
+            "triage_identity": {
+                "canonical_digest": f"digest-{marker}",
+                "digest_kind": "registry-canonical",
+            },
+        }
+        for marker in (1, 2)
+    ]
+
+    def canonicalizer(row):
+        return {
+            **row,
+            "novelty": {"checked": True, "novel": True},
+        }
+
+    selected, stats = select_audit_candidates(
+        rows,
+        1,
+        canonicalizer=canonicalizer,
+    )
+
+    assert len(selected) == 1
+    assert stats["unscanned_eligible_candidates"] == 1
+    assert stats["selection_exhausted"] is False

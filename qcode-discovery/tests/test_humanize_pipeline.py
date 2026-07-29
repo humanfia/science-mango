@@ -55,6 +55,7 @@ def _plan(
     operational_errors: int = 0,
     write_outputs: bool = True,
     gate_passed: bool = True,
+    selection_exhausted: bool = True,
 ) -> dict:
     return {
         "results": list(results or []),
@@ -62,6 +63,7 @@ def _plan(
         "operational_errors": operational_errors,
         "write_outputs": write_outputs,
         "gate_passed": gate_passed,
+        "selection_exhausted": selection_exhausted,
     }
 
 
@@ -138,6 +140,7 @@ class ScenarioRunner:
                 "results": results,
                 "status_counts": status_counts,
                 "selected_candidates": len(results),
+                "selection_exhausted": plan["selection_exhausted"],
             }
             if stage == "stage2":
                 summary["certificate_operational_errors"] = plan["operational_errors"]
@@ -612,30 +615,129 @@ def test_stage2_and_stage3_verified_certificates_merge_and_deduplicate(tmp_path)
     assert len(claims) == 2
 
 
-def test_no_verified_certificate_completes_no_win_without_strict_solver(
+def test_unverified_certificate_is_incomplete_and_same_config_resume_retries(
     tmp_path,
 ):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="no-win")
     unresolved = {"canonical_digest": "still-open", "status": "UNRESOLVED"}
     unverified, _ = _certificate(config, "not-independent", verification_passed=False)
+    verified, _ = _certificate(config, "not-independent")
     runner = ScenarioRunner(
         stage2=[_plan([unresolved])],
-        stage3=[_plan([unverified])],
+        stage3=[_plan([unverified]), _plan([verified])],
     )
     # Even an advisory "promote" is not allowed to waive certificate flags.
     reviewer = RecordingReviewer(verdict="promote")
 
-    state = FiveStagePipeline(config, command_runner=runner, reviewer=reviewer).run()
+    first = FiveStagePipeline(config, command_runner=runner, reviewer=reviewer).run()
 
-    assert state["status"] == "COMPLETED_NO_WIN"
+    assert first["status"] == "INCOMPLETE"
     assert runner.counts == {"stage2": 1, "stage3": 1}
-    assert state["stages"]["stage5_strict_gate"]["machine_status"] == "SKIPPED"
+    assert first["stages"]["stage3_direction_audit"]["machine_status"] == "INCOMPLETE"
+    assert first["stages"]["stage5_strict_gate"]["machine_status"] == "SKIPPED"
     assert reviewer.calls == list(STAGE_ORDER)
     terminal = json.loads(
-        (config.root / "artifacts" / "stage5-no-win.json").read_text()
+        (config.root / "artifacts" / "stage5-incomplete.json").read_text()
     )
-    assert terminal["status"] == "COMPLETED_NO_WIN"
+    assert terminal["status"] == "INCOMPLETE"
+
+    second = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "stage3": 2, "strict": 1}
+    assert second["stages"]["stage2_sector_audit"]["attempt"] == 1
+    assert second["stages"]["stage3_direction_audit"]["attempt"] == 2
+
+
+def test_partial_stage2_certificate_is_incomplete_and_retried(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="partial-stage2")
+    partial, _ = _certificate(config, "partial-stage2")
+    partial["certificate"]["certificate_exact"] = False
+    partial["certificate"]["certificate_passed"] = False
+    partial["certificate"]["verification_passed"] = False
+    verified, _ = _certificate(config, "partial-stage2")
+    runner = ScenarioRunner(stage2=[_plan([partial]), _plan([verified])])
+    reviewer = RecordingReviewer()
+
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+    second = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert first["status"] == "INCOMPLETE"
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 1}
+    assert second["stages"]["stage2_sector_audit"]["attempt"] == 2
+
+
+def test_exact_certificate_loser_is_terminal_no_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="exact-loser")
+    loser, _ = _certificate(
+        config,
+        "exact-loser",
+        certificate_passed=False,
+        verification_passed=False,
+    )
+    runner = ScenarioRunner(stage2=[_plan([loser])])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    assert runner.counts == {"stage2": 1}
+    assert state["stages"]["stage2_sector_audit"]["machine_status"] == "COMPLETED"
+
+
+@pytest.mark.parametrize("with_certificate", [False, True])
+def test_truncated_selection_is_incomplete_unless_verified_certificate_wins(
+    tmp_path,
+    with_certificate,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"truncated-{'win' if with_certificate else 'empty'}",
+    )
+    results = []
+    if with_certificate:
+        proven, _ = _certificate(config, "truncated-win")
+        results.append(proven)
+    runner = ScenarioRunner(
+        stage2=[_plan(results, selection_exhausted=False)],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    expected = "COMPLETED_WIN" if with_certificate else "INCOMPLETE"
+    assert state["status"] == expected
+    assert runner.counts["strict"] == int(with_certificate)
+    assert (
+        json.loads(
+            (config.root / "artifacts" / "stage4-summary.json").read_text()
+        )["routing"]
+        == ("STRICT_GATE" if with_certificate else "INCOMPLETE")
+    )
 
 
 def test_reviewer_failure_is_fail_closed_and_resume_retries_only_review(
@@ -671,7 +773,7 @@ def test_nonzero_stage_is_not_cached_and_blocks_downstream_until_resume(
         stage2=[_plan([unresolved])],
         stage3=[
             _plan([unresolved], returncode=2),
-            _plan([]),
+            _plan([{"canonical_digest": "retry", "status": "REJECTED"}]),
         ],
     )
     reviewer = RecordingReviewer()

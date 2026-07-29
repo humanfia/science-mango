@@ -969,6 +969,7 @@ class PipelinePaths:
     stage4_summary: Path = field(init=False)
     stage5_gate: Path = field(init=False)
     stage5_no_win: Path = field(init=False)
+    stage5_incomplete: Path = field(init=False)
 
     def __post_init__(self) -> None:
         root = _lexical_absolute(self.root)
@@ -1008,6 +1009,11 @@ class PipelinePaths:
         )
         object.__setattr__(
             self, "stage5_no_win", root / "artifacts" / "stage5-no-win.json"
+        )
+        object.__setattr__(
+            self,
+            "stage5_incomplete",
+            root / "artifacts" / "stage5-incomplete.json",
         )
 
 
@@ -1832,6 +1838,8 @@ class FiveStagePipeline:
             record["input_hashes"] = input_hashes
             record["exit_code"] = None
             record.pop("failure", None)
+            record.pop("incomplete_at", None)
+            record.pop("incomplete_reasons", None)
             self.state["active_stage"] = stage
             self._write_state()
             try:
@@ -2476,6 +2484,7 @@ class FiveStagePipeline:
             certificate = result.get("certificate")
             if not isinstance(certificate, Mapping):
                 continue
+            attempted = certificate.get("attempted") is True
             exact = certificate.get("certificate_exact") is True
             build_passed = certificate.get("certificate_passed") is True
             verification_passed = certificate.get("verification_passed") is True
@@ -2487,7 +2496,7 @@ class FiveStagePipeline:
                     "certificate summary contains inconsistent proof flags",
                     stage="stage4_certificate_merge",
                 )
-            if not (exact and build_passed and verification_passed):
+            if not (attempted and exact and build_passed and verification_passed):
                 continue
             rows.append(
                 {
@@ -2498,10 +2507,176 @@ class FiveStagePipeline:
             )
         return rows
 
+    @staticmethod
+    def _certificate_requires_retry(result: Mapping[str, Any]) -> bool:
+        """Return true when a threshold proof still lacks a terminal certificate."""
+
+        if result.get("status") not in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}:
+            return False
+        certificate = result.get("certificate")
+        if (
+            not isinstance(certificate, Mapping)
+            or certificate.get("attempted") is not True
+            or certificate.get("certificate_exact") is not True
+        ):
+            return True
+        if certificate.get("certificate_passed") is False:
+            # Exact construction can conclusively show that the candidate does
+            # not pass the challenge gate; independent replay is then skipped.
+            return False
+        return not (
+            certificate.get("certificate_passed") is True
+            and certificate.get("verification_passed") is True
+        )
+
+    @classmethod
+    def _proof_incompleteness(
+        cls,
+        stage2: Mapping[str, Any],
+        stage3: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Describe proof work that forbids an exhaustive no-win conclusion."""
+
+        reasons: list[dict[str, str]] = []
+        retry_stages: set[str] = set()
+
+        def add(stage: str, reason: str, digest: str | None = None) -> None:
+            item = {"stage": stage, "reason": reason}
+            if digest:
+                item["canonical_digest"] = digest
+            reasons.append(item)
+            retry_stages.add(stage)
+
+        if stage2.get("selection_exhausted", True) is not True:
+            add(
+                "stage2_sector_audit",
+                "Stage 2 candidate selection was truncated before exhaustion",
+            )
+        for field, description in (
+            (
+                "canonicalization_errors",
+                "Stage 2 candidates failed authoritative canonicalization",
+            ),
+            (
+                "unsupported_candidates_skipped",
+                "Stage 2 skipped unsupported candidates",
+            ),
+            ("malformed_records", "Stage 2 skipped malformed candidate records"),
+        ):
+            try:
+                count = int(stage2.get(field, 0) or 0)
+            except (TypeError, ValueError):
+                count = 1
+            if count:
+                add("stage2_sector_audit", f"{description}: {count}")
+
+        if stage3.get("selection_exhausted", True) is not True:
+            add(
+                "stage3_direction_audit",
+                "Stage 3 unresolved-candidate selection was truncated",
+            )
+
+        stage3_by_digest = {
+            str(result.get("canonical_digest")): result
+            for result in stage3.get("results", [])
+            if isinstance(result, Mapping) and result.get("canonical_digest")
+        }
+        for result in stage2.get("results", []):
+            if not isinstance(result, Mapping):
+                continue
+            digest = str(result.get("canonical_digest", ""))
+            status = result.get("status")
+            if status in {
+                "THRESHOLD_PROVEN",
+                "EXACT_PROVEN",
+            } and cls._certificate_requires_retry(result):
+                add(
+                    "stage2_sector_audit",
+                    "Stage 2 threshold proof has incomplete or unverified certificate",
+                    digest,
+                )
+            elif status == "UNRESOLVED":
+                escalated = stage3_by_digest.get(digest)
+                if escalated is None:
+                    add(
+                        "stage3_direction_audit",
+                        "Stage 2 unresolved candidate lacks a Stage 3 result",
+                        digest,
+                    )
+                elif escalated.get("status") not in {
+                    "REJECTED",
+                    "THRESHOLD_PROVEN",
+                    "EXACT_PROVEN",
+                }:
+                    add(
+                        "stage3_direction_audit",
+                        "Stage 3 did not reach a terminal proof result",
+                        digest,
+                    )
+
+        for result in stage3.get("results", []):
+            if not isinstance(result, Mapping):
+                continue
+            digest = str(result.get("canonical_digest", ""))
+            if result.get("status") == "UNRESOLVED":
+                add(
+                    "stage3_direction_audit",
+                    "Stage 3 logical-direction audit remains unresolved",
+                    digest,
+                )
+            elif (
+                result.get("status") in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}
+                and cls._certificate_requires_retry(result)
+            ):
+                add(
+                    "stage3_direction_audit",
+                    "Stage 3 threshold proof has incomplete or unverified certificate",
+                    digest,
+                )
+
+        deduplicated: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for reason in reasons:
+            key = _canonical_sha256(reason)
+            if key not in seen:
+                seen.add(key)
+                deduplicated.append(reason)
+        return {
+            "incomplete": bool(deduplicated),
+            "reasons": deduplicated,
+            "retry_stages": [
+                stage for stage in STAGE_ORDER if stage in retry_stages
+            ],
+        }
+
+    def _mark_retryable_proof_stages(
+        self,
+        incompleteness: Mapping[str, Any],
+    ) -> None:
+        """Prevent incomplete proof stages from becoming reusable machine caches."""
+
+        reasons = incompleteness.get("reasons", [])
+        for stage in incompleteness.get("retry_stages", []):
+            if stage not in {"stage2_sector_audit", "stage3_direction_audit"}:
+                continue
+            record = self.state["stages"][stage]
+            stage_reasons = [
+                dict(reason)
+                for reason in reasons
+                if isinstance(reason, Mapping) and reason.get("stage") == stage
+            ]
+            record["status"] = "INCOMPLETE"
+            record["machine_status"] = "INCOMPLETE"
+            record["incomplete_at"] = utc_now()
+            record["incomplete_reasons"] = stage_reasons
+        self._write_state()
+
     def _merge_certificates(
         self,
         stage2: Mapping[str, Any],
         stage3: Mapping[str, Any],
+        *,
+        incompleteness: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         candidates = self._certificate_rows(stage2, "stage2_sector_audit")
         candidates.extend(self._certificate_rows(stage3, "stage3_direction_audit"))
@@ -2639,7 +2814,22 @@ class FiveStagePipeline:
             "verified_certificates": len(certificates),
             "certificate_output": str(self.paths.stage4_certificates),
             "entries": entries,
-            "routing": ("STRICT_GATE" if certificates else "COMPLETED_NO_WIN"),
+            "routing": (
+                "STRICT_GATE"
+                if certificates
+                else (
+                    "INCOMPLETE"
+                    if incompleteness
+                    and incompleteness.get("incomplete") is True
+                    else "COMPLETED_NO_WIN"
+                )
+            ),
+            "proof_incompleteness": (
+                dict(incompleteness)
+                if incompleteness
+                and incompleteness.get("incomplete") is True
+                else None
+            ),
         }
         atomic_write_json(self.paths.stage4_summary, summary)
         return summary
@@ -2875,11 +3065,17 @@ class FiveStagePipeline:
         previous_status = self.state.get("status")
         previous_result = self.state.pop("result", None)
         previous_completed_at = self.state.pop("completed_at", None)
-        if previous_result is not None or previous_completed_at is not None:
+        previous_incomplete_at = self.state.pop("incomplete_at", None)
+        if (
+            previous_result is not None
+            or previous_completed_at is not None
+            or previous_incomplete_at is not None
+        ):
             self.state.setdefault("result_history", []).append(
                 {
                     "status": previous_status,
                     "completed_at": previous_completed_at,
+                    "incomplete_at": previous_incomplete_at,
                     "result": previous_result,
                     "archived_at": utc_now(),
                 }
@@ -3027,6 +3223,7 @@ class FiveStagePipeline:
                 machine_status=stage3_machine_status,
             )
 
+            proof_incompleteness = self._proof_incompleteness(stage2, stage3)
             controller_source_sha256 = self._source_file_sha256(
                 controller_source,
                 label="pipeline controller source",
@@ -3039,6 +3236,7 @@ class FiveStagePipeline:
                     "controller_source_sha256": controller_source_sha256,
                     "require_build_and_independent_verification": True,
                     "verification_sidecar_schema": 2,
+                    "proof_completion_policy": 1,
                 },
                 inputs=[
                     self.paths.stage2_summary,
@@ -3051,7 +3249,15 @@ class FiveStagePipeline:
                     self.paths.stage4_summary,
                 ],
                 machine=lambda: (
-                    (self._merge_certificates(stage2, stage3) is not None) - 1
+                    (
+                        self._merge_certificates(
+                            stage2,
+                            stage3,
+                            incompleteness=proof_incompleteness,
+                        )
+                        is not None
+                    )
+                    - 1
                 ),
                 validator=lambda: self._validate_stage4(
                     self.paths.stage4_summary,
@@ -3113,6 +3319,42 @@ class FiveStagePipeline:
                     ),
                 )
                 terminal_status = "COMPLETED_WIN"
+            elif proof_incompleteness["incomplete"] is True:
+                incomplete = {
+                    "schema_version": 1,
+                    "gate": "qcode-five-stage-terminal",
+                    "generated_at": utc_now(),
+                    "status": "INCOMPLETE",
+                    "reason": (
+                        "Proof coverage is not exhaustive and no independently "
+                        "verified exact certificate is currently available"
+                    ),
+                    "proof_incompleteness": proof_incompleteness,
+                }
+                incomplete_command = ["internal:incomplete-proof-work"]
+                self._execute_stage(
+                    "stage5_strict_gate",
+                    command=incomplete_command,
+                    stage_config={
+                        "routing": "incomplete-proof-work",
+                        "proof_completion_policy": 1,
+                    },
+                    inputs=[self.paths.stage4_summary],
+                    outputs=[self.paths.stage5_incomplete],
+                    machine=lambda: (
+                        atomic_write_json(
+                            self.paths.stage5_incomplete,
+                            incomplete,
+                        )
+                        or 0
+                    ),
+                    validator=lambda: _read_json_object(
+                        self.paths.stage5_incomplete
+                    ),
+                    machine_status="SKIPPED",
+                )
+                terminal_status = "INCOMPLETE"
+                self._mark_retryable_proof_stages(proof_incompleteness)
             else:
                 no_win = {
                     "schema_version": 1,
@@ -3141,12 +3383,27 @@ class FiveStagePipeline:
 
             self.state["status"] = terminal_status
             self.state["active_stage"] = None
-            self.state["completed_at"] = utc_now()
+            if terminal_status in TERMINAL_STATUSES:
+                self.state["completed_at"] = utc_now()
+                self.state.pop("incomplete_at", None)
+            else:
+                self.state["incomplete_at"] = utc_now()
+                self.state.pop("completed_at", None)
             self.state["result"] = {
                 "verified_certificates": certificate_count,
                 "stage4_summary": str(self.paths.stage4_summary),
                 "strict_gate": (
                     str(self.paths.stage5_gate) if certificate_count else None
+                ),
+                "incomplete": (
+                    str(self.paths.stage5_incomplete)
+                    if terminal_status == "INCOMPLETE"
+                    else None
+                ),
+                "proof_incompleteness": (
+                    proof_incompleteness
+                    if proof_incompleteness["incomplete"] is True
+                    else None
                 ),
             }
             self._write_state()

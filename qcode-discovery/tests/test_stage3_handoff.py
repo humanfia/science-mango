@@ -10,6 +10,7 @@ import pytest
 import scripts.audit_direction_pool as direction_pool
 from evaluation.certificate import _direction_specs, pack_vector
 from scripts.audit_direction_pool import (
+    annotate_rows,
     candidate_from_stage2,
     screen_selected_candidates,
     select_unresolved,
@@ -234,6 +235,8 @@ def test_stage3_pool_selects_only_unresolved_and_enforces_budget(tmp_path):
     ])
     assert counts["selected_candidates"] == 1
     assert counts["duplicate_digests_skipped"] == 1
+    assert counts["unselected_unresolved_candidates"] == 0
+    assert counts["selection_exhausted"] is True
     assert candidate_from_stage2(row)["canonical_digest"] == "digest/unsafe"
     validate_worker_budget(2, 4, 8)
     with pytest.raises(ValueError, match="exceeds"):
@@ -258,6 +261,48 @@ def test_stage3_pool_selects_only_unresolved_and_enforces_budget(tmp_path):
     )
     assert results[0]["status"] == "UNRESOLVED"
     assert "digest/unsafe" not in results[0]["artifact_path"]
+
+
+def test_stage3_top_and_duplicate_annotations_are_explicit():
+    first = {
+        **_candidate(),
+        "triage_identity": {"canonical_digest": "duplicate"},
+        "campaign_audit": {
+            "canonical_digest": "duplicate",
+            "status": "UNRESOLVED",
+        },
+    }
+    duplicate = dict(first)
+    second = {
+        **_candidate(),
+        "triage_identity": {"canonical_digest": "second"},
+        "campaign_audit": {
+            "canonical_digest": "second",
+            "status": "UNRESOLVED",
+        },
+    }
+
+    selected, counts = select_unresolved([first, duplicate, second], top=1)
+    annotated = annotate_rows(
+        [first, duplicate, second],
+        selected,
+        [{"canonical_digest": "duplicate", "status": "UNRESOLVED"}],
+    )
+
+    assert counts["selected_candidates"] == 1
+    assert counts["duplicate_digests_skipped"] == 1
+    assert counts["unselected_unresolved_candidates"] == 1
+    assert counts["selection_exhausted"] is False
+    duplicate_rows = [
+        row
+        for row in annotated
+        if row["triage_identity"]["canonical_digest"] == "duplicate"
+    ]
+    assert (
+        sum(row["campaign_direction_selected"] is True for row in duplicate_rows)
+        == 1
+    )
+    assert sum("campaign_direction_audit" in row for row in duplicate_rows) == 1
 
 
 def test_stage3_pool_isolates_outer_worker_and_artifact_failures(
