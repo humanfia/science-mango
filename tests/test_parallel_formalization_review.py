@@ -80,6 +80,49 @@ def _milestone(rel: str, *, passed: bool = True) -> dict:
     }
 
 
+def _foundation_milestone(rel: str) -> dict:
+    row = _milestone(rel, passed=True)
+    row["status"] = "blocked"
+    review = row["formalization_review"]
+    review.update({
+        "status": "failed",
+        "reason": "a faithful bridge needs two reusable local lemmas",
+        "route": "foundation_build",
+        "redraft_kind": "missing_foundational_bridge",
+        "foundation_request": {
+            "root_claim": "construct the reusable target bridge",
+            "root_nodes": ["target_bridge"],
+            "nodes": [
+                {
+                    "id": "base_identity",
+                    "claim": "establish the base identity",
+                    "lean_goal": "theorem baseIdentity : True",
+                    "depends_on": [],
+                    "evidence": "the source derivation starts here",
+                },
+                {
+                    "id": "target_bridge",
+                    "claim": "derive the target bridge",
+                    "lean_goal": "theorem targetBridge : True",
+                    "depends_on": ["base_identity"],
+                    "evidence": "this bridge directly unlocks the target",
+                },
+            ],
+        },
+    })
+    review["checks"]["derivability"] = {
+        "status": "failed",
+        "evidence": "targetBridge is absent from the local Lean library",
+    }
+    review["bridge_obligations"][0].update({
+        "status": "blocked",
+        "evidence": "the carrier needs targetBridge",
+    })
+    row["findings"]["blocker"] = "missing reusable bridge lemmas"
+    row["next_steps"] = "build the certified dependency DAG"
+    return row
+
+
 class ParallelFormalizationReviewTest(unittest.TestCase):
     def test_prompt_is_target_scoped_and_allows_sorry_bodies(self):
         with tempfile.TemporaryDirectory() as td:
@@ -116,6 +159,9 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIn("PROGRESS.md", prompt)
             self.assertIn(str(output / "milestones.jsonl"), prompt)
             self.assertIn("countermodel_resistance", prompt)
+            self.assertIn("route=foundation_build", prompt)
+            self.assertIn("target-local acyclic dependency graph", prompt)
+            self.assertIn('"foundation_request": null', prompt)
 
             self.assertIn(str(flat_result), prompt)
 
@@ -140,6 +186,52 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             row, error = load_target_formalization_milestone(path, "A.lean")
             self.assertIsNone(row)
             self.assertIn("contradicts", error)
+
+    def test_foundation_certificate_requires_valid_connected_dag(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "milestones.jsonl"
+            valid = _foundation_milestone("A.lean")
+            path.write_text(json.dumps(valid) + "\n")
+
+            row, error = load_target_formalization_milestone(path, "A.lean")
+            self.assertEqual(error, "")
+            self.assertEqual(
+                row["formalization_review"]["route"], "foundation_build"
+            )
+
+            cyclic = _foundation_milestone("A.lean")
+            nodes = cyclic["formalization_review"]["foundation_request"][
+                "nodes"
+            ]
+            nodes[0]["depends_on"] = ["target_bridge"]
+            path.write_text(json.dumps(cyclic) + "\n")
+            row, error = load_target_formalization_milestone(path, "A.lean")
+            self.assertIsNone(row)
+            self.assertIn("cycle", error)
+
+            disconnected = _foundation_milestone("A.lean")
+            disconnected["formalization_review"]["foundation_request"][
+                "nodes"
+            ].append({
+                "id": "unrelated",
+                "claim": "an unrelated lemma",
+                "lean_goal": "theorem unrelated : True",
+                "depends_on": [],
+                "evidence": "not needed by the target root",
+            })
+            path.write_text(json.dumps(disconnected) + "\n")
+            row, error = load_target_formalization_milestone(path, "A.lean")
+            self.assertIsNone(row)
+            self.assertIn("not reachable", error)
+
+            wrong_kind = _foundation_milestone("A.lean")
+            wrong_kind["formalization_review"]["redraft_kind"] = (
+                "wrong_or_weakened_target"
+            )
+            path.write_text(json.dumps(wrong_kind) + "\n")
+            row, error = load_target_formalization_milestone(path, "A.lean")
+            self.assertIsNone(row)
+            self.assertIn("missing_foundational_bridge", error)
 
     def test_transient_failures_halve_concurrency_then_merge_once(self):
         with tempfile.TemporaryDirectory() as td:

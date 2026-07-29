@@ -13,7 +13,10 @@ from archon.agent import ClaudeBackend, build_runner
 from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.commands.tooling.project_config import HarnessDescriptor
 
-from .formalization_review_gate import REVIEW_SCHEMA_VERSION
+from .formalization_review_gate import (
+    REVIEW_SCHEMA_VERSION,
+    normalize_foundation_request,
+)
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
 
 
@@ -35,6 +38,16 @@ _FAIL = {
 _NOT_APPLICABLE = {"not_applicable", "not applicable", "n/a", "na"}
 _BRIDGE_PASS = {"covered", "grounded", "encoded", "proved", "pass", "passed"}
 _BRIDGE_FAIL = {"blocked", "failed", "missing", "partial", "needs_redraft"}
+_FAILED_ROUTES = {"redraft", "foundation_build"}
+_REDRAFT_KINDS = {
+    "underdetermined_contract",
+    "answer_as_assumption",
+    "missing_uncertainty",
+    "branch_ambiguous",
+    "missing_foundational_bridge",
+    "wrong_or_weakened_target",
+    "other_modeling_defect",
+}
 
 
 def _utcnow() -> str:
@@ -109,7 +122,21 @@ def _validate_certificate(row: dict) -> str:
         if status in _BRIDGE_FAIL:
             has_failure = True
 
+    route = str(
+        raw.get("route") or ("proof" if verdict in _PASS else "redraft")
+    ).strip().lower()
+    redraft_kind = str(
+        raw.get("redraft_kind")
+        or ("not_applicable" if verdict in _PASS else "other_modeling_defect")
+    ).strip().lower()
     if verdict in _PASS:
+        if route != "proof":
+            return "passing formalization_review requires route=proof"
+        if redraft_kind != "not_applicable":
+            return (
+                "passing formalization_review requires "
+                "redraft_kind=not_applicable"
+            )
         for name in _REQUIRED_CHECKS:
             status = str(checks[name].get("status") or "").strip().lower()
             if status not in _PASS and not (
@@ -120,8 +147,49 @@ def _validate_certificate(row: dict) -> str:
             status = str(bridge.get("status") or "").strip().lower()
             if status not in _BRIDGE_PASS:
                 return f"passing verdict contradicts bridge {index}={status!r}"
-    elif not has_failure:
-        return "failed verdict has no failed check or blocked bridge"
+    else:
+        if route not in _FAILED_ROUTES:
+            return f"failed formalization_review has unsupported route {route!r}"
+        if redraft_kind not in _REDRAFT_KINDS:
+            return f"unsupported redraft_kind {redraft_kind!r}"
+        if route == "foundation_build":
+            if redraft_kind != "missing_foundational_bridge":
+                return (
+                    "foundation_build requires "
+                    "redraft_kind=missing_foundational_bridge"
+                )
+            for name in _REQUIRED_CHECKS:
+                if name == "derivability":
+                    continue
+                status = str(
+                    checks[name].get("status") or ""
+                ).strip().lower()
+                contract_check_passes = status in _PASS
+                if name in _NOT_APPLICABLE_CHECKS:
+                    contract_check_passes = (
+                        contract_check_passes
+                        or status in _NOT_APPLICABLE
+                    )
+                if not contract_check_passes:
+                    return (
+                        "foundation_build requires a sound target contract; "
+                        f"{name} cannot be {status!r}"
+                    )
+            if not any(
+                str(bridge.get("status") or "").strip().lower()
+                in _BRIDGE_FAIL
+                for bridge in bridges
+            ):
+                return "foundation_build requires a blocked bridge obligation"
+            _request, request_error = normalize_foundation_request(
+                raw.get("foundation_request")
+            )
+            if request_error:
+                return request_error
+        elif raw.get("foundation_request") not in (None, {}):
+            return "foundation_request is only valid with route=foundation_build"
+        if not has_failure:
+            return "failed verdict has no failed check or blocked bridge"
     return ""
 
 
@@ -232,6 +300,21 @@ countermodel_resistance. Every check needs concrete evidence. Only uncertainty
 and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
 
+Choose exactly one route. A passing certificate uses route=proof. An ordinary
+statement/modeling defect uses route=redraft. Use route=foundation_build only
+when the intended source contract is already sound but a blocked bridge needs
+one or more reusable local Lean lemmas that the current library does not
+provide. Never use foundation_build to repair a weakened/wrong statement,
+answer-as-assumption, missing uncertainty, or ambiguous branch.
+
+For foundation_build, set redraft_kind=missing_foundational_bridge and provide
+a target-local acyclic dependency graph. Every node needs a stable identifier,
+natural-language claim, precise Lean goal/signature, dependencies, and evidence
+from this target. root_nodes must identify the nodes that directly unlock the
+reviewed target. The blocked bridge and dependency graph are authorization for
+a separate foundation-build budget before this same target is semantically
+reviewed again.
+
 The deterministic preflight already ran. Do not run lake, Lean, leandag, broad
 searches, or other agents unless preflight reports timeout/error. Do not edit
 Lean, blueprint, PROGRESS.md, gate files, journals, AUTO_NOTES.md, or TO_USER.md.
@@ -248,6 +331,9 @@ Write exactly one JSON object line to {milestone}:
     "schema_version": {REVIEW_SCHEMA_VERSION},
     "status": "passed|failed",
     "reason": "<specific semantic verdict>",
+    "route": "proof|redraft|foundation_build",
+    "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
+    "foundation_request": null,
     "checks": {{
       "source_faithfulness": {{"status": "passed|failed", "evidence": "..."}},
       "derivability": {{"status": "passed|failed", "evidence": "..."}},
@@ -266,8 +352,12 @@ Write exactly one JSON object line to {milestone}:
 
 Use top-level status=solved only with formalization_review.status=passed;
 otherwise use status=blocked. A failed verdict must identify at least one failed
-check or blocked bridge. Also write a <=12-line summary to {summary}. Return only
-after both files are durable.
+check or blocked bridge. For route=foundation_build replace foundation_request
+null with {{"root_claim": "...", "root_nodes": ["root"], "nodes":
+[{{"id": "root", "claim": "...", "lean_goal": "...", "depends_on": [],
+"evidence": "..."}}]}}. For all other routes leave foundation_request null.
+Also write a <=12-line summary to {summary}. Return only after both files are
+durable.
 """
 
 

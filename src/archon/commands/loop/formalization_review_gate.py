@@ -52,6 +52,22 @@ _NOT_APPLICABLE_CHECKS = {
 _BRIDGE_PASS_WORDS = {
     "covered", "grounded", "encoded", "proved", "pass", "passed",
 }
+_CHECK_FAIL_WORDS = {
+    "fail", "failed", "blocked", "missing", "partial", "needs_redraft",
+}
+_BRIDGE_FAIL_WORDS = _CHECK_FAIL_WORDS
+_FORMALIZATION_ROUTES = {"redraft", "foundation_build"}
+_REDRAFT_KINDS = {
+    "not_applicable",
+    "underdetermined_contract",
+    "answer_as_assumption",
+    "missing_uncertainty",
+    "branch_ambiguous",
+    "missing_foundational_bridge",
+    "wrong_or_weakened_target",
+    "other_modeling_defect",
+}
+_DEPENDENCY_ID_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]*$")
 
 
 @dataclass(frozen=True)
@@ -72,6 +88,8 @@ class TargetFormalizationReviewUpdate:
     reason: str
     passed: bool
     applied: bool
+    route: str = "redraft"
+    redraft_kind: str = "not_applicable"
 
 
 def state_path(state_dir: Path) -> Path:
@@ -152,6 +170,280 @@ def _status_and_evidence(raw: Any) -> tuple[str, str]:
     return status, evidence
 
 
+def normalize_foundation_request(
+    raw: Any,
+) -> tuple[dict[str, Any], str]:
+    """Validate and normalize one target-local lemma dependency DAG."""
+    if not isinstance(raw, dict):
+        return {}, "foundation_request is missing"
+    root_claim = str(raw.get("root_claim") or "").strip()
+    if not root_claim:
+        return {}, "foundation_request.root_claim is missing"
+    raw_nodes = raw.get("nodes")
+    if not isinstance(raw_nodes, list) or not raw_nodes:
+        return {}, "foundation_request.nodes must be a non-empty list"
+
+    nodes: list[dict[str, Any]] = []
+    node_ids: set[str] = set()
+    for index, raw_node in enumerate(raw_nodes, start=1):
+        if not isinstance(raw_node, dict):
+            return {}, f"foundation dependency node {index} is not an object"
+        node_id = str(raw_node.get("id") or "").strip()
+        claim = str(raw_node.get("claim") or "").strip()
+        lean_goal = str(raw_node.get("lean_goal") or "").strip()
+        evidence = str(raw_node.get("evidence") or "").strip()
+        raw_dependencies = raw_node.get("depends_on")
+        if not _DEPENDENCY_ID_RE.fullmatch(node_id):
+            return {}, f"foundation dependency node {index} has invalid id"
+        if node_id in node_ids:
+            return {}, f"duplicate foundation dependency id {node_id}"
+        if not claim or not lean_goal or not evidence:
+            return {}, (
+                f"foundation dependency node {node_id} requires claim, "
+                "lean_goal, and evidence"
+            )
+        if not isinstance(raw_dependencies, list) or any(
+            not isinstance(item, str) or not item.strip()
+            for item in raw_dependencies
+        ):
+            return {}, (
+                f"foundation dependency node {node_id} has invalid depends_on"
+            )
+        dependencies = [item.strip() for item in raw_dependencies]
+        if len(dependencies) != len(set(dependencies)):
+            return {}, f"foundation dependency node {node_id} repeats a dependency"
+        node_ids.add(node_id)
+        nodes.append({
+            "id": node_id,
+            "claim": claim,
+            "lean_goal": lean_goal,
+            "depends_on": dependencies,
+            "evidence": evidence,
+        })
+
+    graph = {node["id"]: node["depends_on"] for node in nodes}
+    for node_id, dependencies in graph.items():
+        unknown = [item for item in dependencies if item not in graph]
+        if unknown:
+            return {}, (
+                f"foundation dependency node {node_id} references unknown "
+                f"dependencies: {unknown}"
+            )
+        if node_id in dependencies:
+            return {}, f"foundation dependency node {node_id} depends on itself"
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    build_order: list[str] = []
+
+    def visit(node_id: str) -> bool:
+        if node_id in visiting:
+            return False
+        if node_id in visited:
+            return True
+        visiting.add(node_id)
+        for dependency in graph[node_id]:
+            if not visit(dependency):
+                return False
+        visiting.remove(node_id)
+        visited.add(node_id)
+        build_order.append(node_id)
+        return True
+
+    for node_id in graph:
+        if not visit(node_id):
+            return {}, "foundation dependency graph contains a cycle"
+
+    raw_roots = raw.get("root_nodes")
+    if not isinstance(raw_roots, list) or not raw_roots:
+        return {}, "foundation_request.root_nodes must be a non-empty list"
+    root_nodes = [str(item).strip() for item in raw_roots]
+    if any(item not in graph for item in root_nodes):
+        return {}, "foundation_request.root_nodes references an unknown node"
+    if len(root_nodes) != len(set(root_nodes)):
+        return {}, "foundation_request.root_nodes contains duplicates"
+
+    reachable: set[str] = set()
+
+    def collect(node_id: str) -> None:
+        if node_id in reachable:
+            return
+        reachable.add(node_id)
+        for dependency in graph[node_id]:
+            collect(dependency)
+
+    for root in root_nodes:
+        collect(root)
+    disconnected = sorted(set(graph) - reachable)
+    if disconnected:
+        return {}, (
+            "foundation dependency graph contains nodes not reachable from "
+            f"root_nodes: {disconnected}"
+        )
+    return {
+        "root_claim": root_claim,
+        "root_nodes": root_nodes,
+        "nodes": nodes,
+        "build_order": [node_id for node_id in build_order if node_id in reachable],
+    }, ""
+
+
+def _normalize_failed_review(raw: dict[str, Any]) -> dict[str, Any]:
+    """Preserve a failed semantic certificate and authorize safe routing."""
+    checks = raw.get("checks")
+    checks = dict(checks) if isinstance(checks, dict) else {}
+    bridges = raw.get("bridge_obligations")
+    bridges = list(bridges) if isinstance(bridges, list) else []
+    requested_route = str(raw.get("route") or "redraft").strip().lower()
+    requested_kind = str(
+        raw.get("redraft_kind") or "other_modeling_defect"
+    ).strip().lower()
+    certificate: dict[str, Any] = {
+        "schema_version": REVIEW_SCHEMA_VERSION,
+        "checks": checks,
+        "bridge_obligations": bridges,
+        "route": "redraft",
+        "redraft_kind": (
+            requested_kind
+            if requested_kind in _REDRAFT_KINDS
+            else "other_modeling_defect"
+        ),
+        "evidence": str(raw.get("evidence") or raw.get("reason") or "").strip(),
+    }
+    if requested_route not in _FORMALIZATION_ROUTES:
+        certificate["routing_error"] = (
+            f"unsupported formalization Review route {requested_route}"
+        )
+        return certificate
+    if requested_route != "foundation_build":
+        return certificate
+
+    request, error = normalize_foundation_request(
+        raw.get("foundation_request")
+    )
+    route_errors: list[str] = []
+    try:
+        schema_version = int(raw.get("schema_version") or 0)
+    except (TypeError, ValueError):
+        schema_version = 0
+    if schema_version != REVIEW_SCHEMA_VERSION:
+        route_errors.append(
+            "foundation_build requires formalization Review schema_version "
+            f"{REVIEW_SCHEMA_VERSION}"
+        )
+
+    for name in _REQUIRED_REVIEW_CHECKS:
+        status, evidence = _status_and_evidence(checks.get(name))
+        allowed = status in _PASS_WORDS | _CHECK_FAIL_WORDS
+        if name in _NOT_APPLICABLE_CHECKS:
+            allowed = allowed or status in _NOT_APPLICABLE_WORDS
+        if not allowed:
+            route_errors.append(
+                f"foundation_build requires a valid {name} check"
+            )
+        contract_check_passes = status in _PASS_WORDS
+        if name in _NOT_APPLICABLE_CHECKS:
+            contract_check_passes = (
+                contract_check_passes
+                or status in _NOT_APPLICABLE_WORDS
+            )
+        if name != "derivability" and not contract_check_passes:
+            route_errors.append(
+                "foundation_build requires a sound target contract; "
+                f"{name} cannot be {status or 'missing'}"
+            )
+        if not evidence:
+            route_errors.append(
+                f"foundation_build requires evidence for {name}"
+            )
+
+    blocked_bridge = False
+    if not bridges:
+        route_errors.append(
+            "foundation_build requires at least one bridge obligation"
+        )
+    for index, item in enumerate(bridges, start=1):
+        if not isinstance(item, dict):
+            route_errors.append(
+                f"foundation bridge obligation {index} is not an object"
+            )
+            continue
+        claim = str(
+            item.get("claim") or item.get("source_claim") or ""
+        ).strip()
+        carrier = str(
+            item.get("carrier") or item.get("lean_carrier") or ""
+        ).strip()
+        status = str(item.get("status") or "").strip().lower()
+        evidence = str(
+            item.get("evidence") or item.get("reason") or ""
+        ).strip()
+        if not claim or not carrier or not evidence:
+            route_errors.append(
+                f"foundation bridge obligation {index} is incomplete"
+            )
+        if status not in _BRIDGE_PASS_WORDS | _BRIDGE_FAIL_WORDS:
+            route_errors.append(
+                f"foundation bridge obligation {index} has invalid status"
+            )
+        if status in _BRIDGE_FAIL_WORDS:
+            blocked_bridge = True
+
+    if requested_kind != "missing_foundational_bridge":
+        route_errors.append(
+            "foundation_build requires redraft_kind=missing_foundational_bridge"
+        )
+    if not blocked_bridge:
+        route_errors.append(
+            "foundation_build requires a blocked bridge obligation"
+        )
+    error = error or "; ".join(dict.fromkeys(route_errors))
+    if error:
+        certificate["routing_error"] = error
+        return certificate
+    certificate["route"] = "foundation_build"
+    certificate["redraft_kind"] = "missing_foundational_bridge"
+    certificate["foundation_request"] = request
+    return certificate
+
+
+def formalization_review_foundation_request(
+    certificate: Mapping[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Extract one validated foundation route, including batch wrappers."""
+    if not isinstance(certificate, Mapping):
+        return None
+    if (
+        certificate.get("route") == "foundation_build"
+        and certificate.get("redraft_kind")
+        == "missing_foundational_bridge"
+        and isinstance(certificate.get("foundation_request"), Mapping)
+    ):
+        return dict(certificate)
+    milestones = certificate.get("milestones")
+    if isinstance(milestones, list) and milestones:
+        # A batch only earns the separate foundation budget when every
+        # certificate agrees on the same dependency request. Mixed pass,
+        # modeling-redraft, or conflicting DAG verdicts fail closed.
+        candidates: list[dict[str, Any]] = []
+        for item in milestones:
+            result = formalization_review_foundation_request(item)
+            if result is None:
+                return None
+            candidates.append(result)
+        requests = {
+            json.dumps(
+                candidate.get("foundation_request"),
+                sort_keys=True,
+                ensure_ascii=False,
+            )
+            for candidate in candidates
+        }
+        if len(requests) == 1:
+            return candidates[-1]
+    return None
+
+
 def _validate_structured_review(
     raw: dict[str, Any],
 ) -> tuple[bool, str, dict[str, Any]]:
@@ -210,6 +502,8 @@ def _validate_structured_review(
         "schema_version": REVIEW_SCHEMA_VERSION,
         "checks": normalized_checks,
         "bridge_obligations": normalized_bridges,
+        "route": "proof",
+        "redraft_kind": "not_applicable",
     }
     if failures:
         return False, "; ".join(dict.fromkeys(failures))[:2000], certificate
@@ -242,7 +536,14 @@ def _decision_from_milestone(
             return "failed", validation_reason, certificate
         return "passed", reason or validation_reason, certificate
     if status in _FAIL_WORDS:
-        return "failed", reason or "formalization Review failed", {}
+        certificate = (
+            _normalize_failed_review(raw) if isinstance(raw, dict) else {}
+        )
+        return (
+            "failed",
+            reason or "formalization Review failed",
+            certificate,
+        )
 
     legacy = str(item.get("status") or "").strip().lower()
     findings = item.get("findings")
@@ -389,6 +690,7 @@ def _write_report(state_dir: Path, data: dict[str, Any]) -> None:
         f"- Maximum Review iterations per target: {data.get('max_iterations', 0)}",
         f"- Passed: {len(buckets.get('passed', []))}",
         f"- Retry: {len(buckets.get('retry', []))}",
+        f"- Routed directly to foundation build: {sum(1 for _, record in buckets.get('retry', []) if record.get('route') == 'foundation_build')}",
         f"- Review exhausted (prover forbidden): {len(buckets.get('review_exhausted', []))}",
         "",
     ]
@@ -497,8 +799,11 @@ def reopen_formalization_targets(
             "last_reopened_iter": iter_num,
             "last_reopen_event_id": pipeline_event_id or None,
             "redraft_kind": redraft_kind,
+            "route": "redraft",
             "reopen_history": reopen_history[-20:],
         }
+        next_record.pop("foundation_request", None)
+        next_record.pop("foundation_handoff", None)
         # A target-scoped formalizer may already have materialized this
         # redraft while peer provers/Reviewers were still running. Carry a
         # hash-bound hand-off into the gate so the next autoformalize phase
@@ -633,6 +938,7 @@ def reset_formalization_review_budget_after_foundation(
             "budget reset before target semantic re-review"
         ),
         "certificate": {},
+        "route": "foundation_ready",
         "redraft_kind": "missing_foundational_bridge",
         "foundation_handoff": dict(foundation_record),
         "last_foundation_reset_event_id": event_id,
@@ -682,9 +988,29 @@ def apply_formalization_review(
         if rel in per_file_blockers:
             decision = "failed"
             reason = per_file_blockers[rel]
+            certificate = {}
         elif global_blocker:
             decision = "failed"
             reason = "global physics Review blocker; no per-target pass certificate"
+            certificate = {}
+
+        foundation_certificate = (
+            formalization_review_foundation_request(certificate)
+            if decision != "passed" else None
+        )
+        if foundation_certificate is not None:
+            certificate = foundation_certificate
+            route = "foundation_build"
+            redraft_kind = "missing_foundational_bridge"
+        elif decision == "passed":
+            route = "proof"
+            redraft_kind = "not_applicable"
+        else:
+            route = "redraft"
+            redraft_kind = str(
+                certificate.get("redraft_kind")
+                if isinstance(certificate, Mapping) else ""
+            ).strip() or "other_modeling_defect"
 
         old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
         reviews = int(old.get("reviews") or 0)
@@ -695,20 +1021,49 @@ def apply_formalization_review(
             reviews += 1
         if decision == "passed":
             status = "passed"
+        elif route == "foundation_build":
+            # Foundation construction has a separate budget. A validated DAG
+            # remains dispatchable even when semantic Review used its last turn.
+            status = "retry"
         elif reviews >= max_iterations:
             status = "review_exhausted"
         else:
             status = "retry"
+        review_events = old.get("review_events")
+        review_events = (
+            list(review_events) if isinstance(review_events, list) else []
+        )
+        review_event_id = f"batch:{iter_num}:{rel}:formalization"
+        if not any(
+            isinstance(entry, dict)
+            and entry.get("event_id") == review_event_id
+            for entry in review_events
+        ):
+            review_events.append({
+                "event_id": review_event_id,
+                "iter": iter_num,
+                "decision": decision,
+                "resulting_status": status,
+                "attempt": reviews,
+                "route": route,
+                "redraft_kind": redraft_kind,
+                "reason": reason,
+                "reviewed_at": _utcnow(),
+            })
         next_record = {
             **old,
             "status": status,
             "reviews": reviews,
             "last_review_iter": iter_num,
             "reason": reason,
+            "route": route,
+            "redraft_kind": redraft_kind,
             "updated_at": _utcnow(),
             "review_schema_version": REVIEW_SCHEMA_VERSION,
             "certificate": certificate,
+            "review_events": review_events[-50:],
         }
+        next_record.pop("foundation_handoff", None)
         materialized = old.get("materialized_redraft")
         if isinstance(materialized, dict):
             next_record["materialized_redraft"] = {
@@ -743,12 +1098,22 @@ def apply_formalization_review(
 
     if retry:
         write_stage(progress_file, "autoformalize")
-        _replace_objectives(progress_file, [
-            f"- **`{rel}`** — Redraft after failed formalization Review "
-            f"({targets[rel]['reviews']}/{max_iterations} used). "
-            f"[prover-mode: physics-formalize]"
-            for rel in retry
-        ])
+        objective_lines: list[str] = []
+        for rel in retry:
+            if targets[rel].get("route") == "foundation_build":
+                objective_lines.append(
+                    f"- **`{rel}`** — Formalization Review requested a "
+                    "target-local foundation dependency build before semantic "
+                    f"re-review ({targets[rel]['reviews']}/{max_iterations} "
+                    "Review turns used). [prover-mode: mathlib-build]"
+                )
+            else:
+                objective_lines.append(
+                    f"- **`{rel}`** — Redraft after failed formalization Review "
+                    f"({targets[rel]['reviews']}/{max_iterations} used). "
+                    "[prover-mode: physics-formalize]"
+                )
+        _replace_objectives(progress_file, objective_lines)
     else:
         write_stage(progress_file, "prover")
         proof_ready = []
@@ -816,10 +1181,21 @@ def apply_target_formalization_review(
                 reason=str(old.get("reason") or ""),
                 passed=status == "passed",
                 applied=False,
+                route=str(old.get("route") or "redraft"),
+                redraft_kind=str(
+                    old.get("redraft_kind") or "not_applicable"
+                ),
             )
 
     reviews = int(old.get("reviews") or 0)
-    if reviews >= max_iterations:
+    decision, review_reason, review_certificate = _decision_from_milestone(
+        milestone
+    )
+    foundation_certificate = (
+        formalization_review_foundation_request(review_certificate)
+        if decision != "passed" else None
+    )
+    if reviews >= max_iterations and foundation_certificate is None:
         status = "review_exhausted"
         reason = (
             f"maximum formalization Review attempts already reached "
@@ -827,15 +1203,33 @@ def apply_target_formalization_review(
         )
         certificate: dict[str, Any] = {}
         decision = "failed"
+        route = "redraft"
+        redraft_kind = "other_modeling_defect"
     else:
-        decision, reason, certificate = _decision_from_milestone(milestone)
-        reviews += 1
-        if decision == "passed":
-            status = "passed"
-        elif reviews >= max_iterations:
-            status = "review_exhausted"
-        else:
+        reason = review_reason
+        if reviews < max_iterations:
+            reviews += 1
+        if foundation_certificate is not None:
+            certificate = foundation_certificate
             status = "retry"
+            route = "foundation_build"
+            redraft_kind = "missing_foundational_bridge"
+        elif decision == "passed":
+            certificate = review_certificate
+            status = "passed"
+            route = "proof"
+            redraft_kind = "not_applicable"
+        else:
+            certificate = review_certificate
+            status = (
+                "review_exhausted"
+                if reviews >= max_iterations else "retry"
+            )
+            route = "redraft"
+            redraft_kind = str(
+                certificate.get("redraft_kind")
+                if isinstance(certificate, Mapping) else ""
+            ).strip() or "other_modeling_defect"
 
     events.append({
         "event_id": event_id,
@@ -843,6 +1237,8 @@ def apply_target_formalization_review(
         "decision": decision,
         "resulting_status": status,
         "attempt": reviews,
+        "route": route,
+        "redraft_kind": redraft_kind,
         "reason": reason,
         "reviewed_at": _utcnow(),
     })
@@ -852,11 +1248,14 @@ def apply_target_formalization_review(
         "reviews": reviews,
         "last_review_iter": iter_num,
         "reason": reason,
+        "route": route,
+        "redraft_kind": redraft_kind,
         "updated_at": _utcnow(),
         "review_schema_version": REVIEW_SCHEMA_VERSION,
         "certificate": certificate,
         "review_events": events[-50:],
     }
+    next_record.pop("foundation_handoff", None)
     materialized = old.get("materialized_redraft")
     if isinstance(materialized, dict):
         next_record["materialized_redraft"] = {
@@ -886,6 +1285,8 @@ def apply_target_formalization_review(
         reason=reason,
         passed=status == "passed",
         applied=True,
+        route=route,
+        redraft_kind=redraft_kind,
     )
 
 

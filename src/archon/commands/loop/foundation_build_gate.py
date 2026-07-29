@@ -1,9 +1,11 @@
 """Persistent audit gate for target-triggered foundation construction.
 
-A proof Review may discover that the target is faithful but depends on a
+A proof or formalization Review may discover that the target depends on a
 substantial theorem missing from the local Lean library.  Those failures use a
-separate budget from statement redrafts.  This module records each attempt and
-binds a successful hand-off to the exact foundation and target file digests.
+separate budget from statement redrafts.  This module records each attempt,
+binds a successful hand-off to the exact foundation and target file digests,
+and binds that hand-off to the Review event which requested the dependency
+chain.
 """
 
 from __future__ import annotations
@@ -116,6 +118,149 @@ def latest_proof_review_event_id(record: Mapping[str, Any]) -> str:
     return ""
 
 
+def latest_formalization_review_event_id(record: Mapping[str, Any]) -> str:
+    """Return the newest durable formalization Review event identifier."""
+    history = record.get("review_events")
+    if not isinstance(history, list):
+        return ""
+    for entry in reversed(history):
+        if isinstance(entry, dict):
+            event_id = str(entry.get("event_id") or "").strip()
+            if event_id:
+                return event_id
+    return ""
+
+
+def foundation_build_trigger(
+    *,
+    state_dir: Path,
+    target_rel: str,
+) -> dict[str, Any] | None:
+    """Return the active, Review-bound missing-foundation certificate.
+
+    Formalization Review has priority when it explicitly requests foundation
+    construction. ``foundation_ready`` keeps an interrupted hand-off resumable
+    until semantic re-Review. Otherwise the Proof Review route is the trigger.
+    """
+    rel = _normal_rel(target_rel)
+
+    # Import lazily because formalization_review_gate imports this module.
+    from .formalization_review_gate import load_gate_state
+
+    formal_state = load_gate_state(state_dir) or {}
+    formal_targets = formal_state.get("targets", {})
+    raw_formal = (
+        formal_targets.get(rel) if isinstance(formal_targets, dict) else None
+    )
+    formal = raw_formal if isinstance(raw_formal, dict) else {}
+    formal_route = str(formal.get("route") or "").strip()
+    formal_kind = str(formal.get("redraft_kind") or "").strip()
+    if (
+        formal_route in {"foundation_build", "foundation_ready"}
+        and formal_kind == "missing_foundational_bridge"
+    ):
+        if formal_route == "foundation_ready":
+            handoff = formal.get("foundation_handoff")
+            handoff = handoff if isinstance(handoff, dict) else {}
+            certificate = handoff.get("certificate")
+            if isinstance(certificate, dict) and certificate:
+                return dict(certificate)
+        certificate = formal.get("certificate")
+        certificate = (
+            dict(certificate) if isinstance(certificate, dict) else {}
+        )
+        event_id = latest_formalization_review_event_id(formal)
+        request = certificate.get("foundation_request")
+        trigger = {
+            **certificate,
+            "schema_version": certificate.get("schema_version", 2),
+            "route": "needs_redraft",
+            "foundation_route": "foundation_build",
+            "reason": formal.get("reason")
+            or "formalization Review found a missing foundational bridge",
+            "evidence": certificate.get("evidence")
+            or formal.get("reason")
+            or "persisted formalization Review routing record",
+            "redraft_kind": "missing_foundational_bridge",
+            "source_review_kind": "formalization",
+        }
+        if isinstance(request, dict):
+            trigger["foundation_request"] = dict(request)
+        if event_id:
+            trigger["source_review_event_id"] = event_id
+            trigger["source_formalization_review_event_id"] = event_id
+        return trigger
+
+    from .proof_review_gate import load_proof_review_state
+
+    proof_state = load_proof_review_state(state_dir)
+    proof_targets = proof_state.get("targets", {})
+    raw_proof = (
+        proof_targets.get(rel) if isinstance(proof_targets, dict) else None
+    )
+    proof = raw_proof if isinstance(raw_proof, dict) else {}
+    if not (
+        proof.get("status") == "needs_redraft"
+        and proof.get("redraft_kind") == "missing_foundational_bridge"
+    ):
+        return None
+    event_id = latest_proof_review_event_id(proof)
+    trigger = {
+        "schema_version": proof.get("proof_review_schema_version", 1),
+        "route": "needs_redraft",
+        "foundation_route": "foundation_build",
+        "reason": proof.get("reason")
+        or "proof Review found a missing foundational bridge",
+        "evidence": proof.get("evidence")
+        or "persisted proof Review routing record",
+        "redraft_kind": "missing_foundational_bridge",
+        "source_review_kind": "proof",
+    }
+    if event_id:
+        trigger["source_review_event_id"] = event_id
+        trigger["source_proof_event_id"] = event_id
+    return trigger
+
+
+def _certificate_review_identity(
+    certificate: Mapping[str, Any] | None,
+) -> tuple[str, str]:
+    if not isinstance(certificate, Mapping):
+        return "", ""
+    kind = str(certificate.get("source_review_kind") or "").strip().lower()
+    event_id = str(
+        certificate.get("source_review_event_id")
+        or certificate.get("source_formalization_review_event_id")
+        or certificate.get("source_proof_event_id")
+        or ""
+    ).strip()
+    if not kind and event_id:
+        kind = (
+            "formalization"
+            if certificate.get("source_formalization_review_event_id")
+            else "proof"
+        )
+    return kind, event_id
+
+
+def foundation_certificate_matches_active_review(
+    *,
+    state_dir: Path,
+    target_rel: str,
+    certificate: Mapping[str, Any],
+) -> bool:
+    "Reject a completed build whose triggering Review was superseded."
+    source_identity = _certificate_review_identity(certificate)
+    if not source_identity[1]:
+        # Records created before Review-event binding remain resumable.
+        return True
+    active = foundation_build_trigger(
+        state_dir=state_dir,
+        target_rel=target_rel,
+    )
+    return source_identity == _certificate_review_identity(active)
+
+
 def foundation_build_is_dispatchable(
     *,
     state_dir: Path,
@@ -124,24 +269,18 @@ def foundation_build_is_dispatchable(
     max_iterations: int,
 ) -> bool:
     """Return whether a missing-foundation target has useful work left."""
-    from .proof_review_gate import load_proof_review_state
-
     rel = _normal_rel(target_rel)
-    proof_state = load_proof_review_state(state_dir)
-    targets = proof_state.get("targets", {})
-    proof = targets.get(rel) if isinstance(targets, dict) else None
-    if not (
-        isinstance(proof, dict)
-        and proof.get("status") == "needs_redraft"
-        and proof.get("redraft_kind") == "missing_foundational_bridge"
-    ):
+    trigger = foundation_build_trigger(
+        state_dir=state_dir,
+        target_rel=rel,
+    )
+    if trigger is None:
         return False
     record = foundation_record(state_dir, rel)
-    if foundation_materialization_matches_proof_review(
+    if foundation_materialization_matches_review(
         state_dir=state_dir,
         project_path=project_path,
         target_rel=rel,
-        proof_record=proof,
     ):
         return True
     return int(record.get("attempts") or 0) < max(1, int(max_iterations))
@@ -169,19 +308,14 @@ def foundation_materialization_is_current(
     )
 
 
-def foundation_materialization_matches_proof_review(
+def foundation_materialization_matches_review(
     *,
     state_dir: Path,
     project_path: Path,
     target_rel: str,
     proof_record: Mapping[str, Any] | None = None,
 ) -> bool:
-    """Check that a hand-off was built for the latest missing-bridge event.
-
-    A later Proof Review event means the prior compiling foundation did not
-    resolve the blocker and another independent build attempt is warranted.
-    Records created before event binding remain resumable for compatibility.
-    """
+    """Check that a hand-off matches the latest triggering Review event."""
     rel = _normal_rel(target_rel)
     if not foundation_materialization_is_current(
         state_dir=state_dir,
@@ -191,12 +325,36 @@ def foundation_materialization_matches_proof_review(
         return False
     foundation = foundation_record(state_dir, rel)
     certificate = foundation.get("certificate")
-    source_event_id = (
-        str(certificate.get("source_proof_event_id") or "").strip()
-        if isinstance(certificate, dict) else ""
-    )
+    source_kind = ""
+    source_event_id = ""
+    if isinstance(certificate, dict):
+        source_kind = str(
+            certificate.get("source_review_kind") or ""
+        ).strip().lower()
+        source_event_id = str(
+            certificate.get("source_review_event_id")
+            or certificate.get("source_formalization_review_event_id")
+            or certificate.get("source_proof_event_id")
+            or ""
+        ).strip()
+        if not source_kind:
+            source_kind = (
+                "formalization"
+                if certificate.get("source_formalization_review_event_id")
+                else "proof"
+            )
     if not source_event_id:
         return True
+    if source_kind == "formalization":
+        from .formalization_review_gate import load_gate_state
+
+        formal_state = load_gate_state(state_dir) or {}
+        targets = formal_state.get("targets", {})
+        raw = targets.get(rel) if isinstance(targets, dict) else None
+        formal_record = raw if isinstance(raw, dict) else {}
+        return source_event_id == latest_formalization_review_event_id(
+            formal_record
+        )
     if proof_record is None:
         from .proof_review_gate import load_proof_review_state
 
@@ -205,6 +363,22 @@ def foundation_materialization_matches_proof_review(
         raw = targets.get(rel) if isinstance(targets, dict) else None
         proof_record = raw if isinstance(raw, dict) else {}
     return source_event_id == latest_proof_review_event_id(proof_record)
+
+
+def foundation_materialization_matches_proof_review(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    target_rel: str,
+    proof_record: Mapping[str, Any] | None = None,
+) -> bool:
+    """Backward-compatible alias for Review-event-bound matching."""
+    return foundation_materialization_matches_review(
+        state_dir=state_dir,
+        project_path=project_path,
+        target_rel=target_rel,
+        proof_record=proof_record,
+    )
 
 
 def _write_state(state_dir: Path, state: dict[str, Any]) -> None:
@@ -311,12 +485,26 @@ def record_foundation_build_attempt(
     )
     target_digest = _sha256(project_path / rel)
     foundation_digest = _sha256(project_path / foundation_rel)
-    materialized = bool(
+    requested_materialization = (
         str(result.get("status") or "") == "materialized"
+    )
+    review_current = foundation_certificate_matches_active_review(
+        state_dir=state_dir,
+        target_rel=rel,
+        certificate=certificate,
+    )
+    materialized = bool(
+        requested_materialization
+        and review_current
         and target_digest
         and foundation_digest
     )
     reason = str(result.get("error") or "").strip()
+    if requested_materialization and not review_current:
+        reason = (
+            "foundation result belongs to a superseded Review event; "
+            "the active Review certificate must be rebuilt"
+        )
     if materialized:
         status = "materialized"
         reason = (

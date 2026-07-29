@@ -159,6 +159,49 @@ def _formalization_milestone(rel: str, *, passed: bool = True) -> dict:
     }
 
 
+def _formalization_foundation_milestone(rel: str) -> dict:
+    row = _formalization_milestone(rel, passed=True)
+    row["status"] = "blocked"
+    review = row["formalization_review"]
+    review.update({
+        "status": "failed",
+        "reason": "the faithful model needs a reusable local bridge chain",
+        "route": "foundation_build",
+        "redraft_kind": "missing_foundational_bridge",
+        "foundation_request": {
+            "root_claim": "construct the bridge needed by the target contract",
+            "root_nodes": ["target_bridge"],
+            "nodes": [
+                {
+                    "id": "base_identity",
+                    "claim": "establish the base identity",
+                    "lean_goal": "theorem baseIdentity : True",
+                    "depends_on": [],
+                    "evidence": "the source derivation starts with this identity",
+                },
+                {
+                    "id": "target_bridge",
+                    "claim": "derive the reusable target bridge",
+                    "lean_goal": "theorem targetBridge : True",
+                    "depends_on": ["base_identity"],
+                    "evidence": "this bridge directly unlocks the target",
+                },
+            ],
+        },
+    })
+    review["checks"]["derivability"] = {
+        "status": "failed",
+        "evidence": "targetBridge is missing from the local Lean library",
+    }
+    review["bridge_obligations"][0].update({
+        "status": "blocked",
+        "evidence": "the target carrier needs targetBridge",
+    })
+    row["findings"]["blocker"] = "missing target-local bridge chain"
+    row["next_steps"] = "build the certified dependency DAG"
+    return row
+
+
 def _process_prover(*_args, **_kwargs) -> bool:
     return True
 
@@ -1355,6 +1398,173 @@ class PipelinedReviewTest(unittest.TestCase):
                     + (["proof"] if formalization_verdicts[-1] else []),
                 )
 
+    def test_formalization_review_routes_directly_through_foundation(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+            initial_formalizer_calls = 0
+            foundation_calls = 0
+            formalization_review_calls = 0
+            prover_calls = 0
+            proof_review_calls = 0
+            foundation_prompts: list[str] = []
+
+            def fake_formalizer(prompt, cwd, *_args, **_kwargs):
+                nonlocal initial_formalizer_calls, foundation_calls
+                if "Automatic missing-foundation hand-off" in prompt:
+                    foundation_calls += 1
+                    foundation_prompts.append(prompt)
+                    foundation = (
+                        root / "ArchonFoundations" / "A_Foundation.lean"
+                    )
+                    foundation.parent.mkdir(parents=True, exist_ok=True)
+                    foundation.write_text(
+                        "theorem baseIdentity : True := by trivial\n"
+                        "theorem targetBridge : True := by trivial\n",
+                        encoding="utf-8",
+                    )
+                    target.write_text(
+                        "import ArchonFoundations.A_Foundation\n\n"
+                        "theorem a (h_model : True) : True := by sorry\n",
+                        encoding="utf-8",
+                    )
+                    (state / "task_results" / "A.lean.md").write_text(
+                        "# Foundation\n\n"
+                        "Built baseIdentity then targetBridge.\n",
+                        encoding="utf-8",
+                    )
+                else:
+                    initial_formalizer_calls += 1
+                    target.write_text(
+                        "theorem a (h_model : True) : True := by sorry\n",
+                        encoding="utf-8",
+                    )
+                    (state / "task_results" / "A.lean.md").write_text(
+                        "# Initial formalization\n\nFaithful target contract.\n",
+                        encoding="utf-8",
+                    )
+                return True
+
+            def fake_formalization_review(spec, **_kwargs):
+                nonlocal formalization_review_calls
+                formalization_review_calls += 1
+                milestone = (
+                    _formalization_foundation_milestone(spec.rel)
+                    if formalization_review_calls == 1
+                    else _formalization_milestone(spec.rel, passed=True)
+                )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=milestone,
+                )
+
+            def fake_prover(*_args, **_kwargs):
+                nonlocal prover_calls
+                prover_calls += 1
+                return True
+
+            def fake_proof_review(spec, **_kwargs):
+                nonlocal proof_review_calls
+                proof_review_calls += 1
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=fake_prover,
+                review_worker=fake_proof_review,
+                formalizer_worker=fake_formalizer,
+                formalization_review_worker=fake_formalization_review,
+                max_parallel=1,
+                full_pipeline=True,
+                formalization_max_iterations=1,
+                foundation_enabled=True,
+                foundation_max_iterations=2,
+                stage="autoformalize",
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="work",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.persist_session_id"
+                ),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(initial_formalizer_calls, 1)
+            self.assertEqual(foundation_calls, 1)
+            self.assertEqual(formalization_review_calls, 2)
+            self.assertEqual(prover_calls, 1)
+            self.assertEqual(proof_review_calls, 1)
+            self.assertIn(
+                "The triggering Review issued", foundation_prompts[0]
+            )
+            self.assertIn(
+                '\"source_review_kind\": \"formalization\"',
+                foundation_prompts[0],
+            )
+            self.assertIn('\"build_order\": [', foundation_prompts[0])
+            self.assertIn("base_identity", foundation_prompts[0])
+
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["foundation_builds"]["requested"], 1)
+            self.assertEqual(report["foundation_builds"]["materialized"], 1)
+            self.assertEqual(
+                [event["kind"] for event in report["gate_events"]],
+                ["formalization", "formalization", "proof"],
+            )
+            form_record = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )["targets"]["A.lean"]
+            self.assertEqual(form_record["status"], "passed")
+            self.assertEqual(form_record["reviews"], 1)
+            self.assertEqual(
+                form_record["budget_reset_history"][-1]["previous_reviews"],
+                1,
+            )
+            foundation_record = json.loads(
+                (state / "foundation-build-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )["targets"]["A.lean"]
+            certificate = foundation_record["certificate"]
+            self.assertEqual(
+                certificate["source_review_kind"], "formalization"
+            )
+            self.assertEqual(
+                certificate["foundation_request"]["build_order"],
+                ["base_identity", "target_bridge"],
+            )
+
     def test_foundation_gate_is_digest_bound_and_idempotent(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1455,6 +1665,20 @@ class PipelinedReviewTest(unittest.TestCase):
                 target_rel="QIT/A.lean",
                 max_iterations=1,
             ))
+            stale = record_foundation_build_attempt(
+                state_dir=state,
+                project_path=root,
+                target_rel="QIT/A.lean",
+                foundation_file=foundation_rel,
+                certificate=certificate,
+                result=result,
+                iter_num=2,
+                max_iterations=3,
+                event_id="foundation:event:stale",
+            )
+            self.assertEqual(stale.status, "retry")
+            self.assertEqual(stale.attempts, 2)
+            self.assertIn("superseded Review event", stale.reason)
             target.write_text(
                 "theorem a : True := by\n  trivial\n", encoding="utf-8",
             )

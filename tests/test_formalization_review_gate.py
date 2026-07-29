@@ -8,8 +8,13 @@ from archon.commands.loop.command import parse_from_phase
 from archon.commands.loop.phases.review import ReviewPhase
 from archon.commands.loop.formalization_review_gate import (
     apply_formalization_review,
+    apply_target_formalization_review,
     enforce_progress_review_gate,
     load_gate_state,
+)
+from archon.commands.loop.foundation_build_gate import (
+    foundation_build_is_dispatchable,
+    foundation_build_trigger,
 )
 from archon.state import read_stage
 
@@ -68,6 +73,47 @@ class FormalizationReviewGateTests(unittest.TestCase):
                 "evidence": "the carrier states the required relation",
             }],
         }
+
+    @classmethod
+    def _foundation_certificate(cls):
+        review = cls._passing_certificate(
+            "faithful contract needs reusable local bridge lemmas"
+        )
+        review.update({
+            "schema_version": 2,
+            "status": "failed",
+            "route": "foundation_build",
+            "redraft_kind": "missing_foundational_bridge",
+            "foundation_request": {
+                "root_claim": "derive the target bridge from the base identity",
+                "root_nodes": ["target_bridge"],
+                "nodes": [
+                    {
+                        "id": "base_identity",
+                        "claim": "the base identity holds",
+                        "lean_goal": "theorem baseIdentity : True",
+                        "depends_on": [],
+                        "evidence": "the source derivation uses this identity first",
+                    },
+                    {
+                        "id": "target_bridge",
+                        "claim": "the reusable target bridge follows",
+                        "lean_goal": "theorem targetBridge : True",
+                        "depends_on": ["base_identity"],
+                        "evidence": "this is the blocked source-to-Lean bridge",
+                    },
+                ],
+            },
+        })
+        review["checks"]["derivability"] = {
+            "status": "failed",
+            "evidence": "the local library lacks targetBridge",
+        }
+        review["bridge_obligations"][0].update({
+            "status": "blocked",
+            "evidence": "targetBridge is not available in the local library",
+        })
+        return review
 
     def _review(
         self,
@@ -227,6 +273,101 @@ class FormalizationReviewGateTests(unittest.TestCase):
         state = load_gate_state(self.state)
         reason = state["targets"]["Problems/p.lean"]["reason"]
         self.assertIn("bridge obligation 1", reason)
+
+    def test_target_review_can_route_last_turn_to_foundation_dag(self):
+        review = self._foundation_certificate()
+        milestone = {
+            "status": "blocked",
+            "target": {"file": "Problems/p.lean", "theorem": "p"},
+            "formalization_review": review,
+        }
+
+        update = apply_target_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=milestone,
+            iter_num=1,
+            max_iterations=1,
+            event_id="formalization:event:1",
+        )
+
+        self.assertEqual(update.status, "retry")
+        self.assertEqual(update.reviews, 1)
+        self.assertEqual(update.route, "foundation_build")
+        self.assertEqual(update.redraft_kind, "missing_foundational_bridge")
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(record["route"], "foundation_build")
+        request = record["certificate"]["foundation_request"]
+        self.assertEqual(
+            request["build_order"], ["base_identity", "target_bridge"]
+        )
+        trigger = foundation_build_trigger(
+            state_dir=self.state,
+            target_rel="Problems/p.lean",
+        )
+        self.assertEqual(trigger["source_review_kind"], "formalization")
+        self.assertEqual(
+            trigger["source_review_event_id"], "formalization:event:1"
+        )
+        self.assertTrue(foundation_build_is_dispatchable(
+            state_dir=self.state,
+            project_path=self.project,
+            target_rel="Problems/p.lean",
+            max_iterations=2,
+        ))
+
+    def test_batch_review_binds_foundation_route_to_batch_event(self):
+        result = self._review(
+            1,
+            "failed",
+            formalization_review=self._foundation_certificate(),
+        )
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        trigger = foundation_build_trigger(
+            state_dir=self.state,
+            target_rel="Problems/p.lean",
+        )
+        self.assertEqual(
+            trigger["source_review_event_id"],
+            "batch:1:Problems/p.lean:formalization",
+        )
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(
+            record["review_events"][-1]["route"], "foundation_build"
+        )
+
+    def test_invalid_foundation_dag_downgrades_to_redraft(self):
+        review = self._foundation_certificate()
+        review["foundation_request"]["nodes"][0]["depends_on"] = [
+            "target_bridge"
+        ]
+        milestone = {
+            "status": "blocked",
+            "target": {"file": "Problems/p.lean", "theorem": "p"},
+            "formalization_review": review,
+        }
+
+        update = apply_target_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=milestone,
+            iter_num=1,
+            max_iterations=3,
+            event_id="formalization:event:cycle",
+        )
+
+        self.assertEqual(update.status, "retry")
+        self.assertEqual(update.route, "redraft")
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(record["route"], "redraft")
+        self.assertIn("cycle", record["certificate"]["routing_error"])
+        self.assertIsNone(foundation_build_trigger(
+            state_dir=self.state,
+            target_rel="Problems/p.lean",
+        ))
 
     def test_old_gate_state_is_not_a_valid_certificate(self):
         (self.state / "formalization-review-gate.json").write_text(
