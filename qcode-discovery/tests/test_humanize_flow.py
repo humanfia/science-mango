@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from humanize.audit_state import authoritative_candidate_digest
 from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
@@ -55,9 +56,29 @@ def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
         "canonical_digest": "same-tanner-graph",
     }
     archive.update([row], 1)
+    digest = authoritative_candidate_digest(row)
     assert select_for_milp(
-        [row], archive, set(), 1, {"same-tanner-graph"}
+        [row], archive, set(), 1, {digest}
     ) == []
+
+
+def test_forged_structural_digest_cannot_hide_candidate_before_audit(tmp_path):
+    archive = EliteArchive(tmp_path / "archive.json")
+    row = candidate(k=8)
+    row["static_eligibility"] = {"eligible": True}
+    row["structural_novelty"] = {
+        "checked": True,
+        "novel": True,
+        "canonical_digest": "forged-terminal-digest",
+    }
+
+    assert select_for_milp(
+        [row],
+        archive,
+        set(),
+        1,
+        {"forged-terminal-digest"},
+    ) == [row]
 
 
 def test_partial_milp_never_becomes_exact():

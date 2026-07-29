@@ -2,6 +2,8 @@ import fcntl
 import hashlib
 import json
 import os
+import subprocess
+import sys
 from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,7 +15,11 @@ from evolve.run_evolution import _cap_parallel_evaluations
 from humanize.audit_state import AuditStateError
 from humanize.flow import (
     FlowConfig,
+    HumanizeRunAlreadyActiveError,
     HumanizeFlow,
+    RoundTransactionError,
+    _HumanizeRunLease,
+    _acquire_humanize_run_lease,
     _acquire_round_lifecycle_lease,
     _checkpoint_descriptor,
     _completion_marker_expected,
@@ -269,6 +275,226 @@ def test_symplectic_d2_rule_is_exact_but_only_at_two():
     assert _milp_is_fully_exact(row)
     row["d"] = 3
     assert not _milp_is_fully_exact(row)
+
+
+@pytest.mark.parametrize(
+    "run_id",
+    (
+        "",
+        ".",
+        "..",
+        "../escape",
+        "nested/run",
+        r"nested\run",
+        "/absolute",
+        "space name",
+        "-would-have-been-trimmed",
+        "unicode-\N{MANGO}",
+        "x" * 129,
+    ),
+)
+def test_direct_humanize_run_id_is_rejected_instead_of_rewritten(
+    tmp_path,
+    run_id,
+):
+    config = FlowConfig(repo_dir=tmp_path, run_id=run_id)
+    with pytest.raises(ValueError, match="run_id"):
+        HumanizeFlow(config, reviewer=Reviewer())
+
+    expected = tmp_path / "results" / "humanize"
+    assert not expected.exists()
+
+
+def test_direct_humanize_uses_one_validated_run_id_for_every_root(tmp_path):
+    run_id = "campaign-2026.07_29"
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=tmp_path, run_id=run_id),
+        reviewer=Reviewer(),
+    )
+
+    assert flow.config.run_id == flow.store.run_id == run_id
+    assert flow.store.root == tmp_path / "results" / "humanize" / run_id
+    assert flow.run_dir == tmp_path / "results" / "runs" / run_id
+    assert flow.evolution_output == (
+        tmp_path / "results" / "evolution" / f"humanize_{run_id}"
+    )
+
+
+def test_direct_humanize_cli_rejects_unsafe_run_id_before_flow(
+    monkeypatch,
+):
+    import humanize.cli as direct_cli
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["humanize", "--run-id", "../escaped-direct-run"],
+    )
+    monkeypatch.setattr(
+        direct_cli,
+        "HumanizeFlow",
+        lambda *_args, **_kwargs: pytest.fail(
+            "unsafe run_id reached HumanizeFlow"
+        ),
+    )
+
+    with pytest.raises(ValueError, match="run_id"):
+        direct_cli.main()
+
+
+def test_direct_candidate_run_rejects_cross_process_duplicate_owner(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    candidates = repo / "candidates.jsonl"
+    candidates.write_text("")
+    run_id = "direct-lock"
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            max_rounds=1,
+            candidate_file=candidates,
+        ),
+        reviewer=Reviewer(),
+    )
+    package_root = Path(flow_module.__file__).resolve().parent.parent
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = os.pathsep.join(
+        filter(
+            None,
+            (str(package_root), environment.get("PYTHONPATH", "")),
+        )
+    )
+    holder = subprocess.Popen(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import sys\n"
+                "from pathlib import Path\n"
+                "from humanize.flow import _acquire_humanize_run_lease\n"
+                "from humanize.state import RunStore\n"
+                "store = RunStore.create(Path(sys.argv[1]), sys.argv[2])\n"
+                "with _acquire_humanize_run_lease(store):\n"
+                "    print('READY', flush=True)\n"
+                "    sys.stdin.readline()\n"
+            ),
+            str(repo / "results"),
+            run_id,
+        ],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=environment,
+    )
+    try:
+        assert holder.stdout is not None
+        ready = holder.stdout.readline().strip()
+        if ready != "READY":
+            assert holder.stderr is not None
+            pytest.fail(f"lock holder failed: {holder.stderr.read()}")
+        with pytest.raises(
+            HumanizeRunAlreadyActiveError,
+            match="already active",
+        ):
+            flow.run()
+    finally:
+        if holder.stdin is not None:
+            try:
+                holder.stdin.write("\n")
+                holder.stdin.flush()
+            except BrokenPipeError:
+                pass
+        try:
+            holder.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            holder.kill()
+            holder.wait(timeout=5)
+    assert holder.returncode == 0
+
+
+@pytest.mark.parametrize("unsafe_kind", ("symlink", "directory", "fifo"))
+def test_direct_humanize_run_lock_rejects_unsafe_inode(
+    tmp_path,
+    unsafe_kind,
+):
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=tmp_path, run_id=f"unsafe-lock-{unsafe_kind}"),
+        reviewer=Reviewer(),
+    )
+    lock_path = flow.store.lock_path
+    if unsafe_kind == "symlink":
+        target = tmp_path / "outside-lock"
+        target.write_text("must remain unchanged")
+        lock_path.symlink_to(target)
+    elif unsafe_kind == "directory":
+        lock_path.mkdir()
+    else:
+        os.mkfifo(lock_path)
+
+    with pytest.raises(RoundTransactionError, match="Humanize run lease"):
+        flow.run()
+
+    if unsafe_kind == "symlink":
+        assert target.read_text() == "must remain unchanged"
+
+
+def test_direct_humanize_run_lock_is_released_after_exception(
+    tmp_path,
+    monkeypatch,
+):
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=tmp_path, run_id="release-on-error"),
+        reviewer=Reviewer(),
+    )
+
+    def fail():
+        raise RuntimeError("injected run failure")
+
+    monkeypatch.setattr(flow, "_run_locked", fail)
+    with pytest.raises(RuntimeError, match="injected"):
+        flow.run()
+
+    expected = {"run_id": flow.store.run_id, "status": "test-complete"}
+    monkeypatch.setattr(flow, "_run_locked", lambda: expected)
+    assert flow.run() == expected
+
+
+def test_direct_humanize_duplicate_owner_fails_without_waiting(tmp_path):
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=tmp_path, run_id="same-process-owner"),
+        reviewer=Reviewer(),
+    )
+    with _acquire_humanize_run_lease(flow.store):
+        with pytest.raises(HumanizeRunAlreadyActiveError):
+            flow.run()
+
+
+def test_humanize_accepts_only_the_exact_active_inherited_lease(
+    tmp_path,
+    monkeypatch,
+):
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=tmp_path, run_id="inherited-owner"),
+        reviewer=Reviewer(),
+    )
+    expected = {"run_id": flow.store.run_id, "status": "test-complete"}
+    monkeypatch.setattr(flow, "_run_locked", lambda: expected)
+
+    with _acquire_humanize_run_lease(flow.store) as lease:
+        assert flow.run(inherited_run_lease=lease) == expected
+        forged = _HumanizeRunLease(
+            fd=lease.fd,
+            path=lease.path,
+            owner_pid=os.getpid(),
+            token=object(),
+        )
+        with pytest.raises(RoundTransactionError, match="not currently active"):
+            flow.run(inherited_run_lease=forged)
+
+    with pytest.raises(RoundTransactionError, match="not currently active"):
+        flow.run(inherited_run_lease=lease)
 
 
 def test_resume_rejects_milp_base_budget_drift(tmp_path):

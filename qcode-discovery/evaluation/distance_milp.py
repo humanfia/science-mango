@@ -72,6 +72,10 @@ class CssCheckpointIncompatibleError(ValueError):
     """A regular checkpoint belongs to a different proof implementation."""
 
 
+class CssCheckpointCorruptionError(ValueError):
+    """A bound CSS checkpoint is malformed or internally inconsistent."""
+
+
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -240,6 +244,17 @@ def _checkpoint_regular_file_exists(path: Path | None) -> bool:
 
 
 def _read_checkpoint_json(path: Path) -> Any:
+    def reject_duplicate_keys(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError(f"duplicate checkpoint key: {key!r}")
+            value[key] = item
+        return value
+
+    def reject_non_finite(value):
+        raise ValueError(f"non-finite checkpoint number: {value}")
+
     flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK
     try:
         checkpoint_fd = os.open(path, flags)
@@ -253,9 +268,15 @@ def _read_checkpoint_json(path: Path) -> Any:
         with os.fdopen(checkpoint_fd, "r", encoding="utf-8") as stream:
             checkpoint_fd = -1
             try:
-                return json.load(stream)
-            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-                raise ValueError(f"invalid CSS MILP checkpoint: {path}") from exc
+                return json.load(
+                    stream,
+                    object_pairs_hook=reject_duplicate_keys,
+                    parse_constant=reject_non_finite,
+                )
+            except (UnicodeError, ValueError) as exc:
+                raise CssCheckpointCorruptionError(
+                    f"invalid CSS MILP checkpoint JSON: {path}"
+                ) from exc
     finally:
         if checkpoint_fd >= 0:
             os.close(checkpoint_fd)
@@ -288,10 +309,11 @@ def _archive_incompatible_checkpoint(path: Path) -> Path:
     try:
         os.link(path, archive, follow_symlinks=False)
     except FileExistsError:
-        if _read_checkpoint_bytes(archive) != payload:
-            raise ValueError(
-                "CSS MILP incompatible checkpoint archive collision"
-            )
+        pass
+    if _read_checkpoint_bytes(archive) != payload:
+        raise ValueError(
+            "CSS MILP incompatible checkpoint archive collision"
+        )
     os.unlink(path)
     directory_fd = os.open(path.parent, os.O_RDONLY)
     try:
@@ -517,35 +539,41 @@ def write_symplectic_weight_checkpoint(
     with _checkpoint_flock(path):
         checkpoint_exists = _checkpoint_regular_file_exists(path)
         if checkpoint_exists:
-            previous = _read_checkpoint_json(path)
-            expected_fields = set(payload)
-            expected_parameter_fields = set(run_parameters)
-            previous_parameters = (
-                previous.get("run_parameters")
-                if isinstance(previous, dict)
-                else None
-            )
-            compatible = (
-                isinstance(previous, dict)
-                and set(previous) == expected_fields
-                and previous.get("kind") == _SYMPLECTIC_CHECKPOINT_KIND
-                and previous.get("schema_version")
-                == _SYMPLECTIC_CHECKPOINT_SCHEMA_VERSION
-                and isinstance(previous.get("created_at"), str)
-                and isinstance(previous.get("updated_at"), str)
-                and previous.get("status") == payload["status"]
-                and previous.get("proof_binding") == proof_binding
-                and _valid_symplectic_run_parameters(previous_parameters)
-                and set(previous_parameters) == expected_parameter_fields
-                and previous.get("symplectic_witness") == canonical_witness
-            )
-            if not compatible:
+            try:
+                previous = _read_checkpoint_json(path)
+            except CssCheckpointCorruptionError:
                 if not reset_incompatible_checkpoint:
-                    raise CssCheckpointIncompatibleError(
-                        "Stage 1 checkpoint is incompatible with the "
-                        "symplectic proof"
-                    )
+                    raise
                 _archive_incompatible_checkpoint(path)
+            else:
+                expected_fields = set(payload)
+                expected_parameter_fields = set(run_parameters)
+                previous_parameters = (
+                    previous.get("run_parameters")
+                    if isinstance(previous, dict)
+                    else None
+                )
+                compatible = (
+                    isinstance(previous, dict)
+                    and set(previous) == expected_fields
+                    and previous.get("kind") == _SYMPLECTIC_CHECKPOINT_KIND
+                    and previous.get("schema_version")
+                    == _SYMPLECTIC_CHECKPOINT_SCHEMA_VERSION
+                    and isinstance(previous.get("created_at"), str)
+                    and isinstance(previous.get("updated_at"), str)
+                    and previous.get("status") == payload["status"]
+                    and previous.get("proof_binding") == proof_binding
+                    and _valid_symplectic_run_parameters(previous_parameters)
+                    and set(previous_parameters) == expected_parameter_fields
+                    and previous.get("symplectic_witness") == canonical_witness
+                )
+                if not compatible:
+                    if not reset_incompatible_checkpoint:
+                        raise CssCheckpointIncompatibleError(
+                            "Stage 1 checkpoint is incompatible with the "
+                            "symplectic proof"
+                        )
+                    _archive_incompatible_checkpoint(path)
         _atomic_write_json(path, payload)
     return payload
 
@@ -1441,7 +1469,7 @@ def _validated_checkpoint_budget(field: str, value: Any) -> float | None:
         or not math.isfinite(value)
         or value <= 0
     ):
-        raise ValueError(
+        raise CssCheckpointCorruptionError(
             f"CSS MILP checkpoint has invalid bound budget {field}"
         )
     return float(value)
@@ -1491,7 +1519,10 @@ def _compute_distance_milp_durable(
                 resume=resume,
                 **arguments,
             )
-        except CssCheckpointIncompatibleError as exc:
+        except (
+            CssCheckpointCorruptionError,
+            CssCheckpointIncompatibleError,
+        ) as exc:
             if (
                 not reset_incompatible_checkpoint
                 or path is None
@@ -1619,7 +1650,24 @@ def _compute_distance_milp_durable_locked(
     if path is not None and resume and checkpoint_exists:
         checkpoint = _read_checkpoint_json(path)
         if not isinstance(checkpoint, dict):
-            raise ValueError("CSS MILP checkpoint root must be an object")
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint root must be an object"
+            )
+        expected_checkpoint_fields = {
+            "kind",
+            "schema_version",
+            "created_at",
+            "updated_at",
+            "status",
+            "proof_binding",
+            "run_parameters",
+            "parameter_history",
+            "direction_results",
+        }
+        if set(checkpoint) != expected_checkpoint_fields:
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint body fields mismatch"
+            )
         if (
             checkpoint.get("kind") != _CSS_CHECKPOINT_KIND
             or checkpoint.get("schema_version") != _CSS_CHECKPOINT_SCHEMA_VERSION
@@ -1633,11 +1681,17 @@ def _compute_distance_milp_durable_locked(
             )
         previous_parameters = checkpoint.get("run_parameters")
         if not isinstance(previous_parameters, dict):
-            raise ValueError("CSS MILP checkpoint has no bound run parameters")
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint has no bound run parameters"
+            )
         if set(previous_parameters) != set(run_parameters):
-            raise ValueError("CSS MILP checkpoint run parameter fields mismatch")
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint run parameter fields mismatch"
+            )
         if previous_parameters.get("early_stop") != early_stop:
-            raise ValueError("CSS MILP checkpoint early_stop binding mismatch")
+            raise CssCheckpointIncompatibleError(
+                "CSS MILP checkpoint early_stop binding mismatch"
+            )
         for field in (
             "timeout_per_logical_s",
             "total_timeout_s",
@@ -1648,7 +1702,7 @@ def _compute_distance_milp_durable_locked(
             if not _is_budget_upgrade(
                 previous_budget, run_parameters[field]
             ):
-                raise ValueError(
+                raise CssCheckpointIncompatibleError(
                     f"CSS MILP checkpoint cannot reduce bound budget {field}"
                 )
         previous_hard_timeout = _validated_checkpoint_budget(
@@ -1662,41 +1716,70 @@ def _compute_distance_milp_durable_locked(
         if not hard_timeout_migration and not _is_budget_upgrade(
             previous_hard_timeout, current_hard_timeout
         ):
-            raise ValueError(
+            raise CssCheckpointIncompatibleError(
                 "CSS MILP checkpoint cannot reduce bound budget "
                 "hard_timeout_per_logical_s"
             )
         raw_records = checkpoint.get("direction_results", {})
         if not isinstance(raw_records, dict):
-            raise ValueError("CSS MILP checkpoint direction_results must be an object")
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint direction_results must be an object"
+            )
         for direction_id, record in raw_records.items():
             definition = direction_by_id.get(direction_id)
             if definition is None or not isinstance(record, dict):
-                raise ValueError("CSS MILP checkpoint contains an unknown direction")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint contains an unknown direction"
+                )
+            if set(record) != {
+                "side",
+                "index",
+                "logical_sha256",
+                "status",
+                "weight",
+                "witness",
+                "optimal",
+                "attempts",
+                "hard_timeouts",
+                "last_attempt_status",
+                "last_attempt_elapsed_s",
+                "updated_at",
+            }:
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint direction record fields mismatch"
+                )
             status = record.get("status")
             weight = record.get("weight")
             witness = record.get("witness")
             attempts = record.get("attempts")
-            if status not in _DIRECTION_STATUSES:
-                raise ValueError("CSS MILP checkpoint has invalid direction status")
+            if not isinstance(status, str) or status not in _DIRECTION_STATUSES:
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid direction status"
+                )
             if (
                 record.get("side") != definition["side"]
                 or record.get("index") != definition["index"]
                 or record.get("logical_sha256") != definition["logical_sha256"]
             ):
-                raise ValueError("CSS MILP checkpoint direction binding mismatch")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint direction binding mismatch"
+                )
             if isinstance(attempts, bool) or not isinstance(attempts, int) or attempts < 1:
-                raise ValueError("CSS MILP checkpoint has invalid attempt count")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid attempt count"
+                )
             if weight is not None and (
                 isinstance(weight, bool)
                 or not isinstance(weight, int)
                 or weight < 1
                 or weight > n
             ):
-                raise ValueError("CSS MILP checkpoint has invalid direction weight")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid direction weight"
+                )
             if status in {"optimal", "incumbent"}:
                 if weight is None:
-                    raise ValueError(
+                    raise CssCheckpointCorruptionError(
                         "CSS MILP checkpoint lost a feasible direction weight"
                     )
                 if definition["side"] == "Z":
@@ -1710,15 +1793,17 @@ def _compute_distance_milp_durable_locked(
                         checks, logical, weight, witness
                     )
                 except ValueError as exc:
-                    raise ValueError(
+                    raise CssCheckpointCorruptionError(
                         "CSS MILP checkpoint has invalid feasible witness"
                     ) from exc
             elif weight is not None or witness is not None:
-                raise ValueError(
+                raise CssCheckpointCorruptionError(
                     "CSS MILP checkpoint unresolved direction retained a witness"
                 )
             if record.get("optimal") is not (status == "optimal"):
-                raise ValueError("CSS MILP checkpoint has inconsistent optimal flag")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has inconsistent optimal flag"
+                )
             hard_timeouts = record.get("hard_timeouts", 0)
             if (
                 isinstance(hard_timeouts, bool)
@@ -1726,18 +1811,33 @@ def _compute_distance_milp_durable_locked(
                 or hard_timeouts < 0
                 or hard_timeouts > attempts
             ):
-                raise ValueError("CSS MILP checkpoint has invalid timeout count")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid timeout count"
+                )
             last_status = record.get("last_attempt_status")
-            if last_status not in _DIRECTION_STATUSES:
-                raise ValueError("CSS MILP checkpoint has invalid last attempt status")
+            if (
+                not isinstance(last_status, str)
+                or last_status not in _DIRECTION_STATUSES
+            ):
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid last attempt status"
+                )
             if status == "optimal" and last_status != "optimal":
-                raise ValueError("CSS MILP checkpoint optimal record is inconsistent")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint optimal record is inconsistent"
+                )
             if status in {"no_incumbent", "hard_timeout"} and last_status != status:
-                raise ValueError("CSS MILP checkpoint unresolved record is inconsistent")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint unresolved record is inconsistent"
+                )
             if status == "incumbent" and last_status == "optimal":
-                raise ValueError("CSS MILP checkpoint incumbent record is inconsistent")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint incumbent record is inconsistent"
+                )
             if last_status == "hard_timeout" and hard_timeouts < 1:
-                raise ValueError("CSS MILP checkpoint lost its hard timeout count")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint lost its hard timeout count"
+                )
             last_elapsed = record.get("last_attempt_elapsed_s")
             if (
                 isinstance(last_elapsed, bool)
@@ -1745,20 +1845,66 @@ def _compute_distance_milp_durable_locked(
                 or not math.isfinite(last_elapsed)
                 or last_elapsed < 0
             ):
-                raise ValueError("CSS MILP checkpoint has invalid attempt elapsed time")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid attempt elapsed time"
+                )
             updated_at = record.get("updated_at")
             if not isinstance(updated_at, str) or not updated_at:
-                raise ValueError("CSS MILP checkpoint has invalid update timestamp")
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid update timestamp"
+                )
             restored = dict(record)
             restored["weight"] = weight
             restored["witness"] = witness
             if hard_timeout_migration and status != "optimal":
                 continue
             records[direction_id] = restored
-        created_at = str(checkpoint.get("created_at") or created_at)
+        checkpoint_status = checkpoint.get("status")
+        if (
+            not isinstance(checkpoint_status, str)
+            or checkpoint_status
+            not in {
+                "running",
+                "exact",
+                "threshold_rejected",
+                "unresolved",
+            }
+        ):
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint has invalid aggregate status"
+            )
+        for timestamp_field in ("created_at", "updated_at"):
+            timestamp = checkpoint.get(timestamp_field)
+            if not isinstance(timestamp, str) or not timestamp:
+                raise CssCheckpointCorruptionError(
+                    f"CSS MILP checkpoint has invalid {timestamp_field}"
+                )
+        created_at = checkpoint["created_at"]
         raw_history = checkpoint.get("parameter_history", [])
-        if isinstance(raw_history, list):
-            parameter_history = list(raw_history)
+        if not isinstance(raw_history, list) or not raw_history:
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint parameter history must be non-empty"
+            )
+        for history_entry in raw_history:
+            if (
+                not isinstance(history_entry, dict)
+                or set(history_entry) != set(run_parameters)
+                or history_entry.get("early_stop") != early_stop
+            ):
+                raise CssCheckpointCorruptionError(
+                    "CSS MILP checkpoint has invalid parameter history"
+                )
+            for field in (
+                "timeout_per_logical_s",
+                "total_timeout_s",
+                "hard_timeout_per_logical_s",
+            ):
+                _validated_checkpoint_budget(field, history_entry[field])
+        if raw_history[-1] != previous_parameters:
+            raise CssCheckpointCorruptionError(
+                "CSS MILP checkpoint parameter history is not current"
+            )
+        parameter_history = list(raw_history)
         checkpoint_resumed = True
         reused_at_start = sum(
             record.get("status") == "optimal" for record in records.values()

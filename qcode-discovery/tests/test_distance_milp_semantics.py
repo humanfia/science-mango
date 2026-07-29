@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import json
 import multiprocessing
 import os
@@ -433,6 +434,73 @@ def test_symplectic_weight_witness_binds_actual_dual_and_minimum(monkeypatch):
     assert distance_milp.symplectic_weight_witness(Code(), 1) is None
 
 
+@pytest.mark.parametrize(
+    "original_bytes",
+    [
+        b'{"kind":"truncated-symplectic"',
+        b'{"kind":"first","kind":"duplicate"}',
+    ],
+    ids=["truncated", "duplicate-key"],
+)
+def test_symplectic_checkpoint_reset_archives_bad_json_and_recomputes(
+    tmp_path, original_bytes,
+):
+    from qldpc.objects import Pauli
+
+    class Code:
+        num_qudits = 4
+        dimension = 1
+        matrix_x = np.zeros((1, 4), dtype=int)
+        matrix_z = np.zeros((1, 4), dtype=int)
+
+        def get_logical_ops(self, pauli):
+            if pauli == Pauli.X:
+                return np.array([[1, 1, 0, 0]], dtype=int)
+            return np.array([[1, 0, 0, 0]], dtype=int)
+
+    code = Code()
+    witness = distance_milp.symplectic_weight_witness(code, 1)
+    checkpoint = tmp_path / "symplectic.json"
+    checkpoint.write_bytes(original_bytes)
+    original_sha256 = hashlib.sha256(original_bytes).hexdigest()
+    arguments = {
+        "checkpoint_path": checkpoint,
+        "checkpoint_identity": {"candidate": "self-dual"},
+        "witness": witness,
+        "timeout_per_logical": 1,
+        "total_timeout": 10,
+        "hard_timeout_per_logical": 2,
+        "early_stop": 1,
+    }
+
+    with pytest.raises(
+        distance_milp.CssCheckpointCorruptionError,
+        match="invalid CSS MILP checkpoint JSON",
+    ):
+        distance_milp.write_symplectic_weight_checkpoint(
+            code,
+            **arguments,
+            reset_incompatible_checkpoint=False,
+        )
+    assert checkpoint.read_bytes() == original_bytes
+    assert not list(tmp_path.glob(f"{checkpoint.name}.incompatible-*.json"))
+
+    payload = distance_milp.write_symplectic_weight_checkpoint(
+        code,
+        **arguments,
+        reset_incompatible_checkpoint=True,
+    )
+
+    archive = checkpoint.with_name(
+        f"{checkpoint.name}.incompatible-{original_sha256}.json"
+    )
+    assert archive.read_bytes() == original_bytes
+    assert payload["kind"] == "qcode-symplectic-weight-checkpoint"
+    assert payload["status"] == "exact"
+    assert payload["symplectic_witness"] == witness
+    assert json.loads(checkpoint.read_text()) == payload
+
+
 def _css_matrices():
     hx = np.zeros((1, 4), dtype=int)
     hz = np.zeros((1, 4), dtype=int)
@@ -762,6 +830,172 @@ def test_css_checkpoint_replays_witness_and_rejects_corruption(
     )
 
 
+def test_css_checkpoint_reset_archives_truncated_json_by_raw_sha256(
+    tmp_path, monkeypatch,
+):
+    matrices = _css_matrices()
+    monkeypatch.setattr(
+        distance_milp, "get_code_matrices", lambda _code: matrices
+    )
+
+    def exact_logical_witness(_checks, logical, **_kwargs):
+        witness = [int(value) for value in logical]
+        return sum(witness), True, witness
+
+    monkeypatch.setattr(distance_milp, "ilp_min_weight", exact_logical_witness)
+    checkpoint = tmp_path / "truncated.json"
+    original_bytes = b'{"kind":"truncated"'
+    checkpoint.write_bytes(original_bytes)
+    original_sha256 = hashlib.sha256(original_bytes).hexdigest()
+
+    distance, details = distance_milp.compute_distance_milp(
+        DummyCssCode(),
+        early_stop=None,
+        timeout_per_logical=1,
+        total_timeout=10,
+        checkpoint_path=checkpoint,
+        checkpoint_identity={"candidate": "truncated"},
+        reset_incompatible_checkpoint=True,
+    )
+
+    archive = Path(details["checkpoint_incompatible_archive"])
+    assert distance == 1
+    assert details["exact"] is True
+    assert details["checkpoint_reset"] is True
+    assert "invalid CSS MILP checkpoint JSON" in details["checkpoint_reset_reason"]
+    assert archive.name == (
+        f"{checkpoint.name}.incompatible-{original_sha256}.json"
+    )
+    assert archive.read_bytes() == original_bytes
+    assert json.loads(checkpoint.read_text())["status"] == "exact"
+
+
+@pytest.mark.parametrize(
+    ("label", "mutate", "reason"),
+    [
+        (
+            "body",
+            lambda payload: payload.update({"status": {"corrupt": True}}),
+            "invalid aggregate status",
+        ),
+        (
+            "witness",
+            lambda payload: payload["direction_results"]["Z:0"].update(
+                {"witness": [0, 0, 1, 0]}
+            ),
+            "invalid feasible witness",
+        ),
+        (
+            "budget",
+            lambda payload: payload["run_parameters"].update(
+                {"timeout_per_logical_s": "corrupt"}
+            ),
+            "invalid bound budget",
+        ),
+        (
+            "record",
+            lambda payload: payload["direction_results"]["Z:0"].pop("attempts"),
+            "direction record fields mismatch",
+        ),
+    ],
+)
+def test_css_checkpoint_reset_archives_bound_corruption_and_recomputes(
+    tmp_path, monkeypatch, label, mutate, reason,
+):
+    matrices = _css_matrices()
+    monkeypatch.setattr(
+        distance_milp, "get_code_matrices", lambda _code: matrices
+    )
+
+    def exact_logical_witness(_checks, logical, **_kwargs):
+        witness = [int(value) for value in logical]
+        return sum(witness), True, witness
+
+    monkeypatch.setattr(distance_milp, "ilp_min_weight", exact_logical_witness)
+    checkpoint = tmp_path / f"{label}.json"
+    identity = {"candidate": label}
+    distance_milp.compute_distance_milp(
+        DummyCssCode(),
+        early_stop=None,
+        timeout_per_logical=1,
+        total_timeout=10,
+        checkpoint_path=checkpoint,
+        checkpoint_identity=identity,
+    )
+    corrupted = json.loads(checkpoint.read_text())
+    mutate(corrupted)
+    original_bytes = json.dumps(
+        corrupted,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+    checkpoint.write_bytes(original_bytes)
+    original_sha256 = hashlib.sha256(original_bytes).hexdigest()
+
+    distance, details = distance_milp.compute_distance_milp(
+        DummyCssCode(),
+        early_stop=None,
+        timeout_per_logical=1,
+        total_timeout=10,
+        checkpoint_path=checkpoint,
+        checkpoint_identity=identity,
+        reset_incompatible_checkpoint=True,
+    )
+
+    archive = Path(details["checkpoint_incompatible_archive"])
+    assert distance == 1
+    assert details["exact"] is True
+    assert details["checkpoint_reset"] is True
+    assert reason in details["checkpoint_reset_reason"]
+    assert archive.name == (
+        f"{checkpoint.name}.incompatible-{original_sha256}.json"
+    )
+    assert archive.read_bytes() == original_bytes
+    assert json.loads(checkpoint.read_text())["status"] == "exact"
+
+
+def test_css_checkpoint_reset_does_not_catch_fresh_solver_failure(
+    tmp_path, monkeypatch,
+):
+    matrices = _css_matrices()
+    monkeypatch.setattr(
+        distance_milp, "get_code_matrices", lambda _code: matrices
+    )
+    calls = []
+
+    def broken_fresh_solver(*_args, **_kwargs):
+        calls.append(1)
+        raise RuntimeError("fresh solver bug")
+
+    monkeypatch.setattr(distance_milp, "ilp_min_weight", broken_fresh_solver)
+    checkpoint = tmp_path / "fresh-failure.json"
+    original_bytes = b'{"direction_results":'
+    checkpoint.write_bytes(original_bytes)
+    original_sha256 = hashlib.sha256(original_bytes).hexdigest()
+
+    with pytest.raises(RuntimeError, match="fresh solver bug"):
+        distance_milp.compute_distance_milp(
+            DummyCssCode(),
+            early_stop=None,
+            timeout_per_logical=1,
+            total_timeout=10,
+            checkpoint_path=checkpoint,
+            checkpoint_identity={"candidate": "fresh-failure"},
+            reset_incompatible_checkpoint=True,
+        )
+
+    archives = list(
+        tmp_path.glob(f"{checkpoint.name}.incompatible-*.json")
+    )
+    assert calls == [1]
+    assert len(archives) == 1
+    assert archives[0].name == (
+        f"{checkpoint.name}.incompatible-{original_sha256}.json"
+    )
+    assert archives[0].read_bytes() == original_bytes
+    assert json.loads(checkpoint.read_text())["status"] == "running"
+
+
 def test_css_checkpoint_none_to_finite_hard_timeout_reuses_only_optimal(
     tmp_path, monkeypatch,
 ):
@@ -912,6 +1146,7 @@ def test_css_checkpoint_lock_rejects_symlink_and_non_regular_file(
             total_timeout=10,
             checkpoint_path=checkpoint,
             checkpoint_identity={"candidate": f"unsafe-{lock_kind}"},
+            reset_incompatible_checkpoint=True,
         )
     assert not checkpoint.exists()
     if target is not None:
@@ -953,6 +1188,7 @@ def test_css_checkpoint_file_rejects_symlink_and_non_regular_file(
             checkpoint_identity={
                 "candidate": f"unsafe-checkpoint-{checkpoint_kind}"
             },
+            reset_incompatible_checkpoint=True,
         )
     if target is not None:
         assert target.read_text() == "must-not-change"

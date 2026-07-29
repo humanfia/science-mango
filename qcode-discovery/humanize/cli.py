@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .flow import FlowConfig, HumanizeFlow
+from .pipeline_process import validate_run_id
 
 
 def _default_run_id() -> str:
@@ -56,9 +57,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     repo_dir = Path(__file__).resolve().parent.parent
+    run_id = validate_run_id(args.run_id or _default_run_id())
     config = FlowConfig(
         repo_dir=repo_dir,
-        run_id=args.run_id or _default_run_id(),
+        run_id=run_id,
         max_rounds=args.rounds,
         iterations_per_round=args.iterations_per_round,
         model=args.model,

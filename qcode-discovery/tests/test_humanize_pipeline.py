@@ -16,10 +16,16 @@ import pytest
 
 import humanize.pipeline as pipeline_module
 from evaluation.final_gate import classify_win
-from humanize.flow import FlowConfig
+from humanize.flow import (
+    FlowConfig,
+    HumanizeFlow,
+    HumanizeRunAlreadyActiveError,
+    _acquire_humanize_run_lease,
+)
 from humanize.pipeline import (
     STAGE_ORDER,
     FiveStagePipeline,
+    PipelineBusyError,
     PipelineConfig,
     PipelineError,
     PipelinePaths,
@@ -239,6 +245,33 @@ class RecordingReviewer:
         }
 
 
+class SharedLeaseProbeReviewer(RecordingReviewer):
+    def __init__(self, repo: Path, candidates: Path, run_id: str):
+        super().__init__()
+        self.repo = repo
+        self.candidates = candidates
+        self.run_id = run_id
+        self.blocked_stages: list[str] = []
+
+    def review(self, stage: str, prompt: str, stage_dir: Path) -> dict:
+        direct = HumanizeFlow(
+            FlowConfig(
+                repo_dir=self.repo,
+                run_id=self.run_id,
+                max_rounds=1,
+                candidate_file=self.candidates,
+            ),
+            reviewer=self,
+        )
+        with pytest.raises(
+            HumanizeRunAlreadyActiveError,
+            match="already active",
+        ):
+            direct.run()
+        self.blocked_stages.append(stage)
+        return super().review(stage, prompt, stage_dir)
+
+
 def _repo(tmp_path: Path) -> tuple[Path, Path]:
     repo = tmp_path / "qcode"
     scripts = repo / "scripts"
@@ -422,6 +455,60 @@ def test_stage2_proof_bypasses_stage3_solver_and_reaches_strict_gate(tmp_path):
         ]
         == 1
     )
+
+
+def test_shared_run_lease_blocks_direct_humanize_through_all_five_stages(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    run_id = "shared-five-stage-lease"
+    config = _config(repo, candidates, run_id=run_id)
+    unresolved = {
+        "canonical_digest": "route-under-shared-lease",
+        "status": "UNRESOLVED",
+    }
+    proven, _ = _certificate(config, "shared-lease-proof")
+    reviewer = SharedLeaseProbeReviewer(repo, candidates, run_id)
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(
+            stage2=[_plan([unresolved])],
+            stage3=[_plan([proven])],
+        ),
+        reviewer=reviewer,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert reviewer.calls == list(STAGE_ORDER)
+    assert reviewer.blocked_stages == list(STAGE_ORDER)
+
+
+def test_pipeline_refuses_to_start_while_direct_humanize_owns_run(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    run_id = "direct-owner-blocks-pipeline"
+    config = _config(repo, candidates, run_id=run_id)
+    direct = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        reviewer=RecordingReviewer(),
+    )
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+
+    with _acquire_humanize_run_lease(direct.store):
+        with pytest.raises(PipelineBusyError) as failure:
+            pipeline.run()
+
+    assert failure.value.classification == "PIPELINE_BUSY"
+    assert pipeline._humanize_run_lease is None
+    assert pipeline.run()["status"] == "COMPLETED_NO_WIN"
 
 
 def test_completed_win_writer_is_exporter_compatible(tmp_path):
@@ -1258,6 +1345,51 @@ def test_foreign_tag_and_magic_pep3147_cache_is_inert(tmp_path):
     cache.unlink()
 
     assert not pipeline_module._is_untrusted_import_artifact(foreign)
+
+
+def test_stage1_real_humanize_inherits_campaign_lease_without_relocking(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "audit_state.py", "state.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(f"# fake {name}\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "stage1-inherited-lease"
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage_review=False,
+    )
+    observed = {}
+
+    def fake_locked(flow):
+        observed["run_id"] = flow.store.run_id
+        return {
+            "status": "search-complete",
+            "candidate_inputs": [str(candidates)],
+        }
+
+    monkeypatch.setattr(HumanizeFlow, "_run_locked", fake_locked)
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        assert pipeline._stage1_inputs() == [candidates.resolve()]
+
+    assert observed == {"run_id": run_id}
 
 
 def test_stage1_pycache_prefix_reaches_spawned_interpreters_and_restores(

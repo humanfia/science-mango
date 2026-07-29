@@ -19,6 +19,7 @@ import threading
 from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
@@ -1531,6 +1532,98 @@ def _normalise_terms(value: Any, label: str) -> list[list[int]]:
     return sorted(terms)
 
 
+@lru_cache(maxsize=4096)
+def _canonical_css_digest_for_definition(
+    ell: int,
+    m: int,
+    a_terms: tuple[tuple[int, int], ...],
+    b_terms: tuple[tuple[int, int], ...],
+) -> str:
+    """Rebuild one CSS BB code and return its authoritative Tanner digest."""
+    from evaluation.bb_code import build_bb_code
+    from evaluation.structural_dedup import canonical_digest
+
+    code = build_bb_code(ell, m, list(a_terms), list(b_terms))
+    digest = canonical_digest(code)
+    if (
+        not isinstance(digest, str)
+        or len(digest) != 64
+        or any(character not in "0123456789abcdef" for character in digest)
+    ):
+        raise ValueError("canonical digest implementation returned invalid data")
+    return digest
+
+
+def _verified_structural_digest(
+    *,
+    ell: int,
+    m: int,
+    a_terms: list[list[int]],
+    b_terms: list[list[int]],
+    reported_digest: Any,
+) -> str | None:
+    """Return only a digest independently derived from the candidate.
+
+    The reported value is never an identity authority, including for legacy
+    rows where it is absent.  Always rebuild the code and canonicalize its
+    colored Tanner graph; a matching report is merely retained verbatim.
+    Failure to perform that independent computation is fail-closed rather than
+    silently trusting attacker-controlled, stale, or missing metadata.
+    """
+    if reported_digest is not None and (
+        not isinstance(reported_digest, str) or not reported_digest
+    ):
+        raise AuditStateError("canonical_digest must be a non-empty string")
+    try:
+        recomputed = _canonical_css_digest_for_definition(
+            ell,
+            m,
+            tuple(tuple(term) for term in a_terms),
+            tuple(tuple(term) for term in b_terms),
+        )
+    except Exception as exc:
+        raise AuditStateError(
+            "canonical_digest could not be independently recomputed"
+        ) from exc
+    if reported_digest is None:
+        return recomputed
+    if reported_digest == recomputed:
+        return reported_digest
+    # A stale or forged report is not fatal because the candidate definition
+    # is still available.  Replace it with the independently derived identity
+    # so this row cannot hide another candidate by choosing its digest.
+    return recomputed
+
+
+def authoritative_candidate_digest(row: Mapping[str, Any]) -> str:
+    """Return a definition-derived Tanner digest, ignoring report authority.
+
+    ``structural_novelty.canonical_digest`` may be absent on legacy rows or may
+    be stale/forged.  It is type-checked when present but never controls the
+    returned identity.
+    """
+    ell = _strict_int(row.get("ell"), "ell", minimum=1)
+    m = _strict_int(row.get("m"), "m", minimum=1)
+    a_terms = _normalise_terms(row.get("A_terms"), "A_terms")
+    b_terms = _normalise_terms(row.get("B_terms"), "B_terms")
+    novelty = row.get("structural_novelty")
+    if novelty is not None and not isinstance(novelty, Mapping):
+        raise AuditStateError("structural_novelty must be an object")
+    reported = novelty.get("canonical_digest") if novelty else None
+    digest = _verified_structural_digest(
+        ell=ell,
+        m=m,
+        a_terms=a_terms,
+        b_terms=b_terms,
+        reported_digest=reported,
+    )
+    if digest is None:
+        # _verified_structural_digest always recomputes; keep this guard so a
+        # future implementation cannot silently disable structural identity.
+        raise AuditStateError("canonical_digest recomputation returned no digest")
+    return digest
+
+
 def _candidate_snapshot(row: Mapping[str, Any]) -> tuple[str, str | None, dict[str, Any]]:
     ell = _strict_int(row.get("ell"), "ell", minimum=1)
     m = _strict_int(row.get("m"), "m", minimum=1)
@@ -1547,12 +1640,9 @@ def _candidate_snapshot(row: Mapping[str, Any]) -> tuple[str, str | None, dict[s
     if reported_key is not None and reported_key != key:
         raise AuditStateError("candidate_key does not match the candidate definition")
 
-    novelty = row.get("structural_novelty")
-    if novelty is not None and not isinstance(novelty, Mapping):
-        raise AuditStateError("structural_novelty must be an object")
-    digest = novelty.get("canonical_digest") if novelty else None
-    if digest is not None and (not isinstance(digest, str) or not digest):
-        raise AuditStateError("canonical_digest must be a non-empty string")
+    digest = authoritative_candidate_digest(defining | {
+        "structural_novelty": row.get("structural_novelty"),
+    })
 
     snapshot_fields = (
         "n",
@@ -1570,6 +1660,17 @@ def _candidate_snapshot(row: Mapping[str, Any]) -> tuple[str, str | None, dict[s
     for name in snapshot_fields:
         if name in row:
             snapshot[name] = copy.deepcopy(row[name])
+    if digest is not None:
+        # Persist the independently recomputed value in retry state.  This
+        # makes a stale report self-healing and prevents a later validation
+        # from seeing two conflicting identities for the same definition.
+        snapshot_novelty = snapshot.get("structural_novelty")
+        if snapshot_novelty is None:
+            snapshot_novelty = {}
+            snapshot["structural_novelty"] = snapshot_novelty
+        if not isinstance(snapshot_novelty, dict):
+            raise AuditStateError("structural_novelty must be an object")
+        snapshot_novelty["canonical_digest"] = digest
     _canonical_json(snapshot, "candidate snapshot")
     snapshot["candidate_key"] = key
     return key, digest, snapshot
@@ -1967,7 +2068,7 @@ def rebuild_audit_state(
     fully_exact: FullyExact | None = None,
     checkpoint_path_for: CheckpointPathFor | None = None,
 ) -> RebuiltAuditState:
-    """Rebuild terminal sets and the retry queue from evaluation history."""
+    """Rebuild retry state using only definition-derived structural digests."""
     terminal_keys: set[str] = set()
     terminal_digests: set[str] = set()
     unresolved: dict[str, dict[str, Any]] = {}

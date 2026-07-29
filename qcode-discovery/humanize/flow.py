@@ -16,6 +16,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
@@ -25,6 +26,7 @@ from typing import Any, Callable, Iterator, Protocol
 
 from .audit_state import (
     AuditStateError,
+    authoritative_candidate_digest,
     is_fully_exact,
     rebuild_audit_state,
     retry_budget,
@@ -86,6 +88,10 @@ class RoundTransactionError(RuntimeError):
     """A round cannot be replayed without risking duplicate evolution work."""
 
 
+class HumanizeRunAlreadyActiveError(RoundTransactionError):
+    """Another process owns the same Humanize run identity."""
+
+
 class UnresolvedAuditError(RuntimeError):
     """Stage 1 exhausted its rounds with winner-capable audits unresolved."""
 
@@ -137,6 +143,12 @@ class FlowConfig:
         return value
 
     def validate(self) -> None:
+        # RunStore.create() applies the same strict validator.  Validate here
+        # as well so no evolution, candidate, or state path can be constructed
+        # from an identity that would later be rewritten.
+        from .pipeline_process import validate_run_id
+
+        validate_run_id(self.run_id)
         if self.max_rounds < 1:
             raise ValueError("max_rounds must be positive")
         if self.iterations_per_round < 1 and self.candidate_file is None:
@@ -486,6 +498,201 @@ def _slice_witness_path(round_dir: Path) -> Path:
 
 def _round_lifecycle_lock_path(round_dir: Path) -> Path:
     return round_dir / "openevolve-lifecycle.lock"
+
+
+@dataclass(frozen=True)
+class _HumanizeRunLease:
+    fd: int
+    path: Path
+    owner_pid: int
+    token: object
+
+
+_HUMANIZE_RUN_LEASE_REGISTRY_LOCK = threading.RLock()
+_ACTIVE_HUMANIZE_RUN_LEASES: dict[object, _HumanizeRunLease] = {}
+
+
+def _validate_humanize_run_lease_inode(
+    root_fd: int,
+    root_path: Path,
+    lock_fd: int,
+    lock_name: str,
+) -> None:
+    """Bind an acquired descriptor to one regular file in the fixed run root."""
+    try:
+        descriptor_root = os.fstat(root_fd)
+        path_root = os.stat(root_path, follow_symlinks=False)
+        descriptor_lock = os.fstat(lock_fd)
+        path_lock = os.stat(
+            lock_name,
+            dir_fd=root_fd,
+            follow_symlinks=False,
+        )
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"cannot validate Humanize run lease: {root_path / lock_name}: {exc}"
+        ) from exc
+    if (
+        not stat.S_ISDIR(descriptor_root.st_mode)
+        or not stat.S_ISDIR(path_root.st_mode)
+        or (descriptor_root.st_dev, descriptor_root.st_ino)
+        != (path_root.st_dev, path_root.st_ino)
+    ):
+        raise RoundTransactionError(
+            f"Humanize run root was replaced or is unsafe: {root_path}"
+        )
+    if (
+        not stat.S_ISREG(descriptor_lock.st_mode)
+        or not stat.S_ISREG(path_lock.st_mode)
+    ):
+        raise RoundTransactionError(
+            "Humanize run lease must be a regular file: "
+            f"{root_path / lock_name}"
+        )
+    if (descriptor_lock.st_dev, descriptor_lock.st_ino) != (
+        path_lock.st_dev,
+        path_lock.st_ino,
+    ):
+        raise RoundTransactionError(
+            f"Humanize run lease path was replaced: {root_path / lock_name}"
+        )
+
+
+def _validate_inherited_humanize_run_lease(
+    store: RunStore,
+    lease: _HumanizeRunLease,
+) -> None:
+    """Accept only the exact active in-process lease for this run."""
+    if not isinstance(lease, _HumanizeRunLease):
+        raise RoundTransactionError("inherited Humanize run lease has invalid type")
+    expected_path = store.lock_path.absolute()
+    if lease.path != expected_path or lease.owner_pid != os.getpid():
+        raise RoundTransactionError(
+            "inherited Humanize run lease belongs to a different run or process"
+        )
+    with _HUMANIZE_RUN_LEASE_REGISTRY_LOCK:
+        if _ACTIVE_HUMANIZE_RUN_LEASES.get(lease.token) is not lease:
+            raise RoundTransactionError(
+                "inherited Humanize run lease is not currently active"
+            )
+
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RoundTransactionError("O_NOFOLLOW is required for Humanize run leases")
+    root_path = store.root.absolute()
+    root_flags = (
+        os.O_RDONLY
+        | getattr(os, "O_DIRECTORY", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+        | nofollow
+    )
+    try:
+        root_fd = os.open(root_path, root_flags)
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"cannot validate inherited Humanize run root: {root_path}: {exc}"
+        ) from exc
+    try:
+        _validate_humanize_run_lease_inode(
+            root_fd,
+            root_path,
+            lease.fd,
+            expected_path.name,
+        )
+    finally:
+        os.close(root_fd)
+
+
+@contextmanager
+def _acquire_humanize_run_lease(
+    store: RunStore,
+) -> Iterator[_HumanizeRunLease]:
+    """Exclusively own one direct Humanize run for its complete execution."""
+    root_path = store.root.absolute()
+    lock_path = store.lock_path.absolute()
+    if lock_path.parent != root_path or lock_path.name != "run.lock":
+        raise RoundTransactionError(
+            f"Humanize run lease path is outside its fixed run root: {lock_path}"
+        )
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RoundTransactionError("O_NOFOLLOW is required for Humanize run leases")
+
+    root_flags = (
+        os.O_RDONLY
+        | getattr(os, "O_DIRECTORY", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+        | nofollow
+    )
+    try:
+        root_fd = os.open(root_path, root_flags)
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"cannot open Humanize run root for its lease: {root_path}: {exc}"
+        ) from exc
+
+    lock_fd: int | None = None
+    locked = False
+    try:
+        lock_flags = (
+            os.O_RDWR
+            | os.O_CREAT
+            | getattr(os, "O_CLOEXEC", 0)
+            | getattr(os, "O_NONBLOCK", 0)
+            | nofollow
+        )
+        try:
+            lock_fd = os.open(
+                lock_path.name,
+                lock_flags,
+                0o600,
+                dir_fd=root_fd,
+            )
+        except OSError as exc:
+            raise RoundTransactionError(
+                f"cannot open Humanize run lease: {lock_path}: {exc}"
+            ) from exc
+        _validate_humanize_run_lease_inode(
+            root_fd,
+            root_path,
+            lock_fd,
+            lock_path.name,
+        )
+        try:
+            fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise HumanizeRunAlreadyActiveError(
+                f"Humanize run {store.run_id!r} is already active"
+            ) from exc
+        locked = True
+        _validate_humanize_run_lease_inode(
+            root_fd,
+            root_path,
+            lock_fd,
+            lock_path.name,
+        )
+        lease = _HumanizeRunLease(
+            fd=lock_fd,
+            path=lock_path,
+            owner_pid=os.getpid(),
+            token=object(),
+        )
+        with _HUMANIZE_RUN_LEASE_REGISTRY_LOCK:
+            _ACTIVE_HUMANIZE_RUN_LEASES[lease.token] = lease
+        try:
+            yield lease
+        finally:
+            with _HUMANIZE_RUN_LEASE_REGISTRY_LOCK:
+                if _ACTIVE_HUMANIZE_RUN_LEASES.get(lease.token) is lease:
+                    del _ACTIVE_HUMANIZE_RUN_LEASES[lease.token]
+    finally:
+        if lock_fd is not None:
+            try:
+                if locked:
+                    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+            finally:
+                os.close(lock_fd)
+        os.close(root_fd)
 
 
 @dataclass(frozen=True)
@@ -1685,7 +1892,11 @@ def select_for_milp(
             continue
         if novelty and novelty.get("novel") is not True:
             continue
-        digest = novelty.get("canonical_digest")
+        digest = (
+            authoritative_candidate_digest(row)
+            if audited_digests
+            else None
+        )
         if audited_digests and digest and digest in audited_digests:
             continue
         eligible.append(row)
@@ -3970,7 +4181,31 @@ class HumanizeFlow:
             ]) + "\n"
         )
 
-    def run(self) -> dict[str, Any]:
+    def run(
+        self,
+        *,
+        inherited_run_lease: _HumanizeRunLease | None = None,
+    ) -> dict[str, Any]:
+        # The direct Humanize CLI and candidate-file mode do not necessarily
+        # have an outer owner. The five-stage pipeline, however, holds the same
+        # lease through Stages 1-5 and passes its exact active lease here so
+        # Stage 1 does not deadlock by attempting a second flock.
+        if inherited_run_lease is not None:
+            _validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
+            return self._run_with_active_lease()
+        with _acquire_humanize_run_lease(self.store):
+            return self._run_with_active_lease()
+
+    def _run_with_active_lease(self) -> dict[str, Any]:
+        # __init__ may have happened before a previous owner completed. Reload
+        # the archive only after this run is known to own (or inherit) its lease.
+        self.archive = EliteArchive(self.store.archive_path)
+        return self._run_locked()
+
+    def _run_locked(self) -> dict[str, Any]:
         serialized_config = self.config.serializable()
         existing = self.store.load_state()
         if existing is not None:

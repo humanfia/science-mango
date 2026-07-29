@@ -8,9 +8,11 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+import humanize.audit_state as audit_state
 from humanize.audit_state import (
     AuditOutcome,
     AuditStateError,
+    authoritative_candidate_digest,
     classify_evaluation,
     create_unresolved_entry,
     is_fully_exact,
@@ -511,13 +513,20 @@ def test_legacy_rebuild_downgrades_all_unsealed_terminal_claims():
     assert fields["audited_keys"] == sorted(rebuilt.terminal_keys)
 
 
-def test_legacy_exact_digest_is_only_an_unresolved_representative():
+def test_forged_digest_cannot_collapse_distinct_legacy_candidates():
     unresolved = candidate(shift=1, digest="same-structure")
-    terminal = exact(shift=2, digest="same-structure")
+    other = exact(shift=2, digest="same-structure")
 
-    rebuilt = rebuild_audit_state([unresolved, terminal])
+    rebuilt = rebuild_audit_state([unresolved, other])
 
-    assert list(rebuilt.unresolved) == [unresolved["candidate_key"]]
+    assert set(rebuilt.unresolved) == {
+        unresolved["candidate_key"],
+        other["candidate_key"],
+    }
+    assert (
+        rebuilt.unresolved[unresolved["candidate_key"]]["canonical_digest"]
+        != rebuilt.unresolved[other["candidate_key"]]["canonical_digest"]
+    )
     assert rebuilt.terminal_digests == set()
 
 
@@ -599,16 +608,93 @@ def test_explicit_attempt_metadata_is_revalidated_fail_closed(mutation):
         rebuild_audit_state([first, second])
 
 
-def test_unresolved_digest_keeps_one_stable_representative():
+def test_forged_shared_digest_does_not_drop_an_unresolved_candidate():
     first = candidate(shift=1, digest="same-unresolved-structure")
     second = candidate(shift=2, digest="same-unresolved-structure")
 
     rebuilt = rebuild_audit_state([first, second])
 
-    assert list(rebuilt.unresolved) == [first["candidate_key"]]
-    assert rebuilt.unresolved[first["candidate_key"]]["canonical_digest"] == (
-        "same-unresolved-structure"
+    assert set(rebuilt.unresolved) == {
+        first["candidate_key"],
+        second["candidate_key"],
+    }
+    first_digest = rebuilt.unresolved[first["candidate_key"]][
+        "canonical_digest"
+    ]
+    second_digest = rebuilt.unresolved[second["candidate_key"]][
+        "canonical_digest"
+    ]
+    assert first_digest != second_digest
+    assert first_digest != "same-unresolved-structure"
+    assert second_digest != "same-unresolved-structure"
+
+
+def test_missing_and_forged_reports_share_the_definition_derived_digest():
+    missing = candidate(shift=6)
+    forged = candidate(shift=6, digest="attacker-selected")
+
+    missing_digest = authoritative_candidate_digest(missing)
+    forged_digest = authoritative_candidate_digest(forged)
+
+    assert missing_digest == forged_digest
+    assert missing_digest != "attacker-selected"
+    assert len(missing_digest) == 64
+    assert set(missing_digest) <= set("0123456789abcdef")
+
+
+def test_legacy_row_without_novelty_persists_authoritative_retry_identity():
+    row = candidate(shift=7)
+    assert "structural_novelty" not in row
+
+    rebuilt = rebuild_audit_state([row])
+    entry = rebuilt.unresolved[row["candidate_key"]]
+    digest = authoritative_candidate_digest(row)
+
+    assert entry["canonical_digest"] == digest
+    assert entry["candidate"]["structural_novelty"] == {
+        "canonical_digest": digest,
+    }
+
+
+def test_forged_terminal_digest_cannot_hide_unrelated_unresolved(
+    monkeypatch,
+):
+    unresolved = candidate(shift=1, digest="forged-terminal-collision")
+    terminal = exact(shift=2, digest="forged-terminal-collision")
+
+    def disposition(row, **_kwargs):
+        if row["candidate_key"] == terminal["candidate_key"]:
+            return AuditOutcome.EXACT
+        return AuditOutcome.UNRESOLVED_WINNER_NOT_EXCLUDED
+
+    monkeypatch.setattr(audit_state, "classify_evaluation", disposition)
+    rebuilt = rebuild_audit_state([unresolved, terminal])
+
+    assert rebuilt.terminal_keys == {terminal["candidate_key"]}
+    assert set(rebuilt.unresolved) == {unresolved["candidate_key"]}
+    unresolved_digest = rebuilt.unresolved[unresolved["candidate_key"]][
+        "canonical_digest"
+    ]
+    assert unresolved_digest not in rebuilt.terminal_digests
+
+
+def test_digest_recomputation_failure_is_fail_closed(monkeypatch):
+    row = candidate(shift=9, digest="unverified")
+
+    def unavailable(*_args, **_kwargs):
+        raise RuntimeError("BLISS unavailable")
+
+    monkeypatch.setattr(
+        audit_state,
+        "_canonical_css_digest_for_definition",
+        unavailable,
     )
+
+    with pytest.raises(
+        AuditStateError,
+        match="could not be independently recomputed",
+    ):
+        rebuild_audit_state([row])
 
 
 def test_current_three_row_legacy_shape_migrates_as_unresolved():
@@ -646,5 +732,8 @@ def test_legacy_rebuild_rejects_malformed_or_inconsistent_rows():
 
     first = candidate(digest="one")
     second = candidate(digest="two")
-    with pytest.raises(AuditStateError, match="canonical_digest changed"):
-        rebuild_audit_state([first, second])
+    rebuilt = rebuild_audit_state([first, second])
+    assert set(rebuilt.unresolved) == {first["candidate_key"]}
+    entry = rebuilt.unresolved[first["candidate_key"]]
+    assert entry["attempts_completed"] == 2
+    assert entry["canonical_digest"] not in {"one", "two"}

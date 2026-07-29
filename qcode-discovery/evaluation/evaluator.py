@@ -56,16 +56,24 @@ DISTANCE_UNTRUST_RATIO : float
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import logging
 import math
 import os
+import stat
 from fractions import Fraction
 from pathlib import Path
+from typing import Any, Mapping
+
+import numpy as np
 
 from evaluation.bb_code import build_bb_code, validate_terms, get_code_params_fast
 from evaluation.distance import estimate_distance, estimate_distance_osd_cs, compute_distance_exact
 from evaluation.distance_milp import (
+    _implementation_fingerprint as _distance_milp_implementation_fingerprint,
     compute_distance_milp,
+    get_code_matrices,
     symplectic_weight_bound,
     symplectic_weight_witness,
     write_symplectic_weight_checkpoint,
@@ -74,6 +82,15 @@ from evaluation.distance_milp import (
 logger = logging.getLogger(__name__)
 
 SCORE_REJECTED = float("-inf")
+_MILP_CACHE_KIND = "qcode-milp-search-cache-record"
+_MILP_CACHE_SCHEMA_VERSION = 1
+_MILP_CACHE_MAX_RECORD_BYTES = 4 * 1024 * 1024
+try:
+    _EVALUATOR_SOURCE_SHA256 = hashlib.sha256(
+        Path(__file__).read_bytes()
+    ).hexdigest()
+except OSError:
+    _EVALUATOR_SOURCE_SHA256 = None
 
 # Trust boundaries for BP-OSD distance estimates (d/sqrt(n) ratio).
 #
@@ -840,51 +857,543 @@ def _milp_worker(args):
 
 
 def _milp_cache_key(ell: int, m: int, A_terms, B_terms) -> tuple:
-    """Canonical cache key for a BB code (lattice + sorted polynomial terms)."""
-    a = tuple(sorted(tuple(t) for t in A_terms))
-    b = tuple(sorted(tuple(t) for t in B_terms))
-    return (ell, m, a, b)
+    """Return a strictly typed, currently valid BB candidate cache key."""
+    identity = _milp_cache_candidate_identity(
+        {
+            "ell": ell,
+            "m": m,
+            "A_terms": A_terms,
+            "B_terms": B_terms,
+        }
+    )
+    validate_terms(
+        identity["ell"],
+        identity["m"],
+        identity["A_terms"],
+        "A",
+    )
+    validate_terms(
+        identity["ell"],
+        identity["m"],
+        identity["B_terms"],
+        "B",
+    )
+    a = tuple(tuple(term) for term in identity["A_terms"])
+    b = tuple(tuple(term) for term in identity["B_terms"])
+    return (identity["ell"], identity["m"], a, b)
 
 
-def _load_milp_cache(path: str | None) -> dict[tuple, dict]:
-    """Load MILP results cache from a JSONL file.
+def _milp_cache_json(value: Any) -> bytes:
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode()
 
-    Returns a dict mapping cache keys to result dicts.  Only caches
-    results with d > 0 (successful solves).  For duplicate keys, keeps
-    the best result: exact beats non-exact; among same exactness, lower
-    d (tighter upper bound) wins.
+
+def _milp_cache_sha256(value: Any) -> str:
+    return hashlib.sha256(_milp_cache_json(value)).hexdigest()
+
+
+def _milp_cache_json_loads(text: str) -> Any:
+    def reject_duplicate_keys(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError(f"duplicate MILP cache key: {key!r}")
+            value[key] = item
+        return value
+
+    def reject_non_finite(value):
+        raise ValueError(f"non-finite MILP cache number: {value}")
+
+    return json.loads(
+        text,
+        object_pairs_hook=reject_duplicate_keys,
+        parse_constant=reject_non_finite,
+    )
+
+
+def _milp_cache_run_parameters(
+    *,
+    milp_timeout_per_logical: int,
+    milp_total_timeout: int,
+    milp_early_stop: int | None,
+) -> dict[str, Any]:
+    if (
+        isinstance(milp_timeout_per_logical, bool)
+        or not isinstance(milp_timeout_per_logical, int)
+        or milp_timeout_per_logical < 1
+    ):
+        raise ValueError("milp_timeout_per_logical must be a positive integer")
+    if (
+        isinstance(milp_total_timeout, bool)
+        or not isinstance(milp_total_timeout, int)
+        or milp_total_timeout < 0
+    ):
+        raise ValueError("milp_total_timeout must be a non-negative integer")
+    if (
+        milp_early_stop is not None
+        and (
+            isinstance(milp_early_stop, bool)
+            or not isinstance(milp_early_stop, int)
+            or milp_early_stop < 0
+        )
+    ):
+        raise ValueError("milp_early_stop must be a non-negative integer or None")
+    return {
+        "timeout_per_logical_s": milp_timeout_per_logical,
+        "total_timeout_s": milp_total_timeout,
+        "early_stop": milp_early_stop,
+    }
+
+
+def _milp_cache_implementation_fingerprint() -> dict[str, Any]:
+    if _EVALUATOR_SOURCE_SHA256 is None:
+        raise RuntimeError("cannot fingerprint evaluator.py for MILP cache")
+    value = {
+        "evaluator_py_sha256": _EVALUATOR_SOURCE_SHA256,
+        "distance_milp": _distance_milp_implementation_fingerprint(),
+        "cache_contract": "witness-replayed-upper-bound-v1",
+    }
+    value["fingerprint_sha256"] = _milp_cache_sha256(value)
+    return value
+
+
+def _milp_cache_candidate_identity(result: Mapping[str, Any]) -> dict[str, Any]:
+    ell = result.get("ell")
+    m = result.get("m")
+    if (
+        isinstance(ell, bool)
+        or not isinstance(ell, int)
+        or ell < 1
+        or isinstance(m, bool)
+        or not isinstance(m, int)
+        or m < 1
+    ):
+        raise ValueError("MILP cache candidate lattice is invalid")
+
+    def terms(name: str) -> list[list[int]]:
+        raw = result.get(name)
+        if not isinstance(raw, list) or not 2 <= len(raw) <= 6:
+            raise ValueError(f"MILP cache candidate {name} is invalid")
+        canonical: list[list[int]] = []
+        for term in raw:
+            if (
+                not isinstance(term, (list, tuple))
+                or len(term) != 2
+                or any(
+                    isinstance(value, bool) or not isinstance(value, int)
+                    for value in term
+                )
+            ):
+                raise ValueError(f"MILP cache candidate {name} is invalid")
+            canonical.append([int(term[0]), int(term[1])])
+        return sorted(canonical)
+
+    return {
+        "ell": ell,
+        "m": m,
+        "A_terms": terms("A_terms"),
+        "B_terms": terms("B_terms"),
+    }
+
+
+def _milp_cache_evidence(result: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
+    symplectic = result.get("symplectic_weight_witness")
+    if isinstance(symplectic, dict):
+        return "symplectic_logical_witness", copy.deepcopy(symplectic)
+    details = result.get("milp_details")
+    if isinstance(details, Mapping):
+        witness = details.get("minimum_direction_witness")
+        if isinstance(witness, dict):
+            return "css_direction_witness", copy.deepcopy(witness)
+    raise ValueError("MILP cache result has no replayable upper-bound witness")
+
+
+def _milp_cache_record(
+    result: Mapping[str, Any],
+    *,
+    run_parameters: Mapping[str, Any],
+    saved_at: float,
+) -> dict[str, Any]:
+    """Return a source/budget/result-bound JSONL record.
+
+    The hash is corruption evidence, not authorization. Cache reuse separately
+    rebuilds the code and replays the embedded logical witness, and never
+    inherits a general exact lower-bound claim from disk.
     """
-    import json
-    from pathlib import Path
+    body = copy.deepcopy(dict(result))
+    body.pop("_milp_cache", None)
+    body["_saved_at"] = float(saved_at)
+    identity = _milp_cache_candidate_identity(body)
+    evidence_kind, evidence = _milp_cache_evidence(body)
+    metadata = {
+        "kind": _MILP_CACHE_KIND,
+        "schema_version": _MILP_CACHE_SCHEMA_VERSION,
+        "implementation": _milp_cache_implementation_fingerprint(),
+        "run_parameters": copy.deepcopy(dict(run_parameters)),
+        "candidate_identity": identity,
+        "candidate_sha256": _milp_cache_sha256(identity),
+        "evidence_kind": evidence_kind,
+        "evidence_sha256": _milp_cache_sha256(evidence),
+        "result_sha256": _milp_cache_sha256(body),
+    }
+    body["_milp_cache"] = metadata
+    return body
+
+
+def _replay_cached_upper_bound(
+    result: Mapping[str, Any],
+    *,
+    evidence_kind: str,
+) -> tuple[int, int, int, bool, dict[str, Any]] | None:
+    """Rebuild the code and replay one feasible logical upper-bound witness."""
+    try:
+        identity = _milp_cache_candidate_identity(result)
+        validate_terms(
+            identity["ell"],
+            identity["m"],
+            identity["A_terms"],
+            "A",
+        )
+        validate_terms(
+            identity["ell"],
+            identity["m"],
+            identity["B_terms"],
+            "B",
+        )
+        code = build_bb_code(
+            identity["ell"],
+            identity["m"],
+            identity["A_terms"],
+            identity["B_terms"],
+        )
+        n, k = get_code_params_fast(code)
+        distance = result.get("d")
+        if (
+            isinstance(distance, bool)
+            or not isinstance(distance, int)
+            or distance < 1
+            or distance > n
+            or result.get("n") != n
+            or result.get("k") != k
+            or k < MIN_K_THRESHOLD
+        ):
+            return None
+        if evidence_kind == "symplectic_logical_witness":
+            raw = result.get("symplectic_weight_witness")
+            if not isinstance(raw, Mapping):
+                return None
+            replayed = symplectic_weight_witness(code, distance)
+            if (
+                replayed is None
+                or _milp_cache_json(replayed) != _milp_cache_json(dict(raw))
+            ):
+                return None
+            return n, k, distance, distance <= 2, replayed
+        if evidence_kind != "css_direction_witness":
+            return None
+        details = result.get("milp_details")
+        if not isinstance(details, Mapping):
+            return None
+        witness = details.get("minimum_direction_witness")
+        if not isinstance(witness, Mapping) or set(witness) != {
+            "side",
+            "index",
+            "weight",
+            "bits",
+        }:
+            return None
+        side = witness.get("side")
+        index = witness.get("index")
+        weight = witness.get("weight")
+        bits = witness.get("bits")
+        if (
+            side not in {"X", "Z"}
+            or isinstance(index, bool)
+            or not isinstance(index, int)
+            or index < 0
+            or isinstance(weight, bool)
+            or not isinstance(weight, int)
+            or weight != distance
+            or not isinstance(bits, list)
+            or len(bits) != n
+            or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+            or sum(bits) != distance
+        ):
+            return None
+        hx, hz, lx, lz = get_code_matrices(code)
+        vector = np.asarray(bits, dtype=np.uint8)
+        checks, duals = (hz, lz) if side == "X" else (hx, lx)
+        if index >= len(duals):
+            return None
+        if np.any((np.asarray(checks, dtype=np.uint8) @ vector) % 2):
+            return None
+        if int(np.dot(np.asarray(duals[index], dtype=np.uint8), vector) % 2) != 1:
+            return None
+        canonical_witness = {
+            "side": side,
+            "index": index,
+            "weight": weight,
+            "bits": list(bits),
+        }
+        return n, k, distance, False, canonical_witness
+    except (KeyError, TypeError, ValueError, RuntimeError, ArithmeticError):
+        return None
+
+
+def _validated_milp_cache_result(
+    raw: Any,
+    *,
+    implementation: Mapping[str, Any],
+    run_parameters: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    metadata = raw.get("_milp_cache")
+    required = {
+        "kind",
+        "schema_version",
+        "implementation",
+        "run_parameters",
+        "candidate_identity",
+        "candidate_sha256",
+        "evidence_kind",
+        "evidence_sha256",
+        "result_sha256",
+    }
+    if not isinstance(metadata, dict) or set(metadata) != required:
+        return None
+    if (
+        metadata.get("kind") != _MILP_CACHE_KIND
+        or metadata.get("schema_version") != _MILP_CACHE_SCHEMA_VERSION
+        or metadata.get("implementation") != dict(implementation)
+        or metadata.get("run_parameters") != dict(run_parameters)
+    ):
+        return None
+    try:
+        body = copy.deepcopy(raw)
+        body.pop("_milp_cache", None)
+        identity = _milp_cache_candidate_identity(body)
+        evidence_kind, evidence = _milp_cache_evidence(body)
+        if (
+            metadata.get("candidate_identity") != identity
+            or metadata.get("candidate_sha256") != _milp_cache_sha256(identity)
+            or metadata.get("evidence_kind") != evidence_kind
+            or metadata.get("evidence_sha256") != _milp_cache_sha256(evidence)
+            or metadata.get("result_sha256") != _milp_cache_sha256(body)
+        ):
+            return None
+    except Exception:
+        return None
+    try:
+        replayed = _replay_cached_upper_bound(
+            body,
+            evidence_kind=evidence_kind,
+        )
+    except Exception:
+        return None
+    if replayed is None:
+        return None
+    n, k, distance, structurally_exact, replayed_evidence = replayed
+    cutoff = run_parameters.get("early_stop")
+    if not structurally_exact and (cutoff is None or distance > cutoff):
+        # A high-distance row needs a fresh lower-bound solve. Reusing it would
+        # turn an old incumbent or unverified exact flag into permanent state.
+        return None
+
+    # Reconstruct a minimal result instead of returning the persisted body.
+    # The metadata hashes are deliberately unkeyed corruption checks, so a
+    # writer who controls the JSONL file could recompute them. Only fields
+    # independently rebuilt or witness-replayed here may cross the boundary.
+    result = {
+        **copy.deepcopy(identity),
+        "n": n,
+        "k": k,
+        "d": distance,
+        "d_is_exact": structurally_exact,
+        "distance_trusted": True,
+        "distance_status": "exact" if structurally_exact else "upper_bound",
+        "fom": compute_fom(n, k, distance),
+        "encoding_rate": k / n,
+        "milp_effective_early_stop": cutoff,
+        "milp_solver_attempted": False,
+        "milp_cache_replayed": True,
+        "stage": (
+            "milp_cache_structural_d2"
+            if structurally_exact
+            else "milp_cache_witness_upper_bound"
+        ),
+    }
+    result["score"] = result["fom"]
+    if evidence_kind == "symplectic_logical_witness":
+        result["d_symplectic"] = distance
+        result["symplectic_weight_witness"] = copy.deepcopy(
+            replayed_evidence
+        )
+    else:
+        result["milp_details"] = {
+            "exact": False,
+            "cache_replayed": True,
+            "minimum_direction_witness": copy.deepcopy(
+                replayed_evidence
+            ),
+        }
+    return result
+
+
+def _open_milp_cache_stream(path: Path):
+    """Open one unchanged regular cache file without following its last link."""
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        current = os.stat(path, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or not stat.S_ISREG(current.st_mode)
+            or (opened.st_dev, opened.st_ino)
+            != (current.st_dev, current.st_ino)
+        ):
+            raise OSError(f"MILP cache is not one fixed regular file: {path}")
+        stream = os.fdopen(descriptor, "rb")
+        descriptor = -1
+        return stream
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _bounded_milp_cache_lines(stream):
+    """Yield independent JSONL records without allocating an unbounded line."""
+    limit = _MILP_CACHE_MAX_RECORD_BYTES
+    while True:
+        line = stream.readline(limit + 1)
+        if not line:
+            return
+        if len(line) > limit:
+            while line and not line.endswith(b"\n"):
+                line = stream.readline(limit + 1)
+            continue
+        yield line
+
+
+def _append_milp_cache_record(path: Path, encoded: str) -> None:
+    """Append one complete record to a fixed regular file without link follow."""
+    flags = (
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_APPEND
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    descriptor = os.open(path, flags, 0o600)
+    try:
+        opened = os.fstat(descriptor)
+        current = os.stat(path, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or not stat.S_ISREG(current.st_mode)
+            or (opened.st_dev, opened.st_ino)
+            != (current.st_dev, current.st_ino)
+        ):
+            raise OSError(f"MILP cache is not one fixed regular file: {path}")
+        payload = ("\n" + encoded + "\n").encode("utf-8")
+        written = os.write(descriptor, payload)
+        if written != len(payload):
+            raise OSError(
+                f"short MILP cache append: wrote {written}/{len(payload)} bytes"
+            )
+    finally:
+        os.close(descriptor)
+
+
+def _load_milp_cache(
+    path: str | None,
+    *,
+    milp_timeout_per_logical: int,
+    milp_total_timeout: int,
+    milp_early_stop: int | None,
+    requested_keys: set[tuple],
+) -> dict[tuple, dict]:
+    """Load only current, bound records with independently replayed witnesses."""
 
     cache: dict[tuple, dict] = {}
     if not path:
         return cache
+    if not requested_keys:
+        return cache
+    run_parameters = _milp_cache_run_parameters(
+        milp_timeout_per_logical=milp_timeout_per_logical,
+        milp_total_timeout=milp_total_timeout,
+        milp_early_stop=milp_early_stop,
+    )
     p = Path(path)
-    if not p.exists():
+    try:
+        metadata = p.lstat()
+    except FileNotFoundError:
+        return cache
+    except OSError as e:
+        logger.warning("MILP cache inspect error: %s", e)
+        return cache
+    if not stat.S_ISREG(metadata.st_mode):
+        logger.warning("MILP cache is not a regular file: %s", p)
         return cache
     try:
-        for line in p.read_text().splitlines():
-            if not line.strip():
-                continue
-            try:
-                r = json.loads(line)
-            except json.JSONDecodeError:
-                continue  # Skip corrupted lines, don't abort
-            if r.get("d", 0) <= 0:
-                continue
-            key = _milp_cache_key(r["ell"], r["m"], r["A_terms"], r["B_terms"])
-            existing = cache.get(key)
-            if existing is None:
-                cache[key] = r
-            elif r.get("d_is_exact") and not existing.get("d_is_exact"):
-                # Exact result always beats non-exact
-                cache[key] = r
-            elif not r.get("d_is_exact") and existing.get("d_is_exact"):
-                pass  # Keep the exact result
-            elif r.get("d", 0) < existing.get("d", 0):
-                # Same exactness: lower d is tighter (better upper bound)
-                cache[key] = r
+        implementation = _milp_cache_implementation_fingerprint()
+    except Exception as e:
+        # The cache is only an optimization. An unreadable source fingerprint
+        # must never prevent a fresh solve.
+        logger.warning("MILP cache fingerprint unavailable: %s", e)
+        return cache
+    try:
+        with _open_milp_cache_stream(p) as stream:
+            for raw_line in _bounded_milp_cache_lines(stream):
+                if not raw_line.strip():
+                    continue
+                try:
+                    line = raw_line.decode("utf-8")
+                    raw = _milp_cache_json_loads(line)
+                    if not isinstance(raw, Mapping):
+                        continue
+                    row_key = _milp_cache_key(
+                        raw.get("ell"),
+                        raw.get("m"),
+                        raw.get("A_terms"),
+                        raw.get("B_terms"),
+                    )
+                    if row_key not in requested_keys:
+                        continue
+                    result = _validated_milp_cache_result(
+                        raw,
+                        implementation=implementation,
+                        run_parameters=run_parameters,
+                    )
+                except Exception:
+                    # Treat each JSONL row as an independent cache record. One
+                    # torn, hostile, or non-UTF-8 append must neither discard
+                    # earlier proofs nor prevent a fresh solve.
+                    continue
+                if result is None:
+                    continue
+                key = _milp_cache_key(
+                    result["ell"],
+                    result["m"],
+                    result["A_terms"],
+                    result["B_terms"],
+                )
+                existing = cache.get(key)
+                if existing is None or result["d"] < existing["d"]:
+                    cache[key] = result
     except OSError as e:
         logger.warning("MILP cache load error: %s", e)
     return cache
@@ -937,14 +1446,39 @@ def evaluate_milp_parallel(
     max_workers = max(1, max_workers)
 
     # ── Load MILP cache from previous results ──────────────────────
-    cache = _load_milp_cache(save_path)
+    run_parameters = _milp_cache_run_parameters(
+        milp_timeout_per_logical=milp_timeout_per_logical,
+        milp_total_timeout=milp_total_timeout,
+        milp_early_stop=milp_early_stop,
+    )
+    requested_cache_keys: set[tuple] = set()
+    for ell, m, A_terms, B_terms in tasks:
+        try:
+            requested_cache_keys.add(
+                _milp_cache_key(ell, m, A_terms, B_terms)
+            )
+        except Exception:
+            # Invalid or non-canonical task inputs must take the ordinary
+            # evaluator path; Python's bool/int or float/int equality must
+            # never let them alias a valid persisted identity.
+            continue
+    cache = _load_milp_cache(
+        save_path,
+        milp_timeout_per_logical=milp_timeout_per_logical,
+        milp_total_timeout=milp_total_timeout,
+        milp_early_stop=milp_early_stop,
+        requested_keys=requested_cache_keys,
+    )
 
     # Separate cached vs uncached tasks
     cached_results = []
     uncached_tasks = []
     for ell, m, A_terms, B_terms in tasks:
-        key = _milp_cache_key(ell, m, A_terms, B_terms)
-        cached = cache.get(key)
+        try:
+            key = _milp_cache_key(ell, m, A_terms, B_terms)
+        except Exception:
+            key = None
+        cached = cache.get(key) if key is not None else None
         if cached is not None:
             cached_results.append(cached)
         else:
@@ -1012,11 +1546,29 @@ def evaluate_milp_parallel(
 
             # Incremental save: append to JSONL immediately
             if save_file and result.get("d", 0) > 0:
-                result["_saved_at"] = _time.time()
                 try:
-                    with open(save_file, "a") as f:
-                        f.write(json.dumps(result, default=str) + "\n")
-                except OSError:
+                    try:
+                        persisted = _milp_cache_record(
+                            result,
+                            run_parameters=run_parameters,
+                            saved_at=_time.time(),
+                        )
+                    except (TypeError, ValueError, RuntimeError, ArithmeticError):
+                        # Keep the candidate history even when it has no
+                        # replayable cache evidence. Such a row is deliberately
+                        # ignored by future cache loads.
+                        persisted = copy.deepcopy(result)
+                        persisted["_saved_at"] = _time.time()
+                    encoded = json.dumps(
+                        persisted,
+                        default=str,
+                        allow_nan=False,
+                    )
+                    # A leading separator keeps this complete record
+                    # recoverable even if a killed predecessor left a
+                    # truncated final line without its newline.
+                    _append_milp_cache_record(save_file, encoded)
+                except (OSError, TypeError, ValueError):
                     pass  # Don't fail evaluation over persistence
 
             # Log progress

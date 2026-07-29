@@ -24,13 +24,20 @@ import tempfile
 import threading
 import types
 import uuid
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
 
-from .flow import FlowConfig, HumanizeFlow
+from .flow import (
+    FlowConfig,
+    HumanizeFlow,
+    HumanizeRunAlreadyActiveError,
+    RoundTransactionError,
+    _HumanizeRunLease,
+    _acquire_humanize_run_lease,
+)
 from .reviewer import CodexReviewer, validate_review
 from .state import RunStore
 
@@ -1019,6 +1026,7 @@ class FiveStagePipeline:
         self.command_runner = command_runner
         self.flow_factory = flow_factory
         self.reviewer = reviewer
+        self._humanize_run_lease: _HumanizeRunLease | None = None
         if self.reviewer is None and config.stage_review:
             self.reviewer = CodexReviewer(
                 repo_dir=config.repo_dir,
@@ -1213,6 +1221,30 @@ class FiveStagePipeline:
             max_total_workers=self.config.max_total_workers,
         )
 
+    def _run_stage1_flow(self, flow: Any) -> Any:
+        """Run Stage 1 under the campaign-wide Humanize lease.
+
+        Real HumanizeFlow implementations explicitly accept the inherited
+        lease. Lightweight factories used by integrations and tests retain
+        their historical zero-argument ``run()`` contract; the pipeline itself
+        still owns the shared lease while those factories execute.
+        """
+        run_lease = self._humanize_run_lease
+        if run_lease is None:
+            raise PipelineError(
+                "PIPELINE_LOCK_REQUIRED",
+                "Stage 1 cannot run without the campaign-wide Humanize lease",
+                stage="stage1_search",
+            )
+        run_method = flow.run
+        try:
+            parameters = inspect.signature(run_method).parameters
+        except (TypeError, ValueError):
+            parameters = {}
+        if "inherited_run_lease" in parameters:
+            return run_method(inherited_run_lease=run_lease)
+        return run_method()
+
     @contextmanager
     def _exclusive_lock(self) -> Iterable[None]:
         root = _reject_symlink_components(
@@ -1271,7 +1303,36 @@ class FiveStagePipeline:
             )
             stream.flush()
             try:
-                yield
+                store = RunStore.create(
+                    self.config.repo_dir / "results",
+                    self.config.run_id,
+                )
+                with ExitStack() as lease_stack:
+                    try:
+                        run_lease = lease_stack.enter_context(
+                            _acquire_humanize_run_lease(store)
+                        )
+                    except HumanizeRunAlreadyActiveError as exc:
+                        raise PipelineBusyError(
+                            "PIPELINE_BUSY",
+                            "another process owns the shared Humanize run lease "
+                            f"for {self.config.run_id!r}",
+                        ) from exc
+                    except RoundTransactionError as exc:
+                        raise PipelineError(
+                            "UNSAFE_CONTROL_PATH",
+                            f"cannot acquire shared Humanize run lease: {exc}",
+                        ) from exc
+                    if self._humanize_run_lease is not None:
+                        raise PipelineError(
+                            "PIPELINE_BUSY",
+                            "pipeline already owns a Humanize run lease",
+                        )
+                    self._humanize_run_lease = run_lease
+                    try:
+                        yield
+                    finally:
+                        self._humanize_run_lease = None
             finally:
                 fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
 
@@ -1880,7 +1941,7 @@ class FiveStagePipeline:
                         try:
                             flow = self.flow_factory(flow_config)
                             flow_holder["flow"] = flow
-                            flow_state = flow.run()
+                            flow_state = self._run_stage1_flow(flow)
                         finally:
                             sys.pycache_prefix = previous_cache_prefix
                             if cache_environment_present:

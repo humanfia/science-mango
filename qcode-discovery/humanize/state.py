@@ -6,12 +6,13 @@ import hashlib
 import json
 import math
 import os
-import re
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
+
+from .pipeline_process import validate_run_id
 
 
 SCHEMA_VERSION = 1
@@ -205,12 +206,17 @@ class RunStore:
 
     @classmethod
     def create(cls, results_dir: Path, run_id: str) -> "RunStore":
-        safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "-", run_id).strip("-")
-        if not safe_id:
-            raise ValueError("run_id must contain at least one safe character")
+        # A run identity is a security boundary, not a display label.  Never
+        # silently rewrite it: doing so lets the config, evolution output, and
+        # durable state refer to different runs.
+        safe_id = validate_run_id(run_id)
         store = cls(results_dir / "humanize" / safe_id, safe_id)
         store.root.mkdir(parents=True, exist_ok=True)
         return store
+
+    @property
+    def lock_path(self) -> Path:
+        return self.root / "run.lock"
 
     @property
     def state_path(self) -> Path:
