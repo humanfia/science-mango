@@ -35,6 +35,7 @@ from .flow import (
     HumanizeFlow,
     HumanizeRunAlreadyActiveError,
     RoundTransactionError,
+    UnresolvedAuditError,
     _HumanizeRunLease,
     _acquire_humanize_run_lease,
 )
@@ -1941,7 +1942,20 @@ class FiveStagePipeline:
                         try:
                             flow = self.flow_factory(flow_config)
                             flow_holder["flow"] = flow
-                            flow_state = self._run_stage1_flow(flow)
+                            try:
+                                flow_state = self._run_stage1_flow(flow)
+                            except UnresolvedAuditError:
+                                store = getattr(flow, "store", None)
+                                loader = getattr(store, "load_state", None)
+                                flow_state = (
+                                    loader() if callable(loader) else None
+                                )
+                                if (
+                                    not isinstance(flow_state, Mapping)
+                                    or flow_state.get("status")
+                                    != "incomplete-unresolved"
+                                ):
+                                    raise
                         finally:
                             sys.pycache_prefix = previous_cache_prefix
                             if cache_environment_present:
@@ -1953,11 +1967,12 @@ class FiveStagePipeline:
                                 os.environ.pop("PYTHONPYCACHEPREFIX", None)
                 if (
                     not isinstance(flow_state, Mapping)
-                    or flow_state.get("status") != "search-complete"
+                    or flow_state.get("status")
+                    not in {"search-complete", "incomplete-unresolved"}
                 ):
                     raise PipelineError(
                         "STAGE1_INCOMPLETE",
-                        "HumanizeFlow did not reach status=search-complete",
+                        "HumanizeFlow produced no auditable Stage 1 handoff",
                         stage=stage,
                     )
                 flow_holder["state"] = flow_state

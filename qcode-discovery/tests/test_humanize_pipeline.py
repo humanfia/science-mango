@@ -20,6 +20,7 @@ from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
     HumanizeRunAlreadyActiveError,
+    UnresolvedAuditError,
     _acquire_humanize_run_lease,
 )
 from humanize.pipeline import (
@@ -1390,6 +1391,60 @@ def test_stage1_real_humanize_inherits_campaign_lease_without_relocking(
         assert pipeline._stage1_inputs() == [candidates.resolve()]
 
     assert observed == {"run_id": run_id}
+
+
+def test_stage1_unresolved_exhaustion_hands_candidates_to_proof_stages(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "audit_state.py", "state.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(f"# fake {name}\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "stage1-unresolved-handoff"
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage_review=False,
+    )
+
+    class DurableStore:
+        @staticmethod
+        def load_state():
+            return {
+                "status": "incomplete-unresolved",
+                "unresolved_candidates": {"candidate": {}},
+            }
+
+    class ExhaustedFlow:
+        store = DurableStore()
+        pipeline_candidate_inputs = (candidates,)
+
+        @staticmethod
+        def run():
+            raise UnresolvedAuditError("exhausted max_rounds")
+
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+        flow_factory=lambda _config: ExhaustedFlow(),
+    )
+
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        assert pipeline._stage1_inputs() == [candidates.resolve()]
+
+    stage1 = pipeline.state["stages"]["stage1_search"]
+    assert stage1["machine_status"] == "COMPLETED"
+    assert stage1["candidate_inputs"] == [str(candidates.resolve())]
 
 
 def test_stage1_pycache_prefix_reaches_spawned_interpreters_and_restores(
