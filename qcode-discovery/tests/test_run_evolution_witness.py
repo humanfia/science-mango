@@ -199,10 +199,10 @@ class FakeDatabase:
         target_island: int | None = None,
     ) -> str:
         del target_island
-        if iteration == self.fail_add_at:
+        if self.fail_add_at is not None and iteration == self.fail_add_at:
             raise RuntimeError("database add failed")
         program.iteration_found = iteration
-        if iteration == self.mutate_at:
+        if self.mutate_at is not None and iteration == self.mutate_at:
             program.code = "content-replaced-after-future"
         self.programs[program.id] = program
         return program.id
@@ -224,6 +224,7 @@ class FakeParallelController:
         self.database = database
         self.shutdown_event = threading.Event()
         self.early_stopping_triggered = False
+        self.num_islands = 2
 
     def request_shutdown(self) -> None:
         self.shutdown_event.set()
@@ -280,6 +281,18 @@ class FakeParallelController:
                     continue
                 child = SimpleNamespace(**result.child_program_dict)
                 self.database.add(child, iteration=iteration)
+                if self.scenario == "migration" and iteration == end:
+                    self.database.add(
+                        SimpleNamespace(
+                            id=f"migrant-{iteration}",
+                            code=child.code,
+                            metrics=dict(child.metrics),
+                            iteration_found=None,
+                            parent_id=child.id,
+                            metadata={"migrant": True, "island": 1},
+                        ),
+                        target_island=1,
+                    )
             except Exception:
                 continue
         if self.scenario == "request_shutdown":
@@ -345,6 +358,59 @@ def test_verified_controller_suppresses_early_end_save_and_saves_after_accountin
         for save in observer.checkpoint_saves[:2]
     )
     assert observer.checkpoint_saves[-1]["accounting_complete"] is True
+
+
+def test_verified_controller_accounts_for_database_migration_adds(monkeypatch):
+    _binding, controller_module = _fake_source_modules(monkeypatch)
+    FakeParallelController.scenario = "migration"
+    database = FakeDatabase()
+    open_evolve = controller_module.OpenEvolve()
+
+    with launcher._verified_slice_controller(0, 2) as (observer, _sources):
+        parallel = controller_module.ProcessParallelController(database)
+        asyncio.run(
+            parallel.run_evolution(
+                1, 2, None, checkpoint_callback=open_evolve._save_checkpoint
+            )
+        )
+        assert observer.accounting_complete is True
+        assert observer.auxiliary_programs == [
+            {
+                "program_id": "migrant-2",
+                "parent_id": "program-2",
+                "target_island": 1,
+                "program_sha256": observer.auxiliary_programs[0][
+                    "program_sha256"
+                ],
+                "program_bytes": observer.auxiliary_programs[0][
+                    "program_bytes"
+                ],
+            }
+        ]
+
+    assert open_evolve.saved == [2]
+
+
+def test_observer_rejects_unclassified_iterationless_database_add():
+    observer = launcher._SliceObserver(0, 1, FakeResult)
+    observer.begin(1, 1, None)
+    observer.record_auxiliary_program_add(
+        program=SimpleNamespace(
+            id="not-a-migrant",
+            parent_id="parent",
+            code="code",
+            metrics={},
+            metadata={},
+            iteration_found=None,
+        ),
+        stored=SimpleNamespace(id="not-a-migrant", iteration_found=None),
+        parent=SimpleNamespace(id="parent", code="code", metrics={}),
+        target_island=0,
+        num_islands=2,
+    )
+
+    with pytest.raises(RuntimeError, match="valid migration"):
+        observer.verify(_observer_controller({}))
 
 
 @pytest.mark.parametrize(

@@ -543,6 +543,7 @@ class _SliceObserver:
     outcomes: dict[int, dict[str, Any]] = field(default_factory=dict)
     expected_programs: dict[int, dict[str, Any]] = field(default_factory=dict)
     integrated_programs: dict[int, str] = field(default_factory=dict)
+    auxiliary_programs: list[dict[str, Any]] = field(default_factory=list)
     violations: list[str] = field(default_factory=list)
     accounting_complete: bool = False
     checkpoint_saves: list[dict[str, Any]] = field(default_factory=list)
@@ -738,6 +739,92 @@ class _SliceObserver:
             "program_bytes": len(encoded),
         }
 
+    def record_auxiliary_program_add(
+        self,
+        *,
+        program: Any,
+        stored: Any,
+        parent: Any,
+        target_island: Any,
+        num_islands: Any,
+    ) -> None:
+        """Account for a pinned OpenEvolve migration without treating it as a future.
+
+        ``ProgramDatabase.migrate_programs`` inserts deterministic copies with
+        ``iteration=None``.  They are database side effects of an already
+        accounted evaluation, not additional submitted futures.  Accept only
+        that exact shape; an evaluated child accidentally added without its
+        iteration still leaves its expected future unintegrated and fails
+        :meth:`verify`.
+        """
+
+        program_id = getattr(program, "id", None)
+        stored_id = getattr(stored, "id", None)
+        parent_id = getattr(program, "parent_id", None)
+        metadata = getattr(program, "metadata", None)
+        if (
+            not isinstance(program_id, str)
+            or not program_id
+            or stored_id != program_id
+            or parent is None
+            or not isinstance(parent_id, str)
+            or parent_id != getattr(parent, "id", None)
+            or isinstance(target_island, bool)
+            or not isinstance(target_island, int)
+            or isinstance(num_islands, bool)
+            or not isinstance(num_islands, int)
+            or num_islands < 1
+            or not 0 <= target_island < num_islands
+            or not isinstance(metadata, dict)
+            or metadata.get("migrant") is not True
+            or metadata.get("island") != target_island
+            or getattr(program, "iteration_found", None) is not None
+            or getattr(stored, "iteration_found", None) is not None
+            or getattr(program, "code", None) != getattr(parent, "code", None)
+            or getattr(program, "metrics", None)
+            != getattr(parent, "metrics", None)
+            or program_id
+            in {
+                expected["id"]
+                for expected in self.expected_programs.values()
+            }
+            or any(
+                item.get("program_id") == program_id
+                for item in self.auxiliary_programs
+            )
+        ):
+            self.violations.append(
+                "database add with iteration None was not a valid migration"
+            )
+            return
+        to_dict = getattr(stored, "to_dict", None)
+        value = to_dict() if callable(to_dict) else vars(stored)
+        if not isinstance(value, dict):
+            self.violations.append("migration database add is not serializable")
+            return
+        try:
+            encoded = json.dumps(
+                value,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            self.violations.append(
+                "migration database add has invalid content: "
+                f"{type(exc).__name__}"
+            )
+            return
+        self.auxiliary_programs.append(
+            {
+                "program_id": program_id,
+                "parent_id": parent_id,
+                "target_island": target_island,
+                "program_sha256": hashlib.sha256(encoded).hexdigest(),
+                "program_bytes": len(encoded),
+            }
+        )
+
     def verify(self, controller: Any) -> None:
         expected = self.expected_iterations
         attempt_ids = [item["iteration"] for item in self.submission_attempts]
@@ -885,6 +972,11 @@ def _verified_slice_controller(
             original_add = self.database.add
 
             def observed_add(program: Any, iteration: Any = None, target_island: Any = None) -> Any:
+                parent = (
+                    self.database.programs.get(getattr(program, "parent_id", None))
+                    if iteration is None
+                    else None
+                )
                 result = original_add(
                     program, iteration=iteration, target_island=target_island
                 )
@@ -892,6 +984,14 @@ def _verified_slice_controller(
                 if stored is None:
                     observer.violations.append(
                         f"database add for iteration {iteration} did not store the program"
+                    )
+                elif iteration is None:
+                    observer.record_auxiliary_program_add(
+                        program=program,
+                        stored=stored,
+                        parent=parent,
+                        target_island=target_island,
+                        num_islands=self.num_islands,
                     )
                 else:
                     observer.record_program_add(iteration, stored)
