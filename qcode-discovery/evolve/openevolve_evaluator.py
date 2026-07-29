@@ -12,8 +12,10 @@ Two-stage cascade
 -----------------
 **Stage 1** -- Quick k-only screening (~2 s)
     Evaluates the evolved program on 2 small lattices (``(6,6)`` and
-    ``(12,6)``).  Programs must produce valid codes (``k > 0``) at
-    **all** stage-1 lattices to advance past the cascade threshold.
+    ``(12,6)``). Broad programs with valid codes on both probes receive the
+    normal fitness score. A low-priority deterministic exploration lane also
+    advances a small sample of large-lattice specialists, so these probes are
+    not an absolute exclusion rule.
     Score: ``0.1 base + best_encoding_rate + log1p(num_high_k) / 10``.
 
 **Stage 2** -- Full evaluation with distance estimation (~30-60 s)
@@ -54,6 +56,7 @@ STAGE2_LATTICES : list[tuple[int, int]]
 from __future__ import annotations
 
 import fcntl
+import hashlib
 import importlib.util
 import json
 import logging
@@ -61,6 +64,7 @@ import math
 import os
 import sys
 import time
+from functools import lru_cache
 from pathlib import Path
 
 # Ensure the project root is on sys.path so we can import evaluation.*
@@ -76,6 +80,7 @@ from evaluation.evaluator import (
     DISTANCE_TRUST_RATIO,
     DISTANCE_UNTRUST_RATIO,
 )
+from evaluation.final_gate import minimum_winning_distance
 from evaluation.results import save_code, update_pareto_front
 from evaluation.structural_dedup import (
     check_css_static_eligibility,
@@ -89,6 +94,12 @@ class CandidateLogWriteError(RuntimeError):
     """A discovered candidate could not be durably persisted."""
 
 
+WINNER_CAPABLE_EXPLORATION_LANE = "winner_capable_quick_exploration"
+STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
+MAX_CANDIDATES_PER_LATTICE = 5000
+MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
+
+
 def _definition_key(result: dict) -> tuple:
     return (
         int(result.get("ell", 0) or 0),
@@ -96,6 +107,201 @@ def _definition_key(result: dict) -> tuple:
         tuple(map(tuple, result.get("A_terms", []))),
         tuple(map(tuple, result.get("B_terms", []))),
     )
+
+
+@lru_cache(maxsize=None)
+def _winning_distance_window(n: int, k: int) -> tuple[int, int] | None:
+    """Return the required win distance and the quantum-Singleton ceiling.
+
+    A fixed ``k >= 8`` gate is not a mathematical consequence of the final
+    acceptance rule.  For example, ``[[72, 4, 15]]`` has FOM 12.5 and also
+    obeys the quantum Singleton bound.  The window below is therefore the
+    cheap, fail-closed parameter test used before distance work: a candidate
+    remains reachable iff at least one final-gate winning distance is no
+    larger than ``floor((n-k)/2)+1``.
+    """
+    if (
+        isinstance(n, bool)
+        or isinstance(k, bool)
+        or not isinstance(n, int)
+        or not isinstance(k, int)
+        or n < 1
+        or k < 1
+        or k > n
+    ):
+        return None
+    singleton_upper = (n - k) // 2 + 1
+    try:
+        required = minimum_winning_distance(n, k)
+    except ValueError:
+        return None
+    if required > singleton_upper:
+        return None
+    return required, singleton_upper
+
+
+def _annotate_winner_capability(result: dict) -> bool:
+    """Attach the machine-derived parameter window and return reachability."""
+    try:
+        n = int(result.get("n", 0) or 0)
+        k = int(result.get("k", 0) or 0)
+    except (TypeError, ValueError):
+        return False
+    window = _winning_distance_window(n, k)
+    if window is None:
+        result["winner_capable_parameters"] = False
+        return False
+    required, singleton_upper = window
+    result.update({
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": required,
+        "singleton_distance_upper_bound": singleton_upper,
+    })
+    return True
+
+
+def _has_positive_distance(result: dict) -> bool:
+    value = result.get("d")
+    if isinstance(value, bool):
+        return False
+    try:
+        return int(value) > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def _candidate_sample_key(
+    candidate,
+    *,
+    ell: int,
+    m: int,
+    sampling_salt: str,
+) -> bytes:
+    """Return a stable order-independent key for an oversized candidate pool."""
+    try:
+        a_terms, b_terms = candidate
+        defining = {
+            "ell": int(ell),
+            "m": int(m),
+            "A_terms": sorted([list(map(int, term)) for term in a_terms]),
+            "B_terms": sorted([list(map(int, term)) for term in b_terms]),
+        }
+        payload = json.dumps(
+            defining,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode()
+    except (TypeError, ValueError):
+        payload = repr(candidate).encode("utf-8", errors="replace")
+    return hashlib.sha256(sampling_salt.encode() + b"\0" + payload).digest()
+
+
+def _bounded_candidate_sample(
+    candidates: list,
+    *,
+    ell: int,
+    m: int,
+    limit: int = MAX_CANDIDATES_PER_LATTICE,
+    sampling_salt: str = "",
+) -> list:
+    """Bound work without making the generator's fixed tail unreachable.
+
+    The old prefix slice permanently excluded every item after position 5000.
+    Stable hash sampling gives every definition an order-independent chance and
+    changes its stratum when the evolved program (the caller-provided salt)
+    changes.  The first and last definitions are also retained explicitly so a
+    fixed generator tail is covered by regression tests and operational logs.
+    """
+    if len(candidates) <= limit:
+        return list(candidates)
+    if limit < 2:
+        raise ValueError("candidate sample limit must be at least two")
+    endpoints = {0, len(candidates) - 1}
+    remaining = sorted(
+        (
+            _candidate_sample_key(
+                candidate,
+                ell=ell,
+                m=m,
+                sampling_salt=sampling_salt,
+            ),
+            index,
+        )
+        for index, candidate in enumerate(candidates)
+        if index not in endpoints
+    )
+    selected = endpoints | {
+        index for _digest, index in remaining[: limit - len(endpoints)]
+    }
+    return [candidate for index, candidate in enumerate(candidates) if index in selected]
+
+
+def _program_source_sha256(program_path: str) -> str:
+    try:
+        return hashlib.sha256(Path(program_path).read_bytes()).hexdigest()
+    except OSError:
+        return hashlib.sha256(str(program_path).encode()).hexdigest()
+
+
+def _stage1_specialist_exploration_pass(program_path: str) -> bool:
+    """Admit a small deterministic sample past an otherwise absolute gate."""
+    digest = _program_source_sha256(program_path)
+    return (
+        int(digest[:16], 16) % STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR == 0
+    )
+
+
+def _select_quick_exploration(
+    rows: list[dict],
+    *,
+    ell: int,
+    m: int,
+    sampling_salt: str,
+    limit: int = MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE,
+) -> list[dict]:
+    """Select a bounded, deterministic and k-stratified quick-only lane.
+
+    Hashing removes generator-order bias; the evolved-program digest supplies
+    deterministic rotation as the program changes. One representative per
+    dimension is preferred before filling the remaining quota globally.
+    """
+    if limit < 1:
+        return []
+    ranked = []
+    seen: set[tuple] = set()
+    for row in rows:
+        definition = _definition_key(row)
+        if definition in seen or not _annotate_winner_capability(row):
+            continue
+        seen.add(definition)
+        digest = hashlib.sha256(
+            sampling_salt.encode()
+            + b"\0quick-exploration\0"
+            + repr((ell, m, definition)).encode()
+        ).digest()
+        ranked.append((digest, row))
+    ranked.sort(key=lambda item: item[0])
+
+    selected: list[dict] = []
+    selected_ids: set[int] = set()
+    seen_k: set[int] = set()
+    for _digest, row in ranked:
+        k = int(row.get("k", 0) or 0)
+        if k in seen_k:
+            continue
+        selected.append(row)
+        selected_ids.add(id(row))
+        seen_k.add(k)
+        if len(selected) >= limit:
+            return selected
+    for _digest, row in ranked:
+        if id(row) in selected_ids:
+            continue
+        selected.append(row)
+        if len(selected) >= limit:
+            break
+    return selected
 
 
 def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -264,8 +470,9 @@ def _append_candidate_jsonl(log_file: Path, payload: bytes) -> None:
 def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
     """Append a code result to the run-specific all_codes.jsonl file.
 
-    Logs ALL codes with d > 0 (not just high-FOM codes), providing the
-    full dataset for Phase D pattern extraction.  Each line is ~200 bytes.
+    Logs all codes with ``d > 0`` plus statically eligible quick-only
+    candidates in the explicit winner-capable exploration lane.  The latter
+    closes the old top-k handoff gap without making arbitrary FOM claims.
 
     The run_name is resolved from (in priority order):
     1. Explicit ``run_name`` argument
@@ -273,7 +480,12 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
     3. Fallback to ``results/evolution/all_codes.jsonl``
     """
     d = result.get("d", 0)
-    if d <= 0:
+    exploration_lane = (
+        result.get("candidate_persistence_lane")
+        == WINNER_CAPABLE_EXPLORATION_LANE
+        and result.get("winner_capable_parameters") is True
+    )
+    if d <= 0 and not exploration_lane:
         return
 
     if not run_name:
@@ -297,6 +509,15 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
         ),
         "timestamp": time.time(),
     }
+    if exploration_lane:
+        record.update({
+            "candidate_persistence_lane": WINNER_CAPABLE_EXPLORATION_LANE,
+            "winner_capable_parameters": True,
+            "minimum_winning_distance": result["minimum_winning_distance"],
+            "singleton_distance_upper_bound": result[
+                "singleton_distance_upper_bound"
+            ],
+        })
 
     if run_name:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution" / run_name
@@ -357,6 +578,7 @@ def _run_evaluation(
     milp_total_timeout: int = 120,
     milp_early_stop: int = 4,
     run_name: str | None = None,
+    sampling_salt: str = "",
 ) -> dict:
     """Run evaluation across lattices and compute aggregate metrics.
 
@@ -380,10 +602,18 @@ def _run_evaluation(
 
             total_candidates += len(candidates)
 
-            # Cap candidates per lattice to avoid runaway generation
-            if len(candidates) > 5000:
-                errors.append(f"({ell},{m}): {len(candidates)} candidates, capped to 5000")
-                candidates = candidates[:5000]
+            # Cap candidates per lattice without a fixed-prefix blind spot.
+            if len(candidates) > MAX_CANDIDATES_PER_LATTICE:
+                errors.append(
+                    f"({ell},{m}): {len(candidates)} candidates, "
+                    f"sampled to {MAX_CANDIDATES_PER_LATTICE}"
+                )
+                candidates = _bounded_candidate_sample(
+                    candidates,
+                    ell=ell,
+                    m=m,
+                    sampling_salt=sampling_salt,
+                )
 
             if quick:
                 results = evaluate_batch(
@@ -417,7 +647,8 @@ def _run_evaluation(
                 # When symplectic weight is available (MILP path), rank by
                 # approximate FOM = k * d_symp^2 / n instead of k alone.
                 promising = [
-                    r for r in quick_results if r.get("k", 0) >= 8
+                    r for r in quick_results
+                    if _annotate_winner_capability(r)
                 ]
                 n_code = 2 * ell * m
                 def _rank_key(r):
@@ -502,6 +733,32 @@ def _run_evaluation(
                     r for r in quick_results if r.get("k", 0) > 0
                     and r not in top
                 ]
+                # Distance estimation can itself return an unresolved ``d=0``
+                # row. Treat those selected-but-unresolved definitions exactly
+                # like other quick-only candidates, instead of silently losing
+                # them merely because they consumed a top-k slot.
+                unresolved_top = [
+                    result
+                    for result in results
+                    if (
+                        result.get("k", 0) > 0
+                        and not _has_positive_distance(result)
+                    )
+                ]
+                # A top-k distance budget is an allocation policy, not a proof
+                # that the remaining objects cannot win. Persist a bounded,
+                # k-stratified and deterministically rotating sample in a
+                # dedicated zero-distance lane. Humanize reserves at most one
+                # MILP slot per round for this lane.
+                for result in _select_quick_exploration(
+                    quick_only + unresolved_top,
+                    ell=ell,
+                    m=m,
+                    sampling_salt=sampling_salt,
+                ):
+                    result["candidate_persistence_lane"] = (
+                        WINNER_CAPABLE_EXPLORATION_LANE
+                    )
                 results.extend(quick_only)
 
             all_results.extend(results)
@@ -563,11 +820,11 @@ def _run_evaluation(
 def evaluate_stage1(program_path: str) -> dict:
     """Stage 1: Quick screening on small lattices (k-only, ~2s).
 
-    Programs must produce valid codes (k > 0) at ALL stage-1 lattices to
-    advance.  (6,6) and (12,6) are the most forgiving lattices -- any
-    reasonable x/y-swap program produces k>0 at both.  Failing either
-    signals a fundamentally broken strategy, not worth ~5 min of stage-2
-    evaluation.
+    Broad programs with valid codes on both probes receive the normal fitness
+    score. A deterministic 1/N sample of programs that fail full probe
+    coverage receives a low-priority score just above the cascade threshold.
+    This keeps the cheap probes useful without permanently excluding a
+    strategy specialized for larger lattices.
 
     Score components (all lattices covered):
     - 0.1 base: guarantees passing cascade threshold (0.01)
@@ -582,9 +839,27 @@ def evaluate_stage1(program_path: str) -> dict:
     except Exception as e:
         return _error_result(str(e))
 
-    metrics = _run_evaluation(generate_fn, STAGE1_LATTICES, quick=True)
+    source_sha256 = _program_source_sha256(program_path)
+    metrics = _run_evaluation(
+        generate_fn,
+        STAGE1_LATTICES,
+        quick=True,
+        sampling_salt=source_sha256,
+    )
+    specialist_exploration = _stage1_specialist_exploration_pass(program_path)
 
     if metrics["total_candidates"] == 0:
+        if specialist_exploration:
+            return {
+                "combined_score": 0.02,
+                "num_valid": 0.0,
+                "total_candidates": 0.0,
+                "lattices_with_high_k": 0.0,
+                "num_high_k": 0.0,
+                "term_count": 0.0,
+                "pattern_type": 0.0,
+                "specialist_exploration": 1.0,
+            }
         return {
             "combined_score": 0.0,
             "num_valid": 0.0,
@@ -597,15 +872,20 @@ def evaluate_stage1(program_path: str) -> dict:
 
     valid = [r for r in metrics.get("all_results", []) if r.get("k", 0) > 0]
 
-    # Require valid codes at ALL stage-1 lattices
+    # Measure broad small-lattice coverage for the normal fitness lane.
     lattices_with_valid = set(
         (r["ell"], r["m"]) for r in valid
     )
     lattice_coverage = len(lattices_with_valid) / len(STAGE1_LATTICES)
 
     if lattice_coverage < 1.0:
-        # Partial coverage: below cascade threshold (0.01)
-        score = len(lattices_with_valid) * 0.001
+        # A generator specialized for a larger modulus need not be good on both
+        # tiny probes. A deterministic 1/N sample lets such specialists escape
+        # the absolute gate without promoting every partial-coverage program.
+        if specialist_exploration:
+            score = 0.02
+        else:
+            score = len(lattices_with_valid) * 0.001
     else:
         # All lattices covered. Score by quality.
         best_rate = max(r.get("encoding_rate", 0.0) for r in valid)
@@ -631,6 +911,9 @@ def evaluate_stage1(program_path: str) -> dict:
         "num_high_k": float(metrics["num_high_k"]),
         "term_count": best_tc,
         "pattern_type": best_pattern,
+        "specialist_exploration": float(
+            lattice_coverage < 1.0 and specialist_exploration
+        ),
     }
 
 
@@ -647,6 +930,7 @@ def evaluate_stage2(program_path: str) -> dict:
     metrics = _run_evaluation(
         generate_fn, STAGE2_LATTICES,
         quick=False, refine_trials=1000,
+        sampling_salt=_program_source_sha256(program_path),
     )
 
     # --- Combined score ---

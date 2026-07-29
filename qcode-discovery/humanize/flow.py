@@ -71,6 +71,7 @@ LOCAL_EVOLUTION_DEPENDENCIES = {
     "evaluation_pbb_code": "evaluation/pbb_code.py",
     "evaluation_distance": "evaluation/distance.py",
     "evaluation_distance_milp": "evaluation/distance_milp.py",
+    "evaluation_final_gate": "evaluation/final_gate.py",
     "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
 }
 EVOLUTION_INVOCATION_FIELDS = frozenset({
@@ -2031,14 +2032,151 @@ def evaluate_with_milp(
     return merged
 
 
+def _positive_distance(row: dict[str, Any]) -> int | None:
+    value = row.get("d")
+    if isinstance(value, bool):
+        return None
+    try:
+        distance = int(value)
+    except (TypeError, ValueError):
+        return None
+    return distance if distance > 0 else None
+
+
+def _distance_evidence_rank(row: dict[str, Any]) -> int:
+    """Rank evidence kind before comparing stochastic upper bounds."""
+    try:
+        fully_exact = is_fully_exact(row)
+    except AuditStateError:
+        # Discovery JSONL is an input pool, not trusted audit evidence.
+        # Malformed exactness metadata must never grant a stronger rank.
+        fully_exact = False
+    if fully_exact:
+        return 3
+    if row.get("milp_attempted") is True and _positive_distance(row) is not None:
+        return 2
+    if _positive_distance(row) is not None:
+        return 1
+    return 0
+
+
+def _bp_observation_summary(row: dict[str, Any]) -> tuple[int, int, int] | None:
+    """Return count/min/max for replayable BP-style observations in one row."""
+    if _distance_evidence_rank(row) != 1:
+        return None
+    existing = row.get("bp_upper_bound_observations")
+    if isinstance(existing, dict):
+        count = existing.get("count")
+        minimum = existing.get("minimum_distance")
+        maximum = existing.get("maximum_distance")
+        if (
+            isinstance(count, int)
+            and not isinstance(count, bool)
+            and count > 0
+            and isinstance(minimum, int)
+            and not isinstance(minimum, bool)
+            and minimum > 0
+            and isinstance(maximum, int)
+            and not isinstance(maximum, bool)
+            and maximum >= minimum
+        ):
+            return count, minimum, maximum
+    distance = _positive_distance(row)
+    assert distance is not None
+    return 1, distance, distance
+
+
+def _prefer_duplicate_evidence(
+    current: dict[str, Any],
+    proposed: dict[str, Any],
+) -> dict[str, Any]:
+    """Choose the strongest evidence, then the tightest observed upper bound."""
+    current_rank = _distance_evidence_rank(current)
+    proposed_rank = _distance_evidence_rank(proposed)
+    if proposed_rank != current_rank:
+        return proposed if proposed_rank > current_rank else current
+    current_distance = _positive_distance(current)
+    proposed_distance = _positive_distance(proposed)
+    if current_distance is not None and proposed_distance is not None:
+        # BP-OSD produces feasible logicals and therefore distance *upper*
+        # bounds. The minimum observation is the informative conservative
+        # value; taking max selected the loosest/noisiest run.
+        if proposed_distance != current_distance:
+            return proposed if proposed_distance < current_distance else current
+    if proposed_rank == 0:
+        current_lane = current.get("candidate_persistence_lane")
+        proposed_lane = proposed.get("candidate_persistence_lane")
+        if proposed_lane and not current_lane:
+            return proposed
+    return current
+
+
 def _deduplicate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     best: dict[str, dict[str, Any]] = {}
+    observations: dict[str, tuple[int, int, int]] = {}
+    occurrences: dict[str, int] = {}
     for row in rows:
         key = code_key(row)
+        occurrences[key] = occurrences.get(key, 0) + 1
+        summary = _bp_observation_summary(row)
+        if summary is not None:
+            previous = observations.get(key)
+            if previous is None:
+                observations[key] = summary
+            else:
+                observations[key] = (
+                    previous[0] + summary[0],
+                    min(previous[1], summary[1]),
+                    max(previous[2], summary[2]),
+                )
         current = best.get(key)
-        if current is None or candidate_fom(row) > candidate_fom(current):
+        if current is None:
             best[key] = row
+        else:
+            best[key] = _prefer_duplicate_evidence(current, row)
+
+    for key, summary in observations.items():
+        selected = best[key]
+        if (
+            occurrences[key] > 1
+            and _distance_evidence_rank(selected) == 1
+        ):
+            count, minimum, maximum = summary
+            selected = copy.deepcopy(selected)
+            best[key] = selected
+            selected["bp_upper_bound_observations"] = {
+                "count": count,
+                "minimum_distance": minimum,
+                "maximum_distance": maximum,
+                "selected_distance": _positive_distance(selected),
+                "selection_policy": "tightest_observed_upper_bound",
+            }
     return list(best.values())
+
+
+def _quick_exploration_priority(
+    row: dict[str, Any],
+) -> tuple[float, str] | None:
+    """Validate an explicit quick-only marker and return its stable priority."""
+    if (
+        row.get("candidate_persistence_lane")
+        != "winner_capable_quick_exploration"
+        or row.get("winner_capable_parameters") is not True
+        or _positive_distance(row) is not None
+    ):
+        return None
+    required = row.get("minimum_winning_distance")
+    singleton_upper = row.get("singleton_distance_upper_bound")
+    if (
+        isinstance(required, bool)
+        or not isinstance(required, int)
+        or required < 1
+        or isinstance(singleton_upper, bool)
+        or not isinstance(singleton_upper, int)
+        or singleton_upper < required
+    ):
+        return None
+    return singleton_upper / required, code_key(row)
 
 
 def select_for_milp(
@@ -2074,12 +2212,35 @@ def select_for_milp(
         )
         if audited_digests and digest and digest in audited_digests:
             continue
+        if (
+            row.get("candidate_persistence_lane")
+            == "winner_capable_quick_exploration"
+            and _quick_exploration_priority(row) is None
+        ):
+            # A forged/partial marker is neither a valid exploration object
+            # nor ordinary BP evidence; fail closed instead of laundering it
+            # into the generic exploratory lane.
+            continue
         eligible.append(row)
 
-    credible = [row for row in eligible if credible_bp_candidate(row)]
-    exploratory = [row for row in eligible if not credible_bp_candidate(row)]
+    quick_exploration = [
+        row for row in eligible
+        if _quick_exploration_priority(row) is not None
+    ]
+    credible = [
+        row for row in eligible
+        if row not in quick_exploration and credible_bp_candidate(row)
+    ]
+    exploratory = [
+        row for row in eligible
+        if row not in quick_exploration and not credible_bp_candidate(row)
+    ]
     credible.sort(key=candidate_fom, reverse=True)
     exploratory.sort(key=candidate_fom, reverse=True)
+    quick_exploration.sort(
+        key=lambda row: _quick_exploration_priority(row),
+        reverse=True,
+    )
 
     selected: list[dict[str, Any]] = []
     used_cells: set[str] = set()
@@ -2098,11 +2259,23 @@ def select_for_milp(
                 if cell:
                     used_cells.add(cell)
 
-    reserve_exploration = bool(exploratory) and limit > 1
-    add_from(credible, limit - int(reserve_exploration))
+    reserve_quick = bool(quick_exploration) and limit > 1
+    reserve_exploration = (
+        bool(exploratory) and limit - int(reserve_quick) > 1
+    )
+    add_from(
+        credible,
+        limit - int(reserve_quick) - int(reserve_exploration),
+    )
+    if reserve_quick:
+        add_from(quick_exploration, len(selected) + 1)
     if reserve_exploration:
         add_from(exploratory, len(selected) + 1)
+    # Keep this lane deliberately sparse: a quick-only row has no distance
+    # evidence yet, so at most one may consume a round's MILP budget.
     add_from(credible + exploratory, limit)
+    if not selected and quick_exploration:
+        add_from(quick_exploration, 1)
     return selected
 
 

@@ -10,6 +10,7 @@ from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
     UnresolvedAuditError,
+    _deduplicate,
     _milp_is_fully_exact,
     select_for_milp,
 )
@@ -47,6 +48,106 @@ def test_elite_archive_replaces_cell_winner_and_selects_diverse(tmp_path):
     selected = select_for_milp(ranked, archive, set(), 2)
     assert len(selected) == 2
     assert len({row["archive_cell"] for row in selected}) == 2
+
+
+def test_duplicate_bp_upper_bounds_keep_tightest_observation():
+    loose = candidate(k=8, d=30, fom=100.0)
+    tight = candidate(k=8, d=12, fom=16.0)
+
+    [selected] = _deduplicate([loose, tight])
+
+    assert selected["d"] == 12
+    assert selected["fom"] == 16.0
+    assert selected["bp_upper_bound_observations"] == {
+        "count": 2,
+        "minimum_distance": 12,
+        "maximum_distance": 30,
+        "selected_distance": 12,
+        "selection_policy": "tightest_observed_upper_bound",
+    }
+
+
+def test_unknown_quick_duplicate_never_overwrites_positive_upper_bound():
+    unknown = candidate(k=4, d=0, fom=0.0)
+    unknown.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": 15,
+        "singleton_distance_upper_bound": 35,
+    })
+    observed = candidate(k=4, d=18, fom=18.0)
+
+    [selected] = _deduplicate([unknown, observed])
+
+    assert selected["d"] == 18
+    assert selected["stage"] == "refined_estimate"
+    assert selected["bp_upper_bound_observations"]["count"] == 1
+
+
+def test_milp_selection_reserves_one_bounded_quick_exploration_lane():
+    credible = candidate(k=8, d=8, fom=7.0, shift=1)
+    outlier = candidate(k=8, d=40, fom=120.0, shift=2)
+    quick = candidate(k=4, d=0, fom=0.0, shift=3)
+    quick.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": 15,
+        "singleton_distance_upper_bound": 35,
+    })
+
+    selected = select_for_milp(
+        [credible, outlier, quick],
+        None,
+        set(),
+        3,
+    )
+
+    assert {code_key(row) for row in selected} == {
+        code_key(credible),
+        code_key(outlier),
+        code_key(quick),
+    }
+    assert sum(
+        row.get("candidate_persistence_lane")
+        == "winner_capable_quick_exploration"
+        for row in selected
+    ) == 1
+
+
+def test_milp_selection_never_takes_more_than_one_quick_exploration():
+    quick_rows = []
+    for shift in range(5):
+        quick = candidate(k=4, d=0, fom=0.0, shift=shift)
+        quick.update({
+            "stage": "quick_k_only",
+            "candidate_persistence_lane": "winner_capable_quick_exploration",
+            "winner_capable_parameters": True,
+            "minimum_winning_distance": 15,
+            "singleton_distance_upper_bound": 35,
+        })
+        quick_rows.append(quick)
+
+    selected = select_for_milp(quick_rows, None, set(), 3)
+
+    assert len(selected) == 1
+    assert selected[0]["candidate_persistence_lane"] == (
+        "winner_capable_quick_exploration"
+    )
+
+
+def test_milp_selection_rejects_forged_or_malformed_quick_lane_marker():
+    malformed = candidate(k=4, d=0, fom=0.0)
+    malformed.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": "15",
+        "singleton_distance_upper_bound": 35,
+    })
+
+    assert select_for_milp([malformed], None, set(), 3) == []
 
 
 def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
