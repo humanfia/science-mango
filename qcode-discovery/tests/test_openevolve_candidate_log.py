@@ -145,6 +145,19 @@ def test_k_below_eight_can_pass_the_real_win_rule_and_singleton_bound():
     assert evaluator._winning_distance_window(72, 4) == (15, 35)
 
 
+def test_distance_backend_error_record_is_json_safe_and_bounded():
+    record = evaluator._distance_backend_error_record(
+        RuntimeError("x" * 5000)
+    )
+
+    assert record["type"] == "RuntimeError"
+    assert len(record["message"]) == (
+        evaluator.MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS
+    )
+    assert record["message"].endswith("...")
+    json.dumps(record, allow_nan=False)
+
+
 def test_production_full_evaluation_covers_final_gate_pareto_lattices():
     required = {(6, 6), (15, 3), (9, 6)}
 
@@ -515,18 +528,28 @@ def test_dynamic_distance_lane_keeps_k4_and_bounds_quick_persistence(
     ]
     quick_rows = [
         row for row in persisted
-        if row.get("candidate_persistence_lane")
-        == evaluator.WINNER_CAPABLE_EXPLORATION_LANE
+        if row.get("candidate_persistence_reason")
+        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
     ]
     assert len(quick_rows) == (
         evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
     )
+    pending_rows = [
+        row for row in persisted
+        if row.get("candidate_persistence_reason")
+        == evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+    ]
+    assert len(pending_rows) == len(distance_inputs)
     assert all(row["d"] == 0 and row["fom"] == 0 for row in quick_rows)
     assert all(row["minimum_winning_distance"] == 15 for row in quick_rows)
-    assert len(persisted) == len(distance_inputs) + len(quick_rows)
+    assert len(persisted) == (
+        len(distance_inputs) + len(pending_rows) + len(quick_rows)
+    )
 
 
-def test_unresolved_top_candidate_is_logged_exactly_once(tmp_path, monkeypatch):
+def test_unresolved_top_upgrades_its_write_ahead_pending_row(
+    tmp_path, monkeypatch
+):
     monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
     monkeypatch.setattr(
         evaluator,
@@ -583,15 +606,230 @@ def test_unresolved_top_candidate_is_logged_exactly_once(tmp_path, monkeypatch):
             / "all_codes.jsonl"
         ).read_text().splitlines()
     ]
-    assert len(persisted) == 1
-    assert persisted[0]["candidate_persistence_lane"] == (
-        evaluator.WINNER_CAPABLE_EXPLORATION_LANE
+    assert len(persisted) == 2
+    assert all(
+        row["candidate_persistence_lane"]
+        == evaluator.WINNER_CAPABLE_EXPLORATION_LANE
+        for row in persisted
     )
     assert persisted[0]["candidate_persistence_reason"] == (
+        evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+    )
+    assert persisted[1]["candidate_persistence_reason"] == (
         evaluator.UNRESOLVED_TOP_PERSISTENCE_REASON
     )
+    assert metrics["winner_capable_distance_pending_persisted"] == 1
     assert metrics["winner_capable_unresolved_top_persisted"] == 1
     assert metrics["winner_capable_quick_exploration_persisted"] == 0
+
+
+def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "deduplicate_css_results",
+        lambda rows: (rows, []),
+    )
+    candidates = [
+        (
+            [[0, 0], [0, 1], [index + 1, 0]],
+            [[0, 0], [0, 2], [index + 2, 0]],
+        )
+        for index in range(20)
+    ]
+    distance_keys = set()
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "distance-error"
+        / "all_codes.jsonl"
+    )
+
+    def fake_batch(ell, m, rows, **kwargs):
+        quick = kwargs.get("quick") is True
+        if not quick:
+            distance_keys.update(
+                (
+                    tuple(sorted(map(tuple, a_terms))),
+                    tuple(sorted(map(tuple, b_terms))),
+                )
+                for a_terms, b_terms in rows
+            )
+            # This assertion executes at the distance call site. It proves the
+            # handoff is durable even when the backend never returns before the
+            # outer OpenEvolve wall timeout.
+            preexisting = [
+                json.loads(line) for line in path.read_text().splitlines()
+            ]
+            assert sum(
+                row.get("candidate_persistence_reason")
+                == evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+                for row in preexisting
+            ) == len(rows)
+            assert sum(
+                row.get("candidate_persistence_reason")
+                == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+                for row in preexisting
+            ) == evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
+            raise RuntimeError("simulated distance backend failure")
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / 72,
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: candidates,
+        [(6, 6)],
+        quick=False,
+        max_distance_per_lattice=2,
+        run_name="distance-error",
+        sampling_salt="production-error-probe",
+    )
+
+    persisted = [json.loads(line) for line in path.read_text().splitlines()]
+    pending = [
+        row for row in persisted
+        if row.get("candidate_persistence_reason")
+        == evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+    ]
+    failed = [
+        row for row in persisted
+        if row.get("candidate_persistence_reason")
+        == evaluator.DISTANCE_ERROR_PERSISTENCE_REASON
+    ]
+    quick = [
+        row for row in persisted
+        if row.get("candidate_persistence_reason")
+        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+    ]
+
+    def definitions(rows):
+        return {
+            (
+                tuple(sorted(map(tuple, row["A_terms"]))),
+                tuple(sorted(map(tuple, row["B_terms"]))),
+            )
+            for row in rows
+        }
+
+    assert definitions(pending) == distance_keys
+    assert definitions(failed) == distance_keys
+    assert definitions(quick).isdisjoint(distance_keys)
+    assert len(pending) == len(failed) == 2
+    assert len(quick) == evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
+    assert all(row["d"] == 0 for row in failed)
+    assert all(row["d_is_exact"] is False for row in failed)
+    assert all(row["distance_trusted"] is False for row in failed)
+    assert all(row["milp_attempted"] is False for row in failed)
+    assert all(
+        row["distance_backend_error"]["type"] == "RuntimeError"
+        for row in failed
+    )
+    assert metrics["winner_capable_distance_pending_persisted"] == 2
+    assert metrics["winner_capable_distance_error_persisted"] == 2
+    assert metrics["winner_capable_quick_exploration_persisted"] == len(quick)
+    assert metrics["distance_backend_error_count"] == 1
+    assert metrics["errors"] == [
+        "(6,6): distance backend RuntimeError: "
+        "simulated distance backend failure"
+    ]
+
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [],
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_evaluation",
+        lambda *_args, **_kwargs: metrics,
+    )
+    monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
+    evaluated = evaluator.evaluate_stage2(str(tmp_path / "program.py"))
+    result = getattr(evaluated, "metrics", evaluated)
+    artifacts = getattr(evaluated, "artifacts", {})
+    assert result["distance_backend_error_count"] == 1.0
+    assert artifacts["errors"] == metrics["errors"][0]
+    assert "Distance backend failures: 1." in artifacts["summary"]
+
+
+def test_write_ahead_log_failure_aborts_before_distance_backend(monkeypatch):
+    definition = (
+        [[0, 0], [0, 1], [1, 0]],
+        [[0, 0], [0, 2], [2, 0]],
+    )
+    distance_called = False
+
+    def fake_batch(ell, m, rows, **kwargs):
+        nonlocal distance_called
+        if kwargs.get("quick") is not True:
+            distance_called = True
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / 72,
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    def fail_log(*_args, **_kwargs):
+        raise evaluator.CandidateLogWriteError("write-ahead unavailable")
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "deduplicate_css_results",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(evaluator, "_log_code_jsonl", fail_log)
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="write-ahead unavailable",
+    ):
+        evaluator._run_evaluation(
+            lambda _ell, _m: [definition],
+            [(6, 6)],
+            quick=False,
+            max_distance_per_lattice=1,
+            run_name="write-ahead-failure",
+        )
+    assert distance_called is False
 
 
 def test_all_unresolved_top_are_persisted_before_independent_quick_quota(
@@ -776,13 +1014,24 @@ def test_distance_adapter_cannot_overproduce_unresolved_top_silently(
             sampling_salt="fixed-production-salt",
         )
 
-    assert not (
+    path = (
         tmp_path
         / "results"
         / "evolution"
         / "invalid-distance-adapter"
         / "all_codes.jsonl"
-    ).exists()
+    )
+    persisted = [json.loads(line) for line in path.read_text().splitlines()]
+    assert any(
+        row.get("candidate_persistence_reason")
+        == evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+        for row in persisted
+    )
+    assert not any(
+        row.get("candidate_persistence_reason")
+        == evaluator.UNRESOLVED_TOP_PERSISTENCE_REASON
+        for row in persisted
+    )
 
 
 def test_large_lattice_specialist_has_low_frequency_escape_hatch(

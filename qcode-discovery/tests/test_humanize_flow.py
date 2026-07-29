@@ -182,6 +182,70 @@ def test_duplicate_zero_distance_rows_preserve_unresolved_provenance():
     )
 
 
+def test_distance_error_precedes_unresolved_pending_and_quick_lanes():
+    reasons = [
+        "quick_distance_budget",
+        "selected_distance_pending",
+        "selected_distance_unresolved",
+        "selected_distance_error",
+    ]
+    rows = []
+    for shift, reason in enumerate(reasons):
+        row = candidate(k=4, d=0, fom=0.0, shift=shift)
+        row.update({
+            "stage": reason,
+            "candidate_persistence_lane": (
+                "winner_capable_quick_exploration"
+            ),
+            "candidate_persistence_reason": reason,
+            "winner_capable_parameters": True,
+            "minimum_winning_distance": 15,
+            "singleton_distance_upper_bound": 35,
+        })
+        rows.append(row)
+
+    selected = select_for_milp(rows, None, set(), 3)
+
+    assert len(selected) == 1
+    assert selected[0]["candidate_persistence_reason"] == (
+        "selected_distance_error"
+    )
+
+
+def test_duplicate_write_ahead_rows_keep_error_then_later_positive_evidence():
+    quick = candidate(k=4, d=0, fom=0.0)
+    quick.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "candidate_persistence_reason": "quick_distance_budget",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": 15,
+        "singleton_distance_upper_bound": 35,
+    })
+    pending = dict(quick)
+    pending["candidate_persistence_reason"] = "selected_distance_pending"
+    unresolved = dict(quick)
+    unresolved["candidate_persistence_reason"] = (
+        "selected_distance_unresolved"
+    )
+    failed = dict(quick)
+    failed["candidate_persistence_reason"] = "selected_distance_error"
+
+    [selected_without_distance] = _deduplicate(
+        [quick, pending, unresolved, failed]
+    )
+    assert selected_without_distance["candidate_persistence_reason"] == (
+        "selected_distance_error"
+    )
+
+    positive = candidate(k=4, d=16, fom=4 * 16 * 16 / 72)
+    [selected_with_distance] = _deduplicate(
+        [quick, pending, unresolved, failed, positive]
+    )
+    assert selected_with_distance["d"] == 16
+    assert selected_with_distance["stage"] == "refined_estimate"
+
+
 def test_milp_selection_rejects_forged_or_malformed_quick_lane_marker():
     malformed = candidate(k=4, d=0, fom=0.0)
     malformed.update({

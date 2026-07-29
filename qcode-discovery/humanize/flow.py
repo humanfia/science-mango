@@ -2060,6 +2060,21 @@ def _distance_evidence_rank(row: dict[str, Any]) -> int:
     return 0
 
 
+def _zero_distance_persistence_rank(row: dict[str, Any]) -> int:
+    """Rank retry urgency for zero-distance rows, never mathematical evidence.
+
+    Every row here remains rank zero in ``_distance_evidence_rank``.  An error
+    runs first because its allocated distance attempt failed before returning
+    evidence, not because it proves more than a completed unresolved attempt.
+    """
+    return {
+        "quick_distance_budget": 0,
+        "selected_distance_pending": 1,
+        "selected_distance_unresolved": 2,
+        "selected_distance_error": 3,
+    }.get(str(row.get("candidate_persistence_reason", "")), 0)
+
+
 def _bp_observation_summary(row: dict[str, Any]) -> tuple[int, int, int] | None:
     """Return count/min/max for replayable BP-style observations in one row."""
     if _distance_evidence_rank(row) != 1:
@@ -2106,16 +2121,14 @@ def _prefer_duplicate_evidence(
     if proposed_rank == 0:
         current_lane = current.get("candidate_persistence_lane")
         proposed_lane = proposed.get("candidate_persistence_lane")
-        current_unresolved = (
-            current.get("candidate_persistence_reason")
-            == "selected_distance_unresolved"
-        )
-        proposed_unresolved = (
-            proposed.get("candidate_persistence_reason")
-            == "selected_distance_unresolved"
-        )
-        if proposed_unresolved != current_unresolved:
-            return proposed if proposed_unresolved else current
+        current_persistence = _zero_distance_persistence_rank(current)
+        proposed_persistence = _zero_distance_persistence_rank(proposed)
+        if proposed_persistence != current_persistence:
+            return (
+                proposed
+                if proposed_persistence > current_persistence
+                else current
+            )
         if proposed_lane and not current_lane:
             return proposed
     return current
@@ -2186,11 +2199,8 @@ def _quick_exploration_priority(
         or singleton_upper < required
     ):
         return None
-    unresolved_top = int(
-        row.get("candidate_persistence_reason")
-        == "selected_distance_unresolved"
-    )
-    return unresolved_top, singleton_upper / required, code_key(row)
+    selected_distance_rank = _zero_distance_persistence_rank(row)
+    return selected_distance_rank, singleton_upper / required, code_key(row)
 
 
 def select_for_milp(

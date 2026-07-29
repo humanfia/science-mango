@@ -97,11 +97,14 @@ class CandidateLogWriteError(RuntimeError):
 
 WINNER_CAPABLE_EXPLORATION_LANE = "winner_capable_quick_exploration"
 QUICK_EXPLORATION_PERSISTENCE_REASON = "quick_distance_budget"
+DISTANCE_PENDING_PERSISTENCE_REASON = "selected_distance_pending"
 UNRESOLVED_TOP_PERSISTENCE_REASON = "selected_distance_unresolved"
+DISTANCE_ERROR_PERSISTENCE_REASON = "selected_distance_error"
 STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
 MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
 MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE = 4
+MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS = 2048
 
 
 def _definition_key(result: dict) -> tuple:
@@ -391,6 +394,67 @@ def _select_quick_exploration(
     return selected
 
 
+def _zero_distance_persistence_row(
+    row: dict,
+    *,
+    reason: str,
+    backend_error: dict[str, str] | None = None,
+) -> dict:
+    """Return an explicitly non-proof row suitable for durable retry routing."""
+    persisted = dict(row)
+    for field in (
+        "d_symplectic",
+        "milp_details",
+        "threshold_proof_witness",
+        "threshold_proof_distance",
+        "threshold_proof_source",
+        "threshold_proof_lhs",
+        "threshold_proof_rhs",
+    ):
+        persisted.pop(field, None)
+    persisted.update({
+        "d": 0,
+        "d_is_exact": False,
+        "distance_trusted": False,
+        "distance_status": "unknown",
+        "milp_attempted": False,
+        "fom": 0.0,
+        "score": 0.0,
+        "stage": reason,
+        "candidate_persistence_lane": WINNER_CAPABLE_EXPLORATION_LANE,
+        "candidate_persistence_reason": reason,
+    })
+    if backend_error is None:
+        persisted.pop("distance_backend_error", None)
+    else:
+        persisted["distance_backend_error"] = dict(backend_error)
+        persisted["distance_status"] = "unknown_backend_error"
+    if not _annotate_winner_capability(persisted):
+        raise CandidateLogWriteError(
+            "selected distance candidate lost its winner-capable parameters"
+        )
+    return persisted
+
+
+def _distance_backend_error_record(exc: Exception) -> dict[str, str]:
+    """Return bounded strict-JSON diagnostics for an untrusted backend error."""
+    try:
+        message = str(exc)
+    except Exception as stringify_error:
+        message = (
+            "<exception message unavailable: "
+            f"{type(stringify_error).__name__}>"
+        )
+    if len(message) > MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS:
+        message = (
+            message[: MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS - 3] + "..."
+        )
+    return {
+        "type": type(exc).__name__[:256],
+        "message": message,
+    }
+
+
 def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]]:
     """Remove disconnected/invalid positive-k codes before they affect fitness."""
     accepted = []
@@ -630,7 +694,17 @@ def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
             "singleton_distance_upper_bound": result[
                 "singleton_distance_upper_bound"
             ],
+            "d_is_exact": result.get("d_is_exact", False) is True,
+            "distance_trusted": (
+                result.get("distance_trusted", False) is True
+            ),
+            "distance_status": result.get("distance_status", "unknown"),
+            "milp_attempted": result.get("milp_attempted", False) is True,
         })
+        if isinstance(result.get("distance_backend_error"), dict):
+            record["distance_backend_error"] = dict(
+                result["distance_backend_error"]
+            )
 
     if run_name:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution" / run_name
@@ -706,13 +780,17 @@ def _run_evaluation(
     evaluated_candidate_definitions = 0
     duplicate_candidate_occurrences = 0
     quick_exploration_persisted = 0
+    distance_pending_persisted = 0
     unresolved_top_persisted = 0
+    distance_error_top_persisted = 0
+    distance_backend_error_count = 0
     errors = []
     tier0_rejected_count = 0
     structural_rejected_count = 0
 
     for ell, m in lattices:
         try:
+            prelogged_quick_keys: set[tuple] = set()
             candidates = generate_fn(ell, m)
             if not isinstance(candidates, list):
                 errors.append(f"({ell},{m}): generate_candidates returned {type(candidates)}, not list")
@@ -849,51 +927,106 @@ def _run_evaluation(
                 ]
                 top_keys = {_definition_key(result) for result in top}
 
-                if use_milp:
-                    # MILP: scale timeout with n.  The adaptive per-logical
-                    # timeout in distance_milp.py uses max(8s, total/2k),
-                    # so the total budget directly determines coverage.
-                    # k=24 at n=288 with 240s: 8s/logical × 30 logicals
-                    # (63% of 48).  Most codes solve instantly (d=2-4),
-                    # so only 1-2 codes per lattice use the full budget.
-                    n_code = 2 * ell * m
-                    if n_code <= 200:
-                        lat_timeout = min(milp_total_timeout, 120)
-                        lat_per_log = min(milp_timeout_per_logical, 20)
-                    elif n_code <= 300:
-                        lat_timeout = min(milp_total_timeout, 240)
-                        lat_per_log = min(milp_timeout_per_logical, 45)
+                # Determine and durably persist both zero-distance lanes before
+                # entering a blocking distance backend.  OpenEvolve's outer
+                # wall timeout cannot interrupt a Python worker thread cleanly;
+                # without this write-ahead handoff, SIGKILL/worker teardown can
+                # erase every selected candidate before the exception path runs.
+                quick_only = [
+                    r for r in quick_results if r.get("k", 0) > 0
+                    and _definition_key(r) not in top_keys
+                ]
+                persisted_quick = _select_quick_exploration(
+                    quick_only,
+                    ell=ell,
+                    m=m,
+                    sampling_salt=sampling_salt,
+                )
+                for result in persisted_quick:
+                    result["candidate_persistence_lane"] = (
+                        WINNER_CAPABLE_EXPLORATION_LANE
+                    )
+                    result["candidate_persistence_reason"] = (
+                        QUICK_EXPLORATION_PERSISTENCE_REASON
+                    )
+                    _log_code_jsonl(result, run_name=run_name)
+                prelogged_quick_keys = {
+                    _definition_key(result) for result in persisted_quick
+                }
+                quick_exploration_persisted += len(persisted_quick)
+
+                pending_top = [
+                    _zero_distance_persistence_row(
+                        result,
+                        reason=DISTANCE_PENDING_PERSISTENCE_REASON,
+                    )
+                    for result in top
+                ]
+                for result in pending_top:
+                    _log_code_jsonl(result, run_name=run_name)
+                distance_pending_persisted += len(pending_top)
+
+                backend_error: dict[str, str] | None = None
+                try:
+                    if use_milp:
+                        # MILP: scale timeout with n.  The adaptive per-logical
+                        # timeout in distance_milp.py uses max(8s, total/2k),
+                        # so the total budget directly determines coverage.
+                        # k=24 at n=288 with 240s: 8s/logical × 30 logicals
+                        # (63% of 48).  Most codes solve instantly (d=2-4),
+                        # so only 1-2 codes per lattice use the full budget.
+                        n_code = 2 * ell * m
+                        if n_code <= 200:
+                            lat_timeout = min(milp_total_timeout, 120)
+                            lat_per_log = min(milp_timeout_per_logical, 20)
+                        elif n_code <= 300:
+                            lat_timeout = min(milp_total_timeout, 240)
+                            lat_per_log = min(milp_timeout_per_logical, 45)
+                        else:
+                            lat_timeout = milp_total_timeout
+                            lat_per_log = milp_timeout_per_logical
+                        results = evaluate_batch_milp(
+                            ell, m, top_candidates,
+                            milp_timeout_per_logical=lat_per_log,
+                            milp_total_timeout=lat_timeout,
+                            milp_early_stop=milp_early_stop,
+                        )
                     else:
-                        lat_timeout = milp_total_timeout
-                        lat_per_log = milp_timeout_per_logical
-                    results = evaluate_batch_milp(
-                        ell, m, top_candidates,
-                        milp_timeout_per_logical=lat_per_log,
-                        milp_total_timeout=lat_timeout,
-                        milp_early_stop=milp_early_stop,
+                        # BP-OSD: use refine_trials for tighter upper bounds.
+                        # Skip exact distance (stage 5) -- requires SIGALRM which
+                        # isn't available in OpenEvolve's worker threads.
+                        results = evaluate_batch(
+                            ell, m, top_candidates,
+                            quick=False,
+                            quick_trials=refine_trials,
+                            fom_threshold_refine=6.0,
+                            fom_threshold_exact=float("inf"),
+                        )
+                except CandidateLogWriteError:
+                    raise
+                except Exception as exc:
+                    backend_error = _distance_backend_error_record(exc)
+                    errors.append(
+                        f"({ell},{m}): distance backend "
+                        f"{backend_error['type']}: {backend_error['message']}"
                     )
-                else:
-                    # BP-OSD: use refine_trials for tighter upper bounds.
-                    # Skip exact distance (stage 5) -- requires SIGALRM which
-                    # isn't available in OpenEvolve's worker threads.
-                    results = evaluate_batch(
-                        ell, m, top_candidates,
-                        quick=False,
-                        quick_trials=refine_trials,
-                        fom_threshold_refine=6.0,
-                        fom_threshold_exact=float("inf"),
-                    )
+                    distance_backend_error_count += 1
+                    results = [
+                        _zero_distance_persistence_row(
+                            result,
+                            reason=DISTANCE_ERROR_PERSISTENCE_REASON,
+                            backend_error=backend_error,
+                        )
+                        for result in top
+                    ]
+                    distance_error_top_persisted += len(results)
+
                 _annotate_generator_occurrences(
                     results,
                     ell=ell,
                     m=m,
                     occurrences=candidate_occurrences,
                 )
-                # Include quick-only results for aggregate counting
-                quick_only = [
-                    r for r in quick_results if r.get("k", 0) > 0
-                    and _definition_key(r) not in top_keys
-                ]
                 # Distance estimation can itself return an unresolved ``d=0``
                 # row. Treat those selected-but-unresolved definitions exactly
                 # like other quick-only candidates, instead of silently losing
@@ -902,7 +1035,8 @@ def _run_evaluation(
                     result
                     for result in results
                     if (
-                        result.get("k", 0) > 0
+                        backend_error is None
+                        and result.get("k", 0) > 0
                         and not _has_positive_distance(result)
                     )
                 ]
@@ -951,31 +1085,18 @@ def _run_evaluation(
                     )
                 unresolved_top_persisted += len(persisted_unresolved)
 
-                # A top-k distance budget is an allocation policy, not a proof
-                # that the remaining quick-only objects cannot win. Persist a
-                # bounded, k-stratified and deterministically rotating sample
-                # from that independent pool. Humanize reserves at most one
-                # MILP slot per round for the resulting zero-distance lane.
-                persisted_quick = _select_quick_exploration(
-                    quick_only,
-                    ell=ell,
-                    m=m,
-                    sampling_salt=sampling_salt,
-                )
-                for result in persisted_quick:
-                    result["candidate_persistence_lane"] = (
-                        WINNER_CAPABLE_EXPLORATION_LANE
-                    )
-                    result["candidate_persistence_reason"] = (
-                        QUICK_EXPLORATION_PERSISTENCE_REASON
-                    )
-                quick_exploration_persisted += len(persisted_quick)
                 results.extend(quick_only)
 
             all_results.extend(results)
 
             # Log ALL codes with d > 0 to JSONL for Phase D pattern extraction
             for r in results:
+                if (
+                    r.get("candidate_persistence_reason")
+                    == QUICK_EXPLORATION_PERSISTENCE_REASON
+                    and _definition_key(r) in prelogged_quick_keys
+                ):
+                    continue
                 _log_code_jsonl(r, run_name=run_name)
         except CandidateLogWriteError:
             # Persistence is part of a successful evaluation contract.  Let the
@@ -1023,7 +1144,14 @@ def _run_evaluation(
         "winner_capable_quick_exploration_persisted": (
             quick_exploration_persisted
         ),
+        "winner_capable_distance_pending_persisted": (
+            distance_pending_persisted
+        ),
         "winner_capable_unresolved_top_persisted": unresolved_top_persisted,
+        "winner_capable_distance_error_persisted": (
+            distance_error_top_persisted
+        ),
+        "distance_backend_error_count": distance_backend_error_count,
         "tier0_rejected": tier0_rejected_count,
         "structural_rejected": structural_rejected_count,
         "best_encoding_rate": best_encoding_rate,
@@ -1270,9 +1398,15 @@ def evaluate_stage2(program_path: str) -> dict:
         f"{metrics['duplicate_candidate_occurrences']} duplicate occurrences "
         "collapsed.\n"
         "Zero-distance persistence: "
+        f"{metrics.get('winner_capable_distance_pending_persisted', 0)} "
+        "selected pending, "
         f"{metrics['winner_capable_unresolved_top_persisted']} unresolved "
         "top-k, "
+        f"{metrics.get('winner_capable_distance_error_persisted', 0)} "
+        "distance errors, "
         f"{metrics['winner_capable_quick_exploration_persisted']} quick-only.\n"
+        "Distance backend failures: "
+        f"{metrics.get('distance_backend_error_count', 0)}.\n"
         f"Valid codes (k>0): {metrics['num_valid']}\n"
         f"High-k codes (k>=8): {metrics['num_high_k']}\n"
         f"Lattices with high-k: {metrics['lattices_with_high_k']}/{len(STAGE2_LATTICES)}\n"
@@ -1340,8 +1474,17 @@ def evaluate_stage2(program_path: str) -> dict:
         "winner_capable_quick_exploration_persisted": float(
             metrics["winner_capable_quick_exploration_persisted"]
         ),
+        "winner_capable_distance_pending_persisted": float(
+            metrics.get("winner_capable_distance_pending_persisted", 0)
+        ),
         "winner_capable_unresolved_top_persisted": float(
             metrics["winner_capable_unresolved_top_persisted"]
+        ),
+        "winner_capable_distance_error_persisted": float(
+            metrics.get("winner_capable_distance_error_persisted", 0)
+        ),
+        "distance_backend_error_count": float(
+            metrics.get("distance_backend_error_count", 0)
         ),
         "term_count": s2_tc,
         "pattern_type": s2_pattern,
@@ -1800,6 +1943,20 @@ def _write_metrics_jsonl(metrics: dict) -> None:
         "num_above_6": metrics.get("num_above_6", 0),
         "num_above_12": metrics.get("num_above_12", 0),
         "total_candidates": metrics.get("total_candidates", 0),
+        "winner_capable_distance_pending_persisted": metrics.get(
+            "winner_capable_distance_pending_persisted", 0
+        ),
+        "winner_capable_distance_error_persisted": metrics.get(
+            "winner_capable_distance_error_persisted", 0
+        ),
+        "distance_backend_error_count": metrics.get(
+            "distance_backend_error_count", 0
+        ),
+        "distance_backend_errors": [
+            error
+            for error in metrics.get("errors", [])
+            if "distance backend" in error
+        ],
         "per_lattice_best_fom": {
             f"{k[0]}x{k[1]}": v for k, v in per_lattice.items()
         },
