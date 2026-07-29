@@ -59,13 +59,16 @@ from ..formalization_review_gate import (
 from ..parallel_formalization_review import (
     _run_formalization_review_worker,
     build_target_formalization_review_prompt,
+    load_target_formalization_milestone,
 )
 from ..parallel_review import (
+    PIPELINED_REVIEW_SCHEMA_VERSION,
     PipelinedTargetReviewConfig,
     TargetReviewOutcome,
     TargetReviewSpec,
     _run_review_worker,
     build_target_review_prompt,
+    load_target_milestone,
     write_parallel_review_session,
     write_pipelined_review_report,
 )
@@ -110,6 +113,11 @@ _PHYSICS_BLUEPRINT_MARKER = "% archon:physics"
 _PHYSICS_STAGE_MODES = {
     "autoformalize": "physics-formalize",
     "prover": "physics",
+}
+_LIFECYCLE_PROOF_MODE_HANDOFFS = {
+    "formalize": "prove",
+    "physics-formalize": "physics",
+    "quantum-formalize": "quantum",
 }
 
 
@@ -160,6 +168,32 @@ def select_prover_mode_for_target(
     return default_prover_mode_for_stage(state_dir, stage)
 
 
+def select_lifecycle_proof_mode_for_target(
+    state_dir: Path,
+    project_path: Path,
+    target: Path,
+    *,
+    explicit_mode: str | None,
+) -> str | None:
+    """Resolve proof mode after a target-local formalization handoff.
+
+    A full target lifecycle can keep the global loop stage at
+    ``autoformalize`` while one target has already passed formalization
+    Review and advanced to proving. Formalization-only mode tags must not
+    leak into that proof worker.
+    """
+    mapped_mode = _LIFECYCLE_PROOF_MODE_HANDOFFS.get(explicit_mode or "")
+    if mapped_mode and _mode_file_exists(state_dir, mapped_mode):
+        return mapped_mode
+    return select_prover_mode_for_target(
+        state_dir,
+        "prover",
+        project_path,
+        target,
+        explicit_mode=None if mapped_mode else explicit_mode,
+    )
+
+
 def _target_sha256(target: Path) -> str:
     try:
         return hashlib.sha256(target.read_bytes()).hexdigest()
@@ -170,9 +204,12 @@ def _target_sha256(target: Path) -> str:
 def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
     result_root = state_dir / "task_results"
     slug = file_slug(rel)
+    rel_path = Path(rel)
     candidates = {
         result_root / f"{rel}.md",
-        result_root / f"{Path(rel).name}.md",
+        result_root / f"{rel_path.with_suffix('')}.md",
+        result_root / f"{rel_path.name}.md",
+        result_root / f"{rel_path.stem}.md",
         result_root / f"{slug}.lean.md",
         result_root / f"{slug}.md",
     }
@@ -182,6 +219,167 @@ def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
         if digest:
             fingerprints[str(path)] = digest
     return fingerprints
+
+
+def _task_result_mtimes(state_dir: Path, rel: str) -> dict[str, int]:
+    """Return nanosecond mtimes for accepted task-result filenames."""
+    result_root = state_dir / "task_results"
+    slug = file_slug(rel)
+    rel_path = Path(rel)
+    candidates = {
+        result_root / f"{rel}.md",
+        result_root / f"{rel_path.with_suffix('')}.md",
+        result_root / f"{rel_path.name}.md",
+        result_root / f"{rel_path.stem}.md",
+        result_root / f"{slug}.lean.md",
+        result_root / f"{slug}.md",
+    }
+    mtimes: dict[str, int] = {}
+    for path in candidates:
+        try:
+            if path.is_file():
+                mtimes[str(path)] = path.stat().st_mtime_ns
+        except OSError:
+            continue
+    return mtimes
+
+
+def _recover_legacy_materialized_formalizer_result(
+    *,
+    state_dir: Path,
+    target: Path,
+    rel: str,
+    result: dict,
+) -> dict | None:
+    """Promote a durable redraft missed by the old filename matcher.
+
+    Older checkpoints did not recognize task_results/<target-stem>.md.
+    Recovery is deliberately strict: the runner must have succeeded, the
+    exact current Lean digest must match its recorded output, postflight must
+    have compiled, and a newly recognized report must be at least as new as
+    that Lean output.
+    """
+    if (
+        result.get("status") == "materialized"
+        or result.get("runner_ok") is not True
+        or result.get("changed") is not True
+        or "formalizer did not update its task result"
+        not in str(result.get("error") or "")
+    ):
+        return None
+    preflight = result.get("preflight")
+    if not isinstance(preflight, dict) or preflight.get("compiles") is not True:
+        return None
+    lean_digest = _target_sha256(target)
+    if not lean_digest or str(result.get("lean_sha256") or "") != lean_digest:
+        return None
+    prior_raw = result.get("task_result_fingerprints")
+    prior = dict(prior_raw) if isinstance(prior_raw, dict) else {}
+    current = _task_result_fingerprints(state_dir, rel)
+    newly_visible = {
+        path: digest for path, digest in current.items() if path not in prior
+    }
+    if not newly_visible:
+        return None
+    try:
+        target_mtime = target.stat().st_mtime_ns
+    except OSError:
+        return None
+    mtimes = _task_result_mtimes(state_dir, rel)
+    if not any(
+        mtimes.get(path, -1) >= target_mtime for path in newly_visible
+    ):
+        return None
+    return {
+        **result,
+        "status": "materialized",
+        "task_result_updated": True,
+        "task_result_fingerprints": current,
+        "task_result_mtimes": mtimes,
+        "error": "",
+        "recovered_task_result_detection": True,
+    }
+
+
+def _load_pipeline_checkpoint(
+    *,
+    iter_dir: Path,
+    iter_num: int,
+    expected_rels: list[str],
+) -> dict | None:
+    """Load an in-scope incomplete pipeline checkpoint for lane recovery."""
+    path = iter_dir / "pipelined-review.json"
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(report, dict) or report.get("complete") is True:
+        return None
+    try:
+        schema_version = int(report.get("schema_version") or 0)
+        report_iteration = int(report.get("iteration") or 0)
+    except (TypeError, ValueError):
+        return None
+    if (
+        schema_version != PIPELINED_REVIEW_SCHEMA_VERSION
+        or report_iteration != int(iter_num)
+    ):
+        return None
+    raw_targets = report.get("target_files")
+    if not isinstance(raw_targets, list):
+        return None
+    actual = sorted({
+        str(item).lstrip("./") for item in raw_targets
+        if str(item).strip()
+    })
+    if actual != sorted(set(expected_rels)):
+        return None
+    return report
+
+
+def _pipeline_attempt(path: Path) -> int:
+    try:
+        return int(path.parent.name.removeprefix("attempt-"))
+    except ValueError:
+        return 0
+
+
+def _load_pipeline_event_milestone(
+    *,
+    iter_dir: Path,
+    rel: str,
+    kind: str,
+    cycle: int | None = None,
+) -> tuple[dict | None, int]:
+    """Recover the latest validated per-target milestone from disk."""
+    slug = file_slug(rel)
+    if kind == "formalization":
+        root = iter_dir / "formalization-review-targets" / slug
+        loader = load_target_formalization_milestone
+    else:
+        root = iter_dir / "review-targets" / slug
+        loader = load_target_milestone
+    if cycle is None:
+        candidates = list(
+            root.glob("cycle-*/attempt-*/milestones.jsonl")
+        )
+    else:
+        candidates = list(
+            root.glob(f"cycle-{cycle}/attempt-*/milestones.jsonl")
+        )
+    # Pre-cycle checkpoints used attempt-* directly.  Keep that one legacy
+    # fallback, but never substitute a different semantic cycle.
+    candidates.extend(root.glob("attempt-*/milestones.jsonl"))
+    unique = sorted(
+        set(candidates),
+        key=lambda path: (path.stat().st_mtime_ns, _pipeline_attempt(path)),
+        reverse=True,
+    )
+    for path in unique:
+        milestone, error = loader(path, rel)
+        if milestone is not None and not error:
+            return milestone, _pipeline_attempt(path)
+    return None, 0
 
 
 def build_immediate_redraft_prompt(
@@ -288,6 +486,7 @@ class _PipelineWork:
     cycle: int = 0
     baseline_sha256: str = ""
     result_fingerprints: tuple[tuple[str, str], ...] = ()
+    result_mtimes: tuple[tuple[str, int], ...] = ()
 
 
 class SerialProverRunner:
@@ -814,6 +1013,7 @@ class ParallelProverRunner:
         initial_formalization = (
             normalize_stage_for_prompt_path(self.stage) == "autoformalize"
         )
+        proof_stage = "prover" if full_pipeline else self.stage
         if initial_formalization and not full_pipeline:
             raise RuntimeError(
                 "autoformalize target lifecycle requires immediate "
@@ -826,6 +1026,102 @@ class ParallelProverRunner:
             1, int(config.formalization_review_max_iterations),
         )
         proof_max_iterations = max(1, int(config.proof_review_max_iterations))
+        target_by_rel = {
+            relpath(target, self.project_path): target for target in sorry_files
+        }
+        target_rels = sorted(target_by_rel)
+        resume_report = (
+            _load_pipeline_checkpoint(
+                iter_dir=self.iter_dir,
+                iter_num=self.iter_num,
+                expected_rels=target_rels,
+            )
+            if self.resume_enabled else None
+        )
+        recovered_gate_events: list[dict] = []
+        if resume_report is not None:
+            raw_events = resume_report.get("gate_events")
+            raw_events = raw_events if isinstance(raw_events, list) else []
+            for raw_event in raw_events:
+                if not isinstance(raw_event, dict):
+                    continue
+                kind = str(raw_event.get("kind") or "")
+                rel = str(raw_event.get("file") or "").lstrip("./")
+                event_id = str(raw_event.get("event_id") or "")
+                try:
+                    cycle = int(raw_event.get("cycle") or 0)
+                except (TypeError, ValueError):
+                    cycle = 0
+                target = target_by_rel.get(rel)
+                if (
+                    kind not in {"proof", "formalization"}
+                    or target is None
+                    or not event_id
+                    or cycle < 1
+                ):
+                    continue
+                milestone, _attempt = _load_pipeline_event_milestone(
+                    iter_dir=self.iter_dir,
+                    rel=rel,
+                    kind=kind,
+                    cycle=cycle,
+                )
+                if milestone is None:
+                    continue
+                event = {
+                    "kind": kind,
+                    "event_id": event_id,
+                    "target": target,
+                    "rel": rel,
+                    "cycle": cycle,
+                    "milestone": milestone,
+                    "applied": False,
+                }
+                if full_pipeline:
+                    if kind == "proof":
+                        update = apply_target_proof_review(
+                            state_dir=self.state_dir,
+                            project_path=self.project_path,
+                            target=target,
+                            milestone=milestone,
+                            iter_num=self.iter_num,
+                            max_iterations=proof_max_iterations,
+                            event_id=event_id,
+                        )
+                        if update.route == "needs_redraft":
+                            reopen_formalization_targets(
+                                state_dir=self.state_dir,
+                                project_path=self.project_path,
+                                progress_file=self.state_dir / "PROGRESS.md",
+                                redrafts={
+                                    rel: {
+                                        "reason": update.reason,
+                                        "redraft_kind": update.redraft_kind,
+                                        "pipeline_event_id": event_id,
+                                    }
+                                },
+                                iter_num=self.iter_num,
+                                max_iterations=formalization_max_iterations,
+                                route_progress=False,
+                                enforce_budget=True,
+                            )
+                    else:
+                        apply_target_formalization_review(
+                            state_dir=self.state_dir,
+                            project_path=self.project_path,
+                            target=target,
+                            milestone=milestone,
+                            iter_num=self.iter_num,
+                            max_iterations=formalization_max_iterations,
+                            event_id=event_id,
+                        )
+                    event["applied"] = True
+                recovered_gate_events.append(event)
+            log.info(
+                "Recovering incomplete target lifecycle: reusing "
+                f"{len(recovered_gate_events)} durable gate event(s)"
+            )
+
         prior_state = load_proof_review_state(self.state_dir)
         prior_targets = prior_state.get("targets", {})
         if not isinstance(prior_targets, dict):
@@ -841,6 +1137,114 @@ class ParallelProverRunner:
         pending_initial_formalizers: deque[tuple[Path, int]] = deque()
         resumed_completed: list[tuple[Path, str, str]] = []
         resumed_formalized: list[tuple[Path, str, str]] = []
+        resumed_redrafts: list[
+            tuple[Path, str, str, int, dict, str]
+        ] = []
+        resume_settled = set()
+        resume_pending_formalization = set()
+        resume_outcomes: dict[str, TargetReviewOutcome] = {}
+        resume_preflight_rows: dict[str, dict] = {}
+        resume_formalizer_results: dict[str, dict] = {}
+        resume_formalizer_history: dict[str, list[dict]] = {}
+        if resume_report is not None:
+            raw_settled = resume_report.get("settled_target_files")
+            if isinstance(raw_settled, list):
+                resume_settled = {
+                    str(item).lstrip("./") for item in raw_settled
+                    if str(item).strip()
+                }
+            raw_pending = resume_report.get("pending_formalization_targets")
+            if isinstance(raw_pending, list):
+                resume_pending_formalization = {
+                    str(item).lstrip("./") for item in raw_pending
+                    if str(item).strip()
+                }
+            resume_settled.difference_update(resume_pending_formalization)
+            raw_preflight = resume_report.get("preflight")
+            if isinstance(raw_preflight, dict):
+                for row in raw_preflight.get("targets", []):
+                    if isinstance(row, dict):
+                        rel = str(row.get("file") or "").lstrip("./")
+                        if rel in target_by_rel:
+                            resume_preflight_rows[rel] = row
+            raw_results = resume_report.get("formalizer_results")
+            if isinstance(raw_results, dict):
+                resume_formalizer_results = {
+                    str(rel).lstrip("./"): dict(result)
+                    for rel, result in raw_results.items()
+                    if isinstance(result, dict)
+                }
+            raw_history = resume_report.get("formalizer_history")
+            if isinstance(raw_history, dict):
+                resume_formalizer_history = {
+                    str(rel).lstrip("./"): [
+                        dict(result) for result in history
+                        if isinstance(result, dict)
+                    ]
+                    for rel, history in raw_history.items()
+                    if isinstance(history, list)
+                }
+            for rel in sorted(resume_pending_formalization):
+                            target = target_by_rel.get(rel)
+                            prior_result = resume_formalizer_results.get(rel)
+                            if target is None or not isinstance(prior_result, dict):
+                                continue
+                            recovered = _recover_legacy_materialized_formalizer_result(
+                                state_dir=self.state_dir,
+                                target=target,
+                                rel=rel,
+                                result=prior_result,
+                            )
+                            if recovered is None:
+                                continue
+                            resume_formalizer_results[rel] = recovered
+                            history = resume_formalizer_history.setdefault(rel, [])
+                            recovered_cycle = int(recovered.get("cycle") or 0)
+                            replaced = False
+                            for index in range(len(history) - 1, -1, -1):
+                                try:
+                                    cycle = int(history[index].get("cycle") or 0)
+                                except (AttributeError, TypeError, ValueError):
+                                    continue
+                                if cycle == recovered_cycle:
+                                    history[index] = dict(recovered)
+                                    replaced = True
+                                    break
+                            if not replaced:
+                                history.append(dict(recovered))
+                            log.warn(
+                                "Recovered materialized formalizer output previously "
+                                f"missed by task-result filename detection: {rel}"
+                            )
+            raw_proof_targets = resume_report.get("proof_review_target_files")
+            if not isinstance(raw_proof_targets, list):
+                raw_proof_targets = []
+            proof_events = [
+                event for event in recovered_gate_events
+                if event.get("kind") == "proof"
+            ]
+            for raw_rel in raw_proof_targets:
+                rel = str(raw_rel).lstrip("./")
+                matching = [
+                    event for event in proof_events if event.get("rel") == rel
+                ]
+                if not matching:
+                    continue
+                event = matching[-1]
+                _milestone, attempt = _load_pipeline_event_milestone(
+                    iter_dir=self.iter_dir,
+                    rel=rel,
+                    kind="proof",
+                    cycle=int(event["cycle"]),
+                )
+                if _milestone is not None:
+                    resume_outcomes[rel] = TargetReviewOutcome(
+                        rel=rel,
+                        attempt=max(1, attempt),
+                        runner_ok=True,
+                        milestone=_milestone,
+                    )
+
         proof_cycles: dict[str, int] = {}
         formalization_cycles: dict[str, int] = {}
         shadow_proof_attempts: dict[str, int] = {}
@@ -850,8 +1254,30 @@ class ParallelProverRunner:
         for target in sorry_files:
             rel = relpath(target, self.project_path)
             slug = file_slug(rel)
-            proof_cycles[rel] = 0 if initial_formalization else 1
-            formalization_cycles[rel] = 1 if initial_formalization else 0
+            prior_proof_cycles = [
+                int(event.get("cycle") or 0)
+                for event in recovered_gate_events
+                if event.get("kind") == "proof" and event.get("rel") == rel
+            ]
+            prior_formalization_cycles = [
+                int(event.get("cycle") or 0)
+                for event in recovered_gate_events
+                if event.get("kind") == "formalization"
+                and event.get("rel") == rel
+            ]
+            for result in resume_formalizer_history.get(rel, []):
+                try:
+                    prior_formalization_cycles.append(
+                        int(result.get("cycle") or 0)
+                    )
+                except (TypeError, ValueError):
+                    continue
+            proof_cycles[rel] = max(
+                [0 if initial_formalization else 1, *prior_proof_cycles]
+            )
+            formalization_cycles[rel] = max(
+                [1 if initial_formalization else 0, *prior_formalization_cycles]
+            )
             prior_proof = prior_targets.get(rel)
             prior_proof = prior_proof if isinstance(prior_proof, dict) else {}
             shadow_proof_attempts[rel] = int(prior_proof.get("attempts") or 0)
@@ -865,6 +1291,35 @@ class ParallelProverRunner:
                 prior_formalization.get("reviews") or 0
             )
             shadow_formalization_records[rel] = dict(prior_formalization)
+            if rel in resume_settled:
+                continue
+            if rel in resume_pending_formalization:
+                prior_result = resume_formalizer_results.get(rel, {})
+                if prior_result.get("status") == "materialized":
+                    resumed_formalized.append((target, rel, slug))
+                else:
+                    matching = [
+                        event for event in recovered_gate_events
+                        if event.get("kind") == "proof"
+                        and event.get("rel") == rel
+                    ]
+                    milestone = matching[-1]["milestone"] if matching else {}
+                    certificate = milestone.get("proof_review")
+                    certificate = (
+                        dict(certificate)
+                        if isinstance(certificate, dict) else dict(milestone)
+                    )
+                    next_cycle = formalization_cycles[rel] + 1
+                    formalization_cycles[rel] = next_cycle
+                    resumed_redrafts.append((
+                        target,
+                        rel,
+                        slug,
+                        next_cycle,
+                        certificate,
+                        "pipeline recovery",
+                    ))
+                continue
             if initial_formalization:
                 prior_status = (
                     read_meta(
@@ -910,19 +1365,21 @@ class ParallelProverRunner:
         ] = []
         formalizer_queue: deque[
             tuple[Path, str, str, int, dict, str]
-        ] = deque()
+        ] = deque(resumed_redrafts)
         formalization_review_queue: list[
             tuple[float, int, Path, str, str, int, int]
         ] = []
         sequence = count()
         futures: dict[object, _PipelineWork] = {}
-        outcomes: dict[str, TargetReviewOutcome] = {}
-        preflight_rows: dict[str, dict] = {}
-        formalizer_results: dict[str, dict] = {}
-        formalizer_history: dict[str, list[dict]] = {}
-        gate_events: list[dict] = []
-        pending_formalization: set[str] = set()
-        settled_targets: set[str] = set()
+        outcomes: dict[str, TargetReviewOutcome] = dict(resume_outcomes)
+        preflight_rows: dict[str, dict] = dict(resume_preflight_rows)
+        formalizer_results: dict[str, dict] = dict(resume_formalizer_results)
+        formalizer_history: dict[str, list[dict]] = dict(
+            resume_formalizer_history
+        )
+        gate_events: list[dict] = list(recovered_gate_events)
+        pending_formalization: set[str] = set(resume_pending_formalization)
+        settled_targets: set[str] = set(resume_settled)
         unresolved: dict[str, str] = {}
         review_rounds: dict[int, dict[str, int]] = {}
         formalization_review_rounds: dict[
@@ -931,7 +1388,6 @@ class ParallelProverRunner:
         active_reviews = 0
         failed = 0
         started = time.monotonic()
-        target_rels = sorted(relpath(path, self.project_path) for path in sorry_files)
 
         if initial_formalization:
             log.info(
@@ -963,12 +1419,48 @@ class ParallelProverRunner:
             "prover.pipelineReviewMaxCombined": workers,
             "prover.pipelineReviewMaxReviewers": review_jobs,
         })
-        write_pipelined_review_report(
-            iter_dir=self.iter_dir,
-            report={
+        def pipeline_event_summaries() -> list[dict]:
+            summaries: list[dict] = []
+            for event in gate_events:
+                summary = {
+                    "kind": event["kind"],
+                    "event_id": event["event_id"],
+                    "file": event["rel"],
+                    "cycle": event["cycle"],
+                    "applied": event.get("applied") is True,
+                }
+                if event["kind"] == "proof":
+                    summary["route"] = proof_review_decision(
+                        event["milestone"]
+                    )[0]
+                else:
+                    summary["decision"] = formalization_review_decision(
+                        event["milestone"]
+                    )[0]
+                summaries.append(summary)
+            return summaries
+
+        def write_pipeline_checkpoint(*, status: str = "running") -> None:
+            checks = [preflight_rows[rel] for rel in sorted(preflight_rows)]
+            formalizer_invocations = [
+                result
+                for rel in sorted(formalizer_history)
+                for result in formalizer_history[rel]
+            ]
+            materialized = [
+                result for result in formalizer_invocations
+                if result.get("status") == "materialized"
+            ]
+            failed_invocations = [
+                result for result in formalizer_invocations
+                if result.get("status") != "materialized"
+            ]
+            event_summaries = pipeline_event_summaries()
+            report = dict(resume_report or {})
+            report.update({
                 "iteration": self.iter_num,
                 "complete": False,
-                "status": "running",
+                "status": status,
                 "pipeline_mode": (
                     "target_lifecycle" if full_pipeline else "proof_review"
                 ),
@@ -976,13 +1468,71 @@ class ParallelProverRunner:
                     "formalizer" if initial_formalization else "prover"
                 ),
                 "target_files": target_rels,
+                "settled_target_files": sorted(settled_targets),
+                "proof_review_target_files": sorted(outcomes),
                 "targets": file_count,
-                "reviewed": 0,
-                "unresolved": target_rels,
-                "gate_events_applied": False,
-                "formalization_reviews": {"reviewed": 0, "unresolved": []},
-                "formalizers": {"requested": 0, "materialized": 0, "failed": 0},
-            },
+                "reviewed": len(outcomes),
+                "unresolved": sorted(set(target_rels) - settled_targets),
+                "errors": dict(unresolved),
+                "requested_jobs": config.requested_jobs,
+                "max_combined_workers": workers,
+                "max_reviewers": review_jobs,
+                "max_attempts": max_attempts,
+                "duration_secs": round(time.monotonic() - started, 3),
+                "preflight": {
+                    "iteration": self.iter_num,
+                    "jobs": 1,
+                    "duration_secs": round(sum(
+                        float(row.get("duration_secs") or 0.0)
+                        for row in checks
+                    ), 3),
+                    "summary": {
+                        "total": len(checks),
+                        "passed": sum(bool(row.get("compiles")) for row in checks),
+                        "failed": sum(
+                            not bool(row.get("compiles")) for row in checks
+                        ),
+                    },
+                    "targets": checks,
+                },
+                "formalizers": {
+                    "requested": len(formalizer_invocations),
+                    "materialized": len(materialized),
+                    "failed": len(failed_invocations),
+                },
+                "formalizer_results": formalizer_results,
+                "formalizer_history": formalizer_history,
+                "formalization_handoffs": {
+                    rel: result
+                    for rel, result in sorted(formalizer_results.items())
+                    if result.get("status") == "materialized"
+                },
+                "formalization_reviews": {
+                    "enabled": full_pipeline,
+                    "reviewed": sum(
+                        event.get("kind") == "formalization"
+                        for event in gate_events
+                    ),
+                    "rounds": [
+                        formalization_review_rounds[key]
+                        for key in sorted(formalization_review_rounds)
+                    ],
+                    "unresolved": sorted(pending_formalization),
+                },
+                "gate_events_applied": bool(
+                    full_pipeline
+                    and all(event.get("applied") is True for event in gate_events)
+                ),
+                "gate_events": event_summaries,
+                "pending_formalization_targets": sorted(pending_formalization),
+            })
+            write_pipelined_review_report(
+                iter_dir=self.iter_dir,
+                report=report,
+            )
+
+        write_pipeline_checkpoint(
+            status="recovering" if resume_report is not None else "running"
         )
 
         def enqueue_review(
@@ -1047,19 +1597,27 @@ class ParallelProverRunner:
             rel = relpath(target, self.project_path)
             slug = file_slug(rel)
             prover_log = self.iter_dir / "provers" / slug
-            mode_name = select_prover_mode_for_target(
-                self.state_dir,
-                self.stage,
-                self.project_path,
-                target,
-                explicit_mode=file_modes.get(str(target)),
-            )
+            if full_pipeline:
+                mode_name = select_lifecycle_proof_mode_for_target(
+                    self.state_dir,
+                    self.project_path,
+                    target,
+                    explicit_mode=file_modes.get(str(target)),
+                )
+            else:
+                mode_name = select_prover_mode_for_target(
+                    self.state_dir,
+                    proof_stage,
+                    self.project_path,
+                    target,
+                    explicit_mode=file_modes.get(str(target)),
+                )
             mode_content = _load_mode_content(self.state_dir, mode_name)
             base_prompt = build_parallel_prover_prompt(
                 self.project_name,
                 self.project_path,
                 self.state_dir,
-                self.stage,
+                proof_stage,
                 self.iter_num,
                 assigned_rel_lean_path=rel,
                 debug_feedback=self.debug_feedback,
@@ -1082,6 +1640,7 @@ class ParallelProverRunner:
                 f"provers.{slug}.file": rel,
                 f"provers.{slug}.status": "running",
                 f"provers.{slug}.cycle": cycle,
+                f"provers.{slug}.stage": proof_stage,
             }
             if mode_name:
                 meta_update[f"provers.{slug}.mode"] = mode_name
@@ -1197,6 +1756,9 @@ class ParallelProverRunner:
             prompt = f"{base_prompt}\nYour assigned file: {rel}"
             baseline_sha256 = _target_sha256(target)
             baseline_results = _task_result_fingerprints(self.state_dir, rel)
+            baseline_result_mtimes = _task_result_mtimes(
+                self.state_dir, rel,
+            )
             resume_sid = pick_resume_session(
                 self.iter_meta,
                 f"pipelineFormalizers.{slug}.sessionId",
@@ -1236,6 +1798,7 @@ class ParallelProverRunner:
                     digest for digest in baseline_candidates if len(digest) == 64
                 ), baseline_sha256)
                 baseline_results = {}
+                baseline_result_mtimes = {}
                 snap_dir.mkdir(parents=True, exist_ok=True)
             else:
                 snapshot_baseline(target, snap_dir)
@@ -1278,6 +1841,7 @@ class ParallelProverRunner:
                 cycle=cycle,
                 baseline_sha256=baseline_sha256,
                 result_fingerprints=tuple(sorted(baseline_results.items())),
+                result_mtimes=tuple(sorted(baseline_result_mtimes.items())),
             )
 
         def submit_formalizer(
@@ -1293,6 +1857,9 @@ class ParallelProverRunner:
             snap_dir = self.iter_dir / "formalizer-snapshots" / slug
             baseline_sha256 = _target_sha256(target)
             baseline_results = _task_result_fingerprints(self.state_dir, rel)
+            baseline_result_mtimes = _task_result_mtimes(
+                self.state_dir, rel,
+            )
             snapshot_baseline(target, snap_dir)
             prompt = build_immediate_redraft_prompt(
                 project_name=self.project_name,
@@ -1343,6 +1910,7 @@ class ParallelProverRunner:
                 cycle=cycle,
                 baseline_sha256=baseline_sha256,
                 result_fingerprints=tuple(sorted(baseline_results.items())),
+                result_mtimes=tuple(sorted(baseline_result_mtimes.items())),
             )
 
         def enqueue_formalization_review(
@@ -1455,7 +2023,11 @@ class ParallelProverRunner:
                     target, rel, slug = checks[future]
                     preflight_rows[rel] = future.result()
                     enqueue_formalization_review(
-                        target, rel, slug, 1, 1,
+                        target,
+                        rel,
+                        slug,
+                        max(1, formalization_cycles.get(rel, 1)),
+                        1,
                     )
 
         def fill_slots(pool) -> None:
@@ -1601,13 +2173,22 @@ class ParallelProverRunner:
                         postflight = run_preflight(work.target, work.rel)
                         compiles = bool(postflight.get("compiles"))
                         before_results = dict(work.result_fingerprints)
+                        before_result_mtimes = dict(work.result_mtimes)
                         after_results = _task_result_fingerprints(
+                            self.state_dir, work.rel,
+                        )
+                        after_result_mtimes = _task_result_mtimes(
                             self.state_dir, work.rel,
                         )
                         result_updated = any(
                             before_results.get(path) != digest
                             for path, digest in after_results.items()
                         )
+                        if not result_updated:
+                            result_updated = any(
+                                mtime > before_result_mtimes.get(path, -1)
+                                for path, mtime in after_result_mtimes.items()
+                            )
                         materialized = changed and compiles and result_updated
                         errors = [runner_error] if runner_error else []
                         if not changed:
@@ -1628,6 +2209,7 @@ class ParallelProverRunner:
                             "changed": changed,
                             "task_result_updated": result_updated,
                             "task_result_fingerprints": after_results,
+                            "task_result_mtimes": after_result_mtimes,
                             "preflight": postflight,
                             "error": "; ".join(errors),
                         }
@@ -1661,11 +2243,13 @@ class ParallelProverRunner:
                                 )
                         else:
                             pending_formalization.add(work.rel)
-                            settled_targets.add(work.rel)
+                            settled_targets.discard(work.rel)
+                            unresolved[work.rel] = "; ".join(errors)
                             log.error(
                                 f"Immediate formalizer incomplete: {work.rel}; "
                                 f"{'; '.join(errors)}"
                             )
+                        write_pipeline_checkpoint()
                         continue
 
                     if work.kind == "formalization_review":
@@ -1692,14 +2276,35 @@ class ParallelProverRunner:
                             decision, reason, certificate = (
                                 formalization_review_decision(outcome.milestone)
                             )
-                            reviews = shadow_formalization_reviews[work.rel] + 1
+                            event_id = (
+                                f"pipeline:{self.iter_num}:{work.rel}:"
+                                f"formalization:{work.cycle}"
+                            )
+                            event = {
+                                "kind": "formalization",
+                                "event_id": event_id,
+                                "target": work.target,
+                                "rel": work.rel,
+                                "cycle": work.cycle,
+                                "milestone": outcome.milestone,
+                                "applied": False,
+                            }
+                            gate_events.append(event)
+                            write_pipeline_checkpoint()
+                            update = apply_target_formalization_review(
+                                state_dir=self.state_dir,
+                                project_path=self.project_path,
+                                target=work.target,
+                                milestone=outcome.milestone,
+                                iter_num=self.iter_num,
+                                max_iterations=formalization_max_iterations,
+                                event_id=event_id,
+                            )
+                            event["applied"] = True
+                            status = update.status
+                            reviews = update.reviews
+                            reason = update.reason
                             shadow_formalization_reviews[work.rel] = reviews
-                            if decision == "passed":
-                                status = "passed"
-                            elif reviews >= formalization_max_iterations:
-                                status = "review_exhausted"
-                            else:
-                                status = "retry"
                             shadow_formalization_records[work.rel] = {
                                 **shadow_formalization_records.get(work.rel, {}),
                                 "status": status,
@@ -1707,18 +2312,7 @@ class ParallelProverRunner:
                                 "reason": reason,
                                 "certificate": certificate,
                             }
-                            event_id = (
-                                f"pipeline:{self.iter_num}:{work.rel}:"
-                                f"formalization:{work.cycle}"
-                            )
-                            gate_events.append({
-                                "kind": "formalization",
-                                "event_id": event_id,
-                                "target": work.target,
-                                "rel": work.rel,
-                                "cycle": work.cycle,
-                                "milestone": outcome.milestone,
-                            })
+                            write_pipeline_checkpoint()
                             write_meta(self.iter_meta, **{
                                 f"pipelineFormalizationReviews.{work.slug}.status": (
                                     status
@@ -1750,26 +2344,17 @@ class ParallelProverRunner:
                                 next_cycle = proof_cycles[work.rel] + 1
                                 proof_cycles[work.rel] = next_cycle
                                 open_sorries = file_open_sorry_count(work.target)
+                                pending_provers.append(
+                                    (work.target, next_cycle)
+                                )
                                 if open_sorries == 0:
-                                    preflight_rows[work.rel] = run_preflight(
-                                        work.target, work.rel,
-                                    )
-                                    enqueue_review(
-                                        work.target,
-                                        work.rel,
-                                        work.slug,
-                                        1,
-                                        next_cycle,
-                                    )
                                     log.step(
                                         "Formalization Review passed with no "
-                                        "open proof holes; immediately queued "
-                                        f"proof Review for {work.rel}"
+                                        "open proof holes; queued a proof "
+                                        "verifier lane so proof Review receives "
+                                        f"the required prover trace for {work.rel}"
                                     )
                                 else:
-                                    pending_provers.append(
-                                        (work.target, next_cycle)
-                                    )
                                     log.step(
                                         "Formalization Review passed; "
                                         "immediately re-enqueued prover for "
@@ -1797,6 +2382,7 @@ class ParallelProverRunner:
                             else:
                                 pending_formalization.discard(work.rel)
                                 settled_targets.add(work.rel)
+                            write_pipeline_checkpoint()
                         else:
                             stats["failed"] += 1
                             error = (
@@ -1818,7 +2404,8 @@ class ParallelProverRunner:
                                 )
                             else:
                                 pending_formalization.add(work.rel)
-                                settled_targets.add(work.rel)
+                                settled_targets.discard(work.rel)
+                                unresolved[work.rel] = error
                                 write_meta(self.iter_meta, **{
                                     f"pipelineFormalizationReviews.{work.slug}.status": "error",
                                     f"pipelineFormalizationReviews.{work.slug}.error": error,
@@ -1828,6 +2415,7 @@ class ParallelProverRunner:
                                     f"{formalization_max_attempts} harness "
                                     f"attempt(s): {work.rel}"
                                 )
+                                write_pipeline_checkpoint(status="incomplete")
                         continue
 
                     active_reviews -= 1
@@ -1854,18 +2442,55 @@ class ParallelProverRunner:
                             proof_review_decision(outcome.milestone)
                         )
                         if full_pipeline:
-                            shadow_proof_attempts[work.rel] += 1
-                            attempts = shadow_proof_attempts[work.rel]
-                            if route == "solved":
-                                proof_status = "solved"
-                            elif route == "needs_redraft":
-                                proof_status = "needs_redraft"
-                            elif route == "blocked_infrastructure":
-                                proof_status = "blocked_infrastructure"
-                            elif attempts >= proof_max_iterations:
-                                proof_status = "proof_review_exhausted"
-                            else:
-                                proof_status = "retry"
+                            event_id = (
+                                f"pipeline:{self.iter_num}:{work.rel}:"
+                                f"proof:{work.cycle}"
+                            )
+                            event = {
+                                "kind": "proof",
+                                "event_id": event_id,
+                                "target": work.target,
+                                "rel": work.rel,
+                                "cycle": work.cycle,
+                                "milestone": outcome.milestone,
+                                "applied": False,
+                            }
+                            gate_events.append(event)
+                            write_pipeline_checkpoint()
+                            update = apply_target_proof_review(
+                                state_dir=self.state_dir,
+                                project_path=self.project_path,
+                                target=work.target,
+                                milestone=outcome.milestone,
+                                iter_num=self.iter_num,
+                                max_iterations=proof_max_iterations,
+                                event_id=event_id,
+                            )
+                            if update.route == "needs_redraft":
+                                reopen_formalization_targets(
+                                    state_dir=self.state_dir,
+                                    project_path=self.project_path,
+                                    progress_file=self.state_dir / "PROGRESS.md",
+                                    redrafts={
+                                        update.rel: {
+                                            "reason": update.reason,
+                                            "redraft_kind": update.redraft_kind,
+                                            "pipeline_event_id": event_id,
+                                        }
+                                    },
+                                    iter_num=self.iter_num,
+                                    max_iterations=formalization_max_iterations,
+                                    route_progress=False,
+                                    enforce_budget=True,
+                                )
+                            event["applied"] = True
+                            write_pipeline_checkpoint()
+                            route = update.route
+                            reason = update.reason
+                            redraft_kind = update.redraft_kind
+                            proof_status = update.status
+                            attempts = update.attempts
+                            shadow_proof_attempts[work.rel] = attempts
                             shadow_proof_records[work.rel] = {
                                 **shadow_proof_records.get(work.rel, {}),
                                 "status": proof_status,
@@ -1874,18 +2499,6 @@ class ParallelProverRunner:
                                 "evidence": evidence,
                                 "redraft_kind": redraft_kind,
                             }
-                            event_id = (
-                                f"pipeline:{self.iter_num}:{work.rel}:"
-                                f"proof:{work.cycle}"
-                            )
-                            gate_events.append({
-                                "kind": "proof",
-                                "event_id": event_id,
-                                "target": work.target,
-                                "rel": work.rel,
-                                "cycle": work.cycle,
-                                "milestone": outcome.milestone,
-                            })
                         write_meta(self.iter_meta, **{
                             f"pipelineReviews.{work.slug}.status": "done",
                             f"pipelineReviews.{work.slug}.route": route,
@@ -1955,6 +2568,7 @@ class ParallelProverRunner:
                                 settled_targets.add(work.rel)
                         else:
                             settled_targets.add(work.rel)
+                        write_pipeline_checkpoint()
                     else:
                         stats["failed"] += 1
                         error = (
@@ -1985,6 +2599,7 @@ class ParallelProverRunner:
                                 f"Proof Review failed after {max_attempts} "
                                 f"harness attempt(s): {work.rel}"
                             )
+                            write_pipeline_checkpoint(status="incomplete")
 
         complete = (
             not unresolved
@@ -2003,7 +2618,10 @@ class ParallelProverRunner:
                 iter_num=self.iter_num,
                 outcomes=outcomes,
             )
-        gate_events_applied = False
+        gate_events_applied = bool(
+            full_pipeline
+            and all(event.get("applied") is True for event in gate_events)
+        )
         proof_gate_result = {
             "solved": [],
             "retry": [],
@@ -2019,46 +2637,6 @@ class ParallelProverRunner:
             "reviewed": [],
         }
         if complete and full_pipeline:
-            for event in gate_events:
-                if event["kind"] == "proof":
-                    update = apply_target_proof_review(
-                        state_dir=self.state_dir,
-                        project_path=self.project_path,
-                        target=event["target"],
-                        milestone=event["milestone"],
-                        iter_num=self.iter_num,
-                        max_iterations=proof_max_iterations,
-                        event_id=event["event_id"],
-                    )
-                    if update.route == "needs_redraft":
-                        reopen_formalization_targets(
-                            state_dir=self.state_dir,
-                            project_path=self.project_path,
-                            progress_file=self.state_dir / "PROGRESS.md",
-                            redrafts={
-                                update.rel: {
-                                    "reason": update.reason,
-                                    "redraft_kind": update.redraft_kind,
-                                    "pipeline_event_id": event["event_id"],
-                                }
-                            },
-                            iter_num=self.iter_num,
-                            max_iterations=formalization_max_iterations,
-                            route_progress=False,
-                            enforce_budget=True,
-                        )
-                else:
-                    apply_target_formalization_review(
-                        state_dir=self.state_dir,
-                        project_path=self.project_path,
-                        target=event["target"],
-                        milestone=event["milestone"],
-                        iter_num=self.iter_num,
-                        max_iterations=formalization_max_iterations,
-                        event_id=event["event_id"],
-                    )
-            gate_events_applied = True
-
             proof_state = load_proof_review_state(self.state_dir)
             proof_records = proof_state.get("targets", {})
             proof_records = (
@@ -2144,21 +2722,7 @@ class ParallelProverRunner:
             for result in formalizer_invocations
             if result.get("status") != "materialized"
         ]
-        gate_event_summaries = []
-        for event in gate_events:
-            summary = {
-                "kind": event["kind"],
-                "event_id": event["event_id"],
-                "file": event["rel"],
-                "cycle": event["cycle"],
-            }
-            if event["kind"] == "proof":
-                summary["route"] = proof_review_decision(event["milestone"])[0]
-            else:
-                summary["decision"] = formalization_review_decision(
-                    event["milestone"]
-                )[0]
-            gate_event_summaries.append(summary)
+        gate_event_summaries = pipeline_event_summaries()
         proof_redrafts_reopened = sorted({
             row["file"]
             for row in gate_event_summaries
@@ -2254,8 +2818,9 @@ class ParallelProverRunner:
                 )
         else:
             log.warn(
-                "Pipelined proof Review hand-off is incomplete; ReviewPhase "
-                "will fail closed and rerun the normal target Review batch."
+                "Pipelined target lifecycle checkpoint is incomplete; "
+                "ReviewPhase will resume only unresolved lanes and will not "
+                "rerun completed target Reviews."
             )
 
         if materialized_redrafts:
@@ -2265,7 +2830,7 @@ class ParallelProverRunner:
         if failed_redrafts:
             log.warn(
                 f"Immediate redrafts incomplete: {len(failed_redrafts)}; "
-                "normal autoformalize fallback remains enabled"
+                "their target-local lifecycle remains recoverable"
             )
 
         if failed:

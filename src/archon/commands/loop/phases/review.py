@@ -456,12 +456,61 @@ class ReviewPhase(Phase):
                     iter_num=ctx.iter_num,
                     objectives=pipeline_objectives,
                 )
+                if pipeline_error == "pipelined Review report is incomplete":
+                    checkpoint, checkpoint_error = load_pipelined_review_report(
+                        project_path=ctx.project_path,
+                        state_dir=ctx.state_dir,
+                        iter_dir=ctx.iter_dir,
+                        iter_num=ctx.iter_num,
+                        objectives=pipeline_objectives,
+                        allow_incomplete=True,
+                    )
+                    recoverable = (
+                        not checkpoint_error
+                        and isinstance(checkpoint, dict)
+                        and checkpoint.get("pipeline_mode") == "target_lifecycle"
+                    )
+                    if recoverable:
+                        raw_unresolved = checkpoint.get("unresolved", [])
+                        unresolved_count = (
+                            len(raw_unresolved)
+                            if isinstance(raw_unresolved, list) else 0
+                        )
+                        log.warn(
+                            "resuming incomplete target lifecycle checkpoint: "
+                            f"{unresolved_count} unresolved lane(s); completed "
+                            "target Reviews will be reused"
+                        )
+                        from .prover import ProverPhase
+
+                        ProverPhase(ctx).resume_incomplete_pipeline(
+                            pipeline_objectives,
+                            starts_at=str(
+                                checkpoint.get("starts_at") or "prover"
+                            ),
+                        )
+                        pipelined_report, pipeline_error = (
+                            load_pipelined_review_report(
+                                project_path=ctx.project_path,
+                                state_dir=ctx.state_dir,
+                                iter_dir=ctx.iter_dir,
+                                iter_num=ctx.iter_num,
+                                objectives=pipeline_objectives,
+                            )
+                        )
+                        if pipeline_error:
+                            raise RuntimeError(
+                                "target-local pipeline recovery remains "
+                                f"incomplete: {pipeline_error}; preserved "
+                                "completed lanes and disabled whole-batch "
+                                "Review fallback"
+                            )
                 if pipeline_error:
                     log.warn(
                         f"pipelined Review hand-off rejected: {pipeline_error}; "
                         "falling back to the normal target Review batch"
                     )
-                else:
+                if pipelined_report is not None:
                     self._review_preflight = pipelined_report.get("preflight", {})
                     summary = self._review_preflight.get("summary", {})
                     log.success(

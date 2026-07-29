@@ -152,9 +152,12 @@ def build_target_review_prompt(
     chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
     prover_log = iter_dir / "provers" / f"{slug}.jsonl"
     result_root = state_dir / "task_results"
+    rel_path = Path(rel)
     result_candidates = {
         result_root / f"{rel}.md",
-        result_root / f"{Path(rel).name}.md",
+        result_root / f"{rel_path.with_suffix('')}.md",
+        result_root / f"{rel_path.name}.md",
+        result_root / f"{rel_path.stem}.md",
         result_root / f"{slug}.lean.md",
         result_root / f"{slug}.md",
     }
@@ -427,8 +430,15 @@ def load_pipelined_review_report(
     iter_dir: Path,
     iter_num: int,
     objectives: list[Path],
+    allow_incomplete: bool = False,
 ) -> tuple[dict | None, str]:
-    """Load a complete, exact-target pipeline hand-off or fail closed."""
+    """Load an exact-target pipeline hand-off or fail closed.
+
+    ``allow_incomplete`` is reserved for target-lifecycle recovery.  It
+    validates the checkpoint identity and target scope, but deliberately
+    skips complete-session checks so only unresolved lanes can be resumed.
+    Normal Review consumption still requires a complete report.
+    """
     path = iter_dir / PIPELINED_REVIEW_REPORT_FILENAME
     try:
         report = json.loads(path.read_text(encoding="utf-8"))
@@ -447,9 +457,6 @@ def load_pipelined_review_report(
         return None, "unsupported pipelined Review report schema"
     if report_iteration != int(iter_num):
         return None, "pipelined Review report iteration mismatch"
-    if report.get("complete") is not True:
-        return None, "pipelined Review report is incomplete"
-
     expected: list[str] = []
     for objective in objectives:
         try:
@@ -469,6 +476,11 @@ def load_pipelined_review_report(
             "pipelined Review report target mismatch: "
             f"expected={expected!r}, actual={actual!r}"
         )
+
+    if report.get("complete") is not True:
+        if allow_incomplete:
+            return report, ""
+        return None, "pipelined Review report is incomplete"
 
     proof_expected = expected
     if str(report.get("pipeline_mode") or "") == "target_lifecycle":

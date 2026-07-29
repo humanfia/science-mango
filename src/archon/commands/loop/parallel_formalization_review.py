@@ -162,11 +162,13 @@ def load_target_formalization_milestone(
 def _result_evidence(state_dir: Path, rel: str) -> list[dict]:
     slug = "_".join(Path(rel).with_suffix("").parts)
     root = state_dir / "task_results"
+    rel_path = Path(rel)
     candidates = {
-        root / f"{Path(rel).stem}.md",
+        root / f"{rel_path.stem}.md",
         root / f"physics-grounding-{slug}.md",
         root / f"{rel}.md",
-        root / f"{Path(rel).name}.md",
+        root / f"{rel_path.with_suffix('')}.md",
+        root / f"{rel_path.name}.md",
         root / f"{slug}.lean.md",
         root / f"{slug}.md",
     }
