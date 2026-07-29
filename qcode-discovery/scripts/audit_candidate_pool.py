@@ -21,9 +21,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import build_bb_code
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
+from evaluation.final_gate import minimum_winning_distance
 from evaluation.proof_triage import (
     candidate_identity,
     deduplicate_ranked,
+    normalize_record,
+    stable_sort_key,
 )
 from evaluation.registry import check_code_novelty
 from scripts.screen_frontier_candidate import (
@@ -149,19 +152,85 @@ def rank_candidate_files(
     """Load, proof-rank, and canonical-deduplicate all candidate files."""
 
     records, sources = read_candidate_jsonl(paths)
-    ranked = deduplicate_ranked(records, sources)
+    prepared: list[dict[str, Any]] = []
+    prepared_sources: list[str] = []
+    ineligible_records = 0
+    malformed_records = 0
+    for record, source in zip(records, sources, strict=True):
+        try:
+            normalized = normalize_record(record)
+            n = normalized.get("n")
+            k = normalized.get("k")
+            if (
+                isinstance(n, bool)
+                or not isinstance(n, int)
+                or isinstance(k, bool)
+                or not isinstance(k, int)
+            ):
+                raise TypeError("candidate n and k must be integers")
+            if n <= 0 or k <= 0:
+                ineligible_records += 1
+                continue
+            required_distance = minimum_winning_distance(n, k)
+        except (KeyError, TypeError, ValueError, OverflowError):
+            malformed_records += 1
+            continue
+
+        # Stage 1 search rows intentionally contain distance estimates rather
+        # than a proof threshold.  Derive the threshold from the authoritative
+        # final-gate rules here, and overwrite any stale caller-supplied value.
+        # A top-level value wins for flat, nested-claim, and wrapped-artifact
+        # records when proof_triage normalizes the row.
+        enriched = dict(record)
+        enriched["required_distance"] = required_distance
+        prepared.append(enriched)
+        prepared_sources.append(source)
+
+    ranked = deduplicate_ranked(prepared, prepared_sources)
+
+    def selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
+        """Preserve proof priority, then rank proof ties by search upside."""
+
+        proof_key = stable_sort_key(row)
+        try:
+            n = row.get("n")
+            k = row.get("k")
+            d = row.get("d")
+            if any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in (n, k, d)
+            ):
+                raise TypeError
+            if n <= 0 or k <= 0 or d <= 0:
+                raise ValueError
+            estimated_fom = k * d * d / n
+            if not math.isfinite(estimated_fom):
+                raise ValueError
+        except (TypeError, ValueError, OverflowError, ZeroDivisionError):
+            estimated_fom = 0.0
+        # stable_sort_key's final two fields are deterministic identities.
+        # Insert this advisory upper-bound tie-break immediately before them;
+        # it never outranks actual lower-bound proof progress.
+        return (*proof_key[:-2], -estimated_fom, *proof_key[-2:])
+
+    ranked.sort(key=selection_key)
     eligible = [
         row for row in ranked
         if row["proof_score"].get("rejected") is not True
         and row["proof_score"].get("status") != "REJECTED"
     ]
-    return ranked, {
+    counts = {
         "input_records": len(records),
         "unique_candidates": len(ranked),
-        "duplicate_records": len(records) - len(ranked),
+        "duplicate_records": len(prepared) - len(ranked),
         "rejected_candidates": len(ranked) - len(eligible),
         "eligible_candidates": len(eligible),
     }
+    if ineligible_records:
+        counts["ineligible_records"] = ineligible_records
+    if malformed_records:
+        counts["malformed_records"] = malformed_records
+    return ranked, counts
 
 
 def validate_worker_budget(

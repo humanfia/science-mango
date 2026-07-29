@@ -90,6 +90,84 @@ def test_rank_candidate_files_normalizes_and_skips_rejected(tmp_path):
     assert sum(row["proof_score"]["rejected"] is True for row in ranked) == 1
 
 
+def test_rank_candidate_files_derives_authoritative_stage1_threshold(tmp_path):
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text(json.dumps({
+        "source": "humanize-stage1",
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [1, 0], [0, 1]],
+        "B_terms": [[0, 0], [2, 0], [0, 2]],
+        "n": 72,
+        "k": 12,
+        "d": 6,
+        "fom": 6.0,
+    }) + "\n")
+
+    ranked, counts = rank_candidate_files([stage1])
+
+    assert counts == {
+        "input_records": 1,
+        "unique_candidates": 1,
+        "duplicate_records": 0,
+        "rejected_candidates": 0,
+        "eligible_candidates": 1,
+    }
+    assert ranked[0]["required_distance"] == 7
+    assert ranked[0]["proof_score"]["required_distance"] == 7
+
+
+def test_rank_candidate_files_drops_nonpositive_and_malformed_parameters(
+    tmp_path,
+):
+    stage1 = tmp_path / "stage1.jsonl"
+    stage1.write_text("\n".join([
+        json.dumps({**_construction(1), "required_distance": 999}),
+        json.dumps({**_construction(2), "k": 0}),
+        json.dumps({**_construction(3), "n": "72"}),
+    ]) + "\n")
+
+    ranked, counts = rank_candidate_files([stage1])
+
+    assert len(ranked) == 1
+    assert ranked[0]["required_distance"] == 21
+    assert counts == {
+        "input_records": 3,
+        "unique_candidates": 1,
+        "duplicate_records": 0,
+        "rejected_candidates": 0,
+        "eligible_candidates": 1,
+        "ineligible_records": 1,
+        "malformed_records": 1,
+    }
+
+
+def test_rank_candidate_files_uses_search_upside_only_to_break_proof_ties(
+    tmp_path,
+):
+    stage1 = tmp_path / "stage1.jsonl"
+    low = {**_construction(1), "d": 4}
+    high = {**_construction(2), "d": 20}
+    proof = {
+        **_construction(3),
+        "d": 1,
+        "directions": [{
+            "mip_dual_bound": 21,
+            "objective": 24,
+            "witness_verified": True,
+        }],
+    }
+    stage1.write_text("\n".join(map(json.dumps, [low, high, proof])) + "\n")
+
+    ranked, _counts = rank_candidate_files([stage1])
+
+    assert [row["source"] for row in ranked] == [
+        "candidate-3",
+        "candidate-2",
+        "candidate-1",
+    ]
+
+
 def test_jsonl_reader_ignores_only_unterminated_trailing_fragment(tmp_path):
     live = tmp_path / "live.jsonl"
     complete = _construction(1)
