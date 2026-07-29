@@ -7,6 +7,7 @@ import json
 import math
 import os
 import re
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,11 +21,74 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _atomic_json(path: Path, value: Any) -> None:
+def _fsync_directory(path: Path) -> None:
+    """Durably persist a rename in ``path`` when the platform supports it."""
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    descriptor = os.open(path, flags)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _atomic_bytes(path: Path, payload: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + f".tmp-{os.getpid()}")
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
-    temporary.replace(path)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.tmp-",
+        dir=path.parent,
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.replace(path)
+        _fsync_directory(path.parent)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def atomic_write_bytes(path: Path, payload: bytes) -> dict[str, Any]:
+    """Atomically replace a file and return the durable byte identity."""
+    _atomic_bytes(path, payload)
+    return {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "bytes": len(payload),
+    }
+
+
+def atomic_write_json(path: Path, value: Any) -> None:
+    payload = (
+        json.dumps(value, ensure_ascii=False, indent=2) + "\n"
+    ).encode("utf-8")
+    _atomic_bytes(path, payload)
+
+
+def _atomic_json(path: Path, value: Any) -> None:
+    """Backward-compatible private alias for durable atomic JSON writes."""
+    atomic_write_json(path, value)
+
+
+def atomic_write_jsonl(
+    path: Path,
+    rows: Iterable[dict[str, Any]],
+) -> dict[str, Any]:
+    """Atomically replace a JSONL file and return its durable content identity."""
+    materialized = list(rows)
+    payload = "".join(
+        json.dumps(row, ensure_ascii=False, default=str) + "\n"
+        for row in materialized
+    ).encode("utf-8")
+    _atomic_bytes(path, payload)
+    return {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "bytes": len(payload),
+        "rows": len(materialized),
+    }
 
 
 def append_jsonl(path: Path, value: dict[str, Any]) -> None:
@@ -190,6 +254,7 @@ class RunStore:
             "created_at": utc_now(),
             "updated_at": utc_now(),
             "current_round": 0,
+            "round_transaction_version": 2,
             "candidate_offset": 0,
             "best_fom": 0.0,
             "no_improvement_rounds": 0,
@@ -247,19 +312,67 @@ class RunStore:
         return added
 
 
+def read_jsonl_range(
+    path: Path,
+    offset: int,
+    end_offset: int | None = None,
+) -> tuple[list[dict[str, Any]], int, str]:
+    """Read a strict, newline-terminated JSONL byte range.
+
+    Unlike the legacy reader, malformed or partial records fail closed and do
+    not advance the durable offset.  The returned digest binds the exact source
+    bytes consumed by a round transaction.
+    """
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        raise ValueError("JSONL offset must be a non-negative integer")
+    if (
+        end_offset is not None
+        and (
+            isinstance(end_offset, bool)
+            or not isinstance(end_offset, int)
+            or end_offset < offset
+        )
+    ):
+        raise ValueError("JSONL end offset must be an integer >= offset")
+    if not path.is_file():
+        if offset == 0 and end_offset in (None, 0):
+            return [], 0, hashlib.sha256(b"").hexdigest()
+        raise ValueError(f"JSONL source is missing at non-zero offset: {path}")
+
+    rows: list[dict[str, Any]] = []
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        size = os.fstat(stream.fileno()).st_size
+        stop = size if end_offset is None else end_offset
+        if offset > size or stop > size:
+            raise ValueError(
+                f"JSONL byte range [{offset}, {stop}) exceeds file size {size}: "
+                f"{path}"
+            )
+        stream.seek(offset)
+        while stream.tell() < stop:
+            remaining = stop - stream.tell()
+            raw = stream.readline(remaining)
+            if not raw:
+                raise ValueError(f"JSONL source ended before offset {stop}: {path}")
+            if not raw.endswith(b"\n"):
+                raise ValueError(
+                    f"JSONL record is partial or range ends mid-record: {path}"
+                )
+            digest.update(raw)
+            try:
+                row = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise ValueError(f"Invalid JSONL record in {path}: {exc}") from exc
+            if not isinstance(row, dict):
+                raise ValueError(f"JSONL record is not an object in {path}")
+            rows.append(row)
+        if stream.tell() != stop:
+            raise ValueError(f"JSONL reader crossed requested offset {stop}: {path}")
+        return rows, stop, digest.hexdigest()
+
+
 def read_jsonl_since(path: Path, offset: int) -> tuple[list[dict[str, Any]], int]:
     """Read complete JSONL records from a byte offset and return the new offset."""
-    if not path.is_file():
-        return [], offset
-    rows: list[dict[str, Any]] = []
-    with path.open("rb") as stream:
-        size = path.stat().st_size
-        if offset < 0 or offset > size:
-            offset = 0
-        stream.seek(offset)
-        for raw in stream:
-            try:
-                rows.append(json.loads(raw.decode("utf-8")))
-            except (UnicodeDecodeError, json.JSONDecodeError):
-                continue
-        return rows, stream.tell()
+    rows, new_offset, _digest = read_jsonl_range(path, offset)
+    return rows, new_offset

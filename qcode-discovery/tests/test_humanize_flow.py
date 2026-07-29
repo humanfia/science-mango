@@ -1,8 +1,11 @@
 import json
 
+import pytest
+
 from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
+    UnresolvedAuditError,
     _milp_is_fully_exact,
     select_for_milp,
 )
@@ -59,6 +62,7 @@ def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
 
 def test_partial_milp_never_becomes_exact():
     partial = {
+        "d": 18,
         "d_is_exact": True,
         "stage": "milp_exact",
         "milp_details": {
@@ -106,7 +110,7 @@ class FakeReviewer:
         })
 
 
-def fake_milp(row, _config):
+def fake_milp(row, _config, **_invocation):
     result = dict(row)
     result.update({
         "milp_attempted": True,
@@ -123,7 +127,9 @@ def fake_milp(row, _config):
     return result
 
 
-def test_offline_round_persists_review_memory_and_lean_input(tmp_path):
+def test_debug_exact_results_remain_unresolved_but_persist_review_memory(
+    tmp_path,
+):
     repo = tmp_path / "qcode"
     repo.mkdir()
     source = repo / "offline.jsonl"
@@ -138,18 +144,28 @@ def test_offline_round_persists_review_memory_and_lean_input(tmp_path):
         max_rounds=1,
         milp_top=2,
         candidate_file=source,
+        allow_debug_audit_evaluator=True,
     )
     flow = HumanizeFlow(config, reviewer=FakeReviewer(), milp_evaluator=fake_milp)
-    state = flow.run()
+    with pytest.raises(UnresolvedAuditError):
+        flow.run()
+    state = flow.store.load_state()
+    assert state is not None
 
-    assert state["status"] == "search-complete"
+    assert state["status"] == "incomplete-unresolved"
     assert state["current_round"] == 1
     evaluations = (repo / "results/runs/test-humanize/evaluations.jsonl").read_text().splitlines()
     assert len(evaluations) == 2
-    assert all(json.loads(line)["d_is_exact"] for line in evaluations)
+    assert all(
+        json.loads(line)["audit_attempt"]["schema_version"] == 1
+        for line in evaluations
+    )
+    assert state["audited_keys"] == []
+    assert len(state["unresolved_candidates"]) == 2
     memory = (repo / "results/humanize/test-humanize/bitlesson.md").read_text()
     assert "Require complete logical-direction coverage" in memory
 
-    # A completed run is idempotent and does not append duplicate audits.
-    assert flow.run()["status"] == "search-complete"
+    # A resumed debug run stays unresolved and does not append duplicates.
+    with pytest.raises(UnresolvedAuditError):
+        flow.run()
     assert len((repo / "results/runs/test-humanize/evaluations.jsonl").read_text().splitlines()) == 2

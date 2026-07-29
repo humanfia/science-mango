@@ -55,13 +55,21 @@ DISTANCE_UNTRUST_RATIO : float
 
 from __future__ import annotations
 
+import copy
 import logging
 import math
+import os
 from fractions import Fraction
+from pathlib import Path
 
 from evaluation.bb_code import build_bb_code, validate_terms, get_code_params_fast
 from evaluation.distance import estimate_distance, estimate_distance_osd_cs, compute_distance_exact
-from evaluation.distance_milp import compute_distance_milp, symplectic_weight_bound
+from evaluation.distance_milp import (
+    compute_distance_milp,
+    symplectic_weight_bound,
+    symplectic_weight_witness,
+    write_symplectic_weight_checkpoint,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +127,49 @@ def compute_fom_rejection_cutoff(n: int, k: int, target_fom: float) -> int:
     return math.isqrt(squared_cutoff)
 
 
+def _validated_feasible_threshold_witness(
+    details: dict, proof_distance: int
+) -> dict:
+    positive = []
+    for name in ("d_x", "d_z"):
+        value = details.get(name)
+        if type(value) is not int or value < 0:
+            raise RuntimeError(
+                f"MILP feasible threshold proof has invalid {name}"
+            )
+        if value > 0:
+            positive.append(value)
+    if not positive or min(positive) != proof_distance:
+        raise RuntimeError(
+            "MILP direction distances disagree with threshold proof distance"
+        )
+
+    witness = details.get("minimum_direction_witness")
+    required = {"side", "index", "weight", "bits"}
+    if not isinstance(witness, dict) or set(witness) != required:
+        raise RuntimeError(
+            "MILP feasible threshold proof has no embedded minimum witness"
+        )
+    if witness.get("side") not in {"X", "Z"}:
+        raise RuntimeError("MILP minimum witness has invalid side")
+    if type(witness.get("index")) is not int or witness["index"] < 0:
+        raise RuntimeError("MILP minimum witness has invalid index")
+    if (
+        type(witness.get("weight")) is not int
+        or witness["weight"] != proof_distance
+    ):
+        raise RuntimeError("MILP minimum witness weight disagrees with distance")
+    bits = witness.get("bits")
+    if (
+        not isinstance(bits, list)
+        or len(bits) == 0
+        or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+        or sum(bits) != proof_distance
+    ):
+        raise RuntimeError("MILP minimum witness bits are invalid")
+    return copy.deepcopy(witness)
+
+
 def compute_challenge_rejection_cutoff(
     n: int, k: int, target_fom: float
 ) -> int:
@@ -163,7 +214,13 @@ def _make_result_template(
 
 
 def _validate_and_build(
-    ell: int, m: int, A_terms: list, B_terms: list, result: dict
+    ell: int,
+    m: int,
+    A_terms: list,
+    B_terms: list,
+    result: dict,
+    *,
+    apply_self_dual_gate: bool = True,
 ) -> tuple | None:
     """Validate terms, build code, compute k, apply early-exit rules.
 
@@ -202,7 +259,11 @@ def _validate_and_build(
 
     # Self-dual gate: BB codes with A=B always have d=2 (proven).
     # BP-OSD misses this in 29/30 batches, so we hard-code it.
-    if sorted(tuple(t) for t in A_terms) == sorted(tuple(t) for t in B_terms):
+    if (
+        apply_self_dual_gate
+        and sorted(tuple(t) for t in A_terms)
+        == sorted(tuple(t) for t in B_terms)
+    ):
         result["d"] = 2
         result["d_is_exact"] = True
         result["distance_trusted"] = True
@@ -396,6 +457,9 @@ def evaluate_candidate_milp(
     milp_total_timeout: int = 120,
     milp_early_stop: int | None = 4,
     milp_target_fom: float | None = None,
+    milp_checkpoint_path: str | Path | None = None,
+    milp_resume: bool = True,
+    milp_hard_timeout_per_logical: float | None = None,
 ) -> dict:
     """Evaluate a BB code candidate using MILP for exact distance.
 
@@ -421,14 +485,52 @@ def evaluate_candidate_milp(
             from reconstructed n and k. At the official threshold this also
             preserves all final-gate Pareto win rules and supersedes the fixed
             ``milp_early_stop`` value.
+        milp_checkpoint_path: Optional atomic per-direction checkpoint path.
+        milp_resume: Reuse matching proven-optimal checkpoint directions and
+            retry incomplete directions.
+        milp_hard_timeout_per_logical: Optional parent-enforced wall deadline;
+            each direction then runs in a reusable, terminable child process.
 
     Returns:
         Dict with keys: n, k, d, d_is_exact, distance_trusted, fom,
         encoding_rate, ell, m, A_terms, B_terms, score, stage, milp_details.
     """
     result = _make_result_template(ell, m, A_terms, B_terms)
+    checkpoint_identity = {
+        "family": "css-bb",
+        "ell": int(ell),
+        "m": int(m),
+        "A_terms": sorted([list(map(int, term)) for term in A_terms]),
+        "B_terms": sorted([list(map(int, term)) for term in B_terms]),
+    }
+    if (
+        milp_checkpoint_path is not None
+        and milp_hard_timeout_per_logical is not None
+    ):
+        result["audit_evaluator_invocation"] = {
+            "schema_version": 2,
+            "checkpoint_path": os.path.abspath(
+                os.fspath(milp_checkpoint_path)
+            ),
+            "resume": milp_resume is True,
+            "timeout_per_logical": milp_timeout_per_logical,
+            "total_timeout": milp_total_timeout,
+            "hard_timeout_per_logical": float(
+                milp_hard_timeout_per_logical
+            ),
+        }
 
-    built = _validate_and_build(ell, m, A_terms, B_terms, result)
+    built = _validate_and_build(
+        ell,
+        m,
+        A_terms,
+        B_terms,
+        result,
+        # A formal Stage 1 invocation must materialize immutable evidence.
+        # Let the symplectic d=2 path below write that checkpoint instead of
+        # returning early with an unsealable numeric claim.
+        apply_self_dual_gate=milp_checkpoint_path is None,
+    )
     if built is None:
         return result
     code, n, k = built
@@ -474,6 +576,7 @@ def evaluate_candidate_milp(
     # - d_symp ≤ 2: provably exact (BB codes with k>0 have d ≥ 2)
     # - d_symp ≤ effective early_stop: this valid upper bound already proves
     #   that the configured search objective cannot win, so MILP can be skipped.
+    symplectic_witness = None
     if (
         d_symp <= 2
         or (
@@ -481,9 +584,30 @@ def evaluate_candidate_milp(
             and d_symp <= effective_early_stop
         )
     ):
+        try:
+            symplectic_witness = symplectic_weight_witness(code, d_symp)
+        except Exception:
+            logger.exception(
+                "Failed to construct a replayable symplectic witness; "
+                "continuing to MILP"
+            )
+        if symplectic_witness is None:
+            logger.warning(
+                "Symplectic upper bound d=%s has no replayable logical/dual "
+                "witness; refusing solver-free rejection",
+                d_symp,
+            )
+        else:
+            result["symplectic_weight_witness"] = copy.deepcopy(
+                symplectic_witness
+            )
+    if symplectic_witness is not None:
         result["d"] = d_symp
         result["d_is_exact"] = d_symp <= 2  # Only d≤2 is provably exact
         result["distance_trusted"] = True  # Valid upper bound
+        result["distance_status"] = (
+            "exact" if result["d_is_exact"] else "upper_bound"
+        )
         result["fom"] = compute_fom(n, k, d_symp)
         result["score"] = result["fom"]
         result["stage"] = "symplectic_low_d"
@@ -509,6 +633,33 @@ def evaluate_candidate_milp(
             )
             result["threshold_proof_distance"] = d_symp
             result["threshold_proof_source"] = "symplectic_upper_bound"
+            if result["threshold_rejection_proven"]:
+                result["threshold_proof_witness"] = copy.deepcopy(
+                    symplectic_witness
+                )
+        if milp_checkpoint_path is not None:
+            checkpoint = write_symplectic_weight_checkpoint(
+                code,
+                checkpoint_path=milp_checkpoint_path,
+                checkpoint_identity=checkpoint_identity,
+                witness=symplectic_witness,
+                timeout_per_logical=milp_timeout_per_logical,
+                total_timeout=milp_total_timeout,
+                hard_timeout_per_logical=milp_hard_timeout_per_logical,
+                early_stop=effective_early_stop,
+                reset_incompatible_checkpoint=True,
+            )
+            result["milp_details"] = {
+                "exact": result["d_is_exact"],
+                "checkpoint_enabled": True,
+                "checkpoint_path": os.path.abspath(
+                    os.fspath(milp_checkpoint_path)
+                ),
+                "checkpoint_status": checkpoint["status"],
+                "symplectic_weight_witness": copy.deepcopy(
+                    symplectic_witness
+                ),
+            }
         return result
 
     # Stage 3: MILP exact distance
@@ -518,6 +669,14 @@ def evaluate_candidate_milp(
         timeout_per_logical=milp_timeout_per_logical,
         total_timeout=milp_total_timeout,
         early_stop=effective_early_stop,
+        checkpoint_path=milp_checkpoint_path,
+        resume=milp_resume,
+        hard_timeout_per_logical=milp_hard_timeout_per_logical,
+        checkpoint_identity=checkpoint_identity,
+        # Stage 1 paths are candidate-key-bound. Source/formulation upgrades
+        # must preserve the old regular file as forensic evidence and restart
+        # from zero instead of making the candidate permanently un-runnable.
+        reset_incompatible_checkpoint=True,
     )
 
     result["milp_details"] = details
@@ -537,6 +696,9 @@ def evaluate_candidate_milp(
         result["d"] = d
         result["d_is_exact"] = details["exact"]
         result["distance_trusted"] = True  # Incumbent or optimal -- valid upper bound
+        result["distance_status"] = (
+            "exact" if details["exact"] else "upper_bound"
+        )
         result["fom"] = compute_fom(n, k, d)
         result["score"] = result["fom"]
         if milp_target_fom is not None:
@@ -559,6 +721,13 @@ def evaluate_candidate_milp(
             result["threshold_proof_source"] = (
                 "milp_exact" if details["exact"] else "milp_feasible_upper_bound"
             )
+            if result["threshold_rejection_proven"]:
+                result["threshold_proof_witness"] = (
+                    _validated_feasible_threshold_witness(
+                        details,
+                        d,
+                    )
+                )
         if effective_early_stop is not None and d <= effective_early_stop:
             if milp_target_fom is not None:
                 result["milp_early_stop_triggered"] = not details["exact"]

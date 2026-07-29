@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from humanize.flow import FlowConfig, HumanizeFlow
+from humanize.flow import FlowConfig, HumanizeFlow, UnresolvedAuditError
 from humanize.reviewer import ReviewError, validate_review
 from humanize.state import code_key
 
@@ -49,21 +49,22 @@ def test_reviewer_failure_resumes_without_repeating_milp(tmp_path):
         max_rounds=1,
         milp_top=1,
         candidate_file=source,
+        allow_debug_audit_evaluator=True,
     )
     counter = {"milp": 0}
 
-    def milp(row, _config):
+    def milp(row, _config, **_invocation):
         counter["milp"] += 1
         result = dict(row)
         result.update({
             "milp_attempted": True,
-            "stage": "milp_incumbent",
-            "d_is_exact": False,
+            "stage": "milp_exact",
+            "d_is_exact": True,
             "milp_details": {
-                "exact": False,
+                "exact": True,
                 "total_logicals": 16,
-                "num_logicals_checked": 4,
-                "logicals_optimal": 4,
+                "num_logicals_checked": 16,
+                "logicals_optimal": 16,
             },
         })
         return result
@@ -80,10 +81,15 @@ def test_reviewer_failure_resumes_without_repeating_milp(tmp_path):
     assert failed["pending_round"] == 1
     assert counter["milp"] == 1
 
-    completed = HumanizeFlow(
+    resumed = HumanizeFlow(
         config, reviewer=reviewer, milp_evaluator=milp
-    ).run()
-    assert completed["status"] == "search-complete"
+    )
+    with pytest.raises(UnresolvedAuditError):
+        resumed.run()
+    completed = resumed.store.load_state()
+    assert completed is not None
+    assert completed["status"] == "incomplete-unresolved"
+    assert len(completed["unresolved_candidates"]) == 1
     assert counter["milp"] == 1
     evaluations = (
         repo / "results/runs/resume-review/evaluations.jsonl"
@@ -114,24 +120,25 @@ def test_milp_failure_resumes_only_unfinished_candidates(tmp_path):
         max_rounds=1,
         milp_top=2,
         candidate_file=source,
+        allow_debug_audit_evaluator=True,
     )
     fail_key = code_key(rows[1])
     attempts = {code_key(row): 0 for row in rows}
 
-    def flaky_milp(row, _config):
+    def flaky_milp(row, _config, **_invocation):
         key = code_key(row)
         attempts[key] += 1
         if key == fail_key and attempts[key] == 1:
             raise ValueError("simulated solver crash")
         result = dict(row)
         result.update({
-            "stage": "milp_incumbent",
-            "d_is_exact": False,
+            "stage": "milp_exact",
+            "d_is_exact": True,
             "milp_details": {
-                "exact": False,
+                "exact": True,
                 "total_logicals": 16,
-                "num_logicals_checked": 4,
-                "logicals_optimal": 4,
+                "num_logicals_checked": 16,
+                "logicals_optimal": 16,
             },
         })
         return result
@@ -146,13 +153,20 @@ def test_milp_failure_resumes_only_unfinished_candidates(tmp_path):
         (repo / "results/humanize/resume-audit/state.json").read_text()
     )
     assert failed["round_phase"] == "audit"
-    assert len(failed["audited_keys"]) == 1
-    assert len(failed["audited_structural_digests"]) == 1
+    assert failed["audited_keys"] == []
+    assert failed["audited_structural_digests"] == []
+    assert len(failed["unresolved_candidates"]) == 1
 
-    completed = HumanizeFlow(
+    resumed = HumanizeFlow(
         config, reviewer=AcceptingReviewer(), milp_evaluator=flaky_milp
-    ).run()
-    assert completed["status"] == "search-complete"
+    )
+    with pytest.raises(UnresolvedAuditError):
+        resumed.run()
+    completed = resumed.store.load_state()
+    assert completed is not None
+    assert completed["status"] == "incomplete-unresolved"
+    assert completed["audited_keys"] == []
+    assert len(completed["unresolved_candidates"]) == 2
     assert sorted(attempts.values()) == [1, 2]
     evaluations = [
         json.loads(line)

@@ -12,12 +12,16 @@ import ctypes
 import errno
 import fcntl
 import hashlib
+import importlib.util
 import json
+import marshal
 import math
 import os
 import re
 import stat
+import sys
 import tempfile
+import types
 from collections.abc import Iterable, Mapping
 from contextlib import contextmanager
 from pathlib import Path
@@ -56,6 +60,14 @@ _REQUIRED_REPLAY_CHECKS = frozenset(
         "final_gate",
         "certificate_passed_flag",
     }
+)
+_UNTRUSTED_IMPORT_ARTIFACT_SUFFIXES = (
+    ".so",
+    ".pyd",
+    ".dll",
+    ".dylib",
+    ".pyc",
+    ".pyo",
 )
 
 
@@ -174,6 +186,47 @@ def _read_regular_bytes(path: Path, *, root: Path, label: str) -> bytes:
             os.close(descriptor)
 
 
+def _read_source_bytes_identity(
+    path: Path,
+    *,
+    root: Path,
+    label: str,
+) -> tuple[bytes, dict[str, Any]]:
+    """Read one source and bind metadata that detects restore-after-use."""
+
+    _reject_symlink_components(path, root=root, include_leaf=False)
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        _fail("SOURCE_INVALID", f"{label} is unavailable: {path}: {exc}")
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            _fail("UNSAFE_PATH", f"{label} is not a regular file: {path}")
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = -1
+            raw = stream.read()
+            after = os.fstat(stream.fileno())
+        fields = ("st_dev", "st_ino", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+        if any(getattr(before, name) != getattr(after, name) for name in fields):
+            _fail("SOURCE_INVALID", f"{label} changed while being read: {path}")
+    except OSError as exc:
+        _fail("SOURCE_INVALID", f"cannot read {label} {path}: {exc}")
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+    return raw, {
+        "sha256": _sha256_bytes(raw),
+        "bytes": int(after.st_size),
+        "mode": stat.S_IMODE(after.st_mode),
+        "device": int(after.st_dev),
+        "inode": int(after.st_ino),
+        "mtime_ns": int(after.st_mtime_ns),
+        "ctime_ns": int(after.st_ctime_ns),
+    }
+
+
 def _read_json_object(
     path: Path,
     *,
@@ -225,6 +278,143 @@ def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def _is_untrusted_import_artifact(path: Path) -> bool:
+    name = path.name.lower()
+    if name.endswith(".pyc") and path.parent.name == "__pycache__":
+        source = _source_for_pep3147_cache(path)
+        if source is not None:
+            try:
+                metadata = source.lstat()
+            except OSError:
+                pass
+            else:
+                if (
+                    stat.S_ISREG(metadata.st_mode)
+                    and _pyc_matches_current_source(path, source)
+                ):
+                    return False
+    return any(name.endswith(suffix) for suffix in _UNTRUSTED_IMPORT_ARTIFACT_SUFFIXES)
+
+
+def _normalise_code_object(value: types.CodeType) -> types.CodeType:
+    constants = tuple(
+        _normalise_code_object(item)
+        if isinstance(item, types.CodeType)
+        else item
+        for item in value.co_consts
+    )
+    return value.replace(co_consts=constants, co_filename="<qcode-source>")
+
+
+def _source_for_pep3147_cache(cache: Path) -> Path | None:
+    try:
+        return Path(importlib.util.source_from_cache(str(cache)))
+    except ValueError:
+        name = cache.name
+        if cache.parent.name != "__pycache__" or not name.lower().endswith(
+            ".pyc"
+        ):
+            return None
+        body = name[:-4]
+        body = re.sub(r"\.opt-[0-9]+$", "", body, flags=re.IGNORECASE)
+        stem, separator, cache_tag = body.rpartition(".")
+        if not separator or not stem or not cache_tag:
+            return None
+        return cache.parent.parent / f"{stem}.py"
+
+
+def _pep3147_cache_tag(cache: Path) -> str | None:
+    name = cache.name
+    if cache.parent.name != "__pycache__" or not name.lower().endswith(".pyc"):
+        return None
+    body = re.sub(
+        r"\.opt-[0-9]+$",
+        "",
+        name[:-4],
+        flags=re.IGNORECASE,
+    )
+    _stem, separator, cache_tag = body.rpartition(".")
+    return cache_tag if separator and cache_tag else None
+
+
+def _pyc_matches_current_source(cache: Path, source: Path) -> bool:
+    """Accept an inert stale cache or bytecode identical to its bound source."""
+
+    try:
+        raw = _read_regular_bytes(
+            cache,
+            root=source.parent,
+            label="Python bytecode cache",
+        )
+        if len(raw) < 16:
+            return False
+        if raw[:4] != importlib.util.MAGIC_NUMBER:
+            current_tag = getattr(sys.implementation, "cache_tag", None)
+            return (
+                isinstance(current_tag, str)
+                and _pep3147_cache_tag(cache) != current_tag
+            )
+        flags = int.from_bytes(raw[4:8], "little")
+        if flags & ~0b11:
+            return False
+        before = source.lstat()
+        if not stat.S_ISREG(before.st_mode):
+            return False
+        source_bytes = _read_regular_bytes(
+            source,
+            root=source.parent,
+            label="Python source",
+        )
+        after = source.lstat()
+        identity_fields = (
+            "st_dev",
+            "st_ino",
+            "st_mode",
+            "st_size",
+            "st_mtime_ns",
+            "st_ctime_ns",
+        )
+        if any(
+            getattr(before, field) != getattr(after, field)
+            for field in identity_fields
+        ):
+            return False
+        if flags == 0:
+            cached_mtime = int.from_bytes(raw[8:12], "little")
+            cached_size = int.from_bytes(raw[12:16], "little")
+            source_mtime = int(after.st_mtime) & 0xFFFFFFFF
+            source_size = len(source_bytes) & 0xFFFFFFFF
+            if (cached_mtime, cached_size) != (source_mtime, source_size):
+                return True
+        loaded = marshal.loads(raw[16:])
+        if not isinstance(loaded, types.CodeType):
+            return False
+        optimisation = 0
+        match = re.search(r"\.opt-([0-9]+)\.pyc$", cache.name.lower())
+        if match is not None:
+            optimisation = int(match.group(1))
+        compiled = compile(
+            source_bytes,
+            str(source),
+            "exec",
+            dont_inherit=True,
+            optimize=optimisation,
+        )
+        return marshal.dumps(_normalise_code_object(loaded)) == marshal.dumps(
+            _normalise_code_object(compiled)
+        )
+    except (
+        EOFError,
+        OverflowError,
+        RecursionError,
+        ReleaseExportError,
+        SyntaxError,
+        TypeError,
+        ValueError,
+    ):
+        return False
+
+
 def _payload_sha256(value: Mapping[str, Any]) -> str:
     try:
         encoded = json.dumps(
@@ -253,6 +443,200 @@ def _pipeline_fingerprint(value: Any) -> str:
             f"pipeline provenance cannot be hashed: {exc}",
         )
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _source_fingerprint(
+    repo: Path,
+    *roots: Path,
+) -> tuple[str, dict[Path, bytes]]:
+    """Independently hash the exact Stage 5 implementation dependency tree."""
+
+    files: set[Path] = set()
+    for path in roots:
+        _ensure_beneath(path, repo, label="Stage 5 source dependency")
+        _reject_symlink_components(path, root=repo)
+        try:
+            metadata = path.lstat()
+        except OSError as exc:
+            _fail(
+                "SOURCE_INVALID",
+                f"Stage 5 source dependency is unavailable: {path}: {exc}",
+            )
+        if stat.S_ISDIR(metadata.st_mode):
+            for item in sorted(path.rglob("*")):
+                _reject_symlink_components(item, root=repo)
+                try:
+                    item_metadata = item.lstat()
+                except OSError as exc:
+                    _fail(
+                        "SOURCE_INVALID",
+                        f"cannot inspect Stage 5 source tree entry {item}: {exc}",
+                    )
+                if stat.S_ISREG(item_metadata.st_mode):
+                    if item.suffix == ".py":
+                        files.add(item)
+                    elif _is_untrusted_import_artifact(item):
+                        _fail(
+                            "UNSAFE_PATH",
+                            "Stage 5 source tree contains an unhashed executable "
+                            f"Python import artifact: {item}",
+                        )
+                elif not stat.S_ISDIR(item_metadata.st_mode):
+                    _fail(
+                        "UNSAFE_PATH",
+                        "Stage 5 source tree entry is not a regular file or "
+                        f"directory: {item}",
+                    )
+        elif stat.S_ISREG(metadata.st_mode):
+            if _is_untrusted_import_artifact(path):
+                _fail(
+                    "UNSAFE_PATH",
+                    "Stage 5 source dependency is an untrusted executable "
+                    f"Python import artifact: {path}",
+                )
+            files.add(path)
+        else:
+            _fail(
+                "UNSAFE_PATH",
+                f"Stage 5 source dependency is not a regular file or directory: {path}",
+            )
+
+    raw_by_path: dict[Path, bytes] = {}
+    identities: dict[str, dict[str, Any]] = {}
+    for path in sorted(files):
+        raw, identity = _read_source_bytes_identity(
+            path,
+            root=repo,
+            label="Stage 5 source dependency",
+        )
+        raw_by_path[path] = raw
+        identities[str(path)] = identity
+    fingerprint = _pipeline_fingerprint(identities)
+    return fingerprint, raw_by_path
+
+
+def _positive_config_number(
+    config: Mapping[str, Any],
+    name: str,
+) -> int | float:
+    value = config.get(name)
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or value <= 0
+    ):
+        _fail("STATE_INVALID", f"pipeline config {name} must be positive and finite")
+    return value
+
+
+def _validate_current_stage5_provenance(
+    *,
+    record: Mapping[str, Any],
+    config: Mapping[str, Any],
+    repo: Path,
+    pipeline_root: Path,
+    stage4_certificates_path: Path,
+    stage5_path: Path,
+    controller_source_sha256: str,
+    source_fingerprint: str,
+    known_code_registry_sha256: str,
+    strict_runner_sha256: str,
+) -> dict[str, Any]:
+    python_executable = config.get("python_executable")
+    resume = config.get("resume")
+    solver_workers = config.get("certificate_solver_workers")
+    if not isinstance(python_executable, str) or not python_executable:
+        _fail("STATE_INVALID", "pipeline config python_executable is invalid")
+    if not isinstance(resume, bool):
+        _fail("STATE_INVALID", "pipeline config resume must be boolean")
+    if (
+        isinstance(solver_workers, bool)
+        or not isinstance(solver_workers, int)
+        or solver_workers <= 0
+    ):
+        _fail(
+            "STATE_INVALID",
+            "pipeline config certificate_solver_workers must be positive",
+        )
+    known_answer_timeout = _positive_config_number(
+        config, "known_answer_timeout_per_logical"
+    )
+    known_answer_total_timeout = _positive_config_number(
+        config, "known_answer_total_timeout"
+    )
+    verification_timeout = _positive_config_number(
+        config, "verification_timeout_per_logical"
+    )
+    verification_total_timeout = _positive_config_number(
+        config, "verification_total_timeout"
+    )
+    known_answer_path = repo / "results" / "known_answer_gate.json"
+    trust_path = repo / "results" / "known_answer_trust.json"
+    finalizer_path = repo / "scripts" / "finalize_challenge.py"
+    expected_command = [
+        python_executable,
+        str(finalizer_path),
+        str(stage4_certificates_path),
+        "--known-answer-artifact",
+        str(known_answer_path),
+        "--known-answer-trust",
+        str(trust_path),
+        "--known-answer-timeout-per-logical",
+        str(known_answer_timeout),
+        "--known-answer-total-timeout",
+        str(known_answer_total_timeout),
+        "--verification-timeout-per-logical",
+        str(verification_timeout),
+        "--verification-total-timeout",
+        str(verification_total_timeout),
+        "--verification-solver-workers",
+        str(solver_workers),
+        "--verification-state-dir",
+        str(pipeline_root / "solver-state" / "strict-verification"),
+        "--resume" if resume else "--no-resume",
+        "--output",
+        str(stage5_path),
+    ]
+    expected_stage_config = {
+        "controller_source_sha256": controller_source_sha256,
+        "mode": "strict",
+        "source_fingerprint": source_fingerprint,
+        "known_code_registry_sha256": known_code_registry_sha256,
+        "strict_runner_sha256": strict_runner_sha256,
+        "known_answer_timeout_per_logical": known_answer_timeout,
+        "known_answer_total_timeout": known_answer_total_timeout,
+        "verification_timeout_per_logical": verification_timeout,
+        "verification_total_timeout": verification_total_timeout,
+        "verification_solver_workers": solver_workers,
+    }
+    if record.get("command") != expected_command:
+        _fail(
+            "STAGE5_PROVENANCE_MISMATCH",
+            "Stage 5 command does not match the current strict production command",
+        )
+    if record.get("stage_config") != expected_stage_config:
+        _fail(
+            "STAGE5_PROVENANCE_MISMATCH",
+            "Stage 5 stage_config does not match current trusted dependencies",
+        )
+    expected_fingerprint = _pipeline_fingerprint(
+        {
+            "command": expected_command,
+            "stage_config": expected_stage_config,
+        }
+    )
+    if record.get("stage_fingerprint") != expected_fingerprint:
+        _fail(
+            "STAGE5_PROVENANCE_MISMATCH",
+            "Stage 5 fingerprint does not bind its exact command and stage_config",
+        )
+    return {
+        "controller_source_sha256": controller_source_sha256,
+        "source_fingerprint": source_fingerprint,
+        "known_code_registry_sha256": known_code_registry_sha256,
+        "strict_runner_sha256": strict_runner_sha256,
+    }
 
 
 def _require_schema_one(value: Mapping[str, Any], *, label: str) -> None:
@@ -1474,7 +1858,11 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
         stage5_path = pipeline_root / "artifacts" / "stage5-final-gate.json"
         trust_path = repo / "results" / "known_answer_trust.json"
         known_answer_path = repo / "results" / "known_answer_gate.json"
+        known_code_registry_path = repo / "results" / "known_code_registry.json"
         finalizer_path = repo / "scripts" / "finalize_challenge.py"
+        strict_runner_path = repo / "tests" / "verify_known_answer_gate.py"
+        controller_source_path = repo / "humanize" / "pipeline.py"
+        evaluation_source_root = repo / "evaluation"
 
         state, state_raw = _read_json_object(
             state_path,
@@ -1518,11 +1906,18 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             root=repo,
             label="repository known-answer artifact",
         )
-        finalizer_raw = _read_regular_bytes(
+        strict_source_fingerprint, strict_source_files = _source_fingerprint(
+            repo,
+            controller_source_path,
+            evaluation_source_root,
             finalizer_path,
-            root=repo,
-            label="Stage 5 finalizer source",
+            strict_runner_path,
+            known_code_registry_path,
         )
+        finalizer_raw = strict_source_files[finalizer_path]
+        strict_runner_raw = strict_source_files[strict_runner_path]
+        known_code_registry_raw = strict_source_files[known_code_registry_path]
+        controller_source_raw = strict_source_files[controller_source_path]
         known_answer_sha = _sha256_bytes(known_answer_raw)
         _validate_trust(trust, artifact_sha256=known_answer_sha)
 
@@ -1548,6 +1943,8 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
                 stage4_certificates_path: stage4_certificates_raw,
                 finalizer_path: finalizer_raw,
                 known_answer_path: known_answer_raw,
+                known_code_registry_path: known_code_registry_raw,
+                strict_runner_path: strict_runner_raw,
                 trust_path: trust_raw,
             },
         )
@@ -1560,6 +1957,19 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
             stage4_summary_path=stage4_summary_path,
             stage5_path=stage5_path,
             certificate_count=len(certificates),
+        )
+        config = state["config"]
+        stage5_current_provenance = _validate_current_stage5_provenance(
+            record=stage5_record,
+            config=config,
+            repo=repo,
+            pipeline_root=pipeline_root,
+            stage4_certificates_path=stage4_certificates_path,
+            stage5_path=stage5_path,
+            controller_source_sha256=_sha256_bytes(controller_source_raw),
+            source_fingerprint=strict_source_fingerprint,
+            known_code_registry_sha256=_sha256_bytes(known_code_registry_raw),
+            strict_runner_sha256=_sha256_bytes(strict_runner_raw),
         )
         certificate_hashes = _validate_stage4(
             summary=stage4_summary,
@@ -1650,6 +2060,7 @@ def export_release(*, repo_dir: Path, run_id: str) -> dict[str, Any]:
                     **stage_provenance[_STAGE5],
                     "final_gate_sha256": _sha256_bytes(stage5_raw),
                     "finalizer_sha256": _sha256_bytes(finalizer_raw),
+                    **stage5_current_provenance,
                 },
             },
             "eligible_candidates": len(certificates),

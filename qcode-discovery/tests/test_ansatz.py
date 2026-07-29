@@ -8,6 +8,8 @@ Covers:
 - _structural_feedback() generates non-empty output
 """
 
+import json
+
 from evaluation.bb_code import build_bb_code, validate_terms, get_code_params_fast
 from evaluation.evaluator import evaluate_candidate, evaluate_candidate_milp
 
@@ -89,6 +91,118 @@ class TestSelfDualGate:
         result = evaluate_candidate_milp(6, 6, A, A, quick=False)
         assert result["d"] == 2
         assert result["stage"] == "self_dual_d2"
+
+    def test_self_dual_formal_milp_writes_replayable_checkpoint(self, tmp_path):
+        terms = [(3, 0), (0, 1), (0, 2)]
+        checkpoint = tmp_path / "self-dual.json"
+        old_checkpoint = (
+            b'{"kind":"qcode-css-distance-milp-checkpoint",'
+            b'"schema_version":1,"old":true}\n'
+        )
+        checkpoint.write_bytes(old_checkpoint)
+        result = evaluate_candidate_milp(
+            6,
+            6,
+            terms,
+            terms,
+            quick=False,
+            milp_checkpoint_path=checkpoint,
+            milp_hard_timeout_per_logical=10,
+        )
+
+        assert result["d"] == 2
+        assert result["d_is_exact"] is True
+        assert result["stage"] == "symplectic_low_d"
+        assert result["milp_details"]["checkpoint_status"] == "exact"
+        persisted = json.loads(checkpoint.read_text())
+        assert persisted["kind"] == "qcode-symplectic-weight-checkpoint"
+        assert persisted["status"] == "exact"
+        archives = list(
+            tmp_path.glob(f"{checkpoint.name}.incompatible-*.json")
+        )
+        assert len(archives) == 1
+        assert archives[0].read_bytes() == old_checkpoint
+
+    def test_self_dual_formal_milp_archives_corrupt_compatible_body(
+        self, tmp_path
+    ):
+        terms = [(3, 0), (0, 1), (0, 2)]
+        checkpoint = tmp_path / "self-dual-corrupt.json"
+        kwargs = {
+            "quick": False,
+            "milp_checkpoint_path": checkpoint,
+            "milp_hard_timeout_per_logical": 10,
+        }
+        evaluate_candidate_milp(6, 6, terms, terms, **kwargs)
+
+        corrupted = json.loads(checkpoint.read_text())
+        corrupted["status"] = "threshold_rejected"
+        corrupted["symplectic_witness"]["bits"][0] ^= 1
+        corrupted_bytes = (
+            json.dumps(corrupted, sort_keys=True, separators=(",", ":")) + "\n"
+        ).encode()
+        checkpoint.write_bytes(corrupted_bytes)
+
+        result = evaluate_candidate_milp(6, 6, terms, terms, **kwargs)
+
+        assert result["d"] == 2
+        persisted = json.loads(checkpoint.read_text())
+        assert persisted["status"] == "exact"
+        archives = list(
+            tmp_path.glob(f"{checkpoint.name}.incompatible-*.json")
+        )
+        assert len(archives) == 1
+        assert archives[0].read_bytes() == corrupted_bytes
+
+    def test_self_dual_formal_milp_archives_malformed_bound_budget(
+        self, tmp_path
+    ):
+        terms = [(3, 0), (0, 1), (0, 2)]
+        checkpoint = tmp_path / "self-dual-budget.json"
+        kwargs = {
+            "quick": False,
+            "milp_checkpoint_path": checkpoint,
+            "milp_hard_timeout_per_logical": 10,
+        }
+        evaluate_candidate_milp(6, 6, terms, terms, **kwargs)
+
+        malformed = json.loads(checkpoint.read_text())
+        malformed["run_parameters"]["total_timeout_s"] = "tampered"
+        malformed_bytes = (
+            json.dumps(malformed, sort_keys=True, separators=(",", ":")) + "\n"
+        ).encode()
+        checkpoint.write_bytes(malformed_bytes)
+
+        evaluate_candidate_milp(6, 6, terms, terms, **kwargs)
+
+        archives = list(
+            tmp_path.glob(f"{checkpoint.name}.incompatible-*.json")
+        )
+        assert len(archives) == 1
+        assert archives[0].read_bytes() == malformed_bytes
+
+    def test_self_dual_formal_milp_reuses_zero_early_stop_checkpoint(
+        self, tmp_path
+    ):
+        terms = [(3, 0), (0, 1), (0, 2)]
+        checkpoint = tmp_path / "self-dual-zero-cutoff.json"
+        kwargs = {
+            "quick": False,
+            "milp_checkpoint_path": checkpoint,
+            "milp_early_stop": 0,
+            "milp_hard_timeout_per_logical": 10,
+        }
+
+        evaluate_candidate_milp(6, 6, terms, terms, **kwargs)
+        evaluate_candidate_milp(6, 6, terms, terms, **kwargs)
+
+        assert (
+            json.loads(checkpoint.read_text())["run_parameters"]["early_stop"]
+            == 0
+        )
+        assert not list(
+            tmp_path.glob(f"{checkpoint.name}.incompatible-*.json")
+        )
 
     def test_self_dual_quick_mode(self):
         # In quick mode, self-dual gate fires BEFORE the quick return

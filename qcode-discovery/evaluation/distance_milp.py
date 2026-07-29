@@ -19,9 +19,27 @@ Core solver: HiGHS via ``scipy.optimize.milp``.  Thread-safe (no SIGALRM).
 
 from __future__ import annotations
 
+import hashlib
+import importlib.metadata
+import json
 import logging
+import math
+import multiprocessing
+import os
+import signal
+import stat
+import sys
+import threading
 import time
+import traceback
+from contextlib import contextmanager
+from ctypes import CDLL, c_int, c_ulong, get_errno
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Literal, Mapping
 
+import fcntl
 import numpy as np
 from scipy.optimize import milp, LinearConstraint, Bounds
 from scipy.sparse import csr_matrix, eye, hstack, vstack
@@ -29,6 +47,258 @@ from scipy.sparse import csr_matrix, eye, hstack, vstack
 from qldpc.objects import Pauli
 
 logger = logging.getLogger(__name__)
+
+_CSS_CHECKPOINT_KIND = "qcode-css-distance-milp-checkpoint"
+_CSS_CHECKPOINT_SCHEMA_VERSION = 2
+_SYMPLECTIC_CHECKPOINT_KIND = "qcode-symplectic-weight-checkpoint"
+_SYMPLECTIC_CHECKPOINT_SCHEMA_VERSION = 1
+_CSS_FORMULATION_REVISION = "css-logical-parity-binary-witness-v2"
+try:
+    _DISTANCE_MILP_SOURCE_SHA256 = hashlib.sha256(
+        Path(__file__).read_bytes()
+    ).hexdigest()
+except OSError:
+    _DISTANCE_MILP_SOURCE_SHA256 = None
+
+_DIRECTION_STATUSES = {
+    "optimal",
+    "incumbent",
+    "no_incumbent",
+    "hard_timeout",
+}
+
+
+class CssCheckpointIncompatibleError(ValueError):
+    """A regular checkpoint belongs to a different proof implementation."""
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _canonical_json(value: Any) -> Any:
+    """Return a strict JSON copy suitable for durable identity binding."""
+    try:
+        encoded = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError("checkpoint_identity must be strict JSON data") from exc
+    return json.loads(encoded)
+
+
+def _canonical_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode()
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _dependency_version(distribution: str) -> str:
+    """Return a stable explicit version string for proof-environment binding."""
+    try:
+        return importlib.metadata.version(distribution)
+    except Exception:
+        return "unavailable"
+
+
+def _implementation_fingerprint() -> dict[str, Any]:
+    """Bind durable proofs to the exact implementation and solver stack."""
+    if _DISTANCE_MILP_SOURCE_SHA256 is None:
+        raise RuntimeError("cannot fingerprint distance_milp.py for checkpoint")
+    fingerprint = {
+        "distance_milp_py_sha256": _DISTANCE_MILP_SOURCE_SHA256,
+        "formulation_revision": _CSS_FORMULATION_REVISION,
+        "versions": {
+            "numpy": _dependency_version("numpy"),
+            "scipy": _dependency_version("scipy"),
+            "qldpc": _dependency_version("qldpc"),
+        },
+    }
+    fingerprint["fingerprint_sha256"] = _canonical_sha256(fingerprint)
+    return fingerprint
+
+
+def _binary_array_sha256(name: str, value: np.ndarray) -> str:
+    array = np.ascontiguousarray(np.asarray(value, dtype=np.uint8) % 2)
+    digest = hashlib.sha256()
+    digest.update(name.encode())
+    digest.update(b"\0")
+    digest.update(json.dumps(list(array.shape), separators=(",", ":")).encode())
+    digest.update(b"\0")
+    digest.update(array.tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def _matrix_bundle_sha256(
+    hx: np.ndarray,
+    hz: np.ndarray,
+    lx: np.ndarray,
+    lz: np.ndarray,
+) -> str:
+    return _canonical_sha256({
+        "hx": _binary_array_sha256("hx", hx),
+        "hz": _binary_array_sha256("hz", hz),
+        "lx": _binary_array_sha256("lx", lx),
+        "lz": _binary_array_sha256("lz", lz),
+    })
+
+
+def _atomic_write_json(path: Path, value: Mapping[str, Any]) -> None:
+    """Atomically replace one checkpoint and fsync both data and directory."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(
+        f".{path.name}.tmp-{os.getpid()}-{threading.get_ident()}"
+    )
+    try:
+        with temporary.open("w", encoding="utf-8") as stream:
+            json.dump(
+                value,
+                stream,
+                sort_keys=True,
+                ensure_ascii=False,
+                indent=2,
+                allow_nan=False,
+            )
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        try:
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:
+            return
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
+@contextmanager
+def _checkpoint_flock(path: Path | None):
+    """Serialize the complete read/solve/write transaction for one candidate."""
+    if path is None:
+        yield
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(f".{path.name}.lock")
+    flags = (
+        os.O_RDWR
+        | os.O_CREAT
+        | os.O_CLOEXEC
+        | os.O_NOFOLLOW
+        | os.O_NONBLOCK
+    )
+    try:
+        lock_fd = os.open(lock_path, flags, 0o600)
+    except OSError as exc:
+        raise ValueError(
+            "CSS MILP checkpoint lock must be a non-symlink regular file"
+        ) from exc
+    locked = False
+    try:
+        if not stat.S_ISREG(os.fstat(lock_fd).st_mode):
+            raise ValueError(
+                "CSS MILP checkpoint lock must be a non-symlink regular file"
+            )
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        locked = True
+        yield
+    finally:
+        if locked:
+            fcntl.flock(lock_fd, fcntl.LOCK_UN)
+        os.close(lock_fd)
+
+
+def _checkpoint_regular_file_exists(path: Path | None) -> bool:
+    if path is None:
+        return False
+    try:
+        file_status = os.lstat(path)
+    except FileNotFoundError:
+        return False
+    except OSError as exc:
+        raise ValueError(f"invalid CSS MILP checkpoint path: {path}") from exc
+    if stat.S_ISLNK(file_status.st_mode) or not stat.S_ISREG(file_status.st_mode):
+        raise ValueError(
+            "CSS MILP checkpoint must be a non-symlink regular file"
+        )
+    return True
+
+
+def _read_checkpoint_json(path: Path) -> Any:
+    flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK
+    try:
+        checkpoint_fd = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f"invalid CSS MILP checkpoint: {path}") from exc
+    try:
+        if not stat.S_ISREG(os.fstat(checkpoint_fd).st_mode):
+            raise ValueError(
+                "CSS MILP checkpoint must be a non-symlink regular file"
+            )
+        with os.fdopen(checkpoint_fd, "r", encoding="utf-8") as stream:
+            checkpoint_fd = -1
+            try:
+                return json.load(stream)
+            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+                raise ValueError(f"invalid CSS MILP checkpoint: {path}") from exc
+    finally:
+        if checkpoint_fd >= 0:
+            os.close(checkpoint_fd)
+
+
+def _read_checkpoint_bytes(path: Path) -> bytes:
+    flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK
+    descriptor = os.open(path, flags)
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise ValueError(
+                "CSS MILP checkpoint must be a non-symlink regular file"
+            )
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = -1
+            return stream.read()
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _archive_incompatible_checkpoint(path: Path) -> Path:
+    """Hard-link incompatible evidence aside before removing its working name."""
+
+    payload = _read_checkpoint_bytes(path)
+    digest = hashlib.sha256(payload).hexdigest()
+    archive = path.with_name(
+        f"{path.name}.incompatible-{digest}.json"
+    )
+    try:
+        os.link(path, archive, follow_symlinks=False)
+    except FileExistsError:
+        if _read_checkpoint_bytes(archive) != payload:
+            raise ValueError(
+                "CSS MILP incompatible checkpoint archive collision"
+            )
+    os.unlink(path)
+    directory_fd = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+    return archive
 
 
 def get_code_matrices(code):
@@ -66,7 +336,227 @@ def symplectic_weight_bound(code):
     return d_upper, d_x_upper, d_z_upper
 
 
-def ilp_min_weight(check_matrix, logical_op, timeout=30):
+def symplectic_weight_witness(
+    code,
+    distance: int | None = None,
+) -> dict[str, Any] | None:
+    """Return a replayable minimum-basis logical witness.
+
+    A raw row weight is not sufficient durable evidence: the selected row must
+    commute with the applicable stabilizers and anticommute with an *actual*
+    opposite-type logical row.  This helper deliberately returns ``None`` if
+    the logical basis cannot supply that complete witness, so callers can fall
+    back to MILP instead of treating an unbound number as a proof.
+    """
+    try:
+        hx, hz, lx, lz = get_code_matrices(code)
+        n = int(code.num_qudits)
+    except Exception:
+        return None
+    if n <= 0:
+        return None
+    matrices = (hx, hz, lx, lz)
+    if any(
+        not isinstance(matrix, np.ndarray)
+        or matrix.ndim != 2
+        or matrix.shape[1] != n
+        for matrix in matrices
+    ):
+        return None
+    if distance is not None and (
+        isinstance(distance, bool)
+        or not isinstance(distance, (int, np.integer))
+        or int(distance) < 1
+    ):
+        return None
+
+    candidates: list[tuple[int, int, int, int, dict[str, Any]]] = []
+    # The row itself is an X/Z logical.  Its opposite-type stabilizer checks
+    # enforce commutation, while an opposite logical row proves non-triviality.
+    for side, logicals, duals, checks in (
+        ("X", lx, lz, hz),
+        ("Z", lz, lx, hx),
+    ):
+        side_order = 0 if side == "X" else 1
+        for index, raw_vector in enumerate(logicals):
+            vector = np.asarray(raw_vector, dtype=np.uint8).reshape(-1) % 2
+            weight = int(np.sum(vector))
+            if weight < 1:
+                continue
+            if np.any((np.asarray(checks, dtype=np.uint8) @ vector) % 2):
+                continue
+            dual_index = next(
+                (
+                    candidate
+                    for candidate, raw_dual in enumerate(duals)
+                    if int(
+                        np.dot(
+                            np.asarray(raw_dual, dtype=np.uint8).reshape(-1) % 2,
+                            vector,
+                        )
+                        % 2
+                    )
+                    == 1
+                ),
+                None,
+            )
+            if dual_index is None:
+                continue
+            witness = {
+                "side": side,
+                "index": int(index),
+                "dual_side": "Z" if side == "X" else "X",
+                "dual_index": int(dual_index),
+                "weight": weight,
+                "bits": [int(value) for value in vector],
+            }
+            candidates.append(
+                (weight, side_order, int(index), int(dual_index), witness)
+            )
+    if not candidates:
+        return None
+    minimum = min(candidates, key=lambda item: item[:4])[-1]
+    if distance is not None and minimum["weight"] != int(distance):
+        return None
+    return minimum
+
+
+def _valid_symplectic_run_parameters(value: Any) -> bool:
+    if not isinstance(value, dict) or set(value) != {
+        "timeout_per_logical_s",
+        "total_timeout_s",
+        "hard_timeout_per_logical_s",
+        "early_stop",
+    }:
+        return False
+    for field in (
+        "timeout_per_logical_s",
+        "total_timeout_s",
+        "hard_timeout_per_logical_s",
+    ):
+        budget = value[field]
+        if budget is None:
+            continue
+        if (
+            isinstance(budget, bool)
+            or not isinstance(budget, (int, float))
+            or not math.isfinite(budget)
+            or budget <= 0
+        ):
+            return False
+    early_stop = value["early_stop"]
+    return early_stop is None or (
+        not isinstance(early_stop, bool)
+        and isinstance(early_stop, int)
+        and early_stop >= 0
+    )
+
+
+def write_symplectic_weight_checkpoint(
+    code,
+    *,
+    checkpoint_path: str | Path,
+    checkpoint_identity: Mapping[str, Any] | str,
+    witness: Mapping[str, Any],
+    timeout_per_logical: int | float,
+    total_timeout: int | float,
+    hard_timeout_per_logical: int | float | None,
+    early_stop: int | None,
+    reset_incompatible_checkpoint: bool = False,
+) -> dict[str, Any]:
+    """Persist a formal checkpoint for a solver-free symplectic rejection."""
+    canonical_witness = symplectic_weight_witness(code, witness.get("weight"))
+    if canonical_witness is None or canonical_witness != dict(witness):
+        raise ValueError("symplectic witness is not replayable from the code")
+    hx, hz, lx, lz = get_code_matrices(code)
+    n = int(code.num_qudits)
+    k = int(code.dimension)
+    proof_binding = {
+        "candidate_identity": _canonical_json(checkpoint_identity),
+        "n": n,
+        "k": k,
+        "matrix_bundle_sha256": _matrix_bundle_sha256(hx, hz, lx, lz),
+        "implementation": _implementation_fingerprint(),
+        "method": "logical-basis-symplectic-upper-bound",
+        "witness_sha256": _canonical_sha256(canonical_witness),
+    }
+    proof_binding["binding_sha256"] = _canonical_sha256(proof_binding)
+    run_parameters = {
+        "timeout_per_logical_s": _checkpoint_budget(
+            float(timeout_per_logical)
+            if float(timeout_per_logical) > 0
+            else float("inf")
+        ),
+        "total_timeout_s": _checkpoint_budget(
+            float(total_timeout)
+            if float(total_timeout) > 0
+            else float("inf")
+        ),
+        "hard_timeout_per_logical_s": (
+            float(hard_timeout_per_logical)
+            if hard_timeout_per_logical is not None
+            else None
+        ),
+        "early_stop": early_stop,
+    }
+    payload = {
+        "kind": _SYMPLECTIC_CHECKPOINT_KIND,
+        "schema_version": _SYMPLECTIC_CHECKPOINT_SCHEMA_VERSION,
+        "created_at": _utc_now(),
+        "updated_at": _utc_now(),
+        "status": (
+            "exact"
+            if int(canonical_witness["weight"]) <= 2
+            else "threshold_rejected"
+        ),
+        "proof_binding": proof_binding,
+        "run_parameters": run_parameters,
+        "symplectic_witness": canonical_witness,
+    }
+    path = Path(os.path.abspath(os.fspath(checkpoint_path)))
+    with _checkpoint_flock(path):
+        checkpoint_exists = _checkpoint_regular_file_exists(path)
+        if checkpoint_exists:
+            previous = _read_checkpoint_json(path)
+            expected_fields = set(payload)
+            expected_parameter_fields = set(run_parameters)
+            previous_parameters = (
+                previous.get("run_parameters")
+                if isinstance(previous, dict)
+                else None
+            )
+            compatible = (
+                isinstance(previous, dict)
+                and set(previous) == expected_fields
+                and previous.get("kind") == _SYMPLECTIC_CHECKPOINT_KIND
+                and previous.get("schema_version")
+                == _SYMPLECTIC_CHECKPOINT_SCHEMA_VERSION
+                and isinstance(previous.get("created_at"), str)
+                and isinstance(previous.get("updated_at"), str)
+                and previous.get("status") == payload["status"]
+                and previous.get("proof_binding") == proof_binding
+                and _valid_symplectic_run_parameters(previous_parameters)
+                and set(previous_parameters) == expected_parameter_fields
+                and previous.get("symplectic_witness") == canonical_witness
+            )
+            if not compatible:
+                if not reset_incompatible_checkpoint:
+                    raise CssCheckpointIncompatibleError(
+                        "Stage 1 checkpoint is incompatible with the "
+                        "symplectic proof"
+                    )
+                _archive_incompatible_checkpoint(path)
+        _atomic_write_json(path, payload)
+    return payload
+
+
+def ilp_min_weight(
+    check_matrix,
+    logical_op,
+    timeout=30,
+    *,
+    return_witness: bool = False,
+):
     """Find minimum-weight operator orthogonal to checks, anticommuting with logical_op.
 
     Formulation: binary variables x_j for each of n qubits, with mod-2
@@ -78,9 +568,10 @@ def ilp_min_weight(check_matrix, logical_op, timeout=30):
         timeout: solver time limit in seconds.
 
     Returns:
-        (weight, optimal) tuple: weight is the minimum weight found (int),
-        optimal is True if proven optimal.  Returns (None, False) when no
-        feasible solution was found at all (infeasibility or no incumbent).
+        By default, a backwards-compatible ``(weight, optimal)`` tuple.
+        With ``return_witness=True``, returns
+        ``(weight, optimal, binary_witness)``. ``weight`` and ``witness`` are
+        both ``None`` when no feasible incumbent was found.
     """
     m, n = check_matrix.shape
     num_vars = n + m + 1  # [x_0..x_{n-1}, s_0..s_{m-1}, t]
@@ -133,11 +624,578 @@ def ilp_min_weight(check_matrix, logical_op, timeout=30):
 
     if result.x is not None:
         w = int(round(result.fun))
+        if return_witness:
+            raw_witness = np.asarray(result.x[:n], dtype=float)
+            rounded = np.rint(raw_witness)
+            if (
+                not np.all(np.isfinite(raw_witness))
+                or not np.allclose(raw_witness, rounded, atol=1e-6, rtol=0)
+                or not np.all((rounded == 0) | (rounded == 1))
+            ):
+                raise RuntimeError("CSS MILP returned a non-binary witness")
+            return w, result.success, [int(value) for value in rounded]
         return w, result.success  # success=True means proven optimal
+    if return_witness:
+        return None, False, None
     return None, False
 
 
-def compute_distance_milp(
+def _validate_css_direction_witness(
+    check_matrix: np.ndarray,
+    logical_op: np.ndarray,
+    weight: int,
+    witness: Any,
+) -> list[int]:
+    """Replay all CSS feasibility conditions and return canonical witness."""
+    n = int(check_matrix.shape[1])
+    if isinstance(weight, bool) or not isinstance(weight, (int, np.integer)):
+        raise ValueError("CSS MILP feasible witness has invalid weight")
+    weight = int(weight)
+    if not 1 <= weight <= n:
+        raise ValueError("CSS MILP feasible witness has invalid weight")
+    if not isinstance(witness, (list, tuple, np.ndarray)) or len(witness) != n:
+        raise ValueError("CSS MILP feasible witness has invalid shape")
+    canonical: list[int] = []
+    for value in witness:
+        if (
+            isinstance(value, (bool, np.bool_))
+            or not isinstance(value, (int, np.integer))
+            or int(value) not in (0, 1)
+        ):
+            raise ValueError("CSS MILP feasible witness is not binary")
+        canonical.append(int(value))
+    vector = np.asarray(canonical, dtype=np.uint8)
+    if int(np.sum(vector)) != weight:
+        raise ValueError("CSS MILP feasible witness weight mismatch")
+    checks = np.asarray(check_matrix, dtype=np.uint8) % 2
+    if np.any((checks @ vector) % 2):
+        raise ValueError("CSS MILP feasible witness violates check parity")
+    logical = np.asarray(logical_op, dtype=np.uint8).reshape(-1) % 2
+    if logical.shape != (n,) or int(np.dot(logical, vector) % 2) != 1:
+        raise ValueError("CSS MILP feasible witness violates logical parity")
+    return canonical
+
+
+def replay_css_direction_witness(
+    check_matrix: np.ndarray,
+    logical_op: np.ndarray,
+    weight: int,
+    witness: Any,
+) -> list[int]:
+    """Public verifier for a self-contained CSS direction witness."""
+    return _validate_css_direction_witness(
+        check_matrix, logical_op, weight, witness
+    )
+
+
+def _set_linux_parent_death_signal(expected_parent_pid: int) -> None:
+    """SIGKILL this worker if its creating process dies, including arm race."""
+    if not sys.platform.startswith("linux"):
+        return
+    libc = CDLL(None, use_errno=True)
+    prctl = libc.prctl
+    prctl.restype = c_int
+    result = prctl(
+        c_int(1),  # PR_SET_PDEATHSIG
+        c_ulong(signal.SIGKILL),
+        c_ulong(0),
+        c_ulong(0),
+        c_ulong(0),
+    )
+    if result != 0:
+        error_number = get_errno()
+        raise OSError(error_number, os.strerror(error_number))
+    # The parent can die between clone() and prctl(). In that race the kernel
+    # cannot deliver the newly armed signal, so fail closed after checking PPID.
+    if os.getppid() != expected_parent_pid:
+        os.kill(os.getpid(), signal.SIGKILL)
+        os._exit(128 + signal.SIGKILL)
+
+
+def _css_direction_worker(
+    connection,
+    expected_parent_pid: int,
+    hx: np.ndarray,
+    hz: np.ndarray,
+    lx: np.ndarray,
+    lz: np.ndarray,
+) -> None:
+    """Serve CSS logical-direction solves inside a terminable child process."""
+    _set_linux_parent_death_signal(expected_parent_pid)
+    try:
+        while True:
+            message = connection.recv()
+            if message is None:
+                return
+            task_id, side, index, timeout = message
+            try:
+                if side == "Z":
+                    result = ilp_min_weight(
+                        hx, lx[index], timeout=timeout, return_witness=True
+                    )
+                elif side == "X":
+                    result = ilp_min_weight(
+                        hz, lz[index], timeout=timeout, return_witness=True
+                    )
+                else:
+                    raise ValueError(f"unknown CSS logical direction: {side!r}")
+            except BaseException as exc:
+                connection.send((
+                    "error",
+                    task_id,
+                    type(exc).__name__,
+                    str(exc),
+                    traceback.format_exc(),
+                ))
+            else:
+                connection.send(
+                    ("result", task_id, result[0], result[1], result[2])
+                )
+    except (EOFError, BrokenPipeError, OSError):
+        return
+    finally:
+        connection.close()
+
+
+class _HardWallCssDirectionSolver:
+    """Reuse one spawned worker while retaining a kill boundary per direction."""
+
+    def __init__(
+        self,
+        hx: np.ndarray,
+        hz: np.ndarray,
+        lx: np.ndarray,
+        lz: np.ndarray,
+    ):
+        self._arrays = (hx, hz, lx, lz)
+        self._context = multiprocessing.get_context("spawn")
+        self._connection = None
+        self._process = None
+        self._task_id = 0
+
+    def _start(self) -> None:
+        if self._process is not None and self._process.is_alive():
+            return
+        self._stop()
+        parent, child = self._context.Pipe(duplex=True)
+        process = self._context.Process(
+            target=_css_direction_worker,
+            args=(child, os.getpid(), *self._arrays),
+            daemon=True,
+            name="qcode-css-milp-direction",
+        )
+        process.start()
+        child.close()
+        self._connection = parent
+        self._process = process
+
+    def _stop(self) -> None:
+        connection = self._connection
+        process = self._process
+        self._connection = None
+        self._process = None
+        if connection is not None:
+            try:
+                connection.close()
+            except OSError:
+                pass
+        if process is None:
+            return
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=2)
+        if process.is_alive():
+            process.kill()
+            process.join(timeout=2)
+        else:
+            process.join(timeout=0)
+        process.close()
+
+    def solve(
+        self,
+        side: str,
+        index: int,
+        *,
+        soft_timeout: float,
+        hard_timeout: float,
+    ) -> tuple[int | None, bool, str, list[int] | None]:
+        self._start()
+        assert self._connection is not None
+        self._task_id += 1
+        task_id = self._task_id
+        try:
+            self._connection.send((task_id, side, index, soft_timeout))
+        except (BrokenPipeError, EOFError, OSError) as exc:
+            self._stop()
+            raise RuntimeError("CSS MILP hard-wall worker exited before solve") from exc
+
+        if not self._connection.poll(hard_timeout):
+            self._stop()
+            return None, False, "hard_timeout", None
+        try:
+            message = self._connection.recv()
+        except (EOFError, OSError) as exc:
+            self._stop()
+            raise RuntimeError("CSS MILP hard-wall worker exited without result") from exc
+        if not message or message[1] != task_id:
+            self._stop()
+            raise RuntimeError("CSS MILP hard-wall worker protocol mismatch")
+        if message[0] == "error":
+            _, _, error_type, error, worker_traceback = message
+            raise RuntimeError(
+                f"CSS MILP worker failed: {error_type}: {error}\n{worker_traceback}"
+            )
+        if message[0] != "result":
+            self._stop()
+            raise RuntimeError("CSS MILP hard-wall worker returned invalid message")
+        _, _, weight, optimal, witness = message
+        if weight is None:
+            if witness is not None:
+                self._stop()
+                raise RuntimeError("CSS MILP worker returned witness without weight")
+            return None, False, "no_incumbent", None
+        return (
+            int(weight),
+            bool(optimal),
+            "optimal" if optimal else "incumbent",
+            witness,
+        )
+
+    def close(self) -> None:
+        if self._connection is not None and self._process is not None:
+            try:
+                self._connection.send(None)
+            except (BrokenPipeError, EOFError, OSError):
+                pass
+            self._process.join(timeout=2)
+        self._stop()
+
+    def __enter__(self) -> "_HardWallCssDirectionSolver":
+        return self
+
+    def __exit__(self, *_exc_info) -> None:
+        self.close()
+
+
+@dataclass(frozen=True)
+class CssExactReplayResult:
+    """Outcome of an independent replay of all CSS logical directions.
+
+    ``unavailable`` means that the fresh solver could not complete within the
+    supplied wall budgets (or was otherwise unavailable), so the stored claim
+    must remain unresolved and may be retried.  ``mismatch`` means that the
+    stored direction set is malformed or that a fresh proven optimum differs
+    from the stored weight; callers should treat that evidence as corrupt.
+    """
+
+    status: Literal["exact", "unavailable", "mismatch"]
+    reason: str
+    checked_directions: int
+    total_directions: int
+    elapsed_s: float
+    direction_id: str | None = None
+    expected_weight: int | None = None
+    observed_weight: int | None = None
+
+    @property
+    def exact(self) -> bool:
+        return self.status == "exact"
+
+    @property
+    def unavailable(self) -> bool:
+        return self.status == "unavailable"
+
+    @property
+    def mismatch(self) -> bool:
+        return self.status == "mismatch"
+
+
+def replay_css_exact_directions(
+    code,
+    direction_records: Mapping[str, Mapping[str, Any]],
+    *,
+    timeout_per_logical: int | float = 30,
+    total_timeout: int | float = 120,
+    hard_timeout_per_logical: int | float = 35,
+) -> CssExactReplayResult:
+    """Independently prove stored CSS direction weights are exact.
+
+    This verifier deliberately ignores every stored solver status and never
+    resumes a checkpoint.  It creates a new killable HiGHS worker and solves
+    every canonical Z/X logical direction again.  Exactness is established
+    only when every fresh solve reports ``optimal``, returns a replayable
+    witness, and its optimum equals the corresponding stored weight.
+
+    A solver timeout/failure returns ``status="unavailable"`` so callers can
+    retry with a larger budget.  A malformed record set or a fresh optimum
+    different from the stored value returns ``status="mismatch"``.
+    """
+
+    def positive_finite_budget(name: str, raw: int | float) -> float:
+        if (
+            isinstance(raw, bool)
+            or not isinstance(raw, (int, float))
+            or not math.isfinite(float(raw))
+            or float(raw) <= 0
+        ):
+            raise ValueError(f"{name} must be a positive finite number")
+        return float(raw)
+
+    soft_budget = positive_finite_budget(
+        "timeout_per_logical", timeout_per_logical
+    )
+    total_budget = positive_finite_budget("total_timeout", total_timeout)
+    hard_budget = positive_finite_budget(
+        "hard_timeout_per_logical", hard_timeout_per_logical
+    )
+    started = time.monotonic()
+
+    def result(
+        status: Literal["exact", "unavailable", "mismatch"],
+        reason: str,
+        checked: int,
+        total: int,
+        *,
+        direction_id: str | None = None,
+        expected_weight: int | None = None,
+        observed_weight: int | None = None,
+    ) -> CssExactReplayResult:
+        return CssExactReplayResult(
+            status=status,
+            reason=reason,
+            checked_directions=checked,
+            total_directions=total,
+            elapsed_s=max(0.0, time.monotonic() - started),
+            direction_id=direction_id,
+            expected_weight=expected_weight,
+            observed_weight=observed_weight,
+        )
+
+    if not isinstance(direction_records, Mapping):
+        return result(
+            "mismatch",
+            "direction_records_not_mapping",
+            0,
+            0,
+        )
+
+    try:
+        n = int(code.num_qudits)
+        k = int(code.dimension)
+        hx, hz, lx, lz = get_code_matrices(code)
+    except Exception:
+        return result("unavailable", "code_matrices_unavailable", 0, 0)
+    total_directions = 2 * k
+    if n < 1 or k < 0:
+        return result(
+            "mismatch",
+            "invalid_code_dimensions",
+            0,
+            total_directions,
+        )
+    matrices = (hx, hz, lx, lz)
+    if any(
+        not isinstance(matrix, np.ndarray)
+        or matrix.ndim != 2
+        or matrix.shape[1] != n
+        for matrix in matrices
+    ) or lx.shape[0] != k or lz.shape[0] != k:
+        return result(
+            "unavailable",
+            "code_matrices_invalid",
+            0,
+            total_directions,
+        )
+
+    expected_ids = [
+        f"{side}:{index}"
+        for side in ("Z", "X")
+        for index in range(k)
+    ]
+    try:
+        record_ids = set(direction_records)
+    except Exception:
+        return result(
+            "mismatch",
+            "direction_record_ids_invalid",
+            0,
+            total_directions,
+        )
+    if record_ids != set(expected_ids):
+        return result(
+            "mismatch",
+            "direction_record_set_mismatch",
+            0,
+            total_directions,
+        )
+
+    expected_weights: dict[str, int] = {}
+    for direction_id in expected_ids:
+        record = direction_records.get(direction_id)
+        if not isinstance(record, Mapping):
+            return result(
+                "mismatch",
+                "direction_record_not_mapping",
+                0,
+                total_directions,
+                direction_id=direction_id,
+            )
+        side, raw_index = direction_id.split(":", 1)
+        index = int(raw_index)
+        record_index = record.get("index")
+        weight = record.get("weight")
+        if (
+            record.get("side") != side
+            or isinstance(record_index, bool)
+            or not isinstance(record_index, (int, np.integer))
+            or int(record_index) != index
+            or isinstance(weight, bool)
+            or not isinstance(weight, (int, np.integer))
+            or not 1 <= int(weight) <= n
+        ):
+            return result(
+                "mismatch",
+                "direction_record_invalid",
+                0,
+                total_directions,
+                direction_id=direction_id,
+            )
+        expected_weights[direction_id] = int(weight)
+
+    checked = 0
+    if total_directions == 0:
+        return result("exact", "all_directions_replayed", 0, 0)
+
+    try:
+        with _HardWallCssDirectionSolver(hx, hz, lx, lz) as solver:
+            for direction_id in expected_ids:
+                elapsed = time.monotonic() - started
+                remaining = total_budget - elapsed
+                if remaining <= 0:
+                    return result(
+                        "unavailable",
+                        "total_wall_timeout",
+                        checked,
+                        total_directions,
+                        direction_id=direction_id,
+                    )
+                direction_hard_budget = min(hard_budget, remaining)
+                direction_soft_budget = min(
+                    soft_budget, direction_hard_budget
+                )
+                side, raw_index = direction_id.split(":", 1)
+                index = int(raw_index)
+                try:
+                    weight, optimal, outcome, witness = solver.solve(
+                        side,
+                        index,
+                        soft_timeout=direction_soft_budget,
+                        hard_timeout=direction_hard_budget,
+                    )
+                except Exception:
+                    return result(
+                        "unavailable",
+                        "solver_unavailable",
+                        checked,
+                        total_directions,
+                        direction_id=direction_id,
+                    )
+                if time.monotonic() - started > total_budget:
+                    return result(
+                        "unavailable",
+                        "total_wall_timeout",
+                        checked,
+                        total_directions,
+                        direction_id=direction_id,
+                    )
+                if outcome != "optimal" or optimal is not True or weight is None:
+                    reason = (
+                        "direction_hard_timeout"
+                        if outcome == "hard_timeout"
+                        else "direction_optimum_unavailable"
+                    )
+                    return result(
+                        "unavailable",
+                        reason,
+                        checked,
+                        total_directions,
+                        direction_id=direction_id,
+                        observed_weight=(
+                            int(weight) if weight is not None else None
+                        ),
+                    )
+                checks = hx if side == "Z" else hz
+                logical = lx[index] if side == "Z" else lz[index]
+                try:
+                    _validate_css_direction_witness(
+                        checks, logical, int(weight), witness
+                    )
+                except (TypeError, ValueError):
+                    return result(
+                        "unavailable",
+                        "solver_witness_invalid",
+                        checked,
+                        total_directions,
+                        direction_id=direction_id,
+                        observed_weight=int(weight),
+                    )
+                expected_weight = expected_weights[direction_id]
+                if int(weight) != expected_weight:
+                    return result(
+                        "mismatch",
+                        "optimal_weight_mismatch",
+                        checked,
+                        total_directions,
+                        direction_id=direction_id,
+                        expected_weight=expected_weight,
+                        observed_weight=int(weight),
+                    )
+                checked += 1
+    except Exception:
+        return result(
+            "unavailable",
+            "solver_unavailable",
+            checked,
+            total_directions,
+        )
+    return result(
+        "exact",
+        "all_directions_replayed",
+        checked,
+        total_directions,
+    )
+
+
+def _legacy_direction_solve(
+    checks: np.ndarray,
+    logical: np.ndarray,
+    *,
+    timeout: float,
+) -> tuple[int | None, bool, list[int] | None]:
+    """Request a witness while tolerating old two-field test doubles."""
+    raw = ilp_min_weight(
+        checks,
+        logical,
+        timeout=timeout,
+        return_witness=True,
+    )
+    if not isinstance(raw, tuple) or len(raw) not in {2, 3}:
+        raise RuntimeError("CSS MILP direction solver returned invalid data")
+    weight, optimal = raw[:2]
+    witness = raw[2] if len(raw) == 3 else None
+    if weight is None:
+        if witness is not None:
+            raise RuntimeError("CSS MILP returned witness without a weight")
+        return None, False, None
+    weight = int(weight)
+    if witness is not None:
+        witness = _validate_css_direction_witness(
+            checks, logical, weight, witness
+        )
+    return weight, bool(optimal), witness
+
+
+def _compute_distance_milp_legacy(
     code,
     *,
     timeout_per_logical: int = 30,
@@ -188,6 +1246,7 @@ def compute_distance_milp(
     logicals_optimal = 0   # Proven optimal by solver
     logicals_incumbent = 0  # Feasible solution found but not proven optimal
     all_solved = True  # Track whether all logicals were solved (no timeouts)
+    feasible_witnesses: list[tuple[int, int, int, dict[str, Any]]] = []
 
     # Per-logical timeout is passed through unmodified.  The caller
     # (evaluator) sets the budget; total_timeout is enforced via the
@@ -207,11 +1266,25 @@ def compute_distance_milp(
             all_solved = False
             break
         timeout = min(timeout_per_logical, remaining)
-        w, optimal = ilp_min_weight(hx, lx[i], timeout=timeout)
+        w, optimal, witness = _legacy_direction_solve(
+            hx, lx[i], timeout=timeout
+        )
         logicals_checked += 1
         if w is not None:
             d_z = min(d_z, w)
             any_z_found = True
+            if witness is not None:
+                feasible_witnesses.append((
+                    int(w),
+                    0,
+                    i,
+                    {
+                        "side": "Z",
+                        "index": i,
+                        "weight": int(w),
+                        "bits": witness,
+                    },
+                ))
             if optimal:
                 logicals_optimal += 1
             else:
@@ -249,22 +1322,43 @@ def compute_distance_milp(
             "total_logicals": 2 * k,
             "time_s": elapsed,
             "timeout_per_logical": timeout_per_logical,
+            "minimum_direction_witness": (
+                min(feasible_witnesses, key=lambda item: item[:3])[-1]
+                if feasible_witnesses
+                else None
+            ),
         }
 
     # --- X-distance: min-weight X-op commuting with Z-checks ---
     d_x = n
     any_x_found = False
+    x_phase_started = False
     for i in range(k):
         remaining = _remaining()
         if remaining <= 0:
             all_solved = False
             break
+        x_phase_started = True
         timeout = min(timeout_per_logical, remaining)
-        w, optimal = ilp_min_weight(hz, lz[i], timeout=timeout)
+        w, optimal, witness = _legacy_direction_solve(
+            hz, lz[i], timeout=timeout
+        )
         logicals_checked += 1
         if w is not None:
             d_x = min(d_x, w)
             any_x_found = True
+            if witness is not None:
+                feasible_witnesses.append((
+                    int(w),
+                    1,
+                    i,
+                    {
+                        "side": "X",
+                        "index": i,
+                        "weight": int(w),
+                        "bits": witness,
+                    },
+                ))
             if optimal:
                 logicals_optimal += 1
             else:
@@ -296,7 +1390,7 @@ def compute_distance_milp(
             "d_z": 0,
             "k": k,
             "exact": False,
-            "d_x_computed": True,
+            "d_x_computed": x_phase_started,
             "num_logicals_checked": logicals_checked,
             "logicals_optimal": logicals_optimal,
             "logicals_incumbent": logicals_incumbent,
@@ -307,6 +1401,7 @@ def compute_distance_milp(
             "no_incumbent": True,
             "distance_status": "unknown",
             "d_is_lower_bound": False,
+            "minimum_direction_witness": None,
         }
 
     # Use the best feasible values found. Unsolved sides stay at n
@@ -318,14 +1413,727 @@ def compute_distance_milp(
         "d_z": d_z if any_z_found else 0,
         "k": k,
         "exact": all_solved and logicals_checked == logicals_optimal == 2 * k,
-        "d_x_computed": True,
+        "d_x_computed": x_phase_started,
         "num_logicals_checked": logicals_checked,
         "logicals_optimal": logicals_optimal,
         "logicals_incumbent": logicals_incumbent,
         "total_logicals": 2 * k,
         "time_s": elapsed,
         "timeout_per_logical": timeout_per_logical,
+        "minimum_direction_witness": (
+            min(feasible_witnesses, key=lambda item: item[:3])[-1]
+            if feasible_witnesses
+            else None
+        ),
     }
+
+
+def _checkpoint_budget(value: float) -> float | None:
+    return float(value) if math.isfinite(value) else None
+
+
+def _validated_checkpoint_budget(field: str, value: Any) -> float | None:
+    if value is None:
+        return None
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value <= 0
+    ):
+        raise ValueError(
+            f"CSS MILP checkpoint has invalid bound budget {field}"
+        )
+    return float(value)
+
+
+def _is_budget_upgrade(previous: float | None, current: float | None) -> bool:
+    """Allow completed proofs to survive a monotonic timeout-budget increase."""
+    if previous is None:
+        return current is None
+    return current is None or float(current) >= float(previous)
+
+
+def _compute_distance_milp_durable(
+    code,
+    *,
+    timeout_per_logical: int = 30,
+    total_timeout: int = 120,
+    early_stop: int | None = 4,
+    verbose: bool = False,
+    checkpoint_path: str | Path | None = None,
+    resume: bool = True,
+    hard_timeout_per_logical: float | None = None,
+    checkpoint_identity: Mapping[str, Any] | str | None = None,
+    reset_incompatible_checkpoint: bool = False,
+) -> tuple[int, dict]:
+    """Serialize each candidate's complete durable checkpoint transaction."""
+    path = (
+        Path(os.path.abspath(os.fspath(checkpoint_path)))
+        if checkpoint_path is not None
+        else None
+    )
+    with _checkpoint_flock(path):
+        checkpoint_exists = _checkpoint_regular_file_exists(path)
+        arguments = {
+            "timeout_per_logical": timeout_per_logical,
+            "total_timeout": total_timeout,
+            "early_stop": early_stop,
+            "verbose": verbose,
+            "checkpoint_path": path,
+            "hard_timeout_per_logical": hard_timeout_per_logical,
+            "checkpoint_identity": checkpoint_identity,
+        }
+        try:
+            return _compute_distance_milp_durable_locked(
+                code,
+                checkpoint_exists=checkpoint_exists,
+                resume=resume,
+                **arguments,
+            )
+        except CssCheckpointIncompatibleError as exc:
+            if (
+                not reset_incompatible_checkpoint
+                or path is None
+                or not checkpoint_exists
+            ):
+                raise
+            archive = _archive_incompatible_checkpoint(path)
+            distance, details = _compute_distance_milp_durable_locked(
+                code,
+                checkpoint_exists=False,
+                resume=False,
+                **arguments,
+            )
+            details["checkpoint_reset"] = True
+            details["checkpoint_reset_reason"] = str(exc)
+            details["checkpoint_incompatible_archive"] = str(archive)
+            return distance, details
+
+
+def _compute_distance_milp_durable_locked(
+    code,
+    *,
+    timeout_per_logical: int = 30,
+    total_timeout: int = 120,
+    early_stop: int | None = 4,
+    verbose: bool = False,
+    checkpoint_path: str | Path | None = None,
+    checkpoint_exists: bool = False,
+    resume: bool = True,
+    hard_timeout_per_logical: float | None = None,
+    checkpoint_identity: Mapping[str, Any] | str | None = None,
+) -> tuple[int, dict]:
+    """Durable CSS MILP loop with direction checkpoints and killable solves."""
+    timeout_per_logical = float(timeout_per_logical)
+    total_timeout = float(total_timeout)
+    if math.isnan(timeout_per_logical):
+        raise ValueError("timeout_per_logical must not be NaN")
+    if math.isnan(total_timeout):
+        raise ValueError("total_timeout must not be NaN")
+    if timeout_per_logical <= 0:
+        timeout_per_logical = float("inf")
+    if total_timeout <= 0:
+        total_timeout = float("inf")
+    if early_stop is not None:
+        if isinstance(early_stop, bool):
+            raise ValueError("early_stop must be a non-negative integer or None")
+        early_stop = int(early_stop)
+        if early_stop < 0:
+            raise ValueError("early_stop must be a non-negative integer or None")
+    if hard_timeout_per_logical is not None:
+        hard_timeout_per_logical = float(hard_timeout_per_logical)
+        if (
+            not math.isfinite(hard_timeout_per_logical)
+            or hard_timeout_per_logical <= 0
+        ):
+            raise ValueError(
+                "hard_timeout_per_logical must be a positive finite number"
+            )
+
+    n = int(code.num_qudits)
+    k = int(code.dimension)
+    if k == 0:
+        return _compute_distance_milp_legacy(
+            code,
+            timeout_per_logical=timeout_per_logical,
+            total_timeout=total_timeout,
+            early_stop=early_stop,
+            verbose=verbose,
+        )
+
+    hx, hz, lx, lz = get_code_matrices(code)
+    direction_definitions: list[dict[str, Any]] = []
+    for side, logicals, checks in (("Z", lx, hx), ("X", lz, hz)):
+        check_sha = _binary_array_sha256(f"{side}-checks", checks)
+        for index in range(k):
+            logical_sha = _binary_array_sha256(
+                f"{side}-logical-{index}", logicals[index]
+            )
+            direction_definitions.append({
+                "direction_id": f"{side}:{index}",
+                "side": side,
+                "index": index,
+                "check_matrix_sha256": check_sha,
+                "logical_sha256": logical_sha,
+            })
+    direction_by_id = {
+        row["direction_id"]: row for row in direction_definitions
+    }
+    identity = _canonical_json(
+        checkpoint_identity
+        if checkpoint_identity is not None
+        else {"kind": "matrix-bound-css-code", "n": n, "k": k}
+    )
+    proof_binding = {
+        "candidate_identity": identity,
+        "n": n,
+        "k": k,
+        "matrix_bundle_sha256": _matrix_bundle_sha256(hx, hz, lx, lz),
+        "directions": direction_definitions,
+        "directions_sha256": _canonical_sha256(direction_definitions),
+        "implementation": _implementation_fingerprint(),
+        "solver": {
+            "backend": "scipy.optimize.milp-highs",
+            "formulation": "css-logical-parity",
+            "formulation_revision": _CSS_FORMULATION_REVISION,
+            "objective": "hamming_weight",
+            "presolve": True,
+        },
+    }
+    proof_binding["binding_sha256"] = _canonical_sha256(proof_binding)
+    run_parameters = {
+        "timeout_per_logical_s": _checkpoint_budget(timeout_per_logical),
+        "total_timeout_s": _checkpoint_budget(total_timeout),
+        "hard_timeout_per_logical_s": hard_timeout_per_logical,
+        "early_stop": early_stop,
+    }
+
+    path = Path(checkpoint_path) if checkpoint_path is not None else None
+    records: dict[str, dict[str, Any]] = {}
+    created_at = _utc_now()
+    parameter_history: list[dict[str, Any]] = []
+    checkpoint_resumed = False
+    reused_at_start = 0
+    hard_timeout_migration = False
+    if path is not None and resume and checkpoint_exists:
+        checkpoint = _read_checkpoint_json(path)
+        if not isinstance(checkpoint, dict):
+            raise ValueError("CSS MILP checkpoint root must be an object")
+        if (
+            checkpoint.get("kind") != _CSS_CHECKPOINT_KIND
+            or checkpoint.get("schema_version") != _CSS_CHECKPOINT_SCHEMA_VERSION
+        ):
+            raise CssCheckpointIncompatibleError(
+                "unsupported CSS MILP checkpoint schema"
+            )
+        if checkpoint.get("proof_binding") != proof_binding:
+            raise CssCheckpointIncompatibleError(
+                "CSS MILP checkpoint candidate/matrix/direction binding mismatch"
+            )
+        previous_parameters = checkpoint.get("run_parameters")
+        if not isinstance(previous_parameters, dict):
+            raise ValueError("CSS MILP checkpoint has no bound run parameters")
+        if set(previous_parameters) != set(run_parameters):
+            raise ValueError("CSS MILP checkpoint run parameter fields mismatch")
+        if previous_parameters.get("early_stop") != early_stop:
+            raise ValueError("CSS MILP checkpoint early_stop binding mismatch")
+        for field in (
+            "timeout_per_logical_s",
+            "total_timeout_s",
+        ):
+            previous_budget = _validated_checkpoint_budget(
+                field, previous_parameters[field]
+            )
+            if not _is_budget_upgrade(
+                previous_budget, run_parameters[field]
+            ):
+                raise ValueError(
+                    f"CSS MILP checkpoint cannot reduce bound budget {field}"
+                )
+        previous_hard_timeout = _validated_checkpoint_budget(
+            "hard_timeout_per_logical_s",
+            previous_parameters["hard_timeout_per_logical_s"],
+        )
+        current_hard_timeout = run_parameters["hard_timeout_per_logical_s"]
+        hard_timeout_migration = (
+            previous_hard_timeout is None and current_hard_timeout is not None
+        )
+        if not hard_timeout_migration and not _is_budget_upgrade(
+            previous_hard_timeout, current_hard_timeout
+        ):
+            raise ValueError(
+                "CSS MILP checkpoint cannot reduce bound budget "
+                "hard_timeout_per_logical_s"
+            )
+        raw_records = checkpoint.get("direction_results", {})
+        if not isinstance(raw_records, dict):
+            raise ValueError("CSS MILP checkpoint direction_results must be an object")
+        for direction_id, record in raw_records.items():
+            definition = direction_by_id.get(direction_id)
+            if definition is None or not isinstance(record, dict):
+                raise ValueError("CSS MILP checkpoint contains an unknown direction")
+            status = record.get("status")
+            weight = record.get("weight")
+            witness = record.get("witness")
+            attempts = record.get("attempts")
+            if status not in _DIRECTION_STATUSES:
+                raise ValueError("CSS MILP checkpoint has invalid direction status")
+            if (
+                record.get("side") != definition["side"]
+                or record.get("index") != definition["index"]
+                or record.get("logical_sha256") != definition["logical_sha256"]
+            ):
+                raise ValueError("CSS MILP checkpoint direction binding mismatch")
+            if isinstance(attempts, bool) or not isinstance(attempts, int) or attempts < 1:
+                raise ValueError("CSS MILP checkpoint has invalid attempt count")
+            if weight is not None and (
+                isinstance(weight, bool)
+                or not isinstance(weight, int)
+                or weight < 1
+                or weight > n
+            ):
+                raise ValueError("CSS MILP checkpoint has invalid direction weight")
+            if status in {"optimal", "incumbent"}:
+                if weight is None:
+                    raise ValueError(
+                        "CSS MILP checkpoint lost a feasible direction weight"
+                    )
+                if definition["side"] == "Z":
+                    checks = hx
+                    logical = lx[definition["index"]]
+                else:
+                    checks = hz
+                    logical = lz[definition["index"]]
+                try:
+                    witness = _validate_css_direction_witness(
+                        checks, logical, weight, witness
+                    )
+                except ValueError as exc:
+                    raise ValueError(
+                        "CSS MILP checkpoint has invalid feasible witness"
+                    ) from exc
+            elif weight is not None or witness is not None:
+                raise ValueError(
+                    "CSS MILP checkpoint unresolved direction retained a witness"
+                )
+            if record.get("optimal") is not (status == "optimal"):
+                raise ValueError("CSS MILP checkpoint has inconsistent optimal flag")
+            hard_timeouts = record.get("hard_timeouts", 0)
+            if (
+                isinstance(hard_timeouts, bool)
+                or not isinstance(hard_timeouts, int)
+                or hard_timeouts < 0
+                or hard_timeouts > attempts
+            ):
+                raise ValueError("CSS MILP checkpoint has invalid timeout count")
+            last_status = record.get("last_attempt_status")
+            if last_status not in _DIRECTION_STATUSES:
+                raise ValueError("CSS MILP checkpoint has invalid last attempt status")
+            if status == "optimal" and last_status != "optimal":
+                raise ValueError("CSS MILP checkpoint optimal record is inconsistent")
+            if status in {"no_incumbent", "hard_timeout"} and last_status != status:
+                raise ValueError("CSS MILP checkpoint unresolved record is inconsistent")
+            if status == "incumbent" and last_status == "optimal":
+                raise ValueError("CSS MILP checkpoint incumbent record is inconsistent")
+            if last_status == "hard_timeout" and hard_timeouts < 1:
+                raise ValueError("CSS MILP checkpoint lost its hard timeout count")
+            last_elapsed = record.get("last_attempt_elapsed_s")
+            if (
+                isinstance(last_elapsed, bool)
+                or not isinstance(last_elapsed, (int, float))
+                or not math.isfinite(last_elapsed)
+                or last_elapsed < 0
+            ):
+                raise ValueError("CSS MILP checkpoint has invalid attempt elapsed time")
+            updated_at = record.get("updated_at")
+            if not isinstance(updated_at, str) or not updated_at:
+                raise ValueError("CSS MILP checkpoint has invalid update timestamp")
+            restored = dict(record)
+            restored["weight"] = weight
+            restored["witness"] = witness
+            if hard_timeout_migration and status != "optimal":
+                continue
+            records[direction_id] = restored
+        created_at = str(checkpoint.get("created_at") or created_at)
+        raw_history = checkpoint.get("parameter_history", [])
+        if isinstance(raw_history, list):
+            parameter_history = list(raw_history)
+        checkpoint_resumed = True
+        reused_at_start = sum(
+            record.get("status") == "optimal" for record in records.values()
+        )
+
+    if not parameter_history or parameter_history[-1] != run_parameters:
+        parameter_history.append(run_parameters)
+
+    def save_checkpoint(status: str) -> None:
+        if path is None:
+            return
+        _atomic_write_json(path, {
+            "kind": _CSS_CHECKPOINT_KIND,
+            "schema_version": _CSS_CHECKPOINT_SCHEMA_VERSION,
+            "created_at": created_at,
+            "updated_at": _utc_now(),
+            "status": status,
+            "proof_binding": proof_binding,
+            "run_parameters": run_parameters,
+            "parameter_history": parameter_history,
+            "direction_results": records,
+        })
+
+    save_checkpoint("running")
+    t_start = time.monotonic()
+    runner = (
+        _HardWallCssDirectionSolver(hx, hz, lx, lz)
+        if hard_timeout_per_logical is not None
+        else None
+    )
+
+    def remaining() -> float:
+        return max(0.0, total_timeout - (time.monotonic() - t_start))
+
+    def aggregate() -> dict[str, Any]:
+        z_weights = [
+            int(record["weight"])
+            for direction_id, record in records.items()
+            if direction_id.startswith("Z:") and record.get("weight") is not None
+        ]
+        x_weights = [
+            int(record["weight"])
+            for direction_id, record in records.items()
+            if direction_id.startswith("X:") and record.get("weight") is not None
+        ]
+        feasible = []
+        for record in records.values():
+            if record.get("weight") is None:
+                continue
+            witness = record.get("witness")
+            if witness is None:
+                raise RuntimeError(
+                    "CSS MILP feasible direction lost its embedded witness"
+                )
+            side = record["side"]
+            index = int(record["index"])
+            weight = int(record["weight"])
+            feasible.append((
+                weight,
+                0 if side == "Z" else 1,
+                index,
+                {
+                    "side": side,
+                    "index": index,
+                    "weight": weight,
+                    "bits": list(witness),
+                },
+            ))
+        minimum_witness = (
+            min(feasible, key=lambda item: item[:3])[-1] if feasible else None
+        )
+        statuses = {
+            name: sum(record.get("status") == name for record in records.values())
+            for name in sorted(_DIRECTION_STATUSES)
+        }
+        optimal = statuses["optimal"]
+        exact = optimal == 2 * k and len(records) == 2 * k
+        pending = [
+            definition["direction_id"]
+            for definition in direction_definitions
+            if records.get(definition["direction_id"], {}).get("status") != "optimal"
+        ]
+        return {
+            "z_weights": z_weights,
+            "x_weights": x_weights,
+            "d_z": min(z_weights) if z_weights else n,
+            "d_x": min(x_weights) if x_weights else n,
+            "any_z": bool(z_weights),
+            "any_x": bool(x_weights),
+            "exact": exact,
+            "checked": len(records),
+            "optimal": optimal,
+            "incumbent": sum(
+                record.get("status") == "incumbent"
+                for record in records.values()
+            ),
+            "hard_timeouts": sum(
+                int(record.get("hard_timeouts", 0) or 0)
+                for record in records.values()
+            ),
+            "total_attempts": sum(
+                int(record.get("attempts", 0) or 0)
+                for record in records.values()
+            ),
+            "statuses": statuses,
+            "pending": pending,
+            "minimum_direction_witness": minimum_witness,
+        }
+
+    def finish(status: str, *, d_x_computed: bool) -> tuple[int, dict]:
+        summary = aggregate()
+        exact = bool(summary["exact"])
+        checkpoint_status = "exact" if exact else status
+        save_checkpoint(checkpoint_status)
+        elapsed = time.monotonic() - t_start
+        details = {
+            "d_x": summary["d_x"] if summary["any_x"] else 0,
+            "d_z": summary["d_z"] if summary["any_z"] else 0,
+            "k": k,
+            "exact": exact,
+            "d_x_computed": d_x_computed,
+            "num_logicals_checked": summary["checked"],
+            "logicals_optimal": summary["optimal"],
+            "logicals_incumbent": summary["incumbent"],
+            "total_logicals": 2 * k,
+            "time_s": elapsed,
+            "timeout_per_logical": timeout_per_logical,
+            "hard_timeout_per_logical": hard_timeout_per_logical,
+            "hard_wall_timeouts": summary["hard_timeouts"],
+            "total_direction_attempts": summary["total_attempts"],
+            "direction_status_counts": summary["statuses"],
+            "pending_direction_ids": summary["pending"],
+            "checkpoint_enabled": path is not None,
+            "checkpoint_path": str(path) if path is not None else None,
+            "checkpoint_resumed": checkpoint_resumed,
+            "checkpoint_directions_reused": reused_at_start,
+            "checkpoint_status": checkpoint_status,
+            "minimum_direction_witness": summary["minimum_direction_witness"],
+        }
+        if not summary["any_z"] and not summary["any_x"]:
+            details.update({
+                "all_timeout": True,
+                "no_incumbent": True,
+                "distance_status": "unknown",
+                "d_is_lower_bound": False,
+            })
+            return n, details
+        return min(summary["d_z"], summary["d_x"]), details
+
+    def threshold_reached(summary: dict[str, Any]) -> bool:
+        if early_stop is None:
+            return False
+        weights = summary["z_weights"] + summary["x_weights"]
+        return bool(weights) and min(weights) <= early_stop
+
+    def record_attempt(
+        definition: dict[str, Any],
+        weight: int | None,
+        optimal: bool,
+        outcome: str,
+        witness: list[int] | None,
+        elapsed: float,
+    ) -> None:
+        direction_id = definition["direction_id"]
+        previous = records.get(direction_id, {})
+        previous_weight = previous.get("weight")
+        previous_witness = previous.get("witness")
+        if outcome not in _DIRECTION_STATUSES:
+            raise RuntimeError("CSS MILP direction returned an invalid status")
+        if not isinstance(optimal, (bool, np.bool_)):
+            raise RuntimeError("CSS MILP direction returned an invalid optimal flag")
+        optimal = bool(optimal)
+        if (
+            isinstance(elapsed, bool)
+            or not isinstance(elapsed, (int, float))
+            or not math.isfinite(elapsed)
+            or elapsed < 0
+        ):
+            raise RuntimeError("CSS MILP direction returned an invalid elapsed time")
+        if weight is not None and (
+            isinstance(weight, bool)
+            or int(weight) != weight
+            or not 1 <= int(weight) <= n
+        ):
+            raise RuntimeError("CSS MILP direction returned an invalid weight")
+        if weight is not None:
+            weight = int(weight)
+            if definition["side"] == "Z":
+                checks = hx
+                logical = lx[definition["index"]]
+            else:
+                checks = hz
+                logical = lz[definition["index"]]
+            try:
+                witness = _validate_css_direction_witness(
+                    checks, logical, weight, witness
+                )
+            except ValueError as exc:
+                raise RuntimeError(
+                    "CSS MILP direction returned an invalid feasible witness"
+                ) from exc
+        elif witness is not None:
+            raise RuntimeError("CSS MILP direction returned witness without weight")
+        expected_outcomes = (
+            {"optimal"}
+            if optimal
+            else {"incumbent"}
+            if weight is not None
+            else {"no_incumbent", "hard_timeout"}
+        )
+        if outcome not in expected_outcomes:
+            raise RuntimeError("CSS MILP direction result fields are inconsistent")
+        if optimal and weight is None:
+            raise RuntimeError("optimal CSS MILP direction had no feasible weight")
+        if optimal and previous_weight is not None and weight > previous_weight:
+            raise RuntimeError("optimal CSS MILP result exceeds prior feasible incumbent")
+        if weight is not None and (
+            previous_weight is None or weight < previous_weight
+        ):
+            best_weight = weight
+            best_witness = witness
+        else:
+            best_weight = previous_weight
+            best_witness = previous_witness
+        if optimal:
+            status = "optimal"
+            best_weight = weight
+            best_witness = witness
+        elif best_weight is not None:
+            status = "incumbent"
+        else:
+            status = outcome
+            best_weight = None
+            best_witness = None
+        records[direction_id] = {
+            "side": definition["side"],
+            "index": definition["index"],
+            "logical_sha256": definition["logical_sha256"],
+            "status": status,
+            "weight": best_weight,
+            "witness": best_witness,
+            "optimal": status == "optimal",
+            "attempts": int(previous.get("attempts", 0) or 0) + 1,
+            "hard_timeouts": int(previous.get("hard_timeouts", 0) or 0)
+            + int(outcome == "hard_timeout"),
+            "last_attempt_status": outcome,
+            "last_attempt_elapsed_s": elapsed,
+            "updated_at": _utc_now(),
+        }
+        save_checkpoint("running")
+
+    try:
+        x_phase_started = any(
+            direction_id.startswith("X:") for direction_id in records
+        )
+        initial = aggregate()
+        if initial["exact"]:
+            return finish("exact", d_x_computed=True)
+        if threshold_reached(initial):
+            return finish(
+                "threshold_rejected",
+                d_x_computed=x_phase_started,
+            )
+
+        for definition in direction_definitions:
+            direction_id = definition["direction_id"]
+            if records.get(direction_id, {}).get("status") == "optimal":
+                continue
+            budget = remaining()
+            if budget <= 0:
+                break
+            if definition["side"] == "X":
+                x_phase_started = True
+            soft_timeout = min(timeout_per_logical, budget)
+            started = time.monotonic()
+            if runner is None:
+                if definition["side"] == "Z":
+                    weight, optimal, witness = ilp_min_weight(
+                        hx,
+                        lx[definition["index"]],
+                        timeout=soft_timeout,
+                        return_witness=True,
+                    )
+                else:
+                    weight, optimal, witness = ilp_min_weight(
+                        hz,
+                        lz[definition["index"]],
+                        timeout=soft_timeout,
+                        return_witness=True,
+                    )
+                outcome = (
+                    "optimal" if optimal
+                    else "incumbent" if weight is not None
+                    else "no_incumbent"
+                )
+            else:
+                hard_timeout = min(hard_timeout_per_logical, budget)
+                weight, optimal, outcome, witness = runner.solve(
+                    definition["side"],
+                    definition["index"],
+                    soft_timeout=soft_timeout,
+                    hard_timeout=hard_timeout,
+                )
+            direction_elapsed = time.monotonic() - started
+            record_attempt(
+                definition, weight, optimal, outcome, witness, direction_elapsed
+            )
+            if verbose:
+                logger.info(
+                    "%s[%d]: d=%s status=%s (%.1fs)",
+                    definition["side"],
+                    definition["index"],
+                    weight,
+                    outcome,
+                    time.monotonic() - t_start,
+                )
+            summary = aggregate()
+            if threshold_reached(summary):
+                return finish(
+                    "threshold_rejected",
+                    d_x_computed=x_phase_started,
+                )
+
+        final = aggregate()
+        return finish(
+            "exact" if final["exact"] else "unresolved",
+            d_x_computed=x_phase_started,
+        )
+    finally:
+        if runner is not None:
+            runner.close()
+
+
+def compute_distance_milp(
+    code,
+    *,
+    timeout_per_logical: int = 30,
+    total_timeout: int = 120,
+    early_stop: int | None = 4,
+    verbose: bool = False,
+    checkpoint_path: str | Path | None = None,
+    resume: bool = True,
+    hard_timeout_per_logical: float | None = None,
+    checkpoint_identity: Mapping[str, Any] | str | None = None,
+    reset_incompatible_checkpoint: bool = False,
+) -> tuple[int, dict]:
+    """Compute CSS distance, optionally with durable and killable directions.
+
+    The legacy in-process path remains the default. Supplying a checkpoint path
+    enables atomic per-direction persistence; supplying a hard timeout runs
+    HiGHS in a reusable spawned child that is terminated on deadline. Resuming
+    reuses only proven-optimal directions and retries unresolved directions.
+    Timeout budgets may increase across resumes, while proof bindings and
+    ``early_stop`` must remain identical.
+    """
+    if checkpoint_path is None and hard_timeout_per_logical is None:
+        return _compute_distance_milp_legacy(
+            code,
+            timeout_per_logical=timeout_per_logical,
+            total_timeout=total_timeout,
+            early_stop=early_stop,
+            verbose=verbose,
+        )
+    return _compute_distance_milp_durable(
+        code,
+        timeout_per_logical=timeout_per_logical,
+        total_timeout=total_timeout,
+        early_stop=early_stop,
+        verbose=verbose,
+        checkpoint_path=checkpoint_path,
+        resume=resume,
+        hard_timeout_per_logical=hard_timeout_per_logical,
+        checkpoint_identity=checkpoint_identity,
+        reset_incompatible_checkpoint=reset_incompatible_checkpoint,
+    )
 
 
 # ---------------------------------------------------------------------------

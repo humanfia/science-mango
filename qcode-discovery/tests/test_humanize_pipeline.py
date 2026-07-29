@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
+import marshal
+import os
+import py_compile
 import subprocess
+import sys
 from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+import humanize.pipeline as pipeline_module
 from evaluation.final_gate import classify_win
 from humanize.flow import FlowConfig
 from humanize.pipeline import (
@@ -248,8 +254,19 @@ def _repo(tmp_path: Path) -> tuple[Path, Path]:
     evaluation = repo / "evaluation"
     evaluation.mkdir()
     (evaluation / "verifier.py").write_text("# fake imported verifier\n")
+    humanize = repo / "humanize"
+    humanize.mkdir()
+    (humanize / "pipeline.py").write_text("# fake pipeline controller\n")
+    tests = repo / "tests"
+    tests.mkdir()
+    (tests / "verify_known_answer_gate.py").write_text(
+        "# fake strict known-answer runner\n"
+    )
     results = repo / "results"
     results.mkdir()
+    (results / "known_code_registry.json").write_text(
+        '{"schema_version": 1, "registry_sha256": "test"}\n'
+    )
     known_answer = results / "known_answer_gate.json"
     known_answer.write_text('{"passed": true}\n')
     (results / "known_answer_trust.json").write_text(
@@ -917,6 +934,536 @@ def test_imported_verifier_source_change_invalidates_proof_stages(tmp_path):
     assert second["stages"]["stage1_search"]["attempt"] == 1
     for stage in STAGE_ORDER[1:]:
         assert second["stages"][stage]["attempt"] == 2
+
+
+def test_registry_change_invalidates_every_proof_and_strict_stage(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="registry-change")
+    proven, _ = _certificate(config, "registry-change")
+    runner = ScenarioRunner(stage2=[_plan([proven]), _plan([proven])])
+    reviewer = RecordingReviewer()
+
+    first = FiveStagePipeline(
+        config, command_runner=runner, reviewer=reviewer,
+    ).run()
+    assert first["status"] == "COMPLETED_WIN"
+
+    (repo / "results" / "known_code_registry.json").write_text(
+        '{"schema_version": 1, "registry_sha256": "changed"}\n'
+    )
+    second = FiveStagePipeline(
+        config, command_runner=runner, reviewer=reviewer,
+    ).run()
+
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 2}
+    assert second["stages"]["stage1_search"]["attempt"] == 1
+    for stage in STAGE_ORDER[1:]:
+        assert second["stages"][stage]["attempt"] == 2
+
+
+def test_registry_is_recorded_for_live_stage3_and_strict_inputs(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="registry-stage3-input")
+    proven, _ = _certificate(config, "registry-stage3-input")
+    unresolved = {
+        "canonical_digest": "registry-stage3-input",
+        "status": "UNRESOLVED",
+    }
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(
+            stage2=[_plan([unresolved])],
+            stage3=[_plan([proven])],
+        ),
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    registry = str((repo / "results" / "known_code_registry.json").resolve())
+    strict_runner = str((repo / "tests" / "verify_known_answer_gate.py").resolve())
+    assert registry in state["stages"]["stage2_sector_audit"]["input_hashes"]
+    assert registry in state["stages"]["stage3_direction_audit"]["input_hashes"]
+    stage5_inputs = state["stages"]["stage5_strict_gate"]["input_hashes"]
+    assert registry in stage5_inputs
+    assert strict_runner in stage5_inputs
+
+
+def test_strict_runner_change_invalidates_only_strict_stage(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-runner-change")
+    proven, _ = _certificate(config, "strict-runner-change")
+    runner = ScenarioRunner(stage2=[_plan([proven])])
+    reviewer = RecordingReviewer()
+
+    first = FiveStagePipeline(
+        config, command_runner=runner, reviewer=reviewer,
+    ).run()
+    assert first["status"] == "COMPLETED_WIN"
+
+    (repo / "tests" / "verify_known_answer_gate.py").write_text(
+        "# changed strict known-answer runner\n"
+    )
+    second = FiveStagePipeline(
+        config, command_runner=runner, reviewer=reviewer,
+    ).run()
+
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "strict": 2}
+    for stage in STAGE_ORDER[:-1]:
+        assert second["stages"][stage]["attempt"] == 1
+    assert second["stages"]["stage5_strict_gate"]["attempt"] == 2
+
+
+def test_missing_registry_fails_closed_before_proof_stages(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="missing-registry")
+    (repo / "results" / "known_code_registry.json").unlink()
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config, command_runner=runner, reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "INPUT_MISSING"
+    assert runner.counts == {}
+
+
+def test_missing_strict_runner_fails_closed_before_proof_stages(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="missing-strict-runner")
+    (repo / "tests" / "verify_known_answer_gate.py").unlink()
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config, command_runner=runner, reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "INPUT_MISSING"
+    assert runner.counts == {}
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "results/known_code_registry.json",
+        "tests/verify_known_answer_gate.py",
+    ],
+    ids=["known-code-registry", "strict-runner"],
+)
+def test_proof_dependency_symlink_escape_fails_closed(tmp_path, relative_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"dependency-symlink-{Path(relative_path).stem}",
+    )
+    dependency = repo / relative_path
+    outside = tmp_path / f"outside-{dependency.name}"
+    outside.write_bytes(dependency.read_bytes())
+    dependency.unlink()
+    dependency.symlink_to(outside)
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config, command_runner=runner, reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "UNSAFE_SOURCE_PATH"
+    assert runner.counts == {}
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "results/known_code_registry.json",
+        "tests/verify_known_answer_gate.py",
+    ],
+    ids=["known-code-registry", "strict-runner"],
+)
+def test_internal_proof_dependency_symlink_fails_before_commands(
+    tmp_path, relative_path
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"internal-symlink-{Path(relative_path).stem}",
+    )
+    dependency = repo / relative_path
+    target = repo / f"internal-{dependency.name}"
+    target.write_bytes(dependency.read_bytes())
+    dependency.unlink()
+    dependency.symlink_to(target)
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "UNSAFE_SOURCE_PATH"
+    assert runner.counts == {}
+
+
+def test_non_python_symlink_inside_source_tree_fails_before_commands(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="source-tree-nonpy-symlink")
+    target = repo / "source-metadata.txt"
+    target.write_text("trusted-looking metadata\n")
+    (repo / "evaluation" / "metadata.txt").symlink_to(target)
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "UNSAFE_SOURCE_PATH"
+    assert runner.counts == {}
+
+
+@pytest.mark.parametrize("suffix", [".so", ".pyc"])
+def test_unhashed_import_artifact_inside_source_tree_fails_before_commands(
+    tmp_path, suffix
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"source-tree-import-artifact-{suffix[1:]}",
+    )
+    (repo / "evaluation" / f"verifier{suffix}").write_bytes(b"executable")
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "UNSAFE_SOURCE_PATH"
+    assert runner.counts == {}
+
+
+def test_sourceless_module_inside_pycache_fails_before_commands(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="source-tree-pycache-sourceless")
+    cache = repo / "evaluation" / "__pycache__"
+    cache.mkdir()
+    (cache / "evil.pyc").write_bytes(b"executable")
+    runner = ScenarioRunner()
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "UNSAFE_SOURCE_PATH"
+    assert runner.counts == {}
+
+
+def test_pep3147_cache_must_be_inert_or_match_current_source(tmp_path):
+    source = tmp_path / "evaluation" / "verifier.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(importlib.util.cache_from_source(str(source)))
+    py_compile.compile(
+        str(source),
+        cfile=str(cache),
+        doraise=True,
+        invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP,
+    )
+
+    assert not pipeline_module._is_untrusted_import_artifact(cache)
+
+    # A normal stale timestamp cache is inert: CPython recompiles this source.
+    source.write_text("VALUE = 222\n")
+    assert not pipeline_module._is_untrusted_import_artifact(cache)
+
+    # A cache with a current header but different executable code is unsafe.
+    py_compile.compile(
+        str(source),
+        cfile=str(cache),
+        doraise=True,
+        invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP,
+    )
+    header = cache.read_bytes()[:16]
+    forged = compile("VALUE = 'forged'\n", str(source), "exec")
+    cache.write_bytes(header + marshal.dumps(forged))
+    assert pipeline_module._is_untrusted_import_artifact(cache)
+
+
+@pytest.mark.parametrize("optimisation", [0, 1, 2])
+def test_dotted_source_name_pep3147_cache_is_accepted(
+    tmp_path, optimisation
+):
+    source = tmp_path / "evaluation" / "verifier.extra.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(
+        importlib.util.cache_from_source(
+            str(source),
+            optimization=None if optimisation == 0 else optimisation,
+        )
+    )
+    py_compile.compile(
+        str(source),
+        cfile=str(cache),
+        doraise=True,
+        optimize=optimisation,
+    )
+
+    assert not pipeline_module._is_untrusted_import_artifact(cache)
+
+
+def test_different_magic_pep3147_cache_fails_closed(tmp_path):
+    source = tmp_path / "evaluation" / "verifier.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(importlib.util.cache_from_source(str(source)))
+    py_compile.compile(str(source), cfile=str(cache), doraise=True)
+    raw = bytearray(cache.read_bytes())
+    raw[0] ^= 0xFF
+    cache.write_bytes(raw)
+
+    assert pipeline_module._is_untrusted_import_artifact(cache)
+
+
+def test_foreign_tag_and_magic_pep3147_cache_is_inert(tmp_path):
+    source = tmp_path / "evaluation" / "verifier.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(importlib.util.cache_from_source(str(source)))
+    py_compile.compile(str(source), cfile=str(cache), doraise=True)
+    current_tag = sys.implementation.cache_tag
+    assert current_tag is not None
+    foreign = cache.with_name(
+        cache.name.replace(current_tag, "cpython-999")
+    )
+    raw = bytearray(cache.read_bytes())
+    raw[0] ^= 0xFF
+    foreign.write_bytes(raw)
+    cache.unlink()
+
+    assert not pipeline_module._is_untrusted_import_artifact(foreign)
+
+
+def test_stage1_pycache_prefix_reaches_spawned_interpreters_and_restores(
+    tmp_path, monkeypatch
+):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "audit_state.py", "state.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(f"# fake {name}\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "stage1-pycache-prefix"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidates,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+    )
+    original_environment = str(tmp_path / "original-pycache")
+    monkeypatch.setenv("PYTHONPYCACHEPREFIX", original_environment)
+    original_runtime = sys.pycache_prefix
+    observed = {}
+
+    class CapturingFlow:
+        def run(self):
+            observed["runtime"] = sys.pycache_prefix
+            observed["environment"] = os.environ.get("PYTHONPYCACHEPREFIX")
+            child = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    (
+                        "import os,sys;"
+                        "print(sys.pycache_prefix);"
+                        "print(os.environ.get('PYTHONPYCACHEPREFIX'))"
+                    ),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            observed["child"] = child.stdout.splitlines()
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidates)],
+            }
+
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+        flow_factory=lambda _config: CapturingFlow(),
+    )
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        assert pipeline._stage1_inputs() == [candidates.resolve()]
+
+    assert observed["runtime"] == observed["environment"]
+    assert observed["runtime"] != original_environment
+    assert observed["child"] == [
+        observed["runtime"],
+        observed["runtime"],
+    ]
+    assert sys.pycache_prefix == original_runtime
+    assert os.environ["PYTHONPYCACHEPREFIX"] == original_environment
+
+
+@pytest.mark.parametrize(
+    ("stage_script", "relative_source", "expected_stage"),
+    [
+        (
+            "audit_candidate_pool.py",
+            "evaluation/verifier.py",
+            "stage2_sector_audit",
+        ),
+        (
+            "finalize_challenge.py",
+            "humanize/pipeline.py",
+            "stage5_strict_gate",
+        ),
+    ],
+    ids=["stage2-evaluation-source", "stage5-controller-source"],
+)
+def test_restored_source_mutation_during_stage_fails_closed(
+    tmp_path, stage_script, relative_source, expected_stage
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"restored-source-{expected_stage}",
+    )
+    proven, _ = _certificate(config, f"restored-source-{expected_stage}")
+    underlying = ScenarioRunner(stage2=[_plan([proven])])
+    source = repo / relative_source
+    original = source.read_bytes()
+
+    def mutating_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if Path(command[1]).name == stage_script:
+            source.write_bytes(original + b"# temporary replacement\n")
+            source.write_bytes(original)
+        return completed
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=mutating_runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "INPUT_CHANGED_DURING_STAGE"
+    assert state["failure"]["stage"] == expected_stage
+
+
+def test_pipeline_rejects_symlinked_control_root_before_lock(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    humanize_root = repo / "results" / "humanize"
+    humanize_root.mkdir(parents=True)
+    target = repo / "internal-pipeline-control"
+    target.mkdir()
+    (humanize_root / "pipelines").symlink_to(target)
+
+    with pytest.raises(PipelineError) as failure:
+        _config(repo, candidates, run_id="linked-control-root")
+
+    assert failure.value.classification == "UNSAFE_CONTROL_PATH"
+
+
+def test_legacy_cache_without_stage_config_is_never_reused(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="legacy-cache-no-stage-config")
+    runner = ScenarioRunner()
+    reviewer = RecordingReviewer()
+
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+    assert first["status"] == "COMPLETED_NO_WIN"
+    state_path = config.root / "state.json"
+    state = json.loads(state_path.read_text())
+    state["stages"]["stage2_sector_audit"].pop("stage_config")
+    _write_json(state_path, state)
+
+    second = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert second["status"] == "COMPLETED_NO_WIN"
+    assert runner.counts["stage2"] == 2
+    assert second["stages"]["stage2_sector_audit"]["attempt"] == 2
+    assert "stage_config" in second["stages"]["stage2_sector_audit"]
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "results/known_code_registry.json",
+        "tests/verify_known_answer_gate.py",
+    ],
+    ids=["known-code-registry", "strict-runner"],
+)
+def test_stage5_dependency_change_during_command_fails_closed(
+    tmp_path, relative_path
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"stage5-live-mutation-{Path(relative_path).stem}",
+    )
+    proven, _ = _certificate(config, f"stage5-live-{Path(relative_path).stem}")
+    underlying = ScenarioRunner(stage2=[_plan([proven])])
+
+    def mutating_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if Path(command[1]).name == "finalize_challenge.py":
+            dependency = repo / relative_path
+            dependency.write_bytes(dependency.read_bytes() + b"# mutated in Stage 5\n")
+        return completed
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=mutating_runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "INPUT_CHANGED_DURING_STAGE"
+    assert state["failure"]["stage"] == "stage5_strict_gate"
+    assert "completed_at" not in state
+    assert state["stages"]["stage5_strict_gate"]["machine_status"] == "FAILED"
 
 
 def test_strict_gate_rejects_passed_flag_without_strict_evaluations(tmp_path):

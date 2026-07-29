@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import fcntl
 import hashlib
+import importlib.util
 import json
+import marshal
 import os
+import py_compile
+import sys
 from pathlib import Path
 
 import pytest
@@ -37,6 +41,19 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
 
 def _file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _source_file_identity(path: Path) -> dict:
+    metadata = path.lstat()
+    return {
+        "sha256": _file_sha256(path),
+        "bytes": metadata.st_size,
+        "mode": metadata.st_mode & 0o7777,
+        "device": metadata.st_dev,
+        "inode": metadata.st_ino,
+        "mtime_ns": metadata.st_mtime_ns,
+        "ctime_ns": metadata.st_ctime_ns,
+    }
 
 
 def _payload_sha256(value: dict) -> str:
@@ -80,6 +97,79 @@ def _pipeline_root(repo: Path, run_id: str) -> Path:
     return repo / "results" / "humanize" / "pipelines" / run_id
 
 
+def _strict_stage_binding(
+    repo: Path,
+    root: Path,
+    config: dict,
+) -> tuple[list[str], dict, str]:
+    stage4_certificates = root / "artifacts" / "stage4-certificates.jsonl"
+    stage5 = root / "artifacts" / "stage5-final-gate.json"
+    finalizer = repo / "scripts" / "finalize_challenge.py"
+    strict_runner = repo / "tests" / "verify_known_answer_gate.py"
+    registry = repo / "results" / "known_code_registry.json"
+    source_files = sorted((repo / "evaluation").rglob("*.py")) + [
+        repo / "humanize" / "pipeline.py",
+        finalizer,
+        strict_runner,
+        registry,
+    ]
+    source_fingerprint = _pipeline_fingerprint(
+        {
+            str(path): _source_file_identity(path)
+            for path in sorted(set(source_files))
+        }
+    )
+    stage_config = {
+        "controller_source_sha256": _file_sha256(
+            repo / "humanize" / "pipeline.py"
+        ),
+        "mode": "strict",
+        "source_fingerprint": source_fingerprint,
+        "known_code_registry_sha256": _file_sha256(registry),
+        "strict_runner_sha256": _file_sha256(strict_runner),
+        "known_answer_timeout_per_logical": config[
+            "known_answer_timeout_per_logical"
+        ],
+        "known_answer_total_timeout": config["known_answer_total_timeout"],
+        "verification_timeout_per_logical": config[
+            "verification_timeout_per_logical"
+        ],
+        "verification_total_timeout": config["verification_total_timeout"],
+        "verification_solver_workers": config["certificate_solver_workers"],
+    }
+    command = [
+        config["python_executable"],
+        str(finalizer),
+        str(stage4_certificates),
+        "--known-answer-artifact",
+        config["known_answer_artifact"],
+        "--known-answer-trust",
+        config["known_answer_trust"],
+        "--known-answer-timeout-per-logical",
+        str(config["known_answer_timeout_per_logical"]),
+        "--known-answer-total-timeout",
+        str(config["known_answer_total_timeout"]),
+        "--verification-timeout-per-logical",
+        str(config["verification_timeout_per_logical"]),
+        "--verification-total-timeout",
+        str(config["verification_total_timeout"]),
+        "--verification-solver-workers",
+        str(config["certificate_solver_workers"]),
+        "--verification-state-dir",
+        str(root / "solver-state" / "strict-verification"),
+        "--resume" if config["resume"] else "--no-resume",
+        "--output",
+        str(stage5),
+    ]
+    return (
+        command,
+        stage_config,
+        _pipeline_fingerprint(
+            {"command": command, "stage_config": stage_config}
+        ),
+    )
+
+
 def _refresh_state_hashes(repo: Path, run_id: str) -> None:
     root = _pipeline_root(repo, run_id)
     state_path = root / "state.json"
@@ -88,8 +178,10 @@ def _refresh_state_hashes(repo: Path, run_id: str) -> None:
     stage4_summary = root / "artifacts" / "stage4-summary.json"
     stage5 = root / "artifacts" / "stage5-final-gate.json"
     known_answer = repo / "results" / "known_answer_gate.json"
+    known_code_registry = repo / "results" / "known_code_registry.json"
     trust = repo / "results" / "known_answer_trust.json"
     finalizer = repo / "scripts" / "finalize_challenge.py"
+    strict_runner = repo / "tests" / "verify_known_answer_gate.py"
     state["stages"]["stage4_certificate_merge"]["output_hashes"] = {
         str(stage4_certificates): _file_sha256(stage4_certificates),
         str(stage4_summary): _file_sha256(stage4_summary),
@@ -100,8 +192,10 @@ def _refresh_state_hashes(repo: Path, run_id: str) -> None:
     state["stages"]["stage5_strict_gate"]["input_hashes"] = {
         str(stage4_certificates): _file_sha256(stage4_certificates),
         str(known_answer): _file_sha256(known_answer),
+        str(known_code_registry): _file_sha256(known_code_registry),
         str(trust): _file_sha256(trust),
         str(finalizer): _file_sha256(finalizer),
+        str(strict_runner): _file_sha256(strict_runner),
     }
     _write_json(state_path, state)
 
@@ -128,10 +222,20 @@ def _make_synthetic_completed_win(
     scripts = repo / "scripts"
     scripts.mkdir(parents=True)
     (scripts / "finalize_challenge.py").write_text("# fake finalizer\n")
+    tests = repo / "tests"
+    tests.mkdir(parents=True)
+    (tests / "verify_known_answer_gate.py").write_text("# fake strict runner\n")
+    evaluation = repo / "evaluation"
+    evaluation.mkdir()
+    (evaluation / "verifier.py").write_text("# fake Stage 5 verifier\n")
+    humanize = repo / "humanize"
+    humanize.mkdir()
+    (humanize / "pipeline.py").write_text("# fake pipeline controller\n")
 
     known_answer = results / "known_answer_gate.json"
     known_answer.parent.mkdir(parents=True, exist_ok=True)
     known_answer.write_text('{"gate":"known-answer","passed":true}\n')
+    _write_json(results / "known_code_registry.json", {"schema_version": 1})
     known_answer_sha = _file_sha256(known_answer)
     environment = {
         "python": "test",
@@ -287,6 +391,22 @@ def _make_synthetic_completed_win(
             "evaluations": evaluations,
         },
     )
+    pipeline_config = {
+        "repo_dir": str(repo),
+        "run_id": run_id,
+        "known_answer_artifact": str(known_answer),
+        "known_answer_trust": str(trust_path),
+        "python_executable": "/test/python",
+        "resume": True,
+        "certificate_solver_workers": 1,
+        "known_answer_timeout_per_logical": 300,
+        "known_answer_total_timeout": 7200,
+        "verification_timeout_per_logical": 300,
+        "verification_total_timeout": 7200,
+    }
+    strict_command, strict_stage_config, strict_fingerprint = (
+        _strict_stage_binding(repo, root, pipeline_config)
+    )
     state = {
         "schema_version": 1,
         "gate": "qcode-humanize-five-stage-pipeline",
@@ -295,12 +415,7 @@ def _make_synthetic_completed_win(
         "active_stage": None,
         "config_fingerprint": "c" * 64,
         "completed_at": "2026-07-27T00:02:00+00:00",
-        "config": {
-            "repo_dir": str(repo),
-            "run_id": run_id,
-            "known_answer_artifact": str(known_answer),
-            "known_answer_trust": str(trust_path),
-        },
+        "config": pipeline_config,
         "stages": {
             "stage1_search": {
                 "ordinal": 1,
@@ -345,9 +460,10 @@ def _make_synthetic_completed_win(
             "stage5_strict_gate": {
                 "ordinal": 5,
                 "attempt": 1,
-                "stage_fingerprint": "e" * 64,
-                "command": ["internal:stage5"],
-                "command_sha256": _pipeline_fingerprint(["internal:stage5"]),
+                "stage_config": strict_stage_config,
+                "stage_fingerprint": strict_fingerprint,
+                "command": strict_command,
+                "command_sha256": _pipeline_fingerprint(strict_command),
                 "status": "COMPLETED",
                 "machine_status": "COMPLETED",
                 "exit_code": 0,
@@ -387,6 +503,10 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     }
     assert len(source["stage4"]["certificates_sha256"]) == 64
     assert len(source["stage5"]["final_gate_sha256"]) == 64
+    assert len(source["stage5"]["controller_source_sha256"]) == 64
+    assert len(source["stage5"]["source_fingerprint"]) == 64
+    assert len(source["stage5"]["known_code_registry_sha256"]) == 64
+    assert len(source["stage5"]["strict_runner_sha256"]) == 64
     assert all(
         entry["file"].startswith("certificates/")
         and not Path(entry["file"]).is_absolute()
@@ -596,6 +716,244 @@ def test_export_release_rejects_changed_stage5_finalizer(tmp_path):
     repo, run_id = _make_synthetic_completed_win(tmp_path)
     finalizer = repo / "scripts" / "finalize_challenge.py"
     finalizer.write_text("# changed after Stage 5\n")
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STATE_HASH_MISMATCH"
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "tests/verify_known_answer_gate.py",
+        "results/known_code_registry.json",
+    ],
+    ids=["strict-runner", "known-code-registry"],
+)
+def test_export_release_rejects_changed_stage5_dependency(tmp_path, relative_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    dependency = repo / relative_path
+    dependency.write_bytes(dependency.read_bytes() + b"# changed after Stage 5\n")
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STATE_HASH_MISMATCH"
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "tests/verify_known_answer_gate.py",
+        "results/known_code_registry.json",
+    ],
+    ids=["strict-runner", "known-code-registry"],
+)
+def test_export_release_rejects_missing_stage5_dependency(tmp_path, relative_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    (repo / relative_path).unlink()
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "SOURCE_INVALID"
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "tests/verify_known_answer_gate.py",
+        "results/known_code_registry.json",
+    ],
+    ids=["strict-runner", "known-code-registry"],
+)
+def test_export_release_rejects_symlinked_stage5_dependency(
+    tmp_path, relative_path
+):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    dependency = repo / relative_path
+    outside = tmp_path / f"outside-{dependency.name}"
+    outside.write_bytes(dependency.read_bytes())
+    dependency.unlink()
+    dependency.symlink_to(outside)
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification in {"SOURCE_INVALID", "UNSAFE_PATH"}
+
+
+def test_export_release_rejects_symlink_anywhere_in_stage5_source_tree(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    target = repo / "evaluation-metadata.txt"
+    target.write_text("metadata\n")
+    (repo / "evaluation" / "metadata.txt").symlink_to(target)
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "UNSAFE_PATH"
+
+
+@pytest.mark.parametrize("suffix", [".so", ".pyc"])
+def test_export_release_rejects_unhashed_import_artifact(tmp_path, suffix):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    (repo / "evaluation" / f"verifier{suffix}").write_bytes(b"executable")
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "UNSAFE_PATH"
+
+
+def test_export_release_rejects_sourceless_module_inside_pycache(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    cache = repo / "evaluation" / "__pycache__"
+    cache.mkdir()
+    (cache / "evil.pyc").write_bytes(b"executable")
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "UNSAFE_PATH"
+
+
+def test_release_pep3147_cache_must_be_inert_or_match_current_source(tmp_path):
+    source = tmp_path / "evaluation" / "verifier.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(importlib.util.cache_from_source(str(source)))
+    py_compile.compile(
+        str(source),
+        cfile=str(cache),
+        doraise=True,
+        invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP,
+    )
+
+    assert not release_export_module._is_untrusted_import_artifact(cache)
+
+    source.write_text("VALUE = 222\n")
+    assert not release_export_module._is_untrusted_import_artifact(cache)
+
+    py_compile.compile(
+        str(source),
+        cfile=str(cache),
+        doraise=True,
+        invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP,
+    )
+    header = cache.read_bytes()[:16]
+    forged = compile("VALUE = 'forged'\n", str(source), "exec")
+    cache.write_bytes(header + marshal.dumps(forged))
+    assert release_export_module._is_untrusted_import_artifact(cache)
+
+
+@pytest.mark.parametrize("optimisation", [0, 1, 2])
+def test_release_accepts_dotted_source_name_pep3147_cache(
+    tmp_path, optimisation
+):
+    source = tmp_path / "evaluation" / "verifier.extra.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(
+        importlib.util.cache_from_source(
+            str(source),
+            optimization=None if optimisation == 0 else optimisation,
+        )
+    )
+    py_compile.compile(
+        str(source),
+        cfile=str(cache),
+        doraise=True,
+        optimize=optimisation,
+    )
+
+    assert not release_export_module._is_untrusted_import_artifact(cache)
+
+
+def test_release_rejects_different_magic_pep3147_cache(tmp_path):
+    source = tmp_path / "evaluation" / "verifier.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(importlib.util.cache_from_source(str(source)))
+    py_compile.compile(str(source), cfile=str(cache), doraise=True)
+    raw = bytearray(cache.read_bytes())
+    raw[0] ^= 0xFF
+    cache.write_bytes(raw)
+
+    assert release_export_module._is_untrusted_import_artifact(cache)
+
+
+def test_release_ignores_foreign_tag_and_magic_pep3147_cache(tmp_path):
+    source = tmp_path / "evaluation" / "verifier.py"
+    source.parent.mkdir()
+    source.write_text("VALUE = 1\n")
+    cache = Path(importlib.util.cache_from_source(str(source)))
+    py_compile.compile(str(source), cfile=str(cache), doraise=True)
+    current_tag = sys.implementation.cache_tag
+    assert current_tag is not None
+    foreign = cache.with_name(
+        cache.name.replace(current_tag, "cpython-999")
+    )
+    raw = bytearray(cache.read_bytes())
+    raw[0] ^= 0xFF
+    foreign.write_bytes(raw)
+    cache.unlink()
+
+    assert not release_export_module._is_untrusted_import_artifact(foreign)
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    [
+        "tests/verify_known_answer_gate.py",
+        "results/known_code_registry.json",
+    ],
+    ids=["strict-runner", "known-code-registry"],
+)
+def test_export_release_rejects_synced_input_hash_with_opaque_fingerprint(
+    tmp_path, relative_path
+):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    dependency = repo / relative_path
+    dependency.write_bytes(dependency.read_bytes() + b"# forged after Stage 5\n")
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    stage5_record = state["stages"]["stage5_strict_gate"]
+    stage5_record["input_hashes"][str(dependency)] = _file_sha256(dependency)
+    stage5_record["stage_fingerprint"] = "f" * 64
+    _write_json(state_path, state)
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STAGE5_PROVENANCE_MISMATCH"
+
+
+def test_export_release_requires_exact_stage5_config_not_legacy_cache(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    state["stages"]["stage5_strict_gate"].pop("stage_config")
+    _write_json(state_path, state)
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STAGE5_PROVENANCE_MISMATCH"
+
+
+@pytest.mark.parametrize("mutation", ["missing", "extra"])
+def test_export_release_requires_exact_stage5_input_set(tmp_path, mutation):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    inputs = state["stages"]["stage5_strict_gate"]["input_hashes"]
+    if mutation == "missing":
+        inputs.pop(str(repo / "results" / "known_code_registry.json"))
+    else:
+        inputs[str(repo / "unexpected-stage5-input")] = "f" * 64
+    _write_json(state_path, state)
 
     with pytest.raises(ReleaseExportError) as failure:
         export_release(repo_dir=repo, run_id=run_id)

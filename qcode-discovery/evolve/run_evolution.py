@@ -66,13 +66,23 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import fcntl
+import hashlib
 import json
 import os
+import platform as platform_module
+import shutil
+import stat
+import subprocess
 import sys
+import tempfile
 import threading
 from datetime import datetime
+from contextlib import contextmanager, nullcontext
+from dataclasses import dataclass, field
 from pathlib import Path
 
+from typing import Any
 # Ensure project root is on path
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
@@ -87,6 +97,1254 @@ DEFAULT_CONFIG = str(Path(__file__).parent / "config.yaml")
 DEFAULT_CONFIG_NONCSS = str(Path(__file__).parent / "config_noncss.yaml")
 EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
+
+
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 2
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 2
+
+
+def _file_identity(path: str | Path, label: str) -> dict[str, object]:
+    original = Path(path)
+    if original.is_symlink():
+        raise RuntimeError(f"{label} may not be a symlink: {original}")
+    try:
+        resolved = original.resolve(strict=True)
+    except OSError as exc:
+        raise RuntimeError(f"{label} is missing: {original}") from exc
+    if not resolved.is_file():
+        raise RuntimeError(f"{label} is not a regular file: {resolved}")
+    digest = hashlib.sha256()
+    with resolved.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return {
+        "path": str(resolved),
+        "sha256": digest.hexdigest(),
+        "bytes": resolved.stat().st_size,
+    }
+
+
+def _read_text_snapshot(
+    path_value: str | Path,
+    label: str,
+) -> tuple[str, dict[str, Any]]:
+    path = Path(path_value)
+    if not path.is_absolute() or path.is_symlink():
+        raise RuntimeError(f"{label} path must be absolute and symlink-free")
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError as exc:
+        raise RuntimeError(f"{label} is missing: {path}") from exc
+    if resolved != path:
+        raise RuntimeError(f"{label} path must be canonical: {path}")
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RuntimeError(f"O_NOFOLLOW is required to read {label}")
+    fd = os.open(path, os.O_RDONLY | nofollow | getattr(os, "O_CLOEXEC", 0))
+    try:
+        before = os.fstat(fd)
+        path_before = os.stat(path, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(before.st_mode)
+            or not stat.S_ISREG(path_before.st_mode)
+            or (before.st_dev, before.st_ino)
+            != (path_before.st_dev, path_before.st_ino)
+        ):
+            raise RuntimeError(f"{label} must be one stable regular file")
+        chunks: list[bytes] = []
+        while True:
+            chunk = os.read(fd, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        after = os.fstat(fd)
+        path_after = os.stat(path, follow_symlinks=False)
+        if (
+            (before.st_dev, before.st_ino)
+            != (after.st_dev, after.st_ino)
+            or (after.st_dev, after.st_ino)
+            != (path_after.st_dev, path_after.st_ino)
+        ):
+            raise RuntimeError(f"{label} changed identity while being read")
+    finally:
+        os.close(fd)
+    encoded = b"".join(chunks)
+    try:
+        text = encoded.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise RuntimeError(f"{label} is not UTF-8 text") from exc
+    return text, {
+        "path": str(path),
+        "sha256": hashlib.sha256(encoded).hexdigest(),
+        "bytes": len(encoded),
+    }
+
+
+def _file_sha256(path: Path) -> str:
+    return str(_file_identity(path, "checkpoint file")["sha256"])
+
+
+def _read_json_object(path: Path, label: str) -> dict[str, Any]:
+    if path.is_symlink() or not path.is_file():
+        raise RuntimeError(f"{label} must be a regular file: {path}")
+    try:
+        value = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"cannot read {label}: {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise RuntimeError(f"{label} must contain a JSON object: {path}")
+    return value
+
+
+SUPPORTED_OPENEVOLVE_VERSION = "0.2.26"
+SUPPORTED_OPENEVOLVE_SHA256 = {
+    "controller": "4508dfc844e26cd6da7cf48240e8acf0a42d8a927610b41e0ebb0f283d6e88f9",
+    "process_parallel": "66f6fa57e7afb5db54cf7bc02130f30d4040175d9cdfdf53faf668787eec2371",
+    "database": "4ae70c309d7c33a3f92ad181437ec71f9ca77575d57bd673249791ecf38d754b",
+    "api": "c85fcafe18f288148a5dea918b6af5c2312717f39de2a416d26e158b84924eae",
+}
+
+LOCAL_EVALUATOR_DEPENDENCIES = {
+    "evaluation_evaluator": "evaluation/evaluator.py",
+    "evaluation_results": "evaluation/results.py",
+    "evaluation_structural_dedup": "evaluation/structural_dedup.py",
+    "evaluation_bb_code": "evaluation/bb_code.py",
+    "evaluation_pbb_code": "evaluation/pbb_code.py",
+    "evaluation_distance": "evaluation/distance.py",
+    "evaluation_distance_milp": "evaluation/distance_milp.py",
+    "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
+}
+
+
+def _evaluator_dependency_identities() -> dict[str, dict[str, Any]]:
+    project_root = Path(PROJECT_ROOT)
+    return {
+        name: _file_identity(
+            project_root / relative_path,
+            f"evolution evaluator dependency {name}",
+        )
+        for name, relative_path in LOCAL_EVALUATOR_DEPENDENCIES.items()
+    }
+
+
+def _strong_checkpoint_descriptor(
+    output_dir: str | Path,
+    checkpoint: str | Path,
+    *,
+    expected_iteration: int | None = None,
+) -> dict[str, Any]:
+    checkpoint_root = (Path(output_dir) / "checkpoints").resolve()
+    original = Path(checkpoint)
+    if original.is_symlink():
+        raise RuntimeError(f"checkpoint may not be a symlink: {original}")
+    try:
+        resolved = original.resolve(strict=True)
+    except OSError as exc:
+        raise RuntimeError(f"checkpoint is missing: {original}") from exc
+    if not resolved.is_dir() or resolved.parent != checkpoint_root:
+        raise RuntimeError(f"checkpoint does not belong to this run: {resolved}")
+    prefix = "checkpoint_"
+    if not resolved.name.startswith(prefix):
+        raise RuntimeError(f"invalid checkpoint directory name: {resolved}")
+    try:
+        named_iteration = int(resolved.name[len(prefix):])
+    except ValueError as exc:
+        raise RuntimeError(
+            f"invalid checkpoint iteration in path: {resolved}"
+        ) from exc
+
+    metadata_path = resolved / "metadata.json"
+    best_path = resolved / "best_program.py"
+    best_info_path = resolved / "best_program_info.json"
+    programs_dir = resolved / "programs"
+    metadata = _read_json_object(metadata_path, "checkpoint metadata")
+    best_info = _read_json_object(
+        best_info_path, "checkpoint best-program info"
+    )
+    if (
+        best_path.is_symlink()
+        or not best_path.is_file()
+        or best_path.stat().st_size < 1
+    ):
+        raise RuntimeError(
+            f"checkpoint best_program.py is missing or empty: {best_path}"
+        )
+    if programs_dir.is_symlink() or not programs_dir.is_dir():
+        raise RuntimeError(
+            f"checkpoint programs directory is missing: {programs_dir}"
+        )
+
+    iteration = metadata.get("last_iteration")
+    if (
+        isinstance(iteration, bool)
+        or not isinstance(iteration, int)
+        or iteration < 0
+    ):
+        raise RuntimeError(
+            f"checkpoint last_iteration is invalid: "
+            f"{metadata_path}: {iteration!r}"
+        )
+    if iteration != named_iteration:
+        raise RuntimeError(
+            "checkpoint path/metadata iteration mismatch: "
+            f"{named_iteration} != {iteration}"
+        )
+    if expected_iteration is not None and iteration != expected_iteration:
+        raise RuntimeError(
+            f"checkpoint iteration mismatch: expected "
+            f"{expected_iteration}, got {iteration}"
+        )
+
+    archive = metadata.get("archive")
+    best_id = metadata.get("best_program_id")
+    if (
+        not isinstance(archive, list)
+        or not archive
+        or any(not isinstance(item, str) or not item for item in archive)
+        or not isinstance(best_id, str)
+        or not best_id
+    ):
+        raise RuntimeError(
+            f"checkpoint archive/best_program_id is incomplete: {metadata_path}"
+        )
+    if (
+        best_info.get("id") != best_id
+        or best_info.get("current_iteration") != iteration
+    ):
+        raise RuntimeError(
+            "checkpoint best-program info disagrees with metadata: "
+            f"{best_info_path}"
+        )
+
+    referenced = set(archive)
+    referenced.add(best_id)
+
+    def add_optional_reference(value: Any, label: str) -> None:
+        if value in (None, ""):
+            return
+        if not isinstance(value, str):
+            raise RuntimeError(
+                f"checkpoint {label} contains a non-string program id"
+            )
+        referenced.add(value)
+
+    islands = metadata.get("islands", [])
+    if not isinstance(islands, list) or any(
+        not isinstance(island, list) for island in islands
+    ):
+        raise RuntimeError("checkpoint islands metadata is invalid")
+    for island in islands:
+        for program_id in island:
+            add_optional_reference(program_id, "islands")
+    island_best = metadata.get("island_best_programs", [])
+    if not isinstance(island_best, list):
+        raise RuntimeError(
+            "checkpoint island_best_programs metadata is invalid"
+        )
+    for program_id in island_best:
+        add_optional_reference(program_id, "island_best_programs")
+    feature_maps = metadata.get("island_feature_maps", [])
+    if not isinstance(feature_maps, list) or any(
+        not isinstance(feature_map, dict) for feature_map in feature_maps
+    ):
+        raise RuntimeError(
+            "checkpoint island_feature_maps metadata is invalid"
+        )
+    for feature_map in feature_maps:
+        for program_id in feature_map.values():
+            add_optional_reference(program_id, "island_feature_maps")
+
+    program_files = sorted(programs_dir.glob("*.json"))
+    if not program_files:
+        raise RuntimeError(
+            f"checkpoint contains no programs: {programs_dir}"
+        )
+    program_ids: set[str] = set()
+    best_program_code: str | None = None
+    file_hashes: dict[str, str] = {
+        "metadata.json": _file_sha256(metadata_path),
+        "best_program.py": _file_sha256(best_path),
+        "best_program_info.json": _file_sha256(best_info_path),
+    }
+    for program_path in program_files:
+        program = _read_json_object(program_path, "checkpoint program")
+        program_id = program.get("id")
+        if program_id != program_path.stem:
+            raise RuntimeError(
+                f"checkpoint program id/path mismatch: {program_path}"
+            )
+        code = program.get("code")
+        metrics = program.get("metrics")
+        if not isinstance(code, str) or not code:
+            raise RuntimeError(
+                f"checkpoint program has no non-empty code: {program_path}"
+            )
+        if not isinstance(metrics, dict):
+            raise RuntimeError(
+                f"checkpoint program metrics is not an object: {program_path}"
+            )
+        program_ids.add(program_id)
+        if program_id == best_id:
+            best_program_code = code
+        file_hashes[f"programs/{program_path.name}"] = _file_sha256(
+            program_path
+        )
+    missing = sorted(referenced - program_ids)
+    if missing:
+        raise RuntimeError(
+            "checkpoint is missing referenced programs: "
+            + ", ".join(missing)
+        )
+    if (
+        best_program_code is None
+        or best_path.read_text() != best_program_code
+    ):
+        raise RuntimeError(
+            "checkpoint best_program.py does not match the stored "
+            "best program code"
+        )
+    checkpoint_hash = hashlib.sha256(
+        json.dumps(
+            file_hashes, sort_keys=True, separators=(",", ":")
+        ).encode()
+    ).hexdigest()
+    return {
+        "path": str(resolved),
+        "last_iteration": iteration,
+        "sha256": checkpoint_hash,
+        "programs": len(program_files),
+    }
+
+
+def _checkpoint_last_iteration(checkpoint: str | Path | None) -> int:
+    if checkpoint is None:
+        return 0
+    checkpoint_path = Path(checkpoint)
+    output_dir = checkpoint_path.parent.parent
+    return int(
+        _strong_checkpoint_descriptor(output_dir, checkpoint_path)["last_iteration"]
+    )
+
+
+def _atomic_write_json_artifact(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.tmp-", dir=path.parent
+    )
+    temporary = Path(temporary_name)
+    encoded = (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode()
+    try:
+        with os.fdopen(temporary_descriptor, "wb") as stream:
+            stream.write(encoded)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.replace(path)
+        descriptor = os.open(
+            path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+        )
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _slice_iterations_sha256(start_iteration: int, count: int) -> str:
+    iterations = list(range(start_iteration, start_iteration + count))
+    encoded = json.dumps(iterations, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _validate_lifecycle_lease(fd: int, path_value: str) -> Path:
+    if isinstance(fd, bool) or not isinstance(fd, int) or fd < 0:
+        raise RuntimeError("lifecycle lease fd must be a non-negative integer")
+    path = Path(path_value)
+    if not path.is_absolute():
+        raise RuntimeError("lifecycle lease path must be absolute")
+    if path.is_symlink():
+        raise RuntimeError(f"lifecycle lease may not be a symlink: {path}")
+    try:
+        resolved = path.resolve(strict=True)
+        descriptor_stat = os.fstat(fd)
+        path_stat = os.stat(path, follow_symlinks=False)
+    except OSError as exc:
+        raise RuntimeError(f"cannot validate lifecycle lease: {path}: {exc}") from exc
+    if resolved != path:
+        raise RuntimeError(
+            f"lifecycle lease path must be canonical and symlink-free: {path}"
+        )
+    if not stat.S_ISREG(descriptor_stat.st_mode) or not stat.S_ISREG(path_stat.st_mode):
+        raise RuntimeError("lifecycle lease must be a regular file")
+    if (descriptor_stat.st_dev, descriptor_stat.st_ino) != (
+        path_stat.st_dev,
+        path_stat.st_ino,
+    ):
+        raise RuntimeError("lifecycle lease path does not match inherited fd")
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RuntimeError("O_NOFOLLOW is required for lifecycle leases")
+    probe_fd = os.open(path, os.O_RDWR | nofollow | getattr(os, "O_CLOEXEC", 0))
+    try:
+        try:
+            fcntl.flock(probe_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            pass
+        else:
+            fcntl.flock(probe_fd, fcntl.LOCK_UN)
+            raise RuntimeError("lifecycle lease was not locked before inheritance")
+    finally:
+        os.close(probe_fd)
+    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    os.set_inheritable(fd, False)
+    return path
+
+
+class _ObservedFuture:
+    def __init__(self, raw: Any, iteration: int, observer: "_SliceObserver"):
+        self._raw = raw
+        self._iteration = iteration
+        self._observer = observer
+
+    def done(self) -> bool:
+        return self._raw.done()
+
+    def cancel(self) -> bool:
+        return self._raw.cancel()
+
+    def cancelled(self) -> bool:
+        return self._raw.cancelled()
+
+    def result(self, *args: Any, **kwargs: Any) -> Any:
+        try:
+            result = self._raw.result(*args, **kwargs)
+        except BaseException as exc:
+            self._observer.record_future_exception(self._iteration, exc)
+            raise
+        self._observer.record_future_result(self._iteration, result)
+        return result
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._raw, name)
+
+
+@dataclass
+class _SliceObserver:
+    base_iteration: int
+    iterations: int
+    result_type: type
+    run_calls: int = 0
+    shutdown_requested: bool = False
+    submission_attempts: list[dict[str, Any]] = field(default_factory=list)
+    consumed: dict[int, int] = field(default_factory=dict)
+    outcomes: dict[int, dict[str, Any]] = field(default_factory=dict)
+    expected_programs: dict[int, dict[str, Any]] = field(default_factory=dict)
+    integrated_programs: dict[int, str] = field(default_factory=dict)
+    violations: list[str] = field(default_factory=list)
+    accounting_complete: bool = False
+    checkpoint_saves: list[dict[str, Any]] = field(default_factory=list)
+    checkpoint_controller: Any = None
+
+    @property
+    def start_iteration(self) -> int:
+        return self.base_iteration + 1
+
+    @property
+    def end_iteration(self) -> int:
+        return self.base_iteration + self.iterations
+
+    @property
+    def expected_iterations(self) -> list[int]:
+        return list(range(self.start_iteration, self.end_iteration + 1))
+
+    def begin(self, start: int, count: int, target_score: Any) -> None:
+        self.run_calls += 1
+        if self.run_calls != 1:
+            self.violations.append("ProcessParallelController.run_evolution called more than once")
+        if start != self.start_iteration or count != self.iterations:
+            self.violations.append(
+                f"evolution range mismatch: {(start, count)} != "
+                f"{(self.start_iteration, self.iterations)}"
+            )
+        if target_score is not None:
+            self.violations.append("managed evolution may not use target_score")
+
+    def record_submission(self, iteration: int, island_id: Any, future: Any) -> Any:
+        if isinstance(iteration, bool) or not isinstance(iteration, int):
+            self.violations.append("submission iteration is not an integer")
+        if isinstance(island_id, bool) or not isinstance(island_id, int):
+            self.violations.append(
+                f"submission {iteration!r} has an invalid island id"
+            )
+        result = "future" if future is not None else "none"
+        self.submission_attempts.append({
+            "iteration": iteration,
+            "island_id": island_id,
+            "result": result,
+        })
+        if future is None:
+            return None
+        return _ObservedFuture(future, iteration, self)
+
+    def record_future_exception(self, iteration: int, exc: BaseException) -> None:
+        self.consumed[iteration] = self.consumed.get(iteration, 0) + 1
+        self.violations.append(
+            f"future {iteration} raised {type(exc).__name__}"
+        )
+
+    def record_future_result(self, iteration: int, result: Any) -> None:
+        self.consumed[iteration] = self.consumed.get(iteration, 0) + 1
+        if not isinstance(result, self.result_type):
+            self.violations.append(
+                f"future {iteration} returned a non-SerializableResult"
+            )
+            return
+        result_iteration = getattr(result, "iteration", None)
+        if (
+            isinstance(result_iteration, bool)
+            or not isinstance(result_iteration, int)
+            or result_iteration != iteration
+        ):
+            self.violations.append(f"future {iteration} returned a mismatched iteration")
+            return
+        error = getattr(result, "error", None)
+        child = getattr(result, "child_program_dict", None)
+        if error is not None:
+            if not isinstance(error, str) or not error or child is not None:
+                self.violations.append(
+                    f"future {iteration} returned an invalid worker error"
+                )
+                return
+            encoded = error.encode("utf-8")
+            self.outcomes[iteration] = {
+                "iteration": iteration,
+                "status": "worker_error",
+                "error_sha256": hashlib.sha256(encoded).hexdigest(),
+                "error_bytes": len(encoded),
+            }
+            return
+        if not isinstance(child, dict):
+            self.violations.append(f"future {iteration} returned neither error nor child")
+            return
+        program_id = child.get("id")
+        if not isinstance(program_id, str) or not program_id:
+            self.violations.append(f"future {iteration} returned an invalid child id")
+            return
+        child_iteration = child.get("iteration_found")
+        if (
+            isinstance(child_iteration, bool)
+            or not isinstance(child_iteration, int)
+            or child_iteration != iteration
+        ):
+            self.violations.append(
+                f"future {iteration} returned a child with mismatched iteration"
+            )
+            return
+        if any(
+            expected["id"] == program_id
+            for expected in self.expected_programs.values()
+        ):
+            self.violations.append(
+                f"future {iteration} reused child program id {program_id}"
+            )
+            return
+        try:
+            encoded_child = json.dumps(
+                child,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            self.violations.append(
+                f"future {iteration} returned invalid child content: "
+                f"{type(exc).__name__}"
+            )
+            return
+        self.expected_programs[iteration] = {
+            "id": program_id,
+            "sha256": hashlib.sha256(encoded_child).hexdigest(),
+            "bytes": len(encoded_child),
+        }
+
+    def record_program_add(self, iteration: Any, program: Any) -> None:
+        if (
+            isinstance(iteration, bool)
+            or not isinstance(iteration, int)
+            or iteration not in self.expected_iterations
+        ):
+            self.violations.append(
+                f"database add used unexpected iteration {iteration!r}"
+            )
+            return
+        program_id = getattr(program, "id", None)
+        if not isinstance(program_id, str) or not program_id:
+            self.violations.append(
+                f"database add for iteration {iteration} has an invalid program id"
+            )
+            return
+        if iteration in self.integrated_programs:
+            self.violations.append(f"iteration {iteration} was integrated twice")
+            return
+        expected = self.expected_programs.get(iteration)
+        if expected is None or expected["id"] != program_id:
+            self.violations.append(
+                f"database add for iteration {iteration} used an unexpected program"
+            )
+            return
+        if getattr(program, "iteration_found", None) != iteration:
+            self.violations.append(
+                f"database add for iteration {iteration} stored a mismatched iteration"
+            )
+            return
+        to_dict = getattr(program, "to_dict", None)
+        value = to_dict() if callable(to_dict) else vars(program)
+        if not isinstance(value, dict):
+            self.violations.append(
+                f"database add for iteration {iteration} is not serializable"
+            )
+            return
+        try:
+            encoded = json.dumps(
+                value,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            self.violations.append(
+                f"database add for iteration {iteration} has invalid content: "
+                f"{type(exc).__name__}"
+            )
+            return
+        observed_sha256 = hashlib.sha256(encoded).hexdigest()
+        if (
+            expected["sha256"] != observed_sha256
+            or expected["bytes"] != len(encoded)
+        ):
+            self.violations.append(
+                f"database add for iteration {iteration} changed child content"
+            )
+            return
+        self.integrated_programs[int(iteration)] = str(program_id)
+        self.outcomes[int(iteration)] = {
+            "iteration": int(iteration),
+            "status": "program_added",
+            "program_id": program_id,
+            "program_sha256": observed_sha256,
+            "program_bytes": len(encoded),
+        }
+
+    def verify(self, controller: Any) -> None:
+        expected = self.expected_iterations
+        attempt_ids = [item["iteration"] for item in self.submission_attempts]
+        if attempt_ids != expected or any(
+            item["result"] != "future" for item in self.submission_attempts
+        ):
+            self.violations.append("submitted futures are not the exact requested range")
+        if self.shutdown_requested or controller.shutdown_event.is_set():
+            self.violations.append("shutdown was requested")
+        if controller.early_stopping_triggered:
+            self.violations.append("early stopping was triggered")
+        if any(self.consumed.get(iteration) != 1 for iteration in expected):
+            self.violations.append("not every requested future was consumed exactly once")
+        if sorted(self.outcomes) != expected:
+            self.violations.append("not every requested future produced an accounted outcome")
+        successful = sum(
+            outcome.get("status") == "program_added"
+            for outcome in self.outcomes.values()
+        )
+        if successful < 1:
+            self.violations.append(
+                "the OpenEvolve slice produced no successful evaluations"
+            )
+        for iteration, expected in self.expected_programs.items():
+            program_id = expected["id"]
+            if self.integrated_programs.get(iteration) != program_id:
+                self.violations.append(
+                    f"program for iteration {iteration} was not integrated"
+                )
+        if self.run_calls != 1:
+            self.violations.append("managed evolution did not make exactly one run call")
+        if self.violations:
+            raise RuntimeError("incomplete OpenEvolve slice: " + "; ".join(self.violations))
+        self.accounting_complete = True
+
+    def ensure_final_checkpoint(self) -> None:
+        if not self.accounting_complete or self.checkpoint_controller is None:
+            raise RuntimeError("cannot save a checkpoint before slice accounting")
+        if any(
+            save.get("iteration") == self.end_iteration
+            and save.get("accounting_complete") is True
+            and isinstance(save.get("checkpoint_sha256"), str)
+            and isinstance(save.get("checkpoint_programs"), int)
+            for save in self.checkpoint_saves
+        ):
+            return
+        self.checkpoint_controller._save_checkpoint(self.end_iteration)
+
+    def record_checkpoint_save(self, controller: Any, iteration: int) -> None:
+        record: dict[str, Any] = {
+            "iteration": iteration,
+            "accounting_complete": self.accounting_complete,
+            "checkpoint_sha256": None,
+            "checkpoint_programs": None,
+        }
+        checkpoint = (
+            Path(controller.output_dir)
+            / "checkpoints"
+            / f"checkpoint_{iteration}"
+        )
+        try:
+            descriptor = _strong_checkpoint_descriptor(
+                controller.output_dir, checkpoint, expected_iteration=iteration
+            )
+        except RuntimeError:
+            if self.accounting_complete and iteration == self.end_iteration:
+                raise
+        else:
+            record["checkpoint_sha256"] = descriptor["sha256"]
+            record["checkpoint_programs"] = descriptor["programs"]
+        self.checkpoint_saves.append(record)
+
+
+def _openevolve_source_binding() -> tuple[dict[str, dict[str, Any]], Any, Any]:
+    import openevolve
+    import openevolve.api as api_module
+    import openevolve.controller as controller_module
+    import openevolve.database as database_module
+    import openevolve.process_parallel as process_module
+
+    if openevolve.__version__ != SUPPORTED_OPENEVOLVE_VERSION:
+        raise RuntimeError(
+            f"unsupported OpenEvolve version: {openevolve.__version__}; "
+            f"expected {SUPPORTED_OPENEVOLVE_VERSION}"
+        )
+    modules = {
+        "controller": controller_module,
+        "process_parallel": process_module,
+        "database": database_module,
+        "api": api_module,
+    }
+    binding: dict[str, dict[str, Any]] = {}
+    for name, module in modules.items():
+        identity = _file_identity(module.__file__, f"OpenEvolve {name} source")
+        if identity["sha256"] != SUPPORTED_OPENEVOLVE_SHA256[name]:
+            raise RuntimeError(f"unsupported OpenEvolve {name} source hash")
+        binding[name] = identity
+    return binding, controller_module, process_module
+
+
+@contextmanager
+def _verified_slice_controller(
+    base_iteration: int,
+    iterations: int,
+):
+    if isinstance(iterations, bool) or not isinstance(iterations, int) or iterations < 1:
+        raise RuntimeError("managed slice iterations must be positive")
+    source_binding, controller_module, process_module = _openevolve_source_binding()
+    observer = _SliceObserver(
+        base_iteration=base_iteration,
+        iterations=iterations,
+        result_type=process_module.SerializableResult,
+    )
+    original_parallel = controller_module.ProcessParallelController
+    original_save = controller_module.OpenEvolve._save_checkpoint
+
+    class VerifiedProcessParallelController(original_parallel):
+        def request_shutdown(self) -> None:
+            observer.shutdown_requested = True
+            return super().request_shutdown()
+
+        def _submit_iteration(self, iteration: int, island_id: Any = None) -> Any:
+            future = super()._submit_iteration(iteration, island_id)
+            return observer.record_submission(iteration, island_id, future)
+
+        async def run_evolution(
+            self,
+            start_iteration: int,
+            max_iterations: int,
+            target_score: Any = None,
+            checkpoint_callback: Any = None,
+        ) -> Any:
+            observer.begin(start_iteration, max_iterations, target_score)
+            checkpoint_controller = getattr(checkpoint_callback, "__self__", None)
+            if checkpoint_controller is None:
+                observer.violations.append(
+                    "checkpoint callback is not bound to OpenEvolve"
+                )
+            elif observer.checkpoint_controller not in (None, checkpoint_controller):
+                observer.violations.append(
+                    "checkpoint controller changed during the slice"
+                )
+            else:
+                observer.checkpoint_controller = checkpoint_controller
+            original_add = self.database.add
+
+            def observed_add(program: Any, iteration: Any = None, target_island: Any = None) -> Any:
+                result = original_add(
+                    program, iteration=iteration, target_island=target_island
+                )
+                stored = self.database.programs.get(getattr(program, "id", None))
+                if stored is None:
+                    observer.violations.append(
+                        f"database add for iteration {iteration} did not store the program"
+                    )
+                else:
+                    observer.record_program_add(iteration, stored)
+                return result
+
+            self.database.add = observed_add
+            try:
+                result = await super().run_evolution(
+                    start_iteration,
+                    max_iterations,
+                    target_score,
+                    checkpoint_callback,
+                )
+            finally:
+                self.database.add = original_add
+            observer.verify(self)
+            return result
+
+    def observed_save(controller: Any, iteration: int) -> None:
+        valid_iteration = (
+            not isinstance(iteration, bool)
+            and isinstance(iteration, int)
+            and observer.start_iteration <= iteration <= observer.end_iteration
+        )
+        if not observer.accounting_complete:
+            if not valid_iteration:
+                observer.violations.append(
+                    f"checkpoint save used out-of-slice iteration {iteration!r}"
+                )
+            observer.checkpoint_saves.append({
+                "iteration": iteration,
+                "accounting_complete": False,
+                "checkpoint_sha256": None,
+                "checkpoint_programs": None,
+                "suppressed": True,
+            })
+            return
+        if iteration != observer.end_iteration:
+            observer.violations.append(
+                f"post-accounting checkpoint save was not the slice end: {iteration!r}"
+            )
+            raise RuntimeError(observer.violations[-1])
+        original_save(controller, iteration)
+        observer.record_checkpoint_save(controller, iteration)
+
+    controller_module.ProcessParallelController = VerifiedProcessParallelController
+    controller_module.OpenEvolve._save_checkpoint = observed_save
+    try:
+        yield observer, source_binding
+        observer.ensure_final_checkpoint()
+    finally:
+        controller_module.OpenEvolve._save_checkpoint = original_save
+        controller_module.ProcessParallelController = original_parallel
+
+
+def _launch_input_identities(
+    config_path: str | Path,
+    seed_path: str | Path,
+    evaluator_path: str | Path,
+    context_path: str | Path,
+    context_identity: dict[str, Any],
+    dependency_identities: dict[str, dict[str, Any]],
+    backend_path: str | Path | None,
+    codex_executable_identity: dict[str, Any] | None,
+) -> dict[str, dict[str, Any]]:
+    observed_context = _file_identity(
+        context_path, "evolution humanize context"
+    )
+    if observed_context != context_identity:
+        raise RuntimeError("evolution humanize context changed after snapshot")
+    observed_dependencies = _evaluator_dependency_identities()
+    if observed_dependencies != dependency_identities:
+        raise RuntimeError("evolution evaluator dependencies changed during the slice")
+    identities = {
+        "config": _file_identity(config_path, "evolution config"),
+        "seed": _file_identity(seed_path, "evolution seed"),
+        "launcher": _file_identity(Path(__file__), "evolution launcher"),
+        "evaluator": _file_identity(evaluator_path, "evolution evaluator"),
+        "context": dict(context_identity),
+    }
+    identities.update(
+        {name: dict(value) for name, value in dependency_identities.items()}
+    )
+    if backend_path is not None:
+        identities["backend"] = _file_identity(
+            backend_path, "evolution model backend"
+        )
+    if codex_executable_identity is not None:
+        executable_path = codex_executable_identity.get("path")
+        if not isinstance(executable_path, str):
+            raise RuntimeError("Codex executable identity has no path")
+        observed_executable = _file_identity(
+            executable_path, "Codex CLI native executable"
+        )
+        observed_executable["mode"] = stat.S_IMODE(
+            Path(executable_path).stat().st_mode
+        )
+        if observed_executable != codex_executable_identity:
+            raise RuntimeError(
+                "Codex CLI native executable changed during the slice"
+            )
+        identities["codex_executable"] = dict(codex_executable_identity)
+    return identities
+
+
+def _resolve_native_codex_path(requested_bin: str) -> Path:
+    launcher = shutil.which(requested_bin)
+    if launcher is None:
+        raise RuntimeError(f"Codex CLI executable is unavailable: {requested_bin}")
+    launcher_path = Path(launcher).resolve(strict=True)
+    with launcher_path.open("rb") as stream:
+        magic = stream.read(4)
+    if magic in (b"\x7fELF", b"MZ\x90\x00"):
+        return launcher_path
+    if launcher_path.name != "codex.js" or launcher_path.parent.name != "bin":
+        raise RuntimeError(
+            "managed QCODE_CODEX_BIN must be the official codex.js launcher "
+            "or a native Codex executable"
+        )
+    system = platform_module.system().lower()
+    machine = platform_module.machine().lower()
+    targets = {
+        ("linux", "x86_64"): (
+            "@openai/codex-linux-x64",
+            "x86_64-unknown-linux-musl",
+            "codex",
+        ),
+        ("linux", "aarch64"): (
+            "@openai/codex-linux-arm64",
+            "aarch64-unknown-linux-musl",
+            "codex",
+        ),
+        ("darwin", "x86_64"): (
+            "@openai/codex-darwin-x64",
+            "x86_64-apple-darwin",
+            "codex",
+        ),
+        ("darwin", "arm64"): (
+            "@openai/codex-darwin-arm64",
+            "aarch64-apple-darwin",
+            "codex",
+        ),
+        ("windows", "amd64"): (
+            "@openai/codex-win32-x64",
+            "x86_64-pc-windows-msvc",
+            "codex.exe",
+        ),
+        ("windows", "arm64"): (
+            "@openai/codex-win32-arm64",
+            "aarch64-pc-windows-msvc",
+            "codex.exe",
+        ),
+    }
+    target = targets.get((system, machine))
+    if target is None:
+        raise RuntimeError(
+            f"unsupported managed Codex platform: {system}/{machine}"
+        )
+    package_name, target_triple, executable_name = target
+    package_root = launcher_path.parent.parent
+    candidates = (
+        package_root
+        / "node_modules"
+        / Path(*package_name.split("/"))
+        / "vendor"
+        / target_triple
+        / "bin"
+        / executable_name,
+        package_root / "vendor" / target_triple / "bin" / executable_name,
+    )
+    for candidate in candidates:
+        try:
+            resolved = candidate.resolve(strict=True)
+        except OSError:
+            continue
+        if resolved.is_file():
+            return resolved
+    raise RuntimeError(
+        "cannot resolve the official Codex launcher to its native executable"
+    )
+
+
+def _resolve_codex_execution_binding(
+) -> tuple[dict[str, Any], str, str]:
+    native_path = _resolve_native_codex_path(
+        os.environ.get("QCODE_CODEX_BIN", "codex")
+    )
+    if not native_path.is_file() or not os.access(native_path, os.X_OK):
+        raise RuntimeError(
+            f"Codex CLI native binary is not executable: {native_path}"
+        )
+    identity = _file_identity(native_path, "Codex CLI native executable")
+    identity["mode"] = stat.S_IMODE(native_path.stat().st_mode)
+    project_root = Path(PROJECT_ROOT).resolve(strict=True)
+    requested_cwd = Path(
+        os.environ.get("QCODE_CODEX_CWD", str(project_root))
+    ).resolve(strict=True)
+    if requested_cwd != project_root:
+        raise RuntimeError(
+            "managed Codex CLI cwd must be the qcode-discovery project root"
+        )
+    try:
+        completed = subprocess.run(
+            [str(native_path), "--version"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise RuntimeError("cannot identify the Codex CLI version") from exc
+    version = completed.stdout.strip()
+    if not version or len(version) > 500:
+        raise RuntimeError("Codex CLI returned an invalid version identity")
+    os.environ["QCODE_CODEX_BIN"] = str(native_path)
+    os.environ["QCODE_CODEX_CWD"] = str(project_root)
+    return identity, version, str(project_root)
+
+
+def _validated_invocation_binding(
+    invocation: dict[str, Any],
+    backend_path: str | Path | None,
+    codex_executable_identity: dict[str, Any] | None,
+) -> dict[str, Any]:
+    expected_fields = {
+        "model_names",
+        "reasoning_effort",
+        "codex_cli",
+        "max_parallel_evaluations",
+        "api_base",
+        "temperature_disabled",
+        "codex_version",
+        "codex_cwd",
+        "codex_executable_mode",
+    }
+    if not isinstance(invocation, dict) or set(invocation) != expected_fields:
+        raise RuntimeError("managed invocation binding fields are incomplete")
+    model_names = invocation["model_names"]
+    if (
+        not isinstance(model_names, list)
+        or not model_names
+        or any(not isinstance(name, str) or not name for name in model_names)
+    ):
+        raise RuntimeError("managed invocation model_names are invalid")
+    reasoning_effort = invocation["reasoning_effort"]
+    if reasoning_effort is not None and (
+        not isinstance(reasoning_effort, str) or not reasoning_effort
+    ):
+        raise RuntimeError("managed invocation reasoning_effort is invalid")
+    codex_cli = invocation["codex_cli"]
+    if not isinstance(codex_cli, bool):
+        raise RuntimeError("managed invocation codex_cli is invalid")
+    if codex_cli != (
+        backend_path is not None and codex_executable_identity is not None
+    ):
+        raise RuntimeError("managed invocation backend binding is inconsistent")
+    codex_version = invocation["codex_version"]
+    codex_cwd = invocation["codex_cwd"]
+    codex_mode = invocation["codex_executable_mode"]
+    if codex_cli:
+        if not isinstance(codex_version, str) or not codex_version:
+            raise RuntimeError("managed invocation codex_version is invalid")
+        if (
+            not isinstance(codex_cwd, str)
+            or Path(codex_cwd) != Path(PROJECT_ROOT).resolve()
+        ):
+            raise RuntimeError("managed invocation codex_cwd is invalid")
+        if (
+            isinstance(codex_mode, bool)
+            or not isinstance(codex_mode, int)
+            or codex_mode != codex_executable_identity.get("mode")
+        ):
+            raise RuntimeError(
+                "managed invocation codex_executable_mode is invalid"
+            )
+    elif any(
+        value is not None for value in (codex_version, codex_cwd, codex_mode)
+    ):
+        raise RuntimeError("non-Codex invocation contains Codex execution fields")
+    workers = invocation["max_parallel_evaluations"]
+    if isinstance(workers, bool) or not isinstance(workers, int) or workers < 1:
+        raise RuntimeError(
+            "managed invocation max_parallel_evaluations is invalid"
+        )
+    api_base = invocation["api_base"]
+    if not isinstance(api_base, str) or not api_base:
+        raise RuntimeError("managed invocation api_base is invalid")
+    if not isinstance(invocation["temperature_disabled"], bool):
+        raise RuntimeError("managed invocation temperature_disabled is invalid")
+    return dict(invocation)
+
+
+def _write_slice_witness(
+    witness_path: str | Path,
+    *,
+    observer: _SliceObserver,
+    source_binding: dict[str, dict[str, Any]],
+    output_dir: str | Path,
+    resume_checkpoint: str | Path | None,
+    iterations: int,
+    config_path: str | Path,
+    seed_path: str | Path,
+    evaluator_path: str | Path,
+    context_path: str | Path,
+    context_identity: dict[str, Any],
+    dependency_identities: dict[str, dict[str, Any]],
+    backend_path: str | Path | None,
+    codex_executable_identity: dict[str, Any] | None,
+    invocation: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    if not observer.accounting_complete:
+        raise RuntimeError("OpenEvolve slice accounting did not complete")
+    effective_invocation = _validated_invocation_binding(
+        invocation, backend_path, codex_executable_identity
+    )
+    current_source_binding, _, _ = _openevolve_source_binding()
+    if current_source_binding != source_binding:
+        raise RuntimeError("OpenEvolve source binding changed during the slice")
+    resolved_output = Path(output_dir).resolve()
+    result_checkpoint = _strong_checkpoint_descriptor(
+        resolved_output,
+        resolved_output / "checkpoints" / f"checkpoint_{observer.end_iteration}",
+        expected_iteration=observer.end_iteration,
+    )
+    if not any(
+        save["iteration"] == observer.end_iteration
+        and save["accounting_complete"] is True
+        and save["checkpoint_sha256"] == result_checkpoint["sha256"]
+        and save["checkpoint_programs"] == result_checkpoint["programs"]
+        for save in observer.checkpoint_saves
+    ):
+        raise RuntimeError(
+            "expected checkpoint was not saved after complete slice accounting"
+        )
+    launch_binding = _launch_input_identities(
+        config_path,
+        seed_path,
+        evaluator_path,
+        context_path,
+        context_identity,
+        dependency_identities,
+        backend_path,
+        codex_executable_identity,
+    )
+    payload: dict[str, Any] = {
+        "schema_version": EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+        "status": "completed",
+        "output_dir": str(resolved_output),
+        "resume_checkpoint": (
+            None if resume_checkpoint is None else str(Path(resume_checkpoint).resolve())
+        ),
+        "base_last_iteration": observer.base_iteration,
+        "iterations_requested": iterations,
+        "slice_start_iteration": observer.start_iteration,
+        "slice_end_iteration": observer.end_iteration,
+        "slice_iteration_count": iterations,
+        "slice_iterations_sha256": _slice_iterations_sha256(
+            observer.start_iteration, iterations
+        ),
+        "submission_attempts": sorted(
+            observer.submission_attempts, key=lambda item: item["iteration"]
+        ),
+        "outcomes": [observer.outcomes[i] for i in observer.expected_iterations],
+        "successful_evaluations": sum(
+            outcome.get("status") == "program_added"
+            for outcome in observer.outcomes.values()
+        ),
+        "worker_errors": sum(
+            outcome.get("status") == "worker_error"
+            for outcome in observer.outcomes.values()
+        ),
+        "checkpoint_saves": observer.checkpoint_saves,
+        "result_checkpoint": result_checkpoint["path"],
+        "result_last_iteration": result_checkpoint["last_iteration"],
+        "result_checkpoint_sha256": result_checkpoint["sha256"],
+        "result_checkpoint_programs": result_checkpoint["programs"],
+        "openevolve_version": SUPPORTED_OPENEVOLVE_VERSION,
+        "completed_at": datetime.now().astimezone().isoformat(),
+    }
+    payload.update(effective_invocation)
+    for name, identity in launch_binding.items():
+        for field_name in ("path", "sha256", "bytes"):
+            payload[f"{name}_{field_name}"] = identity[field_name]
+    for name, identity in source_binding.items():
+        prefix = f"openevolve_{name}"
+        for field_name in ("path", "sha256", "bytes"):
+            payload[f"{prefix}_{field_name}"] = identity[field_name]
+    witness = Path(witness_path)
+    if witness.is_symlink() or witness.exists():
+        raise RuntimeError(f"refusing to overwrite slice witness: {witness}")
+    _atomic_write_json_artifact(witness, payload)
+    witness_identity = _file_identity(witness, "OpenEvolve slice witness")
+    return result_checkpoint, witness_identity
+
+
+def _write_completion_marker(
+    marker_path: str | Path,
+    *,
+    output_dir: str | Path,
+    resume_checkpoint: str | Path | None,
+    iterations: int,
+    config_path: str | Path,
+    seed_path: str | Path,
+    evaluator_path: str | Path,
+    context_path: str | Path,
+    context_identity: dict[str, Any],
+    dependency_identities: dict[str, dict[str, Any]],
+    backend_path: str | Path | None,
+    codex_executable_identity: dict[str, Any] | None,
+    invocation: dict[str, Any],
+    result_checkpoint: dict[str, Any],
+    slice_witness: dict[str, Any],
+) -> None:
+    effective_invocation = _validated_invocation_binding(
+        invocation, backend_path, codex_executable_identity
+    )
+    resolved_output = Path(output_dir).resolve()
+    launch_binding = _launch_input_identities(
+        config_path,
+        seed_path,
+        evaluator_path,
+        context_path,
+        context_identity,
+        dependency_identities,
+        backend_path,
+        codex_executable_identity,
+    )
+    payload: dict[str, Any] = {
+        "schema_version": EVOLUTION_COMPLETION_SCHEMA_VERSION,
+        "status": "completed",
+        "output_dir": str(resolved_output),
+        "resume_checkpoint": (
+            None if resume_checkpoint is None else str(Path(resume_checkpoint).resolve())
+        ),
+        "base_last_iteration": result_checkpoint["last_iteration"] - iterations,
+        "iterations_requested": iterations,
+        "result_checkpoint": result_checkpoint["path"],
+        "result_last_iteration": result_checkpoint["last_iteration"],
+        "result_checkpoint_sha256": result_checkpoint["sha256"],
+        "result_checkpoint_programs": result_checkpoint["programs"],
+        "slice_witness_path": slice_witness["path"],
+        "slice_witness_sha256": slice_witness["sha256"],
+        "slice_witness_bytes": slice_witness["bytes"],
+        "completed_at": datetime.now().astimezone().isoformat(),
+    }
+    payload.update(effective_invocation)
+    for name, identity in launch_binding.items():
+        for field_name in ("path", "sha256", "bytes"):
+            payload[f"{name}_{field_name}"] = identity[field_name]
+    marker = Path(marker_path)
+    if marker.is_symlink() or marker.exists():
+        raise RuntimeError(f"refusing to overwrite completion marker: {marker}")
+    _atomic_write_json_artifact(marker, payload)
 
 
 def _cap_parallel_evaluations(config, cap: int | None) -> tuple[int, int]:
@@ -151,7 +1409,13 @@ def _set_reasoning_effort(config, effort: str | None) -> None:
         )
 
 
-def _build_config(args, api_base: str, model_names: list[str] | None):
+def _build_config(
+    args,
+    api_base: str,
+    model_names: list[str] | None,
+    *,
+    humanize_context_text: str | None = None,
+):
     """Load config YAML and apply CLI overrides for models, temperature, etc."""
     import yaml
     from openevolve import Config
@@ -221,7 +1485,12 @@ def _build_config(args, api_base: str, model_names: list[str] | None):
 
     _set_reasoning_effort(config, args.reasoning_effort)
     if args.humanize_context:
-        context = Path(args.humanize_context).read_text().strip()
+        context = (
+            humanize_context_text
+            if humanize_context_text is not None
+            else getattr(args, "_humanize_context_text", None)
+            or Path(args.humanize_context).read_text()
+        ).strip()
         if context:
             config.prompt.system_message += (
                 "\n\nHumanize cross-round memory and reviewer focus:\n" + context
@@ -403,6 +1672,22 @@ def main():
         help="Explicit output directory (overrides --run-name).",
     )
     parser.add_argument(
+        "--completion-marker", type=str, default=None,
+        help="Atomically write a success marker after the final checkpoint is durable.",
+    )
+    parser.add_argument(
+        "--slice-witness", type=str, default=None,
+        help="Atomically write exact full-slice accounting before the success marker.",
+    )
+    parser.add_argument(
+        "--lifecycle-lease-fd", type=int, default=None,
+        help="Inherited locked lifecycle lease descriptor for managed runs.",
+    )
+    parser.add_argument(
+        "--lifecycle-lease-path", type=str, default=None,
+        help="Fixed path matching the inherited lifecycle lease descriptor.",
+    )
+    parser.add_argument(
         "--max-parallel-evaluations", type=int, default=None,
         help="Cap OpenEvolve evaluator workers without increasing the YAML value.",
     )
@@ -456,6 +1741,24 @@ def main():
              "or evolve/seed_solution_noncss.py when --noncss is set).",
     )
     args = parser.parse_args()
+    managed_values = (
+        args.completion_marker,
+        args.slice_witness,
+        args.lifecycle_lease_fd,
+        args.lifecycle_lease_path,
+    )
+    managed_requested = any(value is not None for value in managed_values)
+    if managed_requested and not all(value is not None for value in managed_values):
+        parser.error(
+            "--completion-marker, --slice-witness, --lifecycle-lease-fd, and "
+            "--lifecycle-lease-path must be supplied together"
+        )
+    if managed_requested and args.humanize_context is None:
+        parser.error("--humanize-context is required for managed evolution")
+    if managed_requested:
+        _validate_lifecycle_lease(
+            args.lifecycle_lease_fd, args.lifecycle_lease_path
+        )
 
     # Resolve model list (None means "use config as-is")
     if args.models:
@@ -561,7 +1864,29 @@ def main():
             sys.exit(1)
 
     # Run OpenEvolve
+    observer: _SliceObserver | None = None
+    source_binding: dict[str, dict[str, Any]] | None = None
+    context_identity: dict[str, Any] | None = None
+    dependency_identities: dict[str, dict[str, Any]] | None = None
+    codex_executable_identity: dict[str, Any] | None = None
     try:
+        context_text: str | None = None
+        if managed_requested:
+            context_text, context_identity = _read_text_snapshot(
+                args.humanize_context, "evolution humanize context"
+            )
+            dependency_identities = _evaluator_dependency_identities()
+            args._humanize_context_text = context_text
+        codex_version: str | None = None
+        codex_cwd: str | None = None
+        codex_executable_mode: int | None = None
+        if managed_requested and args.codex_cli:
+            (
+                codex_executable_identity,
+                codex_version,
+                codex_cwd,
+            ) = _resolve_codex_execution_binding()
+            codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
         if args.codex_cli:
             from evolve.codex_cli_llm import make_codex_cli_client
@@ -570,6 +1895,22 @@ def main():
 
         # Startup banner
         active_models = [m.name for m in config.llm.models]
+        invocation_binding = {
+            "model_names": active_models,
+            "reasoning_effort": args.reasoning_effort,
+            "codex_cli": bool(args.codex_cli),
+            "max_parallel_evaluations": config.evaluator.parallel_evaluations,
+            "api_base": api_base,
+            "temperature_disabled": bool(args.no_temperature),
+            "codex_version": codex_version,
+            "codex_cwd": codex_cwd,
+            "codex_executable_mode": codex_executable_mode,
+        }
+        backend_path = (
+            Path(__file__).resolve().parent / "codex_cli_llm.py"
+            if args.codex_cli
+            else None
+        )
         print(f"\nStarting evolution:")
         if len(active_models) == 1:
             print(f"  Model: {active_models[0]}")
@@ -596,54 +1937,114 @@ def main():
         else:
             print(f"  Distance: BP-OSD (estimate)")
         print(f"  Output: {output_dir}")
-        if args.resume:
-            print(f"  Resuming from: {args.resume}")
-        print()
-
-        if args.resume:
-            best_program = _run_resume(
-                config, output_dir, args.iterations, args.resume,
-                seed=seed_path, evaluator=EVALUATOR_ACTIVE,
+        if managed_requested:
+            base_iteration = _checkpoint_last_iteration(args.resume)
+            slice_context = _verified_slice_controller(
+                base_iteration, args.iterations
             )
-            print(f"\nEvolution complete!")
-            if best_program:
-                score = (best_program.metrics or {}).get("combined_score", 0)
-                print(f"  Best score: {score:.4f}")
-                # Save best program
-                best_path = Path(output_dir) / "best_generate_candidates.py"
-                best_path.parent.mkdir(parents=True, exist_ok=True)
-                best_path.write_text(best_program.code)
-                print(f"  Best program: {best_path}")
-            print(f"  Output: {output_dir}")
         else:
-            result = _run_fresh(config, output_dir, args.iterations,
-                                seed=seed_path, evaluator=EVALUATOR_ACTIVE)
+            slice_context = nullcontext((None, None))
+        with slice_context as verification:
+            if managed_requested:
+                observer, source_binding = verification
+            if args.resume:
+                print(f"  Resuming from: {args.resume}")
+            print()
 
-            print(f"\nEvolution complete!")
-            print(f"  Best score: {result.best_score:.4f}")
-            print(f"  Output: {result.output_dir}")
+            if args.resume:
+                best_program = _run_resume(
+                    config, output_dir, args.iterations, args.resume,
+                    seed=seed_path, evaluator=EVALUATOR_ACTIVE,
+                )
+                print(f"\nEvolution complete!")
+                if best_program:
+                    score = (best_program.metrics or {}).get("combined_score", 0)
+                    print(f"  Best score: {score:.4f}")
+                    # Save best program
+                    best_path = Path(output_dir) / "best_generate_candidates.py"
+                    best_path.parent.mkdir(parents=True, exist_ok=True)
+                    best_path.write_text(best_program.code)
+                    print(f"  Best program: {best_path}")
+                print(f"  Output: {output_dir}")
+            else:
+                result = _run_fresh(config, output_dir, args.iterations,
+                                    seed=seed_path, evaluator=EVALUATOR_ACTIVE)
 
-            # Save best program
-            if result.best_code:
-                best_path = Path(output_dir) / "best_generate_candidates.py"
-                best_path.parent.mkdir(parents=True, exist_ok=True)
-                best_path.write_text(result.best_code)
-                print(f"  Best program: {best_path}")
+                print(f"\nEvolution complete!")
+                print(f"  Best score: {result.best_score:.4f}")
+                print(f"  Output: {result.output_dir}")
 
-                if args.wandb:
-                    try:
-                        import wandb
-                        artifact = wandb.Artifact("best-program", type="code")
-                        artifact.add_file(str(best_path))
-                        wandb.log_artifact(artifact)
-                    except Exception:
-                        pass
+                # Save best program
+                if result.best_code:
+                    best_path = Path(output_dir) / "best_generate_candidates.py"
+                    best_path.parent.mkdir(parents=True, exist_ok=True)
+                    best_path.write_text(result.best_code)
+                    print(f"  Best program: {best_path}")
 
+                    if args.wandb:
+                        try:
+                            import wandb
+                            artifact = wandb.Artifact("best-program", type="code")
+                            artifact.add_file(str(best_path))
+                            wandb.log_artifact(artifact)
+                        except Exception:
+                            pass
+
+        if managed_requested:
+            assert (
+                observer is not None
+                and source_binding is not None
+                and context_identity is not None
+                and dependency_identities is not None
+            )
+            result_checkpoint, witness_identity = _write_slice_witness(
+                args.slice_witness,
+                observer=observer,
+                source_binding=source_binding,
+                output_dir=output_dir,
+                resume_checkpoint=args.resume,
+                iterations=args.iterations,
+                config_path=args.config,
+                seed_path=seed_path,
+                evaluator_path=EVALUATOR_ACTIVE,
+                context_path=args.humanize_context,
+                context_identity=context_identity,
+                dependency_identities=dependency_identities,
+                backend_path=backend_path,
+                codex_executable_identity=codex_executable_identity,
+                invocation=invocation_binding,
+            )
+            _write_completion_marker(
+                args.completion_marker,
+                output_dir=output_dir,
+                resume_checkpoint=args.resume,
+                iterations=args.iterations,
+                config_path=args.config,
+                seed_path=seed_path,
+                evaluator_path=EVALUATOR_ACTIVE,
+                context_path=args.humanize_context,
+                context_identity=context_identity,
+                dependency_identities=dependency_identities,
+                backend_path=backend_path,
+                codex_executable_identity=codex_executable_identity,
+                invocation=invocation_binding,
+                result_checkpoint=result_checkpoint,
+                slice_witness=witness_identity,
+            )
+
+    except SystemExit as exc:
+        if managed_requested and (
+            exc.code in (None, 0)
+            or (observer is not None and observer.shutdown_requested)
+        ):
+            raise SystemExit(130) from exc
+        raise
     except ImportError:
         print("openevolve not installed. Run: uv sync --group evolve")
         sys.exit(1)
     except KeyboardInterrupt:
         print("\nEvolution interrupted by user.")
+        raise SystemExit(130)
     finally:
         if wandb_syncer:
             wandb_syncer.stop()

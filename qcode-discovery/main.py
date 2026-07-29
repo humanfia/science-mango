@@ -104,9 +104,17 @@ def merge_bp_milp_result(bp: dict, milp_result: dict) -> dict:
         "threshold_proof_rhs",
         "threshold_proof_distance",
         "threshold_proof_source",
+        "threshold_proof_witness",
+        "audit_evaluator_invocation",
+        "symplectic_weight_witness",
+        "d_symplectic",
     ):
         if field in milp_result:
             merged[field] = milp_result[field]
+    merged["threshold_proof_trusted"] = bool(
+        milp_result.get("threshold_rejection_proven") is True
+        and milp_result.get("distance_trusted") is True
+    )
     merged["bp_osd_d"] = bp_d
     merged["milp_attempted"] = True
     return merged

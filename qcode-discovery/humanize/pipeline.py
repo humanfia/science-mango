@@ -10,14 +10,19 @@ from __future__ import annotations
 
 import fcntl
 import hashlib
+import importlib.util
 import inspect
 import json
+import marshal
 import math
 import os
 import re
 import stat
 import subprocess
 import sys
+import tempfile
+import threading
+import types
 import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
@@ -53,6 +58,7 @@ REQUIRED_STRICT_REPLAY_CHECKS = frozenset(
         "certificate_passed_flag",
     }
 )
+_PYCACHE_ENVIRONMENT_LOCK = threading.RLock()
 
 
 def utc_now() -> str:
@@ -98,27 +104,301 @@ def _certificate_sha256(value: Mapping[str, Any]) -> str:
 
 def _file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        while chunk := stream.read(1024 * 1024):
-            digest.update(chunk)
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(
+        os, "O_NOFOLLOW", 0
+    )
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OSError(f"not a regular file: {path}")
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = -1
+            while chunk := stream.read(1024 * 1024):
+                digest.update(chunk)
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
     return digest.hexdigest()
 
 
+def _source_file_identity(path: Path) -> dict[str, Any]:
+    """Hash one source while binding metadata that detects restore-after-use."""
+
+    digest = hashlib.sha256()
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(
+        os, "O_NOFOLLOW", 0
+    )
+    descriptor = os.open(path, flags)
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            raise OSError(f"not a regular file: {path}")
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = -1
+            while chunk := stream.read(1024 * 1024):
+                digest.update(chunk)
+            after = os.fstat(stream.fileno())
+        fields = ("st_dev", "st_ino", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+        if any(getattr(before, name) != getattr(after, name) for name in fields):
+            raise OSError(f"source changed while it was being hashed: {path}")
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+    return {
+        "sha256": digest.hexdigest(),
+        "bytes": int(after.st_size),
+        "mode": stat.S_IMODE(after.st_mode),
+        "device": int(after.st_dev),
+        "inode": int(after.st_ino),
+        "mtime_ns": int(after.st_mtime_ns),
+        "ctime_ns": int(after.st_ctime_ns),
+    }
+
+
+def _lexical_absolute(path: str | os.PathLike[str] | Path) -> Path:
+    """Return an absolute path without resolving any symlink."""
+
+    return Path(os.path.abspath(os.fspath(path)))
+
+
+_UNTRUSTED_IMPORT_ARTIFACT_SUFFIXES = (
+    ".so",
+    ".pyd",
+    ".dll",
+    ".dylib",
+    ".pyc",
+    ".pyo",
+)
+
+
+def _is_untrusted_import_artifact(path: Path) -> bool:
+    """Return whether an unhashed file could supply executable Python code."""
+
+    name = path.name.lower()
+    if name.endswith(".pyc") and path.parent.name == "__pycache__":
+        source = _source_for_pep3147_cache(path)
+        if source is not None:
+            try:
+                metadata = source.lstat()
+            except OSError:
+                pass
+            else:
+                if (
+                    stat.S_ISREG(metadata.st_mode)
+                    and _pyc_matches_current_source(path, source)
+                ):
+                    return False
+    return any(name.endswith(suffix) for suffix in _UNTRUSTED_IMPORT_ARTIFACT_SUFFIXES)
+
+
+def _normalise_code_object(value: types.CodeType) -> types.CodeType:
+    constants = tuple(
+        _normalise_code_object(item)
+        if isinstance(item, types.CodeType)
+        else item
+        for item in value.co_consts
+    )
+    return value.replace(co_consts=constants, co_filename="<qcode-source>")
+
+
+def _source_for_pep3147_cache(cache: Path) -> Path | None:
+    """Return the lexical source path for one ``__pycache__`` artifact."""
+
+    try:
+        return Path(importlib.util.source_from_cache(str(cache)))
+    except ValueError:
+        # ``source_from_cache`` rejects a valid cache for a dotted source name
+        # such as ``foo.bar.py``.  Parse only the PEP 3147 shape as a fallback.
+        name = cache.name
+        if cache.parent.name != "__pycache__" or not name.lower().endswith(
+            ".pyc"
+        ):
+            return None
+        body = name[:-4]
+        body = re.sub(r"\.opt-[0-9]+$", "", body, flags=re.IGNORECASE)
+        stem, separator, cache_tag = body.rpartition(".")
+        if not separator or not stem or not cache_tag:
+            return None
+        return cache.parent.parent / f"{stem}.py"
+
+
+def _pep3147_cache_tag(cache: Path) -> str | None:
+    name = cache.name
+    if cache.parent.name != "__pycache__" or not name.lower().endswith(".pyc"):
+        return None
+    body = re.sub(
+        r"\.opt-[0-9]+$",
+        "",
+        name[:-4],
+        flags=re.IGNORECASE,
+    )
+    _stem, separator, cache_tag = body.rpartition(".")
+    return cache_tag if separator and cache_tag else None
+
+
+def _read_regular_nofollow(path: Path) -> bytes:
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(
+        os, "O_NOFOLLOW", 0
+    )
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OSError(f"not a regular file: {path}")
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = -1
+            return stream.read()
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _pyc_matches_current_source(cache: Path, source: Path) -> bool:
+    """Accept an inert stale cache or bytecode identical to its bound source."""
+
+    try:
+        raw = _read_regular_nofollow(cache)
+        if len(raw) < 16:
+            return False
+        if raw[:4] != importlib.util.MAGIC_NUMBER:
+            # A cache tagged for another implementation/version is inert for
+            # this process. All child execution paths also use a fresh
+            # PYTHONPYCACHEPREFIX, so a foreign cache cannot become active.
+            current_tag = getattr(sys.implementation, "cache_tag", None)
+            return (
+                isinstance(current_tag, str)
+                and _pep3147_cache_tag(cache) != current_tag
+            )
+        flags = int.from_bytes(raw[4:8], "little")
+        if flags & ~0b11:
+            return False
+        before = source.lstat()
+        if not stat.S_ISREG(before.st_mode):
+            return False
+        source_bytes = _read_regular_nofollow(source)
+        after = source.lstat()
+        identity_fields = (
+            "st_dev",
+            "st_ino",
+            "st_mode",
+            "st_size",
+            "st_mtime_ns",
+            "st_ctime_ns",
+        )
+        if any(
+            getattr(before, field) != getattr(after, field)
+            for field in identity_fields
+        ):
+            return False
+        if flags == 0:
+            cached_mtime = int.from_bytes(raw[8:12], "little")
+            cached_size = int.from_bytes(raw[12:16], "little")
+            source_mtime = int(after.st_mtime) & 0xFFFFFFFF
+            source_size = len(source_bytes) & 0xFFFFFFFF
+            if (cached_mtime, cached_size) != (source_mtime, source_size):
+                # CPython ignores an out-of-date timestamp cache and recompiles
+                # the source, so it cannot override the hashed source file.
+                return True
+        loaded = marshal.loads(raw[16:])
+        if not isinstance(loaded, types.CodeType):
+            return False
+        optimisation = 0
+        match = re.search(r"\.opt-([0-9]+)\.pyc$", cache.name.lower())
+        if match is not None:
+            optimisation = int(match.group(1))
+        compiled = compile(
+            source_bytes,
+            str(source),
+            "exec",
+            dont_inherit=True,
+            optimize=optimisation,
+        )
+        return marshal.dumps(_normalise_code_object(loaded)) == marshal.dumps(
+            _normalise_code_object(compiled)
+        )
+    except (
+        EOFError,
+        OSError,
+        OverflowError,
+        RecursionError,
+        SyntaxError,
+        TypeError,
+        ValueError,
+    ):
+        return False
+
+
+def _reject_symlink_components(
+    path: str | os.PathLike[str] | Path,
+    *,
+    classification: str,
+    label: str,
+) -> Path:
+    """Reject every existing symlink in a lexical absolute path."""
+
+    absolute = _lexical_absolute(path)
+    current = Path(absolute.anchor)
+    for part in absolute.parts[1:]:
+        current /= part
+        try:
+            metadata = current.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise PipelineError(
+                classification,
+                f"cannot inspect {label} path component {current}: {exc}",
+            ) from exc
+        if stat.S_ISLNK(metadata.st_mode):
+            raise PipelineError(
+                classification,
+                f"{label} path component may not be a symlink: {current}",
+            )
+    return absolute
+
+
 def _hash_paths(
-    paths: Iterable[Path], *, require: bool = True
+    paths: Iterable[Path],
+    *,
+    require: bool = True,
+    classification: str = "UNSAFE_INPUT_PATH",
+    label: str = "input",
 ) -> dict[str, str | None]:
     result: dict[str, str | None] = {}
     for original in paths:
-        path = original.resolve()
-        if not path.is_file():
+        path = _reject_symlink_components(
+            original,
+            classification=classification,
+            label=label,
+        )
+        try:
+            metadata = path.lstat()
+        except FileNotFoundError:
             if require:
                 raise PipelineError(
                     "INPUT_MISSING",
                     f"required file does not exist: {path}",
                 )
             result[str(path)] = None
-        else:
+            continue
+        except OSError as exc:
+            raise PipelineError(
+                classification,
+                f"cannot inspect {label} file {path}: {exc}",
+            ) from exc
+        if not stat.S_ISREG(metadata.st_mode):
+            raise PipelineError(
+                classification,
+                f"{label} is not a regular file: {path}",
+            )
+        try:
             result[str(path)] = _file_sha256(path)
+        except OSError as exc:
+            raise PipelineError(
+                classification,
+                f"cannot hash {label} file {path}: {exc}",
+            ) from exc
     return result
 
 
@@ -177,7 +457,7 @@ def _read_json_object(path: Path) -> dict[str, Any]:
 
 def _resolve_path(value: str | os.PathLike[str] | Path, base: Path) -> Path:
     path = Path(value)
-    return (base / path).resolve() if not path.is_absolute() else path.resolve()
+    return _lexical_absolute(base / path if not path.is_absolute() else path)
 
 
 def _safe_run_id(value: str) -> str:
@@ -239,13 +519,17 @@ def default_command_runner(
 ) -> subprocess.CompletedProcess[str]:
     """Run one stage synchronously; stages can never overlap."""
 
-    return subprocess.run(
-        command,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    with tempfile.TemporaryDirectory(prefix="qcode-stage-pycache-") as cache:
+        environment = os.environ.copy()
+        environment["PYTHONPYCACHEPREFIX"] = cache
+        return subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False,
+            env=environment,
+        )
 
 
 @dataclass(frozen=True)
@@ -292,14 +576,22 @@ class PipelineConfig:
         repo = Path(self.repo_dir).resolve()
         object.__setattr__(self, "repo_dir", repo)
         object.__setattr__(self, "run_id", _safe_run_id(self.run_id))
-        control_base = (repo / "results" / "humanize" / "pipelines").resolve()
+        control_base = _reject_symlink_components(
+            repo / "results" / "humanize" / "pipelines",
+            classification="UNSAFE_CONTROL_PATH",
+            label="pipeline control root",
+        )
         try:
             control_base.relative_to(repo)
         except ValueError as exc:
             raise ValueError(
                 f"pipeline control root escapes repository: {control_base}"
             ) from exc
-        fixed_root = (control_base / self.run_id).resolve()
+        fixed_root = _reject_symlink_components(
+            control_base / self.run_id,
+            classification="UNSAFE_CONTROL_PATH",
+            label="pipeline run root",
+        )
         try:
             fixed_root.relative_to(control_base)
         except ValueError as exc:
@@ -671,7 +963,7 @@ class PipelinePaths:
     stage5_no_win: Path = field(init=False)
 
     def __post_init__(self) -> None:
-        root = self.root.resolve()
+        root = _lexical_absolute(self.root)
         object.__setattr__(self, "root", root)
         object.__setattr__(self, "state", root / "state.json")
         object.__setattr__(self, "artifacts", root / "artifacts")
@@ -742,31 +1034,51 @@ class FiveStagePipeline:
     def _ensure_pipeline_directories(self) -> None:
         """Create fixed run subdirectories without following symlink escapes."""
 
-        root = self.paths.root.resolve(strict=True)
+        root = _reject_symlink_components(
+            self.paths.root,
+            classification="UNSAFE_CONTROL_PATH",
+            label="pipeline run root",
+        )
+        try:
+            root_metadata = root.lstat()
+        except OSError as exc:
+            raise PipelineError(
+                "UNSAFE_CONTROL_PATH",
+                f"pipeline run root is unavailable: {root}: {exc}",
+            ) from exc
+        if not stat.S_ISDIR(root_metadata.st_mode):
+            raise PipelineError(
+                "UNSAFE_CONTROL_PATH",
+                f"pipeline run root is not a directory: {root}",
+            )
         for path in (
             self.paths.artifacts,
             self.paths.logs,
             self.paths.reviews,
             self.paths.solver_state,
         ):
-            if path.is_symlink():
-                raise PipelineError(
-                    "UNSAFE_CONTROL_PATH",
-                    f"pipeline directory may not be a symlink: {path}",
-                )
+            _reject_symlink_components(
+                path,
+                classification="UNSAFE_CONTROL_PATH",
+                label="pipeline directory",
+            )
             path.mkdir(mode=0o700, exist_ok=True)
-            resolved = path.resolve(strict=True)
+            safe_path = _reject_symlink_components(
+                path,
+                classification="UNSAFE_CONTROL_PATH",
+                label="pipeline directory",
+            )
             try:
-                resolved.relative_to(root)
-            except ValueError as exc:
+                metadata = safe_path.lstat()
+            except OSError as exc:
                 raise PipelineError(
                     "UNSAFE_CONTROL_PATH",
-                    f"pipeline directory escapes run root: {path}",
+                    f"pipeline directory is unavailable: {safe_path}: {exc}",
                 ) from exc
-            if not resolved.is_dir():
+            if not stat.S_ISDIR(metadata.st_mode):
                 raise PipelineError(
                     "UNSAFE_CONTROL_PATH",
-                    f"pipeline control path is not a directory: {path}",
+                    f"pipeline control path is not a directory: {safe_path}",
                 )
         self._ensure_solver_state_tree_safe()
 
@@ -820,7 +1132,6 @@ class FiveStagePipeline:
         atomic_write_json(self.paths.state, self.state)
 
     def _load_or_initialize_state(self) -> dict[str, Any]:
-        self.paths.root.mkdir(parents=True, exist_ok=True)
         self._ensure_pipeline_directories()
         if self.paths.state.is_file():
             state = _read_json_object(self.paths.state)
@@ -904,8 +1215,30 @@ class FiveStagePipeline:
 
     @contextmanager
     def _exclusive_lock(self) -> Iterable[None]:
-        lock_path = self.paths.root / "pipeline.lock"
-        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        root = _reject_symlink_components(
+            self.paths.root,
+            classification="UNSAFE_CONTROL_PATH",
+            label="pipeline run root",
+        )
+        root.mkdir(parents=True, exist_ok=True)
+        root = _reject_symlink_components(
+            root,
+            classification="UNSAFE_CONTROL_PATH",
+            label="pipeline run root",
+        )
+        try:
+            root_metadata = root.lstat()
+        except OSError as exc:
+            raise PipelineError(
+                "UNSAFE_CONTROL_PATH",
+                f"pipeline run root is unavailable: {root}: {exc}",
+            ) from exc
+        if not stat.S_ISDIR(root_metadata.st_mode):
+            raise PipelineError(
+                "UNSAFE_CONTROL_PATH",
+                f"pipeline run root is not a directory: {root}",
+            )
+        lock_path = root / "pipeline.lock"
         descriptor = os.open(
             lock_path,
             os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0),
@@ -945,26 +1278,235 @@ class FiveStagePipeline:
     def _source_fingerprint(self, *roots: Path) -> str:
         """Hash imported in-repo Python implementations, including dirty edits."""
         files: set[Path] = set()
+        repository = _reject_symlink_components(
+            self.config.repo_dir,
+            classification="UNSAFE_SOURCE_PATH",
+            label="repository source root",
+        )
         for original in roots:
-            path = original.resolve()
+            path = _reject_symlink_components(
+                original,
+                classification="UNSAFE_SOURCE_PATH",
+                label="source dependency",
+            )
             try:
-                path.relative_to(self.config.repo_dir)
+                path.relative_to(repository)
             except ValueError as exc:
                 raise PipelineError(
                     "UNSAFE_SOURCE_PATH",
                     f"source fingerprint path escapes repository: {path}",
                 ) from exc
-            if path.is_dir():
-                files.update(item.resolve() for item in path.rglob("*.py"))
-            elif path.is_file():
+            try:
+                metadata = path.lstat()
+            except FileNotFoundError as exc:
+                raise PipelineError(
+                    "INPUT_MISSING", f"source dependency is missing: {path}"
+                ) from exc
+            except OSError as exc:
+                raise PipelineError(
+                    "UNSAFE_SOURCE_PATH",
+                    f"cannot inspect source dependency {path}: {exc}",
+                ) from exc
+            if stat.S_ISDIR(metadata.st_mode):
+                for original_item in sorted(path.rglob("*")):
+                    item = _reject_symlink_components(
+                        original_item,
+                        classification="UNSAFE_SOURCE_PATH",
+                        label="source tree entry",
+                    )
+                    try:
+                        item_metadata = item.lstat()
+                    except OSError as exc:
+                        raise PipelineError(
+                            "UNSAFE_SOURCE_PATH",
+                            f"cannot inspect source tree entry {item}: {exc}",
+                        ) from exc
+                    if stat.S_ISREG(item_metadata.st_mode):
+                        if item.suffix == ".py":
+                            files.add(item)
+                        elif _is_untrusted_import_artifact(item):
+                            raise PipelineError(
+                                "UNSAFE_SOURCE_PATH",
+                                "source tree contains an unhashed executable "
+                                f"Python import artifact: {item}",
+                            )
+                    elif not stat.S_ISDIR(item_metadata.st_mode):
+                        raise PipelineError(
+                            "UNSAFE_SOURCE_PATH",
+                            f"source tree entry is not a regular file or "
+                            f"directory: {item}",
+                        )
+            elif stat.S_ISREG(metadata.st_mode):
+                if _is_untrusted_import_artifact(path):
+                    raise PipelineError(
+                        "UNSAFE_SOURCE_PATH",
+                        "source dependency is an untrusted executable Python "
+                        f"import artifact: {path}",
+                    )
                 files.add(path)
             else:
                 raise PipelineError(
-                    "INPUT_MISSING", f"source dependency is missing: {path}"
+                    "UNSAFE_SOURCE_PATH",
+                    f"source dependency is not a regular file or directory: {path}",
                 )
-        return _canonical_sha256(
-            {str(path): _file_sha256(path) for path in sorted(files)}
+        identities: dict[str, dict[str, Any]] = {}
+        for path in sorted(files):
+            try:
+                identities[str(path)] = _source_file_identity(path)
+            except OSError as exc:
+                raise PipelineError(
+                    "UNSAFE_SOURCE_PATH",
+                    f"cannot hash source dependency {path}: {exc}",
+                ) from exc
+        return _canonical_sha256(identities)
+
+    def _source_file_sha256(self, original: Path, *, label: str) -> str:
+        path = _reject_symlink_components(
+            original,
+            classification="UNSAFE_SOURCE_PATH",
+            label=label,
         )
+        repository = _lexical_absolute(self.config.repo_dir)
+        try:
+            path.relative_to(repository)
+        except ValueError as exc:
+            raise PipelineError(
+                "UNSAFE_SOURCE_PATH",
+                f"{label} escapes repository: {path}",
+            ) from exc
+        try:
+            metadata = path.lstat()
+            if not stat.S_ISREG(metadata.st_mode):
+                raise OSError("not a regular file")
+            return _file_sha256(path)
+        except FileNotFoundError as exc:
+            raise PipelineError(
+                "INPUT_MISSING", f"{label} is missing: {path}"
+            ) from exc
+        except OSError as exc:
+            raise PipelineError(
+                "UNSAFE_SOURCE_PATH",
+                f"cannot hash {label} {path}: {exc}",
+            ) from exc
+
+    def _audit_source_provenance(self) -> dict[str, str]:
+        registry = self.config.repo_dir / "results" / "known_code_registry.json"
+        return {
+            "controller_source_sha256": self._source_file_sha256(
+                self.config.repo_dir / "humanize" / "pipeline.py",
+                label="pipeline controller source",
+            ),
+            "source_fingerprint": self._source_fingerprint(
+                self.config.repo_dir / "humanize" / "pipeline.py",
+                self.config.repo_dir / "evaluation",
+                self.config.repo_dir / "scripts" / "audit_candidate_pool.py",
+                self.config.repo_dir / "scripts" / "audit_direction_pool.py",
+                self.config.repo_dir / "scripts" / "screen_frontier_candidate.py",
+                self.config.repo_dir / "scripts" / "screen_frontier_xor.py",
+                registry,
+            ),
+            "known_code_registry_sha256": self._source_file_sha256(
+                registry,
+                label="known-code registry",
+            ),
+        }
+
+    def _strict_source_provenance(self) -> dict[str, str]:
+        registry = self.config.repo_dir / "results" / "known_code_registry.json"
+        runner = self.config.repo_dir / "tests" / "verify_known_answer_gate.py"
+        return {
+            "controller_source_sha256": self._source_file_sha256(
+                self.config.repo_dir / "humanize" / "pipeline.py",
+                label="pipeline controller source",
+            ),
+            "source_fingerprint": self._source_fingerprint(
+                self.config.repo_dir / "humanize" / "pipeline.py",
+                self.config.repo_dir / "evaluation",
+                self.config.repo_dir / "scripts" / "finalize_challenge.py",
+                runner,
+                registry,
+            ),
+            "known_code_registry_sha256": self._source_file_sha256(
+                registry,
+                label="known-code registry",
+            ),
+            "strict_runner_sha256": self._source_file_sha256(
+                runner,
+                label="strict known-answer runner",
+            ),
+        }
+
+    def _stage1_source_provenance(self) -> dict[str, str]:
+        return {
+            "controller_source_sha256": self._source_file_sha256(
+                self.config.repo_dir / "humanize" / "pipeline.py",
+                label="pipeline controller source",
+            ),
+            "source_fingerprint": self._source_fingerprint(
+                self.config.repo_dir / "humanize" / "pipeline.py",
+                self.config.repo_dir / "humanize" / "flow.py",
+                self.config.repo_dir / "humanize" / "audit_state.py",
+                self.config.repo_dir / "humanize" / "state.py",
+                self.config.repo_dir / "humanize" / "reviewer.py",
+                self.config.repo_dir / "evaluation",
+                self.config.repo_dir / "evolve",
+                self.config.repo_dir / "main.py",
+                self.config.repo_dir / "results" / "known_code_registry.json",
+            ),
+        }
+
+    @staticmethod
+    def _require_inputs_unchanged(
+        stage: str,
+        inputs: Sequence[Path],
+        expected: Mapping[str, str | None],
+    ) -> None:
+        try:
+            current = _hash_paths(inputs)
+        except PipelineError as exc:
+            raise PipelineError(
+                "INPUT_CHANGED_DURING_STAGE",
+                f"{stage} input became unavailable or unsafe: {exc}",
+                stage=stage,
+            ) from exc
+        if current != dict(expected):
+            raise PipelineError(
+                "INPUT_CHANGED_DURING_STAGE",
+                f"{stage} inputs changed while the stage was executing",
+                stage=stage,
+            )
+
+    @staticmethod
+    def _require_stage_config_unchanged(
+        stage: str,
+        expected: Mapping[str, Any],
+        revalidator: Callable[[], Mapping[str, Any]] | None,
+    ) -> None:
+        """Replay dynamic source provenance after execution and cache validation."""
+
+        if revalidator is None:
+            return
+        try:
+            observed = dict(revalidator())
+        except PipelineError as exc:
+            raise PipelineError(
+                "INPUT_CHANGED_DURING_STAGE",
+                f"{stage} source provenance became unavailable or unsafe: {exc}",
+                stage=stage,
+            ) from exc
+        except Exception as exc:
+            raise PipelineError(
+                "INPUT_CHANGED_DURING_STAGE",
+                f"{stage} source provenance could not be replayed: "
+                f"{type(exc).__name__}: {exc}",
+                stage=stage,
+            ) from exc
+        if observed != dict(expected):
+            raise PipelineError(
+                "INPUT_CHANGED_DURING_STAGE",
+                f"{stage} source provenance changed while the stage was executing",
+                stage=stage,
+            )
 
     def _clear_stage_outputs(
         self,
@@ -1013,6 +1555,7 @@ class FiveStagePipeline:
         stage: str,
         *,
         fingerprint: str,
+        stage_config: Mapping[str, Any],
         input_hashes: Mapping[str, str | None],
     ) -> bool:
         if not self.config.resume:
@@ -1022,17 +1565,24 @@ class FiveStagePipeline:
             return False
         if record.get("stage_fingerprint") != fingerprint:
             return False
+        if record.get("stage_config") != dict(stage_config):
+            return False
         if record.get("input_hashes") != dict(input_hashes):
             return False
         outputs = record.get("output_hashes")
         if not isinstance(outputs, dict):
             return False
         for path_text, expected in outputs.items():
-            path = Path(path_text)
-            if expected is None:
-                if path.exists():
-                    return False
-            elif not path.is_file() or _file_sha256(path) != expected:
+            try:
+                current = _hash_paths(
+                    [Path(path_text)],
+                    require=False,
+                    classification="UNSAFE_OUTPUT_PATH",
+                    label=f"{stage} cached output",
+                )[str(_lexical_absolute(path_text))]
+            except PipelineError:
+                return False
+            if current != expected:
                 return False
         return True
 
@@ -1187,6 +1737,7 @@ class FiveStagePipeline:
         *,
         command: list[str],
         stage_config: Mapping[str, Any],
+        stage_config_revalidator: Callable[[], Mapping[str, Any]] | None = None,
         inputs: Sequence[Path],
         outputs: Sequence[Path],
         machine: Callable[[], int],
@@ -1194,12 +1745,16 @@ class FiveStagePipeline:
         machine_status: str = "COMPLETED",
     ) -> dict[str, Any]:
         self._ensure_solver_state_tree_safe()
+        self._require_stage_config_unchanged(
+            stage, stage_config, stage_config_revalidator
+        )
         input_hashes = _hash_paths(inputs)
         fingerprint = self._stage_config_fingerprint(command, stage_config)
         record = self.state["stages"][stage]
         cache_valid = self._machine_cache_valid(
             stage,
             fingerprint=fingerprint,
+            stage_config=stage_config,
             input_hashes=input_hashes,
         )
         if not cache_valid:
@@ -1210,6 +1765,7 @@ class FiveStagePipeline:
             record["started_at"] = utc_now()
             record["command"] = command
             record["command_sha256"] = _canonical_sha256(command)
+            record["stage_config"] = dict(stage_config)
             record["stage_fingerprint"] = fingerprint
             record["input_hashes"] = input_hashes
             record["exit_code"] = None
@@ -1220,6 +1776,7 @@ class FiveStagePipeline:
                 self._clear_stage_outputs(stage, outputs)
                 exit_code = machine()
                 record["exit_code"] = exit_code
+                self._require_inputs_unchanged(stage, inputs, input_hashes)
                 if exit_code != 0:
                     classification = (
                         "STRICT_GATE_REJECTED"
@@ -1233,7 +1790,15 @@ class FiveStagePipeline:
                         exit_code=exit_code,
                     )
                 context = dict(validator())
-                output_hashes = _hash_paths(outputs)
+                output_hashes = _hash_paths(
+                    outputs,
+                    classification="UNSAFE_OUTPUT_PATH",
+                    label=f"{stage} output",
+                )
+                self._require_inputs_unchanged(stage, inputs, input_hashes)
+                self._require_stage_config_unchanged(
+                    stage, stage_config, stage_config_revalidator
+                )
             except PipelineError:
                 raise
             except Exception as exc:
@@ -1251,6 +1816,10 @@ class FiveStagePipeline:
         else:
             try:
                 context = dict(validator())
+                self._require_inputs_unchanged(stage, inputs, input_hashes)
+                self._require_stage_config_unchanged(
+                    stage, stage_config, stage_config_revalidator
+                )
             except PipelineError:
                 raise
             except Exception as exc:
@@ -1274,20 +1843,53 @@ class FiveStagePipeline:
             candidates = list(self.config.candidate_inputs)
             command = ["internal:existing-candidate-inputs", *map(str, candidates)]
             stage_config = {"mode": "existing-inputs"}
+            stage_config_revalidator = None
             machine = lambda: 0
         else:
             flow_config = self._flow_config()
             flow_holder: dict[str, Any] = {}
             command = ["internal:HumanizeFlow.run", self.config.run_id]
-            stage_config = {
-                "mode": "humanize-flow",
-                "flow_config": flow_config.serializable(),
-            }
+
+            def current_stage_config() -> dict[str, Any]:
+                return {
+                    "mode": "humanize-flow",
+                    "flow_config": flow_config.serializable(),
+                    **self._stage1_source_provenance(),
+                }
+
+            stage_config = current_stage_config()
+            stage_config_revalidator = current_stage_config
 
             def machine() -> int:
-                flow = self.flow_factory(flow_config)
-                flow_holder["flow"] = flow
-                flow_state = flow.run()
+                # Both settings are process-global. Serialize in-process
+                # campaigns so concurrent run_ids cannot interleave restore
+                # operations while a spawn worker inherits the environment.
+                with _PYCACHE_ENVIRONMENT_LOCK:
+                    with tempfile.TemporaryDirectory(
+                        prefix="qcode-stage1-pycache-"
+                    ) as cache:
+                        previous_cache_prefix = sys.pycache_prefix
+                        cache_environment_present = (
+                            "PYTHONPYCACHEPREFIX" in os.environ
+                        )
+                        previous_cache_environment = os.environ.get(
+                            "PYTHONPYCACHEPREFIX"
+                        )
+                        sys.pycache_prefix = cache
+                        os.environ["PYTHONPYCACHEPREFIX"] = cache
+                        try:
+                            flow = self.flow_factory(flow_config)
+                            flow_holder["flow"] = flow
+                            flow_state = flow.run()
+                        finally:
+                            sys.pycache_prefix = previous_cache_prefix
+                            if cache_environment_present:
+                                assert previous_cache_environment is not None
+                                os.environ["PYTHONPYCACHEPREFIX"] = (
+                                    previous_cache_environment
+                                )
+                            else:
+                                os.environ.pop("PYTHONPYCACHEPREFIX", None)
                 if (
                     not isinstance(flow_state, Mapping)
                     or flow_state.get("status") != "search-complete"
@@ -1319,10 +1921,17 @@ class FiveStagePipeline:
         input_hashes = _hash_paths(input_paths)
         record = self.state["stages"][stage]
         cache_valid = self._machine_cache_valid(
-            stage, fingerprint=fingerprint, input_hashes=input_hashes
+            stage,
+            fingerprint=fingerprint,
+            stage_config=stage_config,
+            input_hashes=input_hashes,
         )
         if cache_valid:
             output_paths = [Path(path) for path in record["output_hashes"]]
+            self._require_inputs_unchanged(stage, input_paths, input_hashes)
+            self._require_stage_config_unchanged(
+                stage, stage_config, stage_config_revalidator
+            )
             record["resumed_machine"] = True
             record["status"] = record["machine_status"]
             self._write_state()
@@ -1344,6 +1953,7 @@ class FiveStagePipeline:
         record["started_at"] = utc_now()
         record["command"] = command
         record["command_sha256"] = _canonical_sha256(command)
+        record["stage_config"] = dict(stage_config)
         record["stage_fingerprint"] = fingerprint
         record["input_hashes"] = input_hashes
         record["exit_code"] = None
@@ -1351,6 +1961,10 @@ class FiveStagePipeline:
         self._write_state()
         try:
             exit_code = machine()
+            self._require_inputs_unchanged(stage, input_paths, input_hashes)
+            self._require_stage_config_unchanged(
+                stage, stage_config, stage_config_revalidator
+            )
             if exit_code != 0:
                 raise PipelineError(
                     "STAGE_EXIT_NONZERO",
@@ -1369,6 +1983,10 @@ class FiveStagePipeline:
                     stage=stage,
                 )
             output_hashes = _hash_paths(candidates)
+            self._require_inputs_unchanged(stage, input_paths, input_hashes)
+            self._require_stage_config_unchanged(
+                stage, stage_config, stage_config_revalidator
+            )
         except PipelineError:
             raise
         except Exception as exc:
@@ -2198,47 +2816,56 @@ class FiveStagePipeline:
         self._write_state()
         try:
             candidates = self._stage1_inputs()
-            controller_source_sha256 = _file_sha256(Path(__file__).resolve())
-            audit_source_fingerprint = self._source_fingerprint(
-                self.config.repo_dir / "evaluation",
-                self.config.repo_dir / "scripts" / "audit_candidate_pool.py",
-                self.config.repo_dir / "scripts" / "audit_direction_pool.py",
-                self.config.repo_dir / "scripts" / "screen_frontier_candidate.py",
-                self.config.repo_dir / "scripts" / "screen_frontier_xor.py",
+            controller_source = self.config.repo_dir / "humanize" / "pipeline.py"
+            known_code_registry = (
+                self.config.repo_dir / "results" / "known_code_registry.json"
             )
-            strict_source_fingerprint = self._source_fingerprint(
-                self.config.repo_dir / "evaluation",
-                self.config.repo_dir / "scripts" / "finalize_challenge.py",
+            strict_known_answer_runner = (
+                self.config.repo_dir / "tests" / "verify_known_answer_gate.py"
             )
+            # Fail before proof stages when any current proof/release source is
+            # missing, linked, or otherwise unsafe. Each live stage repeats
+            # this replay after its machine work to close the source TOCTOU.
+            self._audit_source_provenance()
+            self._strict_source_provenance()
 
             stage2_command = self._stage2_command(candidates)
+            stage2_static_config = {
+                "top": self.config.stage2_top,
+                "timeout": self.config.stage2_timeout,
+                "candidate_workers": self.config.stage2_candidate_workers,
+                "solver_workers": self.config.stage2_solver_workers,
+                "certificate_workers": self.config.certificate_workers,
+                "certificate_solver_workers": (
+                    self.config.certificate_solver_workers
+                ),
+                "certificate_timeouts": [
+                    self.config.certificate_timeout_per_logical,
+                    self.config.certificate_total_timeout,
+                    self.config.verification_timeout_per_logical,
+                    self.config.verification_total_timeout,
+                ],
+                "max_total_workers": self.config.max_total_workers,
+                "resume": self.config.resume,
+            }
+
+            def current_stage2_config() -> dict[str, Any]:
+                return {
+                    **self._audit_source_provenance(),
+                    **stage2_static_config,
+                }
+
+            stage2_config = current_stage2_config()
             stage2 = self._execute_stage(
                 "stage2_sector_audit",
                 command=stage2_command,
-                stage_config={
-                    "controller_source_sha256": controller_source_sha256,
-                    "source_fingerprint": audit_source_fingerprint,
-                    "top": self.config.stage2_top,
-                    "timeout": self.config.stage2_timeout,
-                    "candidate_workers": self.config.stage2_candidate_workers,
-                    "solver_workers": self.config.stage2_solver_workers,
-                    "certificate_workers": self.config.certificate_workers,
-                    "certificate_solver_workers": (
-                        self.config.certificate_solver_workers
-                    ),
-                    "certificate_timeouts": [
-                        self.config.certificate_timeout_per_logical,
-                        self.config.certificate_total_timeout,
-                        self.config.verification_timeout_per_logical,
-                        self.config.verification_total_timeout,
-                    ],
-                    "max_total_workers": self.config.max_total_workers,
-                    "resume": self.config.resume,
-                },
+                stage_config=stage2_config,
+                stage_config_revalidator=current_stage2_config,
                 inputs=[
                     *candidates,
                     self.config.repo_dir / "scripts" / "audit_candidate_pool.py",
                     self.config.known_answer_artifact,
+                    known_code_registry,
                 ],
                 outputs=[self.paths.stage2_ranked, self.paths.stage2_summary],
                 machine=lambda: self._run_command(
@@ -2263,6 +2890,7 @@ class FiveStagePipeline:
                     self.paths.stage2_ranked,
                     self.config.repo_dir / "scripts" / "audit_direction_pool.py",
                     self.config.known_answer_artifact,
+                    known_code_registry,
                 ]
                 stage3_machine = lambda: self._run_command(
                     "stage3_direction_audit",
@@ -2275,31 +2903,39 @@ class FiveStagePipeline:
                 stage3_inputs = [self.paths.stage2_ranked, self.paths.stage2_summary]
                 stage3_machine = lambda: self._write_skipped_stage3(stage2)
                 stage3_machine_status = "SKIPPED"
+            stage3_static_config = {
+                "routing": "audit" if has_unresolved else "skip-no-unresolved",
+                "top": self.config.stage3_top,
+                "timeout": self.config.stage3_timeout,
+                "candidate_workers": self.config.stage3_candidate_workers,
+                "direction_workers": self.config.stage3_direction_workers,
+                "exact": self.config.stage3_exact,
+                "certificate_workers": self.config.certificate_workers,
+                "certificate_solver_workers": (
+                    self.config.certificate_solver_workers
+                ),
+                "certificate_timeouts": [
+                    self.config.certificate_timeout_per_logical,
+                    self.config.certificate_total_timeout,
+                    self.config.verification_timeout_per_logical,
+                    self.config.verification_total_timeout,
+                ],
+                "max_total_workers": self.config.max_total_workers,
+                "resume": self.config.resume,
+            }
+
+            def current_stage3_config() -> dict[str, Any]:
+                return {
+                    **self._audit_source_provenance(),
+                    **stage3_static_config,
+                }
+
+            stage3_config = current_stage3_config()
             stage3 = self._execute_stage(
                 "stage3_direction_audit",
                 command=stage3_command,
-                stage_config={
-                    "controller_source_sha256": controller_source_sha256,
-                    "source_fingerprint": audit_source_fingerprint,
-                    "routing": "audit" if has_unresolved else "skip-no-unresolved",
-                    "top": self.config.stage3_top,
-                    "timeout": self.config.stage3_timeout,
-                    "candidate_workers": self.config.stage3_candidate_workers,
-                    "direction_workers": self.config.stage3_direction_workers,
-                    "exact": self.config.stage3_exact,
-                    "certificate_workers": self.config.certificate_workers,
-                    "certificate_solver_workers": (
-                        self.config.certificate_solver_workers
-                    ),
-                    "certificate_timeouts": [
-                        self.config.certificate_timeout_per_logical,
-                        self.config.certificate_total_timeout,
-                        self.config.verification_timeout_per_logical,
-                        self.config.verification_total_timeout,
-                    ],
-                    "max_total_workers": self.config.max_total_workers,
-                    "resume": self.config.resume,
-                },
+                stage_config=stage3_config,
+                stage_config_revalidator=current_stage3_config,
                 inputs=stage3_inputs,
                 outputs=[
                     self.paths.stage3_ranked,
@@ -2315,6 +2951,10 @@ class FiveStagePipeline:
                 machine_status=stage3_machine_status,
             )
 
+            controller_source_sha256 = self._source_file_sha256(
+                controller_source,
+                label="pipeline controller source",
+            )
             stage4_command = ["internal:merge-verified-certificates"]
             stage4 = self._execute_stage(
                 "stage4_certificate_merge",
@@ -2328,7 +2968,7 @@ class FiveStagePipeline:
                     self.paths.stage2_summary,
                     self.paths.stage3_summary,
                     self.config.known_answer_artifact,
-                    Path(__file__).resolve(),
+                    controller_source,
                 ],
                 outputs=[
                     self.paths.stage4_certificates,
@@ -2346,34 +2986,44 @@ class FiveStagePipeline:
             certificate_count = int(stage4["verified_certificates"])
             if certificate_count:
                 strict_command = self._strict_command()
+                stage5_static_config = {
+                    "mode": "strict",
+                    "known_answer_timeout_per_logical": (
+                        self.config.known_answer_timeout_per_logical
+                    ),
+                    "known_answer_total_timeout": (
+                        self.config.known_answer_total_timeout
+                    ),
+                    "verification_timeout_per_logical": (
+                        self.config.verification_timeout_per_logical
+                    ),
+                    "verification_total_timeout": (
+                        self.config.verification_total_timeout
+                    ),
+                    "verification_solver_workers": (
+                        self.config.certificate_solver_workers
+                    ),
+                }
+
+                def current_stage5_config() -> dict[str, Any]:
+                    return {
+                        **self._strict_source_provenance(),
+                        **stage5_static_config,
+                    }
+
+                stage5_config = current_stage5_config()
                 self._execute_stage(
                     "stage5_strict_gate",
                     command=strict_command,
-                    stage_config={
-                        "controller_source_sha256": controller_source_sha256,
-                        "mode": "strict",
-                        "source_fingerprint": strict_source_fingerprint,
-                        "known_answer_timeout_per_logical": (
-                            self.config.known_answer_timeout_per_logical
-                        ),
-                        "known_answer_total_timeout": (
-                            self.config.known_answer_total_timeout
-                        ),
-                        "verification_timeout_per_logical": (
-                            self.config.verification_timeout_per_logical
-                        ),
-                        "verification_total_timeout": (
-                            self.config.verification_total_timeout
-                        ),
-                        "verification_solver_workers": (
-                            self.config.certificate_solver_workers
-                        ),
-                    },
+                    stage_config=stage5_config,
+                    stage_config_revalidator=current_stage5_config,
                     inputs=[
                         self.paths.stage4_certificates,
                         self.config.repo_dir / "scripts" / "finalize_challenge.py",
+                        strict_known_answer_runner,
                         self.config.known_answer_artifact,
                         self.config.known_answer_trust,
+                        known_code_registry,
                     ],
                     outputs=[self.paths.stage5_gate],
                     machine=lambda: self._run_command(

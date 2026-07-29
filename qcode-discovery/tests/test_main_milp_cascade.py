@@ -36,6 +36,27 @@ def test_partial_milp_is_never_promoted_to_exact():
 
 def test_tighter_bp_upper_bound_wins_over_milp_incumbent():
     milp = _milp(10, exact=False, checked=8, optimal=7)
+    witness = {
+        "side": "Z",
+        "index": 0,
+        "weight": 10,
+        "bits": [1] * 10,
+    }
+    milp["milp_details"]["minimum_direction_witness"] = witness
+    invocation = {
+        "schema_version": 2,
+        "checkpoint_path": "/proof/working.json",
+        "resume": True,
+        "hard_timeout_per_logical": 330.0,
+    }
+    symplectic = {
+        "side": "Z",
+        "index": 0,
+        "weight": 10,
+        "bits": [1] * 10,
+        "dual_side": "X",
+        "dual_index": 0,
+    }
     milp.update({
         "fom_target": 12.0,
         "fom_rejection_cutoff": 16,
@@ -47,6 +68,10 @@ def test_tighter_bp_upper_bound_wins_over_milp_incumbent():
         "threshold_rejection_proven": True,
         "threshold_proof_distance": 10,
         "threshold_proof_source": "milp_feasible_upper_bound",
+        "threshold_proof_witness": witness,
+        "audit_evaluator_invocation": invocation,
+        "symplectic_weight_witness": symplectic,
+        "d_symplectic": 10,
     })
     result = merge_bp_milp_result(_bp(8), milp)
     assert result["d"] == 8
@@ -56,3 +81,31 @@ def test_tighter_bp_upper_bound_wins_over_milp_incumbent():
     assert result["threshold_rejection_proven"] is True
     assert result["threshold_proof_distance"] == 10
     assert result["threshold_proof_source"] == "milp_feasible_upper_bound"
+    assert result["threshold_proof_witness"] == witness
+    assert result["audit_evaluator_invocation"] == invocation
+    assert result["symplectic_weight_witness"] == symplectic
+    assert result["d_symplectic"] == 10
+    assert (
+        result["milp_details"]["minimum_direction_witness"] == witness
+    )
+
+
+def test_bp_merge_preserves_independent_milp_proof_trust():
+    bp = _bp(8)
+    bp["distance_trusted"] = False
+    milp = _milp(10, exact=False, checked=8, optimal=7)
+    milp.update(
+        {
+            "distance_trusted": True,
+            "threshold_rejection_proven": True,
+        }
+    )
+
+    trusted = merge_bp_milp_result(bp, milp)
+    assert trusted["distance_source"] == "bp_osd"
+    assert trusted["distance_trusted"] is False
+    assert trusted["threshold_proof_trusted"] is True
+
+    milp["distance_trusted"] = False
+    untrusted = merge_bp_milp_result(bp, milp)
+    assert untrusted["threshold_proof_trusted"] is False

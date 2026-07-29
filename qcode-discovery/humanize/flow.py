@@ -2,23 +2,46 @@
 
 from __future__ import annotations
 
+import copy
+import fcntl
+import hashlib
+import inspect
 import json
+import os
+import platform as platform_module
+import re
+import signal
+import shutil
+import stat
 import subprocess
 import sys
+import tempfile
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict, dataclass
+from contextlib import contextmanager
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Iterator, Protocol
 
+from .audit_state import (
+    AuditStateError,
+    is_fully_exact,
+    rebuild_audit_state,
+    retry_budget,
+    seal_audit_attempt_evidence,
+    select_retry_lane,
+)
 from .reviewer import CodexReviewer, build_review_prompt, validate_review
 from .state import (
     EliteArchive,
     RunStore,
-    append_jsonl,
+    atomic_write_bytes,
+    atomic_write_json,
+    atomic_write_jsonl,
     candidate_fom,
     code_key,
     credible_bp_candidate,
-    read_jsonl_since,
+    read_jsonl_range,
     utc_now,
 )
 
@@ -27,8 +50,44 @@ class Reviewer(Protocol):
     def review(self, prompt: str, round_dir: Path) -> dict[str, Any]: ...
 
 
-MilpEvaluator = Callable[[dict[str, Any], "FlowConfig"], dict[str, Any]]
+MilpEvaluator = Callable[..., dict[str, Any]]
 EvolutionRunner = Callable[["FlowConfig", dict[str, Any], Path], Path | None]
+
+
+ROUND_TRANSACTION_PROTOCOL_VERSION = 2
+ROUND_TRANSACTION_SCHEMA_VERSION = 2
+LEGACY_BATCH_SCHEMA_VERSION = 1
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 2
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 2
+LOCAL_EVOLUTION_DEPENDENCIES = {
+    "evaluation_evaluator": "evaluation/evaluator.py",
+    "evaluation_results": "evaluation/results.py",
+    "evaluation_structural_dedup": "evaluation/structural_dedup.py",
+    "evaluation_bb_code": "evaluation/bb_code.py",
+    "evaluation_pbb_code": "evaluation/pbb_code.py",
+    "evaluation_distance": "evaluation/distance.py",
+    "evaluation_distance_milp": "evaluation/distance_milp.py",
+    "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
+}
+EVOLUTION_INVOCATION_FIELDS = frozenset({
+    "model_names",
+    "reasoning_effort",
+    "codex_cli",
+    "max_parallel_evaluations",
+    "api_base",
+    "temperature_disabled",
+    "codex_version",
+    "codex_cwd",
+    "codex_executable_mode",
+})
+
+
+class RoundTransactionError(RuntimeError):
+    """A round cannot be replayed without risking duplicate evolution work."""
+
+
+class UnresolvedAuditError(RuntimeError):
+    """Stage 1 exhausted its rounds with winner-capable audits unresolved."""
 
 
 @dataclass(frozen=True)
@@ -52,6 +111,9 @@ class FlowConfig:
     min_improvement: float = 0.01
     candidate_file: Path | None = None
     codex_cli: bool = False
+    # Test/development-only escape hatch for evaluators that cannot emit the
+    # immutable schema-v2 checkpoint contract. Production defaults fail closed.
+    allow_debug_audit_evaluator: bool = False
     # Operational scheduling cap. The outer pipeline fingerprints and persists
     # it, so Humanize omits it from logical search identity to allow safe
     # checkpoint resume with a changed resource allocation.
@@ -62,6 +124,8 @@ class FlowConfig:
         value["repo_dir"] = str(self.repo_dir)
         value["candidate_file"] = str(self.candidate_file) if self.candidate_file else None
         value.pop("max_total_workers", None)
+        if not self.allow_debug_audit_evaluator:
+            value.pop("allow_debug_audit_evaluator", None)
         # Omit unset optional launch fields so pre-fix failed runs retain an
         # identical serialized configuration and can resume their audit.
         for name in ("evolution_config", "evolution_seed"):
@@ -79,8 +143,19 @@ class FlowConfig:
             raise ValueError("iterations_per_round must be positive")
         if self.milp_top < 0:
             raise ValueError("milp_top must be non-negative")
+        if not isinstance(self.allow_debug_audit_evaluator, bool):
+            raise ValueError("allow_debug_audit_evaluator must be boolean")
         if self.milp_early_stop < 0:
             raise ValueError("milp_early_stop must be non-negative")
+        if self.milp_top > 0:
+            for name in ("milp_timeout_per_logical", "milp_total_timeout"):
+                value = getattr(self, name)
+                if (
+                    isinstance(value, bool)
+                    or not isinstance(value, int)
+                    or value < 1
+                ):
+                    raise ValueError(f"{name} must be a positive integer")
         if (
             self.max_total_workers is not None
             and (
@@ -99,97 +174,1448 @@ class FlowConfig:
                 raise ValueError(f"{name} does not exist: {path}")
 
 
-def _latest_checkpoint(output_dir: Path) -> Path | None:
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _file_descriptor(path: Path, label: str) -> dict[str, Any]:
+    original = Path(path)
+    if original.is_symlink():
+        raise RoundTransactionError(f"{label} may not be a symlink: {original}")
+    try:
+        resolved = original.resolve(strict=True)
+    except OSError as exc:
+        raise RoundTransactionError(f"{label} is missing: {original}") from exc
+    if not resolved.is_file():
+        raise RoundTransactionError(f"{label} is not a regular file: {resolved}")
+    return {
+        "path": str(resolved),
+        "sha256": _file_sha256(resolved),
+        "bytes": resolved.stat().st_size,
+    }
+
+
+def _tree_descriptor(path: Path, label: str) -> dict[str, Any]:
+    original = Path(path)
+    if original.is_symlink() or not original.is_dir():
+        raise RoundTransactionError(f"{label} must be a regular directory: {original}")
+    resolved = original.resolve(strict=True)
+    hashes: dict[str, dict[str, Any]] = {}
+    total_bytes = 0
+    for item in sorted(resolved.rglob("*")):
+        if item.is_symlink():
+            raise RoundTransactionError(f"{label} contains a symlink: {item}")
+        if item.is_dir():
+            continue
+        if not item.is_file():
+            raise RoundTransactionError(f"{label} contains a non-file: {item}")
+        relative = item.relative_to(resolved).as_posix()
+        size = item.stat().st_size
+        hashes[relative] = {"sha256": _file_sha256(item), "bytes": size}
+        total_bytes += size
+    encoded = json.dumps(hashes, sort_keys=True, separators=(",", ":")).encode()
+    return {
+        "path": str(resolved),
+        "sha256": hashlib.sha256(encoded).hexdigest(),
+        "bytes": total_bytes,
+        "files": len(hashes),
+    }
+
+
+def _fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _quarantined_artifact_descriptor(
+    path: Path,
+    label: str,
+) -> dict[str, Any]:
+    if path.is_symlink():
+        target = os.readlink(path).encode("utf-8", errors="surrogateescape")
+        return {
+            "path": str(path.absolute()),
+            "kind": "symlink",
+            "sha256": hashlib.sha256(target).hexdigest(),
+            "bytes": len(target),
+        }
+    if path.is_dir():
+        descriptor = _tree_descriptor(path, label)
+        descriptor["kind"] = "directory"
+        return descriptor
+    descriptor = _file_descriptor(path, label)
+    descriptor["kind"] = "file"
+    return descriptor
+
+
+def _read_json_object(path: Path, label: str) -> dict[str, Any]:
+    if path.is_symlink() or not path.is_file():
+        raise RoundTransactionError(f"{label} must be a regular file: {path}")
+    try:
+        value = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RoundTransactionError(f"cannot read {label}: {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise RoundTransactionError(f"{label} must contain a JSON object: {path}")
+    return value
+
+
+def _checkpoint_descriptor(
+    output_dir: Path,
+    checkpoint: Path,
+    *,
+    expected_iteration: int | None = None,
+) -> dict[str, Any]:
+    """Validate one complete checkpoint owned by this evolution output."""
+    checkpoint_root = (output_dir / "checkpoints").resolve()
+    original = Path(checkpoint)
+    if original.is_symlink():
+        raise RoundTransactionError(f"checkpoint may not be a symlink: {original}")
+    try:
+        resolved = original.resolve(strict=True)
+    except OSError as exc:
+        raise RoundTransactionError(f"checkpoint is missing: {original}") from exc
+    if not resolved.is_dir() or resolved.parent != checkpoint_root:
+        raise RoundTransactionError(
+            f"checkpoint does not belong to this run: {resolved}"
+        )
+    prefix = "checkpoint_"
+    if not resolved.name.startswith(prefix):
+        raise RoundTransactionError(f"invalid checkpoint directory name: {resolved}")
+    try:
+        named_iteration = int(resolved.name[len(prefix):])
+    except ValueError as exc:
+        raise RoundTransactionError(
+            f"invalid checkpoint iteration in path: {resolved}"
+        ) from exc
+
+    metadata_path = resolved / "metadata.json"
+    best_path = resolved / "best_program.py"
+    best_info_path = resolved / "best_program_info.json"
+    programs_dir = resolved / "programs"
+    metadata = _read_json_object(metadata_path, "checkpoint metadata")
+    best_info = _read_json_object(best_info_path, "checkpoint best-program info")
+    if best_path.is_symlink() or not best_path.is_file() or best_path.stat().st_size < 1:
+        raise RoundTransactionError(
+            f"checkpoint best_program.py is missing or empty: {best_path}"
+        )
+    if programs_dir.is_symlink() or not programs_dir.is_dir():
+        raise RoundTransactionError(
+            f"checkpoint programs directory is missing: {programs_dir}"
+        )
+
+    iteration = metadata.get("last_iteration")
+    if isinstance(iteration, bool) or not isinstance(iteration, int) or iteration < 0:
+        raise RoundTransactionError(
+            f"checkpoint last_iteration is invalid: {metadata_path}: {iteration!r}"
+        )
+    if iteration != named_iteration:
+        raise RoundTransactionError(
+            f"checkpoint path/metadata iteration mismatch: {named_iteration} != {iteration}"
+        )
+    if expected_iteration is not None and iteration != expected_iteration:
+        raise RoundTransactionError(
+            f"checkpoint iteration mismatch: expected {expected_iteration}, got {iteration}"
+        )
+
+    archive = metadata.get("archive")
+    best_id = metadata.get("best_program_id")
+    if (
+        not isinstance(archive, list)
+        or not archive
+        or any(not isinstance(item, str) or not item for item in archive)
+        or not isinstance(best_id, str)
+        or not best_id
+    ):
+        raise RoundTransactionError(
+            f"checkpoint archive/best_program_id is incomplete: {metadata_path}"
+        )
+    if best_info.get("id") != best_id or best_info.get("current_iteration") != iteration:
+        raise RoundTransactionError(
+            f"checkpoint best-program info disagrees with metadata: {best_info_path}"
+        )
+
+    referenced = set(archive)
+    referenced.add(best_id)
+
+    def add_optional_reference(value: Any, label: str) -> None:
+        if value in (None, ""):
+            return
+        if not isinstance(value, str):
+            raise RoundTransactionError(
+                f"checkpoint {label} contains a non-string program id"
+            )
+        referenced.add(value)
+
+    islands = metadata.get("islands", [])
+    if not isinstance(islands, list) or any(
+        not isinstance(island, list) for island in islands
+    ):
+        raise RoundTransactionError("checkpoint islands metadata is invalid")
+    for island in islands:
+        for program_id in island:
+            add_optional_reference(program_id, "islands")
+    island_best = metadata.get("island_best_programs", [])
+    if not isinstance(island_best, list):
+        raise RoundTransactionError(
+            "checkpoint island_best_programs metadata is invalid"
+        )
+    for program_id in island_best:
+        add_optional_reference(program_id, "island_best_programs")
+    feature_maps = metadata.get("island_feature_maps", [])
+    if not isinstance(feature_maps, list) or any(
+        not isinstance(feature_map, dict) for feature_map in feature_maps
+    ):
+        raise RoundTransactionError(
+            "checkpoint island_feature_maps metadata is invalid"
+        )
+    for feature_map in feature_maps:
+        for program_id in feature_map.values():
+            add_optional_reference(program_id, "island_feature_maps")
+
+    program_files = sorted(programs_dir.glob("*.json"))
+    if not program_files:
+        raise RoundTransactionError(f"checkpoint contains no programs: {programs_dir}")
+    program_ids: set[str] = set()
+    best_program_code: str | None = None
+    file_hashes: dict[str, str] = {
+        "metadata.json": _file_sha256(metadata_path),
+        "best_program.py": _file_sha256(best_path),
+        "best_program_info.json": _file_sha256(best_info_path),
+    }
+    for program_path in program_files:
+        program = _read_json_object(program_path, "checkpoint program")
+        program_id = program.get("id")
+        if program_id != program_path.stem:
+            raise RoundTransactionError(
+                f"checkpoint program id/path mismatch: {program_path}"
+            )
+        code = program.get("code")
+        metrics = program.get("metrics")
+        if not isinstance(code, str) or not code:
+            raise RoundTransactionError(
+                f"checkpoint program has no non-empty code: {program_path}"
+            )
+        if not isinstance(metrics, dict):
+            raise RoundTransactionError(
+                f"checkpoint program metrics is not an object: {program_path}"
+            )
+        program_ids.add(program_id)
+        if program_id == best_id:
+            best_program_code = code
+        file_hashes[f"programs/{program_path.name}"] = _file_sha256(program_path)
+    missing = sorted(referenced - program_ids)
+    if missing:
+        raise RoundTransactionError(
+            "checkpoint is missing referenced programs: " + ", ".join(missing)
+        )
+    if best_program_code is None or best_path.read_text() != best_program_code:
+        raise RoundTransactionError(
+            "checkpoint best_program.py does not match the stored best program code"
+        )
+    checkpoint_hash = hashlib.sha256(
+        json.dumps(file_hashes, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    return {
+        "path": str(resolved),
+        "last_iteration": iteration,
+        "sha256": checkpoint_hash,
+        "programs": len(program_files),
+    }
+
+
+def _assert_checkpoint_frontier(
+    output_dir: Path,
+    base_iteration: int,
+    *,
+    allowed_iterations: frozenset[int] = frozenset(),
+) -> None:
+    """Reject checkpoint directories not bound to the durable slice frontier."""
     checkpoint_root = output_dir / "checkpoints"
+    if checkpoint_root.is_symlink():
+        raise RoundTransactionError(
+            f"checkpoint root may not be a symlink: {checkpoint_root}"
+        )
+    if not checkpoint_root.exists():
+        return
     if not checkpoint_root.is_dir():
-        return None
-
-    def number(path: Path) -> int:
+        raise RoundTransactionError(
+            f"checkpoint root is not a directory: {checkpoint_root}"
+        )
+    for checkpoint in checkpoint_root.iterdir():
+        if not checkpoint.name.startswith("checkpoint_"):
+            continue
+        suffix = checkpoint.name[len("checkpoint_"):]
         try:
-            return int(path.name.rsplit("_", 1)[-1])
-        except ValueError:
-            return -1
+            iteration = int(suffix)
+        except ValueError as exc:
+            raise RoundTransactionError(
+                f"checkpoint frontier contains an invalid entry: {checkpoint}"
+            ) from exc
+        if checkpoint.name != f"checkpoint_{iteration}":
+            raise RoundTransactionError(
+                f"checkpoint frontier contains a non-canonical entry: {checkpoint}"
+            )
+        if iteration <= base_iteration:
+            continue
+        if checkpoint.is_symlink():
+            raise RoundTransactionError(
+                f"checkpoint frontier contains a symlink: {checkpoint}"
+            )
+        if iteration not in allowed_iterations:
+            raise RoundTransactionError(
+                "checkpoint frontier contains an unbound checkpoint newer than "
+                f"the durable base: {checkpoint}"
+            )
 
-    checkpoints = [path for path in checkpoint_root.glob("checkpoint_*") if path.is_dir()]
-    return max(checkpoints, key=number) if checkpoints else None
+
+def _completion_marker_path(round_dir: Path) -> Path:
+    return round_dir / "openevolve-completed.json"
 
 
-def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -> Path | None:
-    """Run or resume a bounded OpenEvolve slice for one RLCR round."""
+def _slice_witness_path(round_dir: Path) -> Path:
+    return round_dir / "openevolve-slice-witness.json"
+
+
+def _round_lifecycle_lock_path(round_dir: Path) -> Path:
+    return round_dir / "openevolve-lifecycle.lock"
+
+
+@dataclass(frozen=True)
+class _RoundLifecycleLease:
+    fd: int
+    path: Path
+
+
+def _validate_round_lifecycle_inode(fd: int, path: Path) -> None:
+    try:
+        descriptor_stat = os.fstat(fd)
+        path_stat = os.stat(path, follow_symlinks=False)
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"cannot validate OpenEvolve lifecycle lease: {path}: {exc}"
+        ) from exc
+    if not stat.S_ISREG(descriptor_stat.st_mode) or not stat.S_ISREG(
+        path_stat.st_mode
+    ):
+        raise RoundTransactionError(
+            f"OpenEvolve lifecycle lease must be a regular file: {path}"
+        )
+    if (descriptor_stat.st_dev, descriptor_stat.st_ino) != (
+        path_stat.st_dev,
+        path_stat.st_ino,
+    ):
+        raise RoundTransactionError(
+            f"OpenEvolve lifecycle lease path was replaced: {path}"
+        )
+
+
+@contextmanager
+def _acquire_round_lifecycle_lease(
+    round_dir: Path,
+) -> Iterator[_RoundLifecycleLease]:
+    """Hold one fixed round lease across recovery and the whole child tree."""
+    original_round = round_dir.absolute()
+    try:
+        resolved_round = round_dir.resolve(strict=True)
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"round directory is missing for lifecycle lease: {round_dir}"
+        ) from exc
+    if resolved_round != original_round or not resolved_round.is_dir():
+        raise RoundTransactionError(
+            f"round directory must be canonical and may not use symlinks: {round_dir}"
+        )
+    path = _round_lifecycle_lock_path(original_round).absolute()
+    if path.is_symlink():
+        raise RoundTransactionError(
+            f"OpenEvolve lifecycle lease may not be a symlink: {path}"
+        )
+    flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_CLOEXEC", 0)
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RoundTransactionError("O_NOFOLLOW is required for lifecycle leases")
+    flags |= nofollow
+    try:
+        fd = os.open(path, flags, 0o600)
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"cannot open OpenEvolve lifecycle lease: {path}: {exc}"
+        ) from exc
+    try:
+        _validate_round_lifecycle_inode(fd, path)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        _validate_round_lifecycle_inode(fd, path)
+        yield _RoundLifecycleLease(fd=fd, path=path)
+    finally:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
+
+
+def _process_group_exists(process_group: int) -> bool:
+    try:
+        os.killpg(process_group, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _terminate_process_group(
+    process: subprocess.Popen,
+    *,
+    grace_seconds: float = 2.0,
+) -> None:
+    """Terminate the launcher and every process left in its private group."""
+    process_group = process.pid
+    try:
+        os.killpg(process_group, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    try:
+        process.wait(timeout=grace_seconds)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process_group, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait()
+
+    deadline = time.monotonic() + grace_seconds
+    while _process_group_exists(process_group) and time.monotonic() < deadline:
+        time.sleep(0.05)
+    if _process_group_exists(process_group):
+        try:
+            os.killpg(process_group, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
+def _wait_for_managed_process(
+    process: subprocess.Popen,
+    command: list[str],
+) -> None:
+    try:
+        return_code = process.wait()
+    except BaseException:
+        _terminate_process_group(process)
+        raise
+    _terminate_process_group(process)
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, command)
+
+
+def _expected_evolution_config(config: FlowConfig) -> Path:
+    return Path(os.path.abspath(
+        config.evolution_config
+        or config.repo_dir / "evolve" / "config.yaml"
+    ))
+
+
+def _expected_evolution_seed(config: FlowConfig) -> Path:
+    return Path(os.path.abspath(
+        config.evolution_seed
+        or config.repo_dir / "evolve" / "seed_solution.py"
+    ))
+
+
+def _expected_evolution_launcher(config: FlowConfig) -> Path:
+    return Path(os.path.abspath(config.repo_dir / "evolve" / "run_evolution.py"))
+
+
+def _expected_evolution_evaluator(config: FlowConfig) -> Path:
+    return Path(
+        os.path.abspath(config.repo_dir / "evolve" / "openevolve_evaluator.py")
+    )
+
+
+def _expected_evolution_backend(config: FlowConfig) -> Path:
+    return Path(os.path.abspath(config.repo_dir / "evolve" / "codex_cli_llm.py"))
+
+
+def _configured_evolution_workers(config_path: Path) -> int:
+    try:
+        lines = config_path.read_text().splitlines()
+    except OSError as exc:
+        raise RoundTransactionError(
+            f"cannot read evolution config worker budget: {config_path}: {exc}"
+        ) from exc
+    evaluator_indent: int | None = None
+    configured_values: list[int] = []
+    for raw_line in lines:
+        content = raw_line.split("#", 1)[0].rstrip()
+        if not content:
+            continue
+        indent = len(content) - len(content.lstrip())
+        stripped = content.strip()
+        if evaluator_indent is None:
+            if stripped == "evaluator:":
+                evaluator_indent = indent
+            continue
+        if indent <= evaluator_indent:
+            evaluator_indent = None
+            if stripped == "evaluator:":
+                evaluator_indent = indent
+            continue
+        matched = re.fullmatch(
+            r"parallel_evaluations:\s*(?:[\"']([0-9]+)[\"']|([0-9]+))",
+            stripped,
+        )
+        if matched:
+            configured_values.append(
+                int(matched.group(1) or matched.group(2))
+            )
+    configured = (
+        configured_values[0] if len(configured_values) == 1 else None
+    )
+    if (
+        isinstance(configured, bool)
+        or not isinstance(configured, int)
+        or configured < 1
+    ):
+        raise RoundTransactionError(
+            "evolution config evaluator.parallel_evaluations must be "
+            "a positive integer"
+        )
+    return configured
+
+
+def _resolve_native_codex_path(requested_bin: str) -> Path:
+    launcher = shutil.which(requested_bin)
+    if launcher is None:
+        raise RoundTransactionError(
+            f"Codex CLI executable is unavailable: {requested_bin}"
+        )
+    launcher_path = Path(launcher).resolve(strict=True)
+    with launcher_path.open("rb") as stream:
+        magic = stream.read(4)
+    if magic in (b"\x7fELF", b"MZ\x90\x00"):
+        return launcher_path
+    if launcher_path.name != "codex.js" or launcher_path.parent.name != "bin":
+        raise RoundTransactionError(
+            "managed QCODE_CODEX_BIN must be the official codex.js launcher "
+            "or a native Codex executable"
+        )
+    target = {
+        ("linux", "x86_64"): (
+            "@openai/codex-linux-x64",
+            "x86_64-unknown-linux-musl",
+            "codex",
+        ),
+        ("linux", "aarch64"): (
+            "@openai/codex-linux-arm64",
+            "aarch64-unknown-linux-musl",
+            "codex",
+        ),
+        ("darwin", "x86_64"): (
+            "@openai/codex-darwin-x64",
+            "x86_64-apple-darwin",
+            "codex",
+        ),
+        ("darwin", "arm64"): (
+            "@openai/codex-darwin-arm64",
+            "aarch64-apple-darwin",
+            "codex",
+        ),
+        ("windows", "amd64"): (
+            "@openai/codex-win32-x64",
+            "x86_64-pc-windows-msvc",
+            "codex.exe",
+        ),
+        ("windows", "arm64"): (
+            "@openai/codex-win32-arm64",
+            "aarch64-pc-windows-msvc",
+            "codex.exe",
+        ),
+    }.get(
+        (
+            platform_module.system().lower(),
+            platform_module.machine().lower(),
+        )
+    )
+    if target is None:
+        raise RoundTransactionError(
+            "unsupported managed Codex platform: "
+            f"{platform_module.system().lower()}/"
+            f"{platform_module.machine().lower()}"
+        )
+    package_name, target_triple, executable_name = target
+    package_root = launcher_path.parent.parent
+    for candidate in (
+        package_root
+        / "node_modules"
+        / Path(*package_name.split("/"))
+        / "vendor"
+        / target_triple
+        / "bin"
+        / executable_name,
+        package_root / "vendor" / target_triple / "bin" / executable_name,
+    ):
+        try:
+            resolved = candidate.resolve(strict=True)
+        except OSError:
+            continue
+        if resolved.is_file():
+            return resolved
+    raise RoundTransactionError(
+        "cannot resolve the official Codex launcher to its native executable"
+    )
+
+
+def _codex_version(executable: Path) -> str:
+    try:
+        completed = subprocess.run(
+            [str(executable), "--version"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise RoundTransactionError(
+            "cannot identify the Codex CLI version"
+        ) from exc
+    version = completed.stdout.strip()
+    if not version or len(version) > 500:
+        raise RoundTransactionError(
+            "Codex CLI returned an invalid version identity"
+        )
+    return version
+
+
+def _fresh_codex_binding(
+    config: FlowConfig,
+) -> tuple[dict[str, Any], str, str]:
+    executable = _resolve_native_codex_path(
+        os.environ.get("QCODE_CODEX_BIN", "codex")
+    )
+    if not executable.is_file() or not os.access(executable, os.X_OK):
+        raise RoundTransactionError(
+            f"Codex CLI native binary is not executable: {executable}"
+        )
+    identity = _file_descriptor(
+        executable, "Codex CLI native executable"
+    )
+    identity["mode"] = stat.S_IMODE(executable.stat().st_mode)
+    cwd = str(config.repo_dir.resolve(strict=True))
+    return identity, _codex_version(executable), cwd
+
+
+def _resolved_api_base(config: FlowConfig) -> str:
+    if config.api_base:
+        return config.api_base
+    for name in ("OPENAI_API_BASE", "LITELLM_API_BASE"):
+        value = os.environ.get(name)
+        if value:
+            return value
+    return "http://localhost:4000/v1"
+
+
+def _fresh_invocation_binding(
+    config: FlowConfig,
+    *,
+    codex_identity: dict[str, Any] | None,
+    codex_version: str | None,
+    codex_cwd: str | None,
+) -> dict[str, Any]:
+    configured_workers = _configured_evolution_workers(
+        _expected_evolution_config(config)
+    )
+    worker_cap = config.max_total_workers
+    effective_workers = (
+        configured_workers
+        if worker_cap is None
+        else min(configured_workers, worker_cap)
+    )
+    return {
+        "model_names": [config.model],
+        "reasoning_effort": config.reasoning_effort,
+        "codex_cli": config.codex_cli,
+        "max_parallel_evaluations": effective_workers,
+        "api_base": _resolved_api_base(config),
+        "temperature_disabled": True,
+        "codex_version": codex_version,
+        "codex_cwd": codex_cwd,
+        "codex_executable_mode": (
+            None if codex_identity is None else codex_identity["mode"]
+        ),
+    }
+
+
+def _evolution_launch_binding(
+    config: FlowConfig,
+    *,
+    context_path: Path,
+    codex_executable: dict[str, Any] | None = None,
+) -> dict[str, dict[str, Any]]:
+    binding = {
+        "config": _file_descriptor(
+            _expected_evolution_config(config), "evolution config"
+        ),
+        "seed": _file_descriptor(
+            _expected_evolution_seed(config), "evolution seed"
+        ),
+        "launcher": _file_descriptor(
+            _expected_evolution_launcher(config), "evolution launcher"
+        ),
+        "evaluator": _file_descriptor(
+            _expected_evolution_evaluator(config), "evolution evaluator"
+        ),
+        "context": _file_descriptor(
+            context_path, "evolution humanize context"
+        ),
+    }
+    for name, relative_path in LOCAL_EVOLUTION_DEPENDENCIES.items():
+        binding[name] = _file_descriptor(
+            config.repo_dir / relative_path,
+            f"evolution evaluator dependency {name}",
+        )
+    if config.codex_cli:
+        if codex_executable is None:
+            raise RoundTransactionError(
+                "Codex evolution launch has no frozen executable identity"
+            )
+        binding["backend"] = _file_descriptor(
+            _expected_evolution_backend(config), "evolution model backend"
+        )
+        observed = _file_descriptor(
+            Path(str(codex_executable.get("path", ""))),
+            "Codex CLI native executable",
+        )
+        observed["mode"] = stat.S_IMODE(Path(observed["path"]).stat().st_mode)
+        if observed != codex_executable:
+            raise RoundTransactionError(
+                "Codex CLI native executable changed after transaction prepare"
+            )
+        binding["codex_executable"] = dict(codex_executable)
+    return binding
+
+
+def _validate_invocation_binding(
+    config: FlowConfig,
+    invocation: Any,
+    launch_binding: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    if not isinstance(invocation, dict) or set(invocation) != set(
+        EVOLUTION_INVOCATION_FIELDS
+    ):
+        raise RoundTransactionError(
+            "evolution invocation binding fields are incomplete"
+        )
+    if invocation["model_names"] != [config.model]:
+        raise RoundTransactionError("evolution model binding changed")
+    if invocation["reasoning_effort"] != config.reasoning_effort:
+        raise RoundTransactionError("evolution reasoning binding changed")
+    if invocation["codex_cli"] is not config.codex_cli:
+        raise RoundTransactionError("evolution backend selection changed")
+    workers = invocation["max_parallel_evaluations"]
+    configured_workers = _configured_evolution_workers(
+        Path(launch_binding["config"]["path"])
+    )
+    expected_workers = (
+        configured_workers
+        if config.max_total_workers is None
+        else min(configured_workers, config.max_total_workers)
+    )
+    if (
+        isinstance(workers, bool)
+        or not isinstance(workers, int)
+        or workers != expected_workers
+    ):
+        raise RoundTransactionError(
+            "evolution worker binding does not match the unified worker budget"
+        )
+    api_base = invocation["api_base"]
+    if not isinstance(api_base, str) or not api_base:
+        raise RoundTransactionError("evolution API base binding is invalid")
+    if config.api_base is not None and api_base != config.api_base:
+        raise RoundTransactionError("evolution API base binding changed")
+    if invocation["temperature_disabled"] is not True:
+        raise RoundTransactionError(
+            "managed evolution must freeze temperature-disabled mode"
+        )
+
+    codex_fields = (
+        invocation["codex_version"],
+        invocation["codex_cwd"],
+        invocation["codex_executable_mode"],
+    )
+    if config.codex_cli:
+        if set(("backend", "codex_executable")) - set(launch_binding):
+            raise RoundTransactionError("Codex launch binding is incomplete")
+        executable = launch_binding["codex_executable"]
+        path = Path(str(executable.get("path", "")))
+        observed = _file_descriptor(path, "Codex CLI native executable")
+        observed["mode"] = stat.S_IMODE(path.stat().st_mode)
+        if observed != executable:
+            raise RoundTransactionError(
+                "Codex CLI native executable changed after transaction prepare"
+            )
+        if (
+            invocation["codex_executable_mode"] != executable["mode"]
+            or invocation["codex_cwd"]
+            != str(config.repo_dir.resolve(strict=True))
+            or not isinstance(invocation["codex_version"], str)
+            or not invocation["codex_version"]
+            or _codex_version(path) != invocation["codex_version"]
+        ):
+            raise RoundTransactionError(
+                "Codex execution identity changed after transaction prepare"
+            )
+    elif any(value is not None for value in codex_fields):
+        raise RoundTransactionError(
+            "non-Codex invocation contains Codex execution fields"
+        )
+    return dict(invocation)
+
+
+def _freeze_round_context(
+    config: FlowConfig,
+    state: dict[str, Any],
+    round_dir: Path,
+) -> Path:
+    context_path = Path(os.path.abspath(round_dir / "search-context.md"))
+    if context_path.is_symlink() or context_path.exists():
+        raise RoundTransactionError(
+            f"refusing to overwrite an unbound evolution context: {context_path}"
+        )
+    memory_path = (
+        config.repo_dir
+        / "results"
+        / "humanize"
+        / config.run_id
+        / "bitlesson.md"
+    )
+    context_parts = [memory_path.read_text()] if memory_path.is_file() else []
+    previous_number = state.get("current_round")
+    if (
+        not isinstance(previous_number, bool)
+        and isinstance(previous_number, int)
+        and previous_number > 0
+    ):
+        previous_review = (
+            round_dir.parent
+            / f"round-{previous_number:03d}"
+            / "review.json"
+        )
+        if previous_review.is_file():
+            review = _read_json_object(previous_review, "previous review")
+            focus = review.get("recommended_focus", [])
+            if focus:
+                if not isinstance(focus, list):
+                    raise RoundTransactionError(
+                        "previous reviewer focus must be a list"
+                    )
+                context_parts.append(
+                    "Previous independent reviewer focus:\n- "
+                    + "\n- ".join(map(str, focus))
+                )
+    payload = ("\n\n".join(context_parts) + "\n").encode("utf-8")
+    identity = atomic_write_bytes(context_path, payload)
+    observed = _file_descriptor(context_path, "evolution humanize context")
+    if (
+        observed["sha256"] != identity["sha256"]
+        or observed["bytes"] != identity["bytes"]
+    ):
+        raise RoundTransactionError(
+            "frozen evolution context identity is inconsistent"
+        )
+    return context_path
+
+
+def _quarantine_orphan_round_context(round_dir: Path) -> Path | None:
+    """Preserve a context left by a crash before manifest publication."""
+    context_path = Path(os.path.abspath(round_dir / "search-context.md"))
+    if not context_path.exists() and not context_path.is_symlink():
+        return None
+    if context_path.is_symlink() or not context_path.is_file():
+        raise RoundTransactionError(
+            f"orphan evolution context is not a regular file: {context_path}"
+        )
+    payload = context_path.read_bytes()
+    digest = hashlib.sha256(payload).hexdigest()
+    index = 1
+    while True:
+        destination = round_dir / (
+            f"orphan-search-context-{digest[:16]}-{index:03d}.md"
+        )
+        if not destination.exists() and not destination.is_symlink():
+            break
+        index += 1
+    context_path.replace(destination)
+    _fsync_directory(round_dir)
+    descriptor = _file_descriptor(
+        destination, "orphan evolution context archive"
+    )
+    if (
+        descriptor["sha256"] != digest
+        or descriptor["bytes"] != len(payload)
+    ):
+        raise RoundTransactionError(
+            "orphan evolution context archive changed during quarantine"
+        )
+    return destination
+
+
+def _fresh_evolution_bindings(
+    config: FlowConfig,
+    state: dict[str, Any],
+    round_dir: Path,
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    context_path = _freeze_round_context(config, state, round_dir)
+    codex_identity: dict[str, Any] | None = None
+    version: str | None = None
+    cwd: str | None = None
+    if config.codex_cli:
+        codex_identity, version, cwd = _fresh_codex_binding(config)
+    launch = _evolution_launch_binding(
+        config,
+        context_path=context_path,
+        codex_executable=codex_identity,
+    )
+    invocation = _fresh_invocation_binding(
+        config,
+        codex_identity=codex_identity,
+        codex_version=version,
+        codex_cwd=cwd,
+    )
+    _validate_invocation_binding(config, invocation, launch)
+    return launch, invocation
+
+
+def _slice_iterations_sha256(start_iteration: int, count: int) -> str:
+    iterations = list(range(start_iteration, start_iteration + count))
+    encoded = json.dumps(iterations, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _validate_slice_witness(
+    witness_path: Path,
+    config: FlowConfig,
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    launch_binding: dict[str, dict[str, Any]],
+    invocation_binding: dict[str, Any],
+) -> dict[str, Any]:
+    witness = _read_json_object(witness_path, "OpenEvolve slice witness")
+    binding = launch_binding
+    invocation = _validate_invocation_binding(
+        config, invocation_binding, binding
+    )
+    base_iteration = (
+        0 if base_checkpoint is None else int(base_checkpoint["last_iteration"])
+    )
+    start_iteration = base_iteration + 1
+    count = config.iterations_per_round
+    end_iteration = base_iteration + count
+    expected: dict[str, Any] = {
+        "schema_version": EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+        "status": "completed",
+        "output_dir": str(
+            (
+                config.repo_dir
+                / "results"
+                / "evolution"
+                / f"humanize_{config.run_id}"
+            ).resolve()
+        ),
+        "resume_checkpoint": (
+            None if base_checkpoint is None else base_checkpoint["path"]
+        ),
+        "base_last_iteration": base_iteration,
+        "iterations_requested": count,
+        "slice_start_iteration": start_iteration,
+        "slice_end_iteration": end_iteration,
+        "slice_iteration_count": count,
+        "slice_iterations_sha256": _slice_iterations_sha256(
+            start_iteration, count
+        ),
+        "result_checkpoint": result_checkpoint["path"],
+        "result_last_iteration": result_checkpoint["last_iteration"],
+        "result_checkpoint_sha256": result_checkpoint["sha256"],
+        "result_checkpoint_programs": result_checkpoint["programs"],
+    }
+    for name, descriptor in binding.items():
+        for field in ("path", "sha256", "bytes"):
+            expected[f"{name}_{field}"] = descriptor[field]
+    expected.update(invocation)
+    for key, value in expected.items():
+        if witness.get(key) != value:
+            raise RoundTransactionError(
+                f"OpenEvolve slice witness mismatch for {key}: "
+                f"expected {value!r}, got {witness.get(key)!r}"
+            )
+
+    expected_iterations = list(range(start_iteration, end_iteration + 1))
+    attempts = witness.get("submission_attempts")
+    if not isinstance(attempts, list) or len(attempts) != count:
+        raise RoundTransactionError(
+            "OpenEvolve slice witness has incomplete submission attempts"
+        )
+    if [attempt.get("iteration") for attempt in attempts if isinstance(attempt, dict)] != expected_iterations:
+        raise RoundTransactionError(
+            "OpenEvolve slice witness submission iterations are not exact"
+        )
+    for attempt in attempts:
+        if (
+            not isinstance(attempt, dict)
+            or isinstance(attempt.get("island_id"), bool)
+            or not isinstance(attempt.get("island_id"), int)
+            or attempt.get("result") != "future"
+        ):
+            raise RoundTransactionError(
+                "OpenEvolve slice witness contains an invalid submission"
+            )
+
+    outcomes = witness.get("outcomes")
+    if not isinstance(outcomes, list) or len(outcomes) != count:
+        raise RoundTransactionError(
+            "OpenEvolve slice witness has incomplete future outcomes"
+        )
+    if [outcome.get("iteration") for outcome in outcomes if isinstance(outcome, dict)] != expected_iterations:
+        raise RoundTransactionError(
+            "OpenEvolve slice witness outcome iterations are not exact"
+        )
+    successful = 0
+    worker_errors = 0
+    witnessed_program_ids: set[str] = set()
+    for outcome in outcomes:
+        if not isinstance(outcome, dict):
+            raise RoundTransactionError(
+                "OpenEvolve slice witness outcome is not an object"
+            )
+        iteration = int(outcome["iteration"])
+        status = outcome.get("status")
+        if status == "worker_error":
+            worker_errors += 1
+            digest = outcome.get("error_sha256")
+            size = outcome.get("error_bytes")
+            if (
+                not isinstance(digest, str)
+                or len(digest) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in digest
+                )
+                or isinstance(size, bool)
+                or not isinstance(size, int)
+                or size < 1
+            ):
+                raise RoundTransactionError(
+                    "OpenEvolve slice witness worker error identity is invalid"
+                )
+        elif status == "program_added":
+            successful += 1
+            program_id = outcome.get("program_id")
+            program_sha256 = outcome.get("program_sha256")
+            program_bytes = outcome.get("program_bytes")
+            if (
+                not isinstance(program_id, str)
+                or not program_id
+                or program_id in witnessed_program_ids
+                or not isinstance(program_sha256, str)
+                or len(program_sha256) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in program_sha256
+                )
+                or isinstance(program_bytes, bool)
+                or not isinstance(program_bytes, int)
+                or program_bytes < 1
+            ):
+                raise RoundTransactionError(
+                    "OpenEvolve slice witness program identity is invalid"
+                )
+            witnessed_program_ids.add(program_id)
+        else:
+            raise RoundTransactionError(
+                f"OpenEvolve slice witness has invalid outcome status: {status!r}"
+            )
+    if successful < 1:
+        raise RoundTransactionError(
+            "OpenEvolve slice witness has no successful program"
+        )
+    if (
+        witness.get("successful_evaluations") != successful
+        or witness.get("worker_errors") != worker_errors
+        or successful + worker_errors != count
+    ):
+        raise RoundTransactionError(
+            "OpenEvolve slice witness outcome counts are inconsistent"
+        )
+
+    saves = witness.get("checkpoint_saves")
+    if not isinstance(saves, list) or not any(
+        isinstance(save, dict)
+        and save.get("iteration") == end_iteration
+        and save.get("accounting_complete") is True
+        and save.get("checkpoint_sha256") == result_checkpoint["sha256"]
+        and save.get("checkpoint_programs") == result_checkpoint["programs"]
+        for save in saves
+    ):
+        raise RoundTransactionError(
+            "OpenEvolve slice witness has no post-accounting final checkpoint save"
+        )
+
+    if witness.get("openevolve_version") != "0.2.26":
+        raise RoundTransactionError("unsupported OpenEvolve witness version")
+    for name in (
+        "openevolve_controller",
+        "openevolve_process_parallel",
+        "openevolve_database",
+        "openevolve_api",
+    ):
+        source_path = witness.get(f"{name}_path")
+        if not isinstance(source_path, str):
+            raise RoundTransactionError(
+                f"OpenEvolve slice witness is missing {name} source path"
+            )
+        observed = _file_descriptor(Path(source_path), f"{name} source")
+        for field in ("path", "sha256", "bytes"):
+            if witness.get(f"{name}_{field}") != observed[field]:
+                raise RoundTransactionError(
+                    f"OpenEvolve slice witness source mismatch for {name}_{field}"
+                )
+    if not isinstance(witness.get("completed_at"), str):
+        raise RoundTransactionError(
+            "OpenEvolve slice witness has no completion timestamp"
+        )
+    allowed_fields = set(expected) | {
+        "submission_attempts",
+        "outcomes",
+        "successful_evaluations",
+        "worker_errors",
+        "checkpoint_saves",
+        "openevolve_version",
+        "completed_at",
+    }
+    for name in (
+        "openevolve_controller",
+        "openevolve_process_parallel",
+        "openevolve_database",
+        "openevolve_api",
+    ):
+        allowed_fields.update(
+            f"{name}_{field}" for field in ("path", "sha256", "bytes")
+        )
+    if set(witness) != allowed_fields:
+        raise RoundTransactionError(
+            "OpenEvolve slice witness fields are not exact"
+        )
+    witness["sha256"] = _file_sha256(witness_path)
+    witness["bytes"] = witness_path.stat().st_size
+    return witness
+
+
+def _completion_marker_expected(
+    config: FlowConfig,
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    launch_binding: dict[str, dict[str, Any]],
+    invocation_binding: dict[str, Any],
+    slice_witness: dict[str, Any],
+) -> dict[str, Any]:
+    base_iteration = (
+        0 if base_checkpoint is None else int(base_checkpoint["last_iteration"])
+    )
+    expected: dict[str, Any] = {
+        "schema_version": EVOLUTION_COMPLETION_SCHEMA_VERSION,
+        "status": "completed",
+        "output_dir": str(
+            (
+                config.repo_dir
+                / "results"
+                / "evolution"
+                / f"humanize_{config.run_id}"
+            ).resolve()
+        ),
+        "resume_checkpoint": (
+            None if base_checkpoint is None else base_checkpoint["path"]
+        ),
+        "base_last_iteration": base_iteration,
+        "iterations_requested": config.iterations_per_round,
+        "result_checkpoint": result_checkpoint["path"],
+        "result_last_iteration": result_checkpoint["last_iteration"],
+        "result_checkpoint_sha256": result_checkpoint["sha256"],
+        "result_checkpoint_programs": result_checkpoint["programs"],
+        "slice_witness_path": slice_witness["path"],
+        "slice_witness_sha256": slice_witness["sha256"],
+        "slice_witness_bytes": slice_witness["bytes"],
+    }
+    for name, descriptor in launch_binding.items():
+        for field in ("path", "sha256", "bytes"):
+            expected[f"{name}_{field}"] = descriptor[field]
+    expected.update(invocation_binding)
+    return expected
+
+
+def _validate_completion_marker(
+    marker_path: Path,
+    config: FlowConfig,
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    launch_binding: dict[str, dict[str, Any]],
+    invocation_binding: dict[str, Any],
+    slice_witness: dict[str, Any],
+) -> dict[str, Any]:
+    marker = _read_json_object(marker_path, "OpenEvolve completion marker")
+    witness_with_path = dict(slice_witness)
+    witness_with_path["path"] = str(_slice_witness_path(marker_path.parent).resolve())
+    expected = _completion_marker_expected(
+        config,
+        base_checkpoint,
+        result_checkpoint,
+        launch_binding,
+        _validate_invocation_binding(
+            config, invocation_binding, launch_binding
+        ),
+        witness_with_path,
+    )
+    for key, value in expected.items():
+        if marker.get(key) != value:
+            raise RoundTransactionError(
+                f"OpenEvolve completion marker mismatch for {key}: "
+                f"expected {value!r}, got {marker.get(key)!r}"
+            )
+    if (
+        set(marker) != set(expected) | {"completed_at"}
+        or not isinstance(marker.get("completed_at"), str)
+    ):
+        raise RoundTransactionError(
+            "OpenEvolve completion marker fields are not exact"
+        )
+    marker["sha256"] = _file_sha256(marker_path)
+    marker["bytes"] = marker_path.stat().st_size
+    return marker
+
+
+def _revalidate_frozen_bindings(
+    config: FlowConfig,
+    launch: Any,
+    invocation: Any,
+    round_dir: Path,
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    if not isinstance(launch, dict):
+        raise RoundTransactionError(
+            "managed OpenEvolve launch is missing its frozen launch binding"
+        )
+    expected_context = str(
+        Path(os.path.abspath(round_dir / "search-context.md"))
+    )
+    context = launch.get("context")
+    if (
+        not isinstance(context, dict)
+        or context.get("path") != expected_context
+    ):
+        raise RoundTransactionError(
+            "managed OpenEvolve launch has the wrong frozen context"
+        )
+    codex_executable = (
+        launch.get("codex_executable") if config.codex_cli else None
+    )
+    observed = _evolution_launch_binding(
+        config,
+        context_path=Path(expected_context),
+        codex_executable=codex_executable,
+    )
+    if observed != launch:
+        raise RoundTransactionError(
+            "evolution launch inputs changed after transaction prepare"
+        )
+    validated_invocation = _validate_invocation_binding(
+        config, invocation, observed
+    )
+    return observed, validated_invocation
+
+
+def _frozen_bindings_from_state(
+    config: FlowConfig,
+    state: dict[str, Any],
+    round_dir: Path,
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    return _revalidate_frozen_bindings(
+        config,
+        state.get("_evolution_launch_binding"),
+        state.get("_evolution_invocation_binding"),
+        round_dir,
+    )
+
+
+def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -> Path:
+    """Run one exact OpenEvolve increment and require a durable success marker."""
     evolution_name = f"humanize_{config.run_id}"
     output_dir = config.repo_dir / "results" / "evolution" / evolution_name
-    # OpenEvolve interprets ``--iterations`` as the number of *additional*
-    # iterations to execute, including when resuming from a checkpoint. Passing
-    # a cumulative round target here would grow the slices as N, 2N, 3N, ...
-    # instead of executing exactly N iterations per RLCR round.
     iterations_this_round = config.iterations_per_round
-    memory_path = config.repo_dir / "results" / "humanize" / config.run_id / "bitlesson.md"
-    context_parts = [memory_path.read_text()] if memory_path.is_file() else []
-    previous_review = round_dir.parent / f"round-{int(state["current_round"]):03d}" / "review.json"
-    if previous_review.is_file():
-        review = json.loads(previous_review.read_text())
-        focus = review.get("recommended_focus", [])
-        if focus:
-            context_parts.append("Previous independent reviewer focus:\n- " + "\n- ".join(map(str, focus)))
-    context_path = round_dir / "search-context.md"
-    context_path.write_text("\n\n".join(context_parts) + "\n")
+    if "_evolution_base_checkpoint" not in state:
+        raise RoundTransactionError(
+            "managed OpenEvolve launch is missing its frozen base checkpoint"
+        )
+    frozen_base = state["_evolution_base_checkpoint"]
+    if frozen_base is None:
+        expected_base_path = None
+    elif isinstance(frozen_base, dict) and isinstance(
+        frozen_base.get("path"), str
+    ):
+        expected_base_path = frozen_base["path"]
+    else:
+        raise RoundTransactionError(
+            "managed OpenEvolve frozen base checkpoint is invalid"
+        )
+    if state.get("last_checkpoint") != expected_base_path:
+        raise RoundTransactionError(
+            "managed OpenEvolve state disagrees with its frozen base checkpoint"
+        )
+    if frozen_base is None:
+        base_checkpoint = None
+    else:
+        base_checkpoint = _checkpoint_descriptor(
+            output_dir,
+            Path(frozen_base["path"]),
+            expected_iteration=frozen_base.get("last_iteration"),
+        )
+        if base_checkpoint != frozen_base:
+            raise RoundTransactionError(
+                "managed OpenEvolve base checkpoint changed after prepare"
+            )
+    base_iteration = (
+        0 if base_checkpoint is None else int(base_checkpoint["last_iteration"])
+    )
+    expected_iteration = base_iteration + iterations_this_round
+    marker_path = _completion_marker_path(round_dir)
+    witness_path = _slice_witness_path(round_dir)
+    for artifact in (marker_path, witness_path):
+        if artifact.is_symlink() or artifact.exists():
+            raise RoundTransactionError(
+                f"refusing to overwrite an existing completion artifact: {artifact}"
+            )
+
+    lease_fd = state.get("_round_lifecycle_lease_fd")
+    lease_path_value = state.get("_round_lifecycle_lease_path")
+    expected_lease_path = _round_lifecycle_lock_path(round_dir.absolute()).absolute()
+    if (
+        isinstance(lease_fd, bool)
+        or not isinstance(lease_fd, int)
+        or lease_fd < 0
+        or not isinstance(lease_path_value, str)
+        or Path(lease_path_value).absolute() != expected_lease_path
+    ):
+        raise RoundTransactionError(
+            "managed OpenEvolve launch is missing its inherited lifecycle lease"
+        )
+    _validate_round_lifecycle_inode(lease_fd, expected_lease_path)
+    try:
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as exc:
+        raise RoundTransactionError(
+            "managed OpenEvolve lifecycle lease is not held"
+        ) from exc
+
+    launch_binding, invocation_binding = _frozen_bindings_from_state(
+        config, state, round_dir
+    )
+    context_path = Path(launch_binding["context"]["path"])
     command = [
         sys.executable,
-        "evolve/run_evolution.py",
+        launch_binding["launcher"]["path"],
         "--run-name", evolution_name,
         "--iterations", str(iterations_this_round),
-        "--model", config.model,
-        "--reasoning-effort", config.reasoning_effort,
+        "--models", *invocation_binding["model_names"],
         "--humanize-context", str(context_path),
-        "--no-temperature",
+        "--completion-marker", str(marker_path),
+        "--slice-witness", str(witness_path),
+        "--lifecycle-lease-fd", str(lease_fd),
+        "--lifecycle-lease-path", str(expected_lease_path),
+        "--config", launch_binding["config"]["path"],
+        "--seed", launch_binding["seed"]["path"],
+        "--max-parallel-evaluations",
+        str(invocation_binding["max_parallel_evaluations"]),
+        "--api-base", invocation_binding["api_base"],
     ]
-    if config.max_total_workers is not None:
+    if invocation_binding["reasoning_effort"] is not None:
         command.extend([
-            "--max-parallel-evaluations",
-            str(config.max_total_workers),
+            "--reasoning-effort",
+            invocation_binding["reasoning_effort"],
         ])
-    checkpoint = state.get("last_checkpoint")
-    if checkpoint and Path(checkpoint).is_dir():
-        command.extend(["--resume", checkpoint])
-    if config.evolution_config:
-        command.extend(["--config", str(config.evolution_config)])
-    if config.evolution_seed:
-        command.extend(["--seed", str(config.evolution_seed)])
-    if config.api_base:
-        command.extend(["--api-base", config.api_base])
-    if config.codex_cli:
+    if invocation_binding["temperature_disabled"]:
+        command.append("--no-temperature")
+    if base_checkpoint is not None:
+        command.extend(["--resume", base_checkpoint["path"]])
+    if invocation_binding["codex_cli"]:
         command.append("--codex-cli")
+
+    child_environment = os.environ.copy()
+    if invocation_binding["codex_cli"]:
+        child_environment["QCODE_CODEX_BIN"] = launch_binding[
+            "codex_executable"
+        ]["path"]
+        child_environment["QCODE_CODEX_CWD"] = invocation_binding["codex_cwd"]
+    else:
+        child_environment.pop("QCODE_CODEX_BIN", None)
+        child_environment.pop("QCODE_CODEX_CWD", None)
     log_path = round_dir / "evolution.log"
-    with log_path.open("w", encoding="utf-8") as stream:
-        subprocess.run(
-            command,
-            cwd=config.repo_dir,
-            stdout=stream,
-            stderr=subprocess.STDOUT,
-            check=True,
-        )
-    return _latest_checkpoint(output_dir)
+    with tempfile.TemporaryDirectory(
+        prefix="qcode-openevolve-pycache-"
+    ) as cache:
+        child_environment["PYTHONPYCACHEPREFIX"] = cache
+        with log_path.open("w", encoding="utf-8") as stream:
+            process = subprocess.Popen(
+                command,
+                cwd=config.repo_dir,
+                stdout=stream,
+                stderr=subprocess.STDOUT,
+                pass_fds=(lease_fd,),
+                start_new_session=True,
+                env=child_environment,
+            )
+            _wait_for_managed_process(process, command)
+
+    result_checkpoint = _checkpoint_descriptor(
+        output_dir,
+        output_dir / "checkpoints" / f"checkpoint_{expected_iteration}",
+        expected_iteration=expected_iteration,
+    )
+    witness = _validate_slice_witness(
+        witness_path,
+        config,
+        base_checkpoint,
+        result_checkpoint,
+        launch_binding,
+        invocation_binding,
+    )
+    _validate_completion_marker(
+        marker_path,
+        config,
+        base_checkpoint,
+        result_checkpoint,
+        launch_binding,
+        invocation_binding,
+        witness,
+    )
+    return Path(result_checkpoint["path"])
 
 
-def _milp_is_fully_exact(row: dict[str, Any]) -> bool:
-    if (row.get("stage") == "symplectic_low_d" and row.get("d_is_exact")
-            and int(row.get("d", 0) or 0) == 2):
-        return True
-    if row.get("d_is_exact") and row.get("stage") in {
-        "exact", "self_dual_d2", "milp_exact"
-    }:
-        details = row.get("milp_details")
-        if not details:
-            return row.get("stage") in {"exact", "self_dual_d2"}
-    details = row.get("milp_details") or {}
-    total = int(details.get("total_logicals", 0) or 0)
-    checked = int(details.get("num_logicals_checked", 0) or 0)
-    optimal = int(details.get("logicals_optimal", 0) or 0)
-    return bool(details.get("exact")) and total > 0 and checked == total == optimal
+_milp_is_fully_exact = is_fully_exact
 
 
-def evaluate_with_milp(candidate: dict[str, Any], config: FlowConfig) -> dict[str, Any]:
-    """Use qcode's evaluator and preserve the strict partial-MILP semantics."""
+def evaluate_with_milp(
+    candidate: dict[str, Any],
+    config: FlowConfig,
+    *,
+    checkpoint_path: str | Path | None = None,
+    resume: bool = True,
+    hard_timeout_per_logical: float | None = None,
+) -> dict[str, Any]:
+    """Use qcode's evaluator with durable, killable per-direction solves."""
     from evaluation.evaluator import evaluate_candidate_milp
     from evaluation.final_gate import FOM_THRESHOLD
     from main import merge_bp_milp_result
@@ -203,6 +1629,9 @@ def evaluate_with_milp(candidate: dict[str, Any], config: FlowConfig) -> dict[st
         milp_total_timeout=config.milp_total_timeout,
         milp_early_stop=(config.milp_early_stop or None),
         milp_target_fom=FOM_THRESHOLD,
+        milp_checkpoint_path=checkpoint_path,
+        milp_resume=resume,
+        milp_hard_timeout_per_logical=hard_timeout_per_logical,
     )
     merged = merge_bp_milp_result(candidate, result)
     # Preserve pre-MILP machine gates when an exact result replaces the BP row;
@@ -211,9 +1640,13 @@ def evaluate_with_milp(candidate: dict[str, Any], config: FlowConfig) -> dict[st
         if field in candidate:
             merged[field] = candidate[field]
     merged["candidate_key"] = code_key(candidate)
+    if "threshold_proof_witness" in result:
+        merged["threshold_proof_witness"] = copy.deepcopy(
+            result["threshold_proof_witness"]
+        )
     merged["milp_attempted"] = True
     # A reviewer must never be able to alter this machine-derived field.
-    merged["d_is_exact"] = _milp_is_fully_exact(merged)
+    merged["d_is_exact"] = is_fully_exact(merged)
     return merged
 
 
@@ -342,11 +1775,1937 @@ class HumanizeFlow:
 
     @staticmethod
     def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
-        with path.open("w", encoding="utf-8") as stream:
-            for row in rows:
-                stream.write(
-                    json.dumps(row, ensure_ascii=False, default=str) + "\n"
+        atomic_write_jsonl(path, rows)
+
+    @property
+    def evaluations_path(self) -> Path:
+        return self.run_dir / "evaluations.jsonl"
+
+    def _milp_checkpoint_path(self, candidate_key: str) -> Path:
+        if not candidate_key or any(
+            character not in "0123456789abcdef" for character in candidate_key
+        ):
+            raise AuditStateError("candidate_key is unsafe for a checkpoint path")
+        repo_root = self.config.repo_dir
+        results_root = repo_root / "results"
+        runs_root = results_root / "runs"
+        for label, path in (
+            ("repository", repo_root),
+            ("results", results_root),
+            ("runs", runs_root),
+            ("run directory", self.run_dir),
+        ):
+            if path.is_symlink():
+                raise AuditStateError(
+                    f"MILP {label} may not be a symlink: {path}"
                 )
+            if not path.is_dir():
+                raise AuditStateError(
+                    f"MILP {label} is not a directory: {path}"
+                )
+        resolved_repo = repo_root.resolve(strict=True)
+        resolved_runs = runs_root.resolve(strict=True)
+        resolved_run = self.run_dir.resolve(strict=True)
+        try:
+            resolved_runs.relative_to(resolved_repo)
+        except ValueError as exc:
+            raise AuditStateError(
+                f"MILP runs root escapes the repository: {resolved_runs}"
+            ) from exc
+        expected_run = resolved_runs / self.store.run_id
+        if resolved_run != expected_run:
+            raise AuditStateError(
+                "MILP run directory is outside the fixed results/runs root"
+            )
+        checkpoint_root = self.run_dir / "milp-checkpoints"
+        if checkpoint_root.is_symlink():
+            raise AuditStateError(
+                f"MILP checkpoint root may not be a symlink: {checkpoint_root}"
+            )
+        checkpoint_root.mkdir(parents=True, exist_ok=True)
+        if not checkpoint_root.is_dir():
+            raise AuditStateError(
+                f"MILP checkpoint root is not a directory: {checkpoint_root}"
+            )
+        resolved_root = checkpoint_root.resolve(strict=True)
+        if resolved_root.parent != resolved_run:
+            raise AuditStateError(
+                "MILP checkpoint root is outside the fixed run directory"
+            )
+        checkpoint = resolved_root / f"{candidate_key}.json"
+        if checkpoint.is_symlink():
+            raise AuditStateError(
+                f"MILP checkpoint may not be a symlink: {checkpoint}"
+            )
+        if checkpoint.exists() and not checkpoint.is_file():
+            raise AuditStateError(
+                f"MILP checkpoint is not a regular file: {checkpoint}"
+            )
+        try:
+            checkpoint.relative_to(resolved_root)
+        except ValueError as exc:
+            raise AuditStateError(
+                f"MILP checkpoint escapes its root: {checkpoint}"
+            ) from exc
+        return checkpoint
+
+    @staticmethod
+    def _decode_canonical_jsonl(payload: bytes, path: Path) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+
+        def reject_constant(value: str) -> None:
+            raise ValueError(f"non-finite JSON number: {value}")
+
+        def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+            value: dict[str, Any] = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError(f"duplicate JSON key: {key}")
+                value[key] = item
+            return value
+
+        for line_number, raw in enumerate(payload.splitlines(keepends=True), 1):
+            if not raw.endswith(b"\n"):
+                raise AuditStateError(
+                    f"canonical evaluation line {line_number} is not terminated"
+                )
+            try:
+                row = json.loads(
+                    raw.decode("utf-8"),
+                    parse_constant=reject_constant,
+                    object_pairs_hook=reject_duplicates,
+                )
+            except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                raise AuditStateError(
+                    f"invalid canonical evaluation {path}:{line_number}: {exc}"
+                ) from exc
+            if not isinstance(row, dict):
+                raise AuditStateError(
+                    f"canonical evaluation {path}:{line_number} is not an object"
+                )
+            rows.append(row)
+        return rows
+
+    def _read_canonical_evaluations(
+        self,
+        *,
+        recover_final_partial: bool,
+    ) -> list[dict[str, Any]]:
+        path = self.evaluations_path
+        if path.is_symlink():
+            raise AuditStateError(
+                f"canonical evaluations may not be a symlink: {path}"
+            )
+        if not path.exists():
+            return []
+        if not path.is_file():
+            raise AuditStateError(
+                f"canonical evaluations must be a regular file: {path}"
+            )
+        payload = path.read_bytes()
+        if payload and not payload.endswith(b"\n"):
+            split = payload.rfind(b"\n") + 1
+            prefix, tail = payload[:split], payload[split:]
+            # A bad complete row before the final fragment is never repairable.
+            rows = self._decode_canonical_jsonl(prefix, path)
+            if not recover_final_partial:
+                raise AuditStateError(
+                    f"canonical evaluations end in a partial row: {path}"
+                )
+            digest = hashlib.sha256(tail).hexdigest()
+            archive = (
+                self.run_dir
+                / "recovery"
+                / f"evaluations-final-partial-{digest[:16]}.bin"
+            )
+            if archive.exists():
+                if archive.is_symlink() or archive.read_bytes() != tail:
+                    raise AuditStateError(
+                        f"evaluation partial-row archive is inconsistent: {archive}"
+                    )
+            else:
+                atomic_write_bytes(archive, tail)
+            atomic_write_bytes(path, prefix)
+            self.store.event(
+                "evaluation_partial_row_recovered",
+                archive=str(archive),
+                bytes=len(tail),
+                sha256=digest,
+            )
+            return rows
+        return self._decode_canonical_jsonl(payload, path)
+
+    def _rebuild_global_audit_state(
+        self,
+        state: dict[str, Any],
+        *,
+        recover_final_partial: bool,
+    ) -> tuple[list[dict[str, Any]], Any]:
+        rows = self._read_canonical_evaluations(
+            recover_final_partial=recover_final_partial
+        )
+        rebuilt = rebuild_audit_state(
+            rows,
+            fully_exact=is_fully_exact,
+            checkpoint_path_for=lambda key: self._milp_checkpoint_path(key),
+        )
+        state.update(rebuilt.as_state_fields())
+        state["audit_evaluations_seen"] = rebuilt.evaluations_seen
+        state["unresolved_count"] = len(rebuilt.unresolved)
+        self.store.write_state(state)
+        return rows, rebuilt
+
+    @staticmethod
+    def _canonical_row_identity(row: dict[str, Any]) -> str:
+        try:
+            payload = json.dumps(
+                row,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            ).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            raise AuditStateError(
+                "evaluation row must be strict JSON data"
+            ) from exc
+        return hashlib.sha256(payload).hexdigest()
+
+    def _reconcile_round_evaluations(
+        self,
+        selected: list[dict[str, Any]],
+        *,
+        round_number: int,
+        milp_path: Path,
+        global_rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        selected_keys = [code_key(row) for row in selected]
+        selected_key_set = set(selected_keys)
+        current: dict[str, dict[str, Any]] = {}
+        global_identities = {
+            self._canonical_row_identity(row) for row in global_rows
+        }
+        for row in global_rows:
+            attempt = row.get("audit_attempt")
+            if not isinstance(attempt, dict) or attempt.get("round") != round_number:
+                continue
+            key = code_key(row)
+            if key not in selected_key_set:
+                continue
+            if key in current:
+                raise AuditStateError(
+                    f"candidate {key} has duplicate attempts in round {round_number}"
+                )
+            current[key] = row
+
+        # Legacy round rows may not have audit_attempt. Trust them only if the
+        # byte-equivalent logical row is already present in the global log. A
+        # malformed or partial round file is evidence, so archive its exact
+        # bytes before replacing it from the canonical global log.
+        legacy_round_rows: list[dict[str, Any]] = []
+        if milp_path.is_symlink():
+            raise AuditStateError(
+                f"round evaluations may not be a symlink: {milp_path}"
+            )
+        if milp_path.exists():
+            if not milp_path.is_file():
+                raise AuditStateError(
+                    f"round evaluations must be a regular file: {milp_path}"
+                )
+            raw_round = milp_path.read_bytes()
+            try:
+                legacy_round_rows = self._decode_canonical_jsonl(
+                    raw_round, milp_path
+                )
+            except AuditStateError:
+                digest = hashlib.sha256(raw_round).hexdigest()
+                archive = (
+                    milp_path.parent
+                    / f"milp-malformed-{digest[:16]}.bin"
+                )
+                if archive.is_symlink():
+                    raise AuditStateError(
+                        f"round evaluation archive may not be a symlink: {archive}"
+                    )
+                if archive.exists():
+                    if not archive.is_file() or archive.read_bytes() != raw_round:
+                        raise AuditStateError(
+                            "round evaluation archive is inconsistent: "
+                            f"{archive}"
+                        )
+                else:
+                    atomic_write_bytes(archive, raw_round)
+                self.store.event(
+                    "round_evaluations_archived",
+                    round=round_number,
+                    archive=str(archive),
+                    bytes=len(raw_round),
+                    sha256=digest,
+                )
+        for row in legacy_round_rows:
+            key = code_key(row)
+            if (
+                key in selected_key_set
+                and key not in current
+                and self._canonical_row_identity(row) in global_identities
+            ):
+                current[key] = row
+
+        ordered = [current[key] for key in selected_keys if key in current]
+        atomic_write_jsonl(milp_path, ordered)
+        return ordered
+
+    def _select_audit_candidates(
+        self,
+        candidates: list[dict[str, Any]],
+        state: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        if self.config.milp_top <= 0:
+            return []
+        unresolved = state.get("unresolved_candidates", {})
+        if not isinstance(unresolved, dict):
+            raise AuditStateError("unresolved_candidates must be an object")
+        retry_entries = select_retry_lane(
+            unresolved,
+            limit=1 if unresolved else 0,
+        )
+        retry_candidates = [dict(entry["candidate"]) for entry in retry_entries]
+        blocked_keys = set(state.get("audited_keys", [])) | set(unresolved)
+        blocked_digests = set(state.get("audited_structural_digests", []))
+        blocked_digests.update(
+            str(entry["canonical_digest"])
+            for entry in unresolved.values()
+            if entry.get("canonical_digest")
+        )
+        new_candidates = select_for_milp(
+            candidates,
+            self.archive,
+            blocked_keys,
+            self.config.milp_top - len(retry_candidates),
+            blocked_digests,
+        )
+        return retry_candidates + new_candidates
+
+    def _attempt_plan(
+        self,
+        candidate: dict[str, Any],
+        state: dict[str, Any],
+        *,
+        round_number: int,
+    ) -> tuple[FlowConfig, dict[str, Any], dict[str, Any]]:
+        key = code_key(candidate)
+        unresolved = state.get("unresolved_candidates", {})
+        entry = unresolved.get(key) if isinstance(unresolved, dict) else None
+        completed = 0 if entry is None else int(entry["attempts_completed"])
+        base_hard_timeout = max(
+            float(self.config.milp_timeout_per_logical) * 1.1,
+            float(self.config.milp_timeout_per_logical) + 30.0,
+        )
+        budget = retry_budget(
+            timeout_per_logical=self.config.milp_timeout_per_logical,
+            total_timeout=self.config.milp_total_timeout,
+            completed_attempts=completed,
+            hard_timeout_per_logical=base_hard_timeout,
+        )
+        assert budget.hard_timeout_per_logical is not None
+        checkpoint = self._milp_checkpoint_path(key)
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        attempt = {
+            "schema_version": 1,
+            "round": round_number,
+            "kind": "new" if completed == 0 else "retry",
+            "attempt": completed + 1,
+            "multiplier": budget.multiplier,
+            "soft": budget.timeout_per_logical,
+            "total": budget.total_timeout,
+            "hard": budget.hard_timeout_per_logical,
+            "checkpoint": str(checkpoint),
+        }
+        attempt_config = replace(
+            self.config,
+            milp_timeout_per_logical=budget.timeout_per_logical,
+            milp_total_timeout=budget.total_timeout,
+        )
+        invocation = {
+            "checkpoint_path": str(checkpoint),
+            "resume": True,
+            "hard_timeout_per_logical": budget.hard_timeout_per_logical,
+        }
+        return attempt_config, attempt, invocation
+
+    def _evaluate_audit_attempt(
+        self,
+        candidate: dict[str, Any],
+        attempt_config: FlowConfig,
+        invocation: dict[str, Any],
+    ) -> dict[str, Any]:
+        formal_contract = False
+        try:
+            signature = inspect.signature(self.milp_evaluator)
+            signature.bind(candidate, attempt_config, **invocation)
+        except TypeError:
+            try:
+                signature.bind(candidate, attempt_config)
+            except TypeError as exc:
+                raise AuditStateError(
+                    "MILP evaluator accepts neither the production invocation "
+                    "nor the legacy two-argument contract"
+                ) from exc
+            if not self.config.allow_debug_audit_evaluator:
+                raise AuditStateError(
+                    "legacy two-argument MILP evaluator is disabled; set "
+                    "allow_debug_audit_evaluator only for explicit debug runs"
+                )
+            result = self.milp_evaluator(candidate, attempt_config)
+        else:
+            result = self.milp_evaluator(
+                candidate,
+                attempt_config,
+                **invocation,
+            )
+            formal_contract = True
+        if not isinstance(result, dict):
+            raise AuditStateError("MILP evaluator must return an object")
+        returned = dict(result)
+        formal_result = (
+            formal_contract
+            and "audit_evaluator_invocation" in returned
+        )
+        if (
+            not formal_result
+            and not self.config.allow_debug_audit_evaluator
+        ):
+            raise AuditStateError(
+                "MILP evaluator did not return the formal schema-v2 audit "
+                "invocation contract; debug downgrade is disabled"
+            )
+        returned["_humanize_formal_audit_contract"] = formal_result
+        if not formal_contract:
+            returned.pop("audit_evaluator_invocation", None)
+        return returned
+
+    @staticmethod
+    def _transaction_paths(round_dir: Path) -> dict[str, Path]:
+        return {
+            "manifest": round_dir / "evolution-transaction.json",
+            "batch": round_dir / "candidate-batch.jsonl",
+            "completion": _completion_marker_path(round_dir),
+            "witness": _slice_witness_path(round_dir),
+        }
+
+    def _load_transaction(
+        self,
+        state: dict[str, Any],
+        number: int,
+        round_dir: Path,
+    ) -> dict[str, Any] | None:
+        paths = self._transaction_paths(round_dir)
+        if not paths["manifest"].exists():
+            return None
+        transaction = _read_json_object(
+            paths["manifest"], "round transaction manifest"
+        )
+        expected_mode = (
+            "candidate-file" if self.config.candidate_file is not None
+            else "openevolve"
+        )
+        identity = {
+            "schema_version": ROUND_TRANSACTION_SCHEMA_VERSION,
+            "protocol_version": ROUND_TRANSACTION_PROTOCOL_VERSION,
+            "run_id": self.store.run_id,
+            "round": number,
+            "mode": expected_mode,
+            "candidate_log": str(self.candidate_log.resolve()),
+            "candidate_batch": str(paths["batch"].resolve()),
+            "completion_marker": (
+                None
+                if expected_mode == "candidate-file"
+                else str(paths["completion"].resolve())
+            ),
+            "completion_witness": (
+                None
+                if expected_mode == "candidate-file"
+                else str(paths["witness"].resolve())
+            ),
+        }
+        for key, expected in identity.items():
+            if transaction.get(key) != expected:
+                raise RoundTransactionError(
+                    f"round transaction identity mismatch for {key}: "
+                    f"expected {expected!r}, got {transaction.get(key)!r}"
+                )
+        status = transaction.get("status")
+        if status not in {"prepared", "source-ready", "batch-ready", "committed"}:
+            raise RoundTransactionError(
+                f"invalid round transaction status: {status!r}"
+            )
+        start_offset = transaction.get("candidate_start_offset")
+        initial_offset = transaction.get("initial_candidate_offset")
+        if (
+            isinstance(start_offset, bool)
+            or not isinstance(start_offset, int)
+            or start_offset < 0
+            or isinstance(initial_offset, bool)
+            or not isinstance(initial_offset, int)
+            or initial_offset < 0
+            or start_offset != initial_offset
+        ):
+            raise RoundTransactionError("transaction candidate offsets are invalid")
+        if not isinstance(transaction.get("abandoned_ranges"), list):
+            raise RoundTransactionError("transaction abandoned_ranges is invalid")
+        if not isinstance(transaction.get("evolution_attempts"), list):
+            raise RoundTransactionError("transaction evolution_attempts is invalid")
+        if not isinstance(transaction.get("abandoned_checkpoints"), list):
+            raise RoundTransactionError("transaction abandoned_checkpoints is invalid")
+        if int(state.get("current_round", -1)) != number - 1:
+            raise RoundTransactionError(
+                "round transaction does not follow the durable current_round"
+            )
+
+        base = transaction.get("base_checkpoint")
+        if expected_mode == "candidate-file":
+            if (
+                base is not None
+                or transaction.get("expected_result_iteration") is not None
+                or transaction.get("launch_binding") is not None
+                or transaction.get("invocation_binding") is not None
+            ):
+                raise RoundTransactionError(
+                    "candidate-file transaction may not contain evolution bindings"
+                )
+        else:
+            _revalidate_frozen_bindings(
+                self.config,
+                transaction.get("launch_binding"),
+                transaction.get("invocation_binding"),
+                round_dir,
+            )
+            if base is not None:
+                if not isinstance(base, dict) or "path" not in base:
+                    raise RoundTransactionError("transaction base checkpoint is invalid")
+                observed = _checkpoint_descriptor(
+                    self.evolution_output,
+                    Path(base["path"]),
+                    expected_iteration=base.get("last_iteration"),
+                )
+                if observed != base:
+                    raise RoundTransactionError("base checkpoint changed after prepare")
+        expected_iteration = transaction.get("expected_result_iteration")
+        if expected_mode == "openevolve":
+            base_iteration = 0 if base is None else int(base["last_iteration"])
+            if (
+                transaction.get("iterations_per_round")
+                != self.config.iterations_per_round
+                or expected_iteration
+                != base_iteration + self.config.iterations_per_round
+            ):
+                raise RoundTransactionError(
+                    "transaction does not request one exact iteration increment"
+                )
+        return transaction
+
+    def _prepare_transaction(
+        self,
+        state: dict[str, Any],
+        number: int,
+        round_dir: Path,
+    ) -> dict[str, Any]:
+        paths = self._transaction_paths(round_dir)
+        if paths["manifest"].is_symlink() or paths["manifest"].exists():
+            raise RoundTransactionError(
+                "cannot prepare a transaction over an existing manifest"
+            )
+        for label in ("batch", "completion", "witness"):
+            if paths[label].is_symlink() or paths[label].exists():
+                raise RoundTransactionError(
+                    f"transaction artifact exists without manifest: {paths[label]}"
+                )
+        start_offset = state.get("candidate_offset", 0)
+        if (
+            isinstance(start_offset, bool)
+            or not isinstance(start_offset, int)
+            or start_offset < 0
+        ):
+            raise RoundTransactionError("state candidate_offset is invalid")
+        if self.candidate_log.is_file():
+            source_size = self.candidate_log.stat().st_size
+            if start_offset > source_size:
+                raise RoundTransactionError(
+                    "candidate log is shorter than the durable offset"
+                )
+        elif start_offset:
+            raise RoundTransactionError(
+                "candidate log is missing at a non-zero durable offset"
+            )
+
+        mode = (
+            "candidate-file" if self.config.candidate_file is not None
+            else "openevolve"
+        )
+        base_checkpoint = None
+        launch_binding = None
+        invocation_binding = None
+        expected_iteration = None
+        if mode == "openevolve":
+            checkpoint_value = state.get("last_checkpoint")
+            if checkpoint_value:
+                base_checkpoint = _checkpoint_descriptor(
+                    self.evolution_output, Path(checkpoint_value)
+                )
+            base_iteration = (
+                0
+                if base_checkpoint is None
+                else int(base_checkpoint["last_iteration"])
+            )
+            expected_iteration = base_iteration + self.config.iterations_per_round
+            expected_path = (
+                self.evolution_output
+                / "checkpoints"
+                / f"checkpoint_{expected_iteration}"
+            )
+            _assert_checkpoint_frontier(
+                self.evolution_output,
+                base_iteration,
+            )
+            _quarantine_orphan_round_context(round_dir)
+            launch_binding, invocation_binding = _fresh_evolution_bindings(
+                self.config, state, round_dir
+            )
+        elif state.get("last_checkpoint") is not None:
+            raise RoundTransactionError(
+                "candidate-file transaction inherited an evolution checkpoint"
+            )
+
+        transaction: dict[str, Any] = {
+            "schema_version": ROUND_TRANSACTION_SCHEMA_VERSION,
+            "protocol_version": ROUND_TRANSACTION_PROTOCOL_VERSION,
+            "run_id": self.store.run_id,
+            "round": number,
+            "mode": mode,
+            "status": "prepared",
+            "iterations_per_round": (
+                self.config.iterations_per_round if mode == "openevolve" else 0
+            ),
+            "base_checkpoint": base_checkpoint,
+            "expected_result_iteration": expected_iteration,
+            "result_checkpoint": None,
+            "launch_binding": launch_binding,
+            "invocation_binding": invocation_binding,
+            "candidate_log": str(self.candidate_log.resolve()),
+            "initial_candidate_offset": start_offset,
+            "candidate_start_offset": start_offset,
+            "candidate_end_offset": None,
+            "abandoned_ranges": [],
+            "abandoned_checkpoints": [],
+            "evolution_attempts": [],
+            "candidate_source_sha256": None,
+            "candidate_source_rows": None,
+            "candidate_batch": str(paths["batch"].resolve()),
+            "candidate_batch_identity": None,
+            "completion_marker": (
+                None if mode == "candidate-file" else str(paths["completion"].resolve())
+            ),
+            "completion_marker_sha256": None,
+            "completion_witness": (
+                None if mode == "candidate-file" else str(paths["witness"].resolve())
+            ),
+            "completion_witness_sha256": None,
+            "prepared_at": utc_now(),
+        }
+        if mode == "candidate-file":
+            source_end = (
+                self.candidate_log.stat().st_size
+                if self.candidate_log.is_file()
+                else 0
+            )
+            try:
+                source_rows, observed_end, source_sha256 = read_jsonl_range(
+                    self.candidate_log, start_offset, source_end
+                )
+            except ValueError as exc:
+                raise RoundTransactionError(str(exc)) from exc
+            transaction["candidate_end_offset"] = observed_end
+            transaction["candidate_source_sha256"] = source_sha256
+            transaction["candidate_source_rows"] = len(source_rows)
+            transaction["status"] = "source-ready"
+            transaction["source_ready_at"] = utc_now()
+
+        atomic_write_json(paths["manifest"], transaction)
+        return transaction
+
+    def _validate_transaction_source(
+        self,
+        transaction: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        end_offset = transaction.get("candidate_end_offset")
+        if (
+            isinstance(end_offset, bool)
+            or not isinstance(end_offset, int)
+            or end_offset < int(transaction["candidate_start_offset"])
+        ):
+            raise RoundTransactionError("transaction end offset is invalid")
+        try:
+            rows, observed_end, source_sha256 = read_jsonl_range(
+                self.candidate_log,
+                int(transaction["candidate_start_offset"]),
+                end_offset,
+            )
+        except ValueError as exc:
+            raise RoundTransactionError(str(exc)) from exc
+        if (
+            observed_end != end_offset
+            or source_sha256 != transaction.get("candidate_source_sha256")
+            or len(rows) != transaction.get("candidate_source_rows")
+        ):
+            raise RoundTransactionError(
+                "candidate source slice changed after transaction prepare"
+            )
+        return rows
+
+    def _validate_transaction_checkpoint(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+    ) -> dict[str, Any] | None:
+        if transaction["mode"] == "candidate-file":
+            return None
+        result = transaction.get("result_checkpoint")
+        if not isinstance(result, dict) or "path" not in result:
+            raise RoundTransactionError("transaction result checkpoint is missing")
+        observed = _checkpoint_descriptor(
+            self.evolution_output,
+            Path(result["path"]),
+            expected_iteration=transaction["expected_result_iteration"],
+        )
+        if observed != result:
+            raise RoundTransactionError("result checkpoint changed after completion")
+        witness_path = _slice_witness_path(round_dir)
+        witness = _validate_slice_witness(
+            witness_path,
+            self.config,
+            transaction.get("base_checkpoint"),
+            observed,
+            transaction.get("launch_binding"),
+            transaction.get("invocation_binding"),
+        )
+        if witness["sha256"] != transaction.get("completion_witness_sha256"):
+            raise RoundTransactionError("completion witness changed after prepare")
+        marker_path = _completion_marker_path(round_dir)
+        marker = _validate_completion_marker(
+            marker_path,
+            self.config,
+            transaction.get("base_checkpoint"),
+            observed,
+            transaction.get("launch_binding"),
+            transaction.get("invocation_binding"),
+            witness,
+        )
+        if marker["sha256"] != transaction.get("completion_marker_sha256"):
+            raise RoundTransactionError("completion marker changed after prepare")
+        return observed
+
+    def _validate_candidate_batch(
+        self,
+        transaction: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        identity = transaction.get("candidate_batch_identity")
+        batch_path = Path(transaction["candidate_batch"])
+        if (
+            not isinstance(identity, dict)
+            or batch_path.is_symlink()
+            or not batch_path.is_file()
+        ):
+            raise RoundTransactionError("candidate batch is missing")
+        observed = {
+            "sha256": _file_sha256(batch_path),
+            "bytes": batch_path.stat().st_size,
+            "rows": identity.get("rows"),
+        }
+        try:
+            rows, end_offset, source_sha256 = read_jsonl_range(batch_path, 0)
+        except ValueError as exc:
+            raise RoundTransactionError(str(exc)) from exc
+        observed["rows"] = len(rows)
+        if end_offset != observed["bytes"] or source_sha256 != observed["sha256"]:
+            raise RoundTransactionError("candidate batch byte identity is invalid")
+        if observed != {
+            "sha256": identity.get("sha256"),
+            "bytes": identity.get("bytes"),
+            "rows": identity.get("rows"),
+        }:
+            raise RoundTransactionError("candidate batch changed after commit")
+        return rows
+
+    @staticmethod
+    def _candidate_rows_identity(rows: list[dict[str, Any]]) -> dict[str, Any]:
+        payload = "".join(
+            json.dumps(row, ensure_ascii=False, default=str) + "\n"
+            for row in rows
+        ).encode("utf-8")
+        return {
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "bytes": len(payload),
+            "rows": len(rows),
+        }
+
+    def _candidate_log_size(self, *, start_offset: int) -> int:
+        path = self.candidate_log
+        if path.is_symlink():
+            raise RoundTransactionError(f"candidate log may not be a symlink: {path}")
+        if not path.exists():
+            if start_offset == 0:
+                return 0
+            raise RoundTransactionError(
+                "candidate log is missing at a non-zero transaction offset"
+            )
+        if not path.is_file():
+            raise RoundTransactionError(f"candidate log is not a regular file: {path}")
+        size = path.stat().st_size
+        if size < start_offset:
+            raise RoundTransactionError(
+                "candidate log is shorter than the transaction start offset"
+            )
+        return size
+
+    @staticmethod
+    def _inspect_abandoned_payload(
+        payload: bytes,
+        *,
+        start_offset: int,
+    ) -> dict[str, Any]:
+        complete_length = payload.rfind(b"\n") + 1
+        complete_rows = 0
+        for raw in payload[:complete_length].splitlines(keepends=True):
+            try:
+                row = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise RoundTransactionError(
+                    f"invalid complete JSONL record in abandoned tail: {exc}"
+                ) from exc
+            if not isinstance(row, dict):
+                raise RoundTransactionError(
+                    "non-object JSONL record in abandoned candidate tail"
+                )
+            complete_rows += 1
+        return {
+            "start_offset": start_offset,
+            "end_offset": start_offset + len(payload),
+            "last_complete_offset": start_offset + complete_length,
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "bytes": len(payload),
+            "complete_rows": complete_rows,
+            "partial_bytes": len(payload) - complete_length,
+        }
+
+    def _atomic_restore_candidate_prefix(self, start_offset: int) -> None:
+        path = self.candidate_log
+        if start_offset == 0 and not path.exists():
+            return
+        try:
+            _rows, observed, _sha256 = read_jsonl_range(path, 0, start_offset)
+        except ValueError as exc:
+            raise RoundTransactionError(
+                "durable candidate prefix is not valid JSONL"
+            ) from exc
+        if observed != start_offset:
+            raise RoundTransactionError("candidate prefix length changed during recovery")
+        with path.open("rb") as stream:
+            prefix = stream.read(start_offset)
+            if len(prefix) != start_offset:
+                raise RoundTransactionError(
+                    "candidate log changed while restoring its durable prefix"
+                )
+        atomic_write_bytes(path, prefix)
+        if path.stat().st_size != start_offset:
+            raise RoundTransactionError("candidate log prefix restore was not durable")
+
+    def _abandon_uncommitted_tail(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+    ) -> None:
+        """Archive and atomically remove raw rows not bound to a checkpoint."""
+        start_offset = int(transaction["candidate_start_offset"])
+        abandoned = transaction["abandoned_ranges"]
+        attempt_number = len(abandoned) + 1
+        archive_path = (
+            round_dir / f"abandoned-candidate-tail-{attempt_number:03d}.bin"
+        )
+        if archive_path.is_symlink():
+            raise RoundTransactionError(
+                f"abandoned-tail archive may not be a symlink: {archive_path}"
+            )
+        source_size = self._candidate_log_size(start_offset=start_offset)
+
+        if archive_path.exists():
+            descriptor = _file_descriptor(
+                archive_path, "orphan abandoned-tail archive"
+            )
+            payload = archive_path.read_bytes()
+            if not payload:
+                raise RoundTransactionError(
+                    "orphan abandoned-tail archive is unexpectedly empty"
+                )
+            if source_size == start_offset:
+                pass
+            elif source_size == start_offset + len(payload):
+                with self.candidate_log.open("rb") as stream:
+                    stream.seek(start_offset)
+                    observed = stream.read()
+                if observed != payload:
+                    raise RoundTransactionError(
+                        "orphan abandoned-tail archive disagrees with candidate log"
+                    )
+                self._atomic_restore_candidate_prefix(start_offset)
+            else:
+                raise RoundTransactionError(
+                    "cannot reconcile orphan abandoned-tail archive with candidate log"
+                )
+        else:
+            if source_size == start_offset:
+                return
+            with self.candidate_log.open("rb") as stream:
+                observed_size = os.fstat(stream.fileno()).st_size
+                stream.seek(start_offset)
+                payload = stream.read()
+                final_size = os.fstat(stream.fileno()).st_size
+            if observed_size != source_size or final_size != source_size:
+                raise RoundTransactionError(
+                    "candidate log changed while archiving its abandoned tail"
+                )
+            descriptor = atomic_write_bytes(archive_path, payload)
+            descriptor["path"] = str(archive_path.resolve())
+            self._atomic_restore_candidate_prefix(start_offset)
+
+        tail = self._inspect_abandoned_payload(
+            payload,
+            start_offset=start_offset,
+        )
+        if descriptor["sha256"] != tail["sha256"] or descriptor["bytes"] != tail["bytes"]:
+            raise RoundTransactionError("abandoned-tail archive identity mismatch")
+        tail.update({
+            "archive_path": descriptor["path"],
+            "archive_sha256": descriptor["sha256"],
+            "archive_bytes": descriptor["bytes"],
+            "reason": "expected checkpoint absent before safe replay",
+            "abandoned_at": utc_now(),
+        })
+        abandoned.append(tail)
+        atomic_write_json(self._transaction_paths(round_dir)["manifest"], transaction)
+
+    @staticmethod
+    def _checkpoint_quarantine_paths(
+        round_dir: Path,
+        expected_checkpoint: Path,
+        attempt: int,
+    ) -> tuple[dict[str, Path], dict[str, Path]]:
+        sources = {
+            "checkpoint": expected_checkpoint,
+            "completion_marker": _completion_marker_path(round_dir),
+            "slice_witness": _slice_witness_path(round_dir),
+        }
+        destinations = {
+            "checkpoint": round_dir / f"abandoned-checkpoint-attempt-{attempt:03d}",
+            "completion_marker": round_dir / (
+                f"abandoned-completion-marker-attempt-{attempt:03d}.json"
+            ),
+            "slice_witness": round_dir / (
+                f"abandoned-slice-witness-attempt-{attempt:03d}.json"
+            ),
+        }
+        return sources, destinations
+
+    def _resume_checkpoint_quarantine(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+        expected_checkpoint: Path,
+    ) -> None:
+        """Finish a content-bound write-ahead quarantine after interruption."""
+        records = transaction["abandoned_checkpoints"]
+        pending = [
+            index
+            for index, record in enumerate(records)
+            if isinstance(record, dict)
+            and record.get("status") == "quarantining"
+        ]
+        last_is_pending = bool(
+            records
+            and isinstance(records[-1], dict)
+            and records[-1].get("status") == "quarantining"
+        )
+        attempt = len(records) if last_is_pending else len(records) + 1
+        _sources, destinations = self._checkpoint_quarantine_paths(
+            round_dir, expected_checkpoint, attempt
+        )
+        orphan_destination = any(
+            path.is_symlink() or path.exists()
+            for path in destinations.values()
+        )
+        if orphan_destination and not pending:
+            raise RoundTransactionError(
+                "checkpoint quarantine destination exists without a "
+                "write-ahead record"
+            )
+        if pending:
+            self._quarantine_untrusted_evolution_attempt(
+                transaction,
+                round_dir,
+                expected_checkpoint,
+                reason="recovered interrupted checkpoint quarantine",
+            )
+
+    def _quarantine_untrusted_evolution_attempt(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+        expected_checkpoint: Path,
+        *,
+        reason: str,
+    ) -> None:
+        """Durably quarantine one attempt using a replayable write-ahead record."""
+        records = transaction["abandoned_checkpoints"]
+        artifact_order = ("checkpoint", "completion_marker", "slice_witness")
+        pending_indexes = [
+            index
+            for index, record in enumerate(records)
+            if isinstance(record, dict)
+            and record.get("status") == "quarantining"
+        ]
+        if pending_indexes:
+            if pending_indexes != [len(records) - 1]:
+                raise RoundTransactionError(
+                    "checkpoint quarantine write-ahead record is not last"
+                )
+            plan = records[-1]
+            attempt = len(records)
+            if (
+                plan.get("attempt") != attempt
+                or not isinstance(plan.get("reason"), str)
+                or not isinstance(plan.get("planned_at"), str)
+                or plan.get("expected_checkpoint")
+                != str(expected_checkpoint.absolute())
+            ):
+                raise RoundTransactionError(
+                    "checkpoint quarantine write-ahead record is invalid"
+                )
+            names = plan.get("artifact_names")
+            identities = plan.get("artifact_identities")
+            if (
+                not isinstance(names, list)
+                or not names
+                or any(name not in artifact_order for name in names)
+                or any(not isinstance(name, str) for name in names)
+                or len(names) != len(set(names))
+                or names
+                != [name for name in artifact_order if name in set(names)]
+                or not isinstance(identities, dict)
+                or set(identities) != set(names)
+                or any(
+                    not isinstance(identity, dict)
+                    for identity in identities.values()
+                )
+            ):
+                raise RoundTransactionError(
+                    "checkpoint quarantine artifact plan is invalid"
+                )
+        else:
+            if any(
+                isinstance(record, dict) and "status" in record
+                for record in records
+            ):
+                raise RoundTransactionError(
+                    "checkpoint quarantine record has an invalid status"
+                )
+            attempt = len(records) + 1
+            plan = None
+
+        sources, destinations = self._checkpoint_quarantine_paths(
+            round_dir, expected_checkpoint, attempt
+        )
+        for name in artifact_order:
+            if sources[name].is_symlink() or destinations[name].is_symlink():
+                raise RoundTransactionError(
+                    f"refusing to quarantine symlinked OpenEvolve {name} artifact"
+                )
+
+        observed_names = [
+            name
+            for name in artifact_order
+            if sources[name].exists() or destinations[name].exists()
+        ]
+        if plan is None:
+            if not observed_names:
+                return
+            if any(destinations[name].exists() for name in artifact_order):
+                raise RoundTransactionError(
+                    "checkpoint quarantine destination exists without a "
+                    "write-ahead record"
+                )
+            identities: dict[str, dict[str, Any]] = {}
+            for name in observed_names:
+                identity = _quarantined_artifact_descriptor(
+                    sources[name], f"planned OpenEvolve {name}"
+                )
+                identity["path"] = str(destinations[name].resolve())
+                identities[name] = identity
+            plan = {
+                "attempt": attempt,
+                "status": "quarantining",
+                "reason": reason,
+                "expected_checkpoint": str(expected_checkpoint.absolute()),
+                "artifact_names": observed_names,
+                "artifact_identities": identities,
+                "planned_at": utc_now(),
+            }
+            records.append(plan)
+            atomic_write_json(
+                self._transaction_paths(round_dir)["manifest"], transaction
+            )
+        else:
+            planned_names = list(plan["artifact_names"])
+            unexpected_names = [
+                name for name in observed_names if name not in planned_names
+            ]
+            if unexpected_names:
+                raise RoundTransactionError(
+                    "unexpected OpenEvolve artifacts appeared during "
+                    "checkpoint quarantine: " + ", ".join(unexpected_names)
+                )
+
+        artifacts: dict[str, dict[str, Any]] = {}
+        for name in plan["artifact_names"]:
+            source = sources[name]
+            destination = destinations[name]
+            source_present = source.exists()
+            destination_present = destination.exists()
+            if source_present and destination_present:
+                raise RoundTransactionError(
+                    f"cannot reconcile source and quarantined {name} artifacts"
+                )
+            if not source_present and not destination_present:
+                raise RoundTransactionError(
+                    f"planned OpenEvolve {name} artifact disappeared during quarantine"
+                )
+            observed_path = source if source_present else destination
+            observed_identity = _quarantined_artifact_descriptor(
+                observed_path, f"replayed OpenEvolve {name}"
+            )
+            observed_identity["path"] = str(destination.resolve())
+            expected_identity = plan["artifact_identities"][name]
+            if observed_identity != expected_identity:
+                raise RoundTransactionError(
+                    f"planned OpenEvolve {name} artifact identity changed "
+                    "during quarantine"
+                )
+            if source_present:
+                source_parent = source.parent
+                source.replace(destination)
+                _fsync_directory(source_parent)
+                if destination.parent != source_parent:
+                    _fsync_directory(destination.parent)
+                destination_present = True
+            if destination_present:
+                destination_identity = _quarantined_artifact_descriptor(
+                    destination, f"quarantined OpenEvolve {name}"
+                )
+                if destination_identity != expected_identity:
+                    raise RoundTransactionError(
+                        f"quarantined OpenEvolve {name} artifact identity "
+                        "does not match its write-ahead record"
+                    )
+                artifacts[name] = destination_identity
+        records[-1] = {
+            "attempt": attempt,
+            "reason": plan["reason"],
+            "artifacts": artifacts,
+            "abandoned_at": utc_now(),
+        }
+        atomic_write_json(
+            self._transaction_paths(round_dir)["manifest"], transaction
+        )
+
+    def _complete_prepared_evolution(
+        self,
+        state: dict[str, Any],
+        transaction: dict[str, Any],
+        round_dir: Path,
+        lease: _RoundLifecycleLease,
+    ) -> None:
+        expected_iteration = int(transaction["expected_result_iteration"])
+        expected_path = (
+            self.evolution_output
+            / "checkpoints"
+            / f"checkpoint_{expected_iteration}"
+        )
+        marker_path = _completion_marker_path(round_dir)
+        witness_path = _slice_witness_path(round_dir)
+        base = transaction.get("base_checkpoint")
+        base_iteration = 0 if base is None else int(base["last_iteration"])
+        self._resume_checkpoint_quarantine(
+            transaction, round_dir, expected_path
+        )
+        _assert_checkpoint_frontier(
+            self.evolution_output,
+            base_iteration,
+            allowed_iterations=frozenset({expected_iteration}),
+        )
+        checkpoint_present = expected_path.is_symlink() or expected_path.exists()
+        marker_present = marker_path.is_symlink() or marker_path.exists()
+        witness_present = witness_path.is_symlink() or witness_path.exists()
+
+        for artifact in (expected_path, marker_path, witness_path):
+            if artifact.is_symlink():
+                raise RoundTransactionError(
+                    f"OpenEvolve completion artifact may not be a symlink: {artifact}"
+                )
+
+        if checkpoint_present and marker_present and witness_present:
+            result_checkpoint = _checkpoint_descriptor(
+                self.evolution_output,
+                expected_path,
+                expected_iteration=expected_iteration,
+            )
+            witness = _validate_slice_witness(
+                witness_path,
+                self.config,
+                transaction.get("base_checkpoint"),
+                result_checkpoint,
+                transaction["launch_binding"],
+                transaction["invocation_binding"],
+            )
+            marker = _validate_completion_marker(
+                marker_path,
+                self.config,
+                transaction.get("base_checkpoint"),
+                result_checkpoint,
+                transaction["launch_binding"],
+                transaction["invocation_binding"],
+                witness,
+            )
+            transaction["result_checkpoint"] = result_checkpoint
+            transaction["completion_witness_sha256"] = witness["sha256"]
+            transaction["completion_marker_sha256"] = marker["sha256"]
+            return
+        if any((checkpoint_present, marker_present, witness_present)):
+            self._quarantine_untrusted_evolution_attempt(
+                transaction,
+                round_dir,
+                expected_path,
+                reason=(
+                    "incomplete OpenEvolve checkpoint/marker/witness artifact set"
+                ),
+            )
+
+        self._abandon_uncommitted_tail(transaction, round_dir)
+        transaction["evolution_attempts"].append({
+            "attempt": len(transaction["evolution_attempts"]) + 1,
+            "candidate_start_offset": transaction["candidate_start_offset"],
+            "started_at": utc_now(),
+        })
+        atomic_write_json(
+            self._transaction_paths(round_dir)["manifest"], transaction
+        )
+        runner_state = dict(state)
+        runner_state["_round_lifecycle_lease_fd"] = lease.fd
+        runner_state["_round_lifecycle_lease_path"] = str(lease.path)
+        runner_state["_evolution_launch_binding"] = copy.deepcopy(
+            transaction["launch_binding"]
+        )
+        runner_state["_evolution_invocation_binding"] = copy.deepcopy(
+            transaction["invocation_binding"]
+        )
+        runner_state["_evolution_base_checkpoint"] = copy.deepcopy(
+            transaction["base_checkpoint"]
+        )
+        returned = self.evolution_runner(
+            self.config, runner_state, round_dir
+        )
+        _assert_checkpoint_frontier(
+            self.evolution_output,
+            base_iteration,
+            allowed_iterations=frozenset({expected_iteration}),
+        )
+        result_checkpoint = _checkpoint_descriptor(
+            self.evolution_output,
+            expected_path,
+            expected_iteration=expected_iteration,
+        )
+        if returned is not None and Path(returned).resolve() != Path(
+            result_checkpoint["path"]
+        ):
+            raise RoundTransactionError(
+                "evolution runner returned the wrong checkpoint"
+            )
+        witness = _validate_slice_witness(
+            witness_path,
+            self.config,
+            transaction.get("base_checkpoint"),
+            result_checkpoint,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+        )
+        marker = _validate_completion_marker(
+            marker_path,
+            self.config,
+            transaction.get("base_checkpoint"),
+            result_checkpoint,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+            witness,
+        )
+        transaction["result_checkpoint"] = result_checkpoint
+        transaction["completion_witness_sha256"] = witness["sha256"]
+        transaction["completion_marker_sha256"] = marker["sha256"]
+
+    def _capture_round_candidates(
+        self,
+        state: dict[str, Any],
+        number: int,
+        round_dir: Path,
+    ) -> list[dict[str, Any]]:
+        if self.config.candidate_file is not None:
+            return self._capture_round_candidates_locked(
+                state, number, round_dir, None
+            )
+        with _acquire_round_lifecycle_lease(round_dir) as lease:
+            return self._capture_round_candidates_locked(
+                state, number, round_dir, lease
+            )
+
+    def _capture_round_candidates_locked(
+        self,
+        state: dict[str, Any],
+        number: int,
+        round_dir: Path,
+        lease: _RoundLifecycleLease | None,
+    ) -> list[dict[str, Any]]:
+        paths = self._transaction_paths(round_dir)
+        transaction = self._load_transaction(state, number, round_dir)
+        if transaction is None:
+            transaction = self._prepare_transaction(state, number, round_dir)
+
+        if transaction["status"] == "prepared":
+            if transaction["mode"] == "openevolve":
+                if lease is None:
+                    raise RoundTransactionError(
+                        "OpenEvolve transaction recovery requires its lifecycle lease"
+                    )
+                self._complete_prepared_evolution(
+                    state, transaction, round_dir, lease
+                )
+
+            source_end = self._candidate_log_size(
+                start_offset=int(transaction["candidate_start_offset"])
+            )
+            try:
+                source_rows, observed_end, source_sha256 = read_jsonl_range(
+                    self.candidate_log,
+                    int(transaction["candidate_start_offset"]),
+                    source_end,
+                )
+            except ValueError as exc:
+                raise RoundTransactionError(str(exc)) from exc
+            transaction["candidate_end_offset"] = observed_end
+            transaction["candidate_source_sha256"] = source_sha256
+            transaction["candidate_source_rows"] = len(source_rows)
+            transaction["status"] = "source-ready"
+            transaction["source_ready_at"] = utc_now()
+            atomic_write_json(paths["manifest"], transaction)
+
+        if transaction["status"] in {"source-ready", "batch-ready", "committed"}:
+            self._validate_transaction_checkpoint(transaction, round_dir)
+            source_rows = self._validate_transaction_source(transaction)
+        else:
+            raise RoundTransactionError(
+                f"transaction did not reach source-ready: {transaction['status']!r}"
+            )
+
+        batch_rows = _deduplicate(source_rows)
+        expected_batch_identity = self._candidate_rows_identity(batch_rows)
+        if transaction["status"] == "source-ready":
+            batch_path = paths["batch"]
+            if batch_path.is_symlink():
+                raise RoundTransactionError(
+                    f"candidate batch may not be a symlink: {batch_path}"
+                )
+            if batch_path.exists():
+                try:
+                    observed_rows, observed_end, observed_sha256 = read_jsonl_range(
+                        batch_path, 0
+                    )
+                except ValueError as exc:
+                    raise RoundTransactionError(str(exc)) from exc
+                observed_identity = {
+                    "sha256": observed_sha256,
+                    "bytes": observed_end,
+                    "rows": len(observed_rows),
+                }
+                if (
+                    observed_identity != expected_batch_identity
+                    or observed_rows != batch_rows
+                ):
+                    raise RoundTransactionError(
+                        "unbound candidate batch disagrees with source snapshot"
+                    )
+                batch_identity = observed_identity
+            else:
+                batch_identity = atomic_write_jsonl(batch_path, batch_rows)
+                if batch_identity != expected_batch_identity:
+                    raise RoundTransactionError(
+                        "atomic candidate batch identity is inconsistent"
+                    )
+            transaction["candidate_batch_identity"] = batch_identity
+            transaction["status"] = "batch-ready"
+            transaction["batch_ready_at"] = utc_now()
+            atomic_write_json(paths["manifest"], transaction)
+
+        if transaction["status"] in {"batch-ready", "committed"}:
+            self._validate_transaction_checkpoint(transaction, round_dir)
+            self._validate_transaction_source(transaction)
+            observed_batch = self._validate_candidate_batch(transaction)
+            if observed_batch != batch_rows:
+                raise RoundTransactionError(
+                    "candidate batch no longer matches its bound source"
+                )
+
+        initial_offset = int(transaction["initial_candidate_offset"])
+        end_offset = int(transaction["candidate_end_offset"])
+        base = transaction.get("base_checkpoint")
+        result = transaction.get("result_checkpoint")
+        expected_base = None if base is None else base["path"]
+        expected_result = None if result is None else result["path"]
+        precommit = (
+            state.get("candidate_offset") == initial_offset
+            and state.get("last_checkpoint") == expected_base
+            and state.get("pending_round") is None
+            and state.get("round_phase") is None
+        )
+        postcommit = (
+            state.get("candidate_offset") == end_offset
+            and state.get("last_checkpoint") == expected_result
+            and state.get("pending_round") == number
+            and state.get("round_phase")
+            in {"screen", "audit", "review", "finalize"}
+            and state.get("round_transaction_version")
+            == ROUND_TRANSACTION_PROTOCOL_VERSION
+        )
+
+        if transaction["status"] == "batch-ready":
+            if precommit:
+                state["candidate_offset"] = end_offset
+                state["last_checkpoint"] = expected_result
+                state["pending_round"] = number
+                state["round_phase"] = "screen"
+                state["round_transaction_version"] = (
+                    ROUND_TRANSACTION_PROTOCOL_VERSION
+                )
+                self.store.write_state(state)
+                postcommit = True
+            elif not postcommit:
+                raise RoundTransactionError(
+                    "durable state is neither before nor after transaction commit"
+                )
+            transaction["status"] = "committed"
+            transaction["committed_at"] = utc_now()
+            atomic_write_json(paths["manifest"], transaction)
+        elif transaction["status"] == "committed" and not postcommit:
+            raise RoundTransactionError(
+                "committed manifest disagrees with durable round state"
+            )
+
+        return self._validate_candidate_batch(transaction)
+
+    def _validate_completed_transaction(
+        self,
+        number: int,
+        round_dir: Path,
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        """Replay every binding of a committed v2 transaction without state."""
+        paths = self._transaction_paths(round_dir)
+        transaction = _read_json_object(
+            paths["manifest"], "completed round transaction"
+        )
+        expected_mode = (
+            "candidate-file" if self.config.candidate_file is not None
+            else "openevolve"
+        )
+        fixed_identity = {
+            "schema_version": ROUND_TRANSACTION_SCHEMA_VERSION,
+            "protocol_version": ROUND_TRANSACTION_PROTOCOL_VERSION,
+            "run_id": self.store.run_id,
+            "round": number,
+            "mode": expected_mode,
+            "status": "committed",
+            "candidate_log": str(self.candidate_log.resolve()),
+            "candidate_batch": str(paths["batch"].resolve()),
+            "completion_marker": (
+                None
+                if expected_mode == "candidate-file"
+                else str(paths["completion"].resolve())
+            ),
+            "completion_witness": (
+                None
+                if expected_mode == "candidate-file"
+                else str(paths["witness"].resolve())
+            ),
+        }
+        for key, value in fixed_identity.items():
+            if transaction.get(key) != value:
+                raise RoundTransactionError(
+                    f"completed transaction identity mismatch for {key}"
+                )
+
+        initial_offset = transaction.get("initial_candidate_offset")
+        start_offset = transaction.get("candidate_start_offset")
+        end_offset = transaction.get("candidate_end_offset")
+        if (
+            isinstance(initial_offset, bool)
+            or not isinstance(initial_offset, int)
+            or initial_offset < 0
+            or start_offset != initial_offset
+            or isinstance(end_offset, bool)
+            or not isinstance(end_offset, int)
+            or end_offset < initial_offset
+        ):
+            raise RoundTransactionError(
+                "completed transaction candidate offsets are invalid"
+            )
+        if (
+            isinstance(transaction.get("candidate_source_rows"), bool)
+            or not isinstance(transaction.get("candidate_source_rows"), int)
+            or transaction["candidate_source_rows"] < 0
+            or not isinstance(transaction.get("candidate_source_sha256"), str)
+            or len(transaction["candidate_source_sha256"]) != 64
+        ):
+            raise RoundTransactionError(
+                "completed transaction source identity is invalid"
+            )
+
+        abandoned = transaction.get("abandoned_ranges")
+        quarantined = transaction.get("abandoned_checkpoints")
+        attempts = transaction.get("evolution_attempts")
+        if (
+            not isinstance(abandoned, list)
+            or not isinstance(quarantined, list)
+            or not isinstance(attempts, list)
+        ):
+            raise RoundTransactionError(
+                "completed transaction recovery history is invalid"
+            )
+        for index, record in enumerate(abandoned, 1):
+            if not isinstance(record, dict):
+                raise RoundTransactionError("abandoned-tail record is not an object")
+            archive_path = (
+                round_dir / f"abandoned-candidate-tail-{index:03d}.bin"
+            )
+            descriptor = _file_descriptor(
+                archive_path, "abandoned candidate-tail archive"
+            )
+            payload = archive_path.read_bytes()
+            observed = self._inspect_abandoned_payload(
+                payload, start_offset=initial_offset
+            )
+            expected_record = {
+                **observed,
+                "archive_path": descriptor["path"],
+                "archive_sha256": descriptor["sha256"],
+                "archive_bytes": descriptor["bytes"],
+            }
+            for key, value in expected_record.items():
+                if record.get(key) != value:
+                    raise RoundTransactionError(
+                        f"abandoned-tail record mismatch for {key}"
+                    )
+        for index, record in enumerate(quarantined, 1):
+            if (
+                not isinstance(record, dict)
+                or record.get("attempt") != index
+                or not isinstance(record.get("reason"), str)
+                or not isinstance(record.get("abandoned_at"), str)
+                or not isinstance(record.get("artifacts"), dict)
+            ):
+                raise RoundTransactionError(
+                    "quarantined checkpoint record is invalid"
+                )
+            destinations = {
+                "checkpoint": round_dir / f"abandoned-checkpoint-attempt-{index:03d}",
+                "completion_marker": round_dir / (
+                    f"abandoned-completion-marker-attempt-{index:03d}.json"
+                ),
+                "slice_witness": round_dir / (
+                    f"abandoned-slice-witness-attempt-{index:03d}.json"
+                ),
+            }
+            artifacts = record["artifacts"]
+            if not artifacts or not set(artifacts).issubset(destinations):
+                raise RoundTransactionError(
+                    "quarantined checkpoint artifact set is invalid"
+                )
+            for name, expected_descriptor in artifacts.items():
+                observed_descriptor = _quarantined_artifact_descriptor(
+                    destinations[name], f"quarantined OpenEvolve {name}"
+                )
+                if observed_descriptor != expected_descriptor:
+                    raise RoundTransactionError(
+                        f"quarantined checkpoint artifact changed: {name}"
+                    )
+        for index, attempt in enumerate(attempts, 1):
+            if (
+                not isinstance(attempt, dict)
+                or attempt.get("attempt") != index
+                or attempt.get("candidate_start_offset") != initial_offset
+                or not isinstance(attempt.get("started_at"), str)
+            ):
+                raise RoundTransactionError(
+                    "completed transaction evolution attempt history is invalid"
+                )
+
+        base = transaction.get("base_checkpoint")
+        result = transaction.get("result_checkpoint")
+        if expected_mode == "candidate-file":
+            if (
+                transaction.get("iterations_per_round") != 0
+                or base is not None
+                or result is not None
+                or transaction.get("expected_result_iteration") is not None
+                or transaction.get("launch_binding") is not None
+                or transaction.get("invocation_binding") is not None
+                or transaction.get("completion_marker_sha256") is not None
+                or transaction.get("completion_witness_sha256") is not None
+                or abandoned
+                or quarantined
+                or attempts
+            ):
+                raise RoundTransactionError(
+                    "completed candidate-file transaction has evolution fields"
+                )
+        else:
+            _revalidate_frozen_bindings(
+                self.config,
+                transaction.get("launch_binding"),
+                transaction.get("invocation_binding"),
+                round_dir,
+            )
+            if base is not None:
+                if not isinstance(base, dict) or "path" not in base:
+                    raise RoundTransactionError(
+                        "completed transaction base checkpoint is invalid"
+                    )
+                observed_base = _checkpoint_descriptor(
+                    self.evolution_output,
+                    Path(base["path"]),
+                    expected_iteration=base.get("last_iteration"),
+                )
+                if observed_base != base:
+                    raise RoundTransactionError(
+                        "completed transaction base checkpoint changed"
+                    )
+            base_iteration = 0 if base is None else int(base["last_iteration"])
+            expected_iteration = base_iteration + self.config.iterations_per_round
+            if (
+                transaction.get("iterations_per_round")
+                != self.config.iterations_per_round
+                or transaction.get("expected_result_iteration")
+                != expected_iteration
+                or not isinstance(result, dict)
+                or result.get("last_iteration") != expected_iteration
+            ):
+                raise RoundTransactionError(
+                    "completed transaction iteration binding is invalid"
+                )
+            self._validate_transaction_checkpoint(transaction, round_dir)
+
+        source_rows = self._validate_transaction_source(transaction)
+        batch_rows = self._validate_candidate_batch(transaction)
+        if batch_rows != _deduplicate(source_rows):
+            raise RoundTransactionError(
+                "completed candidate batch disagrees with its source slice"
+            )
+        return transaction, batch_rows
+
+    @staticmethod
+    def _legacy_batch_paths(round_dir: Path) -> dict[str, Path]:
+        return {
+            "batch": round_dir / "legacy-candidate-batch.jsonl",
+            "sidecar": round_dir / "legacy-candidate-batch.json",
+        }
+
+    def _validate_legacy_batch_sidecar(
+        self,
+        number: int,
+        round_dir: Path,
+    ) -> Path:
+        paths = self._legacy_batch_paths(round_dir)
+        sidecar = _read_json_object(
+            paths["sidecar"], "legacy candidate-batch sidecar"
+        )
+        expected = {
+            "schema_version": LEGACY_BATCH_SCHEMA_VERSION,
+            "protocol": "legacy-materialized-v1",
+            "status": "committed",
+            "run_id": self.store.run_id,
+            "round": number,
+            "candidate_batch": str(paths["batch"].resolve()),
+        }
+        for key, value in expected.items():
+            if sidecar.get(key) != value:
+                raise RoundTransactionError(
+                    f"legacy candidate-batch sidecar mismatch for {key}"
+                )
+        identity = sidecar.get("candidate_batch_identity")
+        pseudo_transaction = {
+            "candidate_batch": sidecar["candidate_batch"],
+            "candidate_batch_identity": identity,
+        }
+        self._validate_candidate_batch(pseudo_transaction)
+        return paths["batch"]
+
+    def _materialize_legacy_batch(
+        self,
+        number: int,
+        round_dir: Path,
+        candidate_path: Path,
+        *,
+        binding: dict[str, Any],
+    ) -> Path:
+        paths = self._legacy_batch_paths(round_dir)
+        if paths["sidecar"].is_symlink():
+            raise RoundTransactionError(
+                f"legacy batch sidecar may not be a symlink: {paths['sidecar']}"
+            )
+        if paths["sidecar"].exists():
+            return self._validate_legacy_batch_sidecar(number, round_dir)
+        if candidate_path.is_symlink() or not candidate_path.is_file():
+            raise RoundTransactionError(
+                f"legacy round candidates are missing: {candidate_path}"
+            )
+        try:
+            rows, source_bytes, source_sha256 = read_jsonl_range(candidate_path, 0)
+        except ValueError as exc:
+            raise RoundTransactionError(str(exc)) from exc
+        source_identity = {
+            "path": str(candidate_path.resolve()),
+            "sha256": source_sha256,
+            "bytes": source_bytes,
+            "rows": len(rows),
+        }
+        expected_batch_identity = self._candidate_rows_identity(rows)
+        if paths["batch"].is_symlink():
+            raise RoundTransactionError(
+                f"legacy candidate batch may not be a symlink: {paths['batch']}"
+            )
+        if paths["batch"].exists():
+            try:
+                observed_rows, observed_bytes, observed_sha256 = read_jsonl_range(
+                    paths["batch"], 0
+                )
+            except ValueError as exc:
+                raise RoundTransactionError(str(exc)) from exc
+            batch_identity = {
+                "sha256": observed_sha256,
+                "bytes": observed_bytes,
+                "rows": len(observed_rows),
+            }
+            if batch_identity != expected_batch_identity or observed_rows != rows:
+                raise RoundTransactionError(
+                    "orphan legacy candidate batch disagrees with candidates"
+                )
+        else:
+            batch_identity = atomic_write_jsonl(paths["batch"], rows)
+            if batch_identity != expected_batch_identity:
+                raise RoundTransactionError(
+                    "legacy candidate batch identity is inconsistent"
+                )
+        sidecar = {
+            "schema_version": LEGACY_BATCH_SCHEMA_VERSION,
+            "protocol": "legacy-materialized-v1",
+            "status": "committed",
+            "run_id": self.store.run_id,
+            "round": number,
+            "candidate_source": source_identity,
+            "candidate_batch": str(paths["batch"].resolve()),
+            "candidate_batch_identity": batch_identity,
+            "legacy_binding": binding,
+            "materialized_at": utc_now(),
+        }
+        atomic_write_json(paths["sidecar"], sidecar)
+        return self._validate_legacy_batch_sidecar(number, round_dir)
+
+    def _migrate_legacy_completed_rounds(self, state: dict[str, Any]) -> None:
+        for number in range(1, int(state.get("current_round", 0)) + 1):
+            round_dir = self.store.round_dir(number)
+            manifest = self._transaction_paths(round_dir)["manifest"]
+            legacy_sidecar = self._legacy_batch_paths(round_dir)["sidecar"]
+            if manifest.exists():
+                self._validate_completed_transaction(number, round_dir)
+                continue
+            if legacy_sidecar.exists():
+                self._validate_legacy_batch_sidecar(number, round_dir)
+                continue
+            self._materialize_legacy_batch(
+                number,
+                round_dir,
+                round_dir / "candidates.jsonl",
+                binding={
+                    "kind": "completed-pre-transaction-round",
+                    "migrated_from_state_round": state.get("current_round"),
+                },
+            )
+
+    def _validate_legacy_pending_round(
+        self,
+        state: dict[str, Any],
+        number: int,
+        candidate_path: Path,
+        milp_path: Path,
+    ) -> None:
+        phase = state.get("round_phase")
+        if phase not in {"screen", "audit", "review", "finalize"}:
+            raise RoundTransactionError(
+                f"legacy pending round has invalid phase: {phase!r}"
+            )
+        offset = state.get("candidate_offset")
+        if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+            raise RoundTransactionError("legacy candidate_offset is invalid")
+        try:
+            _rows, observed_offset, _sha256 = read_jsonl_range(
+                self.candidate_log, 0, offset
+            )
+        except ValueError as exc:
+            raise RoundTransactionError(
+                "legacy candidate offset does not bind a valid source prefix"
+            ) from exc
+        if observed_offset != offset:
+            raise RoundTransactionError("legacy candidate offset changed")
+
+        checkpoint_binding = None
+        if self.config.candidate_file is None:
+            checkpoint_value = state.get("last_checkpoint")
+            if not checkpoint_value:
+                raise RoundTransactionError(
+                    "legacy pending evolution round has no checkpoint"
+                )
+            checkpoint_binding = _checkpoint_descriptor(
+                self.evolution_output,
+                Path(checkpoint_value),
+                expected_iteration=number * self.config.iterations_per_round,
+            )
+        elif state.get("last_checkpoint") is not None:
+            raise RoundTransactionError(
+                "legacy candidate-file round unexpectedly has a checkpoint"
+            )
+
+        if phase in {"audit", "review", "finalize"}:
+            selected_path = candidate_path.parent / "selected.jsonl"
+            for label, path in (
+                ("selection", selected_path),
+                ("MILP evidence", milp_path),
+            ):
+                if path.is_symlink() or not path.is_file():
+                    raise RoundTransactionError(
+                        f"legacy pending round is missing {label}: {path}"
+                    )
+                try:
+                    read_jsonl_range(path, 0)
+                except ValueError as exc:
+                    raise RoundTransactionError(
+                        f"legacy pending round has invalid {label}"
+                    ) from exc
+
+        batch_path = self._materialize_legacy_batch(
+            number,
+            candidate_path.parent,
+            candidate_path,
+            binding={
+                "kind": "pending-pre-transaction-round",
+                "phase": phase,
+                "candidate_offset": offset,
+                "result_checkpoint": checkpoint_binding,
+            },
+        )
+        state["legacy_round_transaction"] = {
+            "round": number,
+            "candidate_batch": str(batch_path.resolve()),
+        }
+        self.store.write_state(state)
+
+    @property
+    def pipeline_candidate_inputs(self) -> tuple[Path, ...]:
+        state = self.store.load_state()
+        if state is None:
+            return ()
+        paths: list[Path] = []
+        previous: dict[str, Any] | None = None
+        legacy_boundary = False
+        seen_v2 = False
+        for number in range(1, int(state.get("current_round", 0)) + 1):
+            round_dir = self.store.root / "rounds" / f"round-{number:03d}"
+            transaction_path = self._transaction_paths(round_dir)["manifest"]
+            legacy_sidecar = self._legacy_batch_paths(round_dir)["sidecar"]
+            if transaction_path.exists() and legacy_sidecar.exists():
+                raise RoundTransactionError(
+                    f"round {number} has both legacy and v2 candidate batches"
+                )
+            if transaction_path.exists():
+                transaction, _rows = self._validate_completed_transaction(
+                    number, round_dir
+                )
+                start_offset = int(transaction["candidate_start_offset"])
+                if previous is None:
+                    if not legacy_boundary and start_offset != 0:
+                        raise RoundTransactionError(
+                            "first pure-v2 transaction must start at candidate offset zero"
+                        )
+                    if (
+                        not legacy_boundary
+                        and transaction["mode"] == "openevolve"
+                        and transaction.get("base_checkpoint") is not None
+                    ):
+                        raise RoundTransactionError(
+                            "first pure-v2 transaction may not resume an unbound checkpoint"
+                        )
+                else:
+                    if int(previous["candidate_end_offset"]) != start_offset:
+                        raise RoundTransactionError(
+                            "completed transaction candidate offsets are not contiguous"
+                        )
+                    if previous.get("result_checkpoint") != transaction.get(
+                        "base_checkpoint"
+                    ):
+                        raise RoundTransactionError(
+                            "completed transaction checkpoint chain is broken"
+                        )
+                if transaction["mode"] == "openevolve":
+                    result = transaction["result_checkpoint"]
+                    expected_result = (
+                        self.evolution_output
+                        / "checkpoints"
+                        / f"checkpoint_{transaction['expected_result_iteration']}"
+                    ).resolve()
+                    if Path(result["path"]) != expected_result:
+                        raise RoundTransactionError(
+                            "completed transaction result checkpoint path is non-canonical"
+                        )
+                paths.append(Path(transaction["candidate_batch"]))
+                previous = transaction
+                legacy_boundary = False
+                seen_v2 = True
+            elif legacy_sidecar.exists():
+                if seen_v2:
+                    raise RoundTransactionError(
+                        "legacy candidate batch may not follow a v2 transaction"
+                    )
+                paths.append(
+                    self._validate_legacy_batch_sidecar(number, round_dir)
+                )
+                previous = None
+                legacy_boundary = True
+            else:
+                raise RoundTransactionError(
+                    f"round {number} has no canonical committed candidate batch"
+                )
+        return tuple(paths)
 
     def _screen_candidates(
         self, rows: list[dict[str, Any]]
@@ -375,53 +3734,144 @@ class HumanizeFlow:
         *,
         state: dict[str, Any],
         milp_path: Path,
+        round_number: int,
     ) -> list[dict[str, Any]]:
-        """Audit selected candidates concurrently with durable checkpoints."""
-        existing = self._read_jsonl(milp_path)
+        """Audit one ordered selection with a global canonical commit log."""
+        global_rows = self._read_canonical_evaluations(
+            recover_final_partial=False
+        )
+        existing = self._reconcile_round_evaluations(
+            selected,
+            round_number=round_number,
+            milp_path=milp_path,
+            global_rows=global_rows,
+        )
         by_key = {code_key(row): row for row in existing}
         pending = [row for row in selected if code_key(row) not in by_key]
-        audited_keys = set(state.get("audited_keys", []))
-        audited_digests = set(state.get("audited_structural_digests", []))
         failures: list[tuple[str, Exception]] = []
 
-        def persist(candidate: dict[str, Any], result: dict[str, Any]) -> None:
+        def run_one(
+            candidate: dict[str, Any],
+        ) -> tuple[dict[str, Any], dict[str, Any]]:
+            attempt_config, attempt, invocation = self._attempt_plan(
+                candidate,
+                state,
+                round_number=round_number,
+            )
+            return (
+                self._evaluate_audit_attempt(
+                    candidate,
+                    attempt_config,
+                    invocation,
+                ),
+                attempt,
+            )
+
+        def persist(
+            candidate: dict[str, Any],
+            result: dict[str, Any],
+            attempt: dict[str, Any],
+        ) -> None:
             key = code_key(candidate)
+            formal_contract = result.pop(
+                "_humanize_formal_audit_contract", False
+            )
+            if not isinstance(formal_contract, bool):
+                raise AuditStateError(
+                    "internal formal evaluator marker is invalid"
+                )
+            defining_fields = ("ell", "m", "A_terms", "B_terms")
+            provenance_fields = ("static_eligibility", "structural_novelty")
+            proposed_identity = dict(result)
+            for field in defining_fields:
+                if field not in proposed_identity and field in candidate:
+                    proposed_identity[field] = candidate[field]
+            observed_key = code_key(proposed_identity)
+            if observed_key != key:
+                raise AuditStateError(
+                    "MILP evaluator returned defining fields for a different "
+                    f"candidate: expected {key}, got {observed_key}"
+                )
+            returned_key = result.get("candidate_key")
+            if returned_key is not None and returned_key != key:
+                raise AuditStateError(
+                    "MILP evaluator returned a mismatched candidate_key"
+                )
+            for field in defining_fields + provenance_fields:
+                if field in candidate:
+                    result[field] = candidate[field]
+                else:
+                    result.pop(field, None)
             result["candidate_key"] = key
             result["milp_attempted"] = True
-            result["d_is_exact"] = _milp_is_fully_exact(result)
-            append_jsonl(milp_path, result)
-            append_jsonl(self.run_dir / "evaluations.jsonl", result)
+            result["d_is_exact"] = is_fully_exact(result)
+            if formal_contract:
+                result["audit_attempt"] = seal_audit_attempt_evidence(
+                    result,
+                    attempt,
+                    run_dir=self.run_dir,
+                    evidence_root=(
+                        self.run_dir / "milp-checkpoints" / "evidence"
+                    ),
+                )
+            else:
+                result.pop("audit_evaluator_invocation", None)
+                debug_attempt = dict(attempt)
+                debug_attempt["schema_version"] = 1
+                result["audit_attempt"] = debug_attempt
+
+            # Validate the row and the entire proposed history before changing
+            # the canonical log. This rejects non-finite JSON, identity drift,
+            # invalid retry metadata, and inconsistent checkpoint history.
+            self._canonical_row_identity(result)
+            proposed_rows = [*global_rows, result]
+            rebuild_audit_state(
+                proposed_rows,
+                fully_exact=is_fully_exact,
+                checkpoint_path_for=lambda candidate_key: (
+                    self._milp_checkpoint_path(candidate_key)
+                ),
+            )
+
+            # The global log is canonical. If the process dies after this
+            # rename, the next start reconstructs both state and round output.
+            global_rows[:] = proposed_rows
+            atomic_write_jsonl(self.evaluations_path, global_rows)
             by_key[key] = result
-            audited_keys.add(key)
-            state["audited_keys"] = sorted(audited_keys)
-            novelty = result.get("structural_novelty") or {}
-            digest = novelty.get("canonical_digest")
-            if digest:
-                audited_digests.add(str(digest))
-            state["audited_structural_digests"] = sorted(audited_digests)
+            atomic_write_jsonl(
+                milp_path,
+                [
+                    by_key[selected_key]
+                    for selected_key in (code_key(row) for row in selected)
+                    if selected_key in by_key
+                ],
+            )
+            self._rebuild_global_audit_state(
+                state,
+                recover_final_partial=False,
+            )
             state["round_phase"] = "audit"
             self.store.write_state(state)
 
         if len(pending) == 1:
             candidate = pending[0]
-            persist(candidate, self.milp_evaluator(candidate, self.config))
+            result, attempt = run_one(candidate)
+            persist(candidate, result, attempt)
         elif pending:
-            # Candidate-level parallelism retains the 64 GiB safety cap of
-            # three while also obeying the campaign-wide resource budget.
             workers = _stage1_milp_worker_count(self.config, len(pending))
             with ThreadPoolExecutor(max_workers=workers) as pool:
                 futures = {
-                    pool.submit(self.milp_evaluator, candidate, self.config): candidate
+                    pool.submit(run_one, candidate): candidate
                     for candidate in pending
                 }
                 for future in as_completed(futures):
                     candidate = futures[future]
                     try:
-                        result = future.result()
+                        result, attempt = future.result()
                     except Exception as exc:
                         failures.append((code_key(candidate), exc))
                     else:
-                        persist(candidate, result)
+                        persist(candidate, result, attempt)
 
         if failures:
             key, exc = failures[0]
@@ -430,8 +3880,12 @@ class HumanizeFlow:
             ) from exc
 
         # Reviewer input follows selection order, independent of worker finish
-        # order and append order on disk.
-        return [by_key[code_key(row)] for row in selected if code_key(row) in by_key]
+        # order and canonical-log order.
+        return [
+            by_key[code_key(row)]
+            for row in selected
+            if code_key(row) in by_key
+        ]
 
     def _write_run_meta(self, state: dict[str, Any]) -> None:
         meta = {
@@ -439,7 +3893,8 @@ class HumanizeFlow:
             "status": state["status"],
             "humanize": True,
             "rounds_completed": state["current_round"],
-            "total_evaluations": len(state.get("audited_keys", [])),
+            "total_evaluations": int(state.get("audit_evaluations_seen", 0)),
+            "unresolved": len(state.get("unresolved_candidates", {})),
             "best_fom": state.get("best_fom", 0.0),
             "max_total_workers": self.config.max_total_workers,
             "config": state["config"],
@@ -518,14 +3973,99 @@ class HumanizeFlow:
     def run(self) -> dict[str, Any]:
         serialized_config = self.config.serializable()
         existing = self.store.load_state()
-        if existing is not None and existing.get("config") != serialized_config:
-            raise ValueError(
-                "Refusing to resume a Humanize run with different configuration"
-            )
+        if existing is not None:
+            durable_config = existing.get("config")
+            if durable_config != serialized_config:
+                compatible_extension = False
+                previous_max_rounds: int | None = None
+                requested_max_rounds = serialized_config.get("max_rounds")
+                current_round = existing.get("current_round")
+                if isinstance(durable_config, dict):
+                    previous_max_rounds = durable_config.get("max_rounds")
+                    durable_context = dict(durable_config)
+                    requested_context = dict(serialized_config)
+                    durable_context.pop("max_rounds", None)
+                    requested_context.pop("max_rounds", None)
+                    compatible_extension = (
+                        isinstance(previous_max_rounds, int)
+                        and not isinstance(previous_max_rounds, bool)
+                        and isinstance(requested_max_rounds, int)
+                        and not isinstance(requested_max_rounds, bool)
+                        and isinstance(current_round, int)
+                        and not isinstance(current_round, bool)
+                        and 0 <= current_round <= previous_max_rounds
+                        and requested_max_rounds > previous_max_rounds
+                        and durable_context == requested_context
+                    )
+                if not compatible_extension:
+                    raise ValueError(
+                        "Refusing to resume a Humanize run with different "
+                        "configuration"
+                    )
+
+                extension_history = existing.get(
+                    "config_extension_events", []
+                )
+                if not isinstance(extension_history, list):
+                    raise ValueError(
+                        "Refusing to resume a Humanize run with malformed "
+                        "configuration extension history"
+                    )
+                assert previous_max_rounds is not None
+                extended_at = utc_now()
+                extension_event = {
+                    "schema_version": 1,
+                    "event": "max_rounds_extended",
+                    "sequence": len(extension_history) + 1,
+                    "from_max_rounds": previous_max_rounds,
+                    "to_max_rounds": requested_max_rounds,
+                    "current_round": current_round,
+                    "extended_at": extended_at,
+                }
+                extended = copy.deepcopy(existing)
+                extended["config"] = copy.deepcopy(serialized_config)
+                extended["config_extension_events"] = [
+                    *copy.deepcopy(extension_history),
+                    extension_event,
+                ]
+                # The authoritative config update and its extension event are
+                # one atomic state-file transaction. The append-only event log
+                # below is an operational mirror of this durable record.
+                self.store.write_state(extended)
+                self.store.event(
+                    "max_rounds_extended",
+                    sequence=extension_event["sequence"],
+                    from_max_rounds=previous_max_rounds,
+                    to_max_rounds=requested_max_rounds,
+                    current_round=current_round,
+                    extended_at=extended_at,
+                )
         state = self.store.initialize(serialized_config)
         state["runtime_worker_budget"] = self.config.max_total_workers
-        if state["status"] in {"completed", "search-complete"}:
+        _global_rows, rebuilt = self._rebuild_global_audit_state(
+            state,
+            recover_final_partial=True,
+        )
+        transaction_version = state.get("round_transaction_version")
+        if transaction_version is None:
+            self._migrate_legacy_completed_rounds(state)
+            if state.get("pending_round") is None:
+                state["round_transaction_version"] = (
+                    ROUND_TRANSACTION_PROTOCOL_VERSION
+                )
+                transaction_version = ROUND_TRANSACTION_PROTOCOL_VERSION
+                self.store.write_state(state)
+        if transaction_version not in (None, ROUND_TRANSACTION_PROTOCOL_VERSION):
+            raise RoundTransactionError(
+                f"unsupported round transaction version: {transaction_version!r}"
+            )
+        if (
+            state["status"] in {"completed", "search-complete"}
+            and not rebuilt.unresolved
+        ):
+            self._write_run_meta(state)
             return state
+
         state.pop("failure", None)
         state["status"] = "running"
         self.store.write_state(state)
@@ -542,70 +4082,115 @@ class HumanizeFlow:
                 candidate_path = round_dir / "candidates.jsonl"
                 milp_path = round_dir / "milp.jsonl"
                 review_path = round_dir / "review.json"
-                resume_review = (
-                    state.get("pending_round") == number
-                    and state.get("round_phase") in {"review", "finalize"}
-                    and candidate_path.is_file()
-                    and milp_path.is_file()
+                pending = state.get("pending_round") == number
+                phase = state.get("round_phase")
+                legacy_pending = (
+                    pending
+                    and state.get("round_transaction_version") is None
                 )
+                if state.get("pending_round") not in (None, number):
+                    raise RoundTransactionError(
+                        "durable state refers to a different pending round"
+                    )
+                if legacy_pending:
+                    self._validate_legacy_pending_round(
+                        state, number, candidate_path, milp_path
+                    )
+
+                resume_review = pending and phase in {"review", "finalize"}
                 if resume_review:
+                    if not legacy_pending:
+                        self._capture_round_candidates(state, number, round_dir)
+                    if (
+                        not candidate_path.is_file()
+                        or not selected_path.is_file()
+                        or not milp_path.is_file()
+                    ):
+                        raise RoundTransactionError(
+                            "review phase is missing candidates, selection, or MILP evidence"
+                        )
                     candidates = self._read_jsonl(candidate_path)
-                    audited = self._read_jsonl(milp_path)
+                    selected = self._read_jsonl(selected_path)
+                    global_rows = self._read_canonical_evaluations(
+                        recover_final_partial=False
+                    )
+                    audited = self._reconcile_round_evaluations(
+                        selected,
+                        round_number=number,
+                        milp_path=milp_path,
+                        global_rows=global_rows,
+                    )
+                    if len(audited) != len(selected):
+                        raise RoundTransactionError(
+                            "review phase lacks canonical global MILP evidence"
+                        )
                     self.store.event(
                         "round_resumed", round_number=number,
-                        phase=state.get("round_phase"),
+                        phase=phase,
                     )
                 else:
-                    resume_audit = candidate_path.is_file()
-                    if resume_audit:
+                    if pending and phase not in {"screen", "audit"}:
+                        raise RoundTransactionError(
+                            f"cannot resume pending round phase {phase!r}"
+                        )
+                    if legacy_pending:
                         candidates = self._read_jsonl(candidate_path)
-                        self.store.event(
-                            "round_resumed", round_number=number,
-                            phase=state.get("round_phase", "audit"),
+                    elif pending:
+                        raw_candidates = self._capture_round_candidates(
+                            state, number, round_dir
+                        )
+                        candidates = (
+                            raw_candidates
+                            if phase == "screen"
+                            else self._read_jsonl(candidate_path)
                         )
                     else:
-                        checkpoint = None
-                        if self.config.candidate_file is None:
-                            checkpoint = self.evolution_runner(
-                                self.config, state, round_dir
-                            )
-                        if checkpoint:
-                            state["last_checkpoint"] = str(checkpoint)
-
-                        candidates, new_offset = read_jsonl_since(
-                            self.candidate_log,
-                            int(state.get("candidate_offset", 0)),
+                        candidates = self._capture_round_candidates(
+                            state, number, round_dir
                         )
-                        state["candidate_offset"] = new_offset
-                        candidates = _deduplicate(candidates)
-                        # Persist raw input and offset before any gate or solver
-                        # can fail; otherwise a resume starts after these rows.
-                        self._write_jsonl(candidate_path, candidates)
-                        state["pending_round"] = number
-                        state["round_phase"] = "screen"
-                        self.store.write_state(state)
 
-                    candidates, rejected = self._screen_candidates(candidates)
-                    self._write_jsonl(candidate_path, candidates)
-                    self._write_jsonl(rejected_path, rejected)
-                    audited_keys = set(state.get("audited_keys", []))
-                    audited_digests = set(
-                        state.get("audited_structural_digests", [])
-                    )
-                    selected = self._read_jsonl(selected_path)
-                    if not selected:
-                        selected = select_for_milp(
-                            candidates, self.archive, audited_keys,
-                            self.config.milp_top, audited_digests,
+                    if state.get("round_phase") == "screen":
+                        candidates, rejected = self._screen_candidates(candidates)
+                        self._write_jsonl(candidate_path, candidates)
+                        self._write_jsonl(rejected_path, rejected)
+                    elif state.get("round_phase") == "audit":
+                        if not candidate_path.is_file():
+                            raise RoundTransactionError(
+                                "audit phase is missing screened candidates"
+                            )
+                        candidates = self._read_jsonl(candidate_path)
+                    else:
+                        raise RoundTransactionError(
+                            "round transaction did not reach screen/audit"
+                        )
+
+                    if selected_path.is_file():
+                        selected = self._read_jsonl(selected_path)
+                    elif state.get("round_phase") == "screen":
+                        selected = self._select_audit_candidates(
+                            candidates,
+                            state,
                         )
                         self._write_jsonl(selected_path, selected)
+                    else:
+                        raise RoundTransactionError(
+                            "audit phase is missing the durable selection"
+                        )
                     if not milp_path.exists():
-                        milp_path.write_text("")
+                        self._write_jsonl(milp_path, [])
                     state["pending_round"] = number
                     state["round_phase"] = "audit"
                     self.store.write_state(state)
+                    self.store.event(
+                        "round_resumed" if pending else "round_batch_committed",
+                        round_number=number,
+                        phase="audit",
+                    )
                     audited = self._audit_selected(
-                        selected, state=state, milp_path=milp_path
+                        selected,
+                        state=state,
+                        milp_path=milp_path,
+                        round_number=number,
                     )
                     state["round_phase"] = "review"
                     self.store.write_state(state)
@@ -643,15 +4228,20 @@ class HumanizeFlow:
                     ) + 1
 
                 self._finish_round(state, number, candidates, audited, review, round_dir)
-                exact_total = sum(
-                    1
-                    for path in (self.run_dir / "evaluations.jsonl",)
-                    for row in (path.read_text().splitlines() if path.is_file() else [])
-                    if row.strip() and _milp_is_fully_exact(json.loads(row))
+                canonical_rows = self._read_canonical_evaluations(
+                    recover_final_partial=False
                 )
-                should_stop = (
-                    review["verdict"] == "stop" and exact_total > 0
-                ) or int(state["no_improvement_rounds"]) >= self.config.patience
+                exact_total = sum(
+                    is_fully_exact(row) for row in canonical_rows
+                )
+                unresolved_count = len(
+                    state.get("unresolved_candidates", {})
+                )
+                should_stop = not unresolved_count and (
+                    (review["verdict"] == "stop" and exact_total > 0)
+                    or int(state["no_improvement_rounds"])
+                    >= self.config.patience
+                )
                 self.store.event(
                     "round_completed",
                     round_number=number,
@@ -659,8 +4249,12 @@ class HumanizeFlow:
                     exact_total=exact_total,
                     stop=should_stop,
                 )
+                state["round_transaction_version"] = (
+                    ROUND_TRANSACTION_PROTOCOL_VERSION
+                )
                 state.pop("pending_round", None)
                 state.pop("round_phase", None)
+                state.pop("legacy_round_transaction", None)
                 self.store.write_state(state)
                 self._write_run_meta(state)
                 if should_stop:
@@ -674,6 +4268,21 @@ class HumanizeFlow:
                     "round_failed", round_number=number, error=state["failure"]
                 )
                 raise
+
+        unresolved_count = len(state.get("unresolved_candidates", {}))
+        if unresolved_count:
+            state["status"] = "incomplete-unresolved"
+            self.store.write_state(state)
+            self._write_run_meta(state)
+            self.store.event(
+                "search_incomplete_unresolved",
+                rounds=state["current_round"],
+                unresolved=unresolved_count,
+            )
+            raise UnresolvedAuditError(
+                "Stage 1 exhausted max_rounds with "
+                f"{unresolved_count} unresolved MILP candidate(s)"
+            )
 
         state["status"] = "search-complete"
         self.store.write_state(state)
