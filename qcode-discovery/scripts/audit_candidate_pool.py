@@ -11,8 +11,10 @@ import math
 import os
 import platform
 import sys
+import time
 import uuid
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from collections import deque
+from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
@@ -22,6 +24,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from evaluation.bb_code import build_bb_code
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
 from evaluation.final_gate import classify_win, minimum_winning_distance
+from evaluation.process_hard_wall import (
+    DEFAULT_TERMINATION_GRACE_S,
+    positive_wall_timeout,
+    terminate_process_pool,
+)
 from evaluation.proof_triage import (
     candidate_identity,
     deduplicate_ranked,
@@ -87,6 +94,9 @@ class AuditConfig:
     certificate_solver_workers: int = 1
     verification_timeout_per_logical_s: float = 300
     verification_total_timeout_s: float = 7200
+    candidate_hard_timeout_s: float | None = None
+    certificate_hard_timeout_s: float | None = None
+    hard_wall_termination_grace_s: float = DEFAULT_TERMINATION_GRACE_S
 
 
 def _atomic_write_text(path: Path, text: str) -> None:
@@ -1408,50 +1418,180 @@ def _audit_worker(
     return audit_candidate(ranked, config)
 
 
+def _candidate_hard_timeout(config: AuditConfig) -> float:
+    """Bound both sequential X/Z sector calls for one Stage 2 candidate."""
+
+    configured = config.candidate_hard_timeout_s
+    if configured is not None:
+        return positive_wall_timeout(configured, "candidate hard timeout")
+    # Each candidate has exactly two sequential sector solves.  The fixed
+    # allowance covers reconstruction and atomic checkpoint writes.
+    return 2.0 * positive_wall_timeout(
+        config.solver_timeout_s, "solver timeout"
+    ) + 5.0
+
+
+def _certificate_hard_timeout(config: AuditConfig) -> float:
+    """Bound one complete build plus independent verification candidate."""
+
+    configured = config.certificate_hard_timeout_s
+    if configured is not None:
+        return positive_wall_timeout(configured, "certificate hard timeout")
+    return (
+        positive_wall_timeout(
+            config.certificate_total_timeout_s,
+            "certificate total timeout",
+        )
+        + positive_wall_timeout(
+            config.verification_total_timeout_s,
+            "verification total timeout",
+        )
+        + 5.0
+    )
+
+
+def _stage2_hard_wall_result(
+    candidate: Mapping[str, Any],
+    config: AuditConfig,
+    *,
+    hard_timeout_s: float,
+    peer_timeout: bool,
+) -> dict[str, Any]:
+    """Recover a just-committed artifact or mark killed work retryable."""
+
+    identity = candidate.get("triage_identity")
+    if not isinstance(identity, Mapping):
+        identity = candidate_identity(candidate)
+    digest = str(identity["canonical_digest"])
+    path = state_paths(config.state_dir, digest)["audit"]
+    artifact = _load_json_object(path)
+    if artifact is not None and artifact.get("status") in TERMINAL_STATUSES:
+        result: dict[str, Any] = {
+            "canonical_digest": digest,
+            "status": str(artifact["status"]),
+            "audit_path": str(path),
+            "completed_sectors": int(
+                artifact.get("completed_sectors", 0) or 0
+            ),
+            "resumed_sectors": 0,
+            "recovered_after_worker_termination": True,
+        }
+        if result["status"] == "THRESHOLD_PROVEN":
+            result["certificate"] = {
+                "attempted": False,
+                "deferred": config.certify,
+            }
+        return result
+    return {
+        "canonical_digest": digest,
+        "status": "UNRESOLVED",
+        "audit_path": str(path),
+        "completed_sectors": int(
+            artifact.get("completed_sectors", 0)
+            if artifact is not None else 0
+        ),
+        "resumed_sectors": 0,
+        "hard_wall": {
+            "timed_out": not peer_timeout,
+            "peer_timeout_interruption": peer_timeout,
+            "candidate_timeout_s": hard_timeout_s,
+        },
+    }
+
+
 def audit_selected_candidates(
     selected: list[dict[str, Any]],
     config: AuditConfig,
     *,
     candidate_workers: int,
 ) -> list[dict[str, Any]]:
-    """Audit selected candidates and isolate per-candidate failures."""
+    """Audit candidates with a process-enforced wall deadline per candidate."""
 
-    if candidate_workers == 1:
-        results = []
-        for candidate in selected:
-            try:
-                results.append(audit_candidate(candidate, config))
-            except Exception as exc:
-                identity = candidate_identity(candidate)
-                results.append({
-                    "canonical_digest": identity["canonical_digest"],
-                    "status": "ERROR",
-                    "error": f"{type(exc).__name__}: {exc}",
-                })
-        return results
+    if candidate_workers < 1:
+        raise ValueError("candidate_workers must be positive")
+    hard_timeout = _candidate_hard_timeout(config)
+    termination_grace = positive_wall_timeout(
+        config.hard_wall_termination_grace_s,
+        "hard-wall termination grace",
+    )
+    queued = deque(selected)
+    completed: dict[str, dict[str, Any]] = {}
+    while queued:
+        executor = ProcessPoolExecutor(max_workers=candidate_workers)
+        active: dict[Any, tuple[dict[str, Any], float]] = {}
+        pool_terminated = False
 
-    results = []
-    with ProcessPoolExecutor(max_workers=candidate_workers) as executor:
-        futures = {
-            executor.submit(_audit_worker, (candidate, config)):
-            str(candidate["triage_identity"]["canonical_digest"])
-            for candidate in selected
-        }
-        for future in as_completed(futures):
-            digest = futures[future]
-            try:
-                results.append(future.result())
-            except Exception as exc:
-                results.append({
-                    "canonical_digest": digest,
-                    "status": "ERROR",
-                    "error": f"{type(exc).__name__}: {exc}",
-                })
+        def submit_available() -> None:
+            while queued and len(active) < candidate_workers:
+                candidate = queued.popleft()
+                future = executor.submit(_audit_worker, (candidate, config))
+                active[future] = (
+                    candidate,
+                    time.monotonic() + hard_timeout,
+                )
+
+        submit_available()
+        try:
+            while active:
+                now = time.monotonic()
+                next_deadline = min(deadline for _, deadline in active.values())
+                done, _ = wait(
+                    active,
+                    timeout=max(0.0, next_deadline - now),
+                    return_when=FIRST_COMPLETED,
+                )
+                for future in done:
+                    candidate, _ = active.pop(future)
+                    identity = candidate.get("triage_identity")
+                    if not isinstance(identity, Mapping):
+                        identity = candidate_identity(candidate)
+                    digest = str(identity["canonical_digest"])
+                    try:
+                        completed[digest] = future.result()
+                    except Exception as exc:
+                        completed[digest] = {
+                            "canonical_digest": digest,
+                            "status": "ERROR",
+                            "error": f"{type(exc).__name__}: {exc}",
+                        }
+                submit_available()
+                now = time.monotonic()
+                overdue = {
+                    future
+                    for future, (_, deadline) in active.items()
+                    if deadline <= now
+                }
+                if not overdue:
+                    continue
+                interrupted = list(active.values())
+                terminate_process_pool(
+                    executor,
+                    grace_s=termination_grace,
+                )
+                pool_terminated = True
+                for candidate, deadline in interrupted:
+                    identity = candidate.get("triage_identity")
+                    if not isinstance(identity, Mapping):
+                        identity = candidate_identity(candidate)
+                    digest = str(identity["canonical_digest"])
+                    completed[digest] = _stage2_hard_wall_result(
+                        candidate,
+                        config,
+                        hard_timeout_s=hard_timeout,
+                        peer_timeout=deadline > now,
+                    )
+                active.clear()
+        finally:
+            if not pool_terminated:
+                executor.shutdown(wait=True, cancel_futures=True)
     order = {
         str(candidate["triage_identity"]["canonical_digest"]): index
         for index, candidate in enumerate(selected)
     }
-    return sorted(results, key=lambda item: order[item["canonical_digest"]])
+    return sorted(
+        completed.values(),
+        key=lambda item: order[item["canonical_digest"]],
+    )
 
 
 def _certificate_phase_item(
@@ -1506,6 +1646,29 @@ def _certificate_phase_failure(exc: Exception) -> dict[str, Any]:
     }
 
 
+def _certificate_phase_hard_wall(
+    *,
+    hard_timeout_s: float,
+    peer_timeout: bool,
+) -> dict[str, Any]:
+    reason = (
+        "certificate worker terminated after a peer hard-wall timeout"
+        if peer_timeout
+        else "certificate/verification candidate hard-wall timeout"
+    )
+    return {
+        "attempted": True,
+        "certificate_passed": False,
+        "verification_passed": False,
+        "error": reason,
+        "hard_wall": {
+            "timed_out": not peer_timeout,
+            "peer_timeout_interruption": peer_timeout,
+            "candidate_timeout_s": hard_timeout_s,
+        },
+    }
+
+
 def _certificate_worker(
     payload: tuple[
         dict[str, Any],
@@ -1543,6 +1706,7 @@ def certify_selected_candidates(
             config.certificate_solver_workers,
             max_total_workers,
         )
+    custom_certifier = certifier is not None
     certifier = certify_candidate if certifier is None else certifier
     prepared: list[tuple[dict[str, Any], str]] = []
     seen: set[str] = set()
@@ -1560,7 +1724,11 @@ def certify_selected_candidates(
         }
 
     results: dict[str, dict[str, Any]] = {}
-    if certificate_workers == 1:
+    # Unit/integration callers may inject a local closure that cannot cross a
+    # process boundary.  Production always uses the default top-level
+    # certifier and therefore always receives the hard wall, including with a
+    # single configured worker.
+    if certificate_workers == 1 and custom_certifier:
         for candidate, digest in prepared:
             try:
                 results[digest] = certifier(candidate, digest, config)
@@ -1568,24 +1736,75 @@ def certify_selected_candidates(
                 results[digest] = _certificate_phase_failure(exc)
         return results
 
-    with ProcessPoolExecutor(max_workers=certificate_workers) as executor:
-        futures = {
-            executor.submit(
-                _certificate_worker,
-                (candidate, digest, config, certifier),
-            ): digest
-            for candidate, digest in prepared
-        }
-        completed: dict[str, dict[str, Any]] = {}
-        for future in as_completed(futures):
-            digest = futures[future]
-            try:
-                returned_digest, result = future.result()
-                if returned_digest != digest:
-                    raise ValueError("certificate worker returned wrong digest")
-                completed[digest] = result
-            except Exception as exc:
-                completed[digest] = _certificate_phase_failure(exc)
+    hard_timeout = _certificate_hard_timeout(config)
+    termination_grace = positive_wall_timeout(
+        config.hard_wall_termination_grace_s,
+        "hard-wall termination grace",
+    )
+    queued = deque(prepared)
+    completed: dict[str, dict[str, Any]] = {}
+    while queued:
+        executor = ProcessPoolExecutor(max_workers=certificate_workers)
+        active: dict[Any, tuple[str, float]] = {}
+        pool_terminated = False
+
+        def submit_available() -> None:
+            while queued and len(active) < certificate_workers:
+                candidate, digest = queued.popleft()
+                future = executor.submit(
+                    _certificate_worker,
+                    (candidate, digest, config, certifier),
+                )
+                active[future] = (
+                    digest,
+                    time.monotonic() + hard_timeout,
+                )
+
+        submit_available()
+        try:
+            while active:
+                now = time.monotonic()
+                next_deadline = min(deadline for _, deadline in active.values())
+                done, _ = wait(
+                    active,
+                    timeout=max(0.0, next_deadline - now),
+                    return_when=FIRST_COMPLETED,
+                )
+                for future in done:
+                    digest, _ = active.pop(future)
+                    try:
+                        returned_digest, result = future.result()
+                        if returned_digest != digest:
+                            raise ValueError(
+                                "certificate worker returned wrong digest"
+                            )
+                        completed[digest] = result
+                    except Exception as exc:
+                        completed[digest] = _certificate_phase_failure(exc)
+                submit_available()
+                now = time.monotonic()
+                overdue = {
+                    future
+                    for future, (_, deadline) in active.items()
+                    if deadline <= now
+                }
+                if not overdue:
+                    continue
+                interrupted = list(active.values())
+                terminate_process_pool(
+                    executor,
+                    grace_s=termination_grace,
+                )
+                pool_terminated = True
+                for digest, deadline in interrupted:
+                    completed[digest] = _certificate_phase_hard_wall(
+                        hard_timeout_s=hard_timeout,
+                        peer_timeout=deadline > now,
+                    )
+                active.clear()
+        finally:
+            if not pool_terminated:
+                executor.shutdown(wait=True, cancel_futures=True)
     return {
         digest: completed[digest]
         for _, digest in prepared
@@ -1704,6 +1923,27 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=7200,
     )
+    parser.add_argument(
+        "--candidate-hard-timeout",
+        type=float,
+        help=(
+            "process wall timeout per Stage 2 candidate; defaults to two "
+            "sector soft budgets plus checkpoint overhead"
+        ),
+    )
+    parser.add_argument(
+        "--certificate-hard-timeout",
+        type=float,
+        help=(
+            "process wall timeout per certificate candidate; defaults to "
+            "build plus verification total budgets"
+        ),
+    )
+    parser.add_argument(
+        "--hard-wall-termination-grace",
+        type=float,
+        default=DEFAULT_TERMINATION_GRACE_S,
+    )
     return parser
 
 
@@ -1718,9 +1958,14 @@ def main(argv: list[str] | None = None) -> int:
         "certificate_total_timeout",
         "verification_timeout_per_logical",
         "verification_total_timeout",
+        "hard_wall_termination_grace",
     ):
         value = getattr(args, name)
         if not math.isfinite(value) or value <= 0:
+            parser.error(f"{name.replace('_', '-')} must be positive")
+    for name in ("candidate_hard_timeout", "certificate_hard_timeout"):
+        value = getattr(args, name)
+        if value is not None and (not math.isfinite(value) or value <= 0):
             parser.error(f"{name.replace('_', '-')} must be positive")
     try:
         validate_worker_budget(
@@ -1783,6 +2028,11 @@ def main(argv: list[str] | None = None) -> int:
             args.verification_timeout_per_logical
         ),
         verification_total_timeout_s=args.verification_total_timeout,
+        candidate_hard_timeout_s=args.candidate_hard_timeout,
+        certificate_hard_timeout_s=args.certificate_hard_timeout,
+        hard_wall_termination_grace_s=(
+            args.hard_wall_termination_grace
+        ),
     )
     screening_results = audit_selected_candidates(
         selected,
@@ -1842,6 +2092,11 @@ def main(argv: list[str] | None = None) -> int:
             "configured_solver_workers": (
                 args.candidate_workers * args.solver_workers
             ),
+        },
+        "hard_wall_budget": {
+            "candidate_timeout_s": _candidate_hard_timeout(config),
+            "certificate_timeout_s": _certificate_hard_timeout(config),
+            "termination_grace_s": config.hard_wall_termination_grace_s,
         },
         "phase_worker_budgets": {
             "phases_overlap": False,
