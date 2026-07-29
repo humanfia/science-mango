@@ -326,6 +326,7 @@ def _make_synthetic_completed_win(
                 "source_index": index,
                 "claim": certificate["claim"],
                 "certificate_sha256": certificate["certificate_sha256"],
+                "certificate_payload_sha256": _payload_sha256(certificate),
                 "disposition": "ACCEPTED",
                 "result": {
                     "passed": True,
@@ -714,6 +715,9 @@ def test_export_release_rejects_state_output_hash_mismatch(tmp_path):
         lambda evaluation: evaluation.__setitem__("source_index", 1),
         lambda evaluation: evaluation.__setitem__("certificate_sha256", "b" * 64),
         lambda evaluation: evaluation.__setitem__(
+            "certificate_payload_sha256", "b" * 64
+        ),
+        lambda evaluation: evaluation.__setitem__(
             "claim", {**evaluation["claim"], "n": 999}
         ),
         lambda evaluation: evaluation["result"].__setitem__("passed", False),
@@ -721,7 +725,7 @@ def test_export_release_rejects_state_output_hash_mismatch(tmp_path):
             "accepted", False
         ),
     ],
-    ids=["index", "hash", "claim", "result", "final-gate"],
+    ids=["index", "hash", "payload-hash", "claim", "result", "final-gate"],
 )
 def test_export_release_rejects_stage5_binding_mismatch(tmp_path, mutation):
     repo, run_id = _make_synthetic_completed_win(tmp_path)

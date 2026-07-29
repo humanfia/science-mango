@@ -3678,6 +3678,8 @@ class FiveStagePipeline:
                 or not isinstance(source_index, int)
                 or source_index != index
                 or evaluation.get("certificate_sha256") != certificate_sha
+                or evaluation.get("certificate_payload_sha256")
+                != _canonical_sha256(certificate)
                 or evaluation.get("claim") != certificate.get("claim")
                 or not isinstance(result, Mapping)
                 or disposition not in observed

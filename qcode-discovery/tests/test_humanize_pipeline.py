@@ -222,6 +222,15 @@ class ScenarioRunner:
                     "source_index": index,
                     "claim": certificate.get("claim"),
                     "certificate_sha256": certificate.get("certificate_sha256"),
+                    "certificate_payload_sha256": hashlib.sha256(
+                        json.dumps(
+                            certificate,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                            ensure_ascii=False,
+                            allow_nan=False,
+                        ).encode()
+                    ).hexdigest(),
                     "disposition": disposition,
                     "result": {
                         "passed": disposition == "ACCEPTED",
@@ -2230,7 +2239,7 @@ def test_stage5_timeout_keeps_current_proof_page_pending(tmp_path):
     assert ledger["pending"] is not None
 
 
-def test_stage5_incomplete_automatically_retries_with_scaled_strict_budget(
+def test_stage5_retry_reaches_later_winner_and_exports_accepted_subset(
     tmp_path,
 ):
     repo, candidates = _repo(tmp_path)
@@ -2240,12 +2249,13 @@ def test_stage5_incomplete_automatically_retries_with_scaled_strict_budget(
         proof_retry_max_attempts=4,
         proof_retry_backoff_seconds=0,
     )
+    blocker, _ = _certificate(config, "strict-timeout-blocker")
     winner, _ = _certificate(config, "strict-timeout-eventual-win")
     runner = ScenarioRunner(
-        stage2=[_plan([winner])],
+        stage2=[_plan([blocker, winner])],
         strict=[
-            _plan(strict_dispositions=["INCOMPLETE"]),
-            _plan(strict_dispositions=["ACCEPTED"]),
+            _plan(strict_dispositions=["INCOMPLETE", "INCOMPLETE"]),
+            _plan(strict_dispositions=["INCOMPLETE", "ACCEPTED"]),
         ],
     )
 

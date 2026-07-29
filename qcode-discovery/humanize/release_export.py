@@ -1208,6 +1208,8 @@ def _validate_stage5(
             evaluation.get("source_index") != index
             or isinstance(evaluation.get("source_index"), bool)
             or evaluation.get("certificate_sha256") != certificate_sha
+            or evaluation.get("certificate_payload_sha256")
+            != canonical_sha256(dict(certificate))
             or not isinstance(evaluation_claim, dict)
             or not isinstance(certificate_claim, dict)
             or _payload_sha256(evaluation_claim) != _payload_sha256(certificate_claim)

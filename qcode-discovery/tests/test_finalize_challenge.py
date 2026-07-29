@@ -68,7 +68,9 @@ def test_main_forwards_strict_replay_budget_and_checkpoint(tmp_path, monkeypatch
     assert controls["resume"] is True
     checkpoint = Path(controls["checkpoint_path"])
     assert checkpoint.parent == args.verification_state_dir
-    assert checkpoint.name.startswith("0000-")
+    assert checkpoint.name == (
+        f"{finalizer._payload_sha256(_certificate())}.json"
+    )
 
     artifact = json.loads(args.output.read_text())
     assert artifact["passed"] is True
@@ -108,38 +110,131 @@ def test_invalid_verification_budget_fails_before_replay(
     assert not args.output.exists()
 
 
-def test_batch_timeout_stops_later_certificate_replay(tmp_path, monkeypatch):
-    args = _args(tmp_path, [_certificate(0), _certificate(1)])
+def test_batch_timeout_rotates_to_later_certificate_after_restart(
+    tmp_path,
+    monkeypatch,
+):
+    certificates = [_certificate(0), _certificate(1)]
+    args = _args(tmp_path, certificates)
     args.verification_total_timeout = 10.0
     calls = []
-    clock = iter((0.0, 1.0, 11.0))
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
     monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
-    monkeypatch.setattr(finalizer.time, "monotonic", lambda: next(clock))
 
     def verify(certificate, **kwargs):
         calls.append((certificate, kwargs))
+        if certificate == certificates[0]:
+            return {
+                "passed": False,
+                "replay_complete": False,
+                "failures": ["first certificate exhausted its budget"],
+            }
         return {"passed": True, "accepted": True, "failures": []}
 
     monkeypatch.setattr(finalizer, "verify_certificate", verify)
 
+    first_clock = iter((0.0, 1.0, 11.0))
+    monkeypatch.setattr(
+        finalizer.time,
+        "monotonic",
+        lambda: next(first_clock),
+    )
     assert finalizer.main() == 0
     assert len(calls) == 1
     assert calls[0][1]["total_timeout"] == 9.0
-    artifact = json.loads(args.output.read_text())
-    assert artifact["passed"] is True
-    assert artifact["outcome"] == "WIN"
-    assert artifact["summary"] == {
+    first = json.loads(args.output.read_text())
+    assert first["passed"] is False
+    assert first["outcome"] == "INCOMPLETE"
+    assert first["summary"] == {
+        "accepted": 0,
+        "rejected": 0,
+        "incomplete": 2,
+        "total": 2,
+    }
+    scheduler_path = (
+        args.verification_state_dir / finalizer.SCHEDULER_FILENAME
+    )
+    scheduler = json.loads(scheduler_path.read_text())
+    assert scheduler["next_payload_sha256"] == finalizer._payload_sha256(
+        certificates[1]
+    )
+
+    reordered = [certificates[1], certificates[0]]
+    args.claims.write_text(json.dumps(reordered) + "\n")
+    second_clock = iter((0.0, 1.0))
+    monkeypatch.setattr(
+        finalizer.time,
+        "monotonic",
+        lambda: next(second_clock),
+    )
+    assert finalizer.main() == 0
+
+    assert [certificate for certificate, _ in calls] == certificates
+    assert calls[1][1]["total_timeout"] == 9.0
+    assert Path(calls[1][1]["checkpoint_path"]).name == (
+        f"{finalizer._payload_sha256(certificates[1])}.json"
+    )
+    second = json.loads(args.output.read_text())
+    assert second["passed"] is True
+    assert second["outcome"] == "WIN"
+    assert second["summary"] == {
         "accepted": 1,
         "rejected": 0,
         "incomplete": 1,
         "total": 2,
     }
-    assert artifact["evaluations"][0]["disposition"] == "ACCEPTED"
-    assert artifact["evaluations"][1]["disposition"] == "INCOMPLETE"
-    assert artifact["evaluations"][1]["result"]["failures"] == [
-        "strict replay batch timeout exhausted"
+    assert second["evaluations"][0]["claim"] == reordered[0]["claim"]
+    assert second["evaluations"][0]["disposition"] == "ACCEPTED"
+    assert second["evaluations"][1]["claim"] == reordered[1]["claim"]
+    assert second["evaluations"][1]["disposition"] == "INCOMPLETE"
+    assert second["evaluations"][1]["result"]["failures"] == [
+        "strict replay deferred by fair batch scheduler"
     ]
+
+
+def test_scheduler_advances_before_crashed_verifier_and_resumes_peer(
+    tmp_path,
+    monkeypatch,
+):
+    certificates = [_certificate(0), _certificate(1)]
+    args = _args(tmp_path, certificates)
+    calls = []
+    monkeypatch.setattr(finalizer, "parse_args", lambda: args)
+    monkeypatch.setattr(finalizer, "check_known_answer_integrity", _strict_integrity)
+    monkeypatch.setattr(finalizer.time, "monotonic", lambda: 0.0)
+
+    def crash(certificate, **kwargs):
+        calls.append((certificate, kwargs))
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(finalizer, "verify_certificate", crash)
+    with pytest.raises(KeyboardInterrupt):
+        finalizer.main()
+
+    scheduler = json.loads(
+        (
+            args.verification_state_dir / finalizer.SCHEDULER_FILENAME
+        ).read_text()
+    )
+    assert scheduler["last_started_payload_sha256"] == (
+        finalizer._payload_sha256(certificates[0])
+    )
+    assert scheduler["next_payload_sha256"] == finalizer._payload_sha256(
+        certificates[1]
+    )
+
+    def accept(certificate, **kwargs):
+        calls.append((certificate, kwargs))
+        return {"passed": True, "accepted": True, "failures": []}
+
+    monkeypatch.setattr(finalizer, "verify_certificate", accept)
+    assert finalizer.main() == 0
+
+    assert [certificate for certificate, _ in calls] == certificates
+    artifact = json.loads(args.output.read_text())
+    assert artifact["outcome"] == "WIN"
+    assert artifact["evaluations"][0]["disposition"] == "INCOMPLETE"
+    assert artifact["evaluations"][1]["disposition"] == "ACCEPTED"
 
 
 def test_verifier_runtime_error_is_persisted_fail_closed(tmp_path, monkeypatch):

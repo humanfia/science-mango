@@ -13,11 +13,13 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import sys
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -26,6 +28,11 @@ from evaluation.certificate_dispatch import (
     verify_certificate,
 )
 from evaluation.known_answer_integrity import check_known_answer_integrity
+
+
+SCHEDULER_SCHEMA_VERSION = 1
+SCHEDULER_GATE = "qldpc-strict-replay-round-robin"
+SCHEDULER_FILENAME = "strict-replay-scheduler.json"
 
 
 def load_rows(path: Path) -> list[dict[str, Any]]:
@@ -129,6 +136,114 @@ def _payload_sha256(value: dict[str, Any]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _atomic_write_json(path: Path, value: Mapping[str, Any]) -> None:
+    """Durably replace scheduler state without exposing a partial JSON file."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(
+        f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp",
+    )
+    try:
+        with temporary.open("w", encoding="utf-8") as stream:
+            json.dump(
+                dict(value),
+                stream,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        try:
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:
+            directory_fd = None
+        if directory_fd is not None:
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _scheduler_binding(payloads: list[str]) -> str:
+    return _payload_sha256(
+        {
+            "schema_version": SCHEDULER_SCHEMA_VERSION,
+            "certificate_payload_sha256": sorted(payloads),
+        }
+    )
+
+
+def _load_scheduler(
+    path: Path,
+    payloads: list[str],
+) -> dict[str, Any]:
+    """Load a reorder-safe cursor, resetting only for a different batch."""
+
+    binding = _scheduler_binding(payloads)
+    expected_payloads = sorted(payloads)
+    try:
+        value = json.loads(path.read_text())
+    except FileNotFoundError:
+        value = None
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"strict replay scheduler is unavailable: {exc}") from exc
+    if not isinstance(value, Mapping) or value.get("binding_sha256") != binding:
+        scheduler = {
+            "schema_version": SCHEDULER_SCHEMA_VERSION,
+            "gate": SCHEDULER_GATE,
+            "binding_sha256": binding,
+            "certificate_payload_sha256": expected_payloads,
+            "next_payload_sha256": payloads[0],
+            "scheduled_attempts": 0,
+        }
+        _atomic_write_json(path, scheduler)
+        return scheduler
+    next_payload = value.get("next_payload_sha256")
+    attempts = value.get("scheduled_attempts")
+    if (
+        value.get("schema_version") != SCHEDULER_SCHEMA_VERSION
+        or value.get("gate") != SCHEDULER_GATE
+        or value.get("certificate_payload_sha256") != expected_payloads
+        or not isinstance(next_payload, str)
+        or next_payload not in payloads
+        or isinstance(attempts, bool)
+        or not isinstance(attempts, int)
+        or attempts < 0
+    ):
+        raise ValueError("strict replay scheduler is malformed")
+    return dict(value)
+
+
+def _advance_scheduler(
+    path: Path,
+    scheduler: dict[str, Any],
+    *,
+    payloads: list[str],
+    current_payload: str,
+) -> None:
+    """Advance before solver entry so a crash cannot starve peer certificates."""
+
+    current_index = payloads.index(current_payload)
+    scheduler["next_payload_sha256"] = payloads[
+        (current_index + 1) % len(payloads)
+    ]
+    scheduler["last_started_payload_sha256"] = current_payload
+    scheduler["scheduled_attempts"] = int(
+        scheduler["scheduled_attempts"]
+    ) + 1
+    scheduler["updated_at"] = datetime.now(timezone.utc).isoformat()
+    _atomic_write_json(path, scheduler)
+
+
 def _incomplete_result(failure: str) -> dict[str, Any]:
     return {
         "passed": False,
@@ -172,6 +287,14 @@ def main() -> int:
         )
         return 2
 
+    payloads = [_payload_sha256(certificate) for certificate in rows]
+    if len(set(payloads)) != len(payloads):
+        print(
+            "FINAL GATE FAILED: duplicate certificate payloads are forbidden",
+            file=sys.stderr,
+        )
+        return 2
+
     try:
         integrity = check_known_answer_integrity(
             args.known_answer_artifact,
@@ -187,44 +310,81 @@ def main() -> int:
             "failures": [f"strict known-answer integrity failed: {exc}"],
         }
 
-    evaluations = []
+    evaluations_by_index: dict[int, dict[str, Any]] = {}
     if integrity.get("passed") is True:
         replay_started = time.monotonic()
+        scheduler = None
+        scheduler_path = None
         if args.verification_state_dir is not None:
             args.verification_state_dir.mkdir(parents=True, exist_ok=True)
-        for index, certificate in enumerate(rows):
+            scheduler_path = (
+                args.verification_state_dir / SCHEDULER_FILENAME
+            )
+            try:
+                scheduler = _load_scheduler(scheduler_path, payloads)
+            except (OSError, TypeError, ValueError) as exc:
+                print(
+                    f"FINAL GATE FAILED: cannot load replay scheduler: {exc}",
+                    file=sys.stderr,
+                )
+                return 2
+        start_payload = (
+            payloads[0]
+            if scheduler is None
+            else str(scheduler["next_payload_sha256"])
+        )
+        start_index = payloads.index(start_payload)
+        schedule = [
+            *range(start_index, len(rows)),
+            *range(0, start_index),
+        ]
+        for index in schedule:
+            certificate = rows[index]
+            payload_sha256 = payloads[index]
             remaining = args.verification_total_timeout - (
                 time.monotonic() - replay_started
             )
             checkpoint = None
             if args.verification_state_dir is not None:
                 checkpoint = args.verification_state_dir / (
-                    f"{index:04d}-{_payload_sha256(certificate)}.json"
+                    f"{payload_sha256}.json"
                 )
             if remaining <= 0:
-                verification = _incomplete_result(
-                    "strict replay batch timeout exhausted"
-                )
-            else:
+                break
+            if scheduler is not None and scheduler_path is not None:
                 try:
-                    verification = verify_certificate(
-                        certificate,
-                        known_answer_artifact=args.known_answer_artifact,
-                        rerun_milp=True,
-                        timeout_per_logical=min(
-                            args.verification_timeout_per_logical,
-                            remaining,
-                        ),
-                        checkpoint_path=checkpoint,
-                        resume=args.resume,
-                        total_timeout=remaining,
-                        solver_workers=args.verification_solver_workers,
+                    _advance_scheduler(
+                        scheduler_path,
+                        scheduler,
+                        payloads=payloads,
+                        current_payload=payload_sha256,
                     )
-                except Exception as exc:
-                    verification = _incomplete_result(
-                        "strict certificate replay failed: "
-                        f"{type(exc).__name__}: {exc}"
+                except (OSError, TypeError, ValueError) as exc:
+                    print(
+                        "FINAL GATE FAILED: cannot advance replay scheduler: "
+                        f"{exc}",
+                        file=sys.stderr,
                     )
+                    return 2
+            try:
+                verification = verify_certificate(
+                    certificate,
+                    known_answer_artifact=args.known_answer_artifact,
+                    rerun_milp=True,
+                    timeout_per_logical=min(
+                        args.verification_timeout_per_logical,
+                        remaining,
+                    ),
+                    checkpoint_path=checkpoint,
+                    resume=args.resume,
+                    total_timeout=remaining,
+                    solver_workers=args.verification_solver_workers,
+                )
+            except Exception as exc:
+                verification = _incomplete_result(
+                    "strict certificate replay failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
             if not isinstance(verification, dict):
                 verification = _incomplete_result(
                     "strict certificate replay returned a non-object result"
@@ -238,31 +398,57 @@ def main() -> int:
                         else verification.get("replay_complete", True)
                     ),
                 }
-            evaluations.append(
-                {
-                    "source_index": index,
-                    "claim": certificate.get("claim"),
-                    "certificate_sha256": certificate.get("certificate_sha256"),
-                    "disposition": _verification_disposition(verification),
-                    "checkpoint_path": (
-                        None if checkpoint is None else str(checkpoint)
-                    ),
-                    "result": verification,
-                }
+            evaluation = {
+                "source_index": index,
+                "claim": certificate.get("claim"),
+                "certificate_sha256": certificate.get("certificate_sha256"),
+                "certificate_payload_sha256": payload_sha256,
+                "disposition": _verification_disposition(verification),
+                "checkpoint_path": (
+                    None if checkpoint is None else str(checkpoint)
+                ),
+                "result": verification,
+            }
+            evaluations_by_index[index] = evaluation
+            if evaluation["disposition"] == "ACCEPTED":
+                break
+        for index, certificate in enumerate(rows):
+            if index in evaluations_by_index:
+                continue
+            payload_sha256 = payloads[index]
+            checkpoint = (
+                None
+                if args.verification_state_dir is None
+                else args.verification_state_dir / f"{payload_sha256}.json"
             )
+            evaluations_by_index[index] = {
+                "source_index": index,
+                "claim": certificate.get("claim"),
+                "certificate_sha256": certificate.get("certificate_sha256"),
+                "certificate_payload_sha256": payload_sha256,
+                "disposition": "INCOMPLETE",
+                "checkpoint_path": (
+                    None if checkpoint is None else str(checkpoint)
+                ),
+                "result": _incomplete_result(
+                    "strict replay deferred by fair batch scheduler"
+                ),
+            }
     else:
         for index, certificate in enumerate(rows):
-            evaluations.append(
-                {
-                    "source_index": index,
-                    "claim": certificate.get("claim"),
-                    "certificate_sha256": certificate.get("certificate_sha256"),
-                    "disposition": "INCOMPLETE",
-                    "result": _incomplete_result(
-                        "strict known-answer integrity failed"
-                    ),
-                }
-            )
+            evaluations_by_index[index] = {
+                "source_index": index,
+                "claim": certificate.get("claim"),
+                "certificate_sha256": certificate.get("certificate_sha256"),
+                "certificate_payload_sha256": payloads[index],
+                "disposition": "INCOMPLETE",
+                "result": _incomplete_result(
+                    "strict known-answer integrity failed"
+                ),
+            }
+    evaluations = [
+        evaluations_by_index[index] for index in range(len(rows))
+    ]
     accepted = sum(
         item["disposition"] == "ACCEPTED" for item in evaluations
     )
