@@ -1650,6 +1650,175 @@ def _revalidate_frozen_bindings(
     return observed, validated_invocation
 
 
+def _current_evolution_bindings(
+    config: FlowConfig,
+    round_dir: Path,
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    """Describe current launch inputs without replacing the frozen context."""
+    context_path = Path(os.path.abspath(round_dir / "search-context.md"))
+    codex_identity: dict[str, Any] | None = None
+    codex_version: str | None = None
+    codex_cwd: str | None = None
+    if config.codex_cli:
+        codex_identity, codex_version, codex_cwd = _fresh_codex_binding(config)
+    launch = _evolution_launch_binding(
+        config,
+        context_path=context_path,
+        codex_executable=codex_identity,
+    )
+    invocation = _fresh_invocation_binding(
+        config,
+        codex_identity=codex_identity,
+        codex_version=codex_version,
+        codex_cwd=codex_cwd,
+    )
+    _validate_invocation_binding(config, invocation, launch)
+    return launch, invocation
+
+
+def _binding_identity_sha256(
+    launch: dict[str, dict[str, Any]],
+    invocation: dict[str, Any],
+) -> str:
+    encoded = json.dumps(
+        {"launch": launch, "invocation": invocation},
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _validate_stored_binding_shape(
+    config: FlowConfig,
+    launch: Any,
+    invocation: Any,
+    round_dir: Path,
+    current_launch: dict[str, dict[str, Any]],
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    """Validate an old identity without requiring old source bytes to exist.
+
+    A prepared transaction may safely replay after source files at the same
+    canonical paths are upgraded.  The old descriptors must still be exact,
+    and the round context (which is transaction data rather than source code)
+    must remain byte-identical.
+    """
+    if not isinstance(launch, dict) or set(launch) != set(current_launch):
+        raise RoundTransactionError(
+            "managed OpenEvolve launch binding fields are incomplete"
+        )
+    for name, current in current_launch.items():
+        descriptor = launch.get(name)
+        expected_fields = {"path", "sha256", "bytes"}
+        if name == "codex_executable":
+            expected_fields.add("mode")
+        if (
+            not isinstance(descriptor, dict)
+            or set(descriptor) != expected_fields
+            or descriptor.get("path") != current["path"]
+            or not isinstance(descriptor.get("sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", descriptor["sha256"]) is None
+            or isinstance(descriptor.get("bytes"), bool)
+            or not isinstance(descriptor.get("bytes"), int)
+            or descriptor["bytes"] < 0
+        ):
+            raise RoundTransactionError(
+                f"managed OpenEvolve {name} identity is malformed or redirected"
+            )
+        if name == "codex_executable" and (
+            isinstance(descriptor.get("mode"), bool)
+            or not isinstance(descriptor.get("mode"), int)
+            or descriptor["mode"] < 0
+        ):
+            raise RoundTransactionError(
+                "managed OpenEvolve Codex executable mode is invalid"
+            )
+    if launch["context"] != current_launch["context"]:
+        raise RoundTransactionError(
+            "evolution launch inputs changed after transaction prepare: "
+            "the frozen context is not byte-identical"
+        )
+
+    if not isinstance(invocation, dict) or set(invocation) != set(
+        EVOLUTION_INVOCATION_FIELDS
+    ):
+        raise RoundTransactionError(
+            "evolution invocation binding fields are incomplete"
+        )
+    if invocation["model_names"] != [config.model]:
+        raise RoundTransactionError("evolution model binding changed")
+    if invocation["reasoning_effort"] != config.reasoning_effort:
+        raise RoundTransactionError("evolution reasoning binding changed")
+    if invocation["codex_cli"] is not config.codex_cli:
+        raise RoundTransactionError("evolution backend selection changed")
+    workers = invocation["max_parallel_evaluations"]
+    if (
+        isinstance(workers, bool)
+        or not isinstance(workers, int)
+        or workers < 1
+    ):
+        raise RoundTransactionError(
+            "evolution worker binding identity is invalid"
+        )
+    api_base = invocation["api_base"]
+    if (
+        not isinstance(api_base, str)
+        or not api_base
+        or (config.api_base is not None and api_base != config.api_base)
+    ):
+        raise RoundTransactionError("evolution API base binding changed")
+    if invocation["temperature_disabled"] is not True:
+        raise RoundTransactionError(
+            "managed evolution must freeze temperature-disabled mode"
+        )
+    if config.codex_cli:
+        executable = launch["codex_executable"]
+        if (
+            invocation["codex_executable_mode"] != executable["mode"]
+            or invocation["codex_cwd"]
+            != str(config.repo_dir.resolve(strict=True))
+            or not isinstance(invocation["codex_version"], str)
+            or not invocation["codex_version"]
+        ):
+            raise RoundTransactionError(
+                "Codex execution identity is malformed"
+            )
+    elif any(
+        invocation[field] is not None
+        for field in (
+            "codex_version",
+            "codex_cwd",
+            "codex_executable_mode",
+        )
+    ):
+        raise RoundTransactionError(
+            "non-Codex invocation contains Codex execution fields"
+        )
+    return copy.deepcopy(launch), copy.deepcopy(invocation)
+
+
+def _binding_change_reason(
+    old_launch: dict[str, dict[str, Any]],
+    old_invocation: dict[str, Any],
+    current_launch: dict[str, dict[str, Any]],
+    current_invocation: dict[str, Any],
+) -> str:
+    changed = [
+        f"launch:{name}"
+        for name in sorted(current_launch)
+        if old_launch[name] != current_launch[name]
+    ]
+    changed.extend(
+        f"invocation:{name}"
+        for name in sorted(current_invocation)
+        if old_invocation[name] != current_invocation[name]
+    )
+    return (
+        "prepared OpenEvolve binding changed before source-ready: "
+        + ", ".join(changed)
+    )
+
+
 def _frozen_bindings_from_state(
     config: FlowConfig,
     state: dict[str, Any],
@@ -2486,11 +2655,302 @@ class HumanizeFlow:
             "witness": _slice_witness_path(round_dir),
         }
 
+    @staticmethod
+    def _prepared_transaction_has_no_bound_source(
+        transaction: dict[str, Any],
+    ) -> bool:
+        return (
+            transaction.get("status") == "prepared"
+            and transaction.get("result_checkpoint") is None
+            and transaction.get("candidate_end_offset") is None
+            and transaction.get("candidate_source_sha256") is None
+            and transaction.get("candidate_source_rows") is None
+            and transaction.get("candidate_batch_identity") is None
+            and transaction.get("completion_marker_sha256") is None
+            and transaction.get("completion_witness_sha256") is None
+            and "source_ready_at" not in transaction
+            and "batch_ready_at" not in transaction
+            and "committed_at" not in transaction
+        )
+
+    def _validate_binding_rebind_history(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+        current_launch: dict[str, dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        history = transaction.setdefault("evolution_binding_rebinds", [])
+        if not isinstance(history, list):
+            raise RoundTransactionError(
+                "transaction evolution binding rebind history is invalid"
+            )
+        if transaction["mode"] != "openevolve":
+            if history:
+                raise RoundTransactionError(
+                    "candidate-file transaction contains binding rebind history"
+                )
+            return history
+
+        pending_seen = False
+        previous_launch: dict[str, dict[str, Any]] | None = None
+        previous_invocation: dict[str, Any] | None = None
+        required = {
+            "attempt",
+            "status",
+            "reason",
+            "old_launch_binding",
+            "old_invocation_binding",
+            "old_binding_sha256",
+            "candidate_start_offset",
+            "evolution_attempts_before",
+            "abandoned_ranges_before",
+            "abandoned_checkpoints_before",
+            "planned_at",
+        }
+        completed_only = {
+            "new_launch_binding",
+            "new_invocation_binding",
+            "new_binding_sha256",
+            "evolution_attempts_after",
+            "abandoned_ranges_after",
+            "abandoned_checkpoints_after",
+            "rebound_at",
+        }
+        for index, record in enumerate(history, 1):
+            if not isinstance(record, dict):
+                raise RoundTransactionError(
+                    "evolution binding rebind record is not an object"
+                )
+            status = record.get("status")
+            expected_fields = (
+                required
+                if status == "rebinding"
+                else required | completed_only
+                if status == "rebound"
+                else set()
+            )
+            if not expected_fields or set(record) != expected_fields:
+                raise RoundTransactionError(
+                    "evolution binding rebind record fields are invalid"
+                )
+            if (
+                record["attempt"] != index
+                or not isinstance(record["reason"], str)
+                or not record["reason"]
+                or record["candidate_start_offset"]
+                != transaction["candidate_start_offset"]
+                or not isinstance(record["planned_at"], str)
+                or any(
+                    isinstance(record[field], bool)
+                    or not isinstance(record[field], int)
+                    or record[field] < 0
+                    for field in (
+                        "evolution_attempts_before",
+                        "abandoned_ranges_before",
+                        "abandoned_checkpoints_before",
+                    )
+                )
+            ):
+                raise RoundTransactionError(
+                    "evolution binding rebind record identity is invalid"
+                )
+            old_launch, old_invocation = _validate_stored_binding_shape(
+                self.config,
+                record["old_launch_binding"],
+                record["old_invocation_binding"],
+                round_dir,
+                current_launch,
+            )
+            if record["old_binding_sha256"] != _binding_identity_sha256(
+                old_launch, old_invocation
+            ):
+                raise RoundTransactionError(
+                    "old evolution binding rebind identity changed"
+                )
+            if previous_launch is not None and (
+                old_launch != previous_launch
+                or old_invocation != previous_invocation
+            ):
+                raise RoundTransactionError(
+                    "evolution binding rebind history is not a continuous chain"
+                )
+
+            if status == "rebinding":
+                if pending_seen or index != len(history):
+                    raise RoundTransactionError(
+                        "pending evolution binding rebind must be last"
+                    )
+                pending_seen = True
+                previous_launch = old_launch
+                previous_invocation = old_invocation
+            else:
+                new_launch, new_invocation = _validate_stored_binding_shape(
+                    self.config,
+                    record["new_launch_binding"],
+                    record["new_invocation_binding"],
+                    round_dir,
+                    current_launch,
+                )
+                if record["new_binding_sha256"] != _binding_identity_sha256(
+                    new_launch, new_invocation
+                ):
+                    raise RoundTransactionError(
+                        "new evolution binding rebind identity changed"
+                    )
+                if (
+                    not isinstance(record["rebound_at"], str)
+                    or any(
+                        isinstance(record[field], bool)
+                        or not isinstance(record[field], int)
+                        or record[field] < record[before]
+                        for field, before in (
+                            (
+                                "evolution_attempts_after",
+                                "evolution_attempts_before",
+                            ),
+                            (
+                                "abandoned_ranges_after",
+                                "abandoned_ranges_before",
+                            ),
+                            (
+                                "abandoned_checkpoints_after",
+                                "abandoned_checkpoints_before",
+                            ),
+                        )
+                    )
+                ):
+                    raise RoundTransactionError(
+                        "completed evolution binding rebind record is invalid"
+                    )
+                previous_launch = new_launch
+                previous_invocation = new_invocation
+
+        if history and (
+            transaction.get("launch_binding") != previous_launch
+            or transaction.get("invocation_binding") != previous_invocation
+        ):
+            raise RoundTransactionError(
+                "transaction binding disagrees with its rebind history"
+            )
+        if pending_seen and (
+            transaction["status"] != "prepared"
+            or not self._prepared_transaction_has_no_bound_source(transaction)
+        ):
+            raise RoundTransactionError(
+                "pending evolution binding rebind crossed source-ready"
+            )
+        return history
+
+    def _rebind_prepared_evolution_transaction(
+        self,
+        transaction: dict[str, Any],
+        round_dir: Path,
+        current_launch: dict[str, dict[str, Any]],
+        current_invocation: dict[str, Any],
+    ) -> None:
+        """Replayably abandon an unfinished slice and bind current sources."""
+        if not self._prepared_transaction_has_no_bound_source(transaction):
+            raise RoundTransactionError(
+                "only an unbound prepared OpenEvolve transaction may rebind"
+            )
+        batch_path = Path(transaction["candidate_batch"])
+        if batch_path.is_symlink() or batch_path.exists():
+            raise RoundTransactionError(
+                "prepared OpenEvolve transaction contains an unbound "
+                "candidate batch"
+            )
+        history = transaction["evolution_binding_rebinds"]
+        pending = (
+            history[-1]
+            if history and history[-1].get("status") == "rebinding"
+            else None
+        )
+        if pending is None:
+            old_launch = copy.deepcopy(transaction["launch_binding"])
+            old_invocation = copy.deepcopy(transaction["invocation_binding"])
+            pending = {
+                "attempt": len(history) + 1,
+                "status": "rebinding",
+                "reason": _binding_change_reason(
+                    old_launch,
+                    old_invocation,
+                    current_launch,
+                    current_invocation,
+                ),
+                "old_launch_binding": old_launch,
+                "old_invocation_binding": old_invocation,
+                "old_binding_sha256": _binding_identity_sha256(
+                    old_launch, old_invocation
+                ),
+                "candidate_start_offset": transaction[
+                    "candidate_start_offset"
+                ],
+                "evolution_attempts_before": len(
+                    transaction["evolution_attempts"]
+                ),
+                "abandoned_ranges_before": len(
+                    transaction["abandoned_ranges"]
+                ),
+                "abandoned_checkpoints_before": len(
+                    transaction["abandoned_checkpoints"]
+                ),
+                "planned_at": utc_now(),
+            }
+            history.append(pending)
+            atomic_write_json(
+                self._transaction_paths(round_dir)["manifest"], transaction
+            )
+
+        self._abandon_uncommitted_tail(transaction, round_dir)
+        expected_path = (
+            self.evolution_output
+            / "checkpoints"
+            / f"checkpoint_{int(transaction['expected_result_iteration'])}"
+        )
+        self._resume_checkpoint_quarantine(
+            transaction, round_dir, expected_path
+        )
+        self._quarantine_untrusted_evolution_attempt(
+            transaction,
+            round_dir,
+            expected_path,
+            reason=pending["reason"],
+        )
+
+        new_launch, new_invocation = _current_evolution_bindings(
+            self.config, round_dir
+        )
+        pending.update({
+            "status": "rebound",
+            "new_launch_binding": copy.deepcopy(new_launch),
+            "new_invocation_binding": copy.deepcopy(new_invocation),
+            "new_binding_sha256": _binding_identity_sha256(
+                new_launch, new_invocation
+            ),
+            "evolution_attempts_after": len(
+                transaction["evolution_attempts"]
+            ),
+            "abandoned_ranges_after": len(
+                transaction["abandoned_ranges"]
+            ),
+            "abandoned_checkpoints_after": len(
+                transaction["abandoned_checkpoints"]
+            ),
+            "rebound_at": utc_now(),
+        })
+        transaction["launch_binding"] = copy.deepcopy(new_launch)
+        transaction["invocation_binding"] = copy.deepcopy(new_invocation)
+        atomic_write_json(
+            self._transaction_paths(round_dir)["manifest"], transaction
+        )
+
     def _load_transaction(
         self,
         state: dict[str, Any],
         number: int,
         round_dir: Path,
+        *,
+        allow_prepared_rebind: bool = False,
     ) -> dict[str, Any] | None:
         paths = self._transaction_paths(round_dir)
         if not paths["manifest"].exists():
@@ -2557,6 +3017,11 @@ class HumanizeFlow:
             raise RoundTransactionError("transaction evolution_attempts is invalid")
         if not isinstance(transaction.get("abandoned_checkpoints"), list):
             raise RoundTransactionError("transaction abandoned_checkpoints is invalid")
+        rebinds = transaction.setdefault("evolution_binding_rebinds", [])
+        if not isinstance(rebinds, list):
+            raise RoundTransactionError(
+                "transaction evolution binding rebind history is invalid"
+            )
         if int(state.get("current_round", -1)) != number - 1:
             raise RoundTransactionError(
                 "round transaction does not follow the durable current_round"
@@ -2569,17 +3034,12 @@ class HumanizeFlow:
                 or transaction.get("expected_result_iteration") is not None
                 or transaction.get("launch_binding") is not None
                 or transaction.get("invocation_binding") is not None
+                or rebinds
             ):
                 raise RoundTransactionError(
                     "candidate-file transaction may not contain evolution bindings"
                 )
         else:
-            _revalidate_frozen_bindings(
-                self.config,
-                transaction.get("launch_binding"),
-                transaction.get("invocation_binding"),
-                round_dir,
-            )
             if base is not None:
                 if not isinstance(base, dict) or "path" not in base:
                     raise RoundTransactionError("transaction base checkpoint is invalid")
@@ -2602,6 +3062,52 @@ class HumanizeFlow:
                 raise RoundTransactionError(
                     "transaction does not request one exact iteration increment"
                 )
+            current_launch, current_invocation = _current_evolution_bindings(
+                self.config, round_dir
+            )
+            stored_launch, stored_invocation = (
+                _validate_stored_binding_shape(
+                    self.config,
+                    transaction.get("launch_binding"),
+                    transaction.get("invocation_binding"),
+                    round_dir,
+                    current_launch,
+                )
+            )
+            history = self._validate_binding_rebind_history(
+                transaction, round_dir, current_launch
+            )
+            pending_rebind = bool(
+                history and history[-1].get("status") == "rebinding"
+            )
+            launch_changed = stored_launch != current_launch
+            if pending_rebind or launch_changed:
+                if (
+                    status != "prepared"
+                    or not allow_prepared_rebind
+                ):
+                    _revalidate_frozen_bindings(
+                        self.config,
+                        stored_launch,
+                        stored_invocation,
+                        round_dir,
+                    )
+                    raise RoundTransactionError(
+                        "pending prepared evolution binding rebind requires "
+                        "its lifecycle lease"
+                    )
+                self._rebind_prepared_evolution_transaction(
+                    transaction,
+                    round_dir,
+                    current_launch,
+                    current_invocation,
+                )
+            _revalidate_frozen_bindings(
+                self.config,
+                transaction.get("launch_binding"),
+                transaction.get("invocation_binding"),
+                round_dir,
+            )
         return transaction
 
     def _prepare_transaction(
@@ -2699,6 +3205,7 @@ class HumanizeFlow:
             "candidate_partial_recoveries": [],
             "abandoned_checkpoints": [],
             "evolution_attempts": [],
+            "evolution_binding_rebinds": [],
             "candidate_source_sha256": None,
             "candidate_source_rows": None,
             "candidate_batch": str(paths["batch"].resolve()),
@@ -3676,7 +4183,12 @@ class HumanizeFlow:
         lease: _RoundLifecycleLease | None,
     ) -> list[dict[str, Any]]:
         paths = self._transaction_paths(round_dir)
-        transaction = self._load_transaction(state, number, round_dir)
+        transaction = self._load_transaction(
+            state,
+            number,
+            round_dir,
+            allow_prepared_rebind=lease is not None,
+        )
         if transaction is None:
             transaction = self._prepare_transaction(state, number, round_dir)
 
@@ -3889,11 +4401,13 @@ class HumanizeFlow:
         )
         quarantined = transaction.get("abandoned_checkpoints")
         attempts = transaction.get("evolution_attempts")
+        rebinds = transaction.setdefault("evolution_binding_rebinds", [])
         if (
             not isinstance(abandoned, list)
             or not isinstance(partial_recoveries, list)
             or not isinstance(quarantined, list)
             or not isinstance(attempts, list)
+            or not isinstance(rebinds, list)
         ):
             raise RoundTransactionError(
                 "completed transaction recovery history is invalid"
@@ -3960,11 +4474,25 @@ class HumanizeFlow:
                 or partial_recoveries
                 or quarantined
                 or attempts
+                or rebinds
             ):
                 raise RoundTransactionError(
                     "completed candidate-file transaction has evolution fields"
                 )
         else:
+            current_launch, _current_invocation = (
+                _current_evolution_bindings(self.config, round_dir)
+            )
+            _validate_stored_binding_shape(
+                self.config,
+                transaction.get("launch_binding"),
+                transaction.get("invocation_binding"),
+                round_dir,
+                current_launch,
+            )
+            self._validate_binding_rebind_history(
+                transaction, round_dir, current_launch
+            )
             _revalidate_frozen_bindings(
                 self.config,
                 transaction.get("launch_binding"),

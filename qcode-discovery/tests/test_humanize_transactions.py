@@ -986,6 +986,326 @@ def test_prepared_transaction_rejects_frozen_launch_tampering(
         flow._load_transaction(state, 1, round_dir)
 
 
+def test_prepared_transaction_rebinds_changed_sources_and_archives_old_attempt(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="prepared-source-rebind",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    old_row = candidate(31)
+    new_row = candidate(32)
+    runner_calls = []
+
+    def runner(_config, _state, runner_round):
+        runner_calls.append(True)
+        assert flow.candidate_log.read_bytes() == b""
+        assert (
+            runner_round / "abandoned-checkpoint-attempt-001"
+        ).is_dir()
+        assert (
+            runner_round
+            / "abandoned-completion-marker-attempt-001.json"
+        ).is_file()
+        assert (
+            runner_round / "abandoned-slice-witness-attempt-001.json"
+        ).is_file()
+        flow.candidate_log.write_bytes(jsonl(new_row))
+        checkpoint = write_checkpoint(repo, config.run_id, 3)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    old_evaluator = transaction["launch_binding"]["evaluation_evaluator"]
+    flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+    flow.candidate_log.write_bytes(jsonl(old_row))
+    old_checkpoint = write_checkpoint(repo, config.run_id, 3)
+    write_full_slice_proof(flow, round_dir, old_checkpoint, None)
+
+    evaluator = repo / "evaluation/evaluator.py"
+    evaluator.write_text("# upgraded evaluator source\n")
+    rows = flow._capture_round_candidates(state, 1, round_dir)
+
+    assert rows == [new_row]
+    assert runner_calls == [True]
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    assert manifest["status"] == "committed"
+    assert len(manifest["evolution_binding_rebinds"]) == 1
+    rebind = manifest["evolution_binding_rebinds"][0]
+    assert rebind["status"] == "rebound"
+    assert "launch:evaluation_evaluator" in rebind["reason"]
+    assert (
+        rebind["old_launch_binding"]["evaluation_evaluator"]
+        == old_evaluator
+    )
+    assert (
+        rebind["new_launch_binding"]["evaluation_evaluator"]
+        == flow_module._file_descriptor(evaluator, "current evaluator")
+    )
+    assert rebind["old_binding_sha256"] != rebind["new_binding_sha256"]
+    assert rebind["abandoned_ranges_after"] == 1
+    assert rebind["abandoned_checkpoints_after"] == 1
+    assert (
+        round_dir / "abandoned-candidate-tail-001.bin"
+    ).read_bytes() == jsonl(old_row)
+    assert (
+        round_dir / "abandoned-candidate-complete-001.jsonl"
+    ).read_bytes() == jsonl(old_row)
+    assert manifest["abandoned_checkpoints"][0]["attempt"] == 1
+
+
+def test_interrupted_prepared_binding_rebind_resumes_from_its_wal(
+    tmp_path, monkeypatch
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="prepared-rebind-crash",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    old_row = candidate(41)
+    new_row = candidate(42)
+    initial = HumanizeFlow(config, reviewer=Reviewer())
+    state = initial.store.initialize(config.serializable())
+    round_dir = initial.store.round_dir(1)
+    initial._prepare_transaction(state, 1, round_dir)
+    initial.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+    initial.candidate_log.write_bytes(jsonl(old_row))
+    write_checkpoint(repo, config.run_id, 3)
+    flow_module._completion_marker_path(round_dir).write_text(
+        '{"old": "marker"}\n'
+    )
+    flow_module._slice_witness_path(round_dir).write_text(
+        '{"old": "witness"}\n'
+    )
+    (repo / "evaluation/evaluator.py").write_text(
+        "# upgraded evaluator source\n"
+    )
+
+    original_quarantine = (
+        initial._quarantine_untrusted_evolution_attempt
+    )
+
+    class SimulatedProcessDeath(BaseException):
+        pass
+
+    def crash_after_quarantine(
+        transaction, target_round, checkpoint, *, reason
+    ):
+        original_quarantine(
+            transaction,
+            target_round,
+            checkpoint,
+            reason=reason,
+        )
+        raise SimulatedProcessDeath
+
+    monkeypatch.setattr(
+        initial,
+        "_quarantine_untrusted_evolution_attempt",
+        crash_after_quarantine,
+    )
+    with pytest.raises(SimulatedProcessDeath):
+        initial._capture_round_candidates(state, 1, round_dir)
+
+    durable = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    assert durable["evolution_binding_rebinds"][0]["status"] == "rebinding"
+    assert len(durable["abandoned_ranges"]) == 1
+    assert len(durable["abandoned_checkpoints"]) == 1
+    assert initial.candidate_log.read_bytes() == b""
+
+    runner_calls = []
+
+    def runner(_config, _state, runner_round):
+        runner_calls.append(True)
+        assert initial.candidate_log.read_bytes() == b""
+        initial.candidate_log.write_bytes(jsonl(new_row))
+        checkpoint = write_checkpoint(repo, config.run_id, 3)
+        write_full_slice_proof(resumed, runner_round, checkpoint, None)
+        return checkpoint
+
+    resumed = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    rows = resumed._capture_round_candidates(
+        resumed.store.load_state(), 1, round_dir
+    )
+
+    assert rows == [new_row]
+    assert runner_calls == [True]
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    assert manifest["evolution_binding_rebinds"][0]["status"] == "rebound"
+    assert len(manifest["evolution_binding_rebinds"]) == 1
+    assert len(manifest["abandoned_ranges"]) == 1
+    assert len(manifest["abandoned_checkpoints"]) == 1
+    assert len(list(round_dir.glob("abandoned-candidate-tail-*.bin"))) == 1
+    assert len(list(round_dir.glob("abandoned-checkpoint-attempt-*"))) == 1
+
+
+def test_completed_transaction_rejects_source_rebinding(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="completed-source-change",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+
+    def runner(_config, _state, runner_round):
+        checkpoint = write_checkpoint(repo, config.run_id, 3)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._capture_round_candidates(state, 1, round_dir)
+    (repo / "evaluation/evaluator.py").write_text(
+        "# source changed after commit\n"
+    )
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="launch inputs changed",
+    ):
+        flow._capture_round_candidates(
+            flow.store.load_state(), 1, round_dir
+        )
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="launch inputs changed",
+    ):
+        flow._validate_completed_transaction(1, round_dir)
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    assert manifest["status"] == "committed"
+    assert manifest["evolution_binding_rebinds"] == []
+
+
+@pytest.mark.parametrize("durable_status", ("source-ready", "batch-ready"))
+def test_bound_transaction_rejects_source_rebinding(
+    tmp_path, monkeypatch, durable_status
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id=f"{durable_status}-source-change",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    row = candidate(51)
+
+    def runner(_config, _state, runner_round):
+        flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+        flow.candidate_log.write_bytes(jsonl(row))
+        checkpoint = write_checkpoint(repo, config.run_id, 3)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    original_write = flow_module.atomic_write_json
+
+    class SimulatedProcessDeath(BaseException):
+        pass
+
+    def crash_after_bound_manifest(path, value):
+        result = original_write(path, value)
+        if (
+            path.name == "evolution-transaction.json"
+            and value.get("status") == durable_status
+        ):
+            raise SimulatedProcessDeath
+        return result
+
+    monkeypatch.setattr(
+        flow_module, "atomic_write_json", crash_after_bound_manifest
+    )
+    with pytest.raises(SimulatedProcessDeath):
+        flow._capture_round_candidates(state, 1, round_dir)
+    monkeypatch.setattr(flow_module, "atomic_write_json", original_write)
+    assert json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )["status"] == durable_status
+
+    (repo / "evaluation/evaluator.py").write_text(
+        "# source changed after source binding\n"
+    )
+    resumed = HumanizeFlow(config, reviewer=Reviewer())
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="launch inputs changed",
+    ):
+        resumed._capture_round_candidates(
+            resumed.store.load_state(), 1, round_dir
+        )
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    assert manifest["status"] == durable_status
+    assert manifest["evolution_binding_rebinds"] == []
+
+
+def test_prepared_rebind_rejects_malformed_frozen_identity(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="malformed-rebind-identity",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    manifest_path = round_dir / "evolution-transaction.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["launch_binding"]["evaluation_evaluator"]["sha256"] = (
+        "not-a-sha256"
+    )
+    atomic_write_json(manifest_path, manifest)
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="malformed or redirected",
+    ):
+        flow._capture_round_candidates(state, 1, round_dir)
+    assert json.loads(manifest_path.read_text())[
+        "evolution_binding_rebinds"
+    ] == []
+
+
 @pytest.mark.parametrize("tamper", ("binary", "version"))
 def test_codex_execution_identity_is_frozen_and_revalidated(
     tmp_path, monkeypatch, tamper
