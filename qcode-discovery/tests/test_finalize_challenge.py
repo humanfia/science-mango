@@ -141,7 +141,7 @@ def test_batch_timeout_rotates_to_later_certificate_after_restart(
     )
     assert finalizer.main() == 0
     assert len(calls) == 1
-    assert calls[0][1]["total_timeout"] == 9.0
+    assert calls[0][1]["total_timeout"] == 4.5
     first = json.loads(args.output.read_text())
     assert first["passed"] is False
     assert first["outcome"] == "INCOMPLETE"
@@ -170,7 +170,7 @@ def test_batch_timeout_rotates_to_later_certificate_after_restart(
     assert finalizer.main() == 0
 
     assert [certificate for certificate, _ in calls] == certificates
-    assert calls[1][1]["total_timeout"] == 9.0
+    assert calls[1][1]["total_timeout"] == 4.5
     assert Path(calls[1][1]["checkpoint_path"]).name == (
         f"{finalizer._payload_sha256(certificates[1])}.json"
     )

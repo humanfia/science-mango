@@ -338,7 +338,7 @@ def main() -> int:
             *range(start_index, len(rows)),
             *range(0, start_index),
         ]
-        for index in schedule:
+        for position, index in enumerate(schedule):
             certificate = rows[index]
             payload_sha256 = payloads[index]
             remaining = args.verification_total_timeout - (
@@ -366,6 +366,13 @@ def main() -> int:
                         file=sys.stderr,
                     )
                     return 2
+            remaining_certificates = len(schedule) - position
+            # Reserve an equal worst-case share for every not-yet-scheduled
+            # peer. A slow first replay therefore cannot consume the nominal
+            # batch budget before each certificate has been entered once.
+            certificate_total_timeout = (
+                remaining / remaining_certificates
+            )
             try:
                 verification = verify_certificate(
                     certificate,
@@ -373,11 +380,11 @@ def main() -> int:
                     rerun_milp=True,
                     timeout_per_logical=min(
                         args.verification_timeout_per_logical,
-                        remaining,
+                        certificate_total_timeout,
                     ),
                     checkpoint_path=checkpoint,
                     resume=args.resume,
-                    total_timeout=remaining,
+                    total_timeout=certificate_total_timeout,
                     solver_workers=args.verification_solver_workers,
                 )
             except Exception as exc:
