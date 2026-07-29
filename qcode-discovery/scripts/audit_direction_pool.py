@@ -18,7 +18,6 @@ from typing import Any, Callable, Iterable, Mapping
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scripts.screen_frontier_candidate import (
-    claim_from_threshold_artifact,
     screen_candidate,
 )
 from evaluation.process_hard_wall import (
@@ -533,17 +532,29 @@ def annotate_rows(
 def threshold_artifacts(
     results: Iterable[Mapping[str, Any]],
 ) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    """Load replay-validated threshold or exact artifacts for Stage 4."""
+
+    from scripts.audit_candidate_pool import (
+        CERTIFIABLE_PROOF_STATUSES,
+        claim_from_certifiable_stage3_artifact,
+    )
+
     artifacts = []
     failures: dict[str, str] = {}
     for result in results:
-        if result.get("status") != "THRESHOLD_PROVEN":
+        status = result.get("status")
+        if status not in CERTIFIABLE_PROOF_STATUSES:
             continue
         digest = str(result["canonical_digest"])
         try:
             value = json.loads(Path(str(result["artifact_path"])).read_text())
             if not isinstance(value, dict):
                 raise ValueError("Stage 3 artifact must be an object")
-            claim_from_threshold_artifact(value)
+            if value.get("status") != status:
+                raise ValueError(
+                    "Stage 3 result and artifact statuses do not match"
+                )
+            claim_from_certifiable_stage3_artifact(value)
             artifacts.append(value)
         except Exception as exc:
             failures[digest] = (

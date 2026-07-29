@@ -70,6 +70,10 @@ DEFAULT_KNOWN_ANSWER = PROJECT / "results" / "known_answer_gate.json"
 CACHE_SCHEMA_VERSION = 2
 SELECTION_LEDGER_SCHEMA_VERSION = 1
 SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
+CERTIFIABLE_PROOF_STATUSES = frozenset({
+    "THRESHOLD_PROVEN",
+    "EXACT_PROVEN",
+})
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
 _AUTHORITATIVE_GEOMETRY = "authoritative_geometry"
 _INPUT_TERMINAL_MARKERS = (
@@ -1847,7 +1851,7 @@ def _certificate_phase_item(
     nested = item.get("candidate")
     gate = item.get("gate")
     if gate == STAGE3_GATE:
-        raw_candidate = claim_from_threshold_artifact(item)
+        raw_candidate = claim_from_certifiable_stage3_artifact(item)
     elif gate is not None:
         raise ValueError(f"unsupported certification artifact gate: {gate}")
     elif isinstance(nested, Mapping):
@@ -1880,6 +1884,34 @@ def _certificate_phase_item(
         _construction_candidate(raw_candidate, canonical_digest),
         canonical_digest,
     )
+
+
+def claim_from_certifiable_stage3_artifact(
+    artifact: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate and unwrap either terminal Stage-3 proof status.
+
+    ``claim_from_threshold_artifact`` already performs the authoritative
+    envelope, geometry, direction, and witness replay.  An exact Stage-3 run
+    has the same artifact schema and proof obligations, but reports
+    ``EXACT_PROVEN`` and must have used the uncapped formulation.  Normalize
+    only that status for the shared validator; no evidence is weakened.
+    """
+
+    status = artifact.get("status")
+    if status == "THRESHOLD_PROVEN":
+        return claim_from_threshold_artifact(artifact)
+    if status != "EXACT_PROVEN":
+        raise ValueError(
+            "Stage 3 artifact status must be THRESHOLD_PROVEN or EXACT_PROVEN"
+        )
+    if artifact.get("threshold_only") is not False:
+        raise ValueError(
+            "Stage 3 EXACT_PROVEN artifact must have threshold_only=false"
+        )
+    normalized = dict(artifact)
+    normalized["status"] = "THRESHOLD_PROVEN"
+    return claim_from_threshold_artifact(normalized)
 
 
 def _certificate_phase_failure(exc: Exception) -> dict[str, Any]:
@@ -2067,7 +2099,7 @@ def merge_certification_results(
     merged: list[dict[str, Any]] = []
     for result in screening_results:
         updated = dict(result)
-        if updated.get("status") == "THRESHOLD_PROVEN":
+        if updated.get("status") in CERTIFIABLE_PROOF_STATUSES:
             digest = str(updated["canonical_digest"])
             if not certify:
                 updated["certificate"] = {"attempted": False}

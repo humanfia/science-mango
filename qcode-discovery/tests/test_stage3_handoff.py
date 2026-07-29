@@ -7,6 +7,7 @@ import json
 import numpy as np
 import pytest
 
+import scripts.audit_candidate_pool as candidate_pool
 import scripts.audit_direction_pool as direction_pool
 from evaluation.certificate import _direction_specs, pack_vector
 from scripts.audit_direction_pool import (
@@ -16,6 +17,10 @@ from scripts.audit_direction_pool import (
     select_unresolved,
     threshold_artifacts,
     validate_worker_budget,
+)
+from scripts.audit_candidate_pool import (
+    claim_from_certifiable_stage3_artifact,
+    merge_certification_results,
 )
 from scripts.build_certificate import load_one
 from scripts.screen_frontier_candidate import (
@@ -337,3 +342,138 @@ def test_stage3_pool_isolates_outer_worker_and_artifact_failures(
     }])
     assert artifacts == []
     assert "artifact validation failed" in failures["digest"]
+
+
+def test_exact_stage3_artifact_requires_uncapped_strict_replay(monkeypatch):
+    candidate = _candidate()
+    artifact = {
+        "gate": "qldpc-frontier-threshold-screen",
+        "status": "EXACT_PROVEN",
+        "threshold_only": False,
+        "candidate": candidate,
+    }
+    validated = []
+
+    def strict_validator(value):
+        validated.append(value)
+        assert value["status"] == "THRESHOLD_PROVEN"
+        assert value["threshold_only"] is False
+        return candidate
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "claim_from_threshold_artifact",
+        strict_validator,
+    )
+
+    assert claim_from_certifiable_stage3_artifact(artifact) == candidate
+    assert artifact["status"] == "EXACT_PROVEN"
+    assert len(validated) == 1
+
+    with pytest.raises(ValueError, match="threshold_only=false"):
+        claim_from_certifiable_stage3_artifact({
+            **artifact,
+            "threshold_only": True,
+        })
+
+
+def test_stage3_exact_cli_hands_artifact_to_certificate_and_merges_result(
+    tmp_path, monkeypatch,
+):
+    candidate = _candidate()
+    row = {
+        **candidate,
+        "triage_identity": {"canonical_digest": "digest-72"},
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }
+    ranked_input = tmp_path / "ranked.jsonl"
+    ranked_output = tmp_path / "audited.jsonl"
+    summary_output = tmp_path / "summary.json"
+    manifest = tmp_path / "stage4.jsonl"
+    state_dir = tmp_path / "state"
+    artifact_path = state_dir / "exact.json"
+    exact_artifact = {
+        "gate": "qldpc-frontier-threshold-screen",
+        "status": "EXACT_PROVEN",
+        "threshold_only": False,
+        "candidate": candidate,
+    }
+    ranked_input.write_text(json.dumps(row) + "\n")
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text(json.dumps(exact_artifact) + "\n")
+
+    monkeypatch.setattr(
+        direction_pool,
+        "screen_selected_candidates",
+        lambda *args, **kwargs: [{
+            "canonical_digest": "digest-72",
+            "status": "EXACT_PROVEN",
+            "artifact_path": str(artifact_path),
+            "completed_directions": 24,
+            "expected_directions": 24,
+        }],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "claim_from_threshold_artifact",
+        lambda artifact: candidate,
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certify_selected_candidates",
+        lambda artifacts, config, **kwargs: {
+            "digest-72": {
+                "attempted": True,
+                "certificate_exact": True,
+                "certificate_passed": True,
+                "verification_passed": True,
+            },
+        },
+    )
+
+    assert direction_pool.main([
+        str(ranked_input),
+        "--state-dir",
+        str(state_dir),
+        "--ranked-output",
+        str(ranked_output),
+        "--summary-output",
+        str(summary_output),
+        "--stage4-manifest",
+        str(manifest),
+        "--exact",
+        "--certify",
+    ]) == 0
+
+    summary = json.loads(summary_output.read_text())
+    assert summary["threshold_only"] is False
+    assert summary["stage4_candidates"] == 1
+    assert summary["certified_wins"] == 1
+    assert summary["results"][0]["status"] == "EXACT_PROVEN"
+    assert summary["results"][0]["certificate"]["certificate_passed"] is True
+    assert json.loads(manifest.read_text())["status"] == "EXACT_PROVEN"
+
+
+def test_certificate_merge_preserves_threshold_behavior_and_accepts_exact():
+    certification = {
+        "attempted": True,
+        "certificate_exact": True,
+        "certificate_passed": True,
+        "verification_passed": True,
+    }
+    merged = merge_certification_results(
+        [
+            {"canonical_digest": "threshold", "status": "THRESHOLD_PROVEN"},
+            {"canonical_digest": "exact", "status": "EXACT_PROVEN"},
+            {"canonical_digest": "pending", "status": "UNRESOLVED"},
+        ],
+        {
+            "threshold": certification,
+            "exact": certification,
+        },
+        certify=True,
+    )
+
+    assert merged[0]["certificate"] == certification
+    assert merged[1]["certificate"] == certification
+    assert "certificate" not in merged[2]
