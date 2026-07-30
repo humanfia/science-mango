@@ -3,11 +3,21 @@
 from __future__ import annotations
 
 import json
+import os
 from types import SimpleNamespace
 
 import pytest
 import scripts.audit_candidate_pool as candidate_pool
 from evaluation.proof_runtime import proof_runtime_fingerprint
+from evaluation.selection_ledger import (
+    acknowledge_selection_page,
+    install_pending_page,
+    make_scan_evidence,
+    make_selection_page,
+    new_selection_ledger,
+    seal_selection_ledger,
+    validate_selection_ledger,
+)
 
 from scripts.audit_candidate_pool import (
     AuditConfig,
@@ -112,6 +122,47 @@ def _fake_certificate(identifier: str, *, passed: bool, exact: bool) -> dict:
             "exact": exact,
             "completed_directions": completed,
             "expected_directions": 1,
+        },
+    }
+
+
+def _ranked_snapshot_rows(count: int) -> list[dict]:
+    rows = [
+        {
+            **_construction(marker),
+            "proof_score": {
+                "status": "PROMISING",
+                "rejected": False,
+            },
+            "triage_identity": {
+                "canonical_digest": f"snapshot-{marker:04d}",
+                "digest_kind": "registry-canonical",
+            },
+        }
+        for marker in range(count)
+    ]
+    return sorted(rows, key=candidate_pool._ranked_selection_key)
+
+
+def _snapshot_counts(count: int) -> dict[str, int]:
+    return {
+        "input_records": count,
+        "unique_candidates": count,
+        "duplicate_records": 0,
+        "rejected_candidates": 0,
+        "eligible_candidates": count,
+    }
+
+
+def _snapshot_canonicalizer(row):
+    return {
+        **row,
+        "novelty": {
+            "checked": True,
+            "novel": True,
+            "canonical_digest": row["triage_identity"][
+                "canonical_digest"
+            ],
         },
     }
 
@@ -543,20 +594,24 @@ def test_formally_replayed_stage1_exact_row_replaces_bp_duplicate(
     )
 
 
-def test_jsonl_reader_ignores_only_unterminated_trailing_fragment(tmp_path):
+def test_jsonl_reader_rejects_unterminated_invalid_trailing_fragment(tmp_path):
     live = tmp_path / "live.jsonl"
     complete = _construction(1)
     live.write_text(json.dumps(complete) + "\n" + '{"trial":')
 
-    records, sources = read_candidate_jsonl([live])
-
-    assert records == [complete]
-    assert sources == [str(live)]
+    with pytest.raises(ValueError, match="invalid JSON"):
+        read_candidate_jsonl([live])
 
     malformed = tmp_path / "malformed.jsonl"
     malformed.write_text(json.dumps(complete) + "\n" + '{"trial":\n')
     with pytest.raises(ValueError, match="invalid JSON"):
         read_candidate_jsonl([malformed])
+
+    valid_without_newline = tmp_path / "valid-no-newline.jsonl"
+    valid_without_newline.write_text(json.dumps(complete))
+    records, sources = read_candidate_jsonl([valid_without_newline])
+    assert records == [complete]
+    assert sources == [str(valid_without_newline)]
 
 
 def test_worker_budget_prevents_solver_oversubscription():
@@ -846,8 +901,15 @@ def test_selection_and_certificate_caches_bind_installed_package_contents(
     assert metadata["solver_runtime"] == runtime["current"]
 
 
-@pytest.mark.parametrize("dependency", ["audit_state.py", "state.py"])
-def test_certificate_source_fingerprint_includes_humanize_audit_dependencies(
+@pytest.mark.parametrize(
+    "dependency",
+    (
+        "humanize/audit_state.py",
+        "humanize/state.py",
+        "evaluation/selection_ledger.py",
+    ),
+)
+def test_certificate_source_fingerprint_includes_audit_dependencies(
     tmp_path,
     monkeypatch,
     dependency,
@@ -862,6 +924,7 @@ def test_certificate_source_fingerprint_includes_humanize_audit_dependencies(
         project / "humanize" / "audit_state.py",
         project / "humanize" / "state.py",
         project / "evaluation" / "verifier.py",
+        project / "evaluation" / "selection_ledger.py",
     ):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"# fake {path.name}\n")
@@ -873,7 +936,7 @@ def test_certificate_source_fingerprint_includes_humanize_audit_dependencies(
     )
 
     before = candidate_pool.certificate_source_fingerprint()
-    source = project / "humanize" / dependency
+    source = project / dependency
     source.write_text(source.read_text() + "# changed audit dependency\n")
 
     assert candidate_pool.certificate_source_fingerprint() != before
@@ -1383,16 +1446,23 @@ def test_selection_ledger_replays_pending_page_then_advances(tmp_path, monkeypat
     assert first_stats["selection_exhausted"] is False
 
     ledger = json.loads(ledger_path.read_text())
-    ledger["cursor"] = first_page["next_index"]
-    ledger["committed_digests"] = first_page["selected_digests"]
-    ledger["completed_pages"] = 1
-    ledger["pending"] = None
-    deferred_sentinel = {
+    deferred_payload = {
         "page_sha256": first_page["page_sha256"],
         "selected_digests": first_page["selected_digests"],
         "opaque_pipeline_owned_field": True,
     }
-    ledger["deferred_pages"] = [deferred_sentinel]
+    ledger = acknowledge_selection_page(
+        ledger,
+        first_page,
+        disposition="DEFERRED",
+        deferred_entry={
+            **deferred_payload,
+            "entry_sha256": candidate_pool._json_sha256(
+                deferred_payload
+            ),
+        },
+    )
+    deferred_sentinel = ledger["deferred_pages"][0]
     candidate_pool.atomic_write_json(ledger_path, ledger)
 
     second, second_stats, second_page, round_tripped_ledger = (
@@ -1411,3 +1481,700 @@ def test_selection_ledger_replays_pending_page_then_advances(tmp_path, monkeypat
     assert json.loads(ledger_path.read_text())["deferred_pages"] == [
         deferred_sentinel
     ]
+
+
+def test_ranked_snapshot_reuses_ranked_pool_without_reranking(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(3)
+    calls = []
+
+    def ranker(paths):
+        calls.append(tuple(paths))
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+
+    first, first_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    second, second_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert first_cache_hit is False
+    assert second_cache_hit is True
+    assert first.identity == second.identity
+    assert first.rows == second.rows == 3
+    assert len(calls) == 1
+
+
+def test_ranked_snapshot_page_decodes_only_rows_needed(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(300)
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, _snapshot_counts(len(rows))),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=tmp_path / "selection.json",
+    )
+    original_loads = json.loads
+    decoded = []
+
+    def tracked_loads(payload, *args, **kwargs):
+        decoded.append(payload)
+        return original_loads(payload, *args, **kwargs)
+
+    monkeypatch.setattr(candidate_pool.json, "loads", tracked_loads)
+    selected, stats, next_index = (
+        candidate_pool._select_snapshot_audit_page(
+            snapshot,
+            1,
+            start_index=0,
+            seen_digests=(),
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+
+    assert len(selected) == 1
+    assert next_index == 1
+    assert stats["unscanned_eligible_candidates"] == 299
+    assert len(decoded) == 1
+
+
+def test_ranked_snapshot_ledger_paginates_without_reranking(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(3)
+    rank_calls = 0
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    snapshot, first_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    first, _, first_page, _ = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+    ledger = json.loads(ledger_path.read_text())
+    ledger = acknowledge_selection_page(
+        ledger,
+        first_page,
+        disposition="COMPLETED",
+    )
+    candidate_pool.atomic_write_json(ledger_path, ledger)
+
+    replayed_snapshot, second_cache_hit = (
+        candidate_pool.prepare_ranked_snapshot(
+            [candidate_input],
+            ledger_path=ledger_path,
+        )
+    )
+    second, _, second_page, _ = (
+        candidate_pool._prepare_snapshot_selection_page(
+            replayed_snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+
+    assert first_cache_hit is False
+    assert second_cache_hit is True
+    assert rank_calls == 1
+    assert first[0]["source"] != second[0]["source"]
+    assert second_page["start_index"] == first_page["next_index"]
+
+
+@pytest.mark.parametrize(
+    ("artifact_attribute", "error"),
+    (
+        ("snapshot_path", "data chunk hash mismatch"),
+        ("offsets_path", "offset chunk hash mismatch"),
+    ),
+)
+def test_ranked_snapshot_detects_same_stat_in_place_tampering(
+    tmp_path,
+    monkeypatch,
+    artifact_attribute,
+    error,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(3)
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, _snapshot_counts(len(rows))),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=tmp_path / "selection.json",
+    )
+    artifact_path = getattr(snapshot, artifact_attribute)
+    original_stat = artifact_path.stat()
+    payload = bytearray(artifact_path.read_bytes())
+    payload[0] ^= 1
+    with artifact_path.open("r+b") as stream:
+        stream.write(payload)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.utime(
+        artifact_path,
+        ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns),
+    )
+    restored_stat = artifact_path.stat()
+    assert restored_stat.st_ino == original_stat.st_ino
+    assert restored_stat.st_size == original_stat.st_size
+    assert restored_stat.st_mtime_ns == original_stat.st_mtime_ns
+
+    with pytest.raises(ValueError, match=error):
+        candidate_pool._select_snapshot_audit_page(
+            snapshot,
+            1,
+            start_index=0,
+            seen_digests=(),
+            canonicalizer=_snapshot_canonicalizer,
+        )
+
+
+def test_ranked_snapshot_invalidates_changed_input_and_source(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(2)
+    rank_calls = 0
+    source_version = ["source-v1"]
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: source_version[0],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    original_stat = candidate_input.stat()
+    with candidate_input.open("r+b") as stream:
+        stream.write(b"[]\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.utime(
+        candidate_input,
+        ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns),
+    )
+    changed_stat = candidate_input.stat()
+    assert changed_stat.st_ino == original_stat.st_ino
+    assert changed_stat.st_size == original_stat.st_size
+    assert changed_stat.st_mtime_ns == original_stat.st_mtime_ns
+    _, input_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    source_version[0] = "source-v2"
+    _, source_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert input_cache_hit is False
+    assert source_cache_hit is False
+    assert rank_calls == 3
+
+
+def test_ranked_snapshot_manifest_field_tamper_rebuilds_fail_closed(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(2)
+    rank_calls = 0
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    manifest = json.loads(snapshot.manifest_path.read_text())
+    manifest["created_at"] += 1
+    candidate_pool.atomic_write_json(snapshot.manifest_path, manifest)
+
+    _, cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert cache_hit is False
+    assert rank_calls == 2
+
+
+def test_ranked_snapshot_eligible_count_forgery_fails_boundary_replay(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(3)
+    rank_calls = 0
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    manifest = json.loads(snapshot.manifest_path.read_text())
+    manifest["counts"]["eligible_candidates"] = 2
+    manifest["counts"]["rejected_candidates"] = 1
+    manifest["identity"]["eligible_rows"] = 2
+    manifest["identity"]["counts_sha256"] = candidate_pool._json_sha256(
+        manifest["counts"],
+    )
+    unsigned = dict(manifest)
+    unsigned.pop("manifest_sha256")
+    manifest["manifest_sha256"] = candidate_pool._json_sha256(unsigned)
+    candidate_pool.atomic_write_json(snapshot.manifest_path, manifest)
+
+    _, cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert cache_hit is False
+    assert rank_calls == 2
+
+
+def test_ranked_snapshot_replays_real_eligible_terminal_boundary(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(2)
+    rows[-1] = {
+        **rows[-1],
+        "trusted_stage1_audit": {
+            "validated": True,
+            "outcome": "REJECTED",
+        },
+    }
+    counts = _snapshot_counts(2)
+    counts["eligible_candidates"] = 1
+    counts["rejected_candidates"] = 1
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, counts),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+
+    first, first_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    second, second_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert first_cache_hit is False
+    assert second_cache_hit is True
+    assert first.rows == second.rows == 2
+    assert first.eligible_rows == second.eligible_rows == 1
+
+
+def test_zero_row_snapshot_emits_only_trusted_terminal_root_page(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("")
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: ([], _snapshot_counts(0)),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert cache_hit is False
+    assert snapshot.rows == snapshot.eligible_rows == 0
+    selected, stats, page, ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+    assert selected == []
+    assert stats["selection_exhausted"] is True
+    assert page["start_index"] == page["next_index"] == 0
+    assert page["page_sequence"] == 0
+    assert page["scan_evidence"]["eligible_rows"] == 0
+    assert ledger["cursor"] == 0
+    assert ledger["pending"] == page
+
+
+def test_legacy_selection_ledger_restarts_at_zero_without_trusting_cursor(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(2)
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, _snapshot_counts(len(rows))),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    first, _, first_page, _ = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+    candidate_pool.atomic_write_json(ledger_path, {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-selection-ledger",
+        "binding_sha256": first_page["binding_sha256"],
+        "cursor": snapshot.eligible_rows,
+        "committed_digests": ["forged-skip"],
+        "completed_pages": 99,
+        "pending": None,
+    })
+
+    replay, _, replay_page, replay_ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+
+    assert replay[0]["source"] == first[0]["source"]
+    assert replay_page["start_index"] == 0
+    assert replay_ledger["schema_version"] == 2
+    assert replay_ledger["cursor"] == 0
+    assert replay_ledger["committed_digests"] == []
+
+
+@pytest.mark.parametrize("forgery", ("cursor", "committed"))
+def test_selection_ledger_ack_chain_rejects_forged_progress(
+    tmp_path,
+    monkeypatch,
+    forgery,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(3)
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, _snapshot_counts(len(rows))),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    _, _, page, _ = candidate_pool._prepare_snapshot_selection_page(
+        snapshot,
+        top=1,
+        ledger_path=ledger_path,
+        known_answer_artifact=tmp_path / "known.json",
+        canonicalizer=_snapshot_canonicalizer,
+    )
+    ledger = acknowledge_selection_page(
+        json.loads(ledger_path.read_text()),
+        page,
+        disposition="COMPLETED",
+    )
+    if forgery == "cursor":
+        ledger["cursor"] = snapshot.eligible_rows
+    else:
+        ledger["committed_digests"].append("forged-digest")
+    # Even an attacker who refreshes the outer progress seal cannot invent
+    # the missing acknowledgement-chain history.
+    candidate_pool.atomic_write_json(
+        ledger_path,
+        seal_selection_ledger(ledger),
+    )
+
+    with pytest.raises(ValueError, match="selection ledger replay"):
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+
+
+def test_deferred_ack_requires_exact_deferred_entry_sequence():
+    binding = "a" * 64
+    snapshot_identity = "b" * 64
+    ledger = new_selection_ledger(
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=snapshot_identity,
+        snapshot_rows=2,
+        eligible_rows=2,
+    )
+    scan = make_scan_evidence(
+        snapshot_identity_sha256_value=snapshot_identity,
+        start_index=0,
+        next_index=1,
+        snapshot_rows=2,
+        eligible_rows=2,
+        selection_exhausted=False,
+    )
+    page = make_selection_page(
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=snapshot_identity,
+        page_sequence=0,
+        previous_ack_sha256=ledger["last_ack_sha256"],
+        start_index=0,
+        next_index=1,
+        selected_digests=["deferred-candidate"],
+        scan_evidence=scan,
+    )
+    ledger = install_pending_page(ledger, page)
+    entry_payload = {"kind": "test-deferred-entry"}
+    entry = {
+        **entry_payload,
+        "entry_sha256": candidate_pool._json_sha256(entry_payload),
+    }
+    acknowledged = acknowledge_selection_page(
+        ledger,
+        page,
+        disposition="DEFERRED",
+        deferred_entry=entry,
+    )
+    validate_selection_ledger(
+        acknowledged,
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=snapshot_identity,
+        snapshot_rows=2,
+        eligible_rows=2,
+    )
+    forged = dict(acknowledged)
+    forged["deferred_pages"] = []
+
+    with pytest.raises(ValueError, match="deferred acknowledgements"):
+        validate_selection_ledger(
+            seal_selection_ledger(forged),
+            binding_sha256=binding,
+            snapshot_identity_sha256_value=snapshot_identity,
+            snapshot_rows=2,
+            eligible_rows=2,
+        )
+
+
+def test_nonempty_all_rejected_root_page_can_be_acknowledged():
+    binding = "a" * 64
+    snapshot_identity = "b" * 64
+    ledger = new_selection_ledger(
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=snapshot_identity,
+        snapshot_rows=1,
+        eligible_rows=0,
+    )
+    scan = make_scan_evidence(
+        snapshot_identity_sha256_value=snapshot_identity,
+        start_index=0,
+        next_index=0,
+        snapshot_rows=1,
+        eligible_rows=0,
+        selection_exhausted=True,
+    )
+    page = make_selection_page(
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=snapshot_identity,
+        page_sequence=0,
+        previous_ack_sha256=ledger["last_ack_sha256"],
+        start_index=0,
+        next_index=0,
+        selected_digests=[],
+        scan_evidence=scan,
+    )
+    ledger = install_pending_page(ledger, page)
+    acknowledged = acknowledge_selection_page(
+        ledger,
+        page,
+        disposition="COMPLETED",
+    )
+
+    assert acknowledged["cursor"] == 0
+    assert acknowledged["completed_pages"] == 1
+    assert acknowledged["pending"] is None
+    assert len(acknowledged["ack_chain"]) == 1

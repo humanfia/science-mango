@@ -37,6 +37,29 @@ def _result(worker: int, index: int) -> dict:
     }
 
 
+def _complete_preflight_metrics(
+    contract_id: int,
+    *,
+    evaluated: int = 3,
+    eligible: int = 2,
+) -> dict[str, float]:
+    return {
+        evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(contract_id),
+        evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
+        evaluator.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 0.0,
+        evaluator.WINNER_PREFLIGHT_LATTICES_METRIC: float(
+            len(EVOLUTION_LATTICES)
+        ),
+        evaluator.WINNER_PREFLIGHT_EVALUATED_METRIC: float(evaluated),
+        evaluator.WINNER_PREFLIGHT_ELIGIBLE_METRIC: float(eligible),
+        evaluator.WINNER_PREFLIGHT_PERSISTED_METRIC: float(eligible),
+        evaluator.WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
+        evaluator.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 0.0,
+        evaluator.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 0.0,
+    }
+
+
 def _append_worker(
     project_root: str,
     run_name: str,
@@ -292,6 +315,102 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
     tmp_path, monkeypatch
 ):
     calls = []
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    empty_metrics = {
+        "best_fom": 0.0,
+        "mean_fom": 0.0,
+        "num_valid": 0,
+        "num_above_6": 0,
+        "num_above_12": 0,
+        "total_candidates": 0,
+        "unique_candidates": 0,
+        "evaluated_candidate_definitions": 0,
+        "duplicate_candidate_occurrences": 0,
+        "winner_capable_quick_exploration_eligible": 0,
+        "winner_capable_quick_exploration_persisted": 0,
+        "winner_capable_quick_exploration_omitted": 0,
+        "winner_capable_distance_pending_persisted": 0,
+        "winner_capable_unresolved_top_persisted": 0,
+        "winner_capable_distance_error_persisted": 0,
+        "distance_backend_error_count": 0,
+        "malformed_candidate_definitions": 0,
+        "tier0_rejected": 0,
+        "structural_rejected": 0,
+        "best_encoding_rate": 0.0,
+        "num_high_k": 0,
+        "lattices_with_high_k": 0,
+        "best_code": None,
+        "all_results": [],
+        "errors": [],
+        "lattices_completed": len(EVOLUTION_LATTICES),
+        "lattice_failures": 0,
+    }
+
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [],
+    )
+
+    def fake_run(_generate, lattices, **kwargs):
+        calls.append((tuple(lattices), dict(kwargs)))
+        return dict(empty_metrics)
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
+    monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _rows: None)
+
+    evaluator._evaluate_stage2_impl(str(program))
+
+    assert calls[0][0] == EVOLUTION_LATTICES
+    assert calls[0][1]["quick"] is True
+    assert calls[0][1]["persist_quick_exploration"] is True
+    assert calls[0][1]["persist_all_quick_exploration"] is True
+    assert (
+        calls[0][1]["candidate_limit"]
+        == evaluator.STAGE2_PREFLIGHT_CANDIDATE_LIMIT
+    )
+    assert calls[1][0] == tuple(evaluator.STAGE2_DEEP_LATTICES)
+    assert calls[1][1]["quick"] is False
+    assert (
+        calls[1][1]["refine_trials"]
+        == evaluator.STAGE2_REFINE_TRIALS
+    )
+    assert (
+        calls[1][1]["max_distance_per_lattice"]
+        == evaluator.STAGE2_DEEP_DISTANCE_PER_LATTICE
+    )
+    assert (
+        calls[1][1]["candidate_limit"]
+        == evaluator.STAGE2_DEEP_CANDIDATE_LIMIT
+    )
+
+
+def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
+    tmp_path, monkeypatch
+):
+    contract_id = 13579
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    markers = _complete_preflight_metrics(
+        contract_id,
+        evaluated=17,
+        eligible=5,
+    )
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_REUSE_ENV,
+        json.dumps({
+            "schema_version": 1,
+            "program_sha256": evaluator._program_source_sha256(str(program)),
+            "contract_id": contract_id,
+            "markers": markers,
+        }),
+    )
+    calls = []
     empty_metrics = {
         "best_fom": 0.0,
         "mean_fom": 0.0,
@@ -317,7 +436,6 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
         "all_results": [],
         "errors": [],
     }
-
     monkeypatch.setattr(
         evaluator,
         "_load_generate_candidates",
@@ -331,30 +449,14 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
     monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _rows: None)
 
-    evaluator._evaluate_stage2_impl(str(tmp_path / "program.py"))
+    result = evaluator._evaluate_stage2_impl(str(program))
+    metrics = getattr(result, "metrics", result)
 
-    assert calls[0][0] == EVOLUTION_LATTICES
-    assert calls[0][1]["quick"] is True
-    assert calls[0][1]["persist_quick_exploration"] is True
-    assert calls[0][1]["persist_all_quick_exploration"] is True
-    assert (
-        calls[0][1]["candidate_limit"]
-        == evaluator.STAGE2_PREFLIGHT_CANDIDATE_LIMIT
-    )
-    assert calls[1][0] == tuple(evaluator.STAGE2_DEEP_LATTICES)
-    assert calls[1][1]["quick"] is False
-    assert (
-        calls[1][1]["refine_trials"]
-        == evaluator.STAGE2_REFINE_TRIALS
-    )
-    assert (
-        calls[1][1]["max_distance_per_lattice"]
-        == evaluator.STAGE2_DEEP_DISTANCE_PER_LATTICE
-    )
-    assert (
-        calls[1][1]["candidate_limit"]
-        == evaluator.STAGE2_DEEP_CANDIDATE_LIMIT
-    )
+    assert [lattices for lattices, _kwargs in calls] == [
+        tuple(evaluator.STAGE2_DEEP_LATTICES)
+    ]
+    assert metrics["target_preflight_candidates_evaluated"] == 17.0
+    assert metrics["target_preflight_winner_capable_persisted"] == 5.0
 
 
 def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
@@ -443,6 +545,272 @@ def test_stage2_killable_wrapper_terminates_group_on_timeout(monkeypatch):
         (8765, evaluator.signal.SIGTERM),
         (8765, evaluator.signal.SIGKILL),
     ]
+
+
+def test_stage1_preflight_timeout_is_explicitly_incomplete(
+    tmp_path, monkeypatch
+):
+    kills = []
+    program = tmp_path / "slow-program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+
+    class TimedOutProcess:
+        pid = 7654
+
+        def __init__(self, _command, **_kwargs):
+            self.wait_calls = 0
+
+        def wait(self, timeout=None):
+            self.wait_calls += 1
+            if self.wait_calls == 1:
+                raise evaluator.subprocess.TimeoutExpired(
+                    "stage1", timeout
+                )
+            return -evaluator.signal.SIGTERM
+
+    monkeypatch.setattr(evaluator.subprocess, "Popen", TimedOutProcess)
+    monkeypatch.setattr(
+        evaluator.os,
+        "killpg",
+        lambda pid, sig: kills.append((pid, sig)),
+    )
+
+    result = evaluator.evaluate_stage1(str(program))
+
+    assert result[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 0.0
+    assert result[evaluator.WINNER_PREFLIGHT_INCOMPLETE_METRIC] == 1.0
+    assert result[evaluator.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] == 1.0
+    assert result[
+        evaluator.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC
+    ] == 1.0
+    assert kills == [
+        (7654, evaluator.signal.SIGTERM),
+        (7654, evaluator.signal.SIGKILL),
+    ]
+
+
+def test_stage1_worker_contract_is_forwarded_once_to_cascade_stage2(
+    tmp_path, monkeypatch
+):
+    contract_id = 246810
+    observed = []
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+
+    class FakeProcess:
+        pid = 8642
+
+        def __init__(self, command, **kwargs):
+            observed.append((command[2], kwargs["env"]))
+            if command[2] == "--stage1-worker":
+                payload = {
+                    "schema_version": 1,
+                    "status": "completed",
+                    "metrics": _complete_preflight_metrics(contract_id),
+                }
+            else:
+                payload = {
+                    "schema_version": 1,
+                    "status": "completed",
+                    "metrics": {"combined_score": 2.0},
+                    "artifacts": {},
+                }
+            Path(command[4]).write_text(json.dumps(payload))
+
+        def wait(self, timeout=None):
+            return 0
+
+    monkeypatch.setattr(evaluator.subprocess, "Popen", FakeProcess)
+    result = evaluator.evaluate_stage1(str(program))
+    evaluator.evaluate_stage2(str(program))
+
+    assert observed[0][1][
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV
+    ] == str(contract_id)
+    assert result[evaluator.WINNER_PREFLIGHT_CONTRACT_ID_METRIC] == float(
+        contract_id
+    )
+    reuse = json.loads(
+        observed[1][1][evaluator.WINNER_PREFLIGHT_REUSE_ENV]
+    )
+    assert reuse["program_sha256"] == evaluator._program_source_sha256(
+        str(program)
+    )
+    assert reuse["contract_id"] == contract_id
+    assert (
+        reuse["markers"][evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC]
+        == 1.0
+    )
+    assert evaluator._take_stage1_preflight_completion(str(program)) is None
+
+
+def test_any_preflight_lattice_failure_refuses_complete_markers():
+    def generator(ell, m):
+        if (ell, m) == EVOLUTION_LATTICES[-1]:
+            raise RuntimeError("last lattice failed")
+        return []
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="lattices=20/21",
+    ):
+        evaluator._run_full_winner_preflight(
+            generator,
+            sampling_salt="program",
+            contract_id=11,
+        )
+
+
+def test_full_preflight_candidate_log_failure_returns_no_complete_markers(
+    monkeypatch,
+):
+    definition = (
+        [[0, 0], [0, 1], [1, 0]],
+        [[0, 0], [0, 2], [2, 0]],
+    )
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 2 * ell * m,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 0.1,
+                "stage": "quick_k_only",
+                "encoding_rate": 0.1,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_log_codes_jsonl",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            evaluator.CandidateLogWriteError("candidate log unavailable")
+        ),
+    )
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="candidate log unavailable",
+    ):
+        evaluator._run_full_winner_preflight(
+            lambda _ell, _m: [definition],
+            sampling_salt="program",
+            contract_id=12,
+        )
+
+
+def test_preflight_freezes_candidate_log_binding_before_untrusted_import(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setenv("QCODE_RUN_NAME", "trusted-run")
+    program = tmp_path / "redirecting_program.py"
+    program.write_text(
+        "import os\n"
+        "os.environ['QCODE_RUN_NAME'] = 'redirected-run'\n"
+        "def generate_candidates(ell, m):\n"
+        "    return [(\n"
+        "        [(0, 0), (0, 1), (1, 0)],\n"
+        "        [(0, 0), (0, 2), (2, 0)],\n"
+        "    )]\n"
+    )
+
+    def fake_batch(ell, m, rows, **kwargs):
+        assert kwargs["quick"] is True
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 2 * ell * m,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / (2 * ell * m),
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / (2 * ell * m),
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+
+    markers = evaluator._preflight_program(str(program))
+
+    trusted_log = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "trusted-run"
+        / "all_codes.jsonl"
+    )
+    redirected_log = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "redirected-run"
+        / "all_codes.jsonl"
+    )
+    assert markers[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+    assert len(trusted_log.read_text().splitlines()) == len(EVOLUTION_LATTICES)
+    assert not redirected_log.exists()
+
+
+def test_preflight_refuses_program_that_rewrites_its_source_on_import(
+    tmp_path, monkeypatch
+):
+    program = tmp_path / "self_modifying_program.py"
+    program.write_text(
+        "from pathlib import Path\n"
+        "Path(__file__).write_text(\n"
+        "    'def generate_candidates(ell, m): return []\\n# changed\\n'\n"
+        ")\n"
+        "def generate_candidates(ell, m):\n"
+        "    return []\n"
+    )
+    preflight_called = False
+
+    def unexpected_preflight(*_args, **_kwargs):
+        nonlocal preflight_called
+        preflight_called = True
+        return {}
+
+    monkeypatch.setattr(
+        evaluator,
+        "_run_full_winner_preflight",
+        unexpected_preflight,
+    )
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="changed during winner preflight",
+    ):
+        evaluator._preflight_program(str(program))
+
+    assert preflight_called is False
 
 
 @pytest.mark.skipif(
@@ -690,6 +1058,8 @@ def test_malformed_generator_item_does_not_hide_valid_peer(
 def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
     tmp_path, monkeypatch
 ):
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
     critical = {
         "ell": 6,
         "m": 6,
@@ -725,11 +1095,15 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
         "unique_candidates": 2,
         "evaluated_candidate_definitions": 2,
         "duplicate_candidate_occurrences": 0,
+        "winner_capable_quick_exploration_eligible": 0,
         "winner_capable_quick_exploration_persisted": 0,
+        "winner_capable_quick_exploration_omitted": 0,
         "winner_capable_unresolved_top_persisted": 0,
         "best_code": critical,
         "all_results": [critical, historical],
         "errors": [],
+        "lattices_completed": len(EVOLUTION_LATTICES),
+        "lattice_failures": 0,
     }
     monkeypatch.setattr(
         evaluator,
@@ -745,9 +1119,7 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
     monkeypatch.setattr(evaluator, "save_code", lambda _row: None)
     monkeypatch.setattr(evaluator, "update_pareto_front", lambda _rows: None)
 
-    evaluated = evaluator._evaluate_stage2_impl(
-        str(tmp_path / "program.py")
-    )
+    evaluated = evaluator._evaluate_stage2_impl(str(program))
     result = getattr(evaluated, "metrics", evaluated)
 
     assert result["best_fom"] == critical["fom"]
@@ -1036,12 +1408,123 @@ def test_stage2_full_preflight_persists_every_eligible_definition_in_one_batch(
     assert all(
         row["winner_capable_parameters"] is True
         and row["candidate_persistence_reason"]
-        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+        == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
         for row in persisted
     )
 
 
-def test_normal_stage1_quick_evaluation_does_not_persist_k_only_pool(
+def test_full_preflight_does_not_sample_away_definition_after_5000(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    candidates = [
+        (
+            [[0, 0], [0, 1], [index + 1, 0]],
+            [[0, 0], [0, 2], [index + 2, 0]],
+        )
+        for index in range(evaluator.MAX_CANDIDATES_PER_LATTICE + 3)
+    ]
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / 72,
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: candidates,
+        [(6, 6)],
+        quick=True,
+        run_name="unbounded-full-preflight",
+        candidate_limit=None,
+        persist_quick_exploration=True,
+        persist_all_quick_exploration=True,
+    )
+
+    rows = [
+        json.loads(line)
+        for line in (
+            tmp_path
+            / "results"
+            / "evolution"
+            / "unbounded-full-preflight"
+            / "all_codes.jsonl"
+        ).read_text().splitlines()
+    ]
+    assert len(rows) == len(candidates)
+    assert rows[-1]["A_terms"] == candidates[-1][0]
+    assert metrics["evaluated_candidate_definitions"] == len(candidates)
+    assert metrics["winner_capable_quick_exploration_omitted"] == 0
+
+
+def test_stage1_completes_full_persistence_before_gate_score(
+    tmp_path, monkeypatch
+):
+    order = []
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    markers = {
+        evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: 7.0,
+        evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
+    }
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [],
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_current_winner_preflight_contract_id",
+        lambda: 7,
+    )
+
+    def preflight(*_args, **_kwargs):
+        order.append("persist")
+        return dict(markers)
+
+    def score(*_args, **_kwargs):
+        order.append("gate")
+        return {
+            "total_candidates": 0,
+            "all_results": [],
+            "num_valid": 0,
+            "num_high_k": 0,
+            "lattices_with_high_k": 0,
+            "lattices_completed": len(evaluator.STAGE1_LATTICES),
+            "lattice_failures": 0,
+            "winner_capable_quick_exploration_eligible": 0,
+            "winner_capable_quick_exploration_persisted": 0,
+            "winner_capable_quick_exploration_omitted": 0,
+        }
+
+    monkeypatch.setattr(evaluator, "_run_full_winner_preflight", preflight)
+    monkeypatch.setattr(evaluator, "_run_evaluation", score)
+    result = evaluator._evaluate_stage1_impl(str(program))
+
+    assert order == ["persist", "gate"]
+    assert result[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+
+
+def test_stage1_persists_full_winner_pool_before_scoring_gate(
     tmp_path, monkeypatch
 ):
     monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
@@ -1082,10 +1565,231 @@ def test_normal_stage1_quick_evaluation_does_not_persist_k_only_pool(
         ]
 
     monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
-    result = evaluator.evaluate_stage1(str(program))
+    result = evaluator._evaluate_stage1_impl(str(program))
 
     assert result["num_valid"] == float(len(evaluator.STAGE1_LATTICES))
-    assert not list(tmp_path.rglob("all_codes.jsonl"))
+    persisted = [
+        json.loads(line)
+        for line in next(tmp_path.rglob("all_codes.jsonl")).read_text().splitlines()
+    ]
+    assert len(persisted) == (
+        len(EVOLUTION_LATTICES) + len(evaluator.STAGE1_LATTICES)
+    )
+    assert {
+        (row["ell"], row["m"]) for row in persisted
+    } == set(EVOLUTION_LATTICES)
+    assert result[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+
+
+def test_stage1_stateful_fitness_pool_is_fully_persisted(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setenv("QCODE_RUN_NAME", "stage1-stateful")
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    program = tmp_path / "stage1-stateful.py"
+    program.write_text(
+        "_calls = 0\n"
+        "def generate_candidates(ell, m):\n"
+        "    global _calls\n"
+        "    _calls += 1\n"
+        f"    if _calls != {len(EVOLUTION_LATTICES) + 1}:\n"
+        "        return []\n"
+        "    return [(\n"
+        "        [(0, 0), (0, 1), (1, 0)],\n"
+        "        [(0, 0), (0, 2), (2, 0)],\n"
+        "    )]\n"
+    )
+
+    def fake_batch(ell, m, rows, **kwargs):
+        assert kwargs["quick"] is True
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 2 * ell * m,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / (2 * ell * m),
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / (2 * ell * m),
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+
+    result = evaluator._evaluate_stage1_impl(str(program))
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "stage1-stateful"
+        / "all_codes.jsonl"
+    )
+    persisted = [json.loads(line) for line in path.read_text().splitlines()]
+    assert result[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+    assert result["num_valid"] == 1.0
+    assert len(persisted) == 1
+    assert persisted[0]["candidate_persistence_reason"] == (
+        evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
+    )
+    assert (persisted[0]["ell"], persisted[0]["m"]) == (
+        evaluator.STAGE1_LATTICES[0]
+    )
+
+
+def test_stage1_partial_historical_persistence_cannot_keep_complete_marker(
+    tmp_path, monkeypatch
+):
+    contract_id = 97531
+    program = tmp_path / "partial-stage1.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    monkeypatch.setattr(
+        evaluator,
+        "_current_winner_preflight_contract_id",
+        lambda: contract_id,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_full_winner_preflight",
+        lambda *_args, **_kwargs: _complete_preflight_metrics(contract_id),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_evaluation",
+        lambda *_args, **_kwargs: {
+            "lattices_completed": 1,
+            "lattice_failures": 1,
+            "winner_capable_quick_exploration_eligible": 1,
+            "winner_capable_quick_exploration_persisted": 1,
+            "winner_capable_quick_exploration_omitted": 0,
+        },
+    )
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="Stage 1 historical fitness pass did not complete",
+    ):
+        evaluator._evaluate_stage1_impl(str(program))
+
+
+def test_deep_stateful_pool_persists_tail_before_5000_sample(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "deduplicate_css_results",
+        lambda rows: (rows, []),
+    )
+    candidate_count = evaluator.MAX_CANDIDATES_PER_LATTICE + 1
+    candidates = [
+        (
+            [[0, 0], [index + 1, 0]],
+            [[0, 0], [0, 1]],
+        )
+        for index in range(candidate_count)
+    ]
+    generator_calls = 0
+    deep_inputs = []
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "stateful-tail"
+        / "all_codes.jsonl"
+    )
+
+    def stateful_generator(_ell, _m):
+        nonlocal generator_calls
+        generator_calls += 1
+        if generator_calls != 1:
+            raise AssertionError("deep lattice called generator more than once")
+        return candidates
+
+    def fake_batch(ell, m, rows, **kwargs):
+        quick = kwargs.get("quick") is True
+        if not quick:
+            deep_inputs.extend(rows)
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": (
+                    4
+                    if max(x for x, _y in a_terms)
+                    in {1, candidate_count}
+                    else 0
+                ),
+                "d": 0 if quick else 8,
+                "fom": 0.0 if quick else 4 * 8 * 8 / 72,
+                "score": 0.0,
+                "stage": "quick_k_only" if quick else "refined_estimate",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    def exclude_tail_after_persistence(rows, **_kwargs):
+        persisted = [json.loads(line) for line in path.read_text().splitlines()]
+        assert any(
+            max(x for x, _y in row["A_terms"]) == candidate_count
+            for row in persisted
+        )
+        return rows[:-1]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_bounded_candidate_sample",
+        exclude_tail_after_persistence,
+    )
+
+    metrics = evaluator._run_evaluation(
+        stateful_generator,
+        [(6, 6)],
+        quick=False,
+        max_distance_per_lattice=1,
+        candidate_limit=evaluator.MAX_CANDIDATES_PER_LATTICE,
+        run_name="stateful-tail",
+        sampling_salt="stateful-program",
+    )
+
+    full_pool = [
+        json.loads(line)
+        for line in path.read_text().splitlines()
+        if json.loads(line).get("candidate_persistence_reason")
+        == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
+    ]
+    assert generator_calls == 1
+    assert len(full_pool) == 2
+    assert any(
+        max(x for x, _y in row["A_terms"]) == candidate_count
+        for row in full_pool
+    )
+    assert all(
+        max(x for x, _y in a_terms) != candidate_count
+        for a_terms, _b_terms in deep_inputs
+    )
+    assert metrics["winner_capable_quick_exploration_persisted"] == 2
+    assert metrics["winner_capable_quick_exploration_omitted"] == 0
 
 
 def test_dynamic_distance_lane_keeps_k4_and_bounds_quick_persistence(
@@ -1171,24 +1875,26 @@ def test_dynamic_distance_lane_keeps_k4_and_bounds_quick_persistence(
             / "all_codes.jsonl"
         ).read_text().splitlines()
     ]
-    quick_rows = [
+    full_pool_rows = [
         row for row in persisted
         if row.get("candidate_persistence_reason")
-        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+        == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
     ]
-    assert len(quick_rows) == (
-        evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
-    )
+    assert len(full_pool_rows) == len(candidates)
     pending_rows = [
         row for row in persisted
         if row.get("candidate_persistence_reason")
         == evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
     ]
     assert len(pending_rows) == len(distance_inputs)
-    assert all(row["d"] == 0 and row["fom"] == 0 for row in quick_rows)
-    assert all(row["minimum_winning_distance"] == 15 for row in quick_rows)
+    assert all(
+        row["d"] == 0 and row["fom"] == 0 for row in full_pool_rows
+    )
+    assert all(
+        row["minimum_winning_distance"] == 15 for row in full_pool_rows
+    )
     assert len(persisted) == (
-        len(distance_inputs) + len(pending_rows) + len(quick_rows)
+        len(distance_inputs) + len(pending_rows) + len(full_pool_rows)
     )
 
 
@@ -1251,21 +1957,24 @@ def test_unresolved_top_upgrades_its_write_ahead_pending_row(
             / "all_codes.jsonl"
         ).read_text().splitlines()
     ]
-    assert len(persisted) == 2
+    assert len(persisted) == 3
     assert all(
         row["candidate_persistence_lane"]
         == evaluator.WINNER_CAPABLE_EXPLORATION_LANE
         for row in persisted
     )
     assert persisted[0]["candidate_persistence_reason"] == (
-        evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+        evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
     )
     assert persisted[1]["candidate_persistence_reason"] == (
+        evaluator.DISTANCE_PENDING_PERSISTENCE_REASON
+    )
+    assert persisted[2]["candidate_persistence_reason"] == (
         evaluator.UNRESOLVED_TOP_PERSISTENCE_REASON
     )
     assert metrics["winner_capable_distance_pending_persisted"] == 1
     assert metrics["winner_capable_unresolved_top_persisted"] == 1
-    assert metrics["winner_capable_quick_exploration_persisted"] == 0
+    assert metrics["winner_capable_quick_exploration_persisted"] == 1
 
 
 def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
@@ -1321,9 +2030,9 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
             ) == len(rows)
             assert sum(
                 row.get("candidate_persistence_reason")
-                == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+                == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
                 for row in preexisting
-            ) == evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
+            ) == len(candidates)
             raise RuntimeError("simulated distance backend failure")
         return [
             {
@@ -1363,10 +2072,10 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
         if row.get("candidate_persistence_reason")
         == evaluator.DISTANCE_ERROR_PERSISTENCE_REASON
     ]
-    quick = [
+    full_pool = [
         row for row in persisted
         if row.get("candidate_persistence_reason")
-        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+        == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
     ]
 
     def definitions(rows):
@@ -1380,9 +2089,9 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
 
     assert definitions(pending) == distance_keys
     assert definitions(failed) == distance_keys
-    assert definitions(quick).isdisjoint(distance_keys)
+    assert distance_keys.issubset(definitions(full_pool))
     assert len(pending) == len(failed) == 2
-    assert len(quick) == evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
+    assert len(full_pool) == len(candidates)
     assert all(row["d"] == 0 for row in failed)
     assert all(row["d_is_exact"] is False for row in failed)
     assert all(row["distance_trusted"] is False for row in failed)
@@ -1393,7 +2102,10 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
     )
     assert metrics["winner_capable_distance_pending_persisted"] == 2
     assert metrics["winner_capable_distance_error_persisted"] == 2
-    assert metrics["winner_capable_quick_exploration_persisted"] == len(quick)
+    assert (
+        metrics["winner_capable_quick_exploration_persisted"]
+        == len(full_pool)
+    )
     assert metrics["distance_backend_error_count"] == 1
     assert metrics["errors"] == [
         "(6,6): distance backend RuntimeError: "
@@ -1402,9 +2114,11 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
 
     preflight_metrics = dict(metrics)
     preflight_metrics["winner_capable_quick_exploration_eligible"] = len(
-        quick
+        full_pool
     )
     preflight_metrics["winner_capable_quick_exploration_omitted"] = 0
+    preflight_metrics["lattices_completed"] = len(EVOLUTION_LATTICES)
+    preflight_metrics["lattice_failures"] = 0
     monkeypatch.setattr(
         evaluator,
         "_load_generate_candidates",
@@ -1418,9 +2132,9 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
         ),
     )
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
-    evaluated = evaluator._evaluate_stage2_impl(
-        str(tmp_path / "program.py")
-    )
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    evaluated = evaluator._evaluate_stage2_impl(str(program))
     result = getattr(evaluated, "metrics", evaluated)
     artifacts = getattr(evaluated, "artifacts", {})
     assert result["distance_backend_error_count"] == 1.0
@@ -1428,7 +2142,10 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
     assert "Distance backend failures: 1." in artifacts["summary"]
 
 
-def test_write_ahead_log_failure_aborts_before_distance_backend(monkeypatch):
+def test_write_ahead_log_failure_aborts_before_distance_backend(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
     definition = (
         [[0, 0], [0, 1], [1, 0]],
         [[0, 0], [0, 2], [2, 0]],
@@ -1561,10 +2278,10 @@ def test_all_unresolved_top_are_persisted_before_independent_quick_quota(
         if row.get("candidate_persistence_reason")
         == evaluator.UNRESOLVED_TOP_PERSISTENCE_REASON
     ]
-    quick = [
+    full_pool = [
         row for row in persisted
         if row.get("candidate_persistence_reason")
-        == evaluator.QUICK_EXPLORATION_PERSISTENCE_REASON
+        == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
     ]
     unresolved_keys = {
         (
@@ -1576,11 +2293,12 @@ def test_all_unresolved_top_are_persisted_before_independent_quick_quota(
 
     assert unresolved_keys == distance_keys
     assert len(unresolved) == 2
-    assert len(quick) == (
-        evaluator.MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE
-    )
+    assert len(full_pool) == len(candidates)
     assert metrics["winner_capable_unresolved_top_persisted"] == 2
-    assert metrics["winner_capable_quick_exploration_persisted"] == len(quick)
+    assert (
+        metrics["winner_capable_quick_exploration_persisted"]
+        == len(full_pool)
+    )
 
 
 def test_distance_adapter_cannot_overproduce_unresolved_top_silently(
@@ -1691,6 +2409,7 @@ def test_distance_adapter_cannot_overproduce_unresolved_top_silently(
 def test_large_lattice_specialist_has_low_frequency_escape_hatch(
     tmp_path, monkeypatch
 ):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
     program = tmp_path / "specialist.py"
     program.write_text(
         "def generate_candidates(ell, m):\n"
@@ -1705,7 +2424,7 @@ def test_large_lattice_specialist_has_low_frequency_escape_hatch(
         lambda _path: True,
     )
 
-    result = evaluator.evaluate_stage1(str(program))
+    result = evaluator._evaluate_stage1_impl(str(program))
 
     assert result["total_candidates"] == 0.0
     assert result["combined_score"] == 0.02
@@ -1735,24 +2454,40 @@ def test_partial_stage1_coverage_only_escapes_on_specialist_sample(
         "num_high_k": 0,
         "lattices_with_high_k": 0,
     }
-    monkeypatch.setattr(
-        evaluator,
-        "_run_evaluation",
-        lambda *_args, **_kwargs: metrics,
-    )
+
+    def fake_run(_generate, lattices, **_kwargs):
+        if tuple(lattices) == EVOLUTION_LATTICES:
+            return {
+                "lattices_completed": len(EVOLUTION_LATTICES),
+                "lattice_failures": 0,
+                "winner_capable_quick_exploration_eligible": 0,
+                "winner_capable_quick_exploration_persisted": 0,
+                "winner_capable_quick_exploration_omitted": 0,
+                "evaluated_candidate_definitions": 0,
+            }
+        return {
+            **metrics,
+            "lattices_completed": len(evaluator.STAGE1_LATTICES),
+            "lattice_failures": 0,
+            "winner_capable_quick_exploration_eligible": 1,
+            "winner_capable_quick_exploration_persisted": 1,
+            "winner_capable_quick_exploration_omitted": 0,
+        }
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
 
     monkeypatch.setattr(
         evaluator,
         "_stage1_specialist_exploration_pass",
         lambda _path: False,
     )
-    ordinary = evaluator.evaluate_stage1(str(program))
+    ordinary = evaluator._evaluate_stage1_impl(str(program))
     monkeypatch.setattr(
         evaluator,
         "_stage1_specialist_exploration_pass",
         lambda _path: True,
     )
-    sampled = evaluator.evaluate_stage1(str(program))
+    sampled = evaluator._evaluate_stage1_impl(str(program))
 
     assert ordinary["combined_score"] == 0.001
     assert ordinary["specialist_exploration"] == 0.0

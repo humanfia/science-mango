@@ -3,9 +3,11 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import fcntl
+import hashlib
 import json
 import os
 import threading
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -73,6 +75,59 @@ def _child(iteration: int, program_id: str | None = None) -> FakeResult:
     )
 
 
+def _preflight_markers(
+    contract_id: int,
+    *,
+    evaluated: int = 3,
+    eligible: int = 2,
+) -> dict[str, float]:
+    return {
+        launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+        launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(contract_id),
+        launcher.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
+        launcher.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_LATTICES_METRIC: float(
+            len(launcher.EVOLUTION_LATTICES)
+        ),
+        launcher.WINNER_PREFLIGHT_EVALUATED_METRIC: float(evaluated),
+        launcher.WINNER_PREFLIGHT_ELIGIBLE_METRIC: float(eligible),
+        launcher.WINNER_PREFLIGHT_PERSISTED_METRIC: float(eligible),
+        launcher.WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 0.0,
+    }
+
+
+def _incomplete_preflight_metrics(
+    contract_id: int,
+    *,
+    hard_timeout: int = 0,
+) -> dict[str, Any]:
+    return {
+        "combined_score": 0.0,
+        "error": "winner preflight failed",
+        "lattices_with_high_k": 0.0,
+        "num_high_k": 0.0,
+        "term_count": 0.0,
+        "pattern_type": 0.0,
+        **{
+            launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+            launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC:
+                float(contract_id),
+            launcher.WINNER_PREFLIGHT_COMPLETE_METRIC: 0.0,
+            launcher.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 1.0,
+            launcher.WINNER_PREFLIGHT_LATTICES_METRIC: 0.0,
+            launcher.WINNER_PREFLIGHT_EVALUATED_METRIC: 0.0,
+            launcher.WINNER_PREFLIGHT_ELIGIBLE_METRIC: 0.0,
+            launcher.WINNER_PREFLIGHT_PERSISTED_METRIC: 0.0,
+            launcher.WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
+            launcher.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC:
+                float(hard_timeout),
+            launcher.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 1.0,
+        },
+    }
+
+
 def _observer_controller(
     programs: dict[str, Any],
     *,
@@ -118,6 +173,184 @@ def test_observer_accepts_out_of_order_results_and_worker_error():
     assert observer.accounting_complete is True
     assert sorted(observer.outcomes) == [11, 12, 13]
     assert observer.outcomes[12]["status"] == "worker_error"
+
+
+def test_incomplete_child_preflight_cannot_complete_slice_or_witness():
+    contract_id = 12345
+    observer = launcher._SliceObserver(
+        0,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+    )
+    observer.begin(1, 1, None)
+    child = _child(1)
+    child.child_program_dict["metrics"] = {
+        **_preflight_markers(contract_id),
+        launcher.WINNER_PREFLIGHT_COMPLETE_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 1.0,
+        launcher.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 1.0,
+        launcher.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 1.0,
+    }
+    future = observer.record_submission(1, 0, FakeFuture(child))
+    result = future.result()
+    program = SimpleNamespace(**result.child_program_dict)
+    observer.record_program_add(1, program)
+
+    with pytest.raises(
+        RuntimeError,
+        match="incomplete winner preflight",
+    ):
+        observer.verify(
+            _observer_controller({program.id: program})
+        )
+    assert observer.accounting_complete is False
+
+
+@pytest.mark.parametrize("hard_timeout", (0, 1))
+def test_exact_incomplete_child_becomes_canonical_worker_error(
+    hard_timeout: int,
+):
+    contract_id = 12345
+    observer = launcher._SliceObserver(
+        10,
+        3,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+    )
+    observer.begin(11, 3, None)
+    raw_results = {
+        iteration: _child(iteration)
+        for iteration in (11, 12, 13)
+    }
+    for iteration in (11, 13):
+        raw_results[iteration].child_program_dict["metrics"].update(
+            _preflight_markers(contract_id)
+        )
+    raw_results[12].child_program_dict["metrics"] = (
+        _incomplete_preflight_metrics(
+            contract_id,
+            hard_timeout=hard_timeout,
+        )
+    )
+    futures = {
+        iteration: observer.record_submission(
+            iteration,
+            iteration % 2,
+            FakeFuture(raw_results[iteration]),
+        )
+        for iteration in (11, 12, 13)
+    }
+    programs: dict[str, Any] = {}
+    for iteration in (13, 12, 11):
+        result = futures[iteration].result()
+        if result.error is not None:
+            assert iteration == 12
+            assert result.child_program_dict is None
+            failure = json.loads(result.error)
+            assert failure["kind"] == "winner_preflight_incomplete"
+            assert failure["hard_timeout"] == hard_timeout
+            assert failure["program_id"] == "program-12"
+            continue
+        program = SimpleNamespace(**result.child_program_dict)
+        programs[program.id] = program
+        observer.record_program_add(iteration, program)
+
+    observer.verify(_observer_controller(programs))
+
+    assert observer.accounting_complete is True
+    assert observer.outcomes[12]["status"] == "worker_error"
+    assert 12 not in observer.expected_programs
+    assert set(programs) == {"program-11", "program-13"}
+
+
+def test_real_evaluator_failure_envelope_is_recognized(monkeypatch):
+    import evolve.openevolve_evaluator as evaluator
+
+    contract_id = 12345
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    metrics = evaluator._winner_preflight_failure_result(
+        "candidate persistence failed",
+        timed_out=False,
+    )
+
+    assert launcher._exact_incomplete_winner_preflight_markers(
+        metrics,
+        expected_contract_id=contract_id,
+    ) is not None
+
+
+@pytest.mark.parametrize(
+    "case",
+    ("wrong_contract", "false_complete", "extra_failure_field"),
+)
+def test_noncanonical_incomplete_claim_remains_fatal(case: str):
+    contract_id = 12345
+    observer = launcher._SliceObserver(
+        0,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+    )
+    observer.begin(1, 1, None)
+    child = _child(1)
+    if case == "wrong_contract":
+        child.child_program_dict["metrics"] = (
+            _incomplete_preflight_metrics(contract_id + 1)
+        )
+    elif case == "false_complete":
+        child.child_program_dict["metrics"].update(
+            _preflight_markers(contract_id)
+        )
+        child.child_program_dict["metrics"][
+            launcher.WINNER_PREFLIGHT_OMITTED_METRIC
+        ] = 1.0
+    else:
+        child.child_program_dict["metrics"] = (
+            _incomplete_preflight_metrics(contract_id)
+        )
+        child.child_program_dict["metrics"]["unbound_failure_field"] = 1.0
+    future = observer.record_submission(1, 0, FakeFuture(child))
+    result = future.result()
+    assert result.error is None
+    program = SimpleNamespace(**result.child_program_dict)
+    observer.record_program_add(1, program)
+
+    with pytest.raises(RuntimeError, match="incomplete OpenEvolve slice"):
+        observer.verify(_observer_controller({program.id: program}))
+    assert observer.accounting_complete is False
+
+
+def test_missing_resume_backfill_report_cannot_complete_slice():
+    contract_id = 67890
+    observer = launcher._SliceObserver(
+        10,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        checkpoint_preflight_required=True,
+    )
+    observer.begin(11, 1, None)
+    child = _child(11)
+    child.child_program_dict["metrics"].update(
+        _preflight_markers(contract_id)
+    )
+    future = observer.record_submission(11, 0, FakeFuture(child))
+    result = future.result()
+    program = SimpleNamespace(**result.child_program_dict)
+    observer.record_program_add(11, program)
+
+    with pytest.raises(
+        RuntimeError,
+        match="checkpoint winner preflight did not complete",
+    ):
+        observer.verify(
+            _observer_controller({program.id: program})
+        )
+    assert observer.accounting_complete is False
 
 
 @pytest.mark.parametrize(
@@ -270,7 +503,33 @@ class FakeParallelController:
                     iteration=2,
                 )
             )
-        return FakeFuture(_child(iteration))
+        child = _child(iteration)
+        if self.scenario in {
+            "incomplete_preflight",
+            "wrong_preflight_contract",
+            "false_complete_preflight",
+        }:
+            if iteration == 2:
+                if self.scenario == "incomplete_preflight":
+                    child.child_program_dict["metrics"] = (
+                        _incomplete_preflight_metrics(24680, hard_timeout=1)
+                    )
+                elif self.scenario == "wrong_preflight_contract":
+                    child.child_program_dict["metrics"] = (
+                        _incomplete_preflight_metrics(24681)
+                    )
+                else:
+                    child.child_program_dict["metrics"].update(
+                        _preflight_markers(24680)
+                    )
+                    child.child_program_dict["metrics"][
+                        launcher.WINNER_PREFLIGHT_OMITTED_METRIC
+                    ] = 1.0
+            else:
+                child.child_program_dict["metrics"].update(
+                    _preflight_markers(24680)
+                )
+        return FakeFuture(child)
 
     async def run_evolution(
         self,
@@ -408,6 +667,64 @@ def test_verified_controller_accounts_for_database_migration_adds(monkeypatch):
     assert open_evolve.saved == [2]
 
 
+def test_verified_controller_checkpoints_other_successful_children_around_incomplete(
+    monkeypatch,
+):
+    _binding, controller_module = _fake_source_modules(monkeypatch)
+    FakeParallelController.scenario = "incomplete_preflight"
+    database = FakeDatabase()
+    open_evolve = controller_module.OpenEvolve()
+
+    with launcher._verified_slice_controller(
+        0,
+        3,
+        expected_preflight_contract_id=24680,
+    ) as (observer, _sources):
+        parallel = controller_module.ProcessParallelController(database)
+        asyncio.run(
+            parallel.run_evolution(
+                1, 3, None, checkpoint_callback=open_evolve._save_checkpoint
+            )
+        )
+        assert observer.accounting_complete is True
+        assert observer.outcomes[2]["status"] == "worker_error"
+        assert set(database.programs) == {"program-1", "program-3"}
+
+    assert open_evolve.saved == [3]
+    assert observer.checkpoint_saves[-1]["accounting_complete"] is True
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    ("wrong_preflight_contract", "false_complete_preflight"),
+)
+def test_verified_controller_does_not_checkpoint_noncanonical_failure_claim(
+    monkeypatch,
+    scenario: str,
+):
+    _binding, controller_module = _fake_source_modules(monkeypatch)
+    FakeParallelController.scenario = scenario
+    database = FakeDatabase()
+    open_evolve = controller_module.OpenEvolve()
+
+    with pytest.raises(RuntimeError, match="incomplete OpenEvolve slice"):
+        with launcher._verified_slice_controller(
+            0,
+            2,
+            expected_preflight_contract_id=24680,
+        ):
+            parallel = controller_module.ProcessParallelController(database)
+            asyncio.run(
+                parallel.run_evolution(
+                    1,
+                    2,
+                    None,
+                    checkpoint_callback=open_evolve._save_checkpoint,
+                )
+            )
+    assert open_evolve.saved == []
+
+
 def test_observer_rejects_unclassified_iterationless_database_add():
     observer = launcher._SliceObserver(0, 1, FakeResult)
     observer.begin(1, 1, None)
@@ -484,6 +801,269 @@ def test_verified_controller_system_exit_zero_never_completes(monkeypatch):
     assert open_evolve.saved == []
 
 
+def test_resume_hook_runs_backfill_after_load_before_new_iterations(
+    tmp_path, monkeypatch
+):
+    order = []
+
+    class FakeOpenEvolve:
+        def __init__(self, **_kwargs):
+            self.database = SimpleNamespace(programs={})
+
+        def _load_checkpoint(self, checkpoint_path):
+            order.append(("load", checkpoint_path))
+            self.database.programs["old"] = SimpleNamespace(
+                id="old",
+                code="def generate_candidates(ell, m): return []",
+                metrics={},
+            )
+
+        async def run(self, *, iterations, checkpoint_path):
+            self._load_checkpoint(checkpoint_path)
+            order.append(("run", iterations))
+            return None
+
+    import openevolve.controller as controller_module
+
+    monkeypatch.setattr(
+        controller_module, "OpenEvolve", FakeOpenEvolve
+    )
+
+    def backfill(database):
+        assert "old" in database.programs
+        order.append(("backfill", len(database.programs)))
+
+    checkpoint = tmp_path / "checkpoint_25"
+    checkpoint.mkdir()
+    launcher._run_resume(
+        SimpleNamespace(),
+        str(tmp_path / "output"),
+        3,
+        str(checkpoint),
+        checkpoint_preflight=backfill,
+    )
+
+    assert order == [
+        ("load", str(checkpoint)),
+        ("backfill", 1),
+        ("run", 3),
+    ]
+
+
+def test_loaded_checkpoint_cannot_silently_drop_old_program(tmp_path):
+    checkpoint = tmp_path / "checkpoint_25"
+    programs_dir = checkpoint / "programs"
+    programs_dir.mkdir(parents=True)
+    for program_id in ("a", "b"):
+        (programs_dir / f"{program_id}.json").write_text(json.dumps({
+            "id": program_id,
+            "code": f"code-{program_id}",
+            "metrics": {},
+        }))
+    database = SimpleNamespace(programs={
+        "a": SimpleNamespace(id="a", code="code-a", metrics={}),
+    })
+
+    with pytest.raises(
+        RuntimeError,
+        match="exact checkpoint program set",
+    ):
+        launcher._validate_loaded_checkpoint_database(
+            database, checkpoint
+        )
+
+
+def test_backfill_updates_every_same_code_program_without_touching_base(
+    tmp_path, monkeypatch
+):
+    contract_id = 111222
+    shared_code = "def generate_candidates(ell, m): return []\n"
+    complete_code = "def generate_candidates(ell, m): return [('x','y')]\n"
+    programs = {
+        "a": SimpleNamespace(id="a", code=shared_code, metrics={"score": 1.0}),
+        "b": SimpleNamespace(id="b", code=shared_code, metrics={"score": 2.0}),
+        "c": SimpleNamespace(
+            id="c",
+            code=complete_code,
+            metrics={
+                "score": 3.0,
+                **_preflight_markers(contract_id),
+            },
+        ),
+    }
+    database = SimpleNamespace(programs=programs)
+    base = tmp_path / "checkpoint_25"
+    (base / "programs").mkdir(parents=True)
+    (base / "metadata.json").write_text('{"last_iteration":25}\n')
+    for program_id, program in programs.items():
+        (base / "programs" / f"{program_id}.json").write_text(
+            json.dumps({
+                "id": program_id,
+                "code": program.code,
+                "metrics": program.metrics,
+            })
+        )
+    fixed_ns = 1_700_000_000_123_456_789
+    for path in [base / "metadata.json", *sorted((base / "programs").iterdir())]:
+        os.utime(path, ns=(fixed_ns, fixed_ns))
+
+    def tree_identity():
+        return {
+            str(path.relative_to(base)): (
+                hashlib.sha256(path.read_bytes()).hexdigest(),
+                path.stat().st_mtime_ns,
+            )
+            for path in sorted(base.rglob("*"))
+            if path.is_file()
+        }
+
+    before = tree_identity()
+    calls = []
+
+    def fake_execute(_evaluator, code, **kwargs):
+        calls.append((code, kwargs["expected_contract_id"]))
+        return _preflight_markers(contract_id)
+
+    monkeypatch.setattr(
+        launcher, "_execute_winner_preflight", fake_execute
+    )
+    report = launcher._backfill_checkpoint_programs(
+        database,
+        evaluator_path=launcher.EVALUATOR,
+        expected_contract_id=contract_id,
+        max_workers=4,
+        wall_timeout=30,
+    )
+
+    assert calls == [(shared_code, contract_id)]
+    assert report["unique_program_codes_evaluated"] == 1
+    assert report["programs_updated"] == 2
+    for program_id in ("a", "b", "c"):
+        markers = launcher._validated_winner_preflight_markers(
+            programs[program_id].metrics,
+            expected_contract_id=contract_id,
+        )
+        assert markers[launcher.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+    assert tree_identity() == before
+
+
+def test_checkpoint_backfill_respects_unified_worker_cap(monkeypatch):
+    contract_id = 333444
+    programs = {
+        str(index): SimpleNamespace(
+            id=str(index),
+            code=(
+                "def generate_candidates(ell, m):\n"
+                f"    return []  # {index}\n"
+            ),
+            metrics={},
+        )
+        for index in range(9)
+    }
+    lock = threading.Lock()
+    active = 0
+    peak = 0
+
+    def fake_execute(*_args, **_kwargs):
+        nonlocal active, peak
+        with lock:
+            active += 1
+            peak = max(peak, active)
+        time.sleep(0.03)
+        with lock:
+            active -= 1
+        return _preflight_markers(contract_id)
+
+    monkeypatch.setattr(
+        launcher, "_execute_winner_preflight", fake_execute
+    )
+    launcher._backfill_checkpoint_programs(
+        SimpleNamespace(programs=programs),
+        evaluator_path=launcher.EVALUATOR,
+        expected_contract_id=contract_id,
+        max_workers=3,
+        wall_timeout=30,
+    )
+
+    assert 1 < peak <= 3
+
+
+def test_backfill_worker_receives_expected_managed_contract_id(
+    tmp_path, monkeypatch
+):
+    contract_id = 97531
+    observed = {}
+
+    class FakeProcess:
+        pid = 4242
+
+        def __init__(self, command, **kwargs):
+            observed["environment"] = kwargs["env"]
+            Path(command[4]).write_text(json.dumps({
+                "schema_version": 1,
+                "status": "completed",
+                "metrics": _preflight_markers(contract_id),
+            }))
+
+        def wait(self, timeout=None):
+            return 0
+
+        def poll(self):
+            return 0
+
+    monkeypatch.setattr(launcher.subprocess, "Popen", FakeProcess)
+    markers = launcher._execute_winner_preflight(
+        launcher.EVALUATOR,
+        "def generate_candidates(ell, m): return []\n",
+        expected_contract_id=contract_id,
+        wall_timeout=30,
+        cancel_event=threading.Event(),
+    )
+
+    assert observed["environment"][
+        launcher.WINNER_PREFLIGHT_CONTRACT_ID_ENV
+    ] == str(contract_id)
+    assert markers[launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC] == float(
+        contract_id
+    )
+
+
+def test_backfill_failure_mutates_no_program_and_cannot_record_completion(
+    monkeypatch,
+):
+    contract_id = 555666
+    programs = {
+        "a": SimpleNamespace(id="a", code="code-a", metrics={"old": 1.0}),
+        "b": SimpleNamespace(id="b", code="code-b", metrics={"old": 2.0}),
+    }
+    before = {
+        program_id: dict(program.metrics)
+        for program_id, program in programs.items()
+    }
+
+    def fail_one(_evaluator, code, **_kwargs):
+        if code == "code-b":
+            raise RuntimeError("simulated preflight failure")
+        return _preflight_markers(contract_id)
+
+    monkeypatch.setattr(
+        launcher, "_execute_winner_preflight", fail_one
+    )
+    with pytest.raises(RuntimeError, match="simulated preflight failure"):
+        launcher._backfill_checkpoint_programs(
+            SimpleNamespace(programs=programs),
+            evaluator_path=launcher.EVALUATOR,
+            expected_contract_id=contract_id,
+            max_workers=2,
+            wall_timeout=30,
+        )
+
+    assert {
+        program_id: program.metrics
+        for program_id, program in programs.items()
+    } == before
+
+
 def test_openevolve_source_hashes_match_pinned_0_2_26():
     pytest.importorskip("openevolve")
     binding, _controller, _process = launcher._openevolve_source_binding()
@@ -491,6 +1071,49 @@ def test_openevolve_source_hashes_match_pinned_0_2_26():
     assert {
         name: descriptor["sha256"] for name, descriptor in binding.items()
     } == launcher.SUPPORTED_OPENEVOLVE_SHA256
+
+
+def test_real_cascade_merge_preserves_stage1_preflight_markers(tmp_path):
+    pytest.importorskip("openevolve")
+    from openevolve.config import EvaluatorConfig
+    from openevolve.evaluator import Evaluator
+
+    contract_id = 777888
+    evaluator_path = tmp_path / "cascade_evaluator.py"
+    evaluator_path.write_text(
+        "def evaluate_stage1(_path):\n"
+        f"    return {dict(combined_score=1.0, **_preflight_markers(contract_id))!r}\n"
+        "def evaluate_stage2(_path):\n"
+        "    return {'combined_score': 2.0, 'stage2_metric': 9.0}\n"
+        "def evaluate(path):\n"
+        "    return evaluate_stage2(path)\n"
+    )
+    program_path = tmp_path / "program.py"
+    program_path.write_text(
+        "def generate_candidates(ell, m): return []\n"
+    )
+    instance = Evaluator(
+        EvaluatorConfig(
+            timeout=30,
+            max_retries=0,
+            cascade_evaluation=True,
+            cascade_thresholds=[0.5, 99.0],
+        ),
+        str(evaluator_path),
+    )
+
+    result = asyncio.run(instance._cascade_evaluate(str(program_path)))
+
+    assert result.metrics["combined_score"] == 2.0
+    assert result.metrics["stage2_metric"] == 9.0
+    assert (
+        result.metrics[launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
+        == float(contract_id)
+    )
+    assert (
+        result.metrics[launcher.WINNER_PREFLIGHT_COMPLETE_METRIC]
+        == 1.0
+    )
 
 
 def test_openevolve_source_hash_mismatch_fails_closed(monkeypatch):
@@ -631,7 +1254,7 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
     )
 
     @contextmanager
-    def fake_scope(*_args):
+    def fake_scope(*_args, **_kwargs):
         yield SimpleNamespace(shutdown_requested=False), {}
 
     monkeypatch.setattr(launcher, "_build_config", lambda *_args: config)

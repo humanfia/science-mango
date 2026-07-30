@@ -68,16 +68,17 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from functools import lru_cache
 from pathlib import Path
 
 
-def _install_stage2_parent_guard(
+def _install_private_worker_parent_guard(
     expected_parent_pid: int,
     lifecycle_fd: int,
 ) -> None:
-    """Kill the private Stage 2 process group when its owner disappears."""
+    """Kill a private evaluator process group when its owner disappears."""
 
     if expected_parent_pid < 2 or lifecycle_fd < 0:
         raise RuntimeError("invalid Stage 2 parent guard")
@@ -113,9 +114,13 @@ def _install_stage2_parent_guard(
 if (
     __name__ == "__main__"
     and len(sys.argv) == 6
-    and sys.argv[1] == "--stage2-worker"
+    and sys.argv[1] in {
+        "--stage1-worker",
+        "--stage2-worker",
+        "--preflight-worker",
+    }
 ):
-    _install_stage2_parent_guard(
+    _install_private_worker_parent_guard(
         int(sys.argv[4]),
         int(sys.argv[5]),
     )
@@ -152,8 +157,51 @@ class CandidateLogWriteError(RuntimeError):
     """A discovered candidate could not be durably persisted."""
 
 
+WINNER_PREFLIGHT_CONTRACT_VERSION = 1
+WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
+WINNER_PREFLIGHT_REUSE_ENV = "QCODE_WINNER_PREFLIGHT_REUSE"
+WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC = (
+    "winner_preflight_contract_version"
+)
+WINNER_PREFLIGHT_CONTRACT_ID_METRIC = "winner_preflight_contract_id"
+WINNER_PREFLIGHT_COMPLETE_METRIC = "winner_preflight_complete"
+WINNER_PREFLIGHT_INCOMPLETE_METRIC = "winner_preflight_incomplete"
+WINNER_PREFLIGHT_LATTICES_METRIC = "winner_preflight_lattices"
+WINNER_PREFLIGHT_EVALUATED_METRIC = (
+    "winner_preflight_candidate_definitions_evaluated"
+)
+WINNER_PREFLIGHT_ELIGIBLE_METRIC = (
+    "winner_preflight_winner_capable_eligible"
+)
+WINNER_PREFLIGHT_PERSISTED_METRIC = (
+    "winner_preflight_winner_capable_persisted"
+)
+WINNER_PREFLIGHT_OMITTED_METRIC = "winner_preflight_winner_capable_omitted"
+WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC = "winner_preflight_hard_timeout"
+WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC = (
+    "winner_preflight_subprocess_failed"
+)
+WINNER_PREFLIGHT_MARKER_FIELDS = (
+    WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC,
+    WINNER_PREFLIGHT_CONTRACT_ID_METRIC,
+    WINNER_PREFLIGHT_COMPLETE_METRIC,
+    WINNER_PREFLIGHT_INCOMPLETE_METRIC,
+    WINNER_PREFLIGHT_LATTICES_METRIC,
+    WINNER_PREFLIGHT_EVALUATED_METRIC,
+    WINNER_PREFLIGHT_ELIGIBLE_METRIC,
+    WINNER_PREFLIGHT_PERSISTED_METRIC,
+    WINNER_PREFLIGHT_OMITTED_METRIC,
+    WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC,
+    WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC,
+)
+_STAGE1_PREFLIGHT_COMPLETIONS: dict[
+    tuple[str, str, int],
+    dict[str, float],
+] = {}
+_STAGE1_PREFLIGHT_COMPLETIONS_LOCK = threading.Lock()
 WINNER_CAPABLE_EXPLORATION_LANE = "winner_capable_quick_exploration"
 QUICK_EXPLORATION_PERSISTENCE_REASON = "quick_distance_budget"
+FULL_POOL_PREFLIGHT_PERSISTENCE_REASON = "full_pool_preflight"
 DISTANCE_PENDING_PERSISTENCE_REASON = "selected_distance_pending"
 UNRESOLVED_TOP_PERSISTENCE_REASON = "selected_distance_unresolved"
 DISTANCE_ERROR_PERSISTENCE_REASON = "selected_distance_error"
@@ -162,7 +210,10 @@ MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
 MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE = 4
 MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS = 2048
-STAGE2_PREFLIGHT_CANDIDATE_LIMIT = MAX_CANDIDATES_PER_LATTICE
+# Full persistence is deliberately unbounded.  A fixed 5000-definition sample
+# is useful for distance fitness, but is not a sound handoff to exact auditing:
+# a winner outside that sample would otherwise be permanently invisible.
+STAGE2_PREFLIGHT_CANDIDATE_LIMIT = None
 STAGE2_DEEP_CANDIDATE_LIMIT = MAX_CANDIDATES_PER_LATTICE
 STAGE2_DEEP_DISTANCE_PER_LATTICE = 3
 STAGE2_REFINE_TRIALS = 250
@@ -170,6 +221,9 @@ STAGE2_HARD_TIMEOUT_MAX_S = 1050.0
 STAGE2_OUTER_TIMEOUT_DEFAULT_S = 900.0
 STAGE2_OUTER_TIMEOUT_MARGIN_S = 60.0
 STAGE2_OUTER_TIMEOUT_ENV = "QCODE_EVALUATOR_OUTER_TIMEOUT_S"
+WINNER_PREFLIGHT_HARD_TIMEOUT_MAX_S = STAGE2_HARD_TIMEOUT_MAX_S
+WINNER_PREFLIGHT_OUTER_TIMEOUT_DEFAULT_S = STAGE2_OUTER_TIMEOUT_DEFAULT_S
+WINNER_PREFLIGHT_OUTER_TIMEOUT_MARGIN_S = STAGE2_OUTER_TIMEOUT_MARGIN_S
 STAGE2_NUMERIC_THREAD_ENV = (
     "OMP_NUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -187,6 +241,46 @@ def _definition_key(result: dict) -> tuple:
         tuple(sorted(tuple(map(int, term)) for term in result.get("A_terms", []))),
         tuple(sorted(tuple(map(int, term)) for term in result.get("B_terms", []))),
     )
+
+
+def _candidate_definition_key(
+    candidate,
+    *,
+    ell: int,
+    m: int,
+) -> tuple:
+    a_terms, b_terms = candidate
+    return (
+        ell,
+        m,
+        tuple(sorted(map(tuple, a_terms))),
+        tuple(sorted(map(tuple, b_terms))),
+    )
+
+
+def _require_complete_quick_result_set(
+    results: list[dict],
+    candidates: list,
+    *,
+    ell: int,
+    m: int,
+) -> None:
+    """Fail closed unless a quick adapter covers the frozen canonical pool."""
+
+    expected_definitions = {
+        _candidate_definition_key(candidate, ell=ell, m=m)
+        for candidate in candidates
+    }
+    observed_definitions = {_definition_key(result) for result in results}
+    if (
+        len(results) != len(observed_definitions)
+        or observed_definitions != expected_definitions
+    ):
+        raise CandidateLogWriteError(
+            f"({ell},{m}): full preflight evaluator returned "
+            f"{len(observed_definitions)} of "
+            f"{len(expected_definitions)} canonical definitions"
+        )
 
 
 @lru_cache(maxsize=None)
@@ -438,6 +532,199 @@ def _program_source_sha256(program_path: str) -> str:
         return hashlib.sha256(Path(program_path).read_bytes()).hexdigest()
     except OSError:
         return hashlib.sha256(str(program_path).encode()).hexdigest()
+
+
+def _freeze_program_source_sha256(program_path: str) -> str:
+    path = Path(program_path)
+    if path.is_symlink() or not path.is_file():
+        raise CandidateLogWriteError(
+            f"evolved program is not one regular file: {path}"
+        )
+    before = path.stat()
+    encoded = path.read_bytes()
+    after = path.stat()
+    if (
+        (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
+        != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
+    ):
+        raise CandidateLogWriteError(
+            "evolved program changed while its source was frozen"
+        )
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _assert_program_source_unchanged(
+    program_path: str,
+    expected_sha256: str,
+) -> None:
+    if _freeze_program_source_sha256(program_path) != expected_sha256:
+        raise CandidateLogWriteError(
+            "evolved program changed during winner preflight"
+        )
+
+
+def _current_winner_preflight_contract_id() -> int:
+    """Return the managed contract id, or a deterministic local fallback."""
+
+    raw = os.environ.get(WINNER_PREFLIGHT_CONTRACT_ID_ENV)
+    if raw is not None:
+        try:
+            contract_id = int(raw)
+        except ValueError as exc:
+            raise RuntimeError(
+                f"{WINNER_PREFLIGHT_CONTRACT_ID_ENV} must be an integer"
+            ) from exc
+        if contract_id < 1 or contract_id >= 2**53:
+            raise RuntimeError(
+                f"{WINNER_PREFLIGHT_CONTRACT_ID_ENV} is outside the "
+                "exact numeric metric range"
+            )
+        return contract_id
+
+    # Unmanaged evaluator smoke tests and direct invocations do not have the
+    # launcher's source binding.  Still rotate the marker with this evaluator
+    # source and the immutable lattice contract.  Managed runs always supply
+    # the stronger evaluator+dependency binding through the environment.
+    payload = {
+        "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
+        "evaluator_sha256": hashlib.sha256(
+            Path(__file__).resolve().read_bytes()
+        ).hexdigest(),
+        "lattices": [list(lattice) for lattice in EVOLUTION_LATTICES],
+    }
+    digest = hashlib.sha256(
+        json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    return int(digest[:13], 16)
+
+
+def _exact_nonnegative_preflight_metric(
+    metrics: dict,
+    name: str,
+) -> int:
+    value = metrics.get(name)
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or float(value) < 0
+        or not float(value).is_integer()
+    ):
+        raise CandidateLogWriteError(
+            f"winner preflight marker is invalid: {name}"
+        )
+    return int(value)
+
+
+def _validated_complete_preflight_markers(
+    metrics: dict,
+    *,
+    expected_contract_id: int,
+) -> dict[str, float]:
+    if not isinstance(metrics, dict):
+        raise CandidateLogWriteError(
+            "winner preflight metrics are not an object"
+        )
+    values = {
+        name: _exact_nonnegative_preflight_metric(metrics, name)
+        for name in WINNER_PREFLIGHT_MARKER_FIELDS
+    }
+    if (
+        values[WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC]
+        != WINNER_PREFLIGHT_CONTRACT_VERSION
+        or values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
+        != expected_contract_id
+        or values[WINNER_PREFLIGHT_COMPLETE_METRIC] != 1
+        or values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] != 0
+        or values[WINNER_PREFLIGHT_LATTICES_METRIC]
+        != len(EVOLUTION_LATTICES)
+        or values[WINNER_PREFLIGHT_OMITTED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] != 0
+        or values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_PERSISTED_METRIC]
+        != values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+        or values[WINNER_PREFLIGHT_EVALUATED_METRIC]
+        < values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+    ):
+        raise CandidateLogWriteError(
+            "winner preflight markers do not prove complete persistence"
+        )
+    return {name: float(values[name]) for name in values}
+
+
+def _stage1_preflight_key(program_path: str) -> tuple[str, str, int]:
+    return (
+        os.path.abspath(program_path),
+        _freeze_program_source_sha256(program_path),
+        _current_winner_preflight_contract_id(),
+    )
+
+
+def _register_stage1_preflight_completion(
+    program_path: str,
+    metrics: dict,
+) -> None:
+    key = _stage1_preflight_key(program_path)
+    markers = _validated_complete_preflight_markers(
+        metrics,
+        expected_contract_id=key[2],
+    )
+    with _STAGE1_PREFLIGHT_COMPLETIONS_LOCK:
+        _STAGE1_PREFLIGHT_COMPLETIONS[key] = markers
+
+
+def _take_stage1_preflight_completion(
+    program_path: str,
+) -> dict | None:
+    with _STAGE1_PREFLIGHT_COMPLETIONS_LOCK:
+        if not _STAGE1_PREFLIGHT_COMPLETIONS:
+            return None
+    key = _stage1_preflight_key(program_path)
+    with _STAGE1_PREFLIGHT_COMPLETIONS_LOCK:
+        markers = _STAGE1_PREFLIGHT_COMPLETIONS.pop(key, None)
+    if markers is None:
+        return None
+    return {
+        "schema_version": 1,
+        "program_sha256": key[1],
+        "contract_id": key[2],
+        "markers": markers,
+    }
+
+
+def _preflight_reuse_from_environment(
+    program_path: str,
+) -> dict[str, float] | None:
+    raw = os.environ.get(WINNER_PREFLIGHT_REUSE_ENV)
+    if raw is None:
+        return None
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise CandidateLogWriteError(
+            "Stage 1 preflight reuse payload is unreadable"
+        ) from exc
+    expected_contract_id = _current_winner_preflight_contract_id()
+    if (
+        not isinstance(payload, dict)
+        or set(payload)
+        != {"schema_version", "program_sha256", "contract_id", "markers"}
+        or payload.get("schema_version") != 1
+        or payload.get("program_sha256")
+        != _freeze_program_source_sha256(program_path)
+        or payload.get("contract_id") != expected_contract_id
+    ):
+        raise CandidateLogWriteError(
+            "Stage 1 preflight reuse binding is invalid"
+        )
+    return _validated_complete_preflight_markers(
+        payload.get("markers"),
+        expected_contract_id=expected_contract_id,
+    )
 
 
 def _stage1_specialist_exploration_pass(program_path: str) -> bool:
@@ -765,7 +1052,24 @@ def _append_candidate_jsonl(log_file: Path, payload: bytes) -> None:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_UN)
         finally:
-            os.close(descriptor)
+                os.close(descriptor)
+
+
+def _freeze_candidate_log_run_name() -> str:
+    """Capture the trusted launcher binding before importing evolved code."""
+
+    run_name = os.environ.get("QCODE_RUN_NAME")
+    if run_name in (None, ""):
+        return ""
+    if (
+        run_name != Path(run_name).name
+        or run_name in {".", ".."}
+        or "\x00" in run_name
+    ):
+        raise CandidateLogWriteError(
+            "QCODE_RUN_NAME is not a safe single path component"
+        )
+    return run_name
 
 
 def _candidate_jsonl_record(result: dict) -> dict | None:
@@ -847,8 +1151,8 @@ def _log_codes_jsonl(
     if not records:
         return 0
 
-    if not run_name:
-        run_name = os.environ.get("QCODE_RUN_NAME")
+    if run_name is None:
+        run_name = _freeze_candidate_log_run_name()
     if run_name:
         log_dir = Path(_PROJECT_ROOT) / "results" / "evolution" / run_name
     else:
@@ -927,23 +1231,38 @@ def _run_evaluation(
     milp_early_stop: int = 4,
     run_name: str | None = None,
     sampling_salt: str = "",
-    candidate_limit: int = MAX_CANDIDATES_PER_LATTICE,
+    candidate_limit: int | None = MAX_CANDIDATES_PER_LATTICE,
     persist_quick_exploration: bool = False,
     persist_all_quick_exploration: bool = False,
 ) -> dict:
     """Run evaluation across lattices and compute aggregate metrics.
 
-    When quick=False, uses a two-pass approach per lattice:
-    1. Quick k-only screen of all candidates
-    2. Distance estimation for the top `max_distance_per_lattice` candidates,
-       using either BP-OSD (default) or MILP (when use_milp=True).
+    When quick=False, each lattice invokes the generator exactly once:
+    1. Quick-screen and durably persist every winner-capable definition in the
+       complete frozen canonical pool.
+    2. Bound that same pool for fitness and estimate distance for its top
+       `max_distance_per_lattice` candidates, using either BP-OSD (default) or
+       MILP (when use_milp=True).
     """
-    if (
+    if run_name is None:
+        # This must happen before the first generator call.  Evolved code is
+        # untrusted with respect to process environment and may mutate
+        # QCODE_RUN_NAME while it is being imported or evaluated.
+        run_name = _freeze_candidate_log_run_name()
+    if candidate_limit is None:
+        if not (quick and persist_all_quick_exploration):
+            raise ValueError(
+                "an unbounded candidate universe is restricted to full "
+                "quick-preflight persistence"
+            )
+    elif (
         isinstance(candidate_limit, bool)
         or not isinstance(candidate_limit, int)
         or candidate_limit < 2
     ):
-        raise ValueError("candidate_limit must be an integer of at least two")
+        raise ValueError(
+            "candidate_limit must be None or an integer of at least two"
+        )
     if persist_all_quick_exploration and not persist_quick_exploration:
         raise ValueError(
             "persist_all_quick_exploration requires "
@@ -966,6 +1285,8 @@ def _run_evaluation(
     errors = []
     tier0_rejected_count = 0
     structural_rejected_count = 0
+    lattices_completed = 0
+    lattice_failures = 0
 
     for ell, m in lattices:
         try:
@@ -973,6 +1294,7 @@ def _run_evaluation(
             candidates = generate_fn(ell, m)
             if not isinstance(candidates, list):
                 errors.append(f"({ell},{m}): generate_candidates returned {type(candidates)}, not list")
+                lattice_failures += 1
                 continue
 
             raw_candidate_count = len(candidates)
@@ -996,20 +1318,6 @@ def _run_evaluation(
                 raw_candidate_count - len(candidates)
             )
 
-            # Cap candidates per lattice without a fixed-prefix blind spot.
-            if len(candidates) > candidate_limit:
-                errors.append(
-                    f"({ell},{m}): {len(candidates)} unique candidates, "
-                    f"sampled to {candidate_limit}"
-                )
-                candidates = _bounded_candidate_sample(
-                    candidates,
-                    ell=ell,
-                    m=m,
-                    limit=candidate_limit,
-                    sampling_salt=sampling_salt,
-                )
-            evaluated_candidate_definitions += len(candidates)
             distance_selection_limit = max_distance_per_lattice
             if (ell, m) in FINAL_GATE_PARETO_LATTICES:
                 distance_selection_limit = min(
@@ -1018,82 +1326,239 @@ def _run_evaluation(
                 )
 
             if quick:
-                results = evaluate_batch(
-                    ell, m, candidates,
-                    quick=True,
-                    quick_trials=quick_trials,
-                    fom_threshold_refine=6.0,
-                    fom_threshold_exact=8.0,
-                )
-                _annotate_generator_occurrences(
-                    results,
-                    ell=ell,
-                    m=m,
-                    occurrences=candidate_occurrences,
-                )
-                results, static_rejected = _filter_static_eligible(results)
-                tier0_rejected_count += len(static_rejected)
-                if persist_quick_exploration:
-                    eligible_quick = _winner_capable_definitions(results)
+                if persist_all_quick_exploration:
+                    # Complete persistence is a write-ahead contract, not the
+                    # fitness sample. Evaluate and persist the frozen full pool
+                    # first; only then derive bounded fitness rows from those
+                    # same objects without another generator/evaluator call.
+                    evaluated_candidate_definitions += len(candidates)
+                    complete_quick_results = evaluate_batch(
+                        ell, m, candidates,
+                        quick=True,
+                        quick_trials=quick_trials,
+                        fom_threshold_refine=6.0,
+                        fom_threshold_exact=8.0,
+                    )
+                    _require_complete_quick_result_set(
+                        complete_quick_results,
+                        candidates,
+                        ell=ell,
+                        m=m,
+                    )
+                    _annotate_generator_occurrences(
+                        complete_quick_results,
+                        ell=ell,
+                        m=m,
+                        occurrences=candidate_occurrences,
+                    )
+                    complete_quick_results, static_rejected = (
+                        _filter_static_eligible(complete_quick_results)
+                    )
+                    tier0_rejected_count += len(static_rejected)
+                    eligible_quick = _winner_capable_definitions(
+                        complete_quick_results
+                    )
                     quick_exploration_eligible += len(eligible_quick)
-                    if persist_all_quick_exploration:
-                        persisted_quick = eligible_quick
-                    else:
+                    for result in eligible_quick:
+                        result["candidate_persistence_lane"] = (
+                            WINNER_CAPABLE_EXPLORATION_LANE
+                        )
+                        result["candidate_persistence_reason"] = (
+                            FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
+                        )
+                    persisted_count = _log_codes_jsonl(
+                        eligible_quick,
+                        run_name=run_name,
+                    )
+                    if persisted_count != len(eligible_quick):
+                        raise CandidateLogWriteError(
+                            f"({ell},{m}): full preflight persistence "
+                            f"logged {persisted_count} of "
+                            f"{len(eligible_quick)} eligible definitions"
+                        )
+                    prelogged_quick_keys = {
+                        _definition_key(result) for result in eligible_quick
+                    }
+                    quick_exploration_persisted += len(eligible_quick)
+
+                    sampled_candidates = candidates
+                    if (
+                        candidate_limit is not None
+                        and len(sampled_candidates) > candidate_limit
+                    ):
+                        errors.append(
+                            f"({ell},{m}): {len(sampled_candidates)} unique "
+                            f"candidates, sampled to {candidate_limit}"
+                        )
+                        sampled_candidates = _bounded_candidate_sample(
+                            sampled_candidates,
+                            ell=ell,
+                            m=m,
+                            limit=candidate_limit,
+                            sampling_salt=sampling_salt,
+                        )
+                    sampled_keys = {
+                        _candidate_definition_key(
+                            candidate,
+                            ell=ell,
+                            m=m,
+                        )
+                        for candidate in sampled_candidates
+                    }
+                    results = [
+                        result
+                        for result in complete_quick_results
+                        if _definition_key(result) in sampled_keys
+                    ]
+                else:
+                    # Ordinary quick fitness retains the historical bounded
+                    # behavior. Managed Stage 1 enables complete persistence.
+                    if (
+                        candidate_limit is not None
+                        and len(candidates) > candidate_limit
+                    ):
+                        errors.append(
+                            f"({ell},{m}): {len(candidates)} unique candidates, "
+                            f"sampled to {candidate_limit}"
+                        )
+                        candidates = _bounded_candidate_sample(
+                            candidates,
+                            ell=ell,
+                            m=m,
+                            limit=candidate_limit,
+                            sampling_salt=sampling_salt,
+                        )
+                    evaluated_candidate_definitions += len(candidates)
+                    results = evaluate_batch(
+                        ell, m, candidates,
+                        quick=True,
+                        quick_trials=quick_trials,
+                        fom_threshold_refine=6.0,
+                        fom_threshold_exact=8.0,
+                    )
+                    _annotate_generator_occurrences(
+                        results,
+                        ell=ell,
+                        m=m,
+                        occurrences=candidate_occurrences,
+                    )
+                    results, static_rejected = _filter_static_eligible(results)
+                    tier0_rejected_count += len(static_rejected)
+                    if persist_quick_exploration:
+                        eligible_quick = _winner_capable_definitions(results)
+                        quick_exploration_eligible += len(eligible_quick)
                         persisted_quick = _select_quick_exploration(
                             eligible_quick,
                             ell=ell,
                             m=m,
                             sampling_salt=sampling_salt,
                         )
-                    for result in persisted_quick:
-                        result["candidate_persistence_lane"] = (
-                            WINNER_CAPABLE_EXPLORATION_LANE
-                        )
-                        result["candidate_persistence_reason"] = (
-                            QUICK_EXPLORATION_PERSISTENCE_REASON
-                        )
-                    if persist_all_quick_exploration:
-                        persisted_count = _log_codes_jsonl(
-                            persisted_quick,
-                            run_name=run_name,
-                        )
-                        if persisted_count != len(eligible_quick):
-                            raise CandidateLogWriteError(
-                                f"({ell},{m}): full preflight persistence "
-                                f"logged {persisted_count} of "
-                                f"{len(eligible_quick)} eligible definitions"
-                            )
-                    else:
                         for result in persisted_quick:
+                            result["candidate_persistence_lane"] = (
+                                WINNER_CAPABLE_EXPLORATION_LANE
+                            )
+                            result["candidate_persistence_reason"] = (
+                                QUICK_EXPLORATION_PERSISTENCE_REASON
+                            )
                             _log_code_jsonl(result, run_name=run_name)
-                    prelogged_quick_keys = {
-                        _definition_key(result)
-                        for result in persisted_quick
-                    }
-                    quick_exploration_persisted += len(persisted_quick)
-                    quick_exploration_omitted += (
-                        len(eligible_quick) - len(persisted_quick)
-                    )
+                        prelogged_quick_keys = {
+                            _definition_key(result)
+                            for result in persisted_quick
+                        }
+                        quick_exploration_persisted += len(persisted_quick)
+                        quick_exploration_omitted += (
+                            len(eligible_quick) - len(persisted_quick)
+                        )
             else:
-                # Two-pass: quick screen, then distance on top candidates.
-                # MILP path uses evaluate_batch_milp(quick=True) to get
-                # symplectic weight bounds for smarter top-k ranking.
+                # The generator has already been invoked exactly once for this
+                # lattice. Before any bounded sampling, screen its complete
+                # canonical pool and durably hand off every statically eligible,
+                # winner-capable definition. This is required even when Stage 2
+                # reused a prior Stage 1 completion: a random/stateful generator
+                # can produce a different pool on this deep invocation.
+                evaluated_candidate_definitions += len(candidates)
                 if use_milp:
-                    quick_results = evaluate_batch_milp(
+                    complete_quick_results = evaluate_batch_milp(
                         ell, m, candidates, quick=True,
                     )
                 else:
-                    quick_results = evaluate_batch(
+                    complete_quick_results = evaluate_batch(
                         ell, m, candidates, quick=True,
                     )
+                _require_complete_quick_result_set(
+                    complete_quick_results,
+                    candidates,
+                    ell=ell,
+                    m=m,
+                )
                 _annotate_generator_occurrences(
-                    quick_results,
+                    complete_quick_results,
                     ell=ell,
                     m=m,
                     occurrences=candidate_occurrences,
                 )
-                quick_results, static_rejected = _filter_static_eligible(quick_results)
+                complete_quick_results, static_rejected = (
+                    _filter_static_eligible(complete_quick_results)
+                )
                 tier0_rejected_count += len(static_rejected)
+                eligible_quick = _winner_capable_definitions(
+                    complete_quick_results
+                )
+                for result in eligible_quick:
+                    result["candidate_persistence_lane"] = (
+                        WINNER_CAPABLE_EXPLORATION_LANE
+                    )
+                    result["candidate_persistence_reason"] = (
+                        FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
+                    )
+                persisted_count = _log_codes_jsonl(
+                    eligible_quick,
+                    run_name=run_name,
+                )
+                if persisted_count != len(eligible_quick):
+                    raise CandidateLogWriteError(
+                        f"({ell},{m}): deep full-pool persistence logged "
+                        f"{persisted_count} of {len(eligible_quick)} eligible "
+                        "definitions"
+                    )
+                prelogged_quick_keys = {
+                    _definition_key(result) for result in eligible_quick
+                }
+                quick_exploration_eligible += len(eligible_quick)
+                quick_exploration_persisted += len(eligible_quick)
+
+                # Only after the full write-ahead handoff may fitness/deep work
+                # be bounded. The sample is taken from the same frozen canonical
+                # objects; generate_fn is never called again for this lattice.
+                sampled_candidates = candidates
+                if (
+                    candidate_limit is not None
+                    and len(sampled_candidates) > candidate_limit
+                ):
+                    errors.append(
+                        f"({ell},{m}): {len(sampled_candidates)} unique "
+                        f"candidates, sampled to {candidate_limit}"
+                    )
+                    sampled_candidates = _bounded_candidate_sample(
+                        sampled_candidates,
+                        ell=ell,
+                        m=m,
+                        limit=candidate_limit,
+                        sampling_salt=sampling_salt,
+                    )
+                sampled_keys = {
+                    _candidate_definition_key(
+                        candidate,
+                        ell=ell,
+                        m=m,
+                    )
+                    for candidate in sampled_candidates
+                }
+                quick_results = [
+                    result
+                    for result in complete_quick_results
+                    if _definition_key(result) in sampled_keys
+                ]
 
                 # Select diverse candidates for distance estimation.
                 # Diversify on BOTH k value AND polynomial A -- prevents
@@ -1155,33 +1620,13 @@ def _run_evaluation(
                 ]
                 top_keys = {_definition_key(result) for result in top}
 
-                # Determine and durably persist both zero-distance lanes before
-                # entering a blocking distance backend.  OpenEvolve's outer
-                # wall timeout cannot interrupt a Python worker thread cleanly;
-                # without this write-ahead handoff, SIGKILL/worker teardown can
-                # erase every selected candidate before the exception path runs.
+                # The complete winner-capable pool is already durable. Retain
+                # the bounded quick-only rows for fitness, and add a stronger
+                # selected-pending record before entering a blocking backend.
                 quick_only = [
                     r for r in quick_results if r.get("k", 0) > 0
                     and _definition_key(r) not in top_keys
                 ]
-                persisted_quick = _select_quick_exploration(
-                    quick_only,
-                    ell=ell,
-                    m=m,
-                    sampling_salt=sampling_salt,
-                )
-                for result in persisted_quick:
-                    result["candidate_persistence_lane"] = (
-                        WINNER_CAPABLE_EXPLORATION_LANE
-                    )
-                    result["candidate_persistence_reason"] = (
-                        QUICK_EXPLORATION_PERSISTENCE_REASON
-                    )
-                    _log_code_jsonl(result, run_name=run_name)
-                prelogged_quick_keys = {
-                    _definition_key(result) for result in persisted_quick
-                }
-                quick_exploration_persisted += len(persisted_quick)
 
                 pending_top = [
                     _zero_distance_persistence_row(
@@ -1322,18 +1767,31 @@ def _run_evaluation(
             for r in results:
                 if (
                     r.get("candidate_persistence_reason")
-                    == QUICK_EXPLORATION_PERSISTENCE_REASON
+                    in {
+                        QUICK_EXPLORATION_PERSISTENCE_REASON,
+                        FULL_POOL_PREFLIGHT_PERSISTENCE_REASON,
+                    }
                     and _definition_key(r) in prelogged_quick_keys
                 ):
                     continue
                 _log_code_jsonl(r, run_name=run_name)
+            lattices_completed += 1
         except CandidateLogWriteError:
             # Persistence is part of a successful evaluation contract.  Let the
             # worker fail visibly instead of returning fitness for an unlogged
             # candidate that Stage 1 can never audit.
             raise
         except Exception as e:
+            if not quick:
+                # A deep lattice is complete only after its invocation-specific
+                # frozen pool has passed the full write-ahead handoff. Returning
+                # partial Stage 2 fitness would make a failed pool look audited.
+                raise CandidateLogWriteError(
+                    f"({ell},{m}): deep frozen-pool evaluation failed: "
+                    f"{type(e).__name__}: {e}"
+                ) from e
             errors.append(f"({ell},{m}): {type(e).__name__}: {e}")
+            lattice_failures += 1
 
     # Compute aggregate metrics using encoding rate (exact) and FOM (approximate)
     valid = [r for r in all_results if r.get("k", 0) > 0]
@@ -1390,6 +1848,9 @@ def _run_evaluation(
         "malformed_candidate_definitions": malformed_candidate_definitions,
         "tier0_rejected": tier0_rejected_count,
         "structural_rejected": structural_rejected_count,
+        "lattices_requested": len(lattices),
+        "lattices_completed": lattices_completed,
+        "lattice_failures": lattice_failures,
         "best_encoding_rate": best_encoding_rate,
         "num_high_k": len(high_k_codes),
         "lattices_with_high_k": lattices_with_high_k,
@@ -1399,7 +1860,139 @@ def _run_evaluation(
     }
 
 
-def evaluate_stage1(program_path: str) -> dict:
+def _winner_preflight_markers(
+    metrics: dict,
+    *,
+    contract_id: int,
+) -> dict[str, float]:
+    """Validate a full quick preflight and return checkpoint-safe metrics."""
+
+    eligible = int(
+        metrics.get("winner_capable_quick_exploration_eligible", -1)
+    )
+    persisted = int(
+        metrics.get("winner_capable_quick_exploration_persisted", -1)
+    )
+    omitted = int(
+        metrics.get("winner_capable_quick_exploration_omitted", -1)
+    )
+    completed = int(metrics.get("lattices_completed", -1))
+    failures = int(metrics.get("lattice_failures", -1))
+    if (
+        completed != len(EVOLUTION_LATTICES)
+        or failures != 0
+        or eligible < 0
+        or persisted != eligible
+        or omitted != 0
+    ):
+        raise CandidateLogWriteError(
+            "winner preflight did not complete its full persistence "
+            f"contract: lattices={completed}/{len(EVOLUTION_LATTICES)}, "
+            f"failures={failures}, eligible={eligible}, "
+            f"persisted={persisted}, omitted={omitted}"
+        )
+    return {
+        WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+            WINNER_PREFLIGHT_CONTRACT_VERSION
+        ),
+        WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(contract_id),
+        WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
+        WINNER_PREFLIGHT_INCOMPLETE_METRIC: 0.0,
+        WINNER_PREFLIGHT_LATTICES_METRIC: float(len(EVOLUTION_LATTICES)),
+        WINNER_PREFLIGHT_EVALUATED_METRIC: float(
+            metrics.get("evaluated_candidate_definitions", 0)
+        ),
+        WINNER_PREFLIGHT_ELIGIBLE_METRIC: float(eligible),
+        WINNER_PREFLIGHT_PERSISTED_METRIC: float(persisted),
+        WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
+        WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 0.0,
+        WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 0.0,
+    }
+
+
+def _require_full_pool_persistence(
+    metrics: dict,
+    *,
+    expected_lattices: int,
+    label: str,
+) -> None:
+    """Reject partial quick passes before their results can affect fitness."""
+
+    completed = _exact_nonnegative_preflight_metric(
+        metrics, "lattices_completed"
+    )
+    failures = _exact_nonnegative_preflight_metric(
+        metrics, "lattice_failures"
+    )
+    eligible = _exact_nonnegative_preflight_metric(
+        metrics, "winner_capable_quick_exploration_eligible"
+    )
+    persisted = _exact_nonnegative_preflight_metric(
+        metrics, "winner_capable_quick_exploration_persisted"
+    )
+    omitted = _exact_nonnegative_preflight_metric(
+        metrics, "winner_capable_quick_exploration_omitted"
+    )
+    if (
+        completed != expected_lattices
+        or failures != 0
+        or persisted != eligible
+        or omitted != 0
+    ):
+        raise CandidateLogWriteError(
+            f"{label} did not complete full-pool persistence: "
+            f"lattices={completed}/{expected_lattices}, "
+            f"failures={failures}, eligible={eligible}, "
+            f"persisted={persisted}, omitted={omitted}"
+        )
+
+
+def _run_full_winner_preflight(
+    generate_fn,
+    *,
+    sampling_salt: str,
+    contract_id: int,
+    run_name: str = "",
+) -> dict[str, float]:
+    """Persist the complete winner-capable quick universe without a cap."""
+
+    metrics = _run_evaluation(
+        generate_fn,
+        list(EVOLUTION_LATTICES),
+        quick=True,
+        run_name=run_name,
+        sampling_salt=sampling_salt,
+        candidate_limit=None,
+        persist_quick_exploration=True,
+        persist_all_quick_exploration=True,
+    )
+    return _winner_preflight_markers(metrics, contract_id=contract_id)
+
+
+def _preflight_program(program_path: str) -> dict[str, float]:
+    """Run only the durable winner preflight used by checkpoint backfill."""
+
+    # Capture the contract before importing evolved code.  A generated module
+    # may legitimately mutate process environment for its own algorithm, but
+    # it cannot change which managed contract this evaluation is proving.
+    contract_id = _current_winner_preflight_contract_id()
+    run_name = _freeze_candidate_log_run_name()
+    source_sha256 = _freeze_program_source_sha256(program_path)
+    load_generate_candidates = _load_generate_candidates
+    run_full_winner_preflight = _run_full_winner_preflight
+    generate_fn = load_generate_candidates(program_path)
+    _assert_program_source_unchanged(program_path, source_sha256)
+    markers = run_full_winner_preflight(
+        generate_fn,
+        sampling_salt=source_sha256,
+        contract_id=contract_id,
+        run_name=run_name,
+    )
+    _assert_program_source_unchanged(program_path, source_sha256)
+    return markers
+
+
+def _evaluate_stage1_impl(program_path: str) -> dict:
     """Stage 1: Quick screening on small lattices (k-only, ~2s).
 
     Broad programs with valid codes on both probes receive the normal fitness
@@ -1416,23 +2009,49 @@ def evaluate_stage1(program_path: str) -> dict:
     Total range: ~0.11 (barely alive) to ~0.8 (excellent), giving
     MAP-Elites ~7x differentiation vs the prior 15% spread.
     """
+    contract_id = _current_winner_preflight_contract_id()
+    run_name = _freeze_candidate_log_run_name()
+    source_sha256 = _freeze_program_source_sha256(program_path)
+    load_generate_candidates = _load_generate_candidates
+    run_full_winner_preflight = _run_full_winner_preflight
+    run_evaluation = _run_evaluation
     try:
-        generate_fn = _load_generate_candidates(program_path)
+        generate_fn = load_generate_candidates(program_path)
     except Exception as e:
         return _error_result(str(e))
 
-    source_sha256 = _program_source_sha256(program_path)
-    metrics = _run_evaluation(
+    _assert_program_source_unchanged(program_path, source_sha256)
+    preflight_markers = run_full_winner_preflight(
+        generate_fn,
+        sampling_salt=source_sha256,
+        contract_id=contract_id,
+        run_name=run_name,
+    )
+    _assert_program_source_unchanged(program_path, source_sha256)
+    # Preserve the historical two-probe Stage 1 fitness scale after the
+    # persistence-only full contract has completed.  This second cheap call is
+    # intentional: adding target lattices must not distort resumed MAP-Elites
+    # cells or turn the preflight into a new fitness objective.
+    metrics = run_evaluation(
         generate_fn,
         STAGE1_LATTICES,
         quick=True,
+        run_name=run_name,
         sampling_salt=source_sha256,
+        persist_quick_exploration=True,
+        persist_all_quick_exploration=True,
     )
+    _require_full_pool_persistence(
+        metrics,
+        expected_lattices=len(STAGE1_LATTICES),
+        label="Stage 1 historical fitness pass",
+    )
+    _assert_program_source_unchanged(program_path, source_sha256)
     specialist_exploration = _stage1_specialist_exploration_pass(program_path)
 
     if metrics["total_candidates"] == 0:
         if specialist_exploration:
-            return {
+            result = {
                 "combined_score": 0.02,
                 "num_valid": 0.0,
                 "total_candidates": 0.0,
@@ -1442,7 +2061,9 @@ def evaluate_stage1(program_path: str) -> dict:
                 "pattern_type": 0.0,
                 "specialist_exploration": 1.0,
             }
-        return {
+            result.update(preflight_markers)
+            return result
+        result = {
             "combined_score": 0.0,
             "num_valid": 0.0,
             "total_candidates": 0.0,
@@ -1451,6 +2072,8 @@ def evaluate_stage1(program_path: str) -> dict:
             "term_count": 0.0,
             "pattern_type": 0.0,
         }
+        result.update(preflight_markers)
+        return result
 
     valid = [r for r in metrics.get("all_results", []) if r.get("k", 0) > 0]
 
@@ -1485,7 +2108,7 @@ def evaluate_stage1(program_path: str) -> dict:
         best_tc = 0.0
         best_pattern = 0.0
 
-    return {
+    result = {
         "combined_score": score,
         "num_valid": float(metrics["num_valid"]),
         "total_candidates": float(metrics["total_candidates"]),
@@ -1497,6 +2120,8 @@ def evaluate_stage1(program_path: str) -> dict:
             lattice_coverage < 1.0 and specialist_exploration
         ),
     }
+    result.update(preflight_markers)
+    return result
 
 
 def _evaluate_stage2_impl(program_path: str) -> dict:
@@ -1507,22 +2132,58 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
     blocking distance backend runs.  Deep BP-OSD scoring then uses the
     historical Pareto/fitness lattice basis.
     """
+    # Capture and validate the Stage 1 handoff before importing evolved code.
+    # In direct/fallback evaluation this environment value is absent, so Stage
+    # 2 still performs its own complete preflight.
+    run_name = _freeze_candidate_log_run_name()
+    source_sha256 = _freeze_program_source_sha256(program_path)
+    load_generate_candidates = _load_generate_candidates
+    run_evaluation = _run_evaluation
+    preflight_reuse = _preflight_reuse_from_environment(program_path)
     try:
-        generate_fn = _load_generate_candidates(program_path)
+        generate_fn = load_generate_candidates(program_path)
     except Exception as e:
         return _error_result(str(e))
 
-    sampling_salt = _program_source_sha256(program_path)
-    preflight = _run_evaluation(
-        generate_fn,
-        STAGE2_LATTICES,
-        quick=True,
-        sampling_salt=sampling_salt,
-        candidate_limit=STAGE2_PREFLIGHT_CANDIDATE_LIMIT,
-        persist_quick_exploration=True,
-        persist_all_quick_exploration=True,
+    _assert_program_source_unchanged(program_path, source_sha256)
+    sampling_salt = source_sha256
+    if preflight_reuse is None:
+        preflight = run_evaluation(
+            generate_fn,
+            STAGE2_LATTICES,
+            quick=True,
+            run_name=run_name,
+            sampling_salt=sampling_salt,
+            candidate_limit=STAGE2_PREFLIGHT_CANDIDATE_LIMIT,
+            persist_quick_exploration=True,
+            persist_all_quick_exploration=True,
+        )
+    else:
+        preflight = {
+            "errors": [],
+            "total_candidates": int(
+                preflight_reuse[WINNER_PREFLIGHT_EVALUATED_METRIC]
+            ),
+            "evaluated_candidate_definitions": int(
+                preflight_reuse[WINNER_PREFLIGHT_EVALUATED_METRIC]
+            ),
+            "winner_capable_quick_exploration_eligible": int(
+                preflight_reuse[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+            ),
+            "winner_capable_quick_exploration_persisted": int(
+                preflight_reuse[WINNER_PREFLIGHT_PERSISTED_METRIC]
+            ),
+            "winner_capable_quick_exploration_omitted": 0,
+            "lattices_completed": len(STAGE2_LATTICES),
+            "lattice_failures": 0,
+        }
+    _require_full_pool_persistence(
+        preflight,
+        expected_lattices=len(STAGE2_LATTICES),
+        label="Stage 2 full preflight",
     )
-    metrics = dict(_run_evaluation(
+    _assert_program_source_unchanged(program_path, source_sha256)
+    metrics = dict(run_evaluation(
         generate_fn, STAGE2_DEEP_LATTICES,
         quick=False,
         refine_trials=STAGE2_REFINE_TRIALS,
@@ -1530,15 +2191,11 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             STAGE2_DEEP_DISTANCE_PER_LATTICE
         ),
         sampling_salt=sampling_salt,
+        run_name=run_name,
         candidate_limit=STAGE2_DEEP_CANDIDATE_LIMIT,
     ))
-    preflight_errors = [
-        error
-        for error in preflight.get("errors", [])
-        if not error.endswith(
-            f"sampled to {STAGE2_PREFLIGHT_CANDIDATE_LIMIT}"
-        )
-    ]
+    _assert_program_source_unchanged(program_path, source_sha256)
+    preflight_errors = list(preflight.get("errors", []))
     metrics["errors"] = list(dict.fromkeys([
         *preflight_errors,
         *metrics.get("errors", []),
@@ -1831,6 +2488,152 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         return result
 
 
+def _winner_preflight_hard_timeout_s() -> float:
+    raw = os.environ.get(
+        STAGE2_OUTER_TIMEOUT_ENV,
+        str(WINNER_PREFLIGHT_OUTER_TIMEOUT_DEFAULT_S),
+    )
+    try:
+        outer_timeout = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            f"{STAGE2_OUTER_TIMEOUT_ENV} must be numeric"
+        ) from exc
+    if (
+        not math.isfinite(outer_timeout)
+        or outer_timeout <= WINNER_PREFLIGHT_OUTER_TIMEOUT_MARGIN_S
+    ):
+        raise RuntimeError(
+            f"{STAGE2_OUTER_TIMEOUT_ENV} leaves no hard-timeout margin"
+        )
+    return min(
+        WINNER_PREFLIGHT_HARD_TIMEOUT_MAX_S,
+        outer_timeout - WINNER_PREFLIGHT_OUTER_TIMEOUT_MARGIN_S,
+    )
+
+
+def _winner_preflight_failure_result(
+    message: str,
+    *,
+    timed_out: bool,
+) -> dict[str, float]:
+    metrics = _error_result(message)
+    metrics.update({
+        WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+            WINNER_PREFLIGHT_CONTRACT_VERSION
+        ),
+        WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(
+            _current_winner_preflight_contract_id()
+        ),
+        WINNER_PREFLIGHT_COMPLETE_METRIC: 0.0,
+        WINNER_PREFLIGHT_INCOMPLETE_METRIC: 1.0,
+        WINNER_PREFLIGHT_LATTICES_METRIC: 0.0,
+        WINNER_PREFLIGHT_EVALUATED_METRIC: 0.0,
+        WINNER_PREFLIGHT_ELIGIBLE_METRIC: 0.0,
+        WINNER_PREFLIGHT_PERSISTED_METRIC: 0.0,
+        WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
+        WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: float(timed_out),
+        WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 1.0,
+    })
+    return metrics
+
+
+def evaluate_stage1(program_path: str) -> dict:
+    """Run gate-before-persistence Stage 1 behind a killable wall timeout."""
+
+    source_sha256 = _freeze_program_source_sha256(program_path)
+    evaluator_path = Path(__file__).resolve()
+    with tempfile.TemporaryDirectory(prefix="qcode-stage1-") as temp_dir:
+        temp_root = Path(temp_dir)
+        result_path = temp_root / "result.json"
+        stdout_path = temp_root / "stdout.log"
+        stderr_path = temp_root / "stderr.log"
+        command = [
+            sys.executable,
+            str(evaluator_path),
+            "--stage1-worker",
+            os.path.abspath(program_path),
+            str(result_path),
+            str(os.getpid()),
+        ]
+        lifecycle_read_fd, lifecycle_write_fd = os.pipe()
+        command.append(str(lifecycle_read_fd))
+        child_environment = os.environ.copy()
+        for variable in STAGE2_NUMERIC_THREAD_ENV:
+            child_environment[variable] = "1"
+        try:
+            with stdout_path.open("wb") as stdout_file, stderr_path.open(
+                "wb"
+            ) as stderr_file:
+                try:
+                    process = subprocess.Popen(
+                        command,
+                        stdin=subprocess.DEVNULL,
+                        stdout=stdout_file,
+                        stderr=stderr_file,
+                        close_fds=True,
+                        env=child_environment,
+                        pass_fds=(lifecycle_read_fd,),
+                        start_new_session=True,
+                    )
+                finally:
+                    os.close(lifecycle_read_fd)
+                try:
+                    return_code = process.wait(
+                        timeout=_winner_preflight_hard_timeout_s()
+                    )
+                except subprocess.TimeoutExpired:
+                    _terminate_stage2_process_group(process)
+                    return _winner_preflight_failure_result(
+                        "winner preflight exceeded its killable wall timeout",
+                        timed_out=True,
+                    )
+                except BaseException:
+                    _terminate_stage2_process_group(process)
+                    raise
+        finally:
+            os.close(lifecycle_write_fd)
+
+        if return_code != 0:
+            return _winner_preflight_failure_result(
+                f"winner preflight subprocess exited with status "
+                f"{return_code}",
+                timed_out=False,
+            )
+        try:
+            payload = json.loads(result_path.read_text())
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            return _winner_preflight_failure_result(
+                "winner preflight result is unreadable: "
+                f"{type(exc).__name__}",
+                timed_out=False,
+            )
+        if (
+            not isinstance(payload, dict)
+            or set(payload)
+            != {"schema_version", "status", "metrics"}
+            or payload.get("schema_version") != 1
+            or payload.get("status") != "completed"
+            or not isinstance(payload.get("metrics"), dict)
+        ):
+            return _winner_preflight_failure_result(
+                "winner preflight result schema is invalid",
+                timed_out=False,
+            )
+        try:
+            _assert_program_source_unchanged(program_path, source_sha256)
+            _register_stage1_preflight_completion(
+                program_path,
+                payload["metrics"],
+            )
+        except CandidateLogWriteError as exc:
+            return _winner_preflight_failure_result(
+                f"winner preflight completion is invalid: {exc}",
+                timed_out=False,
+            )
+        return payload["metrics"]
+
+
 def _stage2_failure_result(
     message: str,
     *,
@@ -1922,6 +2725,7 @@ def evaluate_stage2(program_path: str) -> dict:
     """
 
     evaluator_path = Path(__file__).resolve()
+    preflight_reuse = _take_stage1_preflight_completion(program_path)
     with tempfile.TemporaryDirectory(prefix="qcode-stage2-") as temp_dir:
         temp_root = Path(temp_dir)
         result_path = temp_root / "result.json"
@@ -1938,6 +2742,14 @@ def evaluate_stage2(program_path: str) -> dict:
         lifecycle_read_fd, lifecycle_write_fd = os.pipe()
         command.append(str(lifecycle_read_fd))
         child_environment = os.environ.copy()
+        if preflight_reuse is not None:
+            child_environment[WINNER_PREFLIGHT_REUSE_ENV] = json.dumps(
+                preflight_reuse,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        else:
+            child_environment.pop(WINNER_PREFLIGHT_REUSE_ENV, None)
         for variable in STAGE2_NUMERIC_THREAD_ENV:
             child_environment[variable] = "1"
         try:
@@ -2015,6 +2827,63 @@ def evaluate_stage2(program_path: str) -> dict:
             )
         except ImportError:
             return payload["metrics"]
+
+
+def _write_preflight_worker_result(
+    result_path: str,
+    metrics: dict,
+) -> None:
+    payload = {
+        "schema_version": 1,
+        "status": "completed",
+        "metrics": metrics,
+    }
+    destination = Path(result_path)
+    if destination.is_symlink() or destination.exists():
+        raise FileExistsError(
+            f"refusing to overwrite preflight result: {destination}"
+        )
+    temporary = destination.with_name(
+        f".{destination.name}.tmp-{os.getpid()}"
+    )
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    descriptor = os.open(
+        temporary,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC,
+        0o600,
+    )
+    try:
+        written = 0
+        while written < len(encoded):
+            count = os.write(descriptor, encoded[written:])
+            if count <= 0:
+                raise OSError("preflight result write made no progress")
+            written += count
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+    os.replace(temporary, destination)
+
+
+def _stage1_worker_main(program_path: str, result_path: str) -> int:
+    metrics = _evaluate_stage1_impl(program_path)
+    if not isinstance(metrics, dict):
+        raise TypeError("Stage 1 worker returned an invalid result")
+    _write_preflight_worker_result(result_path, metrics)
+    return 0
+
+
+def _preflight_worker_main(program_path: str, result_path: str) -> int:
+    metrics = _preflight_program(program_path)
+    if not isinstance(metrics, dict):
+        raise TypeError("preflight worker returned an invalid result")
+    _write_preflight_worker_result(result_path, metrics)
+    return 0
 
 
 def _stage2_worker_main(program_path: str, result_path: str) -> int:
@@ -2542,9 +3411,19 @@ def _write_metrics_jsonl(metrics: dict) -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6 or sys.argv[1] != "--stage2-worker":
+    if len(sys.argv) != 6 or sys.argv[1] not in {
+        "--stage1-worker",
+        "--stage2-worker",
+        "--preflight-worker",
+    }:
         raise SystemExit(
-            "usage: openevolve_evaluator.py --stage2-worker "
+            "usage: openevolve_evaluator.py "
+            "(--stage1-worker|--stage2-worker|--preflight-worker) "
             "PROGRAM_PATH RESULT_PATH EXPECTED_PARENT_PID LIFECYCLE_FD"
         )
-    raise SystemExit(_stage2_worker_main(sys.argv[2], sys.argv[3]))
+    worker = {
+        "--stage1-worker": _stage1_worker_main,
+        "--stage2-worker": _stage2_worker_main,
+        "--preflight-worker": _preflight_worker_main,
+    }[sys.argv[1]]
+    raise SystemExit(worker(sys.argv[2], sys.argv[3]))

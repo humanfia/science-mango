@@ -22,6 +22,13 @@ from evaluation.proof_runtime import (
     probe_python_runtime,
     proof_runtime_fingerprint,
 )
+from evaluation.selection_ledger import (
+    install_pending_page,
+    make_scan_evidence,
+    make_selection_page,
+    new_selection_ledger,
+    seal_selection_ledger,
+)
 from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
@@ -106,6 +113,7 @@ def _plan(
     selection_exhausted: bool = True,
     selection_page: tuple[int, int] | None = None,
     canonicalization_errors: int = 0,
+    snapshot_rows: int | None = None,
 ) -> dict:
     return {
         "results": list(results or []),
@@ -117,6 +125,7 @@ def _plan(
         "selection_exhausted": selection_exhausted,
         "selection_page": selection_page,
         "canonicalization_errors": canonicalization_errors,
+        "snapshot_rows": snapshot_rows,
     }
 
 
@@ -208,39 +217,86 @@ class ScenarioRunner:
                         for result in results
                     ]
                     binding = "a" * 64
-                    page_payload = {
-                        "binding_sha256": binding,
-                        "start_index": start_index,
-                        "next_index": next_index,
-                        "selected_digests": selected_digests,
-                    }
-                    page = {
-                        **page_payload,
-                        "page_sha256": hashlib.sha256(
-                            json.dumps(
-                                page_payload,
-                                sort_keys=True,
-                                separators=(",", ":"),
-                            ).encode()
-                        ).hexdigest(),
-                    }
-                    summary["selection_page"] = page
+                    snapshot_identity = "b" * 64
+                    terminal_ends = [
+                        int(candidate["selection_page"][1])
+                        for candidate in self.plans["stage2"]
+                        if (
+                            candidate["selection_page"] is not None
+                            and candidate["selection_exhausted"] is True
+                        )
+                    ]
+                    observed_ends = [
+                        int(candidate["selection_page"][1])
+                        for candidate in self.plans["stage2"]
+                        if candidate["selection_page"] is not None
+                    ]
+                    eligible_rows = (
+                        max(terminal_ends)
+                        if terminal_ends
+                        else max(observed_ends, default=next_index) + 1
+                    )
+                    configured_snapshot_rows = [
+                        int(candidate["snapshot_rows"])
+                        for candidate in self.plans["stage2"]
+                        if candidate["snapshot_rows"] is not None
+                    ]
+                    snapshot_rows = (
+                        max(configured_snapshot_rows)
+                        if configured_snapshot_rows
+                        else eligible_rows
+                    )
                     ledger_path = _argument(command, "--selection-ledger")
                     if ledger_path.is_file():
                         ledger = json.loads(ledger_path.read_text())
                     else:
-                        ledger = {
-                            "schema_version": 1,
-                            "gate": "qldpc-stage2-selection-ledger",
-                            "binding_sha256": binding,
-                            "cursor": start_index,
-                            "committed_digests": [],
-                            "completed_pages": 0,
-                            "pending": None,
-                        }
+                        ledger = {}
+                    if (
+                        ledger.get("schema_version") != 2
+                        or ledger.get("gate")
+                        != "qldpc-stage2-selection-ledger"
+                        or ledger.get("binding_sha256") != binding
+                        or ledger.get("snapshot_identity_sha256")
+                        != snapshot_identity
+                        or ledger.get("snapshot_rows") != snapshot_rows
+                        or ledger.get("eligible_rows") != eligible_rows
+                    ):
+                        ledger = new_selection_ledger(
+                            binding_sha256=binding,
+                            snapshot_identity_sha256_value=(
+                                snapshot_identity
+                            ),
+                            snapshot_rows=snapshot_rows,
+                            eligible_rows=eligible_rows,
+                        )
+                    scan_evidence = make_scan_evidence(
+                        snapshot_identity_sha256_value=snapshot_identity,
+                        start_index=start_index,
+                        next_index=next_index,
+                        snapshot_rows=snapshot_rows,
+                        eligible_rows=eligible_rows,
+                        selection_exhausted=plan["selection_exhausted"],
+                    )
+                    page = make_selection_page(
+                        binding_sha256=binding,
+                        snapshot_identity_sha256_value=snapshot_identity,
+                        page_sequence=ledger["completed_pages"],
+                        previous_ack_sha256=ledger["last_ack_sha256"],
+                        start_index=start_index,
+                        next_index=next_index,
+                        selected_digests=selected_digests,
+                        scan_evidence=scan_evidence,
+                    )
+                    summary["selection_page"] = page
                     assert ledger["cursor"] == start_index
                     assert ledger["pending"] is None or ledger["pending"] == page
-                    ledger["pending"] = page
+                    try:
+                        ledger = install_pending_page(ledger, page)
+                    except ValueError:
+                        # Malformed-page tests still need the fake machine to
+                        # materialize an artifact for Humanize to reject.
+                        ledger["pending"] = page
+                        ledger = seal_selection_ledger(ledger)
                     _write_json(ledger_path, ledger)
             else:
                 summary["operational_errors"] = plan["operational_errors"]
@@ -1643,10 +1699,201 @@ def test_paginated_global_input_diagnostic_still_blocks_final_no_win(
 
     assert state["status"] == "INCOMPLETE"
     assert runner.counts == {"stage2": 2}
+
+
+def test_diagnostic_only_terminal_page_stays_pending_across_resume(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="diagnostic-only-terminal-page"),
+        stage2_top=1,
+    )
+    first = {
+        "canonical_digest": "diagnostic-tail-first",
+        "status": "REJECTED",
+    }
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [first],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+        ),
+        _plan(
+            [],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+            canonicalization_errors=1,
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 2}
+    ledger_path = (
+        config.root
+        / "solver-state"
+        / "stage2-selection-ledger.json"
+    )
+    ledger_bytes = ledger_path.read_bytes()
+    ledger = json.loads(ledger_bytes)
+    assert ledger["cursor"] == 1
+    assert ledger["pending"]["selected_digests"] == []
+    assert (
+        ledger["pending"]["scan_evidence"]["selection_exhausted"]
+        is True
+    )
+    assert ledger["committed_digests"] == ["diagnostic-tail-first"]
+    assert len(ledger["ack_chain"]) == 1
+    assert ledger["ack_chain"][0]["page"]["selected_digests"] == [
+        "diagnostic-tail-first"
+    ]
+    assert state["stage2_pagination"]["selection_exhausted"] is True
+    assert state["stage2_pagination"]["terminal_pending"] is True
     reasons = state["result"]["proof_incompleteness"]["reasons"]
     assert {
         reason["code"] for reason in reasons
     } == {"STAGE2_CANONICALIZATION_ERRORS"}
+
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 2}
+    assert ledger_path.read_bytes() == ledger_bytes
+
+
+def test_zero_pool_terminal_root_page_is_incomplete_not_no_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="zero-pool-terminal-root")
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [],
+            selection_exhausted=True,
+            selection_page=(0, 0),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    reasons = state["result"]["proof_incompleteness"]["reasons"]
+    assert any(
+        reason["code"] == "STAGE2_EMPTY_CANDIDATE_POOL"
+        for reason in reasons
+    )
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 0
+    assert ledger["ack_chain"] == []
+    assert ledger["pending"]["start_index"] == 0
+    assert ledger["pending"]["next_index"] == 0
+
+
+def test_nonempty_all_rejected_snapshot_can_complete_no_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="all-rejected-snapshot")
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [],
+            selection_exhausted=True,
+            selection_page=(0, 0),
+            snapshot_rows=1,
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["snapshot_rows"] == 1
+    assert ledger["eligible_rows"] == 0
+    assert ledger["pending"]["scan_evidence"]["snapshot_rows"] == 1
+
+
+@pytest.mark.parametrize("unsupported_stage", ("stage2", "stage3"))
+def test_unsupported_result_blocks_exhaustive_no_win(
+    tmp_path,
+    unsupported_stage,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id=f"unsupported-{unsupported_stage}",
+    )
+    digest = f"{unsupported_stage}-unsupported"
+    if unsupported_stage == "stage2":
+        stage2_result = {
+            "canonical_digest": digest,
+            "status": "UNSUPPORTED",
+        }
+        stage3_plans = None
+        expected_code = "STAGE2_UNSUPPORTED_RESULT"
+    else:
+        stage2_result = {
+            "canonical_digest": digest,
+            "status": "UNRESOLVED",
+        }
+        stage3_plans = [[{
+            "canonical_digest": digest,
+            "status": "UNSUPPORTED",
+        }]]
+        expected_code = "STAGE3_UNSUPPORTED_RESULT"
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [stage2_result],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+        ],
+        stage3=(
+            None
+            if stage3_plans is None
+            else [_plan(stage3_plans[0])]
+        ),
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    codes = {
+        reason["code"]
+        for reason in state["result"]["proof_incompleteness"]["reasons"]
+    }
+    assert expected_code in codes
 
 
 def test_paginated_stage2_interruption_replays_pending_second_page(tmp_path):
@@ -1734,9 +1981,94 @@ def test_paginated_stage2_stops_when_cursor_makes_no_progress(tmp_path):
 
     assert state["status"] == "FAILED"
     assert runner.counts == {"stage2": 1}
-    assert state["stage2_pagination"]["no_progress"] is True
-    assert state["stage2_pagination"]["cursor"] == 0
-    assert state["failure"]["classification"] == "NO_PAGINATION_PROGRESS"
+    assert state["failure"]["classification"] == "OUTPUT_INVALID"
+
+
+@pytest.mark.parametrize("forgery", ("cursor", "committed"))
+def test_forged_selection_progress_cannot_reach_no_win(
+    tmp_path,
+    forgery,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id=f"forged-ledger-{forgery}")
+
+    class ForgingRunner(ScenarioRunner):
+        def __call__(self, command, *, cwd):
+            result = super().__call__(command, cwd=cwd)
+            if _stage_script(command) == "audit_candidate_pool.py":
+                ledger_path = _argument(command, "--selection-ledger")
+                ledger = json.loads(ledger_path.read_text())
+                if forgery == "cursor":
+                    ledger["cursor"] = ledger["eligible_rows"]
+                else:
+                    ledger["committed_digests"].append("forged-skip")
+                _write_json(ledger_path, seal_selection_ledger(ledger))
+            return result
+
+    runner = ForgingRunner(stage2=[
+        _plan(
+            [{
+                "canonical_digest": "would-be-no-win",
+                "status": "REJECTED",
+            }],
+            selection_exhausted=True,
+            selection_page=(0, 1),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "OUTPUT_INVALID"
+    assert runner.counts == {"stage2": 1}
+
+
+def test_legacy_selection_ledger_is_reset_before_terminal_page(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="legacy-ledger-reset")
+    ledger_path = (
+        config.root
+        / "solver-state"
+        / "stage2-selection-ledger.json"
+    )
+    _write_json(ledger_path, {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-selection-ledger",
+        "binding_sha256": "a" * 64,
+        "cursor": 999,
+        "committed_digests": ["forged-legacy-skip"],
+        "completed_pages": 999,
+        "pending": None,
+    })
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [{
+                "canonical_digest": "legacy-reset-rejected",
+                "status": "REJECTED",
+            }],
+            selection_exhausted=True,
+            selection_page=(0, 1),
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    ledger = json.loads(ledger_path.read_text())
+    assert ledger["schema_version"] == 2
+    assert ledger["cursor"] == 0
+    assert ledger["committed_digests"] == []
+    assert ledger["pending"]["start_index"] == 0
 
 
 def test_capped_first_page_is_deferred_and_later_page_can_win(tmp_path):
@@ -1862,12 +2194,23 @@ def test_no_win_with_deferred_backlog_remains_incomplete(tmp_path):
             / "stage2-selection-ledger.json"
         ).read_text()
     )
-    assert ledger["cursor"] == 2
-    assert ledger["pending"] is None
-    assert ledger["committed_digests"] == [
-        "deferred-no-win-zero",
-        "terminal-rejected-one",
+    assert ledger["cursor"] == 1
+    assert ledger["committed_digests"] == ["deferred-no-win-zero"]
+    assert ledger["pending"]["start_index"] == 1
+    assert ledger["pending"]["next_index"] == 2
+    assert ledger["pending"]["selected_digests"] == [
+        "terminal-rejected-one"
     ]
+    assert (
+        ledger["pending"]["scan_evidence"]["selection_exhausted"]
+        is True
+    )
+    assert len(ledger["ack_chain"]) == 1
+    assert ledger["ack_chain"][0]["disposition"] == "DEFERRED"
+    assert (
+        ledger["ack_chain"][0]["deferred_entry_sha256"]
+        == ledger["deferred_pages"][0]["entry_sha256"]
+    )
 
 
 def test_higher_base_budget_rotates_deferred_generation_and_retries(
@@ -2035,6 +2378,11 @@ def test_deferred_page_atomic_commit_resumes_without_skipping_digest(
     assert committed["deferred_pages"][0]["selected_digests"] == [
         "deferred-before-crash"
     ]
+    assert committed["ack_chain"][-1]["disposition"] == "DEFERRED"
+    assert (
+        committed["ack_chain"][-1]["deferred_entry_sha256"]
+        == committed["deferred_pages"][0]["entry_sha256"]
+    )
 
     monkeypatch.setattr(
         pipeline_module, "atomic_write_json", original_atomic_write_json

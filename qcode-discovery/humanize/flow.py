@@ -3419,7 +3419,15 @@ class HumanizeFlow:
             )
             launch_changed = stored_launch != current_launch
             if pending_rebind or launch_changed:
-                if (
+                if status == "committed":
+                    if pending_rebind:
+                        raise RoundTransactionError(
+                            "committed evolution transaction has an unfinished "
+                            "binding rebind"
+                        )
+                    # The current launch belongs to a future slice.  Preserve
+                    # this committed transaction's historical identity.
+                elif (
                     status != "prepared"
                     or not allow_prepared_rebind
                 ):
@@ -3433,18 +3441,30 @@ class HumanizeFlow:
                         "pending prepared evolution binding rebind requires "
                         "its lifecycle lease"
                     )
-                self._rebind_prepared_evolution_transaction(
-                    transaction,
+                else:
+                    self._rebind_prepared_evolution_transaction(
+                        transaction,
+                        round_dir,
+                        current_launch,
+                        current_invocation,
+                    )
+            # A committed slice is historical evidence: its checkpoint,
+            # candidate source/batch, completion marker, and exact witness are
+            # all replayed below against the launch identities frozen in this
+            # manifest.  Requiring those historical source files to retain
+            # their old bytes at their live repository paths would make any
+            # later evaluator fix render an otherwise valid checkpoint
+            # permanently unresumable.  Only a slice that can still execute
+            # (prepared/source-ready/batch-ready) must match the current live
+            # launch bytes.  Committed bindings are never rewritten or
+            # rebound.
+            if status != "committed":
+                _revalidate_frozen_bindings(
+                    self.config,
+                    transaction.get("launch_binding"),
+                    transaction.get("invocation_binding"),
                     round_dir,
-                    current_launch,
-                    current_invocation,
                 )
-            _revalidate_frozen_bindings(
-                self.config,
-                transaction.get("launch_binding"),
-                transaction.get("invocation_binding"),
-                round_dir,
-            )
         return transaction
 
     def _prepare_transaction(
@@ -4830,12 +4850,11 @@ class HumanizeFlow:
             self._validate_binding_rebind_history(
                 transaction, round_dir, current_launch
             )
-            _revalidate_frozen_bindings(
-                self.config,
-                transaction.get("launch_binding"),
-                transaction.get("invocation_binding"),
-                round_dir,
-            )
+            # Completed rounds retain the exact historical launch hashes in
+            # their manifest/witness.  Replay those immutable artifacts, but
+            # do not require the live repository to keep obsolete evaluator
+            # bytes forever; the next prepared slice separately freezes and
+            # validates the current source tree.
             if base is not None:
                 if not isinstance(base, dict) or "path" not in base:
                     raise RoundTransactionError(

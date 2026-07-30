@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 import math
 import os
+import stat
+import struct
 import sys
 import time
 import uuid
@@ -47,6 +50,16 @@ from evaluation.registry import (
     check_code_novelty,
     load_registry,
 )
+from evaluation.selection_ledger import (
+    SELECTION_LEDGER_GATE as SHARED_SELECTION_LEDGER_GATE,
+    SELECTION_LEDGER_SCHEMA_VERSION as SHARED_SELECTION_LEDGER_SCHEMA_VERSION,
+    install_pending_page,
+    make_scan_evidence,
+    make_selection_page,
+    new_selection_ledger,
+    snapshot_identity_sha256,
+    validate_selection_ledger,
+)
 from humanize.audit_state import (
     AuditOutcome,
     AuditStateError,
@@ -68,8 +81,11 @@ from scripts.screen_frontier_xor import (
 PROJECT = Path(__file__).resolve().parent.parent
 DEFAULT_KNOWN_ANSWER = PROJECT / "results" / "known_answer_gate.json"
 CACHE_SCHEMA_VERSION = 2
-SELECTION_LEDGER_SCHEMA_VERSION = 1
-SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
+SELECTION_LEDGER_SCHEMA_VERSION = SHARED_SELECTION_LEDGER_SCHEMA_VERSION
+SELECTION_LEDGER_GATE = SHARED_SELECTION_LEDGER_GATE
+RANKED_SNAPSHOT_SCHEMA_VERSION = 1
+RANKED_SNAPSHOT_GATE = "qldpc-stage2-ranked-snapshot"
+RANKED_SNAPSHOT_CHUNK_ROWS = 128
 CERTIFIABLE_PROOF_STATUSES = frozenset({
     "THRESHOLD_PROVEN",
     "EXACT_PROVEN",
@@ -135,6 +151,32 @@ def _atomic_write_text(path: Path, text: str) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def _atomic_write_bytes(path: Path, payload: bytes) -> None:
+    """Atomically replace one binary cache artifact and fsync its directory."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(
+        f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp",
+    )
+    try:
+        with temporary.open("wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.replace(path)
+        try:
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:
+            directory_fd = None
+        if directory_fd is not None:
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def atomic_write_json(path: Path, value: Mapping[str, Any]) -> None:
     """Atomically write one JSON object."""
 
@@ -168,11 +210,6 @@ def read_candidate_jsonl(
                 try:
                     value = json.loads(line)
                 except json.JSONDecodeError as exc:
-                    # A live search writer may be between writes when this
-                    # reader reaches EOF. Ignore only that unterminated final
-                    # fragment; malformed completed lines still fail closed.
-                    if not line.endswith(("\n", "\r")):
-                        continue
                     raise ValueError(
                         f"{path}:{line_number}: invalid JSON: {exc.msg}",
                     ) from exc
@@ -492,6 +529,32 @@ def _is_trusted_terminal_rejection(row: Mapping[str, Any]) -> bool:
     )
 
 
+def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
+    """Preserve proof priority, then rank proof ties by search upside."""
+
+    proof_key = stable_sort_key(row)
+    try:
+        n = row.get("n")
+        k = row.get("k")
+        d = row.get("d")
+        if any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in (n, k, d)
+        ):
+            raise TypeError
+        if n <= 0 or k <= 0 or d <= 0:
+            raise ValueError
+        estimated_fom = k * d * d / n
+        if not math.isfinite(estimated_fom):
+            raise ValueError
+    except (TypeError, ValueError, OverflowError, ZeroDivisionError):
+        estimated_fom = 0.0
+    # stable_sort_key's final two fields are deterministic identities. Insert
+    # this advisory upper-bound tie-break immediately before them; it never
+    # outranks actual lower-bound proof progress.
+    return (*proof_key[:-2], -estimated_fom, *proof_key[-2:])
+
+
 def rank_candidate_files(
     paths: Iterable[Path],
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -586,32 +649,7 @@ def rank_candidate_files(
         prepared_sources,
     )
 
-    def selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
-        """Preserve proof priority, then rank proof ties by search upside."""
-
-        proof_key = stable_sort_key(row)
-        try:
-            n = row.get("n")
-            k = row.get("k")
-            d = row.get("d")
-            if any(
-                isinstance(value, bool) or not isinstance(value, int)
-                for value in (n, k, d)
-            ):
-                raise TypeError
-            if n <= 0 or k <= 0 or d <= 0:
-                raise ValueError
-            estimated_fom = k * d * d / n
-            if not math.isfinite(estimated_fom):
-                raise ValueError
-        except (TypeError, ValueError, OverflowError, ZeroDivisionError):
-            estimated_fom = 0.0
-        # stable_sort_key's final two fields are deterministic identities.
-        # Insert this advisory upper-bound tie-break immediately before them;
-        # it never outranks actual lower-bound proof progress.
-        return (*proof_key[:-2], -estimated_fom, *proof_key[-2:])
-
-    ranked.sort(key=selection_key)
+    ranked.sort(key=_ranked_selection_key)
     eligible = [
         row for row in ranked
         if not _is_trusted_terminal_rejection(row)
@@ -686,6 +724,27 @@ def _json_sha256(value: Mapping[str, Any]) -> str:
         separators=(",", ":"),
     ).encode()
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _ranked_chunk_index_sha256(
+    chunks: Iterable[Mapping[str, Any]],
+) -> str:
+    """Hash the ordered random-access chunk index canonically."""
+
+    encoded = json.dumps(
+        [dict(chunk) for chunk in chunks],
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _is_sha256(value: Any) -> bool:
+    return bool(
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
 
 
 solver_runtime_fingerprint = proof_runtime_fingerprint
@@ -783,6 +842,590 @@ def _load_json_object(path: Path) -> dict[str, Any] | None:
     except (OSError, TypeError, ValueError):
         return None
     return value if isinstance(value, dict) else None
+
+
+def _ranked_snapshot_paths(ledger_path: Path) -> tuple[Path, Path, Path]:
+    """Return fixed cache paths derived only from the trusted ledger path."""
+
+    prefix = f"{ledger_path.name}.ranked-snapshot"
+    return (
+        ledger_path.with_name(f"{prefix}.jsonl"),
+        ledger_path.with_name(f"{prefix}.offsets"),
+        ledger_path.with_name(f"{prefix}.manifest.json"),
+    )
+
+
+def _stat_identity(metadata: os.stat_result) -> dict[str, int]:
+    return {
+        "device": int(metadata.st_dev),
+        "inode": int(metadata.st_ino),
+        "bytes": int(metadata.st_size),
+        "mtime_ns": int(metadata.st_mtime_ns),
+    }
+
+
+def _regular_file_identity(path: Path, *, label: str) -> dict[str, Any]:
+    """Hash one stable regular file without accepting a final symlink."""
+
+    try:
+        before = path.lstat()
+    except OSError as exc:
+        raise ValueError(f"{label} is unavailable: {path}") from exc
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise ValueError(f"{label} must be a regular non-symlink file: {path}")
+    digest = _file_sha256(path)
+    try:
+        after = path.lstat()
+    except OSError as exc:
+        raise ValueError(f"{label} changed while hashing: {path}") from exc
+    if digest is None or _stat_identity(before) != _stat_identity(after):
+        raise ValueError(f"{label} changed while hashing: {path}")
+    return {
+        "path": str(path.resolve(strict=True)),
+        "stat": _stat_identity(after),
+        "sha256": digest,
+    }
+
+
+def _ranked_snapshot_binding(paths: Iterable[Path]) -> dict[str, Any]:
+    """Bind a ranked pool to immutable inputs, ranking code, and runtime."""
+
+    payload = {
+        "schema_version": RANKED_SNAPSHOT_SCHEMA_VERSION,
+        "gate": RANKED_SNAPSHOT_GATE,
+        "inputs": [
+            _regular_file_identity(Path(path), label="candidate input")
+            for path in paths
+        ],
+        # This covers this script, every evaluation source, Humanize audit
+        # dependencies, and the registry. Keep the explicit registry identity
+        # so the cache contract remains inspectable.
+        "source_fingerprint": certificate_source_fingerprint(),
+        "solver_runtime": solver_runtime_fingerprint(),
+        "known_code_registry": _regular_file_identity(
+            Path(DEFAULT_REGISTRY),
+            label="known-code registry",
+        ),
+    }
+    return {**payload, "binding_sha256": _json_sha256(payload)}
+
+
+def _current_file_matches_identity(
+    expected: Mapping[str, Any],
+    *,
+    label: str,
+) -> bool:
+    path_text = expected.get("path")
+    expected_stat = expected.get("stat")
+    expected_sha256 = expected.get("sha256")
+    if (
+        not isinstance(path_text, str)
+        or not isinstance(expected_stat, Mapping)
+        or not _is_sha256(expected_sha256)
+    ):
+        return False
+    path = Path(path_text)
+    try:
+        before = path.lstat()
+    except OSError:
+        return False
+    if (
+        not stat.S_ISREG(before.st_mode)
+        or stat.S_ISLNK(before.st_mode)
+        or _stat_identity(before) != dict(expected_stat)
+    ):
+        return False
+    digest = _file_sha256(path)
+    try:
+        after = path.lstat()
+    except OSError:
+        return False
+    return bool(
+        digest == expected_sha256
+        and stat.S_ISREG(after.st_mode)
+        and not stat.S_ISLNK(after.st_mode)
+        and _stat_identity(before) == _stat_identity(after)
+    )
+
+
+def _binding_dependencies_unchanged(
+    binding: Mapping[str, Any],
+    paths: Iterable[Path],
+) -> bool:
+    """Replay input bytes plus live source/runtime hashes before cache reuse."""
+
+    expected_inputs = binding.get("inputs")
+    input_paths = tuple(Path(path) for path in paths)
+    if (
+        not isinstance(expected_inputs, list)
+        or len(expected_inputs) != len(input_paths)
+    ):
+        return False
+    for path, expected in zip(input_paths, expected_inputs, strict=True):
+        if (
+            not isinstance(expected, Mapping)
+            or expected.get("path") != str(path.resolve(strict=False))
+            or not _current_file_matches_identity(
+                expected,
+                label="candidate input",
+            )
+        ):
+            return False
+    registry = binding.get("known_code_registry")
+    if (
+        not isinstance(registry, Mapping)
+        or not _current_file_matches_identity(
+            registry,
+            label="known-code registry",
+        )
+    ):
+        return False
+    try:
+        return bool(
+            binding.get("source_fingerprint")
+            == certificate_source_fingerprint()
+            and binding.get("solver_runtime") == solver_runtime_fingerprint()
+        )
+    except OSError:
+        return False
+
+
+def _validate_ranked_snapshot_rows(
+    rows: list[dict[str, Any]],
+    counts: Mapping[str, Any],
+) -> None:
+    """Validate the full pool once, before publishing its manifest."""
+
+    seen: set[str] = set()
+    previous_key: tuple[Any, ...] | None = None
+    terminal_seen = False
+    eligible = 0
+    for row in rows:
+        identity = row.get("triage_identity")
+        score = row.get("proof_score")
+        digest = (
+            identity.get("canonical_digest")
+            if isinstance(identity, Mapping)
+            else None
+        )
+        if (
+            not isinstance(identity, Mapping)
+            or not isinstance(score, Mapping)
+            or not isinstance(digest, str)
+            or not digest
+            or digest in seen
+        ):
+            raise ValueError("ranked snapshot contains an invalid identity")
+        key = _ranked_selection_key(row)
+        if previous_key is not None and key < previous_key:
+            raise ValueError("ranked snapshot is not in canonical rank order")
+        terminal = _is_trusted_terminal_rejection(row)
+        if terminal:
+            terminal_seen = True
+        elif terminal_seen:
+            raise ValueError(
+                "ranked snapshot has an eligible row after terminal rejections"
+            )
+        else:
+            eligible += 1
+        seen.add(digest)
+        previous_key = key
+
+    _validate_ranked_snapshot_counts(
+        counts,
+        rows=len(rows),
+        eligible_rows=eligible,
+    )
+
+
+def _validate_ranked_snapshot_counts(
+    counts: Mapping[str, Any],
+    *,
+    rows: int,
+    eligible_rows: int,
+) -> dict[str, int]:
+    """Validate every count and the exact arithmetic used by Stage 2."""
+
+    required = {
+        "input_records",
+        "unique_candidates",
+        "duplicate_records",
+        "rejected_candidates",
+        "eligible_candidates",
+    }
+    if (
+        not isinstance(counts, Mapping)
+        or not required.issubset(counts)
+        or any(not isinstance(key, str) or not key for key in counts)
+        or any(
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or value < 0
+            for value in counts.values()
+        )
+    ):
+        raise ValueError("ranked snapshot counts must be non-negative integers")
+    normalized = {str(key): int(value) for key, value in counts.items()}
+    input_records = normalized["input_records"]
+    unique_candidates = normalized["unique_candidates"]
+    duplicate_records = normalized["duplicate_records"]
+    rejected_candidates = normalized["rejected_candidates"]
+    eligible_candidates = normalized["eligible_candidates"]
+    if (
+        unique_candidates != rows
+        or eligible_candidates != eligible_rows
+        or rejected_candidates != rows - eligible_rows
+        or unique_candidates + duplicate_records > input_records
+    ):
+        raise ValueError("ranked snapshot counts are arithmetically inconsistent")
+    invalid_audits = normalized.get("invalid_stage1_audit_records", 0)
+    malformed = normalized.get("malformed_records", 0)
+    ineligible = normalized.get("ineligible_records", 0)
+    if (
+        invalid_audits > malformed
+        or input_records
+        != (
+            unique_candidates
+            + duplicate_records
+            + ineligible
+            + malformed
+            - invalid_audits
+        )
+    ):
+        raise ValueError("ranked snapshot input accounting is inconsistent")
+    return normalized
+
+
+@dataclass(frozen=True)
+class RankedSnapshot:
+    snapshot_path: Path
+    offsets_path: Path
+    manifest_path: Path
+    binding: dict[str, Any]
+    identity: dict[str, Any]
+    counts: dict[str, int]
+    rows: int
+    eligible_rows: int
+    snapshot_stat: dict[str, int]
+    offsets_stat: dict[str, int]
+    chunks: tuple[dict[str, Any], ...]
+
+
+def _cache_path_is_safe(path: Path, *, label: str) -> bool:
+    if path.is_symlink():
+        raise ValueError(f"{label} may not be a symlink")
+    if path.exists() and not path.is_file():
+        raise ValueError(f"{label} must be a regular file")
+    return path.is_file()
+
+
+def _load_ranked_snapshot(
+    ledger_path: Path,
+    input_paths: Iterable[Path],
+) -> RankedSnapshot | None:
+    """Load a manifest-bound random-access snapshot without scanning its rows."""
+
+    snapshot_path, offsets_path, manifest_path = _ranked_snapshot_paths(
+        ledger_path
+    )
+    for path, label in (
+        (snapshot_path, "ranked snapshot"),
+        (offsets_path, "ranked snapshot offset index"),
+        (manifest_path, "ranked snapshot manifest"),
+    ):
+        _cache_path_is_safe(path, label=label)
+    manifest = _load_json_object(manifest_path)
+    if manifest is None:
+        return None
+    unsigned_manifest = dict(manifest)
+    manifest_sha256 = unsigned_manifest.pop("manifest_sha256", None)
+    if (
+        not _is_sha256(manifest_sha256)
+        or manifest_sha256 != _json_sha256(unsigned_manifest)
+    ):
+        return None
+    binding = manifest.get("binding")
+    counts = manifest.get("counts")
+    identity = manifest.get("identity")
+    snapshot_stat = manifest.get("snapshot_stat")
+    offsets_stat = manifest.get("offsets_stat")
+    chunks = manifest.get("chunks")
+    chunk_rows = manifest.get("chunk_rows")
+    rows = manifest.get("snapshot_rows")
+    eligible_rows = (
+        counts.get("eligible_candidates")
+        if isinstance(counts, Mapping)
+        else None
+    )
+    if isinstance(binding, Mapping):
+        unsigned_binding = dict(binding)
+        embedded_binding_sha256 = unsigned_binding.pop(
+            "binding_sha256",
+            None,
+        )
+    else:
+        unsigned_binding = {}
+        embedded_binding_sha256 = None
+    if (
+        manifest.get("schema_version") != RANKED_SNAPSHOT_SCHEMA_VERSION
+        or manifest.get("gate") != RANKED_SNAPSHOT_GATE
+        or not isinstance(binding, Mapping)
+        or manifest.get("binding_sha256") != binding.get("binding_sha256")
+        or binding.get("schema_version") != RANKED_SNAPSHOT_SCHEMA_VERSION
+        or binding.get("gate") != RANKED_SNAPSHOT_GATE
+        or not _is_sha256(embedded_binding_sha256)
+        or embedded_binding_sha256 != _json_sha256(unsigned_binding)
+        or not isinstance(counts, Mapping)
+        or not isinstance(identity, Mapping)
+        or not isinstance(snapshot_stat, Mapping)
+        or not isinstance(offsets_stat, Mapping)
+        or chunk_rows != RANKED_SNAPSHOT_CHUNK_ROWS
+        or not isinstance(chunks, list)
+        or isinstance(rows, bool)
+        or not isinstance(rows, int)
+        or rows < 0
+        or isinstance(eligible_rows, bool)
+        or not isinstance(eligible_rows, int)
+        or not 0 <= eligible_rows <= rows
+        or not snapshot_path.is_file()
+        or not offsets_path.is_file()
+        or _stat_identity(snapshot_path.lstat()) != dict(snapshot_stat)
+        or _stat_identity(offsets_path.lstat()) != dict(offsets_stat)
+        or offsets_path.stat().st_size != (rows + 1) * 8
+        or identity.get("binding_sha256") != binding.get("binding_sha256")
+        or identity.get("rows") != rows
+        or identity.get("eligible_rows") != eligible_rows
+        or not _is_sha256(identity.get("counts_sha256"))
+        or identity.get("counts_sha256") != _json_sha256(counts)
+        or identity.get("chunk_rows") != RANKED_SNAPSHOT_CHUNK_ROWS
+        or not _is_sha256(identity.get("snapshot_sha256"))
+        or not _is_sha256(identity.get("offsets_sha256"))
+        or not _is_sha256(identity.get("chunk_index_sha256"))
+        or identity.get("chunk_index_sha256")
+        != _ranked_chunk_index_sha256(
+            chunk for chunk in chunks if isinstance(chunk, Mapping)
+        )
+        or not _binding_dependencies_unchanged(binding, input_paths)
+    ):
+        return None
+    try:
+        normalized_counts = _validate_ranked_snapshot_counts(
+            counts,
+            rows=rows,
+            eligible_rows=eligible_rows,
+        )
+    except ValueError:
+        return None
+    expected_chunks = math.ceil(rows / RANKED_SNAPSHOT_CHUNK_ROWS)
+    if len(chunks) != expected_chunks:
+        return None
+    normalized_chunks: list[dict[str, Any]] = []
+    previous_snapshot_end = 0
+    for chunk_number, chunk in enumerate(chunks):
+        if not isinstance(chunk, Mapping):
+            return None
+        start_row = chunk.get("start_row")
+        end_row = chunk.get("end_row")
+        snapshot_start = chunk.get("snapshot_start")
+        snapshot_end = chunk.get("snapshot_end")
+        offsets_start = chunk.get("offsets_start")
+        offsets_end = chunk.get("offsets_end")
+        expected_start = chunk_number * RANKED_SNAPSHOT_CHUNK_ROWS
+        expected_end = min(
+            expected_start + RANKED_SNAPSHOT_CHUNK_ROWS,
+            rows,
+        )
+        integer_fields = (
+            start_row,
+            end_row,
+            snapshot_start,
+            snapshot_end,
+            offsets_start,
+            offsets_end,
+        )
+        if (
+            any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in integer_fields
+            )
+            or start_row != expected_start
+            or end_row != expected_end
+            or snapshot_start != previous_snapshot_end
+            or not snapshot_start < snapshot_end
+            or snapshot_end > snapshot_stat.get("bytes", -1)
+            or offsets_start != start_row * 8
+            or offsets_end != (end_row + 1) * 8
+            or offsets_end > offsets_stat.get("bytes", -1)
+            or not _is_sha256(chunk.get("snapshot_sha256"))
+            or not _is_sha256(chunk.get("offsets_sha256"))
+        ):
+            return None
+        normalized_chunks.append(dict(chunk))
+        previous_snapshot_end = snapshot_end
+    if previous_snapshot_end != snapshot_stat.get("bytes"):
+        return None
+    loaded = RankedSnapshot(
+        snapshot_path=snapshot_path,
+        offsets_path=offsets_path,
+        manifest_path=manifest_path,
+        binding=dict(binding),
+        identity=dict(identity),
+        counts=normalized_counts,
+        rows=rows,
+        eligible_rows=eligible_rows,
+        snapshot_stat=dict(snapshot_stat),
+        offsets_stat=dict(offsets_stat),
+        chunks=tuple(normalized_chunks),
+    )
+    try:
+        _validate_ranked_snapshot_eligible_boundary(loaded)
+    except (OSError, TypeError, ValueError):
+        return None
+    return loaded
+
+
+def _write_ranked_snapshot(
+    ledger_path: Path,
+    binding: Mapping[str, Any],
+    ranked: list[dict[str, Any]],
+    counts: Mapping[str, int],
+) -> RankedSnapshot:
+    """Commit snapshot/index bytes first and their validating manifest last."""
+
+    snapshot_path, offsets_path, manifest_path = _ranked_snapshot_paths(
+        ledger_path
+    )
+    for path, label in (
+        (snapshot_path, "ranked snapshot"),
+        (offsets_path, "ranked snapshot offset index"),
+        (manifest_path, "ranked snapshot manifest"),
+    ):
+        _cache_path_is_safe(path, label=label)
+    _validate_ranked_snapshot_rows(ranked, counts)
+
+    encoded_rows = [
+        (json.dumps(row, sort_keys=True) + "\n").encode("utf-8")
+        for row in ranked
+    ]
+    offsets = [0]
+    for payload in encoded_rows:
+        offsets.append(offsets[-1] + len(payload))
+    snapshot_payload = b"".join(encoded_rows)
+    offsets_payload = b"".join(
+        struct.pack(">Q", offset) for offset in offsets
+    )
+    chunks: list[dict[str, Any]] = []
+    for start_row in range(
+        0,
+        len(ranked),
+        RANKED_SNAPSHOT_CHUNK_ROWS,
+    ):
+        end_row = min(
+            start_row + RANKED_SNAPSHOT_CHUNK_ROWS,
+            len(ranked),
+        )
+        snapshot_start = offsets[start_row]
+        snapshot_end = offsets[end_row]
+        offsets_start = start_row * 8
+        offsets_end = (end_row + 1) * 8
+        chunks.append({
+            "start_row": start_row,
+            "end_row": end_row,
+            "snapshot_start": snapshot_start,
+            "snapshot_end": snapshot_end,
+            "snapshot_sha256": hashlib.sha256(
+                snapshot_payload[snapshot_start:snapshot_end],
+            ).hexdigest(),
+            "offsets_start": offsets_start,
+            "offsets_end": offsets_end,
+            "offsets_sha256": hashlib.sha256(
+                offsets_payload[offsets_start:offsets_end],
+            ).hexdigest(),
+        })
+    _atomic_write_bytes(snapshot_path, snapshot_payload)
+    _atomic_write_bytes(offsets_path, offsets_payload)
+
+    # Full byte verification happens once, before the manifest makes this cache
+    # reusable. Later pages bind immutable inode/stat identities and take shared
+    # locks instead of rehashing the entire pool.
+    snapshot_sha256 = _file_sha256(snapshot_path)
+    offsets_sha256 = _file_sha256(offsets_path)
+    if (
+        snapshot_sha256 != hashlib.sha256(snapshot_payload).hexdigest()
+        or offsets_sha256 != hashlib.sha256(offsets_payload).hexdigest()
+    ):
+        raise ValueError("ranked snapshot bytes changed during commit")
+    snapshot_stat = _stat_identity(snapshot_path.lstat())
+    offsets_stat = _stat_identity(offsets_path.lstat())
+    normalized_counts = _validate_ranked_snapshot_counts(
+        counts,
+        rows=len(ranked),
+        eligible_rows=int(counts["eligible_candidates"]),
+    )
+    identity = {
+        "binding_sha256": binding["binding_sha256"],
+        "snapshot_sha256": snapshot_sha256,
+        "offsets_sha256": offsets_sha256,
+        "chunk_index_sha256": _ranked_chunk_index_sha256(chunks),
+        "chunk_rows": RANKED_SNAPSHOT_CHUNK_ROWS,
+        "rows": len(ranked),
+        "eligible_rows": normalized_counts["eligible_candidates"],
+        "counts_sha256": _json_sha256(normalized_counts),
+    }
+    manifest_payload = {
+        "schema_version": RANKED_SNAPSHOT_SCHEMA_VERSION,
+        "gate": RANKED_SNAPSHOT_GATE,
+        "binding": dict(binding),
+        "binding_sha256": binding["binding_sha256"],
+        "identity": identity,
+        "snapshot_rows": len(ranked),
+        "snapshot_stat": snapshot_stat,
+        "offsets_stat": offsets_stat,
+        "chunk_rows": RANKED_SNAPSHOT_CHUNK_ROWS,
+        "chunks": chunks,
+        "counts": normalized_counts,
+        "created_at": time.time(),
+    }
+    manifest = {
+        **manifest_payload,
+        "manifest_sha256": _json_sha256(manifest_payload),
+    }
+    atomic_write_json(manifest_path, manifest)
+    loaded = _load_ranked_snapshot(
+        ledger_path,
+        [Path(item["path"]) for item in binding["inputs"]],
+    )
+    if loaded is None:
+        raise ValueError("ranked snapshot did not replay after commit")
+    return loaded
+
+
+def prepare_ranked_snapshot(
+    paths: Iterable[Path],
+    *,
+    ledger_path: Path,
+) -> tuple[RankedSnapshot, bool]:
+    """Rank once per immutable binding and cache no solver-derived verdicts."""
+
+    input_paths = tuple(Path(path) for path in paths)
+    cached = _load_ranked_snapshot(ledger_path, input_paths)
+    if cached is not None:
+        return cached, True
+
+    binding = _ranked_snapshot_binding(input_paths)
+    ranked, counts = rank_candidate_files(input_paths)
+    # Full hashes close mutation during the expensive rank/dedup build.
+    if _ranked_snapshot_binding(input_paths) != binding:
+        raise ValueError("candidate inputs changed while ranking")
+    return (
+        _write_ranked_snapshot(
+            ledger_path,
+            binding,
+            ranked,
+            counts,
+        ),
+        False,
+    )
 
 
 def _novelty_source_fingerprint() -> str:
@@ -1061,8 +1704,310 @@ def _select_audit_page(
             )
             stats["unscanned_eligible_candidates"] = unscanned
             stats["selection_exhausted"] = unscanned == 0
-            next_index = index + 1
+            next_index = len(ranked) if unscanned == 0 else index + 1
             break
+    return selected, stats, next_index
+
+
+def _snapshot_descriptor_matches(
+    descriptor: int,
+    expected: Mapping[str, int],
+) -> bool:
+    return _stat_identity(os.fstat(descriptor)) == dict(expected)
+
+
+def _read_ranked_snapshot_row(
+    snapshot: RankedSnapshot,
+    index: int,
+) -> dict[str, Any]:
+    """Cryptographically read one row without scanning the ranked pool."""
+
+    if index < 0 or index >= snapshot.rows:
+        raise ValueError("ranked snapshot row index is outside the pool")
+    chunk = snapshot.chunks[index // RANKED_SNAPSHOT_CHUNK_ROWS]
+    snapshot_start = int(chunk["snapshot_start"])
+    snapshot_end = int(chunk["snapshot_end"])
+    offsets_start = int(chunk["offsets_start"])
+    offsets_end = int(chunk["offsets_end"])
+    with (
+        snapshot.snapshot_path.open("rb") as ranked_stream,
+        snapshot.offsets_path.open("rb") as offsets_stream,
+    ):
+        fcntl.flock(ranked_stream.fileno(), fcntl.LOCK_SH)
+        fcntl.flock(offsets_stream.fileno(), fcntl.LOCK_SH)
+        try:
+            if (
+                not _snapshot_descriptor_matches(
+                    ranked_stream.fileno(), snapshot.snapshot_stat
+                )
+                or not _snapshot_descriptor_matches(
+                    offsets_stream.fileno(), snapshot.offsets_stat
+                )
+            ):
+                raise ValueError(
+                    "ranked snapshot was replaced before boundary read",
+                )
+            ranked_stream.seek(snapshot_start)
+            snapshot_payload = ranked_stream.read(
+                snapshot_end - snapshot_start,
+            )
+            offsets_stream.seek(offsets_start)
+            offsets_payload = offsets_stream.read(
+                offsets_end - offsets_start,
+            )
+            if (
+                len(snapshot_payload) != snapshot_end - snapshot_start
+                or hashlib.sha256(snapshot_payload).hexdigest()
+                != chunk["snapshot_sha256"]
+            ):
+                raise ValueError("ranked snapshot data chunk hash mismatch")
+            if (
+                len(offsets_payload) != offsets_end - offsets_start
+                or hashlib.sha256(offsets_payload).hexdigest()
+                != chunk["offsets_sha256"]
+            ):
+                raise ValueError("ranked snapshot offset chunk hash mismatch")
+            offset_count = int(chunk["end_row"]) - int(
+                chunk["start_row"],
+            ) + 1
+            offsets = struct.unpack(f">{offset_count}Q", offsets_payload)
+            if (
+                offsets[0] != snapshot_start
+                or offsets[-1] != snapshot_end
+                or any(
+                    left >= right
+                    for left, right in zip(offsets, offsets[1:])
+                )
+            ):
+                raise ValueError(
+                    "ranked snapshot offset chunk is inconsistent",
+                )
+            row_in_chunk = index - int(chunk["start_row"])
+            left = offsets[row_in_chunk] - snapshot_start
+            right = offsets[row_in_chunk + 1] - snapshot_start
+            payload = snapshot_payload[left:right]
+            if not payload.endswith(b"\n"):
+                raise ValueError("ranked snapshot row is partial")
+            try:
+                row = json.loads(payload)
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise ValueError("ranked snapshot row is invalid") from exc
+            if not isinstance(row, dict):
+                raise ValueError("ranked snapshot row is not an object")
+            if (
+                not _snapshot_descriptor_matches(
+                    ranked_stream.fileno(), snapshot.snapshot_stat
+                )
+                or not _snapshot_descriptor_matches(
+                    offsets_stream.fileno(), snapshot.offsets_stat
+                )
+            ):
+                raise ValueError("ranked snapshot changed during boundary read")
+            return row
+        finally:
+            fcntl.flock(offsets_stream.fileno(), fcntl.LOCK_UN)
+            fcntl.flock(ranked_stream.fileno(), fcntl.LOCK_UN)
+
+
+def _validate_ranked_snapshot_eligible_boundary(
+    snapshot: RankedSnapshot,
+) -> None:
+    """Prove the manifest's eligible prefix boundary by random access."""
+
+    if snapshot.eligible_rows:
+        last_eligible = _read_ranked_snapshot_row(
+            snapshot,
+            snapshot.eligible_rows - 1,
+        )
+        if _is_trusted_terminal_rejection(last_eligible):
+            raise ValueError(
+                "ranked snapshot eligible boundary ends in a rejection",
+            )
+    if snapshot.eligible_rows < snapshot.rows:
+        first_rejected = _read_ranked_snapshot_row(
+            snapshot,
+            snapshot.eligible_rows,
+        )
+        if not _is_trusted_terminal_rejection(first_rejected):
+            raise ValueError(
+                "ranked snapshot eligible boundary skips an eligible row",
+            )
+
+
+def _select_snapshot_audit_page(
+    snapshot: RankedSnapshot,
+    top: int,
+    *,
+    start_index: int,
+    seen_digests: Iterable[str],
+    canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, int], int]:
+    """Fill one page by random-accessing only its ranked snapshot rows."""
+
+    if top < 0:
+        raise ValueError("top must be non-negative")
+    if start_index < 0 or start_index > snapshot.eligible_rows:
+        raise ValueError("selection start_index is outside the ranked pool")
+    canonicalizer = (
+        canonicalize_for_audit if canonicalizer is None else canonicalizer
+    )
+    selected: list[dict[str, Any]] = []
+    seen_digests = {str(value) for value in seen_digests}
+    stats = {
+        "canonicalized_candidates": 0,
+        "canonical_duplicates_skipped": 0,
+        "known_codes_skipped": 0,
+        "unsupported_candidates_skipped": 0,
+        "canonicalization_errors": 0,
+        "unscanned_eligible_candidates": 0,
+        "selection_exhausted": True,
+    }
+    if top == 0:
+        remaining = snapshot.eligible_rows - start_index
+        stats["unscanned_eligible_candidates"] = remaining
+        stats["selection_exhausted"] = remaining == 0
+        return selected, stats, start_index
+
+    next_index = snapshot.eligible_rows
+    with (
+        snapshot.snapshot_path.open("rb") as ranked_stream,
+        snapshot.offsets_path.open("rb") as offsets_stream,
+    ):
+        fcntl.flock(ranked_stream.fileno(), fcntl.LOCK_SH)
+        fcntl.flock(offsets_stream.fileno(), fcntl.LOCK_SH)
+        try:
+            if (
+                not _snapshot_descriptor_matches(
+                    ranked_stream.fileno(), snapshot.snapshot_stat
+                )
+                or not _snapshot_descriptor_matches(
+                    offsets_stream.fileno(), snapshot.offsets_stat
+                )
+            ):
+                raise ValueError("ranked snapshot was replaced before page read")
+
+            loaded_chunk_number: int | None = None
+            loaded_snapshot_payload = b""
+            loaded_offsets: tuple[int, ...] = ()
+            for index in range(start_index, snapshot.eligible_rows):
+                chunk_number = index // RANKED_SNAPSHOT_CHUNK_ROWS
+                chunk = snapshot.chunks[chunk_number]
+                if loaded_chunk_number != chunk_number:
+                    snapshot_start = int(chunk["snapshot_start"])
+                    snapshot_end = int(chunk["snapshot_end"])
+                    offsets_start = int(chunk["offsets_start"])
+                    offsets_end = int(chunk["offsets_end"])
+                    ranked_stream.seek(snapshot_start)
+                    loaded_snapshot_payload = ranked_stream.read(
+                        snapshot_end - snapshot_start,
+                    )
+                    offsets_stream.seek(offsets_start)
+                    encoded_offsets = offsets_stream.read(
+                        offsets_end - offsets_start,
+                    )
+                    if (
+                        len(loaded_snapshot_payload)
+                        != snapshot_end - snapshot_start
+                        or hashlib.sha256(
+                            loaded_snapshot_payload,
+                        ).hexdigest()
+                        != chunk["snapshot_sha256"]
+                    ):
+                        raise ValueError(
+                            "ranked snapshot data chunk hash mismatch",
+                        )
+                    if (
+                        len(encoded_offsets) != offsets_end - offsets_start
+                        or hashlib.sha256(encoded_offsets).hexdigest()
+                        != chunk["offsets_sha256"]
+                    ):
+                        raise ValueError(
+                            "ranked snapshot offset chunk hash mismatch",
+                        )
+                    offset_count = int(chunk["end_row"]) - int(
+                        chunk["start_row"],
+                    ) + 1
+                    loaded_offsets = struct.unpack(
+                        f">{offset_count}Q",
+                        encoded_offsets,
+                    )
+                    if (
+                        loaded_offsets[0] != snapshot_start
+                        or loaded_offsets[-1] != snapshot_end
+                        or any(
+                            left >= right
+                            for left, right in zip(
+                                loaded_offsets,
+                                loaded_offsets[1:],
+                            )
+                        )
+                    ):
+                        raise ValueError(
+                            "ranked snapshot offset chunk is inconsistent",
+                        )
+                    loaded_chunk_number = chunk_number
+
+                row_in_chunk = index - int(chunk["start_row"])
+                left = loaded_offsets[row_in_chunk] - int(
+                    chunk["snapshot_start"],
+                )
+                right = loaded_offsets[row_in_chunk + 1] - int(
+                    chunk["snapshot_start"],
+                )
+                payload = loaded_snapshot_payload[left:right]
+                if not payload.endswith(b"\n"):
+                    raise ValueError("ranked snapshot row is partial")
+                try:
+                    row = json.loads(payload)
+                except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                    raise ValueError("ranked snapshot row is invalid") from exc
+                if (
+                    not isinstance(row, dict)
+                    or _is_trusted_terminal_rejection(row)
+                ):
+                    raise ValueError(
+                        "ranked snapshot eligible prefix is inconsistent"
+                    )
+                if row.get("C_terms") or row.get("D_terms"):
+                    stats["unsupported_candidates_skipped"] += 1
+                    continue
+                try:
+                    updated = canonicalizer(row)
+                except (KeyError, TypeError, ValueError):
+                    stats["canonicalization_errors"] += 1
+                    continue
+                stats["canonicalized_candidates"] += 1
+                novelty = updated.get("novelty")
+                if (
+                    isinstance(novelty, Mapping)
+                    and novelty.get("novel") is not True
+                ):
+                    stats["known_codes_skipped"] += 1
+                    continue
+                digest = str(updated["triage_identity"]["canonical_digest"])
+                if digest in seen_digests:
+                    stats["canonical_duplicates_skipped"] += 1
+                    continue
+                seen_digests.add(digest)
+                selected.append(updated)
+                if len(selected) == top:
+                    next_index = index + 1
+                    remaining = snapshot.eligible_rows - next_index
+                    stats["unscanned_eligible_candidates"] = remaining
+                    stats["selection_exhausted"] = remaining == 0
+                    break
+            if (
+                not _snapshot_descriptor_matches(
+                    ranked_stream.fileno(), snapshot.snapshot_stat
+                )
+                or not _snapshot_descriptor_matches(
+                    offsets_stream.fileno(), snapshot.offsets_stat
+                )
+            ):
+                raise ValueError("ranked snapshot changed during page read")
+        finally:
+            fcntl.flock(offsets_stream.fileno(), fcntl.LOCK_UN)
+            fcntl.flock(ranked_stream.fileno(), fcntl.LOCK_UN)
     return selected, stats, next_index
 
 
@@ -1089,115 +2034,105 @@ def _selection_binding(
     *,
     top: int,
     known_answer_artifact: Path,
+    ranked_snapshot_identity: Mapping[str, Any] | None = None,
+    ranked_size: int | None = None,
 ) -> str:
     """Bind a cursor to every input that can alter candidate selection."""
 
+    if ranked_snapshot_identity is None:
+        ranked_binding: Any = list(ranked)
+    else:
+        identity = dict(ranked_snapshot_identity)
+        if ranked_size is None:
+            try:
+                ranked_size = len(ranked)  # type: ignore[arg-type]
+            except TypeError as exc:
+                raise ValueError(
+                    "snapshot-bound ranked pool must have a stable length"
+                ) from exc
+        if (
+            not _is_sha256(identity.get("binding_sha256"))
+            or not _is_sha256(identity.get("snapshot_sha256"))
+            or not _is_sha256(identity.get("offsets_sha256"))
+            or not _is_sha256(identity.get("chunk_index_sha256"))
+            or not _is_sha256(identity.get("counts_sha256"))
+            or identity.get("chunk_rows") != RANKED_SNAPSHOT_CHUNK_ROWS
+            or identity.get("rows") != ranked_size
+            or isinstance(identity.get("eligible_rows"), bool)
+            or not isinstance(identity.get("eligible_rows"), int)
+            or not 0 <= identity["eligible_rows"] <= ranked_size
+        ):
+            raise ValueError("ranked snapshot identity is malformed")
+        ranked_binding = {"snapshot": identity}
     return _json_sha256({
         "schema_version": SELECTION_LEDGER_SCHEMA_VERSION,
         "top": top,
-        "ranked": list(ranked),
+        "ranked": ranked_binding,
         "known_answer_sha256": _file_sha256(known_answer_artifact),
         "solver_runtime": solver_runtime_fingerprint(),
         "source_fingerprint": certificate_source_fingerprint(),
     })
 
 
-def _selection_page_sha256(
-    *,
+def _new_selection_ledger(
     binding_sha256: str,
-    start_index: int,
-    next_index: int,
-    selected_digests: Iterable[str],
-) -> str:
-    return _json_sha256({
-        "binding_sha256": binding_sha256,
-        "start_index": start_index,
-        "next_index": next_index,
-        "selected_digests": list(selected_digests),
-    })
-
-
-def _new_selection_ledger(binding_sha256: str) -> dict[str, Any]:
-    return {
-        "schema_version": SELECTION_LEDGER_SCHEMA_VERSION,
-        "gate": SELECTION_LEDGER_GATE,
-        "binding_sha256": binding_sha256,
-        "cursor": 0,
-        "committed_digests": [],
-        "completed_pages": 0,
-        "pending": None,
-    }
+    *,
+    snapshot_identity_sha256_value: str,
+    snapshot_rows: int,
+    eligible_rows: int,
+) -> dict[str, Any]:
+    return new_selection_ledger(
+        binding_sha256=binding_sha256,
+        snapshot_identity_sha256_value=snapshot_identity_sha256_value,
+        snapshot_rows=snapshot_rows,
+        eligible_rows=eligible_rows,
+    )
 
 
 def _load_selection_ledger(
     path: Path,
     *,
     binding_sha256: str,
-    ranked_size: int,
+    snapshot_identity_sha256_value: str,
+    snapshot_rows: int,
+    eligible_rows: int,
 ) -> dict[str, Any]:
     """Load a cursor fail-closed; stale bindings safely restart at rank zero."""
 
     if path.is_symlink():
         raise ValueError("selection ledger may not be a symlink")
     value = _load_json_object(path)
-    if value is None or value.get("binding_sha256") != binding_sha256:
-        return _new_selection_ledger(binding_sha256)
+    if value is None:
+        return _new_selection_ledger(
+            binding_sha256,
+            snapshot_identity_sha256_value=snapshot_identity_sha256_value,
+            snapshot_rows=snapshot_rows,
+            eligible_rows=eligible_rows,
+        )
+    # Old schema and stale snapshot bindings are never trusted. Restarting at
+    # rank zero is safe and lets pre-v2 runs resume without inheriting a cursor.
     if (
         value.get("schema_version") != SELECTION_LEDGER_SCHEMA_VERSION
         or value.get("gate") != SELECTION_LEDGER_GATE
+        or value.get("binding_sha256") != binding_sha256
+        or value.get("snapshot_identity_sha256")
+        != snapshot_identity_sha256_value
+        or value.get("snapshot_rows") != snapshot_rows
+        or value.get("eligible_rows") != eligible_rows
     ):
-        raise ValueError("selection ledger has an unsupported schema")
-    cursor = value.get("cursor")
-    completed_pages = value.get("completed_pages")
-    committed = value.get("committed_digests")
-    pending = value.get("pending")
-    if (
-        isinstance(cursor, bool)
-        or not isinstance(cursor, int)
-        or not 0 <= cursor <= ranked_size
-        or isinstance(completed_pages, bool)
-        or not isinstance(completed_pages, int)
-        or completed_pages < 0
-        or not isinstance(committed, list)
-        or any(not isinstance(item, str) or not item for item in committed)
-        or len(set(committed)) != len(committed)
-        or (pending is not None and not isinstance(pending, Mapping))
-    ):
-        raise ValueError("selection ledger is malformed")
-    if pending is not None:
-        pending_binding = pending.get("binding_sha256")
-        start_index = pending.get("start_index")
-        next_index = pending.get("next_index")
-        selected_digests = pending.get("selected_digests")
-        page_sha256 = pending.get("page_sha256")
-        if (
-            pending_binding != binding_sha256
-            or isinstance(start_index, bool)
-            or not isinstance(start_index, int)
-            or start_index != cursor
-            or isinstance(next_index, bool)
-            or not isinstance(next_index, int)
-            or not start_index <= next_index <= ranked_size
-            or not isinstance(selected_digests, list)
-            or any(
-                not isinstance(item, str) or not item
-                for item in selected_digests
-            )
-            or len(set(selected_digests)) != len(selected_digests)
-            or page_sha256
-            != _selection_page_sha256(
-                binding_sha256=binding_sha256,
-                start_index=start_index,
-                next_index=next_index,
-                selected_digests=selected_digests,
-            )
-        ):
-            raise ValueError("selection ledger pending page is malformed")
-    return {
-        **value,
-        "committed_digests": list(committed),
-        "pending": None if pending is None else dict(pending),
-    }
+        return _new_selection_ledger(
+            binding_sha256,
+            snapshot_identity_sha256_value=snapshot_identity_sha256_value,
+            snapshot_rows=snapshot_rows,
+            eligible_rows=eligible_rows,
+        )
+    return validate_selection_ledger(
+        value,
+        binding_sha256=binding_sha256,
+        snapshot_identity_sha256_value=snapshot_identity_sha256_value,
+        snapshot_rows=snapshot_rows,
+        eligible_rows=eligible_rows,
+    )
 
 
 def _prepare_selection_page(
@@ -1207,6 +2142,7 @@ def _prepare_selection_page(
     ledger_path: Path,
     known_answer_artifact: Path,
     canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
+    ranked_snapshot_identity: Mapping[str, Any] | None = None,
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, int],
@@ -1219,11 +2155,22 @@ def _prepare_selection_page(
         ranked,
         top=top,
         known_answer_artifact=known_answer_artifact,
+        ranked_snapshot_identity=ranked_snapshot_identity,
+    )
+    ranked_identity_sha256 = snapshot_identity_sha256(
+        dict(ranked_snapshot_identity)
+        if ranked_snapshot_identity is not None
+        else {
+            "selection_binding_sha256": binding_sha256,
+            "rows": len(ranked),
+        }
     )
     ledger = _load_selection_ledger(
         ledger_path,
         binding_sha256=binding_sha256,
-        ranked_size=len(ranked),
+        snapshot_identity_sha256_value=ranked_identity_sha256,
+        snapshot_rows=len(ranked),
+        eligible_rows=len(ranked),
     )
     pending = ledger.get("pending")
     start_index = int(
@@ -1241,21 +2188,98 @@ def _prepare_selection_page(
         str(row["triage_identity"]["canonical_digest"])
         for row in selected
     ]
-    page = {
-        "binding_sha256": binding_sha256,
-        "start_index": start_index,
-        "next_index": next_index,
-        "selected_digests": selected_digests,
-        "page_sha256": _selection_page_sha256(
-            binding_sha256=binding_sha256,
-            start_index=start_index,
-            next_index=next_index,
-            selected_digests=selected_digests,
-        ),
-    }
+    scan_evidence = make_scan_evidence(
+        snapshot_identity_sha256_value=ranked_identity_sha256,
+        start_index=start_index,
+        next_index=next_index,
+        snapshot_rows=len(ranked),
+        eligible_rows=len(ranked),
+        selection_exhausted=bool(stats["selection_exhausted"]),
+    )
+    page = make_selection_page(
+        binding_sha256=binding_sha256,
+        snapshot_identity_sha256_value=ranked_identity_sha256,
+        page_sequence=ledger["completed_pages"],
+        previous_ack_sha256=ledger["last_ack_sha256"],
+        start_index=start_index,
+        next_index=next_index,
+        selected_digests=selected_digests,
+        scan_evidence=scan_evidence,
+    )
     if pending is not None and dict(pending) != page:
         raise ValueError("pending selection page no longer replays exactly")
-    ledger["pending"] = page
+    ledger = install_pending_page(ledger, page)
+    atomic_write_json(ledger_path, ledger)
+    return selected, stats, page, ledger
+
+
+def _prepare_snapshot_selection_page(
+    snapshot: RankedSnapshot,
+    *,
+    top: int,
+    ledger_path: Path,
+    known_answer_artifact: Path,
+    canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
+) -> tuple[
+    list[dict[str, Any]],
+    dict[str, int],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    """Create or replay one pending page directly from an immutable snapshot."""
+
+    binding_sha256 = _selection_binding(
+        (),
+        top=top,
+        known_answer_artifact=known_answer_artifact,
+        ranked_snapshot_identity=snapshot.identity,
+        ranked_size=snapshot.rows,
+    )
+    ranked_identity_sha256 = snapshot_identity_sha256(snapshot.identity)
+    ledger = _load_selection_ledger(
+        ledger_path,
+        binding_sha256=binding_sha256,
+        snapshot_identity_sha256_value=ranked_identity_sha256,
+        snapshot_rows=snapshot.rows,
+        eligible_rows=snapshot.eligible_rows,
+    )
+    pending = ledger.get("pending")
+    start_index = int(
+        pending["start_index"] if isinstance(pending, Mapping)
+        else ledger["cursor"]
+    )
+    selected, stats, next_index = _select_snapshot_audit_page(
+        snapshot,
+        top,
+        start_index=start_index,
+        seen_digests=ledger["committed_digests"],
+        canonicalizer=canonicalizer,
+    )
+    selected_digests = [
+        str(row["triage_identity"]["canonical_digest"])
+        for row in selected
+    ]
+    scan_evidence = make_scan_evidence(
+        snapshot_identity_sha256_value=ranked_identity_sha256,
+        start_index=start_index,
+        next_index=next_index,
+        snapshot_rows=snapshot.rows,
+        eligible_rows=snapshot.eligible_rows,
+        selection_exhausted=bool(stats["selection_exhausted"]),
+    )
+    page = make_selection_page(
+        binding_sha256=binding_sha256,
+        snapshot_identity_sha256_value=ranked_identity_sha256,
+        page_sequence=ledger["completed_pages"],
+        previous_ack_sha256=ledger["last_ack_sha256"],
+        start_index=start_index,
+        next_index=next_index,
+        selected_digests=selected_digests,
+        scan_evidence=scan_evidence,
+    )
+    if pending is not None and dict(pending) != page:
+        raise ValueError("pending selection page no longer replays exactly")
+    ledger = install_pending_page(ledger, page)
     atomic_write_json(ledger_path, ledger)
     return selected, stats, page, ledger
 
@@ -2244,6 +3268,9 @@ def main(argv: list[str] | None = None) -> int:
         value = getattr(args, name)
         if value is not None and (not math.isfinite(value) or value <= 0):
             parser.error(f"{name.replace('_', '-')} must be positive")
+    ranked_snapshot: RankedSnapshot | None = None
+    ranked_snapshot_identity: dict[str, Any] | None = None
+    ranked_snapshot_cache_hit = False
     try:
         validate_worker_budget(
             args.candidate_workers,
@@ -2255,7 +3282,16 @@ def main(argv: list[str] | None = None) -> int:
             args.certificate_solver_workers,
             args.max_total_workers,
         )
-        ranked, counts = rank_candidate_files(args.inputs)
+        if args.selection_ledger is None:
+            ranked, counts = rank_candidate_files(args.inputs)
+        else:
+            ranked_snapshot, ranked_snapshot_cache_hit = prepare_ranked_snapshot(
+                args.inputs,
+                ledger_path=args.selection_ledger,
+            )
+            ranked = []
+            counts = dict(ranked_snapshot.counts)
+            ranked_snapshot_identity = dict(ranked_snapshot.identity)
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
 
@@ -2266,17 +3302,22 @@ def main(argv: list[str] | None = None) -> int:
                 ranked, args.top,
             )
         else:
+            assert ranked_snapshot is not None
             (
                 selected,
                 selection_counts,
                 selection_page,
                 _,
-            ) = _prepare_selection_page(
-                ranked,
+            ) = _prepare_snapshot_selection_page(
+                ranked_snapshot,
                 top=args.top,
                 ledger_path=args.selection_ledger,
                 known_answer_artifact=args.known_answer_artifact,
             )
+            # The page artifact is intentionally bounded. Stage 3 consumes only
+            # the current page's unresolved rows; the immutable snapshot and
+            # ledger own the global pool and cursor.
+            ranked = list(selected)
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
     selected_digests = {
@@ -2411,6 +3452,11 @@ def main(argv: list[str] | None = None) -> int:
     }
     if selection_page is not None:
         summary["selection_page"] = selection_page
+    if ranked_snapshot_identity is not None:
+        summary["ranked_snapshot"] = {
+            **ranked_snapshot_identity,
+            "cache_hit": ranked_snapshot_cache_hit,
+        }
     atomic_write_json(args.summary_output, summary)
     print(json.dumps(summary, indent=2))
     return 0 if not (

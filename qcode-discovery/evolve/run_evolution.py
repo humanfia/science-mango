@@ -66,18 +66,21 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import concurrent.futures
 import fcntl
 import hashlib
 import json
 import math
 import os
 import platform as platform_module
+import signal
 import shutil
 import stat
 import subprocess
 import sys
 import tempfile
 import threading
+import time
 from datetime import datetime
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field
@@ -90,6 +93,7 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
+from evaluation.search_contract import EVOLUTION_LATTICES
 
 SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
 SEED_SOLUTION_MILP = str(Path(__file__).parent / "seed_solution_milp.py")
@@ -104,6 +108,37 @@ METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
 
 EVOLUTION_COMPLETION_SCHEMA_VERSION = 2
 EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 2
+WINNER_PREFLIGHT_CONTRACT_VERSION = 1
+WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
+WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC = (
+    "winner_preflight_contract_version"
+)
+WINNER_PREFLIGHT_CONTRACT_ID_METRIC = "winner_preflight_contract_id"
+WINNER_PREFLIGHT_COMPLETE_METRIC = "winner_preflight_complete"
+WINNER_PREFLIGHT_INCOMPLETE_METRIC = "winner_preflight_incomplete"
+WINNER_PREFLIGHT_LATTICES_METRIC = "winner_preflight_lattices"
+WINNER_PREFLIGHT_EVALUATED_METRIC = (
+    "winner_preflight_candidate_definitions_evaluated"
+)
+WINNER_PREFLIGHT_ELIGIBLE_METRIC = (
+    "winner_preflight_winner_capable_eligible"
+)
+WINNER_PREFLIGHT_PERSISTED_METRIC = (
+    "winner_preflight_winner_capable_persisted"
+)
+WINNER_PREFLIGHT_OMITTED_METRIC = "winner_preflight_winner_capable_omitted"
+WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC = "winner_preflight_hard_timeout"
+WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC = (
+    "winner_preflight_subprocess_failed"
+)
+WINNER_PREFLIGHT_NUMERIC_THREAD_ENV = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+)
 
 
 def _file_identity(path: str | Path, label: str) -> dict[str, object]:
@@ -215,6 +250,513 @@ def _evaluator_dependency_identities() -> dict[str, dict[str, Any]]:
             f"evolution evaluator dependency {name}",
         )
         for name, relative_path in LOCAL_EVALUATOR_DEPENDENCIES.items()
+    }
+
+
+def _winner_preflight_contract_id(
+    evaluator_path: str | Path,
+    dependency_identities: dict[str, dict[str, Any]],
+) -> int:
+    """Bind checkpoint markers to the active evaluator and dependencies."""
+
+    evaluator = _file_identity(
+        evaluator_path, "winner preflight evaluator"
+    )
+    dependency_hashes: dict[str, str] = {}
+    for name in sorted(LOCAL_EVALUATOR_DEPENDENCIES):
+        identity = dependency_identities.get(name)
+        digest = identity.get("sha256") if isinstance(identity, dict) else None
+        if (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            raise RuntimeError(
+                f"winner preflight dependency identity is invalid: {name}"
+            )
+        dependency_hashes[name] = digest
+    payload = {
+        "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
+        "evaluator_sha256": evaluator["sha256"],
+        "dependency_sha256": dependency_hashes,
+        "lattices": [list(lattice) for lattice in EVOLUTION_LATTICES],
+    }
+    digest = hashlib.sha256(
+        json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    # OpenEvolve treats metrics as JSON numbers and converts cascade metrics
+    # to float.  Thirteen hexadecimal digits stay below 2**53, so the id is
+    # exactly representable and survives every checkpoint round trip.
+    return int(digest[:13], 16)
+
+
+_WINNER_PREFLIGHT_MARKER_FIELDS = (
+    WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC,
+    WINNER_PREFLIGHT_CONTRACT_ID_METRIC,
+    WINNER_PREFLIGHT_COMPLETE_METRIC,
+    WINNER_PREFLIGHT_INCOMPLETE_METRIC,
+    WINNER_PREFLIGHT_LATTICES_METRIC,
+    WINNER_PREFLIGHT_EVALUATED_METRIC,
+    WINNER_PREFLIGHT_ELIGIBLE_METRIC,
+    WINNER_PREFLIGHT_PERSISTED_METRIC,
+    WINNER_PREFLIGHT_OMITTED_METRIC,
+    WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC,
+    WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC,
+)
+
+_WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
+    "combined_score",
+    "error",
+    "lattices_with_high_k",
+    "num_high_k",
+    "term_count",
+    "pattern_type",
+})
+
+
+def _exact_nonnegative_metric(
+    metrics: dict[str, Any],
+    name: str,
+) -> int:
+    value = metrics.get(name)
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or float(value) < 0
+        or not float(value).is_integer()
+    ):
+        raise RuntimeError(f"winner preflight marker is invalid: {name}")
+    return int(value)
+
+
+def _validated_winner_preflight_markers(
+    metrics: Any,
+    *,
+    expected_contract_id: int,
+) -> dict[str, float]:
+    if not isinstance(metrics, dict):
+        raise RuntimeError("winner preflight metrics are not an object")
+    values = {
+        name: _exact_nonnegative_metric(metrics, name)
+        for name in _WINNER_PREFLIGHT_MARKER_FIELDS
+    }
+    if (
+        values[WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC]
+        != WINNER_PREFLIGHT_CONTRACT_VERSION
+        or values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
+        != expected_contract_id
+        or values[WINNER_PREFLIGHT_COMPLETE_METRIC] != 1
+        or values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] != 0
+        or values[WINNER_PREFLIGHT_LATTICES_METRIC]
+        != len(EVOLUTION_LATTICES)
+        or values[WINNER_PREFLIGHT_OMITTED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] != 0
+        or values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_PERSISTED_METRIC]
+        != values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+        or values[WINNER_PREFLIGHT_EVALUATED_METRIC]
+        < values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+    ):
+        raise RuntimeError(
+            "winner preflight markers do not prove complete persistence"
+        )
+    return {name: float(values[name]) for name in values}
+
+
+def _exact_incomplete_winner_preflight_markers(
+    metrics: Any,
+    *,
+    expected_contract_id: int,
+) -> dict[str, float] | None:
+    """Recognize only the evaluator's canonical incomplete-preflight envelope.
+
+    A child with this envelope is a fully observed *failed attempt*, not a
+    checkpointable program.  Returning ``None`` is deliberately fail-closed:
+    malformed markers, a wrong contract, or an inconsistent claim continue
+    through the normal database-add observer and make the whole slice fail.
+    """
+
+    expected_fields = _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS.union(
+        _WINNER_PREFLIGHT_MARKER_FIELDS
+    )
+    if (
+        not isinstance(metrics, dict)
+        or set(metrics) != expected_fields
+        or not isinstance(metrics.get("error"), str)
+        or not metrics["error"]
+    ):
+        return None
+    for name in (
+        "combined_score",
+        "lattices_with_high_k",
+        "num_high_k",
+        "term_count",
+        "pattern_type",
+    ):
+        value = metrics.get(name)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or float(value) != 0.0
+        ):
+            return None
+    try:
+        values = {
+            name: _exact_nonnegative_metric(metrics, name)
+            for name in _WINNER_PREFLIGHT_MARKER_FIELDS
+        }
+    except RuntimeError:
+        return None
+    if (
+        values[WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC]
+        != WINNER_PREFLIGHT_CONTRACT_VERSION
+        or values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
+        != expected_contract_id
+        or values[WINNER_PREFLIGHT_COMPLETE_METRIC] != 0
+        or values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] != 1
+        or values[WINNER_PREFLIGHT_LATTICES_METRIC] != 0
+        or values[WINNER_PREFLIGHT_EVALUATED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_ELIGIBLE_METRIC] != 0
+        or values[WINNER_PREFLIGHT_PERSISTED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_OMITTED_METRIC] != 0
+        or values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] not in (0, 1)
+        or values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] != 1
+    ):
+        return None
+    return {name: float(values[name]) for name in values}
+
+
+def _checkpoint_preflight_summary(
+    checkpoint_path: str | Path,
+    *,
+    expected_contract_id: int,
+) -> dict[str, int]:
+    programs_dir = Path(checkpoint_path) / "programs"
+    if programs_dir.is_symlink() or not programs_dir.is_dir():
+        raise RuntimeError(
+            f"checkpoint programs directory is missing: {programs_dir}"
+        )
+    codes: set[str] = set()
+    programs = 0
+    for path in sorted(programs_dir.glob("*.json")):
+        program = _read_json_object(path, "checkpoint program")
+        code = program.get("code")
+        if not isinstance(code, str) or not code:
+            raise RuntimeError(f"checkpoint program has invalid code: {path}")
+        _validated_winner_preflight_markers(
+            program.get("metrics"),
+            expected_contract_id=expected_contract_id,
+        )
+        programs += 1
+        codes.add(hashlib.sha256(code.encode("utf-8")).hexdigest())
+    if programs < 1:
+        raise RuntimeError("result checkpoint contains no preflighted programs")
+    return {"programs": programs, "unique_program_codes": len(codes)}
+
+
+def _validate_loaded_checkpoint_database(
+    database: Any,
+    checkpoint_path: str | Path,
+) -> None:
+    """Ensure OpenEvolve did not silently skip a checkpoint Program."""
+
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict):
+        raise RuntimeError("loaded checkpoint program database is invalid")
+    expected: dict[str, str] = {}
+    programs_dir = Path(checkpoint_path) / "programs"
+    for path in sorted(programs_dir.glob("*.json")):
+        row = _read_json_object(path, "checkpoint program")
+        program_id = row.get("id")
+        code = row.get("code")
+        if (
+            not isinstance(program_id, str)
+            or not program_id
+            or program_id in expected
+            or not isinstance(code, str)
+            or not code
+        ):
+            raise RuntimeError(
+                f"checkpoint program identity is invalid: {path}"
+            )
+        expected[program_id] = code
+    if set(programs) != set(expected):
+        raise RuntimeError(
+            "OpenEvolve did not load the exact checkpoint program set"
+        )
+    for program_id, code in expected.items():
+        if getattr(programs[program_id], "code", None) != code:
+            raise RuntimeError(
+                f"OpenEvolve changed checkpoint program code: {program_id}"
+            )
+
+
+def _winner_preflight_wall_timeout(configured_timeout: float) -> float:
+    if (
+        isinstance(configured_timeout, bool)
+        or not isinstance(configured_timeout, (int, float))
+        or not math.isfinite(float(configured_timeout))
+        or configured_timeout <= 60
+    ):
+        raise RuntimeError(
+            "evaluator timeout leaves no winner-preflight wall margin"
+        )
+    return min(1050.0, float(configured_timeout) - 60.0)
+
+
+def _terminate_private_worker_group(process: subprocess.Popen) -> None:
+    leader_reaped = False
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        process.wait()
+        return
+    try:
+        process.wait(timeout=5)
+        leader_reaped = True
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    if not leader_reaped:
+        process.wait()
+
+
+def _preflight_stderr_tail(path: Path, limit: int = 8192) -> str:
+    try:
+        return path.read_bytes()[-limit:].decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def _execute_winner_preflight(
+    evaluator_path: str | Path,
+    code: str,
+    *,
+    expected_contract_id: int,
+    wall_timeout: float,
+    cancel_event: threading.Event,
+) -> dict[str, float]:
+    """Evaluate one unique checkpoint program in a killable process group."""
+
+    with tempfile.TemporaryDirectory(prefix="qcode-checkpoint-preflight-") as root:
+        temp_root = Path(root)
+        program_path = temp_root / "program.py"
+        result_path = temp_root / "result.json"
+        stdout_path = temp_root / "stdout.log"
+        stderr_path = temp_root / "stderr.log"
+        program_path.write_text(code)
+        lifecycle_read_fd, lifecycle_write_fd = os.pipe()
+        command = [
+            sys.executable,
+            str(Path(evaluator_path).resolve()),
+            "--preflight-worker",
+            str(program_path.resolve()),
+            str(result_path.resolve()),
+            str(os.getpid()),
+            str(lifecycle_read_fd),
+        ]
+        environment = os.environ.copy()
+        environment[WINNER_PREFLIGHT_CONTRACT_ID_ENV] = str(
+            expected_contract_id
+        )
+        environment.pop("QCODE_WINNER_PREFLIGHT_REUSE", None)
+        for variable in WINNER_PREFLIGHT_NUMERIC_THREAD_ENV:
+            environment[variable] = "1"
+        try:
+            with stdout_path.open("wb") as stdout, stderr_path.open(
+                "wb"
+            ) as stderr:
+                try:
+                    process = subprocess.Popen(
+                        command,
+                        stdin=subprocess.DEVNULL,
+                        stdout=stdout,
+                        stderr=stderr,
+                        close_fds=True,
+                        env=environment,
+                        pass_fds=(lifecycle_read_fd,),
+                        start_new_session=True,
+                    )
+                finally:
+                    os.close(lifecycle_read_fd)
+                deadline = time.monotonic() + wall_timeout
+                try:
+                    while True:
+                        if cancel_event.is_set():
+                            _terminate_private_worker_group(process)
+                            raise RuntimeError(
+                                "winner preflight cancelled after peer failure"
+                            )
+                        remaining = deadline - time.monotonic()
+                        if remaining <= 0:
+                            _terminate_private_worker_group(process)
+                            raise RuntimeError(
+                                "winner preflight exceeded its killable wall "
+                                "timeout"
+                            )
+                        try:
+                            return_code = process.wait(
+                                timeout=min(0.25, remaining)
+                            )
+                            break
+                        except subprocess.TimeoutExpired:
+                            continue
+                except BaseException:
+                    if process.poll() is None:
+                        _terminate_private_worker_group(process)
+                    raise
+        finally:
+            os.close(lifecycle_write_fd)
+
+        if return_code != 0:
+            tail = _preflight_stderr_tail(stderr_path)
+            suffix = f": {tail}" if tail else ""
+            raise RuntimeError(
+                f"winner preflight subprocess exited with status "
+                f"{return_code}{suffix}"
+            )
+        try:
+            payload = json.loads(result_path.read_text())
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                "winner preflight result is unreadable"
+            ) from exc
+        if (
+            not isinstance(payload, dict)
+            or set(payload) != {"schema_version", "status", "metrics"}
+            or payload.get("schema_version") != 1
+            or payload.get("status") != "completed"
+            or not isinstance(payload.get("metrics"), dict)
+            or set(payload["metrics"]) != set(_WINNER_PREFLIGHT_MARKER_FIELDS)
+        ):
+            raise RuntimeError("winner preflight result schema is invalid")
+        return _validated_winner_preflight_markers(
+            payload["metrics"],
+            expected_contract_id=expected_contract_id,
+        )
+
+
+def _backfill_checkpoint_programs(
+    database: Any,
+    *,
+    evaluator_path: str | Path,
+    expected_contract_id: int,
+    max_workers: int,
+    wall_timeout: float,
+) -> dict[str, Any]:
+    """Preflight every unique old checkpoint program before evolution resumes."""
+
+    if (
+        isinstance(max_workers, bool)
+        or not isinstance(max_workers, int)
+        or max_workers < 1
+    ):
+        raise RuntimeError("winner preflight worker cap must be positive")
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("loaded checkpoint contains no program database")
+
+    groups: dict[tuple[str, str], list[Any]] = {}
+    for program_id in sorted(programs):
+        program = programs[program_id]
+        code = getattr(program, "code", None)
+        metrics = getattr(program, "metrics", None)
+        if not isinstance(code, str) or not code:
+            raise RuntimeError(
+                f"loaded checkpoint program has invalid code: {program_id}"
+            )
+        if not isinstance(metrics, dict):
+            raise RuntimeError(
+                f"loaded checkpoint program has invalid metrics: {program_id}"
+            )
+        digest = hashlib.sha256(code.encode("utf-8")).hexdigest()
+        groups.setdefault((digest, code), []).append(program)
+
+    pending: list[tuple[tuple[str, str], list[Any]]] = []
+    already_complete = 0
+    for key, group in sorted(groups.items(), key=lambda item: item[0][0]):
+        complete = True
+        for program in group:
+            try:
+                _validated_winner_preflight_markers(
+                    program.metrics,
+                    expected_contract_id=expected_contract_id,
+                )
+            except RuntimeError:
+                complete = False
+                break
+        if complete:
+            already_complete += len(group)
+        else:
+            pending.append((key, group))
+
+    results: dict[tuple[str, str], dict[str, float]] = {}
+    cancel_event = threading.Event()
+    if pending:
+        executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(max_workers, len(pending)),
+            thread_name_prefix="checkpoint-preflight",
+        )
+        futures = {
+            executor.submit(
+                _execute_winner_preflight,
+                evaluator_path,
+                key[1],
+                expected_contract_id=expected_contract_id,
+                wall_timeout=wall_timeout,
+                cancel_event=cancel_event,
+            ): key
+            for key, _group in pending
+        }
+        try:
+            for future in concurrent.futures.as_completed(futures):
+                results[futures[future]] = future.result()
+        except BaseException:
+            cancel_event.set()
+            for future in futures:
+                future.cancel()
+            executor.shutdown(wait=True, cancel_futures=True)
+            raise
+        else:
+            executor.shutdown(wait=True)
+
+    # Mutate only after every missing unique source completed.  A failure
+    # leaves the loaded in-memory DB untouched; the immutable base checkpoint
+    # is never opened for writing in either case.
+    updated = 0
+    for key, group in pending:
+        markers = results[key]
+        for program in group:
+            metrics = dict(program.metrics)
+            metrics.update(markers)
+            program.metrics = metrics
+            updated += 1
+
+    for program in programs.values():
+        _validated_winner_preflight_markers(
+            program.metrics,
+            expected_contract_id=expected_contract_id,
+        )
+    return {
+        "schema_version": 1,
+        "status": "completed",
+        "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
+        "contract_id": expected_contract_id,
+        "programs": len(programs),
+        "unique_program_codes": len(groups),
+        "programs_already_complete": already_complete,
+        "unique_program_codes_evaluated": len(pending),
+        "programs_updated": updated,
+        "worker_cap": min(max_workers, max(1, len(pending))),
     }
 
 
@@ -515,8 +1057,7 @@ class _ObservedFuture:
         except BaseException as exc:
             self._observer.record_future_exception(self._iteration, exc)
             raise
-        self._observer.record_future_result(self._iteration, result)
-        return result
+        return self._observer.record_future_result(self._iteration, result)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._raw, name)
@@ -527,6 +1068,8 @@ class _SliceObserver:
     base_iteration: int
     iterations: int
     result_type: type
+    expected_preflight_contract_id: int | None = None
+    checkpoint_preflight_required: bool = False
     run_calls: int = 0
     shutdown_requested: bool = False
     submission_attempts: list[dict[str, Any]] = field(default_factory=list)
@@ -539,6 +1082,7 @@ class _SliceObserver:
     accounting_complete: bool = False
     checkpoint_saves: list[dict[str, Any]] = field(default_factory=list)
     checkpoint_controller: Any = None
+    checkpoint_preflight_report: dict[str, Any] | None = None
 
     @property
     def start_iteration(self) -> int:
@@ -587,13 +1131,22 @@ class _SliceObserver:
             f"future {iteration} raised {type(exc).__name__}"
         )
 
-    def record_future_result(self, iteration: int, result: Any) -> None:
+    def _record_worker_error(self, iteration: int, error: str) -> None:
+        encoded = error.encode("utf-8")
+        self.outcomes[iteration] = {
+            "iteration": iteration,
+            "status": "worker_error",
+            "error_sha256": hashlib.sha256(encoded).hexdigest(),
+            "error_bytes": len(encoded),
+        }
+
+    def record_future_result(self, iteration: int, result: Any) -> Any:
         self.consumed[iteration] = self.consumed.get(iteration, 0) + 1
         if not isinstance(result, self.result_type):
             self.violations.append(
                 f"future {iteration} returned a non-SerializableResult"
             )
-            return
+            return result
         result_iteration = getattr(result, "iteration", None)
         if (
             isinstance(result_iteration, bool)
@@ -601,7 +1154,7 @@ class _SliceObserver:
             or result_iteration != iteration
         ):
             self.violations.append(f"future {iteration} returned a mismatched iteration")
-            return
+            return result
         error = getattr(result, "error", None)
         child = getattr(result, "child_program_dict", None)
         if error is not None:
@@ -609,22 +1162,16 @@ class _SliceObserver:
                 self.violations.append(
                     f"future {iteration} returned an invalid worker error"
                 )
-                return
-            encoded = error.encode("utf-8")
-            self.outcomes[iteration] = {
-                "iteration": iteration,
-                "status": "worker_error",
-                "error_sha256": hashlib.sha256(encoded).hexdigest(),
-                "error_bytes": len(encoded),
-            }
-            return
+                return result
+            self._record_worker_error(iteration, error)
+            return result
         if not isinstance(child, dict):
             self.violations.append(f"future {iteration} returned neither error nor child")
-            return
+            return result
         program_id = child.get("id")
         if not isinstance(program_id, str) or not program_id:
             self.violations.append(f"future {iteration} returned an invalid child id")
-            return
+            return result
         child_iteration = child.get("iteration_found")
         if (
             isinstance(child_iteration, bool)
@@ -634,7 +1181,7 @@ class _SliceObserver:
             self.violations.append(
                 f"future {iteration} returned a child with mismatched iteration"
             )
-            return
+            return result
         if any(
             expected["id"] == program_id
             for expected in self.expected_programs.values()
@@ -642,7 +1189,7 @@ class _SliceObserver:
             self.violations.append(
                 f"future {iteration} reused child program id {program_id}"
             )
-            return
+            return result
         try:
             encoded_child = json.dumps(
                 child,
@@ -655,12 +1202,51 @@ class _SliceObserver:
                 f"future {iteration} returned invalid child content: "
                 f"{type(exc).__name__}"
             )
-            return
+            return result
+        if self.expected_preflight_contract_id is not None:
+            incomplete = _exact_incomplete_winner_preflight_markers(
+                child.get("metrics"),
+                expected_contract_id=self.expected_preflight_contract_id,
+            )
+            if incomplete is not None:
+                source_error = str(child["metrics"]["error"]).encode("utf-8")
+                failure = {
+                    "child_program_bytes": len(encoded_child),
+                    "child_program_sha256": hashlib.sha256(
+                        encoded_child
+                    ).hexdigest(),
+                    "failure_error_bytes": len(source_error),
+                    "failure_error_sha256": hashlib.sha256(
+                        source_error
+                    ).hexdigest(),
+                    "hard_timeout": int(
+                        incomplete[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC]
+                    ),
+                    "iteration": iteration,
+                    "kind": "winner_preflight_incomplete",
+                    "preflight_contract_id":
+                        self.expected_preflight_contract_id,
+                    "program_id": program_id,
+                }
+                canonical_error = json.dumps(
+                    failure,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+                sanitized = self.result_type(
+                    child_program_dict=None,
+                    iteration=iteration,
+                    error=canonical_error,
+                )
+                self._record_worker_error(iteration, canonical_error)
+                return sanitized
         self.expected_programs[iteration] = {
             "id": program_id,
             "sha256": hashlib.sha256(encoded_child).hexdigest(),
             "bytes": len(encoded_child),
         }
+        return result
 
     def record_program_add(self, iteration: Any, program: Any) -> None:
         if (
@@ -692,6 +1278,18 @@ class _SliceObserver:
                 f"database add for iteration {iteration} stored a mismatched iteration"
             )
             return
+        if self.expected_preflight_contract_id is not None:
+            try:
+                _validated_winner_preflight_markers(
+                    getattr(program, "metrics", None),
+                    expected_contract_id=self.expected_preflight_contract_id,
+                )
+            except RuntimeError as exc:
+                self.violations.append(
+                    f"database add for iteration {iteration} has incomplete "
+                    f"winner preflight: {exc}"
+                )
+                return
         to_dict = getattr(program, "to_dict", None)
         value = to_dict() if callable(to_dict) else vars(program)
         if not isinstance(value, dict):
@@ -729,6 +1327,30 @@ class _SliceObserver:
             "program_sha256": observed_sha256,
             "program_bytes": len(encoded),
         }
+
+    def record_checkpoint_preflight(
+        self,
+        report: dict[str, Any],
+    ) -> None:
+        if self.checkpoint_preflight_report is not None:
+            self.violations.append(
+                "checkpoint winner preflight was recorded more than once"
+            )
+            return
+        if (
+            not isinstance(report, dict)
+            or report.get("schema_version") != 1
+            or report.get("status") != "completed"
+            or report.get("contract_version")
+            != WINNER_PREFLIGHT_CONTRACT_VERSION
+            or report.get("contract_id")
+            != self.expected_preflight_contract_id
+        ):
+            self.violations.append(
+                "checkpoint winner preflight report is invalid"
+            )
+            return
+        self.checkpoint_preflight_report = dict(report)
 
     def record_auxiliary_program_add(
         self,
@@ -837,9 +1459,22 @@ class _SliceObserver:
             outcome.get("status") == "program_added"
             for outcome in self.outcomes.values()
         )
+        # A worker_error has no checkpoint Program.  It covers both an LLM/diff
+        # failure that never produced a child and the exact evaluator-generated
+        # incomplete-preflight envelope sanitized before database.add.  Neither
+        # outcome claims that a candidate universe was enumerated completely.
+        # Malformed/forged marker claims and future exceptions remain
+        # violations.
         if successful < 1:
             self.violations.append(
                 "the OpenEvolve slice produced no successful evaluations"
+            )
+        if (
+            self.checkpoint_preflight_required
+            and self.checkpoint_preflight_report is None
+        ):
+            self.violations.append(
+                "checkpoint winner preflight did not complete"
             )
         for iteration, expected in self.expected_programs.items():
             program_id = expected["id"]
@@ -922,6 +1557,9 @@ def _openevolve_source_binding() -> tuple[dict[str, dict[str, Any]], Any, Any]:
 def _verified_slice_controller(
     base_iteration: int,
     iterations: int,
+    *,
+    expected_preflight_contract_id: int | None = None,
+    checkpoint_preflight_required: bool = False,
 ):
     if isinstance(iterations, bool) or not isinstance(iterations, int) or iterations < 1:
         raise RuntimeError("managed slice iterations must be positive")
@@ -930,6 +1568,8 @@ def _verified_slice_controller(
         base_iteration=base_iteration,
         iterations=iterations,
         result_type=process_module.SerializableResult,
+        expected_preflight_contract_id=expected_preflight_contract_id,
+        checkpoint_preflight_required=checkpoint_preflight_required,
     )
     original_parallel = controller_module.ProcessParallelController
     original_save = controller_module.OpenEvolve._save_checkpoint
@@ -1309,6 +1949,18 @@ def _write_slice_witness(
         resolved_output / "checkpoints" / f"checkpoint_{observer.end_iteration}",
         expected_iteration=observer.end_iteration,
     )
+    if observer.expected_preflight_contract_id is not None:
+        _checkpoint_preflight_summary(
+            result_checkpoint["path"],
+            expected_contract_id=observer.expected_preflight_contract_id,
+        )
+    if (
+        observer.checkpoint_preflight_required
+        and observer.checkpoint_preflight_report is None
+    ):
+        raise RuntimeError(
+            "checkpoint winner preflight did not complete before witness"
+        )
     if not any(
         save["iteration"] == observer.end_iteration
         and save["accounting_complete"] is True
@@ -1697,7 +2349,8 @@ def _run_fresh(config, output_dir: str, iterations: int,
 
 
 def _run_resume(config, output_dir: str, iterations: int, checkpoint_path: str,
-                seed: str = SEED_SOLUTION, evaluator: str = EVALUATOR):
+                seed: str = SEED_SOLUTION, evaluator: str = EVALUATOR,
+                checkpoint_preflight: Any = None):
     """Resume evolution from a checkpoint using the controller directly.
 
     The high-level run_evolution() API doesn't expose checkpoint_path,
@@ -1705,8 +2358,18 @@ def _run_resume(config, output_dir: str, iterations: int, checkpoint_path: str,
     """
     from openevolve.controller import OpenEvolve
 
+    if checkpoint_preflight is None:
+        controller_type = OpenEvolve
+    else:
+        class PreflightedResumeOpenEvolve(OpenEvolve):
+            def _load_checkpoint(self, path: str) -> None:
+                super()._load_checkpoint(path)
+                checkpoint_preflight(self.database)
+
+        controller_type = PreflightedResumeOpenEvolve
+
     os.makedirs(output_dir, exist_ok=True)
-    controller = OpenEvolve(
+    controller = controller_type(
         initial_program_path=seed,
         evaluation_file=evaluator,
         config=config,
@@ -1962,6 +2625,7 @@ def main():
     context_identity: dict[str, Any] | None = None
     dependency_identities: dict[str, dict[str, Any]] | None = None
     codex_executable_identity: dict[str, Any] | None = None
+    preflight_contract_id: int | None = None
     try:
         context_text: str | None = None
         if managed_requested:
@@ -1994,6 +2658,15 @@ def main():
         os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] = str(
             float(evaluator_timeout)
         )
+        if managed_requested and not args.noncss:
+            assert dependency_identities is not None
+            preflight_contract_id = _winner_preflight_contract_id(
+                EVALUATOR_ACTIVE,
+                dependency_identities,
+            )
+            os.environ[WINNER_PREFLIGHT_CONTRACT_ID_ENV] = str(
+                preflight_contract_id
+            )
         if args.codex_cli:
             from evolve.codex_cli_llm import make_codex_cli_client
             for model_config in config.llm.models + config.llm.evaluator_models:
@@ -2046,7 +2719,13 @@ def main():
         if managed_requested:
             base_iteration = _checkpoint_last_iteration(args.resume)
             slice_context = _verified_slice_controller(
-                base_iteration, args.iterations
+                base_iteration,
+                args.iterations,
+                expected_preflight_contract_id=preflight_contract_id,
+                checkpoint_preflight_required=(
+                    args.resume is not None
+                    and preflight_contract_id is not None
+                ),
             )
         else:
             slice_context = nullcontext((None, None))
@@ -2058,9 +2737,30 @@ def main():
             print()
 
             if args.resume:
+                checkpoint_preflight = None
+                if preflight_contract_id is not None:
+                    assert observer is not None
+
+                    def checkpoint_preflight(database: Any) -> None:
+                        _validate_loaded_checkpoint_database(
+                            database,
+                            args.resume,
+                        )
+                        report = _backfill_checkpoint_programs(
+                            database,
+                            evaluator_path=EVALUATOR_ACTIVE,
+                            expected_contract_id=preflight_contract_id,
+                            max_workers=config.evaluator.parallel_evaluations,
+                            wall_timeout=_winner_preflight_wall_timeout(
+                                evaluator_timeout
+                            ),
+                        )
+                        observer.record_checkpoint_preflight(report)
+
                 best_program = _run_resume(
                     config, output_dir, args.iterations, args.resume,
                     seed=seed_path, evaluator=EVALUATOR_ACTIVE,
+                    checkpoint_preflight=checkpoint_preflight,
                 )
                 print(f"\nEvolution complete!")
                 if best_program:

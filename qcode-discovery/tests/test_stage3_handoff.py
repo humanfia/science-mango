@@ -78,6 +78,18 @@ def _bounded(spec, position: int, max_weight: int = 6) -> dict:
     }
 
 
+def test_stage3_jsonl_reader_rejects_invalid_unterminated_tail(tmp_path):
+    path = tmp_path / "stage2-ranked.jsonl"
+    row = {"canonical_digest": "complete"}
+    path.write_text(json.dumps(row) + "\n" + '{"partial":')
+
+    with pytest.raises(ValueError, match="invalid JSON"):
+        direction_pool.read_ranked_jsonl(path)
+
+    path.write_text(json.dumps(row))
+    assert direction_pool.read_ranked_jsonl(path) == [row]
+
+
 def test_stage3_artifact_is_safe_direct_stage4_input(tmp_path):
     candidate = _candidate()
     code = build_candidate_code(candidate)

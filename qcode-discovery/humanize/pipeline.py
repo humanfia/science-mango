@@ -43,6 +43,18 @@ from evaluation.proof_runtime import (
     proof_runtime_fingerprint,
     validate_proof_runtime_fingerprint,
 )
+from evaluation.selection_ledger import (
+    SELECTION_LEDGER_GATE as SHARED_SELECTION_LEDGER_GATE,
+    SELECTION_LEDGER_SCHEMA_VERSION as SHARED_SELECTION_LEDGER_SCHEMA_VERSION,
+    acknowledge_selection_page,
+    canonical_sha256 as selection_canonical_sha256,
+    is_sha256 as is_selection_sha256,
+    new_selection_ledger,
+    seal_selection_ledger,
+    validate_scan_evidence,
+    validate_selection_ledger,
+    validate_selection_page,
+)
 
 from .flow import (
     FlowConfig,
@@ -58,8 +70,10 @@ from .state import RunStore
 
 PIPELINE_SCHEMA_VERSION = 1
 REVIEW_PROMPT_VERSION = 1
-STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = 1
-STAGE2_SELECTION_LEDGER_GATE = "qldpc-stage2-selection-ledger"
+STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = (
+    SHARED_SELECTION_LEDGER_SCHEMA_VERSION
+)
+STAGE2_SELECTION_LEDGER_GATE = SHARED_SELECTION_LEDGER_GATE
 PROOF_RETRY_CONTROLLER_SCHEMA_VERSION = 1
 PROOF_RETRY_CONTROLLER_GATE = "qldpc-proof-retry-controller"
 STAGE2_DEFERRED_PAGE_SCHEMA_VERSION = 1
@@ -70,6 +84,7 @@ RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
 STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
     {
         "STAGE2_CANONICALIZATION_ERRORS",
+        "STAGE2_EMPTY_CANDIDATE_POOL",
         "STAGE2_MALFORMED_RECORDS",
         "STAGE2_UNSUPPORTED_CANDIDATES_SKIPPED",
     }
@@ -3145,13 +3160,26 @@ class FiveStagePipeline:
                     f"{path}.selection_page must be an object",
                 )
             binding = selection_page.get("binding_sha256")
+            snapshot_identity = selection_page.get(
+                "snapshot_identity_sha256"
+            )
+            page_sequence = selection_page.get("page_sequence")
+            previous_ack_sha256 = selection_page.get(
+                "previous_ack_sha256"
+            )
             start_index = selection_page.get("start_index")
             next_index = selection_page.get("next_index")
             page_digests = selection_page.get("selected_digests")
+            scan_evidence = selection_page.get("scan_evidence")
             page_sha256 = selection_page.get("page_sha256")
             if (
                 not isinstance(binding, str)
                 or not re.fullmatch(r"[0-9a-f]{64}", binding)
+                or not is_selection_sha256(snapshot_identity)
+                or isinstance(page_sequence, bool)
+                or not isinstance(page_sequence, int)
+                or page_sequence < 0
+                or not is_selection_sha256(previous_ack_sha256)
                 or isinstance(start_index, bool)
                 or not isinstance(start_index, int)
                 or start_index < 0
@@ -3169,17 +3197,45 @@ class FiveStagePipeline:
                     str(result["canonical_digest"])
                     for result in results
                 ]
+                or not isinstance(scan_evidence, Mapping)
             ):
                 raise PipelineError(
                     "OUTPUT_INVALID",
                     f"{path}.selection_page is malformed",
                 )
-            expected_page_sha256 = _audit_json_sha256({
-                "binding_sha256": binding,
-                "start_index": start_index,
-                "next_index": next_index,
-                "selected_digests": page_digests,
-            })
+            try:
+                validate_scan_evidence(
+                    scan_evidence,
+                    snapshot_identity_sha256_value=snapshot_identity,
+                    snapshot_rows=scan_evidence.get("snapshot_rows"),
+                    eligible_rows=scan_evidence.get("eligible_rows"),
+                    start_index=start_index,
+                    next_index=next_index,
+                    selection_exhausted=selection_exhausted,
+                )
+            except (TypeError, ValueError) as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.selection_page scan evidence is invalid",
+                ) from exc
+            zero_pool_root = bool(
+                page_sequence == 0
+                and start_index == 0
+                and next_index == 0
+                and scan_evidence.get("eligible_rows") == 0
+                and selection_exhausted
+            )
+            if not page_digests and not (
+                (next_index > start_index and selection_exhausted)
+                or zero_pool_root
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.selection_page has no trusted scan progress",
+                )
+            unsigned_page = dict(selection_page)
+            unsigned_page.pop("page_sha256", None)
+            expected_page_sha256 = _audit_json_sha256(unsigned_page)
             if page_sha256 != expected_page_sha256:
                 raise PipelineError(
                     "OUTPUT_INVALID",
@@ -3236,6 +3292,58 @@ class FiveStagePipeline:
                 ),
                 exit_code=2,
             )
+        return summary
+
+    def _validate_stage2_selection_lifecycle(
+        self,
+        summary: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Bind every Stage 2 result to the sealed pending ledger page."""
+
+        page = summary.get("selection_page")
+        if page is None:
+            # Legacy unpaginated artifacts remain readable, but never provide
+            # cursor evidence for automatic acknowledgement.
+            return summary
+        if (
+            not isinstance(page, Mapping)
+            or not self.paths.stage2_selection_ledger.is_file()
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection page lacks its durable ledger",
+                stage="stage2_sector_audit",
+            )
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
+        if ledger.get("pending") != dict(page):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 summary is not the ledger's pending page",
+                stage="stage2_sector_audit",
+            )
+        try:
+            validate_selection_page(
+                page,
+                binding_sha256=ledger["binding_sha256"],
+                snapshot_identity_sha256_value=ledger[
+                    "snapshot_identity_sha256"
+                ],
+                snapshot_rows=ledger["snapshot_rows"],
+                eligible_rows=ledger["eligible_rows"],
+                page_sequence=ledger["completed_pages"],
+                previous_ack_sha256=ledger["last_ack_sha256"],
+                cursor=ledger["cursor"],
+                committed_digests=set(ledger["committed_digests"]),
+                selection_exhausted=summary.get("selection_exhausted"),
+            )
+        except (TypeError, ValueError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 pending page does not replay against its ack chain",
+                stage="stage2_sector_audit",
+            ) from exc
         return summary
 
     @staticmethod
@@ -3323,6 +3431,26 @@ class FiveStagePipeline:
                 "stage2_sector_audit",
                 "Stage 2 candidate selection was truncated before exhaustion",
                 code="STAGE2_SELECTION_TRUNCATED",
+            )
+        stage2_page = stage2.get("selection_page")
+        stage2_scan = (
+            stage2_page.get("scan_evidence")
+            if isinstance(stage2_page, Mapping)
+            else None
+        )
+        if (
+            isinstance(stage2_scan, Mapping)
+            and stage2_scan.get("snapshot_rows") == 0
+            and stage2_scan.get("eligible_rows") == 0
+            and stage2_page.get("start_index") == 0
+            and stage2_page.get("next_index") == 0
+            and stage2_page.get("selected_digests") == []
+            and stage2_scan.get("selection_exhausted") is True
+        ):
+            add(
+                "stage2_sector_audit",
+                "Stage 2 ranked candidate pool is empty",
+                code="STAGE2_EMPTY_CANDIDATE_POOL",
             )
         for field, description in (
             (
@@ -3424,6 +3552,13 @@ class FiveStagePipeline:
                     digest,
                     code="STAGE2_OPERATIONAL_ERROR",
                 )
+            elif status == "UNSUPPORTED":
+                add(
+                    "stage2_sector_audit",
+                    "Stage 2 candidate has no supported exhaustive audit",
+                    digest,
+                    code="STAGE2_UNSUPPORTED_RESULT",
+                )
 
         for result in stage3.get("results", []):
             if not isinstance(result, Mapping):
@@ -3442,6 +3577,13 @@ class FiveStagePipeline:
                     "Stage 3 candidate audit ended in an operational error",
                     digest,
                     code="STAGE3_OPERATIONAL_ERROR",
+                )
+            elif result.get("status") == "UNSUPPORTED":
+                add(
+                    "stage3_direction_audit",
+                    "Stage 3 candidate has no supported exhaustive audit",
+                    digest,
+                    code="STAGE3_UNSUPPORTED_RESULT",
                 )
             elif (
                 result.get("status") in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}
@@ -3544,6 +3686,22 @@ class FiveStagePipeline:
                 for reason in reasons
                 if isinstance(reason, Mapping) and reason.get("stage") == stage
             ]
+            if (
+                stage == "stage2_sector_audit"
+                and stage_reasons
+                and all(
+                    reason.get("code")
+                    in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+                    for reason in stage_reasons
+                )
+            ):
+                # A terminal input diagnostic is durable evidence, not a
+                # retryable solver result.  Keep the Stage 2 machine cache
+                # reusable so an unchanged resume validates and reuses the
+                # same sealed pending page.  Any command, source, input, or
+                # ledger-prestate change still invalidates that cache through
+                # the normal _execute_stage checks.
+                continue
             record["status"] = "INCOMPLETE"
             record["machine_status"] = "INCOMPLETE"
             record["incomplete_at"] = utc_now()
@@ -3556,12 +3714,36 @@ class FiveStagePipeline:
         unsigned.pop("entry_sha256", None)
         return _canonical_sha256(unsigned)
 
+    @staticmethod
+    def _validated_stage2_selection_ledger(
+        ledger: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Replay the complete cursor/ack chain and progress seal."""
+
+        try:
+            return validate_selection_ledger(
+                ledger,
+                binding_sha256=str(ledger.get("binding_sha256")),
+                snapshot_identity_sha256_value=str(
+                    ledger.get("snapshot_identity_sha256")
+                ),
+                snapshot_rows=ledger.get("snapshot_rows"),  # type: ignore[arg-type]
+                eligible_rows=ledger.get("eligible_rows"),  # type: ignore[arg-type]
+            )
+        except (TypeError, ValueError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection ledger progress seal does not replay",
+                stage="stage2_sector_audit",
+            ) from exc
+
     def _validate_deferred_stage2_pages(
         self,
         ledger: Mapping[str, Any],
     ) -> list[dict[str, Any]]:
         """Replay every parked page and its immutable evidence manifest."""
 
+        ledger = self._validated_stage2_selection_ledger(ledger)
         raw_pages = ledger.get("deferred_pages", [])
         if not isinstance(raw_pages, list):
             raise PipelineError(
@@ -3594,6 +3776,15 @@ class FiveStagePipeline:
                 stage="stage2_sector_audit",
             )
         committed_set = set(committed)
+        deferred_ack_pages = {
+            str(ack.get("page_sha256")): dict(ack.get("page"))
+            for ack in ledger["ack_chain"]
+            if (
+                isinstance(ack, Mapping)
+                and ack.get("disposition") == "DEFERRED"
+                and isinstance(ack.get("page"), Mapping)
+            )
+        }
         pages: list[dict[str, Any]] = []
         seen_pages: set[str] = set()
         seen_digests: set[str] = set()
@@ -3635,16 +3826,10 @@ class FiveStagePipeline:
                     "Stage 2 deferred page entry does not replay",
                     stage="stage2_sector_audit",
                 )
-            page_payload = {
-                "binding_sha256": page.get("binding_sha256"),
-                "start_index": page.get("start_index"),
-                "next_index": page.get("next_index"),
-                "selected_digests": selected,
-            }
-            start_index = page_payload["start_index"]
-            next_index = page_payload["next_index"]
+            start_index = page.get("start_index")
+            next_index = page.get("next_index")
             if (
-                page_payload["binding_sha256"] != binding_sha256
+                page.get("binding_sha256") != binding_sha256
                 or isinstance(start_index, bool)
                 or not isinstance(start_index, int)
                 or start_index < 0
@@ -3653,7 +3838,7 @@ class FiveStagePipeline:
                 or next_index <= start_index
                 or next_index > cursor
                 or start_index <= previous_start_index
-                or page_sha256 != _audit_json_sha256(page_payload)
+                or deferred_ack_pages.get(page_sha256) != dict(page)
                 or page_sha256 in seen_pages
                 or seen_digests.intersection(selected)
                 or not set(selected).issubset(committed_set)
@@ -4017,12 +4202,11 @@ class FiveStagePipeline:
             )
         )
         self._ensure_solver_state_tree_safe()
-        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
         if (
-            ledger.get("schema_version")
-            != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
-            or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
-            or ledger.get("binding_sha256") != page.get("binding_sha256")
+            ledger.get("binding_sha256") != page.get("binding_sha256")
             or ledger.get("pending") != dict(page)
             or ledger.get("cursor") != page.get("start_index")
         ):
@@ -4031,12 +4215,33 @@ class FiveStagePipeline:
                 "Stage 2 capped page does not match its selection ledger",
                 stage="stage2_sector_audit",
             )
-        existing_deferred = self._validate_deferred_stage2_pages(ledger)
+        self._validate_deferred_stage2_pages(ledger)
         selected_digests = page.get("selected_digests")
         start_index = page.get("start_index")
         next_index = page.get("next_index")
         committed = ledger.get("committed_digests")
         completed_pages = ledger.get("completed_pages")
+        try:
+            validate_selection_page(
+                page,
+                binding_sha256=ledger["binding_sha256"],
+                snapshot_identity_sha256_value=ledger[
+                    "snapshot_identity_sha256"
+                ],
+                snapshot_rows=ledger["snapshot_rows"],
+                eligible_rows=ledger["eligible_rows"],
+                page_sequence=ledger["completed_pages"],
+                previous_ack_sha256=ledger["last_ack_sha256"],
+                cursor=ledger["cursor"],
+                committed_digests=set(ledger["committed_digests"]),
+                selection_exhausted=selection_exhausted,
+            )
+        except (TypeError, ValueError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "capped Stage 2 page scan evidence does not replay",
+                stage="stage2_sector_audit",
+            ) from exc
         if (
             not isinstance(selected_digests, list)
             or not selected_digests
@@ -4078,14 +4283,22 @@ class FiveStagePipeline:
             **entry_payload,
             "entry_sha256": _canonical_sha256(entry_payload),
         }
-        updated = dict(ledger)
-        updated["cursor"] = next_index
-        updated["committed_digests"] = [*committed, *selected_digests]
-        updated["completed_pages"] = completed_pages + 1
-        updated["pending"] = None
-        updated["deferred_pages"] = [*existing_deferred, entry]
+        try:
+            updated = acknowledge_selection_page(
+                ledger,
+                page,
+                disposition="DEFERRED",
+                deferred_entry=entry,
+            )
+        except (TypeError, ValueError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 deferred acknowledgement chain rejected its page",
+                stage="stage2_sector_audit",
+            ) from exc
         updated["last_acknowledged_page_sha256"] = page["page_sha256"]
         updated["last_acknowledged_at"] = utc_now()
+        updated = seal_selection_ledger(updated)
         # This is the transaction boundary: cursor movement and durable
         # deferred evidence become visible in the same atomic replacement.
         atomic_write_json(self.paths.stage2_selection_ledger, updated)
@@ -4228,8 +4441,8 @@ class FiveStagePipeline:
         if len(codes) != len(reasons):
             return False
         if selection_exhausted:
-            # The terminal page may be acknowledged when only durable,
-            # campaign-wide diagnostics keep the final result incomplete.
+            # Terminal diagnostic pages remain pending. Their page/scan seal
+            # is the replay anchor on later resumes.
             if not codes or any(code not in carry_codes for code in codes):
                 return False
         elif (
@@ -4242,12 +4455,11 @@ class FiveStagePipeline:
         ):
             return False
         self._ensure_solver_state_tree_safe()
-        ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
         if (
-            ledger.get("schema_version")
-            != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
-            or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
-            or ledger.get("binding_sha256") != page.get("binding_sha256")
+            ledger.get("binding_sha256") != page.get("binding_sha256")
             or ledger.get("pending") != dict(page)
             or ledger.get("cursor") != page.get("start_index")
         ):
@@ -4262,6 +4474,27 @@ class FiveStagePipeline:
         selected_digests = page.get("selected_digests")
         committed = ledger.get("committed_digests")
         completed_pages = ledger.get("completed_pages")
+        try:
+            validate_selection_page(
+                page,
+                binding_sha256=ledger["binding_sha256"],
+                snapshot_identity_sha256_value=ledger[
+                    "snapshot_identity_sha256"
+                ],
+                snapshot_rows=ledger["snapshot_rows"],
+                eligible_rows=ledger["eligible_rows"],
+                page_sequence=ledger["completed_pages"],
+                previous_ack_sha256=ledger["last_ack_sha256"],
+                cursor=ledger["cursor"],
+                committed_digests=set(ledger["committed_digests"]),
+                selection_exhausted=selection_exhausted,
+            )
+        except (TypeError, ValueError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 pending page scan evidence does not replay",
+                stage="stage2_sector_audit",
+            ) from exc
         if (
             isinstance(start_index, bool)
             or not isinstance(start_index, int)
@@ -4283,7 +4516,16 @@ class FiveStagePipeline:
                 "Stage 2 pending page cannot advance its durable cursor",
                 stage="stage2_sector_audit",
             )
-        if next_index <= start_index or not selected_digests:
+        terminal_root = bool(
+            ledger["eligible_rows"] == 0
+            and start_index == 0
+            and next_index == 0
+            and selected_digests == []
+            and selection_exhausted
+        )
+        if (next_index <= start_index and not terminal_root) or (
+            not selected_digests and not selection_exhausted
+        ):
             self.state.setdefault("stage2_pagination", {}).update({
                 "no_progress": True,
                 "cursor": start_index,
@@ -4316,14 +4558,60 @@ class FiveStagePipeline:
             "pending_page_sha256": page["page_sha256"],
         })
         self._write_state()
+        if selection_exhausted:
+            stage2_record = self.state["stages"]["stage2_sector_audit"]
+            cached_config = stage2_record.get("stage_config")
+            cached_command = stage2_record.get("command")
+            if not isinstance(cached_config, Mapping) or not isinstance(
+                cached_command, list
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 terminal page lacks reusable cache provenance",
+                    stage="stage2_sector_audit",
+                )
+            # The CLI transaction installed this terminal pending page after
+            # _execute_stage captured its prestate. Rebase only that cache
+            # component to the now-stable sealed ledger. An unchanged resume
+            # can then validate/reuse the diagnostic, while ordinary source,
+            # command, candidate-input and output hashes still invalidate it.
+            rebased_config = dict(cached_config)
+            rebased_config["selection_ledger_prestate_sha256"] = (
+                self._stage2_selection_ledger_prestate_sha256()
+            )
+            stage2_record["stage_config"] = rebased_config
+            stage2_record["stage_fingerprint"] = (
+                self._stage_config_fingerprint(
+                    cached_command,
+                    rebased_config,
+                )
+            )
+            pagination.update({
+                "cursor": start_index,
+                "completed_pages": ledger["completed_pages"],
+                "selection_exhausted": True,
+                "last_page_sha256": page["page_sha256"],
+                "terminal_pending": True,
+                "last_advanced_at": utc_now(),
+            })
+            self._write_state()
+            return False
 
-        updated = dict(ledger)
-        updated["cursor"] = next_index
-        updated["committed_digests"] = [*committed, *selected_digests]
-        updated["completed_pages"] = completed_pages + 1
-        updated["pending"] = None
+        try:
+            updated = acknowledge_selection_page(
+                ledger,
+                page,
+                disposition="COMPLETED",
+            )
+        except (TypeError, ValueError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 acknowledgement chain rejected its pending page",
+                stage="stage2_sector_audit",
+            ) from exc
         updated["last_acknowledged_page_sha256"] = page["page_sha256"]
         updated["last_acknowledged_at"] = utc_now()
+        updated = seal_selection_ledger(updated)
         atomic_write_json(self.paths.stage2_selection_ledger, updated)
         self._ensure_solver_state_tree_safe()
 
@@ -4889,14 +5177,9 @@ class FiveStagePipeline:
                     stage="stage2_sector_audit",
                 )
             selected_digests = list(raw_digests)
-            page_payload = {
-                "binding_sha256": page.get("binding_sha256"),
-                "start_index": page.get("start_index"),
-                "next_index": page.get("next_index"),
-                "selected_digests": selected_digests,
-            }
-            page_sha256 = _canonical_sha256(page_payload)
-            if page.get("page_sha256") != page_sha256:
+            unsigned_page = dict(page)
+            page_sha256 = unsigned_page.pop("page_sha256", None)
+            if page_sha256 != _canonical_sha256(unsigned_page):
                 raise PipelineError(
                     "OUTPUT_INVALID",
                     "Stage 2 retry page hash does not replay",
@@ -4904,14 +5187,13 @@ class FiveStagePipeline:
                 )
             selection_binding = page.get("binding_sha256")
             if self.paths.stage2_selection_ledger.is_file():
-                ledger = _read_json_object(
-                    self.paths.stage2_selection_ledger
+                ledger = self._validated_stage2_selection_ledger(
+                    _read_json_object(
+                        self.paths.stage2_selection_ledger
+                    )
                 )
                 if (
-                    ledger.get("schema_version")
-                    != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
-                    or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
-                    or ledger.get("binding_sha256") != selection_binding
+                    ledger.get("binding_sha256") != selection_binding
                 ):
                     raise PipelineError(
                         "OUTPUT_INVALID",
@@ -5435,12 +5717,19 @@ class FiveStagePipeline:
 
         ledger_state: dict[str, Any] | None = None
         if self.paths.stage2_selection_ledger.is_file():
-            ledger = _read_json_object(self.paths.stage2_selection_ledger)
+            ledger = self._validated_stage2_selection_ledger(
+                _read_json_object(self.paths.stage2_selection_ledger)
+            )
             ledger_state = {
                 "binding_sha256": ledger.get("binding_sha256"),
+                "snapshot_identity_sha256": ledger.get(
+                    "snapshot_identity_sha256"
+                ),
                 "cursor": ledger.get("cursor"),
                 "committed_digests": ledger.get("committed_digests"),
                 "pending": ledger.get("pending"),
+                "last_ack_sha256": ledger.get("last_ack_sha256"),
+                "progress_sha256": ledger.get("progress_sha256"),
                 "deferred_page_hashes": [
                     entry.get("entry_sha256")
                     for entry in ledger.get("deferred_pages", [])
@@ -5486,6 +5775,14 @@ class FiveStagePipeline:
             return False
         self._ensure_solver_state_tree_safe()
         ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        if (
+            ledger.get("schema_version")
+            != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
+            or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
+        ):
+            # The Stage 2 CLI owns migration. Its changed source fingerprint
+            # forces a rerun, where the stale schema is reset at cursor zero.
+            return False
         deferred_pages = self._validate_deferred_stage2_pages(ledger)
         if not deferred_pages:
             return False
@@ -5603,19 +5900,17 @@ class FiveStagePipeline:
             **history_payload,
             "entry_sha256": _canonical_sha256(history_payload),
         }
-        reset_ledger = {
-            "schema_version": STAGE2_SELECTION_LEDGER_SCHEMA_VERSION,
-            "gate": STAGE2_SELECTION_LEDGER_GATE,
-            "binding_sha256": ledger.get("binding_sha256"),
-            "cursor": 0,
-            "committed_digests": [],
-            "completed_pages": 0,
-            "pending": None,
-            "deferred_pages": [],
-            "generation": generation + 1,
-            "proof_config_sha256": current_proof_config_sha256,
-            "generation_history": [*history, history_entry],
-        }
+        reset_ledger = new_selection_ledger(
+            binding_sha256=ledger["binding_sha256"],
+            snapshot_identity_sha256_value=ledger[
+                "snapshot_identity_sha256"
+            ],
+            snapshot_rows=ledger["snapshot_rows"],
+            eligible_rows=ledger["eligible_rows"],
+            generation=generation + 1,
+            proof_config_sha256=current_proof_config_sha256,
+            generation_history=[*history, history_entry],
+        )
         # Generation archive is durable before this single transaction point.
         atomic_write_json(
             self.paths.stage2_selection_ledger, reset_ledger
@@ -5649,6 +5944,12 @@ class FiveStagePipeline:
         ):
             return False
         ledger = _read_json_object(self.paths.stage2_selection_ledger)
+        if (
+            ledger.get("schema_version")
+            != STAGE2_SELECTION_LEDGER_SCHEMA_VERSION
+            or ledger.get("gate") != STAGE2_SELECTION_LEDGER_GATE
+        ):
+            return False
         pages = self._validate_deferred_stage2_pages(ledger)
         if not pages or ledger.get("pending") is not None:
             return False
@@ -5815,16 +6116,22 @@ class FiveStagePipeline:
                     stage2_command,
                     self.paths.logs / "stage2-sector-audit.log",
                 ),
-                validator=lambda: self._validate_pool_summary(
-                    self.paths.stage2_summary,
-                    self.paths.stage2_ranked,
-                    "qldpc-proof-oriented-candidate-pool",
+                validator=lambda: self._validate_stage2_selection_lifecycle(
+                    self._validate_pool_summary(
+                        self.paths.stage2_summary,
+                        self.paths.stage2_ranked,
+                        "qldpc-proof-oriented-candidate-pool",
+                    ),
                 ),
                 recoverable_exit_codes=RECOVERABLE_PROOF_EXIT_CODES,
-                nonzero_validator=lambda: self._validate_recoverable_pool_summary(
-                    self.paths.stage2_summary,
-                    self.paths.stage2_ranked,
-                    "qldpc-proof-oriented-candidate-pool",
+                nonzero_validator=lambda: (
+                    self._validate_stage2_selection_lifecycle(
+                        self._validate_recoverable_pool_summary(
+                            self.paths.stage2_summary,
+                            self.paths.stage2_ranked,
+                            "qldpc-proof-oriented-candidate-pool",
+                        ),
+                    )
                 ),
             )
 

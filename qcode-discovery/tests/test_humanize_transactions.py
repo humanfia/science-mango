@@ -1444,7 +1444,7 @@ def test_interrupted_prepared_binding_rebind_resumes_from_its_wal(
     assert len(list(round_dir.glob("abandoned-checkpoint-attempt-*"))) == 1
 
 
-def test_completed_transaction_rejects_source_rebinding(tmp_path):
+def test_completed_transaction_preserves_historical_source_binding(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     write_launch_inputs(repo)
@@ -1470,23 +1470,37 @@ def test_completed_transaction_rejects_source_rebinding(tmp_path):
         "# source changed after commit\n"
     )
 
-    with pytest.raises(
-        flow_module.RoundTransactionError,
-        match="launch inputs changed",
-    ):
-        flow._capture_round_candidates(
-            flow.store.load_state(), 1, round_dir
-        )
-    with pytest.raises(
-        flow_module.RoundTransactionError,
-        match="launch inputs changed",
-    ):
-        flow._validate_completed_transaction(1, round_dir)
+    rows = flow._capture_round_candidates(
+        flow.store.load_state(), 1, round_dir
+    )
+    assert rows == []
+    flow._validate_completed_transaction(1, round_dir)
     manifest = json.loads(
         (round_dir / "evolution-transaction.json").read_text()
     )
     assert manifest["status"] == "committed"
     assert manifest["evolution_binding_rebinds"] == []
+    assert (
+        manifest["launch_binding"]["evaluation_evaluator"]["sha256"]
+        != flow_module._file_sha256(repo / "evaluation/evaluator.py")
+    )
+
+    # Finishing the historical round must not weaken the next launch: the
+    # following prepared transaction freezes the new evaluator bytes.
+    next_state = flow.store.load_state()
+    next_state["current_round"] = 1
+    next_state["pending_round"] = None
+    next_state["round_phase"] = None
+    next_state.pop("round_transaction_version", None)
+    flow.store.write_state(next_state)
+    next_round = flow.store.round_dir(2)
+    next_transaction = flow._prepare_transaction(
+        next_state, 2, next_round
+    )
+    assert (
+        next_transaction["launch_binding"]["evaluation_evaluator"]["sha256"]
+        == flow_module._file_sha256(repo / "evaluation/evaluator.py")
+    )
 
 
 @pytest.mark.parametrize("durable_status", ("source-ready", "batch-ready"))

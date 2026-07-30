@@ -84,8 +84,6 @@ def read_ranked_jsonl(path: Path) -> list[dict[str, Any]]:
             try:
                 value = json.loads(line)
             except json.JSONDecodeError as exc:
-                if not line.endswith(("\n", "\r")):
-                    continue
                 raise ValueError(
                     f"{path}:{line_number}: invalid JSON: {exc.msg}",
                 ) from exc
