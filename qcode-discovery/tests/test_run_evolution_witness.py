@@ -1227,6 +1227,127 @@ def test_backfill_worker_receives_expected_managed_contract_id(
     )
 
 
+def test_outer_timeout_covers_all_progress_bounded_lattice_attempts():
+    configured = 1200.0
+    inactivity = launcher._winner_preflight_wall_timeout(configured)
+
+    assert inactivity == 1050.0
+    assert launcher._winner_preflight_outer_timeout(configured) == (
+        launcher._winner_preflight_attempt_timeout(inactivity)
+        * launcher.STAGE1_PREFLIGHT_WORKER_ATTEMPTS
+        + inactivity
+        * launcher.STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS
+        + launcher.STAGE1_PREFLIGHT_OUTER_MARGIN_S
+    )
+
+
+@pytest.mark.parametrize(
+    "failure_type",
+    (
+        launcher._WinnerPreflightTimeout,
+        launcher._WinnerPreflightChildFailure,
+    ),
+)
+def test_backfill_child_failure_retries_same_owned_source(
+    monkeypatch, failure_type
+):
+    contract_id = 987654
+    code = "def generate_candidates(ell, m): return []\n"
+    attempts = []
+
+    def fake_owned(evaluator_path, source, **kwargs):
+        attempts.append((evaluator_path, source, dict(kwargs)))
+        if len(attempts) == 1:
+            raise failure_type("transient child failure")
+        return _preflight_markers(contract_id)
+
+    monkeypatch.delenv(launcher.CANDIDATE_LOG_PATH_ENV, raising=False)
+    monkeypatch.setattr(
+        launcher,
+        "_execute_winner_preflight_owned",
+        fake_owned,
+    )
+
+    markers = launcher._execute_winner_preflight(
+        launcher.EVALUATOR,
+        code,
+        expected_contract_id=contract_id,
+        wall_timeout=30,
+        cancel_event=threading.Event(),
+    )
+
+    assert len(attempts) == 2
+    assert attempts[0][0:2] == attempts[1][0:2] == (
+        launcher.EVALUATOR,
+        code,
+    )
+    assert markers[launcher.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+
+
+def test_backfill_fake_progress_cannot_extend_absolute_child_wall(
+    tmp_path, monkeypatch
+):
+    terminated = []
+    snapshots = 0
+
+    class NeverFinishes:
+        pid = 556677
+
+        def __init__(self, _command, **_kwargs):
+            self.terminated = False
+
+        def wait(self, timeout=None):
+            time.sleep(min(float(timeout), 0.01))
+            raise launcher.subprocess.TimeoutExpired("preflight", timeout)
+
+        def poll(self):
+            return -9 if self.terminated else None
+
+    def fake_snapshot(*_args, **_kwargs):
+        nonlocal snapshots
+        snapshots += 1
+        return ("a" * 64, 0, snapshots, 0, "in_progress")
+
+    monkeypatch.setattr(launcher.subprocess, "Popen", NeverFinishes)
+    monkeypatch.setattr(
+        launcher,
+        "_winner_preflight_progress_snapshot",
+        fake_snapshot,
+    )
+    monkeypatch.setattr(
+        launcher,
+        "_winner_preflight_attempt_timeout",
+        lambda _timeout: 0.15,
+    )
+    def terminate(process):
+        process.terminated = True
+        terminated.append(process.pid)
+
+    monkeypatch.setattr(
+        launcher,
+        "_terminate_private_worker_group",
+        terminate,
+    )
+
+    started = time.monotonic()
+    with pytest.raises(
+        launcher._WinnerPreflightTimeout,
+        match="absolute wall timeout",
+    ):
+        launcher._execute_winner_preflight_owned(
+            launcher.EVALUATOR,
+            "def generate_candidates(ell, m): return []\n",
+            expected_contract_id=24680,
+            wall_timeout=0.05,
+            cancel_event=threading.Event(),
+            progress_path=tmp_path / "progress.json",
+        )
+
+    assert time.monotonic() - started < 0.5
+    assert snapshots > 2
+    assert terminated == [556677]
+
+
 def test_backfill_failure_mutates_no_program_and_cannot_record_completion(
     monkeypatch,
 ):
@@ -1487,6 +1608,9 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
         os.close(lease_fd)
     assert raised.value.code == 130
     assert os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] == "1200.0"
+    assert config.evaluator.timeout == (
+        launcher._winner_preflight_outer_timeout(1200.0)
+    )
     assert not (tmp_path / "completed.json").exists()
     assert not (tmp_path / "witness.json").exists()
 

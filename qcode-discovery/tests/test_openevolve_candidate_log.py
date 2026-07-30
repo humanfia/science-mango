@@ -8,6 +8,7 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 from itertools import permutations
 from pathlib import Path
@@ -107,6 +108,44 @@ def _support_metrics(
             evaluator.PATTERN_CLASSIFIER_VERSION
         ),
     }
+
+
+def _stage1_summary(
+    lattice: tuple[int, int],
+    *,
+    pool_sha256: str,
+    unique: int = 1,
+    rejected: int = 0,
+    winner_eligible: int | None = None,
+    candidate_log_records: int | None = None,
+) -> dict[str, object]:
+    support_eligible = unique - rejected
+    if winner_eligible is None:
+        winner_eligible = support_eligible
+    if candidate_log_records is None:
+        candidate_log_records = winner_eligible
+    return evaluator._stage1_lattice_summary(
+        {
+            "unique_candidates": unique,
+            "evaluated_candidate_definitions": support_eligible,
+            "lattices_completed": 1,
+            "lattice_failures": 0,
+            "winner_capable_quick_exploration_eligible": winner_eligible,
+            "winner_capable_quick_exploration_persisted": winner_eligible,
+            "winner_capable_quick_exploration_omitted": 0,
+            evaluator.STAGE1_CANDIDATE_LOG_RECORDS_FIELD: (
+                candidate_log_records
+            ),
+            **_support_metrics(
+                unique=unique,
+                eligible=support_eligible,
+                rejected=rejected,
+                evaluated=support_eligible,
+            ),
+        },
+        lattice=lattice,
+        pool_sha256=pool_sha256,
+    )
 
 
 def test_direct_evaluator_contract_matches_launcher_for_same_run(
@@ -775,6 +814,780 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
     assert "Deep challenge support:" in artifacts["summary"]
 
 
+def test_stage1_progress_journal_validates_prefix_and_aggregates(
+    tmp_path, monkeypatch
+):
+    lattices = [(6, 6), (6, 7)]
+    monkeypatch.setattr(evaluator, "EVOLUTION_LATTICES", lattices)
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    source_sha256 = "a" * 64
+    contract_id = 314159
+    summaries = [
+        _stage1_summary(
+            lattices[0],
+            pool_sha256="b" * 64,
+            unique=2,
+            rejected=1,
+        ),
+        _stage1_summary(
+            lattices[1],
+            pool_sha256="c" * 64,
+            unique=3,
+            winner_eligible=2,
+        ),
+    ]
+    journal = evaluator._initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+
+    validated = evaluator._validated_stage1_preflight_journal(
+        {
+            **journal,
+            "completed_lattices": summaries[:1],
+            "progress_sequence": 1,
+        },
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+
+    assert validated["status"] == "in_progress"
+    assert validated["completed_lattices"] == summaries[:1]
+    assert validated["progress_sequence"] == 1
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="before every lattice is durable",
+    ):
+        evaluator._aggregate_stage1_lattice_summaries(summaries[:1])
+
+    aggregate = evaluator._aggregate_stage1_lattice_summaries(summaries)
+    assert aggregate == {
+        "unique_candidates": 5,
+        "evaluated_candidate_definitions": 4,
+        "winner_capable_quick_exploration_eligible": 3,
+        "winner_capable_quick_exploration_persisted": 3,
+        "winner_capable_quick_exploration_omitted": 0,
+        evaluator.STAGE1_CANDIDATE_LOG_RECORDS_FIELD: 3,
+        evaluator.SUPPORT_WEIGHT_ELIGIBLE_METRIC: 4,
+        evaluator.SUPPORT_WEIGHT_REJECTED_METRIC: 1,
+        evaluator.SUPPORT_WEIGHT_EVALUATED_METRIC: 4,
+        evaluator.SUPPORT_FILTER_VERSION_METRIC: (
+            evaluator.CHALLENGE_SUPPORT_FILTER_VERSION
+        ),
+        evaluator.SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: 1,
+        "lattices_completed": 2,
+        "lattice_failures": 0,
+    }
+
+    malformed = dict(summaries[1])
+    malformed["winner_capable_quick_exploration_persisted"] = 3
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="does not prove complete persistence",
+    ):
+        evaluator._validated_stage1_lattice_summary(
+            malformed,
+            expected_lattice=lattices[1],
+        )
+
+
+def test_stage1_spool_commits_one_atomic_lattice_with_provenance(
+    tmp_path, monkeypatch
+):
+    lattice = (6, 6)
+    source_sha256 = "d" * 64
+    contract_id = 271828
+    epoch_id = "c" * 64
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir(parents=True)
+    spool = tmp_path / "candidates.jsonl"
+    first = _result(0, 0)
+    second = {
+        **_result(0, 0),
+        "A_terms": [[0, 0], [0, 1], [2, 0]],
+        "fom": 2.5,
+    }
+    spool.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True) + "\n"
+            for row in (first, second)
+        )
+    )
+    summary = _stage1_summary(
+        lattice,
+        pool_sha256="e" * 64,
+        unique=2,
+        winner_eligible=1,
+        candidate_log_records=2,
+    )
+
+    payload = evaluator._stage1_lattice_commit_payload(
+        spool,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        epoch_id=epoch_id,
+        lattice=lattice,
+        summary=summary,
+    )
+    installed = []
+    original_install = evaluator._install_candidate_log_wal
+
+    def capture_install(log_file, *, start_offset, payload):
+        installed.append((log_file, start_offset, bytes(payload)))
+        return original_install(
+            log_file,
+            start_offset=start_offset,
+            payload=payload,
+        )
+
+    monkeypatch.setattr(
+        evaluator,
+        "_install_candidate_log_wal",
+        capture_install,
+    )
+    evaluator._append_candidate_jsonl(candidate_log, payload)
+
+    assert installed == [(candidate_log, 0, payload)]
+    committed = [
+        json.loads(line)
+        for line in candidate_log.read_text().splitlines()
+    ]
+    assert len(committed) == 2
+    for row in committed:
+        assert (
+            row[evaluator.STAGE1_PREFLIGHT_ROW_PROGRAM_SHA256]
+            == source_sha256
+        )
+        assert (
+            row[evaluator.STAGE1_PREFLIGHT_ROW_CONTRACT_ID]
+            == contract_id
+        )
+        assert (
+            row[evaluator.STAGE1_PREFLIGHT_ROW_EPOCH_ID]
+            == epoch_id
+        )
+        assert row[evaluator.STAGE1_PREFLIGHT_ROW_LATTICE] == [6, 6]
+    assert evaluator.STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT not in committed[0]
+    assert (
+        committed[-1][evaluator.STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT]
+        is True
+    )
+    assert (
+        committed[-1][evaluator.STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY]
+        == summary
+    )
+    wal_file, temporary = evaluator._candidate_log_wal_paths(candidate_log)
+    assert not wal_file.exists()
+    assert not temporary.exists()
+
+
+@pytest.mark.parametrize("spool_state", ("missing", "empty"))
+def test_stage1_nonzero_persistence_rejects_missing_or_empty_spool(
+    tmp_path, spool_state
+):
+    lattice = (6, 6)
+    spool = tmp_path / "candidates.jsonl"
+    if spool_state == "empty":
+        spool.write_bytes(b"")
+    summary = _stage1_summary(
+        lattice,
+        pool_sha256="f" * 64,
+    )
+
+    with pytest.raises(evaluator.CandidateLogWriteError):
+        evaluator._stage1_lattice_commit_payload(
+            spool,
+            source_sha256="0" * 64,
+            contract_id=223607,
+            epoch_id="9" * 64,
+            lattice=lattice,
+            summary=summary,
+        )
+
+
+def test_stage1_recovers_commit_row_when_append_precedes_journal(
+    tmp_path, monkeypatch
+):
+    lattice = (6, 6)
+    monkeypatch.setattr(evaluator, "EVOLUTION_LATTICES", [lattice])
+    source_sha256 = "1" * 64
+    contract_id = 161803
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir(parents=True)
+    spool = tmp_path / "candidates.jsonl"
+    spool.write_text(json.dumps(_result(0, 0), sort_keys=True) + "\n")
+    summary = _stage1_summary(
+        lattice,
+        pool_sha256="2" * 64,
+    )
+    journal = evaluator._initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+    journal_path, _lock_path = evaluator._stage1_preflight_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+    )
+    payload = evaluator._stage1_lattice_commit_payload(
+        spool,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        epoch_id=journal["epoch_id"],
+        lattice=lattice,
+        summary=summary,
+    )
+    evaluator._append_candidate_jsonl(candidate_log, payload)
+    original_log = candidate_log.read_bytes()
+
+    assert not journal_path.exists()
+
+    def must_not_rerun(*_args, **_kwargs):
+        raise AssertionError("durable lattice commit was rerun")
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", must_not_rerun)
+    recovered = evaluator._recover_stage1_lattice_commits(
+        candidate_log,
+        journal,
+    )
+    recovered_again = evaluator._recover_stage1_lattice_commits(
+        candidate_log,
+        recovered,
+    )
+
+    assert recovered["completed_lattices"] == [summary]
+    assert recovered["progress_sequence"] == 1
+    assert recovered_again == recovered
+    assert candidate_log.read_bytes() == original_log
+
+
+@pytest.mark.parametrize("surviving_row", ("first", "last"))
+def test_stage1_rejects_partial_unjournaled_lattice_commit(
+    tmp_path, monkeypatch, surviving_row
+):
+    lattice = (6, 6)
+    monkeypatch.setattr(evaluator, "EVOLUTION_LATTICES", [lattice])
+    source_sha256 = "6" * 64
+    contract_id = 223606
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir(parents=True)
+    spool = tmp_path / "candidates.jsonl"
+    spool.write_text(
+        json.dumps(_result(0, 0), sort_keys=True)
+        + "\n"
+        + json.dumps(_result(0, 1), sort_keys=True)
+        + "\n"
+    )
+    summary = _stage1_summary(
+        lattice,
+        pool_sha256="4" * 64,
+        unique=2,
+    )
+    journal = evaluator._initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+    payload = evaluator._stage1_lattice_commit_payload(
+        spool,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        epoch_id=journal["epoch_id"],
+        lattice=lattice,
+        summary=summary,
+    )
+    rows = payload.splitlines(keepends=True)
+    candidate_log.write_bytes(rows[0 if surviving_row == "first" else -1])
+
+    with pytest.raises(evaluator.Stage1CandidateCommitMismatch):
+        evaluator._recover_stage1_lattice_commits(
+            candidate_log,
+            journal,
+        )
+
+
+def test_stage1_recovery_scan_holds_candidate_lock_against_append(
+    tmp_path, monkeypatch
+):
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir(parents=True)
+    candidate_log.write_text('{"unrelated":1}\n')
+    journal = evaluator._initial_stage1_preflight_journal(
+        source_sha256="5" * 64,
+        contract_id=141421,
+        candidate_log_path=candidate_log,
+    )
+    scan_entered = threading.Event()
+    release_scan = threading.Event()
+    writer_done = threading.Event()
+    outcomes = []
+    original_loads = evaluator.json.loads
+
+    def gated_loads(value, *args, **kwargs):
+        if isinstance(value, bytes) and b'"unrelated"' in value:
+            scan_entered.set()
+            if not release_scan.wait(timeout=5):
+                raise AssertionError("test did not release recovery scan")
+        return original_loads(value, *args, **kwargs)
+
+    monkeypatch.setattr(evaluator.json, "loads", gated_loads)
+
+    def recover():
+        try:
+            outcomes.append(
+                evaluator._recover_stage1_lattice_commits(
+                    candidate_log,
+                    journal,
+                )
+            )
+        except BaseException as exc:
+            outcomes.append(exc)
+
+    def append():
+        try:
+            evaluator._append_candidate_jsonl(
+                candidate_log,
+                b'{"writer":2}\n',
+            )
+        finally:
+            writer_done.set()
+
+    recovery_thread = threading.Thread(target=recover)
+    recovery_thread.start()
+    assert scan_entered.wait(timeout=5)
+    writer_thread = threading.Thread(target=append)
+    writer_thread.start()
+    time.sleep(0.05)
+    assert not writer_done.is_set()
+
+    release_scan.set()
+    recovery_thread.join(timeout=5)
+    writer_thread.join(timeout=5)
+
+    assert outcomes == [journal]
+    assert writer_done.is_set()
+    assert candidate_log.read_text().splitlines() == [
+        '{"unrelated":1}',
+        '{"writer":2}',
+    ]
+
+
+@pytest.mark.parametrize("damage", ("deleted_log", "missing_commit"))
+def test_completed_stage1_journal_requires_candidate_commit_proof(
+    tmp_path, monkeypatch, damage
+):
+    lattice = (6, 6)
+    monkeypatch.setattr(evaluator, "EVOLUTION_LATTICES", [lattice])
+    source_sha256 = "7" * 64
+    contract_id = 244949
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir(parents=True)
+    spool = tmp_path / "candidates.jsonl"
+    spool.write_text(json.dumps(_result(0, 0), sort_keys=True) + "\n")
+    summary = _stage1_summary(
+        lattice,
+        pool_sha256="8" * 64,
+    )
+    initial = evaluator._initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+    aggregate = evaluator._aggregate_stage1_lattice_summaries([summary])
+    journal = evaluator._validated_stage1_preflight_journal(
+        {
+            **initial,
+            "status": "completed",
+            "completed_lattices": [summary],
+            "progress_sequence": 2,
+            "markers": evaluator._winner_preflight_markers(
+                aggregate,
+                contract_id=contract_id,
+            ),
+        },
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+    payload = evaluator._stage1_lattice_commit_payload(
+        spool,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        epoch_id=journal["epoch_id"],
+        lattice=lattice,
+        summary=summary,
+    )
+    evaluator._append_candidate_jsonl(candidate_log, payload)
+
+    if damage == "deleted_log":
+        candidate_log.unlink()
+    else:
+        row = json.loads(candidate_log.read_text())
+        row.pop(evaluator.STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT)
+        row.pop(evaluator.STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY)
+        candidate_log.write_text(json.dumps(row, sort_keys=True) + "\n")
+
+    with pytest.raises(evaluator.CandidateLogWriteError):
+        evaluator._recover_stage1_lattice_commits(
+            candidate_log,
+            journal,
+        )
+
+
+def test_stage1_rotates_epoch_and_recomputes_after_candidate_tail_rollback(
+    tmp_path, monkeypatch
+):
+    lattice = (6, 6)
+    monkeypatch.setattr(evaluator, "EVOLUTION_LATTICES", [lattice])
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    source_sha256 = evaluator._freeze_program_source_sha256(str(program))
+    contract_id = 264575
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir(parents=True)
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(candidate_log),
+    )
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    pool_sha256 = evaluator._generated_pool_sha256(
+        [],
+        lattice=lattice,
+    )
+    summary = _stage1_summary(
+        lattice,
+        pool_sha256=pool_sha256,
+    )
+    stale_journal = evaluator._initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+    journal_path, _lock_path = evaluator._stage1_preflight_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+    )
+    evaluator._write_stage1_preflight_journal(
+        journal_path,
+        {
+            **stale_journal,
+            "status": "completed",
+            "completed_lattices": [summary],
+            "progress_sequence": 2,
+            "markers": evaluator._winner_preflight_markers(
+                evaluator._aggregate_stage1_lattice_summaries([summary]),
+                contract_id=contract_id,
+            ),
+        },
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+
+    spool = tmp_path / "stale-spool.jsonl"
+    spool.write_text(json.dumps(_result(0, 0), sort_keys=True) + "\n")
+    evaluator._append_candidate_jsonl(
+        candidate_log,
+        evaluator._stage1_lattice_commit_payload(
+            spool,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            epoch_id=stale_journal["epoch_id"],
+            lattice=lattice,
+            summary=summary,
+        ),
+    )
+    candidate_log.unlink()
+
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: lambda _ell, _m: [],
+    )
+    fresh_metrics = {
+        key: value
+        for key, value in summary.items()
+        if key not in {"lattice", "pool_sha256"}
+    }
+
+    def fake_run(_generate, lattices, *, candidate_log_path, **_kwargs):
+        assert lattices == [lattice]
+        candidate_log_path.write_text(
+            json.dumps(_result(0, 0), sort_keys=True) + "\n"
+        )
+        return dict(fresh_metrics)
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
+
+    markers, _generate, returned_log, returned_sha = (
+        evaluator._run_resumable_winner_preflight(str(program))
+    )
+    recovered_journal = evaluator._load_stage1_preflight_journal(
+        journal_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+
+    assert returned_log == candidate_log
+    assert returned_sha == source_sha256
+    assert markers[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
+    assert recovered_journal["status"] == "completed"
+    assert recovered_journal["restart_count"] == 1
+    assert recovered_journal["epoch_id"] != stale_journal["epoch_id"]
+    committed = json.loads(candidate_log.read_text())
+    assert (
+        committed[evaluator.STAGE1_PREFLIGHT_ROW_EPOCH_ID]
+        == recovered_journal["epoch_id"]
+    )
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ("program", "contract", "sink", "lattices", "markers"),
+)
+def test_completed_stage1_journal_reloads_and_binding_tamper_fails_closed(
+    tmp_path, monkeypatch, tamper
+):
+    lattices = [(6, 6), (6, 7)]
+    monkeypatch.setattr(evaluator, "EVOLUTION_LATTICES", lattices)
+    source_sha256 = "3" * 64
+    contract_id = 141421
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    summaries = [
+        _stage1_summary(lattices[0], pool_sha256="4" * 64),
+        _stage1_summary(lattices[1], pool_sha256="5" * 64),
+    ]
+    aggregate = evaluator._aggregate_stage1_lattice_summaries(summaries)
+    markers = evaluator._winner_preflight_markers(
+        aggregate,
+        contract_id=contract_id,
+    )
+    initial = evaluator._initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+    journal_path, _lock_path = evaluator._stage1_preflight_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+    )
+    stored = evaluator._write_stage1_preflight_journal(
+        journal_path,
+        {
+            **initial,
+            "status": "completed",
+            "completed_lattices": summaries,
+            "progress_sequence": 2,
+            "markers": markers,
+        },
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    )
+
+    assert evaluator._load_stage1_preflight_journal(
+        journal_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+    ) == stored
+
+    forged = json.loads(journal_path.read_text())
+    if tamper == "program":
+        forged["program_sha256"] = "6" * 64
+    elif tamper == "contract":
+        forged["contract_id"] += 1
+    elif tamper == "sink":
+        forged["candidate_log_path"] = str(
+            candidate_log.with_name("redirected.jsonl")
+        )
+    elif tamper == "lattices":
+        forged["lattices"] = list(reversed(forged["lattices"]))
+    else:
+        forged["markers"][
+            evaluator.WINNER_PREFLIGHT_PERSISTED_METRIC
+        ] += 1
+    journal_path.write_text(json.dumps(forged))
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="journal binding|markers",
+    ):
+        evaluator._load_stage1_preflight_journal(
+            journal_path,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log,
+        )
+
+
+def test_stage1_progress_resets_inactivity_deadline(
+    tmp_path, monkeypatch
+):
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    contract_id = 173205
+    journal_snapshots = iter([
+        {
+            "status": "in_progress",
+            "completed_lattices": [],
+            "progress_sequence": 5,
+            "epoch_id": "a" * 64,
+            "restart_count": 0,
+        },
+        {
+            "status": "in_progress",
+            "completed_lattices": [],
+            "progress_sequence": 5,
+            "epoch_id": "a" * 64,
+            "restart_count": 0,
+        },
+        {
+            "status": "in_progress",
+            "completed_lattices": [],
+            "progress_sequence": 0,
+            "epoch_id": "b" * 64,
+            "restart_count": 1,
+        },
+    ])
+    journal_loads = []
+    registered = []
+    terminated = []
+    processes = []
+
+    def load_journal(*_args, **_kwargs):
+        journal_loads.append(True)
+        return next(journal_snapshots)
+
+    class FakeClock:
+        def __init__(self):
+            self.ticks = iter((0.0, 9.0, 9.0, 18.0))
+
+        def monotonic(self):
+            return next(self.ticks)
+
+        def time_ns(self):
+            return 1
+
+    class ProgressProcess:
+        pid = 43210
+
+        def __init__(self, command, **_kwargs):
+            self.result_path = Path(command[4])
+            self.wait_timeouts = []
+            processes.append(self)
+
+        def wait(self, timeout=None):
+            self.wait_timeouts.append(timeout)
+            if len(self.wait_timeouts) == 1:
+                raise evaluator.subprocess.TimeoutExpired(
+                    "stage1",
+                    timeout,
+                )
+            self.result_path.write_text(json.dumps({
+                "schema_version": 1,
+                "status": "completed",
+                "metrics": {"combined_score": 7.0},
+            }))
+            return 0
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(
+        evaluator,
+        "_current_winner_preflight_contract_id",
+        lambda: contract_id,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_freeze_candidate_log_path",
+        lambda *_args, **_kwargs: candidate_log,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_load_stage1_preflight_journal",
+        load_journal,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_path_entry_exists",
+        lambda _path: True,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_winner_preflight_hard_timeout_s",
+        lambda: 10.0,
+    )
+    monkeypatch.setattr(evaluator, "time", FakeClock())
+    monkeypatch.setattr(evaluator.subprocess, "Popen", ProgressProcess)
+    monkeypatch.setattr(
+        evaluator,
+        "_terminate_stage2_process_group",
+        lambda process: terminated.append(process.pid),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_register_stage1_preflight_completion",
+        lambda path, metrics: registered.append((path, metrics)),
+    )
+
+    result = evaluator.evaluate_stage1(str(program))
+
+    assert result == {"combined_score": 7.0}
+    assert len(journal_loads) == 3
+    assert processes[0].wait_timeouts == [0.25, 0.25]
+    assert registered == [
+        (str(program), {"combined_score": 7.0})
+    ]
+    assert terminated == []
+
+
+def test_stage1_source_lock_wait_has_a_hard_bound(tmp_path):
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    source_sha256 = "3" * 64
+    contract_id = 271828
+    journal_path, lock_path = evaluator._stage1_preflight_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+    )
+    owner = evaluator._open_stage1_preflight_lock(
+        lock_path,
+        journal_path=journal_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+        inactivity_timeout=0.05,
+    )
+    started = time.monotonic()
+    try:
+        with pytest.raises(evaluator.Stage1PreflightLockTimeout):
+            evaluator._open_stage1_preflight_lock(
+                lock_path,
+                journal_path=journal_path,
+                source_sha256=source_sha256,
+                contract_id=contract_id,
+                candidate_log_path=candidate_log,
+                inactivity_timeout=0.05,
+            )
+    finally:
+        evaluator.fcntl.flock(owner, evaluator.fcntl.LOCK_UN)
+        evaluator.os.close(owner)
+
+    assert time.monotonic() - started < 0.5
+
+
 def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
     tmp_path, monkeypatch
 ):
@@ -946,6 +1759,7 @@ def test_stage1_preflight_timeout_is_explicitly_incomplete(
     kills = []
     program = tmp_path / "slow-program.py"
     program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
 
     class TimedOutProcess:
         pid = 7654
@@ -961,6 +1775,35 @@ def test_stage1_preflight_timeout_is_explicitly_incomplete(
                 )
             return -evaluator.signal.SIGTERM
 
+    class ExpiredClock:
+        def __init__(self):
+            self.ticks = iter((0.0, 1.0))
+
+        def monotonic(self):
+            return next(self.ticks)
+
+        def time_ns(self):
+            return 1
+
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(candidate_log),
+    )
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        "12345",
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_winner_preflight_hard_timeout_s",
+        lambda: 1.0,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "STAGE1_PREFLIGHT_WORKER_ATTEMPTS",
+        1,
+    )
+    monkeypatch.setattr(evaluator, "time", ExpiredClock())
     monkeypatch.setattr(evaluator.subprocess, "Popen", TimedOutProcess)
     monkeypatch.setattr(
         evaluator.os,
@@ -980,6 +1823,62 @@ def test_stage1_preflight_timeout_is_explicitly_incomplete(
         (7654, evaluator.signal.SIGTERM),
         (7654, evaluator.signal.SIGKILL),
     ]
+
+
+@pytest.mark.parametrize("timed_out", (False, True))
+def test_stage1_child_failure_retries_the_same_frozen_mutation(
+    tmp_path, monkeypatch, timed_out
+):
+    program = tmp_path / "retry-program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    contract_id = 112358
+    markers = _complete_preflight_metrics(
+        contract_id,
+        evaluated=0,
+        eligible=0,
+    )
+    attempts = []
+
+    def fake_attempt(path, **kwargs):
+        attempts.append((path, dict(kwargs)))
+        if len(attempts) == 1:
+            return None, "transient child failure", timed_out
+        return {
+            "schema_version": 1,
+            "status": "completed",
+            "metrics": {"combined_score": 0.25, **markers},
+        }, None, False
+
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(candidate_log),
+    )
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_winner_preflight_hard_timeout_s",
+        lambda: 1.0,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_stage1_worker_attempt",
+        fake_attempt,
+    )
+
+    result = evaluator.evaluate_stage1(str(program))
+
+    assert result["combined_score"] == 0.25
+    assert len(attempts) == 2
+    assert attempts[0][0] == attempts[1][0] == str(program)
+    expected_sha256 = evaluator._freeze_program_source_sha256(str(program))
+    for _path, kwargs in attempts:
+        assert kwargs["source_sha256"] == expected_sha256
+        assert kwargs["candidate_log_path"] == candidate_log
+        assert kwargs["journal_path"].is_file()
 
 
 def test_stage1_worker_contract_is_forwarded_once_to_cascade_stage2(

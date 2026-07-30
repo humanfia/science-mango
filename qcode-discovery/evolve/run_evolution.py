@@ -111,6 +111,12 @@ EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 3
 WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
 CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
+STAGE1_PREFLIGHT_JOURNAL_SCHEMA_VERSION = 1
+STAGE1_PREFLIGHT_JOURNAL_DIRECTORY = ".stage1-preflight"
+STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS = 2
+STAGE1_PREFLIGHT_WORKER_ATTEMPTS = 2
+STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS = 2
+STAGE1_PREFLIGHT_OUTER_MARGIN_S = 120.0
 WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC = (
     "winner_preflight_contract_version"
 )
@@ -149,6 +155,14 @@ WINNER_PREFLIGHT_NUMERIC_THREAD_ENV = (
     "VECLIB_MAXIMUM_THREADS",
     "BLIS_NUM_THREADS",
 )
+
+
+class _WinnerPreflightTimeout(RuntimeError):
+    """One checkpoint preflight child made no durable lattice progress."""
+
+
+class _WinnerPreflightChildFailure(RuntimeError):
+    """One checkpoint preflight child ended without a completed payload."""
 
 
 def _file_identity(path: str | Path, label: str) -> dict[str, object]:
@@ -573,6 +587,200 @@ def _winner_preflight_wall_timeout(configured_timeout: float) -> float:
     return min(1050.0, float(configured_timeout) - 60.0)
 
 
+def _winner_preflight_outer_timeout(configured_timeout: float) -> float:
+    """Leave OpenEvolve enough total time for progress-bounded lattices."""
+
+    inactivity_timeout = _winner_preflight_wall_timeout(
+        configured_timeout
+    )
+    attempt_timeout = _winner_preflight_attempt_timeout(
+        inactivity_timeout
+    )
+    progress_bounded_total = (
+        attempt_timeout * STAGE1_PREFLIGHT_WORKER_ATTEMPTS
+        + inactivity_timeout * STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS
+        + STAGE1_PREFLIGHT_OUTER_MARGIN_S
+    )
+    return max(float(configured_timeout), progress_bounded_total)
+
+
+def _winner_preflight_attempt_timeout(
+    inactivity_timeout: float,
+) -> float:
+    """Absolute non-resettable wall for one checkpoint preflight child."""
+
+    return (
+        inactivity_timeout
+        * (
+            len(EVOLUTION_LATTICES)
+            * STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS
+            + 1
+        )
+    )
+
+
+def _winner_preflight_progress_path(
+    code: str,
+    *,
+    expected_contract_id: int,
+) -> Path | None:
+    raw_candidate_log = os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    if raw_candidate_log in (None, ""):
+        return None
+    candidate_log = Path(raw_candidate_log)
+    if not candidate_log.is_absolute() or "\x00" in raw_candidate_log:
+        raise RuntimeError(
+            "winner preflight candidate log binding is invalid"
+        )
+    source_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
+    return (
+        candidate_log.resolve(strict=False).parent
+        / STAGE1_PREFLIGHT_JOURNAL_DIRECTORY
+        / f"{expected_contract_id}-{source_sha256}.json"
+    )
+
+
+def _winner_preflight_progress_snapshot(
+    path: Path | None,
+    *,
+    code: str,
+    expected_contract_id: int,
+) -> tuple[str, int, int, int, str]:
+    if path is None:
+        return ("", 0, 0, 0, "unbound")
+    if not path.exists():
+        return ("", 0, 0, 0, "missing")
+    payload = _read_json_object(path, "winner preflight progress journal")
+    expected_source = hashlib.sha256(code.encode("utf-8")).hexdigest()
+    completed = payload.get("completed_lattices")
+    progress = payload.get("progress_sequence")
+    status = payload.get("status")
+    epoch_id = payload.get("epoch_id")
+    restart_count = payload.get("restart_count")
+    raw_candidate_log = os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    if raw_candidate_log in (None, ""):
+        raise RuntimeError(
+            "winner preflight candidate log binding disappeared"
+        )
+    expected_candidate_log = str(
+        Path(raw_candidate_log).resolve(strict=False)
+    )
+    if (
+        payload.get("schema_version")
+        != STAGE1_PREFLIGHT_JOURNAL_SCHEMA_VERSION
+        or payload.get("contract_id") != expected_contract_id
+        or payload.get("program_sha256") != expected_source
+        or payload.get("candidate_log_path") != expected_candidate_log
+        or not isinstance(epoch_id, str)
+        or len(epoch_id) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in epoch_id
+        )
+        or type(restart_count) is not int
+        or restart_count < 0
+        or payload.get("lattices")
+        != [list(lattice) for lattice in EVOLUTION_LATTICES]
+        or not isinstance(completed, list)
+        or len(completed) > len(EVOLUTION_LATTICES)
+        or type(progress) is not int
+        or progress < len(completed)
+        or status not in {"in_progress", "completed"}
+        or status == "completed"
+        and len(completed) != len(EVOLUTION_LATTICES)
+    ):
+        raise RuntimeError("winner preflight progress journal is invalid")
+    return (epoch_id, restart_count, progress, len(completed), status)
+
+
+@contextmanager
+def _acquire_winner_preflight_lock(
+    progress_path: Path | None,
+    *,
+    code: str,
+    expected_contract_id: int,
+    wall_timeout: float,
+    cancel_event: threading.Event,
+):
+    """Serialize checkpoint and live preflights with a cancellable wait."""
+
+    if progress_path is None:
+        yield
+        return
+    lock_root = progress_path.parent
+    lock_root.mkdir(parents=True, exist_ok=True)
+    if lock_root.is_symlink() or not lock_root.is_dir():
+        raise RuntimeError(
+            f"winner preflight lock root is unsafe: {lock_root}"
+        )
+    lock_path = progress_path.with_suffix(".lock")
+    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(lock_path, flags, 0o600)
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise RuntimeError(
+                f"winner preflight lock is not regular: {lock_path}"
+            )
+        observed = _winner_preflight_progress_snapshot(
+            progress_path,
+            code=code,
+            expected_contract_id=expected_contract_id,
+        )
+        started = time.monotonic()
+        deadline = started + wall_timeout
+        absolute_deadline = (
+            started
+            + wall_timeout * STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS
+        )
+        while True:
+            if cancel_event.is_set():
+                raise RuntimeError(
+                    "winner preflight lock wait cancelled after peer failure"
+                )
+            try:
+                fcntl.flock(
+                    descriptor,
+                    fcntl.LOCK_EX | fcntl.LOCK_NB,
+                )
+                break
+            except BlockingIOError:
+                remaining = min(
+                    deadline,
+                    absolute_deadline,
+                ) - time.monotonic()
+                if remaining <= 0:
+                    raise RuntimeError(
+                        "winner preflight lock owner made no durable "
+                        "progress before its wall timeout"
+                    )
+                time.sleep(min(0.25, remaining))
+                progress = _winner_preflight_progress_snapshot(
+                    progress_path,
+                    code=code,
+                    expected_contract_id=expected_contract_id,
+                )
+                if (
+                    progress[0] != observed[0]
+                    or progress[1] != observed[1]
+                    or progress[2] > observed[2]
+                    or progress[3] > observed[3]
+                    or progress[4] != observed[4]
+                ):
+                    observed = progress
+                    deadline = min(
+                        time.monotonic() + wall_timeout,
+                        absolute_deadline,
+                    )
+        yield
+    finally:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
+
+
 def _terminate_private_worker_group(process: subprocess.Popen) -> None:
     leader_reaped = False
     try:
@@ -600,16 +808,22 @@ def _preflight_stderr_tail(path: Path, limit: int = 8192) -> str:
         return ""
 
 
-def _execute_winner_preflight(
+def _execute_winner_preflight_owned(
     evaluator_path: str | Path,
     code: str,
     *,
     expected_contract_id: int,
     wall_timeout: float,
     cancel_event: threading.Event,
+    progress_path: Path | None,
 ) -> dict[str, float]:
-    """Evaluate one unique checkpoint program in a killable process group."""
+    """Evaluate one unique checkpoint program behind a progress hard wall."""
 
+    observed_progress = _winner_preflight_progress_snapshot(
+        progress_path,
+        code=code,
+        expected_contract_id=expected_contract_id,
+    )
     with tempfile.TemporaryDirectory(prefix="qcode-checkpoint-preflight-") as root:
         temp_root = Path(root)
         program_path = temp_root / "program.py"
@@ -651,7 +865,12 @@ def _execute_winner_preflight(
                     )
                 finally:
                     os.close(lifecycle_read_fd)
-                deadline = time.monotonic() + wall_timeout
+                started = time.monotonic()
+                deadline = started + wall_timeout
+                absolute_deadline = (
+                    started
+                    + _winner_preflight_attempt_timeout(wall_timeout)
+                )
                 try:
                     while True:
                         if cancel_event.is_set():
@@ -659,12 +878,21 @@ def _execute_winner_preflight(
                             raise RuntimeError(
                                 "winner preflight cancelled after peer failure"
                             )
-                        remaining = deadline - time.monotonic()
+                        now = time.monotonic()
+                        remaining = min(
+                            deadline,
+                            absolute_deadline,
+                        ) - now
                         if remaining <= 0:
                             _terminate_private_worker_group(process)
-                            raise RuntimeError(
-                                "winner preflight exceeded its killable wall "
-                                "timeout"
+                            raise _WinnerPreflightTimeout(
+                                "winner preflight exceeded its killable "
+                                + (
+                                    "absolute wall timeout"
+                                    if now >= absolute_deadline
+                                    else "wall timeout without durable "
+                                    "lattice progress"
+                                )
                             )
                         try:
                             return_code = process.wait(
@@ -672,6 +900,23 @@ def _execute_winner_preflight(
                             )
                             break
                         except subprocess.TimeoutExpired:
+                            progress = _winner_preflight_progress_snapshot(
+                                progress_path,
+                                code=code,
+                                expected_contract_id=expected_contract_id,
+                            )
+                            if (
+                                progress[0] != observed_progress[0]
+                                or progress[1] != observed_progress[1]
+                                or progress[2] > observed_progress[2]
+                                or progress[3] > observed_progress[3]
+                                or progress[4] != observed_progress[4]
+                            ):
+                                observed_progress = progress
+                                deadline = min(
+                                    time.monotonic() + wall_timeout,
+                                    absolute_deadline,
+                                )
                             continue
                 except BaseException:
                     if process.poll() is None:
@@ -683,14 +928,14 @@ def _execute_winner_preflight(
         if return_code != 0:
             tail = _preflight_stderr_tail(stderr_path)
             suffix = f": {tail}" if tail else ""
-            raise RuntimeError(
+            raise _WinnerPreflightChildFailure(
                 f"winner preflight subprocess exited with status "
                 f"{return_code}{suffix}"
             )
         try:
             payload = json.loads(result_path.read_text())
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise RuntimeError(
+            raise _WinnerPreflightChildFailure(
                 "winner preflight result is unreadable"
             ) from exc
         if (
@@ -701,11 +946,52 @@ def _execute_winner_preflight(
             or not isinstance(payload.get("metrics"), dict)
             or set(payload["metrics"]) != set(_WINNER_PREFLIGHT_MARKER_FIELDS)
         ):
-            raise RuntimeError("winner preflight result schema is invalid")
+            raise _WinnerPreflightChildFailure(
+                "winner preflight result schema is invalid"
+            )
         return _validated_winner_preflight_markers(
             payload["metrics"],
             expected_contract_id=expected_contract_id,
         )
+
+
+def _execute_winner_preflight(
+    evaluator_path: str | Path,
+    code: str,
+    *,
+    expected_contract_id: int,
+    wall_timeout: float,
+    cancel_event: threading.Event,
+) -> dict[str, float]:
+    progress_path = _winner_preflight_progress_path(
+        code,
+        expected_contract_id=expected_contract_id,
+    )
+    with _acquire_winner_preflight_lock(
+        progress_path,
+        code=code,
+        expected_contract_id=expected_contract_id,
+        wall_timeout=wall_timeout,
+        cancel_event=cancel_event,
+    ):
+        for attempt in range(1, STAGE1_PREFLIGHT_WORKER_ATTEMPTS + 1):
+            try:
+                return _execute_winner_preflight_owned(
+                    evaluator_path,
+                    code,
+                    expected_contract_id=expected_contract_id,
+                    wall_timeout=wall_timeout,
+                    cancel_event=cancel_event,
+                    progress_path=progress_path,
+                )
+            except (
+                _WinnerPreflightTimeout,
+                _WinnerPreflightChildFailure,
+                OSError,
+            ):
+                if attempt >= STAGE1_PREFLIGHT_WORKER_ATTEMPTS:
+                    raise
+        raise AssertionError("winner preflight retry loop did not return")
 
 
 def _backfill_checkpoint_programs(
@@ -2792,6 +3078,15 @@ def main():
         os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] = str(
             float(evaluator_timeout)
         )
+        if not args.noncss:
+            # OpenEvolve applies this value as a total Stage 1 timeout.  The
+            # evaluator itself now owns the useful safety boundary: the same
+            # configured budget is an inactivity timeout for each durable
+            # lattice.  Expand only the outer guard so cumulative healthy
+            # progress cannot be discarded at 1200 seconds.
+            config.evaluator.timeout = _winner_preflight_outer_timeout(
+                float(evaluator_timeout)
+            )
         if managed_requested and not args.noncss:
             assert dependency_identities is not None
             preflight_contract_id = _winner_preflight_contract_id(

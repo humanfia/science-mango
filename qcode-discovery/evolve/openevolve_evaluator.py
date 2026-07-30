@@ -111,7 +111,7 @@ def _install_private_worker_parent_guard(
 
 
 # Arm the lifecycle contract before importing scipy/qldpc-backed evaluation
-# modules.  This path runs only in the private Stage 2 subprocess.
+# modules.  This path runs only in a private evaluator subprocess.
 if (
     __name__ == "__main__"
     and len(sys.argv) == 6
@@ -162,6 +162,14 @@ logger = logging.getLogger(__name__)
 
 class CandidateLogWriteError(RuntimeError):
     """A discovered candidate could not be durably persisted."""
+
+
+class Stage1CandidateCommitMismatch(CandidateLogWriteError):
+    """A journal prefix no longer exists in its bound candidate log."""
+
+
+class Stage1PreflightLockTimeout(CandidateLogWriteError):
+    """Another owner made no durable progress while holding the source lock."""
 
 
 WINNER_PREFLIGHT_CONTRACT_VERSION = 2
@@ -271,6 +279,18 @@ CANDIDATE_LOG_WAL_SCHEMA_VERSION = 1
 CANDIDATE_LOG_WAL_HEADER_MAX_BYTES = 16 << 10
 CANDIDATE_LOG_WAL_SUFFIX = ".candidate-wal"
 CANDIDATE_LOG_WAL_TEMP_SUFFIX = ".tmp"
+STAGE1_PREFLIGHT_JOURNAL_SCHEMA_VERSION = 1
+STAGE1_PREFLIGHT_JOURNAL_DIRECTORY = ".stage1-preflight"
+STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS = 2
+STAGE1_PREFLIGHT_WORKER_ATTEMPTS = 2
+STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS = 2
+STAGE1_PREFLIGHT_ROW_PROGRAM_SHA256 = "winner_preflight_program_sha256"
+STAGE1_PREFLIGHT_ROW_CONTRACT_ID = "winner_preflight_row_contract_id"
+STAGE1_PREFLIGHT_ROW_EPOCH_ID = "winner_preflight_epoch_id"
+STAGE1_PREFLIGHT_ROW_LATTICE = "winner_preflight_row_lattice"
+STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT = "winner_preflight_lattice_commit"
+STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY = "winner_preflight_lattice_summary"
+STAGE1_CANDIDATE_LOG_RECORDS_FIELD = "candidate_log_records"
 # Full persistence is deliberately unbounded within the challenge-supported
 # sparse universe. A fixed 5000-definition sample is useful for distance
 # fitness, but is not a sound handoff to exact auditing: a supported winner
@@ -865,6 +885,792 @@ def _preflight_reuse_from_environment(
     return _validated_complete_preflight_markers(
         payload.get("markers"),
         expected_contract_id=expected_contract_id,
+    )
+
+
+_STAGE1_LATTICE_SUMMARY_COUNT_FIELDS = (
+    "unique_candidates",
+    "evaluated_candidate_definitions",
+    "winner_capable_quick_exploration_eligible",
+    "winner_capable_quick_exploration_persisted",
+    "winner_capable_quick_exploration_omitted",
+    STAGE1_CANDIDATE_LOG_RECORDS_FIELD,
+    SUPPORT_WEIGHT_ELIGIBLE_METRIC,
+    SUPPORT_WEIGHT_REJECTED_METRIC,
+    SUPPORT_WEIGHT_EVALUATED_METRIC,
+)
+
+
+def _validated_stage1_lattice_summary(
+    summary: object,
+    *,
+    expected_lattice: tuple[int, int],
+) -> dict[str, object]:
+    expected_fields = {
+        "lattice",
+        "pool_sha256",
+        "lattices_completed",
+        "lattice_failures",
+        SUPPORT_FILTER_VERSION_METRIC,
+        SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC,
+        *_STAGE1_LATTICE_SUMMARY_COUNT_FIELDS,
+    }
+    if not isinstance(summary, dict) or set(summary) != expected_fields:
+        raise CandidateLogWriteError(
+            "Stage 1 lattice summary schema is invalid"
+        )
+    lattice = summary.get("lattice")
+    if lattice != [expected_lattice[0], expected_lattice[1]]:
+        raise CandidateLogWriteError(
+            "Stage 1 lattice summary is bound to a different lattice"
+        )
+    pool_sha256 = summary.get("pool_sha256")
+    if (
+        not isinstance(pool_sha256, str)
+        or len(pool_sha256) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in pool_sha256
+        )
+    ):
+        raise CandidateLogWriteError(
+            "Stage 1 lattice summary has an invalid pool digest"
+        )
+    values = {
+        name: _exact_nonnegative_preflight_metric(summary, name)
+        for name in expected_fields
+        if name not in {"lattice", "pool_sha256"}
+    }
+    unique = values["unique_candidates"]
+    support_eligible = values[SUPPORT_WEIGHT_ELIGIBLE_METRIC]
+    support_rejected = values[SUPPORT_WEIGHT_REJECTED_METRIC]
+    support_evaluated = values[SUPPORT_WEIGHT_EVALUATED_METRIC]
+    winner_eligible = values[
+        "winner_capable_quick_exploration_eligible"
+    ]
+    winner_persisted = values[
+        "winner_capable_quick_exploration_persisted"
+    ]
+    candidate_log_records = values[
+        STAGE1_CANDIDATE_LOG_RECORDS_FIELD
+    ]
+    if (
+        values["lattices_completed"] != 1
+        or values["lattice_failures"] != 0
+        or values[SUPPORT_FILTER_VERSION_METRIC]
+        != CHALLENGE_SUPPORT_FILTER_VERSION
+        or values[SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC] != 1
+        or unique != support_eligible + support_rejected
+        or values["evaluated_candidate_definitions"] != support_evaluated
+        or support_evaluated != support_eligible
+        or winner_persisted != winner_eligible
+        or candidate_log_records < winner_persisted
+        or values["winner_capable_quick_exploration_omitted"] != 0
+    ):
+        raise CandidateLogWriteError(
+            "Stage 1 lattice summary does not prove complete persistence"
+        )
+    return {
+        "lattice": [expected_lattice[0], expected_lattice[1]],
+        "pool_sha256": pool_sha256,
+        **values,
+    }
+
+
+def _stage1_lattice_summary(
+    metrics: dict,
+    *,
+    lattice: tuple[int, int],
+    pool_sha256: str,
+) -> dict[str, object]:
+    _require_full_pool_persistence(
+        metrics,
+        expected_lattices=1,
+        label=f"Stage 1 lattice {lattice}",
+    )
+    summary = {
+        "lattice": [lattice[0], lattice[1]],
+        "pool_sha256": pool_sha256,
+        "lattices_completed": metrics.get("lattices_completed"),
+        "lattice_failures": metrics.get("lattice_failures"),
+        SUPPORT_FILTER_VERSION_METRIC: metrics.get(
+            SUPPORT_FILTER_VERSION_METRIC
+        ),
+        SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: metrics.get(
+            SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC
+        ),
+        **{
+            name: metrics.get(name)
+            for name in _STAGE1_LATTICE_SUMMARY_COUNT_FIELDS
+        },
+    }
+    return _validated_stage1_lattice_summary(
+        summary,
+        expected_lattice=lattice,
+    )
+
+
+def _generated_pool_sha256(
+    candidates: object,
+    *,
+    lattice: tuple[int, int],
+) -> str:
+    if not isinstance(candidates, list):
+        payload = {
+            "lattice": [lattice[0], lattice[1]],
+            "returned_type": type(candidates).__name__,
+        }
+    else:
+        normalized, malformed_errors = _normalize_generated_candidates(
+            candidates,
+            ell=lattice[0],
+            m=lattice[1],
+        )
+        payload = {
+            "lattice": [lattice[0], lattice[1]],
+            "raw_count": len(candidates),
+            "normalized": [
+                hashlib.sha256(
+                    _candidate_definition_payload(
+                        candidate,
+                        ell=lattice[0],
+                        m=lattice[1],
+                    )
+                ).hexdigest()
+                for candidate in normalized
+            ],
+            "malformed_errors": malformed_errors,
+        }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _aggregate_stage1_lattice_summaries(
+    summaries: list[dict[str, object]],
+) -> dict:
+    expected = list(EVOLUTION_LATTICES[: len(summaries)])
+    validated = [
+        _validated_stage1_lattice_summary(
+            summary,
+            expected_lattice=lattice,
+        )
+        for summary, lattice in zip(summaries, expected, strict=True)
+    ]
+    if len(validated) != len(EVOLUTION_LATTICES):
+        raise CandidateLogWriteError(
+            "winner preflight cannot complete before every lattice is durable"
+        )
+    totals = {
+        name: sum(int(summary[name]) for summary in validated)
+        for name in _STAGE1_LATTICE_SUMMARY_COUNT_FIELDS
+    }
+    return {
+        **totals,
+        SUPPORT_FILTER_VERSION_METRIC: CHALLENGE_SUPPORT_FILTER_VERSION,
+        SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: 1,
+        "lattices_completed": len(validated),
+        "lattice_failures": 0,
+    }
+
+
+def _stage1_preflight_journal_paths(
+    candidate_log_path: Path,
+    *,
+    source_sha256: str,
+    contract_id: int,
+) -> tuple[Path, Path]:
+    journal_root = (
+        candidate_log_path.parent / STAGE1_PREFLIGHT_JOURNAL_DIRECTORY
+    )
+    journal_root.mkdir(parents=True, exist_ok=True)
+    if journal_root.is_symlink() or not journal_root.is_dir():
+        raise CandidateLogWriteError(
+            f"Stage 1 journal root is unsafe: {journal_root}"
+        )
+    stem = f"{contract_id}-{source_sha256}"
+    return journal_root / f"{stem}.json", journal_root / f"{stem}.lock"
+
+
+def _stage1_preflight_progress_snapshot(
+    journal_path: Path,
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+) -> tuple[str, int, int, int, str]:
+    if not _path_entry_exists(journal_path):
+        return ("", 0, 0, 0, "missing")
+    journal = _load_stage1_preflight_journal(
+        journal_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+    )
+    return (
+        str(journal["epoch_id"]),
+        int(journal["restart_count"]),
+        int(journal["progress_sequence"]),
+        len(journal["completed_lattices"]),
+        str(journal["status"]),
+    )
+
+
+def _open_stage1_preflight_lock(
+    lock_path: Path,
+    *,
+    journal_path: Path,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+    inactivity_timeout: float,
+) -> int:
+    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(lock_path, flags, 0o600)
+    metadata = os.fstat(descriptor)
+    if not stat.S_ISREG(metadata.st_mode):
+        os.close(descriptor)
+        raise CandidateLogWriteError(
+            f"Stage 1 journal lock is not regular: {lock_path}"
+        )
+    try:
+        try:
+            fcntl.flock(
+                descriptor,
+                fcntl.LOCK_EX | fcntl.LOCK_NB,
+            )
+            return descriptor
+        except BlockingIOError:
+            pass
+        observed = _stage1_preflight_progress_snapshot(
+            journal_path,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+        started = time.monotonic()
+        deadline = started + inactivity_timeout
+        absolute_deadline = (
+            started
+            + inactivity_timeout
+            * STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS
+        )
+        while True:
+            remaining = min(deadline, absolute_deadline) - time.monotonic()
+            if remaining <= 0:
+                raise Stage1PreflightLockTimeout(
+                    "winner preflight source lock owner made no durable "
+                    f"progress for {inactivity_timeout:.1f}s"
+                )
+            time.sleep(min(0.25, remaining))
+            try:
+                fcntl.flock(
+                    descriptor,
+                    fcntl.LOCK_EX | fcntl.LOCK_NB,
+                )
+                return descriptor
+            except BlockingIOError:
+                progress = _stage1_preflight_progress_snapshot(
+                    journal_path,
+                    source_sha256=source_sha256,
+                    contract_id=contract_id,
+                    candidate_log_path=candidate_log_path,
+                )
+                if (
+                    progress[0] != observed[0]
+                    or progress[1] != observed[1]
+                    or progress[2] > observed[2]
+                    or progress[3] > observed[3]
+                    or progress[4] != observed[4]
+                ):
+                    observed = progress
+                    deadline = min(
+                        time.monotonic() + inactivity_timeout,
+                        absolute_deadline,
+                    )
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _initial_stage1_preflight_journal(
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+    restart_count: int = 0,
+) -> dict[str, object]:
+    if type(restart_count) is not int or restart_count < 0:
+        raise CandidateLogWriteError(
+            "Stage 1 journal restart count is invalid"
+        )
+    return {
+        "schema_version": STAGE1_PREFLIGHT_JOURNAL_SCHEMA_VERSION,
+        "status": "in_progress",
+        "program_sha256": source_sha256,
+        "contract_id": contract_id,
+        "candidate_log_path": str(candidate_log_path),
+        "epoch_id": os.urandom(32).hex(),
+        "restart_count": restart_count,
+        "lattices": [list(lattice) for lattice in EVOLUTION_LATTICES],
+        "completed_lattices": [],
+        "progress_sequence": 0,
+        "markers": None,
+    }
+
+
+def _validated_stage1_preflight_journal(
+    payload: object,
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+) -> dict[str, object]:
+    expected_fields = {
+        "schema_version",
+        "status",
+        "program_sha256",
+        "contract_id",
+        "candidate_log_path",
+        "epoch_id",
+        "restart_count",
+        "lattices",
+        "completed_lattices",
+        "progress_sequence",
+        "markers",
+    }
+    if not isinstance(payload, dict) or set(payload) != expected_fields:
+        raise CandidateLogWriteError("Stage 1 journal schema is invalid")
+    expected_lattices = [list(lattice) for lattice in EVOLUTION_LATTICES]
+    completed = payload.get("completed_lattices")
+    epoch_id = payload.get("epoch_id")
+    if (
+        payload.get("schema_version")
+        != STAGE1_PREFLIGHT_JOURNAL_SCHEMA_VERSION
+        or payload.get("status") not in {"in_progress", "completed"}
+        or payload.get("program_sha256") != source_sha256
+        or payload.get("contract_id") != contract_id
+        or payload.get("candidate_log_path") != str(candidate_log_path)
+        or not isinstance(epoch_id, str)
+        or len(epoch_id) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in epoch_id
+        )
+        or type(payload.get("restart_count")) is not int
+        or payload["restart_count"] < 0
+        or payload.get("lattices") != expected_lattices
+        or not isinstance(completed, list)
+        or len(completed) > len(expected_lattices)
+        or type(payload.get("progress_sequence")) is not int
+        or payload["progress_sequence"] < len(completed)
+    ):
+        raise CandidateLogWriteError("Stage 1 journal binding is invalid")
+    normalized = [
+        _validated_stage1_lattice_summary(
+            summary,
+            expected_lattice=EVOLUTION_LATTICES[index],
+        )
+        for index, summary in enumerate(completed)
+    ]
+    markers = payload.get("markers")
+    if payload["status"] == "completed":
+        aggregate = _aggregate_stage1_lattice_summaries(normalized)
+        expected_markers = _winner_preflight_markers(
+            aggregate,
+            contract_id=contract_id,
+        )
+        validated_markers = _validated_complete_preflight_markers(
+            markers,
+            expected_contract_id=contract_id,
+        )
+        if validated_markers != expected_markers:
+            raise CandidateLogWriteError(
+                "Stage 1 completed journal markers do not match its lattice "
+                "summaries"
+            )
+        markers = validated_markers
+    elif markers is not None:
+        raise CandidateLogWriteError(
+            "Stage 1 in-progress journal contains completion markers"
+        )
+    return {
+        **payload,
+        "epoch_id": epoch_id,
+        "completed_lattices": normalized,
+        "progress_sequence": payload["progress_sequence"],
+        "markers": markers,
+    }
+
+
+def _load_stage1_preflight_journal(
+    journal_path: Path,
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+) -> dict[str, object]:
+    if not _path_entry_exists(journal_path):
+        return _initial_stage1_preflight_journal(
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+    if journal_path.is_symlink() or not journal_path.is_file():
+        raise CandidateLogWriteError(
+            f"Stage 1 journal is not a regular file: {journal_path}"
+        )
+    try:
+        payload = json.loads(journal_path.read_text())
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CandidateLogWriteError(
+            f"Stage 1 journal is unreadable: {journal_path}"
+        ) from exc
+    return _validated_stage1_preflight_journal(
+        payload,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+    )
+
+
+def _write_stage1_preflight_journal(
+    journal_path: Path,
+    payload: dict[str, object],
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+) -> dict[str, object]:
+    normalized = _validated_stage1_preflight_journal(
+        payload,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+    )
+    if journal_path.is_symlink():
+        raise CandidateLogWriteError(
+            f"refusing to replace symlinked Stage 1 journal: {journal_path}"
+        )
+    encoded = json.dumps(
+        normalized,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    temporary = journal_path.with_name(
+        f".{journal_path.name}.tmp-{os.getpid()}-"
+        f"{threading.get_ident()}-{time.time_ns()}"
+    )
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(temporary, flags, 0o600)
+    try:
+        _write_all(descriptor, encoded)
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+    os.replace(temporary, journal_path)
+    directory_descriptor = os.open(
+        journal_path.parent,
+        os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0),
+    )
+    try:
+        os.fsync(directory_descriptor)
+    finally:
+        os.close(directory_descriptor)
+    return normalized
+
+
+def _restart_stage1_preflight_journal(
+    journal_path: Path,
+    journal: dict[str, object],
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+) -> dict[str, object]:
+    """Rotate the row epoch after the bound candidate tail was rolled back."""
+
+    restarted = _initial_stage1_preflight_journal(
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+        restart_count=int(journal["restart_count"]) + 1,
+    )
+    return _write_stage1_preflight_journal(
+        journal_path,
+        restarted,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+    )
+
+
+def _recover_stage1_lattice_commits(
+    candidate_log_path: Path,
+    journal: dict[str, object],
+) -> dict[str, object]:
+    completed = list(journal["completed_lattices"])
+    recovered: dict[tuple[int, int], dict[str, object]] = {}
+    provenance_counts: dict[tuple[int, int], int] = {}
+    commit_counts: dict[tuple[int, int], int] = {}
+    candidate_log_path = _canonical_candidate_log_path(candidate_log_path)
+    candidate_log_path.parent.mkdir(parents=True, exist_ok=True)
+    flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(candidate_log_path, flags, 0o600)
+    except OSError as exc:
+        raise CandidateLogWriteError(
+            f"Stage 1 candidate log cannot be opened: {candidate_log_path}"
+        ) from exc
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        _validate_locked_candidate_log(candidate_log_path, descriptor)
+        _recover_candidate_log_wal_locked(
+            candidate_log_path,
+            descriptor,
+        )
+        os.fsync(descriptor)
+        _fsync_candidate_log_directory(candidate_log_path)
+        _validate_candidate_log_boundary(
+            descriptor,
+            os.fstat(descriptor).st_size,
+        )
+        # Downgrade without an unlocked window. Other recovery scans can now
+        # proceed together, while every cooperating append remains blocked
+        # until this inode-bound snapshot has been fully validated.
+        fcntl.flock(descriptor, fcntl.LOCK_SH)
+        before = os.fstat(descriptor)
+        with os.fdopen(os.dup(descriptor), "rb") as source:
+            source.seek(0)
+            for line in source:
+                try:
+                    row = json.loads(line)
+                except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                    raise CandidateLogWriteError(
+                        "candidate log is corrupt while recovering Stage 1"
+                    ) from exc
+                if (
+                    not isinstance(row, dict)
+                    or row.get(STAGE1_PREFLIGHT_ROW_PROGRAM_SHA256)
+                    != journal["program_sha256"]
+                    or row.get(STAGE1_PREFLIGHT_ROW_CONTRACT_ID)
+                    != journal["contract_id"]
+                    or row.get(STAGE1_PREFLIGHT_ROW_EPOCH_ID)
+                    != journal["epoch_id"]
+                ):
+                    continue
+                raw_lattice = row.get(STAGE1_PREFLIGHT_ROW_LATTICE)
+                if (
+                    not isinstance(raw_lattice, list)
+                    or len(raw_lattice) != 2
+                    or any(type(item) is not int for item in raw_lattice)
+                ):
+                    raise CandidateLogWriteError(
+                        "candidate log has an invalid Stage 1 provenance lattice"
+                    )
+                lattice = (raw_lattice[0], raw_lattice[1])
+                if lattice not in EVOLUTION_LATTICES:
+                    raise CandidateLogWriteError(
+                        "candidate log has out-of-contract Stage 1 provenance"
+                    )
+                provenance_counts[lattice] = (
+                    provenance_counts.get(lattice, 0) + 1
+                )
+                if (
+                    row.get(STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT)
+                    is not True
+                ):
+                    continue
+                commit_counts[lattice] = commit_counts.get(lattice, 0) + 1
+                summary = _validated_stage1_lattice_summary(
+                    row.get(STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY),
+                    expected_lattice=lattice,
+                )
+                prior = recovered.get(lattice)
+                if prior is not None and prior != summary:
+                    raise CandidateLogWriteError(
+                        "candidate log has conflicting Stage 1 lattice commits"
+                    )
+                recovered[lattice] = summary
+        after = os.fstat(descriptor)
+        _validate_locked_candidate_log(candidate_log_path, descriptor)
+        wal_file, temporary = _candidate_log_wal_paths(candidate_log_path)
+        if (
+            (before.st_dev, before.st_ino, before.st_size)
+            != (after.st_dev, after.st_ino, after.st_size)
+            or _path_entry_exists(wal_file)
+            or _path_entry_exists(temporary)
+        ):
+            raise CandidateLogWriteError(
+                "Stage 1 candidate commit snapshot was not captured from "
+                "one stable WAL-clean file"
+            )
+    finally:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
+
+    for lattice, observed_records in provenance_counts.items():
+        summary = recovered.get(lattice)
+        if summary is None:
+            raise Stage1CandidateCommitMismatch(
+                "Stage 1 candidate provenance has no complete lattice "
+                f"commit at {lattice}"
+            )
+        expected_records = int(
+            summary[STAGE1_CANDIDATE_LOG_RECORDS_FIELD]
+        )
+        if (
+            observed_records != expected_records
+            or commit_counts.get(lattice, 0) != 1
+        ):
+            raise Stage1CandidateCommitMismatch(
+                "Stage 1 candidate commit is incomplete or duplicated at "
+                f"{lattice}: summary={expected_records}, "
+                f"candidate_rows={observed_records}, "
+                f"commit_rows={commit_counts.get(lattice, 0)}"
+            )
+
+    for index, summary in enumerate(completed):
+        lattice = EVOLUTION_LATTICES[index]
+        expected_records = int(
+            summary[STAGE1_CANDIDATE_LOG_RECORDS_FIELD]
+        )
+        observed_records = provenance_counts.get(lattice, 0)
+        commit = recovered.get(lattice)
+        if (
+            observed_records != expected_records
+            or (expected_records > 0 and commit != summary)
+            or (expected_records == 0 and commit is not None)
+        ):
+            raise Stage1CandidateCommitMismatch(
+                "Stage 1 journal/candidate commit mismatch at lattice "
+                f"{lattice}: journal={expected_records}, "
+                f"candidate_rows={observed_records}, "
+                f"commit={commit is not None}"
+            )
+
+    while len(completed) < len(EVOLUTION_LATTICES):
+        lattice = EVOLUTION_LATTICES[len(completed)]
+        summary = recovered.get(lattice)
+        if summary is None:
+            break
+        completed.append(summary)
+    committed_prefix = set(EVOLUTION_LATTICES[: len(completed)])
+    unexpected = sorted(set(provenance_counts) - committed_prefix)
+    if unexpected:
+        raise Stage1CandidateCommitMismatch(
+            "Stage 1 candidate commits are not a continuous lattice "
+            f"prefix: {unexpected}"
+        )
+    return {
+        **journal,
+        "completed_lattices": completed,
+        "progress_sequence": max(
+            int(journal["progress_sequence"]),
+            len(completed),
+        ),
+    }
+def _stage1_lattice_spool_rows(spool_path: Path) -> list[dict]:
+    try:
+        encoded = spool_path.read_bytes()
+    except FileNotFoundError:
+        encoded = b""
+    if encoded and not encoded.endswith(b"\n"):
+        raise CandidateLogWriteError(
+            "Stage 1 lattice spool ends with a partial JSON record"
+        )
+    rows = []
+    for line in encoded.splitlines():
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise CandidateLogWriteError(
+                "Stage 1 lattice spool contains invalid JSON"
+            ) from exc
+        if not isinstance(row, dict):
+            raise CandidateLogWriteError(
+                "Stage 1 lattice spool row is not an object"
+            )
+        rows.append(row)
+    return rows
+
+
+def _stage1_lattice_commit_payload(
+    spool_path: Path,
+    *,
+    source_sha256: str,
+    contract_id: int,
+    epoch_id: str,
+    lattice: tuple[int, int],
+    summary: dict[str, object],
+) -> bytes:
+    if (
+        not isinstance(epoch_id, str)
+        or len(epoch_id) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in epoch_id
+        )
+    ):
+        raise CandidateLogWriteError(
+            "Stage 1 lattice commit epoch is invalid"
+        )
+    rows = _stage1_lattice_spool_rows(spool_path)
+    for row in rows:
+        for field in (
+            STAGE1_PREFLIGHT_ROW_PROGRAM_SHA256,
+            STAGE1_PREFLIGHT_ROW_CONTRACT_ID,
+            STAGE1_PREFLIGHT_ROW_EPOCH_ID,
+            STAGE1_PREFLIGHT_ROW_LATTICE,
+            STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT,
+            STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY,
+        ):
+            if field in row:
+                raise CandidateLogWriteError(
+                    "Stage 1 lattice spool forged managed provenance"
+                )
+        row[STAGE1_PREFLIGHT_ROW_PROGRAM_SHA256] = source_sha256
+        row[STAGE1_PREFLIGHT_ROW_CONTRACT_ID] = contract_id
+        row[STAGE1_PREFLIGHT_ROW_EPOCH_ID] = epoch_id
+        row[STAGE1_PREFLIGHT_ROW_LATTICE] = [lattice[0], lattice[1]]
+    expected_records = int(
+        summary[STAGE1_CANDIDATE_LOG_RECORDS_FIELD]
+    )
+    if len(rows) != expected_records:
+        raise CandidateLogWriteError(
+            "Stage 1 lattice spool does not match its persistence summary: "
+            f"lattice={lattice}, rows={len(rows)}, "
+            f"persisted={expected_records}"
+        )
+    if rows:
+        rows[-1][STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT] = True
+        rows[-1][STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY] = summary
+    return b"".join(
+        (
+            json.dumps(
+                row,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+        for row in rows
     )
 
 
@@ -2932,8 +3738,15 @@ def _preflight_program(program_path: str) -> dict[str, float]:
     return markers
 
 
-def _evaluate_stage1_impl(program_path: str) -> dict:
-    """Stage 1: Quick screening on small lattices (k-only, ~2s).
+def _evaluate_stage1_impl(
+    program_path: str,
+    *,
+    generate_fn=None,
+    preflight_markers: dict[str, float] | None = None,
+    candidate_log_path: Path | None = None,
+    source_sha256: str | None = None,
+) -> dict:
+    """Stage 1: score two quick probes after the durable full preflight.
 
     Broad programs with valid codes on both probes receive the normal fitness
     score. A deterministic 1/N sample of programs that fail full probe
@@ -2950,23 +3763,36 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
     MAP-Elites ~7x differentiation vs the prior 15% spread.
     """
     contract_id = _current_winner_preflight_contract_id()
-    candidate_log_path = _freeze_candidate_log_path()
-    source_sha256 = _freeze_program_source_sha256(program_path)
+    if candidate_log_path is None:
+        candidate_log_path = _freeze_candidate_log_path()
+    else:
+        candidate_log_path = _freeze_candidate_log_path(candidate_log_path)
+    if source_sha256 is None:
+        source_sha256 = _freeze_program_source_sha256(program_path)
+    else:
+        _assert_program_source_unchanged(program_path, source_sha256)
     load_generate_candidates = _load_generate_candidates
     run_full_winner_preflight = _run_full_winner_preflight
     run_evaluation = _run_evaluation
-    try:
-        generate_fn = load_generate_candidates(program_path)
-    except Exception as e:
-        return _error_result(str(e))
+    if generate_fn is None:
+        try:
+            generate_fn = load_generate_candidates(program_path)
+        except Exception as e:
+            return _error_result(str(e))
 
     _assert_program_source_unchanged(program_path, source_sha256)
-    preflight_markers = run_full_winner_preflight(
-        generate_fn,
-        sampling_salt=source_sha256,
-        contract_id=contract_id,
-        candidate_log_path=candidate_log_path,
-    )
+    if preflight_markers is None:
+        preflight_markers = run_full_winner_preflight(
+            generate_fn,
+            sampling_salt=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+    else:
+        preflight_markers = _validated_complete_preflight_markers(
+            preflight_markers,
+            expected_contract_id=contract_id,
+        )
     _assert_program_source_unchanged(program_path, source_sha256)
     # Preserve the historical two-probe Stage 1 fitness scale after the
     # persistence-only full contract has completed.  This second cheap call is
@@ -3058,6 +3884,230 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
     result.update(_support_observability_metrics(metrics))
     result.update(preflight_markers)
     return result
+
+
+def _run_resumable_winner_preflight(
+    program_path: str,
+    *,
+    _candidate_restart_budget: int = (
+        STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS - 1
+    ),
+) -> tuple[dict[str, float], object, Path, str]:
+    """Run the complete preflight as durable, per-lattice transactions.
+
+    The worker process stays alive while progress is being made, so stateful
+    generators retain their historical call order.  If the worker is killed
+    externally, a replacement deterministically replays committed generator
+    calls and verifies their canonical pool digests before continuing.
+    """
+
+    contract_id = _current_winner_preflight_contract_id()
+    candidate_log_path = _freeze_candidate_log_path()
+    source_sha256 = _freeze_program_source_sha256(program_path)
+    journal_path, _lock_path = _stage1_preflight_journal_paths(
+        candidate_log_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+    )
+    journal = _load_stage1_preflight_journal(
+        journal_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+    )
+    if not _path_entry_exists(journal_path):
+        journal = _write_stage1_preflight_journal(
+            journal_path,
+            journal,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+    try:
+        recovered = _recover_stage1_lattice_commits(
+            candidate_log_path,
+            journal,
+        )
+    except Stage1CandidateCommitMismatch:
+        journal = _restart_stage1_preflight_journal(
+            journal_path,
+            journal,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+        recovered = journal
+    if recovered != journal:
+        journal = _write_stage1_preflight_journal(
+            journal_path,
+            recovered,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+
+    generate_fn = _load_generate_candidates(program_path)
+    _assert_program_source_unchanged(program_path, source_sha256)
+    completed = list(journal["completed_lattices"])
+
+    for index, lattice in enumerate(EVOLUTION_LATTICES):
+        generated = generate_fn(lattice[0], lattice[1])
+        _assert_program_source_unchanged(program_path, source_sha256)
+        pool_sha256 = _generated_pool_sha256(
+            generated,
+            lattice=lattice,
+        )
+        if index < len(completed):
+            if completed[index]["pool_sha256"] != pool_sha256:
+                raise CandidateLogWriteError(
+                    "Stage 1 generator replay changed the committed pool at "
+                    f"lattice {lattice}"
+                )
+            journal = _write_stage1_preflight_journal(
+                journal_path,
+                {
+                    **journal,
+                    "progress_sequence": int(
+                        journal["progress_sequence"]
+                    ) + 1,
+                },
+                source_sha256=source_sha256,
+                contract_id=contract_id,
+                candidate_log_path=candidate_log_path,
+            )
+            continue
+
+        def frozen_generate(ell: int, m: int):
+            if (ell, m) != lattice:
+                raise CandidateLogWriteError(
+                    "Stage 1 lattice evaluator requested a different lattice"
+                )
+            return generated
+
+        with tempfile.TemporaryDirectory(
+            prefix="qcode-stage1-lattice-"
+        ) as spool_root:
+            spool_path = Path(spool_root) / "candidates.jsonl"
+            metrics = _run_evaluation(
+                frozen_generate,
+                [lattice],
+                quick=True,
+                candidate_log_path=spool_path,
+                sampling_salt=source_sha256,
+                candidate_limit=None,
+                persist_quick_exploration=True,
+                persist_all_quick_exploration=True,
+            )
+            metrics[STAGE1_CANDIDATE_LOG_RECORDS_FIELD] = len(
+                _stage1_lattice_spool_rows(spool_path)
+            )
+            summary = _stage1_lattice_summary(
+                metrics,
+                lattice=lattice,
+                pool_sha256=pool_sha256,
+            )
+            commit_payload = _stage1_lattice_commit_payload(
+                spool_path,
+                source_sha256=source_sha256,
+                contract_id=contract_id,
+                epoch_id=str(journal["epoch_id"]),
+                lattice=lattice,
+                summary=summary,
+            )
+            if commit_payload:
+                _append_candidate_jsonl(
+                    candidate_log_path,
+                    commit_payload,
+                )
+
+        completed.append(summary)
+        journal = _write_stage1_preflight_journal(
+            journal_path,
+            {
+                **journal,
+                "status": "in_progress",
+                "completed_lattices": completed,
+                "progress_sequence": int(
+                    journal["progress_sequence"]
+                ) + 1,
+                "markers": None,
+            },
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+
+    try:
+        verified = _recover_stage1_lattice_commits(
+            candidate_log_path,
+            journal,
+        )
+    except Stage1CandidateCommitMismatch:
+        if _candidate_restart_budget <= 0:
+            raise
+        _restart_stage1_preflight_journal(
+            journal_path,
+            journal,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+        return _run_resumable_winner_preflight(
+            program_path,
+            _candidate_restart_budget=_candidate_restart_budget - 1,
+        )
+    if verified != journal:
+        journal = _write_stage1_preflight_journal(
+            journal_path,
+            verified,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+        completed = list(journal["completed_lattices"])
+
+    aggregate = _aggregate_stage1_lattice_summaries(completed)
+    markers = _winner_preflight_markers(
+        aggregate,
+        contract_id=contract_id,
+    )
+    if journal["status"] != "completed":
+        journal = _write_stage1_preflight_journal(
+            journal_path,
+            {
+                **journal,
+                "status": "completed",
+                "completed_lattices": completed,
+                "progress_sequence": int(
+                    journal["progress_sequence"]
+                ) + 1,
+                "markers": markers,
+            },
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+    else:
+        markers = dict(journal["markers"])
+
+    _assert_program_source_unchanged(program_path, source_sha256)
+    return markers, generate_fn, candidate_log_path, source_sha256
+
+
+def _evaluate_stage1_resumable_impl(program_path: str) -> dict:
+    (
+        markers,
+        generate_fn,
+        candidate_log_path,
+        source_sha256,
+    ) = _run_resumable_winner_preflight(program_path)
+    return _evaluate_stage1_impl(
+        program_path,
+        generate_fn=generate_fn,
+        preflight_markers=markers,
+        candidate_log_path=candidate_log_path,
+        source_sha256=source_sha256,
+    )
 
 
 def _evaluate_stage2_impl(program_path: str) -> dict:
@@ -3547,6 +4597,21 @@ def _winner_preflight_hard_timeout_s() -> float:
     )
 
 
+def _winner_preflight_attempt_hard_timeout_s(
+    inactivity_timeout: float,
+) -> float:
+    """Absolute non-resettable wall for one owned Stage 1 child."""
+
+    return (
+        inactivity_timeout
+        * (
+            len(EVOLUTION_LATTICES)
+            * STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS
+            + 1
+        )
+    )
+
+
 def _winner_preflight_failure_result(
     message: str,
     *,
@@ -3573,10 +4638,28 @@ def _winner_preflight_failure_result(
     return metrics
 
 
-def evaluate_stage1(program_path: str) -> dict:
-    """Run gate-before-persistence Stage 1 behind a killable wall timeout."""
+def _run_stage1_worker_attempt(
+    program_path: str,
+    *,
+    source_sha256: str,
+    contract_id: int,
+    candidate_log_path: Path,
+    journal_path: Path,
+    inactivity_timeout: float,
+) -> tuple[dict | None, str | None, bool]:
+    """Run one owned child attempt and retain its exact source for retry."""
 
-    source_sha256 = _freeze_program_source_sha256(program_path)
+    observed = _load_stage1_preflight_journal(
+        journal_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log_path,
+    )
+    observed_completed = len(observed["completed_lattices"])
+    observed_status = observed["status"]
+    observed_progress = int(observed["progress_sequence"])
+    observed_epoch = str(observed["epoch_id"])
+    observed_restarts = int(observed["restart_count"])
     evaluator_path = Path(__file__).resolve()
     with tempfile.TemporaryDirectory(prefix="qcode-stage1-") as temp_dir:
         temp_root = Path(temp_dir)
@@ -3594,6 +4677,11 @@ def evaluate_stage1(program_path: str) -> dict:
         lifecycle_read_fd, lifecycle_write_fd = os.pipe()
         command.append(str(lifecycle_read_fd))
         child_environment = os.environ.copy()
+        child_environment[CANDIDATE_LOG_PATH_ENV] = str(candidate_log_path)
+        child_environment[WINNER_PREFLIGHT_CONTRACT_ID_ENV] = str(
+            contract_id
+        )
+        child_environment.pop(WINNER_PREFLIGHT_REUSE_ENV, None)
         for variable in STAGE2_NUMERIC_THREAD_ENV:
             child_environment[variable] = "1"
         try:
@@ -3613,60 +4701,218 @@ def evaluate_stage1(program_path: str) -> dict:
                     )
                 finally:
                     os.close(lifecycle_read_fd)
+                started = time.monotonic()
+                deadline = started + inactivity_timeout
+                absolute_deadline = (
+                    started
+                    + _winner_preflight_attempt_hard_timeout_s(
+                        inactivity_timeout
+                    )
+                )
                 try:
-                    return_code = process.wait(
-                        timeout=_winner_preflight_hard_timeout_s()
-                    )
-                except subprocess.TimeoutExpired:
-                    _terminate_stage2_process_group(process)
-                    return _winner_preflight_failure_result(
-                        "winner preflight exceeded its killable wall timeout",
-                        timed_out=True,
-                    )
+                    while True:
+                        now = time.monotonic()
+                        remaining = min(
+                            deadline,
+                            absolute_deadline,
+                        ) - now
+                        if remaining <= 0:
+                            _terminate_stage2_process_group(process)
+                            if now >= absolute_deadline:
+                                reason = (
+                                    "absolute wall timeout after "
+                                    f"{_winner_preflight_attempt_hard_timeout_s(
+                                        inactivity_timeout
+                                    ):.1f}s"
+                                )
+                            else:
+                                reason = (
+                                    "wall timeout without durable lattice "
+                                    "progress for "
+                                    f"{inactivity_timeout:.1f}s"
+                                )
+                            return (
+                                None,
+                                "winner preflight exceeded its killable "
+                                f"{reason} "
+                                f"({observed_completed}/"
+                                f"{len(EVOLUTION_LATTICES)} checkpointed)",
+                                True,
+                            )
+                        try:
+                            return_code = process.wait(
+                                timeout=min(0.25, remaining)
+                            )
+                            break
+                        except subprocess.TimeoutExpired:
+                            journal = _load_stage1_preflight_journal(
+                                journal_path,
+                                source_sha256=source_sha256,
+                                contract_id=contract_id,
+                                candidate_log_path=candidate_log_path,
+                            )
+                            completed = len(
+                                journal["completed_lattices"]
+                            )
+                            status = journal["status"]
+                            progress = int(journal["progress_sequence"])
+                            epoch = str(journal["epoch_id"])
+                            restarts = int(journal["restart_count"])
+                            if (
+                                epoch != observed_epoch
+                                or restarts != observed_restarts
+                                or completed > observed_completed
+                                or status != observed_status
+                                or progress > observed_progress
+                            ):
+                                observed_completed = completed
+                                observed_status = status
+                                observed_progress = progress
+                                observed_epoch = epoch
+                                observed_restarts = restarts
+                                deadline = min(
+                                    time.monotonic() + inactivity_timeout,
+                                    absolute_deadline,
+                                )
                 except BaseException:
-                    _terminate_stage2_process_group(process)
+                    if process.poll() is None:
+                        _terminate_stage2_process_group(process)
                     raise
         finally:
             os.close(lifecycle_write_fd)
 
         if return_code != 0:
-            return _winner_preflight_failure_result(
-                f"winner preflight subprocess exited with status "
-                f"{return_code}",
-                timed_out=False,
+            stderr_tail = _read_stage2_stderr_tail(stderr_path)
+            suffix = f": {stderr_tail}" if stderr_tail else ""
+            return (
+                None,
+                "winner preflight subprocess exited with status "
+                f"{return_code}{suffix}",
+                False,
             )
         try:
             payload = json.loads(result_path.read_text())
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-            return _winner_preflight_failure_result(
+            return (
+                None,
                 "winner preflight result is unreadable: "
                 f"{type(exc).__name__}",
-                timed_out=False,
+                False,
             )
         if (
             not isinstance(payload, dict)
-            or set(payload)
-            != {"schema_version", "status", "metrics"}
+            or set(payload) != {"schema_version", "status", "metrics"}
             or payload.get("schema_version") != 1
             or payload.get("status") != "completed"
             or not isinstance(payload.get("metrics"), dict)
         ):
-            return _winner_preflight_failure_result(
+            return (
+                None,
                 "winner preflight result schema is invalid",
-                timed_out=False,
+                False,
             )
+        return payload, None, False
+
+
+def evaluate_stage1(program_path: str) -> dict:
+    """Run Stage 1 with per-lattice progress walls and an exact-child retry.
+
+    The previous wrapper applied one deadline to the whole 21-lattice
+    preflight. A healthy worker was killed merely because cumulative work
+    exceeded 1050 seconds. The deadline now resets after every durable
+    lattice commit. If one attempt does time out, the same frozen mutation is
+    restarted immediately and resumes its journal before OpenEvolve can drop
+    the child.
+    """
+
+    source_sha256 = _freeze_program_source_sha256(program_path)
+    contract_id = _current_winner_preflight_contract_id()
+    candidate_log_path = _freeze_candidate_log_path()
+    journal_path, lock_path = _stage1_preflight_journal_paths(
+        candidate_log_path,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+    )
+    inactivity_timeout = _winner_preflight_hard_timeout_s()
+    try:
+        lock_descriptor = _open_stage1_preflight_lock(
+            lock_path,
+            journal_path=journal_path,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+            inactivity_timeout=inactivity_timeout,
+        )
+    except Stage1PreflightLockTimeout as exc:
+        return _winner_preflight_failure_result(
+            str(exc),
+            timed_out=True,
+        )
+    try:
+        initial_journal = _load_stage1_preflight_journal(
+            journal_path,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log_path,
+        )
+        if not _path_entry_exists(journal_path):
+            _write_stage1_preflight_journal(
+                journal_path,
+                initial_journal,
+                source_sha256=source_sha256,
+                contract_id=contract_id,
+                candidate_log_path=candidate_log_path,
+            )
+        failure_message = "winner preflight did not start"
+        failure_timed_out = False
+        for attempt in range(1, STAGE1_PREFLIGHT_WORKER_ATTEMPTS + 1):
+            try:
+                payload, failure, timed_out = _run_stage1_worker_attempt(
+                    program_path,
+                    source_sha256=source_sha256,
+                    contract_id=contract_id,
+                    candidate_log_path=candidate_log_path,
+                    journal_path=journal_path,
+                    inactivity_timeout=inactivity_timeout,
+                )
+            except OSError as exc:
+                payload = None
+                failure = (
+                    "winner preflight child could not be started or read: "
+                    f"{type(exc).__name__}"
+                )
+                timed_out = False
+            if payload is not None:
+                try:
+                    _assert_program_source_unchanged(
+                        program_path,
+                        source_sha256,
+                    )
+                    _register_stage1_preflight_completion(
+                        program_path,
+                        payload["metrics"],
+                    )
+                except CandidateLogWriteError as exc:
+                    return _winner_preflight_failure_result(
+                        f"winner preflight completion is invalid: {exc}",
+                        timed_out=False,
+                    )
+                return payload["metrics"]
+            failure_message = str(failure)
+            failure_timed_out = timed_out
+            failure_message += (
+                f" (attempt {attempt}/"
+                f"{STAGE1_PREFLIGHT_WORKER_ATTEMPTS})"
+            )
+        return _winner_preflight_failure_result(
+            failure_message,
+            timed_out=failure_timed_out,
+        )
+    finally:
         try:
-            _assert_program_source_unchanged(program_path, source_sha256)
-            _register_stage1_preflight_completion(
-                program_path,
-                payload["metrics"],
-            )
-        except CandidateLogWriteError as exc:
-            return _winner_preflight_failure_result(
-                f"winner preflight completion is invalid: {exc}",
-                timed_out=False,
-            )
-        return payload["metrics"]
+            fcntl.flock(lock_descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(lock_descriptor)
 
 
 def _stage2_failure_result(
@@ -3906,7 +5152,7 @@ def _write_preflight_worker_result(
 
 
 def _stage1_worker_main(program_path: str, result_path: str) -> int:
-    metrics = _evaluate_stage1_impl(program_path)
+    metrics = _evaluate_stage1_resumable_impl(program_path)
     if not isinstance(metrics, dict):
         raise TypeError("Stage 1 worker returned an invalid result")
     _write_preflight_worker_result(result_path, metrics)
@@ -3914,7 +5160,9 @@ def _stage1_worker_main(program_path: str, result_path: str) -> int:
 
 
 def _preflight_worker_main(program_path: str, result_path: str) -> int:
-    metrics = _preflight_program(program_path)
+    metrics, _generate_fn, _candidate_log_path, _source_sha256 = (
+        _run_resumable_winner_preflight(program_path)
+    )
     if not isinstance(metrics, dict):
         raise TypeError("preflight worker returned an invalid result")
     _write_preflight_worker_result(result_path, metrics)
