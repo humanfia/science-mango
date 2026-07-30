@@ -94,6 +94,8 @@ def write_full_slice_proof(
     round_dir: Path,
     checkpoint: Path,
     base: dict | None,
+    *,
+    schema_version: int = 3,
 ) -> None:
     config = flow.config
     result = flow_module._checkpoint_descriptor(
@@ -104,6 +106,14 @@ def write_full_slice_proof(
     error = b"test worker error"
     transaction = json.loads(
         (round_dir / "evolution-transaction.json").read_text()
+    )
+    candidate_source = (
+        flow_module._candidate_log_range_identity(
+            flow.candidate_log,
+            start_offset=int(transaction["candidate_start_offset"]),
+        )
+        if schema_version == 3
+        else None
     )
     launch = transaction["launch_binding"]
     invocation = transaction["invocation_binding"]
@@ -125,7 +135,7 @@ def write_full_slice_proof(
     ).encode()
     witness_path = flow_module._slice_witness_path(round_dir)
     witness = {
-        "schema_version": 2,
+        "schema_version": schema_version,
         "status": "completed",
         "output_dir": str(flow.evolution_output.resolve()),
         "resume_checkpoint": None if base is None else base["path"],
@@ -171,6 +181,17 @@ def write_full_slice_proof(
         "openevolve_version": "0.2.26",
         "completed_at": "test",
     }
+    if candidate_source is not None:
+        witness.update({
+            "candidate_log_path": candidate_source["path"],
+            "candidate_log_device": candidate_source["device"],
+            "candidate_log_inode": candidate_source["inode"],
+            "candidate_start_offset": candidate_source["start_offset"],
+            "candidate_end_offset": candidate_source["end_offset"],
+            "candidate_range_sha256": candidate_source["sha256"],
+            "candidate_range_bytes": candidate_source["bytes"],
+            "candidate_wal_clean": candidate_source["wal_clean"],
+        })
     for name, descriptor in launch.items():
         for field in ("path", "sha256", "bytes"):
             witness[f"{name}_{field}"] = descriptor[field]
@@ -186,6 +207,12 @@ def write_full_slice_proof(
     witness_descriptor = flow_module._file_descriptor(
         witness_path, "test slice witness"
     )
+    witness_descriptor["schema_version"] = witness["schema_version"]
+    if schema_version == 3:
+        witness_descriptor.update({
+            field: witness[field]
+            for field in flow_module.CANDIDATE_WITNESS_FIELDS
+        })
     marker = flow_module._completion_marker_expected(
         config, base, result, launch, invocation, witness_descriptor
     )
@@ -373,11 +400,11 @@ def test_prepared_transaction_adopts_complete_checkpoint_after_crash(tmp_path):
     assert calls == [True]
     assert rows == [row]
     marker = json.loads((round_dir / "openevolve-completed.json").read_text())
-    assert marker["schema_version"] == 2
+    assert marker["schema_version"] == 3
     assert (round_dir / "openevolve-slice-witness.json").is_file()
 
 
-def test_complete_checkpoint_archives_and_truncates_final_partial_candidate(
+def test_prepared_legacy_proof_with_partial_tail_is_quarantined_and_rerun(
     tmp_path,
 ):
     repo = tmp_path / "repo"
@@ -399,7 +426,13 @@ def test_complete_checkpoint_archives_and_truncates_final_partial_candidate(
         flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
         flow.candidate_log.write_bytes(original_tail)
         checkpoint = write_checkpoint(repo, config.run_id, 25)
-        write_full_slice_proof(flow, _round_dir, checkpoint, None)
+        write_full_slice_proof(
+            flow,
+            _round_dir,
+            checkpoint,
+            None,
+            schema_version=2,
+        )
         raise SystemExit(99)
 
     flow = HumanizeFlow(
@@ -410,31 +443,203 @@ def test_complete_checkpoint_archives_and_truncates_final_partial_candidate(
     with pytest.raises(SystemExit):
         flow._capture_round_candidates(state, 1, round_dir)
 
-    def must_not_rerun(*_args):
-        raise AssertionError("completed checkpoint was rerun")
+    def rerun_without_unbound_tail(_config, _state, runner_round):
+        calls.append("replayed")
+        assert flow.candidate_log.read_bytes() == b""
+        checkpoint = write_checkpoint(repo, config.run_id, 25)
+        write_full_slice_proof(resumed, runner_round, checkpoint, None)
+        return checkpoint
 
     resumed = HumanizeFlow(
-        config, reviewer=Reviewer(), evolution_runner=must_not_rerun
+        config, reviewer=Reviewer(), evolution_runner=rerun_without_unbound_tail
     )
     recovered = resumed.store.load_state()
     rows = resumed._capture_round_candidates(recovered, 1, round_dir)
 
-    assert calls == [True]
-    assert rows == [row]
-    assert resumed.candidate_log.read_bytes() == jsonl(row)
-    archive = round_dir / "candidate-final-partial-001.bin"
+    assert calls == [True, "replayed"]
+    assert rows == []
+    assert resumed.candidate_log.read_bytes() == b""
+    archive = round_dir / "abandoned-candidate-tail-001.bin"
     assert archive.read_bytes() == original_tail
     manifest = json.loads(
         (round_dir / "evolution-transaction.json").read_text()
     )
-    recovery = manifest["candidate_partial_recoveries"]
+    recovery = manifest["abandoned_ranges"]
     assert len(recovery) == 1
     assert recovery[0]["last_complete_offset"] == len(jsonl(row))
     assert recovery[0]["partial_bytes"] == len(fragment)
     assert recovery[0]["archive_sha256"] == hashlib.sha256(
         original_tail
     ).hexdigest()
-    assert manifest["candidate_end_offset"] == len(jsonl(row))
+    assert recovery[0]["complete_candidate_batch"]["rows"] == 1
+    assert manifest["candidate_end_offset"] == 0
+    assert (
+        round_dir / "abandoned-checkpoint-attempt-001"
+    ).is_dir()
+
+
+def test_flow_recovers_orphan_candidate_wal_before_tail_inspection(
+    tmp_path,
+):
+    import evolve.openevolve_evaluator as evaluator
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="flow-wal-recovery",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    path = flow.candidate_log.resolve()
+    path.parent.mkdir(parents=True)
+    path.touch()
+    payload = jsonl(candidate(51))
+    evaluator._install_candidate_log_wal(
+        path,
+        start_offset=0,
+        payload=payload,
+    )
+    path.write_bytes(payload[:19])
+    wal_file, temporary = evaluator._candidate_log_wal_paths(path)
+
+    assert flow._candidate_log_size(start_offset=0) == len(payload)
+    assert path.read_bytes() == payload
+    assert not wal_file.exists()
+    assert not temporary.exists()
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ("delete-empty", "replace-empty", "truncate", "tamper"),
+)
+def test_candidate_range_witness_rejects_log_replacement_or_change(
+    tmp_path,
+    mutation,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id=f"candidate-range-{mutation}",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    original = (
+        b""
+        if mutation in {"delete-empty", "replace-empty"}
+        else jsonl(candidate(52))
+    )
+    flow.candidate_log.write_bytes(original)
+    checkpoint = write_checkpoint(repo, config.run_id, 1)
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+
+    if mutation == "delete-empty":
+        flow.candidate_log.unlink()
+    elif mutation == "replace-empty":
+        flow_module.atomic_write_bytes(flow.candidate_log, b"")
+    elif mutation == "truncate":
+        flow.candidate_log.write_bytes(original[:-1])
+    else:
+        changed = bytearray(original)
+        changed[0] = ord("[")
+        flow.candidate_log.write_bytes(changed)
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="candidate",
+    ):
+        flow._capture_round_candidates(state, 1, round_dir)
+
+
+def test_candidate_range_witness_accepts_unchanged_log(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="candidate-range-valid",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    row = candidate(53)
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    flow.candidate_log.write_bytes(jsonl(row))
+    checkpoint = write_checkpoint(repo, config.run_id, 1)
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+
+    assert flow._capture_round_candidates(state, 1, round_dir) == [row]
+
+
+def test_legacy_source_ready_candidate_binding_remains_resumable(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="legacy-source-ready",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    row = candidate(54)
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    encoded = jsonl(row)
+    flow.candidate_log.write_bytes(encoded)
+    checkpoint = write_checkpoint(repo, config.run_id, 1)
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        checkpoint,
+        None,
+        schema_version=2,
+    )
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        checkpoint,
+    )
+    transaction.update({
+        "status": "source-ready",
+        "result_checkpoint": result,
+        "completion_witness_sha256": flow_module._file_sha256(
+            flow_module._slice_witness_path(round_dir)
+        ),
+        "completion_marker_sha256": flow_module._file_sha256(
+            flow_module._completion_marker_path(round_dir)
+        ),
+        "candidate_end_offset": len(encoded),
+        "candidate_source_sha256": hashlib.sha256(encoded).hexdigest(),
+        "candidate_source_rows": 1,
+        "source_ready_at": "legacy",
+    })
+    atomic_write_json(
+        round_dir / "evolution-transaction.json",
+        transaction,
+    )
+
+    resumed = HumanizeFlow(
+        config,
+        reviewer=Reviewer(),
+        evolution_runner=lambda *_args: (_ for _ in ()).throw(
+            AssertionError("source-ready legacy slice must not rerun")
+        ),
+    )
+    assert resumed._capture_round_candidates(
+        resumed.store.load_state(),
+        1,
+        round_dir,
+    ) == [row]
 
 
 def test_swallowed_interrupt_without_checkpoint_cannot_commit_round(tmp_path):

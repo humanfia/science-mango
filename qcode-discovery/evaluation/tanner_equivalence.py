@@ -114,6 +114,9 @@ import time.
 
 from __future__ import annotations
 
+import hashlib
+import json
+
 import numpy as np
 
 
@@ -258,6 +261,98 @@ def extract_qubit_permutation(code_a, code_b):
     return full[:n]
 
 
+def _permutation_sha256(*permutations: list[int]) -> str:
+    """Return a compact, deterministic binding for explicit replay maps."""
+
+    payload = json.dumps(
+        permutations,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("ascii")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def replay_css_matrix_equivalence(code_a, code_b) -> dict:
+    """Explicitly replay a CSS Tanner isomorphism on both check matrices.
+
+    A canonical hash is useful only as an index.  This routine extracts the
+    actual colored-graph isomorphism and checks the corresponding qubit,
+    X-check-row, and Z-check-row permutations against ``H_X`` and ``H_Z``.
+    The returned evidence is intentionally compact, but its mapping digest is
+    computed from all three concrete permutations.
+    """
+
+    H_X_a, H_Z_a = _extract_check_matrices(code_a)
+    H_X_b, H_Z_b = _extract_check_matrices(code_b)
+    result = {
+        "relation": "css_tanner_permutation_equivalence",
+        "mapping_found": False,
+        "qubit_permutation_valid": False,
+        "x_row_permutation_valid": False,
+        "z_row_permutation_valid": False,
+        "matrix_x_replayed": False,
+        "matrix_z_replayed": False,
+        "verified": False,
+    }
+    if (
+        H_X_a.ndim != 2
+        or H_Z_a.ndim != 2
+        or H_X_b.ndim != 2
+        or H_Z_b.ndim != 2
+        or H_X_a.shape != H_X_b.shape
+        or H_Z_a.shape != H_Z_b.shape
+        or H_X_a.shape[1] != H_Z_a.shape[1]
+    ):
+        return result
+
+    mapping = extract_full_vertex_isomorphism(code_a, code_b)
+    if mapping is None:
+        return result
+    n = H_X_a.shape[1]
+    rx = H_X_a.shape[0]
+    rz = H_Z_a.shape[0]
+    if len(mapping) != n + rx + rz:
+        return result
+    qubit_permutation = [int(value) for value in mapping[:n]]
+    x_row_permutation = [
+        int(value) - n for value in mapping[n : n + rx]
+    ]
+    z_row_permutation = [
+        int(value) - n - rx for value in mapping[n + rx :]
+    ]
+    qubit_valid = sorted(qubit_permutation) == list(range(n))
+    x_rows_valid = sorted(x_row_permutation) == list(range(rx))
+    z_rows_valid = sorted(z_row_permutation) == list(range(rz))
+    result.update({
+        "mapping_found": True,
+        "qubit_permutation_valid": qubit_valid,
+        "x_row_permutation_valid": x_rows_valid,
+        "z_row_permutation_valid": z_rows_valid,
+    })
+    if not (qubit_valid and x_rows_valid and z_rows_valid):
+        return result
+
+    matrix_x_replayed = bool(np.array_equal(
+        H_X_a,
+        H_X_b[np.ix_(x_row_permutation, qubit_permutation)],
+    ))
+    matrix_z_replayed = bool(np.array_equal(
+        H_Z_a,
+        H_Z_b[np.ix_(z_row_permutation, qubit_permutation)],
+    ))
+    result.update({
+        "matrix_x_replayed": matrix_x_replayed,
+        "matrix_z_replayed": matrix_z_replayed,
+        "permutation_sha256": _permutation_sha256(
+            qubit_permutation,
+            x_row_permutation,
+            z_row_permutation,
+        ),
+        "verified": matrix_x_replayed and matrix_z_replayed,
+    })
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Non-CSS extension
 #
@@ -298,6 +393,10 @@ def _extract_symplectic_matrix(code):
         code.matrix.toarray() if hasattr(code.matrix, "toarray") else code.matrix,
         dtype=int,
     ) % 2
+    if H.ndim != 2 or H.shape[1] % 2:
+        raise ValueError(
+            "non-CSS symplectic matrix must be a two-dimensional [X|Z] array"
+        )
     return H
 
 
@@ -358,4 +457,104 @@ def are_permutation_equivalent_noncss(code_a, code_b) -> bool:
     permutation-equivalent under the non-CSS coloring."""
     return canonical_hash_noncss(code_a) == canonical_hash_noncss(code_b)
 
+
+def extract_full_vertex_isomorphism_noncss(code_a, code_b):
+    """Return the non-CSS graph isomorphism mapping ``code_a`` to ``code_b``.
+
+    The vertex layout is qubits, X-support checks, then Z-support checks.  The
+    tying edges in :func:`build_colored_tanner_graph_noncss` force the last two
+    color classes to use one shared stabilizer-row permutation.
+    """
+
+    g_a, c_a = build_colored_tanner_graph_noncss(code_a)
+    g_b, c_b = build_colored_tanner_graph_noncss(code_b)
+    perm_a = g_a.canonical_permutation(color=c_a)
+    perm_b = g_b.canonical_permutation(color=c_b)
+    if sorted(g_a.permute_vertices(perm_a).get_edgelist()) != sorted(
+        g_b.permute_vertices(perm_b).get_edgelist()
+    ):
+        return None
+    inverse_a = [0] * len(perm_a)
+    for index, value in enumerate(perm_a):
+        inverse_a[value] = index
+    return [perm_b[inverse_a[index]] for index in range(len(perm_a))]
+
+
+def replay_noncss_matrix_equivalence(code_a, code_b) -> dict:
+    """Explicitly replay a non-CSS isomorphism on the full symplectic matrix.
+
+    Besides checking both the X and Z halves, this routine independently
+    verifies that the colored-graph mapping applies the *same* row
+    permutation to both halves.  Digest equality alone never establishes a
+    registry match.
+    """
+
+    matrix_a = _extract_symplectic_matrix(code_a)
+    matrix_b = _extract_symplectic_matrix(code_b)
+    result = {
+        "relation": "noncss_symplectic_tanner_permutation_equivalence",
+        "mapping_found": False,
+        "qubit_permutation_valid": False,
+        "x_row_permutation_valid": False,
+        "z_row_permutation_valid": False,
+        "shared_row_permutation": False,
+        "matrix_x_replayed": False,
+        "matrix_z_replayed": False,
+        "verified": False,
+    }
+    if matrix_a.shape != matrix_b.shape:
+        return result
+    rows, two_n = matrix_a.shape
+    n = two_n // 2
+    mapping = extract_full_vertex_isomorphism_noncss(code_a, code_b)
+    if mapping is None:
+        return result
+    if len(mapping) != n + 2 * rows:
+        return result
+    qubit_permutation = [int(value) for value in mapping[:n]]
+    x_row_permutation = [
+        int(value) - n for value in mapping[n : n + rows]
+    ]
+    z_row_permutation = [
+        int(value) - n - rows for value in mapping[n + rows :]
+    ]
+    qubit_valid = sorted(qubit_permutation) == list(range(n))
+    x_rows_valid = sorted(x_row_permutation) == list(range(rows))
+    z_rows_valid = sorted(z_row_permutation) == list(range(rows))
+    shared_rows = x_row_permutation == z_row_permutation
+    result.update({
+        "mapping_found": True,
+        "qubit_permutation_valid": qubit_valid,
+        "x_row_permutation_valid": x_rows_valid,
+        "z_row_permutation_valid": z_rows_valid,
+        "shared_row_permutation": shared_rows,
+    })
+    if not (
+        qubit_valid
+        and x_rows_valid
+        and z_rows_valid
+        and shared_rows
+    ):
+        return result
+
+    x_a, z_a = matrix_a[:, :n], matrix_a[:, n:]
+    x_b, z_b = matrix_b[:, :n], matrix_b[:, n:]
+    matrix_x_replayed = bool(np.array_equal(
+        x_a,
+        x_b[np.ix_(x_row_permutation, qubit_permutation)],
+    ))
+    matrix_z_replayed = bool(np.array_equal(
+        z_a,
+        z_b[np.ix_(x_row_permutation, qubit_permutation)],
+    ))
+    result.update({
+        "matrix_x_replayed": matrix_x_replayed,
+        "matrix_z_replayed": matrix_z_replayed,
+        "permutation_sha256": _permutation_sha256(
+            qubit_permutation,
+            x_row_permutation,
+        ),
+        "verified": matrix_x_replayed and matrix_z_replayed,
+    })
+    return result
 

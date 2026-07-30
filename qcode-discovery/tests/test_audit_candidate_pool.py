@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 import scripts.audit_candidate_pool as candidate_pool
+from evaluation.certificate import _certificate_sha256
 from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.selection_ledger import (
     acknowledge_selection_page,
@@ -93,18 +94,40 @@ def _novelty_result(
     novel: bool = True,
 ) -> dict:
     registry = candidate_pool.load_registry()
+    matched_entries = [] if novel else [{
+        "id": "known",
+        "family": "test",
+        "provenance": ["test"],
+        "construction_sha256": "f" * 64,
+        "replay": {"verified": True},
+    }]
     return {
+        "status": "COMPLETE",
         "checked": True,
         "novel": novel,
         "code_type": "css",
         "canonical_digest": canonical_digest,
         "registry_version": registry["registry_version"],
         "registry_sha256": registry["registry_sha256"],
-        "matched_entries": [] if novel else [{
-            "id": "known",
-            "family": "test",
-            "provenance": "test",
-        }],
+        "matched_entries": matched_entries,
+        "replay_policy": {
+            "schema_version": (
+                candidate_pool.REGISTRY_REPLAY_POLICY_SCHEMA_VERSION
+            ),
+            "policy": candidate_pool.REGISTRY_REPLAY_POLICY,
+            "digest_terminal": False,
+            "index_fields": [
+                "code_type",
+                "n",
+                "k",
+                "canonical_digest",
+            ],
+            "entry_construction_required": True,
+            "explicit_matrix_replay_required": True,
+            "indexed_entries": len(matched_entries),
+            "verified_entries": len(matched_entries),
+            "complete": True,
+        },
     }
 
 
@@ -112,18 +135,58 @@ def _parameterized_fake_code(n: int = 72, k: int = 4):
     return SimpleNamespace(num_qudits=n, dimension=k)
 
 
-def _fake_certificate(identifier: str, *, passed: bool, exact: bool) -> dict:
-    completed = 1 if exact else 0
-    return {
-        "certificate_type": "fake",
-        "certificate_sha256": identifier,
+def _fake_certificate(
+    identifier: str,
+    *,
+    passed: bool,
+    exact: bool,
+    failure_disposition: dict | None = None,
+) -> dict:
+    completed = 2 if exact else 0
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-exact",
+        "formulation": "css-logical-anticommutation-milp-v1",
+        "test_identifier": identifier,
         "passed": passed,
+        "claim": {"n": 72, "k": 1, "d": 1},
         "milp": {
             "exact": exact,
             "completed_directions": completed,
-            "expected_directions": 1,
+            "expected_directions": 2,
+            "directions": [{} for _ in range(completed)],
         },
     }
+    if failure_disposition is not None:
+        checks = {
+            "known_answer_gate": True,
+            "css_bb_candidate": True,
+            "candidate_rebuild": True,
+            "css_commutation": True,
+            "weight_and_degree_at_most_6": True,
+            "connected_tanner_graph": True,
+            "reported_n_matches": True,
+            "reported_k_matches": True,
+            "qldpc_k_crosscheck": True,
+            "positive_reported_distance": True,
+            "all_2k_milp_directions_optimal": True,
+            "structural_audit_present": True,
+            "structural_audit_reproduced": True,
+            "expanded_registry_novel": True,
+            "challenge_win": False,
+            "reported_fom_matches": True,
+        }
+        certificate["failure_disposition"] = failure_disposition
+        certificate["final_gate"] = {
+            "schema_version": 1,
+            "gate": "qldpc-challenge-final",
+            "accepted": False,
+            "checks": checks,
+            "failures": ["challenge_win"],
+            "win": {"passed": False},
+        }
+    certificate["certificate_sha256"] = _certificate_sha256(certificate)
+    return certificate
 
 
 def _ranked_snapshot_rows(count: int) -> list[dict]:
@@ -213,6 +276,428 @@ def test_rank_candidate_files_demotes_unsealed_rejection_to_advisory(tmp_path):
         "objective": 1,
         "witness_verified": True,
     }
+
+
+def test_structural_ranking_keeps_timeout_retryable_at_tail(
+    tmp_path,
+    monkeypatch,
+):
+    candidates = tmp_path / "candidates.jsonl"
+    candidates.write_text(
+        "\n".join(
+            json.dumps(_construction(marker)) for marker in (0, 1)
+        )
+        + "\n"
+    )
+
+    def structural_screen(rows, **_kwargs):
+        completed = {
+            **rows[0],
+            "static_eligibility": {
+                "checked": True,
+                "eligible": True,
+                "checks": {"candidate_rebuild": True},
+                "failures": [],
+                "n": 72,
+                "k": 2,
+            },
+            "structural_novelty": {
+                "checked": True,
+                "novel": True,
+                "canonical_digest": "b" * 64,
+            },
+        }
+        return [completed], [], [{
+            "candidate_index": 1,
+            "input_sha256": (
+                candidate_pool.structural_screen_input_sha256(rows[1])
+            ),
+            "attempt_count": 1,
+            "failure": {
+                "kind": "hard_timeout",
+                "retryable": True,
+            },
+        }]
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "screen_css_results_with_deferred_cache",
+        structural_screen,
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": "c" * 64},
+    )
+
+    ranked, counts = (
+        candidate_pool.rank_candidate_files_with_structural_cache(
+            [candidates],
+            structural_cache_dir=tmp_path / "cache",
+            structural_max_workers=2,
+            structural_hard_timeout=1,
+        )
+    )
+
+    assert counts["structural_unresolved_candidates"] == 1
+    assert counts["eligible_candidates"] == 2
+    assert not candidate_pool._is_structural_screen_unresolved(ranked[0])
+    assert candidate_pool._is_structural_screen_unresolved(ranked[1])
+    candidate_pool._validate_ranked_snapshot_rows(ranked, counts)
+
+
+def test_stage2_pair_timeout_cannot_be_merged_by_digest_and_retries_in_place(
+    tmp_path,
+    monkeypatch,
+):
+    candidates = tmp_path / "candidates.jsonl"
+    candidates.write_text(
+        "\n".join(
+            json.dumps(_construction(marker)) for marker in (0, 1)
+        )
+        + "\n"
+    )
+    digest = "d" * 64
+    runtime_sha256 = "e" * 64
+    retry_attempts = 0
+
+    def annotate(row, *, novel=True, pair_replay=None):
+        annotated = {
+            **row,
+            "static_eligibility": {
+                "checked": True,
+                "eligible": True,
+                "checks": {"candidate_rebuild": True},
+                "failures": [],
+                "n": 72,
+                "k": 4,
+            },
+            "structural_novelty": {
+                "checked": True,
+                "novel": novel,
+                "relation": (
+                    None
+                    if novel
+                    else "within_run_css_tanner_permutation_equivalent"
+                ),
+                "canonical_digest": digest,
+                "matched_reference": None if novel else "representative",
+                "reference_digest": None if novel else digest,
+                "explicit_isomorphism": pair_replay,
+            },
+        }
+        if not novel:
+            annotated["structural_rejection"] = "within_run_duplicate"
+        return annotated
+
+    def initial_screen(rows, **_kwargs):
+        representative = annotate(rows[0])
+        candidate = annotate(rows[1])
+        pair_sha256 = candidate_pool.structural_pair_input_sha256(
+            candidate,
+            representative,
+        )
+        return [representative], [], [{
+            "operation": "within_pool_isomorphism",
+            "candidate_index": 1,
+            "representative_index": 0,
+            "canonical_digest": digest,
+            "input_sha256": pair_sha256,
+            "runtime_sha256": runtime_sha256,
+            "candidate_input_sha256": (
+                candidate_pool.structural_screen_input_sha256(rows[1])
+            ),
+            "representative_input_sha256": (
+                candidate_pool.structural_screen_input_sha256(rows[0])
+            ),
+            "attempt_count": 1,
+            "failure": {
+                "kind": "hard_timeout",
+                "retryable": True,
+            },
+        }]
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "screen_css_results_with_deferred_cache",
+        initial_screen,
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": runtime_sha256},
+    )
+    ranked, counts = (
+        candidate_pool.rank_candidate_files_with_structural_cache(
+            [candidates],
+            structural_cache_dir=tmp_path / "cache",
+            structural_max_workers=2,
+            structural_hard_timeout=1,
+        )
+    )
+
+    assert counts["unique_candidates"] == 2
+    assert counts["duplicate_records"] == 0
+    assert counts["structural_unresolved_candidates"] == 1
+    representative = ranked[0]
+    deferred = ranked[1]
+    assert not candidate_pool._is_structural_screen_unresolved(
+        representative
+    )
+    assert candidate_pool._is_pair_structural_unresolved(deferred)
+    marker = deferred["stage2_structural_screen"]
+    pair_sha256 = marker["pair_input_sha256"]
+    assert marker["canonical_digest"] == digest
+    assert marker["representative_input_sha256"] == (
+        candidate_pool.structural_screen_input_sha256(
+            marker["representative"]
+        )
+    )
+
+    def retry_screen(rows, **_kwargs):
+        nonlocal retry_attempts
+        retry_attempts += 1
+        representative_retry = annotate(rows[0])
+        candidate_retry = annotate(rows[1])
+        assert candidate_pool.structural_pair_input_sha256(
+            candidate_retry,
+            representative_retry,
+        ) == pair_sha256
+        if retry_attempts == 1:
+            return [representative_retry], [], [{
+                "operation": "within_pool_isomorphism",
+                "candidate_index": 1,
+                "representative_index": 0,
+                "canonical_digest": digest,
+                "input_sha256": pair_sha256,
+                "runtime_sha256": runtime_sha256,
+                "candidate_input_sha256": (
+                    candidate_pool.structural_screen_input_sha256(rows[1])
+                ),
+                "representative_input_sha256": (
+                    candidate_pool.structural_screen_input_sha256(rows[0])
+                ),
+                "attempt_count": 2,
+                "failure": {
+                    "kind": "hard_timeout",
+                    "retryable": True,
+                },
+            }]
+        block = 36
+        replay = {
+            "verified": True,
+            "hx_preserved": True,
+            "hz_preserved": True,
+            "qubit_permutation": list(range(2 * block)),
+            "x_check_permutation": list(range(block)),
+            "z_check_permutation": list(range(block)),
+        }
+        completed = annotate(
+            rows[1],
+            novel=False,
+            pair_replay=replay,
+        )
+        completed[candidate_pool.STRUCTURAL_PAIR_REPLAY_FIELD] = {
+            "schema_version": (
+                candidate_pool.STRUCTURAL_PAIR_CACHE_SCHEMA_VERSION
+            ),
+            "status": "COMPLETE",
+            "input_sha256": pair_sha256,
+            "runtime_sha256": runtime_sha256,
+            "candidate_input_sha256": (
+                candidate_pool.structural_screen_input_sha256(rows[1])
+            ),
+            "representative_input_sha256": (
+                candidate_pool.structural_screen_input_sha256(rows[0])
+            ),
+            "representative_index": 0,
+            "canonical_digest": digest,
+        }
+        return [representative_retry], [completed], []
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "screen_css_results_with_deferred_cache",
+        retry_screen,
+    )
+    with pytest.raises(candidate_pool.StructuralSelectionDeferredError):
+        candidate_pool.resolve_structural_snapshot_row_for_audit(
+            deferred,
+            cache_dir=tmp_path / "cache",
+            max_workers=2,
+            hard_timeout=1,
+        )
+    resolved = candidate_pool.resolve_structural_snapshot_row_for_audit(
+        deferred,
+        cache_dir=tmp_path / "cache",
+        max_workers=2,
+        hard_timeout=2,
+    )
+
+    assert retry_attempts == 2
+    assert resolved["campaign_skip_reason"] == "STRUCTURAL_DUPLICATE"
+    assert resolved["stage2_structural_screen"]["status"] == "COMPLETE"
+    assert resolved["stage2_structural_screen"][
+        "pair_input_sha256"
+    ] == pair_sha256
+    assert resolved["within_pool_isomorphism_replay"][
+        "input_sha256"
+    ] == pair_sha256
+
+
+def test_stage2_digest_collision_without_pair_replay_fails_closed(
+    tmp_path,
+    monkeypatch,
+):
+    candidates = tmp_path / "candidates.jsonl"
+    candidates.write_text(
+        "\n".join(
+            json.dumps(_construction(marker)) for marker in (0, 1)
+        )
+        + "\n"
+    )
+
+    def unsafe_digest_only_screen(rows, **_kwargs):
+        completed = []
+        for row in rows:
+            completed.append({
+                **row,
+                "static_eligibility": {
+                    "checked": True,
+                    "eligible": True,
+                    "checks": {"candidate_rebuild": True},
+                    "failures": [],
+                    "n": 72,
+                    "k": 2,
+                },
+                "structural_novelty": {
+                    "checked": True,
+                    "novel": True,
+                    "relation": None,
+                    "canonical_digest": "f" * 64,
+                    "matched_reference": None,
+                    "reference_digest": None,
+                    "explicit_isomorphism": None,
+                },
+            })
+        return completed, [], []
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "screen_css_results_with_deferred_cache",
+        unsafe_digest_only_screen,
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": "a" * 64},
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="digest collision lacks pair or registry replay",
+    ):
+        candidate_pool.rank_candidate_files_with_structural_cache(
+            [candidates],
+            structural_cache_dir=tmp_path / "cache",
+            structural_max_workers=2,
+            structural_hard_timeout=1,
+        )
+
+
+def test_structural_snapshot_resolver_retries_same_cache_input(
+    tmp_path,
+    monkeypatch,
+):
+    row = {
+        **_construction(0),
+        "proof_score": {"status": "UNSCREENED", "rejected": False},
+        "triage_identity": {
+            "canonical_digest": "claim",
+            "digest_kind": "structural-claim",
+        },
+    }
+    screen_input = dict(row)
+    screen_input.pop("n")
+    screen_input.pop("k")
+    input_sha256 = candidate_pool.structural_screen_input_sha256(
+        screen_input
+    )
+    row["stage2_structural_screen"] = {
+        "status": "UNRESOLVED",
+        "retryable": True,
+        "input_sha256": input_sha256,
+    }
+    attempts = 0
+
+    def retry(rows, **_kwargs):
+        nonlocal attempts
+        attempts += 1
+        assert len(rows) == 1
+        assert candidate_pool.structural_screen_input_sha256(
+            rows[0]
+        ) == input_sha256
+        if attempts == 1:
+            return [], [{
+                "candidate_index": 0,
+                "input_sha256": input_sha256,
+                "failure": {"kind": "hard_timeout", "retryable": True},
+            }]
+        return [{
+            **rows[0],
+            "static_eligibility": {
+                "checked": True,
+                "eligible": True,
+                "checks": {"candidate_rebuild": True},
+                "failures": [],
+                "n": 72,
+                "k": 4,
+            },
+            "structural_novelty": {
+                "checked": True,
+                "novel": True,
+                "canonical_digest": "d" * 64,
+            },
+        }], []
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "annotate_css_results_with_deferred_cache",
+        retry,
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": "e" * 64},
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "check_code_novelty",
+        lambda *_args, **_kwargs: _novelty_result("d" * 64),
+    )
+
+    with pytest.raises(candidate_pool.StructuralSelectionDeferredError):
+        candidate_pool.resolve_structural_snapshot_row_for_audit(
+            row,
+            cache_dir=tmp_path / "cache",
+            max_workers=2,
+            hard_timeout=1,
+        )
+    resolved = candidate_pool.resolve_structural_snapshot_row_for_audit(
+        row,
+        cache_dir=tmp_path / "cache",
+        max_workers=2,
+        hard_timeout=2,
+    )
+
+    assert attempts == 2
+    assert resolved["canonical_digest"] == "d" * 64
+    assert resolved["n"] == 72
+    assert resolved["k"] == 4
+    assert resolved["stage2_structural_screen"]["status"] == "COMPLETE"
+    assert resolved["authoritative_geometry"]["selection_replay"][
+        "cache_bound"
+    ] is True
 
 
 def test_rank_candidate_files_derives_authoritative_stage1_threshold(tmp_path):
@@ -622,6 +1107,157 @@ def test_worker_budget_prevents_solver_oversubscription():
         validate_worker_budget(1, 9, 16)
 
 
+def test_stage2_hard_wall_never_trusts_stale_terminal_artifact(tmp_path):
+    digest = "e" * 64
+    ranked = {
+        **_construction(0),
+        "triage_identity": {
+            "canonical_digest": digest,
+            "digest_kind": "registry-canonical",
+        },
+    }
+    config = AuditConfig(state_dir=tmp_path, certify=False)
+    path = state_paths(tmp_path, digest)["audit"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "schema_version": 1,
+        "gate": "qldpc-frontier-xor-sector-screen",
+        "status": "REJECTED",
+        "candidate": {**_construction(1), "required_distance": 999},
+        "required_distance": 999,
+        "threshold_only": True,
+        "completed_sectors": 1,
+        "translation_symmetry": {"verified": True},
+        "sectors": [{
+            "sector": "X",
+            "objective": 1,
+            "operator": [1],
+            "witness_verified": True,
+        }],
+    }))
+
+    result = candidate_pool._stage2_hard_wall_result(
+        ranked,
+        config,
+        hard_timeout_s=1,
+        peer_timeout=False,
+    )
+
+    assert result["status"] == "UNRESOLVED"
+    assert result["canonical_digest"] == digest
+    assert result["completed_sectors"] == 0
+    assert result["hard_wall"]["timed_out"] is True
+    assert result["artifact_recovery"] == {
+        "terminal_status_claimed": True,
+        "strict_replay_status": "UNRESOLVED",
+        "strict_replay_error": None,
+        "retryable": True,
+    }
+    assert "recovered_after_worker_termination" not in result
+
+
+def test_stage2_hard_wall_recovers_only_strictly_replayed_terminal_artifact(
+    tmp_path,
+):
+    digest = "f" * 64
+    ranked = {
+        **_construction(0),
+        "triage_identity": {
+            "canonical_digest": digest,
+            "digest_kind": "registry-canonical",
+        },
+    }
+    config = AuditConfig(state_dir=tmp_path, certify=False)
+    candidate = candidate_pool._construction_candidate(ranked, digest)
+    symmetry = candidate_pool.verify_bb_translation_symmetry(candidate)
+    assert symmetry["verified"] is True
+    max_weight = int(candidate["required_distance"]) - 1
+    sectors = [{
+        "sector": sector,
+        "threshold_infeasible": True,
+        "status_name": "INFEASIBLE",
+        "max_weight": max_weight,
+        "operator": None,
+        "anchor_indices": symmetry["orbit_representatives"],
+    } for sector in ("X", "Z")]
+    candidate_pool.write_artifact(
+        state_paths(tmp_path, digest)["audit"],
+        candidate,
+        sectors,
+        threshold_only=True,
+        translation_symmetry=symmetry,
+        cache_binding=candidate_pool._stage2_audit_cache_binding(
+            candidate,
+            symmetry,
+        ),
+    )
+
+    result = candidate_pool._stage2_hard_wall_result(
+        ranked,
+        config,
+        hard_timeout_s=1,
+        peer_timeout=False,
+    )
+
+    assert result["status"] == "THRESHOLD_PROVEN"
+    assert result["completed_sectors"] == 2
+    assert result["recovered_after_worker_termination"] is True
+    assert result["recovery_replay_verified"] is True
+    assert result["certificate"] == {
+        "attempted": False,
+        "deferred": False,
+    }
+
+
+def test_stage2_hard_wall_rejects_source_stale_terminal_artifact(tmp_path):
+    digest = "1" * 64
+    ranked = {
+        **_construction(0),
+        "triage_identity": {
+            "canonical_digest": digest,
+            "digest_kind": "registry-canonical",
+        },
+    }
+    config = AuditConfig(state_dir=tmp_path, certify=False)
+    candidate = candidate_pool._construction_candidate(ranked, digest)
+    symmetry = candidate_pool.verify_bb_translation_symmetry(candidate)
+    max_weight = int(candidate["required_distance"]) - 1
+    sectors = [{
+        "sector": sector,
+        "threshold_infeasible": True,
+        "status_name": "INFEASIBLE",
+        "max_weight": max_weight,
+        "operator": None,
+        "anchor_indices": symmetry["orbit_representatives"],
+    } for sector in ("X", "Z")]
+    stale_binding = candidate_pool._stage2_audit_cache_binding(
+        candidate,
+        symmetry,
+    )
+    stale_binding["source_fingerprint"] = "0" * 64
+    candidate_pool.write_artifact(
+        state_paths(tmp_path, digest)["audit"],
+        candidate,
+        sectors,
+        threshold_only=True,
+        translation_symmetry=symmetry,
+        cache_binding=stale_binding,
+    )
+
+    result = candidate_pool._stage2_hard_wall_result(
+        ranked,
+        config,
+        hard_timeout_s=1,
+        peer_timeout=True,
+    )
+
+    assert result["status"] == "UNRESOLVED"
+    assert result["completed_sectors"] == 0
+    assert result["hard_wall"]["peer_timeout_interruption"] is True
+    assert result["artifact_recovery"]["terminal_status_claimed"] is True
+    assert result["artifact_recovery"]["retryable"] is True
+
+
 def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
     digest = "claim-sha256:" + "a" * 64
     ranked = {
@@ -669,10 +1305,12 @@ def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
 
     def build(candidate, **kwargs):
         calls["built"].append((candidate, kwargs))
-        return {
+        certificate = {
             **_fake_certificate("cert-a", passed=True, exact=True),
             "claim": candidate,
         }
+        certificate["certificate_sha256"] = _certificate_sha256(certificate)
+        return certificate
 
     def verify(certificate, **kwargs):
         calls["verified"].append((certificate, kwargs))
@@ -965,6 +1603,179 @@ def test_incomplete_certificate_is_retried_from_checkpoint(tmp_path):
     assert second["certificate_resumed"] is False
 
 
+def test_untyped_exact_negative_certificate_is_rebuilt(tmp_path):
+    calls = []
+
+    def build(claim, **kwargs):
+        calls.append(kwargs)
+        return _fake_certificate(
+            f"untyped-{len(calls)}",
+            passed=False,
+            exact=True,
+        )
+
+    config = AuditConfig(state_dir=tmp_path)
+    first = certify_candidate(
+        _construction(1), "untyped-negative", config, builder=build,
+    )
+    second = certify_candidate(
+        _construction(1), "untyped-negative", config, builder=build,
+    )
+
+    assert len(calls) == 2
+    assert first["failure_disposition"]["status"] == "INCOMPLETE"
+    assert second["certificate_resumed"] is False
+
+
+def test_typed_candidate_rejection_is_terminally_cached(tmp_path):
+    calls = []
+    rejection = {
+        "schema_version": 1,
+        "status": "CANDIDATE_REJECTED",
+        "domain": "candidate",
+        "codes": ["GATE_CHALLENGE_WIN"],
+    }
+
+    def build(claim, **kwargs):
+        calls.append(kwargs)
+        return _fake_certificate(
+            "typed-rejection",
+            passed=False,
+            exact=True,
+            failure_disposition=rejection,
+        )
+
+    config = AuditConfig(state_dir=tmp_path)
+    first = certify_candidate(
+        _construction(1), "typed-negative", config, builder=build,
+    )
+    second = certify_candidate(
+        _construction(1), "typed-negative", config, builder=build,
+    )
+
+    assert len(calls) == 1
+    assert first["failure_disposition"] == rejection
+    assert second["certificate_resumed"] is True
+    assert second["verification_resumed"] is True
+
+
+def test_dependency_failure_cannot_be_cached_as_candidate_rejection(tmp_path):
+    calls = []
+    spoofed = {
+        "schema_version": 1,
+        "status": "CANDIDATE_REJECTED",
+        "domain": "candidate",
+        "codes": ["KNOWN_ANSWER_GATE_UNVERIFIED"],
+    }
+
+    def build(claim, **kwargs):
+        calls.append(kwargs)
+        certificate = _fake_certificate(
+            f"dependency-spoof-{len(calls)}",
+            passed=False,
+            exact=True,
+            failure_disposition=spoofed,
+        )
+        certificate["final_gate"] = {
+            "checks": {
+                "known_answer_gate": False,
+                "challenge_win": False,
+            },
+        }
+        certificate["certificate_sha256"] = _certificate_sha256(certificate)
+        return certificate
+
+    config = AuditConfig(state_dir=tmp_path)
+    first = certify_candidate(
+        _construction(1), "dependency-spoof", config, builder=build,
+    )
+    second = certify_candidate(
+        _construction(1), "dependency-spoof", config, builder=build,
+    )
+
+    assert len(calls) == 2
+    assert first["failure_disposition"]["status"] == "INCOMPLETE"
+    assert second["certificate_resumed"] is False
+
+
+def test_certificate_cache_kind_mismatch_forces_rebuild(tmp_path):
+    calls = []
+
+    def build(claim, **kwargs):
+        calls.append(kwargs)
+        return _fake_certificate(
+            f"kind-{len(calls)}",
+            passed=True,
+            exact=True,
+        )
+
+    config = AuditConfig(state_dir=tmp_path)
+    certify_candidate(
+        _construction(1),
+        "wrong-cache-kind",
+        config,
+        builder=build,
+        verifier=lambda *_args, **_kwargs: {"passed": True},
+    )
+    metadata_path = state_paths(
+        tmp_path,
+        "wrong-cache-kind",
+    )["certificate_metadata"]
+    metadata = json.loads(metadata_path.read_text())
+    metadata["kind"] = "qldpc-certificate-verification-cache"
+    metadata_path.write_text(json.dumps(metadata) + "\n")
+
+    second = certify_candidate(
+        _construction(1),
+        "wrong-cache-kind",
+        config,
+        builder=build,
+        verifier=lambda *_args, **_kwargs: {"passed": True},
+    )
+
+    assert len(calls) == 2
+    assert second["certificate_resumed"] is False
+
+
+def test_schema2_negative_cache_is_not_terminal(tmp_path):
+    calls = []
+    rejection = {
+        "schema_version": 1,
+        "status": "CANDIDATE_REJECTED",
+        "domain": "candidate",
+        "codes": ["GATE_CHALLENGE_WIN"],
+    }
+
+    def build(claim, **kwargs):
+        calls.append(kwargs)
+        return _fake_certificate(
+            f"schema-version-{len(calls)}",
+            passed=False,
+            exact=True,
+            failure_disposition=rejection,
+        )
+
+    config = AuditConfig(state_dir=tmp_path)
+    certify_candidate(
+        _construction(1), "old-negative-cache", config, builder=build,
+    )
+    metadata_path = state_paths(
+        tmp_path,
+        "old-negative-cache",
+    )["certificate_metadata"]
+    metadata = json.loads(metadata_path.read_text())
+    metadata["schema_version"] = 2
+    metadata_path.write_text(json.dumps(metadata) + "\n")
+
+    second = certify_candidate(
+        _construction(1), "old-negative-cache", config, builder=build,
+    )
+
+    assert len(calls) == 2
+    assert calls[1]["resume"] is False
+    assert second["certificate_resumed"] is False
+
+
 def test_failed_verification_is_retried_and_resumes_checkpoint(tmp_path):
     builds = []
     verification_calls = []
@@ -1020,11 +1831,14 @@ def test_failed_certificate_skips_independent_milp_rerun(tmp_path):
     envelope = json.loads(
         state_paths(tmp_path, digest)["verification"].read_text(),
     )
-    assert envelope["verification"] == {
-        "passed": False,
-        "skipped": True,
-        "reason": "certificate build did not pass the exact challenge gate",
-    }
+    assert envelope["verification"]["passed"] is False
+    assert envelope["verification"]["skipped"] is True
+    assert envelope["verification"]["reason"] == (
+        "certificate build did not pass the exact challenge gate"
+    )
+    assert envelope["verification"]["failure_disposition"]["status"] == (
+        "INCOMPLETE"
+    )
 
 
 def test_no_certify_stops_after_threshold_proof(tmp_path):
@@ -1286,6 +2100,140 @@ def test_malformed_fresh_novelty_result_fails_closed():
         )
 
 
+def test_registry_unavailable_keeps_selection_cursor_at_retryable_barrier(
+    tmp_path,
+):
+    row = {
+        **_construction(0),
+        "proof_score": {"status": "PROMISING", "rejected": False},
+        "triage_identity": {
+            "canonical_digest": "claim-sha256:fallback",
+            "digest_kind": "structural-claim",
+        },
+    }
+
+    def canonicalizer(value):
+        return canonicalize_for_audit(
+            value,
+            code_builder=lambda *args: _parameterized_fake_code(),
+            registry_path=tmp_path / "temporarily-missing-registry.json",
+        )
+
+    selected, stats, page, ledger = candidate_pool._prepare_selection_page(
+        [row],
+        top=1,
+        ledger_path=tmp_path / "selection.json",
+        known_answer_artifact=tmp_path / "known-answer.json",
+        canonicalizer=canonicalizer,
+    )
+
+    assert selected == []
+    assert page is None
+    assert ledger["cursor"] == 0
+    assert ledger["pending"] is None
+    assert stats["structural_unresolved_candidates"] == 1
+    assert stats["unscanned_eligible_candidates"] == 1
+    assert stats["selection_exhausted"] is False
+
+
+def test_registry_source_change_keeps_selection_cursor_at_retryable_barrier(
+    tmp_path,
+    monkeypatch,
+):
+    row = {
+        **_construction(0),
+        "proof_score": {"status": "PROMISING", "rejected": False},
+        "triage_identity": {
+            "canonical_digest": "claim-sha256:fallback",
+            "digest_kind": "structural-claim",
+        },
+    }
+    fingerprints = iter(("a" * 64, "b" * 64))
+    monkeypatch.setattr(
+        candidate_pool,
+        "_novelty_source_fingerprint",
+        lambda: next(fingerprints),
+    )
+
+    def canonicalizer(value):
+        return canonicalize_for_audit(
+            value,
+            code_builder=lambda *args: _parameterized_fake_code(),
+            novelty_checker=lambda *_args, **_kwargs: _novelty_result(
+                "c" * 64
+            ),
+        )
+
+    selected, stats, page, ledger = candidate_pool._prepare_selection_page(
+        [row],
+        top=1,
+        ledger_path=tmp_path / "selection.json",
+        known_answer_artifact=tmp_path / "known-answer.json",
+        canonicalizer=canonicalizer,
+    )
+
+    assert selected == []
+    assert page is None
+    assert ledger["cursor"] == 0
+    assert ledger["pending"] is None
+    assert stats["structural_unresolved_candidates"] == 1
+    assert stats["unscanned_eligible_candidates"] == 1
+    assert stats["selection_exhausted"] is False
+
+
+def test_incomplete_registry_replay_is_not_a_known_code_rejection():
+    row = {
+        **_construction(0),
+        "proof_score": {"status": "PROMISING", "rejected": False},
+        "triage_identity": {
+            "canonical_digest": "claim-sha256:fallback",
+            "digest_kind": "structural-claim",
+        },
+    }
+    incomplete = {
+        "status": "INCOMPLETE",
+        "checked": False,
+        "novel": None,
+        "code_type": "css",
+        "canonical_digest": "d" * 64,
+        "registry_version": None,
+        "registry_sha256": None,
+        "matched_entries": [],
+        "replay_policy": {
+            "schema_version": 1,
+            "policy": "explicit-construction-matrix-replay",
+            "digest_terminal": False,
+            "entry_construction_required": True,
+            "explicit_matrix_replay_required": True,
+            "indexed_entries": 0,
+            "verified_entries": 0,
+            "complete": False,
+        },
+        "failure": {
+            "domain": "registry",
+            "code": "REGISTRY_UNAVAILABLE_OR_INVALID",
+            "detail": "temporary failure",
+            "retryable": True,
+            "terminal_candidate_rejection": False,
+        },
+    }
+
+    selected, stats = select_audit_candidates(
+        [row],
+        1,
+        canonicalizer=lambda value: canonicalize_for_audit(
+            value,
+            code_builder=lambda *args: _parameterized_fake_code(),
+            novelty_checker=lambda *_args, **_kwargs: incomplete,
+        ),
+    )
+
+    assert selected == []
+    assert stats["known_codes_skipped"] == 0
+    assert stats["structural_unresolved_candidates"] == 1
+    assert stats["selection_exhausted"] is False
+
+
 def test_select_queue_skips_known_and_canonical_duplicates():
     rows = []
     for marker in range(1, 5):
@@ -1334,6 +2282,7 @@ def test_select_queue_skips_known_and_canonical_duplicates():
         "known_codes_skipped": 1,
         "unsupported_candidates_skipped": 0,
         "canonicalization_errors": 0,
+        "structural_unresolved_candidates": 0,
         "unscanned_eligible_candidates": 0,
         "selection_exhausted": True,
     }
@@ -1643,6 +2592,230 @@ def test_ranked_snapshot_ledger_paginates_without_reranking(
     assert rank_calls == 1
     assert first[0]["source"] != second[0]["source"]
     assert second_page["start_index"] == first_page["next_index"]
+
+
+def test_structural_unresolved_tail_retries_without_rotating_snapshot_or_cursor(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(2)
+    rows[1] = {
+        **rows[1],
+        "stage2_structural_screen": {
+            "status": "UNRESOLVED",
+            "retryable": True,
+            "input_sha256": "a" * 64,
+        },
+    }
+    rows.sort(key=candidate_pool._ranked_selection_key)
+    counts = {
+        **_snapshot_counts(2),
+        "structural_unresolved_candidates": 1,
+    }
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, counts),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    assert cache_hit is False
+    snapshot_identity = dict(snapshot.identity)
+    resolved = False
+
+    def canonicalizer(row):
+        if (
+            candidate_pool._is_structural_screen_unresolved(row)
+            and not resolved
+        ):
+            raise candidate_pool.StructuralSelectionDeferredError("retry")
+        return _snapshot_canonicalizer(row)
+
+    first, first_stats, first_page, ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+    assert len(first) == 1
+    assert first_stats["selection_exhausted"] is False
+    assert first_page["start_index"] == 0
+    assert first_page["next_index"] == 1
+    acknowledged = acknowledge_selection_page(
+        ledger,
+        first_page,
+        disposition="COMPLETED",
+    )
+    candidate_pool.atomic_write_json(ledger_path, acknowledged)
+
+    replayed_snapshot, replay_cache_hit = (
+        candidate_pool.prepare_ranked_snapshot(
+            [candidate_input],
+            ledger_path=ledger_path,
+        )
+    )
+    assert replay_cache_hit is True
+    assert replayed_snapshot.identity == snapshot_identity
+    blocked, blocked_stats, blocked_page, blocked_ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            replayed_snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+    assert blocked == []
+    assert blocked_page is None
+    assert blocked_stats["structural_unresolved_candidates"] == 1
+    assert blocked_stats["selection_exhausted"] is False
+    assert blocked_ledger["cursor"] == 1
+    assert blocked_ledger["pending"] is None
+
+    resolved = True
+    selected, final_stats, final_page, final_ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            replayed_snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+    assert len(selected) == 1
+    assert final_stats["selection_exhausted"] is True
+    assert final_stats["structural_unresolved_candidates"] == 0
+    assert final_page["start_index"] == 1
+    assert final_page["next_index"] == 2
+    assert final_ledger["cursor"] == 1
+    assert final_ledger["pending"] == final_page
+    assert replayed_snapshot.identity == snapshot_identity
+
+
+@pytest.mark.parametrize(
+    "first_resolution",
+    ("STRUCTURAL_INELIGIBLE", "KNOWN_CODE", "STRUCTURAL_DUPLICATE"),
+)
+def test_empty_nonterminal_page_commits_only_to_next_unresolved_barrier(
+    tmp_path,
+    monkeypatch,
+    first_resolution,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    rows = _ranked_snapshot_rows(2)
+    for index, row in enumerate(rows):
+        row["stage2_structural_screen"] = {
+            "status": "UNRESOLVED",
+            "retryable": True,
+            "input_sha256": f"{index + 1:064x}",
+        }
+    rows.sort(key=candidate_pool._ranked_selection_key)
+    counts = {
+        **_snapshot_counts(2),
+        "structural_unresolved_candidates": 2,
+    }
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, counts),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+    ledger_path = tmp_path / "selection.json"
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    def canonicalizer(row):
+        if row["source"] == "candidate-1":
+            raise candidate_pool.StructuralSelectionDeferredError(
+                "second barrier remains unresolved"
+            )
+        if first_resolution == "KNOWN_CODE":
+            return {
+                **row,
+                "novelty": {
+                    "checked": True,
+                    "novel": False,
+                    "canonical_digest": "known",
+                },
+            }
+        return {
+            **row,
+            "campaign_skip_reason": first_resolution,
+        }
+
+    selected, stats, page, ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+
+    assert selected == []
+    assert page is not None
+    assert page["selected_digests"] == []
+    assert page["start_index"] == 0
+    assert page["next_index"] == 1
+    assert page["scan_evidence"]["selection_exhausted"] is False
+    assert stats["selection_exhausted"] is False
+    assert stats["structural_unresolved_candidates"] == 1
+
+    acknowledged = acknowledge_selection_page(
+        ledger,
+        page,
+        disposition="COMPLETED",
+    )
+    assert acknowledged["cursor"] == 1
+    assert acknowledged["committed_digests"] == []
+    candidate_pool.atomic_write_json(ledger_path, acknowledged)
+
+    blocked, blocked_stats, blocked_page, blocked_ledger = (
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=canonicalizer,
+        )
+    )
+    assert blocked == []
+    assert blocked_page is None
+    assert blocked_ledger["cursor"] == 1
+    assert blocked_ledger["pending"] is None
+    assert blocked_stats["selection_exhausted"] is False
+    assert blocked_stats["structural_unresolved_candidates"] == 1
 
 
 @pytest.mark.parametrize(

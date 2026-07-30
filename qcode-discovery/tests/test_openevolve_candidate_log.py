@@ -44,7 +44,9 @@ def _complete_preflight_metrics(
     eligible: int = 2,
 ) -> dict[str, float]:
     return {
-        evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+        evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+            evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION
+        ),
         evaluator.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(contract_id),
         evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
         evaluator.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 0.0,
@@ -58,6 +60,30 @@ def _complete_preflight_metrics(
         evaluator.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 0.0,
         evaluator.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 0.0,
     }
+
+
+def test_direct_evaluator_contract_matches_launcher_for_same_run(
+    tmp_path, monkeypatch
+):
+    import evolve.run_evolution as launcher
+
+    candidate_log = (tmp_path / "direct-run" / "all_codes.jsonl").resolve()
+    monkeypatch.delenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        raising=False,
+    )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(candidate_log),
+    )
+
+    expected = launcher._winner_preflight_contract_id(
+        evaluator.__file__,
+        launcher._evaluator_dependency_identities(),
+        candidate_log_path=candidate_log,
+    )
+
+    assert evaluator._current_winner_preflight_contract_id() == expected
 
 
 def _append_worker(
@@ -84,6 +110,67 @@ def _batch_append_worker(
     evaluator._log_codes_jsonl(
         [_result(worker, index) for index in range(count)],
         run_name=run_name,
+    )
+
+
+def _run_crashing_candidate_append(
+    log_path: Path,
+    rows: list[dict],
+    *,
+    crash_mode: str,
+) -> subprocess.CompletedProcess:
+    project_root = Path(evaluator.__file__).resolve().parent.parent
+    script = r"""
+import json
+import os
+import signal
+import sys
+from pathlib import Path
+
+import evolve.openevolve_evaluator as evaluator
+
+mode = sys.argv[1]
+log_path = Path(sys.argv[2])
+rows = json.loads(sys.argv[3])
+if mode == "partial":
+    def kill_after_partial(descriptor, payload):
+        view = memoryview(payload)
+        count = os.write(descriptor, view[:min(37, len(view) - 1)])
+        if count <= 0 or count >= len(view):
+            raise RuntimeError("crash injection did not make a partial write")
+        os.fsync(descriptor)
+        os.kill(os.getpid(), signal.SIGKILL)
+    evaluator._write_candidate_log_payload = kill_after_partial
+elif mode == "after-full":
+    def kill_before_clear(_log_file):
+        os.kill(os.getpid(), signal.SIGKILL)
+    evaluator._clear_candidate_log_wal = kill_before_clear
+else:
+    raise RuntimeError(f"unknown crash mode: {mode}")
+evaluator._log_codes_jsonl(rows, candidate_log_path=log_path)
+"""
+    environment = dict(os.environ)
+    existing_path = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = (
+        str(project_root)
+        if not existing_path
+        else str(project_root) + os.pathsep + existing_path
+    )
+    return subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            script,
+            crash_mode,
+            str(log_path),
+            json.dumps(rows),
+        ],
+        cwd=project_root,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
 
 
@@ -128,16 +215,16 @@ def test_candidate_jsonl_write_failure_propagates_and_rolls_back(
 ):
     monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
     original_write = os.write
-    calls = 0
 
-    def short_then_fail(descriptor: int, payload: bytes) -> int:
-        nonlocal calls
-        calls += 1
-        if calls == 1:
-            return original_write(descriptor, payload[:7])
+    def short_then_fail(descriptor: int, payload: bytes) -> None:
+        original_write(descriptor, memoryview(payload)[:7])
         raise OSError("simulated candidate-log write failure")
 
-    monkeypatch.setattr(evaluator.os, "write", short_then_fail)
+    monkeypatch.setattr(
+        evaluator,
+        "_write_candidate_log_payload",
+        short_then_fail,
+    )
     with pytest.raises(
         evaluator.CandidateLogWriteError,
         match="failed to persist discovered candidate",
@@ -160,16 +247,16 @@ def test_candidate_jsonl_batch_write_failure_rolls_back_entire_batch(
 ):
     monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
     original_write = os.write
-    calls = 0
 
-    def partial_batch_then_fail(descriptor: int, payload: bytes) -> int:
-        nonlocal calls
-        calls += 1
-        if calls == 1:
-            return original_write(descriptor, payload[:31])
+    def partial_batch_then_fail(descriptor: int, payload: bytes) -> None:
+        original_write(descriptor, memoryview(payload)[:31])
         raise OSError("simulated batch append failure")
 
-    monkeypatch.setattr(evaluator.os, "write", partial_batch_then_fail)
+    monkeypatch.setattr(
+        evaluator,
+        "_write_candidate_log_payload",
+        partial_batch_then_fail,
+    )
     with pytest.raises(
         evaluator.CandidateLogWriteError,
         match="failed to persist discovered candidate batch",
@@ -187,6 +274,125 @@ def test_candidate_jsonl_batch_write_failure_rolls_back_entire_batch(
         / "all_codes.jsonl"
     )
     assert path.read_bytes() == b""
+
+
+def test_large_candidate_batch_is_persisted_in_bounded_fsync_chunks(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    count = evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS * 2 + 3
+    original_append = evaluator._append_candidate_jsonl
+    chunks = []
+
+    def track_chunk(path, payload):
+        chunks.append((payload.count(b"\n"), len(payload)))
+        original_append(path, payload)
+
+    monkeypatch.setattr(evaluator, "_append_candidate_jsonl", track_chunk)
+    persisted = evaluator._log_codes_jsonl(
+        [_result(0, index) for index in range(count)],
+        run_name="bounded-chunks",
+    )
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "bounded-chunks"
+        / "all_codes.jsonl"
+    )
+    rows = [json.loads(line) for line in path.read_bytes().splitlines()]
+    assert persisted == count
+    assert len(rows) == count
+    assert [records for records, _size in chunks] == [
+        evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS,
+        evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS,
+        3,
+    ]
+    assert all(
+        records <= evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS
+        and size <= evaluator.CANDIDATE_LOG_CHUNK_MAX_BYTES
+        for records, size in chunks
+    )
+
+
+def test_later_candidate_chunk_failure_surfaces_after_durable_prefix(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    count = evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS + 1
+    original_append = evaluator._append_candidate_jsonl
+    append_calls = 0
+
+    def fail_second_chunk(path, payload):
+        nonlocal append_calls
+        append_calls += 1
+        if append_calls == 2:
+            raise OSError("simulated second chunk failure")
+        original_append(path, payload)
+
+    monkeypatch.setattr(
+        evaluator,
+        "_append_candidate_jsonl",
+        fail_second_chunk,
+    )
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match=(
+            "after "
+            f"{evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS} complete records"
+        ),
+    ):
+        evaluator._log_codes_jsonl(
+            [_result(0, index) for index in range(count)],
+            run_name="failed-second-chunk",
+        )
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "failed-second-chunk"
+        / "all_codes.jsonl"
+    )
+    assert len(path.read_bytes().splitlines()) == (
+        evaluator.CANDIDATE_LOG_CHUNK_MAX_RECORDS
+    )
+
+
+def test_oversized_candidate_record_uses_one_durable_chunk(
+    tmp_path, monkeypatch
+):
+    path = (tmp_path / "all_codes.jsonl").resolve()
+    original_append = evaluator._append_candidate_jsonl
+    chunks = []
+
+    def track_chunk(destination, payload):
+        chunks.append(bytes(payload))
+        original_append(destination, payload)
+
+    monkeypatch.setattr(
+        evaluator,
+        "_append_candidate_jsonl",
+        track_chunk,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_candidate_jsonl_record",
+        lambda _result: {
+            "payload": "x" * evaluator.CANDIDATE_LOG_CHUNK_MAX_BYTES
+        },
+    )
+
+    persisted = evaluator._log_codes_jsonl(
+        [{}],
+        candidate_log_path=path,
+    )
+
+    assert persisted == 1
+    assert len(chunks) == 1
+    assert len(chunks[0]) > evaluator.CANDIDATE_LOG_CHUNK_MAX_BYTES
+    assert json.loads(path.read_text())["payload"].startswith("x")
 
 
 def test_candidate_jsonl_concurrent_batches_never_interleave_records(tmp_path):
@@ -228,6 +434,133 @@ def test_candidate_jsonl_concurrent_batches_never_interleave_records(tmp_path):
             for row in rows
             if row["ell"] - 6 == worker
         ] == list(range(per_worker))
+
+
+def test_candidate_jsonl_recovers_sigkill_during_partial_batch(tmp_path):
+    path = (tmp_path / "partial-kill" / "all_codes.jsonl").resolve()
+    path.parent.mkdir()
+    interrupted = [_result(7, index) for index in range(3)]
+
+    crashed = _run_crashing_candidate_append(
+        path,
+        interrupted,
+        crash_mode="partial",
+    )
+
+    assert crashed.returncode == -signal.SIGKILL
+    wal_file, temporary = evaluator._candidate_log_wal_paths(path)
+    assert wal_file.is_file()
+    assert not temporary.exists()
+    assert 0 < path.stat().st_size
+    assert not path.read_bytes().endswith(b"\n")
+
+    evaluator._log_codes_jsonl(
+        [_result(8, 0)],
+        candidate_log_path=path,
+    )
+
+    rows = [json.loads(line) for line in path.read_bytes().splitlines()]
+    assert [(row["ell"] - 6, row["m"] - 6) for row in rows] == [
+        (7, 0),
+        (7, 1),
+        (7, 2),
+        (8, 0),
+    ]
+    assert not wal_file.exists()
+    assert not temporary.exists()
+
+
+def test_candidate_jsonl_recovers_sigkill_after_full_batch_before_clear(
+    tmp_path,
+):
+    path = (tmp_path / "full-kill" / "all_codes.jsonl").resolve()
+    path.parent.mkdir()
+    interrupted = [_result(9, index) for index in range(2)]
+
+    crashed = _run_crashing_candidate_append(
+        path,
+        interrupted,
+        crash_mode="after-full",
+    )
+
+    assert crashed.returncode == -signal.SIGKILL
+    wal_file, temporary = evaluator._candidate_log_wal_paths(path)
+    assert wal_file.is_file()
+    assert not temporary.exists()
+    assert len(path.read_bytes().splitlines()) == len(interrupted)
+
+    evaluator._log_codes_jsonl(
+        [_result(10, 0)],
+        candidate_log_path=path,
+    )
+
+    rows = [json.loads(line) for line in path.read_bytes().splitlines()]
+    assert [(row["ell"] - 6, row["m"] - 6) for row in rows] == [
+        (9, 0),
+        (9, 1),
+        (10, 0),
+    ]
+    assert not wal_file.exists()
+    assert not temporary.exists()
+
+
+def test_candidate_jsonl_residual_wal_temp_fails_closed(tmp_path):
+    path = (tmp_path / "temp-residue" / "all_codes.jsonl").resolve()
+    path.parent.mkdir()
+    _wal_file, temporary = evaluator._candidate_log_wal_paths(path)
+    temporary.write_bytes(b"incomplete intent")
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="residual temp",
+    ):
+        evaluator._log_codes_jsonl(
+            [_result(0, 0)],
+            candidate_log_path=path,
+        )
+
+    assert path.read_bytes() == b""
+    assert temporary.read_bytes() == b"incomplete intent"
+
+
+@pytest.mark.parametrize("corruption", ["schema", "path", "hash"])
+def test_candidate_jsonl_corrupt_or_misbound_wal_fails_closed(
+    tmp_path,
+    corruption,
+):
+    path = (tmp_path / corruption / "all_codes.jsonl").resolve()
+    path.parent.mkdir()
+    path.touch()
+    wal_file, _temporary = evaluator._candidate_log_wal_paths(path)
+    payload = b'{"candidate":"orphan"}\n'
+    encoded = evaluator._candidate_log_wal_bytes(
+        path,
+        start_offset=0,
+        payload=payload,
+    )
+    encoded_header, encoded_payload = encoded.split(b"\n", 1)
+    header = json.loads(encoded_header)
+    if corruption == "schema":
+        header["schema_version"] += 1
+    elif corruption == "path":
+        header["log_path"] = str(path.with_name("other.jsonl"))
+    else:
+        header["payload_sha256"] = "0" * 64
+    wal_file.write_bytes(
+        json.dumps(
+            header,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("ascii")
+        + b"\n"
+        + encoded_payload
+    )
+
+    with pytest.raises(evaluator.CandidateLogWriteError):
+        evaluator.recover_candidate_log_wal(path)
+
+    assert path.read_bytes() == b""
+    assert wal_file.is_file()
 
 
 def test_evaluation_does_not_downgrade_candidate_log_failure(monkeypatch):
@@ -721,10 +1054,20 @@ def test_preflight_freezes_candidate_log_binding_before_untrusted_import(
 ):
     monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
     monkeypatch.setenv("QCODE_RUN_NAME", "trusted-run")
+    trusted_log = (tmp_path / "trusted-output" / "all_codes.jsonl").resolve()
+    redirected_log = (
+        tmp_path / "redirected-output" / "all_codes.jsonl"
+    ).resolve()
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(trusted_log),
+    )
     program = tmp_path / "redirecting_program.py"
     program.write_text(
         "import os\n"
         "os.environ['QCODE_RUN_NAME'] = 'redirected-run'\n"
+        f"os.environ['{evaluator.CANDIDATE_LOG_PATH_ENV}'] = "
+        f"{str(redirected_log)!r}\n"
         "def generate_candidates(ell, m):\n"
         "    return [(\n"
         "        [(0, 0), (0, 1), (1, 0)],\n"
@@ -760,23 +1103,132 @@ def test_preflight_freezes_candidate_log_binding_before_untrusted_import(
 
     markers = evaluator._preflight_program(str(program))
 
-    trusted_log = (
-        tmp_path
-        / "results"
-        / "evolution"
-        / "trusted-run"
-        / "all_codes.jsonl"
-    )
-    redirected_log = (
-        tmp_path
-        / "results"
-        / "evolution"
-        / "redirected-run"
-        / "all_codes.jsonl"
-    )
     assert markers[evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC] == 1.0
     assert len(trusted_log.read_text().splitlines()) == len(EVOLUTION_LATTICES)
     assert not redirected_log.exists()
+
+
+def test_absolute_log_binding_routes_milp_copy_away_from_its_project_root(
+    tmp_path, monkeypatch
+):
+    copied_evaluator_root = tmp_path / "results" / "evolution"
+    trusted_log = (tmp_path / "actual-run" / "all_codes.jsonl").resolve()
+    monkeypatch.setattr(
+        evaluator,
+        "_PROJECT_ROOT",
+        str(copied_evaluator_root),
+    )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(trusted_log),
+    )
+
+    evaluator._log_code_jsonl(_result(0, 0))
+
+    assert len(trusted_log.read_text().splitlines()) == 1
+    assert not (
+        copied_evaluator_root
+        / "results"
+        / "evolution"
+        / "all_codes.jsonl"
+    ).exists()
+
+
+def test_milp_cache_is_sibling_of_frozen_absolute_candidate_log(
+    tmp_path, monkeypatch
+):
+    trusted_log = (tmp_path / "actual-run" / "all_codes.jsonl").resolve()
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(trusted_log),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_MILP_CANDIDATE_LOG_PATH_BINDING",
+        None,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "STAGE2_LATTICES_MILP",
+        [(6, 6)],
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_load_generate_candidates",
+        lambda _path: (
+            lambda _ell, _m: [
+                (
+                    [[0, 0], [0, 1], [1, 0]],
+                    [[0, 0], [0, 2], [2, 0]],
+                )
+            ]
+        ),
+    )
+    quick = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [0, 1], [1, 0]],
+        "B_terms": [[0, 0], [0, 2], [2, 0]],
+        "n": 72,
+        "k": 4,
+        "d": 0,
+        "d_symplectic": 5,
+        "fom": 0.0,
+        "stage": "quick_k_only",
+    }
+    monkeypatch.setattr(
+        evaluator,
+        "evaluate_batch_milp_parallel",
+        lambda *_args, **_kwargs: [dict(quick)],
+    )
+    observed = {}
+
+    def fake_milp(_tasks, **kwargs):
+        observed["save_path"] = kwargs["save_path"]
+        return []
+
+    monkeypatch.setattr(evaluator, "evaluate_milp_parallel", fake_milp)
+    monkeypatch.setattr(
+        evaluator,
+        "_write_metrics_jsonl",
+        lambda *_args, **_kwargs: None,
+    )
+
+    evaluator.evaluate_stage2_milp(str(program))
+
+    assert observed["save_path"] == str(
+        trusted_log.with_name("evolution_codes.jsonl")
+    )
+
+
+def test_milp_process_binding_survives_later_environment_redirection(
+    tmp_path, monkeypatch
+):
+    trusted_log = (tmp_path / "trusted" / "all_codes.jsonl").resolve()
+    redirected_log = (
+        tmp_path / "redirected" / "all_codes.jsonl"
+    ).resolve()
+    monkeypatch.setattr(
+        evaluator,
+        "_MILP_CANDIDATE_LOG_PATH_BINDING",
+        None,
+    )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(trusted_log),
+    )
+
+    first = evaluator._freeze_milp_candidate_log_path()
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str(redirected_log),
+    )
+    second = evaluator._freeze_milp_candidate_log_path()
+
+    assert first == trusted_log
+    assert second == trusted_log
 
 
 def test_preflight_refuses_program_that_rewrites_its_source_on_import(
@@ -1482,7 +1934,9 @@ def test_stage1_completes_full_persistence_before_gate_score(
     program = tmp_path / "program.py"
     program.write_text("def generate_candidates(ell, m): return []\n")
     markers = {
-        evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+        evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+            evaluator.WINNER_PREFLIGHT_CONTRACT_VERSION
+        ),
         evaluator.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: 7.0,
         evaluator.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
     }

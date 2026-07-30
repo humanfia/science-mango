@@ -319,7 +319,7 @@ def _make_synthetic_completed_win(
         payload_sha = _payload_sha256(certificate)
         verification_path = source_verifications / f"{digest}.json"
         envelope = {
-            "schema_version": 2,
+            "schema_version": 3,
             "kind": "qldpc-certificate-verification-cache",
             "canonical_digest": digest,
             "known_answer_sha256": known_answer_sha,
@@ -708,6 +708,12 @@ def test_export_release_publishes_only_strict_accepted_subset(tmp_path):
         "passed": False,
         "replay_complete": False,
         "failures": ["strict replay batch timeout exhausted"],
+        "failure_disposition": {
+            "schema_version": 1,
+            "status": "INCOMPLETE",
+            "domain": "solver",
+            "codes": ["STRICT_REPLAY_DEFERRED"],
+        },
     }
     stage5["summary"] = {
         "accepted": 1,
@@ -741,6 +747,47 @@ def test_export_release_publishes_only_strict_accepted_subset(tmp_path):
         known_answer_trust_path=repo / "results" / "known_answer_trust.json",
         expected_run_id=run_id,
     )["passed"]
+
+
+def test_export_release_keeps_win_when_peer_replay_is_contradictory(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    stage5_path = (
+        _pipeline_root(repo, run_id) / "artifacts" / "stage5-final-gate.json"
+    )
+    stage5 = json.loads(stage5_path.read_text())
+    expected_accepted_sha256 = stage5["evaluations"][1][
+        "certificate_sha256"
+    ]
+    stage5["evaluations"][0]["disposition"] = "INCOMPLETE"
+    stage5["evaluations"][0]["result"] = {
+        "passed": False,
+        "replay_complete": True,
+        "failures": ["certificate_sha256"],
+        "failure_disposition": {
+            "schema_version": 1,
+            "status": "EVIDENCE_CONTRADICTION",
+            "domain": "evidence",
+            "codes": ["STRICT_REPLAY_CONTRADICTS_PASSED_CERTIFICATE"],
+        },
+    }
+    stage5["summary"] = {
+        "accepted": 1,
+        "rejected": 0,
+        "incomplete": 1,
+        "total": 2,
+    }
+    _write_json(stage5_path, stage5)
+    _refresh_state_hashes(repo, run_id)
+
+    result = export_release(repo_dir=repo, run_id=run_id)
+
+    assert result["certificates"] == 1
+    manifest = json.loads(Path(result["manifest"]).read_text())
+    assert manifest["accepted"] == 1
+    assert manifest["incomplete"] == 1
+    assert manifest["certificates"][0]["certificate_sha256"] == (
+        expected_accepted_sha256
+    )
 
 
 def test_export_release_rejects_promoted_unaccepted_peer(tmp_path):

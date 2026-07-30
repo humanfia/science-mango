@@ -150,6 +150,7 @@ def write_artifact(
     *,
     threshold_only: bool,
     translation_symmetry: dict[str, Any],
+    cache_binding: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     ordered_sectors = sorted(sectors, key=lambda item: str(item["sector"]))
     required = int(candidate["required_distance"])
@@ -169,6 +170,8 @@ def write_artifact(
         "translation_symmetry": translation_symmetry,
         "sectors": ordered_sectors,
     }
+    if cache_binding is not None:
+        artifact["cache_binding"] = cache_binding
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(artifact, indent=2) + "\n")
@@ -182,6 +185,7 @@ def load_replayable_sectors(
     *,
     threshold_only: bool,
     translation_symmetry: dict[str, Any],
+    expected_cache_binding: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Recover completed sector proofs while discarding timed-out work.
 
@@ -201,6 +205,10 @@ def load_replayable_sectors(
         artifact.get("candidate") != candidate
         or artifact.get("threshold_only") is not threshold_only
         or artifact.get("translation_symmetry") != translation_symmetry
+        or (
+            expected_cache_binding is not None
+            and artifact.get("cache_binding") != expected_cache_binding
+        )
     ):
         return []
 

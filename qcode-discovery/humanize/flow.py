@@ -63,8 +63,18 @@ EvolutionRunner = Callable[["FlowConfig", dict[str, Any], Path], Path | None]
 ROUND_TRANSACTION_PROTOCOL_VERSION = 2
 ROUND_TRANSACTION_SCHEMA_VERSION = 2
 LEGACY_BATCH_SCHEMA_VERSION = 1
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 2
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 2
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 3
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 3
+CANDIDATE_WITNESS_FIELDS = (
+    "candidate_log_path",
+    "candidate_log_device",
+    "candidate_log_inode",
+    "candidate_start_offset",
+    "candidate_end_offset",
+    "candidate_range_sha256",
+    "candidate_range_bytes",
+    "candidate_wal_clean",
+)
 LOCAL_EVOLUTION_DEPENDENCIES = LOCAL_EVALUATOR_DEPENDENCIES
 # Transactions prepared before ``evaluation_final_gate`` was added have no
 # explicit binding-schema field.  Keep the exact historical shape allowlisted
@@ -99,6 +109,10 @@ EVOLUTION_INVOCATION_FIELDS = frozenset({
 
 class RoundTransactionError(RuntimeError):
     """A round cannot be replayed without risking duplicate evolution work."""
+
+
+class LegacySliceWitnessUpgradeRequired(RoundTransactionError):
+    """A prepared legacy slice has no candidate-range completion proof."""
 
 
 class HumanizeRunAlreadyActiveError(RoundTransactionError):
@@ -1322,6 +1336,30 @@ def _slice_iterations_sha256(start_iteration: int, count: int) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _candidate_log_range_identity(
+    candidate_log: Path,
+    *,
+    start_offset: int,
+    end_offset: int | None = None,
+) -> dict[str, Any]:
+    """Recover the shared WAL and snapshot one exact candidate byte range."""
+    from evolve.openevolve_evaluator import (
+        CandidateLogWriteError,
+        candidate_log_range_identity,
+    )
+
+    try:
+        return candidate_log_range_identity(
+            candidate_log.absolute(),
+            start_offset=start_offset,
+            end_offset=end_offset,
+        )
+    except (OSError, CandidateLogWriteError) as exc:
+        raise RoundTransactionError(
+            f"candidate log WAL/range validation failed: {exc}"
+        ) from exc
+
+
 def _validate_slice_witness(
     witness_path: Path,
     config: FlowConfig,
@@ -1329,8 +1367,26 @@ def _validate_slice_witness(
     result_checkpoint: dict[str, Any],
     launch_binding: dict[str, dict[str, Any]],
     invocation_binding: dict[str, Any],
+    candidate_log: Path,
+    candidate_start_offset: int,
+    legacy_candidate_source: dict[str, Any] | None = None,
+    require_candidate_end_of_file: bool = False,
 ) -> dict[str, Any]:
     witness = _read_json_object(witness_path, "OpenEvolve slice witness")
+    witness_schema = witness.get("schema_version")
+    legacy_witness = witness_schema == 2
+    if legacy_witness and legacy_candidate_source is None:
+        raise LegacySliceWitnessUpgradeRequired(
+            "prepared legacy OpenEvolve witness has no candidate-range "
+            "binding and must be quarantined and replayed"
+        )
+    if witness_schema not in {
+        2,
+        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
+        raise RoundTransactionError(
+            f"unsupported OpenEvolve witness schema: {witness_schema!r}"
+        )
     binding = launch_binding
     invocation = _validate_invocation_binding(
         config, invocation_binding, binding
@@ -1342,7 +1398,7 @@ def _validate_slice_witness(
     count = config.iterations_per_round
     end_iteration = base_iteration + count
     expected: dict[str, Any] = {
-        "schema_version": EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+        "schema_version": witness_schema,
         "status": "completed",
         "output_dir": str(
             (
@@ -1368,6 +1424,12 @@ def _validate_slice_witness(
         "result_checkpoint_sha256": result_checkpoint["sha256"],
         "result_checkpoint_programs": result_checkpoint["programs"],
     }
+    if not legacy_witness:
+        expected.update({
+            "candidate_log_path": str(candidate_log.resolve()),
+            "candidate_start_offset": candidate_start_offset,
+            "candidate_wal_clean": True,
+        })
     for name, descriptor in binding.items():
         for field in ("path", "sha256", "bytes"):
             expected[f"{name}_{field}"] = descriptor[field]
@@ -1378,6 +1440,102 @@ def _validate_slice_witness(
                 f"OpenEvolve slice witness mismatch for {key}: "
                 f"expected {value!r}, got {witness.get(key)!r}"
             )
+
+    if legacy_witness:
+        assert legacy_candidate_source is not None
+        candidate_end_offset = legacy_candidate_source.get(
+            "candidate_end_offset"
+        )
+        candidate_range_sha256 = legacy_candidate_source.get(
+            "candidate_source_sha256"
+        )
+        if (
+            legacy_candidate_source.get("candidate_start_offset")
+            != candidate_start_offset
+            or isinstance(candidate_end_offset, bool)
+            or not isinstance(candidate_end_offset, int)
+            or candidate_end_offset < candidate_start_offset
+            or not isinstance(candidate_range_sha256, str)
+            or len(candidate_range_sha256) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in candidate_range_sha256
+            )
+        ):
+            raise RoundTransactionError(
+                "legacy transaction candidate source identity is invalid"
+            )
+        observed_candidate = _candidate_log_range_identity(
+            candidate_log,
+            start_offset=candidate_start_offset,
+            end_offset=(
+                None
+                if require_candidate_end_of_file
+                else candidate_end_offset
+            ),
+        )
+        if (
+            observed_candidate["end_offset"] != candidate_end_offset
+            or observed_candidate["sha256"] != candidate_range_sha256
+        ):
+            raise RoundTransactionError(
+                "legacy transaction candidate source range changed"
+            )
+    else:
+        candidate_end_offset = witness.get("candidate_end_offset")
+        candidate_device = witness.get("candidate_log_device")
+        candidate_inode = witness.get("candidate_log_inode")
+        candidate_range_bytes = witness.get("candidate_range_bytes")
+        candidate_range_sha256 = witness.get("candidate_range_sha256")
+        if (
+            isinstance(candidate_end_offset, bool)
+            or not isinstance(candidate_end_offset, int)
+            or candidate_end_offset < candidate_start_offset
+            or isinstance(candidate_device, bool)
+            or not isinstance(candidate_device, int)
+            or candidate_device < 0
+            or isinstance(candidate_inode, bool)
+            or not isinstance(candidate_inode, int)
+            or candidate_inode < 1
+            or isinstance(candidate_range_bytes, bool)
+            or not isinstance(candidate_range_bytes, int)
+            or candidate_range_bytes
+            != candidate_end_offset - candidate_start_offset
+            or not isinstance(candidate_range_sha256, str)
+            or len(candidate_range_sha256) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in candidate_range_sha256
+            )
+        ):
+            raise RoundTransactionError(
+                "OpenEvolve slice witness candidate range identity is invalid"
+            )
+        observed_candidate = _candidate_log_range_identity(
+            candidate_log,
+            start_offset=candidate_start_offset,
+            end_offset=(
+                None
+                if require_candidate_end_of_file
+                else candidate_end_offset
+            ),
+        )
+        candidate_expected = {
+            "candidate_log_path": observed_candidate["path"],
+            "candidate_log_device": observed_candidate["device"],
+            "candidate_log_inode": observed_candidate["inode"],
+            "candidate_start_offset": observed_candidate["start_offset"],
+            "candidate_end_offset": observed_candidate["end_offset"],
+            "candidate_range_sha256": observed_candidate["sha256"],
+            "candidate_range_bytes": observed_candidate["bytes"],
+            "candidate_wal_clean": observed_candidate["wal_clean"],
+        }
+        for key, value in candidate_expected.items():
+            if witness.get(key) != value:
+                raise RoundTransactionError(
+                    f"OpenEvolve slice witness mismatch for {key}: "
+                    f"expected {value!r}, got {witness.get(key)!r}"
+                )
 
     expected_iterations = list(range(start_iteration, end_iteration + 1))
     attempts = witness.get("submission_attempts")
@@ -1522,6 +1680,14 @@ def _validate_slice_witness(
         "openevolve_version",
         "completed_at",
     }
+    if not legacy_witness:
+        allowed_fields.update({
+            "candidate_log_device",
+            "candidate_log_inode",
+            "candidate_end_offset",
+            "candidate_range_sha256",
+            "candidate_range_bytes",
+        })
     for name in (
         "openevolve_controller",
         "openevolve_process_parallel",
@@ -1551,8 +1717,13 @@ def _completion_marker_expected(
     base_iteration = (
         0 if base_checkpoint is None else int(base_checkpoint["last_iteration"])
     )
+    witness_schema = slice_witness.get("schema_version")
+    if witness_schema not in {2, EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION}:
+        raise RoundTransactionError(
+            "completion marker received an unsupported witness schema"
+        )
     expected: dict[str, Any] = {
-        "schema_version": EVOLUTION_COMPLETION_SCHEMA_VERSION,
+        "schema_version": witness_schema,
         "status": "completed",
         "output_dir": str(
             (
@@ -1575,6 +1746,9 @@ def _completion_marker_expected(
         "slice_witness_sha256": slice_witness["sha256"],
         "slice_witness_bytes": slice_witness["bytes"],
     }
+    if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        for field in CANDIDATE_WITNESS_FIELDS:
+            expected[field] = slice_witness[field]
     for name, descriptor in launch_binding.items():
         for field in ("path", "sha256", "bytes"):
             expected[f"{name}_{field}"] = descriptor[field]
@@ -1963,6 +2137,16 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
     launch_binding, invocation_binding = _frozen_bindings_from_state(
         config, state, round_dir
     )
+    candidate_start_offset = state.get("candidate_offset")
+    if (
+        isinstance(candidate_start_offset, bool)
+        or not isinstance(candidate_start_offset, int)
+        or candidate_start_offset < 0
+    ):
+        raise RoundTransactionError(
+            "managed OpenEvolve candidate start offset is invalid"
+        )
+    candidate_log = output_dir / "all_codes.jsonl"
     context_path = Path(launch_binding["context"]["path"])
     command = [
         sys.executable,
@@ -1973,6 +2157,7 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         "--humanize-context", str(context_path),
         "--completion-marker", str(marker_path),
         "--slice-witness", str(witness_path),
+        "--candidate-start-offset", str(candidate_start_offset),
         "--lifecycle-lease-fd", str(lease_fd),
         "--lifecycle-lease-path", str(expected_lease_path),
         "--config", launch_binding["config"]["path"],
@@ -2031,6 +2216,9 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         result_checkpoint,
         launch_binding,
         invocation_binding,
+        candidate_log,
+        candidate_start_offset,
+        require_candidate_end_of_file=True,
     )
     _validate_completion_marker(
         marker_path,
@@ -2404,6 +2592,24 @@ class HumanizeFlow:
     def candidate_log(self) -> Path:
         return self.config.candidate_file or self.evolution_output / "all_codes.jsonl"
 
+    def _recover_candidate_log_wal(self) -> bool:
+        """Finish any evaluator append before Flow reads or rewrites its log."""
+        if self.config.candidate_file is not None:
+            return False
+        from evolve.openevolve_evaluator import (
+            CandidateLogWriteError,
+            recover_candidate_log_wal,
+        )
+
+        try:
+            return recover_candidate_log_wal(
+                self.candidate_log.absolute()
+            )
+        except (OSError, CandidateLogWriteError) as exc:
+            raise RoundTransactionError(
+                f"candidate log WAL recovery failed: {exc}"
+            ) from exc
+
     @staticmethod
     def _read_jsonl(path: Path) -> list[dict[str, Any]]:
         if not path.is_file():
@@ -2600,8 +2806,16 @@ class HumanizeFlow:
         self,
         rows: list[dict[str, Any]],
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        """Return formally replayed exact rows and the subset that are WINs."""
+        """Return exact evidence and registry-replayed novel challenge WINs.
+
+        Exact distance evidence is necessary but not sufficient to terminate
+        discovery.  The candidate construction is rebuilt here and replayed
+        against the registry belonging to *this* repository.  A known code or
+        any unavailable, incomplete, or contradictory registry replay remains
+        exact evidence for review, but can never enter ``trusted_wins``.
+        """
         from evaluation.final_gate import classify_win
+        from evaluation.registry import check_code_novelty, load_registry
 
         # Validate the whole append-only history before promoting any one row.
         rebuild_audit_state(
@@ -2620,19 +2834,122 @@ class HumanizeFlow:
             ):
                 exact_by_key[code_key(row)] = copy.deepcopy(row)
 
+        # ``load_registry`` caches validated immutable snapshots by path.
+        # Invalidate that process cache at each authoritative audit view so a
+        # registry replacement between rounds cannot leave Stage 1 consulting
+        # stale contents under the same repository path.
+        load_registry.cache_clear()
+        registry_path = (
+            self.config.repo_dir / "results" / "known_code_registry.json"
+        )
         wins_by_key: dict[str, dict[str, Any]] = {}
         for key, row in exact_by_key.items():
             try:
+                ell = int(row["ell"])
+                m = int(row["m"])
+                a_terms = [
+                    tuple(map(int, term)) for term in row["A_terms"]
+                ]
+                b_terms = [
+                    tuple(map(int, term)) for term in row["B_terms"]
+                ]
+                c_terms = [
+                    tuple(map(int, term))
+                    for term in (row.get("C_terms") or [])
+                ]
+                d_terms = [
+                    tuple(map(int, term))
+                    for term in (row.get("D_terms") or [])
+                ]
+                if c_terms or d_terms:
+                    from evaluation.pbb_code import build_pbb_code
+
+                    rebuilt_code = build_pbb_code(
+                        ell,
+                        m,
+                        a_terms,
+                        b_terms,
+                        c_terms,
+                        d_terms,
+                    )
+                    code_type = "noncss"
+                else:
+                    from evaluation.bb_code import build_bb_code
+
+                    rebuilt_code = build_bb_code(
+                        ell,
+                        m,
+                        a_terms,
+                        b_terms,
+                    )
+                    code_type = "css"
+                rebuilt_n = int(rebuilt_code.num_qudits)
+                rebuilt_k = int(rebuilt_code.dimension)
+                reported_n = int(row["n"])
+                reported_k = int(row["k"])
+                distance = int(row["d"])
+                if (
+                    rebuilt_n <= 0
+                    or rebuilt_k <= 0
+                    or reported_n != rebuilt_n
+                    or reported_k != rebuilt_k
+                ):
+                    raise ValueError(
+                        "exact row n/k disagree with the rebuilt construction"
+                    )
                 result = classify_win(
-                    int(row["n"]),
-                    int(row["k"]),
-                    int(row["d"]),
+                    rebuilt_n,
+                    rebuilt_k,
+                    distance,
                 )
-            except (KeyError, TypeError, ValueError, OverflowError) as exc:
-                raise AuditStateError(
-                    f"trusted exact row {key} has invalid win coordinates"
-                ) from exc
-            if result.get("passed") is True:
+            except Exception as exc:
+                row["trusted_win_gate"] = {
+                    "schema_version": 1,
+                    "trusted": False,
+                    "challenge_win": None,
+                    "registry_novelty": {
+                        "status": "INCOMPLETE",
+                        "checked": False,
+                        "novel": None,
+                        "registry_path": str(registry_path),
+                        "failure": {
+                            "domain": "candidate",
+                            "code": "EXACT_CONSTRUCTION_REBUILD_FAILED",
+                            "detail": str(exc),
+                            "retryable": False,
+                            "terminal_candidate_rejection": False,
+                        },
+                    },
+                }
+                continue
+
+            if result.get("passed") is not True:
+                row["trusted_win_gate"] = {
+                    "schema_version": 1,
+                    "trusted": False,
+                    "challenge_win": result,
+                    "registry_novelty": {
+                        "status": "NOT_APPLICABLE",
+                        "checked": False,
+                        "novel": None,
+                        "registry_path": str(registry_path),
+                    },
+                }
+                continue
+
+            novelty = check_code_novelty(
+                rebuilt_code,
+                code_type=code_type,
+                registry_path=registry_path,
+            )
+            trusted = novelty.get("novel") is True
+            row["trusted_win_gate"] = {
+                "schema_version": 1,
+                "trusted": trusted,
+                "challenge_win": result,
+                "registry_novelty": novelty,
+            }
+            if trusted:
                 wins_by_key[key] = row
 
         exact = sorted(
@@ -2658,6 +2975,28 @@ class HumanizeFlow:
         state["best_exact_fom"] = max(
             (candidate_fom(row) for row in exact),
             default=0.0,
+        )
+        challenge_win_gates = [
+            row["trusted_win_gate"]
+            for row in exact
+            if isinstance(row.get("trusted_win_gate"), dict)
+            and isinstance(
+                row["trusted_win_gate"].get("challenge_win"),
+                dict,
+            )
+            and row["trusted_win_gate"]["challenge_win"].get("passed") is True
+        ]
+        state["challenge_win_registry_novel_count"] = sum(
+            gate.get("registry_novelty", {}).get("novel") is True
+            for gate in challenge_win_gates
+        )
+        state["challenge_win_registry_known_count"] = sum(
+            gate.get("registry_novelty", {}).get("novel") is False
+            for gate in challenge_win_gates
+        )
+        state["challenge_win_registry_unresolved_count"] = sum(
+            gate.get("registry_novelty", {}).get("novel") is None
+            for gate in challenge_win_gates
         )
 
     @staticmethod
@@ -3490,6 +3829,7 @@ class HumanizeFlow:
             or start_offset < 0
         ):
             raise RoundTransactionError("state candidate_offset is invalid")
+        self._recover_candidate_log_wal()
         if self.candidate_log.is_file():
             source_size = self.candidate_log.stat().st_size
             if start_offset > source_size:
@@ -3609,6 +3949,7 @@ class HumanizeFlow:
             or end_offset < int(transaction["candidate_start_offset"])
         ):
             raise RoundTransactionError("transaction end offset is invalid")
+        self._recover_candidate_log_wal()
         try:
             rows, observed_end, source_sha256 = read_jsonl_range(
                 self.candidate_log,
@@ -3652,6 +3993,9 @@ class HumanizeFlow:
             observed,
             transaction.get("launch_binding"),
             transaction.get("invocation_binding"),
+            self.candidate_log,
+            int(transaction["candidate_start_offset"]),
+            legacy_candidate_source=transaction,
         )
         if witness["sha256"] != transaction.get("completion_witness_sha256"):
             raise RoundTransactionError("completion witness changed after prepare")
@@ -3714,6 +4058,7 @@ class HumanizeFlow:
         }
 
     def _candidate_log_size(self, *, start_offset: int) -> int:
+        self._recover_candidate_log_wal()
         path = self.candidate_log
         if path.is_symlink():
             raise RoundTransactionError(f"candidate log may not be a symlink: {path}")
@@ -3898,6 +4243,7 @@ class HumanizeFlow:
         return tuple(inputs)
 
     def _atomic_restore_candidate_prefix(self, start_offset: int) -> None:
+        self._recover_candidate_log_wal()
         path = self.candidate_log
         if start_offset == 0 and not path.exists():
             return
@@ -4425,27 +4771,45 @@ class HumanizeFlow:
                 expected_path,
                 expected_iteration=expected_iteration,
             )
-            witness = _validate_slice_witness(
-                witness_path,
-                self.config,
-                transaction.get("base_checkpoint"),
-                result_checkpoint,
-                transaction["launch_binding"],
-                transaction["invocation_binding"],
-            )
-            marker = _validate_completion_marker(
-                marker_path,
-                self.config,
-                transaction.get("base_checkpoint"),
-                result_checkpoint,
-                transaction["launch_binding"],
-                transaction["invocation_binding"],
-                witness,
-            )
-            transaction["result_checkpoint"] = result_checkpoint
-            transaction["completion_witness_sha256"] = witness["sha256"]
-            transaction["completion_marker_sha256"] = marker["sha256"]
-            return
+            try:
+                witness = _validate_slice_witness(
+                    witness_path,
+                    self.config,
+                    transaction.get("base_checkpoint"),
+                    result_checkpoint,
+                    transaction["launch_binding"],
+                    transaction["invocation_binding"],
+                    self.candidate_log,
+                    int(transaction["candidate_start_offset"]),
+                    require_candidate_end_of_file=True,
+                )
+                marker = _validate_completion_marker(
+                    marker_path,
+                    self.config,
+                    transaction.get("base_checkpoint"),
+                    result_checkpoint,
+                    transaction["launch_binding"],
+                    transaction["invocation_binding"],
+                    witness,
+                )
+            except LegacySliceWitnessUpgradeRequired:
+                self._quarantine_untrusted_evolution_attempt(
+                    transaction,
+                    round_dir,
+                    expected_path,
+                    reason=(
+                        "legacy completion proof has no candidate-range "
+                        "binding after source upgrade"
+                    ),
+                )
+                checkpoint_present = False
+                marker_present = False
+                witness_present = False
+            else:
+                transaction["result_checkpoint"] = result_checkpoint
+                transaction["completion_witness_sha256"] = witness["sha256"]
+                transaction["completion_marker_sha256"] = marker["sha256"]
+                return
         if any((checkpoint_present, marker_present, witness_present)):
             self._quarantine_untrusted_evolution_attempt(
                 transaction,
@@ -4503,6 +4867,9 @@ class HumanizeFlow:
             result_checkpoint,
             transaction["launch_binding"],
             transaction["invocation_binding"],
+            self.candidate_log,
+            int(transaction["candidate_start_offset"]),
+            require_candidate_end_of_file=True,
         )
         marker = _validate_completion_marker(
             marker_path,
@@ -5036,6 +5403,7 @@ class HumanizeFlow:
         offset = state.get("candidate_offset")
         if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
             raise RoundTransactionError("legacy candidate_offset is invalid")
+        self._recover_candidate_log_wal()
         try:
             _rows, observed_offset, _sha256 = read_jsonl_range(
                 self.candidate_log, 0, offset
@@ -5250,13 +5618,31 @@ class HumanizeFlow:
         self,
         current: list[dict[str, Any]],
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        """Rebuild the eligible pool from bound history, never archive cache."""
-        from evaluation.structural_dedup import deduplicate_css_results
+        """Rebuild the eligible pool from bound history with verified cache."""
+        from evaluation.structural_dedup import (
+            screen_css_results_with_deferred_cache,
+        )
 
         _paths, historical = self._validated_committed_candidate_history()
         combined = _deduplicate(historical + current)
         combined.sort(key=candidate_fom, reverse=True)
-        return deduplicate_css_results(combined)
+        worker_budget = self.config.max_total_workers or 1
+        kept, rejected, unresolved = (
+            screen_css_results_with_deferred_cache(
+                combined,
+                cache_dir=self.store.root / "structural-screen-cache-v1",
+                max_workers=worker_budget,
+            )
+        )
+        if unresolved:
+            self.store.event(
+                "structural_screen_deferred",
+                retryable=True,
+                unresolved=len(unresolved),
+                candidates=unresolved,
+                max_total_workers=worker_budget,
+            )
+        return kept, rejected
 
     def _screen_candidates_with_pool(
         self, rows: list[dict[str, Any]]
@@ -5679,6 +6065,11 @@ class HumanizeFlow:
         if (
             state["status"] in {"completed", "search-complete"}
             and state.get("pending_round") is None
+            # A no-WIN completion is terminal only for the round budget that
+            # produced it.  A strict max_rounds extension must enter the loop
+            # below; otherwise the newly authorized rounds are silently
+            # skipped forever after the old search-complete checkpoint.
+            and int(state["current_round"]) >= self.config.max_rounds
             and (not rebuilt.unresolved or trusted_wins)
         ):
             self._write_run_meta(state)
@@ -5840,9 +6231,64 @@ class HumanizeFlow:
                 if state.get("round_phase") == "finalize" and review_path.is_file():
                     review = validate_review(json.loads(review_path.read_text()))
                 else:
-                    review = self.reviewer.review(prompt, round_dir)
-                    if not review_path.exists():
-                        review_path.write_text(json.dumps(review, ensure_ascii=False, indent=2) + "\n")
+                    try:
+                        review = validate_review(
+                            self.reviewer.review(prompt, round_dir)
+                        )
+                    except Exception as exc:
+                        if not trusted_wins:
+                            raise
+                        # Reviewer feedback guides later search rounds; it is
+                        # not part of the machine proof. Once the canonical
+                        # audit log already contains a replayed exact WIN, a
+                        # transient reviewer/API failure must not strand that
+                        # proof in a pending round forever.
+                        failure = {
+                            "schema_version": 1,
+                            "gate": "qcode-humanize-review-advisory-failure",
+                            "round": number,
+                            "classification": type(exc).__name__,
+                            "message": str(exc),
+                            "trusted_win_count": len(trusted_wins),
+                            "recorded_at": utc_now(),
+                        }
+                        atomic_write_json(
+                            round_dir / "review-advisory-failure.json",
+                            failure,
+                        )
+                        self.store.event(
+                            "trusted_win_review_failed_advisory",
+                            round_number=number,
+                            classification=type(exc).__name__,
+                            trusted_wins=len(trusted_wins),
+                        )
+                        review = validate_review({
+                            "verdict": "promote",
+                            "summary": (
+                                "The canonical audit log already contains a "
+                                "machine-replayed exact WIN; independent review "
+                                "failed and is recorded as advisory."
+                            ),
+                            "risks": [{
+                                "severity": "P2",
+                                "finding": (
+                                    "Independent round review was unavailable "
+                                    "after the exact WIN was established."
+                                ),
+                                "evidence": (
+                                    f"{type(exc).__name__}: {exc}"
+                                ),
+                            }],
+                            "recommended_focus": [
+                                "Proceed to deterministic certificate and "
+                                "strict-gate replay.",
+                            ],
+                            "lessons": [],
+                        })
+                    # Always bind the durable artifact to the validated object
+                    # returned above. A failed reviewer may have left a partial
+                    # or malformed review.json at the same path.
+                    atomic_write_json(review_path, review)
                     state["round_phase"] = "finalize"
                     self.store.write_state(state)
 

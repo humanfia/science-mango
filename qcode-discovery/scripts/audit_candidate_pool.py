@@ -27,7 +27,15 @@ from evaluation.bb_code import (
     get_code_params_fast,
     validate_terms,
 )
+from evaluation.certificate import _certificate_sha256
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
+from evaluation.failure_disposition import (
+    CERTIFICATE_CACHE_SCHEMA_VERSION,
+    contradiction_disposition,
+    incomplete_result_disposition,
+    terminal_candidate_rejection,
+    validate_failure_disposition,
+)
 from evaluation.final_gate import classify_win, minimum_winning_distance
 from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
@@ -47,6 +55,8 @@ from evaluation.proof_triage import (
 )
 from evaluation.registry import (
     DEFAULT_REGISTRY,
+    REGISTRY_REPLAY_POLICY,
+    REGISTRY_REPLAY_POLICY_SCHEMA_VERSION,
     check_code_novelty,
     load_registry,
 )
@@ -60,6 +70,16 @@ from evaluation.selection_ledger import (
     snapshot_identity_sha256,
     validate_selection_ledger,
 )
+from evaluation.structural_dedup import (
+    STRUCTURAL_PAIR_CACHE_SCHEMA_VERSION,
+    STRUCTURAL_PAIR_REPLAY_FIELD,
+    STRUCTURAL_SCREEN_HARD_TIMEOUT_SECONDS,
+    annotate_css_results_with_deferred_cache,
+    screen_css_results_with_deferred_cache,
+    structural_pair_input_sha256,
+    structural_screen_input_sha256,
+    structural_screen_runtime_fingerprint,
+)
 from humanize.audit_state import (
     AuditOutcome,
     AuditStateError,
@@ -71,6 +91,7 @@ from scripts.screen_frontier_candidate import (
 )
 from scripts.screen_frontier_xor import (
     TERMINAL_STATUSES,
+    classify_xor_results,
     load_replayable_sectors,
     solve_sector,
     verify_bb_translation_symmetry,
@@ -80,7 +101,7 @@ from scripts.screen_frontier_xor import (
 
 PROJECT = Path(__file__).resolve().parent.parent
 DEFAULT_KNOWN_ANSWER = PROJECT / "results" / "known_answer_gate.json"
-CACHE_SCHEMA_VERSION = 2
+CACHE_SCHEMA_VERSION = CERTIFICATE_CACHE_SCHEMA_VERSION
 SELECTION_LEDGER_SCHEMA_VERSION = SHARED_SELECTION_LEDGER_SCHEMA_VERSION
 SELECTION_LEDGER_GATE = SHARED_SELECTION_LEDGER_GATE
 RANKED_SNAPSHOT_SCHEMA_VERSION = 1
@@ -92,6 +113,7 @@ CERTIFIABLE_PROOF_STATUSES = frozenset({
 })
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
 _AUTHORITATIVE_GEOMETRY = "authoritative_geometry"
+_STAGE2_STRUCTURAL_SCREEN = "stage2_structural_screen"
 _INPUT_TERMINAL_MARKERS = (
     _TRUSTED_STAGE1_OUTCOME,
     "trusted_stage1_audit",
@@ -99,11 +121,17 @@ _INPUT_TERMINAL_MARKERS = (
     "campaign_audit",
     "campaign_skip_reason",
     "campaign_skip_error",
+    _STAGE2_STRUCTURAL_SCREEN,
+    STRUCTURAL_PAIR_REPLAY_FIELD,
 )
 
 
 class NoveltyReplayError(RuntimeError):
     """The authoritative novelty checker could not produce trusted evidence."""
+
+
+class StructuralSelectionDeferredError(RuntimeError):
+    """The snapshot row remains retryable and must retain its cursor position."""
 
 
 @dataclass(frozen=True)
@@ -529,6 +557,117 @@ def _is_trusted_terminal_rejection(row: Mapping[str, Any]) -> bool:
     )
 
 
+def _is_structural_screen_unresolved(row: Mapping[str, Any]) -> bool:
+    evidence = row.get(_STAGE2_STRUCTURAL_SCREEN)
+    return bool(
+        isinstance(evidence, Mapping)
+        and evidence.get("status") == "UNRESOLVED"
+        and evidence.get("retryable") is True
+        and _is_sha256(evidence.get("input_sha256"))
+    )
+
+
+def _is_pair_structural_unresolved(row: Mapping[str, Any]) -> bool:
+    evidence = row.get(_STAGE2_STRUCTURAL_SCREEN)
+    return bool(
+        _is_structural_screen_unresolved(row)
+        and isinstance(evidence, Mapping)
+        and evidence.get("operation") == "within_pool_isomorphism"
+        and _is_sha256(evidence.get("pair_input_sha256"))
+        and _is_sha256(evidence.get("runtime_sha256"))
+        and _is_sha256(evidence.get("canonical_digest"))
+        and _is_sha256(evidence.get("representative_input_sha256"))
+        and isinstance(evidence.get("representative"), Mapping)
+    )
+
+
+def _candidate_before_pair_rejection(
+    row: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Restore the novel annotation that was the pair worker's exact input."""
+
+    novelty = row.get("structural_novelty")
+    if not isinstance(novelty, Mapping):
+        raise ValueError("within-pool duplicate lacks structural novelty")
+    restored = dict(row)
+    restored.pop(STRUCTURAL_PAIR_REPLAY_FIELD, None)
+    restored.pop("structural_rejection", None)
+    restored["structural_novelty"] = {
+        **dict(novelty),
+        "novel": True,
+        "relation": None,
+        "matched_reference": None,
+        "reference_digest": None,
+        "explicit_isomorphism": None,
+    }
+    return restored
+
+
+def _validate_completed_pair_binding(
+    row: Mapping[str, Any],
+    representative: Mapping[str, Any],
+    *,
+    candidate_index: int,
+    representative_index: int,
+    runtime_sha256: str,
+    canonical_digest: str,
+) -> None:
+    """Require worker/cache evidence before a digest group may be merged."""
+
+    marker = row.get(STRUCTURAL_PAIR_REPLAY_FIELD)
+    novelty = row.get("structural_novelty")
+    replay = (
+        novelty.get("explicit_isomorphism")
+        if isinstance(novelty, Mapping)
+        else None
+    )
+    if (
+        not isinstance(marker, Mapping)
+        or set(marker) != {
+            "schema_version",
+            "status",
+            "input_sha256",
+            "runtime_sha256",
+            "candidate_input_sha256",
+            "representative_input_sha256",
+            "representative_index",
+            "canonical_digest",
+        }
+        or marker.get("schema_version")
+        != STRUCTURAL_PAIR_CACHE_SCHEMA_VERSION
+        or marker.get("status") != "COMPLETE"
+        or marker.get("runtime_sha256") != runtime_sha256
+        or marker.get("representative_index") != representative_index
+        or marker.get("canonical_digest") != canonical_digest
+        or marker.get("candidate_input_sha256")
+        != structural_screen_input_sha256(row)
+        or marker.get("representative_input_sha256")
+        != structural_screen_input_sha256(representative)
+        or not _is_sha256(marker.get("input_sha256"))
+        or not isinstance(novelty, Mapping)
+        or novelty.get("checked") is not True
+        or novelty.get("novel") is not False
+        or novelty.get("relation")
+        != "within_run_css_tanner_permutation_equivalent"
+        or novelty.get("reference_digest") != canonical_digest
+        or not isinstance(replay, Mapping)
+        or replay.get("verified") is not True
+        or replay.get("hx_preserved") is not True
+        or replay.get("hz_preserved") is not True
+    ):
+        raise ValueError(
+            f"candidate {candidate_index} lacks verified pair replay binding"
+        )
+    restored = _candidate_before_pair_rejection(row)
+    if (
+        structural_pair_input_sha256(restored, dict(representative))
+        != marker["input_sha256"]
+    ):
+        raise ValueError(
+            f"candidate {candidate_index} pair replay binding is inconsistent"
+        )
+
+
 def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     """Preserve proof priority, then rank proof ties by search upside."""
 
@@ -552,7 +691,17 @@ def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     # stable_sort_key's final two fields are deterministic identities. Insert
     # this advisory upper-bound tie-break immediately before them; it never
     # outranks actual lower-bound proof progress.
-    return (*proof_key[:-2], -estimated_fom, *proof_key[-2:])
+    # Retryable structural rows form a durable barrier at the end of the live
+    # prefix. Every completed candidate remains pageable ahead of the barrier,
+    # while the selection cursor can never cross a timed-out reconstruction.
+    structural_lane = 1 if _is_structural_screen_unresolved(row) else 0
+    return (
+        proof_key[0],
+        structural_lane,
+        *proof_key[1:-2],
+        -estimated_fom,
+        *proof_key[-2:],
+    )
 
 
 def rank_candidate_files(
@@ -660,6 +809,488 @@ def rank_candidate_files(
         "duplicate_records": len(prepared) - len(ranked),
         "rejected_candidates": len(ranked) - len(eligible),
         "eligible_candidates": len(eligible),
+    }
+    if ineligible_records:
+        counts["ineligible_records"] = ineligible_records
+    if malformed_records:
+        counts["malformed_records"] = malformed_records
+    if invalid_audit_records:
+        counts["malformed_records"] = (
+            counts.get("malformed_records", 0) + invalid_audit_records
+        )
+        counts["invalid_stage1_audit_records"] = invalid_audit_records
+    counts.update({
+        key: value for key, value in trusted_counts.items() if value
+    })
+    return ranked, counts
+
+
+def _demote_structurally_unresolved_proof(
+    row: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Keep a timed-out construction retryable without trusting its proof."""
+
+    updated = _demote_input_terminal_markers(row)
+    proof_fields = (
+        "directions",
+        "direction",
+        "sectors",
+        "expected_directions",
+        "completed_directions",
+        "required_distance",
+        "status",
+        "proof_score",
+        "d_is_exact",
+        "milp_attempted",
+        "milp_details",
+        "distance_trusted",
+        "distance_source",
+        "audit_attempt",
+    )
+    advisory = {
+        name: updated.pop(name)
+        for name in proof_fields
+        if name in updated
+    }
+    if advisory:
+        updated["input_proof_advisory"] = {
+            "trusted": False,
+            "reason": (
+                "proof/status fields are deferred until structural "
+                "reconstruction completes"
+            ),
+            "evidence": advisory,
+        }
+    return updated
+
+
+def rank_candidate_files_with_structural_cache(
+    paths: Iterable[Path],
+    *,
+    structural_cache_dir: Path,
+    structural_max_workers: int,
+    structural_hard_timeout: float,
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Rank Stage 2 inputs after a durable hard-walled CSS reconstruction.
+
+    Completed CSS candidates retain worker-validated geometry/canonical
+    evidence. Retryable timeouts remain in the immutable ranked snapshot as a
+    tail barrier, so completed candidates can be paged first without allowing
+    the selection cursor to skip a pathological construction.
+    """
+
+    records, sources = read_candidate_jsonl(paths)
+    prepared: list[dict[str, Any]] = []
+    prepared_sources: list[str] = []
+    css_rows: list[dict[str, Any]] = []
+    css_sources: list[str] = []
+    css_reported: list[tuple[Any, Any]] = []
+    ineligible_records = 0
+    malformed_records = 0
+    invalid_audit_records = 0
+    structurally_superseded_duplicates = 0
+
+    for record, source in zip(records, sources, strict=True):
+        enriched = _demote_input_identity_claims(record)
+        try:
+            normalized = normalize_record(enriched)
+            normalized.pop(_STAGE2_STRUCTURAL_SCREEN, None)
+            if normalized.get("C_terms") or normalized.get("D_terms"):
+                n = normalized.get("n")
+                k = normalized.get("k")
+                if (
+                    isinstance(n, bool)
+                    or not isinstance(n, int)
+                    or isinstance(k, bool)
+                    or not isinstance(k, int)
+                    or n <= 0
+                    or k <= 0
+                ):
+                    raise TypeError(
+                        "unsupported non-CSS candidate requires positive integer n/k"
+                    )
+                authoritative = dict(normalized)
+                authoritative[_AUTHORITATIVE_GEOMETRY] = {
+                    "reconstructed": False,
+                    "unsupported": "NONCSS",
+                    "reported_n": n,
+                    "reported_k": k,
+                }
+                authoritative = _demote_input_terminal_markers(authoritative)
+                authoritative["required_distance"] = minimum_winning_distance(
+                    n, k
+                )
+                authoritative = _demote_untrusted_proof_evidence(
+                    authoritative,
+                    reported_required_distance=normalized.get(
+                        "required_distance"
+                    ),
+                    required_distance=authoritative["required_distance"],
+                )
+                prepared.append(authoritative)
+                prepared_sources.append(source)
+                continue
+
+            if (
+                type(normalized.get("ell")) is not int
+                or type(normalized.get("m")) is not int
+                or normalized["ell"] <= 0
+                or normalized["m"] <= 0
+            ):
+                raise TypeError("ell and m must be positive integers")
+            a_terms = _normalise_bb_terms(normalized.get("A_terms"), "A")
+            b_terms = _normalise_bb_terms(normalized.get("B_terms"), "B")
+            validate_terms(normalized["ell"], normalized["m"], a_terms, "A")
+            validate_terms(normalized["ell"], normalized["m"], b_terms, "B")
+        except (KeyError, TypeError, ValueError, OverflowError):
+            malformed_records += 1
+            continue
+
+        reported_n = normalized.pop("n", None)
+        reported_k = normalized.pop("k", None)
+        normalized["A_terms"] = [list(term) for term in a_terms]
+        normalized["B_terms"] = [list(term) for term in b_terms]
+        normalized["_stage2_structural_index"] = len(css_rows)
+        css_rows.append(normalized)
+        css_sources.append(source)
+        css_reported.append((reported_n, reported_k))
+
+    kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+        css_rows,
+        cache_dir=Path(structural_cache_dir),
+        max_workers=structural_max_workers,
+        hard_timeout=structural_hard_timeout,
+    )
+    annotated = [*kept, *rejected]
+    completed_by_index: dict[int, dict[str, Any]] = {}
+    completed_inputs: set[str] = set()
+    runtime_sha256 = structural_screen_runtime_fingerprint()["sha256"]
+    for row in annotated:
+        index = row.get("_stage2_structural_index")
+        if (
+            isinstance(index, bool)
+            or not isinstance(index, int)
+            or not 0 <= index < len(css_rows)
+            or index in completed_by_index
+        ):
+            raise ValueError(
+                "structural screen returned an invalid candidate index"
+            )
+        input_sha256 = structural_screen_input_sha256(css_rows[index])
+        completed_inputs.add(input_sha256)
+        completed_by_index[index] = row
+
+    unresolved_by_index: dict[int, dict[str, Any]] = {}
+    for evidence in unresolved:
+        index = evidence.get("candidate_index")
+        input_sha256 = evidence.get("input_sha256")
+        failure = evidence.get("failure")
+        operation = evidence.get("operation", "candidate_annotation")
+        malformed = (
+            isinstance(index, bool)
+            or not isinstance(index, int)
+            or not 0 <= index < len(css_rows)
+            or index in unresolved_by_index
+            or not _is_sha256(input_sha256)
+            or not isinstance(failure, Mapping)
+            or failure.get("retryable") is not True
+        )
+        if not malformed and operation == "candidate_annotation":
+            malformed = (
+                input_sha256
+                != structural_screen_input_sha256(css_rows[index])
+            )
+        elif not malformed and operation == "within_pool_isomorphism":
+            representative_index = evidence.get("representative_index")
+            representative_input_sha256 = evidence.get(
+                "representative_input_sha256"
+            )
+            candidate_input_sha256 = evidence.get(
+                "candidate_input_sha256"
+            )
+            canonical_digest = evidence.get("canonical_digest")
+            representative = (
+                completed_by_index.get(representative_index)
+                if (
+                    not isinstance(representative_index, bool)
+                    and isinstance(representative_index, int)
+                )
+                else None
+            )
+            representative_novelty = (
+                representative.get("structural_novelty")
+                if isinstance(representative, Mapping)
+                else None
+            )
+            malformed = (
+                not isinstance(representative_index, int)
+                or isinstance(representative_index, bool)
+                or not 0 <= representative_index < index
+                or not isinstance(representative, Mapping)
+                or not _is_sha256(representative_input_sha256)
+                or representative_input_sha256
+                != structural_screen_input_sha256(
+                    css_rows[representative_index]
+                )
+                or not _is_sha256(candidate_input_sha256)
+                or candidate_input_sha256
+                != structural_screen_input_sha256(css_rows[index])
+                or not _is_sha256(canonical_digest)
+                or not isinstance(representative_novelty, Mapping)
+                or representative_novelty.get("novel") is not True
+                or representative_novelty.get("canonical_digest")
+                != canonical_digest
+                or evidence.get("runtime_sha256") != runtime_sha256
+            )
+        elif not malformed:
+            malformed = True
+        if malformed:
+            raise ValueError(
+                "structural screen returned malformed unresolved evidence"
+            )
+        unresolved_by_index[index] = dict(evidence)
+    if (
+        set(completed_by_index).intersection(unresolved_by_index)
+        or set(completed_by_index) | set(unresolved_by_index)
+        != set(range(len(css_rows)))
+    ):
+        raise ValueError("structural screen did not account for every candidate")
+
+    verified_groups: dict[
+        tuple[int, int, str],
+        tuple[int, dict[str, Any]],
+    ] = {}
+    for index in sorted(completed_by_index):
+        row = completed_by_index[index]
+        static = row.get("static_eligibility")
+        novelty = row.get("structural_novelty")
+        if (
+            not isinstance(static, Mapping)
+            or not isinstance(novelty, Mapping)
+            or static.get("checked") is not True
+        ):
+            raise ValueError("structural screen returned invalid annotations")
+        if static.get("eligible") is not True:
+            ineligible_records += 1
+            continue
+        n = static.get("n")
+        k = static.get("k")
+        if (
+            isinstance(n, bool)
+            or not isinstance(n, int)
+            or isinstance(k, bool)
+            or not isinstance(k, int)
+            or n <= 0
+            or k <= 0
+            or not _is_sha256(novelty.get("canonical_digest"))
+        ):
+            raise ValueError(
+                "complete structural screen lacks authoritative geometry"
+            )
+        digest = str(novelty["canonical_digest"])
+        group_key = (n, k, digest)
+        previous = verified_groups.get(group_key)
+        relation = novelty.get("relation")
+        explicit_replay = novelty.get("explicit_isomorphism")
+        if previous is None:
+            if relation == "within_run_css_tanner_permutation_equivalent":
+                raise ValueError(
+                    "within-pool replay lacks its ordered representative"
+                )
+            if novelty.get("novel") is False and (
+                relation != "css_tanner_permutation_equivalent"
+                or novelty.get("reference_digest") != digest
+                or not isinstance(explicit_replay, Mapping)
+                or explicit_replay.get("verified") is not True
+            ):
+                raise ValueError(
+                    "known-reference structural rejection lacks replay"
+                )
+            if type(novelty.get("novel")) is not bool:
+                raise ValueError("structural novelty verdict is not boolean")
+            verified_groups[group_key] = (index, row)
+        else:
+            representative_index, representative = previous
+            if relation == "within_run_css_tanner_permutation_equivalent":
+                _validate_completed_pair_binding(
+                    row,
+                    representative,
+                    candidate_index=index,
+                    representative_index=representative_index,
+                    runtime_sha256=runtime_sha256,
+                    canonical_digest=digest,
+                )
+            else:
+                representative_novelty = representative.get(
+                    "structural_novelty"
+                )
+                representative_replay = (
+                    representative_novelty.get("explicit_isomorphism")
+                    if isinstance(representative_novelty, Mapping)
+                    else None
+                )
+                if (
+                    relation != "css_tanner_permutation_equivalent"
+                    or novelty.get("novel") is not False
+                    or novelty.get("reference_digest") != digest
+                    or not isinstance(explicit_replay, Mapping)
+                    or explicit_replay.get("verified") is not True
+                    or not isinstance(representative_novelty, Mapping)
+                    or representative_novelty.get("novel") is not False
+                    or representative_novelty.get("reference_digest")
+                    != digest
+                    or not isinstance(representative_replay, Mapping)
+                    or representative_replay.get("verified") is not True
+                ):
+                    raise ValueError(
+                        "digest collision lacks pair or registry replay"
+                    )
+        authoritative = dict(row)
+        authoritative.pop("_stage2_structural_index", None)
+        # proof_triage treats this trusted worker-derived token only as a
+        # temporary grouping key. The selection replay later replaces it with
+        # the actual registry-canonical digest. Including n/k prevents a hash
+        # collision across unmatched pair buckets from merging here.
+        authoritative["bliss_hash"] = "stage2-verified-css:" + _json_sha256({
+            "n": n,
+            "k": k,
+            "canonical_digest": digest,
+        })
+        reported_n, reported_k = css_reported[index]
+        authoritative["n"] = n
+        authoritative["k"] = k
+        authoritative[_AUTHORITATIVE_GEOMETRY] = {
+            "reconstructed": True,
+            "construction_sha256": structural_screen_input_sha256(
+                css_rows[index]
+            ),
+            "n": n,
+            "k": k,
+            "reported_n": reported_n,
+            "reported_k": reported_k,
+            "reported_n_matches": (
+                type(reported_n) is int and reported_n == n
+            ),
+            "reported_k_matches": (
+                type(reported_k) is int and reported_k == k
+            ),
+        }
+        authoritative[_STAGE2_STRUCTURAL_SCREEN] = {
+            "status": "COMPLETE",
+            "input_sha256": structural_screen_input_sha256(css_rows[index]),
+            "runtime_sha256": runtime_sha256,
+        }
+        required_distance = minimum_winning_distance(n, k)
+        reported_required_distance = authoritative.get("required_distance")
+        authoritative["required_distance"] = required_distance
+        try:
+            trusted_outcome, sealed_evidence = _trusted_stage1_outcome(
+                authoritative,
+                required_distance,
+            )
+        except AuditStateError as exc:
+            invalid_audit_records += 1
+            authoritative["input_audit_advisory"] = {
+                "trusted": False,
+                "error": str(exc),
+            }
+            trusted_outcome = None
+            sealed_evidence = False
+        if not sealed_evidence:
+            marker = authoritative.pop(_STAGE2_STRUCTURAL_SCREEN)
+            authoritative = _demote_untrusted_proof_evidence(
+                authoritative,
+                reported_required_distance=reported_required_distance,
+                required_distance=required_distance,
+            )
+            authoritative[_STAGE2_STRUCTURAL_SCREEN] = marker
+        if trusted_outcome is not None:
+            authoritative[_TRUSTED_STAGE1_OUTCOME] = trusted_outcome
+        prepared.append(authoritative)
+        prepared_sources.append(css_sources[index])
+
+    # A complete cache result for an identical construction supersedes a
+    # simultaneous duplicate timeout. This cannot discard a candidate because
+    # both rows bind the exact same normalized mathematical input.
+    for index, evidence in unresolved_by_index.items():
+        operation = evidence.get("operation", "candidate_annotation")
+        input_sha256 = str(
+            evidence.get("candidate_input_sha256")
+            if operation == "within_pool_isomorphism"
+            else evidence["input_sha256"]
+        )
+        if input_sha256 in completed_inputs:
+            structurally_superseded_duplicates += 1
+            continue
+        unresolved_row = dict(css_rows[index])
+        unresolved_row.pop("_stage2_structural_index", None)
+        reported_n, reported_k = css_reported[index]
+        if reported_n is not None:
+            unresolved_row["n"] = reported_n
+        if reported_k is not None:
+            unresolved_row["k"] = reported_k
+        unresolved_row = _demote_structurally_unresolved_proof(
+            unresolved_row
+        )
+        unresolved_row["required_distance"] = (
+            minimum_winning_distance(reported_n, reported_k)
+            if (
+                type(reported_n) is int
+                and type(reported_k) is int
+                and reported_n > 0
+                and reported_k > 0
+            )
+            else 1
+        )
+        marker: dict[str, Any] = {
+            "status": "UNRESOLVED",
+            "retryable": True,
+            "input_sha256": input_sha256,
+            "required_distance_status": "PROVISIONAL_UNTRUSTED",
+        }
+        if operation == "within_pool_isomorphism":
+            representative_index = int(evidence["representative_index"])
+            representative = {
+                name: css_rows[representative_index][name]
+                for name in ("ell", "m", "A_terms", "B_terms")
+            }
+            marker.update({
+                "operation": "within_pool_isomorphism",
+                "pair_input_sha256": evidence["input_sha256"],
+                "runtime_sha256": evidence["runtime_sha256"],
+                "canonical_digest": evidence["canonical_digest"],
+                "representative_input_sha256": evidence[
+                    "representative_input_sha256"
+                ],
+                "representative": representative,
+            })
+        unresolved_row[_STAGE2_STRUCTURAL_SCREEN] = marker
+        prepared.append(unresolved_row)
+        prepared_sources.append(css_sources[index])
+
+    ranked = deduplicate_ranked(prepared, prepared_sources)
+    ranked, trusted_counts = _promote_trusted_stage1_rows(
+        ranked,
+        prepared,
+        prepared_sources,
+    )
+    ranked.sort(key=_ranked_selection_key)
+    eligible = [
+        row for row in ranked
+        if not _is_trusted_terminal_rejection(row)
+    ]
+    unresolved_candidates = sum(
+        _is_structural_screen_unresolved(row) for row in eligible
+    )
+    counts = {
+        "input_records": len(records),
+        "unique_candidates": len(ranked),
+        "duplicate_records": (
+            len(prepared) - len(ranked) + structurally_superseded_duplicates
+        ),
+        "rejected_candidates": len(ranked) - len(eligible),
+        "eligible_candidates": len(eligible),
+        "structural_unresolved_candidates": unresolved_candidates,
     }
     if ineligible_records:
         counts["ineligible_records"] = ineligible_records
@@ -834,6 +1465,41 @@ def _construction_candidate(
     }
     candidate.setdefault("canonical_digest", canonical_digest)
     return candidate
+
+
+def _stage2_audit_cache_binding(
+    candidate: Mapping[str, Any],
+    translation_symmetry: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Bind resumable sector evidence to all authoritative replay inputs."""
+
+    source_inputs = {
+        "candidate_pool": certificate_source_fingerprint(),
+        "screen_frontier_xor": _file_sha256(
+            PROJECT / "scripts" / "screen_frontier_xor.py"
+        ),
+        "screen_frontier_candidate": _file_sha256(
+            PROJECT / "scripts" / "screen_frontier_candidate.py"
+        ),
+    }
+    if any(not _is_sha256(value) for value in source_inputs.values()):
+        raise ValueError("Stage 2 audit source dependencies are unavailable")
+    payload = {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-xor-audit-cache",
+        "candidate_sha256": _json_sha256(candidate),
+        "required_distance": int(candidate["required_distance"]),
+        "threshold_only": True,
+        "translation_symmetry_sha256": _json_sha256(
+            translation_symmetry
+        ),
+        "source_fingerprint": _json_sha256(source_inputs),
+        "solver_runtime": solver_runtime_fingerprint(),
+    }
+    return {
+        **payload,
+        "binding_sha256": _json_sha256(payload),
+    }
 
 
 def _load_json_object(path: Path) -> dict[str, Any] | None:
@@ -1404,16 +2070,31 @@ def prepare_ranked_snapshot(
     paths: Iterable[Path],
     *,
     ledger_path: Path,
+    structural_cache_dir: Path | None = None,
+    structural_max_workers: int = 1,
+    structural_hard_timeout: float = STRUCTURAL_SCREEN_HARD_TIMEOUT_SECONDS,
 ) -> tuple[RankedSnapshot, bool]:
     """Rank once per immutable binding and cache no solver-derived verdicts."""
 
     input_paths = tuple(Path(path) for path in paths)
     cached = _load_ranked_snapshot(ledger_path, input_paths)
+    # Unresolved rows retain their original tail position for the lifetime of
+    # this immutable snapshot. Selection retries their per-candidate cache in
+    # place, so prior acknowledgement hashes and committed digests never need
+    # to be discarded merely because a later retry completes.
     if cached is not None:
         return cached, True
 
     binding = _ranked_snapshot_binding(input_paths)
-    ranked, counts = rank_candidate_files(input_paths)
+    if structural_cache_dir is None:
+        ranked, counts = rank_candidate_files(input_paths)
+    else:
+        ranked, counts = rank_candidate_files_with_structural_cache(
+            input_paths,
+            structural_cache_dir=structural_cache_dir,
+            structural_max_workers=structural_max_workers,
+            structural_hard_timeout=structural_hard_timeout,
+        )
     # Full hashes close mutation during the expensive rank/dedup build.
     if _ranked_snapshot_binding(input_paths) != binding:
         raise ValueError("candidate inputs changed while ranking")
@@ -1464,10 +2145,24 @@ def _require_novelty_replay(
     if not isinstance(value, Mapping):
         raise NoveltyReplayError("novelty checker did not return an object")
     novelty = dict(value)
+    if (
+        novelty.get("status") in {"INCOMPLETE", "EVIDENCE_CONTRADICTION"}
+        and novelty.get("checked") is False
+        and novelty.get("novel") is None
+        and isinstance(novelty.get("failure"), Mapping)
+        and novelty["failure"].get("terminal_candidate_rejection") is False
+    ):
+        failure = novelty["failure"]
+        code = failure.get("code", "REGISTRY_REPLAY_INCOMPLETE")
+        raise StructuralSelectionDeferredError(
+            f"authoritative registry replay is non-terminal: {code}"
+        )
     canonical_digest = novelty.get("canonical_digest")
     matched_entries = novelty.get("matched_entries")
+    replay_policy = novelty.get("replay_policy")
     if (
-        novelty.get("checked") is not True
+        novelty.get("status") != "COMPLETE"
+        or novelty.get("checked") is not True
         or type(novelty.get("novel")) is not bool
         or novelty.get("code_type") != "css"
         or not isinstance(canonical_digest, str)
@@ -1478,6 +2173,20 @@ def _require_novelty_replay(
         or not isinstance(matched_entries, list)
         or any(not isinstance(entry, Mapping) for entry in matched_entries)
         or novelty["novel"] is bool(matched_entries)
+        or not isinstance(replay_policy, Mapping)
+        or replay_policy.get("schema_version")
+        != REGISTRY_REPLAY_POLICY_SCHEMA_VERSION
+        or replay_policy.get("policy") != REGISTRY_REPLAY_POLICY
+        or replay_policy.get("digest_terminal") is not False
+        or replay_policy.get("entry_construction_required") is not True
+        or replay_policy.get("explicit_matrix_replay_required") is not True
+        or replay_policy.get("complete") is not True
+        or replay_policy.get("verified_entries") != len(matched_entries)
+        or any(
+            not isinstance(entry.get("replay"), Mapping)
+            or entry["replay"].get("verified") is not True
+            for entry in matched_entries
+        )
     ):
         raise NoveltyReplayError(
             "novelty checker returned malformed or stale registry evidence",
@@ -1488,6 +2197,388 @@ def _require_novelty_replay(
     return novelty
 
 
+def _canonicalize_from_structural_screen(
+    ranked: Mapping[str, Any],
+    *,
+    registry_path: str | Path,
+) -> dict[str, Any]:
+    """Replay registry novelty from a cache-bound hard-walled construction."""
+
+    updated = dict(ranked)
+    marker = updated.get(_STAGE2_STRUCTURAL_SCREEN)
+    static = updated.get("static_eligibility")
+    structural = updated.get("structural_novelty")
+    if (
+        not isinstance(marker, Mapping)
+        or marker.get("status") != "COMPLETE"
+        or not _is_sha256(marker.get("input_sha256"))
+        or not _is_sha256(marker.get("runtime_sha256"))
+        or not isinstance(static, Mapping)
+        or static.get("checked") is not True
+        or static.get("eligible") is not True
+        or not isinstance(structural, Mapping)
+        or structural.get("checked") is not True
+        or not _is_sha256(structural.get("canonical_digest"))
+    ):
+        raise NoveltyReplayError(
+            "selected row lacks complete structural-screen evidence"
+        )
+    screen_input = dict(updated)
+    screen_input.pop("n", None)
+    screen_input.pop("k", None)
+    if (
+        structural_screen_input_sha256(screen_input)
+        != marker["input_sha256"]
+        or structural_screen_runtime_fingerprint()["sha256"]
+        != marker["runtime_sha256"]
+    ):
+        raise NoveltyReplayError(
+            "selected structural-screen evidence is stale or mismatched"
+        )
+    rebuilt_n = static.get("n")
+    rebuilt_k = static.get("k")
+    if (
+        isinstance(rebuilt_n, bool)
+        or not isinstance(rebuilt_n, int)
+        or isinstance(rebuilt_k, bool)
+        or not isinstance(rebuilt_k, int)
+        or rebuilt_n <= 0
+        or rebuilt_k <= 0
+        or updated.get("n") != rebuilt_n
+        or updated.get("k") != rebuilt_k
+    ):
+        raise NoveltyReplayError(
+            "selected structural-screen geometry is inconsistent"
+        )
+
+    registry_path = Path(registry_path).resolve()
+    initial_registry_sha256 = _file_sha256(registry_path)
+    if initial_registry_sha256 is None:
+        raise StructuralSelectionDeferredError(
+            "known-code registry is temporarily unavailable"
+        )
+    initial_source_fingerprint = _novelty_source_fingerprint()
+    try:
+        load_registry.cache_clear()
+        registry = load_registry(registry_path)
+    except (OSError, TypeError, ValueError) as exc:
+        raise StructuralSelectionDeferredError(
+            "authoritative registry dependency is unavailable"
+        ) from exc
+    digest = str(structural["canonical_digest"])
+    identity = updated.get("triage_identity")
+    if not isinstance(identity, Mapping):
+        identity = candidate_identity(updated)
+    identity = dict(identity)
+    candidate = _construction_candidate(updated, digest)
+    if candidate.get("C_terms") or candidate.get("D_terms"):
+        raise NoveltyReplayError(
+            "structural-screen registry replay supports CSS BB only"
+        )
+    try:
+        ell = candidate["ell"]
+        m = candidate["m"]
+        if type(ell) is not int or type(m) is not int:
+            raise TypeError("ell and m must be integers")
+        if ell <= 0 or m <= 0:
+            raise ValueError("ell and m must be positive")
+        a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
+        b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
+        validate_terms(ell, m, a_terms, "A")
+        validate_terms(ell, m, b_terms, "B")
+        code = build_bb_code(ell, m, a_terms, b_terms)
+        replay_n, replay_k = get_code_params_fast(code)
+    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+        raise NoveltyReplayError(
+            "cache-bound construction failed authoritative registry rebuild"
+        ) from exc
+    if replay_n != rebuilt_n or replay_k != rebuilt_k:
+        raise NoveltyReplayError(
+            "registry rebuild changed cache-bound candidate geometry"
+        )
+    replayed = check_code_novelty(
+        code,
+        code_type="css",
+        registry_path=registry_path,
+    )
+    if (
+        _file_sha256(registry_path) != initial_registry_sha256
+        or _novelty_source_fingerprint() != initial_source_fingerprint
+    ):
+        raise StructuralSelectionDeferredError(
+            "novelty dependencies changed during authoritative replay"
+        )
+    novelty = _require_novelty_replay(
+        replayed,
+        registry=registry,
+        registry_content_sha256=initial_registry_sha256,
+        checker_source_fingerprint=initial_source_fingerprint,
+    )
+    if novelty["canonical_digest"] != digest:
+        raise NoveltyReplayError(
+            "structural-screen digest does not match registry replay"
+        )
+    claimed_digest = str(identity.get("canonical_digest", ""))
+    digest_kind = str(identity.get("digest_kind", ""))
+    if (
+        digest_kind in {"canonical", "registry-canonical"}
+        and claimed_digest
+        and claimed_digest != digest
+    ):
+        raise ValueError(
+            "stored canonical digest does not match reconstructed BB code"
+        )
+    identity["precanonical_digest"] = claimed_digest
+    identity["canonical_digest"] = digest
+    identity["digest_kind"] = "registry-canonical"
+    updated["triage_identity"] = identity
+    updated["canonical_digest"] = digest
+    updated["novelty"] = novelty
+    updated["required_distance"] = minimum_winning_distance(
+        rebuilt_n, rebuilt_k
+    )
+    geometry = updated.get(_AUTHORITATIVE_GEOMETRY)
+    if not isinstance(geometry, Mapping):
+        raise NoveltyReplayError(
+            "selected structural-screen geometry lacks provenance"
+        )
+    updated[_AUTHORITATIVE_GEOMETRY] = {
+        **dict(geometry),
+        "selection_replay": {
+            "cache_bound": True,
+            "input_sha256": marker["input_sha256"],
+            "runtime_sha256": marker["runtime_sha256"],
+            "n": rebuilt_n,
+            "k": rebuilt_k,
+        },
+    }
+    return updated
+
+
+def resolve_structural_snapshot_row_for_audit(
+    ranked: Mapping[str, Any],
+    *,
+    cache_dir: Path,
+    max_workers: int,
+    hard_timeout: float,
+    registry_path: str | Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Retry one immutable unresolved row and materialize completion in-page."""
+
+    marker = ranked.get(_STAGE2_STRUCTURAL_SCREEN)
+    if not _is_structural_screen_unresolved(ranked):
+        return canonicalize_for_audit(ranked, registry_path=registry_path)
+    assert isinstance(marker, Mapping)
+    if marker.get("operation") == "within_pool_isomorphism":
+        if not _is_pair_structural_unresolved(ranked):
+            raise NoveltyReplayError(
+                "pair-unresolved snapshot marker is malformed"
+            )
+        screen_row = dict(ranked)
+        screen_row.pop(_STAGE2_STRUCTURAL_SCREEN, None)
+        reported_n = screen_row.pop("n", None)
+        reported_k = screen_row.pop("k", None)
+        if (
+            structural_screen_input_sha256(screen_row)
+            != marker["input_sha256"]
+            or structural_screen_runtime_fingerprint()["sha256"]
+            != marker["runtime_sha256"]
+        ):
+            raise NoveltyReplayError(
+                "pair-unresolved snapshot row is stale or mismatched"
+            )
+        representative = dict(marker["representative"])
+        if (
+            set(representative) != {"ell", "m", "A_terms", "B_terms"}
+            or structural_screen_input_sha256(representative)
+            != marker["representative_input_sha256"]
+        ):
+            raise NoveltyReplayError(
+                "pair-unresolved representative binding is malformed"
+            )
+        role = "_stage2_pair_retry_role"
+        representative[role] = "representative"
+        screen_row[role] = "candidate"
+        kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+            [representative, screen_row],
+            cache_dir=Path(cache_dir),
+            max_workers=max_workers,
+            hard_timeout=hard_timeout,
+        )
+        if unresolved:
+            if any(
+                not isinstance(evidence, Mapping)
+                or not isinstance(evidence.get("failure"), Mapping)
+                or evidence["failure"].get("retryable") is not True
+                or isinstance(evidence.get("candidate_index"), bool)
+                or evidence.get("candidate_index") not in {0, 1}
+                for evidence in unresolved
+            ):
+                raise NoveltyReplayError(
+                    "pair retry returned malformed unresolved evidence"
+                )
+            raise StructuralSelectionDeferredError(
+                "within-pool isomorphism remains retryable"
+            )
+        outcomes = [*kept, *rejected]
+        candidates = [
+            row for row in outcomes
+            if row.get(role) == "candidate"
+        ]
+        representatives = [
+            row for row in outcomes
+            if row.get(role) == "representative"
+        ]
+        if len(candidates) != 1 or len(representatives) != 1:
+            raise NoveltyReplayError(
+                "pair retry did not return both ordered constructions"
+            )
+        updated = dict(candidates[0])
+        replayed_representative = dict(representatives[0])
+        updated.pop(role, None)
+        replayed_representative.pop(role, None)
+        _validate_completed_pair_binding(
+            updated,
+            replayed_representative,
+            candidate_index=1,
+            representative_index=0,
+            runtime_sha256=str(marker["runtime_sha256"]),
+            canonical_digest=str(marker["canonical_digest"]),
+        )
+        pair_binding = updated[STRUCTURAL_PAIR_REPLAY_FIELD]
+        if pair_binding["input_sha256"] != marker["pair_input_sha256"]:
+            raise NoveltyReplayError(
+                "pair retry changed its immutable pair identity"
+            )
+        static = updated.get("static_eligibility")
+        if not isinstance(static, Mapping):
+            raise NoveltyReplayError(
+                "pair retry lacks authoritative static evidence"
+            )
+        n = static.get("n")
+        k = static.get("k")
+        if (
+            isinstance(n, bool)
+            or not isinstance(n, int)
+            or isinstance(k, bool)
+            or not isinstance(k, int)
+            or n <= 0
+            or k <= 0
+        ):
+            raise NoveltyReplayError(
+                "pair retry lacks positive authoritative geometry"
+            )
+        updated["n"] = n
+        updated["k"] = k
+        updated["required_distance"] = minimum_winning_distance(n, k)
+        updated[_AUTHORITATIVE_GEOMETRY] = {
+            "reconstructed": True,
+            "construction_sha256": marker["input_sha256"],
+            "n": n,
+            "k": k,
+            "reported_n": reported_n,
+            "reported_k": reported_k,
+            "reported_n_matches": (
+                type(reported_n) is int and reported_n == n
+            ),
+            "reported_k_matches": (
+                type(reported_k) is int and reported_k == k
+            ),
+        }
+        updated[_STAGE2_STRUCTURAL_SCREEN] = {
+            "status": "COMPLETE",
+            "operation": "within_pool_isomorphism",
+            "input_sha256": marker["input_sha256"],
+            "pair_input_sha256": marker["pair_input_sha256"],
+            "runtime_sha256": marker["runtime_sha256"],
+            "canonical_digest": marker["canonical_digest"],
+            "representative_input_sha256": marker[
+                "representative_input_sha256"
+            ],
+        }
+        updated["campaign_skip_reason"] = "STRUCTURAL_DUPLICATE"
+        return updated
+    screen_row = dict(ranked)
+    screen_row.pop(_STAGE2_STRUCTURAL_SCREEN, None)
+    reported_n = screen_row.pop("n", None)
+    reported_k = screen_row.pop("k", None)
+    if (
+        structural_screen_input_sha256(screen_row)
+        != marker["input_sha256"]
+    ):
+        raise NoveltyReplayError(
+            "unresolved snapshot row does not match its structural cache input"
+        )
+    annotated, unresolved = annotate_css_results_with_deferred_cache(
+        [screen_row],
+        cache_dir=Path(cache_dir),
+        max_workers=max_workers,
+        hard_timeout=hard_timeout,
+    )
+    if unresolved:
+        if annotated or len(unresolved) != 1:
+            raise NoveltyReplayError(
+                "structural retry returned inconsistent completion state"
+            )
+        raise StructuralSelectionDeferredError(
+            "structural reconstruction remains retryable"
+        )
+    if len(annotated) != 1:
+        raise NoveltyReplayError(
+            "structural retry did not return exactly one completion"
+        )
+    updated = dict(annotated[0])
+    static = updated.get("static_eligibility")
+    if not isinstance(static, Mapping) or static.get("checked") is not True:
+        raise NoveltyReplayError(
+            "structural retry returned malformed static evidence"
+        )
+    updated[_STAGE2_STRUCTURAL_SCREEN] = {
+        "status": "COMPLETE",
+        "input_sha256": marker["input_sha256"],
+        "runtime_sha256": structural_screen_runtime_fingerprint()["sha256"],
+    }
+    if static.get("eligible") is not True:
+        # This is a mathematical challenge-gate rejection, not an operational
+        # failure. The selector may safely consume the immutable tail row.
+        updated["campaign_skip_reason"] = "STRUCTURAL_INELIGIBLE"
+        return updated
+    n = static.get("n")
+    k = static.get("k")
+    if (
+        isinstance(n, bool)
+        or not isinstance(n, int)
+        or isinstance(k, bool)
+        or not isinstance(k, int)
+        or n <= 0
+        or k <= 0
+    ):
+        raise NoveltyReplayError(
+            "structural retry lacks positive authoritative geometry"
+        )
+    updated["n"] = n
+    updated["k"] = k
+    updated["required_distance"] = minimum_winning_distance(n, k)
+    updated[_AUTHORITATIVE_GEOMETRY] = {
+        "reconstructed": True,
+        "construction_sha256": marker["input_sha256"],
+        "n": n,
+        "k": k,
+        "reported_n": reported_n,
+        "reported_k": reported_k,
+        "reported_n_matches": (
+            type(reported_n) is int and reported_n == n
+        ),
+        "reported_k_matches": (
+            type(reported_k) is int and reported_k == k
+        ),
+    }
+    return _canonicalize_from_structural_screen(
+        updated,
+        registry_path=registry_path,
+    )
+
+
 def canonicalize_for_audit(
     ranked: Mapping[str, Any],
     *,
@@ -1495,14 +2586,23 @@ def canonicalize_for_audit(
     novelty_checker: Callable[..., dict[str, Any]] | None = None,
     registry_path: str | Path = DEFAULT_REGISTRY,
 ) -> dict[str, Any]:
-    """Rebuild a selected row and replay novelty against the current registry.
+    """Rebuild or replay a selected row against the current registry.
 
-    All input novelty and canonical-digest fields are advisory, including
-    apparently complete cache bindings.  They are never authentication, so
-    Stage 2 reconstructs the BB code and invokes the current checker for every
-    scanned candidate before deduplication or known-code filtering.
+    Ordinary callers still receive an independent rebuild. Ranked snapshots
+    produced by the hard-walled Stage 2 path carry source/runtime/input-bound
+    reconstruction evidence, allowing registry replay without repeating BLISS
+    in the unbounded controller process.
     """
 
+    if (
+        code_builder is None
+        and novelty_checker is None
+        and isinstance(ranked.get(_STAGE2_STRUCTURAL_SCREEN), Mapping)
+    ):
+        return _canonicalize_from_structural_screen(
+            ranked,
+            registry_path=registry_path,
+        )
     code_builder = build_bb_code if code_builder is None else code_builder
     novelty_checker = (
         check_code_novelty if novelty_checker is None else novelty_checker
@@ -1577,7 +2677,9 @@ def canonicalize_for_audit(
     registry_path = Path(registry_path).resolve()
     initial_registry_sha256 = _file_sha256(registry_path)
     if initial_registry_sha256 is None:
-        raise NoveltyReplayError("known-code registry is unavailable")
+        raise StructuralSelectionDeferredError(
+            "known-code registry is temporarily unavailable"
+        )
     initial_source_fingerprint = _novelty_source_fingerprint()
     try:
         # load_registry is cached by path. Clear it before the replay so an
@@ -1590,14 +2692,14 @@ def canonicalize_for_audit(
             registry_path=registry_path,
         )
     except (OSError, TypeError, ValueError) as exc:
-        raise NoveltyReplayError(
-            "authoritative novelty replay failed",
+        raise StructuralSelectionDeferredError(
+            "authoritative registry dependency is unavailable",
         ) from exc
     if (
         _file_sha256(registry_path) != initial_registry_sha256
         or _novelty_source_fingerprint() != initial_source_fingerprint
     ):
-        raise NoveltyReplayError(
+        raise StructuralSelectionDeferredError(
             "novelty dependencies changed during authoritative replay",
         )
     existing_novelty = _require_novelty_replay(
@@ -1652,6 +2754,7 @@ def _select_audit_page(
         "known_codes_skipped": 0,
         "unsupported_candidates_skipped": 0,
         "canonicalization_errors": 0,
+        "structural_unresolved_candidates": 0,
         "unscanned_eligible_candidates": 0,
         "selection_exhausted": True,
     }
@@ -1673,14 +2776,43 @@ def _select_audit_page(
             row["campaign_skip_reason"] = "UNSUPPORTED_NONCSS"
             stats["unsupported_candidates_skipped"] += 1
             continue
+        was_structurally_unresolved = _is_structural_screen_unresolved(row)
         try:
             updated = canonicalizer(row)
+        except StructuralSelectionDeferredError:
+            stats["structural_unresolved_candidates"] += 1
+            stats["unscanned_eligible_candidates"] = sum(
+                not _is_trusted_terminal_rejection(remaining)
+                for remaining in ranked[index:]
+            )
+            stats["selection_exhausted"] = False
+            next_index = index
+            break
         except (KeyError, TypeError, ValueError) as exc:
             row["campaign_skip_reason"] = "CANONICALIZATION_ERROR"
             row["campaign_skip_error"] = str(exc)
             stats["canonicalization_errors"] += 1
-            continue
+            stats["unscanned_eligible_candidates"] = sum(
+                not _is_trusted_terminal_rejection(remaining)
+                for remaining in ranked[index:]
+            )
+            stats["selection_exhausted"] = False
+            next_index = index
+            break
         ranked[index] = updated
+        if (
+            was_structurally_unresolved
+            and updated.get("campaign_skip_reason")
+            == "STRUCTURAL_INELIGIBLE"
+        ):
+            continue
+        if (
+            was_structurally_unresolved
+            and updated.get("campaign_skip_reason")
+            == "STRUCTURAL_DUPLICATE"
+        ):
+            stats["canonical_duplicates_skipped"] += 1
+            continue
         stats["canonicalized_candidates"] += 1
         novelty = updated.get("novelty")
         if (
@@ -1859,6 +2991,7 @@ def _select_snapshot_audit_page(
         "known_codes_skipped": 0,
         "unsupported_candidates_skipped": 0,
         "canonicalization_errors": 0,
+        "structural_unresolved_candidates": 0,
         "unscanned_eligible_candidates": 0,
         "selection_exhausted": True,
     }
@@ -1971,10 +3104,39 @@ def _select_snapshot_audit_page(
                 if row.get("C_terms") or row.get("D_terms"):
                     stats["unsupported_candidates_skipped"] += 1
                     continue
+                was_structurally_unresolved = (
+                    _is_structural_screen_unresolved(row)
+                )
                 try:
                     updated = canonicalizer(row)
+                except StructuralSelectionDeferredError:
+                    stats["structural_unresolved_candidates"] += 1
+                    stats["unscanned_eligible_candidates"] = (
+                        snapshot.eligible_rows - index
+                    )
+                    stats["selection_exhausted"] = False
+                    next_index = index
+                    break
                 except (KeyError, TypeError, ValueError):
                     stats["canonicalization_errors"] += 1
+                    stats["unscanned_eligible_candidates"] = (
+                        snapshot.eligible_rows - index
+                    )
+                    stats["selection_exhausted"] = False
+                    next_index = index
+                    break
+                if (
+                    was_structurally_unresolved
+                    and updated.get("campaign_skip_reason")
+                    == "STRUCTURAL_INELIGIBLE"
+                ):
+                    continue
+                if (
+                    was_structurally_unresolved
+                    and updated.get("campaign_skip_reason")
+                    == "STRUCTURAL_DUPLICATE"
+                ):
+                    stats["canonical_duplicates_skipped"] += 1
                     continue
                 stats["canonicalized_candidates"] += 1
                 novelty = updated.get("novelty")
@@ -2146,7 +3308,7 @@ def _prepare_selection_page(
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, int],
-    dict[str, Any],
+    dict[str, Any] | None,
     dict[str, Any],
 ]:
     """Create or replay one pending page before any expensive solver work."""
@@ -2184,6 +3346,16 @@ def _prepare_selection_page(
         seen_digests=ledger["committed_digests"],
         canonicalizer=canonicalizer,
     )
+    if (
+        not selected
+        and next_index == start_index
+        and stats["selection_exhausted"] is False
+    ):
+        if pending is not None:
+            raise ValueError(
+                "pending selection page cannot replay after an unresolved barrier"
+            )
+        return selected, stats, None, ledger
     selected_digests = [
         str(row["triage_identity"]["canonical_digest"])
         for row in selected
@@ -2223,7 +3395,7 @@ def _prepare_snapshot_selection_page(
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, int],
-    dict[str, Any],
+    dict[str, Any] | None,
     dict[str, Any],
 ]:
     """Create or replay one pending page directly from an immutable snapshot."""
@@ -2255,6 +3427,19 @@ def _prepare_snapshot_selection_page(
         seen_digests=ledger["committed_digests"],
         canonicalizer=canonicalizer,
     )
+    if (
+        not selected
+        and next_index == start_index
+        and stats["selection_exhausted"] is False
+    ):
+        if pending is not None:
+            raise ValueError(
+                "pending selection page cannot replay after an unresolved barrier"
+            )
+        # The structural cache entry is the durable retry record. Installing a
+        # zero-progress page would either violate the finite-cursor ledger or
+        # falsely acknowledge the timed-out row.
+        return selected, stats, None, ledger
     selected_digests = [
         str(row["triage_identity"]["canonical_digest"])
         for row in selected
@@ -2315,6 +3500,7 @@ def _certificate_is_exact(certificate: Mapping[str, Any]) -> bool:
 def _cache_binding_matches(
     metadata: Mapping[str, Any] | None,
     *,
+    kind: str,
     canonical_digest: str,
     candidate_payload_sha256: str,
     known_answer_sha256: str | None,
@@ -2324,6 +3510,7 @@ def _cache_binding_matches(
     return bool(
         isinstance(metadata, Mapping)
         and metadata.get("schema_version") == CACHE_SCHEMA_VERSION
+        and metadata.get("kind") == kind
         and metadata.get("canonical_digest") == canonical_digest
         and metadata.get("candidate_payload_sha256") == candidate_payload_sha256
         and metadata.get("known_answer_sha256") == known_answer_sha256
@@ -2346,6 +3533,7 @@ def _certificate_cache_reusable(
 
     binding_matches = _cache_binding_matches(
         metadata,
+        kind="qldpc-certificate-cache",
         canonical_digest=canonical_digest,
         candidate_payload_sha256=candidate_payload_sha256,
         known_answer_sha256=known_answer_sha256,
@@ -2354,10 +3542,25 @@ def _certificate_cache_reusable(
     )
     if certificate is None or not binding_matches:
         return False, False
-    if metadata.get("certificate_payload_sha256") != _json_sha256(certificate):
+    certificate_sha256 = certificate.get("certificate_sha256")
+    if (
+        metadata.get("certificate_payload_sha256") != _json_sha256(certificate)
+        or not isinstance(certificate_sha256, str)
+        or certificate_sha256 != _certificate_sha256(dict(certificate))
+        or metadata.get("certificate_sha256") != certificate_sha256
+    ):
         return False, False
-    # Incomplete work is never terminal; its checkpoint keeps valid directions.
-    return _certificate_is_exact(certificate), True
+    exact = _certificate_is_exact(certificate)
+    if not exact:
+        # Incomplete work is never terminal; its checkpoint keeps valid
+        # directions.
+        return False, True
+    if certificate.get("passed") is True:
+        return True, True
+    # An exact false result is terminal only when the certificate carries a
+    # schema-valid mathematical rejection.  Old/untyped negative caches are
+    # deliberately rebuilt.
+    return terminal_candidate_rejection(certificate), True
 
 
 def _call_with_checkpoint(
@@ -2461,8 +3664,14 @@ def certify_candidate(
     certificate_sha256 = certificate.get("certificate_sha256")
     certificate_payload_sha256 = _json_sha256(certificate)
     certificate_exact = _certificate_is_exact(certificate)
+    certificate_self_hash_valid = bool(
+        isinstance(certificate_sha256, str)
+        and certificate_sha256 == _certificate_sha256(dict(certificate))
+    )
     certificate_passed = bool(
-        certificate_exact and certificate.get("passed") is True,
+        certificate_exact
+        and certificate_self_hash_valid
+        and certificate.get("passed") is True,
     )
     verify_budget = _verification_budget(config)
     verification_envelope = (
@@ -2473,6 +3682,7 @@ def certify_candidate(
     verification_binding_matches = bool(
         _cache_binding_matches(
             verification_envelope,
+            kind="qldpc-certificate-verification-cache",
             canonical_digest=canonical_digest,
             candidate_payload_sha256=candidate_payload_sha256,
             known_answer_sha256=known_answer_sha256,
@@ -2490,6 +3700,7 @@ def certify_candidate(
             cached_verification.get("skipped") is True
             and not certificate_passed
             and certificate_exact
+            and terminal_candidate_rejection(certificate)
         )
         if successful or terminal_skip:
             verification = cached_verification
@@ -2519,12 +3730,23 @@ def certify_candidate(
                 },
             )
         else:
+            certificate_failure = certificate.get("failure_disposition")
+            if terminal_candidate_rejection(certificate):
+                skipped_failure = validate_failure_disposition(
+                    certificate_failure,
+                )
+            else:
+                skipped_failure = incomplete_result_disposition(
+                    domain="evidence",
+                    code="CERTIFICATE_BUILD_NOT_TERMINAL",
+                )
             verification = {
                 "passed": False,
                 "skipped": True,
                 "reason": (
                     "certificate build did not pass the exact challenge gate"
                 ),
+                "failure_disposition": skipped_failure,
             }
         atomic_write_json(
             paths["verification"],
@@ -2543,9 +3765,31 @@ def certify_candidate(
             },
         )
 
-    return {
+    failure_disposition = None
+    if certificate_passed and verification.get("passed") is not True:
+        replay_complete = verification.get("replay_complete") is True
+        failure_disposition = (
+            contradiction_disposition("INDEPENDENT_REPLAY_CONTRADICTED_BUILD")
+            if replay_complete
+            else incomplete_result_disposition(
+                domain="solver",
+                code="INDEPENDENT_REPLAY_INCOMPLETE",
+            )
+        )
+    elif not certificate_passed:
+        raw_failure = certificate.get("failure_disposition")
+        if terminal_candidate_rejection(certificate):
+            failure_disposition = validate_failure_disposition(raw_failure)
+        else:
+            failure_disposition = incomplete_result_disposition(
+                domain="evidence",
+                code="CERTIFICATE_FAILURE_NOT_TERMINAL",
+            )
+
+    result = {
         "attempted": True,
         "certificate_path": str(paths["certificate"]),
+        "certificate_sha256": certificate_sha256,
         "certificate_checkpoint_path": str(paths["certificate_checkpoint"]),
         "verification_path": str(paths["verification"]),
         "verification_checkpoint_path": str(
@@ -2558,6 +3802,9 @@ def certify_candidate(
         "certificate_resumed": certificate_resumed,
         "verification_resumed": verification_resumed,
     }
+    if failure_disposition is not None:
+        result["failure_disposition"] = failure_disposition
+    return result
 
 
 def audit_candidate(
@@ -2614,6 +3861,10 @@ def audit_candidate(
             [],
             threshold_only=True,
             translation_symmetry=symmetry,
+            cache_binding=_stage2_audit_cache_binding(
+                candidate,
+                symmetry,
+            ),
         )
         return {
             "canonical_digest": canonical_digest,
@@ -2622,12 +3873,14 @@ def audit_candidate(
             "error": "BB translation symmetry audit failed",
         }
 
+    cache_binding = _stage2_audit_cache_binding(candidate, symmetry)
     sectors = (
         replay_loader(
             paths["audit"],
             candidate,
             threshold_only=True,
             translation_symmetry=symmetry,
+            expected_cache_binding=cache_binding,
         )
         if config.resume else []
     )
@@ -2637,6 +3890,7 @@ def audit_candidate(
         sectors,
         threshold_only=True,
         translation_symmetry=symmetry,
+        cache_binding=cache_binding,
     )
     resumed_sectors = len(sectors)
     completed = {str(item.get("sector")) for item in sectors}
@@ -2668,6 +3922,7 @@ def audit_candidate(
             sectors,
             threshold_only=True,
             translation_symmetry=symmetry,
+            cache_binding=cache_binding,
         )
 
     result: dict[str, Any] = {
@@ -2738,16 +3993,52 @@ def _stage2_hard_wall_result(
     digest = str(identity["canonical_digest"])
     path = state_paths(config.state_dir, digest)["audit"]
     artifact = _load_json_object(path)
+    replayed_sectors: list[dict[str, Any]] = []
+    replay_status = "UNRESOLVED"
+    replay_error: str | None = None
     if artifact is not None and artifact.get("status") in TERMINAL_STATUSES:
+        try:
+            rebuilt_candidate = _construction_candidate(candidate, digest)
+            if rebuilt_candidate.get("C_terms") or rebuilt_candidate.get(
+                "D_terms"
+            ):
+                raise ValueError(
+                    "Stage 2 hard-wall recovery supports CSS BB only"
+                )
+            symmetry = verify_bb_translation_symmetry(rebuilt_candidate)
+            if symmetry.get("verified") is not True:
+                raise ValueError(
+                    "translation-symmetry replay did not verify"
+                )
+            replayed_sectors = load_replayable_sectors(
+                path,
+                rebuilt_candidate,
+                threshold_only=True,
+                translation_symmetry=symmetry,
+                expected_cache_binding=_stage2_audit_cache_binding(
+                    rebuilt_candidate,
+                    symmetry,
+                ),
+            )
+            replay_status = classify_xor_results(
+                replayed_sectors,
+                required_distance=int(
+                    rebuilt_candidate["required_distance"]
+                ),
+                threshold_only=True,
+                symmetry_coverage_verified=True,
+            )
+        except Exception as exc:
+            replay_error = f"{type(exc).__name__}: {exc}"
+    if replay_status in TERMINAL_STATUSES:
         result: dict[str, Any] = {
             "canonical_digest": digest,
-            "status": str(artifact["status"]),
+            "status": replay_status,
             "audit_path": str(path),
-            "completed_sectors": int(
-                artifact.get("completed_sectors", 0) or 0
-            ),
+            "completed_sectors": len(replayed_sectors),
             "resumed_sectors": 0,
             "recovered_after_worker_termination": True,
+            "recovery_replay_verified": True,
         }
         if result["status"] == "THRESHOLD_PROVEN":
             result["certificate"] = {
@@ -2760,14 +4051,22 @@ def _stage2_hard_wall_result(
         "status": "UNRESOLVED",
         "audit_path": str(path),
         "completed_sectors": int(
-            artifact.get("completed_sectors", 0)
-            if artifact is not None else 0
+            len(replayed_sectors)
         ),
         "resumed_sectors": 0,
         "hard_wall": {
             "timed_out": not peer_timeout,
             "peer_timeout_interruption": peer_timeout,
             "candidate_timeout_s": hard_timeout_s,
+        },
+        "artifact_recovery": {
+            "terminal_status_claimed": bool(
+                artifact is not None
+                and artifact.get("status") in TERMINAL_STATUSES
+            ),
+            "strict_replay_status": replay_status,
+            "strict_replay_error": replay_error,
+            "retryable": True,
         },
     }
 
@@ -2944,6 +4243,10 @@ def _certificate_phase_failure(exc: Exception) -> dict[str, Any]:
         "certificate_passed": False,
         "verification_passed": False,
         "error": f"{type(exc).__name__}: {exc}",
+        "failure_disposition": incomplete_result_disposition(
+            domain="runtime",
+            code="CERTIFICATE_WORKER_FAILED",
+        ),
     }
 
 
@@ -2962,6 +4265,14 @@ def _certificate_phase_hard_wall(
         "certificate_passed": False,
         "verification_passed": False,
         "error": reason,
+        "failure_disposition": incomplete_result_disposition(
+            domain="runtime",
+            code=(
+                "CERTIFICATE_PEER_INTERRUPTED"
+                if peer_timeout
+                else "CERTIFICATE_HARD_WALL_TIMEOUT"
+            ),
+        ),
         "hard_wall": {
             "timed_out": not peer_timeout,
             "peer_timeout_interruption": peer_timeout,
@@ -3135,6 +4446,10 @@ def merge_certification_results(
                     "certificate_passed": False,
                     "verification_passed": False,
                     "error": "missing result from certification phase",
+                    "failure_disposition": incomplete_result_disposition(
+                        domain="runtime",
+                        code="CERTIFICATE_RESULT_MISSING",
+                    ),
                 }
         merged.append(updated)
     return merged
@@ -3187,6 +4502,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--certificate-workers", type=int, default=1)
     parser.add_argument("--certificate-solver-workers", type=int, default=1)
     parser.add_argument("--max-total-workers", type=int, default=8)
+    parser.add_argument(
+        "--structural-cache-dir",
+        type=Path,
+        help=(
+            "durable Stage 2 structural-screen cache; defaults below state-dir"
+        ),
+    )
+    parser.add_argument(
+        "--structural-hard-timeout",
+        type=float,
+        default=STRUCTURAL_SCREEN_HARD_TIMEOUT_SECONDS,
+        help="per-candidate outer wall for geometry and BLISS reconstruction",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument(
         "--resume",
@@ -3259,6 +4587,7 @@ def main(argv: list[str] | None = None) -> int:
         "certificate_total_timeout",
         "verification_timeout_per_logical",
         "verification_total_timeout",
+        "structural_hard_timeout",
         "hard_wall_termination_grace",
     ):
         value = getattr(args, name)
@@ -3282,12 +4611,20 @@ def main(argv: list[str] | None = None) -> int:
             args.certificate_solver_workers,
             args.max_total_workers,
         )
+        structural_cache_dir = (
+            args.structural_cache_dir
+            if args.structural_cache_dir is not None
+            else args.state_dir / "structural-screen-cache-v1"
+        )
         if args.selection_ledger is None:
             ranked, counts = rank_candidate_files(args.inputs)
         else:
             ranked_snapshot, ranked_snapshot_cache_hit = prepare_ranked_snapshot(
                 args.inputs,
                 ledger_path=args.selection_ledger,
+                structural_cache_dir=structural_cache_dir,
+                structural_max_workers=args.max_total_workers,
+                structural_hard_timeout=args.structural_hard_timeout,
             )
             ranked = []
             counts = dict(ranked_snapshot.counts)
@@ -3295,11 +4632,24 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
 
+    def selection_canonicalizer(
+        row: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        return resolve_structural_snapshot_row_for_audit(
+            row,
+            cache_dir=structural_cache_dir,
+            max_workers=args.max_total_workers,
+            hard_timeout=args.structural_hard_timeout,
+            registry_path=DEFAULT_REGISTRY,
+        )
+
     selection_page: dict[str, Any] | None = None
     try:
         if args.selection_ledger is None:
             selected, selection_counts = select_audit_candidates(
-                ranked, args.top,
+                ranked,
+                args.top,
+                canonicalizer=selection_canonicalizer,
             )
         else:
             assert ranked_snapshot is not None
@@ -3313,6 +4663,7 @@ def main(argv: list[str] | None = None) -> int:
                 top=args.top,
                 ledger_path=args.selection_ledger,
                 known_answer_artifact=args.known_answer_artifact,
+                canonicalizer=selection_canonicalizer,
             )
             # The page artifact is intentionally bounded. Stage 3 consumes only
             # the current page's unresolved rows; the immutable snapshot and
@@ -3412,12 +4763,18 @@ def main(argv: list[str] | None = None) -> int:
             ),
         },
         "hard_wall_budget": {
+            "structural_timeout_s": args.structural_hard_timeout,
             "candidate_timeout_s": _candidate_hard_timeout(config),
             "certificate_timeout_s": _certificate_hard_timeout(config),
             "termination_grace_s": config.hard_wall_termination_grace_s,
         },
         "phase_worker_budgets": {
             "phases_overlap": False,
+            "structural_screen": {
+                "candidate_workers": args.max_total_workers,
+                "configured_workers": args.max_total_workers,
+                "max_total_workers": args.max_total_workers,
+            },
             "sector_audit": {
                 "candidate_workers": args.candidate_workers,
                 "solver_workers_per_candidate": args.solver_workers,
@@ -3448,6 +4805,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "ranked_output": str(args.ranked_output),
         "state_dir": str(args.state_dir),
+        "structural_cache_dir": str(structural_cache_dir),
         "results": results,
     }
     if selection_page is not None:

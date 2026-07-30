@@ -197,16 +197,16 @@ def validate_selection_page(
         and not committed_digests
         and evidence.get("selection_exhausted") is True
     )
-    # A page may contain no solver candidates only after a non-empty
-    # diagnostic tail, or at the unique root of an empty eligible prefix.
+    # A page may contain no solver candidates after a cryptographically bound
+    # non-empty scan. This includes a nonterminal scan that consumed resolved
+    # diagnostic rows and stopped exactly at the next unresolved barrier.
+    # Acknowledging that page advances only to ``next_index``; it cannot skip
+    # the barrier because scan evidence binds both cursor endpoints.
     if not selected and not (
-        (
-            next_index > start_index
-            and evidence.get("selection_exhausted") is True
-        )
+        next_index > start_index
         or terminal_root
     ):
-        raise ValueError("empty selection page lacks terminal scan progress")
+        raise ValueError("empty selection page lacks trusted scan progress")
     if next_index <= start_index and not terminal_root:
         raise ValueError("selection page made no ranked-pool progress")
     return normalized

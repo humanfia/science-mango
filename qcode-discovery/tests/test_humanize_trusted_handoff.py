@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import json
 
+from evaluation.bb_code import build_bb_code
 import evaluation.final_gate as final_gate_module
 import evaluation.structural_dedup as structural_dedup_module
+from evaluation.registry import canonical_json_sha256, load_registry
+from evaluation.structural_dedup import canonical_digest
 import pytest
 from humanize.audit_state import (
     AuditOutcome,
@@ -21,11 +24,66 @@ def _write_jsonl(path, rows):
     )
 
 
+def _write_registry(repo, entries=()):
+    path = repo / "results" / "known_code_registry.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    entries = list(entries)
+    value = {
+        "schema_version": 1,
+        "registry_version": "trusted-handoff-test-v1",
+        "summary": {
+            "raw_entries": len(entries),
+            "deduplicated_entries": len(entries),
+            "css": sum(row["code_type"] == "css" for row in entries),
+            "noncss": sum(row["code_type"] == "noncss" for row in entries),
+        },
+        "entries": entries,
+    }
+    value["registry_sha256"] = canonical_json_sha256(
+        value,
+        omit="registry_sha256",
+    )
+    path.write_text(json.dumps(value))
+    load_registry.cache_clear()
+    return path
+
+
+def _known_registry_entry(candidate):
+    construction = {
+        name: candidate[name]
+        for name in ("ell", "m", "A_terms", "B_terms")
+    }
+    code = build_bb_code(**construction)
+    return {
+        "id": "trusted-handoff-known-css",
+        "family": "test",
+        "code_type": "css",
+        "n": int(code.num_qudits),
+        "k": int(code.dimension),
+        "canonical_digest": canonical_digest(code),
+        "construction": construction,
+        "provenance": [{"kind": "test"}],
+    }
+
+
+def _force_scalar_fom_win(monkeypatch):
+    """Unit-test the stop gate without requiring a real challenge winner."""
+
+    def classify_win(_n, _k, _d):
+        return {
+            "passed": True,
+            "fom": 13.0,
+            "reasons": ["fom_strictly_above_12"],
+        }
+
+    monkeypatch.setattr(final_gate_module, "classify_win", classify_win)
+
+
 def _identity_structural_screen(monkeypatch):
     monkeypatch.setattr(
         structural_dedup_module,
-        "deduplicate_css_results",
-        lambda rows: (list(rows), []),
+        "screen_css_results_with_deferred_cache",
+        lambda rows, **_kwargs: (list(rows), [], []),
     )
 
 
@@ -150,6 +208,176 @@ def test_same_cell_runner_up_is_reselected_from_bound_history(
     assert all(code_key(row) != code_key(poison) for row in selected)
 
 
+def test_screen_replay_uses_unified_worker_budget_and_run_cache(
+    tmp_path,
+    monkeypatch,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    observed = {}
+
+    def screen(rows, *, cache_dir, max_workers):
+        observed.update({
+            "rows": rows,
+            "cache_dir": cache_dir,
+            "max_workers": max_workers,
+        })
+        return list(rows), [], []
+
+    monkeypatch.setattr(
+        structural_dedup_module,
+        "screen_css_results_with_deferred_cache",
+        screen,
+    )
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="screen-worker-budget",
+            max_total_workers=6,
+            candidate_file=repo / "candidates.jsonl",
+        ),
+        reviewer=RecordingReviewer("continue"),
+    )
+    monkeypatch.setattr(
+        flow,
+        "_validated_committed_candidate_history",
+        lambda: ((), []),
+    )
+    candidate = _map_candidate(distance=17, shift=1)
+
+    kept, rejected = flow._replay_screened_candidate_pool([candidate])
+
+    assert kept == [candidate]
+    assert rejected == []
+    assert observed["rows"] == [candidate]
+    assert observed["max_workers"] == 6
+    assert observed["cache_dir"] == (
+        flow.store.root / "structural-screen-cache-v1"
+    )
+
+
+def test_deferred_structural_timeout_does_not_reject_or_hide_raw_handoff(
+    tmp_path,
+    monkeypatch,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    candidate = _map_candidate(distance=17, shift=2)
+    _write_jsonl(source, [candidate])
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="screen-deferred-handoff",
+            max_total_workers=2,
+            candidate_file=source,
+        ),
+        reviewer=RecordingReviewer("continue"),
+    )
+    state = flow.store.initialize(flow.config.serializable())
+    raw = flow._capture_round_candidates(
+        state,
+        1,
+        flow.store.round_dir(1),
+    )
+    evidence = {
+        "candidate_index": 0,
+        "input_sha256": "a" * 64,
+        "attempt_count": 1,
+        "failure": {
+            "kind": "hard_timeout",
+            "retryable": True,
+        },
+    }
+    monkeypatch.setattr(
+        structural_dedup_module,
+        "screen_css_results_with_deferred_cache",
+        lambda rows, **_kwargs: ([], [], [evidence]),
+    )
+
+    kept, rejected = flow._replay_screened_candidate_pool(raw)
+
+    assert kept == []
+    assert rejected == []
+    events = [
+        json.loads(line) for line in flow.store.events_path.read_text().splitlines()
+    ]
+    assert events[-1]["event"] == "structural_screen_deferred"
+    assert events[-1]["retryable"] is True
+
+    # Stage 2 consumes transaction-bound raw batches, not the screened
+    # archive. Simulate round finalization and prove the timed-out row remains
+    # in the canonical handoff input.
+    state = flow.store.load_state()
+    state["current_round"] = 1
+    flow.store.write_state(state)
+    handoff_paths = flow.pipeline_candidate_inputs
+    assert len(handoff_paths) == 1
+    assert json.loads(handoff_paths[0].read_text().strip()) == candidate
+
+
+def test_permanent_structural_timeout_does_not_block_stage1_rounds(
+    tmp_path,
+    monkeypatch,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    candidate = _map_candidate(distance=17, shift=4)
+    _write_jsonl(source, [candidate])
+    calls = 0
+
+    def always_deferred(rows, **_kwargs):
+        nonlocal calls
+        calls += 1
+        assert len(rows) == 1
+        return [], [], [{
+            "candidate_index": 0,
+            "input_sha256": "b" * 64,
+            "attempt_count": calls,
+            "failure": {
+                "kind": "hard_timeout",
+                "retryable": True,
+            },
+        }]
+
+    monkeypatch.setattr(
+        structural_dedup_module,
+        "screen_css_results_with_deferred_cache",
+        always_deferred,
+    )
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="permanent-screen-timeout",
+            max_rounds=2,
+            milp_top=0,
+            max_total_workers=2,
+            candidate_file=source,
+        ),
+        reviewer=RecordingReviewer("continue"),
+    )
+
+    state = flow.run()
+
+    assert state["status"] == "search-complete"
+    assert state["current_round"] == 2
+    assert calls == 2
+    assert all(
+        json.loads(
+            (flow.store.round_dir(number) / "rejected-candidates.jsonl")
+            .read_text() or "[]"
+        ) == []
+        for number in (1, 2)
+    )
+    raw_rows = []
+    for path in flow.pipeline_candidate_inputs:
+        raw_rows.extend(
+            json.loads(line) for line in path.read_text().splitlines()
+        )
+    assert candidate in raw_rows
+
+
 def test_bp_patience_and_reviewer_stop_cannot_end_no_win_search(
     tmp_path,
     monkeypatch,
@@ -231,16 +459,13 @@ def test_trusted_exact_win_hands_off_with_unrelated_unresolved(
     _identity_structural_screen(monkeypatch)
     repo = tmp_path / "repo"
     repo.mkdir()
+    _write_registry(repo)
     source = repo / "candidates.jsonl"
     exact_candidate = _tiny_exact_candidate()
     unresolved_candidate = _unresolved_candidate()
     _write_jsonl(source, [exact_candidate, unresolved_candidate])
 
-    monkeypatch.setattr(
-        final_gate_module,
-        "KNOWN_PARETO_REFERENCES",
-        ((10, 5, 2),),
-    )
+    _force_scalar_fom_win(monkeypatch)
 
     def evaluator(row, config, **invocation):
         if int(row["ell"]) == 2:
@@ -293,6 +518,13 @@ def test_trusted_exact_win_hands_off_with_unrelated_unresolved(
     evidence = _review_evidence(reviewer.prompts[0])
     assert len(evidence["trusted_exact_history"]) == 1
     assert len(evidence["trusted_exact_wins"]) == 1
+    gate = evidence["trusted_exact_wins"][0]["trusted_win_gate"]
+    assert gate["trusted"] is True
+    assert gate["registry_novelty"]["status"] == "COMPLETE"
+    assert gate["registry_novelty"]["novel"] is True
+    assert state["challenge_win_registry_novel_count"] == 1
+    assert state["challenge_win_registry_known_count"] == 0
+    assert state["challenge_win_registry_unresolved_count"] == 0
 
     inputs = flow.pipeline_candidate_inputs
     assert inputs[-1] == flow.evaluations_path.resolve()
@@ -331,3 +563,155 @@ def test_trusted_exact_win_hands_off_with_unrelated_unresolved(
     assert resumed_state["status"] == "search-complete"
     assert len(resumed_state["unresolved_candidates"]) == 1
     assert len(reviewer.prompts) == 1
+
+
+def test_registry_known_exact_challenge_win_does_not_stop_next_round(
+    tmp_path,
+    monkeypatch,
+):
+    _identity_structural_screen(monkeypatch)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    exact_candidate = _tiny_exact_candidate()
+    _write_registry(repo, [_known_registry_entry(exact_candidate)])
+    source = repo / "candidates.jsonl"
+    _write_jsonl(source, [exact_candidate])
+    _force_scalar_fom_win(monkeypatch)
+    reviewer = RecordingReviewer("stop")
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="known-exact-win-keeps-searching",
+            max_rounds=2,
+            milp_top=1,
+            milp_timeout_per_logical=5,
+            milp_total_timeout=30,
+            candidate_file=source,
+        ),
+        reviewer=reviewer,
+    )
+
+    state = flow.run()
+
+    assert state["status"] == "search-complete"
+    assert state["current_round"] == 2
+    assert state["trusted_exact_count"] == 1
+    assert state["trusted_win_count"] == 0
+    assert state["challenge_win_registry_novel_count"] == 0
+    assert state["challenge_win_registry_known_count"] == 1
+    assert state["challenge_win_registry_unresolved_count"] == 0
+    assert len(reviewer.prompts) == 2
+    for prompt in reviewer.prompts:
+        evidence = _review_evidence(prompt)
+        assert evidence["trusted_exact_wins"] == []
+        gate = evidence["trusted_exact_history"][0]["trusted_win_gate"]
+        assert gate["trusted"] is False
+        assert gate["challenge_win"]["passed"] is True
+        assert gate["challenge_win"]["fom"] > 12
+        assert gate["registry_novelty"]["status"] == "COMPLETE"
+        assert gate["registry_novelty"]["novel"] is False
+        assert gate["registry_novelty"]["matched_entries"][0]["id"] == (
+            "trusted-handoff-known-css"
+        )
+
+
+def test_unavailable_registry_exact_challenge_win_does_not_stop_next_round(
+    tmp_path,
+    monkeypatch,
+):
+    _identity_structural_screen(monkeypatch)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    _write_jsonl(source, [_tiny_exact_candidate()])
+    _force_scalar_fom_win(monkeypatch)
+    reviewer = RecordingReviewer("stop")
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="missing-registry-keeps-searching",
+            max_rounds=2,
+            milp_top=1,
+            milp_timeout_per_logical=5,
+            milp_total_timeout=30,
+            candidate_file=source,
+        ),
+        reviewer=reviewer,
+    )
+
+    state = flow.run()
+
+    assert state["status"] == "search-complete"
+    assert state["current_round"] == 2
+    assert state["trusted_exact_count"] == 1
+    assert state["trusted_win_count"] == 0
+    assert state["challenge_win_registry_novel_count"] == 0
+    assert state["challenge_win_registry_known_count"] == 0
+    assert state["challenge_win_registry_unresolved_count"] == 1
+    assert len(reviewer.prompts) == 2
+    for prompt in reviewer.prompts:
+        evidence = _review_evidence(prompt)
+        assert evidence["trusted_exact_wins"] == []
+        gate = evidence["trusted_exact_history"][0]["trusted_win_gate"]
+        novelty = gate["registry_novelty"]
+        assert gate["trusted"] is False
+        assert gate["challenge_win"]["passed"] is True
+        assert gate["challenge_win"]["fom"] > 12
+        assert novelty["status"] == "INCOMPLETE"
+        assert novelty["novel"] is None
+        assert novelty["failure"]["code"] == (
+            "REGISTRY_UNAVAILABLE_OR_INVALID"
+        )
+
+
+def test_trusted_exact_win_survives_round_reviewer_failure(
+    tmp_path,
+    monkeypatch,
+):
+    _identity_structural_screen(monkeypatch)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _write_registry(repo)
+    source = repo / "candidates.jsonl"
+    _write_jsonl(source, [_tiny_exact_candidate()])
+
+    _force_scalar_fom_win(monkeypatch)
+
+    class FailingReviewer:
+        @staticmethod
+        def review(_prompt, round_dir):
+            (round_dir / "review.json").write_text('{"partial":')
+            raise RuntimeError("review backend unavailable")
+
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="trusted-win-review-failure",
+            max_rounds=3,
+            milp_top=1,
+            milp_timeout_per_logical=5,
+            milp_total_timeout=30,
+            candidate_file=source,
+        ),
+        reviewer=FailingReviewer(),
+    )
+
+    state = flow.run()
+
+    assert state["status"] == "search-complete"
+    assert state["current_round"] == 1
+    assert state["trusted_exact_count"] == 1
+    assert state["trusted_win_count"] == 1
+    round_dir = flow.store.round_dir(1)
+    review = json.loads((round_dir / "review.json").read_text())
+    assert review["verdict"] == "promote"
+    failure = json.loads(
+        (round_dir / "review-advisory-failure.json").read_text()
+    )
+    assert failure["classification"] == "RuntimeError"
+    assert failure["trusted_win_count"] == 1
+    events = flow._read_jsonl(flow.store.events_path)
+    assert any(
+        event["event"] == "trusted_win_review_failed_advisory"
+        for event in events
+    )

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from evaluation.certificate import _certificate_sha256
 from scripts import finalize_challenge as finalizer
 
 
@@ -13,8 +14,59 @@ def _certificate(index: int = 0) -> dict:
     return {
         "certificate_type": "qldpc-css-bb-exact",
         "certificate_sha256": f"certificate-{index}",
+        "passed": True,
         "claim": {"n": 72 + index, "k": 12, "d": 7},
     }
+
+
+def _terminal_negative(index: int = 0) -> dict:
+    checks = {
+        "known_answer_gate": True,
+        "css_bb_candidate": True,
+        "candidate_rebuild": True,
+        "css_commutation": True,
+        "weight_and_degree_at_most_6": True,
+        "connected_tanner_graph": True,
+        "reported_n_matches": True,
+        "reported_k_matches": True,
+        "qldpc_k_crosscheck": True,
+        "positive_reported_distance": True,
+        "all_2k_milp_directions_optimal": True,
+        "structural_audit_present": True,
+        "structural_audit_reproduced": True,
+        "expanded_registry_novel": True,
+        "challenge_win": False,
+        "reported_fom_matches": True,
+    }
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-exact",
+        "formulation": "css-logical-anticommutation-milp-v1",
+        "passed": False,
+        "claim": {"n": 72 + index, "k": 12, "d": 6},
+        "milp": {
+            "exact": True,
+            "completed_directions": 24,
+            "expected_directions": 24,
+            "directions": [{} for _ in range(24)],
+        },
+        "final_gate": {
+            "schema_version": 1,
+            "gate": "qldpc-challenge-final",
+            "accepted": False,
+            "checks": checks,
+            "failures": ["challenge_win"],
+            "win": {"passed": False},
+        },
+        "failure_disposition": {
+            "schema_version": 1,
+            "status": "CANDIDATE_REJECTED",
+            "domain": "candidate",
+            "codes": ["GATE_CHALLENGE_WIN"],
+        },
+    }
+    certificate["certificate_sha256"] = _certificate_sha256(certificate)
+    return certificate
 
 
 def _args(tmp_path: Path, rows: list[dict] | None = None) -> argparse.Namespace:
@@ -283,7 +335,7 @@ def test_missing_replay_completeness_is_incomplete(tmp_path, monkeypatch):
     assert artifact["evaluations"][0]["result"]["replay_complete"] is False
 
 
-def test_all_terminal_rejections_are_no_win(tmp_path, monkeypatch):
+def test_passed_certificate_replay_mismatch_is_incomplete(tmp_path, monkeypatch):
     args = _args(tmp_path, [_certificate(0), _certificate(1)])
     monkeypatch.setattr(finalizer, "parse_args", lambda: args)
     _bypass_strict_hard_wall(monkeypatch)
@@ -301,6 +353,53 @@ def test_all_terminal_rejections_are_no_win(tmp_path, monkeypatch):
     assert finalizer.main() == 0
     artifact = json.loads(args.output.read_text())
     assert artifact["passed"] is False
+    assert artifact["outcome"] == "INCOMPLETE"
+    assert artifact["summary"] == {
+        "accepted": 0,
+        "rejected": 0,
+        "incomplete": 2,
+        "total": 2,
+    }
+    assert {
+        evaluation["disposition"] for evaluation in artifact["evaluations"]
+    } == {"INCOMPLETE"}
+    assert {
+        evaluation["result"]["failure_disposition"]["status"]
+        for evaluation in artifact["evaluations"]
+    } == {"EVIDENCE_CONTRADICTION"}
+
+
+def test_typed_raw_candidate_rejections_remain_no_win(tmp_path, monkeypatch):
+    rejected = [_terminal_negative(index) for index in range(2)]
+    args = _args(tmp_path, rejected)
+    monkeypatch.setattr(finalizer, "parse_args", lambda: args)
+    _bypass_strict_hard_wall(monkeypatch)
+    monkeypatch.setattr(finalizer.time, "monotonic", lambda: 0.0)
+    monkeypatch.setattr(
+        finalizer,
+        "_verify_certificate_with_hard_wall",
+        lambda *_args, **_kwargs: {
+            "passed": False,
+            "replay_complete": True,
+            "checks": {
+                "schema": True,
+                "certificate_sha256": True,
+                "known_answer_sha256": True,
+                "matrix_sha256": True,
+                "direction_count": True,
+                "stored_direction_evidence": True,
+                "milp_rerun": True,
+                "distance_recomputed": True,
+                "final_gate": False,
+                "certificate_passed_flag": False,
+            },
+            "failures": ["final_gate", "certificate_passed_flag"],
+            "final_gate": rejected[0]["final_gate"],
+        },
+    )
+
+    assert finalizer.main() == 0
+    artifact = json.loads(args.output.read_text())
     assert artifact["outcome"] == "NO_WIN"
     assert artifact["summary"] == {
         "accepted": 0,
@@ -308,9 +407,51 @@ def test_all_terminal_rejections_are_no_win(tmp_path, monkeypatch):
         "incomplete": 0,
         "total": 2,
     }
-    assert {
-        evaluation["disposition"] for evaluation in artifact["evaluations"]
-    } == {"REJECTED"}
+
+
+def test_negative_certificate_cannot_override_replay_contradiction(
+    tmp_path,
+    monkeypatch,
+):
+    certificate = _terminal_negative(0)
+    args = _args(tmp_path, [certificate])
+    monkeypatch.setattr(finalizer, "parse_args", lambda: args)
+    _bypass_strict_hard_wall(monkeypatch)
+    monkeypatch.setattr(finalizer.time, "monotonic", lambda: 0.0)
+    monkeypatch.setattr(
+        finalizer,
+        "_verify_certificate_with_hard_wall",
+        lambda *_args, **_kwargs: {
+            "passed": False,
+            "replay_complete": True,
+            "checks": {
+                "schema": False,
+                "certificate_sha256": False,
+                "known_answer_sha256": True,
+                "matrix_sha256": True,
+                "direction_count": True,
+                "stored_direction_evidence": True,
+                "milp_rerun": True,
+                "distance_recomputed": True,
+                "final_gate": False,
+                "certificate_passed_flag": False,
+            },
+            "failures": [
+                "schema",
+                "certificate_sha256",
+                "final_gate",
+                "certificate_passed_flag",
+            ],
+            "final_gate": certificate["final_gate"],
+        },
+    )
+
+    assert finalizer.main() == 0
+    artifact = json.loads(args.output.read_text())
+    assert artifact["outcome"] == "INCOMPLETE"
+    result = artifact["evaluations"][0]["result"]
+    assert result["failure_disposition"]["status"] == "EVIDENCE_CONTRADICTION"
+    assert result["replay_complete"] is True
 
 
 def test_no_winner_with_timeout_is_incomplete(tmp_path, monkeypatch):

@@ -27,6 +27,11 @@ from scipy.optimize import Bounds, LinearConstraint, milp
 from evaluation.bb_code import build_bb_code
 from evaluation.challenge_gate import evaluate_challenge_gate
 from evaluation.distance_milp import get_code_matrices
+from evaluation.failure_disposition import (
+    classify_build_failure,
+    classify_replay_failure,
+    incomplete_result_disposition,
+)
 from evaluation.final_gate import _matrix_sha256, _rank_f2
 from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.registry import check_code_novelty
@@ -839,6 +844,7 @@ def build_css_certificate(
         key=lambda item: int(item["objective"]),
         default=None,
     )
+    passed = bool(all_optimal and final_gate.get("accepted"))
     certificate = {
         "schema_version": SCHEMA_VERSION,
         "certificate_type": "qldpc-css-bb-exact",
@@ -882,8 +888,15 @@ def build_css_certificate(
             "target_logical": best["target_logical"],
         },
         "final_gate": final_gate,
-        "passed": bool(all_optimal and final_gate.get("accepted")),
+        "passed": passed,
     }
+    failure_disposition = classify_build_failure(
+        exact=all_optimal,
+        passed=passed,
+        final_gate=final_gate,
+    )
+    if failure_disposition is not None:
+        certificate["failure_disposition"] = failure_disposition
     certificate["certificate_sha256"] = _certificate_sha256(certificate)
     return certificate
 
@@ -951,11 +964,21 @@ def verify_css_certificate(
             raise TypeError("every MILP direction must be an object")
     except (KeyError, TypeError, ValueError, OSError) as exc:
         failures.append(f"certificate reconstruction failed: {exc}")
+        domain = "io" if isinstance(exc, OSError) else "schema"
+        code = (
+            "CERTIFICATE_RECONSTRUCTION_IO_ERROR"
+            if isinstance(exc, OSError)
+            else "CERTIFICATE_RECONSTRUCTION_INCOMPLETE"
+        )
         return {
             "passed": False,
-            "replay_complete": True,
+            "replay_complete": False,
             "checks": checks,
             "failures": failures,
+            "failure_disposition": incomplete_result_disposition(
+                domain=domain,
+                code=code,
+            ),
         }
 
     expected_objectives: dict[str, Any] = {}
@@ -1143,8 +1166,9 @@ def verify_css_certificate(
         + "; ".join(item["failures"])
         for item in direction_failures
     )
-    return {
-        "passed": not failures,
+    passed = not failures
+    result = {
+        "passed": passed,
         "replay_complete": replay_complete,
         "checks": checks,
         "failures": failures,
@@ -1158,3 +1182,10 @@ def verify_css_certificate(
         "solver_workers": workers,
         "final_gate": gate,
     }
+    failure_disposition = classify_replay_failure(
+        passed=passed,
+        replay_complete=replay_complete,
+    )
+    if failure_disposition is not None:
+        result["failure_disposition"] = failure_disposition
+    return result

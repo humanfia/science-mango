@@ -65,6 +65,7 @@ import logging
 import math
 import os
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -131,6 +132,7 @@ _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
+from evolve import dependency_contract as _dependency_contract
 from evaluation.evaluator import (
     evaluate_batch,
     evaluate_batch_milp,
@@ -157,9 +159,10 @@ class CandidateLogWriteError(RuntimeError):
     """A discovered candidate could not be durably persisted."""
 
 
-WINNER_PREFLIGHT_CONTRACT_VERSION = 1
+WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
 WINNER_PREFLIGHT_REUSE_ENV = "QCODE_WINNER_PREFLIGHT_REUSE"
+CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
 WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC = (
     "winner_preflight_contract_version"
 )
@@ -199,6 +202,8 @@ _STAGE1_PREFLIGHT_COMPLETIONS: dict[
     dict[str, float],
 ] = {}
 _STAGE1_PREFLIGHT_COMPLETIONS_LOCK = threading.Lock()
+_MILP_CANDIDATE_LOG_PATH_BINDING: Path | None = None
+_MILP_CANDIDATE_LOG_PATH_BINDING_LOCK = threading.Lock()
 WINNER_CAPABLE_EXPLORATION_LANE = "winner_capable_quick_exploration"
 QUICK_EXPLORATION_PERSISTENCE_REASON = "quick_distance_budget"
 FULL_POOL_PREFLIGHT_PERSISTENCE_REASON = "full_pool_preflight"
@@ -210,6 +215,12 @@ MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
 MAX_FINAL_GATE_PARETO_DISTANCE_PER_LATTICE = 4
 MAX_DISTANCE_BACKEND_ERROR_MESSAGE_CHARS = 2048
+CANDIDATE_LOG_CHUNK_MAX_RECORDS = 256
+CANDIDATE_LOG_CHUNK_MAX_BYTES = 1 << 20
+CANDIDATE_LOG_WAL_SCHEMA_VERSION = 1
+CANDIDATE_LOG_WAL_HEADER_MAX_BYTES = 16 << 10
+CANDIDATE_LOG_WAL_SUFFIX = ".candidate-wal"
+CANDIDATE_LOG_WAL_TEMP_SUFFIX = ".tmp"
 # Full persistence is deliberately unbounded.  A fixed 5000-definition sample
 # is useful for distance fitness, but is not a sound handoff to exact auditing:
 # a winner outside that sample would otherwise be permanently invisible.
@@ -581,16 +592,50 @@ def _current_winner_preflight_contract_id() -> int:
             )
         return contract_id
 
-    # Unmanaged evaluator smoke tests and direct invocations do not have the
-    # launcher's source binding.  Still rotate the marker with this evaluator
-    # source and the immutable lattice contract.  Managed runs always supply
-    # the stronger evaluator+dependency binding through the environment.
+    # Direct invocations use the same canonical payload as the managed
+    # launcher.  Deriving the dependency root from the imported contract
+    # module also keeps fallback identity stable if this evaluator is copied
+    # into a run directory (as in legacy --milp mode).
+    dependency_root = Path(
+        _dependency_contract.__file__
+    ).resolve().parent.parent
+    dependency_hashes: dict[str, str] = {}
+    for name in sorted(_dependency_contract.LOCAL_EVALUATOR_DEPENDENCIES):
+        relative_path = (
+            _dependency_contract.LOCAL_EVALUATOR_DEPENDENCIES[name]
+        )
+        dependency_path = dependency_root / relative_path
+        if dependency_path.is_symlink():
+            raise RuntimeError(
+                "winner preflight dependency may not be a symlink: "
+                f"{dependency_path}"
+            )
+        try:
+            dependency_source = dependency_path.resolve(
+                strict=True
+            ).read_bytes()
+        except OSError as exc:
+            raise RuntimeError(
+                f"winner preflight dependency is missing: {dependency_path}"
+            ) from exc
+        dependency_hashes[name] = hashlib.sha256(
+            dependency_source
+        ).hexdigest()
+
+    candidate_log = _freeze_candidate_log_path().resolve(strict=False)
+    output_dir = candidate_log.parent
     payload = {
         "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
         "evaluator_sha256": hashlib.sha256(
             Path(__file__).resolve().read_bytes()
         ).hexdigest(),
+        "dependency_sha256": dependency_hashes,
         "lattices": [list(lattice) for lattice in EVOLUTION_LATTICES],
+        "candidate_log_path": str(candidate_log),
+        "run_identity": {
+            "output_dir": str(output_dir),
+            "run_name": output_dir.name,
+        },
     }
     digest = hashlib.sha256(
         json.dumps(
@@ -1014,45 +1059,518 @@ def _structural_feedback(result: dict) -> str:
     return "\n  ".join(lines)
 
 
-def _append_candidate_jsonl(log_file: Path, payload: bytes) -> None:
-    """Append a non-interleaved batch; roll back caught I/O failures."""
-    # Evaluators run in separate worker processes.  O_APPEND prevents stale
-    # offsets, while flock keeps a short/partial batch from interleaving with
-    # another cooperating append. Flush the batch to stable storage before
-    # reporting the evaluation as successful: a candidate that influenced
-    # evolution must not disappear from the Stage 1 input log.
-    flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
+def _append_candidate_jsonl(
+    log_file: Path,
+    payload: bytes | bytearray,
+) -> None:
+    """Append one batch through a recoverable write-ahead intent.
+
+    The intent contains the complete bounded payload and its exact starting
+    offset.  It is atomically installed and synced before the JSONL changes.
+    A writer killed during (or immediately after) the append therefore leaves
+    enough information for the next lock holder to finish the same batch
+    without interleaving or duplicating bytes.
+    """
+    if not payload:
+        return
+    log_file = _canonical_candidate_log_path(log_file)
+    flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     descriptor = os.open(log_file, flags, 0o600)
     try:
         fcntl.flock(descriptor, fcntl.LOCK_EX)
+        _validate_locked_candidate_log(log_file, descriptor)
+        _recover_candidate_log_wal_locked(log_file, descriptor)
         original_size = os.fstat(descriptor).st_size
+        _validate_candidate_log_boundary(descriptor, original_size)
+        _install_candidate_log_wal(
+            log_file,
+            start_offset=original_size,
+            payload=payload,
+        )
         try:
-            written = 0
-            while written < len(payload):
-                count = os.write(descriptor, payload[written:])
-                if count <= 0:
-                    raise OSError("candidate JSONL append made no progress")
-                written += count
+            _write_candidate_log_payload(descriptor, payload)
             os.fsync(descriptor)
         except BaseException:
-            # All writers in this module honor the same inode lock, so rollback
-            # can safely remove a short record before surfacing the failure.
+            # Recoverable exceptions keep the historical all-or-nothing API:
+            # truncate the partial suffix, sync it, then durably clear the WAL.
+            # SIGKILL bypasses this block and leaves the WAL for the next
+            # writer, which is the crash window this protocol closes.
             try:
                 os.ftruncate(descriptor, original_size)
                 os.fsync(descriptor)
-            except OSError:
+                _clear_candidate_log_wal(log_file)
+            except (OSError, CandidateLogWriteError):
                 logger.exception(
-                    "Failed to roll back partial candidate JSONL append: %s",
+                    "Failed to roll back candidate JSONL WAL transaction: %s",
                     log_file,
                 )
             raise
+        _clear_candidate_log_wal(log_file)
     finally:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_UN)
         finally:
-                os.close(descriptor)
+            os.close(descriptor)
+
+
+def _candidate_log_wal_paths(log_file: Path) -> tuple[Path, Path]:
+    wal_file = log_file.with_name(log_file.name + CANDIDATE_LOG_WAL_SUFFIX)
+    return wal_file, wal_file.with_name(
+        wal_file.name + CANDIDATE_LOG_WAL_TEMP_SUFFIX
+    )
+
+
+def _canonical_candidate_log_path(path: str | Path) -> Path:
+    """Canonicalize parent directories without following the final entry."""
+    candidate = Path(path).expanduser()
+    if not candidate.is_absolute():
+        candidate = candidate.absolute()
+    return candidate.parent.resolve(strict=False) / candidate.name
+
+
+def _path_entry_exists(path: Path) -> bool:
+    """Return whether a directory entry exists without following symlinks."""
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def _fsync_candidate_log_directory(log_file: Path) -> None:
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_DIRECTORY"):
+        flags |= os.O_DIRECTORY
+    descriptor = os.open(log_file.parent, flags)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _write_all(descriptor: int, payload: bytes | bytearray) -> None:
+    written = 0
+    view = memoryview(payload)
+    while written < len(view):
+        count = os.write(descriptor, view[written:])
+        if count <= 0:
+            raise OSError("candidate log write made no progress")
+        written += count
+
+
+def _write_candidate_log_payload(
+    descriptor: int,
+    payload: bytes | bytearray,
+) -> None:
+    """Append payload bytes; kept separate for crash-injection tests."""
+    _write_all(descriptor, payload)
+
+
+def _candidate_log_wal_bytes(
+    log_file: Path,
+    *,
+    start_offset: int,
+    payload: bytes | bytearray,
+) -> bytes:
+    payload_bytes = bytes(payload)
+    header = {
+        "log_path": str(log_file),
+        "payload_length": len(payload_bytes),
+        "payload_sha256": hashlib.sha256(payload_bytes).hexdigest(),
+        "schema_version": CANDIDATE_LOG_WAL_SCHEMA_VERSION,
+        "start_offset": start_offset,
+    }
+    encoded_header = json.dumps(
+        header,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("ascii")
+    if len(encoded_header) > CANDIDATE_LOG_WAL_HEADER_MAX_BYTES:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL header exceeds its safety bound"
+        )
+    return encoded_header + b"\n" + payload_bytes
+
+
+def _install_candidate_log_wal(
+    log_file: Path,
+    *,
+    start_offset: int,
+    payload: bytes | bytearray,
+) -> None:
+    """Atomically and durably publish one complete append intent."""
+    wal_file, temporary = _candidate_log_wal_paths(log_file)
+    if _path_entry_exists(wal_file) or _path_entry_exists(temporary):
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL path is unexpectedly occupied"
+        )
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(temporary, flags, 0o600)
+    try:
+        _write_all(
+            descriptor,
+            _candidate_log_wal_bytes(
+                log_file,
+                start_offset=start_offset,
+                payload=payload,
+            ),
+        )
+        os.fsync(descriptor)
+    except BaseException:
+        os.close(descriptor)
+        try:
+            temporary.unlink()
+            _fsync_candidate_log_directory(log_file)
+        except OSError:
+            logger.exception(
+                "Failed to clear incomplete candidate JSONL WAL temp: %s",
+                temporary,
+            )
+        raise
+    else:
+        os.close(descriptor)
+    # The fixed temporary name is protected by the candidate-log flock.  Any
+    # pre-existing WAL/temp was rejected above, so replace cannot overwrite a
+    # cooperating writer's intent.
+    os.replace(temporary, wal_file)
+    _fsync_candidate_log_directory(log_file)
+
+
+def _strict_candidate_log_wal_header(encoded: bytes) -> dict:
+    if len(encoded) > CANDIDATE_LOG_WAL_HEADER_MAX_BYTES:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL header exceeds its safety bound"
+        )
+
+    def strict_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError(f"duplicate key: {key}")
+            result[key] = value
+        return result
+
+    try:
+        header = json.loads(
+            encoded.decode("ascii"),
+            object_pairs_hook=strict_object,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL header is invalid"
+        ) from exc
+    expected_fields = {
+        "log_path",
+        "payload_length",
+        "payload_sha256",
+        "schema_version",
+        "start_offset",
+    }
+    if not isinstance(header, dict) or set(header) != expected_fields:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL schema fields are invalid"
+        )
+    if (
+        type(header["schema_version"]) is not int
+        or header["schema_version"] != CANDIDATE_LOG_WAL_SCHEMA_VERSION
+        or type(header["start_offset"]) is not int
+        or header["start_offset"] < 0
+        or type(header["payload_length"]) is not int
+        or header["payload_length"] < 1
+        or not isinstance(header["log_path"], str)
+        or not isinstance(header["payload_sha256"], str)
+        or len(header["payload_sha256"]) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in header["payload_sha256"]
+        )
+    ):
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL typed fields are invalid"
+        )
+    return header
+
+
+def _read_candidate_log_wal(
+    log_file: Path,
+) -> tuple[dict, bytes] | None:
+    wal_file, temporary = _candidate_log_wal_paths(log_file)
+    if _path_entry_exists(temporary):
+        raise CandidateLogWriteError(
+            f"candidate JSONL WAL has a residual temp file: {temporary}"
+        )
+    if not _path_entry_exists(wal_file):
+        return None
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(wal_file, flags)
+    except OSError as exc:
+        raise CandidateLogWriteError(
+            f"candidate JSONL WAL cannot be opened safely: {wal_file}"
+        ) from exc
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise CandidateLogWriteError(
+                "candidate JSONL WAL is not a regular file"
+            )
+        chunks = []
+        remaining = metadata.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(remaining, 1 << 20))
+            if not chunk:
+                raise CandidateLogWriteError(
+                    "candidate JSONL WAL ended before its stated size"
+                )
+            chunks.append(chunk)
+            remaining -= len(chunk)
+    finally:
+        os.close(descriptor)
+    encoded = b"".join(chunks)
+    header_end = encoded.find(b"\n")
+    if header_end < 0:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL is missing its header delimiter"
+        )
+    header = _strict_candidate_log_wal_header(encoded[:header_end])
+    payload = encoded[header_end + 1 :]
+    if header["log_path"] != str(log_file):
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL is bound to a different log path"
+        )
+    if len(payload) != header["payload_length"]:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL payload length does not match its header"
+        )
+    if hashlib.sha256(payload).hexdigest() != header["payload_sha256"]:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL payload hash does not match its header"
+        )
+    if not payload.endswith(b"\n"):
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL payload is not a complete JSONL batch"
+        )
+    return header, payload
+
+
+def _validate_locked_candidate_log(
+    log_file: Path,
+    descriptor: int,
+) -> None:
+    opened = os.fstat(descriptor)
+    if not stat.S_ISREG(opened.st_mode):
+        raise CandidateLogWriteError(
+            "candidate JSONL destination is not a regular file"
+        )
+    try:
+        named = os.stat(log_file, follow_symlinks=False)
+    except OSError as exc:
+        raise CandidateLogWriteError(
+            "candidate JSONL destination disappeared after open"
+        ) from exc
+    if (opened.st_dev, opened.st_ino) != (named.st_dev, named.st_ino):
+        raise CandidateLogWriteError(
+            "candidate JSONL destination changed after open"
+        )
+
+
+def _validate_candidate_log_boundary(
+    descriptor: int,
+    size: int,
+) -> None:
+    if size and os.pread(descriptor, 1, size - 1) != b"\n":
+        raise CandidateLogWriteError(
+            "candidate JSONL ends in an untracked partial record"
+        )
+
+
+def _clear_candidate_log_wal(log_file: Path) -> None:
+    wal_file, temporary = _candidate_log_wal_paths(log_file)
+    if _path_entry_exists(temporary):
+        raise CandidateLogWriteError(
+            f"candidate JSONL WAL has a residual temp file: {temporary}"
+        )
+    try:
+        wal_file.unlink()
+    except FileNotFoundError as exc:
+        raise CandidateLogWriteError(
+            "candidate JSONL WAL disappeared before durable commit"
+        ) from exc
+    _fsync_candidate_log_directory(log_file)
+
+
+def _recover_candidate_log_wal_locked(
+    log_file: Path,
+    descriptor: int,
+) -> bool:
+    transaction = _read_candidate_log_wal(log_file)
+    if transaction is None:
+        return False
+    header, payload = transaction
+    start_offset = header["start_offset"]
+    current_size = os.fstat(descriptor).st_size
+    end_offset = start_offset + len(payload)
+    if current_size < start_offset or current_size > end_offset:
+        raise CandidateLogWriteError(
+            "candidate JSONL size is incompatible with its WAL offsets"
+        )
+    appended = current_size - start_offset
+    existing = os.pread(descriptor, appended, start_offset)
+    if len(existing) != appended or existing != payload[:appended]:
+        raise CandidateLogWriteError(
+            "candidate JSONL suffix does not match its WAL payload"
+        )
+    if appended < len(payload):
+        _write_candidate_log_payload(descriptor, payload[appended:])
+    os.fsync(descriptor)
+    _validate_candidate_log_boundary(descriptor, end_offset)
+    _clear_candidate_log_wal(log_file)
+    return True
+
+
+def recover_candidate_log_wal(
+    candidate_log_path: str | Path,
+) -> bool:
+    """Recover one orphan append intent under the production inode lock.
+
+    Returns ``True`` when a WAL was replayed or acknowledged as already fully
+    appended, and ``False`` when no intent existed.  Corrupt or ambiguously
+    bound sidecars fail closed and are deliberately left for inspection.
+    """
+    raw_path = os.fspath(candidate_log_path)
+    if "\x00" in raw_path or not Path(raw_path).is_absolute():
+        raise CandidateLogWriteError(
+            "candidate WAL recovery requires an absolute log path"
+        )
+    log_file = _canonical_candidate_log_path(raw_path)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(log_file, flags, 0o600)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        _validate_locked_candidate_log(log_file, descriptor)
+        recovered = _recover_candidate_log_wal_locked(log_file, descriptor)
+        os.fsync(descriptor)
+        _fsync_candidate_log_directory(log_file)
+        return recovered
+    finally:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
+
+
+def candidate_log_range_identity(
+    candidate_log_path: str | Path,
+    *,
+    start_offset: int,
+    end_offset: int | None = None,
+) -> dict[str, object]:
+    """Return a WAL-clean, inode-bound identity for one candidate byte range.
+
+    An orphan WAL is recovered first under the same lock used by writers.
+    Hashing is limited to the requested range; historical bytes before
+    ``start_offset`` are never rescanned on the normal append/witness path.
+    """
+    if (
+        isinstance(start_offset, bool)
+        or not isinstance(start_offset, int)
+        or start_offset < 0
+        or end_offset is not None
+        and (
+            isinstance(end_offset, bool)
+            or not isinstance(end_offset, int)
+            or end_offset < start_offset
+        )
+    ):
+        raise CandidateLogWriteError(
+            "candidate range offsets must be ordered non-negative integers"
+        )
+    raw_path = os.fspath(candidate_log_path)
+    if "\x00" in raw_path or not Path(raw_path).is_absolute():
+        raise CandidateLogWriteError(
+            "candidate range identity requires an absolute log path"
+        )
+    log_file = _canonical_candidate_log_path(raw_path)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(log_file, flags, 0o600)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        _validate_locked_candidate_log(log_file, descriptor)
+        _recover_candidate_log_wal_locked(log_file, descriptor)
+        os.fsync(descriptor)
+        _fsync_candidate_log_directory(log_file)
+        metadata = os.fstat(descriptor)
+        observed_end = metadata.st_size if end_offset is None else end_offset
+        if start_offset > metadata.st_size or observed_end > metadata.st_size:
+            raise CandidateLogWriteError(
+                "candidate identity range exceeds the durable log size"
+            )
+        if (
+            start_offset
+            and os.pread(descriptor, 1, start_offset - 1) != b"\n"
+        ) or (
+            observed_end
+            and os.pread(descriptor, 1, observed_end - 1) != b"\n"
+        ):
+            raise CandidateLogWriteError(
+                "candidate identity offsets are not complete JSONL boundaries"
+            )
+        digest = hashlib.sha256()
+        position = start_offset
+        while position < observed_end:
+            chunk = os.pread(
+                descriptor,
+                min(1 << 20, observed_end - position),
+                position,
+            )
+            if not chunk:
+                raise CandidateLogWriteError(
+                    "candidate log changed while hashing its byte range"
+                )
+            digest.update(chunk)
+            position += len(chunk)
+        after = os.fstat(descriptor)
+        _validate_locked_candidate_log(log_file, descriptor)
+        wal_file, temporary = _candidate_log_wal_paths(log_file)
+        if (
+            (metadata.st_dev, metadata.st_ino, metadata.st_size)
+            != (after.st_dev, after.st_ino, after.st_size)
+            or _path_entry_exists(wal_file)
+            or _path_entry_exists(temporary)
+        ):
+            raise CandidateLogWriteError(
+                "candidate log identity was not captured from a stable "
+                "WAL-clean file"
+            )
+        return {
+            "path": str(log_file),
+            "device": metadata.st_dev,
+            "inode": metadata.st_ino,
+            "start_offset": start_offset,
+            "end_offset": observed_end,
+            "sha256": digest.hexdigest(),
+            "bytes": observed_end - start_offset,
+            "wal_clean": True,
+        }
+    finally:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
 
 
 def _freeze_candidate_log_run_name() -> str:
@@ -1070,6 +1588,65 @@ def _freeze_candidate_log_run_name() -> str:
             "QCODE_RUN_NAME is not a safe single path component"
         )
     return run_name
+
+
+def _freeze_candidate_log_path(
+    candidate_log_path: str | Path | None = None,
+    *,
+    run_name: str | None = None,
+) -> Path:
+    """Return one absolute candidate-log binding captured before untrusted code.
+
+    Managed and ``--milp`` launchers supply an absolute path.  The historical
+    run-name routing remains as a compatibility fallback for direct evaluator
+    use and tests, but an inherited absolute binding always wins over it.
+    """
+
+    raw_path: str | None
+    if candidate_log_path is not None:
+        raw_path = os.fspath(candidate_log_path)
+    else:
+        raw_path = os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    if raw_path not in (None, ""):
+        if "\x00" in raw_path:
+            raise CandidateLogWriteError(
+                f"{CANDIDATE_LOG_PATH_ENV} contains a NUL byte"
+            )
+        path = Path(raw_path)
+        if not path.is_absolute():
+            raise CandidateLogWriteError(
+                f"{CANDIDATE_LOG_PATH_ENV} must be an absolute path"
+            )
+        return _canonical_candidate_log_path(path)
+
+    if run_name is None:
+        run_name = _freeze_candidate_log_run_name()
+    if run_name:
+        return (
+            Path(_PROJECT_ROOT)
+            / "results"
+            / "evolution"
+            / run_name
+            / "all_codes.jsonl"
+        ).absolute()
+    return (
+        Path(_PROJECT_ROOT)
+        / "results"
+        / "evolution"
+        / "all_codes.jsonl"
+    ).absolute()
+
+
+def _freeze_milp_candidate_log_path() -> Path:
+    """Pin the legacy MILP worker's path for its entire process lifetime."""
+
+    global _MILP_CANDIDATE_LOG_PATH_BINDING
+    with _MILP_CANDIDATE_LOG_PATH_BINDING_LOCK:
+        if _MILP_CANDIDATE_LOG_PATH_BINDING is None:
+            _MILP_CANDIDATE_LOG_PATH_BINDING = (
+                _freeze_candidate_log_path()
+            )
+        return _MILP_CANDIDATE_LOG_PATH_BINDING
 
 
 def _candidate_jsonl_record(result: dict) -> dict | None:
@@ -1133,59 +1710,88 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
 def _log_codes_jsonl(
     results: list[dict],
     run_name: str | None = None,
+    *,
+    candidate_log_path: str | Path | None = None,
 ) -> int:
-    """Durably append a candidate batch under one lock and one ``fsync``.
+    """Durably append candidates in bounded, individually synced chunks.
 
-    Serialisation finishes before the file is opened.  Once opened, the whole
-    batch cannot interleave with cooperating writers; caught short writes and
-    ``fsync`` failures are rolled back to the pre-batch offset.  SIGKILL can
-    still leave a complete prefix, which the Humanize transaction's trusted
-    offset truncation/archive protocol handles during recovery.  The returned
-    count lets callers enforce full-persistence invariants.
+    At most one target-sized payload is materialized at a time; the full
+    result pool is never duplicated into a records list plus a second encoded
+    batch. A single record larger than the byte target occupies its own chunk
+    rather than being discarded. Each chunk is locked, appended and fsynced
+    before the cumulative count is advanced. A later chunk failure is
+    surfaced, so no caller can emit a complete-preflight marker; already
+    durable prefix chunks are safe for the Humanize offset/dedup protocol.
     """
-    records = [
-        record
-        for result in results
-        if (record := _candidate_jsonl_record(result)) is not None
-    ]
-    if not records:
-        return 0
-
-    if run_name is None:
-        run_name = _freeze_candidate_log_run_name()
-    if run_name:
-        log_dir = Path(_PROJECT_ROOT) / "results" / "evolution" / run_name
-    else:
-        log_dir = Path(_PROJECT_ROOT) / "results" / "evolution"
-    payload = b"".join(
-        (json.dumps(record, ensure_ascii=False, default=str) + "\n").encode(
-            "utf-8"
-        )
-        for record in records
+    log_file = _freeze_candidate_log_path(
+        candidate_log_path,
+        run_name=run_name,
     )
+    payload = bytearray()
+    chunk_records = 0
+    persisted = 0
+
+    def flush_chunk() -> None:
+        nonlocal payload, chunk_records, persisted
+        if chunk_records == 0:
+            return
+        _append_candidate_jsonl(log_file, payload)
+        persisted += chunk_records
+        payload = bytearray()
+        chunk_records = 0
+
     try:
-        log_dir.mkdir(parents=True, exist_ok=True)
-        _append_candidate_jsonl(log_dir / "all_codes.jsonl", payload)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        for result in results:
+            record = _candidate_jsonl_record(result)
+            if record is None:
+                continue
+            encoded = (
+                json.dumps(record, ensure_ascii=False, default=str) + "\n"
+            ).encode("utf-8")
+            if (
+                chunk_records > 0
+                and (
+                    chunk_records >= CANDIDATE_LOG_CHUNK_MAX_RECORDS
+                    or len(payload) + len(encoded)
+                    > CANDIDATE_LOG_CHUNK_MAX_BYTES
+                )
+            ):
+                flush_chunk()
+            payload.extend(encoded)
+            chunk_records += 1
+        flush_chunk()
     except OSError as exc:
         raise CandidateLogWriteError(
-            f"failed to persist discovered candidate batch in {log_dir}"
+            "failed to persist discovered candidate batch in "
+            f"{log_file.parent} after {persisted} complete records"
         ) from exc
-    return len(records)
+    return persisted
 
 
-def _log_code_jsonl(result: dict, run_name: str | None = None) -> None:
+def _log_code_jsonl(
+    result: dict,
+    run_name: str | None = None,
+    *,
+    candidate_log_path: str | Path | None = None,
+) -> None:
     """Append a code result to the run-specific all_codes.jsonl file.
 
     Logs all codes with ``d > 0`` plus statically eligible quick-only
     candidates in the explicit winner-capable exploration lane.  The latter
     closes the old top-k handoff gap without making arbitrary FOM claims.
 
-    The run_name is resolved from (in priority order):
-    1. Explicit ``run_name`` argument
-    2. ``QCODE_RUN_NAME`` environment variable (set by run_evolution.py)
-    3. Fallback to ``results/evolution/all_codes.jsonl``
+    Routing is resolved from (in priority order):
+    1. Explicit or inherited absolute candidate-log binding
+    2. Explicit ``run_name`` argument
+    3. ``QCODE_RUN_NAME`` compatibility fallback
+    4. ``results/evolution/all_codes.jsonl``
     """
-    _log_codes_jsonl([result], run_name=run_name)
+    _log_codes_jsonl(
+        [result],
+        run_name=run_name,
+        candidate_log_path=candidate_log_path,
+    )
 
 
 def _error_result(error: str) -> dict:
@@ -1234,6 +1840,7 @@ def _run_evaluation(
     candidate_limit: int | None = MAX_CANDIDATES_PER_LATTICE,
     persist_quick_exploration: bool = False,
     persist_all_quick_exploration: bool = False,
+    candidate_log_path: str | Path | None = None,
 ) -> dict:
     """Run evaluation across lattices and compute aggregate metrics.
 
@@ -1244,11 +1851,13 @@ def _run_evaluation(
        `max_distance_per_lattice` candidates, using either BP-OSD (default) or
        MILP (when use_milp=True).
     """
-    if run_name is None:
-        # This must happen before the first generator call.  Evolved code is
-        # untrusted with respect to process environment and may mutate
-        # QCODE_RUN_NAME while it is being imported or evaluated.
-        run_name = _freeze_candidate_log_run_name()
+    # This must happen before the first generator call.  Evolved code is
+    # untrusted with respect to process environment and may mutate either
+    # legacy QCODE_RUN_NAME or the absolute binding while being evaluated.
+    candidate_log_path = _freeze_candidate_log_path(
+        candidate_log_path,
+        run_name=run_name,
+    )
     if candidate_limit is None:
         if not (quick and persist_all_quick_exploration):
             raise ValueError(
@@ -1368,7 +1977,7 @@ def _run_evaluation(
                         )
                     persisted_count = _log_codes_jsonl(
                         eligible_quick,
-                        run_name=run_name,
+                        candidate_log_path=candidate_log_path,
                     )
                     if persisted_count != len(eligible_quick):
                         raise CandidateLogWriteError(
@@ -1460,7 +2069,10 @@ def _run_evaluation(
                             result["candidate_persistence_reason"] = (
                                 QUICK_EXPLORATION_PERSISTENCE_REASON
                             )
-                            _log_code_jsonl(result, run_name=run_name)
+                            _log_code_jsonl(
+                                result,
+                                candidate_log_path=candidate_log_path,
+                            )
                         prelogged_quick_keys = {
                             _definition_key(result)
                             for result in persisted_quick
@@ -1513,7 +2125,7 @@ def _run_evaluation(
                     )
                 persisted_count = _log_codes_jsonl(
                     eligible_quick,
-                    run_name=run_name,
+                    candidate_log_path=candidate_log_path,
                 )
                 if persisted_count != len(eligible_quick):
                     raise CandidateLogWriteError(
@@ -1636,7 +2248,10 @@ def _run_evaluation(
                     for result in top
                 ]
                 for result in pending_top:
-                    _log_code_jsonl(result, run_name=run_name)
+                    _log_code_jsonl(
+                        result,
+                        candidate_log_path=candidate_log_path,
+                    )
                 distance_pending_persisted += len(pending_top)
 
                 backend_error: dict[str, str] | None = None
@@ -1774,7 +2389,10 @@ def _run_evaluation(
                     and _definition_key(r) in prelogged_quick_keys
                 ):
                     continue
-                _log_code_jsonl(r, run_name=run_name)
+                _log_code_jsonl(
+                    r,
+                    candidate_log_path=candidate_log_path,
+                )
             lattices_completed += 1
         except CandidateLogWriteError:
             # Persistence is part of a successful evaluation contract.  Let the
@@ -1953,6 +2571,7 @@ def _run_full_winner_preflight(
     sampling_salt: str,
     contract_id: int,
     run_name: str = "",
+    candidate_log_path: str | Path | None = None,
 ) -> dict[str, float]:
     """Persist the complete winner-capable quick universe without a cap."""
 
@@ -1961,6 +2580,7 @@ def _run_full_winner_preflight(
         list(EVOLUTION_LATTICES),
         quick=True,
         run_name=run_name,
+        candidate_log_path=candidate_log_path,
         sampling_salt=sampling_salt,
         candidate_limit=None,
         persist_quick_exploration=True,
@@ -1976,7 +2596,7 @@ def _preflight_program(program_path: str) -> dict[str, float]:
     # may legitimately mutate process environment for its own algorithm, but
     # it cannot change which managed contract this evaluation is proving.
     contract_id = _current_winner_preflight_contract_id()
-    run_name = _freeze_candidate_log_run_name()
+    candidate_log_path = _freeze_candidate_log_path()
     source_sha256 = _freeze_program_source_sha256(program_path)
     load_generate_candidates = _load_generate_candidates
     run_full_winner_preflight = _run_full_winner_preflight
@@ -1986,7 +2606,7 @@ def _preflight_program(program_path: str) -> dict[str, float]:
         generate_fn,
         sampling_salt=source_sha256,
         contract_id=contract_id,
-        run_name=run_name,
+        candidate_log_path=candidate_log_path,
     )
     _assert_program_source_unchanged(program_path, source_sha256)
     return markers
@@ -2010,7 +2630,7 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
     MAP-Elites ~7x differentiation vs the prior 15% spread.
     """
     contract_id = _current_winner_preflight_contract_id()
-    run_name = _freeze_candidate_log_run_name()
+    candidate_log_path = _freeze_candidate_log_path()
     source_sha256 = _freeze_program_source_sha256(program_path)
     load_generate_candidates = _load_generate_candidates
     run_full_winner_preflight = _run_full_winner_preflight
@@ -2025,7 +2645,7 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
         generate_fn,
         sampling_salt=source_sha256,
         contract_id=contract_id,
-        run_name=run_name,
+        candidate_log_path=candidate_log_path,
     )
     _assert_program_source_unchanged(program_path, source_sha256)
     # Preserve the historical two-probe Stage 1 fitness scale after the
@@ -2036,7 +2656,7 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
         generate_fn,
         STAGE1_LATTICES,
         quick=True,
-        run_name=run_name,
+        candidate_log_path=candidate_log_path,
         sampling_salt=source_sha256,
         persist_quick_exploration=True,
         persist_all_quick_exploration=True,
@@ -2135,7 +2755,7 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
     # Capture and validate the Stage 1 handoff before importing evolved code.
     # In direct/fallback evaluation this environment value is absent, so Stage
     # 2 still performs its own complete preflight.
-    run_name = _freeze_candidate_log_run_name()
+    candidate_log_path = _freeze_candidate_log_path()
     source_sha256 = _freeze_program_source_sha256(program_path)
     load_generate_candidates = _load_generate_candidates
     run_evaluation = _run_evaluation
@@ -2152,7 +2772,7 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             generate_fn,
             STAGE2_LATTICES,
             quick=True,
-            run_name=run_name,
+            candidate_log_path=candidate_log_path,
             sampling_salt=sampling_salt,
             candidate_limit=STAGE2_PREFLIGHT_CANDIDATE_LIMIT,
             persist_quick_exploration=True,
@@ -2191,7 +2811,7 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             STAGE2_DEEP_DISTANCE_PER_LATTICE
         ),
         sampling_salt=sampling_salt,
-        run_name=run_name,
+        candidate_log_path=candidate_log_path,
         candidate_limit=STAGE2_DEEP_CANDIDATE_LIMIT,
     ))
     _assert_program_source_unchanged(program_path, source_sha256)
@@ -2945,6 +3565,11 @@ def evaluate_stage2_milp(program_path: str) -> dict:
     - Symplectic weight pre-filter: codes with d_symp≤4 skip MILP entirely
     - Better LLM feedback with clear signal about what works vs doesn't
     """
+    # The launcher may execute a patched copy from inside the output
+    # directory. Freeze its absolute routing before importing evolved code;
+    # deriving paths from this copy's ``__file__`` would otherwise create a
+    # nested ``results/evolution/results`` tree.
+    candidate_log_path = _freeze_milp_candidate_log_path()
     try:
         generate_fn = _load_generate_candidates(program_path)
     except Exception as e:
@@ -2958,7 +3583,9 @@ def evaluate_stage2_milp(program_path: str) -> dict:
     MIN_RELEVANT_D = 6               # Only d≥6 codes contribute to score
 
     # Save path for incremental MILP persistence
-    codes_jsonl = str(Path(_PROJECT_ROOT) / "results" / "evolution_codes.jsonl")
+    codes_jsonl = str(
+        candidate_log_path.with_name("evolution_codes.jsonl")
+    )
 
     # ── Phase 1: k-only screening (parallel) ───────────────────────
     # Collect all candidates across lattices, then evaluate in parallel

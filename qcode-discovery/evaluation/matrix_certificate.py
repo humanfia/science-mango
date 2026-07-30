@@ -23,6 +23,11 @@ from evaluation.certificate import (
     unpack_vector,
     verify_direction_evidence,
 )
+from evaluation.failure_disposition import (
+    classify_build_failure,
+    classify_replay_failure,
+    incomplete_result_disposition,
+)
 from evaluation.final_gate import (
     _connected,
     _matrix_sha256,
@@ -156,6 +161,7 @@ def build_matrix_css_certificate(
         key=lambda item: int(item["objective"]),
         default=None,
     )
+    passed = bool(exact and gate["accepted"])
     certificate = {
         "schema_version": SCHEMA_VERSION,
         "certificate_type": CERTIFICATE_TYPE,
@@ -206,8 +212,15 @@ def build_matrix_css_certificate(
             "target_logical": best["target_logical"],
         },
         "final_gate": gate,
-        "passed": bool(exact and gate["accepted"]),
+        "passed": passed,
     }
+    failure_disposition = classify_build_failure(
+        exact=exact,
+        passed=passed,
+        final_gate=gate,
+    )
+    if failure_disposition is not None:
+        certificate["failure_disposition"] = failure_disposition
     certificate["certificate_sha256"] = _certificate_sha256(certificate)
     return certificate
 
@@ -256,11 +269,21 @@ def verify_matrix_css_certificate(
         specs = _direction_specs(code)
         directions = certificate["milp"]["directions"]
     except (KeyError, TypeError, ValueError, OSError) as exc:
+        domain = "io" if isinstance(exc, OSError) else "schema"
+        code = (
+            "CERTIFICATE_RECONSTRUCTION_IO_ERROR"
+            if isinstance(exc, OSError)
+            else "CERTIFICATE_RECONSTRUCTION_INCOMPLETE"
+        )
         return {
             "passed": False,
-            "replay_complete": True,
+            "replay_complete": False,
             "checks": checks,
             "failures": [f"certificate reconstruction failed: {exc}"],
+            "failure_disposition": incomplete_result_disposition(
+                domain=domain,
+                code=code,
+            ),
         }
 
     checks["claim_parameters"] = (
@@ -363,8 +386,9 @@ def verify_matrix_css_certificate(
     checks["certificate_passed_flag"] = certificate.get("passed") is True
     failures.extend(name for name, passed in checks.items() if not passed)
     failures.extend(direction_failures)
-    return {
-        "passed": not failures,
+    passed = not failures
+    result = {
+        "passed": passed,
         "replay_complete": replay_complete,
         "checks": checks,
         "failures": failures,
@@ -373,3 +397,10 @@ def verify_matrix_css_certificate(
         "directions_total": len(specs),
         "final_gate": gate,
     }
+    failure_disposition = classify_replay_failure(
+        passed=passed,
+        replay_complete=replay_complete,
+    )
+    if failure_disposition is not None:
+        result["failure_disposition"] = failure_disposition
+    return result

@@ -24,6 +24,7 @@ from evaluation.certificate import (
     verify_css_certificate,
 )
 from evaluation.distance_milp import get_code_matrices
+from evaluation.failure_disposition import terminal_candidate_rejection
 
 
 def _tiny_direction():
@@ -246,6 +247,8 @@ def test_build_checkpoint_survives_interruption_and_resumes(
     assert certificate["milp"]["exact"] is True
     assert certificate["milp"]["resumed_directions"] == 1
     assert resumed_calls == certificate["milp"]["expected_directions"] - 1
+    assert certificate["final_gate"]["checks"]["css_bb_candidate"] is True
+    assert terminal_candidate_rejection(certificate) is True
 
 
 def test_verify_checkpoint_and_global_timeout(tmp_path, monkeypatch):
@@ -377,4 +380,35 @@ def test_verifier_fails_closed_on_malformed_directions():
     )
 
     assert result["passed"] is False
+    assert result["replay_complete"] is False
+    assert result["failure_disposition"]["status"] == "INCOMPLETE"
     assert "milp.directions must be a list" in result["failures"][0]
+
+
+def test_css_reconstruction_io_error_is_retryable(monkeypatch):
+    certificate = build_css_certificate(
+        _tiny_claim(),
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=30,
+        total_timeout=120,
+    )
+    monkeypatch.setattr(
+        certificate_module,
+        "_file_sha256",
+        lambda _path: (_ for _ in ()).throw(OSError("storage unavailable")),
+    )
+
+    result = verify_css_certificate(
+        certificate,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=False,
+    )
+
+    assert result["passed"] is False
+    assert result["replay_complete"] is False
+    assert result["failure_disposition"] == {
+        "schema_version": 1,
+        "status": "INCOMPLETE",
+        "domain": "io",
+        "codes": ["CERTIFICATE_RECONSTRUCTION_IO_ERROR"],
+    }

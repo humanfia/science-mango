@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -117,6 +119,9 @@ def build_review_prompt(
             "classification": "AuditOutcome.EXACT",
             "formal_checkpoint_replay_required": True,
             "challenge_win_rule": "evaluation.final_gate.classify_win",
+            "authoritative_construction_rebuild_required": True,
+            "explicit_known_code_registry_replay_required": True,
+            "registry_novel_true_required_for_stop": True,
         },
         "trusted_exact_history": trusted_exact_history[:20],
         "trusted_exact_wins": trusted_exact_wins[:20],
@@ -131,7 +136,8 @@ Trust boundary:
 - A MILP result is exact only when every logical direction was solved to proven
   optimality and milp_details.exact is true.
 - Only trusted_exact_history was independently replayed from the canonical
-  audit log. trusted_exact_wins is its machine-classified challenge-WIN subset.
+  audit log. trusted_exact_wins is the subset that also passes a construction
+  rebuild and explicit known-code registry replay with novel=true.
 - archive_top and new_candidates remain advisory BP-OSD upper bounds.
 - Your review cannot upgrade any numerical claim. Only MILP certificates and
   later Lean compilation can do so.
@@ -169,12 +175,22 @@ class CodexReviewer:
         effort: str,
         timeout: int = 5400,
         codex_bin: str = "codex",
+        max_attempts: int = 3,
+        retry_backoff_seconds: float = 1.0,
+        sleeper: Callable[[float], None] = time.sleep,
     ):
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be at least 1")
+        if retry_backoff_seconds < 0:
+            raise ValueError("retry_backoff_seconds must be non-negative")
         self.repo_dir = repo_dir
         self.model = model
         self.effort = effort
         self.timeout = timeout
         self.codex_bin = codex_bin
+        self.max_attempts = max_attempts
+        self.retry_backoff_seconds = retry_backoff_seconds
+        self.sleeper = sleeper
 
     def review(self, prompt: str, round_dir: Path) -> dict[str, Any]:
         schema_path = round_dir / "review-schema.json"
@@ -192,24 +208,80 @@ class CodexReviewer:
             "--output-last-message", str(output_path),
             "-",
         ]
-        log_path = round_dir / "review.log"
-        with log_path.open("w", encoding="utf-8") as log_stream:
+        failures: list[ReviewError] = []
+        log_paths: list[Path] = []
+        for attempt in range(1, self.max_attempts + 1):
+            log_path = round_dir / f"review-attempt-{attempt:02d}.log"
+            log_paths.append(log_path)
             try:
-                subprocess.run(
-                    command,
-                    input=prompt,
-                    text=True,
-                    stdout=log_stream,
-                    stderr=subprocess.STDOUT,
-                    timeout=self.timeout,
-                    check=True,
-                )
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
-                raise ReviewError(f"independent Codex review failed; see {log_path}") from exc
-        if not output_path.is_file():
-            raise ReviewError(f"independent Codex review produced no output; see {log_path}")
-        try:
-            value = json.loads(output_path.read_text())
-        except json.JSONDecodeError as exc:
-            raise ReviewError(f"independent review was not valid JSON: {output_path}") from exc
-        return validate_review(value)
+                with log_path.open("w", encoding="utf-8") as log_stream:
+                    log_stream.write(
+                        f"[review-attempt] attempt={attempt}/{self.max_attempts} "
+                        f"model={self.model} effort={self.effort} "
+                        f"timeout_seconds={self.timeout}\n"
+                    )
+                    log_stream.flush()
+                    try:
+                        output_path.unlink(missing_ok=True)
+                        subprocess.run(
+                            command,
+                            input=prompt,
+                            text=True,
+                            stdout=log_stream,
+                            stderr=subprocess.STDOUT,
+                            timeout=self.timeout,
+                            check=True,
+                        )
+                    except (
+                        subprocess.CalledProcessError,
+                        subprocess.TimeoutExpired,
+                        OSError,
+                    ) as exc:
+                        raise ReviewError(
+                            "independent Codex review process failed "
+                            f"on attempt {attempt}/{self.max_attempts}; "
+                            f"{type(exc).__name__}: {exc}; "
+                            f"see {log_path}"
+                        ) from exc
+
+                    if not output_path.is_file():
+                        raise ReviewError(
+                            "independent Codex review produced no output "
+                            f"on attempt {attempt}/{self.max_attempts}; "
+                            f"see {log_path}"
+                        )
+                    try:
+                        value = json.loads(output_path.read_text())
+                    except (json.JSONDecodeError, OSError) as exc:
+                        raise ReviewError(
+                            "independent review output was not valid JSON "
+                            f"on attempt {attempt}/{self.max_attempts}: "
+                            f"{output_path}; see {log_path}"
+                        ) from exc
+                    try:
+                        validated = validate_review(value)
+                    except ReviewError as exc:
+                        raise ReviewError(
+                            "independent review output violated its schema "
+                            f"on attempt {attempt}/{self.max_attempts}: {exc}; "
+                            f"see {log_path}"
+                        ) from exc
+                    log_stream.write("\n[review-attempt] status=success\n")
+                    return validated
+            except ReviewError as exc:
+                failures.append(exc)
+                try:
+                    with log_path.open("a", encoding="utf-8") as log_stream:
+                        log_stream.write(f"\n[review-attempt] failure={exc}\n")
+                except OSError:
+                    pass
+
+            if attempt < self.max_attempts:
+                delay = self.retry_backoff_seconds * (2 ** (attempt - 1))
+                self.sleeper(delay)
+
+        logs = ", ".join(str(path) for path in log_paths)
+        raise ReviewError(
+            "independent Codex review failed after "
+            f"{self.max_attempts} attempts; see attempt logs: {logs}"
+        ) from failures[-1]

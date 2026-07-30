@@ -113,6 +113,7 @@ def _plan(
     selection_exhausted: bool = True,
     selection_page: tuple[int, int] | None = None,
     canonicalization_errors: int = 0,
+    structural_unresolved_candidates: int = 0,
     snapshot_rows: int | None = None,
 ) -> dict:
     return {
@@ -125,6 +126,9 @@ def _plan(
         "selection_exhausted": selection_exhausted,
         "selection_page": selection_page,
         "canonicalization_errors": canonicalization_errors,
+        "structural_unresolved_candidates": (
+            structural_unresolved_candidates
+        ),
         "snapshot_rows": snapshot_rows,
     }
 
@@ -208,6 +212,9 @@ class ScenarioRunner:
                 summary["certificate_operational_errors"] = plan["operational_errors"]
                 summary["canonicalization_errors"] = plan[
                     "canonicalization_errors"
+                ]
+                summary["structural_unresolved_candidates"] = plan[
+                    "structural_unresolved_candidates"
                 ]
                 summary["unique_candidates"] = len(results)
                 if plan["selection_page"] is not None:
@@ -316,8 +323,80 @@ class ScenarioRunner:
                     for _certificate in certificates
                 ]
             assert len(dispositions) == len(certificates)
-            evaluations = [
-                {
+            evaluations = []
+            for index, (certificate, requested_disposition) in enumerate(
+                zip(certificates, dispositions, strict=True)
+            ):
+                contradiction = (
+                    requested_disposition == "EVIDENCE_CONTRADICTION"
+                )
+                disposition = (
+                    "INCOMPLETE" if contradiction else requested_disposition
+                )
+                if disposition == "INCOMPLETE":
+                    failure_disposition = {
+                        "schema_version": 1,
+                        "status": (
+                            "EVIDENCE_CONTRADICTION"
+                            if contradiction
+                            else "INCOMPLETE"
+                        ),
+                        "domain": "evidence" if contradiction else "solver",
+                        "codes": [
+                            "STRICT_REPLAY_CONTRADICTION"
+                            if contradiction
+                            else "STRICT_REPLAY_TIMEOUT"
+                        ],
+                    }
+                elif disposition == "REJECTED":
+                    failure_disposition = {
+                        "schema_version": 1,
+                        "status": "CANDIDATE_REJECTED",
+                        "domain": "candidate",
+                        "codes": ["GATE_CHALLENGE_WIN"],
+                    }
+                else:
+                    failure_disposition = None
+                result = {
+                    "passed": disposition == "ACCEPTED",
+                    "replay_complete": (
+                        disposition != "INCOMPLETE" or contradiction
+                    ),
+                    "checks": {
+                        "schema": disposition == "ACCEPTED",
+                        "certificate_sha256": disposition == "ACCEPTED",
+                        "known_answer_sha256": disposition == "ACCEPTED",
+                        "matrix_sha256": disposition == "ACCEPTED",
+                        "direction_count": disposition == "ACCEPTED",
+                        "stored_direction_evidence": disposition == "ACCEPTED",
+                        "milp_rerun": disposition == "ACCEPTED",
+                        "distance_recomputed": disposition == "ACCEPTED",
+                        "final_gate": disposition == "ACCEPTED",
+                        "certificate_passed_flag": disposition == "ACCEPTED",
+                    },
+                    "failures": (
+                        []
+                        if disposition == "ACCEPTED"
+                        else [
+                            "strict replay contradiction"
+                            if contradiction
+                            else "strict replay timeout"
+                            if disposition == "INCOMPLETE"
+                            else "final_gate"
+                        ]
+                    ),
+                    "distance": certificate["claim"]["d"],
+                    "directions_verified": 2 * certificate["claim"]["k"],
+                    "directions_total": 2 * certificate["claim"]["k"],
+                    "final_gate": (
+                        certificate["final_gate"]
+                        if disposition == "ACCEPTED"
+                        else {"accepted": False}
+                    ),
+                }
+                if failure_disposition is not None:
+                    result["failure_disposition"] = failure_disposition
+                evaluations.append({
                     "source_index": index,
                     "claim": certificate.get("claim"),
                     "certificate_sha256": certificate.get("certificate_sha256"),
@@ -331,44 +410,8 @@ class ScenarioRunner:
                         ).encode()
                     ).hexdigest(),
                     "disposition": disposition,
-                    "result": {
-                        "passed": disposition == "ACCEPTED",
-                        "replay_complete": disposition != "INCOMPLETE",
-                        "checks": {
-                            "schema": disposition == "ACCEPTED",
-                            "certificate_sha256": disposition == "ACCEPTED",
-                            "known_answer_sha256": disposition == "ACCEPTED",
-                            "matrix_sha256": disposition == "ACCEPTED",
-                            "direction_count": disposition == "ACCEPTED",
-                            "stored_direction_evidence": disposition == "ACCEPTED",
-                            "milp_rerun": disposition == "ACCEPTED",
-                            "distance_recomputed": disposition == "ACCEPTED",
-                            "final_gate": disposition == "ACCEPTED",
-                            "certificate_passed_flag": disposition == "ACCEPTED",
-                        },
-                        "failures": (
-                            []
-                            if disposition == "ACCEPTED"
-                            else [
-                                "strict replay timeout"
-                                if disposition == "INCOMPLETE"
-                                else "final_gate"
-                            ]
-                        ),
-                        "distance": certificate["claim"]["d"],
-                        "directions_verified": 2 * certificate["claim"]["k"],
-                        "directions_total": 2 * certificate["claim"]["k"],
-                        "final_gate": (
-                            certificate["final_gate"]
-                            if disposition == "ACCEPTED"
-                            else {"accepted": False}
-                        ),
-                    },
-                }
-                for index, (certificate, disposition) in enumerate(
-                    zip(certificates, dispositions, strict=True)
-                )
-            ]
+                    "result": result,
+                })
             accepted = sum(
                 item["disposition"] == "ACCEPTED" for item in evaluations
             )
@@ -653,7 +696,7 @@ def _certificate(
     _write_json(
         verification_path,
         {
-            "schema_version": 2,
+            "schema_version": 3,
             "kind": "qldpc-certificate-verification-cache",
             "canonical_digest": digest,
             "known_answer_sha256": known_answer_sha,
@@ -674,6 +717,109 @@ def _certificate(
             "certificate_exact": True,
             "certificate_passed": certificate_passed,
             "verification_passed": verification_passed,
+        },
+    }, certificate_path
+
+
+def _terminal_negative_certificate(
+    config: PipelineConfig,
+    digest: str,
+) -> tuple[dict, Path]:
+    paths = PipelinePaths(config.root)
+    token = hashlib.sha256(digest.encode()).hexdigest()
+    certificate_path = (
+        paths.solver_state / "certificates" / f"{token}.json"
+    )
+    known_answer_sha = hashlib.sha256(
+        Path(config.known_answer_artifact).read_bytes()
+    ).hexdigest()
+    failure_disposition = {
+        "schema_version": 1,
+        "status": "CANDIDATE_REJECTED",
+        "domain": "candidate",
+        "codes": ["GATE_CHALLENGE_WIN"],
+    }
+    checks = {
+        "known_answer_gate": True,
+        "css_bb_candidate": True,
+        "candidate_rebuild": True,
+        "css_commutation": True,
+        "weight_and_degree_at_most_6": True,
+        "connected_tanner_graph": True,
+        "reported_n_matches": True,
+        "reported_k_matches": True,
+        "qldpc_k_crosscheck": True,
+        "positive_reported_distance": True,
+        "all_2k_milp_directions_optimal": True,
+        "structural_audit_present": True,
+        "structural_audit_reproduced": True,
+        "expanded_registry_novel": True,
+        "challenge_win": False,
+        "reported_fom_matches": True,
+    }
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-exact",
+        "formulation": "css-logical-anticommutation-milp-v1",
+        "passed": False,
+        "known_answer": {"artifact_sha256": known_answer_sha},
+        "claim": {"canonical_digest": digest, "n": 72, "k": 12, "d": 6},
+        "milp": {
+            "exact": True,
+            "expected_directions": 24,
+            "completed_directions": 24,
+            "directions": [{} for _ in range(24)],
+        },
+        "final_gate": {
+            "schema_version": 1,
+            "gate": "qldpc-challenge-final",
+            "accepted": False,
+            "checks": checks,
+            "failures": ["challenge_win"],
+            "win": {"passed": False},
+        },
+        "failure_disposition": failure_disposition,
+    }
+    certificate["certificate_sha256"] = hashlib.sha256(
+        json.dumps(
+            certificate,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode()
+    ).hexdigest()
+    _write_json(certificate_path, certificate)
+    _write_json(
+        certificate_path.with_name(f"{token}.cache.json"),
+        {
+            "schema_version": 3,
+            "kind": "qldpc-certificate-cache",
+            "canonical_digest": digest,
+            "known_answer_sha256": known_answer_sha,
+            "certificate_sha256": certificate["certificate_sha256"],
+            "certificate_payload_sha256": hashlib.sha256(
+                json.dumps(
+                    certificate,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            ).hexdigest(),
+            "exact": True,
+            "passed": False,
+        },
+    )
+    return {
+        "canonical_digest": digest,
+        "status": "THRESHOLD_PROVEN",
+        "certificate": {
+            "attempted": True,
+            "certificate_path": str(certificate_path),
+            "certificate_sha256": certificate["certificate_sha256"],
+            "certificate_exact": True,
+            "certificate_passed": False,
+            "verification_passed": False,
+            "failure_disposition": failure_disposition,
         },
     }, certificate_path
 
@@ -1081,6 +1227,17 @@ def test_proof_retry_controller_escalates_1x_2x_4x_then_caps(tmp_path):
         int(command[command.index("--max-total-workers") + 1])
         for command in stage2_commands
     ] == [config.max_total_workers] * 3
+    assert [
+        float(command[command.index("--structural-hard-timeout") + 1])
+        for command in stage2_commands
+    ] == [300, 600, 1200]
+    assert all(
+        Path(command[command.index("--structural-cache-dir") + 1])
+        == config.root
+        / "solver-state"
+        / "stage2-structural-screen-cache-v1"
+        for command in stage2_commands
+    )
     controller = json.loads(
         (config.root / "solver-state" / "proof-retry-controller.json").read_text()
     )
@@ -1273,6 +1430,171 @@ def test_proof_retry_prepared_attempt_survives_crash_and_resumes(tmp_path):
     assert completed["attempts"][-1]["status"] == "COMPLETED_WIN"
 
 
+def test_prepared_attempt_at_attempt_cap_executes_after_crash(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-prepared-at-cap"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=1,
+    )
+    digest = "prepared-last-chance-win"
+    unresolved = {"canonical_digest": digest, "status": "UNRESOLVED"}
+    winner, _ = _certificate(config, digest)
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            )
+        ],
+        stage3=[_plan([unresolved]), _plan([winner])],
+    )
+
+    def interrupt_backoff(_seconds: float) -> None:
+        raise KeyboardInterrupt
+
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+            sleeper=interrupt_backoff,
+        ).run()
+
+    controller_path = (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    )
+    interrupted_controller = json.loads(controller_path.read_text())
+    interrupted = interrupted_controller["active"]
+    assert [attempt["status"] for attempt in interrupted["attempts"]] == [
+        "COMPLETED_INCOMPLETE",
+        "PREPARED",
+    ]
+    assert interrupted["attempts"][-1]["attempt"] == (
+        config.proof_retry_max_attempts
+    )
+    assert runner.counts == {"stage2": 1, "stage3": 1}
+    # PREPARE already committed this bounded attempt.  Even a recovered
+    # controller at the campaign wall must execute it exactly once.
+    interrupted["elapsed_seconds"] = (
+        config.proof_retry_campaign_total_timeout
+    )
+    _write_json(controller_path, interrupted_controller)
+
+    sleeps: list[float] = []
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=sleeps.append,
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert sleeps == [1]
+    assert runner.counts == {"stage2": 2, "stage3": 2, "strict": 1}
+    completed = json.loads(controller_path.read_text())["active"]
+    assert completed["status"] == "COMPLETED_WIN"
+    assert [attempt["attempt"] for attempt in completed["attempts"]] == [1, 2]
+    assert completed["attempts"][-1]["status"] == "COMPLETED_WIN"
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 0
+    assert ledger["deferred_pages"] == []
+
+
+def test_checkpoint_progress_can_exceed_attempt_cap_and_reach_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-progress-past-cap"),
+        proof_retry_max_attempts=3,
+        proof_retry_campaign_total_timeout=10_000,
+        proof_retry_backoff_seconds=0,
+    )
+    digest = "progress-past-cap-win"
+    unresolved = {"canonical_digest": digest, "status": "UNRESOLVED"}
+    winner, _ = _certificate(config, digest)
+    underlying = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            )
+        ],
+        stage3=[
+            _plan([unresolved]),
+            _plan([unresolved]),
+            _plan([unresolved]),
+            _plan([unresolved]),
+            _plan([winner]),
+        ],
+    )
+
+    def progress_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if _stage_script(command) == "audit_direction_pool.py":
+            count = underlying.counts["stage3"]
+            _write_json(
+                config.root
+                / "solver-state"
+                / "directions"
+                / "progress.json",
+                {
+                    "completed_directions": count,
+                    "directions": [{"objective": 9}] * count,
+                },
+            )
+        return completed
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=progress_runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert underlying.counts["stage3"] == 5
+    controller = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "proof-retry-controller.json"
+        ).read_text()
+    )["active"]
+    assert len(controller["attempts"]) == 5
+    assert len(controller["attempts"]) > config.proof_retry_max_attempts
+    assert [attempt["multiplier"] for attempt in controller["attempts"]] == [
+        1,
+        1,
+        1,
+        1,
+        1,
+    ]
+    assert all(
+        attempt["made_progress"] is True
+        for attempt in controller["attempts"][:-1]
+    )
+    assert controller["attempts"][-1]["status"] == "COMPLETED_WIN"
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 0
+    assert ledger["deferred_pages"] == []
+
+
 def test_proof_retry_campaign_total_timeout_caps_after_current_attempt(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = replace(
@@ -1282,25 +1604,51 @@ def test_proof_retry_campaign_total_timeout_caps_after_current_attempt(tmp_path)
         proof_retry_backoff_seconds=0,
     )
     unresolved = {"canonical_digest": "total-timeout", "status": "UNRESOLVED"}
-    runner = ScenarioRunner(
+    underlying = ScenarioRunner(
         stage2=[_plan([unresolved])],
         stage3=[_plan([unresolved])],
     )
+
+    def progress_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if _stage_script(command) == "audit_direction_pool.py":
+            _write_json(
+                config.root
+                / "solver-state"
+                / "directions"
+                / "progress.json",
+                {
+                    "completed_directions": 1,
+                    "directions": [{"objective": 9}],
+                },
+            )
+        return completed
+
     clock = iter([0.0, 1.0])
 
     state = FiveStagePipeline(
         config,
-        command_runner=runner,
+        command_runner=progress_runner,
         reviewer=RecordingReviewer(),
         sleeper=lambda _seconds: None,
         monotonic=lambda: next(clock),
     ).run()
 
     assert state["status"] == "INCOMPLETE"
-    assert runner.counts == {"stage2": 1, "stage3": 1}
+    assert underlying.counts == {"stage2": 1, "stage3": 1}
     assert state["proof_retry"]["cap_reason"] == (
         "CAMPAIGN_TOTAL_TIMEOUT_REACHED"
     )
+    controller = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "proof-retry-controller.json"
+        ).read_text()
+    )["active"]
+    assert controller["attempts"][-1]["made_progress"] is True
 
 
 def test_proof_retry_win_stops_before_later_budgets(tmp_path):
@@ -1448,12 +1796,7 @@ def test_verified_win_survives_peer_certificate_hard_wall(tmp_path):
 def test_exact_certificate_loser_is_terminal_no_win(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="exact-loser")
-    loser, _ = _certificate(
-        config,
-        "exact-loser",
-        certificate_passed=False,
-        verification_passed=False,
-    )
+    loser, _ = _terminal_negative_certificate(config, "exact-loser")
     runner = ScenarioRunner(stage2=[_plan([loser])])
 
     state = FiveStagePipeline(
@@ -1506,11 +1849,9 @@ def test_truncated_selection_is_incomplete_unless_verified_certificate_wins(
 def test_paginated_stage2_automatically_reaches_win_on_second_page(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="paginated-second-page-win")
-    loser, _ = _certificate(
+    loser, _ = _terminal_negative_certificate(
         config,
         "page-one-loser",
-        certificate_passed=False,
-        verification_passed=False,
     )
     winner, _ = _certificate(config, "page-two-winner")
     runner = ScenarioRunner(stage2=[
@@ -1541,6 +1882,54 @@ def test_paginated_stage2_automatically_reaches_win_on_second_page(tmp_path):
     assert ledger["committed_digests"] == ["page-one-loser"]
     assert ledger["pending"]["selected_digests"] == ["page-two-winner"]
     assert state["stage2_pagination"]["completed_pages"] == 1
+
+
+def test_empty_nonterminal_stage2_page_advances_to_later_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id="empty-progress-page-then-win",
+    )
+    winner, _ = _certificate(config, "after-empty-progress-winner")
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+            structural_unresolved_candidates=1,
+            snapshot_rows=2,
+        ),
+        _plan(
+            [winner],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+            snapshot_rows=2,
+        ),
+    ])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 2, "strict": 1}
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 1
+    assert ledger["committed_digests"] == []
+    assert len(ledger["ack_chain"]) == 1
+    assert ledger["ack_chain"][0]["page"]["selected_digests"] == []
+    assert ledger["pending"]["selected_digests"] == [
+        "after-empty-progress-winner"
+    ]
 
 
 def test_max_attempts_one_binds_cache_to_acknowledged_ledger_prestate(
@@ -1616,11 +2005,9 @@ def test_paginated_terminal_page_advances_past_global_input_diagnostic(
         _config(repo, candidates, run_id="paginated-global-diagnostic-win"),
         stage2_top=1,
     )
-    loser, _ = _certificate(
+    loser, _ = _terminal_negative_certificate(
         config,
         "global-diagnostic-loser",
-        certificate_passed=False,
-        verification_passed=False,
     )
     winner, _ = _certificate(config, "global-diagnostic-winner")
     runner = ScenarioRunner(stage2=[
@@ -1665,17 +2052,13 @@ def test_paginated_global_input_diagnostic_still_blocks_final_no_win(
         _config(repo, candidates, run_id="paginated-global-diagnostic-no-win"),
         stage2_top=1,
     )
-    first, _ = _certificate(
+    first, _ = _terminal_negative_certificate(
         config,
         "global-diagnostic-first-loser",
-        certificate_passed=False,
-        verification_passed=False,
     )
-    second, _ = _certificate(
+    second, _ = _terminal_negative_certificate(
         config,
         "global-diagnostic-second-loser",
-        certificate_passed=False,
-        verification_passed=False,
     )
     runner = ScenarioRunner(stage2=[
         _plan(
@@ -1899,11 +2282,9 @@ def test_unsupported_result_blocks_exhaustive_no_win(
 def test_paginated_stage2_interruption_replays_pending_second_page(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="paginated-interrupt-resume")
-    loser, _ = _certificate(
+    loser, _ = _terminal_negative_certificate(
         config,
         "interrupt-page-one",
-        certificate_passed=False,
-        verification_passed=False,
     )
     winner, _ = _certificate(config, "interrupt-page-two")
     underlying = ScenarioRunner(stage2=[
@@ -2308,6 +2689,75 @@ def test_higher_base_budget_rotates_deferred_generation_and_retries(
     assert hashlib.sha256(deferred_manifest.read_bytes()).hexdigest() == (
         deferred_manifest_sha256
     )
+
+
+def test_registry_change_rotates_terminal_deferred_generation_and_retries(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="deferred-registry-generation"),
+        proof_retry_max_attempts=2,
+        proof_retry_backoff_seconds=0,
+    )
+    digest = "registry-change-then-win"
+    unresolved = {"canonical_digest": digest, "status": "UNRESOLVED"}
+    winner, _ = _certificate(config, digest)
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+    )
+
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+    assert first["status"] == "INCOMPLETE"
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    first_ledger = json.loads(ledger_path.read_text())
+    assert first_ledger["pending"] is None
+    assert first_ledger["deferred_pages"][0]["selection_exhausted"] is True
+
+    registry = repo / "results" / "known_code_registry.json"
+    registry.write_text(
+        '{"schema_version": 1, "registry_sha256": "changed"}\n'
+    )
+    second = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 3, "stage3": 2, "strict": 1}
+    second_ledger = json.loads(ledger_path.read_text())
+    assert second_ledger["generation"] == 1
+    assert second_ledger["deferred_pages"] == []
+    assert second_ledger["pending"]["selected_digests"] == [digest]
+    generation = second_ledger["generation_history"][0]
+    assert "DEPENDENCY_BINDING_CHANGED" in generation["rotation_reasons"]
+    assert generation["replacement_environment_binding_sha256"]
 
 
 def test_deferred_page_atomic_commit_resumes_without_skipping_digest(
@@ -2770,24 +3220,44 @@ def test_proof_reviewer_schema_error_is_advisory(tmp_path):
     assert stage4["advisory_failure"]["error"].startswith("ReviewError:")
 
 
-def test_stage1_reviewer_failure_remains_fail_closed(tmp_path):
+def test_existing_input_stage1_reviewer_failure_is_advisory_and_resume_only_retries_review(
+    tmp_path,
+):
     repo, candidates = _repo(tmp_path)
-    config = _config(repo, candidates, run_id="stage1-review-fail-closed")
-    runner = ScenarioRunner()
+    config = _config(repo, candidates, run_id="stage1-existing-review-advisory")
+    proven, _ = _certificate(config, "stage1-review-advisory-win")
+    runner = ScenarioRunner(stage2=[_plan([proven])])
     reviewer = RecordingReviewer(fail_once={"stage1_search"})
 
-    failed = FiveStagePipeline(
+    first = FiveStagePipeline(
         config,
         command_runner=runner,
         reviewer=reviewer,
     ).run()
 
-    assert failed["status"] == "FAILED"
-    assert failed["failure"]["classification"] == "REVIEW_FAILED"
-    stage1 = failed["stages"]["stage1_search"]
+    assert first["status"] == "COMPLETED_WIN"
+    assert "failure" not in first
+    stage1 = first["stages"]["stage1_search"]
     assert stage1["machine_status"] == "COMPLETED"
-    assert stage1["review_status"] == "FAILED"
-    assert runner.counts == {}
+    assert stage1["status"] == "COMPLETED"
+    assert stage1["review_status"] == "ADVISORY_FAILED"
+    assert stage1["advisory_failure"]["classification"] == "ADVISORY_FAILED"
+    assert stage1["attempt"] == 1
+    assert runner.counts == {"stage2": 1, "strict": 1}
+
+    completed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=reviewer,
+    ).run()
+
+    assert completed["status"] == "COMPLETED_WIN"
+    assert completed["stages"]["stage1_search"]["attempt"] == 1
+    assert completed["stages"]["stage1_search"]["resumed_machine"] is True
+    assert completed["stages"]["stage1_search"]["review_attempt"] == 2
+    assert completed["stages"]["stage1_search"]["review_status"] == "COMPLETED"
+    assert reviewer.calls.count("stage1_search") == 2
+    assert runner.counts == {"stage2": 1, "strict": 1}
 
 
 def test_nonzero_stage_is_not_cached_and_blocks_downstream_until_resume(
@@ -3008,6 +3478,149 @@ def test_stage1_candidate_identity_change_requires_new_run_id(tmp_path):
     assert runner.calls == previous_calls
 
 
+def test_stage1_monotonic_round_extension_reruns_search_and_downstream(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(f"# fake {name}\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "pipeline-round-extension"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        max_rounds=1,
+        candidate_file=candidates,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+        proof_retry_max_attempts=1,
+    )
+    flow_calls = []
+
+    class SearchFlow:
+        pipeline_candidate_inputs = (candidates,)
+
+        def __init__(self, received):
+            self.received = received
+
+        def run(self):
+            flow_calls.append(self.received.max_rounds)
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidates)],
+            }
+
+    runner = ScenarioRunner()
+    first = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        flow_factory=SearchFlow,
+    ).run()
+    assert first["status"] == "COMPLETED_NO_WIN"
+
+    # Model a state written before the structured identity migration.  The
+    # fingerprint and the previous serialized PipelineConfig must suffice to
+    # authorize this one compatible extension.
+    legacy = json.loads(config.root.joinpath("state.json").read_text())
+    legacy.pop("stage1_identity")
+    _write_json(config.root / "state.json", legacy)
+
+    extended = replace(
+        config,
+        flow_config=replace(config.flow_config, max_rounds=3),
+    )
+    second = FiveStagePipeline(
+        extended,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        flow_factory=SearchFlow,
+    ).run()
+
+    assert second["status"] == "COMPLETED_NO_WIN"
+    assert flow_calls == [1, 3]
+    assert runner.counts == {"stage2": 2}
+    for stage in STAGE_ORDER:
+        assert second["stages"][stage]["attempt"] == 2
+    assert (
+        second["stages"]["stage1_search"]["stage_config"]["flow_config"][
+            "max_rounds"
+        ]
+        == 3
+    )
+    assert second["stage1_identity"]["flow_config"]["max_rounds"] == 3
+    assert second["stage1_identity_fingerprint"] == hashlib.sha256(
+        json.dumps(
+            second["stage1_identity"],
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
+    assert len(second["config_history"]) == 1
+    assert second["config_history"][0]["config"]["flow_config"][
+        "max_rounds"
+    ] == 1
+
+
+@pytest.mark.parametrize(
+    ("change", "value"),
+    [
+        ("max_rounds", 1),
+        ("model", "different-search-model"),
+        ("candidate_file", "replacement"),
+        ("milp_total_timeout", 7201),
+    ],
+)
+def test_stage1_round_extension_rejects_every_other_identity_change(
+    tmp_path,
+    change,
+    value,
+):
+    repo, candidates = _repo(tmp_path)
+    replacement = repo / "replacement-candidates.jsonl"
+    replacement.write_text('{"candidate": 2}\n')
+    run_id = f"reject-round-extension-{change}"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        max_rounds=2,
+        candidate_file=candidates,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+    )
+    pipeline = FiveStagePipeline(config)
+    with pipeline._exclusive_lock():
+        original = pipeline._load_or_initialize_state()
+    original_fingerprint = original["stage1_identity_fingerprint"]
+
+    updates = {"max_rounds": 3}
+    updates[change] = replacement if value == "replacement" else value
+    changed = replace(
+        config,
+        flow_config=replace(config.flow_config, **updates),
+    )
+    with pytest.raises(ValueError, match="only a strict max_rounds increase"):
+        rejected = FiveStagePipeline(changed)
+        with rejected._exclusive_lock():
+            rejected._load_or_initialize_state()
+
+    durable = json.loads(config.root.joinpath("state.json").read_text())
+    assert durable["config"]["flow_config"]["max_rounds"] == 2
+    assert durable["stage1_identity_fingerprint"] == original_fingerprint
+    assert durable["config_history"] == []
+
+
 def test_completed_run_is_idempotent(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="idempotent")
@@ -3111,14 +3724,152 @@ def test_stage5_winner_survives_peer_timeout(tmp_path):
     }
 
 
-def test_stage5_all_terminal_rejections_are_no_win(tmp_path):
+def test_summary_disposition_without_bound_certificate_always_retries(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="summary-only-rejection")
+    pipeline = FiveStagePipeline(config, reviewer=RecordingReviewer())
+    result = {
+        "canonical_digest": "summary-only",
+        "status": "THRESHOLD_PROVEN",
+        "certificate": {
+            "attempted": True,
+            "certificate_exact": True,
+            "certificate_passed": False,
+            "verification_passed": False,
+            "failure_disposition": {
+                "schema_version": 1,
+                "status": "CANDIDATE_REJECTED",
+                "domain": "candidate",
+                "codes": ["GATE_CHALLENGE_WIN"],
+            },
+        },
+    }
+
+    assert pipeline._certificate_requires_retry(result) is True
+
+
+def test_bound_recomputed_candidate_rejection_terminates_retry(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="bound-terminal-rejection")
+    pipeline = FiveStagePipeline(config, reviewer=RecordingReviewer())
+    digest = "terminal-negative"
+    token = hashlib.sha256(digest.encode()).hexdigest()
+    certificate_path = (
+        pipeline.paths.solver_state
+        / "certificates"
+        / f"{token}.json"
+    )
+    known_answer_sha = hashlib.sha256(
+        Path(config.known_answer_artifact).read_bytes()
+    ).hexdigest()
+    failure_disposition = {
+        "schema_version": 1,
+        "status": "CANDIDATE_REJECTED",
+        "domain": "candidate",
+        "codes": ["GATE_CHALLENGE_WIN"],
+    }
+    checks = {
+        "known_answer_gate": True,
+        "css_bb_candidate": True,
+        "candidate_rebuild": True,
+        "css_commutation": True,
+        "weight_and_degree_at_most_6": True,
+        "connected_tanner_graph": True,
+        "reported_n_matches": True,
+        "reported_k_matches": True,
+        "qldpc_k_crosscheck": True,
+        "positive_reported_distance": True,
+        "all_2k_milp_directions_optimal": True,
+        "structural_audit_present": True,
+        "structural_audit_reproduced": True,
+        "expanded_registry_novel": True,
+        "challenge_win": False,
+        "reported_fom_matches": True,
+    }
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-exact",
+        "formulation": "css-logical-anticommutation-milp-v1",
+        "passed": False,
+        "known_answer": {"artifact_sha256": known_answer_sha},
+        "claim": {"n": 72, "k": 12, "d": 6},
+        "milp": {
+            "exact": True,
+            "expected_directions": 24,
+            "completed_directions": 24,
+            "directions": [{} for _ in range(24)],
+        },
+        "final_gate": {
+            "schema_version": 1,
+            "gate": "qldpc-challenge-final",
+            "accepted": False,
+            "checks": checks,
+            "failures": ["challenge_win"],
+            "win": {"passed": False},
+        },
+        "failure_disposition": failure_disposition,
+    }
+    certificate["certificate_sha256"] = hashlib.sha256(
+        json.dumps(
+            certificate,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode()
+    ).hexdigest()
+    _write_json(certificate_path, certificate)
+    _write_json(
+        certificate_path.with_name(f"{token}.cache.json"),
+        {
+            "schema_version": 3,
+            "kind": "qldpc-certificate-cache",
+            "canonical_digest": digest,
+            "known_answer_sha256": known_answer_sha,
+            "certificate_sha256": certificate["certificate_sha256"],
+            "certificate_payload_sha256": hashlib.sha256(
+                json.dumps(
+                    certificate,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            ).hexdigest(),
+            "exact": True,
+            "passed": False,
+        },
+    )
+    result = {
+        "canonical_digest": digest,
+        "status": "THRESHOLD_PROVEN",
+        "certificate": {
+            "attempted": True,
+            "certificate_path": str(certificate_path),
+            "certificate_sha256": certificate["certificate_sha256"],
+            "certificate_exact": True,
+            "certificate_passed": False,
+            "verification_passed": False,
+            "failure_disposition": failure_disposition,
+        },
+    }
+
+    assert pipeline._certificate_requires_retry(result) is False
+
+
+def test_stage5_all_passed_certificate_contradictions_are_retryable(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = _config(repo, candidates, run_id="strict-all-rejected")
     first, _ = _certificate(config, "strict-rejected-1")
     second, _ = _certificate(config, "strict-rejected-2")
     runner = ScenarioRunner(
         stage2=[_plan([first, second])],
-        strict=[_plan(strict_dispositions=["REJECTED", "REJECTED"])],
+        strict=[
+            _plan(
+                strict_dispositions=[
+                    "EVIDENCE_CONTRADICTION",
+                    "EVIDENCE_CONTRADICTION",
+                ],
+            )
+        ],
     )
 
     state = FiveStagePipeline(
@@ -3127,8 +3878,9 @@ def test_stage5_all_terminal_rejections_are_no_win(tmp_path):
         reviewer=RecordingReviewer(),
     ).run()
 
-    assert state["status"] == "COMPLETED_NO_WIN"
-    assert state["stages"]["stage5_strict_gate"]["machine_status"] == "COMPLETED"
+    assert state["status"] == "INCOMPLETE"
+    assert state["result"]["stage5_outcome"] == "INCOMPLETE"
+    assert state["stages"]["stage5_strict_gate"]["machine_status"] == "INCOMPLETE"
 
 
 def test_stage5_without_winner_and_with_timeout_is_retryable(tmp_path):
@@ -3138,7 +3890,14 @@ def test_stage5_without_winner_and_with_timeout_is_retryable(tmp_path):
     timeout, _ = _certificate(config, "strict-incomplete-peer")
     runner = ScenarioRunner(
         stage2=[_plan([rejected, timeout])],
-        strict=[_plan(strict_dispositions=["REJECTED", "INCOMPLETE"])],
+        strict=[
+            _plan(
+                strict_dispositions=[
+                    "EVIDENCE_CONTRADICTION",
+                    "INCOMPLETE",
+                ],
+            )
+        ],
     )
 
     state = FiveStagePipeline(
@@ -3167,7 +3926,14 @@ def test_stage5_timeout_keeps_current_proof_page_pending(tmp_path):
                 selection_page=(0, 2),
             )
         ],
-        strict=[_plan(strict_dispositions=["REJECTED", "INCOMPLETE"])],
+        strict=[
+            _plan(
+                strict_dispositions=[
+                    "EVIDENCE_CONTRADICTION",
+                    "INCOMPLETE",
+                ],
+            )
+        ],
     )
 
     state = FiveStagePipeline(
@@ -4527,3 +5293,122 @@ def test_nested_solver_state_symlink_cannot_escape_pipeline_root(tmp_path):
             reviewer=RecordingReviewer(),
         ).run()
     assert list(outside.iterdir()) == []
+
+
+def test_structural_timeout_is_global_retryable_stage2_incompleteness(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    pipeline = FiveStagePipeline(
+        _config(repo, candidates, run_id="structural-incomplete"),
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+    incompleteness = pipeline._proof_incompleteness(
+        {
+            "selection_exhausted": False,
+            "structural_unresolved_candidates": 1,
+            "results": [],
+        },
+        {
+            "selection_exhausted": True,
+            "results": [],
+        },
+    )
+
+    codes = {
+        reason["code"] for reason in incompleteness["reasons"]
+    }
+    assert "STAGE2_SELECTION_TRUNCATED" in codes
+    assert "STAGE2_STRUCTURAL_UNRESOLVED_CANDIDATES" in codes
+    assert (
+        "STAGE2_STRUCTURAL_UNRESOLVED_CANDIDATES"
+        not in pipeline_module.STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+    )
+    assert incompleteness["retry_stages"] == ["stage2_sector_audit"]
+
+
+def test_zero_page_structural_barrier_escalates_and_reaches_win(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="structural-zero-page-retry"),
+        proof_retry_max_attempts=3,
+        proof_retry_max_multiplier=4,
+        proof_retry_backoff_seconds=0,
+    )
+    winner, _ = _certificate(config, "structural-late-win")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [],
+                selection_exhausted=False,
+                structural_unresolved_candidates=1,
+            ),
+            _plan(
+                [],
+                selection_exhausted=False,
+                structural_unresolved_candidates=1,
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(0, 1),
+                snapshot_rows=1,
+            ),
+        ],
+        stage3=[_plan()],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    stage2_commands = runner.commands("stage2")
+    assert len(stage2_commands) == 3
+    assert [
+        float(command[command.index("--structural-hard-timeout") + 1])
+        for command in stage2_commands
+    ] == [300, 600, 1200]
+    controller = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "proof-retry-controller.json"
+        ).read_text()
+    )["active"]
+    assert [attempt["multiplier"] for attempt in controller["attempts"]] == [
+        1,
+        2,
+        4,
+    ]
+    assert controller["attempts"][-1]["status"] == "COMPLETED_WIN"
+    assert controller["binding"]["selected_digests"] == []
+
+
+def test_unexpected_pipeline_exception_is_recorded_as_internal_error(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    pipeline = FiveStagePipeline(
+        _config(repo, candidates, run_id="unexpected-internal-error"),
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+
+    def fail_stage1_inputs():
+        raise RuntimeError("unexpected stage-1 handoff failure")
+
+    monkeypatch.setattr(pipeline, "_stage1_inputs", fail_stage1_inputs)
+
+    state = pipeline.run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "INTERNAL_ERROR"
+    assert state["failure"]["message"] == (
+        "RuntimeError: unexpected stage-1 handoff failure"
+    )

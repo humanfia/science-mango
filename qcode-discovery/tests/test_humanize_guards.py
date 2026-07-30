@@ -123,6 +123,13 @@ def complete_fake_evolution(config: FlowConfig, command: list[str]) -> Path:
         config.repo_dir, config.run_id, base_iteration + iterations
     )
     result = _checkpoint_descriptor(output, checkpoint)
+    candidate_start_offset = int(
+        command[command.index("--candidate-start-offset") + 1]
+    )
+    candidate_source = flow_module._candidate_log_range_identity(
+        output / "all_codes.jsonl",
+        start_offset=candidate_start_offset,
+    )
     witness_path = Path(command[command.index("--slice-witness") + 1])
     context_path = Path(command[command.index("--humanize-context") + 1])
     launch = _evolution_launch_binding(
@@ -159,7 +166,7 @@ def complete_fake_evolution(config: FlowConfig, command: list[str]) -> Path:
         allow_nan=False,
     ).encode()
     payload = {
-        "schema_version": 2,
+        "schema_version": 3,
         "status": "completed",
         "output_dir": str(output.resolve()),
         "resume_checkpoint": None if base is None else base["path"],
@@ -202,6 +209,14 @@ def complete_fake_evolution(config: FlowConfig, command: list[str]) -> Path:
         "result_last_iteration": result["last_iteration"],
         "result_checkpoint_sha256": result["sha256"],
         "result_checkpoint_programs": result["programs"],
+        "candidate_log_path": candidate_source["path"],
+        "candidate_log_device": candidate_source["device"],
+        "candidate_log_inode": candidate_source["inode"],
+        "candidate_start_offset": candidate_source["start_offset"],
+        "candidate_end_offset": candidate_source["end_offset"],
+        "candidate_range_sha256": candidate_source["sha256"],
+        "candidate_range_bytes": candidate_source["bytes"],
+        "candidate_wal_clean": candidate_source["wal_clean"],
         "openevolve_version": "0.2.26",
         "completed_at": "test",
     }
@@ -216,6 +231,11 @@ def complete_fake_evolution(config: FlowConfig, command: list[str]) -> Path:
             payload[f"openevolve_{name}_{field}"] = descriptor[field]
     atomic_write_json(witness_path, payload)
     witness = _file_descriptor(witness_path, "test witness")
+    witness["schema_version"] = payload["schema_version"]
+    witness.update({
+        field: payload[field]
+        for field in flow_module.CANDIDATE_WITNESS_FIELDS
+    })
     marker = Path(command[command.index("--completion-marker") + 1])
     marker_payload = _completion_marker_expected(
         config, base, result, launch, invocation, witness
@@ -367,6 +387,7 @@ def frozen_runner_state(
         config, state, round_dir
     )
     frozen = dict(state)
+    frozen.setdefault("candidate_offset", 0)
     frozen["_evolution_launch_binding"] = launch
     frozen["_evolution_invocation_binding"] = invocation
     checkpoint = state.get("last_checkpoint")
@@ -636,6 +657,49 @@ def test_resume_rejects_milp_base_budget_drift(tmp_path):
         HumanizeFlow(changed, reviewer=Reviewer()).run()
 
 
+def test_resume_strict_max_round_extension_runs_the_new_rounds(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    candidates = repo / "candidates.jsonl"
+    candidates.write_text("")
+    first = FlowConfig(
+        repo_dir=repo,
+        run_id="extend-completed-search",
+        max_rounds=1,
+        milp_top=0,
+        candidate_file=candidates,
+    )
+
+    initial = HumanizeFlow(first, reviewer=Reviewer()).run()
+    assert initial["status"] == "search-complete"
+    assert initial["current_round"] == 1
+
+    extended = FlowConfig(
+        repo_dir=repo,
+        run_id="extend-completed-search",
+        max_rounds=3,
+        milp_top=0,
+        candidate_file=candidates,
+    )
+    resumed_flow = HumanizeFlow(extended, reviewer=Reviewer())
+    resumed = resumed_flow.run()
+
+    assert resumed["status"] == "search-complete"
+    assert resumed["current_round"] == 3
+    assert [row["round"] for row in resumed["rounds"]] == [1, 2, 3]
+    events = [
+        json.loads(line)
+        for line in resumed_flow.store.events_path.read_text().splitlines()
+        if line.strip()
+    ]
+    assert any(
+        event.get("event") == "max_rounds_extended"
+        and event.get("from_max_rounds") == 1
+        and event.get("to_max_rounds") == 3
+        for event in events
+    )
+
+
 def test_openevolve_config_and_seed_are_forwarded(tmp_path, monkeypatch):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -818,7 +882,7 @@ def test_run_evolution_sigint_exits_nonzero_without_marker(tmp_path, monkeypatch
     fcntl.flock(lease_fd, fcntl.LOCK_EX)
 
     @contextmanager
-    def fake_verified_scope(*_args):
+    def fake_verified_scope(*_args, **_kwargs):
         yield SimpleNamespace(shutdown_requested=False), {}
 
     monkeypatch.setattr(run_module, "_build_config", lambda *_args: config)
@@ -832,6 +896,7 @@ def test_run_evolution_sigint_exits_nonzero_without_marker(tmp_path, monkeypatch
         "--output", str(tmp_path / "output"),
         "--completion-marker", str(marker),
         "--slice-witness", str(witness),
+        "--candidate-start-offset", "0",
         "--humanize-context", str(context),
         "--lifecycle-lease-fd", str(lease_fd),
         "--lifecycle-lease-path", str(lease_path),

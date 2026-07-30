@@ -1,9 +1,18 @@
 """Tests for the strict structural-novelty gate."""
 
+import json
+
+import evaluation.structural_dedup as structural_dedup
+import pytest
 from evaluation.structural_dedup import (
+    StructuralScreenCacheError,
+    StructuralScreenIncompleteError,
+    annotate_css_results_with_deferred_cache,
     check_css_static_eligibility,
     check_css_structural_novelty,
     deduplicate_css_results,
+    screen_css_results_with_cache,
+    screen_css_results_with_deferred_cache,
 )
 
 
@@ -17,6 +26,40 @@ def test_exact_gross_code_is_known():
     assert result["novel"] is False
     assert result["matched_reference"] == "Gross [[144,12,12]]"
     assert result["explicit_isomorphism"]["verified"] is True
+
+
+def test_known_reference_dedup_carries_verified_rejection():
+    row = {
+        "ell": 12,
+        "m": 6,
+        "n": 144,
+        "k": 12,
+        "d": 12,
+        "A_terms": [(3, 0), (0, 1), (0, 2)],
+        "B_terms": [(0, 3), (1, 0), (2, 0)],
+    }
+    kept, rejected = deduplicate_css_results([row])
+    assert kept == []
+    assert len(rejected) == 1
+    assert rejected[0]["structural_rejection"] == "known_reference"
+    assert (
+        rejected[0]["structural_novelty"]["explicit_isomorphism"]["verified"]
+        is True
+    )
+
+
+def test_static_gate_rebuilds_k_and_rejects_false_self_report():
+    static = check_css_static_eligibility(
+        12,
+        6,
+        [(3, 0), (0, 1), (0, 2)],
+        [(0, 3), (1, 0), (2, 0)],
+        reported_n=144,
+        reported_k=999,
+    )
+    assert static["k"] == 12
+    assert static["checks"]["reported_k_matches"] is False
+    assert static["eligible"] is False
 
 
 def test_non_diagonal_reencoding_of_bravyi_is_known():
@@ -84,3 +127,637 @@ def test_disconnected_humanize_leader_fails_tier0_before_bliss_or_milp():
     assert len(rejected) == 1
     assert rejected[0]["structural_rejection"] == "static_ineligible"
     assert rejected[0]["structural_novelty"]["checked"] is False
+
+
+def _cached_candidate() -> dict:
+    return {
+        "ell": 6,
+        "m": 6,
+        "n": 72,
+        "k": 8,
+        "d": 12,
+        "fom": 16.0,
+        "A_terms": [[0, 0], [0, 1], [1, 0]],
+        "B_terms": [[0, 0], [0, 2], [2, 0]],
+    }
+
+
+def _novel_annotation() -> dict:
+    return {
+        "static_eligibility": {
+            "checked": True,
+            "eligible": True,
+            "checks": {
+                "candidate_rebuild": True,
+                "positive_dimension": True,
+            },
+            "failures": [],
+            "n": 72,
+            "k": 8,
+        },
+        "structural_novelty": {
+            "checked": True,
+            "novel": True,
+            "relation": None,
+            "canonical_digest": "a" * 64,
+            "matched_reference": None,
+            "reference_digest": None,
+            "explicit_isomorphism": None,
+        },
+        "structural_rejection": None,
+    }
+
+
+def _identity_pair_replay(*, ell: int = 6, m: int = 6) -> dict:
+    block = ell * m
+    return {
+        "verified": True,
+        "hx_preserved": True,
+        "hz_preserved": True,
+        "qubit_permutation": list(range(2 * block)),
+        "x_check_permutation": list(range(block)),
+        "z_check_permutation": list(range(block)),
+    }
+
+
+def test_durable_screen_reuses_complete_content_addressed_cache(
+    tmp_path,
+    monkeypatch,
+):
+    calls = []
+
+    def complete(
+        tasks,
+        *,
+        max_workers,
+        hard_timeout,
+        on_completed=None,
+        on_unresolved=None,
+    ):
+        del on_completed, on_unresolved
+        calls.append((list(tasks), max_workers, hard_timeout))
+        return {
+            index: _novel_annotation() for index, _row in tasks
+        }, {}
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        complete,
+    )
+    row = _cached_candidate()
+    kept, rejected = screen_css_results_with_cache(
+        [row],
+        cache_dir=tmp_path / "cache",
+        max_workers=6,
+        hard_timeout=17,
+    )
+    assert len(kept) == 1
+    assert rejected == []
+    assert kept[0]["static_eligibility"]["k"] == 8
+    assert len(calls) == 1
+    assert calls[0][1:] == (6, 17)
+
+    def must_not_run(*_args, **_kwargs):
+        raise AssertionError("complete cache entry was recomputed")
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        must_not_run,
+    )
+    replayed, replay_rejected = screen_css_results_with_cache(
+        [row],
+        cache_dir=tmp_path / "cache",
+        max_workers=2,
+        hard_timeout=1,
+    )
+    assert replayed == kept
+    assert replay_rejected == []
+
+
+def test_timeout_is_durable_retryable_and_never_a_rejection(
+    tmp_path,
+    monkeypatch,
+):
+    attempts = 0
+
+    def timeout_then_complete(
+        tasks,
+        *,
+        max_workers,
+        hard_timeout,
+        on_completed=None,
+        on_unresolved=None,
+    ):
+        del max_workers, hard_timeout, on_completed, on_unresolved
+        nonlocal attempts
+        attempts += 1
+        index = tasks[0][0]
+        if attempts == 1:
+            return {}, {
+                index: {
+                    "kind": "hard_timeout",
+                    "hard_timeout_seconds": 1.0,
+                    "retryable": True,
+                }
+            }
+        return {index: _novel_annotation()}, {}
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        timeout_then_complete,
+    )
+    cache = tmp_path / "cache"
+    with pytest.raises(StructuralScreenIncompleteError) as raised:
+        screen_css_results_with_cache(
+            [_cached_candidate()],
+            cache_dir=cache,
+            max_workers=1,
+            hard_timeout=1,
+        )
+    assert raised.value.unresolved[0]["failure"]["kind"] == "hard_timeout"
+    entry_path = next(cache.rglob("*.json"))
+    unresolved = json.loads(entry_path.read_text())
+    assert unresolved["status"] == "unresolved"
+    assert unresolved["failure"]["retryable"] is True
+    assert unresolved["annotation"] is None
+
+    kept, rejected = screen_css_results_with_cache(
+        [_cached_candidate()],
+        cache_dir=cache,
+        max_workers=1,
+        hard_timeout=1,
+    )
+    assert len(kept) == 1
+    assert rejected == []
+    completed = json.loads(entry_path.read_text())
+    assert completed["status"] == "complete"
+    assert completed["attempt_count"] == 2
+
+
+def test_permanent_timeout_is_deferred_without_blocking_or_rejection(
+    tmp_path,
+    monkeypatch,
+):
+    def always_timeout(
+        tasks,
+        *,
+        on_unresolved=None,
+        **_kwargs,
+    ):
+        unresolved = {}
+        for index, _row in tasks:
+            failure = {
+                "kind": "hard_timeout",
+                "hard_timeout_seconds": 1.0,
+                "retryable": True,
+            }
+            unresolved[index] = failure
+            if on_unresolved is not None:
+                on_unresolved(index, failure)
+        return {}, unresolved
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        always_timeout,
+    )
+    cache = tmp_path / "cache"
+    for expected_attempt in (1, 2):
+        kept, rejected, deferred = (
+            screen_css_results_with_deferred_cache(
+                [_cached_candidate()],
+                cache_dir=cache,
+                max_workers=1,
+                hard_timeout=1,
+            )
+        )
+        assert kept == []
+        assert rejected == []
+        assert deferred[0]["attempt_count"] == expected_attempt
+        entry = json.loads(next(cache.rglob("*.json")).read_text())
+        assert entry["status"] == "unresolved"
+        assert entry["failure"]["retryable"] is True
+
+
+def test_cache_tamper_fails_closed_instead_of_reusing_rejection(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        lambda tasks, **_kwargs: (
+            {index: _novel_annotation() for index, _row in tasks},
+            {},
+        ),
+    )
+    cache = tmp_path / "cache"
+    screen_css_results_with_cache(
+        [_cached_candidate()],
+        cache_dir=cache,
+        max_workers=1,
+    )
+    entry_path = next(cache.rglob("*.json"))
+    entry = json.loads(entry_path.read_text())
+    entry["annotation"]["structural_rejection"] = "known_reference"
+    entry_path.write_text(json.dumps(entry))
+
+    with pytest.raises(
+        StructuralScreenCacheError,
+        match="integrity check failed",
+    ):
+        screen_css_results_with_cache(
+            [_cached_candidate()],
+            cache_dir=cache,
+            max_workers=1,
+        )
+
+
+def test_completed_candidate_is_cached_before_batch_interrupt(
+    tmp_path,
+    monkeypatch,
+):
+    def complete_then_interrupt(
+        tasks,
+        *,
+        on_completed,
+        **_kwargs,
+    ):
+        index = tasks[0][0]
+        on_completed(index, _novel_annotation())
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        complete_then_interrupt,
+    )
+    cache = tmp_path / "cache"
+    with pytest.raises(KeyboardInterrupt):
+        screen_css_results_with_cache(
+            [_cached_candidate()],
+            cache_dir=cache,
+            max_workers=1,
+        )
+    entry = json.loads(next(cache.rglob("*.json")).read_text())
+    assert entry["status"] == "complete"
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("durably completed candidate was recomputed")
+        ),
+    )
+    kept, rejected = screen_css_results_with_cache(
+        [_cached_candidate()],
+        cache_dir=cache,
+        max_workers=1,
+    )
+    assert len(kept) == 1
+    assert rejected == []
+
+
+def test_source_runtime_fingerprint_change_forces_recomputation(
+    tmp_path,
+    monkeypatch,
+):
+    runtime = {"value": "1" * 64}
+    monkeypatch.setattr(
+        structural_dedup,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"payload": {}, "sha256": runtime["value"]},
+    )
+    calls = 0
+
+    def complete(tasks, **_kwargs):
+        nonlocal calls
+        calls += 1
+        return {
+            index: _novel_annotation() for index, _row in tasks
+        }, {}
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        complete,
+    )
+    cache = tmp_path / "cache"
+    screen_css_results_with_cache(
+        [_cached_candidate()],
+        cache_dir=cache,
+        max_workers=1,
+    )
+    runtime["value"] = "2" * 64
+    screen_css_results_with_cache(
+        [_cached_candidate()],
+        cache_dir=cache,
+        max_workers=1,
+    )
+    assert calls == 2
+
+
+def test_annotation_worker_has_killable_hard_wall_timeout():
+    completed, unresolved = structural_dedup._run_annotation_workers(
+        [(0, _cached_candidate())],
+        max_workers=1,
+        hard_timeout=0.001,
+    )
+    assert completed == {}
+    assert unresolved[0]["retryable"] is True
+    assert unresolved[0]["kind"] in {"hard_timeout", "worker_exit"}
+
+
+def test_spawn_worker_completes_and_caches_real_structural_gate(tmp_path):
+    gross = {
+        "ell": 12,
+        "m": 6,
+        "n": 144,
+        "k": 12,
+        "d": 12,
+        "A_terms": [(3, 0), (0, 1), (0, 2)],
+        "B_terms": [(0, 3), (1, 0), (2, 0)],
+    }
+    kept, rejected = screen_css_results_with_cache(
+        [gross],
+        cache_dir=tmp_path / "cache",
+        max_workers=1,
+        hard_timeout=60,
+    )
+    assert kept == []
+    assert len(rejected) == 1
+    assert rejected[0]["structural_rejection"] == "known_reference"
+    entry = json.loads(next((tmp_path / "cache").rglob("*.json")).read_text())
+    assert entry["status"] == "complete"
+
+
+def test_bounded_screen_replays_real_within_pool_duplicate(tmp_path):
+    base = {
+        "ell": 12,
+        "m": 6,
+        "n": 144,
+        "k": 8,
+        "d": 4,
+        "A_terms": [(0, 0), (0, 1), (0, 2)],
+        "B_terms": [(0, 0), (1, 0), (2, 0)],
+    }
+    shifted = {
+        "ell": 12,
+        "m": 6,
+        "n": 144,
+        "k": 8,
+        "d": 4,
+        "A_terms": [(1, 0), (1, 1), (1, 2)],
+        "B_terms": [(1, 0), (2, 0), (3, 0)],
+    }
+
+    kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+        [base, shifted],
+        cache_dir=tmp_path / "cache",
+        max_workers=2,
+        hard_timeout=60,
+    )
+
+    assert len(kept) == 1
+    assert len(rejected) == 1
+    assert unresolved == []
+    audit = rejected[0]["structural_novelty"]
+    assert audit["relation"] == (
+        "within_run_css_tanner_permutation_equivalent"
+    )
+    assert audit["explicit_isomorphism"]["verified"] is True
+    assert audit["explicit_isomorphism"]["hx_preserved"] is True
+    assert audit["explicit_isomorphism"]["hz_preserved"] is True
+
+
+def test_annotation_api_has_no_unbounded_within_pool_replay(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        lambda tasks, **_kwargs: (
+            {index: _novel_annotation() for index, _row in tasks},
+            {},
+        ),
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "deduplicate_annotated_css_results",
+        lambda _rows: (_ for _ in ()).throw(
+            AssertionError("annotation API entered unbounded pool replay")
+        ),
+    )
+    rows = [_cached_candidate(), {**_cached_candidate(), "label": "second"}]
+
+    annotated, unresolved = annotate_css_results_with_deferred_cache(
+        rows,
+        cache_dir=tmp_path / "cache",
+        max_workers=2,
+        hard_timeout=1,
+    )
+
+    assert [row.get("label") for row in annotated] == [None, "second"]
+    assert unresolved == []
+
+
+def test_within_pool_timeout_is_cached_retryable_and_never_rejected(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        lambda tasks, **_kwargs: (
+            {index: _novel_annotation() for index, _row in tasks},
+            {},
+        ),
+    )
+    attempts = 0
+
+    def timeout_then_complete(
+        tasks,
+        *,
+        on_unresolved=None,
+        **_kwargs,
+    ):
+        nonlocal attempts
+        attempts += 1
+        index = tasks[0][0]
+        if attempts == 1:
+            failure = {
+                "kind": "hard_timeout",
+                "hard_timeout_seconds": 1.0,
+                "retryable": True,
+            }
+            if on_unresolved is not None:
+                on_unresolved(index, failure)
+            return {}, {index: failure}
+        return {index: _identity_pair_replay()}, {}
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_isomorphism_workers",
+        timeout_then_complete,
+    )
+    first = _cached_candidate()
+    second = {**_cached_candidate(), "label": "duplicate"}
+    cache = tmp_path / "cache"
+
+    kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+        [first, second],
+        cache_dir=cache,
+        max_workers=2,
+        hard_timeout=1,
+    )
+
+    assert [row.get("label") for row in kept] == [None]
+    assert rejected == []
+    assert len(unresolved) == 1
+    assert unresolved[0]["operation"] == "within_pool_isomorphism"
+    assert unresolved[0]["candidate_index"] == 1
+    assert unresolved[0]["representative_index"] == 0
+    assert unresolved[0]["failure"]["kind"] == "hard_timeout"
+    pair_entry_path = next(
+        (cache / "within-pool-isomorphism-v1").rglob("*.json")
+    )
+    pair_entry = json.loads(pair_entry_path.read_text())
+    assert pair_entry["status"] == "unresolved"
+    assert pair_entry["attempt_count"] == 1
+
+    kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+        [first, second],
+        cache_dir=cache,
+        max_workers=2,
+        hard_timeout=1,
+    )
+
+    assert [row.get("label") for row in kept] == [None]
+    assert [row.get("label") for row in rejected] == ["duplicate"]
+    assert unresolved == []
+    audit = rejected[0]["structural_novelty"]
+    assert audit["relation"] == (
+        "within_run_css_tanner_permutation_equivalent"
+    )
+    assert audit["explicit_isomorphism"]["verified"] is True
+    pair_entry = json.loads(pair_entry_path.read_text())
+    assert pair_entry["status"] == "complete"
+    assert pair_entry["attempt_count"] == 2
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_isomorphism_workers",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("completed pair cache was recomputed")
+        ),
+    )
+    replayed_kept, replayed_rejected, replayed_unresolved = (
+        screen_css_results_with_deferred_cache(
+            [first, second],
+            cache_dir=cache,
+            max_workers=1,
+            hard_timeout=1,
+        )
+    )
+    assert replayed_kept == kept
+    assert replayed_rejected == rejected
+    assert replayed_unresolved == []
+
+
+def test_within_pool_worker_has_killable_hard_wall_timeout():
+    row = _cached_candidate()
+    completed, unresolved = structural_dedup._run_isomorphism_workers(
+        [(1, {"candidate": row, "representative": row})],
+        max_workers=1,
+        hard_timeout=1e-9,
+    )
+    assert completed == {}
+    assert unresolved[1]["retryable"] is True
+    assert unresolved[1]["kind"] in {"hard_timeout", "worker_exit"}
+
+
+def test_within_pool_cache_rejects_self_sealed_invalid_mapping(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        lambda tasks, **_kwargs: (
+            {index: _novel_annotation() for index, _row in tasks},
+            {},
+        ),
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_isomorphism_workers",
+        lambda tasks, **_kwargs: (
+            {tasks[0][0]: _identity_pair_replay()},
+            {},
+        ),
+    )
+    rows = [
+        _cached_candidate(),
+        {**_cached_candidate(), "label": "duplicate"},
+    ]
+    cache = tmp_path / "cache"
+    screen_css_results_with_deferred_cache(
+        rows,
+        cache_dir=cache,
+        max_workers=1,
+        hard_timeout=1,
+    )
+    path = next(
+        (cache / "within-pool-isomorphism-v1").rglob("*.json")
+    )
+    entry = json.loads(path.read_text())
+    entry["replay"]["qubit_permutation"][0] = 1
+    entry["seal_sha256"] = structural_dedup._cache_entry_seal(entry)
+    path.write_text(json.dumps(entry))
+
+    with pytest.raises(
+        StructuralScreenCacheError,
+        match="violates color partitions",
+    ):
+        screen_css_results_with_deferred_cache(
+            rows,
+            cache_dir=cache,
+            max_workers=1,
+            hard_timeout=1,
+        )
+
+
+def test_screen_wrapper_never_calls_parent_process_pair_replay(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        structural_dedup,
+        "_run_annotation_workers",
+        lambda tasks, **_kwargs: (
+            {index: _novel_annotation() for index, _row in tasks},
+            {},
+        ),
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "deduplicate_annotated_css_results",
+        lambda _rows: (_ for _ in ()).throw(
+            AssertionError("screen wrapper entered parent-process replay")
+        ),
+    )
+
+    kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+        [_cached_candidate()],
+        cache_dir=tmp_path / "cache",
+        max_workers=1,
+        hard_timeout=1,
+    )
+
+    assert len(kept) == 1
+    assert rejected == []
+    assert unresolved == []

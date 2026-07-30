@@ -27,6 +27,14 @@ from evaluation.certificate_dispatch import (
     SUPPORTED_CERTIFICATE_TYPES,
     verify_certificate,
 )
+from evaluation.failure_disposition import (
+    INCOMPLETE,
+    classify_build_failure,
+    contradiction_disposition,
+    incomplete_result_disposition,
+    terminal_candidate_rejection,
+    validate_failure_disposition,
+)
 from evaluation.known_answer_integrity import (
     _strict_wall_timeout,
     check_known_answer_integrity,
@@ -41,6 +49,20 @@ SCHEDULER_SCHEMA_VERSION = 1
 SCHEDULER_GATE = "qldpc-strict-replay-round-robin"
 SCHEDULER_FILENAME = "strict-replay-scheduler.json"
 KNOWN_ANSWER_OUTER_CUSHION_S = 5.0
+TERMINAL_NEGATIVE_REPLAY_CHECKS = frozenset(
+    {
+        "schema",
+        "certificate_sha256",
+        "known_answer_sha256",
+        "matrix_sha256",
+        "direction_count",
+        "stored_direction_evidence",
+        "milp_rerun",
+        "distance_recomputed",
+        "final_gate",
+        "certificate_passed_flag",
+    }
+)
 
 
 def load_rows(path: Path) -> list[dict[str, Any]]:
@@ -252,21 +274,95 @@ def _advance_scheduler(
     _atomic_write_json(path, scheduler)
 
 
-def _incomplete_result(failure: str) -> dict[str, Any]:
+def _incomplete_result(
+    failure: str,
+    *,
+    domain: str = "runtime",
+    code: str = "STRICT_REPLAY_INCOMPLETE",
+) -> dict[str, Any]:
     return {
         "passed": False,
         "accepted": False,
         "replay_complete": False,
         "failures": [failure],
+        "failure_disposition": incomplete_result_disposition(
+            domain=domain,
+            code=code,
+        ),
     }
 
 
-def _verification_disposition(verification: dict[str, Any]) -> str:
+def _verification_disposition(
+    certificate: dict[str, Any],
+    verification: dict[str, Any],
+) -> str:
+    """Normalize replay failure semantics before the batch outcome is counted."""
+
     if verification.get("passed") is True:
         return "ACCEPTED"
     if verification.get("replay_complete") is not True:
+        try:
+            failure = validate_failure_disposition(
+                verification.get("failure_disposition"),
+            )
+        except ValueError:
+            failure = incomplete_result_disposition(
+                domain="solver",
+                code="STRICT_REPLAY_INCOMPLETE",
+            )
+        if failure["status"] != INCOMPLETE:
+            failure = incomplete_result_disposition(
+                domain="solver",
+                code="STRICT_REPLAY_INCOMPLETE",
+            )
+        verification["failure_disposition"] = failure
+        verification["replay_complete"] = False
         return "INCOMPLETE"
-    return "REJECTED"
+
+    # Standalone replay remains useful for exact negative certificates, but a
+    # certificate may not override a contradictory verifier result merely by
+    # self-reporting CANDIDATE_REJECTED. Every non-candidate binding/evidence
+    # check must independently pass, and the replayed final gate must reproduce
+    # the exact typed rejection.
+    checks = verification.get("checks")
+    failures = verification.get("failures")
+    replayed_gate = verification.get("final_gate")
+    candidate_only_failures = {"final_gate", "certificate_passed_flag"}
+    certificate_failure = certificate.get("failure_disposition")
+    replayed_failure = classify_build_failure(
+        exact=True,
+        passed=False,
+        final_gate=replayed_gate,
+    )
+    if (
+        terminal_candidate_rejection(certificate)
+        and isinstance(checks, Mapping)
+        and set(checks) >= TERMINAL_NEGATIVE_REPLAY_CHECKS
+        and {
+            name for name, passed in checks.items() if passed is not True
+        }
+        == candidate_only_failures
+        and isinstance(failures, list)
+        and len(failures) == len(candidate_only_failures)
+        and set(failures) == candidate_only_failures
+        and replayed_failure
+        == validate_failure_disposition(certificate_failure)
+    ):
+        verification["failure_disposition"] = replayed_failure
+        return "REJECTED"
+
+    # Stage 4 certificates already passed construction and an independent
+    # replay. Any complete Stage 5 mismatch is contradictory evidence, never a
+    # proof that no winner exists. The same rule protects malformed standalone
+    # negative artifacts.
+    verification["failure_disposition"] = contradiction_disposition(
+        (
+            "STRICT_REPLAY_CONTRADICTS_PASSED_CERTIFICATE"
+            if certificate.get("passed") is True
+            else "STRICT_REPLAY_CONTRADICTS_NEGATIVE_CERTIFICATE"
+        ),
+    )
+    return "INCOMPLETE"
 
 
 def _known_answer_outer_timeout(total_timeout_per_code: int) -> float:
@@ -367,7 +463,9 @@ def _verify_certificate_with_hard_wall(
         return {
             **_incomplete_result(
                 "strict certificate replay hard-wall setup failed: "
-                f"{type(exc).__name__}: {exc}"
+                f"{type(exc).__name__}: {exc}",
+                domain="runtime",
+                code="STRICT_REPLAY_HARD_WALL_SETUP_FAILED",
             ),
             "hard_wall": {"setup_failed": True},
         }
@@ -384,7 +482,15 @@ def _verify_certificate_with_hard_wall(
     if outcome.error:
         failure += f": {outcome.error}"
     return {
-        **_incomplete_result(failure),
+        **_incomplete_result(
+            failure,
+            domain="runtime",
+            code=(
+                "STRICT_REPLAY_HARD_WALL_TIMEOUT"
+                if outcome.status == "timeout"
+                else "STRICT_REPLAY_WORKER_FAILED"
+            ),
+        ),
         "hard_wall": dict(outcome.hard_wall or {}),
     }
 
@@ -504,11 +610,15 @@ def main() -> int:
             except Exception as exc:
                 verification = _incomplete_result(
                     "strict certificate replay failed: "
-                    f"{type(exc).__name__}: {exc}"
+                    f"{type(exc).__name__}: {exc}",
+                    domain="runtime",
+                    code="STRICT_REPLAY_RUNTIME_ERROR",
                 )
             if not isinstance(verification, dict):
                 verification = _incomplete_result(
-                    "strict certificate replay returned a non-object result"
+                    "strict certificate replay returned a non-object result",
+                    domain="schema",
+                    code="STRICT_REPLAY_RESULT_NOT_OBJECT",
                 )
             else:
                 verification = {
@@ -524,7 +634,10 @@ def main() -> int:
                 "claim": certificate.get("claim"),
                 "certificate_sha256": certificate.get("certificate_sha256"),
                 "certificate_payload_sha256": payload_sha256,
-                "disposition": _verification_disposition(verification),
+                "disposition": _verification_disposition(
+                    certificate,
+                    verification,
+                ),
                 "checkpoint_path": (
                     None if checkpoint is None else str(checkpoint)
                 ),
@@ -552,7 +665,9 @@ def main() -> int:
                     None if checkpoint is None else str(checkpoint)
                 ),
                 "result": _incomplete_result(
-                    "strict replay deferred by fair batch scheduler"
+                    "strict replay deferred by fair batch scheduler",
+                    domain="solver",
+                    code="STRICT_REPLAY_DEFERRED",
                 ),
             }
     else:
@@ -564,7 +679,9 @@ def main() -> int:
                 "certificate_payload_sha256": payloads[index],
                 "disposition": "INCOMPLETE",
                 "result": _incomplete_result(
-                    "strict known-answer integrity failed"
+                    "strict known-answer integrity failed",
+                    domain="known_answer",
+                    code="STRICT_KNOWN_ANSWER_INCOMPLETE",
                 ),
             }
     evaluations = [

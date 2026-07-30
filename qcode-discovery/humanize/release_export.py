@@ -27,6 +27,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from evaluation.failure_disposition import (
+    CERTIFICATE_CACHE_SCHEMA_VERSION,
+    EVIDENCE_CONTRADICTION,
+    INCOMPLETE as FAILURE_INCOMPLETE,
+    validate_failure_disposition,
+)
 from evaluation.final_gate import classify_win
 from evaluation.proof_runtime import (
     RuntimeProbeError,
@@ -1135,7 +1141,8 @@ def _validate_stage4(
         verification = envelope.get("verification")
         if (
             entry.get("verification_file_sha256") != _sha256_bytes(envelope_raw)
-            or envelope.get("schema_version") != 2
+            or envelope.get("schema_version")
+            != CERTIFICATE_CACHE_SCHEMA_VERSION
             or envelope.get("kind") != "qldpc-certificate-verification-cache"
             or envelope.get("canonical_digest") != canonical_digest
             or envelope.get("known_answer_sha256") != known_answer_sha256
@@ -1231,11 +1238,30 @@ def _validate_stage5(
         observed[str(disposition)] += 1
         failures = result.get("failures")
         if disposition == "INCOMPLETE":
+            try:
+                failure_disposition = validate_failure_disposition(
+                    result.get("failure_disposition"),
+                )
+            except ValueError:
+                _fail(
+                    "STAGE5_INVALID",
+                    f"Stage 5 evaluation[{index}] lacks a typed retry reason",
+                )
+            failure_status = failure_disposition["status"]
             if (
                 result.get("passed") is not False
-                or result.get("replay_complete") is not False
                 or not isinstance(failures, list)
                 or not failures
+                or failure_status
+                not in {FAILURE_INCOMPLETE, EVIDENCE_CONTRADICTION}
+                or (
+                    failure_status == FAILURE_INCOMPLETE
+                    and result.get("replay_complete") is not False
+                )
+                or (
+                    failure_status == EVIDENCE_CONTRADICTION
+                    and result.get("replay_complete") is not True
+                )
             ):
                 _fail(
                     "STAGE5_INVALID",
@@ -1243,17 +1269,11 @@ def _validate_stage5(
                 )
             continue
         if disposition == "REJECTED":
-            if (
-                result.get("passed") is not False
-                or result.get("replay_complete") is not True
-                or not isinstance(failures, list)
-                or not failures
-            ):
-                _fail(
-                    "STAGE5_INVALID",
-                    f"Stage 5 evaluation[{index}] rejection evidence is invalid",
-                )
-            continue
+            _fail(
+                "STAGE5_INVALID",
+                "Stage 5 cannot terminally reject a Stage 4 certificate "
+                f"that already passed build and independent replay: {index}",
+            )
         final_gate = result.get("final_gate")
         certificate_gate = certificate.get("final_gate")
         if (

@@ -106,10 +106,11 @@ EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
 
 
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 2
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 2
-WINNER_PREFLIGHT_CONTRACT_VERSION = 1
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 3
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 3
+WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
+CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
 WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC = (
     "winner_preflight_contract_version"
 )
@@ -256,8 +257,10 @@ def _evaluator_dependency_identities() -> dict[str, dict[str, Any]]:
 def _winner_preflight_contract_id(
     evaluator_path: str | Path,
     dependency_identities: dict[str, dict[str, Any]],
+    *,
+    candidate_log_path: str | Path,
 ) -> int:
-    """Bind checkpoint markers to the active evaluator and dependencies."""
+    """Bind checkpoint markers to code, lattices, and their durable run sink."""
 
     evaluator = _file_identity(
         evaluator_path, "winner preflight evaluator"
@@ -275,11 +278,23 @@ def _winner_preflight_contract_id(
                 f"winner preflight dependency identity is invalid: {name}"
             )
         dependency_hashes[name] = digest
+    candidate_log = Path(candidate_log_path).expanduser()
+    if not candidate_log.is_absolute():
+        raise RuntimeError(
+            "winner preflight candidate log path must be absolute"
+        )
+    candidate_log = candidate_log.resolve(strict=False)
+    output_dir = candidate_log.parent
     payload = {
         "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
         "evaluator_sha256": evaluator["sha256"],
         "dependency_sha256": dependency_hashes,
         "lattices": [list(lattice) for lattice in EVOLUTION_LATTICES],
+        "candidate_log_path": str(candidate_log),
+        "run_identity": {
+            "output_dir": str(output_dir),
+            "run_name": output_dir.name,
+        },
     }
     digest = hashlib.sha256(
         json.dumps(
@@ -1934,6 +1949,8 @@ def _write_slice_witness(
     backend_path: str | Path | None,
     codex_executable_identity: dict[str, Any] | None,
     invocation: dict[str, Any],
+    candidate_log_path: str | Path,
+    candidate_start_offset: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if not observer.accounting_complete:
         raise RuntimeError("OpenEvolve slice accounting did not complete")
@@ -1981,6 +1998,12 @@ def _write_slice_witness(
         backend_path,
         codex_executable_identity,
     )
+    from evolve.openevolve_evaluator import candidate_log_range_identity
+
+    candidate_source = candidate_log_range_identity(
+        Path(candidate_log_path).resolve(),
+        start_offset=candidate_start_offset,
+    )
     payload: dict[str, Any] = {
         "schema_version": EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
         "status": "completed",
@@ -2013,6 +2036,14 @@ def _write_slice_witness(
         "result_last_iteration": result_checkpoint["last_iteration"],
         "result_checkpoint_sha256": result_checkpoint["sha256"],
         "result_checkpoint_programs": result_checkpoint["programs"],
+        "candidate_log_path": candidate_source["path"],
+        "candidate_log_device": candidate_source["device"],
+        "candidate_log_inode": candidate_source["inode"],
+        "candidate_start_offset": candidate_source["start_offset"],
+        "candidate_end_offset": candidate_source["end_offset"],
+        "candidate_range_sha256": candidate_source["sha256"],
+        "candidate_range_bytes": candidate_source["bytes"],
+        "candidate_wal_clean": candidate_source["wal_clean"],
         "openevolve_version": SUPPORTED_OPENEVOLVE_VERSION,
         "completed_at": datetime.now().astimezone().isoformat(),
     }
@@ -2029,6 +2060,16 @@ def _write_slice_witness(
         raise RuntimeError(f"refusing to overwrite slice witness: {witness}")
     _atomic_write_json_artifact(witness, payload)
     witness_identity = _file_identity(witness, "OpenEvolve slice witness")
+    witness_identity.update({
+        "candidate_log_path": candidate_source["path"],
+        "candidate_log_device": candidate_source["device"],
+        "candidate_log_inode": candidate_source["inode"],
+        "candidate_start_offset": candidate_source["start_offset"],
+        "candidate_end_offset": candidate_source["end_offset"],
+        "candidate_range_sha256": candidate_source["sha256"],
+        "candidate_range_bytes": candidate_source["bytes"],
+        "candidate_wal_clean": candidate_source["wal_clean"],
+    })
     return result_checkpoint, witness_identity
 
 
@@ -2080,6 +2121,16 @@ def _write_completion_marker(
         "slice_witness_path": slice_witness["path"],
         "slice_witness_sha256": slice_witness["sha256"],
         "slice_witness_bytes": slice_witness["bytes"],
+        "candidate_log_path": slice_witness["candidate_log_path"],
+        "candidate_log_device": slice_witness["candidate_log_device"],
+        "candidate_log_inode": slice_witness["candidate_log_inode"],
+        "candidate_start_offset": slice_witness["candidate_start_offset"],
+        "candidate_end_offset": slice_witness["candidate_end_offset"],
+        "candidate_range_sha256": slice_witness[
+            "candidate_range_sha256"
+        ],
+        "candidate_range_bytes": slice_witness["candidate_range_bytes"],
+        "candidate_wal_clean": slice_witness["candidate_wal_clean"],
         "completed_at": datetime.now().astimezone().isoformat(),
     }
     payload.update(effective_invocation)
@@ -2436,6 +2487,10 @@ def main():
         help="Atomically write exact full-slice accounting before the success marker.",
     )
     parser.add_argument(
+        "--candidate-start-offset", type=int, default=None,
+        help="Durable candidate-log frontier frozen by the managed round.",
+    )
+    parser.add_argument(
         "--lifecycle-lease-fd", type=int, default=None,
         help="Inherited locked lifecycle lease descriptor for managed runs.",
     )
@@ -2500,14 +2555,16 @@ def main():
     managed_values = (
         args.completion_marker,
         args.slice_witness,
+        args.candidate_start_offset,
         args.lifecycle_lease_fd,
         args.lifecycle_lease_path,
     )
     managed_requested = any(value is not None for value in managed_values)
     if managed_requested and not all(value is not None for value in managed_values):
         parser.error(
-            "--completion-marker, --slice-witness, --lifecycle-lease-fd, and "
-            "--lifecycle-lease-path must be supplied together"
+            "--completion-marker, --slice-witness, --candidate-start-offset, "
+            "--lifecycle-lease-fd, and --lifecycle-lease-path must be "
+            "supplied together"
         )
     if managed_requested and args.humanize_context is None:
         parser.error("--humanize-context is required for managed evolution")
@@ -2531,12 +2588,33 @@ def main():
     api_base = _resolve_api_base(args)
     output_dir = _resolve_output_dir(args)
 
-    # Propagate run name to evaluator subprocesses via environment variable.
-    # OpenEvolve calls evaluate_stage2(program_path) with no way to pass
-    # extra args.  _log_code_jsonl reads QCODE_RUN_NAME to route JSONL
-    # to the correct run directory.
+    # OpenEvolve calls evaluators with no extra routing arguments. Bind the
+    # exact absolute candidate log before loading any evolved program. This is
+    # also required by --milp, whose patched evaluator copy lives inside the
+    # output directory and therefore cannot infer PROJECT_ROOT from __file__.
     run_name = Path(output_dir).name
     os.environ["QCODE_RUN_NAME"] = run_name
+    candidate_log_path = (
+        Path(output_dir).expanduser().resolve() / "all_codes.jsonl"
+    )
+    os.environ[CANDIDATE_LOG_PATH_ENV] = str(candidate_log_path)
+    if managed_requested:
+        if args.candidate_start_offset < 0:
+            parser.error("--candidate-start-offset must be non-negative")
+        from evolve.openevolve_evaluator import candidate_log_range_identity
+
+        initial_candidate_source = candidate_log_range_identity(
+            candidate_log_path,
+            start_offset=args.candidate_start_offset,
+        )
+        if (
+            initial_candidate_source["end_offset"]
+            != args.candidate_start_offset
+        ):
+            raise RuntimeError(
+                "managed candidate log contains an unbound tail before "
+                "evolution starts"
+            )
 
     # Resolve seed solution
     if args.seed:
@@ -2663,6 +2741,7 @@ def main():
             preflight_contract_id = _winner_preflight_contract_id(
                 EVALUATOR_ACTIVE,
                 dependency_identities,
+                candidate_log_path=candidate_log_path,
             )
             os.environ[WINNER_PREFLIGHT_CONTRACT_ID_ENV] = str(
                 preflight_contract_id
@@ -2819,6 +2898,8 @@ def main():
                 backend_path=backend_path,
                 codex_executable_identity=codex_executable_identity,
                 invocation=invocation_binding,
+                candidate_log_path=candidate_log_path,
+                candidate_start_offset=args.candidate_start_offset,
             )
             _write_completion_marker(
                 args.completion_marker,

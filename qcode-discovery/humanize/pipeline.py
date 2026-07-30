@@ -32,6 +32,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Protocol, Sequence
 
+from evaluation.failure_disposition import (
+    CERTIFICATE_CACHE_SCHEMA_VERSION,
+    EVIDENCE_CONTRADICTION,
+    INCOMPLETE as FAILURE_INCOMPLETE,
+    terminal_candidate_rejection,
+    validate_failure_disposition,
+)
 from evaluation.process_hard_wall import (
     linux_process_start_time,
     positive_wall_timeout,
@@ -79,6 +86,9 @@ PROOF_RETRY_CONTROLLER_GATE = "qldpc-proof-retry-controller"
 STAGE2_DEFERRED_PAGE_SCHEMA_VERSION = 1
 STAGE2_DEFERRED_PAGE_GATE = "qldpc-stage2-deferred-proof-page"
 STAGE2_DEFERRED_PAGE_CODE = "STAGE2_DEFERRED_PROOF_PAGE"
+STAGE2_STRUCTURAL_UNRESOLVED_CODE = (
+    "STAGE2_STRUCTURAL_UNRESOLVED_CANDIDATES"
+)
 STAGE2_LEDGER_GENERATION_GATE = "qldpc-stage2-ledger-generation"
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
 STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
@@ -1537,6 +1547,7 @@ class FiveStagePipeline:
                     for index, name in enumerate(STAGE_ORDER, start=1)
                 },
             }
+        previous_config = state.get("config")
         current_config = self.config.serializable()
         current_fingerprint = _canonical_sha256(current_config)
         old_fingerprint = state.get("config_fingerprint")
@@ -1551,7 +1562,7 @@ class FiveStagePipeline:
         state["config"] = current_config
         state["config_fingerprint"] = current_fingerprint
         self.state = state
-        self._enforce_stage1_identity()
+        self._enforce_stage1_identity(previous_config=previous_config)
         self._write_state()
         return state
 
@@ -1565,13 +1576,122 @@ class FiveStagePipeline:
         flow = self._flow_config()
         return {"mode": "humanize-flow", "flow_config": flow.serializable()}
 
-    def _enforce_stage1_identity(self) -> None:
-        current = _canonical_sha256(self._stage1_identity())
+    @staticmethod
+    def _serialized_stage1_identity(
+        pipeline_config: Any,
+    ) -> dict[str, Any] | None:
+        """Recover a persisted Humanize identity without trusting history.
+
+        Older pipeline states stored only the identity fingerprint.  Their
+        previous serialized PipelineConfig is therefore the only durable
+        source from which a max-round extension can be checked.  Candidate
+        input identities cannot be reconstructed this way because their
+        historical content hashes are intentionally absent from config.
+        """
+
+        if not isinstance(pipeline_config, Mapping):
+            return None
+        candidate_inputs = pipeline_config.get("candidate_inputs")
+        if not isinstance(candidate_inputs, list) or candidate_inputs:
+            return None
+        flow_config = pipeline_config.get("flow_config")
+        if isinstance(flow_config, Mapping):
+            return {
+                "mode": "humanize-flow",
+                "flow_config": dict(flow_config),
+            }
+        if flow_config is not None:
+            return None
+
+        # PipelineConfig with no explicit FlowConfig uses _flow_config().
+        # Rebuild that exact logical identity for legacy states.
+        repo_dir = pipeline_config.get("repo_dir")
+        run_id = pipeline_config.get("run_id")
+        review_model = pipeline_config.get("reviewer_model")
+        review_effort = pipeline_config.get("reviewer_effort")
+        max_total_workers = pipeline_config.get("max_total_workers")
+        if (
+            not isinstance(repo_dir, str)
+            or not isinstance(run_id, str)
+            or not isinstance(review_model, str)
+            or not isinstance(review_effort, str)
+            or isinstance(max_total_workers, bool)
+            or not isinstance(max_total_workers, int)
+        ):
+            return None
+        try:
+            flow = FlowConfig(
+                repo_dir=Path(repo_dir),
+                run_id=run_id,
+                review_model=review_model,
+                review_effort=review_effort,
+                max_total_workers=max_total_workers,
+            )
+        except (TypeError, ValueError):
+            return None
+        return {
+            "mode": "humanize-flow",
+            "flow_config": flow.serializable(),
+        }
+
+    @staticmethod
+    def _is_monotonic_round_extension(
+        previous: Mapping[str, Any],
+        current: Mapping[str, Any],
+    ) -> bool:
+        """Accept exactly one identity change: a strict max-round increase."""
+
+        if (
+            previous.get("mode") != "humanize-flow"
+            or current.get("mode") != "humanize-flow"
+        ):
+            return False
+        previous_flow = previous.get("flow_config")
+        current_flow = current.get("flow_config")
+        if not isinstance(previous_flow, Mapping) or not isinstance(
+            current_flow, Mapping
+        ):
+            return False
+        previous_context = dict(previous_flow)
+        current_context = dict(current_flow)
+        previous_max_rounds = previous_context.pop("max_rounds", None)
+        current_max_rounds = current_context.pop("max_rounds", None)
+        return bool(
+            isinstance(previous_max_rounds, int)
+            and not isinstance(previous_max_rounds, bool)
+            and isinstance(current_max_rounds, int)
+            and not isinstance(current_max_rounds, bool)
+            and current_max_rounds > previous_max_rounds
+            and current_context == previous_context
+        )
+
+    def _enforce_stage1_identity(self, *, previous_config: Any) -> None:
+        current_identity = self._stage1_identity()
+        current = _canonical_sha256(current_identity)
         recorded = self.state.get("stage1_identity_fingerprint")
         if recorded is not None and recorded != current:
-            raise ValueError(
-                "Stage 1 search identity or candidate input changed; use a new run_id"
-            )
+            previous_identity = self.state.get("stage1_identity")
+            if (
+                not isinstance(previous_identity, Mapping)
+                or _canonical_sha256(previous_identity) != recorded
+            ):
+                previous_identity = self._serialized_stage1_identity(
+                    previous_config
+                )
+            if (
+                not isinstance(previous_identity, Mapping)
+                or _canonical_sha256(previous_identity) != recorded
+                or not self._is_monotonic_round_extension(
+                    previous_identity,
+                    current_identity,
+                )
+            ):
+                raise ValueError(
+                    "Stage 1 search identity or candidate input changed; "
+                    "only a strict max_rounds increase is allowed for the "
+                    "same run_id"
+                )
+        self.state["stage1_identity"] = current_identity
         self.state["stage1_identity_fingerprint"] = current
 
     def _flow_config(self) -> FlowConfig:
@@ -2266,8 +2386,11 @@ class FiveStagePipeline:
         record["review_path"] = str(review_dir / "review.json")
         record["review_fingerprint"] = review_fingerprint
         self._write_state()
+        fail_closed_search_review = (
+            stage == "stage1_search" and not self.config.candidate_inputs
+        )
         try:
-            if stage != "stage1_search":
+            if not fail_closed_search_review:
                 # A refreshed advisory review must not leave an older successful
                 # artifact looking current when the new attempt later fails.
                 for name in ("review.json", "bitlesson-suggestions.json"):
@@ -2306,9 +2429,10 @@ class FiveStagePipeline:
             error = f"{type(exc).__name__}: {exc}"
             record["review_finished_at"] = finished_at
             record["review_error"] = error
-            if stage == "stage1_search":
-                # Stage 1's reviewer participates in the search loop and keeps
-                # its existing fail-closed semantics.
+            if fail_closed_search_review:
+                # Only Humanize search owns a reviewer-controlled search loop.
+                # The existing-input Stage 1 handoff is deterministic machine
+                # evidence, so its review is advisory like every proof stage.
                 record["review_status"] = "FAILED"
                 record["status"] = "REVIEW_FAILED"
                 self._write_state()
@@ -2767,6 +2891,13 @@ class FiveStagePipeline:
             str(self.config.certificate_solver_workers),
             "--max-total-workers",
             str(self.config.max_total_workers),
+            "--structural-cache-dir",
+            str(
+                self.paths.solver_state
+                / "stage2-structural-screen-cache-v1"
+            ),
+            "--structural-hard-timeout",
+            str(self._scaled_proof_timeout(self.config.stage2_timeout)),
             "--certify",
             "--known-answer-artifact",
             str(self.config.known_answer_artifact),
@@ -3226,7 +3357,7 @@ class FiveStagePipeline:
                 and selection_exhausted
             )
             if not page_digests and not (
-                (next_index > start_index and selection_exhausted)
+                next_index > start_index
                 or zero_pool_root
             ):
                 raise PipelineError(
@@ -3380,8 +3511,7 @@ class FiveStagePipeline:
             )
         return rows
 
-    @staticmethod
-    def _certificate_requires_retry(result: Mapping[str, Any]) -> bool:
+    def _certificate_requires_retry(self, result: Mapping[str, Any]) -> bool:
         """Return true when a threshold proof still lacks a terminal certificate."""
 
         if result.get("status") not in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}:
@@ -3394,17 +3524,73 @@ class FiveStagePipeline:
         ):
             return True
         if certificate.get("certificate_passed") is False:
-            # Exact construction can conclusively show that the candidate does
-            # not pass the challenge gate; independent replay is then skipped.
-            return False
+            # A summary-side disposition is not proof. Resolve the fixed
+            # per-digest certificate and cache metadata, then replay its typed
+            # final-gate classification before permitting a terminal rejection.
+            digest = result.get("canonical_digest")
+            path_value = certificate.get("certificate_path")
+            if (
+                not isinstance(digest, str)
+                or not digest
+                or not isinstance(path_value, str)
+                or not path_value
+            ):
+                return True
+            token = hashlib.sha256(digest.encode()).hexdigest()
+            expected_path = (
+                self.paths.solver_state
+                / "certificates"
+                / f"{token}.json"
+            ).resolve()
+            expected_metadata = expected_path.with_name(
+                f"{token}.cache.json",
+            )
+            try:
+                path = _resolve_path(path_value, self.config.repo_dir).resolve()
+                path.relative_to(self.paths.solver_state.resolve())
+                if path != expected_path:
+                    return True
+                artifact = _read_json_object(path)
+                metadata = _read_json_object(expected_metadata)
+                artifact_sha256 = artifact.get("certificate_sha256")
+                known_answer_sha256 = _file_sha256(
+                    self.config.known_answer_artifact,
+                )
+                artifact_known_answer = artifact.get("known_answer")
+                if (
+                    not isinstance(artifact_sha256, str)
+                    or artifact_sha256 != _certificate_sha256(artifact)
+                    or certificate.get("certificate_sha256")
+                    != artifact_sha256
+                    or certificate.get("failure_disposition")
+                    != artifact.get("failure_disposition")
+                    or not isinstance(artifact_known_answer, Mapping)
+                    or artifact_known_answer.get("artifact_sha256")
+                    != known_answer_sha256
+                    or metadata.get("schema_version")
+                    != CERTIFICATE_CACHE_SCHEMA_VERSION
+                    or metadata.get("kind") != "qldpc-certificate-cache"
+                    or metadata.get("canonical_digest") != digest
+                    or metadata.get("known_answer_sha256")
+                    != known_answer_sha256
+                    or metadata.get("certificate_sha256")
+                    != artifact_sha256
+                    or metadata.get("certificate_payload_sha256")
+                    != _audit_json_sha256(artifact)
+                    or metadata.get("exact") is not True
+                    or metadata.get("passed") is not False
+                ):
+                    return True
+            except (OSError, TypeError, ValueError, PipelineError):
+                return True
+            return not terminal_candidate_rejection(artifact)
         return not (
             certificate.get("certificate_passed") is True
             and certificate.get("verification_passed") is True
         )
 
-    @classmethod
     def _proof_incompleteness(
-        cls,
+        self,
         stage2: Mapping[str, Any],
         stage3: Mapping[str, Any],
     ) -> dict[str, Any]:
@@ -3460,6 +3646,10 @@ class FiveStagePipeline:
             (
                 "unsupported_candidates_skipped",
                 "Stage 2 skipped unsupported candidates",
+            ),
+            (
+                "structural_unresolved_candidates",
+                "Stage 2 structural reconstruction remains retryable",
             ),
             ("malformed_records", "Stage 2 skipped malformed candidate records"),
         ):
@@ -3518,7 +3708,7 @@ class FiveStagePipeline:
             if status in {
                 "THRESHOLD_PROVEN",
                 "EXACT_PROVEN",
-            } and cls._certificate_requires_retry(result):
+            } and self._certificate_requires_retry(result):
                 add(
                     "stage2_sector_audit",
                     "Stage 2 threshold proof has incomplete or unverified certificate",
@@ -3587,7 +3777,7 @@ class FiveStagePipeline:
                 )
             elif (
                 result.get("status") in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}
-                and cls._certificate_requires_retry(result)
+                and self._certificate_requires_retry(result)
             ):
                 add(
                     "stage3_direction_audit",
@@ -4437,6 +4627,7 @@ class FiveStagePipeline:
         carry_codes = {
             *STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES,
             STAGE2_DEFERRED_PAGE_CODE,
+            STAGE2_STRUCTURAL_UNRESOLVED_CODE,
         }
         if len(codes) != len(reasons):
             return False
@@ -4523,9 +4714,7 @@ class FiveStagePipeline:
             and selected_digests == []
             and selection_exhausted
         )
-        if (next_index <= start_index and not terminal_root) or (
-            not selected_digests and not selection_exhausted
-        ):
+        if next_index <= start_index and not terminal_root:
             self.state.setdefault("stage2_pagination", {}).update({
                 "no_progress": True,
                 "cursor": start_index,
@@ -4727,7 +4916,8 @@ class FiveStagePipeline:
             payload_sha = _audit_json_sha256(certificate)
             known_answer_sha = _file_sha256(self.config.known_answer_artifact)
             if not (
-                verification_envelope.get("schema_version") == 2
+                verification_envelope.get("schema_version")
+                == CERTIFICATE_CACHE_SCHEMA_VERSION
                 and verification_envelope.get("kind")
                 == "qldpc-certificate-verification-cache"
                 and verification_envelope.get("canonical_digest")
@@ -4924,12 +5114,11 @@ class FiveStagePipeline:
             "WIN"
             if accepted > 0 and integrity_passed
             else "INCOMPLETE"
-            if incomplete > 0 or not integrity_passed
-            else "NO_WIN"
         )
         if (
             outcome != expected_outcome
             or value.get("passed") is not (expected_outcome == "WIN")
+            or rejected != 0
             or (not integrity_passed and (accepted != 0 or incomplete != total))
         ):
             raise PipelineError(
@@ -5022,11 +5211,31 @@ class FiveStagePipeline:
             observed[str(disposition)] += 1
             failures = result.get("failures")
             if disposition == "INCOMPLETE":
+                try:
+                    failure_disposition = validate_failure_disposition(
+                        result.get("failure_disposition"),
+                    )
+                except ValueError as exc:
+                    raise PipelineError(
+                        "STRICT_GATE_REJECTED",
+                        f"Stage 5 evaluation[{index}] lacks a typed retry reason",
+                        stage="stage5_strict_gate",
+                    ) from exc
+                failure_status = failure_disposition["status"]
                 if (
                     result.get("passed") is not False
-                    or result.get("replay_complete") is not False
                     or not isinstance(failures, list)
                     or not failures
+                    or failure_status
+                    not in {FAILURE_INCOMPLETE, EVIDENCE_CONTRADICTION}
+                    or (
+                        failure_status == FAILURE_INCOMPLETE
+                        and result.get("replay_complete") is not False
+                    )
+                    or (
+                        failure_status == EVIDENCE_CONTRADICTION
+                        and result.get("replay_complete") is not True
+                    )
                 ):
                     raise PipelineError(
                         "STRICT_GATE_REJECTED",
@@ -5034,17 +5243,12 @@ class FiveStagePipeline:
                         stage="stage5_strict_gate",
                     )
             elif disposition == "REJECTED":
-                if (
-                    result.get("passed") is not False
-                    or result.get("replay_complete") is not True
-                    or not isinstance(failures, list)
-                    or not failures
-                ):
-                    raise PipelineError(
-                        "STRICT_GATE_REJECTED",
-                        f"Stage 5 evaluation[{index}] rejection evidence is invalid",
-                        stage="stage5_strict_gate",
-                    )
+                raise PipelineError(
+                    "STRICT_GATE_REJECTED",
+                    "Stage 5 cannot terminally reject a Stage 4 certificate "
+                    f"that already passed build and independent replay: {index}",
+                    stage="stage5_strict_gate",
+                )
             elif (
                 result.get("passed") is not True
                 or result.get("replay_complete") is not True
@@ -5092,6 +5296,64 @@ class FiveStagePipeline:
             )
         return value
 
+    def _stage1_live_outputs_sha256(self) -> str:
+        """Hash the current Stage 1 outputs, not merely their stored claims."""
+
+        record = self.state.get("stages", {}).get("stage1_search", {})
+        recorded = record.get("output_hashes")
+        if not isinstance(recorded, Mapping):
+            return _canonical_sha256({})
+        observed: dict[str, str | None] = {}
+        for path_text in recorded:
+            if not isinstance(path_text, str):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 1 output-hash key is not a path",
+                    stage="stage1_search",
+                )
+            current = _hash_paths(
+                [Path(path_text)],
+                require=False,
+                classification="UNSAFE_OUTPUT_PATH",
+                label="Stage 1 live output",
+            )
+            observed[path_text] = current[str(_lexical_absolute(path_text))]
+        return _canonical_sha256(observed)
+
+    def _proof_retry_environment_binding(self) -> dict[str, Any]:
+        """Bind a deferred generation to every live dependency it can skip."""
+
+        source = self._audit_source_provenance()
+        strict_source = self._strict_source_provenance()
+        strict_inputs = _hash_paths(
+            [
+                self.paths.stage4_certificates,
+                self.config.known_answer_artifact,
+                self.config.known_answer_trust,
+            ],
+            require=False,
+        )
+        return {
+            "source_fingerprint": source["source_fingerprint"],
+            "controller_source_sha256": source["controller_source_sha256"],
+            "known_code_registry_sha256": source[
+                "known_code_registry_sha256"
+            ],
+            "strict_source_fingerprint": strict_source["source_fingerprint"],
+            "strict_runner_sha256": strict_source["strict_runner_sha256"],
+            "proof_runtime": source["proof_runtime"],
+            "proof_interpreter": source["proof_interpreter"],
+            "strict_inputs": strict_inputs,
+            "proof_config_sha256": _canonical_sha256(
+                self._proof_retry_base_config()
+            ),
+            "stage1_identity_sha256": _canonical_sha256(
+                self._stage1_identity()
+            ),
+            "stage1_outputs_sha256": self._stage1_live_outputs_sha256(),
+            "pipeline_resume": self.config.resume,
+        }
+
     def _proof_retry_base_config(self) -> dict[str, Any]:
         """Return the immutable retry binding; workers are never multiplied."""
 
@@ -5136,6 +5398,7 @@ class FiveStagePipeline:
         """Retry only solver/certificate liveness failures, not bad inputs."""
 
         retryable_codes = {
+            STAGE2_STRUCTURAL_UNRESOLVED_CODE,
             "STAGE2_CERTIFICATE_INCOMPLETE",
             "STAGE2_OPERATIONAL_ERROR",
             "STAGE2_OPERATIONAL_ERRORS",
@@ -5231,38 +5494,12 @@ class FiveStagePipeline:
                 "Stage 2 retry page repeats a canonical digest",
                 stage="stage2_sector_audit",
             )
-        source = self._audit_source_provenance()
-        strict_source = self._strict_source_provenance()
-        base_config = self._proof_retry_base_config()
-        strict_inputs = _hash_paths(
-            [
-                self.paths.stage4_certificates,
-                self.config.known_answer_artifact,
-                self.config.known_answer_trust,
-            ],
-            require=False,
-        )
         binding = {
             "page_sha256": page_sha256,
             "selection_binding_sha256": selection_binding,
             "selected_digests": selected_digests,
             "candidate_digests_sha256": _canonical_sha256(selected_digests),
-            "source_fingerprint": source["source_fingerprint"],
-            "controller_source_sha256": source["controller_source_sha256"],
-            "known_code_registry_sha256": source[
-                "known_code_registry_sha256"
-            ],
-            "strict_source_fingerprint": strict_source["source_fingerprint"],
-            "strict_runner_sha256": strict_source["strict_runner_sha256"],
-            "proof_runtime": source["proof_runtime"],
-            "proof_interpreter": source["proof_interpreter"],
-            "strict_inputs": strict_inputs,
-            "proof_config_sha256": _canonical_sha256(base_config),
-            "stage1_outputs_sha256": _canonical_sha256(
-                self.state.get("stages", {})
-                .get("stage1_search", {})
-                .get("output_hashes", {})
-            ),
+            **self._proof_retry_environment_binding(),
         }
         return {
             **binding,
@@ -5523,18 +5760,13 @@ class FiveStagePipeline:
         attempts = active.get("attempts", [])
         if not isinstance(attempts, list) or not attempts:
             return 1.0, None
-        if len(attempts) >= self.config.proof_retry_max_attempts:
-            return None, "MAX_ATTEMPTS_REACHED"
-        elapsed = active.get("elapsed_seconds", 0)
-        if (
-            not isinstance(elapsed, (int, float))
-            or isinstance(elapsed, bool)
-            or elapsed >= self.config.proof_retry_campaign_total_timeout
-        ):
-            return None, "CAMPAIGN_TOTAL_TIMEOUT_REACHED"
         latest = attempts[-1]
         if not isinstance(latest, Mapping):
             return None, "INVALID_ATTEMPT_HISTORY"
+        # PREPARE is the durable scheduling transaction.  Once an attempt is
+        # persisted, a crash before execution must replay that exact budget;
+        # neither the completed-attempt cap nor elapsed time may silently
+        # cancel and defer it.
         if latest.get("status") == "PREPARED":
             multiplier = latest.get("multiplier")
             if isinstance(multiplier, (int, float)) and not isinstance(
@@ -5544,9 +5776,21 @@ class FiveStagePipeline:
             ):
                 return float(multiplier), None
             return None, "INVALID_PREPARED_BUDGET"
+        elapsed = active.get("elapsed_seconds", 0)
+        if (
+            not isinstance(elapsed, (int, float))
+            or isinstance(elapsed, bool)
+            or elapsed >= self.config.proof_retry_campaign_total_timeout
+        ):
+            return None, "CAMPAIGN_TOTAL_TIMEOUT_REACHED"
         multiplier = float(latest.get("multiplier", 1))
+        # A monotone, checkpoint-verified gain renews the attempt lease at the
+        # same budget.  This remains bounded by the campaign wall above; the
+        # count cap is reserved for completed attempts that made no progress.
         if latest.get("made_progress") is True:
             return multiplier, None
+        if len(attempts) >= self.config.proof_retry_max_attempts:
+            return None, "MAX_ATTEMPTS_REACHED"
         maximum = float(self.config.proof_retry_max_multiplier)
         if multiplier >= maximum:
             return None, "NO_PROGRESS_AT_MAX_MULTIPLIER"
@@ -5764,10 +6008,13 @@ class FiveStagePipeline:
         )
 
     def _rotate_deferred_generation_for_budget_change(self) -> bool:
-        """Start a fresh finite scan when the base proof budget changes.
+        """Start a fresh finite scan when any deferred dependency changes.
 
         Automatic retry multipliers never alter ``_proof_retry_base_config``;
-        only an explicit campaign configuration change can rotate a ledger.
+        an explicit budget change does.  Search identity/output, proof and
+        strict sources, registry, runtime, or trusted inputs changing must
+        rotate too: otherwise the terminal-restore shortcut could return an
+        old INCOMPLETE result before normal stage-cache invalidation runs.
         The old ledger is archived before the one atomic live-ledger replace.
         """
 
@@ -5787,7 +6034,10 @@ class FiveStagePipeline:
         if not deferred_pages:
             return False
 
+        current_environment = self._proof_retry_environment_binding()
+        current_environment_sha256 = _canonical_sha256(current_environment)
         deferred_proof_configs: set[str] = set()
+        deferred_environments: set[str] = set()
         for entry in deferred_pages:
             manifest_path = (
                 self.paths.solver_state / str(entry["manifest_path"])
@@ -5811,6 +6061,22 @@ class FiveStagePipeline:
                     stage="stage2_sector_audit",
                 )
             deferred_proof_configs.add(proof_config_sha256)
+            # Page-local fields intentionally differ.  Compare the complete
+            # dependency subset required to justify skipping all live stages.
+            # A legacy binding that lacks a newly required field maps it to
+            # None and therefore rotates fail-closed.
+            deferred_environments.add(
+                _canonical_sha256(
+                    {
+                        field: (
+                            binding.get(field)
+                            if isinstance(binding, Mapping)
+                            else None
+                        )
+                        for field in current_environment
+                    }
+                )
+            )
         if len(deferred_proof_configs) != 1:
             raise PipelineError(
                 "OUTPUT_INVALID",
@@ -5823,7 +6089,14 @@ class FiveStagePipeline:
         current_proof_config_sha256 = _canonical_sha256(
             self._proof_retry_base_config()
         )
-        if previous_proof_config_sha256 == current_proof_config_sha256:
+        proof_config_changed = (
+            previous_proof_config_sha256
+            != current_proof_config_sha256
+        )
+        environment_changed = deferred_environments != {
+            current_environment_sha256
+        }
+        if not proof_config_changed and not environment_changed:
             return False
 
         generation = ledger.get("generation", 0)
@@ -5887,6 +6160,20 @@ class FiveStagePipeline:
             "generation": generation,
             "binding_sha256": ledger.get("binding_sha256"),
             "proof_config_sha256": previous_proof_config_sha256,
+            "environment_binding_sha256": sorted(
+                deferred_environments
+            ),
+            "replacement_environment_binding_sha256": (
+                current_environment_sha256
+            ),
+            "rotation_reasons": [
+                reason
+                for reason, changed in (
+                    ("PROOF_CONFIG_CHANGED", proof_config_changed),
+                    ("DEPENDENCY_BINDING_CHANGED", environment_changed),
+                )
+                if changed
+            ],
             "ledger_path": archive_relative.as_posix(),
             "ledger_sha256": old_ledger_sha256,
             "deferred_pages": len(deferred_pages),
@@ -5927,6 +6214,12 @@ class FiveStagePipeline:
                 "proof_config_sha256": current_proof_config_sha256,
                 "previous_proof_config_sha256": (
                     previous_proof_config_sha256
+                ),
+                "environment_binding_sha256": (
+                    current_environment_sha256
+                ),
+                "previous_environment_binding_sha256": sorted(
+                    deferred_environments
                 ),
                 "generation_rotated_at": utc_now(),
                 "generation_archive": archive_relative.as_posix(),
@@ -6067,6 +6360,10 @@ class FiveStagePipeline:
                 "proof_budget_multiplier": self._proof_budget_multiplier,
                 "candidate_workers": self.config.stage2_candidate_workers,
                 "solver_workers": self.config.stage2_solver_workers,
+                "structural_workers": self.config.max_total_workers,
+                "structural_hard_timeout": self._scaled_proof_timeout(
+                    self.config.stage2_timeout
+                ),
                 "certificate_workers": self.config.certificate_workers,
                 "certificate_solver_workers": (
                     self.config.certificate_solver_workers
@@ -6244,7 +6541,9 @@ class FiveStagePipeline:
                 stage_config={
                     "controller_source_sha256": controller_source_sha256,
                     "require_build_and_independent_verification": True,
-                    "verification_sidecar_schema": 2,
+                    "verification_sidecar_schema": (
+                        CERTIFICATE_CACHE_SCHEMA_VERSION
+                    ),
                     "proof_completion_policy": 1,
                 },
                 inputs=[

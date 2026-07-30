@@ -42,6 +42,53 @@ def test_parent_and_child_share_managed_evaluator_dependency_contract():
     )
 
 
+def test_preflight_contract_is_stable_per_run_and_rotates_with_sink_or_source(
+    tmp_path,
+):
+    dependencies = launcher._evaluator_dependency_identities()
+    run_a_log = (tmp_path / "run-a" / "all_codes.jsonl").resolve()
+    run_b_log = (tmp_path / "run-b" / "all_codes.jsonl").resolve()
+
+    run_a_first = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        dependencies,
+        candidate_log_path=run_a_log,
+    )
+    run_a_second = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        dependencies,
+        candidate_log_path=run_a_log,
+    )
+    run_b = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        dependencies,
+        candidate_log_path=run_b_log,
+    )
+    upgraded_evaluator = tmp_path / "upgraded-evaluator.py"
+    upgraded_evaluator.write_bytes(
+        Path(launcher.EVALUATOR).read_bytes()
+        + b"\n# simulated evaluator source upgrade\n"
+    )
+    upgraded = launcher._winner_preflight_contract_id(
+        upgraded_evaluator,
+        dependencies,
+        candidate_log_path=run_a_log,
+    )
+
+    assert run_a_first == run_a_second
+    assert run_a_first != run_b
+    assert run_a_first != upgraded
+
+
+def test_preflight_contract_rejects_relative_candidate_log_path():
+    with pytest.raises(RuntimeError, match="must be absolute"):
+        launcher._winner_preflight_contract_id(
+            launcher.EVALUATOR,
+            launcher._evaluator_dependency_identities(),
+            candidate_log_path="relative/all_codes.jsonl",
+        )
+
+
 class FakeFuture:
     def __init__(self, value: Any):
         self.value = value
@@ -82,7 +129,9 @@ def _preflight_markers(
     eligible: int = 2,
 ) -> dict[str, float]:
     return {
-        launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+        launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+            launcher.WINNER_PREFLIGHT_CONTRACT_VERSION
+        ),
         launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(contract_id),
         launcher.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
         launcher.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 0.0,
@@ -111,7 +160,9 @@ def _incomplete_preflight_metrics(
         "term_count": 0.0,
         "pattern_type": 0.0,
         **{
-            launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: 1.0,
+            launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+                launcher.WINNER_PREFLIGHT_CONTRACT_VERSION
+            ),
             launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC:
                 float(contract_id),
             launcher.WINNER_PREFLIGHT_COMPLETE_METRIC: 0.0,
@@ -947,6 +998,86 @@ def test_backfill_updates_every_same_code_program_without_touching_base(
     assert tree_identity() == before
 
 
+def test_cross_output_checkpoint_marker_is_recomputed_and_rebound(
+    tmp_path, monkeypatch
+):
+    dependencies = launcher._evaluator_dependency_identities()
+    old_contract_id = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        dependencies,
+        candidate_log_path=(
+            tmp_path / "old-output" / "all_codes.jsonl"
+        ).resolve(),
+    )
+    new_contract_id = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        dependencies,
+        candidate_log_path=(
+            tmp_path / "new-output" / "all_codes.jsonl"
+        ).resolve(),
+    )
+    program = SimpleNamespace(
+        id="old-program",
+        code="def generate_candidates(ell, m): return []\n",
+        metrics=_preflight_markers(old_contract_id),
+    )
+    calls = []
+
+    def fake_execute(_evaluator, code, **kwargs):
+        calls.append((code, kwargs["expected_contract_id"]))
+        return _preflight_markers(new_contract_id)
+
+    monkeypatch.setattr(
+        launcher, "_execute_winner_preflight", fake_execute
+    )
+    report = launcher._backfill_checkpoint_programs(
+        SimpleNamespace(programs={program.id: program}),
+        evaluator_path=launcher.EVALUATOR,
+        expected_contract_id=new_contract_id,
+        max_workers=1,
+        wall_timeout=30,
+    )
+
+    assert old_contract_id != new_contract_id
+    assert calls == [(program.code, new_contract_id)]
+    assert report["unique_program_codes_evaluated"] == 1
+    assert report["programs_updated"] == 1
+    launcher._validated_winner_preflight_markers(
+        program.metrics,
+        expected_contract_id=new_contract_id,
+    )
+
+
+def test_same_run_checkpoint_marker_is_reused_without_recompute(
+    monkeypatch,
+):
+    contract_id = 770077
+    program = SimpleNamespace(
+        id="current-program",
+        code="def generate_candidates(ell, m): return []\n",
+        metrics=_preflight_markers(contract_id),
+    )
+    monkeypatch.setattr(
+        launcher,
+        "_execute_winner_preflight",
+        lambda *_args, **_kwargs: pytest.fail(
+            "same-run marker must be reused"
+        ),
+    )
+
+    report = launcher._backfill_checkpoint_programs(
+        SimpleNamespace(programs={program.id: program}),
+        evaluator_path=launcher.EVALUATOR,
+        expected_contract_id=contract_id,
+        max_workers=1,
+        wall_timeout=30,
+    )
+
+    assert report["programs_already_complete"] == 1
+    assert report["unique_program_codes_evaluated"] == 0
+    assert report["programs_updated"] == 0
+
+
 def test_checkpoint_backfill_respects_unified_worker_cap(monkeypatch):
     contract_id = 333444
     programs = {
@@ -1203,6 +1334,8 @@ def _managed_argv(tmp_path: Path, lease_fd: int, lease_path: Path) -> list[str]:
         str(tmp_path / "completed.json"),
         "--slice-witness",
         str(tmp_path / "witness.json"),
+        "--candidate-start-offset",
+        "0",
         "--humanize-context",
         str(context_path),
         "--lifecycle-lease-fd",
@@ -1215,6 +1348,7 @@ def _managed_argv(tmp_path: Path, lease_fd: int, lease_path: Path) -> list[str]:
 def test_managed_build_config_system_exit_does_not_reference_unbound_observer(
     tmp_path, monkeypatch
 ):
+    monkeypatch.delenv(launcher.CANDIDATE_LOG_PATH_ENV, raising=False)
     lease_path = (tmp_path / "lease.lock").resolve()
     lease_fd = os.open(lease_path, os.O_RDWR | os.O_CREAT, 0o600)
     fcntl.flock(lease_fd, fcntl.LOCK_EX)
@@ -1232,6 +1366,9 @@ def test_managed_build_config_system_exit_does_not_reference_unbound_observer(
     finally:
         os.close(lease_fd)
     assert raised.value.code == 1
+    assert os.environ[launcher.CANDIDATE_LOG_PATH_ENV] == str(
+        (tmp_path / "output" / "all_codes.jsonl").resolve()
+    )
 
 
 def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
@@ -1341,6 +1478,7 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
     dependency_identities = launcher._evaluator_dependency_identities()
     witness_path = tmp_path / "slice-witness.json"
     marker_path = tmp_path / "completed.json"
+    candidate_log = (tmp_path / "output" / "all_codes.jsonl").resolve()
 
     result, witness = launcher._write_slice_witness(
         witness_path,
@@ -1358,6 +1496,8 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
         backend_path=None,
         codex_executable_identity=None,
         invocation=invocation,
+        candidate_log_path=candidate_log,
+        candidate_start_offset=0,
     )
     launcher._write_completion_marker(
         marker_path,
@@ -1379,12 +1519,30 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
 
     witness_payload = json.loads(witness_path.read_text())
     marker_payload = json.loads(marker_path.read_text())
-    assert witness_payload["schema_version"] == 2
-    assert marker_payload["schema_version"] == 2
+    assert witness_payload["schema_version"] == 3
+    assert marker_payload["schema_version"] == 3
     assert marker_payload["slice_witness_sha256"] == witness["sha256"]
     assert marker_payload["result_checkpoint_sha256"] == "b" * 64
     assert marker_payload["context_sha256"] == witness_payload["context_sha256"]
     assert marker_payload["model_names"] == ["fake-model"]
+    assert witness_payload["candidate_log_path"] == str(candidate_log)
+    assert witness_payload["candidate_start_offset"] == 0
+    assert witness_payload["candidate_end_offset"] == 0
+    assert witness_payload["candidate_range_sha256"] == hashlib.sha256(
+        b""
+    ).hexdigest()
+    assert witness_payload["candidate_wal_clean"] is True
+    for field in (
+        "candidate_log_path",
+        "candidate_log_device",
+        "candidate_log_inode",
+        "candidate_start_offset",
+        "candidate_end_offset",
+        "candidate_range_sha256",
+        "candidate_range_bytes",
+        "candidate_wal_clean",
+    ):
+        assert marker_payload[field] == witness_payload[field]
     for name, identity in dependency_identities.items():
         for field in ("path", "sha256", "bytes"):
             key = f"{name}_{field}"
