@@ -18,6 +18,8 @@ import sys
 import tempfile
 import threading
 import time
+
+import yaml
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
@@ -63,9 +65,50 @@ EvolutionRunner = Callable[["FlowConfig", dict[str, Any], Path], Path | None]
 ROUND_TRANSACTION_PROTOCOL_VERSION = 2
 ROUND_TRANSACTION_SCHEMA_VERSION = 2
 ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION = 1
+FAILURE_DIRECTION_FEEDBACK_SCHEMA_VERSION = 1
+FAILURE_DIRECTION_FEEDBACK_KIND = (
+    "qcode-humanize-failure-direction-feedback"
+)
+ADAPTIVE_MUTATION_POLICY_SCHEMA_VERSION = 1
+ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
+ADAPTIVE_MUTATION_EXPLORATION_FLOOR = 250
+ADAPTIVE_MUTATION_TACTICS = (
+    "novel_structure_exploration",
+    "repair_x_low_weight",
+    "repair_z_low_weight",
+    "repair_dual_balance",
+)
+ADAPTIVE_MUTATION_POLICY_PREFIX = "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
+DEFAULT_ADAPTIVE_MUTATION_POLICY = {
+    "novel_structure_exploration": 1000,
+    "repair_x_low_weight": 0,
+    "repair_z_low_weight": 0,
+    "repair_dual_balance": 0,
+}
 LEGACY_BATCH_SCHEMA_VERSION = 1
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 3
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 3
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 4
+EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION = 3
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 4
+SEARCH_PORTFOLIO_SCHEMA_VERSION = 1
+SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
+SEARCH_PORTFOLIO_ISLAND_COUNT = 5
+SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
+    "pattern_type",
+    "support_split_type",
+    "search_structural_entropy",
+)
+SEARCH_PORTFOLIO_FEATURE_BINS = {
+    "pattern_type": 6,
+    "support_split_type": 6,
+    "search_structural_entropy": 5,
+}
+SEARCH_PORTFOLIO_ROLES = (
+    "compact_mixed_2_2",
+    "hybrid_2_3_3_2",
+    "balanced_3_3",
+    "asymmetric_2_4_4_2",
+    "failure_repair_novelty",
+)
 CANDIDATE_WITNESS_FIELDS = (
     "candidate_log_path",
     "candidate_log_device",
@@ -229,6 +272,90 @@ def _file_sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _canonical_compact_json(value: Any) -> str:
+    try:
+        return json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise RoundTransactionError(
+            "adaptive mutation feedback must be strict JSON data"
+        ) from exc
+
+
+def _canonical_payload_sha256(value: Any) -> str:
+    return hashlib.sha256(
+        _canonical_compact_json(value).encode("utf-8")
+    ).hexdigest()
+
+
+def _strict_json_object_bytes(payload: bytes, label: str) -> dict[str, Any]:
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON number: {value}")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        value: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError(f"duplicate JSON key: {key}")
+            value[key] = item
+        return value
+
+    try:
+        parsed = json.loads(
+            payload.decode("utf-8"),
+            parse_constant=reject_constant,
+            object_pairs_hook=reject_duplicates,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise RoundTransactionError(f"{label} is not strict JSON: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise RoundTransactionError(f"{label} must contain a JSON object")
+    expected = (_canonical_compact_json(parsed) + "\n").encode("utf-8")
+    if payload != expected:
+        raise RoundTransactionError(f"{label} is not canonical compact JSON")
+    return parsed
+
+
+def _strict_jsonl_objects(payload: bytes, label: str) -> list[dict[str, Any]]:
+    if payload and not payload.endswith(b"\n"):
+        raise RoundTransactionError(f"{label} ends in a partial JSONL row")
+
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON number: {value}")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        value: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError(f"duplicate JSON key: {key}")
+            value[key] = item
+        return value
+
+    rows: list[dict[str, Any]] = []
+    for line_number, raw in enumerate(payload.splitlines(), 1):
+        try:
+            row = json.loads(
+                raw.decode("utf-8"),
+                parse_constant=reject_constant,
+                object_pairs_hook=reject_duplicates,
+            )
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+            raise RoundTransactionError(
+                f"{label} row {line_number} is not strict JSON: {exc}"
+            ) from exc
+        if not isinstance(row, dict):
+            raise RoundTransactionError(
+                f"{label} row {line_number} is not a JSON object"
+            )
+        rows.append(row)
+    return rows
 
 
 def _file_descriptor(path: Path, label: str) -> dict[str, Any]:
@@ -1439,6 +1566,391 @@ def _validate_candidate_diversity_summary(
     return value
 
 
+def _failure_direction_observation(
+    row: dict[str, Any],
+    *,
+    round_number: int,
+) -> dict[str, Any] | None:
+    """Extract only a machine-replayed, sealed low-weight logical witness."""
+
+    # Feedback needs only a replayed upper-bound witness.  Suppress the
+    # independent exact lower-bound solve here; the canonical audit gate owns
+    # that expensive decision separately.
+    outcome = classify_evaluation(row, fully_exact=lambda _row: False)
+    if outcome is not AuditOutcome.THRESHOLD_REJECTED:
+        return None
+    attempt = row.get("audit_attempt")
+    if (
+        not isinstance(attempt, dict)
+        or attempt.get("schema_version") != 2
+        or attempt.get("round") != round_number
+        or not isinstance(attempt.get("evidence"), dict)
+    ):
+        raise RoundTransactionError(
+            "terminal failure-direction evidence is not a sealed formal audit"
+        )
+
+    source = "minimum_direction_witness"
+    witness: Any = None
+    if row.get("threshold_proof_source") == "symplectic_upper_bound":
+        source = "symplectic_weight_witness"
+        witness = row.get(source)
+    else:
+        details = row.get("milp_details")
+        if isinstance(details, dict):
+            witness = details.get(source)
+    if not isinstance(witness, dict):
+        return None
+
+    side = witness.get("side")
+    index = witness.get("index")
+    weight = witness.get("weight")
+    bits = witness.get("bits")
+    n = row.get("n")
+    k = row.get("k")
+    if (
+        side not in {"X", "Z"}
+        or isinstance(index, bool)
+        or not isinstance(index, int)
+        or index < 0
+        or isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or weight < 1
+        or isinstance(n, bool)
+        or not isinstance(n, int)
+        or n < 1
+        or isinstance(k, bool)
+        or not isinstance(k, int)
+        or k < 1
+        or not isinstance(bits, list)
+        or len(bits) != n
+        or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+        or sum(bits) != weight
+    ):
+        raise RoundTransactionError(
+            "sealed failure-direction witness has invalid binary evidence"
+        )
+    from evaluation.final_gate import minimum_winning_distance
+
+    try:
+        required = minimum_winning_distance(n, k)
+    except ValueError:
+        # This (n, k) cannot win at any physically allowed distance, so its
+        # failure direction should not steer mutations of winner-capable codes.
+        return None
+    if weight >= required:
+        return None
+    normalized_bits = list(bits)
+    return {
+        "candidate_key": code_key(row),
+        "source": source,
+        "side": side,
+        "index": index,
+        "weight": weight,
+        "minimum_winning_distance": required,
+        "distance_deficit": required - weight,
+        "bits": normalized_bits,
+        "witness_sha256": _canonical_payload_sha256(witness),
+    }
+
+
+def _integer_mutation_weights(
+    observations: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    x_count = sum(item["side"] == "X" for item in observations)
+    z_count = sum(item["side"] == "Z" for item in observations)
+    if not observations:
+        weights = (ADAPTIVE_MUTATION_TOTAL_WEIGHT, 0, 0, 0)
+    else:
+        remaining = (
+            ADAPTIVE_MUTATION_TOTAL_WEIGHT
+            - ADAPTIVE_MUTATION_EXPLORATION_FLOOR
+        )
+        votes = (x_count, z_count, min(x_count, z_count))
+        denominator = sum(votes)
+        allocated = [
+            remaining * vote // denominator for vote in votes
+        ]
+        remainder = remaining - sum(allocated)
+        order = sorted(
+            range(len(votes)),
+            key=lambda offset: (
+                -(remaining * votes[offset] % denominator),
+                offset,
+            ),
+        )
+        for offset in order[:remainder]:
+            allocated[offset] += 1
+        weights = (
+            ADAPTIVE_MUTATION_EXPLORATION_FLOOR,
+            allocated[0],
+            allocated[1],
+            allocated[2],
+        )
+    return [
+        {"tactic": tactic, "weight": weight}
+        for tactic, weight in zip(ADAPTIVE_MUTATION_TACTICS, weights)
+    ]
+
+
+def _build_failure_direction_feedback(
+    *,
+    round_number: int,
+    source_milp: dict[str, Any],
+    audited_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    observations_by_identity: dict[str, dict[str, Any]] = {}
+    for row in audited_rows:
+        observation = _failure_direction_observation(
+            row, round_number=round_number
+        )
+        if observation is None:
+            continue
+        identity = _canonical_payload_sha256(observation)
+        observations_by_identity[identity] = observation
+    observations = sorted(
+        observations_by_identity.values(),
+        key=lambda item: (
+            item["candidate_key"],
+            0 if item["side"] == "X" else 1,
+            item["weight"],
+            item["witness_sha256"],
+        ),
+    )
+    policy = {
+        "schema_version": ADAPTIVE_MUTATION_POLICY_SCHEMA_VERSION,
+        "source_round": round_number,
+        "evidence_sha256": _canonical_payload_sha256(observations),
+        "exploration_floor": ADAPTIVE_MUTATION_EXPLORATION_FLOOR,
+        "total_weight": ADAPTIVE_MUTATION_TOTAL_WEIGHT,
+        "tactics": _integer_mutation_weights(observations),
+    }
+    feedback: dict[str, Any] = {
+        "schema_version": FAILURE_DIRECTION_FEEDBACK_SCHEMA_VERSION,
+        "kind": FAILURE_DIRECTION_FEEDBACK_KIND,
+        "round": round_number,
+        "source_milp": source_milp,
+        "observations": observations,
+        "mutation_policy": policy,
+    }
+    feedback["payload_sha256"] = _canonical_payload_sha256(feedback)
+    return feedback
+
+
+def _failure_feedback_summary(
+    feedback: dict[str, Any],
+    artifact_identity: dict[str, Any],
+) -> dict[str, Any]:
+    source = feedback["source_milp"]
+    return {
+        "schema_version": FAILURE_DIRECTION_FEEDBACK_SCHEMA_VERSION,
+        "artifact_sha256": artifact_identity["sha256"],
+        "artifact_bytes": artifact_identity["bytes"],
+        "payload_sha256": feedback["payload_sha256"],
+        "source_milp_sha256": source["sha256"],
+        "source_milp_bytes": source["bytes"],
+        "source_milp_rows": source["rows"],
+        "trusted_witnesses": len(feedback["observations"]),
+    }
+
+
+def _write_round_failure_direction_feedback(
+    *,
+    round_number: int,
+    round_dir: Path,
+    audited_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    milp_path = round_dir / "milp.jsonl"
+    if not milp_path.exists() and not audited_rows:
+        atomic_write_jsonl(milp_path, [])
+    if milp_path.is_symlink() or not milp_path.is_file():
+        raise RoundTransactionError(
+            "round MILP evidence must be a regular file before feedback"
+        )
+    milp_payload = milp_path.read_bytes()
+    persisted_rows = _strict_jsonl_objects(
+        milp_payload, "round MILP evidence"
+    )
+    persisted_identities = sorted(
+        _canonical_payload_sha256(row) for row in persisted_rows
+    )
+    audited_identities = sorted(
+        _canonical_payload_sha256(row) for row in audited_rows
+    )
+    if persisted_identities != audited_identities:
+        raise RoundTransactionError(
+            "failure-direction feedback rows disagree with round MILP evidence"
+        )
+    source = {
+        "path": "milp.jsonl",
+        "sha256": hashlib.sha256(milp_payload).hexdigest(),
+        "bytes": len(milp_payload),
+        "rows": len(persisted_rows),
+    }
+    feedback = _build_failure_direction_feedback(
+        round_number=round_number,
+        source_milp=source,
+        audited_rows=persisted_rows,
+    )
+    payload = (
+        _canonical_compact_json(feedback) + "\n"
+    ).encode("utf-8")
+    artifact_path = round_dir / "failure-direction-feedback.json"
+    if artifact_path.is_symlink():
+        raise RoundTransactionError(
+            "failure-direction feedback artifact may not be a symlink"
+        )
+    if artifact_path.exists():
+        if not artifact_path.is_file() or artifact_path.read_bytes() != payload:
+            raise RoundTransactionError(
+                "existing failure-direction feedback disagrees with canonical evidence"
+            )
+    else:
+        atomic_write_bytes(artifact_path, payload)
+    observed = _file_descriptor(
+        artifact_path, "failure-direction feedback artifact"
+    )
+    expected_identity = {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "bytes": len(payload),
+    }
+    if {
+        "sha256": observed["sha256"],
+        "bytes": observed["bytes"],
+    } != expected_identity:
+        raise RoundTransactionError(
+            "failure-direction feedback identity is inconsistent"
+        )
+    return _failure_feedback_summary(feedback, expected_identity)
+
+
+def _previous_round_failure_feedback_advisory(
+    state: dict[str, Any],
+    previous_number: int,
+    previous_round_dir: Path,
+) -> str | None:
+    rounds = state.get("rounds")
+    if not isinstance(rounds, list):
+        return None
+    previous_summary = next(
+        (
+            summary
+            for summary in reversed(rounds)
+            if isinstance(summary, dict)
+            and summary.get("round") == previous_number
+        ),
+        None,
+    )
+    if (
+        previous_summary is None
+        or "failure_direction_feedback" not in previous_summary
+    ):
+        return None
+    recorded = previous_summary["failure_direction_feedback"]
+    expected_summary_fields = {
+        "schema_version",
+        "artifact_sha256",
+        "artifact_bytes",
+        "payload_sha256",
+        "source_milp_sha256",
+        "source_milp_bytes",
+        "source_milp_rows",
+        "trusted_witnesses",
+    }
+    if not isinstance(recorded, dict) or set(recorded) != expected_summary_fields:
+        raise RoundTransactionError(
+            "previous failure-direction feedback summary is invalid"
+        )
+
+    artifact_path = previous_round_dir / "failure-direction-feedback.json"
+    if artifact_path.is_symlink() or not artifact_path.is_file():
+        raise RoundTransactionError(
+            "previous failure-direction feedback artifact is missing"
+        )
+    artifact_payload = artifact_path.read_bytes()
+    artifact = _strict_json_object_bytes(
+        artifact_payload, "previous failure-direction feedback"
+    )
+    unsealed = dict(artifact)
+    payload_sha256 = unsealed.pop("payload_sha256", None)
+    if (
+        not isinstance(payload_sha256, str)
+        or payload_sha256 != _canonical_payload_sha256(unsealed)
+    ):
+        raise RoundTransactionError(
+            "previous failure-direction feedback self-hash is invalid"
+        )
+
+    milp_path = previous_round_dir / "milp.jsonl"
+    if milp_path.is_symlink() or not milp_path.is_file():
+        raise RoundTransactionError(
+            "previous feedback source MILP evidence is missing"
+        )
+    milp_payload = milp_path.read_bytes()
+    audited_rows = _strict_jsonl_objects(
+        milp_payload, "previous round MILP evidence"
+    )
+    source = {
+        "path": "milp.jsonl",
+        "sha256": hashlib.sha256(milp_payload).hexdigest(),
+        "bytes": len(milp_payload),
+        "rows": len(audited_rows),
+    }
+    expected_artifact = _build_failure_direction_feedback(
+        round_number=previous_number,
+        source_milp=source,
+        audited_rows=audited_rows,
+    )
+    if artifact != expected_artifact:
+        raise RoundTransactionError(
+            "previous failure-direction feedback disagrees with sealed evidence"
+        )
+    artifact_identity = {
+        "sha256": hashlib.sha256(artifact_payload).hexdigest(),
+        "bytes": len(artifact_payload),
+    }
+    expected_summary = _failure_feedback_summary(
+        expected_artifact, artifact_identity
+    )
+    if recorded != expected_summary:
+        raise RoundTransactionError(
+            "previous failure-direction feedback summary was tampered"
+        )
+
+    observations = artifact["observations"]
+    x_count = sum(item["side"] == "X" for item in observations)
+    z_count = sum(item["side"] == "Z" for item in observations)
+    weights = ", ".join(
+        f"{item['tactic']}={item['weight']}"
+        for item in artifact["mutation_policy"]["tactics"]
+    )
+    policy_mapping = {
+        item["tactic"]: item["weight"]
+        for item in artifact["mutation_policy"]["tactics"]
+    }
+    policy_line = (
+        "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
+        + _canonical_compact_json(policy_mapping)
+    )
+    return "\n".join([
+        "## Machine-derived previous-round failure-direction advisory",
+        (
+            f"- Round: {previous_number}; trusted sealed low-weight logical "
+            f"witnesses: {len(observations)} (X={x_count}, Z={z_count})."
+        ),
+        f"- Deterministic mutation weights: {weights}.",
+        (
+            "- Operational timeouts, unresolved audits, and reviewer text do "
+            "not vote in this policy."
+        ),
+        (
+            "- Use X/Z repair tactics to disrupt the corresponding replayed "
+            "low-weight logical patterns while retaining exploration."
+        ),
+        policy_line,
+    ])
+
+
 def _previous_round_diversity_advisory(
     state: dict[str, Any],
     previous_number: int,
@@ -1553,6 +2065,7 @@ def _freeze_round_context(
         / "bitlesson.md"
     )
     context_parts = [memory_path.read_text()] if memory_path.is_file() else []
+    failure_advisory: str | None = None
     previous_number = state.get("current_round")
     if (
         not isinstance(previous_number, bool)
@@ -1581,7 +2094,30 @@ def _freeze_round_context(
         )
         if advisory is not None:
             context_parts.append(advisory)
-    payload = ("\n\n".join(context_parts) + "\n").encode("utf-8")
+        failure_advisory = _previous_round_failure_feedback_advisory(
+            state,
+            previous_number,
+            round_dir.parent / f"round-{previous_number:03d}",
+        )
+        if failure_advisory is not None:
+            context_parts.append(failure_advisory)
+    context_text = "\n\n".join(context_parts) + "\n"
+    policy_token = "QCODE_ADAPTIVE_MUTATION_POLICY_V1"
+    policy_marker = policy_token + "="
+    expected_policy_lines = 1 if failure_advisory is not None else 0
+    observed_policy_lines = sum(
+        line.startswith(policy_marker)
+        for line in context_text.splitlines()
+    )
+    if (
+        observed_policy_lines != expected_policy_lines
+        or context_text.count(policy_marker) != expected_policy_lines
+        or context_text.count(policy_token) != expected_policy_lines
+    ):
+        raise RoundTransactionError(
+            "reviewer or memory text contains the reserved adaptive policy marker"
+        )
+    payload = context_text.encode("utf-8")
     identity = atomic_write_bytes(context_path, payload)
     observed = _file_descriptor(context_path, "evolution humanize context")
     if (
@@ -1684,6 +2220,333 @@ def _candidate_log_range_identity(
         ) from exc
 
 
+def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
+    try:
+        value = yaml.safe_load(config_path.read_text())
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise RoundTransactionError(
+            f"cannot inspect search portfolio config: {config_path}: {exc}"
+        ) from exc
+    if not isinstance(value, dict):
+        raise RoundTransactionError(
+            "evolution config must contain a YAML object"
+        )
+    if SEARCH_PORTFOLIO_CONFIG_KEY not in value:
+        return False
+    marker = value[SEARCH_PORTFOLIO_CONFIG_KEY]
+    if (
+        not isinstance(marker, dict)
+        or set(marker) != {"enabled", "schema_version"}
+        or marker["enabled"] is not True
+        or type(marker["schema_version"]) is not int
+        or marker["schema_version"] != SEARCH_PORTFOLIO_SCHEMA_VERSION
+    ):
+        raise RoundTransactionError(
+            "qcode_search_portfolio marker must be exactly "
+            "{enabled: true, schema_version: 1}"
+        )
+    database = value.get("database")
+    if (
+        not isinstance(database, dict)
+        or type(database.get("num_islands")) is not int
+        or database["num_islands"] != SEARCH_PORTFOLIO_ISLAND_COUNT
+        or database.get("feature_dimensions")
+        != list(SEARCH_PORTFOLIO_FEATURE_DIMENSIONS)
+        or not isinstance(database.get("feature_bins"), dict)
+        or set(database["feature_bins"]) != set(SEARCH_PORTFOLIO_FEATURE_BINS)
+        or any(
+            type(database["feature_bins"].get(name)) is not int
+            or database["feature_bins"][name] != expected
+            for name, expected in SEARCH_PORTFOLIO_FEATURE_BINS.items()
+        )
+    ):
+        raise RoundTransactionError(
+            "search portfolio database geometry must be exactly "
+            "five islands with the fixed 6/6/5 MAP grid"
+        )
+    return True
+
+
+def _adaptive_mutation_policy_from_context(
+    context_path: Path,
+) -> dict[str, int]:
+    try:
+        text = context_path.read_text()
+    except (OSError, UnicodeError) as exc:
+        raise RoundTransactionError(
+            f"cannot read adaptive mutation context: {context_path}: {exc}"
+        ) from exc
+    marker = ADAPTIVE_MUTATION_POLICY_PREFIX[:-1]
+    encoded_policies: list[str] = []
+    for line in text.splitlines():
+        if marker not in line:
+            continue
+        if not line.startswith(ADAPTIVE_MUTATION_POLICY_PREFIX):
+            raise RoundTransactionError(
+                "adaptive mutation policy marker must start a line exactly"
+            )
+        encoded_policies.append(
+            line[len(ADAPTIVE_MUTATION_POLICY_PREFIX):]
+        )
+    if not encoded_policies:
+        return dict(DEFAULT_ADAPTIVE_MUTATION_POLICY)
+    if len(encoded_policies) != 1:
+        raise RoundTransactionError(
+            "humanize context contains more than one adaptive mutation policy"
+        )
+
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON number: {value}")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError(f"duplicate JSON key: {key}")
+            result[key] = item
+        return result
+
+    encoded = encoded_policies[0]
+    try:
+        value = json.loads(
+            encoded,
+            parse_constant=reject_constant,
+            object_pairs_hook=reject_duplicates,
+        )
+    except (TypeError, json.JSONDecodeError, ValueError) as exc:
+        raise RoundTransactionError(
+            "adaptive mutation policy is not valid JSON"
+        ) from exc
+    if (
+        not isinstance(value, dict)
+        or set(value) != set(ADAPTIVE_MUTATION_TACTICS)
+        or any(
+            isinstance(value[name], bool)
+            or not isinstance(value[name], int)
+            or value[name] < 0
+            for name in ADAPTIVE_MUTATION_TACTICS
+        )
+        or sum(value.values()) != ADAPTIVE_MUTATION_TOTAL_WEIGHT
+        or value["novel_structure_exploration"]
+        < ADAPTIVE_MUTATION_EXPLORATION_FLOOR
+    ):
+        raise RoundTransactionError(
+            "adaptive mutation policy must contain the exact tactic "
+            "vocabulary, total weight 1000, and exploration floor 250"
+        )
+    if encoded != _canonical_compact_json(value):
+        raise RoundTransactionError(
+            "adaptive mutation policy must use canonical compact JSON"
+        )
+    return {name: value[name] for name in ADAPTIVE_MUTATION_TACTICS}
+
+
+def _adaptive_mutation_policy_sha256(policy: dict[str, int]) -> str:
+    return hashlib.sha256(
+        _canonical_compact_json(policy).encode("utf-8")
+    ).hexdigest()
+
+
+def _adaptive_mutation_tactic_from_parent_hash(
+    policy: dict[str, int],
+    *,
+    parent_code_sha256: str,
+    iteration: int,
+) -> str:
+    policy_sha256 = _adaptive_mutation_policy_sha256(policy)
+    digest = hashlib.sha256(
+        (
+            policy_sha256
+            + "\0"
+            + parent_code_sha256
+            + "\0"
+            + str(iteration)
+        ).encode("ascii")
+    ).digest()
+    draw = int.from_bytes(digest, "big") % sum(policy.values())
+    for tactic in ADAPTIVE_MUTATION_TACTICS:
+        weight = policy[tactic]
+        if draw < weight:
+            return tactic
+        draw -= weight
+    raise RoundTransactionError(
+        "adaptive mutation tactic selection was inconsistent"
+    )
+
+
+def _validate_search_portfolio_witness(
+    witness: dict[str, Any],
+    attempts: list[dict[str, Any]],
+    *,
+    witness_schema: int,
+    launch_binding: dict[str, dict[str, Any]],
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    start_iteration: int,
+    count: int,
+) -> None:
+    if witness_schema != EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        return
+    config_path = Path(launch_binding["config"]["path"])
+    context_path = Path(launch_binding["context"]["path"])
+    enabled = _search_portfolio_enabled_from_config(config_path)
+    portfolio = witness.get("search_portfolio")
+    base_attempt_fields = {"iteration", "island_id", "result"}
+    if not enabled:
+        if portfolio is not None:
+            raise RoundTransactionError(
+                "non-portfolio config has a portfolio witness contract"
+            )
+        if any(set(attempt) != base_attempt_fields for attempt in attempts):
+            raise RoundTransactionError(
+                "non-portfolio submission witness fields are not exact"
+            )
+        return
+
+    policy = _adaptive_mutation_policy_from_context(context_path)
+    policy_sha256 = _adaptive_mutation_policy_sha256(policy)
+    expected_counts = {
+        role: sum(
+            (iteration - start_iteration) % SEARCH_PORTFOLIO_ISLAND_COUNT
+            == island_id
+            for iteration in range(start_iteration, start_iteration + count)
+        )
+        for island_id, role in enumerate(SEARCH_PORTFOLIO_ROLES)
+    }
+    expected_portfolio = {
+        "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
+        "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
+        "roles": list(SEARCH_PORTFOLIO_ROLES),
+        "policy_sha256": policy_sha256,
+        "role_submission_counts": expected_counts,
+    }
+    if (
+        not isinstance(portfolio, dict)
+        or set(portfolio) != set(expected_portfolio)
+        or type(portfolio.get("schema_version")) is not int
+        or type(portfolio.get("island_count")) is not int
+        or not isinstance(portfolio.get("roles"), list)
+        or not isinstance(portfolio.get("policy_sha256"), str)
+        or not isinstance(portfolio.get("role_submission_counts"), dict)
+        or set(portfolio["role_submission_counts"])
+        != set(SEARCH_PORTFOLIO_ROLES)
+        or any(
+            type(value) is not int or value < 0
+            for value in portfolio["role_submission_counts"].values()
+        )
+    ):
+        raise RoundTransactionError(
+            "OpenEvolve search portfolio witness contract is invalid"
+        )
+    if portfolio != expected_portfolio:
+        raise RoundTransactionError(
+            "OpenEvolve search portfolio witness contract is inconsistent"
+        )
+    portfolio_attempt_fields = base_attempt_fields | {
+        "search_portfolio_schema_version",
+        "search_policy_sha256",
+        "search_role",
+        "search_tactic",
+        "search_parent_program_id",
+        "search_parent_code_sha256",
+        "search_role_submission_counts",
+    }
+    parent_code_hashes: dict[str, str] = {}
+    for attempt in attempts:
+        if set(attempt) != portfolio_attempt_fields:
+            raise RoundTransactionError(
+                "portfolio submission witness fields are not exact"
+            )
+        iteration = attempt["iteration"]
+        expected_island = (
+            iteration - start_iteration
+        ) % SEARCH_PORTFOLIO_ISLAND_COUNT
+        expected_role = SEARCH_PORTFOLIO_ROLES[expected_island]
+        parent_program_id = attempt["search_parent_program_id"]
+        parent_code_sha256 = attempt["search_parent_code_sha256"]
+        if (
+            not isinstance(parent_program_id, str)
+            or not re.fullmatch(r"[A-Za-z0-9._-]+", parent_program_id)
+            or parent_program_id in {".", ".."}
+            or type(attempt["search_portfolio_schema_version"]) is not int
+            or not isinstance(attempt["search_role_submission_counts"], dict)
+            or set(attempt["search_role_submission_counts"])
+            != set(SEARCH_PORTFOLIO_ROLES)
+            or any(
+                type(value) is not int or value < 0
+                for value in attempt[
+                    "search_role_submission_counts"
+                ].values()
+            )
+            or not isinstance(parent_code_sha256, str)
+            or len(parent_code_sha256) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in parent_code_sha256
+            )
+        ):
+            raise RoundTransactionError(
+                "portfolio submission parent code hash is invalid"
+            )
+        observed_parent_hash = parent_code_hashes.get(parent_program_id)
+        if observed_parent_hash is None:
+            parent_path: Path | None = None
+            for checkpoint in (
+                result_checkpoint,
+                base_checkpoint,
+            ):
+                if checkpoint is None:
+                    continue
+                candidate_path = (
+                    Path(checkpoint["path"])
+                    / "programs"
+                    / f"{parent_program_id}.json"
+                )
+                if candidate_path.is_file():
+                    parent_path = candidate_path
+                    break
+            if parent_path is None:
+                raise RoundTransactionError(
+                    "portfolio parent is absent from both slice checkpoints"
+                )
+            parent = _read_json_object(
+                parent_path, "portfolio parent checkpoint program"
+            )
+            parent_code = parent.get("code")
+            if (
+                parent.get("id") != parent_program_id
+                or not isinstance(parent_code, str)
+            ):
+                raise RoundTransactionError(
+                    "portfolio parent checkpoint program is invalid"
+                )
+            observed_parent_hash = hashlib.sha256(
+                parent_code.encode("utf-8")
+            ).hexdigest()
+            parent_code_hashes[parent_program_id] = observed_parent_hash
+        if observed_parent_hash != parent_code_sha256:
+            raise RoundTransactionError(
+                "portfolio submission parent code hash changed"
+            )
+        expected_tactic = _adaptive_mutation_tactic_from_parent_hash(
+            policy,
+            parent_code_sha256=parent_code_sha256,
+            iteration=iteration,
+        )
+        if (
+            attempt["island_id"] != expected_island
+            or attempt["search_portfolio_schema_version"]
+            != SEARCH_PORTFOLIO_SCHEMA_VERSION
+            or attempt["search_policy_sha256"] != policy_sha256
+            or attempt["search_role"] != expected_role
+            or attempt["search_tactic"] != expected_tactic
+            or attempt["search_role_submission_counts"] != expected_counts
+        ):
+            raise RoundTransactionError(
+                "portfolio submission witness semantics are inconsistent"
+            )
+
+
 def _validate_slice_witness(
     witness_path: Path,
     config: FlowConfig,
@@ -1706,6 +2569,7 @@ def _validate_slice_witness(
         )
     if witness_schema not in {
         2,
+        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
         EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
     }:
         raise RoundTransactionError(
@@ -1874,6 +2738,7 @@ def _validate_slice_witness(
     for attempt in attempts:
         if (
             not isinstance(attempt, dict)
+            or type(attempt.get("iteration")) is not int
             or isinstance(attempt.get("island_id"), bool)
             or not isinstance(attempt.get("island_id"), int)
             or attempt.get("result") != "future"
@@ -1881,11 +2746,29 @@ def _validate_slice_witness(
             raise RoundTransactionError(
                 "OpenEvolve slice witness contains an invalid submission"
             )
+    _validate_search_portfolio_witness(
+        witness,
+        attempts,
+        witness_schema=witness_schema,
+        launch_binding=binding,
+        base_checkpoint=base_checkpoint,
+        result_checkpoint=result_checkpoint,
+        start_iteration=start_iteration,
+        count=count,
+    )
 
     outcomes = witness.get("outcomes")
     if not isinstance(outcomes, list) or len(outcomes) != count:
         raise RoundTransactionError(
             "OpenEvolve slice witness has incomplete future outcomes"
+        )
+    if any(
+        not isinstance(outcome, dict)
+        or type(outcome.get("iteration")) is not int
+        for outcome in outcomes
+    ):
+        raise RoundTransactionError(
+            "OpenEvolve slice witness outcome iteration is invalid"
         )
     if [outcome.get("iteration") for outcome in outcomes if isinstance(outcome, dict)] != expected_iterations:
         raise RoundTransactionError(
@@ -2004,6 +2887,8 @@ def _validate_slice_witness(
         "openevolve_version",
         "completed_at",
     }
+    if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        allowed_fields.add("search_portfolio")
     if not legacy_witness:
         allowed_fields.update({
             "candidate_log_device",
@@ -2042,7 +2927,11 @@ def _completion_marker_expected(
         0 if base_checkpoint is None else int(base_checkpoint["last_iteration"])
     )
     witness_schema = slice_witness.get("schema_version")
-    if witness_schema not in {2, EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION}:
+    if witness_schema not in {
+        2,
+        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
         raise RoundTransactionError(
             "completion marker received an unsupported witness schema"
         )
@@ -2070,7 +2959,10 @@ def _completion_marker_expected(
         "slice_witness_sha256": slice_witness["sha256"],
         "slice_witness_bytes": slice_witness["bytes"],
     }
-    if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+    if witness_schema in {
+        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
         for field in CANDIDATE_WITNESS_FIELDS:
             expected[field] = slice_witness[field]
     for name, descriptor in launch_binding.items():
@@ -6222,6 +7114,13 @@ class HumanizeFlow:
         round_dir: Path,
     ) -> None:
         exact = sum(1 for row in audited if row.get("d_is_exact"))
+        failure_direction_feedback = (
+            _write_round_failure_direction_feedback(
+                round_number=number,
+                round_dir=round_dir,
+                audited_rows=audited,
+            )
+        )
         candidate_diversity: dict[str, Any] | None = None
         transaction_path = self._transaction_paths(round_dir)["manifest"]
         if transaction_path.is_file():
@@ -6244,12 +7143,11 @@ class HumanizeFlow:
             "best_exact_fom": float(state.get("best_exact_fom", 0.0)),
             "review_verdict": review["verdict"],
             "review_summary": review["summary"],
+            "failure_direction_feedback": failure_direction_feedback,
         }
         if candidate_diversity is not None:
             summary["candidate_diversity"] = candidate_diversity
-        state["rounds"].append(summary)
-        state["current_round"] = number
-        (round_dir / "summary.md").write_text(
+        summary_payload = (
             "\n".join([
                 f"# Humanize qcode round {number}", "",
                 f"- New candidates: {len(candidates)}",
@@ -6263,13 +7161,26 @@ class HumanizeFlow:
                     "- Trusted exact WINs: "
                     f"{int(state.get('trusted_win_count', 0))}"
                 ),
+                (
+                    "- Trusted low-weight failure witnesses: "
+                    f"{failure_direction_feedback['trusted_witnesses']}"
+                ),
                 f"- Reviewer verdict: `{review['verdict']}`", "",
                 "## Review", "", review["summary"], "",
                 "## BitLesson Delta", "",
                 f"- Action: {'add' if review['lessons'] else 'none'}",
                 f"- Lesson count: {len(review['lessons'])}",
             ]) + "\n"
+        ).encode("utf-8")
+        atomic_write_bytes(
+            round_dir / "summary.md",
+            summary_payload,
         )
+        # Install the logical commit in the caller-owned state only after all
+        # round artifacts exist.  The outer finalize path applies this method
+        # to a private state copy and persists that copy as one commit.
+        state["rounds"].append(summary)
+        state["current_round"] = number
 
     def run(
         self,
@@ -6638,22 +7549,30 @@ class HumanizeFlow:
                 if review["verdict"] != "reject_round":
                     self.store.add_lessons(review["lessons"], number)
 
+                final_state = copy.deepcopy(state)
                 round_best = max((candidate_fom(r) for r in candidates), default=0.0)
-                previous_best = float(state.get("best_fom", 0.0))
+                previous_best = float(final_state.get("best_fom", 0.0))
                 if round_best > previous_best + self.config.min_improvement:
-                    state["best_fom"] = round_best
-                    state["no_improvement_rounds"] = 0
+                    final_state["best_fom"] = round_best
+                    final_state["no_improvement_rounds"] = 0
                 else:
-                    state["no_improvement_rounds"] = int(
-                        state.get("no_improvement_rounds", 0)
+                    final_state["no_improvement_rounds"] = int(
+                        final_state.get("no_improvement_rounds", 0)
                     ) + 1
 
                 self._record_trusted_audit_view(
-                    state, trusted_exact, trusted_wins
+                    final_state, trusted_exact, trusted_wins
                 )
-                self._finish_round(state, number, candidates, audited, review, round_dir)
+                self._finish_round(
+                    final_state,
+                    number,
+                    candidates,
+                    audited,
+                    review,
+                    round_dir,
+                )
                 unresolved_count = len(
-                    state.get("unresolved_candidates", {})
+                    final_state.get("unresolved_candidates", {})
                 )
                 # Search termination is a machine decision.  Reviewer advice
                 # and BP-based patience can never stop a no-WIN run.  A
@@ -6669,14 +7588,16 @@ class HumanizeFlow:
                     unresolved=unresolved_count,
                     stop=should_stop,
                 )
-                state["round_transaction_version"] = (
+                final_state["round_transaction_version"] = (
                     ROUND_TRANSACTION_PROTOCOL_VERSION
                 )
-                state.pop("pending_round", None)
-                state.pop("round_phase", None)
-                state.pop("legacy_round_transaction", None)
-                self.store.write_state(state)
-                self._write_run_meta(state)
+                final_state.pop("pending_round", None)
+                final_state.pop("round_phase", None)
+                final_state.pop("legacy_round_transaction", None)
+                self.store.write_state(final_state)
+                state.clear()
+                state.update(final_state)
+                self._write_run_meta(final_state)
                 if should_stop:
                     break
             except (Exception, KeyboardInterrupt) as exc:

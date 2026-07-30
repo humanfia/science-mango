@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import multiprocessing
 import os
 import signal
@@ -2788,8 +2789,100 @@ def test_pool_map_descriptor_is_not_owned_by_single_high_k_safety_row():
     assert descriptor["term_count"] == pytest.approx(3.75)
     assert descriptor["pattern_type"] == 4.0
     assert descriptor[
+        evaluator.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC
+    ] == 3.0
+    expected_entropy = -(
+        0.75 * math.log(0.75) + 0.25 * math.log(0.25)
+    ) / math.log(evaluator.MAP_DESCRIPTOR_PATTERN_CARDINALITY)
+    assert descriptor[
+        evaluator.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC
+    ] == pytest.approx(expected_entropy)
+    assert descriptor[
         evaluator.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC
     ] == pytest.approx(0.75)
+
+
+def test_pool_map_descriptor_support_split_indices_follow_contract_order():
+    for expected_index, (a_count, b_count) in enumerate(
+        evaluator.CHALLENGE_SUPPORT_SPLITS
+    ):
+        row = {
+            "ell": 12,
+            "m": 6,
+            "A_terms": [[index, 0] for index in range(a_count)],
+            "B_terms": [[0, index] for index in range(b_count)],
+        }
+        descriptor = evaluator._pool_map_descriptor([row])
+        assert descriptor[
+            evaluator.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC
+        ] == float(expected_index)
+
+
+def test_pool_map_descriptor_entropy_uses_all_six_pattern_classes():
+    candidates = [
+        # 0: univariate
+        ([[0, 0], [0, 1]], [[0, 0], [1, 0]]),
+        # 1: pure x/y-swap-like structure without a constant anchor
+        ([[1, 0], [0, 1]], [[2, 0], [0, 2]]),
+        # 2: self-dual
+        ([[0, 0], [1, 1]], [[0, 0], [1, 1]]),
+        # 3: compact mixed
+        ([[0, 0], [1, 1]], [[0, 1], [2, 1]]),
+        # 4: asymmetric multi-term
+        (
+            [[0, 0], [1, 0], [0, 1], [1, 1]],
+            [[0, 0], [2, 1]],
+        ),
+        # 5: hybrid/non-standard pure
+        ([[0, 0], [1, 0]], [[0, 1], [1, 0]]),
+    ]
+    rows = [
+        {
+            "ell": 12,
+            "m": 6,
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+        }
+        for a_terms, b_terms in candidates
+    ]
+
+    assert [
+        evaluator._classify_pattern(
+            row["A_terms"],
+            row["B_terms"],
+        )
+        for row in rows
+    ] == [float(index) for index in range(6)]
+    descriptor = evaluator._pool_map_descriptor(rows)
+    assert descriptor["pattern_type"] == 0.0
+    assert descriptor[
+        evaluator.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC
+    ] == pytest.approx(1.0)
+    assert descriptor == evaluator._pool_map_descriptor(
+        [rows[index] for index in (5, 2, 4, 0, 3, 1)]
+    )
+
+
+def test_pool_map_descriptor_empty_and_error_envelopes_are_complete():
+    required = {
+        "term_count",
+        "pattern_type",
+        evaluator.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
+        evaluator.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
+        evaluator.MAP_DESCRIPTOR_VERSION_METRIC,
+        evaluator.MAP_DESCRIPTOR_POOL_SIZE_METRIC,
+        evaluator.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC,
+    }
+    empty = evaluator._pool_map_descriptor([])
+    failure = evaluator._error_result("synthetic failure")
+
+    assert required <= empty.keys()
+    assert required <= failure.keys()
+    assert empty[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == 3.0
+    assert failure[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == 3.0
+    for metric in required - {evaluator.MAP_DESCRIPTOR_VERSION_METRIC}:
+        assert empty[metric] == 0.0
+        assert failure[metric] == 0.0
 
 
 def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(

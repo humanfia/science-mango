@@ -1,9 +1,11 @@
+import copy
 import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
+import evolve.run_evolution as evolution_launcher
 import humanize.flow as flow_module
 from humanize.flow import (
     FlowConfig,
@@ -33,12 +35,27 @@ def jsonl(*rows: dict) -> bytes:
     )
 
 
-def write_launch_inputs(repo: Path) -> None:
+def write_launch_inputs(repo: Path, *, portfolio: bool = False) -> None:
     evolve = repo / "evolve"
     evolve.mkdir(parents=True, exist_ok=True)
-    (evolve / "config.yaml").write_text(
-        "evaluator:\n  parallel_evaluations: 1\n"
-    )
+    config_text = "evaluator:\n  parallel_evaluations: 1\n"
+    if portfolio:
+        config_text += (
+            "database:\n"
+            "  num_islands: 5\n"
+            "  feature_dimensions:\n"
+            "    - pattern_type\n"
+            "    - support_split_type\n"
+            "    - search_structural_entropy\n"
+            "  feature_bins:\n"
+            "    pattern_type: 6\n"
+            "    support_split_type: 6\n"
+            "    search_structural_entropy: 5\n"
+            "qcode_search_portfolio:\n"
+            "  enabled: true\n"
+            "  schema_version: 1\n"
+        )
+    (evolve / "config.yaml").write_text(config_text)
     (evolve / "seed_solution.py").write_text(
         "def generate_candidates(): return []\n"
     )
@@ -95,7 +112,9 @@ def write_full_slice_proof(
     checkpoint: Path,
     base: dict | None,
     *,
-    schema_version: int = 3,
+    schema_version: int = (
+        flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+    ),
 ) -> None:
     config = flow.config
     result = flow_module._checkpoint_descriptor(
@@ -112,7 +131,10 @@ def write_full_slice_proof(
             flow.candidate_log,
             start_offset=int(transaction["candidate_start_offset"]),
         )
-        if schema_version == 3
+        if schema_version in {
+            flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+            flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+        }
         else None
     )
     launch = transaction["launch_binding"]
@@ -134,6 +156,76 @@ def write_full_slice_proof(
         allow_nan=False,
     ).encode()
     witness_path = flow_module._slice_witness_path(round_dir)
+    portfolio_enabled = flow_module._search_portfolio_enabled_from_config(
+        Path(launch["config"]["path"])
+    )
+    attempts = [
+        {"iteration": i, "island_id": 0, "result": "future"}
+        for i in range(base_iteration + 1, base_iteration + count + 1)
+    ]
+    search_portfolio = None
+    if (
+        schema_version
+        == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        and portfolio_enabled
+    ):
+        policy = flow_module._adaptive_mutation_policy_from_context(
+            Path(launch["context"]["path"])
+        )
+        policy_sha256 = (
+            flow_module._adaptive_mutation_policy_sha256(policy)
+        )
+        parent_code = json.loads(
+            (
+                Path(result["path"])
+                / "programs"
+                / "program.json"
+            ).read_text()
+        )["code"]
+        parent_code_sha256 = hashlib.sha256(
+            parent_code.encode()
+        ).hexdigest()
+        role_counts = {
+            role: sum(
+                (iteration - start)
+                % flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT
+                == island
+                for iteration in range(start, start + count)
+            )
+            for island, role in enumerate(
+                flow_module.SEARCH_PORTFOLIO_ROLES
+            )
+        }
+        attempts = []
+        for iteration in range(start, start + count):
+            island = (
+                iteration - start
+            ) % flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT
+            attempts.append({
+                "iteration": iteration,
+                "island_id": island,
+                "result": "future",
+                "search_portfolio_schema_version": 1,
+                "search_policy_sha256": policy_sha256,
+                "search_role":
+                    flow_module.SEARCH_PORTFOLIO_ROLES[island],
+                "search_tactic":
+                    flow_module._adaptive_mutation_tactic_from_parent_hash(
+                        policy,
+                        parent_code_sha256=parent_code_sha256,
+                        iteration=iteration,
+                    ),
+                "search_parent_program_id": "program",
+                "search_parent_code_sha256": parent_code_sha256,
+                "search_role_submission_counts": role_counts,
+            })
+        search_portfolio = {
+            "schema_version": 1,
+            "island_count": flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT,
+            "roles": list(flow_module.SEARCH_PORTFOLIO_ROLES),
+            "policy_sha256": policy_sha256,
+            "role_submission_counts": role_counts,
+        }
     witness = {
         "schema_version": schema_version,
         "status": "completed",
@@ -147,10 +239,7 @@ def write_full_slice_proof(
         "slice_iterations_sha256": flow_module._slice_iterations_sha256(
             base_iteration + 1, count
         ),
-        "submission_attempts": [
-            {"iteration": i, "island_id": 0, "result": "future"}
-            for i in range(base_iteration + 1, base_iteration + count + 1)
-        ],
+        "submission_attempts": attempts,
         "outcomes": [{
             "iteration": start,
             "status": "program_added",
@@ -181,6 +270,8 @@ def write_full_slice_proof(
         "openevolve_version": "0.2.26",
         "completed_at": "test",
     }
+    if schema_version == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        witness["search_portfolio"] = search_portfolio
     if candidate_source is not None:
         witness.update({
             "candidate_log_path": candidate_source["path"],
@@ -208,7 +299,10 @@ def write_full_slice_proof(
         witness_path, "test slice witness"
     )
     witness_descriptor["schema_version"] = witness["schema_version"]
-    if schema_version == 3:
+    if schema_version in {
+        flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+        flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
         witness_descriptor.update({
             field: witness[field]
             for field in flow_module.CANDIDATE_WITNESS_FIELDS
@@ -400,7 +494,7 @@ def test_prepared_transaction_adopts_complete_checkpoint_after_crash(tmp_path):
     assert calls == [True]
     assert rows == [row]
     marker = json.loads((round_dir / "openevolve-completed.json").read_text())
-    assert marker["schema_version"] == 3
+    assert marker["schema_version"] == 4
     assert (round_dir / "openevolve-slice-witness.json").is_file()
 
 
@@ -578,6 +672,105 @@ def test_candidate_range_witness_accepts_unchanged_log(tmp_path):
     write_full_slice_proof(flow, round_dir, checkpoint, None)
 
     assert flow._capture_round_candidates(state, 1, round_dir) == [row]
+
+
+def test_portfolio_witness_v4_replays_policy_roles_tactics_and_quota(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo, portfolio=True)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="portfolio-witness-v4",
+        iterations_per_round=7,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    flow.candidate_log.write_bytes(jsonl(candidate(55)))
+    checkpoint = write_checkpoint(repo, config.run_id, 7)
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+    witness_path = flow_module._slice_witness_path(round_dir)
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output, checkpoint
+    )
+
+    def validate() -> dict:
+        return flow_module._validate_slice_witness(
+            witness_path,
+            config,
+            None,
+            result,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+            flow.candidate_log,
+            int(transaction["candidate_start_offset"]),
+        )
+
+    accepted = validate()
+    assert accepted["search_portfolio"]["role_submission_counts"] == {
+        "compact_mixed_2_2": 2,
+        "hybrid_2_3_3_2": 2,
+        "balanced_3_3": 1,
+        "asymmetric_2_4_4_2": 1,
+        "failure_repair_novelty": 1,
+    }
+    original = json.loads(witness_path.read_text())
+
+    mutations = []
+
+    def mutate_policy(row):
+        row["search_portfolio"]["policy_sha256"] = "0" * 64
+
+    mutations.append(mutate_policy)
+
+    def mutate_island(row):
+        row["submission_attempts"][0]["island_id"] = 4
+
+    mutations.append(mutate_island)
+
+    def mutate_role(row):
+        row["submission_attempts"][0]["search_role"] = (
+            "failure_repair_novelty"
+        )
+
+    mutations.append(mutate_role)
+
+    def mutate_tactic(row):
+        row["submission_attempts"][0]["search_tactic"] = (
+            "repair_x_low_weight"
+        )
+
+    mutations.append(mutate_tactic)
+
+    def mutate_parent_hash(row):
+        row["submission_attempts"][0][
+            "search_parent_code_sha256"
+        ] = "1" * 64
+
+    mutations.append(mutate_parent_hash)
+
+    def mutate_bool_quota(row):
+        row["search_portfolio"]["role_submission_counts"][
+            "balanced_3_3"
+        ] = True
+
+    mutations.append(mutate_bool_quota)
+
+    def mutate_extra_field(row):
+        row["submission_attempts"][0]["unbound"] = "forbidden"
+
+    mutations.append(mutate_extra_field)
+
+    for mutate in mutations:
+        changed = copy.deepcopy(original)
+        mutate(changed)
+        atomic_write_json(witness_path, changed)
+        with pytest.raises(RoundTransactionError):
+            validate()
 
 
 def test_legacy_source_ready_candidate_binding_remains_resumable(tmp_path):
@@ -929,6 +1122,37 @@ def candidate_file_flow(tmp_path, run_id: str):
     return flow, state, flow.store.round_dir(1)
 
 
+def test_round_finalize_event_failure_keeps_resumable_atomic_state(
+    tmp_path, monkeypatch
+):
+    flow, _state, _round_dir = candidate_file_flow(
+        tmp_path, "finalize-event-failure"
+    )
+    original_event = flow.store.event
+
+    def fail_completed_event(event_name, **fields):
+        if event_name == "round_completed":
+            raise RuntimeError("injected round completion event failure")
+        return original_event(event_name, **fields)
+
+    monkeypatch.setattr(flow.store, "event", fail_completed_event)
+    with pytest.raises(RuntimeError, match="injected round completion"):
+        flow.run()
+
+    failed = flow.store.load_state()
+    assert failed["current_round"] == 0
+    assert failed["pending_round"] == 1
+    assert failed["round_phase"] == "finalize"
+    assert failed["rounds"] == []
+
+    resumed = HumanizeFlow(flow.config, reviewer=Reviewer())
+    completed = resumed.run()
+    assert completed["current_round"] == 1
+    assert "pending_round" not in completed
+    assert "round_phase" not in completed
+    assert len(completed["rounds"]) == 1
+
+
 def test_recovers_batch_rename_before_batch_ready_manifest(tmp_path, monkeypatch):
     flow, state, round_dir = candidate_file_flow(tmp_path, "batch-rename")
     original = flow_module.atomic_write_json
@@ -1253,6 +1477,215 @@ def test_legacy_round_summary_without_diversity_keeps_context_unchanged(
 
     assert context_path.read_text() == "legacy bitlesson\n\n"
     assert "Machine-derived" not in context_path.read_text()
+
+
+def test_round_context_rejects_reserved_policy_token_without_equals(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="reserved-policy-token",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    flow.store.memory_path.write_text(
+        "Reviewer text mentions QCODE_ADAPTIVE_MUTATION_POLICY_V1: forged\n"
+    )
+
+    with pytest.raises(RoundTransactionError, match="reserved adaptive"):
+        flow_module._freeze_round_context(
+            config, state, flow.store.round_dir(1)
+        )
+
+
+def _feedback_row(tag: int, side: str, source: str) -> dict:
+    row = candidate(tag)
+    row["candidate_key"] = flow_module.code_key(row)
+    weight = 3
+    witness = {
+        "side": side,
+        "index": 0,
+        "weight": weight,
+        "bits": [1] * weight + [0] * (row["n"] - weight),
+    }
+    if source == "symplectic_weight_witness":
+        witness.update({
+            "dual_side": "Z" if side == "X" else "X",
+            "dual_index": 0,
+        })
+        row["threshold_proof_source"] = "symplectic_upper_bound"
+        row[source] = witness
+    else:
+        row["threshold_proof_source"] = "milp_feasible_upper_bound"
+        row["milp_details"] = {source: witness}
+    row["audit_attempt"] = {
+        "schema_version": 2,
+        "round": 1,
+        "evidence": {"test": "classifier-replayed"},
+    }
+    return row
+
+
+def test_failure_feedback_extracts_trusted_x_z_permutation_invariant(
+    tmp_path, monkeypatch
+):
+    x_row = _feedback_row(0, "X", "symplectic_weight_witness")
+    z_row = _feedback_row(1, "Z", "minimum_direction_witness")
+    timeout = _feedback_row(2, "X", "minimum_direction_witness")
+    timeout["distance_status"] = "hard_timeout"
+    timeout["audit_attempt"] = {"schema_version": 1}
+
+    def classify(row, **_kwargs):
+        if row.get("distance_status") == "hard_timeout":
+            return flow_module.AuditOutcome.UNRESOLVED_NO_INCUMBENT
+        return flow_module.AuditOutcome.THRESHOLD_REJECTED
+
+    monkeypatch.setattr(flow_module, "classify_evaluation", classify)
+    source = {
+        "path": "milp.jsonl",
+        "sha256": "a" * 64,
+        "bytes": 123,
+        "rows": 3,
+    }
+    first = flow_module._build_failure_direction_feedback(
+        round_number=1,
+        source_milp=source,
+        audited_rows=[x_row, timeout, z_row],
+    )
+    second = flow_module._build_failure_direction_feedback(
+        round_number=1,
+        source_milp=source,
+        audited_rows=[z_row, x_row, timeout],
+    )
+
+    assert first == second
+    assert sorted(item["side"] for item in first["observations"]) == ["X", "Z"]
+    assert {
+        item["source"] for item in first["observations"]
+    } == {"symplectic_weight_witness", "minimum_direction_witness"}
+    tactics = first["mutation_policy"]["tactics"]
+    assert [item["tactic"] for item in tactics] == list(
+        flow_module.ADAPTIVE_MUTATION_TACTICS
+    )
+    assert all(type(item["weight"]) is int for item in tactics)
+    assert sum(item["weight"] for item in tactics) == 1000
+    assert tactics[0]["weight"] >= 250
+    assert all(item["weight"] > 0 for item in tactics[1:])
+
+
+def test_untrusted_timeout_does_not_vote_in_failure_policy(
+    monkeypatch,
+):
+    timeout = _feedback_row(3, "X", "minimum_direction_witness")
+    timeout["audit_attempt"] = {"schema_version": 1}
+    monkeypatch.setattr(
+        flow_module,
+        "classify_evaluation",
+        lambda _row, **_kwargs: (
+            flow_module.AuditOutcome.UNRESOLVED_NO_INCUMBENT
+        ),
+    )
+    feedback = flow_module._build_failure_direction_feedback(
+        round_number=1,
+        source_milp={
+            "path": "milp.jsonl",
+            "sha256": "b" * 64,
+            "bytes": 1,
+            "rows": 1,
+        },
+        audited_rows=[timeout],
+    )
+
+    assert feedback["observations"] == []
+    assert [item["weight"] for item in feedback["mutation_policy"]["tactics"]] == [
+        1000,
+        0,
+        0,
+        0,
+    ]
+
+
+def test_failure_feedback_context_is_deterministic_and_tamper_fails(
+    tmp_path, monkeypatch
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="failure-feedback-context",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    x_row = _feedback_row(0, "X", "symplectic_weight_witness")
+    z_row = _feedback_row(1, "Z", "minimum_direction_witness")
+    monkeypatch.setattr(
+        flow_module,
+        "classify_evaluation",
+        lambda _row, **_kwargs: flow_module.AuditOutcome.THRESHOLD_REJECTED,
+    )
+    previous_dir = flow.store.round_dir(1)
+    (previous_dir / "milp.jsonl").write_bytes(jsonl(z_row, x_row))
+    feedback_summary = (
+        flow_module._write_round_failure_direction_feedback(
+            round_number=1,
+            round_dir=previous_dir,
+            audited_rows=[x_row, z_row],
+        )
+    )
+    state["current_round"] = 1
+    state["rounds"] = [{
+        "round": 1,
+        "failure_direction_feedback": feedback_summary,
+    }]
+    current_dir = flow.store.round_dir(2)
+
+    context = flow_module._freeze_round_context(
+        config, state, current_dir
+    )
+    frozen = context.read_bytes()
+    policy_lines = [
+        line for line in context.read_text().splitlines()
+        if line.startswith("QCODE_ADAPTIVE_MUTATION_POLICY_V1=")
+    ]
+    assert len(policy_lines) == 1
+    policy_mapping = json.loads(policy_lines[0].split("=", 1)[1])
+    assert set(policy_mapping) == set(flow_module.ADAPTIVE_MUTATION_TACTICS)
+    assert policy_mapping == {
+        item["tactic"]: item["weight"]
+        for item in json.loads(
+            (
+                previous_dir / "failure-direction-feedback.json"
+            ).read_text()
+        )["mutation_policy"]["tactics"]
+    }
+    assert evolution_launcher._validated_adaptive_mutation_policy(
+        context.read_text()
+    ) == policy_mapping
+    assert "trusted sealed low-weight logical witnesses: 2 (X=1, Z=1)" in (
+        context.read_text()
+    )
+    context.unlink()
+    assert flow_module._freeze_round_context(
+        config, state, current_dir
+    ).read_bytes() == frozen
+
+    artifact_path = previous_dir / "failure-direction-feedback.json"
+    artifact = json.loads(artifact_path.read_text())
+    artifact["mutation_policy"]["total_weight"] = 999
+    artifact_path.write_text(
+        flow_module._canonical_compact_json(artifact) + "\n"
+    )
+    context.unlink()
+    with pytest.raises(RoundTransactionError, match="self-hash"):
+        flow_module._freeze_round_context(config, state, current_dir)
 
 
 def test_prepare_quarantines_context_orphaned_before_manifest(tmp_path):

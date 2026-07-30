@@ -22,8 +22,8 @@ How it works
    ``# EVOLVE-BLOCK-END`` markers using LLM-generated diffs.
 4. Each mutation is evaluated via the two-stage cascade in
    ``openevolve_evaluator.py`` (see that module's docstring for details).
-5. MAP-Elites with 5 islands and periodic migration maintains diversity
-   across pool-level ``term_count`` and ``pattern_type`` feature dimensions.
+5. Opted-in ansatz configs use 5 role islands and MAP-Elites across fixed
+   pattern, support-split, and structural-entropy cells.
 6. The LLM receives structured evaluation artifacts (best code found,
    per-lattice breakdown, errors) as feedback for the next mutation.
 
@@ -66,6 +66,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import copy
 import concurrent.futures
 import fcntl
 import hashlib
@@ -85,8 +86,10 @@ from datetime import datetime
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field
 from pathlib import Path
-
 from typing import Any
+
+import yaml
+
 # Ensure project root is on path
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
@@ -106,8 +109,8 @@ EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
 
 
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 3
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 3
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 4
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 4
 WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
 CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
@@ -138,15 +141,116 @@ WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC = "winner_preflight_hard_timeout"
 WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC = (
     "winner_preflight_subprocess_failed"
 )
-# Keep this value synchronized with openevolve_evaluator.py.  Version 2 is
-# the first pool-based MAP descriptor; older checkpoints used one selected
-# code and cannot be resumed without rebuilding every feature map and stat.
-MAP_DESCRIPTOR_VERSION = 2
+# Keep this value synchronized with openevolve_evaluator.py.  Version 3 adds
+# fixed support-split and structural-entropy coordinates.  Version-2 feature
+# maps used moving min/max bins and are deliberately not resumable.
+MAP_DESCRIPTOR_VERSION = 3
 MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
 MAP_DESCRIPTOR_POOL_SIZE_METRIC = "map_descriptor_pool_size"
 MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
     "map_descriptor_dominant_pattern_share"
 )
+MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC = "support_split_type"
+MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC = "search_structural_entropy"
+SEARCH_PORTFOLIO_SCHEMA_VERSION = 1
+SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
+SEARCH_PORTFOLIO_ISLAND_COUNT = 5
+SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
+    "pattern_type",
+    MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
+    MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
+)
+SEARCH_PORTFOLIO_FEATURE_BINS = {
+    "pattern_type": 6,
+    MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 6,
+    MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC: 5,
+}
+SEARCH_PORTFOLIO_ROLES = (
+    "compact_mixed_2_2",
+    "hybrid_2_3_3_2",
+    "balanced_3_3",
+    "asymmetric_2_4_4_2",
+    "failure_repair_novelty",
+)
+SEARCH_PORTFOLIO_SUPPORT_TARGETS = (
+    ((2, 2),),
+    ((2, 3), (3, 2)),
+    ((3, 3),),
+    ((2, 4), (4, 2)),
+    (),
+)
+# Exact indices of the evaluator's fixed CHALLENGE_SUPPORT_SPLITS ordering.
+# Islands 0-3 admit only children whose dominant output split matches their
+# structural role.  Island 4 deliberately remains an unrestricted
+# failure-repair/novelty lane.
+SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES = (
+    (0,),
+    (1, 2),
+    (5,),
+    (3, 4),
+    (0, 1, 2, 3, 4, 5),
+)
+
+
+def _structural_island_for_support_split(category: int) -> int:
+    matches = [
+        island
+        for island, categories in enumerate(
+            SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES[:4]
+        )
+        if category in categories
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(
+            "support-split category does not map to one structural island"
+        )
+    return matches[0]
+SEARCH_PORTFOLIO_DIRECTIVES = (
+    "Prioritize genuinely distinct compact mixed constructions with "
+    "(|A|,|B|)=(2,2).",
+    "Prioritize genuinely distinct hybrid constructions with support split "
+    "(2,3) or (3,2).",
+    "Prioritize genuinely distinct balanced constructions with support split "
+    "(3,3).",
+    "Prioritize genuinely distinct asymmetric constructions with support "
+    "split (2,4) or (4,2).",
+    "Escape occupied MAP cells and use the assigned failure-repair tactic; "
+    "favor underrepresented structural patterns over repeated generators.",
+)
+ADAPTIVE_MUTATION_POLICY_PREFIX = "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
+ADAPTIVE_MUTATION_TACTICS = (
+    "novel_structure_exploration",
+    "repair_x_low_weight",
+    "repair_z_low_weight",
+    "repair_dual_balance",
+)
+ADAPTIVE_MUTATION_DIRECTIVES = {
+    "novel_structure_exploration": (
+        "Change the generator's structural template, not just coefficients; "
+        "avoid definitions and MAP cells already represented in the prompt."
+    ),
+    "repair_x_low_weight": (
+        "Disrupt replayed low-weight X logical mechanisms while preserving "
+        "commutation, positive k, and structural novelty."
+    ),
+    "repair_z_low_weight": (
+        "Disrupt replayed low-weight Z logical mechanisms while preserving "
+        "commutation, positive k, and structural novelty."
+    ),
+    "repair_dual_balance": (
+        "Change the A/B relationship so neither X nor Z logical direction "
+        "remains an easy low-weight failure mode."
+    ),
+}
+DEFAULT_ADAPTIVE_MUTATION_POLICY = {
+    "novel_structure_exploration": 1000,
+    "repair_x_low_weight": 0,
+    "repair_z_low_weight": 0,
+    "repair_dual_balance": 0,
+}
+ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
+ADAPTIVE_MUTATION_EXPLORATION_FLOOR = 250
+SEARCH_PORTFOLIO_ARTIFACT_KEY = "qcode_search_portfolio_v1"
 WINNER_PREFLIGHT_NUMERIC_THREAD_ENV = (
     "OMP_NUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -352,6 +456,8 @@ _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
     "lattices_with_high_k",
     MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC,
     MAP_DESCRIPTOR_POOL_SIZE_METRIC,
+    MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
+    MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
     MAP_DESCRIPTOR_VERSION_METRIC,
     "num_high_k",
     "term_count",
@@ -460,6 +566,8 @@ def _exact_incomplete_winner_preflight_markers(
         "lattices_with_high_k",
         MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC,
         MAP_DESCRIPTOR_POOL_SIZE_METRIC,
+        MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
+        MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
         "num_high_k",
         "term_count",
         "pattern_type",
@@ -1389,6 +1497,447 @@ def _validate_lifecycle_lease(fd: int, path_value: str) -> Path:
     return path
 
 
+def _validated_search_portfolio_config(config: Any) -> int:
+    """Validate the fixed five-island production search geometry.
+
+    OpenEvolve normally rescales every custom MAP dimension from the values
+    observed so far.  That makes a checkpoint's cells depend on evaluation
+    completion order.  The managed ansatz campaign instead has a versioned,
+    categorical grid; accepting any other shape would silently mix archives.
+    """
+
+    database = getattr(config, "database", None)
+    if database is None:
+        raise RuntimeError("search portfolio config has no database section")
+    if getattr(database, "num_islands", None) != SEARCH_PORTFOLIO_ISLAND_COUNT:
+        raise RuntimeError(
+            "search portfolio requires exactly five islands"
+        )
+    dimensions = getattr(database, "feature_dimensions", None)
+    if (
+        not isinstance(dimensions, list)
+        or dimensions != list(SEARCH_PORTFOLIO_FEATURE_DIMENSIONS)
+    ):
+        raise RuntimeError(
+            "search portfolio feature_dimensions must be the fixed "
+            "pattern/support/entropy tuple"
+        )
+    bins = getattr(database, "feature_bins", None)
+    if (
+        not isinstance(bins, dict)
+        or set(bins) != set(SEARCH_PORTFOLIO_FEATURE_BINS)
+        or any(
+            isinstance(bins[name], bool)
+            or not isinstance(bins[name], int)
+            or bins[name] != expected
+            for name, expected in SEARCH_PORTFOLIO_FEATURE_BINS.items()
+        )
+    ):
+        raise RuntimeError(
+            "search portfolio feature_bins must be exactly 6/6/5"
+        )
+    seed = getattr(config, "random_seed", None)
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise RuntimeError(
+            "search portfolio requires an integer config random_seed"
+        )
+    return seed
+
+
+def _search_portfolio_requested(config_path: str | Path) -> bool:
+    """Return whether a YAML config explicitly opts into the fixed portfolio."""
+
+    path = Path(config_path)
+    try:
+        value = yaml.safe_load(path.read_text())
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise RuntimeError(
+            f"cannot inspect search portfolio config: {path}: {exc}"
+        ) from exc
+    if not isinstance(value, dict):
+        raise RuntimeError("evolution config must contain a YAML object")
+    if SEARCH_PORTFOLIO_CONFIG_KEY not in value:
+        return False
+    marker = value[SEARCH_PORTFOLIO_CONFIG_KEY]
+    if (
+        not isinstance(marker, dict)
+        or set(marker) != {"enabled", "schema_version"}
+        or marker["enabled"] is not True
+        or type(marker["schema_version"]) is not int
+        or marker["schema_version"] != SEARCH_PORTFOLIO_SCHEMA_VERSION
+    ):
+        raise RuntimeError(
+            "qcode_search_portfolio marker must be exactly "
+            "{enabled: true, schema_version: 1}"
+        )
+    return True
+
+
+def _validated_adaptive_mutation_policy(
+    humanize_context: str | None,
+) -> dict[str, int]:
+    """Read the one optional, canonical Humanize policy line.
+
+    The right hand side is an exact JSON object whose keys are the fixed
+    tactic vocabulary and whose values are non-negative integer weights.
+    A malformed marker is not treated as absence: managed search fails closed
+    so reviewer intent cannot be silently ignored.
+    """
+
+    text = humanize_context or ""
+    marker = ADAPTIVE_MUTATION_POLICY_PREFIX[:-1]
+    lines: list[str] = []
+    for line in text.splitlines():
+        if marker not in line:
+            continue
+        if not line.startswith(ADAPTIVE_MUTATION_POLICY_PREFIX):
+            raise RuntimeError(
+                "adaptive mutation policy marker must start a line exactly"
+            )
+        lines.append(line[len(ADAPTIVE_MUTATION_POLICY_PREFIX):])
+    if not lines:
+        return dict(DEFAULT_ADAPTIVE_MUTATION_POLICY)
+    if len(lines) != 1:
+        raise RuntimeError(
+            "humanize context contains more than one adaptive mutation policy"
+        )
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON number: {value}")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError(f"duplicate JSON key: {key}")
+            result[key] = item
+        return result
+
+    try:
+        value = json.loads(
+            lines[0],
+            parse_constant=reject_constant,
+            object_pairs_hook=reject_duplicates,
+        )
+    except (TypeError, json.JSONDecodeError, ValueError) as exc:
+        raise RuntimeError("adaptive mutation policy is not valid JSON") from exc
+    if (
+        not isinstance(value, dict)
+        or set(value) != set(ADAPTIVE_MUTATION_TACTICS)
+        or any(
+            isinstance(value[name], bool)
+            or not isinstance(value[name], int)
+            or value[name] < 0
+            for name in ADAPTIVE_MUTATION_TACTICS
+        )
+        or sum(value.values()) != ADAPTIVE_MUTATION_TOTAL_WEIGHT
+        or value["novel_structure_exploration"]
+        < ADAPTIVE_MUTATION_EXPLORATION_FLOOR
+    ):
+        raise RuntimeError(
+            "adaptive mutation policy must contain the exact tactic "
+            "vocabulary, total weight 1000, and exploration floor 250"
+        )
+    canonical = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    if lines[0] != canonical:
+        raise RuntimeError(
+            "adaptive mutation policy must use canonical compact JSON"
+        )
+    return {name: value[name] for name in ADAPTIVE_MUTATION_TACTICS}
+
+
+def _adaptive_mutation_policy_sha256(policy: dict[str, int]) -> str:
+    encoded = json.dumps(
+        policy,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _adaptive_mutation_tactic(
+    policy: dict[str, int],
+    *,
+    program_code: str,
+    iteration: int,
+) -> str:
+    if not isinstance(program_code, str):
+        raise RuntimeError("adaptive mutation parent code is not text")
+    if isinstance(iteration, bool) or not isinstance(iteration, int):
+        raise RuntimeError("adaptive mutation iteration is not an integer")
+    policy_sha256 = _adaptive_mutation_policy_sha256(policy)
+    code_sha256 = hashlib.sha256(program_code.encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(
+        (
+            policy_sha256
+            + "\0"
+            + code_sha256
+            + "\0"
+            + str(iteration)
+        ).encode("ascii")
+    ).digest()
+    draw = int.from_bytes(digest, "big") % sum(policy.values())
+    for tactic in ADAPTIVE_MUTATION_TACTICS:
+        weight = policy[tactic]
+        if draw < weight:
+            return tactic
+        draw -= weight
+    raise RuntimeError("adaptive mutation policy selection was inconsistent")
+
+
+def _fixed_search_feature_coords(program: Any) -> list[int]:
+    metrics = getattr(program, "metrics", None)
+    _validated_map_descriptor_version(
+        metrics, label=f"search portfolio program {getattr(program, 'id', '?')}"
+    )
+    assert isinstance(metrics, dict)
+    categories: list[int] = []
+    for name in (
+        "pattern_type",
+        MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
+    ):
+        value = metrics.get(name)
+        limit = SEARCH_PORTFOLIO_FEATURE_BINS[name]
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or not float(value).is_integer()
+            or not 0 <= int(value) < limit
+        ):
+            raise RuntimeError(
+                f"search portfolio metric {name} is not a fixed category"
+            )
+        categories.append(int(value))
+    entropy = metrics.get(MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC)
+    if (
+        isinstance(entropy, bool)
+        or not isinstance(entropy, (int, float))
+        or not math.isfinite(float(entropy))
+        or not 0.0 <= float(entropy) <= 1.0
+    ):
+        raise RuntimeError(
+            "search portfolio structural entropy is outside [0, 1]"
+        )
+    entropy_bins = SEARCH_PORTFOLIO_FEATURE_BINS[
+        MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC
+    ]
+    categories.append(min(entropy_bins - 1, int(float(entropy) * entropy_bins)))
+    return categories
+
+
+def _search_program_fitness(program: Any) -> float:
+    metrics = getattr(program, "metrics", None)
+    if not isinstance(metrics, dict):
+        raise RuntimeError("search portfolio program metrics are not an object")
+    combined = metrics.get("combined_score")
+    if (
+        isinstance(combined, bool)
+        or not isinstance(combined, (int, float))
+        or not math.isfinite(float(combined))
+    ):
+        raise RuntimeError(
+            "search portfolio program has no finite combined_score"
+        )
+    return float(combined)
+
+
+def _rebuild_fixed_search_feature_maps(database: Any) -> None:
+    """Reconstruct fixed MAP cells and make only cell elites selectable."""
+
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict):
+        raise RuntimeError("search portfolio database programs are invalid")
+    previous_islands = getattr(database, "islands", None)
+    if (
+        not isinstance(previous_islands, list)
+        or len(previous_islands) != SEARCH_PORTFOLIO_ISLAND_COUNT
+    ):
+        raise RuntimeError("search portfolio database islands are invalid")
+    membership: dict[str, set[int]] = {}
+    for island, program_ids in enumerate(previous_islands):
+        for program_id in program_ids:
+            membership.setdefault(program_id, set()).add(island)
+
+    winners: list[dict[str, str]] = [
+        {} for _ in range(SEARCH_PORTFOLIO_ISLAND_COUNT)
+    ]
+    for program_id in sorted(membership):
+        prior = membership[program_id]
+        if len(prior) != 1:
+            raise RuntimeError(
+                f"search portfolio program {program_id} belongs to "
+                "more than one island"
+            )
+        if program_id not in programs:
+            raise RuntimeError(
+                f"search portfolio island references missing program "
+                f"{program_id}"
+            )
+        program = programs[program_id]
+        if getattr(program, "id", None) != program_id:
+            raise RuntimeError("search portfolio program id is inconsistent")
+        metadata = getattr(program, "metadata", None)
+        if not isinstance(metadata, dict):
+            raise RuntimeError("search portfolio program metadata are invalid")
+        island = metadata.get("island")
+        recorded_island = next(iter(prior))
+        if (
+            isinstance(island, bool)
+            or not isinstance(island, int)
+            or not 0 <= island < SEARCH_PORTFOLIO_ISLAND_COUNT
+        ):
+            raise RuntimeError(
+                f"search portfolio program {program_id} has invalid island "
+                "metadata"
+            )
+        if island != recorded_island:
+            raise RuntimeError(
+                f"search portfolio program {program_id} island metadata "
+                "disagrees with membership"
+            )
+        coords = _fixed_search_feature_coords(program)
+        if coords[1] not in SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES[island]:
+            if getattr(program, "parent_id", None) is None:
+                # OpenEvolve always inserts the one fresh bootstrap Program
+                # into island 0, regardless of its actual descriptor.  Bind a
+                # root/seed to its real structural island before applying the
+                # admission gate; all mutated children remain hard-gated.
+                island = _structural_island_for_support_split(coords[1])
+                metadata["island"] = island
+            else:
+                # Preserve the Program in the checkpoint database for audit
+                # and novelty history, but do not let an off-role child become
+                # a selectable MAP elite for this structural island.
+                continue
+        key = "-".join(str(value) for value in coords)
+        existing_id = winners[island].get(key)
+        if existing_id is None:
+            winners[island][key] = program_id
+            continue
+        existing = programs[existing_id]
+        candidate_key = (-_search_program_fitness(program), program_id)
+        existing_key = (-_search_program_fitness(existing), existing_id)
+        if candidate_key < existing_key:
+            winners[island][key] = program_id
+
+    database.island_feature_maps = winners
+    database.islands = [set(feature_map.values()) for feature_map in winners]
+    elite_ids = set().union(*(set(values.values()) for values in winners))
+    database_config = getattr(database, "config", None)
+    archive_limit = getattr(database_config, "archive_size", len(elite_ids))
+    if (
+        isinstance(archive_limit, bool)
+        or not isinstance(archive_limit, int)
+        or archive_limit < 1
+    ):
+        raise RuntimeError("search portfolio archive_size is invalid")
+    ranked_elites = sorted(
+        elite_ids,
+        key=lambda program_id: (
+            -_search_program_fitness(programs[program_id]),
+            program_id,
+        ),
+    )
+    # OpenEvolve's global archive is a bounded compatibility index.  Parent
+    # selection below uses every per-island MAP cell directly, so capping this
+    # redundant set does not discard MAP-Elites coverage.
+    database.archive = set(ranked_elites[:archive_limit])
+    database.feature_stats = {}
+    database.feature_bins_per_dim = dict(SEARCH_PORTFOLIO_FEATURE_BINS)
+    database.island_best_programs = [
+        (
+            min(
+                feature_map.values(),
+                key=lambda program_id: (
+                    -_search_program_fitness(programs[program_id]),
+                    program_id,
+                ),
+            )
+            if feature_map
+            else None
+        )
+        for feature_map in winners
+    ]
+    database.best_program_id = (
+        min(
+            elite_ids,
+            key=lambda program_id: (
+                -_search_program_fitness(programs[program_id]),
+                program_id,
+            ),
+        )
+        if elite_ids
+        else None
+    )
+
+
+def _search_elite_ids(database: Any, island: int) -> list[str]:
+    feature_maps = getattr(database, "island_feature_maps", None)
+    if (
+        not isinstance(feature_maps, list)
+        or len(feature_maps) != SEARCH_PORTFOLIO_ISLAND_COUNT
+    ):
+        raise RuntimeError("search portfolio feature maps are invalid")
+    local = sorted(set(feature_maps[island].values()))
+    if local:
+        return local
+    global_elites = sorted({
+        program_id
+        for feature_map in feature_maps
+        for program_id in feature_map.values()
+    })
+    if global_elites:
+        return global_elites
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("search portfolio has no parent program")
+    return sorted(programs)
+
+
+def _deterministic_search_order(
+    program_ids: list[str],
+    *,
+    programs: dict[str, Any],
+    seed: int,
+    iteration: int,
+    island: int,
+) -> list[str]:
+    role = SEARCH_PORTFOLIO_ROLES[island]
+    island_sha256 = hashlib.sha256(role.encode("utf-8")).hexdigest()
+
+    def key(program_id: str) -> tuple[bytes, str]:
+        program = programs.get(program_id)
+        code = getattr(program, "code", None)
+        if not isinstance(code, str):
+            raise RuntimeError(
+                f"search portfolio parent {program_id} has invalid code"
+            )
+        code_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(
+            (
+                str(seed)
+                + "\0"
+                + str(iteration)
+                + "\0"
+                + island_sha256
+                + "\0"
+                + code_sha256
+            ).encode("ascii")
+        ).digest()
+        return digest, program_id
+
+    return sorted(
+        program_ids,
+        key=key,
+    )
+
+
 class _ObservedFuture:
     def __init__(self, raw: Any, iteration: int, observer: "_SliceObserver"):
         self._raw = raw
@@ -1436,6 +1985,8 @@ class _SliceObserver:
     checkpoint_saves: list[dict[str, Any]] = field(default_factory=list)
     checkpoint_controller: Any = None
     checkpoint_preflight_report: dict[str, Any] | None = None
+    search_policy_sha256: str | None = None
+    search_role_submission_counts: dict[str, int] = field(default_factory=dict)
 
     @property
     def start_iteration(self) -> int:
@@ -1461,7 +2012,17 @@ class _SliceObserver:
         if target_score is not None:
             self.violations.append("managed evolution may not use target_score")
 
-    def record_submission(self, iteration: int, island_id: Any, future: Any) -> Any:
+    def record_submission(
+        self,
+        iteration: int,
+        island_id: Any,
+        future: Any,
+        *,
+        search_role: str | None = None,
+        search_tactic: str | None = None,
+        search_parent_program_id: str | None = None,
+        search_parent_code_sha256: str | None = None,
+    ) -> Any:
         if isinstance(iteration, bool) or not isinstance(iteration, int):
             self.violations.append("submission iteration is not an integer")
         if isinstance(island_id, bool) or not isinstance(island_id, int):
@@ -1469,11 +2030,62 @@ class _SliceObserver:
                 f"submission {iteration!r} has an invalid island id"
             )
         result = "future" if future is not None else "none"
-        self.submission_attempts.append({
+        attempt = {
             "iteration": iteration,
             "island_id": island_id,
             "result": result,
-        })
+        }
+        if self.search_policy_sha256 is not None:
+            expected_island = (
+                iteration - self.start_iteration
+            ) % SEARCH_PORTFOLIO_ISLAND_COUNT
+            if island_id != expected_island:
+                self.violations.append(
+                    f"submission {iteration!r} did not use its effective island"
+                )
+            expected_role = SEARCH_PORTFOLIO_ROLES[expected_island]
+            if search_role != expected_role:
+                self.violations.append(
+                    f"submission {iteration!r} has an invalid search role"
+                )
+            if search_tactic not in ADAPTIVE_MUTATION_TACTICS:
+                self.violations.append(
+                    f"submission {iteration!r} has an invalid search tactic"
+                )
+            if (
+                not isinstance(search_parent_program_id, str)
+                or not search_parent_program_id
+                or Path(search_parent_program_id).name
+                != search_parent_program_id
+            ):
+                self.violations.append(
+                    f"submission {iteration!r} has an invalid parent program id"
+                )
+            if (
+                not isinstance(search_parent_code_sha256, str)
+                or len(search_parent_code_sha256) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in search_parent_code_sha256
+                )
+            ):
+                self.violations.append(
+                    f"submission {iteration!r} has an invalid parent code hash"
+                )
+            attempt.update({
+                "search_portfolio_schema_version":
+                    SEARCH_PORTFOLIO_SCHEMA_VERSION,
+                "search_policy_sha256": self.search_policy_sha256,
+                "search_role": search_role,
+                "search_tactic": search_tactic,
+                "search_parent_program_id": search_parent_program_id,
+                "search_parent_code_sha256": search_parent_code_sha256,
+            })
+            if search_role is not None:
+                self.search_role_submission_counts[search_role] = (
+                    self.search_role_submission_counts.get(search_role, 0) + 1
+                )
+        self.submission_attempts.append(attempt)
         if future is None:
             return None
         return _ObservedFuture(future, iteration, self)
@@ -1804,6 +2416,21 @@ class _SliceObserver:
             item["result"] != "future" for item in self.submission_attempts
         ):
             self.violations.append("submitted futures are not the exact requested range")
+        if self.search_policy_sha256 is not None:
+            counts = [
+                self.search_role_submission_counts.get(role, 0)
+                for role in SEARCH_PORTFOLIO_ROLES
+            ]
+            if sum(counts) != self.iterations or max(counts) - min(counts) > 1:
+                self.violations.append(
+                    "search portfolio submissions are not balanced across roles"
+                )
+            role_counts = {
+                role: self.search_role_submission_counts.get(role, 0)
+                for role in SEARCH_PORTFOLIO_ROLES
+            }
+            for attempt in self.submission_attempts:
+                attempt["search_role_submission_counts"] = role_counts
         if self.shutdown_requested or controller.shutdown_event.is_set():
             self.violations.append("shutdown was requested")
         if controller.early_stopping_triggered:
@@ -1917,6 +2544,8 @@ def _verified_slice_controller(
     *,
     expected_preflight_contract_id: int | None = None,
     checkpoint_preflight_required: bool = False,
+    search_config: Any = None,
+    adaptive_mutation_policy: dict[str, int] | None = None,
 ):
     if isinstance(iterations, bool) or not isinstance(iterations, int) or iterations < 1:
         raise RuntimeError("managed slice iterations must be positive")
@@ -1928,17 +2557,172 @@ def _verified_slice_controller(
         expected_preflight_contract_id=expected_preflight_contract_id,
         checkpoint_preflight_required=checkpoint_preflight_required,
     )
+    portfolio_seed: int | None = None
+    portfolio_policy: dict[str, int] | None = None
+    if search_config is not None:
+        portfolio_seed = _validated_search_portfolio_config(search_config)
+        portfolio_policy = (
+            dict(DEFAULT_ADAPTIVE_MUTATION_POLICY)
+            if adaptive_mutation_policy is None
+            else dict(adaptive_mutation_policy)
+        )
+        # Validate explicit callers through the same exact parser contract.
+        if (
+            set(portfolio_policy) != set(ADAPTIVE_MUTATION_TACTICS)
+            or any(
+                isinstance(portfolio_policy[name], bool)
+                or not isinstance(portfolio_policy[name], int)
+                or portfolio_policy[name] < 0
+                for name in ADAPTIVE_MUTATION_TACTICS
+            )
+            or sum(portfolio_policy.values())
+            != ADAPTIVE_MUTATION_TOTAL_WEIGHT
+            or portfolio_policy["novel_structure_exploration"]
+            < ADAPTIVE_MUTATION_EXPLORATION_FLOOR
+        ):
+            raise RuntimeError("adaptive mutation policy is invalid")
+        observer.search_policy_sha256 = (
+            _adaptive_mutation_policy_sha256(portfolio_policy)
+        )
     original_parallel = controller_module.ProcessParallelController
     original_save = controller_module.OpenEvolve._save_checkpoint
 
     class VerifiedProcessParallelController(original_parallel):
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            self._search_iteration_targets: dict[int, int] = {}
+            self._search_slice_elites: tuple[tuple[str, ...], ...] | None = (
+                None
+            )
+            self._search_slice_programs: dict[str, Any] | None = None
+            self._search_slice_snapshot: dict[str, Any] | None = None
+            if portfolio_seed is not None:
+                _validated_search_portfolio_config(self.config)
+                self.database._calculate_feature_coords = (
+                    _fixed_search_feature_coords
+                )
+                _rebuild_fixed_search_feature_maps(self.database)
+
         def request_shutdown(self) -> None:
             observer.shutdown_requested = True
             return super().request_shutdown()
 
         def _submit_iteration(self, iteration: int, island_id: Any = None) -> Any:
-            future = super()._submit_iteration(iteration, island_id)
-            return observer.record_submission(iteration, island_id, future)
+            if portfolio_seed is None:
+                future = super()._submit_iteration(iteration, island_id)
+                return observer.record_submission(iteration, island_id, future)
+            assert portfolio_policy is not None
+            target_island = (
+                iteration - observer.start_iteration
+            ) % SEARCH_PORTFOLIO_ISLAND_COUNT
+            self._search_iteration_targets[iteration] = target_island
+            if (
+                self._search_slice_elites is None
+                or self._search_slice_programs is None
+                or self._search_slice_snapshot is None
+            ):
+                raise RuntimeError(
+                    "search portfolio parent archive was not frozen"
+                )
+            selectable_elites = list(
+                self._search_slice_elites[target_island]
+            )
+            if not selectable_elites:
+                selectable_elites = sorted({
+                    program_id
+                    for island_elites in self._search_slice_elites
+                    for program_id in island_elites
+                })
+            if not selectable_elites:
+                raise RuntimeError(
+                    "search portfolio has no frozen parent elite"
+                )
+            if any(
+                program_id not in self._search_slice_programs
+                for program_id in selectable_elites
+            ):
+                raise RuntimeError(
+                    "search portfolio frozen parent snapshot is incomplete"
+                )
+            elite_ids = _deterministic_search_order(
+                selectable_elites,
+                programs=self._search_slice_programs,
+                seed=portfolio_seed,
+                iteration=iteration,
+                island=target_island,
+            )
+            parent = self._search_slice_programs[elite_ids[0]]
+            inspiration_ids = elite_ids[
+                1:1 + self.config.prompt.num_top_programs
+            ]
+            # Every worker in this managed slice sees the same immutable
+            # start-of-slice database.  A population cleanup caused by an
+            # earlier completion therefore cannot delete a parent needed by a
+            # later submission, and completion order cannot affect prompts.
+            snapshot = copy.deepcopy(self._search_slice_snapshot)
+            snapshot["current_island"] = target_island
+            snapshot["sampling_island"] = target_island
+            parent_row = snapshot["programs"].get(parent.id)
+            if not isinstance(parent_row, dict):
+                raise RuntimeError("selected parent is missing from snapshot")
+            parent_metadata = parent_row.get("metadata")
+            if not isinstance(parent_metadata, dict):
+                raise RuntimeError("selected parent snapshot metadata are invalid")
+            parent_metadata = dict(parent_metadata)
+            parent_metadata["island"] = target_island
+            parent_row["metadata"] = parent_metadata
+            snapshot["islands"][target_island] = sorted({
+                *snapshot["islands"][target_island],
+                parent.id,
+                *inspiration_ids,
+            })
+            tactic = _adaptive_mutation_tactic(
+                portfolio_policy,
+                program_code=parent.code,
+                iteration=iteration,
+            )
+            parent_artifacts = snapshot["artifacts"].get(parent.id)
+            if parent_artifacts is None:
+                parent_artifacts = {}
+            if not isinstance(parent_artifacts, dict):
+                raise RuntimeError("selected parent artifacts are not an object")
+            parent_artifacts = dict(parent_artifacts)
+            parent_artifacts[SEARCH_PORTFOLIO_ARTIFACT_KEY] = {
+                "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
+                "island_id": target_island,
+                "island_role": SEARCH_PORTFOLIO_ROLES[target_island],
+                "island_directive":
+                    SEARCH_PORTFOLIO_DIRECTIVES[target_island],
+                "support_split_targets": [
+                    list(split)
+                    for split in SEARCH_PORTFOLIO_SUPPORT_TARGETS[
+                        target_island
+                    ]
+                ],
+                "adaptive_mutation_tactic": tactic,
+                "adaptive_mutation_directive":
+                    ADAPTIVE_MUTATION_DIRECTIVES[tactic],
+                "policy_sha256": observer.search_policy_sha256,
+            }
+            snapshot["artifacts"][parent.id] = parent_artifacts
+            future = self.executor.submit(
+                process_module._run_iteration_worker,
+                iteration,
+                snapshot,
+                parent.id,
+                inspiration_ids,
+            )
+            return observer.record_submission(
+                iteration,
+                target_island,
+                future,
+                search_role=SEARCH_PORTFOLIO_ROLES[target_island],
+                search_tactic=tactic,
+                search_parent_program_id=parent.id,
+                search_parent_code_sha256=hashlib.sha256(
+                    parent.code.encode("utf-8")
+                ).hexdigest(),
+            )
 
         async def run_evolution(
             self,
@@ -1948,6 +2732,26 @@ def _verified_slice_controller(
             checkpoint_callback: Any = None,
         ) -> Any:
             observer.begin(start_iteration, max_iterations, target_score)
+            if portfolio_seed is not None:
+                _rebuild_fixed_search_feature_maps(self.database)
+                self._search_slice_elites = tuple(
+                    tuple(sorted(set(feature_map.values())))
+                    for feature_map in self.database.island_feature_maps
+                )
+                frozen_ids = {
+                    program_id
+                    for island_elites in self._search_slice_elites
+                    for program_id in island_elites
+                }
+                self._search_slice_programs = {
+                    program_id: copy.deepcopy(
+                        self.database.programs[program_id]
+                    )
+                    for program_id in frozen_ids
+                }
+                self._search_slice_snapshot = copy.deepcopy(
+                    self._create_database_snapshot()
+                )
             checkpoint_controller = getattr(checkpoint_callback, "__self__", None)
             if checkpoint_controller is None:
                 observer.violations.append(
@@ -1967,9 +2771,32 @@ def _verified_slice_controller(
                     if iteration is None
                     else None
                 )
+                effective_target = target_island
+                if portfolio_seed is not None and iteration is not None:
+                    effective_target = self._search_iteration_targets.get(
+                        iteration
+                    )
+                    if effective_target is None:
+                        observer.violations.append(
+                            f"database add for iteration {iteration} has no "
+                            "effective island"
+                        )
+                    metadata = getattr(program, "metadata", None)
+                    if (
+                        not isinstance(metadata, dict)
+                        or metadata.get("island") != effective_target
+                    ):
+                        observer.violations.append(
+                            f"database add for iteration {iteration} changed "
+                            "worker island content"
+                        )
                 result = original_add(
-                    program, iteration=iteration, target_island=target_island
+                    program,
+                    iteration=iteration,
+                    target_island=effective_target,
                 )
+                if portfolio_seed is not None:
+                    _rebuild_fixed_search_feature_maps(self.database)
                 stored = self.database.programs.get(getattr(program, "id", None))
                 if stored is None:
                     observer.violations.append(
@@ -2388,6 +3215,20 @@ def _write_slice_witness(
         "candidate_wal_clean": candidate_source["wal_clean"],
         "openevolve_version": SUPPORTED_OPENEVOLVE_VERSION,
         "completed_at": datetime.now().astimezone().isoformat(),
+        "search_portfolio": (
+            None
+            if observer.search_policy_sha256 is None
+            else {
+                "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
+                "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
+                "roles": list(SEARCH_PORTFOLIO_ROLES),
+                "policy_sha256": observer.search_policy_sha256,
+                "role_submission_counts": {
+                    role: observer.search_role_submission_counts.get(role, 0)
+                    for role in SEARCH_PORTFOLIO_ROLES
+                },
+            }
+        ),
     }
     payload.update(effective_invocation)
     for name, identity in launch_binding.items():
@@ -2934,6 +3775,18 @@ def main():
     # exact absolute candidate log before loading any evolved program. This is
     # also required by --milp, whose patched evaluator copy lives inside the
     # output directory and therefore cannot infer PROJECT_ROOT from __file__.
+    mutated_environment_names = (
+        "QCODE_RUN_NAME",
+        CANDIDATE_LOG_PATH_ENV,
+        "QCODE_EVALUATOR_OUTER_TIMEOUT_S",
+        WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        "QCODE_CODEX_BIN",
+        "QCODE_CODEX_CWD",
+    )
+    original_environment = {
+        name: os.environ.get(name)
+        for name in mutated_environment_names
+    }
     run_name = Path(output_dir).name
     os.environ["QCODE_RUN_NAME"] = run_name
     candidate_log_path = (
@@ -3046,12 +3899,18 @@ def main():
     dependency_identities: dict[str, dict[str, Any]] | None = None
     codex_executable_identity: dict[str, Any] | None = None
     preflight_contract_id: int | None = None
+    adaptive_mutation_policy: dict[str, int] | None = None
+    search_portfolio_enabled = False
     try:
         context_text: str | None = None
         if managed_requested:
             context_text, context_identity = _read_text_snapshot(
                 args.humanize_context, "evolution humanize context"
             )
+            if not args.noncss:
+                adaptive_mutation_policy = (
+                    _validated_adaptive_mutation_policy(context_text)
+                )
             dependency_identities = _evaluator_dependency_identities()
             args._humanize_context_text = context_text
         codex_version: str | None = None
@@ -3065,6 +3924,17 @@ def main():
             ) = _resolve_codex_execution_binding()
             codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
+        if not args.noncss:
+            search_portfolio_enabled = _search_portfolio_requested(
+                args.config
+            )
+            if search_portfolio_enabled and not managed_requested:
+                raise RuntimeError(
+                    "qcode_search_portfolio requires managed Humanize "
+                    "slice accounting"
+                )
+            if search_portfolio_enabled:
+                _validated_search_portfolio_config(config)
         evaluator_timeout = getattr(config.evaluator, "timeout", None)
         if (
             isinstance(evaluator_timeout, bool)
@@ -3137,6 +4007,11 @@ def main():
                 f"(cap: {args.max_parallel_evaluations})"
             )
         print(f"  Model backend: {'Codex CLI' if args.codex_cli else api_base}")
+        if search_portfolio_enabled:
+            print(
+                "  Search portfolio: fixed MAP-Elites v3, "
+                "5 structural-role islands"
+            )
         print(f"  Seed: {seed_path}")
         if args.noncss:
             print(f"  Mode: Non-CSS PBB codes")
@@ -3156,6 +4031,12 @@ def main():
                     args.resume is not None
                     and preflight_contract_id is not None
                 ),
+                search_config=(
+                    config
+                    if search_portfolio_enabled
+                    else None
+                ),
+                adaptive_mutation_policy=adaptive_mutation_policy,
             )
         else:
             slice_context = nullcontext((None, None))
@@ -3305,6 +4186,11 @@ def main():
         print("\nEvolution interrupted by user.")
         raise SystemExit(130)
     finally:
+        for name, original_value in original_environment.items():
+            if original_value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = original_value
         if wandb_syncer:
             wandb_syncer.stop()
         if args.wandb:

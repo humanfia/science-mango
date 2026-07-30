@@ -37,13 +37,17 @@ Two-stage cascade
 
 MAP-Elites feature dimensions
 ------------------------------
-* ``term_count`` -- mean maximum A/B support size across the canonical
+* ``pattern_type`` -- dominant structural class across the canonical
   evaluated pool.
-* ``pattern_type`` -- dominant structural class across that same pool.
+* ``support_split_type`` -- dominant admissible ``(|A|, |B|)`` split, using
+  the fixed challenge-contract order.
+* ``search_structural_entropy`` -- normalized Shannon entropy of the
+  structural-pattern distribution across that same pool.
 
 These pool-level features encourage behavioral diversity without allowing a
 single fixed safety-net code to determine the archive cell for an otherwise
-different generator.
+different generator. ``term_count`` remains available as a backward-compatible
+diagnostic metric, but is no longer an active ansatz-campaign archive axis.
 
 Constants
 ---------
@@ -259,15 +263,18 @@ SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC = "support_split_lattice_coverage"
 # multi-term cell 4. Checkpoints containing version-1 descriptors must be
 # freshly evaluated rather than silently compared across classifier versions.
 PATTERN_CLASSIFIER_VERSION_METRIC = "pattern_classifier_version"
-# Version 2 replaces the historical single-best-code MAP descriptor with an
-# order-independent descriptor of the complete evaluated candidate pool.
-# Archive coordinates from older checkpoints are therefore not comparable.
-MAP_DESCRIPTOR_VERSION = 2
+# Version 3 adds fixed challenge-support and structural-entropy coordinates to
+# the order-independent complete-pool descriptor. Archive coordinates from
+# older checkpoints are therefore not comparable.
+MAP_DESCRIPTOR_VERSION = 3
 MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
 MAP_DESCRIPTOR_POOL_SIZE_METRIC = "map_descriptor_pool_size"
 MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
     "map_descriptor_dominant_pattern_share"
 )
+MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC = "support_split_type"
+MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC = "search_structural_entropy"
+MAP_DESCRIPTOR_PATTERN_CARDINALITY = 6
 STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
 MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
@@ -1893,7 +1900,12 @@ def _pool_map_descriptor(
 
     * ``term_count`` is the mean maximum A/B support size;
     * ``pattern_type`` is the dominant structural class, with deterministic
-      lowest-class tie breaking.
+      lowest-class tie breaking;
+    * ``support_split_type`` is the dominant challenge support split's fixed
+      zero-based index in ``CHALLENGE_SUPPORT_SPLITS``, with the same
+      deterministic tie breaking;
+    * ``search_structural_entropy`` is Shannon entropy of the six-class
+      pattern distribution, normalized by ``log(6)`` into ``[0, 1]``.
 
     Rows need not have positive ``k``.  MAP-Elites is describing the search
     strategy's output distribution; mathematical usefulness remains entirely
@@ -1910,11 +1922,15 @@ def _pool_map_descriptor(
             if lattices is not None and lattice not in lattices:
                 continue
             candidate = (row.get("A_terms", []), row.get("B_terms", []))
-            if _challenge_support_split(candidate) is None:
+            support_split = _challenge_support_split(candidate)
+            if support_split is None:
                 continue
             definition = _definition_key(row)
             pattern = _classify_pattern(*candidate)
             term_count = _count_terms(*candidate)
+            support_split_type = CHALLENGE_SUPPORT_SPLITS.index(
+                support_split
+            )
         except (TypeError, ValueError):
             continue
         if definition in seen:
@@ -1923,12 +1939,15 @@ def _pool_map_descriptor(
         unique_rows.append({
             "pattern_type": pattern,
             "term_count": term_count,
+            MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: support_split_type,
         })
 
     if not unique_rows:
         return {
             "term_count": 0.0,
             "pattern_type": 0.0,
+            MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 0.0,
+            MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC: 0.0,
             MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
             MAP_DESCRIPTOR_POOL_SIZE_METRIC: 0.0,
             MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: 0.0,
@@ -1942,12 +1961,31 @@ def _pool_map_descriptor(
         pattern_counts.items(),
         key=lambda item: (-item[1], item[0]),
     )
+    support_split_counts: dict[int, int] = {}
+    for row in unique_rows:
+        support_split_type = row[MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC]
+        support_split_counts[support_split_type] = (
+            support_split_counts.get(support_split_type, 0) + 1
+        )
+    dominant_support_split, _dominant_support_count = min(
+        support_split_counts.items(),
+        key=lambda item: (-item[1], item[0]),
+    )
     pool_size = len(unique_rows)
+    structural_entropy = -sum(
+        (count / pool_size) * math.log(count / pool_size)
+        for count in pattern_counts.values()
+    ) / math.log(MAP_DESCRIPTOR_PATTERN_CARDINALITY)
+    structural_entropy = min(1.0, max(0.0, structural_entropy))
     return {
         "term_count": (
             sum(row["term_count"] for row in unique_rows) / pool_size
         ),
         "pattern_type": dominant_pattern,
+        MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: float(
+            dominant_support_split
+        ),
+        MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC: structural_entropy,
         MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
         MAP_DESCRIPTOR_POOL_SIZE_METRIC: float(pool_size),
         MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: (

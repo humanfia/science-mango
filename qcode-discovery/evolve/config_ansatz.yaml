@@ -4,18 +4,20 @@
 # beyond the 3 known families (x/y-swap, constant-monomial, Bravyi standard).
 # Seed, prompt, and MAP-Elites features are tuned for structural novelty.
 #
-# Usage:
-#   uv run python evolve/run_evolution.py \
-#     --config evolve/config_ansatz.yaml \
-#     --seed evolve/seed_solution_ansatz.py \
-#     --iterations 300 \
-#     --run-name ansatz_campaign4
+# Usage: select this config and seed through HumanizeFlow.  The versioned
+# five-island adapter requires its managed context, witness, and checkpoint
+# transaction and deliberately rejects an unmanaged direct launch.
 
 max_iterations: 300
 diff_based_evolution: true
 log_level: "INFO"
 max_code_length: 50000
 checkpoint_interval: 25
+
+qcode_search_portfolio:
+  # Enforced by the Humanize-managed launcher; unmanaged runs fail closed.
+  enabled: true
+  schema_version: 1
 
 llm:
   api_base: "http://localhost:4000/v1"
@@ -136,6 +138,16 @@ evaluator:
 
 database:
   population_size: 500
+  archive_size: 180
   num_islands: 5
+  exploration_ratio: 0.45
+  exploitation_ratio: 0.45
   migration_interval: 20
-  feature_dimensions: ["term_count", "pattern_type"]
+  feature_dimensions:
+    - "pattern_type"
+    - "support_split_type"
+    - "search_structural_entropy"
+  feature_bins:
+    pattern_type: 6
+    support_split_type: 6
+    search_structural_entropy: 5

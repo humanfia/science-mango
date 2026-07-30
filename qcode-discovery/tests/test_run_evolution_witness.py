@@ -133,6 +133,9 @@ def _map_descriptor_metrics(
     *,
     pool_size: int = 1,
     dominant_share: float = 1.0,
+    pattern_type: int = 0,
+    support_split_type: int = 0,
+    structural_entropy: float = 0.0,
 ) -> dict[str, float]:
     return {
         launcher.MAP_DESCRIPTOR_VERSION_METRIC: float(
@@ -140,7 +143,764 @@ def _map_descriptor_metrics(
         ),
         launcher.MAP_DESCRIPTOR_POOL_SIZE_METRIC: float(pool_size),
         launcher.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: dominant_share,
+        "pattern_type": float(pattern_type),
+        launcher.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC:
+            float(support_split_type),
+        launcher.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC:
+            structural_entropy,
     }
+
+
+def _portfolio_config() -> SimpleNamespace:
+    return SimpleNamespace(
+        random_seed=1729,
+        prompt=SimpleNamespace(num_top_programs=3),
+        database=SimpleNamespace(
+            num_islands=5,
+            feature_dimensions=list(
+                launcher.SEARCH_PORTFOLIO_FEATURE_DIMENSIONS
+            ),
+            feature_bins=dict(launcher.SEARCH_PORTFOLIO_FEATURE_BINS),
+            archive_size=500,
+        ),
+    )
+
+
+def test_search_portfolio_config_is_exact_and_rejects_old_shape():
+    assert launcher._validated_search_portfolio_config(
+        _portfolio_config()
+    ) == 1729
+    bad = _portfolio_config()
+    bad.database.feature_dimensions = [
+        "term_count",
+        "pattern_type",
+    ]
+    with pytest.raises(RuntimeError, match="feature_dimensions"):
+        launcher._validated_search_portfolio_config(bad)
+
+
+def test_search_portfolio_requires_explicit_versioned_yaml_marker(tmp_path):
+    disabled = tmp_path / "disabled.yaml"
+    disabled.write_text("database:\n  num_islands: 5\n")
+    assert launcher._search_portfolio_requested(disabled) is False
+
+    enabled = tmp_path / "enabled.yaml"
+    enabled.write_text(
+        "qcode_search_portfolio:\n"
+        "  enabled: true\n"
+        "  schema_version: 1\n"
+    )
+    assert launcher._search_portfolio_requested(enabled) is True
+
+    malformed = tmp_path / "malformed.yaml"
+    malformed.write_text(
+        "qcode_search_portfolio:\n"
+        "  enabled: true\n"
+        "  schema_version: 2\n"
+    )
+    with pytest.raises(RuntimeError, match="marker must be exactly"):
+        launcher._search_portfolio_requested(malformed)
+
+    for name, marker in {
+        "explicit-null": "null\n",
+        "integer-enabled": "enabled: 1\n  schema_version: 1\n",
+        "boolean-schema": "enabled: true\n  schema_version: true\n",
+    }.items():
+        invalid = tmp_path / f"{name}.yaml"
+        invalid.write_text("qcode_search_portfolio:\n  " + marker)
+        with pytest.raises(RuntimeError, match="marker must be exactly"):
+            launcher._search_portfolio_requested(invalid)
+
+
+def test_adaptive_policy_parses_real_producer_mapping_and_is_deterministic():
+    policy = {
+        "novel_structure_exploration": 250,
+        "repair_x_low_weight": 250,
+        "repair_z_low_weight": 250,
+        "repair_dual_balance": 250,
+    }
+    context = (
+        "Reviewer diagnosis follows.\n"
+        + launcher.ADAPTIVE_MUTATION_POLICY_PREFIX
+        + json.dumps(policy, sort_keys=True, separators=(",", ":"))
+        + "\nContinue the campaign.\n"
+    )
+    parsed = launcher._validated_adaptive_mutation_policy(context)
+    assert parsed == policy
+    first = launcher._adaptive_mutation_tactic(
+        parsed, program_code="def generate_candidates(): pass", iteration=41
+    )
+    second = launcher._adaptive_mutation_tactic(
+        parsed, program_code="def generate_candidates(): pass", iteration=41
+    )
+    assert first == second
+    assert first in launcher.ADAPTIVE_MUTATION_TACTICS
+
+
+@pytest.mark.parametrize(
+    "context",
+    (
+        " QCODE_ADAPTIVE_MUTATION_POLICY_V1={}",
+        "QCODE_ADAPTIVE_MUTATION_POLICY_V1={}",
+        (
+            "QCODE_ADAPTIVE_MUTATION_POLICY_V1={}\n"
+            "QCODE_ADAPTIVE_MUTATION_POLICY_V1={}"
+        ),
+        (
+            "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
+            '{"novel_structure_exploration":249,'
+            '"repair_dual_balance":251,'
+            '"repair_x_low_weight":250,'
+            '"repair_z_low_weight":250}'
+        ),
+        (
+            "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
+            '{"novel_structure_exploration": 250,'
+            '"repair_dual_balance":250,'
+            '"repair_x_low_weight":250,'
+            '"repair_z_low_weight":250}'
+        ),
+        (
+            "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
+            '{"novel_structure_exploration":250,'
+            '"novel_structure_exploration":250,'
+            '"repair_dual_balance":250,'
+            '"repair_x_low_weight":250,'
+            '"repair_z_low_weight":250}'
+        ),
+    ),
+)
+def test_adaptive_policy_bad_block_fails_closed(context):
+    with pytest.raises(RuntimeError, match="adaptive mutation policy"):
+        launcher._validated_adaptive_mutation_policy(context)
+
+
+def test_fixed_portfolio_bins_are_stable_and_v2_is_rejected():
+    program = SimpleNamespace(
+        id="stable",
+        metrics={
+            **_map_descriptor_metrics(
+                pattern_type=5,
+                support_split_type=4,
+                structural_entropy=1.0,
+            ),
+            "combined_score": 1.0,
+        },
+    )
+    assert launcher._fixed_search_feature_coords(program) == [5, 4, 4]
+    program.metrics[launcher.MAP_DESCRIPTOR_VERSION_METRIC] = 2.0
+    with pytest.raises(RuntimeError, match="incompatible MAP descriptor"):
+        launcher._fixed_search_feature_coords(program)
+
+
+def test_structural_island_admission_categories_match_evaluator_order():
+    import evolve.openevolve_evaluator as evaluator
+
+    expected = tuple(
+        tuple(
+            evaluator.CHALLENGE_SUPPORT_SPLITS.index(split)
+            for split in targets
+        )
+        if targets
+        else tuple(range(len(evaluator.CHALLENGE_SUPPORT_SPLITS)))
+        for targets in launcher.SEARCH_PORTFOLIO_SUPPORT_TARGETS
+    )
+    assert launcher.SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES == expected
+
+
+def test_real_ansatz_seed_bootstraps_into_its_structural_island():
+    import evolve.openevolve_evaluator as evaluator
+    import evolve.seed_solution_ansatz as seed
+
+    rows = []
+    for ell, m in evaluator.STAGE2_FITNESS_LATTICES:
+        rows.extend(
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+            }
+            for a_terms, b_terms in seed.generate_candidates(ell, m)
+        )
+    metrics = evaluator._pool_map_descriptor(
+        rows,
+        lattices=set(evaluator.STAGE2_FITNESS_LATTICES),
+    )
+    assert metrics[launcher.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC] == 5.0
+    root = SimpleNamespace(
+        id="real-ansatz-seed",
+        code=Path(seed.__file__).read_text(),
+        parent_id=None,
+        metrics={"combined_score": 0.0, **metrics},
+        metadata={"island": 0},
+    )
+    database = SimpleNamespace(
+        programs={root.id: root},
+        islands=[{root.id}, set(), set(), set(), set()],
+        island_feature_maps=[{} for _ in range(5)],
+        archive=set(),
+        feature_stats={},
+        feature_bins_per_dim={},
+        island_best_programs=[None] * 5,
+        best_program_id=None,
+        config=SimpleNamespace(archive_size=180),
+    )
+
+    launcher._rebuild_fixed_search_feature_maps(database)
+
+    assert root.metadata["island"] == 2
+    assert database.islands == [
+        set(),
+        set(),
+        {root.id},
+        set(),
+        set(),
+    ]
+    assert launcher._search_elite_ids(database, 0) == [root.id]
+
+
+@pytest.mark.parametrize(
+    ("metric", "value"),
+    (
+        ("pattern_type", True),
+        ("pattern_type", 6),
+        (launcher.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC, -1),
+        (launcher.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC, float("nan")),
+        (launcher.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC, 1.01),
+    ),
+)
+def test_fixed_portfolio_bins_reject_invalid_coordinates(metric, value):
+    program = SimpleNamespace(
+        id="invalid-coordinate",
+        metrics={
+            "combined_score": 1.0,
+            **_map_descriptor_metrics(),
+        },
+    )
+    program.metrics[metric] = value
+    with pytest.raises(RuntimeError, match="search portfolio"):
+        launcher._fixed_search_feature_coords(program)
+
+
+def test_rebuilt_map_samples_cell_elites_and_empty_island_falls_back_global():
+    def program(
+        program_id: str,
+        score: float,
+        *,
+        pattern: int,
+        support_split_type: int = 0,
+    ) -> SimpleNamespace:
+        return SimpleNamespace(
+            id=program_id,
+            code=f"code-{program_id}",
+            parent_id="existing-parent",
+            metrics={
+                "combined_score": score,
+                **_map_descriptor_metrics(
+                    pattern_type=pattern,
+                    support_split_type=support_split_type,
+                    structural_entropy=0.3,
+                ),
+            },
+            metadata={"island": 0},
+        )
+
+    programs = {
+        "a": program("a", 3.0, pattern=1),
+        "b": program("b", 2.0, pattern=1),
+        "c": program("c", 1.0, pattern=4),
+        # An off-role hybrid child may remain in the checkpoint database, but
+        # it cannot become a compact-island MAP elite even with a high score.
+        "off-role": program(
+            "off-role",
+            100.0,
+            pattern=5,
+            support_split_type=2,
+        ),
+        # ProgramDatabase stores a failed novelty insertion in ``programs``
+        # before returning, but does not put it in an island.  Rebuild must
+        # not promote that rejected row merely because its score is high.
+        "rejected": program("rejected", 99.0, pattern=5),
+    }
+    database = SimpleNamespace(
+        programs=programs,
+        islands=[
+            {"a", "b", "c", "off-role"},
+            set(),
+            set(),
+            set(),
+            set(),
+        ],
+        island_feature_maps=[{} for _ in range(5)],
+        archive=set(),
+        feature_stats={"moving": {"min": 0}},
+        feature_bins_per_dim={},
+        island_best_programs=[None] * 5,
+        best_program_id=None,
+    )
+    program_payloads = {
+        program_id: json.dumps(
+            vars(program_value),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        for program_id, program_value in programs.items()
+    }
+    launcher._rebuild_fixed_search_feature_maps(database)
+    assert database.islands[0] == {"a", "c"}
+    assert "b" not in database.archive
+    assert "off-role" not in database.archive
+    assert "rejected" not in database.archive
+    assert database.best_program_id == "a"
+    assert launcher._search_elite_ids(database, 0) == ["a", "c"]
+    assert launcher._search_elite_ids(database, 3) == ["a", "c"]
+    assert database.feature_stats == {}
+    first_maps = json.loads(json.dumps(database.island_feature_maps))
+    launcher._rebuild_fixed_search_feature_maps(database)
+    assert database.island_feature_maps == first_maps
+    assert set(database.programs) == set(programs)
+    assert {
+        program_id: json.dumps(
+            vars(program_value),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        for program_id, program_value in database.programs.items()
+    } == program_payloads
+
+
+def test_observer_enforces_twenty_five_submission_portfolio_quota():
+    observer = launcher._SliceObserver(0, 25, FakeResult)
+    policy = dict(launcher.DEFAULT_ADAPTIVE_MUTATION_POLICY)
+    observer.search_policy_sha256 = (
+        launcher._adaptive_mutation_policy_sha256(policy)
+    )
+    observer.begin(1, 25, None)
+    programs = {}
+    tactic = launcher.ADAPTIVE_MUTATION_TACTICS[0]
+    for iteration in range(1, 26):
+        island = (iteration - 1) % 5
+        future = observer.record_submission(
+            iteration,
+            island,
+            FakeFuture(_child(iteration)),
+            search_role=launcher.SEARCH_PORTFOLIO_ROLES[island],
+            search_tactic=tactic,
+            search_parent_program_id=f"parent-{iteration}",
+            search_parent_code_sha256=hashlib.sha256(
+                f"parent-{iteration}".encode()
+            ).hexdigest(),
+        )
+        result = future.result()
+        program_id = result.child_program_dict["id"]
+        programs[program_id] = SimpleNamespace(
+            **result.child_program_dict
+        )
+        observer.record_program_add(iteration, programs[program_id])
+    observer.verify(_observer_controller(programs))
+    assert observer.search_role_submission_counts == {
+        role: 5 for role in launcher.SEARCH_PORTFOLIO_ROLES
+    }
+    assert observer.submission_attempts[0][
+        "search_role_submission_counts"
+    ] == {role: 5 for role in launcher.SEARCH_PORTFOLIO_ROLES}
+
+
+class FakePortfolioDatabase:
+    def __init__(self):
+        seed = SimpleNamespace(
+            id="portfolio-seed",
+            code="def generate_candidates(): return []",
+            parent_id=None,
+            generation=0,
+            metrics={
+                "combined_score": 0.0,
+                **_map_descriptor_metrics(),
+            },
+            iteration_found=0,
+            metadata={"island": 0, "origin": "seed"},
+        )
+        self.programs = {seed.id: seed}
+        self.islands = [{seed.id}, set(), set(), set(), set()]
+        self.island_feature_maps = [{} for _ in range(5)]
+        self.archive: set[str] = set()
+        self.feature_stats: dict[str, Any] = {}
+        self.feature_bins_per_dim: dict[str, int] = {}
+        self.island_best_programs: list[str | None] = [None] * 5
+        self.best_program_id: str | None = None
+        self.config = SimpleNamespace(archive_size=500)
+        self.artifacts = {
+            seed.id: {"seed_artifact": {"preserved": True}},
+        }
+        self.add_order: list[int] = []
+        self.drop_seed_on_first_add = False
+
+    def add(
+        self,
+        program: Any,
+        iteration: int | None = None,
+        target_island: int | None = None,
+    ) -> str:
+        assert iteration is not None
+        assert target_island is not None
+        program.iteration_found = iteration
+        # Pinned OpenEvolve records the effective target in metadata.  In the
+        # success case this is an idempotent assignment; in the adversarial
+        # case it exposes a worker/scheduler disagreement to the observer's
+        # byte-for-byte check.
+        program.metadata["island"] = target_island
+        self.programs[program.id] = program
+        self.islands[target_island].add(program.id)
+        self.add_order.append(iteration)
+        if self.drop_seed_on_first_add and len(self.add_order) == 1:
+            self.programs.pop("portfolio-seed")
+            for island in self.islands:
+                island.discard("portfolio-seed")
+            self.artifacts.pop("portfolio-seed", None)
+        return program.id
+
+
+class FakePortfolioExecutor:
+    def __init__(self):
+        self.calls: list[tuple[Any, tuple[Any, ...]]] = []
+
+    def submit(self, function: Any, *args: Any) -> FakeFuture:
+        self.calls.append((function, args))
+        return FakeFuture(function(*args))
+
+
+class FakePortfolioParallelController:
+    sequential = False
+
+    def __init__(self, database: FakePortfolioDatabase, config: Any):
+        self.database = database
+        self.config = config
+        self.executor = FakePortfolioExecutor()
+        self.num_islands = 5
+        self.shutdown_event = threading.Event()
+        self.early_stopping_triggered = False
+
+    def request_shutdown(self) -> None:
+        self.shutdown_event.set()
+
+    def _create_database_snapshot(self) -> dict[str, Any]:
+        # JSON round-tripping is intentional: a real process snapshot owns
+        # its values.  If the adapter accidentally mutates the main seed while
+        # rebinding an empty island, the assertion below will catch it.
+        programs = {
+            program_id: json.loads(json.dumps(vars(program)))
+            for program_id, program in self.database.programs.items()
+        }
+        artifacts = json.loads(json.dumps(self.database.artifacts))
+        return {
+            "programs": programs,
+            "artifacts": artifacts,
+            "islands": [
+                sorted(program_ids)
+                for program_ids in self.database.islands
+            ],
+            "current_island": 0,
+            "sampling_island": 0,
+            "feature_dimensions": list(
+                self.config.database.feature_dimensions
+            ),
+        }
+
+    async def run_evolution(
+        self,
+        start_iteration: int,
+        max_iterations: int,
+        target_score: float | None = None,
+        checkpoint_callback: Any = None,
+    ) -> None:
+        del target_score
+        end_iteration = start_iteration + max_iterations - 1
+        if self.sequential:
+            for iteration in range(start_iteration, end_iteration + 1):
+                future = self._submit_iteration(iteration, 0)
+                result = future.result()
+                child = SimpleNamespace(**result.child_program_dict)
+                self.database.add(child, iteration=iteration)
+            checkpoint_callback(end_iteration)
+            return
+        futures = [
+            (iteration, self._submit_iteration(iteration, 0))
+            for iteration in range(start_iteration, end_iteration + 1)
+        ]
+        checkpoint_callback(start_iteration)
+        # Deliberately integrate in reverse completion order.  The portfolio
+        # lane must remain a pure function of the iteration, not whichever
+        # worker happens to finish first.
+        for iteration, future in reversed(futures):
+            result = future.result()
+            child = SimpleNamespace(**result.child_program_dict)
+            self.database.add(child, iteration=iteration)
+        checkpoint_callback(end_iteration)
+
+
+class FakePortfolioOpenEvolve:
+    def __init__(self):
+        self.output_dir = "/fake-portfolio-output"
+        self.saved: list[int] = []
+
+    def _save_checkpoint(self, iteration: int) -> None:
+        self.saved.append(iteration)
+
+
+def _install_fake_portfolio_sources(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    wrong_worker_island: bool,
+) -> tuple[Any, dict[str, Any]]:
+    worker_state: dict[str, Any] = {
+        "rows": {},
+        "snapshots": {},
+        "wrong_worker_island": wrong_worker_island,
+    }
+
+    def run_worker(
+        iteration: int,
+        snapshot: dict[str, Any],
+        parent_id: str,
+        inspiration_ids: list[str],
+    ) -> FakeResult:
+        del inspiration_ids
+        parent = snapshot["programs"][parent_id]
+        target_island = parent["metadata"]["island"]
+        artifact = snapshot["artifacts"][parent_id][
+            launcher.SEARCH_PORTFOLIO_ARTIFACT_KEY
+        ]
+        child_island = target_island
+        if worker_state["wrong_worker_island"]:
+            child_island = (target_island + 1) % 5
+        child = {
+            "id": f"portfolio-child-{iteration}",
+            "code": f"portfolio-code-{iteration}",
+            "parent_id": parent_id,
+            "generation": 1,
+            "metrics": {
+                "combined_score": float(iteration + 10),
+                **_map_descriptor_metrics(
+                    support_split_type=(0, 1, 5, 3, 0)[target_island],
+                ),
+            },
+            "iteration_found": iteration,
+            "metadata": {
+                "changes": "fake portfolio mutation",
+                "island": child_island,
+            },
+        }
+        worker_state["rows"][iteration] = json.loads(json.dumps(child))
+        worker_state["snapshots"][iteration] = {
+            "parent_id": parent_id,
+            "parent_metadata": json.loads(json.dumps(parent["metadata"])),
+            "portfolio_artifact": json.loads(json.dumps(artifact)),
+        }
+        return FakeResult(child_program_dict=child, iteration=iteration)
+
+    controller_module = SimpleNamespace(
+        ProcessParallelController=FakePortfolioParallelController,
+        OpenEvolve=FakePortfolioOpenEvolve,
+    )
+    process_module = SimpleNamespace(
+        SerializableResult=FakeResult,
+        _run_iteration_worker=run_worker,
+    )
+    monkeypatch.setattr(
+        launcher,
+        "_openevolve_source_binding",
+        lambda: (
+            {
+                "controller": {
+                    "path": "/fake/portfolio-controller.py",
+                    "sha256": "b" * 64,
+                    "bytes": 1,
+                },
+            },
+            controller_module,
+            process_module,
+        ),
+    )
+    monkeypatch.setattr(
+        launcher,
+        "_strong_checkpoint_descriptor",
+        lambda _output, _checkpoint, expected_iteration=None: {
+            "path": (
+                "/fake-portfolio-output/checkpoints/"
+                f"checkpoint_{expected_iteration}"
+            ),
+            "last_iteration": expected_iteration,
+            "sha256": f"{expected_iteration:064x}",
+            "programs": expected_iteration + 1,
+        },
+    )
+    return controller_module, worker_state
+
+
+def test_verified_controller_portfolio_rebinds_snapshot_and_integrates_five_islands(
+    monkeypatch,
+):
+    controller_module, worker_state = _install_fake_portfolio_sources(
+        monkeypatch,
+        wrong_worker_island=False,
+    )
+    config = _portfolio_config()
+    database = FakePortfolioDatabase()
+    open_evolve = controller_module.OpenEvolve()
+
+    with launcher._verified_slice_controller(
+        0,
+        5,
+        search_config=config,
+    ) as (observer, _sources):
+        parallel = controller_module.ProcessParallelController(
+            database,
+            config,
+        )
+        asyncio.run(
+            parallel.run_evolution(
+                1,
+                5,
+                None,
+                checkpoint_callback=open_evolve._save_checkpoint,
+            )
+        )
+
+        assert database.add_order == [5, 4, 3, 2, 1]
+        assert [
+            attempt["island_id"]
+            for attempt in observer.submission_attempts
+        ] == [0, 1, 2, 3, 4]
+        assert database.programs["portfolio-seed"].metadata == {
+            "island": 0,
+            "origin": "seed",
+        }
+        for iteration, island in enumerate(range(5), start=1):
+            child_id = f"portfolio-child-{iteration}"
+            assert child_id in database.islands[island]
+            snapshot = worker_state["snapshots"][iteration]
+            assert snapshot["parent_metadata"] == {
+                "island": island,
+                "origin": "seed",
+            }
+            artifact = snapshot["portfolio_artifact"]
+            assert artifact["island_id"] == island
+            assert (
+                artifact["island_role"]
+                == launcher.SEARCH_PORTFOLIO_ROLES[island]
+            )
+            assert (
+                artifact["island_directive"]
+                == launcher.SEARCH_PORTFOLIO_DIRECTIVES[island]
+            )
+            assert artifact["support_split_targets"] == [
+                list(split)
+                for split in launcher.SEARCH_PORTFOLIO_SUPPORT_TARGETS[
+                    island
+                ]
+            ]
+            assert (
+                artifact["adaptive_mutation_tactic"]
+                in launcher.ADAPTIVE_MUTATION_TACTICS
+            )
+            assert artifact["adaptive_mutation_directive"] == (
+                launcher.ADAPTIVE_MUTATION_DIRECTIVES[
+                    artifact["adaptive_mutation_tactic"]
+                ]
+            )
+            worker_bytes = json.dumps(
+                worker_state["rows"][iteration],
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+            stored_bytes = json.dumps(
+                vars(database.programs[child_id]),
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+            assert stored_bytes == worker_bytes
+        assert observer.accounting_complete is True
+
+    assert open_evolve.saved == [5]
+
+
+def test_verified_controller_freezes_parent_archive_for_completion_order(
+    monkeypatch,
+):
+    controller_module, worker_state = _install_fake_portfolio_sources(
+        monkeypatch,
+        wrong_worker_island=False,
+    )
+    config = _portfolio_config()
+    database = FakePortfolioDatabase()
+    database.drop_seed_on_first_add = True
+    open_evolve = controller_module.OpenEvolve()
+    FakePortfolioParallelController.sequential = True
+    try:
+        with launcher._verified_slice_controller(
+            0,
+            5,
+            search_config=config,
+        ):
+            parallel = controller_module.ProcessParallelController(
+                database,
+                config,
+            )
+            asyncio.run(
+                parallel.run_evolution(
+                    1,
+                    5,
+                    None,
+                    checkpoint_callback=open_evolve._save_checkpoint,
+                )
+            )
+    finally:
+        FakePortfolioParallelController.sequential = False
+
+    assert {
+        snapshot["parent_id"]
+        for snapshot in worker_state["snapshots"].values()
+    } == {"portfolio-seed"}
+    assert "portfolio-seed" not in database.programs
+    assert open_evolve.saved == [5]
+
+
+def test_verified_controller_portfolio_rejects_wrong_worker_island(
+    monkeypatch,
+):
+    controller_module, _worker_state = _install_fake_portfolio_sources(
+        monkeypatch,
+        wrong_worker_island=True,
+    )
+    config = _portfolio_config()
+    database = FakePortfolioDatabase()
+    open_evolve = controller_module.OpenEvolve()
+
+    with pytest.raises(
+        RuntimeError,
+        match="changed worker island content",
+    ):
+        with launcher._verified_slice_controller(
+            0,
+            1,
+            search_config=config,
+        ):
+            parallel = controller_module.ProcessParallelController(
+                database,
+                config,
+            )
+            asyncio.run(
+                parallel.run_evolution(
+                    1,
+                    1,
+                    None,
+                    checkpoint_callback=open_evolve._save_checkpoint,
+                )
+            )
+    assert open_evolve.saved == []
 
 
 def _preflight_markers(
@@ -1563,9 +2323,7 @@ def test_managed_build_config_system_exit_does_not_reference_unbound_observer(
     finally:
         os.close(lease_fd)
     assert raised.value.code == 1
-    assert os.environ[launcher.CANDIDATE_LOG_PATH_ENV] == str(
-        (tmp_path / "output" / "all_codes.jsonl").resolve()
-    )
+    assert launcher.CANDIDATE_LOG_PATH_ENV not in os.environ
 
 
 def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
@@ -1607,7 +2365,7 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
     finally:
         os.close(lease_fd)
     assert raised.value.code == 130
-    assert os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] == "1200.0"
+    assert "QCODE_EVALUATOR_OUTER_TIMEOUT_S" not in os.environ
     assert config.evaluator.timeout == (
         launcher._winner_preflight_outer_timeout(1200.0)
     )
@@ -1719,8 +2477,9 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
 
     witness_payload = json.loads(witness_path.read_text())
     marker_payload = json.loads(marker_path.read_text())
-    assert witness_payload["schema_version"] == 3
-    assert marker_payload["schema_version"] == 3
+    assert witness_payload["schema_version"] == 4
+    assert witness_payload["search_portfolio"] is None
+    assert marker_payload["schema_version"] == 4
     assert marker_payload["slice_witness_sha256"] == witness["sha256"]
     assert marker_payload["result_checkpoint_sha256"] == "b" * 64
     assert marker_payload["context_sha256"] == witness_payload["context_sha256"]
