@@ -23,7 +23,7 @@ How it works
 4. Each mutation is evaluated via the two-stage cascade in
    ``openevolve_evaluator.py`` (see that module's docstring for details).
 5. MAP-Elites with 5 islands and periodic migration maintains diversity
-   across ``lattices_with_high_k`` and ``num_high_k`` feature dimensions.
+   across pool-level ``term_count`` and ``pattern_type`` feature dimensions.
 6. The LLM receives structured evaluation artifacts (best code found,
    per-lattice breakdown, errors) as feedback for the next mutation.
 
@@ -131,6 +131,15 @@ WINNER_PREFLIGHT_OMITTED_METRIC = "winner_preflight_winner_capable_omitted"
 WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC = "winner_preflight_hard_timeout"
 WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC = (
     "winner_preflight_subprocess_failed"
+)
+# Keep this value synchronized with openevolve_evaluator.py.  Version 2 is
+# the first pool-based MAP descriptor; older checkpoints used one selected
+# code and cannot be resumed without rebuilding every feature map and stat.
+MAP_DESCRIPTOR_VERSION = 2
+MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
+MAP_DESCRIPTOR_POOL_SIZE_METRIC = "map_descriptor_pool_size"
+MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
+    "map_descriptor_dominant_pattern_share"
 )
 WINNER_PREFLIGHT_NUMERIC_THREAD_ENV = (
     "OMP_NUM_THREADS",
@@ -327,6 +336,9 @@ _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
     "combined_score",
     "error",
     "lattices_with_high_k",
+    MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC,
+    MAP_DESCRIPTOR_POOL_SIZE_METRIC,
+    MAP_DESCRIPTOR_VERSION_METRIC,
     "num_high_k",
     "term_count",
     "pattern_type",
@@ -346,6 +358,29 @@ def _exact_nonnegative_metric(
         or not float(value).is_integer()
     ):
         raise RuntimeError(f"winner preflight marker is invalid: {name}")
+    return int(value)
+
+
+def _validated_map_descriptor_version(
+    metrics: Any,
+    *,
+    label: str,
+) -> int:
+    if not isinstance(metrics, dict):
+        raise RuntimeError(f"{label} metrics are not an object")
+    value = metrics.get(MAP_DESCRIPTOR_VERSION_METRIC)
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or not float(value).is_integer()
+        or int(value) != MAP_DESCRIPTOR_VERSION
+    ):
+        raise RuntimeError(
+            f"{label} uses an incompatible MAP descriptor schema "
+            f"({value!r}); start a fresh campaign instead of resuming this "
+            "checkpoint"
+        )
     return int(value)
 
 
@@ -409,6 +444,8 @@ def _exact_incomplete_winner_preflight_markers(
     for name in (
         "combined_score",
         "lattices_with_high_k",
+        MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC,
+        MAP_DESCRIPTOR_POOL_SIZE_METRIC,
         "num_high_k",
         "term_count",
         "pattern_type",
@@ -421,6 +458,13 @@ def _exact_incomplete_winner_preflight_markers(
             or float(value) != 0.0
         ):
             return None
+    try:
+        _validated_map_descriptor_version(
+            metrics,
+            label="incomplete winner preflight",
+        )
+    except RuntimeError:
+        return None
     try:
         values = {
             name: _exact_nonnegative_metric(metrics, name)
@@ -467,6 +511,10 @@ def _checkpoint_preflight_summary(
         _validated_winner_preflight_markers(
             program.get("metrics"),
             expected_contract_id=expected_contract_id,
+        )
+        _validated_map_descriptor_version(
+            program.get("metrics"),
+            label=f"checkpoint program {path.name}",
         )
         programs += 1
         codes.add(hashlib.sha256(code.encode("utf-8")).hexdigest())
@@ -693,6 +741,10 @@ def _backfill_checkpoint_programs(
             raise RuntimeError(
                 f"loaded checkpoint program has invalid metrics: {program_id}"
             )
+        _validated_map_descriptor_version(
+            metrics,
+            label=f"loaded checkpoint program {program_id}",
+        )
         digest = hashlib.sha256(code.encode("utf-8")).hexdigest()
         groups.setdefault((digest, code), []).append(program)
 
@@ -1295,6 +1347,10 @@ class _SliceObserver:
             return
         if self.expected_preflight_contract_id is not None:
             try:
+                _validated_map_descriptor_version(
+                    getattr(program, "metrics", None),
+                    label=f"database add for iteration {iteration}",
+                )
                 _validated_winner_preflight_markers(
                     getattr(program, "metrics", None),
                     expected_contract_id=self.expected_preflight_contract_id,
@@ -2817,10 +2873,31 @@ def main():
 
             if args.resume:
                 checkpoint_preflight = None
-                if preflight_contract_id is not None:
-                    assert observer is not None
-
+                if not args.noncss:
                     def checkpoint_preflight(database: Any) -> None:
+                        programs = getattr(database, "programs", None)
+                        if not isinstance(programs, dict) or not programs:
+                            raise RuntimeError(
+                                "loaded checkpoint contains no program "
+                                "database"
+                            )
+                        # Validate the descriptor schema before any evaluator
+                        # subprocess can mutate the in-memory checkpoint.
+                        for program_id in sorted(programs):
+                            _validated_map_descriptor_version(
+                                getattr(
+                                    programs[program_id],
+                                    "metrics",
+                                    None,
+                                ),
+                                label=(
+                                    "loaded checkpoint program "
+                                    f"{program_id}"
+                                ),
+                            )
+                        if preflight_contract_id is None:
+                            return
+                        assert observer is not None
                         _validate_loaded_checkpoint_database(
                             database,
                             args.resume,

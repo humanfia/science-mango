@@ -12,10 +12,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from evaluation.structural_features import (
+    PATTERN_CLASSIFIER_VERSION,
+    classify_pattern,
+    count_terms,
+)
+
 from .pipeline_process import validate_run_id
 
 
 SCHEMA_VERSION = 1
+ELITE_ARCHIVE_SCHEMA_VERSION = 2
 
 
 def utc_now() -> str:
@@ -133,16 +140,41 @@ def credible_bp_candidate(row: dict[str, Any], trust_ratio: float = 1.3) -> bool
     return n > 0 and k > 0 and d > 0 and d <= trust_ratio * math.sqrt(n)
 
 
+def candidate_structural_features(
+    row: dict[str, Any],
+) -> dict[str, float | int]:
+    """Recompute candidate-level MAP metadata from the defining terms."""
+
+    a_terms = _terms(row, "A_terms")
+    b_terms = _terms(row, "B_terms")
+    if not a_terms or not b_terms:
+        raise ValueError(
+            "candidate structural features require non-empty A_terms/B_terms"
+        )
+    return {
+        "pattern_type": classify_pattern(a_terms, b_terms),
+        "term_count": count_terms(a_terms, b_terms),
+        "pattern_classifier_version": PATTERN_CLASSIFIER_VERSION,
+    }
+
+
 def archive_cell(row: dict[str, Any]) -> str:
     """Candidate-level MAP-Elites cell used across OpenEvolve rounds."""
     n = int(row.get("n", 0) or 0)
     k = int(row.get("k", 0) or 0)
     rate_bin = int(20 * k / n) if n else 0
-    pattern = str(row.get("pattern_type", "unknown"))
-    term_count = int(row.get("term_count", 0) or 0)
-    if not term_count:
-        term_count = len(row.get("A_terms", [])) + len(row.get("B_terms", []))
+    features = candidate_structural_features(row)
+    pattern = str(features["pattern_type"])
+    term_count = int(features["term_count"])
     return f"n={n}|rate={rate_bin}|pattern={pattern}|terms={term_count}"
+
+
+def _canonical_archive_row(original: dict[str, Any]) -> dict[str, Any]:
+    row = dict(original)
+    row.update(candidate_structural_features(row))
+    row["candidate_key"] = code_key(row)
+    row["archive_cell"] = archive_cell(row)
+    return row
 
 
 class EliteArchive:
@@ -153,14 +185,32 @@ class EliteArchive:
         self.cells: dict[str, dict[str, Any]] = {}
         if path.is_file():
             raw = json.loads(path.read_text())
-            self.cells = dict(raw.get("cells", {}))
+            if raw.get("schema_version") not in {
+                1,
+                ELITE_ARCHIVE_SCHEMA_VERSION,
+            }:
+                raise ValueError("unsupported elite archive schema")
+            stored_cells = raw.get("cells", {})
+            if not isinstance(stored_cells, dict):
+                raise ValueError("elite archive cells must be an object")
+            # Stored keys and feature labels are advisory metadata, not trusted
+            # identity. Rebuild them from A/B definitions on every load so a
+            # v1 or forged row cannot retain a stale diversity cell.
+            for original in stored_cells.values():
+                if not isinstance(original, dict):
+                    raise ValueError("elite archive rows must be objects")
+                row = _canonical_archive_row(original)
+                current = self.cells.get(row["archive_cell"])
+                if (
+                    current is None
+                    or candidate_fom(row) > candidate_fom(current)
+                ):
+                    self.cells[row["archive_cell"]] = row
 
     def update(self, rows: Iterable[dict[str, Any]], round_number: int) -> list[dict[str, Any]]:
         promoted: list[dict[str, Any]] = []
         for original in rows:
-            row = dict(original)
-            row["candidate_key"] = code_key(row)
-            row["archive_cell"] = archive_cell(row)
+            row = _canonical_archive_row(original)
             row["archive_round"] = round_number
             current = self.cells.get(row["archive_cell"])
             if current is None or candidate_fom(row) > candidate_fom(current):
@@ -177,9 +227,7 @@ class EliteArchive:
         """
         cells: dict[str, dict[str, Any]] = {}
         for original in rows:
-            row = dict(original)
-            row["candidate_key"] = code_key(row)
-            row["archive_cell"] = archive_cell(row)
+            row = _canonical_archive_row(original)
             current = cells.get(row["archive_cell"])
             if current is None or candidate_fom(row) > candidate_fom(current):
                 cells[row["archive_cell"]] = row
@@ -191,7 +239,7 @@ class EliteArchive:
 
     def save(self) -> None:
         _atomic_json(self.path, {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": ELITE_ARCHIVE_SCHEMA_VERSION,
             "updated_at": utc_now(),
             "cells": self.cells,
         })

@@ -1091,6 +1091,170 @@ def test_prepare_freezes_context_and_api_environment_for_recovery(
     )
 
 
+def test_completed_round_records_transaction_bound_candidate_diversity(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    mixed = candidate(60)
+    mixed.update({
+        "A_terms": [[0, 0], [1, 1]],
+        "B_terms": [[0, 1], [1, 0]],
+        # These self-reported labels deliberately contradict the terms.
+        "pattern_type": "reported-nonmixed",
+    })
+    duplicate = dict(mixed)
+    duplicate.update({
+        "d": 5,
+        "fom": 999.0,
+        "pattern_type": "another-untrusted-label",
+    })
+    nonmixed = candidate(61)
+    nonmixed.update({
+        "A_terms": [[0, 0], [1, 0]],
+        "B_terms": [[0, 0], [0, 1], [2, 0]],
+        "pattern_type": "reported-mixed",
+    })
+    source.write_bytes(jsonl(mixed, duplicate, nonmixed))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="candidate-diversity-summary",
+        max_rounds=1,
+        candidate_file=source,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+
+    batch = flow._capture_round_candidates(state, 1, round_dir)
+    review = Reviewer().review("", round_dir)
+    flow._finish_round(state, 1, batch, [], review, round_dir)
+    flow.store.write_state(state)
+
+    persisted = flow.store.load_state()
+    assert persisted is not None
+    diversity = persisted["rounds"][0]["candidate_diversity"]
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    assert diversity == {
+        "schema_version": 1,
+        "basis": "transaction-bound-source-and-canonical-batch",
+        "raw_candidate_source_rows": 3,
+        "canonical_unique_batch_rows": 2,
+        "duplicate_count": 1,
+        "duplicate_rate": pytest.approx(1 / 3),
+        "candidate_source_sha256": manifest["candidate_source_sha256"],
+        "candidate_batch_sha256": manifest[
+            "candidate_batch_identity"
+        ]["sha256"],
+        "support_split_counts": {"2+2": 1, "2+3": 1},
+        "mixed_vs_nonmixed_counts": {
+            "mixed": 1,
+            "nonmixed": 1,
+            "unclassified": 0,
+        },
+    }
+
+
+def test_next_round_freezes_machine_diversity_advisory(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="machine-diversity-context",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    state["current_round"] = 1
+    state["rounds"] = [{
+        "round": 1,
+        "candidate_diversity": {
+            "schema_version": 1,
+            "basis": "transaction-bound-source-and-canonical-batch",
+            "raw_candidate_source_rows": 10,
+            "canonical_unique_batch_rows": 4,
+            "duplicate_count": 6,
+            "duplicate_rate": 0.6,
+            "candidate_source_sha256": "a" * 64,
+            "candidate_batch_sha256": "b" * 64,
+            "support_split_counts": {"2+2": 3, "3+3": 1},
+            "mixed_vs_nonmixed_counts": {
+                "mixed": 1,
+                "nonmixed": 3,
+                "unclassified": 0,
+            },
+        },
+    }]
+    flow.store.memory_path.write_text("base bitlesson\n")
+    round_dir = flow.store.round_dir(2)
+
+    transaction = flow._prepare_transaction(state, 2, round_dir)
+    context_path = round_dir / "search-context.md"
+    frozen = context_path.read_bytes()
+    text = frozen.decode()
+
+    assert "## Machine-derived previous-round diversity advisory" in text
+    assert "Raw source rows: 10; canonical unique batch rows: 4." in text
+    assert "Exact duplicate rows: 6 (60.00%)." in text
+    assert "Support-split distribution (|A|+|B|): 2+2=3, 3+3=1." in text
+    assert (
+        "Mixed-vs-nonmixed distribution: "
+        "mixed=1, nonmixed=3, unclassified=0."
+    ) in text
+    assert "reduce exact repeats" in text
+    assert "correct structural collapse" in text
+    assert transaction["launch_binding"]["context"]["sha256"] == (
+        hashlib.sha256(frozen).hexdigest()
+    )
+
+    # Once prepared, later state changes cannot rewrite the launch-bound
+    # advisory for this round.
+    state["rounds"][0]["candidate_diversity"]["duplicate_count"] = 0
+    state["rounds"][0]["candidate_diversity"]["duplicate_rate"] = 0.0
+    recovered = flow._load_transaction(state, 2, round_dir)
+
+    assert recovered is not None
+    assert context_path.read_bytes() == frozen
+    assert "Exact duplicate rows: 6 (60.00%)." in context_path.read_text()
+
+
+def test_legacy_round_summary_without_diversity_keeps_context_unchanged(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="legacy-diversity-context",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    state["current_round"] = 1
+    state["rounds"] = [{
+        "round": 1,
+        "review_summary": "legacy state has no machine diversity field",
+    }]
+    flow.store.memory_path.write_text("legacy bitlesson\n")
+
+    context_path = flow_module._freeze_round_context(
+        config,
+        state,
+        flow.store.round_dir(2),
+    )
+
+    assert context_path.read_text() == "legacy bitlesson\n\n"
+    assert "Machine-derived" not in context_path.read_text()
+
+
 def test_prepare_quarantines_context_orphaned_before_manifest(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -1308,6 +1472,7 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
         "evaluation_final_gate",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
+        "evaluation_structural_features",
         "evolution_dependency_contract",
     ):
         oldest_launch.pop(field)
@@ -1315,6 +1480,7 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
     for field in (
         "evaluation_proof_runtime",
         "evaluation_search_contract",
+        "evaluation_structural_features",
         "evolution_dependency_contract",
     ):
         previous_launch.pop(field)
@@ -1402,6 +1568,64 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
     flow._validate_completed_transaction(1, round_dir)
 
 
+def test_completed_round_accepts_only_immediately_previous_dependency_shape(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="completed-previous-dependency-shape",
+        iterations_per_round=3,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    current_launch = transaction["launch_binding"]
+    previous_launch = dict(current_launch)
+    previous_launch.pop("evaluation_structural_features")
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="binding fields are incomplete",
+    ):
+        flow_module._validate_stored_binding_shape(
+            config,
+            previous_launch,
+            transaction["invocation_binding"],
+            round_dir,
+            current_launch,
+        )
+
+    validated, _invocation = flow_module._validate_stored_binding_shape(
+        config,
+        previous_launch,
+        transaction["invocation_binding"],
+        round_dir,
+        current_launch,
+        allow_previous_committed=True,
+    )
+    assert validated == previous_launch
+
+    older_launch = dict(previous_launch)
+    older_launch.pop("evaluation_search_contract")
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="binding fields are incomplete",
+    ):
+        flow_module._validate_stored_binding_shape(
+            config,
+            older_launch,
+            transaction["invocation_binding"],
+            round_dir,
+            current_launch,
+            allow_previous_committed=True,
+        )
+
+
 def test_prepared_binding_history_rejects_legacy_schema_downgrade(
     tmp_path,
 ):
@@ -1425,6 +1649,7 @@ def test_prepared_binding_history_rejects_legacy_schema_downgrade(
     for field in (
         "evaluation_proof_runtime",
         "evaluation_search_contract",
+        "evaluation_structural_features",
         "evolution_dependency_contract",
     ):
         previous_launch.pop(field)
@@ -1533,6 +1758,7 @@ def test_legacy_binding_is_not_migrated_after_source_binding(
     for field in (
         "evaluation_proof_runtime",
         "evaluation_search_contract",
+        "evaluation_structural_features",
         "evolution_dependency_contract",
     ):
         manifest["launch_binding"].pop(field)

@@ -4,14 +4,17 @@ Covers:
 - _classify_pattern() labels known code families correctly
 - Self-dual hard gate returns d=2 for A=B, does NOT fire for A!=B
 - Mixed-monomial trinomials produce valid BBCodes with correct n, k
-- 4-term and 5-term polynomials produce valid BBCodes
+- Challenge support-budget acceptance and rejection
 - _structural_feedback() generates non-empty output
 """
 
+from collections import Counter
 import json
 
 from evaluation.bb_code import build_bb_code, validate_terms, get_code_params_fast
 from evaluation.evaluator import evaluate_candidate, evaluate_candidate_milp
+from evaluation.structural_dedup import check_css_static_eligibility
+from evaluation.structural_features import classify_pattern
 
 
 class TestClassifyPattern:
@@ -62,6 +65,9 @@ class TestClassifyPattern:
             [(0, 0), (0, 1), (0, 2)],
             [(0, 0), (5, 0), (10, 0)],
         ) == 0.0
+
+    def test_evaluator_uses_the_shared_lightweight_classifier(self):
+        assert self.classify is classify_pattern
 
 
 class TestSelfDualGate:
@@ -245,36 +251,53 @@ class TestMixedMonomialCodes:
         assert result["n"] == 72
 
 
-class TestMultiTermCodes:
-    """4-term and 5-term polynomials produce valid BBCodes."""
+class TestChallengeTermBudget:
+    """Constructibility is distinct from challenge static eligibility."""
 
-    def test_4term_construction(self):
-        # A = x^3 + y + y^2 + x*y (4 terms)
+    def test_2_plus_4_passes_challenge_static_gate(self):
+        # A real connected, positive-k asymmetric fixture at (6,6).
+        A = [(0, 1), (0, 2)]
+        B = [(0, 3), (1, 0), (2, 0), (1, 1)]
+        result = check_css_static_eligibility(6, 6, A, B)
+        assert result["eligible"] is True
+        assert result["max_row_weight"] == 6
+        assert result["max_qubit_degree"] == 6
+
+    def test_4_plus_2_passes_challenge_static_gate(self):
+        A = [(0, 3), (1, 0), (2, 0), (1, 1)]
+        B = [(0, 1), (0, 2)]
+        result = check_css_static_eligibility(6, 6, A, B)
+        assert result["eligible"] is True
+        assert result["max_row_weight"] == 6
+        assert result["max_qubit_degree"] == 6
+
+    def test_4_plus_3_is_constructible_but_challenge_ineligible(self):
         A = [(3, 0), (0, 1), (0, 2), (1, 1)]
         B = [(0, 3), (1, 0), (2, 0)]
         validate_terms(12, 6, A, "A")
         validate_terms(12, 6, B, "B")
         code = build_bb_code(12, 6, A, B)
-        n, k = get_code_params_fast(code)
+        n, _ = get_code_params_fast(code)
         assert n == 144
+        result = check_css_static_eligibility(12, 6, A, B)
+        assert result["eligible"] is False
+        assert result["checks"]["weight_and_degree_at_most_6"] is False
+        assert result["max_row_weight"] == 7
+        assert result["max_qubit_degree"] == 7
 
-    def test_5term_construction(self):
-        # A = 1 + x + y + x*y + x^2*y^2 (5 terms)
+    def test_5_plus_3_is_constructible_but_challenge_ineligible(self):
         A = [(0, 0), (1, 0), (0, 1), (1, 1), (2, 2)]
         B = [(0, 3), (1, 0), (2, 0)]
         validate_terms(12, 6, A, "A")
         validate_terms(12, 6, B, "B")
         code = build_bb_code(12, 6, A, B)
-        n, k = get_code_params_fast(code)
+        n, _ = get_code_params_fast(code)
         assert n == 144
-
-    def test_4term_evaluator(self):
-        # 4-term polynomial should pass evaluator
-        A = [(3, 0), (0, 1), (0, 2), (1, 1)]
-        B = [(0, 3), (1, 0), (2, 0)]
-        result = evaluate_candidate(12, 6, A, B, quick=True)
-        assert result["stage"] != "invalid"
-        assert result["n"] == 144
+        result = check_css_static_eligibility(12, 6, A, B)
+        assert result["eligible"] is False
+        assert result["checks"]["weight_and_degree_at_most_6"] is False
+        assert result["max_row_weight"] == 8
+        assert result["max_qubit_degree"] == 8
 
 
 class TestStructuralFeedback:
@@ -308,9 +331,14 @@ class TestAnsatzSeed:
     """Test the ansatz seed solution produces valid codes."""
 
     def setup_method(self):
-        from evolve.seed_solution_ansatz import generate_candidates, _safety_net_codes
+        from evolve.seed_solution_ansatz import (
+            CHALLENGE_TERM_SPLITS,
+            _safety_net_codes,
+            generate_candidates,
+        )
         self.generate = generate_candidates
         self.safety_net = _safety_net_codes
+        self.valid_splits = CHALLENGE_TERM_SPLITS
 
     def test_generates_candidates_at_6_6(self):
         cands = self.generate(6, 6)
@@ -369,6 +397,49 @@ class TestAnsatzSeed:
         for A, B in cands:
             assert sorted(map(tuple, A)) != sorted(map(tuple, B)), \
                 f"Self-dual candidate: A=B={A}"
+
+    def test_all_candidates_obey_challenge_support_budget(self):
+        """The seed never emits a split guaranteed to fail weight/degree <= 6."""
+        for ell, m in [(6, 6), (12, 6), (10, 10), (36, 2)]:
+            for A, B in self.generate(ell, m):
+                split = (len(A), len(B))
+                assert split in self.valid_splits
+                assert len(A) + len(B) <= 6
+                assert len(set(map(tuple, A))) == len(A)
+                assert len(set(map(tuple, B))) == len(B)
+                assert all(
+                    0 <= x < ell and 0 <= y < m
+                    for x, y in A + B
+                )
+
+    def test_stage1_pool_covers_every_admissible_split(self):
+        """Both Stage 1 lattices exercise the complete feasible split set."""
+        for ell, m in [(6, 6), (12, 6)]:
+            observed = {
+                (len(A), len(B))
+                for A, B in self.generate(ell, m)
+            }
+            assert observed == self.valid_splits
+
+    def test_stage1_pool_is_balanced_across_splits(self):
+        """No one feasible split is allowed to dominate the seed population."""
+        for ell, m in [(6, 6), (12, 6)]:
+            counts = Counter(
+                (len(A), len(B))
+                for A, B in self.generate(ell, m)
+            )
+            assert max(counts.values()) <= 2 * min(counts.values())
+
+    def test_seed_contains_static_eligible_2_plus_4_orientations(self):
+        """Known feasible asymmetric fixtures survive generation and balancing."""
+        A2 = [(0, 1), (0, 2)]
+        B4 = [(0, 3), (1, 0), (2, 0), (1, 1)]
+        candidates = {
+            (tuple(A), tuple(B))
+            for A, B in self.generate(6, 6)
+        }
+        assert (tuple(A2), tuple(B4)) in candidates
+        assert (tuple(B4), tuple(A2)) in candidates
 
     def test_empty_lattice_produces_candidates(self):
         """Lattice not in REFERENCE_CODES still produces Strategy 1 candidates."""

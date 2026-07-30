@@ -2,7 +2,7 @@
 
 ## What You're Evolving
 
-You are evolving a Python function `generate_candidates(ell, m)` that returns candidate bivariate bicycle (BB) quantum error-correcting code polynomial pairs. Each candidate is a pair of polynomials (A, B) represented as lists of `(x_exponent, y_exponent)` tuples. Polynomials may have 2-6 terms.
+You are evolving a Python function `generate_candidates(ell, m)` that returns candidate bivariate bicycle (BB) quantum error-correcting code polynomial pairs. Each candidate is a pair of polynomials (A, B) represented as lists of `(x_exponent, y_exponent)` tuples.
 
 Your goal is to discover **new structural families (ansatze)** — algebraic templates relating A and B that produce good codes across multiple lattice sizes. Not individual codes, but repeating patterns.
 
@@ -13,6 +13,29 @@ A BB code is defined over the ring F_2[x,y]/(x^ell - 1, y^m - 1) by two polynomi
 Code parameters: [[n, k, d]] where n = 2*ell*m, k = logical qubits, d = code distance.
 
 **Figure of merit**: FOM = k * d^2 / n. Higher is better. Target: FOM > 12.0.
+
+## Non-negotiable Challenge Constraint
+
+For BB polynomials with distinct monomials, every CSS check row and every qubit
+degree has weight `|A| + |B|`. The challenge requires both values to be at most
+6. Consequently every generated candidate **must** satisfy:
+
+```text
+|A| + |B| <= 6
+```
+
+Because each polynomial must have at least two terms, the complete set of
+admissible term-count splits is:
+
+```text
+(2,2), (2,3), (3,2), (2,4), (4,2), (3,3)
+```
+
+Splits such as 3+4, 4+3, 4+4, 5+anything, and 6+anything are guaranteed to
+fail the static challenge gate before distance is evaluated. They are not
+exploratory candidates; they are wasted work. Preserve and use the seed's
+`_add` guard, which enforces this invariant, and balance generation across the
+six admissible splits and across structural families.
 
 ## The Scientific Question
 
@@ -51,22 +74,28 @@ Terms like x^a·y^b with both a,b > 0 create diagonal shifts on the torus, coupl
 
 - **Complementary diagonals**: A has shift (a,b), B uses (b,a) or (-b,a) — reflection/rotation on the torus
 - **Coordinate transforms**: B = A(x^s, y^t) for coprime s,t — same algebraic structure, different geometry
-- **Hybrid**: axis-aligned anchor (like x^3 or 1) + diagonal terms — 4-5 term polynomials mixing pure and mixed terms
+- **Hybrid**: axis-aligned anchors plus diagonal terms within an admissible split
 
-### 2. Multi-term polynomials (4-6 terms)
+### 2. Asymmetric multi-term polynomials (2+4 or 4+2)
 
-All known good codes use exactly 3 terms. More terms create richer Tanner graph connectivity.
+All known good codes use 3+3 terms. A four-term polynomial remains eligible
+only if the partner has exactly two terms.
 
-- **4-term extensions of known good trinomials**: Add a carefully chosen 4th term to A or B from a known code
-- **Symmetric 4-term**: A and B both have 4 terms with a structural relationship
-- **High-connectivity designs**: 5-6 terms creating dense, regular Tanner graphs
+- **Four-term extensions with a two-term core**: Add a carefully chosen fourth
+  term to one known trinomial while reducing its partner to a structural
+  two-term core
+- **Mixed 2+4 templates**: Pair an axis or diagonal binomial with a four-term
+  pure/mixed polynomial
+- **Orientation pairs**: Explore both 2+4 and 4+2; do not assume A/B orientation
+  is equivalent during generation
 
 ### 3. Non-standard pure-term patterns
 
 Pure-x and pure-y terms but in structures that DON'T match x/y-swap or constant-monomial.
 
 - **Mixed-axis with constant**: A = 1 + x^a + y^b (has constant + x-term + y-term), B with a different asymmetric structure
-- **Unbalanced pure terms**: A has 2 x-terms + 1 y-term + constant, B has 1 x-term + 2 y-terms (no constant)
+- **Unbalanced pure terms**: Put four terms on one side only when the partner is
+  a binomial
 - **Non-trivial constant structures**: A = 1 + x^a + x^b (constant + 2 x-terms), B = y^c + y^d + x^e (different mix)
 
 ### 4. Algebraic constructions (A-B relationships)
@@ -84,7 +113,7 @@ Combine elements from different known families in one code.
 
 - **Constant-monomial A + x/y-swap B**: A = 1 + y^a + y^b, B = y^d + x^e + x^f
 - **x/y-swap A + algebraic B**: A = x^a + y^b + y^c, B derived from A by ring automorphism
-- **Asymmetric term counts**: A is a trinomial, B has 4-5 terms (or vice versa)
+- **Asymmetric term counts**: A is a binomial and B has four terms, or vice versa
 
 ## Known Dead Ends (avoid these)
 
@@ -96,11 +125,14 @@ Combine elements from different known families in one code.
 ## Constraints on Your Function
 
 - Return type: `list[tuple[list[tuple[int,int]], list[tuple[int,int]]]]`
-- Each polynomial: 2-6 terms (tuples of (x_exp, y_exp))
+- Each polynomial: at least 2 terms; at most 4 terms under the combined budget
+- Combined support: `len(A) + len(B) <= 6`
+- Allowed splits only: `(2,2)`, `(2,3)`, `(3,2)`, `(2,4)`, `(4,2)`, `(3,3)`
 - Exponent ranges: 0 <= x_exp < ell, 0 <= y_exp < m
 - All terms in each polynomial must be distinct
 - Reject self-dual pairs (A = B) — always d = 2
 - Target: 100-2000 candidates per lattice. Quality over quantity.
+- Balance the returned pool across admissible splits and structural families
 - Use standard Python + numpy only
 
 ## Evaluator Feedback
@@ -133,4 +165,4 @@ Combine elements from different known families in one code.
 2. **If k > 0 but d ≤ 2**: The algebraic structure is too regular. Try breaking symmetry: larger exponents, coprime shift vectors, asymmetric A/B structures.
 3. **If a code has d >= 4**: This is the key signal. Study the A-B relationship in the structural_analysis artifact. What connects A and B? Encode that relationship as a generation strategy that works across lattice sizes.
 4. **Think in templates, not instances**: A single good code at one lattice is noise. A structural relationship that produces k > 0 at three lattice sizes is an ansatz.
-5. **Try diverse structures in parallel**: Don't converge on one approach too early. Keep generating candidates from multiple directions — mixed monomials, multi-term, non-standard pure-term, algebraic constructions, and hybrids.
+5. **Try diverse structures in parallel**: Don't converge on one approach too early. Keep generating candidates from multiple directions — mixed monomials, admissible 2+4/4+2 templates, non-standard pure-term, algebraic constructions, and hybrids.

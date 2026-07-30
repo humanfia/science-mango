@@ -62,6 +62,7 @@ EvolutionRunner = Callable[["FlowConfig", dict[str, Any], Path], Path | None]
 
 ROUND_TRANSACTION_PROTOCOL_VERSION = 2
 ROUND_TRANSACTION_SCHEMA_VERSION = 2
+ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION = 1
 LEGACY_BATCH_SCHEMA_VERSION = 1
 EVOLUTION_COMPLETION_SCHEMA_VERSION = 3
 EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 3
@@ -86,14 +87,23 @@ LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
         "evaluation_final_gate",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
+        "evaluation_structural_features",
         "evolution_dependency_contract",
     }),
     frozenset({
         "evaluation_proof_runtime",
         "evaluation_search_contract",
+        "evaluation_structural_features",
         "evolution_dependency_contract",
     }),
+    frozenset({"evaluation_structural_features"}),
 )
+# A committed round cannot be rebound, but the immediately preceding
+# append-only dependency schema remains replayable from its immutable
+# manifest/witness hashes. Older incomplete schemas stay rejected.
+COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS = frozenset({
+    "evaluation_structural_features",
+})
 EVOLUTION_INVOCATION_FIELDS = frozenset({
     "model_names",
     "reasoning_effort",
@@ -1216,6 +1226,315 @@ def _validate_invocation_binding(
     return dict(invocation)
 
 
+def _candidate_support_profile(
+    row: dict[str, Any],
+) -> tuple[str, str]:
+    """Derive support shape from defining terms, never score metadata."""
+
+    supports: list[int] = []
+    contains_mixed = False
+    valid_terms = True
+    for field in ("A_terms", "B_terms"):
+        terms = row.get(field)
+        if not isinstance(terms, (list, tuple)):
+            return "unclassified", "unclassified"
+        supports.append(len(terms))
+        for term in terms:
+            if (
+                not isinstance(term, (list, tuple))
+                or len(term) != 2
+                or any(type(coordinate) is not int for coordinate in term)
+            ):
+                valid_terms = False
+                continue
+            x, y = term
+            if x > 0 and y > 0:
+                contains_mixed = True
+    split = f"{supports[0]}+{supports[1]}"
+    if not valid_terms:
+        return split, "unclassified"
+    return split, "mixed" if contains_mixed else "nonmixed"
+
+
+def _candidate_diversity_summary(
+    transaction: dict[str, Any],
+    batch_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Summarize only a transaction-bound raw slice and canonical batch."""
+
+    raw_rows = transaction.get("candidate_source_rows")
+    source_sha256 = transaction.get("candidate_source_sha256")
+    batch_identity = transaction.get("candidate_batch_identity")
+    if (
+        isinstance(raw_rows, bool)
+        or not isinstance(raw_rows, int)
+        or raw_rows < 0
+        or not isinstance(source_sha256, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", source_sha256)
+        or not isinstance(batch_identity, dict)
+        or batch_identity.get("rows") != len(batch_rows)
+        or not isinstance(batch_identity.get("sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", batch_identity["sha256"])
+    ):
+        raise RoundTransactionError(
+            "candidate diversity received an invalid transaction binding"
+        )
+    unique_rows = len(batch_rows)
+    if unique_rows > raw_rows:
+        raise RoundTransactionError(
+            "canonical candidate batch is larger than its bound source"
+        )
+
+    support_splits: dict[str, int] = {}
+    mixed_counts = {
+        "mixed": 0,
+        "nonmixed": 0,
+        "unclassified": 0,
+    }
+    for row in batch_rows:
+        split, mixed_class = _candidate_support_profile(row)
+        support_splits[split] = support_splits.get(split, 0) + 1
+        mixed_counts[mixed_class] += 1
+    support_splits = dict(
+        sorted(
+            support_splits.items(),
+            key=lambda item: (
+                item[0] == "unclassified",
+                tuple(map(int, item[0].split("+")))
+                if item[0] != "unclassified"
+                else (),
+            ),
+        )
+    )
+
+    duplicate_count = raw_rows - unique_rows
+    return {
+        "schema_version": ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION,
+        "basis": "transaction-bound-source-and-canonical-batch",
+        "raw_candidate_source_rows": raw_rows,
+        "canonical_unique_batch_rows": unique_rows,
+        "duplicate_count": duplicate_count,
+        "duplicate_rate": (
+            duplicate_count / raw_rows if raw_rows else 0.0
+        ),
+        "candidate_source_sha256": source_sha256,
+        "candidate_batch_sha256": batch_identity["sha256"],
+        "support_split_counts": support_splits,
+        "mixed_vs_nonmixed_counts": mixed_counts,
+    }
+
+
+def _validate_candidate_diversity_summary(
+    value: Any,
+) -> dict[str, Any]:
+    """Validate the optional state record before rendering fixed advisory text."""
+
+    if not isinstance(value, dict):
+        raise RoundTransactionError(
+            "previous candidate diversity summary must be an object"
+        )
+    expected_fields = {
+        "schema_version",
+        "basis",
+        "raw_candidate_source_rows",
+        "canonical_unique_batch_rows",
+        "duplicate_count",
+        "duplicate_rate",
+        "candidate_source_sha256",
+        "candidate_batch_sha256",
+        "support_split_counts",
+        "mixed_vs_nonmixed_counts",
+    }
+    if set(value) != expected_fields:
+        raise RoundTransactionError(
+            "previous candidate diversity summary fields are invalid"
+        )
+    if (
+        value["schema_version"]
+        != ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION
+        or value["basis"]
+        != "transaction-bound-source-and-canonical-batch"
+    ):
+        raise RoundTransactionError(
+            "previous candidate diversity summary schema is invalid"
+        )
+
+    integer_fields = (
+        "raw_candidate_source_rows",
+        "canonical_unique_batch_rows",
+        "duplicate_count",
+    )
+    if any(
+        isinstance(value[field], bool)
+        or not isinstance(value[field], int)
+        or value[field] < 0
+        for field in integer_fields
+    ):
+        raise RoundTransactionError(
+            "previous candidate diversity row counts are invalid"
+        )
+    raw_rows = value["raw_candidate_source_rows"]
+    unique_rows = value["canonical_unique_batch_rows"]
+    duplicate_count = value["duplicate_count"]
+    expected_rate = duplicate_count / raw_rows if raw_rows else 0.0
+    if (
+        unique_rows > raw_rows
+        or duplicate_count != raw_rows - unique_rows
+        or isinstance(value["duplicate_rate"], bool)
+        or not isinstance(value["duplicate_rate"], (int, float))
+        or not 0.0 <= float(value["duplicate_rate"]) <= 1.0
+        or abs(float(value["duplicate_rate"]) - expected_rate) > 1e-12
+    ):
+        raise RoundTransactionError(
+            "previous candidate diversity duplicate statistics are invalid"
+        )
+    if any(
+        not isinstance(value[field], str)
+        or not re.fullmatch(r"[0-9a-f]{64}", value[field])
+        for field in (
+            "candidate_source_sha256",
+            "candidate_batch_sha256",
+        )
+    ):
+        raise RoundTransactionError(
+            "previous candidate diversity bindings are invalid"
+        )
+
+    support_splits = value["support_split_counts"]
+    if (
+        not isinstance(support_splits, dict)
+        or any(
+            (
+                not isinstance(key, str)
+                or (
+                    key != "unclassified"
+                    and not re.fullmatch(r"\d+\+\d+", key)
+                )
+            )
+            or isinstance(count, bool)
+            or not isinstance(count, int)
+            or count < 0
+            for key, count in support_splits.items()
+        )
+        or sum(support_splits.values()) != unique_rows
+    ):
+        raise RoundTransactionError(
+            "previous candidate support-split distribution is invalid"
+        )
+    mixed_counts = value["mixed_vs_nonmixed_counts"]
+    if (
+        not isinstance(mixed_counts, dict)
+        or set(mixed_counts) != {"mixed", "nonmixed", "unclassified"}
+        or any(
+            isinstance(count, bool)
+            or not isinstance(count, int)
+            or count < 0
+            for count in mixed_counts.values()
+        )
+        or sum(mixed_counts.values()) != unique_rows
+    ):
+        raise RoundTransactionError(
+            "previous mixed-support distribution is invalid"
+        )
+    return value
+
+
+def _previous_round_diversity_advisory(
+    state: dict[str, Any],
+    previous_number: int,
+) -> str | None:
+    """Render fixed guidance only from a machine-derived durable summary."""
+
+    rounds = state.get("rounds")
+    if not isinstance(rounds, list):
+        return None
+    previous_summary = next(
+        (
+            summary
+            for summary in reversed(rounds)
+            if (
+                isinstance(summary, dict)
+                and summary.get("round") == previous_number
+            )
+        ),
+        None,
+    )
+    if (
+        previous_summary is None
+        or "candidate_diversity" not in previous_summary
+    ):
+        # States written before this optional advisory field retain their
+        # byte-for-byte context behavior.
+        return None
+    diversity = _validate_candidate_diversity_summary(
+        previous_summary["candidate_diversity"]
+    )
+    support_splits = diversity["support_split_counts"]
+    split_distribution = ", ".join(
+        f"{split}={count}" for split, count in support_splits.items()
+    ) or "none"
+    mixed_counts = diversity["mixed_vs_nonmixed_counts"]
+    mixed_distribution = ", ".join(
+        f"{name}={mixed_counts[name]}"
+        for name in ("mixed", "nonmixed", "unclassified")
+    )
+    dominant_count = max(support_splits.values(), default=0)
+    dominant_splits = (
+        ", ".join(
+            split
+            for split, count in support_splits.items()
+            if count == dominant_count
+        )
+        if dominant_count
+        else "none"
+    )
+    classified_mixed = {
+        name: mixed_counts[name] for name in ("mixed", "nonmixed")
+    }
+    dominant_mixed_count = max(classified_mixed.values(), default=0)
+    dominant_mixed = (
+        ", ".join(
+            name
+            for name, count in classified_mixed.items()
+            if count == dominant_mixed_count
+        )
+        if dominant_mixed_count
+        else "none"
+    )
+    return "\n".join([
+        "## Machine-derived previous-round diversity advisory",
+        (
+            f"- Round: {previous_number}; evidence basis: transaction-bound "
+            "candidate source and canonical batch."
+        ),
+        (
+            "- Raw source rows: "
+            f"{diversity['raw_candidate_source_rows']}; canonical unique "
+            f"batch rows: {diversity['canonical_unique_batch_rows']}."
+        ),
+        (
+            f"- Exact duplicate rows: {diversity['duplicate_count']} "
+            f"({float(diversity['duplicate_rate']):.2%})."
+        ),
+        f"- Support-split distribution (|A|+|B|): {split_distribution}.",
+        f"- Mixed-vs-nonmixed distribution: {mixed_distribution}.",
+        (
+            "- Generator action: reduce exact repeats of prior definitions; "
+            "spend candidate slots on genuinely distinct A/B supports."
+        ),
+        (
+            "- Generator action: correct structural collapse by exploring "
+            f"away from dominant support split(s) [{dominant_splits}] and "
+            f"mixed class(es) [{dominant_mixed}]."
+        ),
+        (
+            "- This is search-policy advice only. It is not proof evidence, "
+            "a screening gate, or permission to omit the complete candidate "
+            "pool from durable handoff."
+        ),
+    ])
+
+
 def _freeze_round_context(
     config: FlowConfig,
     state: dict[str, Any],
@@ -1257,6 +1576,11 @@ def _freeze_round_context(
                     "Previous independent reviewer focus:\n- "
                     + "\n- ".join(map(str, focus))
                 )
+        advisory = _previous_round_diversity_advisory(
+            state, previous_number
+        )
+        if advisory is not None:
+            context_parts.append(advisory)
     payload = ("\n\n".join(context_parts) + "\n").encode("utf-8")
     identity = atomic_write_bytes(context_path, payload)
     observed = _file_descriptor(context_path, "evolution humanize context")
@@ -1916,6 +2240,7 @@ def _validate_stored_binding_shape(
     current_launch: dict[str, dict[str, Any]],
     *,
     allow_legacy: bool = False,
+    allow_previous_committed: bool = False,
 ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     """Validate an old identity without requiring old source bytes to exist.
 
@@ -1933,8 +2258,14 @@ def _validate_stored_binding_shape(
     legacy_shape = _is_legacy_evolution_launch_shape(
         launch, current_launch
     )
+    previous_committed_shape = (
+        launch_fields
+        == current_fields
+        - COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS
+    )
     if launch_fields != current_fields and not (
         allow_legacy and legacy_shape
+        or allow_previous_committed and previous_committed_shape
     ):
         raise RoundTransactionError(
             "managed OpenEvolve launch binding fields are incomplete"
@@ -5213,6 +5544,7 @@ class HumanizeFlow:
                 transaction.get("invocation_binding"),
                 round_dir,
                 current_launch,
+                allow_previous_committed=True,
             )
             self._validate_binding_rebind_history(
                 transaction, round_dir, current_launch
@@ -5890,6 +6222,15 @@ class HumanizeFlow:
         round_dir: Path,
     ) -> None:
         exact = sum(1 for row in audited if row.get("d_is_exact"))
+        candidate_diversity: dict[str, Any] | None = None
+        transaction_path = self._transaction_paths(round_dir)["manifest"]
+        if transaction_path.is_file():
+            transaction, batch_rows = self._validate_completed_transaction(
+                number, round_dir
+            )
+            candidate_diversity = _candidate_diversity_summary(
+                transaction, batch_rows
+            )
         summary = {
             "round": number,
             "new_candidates": len(candidates),
@@ -5904,6 +6245,8 @@ class HumanizeFlow:
             "review_verdict": review["verdict"],
             "review_summary": review["summary"],
         }
+        if candidate_diversity is not None:
+            summary["candidate_diversity"] = candidate_diversity
         state["rounds"].append(summary)
         state["current_round"] = number
         (round_dir / "summary.md").write_text(

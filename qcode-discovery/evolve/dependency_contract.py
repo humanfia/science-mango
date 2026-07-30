@@ -17,6 +17,7 @@ LOCAL_EVALUATOR_DEPENDENCIES = {
     "evaluation_proof_runtime": "evaluation/proof_runtime.py",
     "evaluation_final_gate": "evaluation/final_gate.py",
     "evaluation_search_contract": "evaluation/search_contract.py",
+    "evaluation_structural_features": "evaluation/structural_features.py",
     "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
     "evolution_dependency_contract": "evolve/dependency_contract.py",
 }

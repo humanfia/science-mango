@@ -54,6 +54,23 @@ prompt:
     P_m^b (tensor) P_ell^a on the ell x m torus. Code parameters: [[n, k, d]]
     where n = 2*ell*m. Figure of merit: FOM = k * d^2 / n. Target: FOM > 12.0.
 
+    ## Non-negotiable Challenge Constraint
+
+    For BB codes with distinct monomials, every CSS check row and qubit degree
+    has weight |A| + |B|. The challenge requires both to be at most 6, so every
+    generated candidate MUST satisfy:
+
+        |A| + |B| <= 6
+
+    Each polynomial must contain at least 2 terms. Therefore the ONLY admissible
+    term-count splits are (|A|, |B|) in:
+
+        (2,2), (2,3), (3,2), (2,4), (4,2), (3,3)
+
+    Candidates with splits such as 3+4, 4+3, 4+4, 5+anything, or 6+anything
+    are rejected before distance evaluation and waste the search budget. Never
+    remove or bypass the seed's `_add` guard that enforces this invariant.
+
     ## The Scientific Question
 
     All known good BB codes fall into exactly 3 structural families:
@@ -70,11 +87,11 @@ prompt:
        coupling both cyclic dimensions. Almost entirely unexplored.
        - Complementary diagonals: A has shift (a,b), B uses (b,a) or (-b,a)
        - Coordinate transforms: B = A(x^s, y^t) for coprime s,t
-       - Hybrid: axis-aligned anchor + diagonal terms (4-5 terms)
+       - Hybrid: axis-aligned anchors plus diagonal terms within an admissible split
 
-    2. **Multi-term polynomials** (4-6 terms): All known good codes use exactly
-       3 terms. What happens with 4, 5, or 6 terms? More terms = richer Tanner
-       graph connectivity. Try 4-term extensions of known good trinomials.
+    2. **Asymmetric multi-term polynomials**: A 4-term polynomial is admissible
+       only when its partner has exactly 2 terms. Explore 2+4 and 4+2 templates,
+       including a two-term core paired with a four-term pure/mixed extension.
 
     3. **Non-standard pure-term patterns**: Pure-x and pure-y terms but NOT
        matching x/y-swap or constant-monomial structure. E.g., A with both
@@ -109,7 +126,9 @@ prompt:
     - If most candidates have k=0, add constant term (0,0) as identity anchor.
     - If k>0 but d<=2, try larger/coprime shift vectors.
     - Think in TEMPLATES: a relationship at 3+ lattice sizes is an ansatz.
-    - Each polynomial can have 2-6 terms. Keep candidates to 100-2000 per lattice.
+    - Keep all candidates in the six admissible splits and balance the pool across
+      term-count splits and structural families.
+    - Keep candidates to 100-2000 per lattice.
   include_artifacts: true
   suggest_simplification_after_chars: 10000
 

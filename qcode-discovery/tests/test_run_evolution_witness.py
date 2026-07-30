@@ -37,6 +37,10 @@ def test_parent_and_child_share_managed_evaluator_dependency_contract():
         "evaluation_search_contract"
         in launcher.LOCAL_EVALUATOR_DEPENDENCIES
     )
+    assert (
+        "evaluation_structural_features"
+        in launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
     assert "evaluation_proof_runtime" in (
         launcher.LOCAL_EVALUATOR_DEPENDENCIES
     )
@@ -115,11 +119,28 @@ def _child(iteration: int, program_id: str | None = None) -> FakeResult:
         child_program_dict={
             "id": program_id or f"program-{iteration}",
             "code": f"code-{iteration}",
-            "metrics": {"combined_score": float(iteration)},
+            "metrics": {
+                "combined_score": float(iteration),
+                **_map_descriptor_metrics(),
+            },
             "iteration_found": iteration,
         },
         iteration=iteration,
     )
+
+
+def _map_descriptor_metrics(
+    *,
+    pool_size: int = 1,
+    dominant_share: float = 1.0,
+) -> dict[str, float]:
+    return {
+        launcher.MAP_DESCRIPTOR_VERSION_METRIC: float(
+            launcher.MAP_DESCRIPTOR_VERSION
+        ),
+        launcher.MAP_DESCRIPTOR_POOL_SIZE_METRIC: float(pool_size),
+        launcher.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: dominant_share,
+    }
 
 
 def _preflight_markers(
@@ -159,6 +180,7 @@ def _incomplete_preflight_metrics(
         "num_high_k": 0.0,
         "term_count": 0.0,
         "pattern_type": 0.0,
+        **_map_descriptor_metrics(pool_size=0, dominant_share=0.0),
         **{
             launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
                 launcher.WINNER_PREFLIGHT_CONTRACT_VERSION
@@ -931,13 +953,22 @@ def test_backfill_updates_every_same_code_program_without_touching_base(
     shared_code = "def generate_candidates(ell, m): return []\n"
     complete_code = "def generate_candidates(ell, m): return [('x','y')]\n"
     programs = {
-        "a": SimpleNamespace(id="a", code=shared_code, metrics={"score": 1.0}),
-        "b": SimpleNamespace(id="b", code=shared_code, metrics={"score": 2.0}),
+        "a": SimpleNamespace(
+            id="a",
+            code=shared_code,
+            metrics={"score": 1.0, **_map_descriptor_metrics()},
+        ),
+        "b": SimpleNamespace(
+            id="b",
+            code=shared_code,
+            metrics={"score": 2.0, **_map_descriptor_metrics()},
+        ),
         "c": SimpleNamespace(
             id="c",
             code=complete_code,
             metrics={
                 "score": 3.0,
+                **_map_descriptor_metrics(),
                 **_preflight_markers(contract_id),
             },
         ),
@@ -998,6 +1029,37 @@ def test_backfill_updates_every_same_code_program_without_touching_base(
     assert tree_identity() == before
 
 
+def test_checkpoint_with_old_map_descriptor_fails_before_backfill_evaluation(
+    monkeypatch,
+):
+    program = SimpleNamespace(
+        id="legacy",
+        code="def generate_candidates(ell, m): return []\n",
+        metrics={"combined_score": 1.0},
+    )
+    monkeypatch.setattr(
+        launcher,
+        "_execute_winner_preflight",
+        lambda *_args, **_kwargs: pytest.fail(
+            "an incompatible MAP checkpoint must not be evaluated"
+        ),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="incompatible MAP descriptor schema.*fresh campaign",
+    ):
+        launcher._backfill_checkpoint_programs(
+            SimpleNamespace(programs={program.id: program}),
+            evaluator_path=launcher.EVALUATOR,
+            expected_contract_id=123456,
+            max_workers=1,
+            wall_timeout=30,
+        )
+
+    assert program.metrics == {"combined_score": 1.0}
+
+
 def test_cross_output_checkpoint_marker_is_recomputed_and_rebound(
     tmp_path, monkeypatch
 ):
@@ -1019,7 +1081,10 @@ def test_cross_output_checkpoint_marker_is_recomputed_and_rebound(
     program = SimpleNamespace(
         id="old-program",
         code="def generate_candidates(ell, m): return []\n",
-        metrics=_preflight_markers(old_contract_id),
+        metrics={
+            **_map_descriptor_metrics(),
+            **_preflight_markers(old_contract_id),
+        },
     )
     calls = []
 
@@ -1055,7 +1120,10 @@ def test_same_run_checkpoint_marker_is_reused_without_recompute(
     program = SimpleNamespace(
         id="current-program",
         code="def generate_candidates(ell, m): return []\n",
-        metrics=_preflight_markers(contract_id),
+        metrics={
+            **_map_descriptor_metrics(),
+            **_preflight_markers(contract_id),
+        },
     )
     monkeypatch.setattr(
         launcher,
@@ -1087,7 +1155,7 @@ def test_checkpoint_backfill_respects_unified_worker_cap(monkeypatch):
                 "def generate_candidates(ell, m):\n"
                 f"    return []  # {index}\n"
             ),
-            metrics={},
+            metrics=_map_descriptor_metrics(),
         )
         for index in range(9)
     }
@@ -1164,8 +1232,16 @@ def test_backfill_failure_mutates_no_program_and_cannot_record_completion(
 ):
     contract_id = 555666
     programs = {
-        "a": SimpleNamespace(id="a", code="code-a", metrics={"old": 1.0}),
-        "b": SimpleNamespace(id="b", code="code-b", metrics={"old": 2.0}),
+        "a": SimpleNamespace(
+            id="a",
+            code="code-a",
+            metrics={"old": 1.0, **_map_descriptor_metrics()},
+        ),
+        "b": SimpleNamespace(
+            id="b",
+            code="code-b",
+            metrics={"old": 2.0, **_map_descriptor_metrics()},
+        ),
     }
     before = {
         program_id: dict(program.metrics)

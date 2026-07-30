@@ -21,6 +21,7 @@ from evaluation.search_contract import (
     FINAL_GATE_PARETO_LATTICES,
     TARGET_LATTICES,
 )
+from evaluation.search_sampling import DEFAULT_SPLITS
 
 
 def _result(worker: int, index: int) -> dict:
@@ -59,6 +60,52 @@ def _complete_preflight_metrics(
         evaluator.WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
         evaluator.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 0.0,
         evaluator.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 0.0,
+    }
+
+
+def _support_metrics(
+    *,
+    unique: int = 0,
+    eligible: int | None = None,
+    rejected: int = 0,
+    evaluated: int | None = None,
+) -> dict:
+    """Build the complete versioned support partition used by fake runs."""
+
+    if eligible is None:
+        eligible = unique - rejected
+    if evaluated is None:
+        evaluated = eligible
+    return {
+        evaluator.SUPPORT_FILTER_VERSION_METRIC: (
+            evaluator.CHALLENGE_SUPPORT_FILTER_VERSION
+        ),
+        evaluator.SUPPORT_WEIGHT_ELIGIBLE_METRIC: eligible,
+        evaluator.SUPPORT_WEIGHT_REJECTED_METRIC: rejected,
+        evaluator.SUPPORT_WEIGHT_EVALUATED_METRIC: evaluated,
+        evaluator.SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: int(
+            unique == eligible + rejected
+        ),
+        evaluator.SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC: (
+            evaluated / eligible if eligible else 1.0
+        ),
+        evaluator.SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC: (
+            eligible / unique if unique else 0.0
+        ),
+        evaluator.SUPPORT_WEIGHT_REJECTION_FRACTION_METRIC: (
+            rejected / unique if unique else 0.0
+        ),
+        evaluator.SUPPORT_SPLITS_COVERED_METRIC: 0,
+        evaluator.SUPPORT_SPLITS_TOTAL_METRIC: len(
+            evaluator.CHALLENGE_SUPPORT_SPLITS
+        ),
+        evaluator.SUPPORT_SPLIT_COVERAGE_METRIC: 0.0,
+        evaluator.SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC: 0.0,
+        "support_split_counts": {},
+        "support_weight_rejection_splits": {},
+        evaluator.PATTERN_CLASSIFIER_VERSION_METRIC: (
+            evaluator.PATTERN_CLASSIFIER_VERSION
+        ),
     }
 
 
@@ -678,6 +725,7 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
         "errors": [],
         "lattices_completed": len(EVOLUTION_LATTICES),
         "lattice_failures": 0,
+        **_support_metrics(),
     }
 
     monkeypatch.setattr(
@@ -693,7 +741,9 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
     monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _rows: None)
 
-    evaluator._evaluate_stage2_impl(str(program))
+    evaluated = evaluator._evaluate_stage2_impl(str(program))
+    result = getattr(evaluated, "metrics", evaluated)
+    artifacts = getattr(evaluated, "artifacts", {})
 
     assert calls[0][0] == EVOLUTION_LATTICES
     assert calls[0][1]["quick"] is True
@@ -717,6 +767,12 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
         calls[1][1]["candidate_limit"]
         == evaluator.STAGE2_DEEP_CANDIDATE_LIMIT
     )
+    assert result[evaluator.SUPPORT_FILTER_VERSION_METRIC] == float(
+        evaluator.CHALLENGE_SUPPORT_FILTER_VERSION
+    )
+    assert result["target_preflight_support_feedback_observed"] == 1.0
+    assert "Challenge support filter v1" in artifacts["support_filter"]
+    assert "Deep challenge support:" in artifacts["summary"]
 
 
 def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
@@ -768,6 +824,7 @@ def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
         "best_code": None,
         "all_results": [],
         "errors": [],
+        **_support_metrics(),
     }
     monkeypatch.setattr(
         evaluator,
@@ -784,12 +841,15 @@ def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
 
     result = evaluator._evaluate_stage2_impl(str(program))
     metrics = getattr(result, "metrics", result)
+    artifacts = getattr(result, "artifacts", {})
 
     assert [lattices for lattices, _kwargs in calls] == [
         tuple(evaluator.STAGE2_DEEP_LATTICES)
     ]
     assert metrics["target_preflight_candidates_evaluated"] == 17.0
     assert metrics["target_preflight_winner_capable_persisted"] == 5.0
+    assert metrics["target_preflight_support_feedback_observed"] == 0.0
+    assert "per-split diagnostics unavailable" in artifacts["summary"]
 
 
 def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
@@ -1507,6 +1567,332 @@ def test_malformed_generator_item_does_not_hide_valid_peer(
     assert "malformed" in metrics["errors"][0]
 
 
+def test_support_filter_precedes_quick_and_rank_and_keeps_full_eligible_handoff(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(evaluator, "_PROJECT_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    ranked = []
+
+    def identity_dedup(rows):
+        ranked.extend(rows)
+        return rows, []
+
+    monkeypatch.setattr(evaluator, "deduplicate_css_results", identity_dedup)
+
+    def terms(count: int, offset: int) -> list[tuple[int, int]]:
+        return [((offset + index) % 6, index // 6) for index in range(count)]
+
+    eligible = [
+        (terms(a_count, index), terms(b_count, index + 2))
+        for index, (a_count, b_count) in enumerate(
+            evaluator.CHALLENGE_SUPPORT_SPLITS
+        )
+    ]
+    rejected = [
+        (terms(1, 0), terms(2, 2)),
+        (terms(2, 1), terms(1, 3)),
+        (terms(4, 0), terms(3, 2)),
+        (terms(7, 0), terms(2, 2)),
+    ]
+    batch_inputs = []
+
+    def fake_batch(ell, m, rows, **kwargs):
+        batch_inputs.append((kwargs.get("quick") is True, list(rows)))
+        quick = kwargs.get("quick") is True
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 4,
+                "d": 0 if quick else 8,
+                "fom": 0.0 if quick else 4 * 8 * 8 / 72,
+                "score": 4 / 72,
+                "stage": "quick_k_only" if quick else "refined_estimate",
+                "encoding_rate": 4 / 72,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: [*eligible, *rejected],
+        [(6, 6)],
+        quick=False,
+        max_distance_per_lattice=2,
+        run_name="support-filter",
+        sampling_salt="support-filter-program",
+    )
+
+    eligible_keys = {
+        evaluator._candidate_definition_key(row, ell=6, m=6)
+        for row in eligible
+    }
+    assert len(batch_inputs) == 2
+    assert {
+        evaluator._candidate_definition_key(row, ell=6, m=6)
+        for row in batch_inputs[0][1]
+    } == eligible_keys
+    assert all(
+        evaluator._definition_key(row) in eligible_keys for row in ranked
+    )
+    assert all(
+        evaluator._candidate_definition_key(row, ell=6, m=6)
+        in eligible_keys
+        for _quick, rows in batch_inputs
+        for row in rows
+    )
+
+    assert metrics["total_candidates"] == len(eligible) + len(rejected)
+    assert metrics["unique_candidates"] == len(eligible) + len(rejected)
+    assert metrics[evaluator.SUPPORT_WEIGHT_ELIGIBLE_METRIC] == len(
+        eligible
+    )
+    assert metrics[evaluator.SUPPORT_WEIGHT_REJECTED_METRIC] == len(
+        rejected
+    )
+    assert metrics[evaluator.SUPPORT_WEIGHT_EVALUATED_METRIC] == len(
+        eligible
+    )
+    assert (
+        metrics[evaluator.SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC]
+        == 1.0
+    )
+    assert metrics[evaluator.SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC] == (
+        len(eligible) / (len(eligible) + len(rejected))
+    )
+    assert metrics[evaluator.SUPPORT_WEIGHT_REJECTION_FRACTION_METRIC] == (
+        len(rejected) / (len(eligible) + len(rejected))
+    )
+    assert metrics[evaluator.SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC] == 1
+    assert metrics[evaluator.SUPPORT_SPLITS_COVERED_METRIC] == len(
+        evaluator.CHALLENGE_SUPPORT_SPLITS
+    )
+    assert metrics[evaluator.SUPPORT_SPLIT_COVERAGE_METRIC] == 1.0
+    assert set(metrics["support_split_counts"].values()) == {1}
+
+    path = (
+        tmp_path
+        / "results"
+        / "evolution"
+        / "support-filter"
+        / "all_codes.jsonl"
+    )
+    full_pool = [
+        json.loads(line)
+        for line in path.read_text().splitlines()
+        if json.loads(line).get("candidate_persistence_reason")
+        == evaluator.FULL_POOL_PREFLIGHT_PERSISTENCE_REASON
+    ]
+    assert {
+        evaluator._definition_key(row) for row in full_pool
+    } == eligible_keys
+    assert all(
+        row[evaluator.SUPPORT_FILTER_VERSION_METRIC]
+        == evaluator.CHALLENGE_SUPPORT_FILTER_VERSION
+        and row[evaluator.PATTERN_CLASSIFIER_VERSION_METRIC]
+        == evaluator.PATTERN_CLASSIFIER_VERSION
+        for row in full_pool
+    )
+    assert metrics["winner_capable_quick_exploration_eligible"] == len(
+        eligible
+    )
+    assert metrics["winner_capable_quick_exploration_persisted"] == len(
+        eligible
+    )
+    evaluator._require_full_pool_persistence(
+        metrics,
+        expected_lattices=1,
+        label="support-filter regression",
+    )
+
+
+def test_bounded_quick_fitness_reports_partial_eligible_coverage(monkeypatch):
+    candidates = [
+        (
+            [(0, 0), (index + 1, 0)],
+            [(0, 0), (0, index + 1)],
+        )
+        for index in range(3)
+    ]
+    evaluated = []
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        evaluated.extend(rows)
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 72,
+                "k": 0,
+                "d": 0,
+                "fom": 0.0,
+                "score": 0.0,
+                "stage": "quick_k_only",
+                "encoding_rate": 0.0,
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    metrics = evaluator._run_evaluation(
+        lambda _ell, _m: candidates,
+        [(6, 6)],
+        quick=True,
+        candidate_limit=2,
+        sampling_salt="bounded-support",
+    )
+
+    assert len(evaluated) == 2
+    assert metrics[evaluator.SUPPORT_WEIGHT_ELIGIBLE_METRIC] == 3
+    assert metrics[evaluator.SUPPORT_WEIGHT_EVALUATED_METRIC] == 2
+    assert metrics[evaluator.SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC] == (
+        2 / 3
+    )
+
+
+def test_full_winner_preflight_persists_every_support_eligible_definition(
+    tmp_path, monkeypatch
+):
+    eligible = (
+        [(0, 0), (1, 0)],
+        [(0, 0), (0, 1), (1, 0), (1, 1)],
+    )
+    rejected = (
+        [(0, 0), (1, 0), (0, 1)],
+        [(0, 0), (0, 1), (1, 0), (1, 1)],
+    )
+    observed = []
+
+    def fake_batch(ell, m, rows, **_kwargs):
+        observed.extend((ell, m, row) for row in rows)
+        return [
+            {
+                "ell": ell,
+                "m": m,
+                "A_terms": a_terms,
+                "B_terms": b_terms,
+                "n": 2 * ell * m,
+                "k": 4,
+                "d": 0,
+                "fom": 0.0,
+                "score": 4 / (2 * ell * m),
+                "stage": "quick_k_only",
+                "encoding_rate": 4 / (2 * ell * m),
+            }
+            for a_terms, b_terms in rows
+        ]
+
+    monkeypatch.setattr(evaluator, "evaluate_batch", fake_batch)
+    monkeypatch.setattr(
+        evaluator,
+        "_filter_static_eligible",
+        lambda rows: (rows, []),
+    )
+    candidate_log = tmp_path / "all_codes.jsonl"
+    markers = evaluator._run_full_winner_preflight(
+        lambda _ell, _m: [eligible, rejected],
+        sampling_salt="support-complete",
+        contract_id=17,
+        candidate_log_path=candidate_log,
+    )
+
+    expected = len(EVOLUTION_LATTICES)
+    assert len(observed) == expected
+    assert all(row == eligible for _ell, _m, row in observed)
+    assert markers[evaluator.WINNER_PREFLIGHT_EVALUATED_METRIC] == float(
+        expected
+    )
+    assert markers[evaluator.WINNER_PREFLIGHT_ELIGIBLE_METRIC] == float(
+        expected
+    )
+    assert markers[evaluator.WINNER_PREFLIGHT_PERSISTED_METRIC] == float(
+        expected
+    )
+    assert markers[evaluator.WINNER_PREFLIGHT_OMITTED_METRIC] == 0.0
+    persisted = [
+        json.loads(line) for line in candidate_log.read_text().splitlines()
+    ]
+    assert len(persisted) == expected
+    assert all(
+        (len(row["A_terms"]), len(row["B_terms"])) == (2, 4)
+        for row in persisted
+    )
+
+
+def test_evaluator_support_splits_match_search_sampler_contract():
+    assert evaluator.CHALLENGE_SUPPORT_SPLITS == DEFAULT_SPLITS
+
+
+def test_multi_term_mixed_pattern_has_versioned_multi_term_niche():
+    assert evaluator.PATTERN_CLASSIFIER_VERSION == 2
+    assert evaluator._classify_pattern(
+        [(0, 0), (1, 2), (2, 0), (0, 3)],
+        [(0, 1), (1, 0), (2, 0)],
+    ) == 4.0
+    assert evaluator._classify_pattern(
+        [(0, 0), (1, 2), (2, 0)],
+        [(0, 1), (1, 0), (2, 0)],
+    ) == 3.0
+
+
+def test_pool_map_descriptor_is_not_owned_by_single_high_k_safety_row():
+    safety = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [1, 1], [2, 0]],
+        "B_terms": [[0, 1], [1, 0], [2, 2]],
+        "n": 72,
+        "k": 16,
+    }
+    evolved = [
+        {
+            "ell": 6,
+            "m": 6,
+            "A_terms": [[0, 0], [index + 1, 0]],
+            "B_terms": [
+                [0, 1],
+                [1, index + 1],
+                [index + 2, 0],
+                [0, index + 2],
+            ],
+            "n": 72,
+            "k": 0,
+        }
+        for index in range(3)
+    ]
+    rows = [safety, dict(safety), *evolved]
+
+    descriptor = evaluator._pool_map_descriptor(
+        rows,
+        lattices={(6, 6)},
+    )
+    reversed_descriptor = evaluator._pool_map_descriptor(
+        list(reversed(rows)),
+        lattices={(6, 6)},
+    )
+
+    assert descriptor == reversed_descriptor
+    assert descriptor[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == float(
+        evaluator.MAP_DESCRIPTOR_VERSION
+    )
+    assert descriptor[evaluator.MAP_DESCRIPTOR_POOL_SIZE_METRIC] == 4.0
+    assert descriptor["term_count"] == pytest.approx(3.75)
+    assert descriptor["pattern_type"] == 4.0
+    assert descriptor[
+        evaluator.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC
+    ] == pytest.approx(0.75)
+
+
 def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
     tmp_path, monkeypatch
 ):
@@ -1515,8 +1901,8 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
     critical = {
         "ell": 6,
         "m": 6,
-        "A_terms": [[0, 0]],
-        "B_terms": [[0, 0]],
+        "A_terms": [[0, 0], [1, 0]],
+        "B_terms": [[0, 0], [0, 1]],
         "n": 72,
         "k": 16,
         "d": 10,
@@ -1556,6 +1942,7 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
         "errors": [],
         "lattices_completed": len(EVOLUTION_LATTICES),
         "lattice_failures": 0,
+        **_support_metrics(unique=2),
     }
     monkeypatch.setattr(
         evaluator,
@@ -1959,6 +2346,8 @@ def test_stage1_completes_full_persistence_before_gate_score(
         order.append("gate")
         return {
             "total_candidates": 0,
+            "unique_candidates": 0,
+            "evaluated_candidate_definitions": 0,
             "all_results": [],
             "num_valid": 0,
             "num_high_k": 0,
@@ -1968,6 +2357,7 @@ def test_stage1_completes_full_persistence_before_gate_score(
             "winner_capable_quick_exploration_eligible": 0,
             "winner_capable_quick_exploration_persisted": 0,
             "winner_capable_quick_exploration_omitted": 0,
+            **_support_metrics(),
         }
 
     monkeypatch.setattr(evaluator, "_run_full_winner_preflight", preflight)
@@ -2121,11 +2511,14 @@ def test_stage1_partial_historical_persistence_cannot_keep_complete_marker(
         evaluator,
         "_run_evaluation",
         lambda *_args, **_kwargs: {
+            "unique_candidates": 1,
+            "evaluated_candidate_definitions": 1,
             "lattices_completed": 1,
             "lattice_failures": 1,
             "winner_capable_quick_exploration_eligible": 1,
             "winner_capable_quick_exploration_persisted": 1,
             "winner_capable_quick_exploration_omitted": 0,
+            **_support_metrics(unique=1),
         },
     )
 
@@ -2918,6 +3311,8 @@ def test_partial_stage1_coverage_only_escapes_on_specialist_sample(
                 "winner_capable_quick_exploration_persisted": 0,
                 "winner_capable_quick_exploration_omitted": 0,
                 "evaluated_candidate_definitions": 0,
+                "unique_candidates": 0,
+                **_support_metrics(),
             }
         return {
             **metrics,
@@ -2926,6 +3321,9 @@ def test_partial_stage1_coverage_only_escapes_on_specialist_sample(
             "winner_capable_quick_exploration_eligible": 1,
             "winner_capable_quick_exploration_persisted": 1,
             "winner_capable_quick_exploration_omitted": 0,
+            "unique_candidates": 1,
+            "evaluated_candidate_definitions": 1,
+            **_support_metrics(unique=1),
         }
 
     monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)

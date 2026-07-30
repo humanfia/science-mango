@@ -37,13 +37,13 @@ Two-stage cascade
 
 MAP-Elites feature dimensions
 ------------------------------
-* ``lattices_with_high_k`` -- number of distinct lattices with at least one
-  code having ``k >= 8``.
-* ``num_high_k`` -- total count of codes with ``k >= 8``.
+* ``term_count`` -- mean maximum A/B support size across the canonical
+  evaluated pool.
+* ``pattern_type`` -- dominant structural class across that same pool.
 
-These features encourage behavioral diversity in the population: programs
-that find high-k codes at many lattices occupy different niches from
-programs that find a single exceptional code.
+These pool-level features encourage behavioral diversity without allowing a
+single fixed safety-net code to determine the archive cell for an otherwise
+different generator.
 
 Constants
 ---------
@@ -151,6 +151,11 @@ from evaluation.structural_dedup import (
     check_css_static_eligibility,
     deduplicate_css_results,
 )
+from evaluation.structural_features import (
+    PATTERN_CLASSIFIER_VERSION,
+    classify_pattern as _classify_pattern,
+    count_terms as _count_terms,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -210,6 +215,51 @@ FULL_POOL_PREFLIGHT_PERSISTENCE_REASON = "full_pool_preflight"
 DISTANCE_PENDING_PERSISTENCE_REASON = "selected_distance_pending"
 UNRESOLVED_TOP_PERSISTENCE_REASON = "selected_distance_unresolved"
 DISTANCE_ERROR_PERSISTENCE_REASON = "selected_distance_error"
+CHALLENGE_SUPPORT_FILTER_VERSION = 1
+CHALLENGE_SUPPORT_MIN_PER_SIDE = 2
+CHALLENGE_SUPPORT_MAX_PER_SIDE = 6
+CHALLENGE_SUPPORT_MAX_TOTAL = 6
+CHALLENGE_SUPPORT_SPLITS = (
+    (2, 2),
+    (2, 3),
+    (3, 2),
+    (2, 4),
+    (4, 2),
+    (3, 3),
+)
+SUPPORT_FILTER_VERSION_METRIC = "support_filter_version"
+SUPPORT_WEIGHT_ELIGIBLE_METRIC = "support_weight_eligible"
+SUPPORT_WEIGHT_REJECTED_METRIC = "support_weight_rejected"
+SUPPORT_WEIGHT_EVALUATED_METRIC = "support_weight_evaluated"
+SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC = (
+    "support_weight_partition_complete"
+)
+SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC = (
+    "support_weight_evaluation_coverage"
+)
+SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC = (
+    "support_weight_eligible_fraction"
+)
+SUPPORT_WEIGHT_REJECTION_FRACTION_METRIC = (
+    "support_weight_rejection_fraction"
+)
+SUPPORT_SPLITS_COVERED_METRIC = "support_splits_covered"
+SUPPORT_SPLITS_TOTAL_METRIC = "support_splits_total"
+SUPPORT_SPLIT_COVERAGE_METRIC = "support_split_coverage"
+SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC = "support_split_lattice_coverage"
+# Version 2 moves 4+-term mixed structures from cell 3 to the intended
+# multi-term cell 4. Checkpoints containing version-1 descriptors must be
+# freshly evaluated rather than silently compared across classifier versions.
+PATTERN_CLASSIFIER_VERSION_METRIC = "pattern_classifier_version"
+# Version 2 replaces the historical single-best-code MAP descriptor with an
+# order-independent descriptor of the complete evaluated candidate pool.
+# Archive coordinates from older checkpoints are therefore not comparable.
+MAP_DESCRIPTOR_VERSION = 2
+MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
+MAP_DESCRIPTOR_POOL_SIZE_METRIC = "map_descriptor_pool_size"
+MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
+    "map_descriptor_dominant_pattern_share"
+)
 STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
 MAX_CANDIDATES_PER_LATTICE = 5000
 MAX_WINNER_CAPABLE_EXPLORATION_PER_LATTICE = 8
@@ -221,9 +271,10 @@ CANDIDATE_LOG_WAL_SCHEMA_VERSION = 1
 CANDIDATE_LOG_WAL_HEADER_MAX_BYTES = 16 << 10
 CANDIDATE_LOG_WAL_SUFFIX = ".candidate-wal"
 CANDIDATE_LOG_WAL_TEMP_SUFFIX = ".tmp"
-# Full persistence is deliberately unbounded.  A fixed 5000-definition sample
-# is useful for distance fitness, but is not a sound handoff to exact auditing:
-# a winner outside that sample would otherwise be permanently invisible.
+# Full persistence is deliberately unbounded within the challenge-supported
+# sparse universe. A fixed 5000-definition sample is useful for distance
+# fitness, but is not a sound handoff to exact auditing: a supported winner
+# outside that sample would otherwise be permanently invisible.
 STAGE2_PREFLIGHT_CANDIDATE_LIMIT = None
 STAGE2_DEEP_CANDIDATE_LIMIT = MAX_CANDIDATES_PER_LATTICE
 STAGE2_DEEP_DISTANCE_PER_LATTICE = 3
@@ -448,6 +499,51 @@ def _normalize_generated_candidates(
                 f"{type(exc).__name__}: {exc}"
             )
     return normalized, errors
+
+
+def _challenge_support_split(candidate) -> tuple[int, int] | None:
+    """Return the supported A/B term split, or ``None`` when out of scope.
+
+    The final challenge search is deliberately restricted to sparse BB
+    supports: each polynomial has between two and six monomials and their
+    combined support weight is at most six.  This check is representation-only
+    and therefore safe to run before constructing qLDPC objects.
+    """
+
+    a_terms, b_terms = candidate
+    split = (len(a_terms), len(b_terms))
+    if (
+        CHALLENGE_SUPPORT_MIN_PER_SIDE
+        <= split[0]
+        <= CHALLENGE_SUPPORT_MAX_PER_SIDE
+        and CHALLENGE_SUPPORT_MIN_PER_SIDE
+        <= split[1]
+        <= CHALLENGE_SUPPORT_MAX_PER_SIDE
+        and sum(split) <= CHALLENGE_SUPPORT_MAX_TOTAL
+    ):
+        return split
+    return None
+
+
+def _partition_challenge_support(
+    candidates: list,
+) -> tuple[list, list, dict[tuple[int, int], int], dict[tuple[int, int], int]]:
+    """Partition a normalized pool before any expensive batch evaluation."""
+
+    eligible = []
+    rejected = []
+    eligible_splits = {split: 0 for split in CHALLENGE_SUPPORT_SPLITS}
+    rejected_splits: dict[tuple[int, int], int] = {}
+    for candidate in candidates:
+        split = _challenge_support_split(candidate)
+        if split is None:
+            rejected.append(candidate)
+            raw_split = (len(candidate[0]), len(candidate[1]))
+            rejected_splits[raw_split] = rejected_splits.get(raw_split, 0) + 1
+            continue
+        eligible.append(candidate)
+        eligible_splits[split] += 1
+    return eligible, rejected, eligible_splits, rejected_splits
 
 
 def _candidate_sample_key(
@@ -977,47 +1073,81 @@ STAGE2_LATTICES_MILP = [
 ]
 
 
-def _classify_pattern(A_terms, B_terms) -> float:
-    """Classify polynomial structure for MAP-Elites.
+def _pool_map_descriptor(
+    rows: list[dict],
+    *,
+    lattices: set[tuple[int, int]] | None = None,
+) -> dict[str, float]:
+    """Describe one generator by its canonical evaluated pool.
 
-    0.0 = univariate (A=f(y), B=g(x) or vice versa, incl. constant-monomial)
-    1.0 = x/y-swap (pure terms, no constant, each poly mixes x+y axes)
-    2.0 = self-dual (A=B)
-    3.0 = mixed monomials (has x^a*y^b with both a,b > 0)
-    4.0 = multi-term pure (4+ terms, all pure)
-    5.0 = hybrid/non-standard pure (has constant term, not univariate --
-          e.g. 1+x+y type, or constant-mono A + x/y-swap B)
+    The old descriptor selected the highest-k/FOM row.  A fixed safety-net
+    definition could therefore place many otherwise different generators in
+    the same MAP cell.  This descriptor instead uses every unique,
+    challenge-supported row on the requested fitness lattice basis:
+
+    * ``term_count`` is the mean maximum A/B support size;
+    * ``pattern_type`` is the dominant structural class, with deterministic
+      lowest-class tie breaking.
+
+    Rows need not have positive ``k``.  MAP-Elites is describing the search
+    strategy's output distribution; mathematical usefulness remains entirely
+    in ``combined_score`` and the downstream proof gates.
     """
-    a_set = sorted(tuple(t) for t in A_terms)
-    b_set = sorted(tuple(t) for t in B_terms)
-    if a_set == b_set:
-        return 2.0
-    has_mixed = any(x > 0 and y > 0 for x, y in A_terms) or \
-                any(x > 0 and y > 0 for x, y in B_terms)
-    if has_mixed:
-        return 3.0
-    a_y_only = all(x == 0 for x, y in A_terms)
-    a_x_only = all(y == 0 for x, y in A_terms)
-    b_y_only = all(x == 0 for x, y in B_terms)
-    b_x_only = all(y == 0 for x, y in B_terms)
-    if (a_y_only and b_x_only) or (a_x_only and b_y_only):
-        return 0.0
-    # 4+ term pure polynomials get their own niche
-    if len(A_terms) >= 4 or len(B_terms) >= 4:
-        return 4.0
-    # Hybrid / non-standard pure: has a constant term (0,0) but isn't
-    # univariate.  Separates novel structures (1+x+y, hybrid cross-family)
-    # from classic x/y-swap (which never has a constant term).
-    a_has_const = any(x == 0 and y == 0 for x, y in A_terms)
-    b_has_const = any(x == 0 and y == 0 for x, y in B_terms)
-    if a_has_const or b_has_const:
-        return 5.0
-    return 1.0
 
+    unique_rows: list[dict] = []
+    seen: set[tuple] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        try:
+            lattice = (int(row.get("ell", 0)), int(row.get("m", 0)))
+            if lattices is not None and lattice not in lattices:
+                continue
+            candidate = (row.get("A_terms", []), row.get("B_terms", []))
+            if _challenge_support_split(candidate) is None:
+                continue
+            definition = _definition_key(row)
+            pattern = _classify_pattern(*candidate)
+            term_count = _count_terms(*candidate)
+        except (TypeError, ValueError):
+            continue
+        if definition in seen:
+            continue
+        seen.add(definition)
+        unique_rows.append({
+            "pattern_type": pattern,
+            "term_count": term_count,
+        })
 
-def _count_terms(A_terms, B_terms) -> float:
-    """Return max term count across A and B (for MAP-Elites feature)."""
-    return float(max(len(A_terms), len(B_terms)))
+    if not unique_rows:
+        return {
+            "term_count": 0.0,
+            "pattern_type": 0.0,
+            MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
+            MAP_DESCRIPTOR_POOL_SIZE_METRIC: 0.0,
+            MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: 0.0,
+        }
+
+    pattern_counts: dict[float, int] = {}
+    for row in unique_rows:
+        pattern = row["pattern_type"]
+        pattern_counts[pattern] = pattern_counts.get(pattern, 0) + 1
+    dominant_pattern, dominant_count = min(
+        pattern_counts.items(),
+        key=lambda item: (-item[1], item[0]),
+    )
+    pool_size = len(unique_rows)
+    return {
+        "term_count": (
+            sum(row["term_count"] for row in unique_rows) / pool_size
+        ),
+        "pattern_type": dominant_pattern,
+        MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
+        MAP_DESCRIPTOR_POOL_SIZE_METRIC: float(pool_size),
+        MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: (
+            dominant_count / pool_size
+        ),
+    }
 
 
 def _structural_feedback(result: dict) -> str:
@@ -1673,6 +1803,8 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
         "pattern_type": _classify_pattern(
             result.get("A_terms", []), result.get("B_terms", [])
         ),
+        SUPPORT_FILTER_VERSION_METRIC: CHALLENGE_SUPPORT_FILTER_VERSION,
+        PATTERN_CLASSIFIER_VERSION_METRIC: PATTERN_CLASSIFIER_VERSION,
         "term_count": _count_terms(
             result.get("A_terms", []), result.get("B_terms", [])
         ),
@@ -1800,14 +1932,14 @@ def _error_result(error: str) -> dict:
     MAP-Elites requires the feature dimensions to be present in every
     result, including errors.
     """
-    return {
+    result = {
         "combined_score": 0.0,
         "error": error,
         "lattices_with_high_k": 0.0,
         "num_high_k": 0.0,
-        "term_count": 0.0,
-        "pattern_type": 0.0,
     }
+    result.update(_pool_map_descriptor([]))
+    return result
 
 
 def _load_generate_candidates(program_path: str):
@@ -1845,8 +1977,9 @@ def _run_evaluation(
     """Run evaluation across lattices and compute aggregate metrics.
 
     When quick=False, each lattice invokes the generator exactly once:
-    1. Quick-screen and durably persist every winner-capable definition in the
-       complete frozen canonical pool.
+    1. Partition the complete frozen canonical pool by the challenge support
+       contract, then quick-screen and durably persist every winner-capable
+       definition on its eligible side.
     2. Bound that same pool for fitness and estimate distance for its top
        `max_distance_per_lattice` candidates, using either BP-OSD (default) or
        MILP (when use_milp=True).
@@ -1896,6 +2029,14 @@ def _run_evaluation(
     structural_rejected_count = 0
     lattices_completed = 0
     lattice_failures = 0
+    support_weight_eligible = 0
+    support_weight_rejected = 0
+    support_weight_evaluated = 0
+    support_split_counts = {
+        split: 0 for split in CHALLENGE_SUPPORT_SPLITS
+    }
+    support_rejection_split_counts: dict[tuple[int, int], int] = {}
+    support_lattice_splits: set[tuple[int, int, int, int]] = set()
 
     for ell, m in lattices:
         try:
@@ -1926,6 +2067,22 @@ def _run_evaluation(
             duplicate_candidate_occurrences += (
                 raw_candidate_count - len(candidates)
             )
+            (
+                candidates,
+                support_rejected,
+                lattice_support_splits,
+                lattice_rejection_splits,
+            ) = _partition_challenge_support(candidates)
+            support_weight_eligible += len(candidates)
+            support_weight_rejected += len(support_rejected)
+            for split, count in lattice_support_splits.items():
+                support_split_counts[split] += count
+                if count:
+                    support_lattice_splits.add((ell, m, *split))
+            for split, count in lattice_rejection_splits.items():
+                support_rejection_split_counts[split] = (
+                    support_rejection_split_counts.get(split, 0) + count
+                )
 
             distance_selection_limit = max_distance_per_lattice
             if (ell, m) in FINAL_GATE_PARETO_LATTICES:
@@ -1937,9 +2094,10 @@ def _run_evaluation(
             if quick:
                 if persist_all_quick_exploration:
                     # Complete persistence is a write-ahead contract, not the
-                    # fitness sample. Evaluate and persist the frozen full pool
-                    # first; only then derive bounded fitness rows from those
-                    # same objects without another generator/evaluator call.
+                    # fitness sample. Evaluate and persist the frozen complete
+                    # challenge-supported pool first; only then derive bounded
+                    # fitness rows from those same objects without another
+                    # generator/evaluator call.
                     evaluated_candidate_definitions += len(candidates)
                     complete_quick_results = evaluate_batch(
                         ell, m, candidates,
@@ -1954,6 +2112,7 @@ def _run_evaluation(
                         ell=ell,
                         m=m,
                     )
+                    support_weight_evaluated += len(candidates)
                     _annotate_generator_occurrences(
                         complete_quick_results,
                         ell=ell,
@@ -2045,6 +2204,19 @@ def _run_evaluation(
                         fom_threshold_refine=6.0,
                         fom_threshold_exact=8.0,
                     )
+                    expected_quick_keys = {
+                        _candidate_definition_key(
+                            candidate,
+                            ell=ell,
+                            m=m,
+                        )
+                        for candidate in candidates
+                    }
+                    support_weight_evaluated += len(
+                        expected_quick_keys.intersection(
+                            _definition_key(result) for result in results
+                        )
+                    )
                     _annotate_generator_occurrences(
                         results,
                         ell=ell,
@@ -2084,10 +2256,11 @@ def _run_evaluation(
             else:
                 # The generator has already been invoked exactly once for this
                 # lattice. Before any bounded sampling, screen its complete
-                # canonical pool and durably hand off every statically eligible,
-                # winner-capable definition. This is required even when Stage 2
-                # reused a prior Stage 1 completion: a random/stateful generator
-                # can produce a different pool on this deep invocation.
+                # challenge-supported canonical pool and durably hand off every
+                # statically eligible, winner-capable definition. This is
+                # required even when Stage 2 reused a prior Stage 1 completion:
+                # a random/stateful generator can produce a different pool on
+                # this deep invocation.
                 evaluated_candidate_definitions += len(candidates)
                 if use_milp:
                     complete_quick_results = evaluate_batch_milp(
@@ -2103,6 +2276,7 @@ def _run_evaluation(
                     ell=ell,
                     m=m,
                 )
+                support_weight_evaluated += len(candidates)
                 _annotate_generator_occurrences(
                     complete_quick_results,
                     ell=ell,
@@ -2436,6 +2610,40 @@ def _run_evaluation(
         if best_result.get("fom", 0.0) > 0:
             best_code = best_result
 
+    support_partition_complete = int(
+        unique_candidates
+        == support_weight_eligible + support_weight_rejected
+    )
+    support_evaluation_coverage = (
+        support_weight_evaluated / support_weight_eligible
+        if support_weight_eligible
+        else 1.0
+    )
+    support_weight_eligible_fraction = (
+        support_weight_eligible / unique_candidates
+        if unique_candidates
+        else 0.0
+    )
+    support_weight_rejection_fraction = (
+        support_weight_rejected / unique_candidates
+        if unique_candidates
+        else 0.0
+    )
+    support_splits_covered = sum(
+        count > 0 for count in support_split_counts.values()
+    )
+    support_split_coverage = (
+        support_splits_covered / len(CHALLENGE_SUPPORT_SPLITS)
+    )
+    support_lattice_split_total = (
+        len(lattices) * len(CHALLENGE_SUPPORT_SPLITS)
+    )
+    support_split_lattice_coverage = (
+        len(support_lattice_splits) / support_lattice_split_total
+        if support_lattice_split_total
+        else 1.0
+    )
+
     return {
         "best_fom": best_fom,
         "mean_fom": mean_fom,
@@ -2466,6 +2674,41 @@ def _run_evaluation(
         "malformed_candidate_definitions": malformed_candidate_definitions,
         "tier0_rejected": tier0_rejected_count,
         "structural_rejected": structural_rejected_count,
+        SUPPORT_FILTER_VERSION_METRIC: CHALLENGE_SUPPORT_FILTER_VERSION,
+        SUPPORT_WEIGHT_ELIGIBLE_METRIC: support_weight_eligible,
+        SUPPORT_WEIGHT_REJECTED_METRIC: support_weight_rejected,
+        SUPPORT_WEIGHT_EVALUATED_METRIC: support_weight_evaluated,
+        SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: (
+            support_partition_complete
+        ),
+        SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC: (
+            support_evaluation_coverage
+        ),
+        SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC: (
+            support_weight_eligible_fraction
+        ),
+        SUPPORT_WEIGHT_REJECTION_FRACTION_METRIC: (
+            support_weight_rejection_fraction
+        ),
+        SUPPORT_SPLITS_COVERED_METRIC: support_splits_covered,
+        SUPPORT_SPLITS_TOTAL_METRIC: len(CHALLENGE_SUPPORT_SPLITS),
+        SUPPORT_SPLIT_COVERAGE_METRIC: support_split_coverage,
+        SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC: (
+            support_split_lattice_coverage
+        ),
+        "support_split_counts": {
+            f"{a_count}+{b_count}": support_split_counts[
+                (a_count, b_count)
+            ]
+            for a_count, b_count in CHALLENGE_SUPPORT_SPLITS
+        },
+        "support_weight_rejection_splits": {
+            f"{a_count}+{b_count}": count
+            for (a_count, b_count), count in sorted(
+                support_rejection_split_counts.items()
+            )
+        },
+        PATTERN_CLASSIFIER_VERSION_METRIC: PATTERN_CLASSIFIER_VERSION,
         "lattices_requested": len(lattices),
         "lattices_completed": lattices_completed,
         "lattice_failures": lattice_failures,
@@ -2485,6 +2728,10 @@ def _winner_preflight_markers(
 ) -> dict[str, float]:
     """Validate a full quick preflight and return checkpoint-safe metrics."""
 
+    _require_complete_support_evaluation(
+        metrics,
+        label="winner preflight",
+    )
     eligible = int(
         metrics.get("winner_capable_quick_exploration_eligible", -1)
     )
@@ -2528,6 +2775,57 @@ def _winner_preflight_markers(
     }
 
 
+def _require_complete_support_evaluation(
+    metrics: dict,
+    *,
+    label: str,
+) -> None:
+    """Prove that the cheap support partition covered its eligible side.
+
+    Full-pool persistence now means the complete *challenge-supported* pool:
+    every normalized canonical definition is deterministically assigned to
+    either the eligible or support-weight-rejected partition, and every
+    eligible definition reaches the quick evaluator before winner-capable
+    rows are selected for persistence.
+    """
+
+    version = _exact_nonnegative_preflight_metric(
+        metrics, SUPPORT_FILTER_VERSION_METRIC
+    )
+    unique = _exact_nonnegative_preflight_metric(
+        metrics, "unique_candidates"
+    )
+    eligible = _exact_nonnegative_preflight_metric(
+        metrics, SUPPORT_WEIGHT_ELIGIBLE_METRIC
+    )
+    rejected = _exact_nonnegative_preflight_metric(
+        metrics, SUPPORT_WEIGHT_REJECTED_METRIC
+    )
+    evaluated = _exact_nonnegative_preflight_metric(
+        metrics, SUPPORT_WEIGHT_EVALUATED_METRIC
+    )
+    reported_evaluated = _exact_nonnegative_preflight_metric(
+        metrics, "evaluated_candidate_definitions"
+    )
+    partition_complete = _exact_nonnegative_preflight_metric(
+        metrics, SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC
+    )
+    if (
+        version != CHALLENGE_SUPPORT_FILTER_VERSION
+        or partition_complete != 1
+        or unique != eligible + rejected
+        or evaluated != eligible
+        or reported_evaluated != evaluated
+    ):
+        raise CandidateLogWriteError(
+            f"{label} did not completely cover the challenge support "
+            f"partition: version={version}, unique={unique}, "
+            f"eligible={eligible}, rejected={rejected}, "
+            f"evaluated={evaluated}, partition_complete="
+            f"{partition_complete}"
+        )
+
+
 def _require_full_pool_persistence(
     metrics: dict,
     *,
@@ -2536,6 +2834,7 @@ def _require_full_pool_persistence(
 ) -> None:
     """Reject partial quick passes before their results can affect fitness."""
 
+    _require_complete_support_evaluation(metrics, label=label)
     completed = _exact_nonnegative_preflight_metric(
         metrics, "lattices_completed"
     )
@@ -2565,6 +2864,27 @@ def _require_full_pool_persistence(
         )
 
 
+def _support_observability_metrics(metrics: dict) -> dict[str, float]:
+    """Return the numeric support-filter metrics safe for OpenEvolve."""
+
+    names = (
+        SUPPORT_FILTER_VERSION_METRIC,
+        SUPPORT_WEIGHT_ELIGIBLE_METRIC,
+        SUPPORT_WEIGHT_REJECTED_METRIC,
+        SUPPORT_WEIGHT_EVALUATED_METRIC,
+        SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC,
+        SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC,
+        SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC,
+        SUPPORT_WEIGHT_REJECTION_FRACTION_METRIC,
+        SUPPORT_SPLITS_COVERED_METRIC,
+        SUPPORT_SPLITS_TOTAL_METRIC,
+        SUPPORT_SPLIT_COVERAGE_METRIC,
+        SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC,
+        PATTERN_CLASSIFIER_VERSION_METRIC,
+    )
+    return {name: float(metrics.get(name, 0)) for name in names}
+
+
 def _run_full_winner_preflight(
     generate_fn,
     *,
@@ -2573,7 +2893,7 @@ def _run_full_winner_preflight(
     run_name: str = "",
     candidate_log_path: str | Path | None = None,
 ) -> dict[str, float]:
-    """Persist the complete winner-capable quick universe without a cap."""
+    """Persist the complete supported winner-capable universe without a cap."""
 
     metrics = _run_evaluation(
         generate_fn,
@@ -2677,10 +2997,10 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
                 "total_candidates": 0.0,
                 "lattices_with_high_k": 0.0,
                 "num_high_k": 0.0,
-                "term_count": 0.0,
-                "pattern_type": 0.0,
                 "specialist_exploration": 1.0,
             }
+            result.update(_pool_map_descriptor([]))
+            result.update(_support_observability_metrics(metrics))
             result.update(preflight_markers)
             return result
         result = {
@@ -2689,9 +3009,9 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
             "total_candidates": 0.0,
             "lattices_with_high_k": 0.0,
             "num_high_k": 0.0,
-            "term_count": 0.0,
-            "pattern_type": 0.0,
         }
+        result.update(_pool_map_descriptor([]))
+        result.update(_support_observability_metrics(metrics))
         result.update(preflight_markers)
         return result
 
@@ -2719,14 +3039,10 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
         high_k_quality = math.log1p(metrics["num_high_k"]) / 10.0
         score = 0.1 + best_rate + high_k_quality
 
-    # MAP-Elites features: compute from best valid code
-    best_valid = max(valid, key=lambda r: r.get("k", 0)) if valid else None
-    if best_valid:
-        best_tc = _count_terms(best_valid["A_terms"], best_valid["B_terms"])
-        best_pattern = _classify_pattern(best_valid["A_terms"], best_valid["B_terms"])
-    else:
-        best_tc = 0.0
-        best_pattern = 0.0
+    map_descriptor = _pool_map_descriptor(
+        metrics.get("all_results", []),
+        lattices=set(STAGE1_LATTICES),
+    )
 
     result = {
         "combined_score": score,
@@ -2734,12 +3050,12 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
         "total_candidates": float(metrics["total_candidates"]),
         "lattices_with_high_k": float(metrics["lattices_with_high_k"]),
         "num_high_k": float(metrics["num_high_k"]),
-        "term_count": best_tc,
-        "pattern_type": best_pattern,
         "specialist_exploration": float(
             lattice_coverage < 1.0 and specialist_exploration
         ),
     }
+    result.update(map_descriptor)
+    result.update(_support_observability_metrics(metrics))
     result.update(preflight_markers)
     return result
 
@@ -2747,10 +3063,10 @@ def _evaluate_stage1_impl(program_path: str) -> dict:
 def _evaluate_stage2_impl(program_path: str) -> dict:
     """Stage 2: bounded target preflight plus deep distance evaluation.
 
-    Every contracted lattice is screened and every evaluated, statically
-    eligible winner-capable definition is durably retained before a
-    blocking distance backend runs.  Deep BP-OSD scoring then uses the
-    historical Pareto/fitness lattice basis.
+    Every contracted lattice is partitioned by the challenge support contract.
+    Every supported, statically eligible winner-capable definition is durably
+    retained before a blocking distance backend runs. Deep BP-OSD scoring then
+    uses the historical Pareto/fitness lattice basis.
     """
     # Capture and validate the Stage 1 handoff before importing evolved code.
     # In direct/fallback evaluation this environment value is absent, so Stage
@@ -2778,15 +3094,16 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             persist_quick_exploration=True,
             persist_all_quick_exploration=True,
         )
+        preflight_support_feedback_observed = 1
     else:
+        reused_evaluated = int(
+            preflight_reuse[WINNER_PREFLIGHT_EVALUATED_METRIC]
+        )
         preflight = {
             "errors": [],
-            "total_candidates": int(
-                preflight_reuse[WINNER_PREFLIGHT_EVALUATED_METRIC]
-            ),
-            "evaluated_candidate_definitions": int(
-                preflight_reuse[WINNER_PREFLIGHT_EVALUATED_METRIC]
-            ),
+            "total_candidates": reused_evaluated,
+            "unique_candidates": reused_evaluated,
+            "evaluated_candidate_definitions": reused_evaluated,
             "winner_capable_quick_exploration_eligible": int(
                 preflight_reuse[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
             ),
@@ -2796,7 +3113,28 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             "winner_capable_quick_exploration_omitted": 0,
             "lattices_completed": len(STAGE2_LATTICES),
             "lattice_failures": 0,
+            SUPPORT_FILTER_VERSION_METRIC: (
+                CHALLENGE_SUPPORT_FILTER_VERSION
+            ),
+            SUPPORT_WEIGHT_ELIGIBLE_METRIC: reused_evaluated,
+            SUPPORT_WEIGHT_REJECTED_METRIC: 0,
+            SUPPORT_WEIGHT_EVALUATED_METRIC: reused_evaluated,
+            SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: 1,
+            SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC: 1.0,
+            SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC: 1.0,
+            SUPPORT_WEIGHT_REJECTION_FRACTION_METRIC: 0.0,
+            SUPPORT_SPLITS_COVERED_METRIC: 0,
+            SUPPORT_SPLITS_TOTAL_METRIC: len(CHALLENGE_SUPPORT_SPLITS),
+            SUPPORT_SPLIT_COVERAGE_METRIC: 0.0,
+            SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC: 0.0,
+            "support_split_counts": {},
+            "support_weight_rejection_splits": {},
+            PATTERN_CLASSIFIER_VERSION_METRIC: PATTERN_CLASSIFIER_VERSION,
         }
+        # The Stage 1 marker proves complete support filtering because its
+        # contract id binds this evaluator source, but compact checkpoint
+        # markers do not retain the per-split diagnostic counts.
+        preflight_support_feedback_observed = 0
     _require_full_pool_persistence(
         preflight,
         expected_lattices=len(STAGE2_LATTICES),
@@ -2859,6 +3197,21 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
     )
     metrics["target_preflight_candidates_evaluated"] = preflight.get(
         "evaluated_candidate_definitions", 0
+    )
+    metrics["target_preflight_support_feedback_observed"] = (
+        preflight_support_feedback_observed
+    )
+    metrics["target_preflight_support_weight_eligible"] = preflight.get(
+        SUPPORT_WEIGHT_ELIGIBLE_METRIC, 0
+    )
+    metrics["target_preflight_support_weight_rejected"] = preflight.get(
+        SUPPORT_WEIGHT_REJECTED_METRIC, 0
+    )
+    metrics["target_preflight_support_splits_covered"] = preflight.get(
+        SUPPORT_SPLITS_COVERED_METRIC, 0
+    )
+    metrics["target_preflight_support_split_coverage"] = preflight.get(
+        SUPPORT_SPLIT_COVERAGE_METRIC, 0.0
     )
 
     # --- Combined score ---
@@ -2941,6 +3294,39 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
     if metrics["errors"]:
         artifacts["errors"] = "\n".join(metrics["errors"][:5])
 
+    split_counts = metrics.get("support_split_counts", {})
+    split_feedback = ", ".join(
+        f"{split}={split_counts.get(split, 0)}"
+        for split in (
+            f"{a_count}+{b_count}"
+            for a_count, b_count in CHALLENGE_SUPPORT_SPLITS
+        )
+    )
+    rejection_splits = metrics.get(
+        "support_weight_rejection_splits", {}
+    )
+    rejection_feedback = ", ".join(
+        f"{split}={count}"
+        for split, count in sorted(rejection_splits.items())
+    ) or "none"
+    artifacts["support_filter"] = (
+        f"Challenge support filter v{CHALLENGE_SUPPORT_FILTER_VERSION}: "
+        f"{metrics.get(SUPPORT_WEIGHT_ELIGIBLE_METRIC, 0)} eligible, "
+        f"{metrics.get(SUPPORT_WEIGHT_REJECTED_METRIC, 0)} rejected before "
+        "batch evaluation; eligible fraction "
+        f"{metrics.get(SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC, 0):.3f}, "
+        "eligible evaluation coverage "
+        f"{metrics.get(SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC, 0):.3f}.\n"
+        f"Supported split coverage: "
+        f"{metrics.get(SUPPORT_SPLITS_COVERED_METRIC, 0)}/"
+        f"{metrics.get(SUPPORT_SPLITS_TOTAL_METRIC, 0)} "
+        f"({metrics.get(SUPPORT_SPLIT_COVERAGE_METRIC, 0):.3f}); "
+        f"lattice-split coverage "
+        f"{metrics.get(SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC, 0):.3f}.\n"
+        f"Eligible split counts: {split_feedback}.\n"
+        f"Rejected support splits: {rejection_feedback}."
+    )
+
     # Report top 5 codes by credible FOM (reusing list from above)
     top5 = sorted(credible_codes, key=lambda r: r.get("fom", 0), reverse=True)[:5]
     if top5:
@@ -2971,13 +3357,29 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         lattice_lines.append(
             f"  ({key[0]},{key[1]}): credible FOM={per_lattice_best[key]:.1f}"
         )
+    if metrics.get("target_preflight_support_feedback_observed", 0):
+        target_support_feedback = (
+            f"{metrics.get('target_preflight_support_weight_rejected', 0)} "
+            "support-weight rejected, "
+            f"{metrics.get('target_preflight_support_splits_covered', 0)}/"
+            f"{len(CHALLENGE_SUPPORT_SPLITS)} splits covered.\n"
+        )
+    else:
+        target_support_feedback = (
+            "complete by bound Stage 1 marker; per-split diagnostics "
+            "unavailable after compact checkpoint reuse.\n"
+        )
 
     artifacts["summary"] = (
         "Target preflight: "
-        f"{metrics.get('target_preflight_candidates_evaluated', 0)} of "
+        f"{metrics.get('target_preflight_candidates_evaluated', 0)} "
+        "challenge-supported definitions evaluated from "
         f"{metrics.get('target_preflight_candidates_generated', 0)} "
-        f"generated candidates sampled across "
+        f"raw generated candidates across "
         f"{metrics.get('target_preflight_lattices', 0)} lattices.\n"
+        "Target preflight support filter: "
+        f"{metrics.get('target_preflight_support_weight_eligible', 0)} "
+        f"eligible, {target_support_feedback}"
         "Target preflight winner-capable persistence: "
         f"{metrics.get('target_preflight_winner_capable_eligible', 0)} "
         "eligible, "
@@ -2991,6 +3393,15 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         f"{metrics['evaluated_candidate_definitions']} evaluated, "
         f"{metrics['duplicate_candidate_occurrences']} duplicate occurrences "
         "collapsed.\n"
+        "Deep challenge support: "
+        f"{metrics.get(SUPPORT_WEIGHT_ELIGIBLE_METRIC, 0)} eligible, "
+        f"{metrics.get(SUPPORT_WEIGHT_REJECTED_METRIC, 0)} rejected before "
+        "batch evaluation, eligible fraction "
+        f"{metrics.get(SUPPORT_WEIGHT_ELIGIBLE_FRACTION_METRIC, 0):.3f}, "
+        f"{metrics.get(SUPPORT_SPLITS_COVERED_METRIC, 0)}/"
+        f"{metrics.get(SUPPORT_SPLITS_TOTAL_METRIC, 0)} splits covered, "
+        "eligible evaluation coverage "
+        f"{metrics.get(SUPPORT_WEIGHT_EVALUATION_COVERAGE_METRIC, 0):.3f}.\n"
         "Zero-distance persistence: "
         f"{metrics.get('winner_capable_distance_pending_persisted', 0)} "
         "selected pending, "
@@ -3033,21 +3444,10 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
     # (wandb.run is None in subprocess workers, so direct wandb.log doesn't work.)
     _write_metrics_jsonl(metrics)
 
-    # MAP-Elites features from best credible code
-    fitness_credible_codes = [
-        row for row in credible_codes
-        if (row["ell"], row["m"]) in STAGE2_FITNESS_LATTICES
-    ]
-    best_credible_code = (
-        max(fitness_credible_codes, key=lambda r: r.get("fom", 0))
-        if fitness_credible_codes else None
+    map_descriptor = _pool_map_descriptor(
+        metrics.get("all_results", []),
+        lattices=set(STAGE2_FITNESS_LATTICES),
     )
-    if best_credible_code:
-        s2_tc = _count_terms(best_credible_code["A_terms"], best_credible_code["B_terms"])
-        s2_pattern = _classify_pattern(best_credible_code["A_terms"], best_credible_code["B_terms"])
-    else:
-        s2_tc = 0.0
-        s2_pattern = 0.0
 
     result = {
         "combined_score": combined,
@@ -3097,9 +3497,24 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         "target_preflight_winner_capable_omitted": float(
             metrics.get("target_preflight_winner_capable_omitted", 0)
         ),
-        "term_count": s2_tc,
-        "pattern_type": s2_pattern,
+        "target_preflight_support_feedback_observed": float(
+            metrics.get("target_preflight_support_feedback_observed", 0)
+        ),
+        "target_preflight_support_weight_eligible": float(
+            metrics.get("target_preflight_support_weight_eligible", 0)
+        ),
+        "target_preflight_support_weight_rejected": float(
+            metrics.get("target_preflight_support_weight_rejected", 0)
+        ),
+        "target_preflight_support_splits_covered": float(
+            metrics.get("target_preflight_support_splits_covered", 0)
+        ),
+        "target_preflight_support_split_coverage": float(
+            metrics.get("target_preflight_support_split_coverage", 0)
+        ),
     }
+    result.update(map_descriptor)
+    result.update(_support_observability_metrics(metrics))
 
     try:
         from openevolve.evaluation_result import EvaluationResult
@@ -3922,23 +4337,10 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         "all_results": all_results,
     })
 
-    # MAP-Elites features from best MILP-verified code
-    milp_best = max(
-        (
-            r for r in all_results
-            if (
-                r.get("d", 0) > 0
-                and (r["ell"], r["m"]) in STAGE2_MILP_FITNESS_LATTICES
-            )
-        ),
-        key=lambda r: r.get("fom", 0), default=None,
+    map_descriptor = _pool_map_descriptor(
+        all_results,
+        lattices=set(STAGE2_MILP_FITNESS_LATTICES),
     )
-    if milp_best:
-        milp_tc = _count_terms(milp_best["A_terms"], milp_best["B_terms"])
-        milp_pattern = _classify_pattern(milp_best["A_terms"], milp_best["B_terms"])
-    else:
-        milp_tc = 0.0
-        milp_pattern = 0.0
 
     result = {
         "combined_score": combined,
@@ -3951,9 +4353,8 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         "num_above_6": float(num_above_6),
         "num_above_12": float(num_above_12),
         "total_candidates": float(total_candidates),
-        "term_count": milp_tc,
-        "pattern_type": milp_pattern,
     }
+    result.update(map_descriptor)
 
     try:
         from openevolve.evaluation_result import EvaluationResult

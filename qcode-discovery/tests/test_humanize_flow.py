@@ -15,7 +15,14 @@ from humanize.flow import (
     select_for_milp,
 )
 from humanize.reviewer import validate_review
-from humanize.state import EliteArchive, RunStore, code_key, read_jsonl_since
+from humanize.state import (
+    EliteArchive,
+    RunStore,
+    archive_cell,
+    candidate_structural_features,
+    code_key,
+    read_jsonl_since,
+)
 
 
 def candidate(*, ell=6, m=6, k=12, d=6, fom=6.0, shift=0):
@@ -48,6 +55,75 @@ def test_elite_archive_replaces_cell_winner_and_selects_diverse(tmp_path):
     selected = select_for_milp(ranked, archive, set(), 2)
     assert len(selected) == 2
     assert len({row["archive_cell"] for row in selected}) == 2
+
+
+def test_candidate_archive_cell_ignores_forged_structural_metadata():
+    row = candidate()
+    variants = []
+    for pattern, term_count, version in (
+        ("forged", 999, 2),
+        (3.0, 1, 1),
+        (None, None, None),
+    ):
+        variant = dict(row)
+        variant["pattern_type"] = pattern
+        variant["term_count"] = term_count
+        variant["pattern_classifier_version"] = version
+        variants.append(variant)
+
+    assert len({archive_cell(variant) for variant in variants}) == 1
+    assert candidate_structural_features(variants[0]) == {
+        "pattern_type": 5.0,
+        "term_count": 3.0,
+        "pattern_classifier_version": 2,
+    }
+
+
+def test_candidate_archive_uses_v2_mixed_and_max_term_semantics():
+    multi_term_mixed = {
+        "A_terms": [[0, 0], [1, 0]],
+        "B_terms": [[0, 1], [1, 1], [2, 0], [0, 2]],
+    }
+    compact_mixed = {
+        "A_terms": [[0, 0], [1, 1], [2, 0]],
+        "B_terms": [[0, 1], [1, 0], [2, 2]],
+    }
+
+    assert candidate_structural_features(multi_term_mixed) == {
+        "pattern_type": 4.0,
+        "term_count": 4.0,
+        "pattern_classifier_version": 2,
+    }
+    assert candidate_structural_features(compact_mixed) == {
+        "pattern_type": 3.0,
+        "term_count": 3.0,
+        "pattern_classifier_version": 2,
+    }
+
+
+def test_elite_archive_overwrites_and_migrates_structural_metadata(tmp_path):
+    path = tmp_path / "archive.json"
+    weak = candidate(fom=5.0)
+    strong = candidate(fom=8.0)
+    weak.update({"pattern_type": "weak-forgery", "term_count": 100})
+    strong.update({"pattern_type": "strong-forgery", "term_count": 200})
+    path.write_text(json.dumps({
+        "schema_version": 1,
+        "cells": {
+            "legacy-cell-a": weak,
+            "legacy-cell-b": strong,
+        },
+    }))
+
+    archive = EliteArchive(path)
+
+    assert len(archive.cells) == 1
+    [stored] = archive.ranked()
+    assert stored["fom"] == 8.0
+    assert stored["pattern_type"] == 5.0
+    assert stored["term_count"] == 3.0
+    assert stored["pattern_classifier_version"] == 2
+    assert stored["archive_cell"] == archive_cell(stored)
 
 
 def test_duplicate_bp_upper_bounds_keep_tightest_observation():

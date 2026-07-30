@@ -2141,6 +2141,35 @@ class FiveStagePipeline:
             {"command": list(command), "stage_config": dict(stage_config)}
         )
 
+    @staticmethod
+    def _reset_new_attempt_evidence(record: dict[str, Any]) -> None:
+        """Remove terminal evidence that belongs to an earlier attempt."""
+
+        record["review_status"] = "PENDING"
+        for field_name in (
+            "accepted_nonzero_output",
+            "advisory_failure",
+            "bitlesson_ids",
+            "candidate_inputs",
+            "failure",
+            "finished_at",
+            "incomplete_at",
+            "incomplete_reasons",
+            "invalidated_at",
+            "invalidation_reason",
+            "machine_completed_at",
+            "machine_summary",
+            "output_hashes",
+            "resumed_machine",
+            "review_error",
+            "review_fingerprint",
+            "review_finished_at",
+            "review_machine_output_hashes",
+            "review_path",
+            "review_started_at",
+        ):
+            record.pop(field_name, None)
+
     def _machine_cache_valid(
         self,
         stage: str,
@@ -2511,9 +2540,7 @@ class FiveStagePipeline:
             record["stage_fingerprint"] = fingerprint
             record["input_hashes"] = input_hashes
             record["exit_code"] = None
-            record.pop("failure", None)
-            record.pop("incomplete_at", None)
-            record.pop("incomplete_reasons", None)
+            self._reset_new_attempt_evidence(record)
             self.state["active_stage"] = stage
             self._write_state()
             try:
@@ -2742,6 +2769,7 @@ class FiveStagePipeline:
         record["stage_fingerprint"] = fingerprint
         record["input_hashes"] = input_hashes
         record["exit_code"] = None
+        self._reset_new_attempt_evidence(record)
         self.state["active_stage"] = stage
         self._write_state()
         try:

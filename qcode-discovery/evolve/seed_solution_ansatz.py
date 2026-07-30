@@ -4,6 +4,8 @@ This seed provides diverse starting strategies to discover NOVEL structural
 families of BB codes beyond the 3 known families (x/y-swap, constant-monomial,
 Bravyi standard).  It explores mixed monomials, multi-term polynomials,
 non-standard pure-term patterns, algebraic constructions, and hybrid patterns.
+Every generated candidate obeys the challenge's hard CSS weight/degree budget
+``|A| + |B| <= 6``.
 
 Top-level objects:
 
@@ -27,10 +29,10 @@ Top-level objects:
     Six strategies:
 
     1. **Mixed-monomial trinomials** -- diagonal shifts on the torus.
-    2. **Multi-term extensions** -- add a 4th term (pure or mixed) to
-       reference codes.
-    3. **Non-standard pure-term patterns** -- 4-term pure polynomials not
-       matching x/y-swap or constant-monomial structure.
+    2. **Admissible asymmetric extensions** -- pair a 4-term polynomial
+       with a 2-term core.
+    3. **Low-support and non-standard patterns** -- exercise the 2+2,
+       2+3, 3+2, and 3+3 splits.
     4. **Algebraic constructions** -- B derived from A via coordinate
        transforms or monomial multiplication.
     5. **Hybrid patterns** -- cross-family: constant-monomial A with
@@ -39,6 +41,20 @@ Top-level objects:
 """
 
 from __future__ import annotations
+
+
+# Each BB CSS check row and qubit degree has weight |A| + |B|.  The challenge
+# requires both to be at most 6, while bb_code.validate_terms requires at least
+# two terms per polynomial.  These are therefore the complete admissible splits.
+CHALLENGE_TERM_SPLITS = frozenset({
+    (2, 2),
+    (2, 3),
+    (3, 2),
+    (2, 4),
+    (4, 2),
+    (3, 3),
+})
+
 
 # ---------------------------------------------------------------------------
 # Known BB codes -- verified against qldpc (n, k match exactly)
@@ -250,214 +266,248 @@ def generate_candidates(
     Returns:
         List of (A_terms, B_terms) pairs to evaluate.
     """
+    from itertools import combinations
     from math import gcd
 
-    # Start with safety-net codes (defined outside this block, non-removable)
-    candidates = list(_safety_net_codes(ell, m))
-    seen = {(tuple(sorted(a)), tuple(sorted(b))) for a, b in candidates}
+    # Build family buckets first, then round-robin them into the returned pool.
+    # This prevents a combinatorially large 3+3 loop from consuming the whole
+    # budget before other admissible support splits are represented.
+    bucket_pool_limit = 240
+    per_split_limit = 200
+    per_family_limit = 120
+    max_candidates = 1200
+    buckets = {}
+    seen = set()
 
-    def _add(a_terms, b_terms):
-        """Add candidate if not a duplicate and not self-dual (A=B always d=2)."""
-        if sorted(a_terms) == sorted(b_terms):
-            return
-        key = (tuple(sorted(a_terms)), tuple(sorted(b_terms)))
-        if key not in seen:
-            seen.add(key)
-            candidates.append((list(a_terms), list(b_terms)))
+    def _add(a_terms, b_terms, family):
+        """Add a unique candidate only if it obeys every generation hard gate."""
+        A = [tuple(term) for term in a_terms]
+        B = [tuple(term) for term in b_terms]
+        split = (len(A), len(B))
 
-    # -----------------------------------------------------------------
-    # Strategy 1: Mixed-monomial trinomials
-    # -----------------------------------------------------------------
-    # A = 1 + x^a1*y^a2 + x^a3*y^a4
-    # B = 1 + x^b1*y^b2 + x^b2*y^b1  (transpose pattern for B's third term)
-    #
-    # The constant term (0,0) = identity matrix anchors the construction.
-    # Mixed monomials x^a*y^b create diagonal shifts coupling both cyclic
-    # dimensions.  The "transpose" pattern creates complementary shifts.
-    max_ex = min(ell, 5)
-    max_ey = min(m, 5)
+        # Non-negotiable challenge gate: larger supports are guaranteed to fail
+        # the final CSS check-weight/qubit-degree requirement.
+        if split not in CHALLENGE_TERM_SPLITS or len(A) + len(B) > 6:
+            return False
+        if len(set(A)) != len(A) or len(set(B)) != len(B):
+            return False
+        if any(not (0 <= x < ell and 0 <= y < m) for x, y in A + B):
+            return False
+        if sorted(A) == sorted(B):  # self-dual codes always have d=2
+            return False
 
-    for a1x in range(1, max_ex):
-        for a1y in range(1, max_ey):
-            for a2x in range(0, max_ex):
-                for a2y in range(0, max_ey):
-                    A = [(0, 0), (a1x, a1y), (a2x, a2y)]
-                    if len(set(A)) != 3:
-                        continue
-                    for b1x in range(1, max_ex):
-                        for b1y in range(1, max_ey):
-                            b2x = b1y % ell
-                            b2y = b1x % m
-                            B = [(0, 0), (b1x, b1y), (b2x, b2y)]
-                            if len(set(B)) == 3:
-                                _add(A, B)
+        key = (tuple(sorted(A)), tuple(sorted(B)))
+        bucket_key = (split, str(family))
+        bucket = buckets.setdefault(bucket_key, [])
+        if key in seen or len(bucket) >= bucket_pool_limit:
+            return False
+        seen.add(key)
+        bucket.append((A, B))
+        return True
 
-    # -----------------------------------------------------------------
-    # Strategy 2: Multi-term extensions (4 terms, pure or mixed)
-    # -----------------------------------------------------------------
-    # Add a 4th term to reference codes.  Unlike the old version that only
-    # added mixed monomials, this also tries pure x-terms and pure y-terms
-    # to test whether term count matters independently of monomial type.
-    for ref in REFERENCE_CODES:
-        if ref["ell"] == ell and ref["m"] == m:
-            base_A = ref["A"]
-            base_B = ref["B"]
-            max_e = min(max(ell, m), 8)
-            # Add pure x-terms
-            for ex in range(1, min(ell, max_e)):
-                extra = (ex, 0)
-                if extra not in base_A:
-                    _add(base_A + [extra], base_B)
-                if extra not in base_B:
-                    _add(base_A, base_B + [extra])
-            # Add pure y-terms
-            for ey in range(1, min(m, max_e)):
-                extra = (0, ey)
-                if extra not in base_A:
-                    _add(base_A + [extra], base_B)
-                if extra not in base_B:
-                    _add(base_A, base_B + [extra])
-            # Add mixed monomials
-            for ax in range(1, min(ell, 5)):
-                for ay in range(1, min(m, 5)):
-                    extra = (ax, ay)
-                    if extra not in base_A:
-                        _add(base_A + [extra], base_B)
-                    if extra not in base_B:
-                        _add(base_A, base_B + [extra])
+    # Safety-net candidates still pass through _add, so the returned list cannot
+    # violate the support budget even if the reference table changes later.
+    for A, B in _safety_net_codes(ell, m):
+        _add(A, B, "00_safety_net")
 
-    # -----------------------------------------------------------------
-    # Strategy 3: Non-standard pure-term patterns
-    # -----------------------------------------------------------------
-    # 3- and 4-term polynomials mixing x-terms, y-terms, and constant
-    # in combinations that DON'T match x/y-swap or constant-monomial.
     max_x = min(ell, 6)
     max_y = min(m, 6)
-
-    # 3a: A = 1 + x^a + y^b (constant + x + y), B = 1 + x^c + y^d
-    # Neither matches x/y-swap (which has NO constant) nor constant-monomial
-    # (which is univariate: A=f(y), B=g(x)).
-    for a in range(1, max_x):
-        for b in range(1, max_y):
-            A = [(0, 0), (a, 0), (0, b)]
-            for c in range(1, max_x):
-                for d in range(1, max_y):
-                    B = [(0, 0), (c, 0), (0, d)]
-                    if len(set(B)) == 3:
-                        _add(A, B)
-
-    # 3b: A = 1 + x^a + y^b + x^c (4-term, constant + 2x + 1y)
-    #     B = y^b + x^a + x^c + y^(2b%m) (complementary)
-    for a in range(1, max_x):
-        for b in range(1, max_y):
-            for c in range(a + 1, max_x):
-                A = [(0, 0), (a, 0), (0, b), (c, 0)]
-                if len(set(A)) == 4:
-                    d_val = (2 * b) % m
-                    B = [(0, b), (a, 0), (c, 0), (0, d_val)]
-                    if len(set(B)) == 4 and sorted(A) != sorted(B):
-                        _add(A, B)
+    pure_x = [(x, 0) for x in range(1, max_x)]
+    pure_y = [(0, y) for y in range(1, max_y)]
+    mixed = [
+        (x, y)
+        for x in range(1, max_x)
+        for y in range(1, max_y)
+    ]
+    shifts = pure_x + pure_y + mixed
 
     # -----------------------------------------------------------------
-    # Strategy 4: Algebraic constructions (B derived from A)
+    # Strategy 1: balanced mixed-monomial trinomials (3+3)
     # -----------------------------------------------------------------
-    # B = A(x^s, y^t) -- coordinate transform.  For coprime s with ell
-    # and coprime t with m, this is a ring automorphism.
+    # Constant anchors plus complementary diagonal shifts.
+    for first in mixed[:16]:
+        for second in shifts[:20]:
+            A = [(0, 0), first, second]
+            for diagonal in mixed[:16]:
+                transposed = (diagonal[1] % ell, diagonal[0] % m)
+                B = [(0, 0), diagonal, transposed]
+                _add(A, B, "mixed_complementary_3_3")
+
+    # -----------------------------------------------------------------
+    # Strategy 2: admissible asymmetric extensions (2+4 and 4+2)
+    # -----------------------------------------------------------------
+    # Extending one reference trinomial to four terms is challenge-eligible
+    # only after reducing its partner to a two-term structural core.
+    extras = [(0, 0)] + pure_x + pure_y + mixed
+    for ref in REFERENCE_CODES:
+        if ref["ell"] != ell or ref["m"] != m:
+            continue
+        base_A = [tuple(term) for term in ref["A"]]
+        base_B = [tuple(term) for term in ref["B"]]
+        for extra in extras:
+            if extra not in base_B:
+                B4 = base_B + [extra]
+                for A2 in combinations(base_A, 2):
+                    _add(A2, B4, "reference_extension_2_4")
+                    _add(B4, A2, "reference_extension_4_2")
+            if extra not in base_A:
+                A4 = base_A + [extra]
+                for B2 in combinations(base_B, 2):
+                    _add(B2, A4, "reference_extension_2_4")
+                    _add(A4, B2, "reference_extension_4_2")
+
+    # General mixed 2+4 templates keep these splits alive on lattices without
+    # a reference code.  Both A/B orientations are generated explicitly.
+    for core_shift in shifts[:16]:
+        core = [(0, 0), core_shift]
+        for x_shift in pure_x[:5]:
+            for y_shift in pure_y[:5]:
+                diagonal = (
+                    (core_shift[0] + x_shift[0]) % ell,
+                    (core_shift[1] + y_shift[1]) % m,
+                )
+                extension = [(0, 0), x_shift, y_shift, diagonal]
+                _add(core, extension, "mixed_core_2_4")
+                _add(extension, core, "mixed_core_4_2")
+
+    # -----------------------------------------------------------------
+    # Strategy 3: low-support and non-standard families
+    # -----------------------------------------------------------------
+    # Exercise 2+2, 2+3, and 3+2 directly instead of treating 3+3 as the
+    # only useful low-weight representation.
+    for left_shift in shifts[:20]:
+        A2 = [(0, 0), left_shift]
+        for right_shift in shifts[:20]:
+            B2 = [(0, 0), right_shift]
+            _add(A2, B2, "binomial_2_2")
+
+    for core_shift in shifts[:16]:
+        core = [(0, 0), core_shift]
+        for first, second in combinations(shifts[:18], 2):
+            trinomial = [(0, 0), first, second]
+            _add(core, trinomial, "asymmetric_2_3")
+            _add(trinomial, core, "asymmetric_3_2")
+
+    # Non-standard pure 3+3 patterns: constant + x + y on both sides.
+    for a in pure_x:
+        for b in pure_y:
+            A = [(0, 0), a, b]
+            for c in pure_x:
+                for d in pure_y:
+                    B = [(0, 0), c, d]
+                    _add(A, B, "nonstandard_pure_3_3")
+
+    # -----------------------------------------------------------------
+    # Strategy 4: algebraic constructions (3+3)
+    # -----------------------------------------------------------------
+    # B = A(x^s, y^t) for torus automorphisms, or a monomial shift of A.
     base_trinomials = [
-        [(3, 0), (0, 1), (0, 2)],   # gross code A
-        [(0, 0), (0, 1), (0, 2)],   # constant-monomial A (1+y+y^2)
-        [(0, 0), (1, 0), (0, 1)],   # 1+x+y
+        [(3, 0), (0, 1), (0, 2)],
+        [(0, 0), (0, 1), (0, 2)],
+        [(0, 0), (1, 0), (0, 1)],
     ]
     for A in base_trinomials:
         for s in range(1, min(ell, 8)):
             if gcd(s, ell) != 1:
                 continue
             for t in range(1, min(m, 8)):
-                if gcd(t, m) != 1:
+                if gcd(t, m) != 1 or (s == 1 and t == 1):
                     continue
-                if s == 1 and t == 1:
-                    continue  # identity transform
                 B = [((a * s) % ell, (b * t) % m) for a, b in A]
-                if len(set(B)) == len(B):
-                    _add(A, B)
+                _add(A, B, "coordinate_transform_3_3")
 
-    # B = x^a * y^b * A -- monomial shift of A (shared ideal structure)
-    for A in base_trinomials:
         for sx in range(0, min(ell, 5)):
             for sy in range(0, min(m, 5)):
                 if sx == 0 and sy == 0:
-                    continue  # would give A=B
-                B = [((a + sx) % ell, (b + sy) % m) for a, b in A]
-                if len(set(B)) == len(B):
-                    _add(A, B)
-
-    # -----------------------------------------------------------------
-    # Strategy 5: Hybrid patterns (cross-family)
-    # -----------------------------------------------------------------
-    # Constant-monomial A + x/y-swap B
-    for a in range(1, max_y):
-        for b in range(a + 1, max_y):
-            A_cm = [(0, 0), (0, a), (0, b)]  # 1 + y^a + y^b
-            if len(set(A_cm)) != 3:
-                continue
-            for d in range(1, max_y):
-                for e in range(1, max_x):
-                    for f in range(e + 1, max_x):
-                        B_swap = [(0, d), (e, 0), (f, 0)]  # y^d + x^e + x^f
-                        if len(set(B_swap)) == 3:
-                            _add(A_cm, B_swap)
-
-    # x/y-swap A + constant-monomial B
-    for a in range(1, max_x):
-        for b in range(1, max_y):
-            for c in range(b + 1, max_y):
-                A_swap = [(a, 0), (0, b), (0, c)]  # x^a + y^b + y^c
-                if len(set(A_swap)) != 3:
                     continue
-                for d in range(1, max_x):
-                    for e in range(d + 1, max_x):
-                        B_cm = [(0, 0), (d, 0), (e, 0)]  # 1 + x^d + x^e
-                        if len(set(B_cm)) == 3:
-                            _add(A_swap, B_cm)
-
-    # Asymmetric term count: 3-term A + 4-term B
-    for ref in REFERENCE_CODES:
-        if ref["ell"] == ell and ref["m"] == m:
-            A3 = ref["A"]
-            B3 = ref["B"]
-            # Add constant to B (if not already there)
-            if (0, 0) not in B3:
-                _add(A3, B3 + [(0, 0)])
-            # Add constant to A
-            if (0, 0) not in A3:
-                _add(A3 + [(0, 0)], B3)
+                B = [((a + sx) % ell, (b + sy) % m) for a, b in A]
+                _add(A, B, "monomial_shift_3_3")
 
     # -----------------------------------------------------------------
-    # Strategy 6: Perturbations of reference codes
+    # Strategy 5: hybrid cross-family patterns (3+3)
     # -----------------------------------------------------------------
-    # Standard +/-1, +/-2 shifts on each exponent of each term.
+    for a, b in combinations(pure_y, 2):
+        A_cm = [(0, 0), a, b]
+        for d in pure_y:
+            for e, f in combinations(pure_x, 2):
+                B_swap = [d, e, f]
+                _add(A_cm, B_swap, "hybrid_3_3")
+
+    for b, c in combinations(pure_y, 2):
+        for a in pure_x:
+            A_swap = [a, b, c]
+            for d, e in combinations(pure_x, 2):
+                B_cm = [(0, 0), d, e]
+                _add(A_swap, B_cm, "hybrid_3_3")
+
+    # -----------------------------------------------------------------
+    # Strategy 6: admissible 3+3 perturbations of reference codes
+    # -----------------------------------------------------------------
     for ref in REFERENCE_CODES:
-        if ref["ell"] == ell and ref["m"] == m:
-            base_A = ref["A"]
-            base_B = ref["B"]
-            _add(base_A, base_B)
+        if ref["ell"] != ell or ref["m"] != m:
+            continue
+        base_A = ref["A"]
+        base_B = ref["B"]
+        _add(base_A, base_B, "reference_perturbation_3_3")
 
-            for delta in [-2, -1, 1, 2]:
-                for i in range(len(base_A)):
-                    for coord in [0, 1]:
-                        new_A = [list(t) for t in base_A]
-                        limit = ell if coord == 0 else m
-                        new_A[i][coord] = (new_A[i][coord] + delta) % limit
-                        new_A_tuples = [tuple(t) for t in new_A]
-                        if len(set(new_A_tuples)) == len(new_A_tuples):
-                            _add(new_A_tuples, base_B)
+        for delta in [-2, -1, 1, 2]:
+            for index in range(3):
+                for coord in [0, 1]:
+                    new_A = [list(term) for term in base_A]
+                    limit = ell if coord == 0 else m
+                    new_A[index][coord] = (new_A[index][coord] + delta) % limit
+                    _add(
+                        [tuple(term) for term in new_A],
+                        base_B,
+                        "reference_perturbation_3_3",
+                    )
 
-                        new_B = [list(t) for t in base_B]
-                        limit = ell if coord == 0 else m
-                        new_B[i][coord] = (new_B[i][coord] + delta) % limit
-                        new_B_tuples = [tuple(t) for t in new_B]
-                        if len(set(new_B_tuples)) == len(new_B_tuples):
-                            _add(base_A, new_B_tuples)
+                    new_B = [list(term) for term in base_B]
+                    new_B[index][coord] = (new_B[index][coord] + delta) % limit
+                    _add(
+                        base_A,
+                        [tuple(term) for term in new_B],
+                        "reference_perturbation_3_3",
+                    )
+
+    # Preserve safety-net ordering, then take one candidate per family bucket
+    # per pass.  Per-split and per-family limits prevent representation collapse.
+    candidates = []
+    split_counts = {split: 0 for split in CHALLENGE_TERM_SPLITS}
+    family_counts = {}
+    safety_keys = [
+        key for key in buckets
+        if key[1] == "00_safety_net"
+    ]
+    for key in safety_keys:
+        split, family = key
+        for candidate in buckets[key]:
+            candidates.append(candidate)
+            split_counts[split] += 1
+            family_counts[family] = family_counts.get(family, 0) + 1
+
+    active_keys = sorted(key for key in buckets if key not in safety_keys)
+    positions = {key: 0 for key in active_keys}
+    while len(candidates) < max_candidates:
+        made_progress = False
+        for key in active_keys:
+            split, family = key
+            position = positions[key]
+            if position >= len(buckets[key]):
+                continue
+            if split_counts[split] >= per_split_limit:
+                continue
+            if family_counts.get(family, 0) >= per_family_limit:
+                continue
+            candidates.append(buckets[key][position])
+            positions[key] += 1
+            split_counts[split] += 1
+            family_counts[family] = family_counts.get(family, 0) + 1
+            made_progress = True
+            if len(candidates) >= max_candidates:
+                break
+        if not made_progress:
+            break
 
     return candidates
 # EVOLVE-BLOCK-END

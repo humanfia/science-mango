@@ -4789,6 +4789,106 @@ def test_stage1_humanize_cache_is_invalidated_by_proof_runtime_change(
     )
 
 
+def test_stage1_new_attempt_clears_stale_terminal_monitoring_fields(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(
+            f"# fake humanize/{name}\n"
+        )
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "stage1-clear-stale-terminal-fields"
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage_review=False,
+    )
+    observed = {}
+
+    class SearchFlow:
+        @staticmethod
+        def run():
+            persisted = json.loads(config.root.joinpath("state.json").read_text())
+            observed.update(persisted["stages"]["stage1_search"])
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidates)],
+            }
+
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+        flow_factory=lambda _config: SearchFlow(),
+    )
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        stage1.update(
+            {
+                "status": "FAILED",
+                "machine_status": "FAILED",
+                "review_status": "COMPLETED",
+                "review_attempt": 3,
+                "finished_at": "2026-07-30T02:37:36+00:00",
+                "machine_completed_at": "2026-07-30T02:30:00+00:00",
+                "machine_summary": {"winner": "stale"},
+                "output_hashes": {"stale.jsonl": "a" * 64},
+                "candidate_inputs": ["stale.jsonl"],
+                "resumed_machine": True,
+                "review_started_at": "2026-07-30T02:31:00+00:00",
+                "review_finished_at": "2026-07-30T02:32:00+00:00",
+                "review_path": "reviews/stale.json",
+                "review_fingerprint": "b" * 64,
+                "review_machine_output_hashes": {
+                    "stale.jsonl": "a" * 64,
+                },
+                "review_error": "stale review error",
+                "advisory_failure": {"error": "stale advisory failure"},
+                "bitlesson_ids": ["stale-lesson"],
+                "failure": {
+                    "classification": "INTERRUPTED",
+                    "message": "pipeline interrupted",
+                },
+            }
+        )
+        pipeline._write_state()
+        assert pipeline._stage1_inputs() == [candidates.resolve()]
+
+    assert observed["status"] == "RUNNING"
+    assert observed["machine_status"] == "RUNNING"
+    assert observed["review_status"] == "PENDING"
+    assert observed["attempt"] == 1
+    assert observed["review_attempt"] == 3
+    for field_name in (
+        "advisory_failure",
+        "bitlesson_ids",
+        "candidate_inputs",
+        "failure",
+        "finished_at",
+        "machine_completed_at",
+        "machine_summary",
+        "output_hashes",
+        "resumed_machine",
+        "review_error",
+        "review_fingerprint",
+        "review_finished_at",
+        "review_machine_output_hashes",
+        "review_path",
+        "review_started_at",
+    ):
+        assert field_name not in observed
+
+
 def test_stage1_unresolved_exhaustion_hands_candidates_to_proof_stages(
     tmp_path,
 ):
