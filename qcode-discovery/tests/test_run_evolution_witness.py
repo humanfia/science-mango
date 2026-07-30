@@ -25,9 +25,12 @@ class FakeResult:
     child_program_dict: dict[str, Any] | None = None
     iteration: int = 0
     error: str | None = None
+    artifacts: dict[str, Any] | None = None
 
 
 def test_parent_and_child_share_managed_evaluator_dependency_contract():
+    import evolve.openevolve_evaluator as evaluator
+
     assert (
         launcher.LOCAL_EVALUATOR_DEPENDENCIES
         == flow_module.LOCAL_EVOLUTION_DEPENDENCIES
@@ -43,6 +46,10 @@ def test_parent_and_child_share_managed_evaluator_dependency_contract():
     )
     assert "evaluation_proof_runtime" in (
         launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
+    assert (
+        launcher.STAGE2_DEEP_LATTICE_COUNT
+        == len(evaluator.STAGE2_DEEP_LATTICES)
     )
 
 
@@ -961,6 +968,32 @@ def _incomplete_preflight_metrics(
     }
 
 
+def _stage2_failure_metrics(
+    contract_id: int,
+    *,
+    completed_lattices: int = 4,
+    hard_timeout: int = 1,
+) -> dict[str, Any]:
+    return {
+        "combined_score": 0.25,
+        **_map_descriptor_metrics(
+            pattern_type=2,
+            support_split_type=3,
+            structural_entropy=0.5,
+        ),
+        **_preflight_markers(contract_id),
+        launcher.STAGE2_CONTRACT_VERSION_METRIC: float(
+            launcher.STAGE2_DEEP_CONTRACT_VERSION
+        ),
+        launcher.STAGE2_CONTRACT_ID_METRIC: float(contract_id),
+        launcher.STAGE2_COMPLETE_METRIC: 0.0,
+        launcher.STAGE2_INCOMPLETE_METRIC: 1.0,
+        launcher.STAGE2_LATTICES_METRIC: float(completed_lattices),
+        launcher.STAGE2_HARD_TIMEOUT_METRIC: float(hard_timeout),
+        launcher.STAGE2_SUBPROCESS_FAILED_METRIC: 1.0,
+    }
+
+
 def _observer_controller(
     programs: dict[str, Any],
     *,
@@ -1114,6 +1147,273 @@ def test_real_evaluator_failure_envelope_is_recognized(monkeypatch):
         metrics,
         expected_contract_id=contract_id,
     ) is not None
+
+
+@pytest.mark.parametrize("hard_timeout", (0, 1))
+def test_exact_stage2_failure_is_quarantined_before_database_add(
+    hard_timeout: int,
+):
+    contract_id = 54321
+    observer = launcher._SliceObserver(
+        20,
+        3,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+    )
+    observer.begin(21, 3, None)
+    raw_results = {
+        iteration: _child(iteration)
+        for iteration in (21, 22, 23)
+    }
+    for iteration in (21, 23):
+        raw_results[iteration].child_program_dict["metrics"].update(
+            _preflight_markers(contract_id)
+        )
+    raw_results[22].child_program_dict["metrics"] = (
+        _stage2_failure_metrics(
+            contract_id,
+            completed_lattices=7,
+            hard_timeout=hard_timeout,
+        )
+    )
+    raw_results[22].artifacts = {
+        "failure_stage": "stage2",
+        "stage2_subprocess_error": "deep lattice made no progress",
+        "stage2_stderr": "",
+    }
+    futures = {
+        iteration: observer.record_submission(
+            iteration,
+            iteration % 2,
+            FakeFuture(raw_results[iteration]),
+        )
+        for iteration in (21, 22, 23)
+    }
+    programs: dict[str, Any] = {}
+    for iteration in (23, 22, 21):
+        result = futures[iteration].result()
+        if iteration == 22:
+            assert result.child_program_dict is None
+            failure = json.loads(result.error)
+            assert failure["kind"] == "stage2_evaluation_incomplete"
+            assert failure["completed_lattices"] == 7
+            assert failure["hard_timeout"] == hard_timeout
+            continue
+        program = SimpleNamespace(**result.child_program_dict)
+        programs[program.id] = program
+        observer.record_program_add(iteration, program)
+
+    observer.verify(_observer_controller(programs))
+
+    assert observer.outcomes[22]["status"] == "worker_error"
+    assert 22 not in observer.expected_programs
+    assert set(programs) == {"program-21", "program-23"}
+
+
+def test_real_stage2_failure_envelope_preserves_stage1_map_metrics(
+    monkeypatch,
+):
+    import evolve.openevolve_evaluator as evaluator
+
+    contract_id = 54321
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    failure = evaluator._stage2_failure_result(
+        "deep timeout",
+        timed_out=True,
+        contract_id=contract_id,
+        completed_lattices=6,
+    )
+    failure_metrics = getattr(failure, "metrics", failure)
+    failure_artifacts = getattr(failure, "artifacts", {})
+    stage1 = {
+        "combined_score": 0.75,
+        **_map_descriptor_metrics(
+            pattern_type=4,
+            support_split_type=5,
+            structural_entropy=0.4,
+        ),
+        **_preflight_markers(contract_id),
+    }
+    merged = dict(stage1)
+    merged.update({
+        name: float(value)
+        for name, value in failure_metrics.items()
+        if isinstance(value, (int, float)) and name != "error"
+    })
+
+    assert merged["combined_score"] == 0.75
+    assert merged["pattern_type"] == 4.0
+    assert (
+        merged[launcher.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC]
+        == 5.0
+    )
+    assert launcher._exact_incomplete_stage2_markers(
+        merged,
+        failure_artifacts,
+        expected_contract_id=contract_id,
+    ) is not None
+
+
+@pytest.mark.parametrize(
+    ("metrics_update", "artifacts"),
+    (
+        (
+            {"stage2_passed": 0.0, "timeout": True},
+            {"failure_stage": "stage2", "stage2_timeout": True},
+        ),
+        (
+            {"stage2_passed": 0.0},
+            {
+                "failure_stage": "stage2",
+                "stage2_stderr": "outer cascade exception",
+            },
+        ),
+        (
+            {},
+            {
+                "failure_stage": "stage2",
+                "stage2_stderr": "outer cascade exception",
+            },
+        ),
+    ),
+)
+def test_outer_cascade_stage2_failure_is_quarantined_before_database_add(
+    metrics_update: dict[str, Any],
+    artifacts: dict[str, Any],
+):
+    contract_id = 54321
+    observer = launcher._SliceObserver(
+        0,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+    )
+    observer.begin(1, 1, None)
+    child = _child(1)
+    child.child_program_dict["metrics"].update(
+        _preflight_markers(contract_id)
+    )
+    child.child_program_dict["metrics"].update(metrics_update)
+    child.artifacts = artifacts
+
+    result = observer.record_submission(
+        1, 0, FakeFuture(child)
+    ).result()
+
+    assert result.child_program_dict is None
+    failure = json.loads(result.error)
+    assert failure["kind"] == "stage2_outer_cascade_incomplete"
+    assert failure["evidence"] == {
+        "artifact_stage2": artifacts.get("failure_stage") == "stage2",
+        "stage2_passed_zero": metrics_update.get("stage2_passed") == 0.0,
+        "timeout": metrics_update.get("timeout") is True,
+    }
+    with pytest.raises(RuntimeError, match="no successful evaluations"):
+        observer.verify(_observer_controller({}))
+
+
+def test_stage2_markers_are_required_exactly_when_cascade_selects_stage2():
+    contract_id = 54321
+    low_score = {
+        "combined_score": 0.009,
+        **_map_descriptor_metrics(),
+        **_preflight_markers(contract_id),
+    }
+    assert launcher._validated_managed_stage2_state(
+        low_score,
+        expected_contract_id=contract_id,
+        cascade_threshold=0.01,
+    ) == "not_observed"
+
+    high_score = {**low_score, "combined_score": 0.01}
+    with pytest.raises(
+        RuntimeError,
+        match="selected by the cascade.*no managed",
+    ):
+        launcher._validated_managed_stage2_state(
+            high_score,
+            expected_contract_id=contract_id,
+            cascade_threshold=0.01,
+        )
+
+    complete = {
+        **high_score,
+        launcher.STAGE2_CONTRACT_VERSION_METRIC: float(
+            launcher.STAGE2_DEEP_CONTRACT_VERSION
+        ),
+        launcher.STAGE2_CONTRACT_ID_METRIC: float(contract_id),
+        launcher.STAGE2_COMPLETE_METRIC: 1.0,
+        launcher.STAGE2_INCOMPLETE_METRIC: 0.0,
+        launcher.STAGE2_LATTICES_METRIC: float(
+            launcher.STAGE2_DEEP_LATTICE_COUNT
+        ),
+        launcher.STAGE2_HARD_TIMEOUT_METRIC: 0.0,
+        launcher.STAGE2_SUBPROCESS_FAILED_METRIC: 0.0,
+    }
+    assert launcher._validated_managed_stage2_state(
+        complete,
+        expected_contract_id=contract_id,
+        cascade_threshold=0.01,
+    ) == "completed"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    (
+        "wrong_contract",
+        "too_many_lattices",
+        "false_complete",
+        "missing_artifact",
+    ),
+)
+def test_noncanonical_stage2_failure_is_fatal_and_not_added(
+    mutation: str,
+):
+    contract_id = 54321
+    observer = launcher._SliceObserver(
+        0,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+    )
+    observer.begin(1, 1, None)
+    child = _child(1)
+    child.child_program_dict["metrics"] = _stage2_failure_metrics(
+        contract_id
+    )
+    child.artifacts = {
+        "failure_stage": "stage2",
+        "stage2_subprocess_error": "deep timeout",
+    }
+    if mutation == "wrong_contract":
+        child.child_program_dict["metrics"][
+            launcher.STAGE2_CONTRACT_ID_METRIC
+        ] = float(contract_id + 1)
+    elif mutation == "too_many_lattices":
+        child.child_program_dict["metrics"][
+            launcher.STAGE2_LATTICES_METRIC
+        ] = float(launcher.STAGE2_DEEP_LATTICE_COUNT + 1)
+    elif mutation == "false_complete":
+        child.child_program_dict["metrics"][
+            launcher.STAGE2_COMPLETE_METRIC
+        ] = 1.0
+    else:
+        child.artifacts.pop("stage2_subprocess_error")
+
+    result = observer.record_submission(
+        1, 0, FakeFuture(child)
+    ).result()
+
+    assert result.child_program_dict is None
+    assert json.loads(result.error)["kind"] == "stage2_evaluation_invalid"
+    with pytest.raises(
+        RuntimeError,
+        match="invalid Stage 2 state",
+    ):
+        observer.verify(_observer_controller({}))
 
 
 @pytest.mark.parametrize(
@@ -1683,6 +1983,101 @@ def test_resume_hook_runs_backfill_after_load_before_new_iterations(
     ]
 
 
+def test_fresh_initial_stage2_outer_failure_is_rejected_before_database_add(
+    tmp_path,
+    monkeypatch,
+):
+    import openevolve.api as api_module
+    from openevolve.config import Config, LLMModelConfig
+
+    contract_id = 54321
+    seed = tmp_path / "seed.py"
+    evaluator = tmp_path / "evaluator.py"
+    seed.write_text("def generate_candidates(ell, m): return []\n")
+    evaluator.write_text("def evaluate(_path): return {'combined_score': 0}\n")
+    metrics = {
+        "combined_score": 0.25,
+        "stage2_passed": 0.0,
+        "timeout": True,
+        **_map_descriptor_metrics(),
+        **_preflight_markers(contract_id),
+    }
+    instances = []
+
+    class FakeDatabase:
+        def __init__(self):
+            self.programs = {}
+            self.add_calls = 0
+
+        def add(self, program, iteration=None, target_island=None):
+            del iteration, target_island
+            self.add_calls += 1
+            self.programs[program.id] = program
+            return program.id
+
+    class FakeFreshOpenEvolve:
+        def __init__(
+            self,
+            *,
+            initial_program_path,
+            evaluation_file,
+            config,
+            output_dir,
+        ):
+            del evaluation_file, config, output_dir
+            self.initial_program_code = Path(initial_program_path).read_text()
+            self.database = FakeDatabase()
+            self.evaluator = SimpleNamespace(
+                _pending_artifacts={
+                    "initial-id": {
+                        "failure_stage": "stage2",
+                        "stage2_timeout": True,
+                    }
+                }
+            )
+            instances.append(self)
+
+        async def run(self, *, iterations):
+            del iterations
+            program = SimpleNamespace(
+                id="initial-id",
+                code=self.initial_program_code,
+                metrics=dict(metrics),
+                iteration_found=0,
+            )
+            self.database.add(program)
+            return program
+
+    monkeypatch.setattr(api_module, "OpenEvolve", FakeFreshOpenEvolve)
+    config = Config()
+    config.llm.models = [LLMModelConfig(name="fake-model")]
+
+    with pytest.raises(
+        RuntimeError,
+        match="Stage 2 failed.*before emitting",
+    ):
+        launcher._run_fresh(
+            config,
+            str(tmp_path / "output"),
+            1,
+            seed=str(seed),
+            evaluator=str(evaluator),
+            initial_program_preflight=lambda observed_metrics, artifacts: (
+                launcher._validate_managed_initial_evaluation(
+                    observed_metrics,
+                    artifacts,
+                    expected_contract_id=contract_id,
+                    cascade_threshold=0.01,
+                )
+            ),
+        )
+
+    assert len(instances) == 1
+    assert instances[0].database.add_calls == 0
+    assert instances[0].database.programs == {}
+    assert api_module.OpenEvolve is FakeFreshOpenEvolve
+
+
 def test_loaded_checkpoint_cannot_silently_drop_old_program(tmp_path):
     checkpoint = tmp_path / "checkpoint_25"
     programs_dir = checkpoint / "programs"
@@ -1703,6 +2098,42 @@ def test_loaded_checkpoint_cannot_silently_drop_old_program(tmp_path):
     ):
         launcher._validate_loaded_checkpoint_database(
             database, checkpoint
+        )
+
+
+@pytest.mark.parametrize(
+    "legacy_state",
+    ("selected_without_markers", "low_score_success", "timeout"),
+)
+def test_loaded_legacy_stage2_checkpoint_fails_before_stage1_backfill(
+    legacy_state: str,
+):
+    metrics = {
+        "combined_score": 0.25,
+        **_map_descriptor_metrics(),
+    }
+    if legacy_state == "low_score_success":
+        metrics.update({"combined_score": 0.0, "best_fom": 0.0})
+    elif legacy_state == "timeout":
+        metrics.update({"stage2_passed": 0.0, "timeout": True})
+    database = SimpleNamespace(
+        programs={
+            "legacy": SimpleNamespace(
+                id="legacy",
+                code="def generate_candidates(ell, m): return []",
+                metrics=metrics,
+            )
+        }
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="managed Stage 2 contract.*fresh campaign",
+    ):
+        launcher._validate_loaded_checkpoint_stage2_contract(
+            database,
+            expected_contract_id=54321,
+            cascade_threshold=0.01,
         )
 
 
@@ -2302,6 +2733,18 @@ def _managed_argv(tmp_path: Path, lease_fd: int, lease_path: Path) -> list[str]:
     ]
 
 
+def test_managed_milp_fails_before_launch(tmp_path, monkeypatch):
+    lease_path = (tmp_path / "lease.lock").resolve()
+    argv = _managed_argv(tmp_path, 123456, lease_path)
+    argv.append("--milp")
+    monkeypatch.setattr(launcher.sys, "argv", argv)
+
+    with pytest.raises(SystemExit) as raised:
+        launcher.main()
+
+    assert raised.value.code == 2
+
+
 def test_managed_build_config_system_exit_does_not_reference_unbound_observer(
     tmp_path, monkeypatch
 ):
@@ -2342,6 +2785,7 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
         evaluator=SimpleNamespace(
             parallel_evaluations=1,
             timeout=1200,
+            cascade_thresholds=[0.01, 0.5],
         ),
     )
 

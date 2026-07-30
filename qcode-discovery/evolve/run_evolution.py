@@ -120,6 +120,36 @@ STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS = 2
 STAGE1_PREFLIGHT_WORKER_ATTEMPTS = 2
 STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS = 2
 STAGE1_PREFLIGHT_OUTER_MARGIN_S = 120.0
+STAGE2_DEEP_CONTRACT_VERSION = 1
+STAGE2_DEEP_LATTICE_COUNT = 11
+STAGE2_CONTRACT_VERSION_METRIC = "stage2_contract_version"
+STAGE2_CONTRACT_ID_METRIC = "stage2_contract_id"
+STAGE2_COMPLETE_METRIC = "stage2_complete"
+STAGE2_INCOMPLETE_METRIC = "stage2_incomplete"
+STAGE2_LATTICES_METRIC = "stage2_lattices"
+STAGE2_HARD_TIMEOUT_METRIC = "stage2_hard_timeout"
+STAGE2_SUBPROCESS_FAILED_METRIC = "stage2_subprocess_failed"
+STAGE2_MARKER_FIELDS = (
+    STAGE2_CONTRACT_VERSION_METRIC,
+    STAGE2_CONTRACT_ID_METRIC,
+    STAGE2_COMPLETE_METRIC,
+    STAGE2_INCOMPLETE_METRIC,
+    STAGE2_LATTICES_METRIC,
+    STAGE2_HARD_TIMEOUT_METRIC,
+    STAGE2_SUBPROCESS_FAILED_METRIC,
+)
+LEGACY_STAGE2_DEEP_METRIC_FIELDS = (
+    "best_fom",
+    "mean_fom",
+    "num_above_6",
+    "num_above_12",
+    "target_preflight_lattices",
+    "unique_candidates",
+    "evaluated_candidate_definitions",
+    "duplicate_candidate_occurrences",
+    "winner_capable_unresolved_top_persisted",
+    "distance_backend_error_count",
+)
 WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC = (
     "winner_preflight_contract_version"
 )
@@ -613,10 +643,196 @@ def _exact_incomplete_winner_preflight_markers(
     return {name: float(values[name]) for name in values}
 
 
+def _validated_stage2_completion_markers(
+    metrics: Any,
+    *,
+    expected_contract_id: int,
+) -> dict[str, float]:
+    if not isinstance(metrics, dict):
+        raise RuntimeError("Stage 2 metrics are not an object")
+    values = {
+        name: _exact_nonnegative_metric(metrics, name)
+        for name in STAGE2_MARKER_FIELDS
+    }
+    if (
+        values[STAGE2_CONTRACT_VERSION_METRIC]
+        != STAGE2_DEEP_CONTRACT_VERSION
+        or values[STAGE2_CONTRACT_ID_METRIC] != expected_contract_id
+        or values[STAGE2_COMPLETE_METRIC] != 1
+        or values[STAGE2_INCOMPLETE_METRIC] != 0
+        or values[STAGE2_LATTICES_METRIC]
+        != STAGE2_DEEP_LATTICE_COUNT
+        or values[STAGE2_HARD_TIMEOUT_METRIC] != 0
+        or values[STAGE2_SUBPROCESS_FAILED_METRIC] != 0
+    ):
+        raise RuntimeError(
+            "Stage 2 markers do not prove a complete deep evaluation"
+        )
+    return {name: float(values[name]) for name in STAGE2_MARKER_FIELDS}
+
+
+def _exact_incomplete_stage2_markers(
+    metrics: Any,
+    artifacts: Any,
+    *,
+    expected_contract_id: int,
+) -> dict[str, float] | None:
+    """Recognize only the evaluator's bound Stage 2 failure envelope."""
+
+    if not isinstance(metrics, dict) or not isinstance(artifacts, dict):
+        return None
+    try:
+        _validated_winner_preflight_markers(
+            metrics,
+            expected_contract_id=expected_contract_id,
+        )
+        values = {
+            name: _exact_nonnegative_metric(metrics, name)
+            for name in STAGE2_MARKER_FIELDS
+        }
+    except RuntimeError:
+        return None
+    subprocess_error = artifacts.get("stage2_subprocess_error")
+    stderr = artifacts.get("stage2_stderr")
+    if (
+        values[STAGE2_CONTRACT_VERSION_METRIC]
+        != STAGE2_DEEP_CONTRACT_VERSION
+        or values[STAGE2_CONTRACT_ID_METRIC] != expected_contract_id
+        or values[STAGE2_COMPLETE_METRIC] != 0
+        or values[STAGE2_INCOMPLETE_METRIC] != 1
+        or not (
+            0
+            <= values[STAGE2_LATTICES_METRIC]
+            <= STAGE2_DEEP_LATTICE_COUNT
+        )
+        or values[STAGE2_HARD_TIMEOUT_METRIC] not in (0, 1)
+        or values[STAGE2_SUBPROCESS_FAILED_METRIC] != 1
+        or artifacts.get("failure_stage") != "stage2"
+        or not isinstance(subprocess_error, str)
+        or not subprocess_error
+        or stderr is not None and not isinstance(stderr, str)
+    ):
+        return None
+    return {name: float(values[name]) for name in STAGE2_MARKER_FIELDS}
+
+
+def _validated_managed_stage2_state(
+    metrics: Any,
+    artifacts: Any = None,
+    *,
+    expected_contract_id: int,
+    cascade_threshold: float | None = None,
+) -> str:
+    """Validate Stage 2 markers when the cascade emitted them."""
+
+    if not isinstance(metrics, dict):
+        raise RuntimeError("managed program metrics are not an object")
+    present = {
+        name for name in STAGE2_MARKER_FIELDS if name in metrics
+    }
+    if not present:
+        if _pre_marker_stage2_failure_evidence(metrics, artifacts) is not None:
+            raise RuntimeError(
+                "Stage 2 failed in the OpenEvolve cascade before emitting "
+                "the managed completion markers"
+            )
+        if (
+            cascade_threshold is not None
+            and any(
+                name in metrics
+                for name in LEGACY_STAGE2_DEEP_METRIC_FIELDS
+            )
+        ):
+            raise RuntimeError(
+                "legacy Stage 2 output has no managed completion markers"
+            )
+        if _cascade_selects_stage2(metrics, cascade_threshold):
+            raise RuntimeError(
+                "Stage 2 was selected by the cascade but emitted no managed "
+                "completion markers"
+            )
+        return "not_observed"
+    if present != set(STAGE2_MARKER_FIELDS):
+        raise RuntimeError("Stage 2 markers are only partially present")
+    _validated_stage2_completion_markers(
+        metrics,
+        expected_contract_id=expected_contract_id,
+    )
+    return "completed"
+
+
+def _cascade_selects_stage2(
+    metrics: Any,
+    threshold: float | None,
+) -> bool:
+    """Mirror pinned OpenEvolve's Stage 1 cascade decision."""
+
+    if threshold is None:
+        return False
+    if (
+        isinstance(threshold, bool)
+        or not isinstance(threshold, (int, float))
+        or not math.isfinite(float(threshold))
+    ):
+        raise RuntimeError("Stage 2 cascade threshold is invalid")
+    if not isinstance(metrics, dict) or not metrics:
+        return False
+    if "combined_score" in metrics:
+        score = metrics.get("combined_score")
+        if isinstance(score, (int, float)):
+            return float(score) >= float(threshold)
+    values = [
+        float(value)
+        for name, value in metrics.items()
+        if name != "error" and isinstance(value, (int, float))
+    ]
+    return bool(values) and sum(values) / len(values) >= float(threshold)
+
+
+def _pre_marker_stage2_failure_evidence(
+    metrics: Any,
+    artifacts: Any = None,
+) -> dict[str, bool] | None:
+    """Recognize OpenEvolve's own Stage 2 exception/timeout envelope.
+
+    OpenEvolve 0.2.26 catches an exception or its outer ``wait_for`` timeout
+    around ``evaluate_stage2``.  In that path it returns the trusted Stage 1
+    metrics without our managed Stage 2 markers, then adds
+    ``stage2_passed=0`` and/or a Stage 2 failure artifact.  Treating marker
+    absence as "Stage 2 was not selected by the cascade" would therefore
+    archive a known-incomplete evaluation.
+    """
+
+    if not isinstance(metrics, dict):
+        return None
+    if any(name in metrics for name in STAGE2_MARKER_FIELDS):
+        return None
+    stage2_passed = metrics.get("stage2_passed")
+    stage2_passed_zero = (
+        not isinstance(stage2_passed, bool)
+        and isinstance(stage2_passed, (int, float))
+        and math.isfinite(float(stage2_passed))
+        and float(stage2_passed) == 0.0
+    )
+    timeout = metrics.get("timeout") is True
+    artifact_stage2 = (
+        isinstance(artifacts, dict)
+        and artifacts.get("failure_stage") == "stage2"
+    )
+    if not (stage2_passed_zero or timeout or artifact_stage2):
+        return None
+    return {
+        "artifact_stage2": artifact_stage2,
+        "stage2_passed_zero": stage2_passed_zero,
+        "timeout": timeout,
+    }
+
+
 def _checkpoint_preflight_summary(
     checkpoint_path: str | Path,
     *,
     expected_contract_id: int,
+    cascade_threshold: float | None = None,
 ) -> dict[str, int]:
     programs_dir = Path(checkpoint_path) / "programs"
     if programs_dir.is_symlink() or not programs_dir.is_dir():
@@ -634,6 +850,11 @@ def _checkpoint_preflight_summary(
             program.get("metrics"),
             expected_contract_id=expected_contract_id,
         )
+        _validated_managed_stage2_state(
+            program.get("metrics"),
+            expected_contract_id=expected_contract_id,
+            cascade_threshold=cascade_threshold,
+        )
         _validated_map_descriptor_version(
             program.get("metrics"),
             label=f"checkpoint program {path.name}",
@@ -643,6 +864,31 @@ def _checkpoint_preflight_summary(
     if programs < 1:
         raise RuntimeError("result checkpoint contains no preflighted programs")
     return {"programs": programs, "unique_program_codes": len(codes)}
+
+
+def _validate_managed_initial_evaluation(
+    metrics: Any,
+    artifacts: Any,
+    *,
+    expected_contract_id: int,
+    cascade_threshold: float | None = None,
+) -> None:
+    """Fail before a fresh seed with incomplete evaluation enters the DB."""
+
+    _validated_winner_preflight_markers(
+        metrics,
+        expected_contract_id=expected_contract_id,
+    )
+    _validated_map_descriptor_version(
+        metrics,
+        label="fresh initial program",
+    )
+    _validated_managed_stage2_state(
+        metrics,
+        artifacts,
+        expected_contract_id=expected_contract_id,
+        cascade_threshold=cascade_threshold,
+    )
 
 
 def _validate_loaded_checkpoint_database(
@@ -680,6 +926,31 @@ def _validate_loaded_checkpoint_database(
             raise RuntimeError(
                 f"OpenEvolve changed checkpoint program code: {program_id}"
             )
+
+
+def _validate_loaded_checkpoint_stage2_contract(
+    database: Any,
+    *,
+    expected_contract_id: int,
+    cascade_threshold: float | None,
+) -> None:
+    """Reject a pre-managed Stage 2 checkpoint before costly backfill."""
+
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("loaded checkpoint contains no program database")
+    try:
+        for program_id in sorted(programs):
+            _validated_managed_stage2_state(
+                getattr(programs[program_id], "metrics", None),
+                expected_contract_id=expected_contract_id,
+                cascade_threshold=cascade_threshold,
+            )
+    except RuntimeError as exc:
+        raise RuntimeError(
+            "checkpoint predates or violates the managed Stage 2 contract; "
+            "start a fresh campaign"
+        ) from exc
 
 
 def _winner_preflight_wall_timeout(configured_timeout: float) -> float:
@@ -1971,6 +2242,7 @@ class _SliceObserver:
     iterations: int
     result_type: type
     expected_preflight_contract_id: int | None = None
+    stage2_cascade_threshold: float | None = None
     checkpoint_preflight_required: bool = False
     run_calls: int = 0
     shutdown_requested: bool = False
@@ -2206,6 +2478,141 @@ class _SliceObserver:
                 )
                 self._record_worker_error(iteration, canonical_error)
                 return sanitized
+            try:
+                _validated_winner_preflight_markers(
+                    child.get("metrics"),
+                    expected_contract_id=(
+                        self.expected_preflight_contract_id
+                    ),
+                )
+                preflight_is_complete = True
+            except RuntimeError:
+                preflight_is_complete = False
+            result_artifacts = getattr(result, "artifacts", None)
+            stage2_incomplete = (
+                _exact_incomplete_stage2_markers(
+                    child.get("metrics"),
+                    result_artifacts,
+                    expected_contract_id=(
+                        self.expected_preflight_contract_id
+                    ),
+                )
+                if preflight_is_complete
+                else None
+            )
+            if stage2_incomplete is not None:
+                failure_text = str(
+                    getattr(result, "artifacts", {}).get(
+                        "stage2_subprocess_error"
+                    )
+                ).encode("utf-8")
+                failure = {
+                    "child_program_bytes": len(encoded_child),
+                    "child_program_sha256": hashlib.sha256(
+                        encoded_child
+                    ).hexdigest(),
+                    "completed_lattices": int(
+                        stage2_incomplete[STAGE2_LATTICES_METRIC]
+                    ),
+                    "failure_error_bytes": len(failure_text),
+                    "failure_error_sha256": hashlib.sha256(
+                        failure_text
+                    ).hexdigest(),
+                    "hard_timeout": int(
+                        stage2_incomplete[STAGE2_HARD_TIMEOUT_METRIC]
+                    ),
+                    "iteration": iteration,
+                    "kind": "stage2_evaluation_incomplete",
+                    "preflight_contract_id":
+                        self.expected_preflight_contract_id,
+                    "program_id": program_id,
+                }
+                canonical_error = json.dumps(
+                    failure,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+                sanitized = self.result_type(
+                    child_program_dict=None,
+                    iteration=iteration,
+                    error=canonical_error,
+                )
+                self._record_worker_error(iteration, canonical_error)
+                return sanitized
+            pre_marker_failure = (
+                _pre_marker_stage2_failure_evidence(
+                    child.get("metrics"),
+                    result_artifacts,
+                )
+                if preflight_is_complete
+                else None
+            )
+            if pre_marker_failure is not None:
+                failure = {
+                    "child_program_bytes": len(encoded_child),
+                    "child_program_sha256": hashlib.sha256(
+                        encoded_child
+                    ).hexdigest(),
+                    "evidence": pre_marker_failure,
+                    "iteration": iteration,
+                    "kind": "stage2_outer_cascade_incomplete",
+                    "preflight_contract_id":
+                        self.expected_preflight_contract_id,
+                    "program_id": program_id,
+                }
+                canonical_error = json.dumps(
+                    failure,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+                sanitized = self.result_type(
+                    child_program_dict=None,
+                    iteration=iteration,
+                    error=canonical_error,
+                )
+                self._record_worker_error(iteration, canonical_error)
+                return sanitized
+            try:
+                if preflight_is_complete:
+                    _validated_managed_stage2_state(
+                        child.get("metrics"),
+                        result_artifacts,
+                        expected_contract_id=(
+                            self.expected_preflight_contract_id
+                        ),
+                        cascade_threshold=self.stage2_cascade_threshold,
+                    )
+            except RuntimeError as exc:
+                self.violations.append(
+                    f"future {iteration} returned invalid Stage 2 state: "
+                    f"{exc}"
+                )
+                failure = {
+                    "child_program_bytes": len(encoded_child),
+                    "child_program_sha256": hashlib.sha256(
+                        encoded_child
+                    ).hexdigest(),
+                    "iteration": iteration,
+                    "kind": "stage2_evaluation_invalid",
+                    "preflight_contract_id":
+                        self.expected_preflight_contract_id,
+                    "program_id": program_id,
+                }
+                canonical_error = json.dumps(
+                    failure,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+                sanitized = self.result_type(
+                    child_program_dict=None,
+                    iteration=iteration,
+                    error=canonical_error,
+                )
+                self._record_worker_error(iteration, canonical_error)
+                return sanitized
         self.expected_programs[iteration] = {
             "id": program_id,
             "sha256": hashlib.sha256(encoded_child).hexdigest(),
@@ -2245,18 +2652,23 @@ class _SliceObserver:
             return
         if self.expected_preflight_contract_id is not None:
             try:
-                _validated_map_descriptor_version(
-                    getattr(program, "metrics", None),
-                    label=f"database add for iteration {iteration}",
-                )
                 _validated_winner_preflight_markers(
                     getattr(program, "metrics", None),
                     expected_contract_id=self.expected_preflight_contract_id,
                 )
+                _validated_map_descriptor_version(
+                    getattr(program, "metrics", None),
+                    label=f"database add for iteration {iteration}",
+                )
+                _validated_managed_stage2_state(
+                    getattr(program, "metrics", None),
+                    expected_contract_id=self.expected_preflight_contract_id,
+                    cascade_threshold=self.stage2_cascade_threshold,
+                )
             except RuntimeError as exc:
                 self.violations.append(
                     f"database add for iteration {iteration} has incomplete "
-                    f"winner preflight: {exc}"
+                    f"winner preflight or managed Stage 2 evaluation: {exc}"
                 )
                 return
         to_dict = getattr(program, "to_dict", None)
@@ -2445,10 +2857,10 @@ class _SliceObserver:
         )
         # A worker_error has no checkpoint Program.  It covers both an LLM/diff
         # failure that never produced a child and the exact evaluator-generated
-        # incomplete-preflight envelope sanitized before database.add.  Neither
-        # outcome claims that a candidate universe was enumerated completely.
-        # Malformed/forged marker claims and future exceptions remain
-        # violations.
+        # incomplete-preflight or incomplete-Stage-2 envelope sanitized before
+        # database.add. Neither outcome claims that a candidate universe was
+        # enumerated completely. Malformed/forged marker claims and future
+        # exceptions remain violations.
         if successful < 1:
             self.violations.append(
                 "the OpenEvolve slice produced no successful evaluations"
@@ -2543,6 +2955,7 @@ def _verified_slice_controller(
     iterations: int,
     *,
     expected_preflight_contract_id: int | None = None,
+    stage2_cascade_threshold: float | None = None,
     checkpoint_preflight_required: bool = False,
     search_config: Any = None,
     adaptive_mutation_policy: dict[str, int] | None = None,
@@ -2555,6 +2968,7 @@ def _verified_slice_controller(
         iterations=iterations,
         result_type=process_module.SerializableResult,
         expected_preflight_contract_id=expected_preflight_contract_id,
+        stage2_cascade_threshold=stage2_cascade_threshold,
         checkpoint_preflight_required=checkpoint_preflight_required,
     )
     portfolio_seed: int | None = None
@@ -3139,6 +3553,7 @@ def _write_slice_witness(
         _checkpoint_preflight_summary(
             result_checkpoint["path"],
             expected_contract_id=observer.expected_preflight_contract_id,
+            cascade_threshold=observer.stage2_cascade_threshold,
         )
     if (
         observer.checkpoint_preflight_required
@@ -3567,19 +3982,110 @@ class WandbSyncer:
 # Evolution runners
 # ---------------------------------------------------------------------------
 
-def _run_fresh(config, output_dir: str, iterations: int,
-               seed: str = SEED_SOLUTION, evaluator: str = EVALUATOR):
+def _preflighted_fresh_controller_type(
+    controller_type: type,
+    initial_program_preflight: Any,
+) -> type:
+    """Wrap the pinned controller's otherwise-unobserved initial DB add."""
+
+    class PreflightedFreshOpenEvolve(controller_type):
+        async def run(self, *args: Any, **kwargs: Any) -> Any:
+            original_add = self.database.add
+            initial_observed = False
+
+            def checked_add(
+                program: Any,
+                iteration: Any = None,
+                target_island: Any = None,
+            ) -> Any:
+                nonlocal initial_observed
+                if not initial_observed:
+                    if (
+                        iteration is not None
+                        or getattr(self.database, "programs", None)
+                        or getattr(program, "code", None)
+                        != getattr(self, "initial_program_code", None)
+                        or getattr(program, "iteration_found", None) != 0
+                    ):
+                        raise RuntimeError(
+                            "fresh OpenEvolve initial database add has an "
+                            "unexpected shape"
+                        )
+                    pending = getattr(
+                        getattr(self, "evaluator", None),
+                        "_pending_artifacts",
+                        None,
+                    )
+                    artifacts = (
+                        pending.get(getattr(program, "id", None))
+                        if isinstance(pending, dict)
+                        else None
+                    )
+                    initial_program_preflight(
+                        getattr(program, "metrics", None),
+                        artifacts,
+                    )
+                    initial_observed = True
+                return original_add(
+                    program,
+                    iteration=iteration,
+                    target_island=target_island,
+                )
+
+            self.database.add = checked_add
+            try:
+                result = await super().run(*args, **kwargs)
+            finally:
+                self.database.add = original_add
+            if not initial_observed:
+                raise RuntimeError(
+                    "fresh OpenEvolve run did not add one validated initial "
+                    "program"
+                )
+            return result
+
+    return PreflightedFreshOpenEvolve
+
+
+def _run_fresh(
+    config,
+    output_dir: str,
+    iterations: int,
+    seed: str = SEED_SOLUTION,
+    evaluator: str = EVALUATOR,
+    initial_program_preflight: Any = None,
+):
     """Run a fresh evolution using the high-level API."""
     from openevolve import run_evolution
 
-    return run_evolution(
-        initial_program=seed,
-        evaluator=evaluator,
-        config=config,
-        iterations=iterations,
-        output_dir=output_dir,
-        cleanup=False,
+    if initial_program_preflight is None:
+        return run_evolution(
+            initial_program=seed,
+            evaluator=evaluator,
+            config=config,
+            iterations=iterations,
+            output_dir=output_dir,
+            cleanup=False,
+        )
+
+    import openevolve.api as api_module
+
+    original_controller = api_module.OpenEvolve
+    api_module.OpenEvolve = _preflighted_fresh_controller_type(
+        original_controller,
+        initial_program_preflight,
     )
+    try:
+        return run_evolution(
+            initial_program=seed,
+            evaluator=evaluator,
+            config=config,
+            iterations=iterations,
+            output_dir=output_dir,
+            cleanup=False,
+        )
+    finally:
+        api_module.OpenEvolve = original_controller
 
 
 def _run_resume(config, output_dir: str, iterations: int, checkpoint_path: str,
@@ -3751,6 +4257,11 @@ def main():
         )
     if managed_requested and args.humanize_context is None:
         parser.error("--humanize-context is required for managed evolution")
+    if managed_requested and args.milp:
+        parser.error(
+            "managed --milp is unsupported until its evaluator implements "
+            "the versioned Stage 2 completion contract"
+        )
     if managed_requested:
         _validate_lifecycle_lease(
             args.lifecycle_lease_fd, args.lifecycle_lease_path
@@ -3899,6 +4410,7 @@ def main():
     dependency_identities: dict[str, dict[str, Any]] | None = None
     codex_executable_identity: dict[str, Any] | None = None
     preflight_contract_id: int | None = None
+    stage2_cascade_threshold: float | None = None
     adaptive_mutation_policy: dict[str, int] | None = None
     search_portfolio_enabled = False
     try:
@@ -3949,6 +4461,23 @@ def main():
             float(evaluator_timeout)
         )
         if not args.noncss:
+            cascade_thresholds = getattr(
+                config.evaluator,
+                "cascade_thresholds",
+                None,
+            )
+            if (
+                not isinstance(cascade_thresholds, (list, tuple))
+                or not cascade_thresholds
+                or isinstance(cascade_thresholds[0], bool)
+                or not isinstance(cascade_thresholds[0], (int, float))
+                or not math.isfinite(float(cascade_thresholds[0]))
+            ):
+                raise RuntimeError(
+                    "config evaluator.cascade_thresholds[0] must be a "
+                    "finite number"
+                )
+            stage2_cascade_threshold = float(cascade_thresholds[0])
             # OpenEvolve applies this value as a total Stage 1 timeout.  The
             # evaluator itself now owns the useful safety boundary: the same
             # configured budget is an inactivity timeout for each durable
@@ -4027,6 +4556,7 @@ def main():
                 base_iteration,
                 args.iterations,
                 expected_preflight_contract_id=preflight_contract_id,
+                stage2_cascade_threshold=stage2_cascade_threshold,
                 checkpoint_preflight_required=(
                     args.resume is not None
                     and preflight_contract_id is not None
@@ -4078,6 +4608,11 @@ def main():
                             database,
                             args.resume,
                         )
+                        _validate_loaded_checkpoint_stage2_contract(
+                            database,
+                            expected_contract_id=preflight_contract_id,
+                            cascade_threshold=stage2_cascade_threshold,
+                        )
                         report = _backfill_checkpoint_programs(
                             database,
                             evaluator_path=EVALUATOR_ACTIVE,
@@ -4105,8 +4640,24 @@ def main():
                     print(f"  Best program: {best_path}")
                 print(f"  Output: {output_dir}")
             else:
+                initial_program_preflight = None
+                if preflight_contract_id is not None:
+                    def initial_program_preflight(
+                        metrics: Any,
+                        artifacts: Any,
+                    ) -> None:
+                        _validate_managed_initial_evaluation(
+                            metrics,
+                            artifacts,
+                            expected_contract_id=preflight_contract_id,
+                            cascade_threshold=stage2_cascade_threshold,
+                        )
+
                 result = _run_fresh(config, output_dir, args.iterations,
-                                    seed=seed_path, evaluator=EVALUATOR_ACTIVE)
+                                    seed=seed_path, evaluator=EVALUATOR_ACTIVE,
+                                    initial_program_preflight=(
+                                        initial_program_preflight
+                                    ))
 
                 print(f"\nEvolution complete!")
                 print(f"  Best score: {result.best_score:.4f}")

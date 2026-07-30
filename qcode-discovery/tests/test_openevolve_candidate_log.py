@@ -111,6 +111,45 @@ def _support_metrics(
     }
 
 
+def _empty_stage2_lattice_metrics() -> dict:
+    support = _support_metrics()
+    support["support_split_counts"] = {
+        f"{a_count}+{b_count}": 0
+        for a_count, b_count in evaluator.CHALLENGE_SUPPORT_SPLITS
+    }
+    return {
+        "best_fom": 0.0,
+        "mean_fom": 0.0,
+        "num_valid": 0,
+        "num_above_6": 0,
+        "num_above_12": 0,
+        "total_candidates": 0,
+        "unique_candidates": 0,
+        "evaluated_candidate_definitions": 0,
+        "duplicate_candidate_occurrences": 0,
+        "winner_capable_quick_exploration_eligible": 0,
+        "winner_capable_quick_exploration_persisted": 0,
+        "winner_capable_quick_exploration_omitted": 0,
+        "winner_capable_distance_pending_persisted": 0,
+        "winner_capable_unresolved_top_persisted": 0,
+        "winner_capable_distance_error_persisted": 0,
+        "distance_backend_error_count": 0,
+        "malformed_candidate_definitions": 0,
+        "tier0_rejected": 0,
+        "structural_rejected": 0,
+        "best_encoding_rate": 0.0,
+        "num_high_k": 0,
+        "lattices_with_high_k": 0,
+        "best_code": None,
+        "all_results": [],
+        "errors": [],
+        "lattices_requested": 1,
+        "lattices_completed": 1,
+        "lattice_failures": 0,
+        **support,
+    }
+
+
 def _stage1_summary(
     lattice: tuple[int, int],
     *,
@@ -737,36 +776,10 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
     calls = []
     program = tmp_path / "program.py"
     program.write_text("def generate_candidates(ell, m): return []\n")
-    empty_metrics = {
-        "best_fom": 0.0,
-        "mean_fom": 0.0,
-        "num_valid": 0,
-        "num_above_6": 0,
-        "num_above_12": 0,
-        "total_candidates": 0,
-        "unique_candidates": 0,
-        "evaluated_candidate_definitions": 0,
-        "duplicate_candidate_occurrences": 0,
-        "winner_capable_quick_exploration_eligible": 0,
-        "winner_capable_quick_exploration_persisted": 0,
-        "winner_capable_quick_exploration_omitted": 0,
-        "winner_capable_distance_pending_persisted": 0,
-        "winner_capable_unresolved_top_persisted": 0,
-        "winner_capable_distance_error_persisted": 0,
-        "distance_backend_error_count": 0,
-        "malformed_candidate_definitions": 0,
-        "tier0_rejected": 0,
-        "structural_rejected": 0,
-        "best_encoding_rate": 0.0,
-        "num_high_k": 0,
-        "lattices_with_high_k": 0,
-        "best_code": None,
-        "all_results": [],
-        "errors": [],
-        "lattices_completed": len(EVOLUTION_LATTICES),
-        "lattice_failures": 0,
-        **_support_metrics(),
-    }
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str((tmp_path / "run" / "all_codes.jsonl").resolve()),
+    )
 
     monkeypatch.setattr(
         evaluator,
@@ -776,7 +789,12 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
 
     def fake_run(_generate, lattices, **kwargs):
         calls.append((tuple(lattices), dict(kwargs)))
-        return dict(empty_metrics)
+        if kwargs["quick"]:
+            metrics = _empty_stage2_lattice_metrics()
+            metrics["lattices_requested"] = len(EVOLUTION_LATTICES)
+            metrics["lattices_completed"] = len(EVOLUTION_LATTICES)
+            return metrics
+        return _empty_stage2_lattice_metrics()
 
     monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _rows: None)
@@ -793,19 +811,23 @@ def test_stage2_preflights_all_targets_before_bounded_deep_evaluation(
         calls[0][1]["candidate_limit"]
         == evaluator.STAGE2_PREFLIGHT_CANDIDATE_LIMIT
     )
-    assert calls[1][0] == tuple(evaluator.STAGE2_DEEP_LATTICES)
-    assert calls[1][1]["quick"] is False
-    assert (
-        calls[1][1]["refine_trials"]
-        == evaluator.STAGE2_REFINE_TRIALS
+    assert [call[0] for call in calls[1:]] == [
+        (lattice,) for lattice in evaluator.STAGE2_DEEP_LATTICES
+    ]
+    assert all(call[1]["quick"] is False for call in calls[1:])
+    assert all(
+        call[1]["refine_trials"] == evaluator.STAGE2_REFINE_TRIALS
+        for call in calls[1:]
     )
-    assert (
-        calls[1][1]["max_distance_per_lattice"]
+    assert all(
+        call[1]["max_distance_per_lattice"]
         == evaluator.STAGE2_DEEP_DISTANCE_PER_LATTICE
+        for call in calls[1:]
     )
-    assert (
-        calls[1][1]["candidate_limit"]
+    assert all(
+        call[1]["candidate_limit"]
         == evaluator.STAGE2_DEEP_CANDIDATE_LIMIT
+        for call in calls[1:]
     )
     assert result[evaluator.SUPPORT_FILTER_VERSION_METRIC] == float(
         evaluator.CHALLENGE_SUPPORT_FILTER_VERSION
@@ -1613,33 +1635,11 @@ def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
             "markers": markers,
         }),
     )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str((tmp_path / "run" / "all_codes.jsonl").resolve()),
+    )
     calls = []
-    empty_metrics = {
-        "best_fom": 0.0,
-        "mean_fom": 0.0,
-        "num_valid": 0,
-        "num_above_6": 0,
-        "num_above_12": 0,
-        "total_candidates": 0,
-        "unique_candidates": 0,
-        "evaluated_candidate_definitions": 0,
-        "duplicate_candidate_occurrences": 0,
-        "winner_capable_quick_exploration_persisted": 0,
-        "winner_capable_distance_pending_persisted": 0,
-        "winner_capable_unresolved_top_persisted": 0,
-        "winner_capable_distance_error_persisted": 0,
-        "distance_backend_error_count": 0,
-        "malformed_candidate_definitions": 0,
-        "tier0_rejected": 0,
-        "structural_rejected": 0,
-        "best_encoding_rate": 0.0,
-        "num_high_k": 0,
-        "lattices_with_high_k": 0,
-        "best_code": None,
-        "all_results": [],
-        "errors": [],
-        **_support_metrics(),
-    }
     monkeypatch.setattr(
         evaluator,
         "_load_generate_candidates",
@@ -1648,7 +1648,7 @@ def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
 
     def fake_run(_generate, lattices, **kwargs):
         calls.append((tuple(lattices), dict(kwargs)))
-        return dict(empty_metrics)
+        return _empty_stage2_lattice_metrics()
 
     monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _rows: None)
@@ -1658,7 +1658,7 @@ def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
     artifacts = getattr(result, "artifacts", {})
 
     assert [lattices for lattices, _kwargs in calls] == [
-        tuple(evaluator.STAGE2_DEEP_LATTICES)
+        (lattice,) for lattice in evaluator.STAGE2_DEEP_LATTICES
     ]
     assert metrics["target_preflight_candidates_evaluated"] == 17.0
     assert metrics["target_preflight_winner_capable_persisted"] == 5.0
@@ -1666,8 +1666,230 @@ def test_cascade_stage2_reuses_complete_stage1_preflight_without_rewriting(
     assert "per-split diagnostics unavailable" in artifacts["summary"]
 
 
-def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
+def test_stage2_deep_resume_replays_generator_without_redoing_committed_bp(
+    tmp_path, monkeypatch
+):
+    lattices = [(6, 6), (7, 6), (8, 6)]
+    monkeypatch.setattr(evaluator, "STAGE2_DEEP_LATTICES", lattices)
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    source_sha256 = evaluator._freeze_program_source_sha256(str(program))
+    contract_id = 112233
+    preflight_sha256 = "a" * 64
+    generated_calls = []
+    evaluation_calls = []
+    fail_second = True
+
+    def generate(ell, m):
+        generated_calls.append((ell, m))
+        return []
+
+    def fake_run(_generate, requested, **_kwargs):
+        nonlocal fail_second
+        lattice = tuple(requested[0])
+        evaluation_calls.append(lattice)
+        if lattice == lattices[1] and fail_second:
+            fail_second = False
+            raise RuntimeError("simulated BP worker loss")
+        return _empty_stage2_lattice_metrics()
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
+
+    with pytest.raises(RuntimeError, match="simulated BP worker loss"):
+        evaluator._run_resumable_stage2_deep(
+            str(program),
+            generate_fn=generate,
+            candidate_log_path=candidate_log,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            preflight_sha256=preflight_sha256,
+        )
+
+    generated_calls.clear()
+    result = evaluator._run_resumable_stage2_deep(
+        str(program),
+        generate_fn=generate,
+        candidate_log_path=candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        preflight_sha256=preflight_sha256,
+    )
+
+    assert generated_calls == lattices
+    assert evaluation_calls == [
+        lattices[0],
+        lattices[1],
+        lattices[1],
+        lattices[2],
+    ]
+    assert result["lattices_completed"] == len(lattices)
+    journal_path, _lock_path = evaluator._stage2_deep_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        preflight_sha256=preflight_sha256,
+    )
+    journal = json.loads(journal_path.read_text())
+    assert journal["status"] == "completed"
+    assert len(journal["completed_lattices"]) == len(lattices)
+
+
+def test_stage2_adopts_atomic_sidecar_after_crash_before_journal_commit(
+    tmp_path, monkeypatch
+):
+    lattice = (6, 6)
+    monkeypatch.setattr(
+        evaluator, "STAGE2_DEEP_LATTICES", [lattice]
+    )
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    source_sha256 = evaluator._freeze_program_source_sha256(str(program))
+    contract_id = 445566
+    preflight_sha256 = "b" * 64
+    evaluations = 0
+
+    def fake_run(_generate, _requested, **_kwargs):
+        nonlocal evaluations
+        evaluations += 1
+        return _empty_stage2_lattice_metrics()
+
+    monkeypatch.setattr(evaluator, "_run_evaluation", fake_run)
+    original_write = evaluator._write_stage2_deep_journal
+    crash_once = True
+
+    def crash_after_sidecar(path, payload, **kwargs):
+        nonlocal crash_once
+        if payload.get("completed_lattices") and crash_once:
+            crash_once = False
+            raise OSError("simulated journal commit crash")
+        return original_write(path, payload, **kwargs)
+
+    monkeypatch.setattr(
+        evaluator, "_write_stage2_deep_journal", crash_after_sidecar
+    )
+    with pytest.raises(OSError, match="journal commit crash"):
+        evaluator._run_resumable_stage2_deep(
+            str(program),
+            generate_fn=lambda _ell, _m: [],
+            candidate_log_path=candidate_log,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            preflight_sha256=preflight_sha256,
+        )
+
+    monkeypatch.setattr(
+        evaluator, "_write_stage2_deep_journal", original_write
+    )
+    result = evaluator._run_resumable_stage2_deep(
+        str(program),
+        generate_fn=lambda _ell, _m: [],
+        candidate_log_path=candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        preflight_sha256=preflight_sha256,
+    )
+
+    assert evaluations == 1
+    assert result["lattices_completed"] == 1
+
+
+def test_stage2_rejects_tampered_committed_sidecar(
+    tmp_path, monkeypatch
+):
+    lattice = (6, 6)
+    monkeypatch.setattr(
+        evaluator, "STAGE2_DEEP_LATTICES", [lattice]
+    )
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    source_sha256 = evaluator._freeze_program_source_sha256(str(program))
+    contract_id = 778899
+    preflight_sha256 = "c" * 64
+    monkeypatch.setattr(
+        evaluator,
+        "_run_evaluation",
+        lambda *_args, **_kwargs: _empty_stage2_lattice_metrics(),
+    )
+    evaluator._run_resumable_stage2_deep(
+        str(program),
+        generate_fn=lambda _ell, _m: [],
+        candidate_log_path=candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        preflight_sha256=preflight_sha256,
+    )
+    journal_path, _lock_path = evaluator._stage2_deep_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        preflight_sha256=preflight_sha256,
+    )
+    journal = json.loads(journal_path.read_text())
+    sidecar = evaluator._stage2_lattice_result_path(
+        journal_path,
+        epoch_id=journal["epoch_id"],
+        index=0,
+    )
+    sidecar.write_bytes(sidecar.read_bytes() + b" ")
+
+    with pytest.raises(
+        evaluator.CandidateLogWriteError,
+        match="no longer matches its journal",
+    ):
+        evaluator._run_resumable_stage2_deep(
+            str(program),
+            generate_fn=lambda _ell, _m: [],
+            candidate_log_path=candidate_log,
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            preflight_sha256=preflight_sha256,
+        )
+
+
+def test_stage2_lattice_aggregation_matches_monolithic_empty_run(
+    tmp_path, monkeypatch
+):
+    lattices = [(6, 6), (7, 6), (8, 6)]
+    monkeypatch.setattr(evaluator, "STAGE2_DEEP_LATTICES", lattices)
+    monolithic = evaluator._run_evaluation(
+        lambda _ell, _m: [],
+        lattices,
+        quick=False,
+        candidate_log_path=tmp_path / "monolithic.jsonl",
+    )
+    per_lattice = [
+        evaluator._run_evaluation(
+            lambda _ell, _m: [],
+            [lattice],
+            quick=False,
+            candidate_log_path=tmp_path / f"{index}.jsonl",
+        )
+        for index, lattice in enumerate(lattices)
+    ]
+
+    assert evaluator._aggregate_stage2_lattice_metrics(
+        per_lattice
+    ) == monolithic
+
+
+def test_stage2_killable_wrapper_round_trips_worker_result(
+    tmp_path, monkeypatch
+):
     observed = {}
+    contract_id = 2468
+    program = tmp_path / "generated program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str((tmp_path / "run" / "all_codes.jsonl").resolve()),
+    )
 
     class FakeProcess:
         pid = 4321
@@ -1678,7 +1900,20 @@ def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
             Path(command[4]).write_text(json.dumps({
                 "schema_version": 1,
                 "status": "completed",
-                "metrics": {"combined_score": 7.5},
+                "metrics": {
+                    "combined_score": 7.5,
+                    evaluator.STAGE2_CONTRACT_VERSION_METRIC: 1.0,
+                    evaluator.STAGE2_CONTRACT_ID_METRIC: float(
+                        contract_id
+                    ),
+                    evaluator.STAGE2_COMPLETE_METRIC: 1.0,
+                    evaluator.STAGE2_INCOMPLETE_METRIC: 0.0,
+                    evaluator.STAGE2_LATTICES_METRIC: float(
+                        len(evaluator.STAGE2_DEEP_LATTICES)
+                    ),
+                    evaluator.STAGE2_HARD_TIMEOUT_METRIC: 0.0,
+                    evaluator.STAGE2_SUBPROCESS_FAILED_METRIC: 0.0,
+                },
                 "artifacts": {"summary": "bounded"},
             }))
 
@@ -1688,7 +1923,7 @@ def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
 
     monkeypatch.setattr(evaluator.subprocess, "Popen", FakeProcess)
 
-    result = evaluator.evaluate_stage2("/tmp/generated program.py")
+    result = evaluator.evaluate_stage2(str(program))
     metrics = getattr(result, "metrics", result)
     artifacts = getattr(result, "artifacts", {})
 
@@ -1696,13 +1931,144 @@ def test_stage2_killable_wrapper_round_trips_worker_result(monkeypatch):
     assert artifacts["summary"] == "bounded"
     assert observed["command"][1] == str(Path(evaluator.__file__).resolve())
     assert observed["command"][2] == "--stage2-worker"
-    assert observed["command"][3] == "/tmp/generated program.py"
+    assert observed["command"][3] == str(program)
     assert observed["kwargs"]["start_new_session"] is True
     assert all(
         observed["kwargs"]["env"][variable] == "1"
         for variable in evaluator.STAGE2_NUMERIC_THREAD_ENV
     )
-    assert observed["timeouts"] == [evaluator._stage2_hard_timeout_s()]
+    assert len(observed["timeouts"]) == 1
+    assert 0 < observed["timeouts"][0] <= 0.25
+
+
+def test_stage2_worker_wall_renews_after_durable_lattice_progress(
+    tmp_path, monkeypatch
+):
+    lattices = [(6, 6), (7, 6)]
+    monkeypatch.setattr(evaluator, "STAGE2_DEEP_LATTICES", lattices)
+    contract_id = 86420
+    program = tmp_path / "program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    candidate_log = (tmp_path / "run" / "all_codes.jsonl").resolve()
+    source_sha256 = evaluator._freeze_program_source_sha256(str(program))
+    preflight_sha256 = evaluator._stage2_preflight_sha256(
+        None,
+        contract_id=contract_id,
+    )
+    journal_path, _lock_path = evaluator._stage2_deep_journal_paths(
+        candidate_log,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        preflight_sha256=preflight_sha256,
+    )
+    journal = evaluator._write_stage2_deep_journal(
+        journal_path,
+        evaluator._initial_stage2_deep_journal(
+            source_sha256=source_sha256,
+            contract_id=contract_id,
+            candidate_log_path=candidate_log,
+            preflight_sha256=preflight_sha256,
+        ),
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+        preflight_sha256=preflight_sha256,
+    )
+    clock = {"now": 0.0}
+    monkeypatch.setattr(
+        evaluator.time, "monotonic", lambda: clock["now"]
+    )
+
+    class ProgressProcess:
+        pid = 6420
+
+        def __init__(self, command, **_kwargs):
+            self.command = command
+            self.calls = 0
+
+        def wait(self, timeout=None):
+            self.calls += 1
+            clock["now"] += 0.6
+            if self.calls <= len(lattices):
+                entry = {
+                    "lattice": list(lattices[self.calls - 1]),
+                    "pool_sha256": f"{self.calls}" * 64,
+                    "result_sha256": f"{self.calls + 2}" * 64,
+                    "result_bytes": 1,
+                }
+                current = evaluator._load_stage2_deep_journal(
+                    journal_path,
+                    source_sha256=source_sha256,
+                    contract_id=contract_id,
+                    candidate_log_path=candidate_log,
+                    preflight_sha256=preflight_sha256,
+                )
+                completed = [
+                    *current["completed_lattices"],
+                    entry,
+                ]
+                evaluator._write_stage2_deep_journal(
+                    journal_path,
+                    {
+                        **current,
+                        "status": (
+                            "completed"
+                            if len(completed) == len(lattices)
+                            else "in_progress"
+                        ),
+                        "completed_lattices": completed,
+                        "progress_sequence": (
+                            current["progress_sequence"] + 1
+                        ),
+                    },
+                    source_sha256=source_sha256,
+                    contract_id=contract_id,
+                    candidate_log_path=candidate_log,
+                    preflight_sha256=preflight_sha256,
+                )
+                raise evaluator.subprocess.TimeoutExpired(
+                    "stage2", timeout
+                )
+            Path(self.command[4]).write_text(json.dumps({
+                "schema_version": 1,
+                "status": "completed",
+                "metrics": {
+                    "combined_score": 3.0,
+                    evaluator.STAGE2_CONTRACT_VERSION_METRIC: 1.0,
+                    evaluator.STAGE2_CONTRACT_ID_METRIC: float(
+                        contract_id
+                    ),
+                    evaluator.STAGE2_COMPLETE_METRIC: 1.0,
+                    evaluator.STAGE2_INCOMPLETE_METRIC: 0.0,
+                    evaluator.STAGE2_LATTICES_METRIC: float(
+                        len(lattices)
+                    ),
+                    evaluator.STAGE2_HARD_TIMEOUT_METRIC: 0.0,
+                    evaluator.STAGE2_SUBPROCESS_FAILED_METRIC: 0.0,
+                },
+                "artifacts": {},
+            }))
+            return 0
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(evaluator.subprocess, "Popen", ProgressProcess)
+    payload, failure, timed_out = evaluator._run_stage2_worker_attempt(
+        str(program),
+        preflight_reuse=None,
+        source_sha256=source_sha256,
+        contract_id=contract_id,
+        candidate_log_path=candidate_log,
+        preflight_sha256=preflight_sha256,
+        journal_path=journal_path,
+        inactivity_timeout=1.0,
+    )
+
+    assert failure is None
+    assert timed_out is False
+    assert payload["metrics"]["combined_score"] == 3.0
+    assert clock["now"] == pytest.approx(1.8)
 
 
 def test_stage2_hard_timeout_stays_below_bound_outer_timeout(
@@ -1717,22 +2083,39 @@ def test_stage2_hard_timeout_stays_below_bound_outer_timeout(
         evaluator._stage2_hard_timeout_s()
 
 
-def test_stage2_killable_wrapper_terminates_group_on_timeout(monkeypatch):
+def test_stage2_killable_wrapper_terminates_group_on_timeout(
+    tmp_path, monkeypatch
+):
     kills = []
+    processes = {}
+    program = tmp_path / "slow-program.py"
+    program.write_text("def generate_candidates(ell, m): return []\n")
+    monkeypatch.setenv(
+        evaluator.WINNER_PREFLIGHT_CONTRACT_ID_ENV,
+        "97531",
+    )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str((tmp_path / "run" / "all_codes.jsonl").resolve()),
+    )
+    monkeypatch.setattr(evaluator, "_stage2_hard_timeout_s", lambda: 0.01)
 
     class TimedOutProcess:
-        pid = 8765
+        next_pid = 8765
 
         def __init__(self, _command, **_kwargs):
-            self.wait_calls = 0
+            self.pid = self.next_pid
+            type(self).next_pid += 1
+            self.terminated = False
+            processes[self.pid] = self
 
         def wait(self, timeout=None):
-            self.wait_calls += 1
-            if self.wait_calls == 1:
-                raise evaluator.subprocess.TimeoutExpired(
-                    "stage2", timeout
-                )
-            return -evaluator.signal.SIGTERM
+            if self.terminated:
+                return -evaluator.signal.SIGTERM
+            raise evaluator.subprocess.TimeoutExpired("stage2", timeout)
+
+        def poll(self):
+            return None if not self.terminated else -evaluator.signal.SIGTERM
 
     monkeypatch.setattr(
         evaluator.subprocess, "Popen", TimedOutProcess
@@ -1740,17 +2123,26 @@ def test_stage2_killable_wrapper_terminates_group_on_timeout(monkeypatch):
     monkeypatch.setattr(
         evaluator.os,
         "killpg",
-        lambda pid, sig: kills.append((pid, sig)),
+        lambda pid, sig: (
+            kills.append((pid, sig)),
+            setattr(processes[pid], "terminated", True),
+        ),
     )
 
-    result = evaluator.evaluate_stage2("/tmp/slow-program.py")
+    result = evaluator.evaluate_stage2(str(program))
     metrics = getattr(result, "metrics", result)
 
-    assert metrics["stage2_hard_timeout"] == 1.0
-    assert metrics["stage2_subprocess_failed"] == 1.0
+    assert metrics[evaluator.STAGE2_HARD_TIMEOUT_METRIC] == 1.0
+    assert metrics[evaluator.STAGE2_SUBPROCESS_FAILED_METRIC] == 1.0
+    assert metrics[evaluator.STAGE2_COMPLETE_METRIC] == 0.0
+    assert metrics[evaluator.STAGE2_INCOMPLETE_METRIC] == 1.0
+    assert "combined_score" not in metrics
+    assert evaluator.MAP_DESCRIPTOR_VERSION_METRIC not in metrics
     assert kills == [
         (8765, evaluator.signal.SIGTERM),
         (8765, evaluator.signal.SIGKILL),
+        (8766, evaluator.signal.SIGTERM),
+        (8766, evaluator.signal.SIGKILL),
     ]
 
 
@@ -2302,17 +2694,26 @@ def test_stage2_worker_writes_strict_atomic_result(tmp_path, monkeypatch):
     assert not list(tmp_path.glob(".*.tmp-*"))
 
 
-def test_stage2_actual_subprocess_smoke(tmp_path):
+def test_stage2_actual_subprocess_smoke(tmp_path, monkeypatch):
     program = tmp_path / "empty-generator.py"
     program.write_text(
         "def generate_candidates(ell, m):\n"
         "    return []\n"
     )
+    monkeypatch.setenv(
+        evaluator.CANDIDATE_LOG_PATH_ENV,
+        str((tmp_path / "run" / "all_codes.jsonl").resolve()),
+    )
 
     result = evaluator.evaluate_stage2(str(program))
     metrics = getattr(result, "metrics", result)
 
-    assert "stage2_subprocess_failed" not in metrics
+    assert metrics[evaluator.STAGE2_SUBPROCESS_FAILED_METRIC] == 0.0
+    assert metrics[evaluator.STAGE2_COMPLETE_METRIC] == 1.0
+    assert metrics[evaluator.STAGE2_INCOMPLETE_METRIC] == 0.0
+    assert metrics[evaluator.STAGE2_LATTICES_METRIC] == float(
+        len(evaluator.STAGE2_DEEP_LATTICES)
+    )
     assert metrics["combined_score"] == 0.0
     assert metrics["target_preflight_lattices"] == float(
         len(EVOLUTION_LATTICES)
@@ -2944,6 +3345,11 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
     monkeypatch.setattr(
         evaluator,
         "_run_evaluation",
+        lambda *_args, **_kwargs: metrics,
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_resumable_stage2_deep",
         lambda *_args, **_kwargs: metrics,
     )
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
@@ -3969,6 +4375,11 @@ def test_distance_backend_error_has_write_ahead_top_and_independent_quick_quota(
         lambda *_args, **kwargs: (
             preflight_metrics if kwargs.get("quick") is True else metrics
         ),
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_run_resumable_stage2_deep",
+        lambda *_args, **_kwargs: metrics,
     )
     monkeypatch.setattr(evaluator, "_write_metrics_jsonl", lambda _metrics: None)
     program = tmp_path / "program.py"
