@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-import math
 import os
 import statistics
 import tempfile
@@ -32,9 +31,15 @@ NUMERIC_THREAD_ENV = (
     "BLIS_NUM_THREADS",
 )
 CGROUP_ROOT = Path("/sys/fs/cgroup")
+WINNER_PREFLIGHT_CONTRACT_ID = 424242
+WINNER_PREFLIGHT_LATTICES = 21
 REQUIRED_METRICS = {
+    "winner_preflight_contract_version": 2.0,
+    "winner_preflight_contract_id": float(WINNER_PREFLIGHT_CONTRACT_ID),
     "winner_preflight_complete": 1.0,
     "winner_preflight_incomplete": 0.0,
+    "winner_preflight_lattices": float(WINNER_PREFLIGHT_LATTICES),
+    "winner_preflight_winner_capable_omitted": 0.0,
     "winner_preflight_hard_timeout": 0.0,
     "winner_preflight_subprocess_failed": 0.0,
     "map_descriptor_version": 2.0,
@@ -330,25 +335,28 @@ def _program_source(limit: int, variant: int) -> str:
     )
 
 
-def _percentile(values: list[float], quantile: float) -> float:
-    if not values:
-        return 0.0
-    ordered = sorted(values)
-    index = max(0, math.ceil(quantile * len(ordered)) - 1)
-    return ordered[index]
-
-
-def _count_lines(path: Path) -> int:
+def _inspect_jsonl(path: Path) -> dict[str, Any]:
     if not path.exists():
-        return 0
-    count = 0
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1 << 20), b""):
-            count += block.count(b"\n")
-    return count
+        return {"lines": 0, "invalid_lines": []}
+    invalid_lines: list[int] = []
+    line_count = 0
+    with path.open(encoding="utf-8") as stream:
+        for line_count, line in enumerate(stream, start=1):
+            try:
+                value = json.loads(line)
+            except (TypeError, ValueError):
+                invalid_lines.append(line_count)
+                continue
+            if not isinstance(value, dict):
+                invalid_lines.append(line_count)
+    return {"lines": line_count, "invalid_lines": invalid_lines}
 
 
-def _validate_metrics(metrics: dict[str, Any]) -> list[str]:
+def _validate_metrics(
+    metrics: dict[str, Any],
+    *,
+    expected_definitions: int,
+) -> list[str]:
     errors: list[str] = []
     for name, expected in REQUIRED_METRICS.items():
         if metrics.get(name) != expected:
@@ -363,10 +371,11 @@ def _validate_metrics(metrics: dict[str, Any]) -> list[str]:
     if (
         isinstance(evaluated, bool)
         or not isinstance(evaluated, (int, float))
-        or evaluated <= 0
+        or evaluated != expected_definitions
     ):
         errors.append(
-            "winner_preflight_candidate_definitions_evaluated is not positive"
+            "winner_preflight_candidate_definitions_evaluated: "
+            f"expected {expected_definitions}, got {evaluated!r}"
         )
     return errors
 
@@ -391,7 +400,9 @@ async def _run_level(
 
     candidate_log = (level_dir / "all_codes.jsonl").resolve()
     os.environ["QCODE_CANDIDATE_LOG_PATH"] = str(candidate_log)
-    os.environ["QCODE_WINNER_PREFLIGHT_CONTRACT_ID"] = "424242"
+    os.environ["QCODE_WINNER_PREFLIGHT_CONTRACT_ID"] = str(
+        WINNER_PREFLIGHT_CONTRACT_ID
+    )
     os.environ["QCODE_EVALUATOR_OUTER_TIMEOUT_S"] = str(timeout)
     os.environ["ENABLE_ARTIFACTS"] = "false"
     os.environ["TMPDIR"] = str((level_dir / "tmp").resolve())
@@ -439,8 +450,12 @@ async def _run_level(
     errors: list[dict[str, Any]] = []
     successful = 0
     definitions = 0
+    expected_definitions = candidate_limit * WINNER_PREFLIGHT_LATTICES
     for index, row in enumerate(metrics):
-        row_errors = _validate_metrics(row)
+        row_errors = _validate_metrics(
+            row,
+            expected_definitions=expected_definitions,
+        )
         if row_errors:
             errors.append({"index": index, "errors": row_errors})
             continue
@@ -460,15 +475,41 @@ async def _run_level(
     if lingering_pids:
         errors.append({"lingering_descendant_pids": lingering_pids})
 
+    candidate_log_inspection = _inspect_jsonl(candidate_log)
+    if candidate_log_inspection["invalid_lines"]:
+        errors.append({
+            "candidate_log_invalid_json_lines": (
+                candidate_log_inspection["invalid_lines"]
+            ),
+        })
+
     latencies = [
         float(row.get("evaluation_time", 0.0))
         for row in metrics
         if isinstance(row.get("evaluation_time"), (int, float))
     ]
-    # OpenEvolve 0.2.26 logs but does not return evaluation_time. Under one
-    # full wave, wall time is therefore the conservative per-task p95 proxy.
-    if not latencies:
-        latencies = [wall_seconds / waves] * len(metrics)
+    if latencies:
+        latency_summary: dict[str, Any] = {
+            "measurement": "OpenEvolve evaluation_time",
+            "samples": len(latencies),
+            "p50": statistics.median(latencies),
+            "p95": statistics.quantiles(
+                latencies,
+                n=100,
+                method="inclusive",
+            )[94]
+            if len(latencies) > 1
+            else latencies[0],
+            "max": max(latencies),
+        }
+    else:
+        latency_summary = {
+            "measurement": "unavailable: evaluator returned no evaluation_time",
+            "samples": 0,
+            "p50": None,
+            "p95": None,
+            "max": None,
+        }
 
     cgroup_delta = {
         "cpu": _nested_delta(before, after, "cpu"),
@@ -520,16 +561,12 @@ async def _run_level(
             definitions / wall_seconds if wall_seconds else 0.0
         ),
         "winner_preflight_definitions": definitions,
-        "latency_seconds": {
-            "measurement": "full-wave wall-time proxy",
-            "p50": statistics.median(latencies) if latencies else 0.0,
-            "p95": _percentile(latencies, 0.95),
-            "max": max(latencies, default=0.0),
-        },
+        "latency_seconds": latency_summary,
         "candidate_log": {
             "path": str(candidate_log),
             "bytes": candidate_log.stat().st_size if candidate_log.exists() else 0,
-            "lines": _count_lines(candidate_log),
+            "lines": candidate_log_inspection["lines"],
+            "invalid_lines": candidate_log_inspection["invalid_lines"],
             "wal_residue": wal_paths,
         },
         "resources": sampler.result(wall_seconds),
@@ -646,7 +683,9 @@ def main() -> int:
     result["finished_at"] = _utc_now()
     _atomic_write_json(summary_path, result)
     print(json.dumps({"summary": str(summary_path)}, sort_keys=True))
-    return int(any(row["failed"] for row in result["levels"]))
+    return int(
+        any(row["failed"] or row["errors"] for row in result["levels"])
+    )
 
 
 if __name__ == "__main__":
