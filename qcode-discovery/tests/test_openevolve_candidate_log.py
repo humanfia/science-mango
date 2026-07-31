@@ -1902,7 +1902,9 @@ def test_stage2_killable_wrapper_round_trips_worker_result(
                 "status": "completed",
                 "metrics": {
                     "combined_score": 7.5,
-                    evaluator.STAGE2_CONTRACT_VERSION_METRIC: 1.0,
+                    evaluator.STAGE2_CONTRACT_VERSION_METRIC: float(
+                        evaluator.STAGE2_DEEP_CONTRACT_VERSION
+                    ),
                     evaluator.STAGE2_CONTRACT_ID_METRIC: float(
                         contract_id
                     ),
@@ -2034,7 +2036,9 @@ def test_stage2_worker_wall_renews_after_durable_lattice_progress(
                 "status": "completed",
                 "metrics": {
                     "combined_score": 3.0,
-                    evaluator.STAGE2_CONTRACT_VERSION_METRIC: 1.0,
+                    evaluator.STAGE2_CONTRACT_VERSION_METRIC: float(
+                        evaluator.STAGE2_DEEP_CONTRACT_VERSION
+                    ),
                     evaluator.STAGE2_CONTRACT_ID_METRIC: float(
                         contract_id
                     ),
@@ -3300,6 +3304,9 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
         "k": 16,
         "d": 10,
         "fom": 16 * 10 * 10 / 72,
+        "fom_upper_bound": 16 * 10 * 10 / 72,
+        "distance_status": "upper_bound",
+        "search_status": "unresolved",
         "encoding_rate": 16 / 72,
     }
     historical = {
@@ -3311,6 +3318,9 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
         "k": 12,
         "d": 12,
         "fom": 12.0,
+        "fom_upper_bound": 12.0,
+        "distance_status": "upper_bound",
+        "search_status": "unresolved",
         "encoding_rate": 12 / 144,
     }
     metrics = {
@@ -3358,10 +3368,29 @@ def test_final_gate_persistence_probes_do_not_change_resumed_fitness_basis(
 
     evaluated = evaluator._evaluate_stage2_impl(str(program))
     result = getattr(evaluated, "metrics", evaluated)
+    artifacts = getattr(evaluated, "artifacts", {})
+    expected = evaluator._score_stage2_upper_bound_safe(
+        [critical, historical]
+    )
 
-    assert result["best_fom"] == critical["fom"]
-    assert result["combined_score"] == historical["fom"]
+    assert result["best_bp_fom_upper_bound"] == critical["fom"]
+    assert result["combined_score"] == pytest.approx(
+        expected["combined_score"]
+    )
+    assert result["fitness_distance_credit"] == 0.0
+    assert result["fitness_survivor_credit"] == 1.0
+    assert result["screen_survivor_lattices"] == 1.0
+    assert "best_fom" not in result
     assert result["term_count"] == 3
+    artifact_text = "\n".join(artifacts.values())
+    assert "d<=10" not in artifact_text
+    assert f"{critical['fom']:.2f}" not in artifact_text
+    assert "Best BP/OSD FOM upper bound" not in artifacts["summary"]
+    assert (
+        "BP/OSD upper-bound diagnostics retained in telemetry only."
+        in artifacts["summary"]
+    )
+    assert "d=unresolved" in artifacts["best_screen_survivor"]
 
 
 def test_quick_only_lane_is_k_stratified_and_keeps_low_k_reachable():

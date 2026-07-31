@@ -46,9 +46,11 @@ from .state import (
     atomic_write_bytes,
     atomic_write_json,
     atomic_write_jsonl,
+    candidate_evidence_priority,
     candidate_fom,
+    candidate_proven_fom,
+    candidate_terminal_negative,
     code_key,
-    credible_bp_candidate,
     read_jsonl_range,
     utc_now,
 )
@@ -3679,11 +3681,7 @@ def select_for_milp(
     limit: int,
     audited_digests: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Select diverse elites with one lane for high-upside BP outliers.
-
-    The sqrt(n) credibility heuristic remains useful for budget allocation, but
-    it is not a theorem and must not categorically exclude a real breakthrough.
-    """
+    """Select diverse candidates without rewarding BP upper-bound magnitude."""
     if limit <= 0:
         return []
     archive_rows = [] if archive is None else archive.ranked()
@@ -3714,22 +3712,21 @@ def select_for_milp(
             # nor ordinary BP evidence; fail closed instead of laundering it
             # into the generic exploratory lane.
             continue
+        if candidate_terminal_negative(row):
+            # Only internally exact rejection evidence crosses this boundary.
+            # Scalar or unreplayed upper bounds remain eligible for audit.
+            continue
         eligible.append(row)
 
     quick_exploration = [
         row for row in eligible
         if _quick_exploration_priority(row) is not None
     ]
-    credible = [
+    evidence_candidates = [
         row for row in eligible
-        if row not in quick_exploration and credible_bp_candidate(row)
+        if row not in quick_exploration
     ]
-    exploratory = [
-        row for row in eligible
-        if row not in quick_exploration and not credible_bp_candidate(row)
-    ]
-    credible.sort(key=candidate_fom, reverse=True)
-    exploratory.sort(key=candidate_fom, reverse=True)
+    evidence_candidates.sort(key=candidate_evidence_priority, reverse=True)
     quick_exploration.sort(
         key=lambda row: _quick_exploration_priority(row),
         reverse=True,
@@ -3753,20 +3750,15 @@ def select_for_milp(
                     used_cells.add(cell)
 
     reserve_quick = bool(quick_exploration) and limit > 1
-    reserve_exploration = (
-        bool(exploratory) and limit - int(reserve_quick) > 1
-    )
     add_from(
-        credible,
-        limit - int(reserve_quick) - int(reserve_exploration),
+        evidence_candidates,
+        limit - int(reserve_quick),
     )
     if reserve_quick:
         add_from(quick_exploration, len(selected) + 1)
-    if reserve_exploration:
-        add_from(exploratory, len(selected) + 1)
     # Keep this lane deliberately sparse: a quick-only row has no distance
     # evidence yet, so at most one may consume a round's MILP budget.
-    add_from(credible + exploratory, limit)
+    add_from(evidence_candidates, limit)
     if not selected and quick_exploration:
         add_from(quick_exploration, 1)
     return selected
@@ -6849,7 +6841,7 @@ class HumanizeFlow:
 
         _paths, historical = self._validated_committed_candidate_history()
         combined = _deduplicate(historical + current)
-        combined.sort(key=candidate_fom, reverse=True)
+        combined.sort(key=candidate_evidence_priority, reverse=True)
         worker_budget = self.config.max_total_workers or 1
         kept, rejected, unresolved = (
             screen_css_results_with_deferred_cache(
@@ -7062,6 +7054,10 @@ class HumanizeFlow:
             "total_evaluations": int(state.get("audit_evaluations_seen", 0)),
             "unresolved": len(state.get("unresolved_candidates", {})),
             "best_fom": state.get("best_fom", 0.0),
+            "best_bp_fom_upper_bound": state.get(
+                "best_bp_fom_upper_bound",
+                0.0,
+            ),
             "best_exact_fom": state.get("best_exact_fom", 0.0),
             "trusted_exact": int(state.get("trusted_exact_count", 0)),
             "trusted_wins": int(state.get("trusted_win_count", 0)),
@@ -7135,7 +7131,17 @@ class HumanizeFlow:
             "new_candidates": len(candidates),
             "milp_audited": len(audited),
             "milp_exact": exact,
-            "best_fom": max((candidate_fom(r) for r in candidates), default=0.0),
+            "best_fom": max(
+                (
+                    candidate_proven_fom(r)
+                    for r in [*candidates, *audited]
+                ),
+                default=0.0,
+            ),
+            "best_bp_fom_upper_bound": max(
+                (candidate_fom(r) for r in candidates),
+                default=0.0,
+            ),
             "trusted_exact_total": int(
                 state.get("trusted_exact_count", 0)
             ),
@@ -7550,7 +7556,26 @@ class HumanizeFlow:
                     self.store.add_lessons(review["lessons"], number)
 
                 final_state = copy.deepcopy(state)
-                round_best = max((candidate_fom(r) for r in candidates), default=0.0)
+                round_best = max(
+                    (
+                        candidate_proven_fom(r)
+                        for r in [*candidates, *audited]
+                    ),
+                    default=0.0,
+                )
+                round_bp_upper = max(
+                    (candidate_fom(r) for r in candidates),
+                    default=0.0,
+                )
+                final_state["best_bp_fom_upper_bound"] = max(
+                    float(
+                        final_state.get(
+                            "best_bp_fom_upper_bound",
+                            0.0,
+                        )
+                    ),
+                    round_bp_upper,
+                )
                 previous_best = float(final_state.get("best_fom", 0.0))
                 if round_best > previous_best + self.config.min_improvement:
                     final_state["best_fom"] = round_best

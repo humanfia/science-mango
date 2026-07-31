@@ -101,7 +101,7 @@ def test_candidate_archive_uses_v2_mixed_and_max_term_semantics():
     }
 
 
-def test_elite_archive_overwrites_and_migrates_structural_metadata(tmp_path):
+def test_elite_archive_migrates_metadata_without_trusting_upper_fom(tmp_path):
     path = tmp_path / "archive.json"
     weak = candidate(fom=5.0)
     strong = candidate(fom=8.0)
@@ -119,7 +119,9 @@ def test_elite_archive_overwrites_and_migrates_structural_metadata(tmp_path):
 
     assert len(archive.cells) == 1
     [stored] = archive.ranked()
-    assert stored["fom"] == 8.0
+    # Both legacy rows describe the same unresolved definition.  A larger
+    # reported BP/OSD FOM is not stronger evidence and cannot replace it.
+    assert stored["fom"] == 5.0
     assert stored["pattern_type"] == 5.0
     assert stored["term_count"] == 3.0
     assert stored["pattern_classifier_version"] == 2

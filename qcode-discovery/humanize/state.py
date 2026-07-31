@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import os
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from numbers import Integral
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -22,7 +22,7 @@ from .pipeline_process import validate_run_id
 
 
 SCHEMA_VERSION = 1
-ELITE_ARCHIVE_SCHEMA_VERSION = 2
+ELITE_ARCHIVE_SCHEMA_VERSION = 3
 
 
 def utc_now() -> str:
@@ -122,6 +122,12 @@ def code_key(row: dict[str, Any]) -> str:
 
 
 def candidate_fom(row: dict[str, Any]) -> float:
+    """Return the reported FOM for diagnostics.
+
+    This value may be derived from a BP/OSD distance *upper* bound.  Search
+    policy must use :func:`candidate_evidence_priority` or
+    :func:`candidate_proven_fom` instead of ranking on this diagnostic.
+    """
     value = row.get("fom", row.get("score", 0.0))
     try:
         return float(value or 0.0)
@@ -129,15 +135,86 @@ def candidate_fom(row: dict[str, Any]) -> float:
         return 0.0
 
 
-def credible_bp_candidate(row: dict[str, Any], trust_ratio: float = 1.3) -> bool:
-    """Apply the same conservative BP-OSD credibility gate as the evaluator."""
-    try:
-        n = int(row.get("n", 0) or 0)
-        k = int(row.get("k", 0) or 0)
-        d = int(row.get("d", 0) or 0)
-    except (TypeError, ValueError):
-        return False
-    return n > 0 and k > 0 and d > 0 and d <= trust_ratio * math.sqrt(n)
+def _positive_integer(value: Any) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, Integral):
+        return None
+    converted = int(value)
+    return converted if converted > 0 else None
+
+
+def candidate_terminal_negative(row: dict[str, Any]) -> bool:
+    """Return whether proof-backed evidence already rejects the target.
+
+    A scalar BP/OSD result is not durable evidence: without operator bits it
+    cannot be replayed after a crash or across a trust boundary.  It therefore
+    must not permanently remove a candidate from the exact-audit queue.
+    """
+    exact = candidate_proven_distance(row) is not None
+    final_gate_excluded = bool(
+        row.get("final_gate_excluded_by_upper_bound") is True
+        or row.get("search_final_gate_excluded_by_upper_bound") is True
+    )
+    # Humanize has not yet replayed an upper-bound witness at this boundary.
+    # Until a central validator binds and rechecks that certificate, even a
+    # row carrying operator bits remains advisory.  Internally exact evidence
+    # is the sole permanent-negative source here.
+    return bool(final_gate_excluded and exact)
+
+
+def candidate_proven_distance(row: dict[str, Any]) -> int | None:
+    """Return an internally exact distance, never a self-declared bound.
+
+    Certified lower bounds will be admitted here only after a central
+    certificate validator can replay the X/Z coverage and bind it to the
+    candidate definition.  Bare status strings or booleans are deliberately
+    insufficient.
+    """
+    exact_raw = row.get("exact_distance")
+    if exact_raw is None:
+        exact_raw = row.get("d")
+    exact = _positive_integer(exact_raw)
+    n = _positive_integer(row.get("n"))
+    reported = _positive_integer(row.get("d"))
+    if (
+        exact is not None
+        and n is not None
+        and exact <= n
+        and reported == exact
+        and row.get("d_is_exact") is True
+        and row.get("distance_trusted") is True
+        and row.get("distance_status") == "exact"
+    ):
+        return exact
+    return None
+
+
+def candidate_proven_fom(row: dict[str, Any]) -> float:
+    """Compute positive fitness only from internally exact evidence."""
+    distance = candidate_proven_distance(row)
+    if distance is None or candidate_terminal_negative(row):
+        return 0.0
+    n = _positive_integer(row.get("n"))
+    k = _positive_integer(row.get("k"))
+    if n is None or k is None or k > n:
+        return 0.0
+    return k * distance * distance / n
+
+
+def candidate_evidence_priority(row: dict[str, Any]) -> tuple[int, float, float, str]:
+    """Upper-bound-neutral ordering for archive, audit and parent advisories.
+
+    A terminal upper-bound witness can only lower priority.  Positive distance
+    credit comes solely from exact/certified lower evidence.  Remaining ties
+    use the exact encoding rate and a stable definition key; BP ``d``/FOM are
+    intentionally absent.
+    """
+    if candidate_terminal_negative(row):
+        return -1, 0.0, 0.0, code_key(row)
+    n = _positive_integer(row.get("n"))
+    k = _positive_integer(row.get("k"))
+    rate = k / n if n is not None and k is not None and k <= n else 0.0
+    proven_fom = candidate_proven_fom(row)
+    return int(proven_fom > 0.0), proven_fom, rate, code_key(row)
 
 
 def candidate_structural_features(
@@ -187,6 +264,7 @@ class EliteArchive:
             raw = json.loads(path.read_text())
             if raw.get("schema_version") not in {
                 1,
+                2,
                 ELITE_ARCHIVE_SCHEMA_VERSION,
             }:
                 raise ValueError("unsupported elite archive schema")
@@ -203,7 +281,8 @@ class EliteArchive:
                 current = self.cells.get(row["archive_cell"])
                 if (
                     current is None
-                    or candidate_fom(row) > candidate_fom(current)
+                    or candidate_evidence_priority(row)
+                    > candidate_evidence_priority(current)
                 ):
                     self.cells[row["archive_cell"]] = row
 
@@ -213,7 +292,11 @@ class EliteArchive:
             row = _canonical_archive_row(original)
             row["archive_round"] = round_number
             current = self.cells.get(row["archive_cell"])
-            if current is None or candidate_fom(row) > candidate_fom(current):
+            if (
+                current is None
+                or candidate_evidence_priority(row)
+                > candidate_evidence_priority(current)
+            ):
                 self.cells[row["archive_cell"]] = row
                 promoted.append(row)
         self.save()
@@ -229,13 +312,21 @@ class EliteArchive:
         for original in rows:
             row = _canonical_archive_row(original)
             current = cells.get(row["archive_cell"])
-            if current is None or candidate_fom(row) > candidate_fom(current):
+            if (
+                current is None
+                or candidate_evidence_priority(row)
+                > candidate_evidence_priority(current)
+            ):
                 cells[row["archive_cell"]] = row
         self.cells = cells
         self.save()
 
     def ranked(self) -> list[dict[str, Any]]:
-        return sorted(self.cells.values(), key=candidate_fom, reverse=True)
+        return sorted(
+            self.cells.values(),
+            key=candidate_evidence_priority,
+            reverse=True,
+        )
 
     def save(self) -> None:
         _atomic_json(self.path, {
@@ -311,6 +402,7 @@ class RunStore:
             "round_transaction_version": 2,
             "candidate_offset": 0,
             "best_fom": 0.0,
+            "best_bp_fom_upper_bound": 0.0,
             "best_exact_fom": 0.0,
             "no_improvement_rounds": 0,
             "trusted_exact_count": 0,

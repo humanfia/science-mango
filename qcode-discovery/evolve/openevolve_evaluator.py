@@ -18,22 +18,17 @@ Two-stage cascade
     not an absolute exclusion rule.
     Score: ``0.1 base + best_encoding_rate + log1p(num_high_k) / 10``.
 
-**Stage 2** -- Bounded preflight and distance-guided fitness
+**Stage 2** -- Bounded preflight and upper-bound-safe fitness
     Calls the generator on every contracted target and Pareto lattice before
-    any blocking distance work.  A bounded deep pass uses 250-trial BP-OSD
-    batches on the historical fitness/Pareto lattice basis.  The primary
-    fitness metric is ``combined_score`` -- the sum of the best *credible*
-    FOM per lattice, where credibility is determined by a trust filter on
-    ``d / sqrt(n)``:
-
-    * ``d / sqrt(n) <= 1.3`` -- full trust: use raw FOM.
-    * ``d / sqrt(n) >= 2.0`` -- no trust: use encoding rate (``k/n``) only.
-    * Between -- linear interpolation (smooth decay, no cliff).
-
-    Credible codes are persisted to ``results/discovered_codes.json`` and
-    the Pareto front.  Metrics are written to a shared JSONL file for
-    W&B background sync (since ``wandb.run`` is ``None`` in subprocess
-    workers).
+    any blocking distance work.  A challenge-target symplectic screen rejects
+    candidates with a replayable upper-bound witness before a bounded deep
+    pass uses BP-OSD/OSD-CS on the survivors.  BP-family distances remain
+    upper bounds: their magnitude never contributes ``d**2`` fitness.
+    ``combined_score`` instead gives each lattice a fixed, bounded survivor
+    credit plus small rate/structural tie-breaks.  Only exact non-negative
+    distance rows may enter the discovered-code/Pareto persistence path.
+    Diagnostic upper-bound metrics are written to a shared JSONL file for W&B
+    background sync (since ``wandb.run`` is ``None`` in subprocess workers).
 
 MAP-Elites feature dimensions
 ------------------------------
@@ -142,8 +137,6 @@ from evaluation.evaluator import (
     evaluate_batch_milp,
     evaluate_batch_milp_parallel,
     evaluate_milp_parallel,
-    DISTANCE_TRUST_RATIO,
-    DISTANCE_UNTRUST_RATIO,
 )
 from evaluation.final_gate import minimum_winning_distance
 from evaluation.results import save_code, update_pareto_front
@@ -302,7 +295,7 @@ STAGE1_PREFLIGHT_ROW_LATTICE = "winner_preflight_row_lattice"
 STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT = "winner_preflight_lattice_commit"
 STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY = "winner_preflight_lattice_summary"
 STAGE1_CANDIDATE_LOG_RECORDS_FIELD = "candidate_log_records"
-STAGE2_DEEP_CONTRACT_VERSION = 1
+STAGE2_DEEP_CONTRACT_VERSION = 2
 STAGE2_DEEP_JOURNAL_SCHEMA_VERSION = 1
 STAGE2_DEEP_RESULT_SCHEMA_VERSION = 1
 STAGE2_DEEP_JOURNAL_DIRECTORY = ".stage2-deep"
@@ -330,7 +323,12 @@ STAGE2_MARKER_FIELDS = (
 STAGE2_PREFLIGHT_CANDIDATE_LIMIT = None
 STAGE2_DEEP_CANDIDATE_LIMIT = MAX_CANDIDATES_PER_LATTICE
 STAGE2_DEEP_DISTANCE_PER_LATTICE = 3
+STAGE2_DEEP_SCREEN_MULTIPLIER = 8
 STAGE2_REFINE_TRIALS = 250
+STAGE2_CHALLENGE_TARGET_FOM = 12.0
+STAGE2_SURVIVOR_CREDIT_PER_LATTICE = 1.0
+STAGE2_RATE_TIE_BREAK_MAX_PER_LATTICE = 0.05
+STAGE2_STRUCTURE_TIE_BREAK_MAX_PER_LATTICE = 0.05
 STAGE2_HARD_TIMEOUT_MAX_S = 1050.0
 STAGE2_OUTER_TIMEOUT_DEFAULT_S = 900.0
 STAGE2_OUTER_TIMEOUT_MARGIN_S = 60.0
@@ -2682,6 +2680,34 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
         ),
         "timestamp": time.time(),
     }
+    # Preserve distance semantics across the OpenEvolve -> Humanize handoff.
+    # In particular, Humanize must be able to distinguish an unresolved
+    # BP/OSD upper bound from exact/certified evidence without inferring that
+    # distinction from the numerical d/FOM magnitude.
+    for field in (
+        "d_is_exact",
+        "distance_trusted",
+        "distance_status",
+        "distance_upper_bound",
+        "distance_upper_bound_source",
+        "fom_upper_bound",
+        "exact_distance",
+        "exact_fom",
+        "fitness_distance_credit",
+        "fitness_survivor_credit",
+        "search_status",
+        "distance_retry_required",
+        "threshold_rejection_proven",
+        "threshold_proof_source",
+        "threshold_proof_distance",
+        "fom_rejection_cutoff",
+        "challenge_rejection_cutoff",
+        "fom_target_excluded_by_upper_bound",
+        "final_gate_excluded_by_upper_bound",
+        "search_final_gate_excluded_by_upper_bound",
+    ):
+        if field in result:
+            record[field] = result[field]
     if exploration_lane:
         record.update({
             "candidate_persistence_lane": WINNER_CAPABLE_EXPLORATION_LANE,
@@ -3233,13 +3259,26 @@ def _run_evaluation(
                     return r["k"]
                 promising.sort(key=_rank_key, reverse=True)
 
+                # Cheap challenge-target rejections must not consume the
+                # expensive survivor budget.  Keep a larger deterministic,
+                # stratified shortlist and evaluate it in refill waves below.
+                # At most ``distance_selection_limit`` screen survivors ever
+                # proceed through BP/OSD; terminal negatives are cheap.
+                shortlist_limit = distance_selection_limit
+                if not use_milp:
+                    shortlist_limit = min(
+                        len(promising),
+                        distance_selection_limit
+                        * STAGE2_DEEP_SCREEN_MULTIPLIER,
+                    )
+
                 # Pass 1: one per distinct k value
                 seen_k: set[int] = set()
                 top: list[dict] = []
                 for r in promising:
                     if (
                         r["k"] not in seen_k
-                        and len(top) < distance_selection_limit
+                        and len(top) < shortlist_limit
                     ):
                         seen_k.add(r["k"])
                         top.append(r)
@@ -3248,7 +3287,7 @@ def _run_evaluation(
                     tuple(sorted(map(tuple, r["A_terms"]))) for r in top
                 }
                 for r in promising:
-                    if len(top) >= distance_selection_limit:
+                    if len(top) >= shortlist_limit:
                         break
                     a_key = tuple(sorted(map(tuple, r["A_terms"])))
                     if a_key not in seen_a and r not in top:
@@ -3256,7 +3295,7 @@ def _run_evaluation(
                         top.append(r)
                 # Pass 3: fill remaining slots
                 for r in promising:
-                    if len(top) >= distance_selection_limit:
+                    if len(top) >= shortlist_limit:
                         break
                     if r not in top:
                         top.append(r)
@@ -3270,36 +3309,29 @@ def _run_evaluation(
                     result for result in quick_results
                     if _definition_key(result) not in rejected_keys
                 ]
-                top_candidates = [
-                    (r["A_terms"], r["B_terms"]) for r in top
-                ]
-                top_keys = {_definition_key(result) for result in top}
-
-                # The complete winner-capable pool is already durable. Retain
-                # the bounded quick-only rows for fitness, and add a stronger
-                # selected-pending record before entering a blocking backend.
-                quick_only = [
-                    r for r in quick_results if r.get("k", 0) > 0
-                    and _definition_key(r) not in top_keys
-                ]
-
-                pending_top = [
-                    _zero_distance_persistence_row(
-                        result,
-                        reason=DISTANCE_PENDING_PERSISTENCE_REASON,
-                    )
-                    for result in top
-                ]
-                for result in pending_top:
-                    _log_code_jsonl(
-                        result,
-                        candidate_log_path=candidate_log_path,
-                    )
-                distance_pending_persisted += len(pending_top)
 
                 backend_error: dict[str, str] | None = None
-                try:
-                    if use_milp:
+                attempted: list[dict] = []
+                results: list[dict] = []
+                if use_milp:
+                    attempted = list(top)
+                    pending_top = [
+                        _zero_distance_persistence_row(
+                            result,
+                            reason=DISTANCE_PENDING_PERSISTENCE_REASON,
+                        )
+                        for result in attempted
+                    ]
+                    for result in pending_top:
+                        _log_code_jsonl(
+                            result,
+                            candidate_log_path=candidate_log_path,
+                        )
+                    distance_pending_persisted += len(pending_top)
+                    top_candidates = [
+                        (r["A_terms"], r["B_terms"]) for r in attempted
+                    ]
+                    try:
                         # MILP: scale timeout with n.  The adaptive per-logical
                         # timeout in distance_milp.py uses max(8s, total/2k),
                         # so the total budget directly determines coverage.
@@ -3322,36 +3354,144 @@ def _run_evaluation(
                             milp_total_timeout=lat_timeout,
                             milp_early_stop=milp_early_stop,
                         )
-                    else:
-                        # BP-OSD: use refine_trials for tighter upper bounds.
-                        # Skip exact distance (stage 5) -- requires SIGALRM which
-                        # isn't available in OpenEvolve's worker threads.
-                        results = evaluate_batch(
-                            ell, m, top_candidates,
-                            quick=False,
-                            quick_trials=refine_trials,
-                            refine_trials=refine_trials,
-                            fom_threshold_refine=6.0,
-                            fom_threshold_exact=float("inf"),
+                    except CandidateLogWriteError:
+                        raise
+                    except Exception as exc:
+                        backend_error = _distance_backend_error_record(exc)
+                        errors.append(
+                            f"({ell},{m}): distance backend "
+                            f"{backend_error['type']}: "
+                            f"{backend_error['message']}"
                         )
-                except CandidateLogWriteError:
-                    raise
-                except Exception as exc:
-                    backend_error = _distance_backend_error_record(exc)
-                    errors.append(
-                        f"({ell},{m}): distance backend "
-                        f"{backend_error['type']}: {backend_error['message']}"
-                    )
-                    distance_backend_error_count += 1
-                    results = [
-                        _zero_distance_persistence_row(
-                            result,
-                            reason=DISTANCE_ERROR_PERSISTENCE_REASON,
-                            backend_error=backend_error,
+                        distance_backend_error_count += 1
+                        results = [
+                            _zero_distance_persistence_row(
+                                result,
+                                reason=DISTANCE_ERROR_PERSISTENCE_REASON,
+                                backend_error=backend_error,
+                            )
+                            for result in attempted
+                        ]
+                        distance_error_top_persisted += len(results)
+                else:
+                    # BP-family distances are upper bounds.  The challenge
+                    # screen runs first inside evaluate_candidate; rejected
+                    # rows do not consume one of the three BP/OSD survivor
+                    # slots, so refill from the larger stratified shortlist.
+                    survivor_count = 0
+                    cursor = 0
+                    while (
+                        survivor_count < distance_selection_limit
+                        and cursor < len(top)
+                    ):
+                        remaining = (
+                            distance_selection_limit - survivor_count
                         )
-                        for result in top
-                    ]
-                    distance_error_top_persisted += len(results)
+                        wave = top[cursor:cursor + remaining]
+                        cursor += len(wave)
+                        attempted.extend(wave)
+                        pending_wave = [
+                            _zero_distance_persistence_row(
+                                result,
+                                reason=(
+                                    DISTANCE_PENDING_PERSISTENCE_REASON
+                                ),
+                            )
+                            for result in wave
+                        ]
+                        for result in pending_wave:
+                            _log_code_jsonl(
+                                result,
+                                candidate_log_path=candidate_log_path,
+                            )
+                        distance_pending_persisted += len(pending_wave)
+                        wave_candidates = [
+                            (r["A_terms"], r["B_terms"]) for r in wave
+                        ]
+                        try:
+                            wave_results = evaluate_batch(
+                                ell,
+                                m,
+                                wave_candidates,
+                                quick=False,
+                                quick_trials=refine_trials,
+                                refine_trials=refine_trials,
+                                fom_threshold_refine=6.0,
+                                fom_threshold_osd_cs=8.0,
+                                fom_threshold_exact=8.0,
+                                skip_exact=True,
+                                challenge_target_fom=(
+                                    STAGE2_CHALLENGE_TARGET_FOM
+                                ),
+                            )
+                            expected_wave_keys = {
+                                _candidate_definition_key(
+                                    candidate,
+                                    ell=ell,
+                                    m=m,
+                                )
+                                for candidate in wave_candidates
+                            }
+                            observed_wave_keys = {
+                                _definition_key(result)
+                                for result in wave_results
+                            }
+                            if (
+                                len(wave_results) != len(observed_wave_keys)
+                                or observed_wave_keys != expected_wave_keys
+                            ):
+                                unresolved_label = (
+                                    " unresolved"
+                                    if all(
+                                        not _has_positive_distance(result)
+                                        for result in wave_results
+                                    )
+                                    else ""
+                                )
+                                raise CandidateLogWriteError(
+                                    f"({ell},{m}): distance batch returned "
+                                    f"{len(observed_wave_keys)}"
+                                    f"{unresolved_label} definitions for a "
+                                    f"top-{len(wave)} selection"
+                                )
+                        except CandidateLogWriteError:
+                            raise
+                        except Exception as exc:
+                            backend_error = _distance_backend_error_record(exc)
+                            errors.append(
+                                f"({ell},{m}): distance backend "
+                                f"{backend_error['type']}: "
+                                f"{backend_error['message']}"
+                            )
+                            distance_backend_error_count += 1
+                            wave_results = [
+                                _zero_distance_persistence_row(
+                                    result,
+                                    reason=(
+                                        DISTANCE_ERROR_PERSISTENCE_REASON
+                                    ),
+                                    backend_error=backend_error,
+                                )
+                                for result in wave
+                            ]
+                            distance_error_top_persisted += len(wave_results)
+                            results.extend(wave_results)
+                            break
+                        results.extend(wave_results)
+                        survivor_count += sum(
+                            _consumes_stage2_survivor_budget(result)
+                            for result in wave_results
+                        )
+
+                # The complete winner-capable pool is already durable. Retain
+                # every unattempted sampled row as quick-only search evidence.
+                # Only attempted rows receive selected-pending records.
+                top = attempted
+                top_keys = {_definition_key(result) for result in top}
+                quick_only = [
+                    r for r in quick_results if r.get("k", 0) > 0
+                    and _definition_key(r) not in top_keys
+                ]
 
                 _annotate_generator_occurrences(
                     results,
@@ -3367,8 +3507,8 @@ def _run_evaluation(
                     result
                     for result in results
                     if (
-                        backend_error is None
-                        and result.get("k", 0) > 0
+                        result.get("k", 0) > 0
+                        and not result.get("distance_backend_error")
                         and not _has_positive_distance(result)
                     )
                 ]
@@ -3396,11 +3536,11 @@ def _run_evaluation(
                     _definition_key(result)
                     for result in winner_capable_unresolved
                 })
-                if expected_unresolved > distance_selection_limit:
+                if expected_unresolved > len(top):
                     raise CandidateLogWriteError(
                         f"({ell},{m}): distance batch returned "
                         f"{expected_unresolved} unresolved definitions for a "
-                        f"top-{distance_selection_limit} selection"
+                        f"top-{len(top)} attempted selection"
                     )
                 if len(persisted_unresolved) != expected_unresolved:
                     raise CandidateLogWriteError(
@@ -5040,6 +5180,339 @@ def _run_resumable_stage2_deep(
     return _aggregate_stage2_lattice_metrics(lattice_metrics)
 
 
+def _is_stage2_terminal_negative(row: dict) -> bool:
+    """Return whether replayable evidence already excludes the challenge."""
+
+    return (
+        row.get("search_status") == "terminal_negative"
+        or row.get("threshold_rejection_proven") is True
+        or row.get("final_gate_excluded_by_upper_bound") is True
+        or row.get("search_final_gate_excluded_by_upper_bound") is True
+    )
+
+
+def _is_stage2_search_survivor(row: dict) -> bool:
+    """Admit only explicit screen survivors; absent status fails closed."""
+
+    if _is_stage2_terminal_negative(row):
+        return False
+    status = row.get("search_status")
+    if status == "unresolved":
+        if row.get("distance_status") == "upper_bound":
+            return True
+        # A solver timeout with no incumbent supplies no mathematical
+        # distance bound.  Legacy MILP may still retain it for one fixed,
+        # bounded exploration credit, but only through this explicit marker;
+        # the row never receives distance/FOM credit.
+        return (
+            row.get("fitness_survivor_eligible") is True
+            and row.get("distance_status") == "unknown_no_incumbent"
+        )
+    if status == "exact":
+        return (
+            row.get("d_is_exact") is True
+            and row.get("distance_status") == "exact"
+        )
+    return False
+
+
+def _legacy_milp_upper_bound_safe_rows(rows: list[dict]) -> list[dict]:
+    """Adapt legacy MILP rows to the contract-v2 evidence vocabulary.
+
+    The legacy evaluator predates ``search_status`` and historically treated a
+    feasible MILP incumbent as an achieved distance.  This adapter fails
+    closed: exact distance credit requires both exact flags, while incumbents
+    remain upper bounds and no-incumbent timeouts receive at most bounded
+    survivor credit.
+    """
+
+    adapted: list[dict] = []
+    for original in rows:
+        row = dict(original)
+        stage = str(row.get("stage", ""))
+        exact = (
+            row.get("d_is_exact") is True
+            and row.get("distance_status") == "exact"
+        )
+        if exact:
+            normalized = _normalized_stage2_exact_row(row)
+            if normalized is not None:
+                row = normalized
+                row["search_status"] = "exact"
+            else:
+                row["search_status"] = "invalid"
+                row["fitness_distance_credit"] = 0.0
+        elif row.get("distance_status") == "upper_bound":
+            row.update({
+                "search_status": "unresolved",
+                "fom_upper_bound": row.get("fom", 0.0),
+                "fitness_distance_credit": 0.0,
+            })
+        elif stage in {
+            "milp_timeout_no_incumbent",
+            "milp_promising_timeout",
+        }:
+            row.update({
+                "search_status": "unresolved",
+                "distance_status": "unknown_no_incumbent",
+                "fitness_survivor_eligible": True,
+                "fitness_distance_credit": 0.0,
+            })
+        else:
+            # Quick-only, malformed, and unsupported legacy rows cannot
+            # silently become search survivors.
+            row["search_status"] = "invalid"
+            row["fitness_distance_credit"] = 0.0
+        adapted.append(row)
+    return adapted
+
+
+def _consumes_stage2_survivor_budget(row: dict) -> bool:
+    """Bound BP work while tolerating old test doubles during the v2 rollout."""
+
+    if _is_stage2_terminal_negative(row):
+        return False
+    if _is_stage2_search_survivor(row):
+        return True
+    # Contract-v2 evaluator rows always carry ``search_status``.  The fallback
+    # is deliberately control-flow-only: it prevents an old/mock evaluator
+    # from expanding a three-candidate BP budget into the whole shortlist, but
+    # such a row still receives zero fitness below.
+    if "search_status" in row:
+        return False
+    try:
+        return int(row.get("k", 0) or 0) > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def _stage2_result_rate(row: dict) -> float:
+    try:
+        k = int(row.get("k", 0) or 0)
+        n = int(row.get("n", 0) or 0)
+    except (TypeError, ValueError):
+        return 0.0
+    if k <= 0 or n <= 0 or k > n:
+        return 0.0
+    return k / n
+
+
+def _strict_stage2_integer(value: object) -> int | None:
+    """Return an integral numeric value without accepting bools or strings."""
+
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or not float(value).is_integer()
+    ):
+        return None
+    return int(value)
+
+
+def _normalized_stage2_exact_row(row: dict) -> dict | None:
+    """Validate exact evidence and recompute every distance-derived value.
+
+    Exact fitness and positive persistence must not trust evaluator-provided
+    ``fom``, ``exact_fom``, or ``fitness_distance_credit`` fields.  Require a
+    self-consistent BB block length and exact distance, then return a copy with
+    all distance-derived values rebuilt from ``(n, k, d)``.
+    """
+
+    if (
+        _is_stage2_terminal_negative(row)
+        or row.get("d_is_exact") is not True
+        or row.get("distance_status") != "exact"
+    ):
+        return None
+
+    ell = _strict_stage2_integer(row.get("ell"))
+    m = _strict_stage2_integer(row.get("m"))
+    n = _strict_stage2_integer(row.get("n"))
+    k = _strict_stage2_integer(row.get("k"))
+    if (
+        ell is None
+        or m is None
+        or n is None
+        or k is None
+        or ell <= 0
+        or m <= 0
+        or n != 2 * ell * m
+        or not (1 <= k <= n)
+    ):
+        return None
+
+    raw_exact_distance = row.get("exact_distance")
+    raw_distance = row.get("d")
+    if raw_exact_distance is None and raw_distance is None:
+        return None
+    exact_distance = _strict_stage2_integer(
+        raw_exact_distance
+        if raw_exact_distance is not None
+        else raw_distance
+    )
+    reported_distance = _strict_stage2_integer(
+        raw_distance if raw_distance is not None else raw_exact_distance
+    )
+    if (
+        exact_distance is None
+        or reported_distance is None
+        or exact_distance != reported_distance
+        or not (1 <= exact_distance <= n)
+    ):
+        return None
+
+    exact_fom = k * exact_distance * exact_distance / n
+    normalized = dict(row)
+    normalized.update({
+        "d": exact_distance,
+        "exact_distance": exact_distance,
+        "fom": exact_fom,
+        "exact_fom": exact_fom,
+        "fitness_distance_credit": exact_fom,
+    })
+    return normalized
+
+
+def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
+    """Score explicit challenge-screen survivors without trusting BP distance.
+
+    BP-OSD and OSD-CS produce valid upper bounds.  A larger upper bound is not
+    evidence that the true minimum distance is larger, so neither ``d`` nor
+    ``fom`` is read here.  Each historical fitness lattice contributes at most
+    one fixed survivor credit plus two small, independently bounded tie-breaks.
+    """
+
+    survivors_by_lattice: dict[tuple[int, int], list[dict]] = {}
+    terminal_negative_count = 0
+    for row in rows:
+        try:
+            key = (int(row.get("ell")), int(row.get("m")))
+        except (TypeError, ValueError):
+            continue
+        if key not in STAGE2_FITNESS_LATTICES:
+            continue
+        if _is_stage2_terminal_negative(row):
+            terminal_negative_count += 1
+            continue
+        if _is_stage2_search_survivor(row):
+            admitted = row
+            if row.get("search_status") == "exact":
+                admitted = _normalized_stage2_exact_row(row)
+                if admitted is None:
+                    continue
+            survivors_by_lattice.setdefault(key, []).append(admitted)
+
+    distance_credit = 0.0
+    survivor_credit = 0.0
+    rate_tie_break = 0.0
+    structural_tie_break = 0.0
+    per_lattice_credit: dict[tuple[int, int], float] = {}
+    for key, survivors in sorted(survivors_by_lattice.items()):
+        exact_rows = [
+            row for row in survivors if row.get("search_status") == "exact"
+        ]
+        if exact_rows:
+            # Exact evidence may receive positive distance credit, but only
+            # after rebuilding FOM from strictly consistent n, k, and exact d.
+            # Cap it per lattice so one result cannot restore the old
+            # unbounded optimizer's curse.
+            exact_credits = [
+                float(normalized["exact_fom"])
+                for row in exact_rows
+                if (
+                    normalized := _normalized_stage2_exact_row(row)
+                ) is not None
+            ]
+            base = min(
+                STAGE2_CHALLENGE_TARGET_FOM,
+                max(exact_credits, default=0.0),
+            )
+            distance_credit += base
+        else:
+            # An unresolved BP/OSD upper bound earns exploration/survival
+            # credit, never distance credit.
+            base = STAGE2_SURVIVOR_CREDIT_PER_LATTICE
+            survivor_credit += base
+        rate_bonus = (
+            STAGE2_RATE_TIE_BREAK_MAX_PER_LATTICE
+            * max((_stage2_result_rate(row) for row in survivors), default=0.0)
+        )
+        support_splits = {
+            (len(row.get("A_terms", [])), len(row.get("B_terms", [])))
+            for row in survivors
+            if (
+                isinstance(row.get("A_terms"), (list, tuple))
+                and isinstance(row.get("B_terms"), (list, tuple))
+                and (
+                    len(row.get("A_terms", [])),
+                    len(row.get("B_terms", [])),
+                )
+                in CHALLENGE_SUPPORT_SPLITS
+            )
+        }
+        structural_fraction = min(
+            1.0,
+            len(support_splits)
+            / min(
+                STAGE2_DEEP_DISTANCE_PER_LATTICE,
+                len(CHALLENGE_SUPPORT_SPLITS),
+            ),
+        )
+        structure_bonus = (
+            STAGE2_STRUCTURE_TIE_BREAK_MAX_PER_LATTICE
+            * structural_fraction
+        )
+        rate_tie_break += rate_bonus
+        structural_tie_break += structure_bonus
+        per_lattice_credit[key] = base + rate_bonus + structure_bonus
+
+    combined_score = (
+        distance_credit
+        + survivor_credit
+        + rate_tie_break
+        + structural_tie_break
+    )
+    return {
+        "combined_score": combined_score,
+        "fitness_distance_credit": distance_credit,
+        "fitness_survivor_credit": survivor_credit,
+        "fitness_rate_tie_break": rate_tie_break,
+        "fitness_structural_tie_break": structural_tie_break,
+        "survivor_count": sum(map(len, survivors_by_lattice.values())),
+        "survivor_lattices": len(survivors_by_lattice),
+        "terminal_negative_count": terminal_negative_count,
+        "per_lattice_credit": per_lattice_credit,
+    }
+
+
+def _verified_distance_persistence_rows(rows: list[dict]) -> list[dict]:
+    """Return positive distance-elite rows backed by exact evidence only."""
+
+    verified: list[dict] = []
+    for row in rows:
+        normalized = _normalized_stage2_exact_row(row)
+        if normalized is not None:
+            verified.append(normalized)
+    return verified
+
+
+def _bp_fom_upper_bound(row: dict) -> float:
+    """Return a diagnostic upper-bound FOM, never a fitness contribution."""
+
+    if row.get("d_is_exact") is True:
+        return 0.0
+    value = row.get("fom_upper_bound", row.get("fom", 0.0))
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or float(value) <= 0
+    ):
+        return 0.0
+    return float(value)
+
+
 def _evaluate_stage2_impl(program_path: str) -> dict:
     """Stage 2: bounded target preflight plus deep distance evaluation.
 
@@ -5196,79 +5669,48 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         SUPPORT_SPLIT_COVERAGE_METRIC, 0.0
     )
 
-    # --- Combined score ---
-    # Sum of best *credible* FOM per lattice.
-    #
-    # BP-OSD with 1000 trials gives exact d for well-structured codes
-    # (verified on [[72,12,6]], [[144,12,12]], [[288,12,18]]). But for
-    # degenerate high-k codes it wildly overestimates d.
-    #
-    # We FILTER rather than cap: only trust BP-OSD estimates where
-    # d ≤ TRUST_FULL * sqrt(n). Known best BB codes have d/sqrt(n) ≤ 1.26.
-    # Degenerate high-k codes have d/sqrt(n) ≥ 2.5, leaving a wide gap.
-    # Codes failing the filter get a small encoding-rate bonus (k/n)
-    # instead, so they're not completely invisible but can't dominate.
+    # --- Upper-bound-safe combined score ---
+    # BP-OSD and OSD-CS only find feasible logical operators, hence upper
+    # bounds on d.  Their magnitude is diagnostic and never contributes d²
+    # fitness.  Explicit challenge-screen survivors receive one bounded credit
+    # per historical fitness lattice plus small rate/structure tie-breaks.
+    score = _score_stage2_upper_bound_safe(metrics["all_results"])
+    combined = float(score["combined_score"])
+    survivor_codes = [
+        row
+        for row in metrics["all_results"]
+        if _is_stage2_search_survivor(row)
+        and (row.get("ell"), row.get("m")) in STAGE2_FITNESS_LATTICES
+    ]
+    bp_upper_bounds = [
+        _bp_fom_upper_bound(row) for row in metrics["all_results"]
+    ]
+    bp_upper_bounds = [value for value in bp_upper_bounds if value > 0]
+    best_bp_fom_upper_bound = (
+        max(bp_upper_bounds) if bp_upper_bounds else 0.0
+    )
+    mean_bp_fom_upper_bound = (
+        sum(bp_upper_bounds) / len(bp_upper_bounds)
+        if bp_upper_bounds
+        else 0.0
+    )
 
-    # Trust boundaries (imported from evaluation.evaluator -- single source of truth).
-    TRUST_FULL = DISTANCE_TRUST_RATIO    # d/sqrt(n) ≤ 1.3: fully trust FOM
-    TRUST_NONE = DISTANCE_UNTRUST_RATIO  # d/sqrt(n) ≥ 2.0: discard FOM, use k/n only
-    # Between TRUST_FULL and TRUST_NONE: linear interpolation (soft decay, no cliff)
-    best_fom = metrics["best_fom"]
-
-    per_lattice_best: dict[tuple[int, int], float] = {}
-    for r in metrics["all_results"]:
-        d_raw = r.get("d", 0)
-        k = r.get("k", 0)
-        n = r.get("n", 0)
-        if k <= 0 or n <= 0:
-            continue
-        key = (r["ell"], r["m"])
-        if key not in STAGE2_FITNESS_LATTICES:
-            # These small final-gate lattices feed the durable candidate log
-            # but intentionally do not change the historical OpenEvolve
-            # fitness scale of a resumed checkpoint.
-            continue
-        fallback = k / n  # encoding rate, always available
-        if d_raw <= 0:
-            credible_fom = fallback
-        else:
-            ratio = d_raw / math.sqrt(n)
-            raw_fom = k * d_raw * d_raw / n
-            if ratio <= TRUST_FULL:
-                credible_fom = raw_fom
-            elif ratio >= TRUST_NONE:
-                credible_fom = fallback
-            else:
-                # Linear decay: 100% FOM at TRUST_FULL, 0% at TRUST_NONE
-                alpha = (TRUST_NONE - ratio) / (TRUST_NONE - TRUST_FULL)
-                credible_fom = alpha * raw_fom + (1 - alpha) * fallback
-        per_lattice_best[key] = max(per_lattice_best.get(key, 0.0), credible_fom)
-
-    combined = sum(per_lattice_best.values())
-
-    # Build artifacts for LLM feedback.
-    # Show the best code by CREDIBLE FOM (d-filtered), not raw BP-OSD FOM,
-    # so the LLM learns from genuine patterns, not degenerate codes.
+    # Build artifacts for LLM feedback.  Survivors are ordered only by exact
+    # rate and structure.  Their unresolved upper-bound magnitudes stay in
+    # telemetry and are deliberately hidden from the mutation model.
     artifacts = {}
-    credible_codes = []
-    for r in metrics["all_results"]:
-        d_val = r.get("d", 0)
-        n_val = r.get("n", 0)
-        if d_val > 0 and n_val > 0 and d_val <= TRUST_FULL * math.sqrt(n_val):
-            credible_codes.append(r)
-    if credible_codes:
-        bc = max(credible_codes, key=lambda r: r.get("fom", 0.0))
-        artifacts["best_code"] = (
-            f"[[{bc['n']},{bc['k']},{bc['d']}]] FOM={bc['fom']:.2f} "
-            f"at ({bc['ell']},{bc['m']})\n"
-            f"  A={bc['A_terms']}\n"
-            f"  B={bc['B_terms']}"
+    if survivor_codes:
+        bc = max(
+            survivor_codes,
+            key=lambda row: (
+                _stage2_result_rate(row),
+                _definition_key(row),
+            ),
         )
-    elif metrics["best_code"]:
-        bc = metrics["best_code"]
-        artifacts["best_code"] = (
-            f"[[{bc['n']},{bc['k']},{bc.get('d', '?')}]] "
-            f"(d estimate unreliable) at ({bc['ell']},{bc['m']})\n"
+        artifacts["best_screen_survivor"] = (
+            f"[[{bc['n']},{bc['k']},d=unresolved]] "
+            f"rate={_stage2_result_rate(bc):.3f} "
+            f"at ({bc['ell']},{bc['m']}); upper-bound magnitude withheld\n"
             f"  A={bc['A_terms']}\n"
             f"  B={bc['B_terms']}"
         )
@@ -5309,35 +5751,55 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         f"Rejected support splits: {rejection_feedback}."
     )
 
-    # Report top 5 codes by credible FOM (reusing list from above)
-    top5 = sorted(credible_codes, key=lambda r: r.get("fom", 0), reverse=True)[:5]
+    # Report screen survivors by exact rate, without exposing unresolved
+    # upper-bound distance/FOM magnitudes to the mutation model.
+    top5 = sorted(
+        survivor_codes,
+        key=lambda row: (
+            _stage2_result_rate(row),
+            _definition_key(row),
+        ),
+        reverse=True,
+    )[:5]
     if top5:
         top5_lines = []
         for r in top5:
             top5_lines.append(
-                f"  [[{r['n']},{r['k']},{r['d']}]] FOM={r['fom']:.1f} "
-                f"rate={r.get('encoding_rate', 0):.3f} ({r['ell']},{r['m']})"
+                f"  [[{r['n']},{r['k']},d=unresolved]] "
+                f"rate={_stage2_result_rate(r):.3f} "
+                f"({r['ell']},{r['m']}); upper-bound magnitude withheld"
             )
-        artifacts["top_codes"] = "\n".join(top5_lines)
+        artifacts["top_screen_survivors"] = "\n".join(top5_lines)
 
-    # Structural feedback for codes with d >= 4 (helps LLM reason about patterns)
-    d4_codes = [r for r in credible_codes if r.get("d", 0) >= 4]
-    if d4_codes:
+    # Structural feedback remains useful, but is deliberately decoupled from
+    # the magnitude of the BP upper bound.
+    if survivor_codes:
         struct_lines = []
-        for r in sorted(d4_codes, key=lambda r: r.get("fom", 0), reverse=True)[:3]:
+        for r in sorted(
+            survivor_codes,
+            key=lambda row: (
+                _stage2_result_rate(row),
+                _definition_key(row),
+            ),
+            reverse=True,
+        )[:3]:
             struct_lines.append(
-                f"  [[{r['n']},{r['k']},{r['d']}]] FOM={r['fom']:.1f}:\n"
+                f"  [[{r['n']},{r['k']},d=unresolved]]:\n"
                 f"    {_structural_feedback(r)}"
             )
         artifacts["structural_analysis"] = (
-            "Structural analysis of top codes with d>=4:\n" + "\n".join(struct_lines)
+            "Structural analysis of challenge-screen survivors; unresolved "
+            "upper-bound magnitudes are withheld:\n" + "\n".join(struct_lines)
         )
 
     # Per-lattice breakdown for the LLM
     lattice_lines = []
-    for key in sorted(per_lattice_best.keys()):
+    per_lattice_credit = score["per_lattice_credit"]
+    assert isinstance(per_lattice_credit, dict)
+    for key in sorted(per_lattice_credit):
         lattice_lines.append(
-            f"  ({key[0]},{key[1]}): credible FOM={per_lattice_best[key]:.1f}"
+            f"  ({key[0]},{key[1]}): bounded credit="
+            f"{per_lattice_credit[key]:.3f}"
         )
     if metrics.get("target_preflight_support_feedback_observed", 0):
         target_support_feedback = (
@@ -5398,32 +5860,60 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         f"High-k codes (k>=8): {metrics['num_high_k']}\n"
         f"Lattices with high-k: {metrics['lattices_with_high_k']}/"
         f"{len(STAGE2_DEEP_LATTICES)}\n"
-        f"Best raw FOM (BP-OSD, {STAGE2_REFINE_TRIALS} trials): "
-        f"{best_fom:.2f}\n"
-        f"Combined score: {combined:.1f} = sum of best credible FOM per lattice "
-        f"(full trust d/sqrt(n) <= {TRUST_FULL}, soft decay to {TRUST_NONE})\n"
+        "BP/OSD upper-bound diagnostics retained in telemetry only.\n"
+        f"Challenge-screen terminal negatives: "
+        f"{score['terminal_negative_count']}; survivors: "
+        f"{score['survivor_count']} across {score['survivor_lattices']} "
+        "fitness lattices.\n"
+        f"Combined score: {combined:.3f} = "
+        f"{score['fitness_survivor_credit']:.3f} bounded survivor + "
+        f"{score['fitness_distance_credit']:.3f} verified distance + "
+        f"{score['fitness_rate_tie_break']:.3f} rate tie-break + "
+        f"{score['fitness_structural_tie_break']:.3f} structure tie-break; "
+        "BP upper-bound magnitude contributes zero.\n"
         f"Per-lattice breakdown:\n" + "\n".join(lattice_lines)
     )
 
-    # Save only codes with trusted distances (d in fully-trusted zone)
-    credible_to_save = [
-        r for r in metrics["all_results"]
-        if r.get("fom", 0) > 0
-        and r.get("d", 0) > 0
-        and r.get("n", 0) > 0
-        and r["d"] <= TRUST_FULL * math.sqrt(r["n"])
+    # BP-only rows never enter the positive discovered-code/Pareto stores.
+    verified_to_save = [
+        row
+        for row in _verified_distance_persistence_rows(
+            metrics["all_results"]
+        )
+        if float(row.get("exact_fom", row.get("fom", 0.0)) or 0.0) > 6.0
     ]
-    if credible_to_save:
-        best_credible = max(credible_to_save, key=lambda r: r["fom"])
-        if best_credible["fom"] > 6.0:
-            try:
-                save_code(best_credible)
-                update_pareto_front(credible_to_save)
-            except Exception:
-                pass  # Don't fail evaluation over persistence
+    if verified_to_save:
+        best_verified = max(
+            verified_to_save,
+            key=lambda row: float(
+                row.get("exact_fom", row.get("fom", 0.0)) or 0.0
+            ),
+        )
+        try:
+            save_code(best_verified)
+            update_pareto_front(verified_to_save)
+        except Exception:
+            # Search fitness must not fail because optional compatibility
+            # persistence is unavailable.
+            pass
 
     # Write metrics to shared JSONL file for W&B sync from main process.
     # (wandb.run is None in subprocess workers, so direct wandb.log doesn't work.)
+    metrics.update({
+        "best_bp_fom_upper_bound": best_bp_fom_upper_bound,
+        "mean_bp_fom_upper_bound": mean_bp_fom_upper_bound,
+        "fitness_distance_credit": score["fitness_distance_credit"],
+        "fitness_survivor_credit": score["fitness_survivor_credit"],
+        "fitness_rate_tie_break": score["fitness_rate_tie_break"],
+        "fitness_structural_tie_break": (
+            score["fitness_structural_tie_break"]
+        ),
+        "screen_survivor_count": score["survivor_count"],
+        "screen_survivor_lattices": score["survivor_lattices"],
+        "screen_terminal_negative_count": (
+            score["terminal_negative_count"]
+        ),
+    })
     _write_metrics_jsonl(metrics)
 
     map_descriptor = _pool_map_descriptor(
@@ -5442,14 +5932,31 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         STAGE2_LATTICES_METRIC: float(len(STAGE2_DEEP_LATTICES)),
         STAGE2_HARD_TIMEOUT_METRIC: 0.0,
         STAGE2_SUBPROCESS_FAILED_METRIC: 0.0,
-        "best_fom": best_fom,
-        "mean_fom": metrics["mean_fom"],
+        "best_bp_fom_upper_bound": best_bp_fom_upper_bound,
+        "mean_bp_fom_upper_bound": mean_bp_fom_upper_bound,
+        "fitness_distance_credit": float(
+            score["fitness_distance_credit"]
+        ),
+        "fitness_survivor_credit": float(
+            score["fitness_survivor_credit"]
+        ),
+        "fitness_rate_tie_break": float(
+            score["fitness_rate_tie_break"]
+        ),
+        "fitness_structural_tie_break": float(
+            score["fitness_structural_tie_break"]
+        ),
+        "screen_survivor_count": float(score["survivor_count"]),
+        "screen_survivor_lattices": float(score["survivor_lattices"]),
+        "screen_terminal_negative_count": float(
+            score["terminal_negative_count"]
+        ),
         "num_valid": float(metrics["num_valid"]),
         "num_high_k": float(metrics["num_high_k"]),
         "lattices_with_high_k": float(metrics["lattices_with_high_k"]),
         "best_encoding_rate": metrics["best_encoding_rate"],
-        "num_above_6": float(metrics["num_above_6"]),
-        "num_above_12": float(metrics["num_above_12"]),
+        "num_bp_upper_bounds_above_6": float(metrics["num_above_6"]),
+        "num_bp_upper_bounds_above_12": float(metrics["num_above_12"]),
         "total_candidates": float(metrics["total_candidates"]),
         "unique_candidates": float(metrics["unique_candidates"]),
         "evaluated_candidate_definitions": float(
@@ -6554,7 +7061,8 @@ def evaluate_stage2_milp(program_path: str) -> dict:
     - 300s per-logical timeout (proven sufficient for n≤288 exact)
     - 7200s total timeout per code (covers k=12-24 fully)
     - Incremental code persistence to JSONL after each solve
-    - Scoring: only codes with d≥6 contribute FOM (d≤4 are irrelevant)
+    - Scoring: only exact distance may contribute bounded FOM credit;
+      incumbents/timeouts receive bounded survivor/proof-progress treatment
     - Symplectic weight pre-filter: codes with d_symp≤4 skip MILP entirely
     - Better LLM feedback with clear signal about what works vs doesn't
     """
@@ -6630,7 +7138,6 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         # Filter: only consider codes with d_symplectic high enough to
         # potentially have d ≥ MIN_RELEVANT_D.  This is the key optimization
         # from the symplectic basis pre-filter.
-        n_code = 2 * ell * m
         promising = []
         for r in lattice_results:
             d_s = r.get("d_symplectic", 0)
@@ -6639,12 +7146,16 @@ def evaluate_stage2_milp(program_path: str) -> dict:
             else:
                 milp_skipped_low_d_symp += 1
 
-        # Rank by approximate FOM using symplectic weight
+        # A larger symplectic-basis weight is only a looser distance upper
+        # bound, not evidence of larger true distance.  Use it to eliminate
+        # low-distance rows above, but never to buy MILP budget.  Within one
+        # lattice, exact k is a safe first-order priority; the later passes
+        # retain k/A-polynomial diversity.
         def _rank_key(r):
-            d_s = r.get("d_symplectic", 0)
-            if d_s > 0:
-                return r["k"] * d_s * d_s / n_code
-            return r["k"]
+            return (
+                int(r.get("k", 0) or 0),
+                _definition_key(r),
+            )
         promising.sort(key=_rank_key, reverse=True)
 
         # Diversify: pick top candidates by k, A-polynomial diversity
@@ -6695,40 +7206,59 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         if key not in milp_keys and r.get("k", 0) > 0:
             all_results.append(r)
 
-    # ── Phase 4: Scoring ───────────────────────────────────────────
-    # Only codes with d ≥ MIN_RELEVANT_D contribute FOM to combined_score.
-    # This sends a clear signal: d≤4 codes are worthless.
-    per_lattice_best: dict[tuple[int, int], float] = {}
-    for r in all_results:
-        d = r.get("d", 0)
-        fom = r.get("fom", 0.0)
-        k = r.get("k", 0)
-        if k <= 0:
-            continue
-        key = (r["ell"], r["m"])
-        if key not in STAGE2_MILP_FITNESS_LATTICES:
-            # Final-gate probes are persistence coverage, not a change to the
-            # historical score of resumed --milp checkpoints.
-            continue
-        if d >= MIN_RELEVANT_D and fom > 0:
-            per_lattice_best[key] = max(per_lattice_best.get(key, 0.0), fom)
-        elif d > 0 and d < MIN_RELEVANT_D:
-            # Low-d codes: tiny contribution (like encoding rate)
-            per_lattice_best[key] = max(per_lattice_best.get(key, 0.0), 0.01)
+    # ── Phase 4: Upper-bound-safe scoring ───────────────────────────
+    # A MILP incumbent is a feasible logical operator and therefore only an
+    # upper bound on distance.  Reuse the contract-v2 scorer so its magnitude
+    # never contributes d²/FOM fitness.  Exact rows may receive capped distance
+    # credit; partial/timeout rows receive at most one bounded survivor credit
+    # per historical fitness lattice plus the same small tie-breaks.
+    scoring_rows = _legacy_milp_upper_bound_safe_rows(all_results)
+    score = _score_stage2_upper_bound_safe(scoring_rows)
+    combined = float(score["combined_score"])
 
-    combined = sum(per_lattice_best.values())
-
-    # Aggregate metrics
+    # Aggregate exact metrics separately from diagnostic MILP upper bounds.
     valid = [r for r in all_results if r.get("k", 0) > 0]
-    foms = [r.get("fom", 0.0) for r in valid if r.get("fom", 0.0) > 0]
-    best_fom = max(foms) if foms else 0.0
-    mean_fom = sum(foms) / len(foms) if foms else 0.0
+    exact_rows = _verified_distance_persistence_rows(all_results)
+    exact_foms = [
+        float(r.get("fom", 0.0))
+        for r in exact_rows
+        if (
+            isinstance(r.get("fom"), (int, float))
+            and not isinstance(r.get("fom"), bool)
+            and math.isfinite(float(r.get("fom")))
+            and float(r.get("fom")) > 0
+        )
+    ]
+    upper_bound_foms = [
+        _bp_fom_upper_bound(r)
+        for r in all_results
+        if r.get("distance_status") == "upper_bound"
+    ]
+    upper_bound_foms = [value for value in upper_bound_foms if value > 0]
+    best_fom = max(exact_foms) if exact_foms else 0.0
+    mean_fom = (
+        sum(exact_foms) / len(exact_foms) if exact_foms else 0.0
+    )
+    best_milp_fom_upper_bound = (
+        max(upper_bound_foms) if upper_bound_foms else 0.0
+    )
+    mean_milp_fom_upper_bound = (
+        sum(upper_bound_foms) / len(upper_bound_foms)
+        if upper_bound_foms
+        else 0.0
+    )
     high_k_codes = [r for r in valid if r.get("k", 0) >= 8]
     lattices_with_high_k = len(set(
         (r["ell"], r["m"]) for r in high_k_codes
     ))
-    num_above_6 = sum(1 for f in foms if f >= 6.0)
-    num_above_12 = sum(1 for f in foms if f >= 12.0)
+    num_above_6 = sum(1 for f in exact_foms if f >= 6.0)
+    num_above_12 = sum(1 for f in exact_foms if f >= 12.0)
+    num_milp_upper_bounds_above_6 = sum(
+        value >= 6.0 for value in upper_bound_foms
+    )
+    num_milp_upper_bounds_above_12 = sum(
+        value >= 12.0 for value in upper_bound_foms
+    )
 
     # ── Phase 5: LLM feedback artifacts ────────────────────────────
     artifacts = {}
@@ -6778,10 +7308,15 @@ def evaluate_stage2_milp(program_path: str) -> dict:
                 changes.append(f"{poly_name}: {a}->{b}")
         return changes
 
-    # Codes with d reported (MILP-verified)
-    codes_with_d = [
-        r for r in all_results
-        if r.get("d", 0) > 0 and r.get("fom", 0) > 0
+    # Only exact distances may be described as achieved codes.  Incumbents
+    # remain useful diagnostic upper-bound witnesses, but cannot be selected as
+    # the "best code" or presented as beating a published baseline.
+    codes_with_d = list(exact_rows)
+    unresolved_rows = [
+        row
+        for row in scoring_rows
+        if _is_stage2_search_survivor(row)
+        and row.get("search_status") == "unresolved"
     ]
 
     # Best code
@@ -6797,6 +7332,23 @@ def evaluate_stage2_milp(program_path: str) -> dict:
             f"({tag}) at ({bc['ell']},{bc['m']}){beat_tag}\n"
             f"  A={bc['A_terms']}\n"
             f"  B={bc['B_terms']}"
+        )
+
+    if unresolved_rows:
+        survivor = max(
+            unresolved_rows,
+            key=lambda row: (
+                _stage2_result_rate(row),
+                _definition_key(row),
+            ),
+        )
+        artifacts["best_milp_survivor"] = (
+            f"[[{survivor['n']},{survivor['k']},d=unresolved]] "
+            f"rate={_stage2_result_rate(survivor):.3f} at "
+            f"({survivor['ell']},{survivor['m']}); unresolved MILP result, "
+            "upper-bound magnitude withheld, no achieved FOM or win claim\n"
+            f"  A={survivor['A_terms']}\n"
+            f"  B={survivor['B_terms']}"
         )
 
     if errors:
@@ -6825,7 +7377,7 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         )
         artifacts["low_d_warning"] = (
             f"{low_d_count} codes with d<{MIN_RELEVANT_D} (max k={max_k_low_d}) -- "
-            f"these DON'T count toward score. "
+            "these exact results cannot meet the intended distance objective. "
             f"Avoid univariate (A=f(y),B=g(x)) and self-dual (A=B)."
         )
 
@@ -6868,22 +7420,33 @@ def evaluate_stage2_milp(program_path: str) -> dict:
             + "\n".join(gradient_lines)
         )
 
-    # Per-lattice breakdown
+    # Per-lattice breakdown uses bounded credit, never incumbent FOM.
     lattice_lines = []
-    for key in sorted(per_lattice_best.keys()):
+    per_lattice_credit = score["per_lattice_credit"]
+    assert isinstance(per_lattice_credit, dict)
+    for key in sorted(per_lattice_credit):
         lattice_lines.append(
-            f"  ({key[0]},{key[1]}): best FOM={per_lattice_best[key]:.1f}"
+            f"  ({key[0]},{key[1]}): bounded credit="
+            f"{per_lattice_credit[key]:.3f}"
         )
 
     artifacts["summary"] = (
         f"Evaluated {total_candidates} candidates across "
         f"{len(STAGE2_LATTICES_MILP)} lattices.\n"
-        f"MILP verified: {len(milp_tasks)} codes ({milp_skipped_low_d_symp} "
+        f"MILP attempted: {len(milp_tasks)} codes ({milp_skipped_low_d_symp} "
         f"skipped by symplectic pre-filter d_symp<={MILP_EARLY_STOP}).\n"
         f"Valid codes (k>0): {len(valid)}\n"
-        f"Codes with d>={MIN_RELEVANT_D}: {len(relevant_codes)} (these count toward score)\n"
-        f"Best FOM: {best_fom:.2f}\n"
-        f"Combined score: {combined:.1f} = sum of best FOM per lattice (d>={MIN_RELEVANT_D} only)\n"
+        f"Exact codes with d>={MIN_RELEVANT_D}: {len(relevant_codes)}\n"
+        f"Best exact FOM: {best_fom:.2f}\n"
+        "MILP upper-bound diagnostics retained in telemetry only.\n"
+        f"Unresolved MILP survivors: {len(unresolved_rows)}; "
+        f"terminal negatives: {score['terminal_negative_count']}\n"
+        f"Combined score: {combined:.3f} = "
+        f"{score['fitness_survivor_credit']:.3f} bounded survivor + "
+        f"{score['fitness_distance_credit']:.3f} exact distance + "
+        f"{score['fitness_rate_tie_break']:.3f} rate tie-break + "
+        f"{score['fitness_structural_tie_break']:.3f} structure tie-break; "
+        "MILP upper-bound magnitude contributes zero.\n"
         f"Per-lattice breakdown:\n" + "\n".join(lattice_lines)
     )
 
@@ -6891,8 +7454,9 @@ def evaluate_stage2_milp(program_path: str) -> dict:
     # Individual codes are already saved to JSONL by evaluate_milp_parallel.
     # Also save to discovered_codes.json and pareto_front.json for compat.
     to_save = [
-        r for r in all_results
-        if r.get("fom", 0) > 6.0 and r.get("d", 0) > 0
+        r
+        for r in exact_rows
+        if float(r.get("fom", 0.0) or 0.0) > 6.0
     ]
     if to_save:
         best_to_save = max(to_save, key=lambda r: r["fom"])
@@ -6905,12 +7469,29 @@ def evaluate_stage2_milp(program_path: str) -> dict:
     _write_metrics_jsonl({
         "best_fom": best_fom,
         "mean_fom": mean_fom,
+        "best_milp_fom_upper_bound": best_milp_fom_upper_bound,
+        "mean_milp_fom_upper_bound": mean_milp_fom_upper_bound,
+        "fitness_distance_credit": score["fitness_distance_credit"],
+        "fitness_survivor_credit": score["fitness_survivor_credit"],
+        "fitness_rate_tie_break": score["fitness_rate_tie_break"],
+        "fitness_structural_tie_break": (
+            score["fitness_structural_tie_break"]
+        ),
+        "screen_survivor_count": score["survivor_count"],
+        "screen_survivor_lattices": score["survivor_lattices"],
+        "screen_terminal_negative_count": score["terminal_negative_count"],
         "num_valid": len(valid),
         "num_high_k": len(high_k_codes),
         "lattices_with_high_k": lattices_with_high_k,
         "best_encoding_rate": max((r.get("encoding_rate", 0) for r in valid), default=0),
         "num_above_6": num_above_6,
         "num_above_12": num_above_12,
+        "num_milp_upper_bounds_above_6": (
+            num_milp_upper_bounds_above_6
+        ),
+        "num_milp_upper_bounds_above_12": (
+            num_milp_upper_bounds_above_12
+        ),
         "total_candidates": total_candidates,
         "all_results": all_results,
     })
@@ -6924,12 +7505,31 @@ def evaluate_stage2_milp(program_path: str) -> dict:
         "combined_score": combined,
         "best_fom": best_fom,
         "mean_fom": mean_fom,
+        "best_milp_fom_upper_bound": best_milp_fom_upper_bound,
+        "mean_milp_fom_upper_bound": mean_milp_fom_upper_bound,
+        "fitness_distance_credit": float(score["fitness_distance_credit"]),
+        "fitness_survivor_credit": float(score["fitness_survivor_credit"]),
+        "fitness_rate_tie_break": float(score["fitness_rate_tie_break"]),
+        "fitness_structural_tie_break": float(
+            score["fitness_structural_tie_break"]
+        ),
+        "screen_survivor_count": float(score["survivor_count"]),
+        "screen_survivor_lattices": float(score["survivor_lattices"]),
+        "screen_terminal_negative_count": float(
+            score["terminal_negative_count"]
+        ),
         "num_valid": float(len(valid)),
         "num_high_k": float(len(high_k_codes)),
         "lattices_with_high_k": float(lattices_with_high_k),
         "best_encoding_rate": max((r.get("encoding_rate", 0) for r in valid), default=0),
         "num_above_6": float(num_above_6),
         "num_above_12": float(num_above_12),
+        "num_milp_upper_bounds_above_6": float(
+            num_milp_upper_bounds_above_6
+        ),
+        "num_milp_upper_bounds_above_12": float(
+            num_milp_upper_bounds_above_12
+        ),
         "total_candidates": float(total_candidates),
     }
     result.update(map_descriptor)
@@ -6959,27 +7559,34 @@ def _write_metrics_jsonl(metrics: dict) -> None:
     metrics_dir.mkdir(parents=True, exist_ok=True)
     metrics_file = metrics_dir / "evolution_metrics.jsonl"
 
-    # Build per-lattice best FOM for detailed tracking
+    bp_upper_bound_safe = "best_bp_fom_upper_bound" in metrics
+    milp_upper_bound_safe = "best_milp_fom_upper_bound" in metrics
+    upper_bound_safe = bp_upper_bound_safe or milp_upper_bound_safe
+    # Build per-lattice diagnostics.  In contract v2 these are explicitly
+    # upper bounds and never parent fitness.
     per_lattice: dict[tuple[int, int], float] = {}
     for r in metrics.get("all_results", []):
-        d_raw = r.get("d", 0)
-        k = r.get("k", 0)
-        n = r.get("n", 0)
-        if k > 0 and n > 0 and d_raw > 0:
-            fom = k * d_raw * d_raw / n
+        if upper_bound_safe:
+            fom = _bp_fom_upper_bound(r)
+        else:
+            d_raw = r.get("d", 0)
+            k = r.get("k", 0)
+            n = r.get("n", 0)
+            fom = (
+                k * d_raw * d_raw / n
+                if k > 0 and n > 0 and d_raw > 0
+                else 0.0
+            )
+        if fom > 0:
             key = (r["ell"], r["m"])
             per_lattice[key] = max(per_lattice.get(key, 0.0), fom)
 
     record = {
         "timestamp": time.time(),
-        "best_fom": metrics.get("best_fom", 0),
-        "mean_fom": metrics.get("mean_fom", 0),
         "num_valid": metrics.get("num_valid", 0),
         "num_high_k": metrics.get("num_high_k", 0),
         "lattices_with_high_k": metrics.get("lattices_with_high_k", 0),
         "best_encoding_rate": metrics.get("best_encoding_rate", 0),
-        "num_above_6": metrics.get("num_above_6", 0),
-        "num_above_12": metrics.get("num_above_12", 0),
         "total_candidates": metrics.get("total_candidates", 0),
         "target_preflight_winner_capable_eligible": metrics.get(
             "target_preflight_winner_capable_eligible", 0
@@ -7004,10 +7611,61 @@ def _write_metrics_jsonl(metrics: dict) -> None:
             for error in metrics.get("errors", [])
             if "distance backend" in error
         ],
-        "per_lattice_best_fom": {
-            f"{k[0]}x{k[1]}": v for k, v in per_lattice.items()
-        },
     }
+    if upper_bound_safe:
+        bound_prefix = "bp" if bp_upper_bound_safe else "milp"
+        record.update({
+            f"best_{bound_prefix}_fom_upper_bound": metrics.get(
+                f"best_{bound_prefix}_fom_upper_bound", 0
+            ),
+            f"mean_{bound_prefix}_fom_upper_bound": metrics.get(
+                f"mean_{bound_prefix}_fom_upper_bound", 0
+            ),
+            "fitness_distance_credit": metrics.get(
+                "fitness_distance_credit", 0
+            ),
+            "fitness_survivor_credit": metrics.get(
+                "fitness_survivor_credit", 0
+            ),
+            "fitness_rate_tie_break": metrics.get(
+                "fitness_rate_tie_break", 0
+            ),
+            "fitness_structural_tie_break": metrics.get(
+                "fitness_structural_tie_break", 0
+            ),
+            "screen_survivor_count": metrics.get(
+                "screen_survivor_count", 0
+            ),
+            "screen_survivor_lattices": metrics.get(
+                "screen_survivor_lattices", 0
+            ),
+            "screen_terminal_negative_count": metrics.get(
+                "screen_terminal_negative_count", 0
+            ),
+            f"num_{bound_prefix}_upper_bounds_above_6": metrics.get(
+                f"num_{bound_prefix}_upper_bounds_above_6",
+                metrics.get("num_above_6", 0),
+            ),
+            f"num_{bound_prefix}_upper_bounds_above_12": metrics.get(
+                f"num_{bound_prefix}_upper_bounds_above_12",
+                metrics.get("num_above_12", 0),
+            ),
+            f"per_lattice_best_{bound_prefix}_fom_upper_bound": {
+                f"{key[0]}x{key[1]}": value
+                for key, value in per_lattice.items()
+            },
+        })
+    else:
+        record.update({
+            "best_fom": metrics.get("best_fom", 0),
+            "mean_fom": metrics.get("mean_fom", 0),
+            "num_above_6": metrics.get("num_above_6", 0),
+            "num_above_12": metrics.get("num_above_12", 0),
+            "per_lattice_best_fom": {
+                f"{key[0]}x{key[1]}": value
+                for key, value in per_lattice.items()
+            },
+        })
 
     try:
         with open(metrics_file, "a") as f:

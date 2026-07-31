@@ -867,6 +867,7 @@ def test_run_evolution_sigint_exits_nonzero_without_marker(tmp_path, monkeypatch
         evaluator=SimpleNamespace(
             parallel_evaluations=1,
             timeout=1200,
+            cascade_thresholds=[6.0],
         ),
     )
 

@@ -120,7 +120,7 @@ STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS = 2
 STAGE1_PREFLIGHT_WORKER_ATTEMPTS = 2
 STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS = 2
 STAGE1_PREFLIGHT_OUTER_MARGIN_S = 120.0
-STAGE2_DEEP_CONTRACT_VERSION = 1
+STAGE2_DEEP_CONTRACT_VERSION = 2
 STAGE2_DEEP_LATTICE_COUNT = 11
 STAGE2_CONTRACT_VERSION_METRIC = "stage2_contract_version"
 STAGE2_CONTRACT_ID_METRIC = "stage2_contract_id"
@@ -140,6 +140,8 @@ STAGE2_MARKER_FIELDS = (
 )
 LEGACY_STAGE2_DEEP_METRIC_FIELDS = (
     "best_fom",
+    "best_bp_fom_upper_bound",
+    "fitness_distance_credit",
     "mean_fom",
     "num_above_6",
     "num_above_12",
@@ -3913,6 +3915,7 @@ class WandbSyncer:
         self._byte_offset = 0
         self._step = 0
         self._best_fom = 0.0
+        self._best_bp_fom_upper_bound = 0.0
 
     def start(self):
         # Truncate any stale metrics from a previous run
@@ -3959,22 +3962,57 @@ class WandbSyncer:
                 continue
 
             self._step += 1
-            fom = record.get("best_fom", 0)
-            self._best_fom = max(self._best_fom, fom)
+            if "best_bp_fom_upper_bound" in record:
+                upper_bound = record.get("best_bp_fom_upper_bound", 0)
+                self._best_bp_fom_upper_bound = max(
+                    self._best_bp_fom_upper_bound,
+                    upper_bound,
+                )
+                distance_metrics = {
+                    "eval/best_bp_fom_upper_bound": upper_bound,
+                    "eval/mean_bp_fom_upper_bound": record.get(
+                        "mean_bp_fom_upper_bound", 0
+                    ),
+                    "eval/fitness_distance_credit": record.get(
+                        "fitness_distance_credit", 0
+                    ),
+                    "eval/fitness_survivor_credit": record.get(
+                        "fitness_survivor_credit", 0
+                    ),
+                    "eval/fitness_rate_tie_break": record.get(
+                        "fitness_rate_tie_break", 0
+                    ),
+                    "eval/fitness_structural_tie_break": record.get(
+                        "fitness_structural_tie_break", 0
+                    ),
+                    "eval/screen_survivor_count": record.get(
+                        "screen_survivor_count", 0
+                    ),
+                    "eval/screen_terminal_negative_count": record.get(
+                        "screen_terminal_negative_count", 0
+                    ),
+                    "progress/running_best_bp_fom_upper_bound": (
+                        self._best_bp_fom_upper_bound
+                    ),
+                }
+            else:
+                fom = record.get("best_fom", 0)
+                self._best_fom = max(self._best_fom, fom)
+                distance_metrics = {
+                    "eval/best_fom": fom,
+                    "eval/mean_fom": record.get("mean_fom", 0),
+                    "eval/codes_above_fom6": record.get("num_above_6", 0),
+                    "eval/codes_above_fom12": record.get("num_above_12", 0),
+                    "progress/running_best_fom": self._best_fom,
+                }
 
             wandb.log({
-                # Per-evaluation metrics
-                "eval/best_fom": fom,
-                "eval/mean_fom": record.get("mean_fom", 0),
+                **distance_metrics,
                 "eval/num_valid_codes": record.get("num_valid", 0),
                 "eval/num_high_k_codes": record.get("num_high_k", 0),
                 "eval/lattices_with_high_k": record.get("lattices_with_high_k", 0),
                 "eval/best_encoding_rate": record.get("best_encoding_rate", 0),
-                "eval/codes_above_fom6": record.get("num_above_6", 0),
-                "eval/codes_above_fom12": record.get("num_above_12", 0),
                 "eval/total_candidates": record.get("total_candidates", 0),
-                # Running best across all evaluations
-                "progress/running_best_fom": self._best_fom,
             }, step=self._step)
 
 

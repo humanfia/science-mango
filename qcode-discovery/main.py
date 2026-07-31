@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import math
 
 from evaluation.evaluator import evaluate_batch, evaluate_candidate_milp
 from evaluation.results import save_code, update_pareto_front
@@ -48,6 +49,59 @@ from evaluation.tracking import RunTracker
 from evolve.seed_solution import TARGET_LATTICES, generate_candidates
 
 logger = logging.getLogger(__name__)
+
+
+def _positive_number(value) -> float:
+    if isinstance(value, bool):
+        return 0.0
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return 0.0
+    return number if math.isfinite(number) and number > 0 else 0.0
+
+
+def _validated_exact_params(result: dict) -> tuple[int, int, int] | None:
+    """Validate the integer parameters bound to an exact-distance claim."""
+    n = result.get("n")
+    k = result.get("k")
+    d = result.get("d")
+    exact_distance = result.get("exact_distance")
+    if (
+        type(n) is not int
+        or type(k) is not int
+        or type(d) is not int
+        or type(exact_distance) is not int
+        or not (1 <= k <= n)
+        or not (1 <= d <= n)
+        or exact_distance != d
+    ):
+        return None
+    return n, k, d
+
+
+def _is_exact_distance_result(result: dict) -> bool:
+    """Only exact-distance rows may be reported or persisted as discoveries."""
+    return (
+        result.get("d_is_exact") is True
+        and result.get("distance_status") != "upper_bound"
+        and _validated_exact_params(result) is not None
+    )
+
+
+def _certified_fom(result: dict) -> float:
+    if not _is_exact_distance_result(result):
+        return 0.0
+    n, k, d = _validated_exact_params(result)
+    return k * d * d / n
+
+
+def _distance_safe_rank(result: dict) -> tuple[float, float]:
+    """Rank without treating a decoder/incumbent upper bound as achievement."""
+    exact_fom = _certified_fom(result)
+    n = _positive_number(result.get("n"))
+    k = _positive_number(result.get("k"))
+    return exact_fom, (k / n if n else 0.0)
 
 
 def _milp_fully_certified(result: dict) -> bool:
@@ -117,6 +171,51 @@ def merge_bp_milp_result(bp: dict, milp_result: dict) -> dict:
     )
     merged["bp_osd_d"] = bp_d
     merged["milp_attempted"] = True
+
+    if certified:
+        merged["distance_status"] = "exact"
+        merged["exact_distance"] = milp_d
+        exact_params = _validated_exact_params(merged)
+        exact_fom = (
+            exact_params[1] * exact_params[2] * exact_params[2]
+            / exact_params[0]
+            if exact_params is not None
+            else 0.0
+        )
+        if exact_fom:
+            merged["fom"] = exact_fom
+            merged["fom_upper_bound"] = exact_fom
+            merged["exact_fom"] = exact_fom
+            merged["fitness_distance_credit"] = exact_fom
+            if merged.get("search_status") != "terminal_negative":
+                merged["score"] = exact_fom
+        else:
+            merged["exact_fom"] = None
+            merged["fitness_distance_credit"] = 0.0
+            merged["score"] = 0.0
+    else:
+        # Preserve the tightest numerical upper bound as diagnostics only.
+        upper_fom = _positive_number(merged.get("fom_upper_bound"))
+        if not upper_fom:
+            upper_fom = _positive_number(merged.get("fom"))
+        if not upper_fom:
+            n = _positive_number(merged.get("n"))
+            k = _positive_number(merged.get("k"))
+            d = _positive_number(merged.get("d"))
+            if n and k and d:
+                upper_fom = k * d * d / n
+        merged["distance_status"] = "upper_bound"
+        merged["fom_upper_bound"] = upper_fom or None
+        merged["fom"] = upper_fom
+        merged["exact_distance"] = None
+        merged["exact_fom"] = None
+        merged["fitness_distance_credit"] = 0.0
+        merged["score"] = 0.0
+        merged["search_status"] = (
+            "terminal_negative"
+            if merged.get("threshold_rejection_proven") is True
+            else "unresolved"
+        )
     return merged
 
 
@@ -233,7 +332,7 @@ def main():
         results = evaluate_batch(ell, m, candidates, **eval_kwargs)
         if not args.quick and args.milp_top > 0:
             ranked = [r for r in results if r.get("k", 0) > 0 and r.get("d", 0) > 0]
-            ranked.sort(key=lambda r: r.get("score", float("-inf")), reverse=True)
+            ranked.sort(key=_distance_safe_rank, reverse=True)
             replacements = {}
             for bp_result in ranked[:args.milp_top]:
                 milp_result = evaluate_candidate_milp(
@@ -248,15 +347,16 @@ def main():
             results = [replacements.get(
                 (tuple(map(tuple, r["A_terms"])), tuple(map(tuple, r["B_terms"]))), r
             ) for r in results]
-            results.sort(key=lambda r: r.get("score", float("-inf")), reverse=True)
+            results.sort(key=_distance_safe_rank, reverse=True)
         if args.structural_dedup:
             from evaluation.structural_dedup import annotate_css_result
             ranked_for_novelty = [
                 result for result in results
-                if result.get("k", 0) > 0 and result.get("d", 0) > 0
+                if _is_exact_distance_result(result)
             ]
             ranked_for_novelty.sort(
-                key=lambda result: result.get("score", float("-inf")), reverse=True
+                key=_distance_safe_rank,
+                reverse=True,
             )
             for result in ranked_for_novelty[:args.top]:
                 result.update(annotate_css_result(result))
@@ -274,10 +374,13 @@ def main():
     run_meta = tracker.end_run()
 
     # Save and display top results
-    top = [r for r in all_results if r.get("score", 0) > 0]
+    top = [
+        r for r in all_results
+        if _is_exact_distance_result(r) and _certified_fom(r) > 0
+    ]
     if args.milp_top > 0:
         top = [r for r in top if r.get("milp_attempted")]
-    top.sort(key=lambda r: r["score"], reverse=True)
+    top.sort(key=_distance_safe_rank, reverse=True)
     if args.structural_dedup:
         from evaluation.structural_dedup import deduplicate_css_results
         top, rejected = deduplicate_css_results(top)

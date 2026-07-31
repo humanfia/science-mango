@@ -1,7 +1,7 @@
 """Multi-stage evaluation cascade for bivariate bicycle code candidates.
 
 This is the central evaluation module.  Every candidate polynomial pair
-is assessed through a five-stage cascade that progressively invests more
+is assessed through a six-stage cascade that progressively invests more
 compute in more promising candidates:
 
 1. **Validate** (microseconds) -- Checks polynomial structure: 2-6
@@ -13,21 +13,27 @@ compute in more promising candidates:
    Rejects only codes with ``k = 0`` (stage ``k_zero``); every positive
    dimension remains eligible for the formal challenge.
 
-3. **Quick distance estimate** (seconds) -- Runs
+3. **Challenge pre-filter** (milliseconds, optional) -- When
+   ``challenge_target_fom`` is set, computes a symplectic-basis distance upper
+   bound before any decoder work.  A replayable logical/dual witness whose
+   weight is at or below the dynamic final-gate rejection cutoff proves that
+   the candidate cannot win and terminates the cascade.
+
+4. **Quick distance estimate** (seconds) -- Runs
    :func:`evaluation.distance.estimate_distance` with ``quick_trials``
    BP-OSD trials (default 100).  Codes with ``d <= 2`` are tagged
-   ``trivial_distance`` and exit early.  The result carries a
-   ``distance_trusted`` flag based on ``d / sqrt(n)`` vs
-   :data:`DISTANCE_TRUST_RATIO`.
+   ``trivial_distance`` and exit early.  Every decoder-only distance is
+   explicitly an upper bound; it is never marked trusted or exact.
 
-4. **Refined distance estimate** (seconds) -- Triggered when preliminary
+5. **Refined distance estimate** (seconds) -- Triggered when preliminary
    ``FOM >= fom_threshold_refine`` (default 6.0).  Runs 3 independent
    BP-OSD batches of ``refine_trials`` each and keeps the minimum.
    An additional OSD-CS order-10 verification pass
    (:func:`evaluation.distance.estimate_distance_osd_cs`) fires when
-   ``FOM >= fom_threshold_exact``.
+   ``FOM >= fom_threshold_osd_cs``.  OSD-CS has controls independent of the
+   legacy exact stage.
 
-5. **Exact distance** (minutes) -- Triggered when refined
+6. **Exact distance** (minutes) -- Triggered when refined
    ``FOM >= fom_threshold_exact`` (default 8.0).  Calls
    :func:`evaluation.distance.compute_distance_exact` with a configurable
    timeout.  Returns ``None`` on timeout (stage ``exact_timeout``).
@@ -44,13 +50,9 @@ Constants
 SCORE_REJECTED : float
     Score assigned to all rejected candidates (``-inf``).
 DISTANCE_TRUST_RATIO : float
-    ``d / sqrt(n)`` threshold below which BP-OSD distance is fully trusted
-    (1.3, just above the highest verified ratio of 1.26).
+    Deprecated compatibility constant. Decoder-only distance is never trusted.
 DISTANCE_UNTRUST_RATIO : float
-    ``d / sqrt(n)`` threshold above which BP-OSD distance is discarded
-    entirely (2.0, well below the lowest observed degenerate ratio of 2.5).
-    Used by :mod:`evolve.openevolve_evaluator` to compute credible FOM
-    with linear interpolation in the gap between the two thresholds.
+    Deprecated compatibility constant. Decoder-only distance is never trusted.
 """
 
 from __future__ import annotations
@@ -92,23 +94,9 @@ try:
 except OSError:
     _EVALUATOR_SOURCE_SHA256 = None
 
-# Trust boundaries for BP-OSD distance estimates (d/sqrt(n) ratio).
-#
-# Empirical observations on BB codes:
-#   Known good codes:  d/√n = 0.71 ([[72,12,6]]), 1.0 ([[144,12,12]]),
-#                      1.06 ([[288,12,18]]), 1.26 ([[360,12,24]])
-#   Degenerate codes:  d/√n = 2.5-4.0 (BP-OSD wildly overestimates)
-#   Gap:               No observed code has d/√n in (1.26, 2.5)
-#
-# DISTANCE_TRUST_RATIO: below this, BP-OSD d is fully trusted.
-#   Set to 1.3, just above the highest verified d/√n (1.26), so all known
-#   good codes get full FOM while leaving room for near-miss discoveries.
-#
-# DISTANCE_UNTRUST_RATIO: above this, BP-OSD d is discarded (use k/n only).
-#   Set to 2.0, well below the lowest observed degenerate ratio (2.5). The
-#   wide 1.3-2.0 decay zone provides a smooth gradient for borderline cases.
-#   Tightening to e.g. √2 ≈ 1.41 would penalize plausible discoveries in
-#   the uncharted 1.3-1.5 regime without empirical justification.
+# Deprecated compatibility exports.  Historical callers imported these
+# empirical d/sqrt(n) boundaries, but evaluator results no longer use them:
+# a decoder-found logical is an upper bound regardless of its ratio.
 DISTANCE_TRUST_RATIO = 1.3
 DISTANCE_UNTRUST_RATIO = 2.0
 
@@ -212,6 +200,325 @@ def compute_challenge_rejection_cutoff(
     return min(scalar_cutoff, minimum_passing - 1)
 
 
+def _annotate_challenge_target(
+    result: dict,
+    *,
+    n: int,
+    k: int,
+    target_fom: float,
+) -> None:
+    """Attach exact dynamic final-gate cutoff metadata to ``result``."""
+    scalar_cutoff = compute_fom_rejection_cutoff(n, k, target_fom)
+    challenge_cutoff = compute_challenge_rejection_cutoff(n, k, target_fom)
+    target = Fraction(str(target_fom))
+    result.update({
+        "challenge_prefilter_enabled": True,
+        "fom_target": float(target_fom),
+        "fom_target_numerator": target.numerator,
+        "fom_target_denominator": target.denominator,
+        "fom_rejection_cutoff": scalar_cutoff,
+        "challenge_rejection_cutoff": challenge_cutoff,
+        "minimum_passing_distance": challenge_cutoff + 1,
+        "fom_target_excluded_by_upper_bound": False,
+        "final_gate_excluded_by_upper_bound": False,
+        "threshold_rejection_proven": False,
+    })
+
+
+def _validate_replayable_symplectic_witness(
+    code: Any,
+    witness: Any,
+    *,
+    distance: int,
+) -> dict | None:
+    """Replay a symplectic logical/dual witness against rebuilt matrices."""
+    required = {
+        "side",
+        "index",
+        "dual_side",
+        "dual_index",
+        "weight",
+        "bits",
+    }
+    if not isinstance(witness, Mapping) or set(witness) != required:
+        return None
+    side = witness.get("side")
+    dual_side = witness.get("dual_side")
+    if (
+        side not in {"X", "Z"}
+        or dual_side != ("Z" if side == "X" else "X")
+    ):
+        return None
+    for field in ("index", "dual_index", "weight"):
+        if type(witness.get(field)) is not int:
+            return None
+    if (
+        witness["index"] < 0
+        or witness["dual_index"] < 0
+        or witness["weight"] != distance
+        or distance < 1
+    ):
+        return None
+    bits = witness.get("bits")
+    try:
+        hx, hz, lx, lz = get_code_matrices(code)
+        n = int(code.num_qudits)
+    except Exception:
+        return None
+    if (
+        not isinstance(bits, list)
+        or len(bits) != n
+        or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+        or sum(bits) != distance
+    ):
+        return None
+    vector = np.asarray(bits, dtype=np.uint8)
+    logicals, duals, checks = (
+        (lx, lz, hz) if side == "X" else (lz, lx, hx)
+    )
+    matrices = (logicals, duals, checks)
+    if any(
+        not isinstance(matrix, np.ndarray)
+        or matrix.ndim != 2
+        or matrix.shape[1] != n
+        for matrix in matrices
+    ):
+        return None
+    if (
+        witness["index"] >= logicals.shape[0]
+        or witness["dual_index"] >= duals.shape[0]
+    ):
+        return None
+    logical = np.asarray(
+        logicals[witness["index"]], dtype=np.uint8
+    ).reshape(-1) % 2
+    dual = np.asarray(
+        duals[witness["dual_index"]], dtype=np.uint8
+    ).reshape(-1) % 2
+    if not np.array_equal(logical, vector):
+        return None
+    if np.any((np.asarray(checks, dtype=np.uint8) @ vector) % 2):
+        return None
+    if int(np.dot(dual, vector) % 2) != 1:
+        return None
+    return copy.deepcopy(dict(witness))
+
+
+def _validate_replayable_css_witness(
+    code: Any,
+    witness: Any,
+    *,
+    distance: int,
+) -> dict | None:
+    """Replay a CSS logical witness produced by a MILP incumbent."""
+    required = {"side", "index", "weight", "bits"}
+    if not isinstance(witness, Mapping) or set(witness) != required:
+        return None
+    side = witness.get("side")
+    index = witness.get("index")
+    weight = witness.get("weight")
+    bits = witness.get("bits")
+    try:
+        hx, hz, lx, lz = get_code_matrices(code)
+        n = int(code.num_qudits)
+    except Exception:
+        return None
+    if (
+        side not in {"X", "Z"}
+        or type(index) is not int
+        or index < 0
+        or type(weight) is not int
+        or weight != distance
+        or not isinstance(bits, list)
+        or len(bits) != n
+        or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+        or sum(bits) != distance
+    ):
+        return None
+    vector = np.asarray(bits, dtype=np.uint8)
+    checks, duals = (hz, lz) if side == "X" else (hx, lx)
+    if (
+        not isinstance(checks, np.ndarray)
+        or checks.ndim != 2
+        or checks.shape[1] != n
+        or not isinstance(duals, np.ndarray)
+        or duals.ndim != 2
+        or duals.shape[1] != n
+        or index >= duals.shape[0]
+    ):
+        return None
+    if np.any((np.asarray(checks, dtype=np.uint8) @ vector) % 2):
+        return None
+    if int(np.dot(np.asarray(duals[index], dtype=np.uint8), vector) % 2) != 1:
+        return None
+    return copy.deepcopy(dict(witness))
+
+
+def _record_distance_upper_bound(
+    result: dict,
+    *,
+    n: int,
+    k: int,
+    distance: int,
+    source: str,
+    stage: str,
+) -> bool:
+    """Record a scalar decoder upper bound without granting distance credit.
+
+    BP/OSD returns only a number here, not the logical-operator bits needed to
+    replay the bound.  Consequently this helper *never* makes a candidate a
+    terminal negative, even when the number is below a challenge cutoff.  A
+    caller may stop only after independently validating a replayable witness
+    (or obtaining an exact distance).
+
+    The Boolean return is retained for API compatibility and is always false.
+    """
+    distance = _positive_distance_bound(distance)
+    if distance is None:
+        raise ValueError(
+            "distance upper bounds must be finite positive integers"
+        )
+    upper_fom = compute_fom(n, k, distance)
+    result.update({
+        "d": distance,
+        "d_is_exact": False,
+        "distance_trusted": False,
+        "distance_status": "upper_bound",
+        "distance_upper_bound": distance,
+        "distance_upper_bound_source": source,
+        # Keep the legacy ``fom`` projection for reporting compatibility, but
+        # make its upper-bound semantics explicit and grant it no score.
+        "fom": upper_fom,
+        "fom_upper_bound": upper_fom,
+        "fitness_distance_credit": 0.0,
+        "score": 0.0,
+        "stage": stage,
+        "search_status": "unresolved",
+    })
+    return False
+
+
+def _is_exact_distance_result(result: Mapping[str, Any]) -> bool:
+    """Return whether a public result may receive positive distance credit."""
+    return (
+        result.get("d_is_exact") is True
+        and result.get("distance_status") != "upper_bound"
+    )
+
+
+def _result_ranking_score(result: Mapping[str, Any]) -> float:
+    """Return a proof-safe public ranking score.
+
+    ``quick_k_only`` is an explicitly distance-free screening mode, so its
+    encoding-rate proxy remains useful.  In every distance-evaluation mode,
+    only exact results may rank positively.  This second-line normalization
+    also protects batch callers that provide legacy or mocked rows whose raw
+    ``score`` still contains an upper-bound FOM.
+    """
+    raw = result.get("score", 0.0)
+    try:
+        score = float(raw)
+    except (TypeError, ValueError, OverflowError):
+        return SCORE_REJECTED
+    if not math.isfinite(score):
+        return score if score < 0 else 0.0
+    if result.get("stage") == "quick_k_only":
+        return score
+    if _is_exact_distance_result(result):
+        return max(0.0, score)
+    return min(0.0, score)
+
+
+def _positive_distance_bound(value: Any) -> int | None:
+    """Return a backend distance only when it is a finite positive integer.
+
+    Distance backends occasionally fail by returning a sentinel ``0`` or a
+    non-finite float rather than raising.  Neither is a logical-operator
+    witness, and coercing either into an upper bound can incorrectly turn a
+    retryable candidate into a terminal negative.
+    """
+    if isinstance(value, (bool, np.bool_)):
+        return None
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not math.isfinite(numeric) or numeric <= 0 or not numeric.is_integer():
+        return None
+    return int(numeric)
+
+
+def _distance_backend_retry(
+    result: dict,
+    *,
+    source: str,
+    value: Any = None,
+    error: Exception | None = None,
+) -> dict:
+    """Fail closed after a malformed/failed distance-backend invocation.
+
+    Clear every provisional upper bound and proof/rejection marker so callers
+    cannot mistake an incomplete cascade for either a survivor or a proven
+    negative.  ``search_status=retry`` deliberately keeps the candidate out of
+    fitness while making the incomplete evaluation explicit.
+    """
+    if error is None:
+        error_type = "InvalidDistanceUpperBound"
+        try:
+            rendered = repr(value)
+        except Exception:
+            rendered = "<unrepresentable>"
+        message = f"{source} returned non-positive/non-finite bound {rendered}"
+    else:
+        error_type = type(error).__name__
+        try:
+            message = str(error)
+        except Exception:
+            message = "<exception message unavailable>"
+    for field in (
+        "distance_upper_bound_source",
+        "bp_distance_upper_bound",
+        "osd_cs_distance_upper_bound",
+        "d_symplectic",
+        "d_x_symplectic",
+        "d_z_symplectic",
+        "symplectic_weight_witness",
+        "threshold_proof_witness",
+        "threshold_proof_distance",
+        "threshold_proof_source",
+        "threshold_proof_lhs",
+        "threshold_proof_rhs",
+        "search_rejection_source",
+        "search_final_gate_excluded_by_upper_bound",
+    ):
+        result.pop(field, None)
+    result.update({
+        "d": 0,
+        "d_is_exact": False,
+        "distance_trusted": False,
+        "distance_status": "unknown_backend_error",
+        "distance_upper_bound": None,
+        "fom": 0.0,
+        "fom_upper_bound": None,
+        "exact_distance": None,
+        "exact_fom": None,
+        "fitness_distance_credit": 0.0,
+        "score": 0.0,
+        "stage": f"{source}_retry",
+        "search_status": "retry",
+        "distance_retry_required": True,
+        "distance_backend_error": {
+            "source": source,
+            "type": error_type[:256],
+            "message": message[:1024],
+        },
+        "fom_target_excluded_by_upper_bound": False,
+        "final_gate_excluded_by_upper_bound": False,
+        "threshold_rejection_proven": False,
+    })
+    return result
+
+
 def _make_result_template(
     ell: int, m: int, A_terms: list, B_terms: list
 ) -> dict:
@@ -226,6 +533,13 @@ def _make_result_template(
         "d": 0,
         "d_is_exact": False,
         "distance_trusted": False,
+        "distance_status": "unknown",
+        "distance_upper_bound": None,
+        "fom_upper_bound": None,
+        "exact_distance": None,
+        "exact_fom": None,
+        "fitness_distance_credit": 0.0,
+        "search_status": "unresolved",
         "fom": 0.0,
         "encoding_rate": 0.0,
         "score": SCORE_REJECTED,
@@ -287,7 +601,15 @@ def _validate_and_build(
         result["d"] = 2
         result["d_is_exact"] = True
         result["distance_trusted"] = True
+        result["distance_status"] = "exact"
+        result["distance_upper_bound"] = 2
+        result["distance_upper_bound_source"] = "self_dual_exact"
         result["fom"] = k * 4 / n
+        result["fom_upper_bound"] = result["fom"]
+        result["exact_distance"] = 2
+        result["exact_fom"] = result["fom"]
+        result["fitness_distance_credit"] = result["exact_fom"]
+        result["search_status"] = "exact"
         result["score"] = result["fom"]
         result["stage"] = "self_dual_d2"
         return None
@@ -304,10 +626,14 @@ def evaluate_candidate(
     quick: bool = False,
     fom_threshold_refine: float = 6.0,
     fom_threshold_exact: float = 8.0,
+    fom_threshold_osd_cs: float | None = None,
     quick_trials: int = 100,
     refine_trials: int = 500,
+    osd_cs_trials: int = 200,
     exact_timeout: int = 300,
     skip_exact: bool = False,
+    skip_osd_cs: bool = False,
+    challenge_target_fom: float | None = None,
 ) -> dict:
     """Evaluate a BB code candidate through the full cascade.
 
@@ -319,10 +645,17 @@ def evaluate_candidate(
         quick: If True, only compute k (skip distance).
         fom_threshold_refine: FOM threshold to trigger refined distance estimation.
         fom_threshold_exact: FOM threshold to trigger exact distance computation.
+        fom_threshold_osd_cs: Independent FOM threshold for OSD-CS. ``None``
+            preserves the legacy behaviour by using ``fom_threshold_exact``.
         quick_trials: Number of BP-OSD trials for initial estimate.
         refine_trials: Number of BP-OSD trials for refined estimate.
+        osd_cs_trials: Number of OSD-CS trials.
         exact_timeout: Timeout in seconds for exact distance computation.
-        skip_exact: Keep BP-OSD/OSD-CS stages but skip legacy brute-force exact.
+        skip_exact: Skip legacy brute-force exact without disabling OSD-CS.
+        skip_osd_cs: Explicitly skip the OSD-CS upper-bound stage.
+        challenge_target_fom: Optional challenge objective. Before BP-OSD,
+            reject candidates for which a replayable symplectic logical witness
+            proves that the dynamic final-gate distance cutoff cannot be met.
 
     Returns:
         Dict with keys: n, k, d, d_is_exact, fom, encoding_rate,
@@ -332,6 +665,19 @@ def evaluate_candidate(
 
     built = _validate_and_build(ell, m, A_terms, B_terms, result)
     if built is None:
+        if challenge_target_fom is not None and result["d_is_exact"]:
+            _annotate_challenge_target(
+                result,
+                n=result["n"],
+                k=result["k"],
+                target_fom=challenge_target_fom,
+            )
+            if result["d"] <= result["challenge_rejection_cutoff"]:
+                result["search_status"] = "terminal_negative"
+                result["threshold_rejection_proven"] = True
+                result["final_gate_excluded_by_upper_bound"] = True
+                result["fitness_distance_credit"] = 0.0
+                result["score"] = 0.0
         return result
     code, n, k = built
 
@@ -340,63 +686,288 @@ def evaluate_candidate(
         result["score"] = k / n  # use encoding rate as proxy
         return result
 
+    # Optional challenge pre-filter: a symplectic-basis row is a valid distance
+    # upper bound, but only a replayable logical/dual witness may terminate the
+    # search.  If witness construction fails, fail open into BP-OSD and do not
+    # claim a formal rejection.
+    challenge_symplectic_upper: int | None = None
+    if challenge_target_fom is not None:
+        _annotate_challenge_target(
+            result,
+            n=n,
+            k=k,
+            target_fom=challenge_target_fom,
+        )
+        try:
+            raw_symplectic = symplectic_weight_bound(code)
+        except Exception as exc:
+            logger.exception(
+                "Challenge symplectic pre-filter failed; retrying candidate"
+            )
+            return _distance_backend_retry(
+                result, source="symplectic_upper_bound", error=exc
+            )
+        else:
+            try:
+                raw_d_symp, raw_d_x_symp, raw_d_z_symp = raw_symplectic
+            except (TypeError, ValueError):
+                raw_d_symp = raw_d_x_symp = raw_d_z_symp = None
+            d_symp = _positive_distance_bound(raw_d_symp)
+            d_x_symp = _positive_distance_bound(raw_d_x_symp)
+            d_z_symp = _positive_distance_bound(raw_d_z_symp)
+            if None in (d_symp, d_x_symp, d_z_symp):
+                logger.warning(
+                    "Challenge symplectic pre-filter returned invalid bounds "
+                    "%r; retrying candidate",
+                    raw_symplectic,
+                )
+                return _distance_backend_retry(
+                    result,
+                    source="symplectic_upper_bound",
+                    value=raw_symplectic,
+                )
+            else:
+                challenge_symplectic_upper = d_symp
+                result.update({
+                    "d_symplectic": d_symp,
+                    "d_x_symplectic": d_x_symp,
+                    "d_z_symplectic": d_z_symp,
+                })
+            if (
+                challenge_symplectic_upper is not None
+                and challenge_symplectic_upper
+                <= result["challenge_rejection_cutoff"]
+            ):
+                try:
+                    raw_witness = symplectic_weight_witness(
+                        code, challenge_symplectic_upper
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to construct challenge symplectic witness; "
+                        "continuing to BP-OSD"
+                    )
+                    raw_witness = None
+                witness = _validate_replayable_symplectic_witness(
+                    code,
+                    raw_witness,
+                    distance=challenge_symplectic_upper,
+                )
+                if witness is None:
+                    logger.warning(
+                        "Challenge symplectic upper bound d=%s has no "
+                        "replayable logical/dual witness; refusing rejection",
+                        challenge_symplectic_upper,
+                    )
+                    # A basis weight without a replayable logical/dual witness
+                    # is not allowed to influence any later BP/OSD decision.
+                    challenge_symplectic_upper = None
+                    for field in (
+                        "d_symplectic",
+                        "d_x_symplectic",
+                        "d_z_symplectic",
+                    ):
+                        result.pop(field, None)
+                    result["symplectic_prefilter_error"] = {
+                        "type": "UnreplayableSymplecticWitness",
+                        "message": (
+                            "symplectic upper bound had no replayable "
+                            "logical/dual witness"
+                        ),
+                    }
+                else:
+                    upper_fom = compute_fom(
+                        n, k, challenge_symplectic_upper
+                    )
+                    result.update({
+                        "d": challenge_symplectic_upper,
+                        "d_is_exact": False,
+                        "distance_trusted": False,
+                        "distance_status": "upper_bound",
+                        "distance_upper_bound": challenge_symplectic_upper,
+                        "distance_upper_bound_source": (
+                            "symplectic_upper_bound"
+                        ),
+                        "fom": upper_fom,
+                        "fom_upper_bound": upper_fom,
+                        "score": 0.0,
+                        "stage": "challenge_symplectic_rejected",
+                        "search_status": "terminal_negative",
+                        "fitness_distance_credit": 0.0,
+                        "fom_target_excluded_by_upper_bound": (
+                            challenge_symplectic_upper
+                            <= result["fom_rejection_cutoff"]
+                        ),
+                        "final_gate_excluded_by_upper_bound": True,
+                        "threshold_rejection_proven": True,
+                        "threshold_proof_distance": (
+                            challenge_symplectic_upper
+                        ),
+                        "threshold_proof_source": "symplectic_upper_bound",
+                        "symplectic_weight_witness": copy.deepcopy(witness),
+                        "threshold_proof_witness": copy.deepcopy(witness),
+                    })
+                    result["threshold_proof_lhs"] = (
+                        k
+                        * challenge_symplectic_upper
+                        * challenge_symplectic_upper
+                        * result["fom_target_denominator"]
+                    )
+                    result["threshold_proof_rhs"] = (
+                        result["fom_target_numerator"] * n
+                    )
+                    return result
+
     # Stage 3: Quick distance estimate
-    d_upper = estimate_distance(code, num_trials=quick_trials)
+    try:
+        raw_d_bp = estimate_distance(code, num_trials=quick_trials)
+    except Exception as exc:
+        return _distance_backend_retry(
+            result, source="bp_osd_0", error=exc
+        )
+    d_bp = _positive_distance_bound(raw_d_bp)
+    if d_bp is None:
+        return _distance_backend_retry(
+            result, source="bp_osd_0", value=raw_d_bp
+        )
+    result["bp_distance_upper_bound"] = d_bp
+    d_upper = (
+        min(d_bp, challenge_symplectic_upper)
+        if challenge_symplectic_upper is not None
+        else d_bp
+    )
+    upper_source = (
+        "symplectic_upper_bound"
+        if challenge_symplectic_upper is not None
+        and challenge_symplectic_upper < d_bp
+        else "bp_osd_0"
+    )
     if d_upper <= 2:
-        result["d"] = d_upper
-        result["distance_trusted"] = True  # d≤2 is always reliable
-        result["fom"] = compute_fom(n, k, d_upper)
-        result["score"] = result["fom"]
-        result["stage"] = "trivial_distance"
+        _record_distance_upper_bound(
+            result,
+            n=n,
+            k=k,
+            distance=d_upper,
+            source=upper_source,
+            stage="trivial_distance",
+        )
         return result
 
-    result["d"] = d_upper
-    result["distance_trusted"] = d_upper <= DISTANCE_TRUST_RATIO * math.sqrt(n)
-    fom = compute_fom(n, k, d_upper)
-    result["fom"] = fom
-    result["score"] = fom
-    result["stage"] = "quick_estimate"
+    if _record_distance_upper_bound(
+        result,
+        n=n,
+        k=k,
+        distance=d_upper,
+        source=upper_source,
+        stage="quick_estimate",
+    ):
+        return result
+    upper_fom = result["fom_upper_bound"]
 
     # Stage 4: Refined distance estimate for promising candidates.
     # Run 3 independent BP-OSD batches (OSD_0) and take the minimum to reduce
     # variance. BP-OSD is an upper bound, so min of multiple runs is
     # tighter and more stable.
-    if fom >= fom_threshold_refine:
+    if upper_fom >= fom_threshold_refine:
         for _ in range(3):
-            d_refined = estimate_distance(code, num_trials=refine_trials)
-            d_upper = min(d_upper, d_refined)
-        result["d"] = d_upper
-        result["distance_trusted"] = d_upper <= DISTANCE_TRUST_RATIO * math.sqrt(n)
-        fom = compute_fom(n, k, d_upper)
-        result["fom"] = fom
-        result["score"] = fom
-        result["stage"] = "refined_estimate"
+            try:
+                raw_d_refined = estimate_distance(
+                    code, num_trials=refine_trials
+                )
+            except Exception as exc:
+                return _distance_backend_retry(
+                    result, source="bp_osd_0_refined", error=exc
+                )
+            d_refined = _positive_distance_bound(raw_d_refined)
+            if d_refined is None:
+                return _distance_backend_retry(
+                    result,
+                    source="bp_osd_0_refined",
+                    value=raw_d_refined,
+                )
+            if d_refined < d_upper:
+                d_upper = d_refined
+                upper_source = "bp_osd_0_refined"
+            result["bp_distance_upper_bound"] = min(
+                result["bp_distance_upper_bound"],
+                d_refined,
+            )
+        if _record_distance_upper_bound(
+            result,
+            n=n,
+            k=k,
+            distance=d_upper,
+            source=upper_source,
+            stage="refined_estimate",
+        ):
+            return result
+        upper_fom = result["fom_upper_bound"]
 
     # Stage 4b: OSD-CS verification for top candidates.
     # OSD-CS order=10 finds tighter bounds than OSD_0 for 7 of 9 tested
     # codes (4-12 point improvements on high-k codes). One batch of 200
     # trials catches the worst overestimates before they pollute fitness.
-    if fom >= fom_threshold_exact:
-        d_cs = estimate_distance_osd_cs(code, num_trials=200)
+    effective_osd_cs_threshold = (
+        fom_threshold_exact
+        if fom_threshold_osd_cs is None
+        else fom_threshold_osd_cs
+    )
+    if not skip_osd_cs and upper_fom >= effective_osd_cs_threshold:
+        try:
+            raw_d_cs = estimate_distance_osd_cs(
+                code, num_trials=osd_cs_trials
+            )
+        except Exception as exc:
+            return _distance_backend_retry(
+                result, source="bp_osd_cs", error=exc
+            )
+        d_cs = _positive_distance_bound(raw_d_cs)
+        if d_cs is None:
+            return _distance_backend_retry(
+                result, source="bp_osd_cs", value=raw_d_cs
+            )
+        result["osd_cs_distance_upper_bound"] = d_cs
         if d_cs < d_upper:
             d_upper = d_cs
-            result["d"] = d_upper
-            result["distance_trusted"] = d_upper <= DISTANCE_TRUST_RATIO * math.sqrt(n)
-            fom = compute_fom(n, k, d_upper)
-            result["fom"] = fom
-            result["score"] = fom
-            result["stage"] = "osd_cs_verified"
+            upper_source = "bp_osd_cs"
+            if _record_distance_upper_bound(
+                result,
+                n=n,
+                k=k,
+                distance=d_upper,
+                source=upper_source,
+                stage="osd_cs_upper_bound",
+            ):
+                return result
+            upper_fom = result["fom_upper_bound"]
 
     # Stage 5: Exact distance for top candidates
-    if fom >= fom_threshold_exact and not skip_exact:
+    if upper_fom >= fom_threshold_exact and not skip_exact:
         d_exact = compute_distance_exact(code, timeout_seconds=exact_timeout)
         if d_exact is not None:
             result["d"] = d_exact
             result["d_is_exact"] = True
             result["distance_trusted"] = True
+            result["distance_status"] = "exact"
+            result["distance_upper_bound"] = d_exact
+            result["distance_upper_bound_source"] = "exact"
             result["fom"] = compute_fom(n, k, d_exact)
+            result["fom_upper_bound"] = result["fom"]
+            result["exact_distance"] = d_exact
+            result["exact_fom"] = result["fom"]
+            result["fitness_distance_credit"] = result["exact_fom"]
+            result["search_status"] = "exact"
             result["score"] = result["fom"]
             result["stage"] = "exact"
+            if (
+                challenge_target_fom is not None
+                and d_exact <= result["challenge_rejection_cutoff"]
+            ):
+                result["search_status"] = "terminal_negative"
+                result["threshold_rejection_proven"] = True
+                result["final_gate_excluded_by_upper_bound"] = True
+                result["fitness_distance_credit"] = 0.0
+                result["score"] = 0.0
         else:
             result["stage"] = "exact_timeout"
 
@@ -425,13 +996,13 @@ def evaluate_batch(
     for A_terms, B_terms in candidates:
         result = evaluate_candidate(ell, m, A_terms, B_terms, **kwargs)
         results.append(result)
-        if result["score"] > 0:
+        if _result_ranking_score(result) > 0:
             logger.info(
                 "[[%d, %d, %d]] FOM=%.2f (stage=%s)",
                 result["n"], result["k"], result["d"],
                 result["fom"], result["stage"],
             )
-    results.sort(key=lambda r: r["score"], reverse=True)
+    results.sort(key=_result_ranking_score, reverse=True)
     return results
 
 
@@ -459,7 +1030,7 @@ def evaluate_lattices(
         )
         results = evaluate_batch(ell, m, candidates, **kwargs)
         all_results.extend(results)
-    all_results.sort(key=lambda r: r["score"], reverse=True)
+    all_results.sort(key=_result_ranking_score, reverse=True)
     return all_results
 
 
@@ -582,9 +1153,19 @@ def evaluate_candidate_milp(
         })
     result["milp_effective_early_stop"] = effective_early_stop
 
-    # Symplectic weight: instant upper bound on d from Gaussian elimination
-    d_symp, _, _ = symplectic_weight_bound(code)
-    result["d_symplectic"] = d_symp
+    # Symplectic weight: instant scalar upper bound from Gaussian elimination.
+    # It is diagnostic until the corresponding logical/dual witness is replayed.
+    try:
+        raw_symplectic = symplectic_weight_bound(code)
+        raw_d_symp, _, _ = raw_symplectic
+    except Exception:
+        logger.exception(
+            "Symplectic upper-bound backend failed; continuing to MILP"
+        )
+        raw_d_symp = None
+    d_symp = _positive_distance_bound(raw_d_symp)
+    if d_symp is not None:
+        result["d_symplectic"] = d_symp
 
     if quick:
         result["stage"] = "quick_k_only"
@@ -598,19 +1179,28 @@ def evaluate_candidate_milp(
     #   that the configured search objective cannot win, so MILP can be skipped.
     symplectic_witness = None
     if (
-        d_symp <= 2
-        or (
+        d_symp is not None
+        and (
+            d_symp <= 2
+            or (
             effective_early_stop is not None
             and d_symp <= effective_early_stop
+            )
         )
     ):
         try:
-            symplectic_witness = symplectic_weight_witness(code, d_symp)
+            raw_witness = symplectic_weight_witness(code, d_symp)
         except Exception:
             logger.exception(
                 "Failed to construct a replayable symplectic witness; "
                 "continuing to MILP"
             )
+            raw_witness = None
+        symplectic_witness = _validate_replayable_symplectic_witness(
+            code,
+            raw_witness,
+            distance=d_symp,
+        )
         if symplectic_witness is None:
             logger.warning(
                 "Symplectic upper bound d=%s has no replayable logical/dual "
@@ -622,14 +1212,27 @@ def evaluate_candidate_milp(
                 symplectic_witness
             )
     if symplectic_witness is not None:
+        symplectic_exact = d_symp <= 2
+        upper_fom = compute_fom(n, k, d_symp)
         result["d"] = d_symp
-        result["d_is_exact"] = d_symp <= 2  # Only d≤2 is provably exact
+        result["d_is_exact"] = symplectic_exact  # BB k>0 implies d >= 2.
         result["distance_trusted"] = True  # Valid upper bound
         result["distance_status"] = (
             "exact" if result["d_is_exact"] else "upper_bound"
         )
-        result["fom"] = compute_fom(n, k, d_symp)
-        result["score"] = result["fom"]
+        result["distance_upper_bound"] = d_symp
+        result["distance_upper_bound_source"] = "symplectic_upper_bound"
+        result["fom"] = upper_fom
+        result["fom_upper_bound"] = upper_fom
+        result["exact_distance"] = d_symp if symplectic_exact else None
+        result["exact_fom"] = upper_fom if symplectic_exact else None
+        result["fitness_distance_credit"] = (
+            upper_fom if symplectic_exact else 0.0
+        )
+        result["score"] = upper_fom if symplectic_exact else 0.0
+        result["search_status"] = (
+            "exact" if symplectic_exact else "terminal_negative"
+        )
         result["stage"] = "symplectic_low_d"
         if milp_target_fom is not None:
             result["fom_target_excluded_by_upper_bound"] = (
@@ -709,50 +1312,104 @@ def evaluate_candidate_milp(
         result["d_is_exact"] = False
         result["distance_trusted"] = False
         result["fom"] = 0.0
+        result["fom_upper_bound"] = None
+        result["exact_distance"] = None
+        result["exact_fom"] = None
+        result["fitness_distance_credit"] = 0.0
         result["score"] = 0.0
         result["distance_status"] = "unknown_no_incumbent"
+        result["search_status"] = "retry"
         result["stage"] = "milp_timeout_no_incumbent"
     else:
+        d = _positive_distance_bound(d)
+        if d is None:
+            return _distance_backend_retry(
+                result,
+                source="milp",
+                value=d,
+            )
+        is_exact = details.get("exact") is True
+        upper_fom = compute_fom(n, k, d)
         result["d"] = d
-        result["d_is_exact"] = details["exact"]
-        result["distance_trusted"] = True  # Incumbent or optimal -- valid upper bound
+        result["d_is_exact"] = is_exact
+        result["distance_trusted"] = is_exact
         result["distance_status"] = (
-            "exact" if details["exact"] else "upper_bound"
+            "exact" if is_exact else "upper_bound"
         )
-        result["fom"] = compute_fom(n, k, d)
-        result["score"] = result["fom"]
+        result["distance_upper_bound"] = d
+        result["distance_upper_bound_source"] = (
+            "milp_exact" if is_exact else "milp_incumbent"
+        )
+        result["fom"] = upper_fom
+        result["fom_upper_bound"] = upper_fom
+        result["exact_distance"] = d if is_exact else None
+        result["exact_fom"] = upper_fom if is_exact else None
+        result["fitness_distance_credit"] = upper_fom if is_exact else 0.0
+        result["score"] = upper_fom if is_exact else 0.0
+        result["search_status"] = "exact" if is_exact else "unresolved"
+
+        replayed_incumbent = None
+        structured_witness = None
+        try:
+            structured_witness = _validated_feasible_threshold_witness(
+                details,
+                d,
+            )
+        except RuntimeError:
+            pass
+        if not is_exact:
+            if structured_witness is not None:
+                replayed_incumbent = _validate_replayable_css_witness(
+                    code,
+                    structured_witness,
+                    distance=d,
+                )
+            result["distance_trusted"] = replayed_incumbent is not None
+
         if milp_target_fom is not None:
+            witness_proven = is_exact or replayed_incumbent is not None
             result["fom_target_excluded_by_upper_bound"] = (
-                d <= result["fom_rejection_cutoff"]
+                witness_proven and d <= result["fom_rejection_cutoff"]
             )
             result["final_gate_excluded_by_upper_bound"] = (
-                d <= result["challenge_rejection_cutoff"]
+                witness_proven and d <= result["challenge_rejection_cutoff"]
             )
-            result["threshold_rejection_proven"] = result[
-                "final_gate_excluded_by_upper_bound"
-            ]
-            result["threshold_proof_lhs"] = (
-                k * d * d * result["fom_target_denominator"]
-            )
-            result["threshold_proof_rhs"] = (
-                result["fom_target_numerator"] * n
-            )
-            result["threshold_proof_distance"] = d
-            result["threshold_proof_source"] = (
-                "milp_exact" if details["exact"] else "milp_feasible_upper_bound"
+            result["threshold_rejection_proven"] = bool(
+                result["final_gate_excluded_by_upper_bound"]
             )
             if result["threshold_rejection_proven"]:
-                result["threshold_proof_witness"] = (
-                    _validated_feasible_threshold_witness(
-                        details,
-                        d,
-                    )
+                result["threshold_proof_lhs"] = (
+                    k * d * d * result["fom_target_denominator"]
                 )
+                result["threshold_proof_rhs"] = (
+                    result["fom_target_numerator"] * n
+                )
+                result["threshold_proof_distance"] = d
+                result["threshold_proof_source"] = (
+                    "milp_exact"
+                    if is_exact
+                    else "milp_feasible_upper_bound"
+                )
+                if replayed_incumbent is not None:
+                    result["threshold_proof_witness"] = copy.deepcopy(
+                        replayed_incumbent
+                    )
+                elif is_exact and structured_witness is not None:
+                    # Exact optimality is already sufficient for rejection;
+                    # retain the solver witness as supplementary evidence.
+                    result["threshold_proof_witness"] = copy.deepcopy(
+                        structured_witness
+                    )
+                result["search_status"] = "terminal_negative"
+                result["fitness_distance_credit"] = 0.0
+                result["score"] = 0.0
         if effective_early_stop is not None and d <= effective_early_stop:
             if milp_target_fom is not None:
-                result["milp_early_stop_triggered"] = not details["exact"]
+                result["milp_early_stop_triggered"] = not is_exact
+            elif replayed_incumbent is not None:
+                result["search_status"] = "terminal_negative"
             result["stage"] = "milp_low_d"
-        elif details["exact"]:
+        elif is_exact:
             result["stage"] = "milp_exact"
         else:
             # Incumbents found but not all proven optimal -- d is an upper
@@ -783,14 +1440,14 @@ def evaluate_batch_milp(
     for A_terms, B_terms in candidates:
         result = evaluate_candidate_milp(ell, m, A_terms, B_terms, **kwargs)
         results.append(result)
-        if result["score"] > 0:
+        if _result_ranking_score(result) > 0:
             logger.info(
                 "MILP [[%d, %d, %d]] FOM=%.2f (stage=%s, %.1fs)",
                 result["n"], result["k"], result["d"],
                 result["fom"], result["stage"],
                 result.get("milp_details", {}).get("time_s", 0),
             )
-    results.sort(key=lambda r: r["score"], reverse=True)
+    results.sort(key=_result_ranking_score, reverse=True)
     return results
 
 
@@ -1212,6 +1869,7 @@ def _validated_milp_cache_result(
     # The metadata hashes are deliberately unkeyed corruption checks, so a
     # writer who controls the JSONL file could recompute them. Only fields
     # independently rebuilt or witness-replayed here may cross the boundary.
+    upper_fom = compute_fom(n, k, distance)
     result = {
         **copy.deepcopy(identity),
         "n": n,
@@ -1220,18 +1878,29 @@ def _validated_milp_cache_result(
         "d_is_exact": structurally_exact,
         "distance_trusted": True,
         "distance_status": "exact" if structurally_exact else "upper_bound",
-        "fom": compute_fom(n, k, distance),
+        "distance_upper_bound": distance,
+        "distance_upper_bound_source": (
+            "milp_cache_structural_exact"
+            if structurally_exact
+            else "milp_cache_witness"
+        ),
+        "fom": upper_fom,
+        "fom_upper_bound": upper_fom,
+        "exact_distance": distance if structurally_exact else None,
+        "exact_fom": upper_fom if structurally_exact else None,
+        "fitness_distance_credit": upper_fom if structurally_exact else 0.0,
         "encoding_rate": k / n,
         "milp_effective_early_stop": cutoff,
         "milp_solver_attempted": False,
         "milp_cache_replayed": True,
+        "search_status": "exact" if structurally_exact else "terminal_negative",
         "stage": (
             "milp_cache_structural_d2"
             if structurally_exact
             else "milp_cache_witness_upper_bound"
         ),
     }
-    result["score"] = result["fom"]
+    result["score"] = upper_fom if structurally_exact else 0.0
     if evidence_kind == "symplectic_logical_witness":
         result["d_symplectic"] = distance
         result["symplectic_weight_witness"] = copy.deepcopy(
@@ -1515,7 +2184,7 @@ def evaluate_milp_parallel(
             "MILP cache: all %d tasks cached, skipping solver",
             len(tasks),
         )
-        results.sort(key=lambda r: r.get("score", float("-inf")), reverse=True)
+        results.sort(key=_result_ranking_score, reverse=True)
         return results
 
     t0 = _time.monotonic()
@@ -1581,7 +2250,12 @@ def evaluate_milp_parallel(
                     "MILP [%d/%d] [[%d,%d,%d]] FOM=%.2f (%s, %.1fs)",
                     len(results) - len(cached_results), len(uncached_tasks),
                     result["n"], result["k"], d,
-                    result.get("fom", 0), result.get("stage", "?"),
+                    (
+                        result.get("fom")
+                        or result.get("fom_upper_bound")
+                        or 0
+                    ),
+                    result.get("stage", "?"),
                     result.get("milp_details", {}).get("time_s", 0),
                 )
 
@@ -1592,5 +2266,5 @@ def evaluate_milp_parallel(
         max_workers, elapsed,
     )
 
-    results.sort(key=lambda r: r.get("score", float("-inf")), reverse=True)
+    results.sort(key=_result_ranking_score, reverse=True)
     return results

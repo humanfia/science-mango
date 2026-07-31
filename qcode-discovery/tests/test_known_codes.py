@@ -266,6 +266,8 @@ class TestResultsPersistence:
                 "A_terms": [(3, 0), (0, 1), (0, 2)],
                 "B_terms": [(0, 3), (1, 0), (2, 0)],
                 "n": 144, "k": 12, "d": 12, "fom": 12.0,
+                "d_is_exact": True, "distance_status": "exact",
+                "exact_distance": 12, "search_status": "exact",
             }
             save_code(result, filepath)
             loaded = load_codes(filepath)
@@ -283,14 +285,21 @@ class TestResultsPersistence:
             filepath = Path(tmpdir) / "pareto.json"
             results = [
                 {"n": 144, "k": 12, "d": 12, "fom": 12.0,
+                 "d_is_exact": True, "distance_status": "exact",
+                 "exact_distance": 12, "search_status": "exact",
                  "ell": 12, "m": 6,
                  "A_terms": [(3, 0), (0, 1), (0, 2)],
                  "B_terms": [(0, 3), (1, 0), (2, 0)]},
-                {"n": 144, "k": 12, "d": 14, "fom": 16.3,
+                {"n": 144, "k": 12, "d": 14,
+                 "fom": 12 * 14 * 14 / 144,
+                 "d_is_exact": True, "distance_status": "exact",
+                 "exact_distance": 14, "search_status": "exact",
                  "ell": 12, "m": 6,
                  "A_terms": [(3, 0), (0, 2), (0, 3)],
                  "B_terms": [(0, 3), (1, 0), (2, 0)]},
                 {"n": 72, "k": 12, "d": 6, "fom": 6.0,
+                 "d_is_exact": True, "distance_status": "exact",
+                 "exact_distance": 6, "search_status": "exact",
                  "ell": 6, "m": 6,
                  "A_terms": [(3, 0), (0, 1), (0, 2)],
                  "B_terms": [(0, 3), (1, 0), (2, 0)]},
@@ -299,7 +308,7 @@ class TestResultsPersistence:
             # Code with d=14 dominates d=12 (same n, same k, better d)
             assert len(front) == 2
             foms = {r["fom"] for r in front}
-            assert 16.3 in foms
+            assert 12 * 14 * 14 / 144 in foms
             assert 6.0 in foms  # different trade-off (smaller n)
 
     def test_pareto_front_merges_with_existing(self):
@@ -309,6 +318,8 @@ class TestResultsPersistence:
             # First run
             results1 = [
                 {"n": 144, "k": 12, "d": 12, "fom": 12.0,
+                 "d_is_exact": True, "distance_status": "exact",
+                 "exact_distance": 12, "search_status": "exact",
                  "ell": 12, "m": 6,
                  "A_terms": [(3, 0), (0, 1), (0, 2)],
                  "B_terms": [(0, 3), (1, 0), (2, 0)]},
@@ -319,6 +330,8 @@ class TestResultsPersistence:
             # Second run with a different non-dominated code
             results2 = [
                 {"n": 72, "k": 12, "d": 6, "fom": 6.0,
+                 "d_is_exact": True, "distance_status": "exact",
+                 "exact_distance": 6, "search_status": "exact",
                  "ell": 6, "m": 6,
                  "A_terms": [(3, 0), (0, 1), (0, 2)],
                  "B_terms": [(0, 3), (1, 0), (2, 0)]},

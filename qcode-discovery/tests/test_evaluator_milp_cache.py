@@ -243,7 +243,11 @@ def test_bound_cache_replays_witness_but_downgrades_exact_claim(tmp_path):
     assert cached["d"] == 12
     assert cached["d_is_exact"] is False
     assert cached["distance_status"] == "upper_bound"
-    assert cached["score"] == cached["k"] * cached["d"] ** 2 / cached["n"]
+    assert cached["score"] == 0.0
+    assert (
+        cached["fom_upper_bound"]
+        == cached["k"] * cached["d"] ** 2 / cached["n"]
+    )
     assert cached["milp_cache_replayed"] is True
     assert cached["stage"] == "milp_cache_witness_upper_bound"
 

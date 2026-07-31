@@ -502,9 +502,15 @@ def _validate_reported_distance_metrics(
 
     distance = _strict_int(row.get("d"), "d", minimum=0)
     expected_fom = k * distance * distance / n
+    exact = (
+        row.get("d_is_exact") is True
+        and row.get("distance_status") == "exact"
+    )
     for field, expected in (
         ("fom", expected_fom),
-        ("score", expected_fom),
+        # Upper-bound FOM remains a diagnostic, but positive search score is
+        # reserved for exact evidence.
+        ("score", expected_fom if exact else 0.0),
         ("encoding_rate", k / n),
     ):
         if field not in row:

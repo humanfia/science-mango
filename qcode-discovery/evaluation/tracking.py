@@ -47,6 +47,7 @@ for plotting progress curves.
 from __future__ import annotations
 
 import json
+import math
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -62,6 +63,48 @@ def _median(values: list[float]) -> float:
     return s[mid]
 
 
+def _positive_number(value) -> float:
+    """Return one finite positive numeric value, otherwise zero."""
+    if isinstance(value, bool):
+        return 0.0
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return 0.0
+    return number if math.isfinite(number) and number > 0 else 0.0
+
+
+def _certified_fom(result: dict) -> float:
+    """Recompute FOM only from a self-consistent exact-distance claim."""
+    if (
+        result.get("d_is_exact") is not True
+        or result.get("distance_status") == "upper_bound"
+    ):
+        return 0.0
+    n = result.get("n")
+    k = result.get("k")
+    d = result.get("d")
+    exact_distance = result.get("exact_distance")
+    if (
+        type(n) is not int
+        or type(k) is not int
+        or type(d) is not int
+        or type(exact_distance) is not int
+        or not (1 <= k <= n)
+        or not (1 <= d <= n)
+        or exact_distance != d
+    ):
+        return 0.0
+    return k * d * d / n
+
+
+def _diagnostic_upper_fom(result: dict) -> float:
+    """Return a non-exact upper-bound FOM for monitoring only."""
+    if result.get("d_is_exact") is True:
+        return 0.0
+    return _positive_number(result.get("fom_upper_bound"))
+
+
 class RunTracker:
     """Tracks metrics for a single evolutionary run."""
 
@@ -73,6 +116,7 @@ class RunTracker:
         self._gen_file = None
         self._eval_count = 0
         self._best_fom = 0.0
+        self._best_fom_upper_bound = 0.0
         self._best_code: dict | None = None
 
     def start_run(self, run_id: str | None = None, config: dict | None = None) -> str:
@@ -110,6 +154,7 @@ class RunTracker:
             raise
         self._eval_count = 0
         self._best_fom = 0.0
+        self._best_fom_upper_bound = 0.0
         self._best_code = None
 
         return run_id
@@ -132,10 +177,14 @@ class RunTracker:
         self._eval_file.write(json.dumps(record, default=str) + "\n")
         self._eval_file.flush()
 
-        fom = result.get("fom", 0.0)
+        fom = _certified_fom(result)
         if fom > self._best_fom:
             self._best_fom = fom
             self._best_code = _serialize_result(result)
+        self._best_fom_upper_bound = max(
+            self._best_fom_upper_bound,
+            _diagnostic_upper_fom(result),
+        )
 
     def start_generation(self, generation: int) -> None:
         """Mark the start of a generation (for timing)."""
@@ -155,7 +204,16 @@ class RunTracker:
         elapsed = time.time() - start if start is not None else 0.0
 
         valid = [r for r in results if r.get("k", 0) > 0]
-        foms = [r.get("fom", 0.0) for r in valid if r.get("fom", 0.0) > 0]
+        foms = [
+            fom
+            for r in valid
+            if (fom := _certified_fom(r)) > 0
+        ]
+        upper_foms = [
+            fom
+            for r in valid
+            if (fom := _diagnostic_upper_fom(r)) > 0
+        ]
 
         summary = {
             "generation": generation,
@@ -164,10 +222,15 @@ class RunTracker:
             "total_candidates": len(results),
             "valid_candidates": len(valid),
             "codes_with_positive_fom": len(foms),
+            "codes_with_exact_fom": len(foms),
             "best_fom": max(foms) if foms else 0.0,
             "mean_fom": sum(foms) / len(foms) if foms else 0.0,
             "median_fom": _median(foms) if foms else 0.0,
             "global_best_fom": self._best_fom,
+            "best_fom_upper_bound": (
+                max(upper_foms) if upper_foms else 0.0
+            ),
+            "global_best_fom_upper_bound": self._best_fom_upper_bound,
             "stage_counts": _count_stages(results),
         }
 
@@ -187,6 +250,7 @@ class RunTracker:
         self.run_meta["status"] = "completed"
         self.run_meta["total_evaluations"] = self._eval_count
         self.run_meta["best_fom"] = self._best_fom
+        self.run_meta["best_fom_upper_bound"] = self._best_fom_upper_bound
         self.run_meta["best_code"] = self._best_code
         self._write_meta()
 

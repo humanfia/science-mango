@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+
+from .state import candidate_terminal_negative
 
 
 REVIEW_SCHEMA: dict[str, Any] = {
@@ -93,6 +96,98 @@ def validate_review(value: Any) -> dict[str, Any]:
     return value
 
 
+_ADVISORY_ROW_FIELDS = (
+    "candidate_key",
+    "ell",
+    "m",
+    "n",
+    "k",
+    "A_terms",
+    "B_terms",
+    "archive_cell",
+    "archive_round",
+    "pattern_type",
+    "pattern_classifier_version",
+    "term_count",
+    "stage",
+    "search_status",
+    "distance_status",
+    "d_is_exact",
+    "distance_trusted",
+    "milp_attempted",
+    "candidate_persistence_lane",
+    "candidate_persistence_reason",
+    "winner_capable_parameters",
+    "minimum_winning_distance",
+    "singleton_distance_upper_bound",
+    "static_eligibility",
+    "structural_novelty",
+    "distance_retry_required",
+    "distance_backend_error",
+)
+
+
+def _upper_bound_neutral_advisory(row: dict[str, Any]) -> dict[str, Any]:
+    """Project an untrusted row without exposing upper-bound reward signals."""
+    projected = {
+        name: copy.deepcopy(row[name])
+        for name in _ADVISORY_ROW_FIELDS
+        if name in row
+    }
+    projected["distance_policy"] = (
+        "unresolved upper-bound magnitude withheld; no positive distance "
+        "credit"
+    )
+
+    details = row.get("milp_details")
+    if isinstance(details, dict):
+        coverage_fields = (
+            "exact",
+            "checkpoint_status",
+            "total_logicals",
+            "num_logicals_checked",
+            "logicals_optimal",
+            "logicals_incumbent",
+            "logicals_timeout",
+            "all_timeout",
+            "no_incumbent",
+        )
+        projected["milp_coverage"] = {
+            name: copy.deepcopy(details[name])
+            for name in coverage_fields
+            if name in details
+        }
+
+    terminal_negative = candidate_terminal_negative(row)
+    if terminal_negative:
+        projected["proof_backed_terminal_negative"] = {
+            name: copy.deepcopy(row[name])
+            for name in (
+                "threshold_rejection_proven",
+                "threshold_proof_source",
+                "threshold_proof_distance",
+                "fom_rejection_cutoff",
+                "challenge_rejection_cutoff",
+                "fom_target_excluded_by_upper_bound",
+                "final_gate_excluded_by_upper_bound",
+                "search_final_gate_excluded_by_upper_bound",
+            )
+            if name in row
+        }
+
+    if any(
+        name in row
+        for name in (
+            "distance_lower_bound",
+            "distance_lower_bound_proven",
+            "distance_lower_bound_status",
+            "fom_lower_bound",
+        )
+    ):
+        projected["unverified_lower_bound_claim_withheld"] = True
+    return projected
+
+
 def build_review_prompt(
     *,
     round_number: int,
@@ -111,9 +206,25 @@ def build_review_prompt(
         "round": round_number,
         "contract": contract,
         "new_candidate_count": len(candidates),
-        "new_candidates": candidates[:20],
-        "milp_audited": audited,
-        "archive_top": archive_top[:20],
+        "new_candidates": [
+            _upper_bound_neutral_advisory(row)
+            for row in candidates[:20]
+        ],
+        "milp_audited": [
+            _upper_bound_neutral_advisory(row)
+            for row in audited
+        ],
+        "archive_top": [
+            _upper_bound_neutral_advisory(row)
+            for row in archive_top[:20]
+        ],
+        "upper_bound_neutralization_policy": {
+            "bp_osd_distance_and_fom_magnitudes_withheld": True,
+            "unreplayed_upper_bounds_cannot_permanently_reject": True,
+            "positive_distance_credit_sources": [
+                "trusted_exact_history",
+            ],
+        },
         "trusted_exact_policy": {
             "source": "canonical evaluations.jsonl",
             "classification": "AuditOutcome.EXACT",
@@ -138,7 +249,11 @@ Trust boundary:
 - Only trusted_exact_history was independently replayed from the canonical
   audit log. trusted_exact_wins is the subset that also passes a construction
   rebuild and explicit known-code registry replay with novel=true.
-- archive_top and new_candidates remain advisory BP-OSD upper bounds.
+- archive_top, new_candidates, and milp_audited are upper-bound-neutral
+  projections: unresolved BP/OSD d and FOM magnitudes are deliberately absent.
+- A replayable low-weight witness may be used only as negative evidence.
+- Positive distance credit requires trusted exact history or a formally
+  certified lower bound; survival under BP/OSD is not such a bound.
 - Your review cannot upgrade any numerical claim. Only MILP certificates and
   later Lean compilation can do so.
 - Flag stale or physically implausible FOM claims, duplicated candidates,

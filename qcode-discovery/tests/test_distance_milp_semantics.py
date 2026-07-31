@@ -215,6 +215,16 @@ def test_css_incumbent_at_cutoff_stops_after_first_direction(monkeypatch):
 def test_dynamic_cutoff_uses_rebuilt_n_k_and_stops_at_boundary(monkeypatch):
     dummy = SimpleNamespace(num_qudits=360, dimension=16)
     observed = {}
+    hx = np.zeros((1, 360), dtype=int)
+    hz = np.zeros((1, 360), dtype=int)
+    lx = np.zeros((1, 360), dtype=int)
+    lx[0, 0] = 1
+    lz = np.zeros((1, 360), dtype=int)
+    monkeypatch.setattr(
+        evaluator,
+        "get_code_matrices",
+        lambda _code: (hx, hz, lx, lz),
+    )
     monkeypatch.setattr(
         evaluator,
         "_validate_and_build",
@@ -369,6 +379,16 @@ def test_dynamic_cutoff_can_skip_milp_from_symplectic_upper_bound(monkeypatch):
         "weight": 16,
         "bits": [1] * 16 + [0] * 344,
     }
+    hx = np.zeros((1, 360), dtype=int)
+    hz = np.zeros((1, 360), dtype=int)
+    lx = np.asarray(witness["bits"], dtype=int).reshape(1, -1)
+    lz = np.zeros((1, 360), dtype=int)
+    lz[0, 0] = 1
+    monkeypatch.setattr(
+        evaluator,
+        "get_code_matrices",
+        lambda _code: (hx, hz, lx, lz),
+    )
     monkeypatch.setattr(
         evaluator,
         "symplectic_weight_witness",

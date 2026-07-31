@@ -1,8 +1,10 @@
 """JSON persistence for discovered codes and Pareto front tracking.
 
-Discovered codes are appended to a JSON file (default
+Exact discovered codes are stored in a JSON file (default
 ``results/discovered_codes.json``) and deduplicated by their defining
-parameters ``(ell, m, A_terms, B_terms)``.
+parameters ``(ell, m, A_terms, B_terms)``.  Heuristic upper bounds and
+certified lower bounds are deliberately excluded from this compatibility
+store because its historical ``d`` field is consumed as an exact distance.
 
 A Pareto front is maintained in a separate file (default
 ``results/pareto_front.json``).  A code is Pareto-optimal if no other
@@ -24,32 +26,134 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 RESULTS_DIR = Path(__file__).parent.parent / "results"
 
 
+def _strict_positive_int(value: Any) -> int | None:
+    """Return ``value`` only when it is a strict positive integer."""
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        return None
+    return value
+
+
+def _canonical_exact_result(result: Any) -> dict | None:
+    """Return a normalized exact-distance row, or ``None`` fail closed.
+
+    ``results/`` is a positive-discovery compatibility store, not a cache of
+    search observations.  A BP/OSD result, feasible MILP incumbent, unresolved
+    timeout, or certified lower bound therefore cannot enter it under the
+    legacy ``d`` field, which consumers historically interpret as exact.
+    """
+    if not isinstance(result, dict):
+        return None
+    if (
+        result.get("d_is_exact") is not True
+        or result.get("distance_status") != "exact"
+        or result.get("d_is_upper_bound") is True
+        or result.get("d_represents_certified_lower_bound") is True
+        or result.get("search_status") not in {"exact", "terminal_negative"}
+    ):
+        return None
+
+    n = _strict_positive_int(result.get("n"))
+    k = _strict_positive_int(result.get("k"))
+    distance = _strict_positive_int(result.get("d"))
+    exact_distance = _strict_positive_int(result.get("exact_distance"))
+    if (
+        n is None
+        or k is None
+        or distance is None
+        or exact_distance != distance
+        or k > n
+        or distance > n
+    ):
+        return None
+
+    # A row explicitly carrying only lower-bound semantics must never be
+    # upgraded merely because stale exact-looking fields were also present.
+    if (
+        result.get("distance_lower_bound_proven") is True
+        or result.get("distance_lower_bound_status") in {
+            "proven",
+            "certified",
+        }
+        or result.get("distance_status") == "certified_lower_bound"
+    ):
+        return None
+
+    normalized = dict(result)
+    exact_fom = k * distance * distance / n
+    normalized.update({
+        "n": n,
+        "k": k,
+        "d": distance,
+        "d_is_exact": True,
+        "distance_status": "exact",
+        "exact_distance": distance,
+        "exact_fom": exact_fom,
+        "fom": exact_fom,
+    })
+    return normalized
+
+
+def _load_result_array_for_update(path: Path, label: str) -> list[dict]:
+    """Read an existing result array without treating corruption as empty."""
+    if not path.exists():
+        return []
+    try:
+        with path.open() as stream:
+            value = json.load(stream)
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        raise ValueError(f"{label} is unavailable or invalid: {path}") from exc
+    if not isinstance(value, list) or any(
+        not isinstance(row, dict) for row in value
+    ):
+        raise ValueError(f"{label} must be a JSON array of objects: {path}")
+    return value
+
+
 def save_code(result: dict, filepath: Path | str | None = None) -> None:
-    """Append a discovered code to the results JSON file.
+    """Persist one explicitly exact discovered code.
 
     Args:
-        result: Evaluation result dict from evaluate_candidate.
+        result: Exact evaluation result from a proof-producing evaluator.
         filepath: Path to JSON file. Defaults to results/discovered_codes.json.
+
+    Raises:
+        ValueError: If ``result`` is upper-bound-only, unresolved, lower-bound
+            only, malformed, or the existing store is corrupt.
     """
     filepath = Path(filepath or RESULTS_DIR / "discovered_codes.json")
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    existing = load_codes(filepath)
+    exact = _canonical_exact_result(result)
+    if exact is None:
+        raise ValueError(
+            "discovered-code persistence requires explicit exact-distance "
+            "evidence"
+        )
+    existing = _load_result_array_for_update(
+        filepath,
+        "discovered-code store",
+    )
 
-    # Avoid duplicates by (ell, m, A_terms, B_terms) key
-    key = _code_key(result)
-    existing_keys = {_code_key(r) for r in existing}
-    if key not in existing_keys:
-        existing.append(result)
+    # Rebuild the positive store from exact rows only.  This simultaneously
+    # removes legacy BP/incumbent pollution and ensures a later exact result
+    # replaces an older upper-bound row with the same defining key.
+    exact_by_key: dict[tuple, dict] = {}
+    for row in existing:
+        normalized = _canonical_exact_result(row)
+        if normalized is not None:
+            exact_by_key[_code_key(normalized)] = normalized
+    exact_by_key[_code_key(exact)] = exact
+    cleaned = list(exact_by_key.values())
 
     with open(filepath, "w") as f:
-        json.dump(existing, f, indent=2, default=str)
+        json.dump(cleaned, f, indent=2, default=str)
 
 
 def load_codes(filepath: Path | str | None = None) -> list[dict]:
@@ -75,9 +179,11 @@ def load_codes(filepath: Path | str | None = None) -> list[dict]:
 def update_pareto_front(
     results: list[dict], filepath: Path | str | None = None
 ) -> list[dict]:
-    """Update the Pareto front of discovered codes.
+    """Update the exact-distance Pareto front of discovered codes.
 
-    Merges new results with the existing front on disk, then recomputes.
+    Merges exact new results with exact rows from the existing front, cleaning
+    legacy BP/OSD upper bounds, MILP incumbents, unresolved rows, and
+    lower-bound-only claims before recomputing.
     A code is Pareto-optimal if no other code has both higher k/n AND
     higher d (at the same or smaller n).
 
@@ -91,30 +197,25 @@ def update_pareto_front(
     filepath = Path(filepath or RESULTS_DIR / "pareto_front.json")
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    # Merge with existing front on disk
-    existing_front = []
-    if filepath.exists():
-        try:
-            with open(filepath) as f:
-                existing_front = json.load(f)
-        except (json.JSONDecodeError, ValueError) as e:
-            logger.warning("Corrupted pareto front file %s: %s", filepath, e)
+    if not isinstance(results, list):
+        raise TypeError("Pareto update results must be a list")
+    existing_front = _load_result_array_for_update(
+        filepath,
+        "Pareto-front store",
+    )
 
-    # Deduplicate by code key before computing front
-    all_results = existing_front + results
-    seen_keys = set()
-    deduped = []
-    for r in all_results:
-        key = _code_key(r)
-        if key not in seen_keys:
-            seen_keys.add(key)
-            deduped.append(r)
-
-    # Filter to valid codes only
-    valid = [r for r in deduped if r.get("k", 0) > 0 and r.get("d", 0) > 0]
+    # Later exact evidence replaces an older row with the same definition.
+    # Non-exact rows are deliberately absent rather than being assigned a low
+    # rank: even one loose upper bound can incorrectly dominate the real front.
+    exact_by_key: dict[tuple, dict] = {}
+    for row in [*existing_front, *results]:
+        normalized = _canonical_exact_result(row)
+        if normalized is not None:
+            exact_by_key[_code_key(normalized)] = normalized
+    valid = list(exact_by_key.values())
 
     # Sort by FOM descending
-    valid.sort(key=lambda r: r.get("fom", 0), reverse=True)
+    valid.sort(key=lambda r: r["fom"], reverse=True)
 
     # Compute Pareto front: non-dominated in (k/n, d, 1/n) space
     front = []
