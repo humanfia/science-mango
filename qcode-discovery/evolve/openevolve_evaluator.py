@@ -38,6 +38,10 @@ MAP-Elites feature dimensions
   the fixed challenge-contract order.
 * ``search_structural_entropy`` -- normalized Shannon entropy of the
   structural-pattern distribution across that same pool.
+* ``algebraic_relation_type`` -- dominant algebraic support relation, using
+  the fixed ``RELATION_TYPES`` order.
+* ``orbit_span_bin`` -- dominant affine-rank bin of the combined support.
+* ``difference_spectrum_bin`` -- dominant primitive-difference spectrum bin.
 
 These pool-level features encourage behavioral diversity without allowing a
 single fixed safety-net code to determine the archive cell for an otherwise
@@ -132,6 +136,10 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 from evolve import dependency_contract as _dependency_contract
+from evaluation.algebraic_mechanisms import (
+    RELATION_TYPES,
+    classify_algebraic_mechanism,
+)
 from evaluation.evaluator import (
     evaluate_batch,
     evaluate_batch_milp,
@@ -260,10 +268,10 @@ SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC = "support_split_lattice_coverage"
 # multi-term cell 4. Checkpoints containing version-1 descriptors must be
 # freshly evaluated rather than silently compared across classifier versions.
 PATTERN_CLASSIFIER_VERSION_METRIC = "pattern_classifier_version"
-# Version 3 adds fixed challenge-support and structural-entropy coordinates to
-# the order-independent complete-pool descriptor. Archive coordinates from
-# older checkpoints are therefore not comparable.
-MAP_DESCRIPTOR_VERSION = 3
+# Version 4 adds algebraic-relation, orbit-span, and difference-spectrum
+# coordinates to the order-independent complete-pool descriptor. Archive
+# coordinates from older checkpoints are therefore not comparable.
+MAP_DESCRIPTOR_VERSION = 4
 MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
 MAP_DESCRIPTOR_POOL_SIZE_METRIC = "map_descriptor_pool_size"
 MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
@@ -271,6 +279,9 @@ MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
 )
 MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC = "support_split_type"
 MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC = "search_structural_entropy"
+MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC = "algebraic_relation_type"
+MAP_DESCRIPTOR_ORBIT_SPAN_METRIC = "orbit_span_bin"
+MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC = "difference_spectrum_bin"
 MAP_DESCRIPTOR_PATTERN_CARDINALITY = 6
 STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
 MAX_CANDIDATES_PER_LATTICE = 5000
@@ -1928,11 +1939,17 @@ def _pool_map_descriptor(
       zero-based index in ``CHALLENGE_SUPPORT_SPLITS``, with the same
       deterministic tie breaking;
     * ``search_structural_entropy`` is Shannon entropy of the six-class
-      pattern distribution, normalized by ``log(6)`` into ``[0, 1]``.
+      pattern distribution, normalized by ``log(6)`` into ``[0, 1]``;
+    * ``algebraic_relation_type`` is the dominant mechanism's fixed zero-based
+      index in ``RELATION_TYPES``;
+    * ``orbit_span_bin`` and ``difference_spectrum_bin`` are the dominant
+      integer bins emitted by ``classify_algebraic_mechanism``.
 
-    Rows need not have positive ``k``.  MAP-Elites is describing the search
-    strategy's output distribution; mathematical usefulness remains entirely
-    in ``combined_score`` and the downstream proof gates.
+    When evaluated rows expose ``k``, only rows with positive encoding
+    dimension may determine the descriptor.  This prevents a generator from
+    moving itself between MAP cells by padding its pool with disconnected or
+    zero-logical-qubit definitions.  The all-rows fallback exists only for
+    structural callers that do not provide an evaluated ``k`` field.
     """
 
     unique_rows: list[dict] = []
@@ -1954,6 +1971,18 @@ def _pool_map_descriptor(
             support_split_type = CHALLENGE_SUPPORT_SPLITS.index(
                 support_split
             )
+            mechanism = classify_algebraic_mechanism(
+                candidate,
+                ell=lattice[0],
+                m=lattice[1],
+            )
+            relation_type = RELATION_TYPES.index(
+                mechanism["relation_type"]
+            )
+            orbit_span_bin = int(mechanism["orbit_span_bin"])
+            difference_spectrum_bin = int(
+                mechanism["difference_spectrum_bin"]
+            )
         except (TypeError, ValueError):
             continue
         if definition in seen:
@@ -1962,8 +1991,31 @@ def _pool_map_descriptor(
         unique_rows.append({
             "pattern_type": pattern,
             "term_count": term_count,
+            "positive_k": (
+                isinstance(row.get("k"), (int, float))
+                and not isinstance(row.get("k"), bool)
+                and math.isfinite(float(row["k"]))
+                and float(row["k"]) > 0.0
+            ),
+            "has_evaluated_k": (
+                "k" in row
+                and isinstance(row.get("k"), (int, float))
+                and not isinstance(row.get("k"), bool)
+                and math.isfinite(float(row["k"]))
+            ),
             MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: support_split_type,
+            MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: relation_type,
+            MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: orbit_span_bin,
+            MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC: (
+                difference_spectrum_bin
+            ),
         })
+
+    positive_rows = [row for row in unique_rows if row["positive_k"]]
+    if positive_rows:
+        unique_rows = positive_rows
+    elif any(row["has_evaluated_k"] for row in unique_rows):
+        unique_rows = []
 
     if not unique_rows:
         return {
@@ -1971,6 +2023,9 @@ def _pool_map_descriptor(
             "pattern_type": 0.0,
             MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 0.0,
             MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC: 0.0,
+            MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: 0.0,
+            MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: 0.0,
+            MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC: 0.0,
             MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
             MAP_DESCRIPTOR_POOL_SIZE_METRIC: 0.0,
             MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: 0.0,
@@ -1994,6 +2049,24 @@ def _pool_map_descriptor(
         support_split_counts.items(),
         key=lambda item: (-item[1], item[0]),
     )
+    dominant_algebraic_relation = min(
+        (
+            (value, sum(
+                row[MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC] == value
+                for row in unique_rows
+            ))
+            for value in range(len(RELATION_TYPES))
+        ),
+        key=lambda item: (-item[1], item[0]),
+    )[0]
+
+    def dominant_bin(metric: str) -> int:
+        counts: dict[int, int] = {}
+        for descriptor_row in unique_rows:
+            value = int(descriptor_row[metric])
+            counts[value] = counts.get(value, 0) + 1
+        return min(counts.items(), key=lambda item: (-item[1], item[0]))[0]
+
     pool_size = len(unique_rows)
     structural_entropy = -sum(
         (count / pool_size) * math.log(count / pool_size)
@@ -2009,6 +2082,15 @@ def _pool_map_descriptor(
             dominant_support_split
         ),
         MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC: structural_entropy,
+        MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: float(
+            dominant_algebraic_relation
+        ),
+        MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: float(
+            dominant_bin(MAP_DESCRIPTOR_ORBIT_SPAN_METRIC)
+        ),
+        MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC: float(
+            dominant_bin(MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC)
+        ),
         MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
         MAP_DESCRIPTOR_POOL_SIZE_METRIC: float(pool_size),
         MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: (
@@ -2657,6 +2739,8 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
     if d <= 0 and not exploration_lane:
         return None
 
+    mechanism = classify_algebraic_mechanism(result)
+
     record = {
         "ell": result.get("ell"),
         "m": result.get("m"),
@@ -2670,6 +2754,14 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
         "pattern_type": _classify_pattern(
             result.get("A_terms", []), result.get("B_terms", [])
         ),
+        "relation_type": mechanism["relation_type"],
+        MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: RELATION_TYPES.index(
+            mechanism["relation_type"]
+        ),
+        MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: mechanism["orbit_span_bin"],
+        MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC: mechanism[
+            "difference_spectrum_bin"
+        ],
         SUPPORT_FILTER_VERSION_METRIC: CHALLENGE_SUPPORT_FILTER_VERSION,
         PATTERN_CLASSIFIER_VERSION_METRIC: PATTERN_CLASSIFIER_VERSION,
         "term_count": _count_terms(

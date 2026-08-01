@@ -3996,7 +3996,14 @@ def _stage2_hard_wall_result(
     replayed_sectors: list[dict[str, Any]] = []
     replay_status = "UNRESOLVED"
     replay_error: str | None = None
-    if artifact is not None and artifact.get("status") in TERMINAL_STATUSES:
+    # A hard wall can land after one sector was durably checkpointed but
+    # before the second sector made the artifact terminal.  Replay every
+    # existing artifact, not just terminal ones: ``load_replayable_sectors``
+    # is the trust boundary that validates the candidate, source/cache
+    # binding, symmetry evidence, solver status, and threshold.  This keeps a
+    # valid partial checkpoint without ever trusting its raw
+    # ``completed_sectors`` claim.
+    if artifact is not None:
         try:
             rebuilt_candidate = _construction_candidate(candidate, digest)
             if rebuilt_candidate.get("C_terms") or rebuilt_candidate.get(

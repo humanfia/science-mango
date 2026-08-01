@@ -213,6 +213,7 @@ qcode-discovery/
 ├── evolve/                                # LLM-guided evolutionary search
 │   ├── seed_solution.py                   #   CSS seed (Campaigns 1-3)
 │   ├── seed_solution_ansatz.py            #   Mixed-monomial seed (Campaign 4)
+│   ├── seed_solution_cover_algebra.py      #   Cover/algebra mechanism seed (portfolio v2)
 │   ├── seed_solution_noncss.py            #   PBB 4-tuple seed (Campaign 5)
 │   ├── openevolve_evaluator.py            #   CSS evaluator adapter
 │   ├── openevolve_evaluator_noncss.py     #   Non-CSS evaluator (3-tier pipeline)
@@ -221,6 +222,7 @@ qcode-discovery/
 │   ├── config.yaml                        #   Config: Campaigns 1-3
 │   ├── config_ansatz.yaml                 #   Config: Campaign 4
 │   ├── config_ansatz_server.yaml          #   Config: Campaign 4 (64-core server)
+│   ├── config_cover_algebra.yaml           #   Config: mechanism-aware portfolio v2
 │   ├── config_noncss.yaml                 #   Config: Campaign 5
 │   ├── prompt_context.md                  #   Domain knowledge: Campaigns 1-3
 │   ├── prompt_context_ansatz.md           #   Domain knowledge: Campaign 4
@@ -404,7 +406,20 @@ uv run python evolve/run_evolution.py \
 uv run python evolve/run_evolution.py --noncss --iterations 200
 ```
 
-A LiteLLM-compatible proxy must be running. See [`evolve/config.yaml`](evolve/config.yaml) for full configuration options.
+The production cover/algebra search is launched through the five-stage
+Humanize pipeline, not as an unmanaged OpenEvolve run. Its versioned template
+is `configs/five_stage_campaign.cover_algebra.json`; it uses five algebraic
+mechanism islands and a mechanism/support/orbit MAP grid. Because that geometry
+is incompatible with the earlier support-split archive, it requires a fresh
+run id and must not resume a schema-v1 checkpoint. The production template
+uses the Codex CLI (`codex_cli: true`), so it does not require a LiteLLM proxy.
+Its mechanism labels are search heuristics; only the seed's explicitly checked
+quotient-support projection is described as a lift, and neither label is a
+distance or cover-code certificate.
+
+Direct OpenEvolve configurations that do not use Codex CLI still require a
+LiteLLM-compatible proxy. See [`evolve/config.yaml`](evolve/config.yaml) for
+the available proxy settings.
 
 ---
 

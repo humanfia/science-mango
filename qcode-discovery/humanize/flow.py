@@ -67,6 +67,13 @@ EvolutionRunner = Callable[["FlowConfig", dict[str, Any], Path], Path | None]
 ROUND_TRANSACTION_PROTOCOL_VERSION = 2
 ROUND_TRANSACTION_SCHEMA_VERSION = 2
 ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION = 1
+SEALED_ROUND_EXACT_SCHEMA_VERSION = 1
+SEARCH_REGIME_SCHEMA_VERSION = 1
+SEARCH_REGIME_KIND = "qcode-humanize-search-regime"
+SEARCH_REGIME_PREFIX = "QCODE_SEARCH_REGIME_V1="
+SEARCH_REGIME_STATUSES = ("normal", "expand_required", "exploit")
+SEARCH_REGIME_STAGNATION_ROUNDS = 3
+SEARCH_REGIME_DUPLICATE_RATE = 0.8
 FAILURE_DIRECTION_FEEDBACK_SCHEMA_VERSION = 1
 FAILURE_DIRECTION_FEEDBACK_KIND = (
     "qcode-humanize-failure-direction-feedback"
@@ -88,23 +95,45 @@ DEFAULT_ADAPTIVE_MUTATION_POLICY = {
     "repair_dual_balance": 0,
 }
 LEGACY_BATCH_SCHEMA_VERSION = 1
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 4
-EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION = 3
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 4
-SEARCH_PORTFOLIO_SCHEMA_VERSION = 1
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 5
+EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION = 4
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 5
+EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS = frozenset({2, 3, 4})
+SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
 SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
+    "algebraic_relation_type",
+    "support_split_type",
+    "orbit_span_bin",
+)
+SEARCH_PORTFOLIO_FEATURE_BINS = {
+    "algebraic_relation_type": 5,
+    "support_split_type": 6,
+    "orbit_span_bin": 3,
+}
+SEARCH_PORTFOLIO_ROLES = (
+    "affine_automorphism_cover",
+    "shared_anchor_coset_cover",
+    "complementary_diagonal_cover",
+    "asymmetric_anchor_cover",
+    "failure_repair_restart",
+)
+# Schema-v4 witnesses were produced by the original support-shape portfolio.
+# Keep its vocabulary frozen solely to validate already-written recovery
+# artifacts.  New slices must never emit or reinterpret this contract.
+LEGACY_V4_SEARCH_PORTFOLIO_SCHEMA_VERSION = 1
+LEGACY_V4_SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
     "pattern_type",
     "support_split_type",
     "search_structural_entropy",
 )
-SEARCH_PORTFOLIO_FEATURE_BINS = {
+LEGACY_V4_SEARCH_PORTFOLIO_FEATURE_BINS = {
     "pattern_type": 6,
     "support_split_type": 6,
     "search_structural_entropy": 5,
 }
-SEARCH_PORTFOLIO_ROLES = (
+LEGACY_V4_SEARCH_PORTFOLIO_ROLES = (
     "compact_mixed_2_2",
     "hybrid_2_3_3_2",
     "balanced_3_3",
@@ -1385,6 +1414,33 @@ def _candidate_support_profile(
     return split, "mixed" if contains_mixed else "nonmixed"
 
 
+def _candidate_audit_stratum(row: dict[str, Any]) -> tuple[str, str]:
+    """Return the advisory mechanism/support stratum for fresh MILP sampling.
+
+    Algebraic mechanism labels are search metadata rather than proof evidence.
+    They therefore affect only which otherwise eligible candidates receive a
+    scarce exact-audit slot.  Older candidate rows without either label remain
+    eligible in a deterministic ``unclassified`` mechanism bucket.
+    """
+
+    # ``relation_type`` is the stable human-readable mechanism label.
+    # ``algebraic_relation_type`` is a MAP coordinate in current candidate
+    # rows and is therefore numeric.  Accept the latter only as a legacy
+    # string fallback; never turn its numeric index into a stratum label.
+    mechanism: Any = row.get("relation_type")
+    if not isinstance(mechanism, str) or not mechanism.strip():
+        legacy_mechanism = row.get("algebraic_relation_type")
+        mechanism = (
+            legacy_mechanism
+            if isinstance(legacy_mechanism, str)
+            else "unclassified"
+        )
+    if not isinstance(mechanism, str) or not mechanism.strip():
+        mechanism = "unclassified"
+    split, _mixed = _candidate_support_profile(row)
+    return mechanism.strip(), split
+
+
 def _candidate_diversity_summary(
     transaction: dict[str, Any],
     batch_rows: list[dict[str, Any]],
@@ -1566,6 +1622,366 @@ def _validate_candidate_diversity_summary(
             "previous mixed-support distribution is invalid"
         )
     return value
+
+
+def _validate_round_diversity_evidence(
+    value: Any, *, round_dir: Path
+) -> dict[str, Any]:
+    """Replay a diversity summary from its committed manifest and batch."""
+
+    validated = _validate_candidate_diversity_summary(value)
+    manifest_path = round_dir / "evolution-transaction.json"
+    batch_path = round_dir / "candidate-batch.jsonl"
+    if (
+        manifest_path.is_symlink()
+        or not manifest_path.is_file()
+        or batch_path.is_symlink()
+        or not batch_path.is_file()
+    ):
+        raise RoundTransactionError(
+            "search-regime diversity transaction evidence is missing"
+        )
+    transaction = _read_json_object(
+        manifest_path, "search-regime evolution transaction"
+    )
+    if transaction.get("status") != "committed":
+        raise RoundTransactionError(
+            "search-regime diversity transaction is not committed"
+        )
+    try:
+        batch_rows, end_offset, batch_sha256 = read_jsonl_range(batch_path, 0)
+    except ValueError as exc:
+        raise RoundTransactionError(str(exc)) from exc
+    batch_identity = {
+        "sha256": batch_sha256,
+        "bytes": end_offset,
+        "rows": len(batch_rows),
+    }
+    if transaction.get("candidate_batch_identity") != batch_identity:
+        raise RoundTransactionError(
+            "search-regime candidate batch changed after commit"
+        )
+    expected = _candidate_diversity_summary(transaction, batch_rows)
+    if validated != expected:
+        raise RoundTransactionError(
+            "search-regime diversity summary disagrees with committed batch"
+        )
+    return validated
+
+
+def _sealed_exact_distances(
+    rows: list[dict[str, Any]], *, round_number: int
+) -> list[int]:
+    """Extract exact distances only from formal, round-bound audit attempts."""
+
+    distances: list[int] = []
+    for row in rows:
+        attempt = row.get("audit_attempt")
+        if (
+            not isinstance(attempt, dict)
+            or attempt.get("schema_version") != 2
+            or attempt.get("round") != round_number
+            or not isinstance(attempt.get("evidence"), dict)
+        ):
+            # Debug evaluators and legacy/unsealed rows may be useful to tests
+            # and review, but they must not vote on a structural regime change.
+            continue
+        try:
+            outcome = classify_evaluation(row)
+        except AuditStateError:
+            # A corrupt, redirected, stale-implementation, or otherwise
+            # unreplayable evidence object is not evidence of exactness.  It
+            # remains visible in the durable MILP log for audit/retry, but it
+            # must not vote on a search-regime transition.
+            continue
+        if outcome is not AuditOutcome.EXACT:
+            continue
+        distance = _positive_distance(row)
+        if distance is None:
+            raise RoundTransactionError(
+                "sealed fully-exact audit has no positive distance"
+            )
+        distances.append(distance)
+    return sorted(distances)
+
+
+def _sealed_round_exact_summary(
+    *,
+    round_number: int,
+    round_dir: Path,
+    failure_feedback: dict[str, Any],
+) -> dict[str, Any]:
+    """Bind regime input to the durable MILP bytes already sealed this round."""
+
+    milp_path = round_dir / "milp.jsonl"
+    if milp_path.is_symlink() or not milp_path.is_file():
+        raise RoundTransactionError(
+            "search-regime exact evidence requires a regular MILP file"
+        )
+    payload = milp_path.read_bytes()
+    rows = _strict_jsonl_objects(payload, "search-regime round MILP evidence")
+    identity = {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "bytes": len(payload),
+        "rows": len(rows),
+    }
+    expected_identity = {
+        "sha256": failure_feedback.get("source_milp_sha256"),
+        "bytes": failure_feedback.get("source_milp_bytes"),
+        "rows": failure_feedback.get("source_milp_rows"),
+    }
+    if identity != expected_identity:
+        raise RoundTransactionError(
+            "search-regime exact evidence disagrees with sealed feedback source"
+        )
+    distances = _sealed_exact_distances(rows, round_number=round_number)
+    return {
+        "schema_version": SEALED_ROUND_EXACT_SCHEMA_VERSION,
+        "basis": "sealed-formal-audit-attempts",
+        "source_milp_sha256": identity["sha256"],
+        "source_milp_bytes": identity["bytes"],
+        "source_milp_rows": identity["rows"],
+        "exact_count": len(distances),
+        "exact_distances": distances,
+    }
+
+
+def _validate_sealed_round_exact_summary(
+    value: Any,
+    *,
+    round_number: int,
+    round_dir: Path | None = None,
+) -> dict[str, Any]:
+    expected_fields = {
+        "schema_version",
+        "basis",
+        "source_milp_sha256",
+        "source_milp_bytes",
+        "source_milp_rows",
+        "exact_count",
+        "exact_distances",
+    }
+    if not isinstance(value, dict) or set(value) != expected_fields:
+        raise RoundTransactionError(
+            "sealed round exact summary fields are invalid"
+        )
+    if (
+        value["schema_version"] != SEALED_ROUND_EXACT_SCHEMA_VERSION
+        or value["basis"] != "sealed-formal-audit-attempts"
+        or not isinstance(value["source_milp_sha256"], str)
+        or not re.fullmatch(r"[0-9a-f]{64}", value["source_milp_sha256"])
+    ):
+        raise RoundTransactionError(
+            "sealed round exact summary schema is invalid"
+        )
+    integer_fields = (
+        "source_milp_bytes",
+        "source_milp_rows",
+        "exact_count",
+    )
+    if any(
+        isinstance(value[field], bool)
+        or not isinstance(value[field], int)
+        or value[field] < 0
+        for field in integer_fields
+    ):
+        raise RoundTransactionError(
+            "sealed round exact summary counts are invalid"
+        )
+    distances = value["exact_distances"]
+    if (
+        not isinstance(distances, list)
+        or any(
+            isinstance(distance, bool)
+            or not isinstance(distance, int)
+            or distance < 1
+            for distance in distances
+        )
+        or distances != sorted(distances)
+        or value["exact_count"] != len(distances)
+        or value["exact_count"] > value["source_milp_rows"]
+    ):
+        raise RoundTransactionError(
+            "sealed round exact distances are invalid"
+        )
+    if round_dir is not None:
+        milp_path = round_dir / "milp.jsonl"
+        if milp_path.is_symlink() or not milp_path.is_file():
+            raise RoundTransactionError(
+                "sealed search-regime MILP evidence is missing"
+            )
+        payload = milp_path.read_bytes()
+        rows = _strict_jsonl_objects(
+            payload, "sealed search-regime MILP evidence"
+        )
+        observed_distances = _sealed_exact_distances(
+            rows, round_number=round_number
+        )
+        observed = {
+            "source_milp_sha256": hashlib.sha256(payload).hexdigest(),
+            "source_milp_bytes": len(payload),
+            "source_milp_rows": len(rows),
+            "exact_count": len(observed_distances),
+            "exact_distances": observed_distances,
+        }
+        if any(value[field] != observed[field] for field in observed):
+            raise RoundTransactionError(
+                "sealed round exact summary disagrees with MILP bytes"
+            )
+    return value
+
+
+def _normal_search_regime(completed_rounds: int) -> dict[str, Any]:
+    return {
+        "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+        "kind": SEARCH_REGIME_KIND,
+        "status": "normal",
+        "reason": "insufficient_trusted_exact_stagnation",
+        "evidence": {
+            "basis": "durable-sealed-exact-and-diversity",
+            "completed_rounds": completed_rounds,
+        },
+    }
+
+
+def _advance_search_regime(
+    previous: dict[str, Any],
+    completed: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Advance from exact/diversity facts; unresolved attempts never vote."""
+
+    latest = completed[-1]
+    exact = latest.get("sealed_exact_audit")
+    if not isinstance(exact, dict):
+        return (
+            copy.deepcopy(previous)
+            if previous.get("status") == "expand_required"
+            else _normal_search_regime(len(completed))
+        )
+    latest_distances = exact["exact_distances"]
+    if any(distance >= 4 for distance in latest_distances):
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "exploit",
+            "reason": "trusted_exact_distance_progress",
+            "evidence": {
+                "basis": "durable-sealed-exact-and-diversity",
+                "round": latest["round"],
+                "exact_distances": list(latest_distances),
+                "source_milp_sha256": exact["source_milp_sha256"],
+            },
+        }
+
+    low_exact_streak: list[dict[str, Any]] = []
+    for summary in reversed(completed):
+        item = summary.get("sealed_exact_audit")
+        if not isinstance(item, dict):
+            break
+        distances = item["exact_distances"]
+        if not distances or any(distance > 2 for distance in distances):
+            break
+        low_exact_streak.append(summary)
+    low_exact_streak.reverse()
+    if len(low_exact_streak) >= SEARCH_REGIME_STAGNATION_ROUNDS:
+        recent = low_exact_streak[-SEARCH_REGIME_STAGNATION_ROUNDS:]
+        first_diversity = recent[0].get("candidate_diversity")
+        latest_diversity = recent[-1].get("candidate_diversity")
+        if isinstance(first_diversity, dict) and isinstance(
+            latest_diversity, dict
+        ):
+            first_unique = first_diversity["canonical_unique_batch_rows"]
+            latest_unique = latest_diversity[
+                "canonical_unique_batch_rows"
+            ]
+            duplicate_rate = float(latest_diversity["duplicate_rate"])
+            high_duplicates = (
+                duplicate_rate >= SEARCH_REGIME_DUPLICATE_RATE
+            )
+            unique_decline = (
+                first_unique > 0 and latest_unique * 5 <= first_unique * 4
+            )
+            if high_duplicates or unique_decline:
+                return {
+                    "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+                    "kind": SEARCH_REGIME_KIND,
+                    "status": "expand_required",
+                    "reason": (
+                        "trusted_exact_low_distance_with_duplicate_collapse"
+                        if high_duplicates
+                        else "trusted_exact_low_distance_with_unique_yield_decline"
+                    ),
+                    "evidence": {
+                        "basis": "durable-sealed-exact-and-diversity",
+                        "rounds": [item["round"] for item in recent],
+                        "exact_distances_by_round": [
+                            item["sealed_exact_audit"]["exact_distances"]
+                            for item in recent
+                        ],
+                        "first_canonical_unique_batch_rows": first_unique,
+                        "latest_canonical_unique_batch_rows": latest_unique,
+                        "latest_duplicate_rate": duplicate_rate,
+                    },
+                }
+
+    if previous.get("status") == "expand_required":
+        return copy.deepcopy(previous)
+    return _normal_search_regime(len(completed))
+
+
+def _replay_search_regime(
+    rounds: Any,
+    *,
+    rounds_root: Path | None = None,
+) -> dict[str, Any]:
+    """Recompute the versioned regime and reject forged persisted summaries."""
+
+    if not isinstance(rounds, list):
+        raise RoundTransactionError("search-regime rounds must be a list")
+    regime = _normal_search_regime(0)
+    completed: list[dict[str, Any]] = []
+    previous_number = 0
+    for summary in rounds:
+        if not isinstance(summary, dict):
+            raise RoundTransactionError("search-regime round summary is invalid")
+        number = summary.get("round")
+        if (
+            isinstance(number, bool)
+            or not isinstance(number, int)
+            or number <= previous_number
+        ):
+            raise RoundTransactionError(
+                "search-regime round numbers are not strictly increasing"
+            )
+        previous_number = number
+        if "sealed_exact_audit" in summary:
+            _validate_sealed_round_exact_summary(
+                summary["sealed_exact_audit"],
+                round_number=number,
+                round_dir=(
+                    None
+                    if rounds_root is None
+                    else rounds_root / f"round-{number:03d}"
+                ),
+            )
+        if "candidate_diversity" in summary:
+            if rounds_root is None:
+                _validate_candidate_diversity_summary(
+                    summary["candidate_diversity"]
+                )
+            else:
+                _validate_round_diversity_evidence(
+                    summary["candidate_diversity"],
+                    round_dir=rounds_root / f"round-{number:03d}",
+                )
+        completed.append(summary)
+        regime = _advance_search_regime(regime, completed)
+        recorded = summary.get("search_regime")
+        if recorded is not None and recorded != regime:
+            raise RoundTransactionError(
+                "persisted round search regime disagrees with sealed evidence"
+            )
+    return regime
 
 
 def _failure_direction_observation(
@@ -2103,6 +2519,29 @@ def _freeze_round_context(
         )
         if failure_advisory is not None:
             context_parts.append(failure_advisory)
+    rounds = state.get("rounds", [])
+    regime_enabled = state.get("search_regime") is not None or any(
+        isinstance(summary, dict) and "sealed_exact_audit" in summary
+        for summary in rounds
+    )
+    if regime_enabled:
+        regime = _replay_search_regime(
+            rounds, rounds_root=round_dir.parent
+        )
+        recorded_regime = state.get("search_regime")
+        if recorded_regime is not None and recorded_regime != regime:
+            raise RoundTransactionError(
+                "durable search regime disagrees with sealed round evidence"
+            )
+        regime_marker = SEARCH_REGIME_PREFIX + _canonical_compact_json(regime)
+        context_parts.append("\n".join([
+            "## Machine-derived search regime",
+            (
+                "- This policy is recomputed only from durable sealed exact "
+                "audits and transaction-bound candidate diversity."
+            ),
+            regime_marker,
+        ]))
     context_text = "\n\n".join(context_parts) + "\n"
     policy_token = "QCODE_ADAPTIVE_MUTATION_POLICY_V1"
     policy_marker = policy_token + "="
@@ -2118,6 +2557,20 @@ def _freeze_round_context(
     ):
         raise RoundTransactionError(
             "reviewer or memory text contains the reserved adaptive policy marker"
+        )
+    regime_token = SEARCH_REGIME_PREFIX.removesuffix("=")
+    observed_regime_lines = sum(
+        line.startswith(SEARCH_REGIME_PREFIX)
+        for line in context_text.splitlines()
+    )
+    expected_regime_lines = int(regime_enabled)
+    if (
+        observed_regime_lines != expected_regime_lines
+        or context_text.count(SEARCH_REGIME_PREFIX) != expected_regime_lines
+        or context_text.count(regime_token) != expected_regime_lines
+    ):
+        raise RoundTransactionError(
+            "reviewer or memory text contains the reserved search-regime marker"
         )
     payload = context_text.encode("utf-8")
     identity = atomic_write_bytes(context_path, payload)
@@ -2245,7 +2698,7 @@ def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
     ):
         raise RoundTransactionError(
             "qcode_search_portfolio marker must be exactly "
-            "{enabled: true, schema_version: 1}"
+            "{enabled: true, schema_version: 2}"
         )
     database = value.get("database")
     if (
@@ -2264,7 +2717,54 @@ def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
     ):
         raise RoundTransactionError(
             "search portfolio database geometry must be exactly "
-            "five islands with the fixed 6/6/5 MAP grid"
+            "five islands with the fixed 5/6/3 mechanism MAP grid"
+        )
+    return True
+
+
+def _legacy_v4_search_portfolio_enabled_from_config(
+    config_path: Path,
+) -> bool:
+    """Validate the frozen schema-v4 portfolio config without upgrading it."""
+
+    try:
+        value = yaml.safe_load(config_path.read_text())
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise RoundTransactionError(
+            f"cannot inspect legacy search portfolio config: {config_path}: "
+            f"{exc}"
+        ) from exc
+    if not isinstance(value, dict):
+        raise RoundTransactionError(
+            "legacy evolution config must contain a YAML object"
+        )
+    if SEARCH_PORTFOLIO_CONFIG_KEY not in value:
+        return False
+    marker = value[SEARCH_PORTFOLIO_CONFIG_KEY]
+    if (
+        not isinstance(marker, dict)
+        or set(marker) != {"enabled", "schema_version"}
+        or marker.get("enabled") is not True
+        or type(marker.get("schema_version")) is not int
+        or marker.get("schema_version")
+        != LEGACY_V4_SEARCH_PORTFOLIO_SCHEMA_VERSION
+    ):
+        raise RoundTransactionError(
+            "schema-v4 witness requires the frozen legacy portfolio marker"
+        )
+    database = value.get("database")
+    if (
+        not isinstance(database, dict)
+        or type(database.get("num_islands")) is not int
+        or database.get("num_islands") != SEARCH_PORTFOLIO_ISLAND_COUNT
+        or database.get("feature_dimensions")
+        != list(LEGACY_V4_SEARCH_PORTFOLIO_FEATURE_DIMENSIONS)
+        or not isinstance(database.get("feature_bins"), dict)
+        or database["feature_bins"]
+        != LEGACY_V4_SEARCH_PORTFOLIO_FEATURE_BINS
+    ):
+        raise RoundTransactionError(
+            "schema-v4 witness requires the frozen legacy 6/6/5 MAP grid"
         )
     return True
 
@@ -2349,6 +2849,117 @@ def _adaptive_mutation_policy_sha256(policy: dict[str, int]) -> str:
     ).hexdigest()
 
 
+def _search_regime_policy_from_context(
+    context_path: Path,
+) -> dict[str, Any]:
+    """Replay the canonical machine regime consumed by the launcher."""
+
+    try:
+        text = context_path.read_text()
+    except (OSError, UnicodeError) as exc:
+        raise RoundTransactionError(
+            f"cannot read search regime context: {context_path}: {exc}"
+        ) from exc
+    token = SEARCH_REGIME_PREFIX.removesuffix("=")
+    encoded_values: list[str] = []
+    for line in text.splitlines():
+        if token not in line:
+            continue
+        if not line.startswith(SEARCH_REGIME_PREFIX):
+            raise RoundTransactionError(
+                "search regime marker must start a line exactly"
+            )
+        encoded_values.append(line[len(SEARCH_REGIME_PREFIX):])
+    if not encoded_values:
+        return {"schema_version": 1, "status": "normal"}
+    if len(encoded_values) != 1 or len(encoded_values[0]) > 16_384:
+        raise RoundTransactionError(
+            "humanize context has an invalid search regime marker"
+        )
+
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON number: {value}")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError(f"duplicate JSON key: {key}")
+            result[key] = item
+        return result
+
+    encoded = encoded_values[0]
+    try:
+        value = json.loads(
+            encoded,
+            parse_constant=reject_constant,
+            object_pairs_hook=reject_duplicates,
+        )
+    except (TypeError, json.JSONDecodeError, ValueError) as exc:
+        raise RoundTransactionError(
+            "search regime marker is not valid JSON"
+        ) from exc
+    if (
+        not isinstance(value, dict)
+        or value.get("schema_version") != SEARCH_REGIME_SCHEMA_VERSION
+        or value.get("status") not in SEARCH_REGIME_STATUSES
+        or encoded != _canonical_compact_json(value)
+    ):
+        raise RoundTransactionError(
+            "search regime marker has invalid schema/status/canonical form"
+        )
+    return value
+
+
+def _search_island_schedule(
+    iterations: int,
+    regime_status: str,
+) -> tuple[int, ...]:
+    """Mirror the launcher's deterministic mechanism quota schedule."""
+
+    if (
+        isinstance(iterations, bool)
+        or not isinstance(iterations, int)
+        or iterations < 1
+        or regime_status not in SEARCH_REGIME_STATUSES
+    ):
+        raise RoundTransactionError("search island schedule inputs are invalid")
+    counts = [iterations // SEARCH_PORTFOLIO_ISLAND_COUNT] * (
+        SEARCH_PORTFOLIO_ISLAND_COUNT
+    )
+    for island in range(iterations % SEARCH_PORTFOLIO_ISLAND_COUNT):
+        counts[island] += 1
+    order = list(range(SEARCH_PORTFOLIO_ISLAND_COUNT))
+    if regime_status == "expand_required" and iterations >= 10:
+        minimum = 2
+        counts = [minimum] * SEARCH_PORTFOLIO_ISLAND_COUNT
+        remaining = iterations - minimum * SEARCH_PORTFOLIO_ISLAND_COUNT
+        restart_target = min(
+            iterations - minimum * (SEARCH_PORTFOLIO_ISLAND_COUNT - 1),
+            max(minimum, round(iterations * 0.32)),
+        )
+        restart_extra = min(remaining, restart_target - minimum)
+        counts[-1] += restart_extra
+        remaining -= restart_extra
+        mechanism_order = (0, 2, 1, 3)
+        for index in range(remaining):
+            counts[mechanism_order[index % len(mechanism_order)]] += 1
+        order = [4, 0, 2, 1, 3]
+    schedule: list[int] = []
+    left = list(counts)
+    while len(schedule) < iterations:
+        for island in order:
+            if left[island] <= 0:
+                continue
+            schedule.append(island)
+            left[island] -= 1
+    if len(schedule) != iterations or any(left):
+        raise RoundTransactionError(
+            "search island schedule construction was inconsistent"
+        )
+    return tuple(schedule)
+
+
 def _adaptive_mutation_tactic_from_parent_hash(
     policy: dict[str, int],
     *,
@@ -2376,6 +2987,178 @@ def _adaptive_mutation_tactic_from_parent_hash(
     )
 
 
+def _portfolio_parent_code_sha256(
+    program_id: str,
+    *,
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    cache: dict[str, str],
+) -> str:
+    observed = cache.get(program_id)
+    if observed is not None:
+        return observed
+    parent_path: Path | None = None
+    for checkpoint in (result_checkpoint, base_checkpoint):
+        if checkpoint is None:
+            continue
+        candidate_path = (
+            Path(checkpoint["path"])
+            / "programs"
+            / f"{program_id}.json"
+        )
+        if candidate_path.is_file():
+            parent_path = candidate_path
+            break
+    if parent_path is None:
+        raise RoundTransactionError(
+            "portfolio parent is absent from both slice checkpoints"
+        )
+    parent = _read_json_object(
+        parent_path, "portfolio parent checkpoint program"
+    )
+    parent_code = parent.get("code")
+    if parent.get("id") != program_id or not isinstance(parent_code, str):
+        raise RoundTransactionError(
+            "portfolio parent checkpoint program is invalid"
+        )
+    observed = hashlib.sha256(parent_code.encode("utf-8")).hexdigest()
+    cache[program_id] = observed
+    return observed
+
+
+def _validate_legacy_v4_search_portfolio_witness(
+    witness: dict[str, Any],
+    attempts: list[dict[str, Any]],
+    *,
+    launch_binding: dict[str, dict[str, Any]],
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    start_iteration: int,
+    count: int,
+) -> None:
+    """Validate schema-v4 using only its frozen portfolio-v1 semantics."""
+
+    config_path = Path(launch_binding["config"]["path"])
+    context_path = Path(launch_binding["context"]["path"])
+    enabled = _legacy_v4_search_portfolio_enabled_from_config(config_path)
+    portfolio = witness.get("search_portfolio")
+    base_attempt_fields = {"iteration", "island_id", "result"}
+    if not enabled:
+        if portfolio is not None:
+            raise RoundTransactionError(
+                "legacy non-portfolio config has a portfolio witness contract"
+            )
+        if any(set(attempt) != base_attempt_fields for attempt in attempts):
+            raise RoundTransactionError(
+                "legacy non-portfolio submission fields are not exact"
+            )
+        return
+
+    policy = _adaptive_mutation_policy_from_context(context_path)
+    policy_sha256 = _adaptive_mutation_policy_sha256(policy)
+    expected_counts = {
+        role: sum(
+            (iteration - start_iteration) % SEARCH_PORTFOLIO_ISLAND_COUNT
+            == island_id
+            for iteration in range(start_iteration, start_iteration + count)
+        )
+        for island_id, role in enumerate(LEGACY_V4_SEARCH_PORTFOLIO_ROLES)
+    }
+    expected_portfolio = {
+        "schema_version": LEGACY_V4_SEARCH_PORTFOLIO_SCHEMA_VERSION,
+        "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
+        "roles": list(LEGACY_V4_SEARCH_PORTFOLIO_ROLES),
+        "policy_sha256": policy_sha256,
+        "role_submission_counts": expected_counts,
+    }
+    if (
+        not isinstance(portfolio, dict)
+        or set(portfolio) != set(expected_portfolio)
+        or type(portfolio.get("schema_version")) is not int
+        or type(portfolio.get("island_count")) is not int
+        or not isinstance(portfolio.get("roles"), list)
+        or not isinstance(portfolio.get("policy_sha256"), str)
+        or not isinstance(portfolio.get("role_submission_counts"), dict)
+        or set(portfolio["role_submission_counts"])
+        != set(LEGACY_V4_SEARCH_PORTFOLIO_ROLES)
+        or any(
+            type(value) is not int or value < 0
+            for value in portfolio["role_submission_counts"].values()
+        )
+        or portfolio != expected_portfolio
+    ):
+        raise RoundTransactionError(
+            "legacy schema-v4 search portfolio witness is inconsistent"
+        )
+
+    portfolio_attempt_fields = base_attempt_fields | {
+        "search_portfolio_schema_version",
+        "search_policy_sha256",
+        "search_role",
+        "search_tactic",
+        "search_parent_program_id",
+        "search_parent_code_sha256",
+        "search_role_submission_counts",
+    }
+    parent_code_hashes: dict[str, str] = {}
+    for attempt in attempts:
+        if set(attempt) != portfolio_attempt_fields:
+            raise RoundTransactionError(
+                "legacy portfolio submission witness fields are not exact"
+            )
+        iteration = attempt["iteration"]
+        expected_island = (
+            iteration - start_iteration
+        ) % SEARCH_PORTFOLIO_ISLAND_COUNT
+        expected_role = LEGACY_V4_SEARCH_PORTFOLIO_ROLES[expected_island]
+        parent_program_id = attempt["search_parent_program_id"]
+        parent_code_sha256 = attempt["search_parent_code_sha256"]
+        if (
+            not isinstance(parent_program_id, str)
+            or not re.fullmatch(r"[A-Za-z0-9._-]+", parent_program_id)
+            or parent_program_id in {".", ".."}
+            or not isinstance(parent_code_sha256, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", parent_code_sha256)
+            or type(attempt["search_portfolio_schema_version"]) is not int
+            or not isinstance(
+                attempt["search_role_submission_counts"], dict
+            )
+            or any(
+                type(value) is not int or value < 0
+                for value in attempt[
+                    "search_role_submission_counts"
+                ].values()
+            )
+            or attempt["search_role_submission_counts"] != expected_counts
+        ):
+            raise RoundTransactionError(
+                "legacy portfolio submission identity is invalid"
+            )
+        observed_parent_hash = _portfolio_parent_code_sha256(
+            parent_program_id,
+            base_checkpoint=base_checkpoint,
+            result_checkpoint=result_checkpoint,
+            cache=parent_code_hashes,
+        )
+        expected_tactic = _adaptive_mutation_tactic_from_parent_hash(
+            policy,
+            parent_code_sha256=parent_code_sha256,
+            iteration=iteration,
+        )
+        if (
+            observed_parent_hash != parent_code_sha256
+            or attempt["island_id"] != expected_island
+            or attempt["search_portfolio_schema_version"]
+            != LEGACY_V4_SEARCH_PORTFOLIO_SCHEMA_VERSION
+            or attempt["search_policy_sha256"] != policy_sha256
+            or attempt["search_role"] != expected_role
+            or attempt["search_tactic"] != expected_tactic
+        ):
+            raise RoundTransactionError(
+                "legacy schema-v4 portfolio semantics are inconsistent"
+            )
+
+
 def _validate_search_portfolio_witness(
     witness: dict[str, Any],
     attempts: list[dict[str, Any]],
@@ -2387,7 +3170,27 @@ def _validate_search_portfolio_witness(
     start_iteration: int,
     count: int,
 ) -> None:
+    if witness_schema == EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION:
+        _validate_legacy_v4_search_portfolio_witness(
+            witness,
+            attempts,
+            launch_binding=launch_binding,
+            base_checkpoint=base_checkpoint,
+            result_checkpoint=result_checkpoint,
+            start_iteration=start_iteration,
+            count=count,
+        )
+        return
     if witness_schema != EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        if "search_portfolio" in witness:
+            raise RoundTransactionError(
+                "pre-v4 witness cannot contain a portfolio contract"
+            )
+        base_attempt_fields = {"iteration", "island_id", "result"}
+        if any(set(attempt) != base_attempt_fields for attempt in attempts):
+            raise RoundTransactionError(
+                "legacy submission witness fields are not exact"
+            )
         return
     config_path = Path(launch_binding["config"]["path"])
     context_path = Path(launch_binding["context"]["path"])
@@ -2407,18 +3210,19 @@ def _validate_search_portfolio_witness(
 
     policy = _adaptive_mutation_policy_from_context(context_path)
     policy_sha256 = _adaptive_mutation_policy_sha256(policy)
+    regime = _search_regime_policy_from_context(context_path)
+    regime_status = str(regime["status"])
+    schedule = _search_island_schedule(count, regime_status)
     expected_counts = {
-        role: sum(
-            (iteration - start_iteration) % SEARCH_PORTFOLIO_ISLAND_COUNT
-            == island_id
-            for iteration in range(start_iteration, start_iteration + count)
-        )
+        role: schedule.count(island_id)
         for island_id, role in enumerate(SEARCH_PORTFOLIO_ROLES)
     }
     expected_portfolio = {
         "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
         "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
         "roles": list(SEARCH_PORTFOLIO_ROLES),
+        "feature_dimensions": list(SEARCH_PORTFOLIO_FEATURE_DIMENSIONS),
+        "regime_status": regime_status,
         "policy_sha256": policy_sha256,
         "role_submission_counts": expected_counts,
     }
@@ -2428,6 +3232,8 @@ def _validate_search_portfolio_witness(
         or type(portfolio.get("schema_version")) is not int
         or type(portfolio.get("island_count")) is not int
         or not isinstance(portfolio.get("roles"), list)
+        or not isinstance(portfolio.get("feature_dimensions"), list)
+        or not isinstance(portfolio.get("regime_status"), str)
         or not isinstance(portfolio.get("policy_sha256"), str)
         or not isinstance(portfolio.get("role_submission_counts"), dict)
         or set(portfolio["role_submission_counts"])
@@ -2447,6 +3253,7 @@ def _validate_search_portfolio_witness(
     portfolio_attempt_fields = base_attempt_fields | {
         "search_portfolio_schema_version",
         "search_policy_sha256",
+        "search_regime_status",
         "search_role",
         "search_tactic",
         "search_parent_program_id",
@@ -2460,9 +3267,12 @@ def _validate_search_portfolio_witness(
                 "portfolio submission witness fields are not exact"
             )
         iteration = attempt["iteration"]
-        expected_island = (
-            iteration - start_iteration
-        ) % SEARCH_PORTFOLIO_ISLAND_COUNT
+        offset = iteration - start_iteration
+        if not 0 <= offset < len(schedule):
+            raise RoundTransactionError(
+                "portfolio submission iteration is outside the slice"
+            )
+        expected_island = schedule[offset]
         expected_role = SEARCH_PORTFOLIO_ROLES[expected_island]
         parent_program_id = attempt["search_parent_program_id"]
         parent_code_sha256 = attempt["search_parent_code_sha256"]
@@ -2540,6 +3350,7 @@ def _validate_search_portfolio_witness(
             or attempt["search_portfolio_schema_version"]
             != SEARCH_PORTFOLIO_SCHEMA_VERSION
             or attempt["search_policy_sha256"] != policy_sha256
+            or attempt["search_regime_status"] != regime_status
             or attempt["search_role"] != expected_role
             or attempt["search_tactic"] != expected_tactic
             or attempt["search_role_submission_counts"] != expected_counts
@@ -2569,11 +3380,10 @@ def _validate_slice_witness(
             "prepared legacy OpenEvolve witness has no candidate-range "
             "binding and must be quarantined and replayed"
         )
-    if witness_schema not in {
-        2,
-        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
-        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
-    }:
+    if witness_schema not in (
+        EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS
+        | {EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION}
+    ):
         raise RoundTransactionError(
             f"unsupported OpenEvolve witness schema: {witness_schema!r}"
         )
@@ -2889,7 +3699,10 @@ def _validate_slice_witness(
         "openevolve_version",
         "completed_at",
     }
-    if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+    if witness_schema in {
+        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
         allowed_fields.add("search_portfolio")
     if not legacy_witness:
         allowed_fields.update({
@@ -2929,11 +3742,10 @@ def _completion_marker_expected(
         0 if base_checkpoint is None else int(base_checkpoint["last_iteration"])
     )
     witness_schema = slice_witness.get("schema_version")
-    if witness_schema not in {
-        2,
-        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
-        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
-    }:
+    if witness_schema not in (
+        EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS
+        | {EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION}
+    ):
         raise RoundTransactionError(
             "completion marker received an unsupported witness schema"
         )
@@ -2961,10 +3773,7 @@ def _completion_marker_expected(
         "slice_witness_sha256": slice_witness["sha256"],
         "slice_witness_bytes": slice_witness["bytes"],
     }
-    if witness_schema in {
-        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
-        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
-    }:
+    if witness_schema != 2:
         for field in CANDIDATE_WITNESS_FIELDS:
             expected[field] = slice_witness[field]
     for name, descriptor in launch_binding.items():
@@ -3734,6 +4543,23 @@ def select_for_milp(
 
     selected: list[dict[str, Any]] = []
     used_cells: set[str] = set()
+    used_strata: set[tuple[str, str]] = set()
+
+    def add_new_strata(rows: list[dict[str, Any]], target: int) -> None:
+        # ``rows`` is already in the existing evidence-priority order.  Take
+        # the best representative of each mechanism x support-split stratum
+        # before allowing a second representative of an already-covered one.
+        for row in rows:
+            if len(selected) >= target or len(selected) >= limit:
+                return
+            stratum = _candidate_audit_stratum(row)
+            if stratum in used_strata:
+                continue
+            selected.append(row)
+            used_strata.add(stratum)
+            cell = str(row.get("archive_cell", ""))
+            if cell:
+                used_cells.add(cell)
 
     def add_from(rows: list[dict[str, Any]], target: int) -> None:
         for require_new_cell in (True, False):
@@ -3746,10 +4572,15 @@ def select_for_milp(
                 if require_new_cell and cell and cell in used_cells:
                     continue
                 selected.append(row)
+                used_strata.add(_candidate_audit_stratum(row))
                 if cell:
                     used_cells.add(cell)
 
     reserve_quick = bool(quick_exploration) and limit > 1
+    add_new_strata(
+        evidence_candidates,
+        limit - int(reserve_quick),
+    )
     add_from(
         evidence_candidates,
         limit - int(reserve_quick),
@@ -7061,6 +7892,9 @@ class HumanizeFlow:
             "best_exact_fom": state.get("best_exact_fom", 0.0),
             "trusted_exact": int(state.get("trusted_exact_count", 0)),
             "trusted_wins": int(state.get("trusted_win_count", 0)),
+            "search_regime": copy.deepcopy(
+                state.get("search_regime", _normal_search_regime(0))
+            ),
             "max_total_workers": self.config.max_total_workers,
             "config": state["config"],
             "state_path": str(self.store.state_path),
@@ -7117,6 +7951,11 @@ class HumanizeFlow:
                 audited_rows=audited,
             )
         )
+        sealed_exact_audit = _sealed_round_exact_summary(
+            round_number=number,
+            round_dir=round_dir,
+            failure_feedback=failure_direction_feedback,
+        )
         candidate_diversity: dict[str, Any] | None = None
         transaction_path = self._transaction_paths(round_dir)["manifest"]
         if transaction_path.is_file():
@@ -7150,9 +7989,16 @@ class HumanizeFlow:
             "review_verdict": review["verdict"],
             "review_summary": review["summary"],
             "failure_direction_feedback": failure_direction_feedback,
+            "sealed_exact_audit": sealed_exact_audit,
         }
         if candidate_diversity is not None:
             summary["candidate_diversity"] = candidate_diversity
+        regime = _replay_search_regime(
+            [*state["rounds"], summary],
+            rounds_root=round_dir.parent,
+        )
+        summary["search_regime"] = copy.deepcopy(regime)
+        state["search_regime"] = copy.deepcopy(regime)
         summary_payload = (
             "\n".join([
                 f"# Humanize qcode round {number}", "",
@@ -7171,6 +8017,7 @@ class HumanizeFlow:
                     "- Trusted low-weight failure witnesses: "
                     f"{failure_direction_feedback['trusted_witnesses']}"
                 ),
+                f"- Search regime: `{regime['status']}`",
                 f"- Reviewer verdict: `{review['verdict']}`", "",
                 "## Review", "", review["summary"], "",
                 "## BitLesson Delta", "",

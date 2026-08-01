@@ -3150,7 +3150,7 @@ def test_multi_term_mixed_pattern_has_versioned_multi_term_niche():
     ) == 3.0
 
 
-def test_pool_map_descriptor_is_not_owned_by_single_high_k_safety_row():
+def test_pool_map_descriptor_ignores_zero_k_padding_rows():
     safety = {
         "ell": 6,
         "m": 6,
@@ -3190,21 +3190,35 @@ def test_pool_map_descriptor_is_not_owned_by_single_high_k_safety_row():
     assert descriptor[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == float(
         evaluator.MAP_DESCRIPTOR_VERSION
     )
-    assert descriptor[evaluator.MAP_DESCRIPTOR_POOL_SIZE_METRIC] == 4.0
-    assert descriptor["term_count"] == pytest.approx(3.75)
-    assert descriptor["pattern_type"] == 4.0
+    assert descriptor[evaluator.MAP_DESCRIPTOR_POOL_SIZE_METRIC] == 1.0
+    assert descriptor["term_count"] == pytest.approx(3.0)
+    assert descriptor["pattern_type"] == 3.0
     assert descriptor[
         evaluator.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC
-    ] == 3.0
-    expected_entropy = -(
-        0.75 * math.log(0.75) + 0.25 * math.log(0.25)
-    ) / math.log(evaluator.MAP_DESCRIPTOR_PATTERN_CARDINALITY)
+    ] == 5.0
     assert descriptor[
         evaluator.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC
-    ] == pytest.approx(expected_entropy)
+    ] == pytest.approx(0.0)
     assert descriptor[
         evaluator.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC
-    ] == pytest.approx(0.75)
+    ] == pytest.approx(1.0)
+
+
+def test_pool_map_descriptor_all_zero_k_pool_is_empty():
+    rows = [
+        {
+            "ell": 6,
+            "m": 6,
+            "A_terms": [[0, 0], [1, 0]],
+            "B_terms": [[0, 1], [1, index + 1]],
+            "k": 0,
+        }
+        for index in range(3)
+    ]
+
+    assert evaluator._pool_map_descriptor(rows) == (
+        evaluator._pool_map_descriptor([])
+    )
 
 
 def test_pool_map_descriptor_support_split_indices_follow_contract_order():
@@ -3221,6 +3235,78 @@ def test_pool_map_descriptor_support_split_indices_follow_contract_order():
         assert descriptor[
             evaluator.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC
         ] == float(expected_index)
+
+
+def test_pool_map_descriptor_adds_stable_dominant_algebraic_metrics():
+    affine_a = {
+        "ell": 11,
+        "m": 13,
+        "A_terms": [[0, 0], [1, 0], [0, 2]],
+        "B_terms": [[4, 3], [5, 3], [4, 5]],
+    }
+    affine_b = {
+        "ell": 11,
+        "m": 13,
+        "A_terms": [[0, 0], [2, 0], [0, 3]],
+        "B_terms": [[6, 4], [8, 4], [6, 7]],
+    }
+    complementary = {
+        "ell": 11,
+        "m": 13,
+        "A_terms": [[0, 0], [1, 1]],
+        "B_terms": [[4, 4], [5, 3]],
+    }
+    rows = [affine_a, complementary, affine_b, dict(affine_a)]
+
+    descriptor = evaluator._pool_map_descriptor(
+        rows,
+        lattices={(11, 13)},
+    )
+
+    assert descriptor == evaluator._pool_map_descriptor(
+        list(reversed(rows)),
+        lattices={(11, 13)},
+    )
+    assert descriptor[evaluator.MAP_DESCRIPTOR_POOL_SIZE_METRIC] == 3.0
+    assert descriptor[
+        evaluator.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC
+    ] == float(evaluator.RELATION_TYPES.index("affine_orbit"))
+    assert descriptor[evaluator.MAP_DESCRIPTOR_ORBIT_SPAN_METRIC] == 2.0
+    assert descriptor[
+        evaluator.MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC
+    ] == 2.0
+
+    # A one-to-one tie follows the public fixed RELATION_TYPES order.
+    tied = evaluator._pool_map_descriptor([complementary, affine_a])
+    assert tied[
+        evaluator.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC
+    ] == float(evaluator.RELATION_TYPES.index("affine_orbit"))
+
+
+def test_candidate_jsonl_record_persists_algebraic_mechanism():
+    result = {
+        "ell": 11,
+        "m": 13,
+        "A_terms": [[0, 0], [1, 0], [0, 2]],
+        "B_terms": [[4, 3], [5, 3], [4, 5]],
+        "n": 286,
+        "k": 12,
+        "d": 1,
+        "fom": 12 / 286,
+        "stage": "test",
+    }
+
+    record = evaluator._candidate_jsonl_record(result)
+
+    assert record is not None
+    assert record["relation_type"] == "affine_orbit"
+    assert record[
+        evaluator.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC
+    ] == evaluator.RELATION_TYPES.index("affine_orbit")
+    assert record[evaluator.MAP_DESCRIPTOR_ORBIT_SPAN_METRIC] == 2
+    assert record[
+        evaluator.MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC
+    ] == 2
 
 
 def test_pool_map_descriptor_entropy_uses_all_six_pattern_classes():
@@ -3274,6 +3360,9 @@ def test_pool_map_descriptor_empty_and_error_envelopes_are_complete():
         "pattern_type",
         evaluator.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
         evaluator.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
+        evaluator.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
+        evaluator.MAP_DESCRIPTOR_ORBIT_SPAN_METRIC,
+        evaluator.MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC,
         evaluator.MAP_DESCRIPTOR_VERSION_METRIC,
         evaluator.MAP_DESCRIPTOR_POOL_SIZE_METRIC,
         evaluator.MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC,
@@ -3283,8 +3372,8 @@ def test_pool_map_descriptor_empty_and_error_envelopes_are_complete():
 
     assert required <= empty.keys()
     assert required <= failure.keys()
-    assert empty[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == 3.0
-    assert failure[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == 3.0
+    assert empty[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == 4.0
+    assert failure[evaluator.MAP_DESCRIPTOR_VERSION_METRIC] == 4.0
     for metric in required - {evaluator.MAP_DESCRIPTOR_VERSION_METRIC}:
         assert empty[metric] == 0.0
         assert failure[metric] == 0.0

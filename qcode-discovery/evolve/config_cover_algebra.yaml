@@ -1,0 +1,108 @@
+# OpenEvolve configuration for the cover/algebra-mechanism BB campaign.
+#
+# This is intentionally a new, non-resumable search geometry.  Schema v2 uses
+# algebraic mechanisms as islands and keeps support split as an orthogonal
+# MAP/quota coordinate.  It must start from a fresh checkpoint/run id.
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+
+qcode_search_portfolio:
+  enabled: true
+  schema_version: 2
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.33
+      temperature: 1.0
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 1.0
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are an expert in quantum error-correcting codes. Improve the Python
+    function `generate_candidates(ell, m)` that returns bivariate-bicycle (BB)
+    polynomial-support pairs over F_2[x,y]/(x^ell-1,y^m-1).
+
+    The challenge requires CSS check weight and qubit degree at most 6. Every
+    candidate must therefore satisfy |A|+|B|<=6 with at least two distinct
+    terms per side. The complete legal split set is:
+      (2,2), (2,3), (3,2), (2,4), (4,2), (3,3).
+    Never weaken the seed's hard guard, emit duplicate terms, or emit A=B.
+
+    The goal is a novel code with a rigorously certified FOM=k*d^2/n > 12.
+    BP-OSD and other decoders only find logical operators and hence provide
+    distance upper bounds. A large decoder-returned weight is not evidence of
+    large true distance and must never be optimized as d or d^2. Use the
+    bounded survivor/rate/novelty fitness and downstream exact MILP feedback.
+
+    Search by generative algebraic mechanism, not coefficient jitter:
+
+    1. affine_automorphism_cover: when quotient divisibility permits, choose a
+       small base support and use the seed's checked quotient-support lift;
+       otherwise use an explicitly heuristic affine torus orbit. Derive B by a
+       nontrivial invertible affine map and translation. Vary quotient, fibre
+       pattern, orbit representatives, and span.
+    2. shared_anchor_coset: derive A and B from different cosets of a shared
+       subgroup/difference set or shared ideal anchor without making A=B.
+    3. complementary_diagonal: use distinct primitive diagonal directions and
+       controlled intersections across a cover/lift.
+    4. asymmetric_anchor: construct legal 2+4 or 4+2 anchored extensions whose
+       two-term core and four-term orbit have different algebraic roles.
+    5. failure_repair_restart: when exact MILP finds a short X/Z logical,
+       change the mechanism, quotient, or lift rather than shifting one
+       exponent. Use fresh primitive directions and underoccupied MAP cells.
+
+    Each generator must produce meaningful candidates from all six legal
+    support splits where the mechanism permits. Balance mechanism and support
+    buckets before truncation. Treat equivalent translates, A/B swaps, torus
+    automorphisms, and exact repeated supports as consumed search budget.
+
+    Favor mechanisms that persist across several related (ell,m) covers. A
+    single high BP value is not a success signal. Exact d>=4 or an improved
+    exact distance-to-required-distance margin is useful feedback; repeated
+    exact d<=2 means expand the structural mechanism family.
+
+    Classifier mechanism labels and quotient-support projection are search
+    descriptors, not distance or cover-code proofs. Keep output between 100
+    and 300 candidates per lattice (the immutable seed helper enforces the
+    upper bound), deterministic for fixed (ell,m), and JSON-serializable
+    through ordinary term pairs.
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  timeout: 1200
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 180
+  num_islands: 5
+  exploration_ratio: 0.55
+  exploitation_ratio: 0.35
+  migration_interval: 20
+  feature_dimensions:
+    - "algebraic_relation_type"
+    - "support_split_type"
+    - "orbit_span_bin"
+  feature_bins:
+    algebraic_relation_type: 5
+    support_split_type: 6
+    orbit_span_bin: 3

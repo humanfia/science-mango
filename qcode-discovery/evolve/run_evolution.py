@@ -22,8 +22,8 @@ How it works
    ``# EVOLVE-BLOCK-END`` markers using LLM-generated diffs.
 4. Each mutation is evaluated via the two-stage cascade in
    ``openevolve_evaluator.py`` (see that module's docstring for details).
-5. Opted-in ansatz configs use 5 role islands and MAP-Elites across fixed
-   pattern, support-split, and structural-entropy cells.
+5. Opted-in ansatz configs use 5 algebraic-mechanism islands and MAP-Elites
+   across fixed mechanism, support-split, and cover-orbit cells.
 6. The LLM receives structured evaluation artifacts (best code found,
    per-lattice breakdown, errors) as feedback for the next mutation.
 
@@ -109,8 +109,14 @@ EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
 
 
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 4
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 4
+# Schema 5 binds the mechanism-portfolio semantics (relation-first MAP cells,
+# lineage islands, and the recorded search regime).  Schema 4 artifacts remain
+# legacy inputs for the Humanize recovery layer; this launcher never emits a
+# schema-4 artifact with the new semantics.
+EVOLUTION_LEGACY_COMPLETION_SCHEMA_VERSION = 4
+EVOLUTION_LEGACY_SLICE_WITNESS_SCHEMA_VERSION = 4
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 5
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 5
 WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
 CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
@@ -173,10 +179,11 @@ WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC = "winner_preflight_hard_timeout"
 WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC = (
     "winner_preflight_subprocess_failed"
 )
-# Keep this value synchronized with openevolve_evaluator.py.  Version 3 adds
-# fixed support-split and structural-entropy coordinates.  Version-2 feature
-# maps used moving min/max bins and are deliberately not resumable.
-MAP_DESCRIPTOR_VERSION = 3
+# Keep this value synchronized with openevolve_evaluator.py.  Version 4 makes
+# the algebraic relation and cover-orbit span first-class archive coordinates.
+# Older feature maps describe a different search geometry and are deliberately
+# not resumable under this portfolio schema.
+MAP_DESCRIPTOR_VERSION = 4
 MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
 MAP_DESCRIPTOR_POOL_SIZE_METRIC = "map_descriptor_pool_size"
 MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
@@ -184,70 +191,73 @@ MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC = (
 )
 MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC = "support_split_type"
 MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC = "search_structural_entropy"
-SEARCH_PORTFOLIO_SCHEMA_VERSION = 1
+MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC = "algebraic_relation_type"
+MAP_DESCRIPTOR_ORBIT_SPAN_METRIC = "orbit_span_bin"
+MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC = "difference_spectrum_bin"
+SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
 SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
-    "pattern_type",
+    MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
     MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
-    MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
+    MAP_DESCRIPTOR_ORBIT_SPAN_METRIC,
 )
 SEARCH_PORTFOLIO_FEATURE_BINS = {
-    "pattern_type": 6,
+    MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: 5,
     MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 6,
-    MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC: 5,
+    MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: 3,
 }
 SEARCH_PORTFOLIO_ROLES = (
-    "compact_mixed_2_2",
-    "hybrid_2_3_3_2",
-    "balanced_3_3",
-    "asymmetric_2_4_4_2",
-    "failure_repair_novelty",
+    "affine_automorphism_cover",
+    "shared_anchor_coset_cover",
+    "complementary_diagonal_cover",
+    "asymmetric_anchor_cover",
+    "failure_repair_restart",
 )
 SEARCH_PORTFOLIO_SUPPORT_TARGETS = (
-    ((2, 2),),
-    ((2, 3), (3, 2)),
-    ((3, 3),),
-    ((2, 4), (4, 2)),
-    (),
+    ((2, 3), (3, 2), (3, 3)),
+    ((2, 2), (2, 3), (3, 2), (3, 3)),
+    ((2, 2), (2, 3), (3, 2), (3, 3)),
+    ((2, 4), (4, 2), (2, 3), (3, 2)),
+    ((2, 2), (2, 3), (3, 2), (2, 4), (4, 2), (3, 3)),
 )
-# Exact indices of the evaluator's fixed CHALLENGE_SUPPORT_SPLITS ordering.
-# Islands 0-3 admit only children whose dominant output split matches their
-# structural role.  Island 4 deliberately remains an unrestricted
-# failure-repair/novelty lane.
-SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES = (
+# Exact indices of evaluation.algebraic_mechanisms.RELATION_TYPES.  Unlike the
+# v1 support-split islands, every v2 island owns a distinct generative
+# mechanism. Support split remains an orthogonal MAP/quota coordinate.
+SEARCH_PORTFOLIO_RELATION_CATEGORIES = (
     (0,),
-    (1, 2),
-    (5,),
-    (3, 4),
-    (0, 1, 2, 3, 4, 5),
+    (1,),
+    (2,),
+    (3,),
+    (4,),
 )
 
 
-def _structural_island_for_support_split(category: int) -> int:
+def _mechanism_island_for_relation(category: int) -> int:
     matches = [
         island
         for island, categories in enumerate(
-            SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES[:4]
+            SEARCH_PORTFOLIO_RELATION_CATEGORIES
         )
         if category in categories
     ]
     if len(matches) != 1:
         raise RuntimeError(
-            "support-split category does not map to one structural island"
+            "algebraic relation category does not map to one mechanism island"
         )
     return matches[0]
 SEARCH_PORTFOLIO_DIRECTIVES = (
-    "Prioritize genuinely distinct compact mixed constructions with "
-    "(|A|,|B|)=(2,2).",
-    "Prioritize genuinely distinct hybrid constructions with support split "
-    "(2,3) or (3,2).",
-    "Prioritize genuinely distinct balanced constructions with support split "
-    "(3,3).",
-    "Prioritize genuinely distinct asymmetric constructions with support "
-    "split (2,4) or (4,2).",
-    "Escape occupied MAP cells and use the assigned failure-repair tactic; "
-    "favor underrepresented structural patterns over repeated generators.",
+    "Construct nontrivial cyclic covers/lifts where B is an affine torus "
+    "automorphism or translated orbit of A; vary lift index and orbit span, "
+    "not merely individual exponents.",
+    "Construct shared-anchor or shared-difference coset mechanisms whose A/B "
+    "supports arise from a common subgroup/ideal but are not identical.",
+    "Construct complementary diagonal cover mechanisms with distinct primitive "
+    "directions and controlled intersections across the lifted torus.",
+    "Construct asymmetric anchored mechanisms, especially legal 2+4/4+2 "
+    "extensions, while preserving positive k and avoiding self-duality.",
+    "Perform mechanism-changing restarts and witness-guided repair; escape "
+    "occupied mechanism/support/orbit cells instead of coefficient jitter.",
 )
 ADAPTIVE_MUTATION_POLICY_PREFIX = "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
 ADAPTIVE_MUTATION_TACTICS = (
@@ -282,7 +292,14 @@ DEFAULT_ADAPTIVE_MUTATION_POLICY = {
 }
 ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
 ADAPTIVE_MUTATION_EXPLORATION_FLOOR = 250
-SEARCH_PORTFOLIO_ARTIFACT_KEY = "qcode_search_portfolio_v1"
+SEARCH_REGIME_POLICY_PREFIX = "QCODE_SEARCH_REGIME_V1="
+SEARCH_REGIME_STATUSES = (
+    "normal",
+    "expand_required",
+    "exploit",
+)
+DEFAULT_SEARCH_REGIME = {"schema_version": 1, "status": "normal"}
+SEARCH_PORTFOLIO_ARTIFACT_KEY = "qcode_search_portfolio_v2"
 WINNER_PREFLIGHT_NUMERIC_THREAD_ENV = (
     "OMP_NUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -490,6 +507,9 @@ _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
     MAP_DESCRIPTOR_POOL_SIZE_METRIC,
     MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
     MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
+    MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
+    MAP_DESCRIPTOR_ORBIT_SPAN_METRIC,
+    MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC,
     MAP_DESCRIPTOR_VERSION_METRIC,
     "num_high_k",
     "term_count",
@@ -600,6 +620,9 @@ def _exact_incomplete_winner_preflight_markers(
         MAP_DESCRIPTOR_POOL_SIZE_METRIC,
         MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
         MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC,
+        MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
+        MAP_DESCRIPTOR_ORBIT_SPAN_METRIC,
+        MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC,
         "num_high_k",
         "term_count",
         "pattern_type",
@@ -1771,7 +1794,7 @@ def _validate_lifecycle_lease(fd: int, path_value: str) -> Path:
 
 
 def _validated_search_portfolio_config(config: Any) -> int:
-    """Validate the fixed five-island production search geometry.
+    """Validate the fixed five-island mechanism-aware search geometry.
 
     OpenEvolve normally rescales every custom MAP dimension from the values
     observed so far.  That makes a checkpoint's cells depend on evaluation
@@ -1793,7 +1816,7 @@ def _validated_search_portfolio_config(config: Any) -> int:
     ):
         raise RuntimeError(
             "search portfolio feature_dimensions must be the fixed "
-            "pattern/support/entropy tuple"
+            "mechanism/support/orbit tuple"
         )
     bins = getattr(database, "feature_bins", None)
     if (
@@ -1807,7 +1830,7 @@ def _validated_search_portfolio_config(config: Any) -> int:
         )
     ):
         raise RuntimeError(
-            "search portfolio feature_bins must be exactly 6/6/5"
+            "search portfolio feature_bins must be exactly 5/6/3"
         )
     seed = getattr(config, "random_seed", None)
     if isinstance(seed, bool) or not isinstance(seed, int):
@@ -1841,7 +1864,7 @@ def _search_portfolio_requested(config_path: str | Path) -> bool:
     ):
         raise RuntimeError(
             "qcode_search_portfolio marker must be exactly "
-            "{enabled: true, schema_version: 1}"
+            "{enabled: true, schema_version: 2}"
         )
     return True
 
@@ -1933,6 +1956,116 @@ def _adaptive_mutation_policy_sha256(policy: dict[str, int]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _validated_search_regime(
+    humanize_context: str | None,
+) -> dict[str, Any]:
+    """Read the optional machine-authored mechanism search regime marker."""
+
+    text = humanize_context or ""
+    token = SEARCH_REGIME_POLICY_PREFIX[:-1]
+    lines: list[str] = []
+    for line in text.splitlines():
+        if token not in line:
+            continue
+        if not line.startswith(SEARCH_REGIME_POLICY_PREFIX):
+            raise RuntimeError(
+                "search regime marker must start a line exactly"
+            )
+        lines.append(line[len(SEARCH_REGIME_POLICY_PREFIX):])
+    if not lines:
+        return dict(DEFAULT_SEARCH_REGIME)
+    if len(lines) != 1 or len(lines[0]) > 16_384:
+        raise RuntimeError("humanize context has an invalid search regime marker")
+
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON number: {value}")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError(f"duplicate JSON key: {key}")
+            result[key] = item
+        return result
+
+    try:
+        value = json.loads(
+            lines[0],
+            parse_constant=reject_constant,
+            object_pairs_hook=reject_duplicates,
+        )
+    except (TypeError, json.JSONDecodeError, ValueError) as exc:
+        raise RuntimeError("search regime marker is not valid JSON") from exc
+    if (
+        not isinstance(value, dict)
+        or value.get("schema_version") != 1
+        or value.get("status") not in SEARCH_REGIME_STATUSES
+    ):
+        raise RuntimeError("search regime marker has an unsupported schema/status")
+    canonical = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    if lines[0] != canonical:
+        raise RuntimeError("search regime marker must use canonical compact JSON")
+    return value
+
+
+def _search_island_schedule(
+    iterations: int,
+    regime_status: str,
+) -> tuple[int, ...]:
+    """Return a deterministic per-slice mechanism quota schedule.
+
+    Normal/exploit slices remain balanced.  Once trusted exact evidence marks
+    structural stagnation, every mechanism keeps at least two trials in a
+    production 25-iteration slice while the restart lane receives eight.
+    """
+
+    if (
+        isinstance(iterations, bool)
+        or not isinstance(iterations, int)
+        or iterations < 1
+        or regime_status not in SEARCH_REGIME_STATUSES
+    ):
+        raise RuntimeError("search island schedule inputs are invalid")
+    counts = [iterations // SEARCH_PORTFOLIO_ISLAND_COUNT] * (
+        SEARCH_PORTFOLIO_ISLAND_COUNT
+    )
+    for island in range(iterations % SEARCH_PORTFOLIO_ISLAND_COUNT):
+        counts[island] += 1
+    order = list(range(SEARCH_PORTFOLIO_ISLAND_COUNT))
+    if regime_status == "expand_required" and iterations >= 10:
+        minimum = 2
+        counts = [minimum] * SEARCH_PORTFOLIO_ISLAND_COUNT
+        remaining = iterations - minimum * SEARCH_PORTFOLIO_ISLAND_COUNT
+        restart_target = min(
+            iterations - minimum * (SEARCH_PORTFOLIO_ISLAND_COUNT - 1),
+            max(minimum, round(iterations * 0.32)),
+        )
+        restart_extra = min(remaining, restart_target - minimum)
+        counts[-1] += restart_extra
+        remaining -= restart_extra
+        mechanism_order = (0, 2, 1, 3)
+        for index in range(remaining):
+            counts[mechanism_order[index % len(mechanism_order)]] += 1
+        order = [4, 0, 2, 1, 3]
+
+    schedule: list[int] = []
+    left = list(counts)
+    while len(schedule) < iterations:
+        for island in order:
+            if left[island] <= 0:
+                continue
+            schedule.append(island)
+            left[island] -= 1
+    if len(schedule) != iterations or any(left):
+        raise RuntimeError("search island schedule construction was inconsistent")
+    return tuple(schedule)
+
+
 def _adaptive_mutation_tactic(
     policy: dict[str, int],
     *,
@@ -1970,10 +2103,7 @@ def _fixed_search_feature_coords(program: Any) -> list[int]:
     )
     assert isinstance(metrics, dict)
     categories: list[int] = []
-    for name in (
-        "pattern_type",
-        MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
-    ):
+    for name in SEARCH_PORTFOLIO_FEATURE_DIMENSIONS:
         value = metrics.get(name)
         limit = SEARCH_PORTFOLIO_FEATURE_BINS[name]
         if (
@@ -1987,20 +2117,6 @@ def _fixed_search_feature_coords(program: Any) -> list[int]:
                 f"search portfolio metric {name} is not a fixed category"
             )
         categories.append(int(value))
-    entropy = metrics.get(MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC)
-    if (
-        isinstance(entropy, bool)
-        or not isinstance(entropy, (int, float))
-        or not math.isfinite(float(entropy))
-        or not 0.0 <= float(entropy) <= 1.0
-    ):
-        raise RuntimeError(
-            "search portfolio structural entropy is outside [0, 1]"
-        )
-    entropy_bins = SEARCH_PORTFOLIO_FEATURE_BINS[
-        MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC
-    ]
-    categories.append(min(entropy_bins - 1, int(float(entropy) * entropy_bins)))
     return categories
 
 
@@ -2021,7 +2137,14 @@ def _search_program_fitness(program: Any) -> float:
 
 
 def _rebuild_fixed_search_feature_maps(database: Any) -> None:
-    """Reconstruct fixed MAP cells and make only cell elites selectable."""
+    """Reconstruct lineage-island MAP cells and their selectable elites.
+
+    An island is the mutation role that produced a child, not a hard
+    classifier gate over the child's whole generated pool.  A useful mutation
+    may legitimately change its dominant mechanism, so every accepted child
+    remains eligible in the scheduler-selected island.  Relation matching is
+    applied as a parent-selection preference in :func:`_search_elite_ids`.
+    """
 
     programs = getattr(database, "programs", None)
     if not isinstance(programs, dict):
@@ -2075,19 +2198,16 @@ def _rebuild_fixed_search_feature_maps(database: Any) -> None:
                 "disagrees with membership"
             )
         coords = _fixed_search_feature_coords(program)
-        if coords[1] not in SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES[island]:
+        if coords[0] not in SEARCH_PORTFOLIO_RELATION_CATEGORIES[island]:
             if getattr(program, "parent_id", None) is None:
                 # OpenEvolve always inserts the one fresh bootstrap Program
                 # into island 0, regardless of its actual descriptor.  Bind a
-                # root/seed to its real structural island before applying the
-                # admission gate; all mutated children remain hard-gated.
-                island = _structural_island_for_support_split(coords[1])
+                # root/seed to its real mechanism island.  Mutated children,
+                # by contrast, keep the scheduler-selected lineage island
+                # even when their generated pool has a different dominant
+                # relation.
+                island = _mechanism_island_for_relation(coords[0])
                 metadata["island"] = island
-            else:
-                # Preserve the Program in the checkpoint database for audit
-                # and novelty history, but do not let an off-role child become
-                # a selectable MAP elite for this structural island.
-                continue
         key = "-".join(str(value) for value in coords)
         existing_id = winners[island].get(key)
         if existing_id is None:
@@ -2151,13 +2271,44 @@ def _rebuild_fixed_search_feature_maps(database: Any) -> None:
 
 
 def _search_elite_ids(database: Any, island: int) -> list[str]:
+    if (
+        isinstance(island, bool)
+        or not isinstance(island, int)
+        or not 0 <= island < SEARCH_PORTFOLIO_ISLAND_COUNT
+    ):
+        raise RuntimeError("search portfolio island is invalid")
     feature_maps = getattr(database, "island_feature_maps", None)
     if (
         not isinstance(feature_maps, list)
         or len(feature_maps) != SEARCH_PORTFOLIO_ISLAND_COUNT
     ):
         raise RuntimeError("search portfolio feature maps are invalid")
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("search portfolio has no parent program")
+
+    expected_relations = SEARCH_PORTFOLIO_RELATION_CATEGORIES[island]
+
+    def matching(program_ids: list[str]) -> list[str]:
+        matches: list[str] = []
+        for program_id in program_ids:
+            program = programs.get(program_id)
+            if program is None:
+                raise RuntimeError(
+                    "search portfolio feature map references missing program "
+                    f"{program_id}"
+                )
+            if _fixed_search_feature_coords(program)[0] in expected_relations:
+                matches.append(program_id)
+        return matches
+
     local = sorted(set(feature_maps[island].values()))
+    local_matches = matching(local)
+    if local_matches:
+        return local_matches
+    # A lineage island must be able to bootstrap even before it has produced
+    # its target mechanism.  Prefer its own off-role history over abandoning
+    # the lineage, then fall back to relation-matched/global elites.
     if local:
         return local
     global_elites = sorted({
@@ -2165,12 +2316,14 @@ def _search_elite_ids(database: Any, island: int) -> list[str]:
         for feature_map in feature_maps
         for program_id in feature_map.values()
     })
+    global_matches = matching(global_elites)
+    if global_matches:
+        return global_matches
     if global_elites:
         return global_elites
-    programs = getattr(database, "programs", None)
-    if not isinstance(programs, dict) or not programs:
-        raise RuntimeError("search portfolio has no parent program")
-    return sorted(programs)
+    all_programs = sorted(programs)
+    all_matches = matching(all_programs)
+    return all_matches or all_programs
 
 
 def _deterministic_search_order(
@@ -2260,6 +2413,7 @@ class _SliceObserver:
     checkpoint_controller: Any = None
     checkpoint_preflight_report: dict[str, Any] | None = None
     search_policy_sha256: str | None = None
+    search_regime_status: str = "normal"
     search_role_submission_counts: dict[str, int] = field(default_factory=dict)
 
     @property
@@ -2310,15 +2464,29 @@ class _SliceObserver:
             "result": result,
         }
         if self.search_policy_sha256 is not None:
-            expected_island = (
-                iteration - self.start_iteration
-            ) % SEARCH_PORTFOLIO_ISLAND_COUNT
-            if island_id != expected_island:
+            schedule = _search_island_schedule(
+                self.iterations,
+                self.search_regime_status,
+            )
+            expected_island: int | None = None
+            if isinstance(iteration, int) and not isinstance(iteration, bool):
+                offset = iteration - self.start_iteration
+                if 0 <= offset < len(schedule):
+                    expected_island = schedule[offset]
+            if expected_island is None:
+                self.violations.append(
+                    f"submission {iteration!r} is outside the scheduled slice"
+                )
+            elif island_id != expected_island:
                 self.violations.append(
                     f"submission {iteration!r} did not use its effective island"
                 )
-            expected_role = SEARCH_PORTFOLIO_ROLES[expected_island]
-            if search_role != expected_role:
+            expected_role = (
+                None
+                if expected_island is None
+                else SEARCH_PORTFOLIO_ROLES[expected_island]
+            )
+            if expected_role is not None and search_role != expected_role:
                 self.violations.append(
                     f"submission {iteration!r} has an invalid search role"
                 )
@@ -2350,6 +2518,7 @@ class _SliceObserver:
                 "search_portfolio_schema_version":
                     SEARCH_PORTFOLIO_SCHEMA_VERSION,
                 "search_policy_sha256": self.search_policy_sha256,
+                "search_regime_status": self.search_regime_status,
                 "search_role": search_role,
                 "search_tactic": search_tactic,
                 "search_parent_program_id": search_parent_program_id,
@@ -2831,13 +3000,20 @@ class _SliceObserver:
         ):
             self.violations.append("submitted futures are not the exact requested range")
         if self.search_policy_sha256 is not None:
+            schedule = _search_island_schedule(
+                self.iterations,
+                self.search_regime_status,
+            )
+            expected_counts = [schedule.count(island) for island in range(
+                SEARCH_PORTFOLIO_ISLAND_COUNT
+            )]
             counts = [
                 self.search_role_submission_counts.get(role, 0)
                 for role in SEARCH_PORTFOLIO_ROLES
             ]
-            if sum(counts) != self.iterations or max(counts) - min(counts) > 1:
+            if counts != expected_counts:
                 self.violations.append(
-                    "search portfolio submissions are not balanced across roles"
+                    "search portfolio submissions do not match mechanism quotas"
                 )
             role_counts = {
                 role: self.search_role_submission_counts.get(role, 0)
@@ -2961,6 +3137,7 @@ def _verified_slice_controller(
     checkpoint_preflight_required: bool = False,
     search_config: Any = None,
     adaptive_mutation_policy: dict[str, int] | None = None,
+    search_regime: dict[str, Any] | None = None,
 ):
     if isinstance(iterations, bool) or not isinstance(iterations, int) or iterations < 1:
         raise RuntimeError("managed slice iterations must be positive")
@@ -2975,6 +3152,7 @@ def _verified_slice_controller(
     )
     portfolio_seed: int | None = None
     portfolio_policy: dict[str, int] | None = None
+    portfolio_regime = dict(DEFAULT_SEARCH_REGIME)
     if search_config is not None:
         portfolio_seed = _validated_search_portfolio_config(search_config)
         portfolio_policy = (
@@ -3000,6 +3178,17 @@ def _verified_slice_controller(
         observer.search_policy_sha256 = (
             _adaptive_mutation_policy_sha256(portfolio_policy)
         )
+        if search_regime is not None:
+            encoded_regime = json.dumps(
+                search_regime,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
+            portfolio_regime = _validated_search_regime(
+                SEARCH_REGIME_POLICY_PREFIX + encoded_regime
+            )
+        observer.search_regime_status = str(portfolio_regime["status"])
     original_parallel = controller_module.ProcessParallelController
     original_save = controller_module.OpenEvolve._save_checkpoint
 
@@ -3028,9 +3217,11 @@ def _verified_slice_controller(
                 future = super()._submit_iteration(iteration, island_id)
                 return observer.record_submission(iteration, island_id, future)
             assert portfolio_policy is not None
-            target_island = (
-                iteration - observer.start_iteration
-            ) % SEARCH_PORTFOLIO_ISLAND_COUNT
+            schedule = _search_island_schedule(
+                observer.iterations,
+                observer.search_regime_status,
+            )
+            target_island = schedule[iteration - observer.start_iteration]
             self._search_iteration_targets[iteration] = target_island
             if (
                 self._search_slice_elites is None
@@ -3118,6 +3309,7 @@ def _verified_slice_controller(
                 "adaptive_mutation_tactic": tactic,
                 "adaptive_mutation_directive":
                     ADAPTIVE_MUTATION_DIRECTIVES[tactic],
+                "search_regime": copy.deepcopy(portfolio_regime),
                 "policy_sha256": observer.search_policy_sha256,
             }
             snapshot["artifacts"][parent.id] = parent_artifacts
@@ -3151,8 +3343,8 @@ def _verified_slice_controller(
             if portfolio_seed is not None:
                 _rebuild_fixed_search_feature_maps(self.database)
                 self._search_slice_elites = tuple(
-                    tuple(sorted(set(feature_map.values())))
-                    for feature_map in self.database.island_feature_maps
+                    tuple(_search_elite_ids(self.database, island))
+                    for island in range(SEARCH_PORTFOLIO_ISLAND_COUNT)
                 )
                 frozen_ids = {
                     program_id
@@ -3639,6 +3831,10 @@ def _write_slice_witness(
                 "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
                 "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
                 "roles": list(SEARCH_PORTFOLIO_ROLES),
+                "feature_dimensions": list(
+                    SEARCH_PORTFOLIO_FEATURE_DIMENSIONS
+                ),
+                "regime_status": observer.search_regime_status,
                 "policy_sha256": observer.search_policy_sha256,
                 "role_submission_counts": {
                     role: observer.search_role_submission_counts.get(role, 0)
@@ -4450,6 +4646,7 @@ def main():
     preflight_contract_id: int | None = None
     stage2_cascade_threshold: float | None = None
     adaptive_mutation_policy: dict[str, int] | None = None
+    search_regime: dict[str, Any] | None = None
     search_portfolio_enabled = False
     try:
         context_text: str | None = None
@@ -4461,6 +4658,7 @@ def main():
                 adaptive_mutation_policy = (
                     _validated_adaptive_mutation_policy(context_text)
                 )
+                search_regime = _validated_search_regime(context_text)
             dependency_identities = _evaluator_dependency_identities()
             args._humanize_context_text = context_text
         codex_version: str | None = None
@@ -4576,8 +4774,9 @@ def main():
         print(f"  Model backend: {'Codex CLI' if args.codex_cli else api_base}")
         if search_portfolio_enabled:
             print(
-                "  Search portfolio: fixed MAP-Elites v3, "
-                "5 structural-role islands"
+                "  Search portfolio: fixed MAP-Elites v4, "
+                "5 algebraic-mechanism islands "
+                f"(regime={search_regime['status'] if search_regime else 'normal'})"
             )
         print(f"  Seed: {seed_path}")
         if args.noncss:
@@ -4605,6 +4804,7 @@ def main():
                     else None
                 ),
                 adaptive_mutation_policy=adaptive_mutation_policy,
+                search_regime=search_regime,
             )
         else:
             slice_context = nullcontext((None, None))

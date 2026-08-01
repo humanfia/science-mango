@@ -35,11 +35,33 @@ def jsonl(*rows: dict) -> bytes:
     )
 
 
-def write_launch_inputs(repo: Path, *, portfolio: bool = False) -> None:
+def write_launch_inputs(
+    repo: Path,
+    *,
+    portfolio: bool = False,
+    legacy_portfolio: bool = False,
+) -> None:
+    assert not (portfolio and legacy_portfolio)
     evolve = repo / "evolve"
     evolve.mkdir(parents=True, exist_ok=True)
     config_text = "evaluator:\n  parallel_evaluations: 1\n"
     if portfolio:
+        config_text += (
+            "database:\n"
+            "  num_islands: 5\n"
+            "  feature_dimensions:\n"
+            "    - algebraic_relation_type\n"
+            "    - support_split_type\n"
+            "    - orbit_span_bin\n"
+            "  feature_bins:\n"
+            "    algebraic_relation_type: 5\n"
+            "    support_split_type: 6\n"
+            "    orbit_span_bin: 3\n"
+            "qcode_search_portfolio:\n"
+            "  enabled: true\n"
+            "  schema_version: 2\n"
+        )
+    elif legacy_portfolio:
         config_text += (
             "database:\n"
             "  num_islands: 5\n"
@@ -156,9 +178,19 @@ def write_full_slice_proof(
         allow_nan=False,
     ).encode()
     witness_path = flow_module._slice_witness_path(round_dir)
-    portfolio_enabled = flow_module._search_portfolio_enabled_from_config(
-        Path(launch["config"]["path"])
-    )
+    if (
+        schema_version
+        == flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION
+    ):
+        portfolio_enabled = (
+            flow_module._legacy_v4_search_portfolio_enabled_from_config(
+                Path(launch["config"]["path"])
+            )
+        )
+    else:
+        portfolio_enabled = flow_module._search_portfolio_enabled_from_config(
+            Path(launch["config"]["path"])
+        )
     attempts = [
         {"iteration": i, "island_id": 0, "result": "future"}
         for i in range(base_iteration + 1, base_iteration + count + 1)
@@ -175,6 +207,12 @@ def write_full_slice_proof(
         policy_sha256 = (
             flow_module._adaptive_mutation_policy_sha256(policy)
         )
+        regime = flow_module._search_regime_policy_from_context(
+            Path(launch["context"]["path"])
+        )
+        schedule = flow_module._search_island_schedule(
+            count, str(regime["status"])
+        )
         parent_code = json.loads(
             (
                 Path(result["path"])
@@ -186,27 +224,23 @@ def write_full_slice_proof(
             parent_code.encode()
         ).hexdigest()
         role_counts = {
-            role: sum(
-                (iteration - start)
-                % flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT
-                == island
-                for iteration in range(start, start + count)
-            )
+            role: schedule.count(island)
             for island, role in enumerate(
                 flow_module.SEARCH_PORTFOLIO_ROLES
             )
         }
         attempts = []
         for iteration in range(start, start + count):
-            island = (
-                iteration - start
-            ) % flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT
+            island = schedule[iteration - start]
             attempts.append({
                 "iteration": iteration,
                 "island_id": island,
                 "result": "future",
-                "search_portfolio_schema_version": 1,
+                "search_portfolio_schema_version": (
+                    flow_module.SEARCH_PORTFOLIO_SCHEMA_VERSION
+                ),
                 "search_policy_sha256": policy_sha256,
+                "search_regime_status": regime["status"],
                 "search_role":
                     flow_module.SEARCH_PORTFOLIO_ROLES[island],
                 "search_tactic":
@@ -220,9 +254,75 @@ def write_full_slice_proof(
                 "search_role_submission_counts": role_counts,
             })
         search_portfolio = {
-            "schema_version": 1,
+            "schema_version": flow_module.SEARCH_PORTFOLIO_SCHEMA_VERSION,
             "island_count": flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT,
             "roles": list(flow_module.SEARCH_PORTFOLIO_ROLES),
+            "feature_dimensions": list(
+                flow_module.SEARCH_PORTFOLIO_FEATURE_DIMENSIONS
+            ),
+            "regime_status": regime["status"],
+            "policy_sha256": policy_sha256,
+            "role_submission_counts": role_counts,
+        }
+    elif (
+        schema_version
+        == flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION
+        and portfolio_enabled
+    ):
+        policy = flow_module._adaptive_mutation_policy_from_context(
+            Path(launch["context"]["path"])
+        )
+        policy_sha256 = flow_module._adaptive_mutation_policy_sha256(policy)
+        parent_code = json.loads(
+            (
+                Path(result["path"])
+                / "programs"
+                / "program.json"
+            ).read_text()
+        )["code"]
+        parent_code_sha256 = hashlib.sha256(
+            parent_code.encode()
+        ).hexdigest()
+        roles = flow_module.LEGACY_V4_SEARCH_PORTFOLIO_ROLES
+        role_counts = {
+            role: sum(
+                (iteration - start) % flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT
+                == island
+                for iteration in range(start, start + count)
+            )
+            for island, role in enumerate(roles)
+        }
+        attempts = []
+        for iteration in range(start, start + count):
+            island = (
+                iteration - start
+            ) % flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT
+            attempts.append({
+                "iteration": iteration,
+                "island_id": island,
+                "result": "future",
+                "search_portfolio_schema_version": (
+                    flow_module.LEGACY_V4_SEARCH_PORTFOLIO_SCHEMA_VERSION
+                ),
+                "search_policy_sha256": policy_sha256,
+                "search_role": roles[island],
+                "search_tactic": (
+                    flow_module._adaptive_mutation_tactic_from_parent_hash(
+                        policy,
+                        parent_code_sha256=parent_code_sha256,
+                        iteration=iteration,
+                    )
+                ),
+                "search_parent_program_id": "program",
+                "search_parent_code_sha256": parent_code_sha256,
+                "search_role_submission_counts": role_counts,
+            })
+        search_portfolio = {
+            "schema_version": (
+                flow_module.LEGACY_V4_SEARCH_PORTFOLIO_SCHEMA_VERSION
+            ),
+            "island_count": flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT,
+            "roles": list(roles),
             "policy_sha256": policy_sha256,
             "role_submission_counts": role_counts,
         }
@@ -270,7 +370,10 @@ def write_full_slice_proof(
         "openevolve_version": "0.2.26",
         "completed_at": "test",
     }
-    if schema_version == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+    if schema_version in {
+        flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+        flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
         witness["search_portfolio"] = search_portfolio
     if candidate_source is not None:
         witness.update({
@@ -494,7 +597,9 @@ def test_prepared_transaction_adopts_complete_checkpoint_after_crash(tmp_path):
     assert calls == [True]
     assert rows == [row]
     marker = json.loads((round_dir / "openevolve-completed.json").read_text())
-    assert marker["schema_version"] == 4
+    assert marker["schema_version"] == (
+        flow_module.EVOLUTION_COMPLETION_SCHEMA_VERSION
+    )
     assert (round_dir / "openevolve-slice-witness.json").is_file()
 
 
@@ -674,7 +779,7 @@ def test_candidate_range_witness_accepts_unchanged_log(tmp_path):
     assert flow._capture_round_candidates(state, 1, round_dir) == [row]
 
 
-def test_portfolio_witness_v4_replays_policy_roles_tactics_and_quota(
+def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
     tmp_path,
 ):
     repo = tmp_path / "repo"
@@ -682,7 +787,7 @@ def test_portfolio_witness_v4_replays_policy_roles_tactics_and_quota(
     write_launch_inputs(repo, portfolio=True)
     config = FlowConfig(
         repo_dir=repo,
-        run_id="portfolio-witness-v4",
+        run_id="portfolio-witness-v5",
         iterations_per_round=7,
         milp_top=0,
     )
@@ -712,11 +817,11 @@ def test_portfolio_witness_v4_replays_policy_roles_tactics_and_quota(
 
     accepted = validate()
     assert accepted["search_portfolio"]["role_submission_counts"] == {
-        "compact_mixed_2_2": 2,
-        "hybrid_2_3_3_2": 2,
-        "balanced_3_3": 1,
-        "asymmetric_2_4_4_2": 1,
-        "failure_repair_novelty": 1,
+        "affine_automorphism_cover": 2,
+        "shared_anchor_coset_cover": 2,
+        "complementary_diagonal_cover": 1,
+        "asymmetric_anchor_cover": 1,
+        "failure_repair_restart": 1,
     }
     original = json.loads(witness_path.read_text())
 
@@ -734,7 +839,7 @@ def test_portfolio_witness_v4_replays_policy_roles_tactics_and_quota(
 
     def mutate_role(row):
         row["submission_attempts"][0]["search_role"] = (
-            "failure_repair_novelty"
+            "failure_repair_restart"
         )
 
     mutations.append(mutate_role)
@@ -771,6 +876,72 @@ def test_portfolio_witness_v4_replays_policy_roles_tactics_and_quota(
         atomic_write_json(witness_path, changed)
         with pytest.raises(RoundTransactionError):
             validate()
+
+
+def test_schema_v4_portfolio_uses_only_frozen_legacy_semantics(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo, legacy_portfolio=True)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="legacy-portfolio-witness-v4",
+        iterations_per_round=7,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    flow.candidate_log.write_bytes(jsonl(candidate(56)))
+    checkpoint = write_checkpoint(repo, config.run_id, 7)
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        checkpoint,
+        None,
+        schema_version=(
+            flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION
+        ),
+    )
+    witness_path = flow_module._slice_witness_path(round_dir)
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output, checkpoint
+    )
+
+    def validate() -> dict:
+        return flow_module._validate_slice_witness(
+            witness_path,
+            config,
+            None,
+            result,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+            flow.candidate_log,
+            int(transaction["candidate_start_offset"]),
+        )
+
+    accepted = validate()
+    portfolio = accepted["search_portfolio"]
+    assert accepted["schema_version"] == 4
+    assert portfolio["schema_version"] == 1
+    assert portfolio["roles"] == list(
+        flow_module.LEGACY_V4_SEARCH_PORTFOLIO_ROLES
+    )
+    assert "feature_dimensions" not in portfolio
+    assert all(
+        "search_regime_status" not in attempt
+        for attempt in accepted["submission_attempts"]
+    )
+
+    # A v5-only field cannot be smuggled into a v4 artifact and interpreted
+    # under the mechanism-portfolio contract.
+    changed = json.loads(witness_path.read_text())
+    changed["search_portfolio"]["feature_dimensions"] = list(
+        flow_module.SEARCH_PORTFOLIO_FEATURE_DIMENSIONS
+    )
+    atomic_write_json(witness_path, changed)
+    with pytest.raises(RoundTransactionError, match="legacy schema-v4"):
+        validate()
 
 
 def test_legacy_source_ready_candidate_binding_remains_resumable(tmp_path):

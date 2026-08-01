@@ -33,11 +33,17 @@ def _stage2_partial_then_hang(payload) -> dict:
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     digest = str(candidate["triage_identity"]["canonical_digest"])
     paths = candidate_pool.state_paths(config.state_dir, digest)
-    paths["audit"].parent.mkdir(parents=True, exist_ok=True)
-    paths["audit"].write_text(json.dumps({
-        "status": "UNRESOLVED",
-        "completed_sectors": 1,
-    }))
+    fixture = candidate["_partial_checkpoint_fixture"]
+    construction = fixture["construction"]
+    symmetry = fixture["translation_symmetry"]
+    candidate_pool.write_artifact(
+        paths["audit"],
+        construction,
+        [fixture["sector"]],
+        threshold_only=True,
+        translation_symmetry=symmetry,
+        cache_binding=fixture["cache_binding"],
+    )
     (config.state_dir / "stage2-worker.pid").write_text(str(os.getpid()))
     while True:
         signal.pause()
@@ -99,18 +105,44 @@ def test_stage2_single_worker_hard_wall_keeps_partial_checkpoint(
     )
     config = candidate_pool.AuditConfig(
         state_dir=tmp_path,
-        candidate_hard_timeout_s=0.15,
+        # Leave enough time for the child to start and durably install the
+        # pre-built checkpoint fixture before exercising the hard wall.
+        candidate_hard_timeout_s=1.0,
         hard_wall_termination_grace_s=0.05,
     )
+    candidate = _candidate()
+    digest = str(candidate["triage_identity"]["canonical_digest"])
+    construction = candidate_pool._construction_candidate(candidate, digest)
+    symmetry = candidate_pool.verify_bb_translation_symmetry(construction)
+    assert symmetry["verified"] is True
+    candidate["_partial_checkpoint_fixture"] = {
+        "construction": construction,
+        "translation_symmetry": symmetry,
+        "cache_binding": candidate_pool._stage2_audit_cache_binding(
+            construction,
+            symmetry,
+        ),
+        "sector": {
+            "sector": "X",
+            "threshold_infeasible": True,
+            "status_name": "INFEASIBLE",
+            "max_weight": int(construction["required_distance"]) - 1,
+            "operator": None,
+            "anchor_indices": symmetry["orbit_representatives"],
+        },
+    }
 
     started = time.monotonic()
     results = candidate_pool.audit_selected_candidates(
-        [_candidate()],
+        [candidate],
         config,
         candidate_workers=1,
     )
 
-    assert time.monotonic() - started < 2
+    # The one-second worker wall is followed by an authoritative reconstruction
+    # and replay in the parent.  That replay is intentionally outside the
+    # solver wall and may import/build qLDPC state on a cold test process.
+    assert time.monotonic() - started < 10
     assert results[0]["status"] == "UNRESOLVED"
     assert results[0]["completed_sectors"] == 1
     assert results[0]["hard_wall"]["timed_out"] is True

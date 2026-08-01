@@ -44,6 +44,10 @@ def test_parent_and_child_share_managed_evaluator_dependency_contract():
         "evaluation_structural_features"
         in launcher.LOCAL_EVALUATOR_DEPENDENCIES
     )
+    assert (
+        "evaluation_algebraic_mechanisms"
+        in launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
     assert "evaluation_proof_runtime" in (
         launcher.LOCAL_EVALUATOR_DEPENDENCIES
     )
@@ -143,6 +147,9 @@ def _map_descriptor_metrics(
     pattern_type: int = 0,
     support_split_type: int = 0,
     structural_entropy: float = 0.0,
+    algebraic_relation_type: int = 0,
+    orbit_span_bin: int = 0,
+    difference_spectrum_bin: int = 0,
 ) -> dict[str, float]:
     return {
         launcher.MAP_DESCRIPTOR_VERSION_METRIC: float(
@@ -155,6 +162,11 @@ def _map_descriptor_metrics(
             float(support_split_type),
         launcher.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC:
             structural_entropy,
+        launcher.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC:
+            float(algebraic_relation_type),
+        launcher.MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: float(orbit_span_bin),
+        launcher.MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC:
+            float(difference_spectrum_bin),
     }
 
 
@@ -195,7 +207,7 @@ def test_search_portfolio_requires_explicit_versioned_yaml_marker(tmp_path):
     enabled.write_text(
         "qcode_search_portfolio:\n"
         "  enabled: true\n"
-        "  schema_version: 1\n"
+        "  schema_version: 2\n"
     )
     assert launcher._search_portfolio_requested(enabled) is True
 
@@ -203,14 +215,14 @@ def test_search_portfolio_requires_explicit_versioned_yaml_marker(tmp_path):
     malformed.write_text(
         "qcode_search_portfolio:\n"
         "  enabled: true\n"
-        "  schema_version: 2\n"
+        "  schema_version: 1\n"
     )
     with pytest.raises(RuntimeError, match="marker must be exactly"):
         launcher._search_portfolio_requested(malformed)
 
     for name, marker in {
         "explicit-null": "null\n",
-        "integer-enabled": "enabled: 1\n  schema_version: 1\n",
+        "integer-enabled": "enabled: 1\n  schema_version: 2\n",
         "boolean-schema": "enabled: true\n  schema_version: true\n",
     }.items():
         invalid = tmp_path / f"{name}.yaml"
@@ -282,40 +294,67 @@ def test_adaptive_policy_bad_block_fails_closed(context):
         launcher._validated_adaptive_mutation_policy(context)
 
 
-def test_fixed_portfolio_bins_are_stable_and_v2_is_rejected():
+def test_search_regime_marker_and_expand_schedule_are_deterministic():
+    regime = {
+        "schema_version": 1,
+        "kind": "qcode-humanize-search-regime",
+        "status": "expand_required",
+        "reason": "trusted_exact_low_distance_with_duplicate_collapse",
+        "evidence": {"rounds": [1, 2, 3]},
+    }
+    encoded = json.dumps(regime, sort_keys=True, separators=(",", ":"))
+    assert launcher._validated_search_regime(
+        launcher.SEARCH_REGIME_POLICY_PREFIX + encoded
+    ) == regime
+    schedule = launcher._search_island_schedule(25, "expand_required")
+    assert [schedule.count(island) for island in range(5)] == [5, 4, 4, 4, 8]
+    assert flow_module._search_island_schedule(25, "expand_required") == schedule
+    assert launcher._search_island_schedule(25, "normal") == tuple(
+        index % 5 for index in range(25)
+    )
+
+
+@pytest.mark.parametrize(
+    "context",
+    (
+        'prefix QCODE_SEARCH_REGIME_V1={"schema_version":1,"status":"normal"}',
+        'QCODE_SEARCH_REGIME_V1={"schema_version":1, "status":"normal"}',
+        'QCODE_SEARCH_REGIME_V1={"schema_version":1,"status":"unknown"}',
+    ),
+)
+def test_search_regime_marker_fails_closed(context):
+    with pytest.raises(RuntimeError, match="search regime"):
+        launcher._validated_search_regime(context)
+
+
+def test_fixed_portfolio_bins_are_stable_and_v3_is_rejected():
     program = SimpleNamespace(
         id="stable",
         metrics={
             **_map_descriptor_metrics(
-                pattern_type=5,
+                algebraic_relation_type=4,
                 support_split_type=4,
-                structural_entropy=1.0,
+                orbit_span_bin=2,
             ),
             "combined_score": 1.0,
         },
     )
-    assert launcher._fixed_search_feature_coords(program) == [5, 4, 4]
-    program.metrics[launcher.MAP_DESCRIPTOR_VERSION_METRIC] = 2.0
+    assert launcher._fixed_search_feature_coords(program) == [4, 4, 2]
+    program.metrics[launcher.MAP_DESCRIPTOR_VERSION_METRIC] = 3.0
     with pytest.raises(RuntimeError, match="incompatible MAP descriptor"):
         launcher._fixed_search_feature_coords(program)
 
 
-def test_structural_island_admission_categories_match_evaluator_order():
+def test_mechanism_island_admission_categories_match_evaluator_order():
     import evolve.openevolve_evaluator as evaluator
 
     expected = tuple(
-        tuple(
-            evaluator.CHALLENGE_SUPPORT_SPLITS.index(split)
-            for split in targets
-        )
-        if targets
-        else tuple(range(len(evaluator.CHALLENGE_SUPPORT_SPLITS)))
-        for targets in launcher.SEARCH_PORTFOLIO_SUPPORT_TARGETS
+        (index,) for index, _name in enumerate(evaluator.RELATION_TYPES)
     )
-    assert launcher.SEARCH_PORTFOLIO_SUPPORT_SPLIT_CATEGORIES == expected
+    assert launcher.SEARCH_PORTFOLIO_RELATION_CATEGORIES == expected
 
 
-def test_real_ansatz_seed_bootstraps_into_its_structural_island():
+def test_real_ansatz_seed_bootstraps_into_its_mechanism_island():
     import evolve.openevolve_evaluator as evaluator
     import evolve.seed_solution_ansatz as seed
 
@@ -356,13 +395,13 @@ def test_real_ansatz_seed_bootstraps_into_its_structural_island():
 
     launcher._rebuild_fixed_search_feature_maps(database)
 
-    assert root.metadata["island"] == 2
+    expected_island = int(
+        metrics[launcher.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC]
+    )
+    assert root.metadata["island"] == expected_island
     assert database.islands == [
-        set(),
-        set(),
-        {root.id},
-        set(),
-        set(),
+        {root.id} if island == expected_island else set()
+        for island in range(launcher.SEARCH_PORTFOLIO_ISLAND_COUNT)
     ]
     assert launcher._search_elite_ids(database, 0) == [root.id]
 
@@ -370,11 +409,11 @@ def test_real_ansatz_seed_bootstraps_into_its_structural_island():
 @pytest.mark.parametrize(
     ("metric", "value"),
     (
-        ("pattern_type", True),
-        ("pattern_type", 6),
+        (launcher.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC, True),
+        (launcher.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC, 5),
         (launcher.MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC, -1),
-        (launcher.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC, float("nan")),
-        (launcher.MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC, 1.01),
+        (launcher.MAP_DESCRIPTOR_ORBIT_SPAN_METRIC, float("nan")),
+        (launcher.MAP_DESCRIPTOR_ORBIT_SPAN_METRIC, 3),
     ),
 )
 def test_fixed_portfolio_bins_reject_invalid_coordinates(metric, value):
@@ -390,13 +429,15 @@ def test_fixed_portfolio_bins_reject_invalid_coordinates(metric, value):
         launcher._fixed_search_feature_coords(program)
 
 
-def test_rebuilt_map_samples_cell_elites_and_empty_island_falls_back_global():
+def test_rebuilt_map_keeps_lineage_children_and_prefers_relation_parents():
     def program(
         program_id: str,
         score: float,
         *,
         pattern: int,
         support_split_type: int = 0,
+        algebraic_relation_type: int = 0,
+        island: int = 0,
     ) -> SimpleNamespace:
         return SimpleNamespace(
             id=program_id,
@@ -408,22 +449,36 @@ def test_rebuilt_map_samples_cell_elites_and_empty_island_falls_back_global():
                     pattern_type=pattern,
                     support_split_type=support_split_type,
                     structural_entropy=0.3,
+                    algebraic_relation_type=algebraic_relation_type,
+                    orbit_span_bin=0 if pattern < 3 else 2,
                 ),
             },
-            metadata={"island": 0},
+            metadata={"island": island},
         )
 
     programs = {
         "a": program("a", 3.0, pattern=1),
         "b": program("b", 2.0, pattern=1),
         "c": program("c", 1.0, pattern=4),
-        # An off-role hybrid child may remain in the checkpoint database, but
-        # it cannot become a compact-island MAP elite even with a high score.
+        # A mechanism-changing child remains part of the lineage island.  It
+        # is a MAP elite, but matching affine parents are preferred for the
+        # next affine mutation.
         "off-role": program(
             "off-role",
             100.0,
             pattern=5,
             support_split_type=2,
+            algebraic_relation_type=1,
+        ),
+        # Island 3 has no local history.  Its cold-start fallback should find
+        # a matching relation-3 elite in another lineage before using the
+        # unrestricted global archive.
+        "global-role-3": program(
+            "global-role-3",
+            4.0,
+            pattern=2,
+            algebraic_relation_type=3,
+            island=1,
         ),
         # ProgramDatabase stores a failed novelty insertion in ``programs``
         # before returning, but does not put it in an island.  Rebuild must
@@ -434,7 +489,7 @@ def test_rebuilt_map_samples_cell_elites_and_empty_island_falls_back_global():
         programs=programs,
         islands=[
             {"a", "b", "c", "off-role"},
-            set(),
+            {"global-role-3"},
             set(),
             set(),
             set(),
@@ -455,13 +510,15 @@ def test_rebuilt_map_samples_cell_elites_and_empty_island_falls_back_global():
         for program_id, program_value in programs.items()
     }
     launcher._rebuild_fixed_search_feature_maps(database)
-    assert database.islands[0] == {"a", "c"}
+    assert database.islands[0] == {"a", "c", "off-role"}
+    assert database.islands[1] == {"global-role-3"}
     assert "b" not in database.archive
-    assert "off-role" not in database.archive
+    assert "off-role" in database.archive
     assert "rejected" not in database.archive
-    assert database.best_program_id == "a"
+    assert database.best_program_id == "off-role"
     assert launcher._search_elite_ids(database, 0) == ["a", "c"]
-    assert launcher._search_elite_ids(database, 3) == ["a", "c"]
+    assert launcher._search_elite_ids(database, 1) == ["global-role-3"]
+    assert launcher._search_elite_ids(database, 3) == ["global-role-3"]
     assert database.feature_stats == {}
     first_maps = json.loads(json.dumps(database.island_feature_maps))
     launcher._rebuild_fixed_search_feature_maps(database)
@@ -475,6 +532,115 @@ def test_rebuilt_map_samples_cell_elites_and_empty_island_falls_back_global():
         )
         for program_id, program_value in database.programs.items()
     } == program_payloads
+
+
+def test_cover_seed_descriptors_submit_and_rebuild_all_five_lineage_islands():
+    import evolve.openevolve_evaluator as evaluator
+    import evolve.seed_solution_cover_algebra as seed
+    from evaluation.algebraic_mechanisms import classify_algebraic_mechanism
+
+    ell, m = 12, 6
+    grouped_rows: dict[int, list[dict[str, Any]]] = {
+        island: []
+        for island in range(launcher.SEARCH_PORTFOLIO_ISLAND_COUNT)
+    }
+    all_rows: list[dict[str, Any]] = []
+    for a_terms, b_terms in seed.generate_candidates(ell, m):
+        row = {
+            "ell": ell,
+            "m": m,
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+        }
+        relation_name = classify_algebraic_mechanism(
+            a_terms,
+            b_terms,
+            ell=ell,
+            m=m,
+        )["relation_type"]
+        relation = evaluator.RELATION_TYPES.index(relation_name)
+        grouped_rows[relation].append(row)
+        all_rows.append(row)
+
+    assert all(grouped_rows.values())
+    root_metrics = evaluator._pool_map_descriptor(
+        all_rows,
+        lattices={(ell, m)},
+    )
+    root = SimpleNamespace(
+        id="cover-seed-root",
+        code=Path(seed.__file__).read_text(),
+        parent_id=None,
+        metrics={"combined_score": 0.0, **root_metrics},
+        metadata={"island": 0},
+    )
+    programs = {root.id: root}
+    islands = [{root.id}, set(), set(), set(), set()]
+    for island, rows in grouped_rows.items():
+        metrics = evaluator._pool_map_descriptor(
+            rows,
+            lattices={(ell, m)},
+        )
+        assert int(
+            metrics[launcher.MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC]
+        ) == island
+        child_id = f"cover-child-{island}"
+        programs[child_id] = SimpleNamespace(
+            id=child_id,
+            code=f"cover-generator-{island}",
+            parent_id=root.id,
+            metrics={"combined_score": float(island + 1), **metrics},
+            # This is the effective scheduler target recorded by
+            # ProgramDatabase.add after a submission.
+            metadata={"island": island},
+        )
+        islands[island].add(child_id)
+
+    database = SimpleNamespace(
+        programs=programs,
+        islands=islands,
+        island_feature_maps=[{} for _ in range(5)],
+        archive=set(),
+        feature_stats={},
+        feature_bins_per_dim={},
+        island_best_programs=[None] * 5,
+        best_program_id=None,
+        config=SimpleNamespace(archive_size=500),
+    )
+
+    launcher._rebuild_fixed_search_feature_maps(database)
+
+    for island in range(launcher.SEARCH_PORTFOLIO_ISLAND_COUNT):
+        child_id = f"cover-child-{island}"
+        assert child_id in database.islands[island]
+        assert child_id in set(
+            database.island_feature_maps[island].values()
+        )
+        assert launcher._search_elite_ids(database, island)
+
+
+def test_portfolio_observer_records_out_of_range_iteration_without_indexing_role():
+    observer = launcher._SliceObserver(0, 1, FakeResult)
+    observer.search_policy_sha256 = launcher._adaptive_mutation_policy_sha256(
+        dict(launcher.DEFAULT_ADAPTIVE_MUTATION_POLICY)
+    )
+    observer.begin(1, 1, None)
+
+    result = observer.record_submission(
+        2,
+        0,
+        None,
+        search_role=launcher.SEARCH_PORTFOLIO_ROLES[0],
+        search_tactic=launcher.ADAPTIVE_MUTATION_TACTICS[0],
+        search_parent_program_id="parent",
+        search_parent_code_sha256="a" * 64,
+    )
+
+    assert result is None
+    assert any(
+        "outside the scheduled slice" in violation
+        for violation in observer.violations
+    )
 
 
 def test_observer_enforces_twenty_five_submission_portfolio_quota():
@@ -690,6 +856,7 @@ def _install_fake_portfolio_sources(
                 "combined_score": float(iteration + 10),
                 **_map_descriptor_metrics(
                     support_split_type=(0, 1, 5, 3, 0)[target_island],
+                    algebraic_relation_type=target_island,
                 ),
             },
             "iteration_found": iteration,
@@ -807,6 +974,10 @@ def test_verified_controller_portfolio_rebinds_snapshot_and_integrates_five_isla
                     island
                 ]
             ]
+            assert artifact["search_regime"] == {
+                "schema_version": 1,
+                "status": "normal",
+            }
             assert (
                 artifact["adaptive_mutation_tactic"]
                 in launcher.ADAPTIVE_MUTATION_TACTICS
@@ -2921,9 +3092,13 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
 
     witness_payload = json.loads(witness_path.read_text())
     marker_payload = json.loads(marker_path.read_text())
-    assert witness_payload["schema_version"] == 4
+    assert launcher.EVOLUTION_LEGACY_SLICE_WITNESS_SCHEMA_VERSION == 4
+    assert launcher.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION == 5
+    assert witness_payload["schema_version"] == 5
     assert witness_payload["search_portfolio"] is None
-    assert marker_payload["schema_version"] == 4
+    assert launcher.EVOLUTION_LEGACY_COMPLETION_SCHEMA_VERSION == 4
+    assert launcher.EVOLUTION_COMPLETION_SCHEMA_VERSION == 5
+    assert marker_payload["schema_version"] == 5
     assert marker_payload["slice_witness_sha256"] == witness["sha256"]
     assert marker_payload["result_checkpoint_sha256"] == "b" * 64
     assert marker_payload["context_sha256"] == witness_payload["context_sha256"]
