@@ -15,10 +15,29 @@ from collections import deque
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scripts.screen_frontier_candidate import (
+    build_candidate_code,
     screen_candidate,
+)
+from scripts.screen_frontier_sat import screen_sat_candidate
+from scripts.screen_frontier_twobga import (
+    TWOBGA_STAGE3_BACKEND,
+    screen_twobga_candidate,
+)
+from scripts.screen_frontier_xor import verify_bb_translation_symmetry
+from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
+from evaluation.distance_sat import (
+    SAT_ENCODINGS,
+    enforce_sat_native_thread_budget,
+)
+from evaluation.twobga_subsystem import derive_twobga_subsystem_problem
+from evaluation.solver_budget import (
+    SolverBudgetError,
+    acquire_solver_budget,
 )
 from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
@@ -31,6 +50,14 @@ from evaluation.process_hard_wall import (
 
 
 PROJECT = Path(__file__).resolve().parent.parent
+STAGE3_BACKENDS = frozenset({
+    "legacy-directions",
+    "sat-sectors",
+    TWOBGA_STAGE3_BACKEND,
+})
+DEFAULT_STAGE3_BACKEND = "legacy-directions"
+DEFAULT_SAT_CARDINALITY_ENCODING = "kmtotalizer"
+RECOVERABLE_INCOMPLETE_EXIT_CODE = 2
 CONSTRUCTION_FIELDS = (
     "source", "trial", "ansatz", "ell", "m", "A_terms", "B_terms",
     "C_terms", "D_terms", "n", "k", "required_distance",
@@ -191,6 +218,211 @@ def direction_state_path(state_dir: Path, digest: str) -> Path:
     return state_dir / "directions" / f"{safe_digest(digest)}.json"
 
 
+def sat_state_path(state_dir: Path, digest: str) -> Path:
+    """Keep SAT-sector decisions independent from legacy direction state."""
+
+    return state_dir / "sat-sectors" / f"{safe_digest(digest)}.json"
+
+
+def twobga_state_path(state_dir: Path, digest: str) -> Path:
+    """Keep theorem-gated subsystem decisions in a typed state tree."""
+
+    return state_dir / TWOBGA_STAGE3_BACKEND / f"{safe_digest(digest)}.json"
+
+
+def artifact_state_path(state_dir: Path, digest: str, backend: str) -> Path:
+    if backend == "legacy-directions":
+        return direction_state_path(state_dir, digest)
+    if backend == "sat-sectors":
+        return sat_state_path(state_dir, digest)
+    if backend == TWOBGA_STAGE3_BACKEND:
+        return twobga_state_path(state_dir, digest)
+    raise ValueError(f"unsupported Stage 3 backend: {backend}")
+
+
+def _terminal_sat_resume_score(
+    state_dir: Path,
+    digest: str,
+    candidate: Mapping[str, Any],
+) -> tuple[int, int]:
+    """Rank durable SAT progress without treating it as trusted evidence.
+
+    A required-weight upper witness makes a candidate much more valuable than
+    an object for which even an upper bound is unresolved.  Resume scheduling
+    should therefore put such candidates into the finite worker pool first.
+    Every checkpoint is still reconstructed and validated by the screener;
+    this parser affects scheduling only and cannot promote proof status.
+    """
+
+    unit_dir = (
+        state_dir / "sat-sectors" / "sat-units" / safe_digest(digest)
+    )
+    required = candidate.get("required_distance")
+    terminal = 0
+    required_upper = False
+    try:
+        paths = tuple(unit_dir.glob("*.json"))
+    except OSError:
+        paths = ()
+    for path in paths:
+        try:
+            value = json.loads(path.read_text())
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(value, Mapping) or value.get("outcome") not in {
+            "sat", "unsat",
+        }:
+            continue
+        terminal += 1
+        objective = value.get("objective")
+        if (
+            path.name.startswith("upper-")
+            and value.get("outcome") == "sat"
+            and isinstance(required, int)
+            and not isinstance(required, bool)
+            and isinstance(objective, int)
+            and not isinstance(objective, bool)
+            and objective <= required
+        ):
+            required_upper = True
+    if required_upper:
+        return (0, -terminal)
+    if terminal:
+        return (1, -terminal)
+    artifact = sat_state_path(state_dir, digest)
+    try:
+        value = json.loads(artifact.read_text())
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return (3, 0)
+    attempted = value.get("attempted_units") if isinstance(value, Mapping) else 0
+    return (
+        2,
+        -attempted
+        if isinstance(attempted, int) and not isinstance(attempted, bool)
+        else 0,
+    )
+
+
+def prioritize_resume_candidates(
+    selected: list[tuple[str, dict[str, Any]]],
+    state_dir: Path,
+    *,
+    backend: str,
+    resume: bool,
+) -> list[tuple[str, dict[str, Any]]]:
+    """Put candidates with replayable terminal progress first, stably."""
+
+    if not resume or backend != "sat-sectors":
+        return list(selected)
+    ranked = sorted(
+        enumerate(selected),
+        key=lambda item: (
+            *_terminal_sat_resume_score(
+                state_dir, item[1][0], item[1][1],
+            ),
+            item[0],
+        ),
+    )
+    return [item for _, item in ranked]
+
+
+def expected_proof_units(candidate: Mapping[str, Any], backend: str) -> int:
+    """Rebuild the exact operational Stage 3 proof-plan size.
+
+    This is public because the Humanize outer hard wall must use the same
+    candidate-dependent sector/cube plan as the worker it supervises.  A
+    duplicated ``2*k`` estimate can become an unsafe underestimate whenever
+    the verified translation cover or X/Z-isometry changes.
+    """
+
+    k = candidate.get("k")
+    if isinstance(k, bool) or not isinstance(k, int) or k <= 0:
+        raise ValueError("Stage 3 candidate k must be a positive integer")
+    if backend == "legacy-directions":
+        return 2 * k
+    if backend == "sat-sectors":
+        # Reduce to canonical X only after reconstructing this exact candidate
+        # and replaying the matrix isometry.  Any build/geometry/report failure
+        # falls back to the conservative complete X/Z budget.
+        try:
+            code = build_candidate_code(dict(candidate))
+            geometry_matches = bool(
+                int(code.num_qudits) == candidate.get("n")
+                and int(code.dimension) == k
+            )
+            report = verify_bb_xz_sector_isometry(
+                np.asarray(code.matrix_x, dtype=np.uint8) & 1,
+                np.asarray(code.matrix_z, dtype=np.uint8) & 1,
+                ell=int(candidate["ell"]),
+                m=int(candidate["m"]),
+            )
+            symmetry = verify_bb_translation_symmetry(dict(candidate))
+        except Exception:
+            geometry_matches = False
+            report = {}
+            symmetry = {}
+        proof_sectors = 1 if (
+            geometry_matches
+            and report.get("verified") is True
+            and report.get("canonical_sector") == "X"
+            and report.get("covered_sectors") == ["X", "Z"]
+        ) else 2
+        raw_anchors = symmetry.get("orbit_representatives")
+        anchor_cubes = (
+            len(raw_anchors)
+            if symmetry.get("verified") is True
+            and isinstance(raw_anchors, list)
+            and raw_anchors
+            else 1
+        )
+        # One lower unit per logical partition and disjoint anchor cube, one
+        # exact upper unit per proof sector, and (when the cover really
+        # splits) one redundant global-lower portfolio lane per sector.
+        # The global lane can finish the proof early but must still be covered
+        # by the outer wall when it times out alongside all cube units.
+        return proof_sectors * (
+            k * anchor_cubes
+            + 1
+            + (1 if anchor_cubes > 1 else 0)
+        )
+    if backend == TWOBGA_STAGE3_BACKEND:
+        # Two dressed auxiliary lower-bound sectors plus one optional original
+        # upper-witness search.  The conservative count also covers threshold
+        # mode and INELIGIBLE candidates, whose screener returns earlier.
+        return 3
+    raise ValueError(f"unsupported Stage 3 backend: {backend}")
+
+
+def twobga_solver_eligible(candidate: Mapping[str, Any]) -> bool:
+    """Preflight whether the auxiliary backend can possibly start SAT.
+
+    Failures are treated conservatively as solver-eligible so malformed or
+    unexpectedly changed candidates cannot bypass the global worker lease.
+    The authoritative screener repeats the complete derivation and emits the
+    typed theorem report.
+    """
+
+    try:
+        code = build_candidate_code(dict(candidate))
+        problem = derive_twobga_subsystem_problem(
+            np.asarray(code.matrix_x, dtype=np.uint8) & 1,
+            np.asarray(code.matrix_z, dtype=np.uint8) & 1,
+            ell=int(candidate["ell"]),
+            m=int(candidate["m"]),
+            expected_n=int(candidate["n"]),
+            expected_k=int(candidate["k"]),
+        )
+    except Exception:
+        return True
+    return problem.eligible
+
+
+def _expected_proof_units(candidate: Mapping[str, Any], backend: str) -> int:
+    """Backward-compatible private alias used by older tests/callers."""
+
+    return expected_proof_units(candidate, backend)
+
+
 def _screen_one(
     digest: str,
     candidate: dict[str, Any],
@@ -203,31 +435,61 @@ def _screen_one(
     direction_hard_timeout: float | None = None,
     candidate_hard_timeout: float | None = None,
     termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
-    screener: Callable[..., dict[str, Any]] = screen_candidate,
+    backend: str = DEFAULT_STAGE3_BACKEND,
+    sat_cardinality_encoding: str = DEFAULT_SAT_CARDINALITY_ENCODING,
+    screener: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    path = direction_state_path(state_dir, digest)
+    path = artifact_state_path(state_dir, digest, backend)
+    selected_screener = screener
+    if selected_screener is None:
+        selected_screener = {
+            "legacy-directions": screen_candidate,
+            "sat-sectors": screen_sat_candidate,
+            TWOBGA_STAGE3_BACKEND: screen_twobga_candidate,
+        }[backend]
     try:
-        artifact = screener(
-            candidate,
-            output=path,
-            timeout=timeout,
-            workers=direction_workers,
-            threshold_only=threshold_only,
-            resume=resume,
-            hard_timeout=direction_hard_timeout,
-            candidate_timeout=candidate_hard_timeout,
-            termination_grace=termination_grace,
-        )
-        return {
+        screener_kwargs: dict[str, Any] = {
+            "output": path,
+            "timeout": timeout,
+            "workers": direction_workers,
+            "threshold_only": threshold_only,
+            "resume": resume,
+            "hard_timeout": direction_hard_timeout,
+            "candidate_timeout": candidate_hard_timeout,
+            "termination_grace": termination_grace,
+        }
+        if backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}:
+            if sat_cardinality_encoding not in SAT_ENCODINGS:
+                raise ValueError(
+                    "unsupported SAT cardinality encoding: "
+                    f"{sat_cardinality_encoding}"
+                )
+            screener_kwargs["cardinality_encoding"] = (
+                sat_cardinality_encoding
+            )
+        artifact = selected_screener(candidate, **screener_kwargs)
+        result = {
             "canonical_digest": digest,
+            "backend": backend,
             "status": artifact["status"],
             "artifact_path": str(path),
-            "completed_directions": artifact["completed_directions"],
-            "expected_directions": artifact["expected_directions"],
         }
+        if backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}:
+            result.update({
+                "sat_cardinality_encoding": sat_cardinality_encoding,
+                "completed_proof_units": artifact["terminal_units"],
+                "expected_proof_units": artifact["expected_units"],
+            })
+        else:
+            result.update({
+                "completed_directions": artifact["completed_directions"],
+                "expected_directions": artifact["expected_directions"],
+            })
+        return result
     except Exception as exc:
         return {
             "canonical_digest": digest,
+            "backend": backend,
             "status": "ERROR",
             "artifact_path": str(path),
             "error": f"{type(exc).__name__}: {exc}",
@@ -235,6 +497,8 @@ def _screen_one(
 
 
 def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
+    if len(payload) not in {10, 11, 12}:
+        raise ValueError("invalid Stage 3 screen-worker payload")
     (
         digest,
         candidate,
@@ -246,7 +510,17 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
         direction_hard_timeout,
         candidate_hard_timeout,
         termination_grace,
-    ) = payload
+    ) = payload[:10]
+    backend = (
+        str(payload[10])
+        if len(payload) >= 11
+        else DEFAULT_STAGE3_BACKEND
+    )
+    sat_cardinality_encoding = (
+        str(payload[11])
+        if len(payload) == 12
+        else DEFAULT_SAT_CARDINALITY_ENCODING
+    )
     return _screen_one(
         digest,
         candidate,
@@ -258,6 +532,8 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
         direction_hard_timeout=direction_hard_timeout,
         candidate_hard_timeout=candidate_hard_timeout,
         termination_grace=termination_grace,
+        backend=backend,
+        sat_cardinality_encoding=sat_cardinality_encoding,
     )
 
 
@@ -268,12 +544,11 @@ def _candidate_wall_timeout(
     direction_workers: int,
     direction_hard_timeout: float | None,
     candidate_hard_timeout: float | None,
+    backend: str = DEFAULT_STAGE3_BACKEND,
 ) -> float:
     """Bound setup, replay, every direction, and worker cleanup from submit."""
 
-    k = candidate.get("k")
-    if isinstance(k, bool) or not isinstance(k, int) or k <= 0:
-        raise ValueError("Stage 3 candidate k must be a positive integer")
+    expected = _expected_proof_units(candidate, backend)
     if candidate_hard_timeout is not None:
         return positive_wall_timeout(
             candidate_hard_timeout,
@@ -285,7 +560,6 @@ def _candidate_wall_timeout(
         else direction_hard_timeout,
         "direction hard timeout",
     )
-    expected = 2 * k
     return positive_wall_timeout(
         math.ceil(expected / direction_workers) * per_direction + 5.0,
         "candidate hard timeout",
@@ -307,36 +581,54 @@ def _hard_wall_result(
     outcome: IsolatedCallOutcome,
     *,
     timeout_s: float,
+    backend: str = DEFAULT_STAGE3_BACKEND,
 ) -> dict[str, Any]:
     """Recover durable progress after killing exactly one candidate session."""
 
     artifact = _load_partial_artifact(path)
-    expected = 2 * int(candidate["k"])
+    expected = _expected_proof_units(candidate, backend)
     completed = 0
     if artifact is not None:
-        raw_completed = artifact.get("completed_directions", 0)
+        raw_completed = artifact.get(
+            (
+                "terminal_units"
+                if backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}
+                else "completed_directions"
+            ),
+            0,
+        )
         if (
             isinstance(raw_completed, int)
             and not isinstance(raw_completed, bool)
             and 0 <= raw_completed <= expected
         ):
             completed = raw_completed
-    result = {
+    result: dict[str, Any] = {
         "canonical_digest": digest,
+        "backend": backend,
         # A killed worker never promotes terminal mathematics in the same
         # attempt.  A subsequent resume can validate the durable directions
         # and return a terminal artifact without recomputing them.
         "status": "UNRESOLVED",
         "artifact_path": str(path),
-        "completed_directions": completed,
-        "expected_directions": expected,
         "hard_wall": {
             "timed_out": True,
             "candidate_timeout_s": timeout_s,
-            "completed_directions_retained": completed,
             **dict(outcome.hard_wall or {}),
         },
     }
+    if backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}:
+        result.update({
+            "completed_proof_units": completed,
+            "expected_proof_units": expected,
+        })
+        result["hard_wall"]["completed_proof_units_retained"] = completed
+    else:
+        result.update({
+            "completed_directions": completed,
+            "expected_directions": expected,
+        })
+        result["hard_wall"]["completed_directions_retained"] = completed
     if outcome.error:
         result["hard_wall"]["error"] = outcome.error
     return result
@@ -354,10 +646,20 @@ def screen_selected_candidates(
     direction_hard_timeout: float | None = None,
     candidate_hard_timeout: float | None = None,
     termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
-    screener: Callable[..., dict[str, Any]] = screen_candidate,
+    backend: str = DEFAULT_STAGE3_BACKEND,
+    sat_cardinality_encoding: str = DEFAULT_SAT_CARDINALITY_ENCODING,
+    screener: Callable[..., dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     if candidate_workers < 1:
         raise ValueError("candidate_workers must be positive")
+    if (
+        backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}
+        and sat_cardinality_encoding not in SAT_ENCODINGS
+    ):
+        raise ValueError(
+            "unsupported SAT cardinality encoding: "
+            f"{sat_cardinality_encoding}"
+        )
     grace = positive_wall_timeout(
         termination_grace,
         "hard-wall termination grace",
@@ -372,7 +674,7 @@ def screen_selected_candidates(
     def submit_available() -> None:
         while queued and len(active) < candidate_workers:
             digest, candidate = queued.popleft()
-            path = direction_state_path(state_dir, digest)
+            path = artifact_state_path(state_dir, digest, backend)
             try:
                 wall_timeout = _candidate_wall_timeout(
                     candidate,
@@ -380,6 +682,7 @@ def screen_selected_candidates(
                     direction_workers=direction_workers,
                     direction_hard_timeout=direction_hard_timeout,
                     candidate_hard_timeout=candidate_hard_timeout,
+                    backend=backend,
                 )
                 handle = start_isolated_call(
                     _screen_one,
@@ -392,6 +695,10 @@ def screen_selected_candidates(
                         "direction_hard_timeout": direction_hard_timeout,
                         "candidate_hard_timeout": candidate_hard_timeout,
                         "termination_grace": termination_grace,
+                        "backend": backend,
+                        "sat_cardinality_encoding": (
+                            sat_cardinality_encoding
+                        ),
                         "screener": screener,
                     },
                     timeout_s=wall_timeout,
@@ -408,11 +715,13 @@ def screen_selected_candidates(
                         hard_wall=dict(exc.hard_wall),
                     ),
                     timeout_s=wall_timeout,
+                    backend=backend,
                 )
                 continue
             except Exception as exc:
                 results[digest] = {
                     "canonical_digest": digest,
+                    "backend": backend,
                     "status": "ERROR",
                     "artifact_path": str(path),
                     "error": f"{type(exc).__name__}: {exc}",
@@ -445,10 +754,12 @@ def screen_selected_candidates(
                             hard_wall={"cleanup_failed": True},
                         ),
                         timeout_s=wall_timeout,
+                        backend=backend,
                     )
                 else:
                     results[digest] = {
                         "canonical_digest": digest,
+                        "backend": backend,
                         "status": "ERROR",
                         "artifact_path": str(path),
                         "error": (
@@ -474,10 +785,12 @@ def screen_selected_candidates(
                     path,
                     outcome,
                     timeout_s=wall_timeout,
+                    backend=backend,
                 )
             else:
                 result = {
                     "canonical_digest": digest,
+                    "backend": backend,
                     "status": "ERROR",
                     "artifact_path": str(path),
                     "error": outcome.error or "isolated Stage 3 worker failed",
@@ -485,6 +798,7 @@ def screen_selected_candidates(
             if result.get("canonical_digest") != digest:
                 result = {
                     "canonical_digest": digest,
+                    "backend": backend,
                     "status": "ERROR",
                     "artifact_path": str(path),
                     "error": "isolated Stage 3 worker returned the wrong digest",
@@ -534,7 +848,11 @@ def threshold_artifacts(
 
     from scripts.audit_candidate_pool import (
         CERTIFIABLE_PROOF_STATUSES,
+        SECTOR_SAT_STAGE3_GATE,
+        TWOBGA_STAGE3_GATE,
         claim_from_certifiable_stage3_artifact,
+        claim_from_sector_sat_artifact,
+        claim_from_twobga_artifact,
     )
 
     artifacts = []
@@ -552,7 +870,18 @@ def threshold_artifacts(
                 raise ValueError(
                     "Stage 3 result and artifact statuses do not match"
                 )
-            claim_from_certifiable_stage3_artifact(value)
+            if value.get("gate") == SECTOR_SAT_STAGE3_GATE:
+                # This typed handoff installs the reserved
+                # _exact_sector_certificate request consumed by Stage 4's
+                # certificate dispatcher.  The manifest intentionally keeps
+                # the signed Stage-3 artifact; Stage 4 reconstructs the claim.
+                claim_from_sector_sat_artifact(value)
+            elif value.get("gate") == TWOBGA_STAGE3_GATE:
+                # The 2BGA theorem lane has distinct lower-bound semantics;
+                # replay it through its own typed Stage-4 handoff.
+                claim_from_twobga_artifact(value)
+            else:
+                claim_from_certifiable_stage3_artifact(value)
             artifacts.append(value)
         except Exception as exc:
             failures[digest] = (
@@ -573,6 +902,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-workers", type=int, default=1)
     parser.add_argument("--direction-workers", type=int, default=4)
     parser.add_argument("--max-total-workers", type=int, default=8)
+    parser.add_argument(
+        "--backend",
+        choices=sorted(STAGE3_BACKENDS),
+        default=DEFAULT_STAGE3_BACKEND,
+        help=(
+            "legacy per-logical MILP directions, disjoint exact SAT sector "
+            "decisions, or the rank-defect-gated 2BGA subsystem lane"
+        ),
+    )
+    parser.add_argument(
+        "--sat-cardinality-encoding",
+        "--cardinality-encoding",
+        dest="sat_cardinality_encoding",
+        choices=sorted(SAT_ENCODINGS),
+        default=DEFAULT_SAT_CARDINALITY_ENCODING,
+        help=(
+            "initial cardinality encoding for the sat-sectors portfolio "
+            f"(default: {DEFAULT_SAT_CARDINALITY_ENCODING})"
+        ),
+    )
     parser.add_argument("--exact", action="store_true")
     parser.add_argument(
         "--resume", action=argparse.BooleanOptionalAction, default=True,
@@ -603,6 +952,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Candidate workers are fresh spawned interpreters.  Set this before any
+    # of them starts so the configured worker budget counts real solver cores,
+    # rather than hidden BLAS pools inside every process.
+    native_thread_environment = enforce_sat_native_thread_budget()
     parser = build_parser()
     args = parser.parse_args(argv)
     if (
@@ -642,84 +995,190 @@ def main(argv: list[str] | None = None) -> int:
                 args.max_total_workers,
             )
         rows = read_ranked_jsonl(args.ranked_input)
-        selected, counts = select_unresolved(rows, args.top)
+        selection_top = (
+            0 if args.resume and args.backend == "sat-sectors" else args.top
+        )
+        selected, counts = select_unresolved(rows, selection_top)
+        selected = prioritize_resume_candidates(
+            selected,
+            args.state_dir,
+            backend=args.backend,
+            resume=args.resume,
+        )
+        if args.top > 0 and len(selected) > args.top:
+            newly_unselected = len(selected) - args.top
+            selected = selected[: args.top]
+            counts["selected_candidates"] = len(selected)
+            counts["unselected_unresolved_candidates"] += newly_unselected
+            counts["selection_exhausted"] = False
+        solver_eligible_candidates = (
+            sum(
+                twobga_solver_eligible(candidate)
+                for _, candidate in selected
+            )
+            if args.backend == TWOBGA_STAGE3_BACKEND
+            else len(selected)
+        )
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
-    results = screen_selected_candidates(
-        selected,
-        args.state_dir,
-        timeout=args.timeout,
-        candidate_workers=args.candidate_workers,
-        direction_workers=args.direction_workers,
-        threshold_only=not args.exact,
-        resume=args.resume,
-        direction_hard_timeout=args.direction_hard_timeout,
-        candidate_hard_timeout=args.candidate_hard_timeout,
-        termination_grace=args.hard_wall_termination_grace,
+    # Reserve the peak of the two non-overlapping solver phases.  Holding the
+    # lease across their transition prevents another independently launched
+    # campaign from filling the cgroup between Stage 3 and certification.
+    stage3_solver_slots = (
+        min(args.candidate_workers, solver_eligible_candidates)
+        * args.direction_workers
     )
-    atomic_write_jsonl(
-        args.ranked_output,
-        annotate_rows(rows, selected, results),
+    certificate_solver_slots = (
+        args.certificate_workers * args.certificate_solver_workers
+        if args.certify and solver_eligible_candidates > 0 else 0
     )
-    artifacts, artifact_failures = threshold_artifacts(results)
-    if artifact_failures:
-        results = [
-            {
-                **result,
-                "status": "ERROR",
-                "error": artifact_failures[str(result["canonical_digest"])],
-            }
-            if str(result["canonical_digest"]) in artifact_failures
-            else result
-            for result in results
-        ]
-    if args.stage4_manifest is not None:
-        atomic_write_jsonl(args.stage4_manifest, artifacts)
-    if args.certify and artifacts:
-        from scripts.audit_candidate_pool import (
-            AuditConfig,
-            certify_selected_candidates,
-            merge_certification_results,
+    requested_solver_slots = max(
+        stage3_solver_slots,
+        (
+            certificate_solver_slots
+        ),
+    )
+    solver_budget_lease = None
+    solver_budget_runtime: dict[str, Any] = {
+        "enforced": False,
+        "requested_slots": 0,
+        "reason": "no selected candidates",
+    }
+    if requested_solver_slots > 0:
+        try:
+            solver_budget_lease = acquire_solver_budget(
+                requested_solver_slots,
+            )
+        except SolverBudgetError as exc:
+            parser.error(str(exc))
+        solver_budget_runtime = solver_budget_lease.as_dict()
+    elif selected:
+        solver_budget_runtime["reason"] = (
+            "all selected candidates failed the fail-closed 2BGA "
+            "solver-eligibility preflight"
         )
-        config = AuditConfig(
-            state_dir=args.state_dir,
+    try:
+        results = screen_selected_candidates(
+            selected,
+            args.state_dir,
+            timeout=args.timeout,
+            candidate_workers=args.candidate_workers,
+            direction_workers=args.direction_workers,
+            threshold_only=not args.exact,
             resume=args.resume,
-            certify=True,
-            known_answer_artifact=args.known_answer_artifact,
-            certificate_timeout_per_logical_s=(
-                args.certificate_timeout_per_logical
-            ),
-            certificate_total_timeout_s=args.certificate_total_timeout,
-            certificate_solver_workers=args.certificate_solver_workers,
-            verification_timeout_per_logical_s=(
-                args.verification_timeout_per_logical
-            ),
-            verification_total_timeout_s=args.verification_total_timeout,
-            certificate_hard_timeout_s=args.certificate_hard_timeout,
-            hard_wall_termination_grace_s=(
-                args.hard_wall_termination_grace
-            ),
+            direction_hard_timeout=args.direction_hard_timeout,
+            candidate_hard_timeout=args.candidate_hard_timeout,
+            termination_grace=args.hard_wall_termination_grace,
+            backend=args.backend,
+            sat_cardinality_encoding=args.sat_cardinality_encoding,
         )
-        certifications = certify_selected_candidates(
-            artifacts,
-            config,
-            certificate_workers=args.certificate_workers,
-            max_total_workers=args.max_total_workers,
+        atomic_write_jsonl(
+            args.ranked_output,
+            annotate_rows(rows, selected, results),
         )
-        results = merge_certification_results(
-            results, certifications, certify=True,
-        )
+        artifacts, artifact_failures = threshold_artifacts(results)
+        if artifact_failures:
+            results = [
+                {
+                    **result,
+                    "status": "ERROR",
+                    "error": artifact_failures[
+                        str(result["canonical_digest"])
+                    ],
+                }
+                if str(result["canonical_digest"]) in artifact_failures
+                else result
+                for result in results
+            ]
+        if args.stage4_manifest is not None:
+            atomic_write_jsonl(args.stage4_manifest, artifacts)
+        if args.certify and artifacts:
+            from scripts.audit_candidate_pool import (
+                AuditConfig,
+                certify_selected_candidates,
+                merge_certification_results,
+            )
+            config = AuditConfig(
+                state_dir=args.state_dir,
+                resume=args.resume,
+                certify=True,
+                known_answer_artifact=args.known_answer_artifact,
+                certificate_timeout_per_logical_s=(
+                    args.certificate_timeout_per_logical
+                ),
+                certificate_total_timeout_s=(
+                    args.certificate_total_timeout
+                ),
+                certificate_solver_workers=(
+                    args.certificate_solver_workers
+                ),
+                verification_timeout_per_logical_s=(
+                    args.verification_timeout_per_logical
+                ),
+                verification_total_timeout_s=(
+                    args.verification_total_timeout
+                ),
+                certificate_hard_timeout_s=args.certificate_hard_timeout,
+                hard_wall_termination_grace_s=(
+                    args.hard_wall_termination_grace
+                ),
+            )
+            certifications = certify_selected_candidates(
+                artifacts,
+                config,
+                certificate_workers=args.certificate_workers,
+                max_total_workers=args.max_total_workers,
+            )
+            results = merge_certification_results(
+                results, certifications, certify=True,
+            )
+    finally:
+        if solver_budget_lease is not None:
+            solver_budget_lease.release()
     annotated = annotate_rows(rows, selected, results)
     atomic_write_jsonl(args.ranked_output, annotated)
     status_counts: dict[str, int] = {}
     for result in results:
         status = str(result["status"])
         status_counts[status] = status_counts.get(status, 0) + 1
+    operational_errors = (
+        counts["malformed_unresolved_rows"]
+        + status_counts.get("ERROR", 0)
+        + sum(
+            bool(result.get("certificate", {}).get("error"))
+            for result in results
+        )
+    )
+    retry_reasons = {
+        "unresolved_candidates": status_counts.get("UNRESOLVED", 0),
+        "unselected_unresolved_candidates": counts[
+            "unselected_unresolved_candidates"
+        ],
+        "operational_errors": operational_errors,
+    }
+    retry_required = any(retry_reasons.values())
     summary = {
         "schema_version": 1,
         "gate": "qldpc-direction-candidate-pool",
+        "backend": args.backend,
+        "sat_cardinality_encoding": (
+            args.sat_cardinality_encoding
+            if args.backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}
+            else None
+        ),
+        "proof_unit_semantics": (
+            "first-nonzero-sector-partitions-plus-xz-upper-witness"
+            if args.backend == "sat-sectors"
+            else (
+                "rank-defect-gated-dressed-subsystem-xz-plus-original-upper"
+                if args.backend == TWOBGA_STAGE3_BACKEND
+                else "logical-basis-directions"
+            )
+        ),
         **counts,
-        "threshold_only": not args.exact,
+        "threshold_only": (
+            args.backend != "sat-sectors" and not args.exact
+        ),
         "hard_wall_budget": {
             "direction_timeout_s": (
                 args.direction_hard_timeout
@@ -734,11 +1193,13 @@ def main(argv: list[str] | None = None) -> int:
             "phases_overlap": False,
             "stage3": {
                 "candidate_workers": args.candidate_workers,
+                "solver_eligible_candidates": solver_eligible_candidates,
                 "direction_workers": args.direction_workers,
                 "solver_workers_per_direction": 1,
                 "configured_solver_workers": (
                     args.candidate_workers * args.direction_workers
                 ),
+                "admitted_solver_workers": stage3_solver_slots,
             },
             "certification": {
                 "enabled": args.certify,
@@ -750,10 +1211,20 @@ def main(argv: list[str] | None = None) -> int:
                     args.certificate_workers
                     * args.certificate_solver_workers
                 ),
+                "admitted_solver_workers": certificate_solver_slots,
             },
             "max_total_workers": args.max_total_workers,
+            "native_thread_environment": native_thread_environment,
+            "global_admission": solver_budget_runtime,
         },
         "status_counts": status_counts,
+        # Exit 0 means that this invocation reached a terminal disposition for
+        # every selected candidate *and* exhausted the requested selection.
+        # A durable partial artifact remains useful for --resume, but it must
+        # never look like a successfully completed Stage 3 to a shell/nohup
+        # supervisor.  Exit 2 is the pipeline's recoverable-proof contract.
+        "retry_required": retry_required,
+        "retry_reasons": retry_reasons,
         "certify": args.certify,
         "stage4_candidates": len(artifacts),
         "certified_wins": sum(
@@ -761,14 +1232,7 @@ def main(argv: list[str] | None = None) -> int:
             and result.get("certificate", {}).get("verification_passed") is True
             for result in results
         ),
-        "operational_errors": (
-            counts["malformed_unresolved_rows"]
-            + status_counts.get("ERROR", 0)
-            + sum(
-                bool(result.get("certificate", {}).get("error"))
-                for result in results
-            )
-        ),
+        "operational_errors": operational_errors,
         "stage4_manifest": (
             None if args.stage4_manifest is None else str(args.stage4_manifest)
         ),
@@ -778,7 +1242,7 @@ def main(argv: list[str] | None = None) -> int:
     }
     atomic_write_json(args.summary_output, summary)
     print(json.dumps(summary, indent=2))
-    return 2 if summary["operational_errors"] else 0
+    return RECOVERABLE_INCOMPLETE_EXIT_CODE if retry_required else 0
 
 
 if __name__ == "__main__":

@@ -101,6 +101,7 @@ def test_pipeline_json_accepts_integral_numeric_budgets(tmp_path: Path):
                 "timeout": 32,
                 "candidate_workers": 1,
                 "direction_workers": 6,
+                "backend": "sat-sectors",
             },
             "certificate": {
                 "workers": 1,
@@ -126,6 +127,8 @@ def test_pipeline_json_accepts_integral_numeric_budgets(tmp_path: Path):
 
     assert config.stage2_top == 21
     assert config.stage3_top == 0
+    assert config.stage3_backend == "sat-sectors"
+    assert config.serializable()["stage3_backend"] == "sat-sectors"
     assert config.proof_retry_max_attempts == 7
     assert config.max_total_workers == 6
     assert config.certificate_timeout_per_logical == 33.0
@@ -187,3 +190,23 @@ def test_direct_pipeline_config_rejects_bool_top(
 
     with pytest.raises(ValueError, match=rf"^{message}$"):
         PipelineConfig(**values)
+
+
+@pytest.mark.parametrize("backend", ["milp", "SAT", 3, None])
+def test_pipeline_rejects_unknown_stage3_backend(
+    tmp_path: Path,
+    backend: object,
+):
+    with pytest.raises(
+        ValueError,
+        match=(
+            "stage3_backend must be legacy-directions, sat-sectors, "
+            "or twobga-aux"
+        ),
+    ):
+        PipelineConfig(
+            repo_dir=tmp_path,
+            run_id="bad-stage3-backend",
+            candidate_inputs=(tmp_path / "candidates.jsonl",),
+            stage3_backend=backend,  # type: ignore[arg-type]
+        )

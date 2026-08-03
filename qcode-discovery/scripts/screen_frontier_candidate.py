@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from evaluation.bb_code import build_bb_code
 from evaluation.certificate import (
     FORMULATION as CSS_EXACT_FORMULATION,
+    THRESHOLD_FORMULATION as CSS_THRESHOLD_FORMULATION,
     _direction_specs,
     pack_vector,
     solve_css_below_threshold,
@@ -48,7 +49,6 @@ from evaluation.pbb_code import (
 
 STAGE3_GATE = "qldpc-frontier-threshold-screen"
 STAGE3_SCHEMA_VERSION = 2
-CSS_THRESHOLD_FORMULATION = "css-logical-threshold-feasibility-v1"
 
 
 def _require_integer(value: Any, label: str) -> int:
@@ -250,18 +250,37 @@ def classify_results(
         return "REJECTED"
     if len(directions) == expected_directions and all(
         item.get("threshold_infeasible") is True
+        and item.get("formulation") == CSS_THRESHOLD_FORMULATION
+        and item.get("solver") == "scipy.optimize.milp"
+        and item.get("backend") == "HiGHS"
+        and item.get("status") == 2
+        and item.get("success") is False
         and int(item.get("max_weight", -1)) == required_distance - 1
         and item.get("operator") is None
+        and item.get("objective") is None
         for item in directions
     ):
         return "THRESHOLD_PROVEN"
     proven = [
         item for item in directions
-        if item.get("success") is True
+        if item.get("formulation") == CSS_EXACT_FORMULATION
+        and item.get("solver") == "scipy.optimize.milp"
+        and item.get("backend") == "HiGHS"
+        and item.get("status") == 0
+        and item.get("success") is True
         and item.get("mip_gap") == 0.0
         and item.get("objective") is not None
+        and isinstance(item.get("mip_dual_bound"), (int, float))
+        and not isinstance(item.get("mip_dual_bound"), bool)
+        and math.isclose(
+            float(item["mip_dual_bound"]),
+            float(item["objective"]),
+            rel_tol=0.0,
+            abs_tol=1e-7,
+        )
         and int(item["objective"]) >= required_distance
         and item.get("witness_verified") is True
+        and item.get("operator") is not None
     ]
     if len(directions) == expected_directions and len(proven) == expected_directions:
         return "THRESHOLD_PROVEN"

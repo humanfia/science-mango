@@ -1002,9 +1002,13 @@ def test_real_candidate_with_forged_witness_and_wrong_geometry_reaches_proof(
     safe_sectors = [
         {
             "sector": sector,
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "threshold_infeasible": True,
             "status_name": "INFEASIBLE",
             "max_weight": 14,
+            "objective": None,
             "operator": None,
             "anchor_indices": [0, 36],
         }
@@ -1174,9 +1178,13 @@ def test_stage2_hard_wall_recovers_only_strictly_replayed_terminal_artifact(
     max_weight = int(candidate["required_distance"]) - 1
     sectors = [{
         "sector": sector,
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "success": False,
         "threshold_infeasible": True,
         "status_name": "INFEASIBLE",
         "max_weight": max_weight,
+        "objective": None,
         "operator": None,
         "anchor_indices": symmetry["orbit_representatives"],
     } for sector in ("X", "Z")]
@@ -1224,9 +1232,13 @@ def test_stage2_hard_wall_rejects_source_stale_terminal_artifact(tmp_path):
     max_weight = int(candidate["required_distance"]) - 1
     sectors = [{
         "sector": sector,
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "success": False,
         "threshold_infeasible": True,
         "status_name": "INFEASIBLE",
         "max_weight": max_weight,
+        "objective": None,
         "operator": None,
         "anchor_indices": symmetry["orbit_representatives"],
     } for sector in ("X", "Z")]
@@ -1282,9 +1294,13 @@ def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
     def replay(path, candidate, **kwargs):
         return [{
             "sector": "Z",
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "threshold_infeasible": True,
             "status_name": "INFEASIBLE",
             "max_weight": 20,
+            "objective": None,
             "operator": None,
             "anchor_indices": [0, 36],
         }]
@@ -1296,9 +1312,13 @@ def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
         )
         return {
             "sector": sector,
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "threshold_infeasible": True,
             "status_name": "INFEASIBLE",
             "max_weight": max_weight,
+            "objective": None,
             "operator": None,
             "anchor_indices": list(anchors),
         }
@@ -1545,6 +1565,10 @@ def test_selection_and_certificate_caches_bind_installed_package_contents(
         "humanize/audit_state.py",
         "humanize/state.py",
         "evaluation/selection_ledger.py",
+        "scripts/screen_frontier_candidate.py",
+        "scripts/screen_frontier_sat.py",
+        "scripts/screen_frontier_twobga.py",
+        "scripts/screen_frontier_xor.py",
     ),
 )
 def test_certificate_source_fingerprint_includes_audit_dependencies(
@@ -1557,6 +1581,10 @@ def test_certificate_source_fingerprint_includes_audit_dependencies(
         project / "scripts" / "audit_candidate_pool.py",
         project / "scripts" / "audit_direction_pool.py",
         project / "scripts" / "finalize_challenge.py",
+        project / "scripts" / "screen_frontier_candidate.py",
+        project / "scripts" / "screen_frontier_sat.py",
+        project / "scripts" / "screen_frontier_twobga.py",
+        project / "scripts" / "screen_frontier_xor.py",
         project / "tests" / "verify_known_answer_gate.py",
         project / "results" / "known_code_registry.json",
         project / "humanize" / "audit_state.py",
@@ -1851,9 +1879,13 @@ def test_no_certify_stops_after_threshold_proof(tmp_path):
     safe_sectors = [
         {
             "sector": sector,
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "threshold_infeasible": True,
             "status_name": "INFEASIBLE",
             "max_weight": 20,
+            "objective": None,
             "operator": None,
             "anchor_indices": [0, 36],
         }

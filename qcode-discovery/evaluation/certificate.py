@@ -39,6 +39,7 @@ from evaluation.registry import check_code_novelty
 
 SCHEMA_VERSION = 1
 FORMULATION = "css-logical-anticommutation-milp-v1"
+THRESHOLD_FORMULATION = "css-logical-threshold-bounded-minimization-v2"
 BUILD_CHECKPOINT_TYPE = "qldpc-css-bb-build-checkpoint-v1"
 VERIFY_CHECKPOINT_TYPE = "qldpc-css-bb-verify-checkpoint-v1"
 
@@ -372,12 +373,15 @@ def solve_css_below_threshold(
     timeout: float,
     solver_workers: int = 1,
 ) -> dict[str, Any]:
-    """Decide whether one logical coset contains an operator up to max_weight.
+    """Minimize weight in one logical coset, bounded by ``max_weight``.
 
     Search only needs a low-weight counterexample or a proof that none exists;
-    it does not need the exact optimum.  A feasible result carries the same
-    replayable operator format as ``solve_css_direction``.  HiGHS status 2 is
-    an infeasibility proof for the bounded integer model.
+    the explicit Hamming-weight objective also gives HiGHS a meaningful
+    incumbent, dual bound, and gap while it works.  A feasible result carries
+    the same replayable operator format as ``solve_css_direction``.  HiGHS
+    status 2 is an infeasibility proof for the bounded integer model.  A dual
+    bound reported on an interrupted run is diagnostic only and is never
+    treated here as a threshold proof.
     """
     workers = _validate_solver_workers(solver_workers)
     timeout = float(timeout)
@@ -393,6 +397,7 @@ def solve_css_below_threshold(
 
     num_vars = n + num_checks + 1
     objective = np.zeros(num_vars)
+    objective[:n] = 1
     matrix = np.zeros((num_checks + 2, num_vars))
     matrix[:num_checks, :n] = checks
     matrix[:num_checks, n:n + num_checks] = -2 * np.eye(num_checks)
@@ -445,19 +450,38 @@ def solve_css_below_threshold(
             return None
         return int(round(value)) if integer else float(value)
 
+    status = int(solved.status)
+    has_incumbent = operator is not None
+    threshold_infeasible = bool(status == 2 and not has_incumbent)
+    optimal = bool(
+        status == 0 and solved.success and has_incumbent
+    )
+    if threshold_infeasible:
+        outcome = "threshold_infeasible"
+    elif optimal:
+        outcome = "optimal_witness"
+    elif has_incumbent:
+        outcome = "incumbent_witness"
+    else:
+        outcome = "unresolved"
+
     return {
-        "formulation": "css-logical-threshold-feasibility-v1",
+        "formulation": THRESHOLD_FORMULATION,
         "solver": "scipy.optimize.milp",
         "backend": "HiGHS",
         "solver_workers": workers,
         "max_weight": int(max_weight),
+        "objective_sense": "minimize",
+        "objective_name": "hamming_weight",
+        "has_incumbent": has_incumbent,
+        "optimal": optimal,
+        "outcome": outcome,
         "success": bool(solved.success),
-        "status": int(solved.status),
+        "status": status,
         "message": str(solved.message),
-        "threshold_infeasible": bool(
-            int(solved.status) == 2 and solved.x is None
-        ),
+        "threshold_infeasible": threshold_infeasible,
         "objective": weight,
+        "mip_primal_bound": number("fun"),
         "mip_dual_bound": number("mip_dual_bound"),
         "mip_gap": number("mip_gap"),
         "mip_node_count": number("mip_node_count", integer=True),

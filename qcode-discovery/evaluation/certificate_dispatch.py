@@ -21,6 +21,18 @@ from evaluation.noncss_certificate import (
     build_noncss_certificate,
     verify_noncss_certificate,
 )
+from evaluation.sector_certificate import (
+    CERTIFICATE_TYPE as SECTOR_SAT_CSS_TYPE,
+    REQUEST_FIELD as SECTOR_SAT_REQUEST_FIELD,
+    build_sector_sat_certificate,
+    verify_sector_sat_certificate,
+)
+from evaluation.twobga_certificate import (
+    CERTIFICATE_TYPE as TWOBGA_CSS_TYPE,
+    build_twobga_certificate,
+    verify_twobga_certificate,
+)
+from scripts.screen_frontier_twobga import TWOBGA_REQUEST_FIELD
 
 BB_CSS_TYPE = "qldpc-css-bb-exact"
 SUPPORTED_CERTIFICATE_TYPES = (
@@ -28,6 +40,8 @@ SUPPORTED_CERTIFICATE_TYPES = (
     MATRIX_CSS_TYPE,
     PBB_TYPE,
     NONCSS_MATRIX_TYPE,
+    SECTOR_SAT_CSS_TYPE,
+    TWOBGA_CSS_TYPE,
 )
 
 Builder = Callable[..., dict[str, Any]]
@@ -38,10 +52,16 @@ VERIFIERS: dict[str, Verifier] = {
     MATRIX_CSS_TYPE: verify_matrix_css_certificate,
     PBB_TYPE: verify_noncss_certificate,
     NONCSS_MATRIX_TYPE: verify_noncss_certificate,
+    SECTOR_SAT_CSS_TYPE: verify_sector_sat_certificate,
+    TWOBGA_CSS_TYPE: verify_twobga_certificate,
 }
 
 
 def builder_for_claim(claim: dict[str, Any]) -> Builder:
+    if claim.get(TWOBGA_REQUEST_FIELD) is not None:
+        return build_twobga_certificate
+    if claim.get(SECTOR_SAT_REQUEST_FIELD) is not None:
+        return build_sector_sat_certificate
     if claim.get("H_X") is not None or claim.get("hx") is not None:
         return build_matrix_css_certificate
     if (
@@ -69,7 +89,11 @@ def build_certificate(
         "timeout_per_logical": timeout_per_logical,
         "total_timeout": total_timeout,
     }
-    if builder is build_css_certificate:
+    if builder in {
+        build_css_certificate,
+        build_sector_sat_certificate,
+        build_twobga_certificate,
+    }:
         kwargs.update(
             {
                 "checkpoint_path": checkpoint_path,
@@ -110,7 +134,11 @@ def verify_certificate(
         "total_timeout": total_timeout,
         "solver_workers": solver_workers,
     }
-    if verifier is verify_css_certificate:
+    if verifier in {
+        verify_css_certificate,
+        verify_sector_sat_certificate,
+        verify_twobga_certificate,
+    }:
         kwargs.update(
             {
                 "checkpoint_path": checkpoint_path,

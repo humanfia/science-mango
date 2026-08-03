@@ -60,6 +60,16 @@ from evaluation.registry import (
     check_code_novelty,
     load_registry,
 )
+from evaluation.sector_certificate import (
+    CERTIFICATE_TYPE as SECTOR_SAT_CERTIFICATE_TYPE,
+    REQUEST_FIELD as SECTOR_SAT_REQUEST_FIELD,
+    STAGE3_GATE as SECTOR_SAT_STAGE3_GATE,
+    claim_from_sector_sat_artifact,
+)
+from evaluation.twobga_certificate import (
+    CERTIFICATE_TYPE as TWOBGA_CERTIFICATE_TYPE,
+    validate_twobga_candidate_rejection,
+)
 from evaluation.selection_ledger import (
     SELECTION_LEDGER_GATE as SHARED_SELECTION_LEDGER_GATE,
     SELECTION_LEDGER_SCHEMA_VERSION as SHARED_SELECTION_LEDGER_SCHEMA_VERSION,
@@ -88,6 +98,11 @@ from humanize.audit_state import (
 from scripts.screen_frontier_candidate import (
     STAGE3_GATE,
     claim_from_threshold_artifact,
+)
+from scripts.screen_frontier_twobga import (
+    TWOBGA_REQUEST_FIELD,
+    TWOBGA_STAGE3_GATE,
+    claim_from_twobga_artifact,
 )
 from scripts.screen_frontier_xor import (
     TERMINAL_STATUSES,
@@ -1388,6 +1403,13 @@ def certificate_source_fingerprint() -> str:
         Path(__file__).resolve(),
         PROJECT / "scripts" / "audit_direction_pool.py",
         PROJECT / "scripts" / "finalize_challenge.py",
+        # The typed sector-SAT verifier imports these helpers at replay time.
+        # They are deliberately explicit here because they live outside the
+        # evaluation package covered by the recursive glob below.
+        PROJECT / "scripts" / "screen_frontier_candidate.py",
+        PROJECT / "scripts" / "screen_frontier_sat.py",
+        PROJECT / "scripts" / "screen_frontier_twobga.py",
+        PROJECT / "scripts" / "screen_frontier_xor.py",
         PROJECT / "tests" / "verify_known_answer_gate.py",
         PROJECT / "results" / "known_code_registry.json",
         PROJECT / "humanize" / "audit_state.py",
@@ -1457,6 +1479,8 @@ def _construction_candidate(
         "tanner_components",
         "novelty",
         "canonical_digest",
+        SECTOR_SAT_REQUEST_FIELD,
+        TWOBGA_REQUEST_FIELD,
     )
     candidate = {
         name: ranked[name]
@@ -3486,6 +3510,34 @@ def _verification_budget(config: AuditConfig) -> dict[str, float | int]:
 
 
 def _certificate_is_exact(certificate: Mapping[str, Any]) -> bool:
+    if certificate.get("certificate_type") == TWOBGA_CERTIFICATE_TYPE:
+        evidence = certificate.get("twobga_exact")
+        proof = evidence.get("proof") if isinstance(evidence, Mapping) else None
+        return bool(
+            isinstance(evidence, Mapping)
+            and isinstance(proof, Mapping)
+            and evidence.get("exact") is True
+            and isinstance(evidence.get("distance"), int)
+            and not isinstance(evidence.get("distance"), bool)
+            and int(evidence["distance"]) > 0
+            and proof.get("exact") is True
+            and proof.get("distance") == evidence.get("distance")
+            and proof.get("lower_bound") == evidence.get("distance")
+            and proof.get("upper_bound") == evidence.get("distance")
+        )
+    if certificate.get("certificate_type") == SECTOR_SAT_CERTIFICATE_TYPE:
+        evidence = certificate.get("sector_exact")
+        return bool(
+            isinstance(evidence, Mapping)
+            and evidence.get("exact") is True
+            and isinstance(evidence.get("distance"), int)
+            and not isinstance(evidence.get("distance"), bool)
+            and int(evidence["distance"]) > 0
+            and evidence.get("lower_bound") == evidence.get("distance")
+            and evidence.get("upper_bound") == evidence.get("distance")
+            and evidence.get("completed_lower_decisions")
+            == evidence.get("expected_lower_decisions")
+        )
     milp = certificate.get("milp")
     if not isinstance(milp, Mapping) or milp.get("exact") is not True:
         return False
@@ -3495,6 +3547,15 @@ def _certificate_is_exact(certificate: Mapping[str, Any]) -> bool:
         )
     except (KeyError, TypeError, ValueError):
         return False
+
+
+def _terminal_certificate_rejection(certificate: Mapping[str, Any]) -> bool:
+    """Dispatch terminal-rejection replay for every certificate schema."""
+
+    return bool(
+        terminal_candidate_rejection(certificate)
+        or validate_twobga_candidate_rejection(certificate)
+    )
 
 
 def _cache_binding_matches(
@@ -3550,6 +3611,8 @@ def _certificate_cache_reusable(
         or metadata.get("certificate_sha256") != certificate_sha256
     ):
         return False, False
+    if _terminal_certificate_rejection(certificate):
+        return True, True
     exact = _certificate_is_exact(certificate)
     if not exact:
         # Incomplete work is never terminal; its checkpoint keeps valid
@@ -3560,7 +3623,7 @@ def _certificate_cache_reusable(
     # An exact false result is terminal only when the certificate carries a
     # schema-valid mathematical rejection.  Old/untyped negative caches are
     # deliberately rebuilt.
-    return terminal_candidate_rejection(certificate), True
+    return _terminal_certificate_rejection(certificate), True
 
 
 def _call_with_checkpoint(
@@ -3699,8 +3762,7 @@ def certify_candidate(
         terminal_skip = bool(
             cached_verification.get("skipped") is True
             and not certificate_passed
-            and certificate_exact
-            and terminal_candidate_rejection(certificate)
+            and _terminal_certificate_rejection(certificate)
         )
         if successful or terminal_skip:
             verification = cached_verification
@@ -3731,7 +3793,7 @@ def certify_candidate(
             )
         else:
             certificate_failure = certificate.get("failure_disposition")
-            if terminal_candidate_rejection(certificate):
+            if _terminal_certificate_rejection(certificate):
                 skipped_failure = validate_failure_disposition(
                     certificate_failure,
                 )
@@ -3778,7 +3840,7 @@ def certify_candidate(
         )
     elif not certificate_passed:
         raw_failure = certificate.get("failure_disposition")
-        if terminal_candidate_rejection(certificate):
+        if _terminal_certificate_rejection(certificate):
             failure_disposition = validate_failure_disposition(raw_failure)
         else:
             failure_disposition = incomplete_result_disposition(
@@ -4182,6 +4244,10 @@ def _certificate_phase_item(
     gate = item.get("gate")
     if gate == STAGE3_GATE:
         raw_candidate = claim_from_certifiable_stage3_artifact(item)
+    elif gate == SECTOR_SAT_STAGE3_GATE:
+        raw_candidate = claim_from_sector_sat_artifact(item)
+    elif gate == TWOBGA_STAGE3_GATE:
+        raw_candidate = claim_from_twobga_artifact(item)
     elif gate is not None:
         raise ValueError(f"unsupported certification artifact gate: {gate}")
     elif isinstance(nested, Mapping):

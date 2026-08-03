@@ -11,6 +11,7 @@ import pytest
 import evaluation.certificate as certificate_module
 from evaluation.bb_code import build_bb_code
 from evaluation.certificate import (
+    THRESHOLD_FORMULATION,
     _certificate_sha256,
     build_css_certificate,
     pack_vector,
@@ -83,6 +84,12 @@ def test_threshold_direction_proves_absence_below_exact_distance():
     )
     assert evidence["status"] == 2
     assert evidence["threshold_infeasible"] is True
+    assert evidence["formulation"] == THRESHOLD_FORMULATION
+    assert evidence["objective_sense"] == "minimize"
+    assert evidence["objective_name"] == "hamming_weight"
+    assert evidence["outcome"] == "threshold_infeasible"
+    assert evidence["has_incumbent"] is False
+    assert evidence["optimal"] is False
     assert evidence["operator"] is None
 
 
@@ -94,8 +101,82 @@ def test_threshold_direction_returns_replayable_counterexample():
     assert evidence["success"] is True
     assert evidence["threshold_infeasible"] is False
     assert evidence["objective"] == 2
+    assert evidence["mip_primal_bound"] == 2.0
+    assert evidence["mip_dual_bound"] == 2.0
+    assert evidence["optimal"] is True
+    assert evidence["outcome"] == "optimal_witness"
     evidence["target_logical"] = pack_vector(logical)
     assert verify_css_witness(evidence, checks, logical) == []
+
+
+def test_threshold_solver_uses_bounded_hamming_minimization(monkeypatch):
+    captured = {}
+
+    def fake_milp(**kwargs):
+        captured.update(kwargs)
+        values = np.zeros(len(kwargs["c"]))
+        values[:2] = 1
+        return SimpleNamespace(
+            success=False,
+            status=1,
+            message="time limit with incumbent",
+            x=values,
+            fun=2.0,
+            mip_dual_bound=1.0,
+            mip_gap=0.5,
+            mip_node_count=7,
+        )
+
+    monkeypatch.setattr(certificate_module, "milp", fake_milp)
+    checks, logical = _tiny_direction()
+    evidence = solve_css_below_threshold(
+        checks, logical, max_weight=3, timeout=1, solver_workers=2,
+    )
+
+    n = checks.shape[1]
+    assert np.array_equal(captured["c"][:n], np.ones(n))
+    assert np.array_equal(
+        captured["c"][n:], np.zeros(len(captured["c"]) - n),
+    )
+    constraint = captured["constraints"]
+    assert np.array_equal(constraint.A[-1, :n], np.ones(n))
+    assert constraint.ub[-1] == 3
+    assert evidence["formulation"] == THRESHOLD_FORMULATION
+    assert evidence["objective"] == 2
+    assert evidence["mip_primal_bound"] == 2.0
+    assert evidence["mip_dual_bound"] == 1.0
+    assert evidence["mip_node_count"] == 7
+    assert evidence["has_incumbent"] is True
+    assert evidence["optimal"] is False
+    assert evidence["outcome"] == "incumbent_witness"
+    assert evidence["threshold_infeasible"] is False
+
+
+def test_threshold_solver_status_two_with_incumbent_fails_closed(monkeypatch):
+    def contradictory_milp(**kwargs):
+        values = np.zeros(len(kwargs["c"]))
+        values[0] = 1
+        return SimpleNamespace(
+            success=False,
+            status=2,
+            message="contradictory fake result",
+            x=values,
+            fun=1.0,
+            mip_dual_bound=None,
+            mip_gap=None,
+            mip_node_count=0,
+        )
+
+    monkeypatch.setattr(certificate_module, "milp", contradictory_milp)
+    checks, logical = _tiny_direction()
+    evidence = solve_css_below_threshold(
+        checks, logical, max_weight=1, timeout=1,
+    )
+
+    assert evidence["status"] == 2
+    assert evidence["has_incumbent"] is True
+    assert evidence["threshold_infeasible"] is False
+    assert evidence["outcome"] == "incumbent_witness"
 
 def test_xor_sector_threshold_proves_absence_below_distance():
     checks, logical = _tiny_direction()

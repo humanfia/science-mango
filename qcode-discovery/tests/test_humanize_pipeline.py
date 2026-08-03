@@ -105,7 +105,7 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
 def _plan(
     results: list[dict] | None = None,
     *,
-    returncode: int = 0,
+    returncode: int | None = None,
     operational_errors: int = 0,
     write_outputs: bool = True,
     gate_passed: bool = True,
@@ -115,6 +115,7 @@ def _plan(
     canonicalization_errors: int = 0,
     structural_unresolved_candidates: int = 0,
     snapshot_rows: int | None = None,
+    retry_required: bool | None = None,
 ) -> dict:
     return {
         "results": list(results or []),
@@ -130,6 +131,7 @@ def _plan(
             structural_unresolved_candidates
         ),
         "snapshot_rows": snapshot_rows,
+        "retry_required": retry_required,
     }
 
 
@@ -175,6 +177,7 @@ class ScenarioRunner:
             raise AssertionError(f"unexpected pipeline command: {command}")
         self.calls.append((stage, list(command)))
         plan = self._next(stage)
+        returncode = 0 if plan["returncode"] is None else plan["returncode"]
 
         if plan["write_outputs"] and stage in {"stage2", "stage3"}:
             results = plan["results"]
@@ -307,6 +310,19 @@ class ScenarioRunner:
                     _write_json(ledger_path, ledger)
             else:
                 summary["operational_errors"] = plan["operational_errors"]
+                derived_retry_required = bool(
+                    plan["selection_exhausted"] is not True
+                    or status_counts.get("UNRESOLVED", 0)
+                    or plan["operational_errors"]
+                    or status_counts.get("ERROR", 0)
+                )
+                summary["retry_required"] = (
+                    derived_retry_required
+                    if plan["retry_required"] is None
+                    else plan["retry_required"]
+                )
+                if plan["returncode"] is None and summary["retry_required"]:
+                    returncode = 2
                 _write_jsonl(_argument(command, "--stage4-manifest"), [])
             _write_json(_argument(command, "--summary-output"), summary)
         elif plan["write_outputs"] and stage == "strict":
@@ -455,9 +471,9 @@ class ScenarioRunner:
             )
         return subprocess.CompletedProcess(
             command,
-            plan["returncode"],
+            returncode,
             stdout=f"{stage} stdout\n",
-            stderr="" if plan["returncode"] == 0 else f"{stage} failed\n",
+            stderr="" if returncode == 0 else f"{stage} failed\n",
         )
 
     def commands(self, stage: str) -> list[list[str]]:
@@ -528,12 +544,17 @@ def _repo(tmp_path: Path) -> tuple[Path, Path]:
         "audit_direction_pool.py",
         "finalize_challenge.py",
         "screen_frontier_candidate.py",
+        "screen_frontier_sat.py",
         "screen_frontier_xor.py",
+        "screen_frontier_twobga.py",
     ):
         (scripts / name).write_text(f"# fake {name}\n")
     evaluation = repo / "evaluation"
     evaluation.mkdir()
     (evaluation / "verifier.py").write_text("# fake imported verifier\n")
+    (evaluation / "twobga_subsystem.py").write_text(
+        "# fake 2BGA subsystem derivation\n"
+    )
     humanize = repo / "humanize"
     humanize.mkdir()
     for name in ("pipeline.py", "audit_state.py", "state.py"):
@@ -624,6 +645,18 @@ def test_proof_stage_outer_walls_cover_stage3_and_stage5(tmp_path):
         "stage5_strict_gate"
     ) == pytest.approx(102)
     assert pipeline._stage_outer_hard_timeout("stage2_sector_audit") is None
+
+    sat_pipeline = FiveStagePipeline(replace(
+        config,
+        stage3_backend="sat-sectors",
+        stage3_exact=True,
+    ))
+    assert sat_pipeline._stage_outer_hard_timeout(
+        "stage3_direction_audit"
+    ) == pytest.approx(100)
+    sat_command = sat_pipeline._stage3_command()
+    assert sat_command[sat_command.index("--backend") + 1] == "sat-sectors"
+    assert "--exact" in sat_command
 
 
 def _certificate(
@@ -719,6 +752,67 @@ def _certificate(
             "verification_passed": verification_passed,
         },
     }, certificate_path
+
+
+def _legacy_sector_sat_certificate(
+    config: PipelineConfig,
+    digest: str,
+) -> tuple[dict, Path, Path]:
+    """Create a two-sector typed fixture with an independently bound sidecar."""
+
+    result, certificate_path = _certificate(config, digest)
+    certificate = json.loads(certificate_path.read_text())
+    claim = certificate["claim"]
+    distance = claim["d"]
+    proof = {
+        "proof_type": "qldpc-css-sector-sat-exact-proof-v1",
+        "exact": True,
+        "coverage_mode": "global",
+        "distance": distance,
+        "lower_bound": distance,
+        "upper_bound": distance,
+        "completed_lower_decisions": 2,
+        "lower_bound_decisions": [{"sector": "X"}, {"sector": "Z"}],
+        "xz_sector_isometry": None,
+    }
+    claim["exact_distance_proof"] = proof
+    certificate["certificate_type"] = pipeline_module.SECTOR_SAT_CERTIFICATE_TYPE
+    certificate.pop("milp")
+    certificate["xz_sector_isometry"] = None
+    certificate["sector_exact"] = {
+        "exact": True,
+        "coverage_mode": "global",
+        "distance": distance,
+        "lower_bound": distance,
+        "upper_bound": distance,
+        "expected_lower_decisions": 2,
+        "completed_lower_decisions": 2,
+        "xz_sector_isometry": None,
+    }
+    certificate["certificate_sha256"] = pipeline_module._certificate_sha256(
+        certificate,
+    )
+    _write_json(certificate_path, certificate)
+
+    metadata = result["certificate"]
+    metadata["certificate_sha256"] = certificate["certificate_sha256"]
+    sidecar_path = Path(metadata["verification_path"])
+    sidecar = json.loads(sidecar_path.read_text())
+    sidecar["certificate_sha256"] = certificate["certificate_sha256"]
+    sidecar["certificate_payload_sha256"] = pipeline_module._audit_json_sha256(
+        certificate,
+    )
+    sidecar["verification"] = {
+        "passed": True,
+        "logical_partitions_verified": 2,
+        "logical_partitions_total": 2,
+        "checks": {
+            "xz_sector_isometry": True,
+            "anchor_cover_cubes": True,
+        },
+    }
+    _write_json(sidecar_path, sidecar)
+    return result, certificate_path, sidecar_path
 
 
 def _terminal_negative_certificate(
@@ -1257,6 +1351,352 @@ def test_proof_retry_controller_escalates_1x_2x_4x_then_caps(tmp_path):
     assert state["proof_retry"]["resume_required"] is True
 
 
+def test_timeout_and_stale_checkpoints_do_not_renew_retry_budget(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    digest = "current-timeout"
+    stale_digest = "stale-terminal"
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-timeout-semantics"),
+        resume=False,
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {"canonical_digest": digest, "status": "UNRESOLVED"}
+    underlying = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([unresolved])],
+    )
+
+    def timeout_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        completed = underlying(command, cwd=cwd)
+        if _stage_script(command) == "audit_direction_pool.py":
+            attempted = underlying.counts["stage3"]
+            _write_json(
+                config.root
+                / "solver-state"
+                / "directions"
+                / f"{hashlib.sha256(digest.encode()).hexdigest()}.json",
+                {
+                    "schema_version": 2,
+                    "gate": "qldpc-frontier-threshold-screen",
+                    "candidate": {
+                        "canonical_digest": digest,
+                        "required_distance": 24,
+                    },
+                    "required_distance": 24,
+                    "threshold_only": True,
+                    "completed_directions": attempted,
+                    "directions": [
+                        {
+                            "status": 1,
+                            "message": "Time limit reached",
+                            "solver": "scipy.optimize.milp",
+                            "backend": "HiGHS",
+                            "threshold_infeasible": False,
+                            "objective": None,
+                            "operator": None,
+                            "witness_verified": False,
+                        }
+                    ] * attempted,
+                },
+            )
+            # A valid rejection for an older candidate must not buy another
+            # same-budget attempt for the active page.
+            _write_json(
+                config.root
+                / "solver-state"
+                / "xor"
+                / f"{hashlib.sha256(stale_digest.encode()).hexdigest()}.json",
+                {
+                    "schema_version": 1,
+                    "gate": "qldpc-frontier-xor-sector-screen",
+                    "candidate": {
+                        "canonical_digest": stale_digest,
+                        "required_distance": 10,
+                    },
+                    "required_distance": 10,
+                    "completed_sectors": 1,
+                    "sectors": [{
+                        "objective": 9,
+                        "max_weight": 9,
+                        "operator": {"weight": 9},
+                        "witness_verified": True,
+                    }],
+                },
+            )
+        return completed
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=timeout_runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    controller = json.loads(
+        (config.root / "solver-state" / "proof-retry-controller.json").read_text()
+    )["active"]
+    assert [attempt["multiplier"] for attempt in controller["attempts"]] == [
+        1,
+        2,
+        4,
+    ]
+    assert all(
+        attempt["made_progress"] is False
+        for attempt in controller["attempts"]
+    )
+    latest = controller["attempts"][-1]["progress_after"]
+    assert latest["attempted_units"] == 3
+    assert latest["timeout_units"] == 3
+    assert latest["terminal_units"] == 0
+    assert latest["proven_units"] == 0
+    assert latest["completed_units"] == 0
+    assert latest["selected_digests"] == [digest]
+    assert len(latest["units"]) == 1
+
+    # The first pass honors a fresh-campaign request.  Controller-scheduled
+    # retries resume only replay-validated terminal solver state.
+    for stage in ("stage2", "stage3"):
+        commands = [
+            command for called_stage, command in underlying.calls
+            if called_stage == stage
+        ]
+        assert "--no-resume" in commands[0]
+        assert all("--resume" in command for command in commands[1:])
+
+
+def test_threshold_proof_is_terminal_and_proven_progress(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    digest = "threshold-proof"
+    pipeline = FiveStagePipeline(
+        _config(repo, candidates, run_id="threshold-proof-progress"),
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+    pipeline.paths.root.mkdir(parents=True)
+    pipeline._ensure_pipeline_directories()
+    path = (
+        pipeline.paths.solver_state
+        / "xor"
+        / f"{hashlib.sha256(digest.encode()).hexdigest()}.json"
+    )
+    artifact = {
+        "schema_version": 1,
+        "gate": "qldpc-frontier-xor-sector-screen",
+        "candidate": {
+            "canonical_digest": digest,
+            "required_distance": 24,
+        },
+        "required_distance": 24,
+        "completed_sectors": 1,
+        "sectors": [{
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "status_name": "UNKNOWN",
+            "threshold_infeasible": True,
+            "max_weight": 23,
+            "objective": None,
+            "operator": None,
+        }],
+    }
+    _write_json(path, artifact)
+
+    malformed = pipeline._proof_progress_snapshot(selected_digests=[digest])
+    assert malformed["attempted_units"] == 1
+    assert malformed["terminal_units"] == 0
+    assert malformed["proven_units"] == 0
+    assert pipeline._proof_progress_made({"units": {}}, malformed) is False
+
+    artifact["sectors"][0] = {
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "status_name": "OPTIMAL",
+        "threshold_infeasible": False,
+        "max_weight": 23,
+        "objective": 9,
+        "operator": {"weight": 9},
+    }
+    _write_json(path, artifact)
+    unverified = pipeline._proof_progress_snapshot(selected_digests=[digest])
+    assert unverified["terminal_units"] == 0
+    assert unverified["proven_units"] == 0
+
+    artifact["sectors"][0] = {
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "status_name": "INFEASIBLE",
+        "threshold_infeasible": True,
+        "max_weight": 23,
+        "objective": None,
+        "operator": None,
+    }
+    _write_json(path, artifact)
+
+    before = {"units": {}}
+    after = pipeline._proof_progress_snapshot(selected_digests=[digest])
+
+    assert after["attempted_units"] == 1
+    assert after["terminal_units"] == 1
+    assert after["proven_units"] == 1
+    assert after["timeout_units"] == 0
+    assert after["completed_units"] == 1
+    assert pipeline._proof_progress_made(before, after) is True
+
+
+def test_legacy_checkpoint_progress_requires_matching_dual_bound():
+    checkpoint = {
+        "schema_version": 1,
+        "checkpoint_type": "qldpc-css-bb-build-checkpoint-v1",
+        "binding": {
+            "claim_sha256": "a" * 64,
+            "known_answer_sha256": "b" * 64,
+            "matrix_sha256": {"hx": "c" * 64, "hz": "d" * 64},
+            "solver": {"backend": "HiGHS"},
+        },
+        "completed_directions": 1,
+        "directions": [{
+            "formulation": "css-logical-anticommutation-milp-v1",
+            "solver": "scipy.optimize.milp",
+            "backend": "HiGHS",
+            "status": 0,
+            "success": True,
+            "objective": 15,
+            "mip_gap": 0.0,
+            "mip_dual_bound": 15.0,
+            "operator": {"length": 20, "weight": 15, "packed_hex": "00"},
+            "target_logical": {
+                "length": 20,
+                "weight": 4,
+                "packed_hex": "00",
+            },
+        }],
+    }
+
+    valid = FiveStagePipeline._proof_checkpoint_record_counts(
+        checkpoint, source_kind="checkpoints",
+    )
+    assert valid["proven_units"] == 1
+    checkpoint["directions"][0]["mip_dual_bound"] = 14.0
+    mismatched = FiveStagePipeline._proof_checkpoint_record_counts(
+        checkpoint, source_kind="checkpoints",
+    )
+    assert mismatched["proven_units"] == 0
+    assert mismatched["terminal_units"] == 0
+
+
+def test_sat_sector_progress_counts_proof_units_not_directions():
+    evidence = {
+        "outcome": "unsat",
+        "decision_complete": True,
+        "threshold_infeasible": True,
+        "max_weight": 23,
+        "objective": None,
+        "operator": None,
+    }
+    evidence["evidence_sha256"] = pipeline_module._canonical_sha256(evidence)
+    artifact = {
+        "schema_version": 1,
+        "gate": "qldpc-frontier-sat-sector-exact-screen",
+        "candidate": {
+            "canonical_digest": "sat-progress",
+            "required_distance": 24,
+            "k": 8,
+        },
+        "required_distance": 24,
+        "expected_units": 18,
+        "attempted_units": 1,
+        "terminal_units": 1,
+        "units": [{
+            "phase": "lower",
+            "sector": "X",
+            "partition_index": 0,
+            "solver_evidence": evidence,
+        }],
+    }
+
+    counts = FiveStagePipeline._proof_checkpoint_record_counts(
+        artifact,
+        source_kind="sat-sectors",
+    )
+
+    assert counts == {
+        "attempted_units": 1,
+        "terminal_units": 1,
+        "timeout_units": 0,
+        "proven_units": 1,
+        "completed_units": 1,
+        "reported_completed_units": 1,
+    }
+
+
+def test_sat_reduced_progress_requires_fresh_matching_xz_isometry():
+    import numpy as np
+
+    from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
+    from scripts.screen_frontier_candidate import build_candidate_code
+
+    candidate = {
+        "source": "ibm-72-test",
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[3, 0], [0, 1], [0, 2]],
+        "B_terms": [[0, 3], [1, 0], [2, 0]],
+        "n": 72,
+        "k": 12,
+        "required_distance": 7,
+        "canonical_digest": "sat-reduced-progress",
+    }
+    code = build_candidate_code(candidate)
+    report = verify_bb_xz_sector_isometry(
+        np.asarray(code.matrix_x, dtype=np.uint8) & 1,
+        np.asarray(code.matrix_z, dtype=np.uint8) & 1,
+        ell=6,
+        m=6,
+    )
+    evidence = {
+        "outcome": "unsat",
+        "decision_complete": True,
+        "threshold_infeasible": True,
+        "max_weight": 6,
+        "objective": None,
+        "operator": None,
+    }
+    evidence["evidence_sha256"] = pipeline_module._canonical_sha256(evidence)
+    artifact = {
+        "schema_version": 1,
+        "gate": "qldpc-frontier-sat-sector-exact-screen",
+        "candidate": candidate,
+        "required_distance": 7,
+        "xz_sector_isometry": report,
+        "expected_units": 13,
+        "attempted_units": 1,
+        "terminal_units": 1,
+        "units": [{
+            "phase": "lower",
+            "sector": "X",
+            "partition_index": 0,
+            "solver_evidence": evidence,
+        }],
+    }
+
+    counts = FiveStagePipeline._proof_checkpoint_record_counts(
+        artifact,
+        source_kind="sat-sectors",
+    )
+    assert counts["proven_units"] == 1
+
+    stale = json.loads(json.dumps(artifact))
+    stale["xz_sector_isometry"]["shape"] = [3, 12]
+    stale_counts = FiveStagePipeline._proof_checkpoint_record_counts(
+        stale,
+        source_kind="sat-sectors",
+    )
+    assert stale_counts["proven_units"] == 0
+
+
 def test_proof_retry_max_attempts_caps_before_next_budget(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = replace(
@@ -1314,6 +1754,45 @@ def test_proof_retry_does_not_spin_on_non_solver_input_errors(tmp_path):
     ).exists()
 
 
+def test_proof_retry_does_not_repeat_terminal_twobga_ineligibility(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="proof-retry-twobga-ineligible"),
+        stage3_backend="twobga-aux",
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    unresolved = {
+        "canonical_digest": "twobga-ineligible",
+        "status": "UNRESOLVED",
+    }
+    ineligible = {
+        "canonical_digest": "twobga-ineligible",
+        "status": "INELIGIBLE",
+    }
+    runner = ScenarioRunner(
+        stage2=[_plan([unresolved])],
+        stage3=[_plan([ineligible])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE", state.get("failure")
+    assert runner.counts == {"stage2": 1, "stage3": 1}
+    assert {
+        reason["code"]
+        for reason in state["result"]["proof_incompleteness"]["reasons"]
+    } == {"STAGE3_INELIGIBLE_RESULT"}
+    assert not (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    ).exists()
+
+
 def test_proof_retry_direction_progress_holds_budget_before_escalating(tmp_path):
     repo, candidates = _repo(tmp_path)
     config = replace(
@@ -1339,10 +1818,23 @@ def test_proof_retry_direction_progress_holds_budget_before_escalating(tmp_path)
                 config.root
                 / "solver-state"
                 / "directions"
-                / "progress.json",
+                / f"{hashlib.sha256(b'progressing').hexdigest()}.json",
                 {
+                    "schema_version": 2,
+                    "gate": "qldpc-frontier-threshold-screen",
+                    "candidate": {
+                        "canonical_digest": "progressing",
+                        "required_distance": 10,
+                    },
+                    "required_distance": 10,
+                    "threshold_only": True,
                     "completed_directions": 1,
-                    "directions": [{"objective": 9}],
+                    "directions": [{
+                        "objective": 9,
+                        "max_weight": 9,
+                        "operator": {"weight": 9},
+                        "witness_verified": True,
+                    }],
                 },
             )
         return completed
@@ -1546,10 +2038,25 @@ def test_checkpoint_progress_can_exceed_attempt_cap_and_reach_win(tmp_path):
                 config.root
                 / "solver-state"
                 / "directions"
-                / "progress.json",
+                / f"{hashlib.sha256(digest.encode()).hexdigest()}.json",
                 {
+                    "schema_version": 2,
+                    "gate": "qldpc-frontier-threshold-screen",
+                    "candidate": {
+                        "canonical_digest": digest,
+                        "required_distance": 10,
+                    },
+                    "required_distance": 10,
+                    "threshold_only": True,
                     "completed_directions": count,
-                    "directions": [{"objective": 9}] * count,
+                    "directions": [
+                        {
+                            "objective": 9,
+                            "max_weight": 9,
+                            "operator": {"weight": 9},
+                            "witness_verified": True,
+                        }
+                    ] * count,
                 },
             )
         return completed
@@ -1603,7 +2110,8 @@ def test_proof_retry_campaign_total_timeout_caps_after_current_attempt(tmp_path)
         proof_retry_campaign_total_timeout=0.5,
         proof_retry_backoff_seconds=0,
     )
-    unresolved = {"canonical_digest": "total-timeout", "status": "UNRESOLVED"}
+    digest = "total-timeout"
+    unresolved = {"canonical_digest": digest, "status": "UNRESOLVED"}
     underlying = ScenarioRunner(
         stage2=[_plan([unresolved])],
         stage3=[_plan([unresolved])],
@@ -1618,10 +2126,23 @@ def test_proof_retry_campaign_total_timeout_caps_after_current_attempt(tmp_path)
                 config.root
                 / "solver-state"
                 / "directions"
-                / "progress.json",
+                / f"{hashlib.sha256(digest.encode()).hexdigest()}.json",
                 {
+                    "schema_version": 2,
+                    "gate": "qldpc-frontier-threshold-screen",
+                    "candidate": {
+                        "canonical_digest": digest,
+                        "required_distance": 10,
+                    },
+                    "required_distance": 10,
+                    "threshold_only": True,
                     "completed_directions": 1,
-                    "directions": [{"objective": 9}],
+                    "directions": [{
+                        "objective": 9,
+                        "max_weight": 9,
+                        "operator": {"weight": 9},
+                        "witness_verified": True,
+                    }],
                 },
             )
         return completed
@@ -1662,7 +2183,14 @@ def test_proof_retry_win_stops_before_later_budgets(tmp_path):
     winner, _ = _certificate(config, "retry-win")
     runner = ScenarioRunner(
         stage2=[_plan([unresolved])],
-        stage3=[_plan([unresolved]), _plan([winner])],
+        stage3=[
+            _plan(
+                [unresolved],
+                returncode=2,
+                retry_required=True,
+            ),
+            _plan([winner]),
+        ],
     )
 
     state = FiveStagePipeline(
@@ -1674,6 +2202,7 @@ def test_proof_retry_win_stops_before_later_budgets(tmp_path):
 
     assert state["status"] == "COMPLETED_WIN"
     assert runner.counts == {"stage2": 2, "stage3": 2, "strict": 1}
+    assert state["result_history"][0]["status"] == "INCOMPLETE"
     stage2_commands = [
         command for stage, command in runner.calls if stage == "stage2"
     ]
@@ -2082,6 +2611,84 @@ def test_paginated_global_input_diagnostic_still_blocks_final_no_win(
 
     assert state["status"] == "INCOMPLETE"
     assert runner.counts == {"stage2": 2}
+
+
+@pytest.mark.parametrize(
+    ("stage3_status", "reason_code"),
+    (
+        ("INELIGIBLE", "STAGE3_INELIGIBLE_RESULT"),
+        ("BOUND_INSUFFICIENT", "STAGE3_BOUND_INSUFFICIENT_RESULT"),
+        ("EXACTNESS_GAP", "STAGE3_EXACTNESS_GAP_RESULT"),
+    ),
+)
+def test_stage3_terminal_coverage_gap_survives_paginated_pool_scan(
+    tmp_path,
+    stage3_status,
+    reason_code,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id=f"coverage-gap-{stage3_status}"),
+        stage2_top=1,
+        stage3_backend="twobga-aux",
+        proof_retry_max_attempts=6,
+        proof_retry_backoff_seconds=0,
+    )
+    first_digest = f"coverage-gap-{stage3_status.lower()}"
+    stage2_unresolved = {
+        "canonical_digest": first_digest,
+        "status": "UNRESOLVED",
+    }
+    stage3_gap = {
+        "canonical_digest": first_digest,
+        "status": stage3_status,
+    }
+    terminal_rejection = {
+        "canonical_digest": "coverage-gap-terminal-rejection",
+        "status": "REJECTED",
+    }
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [stage2_unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [terminal_rejection],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([stage3_gap])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts == {"stage2": 2, "stage3": 1}
+    assert [stage for stage, _command in runner.calls] == [
+        "stage2",
+        "stage3",
+        "stage2",
+    ]
+    reasons = state["result"]["proof_incompleteness"]["reasons"]
+    assert [reason["code"] for reason in reasons] == [reason_code]
+    assert reasons[0]["canonical_digest"] == first_digest
+    assert state["stage2_pagination"][
+        "coverage_gap_incompleteness"
+    ] == reasons
+    assert state["stage2_pagination"][
+        "paginated_persistent_incompleteness"
+    ] == reasons
+    assert not (
+        config.root / "solver-state" / "proof-retry-controller.json"
+    ).exists()
 
 
 def test_diagnostic_only_terminal_page_stays_pending_across_resume(
@@ -3269,7 +3876,13 @@ def test_nonzero_stage_is_not_cached_and_blocks_downstream_until_resume(
     runner = ScenarioRunner(
         stage2=[_plan([unresolved])],
         stage3=[
-            _plan([unresolved], returncode=2),
+            # Exit 2 is recoverable only when the bound summary actually
+            # contains unresolved/truncated/error work.  A terminal result
+            # paired with exit 2 must still fail closed.
+            _plan(
+                [{"canonical_digest": "retry", "status": "REJECTED"}],
+                returncode=2,
+            ),
             _plan([{"canonical_digest": "retry", "status": "REJECTED"}]),
         ],
     )
@@ -3959,6 +4572,7 @@ def test_stage5_retry_reaches_later_winner_and_exports_accepted_subset(
     run_id = "strict-timeout-auto-retry"
     config = replace(
         _config(repo, candidates, run_id=run_id),
+        resume=False,
         proof_retry_max_attempts=4,
         proof_retry_backoff_seconds=0,
     )
@@ -3982,6 +4596,8 @@ def test_stage5_retry_reaches_later_winner_and_exports_accepted_subset(
     assert state["status"] == "COMPLETED_WIN"
     assert runner.counts == {"stage2": 2, "strict": 2}
     strict_commands = runner.commands("strict")
+    assert "--no-resume" in strict_commands[0]
+    assert "--resume" in strict_commands[1]
     assert [
         float(command[command.index("--verification-timeout-per-logical") + 1])
         for command in strict_commands
@@ -4009,6 +4625,9 @@ def test_stage5_retry_reaches_later_winner_and_exports_accepted_subset(
     assert active["binding"]["strict_inputs"][str(
         config.root / "artifacts" / "stage4-certificates.jsonl"
     )]
+    assert state["stages"]["stage5_strict_gate"]["stage_config"][
+        "effective_resume"
+    ] is True
 
     exported = export_release(repo_dir=repo, run_id=run_id)
     assert exported["status"] == "exported"
@@ -4113,6 +4732,67 @@ def test_stage4_rejects_failed_verification_sidecar_despite_summary_flags(
     assert state["status"] == "FAILED"
     assert state["failure"]["classification"] == "OUTPUT_INVALID"
     assert state["failure"]["stage"] == "stage4_certificate_merge"
+
+
+def test_stage4_sector_merge_requires_fresh_isometry_sidecar_check(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="sector-isometry-sidecar")
+    result, certificate_path, sidecar_path = _legacy_sector_sat_certificate(
+        config,
+        "sector-isometry-sidecar",
+    )
+    report = {
+        "verified": True,
+        "canonical_sector": "X",
+        "covered_sectors": ["X", "Z"],
+        "report_sha256": "a" * 64,
+    }
+    certificate = json.loads(certificate_path.read_text())
+    proof = certificate["claim"]["exact_distance_proof"]
+    proof["xz_sector_isometry"] = report
+    proof["completed_lower_decisions"] = 1
+    proof["lower_bound_decisions"] = [{"sector": "X"}]
+    certificate["xz_sector_isometry"] = report
+    certificate["sector_exact"]["xz_sector_isometry"] = report
+    certificate["sector_exact"]["expected_lower_decisions"] = 1
+    certificate["sector_exact"]["completed_lower_decisions"] = 1
+    certificate["certificate_sha256"] = pipeline_module._certificate_sha256(
+        certificate,
+    )
+    _write_json(certificate_path, certificate)
+    result["certificate"]["certificate_sha256"] = certificate[
+        "certificate_sha256"
+    ]
+    sidecar = json.loads(sidecar_path.read_text())
+    sidecar["certificate_sha256"] = certificate["certificate_sha256"]
+    sidecar["certificate_payload_sha256"] = pipeline_module._audit_json_sha256(
+        certificate,
+    )
+    sidecar["verification"]["logical_partitions_verified"] = 1
+    sidecar["verification"]["logical_partitions_total"] = 1
+    _write_json(sidecar_path, sidecar)
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+    merged = pipeline._merge_certificates(
+        {"results": [result]},
+        {"results": []},
+    )
+    assert merged["verified_certificates"] == 1
+
+    sidecar = json.loads(sidecar_path.read_text())
+    sidecar["verification"]["checks"].pop("xz_sector_isometry")
+    _write_json(sidecar_path, sidecar)
+    with pytest.raises(
+        PipelineError,
+        match="does not bind its reduced coverage",
+    ):
+        pipeline._merge_certificates(
+            {"results": [result]},
+            {"results": []},
+        )
 
 
 def test_stage4_rejects_certificate_payload_changed_after_verification(tmp_path):
@@ -4402,6 +5082,15 @@ def test_registry_is_recorded_for_live_stage3_and_strict_inputs(tmp_path):
     stage5_inputs = state["stages"]["stage5_strict_gate"]["input_hashes"]
     assert registry in stage5_inputs
     assert strict_runner in stage5_inputs
+    assert {
+        str((repo / "scripts" / name).resolve())
+        for name in (
+            "screen_frontier_candidate.py",
+            "screen_frontier_sat.py",
+            "screen_frontier_xor.py",
+            "screen_frontier_twobga.py",
+        )
+    } <= set(stage5_inputs)
 
 
 def test_strict_runner_change_invalidates_only_strict_stage(tmp_path):
@@ -4418,6 +5107,32 @@ def test_strict_runner_change_invalidates_only_strict_stage(tmp_path):
 
     (repo / "tests" / "verify_known_answer_gate.py").write_text(
         "# changed strict known-answer runner\n"
+    )
+    second = FiveStagePipeline(
+        config, command_runner=runner, reviewer=reviewer,
+    ).run()
+
+    assert second["status"] == "COMPLETED_WIN"
+    assert runner.counts == {"stage2": 1, "strict": 2}
+    for stage in STAGE_ORDER[:-1]:
+        assert second["stages"][stage]["attempt"] == 1
+    assert second["stages"]["stage5_strict_gate"]["attempt"] == 2
+
+
+def test_strict_verifier_script_change_invalidates_only_strict_stage(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-verifier-change")
+    proven, _ = _certificate(config, "strict-verifier-change")
+    runner = ScenarioRunner(stage2=[_plan([proven])])
+    reviewer = RecordingReviewer()
+
+    first = FiveStagePipeline(
+        config, command_runner=runner, reviewer=reviewer,
+    ).run()
+    assert first["status"] == "COMPLETED_WIN"
+
+    (repo / "scripts" / "screen_frontier_twobga.py").write_text(
+        "# changed strict verifier helper\n"
     )
     second = FiveStagePipeline(
         config, command_runner=runner, reviewer=reviewer,
@@ -5512,3 +6227,190 @@ def test_unexpected_pipeline_exception_is_recorded_as_internal_error(
     assert state["failure"]["message"] == (
         "RuntimeError: unexpected stage-1 handoff failure"
     )
+
+
+def test_stage5_validator_accepts_typed_sector_sat_replay_without_2k_fields(
+    tmp_path,
+):
+    n, k, d = 72, 16, 8
+    fom = k * d * d / n
+    proof = {
+        "proof_type": "qldpc-css-sector-sat-exact-proof-v1",
+        "exact": True,
+        "coverage_mode": "global",
+        "distance": d,
+        "lower_bound": d,
+        "upper_bound": d,
+        "completed_lower_decisions": 2,
+        "lower_bound_decisions": [
+            {"sector": "X"},
+            {"sector": "Z"},
+        ],
+        "xz_sector_isometry": None,
+    }
+    claim = {
+        "n": n,
+        "k": k,
+        "d": d,
+        "fom": fom,
+        "exact_distance_proof": proof,
+    }
+    gate = {"accepted": True, "checks": {"challenge_win": True}, "failures": []}
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-sector-sat-exact",
+        "passed": True,
+        "claim": claim,
+        "xz_sector_isometry": None,
+        "sector_exact": {
+            "exact": True,
+            "coverage_mode": "global",
+            "distance": d,
+            "lower_bound": d,
+            "upper_bound": d,
+            "expected_lower_decisions": 2,
+            "completed_lower_decisions": 2,
+            "xz_sector_isometry": None,
+        },
+        "final_gate": gate,
+    }
+    certificate["certificate_sha256"] = pipeline_module._certificate_sha256(
+        certificate,
+    )
+    certificates_path = tmp_path / "certificates.jsonl"
+    certificates_path.write_text(json.dumps(certificate) + "\n")
+    checks = {
+        name: True for name in pipeline_module.SECTOR_SAT_STRICT_REPLAY_CHECKS
+    }
+    result = {
+        "passed": True,
+        "replay_complete": True,
+        "checks": checks,
+        "failures": [],
+        "distance": d,
+        "sector_decisions_verified": 2,
+        "sector_decisions_total": 2,
+        "logical_partitions_verified": 2,
+        "logical_partitions_total": 2,
+        "final_gate": gate,
+    }
+    stage5 = {
+        "gate": "qldpc-challenge-final-batch",
+        "known_answer_integrity": {
+            "mode": "strict",
+            "passed": True,
+            "failures": [],
+        },
+        "evaluations": [{
+            "source_index": 0,
+            "certificate_sha256": certificate["certificate_sha256"],
+            "certificate_payload_sha256": pipeline_module._canonical_sha256(
+                certificate,
+            ),
+            "claim": claim,
+            "disposition": "ACCEPTED",
+            "result": result,
+        }],
+        "summary": {"accepted": 1, "rejected": 0, "incomplete": 0, "total": 1},
+        "outcome": "WIN",
+        "passed": True,
+    }
+    gate_path = tmp_path / "stage5.json"
+    gate_path.write_text(json.dumps(stage5))
+
+    assert FiveStagePipeline._validate_final_gate(
+        gate_path,
+        certificates_path,
+    )["outcome"] == "WIN"
+
+    assert pipeline_module._sector_sat_expected_lower_decisions(
+        certificate,
+        replay_checks=checks,
+    ) == 2
+    inconsistent = json.loads(json.dumps(certificate))
+    inconsistent["sector_exact"]["xz_sector_isometry"] = {
+        "verified": True,
+    }
+    assert pipeline_module._sector_sat_expected_lower_decisions(
+        inconsistent,
+        replay_checks=checks,
+    ) is None
+
+    del result["checks"]["xz_sector_isometry"]
+    gate_path.write_text(json.dumps(stage5))
+    with pytest.raises(PipelineError, match="accepted replay is invalid"):
+        FiveStagePipeline._validate_final_gate(gate_path, certificates_path)
+    result["checks"]["xz_sector_isometry"] = True
+
+    del result["checks"]["sector_exact_proof_binding"]
+    gate_path.write_text(json.dumps(stage5))
+    with pytest.raises(PipelineError, match="accepted replay is invalid"):
+        FiveStagePipeline._validate_final_gate(gate_path, certificates_path)
+    result["checks"]["sector_exact_proof_binding"] = True
+
+    result["logical_partitions_verified"] = 1
+    gate_path.write_text(json.dumps(stage5))
+    with pytest.raises(PipelineError, match="accepted replay is invalid"):
+        FiveStagePipeline._validate_final_gate(gate_path, certificates_path)
+    result["logical_partitions_verified"] = 2
+
+    result["directions_verified"] = 2 * k
+    gate_path.write_text(json.dumps(stage5))
+    with pytest.raises(PipelineError, match="accepted replay is invalid"):
+        FiveStagePipeline._validate_final_gate(gate_path, certificates_path)
+
+
+def test_sector_sat_replay_contract_counts_anchor_cube_solver_decisions():
+    isometry = {
+        "verified": True,
+        "canonical_sector": "X",
+        "covered_sectors": ["X", "Z"],
+        "report_sha256": "a" * 64,
+    }
+    cubes = [
+        {"cube_index": 0, "cube_sha256": "b" * 64},
+        {"cube_index": 1, "cube_sha256": "c" * 64},
+    ]
+    proof = {
+        "coverage_mode": "first-nonzero",
+        "xz_sector_isometry": isometry,
+        "anchor_cover_cubes": cubes,
+        "expected_lower_decisions": 4,
+        "completed_lower_decisions": 4,
+        "expected_lower_partitions": 2,
+        "completed_lower_partitions": 2,
+        "lower_bound_decisions": [{}, {}, {}, {}],
+    }
+    sector_exact = {
+        "coverage_mode": "first-nonzero",
+        "xz_sector_isometry": isometry,
+        "anchor_cover_cubes": cubes,
+        "expected_lower_decisions": 4,
+        "completed_lower_decisions": 4,
+        "expected_lower_partitions": 2,
+        "completed_lower_partitions": 2,
+    }
+    certificate = {
+        "certificate_type": pipeline_module.SECTOR_SAT_CERTIFICATE_TYPE,
+        "claim": {"k": 2, "exact_distance_proof": proof},
+        "xz_sector_isometry": isometry,
+        "anchor_cover_cubes": cubes,
+        "sector_exact": sector_exact,
+    }
+    checks = {"xz_sector_isometry": True, "anchor_cover_cubes": True}
+
+    assert pipeline_module._sector_sat_expected_lower_decisions(
+        certificate,
+        replay_checks=checks,
+    ) == 4
+
+    forged = json.loads(json.dumps(certificate))
+    forged["sector_exact"]["completed_lower_partitions"] = 1
+    assert pipeline_module._sector_sat_expected_lower_decisions(
+        forged,
+        replay_checks=checks,
+    ) is None
+    assert pipeline_module._sector_sat_expected_lower_decisions(
+        certificate,
+        replay_checks={"xz_sector_isometry": True},
+    ) is None

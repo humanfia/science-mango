@@ -3,6 +3,10 @@
 The current final verifier supports CSS BB claims.  PBB/non-CSS records are
 rejected explicitly instead of being accidentally evaluated as their CSS
 ``A,B`` projection.
+
+This API validates stored proof structure.  Formal release code must also run
+``evaluation.certificate_dispatch.verify_certificate``; self-hashed SAT
+``UNSAT`` evidence is not a standalone proof-carrying certificate.
 """
 
 from __future__ import annotations

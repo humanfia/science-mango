@@ -9,6 +9,8 @@ from evaluation.certificate_dispatch import (
 )
 from evaluation.matrix_certificate import build_matrix_css_certificate
 from evaluation.noncss_certificate import build_noncss_certificate
+from evaluation.twobga_certificate import build_twobga_certificate
+from scripts.screen_frontier_twobga import TWOBGA_REQUEST_FIELD
 
 
 def test_builder_dispatches_every_claim_shape():
@@ -21,10 +23,11 @@ def test_builder_dispatches_every_claim_shape():
         builder_for_claim({"symplectic_stabilizer": [[1, 0]]})
         is build_noncss_certificate
     )
+    assert builder_for_claim({TWOBGA_REQUEST_FIELD: {}}) is build_twobga_certificate
 
 
 def test_verifier_dispatch_is_fail_closed():
-    assert len(SUPPORTED_CERTIFICATE_TYPES) == 4
+    assert len(SUPPORTED_CERTIFICATE_TYPES) == 6
     assert verifier_for_certificate({"certificate_type": BB_CSS_TYPE})
     with pytest.raises(ValueError, match="unsupported certificate_type"):
         verifier_for_certificate({"certificate_type": "untrusted"})

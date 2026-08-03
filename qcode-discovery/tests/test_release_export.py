@@ -15,6 +15,9 @@ from pathlib import Path
 import pytest
 
 import humanize.release_export as release_export_module
+from evaluation.bb_code import build_bb_code
+from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
+from evaluation.distance_milp import get_code_matrices
 from evaluation.proof_runtime import (
     known_answer_environment,
     proof_runtime_fingerprint,
@@ -24,6 +27,18 @@ from humanize.release_export import (
     ReleaseExportError,
     ReleaseNotExportableError,
     export_release,
+)
+
+_STRICT_VERIFIER_SCRIPT_NAMES = (
+    "screen_frontier_candidate.py",
+    "screen_frontier_sat.py",
+    "screen_frontier_xor.py",
+    "screen_frontier_twobga.py",
+)
+_STRICT_STAGE5_DEPENDENCIES = (
+    "tests/verify_known_answer_gate.py",
+    "results/known_code_registry.json",
+    *(f"scripts/{name}" for name in _STRICT_VERIFIER_SCRIPT_NAMES),
 )
 
 
@@ -95,6 +110,7 @@ def _pipeline_fingerprint(value: object) -> str:
 
 def _win_gate(n: int, k: int, d: int) -> dict:
     fom = k * d * d / n
+    win = release_export_module.classify_win(n, k, d)
     return {
         "schema_version": 1,
         "gate": "qldpc-challenge-final",
@@ -108,9 +124,102 @@ def _win_gate(n: int, k: int, d: int) -> dict:
         "win": {
             "passed": True,
             "fom": fom,
-            "reasons": ["fom_strictly_above_12"],
+            "reasons": win["reasons"],
         },
     }
+
+
+def _typed_twobga_certificate(known_answer_sha256: str) -> dict:
+    n, k, d = 72, 12, 9
+    theorem = {
+        "schema_version": 1,
+        "method": "dressed-2bga-subsystem",
+        "eligible": True,
+        "lower_bound_semantics": {"required_sectors": ["X", "Z"]},
+        "report_sha256": "e" * 64,
+    }
+    lower = [
+        {
+            "unit_id": f"aux-lower-{sector}",
+            "domain": "auxiliary-subsystem",
+            "phase": "lower",
+            "sector": sector,
+            "max_weight": d - 1,
+            "anchor_indices": [0],
+            "solver_evidence": {"outcome": "unsat"},
+        }
+        for sector in ("X", "Z")
+    ]
+    upper = {
+        "unit_id": "original-upper-X",
+        "domain": "original-code",
+        "phase": "upper",
+        "sector": "X",
+        "max_weight": d,
+        "anchor_indices": [0],
+        "witness_verified": True,
+        "witness_failures": [],
+        "solver_evidence": {"outcome": "sat", "objective": d},
+    }
+    proof = {
+        "schema_version": 1,
+        "proof_type": "qldpc-css-twobga-subsystem-exact-proof-v1",
+        "exact": True,
+        "required_distance": d,
+        "distance": d,
+        "lower_bound_threshold": d - 1,
+        "lower_bound": d,
+        "upper_bound": d,
+        "theorem_eligibility": theorem,
+        "lower_bound_decisions": lower,
+        "upper_witness": upper,
+        "original_logical_detector": {"verified": True},
+        "original_translation_symmetry": {"verified": True},
+        "original_anchor_indices": [0],
+        "subsystem_distance_semantics": "dressed-logical-center-quotient",
+        "required_auxiliary_sectors": ["X", "Z"],
+    }
+    proof["proof_sha256"] = canonical_sha256(proof, omit="proof_sha256")
+    claim = {
+        "canonical_digest": "typed-twobga",
+        "n": n,
+        "k": k,
+        "d": d,
+        "fom": k * d * d / n,
+        "d_is_exact": True,
+        "exact_distance_proof": proof,
+    }
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-twobga-subsystem-exact",
+        "formulation": "css-bb-exact-via-dressed-twobga-subsystem-v1",
+        "independent_verification_required": True,
+        "build_assurance": "provisional-structural-replay",
+        "passed": True,
+        "known_answer": {"artifact_sha256": known_answer_sha256},
+        "claim": claim,
+        "matrix_sha256": {"hx": "a" * 64, "hz": "b" * 64},
+        "theorem_eligibility": theorem,
+        "twobga_exact": {
+            "exact": True,
+            "required_distance": d,
+            "distance": d,
+            "lower_bound": d,
+            "upper_bound": d,
+            "expected_lower_decisions": 2,
+            "completed_lower_decisions": 2,
+            "lower_bound_decisions": lower,
+            "upper_witness": upper,
+            "upper_attempt": None,
+            "proof": proof,
+        },
+        "final_gate": _win_gate(n, k, d),
+    }
+    certificate["certificate_sha256"] = canonical_sha256(
+        certificate,
+        omit="certificate_sha256",
+    )
+    return certificate
 
 
 def _pipeline_root(repo: Path, run_id: str) -> Path:
@@ -127,9 +236,14 @@ def _strict_stage_binding(
     finalizer = repo / "scripts" / "finalize_challenge.py"
     strict_runner = repo / "tests" / "verify_known_answer_gate.py"
     registry = repo / "results" / "known_code_registry.json"
+    strict_verifiers = [
+        repo / "scripts" / name
+        for name in _STRICT_VERIFIER_SCRIPT_NAMES
+    ]
     source_files = sorted((repo / "evaluation").rglob("*.py")) + [
         repo / "humanize" / "pipeline.py",
         finalizer,
+        *strict_verifiers,
         strict_runner,
         registry,
     ]
@@ -149,6 +263,10 @@ def _strict_stage_binding(
             repo / "humanize" / "pipeline.py"
         ),
         "mode": "strict",
+        "effective_resume": config.get(
+            "effective_resume",
+            config["resume"],
+        ),
         "source_fingerprint": source_fingerprint,
         "known_code_registry_sha256": _file_sha256(registry),
         "strict_runner_sha256": _file_sha256(strict_runner),
@@ -186,7 +304,11 @@ def _strict_stage_binding(
         str(config["certificate_solver_workers"]),
         "--verification-state-dir",
         str(root / "solver-state" / "strict-verification"),
-        "--resume" if config["resume"] else "--no-resume",
+        (
+            "--resume"
+            if config.get("effective_resume", config["resume"])
+            else "--no-resume"
+        ),
         "--output",
         str(stage5),
     ]
@@ -211,6 +333,10 @@ def _refresh_state_hashes(repo: Path, run_id: str) -> None:
     trust = repo / "results" / "known_answer_trust.json"
     finalizer = repo / "scripts" / "finalize_challenge.py"
     strict_runner = repo / "tests" / "verify_known_answer_gate.py"
+    strict_verifiers = [
+        repo / "scripts" / name
+        for name in _STRICT_VERIFIER_SCRIPT_NAMES
+    ]
     state["stages"]["stage4_certificate_merge"]["output_hashes"] = {
         str(stage4_certificates): _file_sha256(stage4_certificates),
         str(stage4_summary): _file_sha256(stage4_summary),
@@ -224,6 +350,10 @@ def _refresh_state_hashes(repo: Path, run_id: str) -> None:
         str(known_code_registry): _file_sha256(known_code_registry),
         str(trust): _file_sha256(trust),
         str(finalizer): _file_sha256(finalizer),
+        **{
+            str(path): _file_sha256(path)
+            for path in strict_verifiers
+        },
         str(strict_runner): _file_sha256(strict_runner),
     }
     _write_json(state_path, state)
@@ -251,6 +381,8 @@ def _make_synthetic_completed_win(
     scripts = repo / "scripts"
     scripts.mkdir(parents=True)
     (scripts / "finalize_challenge.py").write_text("# fake finalizer\n")
+    for name in _STRICT_VERIFIER_SCRIPT_NAMES:
+        (scripts / name).write_text(f"# fake {name}\n")
     tests = repo / "tests"
     tests.mkdir(parents=True)
     (tests / "verify_known_answer_gate.py").write_text("# fake strict runner\n")
@@ -570,6 +702,58 @@ def test_export_release_builds_bound_synthetic_snapshot_and_is_idempotent(tmp_pa
     second = export_release(repo_dir=repo, run_id=run_id)
 
     assert second == {**first, "status": "already-exported"}
+
+
+def test_export_release_binds_retry_effective_resume_not_base_setting(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    state["config"]["resume"] = False
+    state["config_fingerprint"] = _pipeline_fingerprint(state["config"])
+    _write_json(state_path, state)
+
+    exported = export_release(repo_dir=repo, run_id=run_id)
+
+    assert exported["status"] == "exported"
+
+
+def test_export_release_accepts_legacy_base_resume_binding(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    record = state["stages"]["stage5_strict_gate"]
+    record["stage_config"].pop("effective_resume")
+    record["stage_fingerprint"] = _pipeline_fingerprint(
+        {
+            "command": record["command"],
+            "stage_config": record["stage_config"],
+        }
+    )
+    _write_json(state_path, state)
+
+    exported = export_release(repo_dir=repo, run_id=run_id)
+
+    assert exported["status"] == "exported"
+
+
+def test_export_release_rejects_non_boolean_effective_resume(tmp_path):
+    repo, run_id = _make_synthetic_completed_win(tmp_path)
+    state_path = _pipeline_root(repo, run_id) / "state.json"
+    state = json.loads(state_path.read_text())
+    record = state["stages"]["stage5_strict_gate"]
+    record["stage_config"]["effective_resume"] = 1
+    record["stage_fingerprint"] = _pipeline_fingerprint(
+        {
+            "command": record["command"],
+            "stage_config": record["stage_config"],
+        }
+    )
+    _write_json(state_path, state)
+
+    with pytest.raises(ReleaseExportError) as failure:
+        export_release(repo_dir=repo, run_id=run_id)
+
+    assert failure.value.classification == "STAGE5_PROVENANCE_MISMATCH"
 
 
 @pytest.mark.parametrize(
@@ -1020,11 +1204,7 @@ def test_export_release_rejects_changed_stage5_finalizer(tmp_path):
 
 @pytest.mark.parametrize(
     "relative_path",
-    [
-        "tests/verify_known_answer_gate.py",
-        "results/known_code_registry.json",
-    ],
-    ids=["strict-runner", "known-code-registry"],
+    _STRICT_STAGE5_DEPENDENCIES,
 )
 def test_export_release_rejects_changed_stage5_dependency(tmp_path, relative_path):
     repo, run_id = _make_synthetic_completed_win(tmp_path)
@@ -1039,11 +1219,7 @@ def test_export_release_rejects_changed_stage5_dependency(tmp_path, relative_pat
 
 @pytest.mark.parametrize(
     "relative_path",
-    [
-        "tests/verify_known_answer_gate.py",
-        "results/known_code_registry.json",
-    ],
-    ids=["strict-runner", "known-code-registry"],
+    _STRICT_STAGE5_DEPENDENCIES,
 )
 def test_export_release_rejects_missing_stage5_dependency(tmp_path, relative_path):
     repo, run_id = _make_synthetic_completed_win(tmp_path)
@@ -1057,11 +1233,7 @@ def test_export_release_rejects_missing_stage5_dependency(tmp_path, relative_pat
 
 @pytest.mark.parametrize(
     "relative_path",
-    [
-        "tests/verify_known_answer_gate.py",
-        "results/known_code_registry.json",
-    ],
-    ids=["strict-runner", "known-code-registry"],
+    _STRICT_STAGE5_DEPENDENCIES,
 )
 def test_export_release_rejects_symlinked_stage5_dependency(
     tmp_path, relative_path
@@ -1200,11 +1372,7 @@ def test_release_ignores_foreign_tag_and_magic_pep3147_cache(tmp_path):
 
 @pytest.mark.parametrize(
     "relative_path",
-    [
-        "tests/verify_known_answer_gate.py",
-        "results/known_code_registry.json",
-    ],
-    ids=["strict-runner", "known-code-registry"],
+    _STRICT_STAGE5_DEPENDENCIES,
 )
 def test_export_release_rejects_synced_input_hash_with_opaque_fingerprint(
     tmp_path, relative_path
@@ -1296,6 +1464,451 @@ def test_certificate_validation_requires_exact_direction_objects(tmp_path):
     with pytest.raises(ReleaseExportError, match="exactly 2k direction objects"):
         release_export_module._validate_certificate(
             certificate, index=0, known_answer_sha256=known_answer_sha
+        )
+
+
+def test_release_validation_accepts_typed_sector_sat_without_fake_directions(
+    tmp_path,
+):
+    known = tmp_path / "known.json"
+    known.write_text("{}")
+    known_sha = _file_sha256(known)
+    ell, m = 6, 6
+    a_terms = [[3, 0], [0, 1], [0, 2]]
+    b_terms = [[0, 3], [1, 0], [2, 0]]
+    code = build_bb_code(ell, m, a_terms, b_terms)
+    hx, hz, _lx, _lz = get_code_matrices(code)
+    isometry = verify_bb_xz_sector_isometry(hx, hz, ell=ell, m=m)
+    assert isometry["verified"] is True
+    n, k, d = 72, 12, 9
+    fom = k * d * d / n
+    claim = {
+        "ell": ell,
+        "m": m,
+        "A_terms": a_terms,
+        "B_terms": b_terms,
+        "n": n,
+        "k": k,
+        "d": d,
+        "fom": fom,
+        "exact_distance_proof": {
+            "proof_type": "qldpc-css-sector-sat-exact-proof-v1",
+            "exact": True,
+            "coverage_mode": "global",
+            "distance": d,
+            "lower_bound": d,
+            "upper_bound": d,
+            "completed_lower_decisions": 1,
+            "lower_bound_decisions": [{"sector": "X"}],
+            "xz_sector_isometry": isometry,
+        },
+    }
+    certificate = {
+        "schema_version": 1,
+        "certificate_type": "qldpc-css-bb-sector-sat-exact",
+        "passed": True,
+        "known_answer": {"artifact_sha256": known_sha},
+        "claim": claim,
+        "xz_sector_isometry": isometry,
+        "sector_exact": {
+            "exact": True,
+            "coverage_mode": "global",
+            "distance": d,
+            "lower_bound": d,
+            "upper_bound": d,
+            "expected_lower_decisions": 1,
+            "completed_lower_decisions": 1,
+            "xz_sector_isometry": isometry,
+        },
+        "final_gate": _win_gate(n, k, d),
+    }
+    certificate["certificate_sha256"] = canonical_sha256(
+        certificate,
+        omit="certificate_sha256",
+    )
+    assert release_export_module._validate_certificate(
+        certificate,
+        index=0,
+        known_answer_sha256=known_sha,
+    ) == certificate["certificate_sha256"]
+
+    from scripts.screen_frontier_sat import build_anchor_cover_cubes
+    from scripts.screen_frontier_xor import verify_bb_translation_symmetry
+
+    cubed = json.loads(json.dumps(certificate))
+    symmetry = verify_bb_translation_symmetry(cubed["claim"])
+    assert symmetry["verified"] is True
+    anchors = symmetry["orbit_representatives"]
+    cubes = build_anchor_cover_cubes(tuple(anchors))
+    proof = cubed["claim"]["exact_distance_proof"]
+    proof["translation_symmetry"] = symmetry
+    proof["anchor_indices"] = anchors
+    proof["anchor_cover_cubes"] = cubes
+    proof["expected_lower_decisions"] = len(cubes)
+    proof["completed_lower_decisions"] = len(cubes)
+    proof["expected_lower_partitions"] = 1
+    proof["completed_lower_partitions"] = 1
+    proof["lower_bound_decisions"] = [
+        {"sector": "X", "anchor_cube": cube} for cube in cubes
+    ]
+    cubed["anchor_cover_cubes"] = cubes
+    cubed["sector_exact"]["anchor_cover_cubes"] = cubes
+    cubed["sector_exact"]["expected_lower_decisions"] = len(cubes)
+    cubed["sector_exact"]["completed_lower_decisions"] = len(cubes)
+    cubed["sector_exact"]["expected_lower_partitions"] = 1
+    cubed["sector_exact"]["completed_lower_partitions"] = 1
+    cubed["certificate_sha256"] = canonical_sha256(
+        cubed,
+        omit="certificate_sha256",
+    )
+    assert release_export_module._validate_certificate(
+        cubed,
+        index=0,
+        known_answer_sha256=known_sha,
+    ) == cubed["certificate_sha256"]
+
+    forged_cube = json.loads(json.dumps(cubed))
+    forged_cube["claim"]["exact_distance_proof"][
+        "anchor_cover_cubes"
+    ][0]["cube_sha256"] = "f" * 64
+    forged_cube["anchor_cover_cubes"] = forged_cube["claim"][
+        "exact_distance_proof"
+    ]["anchor_cover_cubes"]
+    forged_cube["sector_exact"]["anchor_cover_cubes"] = forged_cube[
+        "anchor_cover_cubes"
+    ]
+    forged_cube["certificate_sha256"] = canonical_sha256(
+        forged_cube,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(ReleaseExportError, match="did not freshly replay"):
+        release_export_module._validate_certificate(
+            forged_cube,
+            index=0,
+            known_answer_sha256=known_sha,
+        )
+
+    inconsistent = json.loads(json.dumps(certificate))
+    inconsistent["sector_exact"]["xz_sector_isometry"] = None
+    inconsistent["certificate_sha256"] = canonical_sha256(
+        inconsistent,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(
+        ReleaseExportError,
+        match="reports differ across certificate layers",
+    ):
+        release_export_module._validate_certificate(
+            inconsistent,
+            index=0,
+            known_answer_sha256=known_sha,
+        )
+
+    forged = json.loads(json.dumps(certificate))
+    shallow_report = {
+        "verified": True,
+        "canonical_sector": "X",
+        "covered_sectors": ["X", "Z"],
+        "report_sha256": "0" * 64,
+    }
+    forged["xz_sector_isometry"] = shallow_report
+    forged["sector_exact"]["xz_sector_isometry"] = shallow_report
+    forged["claim"]["exact_distance_proof"]["xz_sector_isometry"] = (
+        shallow_report
+    )
+    forged["certificate_sha256"] = canonical_sha256(
+        forged,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(
+        ReleaseExportError,
+        match="did not freshly replay",
+    ):
+        release_export_module._validate_certificate(
+            forged,
+            index=0,
+            known_answer_sha256=known_sha,
+        )
+
+    wrong_count = json.loads(json.dumps(certificate))
+    wrong_count["sector_exact"]["expected_lower_decisions"] = 2
+    wrong_count["sector_exact"]["completed_lower_decisions"] = 2
+    wrong_count["certificate_sha256"] = canonical_sha256(
+        wrong_count,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(
+        ReleaseExportError,
+        match="count does not match replayed coverage",
+    ):
+        release_export_module._validate_certificate(
+            wrong_count,
+            index=0,
+            known_answer_sha256=known_sha,
+        )
+
+    result = {
+        "checks": {
+            name: True
+            for name in release_export_module._SECTOR_SAT_REQUIRED_REPLAY_CHECKS
+        },
+        "sector_decisions_verified": 1,
+        "sector_decisions_total": 1,
+        "logical_partitions_verified": 1,
+        "logical_partitions_total": 1,
+    }
+    required, valid = release_export_module._strict_replay_contract(
+        certificate,
+        result,
+        k=k,
+    )
+    assert "sat_rerun" in required
+    assert {
+        "proof_metadata",
+        "sector_exact_coverage_mode",
+        "sector_exact_counts",
+        "sector_exact_proof_binding",
+    } <= required
+    assert "milp_rerun" not in required
+    assert valid is True
+
+    result["logical_partitions_total"] = 2
+    _, valid = release_export_module._strict_replay_contract(
+        certificate,
+        result,
+        k=k,
+    )
+    assert valid is False
+    result["logical_partitions_total"] = 1
+
+    result["checks"].pop("xz_sector_isometry")
+    _, valid = release_export_module._strict_replay_contract(
+        certificate,
+        result,
+        k=k,
+    )
+    assert valid is False
+    result["checks"]["xz_sector_isometry"] = True
+
+    result["checks"].pop("anchor_cover_cubes")
+    _, valid = release_export_module._strict_replay_contract(
+        certificate,
+        result,
+        k=k,
+    )
+    assert valid is False
+    result["checks"]["anchor_cover_cubes"] = True
+
+    result["directions_verified"] = 2 * k
+    _, valid = release_export_module._strict_replay_contract(
+        certificate,
+        result,
+        k=k,
+    )
+    assert valid is False
+
+
+def test_release_validation_accepts_typed_twobga_as_its_own_contract(tmp_path):
+    known = tmp_path / "known.json"
+    known.write_text("{}")
+    known_sha = _file_sha256(known)
+    certificate = _typed_twobga_certificate(known_sha)
+    claim = certificate["claim"]
+
+    assert release_export_module._validate_certificate(
+        certificate,
+        index=0,
+        known_answer_sha256=known_sha,
+    ) == certificate["certificate_sha256"]
+
+    result = {
+        "passed": True,
+        "replay_complete": True,
+        "distance": claim["d"],
+        "checks": {
+            name: True
+            for name in release_export_module._TWOBGA_REQUIRED_REPLAY_CHECKS
+        },
+        "failures": [],
+        "rerun": {
+            "requested": True,
+            "cardinality_encoding": "seqcounter",
+            "solver": "glucose42",
+            "completed_sectors": 2,
+            "expected_sectors": 2,
+            "matches": True,
+            "results": [
+                {"sector": sector, "solver_evidence": {"outcome": "unsat"}}
+                for sector in ("X", "Z")
+            ],
+        },
+        "final_gate": certificate["final_gate"],
+    }
+    required, valid = release_export_module._strict_replay_contract(
+        certificate,
+        result,
+        k=claim["k"],
+    )
+    assert required == release_export_module._TWOBGA_REQUIRED_REPLAY_CHECKS
+    assert "sat_rerun" not in required
+    assert "milp_rerun" not in required
+    assert valid is True
+
+    pipeline_root = tmp_path / "pipeline"
+    solver_root = pipeline_root / "solver-state"
+    certificate_path = solver_root / "certificates" / "typed-twobga.json"
+    verification_path = solver_root / "verifications" / "typed-twobga.json"
+    certificates_path = pipeline_root / "artifacts" / "stage4.jsonl"
+    _write_json(certificate_path, certificate)
+    verification_envelope = {
+        "schema_version": release_export_module.CERTIFICATE_CACHE_SCHEMA_VERSION,
+        "kind": "qldpc-certificate-verification-cache",
+        "canonical_digest": claim["canonical_digest"],
+        "known_answer_sha256": known_sha,
+        "certificate_sha256": certificate["certificate_sha256"],
+        "certificate_payload_sha256": _payload_sha256(certificate),
+        "verification": result,
+    }
+    _write_json(verification_path, verification_envelope)
+    entry = {
+        "source_stage": "stage3_direction_audit",
+        "canonical_digest": claim["canonical_digest"],
+        "certificate_path": str(certificate_path),
+        "verification_path": str(verification_path),
+        "certificate_sha256": certificate["certificate_sha256"],
+        "certificate_payload_sha256": _payload_sha256(certificate),
+        "file_sha256": _file_sha256(certificate_path),
+        "verification_file_sha256": _file_sha256(verification_path),
+    }
+    stage4_summary = {
+        "schema_version": 1,
+        "gate": "qcode-five-stage-certificate-merge",
+        "passed": True,
+        "verified_certificates": 1,
+        "certificate_output": str(certificates_path),
+        "entries": [entry],
+        "routing": "STRICT_GATE",
+    }
+    assert release_export_module._validate_stage4(
+        summary=stage4_summary,
+        certificates=[certificate],
+        certificates_path=certificates_path,
+        pipeline_root=pipeline_root,
+        known_answer_sha256=known_sha,
+    ) == [certificate["certificate_sha256"]]
+
+    forged_sidecar = json.loads(json.dumps(verification_envelope))
+    forged_sidecar["verification"]["checks"]["twobga_exact_binding"] = False
+    _write_json(verification_path, forged_sidecar)
+    entry["verification_file_sha256"] = _file_sha256(verification_path)
+    with pytest.raises(ReleaseExportError, match="sidecar.*inconsistent"):
+        release_export_module._validate_stage4(
+            summary=stage4_summary,
+            certificates=[certificate],
+            certificates_path=certificates_path,
+            pipeline_root=pipeline_root,
+            known_answer_sha256=known_sha,
+        )
+
+    trust = {
+        "artifact_sha256": "c" * 64,
+        "semantic_sha256": "d" * 64,
+        "environment": {},
+    }
+    gate = {
+        "schema_version": 1,
+        "gate": "qldpc-challenge-final-batch",
+        "passed": True,
+        "outcome": "WIN",
+        "known_answer_integrity": {
+            "passed": True,
+            "mode": "strict",
+            "artifact_sha256": trust["artifact_sha256"],
+            "semantic_sha256": trust["semantic_sha256"],
+            "rerun_semantic_sha256": trust["semantic_sha256"],
+            "environment": {},
+            "failures": [],
+        },
+        "summary": {
+            "accepted": 1,
+            "rejected": 0,
+            "incomplete": 0,
+            "total": 1,
+        },
+        "evaluations": [
+            {
+                "source_index": 0,
+                "claim": claim,
+                "certificate_sha256": certificate["certificate_sha256"],
+                "certificate_payload_sha256": canonical_sha256(certificate),
+                "disposition": "ACCEPTED",
+                "result": result,
+            }
+        ],
+    }
+    _integrity, accepted, verifications, counts = (
+        release_export_module._validate_stage5(
+            gate=gate,
+            certificates=[certificate],
+            certificate_hashes=[certificate["certificate_sha256"]],
+            trust=trust,
+        )
+    )
+    assert accepted == [0]
+    assert verifications == [result]
+    assert counts["accepted"] == 1
+
+    unverified = json.loads(json.dumps(gate))
+    unverified["evaluations"][0]["result"]["passed"] = False
+    with pytest.raises(ReleaseExportError) as failure:
+        release_export_module._validate_stage5(
+            gate=unverified,
+            certificates=[certificate],
+            certificate_hashes=[certificate["certificate_sha256"]],
+            trust=trust,
+        )
+    assert failure.value.classification == "STAGE5_BINDING_MISMATCH"
+
+    forged = json.loads(json.dumps(certificate))
+    proof = forged["claim"]["exact_distance_proof"]
+    proof["lower_bound"] = claim["d"] - 1
+    proof["proof_sha256"] = canonical_sha256(proof, omit="proof_sha256")
+    forged["twobga_exact"]["proof"] = json.loads(json.dumps(proof))
+    forged["certificate_sha256"] = canonical_sha256(
+        forged,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(ReleaseExportError, match="exact bounds are inconsistent"):
+        release_export_module._validate_certificate(
+            forged,
+            index=0,
+            known_answer_sha256=known_sha,
+        )
+
+    sector_shaped = json.loads(json.dumps(certificate))
+    sector_shaped["sector_exact"] = {"exact": True}
+    sector_shaped["certificate_sha256"] = canonical_sha256(
+        sector_shaped,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(ReleaseExportError, match="typed exact 2BGA evidence"):
+        release_export_module._validate_certificate(
+            sector_shaped,
+            index=0,
+            known_answer_sha256=known_sha,
+        )
+
+    unlabelled = json.loads(json.dumps(certificate))
+    unlabelled.pop("build_assurance")
+    unlabelled["certificate_sha256"] = canonical_sha256(
+        unlabelled,
+        omit="certificate_sha256",
+    )
+    with pytest.raises(ReleaseExportError, match="typed exact 2BGA evidence"):
+        release_export_module._validate_certificate(
+            unlabelled,
+            index=0,
+            known_answer_sha256=known_sha,
         )
 
 

@@ -9,9 +9,15 @@ from scripts.screen_frontier_xor import (
 
 def result(objective, *, success=True, gap=0.0, verified=True):
     return {
+        "formulation": "css-logical-anticommutation-milp-v1",
+        "solver": "scipy.optimize.milp",
+        "backend": "HiGHS",
+        "status": 0 if success else 1,
         "objective": objective,
+        "operator": {"weight": objective},
         "success": success,
         "mip_gap": gap,
+        "mip_dual_bound": objective if gap == 0.0 else 0.0,
         "witness_verified": verified,
     }
 
@@ -35,9 +41,15 @@ def test_all_optimal_safe_directions_prove_threshold():
 def test_all_bounded_models_infeasible_prove_threshold():
     directions = [
         {
+            "formulation": "css-logical-threshold-bounded-minimization-v2",
+            "solver": "scipy.optimize.milp",
+            "backend": "HiGHS",
+            "status": 2,
+            "success": False,
             "threshold_infeasible": True,
             "max_weight": 14,
             "operator": None,
+            "objective": None,
         },
     ] * 2
     assert classify_results(
@@ -45,6 +57,27 @@ def test_all_bounded_models_infeasible_prove_threshold():
         required_distance=15,
         expected_directions=2,
     ) == "THRESHOLD_PROVEN"
+
+
+def test_unbound_threshold_claims_remain_unresolved():
+    directions = [{
+        "threshold_infeasible": True,
+        "max_weight": 14,
+        "operator": None,
+    }] * 2
+    assert classify_results(
+        directions,
+        required_distance=15,
+        expected_directions=2,
+    ) == "UNRESOLVED"
+
+    sectors = [
+        {"sector": name, "threshold_infeasible": True, "max_weight": 14}
+        for name in ("X", "Z")
+    ]
+    assert classify_xor_results(
+        sectors, required_distance=15, threshold_only=True,
+    ) == "UNRESOLVED"
 
 
 def test_xor_sector_low_witness_rejects():
@@ -60,7 +93,17 @@ def test_xor_sector_low_witness_rejects():
 
 def test_both_xor_sectors_infeasible_prove_threshold():
     sectors = [
-        {"sector": name, "threshold_infeasible": True, "max_weight": 14}
+        {
+            "sector": name,
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "status_name": "INFEASIBLE",
+            "success": False,
+            "threshold_infeasible": True,
+            "max_weight": 14,
+            "operator": None,
+            "objective": None,
+        }
         for name in ("X", "Z")
     ]
     assert classify_xor_results(
@@ -72,9 +115,13 @@ def test_both_xor_sectors_exact_prove_distance():
     sectors = [
         {
             "sector": name,
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "status_name": "OPTIMAL",
             "exact": True,
             "witness_verified": True,
             "objective": 15,
+            "operator": {"weight": 15},
         }
         for name in ("X", "Z")
     ]
@@ -95,9 +142,15 @@ def test_anchored_xor_proof_requires_verified_symmetry_coverage():
     sectors = [
         {
             "sector": name,
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "status_name": "INFEASIBLE",
+            "success": False,
             "threshold_infeasible": True,
             "max_weight": 14,
             "anchor_indices": [0, 36],
+            "operator": None,
+            "objective": None,
         }
         for name in ("X", "Z")
     ]

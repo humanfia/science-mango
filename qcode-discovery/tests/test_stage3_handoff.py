@@ -11,10 +11,15 @@ import scripts.audit_candidate_pool as candidate_pool
 import scripts.audit_direction_pool as direction_pool
 from evaluation.certificate import _direction_specs, pack_vector
 from scripts.audit_direction_pool import (
+    _candidate_wall_timeout,
+    _expected_proof_units,
+    _screen_one,
     annotate_rows,
+    artifact_state_path,
     candidate_from_stage2,
     screen_selected_candidates,
     select_unresolved,
+    prioritize_resume_candidates,
     threshold_artifacts,
     validate_worker_budget,
 )
@@ -159,6 +164,29 @@ def test_resume_reuses_bound_proof_and_discards_unknown(tmp_path):
     ) == []
 
 
+def test_resume_discards_legacy_zero_objective_threshold_formulation(tmp_path):
+    candidate = _candidate()
+    code = build_candidate_code(candidate)
+    geometry = validate_candidate_parameters(candidate, code)
+    legacy = {
+        **_bounded(_direction_specs(code)[0], 0),
+        "formulation": "css-logical-threshold-feasibility-v1",
+    }
+    output = tmp_path / "legacy-threshold.json"
+    write_artifact(
+        output,
+        candidate,
+        [legacy],
+        expected_directions=geometry["expected_directions"],
+        threshold_only=True,
+        reconstructed_parameters=geometry,
+    )
+
+    assert load_replayable_directions(
+        output, candidate, code, threshold_only=True,
+    ) == []
+
+
 def test_stage3_rejects_fractional_parameters_and_unbound_solver_metadata(
     tmp_path,
 ):
@@ -281,6 +309,346 @@ def test_stage3_pool_selects_only_unresolved_and_enforces_budget(tmp_path):
     assert "digest/unsafe" not in results[0]["artifact_path"]
 
 
+def test_sat_stage3_uses_independent_state_and_budgets_all_proof_units(
+    tmp_path,
+):
+    candidate = _candidate()
+    captured = {}
+
+    def fake_sat_screen(_candidate, *, output, **_kwargs):
+        captured["output"] = output
+        captured["kwargs"] = _kwargs
+        return {
+            "status": "UNRESOLVED",
+            "terminal_units": 7,
+            "expected_units": 26,
+        }
+
+    result = _screen_one(
+        "digest-72",
+        candidate,
+        tmp_path,
+        timeout=10,
+        direction_workers=5,
+        threshold_only=False,
+        resume=True,
+        backend="sat-sectors",
+        screener=fake_sat_screen,
+    )
+
+    expected_path = artifact_state_path(
+        tmp_path, "digest-72", "sat-sectors",
+    )
+    assert captured["output"] == expected_path
+    assert captured["kwargs"]["cardinality_encoding"] == "kmtotalizer"
+    assert expected_path.parent.name == "sat-sectors"
+    assert result["backend"] == "sat-sectors"
+    assert result["sat_cardinality_encoding"] == "kmtotalizer"
+    assert result["expected_proof_units"] == 26
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=5,
+        direction_hard_timeout=None,
+        candidate_hard_timeout=None,
+        backend="sat-sectors",
+    ) == 95
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=5,
+        direction_hard_timeout=None,
+        candidate_hard_timeout=None,
+        backend="legacy-directions",
+    ) == 80
+
+    captured.clear()
+    overridden = _screen_one(
+        "digest-72",
+        candidate,
+        tmp_path,
+        timeout=10,
+        direction_workers=5,
+        threshold_only=False,
+        resume=True,
+        backend="sat-sectors",
+        sat_cardinality_encoding="native-minicard",
+        screener=fake_sat_screen,
+    )
+    assert captured["kwargs"]["cardinality_encoding"] == "native-minicard"
+    assert overridden["sat_cardinality_encoding"] == "native-minicard"
+
+
+def test_sat_unit_reduction_requires_fresh_geometry_isometry_replay():
+    candidate = _candidate()
+    assert _expected_proof_units(candidate, "sat-sectors") == 26
+    stale = {**candidate, "n": 74}
+    assert _expected_proof_units(stale, "sat-sectors") == 52
+
+
+def test_twobga_stage3_has_independent_state_and_fail_closed_preflight(
+    tmp_path,
+):
+    candidate = _candidate()
+    captured = {}
+
+    def fake_twobga_screen(_candidate, *, output, **kwargs):
+        captured["output"] = output
+        captured["kwargs"] = kwargs
+        return {
+            "status": "INELIGIBLE",
+            "terminal_units": 0,
+            "expected_units": 0,
+        }
+
+    result = _screen_one(
+        "digest-72",
+        candidate,
+        tmp_path,
+        timeout=10,
+        direction_workers=3,
+        threshold_only=False,
+        resume=True,
+        backend="twobga-aux",
+        screener=fake_twobga_screen,
+    )
+    path = artifact_state_path(tmp_path, "digest-72", "twobga-aux")
+    assert captured["output"] == path
+    assert path.parent.name == "twobga-aux"
+    assert captured["kwargs"]["cardinality_encoding"] == "kmtotalizer"
+    assert result == {
+        "canonical_digest": "digest-72",
+        "backend": "twobga-aux",
+        "status": "INELIGIBLE",
+        "artifact_path": str(path),
+        "sat_cardinality_encoding": "kmtotalizer",
+        "completed_proof_units": 0,
+        "expected_proof_units": 0,
+    }
+    assert _expected_proof_units(candidate, "twobga-aux") == 3
+    assert direction_pool.twobga_solver_eligible(candidate) is False
+
+
+def test_stage3_sat_cli_summary_keeps_pool_gate(tmp_path, monkeypatch):
+    candidate = _candidate()
+    ranked_input = tmp_path / "ranked.jsonl"
+    ranked_output = tmp_path / "audited.jsonl"
+    summary_output = tmp_path / "summary.json"
+    ranked_input.write_text(json.dumps({
+        **candidate,
+        "triage_identity": {"canonical_digest": "digest-72"},
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }) + "\n")
+    captured = {}
+
+    def fake_screen_selected(*args, **kwargs):
+        captured.update(kwargs)
+        return [{
+            "canonical_digest": "digest-72",
+            "backend": kwargs["backend"],
+            "status": "UNRESOLVED",
+            "artifact_path": str(tmp_path / "sat.json"),
+            "completed_directions": 0,
+            "expected_directions": 26,
+        }]
+
+    monkeypatch.setattr(
+        direction_pool,
+        "screen_selected_candidates",
+        fake_screen_selected,
+    )
+
+    assert direction_pool.main([
+        str(ranked_input),
+        "--state-dir", str(tmp_path / "state"),
+        "--ranked-output", str(ranked_output),
+        "--summary-output", str(summary_output),
+        "--backend", "sat-sectors",
+    ]) == direction_pool.RECOVERABLE_INCOMPLETE_EXIT_CODE
+    summary = json.loads(summary_output.read_text())
+    assert summary["gate"] == "qldpc-direction-candidate-pool"
+    assert summary["backend"] == "sat-sectors"
+    assert summary["sat_cardinality_encoding"] == "kmtotalizer"
+    assert captured["sat_cardinality_encoding"] == "kmtotalizer"
+    assert summary["threshold_only"] is False
+    assert summary["retry_required"] is True
+    assert summary["retry_reasons"] == {
+        "unresolved_candidates": 1,
+        "unselected_unresolved_candidates": 0,
+        "operational_errors": 0,
+    }
+
+
+def test_stage3_sat_cardinality_cli_override_is_forwarded(
+    tmp_path, monkeypatch,
+):
+    candidate = _candidate()
+    ranked_input = tmp_path / "ranked.jsonl"
+    ranked_output = tmp_path / "audited.jsonl"
+    summary_output = tmp_path / "summary.json"
+    ranked_input.write_text(json.dumps({
+        **candidate,
+        "triage_identity": {"canonical_digest": "digest-72"},
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }) + "\n")
+    captured = {}
+
+    def fake_screen_selected(*_args, **kwargs):
+        captured.update(kwargs)
+        return [{
+            "canonical_digest": "digest-72",
+            "backend": kwargs["backend"],
+            "status": "UNRESOLVED",
+            "artifact_path": str(tmp_path / "sat.json"),
+        }]
+
+    monkeypatch.setattr(
+        direction_pool,
+        "screen_selected_candidates",
+        fake_screen_selected,
+    )
+    assert direction_pool.main([
+        str(ranked_input),
+        "--state-dir", str(tmp_path / "state"),
+        "--ranked-output", str(ranked_output),
+        "--summary-output", str(summary_output),
+        "--backend", "sat-sectors",
+        "--sat-cardinality-encoding", "native-minicard",
+    ]) == direction_pool.RECOVERABLE_INCOMPLETE_EXIT_CODE
+    summary = json.loads(summary_output.read_text())
+    assert captured["sat_cardinality_encoding"] == "native-minicard"
+    assert summary["sat_cardinality_encoding"] == "native-minicard"
+    assert summary["retry_required"] is True
+
+
+def test_stage3_cli_returns_recoverable_nonzero_when_selection_is_truncated(
+    tmp_path, monkeypatch,
+):
+    candidate = _candidate()
+    ranked_input = tmp_path / "ranked.jsonl"
+    ranked_output = tmp_path / "audited.jsonl"
+    summary_output = tmp_path / "summary.json"
+    rows = [
+        {
+            **candidate,
+            "triage_identity": {"canonical_digest": digest},
+            "campaign_audit": {"status": "UNRESOLVED"},
+        }
+        for digest in ("first", "second")
+    ]
+    ranked_input.write_text(
+        "".join(json.dumps(row) + "\n" for row in rows)
+    )
+
+    monkeypatch.setattr(
+        direction_pool,
+        "screen_selected_candidates",
+        lambda selected, *_args, **_kwargs: [{
+            "canonical_digest": selected[0][0],
+            "backend": "legacy-directions",
+            "status": "REJECTED",
+            "artifact_path": str(tmp_path / "rejected.json"),
+        }],
+    )
+
+    assert direction_pool.main([
+        str(ranked_input),
+        "--state-dir", str(tmp_path / "state"),
+        "--ranked-output", str(ranked_output),
+        "--summary-output", str(summary_output),
+        "--top", "1",
+    ]) == direction_pool.RECOVERABLE_INCOMPLETE_EXIT_CODE
+
+    summary = json.loads(summary_output.read_text())
+    assert summary["status_counts"] == {"REJECTED": 1}
+    assert summary["selection_exhausted"] is False
+    assert summary["retry_required"] is True
+    assert summary["retry_reasons"] == {
+        "unresolved_candidates": 0,
+        "unselected_unresolved_candidates": 1,
+        "operational_errors": 0,
+    }
+
+
+@pytest.mark.parametrize(
+    "status",
+    ("INELIGIBLE", "BOUND_INSUFFICIENT", "EXACTNESS_GAP"),
+)
+def test_stage3_cli_terminal_mechanism_gaps_do_not_request_more_time(
+    tmp_path, monkeypatch, status,
+):
+    candidate = _candidate()
+    ranked_input = tmp_path / "ranked.jsonl"
+    ranked_output = tmp_path / "audited.jsonl"
+    summary_output = tmp_path / "summary.json"
+    ranked_input.write_text(json.dumps({
+        **candidate,
+        "triage_identity": {"canonical_digest": "mechanism-gap"},
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }) + "\n")
+    monkeypatch.setattr(
+        direction_pool,
+        "screen_selected_candidates",
+        lambda *_args, **_kwargs: [{
+            "canonical_digest": "mechanism-gap",
+            "backend": "twobga-aux",
+            "status": status,
+            "artifact_path": str(tmp_path / "mechanism-gap.json"),
+        }],
+    )
+
+    assert direction_pool.main([
+        str(ranked_input),
+        "--state-dir", str(tmp_path / "state"),
+        "--ranked-output", str(ranked_output),
+        "--summary-output", str(summary_output),
+        "--backend", "twobga-aux",
+    ]) == 0
+
+    summary = json.loads(summary_output.read_text())
+    assert summary["status_counts"] == {status: 1}
+    assert summary["selection_exhausted"] is True
+    assert summary["retry_required"] is False
+    assert summary["retry_reasons"] == {
+        "unresolved_candidates": 0,
+        "unselected_unresolved_candidates": 0,
+        "operational_errors": 0,
+    }
+
+
+def test_stage3_sat_manifest_uses_typed_sector_handoff(tmp_path, monkeypatch):
+    artifact = {
+        "gate": candidate_pool.SECTOR_SAT_STAGE3_GATE,
+        "status": "THRESHOLD_PROVEN",
+    }
+    path = tmp_path / "sat-stage3.json"
+    path.write_text(json.dumps(artifact) + "\n")
+    seen = []
+    monkeypatch.setattr(
+        candidate_pool,
+        "claim_from_sector_sat_artifact",
+        lambda value: seen.append(value) or {
+            **_candidate(),
+            candidate_pool.SECTOR_SAT_REQUEST_FIELD: {},
+        },
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "claim_from_certifiable_stage3_artifact",
+        lambda _value: pytest.fail("SAT artifact routed to legacy handoff"),
+    )
+
+    artifacts, failures = threshold_artifacts([{
+        "canonical_digest": "digest-72",
+        "status": "THRESHOLD_PROVEN",
+        "artifact_path": str(path),
+    }])
+
+    assert failures == {}
+    assert artifacts == [artifact]
+    assert seen == [artifact]
+
+
 def test_stage3_top_and_duplicate_annotations_are_explicit():
     first = {
         **_candidate(),
@@ -321,6 +689,54 @@ def test_stage3_top_and_duplicate_annotations_are_explicit():
         == 1
     )
     assert sum("campaign_direction_audit" in row for row in duplicate_rows) == 1
+
+
+def test_sat_resume_prioritizes_required_upper_witness(tmp_path):
+    plain = {**_candidate(), "canonical_digest": "plain"}
+    attempted = {**_candidate(), "canonical_digest": "attempted"}
+    promising = {**_candidate(), "canonical_digest": "promising"}
+    selected = [
+        ("plain", plain),
+        ("attempted", attempted),
+        ("promising", promising),
+    ]
+    attempted_path = direction_pool.sat_state_path(tmp_path, "attempted")
+    attempted_path.parent.mkdir(parents=True)
+    attempted_path.write_text(json.dumps({"attempted_units": 5}))
+    checkpoint_dir = (
+        tmp_path / "sat-sectors" / "sat-units"
+        / direction_pool.safe_digest("promising")
+    )
+    checkpoint_dir.mkdir(parents=True)
+    (checkpoint_dir / "upper-X-global.json").write_text(json.dumps({
+        "outcome": "sat",
+        "objective": promising["required_distance"],
+    }))
+
+    ordered = prioritize_resume_candidates(
+        selected,
+        tmp_path,
+        backend="sat-sectors",
+        resume=True,
+    )
+
+    assert [digest for digest, _ in ordered] == [
+        "promising", "attempted", "plain",
+    ]
+
+
+def test_resume_priority_does_not_reorder_legacy_or_fresh_runs(tmp_path):
+    selected = [
+        ("first", {**_candidate(), "canonical_digest": "first"}),
+        ("second", {**_candidate(), "canonical_digest": "second"}),
+    ]
+
+    assert prioritize_resume_candidates(
+        selected, tmp_path, backend="legacy-directions", resume=True,
+    ) == selected
+    assert prioritize_resume_candidates(
+        selected, tmp_path, backend="sat-sectors", resume=False,
+    ) == selected
 
 
 def test_stage3_pool_isolates_outer_worker_and_artifact_failures(

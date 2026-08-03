@@ -128,15 +128,25 @@ def classify_xor_results(
     if anchored and not symmetry_coverage_verified:
         return "UNRESOLVED"
     if threshold_only and all(
-        item.get("threshold_infeasible") is True
+        item.get("formulation") == "css-sector-xor-cpsat-v1"
+        and item.get("solver") == "ortools-cp-sat"
+        and item.get("status_name") == "INFEASIBLE"
+        and item.get("success") is False
+        and item.get("threshold_infeasible") is True
         and int(item.get("max_weight", -1)) == required_distance - 1
+        and item.get("operator") is None
+        and item.get("objective") is None
         for item in sectors
     ):
         return "THRESHOLD_PROVEN"
     if not threshold_only and all(
-        item.get("exact") is True
+        item.get("formulation") == "css-sector-xor-cpsat-v1"
+        and item.get("solver") == "ortools-cp-sat"
+        and item.get("status_name") == "OPTIMAL"
+        and item.get("exact") is True
         and item.get("witness_verified") is True
         and int(item.get("objective", 0)) >= required_distance
+        and item.get("operator") is not None
         for item in sectors
     ):
         return "EXACT_PROVEN"

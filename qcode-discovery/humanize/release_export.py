@@ -27,6 +27,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from evaluation.bb_code import build_bb_code
+from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
+from evaluation.distance_milp import get_code_matrices
 from evaluation.failure_disposition import (
     CERTIFICATE_CACHE_SCHEMA_VERSION,
     EVIDENCE_CONTRADICTION,
@@ -50,9 +53,21 @@ _SUPPORTED_CERTIFICATE_TYPES = {
     "qldpc-css-matrix-exact",
     "qldpc-pbb-noncss-exact",
     "qldpc-noncss-matrix-exact",
+    "qldpc-css-bb-sector-sat-exact",
+    "qldpc-css-bb-twobga-subsystem-exact",
 }
+_SECTOR_SAT_CERTIFICATE_TYPE = "qldpc-css-bb-sector-sat-exact"
+_TWOBGA_CERTIFICATE_TYPE = "qldpc-css-bb-twobga-subsystem-exact"
+_TWOBGA_FORMULATION = "css-bb-exact-via-dressed-twobga-subsystem-v1"
+_TWOBGA_EXACT_PROOF_TYPE = "qldpc-css-twobga-subsystem-exact-proof-v1"
 _STAGE4 = "stage4_certificate_merge"
 _STAGE5 = "stage5_strict_gate"
+_STRICT_VERIFIER_SCRIPT_NAMES = (
+    "screen_frontier_candidate.py",
+    "screen_frontier_sat.py",
+    "screen_frontier_xor.py",
+    "screen_frontier_twobga.py",
+)
 _STAGE_ORDER = (
     "stage1_search",
     "stage2_sector_audit",
@@ -74,6 +89,44 @@ _REQUIRED_REPLAY_CHECKS = frozenset(
         "certificate_passed_flag",
     }
 )
+_SECTOR_SAT_REQUIRED_REPLAY_CHECKS = frozenset(
+    {
+        "schema",
+        "certificate_sha256",
+        "known_answer_sha256",
+        "matrix_sha256",
+        "logical_detector",
+        "translation_symmetry",
+        "xz_sector_isometry",
+        "anchor_cover_cubes",
+        "typed_lower_evidence",
+        "upper_witness",
+        "proof_sha256",
+        "proof_metadata",
+        "sector_exact_coverage_mode",
+        "sector_exact_counts",
+        "sector_exact_proof_binding",
+        "distance_recomputed",
+        "sat_rerun",
+        "final_gate",
+        "certificate_passed_flag",
+    }
+)
+_TWOBGA_REQUIRED_REPLAY_CHECKS = frozenset(
+    {
+        "schema",
+        "certificate_sha256",
+        "known_answer_sha256",
+        "matrix_sha256",
+        "theorem_eligibility",
+        "typed_exact_proof",
+        "twobga_exact_binding",
+        "independent_auxiliary_rerun",
+        "final_gate",
+        "stored_final_gate",
+        "certificate_passed_flag",
+    }
+)
 _UNTRUSTED_IMPORT_ARTIFACT_SUFFIXES = (
     ".so",
     ".pyd",
@@ -82,6 +135,129 @@ _UNTRUSTED_IMPORT_ARTIFACT_SUFFIXES = (
     ".pyc",
     ".pyo",
 )
+
+
+def _strict_replay_contract(
+    certificate: Mapping[str, Any],
+    result: Mapping[str, Any],
+    *,
+    k: int,
+) -> tuple[frozenset[str], bool]:
+    """Return the typed replay-check set and its non-fictitious work count."""
+
+    if certificate.get("certificate_type") == _TWOBGA_CERTIFICATE_TYPE:
+        checks = result.get("checks")
+        rerun = result.get("rerun")
+        completed = (
+            rerun.get("completed_sectors")
+            if isinstance(rerun, Mapping)
+            else None
+        )
+        expected = (
+            rerun.get("expected_sectors")
+            if isinstance(rerun, Mapping)
+            else None
+        )
+        rerun_results = (
+            rerun.get("results") if isinstance(rerun, Mapping) else None
+        )
+        sectors = (
+            [item.get("sector") for item in rerun_results]
+            if isinstance(rerun_results, list)
+            and all(isinstance(item, Mapping) for item in rerun_results)
+            else None
+        )
+        valid = bool(
+            isinstance(checks, Mapping)
+            and checks.get("theorem_eligibility") is True
+            and checks.get("typed_exact_proof") is True
+            and checks.get("independent_auxiliary_rerun") is True
+            and isinstance(rerun, Mapping)
+            and rerun.get("requested") is True
+            and rerun.get("matches") is True
+            and rerun.get("cardinality_encoding") == "seqcounter"
+            and rerun.get("solver") == "glucose42"
+            and isinstance(completed, int)
+            and not isinstance(completed, bool)
+            and isinstance(expected, int)
+            and not isinstance(expected, bool)
+            and completed == expected == 2
+            and sectors == ["X", "Z"]
+            and all(
+                isinstance(item.get("solver_evidence"), Mapping)
+                for item in rerun_results
+            )
+            and "directions_verified" not in result
+            and "directions_total" not in result
+            and "sector_decisions_verified" not in result
+            and "sector_decisions_total" not in result
+            and "logical_partitions_verified" not in result
+            and "logical_partitions_total" not in result
+            and "milp" not in certificate
+            and "sector_exact" not in certificate
+        )
+        return _TWOBGA_REQUIRED_REPLAY_CHECKS, valid
+    if certificate.get("certificate_type") == _SECTOR_SAT_CERTIFICATE_TYPE:
+        expected = _sector_sat_expected_lower_decisions(certificate)
+        claim = certificate.get("claim")
+        proof = (
+            claim.get("exact_distance_proof")
+            if isinstance(claim, Mapping)
+            else {}
+        )
+        expected_partitions = (
+            proof.get("expected_lower_partitions")
+            if isinstance(proof, Mapping)
+            else None
+        )
+        if expected_partitions is None:
+            sector_exact = certificate.get("sector_exact")
+            expected_partitions = (
+                sector_exact.get("expected_lower_partitions")
+                if isinstance(sector_exact, Mapping)
+                else None
+            )
+        if expected_partitions is None:
+            # Legacy single-anchor certificates did not store the diagnostic
+            # partition count.  The decision count equals the logical count.
+            expected_partitions = expected
+        verified = result.get("sector_decisions_verified")
+        total = result.get("sector_decisions_total")
+        partitions_verified = result.get("logical_partitions_verified")
+        partitions_total = result.get("logical_partitions_total")
+        checks = result.get("checks")
+        valid = bool(
+            isinstance(checks, Mapping)
+            and checks.get("xz_sector_isometry") is True
+            and checks.get("anchor_cover_cubes") is True
+            and isinstance(verified, int)
+            and not isinstance(verified, bool)
+            and isinstance(total, int)
+            and not isinstance(total, bool)
+            and verified == total == expected
+            and isinstance(partitions_verified, int)
+            and not isinstance(partitions_verified, bool)
+            and isinstance(partitions_total, int)
+            and not isinstance(partitions_total, bool)
+            and partitions_verified
+            == partitions_total
+            == expected_partitions
+            and "directions_verified" not in result
+            and "directions_total" not in result
+            and "milp" not in certificate
+        )
+        return _SECTOR_SAT_REQUIRED_REPLAY_CHECKS, valid
+    directions_verified = result.get("directions_verified")
+    directions_total = result.get("directions_total")
+    valid = bool(
+        isinstance(directions_verified, int)
+        and not isinstance(directions_verified, bool)
+        and isinstance(directions_total, int)
+        and not isinstance(directions_total, bool)
+        and directions_verified == 2 * k
+        and directions_total == 2 * k
+    )
+    return _REQUIRED_REPLAY_CHECKS, valid
 
 
 class ReleaseExportError(RuntimeError):
@@ -559,11 +735,11 @@ def _validate_current_stage5_provenance(
     proof_interpreter: Mapping[str, Any],
 ) -> dict[str, Any]:
     python_executable = config.get("python_executable")
-    resume = config.get("resume")
+    configured_resume = config.get("resume")
     solver_workers = config.get("certificate_solver_workers")
     if not isinstance(python_executable, str) or not python_executable:
         _fail("STATE_INVALID", "pipeline config python_executable is invalid")
-    if not isinstance(resume, bool):
+    if not isinstance(configured_resume, bool):
         _fail("STATE_INVALID", "pipeline config resume must be boolean")
     if (
         isinstance(solver_workers, bool)
@@ -591,6 +767,20 @@ def _validate_current_stage5_provenance(
         _fail(
             "STAGE5_PROVENANCE_MISMATCH",
             "Stage 5 stage_config must be an object",
+        )
+    # Stage 5 records created before the proof-retry resume binding was added
+    # used the top-level campaign setting directly.  Preserve validation of
+    # those records, while requiring any explicitly recorded effective value
+    # to be a boolean and binding it into both command and fingerprint.
+    has_effective_resume = "effective_resume" in stage_config
+    effective_resume = stage_config.get(
+        "effective_resume",
+        configured_resume,
+    )
+    if not isinstance(effective_resume, bool):
+        _fail(
+            "STAGE5_PROVENANCE_MISMATCH",
+            "Stage 5 effective_resume must be boolean",
         )
     raw_multiplier = stage_config.get("proof_budget_multiplier", 1.0)
     configured_max_multiplier = config.get("proof_retry_max_multiplier", 1.0)
@@ -658,7 +848,7 @@ def _validate_current_stage5_provenance(
         str(solver_workers),
         "--verification-state-dir",
         str(pipeline_root / "solver-state" / "strict-verification"),
-        "--resume" if resume else "--no-resume",
+        "--resume" if effective_resume else "--no-resume",
         "--output",
         str(stage5_path),
     ]
@@ -676,6 +866,8 @@ def _validate_current_stage5_provenance(
         "verification_total_timeout": verification_total_timeout,
         "verification_solver_workers": solver_workers,
     }
+    if has_effective_resume:
+        expected_stage_config["effective_resume"] = effective_resume
     if multiplier != 1.0:
         expected_stage_config["proof_budget_multiplier"] = multiplier
     if record.get("command") != expected_command:
@@ -797,6 +989,209 @@ def _validate_win_gate(
         label=f"{label} final_gate.candidate.fom",
     )
     return k
+
+
+def _sector_sat_expected_lower_decisions(
+    certificate: Mapping[str, Any],
+) -> int:
+    """Freshly replay an optional BB isometry and validate proof coverage.
+
+    Release export is the last trust boundary.  It therefore reconstructs the
+    BB matrices itself and never reduces X/Z coverage merely because a stored
+    report says ``verified=true``.
+    """
+
+    claim = certificate.get("claim")
+    sector_exact = certificate.get("sector_exact")
+    proof = (
+        claim.get("exact_distance_proof")
+        if isinstance(claim, Mapping)
+        else None
+    )
+    if not all(
+        isinstance(value, Mapping) for value in (claim, sector_exact, proof)
+    ):
+        _fail("STAGE4_INVALID", "sector-SAT proof envelope is malformed")
+    assert isinstance(claim, Mapping)
+    assert isinstance(sector_exact, Mapping)
+    assert isinstance(proof, Mapping)
+    if any(
+        "xz_sector_isometry" not in value
+        for value in (certificate, sector_exact, proof)
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT proof does not explicitly bind all X/Z-isometry fields",
+        )
+    stored = proof.get("xz_sector_isometry")
+    if not (
+        certificate.get("xz_sector_isometry") == stored
+        and sector_exact.get("xz_sector_isometry") == stored
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT X/Z-isometry reports differ across certificate layers",
+        )
+
+    k = _positive_integer(claim.get("k"), label="sector-SAT claim.k")
+    mode = proof.get("coverage_mode")
+    if mode not in {"global", "first-nonzero"}:
+        _fail("STAGE4_INVALID", "sector-SAT coverage_mode is unsupported")
+    if sector_exact.get("coverage_mode") != mode:
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT proof and certificate coverage modes differ",
+        )
+
+    if stored is None:
+        sector_count = 2
+    elif isinstance(stored, Mapping):
+        try:
+            ell = claim["ell"]
+            m = claim["m"]
+            if any(
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or value <= 0
+                for value in (ell, m)
+            ):
+                raise ValueError("BB lattice dimensions must be positive integers")
+            n = _positive_integer(claim.get("n"), label="sector-SAT claim.n")
+            code = build_bb_code(
+                ell,
+                m,
+                claim["A_terms"],
+                claim["B_terms"],
+            )
+            hx, hz, _lx, _lz = get_code_matrices(code)
+            replayed = verify_bb_xz_sector_isometry(
+                hx,
+                hz,
+                ell=ell,
+                m=m,
+            )
+            geometry_matches = bool(
+                int(code.num_qudits) == n
+                and int(code.dimension) == k
+            )
+        except Exception as exc:
+            _fail(
+                "STAGE4_INVALID",
+                f"sector-SAT X/Z-isometry replay failed: {exc}",
+            )
+        if not (
+            geometry_matches
+            and replayed.get("verified") is True
+            and replayed.get("canonical_sector") == "X"
+            and replayed.get("covered_sectors") == ["X", "Z"]
+            and dict(stored) == replayed
+        ):
+            _fail(
+                "STAGE4_INVALID",
+                "stored sector-SAT X/Z-isometry report did not freshly replay",
+            )
+        sector_count = 1
+    else:
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT X/Z-isometry field must be an object or null",
+        )
+
+    stored_cubes = proof.get("anchor_cover_cubes")
+    if not (
+        certificate.get("anchor_cover_cubes") == stored_cubes
+        and sector_exact.get("anchor_cover_cubes") == stored_cubes
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT anchor-cover reports differ across certificate layers",
+        )
+    if stored_cubes is None:
+        cube_count = 1
+    elif isinstance(stored_cubes, list) and stored_cubes:
+        try:
+            from scripts.screen_frontier_sat import build_anchor_cover_cubes
+            from scripts.screen_frontier_xor import (
+                verify_bb_translation_symmetry,
+            )
+
+            symmetry = verify_bb_translation_symmetry(dict(claim))
+            raw_anchors = proof.get("anchor_indices")
+            if (
+                symmetry.get("verified") is not True
+                or proof.get("translation_symmetry") != symmetry
+                or not isinstance(raw_anchors, list)
+                or any(
+                    isinstance(index, bool) or not isinstance(index, int)
+                    for index in raw_anchors
+                )
+            ):
+                raise ValueError("BB translation-anchor replay failed")
+            anchors = tuple(raw_anchors)
+            if anchors != tuple(
+                int(index) for index in symmetry["orbit_representatives"]
+            ):
+                raise ValueError("stored BB translation anchors differ")
+            replayed_cubes = build_anchor_cover_cubes(anchors)
+        except Exception as exc:
+            _fail(
+                "STAGE4_INVALID",
+                f"sector-SAT anchor-cover replay failed: {exc}",
+            )
+        if stored_cubes != replayed_cubes:
+            _fail(
+                "STAGE4_INVALID",
+                "stored sector-SAT anchor cover did not freshly replay",
+            )
+        cube_count = len(replayed_cubes)
+    else:
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT anchor_cover_cubes must be a nonempty list or null",
+        )
+
+    expected_partitions = sector_count * (1 if mode == "global" else k)
+    expected = expected_partitions * cube_count
+    lower = proof.get("lower_bound_decisions")
+    if not (
+        isinstance(lower, list)
+        and len(lower) == expected
+        and proof.get("expected_lower_decisions", expected) == expected
+        and proof.get("completed_lower_decisions") == expected
+        and sector_exact.get("expected_lower_decisions") == expected
+        and sector_exact.get("completed_lower_decisions") == expected
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT lower-decision count does not match replayed coverage",
+        )
+    if stored_cubes is not None and not (
+        proof.get("expected_lower_partitions") == expected_partitions
+        and proof.get("completed_lower_partitions") == expected_partitions
+        and sector_exact.get("expected_lower_partitions")
+        == expected_partitions
+        and sector_exact.get("completed_lower_partitions")
+        == expected_partitions
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            "sector-SAT logical-partition count does not match anchor cover",
+        )
+    if stored_cubes is None:
+        for value in (proof, sector_exact):
+            if (
+                "expected_lower_partitions" in value
+                or "completed_lower_partitions" in value
+            ) and not (
+                value.get("expected_lower_partitions") == expected_partitions
+                and value.get("completed_lower_partitions")
+                == expected_partitions
+            ):
+                _fail(
+                    "STAGE4_INVALID",
+                    "legacy sector-SAT logical-partition counts are invalid",
+                )
+    return expected
 
 
 def _require_exact_output_hashes(
@@ -946,6 +1341,167 @@ def _validate_integrity(
     return integrity
 
 
+def _validate_twobga_exact_evidence(
+    certificate: Mapping[str, Any],
+    claim: Mapping[str, Any],
+    *,
+    index: int,
+) -> None:
+    """Validate the typed 2BGA theorem bridge without inventing 2k lanes."""
+
+    exact = certificate.get("twobga_exact")
+    proof = claim.get("exact_distance_proof")
+    theorem = certificate.get("theorem_eligibility")
+    if (
+        "milp" in certificate
+        or "sector_exact" in certificate
+        or certificate.get("candidate_rejection") is not None
+        or certificate.get("formulation") != _TWOBGA_FORMULATION
+        or certificate.get("independent_verification_required") is not True
+        or certificate.get("build_assurance")
+        != "provisional-structural-replay"
+        or not isinstance(exact, Mapping)
+        or not isinstance(proof, Mapping)
+        or not isinstance(theorem, Mapping)
+        or exact.get("exact") is not True
+        or claim.get("d_is_exact") is not True
+        or proof.get("exact") is not True
+        or isinstance(proof.get("schema_version"), bool)
+        or proof.get("schema_version") != 1
+        or proof.get("proof_type") != _TWOBGA_EXACT_PROOF_TYPE
+        or proof.get("subsystem_distance_semantics")
+        != "dressed-logical-center-quotient"
+        or proof.get("required_auxiliary_sectors") != ["X", "Z"]
+        or theorem.get("eligible") is not True
+        or proof.get("theorem_eligibility") != theorem
+        or exact.get("proof") != proof
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] lacks typed exact 2BGA evidence",
+        )
+
+    distance = claim.get("d")
+    integer_bounds = (
+        distance,
+        exact.get("required_distance"),
+        exact.get("distance"),
+        exact.get("lower_bound"),
+        exact.get("upper_bound"),
+        proof.get("required_distance"),
+        proof.get("distance"),
+        proof.get("lower_bound_threshold"),
+        proof.get("lower_bound"),
+        proof.get("upper_bound"),
+        exact.get("expected_lower_decisions"),
+        exact.get("completed_lower_decisions"),
+    )
+    if (
+        any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in integer_bounds
+        )
+        or exact.get("required_distance") != distance
+        or exact.get("distance") != distance
+        or exact.get("lower_bound") != distance
+        or exact.get("upper_bound") != distance
+        or exact.get("expected_lower_decisions") != 2
+        or exact.get("completed_lower_decisions") != 2
+        or proof.get("required_distance") != distance
+        or proof.get("distance") != distance
+        or proof.get("lower_bound_threshold") != distance - 1
+        or proof.get("lower_bound") != distance
+        or proof.get("upper_bound") != distance
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] 2BGA exact bounds are inconsistent",
+        )
+
+    lower = proof.get("lower_bound_decisions")
+    if not (
+        isinstance(lower, list)
+        and len(lower) == 2
+        and all(isinstance(item, Mapping) for item in lower)
+        and [item.get("sector") for item in lower] == ["X", "Z"]
+        and all(
+            item.get("unit_id") == f"aux-lower-{sector}"
+            and item.get("domain") == "auxiliary-subsystem"
+            and item.get("phase") == "lower"
+            and item.get("max_weight") == distance - 1
+            and isinstance(item.get("anchor_indices"), list)
+            and all(
+                isinstance(anchor, int) and not isinstance(anchor, bool)
+                for anchor in item["anchor_indices"]
+            )
+            and isinstance(item.get("solver_evidence"), Mapping)
+            for item, sector in zip(lower, ("X", "Z"), strict=True)
+        )
+        and exact.get("lower_bound_decisions") == lower
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] 2BGA lower-bound decisions are inconsistent",
+        )
+
+    upper = proof.get("upper_witness")
+    if not (
+        isinstance(upper, Mapping)
+        and upper.get("unit_id") == "original-upper-X"
+        and upper.get("domain") == "original-code"
+        and upper.get("phase") == "upper"
+        and upper.get("sector") == "X"
+        and upper.get("max_weight") == distance
+        and isinstance(upper.get("anchor_indices"), list)
+        and all(
+            isinstance(anchor, int) and not isinstance(anchor, bool)
+            for anchor in upper["anchor_indices"]
+        )
+        and upper.get("witness_verified") is True
+        and upper.get("witness_failures") == []
+        and isinstance(upper.get("solver_evidence"), Mapping)
+        and exact.get("upper_witness") == upper
+        and exact.get("upper_attempt") in (None, upper)
+        and isinstance(proof.get("original_logical_detector"), Mapping)
+        and isinstance(proof.get("original_translation_symmetry"), Mapping)
+        and isinstance(proof.get("original_anchor_indices"), list)
+        and all(
+            isinstance(anchor, int) and not isinstance(anchor, bool)
+            for anchor in proof["original_anchor_indices"]
+        )
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] 2BGA upper witness is inconsistent",
+        )
+
+    matrix_sha = certificate.get("matrix_sha256")
+    if not (
+        isinstance(matrix_sha, Mapping)
+        and set(matrix_sha) == {"hx", "hz"}
+        and all(_is_lower_sha256(matrix_sha[name]) for name in ("hx", "hz"))
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] 2BGA matrix binding is invalid",
+        )
+    try:
+        proof_sha = canonical_sha256(dict(proof), omit="proof_sha256")
+    except (TypeError, ValueError) as exc:
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] 2BGA proof cannot be hashed: {exc}",
+        )
+    if (
+        not _is_lower_sha256(proof.get("proof_sha256"))
+        or proof.get("proof_sha256") != proof_sha
+    ):
+        _fail(
+            "STAGE4_INVALID",
+            f"certificate[{index}] 2BGA proof SHA-256 mismatch",
+        )
+
+
 def _validate_certificate(
     certificate: Mapping[str, Any],
     *,
@@ -961,11 +1517,10 @@ def _validate_certificate(
     if certificate.get("passed") is not True:
         _fail("STAGE4_INVALID", f"certificate[{index}] did not pass")
     claim = certificate.get("claim")
-    milp = certificate.get("milp")
-    if not isinstance(claim, dict) or not isinstance(milp, dict):
+    if not isinstance(claim, dict):
         _fail(
             "STAGE4_INVALID",
-            f"certificate[{index}] lacks claim or MILP evidence",
+            f"certificate[{index}] lacks a claim object",
         )
     k = _validate_win_gate(
         claim,
@@ -981,43 +1536,96 @@ def _validate_certificate(
             "STAGE4_INVALID",
             f"certificate[{index}] is not bound to the pinned known answer",
         )
-    distance = milp.get("distance")
-    if (
-        isinstance(distance, bool)
-        or not isinstance(distance, int)
-        or distance != claim["d"]
-    ):
-        _fail("STAGE4_INVALID", f"certificate[{index}] distance mismatch")
-    expected = milp.get("expected_directions")
-    completed = milp.get("completed_directions")
-    if any(
-        isinstance(item, bool) or not isinstance(item, int)
-        for item in (k, expected, completed)
-    ):
-        _fail(
-            "STAGE4_INVALID",
-            f"certificate[{index}] direction counts must be integers",
+    certificate_type = certificate.get("certificate_type")
+    if certificate_type == _TWOBGA_CERTIFICATE_TYPE:
+        _validate_twobga_exact_evidence(
+            certificate,
+            claim,
+            index=index,
         )
-    directions = milp.get("directions")
-    if (
-        not isinstance(directions, list)
-        or len(directions) != 2 * k
-        or any(not isinstance(item, dict) for item in directions)
-    ):
-        _fail(
-            "STAGE4_INVALID",
-            f"certificate[{index}] must contain exactly 2k direction objects",
-        )
-    if (
-        k <= 0
-        or milp.get("exact") is not True
-        or expected != completed
-        or expected != 2 * k
-    ):
-        _fail(
-            "STAGE4_INVALID",
-            f"certificate[{index}] is not an exact complete 2k proof",
-        )
+    elif certificate_type == _SECTOR_SAT_CERTIFICATE_TYPE:
+        sector_exact = certificate.get("sector_exact")
+        proof = claim.get("exact_distance_proof")
+        if (
+            "milp" in certificate
+            or not isinstance(sector_exact, dict)
+            or not isinstance(proof, dict)
+            or sector_exact.get("exact") is not True
+            or proof.get("proof_type") != "qldpc-css-sector-sat-exact-proof-v1"
+            or proof.get("exact") is not True
+        ):
+            _fail(
+                "STAGE4_INVALID",
+                f"certificate[{index}] lacks typed exact sector-SAT evidence",
+            )
+        contract_expected = _sector_sat_expected_lower_decisions(certificate)
+        distance = sector_exact.get("distance")
+        expected = sector_exact.get("expected_lower_decisions")
+        completed = sector_exact.get("completed_lower_decisions")
+        if (
+            isinstance(distance, bool)
+            or not isinstance(distance, int)
+            or distance != claim["d"]
+            or sector_exact.get("lower_bound") != distance
+            or sector_exact.get("upper_bound") != distance
+            or proof.get("distance") != distance
+            or proof.get("lower_bound") != distance
+            or proof.get("upper_bound") != distance
+            or isinstance(expected, bool)
+            or not isinstance(expected, int)
+            or expected != contract_expected
+            or isinstance(completed, bool)
+            or not isinstance(completed, int)
+            or completed != expected
+        ):
+            _fail(
+                "STAGE4_INVALID",
+                f"certificate[{index}] sector-SAT bounds/counts are inconsistent",
+            )
+    else:
+        milp = certificate.get("milp")
+        if not isinstance(milp, dict):
+            _fail(
+                "STAGE4_INVALID",
+                f"certificate[{index}] lacks MILP evidence",
+            )
+        distance = milp.get("distance")
+        if (
+            isinstance(distance, bool)
+            or not isinstance(distance, int)
+            or distance != claim["d"]
+        ):
+            _fail("STAGE4_INVALID", f"certificate[{index}] distance mismatch")
+        expected = milp.get("expected_directions")
+        completed = milp.get("completed_directions")
+        if any(
+            isinstance(item, bool) or not isinstance(item, int)
+            for item in (k, expected, completed)
+        ):
+            _fail(
+                "STAGE4_INVALID",
+                f"certificate[{index}] direction counts must be integers",
+            )
+        directions = milp.get("directions")
+        if (
+            not isinstance(directions, list)
+            or len(directions) != 2 * k
+            or any(not isinstance(item, dict) for item in directions)
+        ):
+            _fail(
+                "STAGE4_INVALID",
+                f"certificate[{index}] must contain exactly 2k direction objects",
+            )
+        if (
+            k <= 0
+            or milp.get("exact") is not True
+            or expected != completed
+            or expected != 2 * k
+        ):
+            _fail(
+                "STAGE4_INVALID",
+                f"certificate[{index}] is not an exact complete 2k proof",
+            )
     try:
         actual_sha = canonical_sha256(
             dict(certificate),
@@ -1155,6 +1763,34 @@ def _validate_stage4(
                 "STAGE4_INVALID",
                 f"Stage 4 verification sidecar[{index}] is not bound and passed",
             )
+        if certificate.get("certificate_type") == _TWOBGA_CERTIFICATE_TYPE:
+            checks = verification.get("checks")
+            required_checks, replay_counts_valid = _strict_replay_contract(
+                certificate,
+                verification,
+                k=certificate["claim"]["k"],
+            )
+            distance = verification.get("distance")
+            verification_gate = verification.get("final_gate")
+            if (
+                verification.get("replay_complete") is not True
+                or not isinstance(checks, Mapping)
+                or not required_checks.issubset(checks)
+                or any(value is not True for value in checks.values())
+                or verification.get("failures") != []
+                or isinstance(distance, bool)
+                or not isinstance(distance, int)
+                or distance != certificate["claim"]["d"]
+                or not isinstance(verification_gate, Mapping)
+                or _payload_sha256(dict(verification_gate))
+                != _payload_sha256(certificate["final_gate"])
+                or not replay_counts_valid
+            ):
+                _fail(
+                    "STAGE4_INVALID",
+                    "Stage 4 typed 2BGA verification sidecar"
+                    f"[{index}] is incomplete or inconsistent",
+                )
     return hashes
 
 
@@ -1290,23 +1926,24 @@ def _validate_stage5(
         checks = result.get("checks")
         k = certificate_claim["k"]
         distance = result.get("distance")
-        directions_verified = result.get("directions_verified")
-        directions_total = result.get("directions_total")
+        required_checks, replay_counts_valid = _strict_replay_contract(
+            certificate,
+            result,
+            k=k,
+        )
+        replay_distance_valid = bool(
+            isinstance(distance, int)
+            and not isinstance(distance, bool)
+            and distance == certificate_claim["d"]
+        )
         if (
             not isinstance(checks, dict)
             or not checks
-            or not _REQUIRED_REPLAY_CHECKS.issubset(checks)
+            or not required_checks.issubset(checks)
             or any(value is not True for value in checks.values())
             or failures != []
-            or isinstance(distance, bool)
-            or not isinstance(distance, int)
-            or distance != certificate_claim["d"]
-            or isinstance(directions_verified, bool)
-            or not isinstance(directions_verified, int)
-            or isinstance(directions_total, bool)
-            or not isinstance(directions_total, int)
-            or directions_verified != 2 * k
-            or directions_total != 2 * k
+            or not replay_distance_valid
+            or not replay_counts_valid
         ):
             _fail(
                 "STAGE5_INVALID",
@@ -2017,6 +2654,10 @@ def export_release(
         strict_runner_path = repo / "tests" / "verify_known_answer_gate.py"
         controller_source_path = repo / "humanize" / "pipeline.py"
         evaluation_source_root = repo / "evaluation"
+        strict_verifier_paths = tuple(
+            repo / "scripts" / name
+            for name in _STRICT_VERIFIER_SCRIPT_NAMES
+        )
 
         state, state_raw = _read_json_object(
             state_path,
@@ -2065,6 +2706,7 @@ def export_release(
             controller_source_path,
             evaluation_source_root,
             finalizer_path,
+            *strict_verifier_paths,
             strict_runner_path,
             known_code_registry_path,
         )
@@ -2072,6 +2714,10 @@ def export_release(
         strict_runner_raw = strict_source_files[strict_runner_path]
         known_code_registry_raw = strict_source_files[known_code_registry_path]
         controller_source_raw = strict_source_files[controller_source_path]
+        strict_verifier_raw = {
+            path: strict_source_files[path]
+            for path in strict_verifier_paths
+        }
         known_answer_sha = _sha256_bytes(known_answer_raw)
         config = state.get("config")
         if not isinstance(config, Mapping):
@@ -2160,6 +2806,7 @@ def export_release(
             {
                 stage4_certificates_path: stage4_certificates_raw,
                 finalizer_path: finalizer_raw,
+                **strict_verifier_raw,
                 known_answer_path: known_answer_raw,
                 known_code_registry_path: known_code_registry_raw,
                 strict_runner_path: strict_runner_raw,

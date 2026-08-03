@@ -50,6 +50,8 @@ PROOF_RUNTIME_MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
 # * numba imports PyYAML for its runtime configuration;
 # * NumPy's imported F2PY stack imports charset-normalizer;
 # * OR-Tools CP-SAT imports protobuf and its Python support stack;
+# * python-sat supplies the CNF cardinality encoders and bundled native SAT
+#   engines used by the optional exact threshold backend;
 # * cvxpy imports its installed solver interfaces even though qcode's final MILP
 #   is implemented with scipy/HiGHS; and
 # * the remaining entries close the non-extra metadata requirements of those
@@ -60,6 +62,7 @@ PROOF_RUNTIME_MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
 PROOF_RUNTIME_ROOT_PACKAGES = (
     "numpy",
     "ortools",
+    "python-sat",
     "qldpc",
     "scipy",
     "highspy",
@@ -118,6 +121,7 @@ KNOWN_ANSWER_RUNTIME_PACKAGES = ("numpy", "scipy", "qldpc")
 PACKAGE_IMPORT_NAMES = {
     "numpy": "numpy",
     "ortools": "ortools",
+    "python-sat": "pysat",
     "qldpc": "qldpc",
     "scipy": "scipy",
     "highspy": "highspy",

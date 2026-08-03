@@ -89,8 +89,18 @@ STAGE2_DEFERRED_PAGE_CODE = "STAGE2_DEFERRED_PROOF_PAGE"
 STAGE2_STRUCTURAL_UNRESOLVED_CODE = (
     "STAGE2_STRUCTURAL_UNRESOLVED_CANDIDATES"
 )
+STAGE3_INELIGIBLE_RESULT_CODE = "STAGE3_INELIGIBLE_RESULT"
+STAGE3_BOUND_INSUFFICIENT_RESULT_CODE = (
+    "STAGE3_BOUND_INSUFFICIENT_RESULT"
+)
+STAGE3_EXACTNESS_GAP_RESULT_CODE = "STAGE3_EXACTNESS_GAP_RESULT"
 STAGE2_LEDGER_GENERATION_GATE = "qldpc-stage2-ledger-generation"
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
+STAGE3_BACKENDS = frozenset({
+    "legacy-directions",
+    "sat-sectors",
+    "twobga-aux",
+})
 STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
     {
         "STAGE2_CANONICALIZATION_ERRORS",
@@ -99,6 +109,17 @@ STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES = frozenset(
         "STAGE2_UNSUPPORTED_CANDIDATES_SKIPPED",
     }
 )
+PAGINATED_COVERAGE_GAP_INCOMPLETENESS_CODES = frozenset(
+    {
+        STAGE3_INELIGIBLE_RESULT_CODE,
+        STAGE3_BOUND_INSUFFICIENT_RESULT_CODE,
+        STAGE3_EXACTNESS_GAP_RESULT_CODE,
+    }
+)
+PAGINATED_PERSISTENT_INCOMPLETENESS_CODES = frozenset({
+    *STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES,
+    *PAGINATED_COVERAGE_GAP_INCOMPLETENESS_CODES,
+})
 STAGE_ORDER = (
     "stage1_search",
     "stage2_sector_audit",
@@ -121,7 +142,278 @@ REQUIRED_STRICT_REPLAY_CHECKS = frozenset(
         "certificate_passed_flag",
     }
 )
+SECTOR_SAT_CERTIFICATE_TYPE = "qldpc-css-bb-sector-sat-exact"
+SECTOR_SAT_STRICT_REPLAY_CHECKS = frozenset(
+    {
+        "schema",
+        "certificate_sha256",
+        "known_answer_sha256",
+        "matrix_sha256",
+        "logical_detector",
+        "translation_symmetry",
+        "xz_sector_isometry",
+        "anchor_cover_cubes",
+        "typed_lower_evidence",
+        "upper_witness",
+        "proof_sha256",
+        "proof_metadata",
+        "sector_exact_coverage_mode",
+        "sector_exact_counts",
+        "sector_exact_proof_binding",
+        "distance_recomputed",
+        "sat_rerun",
+        "final_gate",
+        "certificate_passed_flag",
+    }
+)
+TWOBGA_CERTIFICATE_TYPE = "qldpc-css-bb-twobga-subsystem-exact"
+TWOBGA_STRICT_REPLAY_CHECKS = frozenset(
+    {
+        "schema",
+        "certificate_sha256",
+        "known_answer_sha256",
+        "matrix_sha256",
+        "theorem_eligibility",
+        "typed_exact_proof",
+        "twobga_exact_binding",
+        "independent_auxiliary_rerun",
+        "final_gate",
+        "stored_final_gate",
+        "certificate_passed_flag",
+    }
+)
 _PYCACHE_ENVIRONMENT_LOCK = threading.RLock()
+
+
+def _twobga_expected_lower_decisions(
+    certificate: Mapping[str, Any],
+    *,
+    replay_checks: Any,
+    replay_result: Mapping[str, Any] | None = None,
+) -> int | None:
+    """Validate the fixed two-sector dressed-subsystem replay contract."""
+
+    if certificate.get("certificate_type") != TWOBGA_CERTIFICATE_TYPE:
+        return None
+    claim = certificate.get("claim")
+    exact = certificate.get("twobga_exact")
+    proof = (
+        claim.get("exact_distance_proof")
+        if isinstance(claim, Mapping)
+        else None
+    )
+    if not all(
+        isinstance(value, Mapping)
+        for value in (claim, exact, proof, replay_checks)
+    ):
+        return None
+    assert isinstance(claim, Mapping)
+    assert isinstance(exact, Mapping)
+    assert isinstance(proof, Mapping)
+    assert isinstance(replay_checks, Mapping)
+    lower = proof.get("lower_bound_decisions")
+    distance = claim.get("d")
+    expected = 2
+    if not (
+        certificate.get("formulation")
+        == "css-bb-exact-via-dressed-twobga-subsystem-v1"
+        and certificate.get("independent_verification_required") is True
+        and certificate.get("build_assurance")
+        == "provisional-structural-replay"
+        and not isinstance(distance, bool)
+        and isinstance(distance, int)
+        and distance > 0
+        and exact.get("exact") is True
+        and certificate.get("candidate_rejection") is None
+        and exact.get("required_distance") == distance
+        and exact.get("distance") == distance
+        and exact.get("lower_bound") == distance
+        and exact.get("upper_bound") == distance
+        and exact.get("expected_lower_decisions") == expected
+        and exact.get("completed_lower_decisions") == expected
+        and proof.get("schema_version") == 1
+        and proof.get("proof_type")
+        == "qldpc-css-twobga-subsystem-exact-proof-v1"
+        and proof.get("exact") is True
+        and proof.get("required_distance") == distance
+        and proof.get("lower_bound_threshold") == distance - 1
+        and proof.get("distance") == distance
+        and proof.get("lower_bound") == distance
+        and proof.get("upper_bound") == distance
+        and proof.get("required_auxiliary_sectors") == ["X", "Z"]
+        and isinstance(lower, list)
+        and len(lower) == expected
+        and exact.get("lower_bound_decisions") == lower
+        and exact.get("upper_witness") == proof.get("upper_witness")
+        and exact.get("proof") == proof
+        and certificate.get("theorem_eligibility")
+        == proof.get("theorem_eligibility")
+        and TWOBGA_STRICT_REPLAY_CHECKS.issubset(replay_checks)
+        and all(replay_checks.get(name) is True for name in TWOBGA_STRICT_REPLAY_CHECKS)
+    ):
+        return None
+    if replay_result is not None:
+        rerun = replay_result.get("rerun")
+        if not (
+            isinstance(rerun, Mapping)
+            and rerun.get("matches") is True
+            and rerun.get("cardinality_encoding") == "seqcounter"
+            and rerun.get("solver") == "glucose42"
+            and rerun.get("completed_sectors") == expected
+            and rerun.get("expected_sectors") == expected
+            and replay_result.get("replay_complete") is True
+        ):
+            return None
+    return expected
+
+
+def _sector_sat_expected_lower_decisions(
+    certificate: Mapping[str, Any],
+    *,
+    replay_checks: Any,
+    replay_result: Mapping[str, Any] | None = None,
+) -> int | None:
+    """Validate the replay-bound sector coverage contract.
+
+    Humanize does not independently rebuild the BB matrices here; that is the
+    certificate verifier's job.  Consequently, one-sector coverage is accepted
+    only when the bound verification sidecar explicitly records the successful
+    fresh X/Z-isometry replay.  Merely storing ``verified=true`` in a
+    certificate is never sufficient to halve the proof obligation.
+    """
+
+    if certificate.get("certificate_type") != SECTOR_SAT_CERTIFICATE_TYPE:
+        return None
+    claim = certificate.get("claim")
+    sector_exact = certificate.get("sector_exact")
+    proof = (
+        claim.get("exact_distance_proof")
+        if isinstance(claim, Mapping)
+        else None
+    )
+    if not all(
+        isinstance(value, Mapping)
+        for value in (claim, sector_exact, proof, replay_checks)
+    ):
+        return None
+    assert isinstance(claim, Mapping)
+    assert isinstance(sector_exact, Mapping)
+    assert isinstance(proof, Mapping)
+    assert isinstance(replay_checks, Mapping)
+    if (
+        replay_checks.get("xz_sector_isometry") is not True
+        or replay_checks.get("anchor_cover_cubes") is not True
+    ):
+        return None
+    if any(
+        "xz_sector_isometry" not in value
+        for value in (certificate, sector_exact, proof)
+    ):
+        return None
+    stored = proof.get("xz_sector_isometry")
+    if not (
+        certificate.get("xz_sector_isometry") == stored
+        and sector_exact.get("xz_sector_isometry") == stored
+    ):
+        return None
+
+    raw_k = claim.get("k")
+    if isinstance(raw_k, bool) or not isinstance(raw_k, int) or raw_k <= 0:
+        return None
+    mode = proof.get("coverage_mode")
+    if mode not in {"global", "first-nonzero"}:
+        return None
+    if sector_exact.get("coverage_mode") != mode:
+        return None
+
+    stored_cubes = proof.get("anchor_cover_cubes")
+    if not (
+        certificate.get("anchor_cover_cubes") == stored_cubes
+        and sector_exact.get("anchor_cover_cubes") == stored_cubes
+    ):
+        return None
+    if stored_cubes is None:
+        cube_count = 1
+    elif (
+        isinstance(stored_cubes, list)
+        and stored_cubes
+        and all(isinstance(cube, Mapping) for cube in stored_cubes)
+    ):
+        # The verifier-side anchor_cover_cubes check is authoritative: it
+        # freshly rebuilt the ordered, disjoint and exhaustive cover from the
+        # reconstructed BB translation anchors.  Humanize only consumes that
+        # replay-bound result and the exact solver-decision multiplicity.
+        cube_count = len(stored_cubes)
+    else:
+        return None
+
+    if stored is None:
+        sector_count = 2
+    elif isinstance(stored, Mapping):
+        # These shape checks are not the authority for the reduction.  The
+        # authoritative condition is the fresh-replay check above.
+        if not (
+            stored.get("verified") is True
+            and stored.get("canonical_sector") == "X"
+            and stored.get("covered_sectors") == ["X", "Z"]
+            and isinstance(stored.get("report_sha256"), str)
+            and re.fullmatch(r"[0-9a-f]{64}", stored["report_sha256"])
+            is not None
+        ):
+            return None
+        sector_count = 1
+    else:
+        return None
+
+    expected_partitions = sector_count * (1 if mode == "global" else raw_k)
+    expected = expected_partitions * cube_count
+    lower = proof.get("lower_bound_decisions")
+    if not (
+        isinstance(lower, list)
+        and len(lower) == expected
+        and proof.get("expected_lower_decisions", expected) == expected
+        and proof.get("completed_lower_decisions") == expected
+        and sector_exact.get("expected_lower_decisions") == expected
+        and sector_exact.get("completed_lower_decisions") == expected
+    ):
+        return None
+    if stored_cubes is not None and not (
+        proof.get("expected_lower_partitions") == expected_partitions
+        and proof.get("completed_lower_partitions") == expected_partitions
+        and sector_exact.get("expected_lower_partitions")
+        == expected_partitions
+        and sector_exact.get("completed_lower_partitions")
+        == expected_partitions
+    ):
+        return None
+    if stored_cubes is None:
+        for value in (proof, sector_exact):
+            if (
+                "expected_lower_partitions" in value
+                or "completed_lower_partitions" in value
+            ) and not (
+                value.get("expected_lower_partitions")
+                == expected_partitions
+                and value.get("completed_lower_partitions")
+                == expected_partitions
+            ):
+                return None
+    if replay_result is not None:
+        partitions_verified = replay_result.get(
+            "logical_partitions_verified",
+        )
+        partitions_total = replay_result.get("logical_partitions_total")
+        if not (
+            isinstance(partitions_verified, int)
+            and not isinstance(partitions_verified, bool)
+            and isinstance(partitions_total, int)
+            and not isinstance(partitions_total, bool)
+            and partitions_verified
+            == partitions_total
+            == expected_partitions
+        ):
+            return None
+    return expected
 
 
 def utc_now() -> str:
@@ -775,6 +1067,7 @@ class PipelineConfig:
     stage3_timeout: float = 300
     stage3_candidate_workers: int = 1
     stage3_direction_workers: int = 4
+    stage3_backend: str = "legacy-directions"
     stage3_exact: bool = False
 
     certificate_workers: int = 1
@@ -931,6 +1224,14 @@ class PipelineConfig:
                 "stage3_top must be 0: Stage 3 must audit every unresolved "
                 "candidate in the bounded current Stage 2 page"
             )
+        if (
+            not isinstance(self.stage3_backend, str)
+            or self.stage3_backend not in STAGE3_BACKENDS
+        ):
+            raise ValueError(
+                "stage3_backend must be legacy-directions, sat-sectors, "
+                "or twobga-aux"
+            )
         positive_numbers = {
             "stage2_timeout": self.stage2_timeout,
             "stage3_timeout": self.stage3_timeout,
@@ -1024,6 +1325,7 @@ class PipelineConfig:
             "stage3_timeout": self.stage3_timeout,
             "stage3_candidate_workers": self.stage3_candidate_workers,
             "stage3_direction_workers": self.stage3_direction_workers,
+            "stage3_backend": self.stage3_backend,
             "stage3_exact": self.stage3_exact,
             "certificate_workers": self.certificate_workers,
             "certificate_solver_workers": self.certificate_solver_workers,
@@ -1168,6 +1470,9 @@ class PipelineConfig:
             stage3_direction_workers=parse_int(
                 "stage3_direction_workers",
                 pick("stage3_direction_workers", "stage3", "direction_workers", 4)
+            ),
+            stage3_backend=pick(
+                "stage3_backend", "stage3", "backend", "legacy-directions"
             ),
             stage3_exact=bool(pick("stage3_exact", "stage3", "exact", False)),
             certificate_workers=parse_int(
@@ -1400,6 +1705,12 @@ class FiveStagePipeline:
         self._sleeper = sleeper
         self._monotonic = monotonic
         self._proof_budget_multiplier = 1.0
+        # A user may deliberately start a fresh campaign with resume=False.
+        # Once the durable retry controller schedules a later proof attempt,
+        # however, replay-safe solver checkpoints must be retained.  This flag
+        # changes only proof subprocess checkpoint reuse; pipeline stage-cache
+        # reuse continues to follow config.resume.
+        self._proof_retry_resume = False
         self._humanize_run_lease: _HumanizeRunLease | None = None
         if self.reviewer is None and config.stage_review:
             self.reviewer = CodexReviewer(
@@ -1949,6 +2260,7 @@ class FiveStagePipeline:
                 self.config.repo_dir / "scripts" / "audit_candidate_pool.py",
                 self.config.repo_dir / "scripts" / "audit_direction_pool.py",
                 self.config.repo_dir / "scripts" / "screen_frontier_candidate.py",
+                self.config.repo_dir / "scripts" / "screen_frontier_sat.py",
                 self.config.repo_dir / "scripts" / "screen_frontier_xor.py",
                 registry,
             ),
@@ -1971,6 +2283,7 @@ class FiveStagePipeline:
                 self.config.repo_dir / "humanize" / "pipeline.py",
                 self.config.repo_dir / "evaluation",
                 self.config.repo_dir / "scripts" / "finalize_challenge.py",
+                *self._strict_verifier_sources(),
                 runner,
                 registry,
             ),
@@ -1984,6 +2297,17 @@ class FiveStagePipeline:
             ),
             **self._worker_runtime_provenance(),
         }
+
+    def _strict_verifier_sources(self) -> tuple[Path, ...]:
+        """Return script modules imported by Stage 5 certificate replay."""
+
+        scripts = self.config.repo_dir / "scripts"
+        return (
+            scripts / "screen_frontier_candidate.py",
+            scripts / "screen_frontier_sat.py",
+            scripts / "screen_frontier_xor.py",
+            scripts / "screen_frontier_twobga.py",
+        )
 
     def _stage1_source_provenance(self) -> dict[str, Any]:
         return {
@@ -2267,8 +2591,14 @@ class FiveStagePipeline:
                     "cannot derive Stage 3 outer wall from non-object rows",
                     stage=stage,
                 )
+            # Use the exact same candidate-dependent planner as the isolated
+            # Stage 3 worker.  In particular, SAT work is
+            # sectors * (k * anchor-cubes + optional global-lower + upper),
+            # not a fixed 2*k expression.
+            from scripts.audit_direction_pool import expected_proof_units
+
             seen: set[str] = set()
-            candidate_ks: list[int] = []
+            candidate_units: list[int] = []
             for index, row in enumerate(rows):
                 audit = row.get("campaign_audit")
                 if not isinstance(audit, Mapping) or (
@@ -2285,25 +2615,31 @@ class FiveStagePipeline:
                 if key in seen:
                     continue
                 seen.add(key)
-                k = row.get("k")
-                # Invalid candidates fail before worker launch.  One keeps the
-                # bound finite and conservative for controller bookkeeping.
-                candidate_ks.append(
-                    k
-                    if isinstance(k, int) and not isinstance(k, bool) and k > 0
-                    else 1
-                )
+                try:
+                    units = expected_proof_units(
+                        row, self.config.stage3_backend,
+                    )
+                except (KeyError, TypeError, ValueError):
+                    # Invalid candidates fail before solver launch.  Keep a
+                    # finite controller allowance for setup/error reporting.
+                    units = 1
+                candidate_units.append(units)
             direction_workers = self.config.stage3_direction_workers
             direction_wall = (
                 self._scaled_proof_timeout(self.config.stage3_timeout) + 5.0
             )
             screening_wall = sum(
                 (
-                    (2 * k + direction_workers - 1) // direction_workers
+                    (
+                        proof_units
+                        + direction_workers
+                        - 1
+                    )
+                    // direction_workers
                 )
                 * direction_wall
                 + 6.0
-                for k in candidate_ks
+                for proof_units in candidate_units
             )
             certificate_wall = (
                 self._scaled_proof_timeout(
@@ -2315,7 +2651,7 @@ class FiveStagePipeline:
                 + 6.0
             )
             certificate_waves = math.ceil(
-                len(candidate_ks) / self.config.certificate_workers
+                len(candidate_units) / self.config.certificate_workers
             )
             outer = screening_wall + certificate_waves * certificate_wall + 60.0
             if not math.isfinite(outer) or outer <= 0:
@@ -2891,6 +3227,7 @@ class FiveStagePipeline:
         return max(1, math.ceil(scaled))
 
     def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
+        resume_proof_state = self.config.resume or self._proof_retry_resume
         command = [
             self.config.python_executable,
             "-I",
@@ -2953,7 +3290,7 @@ class FiveStagePipeline:
                     self.config.verification_total_timeout
                 )
             ),
-            "--resume" if self.config.resume else "--no-resume",
+            "--resume" if resume_proof_state else "--no-resume",
         ]
         return command
 
@@ -2995,8 +3332,27 @@ class FiveStagePipeline:
             "selection_exhausted": True,
             "malformed_unresolved_rows": 0,
             "duplicate_digests_skipped": 0,
-            "threshold_only": not self.config.stage3_exact,
+            "backend": self.config.stage3_backend,
+            "proof_unit_semantics": (
+                "first-nonzero-sector-partitions-plus-xz-upper-witness"
+                if self.config.stage3_backend == "sat-sectors"
+                else (
+                    "rank-defect-gated-dressed-subsystem-xz-plus-original-upper"
+                    if self.config.stage3_backend == "twobga-aux"
+                    else "logical-basis-directions"
+                )
+            ),
+            "threshold_only": (
+                self.config.stage3_backend != "sat-sectors"
+                and not self.config.stage3_exact
+            ),
             "status_counts": {},
+            "retry_required": False,
+            "retry_reasons": {
+                "unresolved_candidates": 0,
+                "unselected_unresolved_candidates": 0,
+                "operational_errors": 0,
+            },
             "certify": True,
             "stage4_candidates": 0,
             "certified_wins": 0,
@@ -3010,6 +3366,7 @@ class FiveStagePipeline:
         return 0
 
     def _stage3_command(self) -> list[str]:
+        resume_proof_state = self.config.resume or self._proof_retry_resume
         command = [
             self.config.python_executable,
             "-I",
@@ -3032,6 +3389,8 @@ class FiveStagePipeline:
             str(self.config.stage3_candidate_workers),
             "--direction-workers",
             str(self.config.stage3_direction_workers),
+            "--backend",
+            self.config.stage3_backend,
             "--max-total-workers",
             str(self.config.max_total_workers),
             "--certify",
@@ -3065,7 +3424,7 @@ class FiveStagePipeline:
                     self.config.verification_total_timeout
                 )
             ),
-            "--resume" if self.config.resume else "--no-resume",
+            "--resume" if resume_proof_state else "--no-resume",
         ]
         if self.config.stage3_exact:
             command.append("--exact")
@@ -3078,6 +3437,7 @@ class FiveStagePipeline:
         expected_gate: str,
         *,
         allow_operational_errors: bool = False,
+        allow_retry_required: bool = False,
     ) -> dict[str, Any]:
         summary = _read_json_object(path)
         if summary.get("gate") != expected_gate:
@@ -3093,6 +3453,9 @@ class FiveStagePipeline:
 
         allowed_statuses = {
             "UNSUPPORTED",
+            "INELIGIBLE",
+            "BOUND_INSUFFICIENT",
+            "EXACTNESS_GAP",
             "REJECTED",
             "THRESHOLD_PROVEN",
             "EXACT_PROVEN",
@@ -3306,6 +3669,32 @@ class FiveStagePipeline:
                 "OUTPUT_INVALID",
                 f"{path}.selection_exhausted must be boolean",
             )
+        if expected_gate == "qldpc-direction-candidate-pool":
+            # New Stage-3 artifacts explicitly bind the process exit status to
+            # their retryable proof state.  Cache fingerprints include the
+            # Stage-3 driver source, so an older artifact lacking this field is
+            # invalidated and rebuilt rather than silently grandfathered.
+            retry_required = summary.get("retry_required")
+            if not isinstance(retry_required, bool):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.retry_required must be boolean",
+                )
+            expected_retry_required = bool(
+                not selection_exhausted
+                or computed_counts.get("UNRESOLVED", 0)
+                or has_operational_errors
+            )
+            if retry_required is not expected_retry_required:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.retry_required contradicts the bound results",
+                )
+            if retry_required and not allow_retry_required:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path} requires retry but the Stage 3 CLI exited 0",
+                )
         selection_page = summary.get("selection_page")
         if selection_page is not None:
             if expected_gate != "qldpc-proof-oriented-candidate-pool":
@@ -3409,12 +3798,12 @@ class FiveStagePipeline:
         ranked: Path,
         expected_gate: str,
     ) -> dict[str, Any]:
-        """Validate a proof CLI's exit-2 artifact without trusting its flags.
+        """Validate a proof CLI's recoverable exit artifact fail closed.
 
-        Solver/certificate errors are retained as incomplete proof work.  The
-        only route from such an artifact to WIN is the independent Stage 4
-        certificate replay below; a poison-only artifact therefore remains
-        fail closed.
+        Solver/certificate errors and explicit Stage-3 retry requirements are
+        retained as incomplete proof work.  The only route from such an
+        artifact to WIN is the independent Stage 4 certificate replay below;
+        a poison-only artifact therefore remains fail closed.
         """
 
         summary = cls._validate_pool_summary(
@@ -3422,6 +3811,7 @@ class FiveStagePipeline:
             ranked,
             expected_gate,
             allow_operational_errors=True,
+            allow_retry_required=True,
         )
         counts = summary.get("status_counts")
         reported_error = bool(
@@ -3440,10 +3830,14 @@ class FiveStagePipeline:
                 and not isinstance(value, bool)
                 and value > 0
             )
-        if not reported_error:
+        reported_retry = bool(
+            expected_gate == "qldpc-direction-candidate-pool"
+            and summary.get("retry_required") is True
+        )
+        if not (reported_error or reported_retry):
             raise PipelineError(
                 "STAGE_EXIT_NONZERO",
-                f"{path} exited 2 without a bound operational-error record",
+                f"{path} exited 2 without a bound recoverable-proof record",
                 stage=(
                     "stage2_sector_audit"
                     if expected_gate == "qldpc-proof-oriented-candidate-pool"
@@ -3752,6 +4146,41 @@ class FiveStagePipeline:
                         digest,
                         code="STAGE3_RESULT_MISSING",
                     )
+                elif escalated.get("status") in {
+                    "INELIGIBLE",
+                    "BOUND_INSUFFICIENT",
+                    "EXACTNESS_GAP",
+                }:
+                    # These outcomes are terminal for the selected theorem
+                    # lane: more time cannot make static hypotheses true,
+                    # erase a verified auxiliary witness, or turn a complete
+                    # original-code UNSAT decision into the missing exact
+                    # witness. None rejects the original code, so retain a
+                    # campaign-wide gap without solver-time escalation.
+                    gap_status = str(escalated["status"])
+                    gap_reason, gap_code = {
+                        "INELIGIBLE": (
+                            "Stage 3 theorem lane is ineligible for this "
+                            "candidate",
+                            STAGE3_INELIGIBLE_RESULT_CODE,
+                        ),
+                        "BOUND_INSUFFICIENT": (
+                            "Stage 3 auxiliary bound is insufficient for this "
+                            "candidate",
+                            STAGE3_BOUND_INSUFFICIENT_RESULT_CODE,
+                        ),
+                        "EXACTNESS_GAP": (
+                            "Stage 3 proved the requested lower bound but lacks "
+                            "an exact original-code witness",
+                            STAGE3_EXACTNESS_GAP_RESULT_CODE,
+                        ),
+                    }[gap_status]
+                    add(
+                        "stage3_direction_audit",
+                        gap_reason,
+                        digest,
+                        code=gap_code,
+                    )
                 elif escalated.get("status") not in {
                     "REJECTED",
                     "THRESHOLD_PROVEN",
@@ -3834,7 +4263,7 @@ class FiveStagePipeline:
         stage2: Mapping[str, Any],
         incompleteness: Mapping[str, Any],
     ) -> dict[str, Any]:
-        """Carry global input diagnostics across acknowledged proof pages."""
+        """Carry campaign-wide diagnostics and proof gaps across pages."""
 
         page = stage2.get("selection_page")
         if not isinstance(page, Mapping):
@@ -3846,17 +4275,44 @@ class FiveStagePipeline:
         pagination = self.state.setdefault("stage2_pagination", {})
         persisted: list[Mapping[str, Any]] = []
         if pagination.get("binding_sha256") == binding:
-            raw_persisted = pagination.get("global_input_incompleteness", [])
-            if isinstance(raw_persisted, list):
-                persisted = [
-                    reason
-                    for reason in raw_persisted
-                    if isinstance(reason, Mapping)
-                    and reason.get("code")
-                    in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+            raw_persisted = pagination.get(
+                "paginated_persistent_incompleteness",
+            )
+            if not isinstance(raw_persisted, list):
+                # Read the two explicit legacy/diagnostic views when resuming
+                # state written before the combined fail-closed field existed.
+                raw_persisted = [
+                    *(
+                        pagination.get("global_input_incompleteness", [])
+                        if isinstance(
+                            pagination.get("global_input_incompleteness"),
+                            list,
+                        )
+                        else []
+                    ),
+                    *(
+                        pagination.get("coverage_gap_incompleteness", [])
+                        if isinstance(
+                            pagination.get("coverage_gap_incompleteness"),
+                            list,
+                        )
+                        else []
+                    ),
                 ]
+            persisted = [
+                reason
+                for reason in raw_persisted
+                if isinstance(reason, Mapping)
+                and reason.get("code")
+                in PAGINATED_PERSISTENT_INCOMPLETENESS_CODES
+            ]
         else:
-            pagination.pop("global_input_incompleteness", None)
+            for field in (
+                "paginated_persistent_incompleteness",
+                "global_input_incompleteness",
+                "coverage_gap_incompleteness",
+            ):
+                pagination.pop(field, None)
 
         reasons = [
             dict(reason)
@@ -4653,7 +5109,7 @@ class FiveStagePipeline:
             if isinstance(reason, Mapping)
         ]
         carry_codes = {
-            *STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES,
+            *PAGINATED_PERSISTENT_INCOMPLETENESS_CODES,
             STAGE2_DEFERRED_PAGE_CODE,
             STAGE2_STRUCTURAL_UNRESOLVED_CODE,
         }
@@ -4756,22 +5212,58 @@ class FiveStagePipeline:
                 stage="stage2_sector_audit",
             )
 
-        global_input_incompleteness = [
+        persistent_incompleteness = [
             dict(reason)
             for reason in reasons
             if (
                 isinstance(reason, Mapping)
                 and reason.get("code")
-                in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+                in PAGINATED_PERSISTENT_INCOMPLETENESS_CODES
             )
         ]
         # Persist the fail-closed diagnostic before acknowledging the page. If
         # the ledger write is interrupted, replaying the same pending page can
         # only duplicate (and later deduplicate) this evidence.
         pagination = self.state.setdefault("stage2_pagination", {})
+        if pagination.get("binding_sha256") == page["binding_sha256"]:
+            raw_previous = pagination.get(
+                "paginated_persistent_incompleteness", []
+            )
+            if isinstance(raw_previous, list):
+                seen_persistent = {
+                    _canonical_sha256(reason)
+                    for reason in persistent_incompleteness
+                }
+                for previous in raw_previous:
+                    if (
+                        not isinstance(previous, Mapping)
+                        or previous.get("code")
+                        not in PAGINATED_PERSISTENT_INCOMPLETENESS_CODES
+                    ):
+                        continue
+                    item = dict(previous)
+                    digest = _canonical_sha256(item)
+                    if digest not in seen_persistent:
+                        seen_persistent.add(digest)
+                        persistent_incompleteness.append(item)
+        global_input_incompleteness = [
+            reason
+            for reason in persistent_incompleteness
+            if reason.get("code") in STAGE2_GLOBAL_INPUT_INCOMPLETENESS_CODES
+        ]
+        coverage_gap_incompleteness = [
+            reason
+            for reason in persistent_incompleteness
+            if reason.get("code")
+            in PAGINATED_COVERAGE_GAP_INCOMPLETENESS_CODES
+        ]
         pagination.update({
             "binding_sha256": page["binding_sha256"],
+            "paginated_persistent_incompleteness": (
+                persistent_incompleteness
+            ),
             "global_input_incompleteness": global_input_incompleteness,
+            "coverage_gap_incompleteness": coverage_gap_incompleteness,
             "pending_page_sha256": page["page_sha256"],
         })
         self._write_state()
@@ -4896,28 +5388,101 @@ class FiveStagePipeline:
             milp = certificate.get("milp")
             claim = certificate.get("claim")
             directions = milp.get("directions") if isinstance(milp, Mapping) else None
+            sector_sat = (
+                certificate.get("certificate_type")
+                == SECTOR_SAT_CERTIFICATE_TYPE
+            )
+            twobga = (
+                certificate.get("certificate_type")
+                == TWOBGA_CERTIFICATE_TYPE
+            )
             try:
-                exact = bool(
-                    isinstance(milp, Mapping)
-                    and isinstance(claim, Mapping)
-                    and not isinstance(claim.get("k"), bool)
-                    and isinstance(claim.get("k"), int)
-                    and claim["k"] > 0
-                    and not isinstance(claim.get("d"), bool)
-                    and isinstance(claim.get("d"), int)
-                    and claim["d"] > 0
-                    and milp.get("exact") is True
-                    and not isinstance(milp.get("completed_directions"), bool)
-                    and not isinstance(milp.get("expected_directions"), bool)
-                    and int(milp["expected_directions"]) > 0
-                    and int(milp["completed_directions"])
-                    == int(milp["expected_directions"])
-                    and int(milp["expected_directions"]) == 2 * claim["k"]
-                    and milp.get("distance") == claim["d"]
-                    and isinstance(directions, list)
-                    and len(directions) == 2 * claim["k"]
-                    and all(isinstance(item, Mapping) for item in directions)
-                )
+                if twobga:
+                    twobga_exact = certificate.get("twobga_exact")
+                    proof = (
+                        claim.get("exact_distance_proof")
+                        if isinstance(claim, Mapping) else None
+                    )
+                    exact = bool(
+                        "milp" not in certificate
+                        and "sector_exact" not in certificate
+                        and isinstance(claim, Mapping)
+                        and isinstance(twobga_exact, Mapping)
+                        and isinstance(proof, Mapping)
+                        and not isinstance(claim.get("k"), bool)
+                        and isinstance(claim.get("k"), int)
+                        and claim["k"] > 0
+                        and not isinstance(claim.get("d"), bool)
+                        and isinstance(claim.get("d"), int)
+                        and claim["d"] > 0
+                        and twobga_exact.get("exact") is True
+                        and twobga_exact.get("distance") == claim["d"]
+                        and twobga_exact.get("lower_bound") == claim["d"]
+                        and twobga_exact.get("upper_bound") == claim["d"]
+                        and twobga_exact.get("expected_lower_decisions") == 2
+                        and twobga_exact.get("completed_lower_decisions") == 2
+                        and proof.get("proof_type")
+                        == "qldpc-css-twobga-subsystem-exact-proof-v1"
+                        and proof.get("exact") is True
+                        and proof.get("distance") == claim["d"]
+                    )
+                elif sector_sat:
+                    sector_exact = certificate.get("sector_exact")
+                    proof = (
+                        claim.get("exact_distance_proof")
+                        if isinstance(claim, Mapping) else None
+                    )
+                    exact = bool(
+                        "milp" not in certificate
+                        and isinstance(claim, Mapping)
+                        and isinstance(sector_exact, Mapping)
+                        and isinstance(proof, Mapping)
+                        and not isinstance(claim.get("k"), bool)
+                        and isinstance(claim.get("k"), int)
+                        and claim["k"] > 0
+                        and not isinstance(claim.get("d"), bool)
+                        and isinstance(claim.get("d"), int)
+                        and claim["d"] > 0
+                        and sector_exact.get("exact") is True
+                        and sector_exact.get("distance") == claim["d"]
+                        and sector_exact.get("lower_bound") == claim["d"]
+                        and sector_exact.get("upper_bound") == claim["d"]
+                        and isinstance(
+                            sector_exact.get("expected_lower_decisions"), int,
+                        )
+                        and not isinstance(
+                            sector_exact.get("expected_lower_decisions"), bool,
+                        )
+                        and sector_exact["expected_lower_decisions"] > 0
+                        and sector_exact.get("completed_lower_decisions")
+                        == sector_exact["expected_lower_decisions"]
+                        and proof.get("proof_type")
+                        == "qldpc-css-sector-sat-exact-proof-v1"
+                        and proof.get("exact") is True
+                        and proof.get("distance") == claim["d"]
+                    )
+                else:
+                    exact = bool(
+                        isinstance(milp, Mapping)
+                        and isinstance(claim, Mapping)
+                        and not isinstance(claim.get("k"), bool)
+                        and isinstance(claim.get("k"), int)
+                        and claim["k"] > 0
+                        and not isinstance(claim.get("d"), bool)
+                        and isinstance(claim.get("d"), int)
+                        and claim["d"] > 0
+                        and milp.get("exact") is True
+                        and not isinstance(milp.get("completed_directions"), bool)
+                        and not isinstance(milp.get("expected_directions"), bool)
+                        and int(milp["expected_directions"]) > 0
+                        and int(milp["completed_directions"])
+                        == int(milp["expected_directions"])
+                        and int(milp["expected_directions"]) == 2 * claim["k"]
+                        and milp.get("distance") == claim["d"]
+                        and isinstance(directions, list)
+                        and len(directions) == 2 * claim["k"]
+                        and all(isinstance(item, Mapping) for item in directions)
+                    )
             except (KeyError, TypeError, ValueError):
                 exact = False
             if (
@@ -4960,6 +5525,28 @@ class FiveStagePipeline:
                 raise PipelineError(
                     "OUTPUT_INVALID",
                     f"verification sidecar is not bound to certificate: {path}",
+                    stage="stage4_certificate_merge",
+                )
+            if sector_sat and _sector_sat_expected_lower_decisions(
+                certificate,
+                replay_checks=verification.get("checks"),
+                replay_result=verification,
+            ) is None:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "sector-SAT certificate does not bind its reduced coverage "
+                    f"to a fresh X/Z-isometry replay: {path}",
+                    stage="stage4_certificate_merge",
+                )
+            if twobga and _twobga_expected_lower_decisions(
+                certificate,
+                replay_checks=verification.get("checks"),
+                replay_result=verification,
+            ) is None:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "2BGA certificate does not bind both dressed auxiliary "
+                    f"sectors to a fresh independent replay: {path}",
                     stage="stage4_certificate_merge",
                 )
             if certificate_sha in seen:
@@ -5025,7 +5612,9 @@ class FiveStagePipeline:
             )
         return summary
 
-    def _strict_command(self) -> list[str]:
+    def _strict_command(self, *, effective_resume: bool | None = None) -> list[str]:
+        if effective_resume is None:
+            effective_resume = self.config.resume or self._proof_retry_resume
         return [
             self.config.python_executable,
             "-I",
@@ -5064,7 +5653,7 @@ class FiveStagePipeline:
             str(self.config.certificate_solver_workers),
             "--verification-state-dir",
             str(self.paths.solver_state / "strict-verification"),
-            "--resume" if self.config.resume else "--no-resume",
+            "--resume" if effective_resume else "--no-resume",
             "--output",
             str(self.paths.stage5_gate),
         ]
@@ -5215,6 +5804,92 @@ class FiveStagePipeline:
             directions_total = (
                 result.get("directions_total") if isinstance(result, Mapping) else None
             )
+            sector_sat = (
+                certificate.get("certificate_type")
+                == SECTOR_SAT_CERTIFICATE_TYPE
+            )
+            twobga = (
+                certificate.get("certificate_type")
+                == TWOBGA_CERTIFICATE_TYPE
+            )
+            required_replay_checks = (
+                TWOBGA_STRICT_REPLAY_CHECKS
+                if twobga
+                else (
+                    SECTOR_SAT_STRICT_REPLAY_CHECKS
+                    if sector_sat
+                    else REQUIRED_STRICT_REPLAY_CHECKS
+                )
+            )
+            if twobga:
+                contract_expected = _twobga_expected_lower_decisions(
+                    certificate,
+                    replay_checks=checks,
+                    replay_result=(
+                        result if isinstance(result, Mapping) else None
+                    ),
+                )
+                rerun = (
+                    result.get("rerun")
+                    if isinstance(result, Mapping) else None
+                )
+                replay_counts_valid = bool(
+                    contract_expected == 2
+                    and isinstance(rerun, Mapping)
+                    and rerun.get("completed_sectors") == 2
+                    and rerun.get("expected_sectors") == 2
+                    and rerun.get("matches") is True
+                    and isinstance(result, Mapping)
+                    and "directions_verified" not in result
+                    and "directions_total" not in result
+                    and "sector_decisions_verified" not in result
+                    and "sector_decisions_total" not in result
+                    and "milp" not in certificate
+                    and "sector_exact" not in certificate
+                )
+            elif sector_sat:
+                sector_exact = certificate.get("sector_exact")
+                sector_verified = (
+                    result.get("sector_decisions_verified")
+                    if isinstance(result, Mapping) else None
+                )
+                sector_total = (
+                    result.get("sector_decisions_total")
+                    if isinstance(result, Mapping) else None
+                )
+                expected_sector_total = (
+                    sector_exact.get("expected_lower_decisions")
+                    if isinstance(sector_exact, Mapping) else None
+                )
+                contract_expected = _sector_sat_expected_lower_decisions(
+                    certificate,
+                    replay_checks=checks,
+                    replay_result=result if isinstance(result, Mapping) else None,
+                )
+                replay_counts_valid = bool(
+                    contract_expected is not None
+                    and expected_sector_total == contract_expected
+                    and isinstance(sector_verified, int)
+                    and not isinstance(sector_verified, bool)
+                    and isinstance(sector_total, int)
+                    and not isinstance(sector_total, bool)
+                    and sector_verified == sector_total == contract_expected
+                    and isinstance(result, Mapping)
+                    and "directions_verified" not in result
+                    and "directions_total" not in result
+                    and "milp" not in certificate
+                )
+            else:
+                replay_counts_valid = bool(
+                    isinstance(k, int)
+                    and not isinstance(k, bool)
+                    and isinstance(directions_verified, int)
+                    and not isinstance(directions_verified, bool)
+                    and directions_verified == 2 * k
+                    and isinstance(directions_total, int)
+                    and not isinstance(directions_total, bool)
+                    and directions_total == 2 * k
+                )
             if (
                 not isinstance(certificate_sha, str)
                 or re.fullmatch(r"[0-9a-f]{64}", certificate_sha) is None
@@ -5283,7 +5958,7 @@ class FiveStagePipeline:
                 or not isinstance(result.get("final_gate"), Mapping)
                 or result["final_gate"].get("accepted") is not True
                 or not isinstance(checks, Mapping)
-                or not REQUIRED_STRICT_REPLAY_CHECKS.issubset(checks)
+                or not required_replay_checks.issubset(checks)
                 or any(check is not True for check in checks.values())
                 or failures != []
                 or isinstance(k, bool)
@@ -5294,12 +5969,7 @@ class FiveStagePipeline:
                 or d <= 0
                 or isinstance(result.get("distance"), bool)
                 or result.get("distance") != d
-                or isinstance(directions_verified, bool)
-                or not isinstance(directions_verified, int)
-                or directions_verified != 2 * k
-                or isinstance(directions_total, bool)
-                or not isinstance(directions_total, int)
-                or directions_total != 2 * k
+                or not replay_counts_valid
                 or not isinstance(certificate_gate, Mapping)
                 or not isinstance(result_gate, Mapping)
                 or result_gate.get("accepted") is not True
@@ -5394,6 +6064,7 @@ class FiveStagePipeline:
             "stage3_timeout": self.config.stage3_timeout,
             "stage3_candidate_workers": self.config.stage3_candidate_workers,
             "stage3_direction_workers": self.config.stage3_direction_workers,
+            "stage3_backend": self.config.stage3_backend,
             "stage3_exact": self.config.stage3_exact,
             "certificate_workers": self.config.certificate_workers,
             "certificate_solver_workers": self.config.certificate_solver_workers,
@@ -5534,13 +6205,509 @@ class FiveStagePipeline:
             "binding_sha256": _canonical_sha256(binding),
         }
 
-    def _proof_progress_snapshot(self) -> dict[str, Any]:
-        """Count durable sector/direction checkpoints without trusting results."""
+    @staticmethod
+    def _proof_checkpoint_candidate_digest(
+        value: Mapping[str, Any],
+    ) -> str | None:
+        """Extract a candidate digest from the checkpoint's bound payload."""
+
+        def visit(raw: Any) -> str | None:
+            if not isinstance(raw, Mapping):
+                return None
+            digest = raw.get("canonical_digest")
+            if isinstance(digest, str) and digest:
+                return digest
+            for key in (
+                "candidate",
+                "claim",
+                "candidate_identity",
+                "triage_identity",
+                "proof_binding",
+                "binding",
+            ):
+                nested = visit(raw.get(key))
+                if nested is not None:
+                    return nested
+            return None
+
+        return visit(value)
+
+    @staticmethod
+    def _proof_checkpoint_record_counts(
+        value: Mapping[str, Any],
+        *,
+        source_kind: str,
+    ) -> dict[str, int]:
+        """Classify checkpoint work by mathematical, not process, outcome."""
+
+        candidate = value.get("candidate")
+        required = value.get("required_distance")
+        if isinstance(required, bool) or not isinstance(required, int):
+            required = (
+                candidate.get("required_distance")
+                if isinstance(candidate, Mapping)
+                else None
+            )
+        if isinstance(required, bool) or not isinstance(required, int):
+            required = None
+
+        records: list[Mapping[str, Any]] = []
+        raw_direction_results = value.get("direction_results")
+        if isinstance(raw_direction_results, Mapping):
+            records.extend(
+                record
+                for record in raw_direction_results.values()
+                if isinstance(record, Mapping)
+            )
+        else:
+            for key in ("directions", "sectors", "units"):
+                raw_records = value.get(key)
+                if isinstance(raw_records, list):
+                    records.extend(
+                        record
+                        for record in raw_records
+                        if isinstance(record, Mapping)
+                    )
+
+        reported: list[int] = []
+        for key in (
+            "completed_directions",
+            "completed_sectors",
+            "terminal_units",
+        ):
+            raw = value.get(key)
+            if isinstance(raw, int) and not isinstance(raw, bool) and raw >= 0:
+                reported.append(raw)
+        attempted = max([len(records), *reported], default=0)
+
+        xor_envelope = bool(
+            source_kind == "xor"
+            and value.get("schema_version") == 1
+            and value.get("gate") == "qldpc-frontier-xor-sector-screen"
+            and isinstance(candidate, Mapping)
+            and required is not None
+            and isinstance(value.get("sectors"), list)
+            and value.get("completed_sectors") == len(value["sectors"])
+        )
+        direction_envelope = bool(
+            source_kind == "directions"
+            and value.get("schema_version") == 2
+            and value.get("gate") == "qldpc-frontier-threshold-screen"
+            and isinstance(candidate, Mapping)
+            and required is not None
+            and isinstance(value.get("threshold_only"), bool)
+            and isinstance(value.get("directions"), list)
+            and value.get("completed_directions") == len(value["directions"])
+        )
+        raw_candidate_k = (
+            candidate.get("k") if isinstance(candidate, Mapping) else None
+        )
+        candidate_k = (
+            raw_candidate_k
+            if isinstance(raw_candidate_k, int)
+            and not isinstance(raw_candidate_k, bool)
+            and raw_candidate_k > 0
+            else None
+        )
+        sat_expected = value.get("expected_units")
+        sat_planned_expected: int | None = None
+        if isinstance(candidate, Mapping):
+            try:
+                from scripts.audit_direction_pool import expected_proof_units
+
+                sat_planned_expected = expected_proof_units(
+                    candidate, "sat-sectors",
+                )
+            except (KeyError, TypeError, ValueError):
+                # This is monitoring only.  A candidate that cannot be
+                # reconstructed must not gain a trusted progress envelope.
+                sat_planned_expected = None
+        sat_isometry_valid = False
+        stored_isometry = value.get("xz_sector_isometry")
+        if (
+            candidate_k is not None
+            and isinstance(candidate, Mapping)
+            and isinstance(stored_isometry, Mapping)
+        ):
+            try:
+                import numpy as np
+
+                from evaluation.bb_sector_isometry import (
+                    verify_bb_xz_sector_isometry,
+                )
+                from scripts.screen_frontier_candidate import (
+                    build_candidate_code,
+                )
+
+                rebuilt = build_candidate_code(dict(candidate))
+                replayed_isometry = verify_bb_xz_sector_isometry(
+                    np.asarray(rebuilt.matrix_x, dtype=np.uint8) & 1,
+                    np.asarray(rebuilt.matrix_z, dtype=np.uint8) & 1,
+                    ell=int(candidate["ell"]),
+                    m=int(candidate["m"]),
+                )
+                sat_isometry_valid = bool(
+                    int(rebuilt.num_qudits) == candidate.get("n")
+                    and int(rebuilt.dimension) == candidate_k
+                    and replayed_isometry.get("verified") is True
+                    and replayed_isometry.get("canonical_sector") == "X"
+                    and replayed_isometry.get("covered_sectors") == ["X", "Z"]
+                    and dict(stored_isometry) == replayed_isometry
+                )
+            except Exception:
+                # Monitoring/progress accounting fails closed to the legacy
+                # complete X/Z envelope.  It never promotes mathematical
+                # evidence from an un-replayed report.
+                sat_isometry_valid = False
+        sat_expected_valid = bool(
+            (
+                sat_planned_expected is not None
+                and sat_expected == sat_planned_expected
+            )
+            or sat_expected == 4
+            or (
+                candidate_k is not None
+                and sat_expected == 2 * candidate_k + 2
+            )
+            or (
+                sat_isometry_valid
+                and candidate_k is not None
+                and sat_expected in {2, candidate_k + 1}
+            )
+        )
+        sat_sector_envelope = bool(
+            source_kind == "sat-sectors"
+            and value.get("schema_version") == 1
+            and value.get("gate")
+            == "qldpc-frontier-sat-sector-exact-screen"
+            and isinstance(candidate, Mapping)
+            and required is not None
+            and isinstance(value.get("units"), list)
+            and value.get("attempted_units") == len(value["units"])
+            and sat_expected_valid
+        )
+
+        if sat_sector_envelope:
+            terminal = timed_out = proven = 0
+            for unit in records:
+                evidence = unit.get("solver_evidence")
+                if not isinstance(evidence, Mapping):
+                    continue
+                unsigned = dict(evidence)
+                stored_sha256 = unsigned.pop("evidence_sha256", None)
+                hash_valid = bool(
+                    isinstance(stored_sha256, str)
+                    and stored_sha256 == _canonical_sha256(unsigned)
+                )
+                outcome = evidence.get("outcome")
+                complete = bool(
+                    hash_valid
+                    and evidence.get("decision_complete") is True
+                    and outcome in {"sat", "unsat"}
+                )
+                terminal += complete
+                timed_out += outcome == "hard_timeout"
+                objective = evidence.get("objective")
+                lower_proof = bool(
+                    complete
+                    and unit.get("phase") in {"lower", "lower-global"}
+                    and outcome == "unsat"
+                    and evidence.get("threshold_infeasible") is True
+                    and evidence.get("max_weight") == required - 1
+                )
+                upper_witness = bool(
+                    complete
+                    and unit.get("phase") == "upper"
+                    and outcome == "sat"
+                    and isinstance(objective, int)
+                    and not isinstance(objective, bool)
+                    and objective == required
+                )
+                proven += lower_proof or upper_witness
+            return {
+                "attempted_units": len(records),
+                "terminal_units": terminal,
+                "timeout_units": timed_out,
+                "proven_units": proven,
+                "completed_units": terminal,
+                "reported_completed_units": int(
+                    value.get("terminal_units", 0) or 0
+                ),
+            }
+
+        binding = value.get("binding")
+        matrix_hashes = (
+            binding.get("matrix_sha256")
+            if isinstance(binding, Mapping)
+            else None
+        )
+        legacy_checkpoint_envelope = bool(
+            source_kind in {"checkpoints", "strict-verification"}
+            and value.get("schema_version") == 1
+            and value.get("checkpoint_type")
+            in {
+                "qldpc-css-bb-build-checkpoint-v1",
+                "qldpc-css-bb-verify-checkpoint-v1",
+            }
+            and isinstance(binding, Mapping)
+            and is_selection_sha256(binding.get("claim_sha256"))
+            and is_selection_sha256(binding.get("known_answer_sha256"))
+            and isinstance(matrix_hashes, Mapping)
+            and set(matrix_hashes) == {"hx", "hz"}
+            and all(
+                is_selection_sha256(item)
+                for item in matrix_hashes.values()
+            )
+            and isinstance(binding.get("solver"), Mapping)
+            and isinstance(value.get("directions"), list)
+            and value.get("completed_directions") == len(value["directions"])
+        )
+
+        proof_binding = value.get("proof_binding")
+        proof_binding_valid = False
+        if isinstance(proof_binding, Mapping):
+            unsigned_proof_binding = dict(proof_binding)
+            proof_binding_sha256 = unsigned_proof_binding.pop(
+                "binding_sha256", None
+            )
+            proof_binding_valid = bool(
+                isinstance(proof_binding_sha256, str)
+                and proof_binding_sha256
+                == _canonical_sha256(unsigned_proof_binding)
+            )
+        css_checkpoint_envelope = bool(
+            source_kind in {"checkpoints", "strict-verification"}
+            and value.get("kind") == "qcode-css-distance-milp-checkpoint"
+            and value.get("schema_version") == 2
+            and proof_binding_valid
+            and isinstance(raw_direction_results, Mapping)
+        )
+
+        terminal = 0
+        timed_out = 0
+        proven = 0
+        for record in records:
+            status_values = [
+                record.get("status"),
+                record.get("status_name"),
+                record.get("outcome"),
+                record.get("last_attempt_status"),
+                record.get("message"),
+            ]
+            status_text = " ".join(
+                str(item).upper() for item in status_values if item is not None
+            )
+            backend_text = " ".join(
+                str(record.get(key, "")).upper()
+                for key in ("solver", "backend", "formulation")
+            )
+            is_timeout = any(
+                marker in status_text
+                for marker in (
+                    "TIME LIMIT",
+                    "TIME_LIMIT",
+                    "TIMED OUT",
+                    "TIMEOUT",
+                    "HARD_TIMEOUT",
+                    "NO_INCUMBENT",
+                    "UNKNOWN",
+                )
+            )
+            raw_status = record.get("status")
+            if (
+                raw_status == 1
+                and any(name in backend_text for name in ("SCIPY", "HIGHS"))
+            ):
+                is_timeout = True
+            if (
+                raw_status == 0
+                and "ORTOOLS" in backend_text
+                and record.get("success") is not True
+            ):
+                is_timeout = True
+            timed_out += is_timeout
+
+            objective = record.get("objective", record.get("weight"))
+            objective_is_int = (
+                isinstance(objective, int) and not isinstance(objective, bool)
+            )
+            replay_verified_witness = bool(
+                objective_is_int
+                and record.get("witness_verified") is True
+                and isinstance(record.get("operator"), Mapping)
+            )
+            correct_bound = bool(
+                required is not None
+                and record.get("max_weight") == required - 1
+            )
+            no_incumbent = bool(
+                record.get("operator") is None
+                and record.get("objective") is None
+            )
+            xor_threshold_proof = bool(
+                xor_envelope
+                and record.get("formulation") == "css-sector-xor-cpsat-v1"
+                and record.get("solver") == "ortools-cp-sat"
+                and record.get("status_name") == "INFEASIBLE"
+                and record.get("threshold_infeasible") is True
+                and correct_bound
+                and no_incumbent
+            )
+            direction_threshold_proof = bool(
+                direction_envelope
+                and value.get("threshold_only") is True
+                and record.get("formulation")
+                == "css-logical-threshold-bounded-minimization-v2"
+                and record.get("solver") == "scipy.optimize.milp"
+                and record.get("backend") == "HiGHS"
+                and record.get("status") == 2
+                and record.get("success") is False
+                and record.get("threshold_infeasible") is True
+                and correct_bound
+                and no_incumbent
+            )
+            artifact_exact_optimum = bool(
+                replay_verified_witness
+                and (
+                    (
+                        xor_envelope
+                        and value.get("threshold_only") is False
+                        and record.get("exact") is True
+                        and record.get("status_name") == "OPTIMAL"
+                    )
+                    or (
+                        direction_envelope
+                        and value.get("threshold_only") is False
+                        and record.get("formulation")
+                        == "css-logical-anticommutation-milp-v1"
+                        and record.get("solver") == "scipy.optimize.milp"
+                        and record.get("backend") == "HiGHS"
+                        and record.get("status") == 0
+                        and record.get("success") is True
+                        and record.get("mip_gap") == 0.0
+                    )
+                )
+            )
+            legacy_checkpoint_optimum = bool(
+                legacy_checkpoint_envelope
+                and objective_is_int
+                and record.get("formulation")
+                == "css-logical-anticommutation-milp-v1"
+                and record.get("solver") == "scipy.optimize.milp"
+                and record.get("backend") == "HiGHS"
+                and record.get("status") == 0
+                and record.get("success") is True
+                and record.get("mip_gap") == 0.0
+                and isinstance(record.get("mip_dual_bound"), (int, float))
+                and not isinstance(record.get("mip_dual_bound"), bool)
+                and math.isfinite(float(record["mip_dual_bound"]))
+                and math.isclose(
+                    float(record["mip_dual_bound"]),
+                    float(objective),
+                    rel_tol=0.0,
+                    abs_tol=1e-7,
+                )
+                and isinstance(record.get("operator"), Mapping)
+                and isinstance(record.get("target_logical"), Mapping)
+            )
+            css_checkpoint_optimum = bool(
+                css_checkpoint_envelope
+                and str(record.get("status", "")).lower() == "optimal"
+                and record.get("optimal") is True
+                and objective_is_int
+                and isinstance(record.get("witness"), Mapping)
+            )
+            is_proven = bool(
+                xor_threshold_proof
+                or direction_threshold_proof
+                or artifact_exact_optimum
+                or legacy_checkpoint_optimum
+                or css_checkpoint_optimum
+            )
+            rejected_witness = bool(
+                (xor_envelope or direction_envelope)
+                and replay_verified_witness
+                and required is not None
+                and int(objective) < required
+            )
+            is_terminal = is_proven or rejected_witness
+            proven += is_proven
+            terminal += is_terminal
+
+        return {
+            "attempted_units": attempted,
+            "terminal_units": terminal,
+            "timeout_units": timed_out,
+            "proven_units": proven,
+            # Backward-compatible field with corrected semantics.  A timeout
+            # is attempted work, never a completed proof unit.
+            "completed_units": terminal,
+            "reported_completed_units": max(reported, default=0),
+        }
+
+    def _strict_progress_tokens(
+        self,
+        selected_digests: set[str],
+    ) -> set[str]:
+        """Map selected candidates to Stage 5 certificate-payload filenames."""
+
+        tokens: set[str] = set()
+        if not self.paths.stage4_certificates.is_file():
+            return tokens
+        try:
+            lines = self.paths.stage4_certificates.read_text().splitlines()
+        except (OSError, UnicodeError):
+            return tokens
+        for line in lines:
+            if not line.strip():
+                continue
+            try:
+                certificate = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(certificate, Mapping):
+                continue
+            claim = certificate.get("claim")
+            digest = (
+                claim.get("canonical_digest")
+                if isinstance(claim, Mapping)
+                else None
+            )
+            if digest in selected_digests:
+                tokens.add(_canonical_sha256(certificate))
+        return tokens
+
+    def _proof_progress_snapshot(
+        self,
+        *,
+        selected_digests: Iterable[str] | None = None,
+    ) -> dict[str, Any]:
+        """Classify durable proof units bound to the active candidate page."""
 
         self._ensure_solver_state_tree_safe()
+        if selected_digests is None:
+            binding = self._current_proof_retry_binding()
+            selected_digests = (
+                binding.get("selected_digests", [])
+                if isinstance(binding, Mapping)
+                else []
+            )
+        selected = {
+            digest
+            for digest in selected_digests
+            if isinstance(digest, str) and digest
+        }
+        path_tokens = {
+            digest for digest in selected
+        } | {
+            hashlib.sha256(digest.encode()).hexdigest() for digest in selected
+        }
+        strict_tokens = self._strict_progress_tokens(selected)
         roots = (
             self.paths.solver_state / "xor",
             self.paths.solver_state / "directions",
+            self.paths.solver_state / "sat-sectors",
+            self.paths.solver_state / "twobga-aux",
             self.paths.solver_state / "checkpoints",
             self.paths.solver_state / "strict-verification",
         )
@@ -5555,30 +6722,49 @@ class FiveStagePipeline:
                     continue
                 if not isinstance(value, Mapping):
                     continue
-                candidates: list[int] = []
-                for key in ("completed_directions", "completed_sectors"):
-                    raw = value.get(key)
-                    if (
-                        isinstance(raw, int)
-                        and not isinstance(raw, bool)
-                        and raw >= 0
-                    ):
-                        candidates.append(raw)
-                for key in ("directions", "sectors"):
-                    raw = value.get(key)
-                    if isinstance(raw, list):
-                        candidates.append(len(raw))
-                completed = max(candidates, default=0)
-                if completed:
-                    relative = path.relative_to(self.paths.solver_state).as_posix()
-                    units[relative] = {
-                        "completed_units": completed,
-                        "sha256": _file_sha256(path),
-                    }
+                digest = self._proof_checkpoint_candidate_digest(value)
+                token = path.name.split(".", 1)[0]
+                allowed_tokens = (
+                    strict_tokens
+                    if root.name == "strict-verification"
+                    else path_tokens
+                )
+                if digest is not None:
+                    if digest not in selected:
+                        continue
+                    # Candidate-bound content is authoritative, but its path
+                    # must also belong to this page whenever the producer has
+                    # a deterministic digest filename.
+                    if root.name != "strict-verification" and token not in path_tokens:
+                        continue
+                elif token not in allowed_tokens:
+                    continue
+                counts = self._proof_checkpoint_record_counts(
+                    value,
+                    source_kind=root.name,
+                )
+                if not counts["attempted_units"]:
+                    continue
+                relative = path.relative_to(self.paths.solver_state).as_posix()
+                units[relative] = {
+                    **counts,
+                    "candidate_digest": digest,
+                    "sha256": _file_sha256(path),
+                }
+        aggregate_keys = (
+            "attempted_units",
+            "terminal_units",
+            "timeout_units",
+            "proven_units",
+            "completed_units",
+            "reported_completed_units",
+        )
         return {
-            "completed_units": sum(
-                int(item["completed_units"]) for item in units.values()
-            ),
+            key: sum(int(item[key]) for item in units.values())
+            for key in aggregate_keys
+        } | {
+            "selected_digests": sorted(selected),
+            "selected_digests_sha256": _canonical_sha256(sorted(selected)),
             "checkpoint_count": len(units),
             "checkpoints_sha256": _canonical_sha256(units),
             "units": units,
@@ -5716,6 +6902,8 @@ class FiveStagePipeline:
         before: Mapping[str, Any],
         after: Mapping[str, Any],
     ) -> bool:
+        """Return whether a bound unit became terminal or mathematically proven."""
+
         before_units = before.get("units", {})
         after_units = after.get("units", {})
         if not isinstance(before_units, Mapping) or not isinstance(
@@ -5726,18 +6914,21 @@ class FiveStagePipeline:
             if not isinstance(raw_after, Mapping):
                 continue
             raw_before = before_units.get(path, {})
-            previous = (
-                raw_before.get("completed_units", 0)
-                if isinstance(raw_before, Mapping)
-                else 0
-            )
-            current = raw_after.get("completed_units", 0)
-            if (
-                isinstance(previous, int)
-                and isinstance(current, int)
-                and current > previous
-            ):
-                return True
+            for key in ("terminal_units", "proven_units"):
+                previous = (
+                    raw_before.get(key, 0)
+                    if isinstance(raw_before, Mapping)
+                    else 0
+                )
+                current = raw_after.get(key, 0)
+                if (
+                    isinstance(previous, int)
+                    and not isinstance(previous, bool)
+                    and isinstance(current, int)
+                    and not isinstance(current, bool)
+                    and current > previous
+                ):
+                    return True
         return False
 
     def _adopt_initial_proof_attempt(
@@ -5748,9 +6939,23 @@ class FiveStagePipeline:
         duration: float,
         incompleteness: Mapping[str, Any],
     ) -> None:
-        progress = self._proof_progress_snapshot()
+        selected_digests = list(
+            active.get("binding", {}).get("selected_digests", [])
+        )
+        progress = self._proof_progress_snapshot(
+            selected_digests=selected_digests,
+        )
         empty_progress = {
+            "attempted_units": 0,
+            "terminal_units": 0,
+            "timeout_units": 0,
+            "proven_units": 0,
             "completed_units": 0,
+            "reported_completed_units": 0,
+            "selected_digests": sorted(selected_digests),
+            "selected_digests_sha256": _canonical_sha256(
+                sorted(selected_digests)
+            ),
             "checkpoint_count": 0,
             "checkpoints_sha256": _canonical_sha256({}),
             "units": {},
@@ -5863,7 +7068,11 @@ class FiveStagePipeline:
                     ),
                     "max_total_workers": self.config.max_total_workers,
                 },
-                "progress_before": self._proof_progress_snapshot(),
+                "progress_before": self._proof_progress_snapshot(
+                    selected_digests=active.get("binding", {}).get(
+                        "selected_digests", []
+                    ),
+                ),
             }
             attempts.append(attempt)
             controller["active"] = active
@@ -5891,7 +7100,11 @@ class FiveStagePipeline:
                 stage="stage2_sector_audit",
             )
         attempt = attempts[-1]
-        after = self._proof_progress_snapshot()
+        after = self._proof_progress_snapshot(
+            selected_digests=active.get("binding", {}).get(
+                "selected_digests", []
+            ),
+        )
         before = attempt.get("progress_before", {})
         attempt.update(
             {
@@ -6411,7 +7624,7 @@ class FiveStagePipeline:
                     ),
                 ],
                 "max_total_workers": self.config.max_total_workers,
-                "resume": self.config.resume,
+                "resume": self.config.resume or self._proof_retry_resume,
                 "selection_ledger_prestate_sha256": (
                     stage2_selection_ledger_prestate_sha256
                 ),
@@ -6469,6 +7682,22 @@ class FiveStagePipeline:
                 stage3_inputs = [
                     self.paths.stage2_ranked,
                     self.config.repo_dir / "scripts" / "audit_direction_pool.py",
+                    self.config.repo_dir
+                    / "scripts"
+                    / {
+                        "legacy-directions": "screen_frontier_candidate.py",
+                        "sat-sectors": "screen_frontier_sat.py",
+                        "twobga-aux": "screen_frontier_twobga.py",
+                    }[self.config.stage3_backend],
+                    *(
+                        [
+                            self.config.repo_dir
+                            / "evaluation"
+                            / "twobga_subsystem.py",
+                        ]
+                        if self.config.stage3_backend == "twobga-aux"
+                        else []
+                    ),
                     self.config.known_answer_artifact,
                     known_code_registry,
                 ]
@@ -6492,6 +7721,7 @@ class FiveStagePipeline:
                 "proof_budget_multiplier": self._proof_budget_multiplier,
                 "candidate_workers": self.config.stage3_candidate_workers,
                 "direction_workers": self.config.stage3_direction_workers,
+                "backend": self.config.stage3_backend,
                 "exact": self.config.stage3_exact,
                 "certificate_workers": self.config.certificate_workers,
                 "certificate_solver_workers": (
@@ -6512,7 +7742,7 @@ class FiveStagePipeline:
                     ),
                 ],
                 "max_total_workers": self.config.max_total_workers,
-                "resume": self.config.resume,
+                "resume": self.config.resume or self._proof_retry_resume,
             }
 
             def current_stage3_config() -> dict[str, Any]:
@@ -6604,9 +7834,20 @@ class FiveStagePipeline:
             certificate_count = int(stage4["verified_certificates"])
             stage5_outcome: str | None = None
             if certificate_count:
-                strict_command = self._strict_command()
+                effective_resume = bool(
+                    self.config.resume or self._proof_retry_resume
+                )
+                strict_command = self._strict_command(
+                    effective_resume=effective_resume,
+                )
                 stage5_static_config = {
                     "mode": "strict",
+                    # This is deliberately distinct from config.resume.  A
+                    # fresh campaign may start with resume=False, while the
+                    # durable proof-retry controller must resume validated
+                    # checkpoints on its later attempts.  Bind the effective
+                    # value that was actually passed to the strict runner.
+                    "effective_resume": effective_resume,
                     "known_answer_timeout_per_logical": (
                         self._scaled_strict_integer_timeout(
                             self.config.known_answer_timeout_per_logical
@@ -6651,6 +7892,7 @@ class FiveStagePipeline:
                     inputs=[
                         self.paths.stage4_certificates,
                         self.config.repo_dir / "scripts" / "finalize_challenge.py",
+                        *self._strict_verifier_sources(),
                         strict_known_answer_runner,
                         self.config.known_answer_artifact,
                         self.config.known_answer_trust,
@@ -7021,12 +8263,14 @@ class FiveStagePipeline:
                         )
 
                 self._proof_budget_multiplier = multiplier
+                self._proof_retry_resume = prepared is not None
                 started = self._monotonic()
                 try:
                     state = self._run_locked()
                 finally:
                     duration = max(0.0, self._monotonic() - started)
                     self._proof_budget_multiplier = 1.0
+                    self._proof_retry_resume = False
 
                 incompleteness: Mapping[str, Any] | None = None
                 result = state.get("result")
