@@ -4,18 +4,25 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
+from types import SimpleNamespace
 
 import pytest
 
 import humanize.flow as flow_module
 from humanize.flow import (
     FlowConfig,
+    HumanizeFlow,
     RoundTransactionError,
     SEARCH_REGIME_PREFIX,
+    SEARCH_REGIME_V2_PREFIX,
+    UnresolvedAuditError,
+    _review_artifact_binding,
     _candidate_audit_stratum,
     _freeze_round_context,
     _normal_search_regime,
     _replay_search_regime,
+    _search_regime_policy_from_context,
     _sealed_exact_distances,
     select_for_milp,
 )
@@ -77,12 +84,21 @@ def _exact_summary(*distances: int, payload: bytes = b"") -> dict:
     }
 
 
-def _round(number: int, *distances: int, raw: int, unique: int) -> dict:
-    return {
+def _round(
+    number: int,
+    *distances: int,
+    raw: int,
+    unique: int,
+    policy_version: int | None = None,
+) -> dict:
+    summary = {
         "round": number,
         "sealed_exact_audit": _exact_summary(*distances),
         "candidate_diversity": _diversity(raw=raw, unique=unique),
     }
+    if policy_version is not None:
+        summary["search_regime_policy_version"] = policy_version
+    return summary
 
 
 def test_fresh_milp_sampling_covers_mechanism_support_strata_before_refill():
@@ -190,6 +206,104 @@ def test_three_sealed_low_exact_rounds_with_duplicate_collapse_require_expand():
     assert _replay_search_regime(rounds) == regime
 
 
+def test_four_low_exact_rounds_expand_without_diversity_collapse():
+    rounds = [
+        _round(number, 2, raw=100, unique=100, policy_version=2)
+        for number in range(1, 5)
+    ]
+
+    assert _replay_search_regime(rounds[:3])["status"] == "normal"
+    regime = _replay_search_regime(rounds)
+
+    assert regime["status"] == "expand_required"
+    assert regime["reason"] == (
+        "trusted_exact_low_distance_streak_requires_family_expansion"
+    )
+    assert regime["evidence"]["rounds"] == [1, 2, 3, 4]
+
+
+def test_seven_low_exact_rounds_require_monotonic_representation_change():
+    rounds = [
+        _round(number, 1, 2, raw=100, unique=100, policy_version=2)
+        for number in range(1, 8)
+    ]
+
+    assert _replay_search_regime(rounds[:4])["status"] == "expand_required"
+    regime = _replay_search_regime(rounds)
+    assert regime["status"] == "representation_change_required"
+    assert regime["evidence"]["rounds"] == list(range(1, 8))
+
+    # Neither reviewer prose, an unresolved-only round, nor later transient
+    # exact progress may vote the terminal machine-evidence mode away.
+    unresolved = _round(
+        8, raw=100, unique=100, policy_version=2
+    )
+    unresolved["review"] = {"verdict": "exploit"}
+    progress = _round(
+        9, 4, raw=100, unique=100, policy_version=2
+    )
+    progress["review"] = {"verdict": "normal"}
+    assert _replay_search_regime([*rounds, unresolved, progress]) == regime
+
+
+def test_policy_v2_exact_d3_streak_triggers_both_escalation_boundaries():
+    rounds = [
+        _round(number, 3, raw=100, unique=100, policy_version=2)
+        for number in range(1, 8)
+    ]
+
+    expanded = _replay_search_regime(rounds[:4])
+    assert expanded["status"] == "expand_required"
+    assert expanded["evidence"]["rounds"] == [1, 2, 3, 4]
+
+    replaced = _replay_search_regime(rounds)
+    assert replaced["status"] == "representation_change_required"
+    assert replaced["evidence"]["rounds"] == list(range(1, 8))
+
+
+def test_policy_v2_exact_d4_remains_exploit_and_v1_d3_is_unchanged():
+    v2 = [
+        _round(number, 3, raw=100, unique=100, policy_version=2)
+        for number in range(1, 4)
+    ]
+    v2.append(_round(4, 4, raw=100, unique=100, policy_version=2))
+    assert _replay_search_regime(v2)["status"] == "exploit"
+
+    legacy = [
+        _round(number, 3, raw=100, unique=20)
+        for number in range(1, 8)
+    ]
+    assert _replay_search_regime(legacy)["status"] == "normal"
+
+
+def test_reviewer_fields_never_trigger_a_machine_regime_transition():
+    rounds = [
+        _round(number, 2, raw=100, unique=100, policy_version=2)
+        for number in range(1, 4)
+    ]
+    for summary in rounds:
+        summary["review"] = {
+            "verdict": "representation_change_required",
+            "confidence": 1.0,
+        }
+
+    assert _replay_search_regime(rounds)["status"] == "normal"
+
+
+def test_legacy_rounds_strictly_replay_v1_without_v2_streak_transitions():
+    rounds = [
+        _round(number, 2, raw=100, unique=100)
+        for number in range(1, 8)
+    ]
+
+    assert _replay_search_regime(rounds)["status"] == "normal"
+
+    forged = copy.deepcopy(rounds)
+    forged[-1]["search_regime_policy_version"] = 2
+    with pytest.raises(RoundTransactionError, match="mixes versioned and legacy"):
+        _replay_search_regime(forged)
+
+
 def test_unique_yield_decline_can_trigger_and_exact_d4_switches_to_exploit():
     rounds = [
         _round(1, 2, raw=100, unique=100),
@@ -254,3 +368,185 @@ def test_machine_regime_marker_is_canonical_and_reserved(tmp_path):
             state,
             forged_repo / "results/humanize/marker/rounds/round-002",
         )
+
+
+def test_v2_policy_emits_v2_marker_from_the_first_round(tmp_path):
+    repo = tmp_path / "repo"
+    memory = repo / "results/humanize/v2-marker/bitlesson.md"
+    memory.parent.mkdir(parents=True)
+    memory.write_text("trusted memory\n")
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="v2-marker",
+        milp_top=0,
+        search_representation_id="css-bb-test-v2",
+        search_regime_policy_version=2,
+    )
+
+    context = _freeze_round_context(
+        config,
+        {"current_round": 0, "rounds": []},
+        repo / "results/humanize/v2-marker/rounds/round-001",
+    )
+
+    lines = context.read_text().splitlines()
+    assert not any(line.startswith(SEARCH_REGIME_PREFIX) for line in lines)
+    assert sum(line.startswith(SEARCH_REGIME_V2_PREFIX) for line in lines) == 1
+    assert _search_regime_policy_from_context(context) == {
+        **_normal_search_regime(0),
+        "policy_version": 2,
+    }
+
+
+def _terminal_v2_rounds() -> tuple[list[dict], dict]:
+    rounds: list[dict] = []
+    regime = _normal_search_regime(0)
+    for number in range(1, 8):
+        summary = _round(
+            number,
+            2,
+            raw=100,
+            unique=100,
+            policy_version=2,
+        )
+        # The resume test isolates handoff control flow from artifact I/O.
+        summary.pop("candidate_diversity")
+        regime = _replay_search_regime(
+            [*rounds, summary],
+            policy_version=2,
+        )
+        summary["search_regime"] = copy.deepcopy(regime)
+        rounds.append(summary)
+    return rounds, regime
+
+
+@pytest.mark.parametrize(
+    ("terminal_status", "unresolved", "raises_unresolved"),
+    [
+        ("search-complete", {}, False),
+        ("incomplete-unresolved", {"candidate": {}}, True),
+    ],
+)
+def test_resume_after_committed_round7_handoff_never_starts_round8(
+    tmp_path,
+    monkeypatch,
+    terminal_status,
+    unresolved,
+    raises_unresolved,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="round7-crash-resume",
+        max_rounds=8,
+        milp_top=0,
+        search_representation_id="css-bb-test-v2",
+        search_regime_policy_version=2,
+        stop_on_representation_change=True,
+    )
+    starts: list[int] = []
+
+    def forbidden_evolution(*_args, **_kwargs):
+        starts.append(8)
+        raise AssertionError("resume attempted round 8")
+
+    initial = HumanizeFlow(
+        config,
+        reviewer=object(),
+        evolution_runner=forbidden_evolution,
+    )
+    state = initial.store.initialize(config.serializable())
+    rounds, regime = _terminal_v2_rounds()
+    state.update({
+        "status": terminal_status,
+        "current_round": 7,
+        "rounds": rounds,
+        "search_regime": regime,
+        "search_handoff_reason": "representation_change_required",
+        "search_handoff_at_round": 7,
+        "unresolved_candidates": unresolved,
+    })
+    initial.store.write_state(state)
+
+    # Simulate a process crash after Humanize committed its final state but
+    # before the outer pipeline cached Stage 1, then reconstruct the flow.
+    resumed = HumanizeFlow(
+        config,
+        reviewer=object(),
+        evolution_runner=forbidden_evolution,
+    )
+    monkeypatch.setattr(
+        resumed,
+        "_rebuild_global_audit_state",
+        lambda _state, *, recover_final_partial: (
+            [],
+            SimpleNamespace(unresolved=[]),
+        ),
+    )
+    monkeypatch.setattr(
+        resumed,
+        "_trusted_exact_audit_view",
+        lambda _rows: ([], []),
+    )
+    monkeypatch.setattr(
+        flow_module,
+        "_validate_sealed_round_exact_summary",
+        lambda *_args, **_kwargs: None,
+    )
+
+    if raises_unresolved:
+        with pytest.raises(UnresolvedAuditError, match="previously committed"):
+            resumed._run_locked()
+        completed = resumed.store.load_state()
+        assert completed is not None
+    else:
+        completed = resumed._run_locked()
+
+    assert completed["current_round"] == 7
+    assert completed["search_handoff_at_round"] == 7
+    assert starts == []
+    assert not (resumed.store.root / "rounds" / "round-008").exists()
+
+
+@pytest.mark.parametrize(
+    "legacy_extra",
+    [
+        {"schema_version": 999},
+        {"search_action": {"intent": "change_bb_search_representation"}},
+    ],
+)
+def test_legacy_review_extras_cannot_smuggle_a_structured_action(
+    tmp_path,
+    legacy_extra,
+):
+    repo = tmp_path / "repo"
+    run_root = repo / "results/humanize/legacy-review"
+    round_dir = run_root / "rounds/round-001"
+    round_dir.mkdir(parents=True)
+    review = {
+        "verdict": "continue",
+        "summary": "Legacy review.",
+        "risks": [],
+        "recommended_focus": [],
+        "lessons": [],
+        **legacy_extra,
+    }
+    review_path = round_dir / "review.json"
+    review_path.write_text(json.dumps(review) + "\n")
+    binding = _review_artifact_binding(review_path, review)
+    assert binding["review_schema_version"] == 1
+    assert binding["search_action"] is None
+
+    memory = run_root / "bitlesson.md"
+    memory.write_text("trusted memory\n")
+    summary = {
+        "round": 1,
+        "review_binding": binding,
+    }
+    context = _freeze_round_context(
+        FlowConfig(repo_dir=repo, run_id="legacy-review", milp_top=0),
+        {"current_round": 1, "rounds": [summary]},
+        run_root / "rounds/round-002",
+    )
+    assert "Independent reviewer search advisories" not in context.read_text()

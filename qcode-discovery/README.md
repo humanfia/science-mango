@@ -417,6 +417,21 @@ Its mechanism labels are search heuristics; only the seed's explicitly checked
 quotient-support projection is described as a lift, and neither label is a
 distance or cover-code certificate.
 
+The opt-in `cover_algebra.auto_v2` template enables fail-closed campaign
+escalation.  Sealed exact/diversity evidence—not reviewer prose—moves the
+in-campaign search into family-expansion mode.  If the replayed evidence later
+requires a generator-representation change, Stage 1 first commits a durable
+handoff and the remaining proof stages audit the complete candidate pool.  A
+five-stage result without a certified win then causes `humanize.escalation` to
+materialize a fresh, hash-bound schema-v2 ansatz campaign; the process
+controller starts it in a new detached session.  The child has a deterministic
+new run id, resumes only its own work after interruption, and cannot inherit
+the parent's OpenEvolve checkpoint.  Only the closed, enum-valued subset of a
+reviewer `search_action` may guide the next search prompt; reviewer free text
+stays in audit artifacts and cannot select a template, alter a proof gate, or
+change the child identity.  Non-CSS PBB remains blocked because the current
+Stage 2/3 and strict release gates accept CSS `(A,B)` claims only.
+
 Direct OpenEvolve configurations that do not use Codex CLI still require a
 LiteLLM-compatible proxy. See [`evolve/config.yaml`](evolve/config.yaml) for
 the available proxy settings.

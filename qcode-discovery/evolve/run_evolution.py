@@ -293,12 +293,42 @@ DEFAULT_ADAPTIVE_MUTATION_POLICY = {
 ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
 ADAPTIVE_MUTATION_EXPLORATION_FLOOR = 250
 SEARCH_REGIME_POLICY_PREFIX = "QCODE_SEARCH_REGIME_V1="
-SEARCH_REGIME_STATUSES = (
+SEARCH_REGIME_POLICY_V2_PREFIX = "QCODE_SEARCH_REGIME_V2="
+SEARCH_REGIME_PREFIX_BY_POLICY_VERSION = {
+    1: SEARCH_REGIME_POLICY_PREFIX,
+    2: SEARCH_REGIME_POLICY_V2_PREFIX,
+}
+SEARCH_REGIME_V1_STATUSES = (
     "normal",
     "expand_required",
     "exploit",
 )
+SEARCH_REGIME_V2_STATUSES = (
+    *SEARCH_REGIME_V1_STATUSES,
+    "representation_change_required",
+)
+SEARCH_REGIME_STATUSES = SEARCH_REGIME_V2_STATUSES
 DEFAULT_SEARCH_REGIME = {"schema_version": 1, "status": "normal"}
+SEARCH_REGIME_DIRECTIVES = {
+    "normal": (
+        "Machine search-regime directive: preserve broad mechanism coverage "
+        "and prefer structurally novel candidates over coefficient jitter."
+    ),
+    "expand_required": (
+        "Machine search-regime directive: expand the BB mechanism family, "
+        "support shapes, orbit spans, and cover constructions; do not merely "
+        "retune coefficients in an occupied family."
+    ),
+    "representation_change_required": (
+        "Machine search-regime directive: change the generator representation "
+        "or structural genotype and use the restart lane for representation-"
+        "changing proposals; coefficient-only mutation is insufficient."
+    ),
+    "exploit": (
+        "Machine search-regime directive: exploit the trusted exact-distance "
+        "mechanism while retaining cross-mechanism coverage."
+    ),
+}
 SEARCH_PORTFOLIO_ARTIFACT_KEY = "qcode_search_portfolio_v2"
 WINNER_PREFLIGHT_NUMERIC_THREAD_ENV = (
     "OMP_NUM_THREADS",
@@ -1962,19 +1992,33 @@ def _validated_search_regime(
     """Read the optional machine-authored mechanism search regime marker."""
 
     text = humanize_context or ""
-    token = SEARCH_REGIME_POLICY_PREFIX[:-1]
-    lines: list[str] = []
+    marker_specs = tuple(
+        (version, prefix, prefix[:-1])
+        for version, prefix in SEARCH_REGIME_PREFIX_BY_POLICY_VERSION.items()
+    )
+    lines: list[tuple[int, str]] = []
     for line in text.splitlines():
-        if token not in line:
+        mentioned = [
+            (version, prefix)
+            for version, prefix, token in marker_specs
+            if token in line
+        ]
+        if not mentioned:
             continue
-        if not line.startswith(SEARCH_REGIME_POLICY_PREFIX):
+        exact = [
+            (version, prefix)
+            for version, prefix in mentioned
+            if line.startswith(prefix)
+        ]
+        if len(mentioned) != 1 or len(exact) != 1:
             raise RuntimeError(
                 "search regime marker must start a line exactly"
             )
-        lines.append(line[len(SEARCH_REGIME_POLICY_PREFIX):])
+        version, prefix = exact[0]
+        lines.append((version, line[len(prefix):]))
     if not lines:
         return dict(DEFAULT_SEARCH_REGIME)
-    if len(lines) != 1 or len(lines[0]) > 16_384:
+    if len(lines) != 1 or len(lines[0][1]) > 16_384:
         raise RuntimeError("humanize context has an invalid search regime marker")
 
     def reject_constant(value: str) -> None:
@@ -1988,9 +2032,10 @@ def _validated_search_regime(
             result[key] = item
         return result
 
+    policy_version, encoded = lines[0]
     try:
         value = json.loads(
-            lines[0],
+            encoded,
             parse_constant=reject_constant,
             object_pairs_hook=reject_duplicates,
         )
@@ -1999,7 +2044,11 @@ def _validated_search_regime(
     if (
         not isinstance(value, dict)
         or value.get("schema_version") != 1
-        or value.get("status") not in SEARCH_REGIME_STATUSES
+        or value.get("status") not in (
+            SEARCH_REGIME_V1_STATUSES
+            if policy_version == 1
+            else SEARCH_REGIME_V2_STATUSES
+        )
     ):
         raise RuntimeError("search regime marker has an unsupported schema/status")
     canonical = json.dumps(
@@ -2008,9 +2057,15 @@ def _validated_search_regime(
         separators=(",", ":"),
         allow_nan=False,
     )
-    if lines[0] != canonical:
+    if encoded != canonical:
         raise RuntimeError("search regime marker must use canonical compact JSON")
-    return value
+    if policy_version == 1:
+        return value
+    if "policy_version" in value:
+        raise RuntimeError(
+            "V2 search regime marker must encode its version in the prefix"
+        )
+    return {**value, "policy_version": 2}
 
 
 def _search_island_schedule(
@@ -2019,9 +2074,10 @@ def _search_island_schedule(
 ) -> tuple[int, ...]:
     """Return a deterministic per-slice mechanism quota schedule.
 
-    Normal/exploit slices remain balanced.  Once trusted exact evidence marks
-    structural stagnation, every mechanism keeps at least two trials in a
-    production 25-iteration slice while the restart lane receives eight.
+    Normal/exploit slices remain balanced. Family expansion keeps every
+    mechanism at four or more trials in a production 25-iteration slice while
+    giving restart eight. Representation change keeps three trials in each
+    mechanism lane and gives the restart lane thirteen.
     """
 
     if (
@@ -2037,7 +2093,12 @@ def _search_island_schedule(
     for island in range(iterations % SEARCH_PORTFOLIO_ISLAND_COUNT):
         counts[island] += 1
     order = list(range(SEARCH_PORTFOLIO_ISLAND_COUNT))
-    if regime_status == "expand_required" and iterations >= 10:
+    if regime_status == "representation_change_required" and iterations >= 5:
+        minimum = max(1, min(3, iterations // 8))
+        counts = [minimum] * (SEARCH_PORTFOLIO_ISLAND_COUNT - 1)
+        counts.append(iterations - sum(counts))
+        order = [4, 0, 1, 2, 3]
+    elif regime_status == "expand_required" and iterations >= 10:
         minimum = 2
         counts = [minimum] * SEARCH_PORTFOLIO_ISLAND_COUNT
         remaining = iterations - minimum * SEARCH_PORTFOLIO_ISLAND_COUNT
@@ -3179,14 +3240,27 @@ def _verified_slice_controller(
             _adaptive_mutation_policy_sha256(portfolio_policy)
         )
         if search_regime is not None:
+            marker_regime = dict(search_regime)
+            regime_policy_version = marker_regime.pop("policy_version", 1)
+            if (
+                isinstance(regime_policy_version, bool)
+                or regime_policy_version
+                not in SEARCH_REGIME_PREFIX_BY_POLICY_VERSION
+            ):
+                raise RuntimeError(
+                    "explicit search regime has an invalid policy version"
+                )
             encoded_regime = json.dumps(
-                search_regime,
+                marker_regime,
                 sort_keys=True,
                 separators=(",", ":"),
                 allow_nan=False,
             )
             portfolio_regime = _validated_search_regime(
-                SEARCH_REGIME_POLICY_PREFIX + encoded_regime
+                SEARCH_REGIME_PREFIX_BY_POLICY_VERSION[
+                    regime_policy_version
+                ]
+                + encoded_regime
             )
         observer.search_regime_status = str(portfolio_regime["status"])
     original_parallel = controller_module.ProcessParallelController
@@ -3310,6 +3384,9 @@ def _verified_slice_controller(
                 "adaptive_mutation_directive":
                     ADAPTIVE_MUTATION_DIRECTIVES[tactic],
                 "search_regime": copy.deepcopy(portfolio_regime),
+                "search_regime_directive": SEARCH_REGIME_DIRECTIVES[
+                    observer.search_regime_status
+                ],
                 "policy_sha256": observer.search_policy_sha256,
             }
             snapshot["artifacts"][parent.id] = parent_artifacts

@@ -13,46 +13,225 @@ from typing import Any
 from .state import candidate_terminal_negative
 
 
+_LEGACY_REVIEW_FIELDS = frozenset(
+    {"verdict", "summary", "risks", "recommended_focus", "lessons"}
+)
+_CURRENT_REVIEW_FIELDS = _LEGACY_REVIEW_FIELDS | {
+    "schema_version",
+    "search_action",
+}
+_REVIEW_VERDICTS = ("continue", "promote", "stop", "reject_round")
+_RISK_SEVERITIES = ("P0", "P1", "P2", "P3")
+_SEARCH_ACTION_INTENTS = (
+    "maintain",
+    "diversify",
+    "explore_undercovered",
+    "repair_verified_failure",
+    "exploit_trusted_exact",
+    "expand_bb_family",
+    "change_bb_search_representation",
+)
+_SEARCH_ACTION_DIMENSIONS = (
+    "portfolio_role",
+    "algebraic_relation_type",
+    "support_split_type",
+    "orbit_span_bin",
+    "mutation_tactic",
+)
+_SEARCH_ACTION_DIRECTIONS = ("increase", "decrease", "maintain")
+_SEARCH_ACTION_PRIORITIES = ("high", "medium", "low")
+_SEARCH_ACTION_SOURCES = (
+    "current_round",
+    "round_history",
+    "trusted_exact_history",
+    "candidate_diversity",
+    "failure_direction_feedback",
+)
+_SEARCH_ACTION_VALUES = {
+    "portfolio_role": frozenset(
+        {
+            "affine_automorphism_cover",
+            "shared_anchor_coset_cover",
+            "complementary_diagonal_cover",
+            "asymmetric_anchor_cover",
+            "failure_repair_restart",
+        }
+    ),
+    "algebraic_relation_type": frozenset(
+        {
+            "affine_orbit",
+            "shared_anchor_coset",
+            "complementary_diagonal",
+            "asymmetric_anchor",
+            "unstructured",
+        }
+    ),
+    "support_split_type": frozenset(
+        {"2+2", "2+3", "3+2", "2+4", "4+2", "3+3"}
+    ),
+    "orbit_span_bin": frozenset({"0", "1", "2"}),
+    "mutation_tactic": frozenset(
+        {
+            "novel_structure_exploration",
+            "repair_x_low_weight",
+            "repair_z_low_weight",
+            "repair_dual_balance",
+        }
+    ),
+}
+
+def _review_text_schema(*, maximum: int) -> dict[str, Any]:
+    """Return API-compatible generation-time text constraints.
+
+    Codex structured outputs reject regex lookaround, so JSON Schema enforces
+    type and length while ``validate_review`` rejects reserved ``QCODE_``
+    markers recursively before an artifact is persisted or consumed.
+    """
+
+    return {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": maximum,
+    }
+
+
+def _focus_item_schema(
+    dimension: str, values: frozenset[str]
+) -> dict[str, Any]:
+    """Close one dimension/value branch for structured-output generation."""
+
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["dimension", "value", "direction", "priority"],
+        "properties": {
+            "dimension": {"type": "string", "const": dimension},
+            "value": {"type": "string", "enum": sorted(values)},
+            "direction": {
+                "type": "string",
+                "enum": list(_SEARCH_ACTION_DIRECTIONS),
+            },
+            "priority": {
+                "type": "string",
+                "enum": list(_SEARCH_ACTION_PRIORITIES),
+            },
+        },
+    }
+
+
 REVIEW_SCHEMA: dict[str, Any] = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "additionalProperties": False,
-    "required": ["verdict", "summary", "risks", "recommended_focus", "lessons"],
+    "required": [
+        "schema_version",
+        "verdict",
+        "summary",
+        "risks",
+        "recommended_focus",
+        "lessons",
+        "search_action",
+    ],
     "properties": {
+        "schema_version": {"type": "integer", "const": 2},
         "verdict": {
             "type": "string",
-            "enum": ["continue", "promote", "stop", "reject_round"],
+            "enum": list(_REVIEW_VERDICTS),
         },
-        "summary": {"type": "string", "minLength": 1},
+        "summary": _review_text_schema(maximum=4000),
         "risks": {
             "type": "array",
+            "maxItems": 16,
             "items": {
                 "type": "object",
                 "additionalProperties": False,
                 "required": ["severity", "finding", "evidence"],
                 "properties": {
                     "severity": {
-                        "type": "string", "enum": ["P0", "P1", "P2", "P3"]
+                        "type": "string", "enum": list(_RISK_SEVERITIES)
                     },
-                    "finding": {"type": "string", "minLength": 1},
-                    "evidence": {"type": "string", "minLength": 1},
+                    "finding": _review_text_schema(maximum=2000),
+                    "evidence": _review_text_schema(maximum=4000),
                 },
             },
         },
         "recommended_focus": {
-            "type": "array", "items": {"type": "string", "minLength": 1}
+            "type": "array",
+            "maxItems": 16,
+            "items": _review_text_schema(maximum=500),
         },
         "lessons": {
             "type": "array",
+            "maxItems": 16,
             "items": {
                 "type": "object",
                 "additionalProperties": False,
                 "required": ["insight", "evidence", "action"],
                 "properties": {
-                    "insight": {"type": "string", "minLength": 1},
-                    "evidence": {"type": "string", "minLength": 1},
-                    "action": {"type": "string", "minLength": 1},
+                    "insight": _review_text_schema(maximum=1000),
+                    "evidence": _review_text_schema(maximum=2000),
+                    "action": _review_text_schema(maximum=1000),
                 },
+            },
+        },
+        "search_action": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "schema_version",
+                "advisory_only",
+                "intent",
+                "horizon_rounds",
+                "focus",
+                "evidence_refs",
+                "rationale",
+            ],
+            "properties": {
+                "schema_version": {"type": "integer", "const": 1},
+                "advisory_only": {"type": "boolean", "const": True},
+                "intent": {
+                    "type": "string",
+                    "enum": list(_SEARCH_ACTION_INTENTS),
+                },
+                "horizon_rounds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3,
+                },
+                "focus": {
+                    "type": "array",
+                    "maxItems": 8,
+                    "items": {
+                        "anyOf": [
+                            _focus_item_schema(dimension, values)
+                            for dimension, values in _SEARCH_ACTION_VALUES.items()
+                        ],
+                    },
+                },
+                "evidence_refs": {
+                    "type": "array",
+                    "maxItems": 16,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["source", "round", "candidate_key"],
+                        "properties": {
+                            "source": {
+                                "type": "string",
+                                "enum": list(_SEARCH_ACTION_SOURCES),
+                            },
+                            "round": {
+                                "type": ["integer", "null"],
+                                "minimum": 1,
+                            },
+                            "candidate_key": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{20,64}$",
+                            },
+                        },
+                    },
+                },
+                "rationale": _review_text_schema(maximum=4000),
             },
         },
     },
@@ -63,25 +242,166 @@ class ReviewError(RuntimeError):
     """The independent review failed or violated its output contract."""
 
 
-def validate_review(value: Any) -> dict[str, Any]:
-    """Small runtime validator; Codex also receives the full JSON schema."""
-    if not isinstance(value, dict):
-        raise ReviewError("review output must be a JSON object")
-    required = {"verdict", "summary", "risks", "recommended_focus", "lessons"}
-    missing = required - value.keys()
+def _validate_exact_fields(
+    value: dict[str, Any], expected: frozenset[str], label: str
+) -> None:
+    missing = expected - value.keys()
+    extra = value.keys() - expected
     if missing:
-        raise ReviewError("review output missing fields: " + ", ".join(sorted(missing)))
-    if value["verdict"] not in {"continue", "promote", "stop", "reject_round"}:
+        raise ReviewError(f"{label} missing fields: " + ", ".join(sorted(missing)))
+    if extra:
+        raise ReviewError(
+            f"{label} contains unsupported fields: " + ", ".join(sorted(extra))
+        )
+
+
+def _validate_string(value: Any, label: str, *, maximum: int) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise ReviewError(f"{label} must be a non-empty string")
+    if len(value) > maximum:
+        raise ReviewError(f"{label} exceeds maximum length {maximum}")
+
+
+def _reject_reserved_markers(value: Any, path: str = "review") -> None:
+    if isinstance(value, str):
+        if "QCODE_" in value:
+            raise ReviewError(f"{path} contains a reserved QCODE_ marker")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            _reject_reserved_markers(item, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _reject_reserved_markers(item, f"{path}[{index}]")
+
+
+def _validate_search_action(value: Any) -> None:
+    if not isinstance(value, dict):
+        raise ReviewError("review search_action must be an object")
+    expected = frozenset(
+        {
+            "schema_version",
+            "advisory_only",
+            "intent",
+            "horizon_rounds",
+            "focus",
+            "evidence_refs",
+            "rationale",
+        }
+    )
+    _validate_exact_fields(value, expected, "review search_action")
+    if isinstance(value["schema_version"], bool) or value["schema_version"] != 1:
+        raise ReviewError("review search_action.schema_version must be 1")
+    if value["advisory_only"] is not True:
+        raise ReviewError("review search_action.advisory_only must be true")
+    if value["intent"] not in _SEARCH_ACTION_INTENTS:
+        raise ReviewError(f"invalid search_action intent: {value['intent']!r}")
+    horizon = value["horizon_rounds"]
+    if isinstance(horizon, bool) or not isinstance(horizon, int) or not 1 <= horizon <= 3:
+        raise ReviewError("review search_action.horizon_rounds must be an integer 1-3")
+
+    focus = value["focus"]
+    if not isinstance(focus, list) or len(focus) > 8:
+        raise ReviewError("review search_action.focus must be an array of at most 8 items")
+    focus_fields = frozenset({"dimension", "value", "direction", "priority"})
+    for index, item in enumerate(focus):
+        if not isinstance(item, dict):
+            raise ReviewError(f"review search_action.focus[{index}] must be an object")
+        _validate_exact_fields(
+            item, focus_fields, f"review search_action.focus[{index}]"
+        )
+        dimension = item["dimension"]
+        if dimension not in _SEARCH_ACTION_DIMENSIONS:
+            raise ReviewError(
+                f"invalid search_action focus dimension: {dimension!r}"
+            )
+        allowed_values = _SEARCH_ACTION_VALUES[dimension]
+        if item["value"] not in allowed_values:
+            raise ReviewError(
+                "search_action focus value is incompatible with dimension "
+                f"{dimension!r}: {item['value']!r}"
+            )
+        if item["direction"] not in _SEARCH_ACTION_DIRECTIONS:
+            raise ReviewError(
+                f"invalid search_action focus direction: {item['direction']!r}"
+            )
+        if item["priority"] not in _SEARCH_ACTION_PRIORITIES:
+            raise ReviewError(
+                f"invalid search_action focus priority: {item['priority']!r}"
+            )
+
+    refs = value["evidence_refs"]
+    if not isinstance(refs, list) or len(refs) > 16:
+        raise ReviewError(
+            "review search_action.evidence_refs must be an array of at most 16 items"
+        )
+    ref_fields = frozenset({"source", "round", "candidate_key"})
+    for index, item in enumerate(refs):
+        if not isinstance(item, dict):
+            raise ReviewError(
+                f"review search_action.evidence_refs[{index}] must be an object"
+            )
+        _validate_exact_fields(
+            item, ref_fields, f"review search_action.evidence_refs[{index}]"
+        )
+        if item["source"] not in _SEARCH_ACTION_SOURCES:
+            raise ReviewError(
+                f"invalid search_action evidence source: {item['source']!r}"
+            )
+        round_number = item["round"]
+        if round_number is not None and (
+            isinstance(round_number, bool)
+            or not isinstance(round_number, int)
+            or round_number < 1
+        ):
+            raise ReviewError(
+                "search_action evidence round must be null or a positive integer"
+            )
+        candidate_key = item["candidate_key"]
+        if candidate_key is not None and (
+            not isinstance(candidate_key, str)
+            or not 20 <= len(candidate_key) <= 64
+            or any(character not in "0123456789abcdef" for character in candidate_key)
+        ):
+            raise ReviewError(
+                "search_action evidence candidate_key must be null or 20-64 "
+                "lowercase hexadecimal characters"
+            )
+    _validate_string(
+        value["rationale"], "review search_action.rationale", maximum=4000
+    )
+
+
+def _validate_legacy_review(value: dict[str, Any]) -> dict[str, Any]:
+    """Replay the original v1 validator without imposing v2 constraints.
+
+    Historical artifacts were intentionally validated permissively: unknown
+    top-level and nested fields were retained, nested scalar text was checked
+    through ``str(...)``, and there were no collection/length or reserved-word
+    limits.  Keeping those exact semantics is important for durable replay;
+    fresh generation never enters this path.
+    """
+
+    missing = _LEGACY_REVIEW_FIELDS - value.keys()
+    if missing:
+        raise ReviewError(
+            "review output missing fields: " + ", ".join(sorted(missing))
+        )
+    if value["verdict"] not in _REVIEW_VERDICTS:
         raise ReviewError(f"invalid review verdict: {value['verdict']!r}")
     if not isinstance(value["summary"], str) or not value["summary"].strip():
         raise ReviewError("review summary must be non-empty")
-    if not all(isinstance(value[name], list)
-               for name in ("risks", "recommended_focus", "lessons")):
-        raise ReviewError("review risks, recommended_focus, and lessons must be arrays")
+    if not all(
+        isinstance(value[name], list)
+        for name in ("risks", "recommended_focus", "lessons")
+    ):
+        raise ReviewError(
+            "review risks, recommended_focus, and lessons must be arrays"
+        )
     for risk in value["risks"]:
-        if not isinstance(risk, dict) or risk.get("severity") not in {
-            "P0", "P1", "P2", "P3"
-        }:
+        if not isinstance(risk, dict) or risk.get("severity") not in (
+            _RISK_SEVERITIES
+        ):
             raise ReviewError("every risk needs severity P0-P3")
         if not str(risk.get("finding", "")).strip() or not str(
             risk.get("evidence", "")
@@ -94,6 +414,87 @@ def validate_review(value: Any) -> dict[str, Any]:
         ):
             raise ReviewError("every lesson needs insight, evidence, and action")
     return value
+
+
+def _validate_current_review(value: dict[str, Any]) -> dict[str, Any]:
+    """Validate a current v2 artifact using the strict generation contract."""
+
+    _validate_exact_fields(value, _CURRENT_REVIEW_FIELDS, "review output")
+    if isinstance(value["schema_version"], bool) or value["schema_version"] != 2:
+        raise ReviewError("review schema_version must be 2")
+    if value["verdict"] not in _REVIEW_VERDICTS:
+        raise ReviewError(f"invalid review verdict: {value['verdict']!r}")
+    _validate_string(value["summary"], "review summary", maximum=4000)
+    if not all(
+        isinstance(value[name], list)
+        for name in ("risks", "recommended_focus", "lessons")
+    ):
+        raise ReviewError(
+            "review risks, recommended_focus, and lessons must be arrays"
+        )
+    if len(value["risks"]) > 16:
+        raise ReviewError("review risks must contain at most 16 items")
+    if len(value["recommended_focus"]) > 16:
+        raise ReviewError("review recommended_focus must contain at most 16 items")
+    if len(value["lessons"]) > 16:
+        raise ReviewError("review lessons must contain at most 16 items")
+    risk_fields = frozenset({"severity", "finding", "evidence"})
+    for index, risk in enumerate(value["risks"]):
+        if not isinstance(risk, dict):
+            raise ReviewError(f"review risks[{index}] must be an object")
+        _validate_exact_fields(risk, risk_fields, f"review risks[{index}]")
+        if risk["severity"] not in _RISK_SEVERITIES:
+            raise ReviewError("every risk needs severity P0-P3")
+        _validate_string(
+            risk["finding"], f"review risks[{index}].finding", maximum=2000
+        )
+        _validate_string(
+            risk["evidence"], f"review risks[{index}].evidence", maximum=4000
+        )
+    for index, focus in enumerate(value["recommended_focus"]):
+        _validate_string(
+            focus, f"review recommended_focus[{index}]", maximum=500
+        )
+    lesson_fields = frozenset({"insight", "evidence", "action"})
+    for index, lesson in enumerate(value["lessons"]):
+        if not isinstance(lesson, dict):
+            raise ReviewError(f"review lessons[{index}] must be an object")
+        _validate_exact_fields(lesson, lesson_fields, f"review lessons[{index}]")
+        _validate_string(
+            lesson["insight"], f"review lessons[{index}].insight", maximum=1000
+        )
+        _validate_string(
+            lesson["evidence"], f"review lessons[{index}].evidence", maximum=2000
+        )
+        _validate_string(
+            lesson["action"], f"review lessons[{index}].action", maximum=1000
+        )
+    _validate_search_action(value["search_action"])
+    _reject_reserved_markers(value)
+    return value
+
+
+def validate_review(
+    value: Any, *, require_current: bool = False
+) -> dict[str, Any]:
+    """Validate permissive legacy-v1 or strict current-v2 reviewer output.
+
+    The default preserves the historical v1 validator semantics so previously
+    accepted artifacts remain replayable.  Objects carrying both v2-only
+    fields are validated strictly.  New Codex generation uses
+    ``REVIEW_SCHEMA`` and always sets ``require_current=True``.
+    """
+    if not isinstance(value, dict):
+        raise ReviewError("review output must be a JSON object")
+    if require_current:
+        if not {"schema_version", "search_action"}.issubset(value):
+            raise ReviewError(
+                "legacy reviewer output is not accepted for this operation"
+            )
+        return _validate_current_review(value)
+    if {"schema_version", "search_action"}.issubset(value):
+        return _validate_current_review(value)
+    return _validate_legacy_review(value)
 
 
 _ADVISORY_ROW_FIELDS = (
@@ -125,6 +526,62 @@ _ADVISORY_ROW_FIELDS = (
     "distance_retry_required",
     "distance_backend_error",
 )
+
+_TRUSTED_EXACT_COMPACT_FIELDS = (
+    "candidate_key",
+    "ell",
+    "m",
+    "n",
+    "k",
+    "d",
+    "fom",
+    "A_terms",
+    "B_terms",
+    "archive_cell",
+    "archive_round",
+    "pattern_type",
+    "pattern_classifier_version",
+    "term_count",
+    "stage",
+    "search_status",
+    "distance_status",
+    "d_is_exact",
+    "distance_trusted",
+    "algebraic_relation_type",
+    "support_split_type",
+    "orbit_span_bin",
+    "candidate_persistence_lane",
+    "audit_attempt",
+    "trusted_win_gate",
+)
+_ROUND_HISTORY_COMPACT_FIELDS = (
+    "round",
+    "round_number",
+    "new_candidates",
+    "new_candidate_count",
+    "milp_audited",
+    "audited_count",
+    "milp_audited_count",
+    "milp_exact",
+    "milp_exact_count",
+    "trusted_exact_total",
+    "trusted_exact_count",
+    "trusted_win_total",
+    "trusted_win_count",
+    "unresolved_count",
+    "best_exact_fom",
+    "review_verdict",
+    "review_summary",
+    "search_action",
+    "search_regime",
+    "candidate_diversity",
+    "sealed_exact_audit",
+    "failure_direction_feedback",
+    "portfolio_allocation",
+    "stage_statuses",
+)
+_TRUSTED_EXACT_DETAILS_LIMIT = 20
+_MEMORY_EXCERPT_LIMIT = 12000
 
 
 def _upper_bound_neutral_advisory(row: dict[str, Any]) -> dict[str, Any]:
@@ -188,6 +645,24 @@ def _upper_bound_neutral_advisory(row: dict[str, Any]) -> dict[str, Any]:
     return projected
 
 
+def _trusted_exact_compact(row: dict[str, Any]) -> dict[str, Any]:
+    """Return the small, decision-relevant index entry for one exact audit."""
+    return {
+        name: copy.deepcopy(row[name])
+        for name in _TRUSTED_EXACT_COMPACT_FIELDS
+        if name in row
+    }
+
+
+def _round_history_compact(row: dict[str, Any]) -> dict[str, Any]:
+    """Project one historical round without replaying untrusted candidates."""
+    return {
+        name: copy.deepcopy(row[name])
+        for name in _ROUND_HISTORY_COMPACT_FIELDS
+        if name in row
+    }
+
+
 def build_review_prompt(
     *,
     round_number: int,
@@ -198,10 +673,25 @@ def build_review_prompt(
     memory: str,
     trusted_exact_history: list[dict[str, Any]] | None = None,
     trusted_exact_wins: list[dict[str, Any]] | None = None,
+    round_history: list[dict[str, Any]] | None = None,
 ) -> str:
     """Build an evidence-only review prompt with explicit trust boundaries."""
     trusted_exact_history = trusted_exact_history or []
     trusted_exact_wins = trusted_exact_wins or []
+    round_history = round_history or []
+    memory_excerpt = memory[-_MEMORY_EXCERPT_LIMIT:]
+    compact_exact_history = [
+        _trusted_exact_compact(row) for row in trusted_exact_history
+    ]
+    exact_history_details = copy.deepcopy(
+        trusted_exact_history[:_TRUSTED_EXACT_DETAILS_LIMIT]
+    )
+    compact_exact_wins = [
+        _trusted_exact_compact(row) for row in trusted_exact_wins
+    ]
+    compact_round_history = [
+        _round_history_compact(row) for row in round_history
+    ]
     evidence = {
         "round": round_number,
         "contract": contract,
@@ -234,8 +724,35 @@ def build_review_prompt(
             "explicit_known_code_registry_replay_required": True,
             "registry_novel_true_required_for_stop": True,
         },
-        "trusted_exact_history": trusted_exact_history[:20],
-        "trusted_exact_wins": trusted_exact_wins[:20],
+        "trusted_exact_history": compact_exact_history,
+        "trusted_exact_history_details": exact_history_details,
+        "trusted_exact_history_coverage": {
+            "total": len(trusted_exact_history),
+            "compact_index_included": len(compact_exact_history),
+            "compact_index_omitted": 0,
+            "details_included": len(exact_history_details),
+            "details_omitted": len(trusted_exact_history)
+            - len(exact_history_details),
+            "details_selection": "input_order_first_20",
+        },
+        "trusted_exact_wins": compact_exact_wins,
+        "trusted_exact_wins_coverage": {
+            "total": len(trusted_exact_wins),
+            "compact_index_included": len(compact_exact_wins),
+            "compact_index_omitted": 0,
+        },
+        "round_history": compact_round_history,
+        "round_history_coverage": {
+            "total": len(round_history),
+            "compact_index_included": len(compact_round_history),
+            "compact_index_omitted": 0,
+        },
+        "memory_coverage": {
+            "total_characters": len(memory),
+            "included_characters": len(memory_excerpt),
+            "omitted_characters": len(memory) - len(memory_excerpt),
+            "selection": "most_recent_12000_characters",
+        },
     }
     return f"""You are the independent reviewer in a Humanize-style RLCR loop for
 quantum error-correcting code discovery. Review the round evidence below. You
@@ -249,6 +766,11 @@ Trust boundary:
 - Only trusted_exact_history was independently replayed from the canonical
   audit log. trusted_exact_wins is the subset that also passes a construction
   rebuild and explicit known-code registry replay with novel=true.
+- trusted_exact_history is the complete compact index, never a top-N sample.
+  trusted_exact_history_details may be bounded, and its explicit coverage
+  object states exactly how many detail rows were included or omitted.
+- round_history is the complete compact index of prior-round aggregate
+  evidence. It never grants positive distance credit to unresolved rows.
 - archive_top, new_candidates, and milp_audited are upper-bound-neutral
   projections: unresolved BP/OSD d and FOM magnitudes are deliberately absent.
 - A replayable low-weight witness may be used only as negative evidence.
@@ -266,9 +788,19 @@ Verdicts:
   trusted_exact_wins is non-empty.
 - reject_round: evidence is corrupt or misleading; do not learn from it.
 
+Search-action contract:
+- Emit schema_version=2 and a search_action with schema_version=1.
+- search_action is advisory_only=true. It may recommend only an allowlisted
+  search intent and focus value for the next 1-3 rounds.
+- It cannot change stop rules, budgets, proof thresholds, stage ordering,
+  worker limits, or machine-owned state, and must not contain any reserved
+  QCODE_ marker.
+- Cite concrete evidence_refs. Use round_history when recommending a regime
+  change; do not infer a trend from a single round.
+
 Long-term BitLesson memory (may be empty):
 ---
-{memory[-12000:]}
+{memory_excerpt}
 ---
 
 Round evidence JSON:
@@ -374,7 +906,7 @@ class CodexReviewer:
                             f"{output_path}; see {log_path}"
                         ) from exc
                     try:
-                        validated = validate_review(value)
+                        validated = validate_review(value, require_current=True)
                     except ReviewError as exc:
                         raise ReviewError(
                             "independent review output violated its schema "

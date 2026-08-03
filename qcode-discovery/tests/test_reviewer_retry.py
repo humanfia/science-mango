@@ -8,10 +8,10 @@ from typing import Any
 import pytest
 
 import humanize.reviewer as reviewer_module
-from humanize.reviewer import CodexReviewer, ReviewError
+from humanize.reviewer import CodexReviewer, ReviewError, validate_review
 
 
-def _valid_review() -> dict[str, Any]:
+def _legacy_review() -> dict[str, Any]:
     return {
         "verdict": "continue",
         "summary": "continue searching",
@@ -19,6 +19,23 @@ def _valid_review() -> dict[str, Any]:
         "recommended_focus": [],
         "lessons": [],
     }
+
+
+def _valid_review() -> dict[str, Any]:
+    review = _legacy_review()
+    review.update({
+        "schema_version": 2,
+        "search_action": {
+            "schema_version": 1,
+            "advisory_only": True,
+            "intent": "maintain",
+            "horizon_rounds": 1,
+            "focus": [],
+            "evidence_refs": [],
+            "rationale": "No verified multi-round signal justifies a change.",
+        },
+    })
+    return review
 
 
 def _output_path(command: list[str]) -> Path:
@@ -42,6 +59,14 @@ def _reviewer(
         retry_backoff_seconds=0.25,
         sleeper=recorded_sleeps.append,
     )
+
+
+def test_legacy_review_replays_but_is_not_valid_fresh_codex_output() -> None:
+    legacy = _legacy_review()
+
+    assert validate_review(legacy) == legacy
+    with pytest.raises(ReviewError, match="legacy reviewer output"):
+        validate_review(legacy, require_current=True)
 
 
 def test_transient_process_failure_retries_then_succeeds(

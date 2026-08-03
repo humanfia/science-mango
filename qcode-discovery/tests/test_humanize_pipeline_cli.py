@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import signal
 import subprocess
@@ -135,6 +136,79 @@ def test_background_start_uses_isolated_session_and_inherited_lock(
     )
     assert stored["status"] == "starting"
     assert stored["proc_starttime"] == 123456
+    assert stored["config_path"] == str(config.resolve())
+    assert stored["config_sha256"] == hashlib.sha256(
+        config.read_bytes()
+    ).hexdigest()
+
+
+def test_durable_policy_snapshot_allows_operational_config_changes_only(tmp_path):
+    repo = _repo(tmp_path)
+    config = repo / "pipeline.json"
+    config.write_text(
+        '{"run_id":"snapshot","stage1":'
+        '{"search_representation_id":"css-bb-v1"}}\n'
+    )
+    paths = process_control.control_paths(repo, "snapshot", create=True)
+    first_sha = hashlib.sha256(config.read_bytes()).hexdigest()
+    first = process_control._capture_durable_escalation_policy(
+        repo_dir=repo,
+        config_path=config,
+        config_sha256=first_sha,
+        run_id="snapshot",
+        snapshot_path=paths.escalation_policy,
+    )
+    assert first["enabled"] is False
+
+    config.write_text(
+        '{"run_id":"snapshot","resume":true,"max_total_workers":24,'
+        '"stage1":{"search_representation_id":"css-bb-v1",'
+        '"max_rounds":20}}\n'
+    )
+    changed_sha = hashlib.sha256(config.read_bytes()).hexdigest()
+    second = process_control._capture_durable_escalation_policy(
+        repo_dir=repo,
+        config_path=config,
+        config_sha256=changed_sha,
+        run_id="snapshot",
+        snapshot_path=paths.escalation_policy,
+    )
+    assert second == first
+
+    config.write_text(
+        '{"run_id":"snapshot","stage1":'
+        '{"search_representation_id":"css-bb-v2"}}\n'
+    )
+    changed_authority_sha = hashlib.sha256(config.read_bytes()).hexdigest()
+    with pytest.raises(
+        process_control.ProcessControlError,
+        match="differs from the durable run snapshot",
+    ):
+        process_control._capture_durable_escalation_policy(
+            repo_dir=repo,
+            config_path=config,
+            config_sha256=changed_authority_sha,
+            run_id="snapshot",
+            snapshot_path=paths.escalation_policy,
+        )
+
+
+def test_pending_escalation_retries_without_rerunning_science(tmp_path):
+    repo = _repo(tmp_path)
+    paths = process_control.control_paths(repo, "retry-parent", create=True)
+    process_control.atomic_write_json(
+        paths.root / "campaign-escalation.json",
+        {"disposition": "pending", "retryable": True},
+    )
+    process_control.atomic_write_json(
+        paths.state,
+        {"status": "COMPLETED_NO_WIN", "stage1": {"status": "COMPLETED"}},
+    )
+
+    recovered = process_control._pending_escalation_parent_result(paths)
+    assert recovered is not None
+    assert recovered["status"] == "COMPLETED_NO_WIN"
+    assert recovered["escalation_retry_only"] is True
 
 
 def test_per_run_lock_rejects_duplicate_owner(tmp_path):
@@ -268,6 +342,7 @@ def test_cancel_escalates_only_the_same_verified_group(tmp_path, monkeypatch):
     [
         ("FAILED", "failed", 1),
         ("INCOMPLETE", "failed", 1),
+        ("ESCALATION_PENDING", "failed", 1),
         ("COMPLETED_WIN", "completed", 0),
         ("COMPLETED_NO_WIN", "completed", 0),
     ],
@@ -431,6 +506,337 @@ def test_control_root_symlink_cannot_escape_repository(tmp_path):
     with pytest.raises(ValueError, match="escapes repository"):
         process_control.control_paths(repo, "escape", create=True)
     assert not (outside / "humanize").exists()
+
+
+def _fake_materialized_reconciliation(
+    child_config: Path,
+    *,
+    child_run_id: str = "auto-child",
+):
+    payload = child_config.read_bytes()
+    materialized = SimpleNamespace(
+        path=child_config,
+        child_run_id=child_run_id,
+        pipeline_sha256=hashlib.sha256(payload).hexdigest(),
+    )
+    return SimpleNamespace(
+        disposition="materialized",
+        materialized=materialized,
+        serializable=lambda: {
+            "schema_version": 1,
+            "kind": "qcode-campaign-escalation-reconciliation",
+            "disposition": "materialized",
+            "materialized": {
+                "path": str(child_config),
+                "child_run_id": child_run_id,
+                "pipeline_sha256": hashlib.sha256(payload).hexdigest(),
+            },
+        },
+    )
+
+
+def test_completed_no_win_materializes_and_starts_exact_child_once(
+    tmp_path, monkeypatch
+):
+    repo = _repo(tmp_path)
+    parent_config = repo / "parent.json"
+    parent_config.write_text('{"run_id":"parent"}\n')
+    child_input = repo / "child-candidates.jsonl"
+    child_input.write_text("{}\n")
+    child_config = repo / "child.json"
+    child_config.write_text(
+        json.dumps({
+            "run_id": "auto-child",
+            "resume": False,
+            "candidate_inputs": [str(child_input)],
+        }) + "\n"
+    )
+    reconciliation = _fake_materialized_reconciliation(child_config)
+    monkeypatch.setattr(
+        "humanize.escalation.reconcile_campaign_escalation",
+        lambda **_kwargs: reconciliation,
+    )
+    monkeypatch.setattr(
+        "humanize.escalation.verify_materialized_child_pipeline",
+        lambda **_kwargs: {},
+    )
+    launches = []
+
+    def launch(**kwargs):
+        launches.append(kwargs)
+        intent = json.loads(
+            process_control.control_paths(repo, "parent").root.joinpath(
+                "campaign-escalation.json"
+            ).read_text()
+        )
+        assert intent["disposition"] == "pending"
+        assert intent["retryable"] is True
+        assert intent["launch"] == {
+            "status": "pending-launch-intent",
+            "child_run_id": "auto-child",
+            "config_path": str(child_config.resolve()),
+            "config_sha256": hashlib.sha256(
+                child_config.read_bytes()
+            ).hexdigest(),
+        }
+        return {
+            "run_id": kwargs["run_id"],
+            "config_path": str(kwargs["config_path"]),
+            "config_sha256": kwargs["expected_config_sha256"],
+            "pid": 9001,
+            "proc_starttime": 77,
+        }
+
+    outcome = process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=parent_config,
+        parent_run_id="parent",
+        result={"status": "COMPLETED_NO_WIN"},
+        python_executable="/usr/bin/python3",
+        launcher=launch,
+        status_reader=lambda **_kwargs: {
+            "status": "not-started",
+            "alive": False,
+            "process": None,
+            "state": None,
+        },
+    )
+
+    assert outcome is not None
+    assert outcome["launch"] == {
+        "status": "started",
+        "pid": 9001,
+        "proc_starttime": 77,
+    }
+    assert len(launches) == 1
+    assert launches[0]["run_id"] == "auto-child"
+    assert launches[0]["config_path"] == child_config.resolve()
+    stored = json.loads(
+        process_control.control_paths(repo, "parent").root.joinpath(
+            "campaign-escalation.json"
+        ).read_text()
+    )
+    assert stored["launch"]["status"] == "started"
+
+
+def test_campaign_escalation_adopts_only_hash_bound_live_child(
+    tmp_path, monkeypatch
+):
+    repo = _repo(tmp_path)
+    parent_config = repo / "parent.json"
+    parent_config.write_text('{"run_id":"parent"}\n')
+    child_input = repo / "child-candidates.jsonl"
+    child_input.write_text("{}\n")
+    child_config = repo / "child.json"
+    child_config.write_text(json.dumps({
+        "run_id": "auto-child",
+        "candidate_inputs": [str(child_input)],
+    }) + "\n")
+    reconciliation = _fake_materialized_reconciliation(child_config)
+    monkeypatch.setattr(
+        "humanize.escalation.reconcile_campaign_escalation",
+        lambda **_kwargs: reconciliation,
+    )
+    monkeypatch.setattr(
+        "humanize.escalation.verify_materialized_child_pipeline",
+        lambda **_kwargs: {},
+    )
+    digest = hashlib.sha256(child_config.read_bytes()).hexdigest()
+    live = {
+        "status": "running",
+        "alive": True,
+        "process": {
+            "run_id": "auto-child",
+            "config_path": str(child_config.resolve()),
+            "config_sha256": digest,
+            "pid": 9002,
+            "proc_starttime": 88,
+        },
+        "state": {"status": "RUNNING"},
+    }
+
+    outcome = process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=parent_config,
+        parent_run_id="parent",
+        result={"status": "COMPLETED_NO_WIN"},
+        python_executable="/usr/bin/python3",
+        launcher=lambda **_kwargs: pytest.fail("live child must be adopted"),
+        status_reader=lambda **_kwargs: live,
+    )
+    assert outcome is not None
+    assert outcome["launch"]["status"] == "adopted-running"
+    assert outcome["launch"]["pid"] == 9002
+
+    forged = dict(live)
+    forged["process"] = dict(live["process"], config_sha256="0" * 64)
+    blocked = process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=parent_config,
+        parent_run_id="parent-2",
+        result={"status": "COMPLETED_NO_WIN"},
+        python_executable="/usr/bin/python3",
+        launcher=lambda **_kwargs: pytest.fail("mismatched child must not start"),
+        status_reader=lambda **_kwargs: forged,
+    )
+    assert blocked is not None
+    assert blocked["disposition"] == "pending"
+    assert blocked["classification"] == "ProcessControlError"
+
+
+def test_stale_or_failed_child_resumes_same_id_but_unknown_state_fails_closed(
+    tmp_path, monkeypatch
+):
+    repo = _repo(tmp_path)
+    parent_config = repo / "parent.json"
+    parent_config.write_text('{"run_id":"parent"}\n')
+    child_input = repo / "child-candidates.jsonl"
+    child_input.write_text("{}\n")
+    child_config = repo / "child.json"
+    child_config.write_text(json.dumps({
+        "run_id": "auto-child",
+        "resume": True,
+        "candidate_inputs": [str(child_input)],
+    }) + "\n")
+    reconciliation = _fake_materialized_reconciliation(child_config)
+    monkeypatch.setattr(
+        "humanize.escalation.reconcile_campaign_escalation",
+        lambda **_kwargs: reconciliation,
+    )
+    monkeypatch.setattr(
+        "humanize.escalation.verify_materialized_child_pipeline",
+        lambda **_kwargs: {},
+    )
+    digest = hashlib.sha256(child_config.read_bytes()).hexdigest()
+    stale = {
+        "status": "stale",
+        "alive": False,
+        "process": {
+            "run_id": "auto-child",
+            "config_path": str(child_config.resolve()),
+            "config_sha256": digest,
+            "pid": 9003,
+            "proc_starttime": 99,
+        },
+        "state": {"status": "RUNNING"},
+    }
+    launches = []
+
+    resumed = process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=parent_config,
+        parent_run_id="parent",
+        result={"status": "INCOMPLETE"},
+        python_executable="/usr/bin/python3",
+        launcher=lambda **kwargs: launches.append(kwargs) or {
+            "run_id": kwargs["run_id"],
+            "config_path": str(kwargs["config_path"]),
+            "config_sha256": kwargs["expected_config_sha256"],
+            "pid": 9004,
+            "proc_starttime": 100,
+        },
+        status_reader=lambda **_kwargs: stale,
+    )
+    assert resumed is not None
+    assert resumed["launch"]["status"] == "started"
+    assert launches[0]["run_id"] == "auto-child"
+    assert launches[0]["expected_config_sha256"] == digest
+
+    failed = {
+        "status": "FAILED",
+        "alive": False,
+        "process": stale["process"],
+        "state": {"status": "FAILED"},
+    }
+    failed_launches = []
+    resumed_failed = process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=parent_config,
+        parent_run_id="parent-failed",
+        result={"status": "COMPLETED_NO_WIN"},
+        python_executable="/usr/bin/python3",
+        launcher=lambda **kwargs: failed_launches.append(kwargs) or {
+            "run_id": kwargs["run_id"],
+            "config_path": str(kwargs["config_path"]),
+            "config_sha256": kwargs["expected_config_sha256"],
+            "pid": 9005,
+            "proc_starttime": 101,
+        },
+        status_reader=lambda **_kwargs: failed,
+    )
+    assert resumed_failed is not None
+    assert resumed_failed["launch"]["status"] == "resumed-failed"
+    assert failed_launches[0]["run_id"] == "auto-child"
+
+    unknown = process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=parent_config,
+        parent_run_id="parent-unknown",
+        result={"status": "COMPLETED_NO_WIN"},
+        python_executable="/usr/bin/python3",
+        launcher=lambda **_kwargs: pytest.fail("unknown child must not start"),
+        status_reader=lambda **_kwargs: {
+            "status": "mystery",
+            "alive": False,
+            "process": None,
+            "state": {"status": "mystery"},
+        },
+    )
+    assert unknown is not None
+    assert unknown["disposition"] == "pending"
+
+
+def test_incomplete_result_enters_escalation_reconciliation(tmp_path, monkeypatch):
+    repo = _repo(tmp_path)
+    config = repo / "pipeline.json"
+    config.write_text("{}\n")
+    calls = []
+    disabled = SimpleNamespace(
+        disposition="disabled",
+        materialized=None,
+        serializable=lambda: {"disposition": "disabled"},
+    )
+    monkeypatch.setattr(
+        "humanize.escalation.reconcile_campaign_escalation",
+        lambda **kwargs: calls.append(kwargs) or disabled,
+    )
+
+    outcome_path = process_control.control_paths(
+        repo, "incomplete-parent", create=True
+    ).root / "campaign-escalation.json"
+    process_control.atomic_write_json(
+        outcome_path,
+        {"disposition": "pending", "retryable": True},
+    )
+
+    assert process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=config,
+        parent_run_id="incomplete-parent",
+        result={"status": "INCOMPLETE"},
+        python_executable="/usr/bin/python3",
+    ) is None
+    assert len(calls) == 1
+    assert json.loads(outcome_path.read_text())["disposition"] == "disabled"
+
+
+def test_campaign_escalation_does_not_run_for_non_no_win_result(
+    tmp_path, monkeypatch
+):
+    repo = _repo(tmp_path)
+    config = repo / "pipeline.json"
+    config.write_text("{}\n")
+    monkeypatch.setattr(
+        "humanize.escalation.reconcile_campaign_escalation",
+        lambda **_kwargs: pytest.fail("non-no-WIN must not reconcile"),
+    )
+    assert process_control.reconcile_completed_campaign_escalation(
+        repo_dir=repo,
+        pipeline_config_path=config,
+        parent_run_id="winner",
+        result={"status": "COMPLETED_WIN"},
+        python_executable="/usr/bin/python3",
+    ) is None
 
 
 def test_export_release_command_uses_resolved_repo_and_safe_run_id(

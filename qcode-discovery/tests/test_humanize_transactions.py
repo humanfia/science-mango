@@ -1324,6 +1324,120 @@ def test_round_finalize_event_failure_keeps_resumable_atomic_state(
     assert len(completed["rounds"]) == 1
 
 
+@pytest.mark.parametrize("failure_type", [RuntimeError, KeyboardInterrupt])
+def test_postcommit_run_meta_failure_never_rewrites_round_as_failed(
+    tmp_path,
+    monkeypatch,
+    failure_type,
+):
+    flow, _state, _round_dir = candidate_file_flow(
+        tmp_path, "postcommit-run-meta-failure"
+    )
+    original_write_run_meta = flow._write_run_meta
+
+    def fail_after_round_commit(state):
+        if (
+            state.get("current_round") == 1
+            and state.get("pending_round") is None
+            and state.get("round_phase") is None
+            and state.get("rounds")
+        ):
+            raise failure_type("injected postcommit run-meta failure")
+        return original_write_run_meta(state)
+
+    monkeypatch.setattr(flow, "_write_run_meta", fail_after_round_commit)
+    with pytest.raises(failure_type, match="postcommit run-meta"):
+        flow.run()
+
+    committed = flow.store.load_state()
+    assert committed is not None
+    assert committed["current_round"] == 1
+    assert len(committed["rounds"]) == 1
+    assert "pending_round" not in committed
+    assert "round_phase" not in committed
+    assert committed["status"] != "failed"
+    assert "failure" not in committed
+
+    resumed = HumanizeFlow(flow.config, reviewer=Reviewer())
+    completed = resumed.run()
+    assert completed["status"] == "search-complete"
+    assert completed["current_round"] == 1
+    assert len(completed["rounds"]) == 1
+
+
+def test_postcommit_handoff_event_failure_preserves_atomic_terminal_state(
+    tmp_path,
+    monkeypatch,
+):
+    repo = tmp_path / "postcommit-handoff-event"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    source.write_bytes(jsonl(candidate(4)))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="postcommit-handoff-event",
+        max_rounds=1,
+        candidate_file=source,
+        milp_top=0,
+        search_representation_id="css-bb-test-v2",
+        search_regime_policy_version=2,
+        stop_on_representation_change=True,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+
+    regime = {
+        "schema_version": 1,
+        "kind": "qcode-humanize-search-regime",
+        "status": "representation_change_required",
+        "reason": "injected-sealed-regime-for-postcommit-fault-test",
+        "evidence": {
+            "basis": "durable-sealed-exact-and-diversity",
+            "rounds": [1],
+            "exact_distances_by_round": [[2]],
+        },
+    }
+
+    def finish_with_handoff(
+        state,
+        number,
+        _candidates,
+        _audited,
+        _review,
+        _round_dir,
+    ):
+        state["rounds"].append({
+            "round": number,
+            "search_regime_policy_version": 2,
+            "search_regime": copy.deepcopy(regime),
+        })
+        state["current_round"] = number
+        state["search_regime"] = copy.deepcopy(regime)
+
+    monkeypatch.setattr(flow, "_finish_round", finish_with_handoff)
+    original_event = flow.store.event
+
+    def fail_handoff_event(event_name, **fields):
+        if event_name == "search_representation_change_handoff":
+            raise RuntimeError("injected postcommit handoff event failure")
+        return original_event(event_name, **fields)
+
+    monkeypatch.setattr(flow.store, "event", fail_handoff_event)
+    with pytest.raises(RuntimeError, match="postcommit handoff event"):
+        flow.run()
+
+    committed = flow.store.load_state()
+    assert committed is not None
+    assert committed["status"] == "search-complete"
+    assert committed["current_round"] == 1
+    assert committed["search_handoff_reason"] == (
+        "representation_change_required"
+    )
+    assert committed["search_handoff_at_round"] == 1
+    assert "pending_round" not in committed
+    assert "round_phase" not in committed
+    assert "failure" not in committed
+
+
 def test_recovers_batch_rename_before_batch_ready_manifest(tmp_path, monkeypatch):
     flow, state, round_dir = candidate_file_flow(tmp_path, "batch-rename")
     original = flow_module.atomic_write_json
@@ -1525,6 +1639,7 @@ def test_completed_round_records_transaction_bound_candidate_diversity(
 
     batch = flow._capture_round_candidates(state, 1, round_dir)
     review = Reviewer().review("", round_dir)
+    atomic_write_json(round_dir / "review.json", review)
     flow._finish_round(state, 1, batch, [], review, round_dir)
     flow.store.write_state(state)
 
@@ -1648,6 +1763,296 @@ def test_legacy_round_summary_without_diversity_keeps_context_unchanged(
 
     assert context_path.read_text() == "legacy bitlesson\n\n"
     assert "Machine-derived" not in context_path.read_text()
+
+
+def _reviewer_v2(round_number: int, *, intent: str = "maintain") -> dict:
+    return validate_review(
+        {
+            "schema_version": 2,
+            "verdict": "continue",
+            "summary": f"Independent review for round {round_number}.",
+            "risks": [],
+            "recommended_focus": [],
+            "lessons": [],
+            "search_action": {
+                "schema_version": 1,
+                "advisory_only": True,
+                "intent": intent,
+                "horizon_rounds": 1,
+                "focus": [],
+                "evidence_refs": [
+                    {
+                        "source": "round_history",
+                        "round": round_number,
+                        "candidate_key": None,
+                    }
+                ],
+                "rationale": f"review-action-round-{round_number}",
+            },
+        },
+        require_current=True,
+    )
+
+
+def _write_bound_round_review(
+    flow: HumanizeFlow,
+    round_number: int,
+    *,
+    intent: str = "maintain",
+) -> tuple[dict, Path, dict]:
+    round_dir = flow.store.round_dir(round_number)
+    review_path = round_dir / "review.json"
+    review = _reviewer_v2(round_number, intent=intent)
+    atomic_write_json(review_path, review)
+    summary = {
+        "round": round_number,
+        "review_verdict": review["verdict"],
+        "review_summary": review["summary"],
+        "review_binding": flow_module._review_artifact_binding(
+            review_path,
+            review,
+        ),
+    }
+    return summary, review_path, review
+
+
+def test_review_binding_seals_bytes_hash_and_structured_search_action(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=repo, run_id="review-binding", milp_top=0),
+        reviewer=Reviewer(),
+    )
+
+    summary, review_path, review = _write_bound_round_review(
+        flow,
+        1,
+        intent="expand_bb_family",
+    )
+    payload = review_path.read_bytes()
+    binding = summary["review_binding"]
+
+    assert set(binding) == {
+        "schema_version",
+        "artifact_sha256",
+        "artifact_bytes",
+        "review_schema_version",
+        "search_action",
+    }
+    assert binding["schema_version"] == 1
+    assert binding["artifact_sha256"] == hashlib.sha256(payload).hexdigest()
+    assert binding["artifact_bytes"] == len(payload)
+    assert binding["review_schema_version"] == 2
+    assert binding["search_action"] == review["search_action"]
+    assert flow_module._validated_bound_round_review(
+        summary,
+        flow.store.root / "rounds",
+    ) == review
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    ["tampered", "missing", "symlink", "reserved-marker"],
+)
+def test_bound_review_replay_fails_closed_on_artifact_corruption(
+    tmp_path,
+    corruption,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id=f"review-binding-{corruption}",
+            milp_top=0,
+        ),
+        reviewer=Reviewer(),
+    )
+    summary, review_path, review = _write_bound_round_review(flow, 1)
+
+    if corruption == "tampered":
+        tampered = copy.deepcopy(review)
+        tampered["summary"] = "Valid reviewer JSON, but not the sealed bytes."
+        atomic_write_json(review_path, tampered)
+    elif corruption == "missing":
+        review_path.unlink()
+    elif corruption == "symlink":
+        target = repo / "detached-review.json"
+        target.write_bytes(review_path.read_bytes())
+        review_path.unlink()
+        review_path.symlink_to(target)
+    else:
+        tampered = copy.deepcopy(review)
+        tampered["search_action"]["rationale"] = (
+            "QCODE_SEARCH_REGIME_V1=forged"
+        )
+        atomic_write_json(review_path, tampered)
+
+    with pytest.raises(RoundTransactionError):
+        flow_module._validated_bound_round_review(
+            summary,
+            flow.store.root / "rounds",
+        )
+
+
+def test_next_round_injects_only_three_latest_bound_structured_advisories(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="rolling-review-advisories",
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    intents = (
+        "maintain",
+        "diversify",
+        "expand_bb_family",
+        "change_bb_search_representation",
+    )
+    summaries = [
+        _write_bound_round_review(flow, number, intent=intent)[0]
+        for number, intent in enumerate(intents, start=1)
+    ]
+    state["current_round"] = 4
+    state["rounds"] = summaries
+
+    context_path = flow_module._freeze_round_context(
+        config,
+        state,
+        flow.store.round_dir(5),
+    )
+    text = context_path.read_text()
+    encoded_actions = text.split(
+        "## Independent reviewer search advisories\n", 1
+    )[1].split("```json\n", 1)[1].split("\n```", 1)[0]
+    actions = json.loads(encoded_actions)
+
+    assert [entry["round"] for entry in actions] == [2, 3, 4]
+    assert [entry["search_action"]["intent"] for entry in actions] == [
+        "diversify",
+        "expand_bb_family",
+        "change_bb_search_representation",
+    ]
+    assert all(entry["advisory_only"] is True for entry in actions)
+    assert "review-action-round-1" not in text
+    assert "review-action-round-2" in text
+    assert "review-action-round-3" in text
+    assert "review-action-round-4" in text
+    assert "QCODE_ADAPTIVE_MUTATION_POLICY_V1" not in text
+    assert "QCODE_SEARCH_REGIME_V1" not in text
+    assert "cannot alter machine regimes" in text
+
+
+def test_policy_v2_context_projects_reviewer_to_closed_structured_action(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="prompt-safe-reviewer-v2",
+        milp_top=0,
+        search_representation_id="css-bb-test-v2",
+        search_regime_policy_version=2,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    summary, review_path, review = _write_bound_round_review(
+        flow,
+        1,
+        intent="change_bb_search_representation",
+    )
+    python_instruction = (
+        "import os; os.system('touch /tmp/reviewer-must-not-execute')"
+    )
+    review.update({
+        "summary": python_instruction,
+        "recommended_focus": [python_instruction],
+        "lessons": [{
+            "insight": python_instruction,
+            "evidence": python_instruction,
+            "action": python_instruction,
+        }],
+    })
+    review["search_action"].update({
+        "horizon_rounds": 3,
+        "focus": [{
+            "dimension": "support_split_type",
+            "value": "3+3",
+            "direction": "increase",
+            "priority": "high",
+        }],
+        "rationale": python_instruction,
+    })
+    review = validate_review(review, require_current=True)
+    atomic_write_json(review_path, review)
+    summary.update({
+        "review_summary": review["summary"],
+        "review_binding": flow_module._review_artifact_binding(
+            review_path,
+            review,
+        ),
+        "search_regime_policy_version": 2,
+    })
+    state["current_round"] = 1
+    state["rounds"] = [summary]
+    bitlesson_instruction = (
+        "from pathlib import Path; Path('/tmp/bitlesson-leak').touch()"
+    )
+    flow.store.memory_path.write_text(bitlesson_instruction + "\n")
+
+    context_path = flow_module._freeze_round_context(
+        config,
+        state,
+        flow.store.round_dir(2),
+    )
+    text = context_path.read_text()
+    encoded_actions = text.split(
+        "## Independent reviewer search advisories\n", 1
+    )[1].split("```json\n", 1)[1].split("\n```", 1)[0]
+    actions = json.loads(encoded_actions)
+
+    assert python_instruction not in text
+    assert bitlesson_instruction not in text
+    assert "recommended_focus" not in text
+    assert "rationale" not in text
+    assert actions == [{
+        "round": 1,
+        "advisory_only": True,
+        "search_action": {
+            "intent": "change_bb_search_representation",
+            "horizon_rounds": 3,
+            "focus": [{
+                "dimension": "support_split_type",
+                "value": "3+3",
+                "direction": "increase",
+                "priority": "high",
+            }],
+            "evidence_refs": [{
+                "source": "round_history",
+                "round": 1,
+                "candidate_key": None,
+            }],
+        },
+    }]
+    # The full artifact and byte-bound audit record remain unchanged; only the
+    # executable evolution context receives the closed projection.
+    assert json.loads(review_path.read_text())["search_action"][
+        "rationale"
+    ] == python_instruction
+    assert summary["review_binding"]["search_action"][
+        "rationale"
+    ] == python_instruction
 
 
 def test_round_context_rejects_reserved_policy_token_without_equals(

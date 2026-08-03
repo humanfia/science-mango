@@ -1,0 +1,100 @@
+# Fresh-launch OpenEvolve configuration for CSS BB representation search.
+#
+# This file deliberately does not upgrade or reinterpret config_ansatz.yaml.
+# Its schema-v2 mechanism/support/orbit MAP geometry is checkpoint-incompatible
+# with the legacy ansatz campaign and therefore requires a new run identity.
+# The matching seed is evolve/seed_solution_ansatz.py, whose public interface is
+# generate_candidates(ell, m) -> [(A_terms, B_terms), ...].
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+random_seed: 42
+
+qcode_search_portfolio:
+  enabled: true
+  schema_version: 2
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.34
+      temperature: 1.0
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 1.0
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are evolving the CSS bivariate-bicycle (BB) representation implemented
+    by `generate_candidates(ell, m)`. The function returns a JSON-serializable
+    list of two-polynomial pairs `(A_terms, B_terms)`. Each polynomial is a list
+    of distinct `(x_exponent, y_exponent)` monomials in
+    F_2[x,y]/(x^ell-1,y^m-1). Never return a non-CSS `(A,B,C,D)` tuple and never
+    change the function signature or the two-polynomial candidate interface.
+
+    The challenge requires CSS check weight and qubit degree at most six.
+    Generate only candidates inside the runtime-enforced support contract:
+    each side has at least two distinct terms, `|A|+|B|<=6`, `A!=B`, and the
+    only legal support splits are
+    `(2,2),(2,3),(3,2),(2,4),(4,2),(3,3)`.
+
+    Search for genuinely new CSS BB representations through algebraic and
+    geometric mechanisms rather than exponent jitter:
+    - affine torus automorphisms and quotient-cover lifts;
+    - shared-anchor cosets and related difference sets;
+    - complementary primitive diagonals;
+    - asymmetric 2+4 or 4+2 anchor/orbit constructions;
+    - mechanism-changing restarts driven by replayed short X/Z witnesses.
+
+    Produce useful candidates across all six support splits and all five
+    algebraic-relation categories. The managed schema-v2 portfolio fixes MAP
+    coordinates to `algebraic_relation_type`, `support_split_type`, and
+    `orbit_span_bin`; do not invent alternative dimensions or island meanings.
+
+    The objective is a novel code with rigorously certified
+    `FOM=k*d^2/n > 12`. BP-OSD and decoder-returned weights are distance upper
+    bounds, not lower bounds, and receive no positive distance credit. Favor
+    bounded survivor/rate/novelty feedback, independently replayed exact audits,
+    underoccupied MAP cells, and structural changes that repair verified short
+    logical directions. A large unresolved decoder weight is never a win.
+
+    Keep generation deterministic for fixed `(ell,m)`, respect the evaluator's
+    CSS support filter, avoid equivalent translations/A-B swaps/repeated
+    support pairs, and return at most 1200 ordinary `(A_terms,B_terms)`
+    candidates.
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  timeout: 1200
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 180
+  num_islands: 5
+  exploration_ratio: 0.55
+  exploitation_ratio: 0.35
+  migration_interval: 20
+  feature_dimensions:
+    - "algebraic_relation_type"
+    - "support_split_type"
+    - "orbit_span_bin"
+  feature_bins:
+    algebraic_relation_type: 5
+    support_split_type: 6
+    orbit_span_bin: 3

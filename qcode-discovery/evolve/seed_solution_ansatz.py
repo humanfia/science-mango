@@ -10,7 +10,9 @@ Every generated candidate obeys the challenge's hard CSS weight/degree budget
 Top-level objects:
 
 ``KNOWN_CODES`` : list[dict]
-    14 verified BB codes -- regression baselines.
+    14 BB reference records.  The ``n`` and ``k`` parameters are checked;
+    decoder-found logical weights are labelled only as distance/FOM upper
+    bounds and are never represented as exact expected distances.
 
 ``TARGET_LATTICES`` : list[tuple[int, int]]
     18 target (ell, m) lattice dimensions.
@@ -57,7 +59,7 @@ CHALLENGE_TERM_SPLITS = frozenset({
 
 
 # ---------------------------------------------------------------------------
-# Known BB codes -- verified against qldpc (n, k match exactly)
+# BB references -- qldpc verifies n and k; distance semantics are explicit
 # ---------------------------------------------------------------------------
 KNOWN_CODES = [
     # --- arXiv:2308.07915, Table 3 ---
@@ -138,55 +140,67 @@ KNOWN_CODES = [
         "ell": 30, "m": 6,
         "A_terms": [(9, 0), (0, 1), (0, 2)],
         "B_terms": [(0, 3), (25, 0), (26, 0)],
-        "expected": (360, 12, 24, 19.2),
+        "expected": (360, 12, None, None),
+        "distance_upper_bound": 24,
+        "fom_upper_bound": 19.2,
         "name": "[[360,12,<=24]]",
         "source": "arXiv:2308.07915",
     },
-    # --- Verified discoveries (150k-trial multi-decoder protocol) ---
+    # --- Decoder-found logicals: upper-bound evidence, not certification ---
     # [[360, 40, <=20]]  Constant-monomial: A = 1+y+y^2, B = 1+x^5+x^10
     {
         "ell": 15, "m": 12,
         "A_terms": [(0, 0), (0, 1), (0, 2)],
         "B_terms": [(0, 0), (5, 0), (10, 0)],
-        "expected": (360, 40, 20, 44.4),
+        "expected": (360, 40, None, None),
+        "distance_upper_bound": 20,
+        "fom_upper_bound": 44.4,
         "name": "[[360,40,<=20]]",
-        "source": "this work",
+        "source": "this work; decoder upper bound only",
     },
     # [[288, 32, <=20]]  x/y-swap: A = x^3+y^2+y^10, B = y^6+x+x^11
     {
         "ell": 12, "m": 12,
         "A_terms": [(3, 0), (0, 2), (0, 10)],
         "B_terms": [(0, 6), (1, 0), (11, 0)],
-        "expected": (288, 32, 20, 44.4),
+        "expected": (288, 32, None, None),
+        "distance_upper_bound": 20,
+        "fom_upper_bound": 44.4,
         "name": "[[288,32,<=20]]",
-        "source": "this work",
+        "source": "this work; decoder upper bound only",
     },
     # [[360, 32, <=16]]  Constant-monomial: A = 1+y^2+y^4, B = 1+x^3+x^4
     {
         "ell": 15, "m": 12,
         "A_terms": [(0, 0), (0, 2), (0, 4)],
         "B_terms": [(0, 0), (3, 0), (4, 0)],
-        "expected": (360, 32, 16, 22.8),
+        "expected": (360, 32, None, None),
+        "distance_upper_bound": 16,
+        "fom_upper_bound": 22.8,
         "name": "[[360,32,<=16]]",
-        "source": "this work",
+        "source": "this work; decoder upper bound only",
     },
     # [[288, 32, <=12]]  Constant-monomial: A = 1+y^2+y^4, B = 1+x^2+x^4
     {
         "ell": 12, "m": 12,
         "A_terms": [(0, 0), (0, 2), (0, 4)],
         "B_terms": [(0, 0), (2, 0), (4, 0)],
-        "expected": (288, 32, 12, 16.0),
+        "expected": (288, 32, None, None),
+        "distance_upper_bound": 12,
+        "fom_upper_bound": 16.0,
         "name": "[[288,32,<=12]]",
-        "source": "this work",
+        "source": "this work; decoder upper bound only",
     },
     # [[288, 24, <=12]]  x/y-swap: A = x^6+y+y^2, B = y^3+x^2+x^4
     {
         "ell": 24, "m": 6,
         "A_terms": [(6, 0), (0, 1), (0, 2)],
         "B_terms": [(0, 3), (2, 0), (4, 0)],
-        "expected": (288, 24, 12, 12.0),
+        "expected": (288, 24, None, None),
+        "distance_upper_bound": 12,
+        "fom_upper_bound": 12.0,
         "name": "[[288,24,<=12]]",
-        "source": "this work",
+        "source": "this work; decoder upper bound only",
     },
 ]
 

@@ -312,6 +312,38 @@ def test_search_regime_marker_and_expand_schedule_are_deterministic():
     assert launcher._search_island_schedule(25, "normal") == tuple(
         index % 5 for index in range(25)
     )
+    representation_schedule = launcher._search_island_schedule(
+        25,
+        "representation_change_required",
+    )
+    assert [
+        representation_schedule.count(island) for island in range(5)
+    ] == [3, 3, 3, 3, 13]
+    assert flow_module._search_island_schedule(
+        25,
+        "representation_change_required",
+    ) == representation_schedule
+    assert (
+        flow_module.SEARCH_REGIME_DIRECTIVES
+        == launcher.SEARCH_REGIME_DIRECTIVES
+    )
+
+    representation_regime = {
+        "schema_version": 1,
+        "status": "representation_change_required",
+    }
+    encoded = json.dumps(
+        representation_regime,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    with pytest.raises(RuntimeError, match="search regime"):
+        launcher._validated_search_regime(
+            launcher.SEARCH_REGIME_POLICY_PREFIX + encoded
+        )
+    assert launcher._validated_search_regime(
+        launcher.SEARCH_REGIME_POLICY_V2_PREFIX + encoded
+    ) == {**representation_regime, "policy_version": 2}
 
 
 @pytest.mark.parametrize(
@@ -320,6 +352,10 @@ def test_search_regime_marker_and_expand_schedule_are_deterministic():
         'prefix QCODE_SEARCH_REGIME_V1={"schema_version":1,"status":"normal"}',
         'QCODE_SEARCH_REGIME_V1={"schema_version":1, "status":"normal"}',
         'QCODE_SEARCH_REGIME_V1={"schema_version":1,"status":"unknown"}',
+        (
+            'QCODE_SEARCH_REGIME_V1={"schema_version":1,"status":"normal"}\n'
+            'QCODE_SEARCH_REGIME_V2={"schema_version":1,"status":"normal"}'
+        ),
     ),
 )
 def test_search_regime_marker_fails_closed(context):
@@ -978,6 +1014,9 @@ def test_verified_controller_portfolio_rebinds_snapshot_and_integrates_five_isla
                 "schema_version": 1,
                 "status": "normal",
             }
+            assert artifact["search_regime_directive"] == (
+                launcher.SEARCH_REGIME_DIRECTIVES["normal"]
+            )
             assert (
                 artifact["adaptive_mutation_tactic"]
                 in launcher.ADAPTIVE_MUTATION_TACTICS
@@ -1003,6 +1042,57 @@ def test_verified_controller_portfolio_rebinds_snapshot_and_integrates_five_isla
         assert observer.accounting_complete is True
 
     assert open_evolve.saved == [5]
+
+
+def test_representation_regime_forces_directive_into_every_portfolio_artifact(
+    monkeypatch,
+):
+    controller_module, worker_state = _install_fake_portfolio_sources(
+        monkeypatch,
+        wrong_worker_island=False,
+    )
+    config = _portfolio_config()
+    database = FakePortfolioDatabase()
+    open_evolve = controller_module.OpenEvolve()
+    regime = {
+        "schema_version": 1,
+        "status": "representation_change_required",
+        "policy_version": 2,
+    }
+
+    with launcher._verified_slice_controller(
+        0,
+        5,
+        search_config=config,
+        search_regime=regime,
+    ):
+        parallel = controller_module.ProcessParallelController(
+            database,
+            config,
+        )
+        asyncio.run(
+            parallel.run_evolution(
+                1,
+                5,
+                None,
+                checkpoint_callback=open_evolve._save_checkpoint,
+            )
+        )
+
+    assert len(worker_state["snapshots"]) == 5
+    expected_directive = launcher.SEARCH_REGIME_DIRECTIVES[
+        "representation_change_required"
+    ]
+    for snapshot in worker_state["snapshots"].values():
+        artifact = snapshot["portfolio_artifact"]
+        assert artifact["search_regime"] == regime
+        assert artifact["search_regime_directive"] == expected_directive
+        assert (
+            artifact["search_regime_directive"]
+            == flow_module.SEARCH_REGIME_DIRECTIVES[
+                "representation_change_required"
+            ]
+        )
 
 
 def test_verified_controller_freezes_parent_archive_for_completion_order(

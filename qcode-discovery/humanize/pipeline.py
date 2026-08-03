@@ -72,11 +72,11 @@ from .flow import (
     _HumanizeRunLease,
     _acquire_humanize_run_lease,
 )
-from .reviewer import CodexReviewer, validate_review
+from .reviewer import REVIEW_SCHEMA, CodexReviewer, validate_review
 from .state import RunStore
 
 PIPELINE_SCHEMA_VERSION = 1
-REVIEW_PROMPT_VERSION = 1
+REVIEW_PROMPT_VERSION = 2
 STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = (
     SHARED_SELECTION_LEDGER_SCHEMA_VERSION
 )
@@ -475,6 +475,12 @@ def _file_sha256(path: Path) -> str:
         if descriptor >= 0:
             os.close(descriptor)
     return digest.hexdigest()
+
+
+def _reviewer_source_sha256() -> str:
+    """Hash the reviewer implementation used by this controller process."""
+
+    return _file_sha256(Path(__file__).with_name("reviewer.py"))
 
 
 def _source_file_identity(path: Path) -> dict[str, Any]:
@@ -2712,6 +2718,8 @@ class FiveStagePipeline:
                 "prompt_version": REVIEW_PROMPT_VERSION,
                 "model": self.config.reviewer_model,
                 "effort": self.config.reviewer_effort,
+                "review_schema_sha256": _canonical_sha256(REVIEW_SCHEMA),
+                "reviewer_source_sha256": _reviewer_source_sha256(),
             }
         )
         if (
@@ -2751,17 +2759,13 @@ class FiveStagePipeline:
         record["review_path"] = str(review_dir / "review.json")
         record["review_fingerprint"] = review_fingerprint
         self._write_state()
-        fail_closed_search_review = (
-            stage == "stage1_search" and not self.config.candidate_inputs
-        )
         try:
-            if not fail_closed_search_review:
-                # A refreshed advisory review must not leave an older successful
-                # artifact looking current when the new attempt later fails.
-                for name in ("review.json", "bitlesson-suggestions.json"):
-                    (review_dir / name).unlink(missing_ok=True)
-                record.pop("review_machine_output_hashes", None)
-                record.pop("bitlesson_ids", None)
+            # A refreshed advisory review must not leave an older successful
+            # artifact looking current when the new attempt later fails.
+            for name in ("review.json", "bitlesson-suggestions.json"):
+                (review_dir / name).unlink(missing_ok=True)
+            record.pop("review_machine_output_hashes", None)
+            record.pop("bitlesson_ids", None)
             reviewer = self.reviewer
             if reviewer is None:
                 raise RuntimeError("stage review is enabled without a reviewer")
@@ -2794,21 +2798,9 @@ class FiveStagePipeline:
             error = f"{type(exc).__name__}: {exc}"
             record["review_finished_at"] = finished_at
             record["review_error"] = error
-            if fail_closed_search_review:
-                # Only Humanize search owns a reviewer-controlled search loop.
-                # The existing-input Stage 1 handoff is deterministic machine
-                # evidence, so its review is advisory like every proof stage.
-                record["review_status"] = "FAILED"
-                record["status"] = "REVIEW_FAILED"
-                self._write_state()
-                raise PipelineError(
-                    "REVIEW_FAILED",
-                    error,
-                    stage=stage,
-                ) from exc
-
-            # Reviews after search are advisory by contract. Record the failure
-            # durably, but preserve the deterministic machine result and routing.
+            # Every pipeline-level review is advisory. The mandatory Humanize
+            # search-review loop runs inside HumanizeFlow and is unaffected by
+            # an outer checkpoint-review outage.
             for name in ("review.json", "bitlesson-suggestions.json"):
                 try:
                     (review_dir / name).unlink(missing_ok=True)

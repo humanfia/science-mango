@@ -3867,6 +3867,48 @@ def test_existing_input_stage1_reviewer_failure_is_advisory_and_resume_only_retr
     assert runner.counts == {"stage2": 1, "strict": 1}
 
 
+def test_dynamic_stage1_outer_reviewer_failure_is_advisory(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    run_id = "stage1-dynamic-outer-review-advisory"
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage_review=True,
+    )
+    reviewer = RecordingReviewer(fail_once={"stage1_search"})
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=reviewer,
+    )
+
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        stage1.update(
+            {
+                "status": "COMPLETED",
+                "machine_status": "COMPLETED",
+                "output_hashes": {},
+            }
+        )
+        pipeline._review_stage(
+            "stage1_search",
+            {"gate": "qcode-stage1-humanize-checkpoint"},
+        )
+
+    stage1 = pipeline.state["stages"]["stage1_search"]
+    assert stage1["status"] == stage1["machine_status"] == "COMPLETED"
+    assert stage1["review_status"] == "ADVISORY_FAILED"
+    assert stage1["advisory_failure"]["classification"] == "ADVISORY_FAILED"
+    assert reviewer.calls == ["stage1_search"]
+
+
 def test_nonzero_stage_is_not_cached_and_blocks_downstream_until_resume(
     tmp_path,
 ):
@@ -4273,6 +4315,74 @@ def test_reviewer_config_change_reuses_machine_work_but_refreshes_reviews(
     assert second["status"] == "COMPLETED_NO_WIN"
     assert runner.counts == {"stage2": 1}
     assert second_reviewer.calls == list(STAGE_ORDER)
+    for stage in STAGE_ORDER:
+        assert second["stages"][stage]["attempt"] == 1
+        assert second["stages"][stage]["review_attempt"] == 2
+
+
+def test_reviewer_schema_change_reuses_machine_work_but_refreshes_reviews(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="review-schema-fingerprint")
+    runner = ScenarioRunner()
+    first_reviewer = RecordingReviewer()
+    first = FiveStagePipeline(
+        config, command_runner=runner, reviewer=first_reviewer
+    ).run()
+    first_fingerprint = first["stages"]["stage1_search"]["review_fingerprint"]
+
+    changed_schema = json.loads(json.dumps(pipeline_module.REVIEW_SCHEMA))
+    changed_schema["$comment"] = "test-only schema revision"
+    monkeypatch.setattr(pipeline_module, "REVIEW_SCHEMA", changed_schema)
+    second_reviewer = RecordingReviewer()
+    second = FiveStagePipeline(
+        config, command_runner=runner, reviewer=second_reviewer
+    ).run()
+
+    assert runner.counts == {"stage2": 1}
+    assert second_reviewer.calls == list(STAGE_ORDER)
+    assert (
+        second["stages"]["stage1_search"]["review_fingerprint"]
+        != first_fingerprint
+    )
+    for stage in STAGE_ORDER:
+        assert second["stages"][stage]["attempt"] == 1
+        assert second["stages"][stage]["review_attempt"] == 2
+
+
+def test_reviewer_source_change_reuses_machine_work_but_refreshes_reviews(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="review-source-fingerprint")
+    runner = ScenarioRunner()
+    source_sha256 = {"value": "a" * 64}
+    monkeypatch.setattr(
+        pipeline_module,
+        "_reviewer_source_sha256",
+        lambda: source_sha256["value"],
+    )
+    first_reviewer = RecordingReviewer()
+    first = FiveStagePipeline(
+        config, command_runner=runner, reviewer=first_reviewer
+    ).run()
+    first_fingerprint = first["stages"]["stage1_search"]["review_fingerprint"]
+
+    source_sha256["value"] = "b" * 64
+    second_reviewer = RecordingReviewer()
+    second = FiveStagePipeline(
+        config, command_runner=runner, reviewer=second_reviewer
+    ).run()
+
+    assert runner.counts == {"stage2": 1}
+    assert second_reviewer.calls == list(STAGE_ORDER)
+    assert (
+        second["stages"]["stage1_search"]["review_fingerprint"]
+        != first_fingerprint
+    )
     for stage in STAGE_ORDER:
         assert second["stages"][stage]["attempt"] == 1
         assert second["stages"][stage]["review_attempt"] == 2
