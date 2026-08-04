@@ -350,6 +350,7 @@ def _load_pipeline_event_milestone(
     rel: str,
     kind: str,
     cycle: int | None = None,
+    expected_decision: str | None = None,
 ) -> tuple[dict | None, int]:
     """Recover the latest validated per-target milestone from disk."""
     slug = file_slug(rel)
@@ -378,6 +379,14 @@ def _load_pipeline_event_milestone(
     for path in unique:
         milestone, error = loader(path, rel)
         if milestone is not None and not error:
+            if expected_decision:
+                decision = (
+                    formalization_review_decision(milestone)[0]
+                    if kind == "formalization"
+                    else proof_review_decision(milestone)[0]
+                )
+                if decision != expected_decision:
+                    continue
             return milestone, _pipeline_attempt(path)
     return None, 0
 
@@ -1042,6 +1051,21 @@ class ParallelProverRunner:
         if resume_report is not None:
             raw_events = resume_report.get("gate_events")
             raw_events = raw_events if isinstance(raw_events, list) else []
+            max_event_cycles: dict[tuple[str, str], int] = {}
+            for raw_event in raw_events:
+                if not isinstance(raw_event, dict):
+                    continue
+                kind = str(raw_event.get("kind") or "")
+                rel = str(raw_event.get("file") or "").lstrip("./")
+                try:
+                    cycle = int(raw_event.get("cycle") or 0)
+                except (TypeError, ValueError):
+                    continue
+                key = (kind, rel)
+                max_event_cycles[key] = max(
+                    max_event_cycles.get(key, 0), cycle,
+                )
+            seen_event_ids: set[str] = set()
             for raw_event in raw_events:
                 if not isinstance(raw_event, dict):
                     continue
@@ -1060,11 +1084,37 @@ class ParallelProverRunner:
                     or cycle < 1
                 ):
                     continue
+                artifact_cycle = cycle
+                if event_id in seen_event_ids:
+                    key = (kind, rel)
+                    cycle = max_event_cycles.get(key, cycle) + 1
+                    repaired_event_id = (
+                        f"pipeline:{self.iter_num}:{rel}:{kind}:{cycle}"
+                    )
+                    while repaired_event_id in seen_event_ids:
+                        cycle += 1
+                        repaired_event_id = (
+                            f"pipeline:{self.iter_num}:{rel}:{kind}:{cycle}"
+                        )
+                    max_event_cycles[key] = cycle
+                    log.warn(
+                        "Recovered duplicate target-lifecycle event id "
+                        f"{event_id!r}; replaying the later durable verdict as "
+                        f"{repaired_event_id!r}"
+                    )
+                    event_id = repaired_event_id
+                seen_event_ids.add(event_id)
+                expected_decision = str(
+                    raw_event.get(
+                        "decision" if kind == "formalization" else "route"
+                    ) or ""
+                )
                 milestone, _attempt = _load_pipeline_event_milestone(
                     iter_dir=self.iter_dir,
                     rel=rel,
                     kind=kind,
-                    cycle=cycle,
+                    cycle=artifact_cycle,
+                    expected_decision=expected_decision or None,
                 )
                 if milestone is None:
                     continue
@@ -1074,6 +1124,7 @@ class ParallelProverRunner:
                     "target": target,
                     "rel": rel,
                     "cycle": cycle,
+                    "artifact_cycle": artifact_cycle,
                     "milestone": milestone,
                     "applied": False,
                 }
@@ -1235,7 +1286,10 @@ class ParallelProverRunner:
                     iter_dir=self.iter_dir,
                     rel=rel,
                     kind="proof",
-                    cycle=int(event["cycle"]),
+                    cycle=int(event.get("artifact_cycle") or event["cycle"]),
+                    expected_decision=proof_review_decision(
+                        event["milestone"]
+                    )[0],
                 )
                 if _milestone is not None:
                     resume_outcomes[rel] = TargetReviewOutcome(
@@ -1244,6 +1298,30 @@ class ParallelProverRunner:
                         runner_ok=True,
                         milestone=_milestone,
                     )
+            reconciled_terminal: list[str] = []
+            for rel in sorted(resume_pending_formalization):
+                record = prior_targets.get(rel)
+                status = (
+                    str(record.get("status") or "")
+                    if isinstance(record, dict) else ""
+                )
+                if (
+                    status in {
+                        "solved",
+                        "blocked_infrastructure",
+                        "proof_review_exhausted",
+                    }
+                    and rel in resume_outcomes
+                ):
+                    resume_pending_formalization.discard(rel)
+                    resume_settled.add(rel)
+                    reconciled_terminal.append(rel)
+            if reconciled_terminal:
+                log.warn(
+                    "Recovered terminal proof verdict(s) from a stale "
+                    "pending-formalization checkpoint: "
+                    + ", ".join(reconciled_terminal)
+                )
 
         proof_cycles: dict[str, int] = {}
         formalization_cycles: dict[str, int] = {}
