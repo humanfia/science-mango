@@ -16,6 +16,7 @@ from humanize.flow import (
     RoundTransactionError,
     SEARCH_REGIME_PREFIX,
     SEARCH_REGIME_V2_PREFIX,
+    SEARCH_REGIME_V3_PREFIX,
     UnresolvedAuditError,
     _review_artifact_binding,
     _candidate_audit_stratum,
@@ -24,6 +25,7 @@ from humanize.flow import (
     _replay_search_regime,
     _search_regime_policy_from_context,
     _sealed_exact_distances,
+    _validated_search_handoff,
     select_for_milp,
 )
 
@@ -98,6 +100,8 @@ def _round(
     }
     if policy_version is not None:
         summary["search_regime_policy_version"] = policy_version
+    if policy_version == 3:
+        summary["trusted_win_total"] = 0
     return summary
 
 
@@ -261,6 +265,184 @@ def test_policy_v2_exact_d3_streak_triggers_both_escalation_boundaries():
     assert replaced["evidence"]["rounds"] == list(range(1, 8))
 
 
+def test_policy_v2_live_intermittent_exact_pattern_keeps_historical_result():
+    rounds = [
+        _round(number, 2, raw=100, unique=100, policy_version=2)
+        for number in range(1, 5)
+    ]
+    rounds.extend(
+        _round(number, raw=100, unique=100, policy_version=2)
+        for number in range(5, 8)
+    )
+    rounds.extend(
+        _round(number, 2, raw=100, unique=100, policy_version=2)
+        for number in range(8, 13)
+    )
+
+    regime = _replay_search_regime(rounds, policy_version=2)
+
+    assert regime["status"] == "expand_required"
+    assert regime["evidence"]["rounds"] == [9, 10, 11, 12]
+
+
+def test_policy_v3_empty_exact_rounds_are_neutral_evidence():
+    rounds = [
+        _round(number, 2, raw=100, unique=100, policy_version=3)
+        for number in range(1, 5)
+    ]
+    rounds.extend(
+        _round(number, raw=100, unique=100, policy_version=3)
+        for number in range(5, 8)
+    )
+    rounds.extend(
+        _round(number, 2, raw=100, unique=100, policy_version=3)
+        for number in range(8, 13)
+    )
+
+    before = _replay_search_regime(
+        rounds[:9], policy_version=3, max_rounds=12
+    )
+    regime = _replay_search_regime(
+        rounds, policy_version=3, max_rounds=12
+    )
+
+    assert before["status"] == "expand_required"
+    assert regime["status"] == "representation_change_required"
+    assert regime["reason"] == (
+        "trusted_exact_low_distance_evidence_requires_representation_change"
+    )
+    assert regime["evidence"]["rounds"] == [1, 2, 3, 4, 8, 9, 10]
+
+
+def test_policy_v3_exhausted_expansion_budget_forces_representation_handoff():
+    rounds = [
+        _round(number, 2, raw=100, unique=100, policy_version=3)
+        for number in range(1, 5)
+    ]
+    rounds.extend(
+        _round(number, raw=100, unique=100, policy_version=3)
+        for number in range(5, 13)
+    )
+
+    before = _replay_search_regime(
+        rounds[:-1], policy_version=3, max_rounds=12
+    )
+    regime = _replay_search_regime(
+        rounds, policy_version=3, max_rounds=12
+    )
+
+    assert before["status"] == "expand_required"
+    assert regime["status"] == "representation_change_required"
+    assert regime["reason"] == "round_budget_exhausted_after_family_expansion"
+    assert regime["evidence"]["round"] == 12
+    assert regime["evidence"]["max_rounds"] == 12
+    assert regime["evidence"]["prior_regime_evidence"]["rounds"] == [1, 2, 3, 4]
+
+
+def test_policy_v3_terminal_fallback_is_fail_closed():
+    rounds = [
+        _round(number, 2, raw=100, unique=100, policy_version=3)
+        for number in range(1, 5)
+    ]
+    rounds.extend(
+        _round(number, raw=100, unique=100, policy_version=3)
+        for number in range(5, 13)
+    )
+    rounds[-1]["trusted_win_total"] = 1
+
+    with_win = _replay_search_regime(
+        rounds, policy_version=3, max_rounds=12
+    )
+    assert with_win["status"] == "expand_required"
+
+    with pytest.raises(RoundTransactionError, match="positive max_rounds"):
+        _replay_search_regime(rounds, policy_version=3)
+
+    missing_exact = copy.deepcopy(rounds)
+    missing_exact[5].pop("sealed_exact_audit")
+    with pytest.raises(RoundTransactionError, match="sealed exact evidence"):
+        _replay_search_regime(
+            missing_exact, policy_version=3, max_rounds=12
+        )
+
+    sparse = [
+        _round(number, 2, raw=100, unique=100, policy_version=3)
+        for number in (1, 2, 3, 12)
+    ]
+    with pytest.raises(RoundTransactionError, match="contiguous rounds"):
+        _replay_search_regime(
+            sparse, policy_version=3, max_rounds=12
+        )
+
+    nonmonotonic_win = copy.deepcopy(rounds)
+    for summary in nonmonotonic_win:
+        summary["trusted_win_total"] = 0
+    nonmonotonic_win[5]["trusted_win_total"] = 1
+    with pytest.raises(RoundTransactionError, match="nondecreasing integer"):
+        _replay_search_regime(
+            nonmonotonic_win, policy_version=3, max_rounds=12
+        )
+
+
+def test_policy_v3_handoff_rejects_post_transition_rounds(
+    tmp_path, monkeypatch
+):
+    rounds = []
+    for number in range(1, 9):
+        distances = (2,) if number <= 7 else ()
+        summary = _round(
+            number,
+            *distances,
+            raw=100,
+            unique=100,
+            policy_version=3,
+        )
+        summary.pop("candidate_diversity")
+        regime = _replay_search_regime(
+            [*rounds, summary], policy_version=3, max_rounds=12
+        )
+        summary["search_regime"] = copy.deepcopy(regime)
+        rounds.append(summary)
+
+    malformed = copy.deepcopy(rounds)
+    malformed[-1].pop("sealed_exact_audit")
+    with pytest.raises(RoundTransactionError, match="sealed exact evidence"):
+        _replay_search_regime(
+            malformed, policy_version=3, max_rounds=12
+        )
+
+    monkeypatch.setattr(
+        flow_module,
+        "_validate_sealed_round_exact_summary",
+        lambda *_args, **_kwargs: None,
+    )
+    config = FlowConfig(
+        repo_dir=tmp_path,
+        run_id="v3-extra-round",
+        max_rounds=12,
+        milp_top=0,
+        search_representation_id="css-bb-v3-extra-round",
+        search_regime_policy_version=3,
+        stop_on_representation_change=True,
+    )
+    state = {
+        "status": "search-complete",
+        "current_round": 8,
+        "rounds": rounds,
+        "search_regime": copy.deepcopy(rounds[-1]["search_regime"]),
+        "search_handoff_reason": "representation_change_required",
+        "search_handoff_at_round": 8,
+        "trusted_win_count": 0,
+    }
+
+    with pytest.raises(RoundTransactionError, match="first representation"):
+        _validated_search_handoff(
+            config,
+            state,
+            rounds_root=tmp_path / "rounds",
+        )
+
+
 def test_policy_v2_exact_d4_remains_exploit_and_v1_d3_is_unchanged():
     v2 = [
         _round(number, 3, raw=100, unique=100, policy_version=2)
@@ -395,6 +577,32 @@ def test_v2_policy_emits_v2_marker_from_the_first_round(tmp_path):
     assert _search_regime_policy_from_context(context) == {
         **_normal_search_regime(0),
         "policy_version": 2,
+    }
+
+
+def test_v3_policy_emits_distinct_bound_marker_from_the_first_round(tmp_path):
+    repo = tmp_path / "repo"
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="v3-marker",
+        max_rounds=12,
+        milp_top=0,
+        search_representation_id="css-bb-test-v3",
+        search_regime_policy_version=3,
+    )
+
+    context = _freeze_round_context(
+        config,
+        {"current_round": 0, "rounds": []},
+        repo / "results/humanize/v3-marker/rounds/round-001",
+    )
+
+    lines = context.read_text().splitlines()
+    assert not any(line.startswith(SEARCH_REGIME_V2_PREFIX) for line in lines)
+    assert sum(line.startswith(SEARCH_REGIME_V3_PREFIX) for line in lines) == 1
+    assert _search_regime_policy_from_context(context) == {
+        **_normal_search_regime(0),
+        "policy_version": 3,
     }
 
 

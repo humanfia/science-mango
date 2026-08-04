@@ -417,11 +417,17 @@ Its mechanism labels are search heuristics; only the seed's explicitly checked
 quotient-support projection is described as a lift, and neither label is a
 distance or cover-code certificate.
 
-The opt-in `cover_algebra.auto_v2` template enables fail-closed campaign
-escalation.  Sealed exact/diversity evidence—not reviewer prose—moves the
-in-campaign search into family-expansion mode.  If the replayed evidence later
-requires a generator-representation change, Stage 1 first commits a durable
-handoff and the remaining proof stages audit the complete candidate pool.  A
+The production `cover_algebra.auto_v3` template enables fail-closed campaign
+escalation; `auto_v2` remains available only to replay already sealed V2 runs.
+Sealed exact/diversity evidence—not reviewer prose—moves the in-campaign search
+into family-expansion mode. V3 treats a sealed round with no exact result as
+evidence-neutral instead of letting a timeout erase earlier low-distance
+evidence. Seven exact-low evidence rounds require a fresh generator
+representation; an exhausted 12-round budget that has already required family
+expansion closes the same handoff deterministically. The V3 round budget is
+part of the run identity and cannot be extended in place. Stage 1 commits the
+representation-change handoff atomically, and the remaining proof stages audit
+the complete candidate pool. A
 five-stage result without a certified win then causes `humanize.escalation` to
 materialize a fresh, hash-bound schema-v2 ansatz campaign; the process
 controller starts it in a new detached session.  The child has a deterministic

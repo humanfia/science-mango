@@ -1971,6 +1971,9 @@ class FiveStagePipeline:
             return False
         previous_context = dict(previous_flow)
         current_context = dict(current_flow)
+        previous_policy_version = previous_context.get(
+            "search_regime_policy_version", 1
+        )
         previous_max_rounds = previous_context.pop("max_rounds", None)
         current_max_rounds = current_context.pop("max_rounds", None)
         return bool(
@@ -1979,6 +1982,10 @@ class FiveStagePipeline:
             and isinstance(current_max_rounds, int)
             and not isinstance(current_max_rounds, bool)
             and current_max_rounds > previous_max_rounds
+            # Policy V3 binds the terminal round budget into sealed regime
+            # replay.  It therefore requires a fresh run_id for any budget
+            # change; V1/V2 retain their historical monotonic extension lane.
+            and previous_policy_version != 3
             and current_context == previous_context
         )
 

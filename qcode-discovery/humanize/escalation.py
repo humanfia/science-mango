@@ -207,9 +207,12 @@ class AutoEscalationPolicy:
     registry_sha256: str | None
     template_by_regime: Mapping[str, str]
     source_search_representation_id: str | None
+    source_search_regime_policy_version: int
+    source_max_rounds: int | None
+    source_stop_on_representation_change: bool
 
     def serializable(self) -> dict[str, Any]:
-        return {
+        value = {
             "schema_version": 1,
             "kind": "qcode-auto-escalation-policy",
             "pipeline_config_path": self.pipeline_config_path,
@@ -222,6 +225,17 @@ class AutoEscalationPolicy:
                 self.source_search_representation_id
             ),
         }
+        # Keep historical V1/V2 durable policy snapshots byte-compatible.  V3
+        # alone makes these fields part of escalation authority.
+        if self.source_search_regime_policy_version == 3:
+            value.update({
+                "source_search_regime_policy_version": 3,
+                "source_max_rounds": self.source_max_rounds,
+                "source_stop_on_representation_change": (
+                    self.source_stop_on_representation_change
+                ),
+            })
+        return value
 
 
 @dataclass(frozen=True)
@@ -284,6 +298,9 @@ class _ParentMachineEvidence:
     run_id: str
     status: str
     search_representation_id: str
+    search_regime_policy_version: int
+    max_rounds: int | None
+    stop_on_representation_change: bool
     regime: dict[str, Any]
     rounds: tuple[dict[str, Any], ...]
     machine_evidence_sha256: str
@@ -705,6 +722,24 @@ def _validated_parent_machine_evidence(
     config = parent.get("config")
     if not isinstance(config, dict):
         raise ParentEvidenceError("parent state.config must be an object")
+    policy_version = config.get("search_regime_policy_version", 1)
+    if (
+        isinstance(policy_version, bool)
+        or not isinstance(policy_version, int)
+        or policy_version not in flow_module.SEARCH_REGIME_POLICY_VERSIONS
+    ):
+        raise ParentEvidenceError(
+            "parent search_regime_policy_version is invalid"
+        )
+    max_rounds = config.get("max_rounds")
+    if policy_version == 3 and (
+        isinstance(max_rounds, bool)
+        or not isinstance(max_rounds, int)
+        or max_rounds < 1
+    ):
+        raise ParentEvidenceError(
+            "parent policy-v3 max_rounds binding is invalid"
+        )
     try:
         search_representation_id = _safe_id(
             config.get("search_representation_id"),
@@ -731,7 +766,10 @@ def _validated_parent_machine_evidence(
         rounds_relative = rounds_root.relative_to(repo)
         _reject_symlink_components(repo, rounds_relative, label="parent rounds")
         replayed = flow_module._replay_search_regime(
-            rounds, rounds_root=rounds_root
+            rounds,
+            rounds_root=rounds_root,
+            policy_version=policy_version,
+            max_rounds=max_rounds if policy_version == 3 else None,
         )
     except Exception as exc:
         raise ParentEvidenceError(f"parent search regime replay failed: {exc}") from exc
@@ -748,18 +786,17 @@ def _validated_parent_machine_evidence(
 
     # A representation-changing child is authorized only by the atomic
     # Stage-1 handoff transaction.  Replaying the regime alone is insufficient:
-    # markerless policy-v2 state can also arise from a campaign that was never
+    # markerless policy-v2/v3 state can also arise from a campaign that was never
     # configured to stop and hand control to a fresh representation.
     if machine_regime == "representation_change_required":
-        policy_version = config.get("search_regime_policy_version")
         stop_on_change = config.get("stop_on_representation_change")
         if (
             isinstance(policy_version, bool)
-            or policy_version != 2
+            or policy_version not in {2, 3}
             or stop_on_change is not True
         ):
             raise ParentEvidenceError(
-                "representation-change escalation lacks policy-v2 handoff "
+                "representation-change escalation lacks versioned handoff "
                 "authorization"
             )
         try:
@@ -767,6 +804,7 @@ def _validated_parent_machine_evidence(
                 SimpleNamespace(
                     search_regime_policy_version=policy_version,
                     stop_on_representation_change=stop_on_change,
+                    max_rounds=max_rounds,
                 ),
                 parent,
                 rounds_root=rounds_root,
@@ -836,6 +874,16 @@ def _validated_parent_machine_evidence(
         "rounds": canonical_rounds,
         "search_regime": copy.deepcopy(replayed),
     }
+    if policy_version == 3:
+        canonical_evidence["search_regime_policy_version"] = policy_version
+        canonical_evidence["max_rounds"] = max_rounds
+        for canonical, summary in zip(canonical_rounds, rounds, strict=True):
+            canonical["search_regime_policy_version"] = summary.get(
+                "search_regime_policy_version"
+            )
+            canonical["trusted_win_total"] = summary.get(
+                "trusted_win_total"
+            )
     if machine_regime == "representation_change_required":
         canonical_evidence["search_handoff_reason"] = parent[
             "search_handoff_reason"
@@ -849,6 +897,11 @@ def _validated_parent_machine_evidence(
         run_id=parent_run_id,
         status=status,
         search_representation_id=search_representation_id,
+        search_regime_policy_version=policy_version,
+        max_rounds=(max_rounds if isinstance(max_rounds, int) else None),
+        stop_on_representation_change=(
+            config.get("stop_on_representation_change") is True
+        ),
         regime=copy.deepcopy(recorded),
         rounds=tuple(copy.deepcopy(rounds)),
         machine_evidence_sha256=_sha256(_canonical_bytes(canonical_evidence)),
@@ -982,11 +1035,44 @@ def parse_auto_escalation_policy(
         raise RegistryError("pipeline config must be a JSON object")
     stage1 = value.get("stage1")
     source_representation: str | None = None
+    source_policy_version = 1
+    source_max_rounds: int | None = None
+    source_stop_on_change = False
     if isinstance(stage1, dict) and stage1.get("search_representation_id") is not None:
         source_representation = _safe_id(
             stage1["search_representation_id"],
             label="pipeline stage1.search_representation_id",
         )
+    if isinstance(stage1, dict):
+        source_policy_version = stage1.get(
+            "search_regime_policy_version", 1
+        )
+        if (
+            isinstance(source_policy_version, bool)
+            or not isinstance(source_policy_version, int)
+            or source_policy_version
+            not in flow_module.SEARCH_REGIME_POLICY_VERSIONS
+        ):
+            raise RegistryError(
+                "pipeline stage1.search_regime_policy_version is invalid"
+            )
+        raw_max_rounds = stage1.get("max_rounds")
+        if raw_max_rounds is not None:
+            if (
+                isinstance(raw_max_rounds, bool)
+                or not isinstance(raw_max_rounds, int)
+                or raw_max_rounds < 1
+            ):
+                raise RegistryError(
+                    "pipeline stage1.max_rounds must be a positive integer"
+                )
+            source_max_rounds = raw_max_rounds
+        raw_stop = stage1.get("stop_on_representation_change", False)
+        if not isinstance(raw_stop, bool):
+            raise RegistryError(
+                "pipeline stage1.stop_on_representation_change must be boolean"
+            )
+        source_stop_on_change = raw_stop
     raw_policy = value.get("auto_escalation")
     if raw_policy is None:
         return AutoEscalationPolicy(
@@ -998,6 +1084,9 @@ def parse_auto_escalation_policy(
             registry_sha256=None,
             template_by_regime={},
             source_search_representation_id=source_representation,
+            source_search_regime_policy_version=source_policy_version,
+            source_max_rounds=source_max_rounds,
+            source_stop_on_representation_change=source_stop_on_change,
         )
     if not isinstance(raw_policy, dict):
         raise RegistryError("auto_escalation must be an object")
@@ -1007,6 +1096,12 @@ def parse_auto_escalation_policy(
         label="auto_escalation",
     )
     enabled = _bool(raw_policy["enabled"], label="auto_escalation.enabled")
+    if enabled and source_policy_version == 3 and (
+        source_max_rounds is None or not source_stop_on_change
+    ):
+        raise RegistryError(
+            "enabled pipeline policy v3 requires max_rounds and terminal handoff"
+        )
     try:
         registry_relative = _relative_path(
             raw_policy["registry"], label="auto_escalation.registry"
@@ -1072,6 +1167,9 @@ def parse_auto_escalation_policy(
         registry_sha256=registry.registry_sha256,
         template_by_regime=mapping,
         source_search_representation_id=source_representation,
+        source_search_regime_policy_version=source_policy_version,
+        source_max_rounds=source_max_rounds,
+        source_stop_on_representation_change=source_stop_on_change,
     )
 
 
@@ -1112,6 +1210,21 @@ def reconcile_campaign_escalation(
     if evidence.search_representation_id != policy.source_search_representation_id:
         raise ParentEvidenceError(
             "parent state search representation disagrees with pipeline policy"
+        )
+    if (
+        evidence.search_regime_policy_version
+        != policy.source_search_regime_policy_version
+    ):
+        raise ParentEvidenceError(
+            "parent search-regime policy version disagrees with pipeline policy"
+        )
+    if policy.source_search_regime_policy_version == 3 and (
+        evidence.max_rounds != policy.source_max_rounds
+        or evidence.stop_on_representation_change
+        != policy.source_stop_on_representation_change
+    ):
+        raise ParentEvidenceError(
+            "parent policy-v3 budget/handoff authority disagrees with pipeline policy"
         )
     machine_regime = evidence.regime.get("status")
     if machine_regime not in _MACHINE_REGIMES:

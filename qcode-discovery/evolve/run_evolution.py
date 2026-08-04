@@ -294,9 +294,11 @@ ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
 ADAPTIVE_MUTATION_EXPLORATION_FLOOR = 250
 SEARCH_REGIME_POLICY_PREFIX = "QCODE_SEARCH_REGIME_V1="
 SEARCH_REGIME_POLICY_V2_PREFIX = "QCODE_SEARCH_REGIME_V2="
+SEARCH_REGIME_POLICY_V3_PREFIX = "QCODE_SEARCH_REGIME_V3="
 SEARCH_REGIME_PREFIX_BY_POLICY_VERSION = {
     1: SEARCH_REGIME_POLICY_PREFIX,
     2: SEARCH_REGIME_POLICY_V2_PREFIX,
+    3: SEARCH_REGIME_POLICY_V3_PREFIX,
 }
 SEARCH_REGIME_V1_STATUSES = (
     "normal",
@@ -2063,9 +2065,9 @@ def _validated_search_regime(
         return value
     if "policy_version" in value:
         raise RuntimeError(
-            "V2 search regime marker must encode its version in the prefix"
+            "versioned search regime marker must encode its version in the prefix"
         )
-    return {**value, "policy_version": 2}
+    return {**value, "policy_version": policy_version}
 
 
 def _search_island_schedule(

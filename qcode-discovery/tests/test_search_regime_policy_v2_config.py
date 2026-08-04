@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from humanize.escalation import load_template_registry
 from humanize.pipeline import PipelineConfig
 
 
@@ -25,6 +26,36 @@ def test_auto_v2_campaign_explicitly_opts_into_terminal_handoff():
     )
     assert config.flow_config.search_regime_policy_version == 2
     assert config.flow_config.stop_on_representation_change is True
+
+
+def test_auto_v3_campaign_closes_budget_into_proof_compatible_ansatz():
+    path = CONFIGS / "five_stage_campaign.cover_algebra.auto_v3.json"
+    raw = json.loads(path.read_text())
+    config = PipelineConfig.from_json(path, repo_dir=PROJECT)
+
+    assert raw["run_id"] == "qcode-cover-algebra-auto-v3"
+    assert raw["resume"] is True
+    assert config.flow_config is not None
+    config.flow_config.validate()
+    assert config.flow_config.max_rounds == 12
+    assert config.flow_config.search_representation_id == (
+        "css-bb-cover-algebra-generator-v2"
+    )
+    assert config.flow_config.search_regime_policy_version == 3
+    assert config.flow_config.stop_on_representation_change is True
+    assert raw["auto_escalation"]["template_by_regime"] == {
+        "representation_change_required": (
+            "css-bb-novel-ansatz-generator-v2"
+        )
+    }
+
+    template = load_template_registry(repo_dir=PROJECT).template(
+        "css-bb-novel-ansatz-generator-v2"
+    )
+    assert template.transition_kind == "representation_change"
+    assert template.proof_compatible is True
+    assert template.launch_compatible is True
+    assert template.auto_materialize is True
 
 
 def test_ansatz_child_base_is_immutable_resume_template_without_parent_policy():

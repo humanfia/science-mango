@@ -347,6 +347,34 @@ def test_search_regime_marker_and_expand_schedule_are_deterministic():
 
 
 @pytest.mark.parametrize(
+    "status",
+    ("normal", "expand_required", "representation_change_required"),
+)
+def test_policy_v3_flow_marker_drives_identical_launcher_schedule(status):
+    regime = {
+        "schema_version": 1,
+        "kind": "qcode-humanize-search-regime",
+        "status": status,
+        "reason": "policy-v3-integration-test",
+        "evidence": {"rounds": []},
+    }
+    encoded = json.dumps(regime, sort_keys=True, separators=(",", ":"))
+
+    assert (
+        launcher.SEARCH_REGIME_POLICY_V3_PREFIX
+        == flow_module.SEARCH_REGIME_V3_PREFIX
+    )
+    parsed = launcher._validated_search_regime(
+        flow_module.SEARCH_REGIME_V3_PREFIX + encoded
+    )
+
+    assert parsed == {**regime, "policy_version": 3}
+    assert launcher._search_island_schedule(25, status) == (
+        flow_module._search_island_schedule(25, status)
+    )
+
+
+@pytest.mark.parametrize(
     "context",
     (
         'prefix QCODE_SEARCH_REGIME_V1={"schema_version":1,"status":"normal"}',

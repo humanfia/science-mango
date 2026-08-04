@@ -31,7 +31,13 @@ REPO = Path(__file__).resolve().parents[1]
 def _sealed_regime_replay(monkeypatch):
     """Keep fixture evidence small while asserting planner uses the replay API."""
 
-    def replay(rounds, *, rounds_root=None, policy_version=None):
+    def replay(
+        rounds,
+        *,
+        rounds_root=None,
+        policy_version=None,
+        max_rounds=None,
+    ):
         assert rounds_root is not None
         if not rounds:
             return {
@@ -777,7 +783,8 @@ def test_parent_must_be_terminal_transaction_clear_and_regime_replay_exact(
     monkeypatch.setattr(
         escalation_module.flow_module,
         "_replay_search_regime",
-        lambda _rounds, *, rounds_root=None: {
+        lambda _rounds, *, rounds_root=None, policy_version=None,
+        max_rounds=None: {
             "schema_version": 1,
             "kind": "qcode-humanize-search-regime",
             "status": "normal",

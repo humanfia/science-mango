@@ -77,10 +77,12 @@ SEARCH_REGIME_SCHEMA_VERSION = 1
 SEARCH_REGIME_KIND = "qcode-humanize-search-regime"
 SEARCH_REGIME_PREFIX = "QCODE_SEARCH_REGIME_V1="
 SEARCH_REGIME_V2_PREFIX = "QCODE_SEARCH_REGIME_V2="
-SEARCH_REGIME_POLICY_VERSIONS = (1, 2)
+SEARCH_REGIME_V3_PREFIX = "QCODE_SEARCH_REGIME_V3="
+SEARCH_REGIME_POLICY_VERSIONS = (1, 2, 3)
 SEARCH_REGIME_PREFIX_BY_POLICY_VERSION = {
     1: SEARCH_REGIME_PREFIX,
     2: SEARCH_REGIME_V2_PREFIX,
+    3: SEARCH_REGIME_V3_PREFIX,
 }
 SEARCH_REGIME_V1_STATUSES = (
     "normal",
@@ -271,6 +273,9 @@ class FlowConfig:
     search_representation_id: str | None = None
     # Policy v1 is the historical three-round diversity-collapse algorithm.
     # Policy v2 opts a fresh run into four/seven-round structural transitions.
+    # Policy v3 keeps timeout/empty-exact rounds neutral and closes an exhausted
+    # expansion budget with a representation-change handoff.  Versions are
+    # never reinterpreted so sealed v1/v2 campaigns remain byte-replayable.
     search_regime_policy_version: int = 1
     stop_on_representation_change: bool = False
     milp_top: int = 3
@@ -370,21 +375,21 @@ class FlowConfig:
             or self.search_regime_policy_version
             not in SEARCH_REGIME_POLICY_VERSIONS
         ):
-            raise ValueError("search_regime_policy_version must be 1 or 2")
+            raise ValueError("search_regime_policy_version must be 1, 2, or 3")
         if not isinstance(self.stop_on_representation_change, bool):
             raise ValueError("stop_on_representation_change must be boolean")
-        if self.search_regime_policy_version == 2 and (
+        if self.search_regime_policy_version in {2, 3} and (
             self.search_representation_id is None
         ):
             raise ValueError(
-                "search regime policy v2 requires search_representation_id"
+                "search regime policy v2/v3 requires search_representation_id"
             )
         if (
             self.stop_on_representation_change
-            and self.search_regime_policy_version != 2
+            and self.search_regime_policy_version not in {2, 3}
         ):
             raise ValueError(
-                "stop_on_representation_change requires policy version 2"
+                "stop_on_representation_change requires policy version 2 or 3"
             )
 
 
@@ -2146,16 +2151,216 @@ def _advance_search_regime_v2(
     return _normal_search_regime(len(completed))
 
 
+def _advance_search_regime_v3(
+    previous: dict[str, Any],
+    completed: list[dict[str, Any]],
+    *,
+    max_rounds: int,
+) -> dict[str, Any]:
+    """Advance without letting empty exact attempts veto structural evidence.
+
+    Policy v2 treated a valid sealed round with no exact distances as a streak
+    boundary.  In practice that made a timeout/unresolved attempt cast a
+    negative vote against changing representation.  V3 keeps such rounds
+    neutral, counts only non-empty exact-low rounds since the latest exact
+    distance progress, and closes a fully exhausted expansion budget with a
+    representation-change handoff.  V1/V2 remain separate for exact replay.
+    """
+
+    if (
+        isinstance(max_rounds, bool)
+        or not isinstance(max_rounds, int)
+        or max_rounds < 1
+    ):
+        raise RoundTransactionError(
+            "search regime policy v3 requires a positive max_rounds"
+        )
+
+    latest = completed[-1]
+    exact = latest.get("sealed_exact_audit")
+    if not isinstance(exact, dict):
+        raise RoundTransactionError(
+            "search regime policy v3 requires sealed exact evidence per round"
+        )
+    latest_distances = exact["exact_distances"]
+    trusted_win_total = latest.get("trusted_win_total")
+    if (
+        isinstance(trusted_win_total, bool)
+        or not isinstance(trusted_win_total, int)
+        or trusted_win_total < 0
+    ):
+        raise RoundTransactionError(
+            "search regime policy v3 requires a trusted_win_total per round"
+        )
+    # Once authorized, a representation restart is terminal for this search
+    # identity.  Validate every subsequently presented sealed round before
+    # preserving that decision so malformed post-handoff history cannot hide
+    # behind the monotonic fast path.
+    if previous.get("status") == "representation_change_required":
+        return copy.deepcopy(previous)
+    if any(distance >= 4 for distance in latest_distances):
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "exploit",
+            "reason": "trusted_exact_distance_progress",
+            "evidence": {
+                "basis": "durable-sealed-exact-and-diversity",
+                "round": latest["round"],
+                "exact_distances": list(latest_distances),
+                "source_milp_sha256": exact["source_milp_sha256"],
+            },
+        }
+
+    low_exact_evidence: list[dict[str, Any]] = []
+    for summary in reversed(completed):
+        item = summary.get("sealed_exact_audit")
+        if not isinstance(item, dict):
+            raise RoundTransactionError(
+                "search regime policy v3 requires sealed exact evidence per round"
+            )
+        distances = item["exact_distances"]
+        if not distances:
+            # A completed attempt with no exact result is evidence-neutral.  It
+            # cannot advance the counter, but it also cannot erase prior exact
+            # low-distance evidence from this representation.
+            continue
+        if any(distance >= 4 for distance in distances):
+            break
+        low_exact_evidence.append(summary)
+    low_exact_evidence.reverse()
+
+    def evidence_regime(
+        status: str,
+        reason: str,
+        recent: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": status,
+            "reason": reason,
+            "evidence": {
+                "basis": "durable-sealed-exact-and-diversity",
+                "rounds": [item["round"] for item in recent],
+                "exact_distances_by_round": [
+                    item["sealed_exact_audit"]["exact_distances"]
+                    for item in recent
+                ],
+            },
+        }
+
+    if len(low_exact_evidence) >= SEARCH_REGIME_REPRESENTATION_ROUNDS:
+        recent = low_exact_evidence[-SEARCH_REGIME_REPRESENTATION_ROUNDS:]
+        regime = evidence_regime(
+            "representation_change_required",
+            "trusted_exact_low_distance_evidence_requires_representation_change",
+            recent,
+        )
+    elif len(low_exact_evidence) >= SEARCH_REGIME_EXPANSION_ROUNDS:
+        recent = low_exact_evidence[-SEARCH_REGIME_EXPANSION_ROUNDS:]
+        regime = evidence_regime(
+            "expand_required",
+            "trusted_exact_low_distance_evidence_requires_family_expansion",
+            recent,
+        )
+    elif len(low_exact_evidence) >= SEARCH_REGIME_STAGNATION_ROUNDS:
+        recent = low_exact_evidence[-SEARCH_REGIME_STAGNATION_ROUNDS:]
+        first_diversity = recent[0].get("candidate_diversity")
+        latest_diversity = recent[-1].get("candidate_diversity")
+        if isinstance(first_diversity, dict) and isinstance(
+            latest_diversity, dict
+        ):
+            first_unique = first_diversity["canonical_unique_batch_rows"]
+            latest_unique = latest_diversity[
+                "canonical_unique_batch_rows"
+            ]
+            duplicate_rate = float(latest_diversity["duplicate_rate"])
+            high_duplicates = (
+                duplicate_rate >= SEARCH_REGIME_DUPLICATE_RATE
+            )
+            unique_decline = (
+                first_unique > 0 and latest_unique * 5 <= first_unique * 4
+            )
+            if high_duplicates or unique_decline:
+                regime = evidence_regime(
+                    "expand_required",
+                    (
+                        "trusted_exact_low_distance_with_duplicate_collapse"
+                        if high_duplicates
+                        else "trusted_exact_low_distance_with_unique_yield_decline"
+                    ),
+                    recent,
+                )
+                regime["evidence"].update({
+                    "first_canonical_unique_batch_rows": first_unique,
+                    "latest_canonical_unique_batch_rows": latest_unique,
+                    "latest_duplicate_rate": duplicate_rate,
+                })
+            elif previous.get("status") == "expand_required":
+                regime = copy.deepcopy(previous)
+            else:
+                regime = _normal_search_regime(len(completed))
+        elif previous.get("status") == "expand_required":
+            regime = copy.deepcopy(previous)
+        else:
+            regime = _normal_search_regime(len(completed))
+    elif previous.get("status") == "expand_required":
+        regime = copy.deepcopy(previous)
+    else:
+        regime = _normal_search_regime(len(completed))
+
+    # A run that has already earned an expansion directive must not finish its
+    # entire authorized budget in the same representation and then strand the
+    # automatic campaign graph.  This is a search-control transition only; it
+    # weakens no proof or release gate.  A trusted win always takes precedence.
+    if (
+        latest["round"] == max_rounds
+        and len(completed) == max_rounds
+        and trusted_win_total == 0
+        and regime.get("status") == "expand_required"
+    ):
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "representation_change_required",
+            "reason": "round_budget_exhausted_after_family_expansion",
+            "evidence": {
+                "basis": "durable-sealed-exact-and-diversity",
+                "round": latest["round"],
+                "max_rounds": max_rounds,
+                "prior_regime_reason": regime["reason"],
+                "prior_regime_evidence": copy.deepcopy(regime["evidence"]),
+            },
+        }
+    return regime
+
+
 def _advance_search_regime(
     previous: dict[str, Any],
     completed: list[dict[str, Any]],
     *,
     policy_version: int = 1,
+    max_rounds: int | None = None,
 ) -> dict[str, Any]:
     if policy_version == 1:
         return _advance_search_regime_v1(previous, completed)
     if policy_version == 2:
         return _advance_search_regime_v2(previous, completed)
+    if policy_version == 3:
+        if (
+            isinstance(max_rounds, bool)
+            or not isinstance(max_rounds, int)
+            or max_rounds < 1
+        ):
+            raise RoundTransactionError(
+                "search regime policy v3 requires a positive max_rounds"
+            )
+        return _advance_search_regime_v3(
+            previous,
+            completed,
+            max_rounds=max_rounds,
+        )
     raise RoundTransactionError(
         f"unsupported search regime policy version: {policy_version!r}"
     )
@@ -2166,6 +2371,7 @@ def _replay_search_regime(
     *,
     rounds_root: Path | None = None,
     policy_version: int | None = None,
+    max_rounds: int | None = None,
 ) -> dict[str, Any]:
     """Recompute the versioned regime and reject forged persisted summaries."""
 
@@ -2209,9 +2415,18 @@ def _replay_search_regime(
             raise RoundTransactionError(
                 "search-regime history disagrees with configured policy version"
             )
+    if selected_policy_version == 3 and (
+        isinstance(max_rounds, bool)
+        or not isinstance(max_rounds, int)
+        or max_rounds < 1
+    ):
+        raise RoundTransactionError(
+            "search regime policy v3 replay requires a positive max_rounds"
+        )
     regime = _normal_search_regime(0)
     completed: list[dict[str, Any]] = []
     previous_number = 0
+    previous_trusted_win_total = 0
     for summary in rounds:
         if not isinstance(summary, dict):
             raise RoundTransactionError("search-regime round summary is invalid")
@@ -2224,7 +2439,26 @@ def _replay_search_regime(
             raise RoundTransactionError(
                 "search-regime round numbers are not strictly increasing"
             )
+        if selected_policy_version == 3 and number != previous_number + 1:
+            raise RoundTransactionError(
+                "search regime policy v3 requires contiguous rounds from one"
+            )
         previous_number = number
+        if selected_policy_version == 3 and number > max_rounds:
+            raise RoundTransactionError(
+                "search-regime round exceeds the policy-v3 max_rounds binding"
+            )
+        if selected_policy_version == 3:
+            trusted_win_total = summary.get("trusted_win_total")
+            if (
+                isinstance(trusted_win_total, bool)
+                or not isinstance(trusted_win_total, int)
+                or trusted_win_total < previous_trusted_win_total
+            ):
+                raise RoundTransactionError(
+                    "policy-v3 trusted_win_total must be a nondecreasing integer"
+                )
+            previous_trusted_win_total = trusted_win_total
         if "sealed_exact_audit" in summary:
             _validate_sealed_round_exact_summary(
                 summary["sealed_exact_audit"],
@@ -2250,6 +2484,7 @@ def _replay_search_regime(
             regime,
             completed,
             policy_version=selected_policy_version,
+            max_rounds=max_rounds,
         )
         recorded = summary.get("search_regime")
         if recorded is not None and recorded != regime:
@@ -2282,7 +2517,7 @@ def _validated_search_handoff(
             "search handoff has only one of reason/round markers"
         )
     if (
-        config.search_regime_policy_version != 2
+        config.search_regime_policy_version not in {2, 3}
         or not config.stop_on_representation_change
     ):
         raise RoundTransactionError(
@@ -2322,7 +2557,12 @@ def _validated_search_handoff(
     regime = _replay_search_regime(
         rounds,
         rounds_root=rounds_root,
-        policy_version=2,
+        policy_version=config.search_regime_policy_version,
+        max_rounds=(
+            config.max_rounds
+            if config.search_regime_policy_version == 3
+            else None
+        ),
     )
     if (
         regime.get("status")
@@ -2333,6 +2573,32 @@ def _validated_search_handoff(
         raise RoundTransactionError(
             "search handoff disagrees with replayed regime evidence"
         )
+    if config.search_regime_policy_version == 3:
+        trusted_win_count = state.get("trusted_win_count")
+        final_trusted_win_total = rounds[-1].get("trusted_win_total")
+        if (
+            isinstance(trusted_win_count, bool)
+            or not isinstance(trusted_win_count, int)
+            or trusted_win_count != 0
+            or isinstance(final_trusted_win_total, bool)
+            or not isinstance(final_trusted_win_total, int)
+            or final_trusted_win_total != 0
+        ):
+            raise RoundTransactionError(
+                "search handoff cannot coexist with a trusted win"
+            )
+        prior_regime = _replay_search_regime(
+            rounds[:-1],
+            rounds_root=rounds_root,
+            policy_version=3,
+            max_rounds=config.max_rounds,
+        )
+        if prior_regime.get("status") == (
+            SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE
+        ):
+            raise RoundTransactionError(
+                "search handoff must bind the first representation-change round"
+            )
     return str(status)
 
 
@@ -3003,7 +3269,7 @@ def _freeze_round_context(
         / config.run_id
         / "bitlesson.md"
     )
-    prompt_safe_reviewer_v2 = config.search_regime_policy_version == 2
+    prompt_safe_reviewer_v2 = config.search_regime_policy_version in {2, 3}
     # Policy-v2 contexts can produce executable evolved Python.  Reviewer
     # lessons and the accumulated BitLesson are deliberately retained on disk
     # for audit but cannot enter that prompt as free text.  Policy v1 keeps its
@@ -3128,7 +3394,7 @@ def _freeze_round_context(
         if failure_advisory is not None:
             context_parts.append(failure_advisory)
     regime_enabled = (
-        config.search_regime_policy_version == 2
+        config.search_regime_policy_version in {2, 3}
         or state.get("search_regime") is not None
         or any(
             isinstance(summary, dict) and "sealed_exact_audit" in summary
@@ -3140,6 +3406,11 @@ def _freeze_round_context(
             rounds,
             rounds_root=round_dir.parent,
             policy_version=config.search_regime_policy_version,
+            max_rounds=(
+                config.max_rounds
+                if config.search_regime_policy_version == 3
+                else None
+            ),
         )
         recorded_regime = state.get("search_regime")
         if recorded_regime is not None and recorded_regime != regime:
@@ -3555,9 +3826,9 @@ def _search_regime_policy_from_context(
         return value
     if "policy_version" in value:
         raise RoundTransactionError(
-            "V2 search regime marker must encode its version in the prefix"
+            "versioned search regime marker must encode its version in the prefix"
         )
-    return {**value, "policy_version": 2}
+    return {**value, "policy_version": policy_version}
 
 
 def _search_island_schedule(
@@ -8652,14 +8923,21 @@ class HumanizeFlow:
             "failure_direction_feedback": failure_direction_feedback,
             "sealed_exact_audit": sealed_exact_audit,
         }
-        if self.config.search_regime_policy_version == 2:
-            summary["search_regime_policy_version"] = 2
+        if self.config.search_regime_policy_version in {2, 3}:
+            summary["search_regime_policy_version"] = (
+                self.config.search_regime_policy_version
+            )
         if candidate_diversity is not None:
             summary["candidate_diversity"] = candidate_diversity
         regime = _replay_search_regime(
             [*state["rounds"], summary],
             rounds_root=round_dir.parent,
             policy_version=self.config.search_regime_policy_version,
+            max_rounds=(
+                self.config.max_rounds
+                if self.config.search_regime_policy_version == 3
+                else None
+            ),
         )
         summary["search_regime"] = copy.deepcopy(regime)
         state["search_regime"] = copy.deepcopy(regime)
@@ -8735,6 +9013,9 @@ class HumanizeFlow:
                 current_round = existing.get("current_round")
                 if isinstance(durable_config, dict):
                     previous_max_rounds = durable_config.get("max_rounds")
+                    durable_policy_version = durable_config.get(
+                        "search_regime_policy_version", 1
+                    )
                     durable_context = dict(durable_config)
                     requested_context = dict(serialized_config)
                     durable_context.pop("max_rounds", None)
@@ -8747,6 +9028,10 @@ class HumanizeFlow:
                         and isinstance(current_round, int)
                         and not isinstance(current_round, bool)
                         and 0 <= current_round <= previous_max_rounds
+                        # V3 binds max_rounds into replay and terminal handoff
+                        # evidence.  Rebinding that value under the same run_id
+                        # would reinterpret already-sealed rounds.
+                        and durable_policy_version != 3
                         and requested_max_rounds > previous_max_rounds
                         and durable_context == requested_context
                     )
@@ -9131,7 +9416,7 @@ class HumanizeFlow:
                 representation_handoff = bool(
                     not trusted_wins
                     and self.config.stop_on_representation_change
-                    and self.config.search_regime_policy_version == 2
+                    and self.config.search_regime_policy_version in {2, 3}
                     and isinstance(final_state.get("search_regime"), dict)
                     and final_state["search_regime"].get("status")
                     == SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE
