@@ -274,6 +274,10 @@ EVOLUTION_INVOCATION_FIELDS = frozenset({
     "codex_cwd",
     "codex_executable_mode",
 })
+COSET_EVOLUTION_INVOCATION_FIELDS = frozenset({
+    "qcode_evaluator_kind",
+    "qcode_action_catalog_sha256",
+})
 SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD = "search_geometry_contract"
 
 
@@ -306,6 +310,7 @@ class FlowConfig:
     api_base: str | None = None
     evolution_config: Path | None = None
     evolution_seed: Path | None = None
+    evolution_evaluator: str = "default"
     # Optional, explicit identity of the search genotype.  It is deliberately
     # separate from the CSS-BB claim representation consumed by Stages 2-5.
     # Automatic campaign escalation fails closed when this identity is absent.
@@ -348,6 +353,8 @@ class FlowConfig:
                 value.pop(name, None)
             else:
                 value[name] = str(path)
+        if self.evolution_evaluator == "default":
+            value.pop("evolution_evaluator", None)
         if self.search_representation_id is None:
             value.pop("search_representation_id", None)
         if self.search_regime_policy_version == 1:
@@ -369,6 +376,15 @@ class FlowConfig:
             raise ValueError("iterations_per_round must be positive")
         if self.milp_top < 0:
             raise ValueError("milp_top must be non-negative")
+        if self.evolution_evaluator not in {"default", "coset-two-block"}:
+            raise ValueError(
+                "evolution_evaluator must be default or coset-two-block"
+            )
+        if self.evolution_evaluator == "coset-two-block" and self.milp_top != 0:
+            raise ValueError(
+                "coset-two-block Stage 1 requires milp_top=0; exact audits "
+                "begin at Stage 2"
+            )
         if not isinstance(self.allow_debug_audit_evaluator, bool):
             raise ValueError("allow_debug_audit_evaluator must be boolean")
         if self.milp_early_stop < 0:
@@ -1155,17 +1171,29 @@ def _wait_for_managed_process(
         raise subprocess.CalledProcessError(return_code, command)
 
 
+def _flow_evaluator_kind(config: FlowConfig) -> str:
+    return config.evolution_evaluator
+
+
 def _expected_evolution_config(config: FlowConfig) -> Path:
     return Path(os.path.abspath(
         config.evolution_config
-        or config.repo_dir / "evolve" / "config.yaml"
+        or config.repo_dir / "evolve" / (
+            "coset_config.yaml"
+            if _flow_evaluator_kind(config) == "coset-two-block"
+            else "config.yaml"
+        )
     ))
 
 
 def _expected_evolution_seed(config: FlowConfig) -> Path:
     return Path(os.path.abspath(
         config.evolution_seed
-        or config.repo_dir / "evolve" / "seed_solution.py"
+        or config.repo_dir / "evolve" / (
+            "coset_seed_solution.py"
+            if _flow_evaluator_kind(config) == "coset-two-block"
+            else "seed_solution.py"
+        )
     ))
 
 
@@ -1175,8 +1203,30 @@ def _expected_evolution_launcher(config: FlowConfig) -> Path:
 
 def _expected_evolution_evaluator(config: FlowConfig) -> Path:
     return Path(
-        os.path.abspath(config.repo_dir / "evolve" / "openevolve_evaluator.py")
+        os.path.abspath(config.repo_dir / "evolve" / (
+            "coset_openevolve_evaluator.py"
+            if _flow_evaluator_kind(config) == "coset-two-block"
+            else "openevolve_evaluator.py"
+        ))
     )
+
+
+def _evolution_dependencies(config: FlowConfig) -> dict[str, str]:
+    dependencies = dict(LOCAL_EVOLUTION_DEPENDENCIES)
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        dependencies.update({
+            "coset_search_contract": "evolve/coset_search_contract.py",
+            "coset_candidate_log_wal": "evolve/openevolve_evaluator.py",
+            "coset_construction_adapter": "evaluation/construction.py",
+            "coset_action_catalog_parser": (
+                "evaluation/coset_action_catalog.py"
+            ),
+            "coset_builder": "evaluation/coset_two_block.py",
+            "coset_action_catalog": (
+                "evaluation/coset_two_block_actions.v1.json"
+            ),
+        })
+    return dependencies
 
 
 def _expected_evolution_backend(config: FlowConfig) -> Path:
@@ -1398,6 +1448,13 @@ def _fresh_invocation_binding(
         invocation[SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD] = (
             geometry_contract
         )
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        from evaluation.coset_action_catalog import action_catalog_sha256
+
+        invocation.update({
+            "qcode_evaluator_kind": "coset-two-block",
+            "qcode_action_catalog_sha256": action_catalog_sha256(),
+        })
     return invocation
 
 
@@ -1493,7 +1550,7 @@ def _evolution_launch_binding(
             context_path, "evolution humanize context"
         ),
     }
-    for name, relative_path in LOCAL_EVOLUTION_DEPENDENCIES.items():
+    for name, relative_path in _evolution_dependencies(config).items():
         binding[name] = _file_descriptor(
             config.repo_dir / relative_path,
             f"evolution evaluator dependency {name}",
@@ -1529,6 +1586,8 @@ def _validate_invocation_binding(
         Path(launch_binding["config"]["path"]),
     )
     expected_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        expected_fields.update(COSET_EVOLUTION_INVOCATION_FIELDS)
     if geometry_contract is not None:
         expected_fields.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
     if not isinstance(invocation, dict) or set(invocation) != expected_fields:
@@ -1542,6 +1601,17 @@ def _validate_invocation_binding(
         raise RoundTransactionError(
             "evolution search geometry contract binding changed"
         )
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        catalog = launch_binding.get("coset_action_catalog")
+        if (
+            invocation.get("qcode_evaluator_kind") != "coset-two-block"
+            or not isinstance(catalog, dict)
+            or invocation.get("qcode_action_catalog_sha256")
+            != catalog.get("sha256")
+        ):
+            raise RoundTransactionError(
+                "coset evolution evaluator/catalog binding changed"
+            )
     if invocation["model_names"] != [config.model]:
         raise RoundTransactionError("evolution model binding changed")
     if invocation["reasoning_effort"] != config.reasoning_effort:
@@ -1613,6 +1683,18 @@ def _candidate_support_profile(
     row: dict[str, Any],
 ) -> tuple[str, str]:
     """Derive support shape from defining terms, never score metadata."""
+
+    construction = row.get("construction")
+    if isinstance(construction, dict):
+        left = construction.get("left_support", row.get("left_support"))
+        right = construction.get("right_support", row.get("right_support"))
+        if not isinstance(left, (list, tuple)) or not isinstance(
+            right, (list, tuple)
+        ):
+            return "unclassified", "unclassified"
+        if any(not isinstance(item, str) or not item for item in (*left, *right)):
+            return f"{len(left)}+{len(right)}", "unclassified"
+        return f"{len(left)}+{len(right)}", "nonmixed"
 
     supports: list[int] = []
     contains_mixed = False
@@ -5509,6 +5591,8 @@ def _validate_stored_binding_shape(
         Path(launch["config"]["path"]),
     )
     expected_invocation_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        expected_invocation_fields.update(COSET_EVOLUTION_INVOCATION_FIELDS)
     if geometry_contract is not None:
         expected_invocation_fields.add(
             SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD,
@@ -5527,6 +5611,17 @@ def _validate_stored_binding_shape(
         raise RoundTransactionError(
             "evolution search geometry contract binding changed"
         )
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        catalog = launch.get("coset_action_catalog")
+        if (
+            invocation.get("qcode_evaluator_kind") != "coset-two-block"
+            or not isinstance(catalog, dict)
+            or invocation.get("qcode_action_catalog_sha256")
+            != catalog.get("sha256")
+        ):
+            raise RoundTransactionError(
+                "coset evolution evaluator/catalog binding changed"
+            )
     if invocation["model_names"] != [config.model]:
         raise RoundTransactionError("evolution model binding changed")
     if invocation["reasoning_effort"] != config.reasoning_effort:
@@ -5715,6 +5810,9 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         str(invocation_binding["max_parallel_evaluations"]),
         "--api-base", invocation_binding["api_base"],
     ]
+    evaluator_kind = _flow_evaluator_kind(config)
+    if evaluator_kind != "default":
+        command.extend(["--evaluator", evaluator_kind])
     if invocation_binding["reasoning_effort"] is not None:
         command.extend([
             "--reasoning-effort",
@@ -9305,7 +9403,9 @@ class HumanizeFlow:
                 raise AuditStateError(
                     "internal formal evaluator marker is invalid"
                 )
-            defining_fields = ("geometry", "ell", "m", "A_terms", "B_terms")
+            defining_fields = (
+                "construction", "geometry", "ell", "m", "A_terms", "B_terms",
+            )
             provenance_fields = ("static_eligibility", "structural_novelty")
             proposed_identity = dict(result)
             for field in defining_fields:

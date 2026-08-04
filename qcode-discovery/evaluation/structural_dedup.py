@@ -21,7 +21,7 @@ import time
 from collections import deque
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Mapping
 
 import numpy as np
 
@@ -128,6 +128,39 @@ def _atomic_write_json(path: Path, value: Any) -> None:
 def _normalized_screen_input(result: dict[str, Any]) -> dict[str, Any]:
     """Return the exact mathematical/static input bound by one cache key."""
 
+    if isinstance(result.get("construction"), Mapping):
+        try:
+            from evaluation.construction import normalize_construction_claim
+
+            normalized_claim = normalize_construction_claim(dict(result))
+            construction = (
+                normalized_claim.get("construction")
+                if isinstance(normalized_claim, Mapping)
+                and isinstance(normalized_claim.get("construction"), Mapping)
+                else normalized_claim
+            )
+            if not isinstance(construction, Mapping):
+                raise TypeError("normalized construction is not an object")
+            reported_n = (
+                {"present": True, "value": int(result["n"])}
+                if "n" in result
+                else {"present": False, "value": None}
+            )
+            reported_k = (
+                {"present": True, "value": int(result["k"])}
+                if "k" in result
+                else {"present": False, "value": None}
+            )
+        except (KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise StructuralScreenCacheError(
+                "candidate has an invalid compact construction"
+            ) from exc
+        return {
+            "construction": copy.deepcopy(dict(construction)),
+            "reported_n": reported_n,
+            "reported_k": reported_k,
+        }
+
     try:
         ell = int(result["ell"])
         m = int(result["m"])
@@ -181,9 +214,20 @@ def structural_screen_runtime_fingerprint() -> dict[str, Any]:
         "bb_code.py",
         "geometry.py",
         "tanner_equivalence.py",
+        "construction.py",
     ):
         path = module_dir / name
-        sources[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+        sources[name] = (
+            hashlib.sha256(path.read_bytes()).hexdigest()
+            if path.is_file()
+            else "unavailable"
+        )
+    try:
+        from evaluation.construction import construction_source_fingerprint
+
+        construction_fingerprint = construction_source_fingerprint()
+    except (ImportError, OSError, TypeError, ValueError):
+        construction_fingerprint = "unavailable"
     packages: dict[str, str | None] = {}
     for name in _STRUCTURAL_SCREEN_PACKAGES:
         try:
@@ -198,6 +242,7 @@ def structural_screen_runtime_fingerprint() -> dict[str, Any]:
         "platform": platform.platform(),
         "libc": list(platform.libc_ver()),
         "sources": sources,
+        "construction_source_fingerprint": construction_fingerprint,
         "packages": packages,
     }
     return {"payload": payload, "sha256": _sha256_json(payload)}
@@ -510,11 +555,37 @@ def _normalized_pair_input(
         raise StructuralScreenCacheError(
             "within-pool replay pair does not share one novel canonical key"
         )
+    def check_counts(
+        static: Mapping[str, Any], row: Mapping[str, Any],
+    ) -> tuple[int, int]:
+        rx, rz = static.get("x_checks"), static.get("z_checks")
+        if (
+            isinstance(rx, int) and not isinstance(rx, bool) and rx >= 0
+            and isinstance(rz, int) and not isinstance(rz, bool) and rz >= 0
+        ):
+            return int(rx), int(rz)
+        normalized = _normalized_screen_input(dict(row))
+        if "ell" in normalized and "m" in normalized:
+            block = int(normalized["ell"]) * int(normalized["m"])
+            return block, block
+        hx, hz = _matrices(_build_css_result(row))
+        return int(hx.shape[0]), int(hz.shape[0])
+
+    candidate_counts = check_counts(candidate_static, candidate)
+    representative_counts = check_counts(
+        representative_static, representative,
+    )
+    if candidate_counts != representative_counts:
+        raise StructuralScreenCacheError(
+            "within-pool replay pair has different check dimensions"
+        )
     return {
         "candidate": _normalized_screen_input(candidate),
         "representative": _normalized_screen_input(representative),
         "recomputed_n": candidate_key[0],
         "recomputed_k": candidate_key[1],
+        "recomputed_x_checks": candidate_counts[0],
+        "recomputed_z_checks": candidate_counts[1],
         "canonical_digest": candidate_key[2],
     }
 
@@ -737,22 +808,17 @@ def _validate_pair_replay_payload(
         )
     if pair_input is None:
         return
-    candidate = pair_input["candidate"]
-    representative = pair_input["representative"]
-    ell = int(candidate["ell"])
-    m = int(candidate["m"])
-    if (
-        int(representative["ell"]) * int(representative["m"]) != ell * m
-        or int(pair_input["recomputed_n"]) != 2 * ell * m
-    ):
+    n = int(pair_input["recomputed_n"])
+    rx = int(pair_input["recomputed_x_checks"])
+    rz = int(pair_input["recomputed_z_checks"])
+    if n <= 0 or rx < 0 or rz < 0:
         raise StructuralScreenCacheError(
             "within-pool isomorphism pair has inconsistent dimensions"
         )
-    block = ell * m
     expected_permutations = (
-        list(range(2 * block)),
-        list(range(block)),
-        list(range(block)),
+        list(range(n)),
+        list(range(rx)),
+        list(range(rz)),
     )
     if any(
         sorted(observed) != expected
@@ -770,20 +836,8 @@ def _validate_pair_replay_payload(
 def _pair_replay_payload(task: dict[str, Any]) -> dict[str, Any]:
     candidate = task["candidate"]
     representative = task["representative"]
-    candidate_code = build_bb_code(
-        int(candidate["ell"]),
-        int(candidate["m"]),
-        candidate["A_terms"],
-        candidate["B_terms"],
-        geometry=candidate_geometry(candidate),
-    )
-    representative_code = build_bb_code(
-        int(representative["ell"]),
-        int(representative["m"]),
-        representative["A_terms"],
-        representative["B_terms"],
-        geometry=candidate_geometry(representative),
-    )
+    candidate_code = _build_css_result(candidate)
+    representative_code = _build_css_result(representative)
     mapping = extract_full_vertex_isomorphism(
         candidate_code,
         representative_code,
@@ -1081,6 +1135,38 @@ def _matrices(code):
     return hx, hz
 
 
+def _has_compact_construction(result: Mapping[str, Any]) -> bool:
+    return isinstance(result.get("construction"), Mapping)
+
+
+def _build_css_result(result: Mapping[str, Any]):
+    """Rebuild either a compact construction or a legacy BB record."""
+
+    if _has_compact_construction(result):
+        from evaluation.construction import build_css_code_from_claim
+
+        return build_css_code_from_claim(dict(result))
+    ell, m = int(result["ell"]), int(result["m"])
+    return build_bb_code(
+        ell,
+        m,
+        result["A_terms"],
+        result["B_terms"],
+        geometry=candidate_geometry(result),
+    )
+
+
+def _code_parameters(code) -> tuple[int, int]:
+    try:
+        n = int(code.num_qudits)
+        k = int(code.dimension)
+    except (AttributeError, TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("rebuilt CSS code has invalid n/k parameters") from exc
+    if n <= 0:
+        raise ValueError("rebuilt CSS code has non-positive block length")
+    return n, k
+
+
 def _component_sizes(checks: np.ndarray) -> list[int]:
     """Return Tanner-component sizes using the final gate's graph definition."""
     matrix = np.asarray(checks, dtype=np.uint8) & 1
@@ -1163,6 +1249,70 @@ def check_css_static_eligibility(
         "failures": failures,
         "n": int(n),
         "k": int(k),
+        "x_checks": int(hx.shape[0]),
+        "z_checks": int(hz.shape[0]),
+        "max_row_weight": max_row_weight,
+        "max_qubit_degree": max_qubit_degree,
+        "tanner_components": len(component_sizes),
+        "tanner_component_sizes": component_sizes,
+    }
+
+
+def check_css_result_static_eligibility(result: Mapping[str, Any]) -> dict:
+    """Run the static challenge gate on any supported CSS construction."""
+
+    if not _has_compact_construction(result):
+        return check_css_static_eligibility(
+            int(result["ell"]),
+            int(result["m"]),
+            result["A_terms"],
+            result["B_terms"],
+            geometry=candidate_geometry(result),
+            reported_n=result.get("n"),
+            reported_k=result.get("k"),
+        )
+    try:
+        code = _build_css_result(result)
+        hx, hz = _matrices(code)
+        n, k = _code_parameters(code)
+    except (ImportError, KeyError, TypeError, ValueError, OverflowError) as exc:
+        return {
+            "checked": True,
+            "eligible": False,
+            "checks": {"candidate_rebuild": False},
+            "failures": [f"candidate_rebuild: {exc}"],
+        }
+    stacked = np.vstack((hx, hz))
+    component_sizes = _component_sizes(stacked)
+    max_row_weight = int(stacked.sum(axis=1).max(initial=0))
+    max_qubit_degree = int(stacked.sum(axis=0).max(initial=0))
+    checks = {
+        "candidate_rebuild": True,
+        "positive_dimension": k > 0,
+        "css_commutation": int(np.count_nonzero((hx @ hz.T) & 1)) == 0,
+        "weight_and_degree_at_most_6": (
+            max_row_weight <= 6 and max_qubit_degree <= 6
+        ),
+        "connected_tanner_graph": len(component_sizes) == 1,
+    }
+    if result.get("n") is not None:
+        checks["reported_n_matches"] = (
+            type(result["n"]) is int and int(result["n"]) == n
+        )
+    if result.get("k") is not None:
+        checks["reported_k_matches"] = (
+            type(result["k"]) is int and int(result["k"]) == k
+        )
+    failures = [name for name, passed in checks.items() if not passed]
+    return {
+        "checked": True,
+        "eligible": not failures,
+        "checks": checks,
+        "failures": failures,
+        "n": n,
+        "k": k,
+        "x_checks": int(hx.shape[0]),
+        "z_checks": int(hz.shape[0]),
         "max_row_weight": max_row_weight,
         "max_qubit_degree": max_qubit_degree,
         "tanner_components": len(component_sizes),
@@ -1249,7 +1399,13 @@ def check_css_structural_novelty(
         b_terms,
         geometry=normalize_geometry(ell, m, geometry),
     )
-    n, k = get_code_params_fast(candidate)
+    return check_css_code_structural_novelty(candidate)
+
+
+def check_css_code_structural_novelty(candidate) -> dict:
+    """Classify an arbitrary rebuilt CSS code by Tanner equivalence."""
+
+    n, k = _code_parameters(candidate)
     candidate_hash = canonical_hash(candidate)
     candidate_digest = canonical_digest(candidate)
 
@@ -1289,15 +1445,7 @@ def annotate_css_result(result: dict) -> dict:
     """Return a result copy carrying static and structural eligibility audits."""
     annotated = dict(result)
     annotated.pop(STRUCTURAL_PAIR_REPLAY_FIELD, None)
-    static = check_css_static_eligibility(
-        int(result["ell"]),
-        int(result["m"]),
-        result["A_terms"],
-        result["B_terms"],
-        geometry=candidate_geometry(result),
-        reported_n=result.get("n"),
-        reported_k=result.get("k"),
-    )
+    static = check_css_result_static_eligibility(result)
     annotated["static_eligibility"] = static
     if not static["eligible"]:
         annotated["structural_novelty"] = {
@@ -1311,13 +1459,18 @@ def annotate_css_result(result: dict) -> dict:
         }
         annotated["structural_rejection"] = "static_ineligible"
         return annotated
-    annotated["structural_novelty"] = check_css_structural_novelty(
-        int(result["ell"]),
-        int(result["m"]),
-        result["A_terms"],
-        result["B_terms"],
-        geometry=candidate_geometry(result),
-    )
+    if _has_compact_construction(result):
+        annotated["structural_novelty"] = check_css_code_structural_novelty(
+            _build_css_result(result)
+        )
+    else:
+        annotated["structural_novelty"] = check_css_structural_novelty(
+            int(result["ell"]),
+            int(result["m"]),
+            result["A_terms"],
+            result["B_terms"],
+            geometry=candidate_geometry(result),
+        )
     if not annotated["structural_novelty"]["novel"]:
         annotated["structural_rejection"] = "known_reference"
     return annotated
@@ -1382,21 +1535,9 @@ def deduplicate_annotated_css_results(
             kept.append(annotated)
             continue
 
-        candidate = build_bb_code(
-            int(annotated["ell"]),
-            int(annotated["m"]),
-            annotated["A_terms"],
-            annotated["B_terms"],
-            geometry=candidate_geometry(annotated),
-        )
+        candidate = _build_css_result(annotated)
         representative = previous
-        representative_code = build_bb_code(
-            int(representative["ell"]),
-            int(representative["m"]),
-            representative["A_terms"],
-            representative["B_terms"],
-            geometry=candidate_geometry(representative),
-        )
+        representative_code = _build_css_result(representative)
         mapping = extract_full_vertex_isomorphism(candidate, representative_code)
         if mapping is None:
             raise RuntimeError("within-run canonical match lacked isomorphism")

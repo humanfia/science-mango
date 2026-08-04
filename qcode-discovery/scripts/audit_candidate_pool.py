@@ -128,11 +128,14 @@ CERTIFIABLE_PROOF_STATUSES = frozenset({
     "EXACT_PROVEN",
 })
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
+_TRUSTED_SEARCH_ORACLE_REJECTION = "_trusted_search_oracle_rejection"
 _AUTHORITATIVE_GEOMETRY = "authoritative_geometry"
 _STAGE2_STRUCTURAL_SCREEN = "stage2_structural_screen"
 _INPUT_TERMINAL_MARKERS = (
     _TRUSTED_STAGE1_OUTCOME,
+    _TRUSTED_SEARCH_ORACLE_REJECTION,
     "trusted_stage1_audit",
+    "trusted_search_oracle_rejection",
     "campaign_selected",
     "campaign_audit",
     "campaign_skip_reason",
@@ -296,6 +299,135 @@ def _trusted_stage1_outcome(
     )
 
 
+def _replay_search_oracle_rejection(
+    record: Mapping[str, Any],
+    required_distance: int,
+) -> dict[str, Any] | None:
+    """Independently replay a Stage-1 SAT witness as negative evidence.
+
+    Search-oracle rows are not formal lower-bound certificates.  A SAT
+    logical operator is nevertheless self-verifying after reconstructing the
+    exact code, so Stage 2 may safely exclude it when its weight is below the
+    final-gate distance requirement.  Any malformed or stale artifact simply
+    remains eligible for the normal audit path.
+    """
+
+    oracle = record.get("low_weight_oracle")
+    witness = oracle.get("witness") if isinstance(oracle, Mapping) else None
+    if (
+        record.get("search_status") != "terminal_negative"
+        or record.get("threshold_rejection_proven") is not True
+        or record.get("threshold_proof_source") != "low_weight_oracle"
+        or record.get("final_gate_excluded_by_upper_bound") is not True
+        or not isinstance(oracle, Mapping)
+        or oracle.get("outcome") != "SAT"
+        or not isinstance(witness, Mapping)
+    ):
+        return None
+    weight = witness.get("weight")
+    if (
+        isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or weight < 1
+        or weight >= required_distance
+        or record.get("threshold_proof_distance") != weight
+        or record.get("distance_upper_bound") != weight
+        or record.get("distance_status") != "upper_bound"
+        or record.get("challenge_rejection_cutoff")
+        != required_distance - 1
+    ):
+        return None
+    proof_witness = record.get("threshold_proof_witness")
+    if not isinstance(proof_witness, Mapping) or any(
+        proof_witness.get(field) != witness.get(field)
+        for field in ("side", "index", "weight", "bits")
+    ):
+        return None
+    try:
+        from evaluation.construction import build_css_code_from_claim
+        from evaluation.distance_milp import get_code_matrices
+        from evaluation.low_weight_oracle import verify_css_low_weight_oracle
+
+        code = build_css_code_from_claim(record)
+        if (
+            int(code.num_qudits) != record.get("n")
+            or int(code.dimension) != record.get("k")
+        ):
+            return None
+        hx, hz, lx, lz = get_code_matrices(code)
+        failures = verify_css_low_weight_oracle(
+            oracle,
+            hx,
+            hz,
+            lx,
+            lz,
+            require_current_source=True,
+        )
+    except (ImportError, KeyError, TypeError, ValueError, RuntimeError):
+        return None
+    if failures:
+        return None
+    return {
+        "validated": True,
+        "outcome": "REJECTED",
+        "source": "low_weight_oracle",
+        "required_distance": required_distance,
+        "witness_weight": weight,
+        "oracle_evidence_sha256": oracle.get("evidence_sha256"),
+        "replay_policy": "exact-construction-current-source",
+    }
+
+
+def _promote_trusted_search_oracle_rows(
+    ranked: list[dict[str, Any]],
+    prepared: list[dict[str, Any]],
+    sources: list[str],
+) -> tuple[list[dict[str, Any]], int]:
+    """Retain a replayed negative witness across structural deduplication."""
+
+    trusted: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
+    for line_number, (record, source) in enumerate(
+        zip(prepared, sources, strict=True),
+        start=1,
+    ):
+        evidence = record.get(_TRUSTED_SEARCH_ORACLE_REJECTION)
+        if not isinstance(evidence, Mapping):
+            continue
+        promoted = rank_record(record, source=source, line_number=line_number)
+        digest = str(promoted["triage_identity"]["canonical_digest"])
+        trusted[digest] = (promoted, dict(evidence))
+
+    result: list[dict[str, Any]] = []
+    for existing in ranked:
+        digest = str(existing["triage_identity"]["canonical_digest"])
+        match = trusted.get(digest)
+        if match is None:
+            result.append(existing)
+            continue
+        promoted, evidence = match
+        stage1 = existing.get("trusted_stage1_audit")
+        if (
+            isinstance(stage1, Mapping)
+            and stage1.get("validated") is True
+            and stage1.get("outcome") == "THRESHOLD_PROVEN"
+        ):
+            raise ValueError(
+                "formal Stage 1 winner conflicts with replayed low-weight "
+                "logical witness"
+            )
+        row = dict(promoted)
+        identity = dict(existing["triage_identity"])
+        identity["source_identity"] = promoted["triage_identity"][
+            "source_identity"
+        ]
+        row["triage_identity"] = identity
+        row.pop(_TRUSTED_SEARCH_ORACLE_REJECTION, None)
+        row["trusted_search_oracle_rejection"] = evidence
+        result.append(row)
+    result.sort(key=stable_sort_key)
+    return result, len(trusted)
+
+
 def _promote_trusted_stage1_rows(
     ranked: list[dict[str, Any]],
     prepared: list[dict[str, Any]],
@@ -434,6 +566,56 @@ def _authoritative_css_geometry(
     """Rebuild one CSS BB construction and overwrite untrusted reported n/k."""
 
     normalized = normalize_record(record)
+    if isinstance(normalized.get("construction"), Mapping):
+        from evaluation.construction import (
+            build_css_code_from_claim,
+            construction_identity,
+            construction_source_fingerprint,
+            normalize_construction_claim,
+        )
+
+        compact = normalize_construction_claim(dict(normalized))
+        compact_claim = (
+            dict(compact)
+            if isinstance(compact, Mapping)
+            and isinstance(compact.get("construction"), Mapping)
+            else {"construction": dict(compact)}
+        )
+        construction_payload = dict(compact_claim["construction"])
+        construction_sha256 = _json_sha256(construction_payload)
+        parameters = cache.get(construction_sha256)
+        if parameters is None:
+            code = build_css_code_from_claim(compact_claim)
+            rebuilt_n, rebuilt_k = get_code_params_fast(code)
+            parameters = (int(rebuilt_n), int(rebuilt_k))
+            cache[construction_sha256] = parameters
+        rebuilt_n, rebuilt_k = parameters
+        updated = dict(normalized)
+        reported_n = updated.get("n")
+        reported_k = updated.get("k")
+        updated.pop("geometry", None)
+        updated["construction"] = construction_payload
+        updated["n"] = rebuilt_n
+        updated["k"] = rebuilt_k
+        updated[_AUTHORITATIVE_GEOMETRY] = {
+            "reconstructed": True,
+            "construction_sha256": construction_sha256,
+            "construction_identity": construction_identity(compact_claim),
+            "construction_source_fingerprint": (
+                construction_source_fingerprint()
+            ),
+            "n": rebuilt_n,
+            "k": rebuilt_k,
+            "reported_n": reported_n,
+            "reported_k": reported_k,
+            "reported_n_matches": (
+                type(reported_n) is int and reported_n == rebuilt_n
+            ),
+            "reported_k_matches": (
+                type(reported_k) is int and reported_k == rebuilt_k
+            ),
+        }
+        return updated, rebuilt_n, rebuilt_k
     required = ("ell", "m", "A_terms", "B_terms")
     missing = [name for name in required if normalized.get(name) is None]
     if missing:
@@ -579,11 +761,19 @@ def _demote_input_terminal_markers(
 
 def _is_trusted_terminal_rejection(row: Mapping[str, Any]) -> bool:
     trusted = row.get("trusted_stage1_audit")
-    return bool(
+    formal = bool(
         isinstance(trusted, Mapping)
         and trusted.get("validated") is True
         and trusted.get("outcome") == "REJECTED"
     )
+    oracle = row.get("trusted_search_oracle_rejection")
+    search_oracle = bool(
+        isinstance(oracle, Mapping)
+        and oracle.get("validated") is True
+        and oracle.get("outcome") == "REJECTED"
+        and oracle.get("source") == "low_weight_oracle"
+    )
+    return formal or search_oracle
 
 
 def _is_structural_screen_unresolved(row: Mapping[str, Any]) -> bool:
@@ -781,7 +971,7 @@ def rank_candidate_files(
                 ineligible_records += 1
                 continue
             required_distance = minimum_winning_distance(n, k)
-        except (KeyError, TypeError, ValueError, OverflowError):
+        except (ImportError, KeyError, TypeError, ValueError, OverflowError):
             malformed_records += 1
             continue
 
@@ -794,6 +984,10 @@ def rank_candidate_files(
         authoritative = _demote_input_terminal_markers(authoritative)
         reported_required_distance = authoritative.get("required_distance")
         authoritative["required_distance"] = required_distance
+        trusted_search_oracle = _replay_search_oracle_rejection(
+            authoritative,
+            required_distance,
+        )
         try:
             trusted_outcome, sealed_evidence = _trusted_stage1_outcome(
                 authoritative,
@@ -817,6 +1011,10 @@ def rank_candidate_files(
             )
         if trusted_outcome is not None:
             authoritative[_TRUSTED_STAGE1_OUTCOME] = trusted_outcome
+        if trusted_search_oracle is not None:
+            authoritative[_TRUSTED_SEARCH_ORACLE_REJECTION] = (
+                trusted_search_oracle
+            )
         prepared.append(authoritative)
         prepared_sources.append(source)
 
@@ -825,6 +1023,13 @@ def rank_candidate_files(
         ranked,
         prepared,
         prepared_sources,
+    )
+    ranked, trusted_search_oracle_rejections = (
+        _promote_trusted_search_oracle_rows(
+            ranked,
+            prepared,
+            prepared_sources,
+        )
     )
 
     ranked.sort(key=_ranked_selection_key)
@@ -851,6 +1056,10 @@ def rank_candidate_files(
     counts.update({
         key: value for key, value in trusted_counts.items() if value
     })
+    if trusted_search_oracle_rejections:
+        counts["trusted_search_oracle_rejections"] = (
+            trusted_search_oracle_rejections
+        )
     return ranked, counts
 
 
@@ -923,6 +1132,8 @@ def rank_candidate_files_with_structural_cache(
         enriched = _demote_input_identity_claims(record)
         try:
             normalized = normalize_record(enriched)
+            normalized.pop(_TRUSTED_SEARCH_ORACLE_REJECTION, None)
+            normalized.pop("trusted_search_oracle_rejection", None)
             normalized.pop(_STAGE2_STRUCTURAL_SCREEN, None)
             if normalized.get("C_terms") or normalized.get("D_terms"):
                 n = normalized.get("n")
@@ -960,6 +1171,25 @@ def rank_candidate_files_with_structural_cache(
                 prepared_sources.append(source)
                 continue
 
+            if isinstance(normalized.get("construction"), Mapping):
+                from evaluation.construction import normalize_construction_claim
+
+                compact = normalize_construction_claim(dict(normalized))
+                normalized["construction"] = dict(
+                    compact["construction"]
+                    if isinstance(compact, Mapping)
+                    and isinstance(compact.get("construction"), Mapping)
+                    else compact
+                )
+                normalized.pop("geometry", None)
+                reported_n = normalized.pop("n", None)
+                reported_k = normalized.pop("k", None)
+                normalized["_stage2_structural_index"] = len(css_rows)
+                css_rows.append(normalized)
+                css_sources.append(source)
+                css_reported.append((reported_n, reported_k))
+                continue
+
             if (
                 type(normalized.get("ell")) is not int
                 or type(normalized.get("m")) is not int
@@ -971,7 +1201,7 @@ def rank_candidate_files_with_structural_cache(
             b_terms = _normalise_bb_terms(normalized.get("B_terms"), "B")
             validate_terms(normalized["ell"], normalized["m"], a_terms, "A")
             validate_terms(normalized["ell"], normalized["m"], b_terms, "B")
-        except (KeyError, TypeError, ValueError, OverflowError):
+        except (ImportError, KeyError, TypeError, ValueError, OverflowError):
             malformed_records += 1
             continue
 
@@ -1212,6 +1442,10 @@ def rank_candidate_files_with_structural_cache(
         required_distance = minimum_winning_distance(n, k)
         reported_required_distance = authoritative.get("required_distance")
         authoritative["required_distance"] = required_distance
+        trusted_search_oracle = _replay_search_oracle_rejection(
+            authoritative,
+            required_distance,
+        )
         try:
             trusted_outcome, sealed_evidence = _trusted_stage1_outcome(
                 authoritative,
@@ -1235,6 +1469,10 @@ def rank_candidate_files_with_structural_cache(
             authoritative[_STAGE2_STRUCTURAL_SCREEN] = marker
         if trusted_outcome is not None:
             authoritative[_TRUSTED_STAGE1_OUTCOME] = trusted_outcome
+        if trusted_search_oracle is not None:
+            authoritative[_TRUSTED_SEARCH_ORACLE_REJECTION] = (
+                trusted_search_oracle
+            )
         prepared.append(authoritative)
         prepared_sources.append(css_sources[index])
 
@@ -1307,6 +1545,13 @@ def rank_candidate_files_with_structural_cache(
         prepared,
         prepared_sources,
     )
+    ranked, trusted_search_oracle_rejections = (
+        _promote_trusted_search_oracle_rows(
+            ranked,
+            prepared,
+            prepared_sources,
+        )
+    )
     ranked.sort(key=_ranked_selection_key)
     eligible = [
         row for row in ranked
@@ -1337,6 +1582,10 @@ def rank_candidate_files_with_structural_cache(
     counts.update({
         key: value for key, value in trusted_counts.items() if value
     })
+    if trusted_search_oracle_rejections:
+        counts["trusted_search_oracle_rejections"] = (
+            trusted_search_oracle_rejections
+        )
     return ranked, counts
 
 
@@ -1432,6 +1681,7 @@ def certificate_source_fingerprint() -> str:
         PROJECT / "results" / "known_code_registry.json",
         PROJECT / "humanize" / "audit_state.py",
         PROJECT / "humanize" / "state.py",
+        PROJECT / "evaluation" / "coset_two_block_actions.v1.json",
         *(PROJECT / "evaluation").rglob("*.py"),
     }
     digest = hashlib.sha256()
@@ -1472,11 +1722,16 @@ def _construction_candidate(
 ) -> dict[str, Any]:
     """Remove triage-only evidence while retaining construction provenance."""
 
-    required = ("ell", "m", "A_terms", "B_terms", "required_distance")
+    compact = isinstance(ranked.get("construction"), Mapping)
+    required = (
+        ("construction", "required_distance")
+        if compact
+        else ("ell", "m", "A_terms", "B_terms", "required_distance")
+    )
     missing = [name for name in required if ranked.get(name) is None]
     if missing:
         raise ValueError(
-            "XOR audit requires BB construction fields: "
+            "audit requires construction fields: "
             + ", ".join(missing),
         )
     retained = (
@@ -1484,6 +1739,7 @@ def _construction_candidate(
         "trial",
         "ansatz",
         "geometry",
+        "construction",
         "ell",
         "m",
         "A_terms",
@@ -2162,6 +2418,10 @@ def _novelty_source_fingerprint() -> str:
         PROJECT / "evaluation" / "registry.py",
         PROJECT / "evaluation" / "structural_dedup.py",
         PROJECT / "evaluation" / "tanner_equivalence.py",
+        PROJECT / "evaluation" / "construction.py",
+        PROJECT / "evaluation" / "coset_action_catalog.py",
+        PROJECT / "evaluation" / "coset_two_block.py",
+        PROJECT / "evaluation" / "coset_two_block_actions.v1.json",
     }
     digest = hashlib.sha256()
     for path in sorted(
@@ -2320,22 +2580,27 @@ def _canonicalize_from_structural_screen(
             "structural-screen registry replay supports CSS BB only"
         )
     try:
-        ell = candidate["ell"]
-        m = candidate["m"]
-        if type(ell) is not int or type(m) is not int:
-            raise TypeError("ell and m must be integers")
-        if ell <= 0 or m <= 0:
-            raise ValueError("ell and m must be positive")
-        a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
-        b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
-        geometry = candidate_geometry(candidate)
-        validate_terms(ell, m, a_terms, "A")
-        validate_terms(ell, m, b_terms, "B")
-        code = build_bb_code(
-            ell, m, a_terms, b_terms, geometry=geometry,
-        )
+        if isinstance(candidate.get("construction"), Mapping):
+            from evaluation.construction import build_css_code_from_claim
+
+            code = build_css_code_from_claim(candidate)
+        else:
+            ell = candidate["ell"]
+            m = candidate["m"]
+            if type(ell) is not int or type(m) is not int:
+                raise TypeError("ell and m must be integers")
+            if ell <= 0 or m <= 0:
+                raise ValueError("ell and m must be positive")
+            a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
+            b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
+            geometry = candidate_geometry(candidate)
+            validate_terms(ell, m, a_terms, "A")
+            validate_terms(ell, m, b_terms, "B")
+            code = build_bb_code(
+                ell, m, a_terms, b_terms, geometry=geometry,
+            )
         replay_n, replay_k = get_code_params_fast(code)
-    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+    except (ImportError, KeyError, TypeError, ValueError, OverflowError) as exc:
         raise NoveltyReplayError(
             "cache-bound construction failed authoritative registry rebuild"
         ) from exc
@@ -2653,6 +2918,7 @@ def canonicalize_for_audit(
             ranked,
             registry_path=registry_path,
         )
+    compact = isinstance(ranked.get("construction"), Mapping)
     code_builder = build_bb_code if code_builder is None else code_builder
     novelty_checker = (
         check_code_novelty if novelty_checker is None else novelty_checker
@@ -2667,34 +2933,41 @@ def canonicalize_for_audit(
     )
     if candidate.get("C_terms") or candidate.get("D_terms"):
         raise ValueError("XOR audit canonicalization supports CSS BB only")
-    ell = candidate["ell"]
-    m = candidate["m"]
-    if type(ell) is not int or type(m) is not int:
-        raise TypeError("ell and m must be integers")
-    if ell <= 0 or m <= 0:
-        raise ValueError("ell and m must be positive")
-    a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
-    b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
-    geometry = candidate_geometry(candidate)
-    validate_terms(ell, m, a_terms, "A")
-    validate_terms(ell, m, b_terms, "B")
-    code = (
-        code_builder(ell, m, a_terms, b_terms)
-        if geometry is None
-        else code_builder(
-            ell, m, a_terms, b_terms, geometry=geometry,
+    if compact:
+        from evaluation.construction import build_css_code_from_claim
+
+        code = build_css_code_from_claim(candidate)
+        ell = m = None
+        geometry = None
+    else:
+        ell = candidate["ell"]
+        m = candidate["m"]
+        if type(ell) is not int or type(m) is not int:
+            raise TypeError("ell and m must be integers")
+        if ell <= 0 or m <= 0:
+            raise ValueError("ell and m must be positive")
+        a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
+        b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
+        geometry = candidate_geometry(candidate)
+        validate_terms(ell, m, a_terms, "A")
+        validate_terms(ell, m, b_terms, "B")
+        code = (
+            code_builder(ell, m, a_terms, b_terms)
+            if geometry is None
+            else code_builder(
+                ell, m, a_terms, b_terms, geometry=geometry,
+            )
         )
-    )
     try:
         rebuilt_n, rebuilt_k = get_code_params_fast(code)
     except (AttributeError, TypeError, ValueError, OverflowError) as exc:
         raise ValueError(
-            "rebuilt BB code returned invalid n/k parameters"
+            "rebuilt CSS code returned invalid n/k parameters"
         ) from exc
     if type(rebuilt_n) is not int or type(rebuilt_k) is not int:
-        raise ValueError("rebuilt BB code returned non-integer n/k parameters")
+        raise ValueError("rebuilt CSS code returned non-integer n/k parameters")
     if rebuilt_n <= 0 or rebuilt_k <= 0:
-        raise ValueError("rebuilt BB code must have positive n and k")
+        raise ValueError("rebuilt CSS code must have positive n and k")
     reported_n = updated.get("n")
     reported_k = updated.get("k")
     updated["n"] = rebuilt_n
@@ -2715,7 +2988,7 @@ def canonicalize_for_audit(
             type(reported_k) is int and reported_k == rebuilt_k
         ),
     }
-    if geometry is not None:
+    if not compact and geometry is not None:
         selection_geometry["geometry"] = geometry_identity(
             ell, m, geometry,
         )
@@ -2779,7 +3052,7 @@ def canonicalize_for_audit(
         and claimed_digest != actual_digest
     ):
         raise ValueError(
-            "stored canonical digest does not match reconstructed BB code",
+            "stored canonical digest does not match reconstructed CSS code",
         )
     identity["precanonical_digest"] = claimed_digest
     identity["canonical_digest"] = actual_digest
@@ -3950,6 +4223,21 @@ def audit_candidate(
             "canonical_digest": canonical_digest,
             "status": "UNSUPPORTED",
             "error": "XOR sector audit currently supports CSS candidates only",
+        }
+
+    if isinstance(candidate.get("construction"), Mapping):
+        # Stage 2 has already performed the authoritative matrix rebuild,
+        # Tanner canonicalization, within-pool replay and registry replay.
+        # Its legacy sector oracle is BB-translation-specific; compact
+        # constructions deliberately remain unresolved for the generic
+        # global SAT Stage 3 instead of manufacturing BB symmetry evidence.
+        return {
+            "canonical_digest": canonical_digest,
+            "status": "UNRESOLVED",
+            "completed_sectors": 0,
+            "resumed_sectors": 0,
+            "deferred_backend": "generic-global-sat",
+            "reason": "compact construction requires Stage 3 generic SAT",
         }
 
     symmetry = symmetry_checker(candidate)

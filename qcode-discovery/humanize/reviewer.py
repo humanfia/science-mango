@@ -508,6 +508,13 @@ def validate_review(
 
 _ADVISORY_ROW_FIELDS = (
     "candidate_key",
+    "construction",
+    "action_id",
+    "action_family_bin",
+    "subgroup_normal",
+    "support_orbit_bin",
+    "left_support",
+    "right_support",
     "geometry",
     "ell",
     "m",
@@ -539,6 +546,13 @@ _ADVISORY_ROW_FIELDS = (
 
 _TRUSTED_EXACT_COMPACT_FIELDS = (
     "candidate_key",
+    "construction",
+    "action_id",
+    "action_family_bin",
+    "subgroup_normal",
+    "support_orbit_bin",
+    "left_support",
+    "right_support",
     "geometry",
     "ell",
     "m",
@@ -600,6 +614,26 @@ _REVIEWABLE_EVOLUTION_LATTICES = frozenset(
 )
 
 
+def _normalized_compact_construction(
+    row: dict[str, Any],
+) -> dict[str, Any] | None:
+    if not isinstance(row.get("construction"), dict):
+        return None
+    try:
+        from evaluation.construction import normalize_construction_claim
+
+        normalized = normalize_construction_claim(dict(row))
+        construction = (
+            normalized.get("construction")
+            if isinstance(normalized, dict)
+            and isinstance(normalized.get("construction"), dict)
+            else normalized
+        )
+        return dict(construction) if isinstance(construction, dict) else None
+    except (ImportError, KeyError, TypeError, ValueError, OverflowError):
+        return None
+
+
 def _negative_witness_geometry(
     row: dict[str, Any],
     *,
@@ -656,21 +690,27 @@ def _negative_witness_geometry(
     k = row.get("k")
     a_terms = row.get("A_terms")
     b_terms = row.get("B_terms")
+    compact_construction = _normalized_compact_construction(row)
     # Reject dimensions and degree before touching a potentially huge bit
     # vector or allocating dense BB matrices. Stage 2 evaluates exactly these
     # allow-listed lattices under the challenge's degree-six gate.
-    if (
-        type(ell) is not int
-        or type(m) is not int
-        or (ell, m) not in _REVIEWABLE_EVOLUTION_LATTICES
-        or type(n) is not int
-        or n != 2 * ell * m
-        or type(k) is not int
-        or not 1 <= k <= n
-        or not isinstance(a_terms, (list, tuple))
-        or not isinstance(b_terms, (list, tuple))
-        or not 1 <= len(a_terms) <= 6
-        or not 1 <= len(b_terms) <= 6
+    common_dimensions_valid = bool(
+        type(n) is int
+        and type(k) is int
+        and 1 <= k <= n
+    )
+    bb_dimensions_valid = bool(
+        type(ell) is int
+        and type(m) is int
+        and (ell, m) in _REVIEWABLE_EVOLUTION_LATTICES
+        and n == 2 * ell * m
+        and isinstance(a_terms, (list, tuple))
+        and isinstance(b_terms, (list, tuple))
+        and 1 <= len(a_terms) <= 6
+        and 1 <= len(b_terms) <= 6
+    )
+    if not common_dimensions_valid or (
+        compact_construction is None and not bb_dimensions_valid
     ):
         return None
     side = witness.get("side")
@@ -714,15 +754,23 @@ def _negative_witness_geometry(
             validate_terms(ell, m, normalized, name)
             return normalized
 
-        normalized_a = strict_terms(a_terms, "A")
-        normalized_b = strict_terms(b_terms, "B")
-        code = build_bb_code(
-            ell,
-            m,
-            normalized_a,
-            normalized_b,
-            geometry=row.get("geometry"),
-        )
+        if compact_construction is not None:
+            from evaluation.construction import build_css_code_from_claim
+
+            code = build_css_code_from_claim({
+                "construction": compact_construction,
+            })
+            normalized_a = normalized_b = None
+        else:
+            normalized_a = strict_terms(a_terms, "A")
+            normalized_b = strict_terms(b_terms, "B")
+            code = build_bb_code(
+                ell,
+                m,
+                normalized_a,
+                normalized_b,
+                geometry=row.get("geometry"),
+            )
         if int(code.num_qudits) != n or int(code.dimension) != k:
             return None
         hx, hz, lx, lz = get_code_matrices(code)
@@ -754,7 +802,9 @@ def _negative_witness_geometry(
         return None
     support = [index for index, bit in enumerate(bits) if bit]
     block_size = (
-        ell * m
+        n // 2
+        if compact_construction is not None and type(n) is int and n % 2 == 0
+        else ell * m
         if type(ell) is int and type(m) is int and ell > 0 and m > 0
         else None
     )
@@ -762,10 +812,6 @@ def _negative_witness_geometry(
         "semantics": "negative_upper_bound_witness",
         "side": side,
         "weight": weight,
-        "ell": ell,
-        "m": m,
-        "A_terms": copy.deepcopy(row.get("A_terms")),
-        "B_terms": copy.deepcopy(row.get("B_terms")),
         "support": support,
         "block_support": [
             {
@@ -784,9 +830,25 @@ def _negative_witness_geometry(
             for index in support
         ],
     }
-    geometry = candidate_geometry(row)
-    if geometry is not None:
-        replayed["geometry"] = geometry
+    if compact_construction is not None:
+        replayed["construction"] = compact_construction
+        replayed["action_id"] = compact_construction.get("action_id")
+        replayed["left_support"] = copy.deepcopy(
+            compact_construction.get("left_support")
+        )
+        replayed["right_support"] = copy.deepcopy(
+            compact_construction.get("right_support")
+        )
+    else:
+        replayed.update({
+            "ell": ell,
+            "m": m,
+            "A_terms": copy.deepcopy(row.get("A_terms")),
+            "B_terms": copy.deepcopy(row.get("B_terms")),
+        })
+        geometry = candidate_geometry(row)
+        if geometry is not None:
+            replayed["geometry"] = geometry
     return replayed
 
 
@@ -817,6 +879,12 @@ def _upper_bound_neutral_advisory(
         for name in _ADVISORY_ROW_FIELDS
         if name in row
     }
+    if "construction" in projected:
+        normalized_construction = _normalized_compact_construction(row)
+        if normalized_construction is None:
+            projected.pop("construction", None)
+        else:
+            projected["construction"] = normalized_construction
     projected["distance_policy"] = (
         "unresolved upper-bound magnitude withheld; no positive distance "
         "credit"
@@ -890,11 +958,18 @@ def _upper_bound_neutral_advisory(
 
 def _trusted_exact_compact(row: dict[str, Any]) -> dict[str, Any]:
     """Return the small, decision-relevant index entry for one exact audit."""
-    return {
+    projected = {
         name: copy.deepcopy(row[name])
         for name in _TRUSTED_EXACT_COMPACT_FIELDS
         if name in row
     }
+    if "construction" in projected:
+        normalized_construction = _normalized_compact_construction(row)
+        if normalized_construction is None:
+            projected.pop("construction", None)
+        else:
+            projected["construction"] = normalized_construction
+    return projected
 
 
 def _round_history_compact(row: dict[str, Any]) -> dict[str, Any]:

@@ -34,6 +34,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Matching seed program, e.g. evolve/seed_solution_ansatz.py.",
     )
     parser.add_argument(
+        "--evaluator",
+        choices=("default", "coset-two-block"),
+        default="default",
+        help="Versioned Stage-1 evaluator representation.",
+    )
+    parser.add_argument(
         "--codex-cli", action="store_true",
         help="Use authenticated Codex CLI instead of an OpenAI-compatible API.",
     )
@@ -74,6 +80,7 @@ def main() -> None:
             args.evolution_config.resolve() if args.evolution_config else None
         ),
         evolution_seed=args.evolution_seed.resolve() if args.evolution_seed else None,
+        evolution_evaluator=args.evaluator,
         milp_total_timeout=args.milp_total_timeout,
         milp_early_stop=args.milp_early_stop,
         patience=args.patience,

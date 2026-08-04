@@ -1,0 +1,111 @@
+# OpenEvolve configuration for the independent coset two-block representation.
+#
+# This geometry is intentionally checkpoint-incompatible with every historical
+# BB polynomial campaign.  It must be launched with
+# ``run_evolution.py --evaluator coset-two-block`` and a fresh run id.
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 30000
+checkpoint_interval: 25
+random_seed: 47
+
+# OpenEvolve ignores unknown top-level metadata; the launcher binds the
+# evaluator route, source hash, and numeric checkpoint marker independently.
+qcode_coset_search_portfolio:
+  enabled: true
+  schema_version: 1
+  representation_id: "css-coset-two-block-actions-v1"
+  checkpoint_compatibility_group: "coset-two-block-v1"
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.34
+      temperature: 1.0
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 1.0
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are evolving `_propose_coset_supports()` for sparse CSS two-block
+    codes built from an immutable catalog of finite-group actions. This is a
+    nonabelian/coset representation, not a bivariate-polynomial BB search.
+
+    Edit only the function inside the EVOLVE block. The immutable wrapper
+    dynamically loads every enabled `action_id`, its allowed left/right
+    element IDs, subgroup normality, identity IDs, and published aliases.
+    Return mappings containing only `action_id`, `left_support`, and
+    `right_support`. Never emit permutation matrices, group presentations,
+    catalog metadata, code parameters, decoder values, witnesses, distance
+    claims, or proof fields.
+
+    Every production support has exactly three distinct left IDs and three
+    distinct right IDs. It must include the catalog-provided identity on each
+    side, so total check weight and support weight are exactly six. Use only
+    IDs exposed by the matching action descriptor. These are opaque stable
+    permutation IDs; do not reinterpret them as polynomial exponents or GAP
+    enumeration positions.
+
+    The immutable wrapper enforces a 384-candidate cap, canonicalizes support
+    order, deduplicates exact definitions, and fills missing buckets. It uses
+    a 3:1 nonnormal-production versus normal-control quota while preserving
+    every enabled action ID.
+    Keep proposals deterministic and compact. Every evolved program should
+    cover all enabled actions so each evolutionary island retains both the
+    nonnormal coset lane and the normal regular-action control whenever both
+    exist. Diversify conjugacy/orbit patterns within each action instead of
+    repeatedly permuting the published support.
+
+    The objective is a novel code with rigorously certified
+    FOM = k*d^2/n > 12 under the challenge degree-six constraints. Decoder or
+    BP-OSD logical weights are distance upper bounds and receive zero positive
+    fitness credit. A replayed low-weight SAT witness is reliable negative
+    evidence. Only complete two-sector UNSAT evidence supplies a distance
+    lower bound. Positive fitness is restricted to rebuilt CSS legality,
+    exact rank-derived k, proven lower bounds or exact distance, and structural
+    diversity. UNKNOWN earns no distance credit.
+
+    When artifacts contain a short logical witness, change the implicated
+    action/orbit relationship or several support elements; alias jitter inside
+    the same occupied orbit is not a repair. Preserve the published support as
+    a regression anchor, but search its structurally distinct neighborhoods
+    and underoccupied action/normality/orbit MAP cells.
+  include_artifacts: true
+  suggest_simplification_after_chars: 12000
+
+evaluator:
+  timeout: 1200
+  # The independent evaluator owns the proof-safe Stage-1 signal. Its score is
+  # strictly below 1.0, so 2.0 makes the OpenEvolve Stage-2 callback unreachable;
+  # the five-stage launcher consumes the persisted construction pool instead.
+  cascade_evaluation: true
+  cascade_thresholds: [2.0, 2.0]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 192
+  num_islands: 4
+  exploration_ratio: 0.60
+  exploitation_ratio: 0.30
+  migration_interval: 20
+  feature_dimensions:
+    - "coset_action_family"
+    - "coset_subgroup_normality"
+    - "coset_support_orbit"
+  feature_bins:
+    coset_action_family: 4
+    coset_subgroup_normality: 2
+    coset_support_orbit: 8

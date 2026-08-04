@@ -1416,6 +1416,10 @@ class PipelineConfig:
             for name in flow_path_fields:
                 if flow_values.get(name) is not None:
                     flow_values[name] = _resolve_path(flow_values[name], base)
+            if (
+                flow_values.get("evolution_evaluator") == "coset-two-block"
+            ):
+                flow_values.setdefault("milp_top", 0)
             allowed = set(FlowConfig.__dataclass_fields__) - {"repo_dir", "run_id"}
             unknown = set(flow_values) - allowed
             if unknown:
@@ -2261,6 +2265,11 @@ class FiveStagePipeline:
 
     def _audit_source_provenance(self) -> dict[str, Any]:
         registry = self.config.repo_dir / "results" / "known_code_registry.json"
+        action_catalog = (
+            self.config.repo_dir
+            / "evaluation"
+            / "coset_two_block_actions.v1.json"
+        )
         return {
             "controller_source_sha256": self._source_file_sha256(
                 self.config.repo_dir / "humanize" / "pipeline.py",
@@ -2282,11 +2291,22 @@ class FiveStagePipeline:
                 registry,
                 label="known-code registry",
             ),
+            **({
+                "coset_action_catalog_sha256": self._source_file_sha256(
+                    action_catalog,
+                    label="coset two-block action catalog",
+                ),
+            } if action_catalog.exists() else {}),
             **self._worker_runtime_provenance(),
         }
 
     def _strict_source_provenance(self) -> dict[str, Any]:
         registry = self.config.repo_dir / "results" / "known_code_registry.json"
+        action_catalog = (
+            self.config.repo_dir
+            / "evaluation"
+            / "coset_two_block_actions.v1.json"
+        )
         runner = self.config.repo_dir / "tests" / "verify_known_answer_gate.py"
         return {
             "controller_source_sha256": self._source_file_sha256(
@@ -2305,6 +2325,12 @@ class FiveStagePipeline:
                 registry,
                 label="known-code registry",
             ),
+            **({
+                "coset_action_catalog_sha256": self._source_file_sha256(
+                    action_catalog,
+                    label="coset two-block action catalog",
+                ),
+            } if action_catalog.exists() else {}),
             "strict_runner_sha256": self._source_file_sha256(
                 runner,
                 label="strict known-answer runner",
@@ -2324,6 +2350,11 @@ class FiveStagePipeline:
         )
 
     def _stage1_source_provenance(self) -> dict[str, Any]:
+        action_catalog = (
+            self.config.repo_dir
+            / "evaluation"
+            / "coset_two_block_actions.v1.json"
+        )
         return {
             "controller_source_sha256": self._source_file_sha256(
                 self.config.repo_dir / "humanize" / "pipeline.py",
@@ -2344,6 +2375,12 @@ class FiveStagePipeline:
             # every proof subprocess uses config.python_executable.  Bind both:
             # either environment changing must invalidate Stage 1.
             "controller_runtime": proof_runtime_fingerprint(),
+            **({
+                "coset_action_catalog_sha256": self._source_file_sha256(
+                    action_catalog,
+                    label="coset two-block action catalog",
+                ),
+            } if action_catalog.exists() else {}),
             **self._worker_runtime_provenance(),
         }
 

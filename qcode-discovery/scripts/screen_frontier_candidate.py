@@ -101,6 +101,14 @@ def build_candidate_code(claim: dict[str, Any]):
                 "ell", "m", "A_terms", "B_terms", "C_terms", "D_terms",
             )
         })
+    # New compact CSS representations (for example a coset-action two-block
+    # construction) deliberately do not pretend to be an ``ell,m,A,B`` BB
+    # code.  Keep the import local so historical standalone BB tooling does
+    # not acquire a dependency on the construction registry at import time.
+    if isinstance(claim.get("construction"), Mapping):
+        from evaluation.construction import build_css_code_from_claim
+
+        return build_css_code_from_claim(claim)
     return build_bb_code(
         claim["ell"], claim["m"], claim["A_terms"], claim["B_terms"],
         geometry=candidate_geometry(claim),

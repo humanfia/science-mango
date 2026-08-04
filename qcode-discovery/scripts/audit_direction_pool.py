@@ -60,7 +60,7 @@ DEFAULT_STAGE3_BACKEND = "legacy-directions"
 DEFAULT_SAT_CARDINALITY_ENCODING = "kmtotalizer"
 RECOVERABLE_INCOMPLETE_EXIT_CODE = 2
 CONSTRUCTION_FIELDS = (
-    "source", "trial", "ansatz", "geometry", "ell", "m", "A_terms", "B_terms",
+    "source", "trial", "ansatz", "construction", "geometry", "ell", "m", "A_terms", "B_terms",
     "C_terms", "D_terms", "n", "k", "required_distance",
     "max_row_weight", "max_qubit_degree", "tanner_components", "novelty",
     "canonical_digest",
@@ -143,20 +143,34 @@ def candidate_from_stage2(row: Mapping[str, Any]) -> dict[str, Any]:
         if name in row and row[name] is not None
     }
     candidate["canonical_digest"] = digest
-    missing = [
-        name for name in (
+    compact_css = isinstance(candidate.get("construction"), Mapping)
+    required_fields = (
+        ("n", "k", "required_distance")
+        if compact_css
+        else (
             "ell", "m", "A_terms", "B_terms", "n", "k",
             "required_distance",
         )
-        if name not in candidate
-    ]
+    )
+    missing = [name for name in required_fields if name not in candidate]
     if missing:
         raise ValueError("Stage 2 row lacks: " + ", ".join(missing))
-    geometry = candidate_geometry(candidate)
-    if geometry is None:
+    if compact_css:
+        from evaluation.construction import normalize_construction_claim
+
+        normalized = normalize_construction_claim(candidate)
+        candidate["construction"] = (
+            dict(normalized["construction"])
+            if isinstance(normalized.get("construction"), Mapping)
+            else dict(normalized)
+        )
         candidate.pop("geometry", None)
     else:
-        candidate["geometry"] = geometry
+        geometry = candidate_geometry(candidate)
+        if geometry is None:
+            candidate.pop("geometry", None)
+        else:
+            candidate["geometry"] = geometry
     if candidate.get("C_terms") or candidate.get("D_terms"):
         raise ValueError("Stage 3 pool currently supports CSS candidates only")
     return candidate
@@ -347,6 +361,39 @@ def expected_proof_units(candidate: Mapping[str, Any], backend: str) -> int:
     if backend == "legacy-directions":
         return 2 * k
     if backend == "sat-sectors":
+        if isinstance(candidate.get("construction"), Mapping):
+            try:
+                from evaluation.distance_milp import get_code_matrices
+                from scripts.screen_frontier_sat import (
+                    verify_construction_symmetry,
+                )
+
+                code = build_candidate_code(dict(candidate))
+                hx, hz, _lx, _lz = (
+                    np.asarray(value, dtype=np.uint8) & 1
+                    for value in get_code_matrices(code)
+                )
+                symmetry = verify_construction_symmetry(
+                    candidate, hx, hz,
+                )
+                raw_anchors = symmetry.get("orbit_representatives")
+                anchor_cubes = (
+                    len(raw_anchors)
+                    if symmetry.get("verified") is True
+                    and symmetry.get("orbits_cover_all_qubits") is True
+                    and isinstance(raw_anchors, list)
+                    and raw_anchors
+                    else 1
+                )
+            except Exception:
+                anchor_cubes = 1
+            # Generic proofs keep both X/Z sectors and a global logical OR.
+            # Verified orbit anchors split only the support cover, so the plan
+            # is A lower cubes + one global-lower portfolio lane + one upper
+            # lane per sector.  Without usable symmetry it is just lower+upper.
+            return 2 * (
+                anchor_cubes + 1 + (1 if anchor_cubes > 1 else 0)
+            )
         # Reduce to canonical X only after reconstructing this exact candidate
         # and replaying the matrix isometry.  Any build/geometry/report failure
         # falls back to the conservative complete X/Z budget.
@@ -409,6 +456,8 @@ def twobga_solver_eligible(candidate: Mapping[str, Any]) -> bool:
     typed theorem report.
     """
 
+    if isinstance(candidate.get("construction"), Mapping):
+        return False
     try:
         if candidate_geometry(candidate) is not None:
             return False

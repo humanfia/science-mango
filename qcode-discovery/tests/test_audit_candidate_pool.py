@@ -1564,6 +1564,7 @@ def test_selection_and_certificate_caches_bind_installed_package_contents(
     (
         "humanize/audit_state.py",
         "humanize/state.py",
+        "evaluation/coset_two_block_actions.v1.json",
         "evaluation/selection_ledger.py",
         "scripts/screen_frontier_candidate.py",
         "scripts/screen_frontier_sat.py",
@@ -1589,6 +1590,7 @@ def test_certificate_source_fingerprint_includes_audit_dependencies(
         project / "results" / "known_code_registry.json",
         project / "humanize" / "audit_state.py",
         project / "humanize" / "state.py",
+        project / "evaluation" / "coset_two_block_actions.v1.json",
         project / "evaluation" / "verifier.py",
         project / "evaluation" / "selection_ledger.py",
     ):

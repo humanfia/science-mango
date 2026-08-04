@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from math import gcd
 from numbers import Integral
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from evaluation.geometry import normalize_geometry
 from evaluation.structural_features import (
@@ -113,6 +113,26 @@ def _terms(row: dict[str, Any], name: str) -> list[list[int]]:
 
 def code_key(row: dict[str, Any]) -> str:
     """Stable content key for a CSS BB code, independent of score metadata."""
+    if isinstance(row.get("construction"), Mapping):
+        from evaluation.construction import normalize_construction_claim
+
+        normalized = normalize_construction_claim(dict(row))
+        construction = (
+            normalized.get("construction")
+            if isinstance(normalized, Mapping)
+            and isinstance(normalized.get("construction"), Mapping)
+            else normalized
+        )
+        if not isinstance(construction, Mapping):
+            raise ValueError("normalized construction is not an object")
+        payload = json.dumps(
+            {"construction": dict(construction)},
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        return hashlib.sha256(payload.encode()).hexdigest()[:20]
     ell = int(row.get("ell", 0) or 0)
     m = int(row.get("m", 0) or 0)
     defining = {
@@ -229,6 +249,40 @@ def candidate_structural_features(
 ) -> dict[str, float | int]:
     """Recompute candidate-level MAP metadata from the defining terms."""
 
+    if isinstance(row.get("construction"), Mapping):
+        construction = row["construction"]
+        action_id = construction.get("action_id", row.get("action_id"))
+        left = construction.get("left_support", row.get("left_support"))
+        right = construction.get("right_support", row.get("right_support"))
+        if (
+            not isinstance(action_id, str)
+            or not isinstance(left, list)
+            or not isinstance(right, list)
+        ):
+            raise ValueError("compact construction lacks action/support fields")
+        from evolve.coset_search_contract import (
+            action_search_view,
+            normalize_candidate,
+            support_orbit_bin,
+        )
+
+        genotype = normalize_candidate({
+            "schema_version": construction.get("schema_version", 1),
+            "representation_id": construction.get(
+                "representation_id", "css-coset-two-block-actions-v1",
+            ),
+            "action_id": action_id,
+            "left_support": list(left),
+            "right_support": list(right),
+        })
+        view = action_search_view(action_id)
+        return {
+            "action_family_bin": int(view.action_family_bin),
+            "subgroup_normal": int(view.subgroup_normal),
+            "support_orbit_bin": int(support_orbit_bin(genotype)),
+            "term_count": len(left) + len(right),
+        }
+
     a_terms = _terms(row, "A_terms")
     b_terms = _terms(row, "B_terms")
     if not a_terms or not b_terms:
@@ -248,6 +302,13 @@ def archive_cell(row: dict[str, Any]) -> str:
     k = int(row.get("k", 0) or 0)
     rate_bin = int(20 * k / n) if n else 0
     features = candidate_structural_features(row)
+    if isinstance(row.get("construction"), Mapping):
+        return (
+            f"n={n}|rate={rate_bin}"
+            f"|action_family={int(features['action_family_bin'])}"
+            f"|normal={int(features['subgroup_normal'])}"
+            f"|support_orbit={int(features['support_orbit_bin'])}"
+        )
     pattern = str(features["pattern_type"])
     term_count = int(features["term_count"])
     geometry = normalize_geometry(

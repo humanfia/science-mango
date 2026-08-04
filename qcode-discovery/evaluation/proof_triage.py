@@ -27,6 +27,7 @@ SCHEMA_VERSION = 1
 _BOUND_KEYS = ("mip_dual_bound", "dual_bound", "best_objective_bound")
 _STRUCTURAL_FIELDS = (
     "code_type",
+    "construction",
     "geometry",
     "ell",
     "m",
@@ -119,6 +120,20 @@ def _structural_digest(record: Mapping[str, Any]) -> tuple[str, str]:
     payload: dict[str, Any] = {}
     for field in _STRUCTURAL_FIELDS:
         if field not in record or record[field] is None:
+            continue
+        if field == "construction":
+            from evaluation.construction import normalize_construction_claim
+
+            normalized = normalize_construction_claim(dict(record))
+            construction = (
+                normalized.get("construction")
+                if isinstance(normalized, Mapping)
+                and isinstance(normalized.get("construction"), Mapping)
+                else normalized
+            )
+            if not isinstance(construction, Mapping):
+                raise ValueError("normalized construction is not an object")
+            payload[field] = _canonicalize(construction)
             continue
         if field == "geometry":
             geometry = normalize_geometry(

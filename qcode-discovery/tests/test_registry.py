@@ -38,7 +38,7 @@ def test_registry_integrity_and_coverage():
     registry = load_registry()
     assert registry["summary"]["css"] >= 30
     assert registry["summary"]["noncss"] >= 300
-    assert len(registry["entries"]) == 1149
+    assert len(registry["entries"]) == 1150
     assert all(isinstance(row.get("construction"), dict) for row in registry["entries"])
 
 

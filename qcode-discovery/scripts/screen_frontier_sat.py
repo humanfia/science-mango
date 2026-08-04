@@ -42,6 +42,8 @@ SAT_COVERAGE_MODES = frozenset({"global", "first-nonzero"})
 SAT_PORTFOLIO_POLICY = "lower-fair-solver-encoding-portfolio-v1"
 SAT_ATTEMPT_SCHEMA_VERSION = 1
 SAT_ANCHOR_CUBE_SCHEMA_VERSION = 1
+GENERIC_SYMMETRY_SCHEMA_VERSION = 1
+GENERIC_SYMMETRY_GATE = "qldpc-generic-css-construction-symmetry-replay"
 
 
 def _canonical_sha256(value: Any, *, omit: str | None = None) -> str:
@@ -94,6 +96,236 @@ def _sector_matrices(
     if sector == "X":
         return hz, lz, hx
     raise ValueError("sector must be X or Z")
+
+
+def _validated_permutation(value: Any, size: int, *, name: str) -> np.ndarray:
+    try:
+        permutation = np.asarray(value, dtype=int).reshape(-1)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{name} is not an integer permutation") from exc
+    if (
+        len(permutation) != size
+        or sorted(permutation.tolist()) != list(range(size))
+    ):
+        raise ValueError(f"{name} is not a permutation of range({size})")
+    return permutation
+
+
+def _source_to_destination_permutation(
+    value: Any,
+    size: int,
+    *,
+    convention: str,
+    name: str,
+) -> np.ndarray:
+    permutation = _validated_permutation(value, size, name=name)
+    normalized = convention.strip().lower().replace("-", "_")
+    if normalized in {
+        "source_to_destination",
+        "src_to_dst",
+        "destination_index_for_source",
+    }:
+        return permutation
+    if normalized in {
+        "destination_to_source",
+        "dst_to_src",
+        "source_index_at_destination",
+    }:
+        return np.argsort(permutation)
+    raise ValueError(f"unsupported permutation convention: {convention!r}")
+
+
+def _derive_row_permutation(
+    matrix: np.ndarray,
+    qubit_permutation: np.ndarray,
+) -> np.ndarray:
+    """Derive source->destination check rows for a qubit automorphism."""
+
+    checks = np.asarray(matrix, dtype=np.uint8) & 1
+    inverse_qubits = np.argsort(qubit_permutation)
+    buckets: dict[bytes, deque[int]] = {}
+    for destination, row in enumerate(checks):
+        buckets.setdefault(row.tobytes(), deque()).append(destination)
+    row_permutation = np.empty(checks.shape[0], dtype=int)
+    for source, row in enumerate(checks):
+        transformed = np.ascontiguousarray(row[inverse_qubits]).tobytes()
+        destinations = buckets.get(transformed)
+        if not destinations:
+            raise ValueError("qubit action does not preserve the check-row multiset")
+        row_permutation[source] = destinations.popleft()
+    if any(destinations for destinations in buckets.values()):
+        raise ValueError("check-row relabeling is incomplete")
+    return row_permutation
+
+
+def _verify_matrix_automorphism(
+    matrix: np.ndarray,
+    qubit_permutation: np.ndarray,
+    proposed_rows: Any,
+    *,
+    convention: str,
+    name: str,
+) -> tuple[np.ndarray, str]:
+    checks = np.asarray(matrix, dtype=np.uint8) & 1
+    rows = (
+        _derive_row_permutation(checks, qubit_permutation)
+        if proposed_rows is None
+        else _source_to_destination_permutation(
+            proposed_rows,
+            checks.shape[0],
+            convention=convention,
+            name=name,
+        )
+    )
+    replay = np.zeros_like(checks)
+    replay[np.ix_(rows, qubit_permutation)] = checks
+    if not np.array_equal(replay, checks):
+        raise ValueError(f"{name} does not replay the check matrix")
+    return rows, _canonical_sha256({
+        "shape": list(checks.shape),
+        "rows": rows.tolist(),
+        "qubits": qubit_permutation.tolist(),
+    })
+
+
+def verify_construction_symmetry(
+    candidate: Mapping[str, Any],
+    hx: np.ndarray,
+    hz: np.ndarray,
+) -> dict[str, Any]:
+    """Replay adapter-proposed CSS automorphisms and derive orbit anchors."""
+
+    from evaluation.construction import (
+        candidate_symmetry_generators,
+        construction_identity,
+        construction_source_fingerprint,
+    )
+
+    proposals_value = candidate_symmetry_generators(dict(candidate))
+    default_convention = "source_to_destination"
+    if isinstance(proposals_value, Mapping):
+        default_convention = str(
+            proposals_value.get("permutation_convention", default_convention)
+        )
+        proposals = proposals_value.get("generators")
+    else:
+        proposals = proposals_value
+    if not isinstance(proposals, (list, tuple)):
+        raise ValueError("construction symmetry proposals must be a list")
+    n = int(hx.shape[1])
+    if hz.shape[1] != n:
+        raise ValueError("CSS matrix widths differ")
+    accepted: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+    qubit_generators: list[np.ndarray] = []
+    for position, raw in enumerate(proposals):
+        identifier = (
+            str(raw.get("id"))
+            if isinstance(raw, Mapping) and raw.get("id") is not None
+            else f"generator-{position}"
+        )
+        try:
+            if not isinstance(raw, Mapping):
+                raise TypeError("proposal is not an object")
+            convention = str(
+                raw.get("permutation_convention", default_convention)
+            )
+            qubits = _source_to_destination_permutation(
+                raw.get("qubit_permutation"),
+                n,
+                convention=convention,
+                name="qubit_permutation",
+            )
+            x_rows, x_replay = _verify_matrix_automorphism(
+                hx,
+                qubits,
+                raw.get("x_check_permutation"),
+                convention=convention,
+                name="x_check_permutation",
+            )
+            z_rows, z_replay = _verify_matrix_automorphism(
+                hz,
+                qubits,
+                raw.get("z_check_permutation"),
+                convention=convention,
+                name="z_check_permutation",
+            )
+        except (KeyError, TypeError, ValueError, OverflowError) as exc:
+            rejected.append({"id": identifier, "reason": str(exc)})
+            continue
+        qubit_generators.append(qubits)
+        accepted.append({
+            "id": identifier,
+            "permutation_convention": "source_to_destination",
+            "qubit_permutation": qubits.tolist(),
+            "x_check_permutation": x_rows.tolist(),
+            "z_check_permutation": z_rows.tolist(),
+            "x_matrix_replay_sha256": x_replay,
+            "z_matrix_replay_sha256": z_replay,
+        })
+
+    parent = list(range(n))
+
+    def find(value: int) -> int:
+        while parent[value] != value:
+            parent[value] = parent[parent[value]]
+            value = parent[value]
+        return value
+
+    def union(left: int, right: int) -> None:
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    for generator in qubit_generators:
+        for source, destination in enumerate(generator.tolist()):
+            union(source, int(destination))
+    orbits: dict[int, list[int]] = {}
+    for qubit in range(n):
+        orbits.setdefault(find(qubit), []).append(qubit)
+    canonical_orbits = sorted(
+        (sorted(orbit) for orbit in orbits.values()),
+        key=lambda orbit: orbit[0],
+    )
+    nontrivial = any(
+        any(source != destination for source, destination in enumerate(generator))
+        for generator in qubit_generators
+    )
+    report: dict[str, Any] = {
+        "schema_version": GENERIC_SYMMETRY_SCHEMA_VERSION,
+        "gate": GENERIC_SYMMETRY_GATE,
+        "verified": bool(accepted and nontrivial),
+        "construction_identity": construction_identity(dict(candidate)),
+        "construction_source_fingerprint": construction_source_fingerprint(),
+        "matrix_sha256": {
+            "hx": _canonical_sha256(pack_matrix_for_symmetry(hx)),
+            "hz": _canonical_sha256(pack_matrix_for_symmetry(hz)),
+        },
+        "proposed_generators": len(proposals),
+        "verified_generators": accepted,
+        "rejected_generators": rejected,
+        "orbits": canonical_orbits,
+        "orbit_representatives": [orbit[0] for orbit in canonical_orbits],
+        "orbits_cover_all_qubits": sorted(
+            qubit for orbit in canonical_orbits for qubit in orbit
+        ) == list(range(n)),
+        "coverage_theorem": (
+            "verified automorphisms map any occupied qubit to the listed "
+            "representative of its complete qubit orbit"
+        ),
+    }
+    report["report_sha256"] = _canonical_sha256(report)
+    return report
+
+
+def pack_matrix_for_symmetry(matrix: np.ndarray) -> dict[str, Any]:
+    binary = np.asarray(matrix, dtype=np.uint8) & 1
+    return {
+        "shape": list(binary.shape),
+        "packed_hex": np.packbits(
+            binary, axis=None, bitorder="little"
+        ).tobytes().hex(),
+    }
 
 
 def _evidence_hash_valid(evidence: Mapping[str, Any]) -> bool:
@@ -258,7 +490,8 @@ def _artifact(
     candidate: Mapping[str, Any],
     *,
     mode: str,
-    translation_symmetry: Mapping[str, Any],
+    translation_symmetry: Mapping[str, Any] | None,
+    construction_symmetry: Mapping[str, Any] | None = None,
     logical_detector: Mapping[str, Any],
     units: Mapping[str, Mapping[str, Any]],
     expected_units: int,
@@ -281,6 +514,20 @@ def _artifact(
         raise ValueError("canonical-sector proof requires verified X/Z isometry")
     if proof_sectors == ("X", "Z") and xz_sector_isometry is not None:
         raise ValueError("two-sector fallback must not publish an isometry report")
+    if translation_symmetry is not None and construction_symmetry is not None:
+        raise ValueError("BB and compact-construction symmetry reports cannot mix")
+    if construction_symmetry is not None:
+        if not (
+            construction_symmetry.get("gate") == GENERIC_SYMMETRY_GATE
+            and construction_symmetry.get("verified") is True
+            and construction_symmetry.get("orbits_cover_all_qubits") is True
+            and construction_symmetry.get("report_sha256")
+            == _canonical_sha256(
+                construction_symmetry,
+                omit="report_sha256",
+            )
+        ):
+            raise ValueError("compact-construction symmetry report is invalid")
     requested_cubes = (
         None
         if anchor_cover_cubes is None
@@ -299,6 +546,12 @@ def _artifact(
             range(len(anchors)),
         ):
             raise ValueError("anchor_cover_cubes is not a complete ordered cover")
+        if construction_symmetry is not None and list(anchors) != list(
+            construction_symmetry.get("orbit_representatives", [])
+        ):
+            raise ValueError(
+                "anchor cover does not match verified construction orbits"
+            )
     partitions: tuple[int | None, ...] = (
         (None,) if mode == "global" else tuple(range(k))
     )
@@ -505,7 +758,16 @@ def _artifact(
         "requested_anchor_cover_cubes": requested_cubes,
         "lower_bound_threshold": lower_bound_threshold,
         "threshold_only": False,
-        "translation_symmetry": dict(translation_symmetry),
+        "translation_symmetry": (
+            None
+            if translation_symmetry is None
+            else dict(translation_symmetry)
+        ),
+        "construction_symmetry": (
+            None
+            if construction_symmetry is None
+            else dict(construction_symmetry)
+        ),
         "logical_detector": dict(logical_detector),
         "xz_sector_isometry": (
             None if xz_sector_isometry is None else dict(xz_sector_isometry)
@@ -690,8 +952,9 @@ def _resume_units(
     candidate: Mapping[str, Any],
     mode: str,
     plan: list[tuple[str, str, int | None, int | None]],
-    anchor_cover_cubes: list[Mapping[str, Any]],
-    translation_symmetry: Mapping[str, Any],
+    anchor_cover_cubes: list[Mapping[str, Any]] | None,
+    translation_symmetry: Mapping[str, Any] | None,
+    construction_symmetry: Mapping[str, Any] | None = None,
     logical_detector: Mapping[str, Any],
     xz_sector_isometry: Mapping[str, Any] | None,
 ) -> dict[str, dict[str, Any]]:
@@ -726,6 +989,7 @@ def _resume_units(
         and value.get("requested_coverage_mode", value.get("coverage_mode"))
         == mode
         and value.get("translation_symmetry") == translation_symmetry
+        and value.get("construction_symmetry") == construction_symmetry
         and value.get("logical_detector") == logical_detector
         and isometry_matches
     ):
@@ -919,6 +1183,15 @@ def screen_sat_candidate(
     else:
         candidate_budget = None
 
+    generic_construction = isinstance(candidate.get("construction"), Mapping)
+    # Compact constructions never inherit the BB torus report.  They use an
+    # independently replayed adapter-proposed automorphism group; with a valid
+    # orbit cover, global logical OR x first-nonzero orbit-anchor cubes is a
+    # complete lower-bound cover.  Otherwise they fail safely to unanchored
+    # global X/Z decisions.
+    if generic_construction:
+        coverage_mode = "global"
+
     code = build_candidate_code(candidate)
     geometry = validate_candidate_parameters(candidate, code)
     hx, hz, lx, lz = (
@@ -928,24 +1201,52 @@ def screen_sat_candidate(
     detector = verify_css_logical_detectors(hx, hz, lx, lz)
     if detector.get("verified") is not True:
         raise ValueError("CSS logical detector audit failed")
-    symmetry = verify_bb_translation_symmetry(candidate)
-    if symmetry.get("verified") is not True:
-        raise ValueError("BB translation symmetry audit failed")
-    isometry = verify_bb_xz_sector_isometry(
-        hx,
-        hz,
-        ell=int(candidate["ell"]),
-        m=int(candidate["m"]),
-        geometry=candidate_geometry(candidate),
-    )
-    proof_sectors = (
-        ("X",)
-        if isometry.get("verified") is True
-        else ("X", "Z")
-    )
-    stored_isometry = isometry if proof_sectors == ("X",) else None
-    anchors = tuple(int(index) for index in symmetry["orbit_representatives"])
-    anchor_cover_cubes = build_anchor_cover_cubes(anchors)
+    generic_symmetry: Mapping[str, Any] | None = None
+    if generic_construction:
+        symmetry = None
+        proof_sectors = ("X", "Z")
+        stored_isometry = None
+        try:
+            generic_symmetry = verify_construction_symmetry(
+                candidate, hx, hz,
+            )
+        except (ImportError, KeyError, TypeError, ValueError, OverflowError):
+            generic_symmetry = None
+        if (
+            isinstance(generic_symmetry, Mapping)
+            and generic_symmetry.get("verified") is True
+            and generic_symmetry.get("orbits_cover_all_qubits") is True
+        ):
+            anchors = tuple(
+                int(index)
+                for index in generic_symmetry["orbit_representatives"]
+            )
+            anchor_cover_cubes = build_anchor_cover_cubes(anchors)
+        else:
+            anchors = ()
+            anchor_cover_cubes = None
+            generic_symmetry = None
+    else:
+        symmetry = verify_bb_translation_symmetry(candidate)
+        if symmetry.get("verified") is not True:
+            raise ValueError("BB translation symmetry audit failed")
+        isometry = verify_bb_xz_sector_isometry(
+            hx,
+            hz,
+            ell=int(candidate["ell"]),
+            m=int(candidate["m"]),
+            geometry=candidate_geometry(candidate),
+        )
+        proof_sectors = (
+            ("X",)
+            if isometry.get("verified") is True
+            else ("X", "Z")
+        )
+        stored_isometry = isometry if proof_sectors == ("X",) else None
+        anchors = tuple(
+            int(index) for index in symmetry["orbit_representatives"]
+        )
+        anchor_cover_cubes = build_anchor_cover_cubes(anchors)
     k = int(geometry["k"])
     plan = _proof_plan(
         coverage_mode,
@@ -965,6 +1266,7 @@ def screen_sat_candidate(
             plan=plan,
             anchor_cover_cubes=anchor_cover_cubes,
             translation_symmetry=symmetry,
+            construction_symmetry=generic_symmetry,
             logical_detector=detector,
             xz_sector_isometry=stored_isometry,
         )
@@ -1025,6 +1327,11 @@ def screen_sat_candidate(
                 "coverage_mode": coverage_mode,
                 "logical_detector_sha256": detector["report_sha256"],
                 "translation_symmetry": symmetry,
+                "construction_symmetry_sha256": (
+                    None
+                    if generic_symmetry is None
+                    else generic_symmetry.get("report_sha256")
+                ),
                 "xz_sector_isometry_sha256": (
                     None
                     if stored_isometry is None
@@ -1108,6 +1415,7 @@ def screen_sat_candidate(
             candidate,
             mode=coverage_mode,
             translation_symmetry=symmetry,
+            construction_symmetry=generic_symmetry,
             logical_detector=detector,
             units=units,
             expected_units=len(plan),

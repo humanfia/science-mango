@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Mapping
 
 from evaluation.certificate import build_css_certificate, verify_css_certificate
 from evaluation.matrix_certificate import (
@@ -43,6 +43,12 @@ SUPPORTED_CERTIFICATE_TYPES = (
     SECTOR_SAT_CSS_TYPE,
     TWOBGA_CSS_TYPE,
 )
+CHECKPOINT_CERTIFICATE_TYPES = frozenset({
+    BB_CSS_TYPE,
+    MATRIX_CSS_TYPE,
+    SECTOR_SAT_CSS_TYPE,
+    TWOBGA_CSS_TYPE,
+})
 
 Builder = Callable[..., dict[str, Any]]
 Verifier = Callable[..., dict[str, Any]]
@@ -60,6 +66,11 @@ VERIFIERS: dict[str, Verifier] = {
 def builder_for_claim(claim: dict[str, Any]) -> Builder:
     if claim.get(TWOBGA_REQUEST_FIELD) is not None:
         return build_twobga_certificate
+    # Compact constructions are always independently rebuilt into the generic
+    # matrix certificate.  A Stage 3 SAT request is useful screening evidence,
+    # but is not allowed to switch them back into the BB-only sector builder.
+    if isinstance(claim.get("construction"), Mapping):
+        return build_matrix_css_certificate
     if claim.get(SECTOR_SAT_REQUEST_FIELD) is not None:
         return build_sector_sat_certificate
     if claim.get("H_X") is not None or claim.get("hx") is not None:
@@ -89,11 +100,15 @@ def build_certificate(
         "timeout_per_logical": timeout_per_logical,
         "total_timeout": total_timeout,
     }
-    if builder in {
-        build_css_certificate,
-        build_sector_sat_certificate,
-        build_twobga_certificate,
-    }:
+    # Select capabilities from the claim schema, not callable identity.  The
+    # latter is brittle under instrumentation/monkeypatching and can silently
+    # drop resume controls from an otherwise supported builder.
+    noncss_claim = bool(
+        claim.get("symplectic_stabilizer") is not None
+        or claim.get("C_terms")
+        or claim.get("D_terms")
+    )
+    if not noncss_claim:
         kwargs.update(
             {
                 "checkpoint_path": checkpoint_path,
@@ -127,6 +142,7 @@ def verify_certificate(
     solver_workers: int = 1,
 ) -> dict[str, Any]:
     verifier = verifier_for_certificate(certificate)
+    certificate_type = str(certificate.get("certificate_type"))
     kwargs: dict[str, Any] = {
         "known_answer_artifact": known_answer_artifact,
         "rerun_milp": rerun_milp,
@@ -134,11 +150,7 @@ def verify_certificate(
         "total_timeout": total_timeout,
         "solver_workers": solver_workers,
     }
-    if verifier in {
-        verify_css_certificate,
-        verify_sector_sat_certificate,
-        verify_twobga_certificate,
-    }:
+    if certificate_type in CHECKPOINT_CERTIFICATE_TYPES:
         kwargs.update(
             {
                 "checkpoint_path": checkpoint_path,

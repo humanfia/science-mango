@@ -13,6 +13,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import build_bb_code
+from evaluation.coset_two_block import (
+    ACTION_CATALOG_SHA256,
+    build_coset_two_block,
+)
 from evaluation.pbb_code import build_pbb_code
 from evaluation.registry import (
     canonical_digest_noncss,
@@ -65,6 +69,57 @@ def main() -> int:
     )
     args = parser.parse_args()
     entries = []
+
+    # Published nonnormal-coset two-block code from Aydin--Tamo--Barg.  The
+    # frozen action catalog is the reconstruction authority; the paper's
+    # reported d=16 is registry metadata only and is never promoted to local
+    # exact-distance evidence by the search/certificate pipeline.
+    coset_action_id = "coset2bga-l224-m53-s1-degree112-v1"
+    coset_left_support = ["L000", "L104", "L207"]
+    coset_right_support = ["R000", "R009", "R024"]
+    coset_code = build_coset_two_block(
+        coset_action_id,
+        coset_left_support,
+        coset_right_support,
+    )
+    entries.append({
+        "id": "literature-aydin-tamo-barg-224-12-16",
+        "family": "css-coset-two-block",
+        "code_type": "css",
+        "n": int(coset_code.num_qudits),
+        "k": int(coset_code.dimension),
+        "distance_evidence": {
+            "d": 16,
+            "status": "published",
+            "locally_exact_proven": False,
+            "source_file_sha256": (
+                "1797447d6bea96ffda61b4ce6a91b560b6d52fe2784983c01df6166c5ed69734"
+            ),
+        },
+        "canonical_digest": canonical_digest(coset_code),
+        "construction": {
+            "kind": "coset-two-block-v1",
+            "action_id": coset_action_id,
+            "action_catalog_sha256": ACTION_CATALOG_SHA256,
+            "left_support": coset_left_support,
+            "right_support": coset_right_support,
+        },
+        "provenance": [{
+            "kind": "literature",
+            "source": "Aydin, Tamo, and Barg, Coset Two-Block Group Algebra Codes",
+            "arxiv": "2606.17268",
+            "reproduction_repository": (
+                "https://github.com/aaydinnnn/Coset2BGACodes"
+            ),
+            "reproduction_commit": (
+                "a828dc43c55982e0212febea634775d36bf6e968"
+            ),
+            "reproduction_file": (
+                "code_dict/code_n224_k12_d16_l224_m53_s1_"
+                "a1_81_186_b1_16_47.json"
+            ),
+        }],
+    })
 
     for name, ell, m, a_terms, b_terms in KNOWN_CSS_REFERENCES:
         code = build_bb_code(ell, m, a_terms, b_terms)
@@ -236,7 +291,7 @@ def main() -> int:
     )
     registry = {
         "schema_version": 1,
-        "registry_version": "2026-07-23.qcode-publication-v2",
+        "registry_version": "2026-08-04.qcode-coset-two-block-v1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "equivalence_scope": {
             "css": "colored Tanner generator permutation equivalence",
@@ -262,6 +317,24 @@ def main() -> int:
             {
                 "source": "Bravyi et al. 2024 / ECZoo QCGA",
                 "url": "https://errorcorrectionzoo.org/c/qcga",
+            },
+            {
+                "path": "evaluation/coset_two_block_actions.v1.json",
+                "sha256": file_sha256(
+                    project / "evaluation" / "coset_two_block_actions.v1.json"
+                ),
+            },
+            {
+                "source": (
+                    "Aydin, Tamo, and Barg, Coset Two-Block Group Algebra Codes"
+                ),
+                "url": "https://arxiv.org/abs/2606.17268",
+                "reproduction_repository": (
+                    "https://github.com/aaydinnnn/Coset2BGACodes"
+                ),
+                "reproduction_commit": (
+                    "a828dc43c55982e0212febea634775d36bf6e968"
+                ),
             },
         ],
         "summary": {

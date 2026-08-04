@@ -22,7 +22,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 
@@ -31,7 +31,10 @@ from evaluation.bb_code import build_bb_code, validate_terms
 from evaluation.geometry import candidate_geometry
 from evaluation.distance_milp import get_code_matrices
 from evaluation.registry import check_code_novelty
-from evaluation.structural_dedup import check_css_structural_novelty
+from evaluation.structural_dedup import (
+    check_css_code_structural_novelty,
+    check_css_structural_novelty,
+)
 
 
 FOM_THRESHOLD = 12.0
@@ -691,16 +694,46 @@ def evaluate_final_gate(
         "known_answer": baseline,
     }
 
+    compact_construction = isinstance(row.get("construction"), Mapping)
     try:
-        ell, m = int(row["ell"]), int(row["m"])
-        a_terms, b_terms = row["A_terms"], row["B_terms"]
-        validate_terms(ell, m, a_terms, "A")
-        validate_terms(ell, m, b_terms, "B")
-        geometry = candidate_geometry(row)
-        code = build_bb_code(
-            ell, m, a_terms, b_terms, geometry=geometry,
-        )
-    except (KeyError, TypeError, ValueError) as exc:
+        if compact_construction:
+            from evaluation.construction import (
+                build_css_code_from_claim,
+                construction_identity,
+                construction_source_fingerprint,
+                normalize_construction_claim,
+            )
+
+            normalized_claim = normalize_construction_claim(dict(row))
+            if not (
+                isinstance(normalized_claim, Mapping)
+                and isinstance(normalized_claim.get("construction"), Mapping)
+            ):
+                normalized_claim = {
+                    "construction": dict(normalized_claim),
+                }
+            code = build_css_code_from_claim(dict(normalized_claim))
+            construction = dict(normalized_claim["construction"])
+            construction_identity_value = construction_identity(
+                dict(normalized_claim)
+            )
+            construction_source = construction_source_fingerprint()
+            ell = m = None
+            a_terms = b_terms = None
+            geometry = None
+        else:
+            ell, m = int(row["ell"]), int(row["m"])
+            a_terms, b_terms = row["A_terms"], row["B_terms"]
+            validate_terms(ell, m, a_terms, "A")
+            validate_terms(ell, m, b_terms, "B")
+            geometry = candidate_geometry(row)
+            code = build_bb_code(
+                ell, m, a_terms, b_terms, geometry=geometry,
+            )
+            construction = None
+            construction_identity_value = None
+            construction_source = None
+    except (ImportError, KeyError, TypeError, ValueError) as exc:
         checks["candidate_rebuild"] = False
         failures.append(f"candidate cannot be rebuilt: {exc}")
         return result
@@ -761,8 +794,12 @@ def evaluate_final_gate(
         checks["all_2k_milp_directions_optimal"] = _exact_milp_check(row, k)
 
     reported_audit = row.get("structural_novelty")
-    recomputed_audit = check_css_structural_novelty(
-        ell, m, a_terms, b_terms, geometry=geometry,
+    recomputed_audit = (
+        check_css_code_structural_novelty(code)
+        if compact_construction
+        else check_css_structural_novelty(
+            ell, m, a_terms, b_terms, geometry=geometry,
+        )
     )
     expanded_audit = check_code_novelty(code, code_type="css")
     checks["structural_audit_present"] = bool(
@@ -795,10 +832,6 @@ def evaluate_final_gate(
     result.update({
         "accepted": not failures,
         "candidate": {
-            "ell": ell,
-            "m": m,
-            "A_terms": a_terms,
-            "B_terms": b_terms,
             "n": n,
             "k": k,
             "d": d,
@@ -817,6 +850,19 @@ def evaluate_final_gate(
         "expanded_structural_novelty": expanded_audit,
         "win": win,
     })
-    if geometry is not None:
+    if compact_construction:
+        result["candidate"].update({
+            "construction": construction,
+            "construction_identity": construction_identity_value,
+            "construction_source_fingerprint": construction_source,
+        })
+    else:
+        result["candidate"].update({
+            "ell": ell,
+            "m": m,
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+        })
+    if not compact_construction and geometry is not None:
         result["candidate"]["geometry"] = geometry
     return result

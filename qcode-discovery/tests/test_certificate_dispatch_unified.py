@@ -18,6 +18,10 @@ def test_builder_dispatches_every_claim_shape():
     assert (
         builder_for_claim({"H_X": [[1]], "H_Z": [[0]]}) is build_matrix_css_certificate
     )
+    assert (
+        builder_for_claim({"construction": {"kind": "fixture"}})
+        is build_matrix_css_certificate
+    )
     assert builder_for_claim({"C_terms": [[0, 0]]}) is build_noncss_certificate
     assert (
         builder_for_claim({"symplectic_stabilizer": [[1, 0]]})
@@ -33,7 +37,7 @@ def test_verifier_dispatch_is_fail_closed():
         verifier_for_certificate({"certificate_type": "untrusted"})
 
 
-def test_bb_checkpoint_controls_do_not_leak_to_other_schemas(monkeypatch):
+def test_css_checkpoint_controls_reach_bb_and_matrix_schemas(monkeypatch):
     calls = {}
 
     def css_builder(claim, **kwargs):
@@ -46,11 +50,17 @@ def test_bb_checkpoint_controls_do_not_leak_to_other_schemas(monkeypatch):
         known_answer_artifact,
         timeout_per_logical,
         total_timeout,
+        checkpoint_path,
+        resume,
+        solver_workers,
     ):
         calls["matrix_build"] = {
             "known_answer_artifact": known_answer_artifact,
             "timeout_per_logical": timeout_per_logical,
             "total_timeout": total_timeout,
+            "checkpoint_path": checkpoint_path,
+            "resume": resume,
+            "solver_workers": solver_workers,
         }
         return {"certificate_type": "qldpc-css-matrix-exact"}
 
@@ -70,11 +80,9 @@ def test_bb_checkpoint_controls_do_not_leak_to_other_schemas(monkeypatch):
     assert calls["css_build"]["checkpoint_path"] == "checkpoint.json"
     assert calls["css_build"]["resume"] is True
     assert calls["css_build"]["solver_workers"] == 3
-    assert set(calls["matrix_build"]) == {
-        "known_answer_artifact",
-        "timeout_per_logical",
-        "total_timeout",
-    }
+    assert calls["matrix_build"]["checkpoint_path"] == "checkpoint.json"
+    assert calls["matrix_build"]["resume"] is True
+    assert calls["matrix_build"]["solver_workers"] == 3
 
     def css_verifier(certificate, **kwargs):
         calls["css_verify"] = kwargs
@@ -88,6 +96,8 @@ def test_bb_checkpoint_controls_do_not_leak_to_other_schemas(monkeypatch):
         timeout_per_logical,
         total_timeout,
         solver_workers,
+        checkpoint_path,
+        resume,
     ):
         calls["matrix_verify"] = {
             "known_answer_artifact": known_answer_artifact,
@@ -95,6 +105,8 @@ def test_bb_checkpoint_controls_do_not_leak_to_other_schemas(monkeypatch):
             "timeout_per_logical": timeout_per_logical,
             "total_timeout": total_timeout,
             "solver_workers": solver_workers,
+            "checkpoint_path": checkpoint_path,
+            "resume": resume,
         }
         return {"passed": True}
 
@@ -125,10 +137,5 @@ def test_bb_checkpoint_controls_do_not_leak_to_other_schemas(monkeypatch):
 
     assert calls["css_verify"]["total_timeout"] == 22
     assert calls["css_verify"]["solver_workers"] == 3
-    assert set(calls["matrix_verify"]) == {
-        "known_answer_artifact",
-        "rerun_milp",
-        "timeout_per_logical",
-        "total_timeout",
-        "solver_workers",
-    }
+    assert calls["matrix_verify"]["checkpoint_path"] == "verify.json"
+    assert calls["matrix_verify"]["resume"] is True

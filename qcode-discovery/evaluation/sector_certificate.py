@@ -202,13 +202,18 @@ def _clean_claim(claim: Mapping[str, Any]) -> dict[str, Any]:
 def _matrices(claim: Mapping[str, Any]) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     if claim.get("C_terms") or claim.get("D_terms"):
         raise ValueError("sector SAT certificates support CSS BB claims only")
-    code = build_bb_code(
-        int(claim["ell"]),
-        int(claim["m"]),
-        claim["A_terms"],
-        claim["B_terms"],
-        geometry=candidate_geometry(claim),
-    )
+    if isinstance(claim.get("construction"), Mapping):
+        from evaluation.construction import build_css_code_from_claim
+
+        code = build_css_code_from_claim(dict(claim))
+    else:
+        code = build_bb_code(
+            int(claim["ell"]),
+            int(claim["m"]),
+            claim["A_terms"],
+            claim["B_terms"],
+            geometry=candidate_geometry(claim),
+        )
     hx, hz, lx, lz = (
         np.asarray(value, dtype=np.uint8) & 1
         for value in get_code_matrices(code)
@@ -950,14 +955,58 @@ def _coverage_context(
         if isinstance(item, Mapping)
         and isinstance(item.get("solver_evidence"), Mapping)
     }
-    use_translation_anchors = bool(
-        request.get("use_translation_anchors") is True
+    compact = isinstance(claim.get("construction"), Mapping)
+    translation_flag = request.get("use_translation_anchors") is True
+    construction_flag = request.get("use_construction_anchors") is True
+    if translation_flag and construction_flag:
+        raise ValueError("BB and compact-construction anchor flags cannot mix")
+    if compact and (
+        translation_flag or request.get("translation_symmetry") is not None
+    ):
+        raise ValueError("compact construction cannot use BB translation anchors")
+    if not compact and (
+        construction_flag or request.get("construction_symmetry") is not None
+    ):
+        raise ValueError("BB claim cannot use compact-construction anchors")
+    use_anchors = bool(
+        (construction_flag if compact else translation_flag)
         or any(used_anchors)
     )
-    if not use_translation_anchors:
+    if not use_anchors:
         if any(used_anchors):
             raise ValueError("lower SAT decisions use inconsistent anchors")
+        # A global portfolio lane may finish without using the available
+        # construction automorphism.  Its UNSAT proof is stronger; ignore the
+        # unused proposal rather than pretending it covered that decision.
         return detector, None, ()
+
+    if compact:
+        from scripts.screen_frontier_sat import verify_construction_symmetry
+
+        symmetry = verify_construction_symmetry(dict(claim), hx, hz)
+        if (
+            symmetry.get("verified") is not True
+            or symmetry.get("orbits_cover_all_qubits") is not True
+        ):
+            raise ValueError("compact-construction symmetry replay failed")
+        stored_symmetry = request.get("construction_symmetry")
+        if (
+            not isinstance(stored_symmetry, Mapping)
+            or dict(stored_symmetry) != symmetry
+        ):
+            raise ValueError(
+                "stored compact-construction symmetry report does not replay"
+            )
+        if request.get("translation_symmetry") is not None:
+            raise ValueError("compact construction cannot carry BB symmetry")
+        anchors = tuple(
+            int(index) for index in symmetry["orbit_representatives"]
+        )
+        if used_anchors and used_anchors != {anchors}:
+            raise ValueError(
+                "SAT lower decisions do not use the verified construction orbits"
+            )
+        return detector, symmetry, anchors
 
     from scripts.screen_frontier_xor import verify_bb_translation_symmetry
 
@@ -1018,6 +1067,7 @@ def claim_from_sector_sat_artifact(
         "lower_bound_decisions": artifact.get("lower_bound_decisions"),
         "upper_witness": artifact.get("upper_witness"),
         "translation_symmetry": artifact.get("translation_symmetry"),
+        "construction_symmetry": artifact.get("construction_symmetry"),
         "logical_detector": artifact.get("logical_detector"),
         "xz_sector_isometry": artifact.get("xz_sector_isometry"),
         "anchor_cover_cubes": artifact.get("anchor_cover_cubes"),
@@ -1133,10 +1183,18 @@ def claim_from_sector_sat_artifact(
     ]
     request["required_distance"] = required
     request["logical_detector"] = detector
-    request["translation_symmetry"] = symmetry
+    if isinstance(claim.get("construction"), Mapping):
+        request["translation_symmetry"] = None
+        request["construction_symmetry"] = symmetry
+        request["use_translation_anchors"] = False
+        request["use_construction_anchors"] = bool(anchors)
+    else:
+        request["translation_symmetry"] = symmetry
+        request["construction_symmetry"] = None
+        request["use_translation_anchors"] = bool(anchors)
+        request["use_construction_anchors"] = False
     request["xz_sector_isometry"] = xz_sector_isometry
     request["anchor_cover_cubes"] = anchor_cover_cubes
-    request["use_translation_anchors"] = bool(anchors)
     request["stage3_artifact_sha256"] = _canonical_sha256(artifact)
     request["stage3_status"] = artifact.get("status")
     claim[REQUEST_FIELD] = request

@@ -108,12 +108,44 @@ from evaluation.search_contract import (
 SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
 SEED_SOLUTION_MILP = str(Path(__file__).parent / "seed_solution_milp.py")
 SEED_SOLUTION_NONCSS = str(Path(__file__).parent / "seed_solution_noncss.py")
+SEED_SOLUTION_COSET_TWO_BLOCK = str(
+    Path(__file__).parent / "coset_seed_solution.py"
+)
 EVALUATOR = str(Path(__file__).parent / "openevolve_evaluator.py")
 EVALUATOR_NONCSS = str(Path(__file__).parent / "openevolve_evaluator_noncss.py")
+EVALUATOR_COSET_TWO_BLOCK = str(
+    Path(__file__).parent / "coset_openevolve_evaluator.py"
+)
 DEFAULT_CONFIG = str(Path(__file__).parent / "config.yaml")
 DEFAULT_CONFIG_NONCSS = str(Path(__file__).parent / "config_noncss.yaml")
+DEFAULT_CONFIG_COSET_TWO_BLOCK = str(
+    Path(__file__).parent / "coset_config.yaml"
+)
 EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
+
+EVALUATOR_KIND_DEFAULT = "default"
+EVALUATOR_KIND_COSET_TWO_BLOCK = "coset-two-block"
+EVALUATOR_KIND_BINDING_FIELD = "qcode_evaluator_kind"
+EVALUATOR_KIND_ID_METRIC = "qcode_evaluator_kind_id"
+ACTION_CATALOG_SHA256_BINDING_FIELD = "qcode_action_catalog_sha256"
+ACTION_CATALOG_ID_METRIC = "qcode_action_catalog_id"
+EVALUATOR_KIND_IDS = {
+    EVALUATOR_KIND_DEFAULT: 0,
+    EVALUATOR_KIND_COSET_TWO_BLOCK: 1,
+}
+EVALUATOR_KINDS = (
+    EVALUATOR_KIND_DEFAULT,
+    EVALUATOR_KIND_COSET_TWO_BLOCK,
+)
+COSET_EVALUATOR_DEPENDENCIES = {
+    "coset_search_contract": "evolve/coset_search_contract.py",
+    "coset_candidate_log_wal": "evolve/openevolve_evaluator.py",
+    "coset_construction_adapter": "evaluation/construction.py",
+    "coset_builder": "evaluation/coset_two_block.py",
+    "coset_action_catalog_parser": "evaluation/coset_action_catalog.py",
+    "coset_action_catalog": "evaluation/coset_two_block_actions.v1.json",
+}
 
 
 # Schema 5 binds the mechanism-portfolio semantics (relation-first MAP cells,
@@ -172,6 +204,12 @@ WINNER_PREFLIGHT_CONTRACT_ID_METRIC = "winner_preflight_contract_id"
 WINNER_PREFLIGHT_COMPLETE_METRIC = "winner_preflight_complete"
 WINNER_PREFLIGHT_INCOMPLETE_METRIC = "winner_preflight_incomplete"
 WINNER_PREFLIGHT_LATTICES_METRIC = "winner_preflight_lattices"
+WINNER_PREFLIGHT_UNIT_KIND_ID_METRIC = "winner_preflight_unit_kind_id"
+WINNER_PREFLIGHT_UNITS_METRIC = "winner_preflight_units"
+WINNER_PREFLIGHT_ACTION_STRATA_METRIC = (
+    "winner_preflight_action_strata"
+)
+WINNER_PREFLIGHT_UNIT_KIND_ACTION_STRATA = 1
 WINNER_PREFLIGHT_EVALUATED_METRIC = (
     "winner_preflight_candidate_definitions_evaluated"
 )
@@ -489,14 +527,28 @@ SUPPORTED_OPENEVOLVE_SHA256 = {
     "api": "c85fcafe18f288148a5dea918b6af5c2312717f39de2a416d26e158b84924eae",
 }
 
-def _evaluator_dependency_identities() -> dict[str, dict[str, Any]]:
+def _active_evaluator_dependencies(
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
+) -> dict[str, str]:
+    _validated_evaluator_kind(evaluator_kind, noncss=False, milp=False)
+    dependencies = dict(LOCAL_EVALUATOR_DEPENDENCIES)
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
+    return dependencies
+
+
+def _evaluator_dependency_identities(
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
+) -> dict[str, dict[str, Any]]:
     project_root = Path(PROJECT_ROOT)
     return {
         name: _file_identity(
             project_root / relative_path,
             f"evolution evaluator dependency {name}",
         )
-        for name, relative_path in LOCAL_EVALUATOR_DEPENDENCIES.items()
+        for name, relative_path in _active_evaluator_dependencies(
+            evaluator_kind
+        ).items()
     }
 
 
@@ -505,6 +557,7 @@ def _winner_preflight_contract_id(
     dependency_identities: dict[str, dict[str, Any]],
     *,
     candidate_log_path: str | Path,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> int:
     """Bind checkpoint markers to code, lattices, and their durable run sink."""
 
@@ -512,7 +565,12 @@ def _winner_preflight_contract_id(
         evaluator_path, "winner preflight evaluator"
     )
     dependency_hashes: dict[str, str] = {}
-    for name in sorted(LOCAL_EVALUATOR_DEPENDENCIES):
+    active_dependencies = _active_evaluator_dependencies(evaluator_kind)
+    if set(dependency_identities) != set(active_dependencies):
+        raise RuntimeError(
+            "winner preflight evaluator dependency set is invalid"
+        )
+    for name in sorted(active_dependencies):
         identity = dependency_identities.get(name)
         digest = identity.get("sha256") if isinstance(identity, dict) else None
         if (
@@ -542,6 +600,12 @@ def _winner_preflight_contract_id(
             "run_name": output_dir.name,
         },
     }
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        payload["preflight_unit_contract"] = {
+            "kind": "action_strata",
+            "kind_id": WINNER_PREFLIGHT_UNIT_KIND_ACTION_STRATA,
+            "count": _coset_action_strata_count(),
+        }
     if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
         payload[SEARCH_GEOMETRY_CONTRACT_FIELD] = ACTIVE_GEOMETRY_CONTRACT
     digest = hashlib.sha256(
@@ -557,12 +621,11 @@ def _winner_preflight_contract_id(
     return int(digest[:13], 16)
 
 
-_WINNER_PREFLIGHT_MARKER_FIELDS = (
+_WINNER_PREFLIGHT_COMMON_MARKER_FIELDS = (
     WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC,
     WINNER_PREFLIGHT_CONTRACT_ID_METRIC,
     WINNER_PREFLIGHT_COMPLETE_METRIC,
     WINNER_PREFLIGHT_INCOMPLETE_METRIC,
-    WINNER_PREFLIGHT_LATTICES_METRIC,
     WINNER_PREFLIGHT_EVALUATED_METRIC,
     WINNER_PREFLIGHT_ELIGIBLE_METRIC,
     WINNER_PREFLIGHT_PERSISTED_METRIC,
@@ -570,6 +633,34 @@ _WINNER_PREFLIGHT_MARKER_FIELDS = (
     WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC,
     WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC,
 )
+_WINNER_PREFLIGHT_MARKER_FIELDS = (
+    *_WINNER_PREFLIGHT_COMMON_MARKER_FIELDS,
+    WINNER_PREFLIGHT_LATTICES_METRIC,
+)
+_COSET_WINNER_PREFLIGHT_MARKER_FIELDS = (
+    *_WINNER_PREFLIGHT_COMMON_MARKER_FIELDS,
+    WINNER_PREFLIGHT_UNIT_KIND_ID_METRIC,
+    WINNER_PREFLIGHT_UNITS_METRIC,
+    WINNER_PREFLIGHT_ACTION_STRATA_METRIC,
+)
+
+
+def _coset_action_strata_count() -> int:
+    from evolve.coset_search_contract import action_search_views
+
+    count = len(action_search_views())
+    if count < 1:
+        raise RuntimeError("coset preflight has no action strata")
+    return count
+
+
+def _winner_preflight_marker_fields(
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
+) -> tuple[str, ...]:
+    _validated_evaluator_kind(evaluator_kind, noncss=False, milp=False)
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        return _COSET_WINNER_PREFLIGHT_MARKER_FIELDS
+    return _WINNER_PREFLIGHT_MARKER_FIELDS
 
 _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
     "combined_score",
@@ -635,30 +726,54 @@ def _validated_winner_preflight_markers(
     metrics: Any,
     *,
     expected_contract_id: int,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, float]:
     if not isinstance(metrics, dict):
         raise RuntimeError("winner preflight metrics are not an object")
+    marker_fields = _winner_preflight_marker_fields(evaluator_kind)
     values = {
         name: _exact_nonnegative_metric(metrics, name)
-        for name in _WINNER_PREFLIGHT_MARKER_FIELDS
+        for name in marker_fields
     }
-    if (
+    common_valid = (
         values[WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC]
-        != WINNER_PREFLIGHT_CONTRACT_VERSION
-        or values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
-        != expected_contract_id
-        or values[WINNER_PREFLIGHT_COMPLETE_METRIC] != 1
-        or values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] != 0
-        or values[WINNER_PREFLIGHT_LATTICES_METRIC]
-        != len(EVOLUTION_LATTICES)
-        or values[WINNER_PREFLIGHT_OMITTED_METRIC] != 0
-        or values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] != 0
-        or values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] != 0
-        or values[WINNER_PREFLIGHT_PERSISTED_METRIC]
-        != values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
-        or values[WINNER_PREFLIGHT_EVALUATED_METRIC]
-        < values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
-    ):
+        == WINNER_PREFLIGHT_CONTRACT_VERSION
+        and values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
+        == expected_contract_id
+        and values[WINNER_PREFLIGHT_COMPLETE_METRIC] == 1
+        and values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] == 0
+        and values[WINNER_PREFLIGHT_OMITTED_METRIC] == 0
+        and values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] == 0
+        and values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] == 0
+        and values[WINNER_PREFLIGHT_PERSISTED_METRIC]
+        == values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+        and values[WINNER_PREFLIGHT_EVALUATED_METRIC]
+        >= values[WINNER_PREFLIGHT_ELIGIBLE_METRIC]
+    )
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        expected_units = _coset_action_strata_count()
+        unit_valid = (
+            values[WINNER_PREFLIGHT_UNIT_KIND_ID_METRIC]
+            == WINNER_PREFLIGHT_UNIT_KIND_ACTION_STRATA
+            and values[WINNER_PREFLIGHT_UNITS_METRIC] == expected_units
+            and values[WINNER_PREFLIGHT_ACTION_STRATA_METRIC]
+            == expected_units
+            and WINNER_PREFLIGHT_LATTICES_METRIC not in metrics
+        )
+    else:
+        unit_valid = (
+            values[WINNER_PREFLIGHT_LATTICES_METRIC]
+            == len(EVOLUTION_LATTICES)
+            and not any(
+                name in metrics
+                for name in (
+                    WINNER_PREFLIGHT_UNIT_KIND_ID_METRIC,
+                    WINNER_PREFLIGHT_UNITS_METRIC,
+                    WINNER_PREFLIGHT_ACTION_STRATA_METRIC,
+                )
+            )
+        )
+    if not common_valid or not unit_valid:
         raise RuntimeError(
             "winner preflight markers do not prove complete persistence"
         )
@@ -669,6 +784,7 @@ def _exact_incomplete_winner_preflight_markers(
     metrics: Any,
     *,
     expected_contract_id: int,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, float] | None:
     """Recognize only the evaluator's canonical incomplete-preflight envelope.
 
@@ -678,8 +794,9 @@ def _exact_incomplete_winner_preflight_markers(
     through the normal database-add observer and make the whole slice fail.
     """
 
+    marker_fields = _winner_preflight_marker_fields(evaluator_kind)
     expected_fields = _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS.union(
-        _WINNER_PREFLIGHT_MARKER_FIELDS
+        marker_fields
     )
     if (
         not isinstance(metrics, dict)
@@ -723,25 +840,35 @@ def _exact_incomplete_winner_preflight_markers(
     try:
         values = {
             name: _exact_nonnegative_metric(metrics, name)
-            for name in _WINNER_PREFLIGHT_MARKER_FIELDS
+            for name in marker_fields
         }
     except RuntimeError:
         return None
-    if (
+    common_valid = (
         values[WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC]
-        != WINNER_PREFLIGHT_CONTRACT_VERSION
-        or values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
-        != expected_contract_id
-        or values[WINNER_PREFLIGHT_COMPLETE_METRIC] != 0
-        or values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] != 1
-        or values[WINNER_PREFLIGHT_LATTICES_METRIC] != 0
-        or values[WINNER_PREFLIGHT_EVALUATED_METRIC] != 0
-        or values[WINNER_PREFLIGHT_ELIGIBLE_METRIC] != 0
-        or values[WINNER_PREFLIGHT_PERSISTED_METRIC] != 0
-        or values[WINNER_PREFLIGHT_OMITTED_METRIC] != 0
-        or values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] not in (0, 1)
-        or values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] != 1
-    ):
+        == WINNER_PREFLIGHT_CONTRACT_VERSION
+        and values[WINNER_PREFLIGHT_CONTRACT_ID_METRIC]
+        == expected_contract_id
+        and values[WINNER_PREFLIGHT_COMPLETE_METRIC] == 0
+        and values[WINNER_PREFLIGHT_INCOMPLETE_METRIC] == 1
+        and values[WINNER_PREFLIGHT_EVALUATED_METRIC] == 0
+        and values[WINNER_PREFLIGHT_ELIGIBLE_METRIC] == 0
+        and values[WINNER_PREFLIGHT_PERSISTED_METRIC] == 0
+        and values[WINNER_PREFLIGHT_OMITTED_METRIC] == 0
+        and values[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] in (0, 1)
+        and values[WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC] == 1
+    )
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        unit_valid = (
+            values[WINNER_PREFLIGHT_UNIT_KIND_ID_METRIC]
+            == WINNER_PREFLIGHT_UNIT_KIND_ACTION_STRATA
+            and values[WINNER_PREFLIGHT_UNITS_METRIC] == 0
+            and values[WINNER_PREFLIGHT_ACTION_STRATA_METRIC] == 0
+            and WINNER_PREFLIGHT_LATTICES_METRIC not in metrics
+        )
+    else:
+        unit_valid = values[WINNER_PREFLIGHT_LATTICES_METRIC] == 0
+    if not common_valid or not unit_valid:
         return None
     return {name: float(values[name]) for name in values}
 
@@ -779,6 +906,7 @@ def _exact_incomplete_stage2_markers(
     artifacts: Any,
     *,
     expected_contract_id: int,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, float] | None:
     """Recognize only the evaluator's bound Stage 2 failure envelope."""
 
@@ -788,6 +916,7 @@ def _exact_incomplete_stage2_markers(
         _validated_winner_preflight_markers(
             metrics,
             expected_contract_id=expected_contract_id,
+            evaluator_kind=evaluator_kind,
         )
         values = {
             name: _exact_nonnegative_metric(metrics, name)
@@ -936,6 +1065,7 @@ def _checkpoint_preflight_summary(
     *,
     expected_contract_id: int,
     cascade_threshold: float | None = None,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, int]:
     programs_dir = Path(checkpoint_path) / "programs"
     if programs_dir.is_symlink() or not programs_dir.is_dir():
@@ -952,6 +1082,7 @@ def _checkpoint_preflight_summary(
         _validated_winner_preflight_markers(
             program.get("metrics"),
             expected_contract_id=expected_contract_id,
+            evaluator_kind=evaluator_kind,
         )
         _validated_managed_stage2_state(
             program.get("metrics"),
@@ -975,12 +1106,14 @@ def _validate_managed_initial_evaluation(
     *,
     expected_contract_id: int,
     cascade_threshold: float | None = None,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> None:
     """Fail before a fresh seed with incomplete evaluation enters the DB."""
 
     _validated_winner_preflight_markers(
         metrics,
         expected_contract_id=expected_contract_id,
+        evaluator_kind=evaluator_kind,
     )
     _validated_map_descriptor_version(
         metrics,
@@ -1298,6 +1431,7 @@ def _execute_winner_preflight_owned(
     wall_timeout: float,
     cancel_event: threading.Event,
     progress_path: Path | None,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, float]:
     """Evaluate one unique checkpoint program behind a progress hard wall."""
 
@@ -1426,7 +1560,8 @@ def _execute_winner_preflight_owned(
             or payload.get("schema_version") != 1
             or payload.get("status") != "completed"
             or not isinstance(payload.get("metrics"), dict)
-            or set(payload["metrics"]) != set(_WINNER_PREFLIGHT_MARKER_FIELDS)
+            or set(payload["metrics"])
+            != set(_winner_preflight_marker_fields(evaluator_kind))
         ):
             raise _WinnerPreflightChildFailure(
                 "winner preflight result schema is invalid"
@@ -1434,6 +1569,7 @@ def _execute_winner_preflight_owned(
         return _validated_winner_preflight_markers(
             payload["metrics"],
             expected_contract_id=expected_contract_id,
+            evaluator_kind=evaluator_kind,
         )
 
 
@@ -1444,6 +1580,7 @@ def _execute_winner_preflight(
     expected_contract_id: int,
     wall_timeout: float,
     cancel_event: threading.Event,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, float]:
     progress_path = _winner_preflight_progress_path(
         code,
@@ -1465,6 +1602,7 @@ def _execute_winner_preflight(
                     wall_timeout=wall_timeout,
                     cancel_event=cancel_event,
                     progress_path=progress_path,
+                    evaluator_kind=evaluator_kind,
                 )
             except (
                 _WinnerPreflightTimeout,
@@ -1483,6 +1621,7 @@ def _backfill_checkpoint_programs(
     expected_contract_id: int,
     max_workers: int,
     wall_timeout: float,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, Any]:
     """Preflight every unique old checkpoint program before evolution resumes."""
 
@@ -1525,6 +1664,7 @@ def _backfill_checkpoint_programs(
                 _validated_winner_preflight_markers(
                     program.metrics,
                     expected_contract_id=expected_contract_id,
+                    evaluator_kind=evaluator_kind,
                 )
             except RuntimeError:
                 complete = False
@@ -1549,6 +1689,7 @@ def _backfill_checkpoint_programs(
                 expected_contract_id=expected_contract_id,
                 wall_timeout=wall_timeout,
                 cancel_event=cancel_event,
+                evaluator_kind=evaluator_kind,
             ): key
             for key, _group in pending
         }
@@ -1580,6 +1721,7 @@ def _backfill_checkpoint_programs(
         _validated_winner_preflight_markers(
             program.metrics,
             expected_contract_id=expected_contract_id,
+            evaluator_kind=evaluator_kind,
         )
     return {
         "schema_version": 1,
@@ -2576,6 +2718,7 @@ class _SliceObserver:
     iterations: int
     result_type: type
     expected_preflight_contract_id: int | None = None
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT
     stage2_cascade_threshold: float | None = None
     checkpoint_preflight_required: bool = False
     search_portfolio_schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION
@@ -2795,6 +2938,7 @@ class _SliceObserver:
             incomplete = _exact_incomplete_winner_preflight_markers(
                 child.get("metrics"),
                 expected_contract_id=self.expected_preflight_contract_id,
+                evaluator_kind=self.evaluator_kind,
             )
             if incomplete is not None:
                 source_error = str(child["metrics"]["error"]).encode("utf-8")
@@ -2835,6 +2979,7 @@ class _SliceObserver:
                     expected_contract_id=(
                         self.expected_preflight_contract_id
                     ),
+                    evaluator_kind=self.evaluator_kind,
                 )
                 preflight_is_complete = True
             except RuntimeError:
@@ -2847,6 +2992,7 @@ class _SliceObserver:
                     expected_contract_id=(
                         self.expected_preflight_contract_id
                     ),
+                    evaluator_kind=self.evaluator_kind,
                 )
                 if preflight_is_complete
                 else None
@@ -3006,6 +3152,7 @@ class _SliceObserver:
                 _validated_winner_preflight_markers(
                     getattr(program, "metrics", None),
                     expected_contract_id=self.expected_preflight_contract_id,
+                    evaluator_kind=self.evaluator_kind,
                 )
                 _validated_map_descriptor_version(
                     getattr(program, "metrics", None),
@@ -3313,6 +3460,7 @@ def _verified_slice_controller(
     iterations: int,
     *,
     expected_preflight_contract_id: int | None = None,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
     stage2_cascade_threshold: float | None = None,
     checkpoint_preflight_required: bool = False,
     search_config: Any = None,
@@ -3328,6 +3476,7 @@ def _verified_slice_controller(
         iterations=iterations,
         result_type=process_module.SerializableResult,
         expected_preflight_contract_id=expected_preflight_contract_id,
+        evaluator_kind=evaluator_kind,
         stage2_cascade_threshold=stage2_cascade_threshold,
         checkpoint_preflight_required=checkpoint_preflight_required,
         search_portfolio_schema_version=search_portfolio_schema_version,
@@ -3733,13 +3882,14 @@ def _launch_input_identities(
     dependency_identities: dict[str, dict[str, Any]],
     backend_path: str | Path | None,
     codex_executable_identity: dict[str, Any] | None,
+    evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, dict[str, Any]]:
     observed_context = _file_identity(
         context_path, "evolution humanize context"
     )
     if observed_context != context_identity:
         raise RuntimeError("evolution humanize context changed after snapshot")
-    observed_dependencies = _evaluator_dependency_identities()
+    observed_dependencies = _evaluator_dependency_identities(evaluator_kind)
     if observed_dependencies != dependency_identities:
         raise RuntimeError("evolution evaluator dependencies changed during the slice")
     identities = {
@@ -3906,8 +4056,29 @@ def _validated_invocation_binding(
     }
     if ACTIVE_GEOMETRY_CONTRACT != LEGACY_GEOMETRY_CONTRACT:
         expected_fields.add(SEARCH_GEOMETRY_CONTRACT_FIELD)
-    if not isinstance(invocation, dict) or set(invocation) != expected_fields:
+    if not isinstance(invocation, dict):
         raise RuntimeError("managed invocation binding fields are incomplete")
+    observed_fields = set(invocation)
+    has_evaluator_kind = EVALUATOR_KIND_BINDING_FIELD in observed_fields
+    has_action_catalog = (
+        ACTION_CATALOG_SHA256_BINDING_FIELD in observed_fields
+    )
+    if has_evaluator_kind != has_action_catalog:
+        raise RuntimeError("managed invocation coset binding is incomplete")
+    if has_evaluator_kind:
+        expected_fields.add(EVALUATOR_KIND_BINDING_FIELD)
+        expected_fields.add(ACTION_CATALOG_SHA256_BINDING_FIELD)
+    if observed_fields != expected_fields:
+        raise RuntimeError("managed invocation binding fields are incomplete")
+    if has_evaluator_kind:
+        evaluator_kind = invocation[EVALUATOR_KIND_BINDING_FIELD]
+        if evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK:
+            raise RuntimeError("managed invocation evaluator kind is invalid")
+        if (
+            invocation[ACTION_CATALOG_SHA256_BINDING_FIELD]
+            != _coset_action_catalog_sha256()
+        ):
+            raise RuntimeError("managed invocation action catalog changed")
     model_names = invocation["model_names"]
     if (
         not isinstance(model_names, list)
@@ -4009,6 +4180,7 @@ def _write_slice_witness(
             result_checkpoint["path"],
             expected_contract_id=observer.expected_preflight_contract_id,
             cascade_threshold=observer.stage2_cascade_threshold,
+            evaluator_kind=observer.evaluator_kind,
         )
     if (
         observer.checkpoint_preflight_required
@@ -4036,6 +4208,10 @@ def _write_slice_witness(
         dependency_identities,
         backend_path,
         codex_executable_identity,
+        effective_invocation.get(
+            EVALUATOR_KIND_BINDING_FIELD,
+            EVALUATOR_KIND_DEFAULT,
+        ),
     )
     from evolve.openevolve_evaluator import candidate_log_range_identity
 
@@ -4163,6 +4339,10 @@ def _write_completion_marker(
         dependency_identities,
         backend_path,
         codex_executable_identity,
+        effective_invocation.get(
+            EVALUATOR_KIND_BINDING_FIELD,
+            EVALUATOR_KIND_DEFAULT,
+        ),
     )
     payload: dict[str, Any] = {
         "schema_version": EVOLUTION_COMPLETION_SCHEMA_VERSION,
@@ -4618,6 +4798,97 @@ def _run_resume(config, output_dir: str, iterations: int, checkpoint_path: str,
     return best_program
 
 
+def _validated_evaluator_kind(
+    requested: str,
+    *,
+    noncss: bool,
+    milp: bool,
+) -> str:
+    """Validate the explicit evaluator route before loading run inputs.
+
+    The coset representation is checkpoint-incompatible with the historical
+    BB evaluator.  Keeping the route as a closed vocabulary prevents a path
+    supplied by campaign data from becoming executable code.
+    """
+
+    if requested not in EVALUATOR_KINDS:
+        raise RuntimeError(f"unsupported evaluator kind: {requested!r}")
+    if requested == EVALUATOR_KIND_COSET_TWO_BLOCK and (noncss or milp):
+        raise RuntimeError(
+            "coset-two-block evaluator cannot be combined with --noncss or "
+            "--milp"
+        )
+    return requested
+
+
+def _coset_action_catalog_sha256() -> str:
+    from evaluation.coset_action_catalog import action_catalog_sha256
+
+    value = action_catalog_sha256()
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise RuntimeError("coset action catalog SHA-256 is invalid")
+    return value
+
+
+def _coset_action_catalog_contract_id() -> int:
+    # OpenEvolve metrics are JSON numbers. Thirteen hexadecimal digits remain
+    # exactly representable through a binary64 checkpoint round trip.
+    return int(_coset_action_catalog_sha256()[:13], 16)
+
+
+def _checkpoint_evaluator_kind(
+    metrics: Any,
+    *,
+    expected_kind: str,
+    label: str,
+) -> str:
+    """Reject a checkpoint produced by a different representation evaluator.
+
+    Historical BB checkpoints predate the marker and remain valid only for the
+    default route.  The new coset route requires an exact marker, so it can
+    never resume a BB checkpoint (or vice versa when a marker is present).
+    """
+
+    if not isinstance(metrics, dict):
+        raise RuntimeError(f"{label} metrics are not an object")
+    observed = metrics.get(EVALUATOR_KIND_ID_METRIC)
+    expected_id = EVALUATOR_KIND_IDS[expected_kind]
+    if expected_kind == EVALUATOR_KIND_DEFAULT:
+        if observed not in (None, float(expected_id), expected_id):
+            raise RuntimeError(
+                f"{label} belongs to evaluator id {observed!r}, not default"
+            )
+        return EVALUATOR_KIND_DEFAULT
+    if (
+        isinstance(observed, bool)
+        or not isinstance(observed, (int, float))
+        or not math.isfinite(float(observed))
+        or float(observed) != float(expected_id)
+    ):
+        raise RuntimeError(
+            f"{label} belongs to evaluator id {observed!r}, not "
+            f"{expected_kind!r}; "
+            "start a fresh checkpoint"
+        )
+    catalog_id = metrics.get(ACTION_CATALOG_ID_METRIC)
+    expected_catalog_id = _coset_action_catalog_contract_id()
+    if (
+        isinstance(catalog_id, bool)
+        or not isinstance(catalog_id, (int, float))
+        or not math.isfinite(float(catalog_id))
+        or float(catalog_id) != float(expected_catalog_id)
+    ):
+        raise RuntimeError(
+            f"{label} belongs to action catalog id {catalog_id!r}, not "
+            f"{expected_catalog_id}; start a fresh checkpoint"
+        )
+    return expected_kind
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Run OpenEvolve evolutionary search for BB codes."
@@ -4659,6 +4930,16 @@ def main():
         "--config", type=str, default=None,
         help="Path to OpenEvolve config YAML (default: config.yaml, "
              "or config_noncss.yaml when --noncss is set).",
+    )
+    parser.add_argument(
+        "--evaluator",
+        choices=EVALUATOR_KINDS,
+        default=EVALUATOR_KIND_DEFAULT,
+        help=(
+            "Versioned evaluator route. 'coset-two-block' selects the "
+            "proof-safe coset Stage-1 evaluator; arbitrary evaluator paths "
+            "are intentionally unsupported."
+        ),
     )
     parser.add_argument(
         "--output", type=str, default=None,
@@ -4764,6 +5045,15 @@ def main():
             args.lifecycle_lease_fd, args.lifecycle_lease_path
         )
 
+    try:
+        evaluator_kind = _validated_evaluator_kind(
+            args.evaluator,
+            noncss=bool(args.noncss),
+            milp=bool(args.milp),
+        )
+    except RuntimeError as exc:
+        parser.error(str(exc))
+
     # Resolve model list (None means "use config as-is")
     if args.models:
         model_names = args.models
@@ -4774,7 +5064,10 @@ def main():
 
     # Resolve config path
     if args.config is None:
-        args.config = DEFAULT_CONFIG_NONCSS if args.noncss else DEFAULT_CONFIG
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+            args.config = DEFAULT_CONFIG_COSET_TWO_BLOCK
+        else:
+            args.config = DEFAULT_CONFIG_NONCSS if args.noncss else DEFAULT_CONFIG
 
     api_base = _resolve_api_base(args)
     output_dir = _resolve_output_dir(args)
@@ -4822,6 +5115,8 @@ def main():
     # Resolve seed solution
     if args.seed:
         seed_path = args.seed
+    elif evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        seed_path = SEED_SOLUTION_COSET_TWO_BLOCK
     elif args.noncss:
         seed_path = SEED_SOLUTION_NONCSS
     elif args.milp:
@@ -4833,7 +5128,16 @@ def main():
         sys.exit(1)
 
     # When --noncss is set, use the non-CSS evaluator directly (no patching needed).
-    if args.noncss:
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        EVALUATOR_ACTIVE = EVALUATOR_COSET_TWO_BLOCK
+        if not Path(EVALUATOR_ACTIVE).exists():
+            print(
+                "Error: coset two-block evaluator not found: "
+                f"{EVALUATOR_ACTIVE}"
+            )
+            sys.exit(1)
+        print("Coset mode: using coset_openevolve_evaluator.py")
+    elif args.noncss:
         EVALUATOR_ACTIVE = EVALUATOR_NONCSS
         if not Path(EVALUATOR_ACTIVE).exists():
             print(f"Error: non-CSS evaluator not found: {EVALUATOR_ACTIVE}")
@@ -4924,7 +5228,9 @@ def main():
                     _validated_adaptive_mutation_policy(context_text)
                 )
                 search_regime = _validated_search_regime(context_text)
-            dependency_identities = _evaluator_dependency_identities()
+            dependency_identities = _evaluator_dependency_identities(
+                evaluator_kind
+            )
             args._humanize_context_text = context_text
         codex_version: str | None = None
         codex_cwd: str | None = None
@@ -5005,6 +5311,7 @@ def main():
                 EVALUATOR_ACTIVE,
                 dependency_identities,
                 candidate_log_path=candidate_log_path,
+                evaluator_kind=evaluator_kind,
             )
             os.environ[WINNER_PREFLIGHT_CONTRACT_ID_ENV] = str(
                 preflight_contract_id
@@ -5027,6 +5334,11 @@ def main():
             "codex_cwd": codex_cwd,
             "codex_executable_mode": codex_executable_mode,
         }
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+            invocation_binding[EVALUATOR_KIND_BINDING_FIELD] = evaluator_kind
+            invocation_binding[ACTION_CATALOG_SHA256_BINDING_FIELD] = (
+                _coset_action_catalog_sha256()
+            )
         if search_geometry_contract is not None:
             invocation_binding[SEARCH_GEOMETRY_CONTRACT_FIELD] = (
                 search_geometry_contract
@@ -5060,7 +5372,10 @@ def main():
                 f"(regime={search_regime['status'] if search_regime else 'normal'})"
             )
         print(f"  Seed: {seed_path}")
-        if args.noncss:
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+            print("  Mode: CSS coset two-block actions")
+            print("  Distance: proof-safe low-weight oracle (no BP credit)")
+        elif args.noncss:
             print(f"  Mode: Non-CSS PBB codes")
             print(f"  Distance: BP-OSD multi-channel (non-CSS)")
         elif args.milp:
@@ -5074,6 +5389,7 @@ def main():
                 base_iteration,
                 args.iterations,
                 expected_preflight_contract_id=preflight_contract_id,
+                evaluator_kind=evaluator_kind,
                 stage2_cascade_threshold=stage2_cascade_threshold,
                 checkpoint_preflight_required=(
                     args.resume is not None
@@ -5114,6 +5430,18 @@ def main():
                         # Validate the descriptor schema before any evaluator
                         # subprocess can mutate the in-memory checkpoint.
                         for program_id in sorted(programs):
+                            _checkpoint_evaluator_kind(
+                                getattr(
+                                    programs[program_id],
+                                    "metrics",
+                                    None,
+                                ),
+                                expected_kind=evaluator_kind,
+                                label=(
+                                    "loaded checkpoint program "
+                                    f"{program_id}"
+                                ),
+                            )
                             _validated_map_descriptor_version(
                                 getattr(
                                     programs[program_id],
@@ -5145,6 +5473,7 @@ def main():
                             wall_timeout=_winner_preflight_wall_timeout(
                                 evaluator_timeout
                             ),
+                            evaluator_kind=evaluator_kind,
                         )
                         observer.record_checkpoint_preflight(report)
 
@@ -5170,11 +5499,17 @@ def main():
                         metrics: Any,
                         artifacts: Any,
                     ) -> None:
+                        _checkpoint_evaluator_kind(
+                            metrics,
+                            expected_kind=evaluator_kind,
+                            label="fresh initial program",
+                        )
                         _validate_managed_initial_evaluation(
                             metrics,
                             artifacts,
                             expected_contract_id=preflight_contract_id,
                             cascade_threshold=stage2_cascade_threshold,
+                            evaluator_kind=evaluator_kind,
                         )
 
                 result = _run_fresh(config, output_dir, args.iterations,

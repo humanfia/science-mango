@@ -195,10 +195,31 @@ def _entry_construction(entry: Mapping[str, Any], code_type: str):
         if code_type == "css"
         else (expected_keys,)
     )
-    if set(construction) not in allowed_keys:
+    is_legacy = set(construction) in allowed_keys
+    if not is_legacy and code_type != "css":
         raise _RegistryIntegrityError(
             "entry construction fields do not match its code type"
         )
+    if not is_legacy:
+        try:
+            from evaluation.construction import (
+                build_css_code_from_claim,
+                normalize_construction_claim,
+            )
+
+            claim = {"construction": dict(construction)}
+            normalized = normalize_construction_claim(claim)
+            replay_claim = (
+                dict(normalized)
+                if isinstance(normalized, Mapping)
+                and isinstance(normalized.get("construction"), Mapping)
+                else {"construction": dict(normalized)}
+            )
+            return build_css_code_from_claim(replay_claim)
+        except (ImportError, KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise _RegistryIntegrityError(
+                "entry compact construction cannot be rebuilt"
+            ) from exc
     ell = construction.get("ell")
     m = construction.get("m")
     if (

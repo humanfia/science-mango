@@ -3,21 +3,28 @@
 from __future__ import annotations
 
 import importlib.metadata
+import hashlib
+import json
 import math
 import platform
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 
 from evaluation.certificate import (
     FORMULATION,
     _certificate_sha256,
+    _direction_key,
     _direction_specs,
     _file_sha256,
     _highs_version,
+    _json_sha256,
+    _load_direction_checkpoint,
+    _solver_environment,
     _validate_solver_workers,
+    _write_direction_checkpoint,
     pack_vector,
     solve_css_direction,
     unpack_vector,
@@ -39,6 +46,8 @@ from evaluation.registry import check_code_novelty
 
 SCHEMA_VERSION = 1
 CERTIFICATE_TYPE = "qldpc-css-matrix-exact"
+BUILD_CHECKPOINT_TYPE = "qldpc-css-matrix-build-checkpoint-v2"
+VERIFY_CHECKPOINT_TYPE = "qldpc-css-matrix-verify-checkpoint-v2"
 
 
 def _version(name: str) -> str | None:
@@ -46,6 +55,98 @@ def _version(name: str) -> str | None:
         return importlib.metadata.version(name)
     except importlib.metadata.PackageNotFoundError:
         return None
+
+
+def _normalized_construction_claim(
+    claim: Mapping[str, Any],
+) -> tuple[dict[str, Any], Any, Any]:
+    """Normalize a compact construction and return its cache bindings."""
+
+    from evaluation.construction import (
+        construction_identity,
+        construction_source_fingerprint,
+        normalize_construction_claim,
+    )
+
+    normalized = normalize_construction_claim(dict(claim))
+    normalized_claim = (
+        dict(normalized)
+        if isinstance(normalized, Mapping)
+        and isinstance(normalized.get("construction"), Mapping)
+        else {"construction": dict(normalized)}
+    )
+    return (
+        normalized_claim,
+        construction_identity(normalized_claim),
+        construction_source_fingerprint(),
+    )
+
+
+def _rebuild_claim(
+    claim: Mapping[str, Any],
+) -> tuple[Any, np.ndarray, np.ndarray, dict[str, Any] | None, Any, Any]:
+    """Rebuild matrices from the authoritative construction when available."""
+
+    construction = claim.get("construction")
+    if isinstance(construction, Mapping):
+        from evaluation.construction import build_css_code_from_claim
+
+        normalized, identity, source_fingerprint = (
+            _normalized_construction_claim(claim)
+        )
+        code = build_css_code_from_claim(normalized)
+        hx = np.asarray(
+            code.matrix_x.toarray()
+            if hasattr(code.matrix_x, "toarray")
+            else code.matrix_x,
+            dtype=np.uint8,
+        ) & 1
+        hz = np.asarray(
+            code.matrix_z.toarray()
+            if hasattr(code.matrix_z, "toarray")
+            else code.matrix_z,
+            dtype=np.uint8,
+        ) & 1
+        # Packed matrices are witnesses, never the authority for a compact
+        # construction.  If supplied, require byte-exact agreement.
+        hx_value = claim.get("H_X", claim.get("hx"))
+        hz_value = claim.get("H_Z", claim.get("hz"))
+        if hx_value is not None or hz_value is not None:
+            if hx_value is None or hz_value is None:
+                raise ValueError("H_X and H_Z must be supplied together")
+            _, claimed_hx, claimed_hz = build_css_from_matrices(
+                hx_value, hz_value,
+            )
+            if not (
+                np.array_equal(hx, claimed_hx)
+                and np.array_equal(hz, claimed_hz)
+            ):
+                raise ValueError(
+                    "packed matrices do not match reconstructed construction"
+                )
+        return code, hx, hz, normalized, identity, source_fingerprint
+
+    hx_value = claim.get("H_X", claim.get("hx"))
+    hz_value = claim.get("H_Z", claim.get("hz"))
+    if hx_value is None or hz_value is None:
+        raise ValueError("generic CSS claim requires H_X and H_Z")
+    code, hx, hz = build_css_from_matrices(hx_value, hz_value)
+    return code, hx, hz, None, None, None
+
+
+def _implementation_binding() -> dict[str, Any]:
+    sources = {}
+    for path in (
+        Path(__file__),
+        Path(__file__).with_name("construction.py"),
+        Path(__file__).with_name("matrix_io.py"),
+    ):
+        sources[path.name] = (
+            hashlib.sha256(path.read_bytes()).hexdigest()
+            if path.is_file()
+            else None
+        )
+    return {"sources": sources, "sha256": _json_sha256(sources)}
 
 
 def _static_gate(
@@ -103,19 +204,76 @@ def build_matrix_css_certificate(
     known_answer_artifact: Path | str,
     timeout_per_logical: float = 300,
     total_timeout: float = 7200,
+    checkpoint_path: Path | str | None = None,
+    resume: bool = False,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
-    hx_value = claim.get("H_X", claim.get("hx"))
-    hz_value = claim.get("H_Z", claim.get("hz"))
-    if hx_value is None or hz_value is None:
-        raise ValueError("generic CSS claim requires H_X and H_Z")
-    code, hx, hz = build_css_from_matrices(hx_value, hz_value)
+    workers = _validate_solver_workers(solver_workers)
+    timeout_per_logical = float(timeout_per_logical)
+    total_timeout = float(total_timeout)
+    if not math.isfinite(timeout_per_logical) or timeout_per_logical <= 0:
+        raise ValueError("timeout_per_logical must be a positive finite number")
+    if not math.isfinite(total_timeout) or total_timeout <= 0:
+        raise ValueError("total_timeout must be a positive finite number")
+    (
+        code,
+        hx,
+        hz,
+        normalized_construction,
+        construction_identity_value,
+        construction_source,
+    ) = _rebuild_claim(claim)
     n, k = css_parameters(hx, hz)
     if k <= 0:
         raise ValueError("generic CSS claim must encode at least one logical qubit")
 
+    specs = _direction_specs(code)
+    matrix_sha256 = {
+        "hx": _matrix_sha256(hx),
+        "hz": _matrix_sha256(hz),
+    }
+    checkpoint_binding = {
+        "claim_sha256": _json_sha256(
+            normalized_construction
+            if normalized_construction is not None
+            else {"H_X": pack_matrix(hx), "H_Z": pack_matrix(hz)}
+        ),
+        "construction_identity": construction_identity_value,
+        "canonical_digest": claim.get("canonical_digest"),
+        "construction_source_fingerprint": construction_source,
+        "matrix_sha256": matrix_sha256,
+        "known_answer_sha256": _file_sha256(known_answer_artifact),
+        "solver": _solver_environment(),
+        "implementation": _implementation_binding(),
+    }
+    reusable: dict[str, dict[str, Any]] = {}
+    if checkpoint_path is not None:
+        checkpoint = Path(checkpoint_path)
+        if resume and checkpoint.exists():
+            reusable = _load_direction_checkpoint(
+                checkpoint,
+                checkpoint_type=BUILD_CHECKPOINT_TYPE,
+                binding=checkpoint_binding,
+                specs=specs,
+            )
+        _write_direction_checkpoint(
+            checkpoint,
+            checkpoint_type=BUILD_CHECKPOINT_TYPE,
+            binding=checkpoint_binding,
+            directions=reusable,
+            specs=specs,
+        )
+
     directions: list[dict[str, Any]] = []
+    reused_directions = 0
     started = time.monotonic()
-    for logical_type, index, check_name, checks, target in _direction_specs(code):
+    for logical_type, index, check_name, checks, target in specs:
+        key = _direction_key(logical_type, index, check_name)
+        cached = reusable.get(key)
+        if cached is not None:
+            directions.append(cached)
+            reused_directions += 1
+            continue
         remaining = total_timeout - (time.monotonic() - started)
         if remaining <= 0:
             break
@@ -123,6 +281,7 @@ def build_matrix_css_certificate(
             checks,
             target,
             timeout=min(float(timeout_per_logical), remaining),
+            solver_workers=workers,
         )
         evidence.update(
             {
@@ -133,6 +292,16 @@ def build_matrix_css_certificate(
             }
         )
         directions.append(evidence)
+        if not verify_direction_evidence(evidence, checks, target):
+            reusable[key] = evidence
+            if checkpoint_path is not None:
+                _write_direction_checkpoint(
+                    checkpoint_path,
+                    checkpoint_type=BUILD_CHECKPOINT_TYPE,
+                    binding=checkpoint_binding,
+                    directions=reusable,
+                    specs=specs,
+                )
 
     exact = len(directions) == 2 * k and all(
         not verify_direction_evidence(
@@ -168,6 +337,7 @@ def build_matrix_css_certificate(
         "formulation": FORMULATION,
         "claim": {
             "source": claim.get("source"),
+            "canonical_digest": claim.get("canonical_digest"),
             "H_X": pack_matrix(hx),
             "H_Z": pack_matrix(hz),
             "n": n,
@@ -175,10 +345,11 @@ def build_matrix_css_certificate(
             "d": distance,
             "fom": gate["win"]["fom"],
         },
-        "matrix_sha256": {
-            "hx": _matrix_sha256(hx),
-            "hz": _matrix_sha256(hz),
-        },
+        "construction_identity": construction_identity_value,
+        "canonical_digest": claim.get("canonical_digest"),
+        "construction_source_fingerprint": construction_source,
+        "implementation": _implementation_binding(),
+        "matrix_sha256": matrix_sha256,
         "known_answer": {"artifact_sha256": _file_sha256(known_answer_artifact)},
         "solver": {
             "interface": "scipy.optimize.milp",
@@ -186,6 +357,7 @@ def build_matrix_css_certificate(
             "scipy_version": _version("scipy"),
             "highs_version": _highs_version(),
             "presolve": True,
+            "solver_workers": workers,
             "timeout_per_logical_s": timeout_per_logical,
             "total_timeout_s": total_timeout,
         },
@@ -200,6 +372,7 @@ def build_matrix_css_certificate(
             "completed_directions": len(directions),
             "distance": distance,
             "elapsed_s": time.monotonic() - started,
+            "resumed_directions": reused_directions,
             "directions": directions,
         },
         "upper_witness": None
@@ -214,6 +387,10 @@ def build_matrix_css_certificate(
         "final_gate": gate,
         "passed": passed,
     }
+    if normalized_construction is not None:
+        certificate["claim"]["construction"] = dict(
+            normalized_construction["construction"]
+        )
     failure_disposition = classify_build_failure(
         exact=exact,
         passed=passed,
@@ -231,6 +408,8 @@ def verify_matrix_css_certificate(
     known_answer_artifact: Path | str,
     rerun_milp: bool = True,
     timeout_per_logical: float | None = None,
+    checkpoint_path: Path | str | None = None,
+    resume: bool = False,
     total_timeout: float | None = None,
     solver_workers: int = 1,
 ) -> dict[str, Any]:
@@ -257,7 +436,14 @@ def verify_matrix_css_certificate(
     }
     try:
         claim = certificate["claim"]
-        code, hx, hz = build_css_from_matrices(claim["H_X"], claim["H_Z"])
+        (
+            code,
+            hx,
+            hz,
+            normalized_construction,
+            construction_identity_value,
+            construction_source,
+        ) = _rebuild_claim(claim)
         n, k = css_parameters(hx, hz)
         checks["known_answer_sha256"] = certificate["known_answer"][
             "artifact_sha256"
@@ -266,6 +452,21 @@ def verify_matrix_css_certificate(
             "hx": _matrix_sha256(hx),
             "hz": _matrix_sha256(hz),
         }
+        checks["construction_identity"] = (
+            certificate.get("construction_identity")
+            == construction_identity_value
+        )
+        checks["canonical_digest_binding"] = (
+            certificate.get("canonical_digest")
+            == claim.get("canonical_digest")
+        )
+        checks["construction_source_fingerprint"] = (
+            certificate.get("construction_source_fingerprint")
+            == construction_source
+        )
+        checks["implementation_binding"] = (
+            certificate.get("implementation") == _implementation_binding()
+        )
         specs = _direction_specs(code)
         directions = certificate["milp"]["directions"]
     except (KeyError, TypeError, ValueError, OSError) as exc:
@@ -290,8 +491,53 @@ def verify_matrix_css_certificate(
         int(claim.get("n", -1)) == n and int(claim.get("k", -1)) == k
     )
     checks["direction_count"] = len(directions) == len(specs) == 2 * k
+    expected_objectives = {
+        _direction_key(logical_type, index, check_name): (
+            directions[position].get("objective")
+            if position < len(directions)
+            and isinstance(directions[position], Mapping)
+            else None
+        )
+        for position, (
+            logical_type, index, check_name, _matrix, _target,
+        ) in enumerate(specs)
+    }
+    checkpoint_binding = {
+        "certificate_sha256": _json_sha256(certificate),
+        "claim_sha256": _json_sha256(
+            normalized_construction
+            if normalized_construction is not None
+            else {"H_X": pack_matrix(hx), "H_Z": pack_matrix(hz)}
+        ),
+        "construction_identity": construction_identity_value,
+        "canonical_digest": claim.get("canonical_digest"),
+        "construction_source_fingerprint": construction_source,
+        "matrix_sha256": certificate.get("matrix_sha256"),
+        "known_answer_sha256": _file_sha256(known_answer_artifact),
+        "solver": _solver_environment(),
+        "implementation": _implementation_binding(),
+    }
+    reusable: dict[str, dict[str, Any]] = {}
+    if rerun_milp and checkpoint_path is not None:
+        checkpoint = Path(checkpoint_path)
+        if resume and checkpoint.exists():
+            reusable = _load_direction_checkpoint(
+                checkpoint,
+                checkpoint_type=VERIFY_CHECKPOINT_TYPE,
+                binding=checkpoint_binding,
+                specs=specs,
+                expected_objectives=expected_objectives,
+            )
+        _write_direction_checkpoint(
+            checkpoint,
+            checkpoint_type=VERIFY_CHECKPOINT_TYPE,
+            binding=checkpoint_binding,
+            directions=reusable,
+            specs=specs,
+        )
     direction_failures: list[str] = []
     replay_complete = True
+    reused_directions = 0
     for position, (logical_type, index, check_name, matrix, target) in enumerate(specs):
         if position >= len(directions):
             direction_failures.append(f"{logical_type}[{index}]: missing")
@@ -306,10 +552,16 @@ def verify_matrix_css_certificate(
             local.append("identity/order mismatch")
         local.extend(verify_direction_evidence(evidence, matrix, target))
         if rerun_milp:
+            key = _direction_key(logical_type, index, check_name)
+            rerun = reusable.get(key)
+            if rerun is not None:
+                reused_directions += 1
             remaining = None
-            if total_timeout is not None:
+            if rerun is None and total_timeout is not None:
                 remaining = total_timeout - (time.monotonic() - verify_started)
-            if remaining is not None and remaining <= 0:
+            if rerun is not None:
+                pass
+            elif remaining is not None and remaining <= 0:
                 local.append("rerun total timeout exhausted")
                 replay_complete = False
                 rerun = None
@@ -350,6 +602,16 @@ def verify_matrix_css_certificate(
                 and not verify_direction_evidence(rerun, matrix, target)
                 and rerun.get("objective") == evidence.get("objective")
             )
+            if rerun_valid and key not in reusable:
+                reusable[key] = rerun
+                if checkpoint_path is not None:
+                    _write_direction_checkpoint(
+                        checkpoint_path,
+                        checkpoint_type=VERIFY_CHECKPOINT_TYPE,
+                        binding=checkpoint_binding,
+                        directions=reusable,
+                        specs=specs,
+                    )
             if rerun is not None and not rerun_valid:
                 replay_complete = False
                 local.append("rerun optimum mismatch")
@@ -395,6 +657,7 @@ def verify_matrix_css_certificate(
         "distance": distance,
         "directions_verified": len(specs) - len(direction_failures),
         "directions_total": len(specs),
+        "resumed_directions": reused_directions,
         "final_gate": gate,
     }
     failure_disposition = classify_replay_failure(
