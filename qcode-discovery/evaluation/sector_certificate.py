@@ -52,6 +52,7 @@ from evaluation.final_gate import (
     _rank_f2,
     minimum_winning_distance,
 )
+from evaluation.geometry import candidate_geometry
 from evaluation.registry import check_code_novelty
 
 
@@ -190,6 +191,11 @@ def _clean_claim(claim: Mapping[str, Any]) -> dict[str, Any]:
     cleaned.pop("milp_details", None)
     cleaned.pop("milp_attempted", None)
     cleaned.pop("d_is_exact", None)
+    geometry = candidate_geometry(cleaned)
+    if geometry is None:
+        cleaned.pop("geometry", None)
+    else:
+        cleaned["geometry"] = geometry
     return cleaned
 
 
@@ -201,6 +207,7 @@ def _matrices(claim: Mapping[str, Any]) -> tuple[Any, np.ndarray, np.ndarray, np
         int(claim["m"]),
         claim["A_terms"],
         claim["B_terms"],
+        geometry=candidate_geometry(claim),
     )
     hx, hz, lx, lz = (
         np.asarray(value, dtype=np.uint8) & 1
@@ -902,6 +909,7 @@ def _xz_isometry_context(
             hz,
             ell=int(claim["ell"]),
             m=int(claim["m"]),
+            geometry=candidate_geometry(claim),
         )
     except (KeyError, TypeError, ValueError) as exc:
         raise ValueError("BB X/Z sector isometry replay failed") from exc

@@ -16,9 +16,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from typing import Any
 
 import numpy as np
+
+from evaluation.geometry import normalize_geometry
 
 
 BB_XZ_ISOMETRY_METHOD = "bb-xz-inversion-block-swap-rowspace-v1"
@@ -68,19 +71,35 @@ def _rank_f2(matrix: np.ndarray) -> int:
     return rank
 
 
-def bb_xz_inversion_block_swap_permutation(ell: int, m: int) -> np.ndarray:
-    """Return the BB qubit permutation ``Q`` in NumPy column-index form."""
+def bb_xz_inversion_block_swap_permutation(
+    ell: int,
+    m: int,
+    *,
+    geometry: Mapping[str, Any] | None = None,
+) -> np.ndarray:
+    """Return the BB qubit permutation ``Q`` in NumPy column-index form.
+
+    For a twisted torus the group inverse of ``(i,j)`` is reduced using
+    ``x^ell = y^-q``; it is not generally ``(-i mod ell, -j mod m)``.
+    """
 
     ell_value = int(ell)
     m_value = int(m)
     if ell_value <= 0 or m_value <= 0:
         raise ValueError("BB lattice dimensions must be positive")
+    canonical_geometry = normalize_geometry(ell_value, m_value, geometry)
+    twist = (
+        0
+        if canonical_geometry is None
+        else int(canonical_geometry["twist"])
+    )
     block_size = ell_value * m_value
-    grid = np.arange(block_size, dtype=np.int64).reshape(ell_value, m_value)
-    inversion = grid[
-        np.mod(-np.arange(ell_value), ell_value)[:, None],
-        np.mod(-np.arange(m_value), m_value)[None, :],
-    ].ravel()
+    cells = np.arange(block_size, dtype=np.int64)
+    x_coords = cells // m_value
+    y_coords = cells % m_value
+    wraps, inverse_x = np.divmod(-x_coords, ell_value)
+    inverse_y = np.mod(-y_coords - wraps * twist, m_value)
+    inversion = inverse_x * m_value + inverse_y
     return np.concatenate((block_size + inversion, inversion))
 
 
@@ -90,6 +109,7 @@ def verify_bb_xz_sector_isometry(
     *,
     ell: int,
     m: int,
+    geometry: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Rebuild and verify the weight-preserving BB X/Z-sector isometry.
 
@@ -102,7 +122,12 @@ def verify_bb_xz_sector_isometry(
     matrix_z = np.asarray(hz, dtype=np.uint8) & 1
     ell_value = int(ell)
     m_value = int(m)
-    permutation = bb_xz_inversion_block_swap_permutation(ell_value, m_value)
+    canonical_geometry = normalize_geometry(ell_value, m_value, geometry)
+    permutation = bb_xz_inversion_block_swap_permutation(
+        ell_value,
+        m_value,
+        geometry=canonical_geometry,
+    )
     n = int(permutation.size)
     shapes_valid = bool(
         matrix_x.ndim == 2
@@ -172,6 +197,10 @@ def verify_bb_xz_sector_isometry(
         "canonical_sector": "X",
         "covered_sectors": ["X", "Z"],
     }
+    if canonical_geometry is not None:
+        # Omit this key for the rectangular legacy case so historical report
+        # hashes and cached certificates remain unchanged.
+        report["geometry"] = canonical_geometry
     report["report_sha256"] = _canonical_sha256(report)
     return report
 

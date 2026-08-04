@@ -39,6 +39,7 @@ from evaluation.failure_disposition import (
     terminal_candidate_rejection,
     validate_failure_disposition,
 )
+from evaluation.geometry import candidate_geometry
 from evaluation.process_hard_wall import (
     linux_process_start_time,
     positive_wall_timeout,
@@ -6344,6 +6345,7 @@ class FiveStagePipeline:
                     np.asarray(rebuilt.matrix_z, dtype=np.uint8) & 1,
                     ell=int(candidate["ell"]),
                     m=int(candidate["m"]),
+                    geometry=candidate_geometry(candidate),
                 )
                 sat_isometry_valid = bool(
                     int(rebuilt.num_qudits) == candidate.get("n")

@@ -37,6 +37,7 @@ from evaluation.failure_disposition import (
     validate_failure_disposition,
 )
 from evaluation.final_gate import classify_win
+from evaluation.geometry import candidate_geometry
 from evaluation.proof_runtime import (
     RuntimeProbeError,
     known_answer_environment,
@@ -1062,6 +1063,7 @@ def _sector_sat_expected_lower_decisions(
                 m,
                 claim["A_terms"],
                 claim["B_terms"],
+                geometry=candidate_geometry(claim),
             )
             hx, hz, _lx, _lz = get_code_matrices(code)
             replayed = verify_bb_xz_sector_isometry(
@@ -1069,6 +1071,7 @@ def _sector_sat_expected_lower_decisions(
                 hz,
                 ell=ell,
                 m=m,
+                geometry=candidate_geometry(claim),
             )
             geometry_matches = bool(
                 int(code.num_qudits) == n

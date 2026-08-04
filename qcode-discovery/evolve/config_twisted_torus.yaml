@@ -1,0 +1,97 @@
+# Fresh, checkpoint-incompatible OpenEvolve geometry for twisted-torus CSS BB
+# search.  Portfolio schema v3 replaces the rectangular orbit-span archive
+# coordinate with an outer-geometry twist class.  The matching immutable seed
+# wrapper expands every evolved support proposal across every 0 <= q < m.
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+random_seed: 42
+
+qcode_search_portfolio:
+  enabled: true
+  schema_version: 3
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.34
+      temperature: 1.0
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 1.0
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are evolving `_generate_support_proposals(ell, m)` for sparse CSS
+    bivariate-bicycle codes on twisted quotient tori. The immutable wrapper,
+    outside the EVOLVE block, owns geometry and returns final mapping records.
+    Your function returns only support proposals `(A_terms, B_terms)` (or
+    mappings containing exactly those two keys). Never add a geometry field,
+    change the public `generate_candidates(ell, m)` wrapper, or enumerate q.
+
+    The outer quotient has relations y^m=1 and x^ell*y^q=1. These are the
+    Hermite-normal-form representatives of rank-two relation sublattices. For
+    every ordered factor shape at cell volumes 72, 100, 144, and 180, the
+    wrapper covers the complete canonical range 0 <= q < m and round-robins into a
+    deterministic 60--300 candidate budget `min(300,max(60,3*m))`. Every q
+    receives at least three rows: one common anchor and two staggered samples
+    from the complete evolved vocabulary. In particular, the literature-motivated
+    (ell,m,q)=(6,30,6) lane must remain reachable. Search for support patterns
+    whose algebraic mechanism benefits from a nonzero boundary shear rather
+    than merely copying rectangular coefficient jitter.
+
+    The challenge requires CSS check weight and qubit degree at most six.
+    Every proposal must use distinct monomials, A != B, at least two terms per
+    side, and one of the complete legal splits:
+      (2,2), (2,3), (3,2), (2,4), (4,2), (3,3).
+
+    Explore affine/coset, shared-anchor, complementary-direction, asymmetric
+    anchor, and witness-repair mechanisms. Use short logical witnesses to
+    change a mechanism or local support geometry. Decoder-returned logical
+    weights are distance upper bounds and receive no positive distance credit.
+    Optimize only bounded survivor/rate/novelty signals and independently
+    replayed exact or lower-bound evidence.
+
+    Produce a deterministic, diverse support vocabulary for fixed (ell,m).
+    The immutable wrapper supplies full q coverage, strict normalization,
+    relation-aware translation deduplication, challenge guards, and the final
+    output cap. Do not attempt to bypass those guards.
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  # The complete 49-shape/876-twist preflight takes roughly 10--13 minutes
+  # before bounded deep probes begin.  Keep legacy campaign timeouts unchanged;
+  # this fresh representation gets enough headroom to finish one transaction.
+  timeout: 2400
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 180
+  num_islands: 5
+  exploration_ratio: 0.55
+  exploitation_ratio: 0.35
+  migration_interval: 20
+  feature_dimensions:
+    - "algebraic_relation_type"
+    - "support_split_type"
+    - "geometry_twist_class"
+  feature_bins:
+    algebraic_relation_type: 5
+    support_split_type: 6
+    geometry_twist_class: 3

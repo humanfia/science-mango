@@ -150,6 +150,7 @@ from evaluation.evaluator import (
     evaluate_milp_parallel,
 )
 from evaluation.final_gate import minimum_winning_distance
+from evaluation.geometry import geometry_identity, normalize_geometry
 from evaluation.low_weight_oracle import (
     LOW_WEIGHT_MITM_ENGINE,
     LOW_WEIGHT_MITM_MAX_THRESHOLD,
@@ -157,8 +158,14 @@ from evaluation.low_weight_oracle import (
 )
 from evaluation.results import save_code, update_pareto_front
 from evaluation.search_contract import (
+    ACTIVE_GEOMETRY_CONTRACT,
+    ACTIVE_STAGE2_DEEP_LATTICES as CONTRACT_STAGE2_DEEP_LATTICES,
+    ACTIVE_STAGE2_FITNESS_LATTICES as CONTRACT_STAGE2_FITNESS_LATTICES,
     EVOLUTION_LATTICES,
     FINAL_GATE_PARETO_LATTICES as CONTRACT_PARETO_LATTICES,
+    TWISTED_MIN_CANDIDATES_PER_TWIST,
+    TWISTED_TORUS_GEOMETRY_CONTRACT,
+    allowed_twists,
 )
 from evaluation.structural_dedup import (
     check_css_static_eligibility,
@@ -272,6 +279,10 @@ SUPPORT_SPLITS_COVERED_METRIC = "support_splits_covered"
 SUPPORT_SPLITS_TOTAL_METRIC = "support_splits_total"
 SUPPORT_SPLIT_COVERAGE_METRIC = "support_split_coverage"
 SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC = "support_split_lattice_coverage"
+GEOMETRY_TWISTS_REQUIRED_METRIC = "geometry_twists_required"
+GEOMETRY_TWISTS_OBSERVED_METRIC = "geometry_twists_observed"
+GEOMETRY_TWIST_COVERAGE_METRIC = "twist_coverage"
+GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC = "geometry_twist_coverage_complete"
 # Version 2 moves 4+-term mixed structures from cell 3 to the intended
 # multi-term cell 4. Checkpoints containing version-1 descriptors must be
 # freshly evaluated rather than silently compared across classifier versions.
@@ -290,6 +301,7 @@ MAP_DESCRIPTOR_STRUCTURAL_ENTROPY_METRIC = "search_structural_entropy"
 MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC = "algebraic_relation_type"
 MAP_DESCRIPTOR_ORBIT_SPAN_METRIC = "orbit_span_bin"
 MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC = "difference_spectrum_bin"
+MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC = "geometry_twist_class"
 MAP_DESCRIPTOR_PATTERN_CARDINALITY = 6
 STAGE1_SPECIALIST_EXPLORATION_DENOMINATOR = 16
 MAX_CANDIDATES_PER_LATTICE = 5000
@@ -368,12 +380,79 @@ STAGE2_NUMERIC_THREAD_ENV = (
 
 
 def _definition_key(result: dict) -> tuple:
-    return (
-        int(result.get("ell", 0) or 0),
-        int(result.get("m", 0) or 0),
+    ell = int(result.get("ell", 0) or 0)
+    m = int(result.get("m", 0) or 0)
+    legacy = (
+        ell,
+        m,
         tuple(sorted(tuple(map(int, term)) for term in result.get("A_terms", []))),
         tuple(sorted(tuple(map(int, term)) for term in result.get("B_terms", []))),
     )
+    canonical = normalize_geometry(ell, m, result.get("geometry"))
+    if canonical is None:
+        return legacy
+    return (*legacy, _geometry_key(ell, m, canonical))
+
+
+def _geometry_key(ell: int, m: int, geometry) -> tuple:
+    """Return a stable tuple identity; explicit q=0 equals legacy geometry."""
+
+    identity = geometry_identity(ell, m, geometry)
+    return tuple(sorted(identity.items()))
+
+
+def _candidate_components(candidate) -> tuple[object, object, object]:
+    """Extract A/B/geometry from a legacy pair or mapping record."""
+
+    if isinstance(candidate, dict):
+        unknown = set(candidate) - {"A_terms", "B_terms", "geometry"}
+        if unknown:
+            raise TypeError(
+                f"candidate mapping has unknown fields: {sorted(unknown)}"
+            )
+        if "A_terms" not in candidate or "B_terms" not in candidate:
+            raise TypeError("candidate mapping requires A_terms and B_terms")
+        return (
+            candidate["A_terms"],
+            candidate["B_terms"],
+            candidate.get("geometry"),
+        )
+    if not isinstance(candidate, (list, tuple)) or len(candidate) != 2:
+        raise TypeError(
+            "candidate must be an A/B pair or a geometry-aware mapping"
+        )
+    return candidate[0], candidate[1], None
+
+
+def _result_as_candidate(result: dict):
+    """Reconstruct the evaluator candidate without dropping its geometry."""
+
+    candidate = {
+        "A_terms": result.get("A_terms", []),
+        "B_terms": result.get("B_terms", []),
+    }
+    if result.get("geometry") is not None:
+        candidate["geometry"] = result["geometry"]
+        return candidate
+    return (candidate["A_terms"], candidate["B_terms"])
+
+
+def _candidate_twist(candidate, *, ell: int, m: int) -> int:
+    """Return canonical q, treating every legacy/explicit q=0 form alike."""
+
+    _a_terms, _b_terms, geometry = _candidate_components(candidate)
+    canonical = normalize_geometry(ell, m, geometry)
+    return 0 if canonical is None else int(canonical["twist"])
+
+
+def _geometry_twist_class(ell: int, m: int, geometry) -> int:
+    """Map q to rectangular, primitive-twist, or composite-twist MAP bins."""
+
+    canonical = normalize_geometry(ell, m, geometry)
+    if canonical is None:
+        return 0
+    twist = int(canonical["twist"])
+    return 1 if math.gcd(twist, m) == 1 else 2
 
 
 def _candidate_definition_key(
@@ -382,13 +461,17 @@ def _candidate_definition_key(
     ell: int,
     m: int,
 ) -> tuple:
-    a_terms, b_terms = candidate
-    return (
+    a_terms, b_terms, geometry = _candidate_components(candidate)
+    legacy = (
         ell,
         m,
         tuple(sorted(map(tuple, a_terms))),
         tuple(sorted(map(tuple, b_terms))),
     )
+    canonical = normalize_geometry(ell, m, geometry)
+    if canonical is None:
+        return legacy
+    return (*legacy, _geometry_key(ell, m, canonical))
 
 
 def _require_complete_quick_result_set(
@@ -497,13 +580,23 @@ def _candidate_definition_payload(
         }
 
     try:
-        a_terms, b_terms = _normalize_candidate_definition(candidate)
+        normalized = _normalize_candidate_definition(
+            candidate,
+            ell=ell,
+            m=m,
+        )
+        a_terms, b_terms, geometry = _candidate_components(normalized)
         defining = {
             "ell": int(ell),
             "m": int(m),
             "A_terms": [list(term) for term in sorted(a_terms)],
             "B_terms": [list(term) for term in sorted(b_terms)],
         }
+        canonical_geometry = normalize_geometry(ell, m, geometry)
+        if canonical_geometry is not None:
+            defining["geometry"] = geometry_identity(
+                ell, m, canonical_geometry
+            )
         payload = json.dumps(
             defining,
             sort_keys=True,
@@ -525,11 +618,13 @@ def _candidate_definition_payload(
 
 def _normalize_candidate_definition(
     candidate,
-) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
-    """Return one strict A/B pair without validating its mathematics."""
+    *,
+    ell: int | None = None,
+    m: int | None = None,
+):
+    """Return one strict legacy pair or canonical geometry-aware mapping."""
 
-    if not isinstance(candidate, (list, tuple)) or len(candidate) != 2:
-        raise TypeError("candidate must contain exactly A_terms and B_terms")
+    a_value, b_value, raw_geometry = _candidate_components(candidate)
 
     def strict_terms(value, label: str) -> list[tuple[int, int]]:
         if not isinstance(value, (list, tuple)):
@@ -545,10 +640,30 @@ def _normalize_candidate_definition(
             normalized.append((term[0], term[1]))
         return normalized
 
-    return (
-        strict_terms(candidate[0], "A_terms"),
-        strict_terms(candidate[1], "B_terms"),
-    )
+    a_terms = strict_terms(a_value, "A_terms")
+    b_terms = strict_terms(b_value, "B_terms")
+    if isinstance(candidate, dict):
+        if ell is None or m is None:
+            raise TypeError("geometry-aware candidate normalization needs ell/m")
+        canonical_geometry = normalize_geometry(ell, m, raw_geometry)
+        normalized = {
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+        }
+        # Preserve explicit q=0 for the immutable coverage audit while its
+        # mathematical/cache identity remains the legacy rectangular one.
+        if raw_geometry is not None:
+            normalized["geometry"] = (
+                canonical_geometry
+                if canonical_geometry is not None
+                else {
+                    "schema_version": 1,
+                    "family": "twisted_torus",
+                    "twist": 0,
+                }
+            )
+        return normalized
+    return a_terms, b_terms
 
 
 def _normalize_generated_candidates(
@@ -563,7 +678,11 @@ def _normalize_generated_candidates(
     errors = []
     for index, candidate in enumerate(candidates):
         try:
-            normalized.append(_normalize_candidate_definition(candidate))
+            normalized.append(_normalize_candidate_definition(
+                candidate,
+                ell=ell,
+                m=m,
+            ))
         except (TypeError, ValueError) as exc:
             errors.append(
                 f"({ell},{m}) candidate[{index}] malformed: "
@@ -581,7 +700,7 @@ def _challenge_support_split(candidate) -> tuple[int, int] | None:
     and therefore safe to run before constructing qLDPC objects.
     """
 
-    a_terms, b_terms = candidate
+    a_terms, b_terms, _geometry = _candidate_components(candidate)
     split = (len(a_terms), len(b_terms))
     if (
         CHALLENGE_SUPPORT_MIN_PER_SIDE
@@ -609,7 +728,8 @@ def _partition_challenge_support(
         split = _challenge_support_split(candidate)
         if split is None:
             rejected.append(candidate)
-            raw_split = (len(candidate[0]), len(candidate[1]))
+            a_terms, b_terms, _geometry = _candidate_components(candidate)
+            raw_split = (len(a_terms), len(b_terms))
             rejected_splits[raw_split] = rejected_splits.get(raw_split, 0) + 1
             continue
         eligible.append(candidate)
@@ -655,7 +775,7 @@ def _annotate_generator_occurrences(
 ) -> None:
     """Bind each evaluated row to its raw generator multiplicity."""
     for row in rows:
-        candidate = (row.get("A_terms", []), row.get("B_terms", []))
+        candidate = _result_as_candidate(row)
         payload = _candidate_definition_payload(candidate, ell=ell, m=m)
         row["generator_occurrence_count"] = occurrences.get(payload, 1)
 
@@ -804,6 +924,11 @@ def _current_winner_preflight_contract_id() -> int:
             "run_name": output_dir.name,
         },
     }
+    if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+        # Keep the historical payload byte shape for rectangular campaigns,
+        # while making the fresh q-stratified contract explicit even if a
+        # future representation happens to reuse the same lattice list.
+        payload["search_geometry_contract"] = ACTIVE_GEOMETRY_CONTRACT
     digest = hashlib.sha256(
         json.dumps(
             payload,
@@ -949,6 +1074,10 @@ _STAGE1_LATTICE_SUMMARY_COUNT_FIELDS = (
     SUPPORT_WEIGHT_ELIGIBLE_METRIC,
     SUPPORT_WEIGHT_REJECTED_METRIC,
     SUPPORT_WEIGHT_EVALUATED_METRIC,
+    *((
+        GEOMETRY_TWISTS_REQUIRED_METRIC,
+        GEOMETRY_TWISTS_OBSERVED_METRIC,
+    ) if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else ()),
 )
 
 
@@ -964,6 +1093,9 @@ def _validated_stage1_lattice_summary(
         "lattice_failures",
         SUPPORT_FILTER_VERSION_METRIC,
         SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC,
+        *({GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC}
+          if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+          else set()),
         *_STAGE1_LATTICE_SUMMARY_COUNT_FIELDS,
     }
     if not isinstance(summary, dict) or set(summary) != expected_fields:
@@ -1011,6 +1143,14 @@ def _validated_stage1_lattice_summary(
         or values[SUPPORT_FILTER_VERSION_METRIC]
         != CHALLENGE_SUPPORT_FILTER_VERSION
         or values[SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC] != 1
+        or (
+            ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+            and (
+                values[GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC] != 1
+                or values[GEOMETRY_TWISTS_OBSERVED_METRIC]
+                != values[GEOMETRY_TWISTS_REQUIRED_METRIC]
+            )
+        )
         or unique != support_eligible + support_rejected
         or values["evaluated_candidate_definitions"] != support_evaluated
         or support_evaluated != support_eligible
@@ -1050,6 +1190,11 @@ def _stage1_lattice_summary(
         SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: metrics.get(
             SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC
         ),
+        **({
+            GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC: metrics.get(
+                GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC
+            ),
+        } if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else {}),
         **{
             name: metrics.get(name)
             for name in _STAGE1_LATTICE_SUMMARY_COUNT_FIELDS
@@ -1125,6 +1270,16 @@ def _aggregate_stage1_lattice_summaries(
         **totals,
         SUPPORT_FILTER_VERSION_METRIC: CHALLENGE_SUPPORT_FILTER_VERSION,
         SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC: 1,
+        **({
+            GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC: 1,
+            GEOMETRY_TWIST_COVERAGE_METRIC: 1.0,
+            GEOMETRY_TWISTS_REQUIRED_METRIC: totals[
+                GEOMETRY_TWISTS_REQUIRED_METRIC
+            ],
+            GEOMETRY_TWISTS_OBSERVED_METRIC: totals[
+                GEOMETRY_TWISTS_OBSERVED_METRIC
+            ],
+        } if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else {}),
         "lattices_completed": len(validated),
         "lattice_failures": 0,
     }
@@ -1872,6 +2027,7 @@ def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]
         audit = check_css_static_eligibility(
             result["ell"], result["m"],
             result["A_terms"], result["B_terms"],
+            geometry=result.get("geometry"),
             reported_n=result.get("n"),
             reported_k=result.get("k"),
         )
@@ -1883,9 +2039,14 @@ def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]
             rejected.append(result)
     return accepted, rejected
 
-# Lattice subsets for staged evaluation
-# Stage 1: small/fast lattices for quick screening
-STAGE1_LATTICES = [(6, 6), (12, 6)]
+# Lattice subsets for staged evaluation.  Legacy keeps its historical scale;
+# the checkpoint-incompatible twisted representation uses one quick probe per
+# formal target length so an elongated-only support family can cross the
+# cascade threshold instead of being rejected on two small rectangular probes.
+if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+    STAGE1_LATTICES = [(12, 6), (10, 10), (12, 12), (6, 30)]
+else:
+    STAGE1_LATTICES = [(6, 6), (12, 6)]
 # These are the defining lattices for the n=72, 90 and 108 final-gate Pareto
 # references.  They run first in the full evaluator so every accepted win class
 # has a durable OpenEvolve -> Humanize route even if a later large lattice uses
@@ -1894,12 +2055,7 @@ FINAL_GATE_PARETO_LATTICES = list(CONTRACT_PARETO_LATTICES)
 # Preserve the historical fitness basis when the persistence-only final-gate
 # lattices are added. This keeps resumed OpenEvolve checkpoint scores and
 # MAP-Elites cells comparable across the source upgrade.
-STAGE2_FITNESS_LATTICES = [
-    (12, 6), (6, 12),
-    (12, 12), (24, 6),
-    (15, 12), (30, 6),
-    (16, 9), (18, 8),
-]
+STAGE2_FITNESS_LATTICES = list(CONTRACT_STAGE2_FITNESS_LATTICES)
 # Stage 2 calls the generator on the complete shared contract. Fitness below
 # remains restricted to STAGE2_FITNESS_LATTICES so resumed MAP-Elites scores
 # stay comparable; the additional lattices are durable discovery probes.
@@ -1907,22 +2063,18 @@ STAGE2_LATTICES = list(EVOLUTION_LATTICES)
 # Deep BP-OSD work stays on the historical fitness/Pareto basis.  A bounded
 # quick preflight covers every contracted target before any blocking distance
 # call, so the external soft timeout cannot make a tail lattice unreachable.
-STAGE2_DEEP_LATTICES = [
-    *FINAL_GATE_PARETO_LATTICES,
-    *(
-        lattice
-        for lattice in STAGE2_FITNESS_LATTICES
-        if lattice not in FINAL_GATE_PARETO_LATTICES
-    ),
-]
+STAGE2_DEEP_LATTICES = list(CONTRACT_STAGE2_DEEP_LATTICES)
 # Historical MILP fitness basis. Keep it separate from the added persistence
 # probes for the same checkpoint-compatibility reason as
 # ``STAGE2_FITNESS_LATTICES`` above.
-STAGE2_MILP_FITNESS_LATTICES = [
-    (12, 6), (6, 12),
-    (12, 12), (24, 6),
-    (15, 12), (30, 6),
-]
+if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+    STAGE2_MILP_FITNESS_LATTICES = list(STAGE2_FITNESS_LATTICES)
+else:
+    STAGE2_MILP_FITNESS_LATTICES = [
+        (12, 6), (6, 12),
+        (12, 12), (24, 6),
+        (15, 12), (30, 6),
+    ]
 # Stage 2 for MILP: drop (16,9) and (18,8) which produce 0 valid x/y-swap codes.
 STAGE2_LATTICES_MILP = [
     *FINAL_GATE_PARETO_LATTICES,
@@ -1971,20 +2123,23 @@ def _pool_map_descriptor(
             lattice = (int(row.get("ell", 0)), int(row.get("m", 0)))
             if lattices is not None and lattice not in lattices:
                 continue
-            candidate = (row.get("A_terms", []), row.get("B_terms", []))
+            candidate = _result_as_candidate(row)
             support_split = _challenge_support_split(candidate)
             if support_split is None:
                 continue
             definition = _definition_key(row)
-            pattern = _classify_pattern(*candidate)
-            term_count = _count_terms(*candidate)
+            a_terms, b_terms, geometry = _candidate_components(candidate)
+            pattern = _classify_pattern(a_terms, b_terms)
+            term_count = _count_terms(a_terms, b_terms)
             support_split_type = CHALLENGE_SUPPORT_SPLITS.index(
                 support_split
             )
             mechanism = classify_algebraic_mechanism(
-                candidate,
+                a_terms,
+                b_terms,
                 ell=lattice[0],
                 m=lattice[1],
+                geometry=geometry,
             )
             relation_type = RELATION_TYPES.index(
                 mechanism["relation_type"]
@@ -1992,6 +2147,11 @@ def _pool_map_descriptor(
             orbit_span_bin = int(mechanism["orbit_span_bin"])
             difference_spectrum_bin = int(
                 mechanism["difference_spectrum_bin"]
+            )
+            geometry_twist_class = _geometry_twist_class(
+                lattice[0],
+                lattice[1],
+                row.get("geometry"),
             )
         except (TypeError, ValueError):
             continue
@@ -2019,6 +2179,9 @@ def _pool_map_descriptor(
             MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC: (
                 difference_spectrum_bin
             ),
+            MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC: (
+                geometry_twist_class
+            ),
         })
 
     positive_rows = [row for row in unique_rows if row["positive_k"]]
@@ -2028,7 +2191,7 @@ def _pool_map_descriptor(
         unique_rows = []
 
     if not unique_rows:
-        return {
+        descriptor = {
             "term_count": 0.0,
             "pattern_type": 0.0,
             MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 0.0,
@@ -2040,6 +2203,9 @@ def _pool_map_descriptor(
             MAP_DESCRIPTOR_POOL_SIZE_METRIC: 0.0,
             MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: 0.0,
         }
+        if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+            descriptor[MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC] = 0.0
+        return descriptor
 
     pattern_counts: dict[float, int] = {}
     for row in unique_rows:
@@ -2083,7 +2249,7 @@ def _pool_map_descriptor(
         for count in pattern_counts.values()
     ) / math.log(MAP_DESCRIPTOR_PATTERN_CARDINALITY)
     structural_entropy = min(1.0, max(0.0, structural_entropy))
-    return {
+    descriptor = {
         "term_count": (
             sum(row["term_count"] for row in unique_rows) / pool_size
         ),
@@ -2107,6 +2273,11 @@ def _pool_map_descriptor(
             dominant_count / pool_size
         ),
     }
+    if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+        descriptor[MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC] = float(
+            dominant_bin(MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC)
+        )
+    return descriptor
 
 
 def _structural_feedback(result: dict) -> str:
@@ -2782,6 +2953,13 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
         ),
         "timestamp": time.time(),
     }
+    canonical_geometry = normalize_geometry(
+        int(result.get("ell", 0) or 0),
+        int(result.get("m", 0) or 0),
+        result.get("geometry"),
+    )
+    if canonical_geometry is not None:
+        record["geometry"] = canonical_geometry
     # Preserve distance semantics across the OpenEvolve -> Humanize handoff.
     # In particular, Humanize must be able to distinguish an unresolved
     # BP/OSD upper bound from exact/certified evidence without inferring that
@@ -3045,6 +3223,8 @@ def _run_evaluation(
     }
     support_rejection_split_counts: dict[tuple[int, int], int] = {}
     support_lattice_splits: set[tuple[int, int, int, int]] = set()
+    geometry_twists_required = 0
+    geometry_twists_observed = 0
 
     for ell, m in lattices:
         try:
@@ -3081,6 +3261,43 @@ def _run_evaluation(
                 lattice_support_splits,
                 lattice_rejection_splits,
             ) = _partition_challenge_support(candidates)
+            if (
+                ACTIVE_GEOMETRY_CONTRACT
+                == TWISTED_TORUS_GEOMETRY_CONTRACT
+            ):
+                required_twists = set(allowed_twists(
+                    ell,
+                    m,
+                    contract=ACTIVE_GEOMETRY_CONTRACT,
+                ))
+                observed_twist_counts: dict[int, int] = {}
+                for candidate in candidates:
+                    twist = _candidate_twist(candidate, ell=ell, m=m)
+                    observed_twist_counts[twist] = (
+                        observed_twist_counts.get(twist, 0) + 1
+                    )
+                observed_twists = set(observed_twist_counts)
+                geometry_twists_required += len(required_twists)
+                geometry_twists_observed += len(
+                    required_twists.intersection(observed_twists)
+                )
+                missing_twists = required_twists - observed_twists
+                underfilled_twists = {
+                    twist: observed_twist_counts.get(twist, 0)
+                    for twist in required_twists
+                    if observed_twist_counts.get(twist, 0)
+                    < TWISTED_MIN_CANDIDATES_PER_TWIST
+                }
+                if missing_twists or underfilled_twists:
+                    errors.append(
+                        f"({ell},{m}): challenge-supported twist quota is "
+                        f"incomplete; missing={sorted(missing_twists)}, "
+                        f"underfilled={dict(sorted(underfilled_twists.items()))}, "
+                        f"required_per_twist="
+                        f"{TWISTED_MIN_CANDIDATES_PER_TWIST}"
+                    )
+                    lattice_failures += 1
+                    continue
             support_weight_eligible += len(candidates)
             support_weight_rejected += len(support_rejected)
             for split, count in lattice_support_splits.items():
@@ -3442,7 +3659,7 @@ def _run_evaluation(
                         )
                     distance_pending_persisted += len(pending_top)
                     top_candidates = [
-                        (r["A_terms"], r["B_terms"]) for r in attempted
+                        _result_as_candidate(r) for r in attempted
                     ]
                     try:
                         # MILP: scale timeout with n.  The adaptive per-logical
@@ -3519,7 +3736,7 @@ def _run_evaluation(
                             )
                         distance_pending_persisted += len(pending_wave)
                         wave_candidates = [
-                            (r["A_terms"], r["B_terms"]) for r in wave
+                            _result_as_candidate(r) for r in wave
                         ]
                         try:
                             wave_results = evaluate_batch(
@@ -3771,6 +3988,14 @@ def _run_evaluation(
         if support_lattice_split_total
         else 1.0
     )
+    geometry_twist_coverage = (
+        geometry_twists_observed / geometry_twists_required
+        if geometry_twists_required
+        else 1.0
+    )
+    geometry_twist_coverage_complete = int(
+        geometry_twists_observed == geometry_twists_required
+    )
 
     return {
         "best_fom": best_fom,
@@ -3824,6 +4049,14 @@ def _run_evaluation(
         SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC: (
             support_split_lattice_coverage
         ),
+        **({
+            GEOMETRY_TWISTS_REQUIRED_METRIC: geometry_twists_required,
+            GEOMETRY_TWISTS_OBSERVED_METRIC: geometry_twists_observed,
+            GEOMETRY_TWIST_COVERAGE_METRIC: geometry_twist_coverage,
+            GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC: (
+                geometry_twist_coverage_complete
+            ),
+        } if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else {}),
         "support_split_counts": {
             f"{a_count}+{b_count}": support_split_counts[
                 (a_count, b_count)
@@ -3938,19 +4171,48 @@ def _require_complete_support_evaluation(
     partition_complete = _exact_nonnegative_preflight_metric(
         metrics, SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC
     )
+    twisted_contract = (
+        ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+    )
+    twists_required = (
+        _exact_nonnegative_preflight_metric(
+            metrics, GEOMETRY_TWISTS_REQUIRED_METRIC
+        )
+        if twisted_contract else 0
+    )
+    twists_observed = (
+        _exact_nonnegative_preflight_metric(
+            metrics, GEOMETRY_TWISTS_OBSERVED_METRIC
+        )
+        if twisted_contract else 0
+    )
+    twist_coverage_complete = (
+        _exact_nonnegative_preflight_metric(
+            metrics, GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC
+        )
+        if twisted_contract else 1
+    )
     if (
         version != CHALLENGE_SUPPORT_FILTER_VERSION
         or partition_complete != 1
         or unique != eligible + rejected
         or evaluated != eligible
         or reported_evaluated != evaluated
+        or (
+            twisted_contract
+            and (
+                twist_coverage_complete != 1
+                or twists_observed != twists_required
+            )
+        )
     ):
         raise CandidateLogWriteError(
             f"{label} did not completely cover the challenge support "
             f"partition: version={version}, unique={unique}, "
             f"eligible={eligible}, rejected={rejected}, "
             f"evaluated={evaluated}, partition_complete="
-            f"{partition_complete}"
+            f"{partition_complete}, twists={twists_observed}/"
+            f"{twists_required}"
         )
 
 
@@ -4008,6 +4270,12 @@ def _support_observability_metrics(metrics: dict) -> dict[str, float]:
         SUPPORT_SPLITS_TOTAL_METRIC,
         SUPPORT_SPLIT_COVERAGE_METRIC,
         SUPPORT_SPLIT_LATTICE_COVERAGE_METRIC,
+        *((
+            GEOMETRY_TWISTS_REQUIRED_METRIC,
+            GEOMETRY_TWISTS_OBSERVED_METRIC,
+            GEOMETRY_TWIST_COVERAGE_METRIC,
+            GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC,
+        ) if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else ()),
         PATTERN_CLASSIFIER_VERSION_METRIC,
     )
     return {name: float(metrics.get(name, 0)) for name in names}
@@ -5501,6 +5769,7 @@ def _replay_stage2_lower_bound_candidate(
     m: int,
     a_terms: tuple[tuple[int, int], ...],
     b_terms: tuple[tuple[int, int], ...],
+    geometry_json: str,
     oracle_json: str,
 ) -> tuple[bool, int | None, int | None]:
     """Rebuild one BB candidate and independently replay its oracle artifact."""
@@ -5508,9 +5777,17 @@ def _replay_stage2_lower_bound_candidate(
     try:
         normalized_a = [tuple(term) for term in a_terms]
         normalized_b = [tuple(term) for term in b_terms]
+        raw_geometry = json.loads(geometry_json)
+        geometry = normalize_geometry(ell, m, raw_geometry)
         validate_terms(ell, m, normalized_a, "A")
         validate_terms(ell, m, normalized_b, "B")
-        code = build_bb_code(ell, m, normalized_a, normalized_b)
+        code = build_bb_code(
+            ell,
+            m,
+            normalized_a,
+            normalized_b,
+            geometry=geometry,
+        )
         hx, hz, lx, lz = get_code_matrices(code)
         oracle = json.loads(oracle_json)
         failures = verify_css_low_weight_oracle(oracle, hx, hz, lx, lz)
@@ -5600,6 +5877,16 @@ def _normalized_stage2_lower_bound_row(row: dict) -> dict | None:
         ))
         a_terms = tuple(sorted(a_terms_list))
         b_terms = tuple(sorted(b_terms_list))
+        canonical_geometry = normalize_geometry(
+            ell, m, row.get("geometry")
+        )
+        geometry_json = json.dumps(
+            canonical_geometry,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
     except (TypeError, ValueError):
         return None
     oracle = row.get("low_weight_oracle")
@@ -5656,6 +5943,7 @@ def _normalized_stage2_lower_bound_row(row: dict) -> dict | None:
         m,
         a_terms,
         b_terms,
+        geometry_json,
         oracle_json,
     )
     if not replayed or rebuilt_n != n or rebuilt_k != k:
@@ -5919,6 +6207,30 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             "support_weight_rejection_splits": {},
             PATTERN_CLASSIFIER_VERSION_METRIC: PATTERN_CLASSIFIER_VERSION,
         }
+        if (
+            ACTIVE_GEOMETRY_CONTRACT
+            == TWISTED_TORUS_GEOMETRY_CONTRACT
+        ):
+            # The compact Stage-1 handoff does not repeat diagnostic q counts,
+            # but its source-bound completion marker was issued only after
+            # `_require_complete_support_evaluation` proved every immutable
+            # stratum.  Reconstruct the deterministic contract total here so
+            # the Stage-2 reuse path enforces the same v3 invariant without
+            # changing the legacy handoff schema.
+            twist_total = sum(
+                len(allowed_twists(
+                    ell,
+                    m,
+                    contract=ACTIVE_GEOMETRY_CONTRACT,
+                ))
+                for ell, m in STAGE2_LATTICES
+            )
+            preflight.update({
+                GEOMETRY_TWISTS_REQUIRED_METRIC: twist_total,
+                GEOMETRY_TWISTS_OBSERVED_METRIC: twist_total,
+                GEOMETRY_TWIST_COVERAGE_METRIC: 1.0,
+                GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC: 1,
+            })
         # The Stage 1 marker proves complete support filtering because its
         # contract id binds this evaluator source, but compact checkpoint
         # markers do not retain the per-split diagnostic counts.
@@ -7520,8 +7832,19 @@ def evaluate_stage2_milp(program_path: str) -> dict:
                 errors.append(f"({ell},{m}): {len(candidates)} candidates, capped to 20000")
                 candidates = candidates[:20000]
 
-            for A_terms, B_terms in candidates:
-                all_quick_tasks.append((ell, m, A_terms, B_terms))
+            normalized_candidates, malformed = _normalize_generated_candidates(
+                candidates,
+                ell=ell,
+                m=m,
+            )
+            errors.extend(malformed)
+            for candidate in normalized_candidates:
+                A_terms, B_terms, geometry = _candidate_components(candidate)
+                canonical_geometry = normalize_geometry(ell, m, geometry)
+                task = (ell, m, A_terms, B_terms)
+                if canonical_geometry is not None:
+                    task = (*task, canonical_geometry)
+                all_quick_tasks.append(task)
         except Exception as e:
             errors.append(f"({ell},{m}): {type(e).__name__}: {e}")
 
@@ -7589,7 +7912,13 @@ def evaluate_stage2_milp(program_path: str) -> dict:
                 top.append(r)
 
         for r in top:
-            milp_tasks.append((ell, m, r["A_terms"], r["B_terms"]))
+            canonical_geometry = normalize_geometry(
+                ell, m, r.get("geometry")
+            )
+            task = (ell, m, r["A_terms"], r["B_terms"])
+            if canonical_geometry is not None:
+                task = (*task, canonical_geometry)
+            milp_tasks.append(task)
 
     # ── Phase 3: Parallel MILP verification ────────────────────────
     # Run all MILP tasks in parallel using ProcessPoolExecutor.
@@ -7606,12 +7935,9 @@ def evaluate_stage2_milp(program_path: str) -> dict:
 
     # Combine: MILP results + k-only results (for codes that didn't get MILP)
     all_results = list(milp_results)
-    milp_keys = {
-        (r["ell"], r["m"], tuple(map(tuple, r["A_terms"])), tuple(map(tuple, r["B_terms"])))
-        for r in milp_results
-    }
+    milp_keys = {_definition_key(r) for r in milp_results}
     for r in all_quick_results:
-        key = (r["ell"], r["m"], tuple(map(tuple, r["A_terms"])), tuple(map(tuple, r["B_terms"])))
+        key = _definition_key(r)
         if key not in milp_keys and r.get("k", 0) > 0:
             all_results.append(r)
 

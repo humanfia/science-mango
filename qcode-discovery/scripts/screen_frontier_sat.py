@@ -20,6 +20,7 @@ import numpy as np
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.css_logical_detector import verify_css_logical_detectors
 from evaluation.distance_milp import get_code_matrices
+from evaluation.geometry import candidate_geometry
 from evaluation.distance_sat import (
     SAT_AUTO_SOLVERS,
     SAT_EVIDENCE_KIND,
@@ -935,6 +936,7 @@ def screen_sat_candidate(
         hz,
         ell=int(candidate["ell"]),
         m=int(candidate["m"]),
+        geometry=candidate_geometry(candidate),
     )
     proof_sectors = (
         ("X",)

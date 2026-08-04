@@ -41,8 +41,9 @@ def write_launch_inputs(
     *,
     portfolio: bool = False,
     legacy_portfolio: bool = False,
+    geometry_portfolio: bool = False,
 ) -> None:
-    assert not (portfolio and legacy_portfolio)
+    assert sum((portfolio, legacy_portfolio, geometry_portfolio)) <= 1
     evolve = repo / "evolve"
     evolve.mkdir(parents=True, exist_ok=True)
     config_text = "evaluator:\n  parallel_evaluations: 1\n"
@@ -61,6 +62,22 @@ def write_launch_inputs(
             "qcode_search_portfolio:\n"
             "  enabled: true\n"
             "  schema_version: 2\n"
+        )
+    elif geometry_portfolio:
+        config_text += (
+            "database:\n"
+            "  num_islands: 5\n"
+            "  feature_dimensions:\n"
+            "    - algebraic_relation_type\n"
+            "    - support_split_type\n"
+            "    - geometry_twist_class\n"
+            "  feature_bins:\n"
+            "    algebraic_relation_type: 5\n"
+            "    support_split_type: 6\n"
+            "    geometry_twist_class: 3\n"
+            "qcode_search_portfolio:\n"
+            "  enabled: true\n"
+            "  schema_version: 3\n"
         )
     elif legacy_portfolio:
         config_text += (
@@ -179,6 +196,7 @@ def write_full_slice_proof(
         allow_nan=False,
     ).encode()
     witness_path = flow_module._slice_witness_path(round_dir)
+    portfolio_contract = None
     if (
         schema_version
         == flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION
@@ -189,9 +207,12 @@ def write_full_slice_proof(
             )
         )
     else:
-        portfolio_enabled = flow_module._search_portfolio_enabled_from_config(
+        portfolio_contract = (
+            flow_module._search_portfolio_contract_from_config(
             Path(launch["config"]["path"])
+            )
         )
+        portfolio_enabled = portfolio_contract is not None
     attempts = [
         {"iteration": i, "island_id": 0, "result": "future"}
         for i in range(base_iteration + 1, base_iteration + count + 1)
@@ -202,6 +223,10 @@ def write_full_slice_proof(
         == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
         and portfolio_enabled
     ):
+        assert portfolio_contract is not None
+        portfolio_schema, feature_dimensions, _feature_bins = (
+            portfolio_contract
+        )
         policy = flow_module._adaptive_mutation_policy_from_context(
             Path(launch["context"]["path"])
         )
@@ -238,7 +263,7 @@ def write_full_slice_proof(
                 "island_id": island,
                 "result": "future",
                 "search_portfolio_schema_version": (
-                    flow_module.SEARCH_PORTFOLIO_SCHEMA_VERSION
+                    portfolio_schema
                 ),
                 "search_policy_sha256": policy_sha256,
                 "search_regime_status": regime["status"],
@@ -255,11 +280,11 @@ def write_full_slice_proof(
                 "search_role_submission_counts": role_counts,
             })
         search_portfolio = {
-            "schema_version": flow_module.SEARCH_PORTFOLIO_SCHEMA_VERSION,
+            "schema_version": portfolio_schema,
             "island_count": flow_module.SEARCH_PORTFOLIO_ISLAND_COUNT,
             "roles": list(flow_module.SEARCH_PORTFOLIO_ROLES),
             "feature_dimensions": list(
-                flow_module.SEARCH_PORTFOLIO_FEATURE_DIMENSIONS
+                feature_dimensions
             ),
             "regime_status": regime["status"],
             "policy_sha256": policy_sha256,
@@ -877,6 +902,54 @@ def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
         atomic_write_json(witness_path, changed)
         with pytest.raises(RoundTransactionError):
             validate()
+
+
+def test_portfolio_witness_v5_accepts_geometry_schema_v3(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo, geometry_portfolio=True)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="geometry-portfolio-witness-v5",
+        max_rounds=12,
+        iterations_per_round=5,
+        milp_top=0,
+        search_representation_id="css-bb-twisted-torus-generator-v1",
+        search_regime_policy_version=3,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    flow.candidate_log.write_bytes(jsonl(candidate(58)))
+    checkpoint = write_checkpoint(repo, config.run_id, 5)
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+    witness_path = flow_module._slice_witness_path(round_dir)
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output, checkpoint,
+    )
+
+    accepted = flow_module._validate_slice_witness(
+        witness_path,
+        config,
+        None,
+        result,
+        transaction["launch_binding"],
+        transaction["invocation_binding"],
+        flow.candidate_log,
+        int(transaction["candidate_start_offset"]),
+    )
+    assert accepted["search_portfolio"]["schema_version"] == 3
+    assert accepted["search_geometry_contract"] == "twisted-torus-v1"
+    assert accepted["search_portfolio"]["feature_dimensions"] == [
+        "algebraic_relation_type",
+        "support_split_type",
+        "geometry_twist_class",
+    ]
+    assert {
+        attempt["search_portfolio_schema_version"]
+        for attempt in accepted["submission_attempts"]
+    } == {3}
 
 
 def test_schema_v4_portfolio_uses_only_frozen_legacy_semantics(tmp_path):
@@ -2478,8 +2551,25 @@ def test_prepared_transaction_rejects_frozen_launch_tampering(
         flow._load_transaction(state, 1, round_dir)
 
 
+@pytest.mark.parametrize(
+    ("dependency_field", "relative_path"),
+    (
+        pytest.param(
+            "evaluation_evaluator",
+            "evaluation/evaluator.py",
+            id="evaluator",
+        ),
+        pytest.param(
+            "evaluation_search_contract",
+            "evaluation/search_contract.py",
+            id="representation-geometry-contract",
+        ),
+    ),
+)
 def test_prepared_transaction_rebinds_changed_sources_and_archives_old_attempt(
     tmp_path,
+    dependency_field,
+    relative_path,
 ):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -2518,14 +2608,14 @@ def test_prepared_transaction_rebinds_changed_sources_and_archives_old_attempt(
     state = flow.store.initialize(config.serializable())
     round_dir = flow.store.round_dir(1)
     transaction = flow._prepare_transaction(state, 1, round_dir)
-    old_evaluator = transaction["launch_binding"]["evaluation_evaluator"]
+    old_dependency = transaction["launch_binding"][dependency_field]
     flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
     flow.candidate_log.write_bytes(jsonl(old_row))
     old_checkpoint = write_checkpoint(repo, config.run_id, 3)
     write_full_slice_proof(flow, round_dir, old_checkpoint, None)
 
-    evaluator = repo / "evaluation/evaluator.py"
-    evaluator.write_text("# upgraded evaluator source\n")
+    dependency = repo / relative_path
+    dependency.write_text(f"# upgraded {dependency_field} source\n")
     rows = flow._capture_round_candidates(state, 1, round_dir)
 
     assert rows == [new_row]
@@ -2537,14 +2627,17 @@ def test_prepared_transaction_rebinds_changed_sources_and_archives_old_attempt(
     assert len(manifest["evolution_binding_rebinds"]) == 1
     rebind = manifest["evolution_binding_rebinds"][0]
     assert rebind["status"] == "rebound"
-    assert "launch:evaluation_evaluator" in rebind["reason"]
+    assert f"launch:{dependency_field}" in rebind["reason"]
     assert (
-        rebind["old_launch_binding"]["evaluation_evaluator"]
-        == old_evaluator
+        rebind["old_launch_binding"][dependency_field]
+        == old_dependency
     )
     assert (
-        rebind["new_launch_binding"]["evaluation_evaluator"]
-        == flow_module._file_descriptor(evaluator, "current evaluator")
+        rebind["new_launch_binding"][dependency_field]
+        == flow_module._file_descriptor(
+            dependency,
+            f"current {dependency_field}",
+        )
     )
     assert rebind["old_binding_sha256"] != rebind["new_binding_sha256"]
     assert rebind["abandoned_ranges_after"] == 1
@@ -2556,6 +2649,146 @@ def test_prepared_transaction_rebinds_changed_sources_and_archives_old_attempt(
         round_dir / "abandoned-candidate-complete-001.jsonl"
     ).read_bytes() == jsonl(old_row)
     assert manifest["abandoned_checkpoints"][0]["attempt"] == 1
+
+
+def test_geometry_portfolio_invocation_and_completion_self_describe_contract(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo, geometry_portfolio=True)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="geometry-contract-witness",
+        max_rounds=12,
+        iterations_per_round=3,
+        milp_top=0,
+        search_representation_id="css-bb-twisted-torus-generator-v1",
+        search_regime_policy_version=3,
+    )
+
+    def runner(_config, _state, runner_round):
+        flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+        flow.candidate_log.write_bytes(jsonl(candidate(41)))
+        checkpoint = write_checkpoint(repo, config.run_id, 3)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config,
+        reviewer=Reviewer(),
+        evolution_runner=runner,
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    assert flow._capture_round_candidates(state, 1, round_dir) == [
+        candidate(41),
+    ]
+
+    manifest = json.loads(
+        (round_dir / "evolution-transaction.json").read_text()
+    )
+    invocation = manifest["invocation_binding"]
+    assert invocation["search_geometry_contract"] == "twisted-torus-v1"
+    witness = json.loads(flow_module._slice_witness_path(round_dir).read_text())
+    marker = json.loads(
+        flow_module._completion_marker_path(round_dir).read_text()
+    )
+    assert witness["search_geometry_contract"] == "twisted-torus-v1"
+    assert marker["search_geometry_contract"] == "twisted-torus-v1"
+
+
+def test_explicit_legacy_representation_keeps_exact_legacy_invocation_shape(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo, portfolio=True)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="legacy-contract-shape",
+        iterations_per_round=3,
+        milp_top=0,
+        search_representation_id="css-bb-cover-algebra-generator-v2",
+        search_regime_policy_version=2,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    transaction = flow._prepare_transaction(
+        state,
+        1,
+        flow.store.round_dir(1),
+    )
+
+    assert set(transaction["invocation_binding"]) == set(
+        flow_module.EVOLUTION_INVOCATION_FIELDS
+    )
+    assert "search_geometry_contract" not in transaction[
+        "invocation_binding"
+    ]
+
+
+@pytest.mark.parametrize(
+    ("geometry_portfolio", "portfolio", "representation_id", "message"),
+    (
+        (
+            True,
+            False,
+            "css-bb-twisted-torus-generator-vl",
+            "requires a known twisted-torus",
+        ),
+        (
+            True,
+            False,
+            "css-bb-cover-algebra-generator-v2",
+            "schema v3 requires the twisted-torus",
+        ),
+        (
+            False,
+            True,
+            "css-bb-twisted-torus-generator-v1",
+            "requires geometry-aware search portfolio schema v3",
+        ),
+    ),
+)
+def test_representation_geometry_schema_mismatch_fails_before_child(
+    tmp_path,
+    geometry_portfolio,
+    portfolio,
+    representation_id,
+    message,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(
+        repo,
+        geometry_portfolio=geometry_portfolio,
+        portfolio=portfolio,
+    )
+    runner_calls = []
+
+    def forbidden_runner(*_args, **_kwargs):
+        runner_calls.append(True)
+        raise AssertionError("invalid geometry contract launched a child")
+
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="invalid-geometry-contract",
+        max_rounds=12,
+        iterations_per_round=3,
+        milp_top=0,
+        search_representation_id=representation_id,
+        search_regime_policy_version=3,
+    )
+    flow = HumanizeFlow(
+        config,
+        reviewer=Reviewer(),
+        evolution_runner=forbidden_runner,
+    )
+    state = flow.store.initialize(config.serializable())
+    with pytest.raises(flow_module.RoundTransactionError, match=message):
+        flow._capture_round_candidates(state, 1, flow.store.round_dir(1))
+    assert runner_calls == []
 
 
 def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
@@ -2592,6 +2825,7 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
     manifest = json.loads(manifest_path.read_text())
     oldest_launch = dict(manifest["launch_binding"])
     for field in (
+        "evaluation_geometry",
         "evaluation_final_gate",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
@@ -2601,6 +2835,7 @@ def test_unbound_prepared_transaction_migrates_allowlisted_legacy_binding(
         oldest_launch.pop(field)
     previous_launch = dict(manifest["launch_binding"])
     for field in (
+        "evaluation_geometry",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
         "evaluation_structural_features",
@@ -2709,7 +2944,7 @@ def test_completed_round_accepts_only_immediately_previous_dependency_shape(
     transaction = flow._prepare_transaction(state, 1, round_dir)
     current_launch = transaction["launch_binding"]
     previous_launch = dict(current_launch)
-    previous_launch.pop("evaluation_structural_features")
+    previous_launch.pop("evaluation_geometry")
 
     with pytest.raises(
         flow_module.RoundTransactionError,
@@ -2770,6 +3005,7 @@ def test_prepared_binding_history_rejects_legacy_schema_downgrade(
     invocation = manifest["invocation_binding"]
     previous_launch = dict(manifest["launch_binding"])
     for field in (
+        "evaluation_geometry",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
         "evaluation_structural_features",

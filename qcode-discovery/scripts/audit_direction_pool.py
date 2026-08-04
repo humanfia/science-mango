@@ -47,6 +47,7 @@ from evaluation.process_hard_wall import (
     positive_wall_timeout,
     start_isolated_call,
 )
+from evaluation.geometry import candidate_geometry
 
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -59,7 +60,7 @@ DEFAULT_STAGE3_BACKEND = "legacy-directions"
 DEFAULT_SAT_CARDINALITY_ENCODING = "kmtotalizer"
 RECOVERABLE_INCOMPLETE_EXIT_CODE = 2
 CONSTRUCTION_FIELDS = (
-    "source", "trial", "ansatz", "ell", "m", "A_terms", "B_terms",
+    "source", "trial", "ansatz", "geometry", "ell", "m", "A_terms", "B_terms",
     "C_terms", "D_terms", "n", "k", "required_distance",
     "max_row_weight", "max_qubit_degree", "tanner_components", "novelty",
     "canonical_digest",
@@ -151,6 +152,11 @@ def candidate_from_stage2(row: Mapping[str, Any]) -> dict[str, Any]:
     ]
     if missing:
         raise ValueError("Stage 2 row lacks: " + ", ".join(missing))
+    geometry = candidate_geometry(candidate)
+    if geometry is None:
+        candidate.pop("geometry", None)
+    else:
+        candidate["geometry"] = geometry
     if candidate.get("C_terms") or candidate.get("D_terms"):
         raise ValueError("Stage 3 pool currently supports CSS candidates only")
     return candidate
@@ -355,6 +361,7 @@ def expected_proof_units(candidate: Mapping[str, Any], backend: str) -> int:
                 np.asarray(code.matrix_z, dtype=np.uint8) & 1,
                 ell=int(candidate["ell"]),
                 m=int(candidate["m"]),
+                geometry=candidate_geometry(candidate),
             )
             symmetry = verify_bb_translation_symmetry(dict(candidate))
         except Exception:
@@ -403,6 +410,8 @@ def twobga_solver_eligible(candidate: Mapping[str, Any]) -> bool:
     """
 
     try:
+        if candidate_geometry(candidate) is not None:
+            return False
         code = build_candidate_code(dict(candidate))
         problem = derive_twobga_subsystem_problem(
             np.asarray(code.matrix_x, dtype=np.uint8) & 1,

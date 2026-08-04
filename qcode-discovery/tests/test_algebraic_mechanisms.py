@@ -6,6 +6,14 @@ from evaluation.algebraic_mechanisms import (
     RELATION_TYPES,
     classify_algebraic_mechanism,
 )
+from evaluation.geometry import reduce_coordinate
+
+
+TWIST_Q2 = {
+    "schema_version": 1,
+    "family": "twisted_torus",
+    "twist": 2,
+}
 
 
 def test_affine_orbit_accepts_candidate_mapping_and_is_order_stable():
@@ -75,6 +83,83 @@ def test_torus_descriptor_is_invariant_under_every_common_translation(
                 m=m,
             )
             assert translated == baseline
+
+
+def test_explicit_q0_preserves_rectangular_descriptor():
+    candidate = {
+        "ell": 6,
+        "m": 8,
+        "A_terms": [(5, 7), (0, 7), (5, 0)],
+        "B_terms": [(2, 3), (3, 3), (2, 4)],
+    }
+    explicit_zero = {
+        **candidate,
+        "geometry": {
+            "schema_version": 1,
+            "family": "twisted_torus",
+            "twist": 0,
+        },
+    }
+
+    assert classify_algebraic_mechanism(explicit_zero) == (
+        classify_algebraic_mechanism(candidate)
+    )
+
+
+def test_twisted_descriptor_uses_quotient_translation_across_x_wrap():
+    ell, m = 4, 6
+    a_terms = [(3, 5), (0, 1), (2, 2)]
+    b_terms = [
+        reduce_coordinate(ell, m, x + 1, y, TWIST_Q2)
+        for x, y in a_terms
+    ]
+    twisted = classify_algebraic_mechanism(
+        a_terms,
+        b_terms,
+        ell=ell,
+        m=m,
+        geometry=TWIST_Q2,
+    )
+    rectangular = classify_algebraic_mechanism(
+        a_terms, b_terms, ell=ell, m=m,
+    )
+
+    assert twisted["relation_type"] == "affine_orbit"
+    assert rectangular["relation_type"] != "affine_orbit"
+
+
+def test_twisted_descriptor_is_invariant_under_every_quotient_translation():
+    ell, m = 4, 6
+    a_terms = [(3, 5), (0, 1), (2, 2)]
+    b_terms = [(0, 0), (1, 3), (3, 4)]
+    baseline = classify_algebraic_mechanism({
+        "ell": ell,
+        "m": m,
+        "geometry": TWIST_Q2,
+        "A_terms": a_terms,
+        "B_terms": b_terms,
+    })
+    for shift_x in range(ell):
+        for shift_y in range(m):
+            translated_a = [
+                reduce_coordinate(
+                    ell, m, x + shift_x, y + shift_y, TWIST_Q2,
+                )
+                for x, y in a_terms
+            ]
+            translated_b = [
+                reduce_coordinate(
+                    ell, m, x + shift_x, y + shift_y, TWIST_Q2,
+                )
+                for x, y in b_terms
+            ]
+            assert classify_algebraic_mechanism(
+                translated_a,
+                translated_b,
+                ell=ell,
+                m=m,
+                geometry=TWIST_Q2,
+            ) == baseline
 
 
 def test_relation_and_geometry_bins_are_invariant_under_a_b_exchange():

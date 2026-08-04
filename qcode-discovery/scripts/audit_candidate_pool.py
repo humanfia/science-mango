@@ -37,6 +37,7 @@ from evaluation.failure_disposition import (
     validate_failure_disposition,
 )
 from evaluation.final_gate import classify_win, minimum_winning_distance
+from evaluation.geometry import candidate_geometry, geometry_identity
 from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
     positive_wall_timeout,
@@ -447,17 +448,23 @@ def _authoritative_css_geometry(
         raise ValueError("ell and m must be positive")
     a_terms = _normalise_bb_terms(normalized["A_terms"], "A")
     b_terms = _normalise_bb_terms(normalized["B_terms"], "B")
+    geometry = candidate_geometry(normalized)
     validate_terms(ell, m, a_terms, "A")
     validate_terms(ell, m, b_terms, "B")
-    construction_sha256 = _json_sha256({
+    construction_payload = {
         "ell": ell,
         "m": m,
         "A_terms": a_terms,
         "B_terms": b_terms,
-    })
+    }
+    if geometry is not None:
+        construction_payload["geometry"] = geometry
+    construction_sha256 = _json_sha256(construction_payload)
     parameters = cache.get(construction_sha256)
     if parameters is None:
-        code = build_bb_code(ell, m, a_terms, b_terms)
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=geometry,
+        )
         rebuilt_n, rebuilt_k = get_code_params_fast(code)
         if type(rebuilt_n) is not int or type(rebuilt_k) is not int:
             raise ValueError(
@@ -470,6 +477,22 @@ def _authoritative_css_geometry(
     updated = dict(normalized)
     reported_n = updated.get("n")
     reported_k = updated.get("k")
+    geometry_audit = {
+        "reconstructed": True,
+        "construction_sha256": construction_sha256,
+        "n": rebuilt_n,
+        "k": rebuilt_k,
+        "reported_n": reported_n,
+        "reported_k": reported_k,
+        "reported_n_matches": (
+            type(reported_n) is int and reported_n == rebuilt_n
+        ),
+        "reported_k_matches": (
+            type(reported_k) is int and reported_k == rebuilt_k
+        ),
+    }
+    if geometry is not None:
+        geometry_audit["geometry"] = geometry_identity(ell, m, geometry)
     updated.update({
         "ell": ell,
         "m": m,
@@ -477,21 +500,12 @@ def _authoritative_css_geometry(
         "B_terms": [list(term) for term in b_terms],
         "n": rebuilt_n,
         "k": rebuilt_k,
-        _AUTHORITATIVE_GEOMETRY: {
-            "reconstructed": True,
-            "construction_sha256": construction_sha256,
-            "n": rebuilt_n,
-            "k": rebuilt_k,
-            "reported_n": reported_n,
-            "reported_k": reported_k,
-            "reported_n_matches": (
-                type(reported_n) is int and reported_n == rebuilt_n
-            ),
-            "reported_k_matches": (
-                type(reported_k) is int and reported_k == rebuilt_k
-            ),
-        },
+        _AUTHORITATIVE_GEOMETRY: geometry_audit,
     })
+    if geometry is None:
+        updated.pop("geometry", None)
+    else:
+        updated["geometry"] = geometry
     return updated, rebuilt_n, rebuilt_k
 
 
@@ -773,7 +787,7 @@ def rank_candidate_files(
 
         # Stage 1 search rows intentionally contain distance and parameter
         # estimates. Derive n, k, and the proof threshold from the rebuilt
-        # construction; caller-supplied geometry is provenance only.
+        # construction; caller-supplied derived parameters are provenance only.
         # Registry/canonical metadata came from an external JSONL row and is
         # not authenticated.  In particular it must not merge two distinct
         # constructions before Stage 2 has rebuilt both of them.
@@ -1269,6 +1283,10 @@ def rank_candidate_files_with_structural_cache(
                 name: css_rows[representative_index][name]
                 for name in ("ell", "m", "A_terms", "B_terms")
             }
+            if "geometry" in css_rows[representative_index]:
+                representative["geometry"] = css_rows[
+                    representative_index
+                ]["geometry"]
             marker.update({
                 "operation": "within_pool_isomorphism",
                 "pair_input_sha256": evidence["input_sha256"],
@@ -1465,6 +1483,7 @@ def _construction_candidate(
         "source",
         "trial",
         "ansatz",
+        "geometry",
         "ell",
         "m",
         "A_terms",
@@ -2139,6 +2158,7 @@ def _novelty_source_fingerprint() -> str:
     paths = {
         Path(__file__).resolve(),
         PROJECT / "evaluation" / "bb_code.py",
+        PROJECT / "evaluation" / "geometry.py",
         PROJECT / "evaluation" / "registry.py",
         PROJECT / "evaluation" / "structural_dedup.py",
         PROJECT / "evaluation" / "tanner_equivalence.py",
@@ -2308,9 +2328,12 @@ def _canonicalize_from_structural_screen(
             raise ValueError("ell and m must be positive")
         a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
         b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
+        geometry = candidate_geometry(candidate)
         validate_terms(ell, m, a_terms, "A")
         validate_terms(ell, m, b_terms, "B")
-        code = build_bb_code(ell, m, a_terms, b_terms)
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=geometry,
+        )
         replay_n, replay_k = get_code_params_fast(code)
     except (KeyError, TypeError, ValueError, OverflowError) as exc:
         raise NoveltyReplayError(
@@ -2413,7 +2436,10 @@ def resolve_structural_snapshot_row_for_audit(
             )
         representative = dict(marker["representative"])
         if (
-            set(representative) != {"ell", "m", "A_terms", "B_terms"}
+            set(representative) not in (
+                {"ell", "m", "A_terms", "B_terms"},
+                {"geometry", "ell", "m", "A_terms", "B_terms"},
+            )
             or structural_screen_input_sha256(representative)
             != marker["representative_input_sha256"]
         ):
@@ -2649,9 +2675,16 @@ def canonicalize_for_audit(
         raise ValueError("ell and m must be positive")
     a_terms = _normalise_bb_terms(candidate["A_terms"], "A")
     b_terms = _normalise_bb_terms(candidate["B_terms"], "B")
+    geometry = candidate_geometry(candidate)
     validate_terms(ell, m, a_terms, "A")
     validate_terms(ell, m, b_terms, "B")
-    code = code_builder(ell, m, a_terms, b_terms)
+    code = (
+        code_builder(ell, m, a_terms, b_terms)
+        if geometry is None
+        else code_builder(
+            ell, m, a_terms, b_terms, geometry=geometry,
+        )
+    )
     try:
         rebuilt_n, rebuilt_k = get_code_params_fast(code)
     except (AttributeError, TypeError, ValueError, OverflowError) as exc:
@@ -2682,6 +2715,10 @@ def canonicalize_for_audit(
             type(reported_k) is int and reported_k == rebuilt_k
         ),
     }
+    if geometry is not None:
+        selection_geometry["geometry"] = geometry_identity(
+            ell, m, geometry,
+        )
     prior_geometry = updated.get(_AUTHORITATIVE_GEOMETRY)
     if (
         isinstance(prior_geometry, Mapping)

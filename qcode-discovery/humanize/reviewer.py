@@ -10,7 +10,12 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from evaluation.search_contract import EVOLUTION_LATTICES
+from evaluation.geometry import candidate_geometry
+from evaluation.search_contract import (
+    LEGACY_GEOMETRY_CONTRACT,
+    TWISTED_TORUS_GEOMETRY_CONTRACT,
+    lattices_for_geometry_contract,
+)
 
 from .state import candidate_terminal_negative
 
@@ -38,6 +43,7 @@ _SEARCH_ACTION_DIMENSIONS = (
     "algebraic_relation_type",
     "support_split_type",
     "orbit_span_bin",
+    "geometry_twist_class",
     "mutation_tactic",
 )
 _SEARCH_ACTION_DIRECTIONS = ("increase", "decrease", "maintain")
@@ -72,6 +78,7 @@ _SEARCH_ACTION_VALUES = {
         {"2+2", "2+3", "3+2", "2+4", "4+2", "3+3"}
     ),
     "orbit_span_bin": frozenset({"0", "1", "2"}),
+    "geometry_twist_class": frozenset({"0", "1", "2"}),
     "mutation_tactic": frozenset(
         {
             "novel_structure_exploration",
@@ -501,6 +508,7 @@ def validate_review(
 
 _ADVISORY_ROW_FIELDS = (
     "candidate_key",
+    "geometry",
     "ell",
     "m",
     "n",
@@ -531,6 +539,7 @@ _ADVISORY_ROW_FIELDS = (
 
 _TRUSTED_EXACT_COMPACT_FIELDS = (
     "candidate_key",
+    "geometry",
     "ell",
     "m",
     "n",
@@ -584,6 +593,11 @@ _ROUND_HISTORY_COMPACT_FIELDS = (
 )
 _TRUSTED_EXACT_DETAILS_LIMIT = 20
 _MEMORY_EXCERPT_LIMIT = 12000
+_REVIEWABLE_EVOLUTION_LATTICES = frozenset(
+    lattices_for_geometry_contract(LEGACY_GEOMETRY_CONTRACT)
+) | frozenset(
+    lattices_for_geometry_contract(TWISTED_TORUS_GEOMETRY_CONTRACT)
+)
 
 
 def _negative_witness_geometry(
@@ -648,7 +662,7 @@ def _negative_witness_geometry(
     if (
         type(ell) is not int
         or type(m) is not int
-        or (ell, m) not in EVOLUTION_LATTICES
+        or (ell, m) not in _REVIEWABLE_EVOLUTION_LATTICES
         or type(n) is not int
         or n != 2 * ell * m
         or type(k) is not int
@@ -702,7 +716,13 @@ def _negative_witness_geometry(
 
         normalized_a = strict_terms(a_terms, "A")
         normalized_b = strict_terms(b_terms, "B")
-        code = build_bb_code(ell, m, normalized_a, normalized_b)
+        code = build_bb_code(
+            ell,
+            m,
+            normalized_a,
+            normalized_b,
+            geometry=row.get("geometry"),
+        )
         if int(code.num_qudits) != n or int(code.dimension) != k:
             return None
         hx, hz, lx, lz = get_code_matrices(code)
@@ -738,7 +758,7 @@ def _negative_witness_geometry(
         if type(ell) is int and type(m) is int and ell > 0 and m > 0
         else None
     )
-    return {
+    replayed = {
         "semantics": "negative_upper_bound_witness",
         "side": side,
         "weight": weight,
@@ -764,6 +784,10 @@ def _negative_witness_geometry(
             for index in support
         ],
     }
+    geometry = candidate_geometry(row)
+    if geometry is not None:
+        replayed["geometry"] = geometry
+    return replayed
 
 
 def replay_search_oracle_witness_geometry(

@@ -250,6 +250,54 @@ def test_bound_cache_replays_witness_but_downgrades_exact_claim(tmp_path):
     )
     assert cached["milp_cache_replayed"] is True
     assert cached["stage"] == "milp_cache_witness_upper_bound"
+    assert "geometry" not in cached
+
+
+def test_nonzero_geometry_survives_validated_cache_reconstruction(tmp_path):
+    geometry = {
+        "schema_version": 1,
+        "family": "twisted_torus",
+        "twist": 3,
+    }
+    quick = evaluate_candidate_milp(
+        12,
+        6,
+        _A,
+        _B,
+        geometry=geometry,
+        quick=True,
+    )
+    result = evaluate_candidate_milp(
+        12,
+        6,
+        _A,
+        _B,
+        geometry=geometry,
+        milp_early_stop=quick["d_symplectic"],
+    )
+    assert result["stage"] == "symplectic_low_d"
+    path = tmp_path / "twisted.jsonl"
+    _write(
+        path,
+        _record(result, cutoff=result["d"]),
+    )
+
+    cached = next(iter(_load_milp_cache(
+        str(path),
+        milp_timeout_per_logical=30,
+        milp_total_timeout=120,
+        milp_early_stop=result["d"],
+        requested_keys={_milp_cache_key(
+            12,
+            6,
+            _A,
+            _B,
+            geometry=geometry,
+        )},
+    ).values()))
+
+    assert cached["stage"] == "milp_cache_witness_upper_bound"
+    assert cached["geometry"] == geometry
 
 
 def test_cache_binding_rejects_source_and_budget_changes(tmp_path):

@@ -20,11 +20,14 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from evaluation.geometry import normalize_geometry
+
 
 SCHEMA_VERSION = 1
 _BOUND_KEYS = ("mip_dual_bound", "dual_bound", "best_objective_bound")
 _STRUCTURAL_FIELDS = (
     "code_type",
+    "geometry",
     "ell",
     "m",
     "A_terms",
@@ -116,6 +119,16 @@ def _structural_digest(record: Mapping[str, Any]) -> tuple[str, str]:
     payload: dict[str, Any] = {}
     for field in _STRUCTURAL_FIELDS:
         if field not in record or record[field] is None:
+            continue
+        if field == "geometry":
+            geometry = normalize_geometry(
+                record.get("ell"),
+                record.get("m"),
+                record[field],
+            )
+            if geometry is None:
+                continue
+            payload[field] = geometry
             continue
         payload[field] = _canonicalize(
             record[field],

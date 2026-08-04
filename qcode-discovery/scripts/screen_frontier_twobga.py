@@ -23,6 +23,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from evaluation.distance_milp import get_code_matrices
+from evaluation.geometry import candidate_geometry, geometry_identity
 from evaluation.distance_sat import (
     SAT_EVIDENCE_KIND,
     SAT_EVIDENCE_SCHEMA_VERSION,
@@ -289,15 +290,20 @@ def validate_twobga_stage3_artifact(
         artifact.get("schema_version") != TWOBGA_STAGE3_SCHEMA_VERSION
         or artifact.get("gate") != TWOBGA_STAGE3_GATE
         or artifact.get("backend") != TWOBGA_STAGE3_BACKEND
-        or artifact.get("status") not in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}
         or artifact.get("artifact_sha256")
         != _canonical_sha256(artifact, omit="artifact_sha256")
     ):
-        raise ValueError("not a terminal 2BGA subsystem Stage 3 artifact")
+        raise ValueError("not a sealed 2BGA subsystem Stage 3 artifact")
     candidate = artifact.get("candidate")
     if not isinstance(candidate, Mapping):
         raise ValueError("2BGA Stage 3 candidate must be an object")
     claim = dict(candidate)
+    if candidate_geometry(claim) is not None:
+        raise ValueError(
+            "twisted-torus candidates are outside the rectangular 2BGA theorem"
+        )
+    if artifact.get("status") not in {"THRESHOLD_PROVEN", "EXACT_PROVEN"}:
+        raise ValueError("not a terminal 2BGA subsystem Stage 3 artifact")
     code = build_candidate_code(claim)
     parameters = validate_candidate_parameters(claim, code)
     required = parameters["required_distance"]
@@ -620,6 +626,32 @@ def screen_twobga_candidate(
         np.asarray(value, dtype=np.uint8) & 1
         for value in get_code_matrices(code)
     )
+    geometry = candidate_geometry(candidate)
+    if geometry is not None:
+        artifact = _artifact(
+            candidate,
+            theorem_report={
+                "schema_version": 1,
+                "method": "rectangular-twobga-theorem-domain-v1",
+                "eligible": False,
+                "eligibility_checks": {
+                    "rectangular_geometry": False,
+                },
+                "ineligible_reason": "twisted_torus_not_proven_by_theorem",
+                "geometry": geometry_identity(
+                    int(candidate["ell"]),
+                    int(candidate["m"]),
+                    geometry,
+                ),
+            },
+            units={},
+            threshold_only=threshold_only,
+            started=started,
+            original_logical_detector=None,
+            original_translation_symmetry=None,
+        )
+        _atomic_write_json(output, artifact)
+        return artifact
     problem = derive_twobga_subsystem_problem(
         hx,
         hz,

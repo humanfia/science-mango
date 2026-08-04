@@ -23,6 +23,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
+from evaluation.geometry import candidate_geometry
+
 from .state import code_key
 
 
@@ -692,7 +694,9 @@ def _replay_embedded_direction_witness(
             replay_css_direction_witness,
         )
 
-        code = build_bb_code(ell, m, a_terms, b_terms)
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=candidate_geometry(row),
+        )
         n = _strict_int(row.get("n"), "n", minimum=1)
         k = _strict_int(row.get("k"), "k", minimum=1)
         if int(code.num_qudits) != n or int(code.dimension) != k:
@@ -736,7 +740,9 @@ def _rebuild_candidate_code(
         from evaluation.bb_code import build_bb_code
         from evaluation.distance_milp import get_code_matrices
 
-        code = build_bb_code(ell, m, a_terms, b_terms)
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=candidate_geometry(row),
+        )
         hx, hz, lx, lz = get_code_matrices(code)
     except Exception as exc:
         raise AuditStateError(
@@ -1255,6 +1261,9 @@ def _validated_formal_checkpoint(
         "A_terms": _normalise_terms(row.get("A_terms"), "A_terms"),
         "B_terms": _normalise_terms(row.get("B_terms"), "B_terms"),
     }
+    geometry = candidate_geometry(row)
+    if geometry is not None:
+        expected_identity["geometry"] = geometry
     if binding.get("candidate_identity") != expected_identity:
         raise AuditStateError("checkpoint candidate identity mismatch")
     if binding.get("n") != n or binding.get("k") != k:
@@ -1544,12 +1553,16 @@ def _canonical_css_digest_for_definition(
     m: int,
     a_terms: tuple[tuple[int, int], ...],
     b_terms: tuple[tuple[int, int], ...],
+    geometry_json: str,
 ) -> str:
     """Rebuild one CSS BB code and return its authoritative Tanner digest."""
     from evaluation.bb_code import build_bb_code
     from evaluation.structural_dedup import canonical_digest
 
-    code = build_bb_code(ell, m, list(a_terms), list(b_terms))
+    geometry = json.loads(geometry_json)
+    code = build_bb_code(
+        ell, m, list(a_terms), list(b_terms), geometry=geometry,
+    )
     digest = canonical_digest(code)
     if (
         not isinstance(digest, str)
@@ -1566,6 +1579,7 @@ def _verified_structural_digest(
     m: int,
     a_terms: list[list[int]],
     b_terms: list[list[int]],
+    geometry: Mapping[str, Any] | None,
     reported_digest: Any,
 ) -> str | None:
     """Return only a digest independently derived from the candidate.
@@ -1586,6 +1600,11 @@ def _verified_structural_digest(
             m,
             tuple(tuple(term) for term in a_terms),
             tuple(tuple(term) for term in b_terms),
+            json.dumps(
+                geometry,
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
         )
     except Exception as exc:
         raise AuditStateError(
@@ -1612,6 +1631,7 @@ def authoritative_candidate_digest(row: Mapping[str, Any]) -> str:
     m = _strict_int(row.get("m"), "m", minimum=1)
     a_terms = _normalise_terms(row.get("A_terms"), "A_terms")
     b_terms = _normalise_terms(row.get("B_terms"), "B_terms")
+    geometry = candidate_geometry(row)
     novelty = row.get("structural_novelty")
     if novelty is not None and not isinstance(novelty, Mapping):
         raise AuditStateError("structural_novelty must be an object")
@@ -1621,6 +1641,7 @@ def authoritative_candidate_digest(row: Mapping[str, Any]) -> str:
         m=m,
         a_terms=a_terms,
         b_terms=b_terms,
+        geometry=geometry,
         reported_digest=reported,
     )
     if digest is None:
@@ -1635,12 +1656,15 @@ def _candidate_snapshot(row: Mapping[str, Any]) -> tuple[str, str | None, dict[s
     m = _strict_int(row.get("m"), "m", minimum=1)
     a_terms = _normalise_terms(row.get("A_terms"), "A_terms")
     b_terms = _normalise_terms(row.get("B_terms"), "B_terms")
+    geometry = candidate_geometry(row)
     defining = {
         "ell": ell,
         "m": m,
         "A_terms": a_terms,
         "B_terms": b_terms,
     }
+    if geometry is not None:
+        defining["geometry"] = geometry
     key = code_key(defining)
     reported_key = row.get("candidate_key")
     if reported_key is not None and reported_key != key:

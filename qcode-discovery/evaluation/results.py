@@ -28,6 +28,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from evaluation.geometry import normalize_geometry
+
 logger = logging.getLogger(__name__)
 
 RESULTS_DIR = Path(__file__).parent.parent / "results"
@@ -266,12 +268,19 @@ def _code_key(result: dict) -> tuple:
     def canonical_terms(terms):
         return tuple(sorted(tuple(t) for t in (terms or [])))
 
+    ell = result.get("ell")
+    m = result.get("m")
     key = (
-        result.get("ell"),
-        result.get("m"),
+        ell,
+        m,
         canonical_terms(result.get("A_terms", [])),
         canonical_terms(result.get("B_terms", [])),
     )
+    geometry = normalize_geometry(ell, m, result.get("geometry"))
+    if geometry is not None:
+        key += (
+            json.dumps(geometry, sort_keys=True, separators=(",", ":")),
+        )
     c_terms = result.get("C_terms")
     d_terms = result.get("D_terms")
     if c_terms or d_terms:

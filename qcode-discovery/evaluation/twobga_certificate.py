@@ -27,6 +27,7 @@ from evaluation.failure_disposition import (
     make_failure_disposition,
     validate_failure_disposition,
 )
+from evaluation.geometry import candidate_geometry
 from evaluation.registry import check_code_novelty
 from evaluation.twobga_subsystem import (
     derive_twobga_subsystem_problem,
@@ -85,6 +86,15 @@ def _clean_claim(claim: Mapping[str, Any]) -> dict[str, Any]:
     ):
         value.pop(key, None)
     return value
+
+
+def _require_rectangular_twobga_domain(claim: Mapping[str, Any]) -> None:
+    """Fail closed outside the rectangular theorem's proven domain."""
+
+    if candidate_geometry(_clean_claim(claim)) is not None:
+        raise ValueError(
+            "2BGA subsystem certificates do not support twisted-torus geometry"
+        )
 
 
 def _request(claim: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -175,6 +185,7 @@ def validate_twobga_exact_proof(
 ) -> dict[str, Any]:
     """Reconstruct every matrix and replay the typed proof without a solver."""
 
+    _require_rectangular_twobga_domain(claim)
     clean = _clean_claim(claim)
     # Reuse the Stage-3 validator by rebuilding its immutable envelope from
     # the proof.  This keeps the theorem, quotient, anchor, and SAT binding
@@ -288,6 +299,7 @@ def build_twobga_certificate(
 ) -> dict[str, Any]:
     """Build an exact certificate from a theorem lower bound plus full witness."""
 
+    _require_rectangular_twobga_domain(claim)
     workers = _validate_solver_workers(solver_workers)
     per_decision = _strict_timeout(timeout_per_logical, "timeout_per_logical")
     total = _strict_timeout(total_timeout, "total_timeout")
@@ -493,6 +505,7 @@ def validate_twobga_candidate_rejection(
         ):
             return False
         clean = _clean_claim(claim)
+        _require_rectangular_twobga_domain(clean)
         code = build_candidate_code(clean)
         parameters = validate_candidate_parameters(clean, code)
         required = int(parameters["required_distance"])
@@ -644,6 +657,7 @@ def verify_twobga_certificate(
         claim = certificate["claim"]
         if not isinstance(claim, Mapping):
             raise TypeError("certificate claim must be an object")
+        _require_rectangular_twobga_domain(claim)
         context = validate_twobga_exact_proof(claim)
     except (
         AttributeError,

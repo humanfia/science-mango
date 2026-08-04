@@ -458,6 +458,86 @@ def _formal_exact_css_row(tmp_path):
     return row, code
 
 
+def test_twisted_formal_checkpoint_replays_and_binds_exact_q(tmp_path):
+    geometry = {
+        "schema_version": 1,
+        "family": "twisted_torus",
+        "twist": 1,
+    }
+    defining = {
+        "ell": 2,
+        "m": 3,
+        "A_terms": [(0, 0), (0, 1)],
+        "B_terms": [(1, 0), (1, 1)],
+        "geometry": geometry,
+    }
+    checkpoint = (
+        tmp_path
+        / "milp-checkpoints"
+        / f"{code_key(defining)}.json"
+    )
+    row = evaluate_candidate_milp(
+        defining["ell"],
+        defining["m"],
+        defining["A_terms"],
+        defining["B_terms"],
+        geometry=geometry,
+        milp_timeout_per_logical=5,
+        milp_total_timeout=30,
+        milp_checkpoint_path=checkpoint,
+        milp_hard_timeout_per_logical=10,
+    )
+    assert row["d_is_exact"] is True
+    row["candidate_key"] = code_key(row)
+    row["audit_attempt"] = seal_audit_attempt_evidence(
+        row,
+        {
+            "schema_version": 1,
+            "round": 1,
+            "kind": "new",
+            "attempt": 1,
+            "multiplier": 1,
+            "soft": 5,
+            "total": 30,
+            "hard": 10.0,
+            "checkpoint": str(checkpoint),
+        },
+        run_dir=tmp_path,
+        evidence_root=tmp_path / "milp-checkpoints" / "evidence",
+    )
+
+    assert classify_evaluation(row) is AuditOutcome.EXACT
+    immutable = Path(row["audit_attempt"]["evidence"]["path"])
+    checkpoint_payload = json.loads(immutable.read_text())
+    assert checkpoint_payload["proof_binding"]["candidate_identity"][
+        "geometry"
+    ] == geometry
+
+    # Recompute every outer hash after changing q.  The independently rebuilt
+    # candidate identity must still reject the now self-consistent forgery.
+    forged = copy.deepcopy(row)
+    binding = checkpoint_payload["proof_binding"]
+    binding["candidate_identity"]["geometry"]["twist"] = 2
+    unsigned = dict(binding)
+    unsigned.pop("binding_sha256")
+    binding["binding_sha256"] = hashlib.sha256(
+        json.dumps(
+            unsigned,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode()
+    ).hexdigest()
+    forged["audit_attempt"]["evidence"]["proof_binding_sha256"] = binding[
+        "binding_sha256"
+    ]
+    _replace_evidence_snapshot(forged, checkpoint_payload)
+
+    with pytest.raises(AuditStateError, match="candidate identity mismatch"):
+        classify_evaluation(forged)
+
+
 def test_schema2_exact_css_checkpoint_replays_all_directions(tmp_path):
     row, _code = _formal_exact_css_row(tmp_path)
     assert classify_evaluation(row) is AuditOutcome.EXACT

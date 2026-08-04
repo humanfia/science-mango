@@ -71,6 +71,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from evaluation.bb_code import build_bb_code, validate_terms, get_code_params_fast
+from evaluation.geometry import candidate_geometry, normalize_geometry
 from evaluation.distance import estimate_distance, estimate_distance_osd_cs, compute_distance_exact
 from evaluation.distance_milp import (
     _implementation_fingerprint as _distance_milp_implementation_fingerprint,
@@ -550,10 +551,10 @@ def _distance_backend_retry(
 
 
 def _make_result_template(
-    ell: int, m: int, A_terms: list, B_terms: list
+    ell: int, m: int, A_terms: list, B_terms: list, *, geometry=None,
 ) -> dict:
     """Create a default result dict for a candidate."""
-    return {
+    result = {
         "ell": ell,
         "m": m,
         "A_terms": A_terms,
@@ -575,6 +576,10 @@ def _make_result_template(
         "score": SCORE_REJECTED,
         "stage": "rejected",
     }
+    canonical_geometry = normalize_geometry(ell, m, geometry)
+    if canonical_geometry is not None:
+        result["geometry"] = canonical_geometry
+    return result
 
 
 def _validate_and_build(
@@ -584,6 +589,7 @@ def _validate_and_build(
     B_terms: list,
     result: dict,
     *,
+    geometry=None,
     apply_self_dual_gate: bool = True,
 ) -> tuple | None:
     """Validate terms, build code, compute k, apply early-exit rules.
@@ -602,7 +608,9 @@ def _validate_and_build(
 
     # Stage 2: Build code, compute k
     try:
-        code = build_bb_code(ell, m, A_terms, B_terms)
+        code = build_bb_code(
+            ell, m, A_terms, B_terms, geometry=geometry,
+        )
         n, k = get_code_params_fast(code)
     except Exception as e:
         logger.debug("Construction failed: %s", e)
@@ -653,6 +661,7 @@ def evaluate_candidate(
     A_terms: list[tuple[int, int]],
     B_terms: list[tuple[int, int]],
     *,
+    geometry=None,
     quick: bool = False,
     fom_threshold_refine: float = 6.0,
     fom_threshold_exact: float = 8.0,
@@ -700,9 +709,14 @@ def evaluate_candidate(
         Dict with keys: n, k, d, d_is_exact, fom, encoding_rate,
         ell, m, A_terms, B_terms, score, stage.
     """
-    result = _make_result_template(ell, m, A_terms, B_terms)
+    geometry = normalize_geometry(ell, m, geometry)
+    result = _make_result_template(
+        ell, m, A_terms, B_terms, geometry=geometry,
+    )
 
-    built = _validate_and_build(ell, m, A_terms, B_terms, result)
+    built = _validate_and_build(
+        ell, m, A_terms, B_terms, result, geometry=geometry,
+    )
     if built is None:
         if challenge_target_fom is not None and result["d_is_exact"]:
             _annotate_challenge_target(
@@ -1175,6 +1189,32 @@ def evaluate_candidate(
     return result
 
 
+def _candidate_components(
+    candidate: Any,
+    *,
+    ell: int,
+    m: int,
+) -> tuple[Any, Any, dict[str, Any] | None]:
+    """Normalize a legacy A/B pair or an expanded geometry-aware record."""
+
+    if isinstance(candidate, Mapping):
+        if "ell" in candidate and int(candidate["ell"]) != int(ell):
+            raise ValueError("candidate ell disagrees with its evaluation lattice")
+        if "m" in candidate and int(candidate["m"]) != int(m):
+            raise ValueError("candidate m disagrees with its evaluation lattice")
+        geometry = candidate_geometry({
+            **candidate,
+            "ell": int(ell),
+            "m": int(m),
+        })
+        return candidate["A_terms"], candidate["B_terms"], geometry
+    if not isinstance(candidate, (list, tuple)) or len(candidate) != 2:
+        raise TypeError(
+            "candidate must be an A/B pair or a geometry-aware mapping"
+        )
+    return candidate[0], candidate[1], None
+
+
 def evaluate_batch(
     ell: int,
     m: int,
@@ -1194,8 +1234,18 @@ def evaluate_batch(
         List of result dicts, sorted by score descending.
     """
     results = []
-    for A_terms, B_terms in candidates:
-        result = evaluate_candidate(ell, m, A_terms, B_terms, **kwargs)
+    for candidate in candidates:
+        A_terms, B_terms, geometry = _candidate_components(
+            candidate, ell=ell, m=m,
+        )
+        result = evaluate_candidate(
+            ell,
+            m,
+            A_terms,
+            B_terms,
+            geometry=geometry,
+            **kwargs,
+        )
         results.append(result)
         if _result_ranking_score(result) > 0:
             logger.info(
@@ -1244,6 +1294,7 @@ def evaluate_candidate_milp(
     A_terms: list[tuple[int, int]],
     B_terms: list[tuple[int, int]],
     *,
+    geometry=None,
     quick: bool = False,
     milp_timeout_per_logical: int = 30,
     milp_total_timeout: int = 120,
@@ -1287,7 +1338,10 @@ def evaluate_candidate_milp(
         Dict with keys: n, k, d, d_is_exact, distance_trusted, fom,
         encoding_rate, ell, m, A_terms, B_terms, score, stage, milp_details.
     """
-    result = _make_result_template(ell, m, A_terms, B_terms)
+    geometry = normalize_geometry(ell, m, geometry)
+    result = _make_result_template(
+        ell, m, A_terms, B_terms, geometry=geometry,
+    )
     checkpoint_identity = {
         "family": "css-bb",
         "ell": int(ell),
@@ -1295,6 +1349,8 @@ def evaluate_candidate_milp(
         "A_terms": sorted([list(map(int, term)) for term in A_terms]),
         "B_terms": sorted([list(map(int, term)) for term in B_terms]),
     }
+    if geometry is not None:
+        checkpoint_identity["geometry"] = geometry
     if (
         milp_checkpoint_path is not None
         and milp_hard_timeout_per_logical is not None
@@ -1318,6 +1374,7 @@ def evaluate_candidate_milp(
         A_terms,
         B_terms,
         result,
+        geometry=geometry,
         # A formal Stage 1 invocation must materialize immutable evidence.
         # Let the symplectic d=2 path below write that checkpoint instead of
         # returning early with an unsealable numeric claim.
@@ -1638,8 +1695,18 @@ def evaluate_batch_milp(
         List of result dicts, sorted by score descending.
     """
     results = []
-    for A_terms, B_terms in candidates:
-        result = evaluate_candidate_milp(ell, m, A_terms, B_terms, **kwargs)
+    for candidate in candidates:
+        A_terms, B_terms, geometry = _candidate_components(
+            candidate, ell=ell, m=m,
+        )
+        result = evaluate_candidate_milp(
+            ell,
+            m,
+            A_terms,
+            B_terms,
+            geometry=geometry,
+            **kwargs,
+        )
         results.append(result)
         if _result_ranking_score(result) > 0:
             logger.info(
@@ -1686,7 +1753,16 @@ def evaluate_batch_milp_parallel(
         max_workers = min((os.cpu_count() or 4) - 2, 10)
     max_workers = max(1, max_workers)
 
-    worker_args = [(ell, m, A, B, kwargs) for ell, m, A, B in tasks]
+    worker_args = []
+    for task in tasks:
+        if len(task) == 4:
+            ell, m, A, B = task
+            geometry = None
+        elif len(task) == 5:
+            ell, m, A, B, geometry = task
+        else:
+            raise ValueError("MILP task must have four or five fields")
+        worker_args.append((ell, m, A, B, geometry, kwargs))
 
     # chunksize=200 reduces IPC overhead: each worker processes 200
     # candidates per round-trip instead of 1.
@@ -1713,16 +1789,30 @@ def _milp_worker(args):
     Runs in a separate process via ProcessPoolExecutor.
     Args is a tuple: (ell, m, A_terms, B_terms, kwargs).
     """
-    ell, m, A_terms, B_terms, kwargs = args
-    return evaluate_candidate_milp(ell, m, A_terms, B_terms, **kwargs)
+    if len(args) == 5:
+        ell, m, A_terms, B_terms, kwargs = args
+        geometry = None
+    else:
+        ell, m, A_terms, B_terms, geometry, kwargs = args
+    return evaluate_candidate_milp(
+        ell,
+        m,
+        A_terms,
+        B_terms,
+        geometry=geometry,
+        **kwargs,
+    )
 
 
-def _milp_cache_key(ell: int, m: int, A_terms, B_terms) -> tuple:
+def _milp_cache_key(
+    ell: int, m: int, A_terms, B_terms, *, geometry=None,
+) -> tuple:
     """Return a strictly typed, currently valid BB candidate cache key."""
     identity = _milp_cache_candidate_identity(
         {
             "ell": ell,
             "m": m,
+            "geometry": geometry,
             "A_terms": A_terms,
             "B_terms": B_terms,
         }
@@ -1741,7 +1831,11 @@ def _milp_cache_key(ell: int, m: int, A_terms, B_terms) -> tuple:
     )
     a = tuple(tuple(term) for term in identity["A_terms"])
     b = tuple(tuple(term) for term in identity["B_terms"])
-    return (identity["ell"], identity["m"], a, b)
+    legacy_key = (identity["ell"], identity["m"], a, b)
+    if identity["geometry"] is None:
+        return legacy_key
+    geometry_json = _milp_cache_json(identity["geometry"])
+    return (*legacy_key, geometry_json)
 
 
 def _milp_cache_json(value: Any) -> bytes:
@@ -1857,6 +1951,7 @@ def _milp_cache_candidate_identity(result: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "ell": ell,
         "m": m,
+        "geometry": normalize_geometry(ell, m, result.get("geometry")),
         "A_terms": terms("A_terms"),
         "B_terms": terms("B_terms"),
     }
@@ -1931,6 +2026,7 @@ def _replay_cached_upper_bound(
             identity["m"],
             identity["A_terms"],
             identity["B_terms"],
+            geometry=identity["geometry"],
         )
         n, k = get_code_params_fast(code)
         distance = result.get("d")
@@ -2101,6 +2197,12 @@ def _validated_milp_cache_result(
             else "milp_cache_witness_upper_bound"
         ),
     }
+    if result.get("geometry") is None:
+        # Preserve the historical public result shape.  The cache identity
+        # carries a canonical null internally so missing geometry and explicit
+        # q=0 alias safely, but a replayed legacy result must look exactly like
+        # a fresh legacy/q=0 evaluation and omit the optional field.
+        result.pop("geometry", None)
     result["score"] = upper_fom if structurally_exact else 0.0
     if evidence_kind == "symplectic_logical_witness":
         result["d_symplectic"] = distance
@@ -2243,6 +2345,7 @@ def _load_milp_cache(
                         raw.get("m"),
                         raw.get("A_terms"),
                         raw.get("B_terms"),
+                        geometry=raw.get("geometry"),
                     )
                     if row_key not in requested_keys:
                         continue
@@ -2263,6 +2366,7 @@ def _load_milp_cache(
                     result["m"],
                     result["A_terms"],
                     result["B_terms"],
+                    geometry=result.get("geometry"),
                 )
                 existing = cache.get(key)
                 if existing is None or result["d"] < existing["d"]:
@@ -2324,11 +2428,24 @@ def evaluate_milp_parallel(
         milp_total_timeout=milp_total_timeout,
         milp_early_stop=milp_early_stop,
     )
+    normalized_tasks = []
+    for task in tasks:
+        if len(task) == 4:
+            ell, m, A_terms, B_terms = task
+            geometry = None
+        elif len(task) == 5:
+            ell, m, A_terms, B_terms, geometry = task
+        else:
+            raise ValueError("MILP task must have four or five fields")
+        normalized_tasks.append((ell, m, A_terms, B_terms, geometry))
+
     requested_cache_keys: set[tuple] = set()
-    for ell, m, A_terms, B_terms in tasks:
+    for ell, m, A_terms, B_terms, geometry in normalized_tasks:
         try:
             requested_cache_keys.add(
-                _milp_cache_key(ell, m, A_terms, B_terms)
+                _milp_cache_key(
+                    ell, m, A_terms, B_terms, geometry=geometry,
+                )
             )
         except Exception:
             # Invalid or non-canonical task inputs must take the ordinary
@@ -2346,16 +2463,18 @@ def evaluate_milp_parallel(
     # Separate cached vs uncached tasks
     cached_results = []
     uncached_tasks = []
-    for ell, m, A_terms, B_terms in tasks:
+    for ell, m, A_terms, B_terms, geometry in normalized_tasks:
         try:
-            key = _milp_cache_key(ell, m, A_terms, B_terms)
+            key = _milp_cache_key(
+                ell, m, A_terms, B_terms, geometry=geometry,
+            )
         except Exception:
             key = None
         cached = cache.get(key) if key is not None else None
         if cached is not None:
             cached_results.append(cached)
         else:
-            uncached_tasks.append((ell, m, A_terms, B_terms))
+            uncached_tasks.append((ell, m, A_terms, B_terms, geometry))
 
     if cached_results:
         logger.info(
@@ -2371,8 +2490,8 @@ def evaluate_milp_parallel(
 
     # Prepare worker arguments for uncached tasks only
     worker_args = [
-        (ell, m, A_terms, B_terms, kwargs)
-        for ell, m, A_terms, B_terms in uncached_tasks
+        (ell, m, A_terms, B_terms, geometry, kwargs)
+        for ell, m, A_terms, B_terms, geometry in uncached_tasks
     ]
 
     results = list(cached_results)
@@ -2400,7 +2519,7 @@ def evaluate_milp_parallel(
             try:
                 result = future.result()
             except Exception as e:
-                ell, m, A_terms, B_terms, _ = worker_args[idx]
+                ell, m, A_terms, B_terms, geometry, _ = worker_args[idx]
                 logger.error(
                     "MILP worker error for (%d,%d) A=%s: %s",
                     ell, m, A_terms, e,
@@ -2414,6 +2533,9 @@ def evaluate_milp_parallel(
                     "stage": "worker_error",
                     "error": str(e),
                 }
+                canonical_geometry = normalize_geometry(ell, m, geometry)
+                if canonical_geometry is not None:
+                    result["geometry"] = canonical_geometry
 
             results.append(result)
 

@@ -8,10 +8,12 @@ import os
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from math import gcd
 from numbers import Integral
 from pathlib import Path
 from typing import Any, Iterable
 
+from evaluation.geometry import normalize_geometry
 from evaluation.structural_features import (
     PATTERN_CLASSIFIER_VERSION,
     classify_pattern,
@@ -111,12 +113,17 @@ def _terms(row: dict[str, Any], name: str) -> list[list[int]]:
 
 def code_key(row: dict[str, Any]) -> str:
     """Stable content key for a CSS BB code, independent of score metadata."""
+    ell = int(row.get("ell", 0) or 0)
+    m = int(row.get("m", 0) or 0)
     defining = {
-        "ell": int(row.get("ell", 0) or 0),
-        "m": int(row.get("m", 0) or 0),
+        "ell": ell,
+        "m": m,
         "A_terms": _terms(row, "A_terms"),
         "B_terms": _terms(row, "B_terms"),
     }
+    geometry = normalize_geometry(ell, m, row.get("geometry"))
+    if geometry is not None:
+        defining["geometry"] = geometry
     payload = json.dumps(defining, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode()).hexdigest()[:20]
 
@@ -243,7 +250,18 @@ def archive_cell(row: dict[str, Any]) -> str:
     features = candidate_structural_features(row)
     pattern = str(features["pattern_type"])
     term_count = int(features["term_count"])
-    return f"n={n}|rate={rate_bin}|pattern={pattern}|terms={term_count}"
+    geometry = normalize_geometry(
+        int(row.get("ell", 0) or 0),
+        int(row.get("m", 0) or 0),
+        row.get("geometry"),
+    )
+    legacy_cell = (
+        f"n={n}|rate={rate_bin}|pattern={pattern}|terms={term_count}"
+    )
+    if geometry is None:
+        return legacy_cell
+    twist_class = 1 if gcd(int(geometry["twist"]), int(row["m"])) == 1 else 2
+    return f"{legacy_cell}|geometry_twist_class={twist_class}"
 
 
 def _canonical_archive_row(original: dict[str, Any]) -> dict[str, Any]:

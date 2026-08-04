@@ -11,6 +11,7 @@ LOCAL_EVALUATOR_DEPENDENCIES = {
     "evaluation_results": "evaluation/results.py",
     "evaluation_structural_dedup": "evaluation/structural_dedup.py",
     "evaluation_bb_code": "evaluation/bb_code.py",
+    "evaluation_geometry": "evaluation/geometry.py",
     "evaluation_pbb_code": "evaluation/pbb_code.py",
     "evaluation_css_logical_detector": "evaluation/css_logical_detector.py",
     "evaluation_distance": "evaluation/distance.py",

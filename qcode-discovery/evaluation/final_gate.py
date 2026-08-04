@@ -28,6 +28,7 @@ import numpy as np
 
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.bb_code import build_bb_code, validate_terms
+from evaluation.geometry import candidate_geometry
 from evaluation.distance_milp import get_code_matrices
 from evaluation.registry import check_code_novelty
 from evaluation.structural_dedup import check_css_structural_novelty
@@ -428,6 +429,7 @@ def _typed_exact_sector_check(
                 hz,
                 ell=int(row["ell"]),
                 m=int(row["m"]),
+                geometry=candidate_geometry(row),
             )
         except (KeyError, TypeError, ValueError):
             return False
@@ -600,6 +602,11 @@ def _typed_exact_twobga_check(
     certificate builder itself calls this final gate.
     """
 
+    try:
+        if candidate_geometry(row) is not None:
+            return False
+    except (KeyError, TypeError, ValueError):
+        return False
     proof = row.get("exact_distance_proof")
     if (
         not isinstance(proof, dict)
@@ -689,7 +696,10 @@ def evaluate_final_gate(
         a_terms, b_terms = row["A_terms"], row["B_terms"]
         validate_terms(ell, m, a_terms, "A")
         validate_terms(ell, m, b_terms, "B")
-        code = build_bb_code(ell, m, a_terms, b_terms)
+        geometry = candidate_geometry(row)
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=geometry,
+        )
     except (KeyError, TypeError, ValueError) as exc:
         checks["candidate_rebuild"] = False
         failures.append(f"candidate cannot be rebuilt: {exc}")
@@ -751,7 +761,9 @@ def evaluate_final_gate(
         checks["all_2k_milp_directions_optimal"] = _exact_milp_check(row, k)
 
     reported_audit = row.get("structural_novelty")
-    recomputed_audit = check_css_structural_novelty(ell, m, a_terms, b_terms)
+    recomputed_audit = check_css_structural_novelty(
+        ell, m, a_terms, b_terms, geometry=geometry,
+    )
     expanded_audit = check_code_novelty(code, code_type="css")
     checks["structural_audit_present"] = bool(
         isinstance(reported_audit, dict)
@@ -805,4 +817,6 @@ def evaluate_final_gate(
         "expanded_structural_novelty": expanded_audit,
         "win": win,
     })
+    if geometry is not None:
+        result["candidate"]["geometry"] = geometry
     return result

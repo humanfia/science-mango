@@ -4,6 +4,7 @@ import itertools
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from evaluation.bb_code import build_bb_code
 from evaluation.distance_milp import get_code_matrices
@@ -190,6 +191,49 @@ def test_rank_defect_candidate_is_ineligible_before_sat(monkeypatch, tmp_path):
         "delta_z": 4,
     }
     assert Path(tmp_path / "artifact.json").exists()
+
+
+def test_twisted_candidate_is_explicitly_ineligible_before_sat(
+    monkeypatch, tmp_path,
+):
+    candidate = {
+        "ell": 6,
+        "m": 30,
+        "A_terms": [[1, 0], [2, 0], [0, 3]],
+        "B_terms": [[0, 1], [0, 2], [3, 0]],
+        "geometry": {
+            "schema_version": 1,
+            "family": "twisted_torus",
+            "twist": 6,
+        },
+        "n": 360,
+        "k": 12,
+        "required_distance": 19,
+        "canonical_digest": "twisted-q6",
+    }
+
+    monkeypatch.setattr(
+        twobga_screen,
+        "solve_css_sector_sat",
+        lambda *args, **kwargs: pytest.fail(
+            "twisted theorem-domain rejection reached SAT"
+        ),
+    )
+    artifact = twobga_screen.screen_twobga_candidate(
+        candidate,
+        output=tmp_path / "twisted.json",
+        timeout=1,
+        workers=1,
+    )
+
+    assert artifact["status"] == "INELIGIBLE"
+    assert artifact["expected_units"] == artifact["terminal_units"] == 0
+    assert artifact["theorem_eligibility"]["eligible"] is False
+    assert artifact["theorem_eligibility"]["ineligible_reason"] == (
+        "twisted_torus_not_proven_by_theorem"
+    )
+    with pytest.raises(ValueError, match="twisted-torus"):
+        twobga_screen.validate_twobga_stage3_artifact(artifact)
 
 
 def test_auxiliary_sat_witness_never_rejects_original_candidate():

@@ -65,3 +65,63 @@ def test_bb_xz_isometry_rejects_wrong_geometry():
     report = verify_bb_xz_sector_isometry(hx, hz, ell=2, m=4)
 
     assert report["verified"] is False
+
+
+def test_twisted_bb_xz_isometry_uses_quotient_group_inverse():
+    geometry = {
+        "schema_version": 1,
+        "family": "twisted_torus",
+        "twist": 6,
+    }
+    code = build_bb_code(
+        6,
+        30,
+        [(1, 0), (2, 0), (0, 3)],
+        [(0, 1), (0, 2), (3, 0)],
+        geometry=geometry,
+    )
+    hx, hz, _, _ = tuple(
+        np.asarray(value, dtype=np.uint8) & 1
+        for value in get_code_matrices(code)
+    )
+
+    permutation = bb_xz_inversion_block_swap_permutation(
+        6,
+        30,
+        geometry=geometry,
+    )
+    report = verify_bb_xz_sector_isometry(
+        hx,
+        hz,
+        ell=6,
+        m=30,
+        geometry=geometry,
+    )
+
+    assert np.array_equal(permutation[permutation], np.arange(360))
+    assert report["verified"] is True
+    assert report["geometry"] == geometry
+    assert report["rank_x"] == report["rank_z"] == 174
+
+
+def test_twisted_bb_xz_isometry_fails_if_twist_is_omitted_on_replay():
+    geometry = {
+        "schema_version": 1,
+        "family": "twisted_torus",
+        "twist": 6,
+    }
+    code = build_bb_code(
+        6,
+        30,
+        [(1, 0), (2, 0), (0, 3)],
+        [(0, 1), (0, 2), (3, 0)],
+        geometry=geometry,
+    )
+    hx, hz, _, _ = tuple(
+        np.asarray(value, dtype=np.uint8) & 1
+        for value in get_code_matrices(code)
+    )
+
+    report = verify_bb_xz_sector_isometry(hx, hz, ell=6, m=30)
+
+    assert report["verified"] is False

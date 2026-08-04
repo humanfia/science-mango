@@ -46,7 +46,14 @@ def _write_jsonl(path: Path, rows: list[dict]) -> bytes:
     return payload
 
 
-def _install_repo(tmp_path: Path) -> Path:
+def _install_repo(
+    tmp_path: Path,
+    *,
+    target_representation: str = ANSATZ_REPRESENTATION,
+    template_id: str = ANSATZ_TEMPLATE,
+    portfolio_schema: int = 2,
+    stage3_backend: str = "twobga-aux",
+) -> Path:
     """Install one proof-compatible representation-change template."""
 
     repo = tmp_path / "repo"
@@ -54,8 +61,26 @@ def _install_repo(tmp_path: Path) -> Path:
 
     evolution_config = repo / "evolve/config_ansatz_v2.yaml"
     evolution_config.parent.mkdir(parents=True, exist_ok=True)
+    config_lines = [
+        "qcode_search_portfolio:",
+        "  enabled: true",
+        f"  schema_version: {portfolio_schema}",
+    ]
+    if portfolio_schema == 3:
+        config_lines.extend([
+            "database:",
+            "  num_islands: 5",
+            "  feature_dimensions:",
+            "    - algebraic_relation_type",
+            "    - support_split_type",
+            "    - geometry_twist_class",
+            "  feature_bins:",
+            "    algebraic_relation_type: 5",
+            "    support_split_type: 6",
+            "    geometry_twist_class: 3",
+        ])
     evolution_config.write_text(
-        "qcode_search_portfolio:\n  enabled: true\n  schema_version: 2\n",
+        "\n".join(config_lines) + "\n",
         encoding="utf-8",
     )
     evolution_seed = repo / "evolve/seed_ansatz_v2.py"
@@ -75,10 +100,10 @@ def _install_repo(tmp_path: Path) -> Path:
                 "max_rounds": MAX_ROUNDS,
                 "evolution_config": "evolve/config_ansatz_v2.yaml",
                 "evolution_seed": "evolve/seed_ansatz_v2.py",
-                "search_representation_id": ANSATZ_REPRESENTATION,
+                "search_representation_id": target_representation,
                 "search_regime_policy_version": 3,
             },
-            "stage3": {"backend": "twobga-aux", "exact": True},
+            "stage3": {"backend": stage3_backend, "exact": True},
         },
     )
     registry_path = repo / "configs/registry.json"
@@ -89,14 +114,14 @@ def _install_repo(tmp_path: Path) -> Path:
             "kind": "qcode-campaign-template-registry",
             "templates": [
                 {
-                    "template_id": ANSATZ_TEMPLATE,
+                    "template_id": template_id,
                     "template_version": 1,
                     "description": "fresh schema-v2 ansatz representation",
                     "runner_kind": "five-stage-humanize",
                     "transition_kind": "representation_change",
-                    "representation_id": ANSATZ_REPRESENTATION,
-                    "family_id": "novel-ansatz-portfolio-v2",
-                    "checkpoint_compatibility_group": ANSATZ_REPRESENTATION,
+                    "representation_id": target_representation,
+                    "family_id": f"{target_representation}-family",
+                    "checkpoint_compatibility_group": target_representation,
                     "proof_compatible": True,
                     "launch_compatible": True,
                     "auto_materialize": True,
@@ -116,7 +141,7 @@ def _install_repo(tmp_path: Path) -> Path:
                         "path": "evolve/seed_ansatz_v2.py",
                         "sha256": _sha256(evolution_seed),
                     },
-                    "required_stage3_backend": "twobga-aux",
+                    "required_stage3_backend": stage3_backend,
                 }
             ],
         },
@@ -125,7 +150,11 @@ def _install_repo(tmp_path: Path) -> Path:
 
 
 def _install_parent_pipeline(
-    repo: Path, *, run_id: str, policy_version: int
+    repo: Path,
+    *,
+    run_id: str,
+    policy_version: int,
+    template_id: str = ANSATZ_TEMPLATE,
 ) -> Path:
     path = repo / f"configs/{run_id}.json"
     _write_json(
@@ -143,7 +172,7 @@ def _install_parent_pipeline(
                 "enabled": True,
                 "registry": "configs/registry.json",
                 "template_by_regime": {
-                    "representation_change_required": ANSATZ_TEMPLATE
+                    "representation_change_required": template_id
                 },
             },
         },
@@ -353,6 +382,53 @@ def test_v3_terminal_fallback_materializes_ansatz_idempotently(
     assert second.materialized.created is False
     assert second.materialized.pipeline_sha256 == first.materialized.pipeline_sha256
     assert second.materialized.path.read_bytes() == first_payload
+
+
+def test_v3_terminal_fallback_materializes_schema_v3_twisted_sat_child(
+    tmp_path, sealed_exact_classifier
+):
+    twisted_representation = "css-bb-twisted-torus-generator-v1"
+    repo = _install_repo(
+        tmp_path,
+        target_representation=twisted_representation,
+        template_id=twisted_representation,
+        portfolio_schema=3,
+        stage3_backend="sat-sectors",
+    )
+    run_id = "parent-v3-twisted"
+    pipeline_config = _install_parent_pipeline(
+        repo,
+        run_id=run_id,
+        policy_version=3,
+        template_id=twisted_representation,
+    )
+    state_path, _rounds, regime = _install_sealed_history(
+        repo,
+        run_id=run_id,
+        policy_version=3,
+    )
+    assert regime["status"] == "representation_change_required"
+
+    reconciled = reconcile_campaign_escalation(
+        repo_dir=repo,
+        parent_state_path=state_path,
+        pipeline_config_path=pipeline_config,
+        destination=Path("results/escalations/v3-twisted-child.json"),
+    )
+    assert reconciled.disposition == "materialized"
+    assert reconciled.materialized is not None
+    child = json.loads(reconciled.materialized.path.read_text())
+    assert child["stage1"]["search_representation_id"] == (
+        twisted_representation
+    )
+    assert child["stage1"]["evolution_config"] == (
+        "evolve/config_ansatz_v2.yaml"
+    )
+    assert child["stage3"] == {
+        "backend": "sat-sectors",
+        "exact": True,
+    }
+    assert "auto_escalation" not in child
 
 
 def test_v3_auto_escalation_rejects_pipeline_budget_rebinding(

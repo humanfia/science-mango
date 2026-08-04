@@ -524,10 +524,51 @@ def _validate_launch_claim(
     portfolio = evolution_value.get("qcode_search_portfolio")
     if not isinstance(portfolio, dict):
         raise RegistryError("launch-compatible config needs qcode_search_portfolio")
-    if portfolio.get("enabled") is not True or portfolio.get("schema_version") != 2:
+    portfolio_contracts = {
+        2: (
+            ["algebraic_relation_type", "support_split_type", "orbit_span_bin"],
+            {
+                "algebraic_relation_type": 5,
+                "support_split_type": 6,
+                "orbit_span_bin": 3,
+            },
+        ),
+        3: (
+            [
+                "algebraic_relation_type",
+                "support_split_type",
+                "geometry_twist_class",
+            ],
+            {
+                "algebraic_relation_type": 5,
+                "support_split_type": 6,
+                "geometry_twist_class": 3,
+            },
+        ),
+    }
+    schema_version = portfolio.get("schema_version")
+    if (
+        portfolio.get("enabled") is not True
+        or schema_version not in portfolio_contracts
+    ):
         raise RegistryError(
-            "launch-compatible Humanize config requires portfolio schema_version 2"
+            "launch-compatible Humanize config requires portfolio schema_version 2 or 3"
         )
+    # Preserve the historical schema-v2 launch claim accepted by existing
+    # signed registries.  Schema v3 is new and must bind its checkpoint-
+    # incompatible geometry dimensions explicitly from day one.
+    if schema_version == 3:
+        database = evolution_value.get("database")
+        dimensions, bins = portfolio_contracts[schema_version]
+        if (
+            not isinstance(database, dict)
+            or database.get("num_islands") != 5
+            or database.get("feature_dimensions") != dimensions
+            or database.get("feature_bins") != bins
+        ):
+            raise RegistryError(
+                "launch-compatible evolution config has incompatible portfolio geometry"
+            )
 
 
 def load_template_registry(

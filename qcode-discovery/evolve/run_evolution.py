@@ -96,7 +96,14 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
-from evaluation.search_contract import EVOLUTION_LATTICES
+from evaluation.search_contract import (
+    ACTIVE_GEOMETRY_CONTRACT,
+    ACTIVE_STAGE2_DEEP_LATTICES,
+    EVOLUTION_LATTICES,
+    LEGACY_GEOMETRY_CONTRACT,
+    SEARCH_GEOMETRY_CONTRACT_ENV,
+    TWISTED_TORUS_GEOMETRY_CONTRACT,
+)
 
 SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
 SEED_SOLUTION_MILP = str(Path(__file__).parent / "seed_solution_milp.py")
@@ -127,7 +134,7 @@ STAGE1_PREFLIGHT_WORKER_ATTEMPTS = 2
 STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS = 2
 STAGE1_PREFLIGHT_OUTER_MARGIN_S = 120.0
 STAGE2_DEEP_CONTRACT_VERSION = 3
-STAGE2_DEEP_LATTICE_COUNT = 11
+STAGE2_DEEP_LATTICE_COUNT = len(ACTIVE_STAGE2_DEEP_LATTICES)
 STAGE2_CONTRACT_VERSION_METRIC = "stage2_contract_version"
 STAGE2_CONTRACT_ID_METRIC = "stage2_contract_id"
 STAGE2_COMPLETE_METRIC = "stage2_complete"
@@ -197,16 +204,42 @@ MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC = "difference_spectrum_bin"
 SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
-SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
+SEARCH_PORTFOLIO_V2_FEATURE_DIMENSIONS = (
     MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
     MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
     MAP_DESCRIPTOR_ORBIT_SPAN_METRIC,
 )
-SEARCH_PORTFOLIO_FEATURE_BINS = {
+SEARCH_PORTFOLIO_V2_FEATURE_BINS = {
     MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: 5,
     MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 6,
     MAP_DESCRIPTOR_ORBIT_SPAN_METRIC: 3,
 }
+SEARCH_PORTFOLIO_V3_SCHEMA_VERSION = 3
+SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC = "geometry_twist_class"
+SEARCH_PORTFOLIO_V3_FEATURE_DIMENSIONS = (
+    MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
+    MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
+    SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC,
+)
+SEARCH_PORTFOLIO_V3_FEATURE_BINS = {
+    MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC: 5,
+    MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC: 6,
+    SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC: 3,
+}
+SEARCH_PORTFOLIO_SPECS = {
+    SEARCH_PORTFOLIO_SCHEMA_VERSION: (
+        SEARCH_PORTFOLIO_V2_FEATURE_DIMENSIONS,
+        SEARCH_PORTFOLIO_V2_FEATURE_BINS,
+    ),
+    SEARCH_PORTFOLIO_V3_SCHEMA_VERSION: (
+        SEARCH_PORTFOLIO_V3_FEATURE_DIMENSIONS,
+        SEARCH_PORTFOLIO_V3_FEATURE_BINS,
+    ),
+}
+SEARCH_GEOMETRY_CONTRACT_FIELD = "search_geometry_contract"
+# Compatibility aliases for schema-v2 callers and tests.
+SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = SEARCH_PORTFOLIO_V2_FEATURE_DIMENSIONS
+SEARCH_PORTFOLIO_FEATURE_BINS = SEARCH_PORTFOLIO_V2_FEATURE_BINS
 SEARCH_PORTFOLIO_ROLES = (
     "affine_automorphism_cover",
     "shared_anchor_coset_cover",
@@ -509,6 +542,8 @@ def _winner_preflight_contract_id(
             "run_name": output_dir.name,
         },
     }
+    if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+        payload[SEARCH_GEOMETRY_CONTRACT_FIELD] = ACTIVE_GEOMETRY_CONTRACT
     digest = hashlib.sha256(
         json.dumps(
             payload,
@@ -551,6 +586,9 @@ _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
     "num_high_k",
     "term_count",
     "pattern_type",
+    *({SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC}
+      if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+      else set()),
 })
 
 
@@ -663,6 +701,9 @@ def _exact_incomplete_winner_preflight_markers(
         "num_high_k",
         "term_count",
         "pattern_type",
+        *((SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC,)
+          if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+          else ()),
     ):
         value = metrics.get(name)
         if (
@@ -1830,7 +1871,21 @@ def _validate_lifecycle_lease(fd: int, path_value: str) -> Path:
     return path
 
 
-def _validated_search_portfolio_config(config: Any) -> int:
+def _search_portfolio_spec(
+    schema_version: int,
+) -> tuple[tuple[str, ...], dict[str, int]]:
+    try:
+        return SEARCH_PORTFOLIO_SPECS[schema_version]
+    except (KeyError, TypeError) as exc:
+        raise RuntimeError(
+            f"unsupported search portfolio schema: {schema_version!r}"
+        ) from exc
+
+
+def _validated_search_portfolio_config(
+    config: Any,
+    schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION,
+) -> int:
     """Validate the fixed five-island mechanism-aware search geometry.
 
     OpenEvolve normally rescales every custom MAP dimension from the values
@@ -1839,6 +1894,9 @@ def _validated_search_portfolio_config(config: Any) -> int:
     categorical grid; accepting any other shape would silently mix archives.
     """
 
+    dimensions_contract, bins_contract = _search_portfolio_spec(
+        schema_version
+    )
     database = getattr(config, "database", None)
     if database is None:
         raise RuntimeError("search portfolio config has no database section")
@@ -1849,21 +1907,21 @@ def _validated_search_portfolio_config(config: Any) -> int:
     dimensions = getattr(database, "feature_dimensions", None)
     if (
         not isinstance(dimensions, list)
-        or dimensions != list(SEARCH_PORTFOLIO_FEATURE_DIMENSIONS)
+        or dimensions != list(dimensions_contract)
     ):
         raise RuntimeError(
             "search portfolio feature_dimensions must be the fixed "
-            "mechanism/support/orbit tuple"
+            f"schema-v{schema_version} categorical tuple"
         )
     bins = getattr(database, "feature_bins", None)
     if (
         not isinstance(bins, dict)
-        or set(bins) != set(SEARCH_PORTFOLIO_FEATURE_BINS)
+        or set(bins) != set(bins_contract)
         or any(
             isinstance(bins[name], bool)
             or not isinstance(bins[name], int)
             or bins[name] != expected
-            for name, expected in SEARCH_PORTFOLIO_FEATURE_BINS.items()
+            for name, expected in bins_contract.items()
         )
     ):
         raise RuntimeError(
@@ -1877,8 +1935,10 @@ def _validated_search_portfolio_config(config: Any) -> int:
     return seed
 
 
-def _search_portfolio_requested(config_path: str | Path) -> bool:
-    """Return whether a YAML config explicitly opts into the fixed portfolio."""
+def _search_portfolio_schema_version(
+    config_path: str | Path,
+) -> int | None:
+    """Return the explicitly selected fixed-portfolio schema, if any."""
 
     path = Path(config_path)
     try:
@@ -1890,20 +1950,55 @@ def _search_portfolio_requested(config_path: str | Path) -> bool:
     if not isinstance(value, dict):
         raise RuntimeError("evolution config must contain a YAML object")
     if SEARCH_PORTFOLIO_CONFIG_KEY not in value:
-        return False
+        return None
     marker = value[SEARCH_PORTFOLIO_CONFIG_KEY]
     if (
         not isinstance(marker, dict)
         or set(marker) != {"enabled", "schema_version"}
         or marker["enabled"] is not True
         or type(marker["schema_version"]) is not int
-        or marker["schema_version"] != SEARCH_PORTFOLIO_SCHEMA_VERSION
+        or marker["schema_version"] not in SEARCH_PORTFOLIO_SPECS
     ):
         raise RuntimeError(
             "qcode_search_portfolio marker must be exactly "
-            "{enabled: true, schema_version: 2}"
+            "{enabled: true, schema_version: 2|3}"
         )
-    return True
+    return int(marker["schema_version"])
+
+
+def _search_portfolio_requested(config_path: str | Path) -> bool:
+    """Return whether a YAML config opts into any supported portfolio."""
+
+    return _search_portfolio_schema_version(config_path) is not None
+
+
+def _validated_search_geometry_contract(
+    portfolio_schema_version: int | None,
+) -> str | None:
+    """Bind the portfolio schema to the contract selected before import.
+
+    The twisted evaluator imports its lattice/deep-marker constants at module
+    load time, so setting an environment variable after this point would be
+    too late.  Fail closed if a direct or managed launcher pairs schema v3
+    with the rectangular default, or injects the twisted contract into a
+    schema-v2/ordinary campaign.  Legacy witnesses retain their old byte
+    shape by returning ``None``.
+    """
+
+    if portfolio_schema_version == SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
+        if ACTIVE_GEOMETRY_CONTRACT != TWISTED_TORUS_GEOMETRY_CONTRACT:
+            raise RuntimeError(
+                "search portfolio schema v3 requires the launch-bound "
+                f"{SEARCH_GEOMETRY_CONTRACT_ENV}="
+                f"{TWISTED_TORUS_GEOMETRY_CONTRACT} before runner import"
+            )
+        return TWISTED_TORUS_GEOMETRY_CONTRACT
+    if ACTIVE_GEOMETRY_CONTRACT != LEGACY_GEOMETRY_CONTRACT:
+        raise RuntimeError(
+            "the twisted-torus geometry contract requires search portfolio "
+            "schema v3"
+        )
+    return None
 
 
 def _validated_adaptive_mutation_policy(
@@ -2164,16 +2259,20 @@ def _adaptive_mutation_tactic(
     raise RuntimeError("adaptive mutation policy selection was inconsistent")
 
 
-def _fixed_search_feature_coords(program: Any) -> list[int]:
+def _fixed_search_feature_coords(
+    program: Any,
+    schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION,
+) -> list[int]:
     metrics = getattr(program, "metrics", None)
     _validated_map_descriptor_version(
         metrics, label=f"search portfolio program {getattr(program, 'id', '?')}"
     )
     assert isinstance(metrics, dict)
+    dimensions, bins = _search_portfolio_spec(schema_version)
     categories: list[int] = []
-    for name in SEARCH_PORTFOLIO_FEATURE_DIMENSIONS:
+    for name in dimensions:
         value = metrics.get(name)
-        limit = SEARCH_PORTFOLIO_FEATURE_BINS[name]
+        limit = bins[name]
         if (
             isinstance(value, bool)
             or not isinstance(value, (int, float))
@@ -2204,7 +2303,10 @@ def _search_program_fitness(program: Any) -> float:
     return float(combined)
 
 
-def _rebuild_fixed_search_feature_maps(database: Any) -> None:
+def _rebuild_fixed_search_feature_maps(
+    database: Any,
+    schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION,
+) -> None:
     """Reconstruct lineage-island MAP cells and their selectable elites.
 
     An island is the mutation role that produced a child, not a hard
@@ -2265,7 +2367,9 @@ def _rebuild_fixed_search_feature_maps(database: Any) -> None:
                 f"search portfolio program {program_id} island metadata "
                 "disagrees with membership"
             )
-        coords = _fixed_search_feature_coords(program)
+        coords = _fixed_search_feature_coords(
+            program, schema_version=schema_version
+        )
         if coords[0] not in SEARCH_PORTFOLIO_RELATION_CATEGORIES[island]:
             if getattr(program, "parent_id", None) is None:
                 # OpenEvolve always inserts the one fresh bootstrap Program
@@ -2310,7 +2414,8 @@ def _rebuild_fixed_search_feature_maps(database: Any) -> None:
     # redundant set does not discard MAP-Elites coverage.
     database.archive = set(ranked_elites[:archive_limit])
     database.feature_stats = {}
-    database.feature_bins_per_dim = dict(SEARCH_PORTFOLIO_FEATURE_BINS)
+    _dimensions, bins = _search_portfolio_spec(schema_version)
+    database.feature_bins_per_dim = dict(bins)
     database.island_best_programs = [
         (
             min(
@@ -2338,7 +2443,11 @@ def _rebuild_fixed_search_feature_maps(database: Any) -> None:
     )
 
 
-def _search_elite_ids(database: Any, island: int) -> list[str]:
+def _search_elite_ids(
+    database: Any,
+    island: int,
+    schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION,
+) -> list[str]:
     if (
         isinstance(island, bool)
         or not isinstance(island, int)
@@ -2366,7 +2475,9 @@ def _search_elite_ids(database: Any, island: int) -> list[str]:
                     "search portfolio feature map references missing program "
                     f"{program_id}"
                 )
-            if _fixed_search_feature_coords(program)[0] in expected_relations:
+            if _fixed_search_feature_coords(
+                program, schema_version=schema_version
+            )[0] in expected_relations:
                 matches.append(program_id)
         return matches
 
@@ -2467,6 +2578,7 @@ class _SliceObserver:
     expected_preflight_contract_id: int | None = None
     stage2_cascade_threshold: float | None = None
     checkpoint_preflight_required: bool = False
+    search_portfolio_schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION
     run_calls: int = 0
     shutdown_requested: bool = False
     submission_attempts: list[dict[str, Any]] = field(default_factory=list)
@@ -2584,7 +2696,7 @@ class _SliceObserver:
                 )
             attempt.update({
                 "search_portfolio_schema_version":
-                    SEARCH_PORTFOLIO_SCHEMA_VERSION,
+                    self.search_portfolio_schema_version,
                 "search_policy_sha256": self.search_policy_sha256,
                 "search_regime_status": self.search_regime_status,
                 "search_role": search_role,
@@ -3204,6 +3316,7 @@ def _verified_slice_controller(
     stage2_cascade_threshold: float | None = None,
     checkpoint_preflight_required: bool = False,
     search_config: Any = None,
+    search_portfolio_schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION,
     adaptive_mutation_policy: dict[str, int] | None = None,
     search_regime: dict[str, Any] | None = None,
 ):
@@ -3217,12 +3330,16 @@ def _verified_slice_controller(
         expected_preflight_contract_id=expected_preflight_contract_id,
         stage2_cascade_threshold=stage2_cascade_threshold,
         checkpoint_preflight_required=checkpoint_preflight_required,
+        search_portfolio_schema_version=search_portfolio_schema_version,
     )
     portfolio_seed: int | None = None
     portfolio_policy: dict[str, int] | None = None
     portfolio_regime = dict(DEFAULT_SEARCH_REGIME)
     if search_config is not None:
-        portfolio_seed = _validated_search_portfolio_config(search_config)
+        portfolio_seed = _validated_search_portfolio_config(
+            search_config,
+            schema_version=search_portfolio_schema_version,
+        )
         portfolio_policy = (
             dict(DEFAULT_ADAPTIVE_MUTATION_POLICY)
             if adaptive_mutation_policy is None
@@ -3284,11 +3401,20 @@ def _verified_slice_controller(
             self._search_slice_snapshot: dict[str, Any] | None = None
             self._search_slice_artifacts: dict[str, dict[str, Any]] | None = None
             if portfolio_seed is not None:
-                _validated_search_portfolio_config(self.config)
-                self.database._calculate_feature_coords = (
-                    _fixed_search_feature_coords
+                _validated_search_portfolio_config(
+                    self.config,
+                    schema_version=search_portfolio_schema_version,
                 )
-                _rebuild_fixed_search_feature_maps(self.database)
+                self.database._calculate_feature_coords = (
+                    lambda program: _fixed_search_feature_coords(
+                        program,
+                        schema_version=search_portfolio_schema_version,
+                    )
+                )
+                _rebuild_fixed_search_feature_maps(
+                    self.database,
+                    schema_version=search_portfolio_schema_version,
+                )
 
         def request_shutdown(self) -> None:
             observer.shutdown_requested = True
@@ -3385,7 +3511,7 @@ def _verified_slice_controller(
                 raise RuntimeError("selected parent artifacts are not an object")
             parent_artifacts = dict(parent_artifacts)
             parent_artifacts[SEARCH_PORTFOLIO_ARTIFACT_KEY] = {
-                "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
+                "schema_version": search_portfolio_schema_version,
                 "island_id": target_island,
                 "island_role": SEARCH_PORTFOLIO_ROLES[target_island],
                 "island_directive":
@@ -3434,9 +3560,16 @@ def _verified_slice_controller(
         ) -> Any:
             observer.begin(start_iteration, max_iterations, target_score)
             if portfolio_seed is not None:
-                _rebuild_fixed_search_feature_maps(self.database)
+                _rebuild_fixed_search_feature_maps(
+                    self.database,
+                    schema_version=search_portfolio_schema_version,
+                )
                 self._search_slice_elites = tuple(
-                    tuple(_search_elite_ids(self.database, island))
+                    tuple(_search_elite_ids(
+                        self.database,
+                        island,
+                        schema_version=search_portfolio_schema_version,
+                    ))
                     for island in range(SEARCH_PORTFOLIO_ISLAND_COUNT)
                 )
                 frozen_ids = {
@@ -3520,7 +3653,10 @@ def _verified_slice_controller(
                     target_island=effective_target,
                 )
                 if portfolio_seed is not None:
-                    _rebuild_fixed_search_feature_maps(self.database)
+                    _rebuild_fixed_search_feature_maps(
+                        self.database,
+                        schema_version=search_portfolio_schema_version,
+                    )
                 stored = self.database.programs.get(getattr(program, "id", None))
                 if stored is None:
                     observer.violations.append(
@@ -3768,6 +3904,8 @@ def _validated_invocation_binding(
         "codex_cwd",
         "codex_executable_mode",
     }
+    if ACTIVE_GEOMETRY_CONTRACT != LEGACY_GEOMETRY_CONTRACT:
+        expected_fields.add(SEARCH_GEOMETRY_CONTRACT_FIELD)
     if not isinstance(invocation, dict) or set(invocation) != expected_fields:
         raise RuntimeError("managed invocation binding fields are incomplete")
     model_names = invocation["model_names"]
@@ -3822,6 +3960,13 @@ def _validated_invocation_binding(
         raise RuntimeError("managed invocation api_base is invalid")
     if not isinstance(invocation["temperature_disabled"], bool):
         raise RuntimeError("managed invocation temperature_disabled is invalid")
+    if ACTIVE_GEOMETRY_CONTRACT != LEGACY_GEOMETRY_CONTRACT and (
+        invocation.get(SEARCH_GEOMETRY_CONTRACT_FIELD)
+        != ACTIVE_GEOMETRY_CONTRACT
+    ):
+        raise RuntimeError(
+            "managed invocation search geometry contract is invalid"
+        )
     return dict(invocation)
 
 
@@ -3944,11 +4089,13 @@ def _write_slice_witness(
             None
             if observer.search_policy_sha256 is None
             else {
-                "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
+                "schema_version": observer.search_portfolio_schema_version,
                 "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
                 "roles": list(SEARCH_PORTFOLIO_ROLES),
                 "feature_dimensions": list(
-                    SEARCH_PORTFOLIO_FEATURE_DIMENSIONS
+                    _search_portfolio_spec(
+                        observer.search_portfolio_schema_version
+                    )[0]
                 ),
                 "regime_status": observer.search_regime_status,
                 "policy_sha256": observer.search_policy_sha256,
@@ -4764,6 +4911,8 @@ def main():
     adaptive_mutation_policy: dict[str, int] | None = None
     search_regime: dict[str, Any] | None = None
     search_portfolio_enabled = False
+    search_portfolio_schema_version: int | None = None
+    search_geometry_contract: str | None = None
     try:
         context_text: str | None = None
         if managed_requested:
@@ -4789,8 +4938,16 @@ def main():
             codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
         if not args.noncss:
-            search_portfolio_enabled = _search_portfolio_requested(
-                args.config
+            search_portfolio_schema_version = (
+                _search_portfolio_schema_version(
+                    args.config
+                )
+            )
+            search_portfolio_enabled = (
+                search_portfolio_schema_version is not None
+            )
+            search_geometry_contract = _validated_search_geometry_contract(
+                search_portfolio_schema_version
             )
             if search_portfolio_enabled and not managed_requested:
                 raise RuntimeError(
@@ -4798,7 +4955,11 @@ def main():
                     "slice accounting"
                 )
             if search_portfolio_enabled:
-                _validated_search_portfolio_config(config)
+                assert search_portfolio_schema_version is not None
+                _validated_search_portfolio_config(
+                    config,
+                    schema_version=search_portfolio_schema_version,
+                )
         evaluator_timeout = getattr(config.evaluator, "timeout", None)
         if (
             isinstance(evaluator_timeout, bool)
@@ -4866,6 +5027,10 @@ def main():
             "codex_cwd": codex_cwd,
             "codex_executable_mode": codex_executable_mode,
         }
+        if search_geometry_contract is not None:
+            invocation_binding[SEARCH_GEOMETRY_CONTRACT_FIELD] = (
+                search_geometry_contract
+            )
         backend_path = (
             Path(__file__).resolve().parent / "codex_cli_llm.py"
             if args.codex_cli
@@ -4918,6 +5083,11 @@ def main():
                     config
                     if search_portfolio_enabled
                     else None
+                ),
+                search_portfolio_schema_version=(
+                    search_portfolio_schema_version
+                    if search_portfolio_schema_version is not None
+                    else SEARCH_PORTFOLIO_SCHEMA_VERSION
                 ),
                 adaptive_mutation_policy=adaptive_mutation_policy,
                 search_regime=search_regime,

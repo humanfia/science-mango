@@ -27,6 +27,13 @@ from pathlib import Path
 from typing import Any, Callable, Iterator, Protocol
 
 from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
+from evaluation.geometry import candidate_geometry
+from evaluation.search_contract import (
+    LEGACY_GEOMETRY_CONTRACT,
+    SEARCH_GEOMETRY_CONTRACT_ENV,
+    TWISTED_TORUS_GEOMETRY_CONTRACT,
+    geometry_contract_for_representation,
+)
 
 from .audit_state import (
     AuditOutcome,
@@ -166,6 +173,27 @@ SEARCH_PORTFOLIO_FEATURE_BINS = {
     "support_split_type": 6,
     "orbit_span_bin": 3,
 }
+SEARCH_PORTFOLIO_V3_SCHEMA_VERSION = 3
+SEARCH_PORTFOLIO_V3_FEATURE_DIMENSIONS = (
+    "algebraic_relation_type",
+    "support_split_type",
+    "geometry_twist_class",
+)
+SEARCH_PORTFOLIO_V3_FEATURE_BINS = {
+    "algebraic_relation_type": 5,
+    "support_split_type": 6,
+    "geometry_twist_class": 3,
+}
+SEARCH_PORTFOLIO_SPECS = {
+    SEARCH_PORTFOLIO_SCHEMA_VERSION: (
+        SEARCH_PORTFOLIO_FEATURE_DIMENSIONS,
+        SEARCH_PORTFOLIO_FEATURE_BINS,
+    ),
+    SEARCH_PORTFOLIO_V3_SCHEMA_VERSION: (
+        SEARCH_PORTFOLIO_V3_FEATURE_DIMENSIONS,
+        SEARCH_PORTFOLIO_V3_FEATURE_BINS,
+    ),
+}
 SEARCH_PORTFOLIO_ROLES = (
     "affine_automorphism_cover",
     "shared_anchor_coset_cover",
@@ -211,7 +239,9 @@ LOCAL_EVOLUTION_DEPENDENCIES = LOCAL_EVALUATOR_DEPENDENCIES
 # Do not accept arbitrary subsets: a missing dependency could otherwise turn
 # manifest corruption into an unaudited source upgrade.
 LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
+    frozenset({"evaluation_geometry"}),
     frozenset({
+        "evaluation_geometry",
         "evaluation_final_gate",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
@@ -219,18 +249,19 @@ LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
         "evolution_dependency_contract",
     }),
     frozenset({
+        "evaluation_geometry",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
         "evaluation_structural_features",
         "evolution_dependency_contract",
     }),
-    frozenset({"evaluation_structural_features"}),
+    frozenset({"evaluation_geometry", "evaluation_structural_features"}),
 )
 # A committed round cannot be rebound, but the immediately preceding
 # append-only dependency schema remains replayable from its immutable
 # manifest/witness hashes. Older incomplete schemas stay rejected.
 COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS = frozenset({
-    "evaluation_structural_features",
+    "evaluation_geometry",
 })
 EVOLUTION_INVOCATION_FIELDS = frozenset({
     "model_names",
@@ -243,6 +274,7 @@ EVOLUTION_INVOCATION_FIELDS = frozenset({
     "codex_cwd",
     "codex_executable_mode",
 })
+SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD = "search_geometry_contract"
 
 
 class RoundTransactionError(RuntimeError):
@@ -1345,7 +1377,7 @@ def _fresh_invocation_binding(
         if worker_cap is None
         else min(configured_workers, worker_cap)
     )
-    return {
+    invocation = {
         "model_names": [config.model],
         "reasoning_effort": config.reasoning_effort,
         "codex_cli": config.codex_cli,
@@ -1358,6 +1390,84 @@ def _fresh_invocation_binding(
             None if codex_identity is None else codex_identity["mode"]
         ),
     }
+    geometry_contract = _managed_search_geometry_contract(
+        config,
+        _expected_evolution_config(config),
+    )
+    if geometry_contract is not None:
+        invocation[SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD] = (
+            geometry_contract
+        )
+    return invocation
+
+
+def _managed_search_geometry_contract(
+    config: FlowConfig,
+    config_path: Path,
+) -> str | None:
+    """Bind a representation, portfolio schema, and child geometry contract.
+
+    The legacy invocation shape deliberately remains unchanged.  Geometry-
+    aware schema-v3 launches are the only ones that carry an extra field, so
+    their completion witness records the exact evaluator contract while old
+    rectangular transactions remain byte-replayable.
+    """
+
+    try:
+        portfolio = _search_portfolio_contract_from_config(config_path)
+    except RoundTransactionError as current_error:
+        # Schema-v4 recovery uses the historical portfolio marker
+        # ``schema_version: 1``.  It has no geometry-aware invocation field
+        # and must retain its exact frozen semantics.
+        try:
+            legacy_portfolio = (
+                _legacy_v4_search_portfolio_enabled_from_config(config_path)
+            )
+        except RoundTransactionError:
+            raise current_error
+        if not legacy_portfolio:
+            raise current_error
+        portfolio = None
+    portfolio_schema = None if portfolio is None else int(portfolio[0])
+    representation_id = config.search_representation_id
+    if representation_id is None:
+        if portfolio_schema == SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
+            raise RoundTransactionError(
+                "geometry-aware search portfolio schema v3 requires an "
+                "explicit known search representation"
+            )
+        return None
+    geometry_contract = geometry_contract_for_representation(
+        representation_id,
+    )
+    if geometry_contract is None:
+        if portfolio_schema == SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
+            raise RoundTransactionError(
+                "geometry-aware search portfolio schema v3 requires a known "
+                "twisted-torus search representation"
+            )
+        # Existing rectangular representations intentionally remain open-
+        # ended.  Their exact legacy invocation has no geometry field; if a
+        # future source-bound mapping opts one into a new geometry, changing
+        # search_contract.py forces a prepared transaction rebind first.
+        return None
+    if geometry_contract == TWISTED_TORUS_GEOMETRY_CONTRACT:
+        if portfolio_schema != SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
+            raise RoundTransactionError(
+                "twisted-torus search representation requires geometry-aware "
+                "search portfolio schema v3"
+            )
+        return geometry_contract
+    if geometry_contract == LEGACY_GEOMETRY_CONTRACT:
+        if portfolio_schema == SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
+            raise RoundTransactionError(
+                "geometry-aware search portfolio schema v3 requires the "
+                "twisted-torus search representation"
+            )
+        return None
+    raise RoundTransactionError(
+        "search representation maps to an unsupported geometry contract"
+    )
 
 
 def _evolution_launch_binding(
@@ -1414,11 +1524,23 @@ def _validate_invocation_binding(
     invocation: Any,
     launch_binding: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
-    if not isinstance(invocation, dict) or set(invocation) != set(
-        EVOLUTION_INVOCATION_FIELDS
-    ):
+    geometry_contract = _managed_search_geometry_contract(
+        config,
+        Path(launch_binding["config"]["path"]),
+    )
+    expected_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    if geometry_contract is not None:
+        expected_fields.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
+    if not isinstance(invocation, dict) or set(invocation) != expected_fields:
         raise RoundTransactionError(
             "evolution invocation binding fields are incomplete"
+        )
+    if geometry_contract is not None and (
+        invocation[SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD]
+        != geometry_contract
+    ):
+        raise RoundTransactionError(
+            "evolution search geometry contract binding changed"
         )
     if invocation["model_names"] != [config.model]:
         raise RoundTransactionError("evolution model binding changed")
@@ -3037,6 +3159,7 @@ def _previous_round_failure_feedback_advisory(
                 "candidate_key": item["candidate_key"],
                 "ell": ell,
                 "m": m,
+                "geometry": definition.get("geometry"),
                 "A_terms": definition.get("A_terms"),
                 "B_terms": definition.get("B_terms"),
                 "side": side,
@@ -3997,7 +4120,11 @@ def _candidate_log_range_identity(
         ) from exc
 
 
-def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
+def _search_portfolio_contract_from_config(
+    config_path: Path,
+) -> tuple[int, tuple[str, ...], dict[str, int]] | None:
+    """Return the source-bound v2/v3 portfolio contract, if enabled."""
+
     try:
         value = yaml.safe_load(config_path.read_text())
     except (OSError, UnicodeError, yaml.YAMLError) as exc:
@@ -4009,39 +4136,47 @@ def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
             "evolution config must contain a YAML object"
         )
     if SEARCH_PORTFOLIO_CONFIG_KEY not in value:
-        return False
+        return None
     marker = value[SEARCH_PORTFOLIO_CONFIG_KEY]
+    schema_version = (
+        marker.get("schema_version") if isinstance(marker, dict) else None
+    )
     if (
         not isinstance(marker, dict)
         or set(marker) != {"enabled", "schema_version"}
         or marker["enabled"] is not True
-        or type(marker["schema_version"]) is not int
-        or marker["schema_version"] != SEARCH_PORTFOLIO_SCHEMA_VERSION
+        or type(schema_version) is not int
+        or schema_version not in SEARCH_PORTFOLIO_SPECS
     ):
         raise RoundTransactionError(
             "qcode_search_portfolio marker must be exactly "
-            "{enabled: true, schema_version: 2}"
+            "{enabled: true, schema_version: 2|3}"
         )
+    dimensions, bins = SEARCH_PORTFOLIO_SPECS[schema_version]
     database = value.get("database")
     if (
         not isinstance(database, dict)
         or type(database.get("num_islands")) is not int
         or database["num_islands"] != SEARCH_PORTFOLIO_ISLAND_COUNT
         or database.get("feature_dimensions")
-        != list(SEARCH_PORTFOLIO_FEATURE_DIMENSIONS)
+        != list(dimensions)
         or not isinstance(database.get("feature_bins"), dict)
-        or set(database["feature_bins"]) != set(SEARCH_PORTFOLIO_FEATURE_BINS)
+        or set(database["feature_bins"]) != set(bins)
         or any(
             type(database["feature_bins"].get(name)) is not int
             or database["feature_bins"][name] != expected
-            for name, expected in SEARCH_PORTFOLIO_FEATURE_BINS.items()
+            for name, expected in bins.items()
         )
     ):
         raise RoundTransactionError(
             "search portfolio database geometry must be exactly "
-            "five islands with the fixed 5/6/3 mechanism MAP grid"
+            f"five islands with the schema-v{schema_version} 5/6/3 MAP grid"
         )
-    return True
+    return schema_version, tuple(dimensions), dict(bins)
+
+
+def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
+    return _search_portfolio_contract_from_config(config_path) is not None
 
 
 def _legacy_v4_search_portfolio_enabled_from_config(
@@ -4554,7 +4689,8 @@ def _validate_search_portfolio_witness(
         return
     config_path = Path(launch_binding["config"]["path"])
     context_path = Path(launch_binding["context"]["path"])
-    enabled = _search_portfolio_enabled_from_config(config_path)
+    portfolio_contract = _search_portfolio_contract_from_config(config_path)
+    enabled = portfolio_contract is not None
     portfolio = witness.get("search_portfolio")
     base_attempt_fields = {"iteration", "island_id", "result"}
     if not enabled:
@@ -4567,6 +4703,8 @@ def _validate_search_portfolio_witness(
                 "non-portfolio submission witness fields are not exact"
             )
         return
+    assert portfolio_contract is not None
+    portfolio_schema, feature_dimensions, _feature_bins = portfolio_contract
 
     policy = _adaptive_mutation_policy_from_context(context_path)
     policy_sha256 = _adaptive_mutation_policy_sha256(policy)
@@ -4578,10 +4716,10 @@ def _validate_search_portfolio_witness(
         for island_id, role in enumerate(SEARCH_PORTFOLIO_ROLES)
     }
     expected_portfolio = {
-        "schema_version": SEARCH_PORTFOLIO_SCHEMA_VERSION,
+        "schema_version": portfolio_schema,
         "island_count": SEARCH_PORTFOLIO_ISLAND_COUNT,
         "roles": list(SEARCH_PORTFOLIO_ROLES),
-        "feature_dimensions": list(SEARCH_PORTFOLIO_FEATURE_DIMENSIONS),
+        "feature_dimensions": list(feature_dimensions),
         "regime_status": regime_status,
         "policy_sha256": policy_sha256,
         "role_submission_counts": expected_counts,
@@ -4708,7 +4846,7 @@ def _validate_search_portfolio_witness(
         if (
             attempt["island_id"] != expected_island
             or attempt["search_portfolio_schema_version"]
-            != SEARCH_PORTFOLIO_SCHEMA_VERSION
+            != portfolio_schema
             or attempt["search_policy_sha256"] != policy_sha256
             or attempt["search_regime_status"] != regime_status
             or attempt["search_role"] != expected_role
@@ -5366,11 +5504,28 @@ def _validate_stored_binding_shape(
             "the frozen context is not byte-identical"
         )
 
-    if not isinstance(invocation, dict) or set(invocation) != set(
-        EVOLUTION_INVOCATION_FIELDS
+    geometry_contract = _managed_search_geometry_contract(
+        config,
+        Path(launch["config"]["path"]),
+    )
+    expected_invocation_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    if geometry_contract is not None:
+        expected_invocation_fields.add(
+            SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD,
+        )
+    if (
+        not isinstance(invocation, dict)
+        or set(invocation) != expected_invocation_fields
     ):
         raise RoundTransactionError(
             "evolution invocation binding fields are incomplete"
+        )
+    if geometry_contract is not None and (
+        invocation[SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD]
+        != geometry_contract
+    ):
+        raise RoundTransactionError(
+            "evolution search geometry contract binding changed"
         )
     if invocation["model_names"] != [config.model]:
         raise RoundTransactionError("evolution model binding changed")
@@ -5573,6 +5728,13 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         command.append("--codex-cli")
 
     child_environment = os.environ.copy()
+    geometry_contract = invocation_binding.get(
+        SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD,
+    )
+    if geometry_contract is None:
+        child_environment.pop(SEARCH_GEOMETRY_CONTRACT_ENV, None)
+    else:
+        child_environment[SEARCH_GEOMETRY_CONTRACT_ENV] = geometry_contract
     if invocation_binding["codex_cli"]:
         child_environment["QCODE_CODEX_BIN"] = launch_binding[
             "codex_executable"
@@ -5642,11 +5804,18 @@ def evaluate_with_milp(
     from evaluation.final_gate import FOM_THRESHOLD
     from main import merge_bp_milp_result
 
+    normalized_candidate = dict(candidate)
+    geometry = candidate_geometry(candidate)
+    if geometry is None:
+        normalized_candidate.pop("geometry", None)
+    else:
+        normalized_candidate["geometry"] = geometry
     result = evaluate_candidate_milp(
         int(candidate["ell"]),
         int(candidate["m"]),
         [tuple(map(int, term)) for term in candidate["A_terms"]],
         [tuple(map(int, term)) for term in candidate["B_terms"]],
+        geometry=geometry,
         milp_timeout_per_logical=config.milp_timeout_per_logical,
         milp_total_timeout=config.milp_total_timeout,
         milp_early_stop=(config.milp_early_stop or None),
@@ -5655,13 +5824,13 @@ def evaluate_with_milp(
         milp_resume=resume,
         milp_hard_timeout_per_logical=hard_timeout_per_logical,
     )
-    merged = merge_bp_milp_result(candidate, result)
+    merged = merge_bp_milp_result(normalized_candidate, result)
     # Preserve pre-MILP machine gates when an exact result replaces the BP row;
     # final acceptance requires this replayable evidence.
     for field in ("static_eligibility", "structural_novelty"):
-        if field in candidate:
-            merged[field] = candidate[field]
-    merged["candidate_key"] = code_key(candidate)
+        if field in normalized_candidate:
+            merged[field] = normalized_candidate[field]
+    merged["candidate_key"] = code_key(normalized_candidate)
     if "threshold_proof_witness" in result:
         merged["threshold_proof_witness"] = copy.deepcopy(
             result["threshold_proof_witness"]
@@ -6287,6 +6456,7 @@ class HumanizeFlow:
                         m,
                         a_terms,
                         b_terms,
+                        geometry=row.get("geometry"),
                     )
                     code_type = "css"
                 rebuilt_n = int(rebuilt_code.num_qudits)
@@ -9121,7 +9291,13 @@ class HumanizeFlow:
             result: dict[str, Any],
             attempt: dict[str, Any],
         ) -> None:
-            key = code_key(candidate)
+            normalized_candidate = dict(candidate)
+            geometry = candidate_geometry(candidate)
+            if geometry is None:
+                normalized_candidate.pop("geometry", None)
+            else:
+                normalized_candidate["geometry"] = geometry
+            key = code_key(normalized_candidate)
             formal_contract = result.pop(
                 "_humanize_formal_audit_contract", False
             )
@@ -9129,12 +9305,15 @@ class HumanizeFlow:
                 raise AuditStateError(
                     "internal formal evaluator marker is invalid"
                 )
-            defining_fields = ("ell", "m", "A_terms", "B_terms")
+            defining_fields = ("geometry", "ell", "m", "A_terms", "B_terms")
             provenance_fields = ("static_eligibility", "structural_novelty")
             proposed_identity = dict(result)
             for field in defining_fields:
-                if field not in proposed_identity and field in candidate:
-                    proposed_identity[field] = candidate[field]
+                if (
+                    field not in proposed_identity
+                    and field in normalized_candidate
+                ):
+                    proposed_identity[field] = normalized_candidate[field]
             observed_key = code_key(proposed_identity)
             if observed_key != key:
                 raise AuditStateError(
@@ -9147,8 +9326,8 @@ class HumanizeFlow:
                     "MILP evaluator returned a mismatched candidate_key"
                 )
             for field in defining_fields + provenance_fields:
-                if field in candidate:
-                    result[field] = candidate[field]
+                if field in normalized_candidate:
+                    result[field] = normalized_candidate[field]
                 else:
                     result.pop(field, None)
             result["candidate_key"] = key

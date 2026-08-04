@@ -26,6 +26,7 @@ from typing import Any, Callable
 import numpy as np
 
 from evaluation.bb_code import build_bb_code, get_code_params_fast, validate_terms
+from evaluation.geometry import candidate_geometry, normalize_geometry
 from evaluation.tanner_equivalence import (
     canonical_hash,
     extract_full_vertex_isomorphism,
@@ -150,7 +151,7 @@ def _normalized_screen_input(result: dict[str, Any]) -> dict[str, Any]:
         raise StructuralScreenCacheError(
             "candidate has invalid structural-screen defining fields"
         ) from exc
-    return {
+    normalized = {
         "ell": ell,
         "m": m,
         "A_terms": a_terms,
@@ -158,6 +159,10 @@ def _normalized_screen_input(result: dict[str, Any]) -> dict[str, Any]:
         "reported_n": reported_n,
         "reported_k": reported_k,
     }
+    geometry = normalize_geometry(ell, m, result.get("geometry"))
+    if geometry is not None:
+        normalized["geometry"] = geometry
+    return normalized
 
 
 def structural_screen_input_sha256(result: dict[str, Any]) -> str:
@@ -174,6 +179,7 @@ def structural_screen_runtime_fingerprint() -> dict[str, Any]:
     for name in (
         "structural_dedup.py",
         "bb_code.py",
+        "geometry.py",
         "tanner_equivalence.py",
     ):
         path = module_dir / name
@@ -769,12 +775,14 @@ def _pair_replay_payload(task: dict[str, Any]) -> dict[str, Any]:
         int(candidate["m"]),
         candidate["A_terms"],
         candidate["B_terms"],
+        geometry=candidate_geometry(candidate),
     )
     representative_code = build_bb_code(
         int(representative["ell"]),
         int(representative["m"]),
         representative["A_terms"],
         representative["B_terms"],
+        geometry=candidate_geometry(representative),
     )
     mapping = extract_full_vertex_isomorphism(
         candidate_code,
@@ -1102,7 +1110,7 @@ def _component_sizes(checks: np.ndarray) -> list[int]:
 
 
 def check_css_static_eligibility(
-    ell, m, a_terms, b_terms, *, reported_n=None, reported_k=None,
+    ell, m, a_terms, b_terms, *, geometry=None, reported_n=None, reported_k=None,
 ) -> dict:
     """Run cheap, fail-closed challenge gates before BLISS or distance MILP.
 
@@ -1116,7 +1124,10 @@ def check_css_static_eligibility(
         b_terms = [tuple(map(int, term)) for term in b_terms]
         validate_terms(ell, m, a_terms, "A")
         validate_terms(ell, m, b_terms, "B")
-        code = build_bb_code(ell, m, a_terms, b_terms)
+        geometry = normalize_geometry(ell, m, geometry)
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=geometry,
+        )
         hx, hz = _matrices(code)
     except (TypeError, ValueError) as exc:
         return {
@@ -1227,9 +1238,17 @@ def known_reference_registry():
     return tuple(registry)
 
 
-def check_css_structural_novelty(ell, m, a_terms, b_terms) -> dict:
+def check_css_structural_novelty(
+    ell, m, a_terms, b_terms, *, geometry=None,
+) -> dict:
     """Classify a CSS BB candidate against known literature structures."""
-    candidate = build_bb_code(ell, m, a_terms, b_terms)
+    candidate = build_bb_code(
+        ell,
+        m,
+        a_terms,
+        b_terms,
+        geometry=normalize_geometry(ell, m, geometry),
+    )
     n, k = get_code_params_fast(candidate)
     candidate_hash = canonical_hash(candidate)
     candidate_digest = canonical_digest(candidate)
@@ -1275,6 +1294,7 @@ def annotate_css_result(result: dict) -> dict:
         int(result["m"]),
         result["A_terms"],
         result["B_terms"],
+        geometry=candidate_geometry(result),
         reported_n=result.get("n"),
         reported_k=result.get("k"),
     )
@@ -1296,6 +1316,7 @@ def annotate_css_result(result: dict) -> dict:
         int(result["m"]),
         result["A_terms"],
         result["B_terms"],
+        geometry=candidate_geometry(result),
     )
     if not annotated["structural_novelty"]["novel"]:
         annotated["structural_rejection"] = "known_reference"
@@ -1366,6 +1387,7 @@ def deduplicate_annotated_css_results(
             int(annotated["m"]),
             annotated["A_terms"],
             annotated["B_terms"],
+            geometry=candidate_geometry(annotated),
         )
         representative = previous
         representative_code = build_bb_code(
@@ -1373,6 +1395,7 @@ def deduplicate_annotated_css_results(
             int(representative["m"]),
             representative["A_terms"],
             representative["B_terms"],
+            geometry=candidate_geometry(representative),
         )
         mapping = extract_full_vertex_isomorphism(candidate, representative_code)
         if mapping is None:

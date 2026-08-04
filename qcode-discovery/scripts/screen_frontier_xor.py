@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import argparse
 import json
+import math
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -20,6 +21,12 @@ from evaluation.certificate import (
     verify_css_sector_witness,
 )
 from evaluation.distance_milp import get_code_matrices
+from evaluation.geometry import (
+    candidate_geometry,
+    geometry_basis,
+    geometry_identity,
+    reduce_coordinate,
+)
 from scripts.screen_frontier_candidate import build_candidate_code, load_candidate
 
 
@@ -33,21 +40,92 @@ def verify_bb_translation_symmetry(candidate: dict[str, Any]) -> dict[str, Any]:
         for value in get_code_matrices(code)
     )
     ell, m = int(candidate["ell"]), int(candidate["m"])
+    geometry = candidate_geometry(candidate)
+    identity = geometry_identity(ell, m, geometry)
     block_size = ell * m
     n = hx.shape[1]
 
     def canonical_rows(matrix: np.ndarray) -> list[bytes]:
         return sorted(bytes(row) for row in np.packbits(matrix, axis=1))
 
-    grid = np.arange(block_size).reshape(ell, m)
+    # Preserve the exact legacy report for the rectangular quotient.  These
+    # reports are persisted in Stage-3 checkpoints, so adding even informative
+    # fields here would invalidate otherwise sound q=0 work.
+    if geometry is None:
+        grid = np.arange(block_size).reshape(ell, m)
+        generators = []
+        for axis, order in ((0, ell), (1, m)):
+            within_block = np.roll(grid, 1, axis=axis).ravel()
+            permutation = np.concatenate(
+                (within_block, block_size + within_block)
+            )
+            hx_preserved = canonical_rows(hx) == canonical_rows(
+                hx[:, permutation]
+            )
+            hz_preserved = canonical_rows(hz) == canonical_rows(
+                hz[:, permutation]
+            )
+            generators.append({
+                "axis": "x" if axis == 0 else "y",
+                "order": order,
+                "hx_row_set_preserved": hx_preserved,
+                "hz_row_set_preserved": hz_preserved,
+                "permutation_sha256": hashlib.sha256(
+                    permutation.astype("<u4").tobytes()
+                ).hexdigest(),
+            })
+        verified = bool(
+            n == 2 * block_size
+            and ell > 0 and m > 0
+            and all(
+                item["hx_row_set_preserved"]
+                and item["hz_row_set_preserved"]
+                for item in generators
+            )
+        )
+        return {
+            "method": "bb-torus-translation-row-set-v1",
+            "verified": verified,
+            "shape": [ell, m],
+            "block_size": block_size,
+            "orbit_representatives": [0, block_size],
+            "orbit_sizes": [block_size, block_size],
+            "generators": generators,
+        }
+
     generators = []
-    for axis, order in ((0, ell), (1, m)):
-        within_block = np.roll(grid, 1, axis=axis).ravel()
+    twist = int(geometry["twist"])
+    specifications = (
+        ("x", 1, 0, ell * m // math.gcd(m, twist)),
+        ("y", 0, 1, m),
+    )
+
+    def inverse_translation_index(
+        x_coord: int, y_coord: int, dx: int, dy: int,
+    ) -> int:
+        reduced_x, reduced_y = reduce_coordinate(
+            ell,
+            m,
+            x_coord - dx,
+            y_coord - dy,
+            geometry,
+        )
+        return reduced_x * m + reduced_y
+
+    for axis, dx, dy, order in specifications:
+        # ``matrix[:, permutation]`` applies the inverse translation to
+        # columns.  Reduce it in the actual quotient; an x-wrap on a twisted
+        # torus also shifts y and therefore cannot be represented by np.roll.
+        within_block = np.asarray([
+            inverse_translation_index(x_coord, y_coord, dx, dy)
+            for x_coord in range(ell)
+            for y_coord in range(m)
+        ], dtype=np.int64)
         permutation = np.concatenate((within_block, block_size + within_block))
         hx_preserved = canonical_rows(hx) == canonical_rows(hx[:, permutation])
         hz_preserved = canonical_rows(hz) == canonical_rows(hz[:, permutation])
         generators.append({
-            "axis": "x" if axis == 0 else "y",
+            "axis": axis,
             "order": order,
             "hx_row_set_preserved": hx_preserved,
             "hz_row_set_preserved": hz_preserved,
@@ -64,9 +142,13 @@ def verify_bb_translation_symmetry(candidate: dict[str, Any]) -> dict[str, Any]:
         )
     )
     return {
-        "method": "bb-torus-translation-row-set-v1",
+        "method": "bb-quotient-translation-row-set-v2",
         "verified": verified,
         "shape": [ell, m],
+        "geometry": identity,
+        "relation_basis": [list(vector) for vector in geometry_basis(
+            ell, m, geometry,
+        )],
         "block_size": block_size,
         "orbit_representatives": [0, block_size],
         "orbit_sizes": [block_size, block_size],

@@ -33,6 +33,7 @@ from evaluation.failure_disposition import (
     incomplete_result_disposition,
 )
 from evaluation.final_gate import _matrix_sha256, _rank_f2
+from evaluation.geometry import candidate_geometry
 from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.registry import check_code_novelty
 
@@ -742,8 +743,11 @@ def build_css_certificate(
     if claim.get("C_terms") or claim.get("D_terms"):
         raise ValueError("CSS certificate builder does not accept PBB/non-CSS claims")
     ell, m = int(claim["ell"]), int(claim["m"])
+    geometry = candidate_geometry(claim)
     a_terms, b_terms = claim["A_terms"], claim["B_terms"]
-    code = build_bb_code(ell, m, a_terms, b_terms)
+    code = build_bb_code(
+        ell, m, a_terms, b_terms, geometry=geometry,
+    )
     hx, hz, _, _ = get_code_matrices(code)
     hx = np.asarray(hx, dtype=np.uint8) & 1
     hz = np.asarray(hz, dtype=np.uint8) & 1
@@ -753,8 +757,13 @@ def build_css_certificate(
     specs = _direction_specs(code)
     matrix_sha256 = {"hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz)}
     known_answer_sha256 = _file_sha256(known_answer_artifact)
+    checkpoint_claim = dict(claim)
+    if geometry is None:
+        checkpoint_claim.pop("geometry", None)
+    else:
+        checkpoint_claim["geometry"] = geometry
     checkpoint_binding = {
-        "claim_sha256": _json_sha256(claim),
+        "claim_sha256": _json_sha256(checkpoint_claim),
         "matrix_sha256": matrix_sha256,
         "known_answer_sha256": known_answer_sha256,
         "solver": _solver_environment(),
@@ -859,6 +868,10 @@ def build_css_certificate(
         },
         "structural_novelty": novelty,
     }
+    if geometry is None:
+        normalized_claim.pop("geometry", None)
+    else:
+        normalized_claim["geometry"] = geometry
     final_gate = evaluate_challenge_gate(
         normalized_claim,
         known_answer_artifact=known_answer_artifact,
@@ -972,6 +985,7 @@ def verify_css_certificate(
         code = build_bb_code(
             int(claim["ell"]), int(claim["m"]),
             claim["A_terms"], claim["B_terms"],
+            geometry=candidate_geometry(claim),
         )
         hx, hz, _, _ = get_code_matrices(code)
         hx = np.asarray(hx, dtype=np.uint8) & 1

@@ -19,6 +19,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import build_bb_code
+from evaluation.geometry import candidate_geometry
 from evaluation.certificate import (
     FORMULATION as CSS_EXACT_FORMULATION,
     THRESHOLD_FORMULATION as CSS_THRESHOLD_FORMULATION,
@@ -102,6 +103,7 @@ def build_candidate_code(claim: dict[str, Any]):
         })
     return build_bb_code(
         claim["ell"], claim["m"], claim["A_terms"], claim["B_terms"],
+        geometry=candidate_geometry(claim),
     )
 
 

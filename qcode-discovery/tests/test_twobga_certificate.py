@@ -265,6 +265,50 @@ def test_dispatch_selects_typed_twobga_builder_and_verifier():
     assert CERTIFICATE_TYPE in dispatch.SUPPORTED_CERTIFICATE_TYPES
 
 
+def test_twobga_certificate_builder_rejects_twisted_geometry_before_request():
+    with pytest.raises(ValueError, match="twisted-torus geometry"):
+        build_twobga_certificate(
+            {
+                "ell": 6,
+                "m": 6,
+                "A_terms": [[0, 0], [1, 0]],
+                "B_terms": [[0, 0], [0, 1]],
+                "geometry": {
+                    "schema_version": 1,
+                    "family": "twisted_torus",
+                    "twist": 1,
+                },
+            },
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+
+
+def test_twobga_certificate_verifier_rejects_twisted_claim(
+    exact_certificate,
+):
+    forged = copy.deepcopy(exact_certificate)
+    forged["claim"]["geometry"] = {
+        "schema_version": 1,
+        "family": "twisted_torus",
+        "twist": 1,
+    }
+    forged["certificate_sha256"] = twobga_certificate._certificate_sha256(
+        forged,
+    )
+
+    result = verify_twobga_certificate(
+        forged,
+        known_answer_artifact=KNOWN_ANSWER,
+        sector_solver=lambda *args, **kwargs: pytest.fail(
+            "domain-invalid certificate reached a solver"
+        ),
+    )
+
+    assert result["passed"] is False
+    assert result["replay_complete"] is False
+    assert "twisted-torus geometry" in result["failures"][0]
+
+
 def test_certificate_verifier_reruns_both_auxiliary_sectors(
     monkeypatch,
     exact_certificate,

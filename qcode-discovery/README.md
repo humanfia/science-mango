@@ -438,6 +438,22 @@ stays in audit artifacts and cannot select a template, alter a proof gate, or
 change the child identity.  Non-CSS PBB remains blocked because the current
 Stage 2/3 and strict release gates accept CSS `(A,B)` claims only.
 
+The opt-in twisted-torus representation extends the BB outer quotient from
+the rectangular relations `x^ell = y^m = 1` to
+`y^m = 1, x^ell y^q = 1`, with canonical `0 <= q < m`.  Its immutable search
+wrapper covers every ordered factor shape for target cell volumes 72, 100,
+144, and 180 and every corresponding `q` stratum; the evolved function may
+change sparse supports but cannot remove geometry lanes.  Use
+`configs/five_stage_campaign.twisted_torus_v1.json` for a direct fresh run, or
+`configs/five_stage_campaign.cover_algebra.geometry_auto_v1.json` to allow a
+sealed representation-change decision to materialize it automatically.  The
+representation has its own schema-v3 MAP archive and checkpoint compatibility
+group, and must never resume a rectangular checkpoint.  Twisted candidates
+use the generic matrix/SAT sector proof path; the rectangular-only 2BGA
+theorem backend rejects them fail-closed.  Geometry labels are construction
+inputs only: Tanner-graph deduplication still rejects a twisted chart that is
+merely a re-encoding of a registered code.
+
 Direct OpenEvolve configurations that do not use Codex CLI still require a
 LiteLLM-compatible proxy. See [`evolve/config.yaml`](evolve/config.yaml) for
 the available proxy settings.

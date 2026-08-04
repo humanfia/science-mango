@@ -118,8 +118,9 @@ def test_generation_schema_requires_v2_search_action_and_is_closed():
             "unstructured",
         },
         "support_split_type": {"2+2", "2+3", "3+2", "2+4", "4+2", "3+3"},
-        "orbit_span_bin": {"0", "1", "2"},
-        "mutation_tactic": {
+            "orbit_span_bin": {"0", "1", "2"},
+            "geometry_twist_class": {"0", "1", "2"},
+            "mutation_tactic": {
             "novel_structure_exploration",
             "repair_x_low_weight",
             "repair_z_low_weight",

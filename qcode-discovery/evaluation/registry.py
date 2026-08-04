@@ -190,7 +190,12 @@ def _entry_construction(entry: Mapping[str, Any], code_type: str):
         if code_type == "css"
         else {"ell", "m", "A_terms", "B_terms", "C_terms", "D_terms"}
     )
-    if set(construction) != expected_keys:
+    allowed_keys = (
+        (expected_keys, expected_keys | {"geometry"})
+        if code_type == "css"
+        else (expected_keys,)
+    )
+    if set(construction) not in allowed_keys:
         raise _RegistryIntegrityError(
             "entry construction fields do not match its code type"
         )
@@ -208,6 +213,8 @@ def _entry_construction(entry: Mapping[str, Any], code_type: str):
             key: (
                 int(value)
                 if key in {"ell", "m"}
+                else dict(value)
+                if key == "geometry"
                 else [tuple(term) for term in value]
             )
             for key, value in construction.items()
