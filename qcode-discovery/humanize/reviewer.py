@@ -10,6 +10,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from evaluation.search_contract import EVOLUTION_LATTICES
+
 from .state import candidate_terminal_negative
 
 
@@ -584,7 +586,207 @@ _TRUSTED_EXACT_DETAILS_LIMIT = 20
 _MEMORY_EXCERPT_LIMIT = 12000
 
 
-def _upper_bound_neutral_advisory(row: dict[str, Any]) -> dict[str, Any]:
+def _negative_witness_geometry(
+    row: dict[str, Any],
+    *,
+    formal_audit: bool = False,
+    allow_search_oracle: bool = False,
+) -> dict[str, Any] | None:
+    """Project strict replayed witness geometry as negative evidence only."""
+
+    audit_attempt = row.get("audit_attempt")
+    formal_threshold_rejection = bool(
+        formal_audit
+        and isinstance(audit_attempt, dict)
+        and audit_attempt.get("schema_version") == 2
+        and isinstance(audit_attempt.get("evidence"), dict)
+        and row.get("threshold_rejection_proven") is True
+        and (
+            row.get("final_gate_excluded_by_upper_bound") is True
+            or row.get("search_final_gate_excluded_by_upper_bound") is True
+        )
+    )
+    oracle = row.get("low_weight_oracle")
+    search_oracle_rejection = bool(
+        allow_search_oracle
+        and row.get("search_status") == "terminal_negative"
+        and row.get("threshold_rejection_proven") is True
+        and row.get("threshold_proof_source") == "low_weight_oracle"
+        and (
+            row.get("final_gate_excluded_by_upper_bound") is True
+            or row.get("search_final_gate_excluded_by_upper_bound") is True
+        )
+        and isinstance(oracle, dict)
+        and oracle.get("outcome") == "SAT"
+    )
+    if not (
+        candidate_terminal_negative(row)
+        or formal_threshold_rejection
+        or search_oracle_rejection
+    ):
+        return None
+    witness = oracle.get("witness") if search_oracle_rejection else None
+    if not isinstance(witness, dict):
+        witness = row.get("threshold_proof_witness")
+    if not isinstance(witness, dict):
+        details = row.get("milp_details")
+        if isinstance(details, dict):
+            witness = details.get("minimum_direction_witness")
+    if not isinstance(witness, dict):
+        witness = row.get("symplectic_weight_witness")
+    if not isinstance(witness, dict):
+        return None
+    n = row.get("n")
+    ell = row.get("ell")
+    m = row.get("m")
+    k = row.get("k")
+    a_terms = row.get("A_terms")
+    b_terms = row.get("B_terms")
+    # Reject dimensions and degree before touching a potentially huge bit
+    # vector or allocating dense BB matrices. Stage 2 evaluates exactly these
+    # allow-listed lattices under the challenge's degree-six gate.
+    if (
+        type(ell) is not int
+        or type(m) is not int
+        or (ell, m) not in EVOLUTION_LATTICES
+        or type(n) is not int
+        or n != 2 * ell * m
+        or type(k) is not int
+        or not 1 <= k <= n
+        or not isinstance(a_terms, (list, tuple))
+        or not isinstance(b_terms, (list, tuple))
+        or not 1 <= len(a_terms) <= 6
+        or not 1 <= len(b_terms) <= 6
+    ):
+        return None
+    side = witness.get("side")
+    weight = witness.get("weight")
+    bits = witness.get("bits")
+    if (
+        side not in {"X", "Z"}
+        or type(weight) is not int
+        or weight < 1
+        or not isinstance(bits, list)
+        or len(bits) != n
+        or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+        or sum(bits) != weight
+    ):
+        return None
+    try:
+        import numpy as np
+
+        from evaluation.bb_code import build_bb_code, validate_terms
+        from evaluation.css_logical_detector import (
+            verify_css_logical_detectors,
+        )
+        from evaluation.distance_milp import get_code_matrices
+        from evaluation.evaluator import compute_challenge_rejection_cutoff
+        from evaluation.low_weight_oracle import (
+            verify_css_low_weight_oracle,
+        )
+
+        def strict_terms(value: Any, name: str) -> list[tuple[int, int]]:
+            if not isinstance(value, (list, tuple)):
+                raise TypeError(f"{name} is not a term sequence")
+            normalized: list[tuple[int, int]] = []
+            for term in value:
+                if (
+                    not isinstance(term, (list, tuple))
+                    or len(term) != 2
+                    or any(type(coordinate) is not int for coordinate in term)
+                ):
+                    raise TypeError(f"{name} contains an invalid term")
+                normalized.append((term[0], term[1]))
+            validate_terms(ell, m, normalized, name)
+            return normalized
+
+        normalized_a = strict_terms(a_terms, "A")
+        normalized_b = strict_terms(b_terms, "B")
+        code = build_bb_code(ell, m, normalized_a, normalized_b)
+        if int(code.num_qudits) != n or int(code.dimension) != k:
+            return None
+        hx, hz, lx, lz = get_code_matrices(code)
+        detector = verify_css_logical_detectors(hx, hz, lx, lz)
+        if detector.get("verified") is not True:
+            return None
+        if search_oracle_rejection and verify_css_low_weight_oracle(
+            oracle,
+            hx,
+            hz,
+            lx,
+            lz,
+            # A SAT operator is a self-verifying algebraic upper-bound
+            # witness. Preserve its historical source binding so a completed
+            # round remains replayable after the oracle implementation is
+            # upgraded; do not use this relaxation for positive lower bounds.
+            require_current_source=False,
+        ):
+            return None
+        vector = np.asarray(bits, dtype=np.uint8)
+        checks, logicals = (hz, lz) if side == "X" else (hx, lx)
+        if np.any((checks @ vector) & 1) or not np.any(
+            (logicals @ vector) & 1
+        ):
+            return None
+        if weight > compute_challenge_rejection_cutoff(n, k, 12.0):
+            return None
+    except Exception:
+        return None
+    support = [index for index, bit in enumerate(bits) if bit]
+    block_size = (
+        ell * m
+        if type(ell) is int and type(m) is int and ell > 0 and m > 0
+        else None
+    )
+    return {
+        "semantics": "negative_upper_bound_witness",
+        "side": side,
+        "weight": weight,
+        "ell": ell,
+        "m": m,
+        "A_terms": copy.deepcopy(row.get("A_terms")),
+        "B_terms": copy.deepcopy(row.get("B_terms")),
+        "support": support,
+        "block_support": [
+            {
+                "qubit": index,
+                "block": (
+                    "unknown"
+                    if block_size is None
+                    else "left" if index < block_size else "right"
+                ),
+                "offset": (
+                    index
+                    if block_size is None or index < block_size
+                    else index - block_size
+                ),
+            }
+            for index in support
+        ],
+    }
+
+
+def replay_search_oracle_witness_geometry(
+    row: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Replay one Stage-2 SAT witness for negative-only search feedback.
+
+    This deliberately exposes only the geometry of a concrete logical
+    operator after rebuilding the BB code, validating its logical detectors,
+    replaying the self-bound oracle evidence, and checking the challenge
+    rejection threshold.  It is not a distance lower bound and cannot promote
+    a candidate.
+    """
+
+    return _negative_witness_geometry(row, allow_search_oracle=True)
+
+
+def _upper_bound_neutral_advisory(
+    row: dict[str, Any],
+    *,
+    formal_audit: bool = False,
+    allow_search_oracle: bool = False,
+) -> dict[str, Any]:
     """Project an untrusted row without exposing upper-bound reward signals."""
     projected = {
         name: copy.deepcopy(row[name])
@@ -631,6 +833,23 @@ def _upper_bound_neutral_advisory(row: dict[str, Any]) -> dict[str, Any]:
             )
             if name in row
         }
+        witness_geometry = _negative_witness_geometry(
+            row,
+            formal_audit=formal_audit,
+            allow_search_oracle=allow_search_oracle,
+        )
+        if witness_geometry is not None:
+            projected["replayed_low_weight_witness"] = witness_geometry
+    elif formal_audit:
+        witness_geometry = _negative_witness_geometry(row, formal_audit=True)
+        if witness_geometry is not None:
+            projected["replayed_low_weight_witness"] = witness_geometry
+    elif allow_search_oracle:
+        witness_geometry = _negative_witness_geometry(
+            row, allow_search_oracle=True
+        )
+        if witness_geometry is not None:
+            projected["replayed_low_weight_witness"] = witness_geometry
 
     if any(
         name in row
@@ -697,11 +916,13 @@ def build_review_prompt(
         "contract": contract,
         "new_candidate_count": len(candidates),
         "new_candidates": [
-            _upper_bound_neutral_advisory(row)
+            _upper_bound_neutral_advisory(
+                row, allow_search_oracle=True
+            )
             for row in candidates[:20]
         ],
         "milp_audited": [
-            _upper_bound_neutral_advisory(row)
+            _upper_bound_neutral_advisory(row, formal_audit=True)
             for row in audited
         ],
         "archive_top": [

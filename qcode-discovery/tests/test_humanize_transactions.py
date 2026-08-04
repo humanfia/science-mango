@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+import evaluation.evaluator as candidate_evaluator
 import evolve.run_evolution as evolution_launcher
 import humanize.flow as flow_module
 from humanize.flow import (
@@ -1669,6 +1670,114 @@ def test_completed_round_records_transaction_bound_candidate_diversity(
     }
 
 
+def test_stage2_oracle_witness_is_replayed_into_next_round_context(
+    tmp_path, monkeypatch
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "symplectic_weight_bound",
+        lambda code: (code.num_qudits, code.num_qudits, code.num_qudits),
+    )
+    row = candidate_evaluator.evaluate_candidate(
+        12,
+        6,
+        [(0, 3), (6, 0)],
+        [(1, 1), (2, 0), (6, 0), (9, 1)],
+        skip_exact=True,
+        skip_osd_cs=True,
+        challenge_target_fom=12.0,
+        low_weight_oracle_max_weight=4,
+    )
+    source = repo / "candidates.jsonl"
+    source.write_bytes(jsonl(row))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="stage2-oracle-feedback",
+        max_rounds=2,
+        candidate_file=source,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    first_round = flow.store.round_dir(1)
+    batch = flow._capture_round_candidates(state, 1, first_round)
+    orphan_summary = flow_module._write_round_search_oracle_feedback(
+        round_number=1,
+        round_dir=first_round,
+        candidate_rows=batch,
+    )
+    orphan_payload = (
+        first_round / "search-oracle-feedback.json"
+    ).read_bytes()
+    # Simulate a crash after the atomic artifact write but before the round
+    # state commit: recovery must reproduce and reuse the exact artifact.
+    assert flow_module._write_round_search_oracle_feedback(
+        round_number=1,
+        round_dir=first_round,
+        candidate_rows=batch,
+    ) == orphan_summary
+    assert (
+        first_round / "search-oracle-feedback.json"
+    ).read_bytes() == orphan_payload
+    review = Reviewer().review("", first_round)
+    atomic_write_json(first_round / "review.json", review)
+    flow._finish_round(state, 1, batch, [], review, first_round)
+
+    feedback = state["rounds"][0]["search_oracle_feedback"]
+    assert feedback["replayed_witnesses"] == 1
+    assert feedback["x_witnesses"] == 1
+    artifact = json.loads(
+        (first_round / "search-oracle-feedback.json").read_text()
+    )
+    [observation] = artifact["observations"]
+    assert observation["support"] == row["low_weight_oracle"]["witness"][
+        "support"
+    ]
+    assert observation["semantics"] == "negative_upper_bound_witness"
+
+    second_round = flow.store.round_dir(2)
+    context_path = flow_module._freeze_round_context(
+        config, state, second_round
+    )
+    context = context_path.read_text()
+    assert "Machine-replayed Stage-2 low-weight oracle witnesses" in context
+    assert "negative-only upper-bound witnesses" in context
+    assert '"support": [' in context
+    assert all(str(index) in context for index in observation["support"])
+
+    artifact["observations"][0]["support"][0] += 1
+    atomic_write_json(
+        first_round / "search-oracle-feedback.json", artifact
+    )
+    with pytest.raises(
+        RoundTransactionError,
+        match="search-oracle feedback",
+    ):
+        flow_module._previous_round_search_oracle_advisory(
+            state, 1, first_round
+        )
+
+    forged = copy.deepcopy(row)
+    forged["low_weight_oracle"]["witness"]["bits"][0] ^= 1
+    with pytest.raises(
+        RoundTransactionError,
+        match="terminal Stage-2 low-weight oracle witness failed replay",
+    ):
+        flow_module._build_search_oracle_feedback(
+            round_number=1,
+            source_candidate_batch={
+                "path": "candidate-batch.jsonl",
+                "sha256": "a" * 64,
+                "bytes": 1,
+                "rows": 2,
+            },
+            candidate_rows=[forged, row],
+        )
+
+
 def test_next_round_freezes_machine_diversity_advisory(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -2248,6 +2357,11 @@ def test_failure_feedback_context_is_deterministic_and_tamper_fails(
     assert "trusted sealed low-weight logical witnesses: 2 (X=1, Z=1)" in (
         context.read_text()
     )
+    assert "negative_upper_bound_witness" in context.read_text()
+    assert '"support": [' in context.read_text()
+    assert '"block_support": [' in context.read_text()
+    assert '"A_terms": [' in context.read_text()
+    assert '"ell": 6' in context.read_text()
     context.unlink()
     assert flow_module._freeze_round_context(
         config, state, current_dir

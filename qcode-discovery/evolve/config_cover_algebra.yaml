@@ -48,7 +48,14 @@ prompt:
     BP-OSD and other decoders only find logical operators and hence provide
     distance upper bounds. A large decoder-returned weight is not evidence of
     large true distance and must never be optimized as d or d^2. Use the
-    bounded survivor/rate/novelty fitness and downstream exact MILP feedback.
+    bounded survivor/rate/novelty fitness and proof-producing signals. The
+    Stage-2 low-weight oracle has asymmetric semantics: a replayed SAT witness
+    is negative repair evidence, while only complete X+Z UNSAT through weight w
+    proves d>=w+1 and earns bounded lower-bound fitness. UNKNOWN earns nothing
+    and must be retried. When `low_weight_oracle_failures` is present in parent
+    artifacts, use its concrete block/support coordinates to change the
+    responsible cover, coset, orbit, or anchor mechanism; merely moving one
+    coefficient is not a repair.
 
     Search by generative algebraic mechanism, not coefficient jitter:
 

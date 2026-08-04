@@ -80,6 +80,10 @@ from evaluation.distance_milp import (
     symplectic_weight_witness,
     write_symplectic_weight_checkpoint,
 )
+from evaluation.low_weight_oracle import (
+    evaluate_css_low_weight_oracle,
+    verify_css_low_weight_oracle,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -371,13 +375,35 @@ def _record_distance_upper_bound(
     caller may stop only after independently validating a replayable witness
     (or obtaining an exact distance).
 
-    The Boolean return is retained for API compatibility and is always false.
+    The Boolean return is true only when the scalar conflicts with an earlier
+    proved lower bound, telling the cascade to stop with retry/zero credit.
     """
     distance = _positive_distance_bound(distance)
     if distance is None:
         raise ValueError(
             "distance upper bounds must be finite positive integers"
         )
+    lower_bound = result.get("distance_lower_bound")
+    if (
+        result.get("distance_lower_bound_proven") is True
+        and type(lower_bound) is int
+        and distance < lower_bound
+    ):
+        _distance_backend_retry(
+            result,
+            source="distance_evidence_conflict",
+            error=ValueError(
+                f"{source} upper bound {distance} is below proved lower "
+                f"bound {lower_bound}"
+            ),
+        )
+        result["distance_evidence_conflict"] = {
+            "upper_bound": distance,
+            "upper_bound_source": source,
+            "proved_lower_bound": lower_bound,
+            "lower_bound_source": "low_weight_oracle",
+        }
+        return True
     upper_fom = compute_fom(n, k, distance)
     result.update({
         "d": distance,
@@ -393,7 +419,11 @@ def _record_distance_upper_bound(
         "fitness_distance_credit": 0.0,
         "score": 0.0,
         "stage": stage,
-        "search_status": "unresolved",
+        "search_status": (
+            "certified_lower_bound"
+            if result.get("distance_lower_bound_proven") is True
+            else "unresolved"
+        ),
     })
     return False
 
@@ -634,6 +664,8 @@ def evaluate_candidate(
     skip_exact: bool = False,
     skip_osd_cs: bool = False,
     challenge_target_fom: float | None = None,
+    low_weight_oracle_max_weight: int | None = None,
+    low_weight_oracle_hard_timeout_s: float = 30.0,
 ) -> dict:
     """Evaluate a BB code candidate through the full cascade.
 
@@ -656,6 +688,13 @@ def evaluate_candidate(
         challenge_target_fom: Optional challenge objective. Before BP-OSD,
             reject candidates for which a replayable symplectic logical witness
             proves that the dynamic final-gate distance cutoff cannot be met.
+        low_weight_oracle_max_weight: Optional complete X/Z low-weight query.
+            The actual threshold is the smaller of this cap and the dynamic
+            challenge rejection cutoff. A replayed SAT witness rejects; only
+            two complete UNSAT sectors provide positive lower-bound fitness.
+        low_weight_oracle_hard_timeout_s: Per-sector hard wall used when the
+            oracle delegates thresholds above its deterministic MITM range to
+            the optional SAT backend.
 
     Returns:
         Dict with keys: n, k, d, d_is_exact, fom, encoding_rate,
@@ -818,6 +857,148 @@ def evaluate_candidate(
                     )
                     return result
 
+    # Proof-safe low-weight search signal.  Unlike BP/OSD, a two-sector UNSAT
+    # decision proves a real lower bound.  SAT is useful in the opposite
+    # direction: its independently replayed operator rejects the candidate and
+    # supplies concrete X/Z failure geometry to the mutation loop.  UNKNOWN is
+    # never allowed to fall through into a survivor score.
+    if low_weight_oracle_max_weight is not None:
+        if challenge_target_fom is None:
+            raise ValueError(
+                "low_weight_oracle_max_weight requires challenge_target_fom"
+            )
+        if (
+            isinstance(low_weight_oracle_max_weight, bool)
+            or not isinstance(low_weight_oracle_max_weight, int)
+            or low_weight_oracle_max_weight < 0
+        ):
+            raise ValueError(
+                "low_weight_oracle_max_weight must be a nonnegative integer"
+            )
+        oracle_threshold = min(
+            low_weight_oracle_max_weight,
+            int(result["challenge_rejection_cutoff"]),
+        )
+        try:
+            hx, hz, lx, lz = get_code_matrices(code)
+            oracle = evaluate_css_low_weight_oracle(
+                hx,
+                hz,
+                lx,
+                lz,
+                max_weight=oracle_threshold,
+                hard_timeout_s=low_weight_oracle_hard_timeout_s,
+            )
+            oracle_failures = verify_css_low_weight_oracle(
+                oracle, hx, hz, lx, lz
+            )
+        except Exception as exc:
+            return _distance_backend_retry(
+                result, source="low_weight_oracle", error=exc
+            )
+        if oracle_failures:
+            return _distance_backend_retry(
+                result,
+                source="low_weight_oracle",
+                value={"verification_failures": oracle_failures},
+            )
+        result["low_weight_oracle_threshold"] = oracle_threshold
+        result["low_weight_oracle"] = oracle
+        oracle_outcome = oracle.get("outcome")
+        if oracle_outcome == "SAT":
+            raw_witness = oracle.get("witness")
+            if not isinstance(raw_witness, Mapping):
+                return _distance_backend_retry(
+                    result,
+                    source="low_weight_oracle",
+                    value="SAT result has no witness",
+                )
+            proof_witness = {
+                field: copy.deepcopy(raw_witness.get(field))
+                for field in ("side", "index", "weight", "bits")
+            }
+            proof_distance = _positive_distance_bound(
+                proof_witness.get("weight")
+            )
+            replayed = (
+                None
+                if proof_distance is None
+                else _validate_replayable_css_witness(
+                    code, proof_witness, distance=proof_distance
+                )
+            )
+            if replayed is None or proof_distance > oracle_threshold:
+                return _distance_backend_retry(
+                    result,
+                    source="low_weight_oracle",
+                    value="normalized SAT witness failed CSS replay",
+                )
+            upper_fom = compute_fom(n, k, proof_distance)
+            result.update({
+                "d": proof_distance,
+                "d_is_exact": False,
+                "distance_trusted": False,
+                "distance_status": "upper_bound",
+                "distance_upper_bound": proof_distance,
+                "distance_upper_bound_source": "low_weight_oracle",
+                "fom": upper_fom,
+                "fom_upper_bound": upper_fom,
+                "fitness_distance_credit": 0.0,
+                "score": 0.0,
+                "stage": "low_weight_oracle_rejected",
+                "search_status": "terminal_negative",
+                "threshold_rejection_proven": True,
+                "threshold_proof_source": "low_weight_oracle",
+                "threshold_proof_distance": proof_distance,
+                "threshold_proof_witness": replayed,
+                "fom_target_excluded_by_upper_bound": (
+                    proof_distance <= result["fom_rejection_cutoff"]
+                ),
+                "final_gate_excluded_by_upper_bound": True,
+                "search_final_gate_excluded_by_upper_bound": True,
+            })
+            result["threshold_proof_lhs"] = (
+                k
+                * proof_distance
+                * proof_distance
+                * result["fom_target_denominator"]
+            )
+            result["threshold_proof_rhs"] = (
+                result["fom_target_numerator"] * n
+            )
+            return result
+        if oracle_outcome == "UNSAT":
+            lower_bound = oracle.get("distance_lower_bound")
+            if (
+                isinstance(lower_bound, bool)
+                or not isinstance(lower_bound, int)
+                or lower_bound != oracle_threshold + 1
+            ):
+                return _distance_backend_retry(
+                    result,
+                    source="low_weight_oracle",
+                    value="UNSAT result has an invalid lower bound",
+                )
+            result.update({
+                "distance_lower_bound": lower_bound,
+                "distance_lower_bound_proven": True,
+                "distance_lower_bound_status": "search_oracle_proven",
+                "fom_lower_bound": compute_fom(n, k, lower_bound),
+                "search_status": "certified_lower_bound",
+            })
+        else:
+            retry = _distance_backend_retry(
+                result,
+                source="low_weight_oracle",
+                value={
+                    "outcome": oracle_outcome,
+                    "retryable": oracle.get("retryable"),
+                },
+            )
+            retry["low_weight_oracle_threshold"] = oracle_threshold
+            retry["low_weight_oracle"] = oracle
+            return retry
+
     # Stage 3: Quick distance estimate
     try:
         raw_d_bp = estimate_distance(code, num_trials=quick_trials)
@@ -945,6 +1126,26 @@ def evaluate_candidate(
     if upper_fom >= fom_threshold_exact and not skip_exact:
         d_exact = compute_distance_exact(code, timeout_seconds=exact_timeout)
         if d_exact is not None:
+            lower_bound = result.get("distance_lower_bound")
+            if (
+                result.get("distance_lower_bound_proven") is True
+                and type(lower_bound) is int
+                and d_exact < lower_bound
+            ):
+                retry = _distance_backend_retry(
+                    result,
+                    source="distance_evidence_conflict",
+                    error=ValueError(
+                        f"exact distance {d_exact} is below proved lower "
+                        f"bound {lower_bound}"
+                    ),
+                )
+                retry["distance_evidence_conflict"] = {
+                    "exact_distance": d_exact,
+                    "proved_lower_bound": lower_bound,
+                    "lower_bound_source": "low_weight_oracle",
+                }
+                return retry
             result["d"] = d_exact
             result["d_is_exact"] = True
             result["distance_trusted"] = True

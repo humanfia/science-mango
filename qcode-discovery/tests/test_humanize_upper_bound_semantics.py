@@ -1,6 +1,10 @@
+import copy
 import json
 import math
 
+import evaluation.evaluator as candidate_evaluator
+import evaluation.low_weight_oracle as low_weight_oracle
+import evaluation.bb_code as bb_code
 from evolve.openevolve_evaluator import _candidate_jsonl_record
 from humanize.flow import select_for_milp
 from humanize.reviewer import build_review_prompt
@@ -155,6 +159,178 @@ def test_reviewer_withholds_unresolved_upper_magnitudes_but_keeps_exact():
     assert "proof_backed_terminal_negative" not in audited
     assert evidence["trusted_exact_history"][0]["d"] == 3
     assert evidence["trusted_exact_history"][0]["fom"] == 1.0
+
+
+def test_reviewer_receives_formally_audited_negative_witness_geometry():
+    audited = candidate_evaluator.evaluate_candidate(
+        12,
+        6,
+        [(0, 3), (6, 0)],
+        [(1, 1), (2, 0), (6, 0), (9, 1)],
+        skip_exact=True,
+        skip_osd_cs=True,
+        challenge_target_fom=12.0,
+    )
+    witness = copy.deepcopy(audited["threshold_proof_witness"])
+    audited.update({
+        "threshold_rejection_proven": True,
+        "final_gate_excluded_by_upper_bound": True,
+        "audit_attempt": {"schema_version": 2, "evidence": {}},
+        "milp_details": {
+            "minimum_direction_witness": witness,
+        },
+    })
+
+    evidence = _review_evidence(build_review_prompt(
+        round_number=1,
+        contract={},
+        candidates=[],
+        audited=[audited],
+        archive_top=[],
+        memory="",
+    ))
+
+    [projected] = evidence["milp_audited"]
+    geometry = projected["replayed_low_weight_witness"]
+    assert geometry["semantics"] == "negative_upper_bound_witness"
+    expected_support = [
+        index for index, bit in enumerate(witness["bits"]) if bit
+    ]
+    assert geometry["support"] == expected_support
+    assert [item["qubit"] for item in geometry["block_support"]] == (
+        expected_support
+    )
+
+
+def test_reviewer_replays_stage2_oracle_witness_before_exposing(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "symplectic_weight_bound",
+        lambda code: (code.num_qudits, code.num_qudits, code.num_qudits),
+    )
+    row = candidate_evaluator.evaluate_candidate(
+        12,
+        6,
+        [(0, 3), (6, 0)],
+        [(1, 1), (2, 0), (6, 0), (9, 1)],
+        skip_exact=True,
+        skip_osd_cs=True,
+        challenge_target_fom=12.0,
+        low_weight_oracle_max_weight=4,
+    )
+    evidence = _review_evidence(build_review_prompt(
+        round_number=1,
+        contract={},
+        candidates=[row],
+        audited=[],
+        archive_top=[],
+        memory="",
+    ))
+
+    [projected] = evidence["new_candidates"]
+    geometry = projected["replayed_low_weight_witness"]
+    assert geometry["semantics"] == "negative_upper_bound_witness"
+    assert geometry["support"] == row["low_weight_oracle"]["witness"][
+        "support"
+    ]
+
+    tampered = copy.deepcopy(row)
+    tampered["low_weight_oracle"]["witness"]["bits"][0] ^= 1
+    tampered_evidence = _review_evidence(build_review_prompt(
+        round_number=1,
+        contract={},
+        candidates=[tampered],
+        audited=[],
+        archive_top=[],
+        memory="",
+    ))
+    assert "replayed_low_weight_witness" not in (
+        tampered_evidence["new_candidates"][0]
+    )
+
+
+def test_reviewer_replays_historical_stage2_sat_after_source_upgrade(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "symplectic_weight_bound",
+        lambda code: (code.num_qudits, code.num_qudits, code.num_qudits),
+    )
+    row = candidate_evaluator.evaluate_candidate(
+        12,
+        6,
+        [(0, 3), (6, 0)],
+        [(1, 1), (2, 0), (6, 0), (9, 1)],
+        skip_exact=True,
+        skip_osd_cs=True,
+        challenge_target_fom=12.0,
+        low_weight_oracle_max_weight=4,
+    )
+    historical_source = row["low_weight_oracle"]["source_sha256"]
+    replacement_source = (
+        "f" * 64 if historical_source != "f" * 64 else "e" * 64
+    )
+    monkeypatch.setattr(
+        low_weight_oracle, "_SOURCE_SHA256", replacement_source
+    )
+
+    evidence = _review_evidence(build_review_prompt(
+        round_number=2,
+        contract={},
+        candidates=[row],
+        audited=[],
+        archive_top=[],
+        memory="",
+    ))
+    [projected] = evidence["new_candidates"]
+    assert projected["replayed_low_weight_witness"]["support"] == row[
+        "low_weight_oracle"
+    ]["witness"]["support"]
+
+
+def test_reviewer_rejects_noncampaign_lattice_before_dense_bb_build(
+    monkeypatch,
+):
+    row = _candidate(shift=0, d=2, fom=1.0)
+    row.update({
+        "ell": 7,
+        "m": 7,
+        "n": 98,
+        "k": 2,
+        "search_status": "terminal_negative",
+        "threshold_rejection_proven": True,
+        "threshold_proof_source": "low_weight_oracle",
+        "final_gate_excluded_by_upper_bound": True,
+        "low_weight_oracle": {
+            "outcome": "SAT",
+            "witness": {
+                "side": "X",
+                "weight": 1,
+                "bits": [1] + [0] * 97,
+            },
+        },
+    })
+    calls = 0
+
+    def forbidden_build(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        raise AssertionError("dense BB build must not run")
+
+    monkeypatch.setattr(bb_code, "build_bb_code", forbidden_build)
+    evidence = _review_evidence(build_review_prompt(
+        round_number=1,
+        contract={},
+        candidates=[row],
+        audited=[],
+        archive_top=[],
+        memory="",
+    ))
+    assert calls == 0
+    assert "replayed_low_weight_witness" not in evidence["new_candidates"][0]
 
 
 def test_self_declared_lower_bound_is_withheld_from_reviewer_and_fitness():

@@ -18,6 +18,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
+from evaluation.css_logical_detector import verify_css_logical_detectors
 from evaluation.distance_milp import get_code_matrices
 from evaluation.distance_sat import (
     SAT_AUTO_SOLVERS,
@@ -27,7 +28,6 @@ from evaluation.distance_sat import (
     solve_css_sector_sat,
     verify_css_threshold_sat_witness,
 )
-from evaluation.final_gate import _rank_f2
 from scripts.screen_frontier_candidate import (
     build_candidate_code,
     validate_candidate_parameters,
@@ -93,66 +93,6 @@ def _sector_matrices(
     if sector == "X":
         return hz, lz, hx
     raise ValueError("sector must be X or Z")
-
-
-def verify_css_logical_detectors(
-    hx: np.ndarray,
-    hz: np.ndarray,
-    lx: np.ndarray,
-    lz: np.ndarray,
-) -> dict[str, Any]:
-    """Prove that nonzero logical syndrome detects exactly nontrivial CSS ops."""
-
-    hx, hz, lx, lz = (
-        np.asarray(value, dtype=np.uint8) & 1
-        for value in (hx, hz, lx, lz)
-    )
-    n = int(hx.shape[1])
-    k = n - _rank_f2(hx) - _rank_f2(hz)
-    sectors: dict[str, dict[str, Any]] = {}
-    for sector in ("X", "Z"):
-        checks, logicals, trivial = _sector_matrices(
-            sector, hx, hz, lx, lz,
-        )
-        stacked_rank = _rank_f2(np.vstack((checks, logicals)))
-        trivial_rank = _rank_f2(trivial)
-        inclusion = bool(
-            not np.any((checks @ trivial.T) & 1)
-            and not np.any((logicals @ trivial.T) & 1)
-        )
-        kernel_dimension = n - stacked_rank
-        sectors[sector] = {
-            "verified": bool(
-                logicals.shape == (k, n)
-                and inclusion
-                and kernel_dimension == trivial_rank
-            ),
-            "logical_count": int(logicals.shape[0]),
-            "trivial_rank": trivial_rank,
-            "detector_kernel_dimension": kernel_dimension,
-            "trivial_space_in_detector_kernel": inclusion,
-        }
-    duality = bool(
-        lx.shape == lz.shape == (k, n)
-        and np.array_equal((lx @ lz.T) & 1, np.eye(k, dtype=np.uint8))
-    )
-    verified = bool(
-        k > 0
-        and not np.any((hx @ hz.T) & 1)
-        and duality
-        and all(item["verified"] for item in sectors.values())
-    )
-    report = {
-        "method": "css-logical-detector-dimension-replay-v1",
-        "verified": verified,
-        "n": n,
-        "k": k,
-        "css_commutation": not np.any((hx @ hz.T) & 1),
-        "logical_duality": duality,
-        "sectors": sectors,
-    }
-    report["report_sha256"] = _canonical_sha256(report)
-    return report
 
 
 def _evidence_hash_valid(evidence: Mapping[str, Any]) -> bool:

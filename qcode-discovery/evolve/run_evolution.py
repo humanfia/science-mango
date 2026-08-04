@@ -126,7 +126,7 @@ STAGE1_PREFLIGHT_MAX_EPOCH_ATTEMPTS = 2
 STAGE1_PREFLIGHT_WORKER_ATTEMPTS = 2
 STAGE1_PREFLIGHT_LOCK_WAIT_INTERVALS = 2
 STAGE1_PREFLIGHT_OUTER_MARGIN_S = 120.0
-STAGE2_DEEP_CONTRACT_VERSION = 2
+STAGE2_DEEP_CONTRACT_VERSION = 3
 STAGE2_DEEP_LATTICE_COUNT = 11
 STAGE2_CONTRACT_VERSION_METRIC = "stage2_contract_version"
 STAGE2_CONTRACT_ID_METRIC = "stage2_contract_id"
@@ -272,16 +272,21 @@ ADAPTIVE_MUTATION_DIRECTIVES = {
         "avoid definitions and MAP cells already represented in the prompt."
     ),
     "repair_x_low_weight": (
-        "Disrupt replayed low-weight X logical mechanisms while preserving "
+        "Disrupt the concrete X-logical supports in the parent's "
+        "low_weight_oracle_failures artifact (and matching Humanize evidence) "
+        "by changing the responsible algebraic/cover mechanism while preserving "
         "commutation, positive k, and structural novelty."
     ),
     "repair_z_low_weight": (
-        "Disrupt replayed low-weight Z logical mechanisms while preserving "
+        "Disrupt the concrete Z-logical supports in the parent's "
+        "low_weight_oracle_failures artifact (and matching Humanize evidence) "
+        "by changing the responsible algebraic/cover mechanism while preserving "
         "commutation, positive k, and structural novelty."
     ),
     "repair_dual_balance": (
-        "Change the A/B relationship so neither X nor Z logical direction "
-        "remains an easy low-weight failure mode."
+        "Change the A/B relationship using the concrete X/Z supports in the "
+        "parent's low_weight_oracle_failures artifact so neither logical "
+        "sector retains or recreates an easy low-weight failure mode."
     ),
 }
 DEFAULT_ADAPTIVE_MUTATION_POLICY = {
@@ -3277,6 +3282,7 @@ def _verified_slice_controller(
             )
             self._search_slice_programs: dict[str, Any] | None = None
             self._search_slice_snapshot: dict[str, Any] | None = None
+            self._search_slice_artifacts: dict[str, dict[str, Any]] | None = None
             if portfolio_seed is not None:
                 _validated_search_portfolio_config(self.config)
                 self.database._calculate_feature_coords = (
@@ -3303,6 +3309,7 @@ def _verified_slice_controller(
                 self._search_slice_elites is None
                 or self._search_slice_programs is None
                 or self._search_slice_snapshot is None
+                or self._search_slice_artifacts is None
             ):
                 raise RuntimeError(
                     "search portfolio parent archive was not frozen"
@@ -3343,6 +3350,13 @@ def _verified_slice_controller(
             # earlier completion therefore cannot delete a parent needed by a
             # later submission, and completion order cannot affect prompts.
             snapshot = copy.deepcopy(self._search_slice_snapshot)
+            snapshot["artifacts"] = {
+                program_id: copy.deepcopy(
+                    self._search_slice_artifacts[program_id]
+                )
+                for program_id in (parent.id, *inspiration_ids)
+                if program_id in self._search_slice_artifacts
+            }
             snapshot["current_island"] = target_island
             snapshot["sampling_island"] = target_island
             parent_row = snapshot["programs"].get(parent.id)
@@ -3439,6 +3453,29 @@ def _verified_slice_controller(
                 self._search_slice_snapshot = copy.deepcopy(
                     self._create_database_snapshot()
                 )
+                # OpenEvolve normally includes artifacts only for the first
+                # ``max_snapshot_artifacts`` insertion-ordered programs. Our
+                # deterministic MAP-Elites parent can be any frozen elite, so
+                # that generic cap could silently strip the low-weight witness
+                # feedback from the actual parent/inspirations. Freeze the
+                # artifacts for every selectable elite in controller memory,
+                # then inject only the selected parent/inspirations per worker.
+                self._search_slice_artifacts = {}
+                for program_id in sorted(frozen_ids):
+                    artifact_getter = getattr(
+                        self.database, "get_artifacts", None
+                    )
+                    frozen_artifacts = (
+                        artifact_getter(program_id)
+                        if callable(artifact_getter)
+                        else getattr(self.database, "artifacts", {}).get(
+                            program_id
+                        )
+                    )
+                    if frozen_artifacts:
+                        self._search_slice_artifacts[program_id] = copy.deepcopy(
+                            frozen_artifacts
+                        )
             checkpoint_controller = getattr(checkpoint_callback, "__self__", None)
             if checkpoint_controller is None:
                 observer.violations.append(

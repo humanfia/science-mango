@@ -43,6 +43,7 @@ from .reviewer import (
     CodexReviewer,
     ReviewError,
     build_review_prompt,
+    replay_search_oracle_witness_geometry,
     validate_review,
 )
 from .state import (
@@ -124,6 +125,12 @@ SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE = (
 FAILURE_DIRECTION_FEEDBACK_SCHEMA_VERSION = 1
 FAILURE_DIRECTION_FEEDBACK_KIND = (
     "qcode-humanize-failure-direction-feedback"
+)
+SEARCH_ORACLE_FEEDBACK_SCHEMA_VERSION = 1
+SEARCH_ORACLE_FEEDBACK_KIND = "qcode-humanize-low-weight-oracle-feedback"
+SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE = 4
+SEARCH_ORACLE_FEEDBACK_MAX_ATTEMPTS = (
+    2 * SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE
 )
 ADAPTIVE_MUTATION_POLICY_SCHEMA_VERSION = 1
 ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
@@ -2479,6 +2486,10 @@ def _replay_search_regime(
                     summary["candidate_diversity"],
                     round_dir=rounds_root / f"round-{number:03d}",
                 )
+        if "search_oracle_feedback" in summary:
+            _validate_search_oracle_feedback_summary(
+                summary["search_oracle_feedback"]
+            )
         completed.append(summary)
         regime = _advance_search_regime(
             regime,
@@ -2995,6 +3006,78 @@ def _previous_round_failure_feedback_advisory(
         "QCODE_ADAPTIVE_MUTATION_POLICY_V1="
         + _canonical_compact_json(policy_mapping)
     )
+    definitions_by_key = {
+        code_key(row): row
+        for row in audited_rows
+        if isinstance(row, dict)
+    }
+    # Preserve the formal artifact schema while finally exposing the compact
+    # geometry that the mutation model needs.  The full bit vectors remain in
+    # the self-hashed feedback artifact; the prompt receives at most four
+    # supports per side, in deterministic order, and can never reinterpret a
+    # witness as positive distance evidence.
+    bounded_geometry: list[dict[str, Any]] = []
+    for side in ("X", "Z"):
+        selected = [item for item in observations if item["side"] == side][:4]
+        for item in selected:
+            definition = definitions_by_key.get(item["candidate_key"], {})
+            ell = definition.get("ell")
+            m = definition.get("m")
+            block_size = (
+                ell * m
+                if type(ell) is int and type(m) is int and ell > 0 and m > 0
+                else None
+            )
+            support = [
+                index
+                for index, bit in enumerate(item["bits"])
+                if bit == 1
+            ]
+            bounded_geometry.append({
+                "candidate_key": item["candidate_key"],
+                "ell": ell,
+                "m": m,
+                "A_terms": definition.get("A_terms"),
+                "B_terms": definition.get("B_terms"),
+                "side": side,
+                "weight": item["weight"],
+                "minimum_winning_distance": item[
+                    "minimum_winning_distance"
+                ],
+                "support": support,
+                "block_support": [
+                    {
+                        "qubit": index,
+                        "block": (
+                            "unknown"
+                            if block_size is None
+                            else "left" if index < block_size else "right"
+                        ),
+                        "offset": (
+                            index
+                            if block_size is None or index < block_size
+                            else index - block_size
+                        ),
+                    }
+                    for index in support
+                ],
+                "witness_sha256": item["witness_sha256"],
+                "semantics": "negative_upper_bound_witness",
+            })
+    geometry_lines: list[str] = []
+    if bounded_geometry:
+        geometry_lines = [
+            "- Concrete replayed supports (two-block BB qubit indices; negative "
+            "evidence only):",
+            "```json",
+            json.dumps(
+                bounded_geometry,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            ),
+            "```",
+        ]
     return "\n".join([
         "## Machine-derived previous-round failure-direction advisory",
         (
@@ -3008,9 +3091,351 @@ def _previous_round_failure_feedback_advisory(
         ),
         (
             "- Use X/Z repair tactics to disrupt the corresponding replayed "
-            "low-weight logical patterns while retaining exploration."
+            "low-weight logical supports while retaining exploration."
         ),
+        *geometry_lines,
         policy_line,
+    ])
+
+
+def _search_oracle_feedback_observation(
+    row: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Replay one Stage-2 SAT witness into negative-only BB geometry."""
+
+    geometry = replay_search_oracle_witness_geometry(row)
+    if geometry is None:
+        return None
+    oracle = row.get("low_weight_oracle")
+    witness = oracle.get("witness") if isinstance(oracle, dict) else None
+    if not isinstance(oracle, dict) or not isinstance(witness, dict):
+        return None
+    try:
+        candidate_key = code_key(row)
+        oracle_sha256 = _canonical_payload_sha256(oracle)
+        witness_sha256 = _canonical_payload_sha256(witness)
+        from evaluation.final_gate import minimum_winning_distance
+
+        required = minimum_winning_distance(row["n"], row["k"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    weight = geometry["weight"]
+    if weight >= required:
+        return None
+    return {
+        "candidate_key": candidate_key,
+        "oracle_evidence_sha256": oracle_sha256,
+        "witness_sha256": witness_sha256,
+        "minimum_winning_distance": required,
+        "distance_deficit": required - weight,
+        **geometry,
+    }
+
+
+def _build_search_oracle_feedback(
+    *,
+    round_number: int,
+    source_candidate_batch: dict[str, Any],
+    candidate_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Build bounded, replayed Stage-2 witness feedback deterministically."""
+
+    queues: dict[str, list[dict[str, Any]]] = {"X": [], "Z": []}
+    for row in candidate_rows:
+        if not isinstance(row, dict):
+            continue
+        oracle = row.get("low_weight_oracle")
+        witness = oracle.get("witness") if isinstance(oracle, dict) else None
+        side = witness.get("sector") if isinstance(witness, dict) else None
+        if side not in {"X", "Z"} and isinstance(witness, dict):
+            side = witness.get("side")
+        if (
+            side not in {"X", "Z"}
+            or row.get("search_status") != "terminal_negative"
+            or row.get("threshold_rejection_proven") is not True
+            or row.get("threshold_proof_source") != "low_weight_oracle"
+            or not isinstance(oracle, dict)
+            or oracle.get("outcome") != "SAT"
+        ):
+            continue
+        queues[side].append(row)
+
+    observations: list[dict[str, Any]] = []
+    per_side = {"X": 0, "Z": 0}
+    offsets = {"X": 0, "Z": 0}
+    attempts = 0
+    while attempts < SEARCH_ORACLE_FEEDBACK_MAX_ATTEMPTS:
+        made_progress = False
+        for side in ("X", "Z"):
+            if per_side[side] >= SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE:
+                continue
+            queue = queues[side]
+            offset = offsets[side]
+            if offset >= len(queue):
+                continue
+            made_progress = True
+            offsets[side] = offset + 1
+            attempts += 1
+            observation = _search_oracle_feedback_observation(queue[offset])
+            if observation is None or observation["side"] != side:
+                # A row carrying evaluator-owned terminal oracle markers must
+                # replay. Silently consuming the bounded attempt budget would
+                # let forged rows starve later genuine witnesses.
+                raise RoundTransactionError(
+                    "terminal Stage-2 low-weight oracle witness failed replay"
+                )
+            observations.append(observation)
+            per_side[side] += 1
+            if attempts >= SEARCH_ORACLE_FEEDBACK_MAX_ATTEMPTS:
+                break
+        if not made_progress:
+            break
+    observations.sort(key=lambda item: (
+        0 if item["side"] == "X" else 1,
+        item["weight"],
+        item["candidate_key"],
+        item["witness_sha256"],
+    ))
+    feedback: dict[str, Any] = {
+        "schema_version": SEARCH_ORACLE_FEEDBACK_SCHEMA_VERSION,
+        "kind": SEARCH_ORACLE_FEEDBACK_KIND,
+        "round": round_number,
+        "source_candidate_batch": source_candidate_batch,
+        "replay_attempts": attempts,
+        "observations": observations,
+        "semantics": (
+            "negative-only upper-bound witnesses; never distance lower-bound "
+            "or promotion evidence"
+        ),
+    }
+    feedback["payload_sha256"] = _canonical_payload_sha256(feedback)
+    return feedback
+
+
+def _search_oracle_feedback_summary(
+    feedback: dict[str, Any],
+    artifact_identity: dict[str, Any],
+) -> dict[str, Any]:
+    source = feedback["source_candidate_batch"]
+    observations = feedback["observations"]
+    return {
+        "schema_version": SEARCH_ORACLE_FEEDBACK_SCHEMA_VERSION,
+        "artifact_sha256": artifact_identity["sha256"],
+        "artifact_bytes": artifact_identity["bytes"],
+        "payload_sha256": feedback["payload_sha256"],
+        "source_candidate_batch_sha256": source["sha256"],
+        "source_candidate_batch_bytes": source["bytes"],
+        "source_candidate_batch_rows": source["rows"],
+        "replay_attempts": feedback["replay_attempts"],
+        "replayed_witnesses": len(observations),
+        "x_witnesses": sum(item["side"] == "X" for item in observations),
+        "z_witnesses": sum(item["side"] == "Z" for item in observations),
+    }
+
+
+def _validate_search_oracle_feedback_summary(value: Any) -> dict[str, Any]:
+    expected_fields = {
+        "schema_version",
+        "artifact_sha256",
+        "artifact_bytes",
+        "payload_sha256",
+        "source_candidate_batch_sha256",
+        "source_candidate_batch_bytes",
+        "source_candidate_batch_rows",
+        "replay_attempts",
+        "replayed_witnesses",
+        "x_witnesses",
+        "z_witnesses",
+    }
+    if not isinstance(value, dict) or set(value) != expected_fields:
+        raise RoundTransactionError(
+            "search-oracle feedback summary fields are invalid"
+        )
+    integer_fields = (
+        "artifact_bytes",
+        "source_candidate_batch_bytes",
+        "source_candidate_batch_rows",
+        "replay_attempts",
+        "replayed_witnesses",
+        "x_witnesses",
+        "z_witnesses",
+    )
+    if (
+        value["schema_version"] != SEARCH_ORACLE_FEEDBACK_SCHEMA_VERSION
+        or any(
+            type(value[field]) is not int or value[field] < 0
+            for field in integer_fields
+        )
+        or value["replay_attempts"] > SEARCH_ORACLE_FEEDBACK_MAX_ATTEMPTS
+        or value["replayed_witnesses"]
+        != value["x_witnesses"] + value["z_witnesses"]
+        or value["x_witnesses"] > SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE
+        or value["z_witnesses"] > SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE
+        or any(
+            not isinstance(value[field], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", value[field])
+            for field in (
+                "artifact_sha256",
+                "payload_sha256",
+                "source_candidate_batch_sha256",
+            )
+        )
+    ):
+        raise RoundTransactionError(
+            "search-oracle feedback summary values are invalid"
+        )
+    return value
+
+
+def _write_round_search_oracle_feedback(
+    *,
+    round_number: int,
+    round_dir: Path,
+    candidate_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    batch_path = round_dir / "candidate-batch.jsonl"
+    if batch_path.is_symlink() or not batch_path.is_file():
+        raise RoundTransactionError(
+            "candidate batch must be a regular file before oracle feedback"
+        )
+    batch_payload = batch_path.read_bytes()
+    persisted_rows = _strict_jsonl_objects(
+        batch_payload, "round candidate batch"
+    )
+    if persisted_rows != candidate_rows:
+        raise RoundTransactionError(
+            "search-oracle feedback rows disagree with committed batch"
+        )
+    source = {
+        "path": "candidate-batch.jsonl",
+        "sha256": hashlib.sha256(batch_payload).hexdigest(),
+        "bytes": len(batch_payload),
+        "rows": len(persisted_rows),
+    }
+    feedback = _build_search_oracle_feedback(
+        round_number=round_number,
+        source_candidate_batch=source,
+        candidate_rows=persisted_rows,
+    )
+    payload = (_canonical_compact_json(feedback) + "\n").encode("utf-8")
+    artifact_path = round_dir / "search-oracle-feedback.json"
+    if artifact_path.is_symlink():
+        raise RoundTransactionError(
+            "search-oracle feedback artifact may not be a symlink"
+        )
+    if artifact_path.exists():
+        if not artifact_path.is_file() or artifact_path.read_bytes() != payload:
+            raise RoundTransactionError(
+                "existing search-oracle feedback disagrees with replayed evidence"
+            )
+    else:
+        atomic_write_bytes(artifact_path, payload)
+    identity = {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "bytes": len(payload),
+    }
+    observed = _file_descriptor(
+        artifact_path, "search-oracle feedback artifact"
+    )
+    if {
+        "sha256": observed["sha256"],
+        "bytes": observed["bytes"],
+    } != identity:
+        raise RoundTransactionError(
+            "search-oracle feedback artifact identity is inconsistent"
+        )
+    return _search_oracle_feedback_summary(feedback, identity)
+
+
+def _previous_round_search_oracle_advisory(
+    state: dict[str, Any],
+    previous_number: int,
+    previous_round_dir: Path,
+) -> str | None:
+    rounds = state.get("rounds")
+    if not isinstance(rounds, list):
+        return None
+    previous_summary = next(
+        (
+            summary
+            for summary in reversed(rounds)
+            if isinstance(summary, dict)
+            and summary.get("round") == previous_number
+        ),
+        None,
+    )
+    if previous_summary is None or "search_oracle_feedback" not in previous_summary:
+        return None
+    recorded = _validate_search_oracle_feedback_summary(
+        previous_summary["search_oracle_feedback"]
+    )
+    if "candidate_diversity" not in previous_summary:
+        raise RoundTransactionError(
+            "search-oracle feedback lacks its candidate-batch binding"
+        )
+    _validate_round_diversity_evidence(
+        previous_summary["candidate_diversity"],
+        round_dir=previous_round_dir,
+    )
+    batch_path = previous_round_dir / "candidate-batch.jsonl"
+    if batch_path.is_symlink() or not batch_path.is_file():
+        raise RoundTransactionError(
+            "previous search-oracle candidate batch is missing"
+        )
+    batch_payload = batch_path.read_bytes()
+    candidate_rows = _strict_jsonl_objects(
+        batch_payload, "previous search-oracle candidate batch"
+    )
+    source = {
+        "path": "candidate-batch.jsonl",
+        "sha256": hashlib.sha256(batch_payload).hexdigest(),
+        "bytes": len(batch_payload),
+        "rows": len(candidate_rows),
+    }
+    expected = _build_search_oracle_feedback(
+        round_number=previous_number,
+        source_candidate_batch=source,
+        candidate_rows=candidate_rows,
+    )
+    artifact_path = previous_round_dir / "search-oracle-feedback.json"
+    if artifact_path.is_symlink() or not artifact_path.is_file():
+        raise RoundTransactionError(
+            "previous search-oracle feedback artifact is missing"
+        )
+    artifact_payload = artifact_path.read_bytes()
+    artifact = _strict_json_object_bytes(
+        artifact_payload, "previous search-oracle feedback"
+    )
+    if artifact != expected:
+        raise RoundTransactionError(
+            "previous search-oracle feedback does not replay"
+        )
+    identity = {
+        "sha256": hashlib.sha256(artifact_payload).hexdigest(),
+        "bytes": len(artifact_payload),
+    }
+    if recorded != _search_oracle_feedback_summary(expected, identity):
+        raise RoundTransactionError(
+            "previous search-oracle feedback summary was tampered"
+        )
+    observations = expected["observations"]
+    if not observations:
+        return None
+    return "\n".join([
+        "## Machine-replayed Stage-2 low-weight oracle witnesses",
+        (
+            f"- Round: {previous_number}; concrete witnesses: "
+            f"{len(observations)} (X={recorded['x_witnesses']}, "
+            f"Z={recorded['z_witnesses']})."
+        ),
+        (
+            "- These are negative-only upper-bound witnesses. Repair or "
+            "disrupt their BB support/coset/orbit geometry; never reward "
+            "their weight as a distance estimate or lower bound."
+        ),
+        "```json",
+        json.dumps(observations, ensure_ascii=False, indent=2, sort_keys=True),
+        "```",
     ])
 
 
@@ -3393,6 +3818,13 @@ def _freeze_round_context(
         )
         if failure_advisory is not None:
             context_parts.append(failure_advisory)
+        oracle_advisory = _previous_round_search_oracle_advisory(
+            state,
+            previous_number,
+            round_dir.parent / f"round-{previous_number:03d}",
+        )
+        if oracle_advisory is not None:
+            context_parts.append(oracle_advisory)
     regime_enabled = (
         config.search_regime_policy_version in {2, 3}
         or state.get("search_regime") is not None
@@ -8885,6 +9317,7 @@ class HumanizeFlow:
             failure_feedback=failure_direction_feedback,
         )
         candidate_diversity: dict[str, Any] | None = None
+        search_oracle_feedback: dict[str, Any] | None = None
         transaction_path = self._transaction_paths(round_dir)["manifest"]
         if transaction_path.is_file():
             transaction, batch_rows = self._validate_completed_transaction(
@@ -8892,6 +9325,11 @@ class HumanizeFlow:
             )
             candidate_diversity = _candidate_diversity_summary(
                 transaction, batch_rows
+            )
+            search_oracle_feedback = _write_round_search_oracle_feedback(
+                round_number=number,
+                round_dir=round_dir,
+                candidate_rows=batch_rows,
             )
         summary = {
             "round": number,
@@ -8929,6 +9367,8 @@ class HumanizeFlow:
             )
         if candidate_diversity is not None:
             summary["candidate_diversity"] = candidate_diversity
+        if search_oracle_feedback is not None:
+            summary["search_oracle_feedback"] = search_oracle_feedback
         regime = _replay_search_regime(
             [*state["rounds"], summary],
             rounds_root=round_dir.parent,
@@ -8958,6 +9398,10 @@ class HumanizeFlow:
                 (
                     "- Trusted low-weight failure witnesses: "
                     f"{failure_direction_feedback['trusted_witnesses']}"
+                ),
+                (
+                    "- Replayed Stage-2 oracle witnesses: "
+                    f"{0 if search_oracle_feedback is None else search_oracle_feedback['replayed_witnesses']}"
                 ),
                 f"- Search regime: `{regime['status']}`",
                 f"- Reviewer verdict: `{review['verdict']}`", "",

@@ -51,6 +51,15 @@ def test_parent_and_child_share_managed_evaluator_dependency_contract():
     assert "evaluation_proof_runtime" in (
         launcher.LOCAL_EVALUATOR_DEPENDENCIES
     )
+    assert "evaluation_distance_sat" in (
+        launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
+    assert "evaluation_low_weight_oracle" in (
+        launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
+    assert "evaluation_css_logical_detector" in (
+        launcher.LOCAL_EVALUATOR_DEPENDENCIES
+    )
     assert (
         launcher.STAGE2_DEEP_LATTICE_COUNT
         == len(evaluator.STAGE2_DEEP_LATTICES)
@@ -93,6 +102,28 @@ def test_preflight_contract_is_stable_per_run_and_rotates_with_sink_or_source(
     assert run_a_first == run_a_second
     assert run_a_first != run_b
     assert run_a_first != upgraded
+
+
+def test_preflight_contract_rotates_with_css_detector_source(tmp_path):
+    dependencies = launcher._evaluator_dependency_identities()
+    rotated = {
+        name: dict(identity) for name, identity in dependencies.items()
+    }
+    rotated["evaluation_css_logical_detector"]["sha256"] = "0" * 64
+    sink = (tmp_path / "run" / "all_codes.jsonl").resolve()
+
+    original_id = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        dependencies,
+        candidate_log_path=sink,
+    )
+    rotated_id = launcher._winner_preflight_contract_id(
+        launcher.EVALUATOR,
+        rotated,
+        candidate_log_path=sink,
+    )
+
+    assert original_id != rotated_id
 
 
 def test_preflight_contract_rejects_relative_candidate_log_path():
@@ -773,6 +804,9 @@ class FakePortfolioDatabase:
         self.add_order: list[int] = []
         self.drop_seed_on_first_add = False
 
+    def get_artifacts(self, program_id: str) -> dict[str, Any]:
+        return self.artifacts.get(program_id, {})
+
     def add(
         self,
         program: Any,
@@ -829,7 +863,12 @@ class FakePortfolioParallelController:
             program_id: json.loads(json.dumps(vars(program)))
             for program_id, program in self.database.programs.items()
         }
-        artifacts = json.loads(json.dumps(self.database.artifacts))
+        snapshot_ids = list(self.database.programs)[:100]
+        artifacts = json.loads(json.dumps({
+            program_id: self.database.artifacts[program_id]
+            for program_id in snapshot_ids
+            if program_id in self.database.artifacts
+        }))
         return {
             "programs": programs,
             "artifacts": artifacts,
@@ -933,6 +972,9 @@ def _install_fake_portfolio_sources(
         worker_state["snapshots"][iteration] = {
             "parent_id": parent_id,
             "parent_metadata": json.loads(json.dumps(parent["metadata"])),
+            "parent_artifacts": json.loads(json.dumps(
+                snapshot["artifacts"][parent_id]
+            )),
             "portfolio_artifact": json.loads(json.dumps(artifact)),
         }
         return FakeResult(child_program_dict=child, iteration=iteration)
@@ -1070,6 +1112,61 @@ def test_verified_controller_portfolio_rebinds_snapshot_and_integrates_five_isla
         assert observer.accounting_complete is True
 
     assert open_evolve.saved == [5]
+
+
+def test_selectable_elite_artifacts_bypass_generic_snapshot_first_100_cap(
+    monkeypatch,
+):
+    controller_module, worker_state = _install_fake_portfolio_sources(
+        monkeypatch,
+        wrong_worker_island=False,
+    )
+    config = _portfolio_config()
+    database = FakePortfolioDatabase()
+    seed = database.programs["portfolio-seed"]
+    decoys = {
+        f"decoy-{index:03d}": SimpleNamespace(
+            id=f"decoy-{index:03d}",
+            code=f"decoy-code-{index}",
+            parent_id=None,
+            generation=0,
+            metrics={"combined_score": -1.0},
+            iteration_found=0,
+            metadata={"island": 0},
+        )
+        for index in range(100)
+    }
+    database.programs = {**decoys, seed.id: seed}
+    database.artifacts = {
+        **{
+            program_id: {"decoy": True}
+            for program_id in decoys
+        },
+        seed.id: {
+            "low_weight_oracle_failures": (
+                "X-logical w=2 support=[1, 40]"
+            ),
+        },
+    }
+    open_evolve = controller_module.OpenEvolve()
+
+    with launcher._verified_slice_controller(
+        0,
+        5,
+        search_config=config,
+    ):
+        parallel = controller_module.ProcessParallelController(database, config)
+        asyncio.run(parallel.run_evolution(
+            1,
+            5,
+            None,
+            checkpoint_callback=open_evolve._save_checkpoint,
+        ))
+
+    for snapshot in worker_state["snapshots"].values():
+        assert snapshot["parent_artifacts"][
+            "low_weight_oracle_failures"
+        ] == "X-logical w=2 support=[1, 40]"
 
 
 def test_representation_regime_forces_directive_into_every_portfolio_artifact(

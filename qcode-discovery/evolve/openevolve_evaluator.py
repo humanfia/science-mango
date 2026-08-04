@@ -18,15 +18,15 @@ Two-stage cascade
     not an absolute exclusion rule.
     Score: ``0.1 base + best_encoding_rate + log1p(num_high_k) / 10``.
 
-**Stage 2** -- Bounded preflight and upper-bound-safe fitness
+**Stage 2** -- Bounded preflight and proof-safe distance fitness
     Calls the generator on every contracted target and Pareto lattice before
-    any blocking distance work.  A challenge-target symplectic screen rejects
-    candidates with a replayable upper-bound witness before a bounded deep
-    pass uses BP-OSD/OSD-CS on the survivors.  BP-family distances remain
-    upper bounds: their magnitude never contributes ``d**2`` fitness.
-    ``combined_score`` instead gives each lattice a fixed, bounded survivor
-    credit plus small rate/structural tie-breaks.  Only exact non-negative
-    distance rows may enter the discovered-code/Pareto persistence path.
+    any blocking distance work.  Replayable symplectic and low-weight-oracle
+    witnesses reject candidates before a bounded deep pass uses BP-OSD/OSD-CS
+    on the survivors.  A complete two-sector low-weight ``UNSAT`` result may
+    contribute a bounded, source-bound distance-lower-bound signal. BP-family
+    distances remain upper bounds: their magnitude never contributes ``d**2``
+    fitness. Only exact non-negative distance rows may enter the discovered-
+    code/Pareto persistence path.
     Diagnostic upper-bound metrics are written to a shared JSONL file for W&B
     background sync (since ``wandb.run`` is ``None`` in subprocess workers).
 
@@ -140,13 +140,21 @@ from evaluation.algebraic_mechanisms import (
     RELATION_TYPES,
     classify_algebraic_mechanism,
 )
+from evaluation.bb_code import build_bb_code, validate_terms
+from evaluation.distance_milp import get_code_matrices
 from evaluation.evaluator import (
+    compute_challenge_rejection_cutoff,
     evaluate_batch,
     evaluate_batch_milp,
     evaluate_batch_milp_parallel,
     evaluate_milp_parallel,
 )
 from evaluation.final_gate import minimum_winning_distance
+from evaluation.low_weight_oracle import (
+    LOW_WEIGHT_MITM_ENGINE,
+    LOW_WEIGHT_MITM_MAX_THRESHOLD,
+    verify_css_low_weight_oracle,
+)
 from evaluation.results import save_code, update_pareto_front
 from evaluation.search_contract import (
     EVOLUTION_LATTICES,
@@ -306,7 +314,7 @@ STAGE1_PREFLIGHT_ROW_LATTICE = "winner_preflight_row_lattice"
 STAGE1_PREFLIGHT_ROW_LATTICE_COMMIT = "winner_preflight_lattice_commit"
 STAGE1_PREFLIGHT_ROW_LATTICE_SUMMARY = "winner_preflight_lattice_summary"
 STAGE1_CANDIDATE_LOG_RECORDS_FIELD = "candidate_log_records"
-STAGE2_DEEP_CONTRACT_VERSION = 2
+STAGE2_DEEP_CONTRACT_VERSION = 3
 STAGE2_DEEP_JOURNAL_SCHEMA_VERSION = 1
 STAGE2_DEEP_RESULT_SCHEMA_VERSION = 1
 STAGE2_DEEP_JOURNAL_DIRECTORY = ".stage2-deep"
@@ -337,6 +345,8 @@ STAGE2_DEEP_DISTANCE_PER_LATTICE = 3
 STAGE2_DEEP_SCREEN_MULTIPLIER = 8
 STAGE2_REFINE_TRIALS = 250
 STAGE2_CHALLENGE_TARGET_FOM = 12.0
+STAGE2_LOW_WEIGHT_ORACLE_MAX_WEIGHT = 4
+STAGE2_LOW_WEIGHT_ORACLE_HARD_TIMEOUT_S = 30.0
 STAGE2_SURVIVOR_CREDIT_PER_LATTICE = 1.0
 STAGE2_RATE_TIE_BREAK_MAX_PER_LATTICE = 0.05
 STAGE2_STRUCTURE_TIE_BREAK_MAX_PER_LATTICE = 0.05
@@ -2785,6 +2795,17 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
         "fom_upper_bound",
         "exact_distance",
         "exact_fom",
+        "distance_lower_bound",
+        "distance_lower_bound_proven",
+        "distance_lower_bound_status",
+        "fom_lower_bound",
+        "low_weight_oracle_threshold",
+        "low_weight_oracle",
+        "threshold_proof_witness",
+        "threshold_proof_distance",
+        "threshold_proof_source",
+        "threshold_proof_lhs",
+        "threshold_proof_rhs",
         "fitness_distance_credit",
         "fitness_survivor_credit",
         "search_status",
@@ -3514,6 +3535,12 @@ def _run_evaluation(
                                 skip_exact=True,
                                 challenge_target_fom=(
                                     STAGE2_CHALLENGE_TARGET_FOM
+                                ),
+                                low_weight_oracle_max_weight=(
+                                    STAGE2_LOW_WEIGHT_ORACLE_MAX_WEIGHT
+                                ),
+                                low_weight_oracle_hard_timeout_s=(
+                                    STAGE2_LOW_WEIGHT_ORACLE_HARD_TIMEOUT_S
                                 ),
                             )
                             expected_wave_keys = {
@@ -5288,6 +5315,8 @@ def _is_stage2_search_survivor(row: dict) -> bool:
 
     if _is_stage2_terminal_negative(row):
         return False
+    if _normalized_stage2_lower_bound_row(row) is not None:
+        return True
     status = row.get("search_status")
     if status == "unresolved":
         if row.get("distance_status") == "upper_bound":
@@ -5466,13 +5495,190 @@ def _normalized_stage2_exact_row(row: dict) -> dict | None:
     return normalized
 
 
+@lru_cache(maxsize=4096)
+def _replay_stage2_lower_bound_candidate(
+    ell: int,
+    m: int,
+    a_terms: tuple[tuple[int, int], ...],
+    b_terms: tuple[tuple[int, int], ...],
+    oracle_json: str,
+) -> tuple[bool, int | None, int | None]:
+    """Rebuild one BB candidate and independently replay its oracle artifact."""
+
+    try:
+        normalized_a = [tuple(term) for term in a_terms]
+        normalized_b = [tuple(term) for term in b_terms]
+        validate_terms(ell, m, normalized_a, "A")
+        validate_terms(ell, m, normalized_b, "B")
+        code = build_bb_code(ell, m, normalized_a, normalized_b)
+        hx, hz, lx, lz = get_code_matrices(code)
+        oracle = json.loads(oracle_json)
+        failures = verify_css_low_weight_oracle(oracle, hx, hz, lx, lz)
+    except Exception:
+        return False, None, None
+    return (
+        not failures and oracle.get("outcome") == "UNSAT",
+        int(code.num_qudits),
+        int(code.dimension),
+    )
+
+
+def _normalized_stage2_lower_bound_row(row: dict) -> dict | None:
+    """Validate the source-bound two-sector oracle lower-bound projection."""
+
+    if (
+        _is_stage2_terminal_negative(row)
+        or row.get("d_is_exact") is True
+        or row.get("search_status") != "certified_lower_bound"
+        or row.get("distance_evidence_conflict") is not None
+        or row.get("distance_lower_bound_proven") is not True
+        or row.get("distance_lower_bound_status") != "search_oracle_proven"
+    ):
+        return None
+    ell = _strict_stage2_integer(row.get("ell"))
+    m = _strict_stage2_integer(row.get("m"))
+    n = _strict_stage2_integer(row.get("n"))
+    k = _strict_stage2_integer(row.get("k"))
+    lower_bound = _strict_stage2_integer(row.get("distance_lower_bound"))
+    threshold = _strict_stage2_integer(row.get("low_weight_oracle_threshold"))
+    if (
+        ell is None
+        or m is None
+        or n is None
+        or k is None
+        or lower_bound is None
+        or threshold is None
+        or ell <= 0
+        or m <= 0
+        or n != 2 * ell * m
+        or not 1 <= k <= n
+        or not 1 <= lower_bound <= n
+        or threshold < 0
+        or lower_bound != threshold + 1
+    ):
+        return None
+    try:
+        challenge_cutoff = compute_challenge_rejection_cutoff(
+            n,
+            k,
+            STAGE2_CHALLENGE_TARGET_FOM,
+        )
+        expected_threshold = min(
+            STAGE2_LOW_WEIGHT_ORACLE_MAX_WEIGHT,
+            challenge_cutoff,
+        )
+    except ValueError:
+        return None
+    if (
+        threshold != expected_threshold
+        or threshold > LOW_WEIGHT_MITM_MAX_THRESHOLD
+        or row.get("challenge_rejection_cutoff") != challenge_cutoff
+    ):
+        return None
+    for field in (
+        "d",
+        "distance_upper_bound",
+        "bp_distance_upper_bound",
+        "osd_cs_distance_upper_bound",
+        "d_symplectic",
+        "d_x_symplectic",
+        "d_z_symplectic",
+    ):
+        value = row.get(field)
+        if value is not None:
+            normalized_upper = _strict_stage2_integer(value)
+            if (
+                normalized_upper is None
+                or normalized_upper < 1
+                or normalized_upper < lower_bound
+            ):
+                return None
+    try:
+        a_terms_list, b_terms_list = _normalize_candidate_definition((
+            row.get("A_terms"),
+            row.get("B_terms"),
+        ))
+        a_terms = tuple(sorted(a_terms_list))
+        b_terms = tuple(sorted(b_terms_list))
+    except (TypeError, ValueError):
+        return None
+    oracle = row.get("low_weight_oracle")
+    if not isinstance(oracle, dict):
+        return None
+    unsigned = dict(oracle)
+    evidence_sha256 = unsigned.pop("evidence_sha256", None)
+    try:
+        encoded = json.dumps(
+            unsigned,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError):
+        return None
+    try:
+        oracle_json = json.dumps(
+            oracle,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError):
+        return None
+    sectors = oracle.get("sectors")
+    if (
+        oracle.get("schema_version") != 1
+        or oracle.get("kind") != "qcode-css-low-weight-oracle"
+        or oracle.get("outcome") != "UNSAT"
+        or oracle.get("decision_complete") is not True
+        or oracle.get("max_weight") != threshold
+        or oracle.get("distance_lower_bound") != lower_bound
+        or oracle.get("witness") is not None
+        or evidence_sha256 != hashlib.sha256(encoded).hexdigest()
+        or not isinstance(sectors, dict)
+        or set(sectors) != {"X", "Z"}
+        or any(
+            not isinstance(sectors[side], dict)
+            or sectors[side].get("outcome") != "UNSAT"
+            or sectors[side].get("decision_complete") is not True
+            or sectors[side].get("max_weight") != threshold
+            or not isinstance(sectors[side].get("binding"), dict)
+            or sectors[side]["binding"].get("engine")
+            != LOW_WEIGHT_MITM_ENGINE
+            for side in ("X", "Z")
+        )
+    ):
+        return None
+    replayed, rebuilt_n, rebuilt_k = _replay_stage2_lower_bound_candidate(
+        ell,
+        m,
+        a_terms,
+        b_terms,
+        oracle_json,
+    )
+    if not replayed or rebuilt_n != n or rebuilt_k != k:
+        return None
+    fom_lower_bound = k * lower_bound * lower_bound / n
+    normalized = dict(row)
+    normalized.update({
+        "distance_lower_bound": lower_bound,
+        "fom_lower_bound": fom_lower_bound,
+        "fitness_distance_credit": fom_lower_bound,
+        "search_status": "certified_lower_bound",
+    })
+    return normalized
+
+
 def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
-    """Score explicit challenge-screen survivors without trusting BP distance.
+    """Score proof-safe survivors without trusting BP distance magnitude.
 
     BP-OSD and OSD-CS produce valid upper bounds.  A larger upper bound is not
     evidence that the true minimum distance is larger, so neither ``d`` nor
-    ``fom`` is read here.  Each historical fitness lattice contributes at most
-    one fixed survivor credit plus two small, independently bounded tie-breaks.
+    ``fom`` is read here. A source-bound two-sector oracle UNSAT may contribute
+    its recomputed lower-bound FOM. Each historical fitness lattice remains
+    capped and receives only small, independently bounded tie-breaks.
     """
 
     survivors_by_lattice: dict[tuple[int, int], list[dict]] = {}
@@ -5493,9 +5699,14 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
                 admitted = _normalized_stage2_exact_row(row)
                 if admitted is None:
                     continue
+            else:
+                lower_bound = _normalized_stage2_lower_bound_row(row)
+                if lower_bound is not None:
+                    admitted = lower_bound
             survivors_by_lattice.setdefault(key, []).append(admitted)
 
     distance_credit = 0.0
+    lower_bound_credit = 0.0
     survivor_credit = 0.0
     rate_tie_break = 0.0
     structural_tie_break = 0.0
@@ -5503,6 +5714,11 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
     for key, survivors in sorted(survivors_by_lattice.items()):
         exact_rows = [
             row for row in survivors if row.get("search_status") == "exact"
+        ]
+        lower_bound_rows = [
+            row
+            for row in survivors
+            if _normalized_stage2_lower_bound_row(row) is not None
         ]
         if exact_rows:
             # Exact evidence may receive positive distance credit, but only
@@ -5521,6 +5737,27 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
                 max(exact_credits, default=0.0),
             )
             distance_credit += base
+        elif lower_bound_rows:
+            # A complete X+Z threshold UNSAT is genuine positive evidence.
+            # Keep the historical one-point survivor floor, but otherwise let
+            # the recomputed FOM lower bound determine the signal.  The cap
+            # prevents one easy high-rate lattice from dominating MAP-Elites.
+            proven_credits = [
+                float(normalized["fom_lower_bound"])
+                for row in lower_bound_rows
+                if (
+                    normalized := _normalized_stage2_lower_bound_row(row)
+                ) is not None
+            ]
+            base = min(
+                STAGE2_CHALLENGE_TARGET_FOM,
+                max(
+                    STAGE2_SURVIVOR_CREDIT_PER_LATTICE,
+                    max(proven_credits, default=0.0),
+                ),
+            )
+            distance_credit += base
+            lower_bound_credit += base
         else:
             # An unresolved BP/OSD upper bound earns exploration/survival
             # credit, never distance credit.
@@ -5568,6 +5805,7 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
     return {
         "combined_score": combined_score,
         "fitness_distance_credit": distance_credit,
+        "fitness_lower_bound_credit": lower_bound_credit,
         "fitness_survivor_credit": survivor_credit,
         "fitness_rate_tie_break": rate_tie_break,
         "fitness_structural_tie_break": structural_tie_break,
@@ -5791,6 +6029,73 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
     # rate and structure.  Their unresolved upper-bound magnitudes stay in
     # telemetry and are deliberately hidden from the mutation model.
     artifacts = {}
+    oracle_rejections = [
+        row
+        for row in metrics["all_results"]
+        if row.get("threshold_proof_source") == "low_weight_oracle"
+        and _is_stage2_terminal_negative(row)
+        and isinstance(row.get("low_weight_oracle"), dict)
+    ]
+    oracle_lower_bounds = [
+        normalized
+        for row in metrics["all_results"]
+        if (normalized := _normalized_stage2_lower_bound_row(row)) is not None
+    ]
+    if oracle_rejections:
+        failure_lines = []
+        for row in sorted(
+            oracle_rejections,
+            key=lambda item: (
+                int(item.get("threshold_proof_distance", 0) or 0),
+                _definition_key(item),
+            ),
+        )[:5]:
+            witness = row["low_weight_oracle"].get("witness", {})
+            support = witness.get("support", [])
+            block_size = int(row["ell"]) * int(row["m"])
+            block_support = [
+                (
+                    "left" if int(index) < block_size else "right",
+                    int(index)
+                    if int(index) < block_size
+                    else int(index) - block_size,
+                )
+                for index in support
+            ]
+            failure_lines.append(
+                f"  {witness.get('side', '?')}-logical w="
+                f"{witness.get('weight', '?')} support={support} "
+                f"block_support={block_support} at "
+                f"({row['ell']},{row['m']}), A={row['A_terms']}, "
+                f"B={row['B_terms']}"
+            )
+        artifacts["low_weight_oracle_failures"] = "\n".join([
+            "Replayed low-weight logical witnesses. Mutations should disrupt "
+            "these concrete supports/mechanisms; they are negative evidence, "
+            "not achieved distance:",
+            *failure_lines,
+        ])
+    if oracle_lower_bounds:
+        lower_lines = []
+        for row in sorted(
+            oracle_lower_bounds,
+            key=lambda item: (
+                float(item["fom_lower_bound"]),
+                _definition_key(item),
+            ),
+            reverse=True,
+        )[:5]:
+            lower_lines.append(
+                f"  [[{row['n']},{row['k']},d>="
+                f"{row['distance_lower_bound']}]] proven search lower FOM="
+                f"{row['fom_lower_bound']:.3f} at ({row['ell']},{row['m']}), "
+                f"A={row['A_terms']}, B={row['B_terms']}"
+            )
+        artifacts["low_weight_oracle_lower_bounds"] = "\n".join([
+            "Complete two-sector low-weight exclusions (positive search "
+            "evidence; final certification is still required):",
+            *lower_lines,
+        ])
     if survivor_codes:
         bc = max(
             survivor_codes,
@@ -5953,13 +6258,17 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         f"Lattices with high-k: {metrics['lattices_with_high_k']}/"
         f"{len(STAGE2_DEEP_LATTICES)}\n"
         "BP/OSD upper-bound diagnostics retained in telemetry only.\n"
+        "Low-weight oracle: "
+        f"{len(oracle_rejections)} replayed witness rejections, "
+        f"{len(oracle_lower_bounds)} complete two-sector lower bounds.\n"
         f"Challenge-screen terminal negatives: "
         f"{score['terminal_negative_count']}; survivors: "
         f"{score['survivor_count']} across {score['survivor_lattices']} "
         "fitness lattices.\n"
         f"Combined score: {combined:.3f} = "
         f"{score['fitness_survivor_credit']:.3f} bounded survivor + "
-        f"{score['fitness_distance_credit']:.3f} verified distance + "
+        f"{score['fitness_distance_credit']:.3f} exact/lower-bound distance "
+        f"({score['fitness_lower_bound_credit']:.3f} from oracle lower bounds) + "
         f"{score['fitness_rate_tie_break']:.3f} rate tie-break + "
         f"{score['fitness_structural_tie_break']:.3f} structure tie-break; "
         "BP upper-bound magnitude contributes zero.\n"
@@ -5995,6 +6304,7 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         "best_bp_fom_upper_bound": best_bp_fom_upper_bound,
         "mean_bp_fom_upper_bound": mean_bp_fom_upper_bound,
         "fitness_distance_credit": score["fitness_distance_credit"],
+        "fitness_lower_bound_credit": score["fitness_lower_bound_credit"],
         "fitness_survivor_credit": score["fitness_survivor_credit"],
         "fitness_rate_tie_break": score["fitness_rate_tie_break"],
         "fitness_structural_tie_break": (
@@ -6005,6 +6315,8 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         "screen_terminal_negative_count": (
             score["terminal_negative_count"]
         ),
+        "low_weight_oracle_rejection_count": len(oracle_rejections),
+        "low_weight_oracle_lower_bound_count": len(oracle_lower_bounds),
     })
     _write_metrics_jsonl(metrics)
 
@@ -6029,6 +6341,9 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         "fitness_distance_credit": float(
             score["fitness_distance_credit"]
         ),
+        "fitness_lower_bound_credit": float(
+            score["fitness_lower_bound_credit"]
+        ),
         "fitness_survivor_credit": float(
             score["fitness_survivor_credit"]
         ),
@@ -6043,6 +6358,8 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
         "screen_terminal_negative_count": float(
             score["terminal_negative_count"]
         ),
+        "low_weight_oracle_rejection_count": float(len(oracle_rejections)),
+        "low_weight_oracle_lower_bound_count": float(len(oracle_lower_bounds)),
         "num_valid": float(metrics["num_valid"]),
         "num_high_k": float(metrics["num_high_k"]),
         "lattices_with_high_k": float(metrics["lattices_with_high_k"]),
