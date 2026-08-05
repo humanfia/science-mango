@@ -513,6 +513,8 @@ def test_cached_stage2_replays_and_excludes_coset_search_oracle_witness(
         ],
         "replay_policy": "exact-construction-current-source",
     }
+    assert ranked[0]["proof_score"]["status"] == "REJECTED"
+    assert ranked[0]["proof_score"]["rejected"] is True
 
 
 def test_coset_candidate_log_recovers_sigkill_through_shared_wal(tmp_path):

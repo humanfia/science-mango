@@ -97,6 +97,10 @@ STAGE3_BOUND_INSUFFICIENT_RESULT_CODE = (
 STAGE3_EXACTNESS_GAP_RESULT_CODE = "STAGE3_EXACTNESS_GAP_RESULT"
 STAGE2_LEDGER_GENERATION_GATE = "qldpc-stage2-ledger-generation"
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
+# PollSelector and several platform wait primitives store milliseconds in a
+# signed C integer.  Keep every individual communicate wait comfortably below
+# that limit while the monotonic deadline retains the full stage budget.
+SUBPROCESS_COMMUNICATE_MAX_SLICE_S = 60.0
 STAGE3_BACKENDS = frozenset({
     "legacy-directions",
     "sat-sectors",
@@ -1006,7 +1010,28 @@ def default_command_runner(
                 )
 
         try:
-            stdout, stderr = process.communicate(timeout=hard_timeout)
+            if hard_timeout is None:
+                stdout, stderr = process.communicate()
+            else:
+                hard_deadline = time.monotonic() + hard_timeout
+                while True:
+                    remaining = max(0.0, hard_deadline - time.monotonic())
+                    wait_timeout = min(
+                        remaining,
+                        SUBPROCESS_COMMUNICATE_MAX_SLICE_S,
+                    )
+                    try:
+                        stdout, stderr = process.communicate(
+                            timeout=wait_timeout,
+                        )
+                        break
+                    except subprocess.TimeoutExpired:
+                        # An intermediate slice is only a polling boundary.
+                        # Preserve the original total wall and kill the
+                        # private session only when its monotonic deadline is
+                        # exhausted.
+                        if wait_timeout >= remaining:
+                            raise
         except subprocess.TimeoutExpired as exc:
             stop_private_session()
             try:

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+import humanize.pipeline as pipeline_module
 from evaluation.process_hard_wall import (
     IsolatedCallOutcome,
     run_isolated_call,
@@ -390,6 +391,95 @@ def test_pipeline_normal_exit_cleans_child_that_closed_output_pipes(tmp_path):
     assert completed.returncode == 70
     assert "descendants were terminated" in completed.stderr
     _assert_process_stopped(int(child_pid_path.read_text()))
+
+
+def test_pipeline_outer_wall_accepts_timeout_above_poll_limit(tmp_path):
+    completed = default_command_runner(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import time; print('started', flush=True); "
+                "time.sleep(0.5); print('completed')"
+            ),
+        ],
+        cwd=tmp_path,
+        # Linux poll/epoll converts this to a millisecond C integer and raises
+        # OverflowError if it is forwarded as one communicate timeout.
+        hard_timeout=4_753_332,
+        termination_grace=0.05,
+    )
+
+    assert completed.returncode == 0
+    assert completed.stdout.splitlines() == ["started", "completed"]
+
+
+def test_pipeline_outer_wall_wait_slices_preserve_total_deadline(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        pipeline_module,
+        "SUBPROCESS_COMMUNICATE_MAX_SLICE_S",
+        0.02,
+    )
+
+    completed = default_command_runner(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import time; print('before-slices', flush=True); "
+                "time.sleep(0.08); print('after-slices')"
+            ),
+        ],
+        cwd=tmp_path,
+        hard_timeout=0.5,
+        termination_grace=0.05,
+    )
+
+    assert completed.returncode == 0
+    assert completed.stdout.splitlines() == [
+        "before-slices",
+        "after-slices",
+    ]
+
+
+def test_pipeline_outer_wall_slices_enforce_total_deadline_and_cleanup(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        pipeline_module,
+        "SUBPROCESS_COMMUNICATE_MAX_SLICE_S",
+        0.02,
+    )
+    pid_path = tmp_path / "sliced-timeout.pid"
+    code = (
+        "import os,signal,sys,time\n"
+        "with open(sys.argv[1], 'w') as stream:\n"
+        " stream.write(str(os.getpid()))\n"
+        " stream.flush()\n"
+        " os.fsync(stream.fileno())\n"
+        "print('before-timeout', flush=True)\n"
+        "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+        "time.sleep(30)\n"
+    )
+
+    with pytest.raises(subprocess.TimeoutExpired) as raised:
+        default_command_runner(
+            [sys.executable, "-c", code, str(pid_path)],
+            cwd=tmp_path,
+            hard_timeout=0.2,
+            termination_grace=0.05,
+        )
+
+    assert raised.value.timeout == pytest.approx(0.2)
+    output = raised.value.output
+    if isinstance(output, bytes):
+        output = output.decode()
+    assert output == "before-timeout\n"
+    _assert_process_stopped(int(pid_path.read_text()))
 
 
 def test_unified_solver_worker_budget_is_capped_at_six():

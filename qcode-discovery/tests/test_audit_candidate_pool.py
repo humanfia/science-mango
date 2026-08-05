@@ -230,6 +230,117 @@ def _snapshot_canonicalizer(row):
     }
 
 
+def test_ranked_snapshot_sorts_trusted_terminal_rows_after_eligible_rows():
+    """A replayed terminal witness must own the rejected tail boundary."""
+
+    eligible = {
+        **_construction(0),
+        "d": None,
+        "proof_score": {
+            "status": "UNSCREENED",
+            "rejected": False,
+        },
+        "triage_identity": {
+            "canonical_digest": "eligible",
+            "digest_kind": "registry-canonical",
+        },
+    }
+    terminal = {
+        **_construction(1),
+        "n": 144,
+        "k": 2,
+        "d": 2,
+        # This is the exact stale-score shape that reached production: the
+        # locally replayed oracle marker is authoritative even if an earlier
+        # rank_record score still says UNSCREENED.
+        "proof_score": {
+            "status": "UNSCREENED",
+            "rejected": False,
+        },
+        "trusted_search_oracle_rejection": {
+            "validated": True,
+            "outcome": "REJECTED",
+            "source": "low_weight_oracle",
+        },
+        "triage_identity": {
+            "canonical_digest": "terminal",
+            "digest_kind": "registry-canonical",
+        },
+    }
+
+    ranked = sorted(
+        [terminal, eligible],
+        key=candidate_pool._ranked_selection_key,
+    )
+
+    assert [
+        row["triage_identity"]["canonical_digest"] for row in ranked
+    ] == ["eligible", "terminal"]
+
+    with pytest.raises(
+        ValueError,
+        match="terminal rejection score is inconsistent",
+    ):
+        candidate_pool._validate_ranked_snapshot_rows(
+            ranked,
+            {
+                "input_records": 2,
+                "unique_candidates": 2,
+                "duplicate_records": 0,
+                "rejected_candidates": 1,
+                "eligible_candidates": 1,
+            },
+        )
+
+    terminal["proof_score"] = {
+        "status": "REJECTED",
+        "rejected": True,
+    }
+    ranked = sorted(
+        [terminal, eligible],
+        key=candidate_pool._ranked_selection_key,
+    )
+    candidate_pool._validate_ranked_snapshot_rows(
+        ranked,
+        {
+            "input_records": 2,
+            "unique_candidates": 2,
+            "duplicate_records": 0,
+            "rejected_candidates": 1,
+            "eligible_candidates": 1,
+        },
+    )
+
+
+def test_ranked_snapshot_rejects_rejected_score_without_trusted_marker():
+    row = {
+        **_construction(0),
+        "proof_score": {
+            "status": "REJECTED",
+            "rejected": True,
+        },
+        "triage_identity": {
+            "canonical_digest": "untrusted-rejection",
+            "digest_kind": "registry-canonical",
+        },
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="terminal rejection score is inconsistent",
+    ):
+        candidate_pool._validate_ranked_snapshot_rows(
+            [row],
+            {
+                "input_records": 1,
+                "unique_candidates": 1,
+                "duplicate_records": 0,
+                "rejected_candidates": 0,
+                "eligible_candidates": 1,
+            },
+        )
+
+
 def test_rank_candidate_files_demotes_unsealed_rejection_to_advisory(tmp_path):
     expanded = tmp_path / "expanded.jsonl"
     frontier = tmp_path / "frontier.jsonl"
@@ -3076,6 +3187,10 @@ def test_ranked_snapshot_replays_real_eligible_terminal_boundary(
     rows = _ranked_snapshot_rows(2)
     rows[-1] = {
         **rows[-1],
+        "proof_score": {
+            "status": "REJECTED",
+            "rejected": True,
+        },
         "trusted_stage1_audit": {
             "validated": True,
             "outcome": "REJECTED",

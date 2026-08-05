@@ -423,6 +423,17 @@ def _promote_trusted_search_oracle_rows(
         row["triage_identity"] = identity
         row.pop(_TRUSTED_SEARCH_ORACLE_REJECTION, None)
         row["trusted_search_oracle_rejection"] = evidence
+        # rank_record deliberately scored the sanitized input before the
+        # locally replayed oracle witness became authoritative.  Publish a
+        # coherent terminal score now that replay has succeeded; otherwise a
+        # trusted rejection can retain an UNSCREENED/non-rejected score and be
+        # interleaved with the live snapshot prefix.
+        score = dict(row["proof_score"])
+        score.update({
+            "status": "REJECTED",
+            "rejected": True,
+        })
+        row["proof_score"] = score
         result.append(row)
     result.sort(key=stable_sort_key)
     return result, len(trusted)
@@ -907,14 +918,21 @@ def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
             raise ValueError
     except (TypeError, ValueError, OverflowError, ZeroDivisionError):
         estimated_fom = 0.0
+    # A locally replayed terminal marker is the authoritative eligibility
+    # boundary.  Keep that lane ahead of every advisory score field so even a
+    # stale or independently malformed proof_score cannot place a terminal
+    # rejection inside the live prefix.  Snapshot validation repeats this
+    # contract before publication.
+    terminal_lane = 1 if _is_trusted_terminal_rejection(row) else 0
     # stable_sort_key's final two fields are deterministic identities. Insert
     # this advisory upper-bound tie-break immediately before them; it never
-    # outranks actual lower-bound proof progress.
+    # outranks actual lower-bound proof progress within one eligibility lane.
     # Retryable structural rows form a durable barrier at the end of the live
     # prefix. Every completed candidate remains pageable ahead of the barrier,
     # while the selection cursor can never cross a timed-out reconstruction.
     structural_lane = 1 if _is_structural_screen_unresolved(row) else 0
     return (
+        terminal_lane,
         proof_key[0],
         structural_lane,
         *proof_key[1:-2],
@@ -1981,10 +1999,19 @@ def _validate_ranked_snapshot_rows(
             or digest in seen
         ):
             raise ValueError("ranked snapshot contains an invalid identity")
+        status_rejected = score.get("status") == "REJECTED"
+        flag_rejected = score.get("rejected") is True
+        terminal = _is_trusted_terminal_rejection(row)
+        if (
+            status_rejected != flag_rejected
+            or terminal != (status_rejected and flag_rejected)
+        ):
+            raise ValueError(
+                "ranked snapshot terminal rejection score is inconsistent"
+            )
         key = _ranked_selection_key(row)
         if previous_key is not None and key < previous_key:
             raise ValueError("ranked snapshot is not in canonical rank order")
-        terminal = _is_trusted_terminal_rejection(row)
         if terminal:
             terminal_seen = True
         elif terminal_seen:
