@@ -28,6 +28,92 @@ class FakeResult:
     artifacts: dict[str, Any] | None = None
 
 
+def _write_descriptor_checkpoint(
+    tmp_path: Path,
+    *,
+    extension: str,
+) -> tuple[Path, Path]:
+    output = tmp_path / "output"
+    checkpoint = output / "checkpoints" / "checkpoint_7"
+    programs = checkpoint / "programs"
+    programs.mkdir(parents=True)
+    program_id = "typed-root"
+    code = '{"kind":"typed-policy"}\n'
+    (checkpoint / "metadata.json").write_text(json.dumps({
+        "last_iteration": 7,
+        "archive": [program_id],
+        "best_program_id": program_id,
+        "islands": [[program_id]],
+        "island_best_programs": [program_id],
+        "island_feature_maps": [{"cell": program_id}],
+    }))
+    (checkpoint / "best_program_info.json").write_text(json.dumps({
+        "id": program_id,
+        "current_iteration": 7,
+        "language": "json",
+    }))
+    (programs / f"{program_id}.json").write_text(json.dumps({
+        "id": program_id,
+        "code": code,
+        "metrics": {},
+    }))
+    (checkpoint / f"best_program{extension}").write_text(code)
+    return output, checkpoint
+
+
+def test_checkpoint_descriptors_accept_json_best_program(tmp_path):
+    output, checkpoint = _write_descriptor_checkpoint(
+        tmp_path,
+        extension=".json",
+    )
+
+    launcher_descriptor = launcher._strong_checkpoint_descriptor(
+        output,
+        checkpoint,
+        expected_iteration=7,
+    )
+    humanize_descriptor = flow_module._checkpoint_descriptor(
+        output,
+        checkpoint,
+        expected_iteration=7,
+    )
+
+    assert launcher_descriptor == humanize_descriptor
+    assert launcher_descriptor["programs"] == 1
+
+
+def test_checkpoint_descriptors_reject_ambiguous_best_program_extensions(
+    tmp_path,
+):
+    output, checkpoint = _write_descriptor_checkpoint(
+        tmp_path,
+        extension=".json",
+    )
+    (checkpoint / "best_program.py").write_text(
+        (checkpoint / "best_program.json").read_text()
+    )
+
+    with pytest.raises(RuntimeError, match="exactly one"):
+        launcher._strong_checkpoint_descriptor(output, checkpoint)
+    with pytest.raises(flow_module.RoundTransactionError, match="exactly one"):
+        flow_module._checkpoint_descriptor(output, checkpoint)
+
+
+def test_checkpoint_descriptors_reject_unknown_best_program_extension(tmp_path):
+    output, checkpoint = _write_descriptor_checkpoint(
+        tmp_path,
+        extension=".txt",
+    )
+
+    with pytest.raises(RuntimeError, match="supported language-specific"):
+        launcher._strong_checkpoint_descriptor(output, checkpoint)
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="supported language-specific",
+    ):
+        flow_module._checkpoint_descriptor(output, checkpoint)
+
+
 def test_parent_and_child_share_managed_evaluator_dependency_contract():
     import evolve.openevolve_evaluator as evaluator
 
@@ -1594,6 +1680,71 @@ def test_exact_incomplete_child_becomes_canonical_worker_error(
     assert observer.outcomes[12]["status"] == "worker_error"
     assert 12 not in observer.expected_programs
     assert set(programs) == {"program-11", "program-13"}
+
+
+def test_all_authenticated_bad_dsl_mutations_complete_the_slice(monkeypatch):
+    from evolve import coset_openevolve_evaluator as coset_evaluator
+    from evolve.coset_mutation_preflight import InvalidCosetMutation
+
+    contract_id = 12345
+    monkeypatch.setenv(
+        coset_evaluator.PREFLIGHT_CONTRACT_ID_ENV,
+        str(contract_id),
+    )
+    evaluated = coset_evaluator._invalid_mutation_result(
+        InvalidCosetMutation(
+            "dsl_invalid",
+            program_sha256="a" * 64,
+            program_bytes=17,
+            detail_sha256="b" * 64,
+        )
+    )
+    observer = launcher._SliceObserver(
+        0,
+        3,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        evaluator_kind=launcher.EVALUATOR_KIND_COSET_TWO_BLOCK,
+    )
+    observer.begin(1, 3, None)
+    for iteration in observer.expected_iterations:
+        child = _child(iteration)
+        child.child_program_dict["metrics"] = dict(evaluated.metrics)
+        child.artifacts = dict(evaluated.artifacts)
+        result = observer.record_submission(
+            iteration,
+            0,
+            FakeFuture(child),
+        ).result()
+        assert result.child_program_dict is None
+
+    observer.verify(_observer_controller({}))
+
+    assert observer.accounting_complete is True
+    assert all(
+        outcome == {
+            "iteration": iteration,
+            "status": "worker_error",
+            "error_sha256": outcome["error_sha256"],
+            "error_bytes": outcome["error_bytes"],
+            "error_kind": "invalid_mutation",
+        }
+        for iteration, outcome in observer.outcomes.items()
+    )
+
+
+def test_all_unclassified_worker_errors_still_fail_the_slice():
+    observer = launcher._SliceObserver(0, 2, FakeResult)
+    observer.begin(1, 2, None)
+    for iteration in observer.expected_iterations:
+        observer.record_submission(
+            iteration,
+            0,
+            FakeFuture(FakeResult(iteration=iteration, error="worker failed")),
+        ).result()
+
+    with pytest.raises(RuntimeError, match="no successful evaluations"):
+        observer.verify(_observer_controller({}))
 
 
 def test_real_evaluator_failure_envelope_is_recognized(monkeypatch):
@@ -3661,12 +3812,16 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
     witness_payload = json.loads(witness_path.read_text())
     marker_payload = json.loads(marker_path.read_text())
     assert launcher.EVOLUTION_LEGACY_SLICE_WITNESS_SCHEMA_VERSION == 4
-    assert launcher.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION == 6
-    assert witness_payload["schema_version"] == 6
+    assert launcher.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION == 7
+    assert witness_payload["schema_version"] == (
+        launcher.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+    )
     assert witness_payload["search_portfolio"] is None
     assert launcher.EVOLUTION_LEGACY_COMPLETION_SCHEMA_VERSION == 4
-    assert launcher.EVOLUTION_COMPLETION_SCHEMA_VERSION == 6
-    assert marker_payload["schema_version"] == 6
+    assert launcher.EVOLUTION_COMPLETION_SCHEMA_VERSION == 7
+    assert marker_payload["schema_version"] == (
+        launcher.EVOLUTION_COMPLETION_SCHEMA_VERSION
+    )
     assert marker_payload["slice_witness_sha256"] == witness["sha256"]
     assert marker_payload["result_checkpoint_sha256"] == "b" * 64
     assert marker_payload["context_sha256"] == witness_payload["context_sha256"]

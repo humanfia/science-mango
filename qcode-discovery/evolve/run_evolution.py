@@ -36,7 +36,8 @@ running-best tracking.
 
 Output
 ------
-* Best evolved program: ``results/evolution/<run_name>/best_generate_candidates.py``
+* Best evolved program: ``best_generate_candidates.py`` for Python genomes or
+  ``best_coset_policy.json`` for the typed coset DSL.
 * OpenEvolve checkpoints: ``results/evolution/<run_name>/checkpoints/``
 * Metrics JSONL: ``results/evolution_metrics.jsonl``
 * Discovered codes: ``results/discovered_codes.json``
@@ -74,6 +75,7 @@ import json
 import math
 import os
 import platform as platform_module
+import re
 import signal
 import shutil
 import stat
@@ -95,7 +97,10 @@ PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
+from evolve.dependency_contract import (
+    COSET_EVALUATOR_DEPENDENCIES,
+    LOCAL_EVALUATOR_DEPENDENCIES,
+)
 from evaluation.search_contract import (
     ACTIVE_GEOMETRY_CONTRACT,
     ACTIVE_STAGE2_DEEP_LATTICES,
@@ -138,26 +143,17 @@ EVALUATOR_KINDS = (
     EVALUATOR_KIND_DEFAULT,
     EVALUATOR_KIND_COSET_TWO_BLOCK,
 )
-COSET_EVALUATOR_DEPENDENCIES = {
-    "coset_search_contract": "evolve/coset_search_contract.py",
-    "coset_candidate_log_wal": "evolve/openevolve_evaluator.py",
-    "coset_construction_adapter": "evaluation/construction.py",
-    "coset_builder": "evaluation/coset_two_block.py",
-    "coset_action_catalog_parser": "evaluation/coset_action_catalog.py",
-    "coset_action_catalog": "evaluation/coset_two_block_actions.v1.json",
-}
-
-
 # Schema 5 binds the mechanism-portfolio semantics (relation-first MAP cells,
 # lineage islands, and the recorded search regime).  Schema 6 additionally
 # binds the pinned OpenEvolve evaluator source whose outer Stage-1 failure
-# envelope is interpreted by this launcher.  Schema 4/5 artifacts remain
-# legacy inputs for the Humanize recovery layer; this launcher only emits the
-# current schema.
+# envelope is interpreted by this launcher.  Schema 7 binds the data-only
+# coset policy renderer and its killable mutation preflight.  Older artifacts
+# remain frozen replay inputs for Humanize; this launcher emits only current
+# schema artifacts.
 EVOLUTION_LEGACY_COMPLETION_SCHEMA_VERSION = 4
 EVOLUTION_LEGACY_SLICE_WITNESS_SCHEMA_VERSION = 4
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 6
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 6
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 7
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 7
 WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
 CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
@@ -878,6 +874,83 @@ def _exact_incomplete_winner_preflight_markers(
     return {name: float(values[name]) for name in values}
 
 
+def _exact_coset_invalid_mutation_evidence(
+    metrics: Any,
+    artifacts: Any,
+    *,
+    expected_contract_id: int,
+) -> dict[str, Any] | None:
+    """Recognize only the typed evaluator's canonical bad-DSL envelope."""
+
+    markers = _exact_incomplete_winner_preflight_markers(
+        metrics,
+        expected_contract_id=expected_contract_id,
+        evaluator_kind=EVALUATOR_KIND_COSET_TWO_BLOCK,
+    )
+    if (
+        markers is None
+        or markers[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC] != 0.0
+        or not isinstance(artifacts, dict)
+        or set(artifacts) != {"failure_stage", "invalid_mutation"}
+        or artifacts.get("failure_stage") != "mutation_preflight"
+        or not isinstance(artifacts.get("invalid_mutation"), dict)
+    ):
+        return None
+    invalid = artifacts["invalid_mutation"]
+    if set(invalid) != {
+        "reason",
+        "program_sha256",
+        "program_bytes",
+        "detail_sha256",
+        "error_type",
+    }:
+        return None
+    reason = invalid.get("reason")
+    program_sha256 = invalid.get("program_sha256")
+    program_bytes = invalid.get("program_bytes")
+    detail_sha256 = invalid.get("detail_sha256")
+    error_type = invalid.get("error_type")
+    valid_program_sha256 = (
+        isinstance(program_sha256, str)
+        and re.fullmatch(r"[0-9a-f]{64}", program_sha256) is not None
+    ) or (program_sha256 is None and reason == "source_too_large")
+    if (
+        reason not in {"dsl_invalid", "source_too_large"}
+        or not valid_program_sha256
+        or isinstance(program_bytes, bool)
+        or not isinstance(program_bytes, int)
+        or program_bytes < 0
+        or not isinstance(detail_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", detail_sha256) is None
+        or error_type != "CosetPolicyError"
+    ):
+        return None
+    try:
+        safe_error = json.loads(metrics["error"])
+    except (KeyError, TypeError, json.JSONDecodeError):
+        return None
+    expected_error = {
+        "detail_sha256": detail_sha256,
+        "error_type": error_type,
+        "kind": "qcode-coset-invalid-mutation",
+        "program_bytes": program_bytes,
+        "program_sha256": program_sha256,
+        "reason": reason,
+    }
+    if (
+        safe_error != expected_error
+        or metrics["error"]
+        != json.dumps(
+            expected_error,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    ):
+        return None
+    return dict(invalid)
+
+
 def _validated_stage2_completion_markers(
     metrics: Any,
     *,
@@ -1243,6 +1316,28 @@ def _checkpoint_preflight_summary(
         code = program.get("code")
         if not isinstance(code, str) or not code:
             raise RuntimeError(f"checkpoint program has invalid code: {path}")
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+            from evolve.coset_policy_dsl import parse_policy
+
+            try:
+                parse_policy(code)
+            except Exception as exc:
+                raise RuntimeError(
+                    f"result checkpoint contains a non-DSL coset program: {path}"
+                ) from exc
+            genome_format = program.get("metrics", {}).get(
+                COSET_GENOME_FORMAT_ID_METRIC
+            )
+            if (
+                isinstance(genome_format, bool)
+                or not isinstance(genome_format, (int, float))
+                or not math.isfinite(float(genome_format))
+                or float(genome_format) != COSET_TYPED_DSL_GENOME_FORMAT_ID
+            ):
+                raise RuntimeError(
+                    "result checkpoint contains an unmarked coset DSL program: "
+                    f"{path}"
+                )
         _validated_winner_preflight_markers(
             program.get("metrics"),
             expected_contract_id=expected_contract_id,
@@ -1718,14 +1813,26 @@ def _execute_winner_preflight_owned(
             raise _WinnerPreflightChildFailure(
                 "winner preflight result is unreadable"
             ) from exc
+        expected_payload_fields = (
+            {"schema_version", "status", "metrics", "artifacts"}
+            if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+            else {"schema_version", "status", "metrics"}
+        )
         if (
             not isinstance(payload, dict)
-            or set(payload) != {"schema_version", "status", "metrics"}
+            or set(payload) != expected_payload_fields
             or payload.get("schema_version") != 1
             or payload.get("status") != "completed"
             or not isinstance(payload.get("metrics"), dict)
-            or set(payload["metrics"])
-            != set(_winner_preflight_marker_fields(evaluator_kind))
+            or (
+                evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK
+                and set(payload["metrics"])
+                != set(_winner_preflight_marker_fields(evaluator_kind))
+            )
+            or (
+                evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+                and not isinstance(payload.get("artifacts"), dict)
+            )
         ):
             raise _WinnerPreflightChildFailure(
                 "winner preflight result schema is invalid"
@@ -1776,6 +1883,403 @@ def _execute_winner_preflight(
                 if attempt >= STAGE1_PREFLIGHT_WORKER_ATTEMPTS:
                     raise
         raise AssertionError("winner preflight retry loop did not return")
+
+
+COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
+COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
+COSET_CHECKPOINT_MIGRATION_SCHEMA_VERSION = 1
+
+
+def _strict_coset_checkpoint_genome_kind(database: Any) -> str:
+    """Classify a loaded coset population without executing any program.
+
+    A mixed archive is never a legitimate epoch boundary.  In particular, a
+    JSON-looking child must not allow neighboring legacy Python to survive the
+    one-time migration and later become a sampled parent.
+    """
+
+    from evolve.coset_policy_dsl import CosetPolicyError, parse_policy
+
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("loaded checkpoint contains no coset genomes")
+    kinds: set[str] = set()
+    for program_id in sorted(programs):
+        program = programs[program_id]
+        code = getattr(program, "code", None)
+        if not isinstance(code, str) or not code:
+            raise RuntimeError(
+                f"loaded checkpoint program has invalid code: {program_id}"
+            )
+        marker = getattr(program, "metrics", {}).get(
+            COSET_GENOME_FORMAT_ID_METRIC
+        )
+        marker_is_typed = (
+            not isinstance(marker, bool)
+            and isinstance(marker, (int, float))
+            and math.isfinite(float(marker))
+            and float(marker) == COSET_TYPED_DSL_GENOME_FORMAT_ID
+        )
+        marker_is_absent = marker is None
+        try:
+            parse_policy(code)
+        except CosetPolicyError:
+            if not marker_is_absent:
+                raise RuntimeError(
+                    "coset checkpoint has a marked but invalid typed DSL "
+                    f"program: {program_id}"
+                )
+            kinds.add("legacy-python")
+        else:
+            if not marker_is_typed:
+                raise RuntimeError(
+                    "coset checkpoint has an unmarked typed DSL program: "
+                    f"{program_id}"
+                )
+            kinds.add("typed-json-dsl")
+    if len(kinds) != 1:
+        raise RuntimeError(
+            "coset checkpoint mixes legacy Python and typed DSL genomes"
+        )
+    return next(iter(kinds))
+
+
+def _validate_typed_coset_checkpoint_programs(database: Any) -> None:
+    """Require every post-migration checkpoint row to be parseable current DSL."""
+
+    from evolve.coset_policy_dsl import parse_policy
+
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("typed coset checkpoint has no programs")
+    for program_id in sorted(programs):
+        program = programs[program_id]
+        try:
+            parse_policy(program.code)
+        except Exception as exc:
+            raise RuntimeError(
+                f"typed coset checkpoint program is invalid: {program_id}"
+            ) from exc
+        value = getattr(program, "metrics", {}).get(
+            COSET_GENOME_FORMAT_ID_METRIC
+        )
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or float(value) != COSET_TYPED_DSL_GENOME_FORMAT_ID
+        ):
+            raise RuntimeError(
+                f"typed coset checkpoint program lacks its genome marker: "
+                f"{program_id}"
+            )
+
+
+def _coset_checkpoint_program_set_sha256(database: Any) -> str:
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict) or not programs:
+        raise RuntimeError("coset checkpoint program set is empty")
+    rows = []
+    for program_id in sorted(programs):
+        code = getattr(programs[program_id], "code", None)
+        if not isinstance(code, str):
+            raise RuntimeError("coset checkpoint program code is invalid")
+        rows.append({
+            "id": program_id,
+            "code_sha256": hashlib.sha256(code.encode("utf-8")).hexdigest(),
+        })
+    return hashlib.sha256(json.dumps(
+        rows,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+
+
+def _execute_coset_checkpoint_root_evaluation(
+    evaluator_path: str | Path,
+    code: str,
+    *,
+    expected_contract_id: int,
+    wall_timeout: float,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Fully evaluate the canonical DSL root in one killable process group."""
+
+    from evolve.openevolve_evaluator import candidate_log_range_identity
+
+    raw_candidate_log = os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    if not isinstance(raw_candidate_log, str) or not raw_candidate_log:
+        raise RuntimeError("coset migration has no candidate log binding")
+    candidate_log = Path(raw_candidate_log).resolve(strict=False)
+    before = candidate_log_range_identity(candidate_log, start_offset=0)
+    with tempfile.TemporaryDirectory(prefix="qcode-coset-dsl-root-") as root:
+        temp_root = Path(root)
+        program_path = temp_root / "policy.json"
+        result_path = temp_root / "result.json"
+        stdout_path = temp_root / "stdout.log"
+        stderr_path = temp_root / "stderr.log"
+        program_path.write_text(code, encoding="utf-8")
+        lifecycle_read_fd, lifecycle_write_fd = os.pipe()
+        command = [
+            sys.executable,
+            str(Path(evaluator_path).resolve()),
+            "--preflight-worker",
+            str(program_path.resolve()),
+            str(result_path.resolve()),
+            str(os.getpid()),
+            str(lifecycle_read_fd),
+        ]
+        environment = os.environ.copy()
+        environment[WINNER_PREFLIGHT_CONTRACT_ID_ENV] = str(
+            expected_contract_id
+        )
+        for variable in WINNER_PREFLIGHT_NUMERIC_THREAD_ENV:
+            environment[variable] = "1"
+        try:
+            with stdout_path.open("wb") as stdout, stderr_path.open("wb") as stderr:
+                try:
+                    process = subprocess.Popen(
+                        command,
+                        stdin=subprocess.DEVNULL,
+                        stdout=stdout,
+                        stderr=stderr,
+                        close_fds=True,
+                        env=environment,
+                        pass_fds=(lifecycle_read_fd,),
+                        start_new_session=True,
+                    )
+                finally:
+                    os.close(lifecycle_read_fd)
+                try:
+                    return_code = process.wait(timeout=wall_timeout)
+                except subprocess.TimeoutExpired as exc:
+                    _terminate_private_worker_group(process)
+                    raise RuntimeError(
+                        "coset DSL checkpoint root exceeded its hard wall timeout"
+                    ) from exc
+                except BaseException:
+                    if process.poll() is None:
+                        _terminate_private_worker_group(process)
+                    raise
+        finally:
+            os.close(lifecycle_write_fd)
+        if return_code != 0:
+            tail = _preflight_stderr_tail(stderr_path)
+            raise RuntimeError(
+                "coset DSL checkpoint root evaluator failed"
+                + (f": {tail}" if tail else "")
+            )
+        try:
+            payload = json.loads(result_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                "coset DSL checkpoint root result is unreadable"
+            ) from exc
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != {"schema_version", "status", "metrics", "artifacts"}
+        or payload.get("schema_version") != 1
+        or payload.get("status") != "completed"
+        or not isinstance(payload.get("metrics"), dict)
+        or not isinstance(payload.get("artifacts"), dict)
+    ):
+        raise RuntimeError("coset DSL checkpoint root result schema is invalid")
+    metrics = dict(payload["metrics"])
+    artifacts = dict(payload["artifacts"])
+    _validated_winner_preflight_markers(
+        metrics,
+        expected_contract_id=expected_contract_id,
+        evaluator_kind=EVALUATOR_KIND_COSET_TWO_BLOCK,
+    )
+    _validated_map_descriptor_version(
+        metrics, label="coset DSL checkpoint root"
+    )
+    _checkpoint_evaluator_kind(
+        metrics,
+        expected_kind=EVALUATOR_KIND_COSET_TWO_BLOCK,
+        label="coset DSL checkpoint root",
+    )
+    if metrics.get(COSET_GENOME_FORMAT_ID_METRIC) != (
+        COSET_TYPED_DSL_GENOME_FORMAT_ID
+    ):
+        raise RuntimeError("coset DSL checkpoint root genome marker is invalid")
+    after = candidate_log_range_identity(
+        candidate_log,
+        start_offset=int(before["end_offset"]),
+    )
+    migration_range = {
+        "path": after["path"],
+        "start_offset": after["start_offset"],
+        "end_offset": after["end_offset"],
+        "sha256": after["sha256"],
+        "bytes": after["bytes"],
+        "wal_clean": after["wal_clean"],
+    }
+    return metrics, artifacts, migration_range
+
+
+def _install_coset_checkpoint_dsl_epoch(
+    database: Any,
+    *,
+    source_checkpoint: dict[str, Any],
+    evaluator_path: str | Path,
+    expected_contract_id: int,
+    wall_timeout: float,
+    search_portfolio_schema_version: int | None,
+) -> dict[str, Any]:
+    """Atomically replace a sealed legacy population with one trusted DSL root."""
+
+    from evolve.coset_policy_dsl import (
+        canonical_policy_json,
+        default_policy,
+        policy_digest,
+    )
+    from openevolve.database import Program
+
+    if _strict_coset_checkpoint_genome_kind(database) != "legacy-python":
+        raise RuntimeError("coset DSL epoch migration received a non-legacy archive")
+    source_program_set_sha256 = _coset_checkpoint_program_set_sha256(database)
+    source_last_iteration = getattr(database, "last_iteration", None)
+    if (
+        isinstance(source_last_iteration, bool)
+        or not isinstance(source_last_iteration, int)
+        or source_last_iteration != source_checkpoint.get("last_iteration")
+    ):
+        raise RuntimeError("coset migration checkpoint iteration is inconsistent")
+    source_count = len(database.programs)
+    if source_count != source_checkpoint.get("programs"):
+        raise RuntimeError("coset migration checkpoint program count changed")
+
+    policy = default_policy()
+    code = canonical_policy_json(policy) + "\n"
+    code_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
+    root_binding = {
+        "schema_version": COSET_CHECKPOINT_MIGRATION_SCHEMA_VERSION,
+        "kind": "qcode-coset-checkpoint-dsl-epoch",
+        "source_checkpoint_sha256": source_checkpoint["sha256"],
+        "source_program_set_sha256": source_program_set_sha256,
+        "source_last_iteration": source_last_iteration,
+        "policy_sha256": policy_digest(policy),
+        "code_sha256": code_sha256,
+        "contract_id": expected_contract_id,
+    }
+    root_id = "coset-dsl-root-" + hashlib.sha256(json.dumps(
+        root_binding,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()[:32]
+    metrics, artifacts, migration_range = (
+        _execute_coset_checkpoint_root_evaluation(
+            evaluator_path,
+            code,
+            expected_contract_id=expected_contract_id,
+            wall_timeout=wall_timeout,
+        )
+    )
+    root_artifacts = dict(artifacts)
+    root_artifacts["checkpoint_genome_epoch"] = root_binding
+    root = Program(
+        id=root_id,
+        code=code,
+        changes_description=(
+            "Trusted typed-DSL epoch root installed from sealed checkpoint "
+            f"{source_checkpoint['sha256']}."
+        ),
+        language="json",
+        parent_id=None,
+        generation=0,
+        timestamp=0.0,
+        iteration_found=source_last_iteration,
+        metrics=metrics,
+        metadata={
+            "island": 0,
+            "checkpoint_genome_epoch": root_binding,
+        },
+        artifacts_json=json.dumps(
+            root_artifacts,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ),
+    )
+
+    # The potentially expensive evaluation above has no in-memory side
+    # effects.  Install the replacement only after every source, policy,
+    # metric, artifact, and candidate-range check has succeeded.
+    configured_islands = getattr(
+        getattr(database, "config", None), "num_islands", None
+    )
+    if (
+        isinstance(configured_islands, bool)
+        or not isinstance(configured_islands, int)
+        or configured_islands < 1
+    ):
+        configured_islands = len(getattr(database, "islands", ()))
+    if configured_islands < 1:
+        raise RuntimeError("coset checkpoint has no configured island")
+    database.programs = {root_id: root}
+    database.last_iteration = source_last_iteration
+    database.current_island = 0
+    database.island_generations = [0] * configured_islands
+    database.last_migration_generation = 0
+    database.islands = [set() for _ in range(configured_islands)]
+    database.islands[0].add(root_id)
+    database.island_feature_maps = [
+        {} for _ in range(configured_islands)
+    ]
+    database.archive = {root_id}
+    database.best_program_id = root_id
+    database.island_best_programs = [root_id] + [None] * (
+        configured_islands - 1
+    )
+    database.feature_stats = {}
+    database.diversity_cache = {}
+    database.diversity_reference_set = []
+    if search_portfolio_schema_version is not None:
+        _rebuild_fixed_search_feature_maps(
+            database,
+            schema_version=search_portfolio_schema_version,
+        )
+    else:
+        coordinate_builder = getattr(
+            database, "_calculate_feature_coords", None
+        )
+        if not callable(coordinate_builder):
+            raise RuntimeError(
+                "native coset checkpoint database has no feature mapper"
+            )
+        coordinates = coordinate_builder(root)
+        if (
+            not isinstance(coordinates, (list, tuple))
+            or not coordinates
+            or any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in coordinates
+            )
+        ):
+            raise RuntimeError(
+                "native coset checkpoint root feature coordinates are invalid"
+            )
+        database.island_feature_maps[0]["-".join(
+            str(value) for value in coordinates
+        )] = root_id
+    _validate_typed_coset_checkpoint_programs(database)
+    return {
+        "schema_version": 2,
+        "status": "completed",
+        "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
+        "contract_id": expected_contract_id,
+        "mode": "legacy-python-to-typed-json-dsl-root",
+        "source_checkpoint": dict(source_checkpoint),
+        "source_programs": source_count,
+        "source_program_set_sha256": source_program_set_sha256,
+        "target_programs": 1,
+        "root_program_id": root_id,
+        "root_policy_sha256": policy_digest(policy),
+        "root_code_sha256": code_sha256,
+        "migration_candidate_range": migration_range,
+    }
 
 
 def _backfill_checkpoint_programs(
@@ -1928,20 +2432,30 @@ def _strong_checkpoint_descriptor(
         ) from exc
 
     metadata_path = resolved / "metadata.json"
-    best_path = resolved / "best_program.py"
     best_info_path = resolved / "best_program_info.json"
     programs_dir = resolved / "programs"
     metadata = _read_json_object(metadata_path, "checkpoint metadata")
     best_info = _read_json_object(
         best_info_path, "checkpoint best-program info"
     )
+    best_candidates = sorted(resolved.glob("best_program.*"))
+    if (
+        len(best_candidates) != 1
+        or best_candidates[0].suffix not in {".py", ".json"}
+    ):
+        raise RuntimeError(
+            "checkpoint must contain exactly one supported language-specific "
+            f"best_program file: {resolved}"
+        )
+    best_path = best_candidates[0]
     if (
         best_path.is_symlink()
         or not best_path.is_file()
         or best_path.stat().st_size < 1
     ):
         raise RuntimeError(
-            f"checkpoint best_program.py is missing or empty: {best_path}"
+            f"checkpoint best program is not a non-empty regular file: "
+            f"{best_path}"
         )
     if programs_dir.is_symlink() or not programs_dir.is_dir():
         raise RuntimeError(
@@ -2037,7 +2551,7 @@ def _strong_checkpoint_descriptor(
     best_program_code: str | None = None
     file_hashes: dict[str, str] = {
         "metadata.json": _file_sha256(metadata_path),
-        "best_program.py": _file_sha256(best_path),
+        best_path.name: _file_sha256(best_path),
         "best_program_info.json": _file_sha256(best_info_path),
     }
     for program_path in program_files:
@@ -2074,7 +2588,7 @@ def _strong_checkpoint_descriptor(
         or best_path.read_text() != best_program_code
     ):
         raise RuntimeError(
-            "checkpoint best_program.py does not match the stored "
+            f"checkpoint {best_path.name} does not match the stored "
             "best program code"
         )
     checkpoint_hash = hashlib.sha256(
@@ -3026,14 +3540,23 @@ class _SliceObserver:
             f"future {iteration} raised {type(exc).__name__}"
         )
 
-    def _record_worker_error(self, iteration: int, error: str) -> None:
+    def _record_worker_error(
+        self,
+        iteration: int,
+        error: str,
+        *,
+        error_kind: str | None = None,
+    ) -> None:
         encoded = error.encode("utf-8")
-        self.outcomes[iteration] = {
+        outcome = {
             "iteration": iteration,
             "status": "worker_error",
             "error_sha256": hashlib.sha256(encoded).hexdigest(),
             "error_bytes": len(encoded),
         }
+        if error_kind is not None:
+            outcome["error_kind"] = error_kind
+        self.outcomes[iteration] = outcome
 
     def record_future_result(self, iteration: int, result: Any) -> Any:
         self.consumed[iteration] = self.consumed.get(iteration, 0) + 1
@@ -3140,6 +3663,18 @@ class _SliceObserver:
                 evaluator_kind=self.evaluator_kind,
             )
             if incomplete is not None:
+                invalid_mutation = (
+                    _exact_coset_invalid_mutation_evidence(
+                        child.get("metrics"),
+                        result_artifacts,
+                        expected_contract_id=(
+                            self.expected_preflight_contract_id
+                        ),
+                    )
+                    if self.evaluator_kind
+                    == EVALUATOR_KIND_COSET_TWO_BLOCK
+                    else None
+                )
                 source_error = str(child["metrics"]["error"]).encode("utf-8")
                 failure = {
                     "child_program_bytes": len(encoded_child),
@@ -3154,11 +3689,17 @@ class _SliceObserver:
                         incomplete[WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC]
                     ),
                     "iteration": iteration,
-                    "kind": "winner_preflight_incomplete",
+                    "kind": (
+                        "coset_invalid_mutation"
+                        if invalid_mutation is not None
+                        else "winner_preflight_incomplete"
+                    ),
                     "preflight_contract_id":
                         self.expected_preflight_contract_id,
                     "program_id": program_id,
                 }
+                if invalid_mutation is not None:
+                    failure["invalid_mutation"] = invalid_mutation
                 canonical_error = json.dumps(
                     failure,
                     sort_keys=True,
@@ -3170,7 +3711,15 @@ class _SliceObserver:
                     iteration=iteration,
                     error=canonical_error,
                 )
-                self._record_worker_error(iteration, canonical_error)
+                self._record_worker_error(
+                    iteration,
+                    canonical_error,
+                    error_kind=(
+                        "invalid_mutation"
+                        if invalid_mutation is not None
+                        else None
+                    ),
+                )
                 return sanitized
             try:
                 _validated_winner_preflight_markers(
@@ -3416,7 +3965,7 @@ class _SliceObserver:
             return
         if (
             not isinstance(report, dict)
-            or report.get("schema_version") != 1
+            or report.get("schema_version") not in {1, 2}
             or report.get("status") != "completed"
             or report.get("contract_version")
             != WINNER_PREFLIGHT_CONTRACT_VERSION
@@ -3427,6 +3976,25 @@ class _SliceObserver:
                 "checkpoint winner preflight report is invalid"
             )
             return
+        if report.get("schema_version") == 2:
+            source_programs = report.get("source_programs")
+            if (
+                report.get("mode")
+                != "legacy-python-to-typed-json-dsl-root"
+                or not isinstance(report.get("source_checkpoint"), dict)
+                or isinstance(source_programs, bool)
+                or not isinstance(source_programs, int)
+                or source_programs < 1
+                or report.get("target_programs") != 1
+                or not isinstance(report.get("root_program_id"), str)
+                or not isinstance(
+                    report.get("migration_candidate_range"), dict
+                )
+            ):
+                self.violations.append(
+                    "checkpoint genome migration report is invalid"
+                )
+                return
         self.checkpoint_preflight_report = dict(report)
 
     def record_auxiliary_program_add(
@@ -3558,13 +4126,24 @@ class _SliceObserver:
             outcome.get("status") == "program_added"
             for outcome in self.outcomes.values()
         )
+        invalid_mutations = sum(
+            outcome.get("status") == "worker_error"
+            and outcome.get("error_kind") == "invalid_mutation"
+            for outcome in self.outcomes.values()
+        )
         # A worker_error has no checkpoint Program.  It covers both an LLM/diff
         # failure that never produced a child and the exact evaluator-generated
         # incomplete-preflight or incomplete-Stage-2 envelope sanitized before
         # database.add. Neither outcome claims that a candidate universe was
         # enumerated completely. Malformed/forged marker claims and future
         # exceptions remain violations.
-        if successful < 1:
+        # A complete batch of schema-valid, evaluator-authenticated bad DSL
+        # mutations is still a completely accounted evolution slice.  Save an
+        # unchanged-population checkpoint at the requested iteration so the
+        # next round can ask for new mutations.  Timeouts, LLM transport
+        # errors, Stage-2 failures, and unclassified worker errors retain the
+        # at-least-one-success requirement and therefore fail closed.
+        if successful < 1 and invalid_mutations != len(expected):
             self.violations.append(
                 "the OpenEvolve slice produced no successful evaluations"
             )
@@ -4572,6 +5151,18 @@ def _write_slice_witness(
             }
         ),
     }
+    if resume_checkpoint is not None:
+        # Schema 7 makes the resume preflight (including a one-time legacy
+        # genome epoch replacement) durable instead of merely checking it in
+        # controller memory.  The witness hash then binds the sealed source
+        # checkpoint to the exact DSL root used by every submitted mutation.
+        if observer.checkpoint_preflight_report is None:
+            raise RuntimeError(
+                "resumed OpenEvolve slice has no checkpoint preflight report"
+            )
+        payload["checkpoint_preflight"] = copy.deepcopy(
+            observer.checkpoint_preflight_report
+        )
     payload.update(effective_invocation)
     for name, identity in launch_binding.items():
         for field_name in ("path", "sha256", "bytes"):
@@ -5755,6 +6346,33 @@ def main():
                             database,
                             args.resume,
                         )
+                        source_checkpoint = _strong_checkpoint_descriptor(
+                            output_dir,
+                            args.resume,
+                            expected_iteration=_checkpoint_last_iteration(
+                                args.resume
+                            ),
+                        )
+                        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+                            genome_kind = _strict_coset_checkpoint_genome_kind(
+                                database
+                            )
+                            if genome_kind == "legacy-python":
+                                report = _install_coset_checkpoint_dsl_epoch(
+                                    database,
+                                    source_checkpoint=source_checkpoint,
+                                    evaluator_path=EVALUATOR_ACTIVE,
+                                    expected_contract_id=preflight_contract_id,
+                                    wall_timeout=_winner_preflight_wall_timeout(
+                                        evaluator_timeout
+                                    ),
+                                    search_portfolio_schema_version=(
+                                        search_portfolio_schema_version
+                                    ),
+                                )
+                                observer.record_checkpoint_preflight(report)
+                                return
+                            _validate_typed_coset_checkpoint_programs(database)
                         _validate_loaded_checkpoint_stage2_contract(
                             database,
                             expected_contract_id=preflight_contract_id,
@@ -5782,7 +6400,12 @@ def main():
                     score = (best_program.metrics or {}).get("combined_score", 0)
                     print(f"  Best score: {score:.4f}")
                     # Save best program
-                    best_path = Path(output_dir) / "best_generate_candidates.py"
+                    best_filename = (
+                        "best_coset_policy.json"
+                        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+                        else "best_generate_candidates.py"
+                    )
+                    best_path = Path(output_dir) / best_filename
                     best_path.parent.mkdir(parents=True, exist_ok=True)
                     best_path.write_text(best_program.code)
                     print(f"  Best program: {best_path}")
@@ -5799,6 +6422,13 @@ def main():
                             expected_kind=evaluator_kind,
                             label="fresh initial program",
                         )
+                        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK and (
+                            metrics.get(COSET_GENOME_FORMAT_ID_METRIC)
+                            != COSET_TYPED_DSL_GENOME_FORMAT_ID
+                        ):
+                            raise RuntimeError(
+                                "fresh coset program lacks its typed DSL marker"
+                            )
                         _validate_managed_initial_evaluation(
                             metrics,
                             artifacts,
@@ -5819,7 +6449,12 @@ def main():
 
                 # Save best program
                 if result.best_code:
-                    best_path = Path(output_dir) / "best_generate_candidates.py"
+                    best_filename = (
+                        "best_coset_policy.json"
+                        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+                        else "best_generate_candidates.py"
+                    )
+                    best_path = Path(output_dir) / best_filename
                     best_path.parent.mkdir(parents=True, exist_ok=True)
                     best_path.write_text(result.best_code)
                     print(f"  Best program: {best_path}")

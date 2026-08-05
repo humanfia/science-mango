@@ -11,16 +11,22 @@ below the dynamic FOM=12 exclusion threshold.
 from __future__ import annotations
 
 import hashlib
-import importlib.util
+import ctypes
 import json
 import math
 import os
+import signal
 import sys
+import threading
 import time
 from collections import Counter
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
+
+PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 import numpy as np
 from qldpc import codes
@@ -48,6 +54,11 @@ from evolve.coset_search_contract import (
     quota_by_normality,
     support_orbit_bin,
 )
+from evolve.coset_mutation_preflight import (
+    CosetMutationRuntimeError,
+    InvalidCosetMutation,
+    preflight_coset_policy,
+)
 
 
 MAP_DESCRIPTOR_VERSION_METRIC = "map_descriptor_version"
@@ -63,6 +74,8 @@ PREFLIGHT_UNIT_KIND_ID_METRIC = "winner_preflight_unit_kind_id"
 PREFLIGHT_UNITS_METRIC = "winner_preflight_units"
 PREFLIGHT_ACTION_STRATA_METRIC = "winner_preflight_action_strata"
 MAX_ORACLE_CANDIDATES = 8
+COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
+COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
 
 
 def _source_sha256(path: str | Path) -> str:
@@ -72,25 +85,12 @@ def _source_sha256(path: str | Path) -> str:
     return hashlib.sha256(source.read_bytes()).hexdigest()
 
 
-def _load_program(program_path: str):
+def _preflight_program(program_path: str):
+    """Parse/render a mutation in a killable child, never in this worker."""
+
     path = Path(program_path).resolve(strict=True)
-    source_hash = _source_sha256(path)
-    module_name = f"qcode_coset_candidate_{source_hash}_{os.getpid()}"
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError("cannot load evolved coset program")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    try:
-        spec.loader.exec_module(module)
-    finally:
-        sys.modules.pop(module_name, None)
-    if _source_sha256(path) != source_hash:
-        raise RuntimeError("evolved coset program changed during import")
-    generator = getattr(module, "generate_candidates", None)
-    if not callable(generator):
-        raise ValueError("evolved coset program has no generate_candidates()")
-    return generator, source_hash, path
+    result = preflight_coset_policy(path)
+    return result, path
 
 
 def _gf2_rank(matrix: np.ndarray) -> int:
@@ -600,15 +600,78 @@ def _append_candidate_rows(rows: list[dict[str, Any]]) -> int:
     return len(rows)
 
 
-def _entropy(values: list[Any]) -> float:
-    if len(values) < 2:
+def _fixed_categorical_entropy(
+    values: list[Any],
+    *,
+    category_count: int,
+) -> float:
+    """Entropy against an immutable category space, never the sample size."""
+
+    if (
+        isinstance(category_count, bool)
+        or not isinstance(category_count, int)
+        or category_count < 2
+    ):
+        raise ValueError("category_count must be an integer of at least two")
+    if not values:
         return 0.0
     counts = Counter(values)
+    if len(counts) > category_count:
+        raise RuntimeError("observed more structural categories than the contract")
     value = -sum(
         (count / len(values)) * math.log(count / len(values))
         for count in counts.values()
     )
-    return value / math.log(len(values))
+    return value / math.log(category_count)
+
+
+def _structural_diversity(rows: list[Mapping[str, Any]]) -> float:
+    """Score pre-oracle viable coverage without rewarding survivor collapse."""
+
+    if not rows:
+        return 0.0
+    action_count = len(action_search_views())
+    action_diversity = _fixed_categorical_entropy(
+        [row["action_id"] for row in rows],
+        category_count=action_count,
+    )
+    normality_diversity = _fixed_categorical_entropy(
+        [row["subgroup_normal"] for row in rows],
+        category_count=COSET_FEATURE_BINS[COSET_SUBGROUP_NORMALITY_METRIC],
+    )
+    orbit_diversity = _fixed_categorical_entropy(
+        [row["support_orbit_bin"] for row in rows],
+        category_count=COSET_FEATURE_BINS[COSET_SUPPORT_ORBIT_METRIC],
+    )
+    # A tiny statically viable subset must not receive the same diversity
+    # credit as a full production batch with the same proportions.
+    coverage = min(1.0, len(rows) / MAX_GENERATED_CANDIDATES)
+    return coverage * (
+        action_diversity + normality_diversity + orbit_diversity
+    ) / 3
+
+
+def _validate_production_candidate_batch(
+    candidates: list[Mapping[str, Any]],
+) -> None:
+    """Reassert the renderer's immutable 384-row lane contract."""
+
+    if len(candidates) != MAX_GENERATED_CANDIDATES:
+        raise RuntimeError(
+            "trusted coset renderer did not emit the exact production batch"
+        )
+    views = action_search_views()
+    expected = quota_by_normality(views, MAX_GENERATED_CANDIDATES)
+    observed = Counter(
+        candidate.get("action_id")
+        if isinstance(candidate, Mapping)
+        else None
+        for candidate in candidates
+    )
+    if observed != Counter(expected):
+        raise RuntimeError(
+            "trusted coset renderer violated immutable action quotas"
+        )
 
 
 def _preflight_markers(
@@ -647,14 +710,148 @@ def _preflight_markers(
     }
 
 
+def _preflight_contract_id() -> int:
+    raw = os.environ.get(PREFLIGHT_CONTRACT_ID_ENV, "0")
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise RuntimeError("invalid coset preflight contract ID") from exc
+    if value < 0:
+        raise RuntimeError("invalid coset preflight contract ID")
+    return value
+
+
+def _invalid_mutation_result(exc: InvalidCosetMutation):
+    """Return the exact managed envelope that becomes one worker_error."""
+
+    reason = getattr(exc, "reason_code", None)
+    program_sha256 = getattr(exc, "program_sha256", None)
+    program_bytes = getattr(exc, "program_bytes", None)
+    detail_sha256 = getattr(exc, "detail_sha256", None)
+    error_type = getattr(exc, "error_type", None)
+    program_sha256_valid = (
+        isinstance(program_sha256, str)
+        and len(program_sha256) == 64
+    ) or (
+        program_sha256 is None
+        and reason == "source_too_large"
+    )
+    if (
+        not isinstance(reason, str)
+        or not reason
+        or not program_sha256_valid
+        or isinstance(program_bytes, bool)
+        or not isinstance(program_bytes, int)
+        or program_bytes < 0
+        or not isinstance(detail_sha256, str)
+        or len(detail_sha256) != 64
+        or not isinstance(error_type, str)
+        or not error_type
+    ):
+        raise CosetMutationRuntimeError(
+            "invalid mutation preflight returned malformed failure metadata"
+        )
+    safe_error = json.dumps(
+        {
+            "detail_sha256": detail_sha256,
+            "error_type": error_type,
+            "kind": "qcode-coset-invalid-mutation",
+            "program_bytes": program_bytes,
+            "program_sha256": program_sha256,
+            "reason": reason,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    zero_fields = {
+        "combined_score": 0.0,
+        "lattices_with_high_k": 0.0,
+        "map_descriptor_dominant_pattern_share": 0.0,
+        "map_descriptor_pool_size": 0.0,
+        "support_split_type": 0.0,
+        "search_structural_entropy": 0.0,
+        "algebraic_relation_type": 0.0,
+        "orbit_span_bin": 0.0,
+        "difference_spectrum_bin": 0.0,
+        MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
+        "num_high_k": 0.0,
+        "term_count": 0.0,
+        "pattern_type": 0.0,
+    }
+    metrics = {
+        **zero_fields,
+        "error": safe_error,
+        "winner_preflight_contract_version": float(
+            PREFLIGHT_CONTRACT_VERSION
+        ),
+        "winner_preflight_contract_id": float(_preflight_contract_id()),
+        "winner_preflight_complete": 0.0,
+        "winner_preflight_incomplete": 1.0,
+        PREFLIGHT_UNIT_KIND_ID_METRIC: PREFLIGHT_UNIT_KIND_ID,
+        PREFLIGHT_UNITS_METRIC: 0.0,
+        PREFLIGHT_ACTION_STRATA_METRIC: 0.0,
+        "winner_preflight_candidate_definitions_evaluated": 0.0,
+        "winner_preflight_winner_capable_eligible": 0.0,
+        "winner_preflight_winner_capable_persisted": 0.0,
+        "winner_preflight_winner_capable_omitted": 0.0,
+        "winner_preflight_hard_timeout": 0.0,
+        "winner_preflight_subprocess_failed": 1.0,
+    }
+    artifacts = {
+        "failure_stage": "mutation_preflight",
+        "invalid_mutation": {
+            "reason": reason,
+            "program_sha256": program_sha256,
+            "program_bytes": program_bytes,
+            "detail_sha256": detail_sha256,
+            "error_type": error_type,
+        },
+    }
+    try:
+        from openevolve.evaluation_result import EvaluationResult
+
+        return EvaluationResult(metrics=metrics, artifacts=artifacts)
+    except ImportError:
+        return metrics
+
+
+def _runtime_failure_result(exc: CosetMutationRuntimeError):
+    """Emit a deliberately non-checkpointable envelope for trusted failures."""
+
+    detail = hashlib.sha256(
+        f"{type(exc).__name__}:{exc}".encode("utf-8", errors="replace")
+    ).hexdigest()
+    metrics = {
+        "combined_score": 0.0,
+        MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
+        EVALUATOR_KIND_ID_METRIC: EVALUATOR_KIND_ID,
+        ACTION_CATALOG_ID_METRIC: _action_catalog_contract_id(),
+        "qcode_mutation_preflight_runtime_failure": 1.0,
+    }
+    artifacts = {
+        "failure_stage": "mutation_preflight_runtime",
+        "runtime_failure_sha256": detail,
+    }
+    try:
+        from openevolve.evaluation_result import EvaluationResult
+
+        return EvaluationResult(metrics=metrics, artifacts=artifacts)
+    except ImportError:
+        return metrics
+
+
 def _evaluate(program_path: str):
     started = time.monotonic()
-    generator, program_sha256, source_path = _load_program(program_path)
-    raw = generator()
-    if not isinstance(raw, (list, tuple)):
-        raise ValueError("generate_candidates() must return a list or tuple")
-    if len(raw) > MAX_GENERATED_CANDIDATES:
-        raise ValueError("coset candidate pool exceeds immutable cap")
+    try:
+        preflight, source_path = _preflight_program(program_path)
+    except InvalidCosetMutation as exc:
+        return _invalid_mutation_result(exc)
+    except CosetMutationRuntimeError as exc:
+        return _runtime_failure_result(exc)
+    program_sha256 = preflight.program_sha256
+    raw = list(preflight.candidates)
+    _validate_production_candidate_batch(raw)
     normalized = []
     seen = set()
     invalid = 0
@@ -669,6 +866,10 @@ def _evaluate(program_path: str):
             continue
         seen.add(digest)
         normalized.append(item)
+    if invalid or len(normalized) != len(raw):
+        raise RuntimeError(
+            "trusted coset renderer produced invalid or duplicate candidates"
+        )
     expected_action_ids = {
         view.action_id for view in action_search_views()
     }
@@ -730,14 +931,9 @@ def _evaluate(program_path: str):
         else 0
     )
 
-    action_diversity = _entropy([row["action_id"] for row in eligible_rows])
-    normality_diversity = _entropy([
-        row["subgroup_normal"] for row in eligible_rows
-    ])
-    orbit_diversity = _entropy([
-        row["support_orbit_bin"] for row in eligible_rows
-    ])
-    diversity = (action_diversity + normality_diversity + orbit_diversity) / 3
+    # Structural diversity is measured before the negative-only oracle lane.
+    # Otherwise rejecting most candidates can perversely increase the score.
+    diversity = _structural_diversity(persistable_rows)
     best = max(eligible_rows, key=lambda row: row["fitness"], default=None)
     best_fitness = 0.0 if best is None else float(best["fitness"])
     combined_score = min(0.999, 0.8 * best_fitness + 0.199 * diversity)
@@ -760,6 +956,7 @@ def _evaluate(program_path: str):
         COSET_MAP_SCHEMA_METRIC: float(COSET_MAP_SCHEMA_VERSION),
         EVALUATOR_KIND_ID_METRIC: EVALUATOR_KIND_ID,
         ACTION_CATALOG_ID_METRIC: _action_catalog_contract_id(),
+        COSET_GENOME_FORMAT_ID_METRIC: COSET_TYPED_DSL_GENOME_FORMAT_ID,
         COSET_ACTION_FAMILY_METRIC: float(
             0 if best is None else best["action_family_bin"]
         ),
@@ -801,6 +998,8 @@ def _evaluate(program_path: str):
         "evaluator_kind": COSET_EVALUATOR_KIND,
         "program_path": str(source_path),
         "program_sha256": program_sha256,
+        "policy_sha256": preflight.policy_sha256,
+        "mutation_preflight_elapsed_s": preflight.elapsed_s,
         "distance_semantics": {
             "bp_upper_bound_positive_credit": False,
             "positive_distance_sources": [
@@ -845,8 +1044,110 @@ def evaluate(program_path: str):
     return evaluate_stage1(program_path)
 
 
+def _write_preflight_worker_result(
+    result_path: str,
+    metrics: dict[str, Any],
+    artifacts: dict[str, Any],
+) -> None:
+    payload = {
+        "schema_version": 1,
+        "status": "completed",
+        "metrics": metrics,
+        "artifacts": artifacts,
+    }
+    destination = Path(result_path)
+    if destination.is_symlink() or destination.exists():
+        raise FileExistsError(
+            f"refusing to overwrite coset preflight result: {destination}"
+        )
+    temporary = destination.with_name(
+        f".{destination.name}.tmp-{os.getpid()}"
+    )
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    descriptor = os.open(
+        temporary,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC,
+        0o600,
+    )
+    try:
+        written = 0
+        while written < len(encoded):
+            count = os.write(descriptor, encoded[written:])
+            if count <= 0:
+                raise OSError("coset preflight result write made no progress")
+            written += count
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+    os.replace(temporary, destination)
+
+
+def _preflight_worker_main(program_path: str, result_path: str) -> int:
+    result = _evaluate(program_path)
+    metrics = getattr(result, "metrics", result)
+    artifacts = getattr(result, "artifacts", {})
+    if not isinstance(metrics, dict) or not isinstance(artifacts, dict):
+        raise TypeError("coset preflight worker returned an invalid result")
+    _write_preflight_worker_result(result_path, metrics, artifacts)
+    return 0
+
+
+def _arm_parent_lifecycle(expected_parent_pid: str, lifecycle_fd: str) -> None:
+    try:
+        parent_pid = int(expected_parent_pid)
+        descriptor = int(lifecycle_fd)
+    except ValueError as exc:
+        raise RuntimeError("coset preflight lifecycle arguments are invalid") from exc
+    if parent_pid < 1 or descriptor < 0:
+        raise RuntimeError("coset preflight lifecycle binding is invalid")
+    if sys.platform.startswith("linux"):
+        libc = ctypes.CDLL(None, use_errno=True)
+        if libc.prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
+            error = ctypes.get_errno()
+            raise OSError(error, "cannot arm coset preflight parent-death signal")
+    if os.getppid() != parent_pid:
+        raise RuntimeError("coset preflight parent changed before lifecycle arm")
+
+    def monitor() -> None:
+        try:
+            while True:
+                try:
+                    payload = os.read(descriptor, 1)
+                except InterruptedError:
+                    continue
+                if payload:
+                    continue
+                os.kill(os.getpid(), signal.SIGKILL)
+        finally:
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+
+    threading.Thread(
+        target=monitor,
+        name="coset-preflight-lifecycle",
+        daemon=True,
+    ).start()
+
+
 __all__ = [
     "evaluate",
     "evaluate_stage1",
     "evaluate_stage2",
 ]
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 6 or sys.argv[1] != "--preflight-worker":
+        raise SystemExit(
+            "usage: coset_openevolve_evaluator.py --preflight-worker "
+            "PROGRAM_PATH RESULT_PATH EXPECTED_PARENT_PID LIFECYCLE_FD"
+        )
+    _arm_parent_lifecycle(sys.argv[4], sys.argv[5])
+    raise SystemExit(_preflight_worker_main(sys.argv[2], sys.argv[3]))

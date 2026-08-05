@@ -155,6 +155,7 @@ def write_full_slice_proof(
     schema_version: int = (
         flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
     ),
+    all_invalid_mutations: bool = False,
 ) -> None:
     config = flow.config
     result = flow_module._checkpoint_descriptor(
@@ -174,6 +175,7 @@ def write_full_slice_proof(
         if schema_version in {
             flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
             flow_module.EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION,
+            6,
             flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
         }
         else None
@@ -353,6 +355,34 @@ def write_full_slice_proof(
             "policy_sha256": policy_sha256,
             "role_submission_counts": role_counts,
         }
+    outcomes = (
+        [
+            {
+                "iteration": i,
+                "status": "worker_error",
+                "error_sha256": hashlib.sha256(error).hexdigest(),
+                "error_bytes": len(error),
+                "error_kind": "invalid_mutation",
+            }
+            for i in range(start, base_iteration + count + 1)
+        ]
+        if all_invalid_mutations
+        else [{
+            "iteration": start,
+            "status": "program_added",
+            "program_id": "evicted-child",
+            "program_sha256": hashlib.sha256(encoded_program).hexdigest(),
+            "program_bytes": len(encoded_program),
+        }] + [
+            {
+                "iteration": i,
+                "status": "worker_error",
+                "error_sha256": hashlib.sha256(error).hexdigest(),
+                "error_bytes": len(error),
+            }
+            for i in range(start + 1, base_iteration + count + 1)
+        ]
+    )
     witness = {
         "schema_version": schema_version,
         "status": "completed",
@@ -367,23 +397,9 @@ def write_full_slice_proof(
             base_iteration + 1, count
         ),
         "submission_attempts": attempts,
-        "outcomes": [{
-            "iteration": start,
-            "status": "program_added",
-            "program_id": "evicted-child",
-            "program_sha256": hashlib.sha256(encoded_program).hexdigest(),
-            "program_bytes": len(encoded_program),
-        }] + [
-            {
-                "iteration": i,
-                "status": "worker_error",
-                "error_sha256": hashlib.sha256(error).hexdigest(),
-                "error_bytes": len(error),
-            }
-            for i in range(start + 1, base_iteration + count + 1)
-        ],
-        "successful_evaluations": 1,
-        "worker_errors": count - 1,
+        "outcomes": outcomes,
+        "successful_evaluations": 0 if all_invalid_mutations else 1,
+        "worker_errors": count if all_invalid_mutations else count - 1,
         "checkpoint_saves": [{
             "iteration": base_iteration + count,
             "accounting_complete": True,
@@ -397,6 +413,26 @@ def write_full_slice_proof(
         "openevolve_version": "0.2.26",
         "completed_at": "test",
     }
+    if (
+        schema_version == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        and base is not None
+    ):
+        # Schema 7 seals the checkpoint preflight that ran before any resumed
+        # mutation was submitted.  Most transaction tests use a synthetic,
+        # already-complete checkpoint rather than the one-time coset DSL
+        # migration, so model the ordinary schema-1 backfill report here.
+        witness["checkpoint_preflight"] = {
+            "schema_version": 1,
+            "status": "completed",
+            "contract_version": 2,
+            "contract_id": 0,
+            "programs": base["programs"],
+            "unique_program_codes": base["programs"],
+            "programs_already_complete": base["programs"],
+            "unique_program_codes_evaluated": 0,
+            "programs_updated": 0,
+            "worker_cap": 1,
+        }
     if schema_version in (
         flow_module.EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS
     ):
@@ -418,7 +454,10 @@ def write_full_slice_proof(
     witness.update(invocation)
     sources = config.repo_dir / "fake-openevolve"
     source_names = ["controller", "process_parallel", "database", "api"]
-    if schema_version == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+    if schema_version in {
+        6,
+        flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    }:
         source_names.append("evaluator")
     for name in source_names:
         descriptor = flow_module._file_descriptor(
@@ -434,6 +473,7 @@ def write_full_slice_proof(
     if schema_version in {
         flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
         flow_module.EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION,
+        6,
         flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
     }:
         witness_descriptor.update({
@@ -809,13 +849,199 @@ def test_candidate_range_witness_accepts_unchanged_log(tmp_path):
     assert flow._capture_round_candidates(state, 1, round_dir) == [row]
 
 
+def test_current_witness_accepts_an_all_invalid_mutation_slice(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    project = Path(flow_module.__file__).resolve().parents[1]
+    for relative_path in flow_module.COSET_EVALUATOR_DEPENDENCIES.values():
+        destination = repo / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((project / relative_path).read_bytes())
+    (repo / "evolve/coset_openevolve_evaluator.py").write_text(
+        "# fake coset evaluator\n"
+    )
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="all-invalid-mutation-slice",
+        iterations_per_round=3,
+        evolution_config=repo / "evolve/config.yaml",
+        evolution_seed=repo / "evolve/seed_solution.py",
+        evolution_evaluator="coset-two-block",
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    checkpoint = write_checkpoint(repo, config.run_id, 3)
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        checkpoint,
+        None,
+        all_invalid_mutations=True,
+    )
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        checkpoint,
+    )
+
+    witness = flow_module._validate_slice_witness(
+        flow_module._slice_witness_path(round_dir),
+        config,
+        None,
+        result,
+        transaction["launch_binding"],
+        transaction["invocation_binding"],
+        flow.candidate_log,
+        0,
+    )
+
+    assert witness["successful_evaluations"] == 0
+    assert witness["worker_errors"] == 3
+    assert all(
+        outcome["error_kind"] == "invalid_mutation"
+        for outcome in witness["outcomes"]
+    )
+
+
+def test_completed_transaction_accepts_same_bytes_after_inode_rotation(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="committed-candidate-inode-rotation",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    row = candidate(60)
+    payload = jsonl(row)
+
+    def runner(_config, _state, runner_round):
+        flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+        flow.candidate_log.write_bytes(payload)
+        checkpoint = write_checkpoint(repo, config.run_id, 1)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    assert flow._capture_round_candidates(state, 1, round_dir) == [row]
+
+    witness = json.loads(
+        flow_module._slice_witness_path(round_dir).read_text()
+    )
+    with flow.candidate_log.open("rb") as original_log:
+        original_inode = flow.candidate_log.stat().st_ino
+        assert original_log.read() == payload
+        flow_module.atomic_write_bytes(flow.candidate_log, payload)
+        replacement = flow.candidate_log.stat()
+        assert replacement.st_ino != original_inode
+        assert replacement.st_dev == witness["candidate_log_device"]
+
+    assert witness["candidate_log_inode"] == original_inode
+    transaction, rows = flow._validate_completed_transaction(1, round_dir)
+    assert transaction["status"] == "committed"
+    assert rows == [row]
+    # A committed round can still be the durable pending round while Stage 1
+    # resumes at phase=screen. That production path must use the same
+    # historical inode semantics and must not launch evolution again.
+    assert flow._capture_round_candidates(
+        flow.store.load_state(), 1, round_dir
+    ) == [row]
+
+
+def test_live_transaction_rejects_same_bytes_after_inode_rotation(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="live-candidate-inode-rotation",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    row = candidate(61)
+    payload = jsonl(row)
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    flow._prepare_transaction(state, 1, round_dir)
+    flow.candidate_log.write_bytes(payload)
+    checkpoint = write_checkpoint(repo, config.run_id, 1)
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+
+    with flow.candidate_log.open("rb"):
+        original_inode = flow.candidate_log.stat().st_ino
+        flow_module.atomic_write_bytes(flow.candidate_log, payload)
+        assert flow.candidate_log.stat().st_ino != original_inode
+
+    with pytest.raises(
+        RoundTransactionError,
+        match="candidate_log_inode",
+    ):
+        flow._capture_round_candidates(state, 1, round_dir)
+
+
+def test_completed_transaction_rejects_tampered_rotated_candidate_range(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="committed-candidate-content-tamper",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    row = candidate(62)
+    payload = jsonl(row)
+
+    def runner(_config, _state, runner_round):
+        flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+        flow.candidate_log.write_bytes(payload)
+        checkpoint = write_checkpoint(repo, config.run_id, 1)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    assert flow._capture_round_candidates(state, 1, round_dir) == [row]
+
+    tampered = payload.replace(b'"k": 8', b'"k": 9', 1)
+    assert tampered != payload
+    assert len(tampered) == len(payload)
+    with flow.candidate_log.open("rb"):
+        original_inode = flow.candidate_log.stat().st_ino
+        flow_module.atomic_write_bytes(flow.candidate_log, tampered)
+        assert flow.candidate_log.stat().st_ino != original_inode
+
+    with pytest.raises(
+        RoundTransactionError,
+        match="candidate_range_sha256",
+    ):
+        flow._validate_completed_transaction(1, round_dir)
+
+
 @pytest.mark.parametrize(
     "witness_schema",
     [
         flow_module.EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION,
+        6,
         flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
     ],
-    ids=["schema-v5-legacy-source-binding", "schema-v6"],
+    ids=["schema-v5-legacy-source-binding", "schema-v6", "schema-v7"],
 )
 def test_portfolio_witness_replays_policy_roles_tactics_and_quota(
     tmp_path,
@@ -864,7 +1090,7 @@ def test_portfolio_witness_replays_policy_roles_tactics_and_quota(
     assert accepted["schema_version"] == witness_schema
     assert (
         "openevolve_evaluator_path" in accepted
-    ) == (witness_schema == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION)
+    ) == (witness_schema in {6, flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION})
     accepted_marker = flow_module._validate_completion_marker(
         flow_module._completion_marker_path(round_dir),
         config,
@@ -885,7 +1111,7 @@ def test_portfolio_witness_replays_policy_roles_tactics_and_quota(
     original = json.loads(witness_path.read_text())
 
     evaluator_source = repo / "fake-openevolve/evaluator.py"
-    if witness_schema == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+    if witness_schema in {6, flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION}:
         evaluator_source.write_text("# tampered evaluator\n")
         with pytest.raises(RoundTransactionError, match="evaluator_sha256"):
             validate()
@@ -3033,6 +3259,20 @@ def test_completed_round_accepts_only_immediately_previous_dependency_shape(
             current_launch,
             allow_previous_committed=True,
         )
+
+    # `_load_transaction` is also used for a committed-but-pending round at
+    # phase=screen. Verify it routes that state through the append-only
+    # historical schema allowlist instead of the live/prepared schema gate.
+    transaction["status"] = "committed"
+    transaction["launch_binding"] = previous_launch
+    atomic_write_json(
+        round_dir / "evolution-transaction.json",
+        transaction,
+    )
+    loaded = flow._load_transaction(state, 1, round_dir)
+    assert loaded is not None
+    assert loaded["status"] == "committed"
+    assert loaded["launch_binding"] == previous_launch
 
 
 def test_prepared_binding_history_rejects_legacy_schema_downgrade(

@@ -26,3 +26,19 @@ LOCAL_EVALUATOR_DEPENDENCIES = {
     "evaluation_tanner_equivalence": "evaluation/tanner_equivalence.py",
     "evolution_dependency_contract": "evolve/dependency_contract.py",
 }
+
+
+# Extra immutable inputs used only by the coset two-block evaluator.  Keep
+# this mapping shared by the launcher and Humanize transaction verifier: a
+# dependency present on just one side would either make a completed slice
+# unreplayable or, worse, leave executable search semantics unbound.
+COSET_EVALUATOR_DEPENDENCIES = {
+    "coset_search_contract": "evolve/coset_search_contract.py",
+    "coset_policy_dsl": "evolve/coset_policy_dsl.py",
+    "coset_mutation_preflight": "evolve/coset_mutation_preflight.py",
+    "coset_candidate_log_wal": "evolve/openevolve_evaluator.py",
+    "coset_construction_adapter": "evaluation/construction.py",
+    "coset_builder": "evaluation/coset_two_block.py",
+    "coset_action_catalog_parser": "evaluation/coset_action_catalog.py",
+    "coset_action_catalog": "evaluation/coset_two_block_actions.v1.json",
+}

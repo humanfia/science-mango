@@ -26,7 +26,10 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Callable, Iterator, Protocol
 
-from evolve.dependency_contract import LOCAL_EVALUATOR_DEPENDENCIES
+from evolve.dependency_contract import (
+    COSET_EVALUATOR_DEPENDENCIES,
+    LOCAL_EVALUATOR_DEPENDENCIES,
+)
 from evaluation.geometry import candidate_geometry
 from evaluation.search_contract import (
     LEGACY_GEOMETRY_CONTRACT,
@@ -156,13 +159,13 @@ DEFAULT_ADAPTIVE_MUTATION_POLICY = {
     "repair_dual_balance": 0,
 }
 LEGACY_BATCH_SCHEMA_VERSION = 1
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 6
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 7
 EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION = 4
 EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION = 5
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 6
-EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5})
-EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS = frozenset({5, 6})
-EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS = frozenset({4, 5, 6})
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 7
+EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6})
+EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS = frozenset({5, 6, 7})
+EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS = frozenset({4, 5, 6, 7})
 OPENEVOLVE_BASE_WITNESS_SOURCES = (
     "openevolve_controller",
     "openevolve_process_parallel",
@@ -251,31 +254,40 @@ LOCAL_EVOLUTION_DEPENDENCIES = LOCAL_EVALUATOR_DEPENDENCIES
 # so an *unbound* prepared transaction can abandon its old slice and rebind.
 # Do not accept arbitrary subsets: a missing dependency could otherwise turn
 # manifest corruption into an unaudited source upgrade.
+_COSET_DSL_LAUNCH_FIELDS = frozenset({
+    "coset_policy_dsl",
+    "coset_mutation_preflight",
+})
 LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
-    frozenset({"evaluation_geometry"}),
-    frozenset({
+    _COSET_DSL_LAUNCH_FIELDS | {"evaluation_geometry"},
+    _COSET_DSL_LAUNCH_FIELDS | {
         "evaluation_geometry",
         "evaluation_final_gate",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
         "evaluation_structural_features",
         "evolution_dependency_contract",
-    }),
-    frozenset({
+    },
+    _COSET_DSL_LAUNCH_FIELDS | {
         "evaluation_geometry",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
         "evaluation_structural_features",
         "evolution_dependency_contract",
-    }),
-    frozenset({"evaluation_geometry", "evaluation_structural_features"}),
+    },
+    _COSET_DSL_LAUNCH_FIELDS | {
+        "evaluation_geometry",
+        "evaluation_structural_features",
+    },
+    _COSET_DSL_LAUNCH_FIELDS,
 )
 # A committed round cannot be rebound, but the immediately preceding
 # append-only dependency schema remains replayable from its immutable
 # manifest/witness hashes. Older incomplete schemas stay rejected.
-COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS = frozenset({
-    "evaluation_geometry",
-})
+COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS = (
+    frozenset({"evaluation_geometry"}),
+    _COSET_DSL_LAUNCH_FIELDS,
+)
 EVOLUTION_INVOCATION_FIELDS = frozenset({
     "model_names",
     "reasoning_effort",
@@ -668,14 +680,24 @@ def _checkpoint_descriptor(
         ) from exc
 
     metadata_path = resolved / "metadata.json"
-    best_path = resolved / "best_program.py"
     best_info_path = resolved / "best_program_info.json"
     programs_dir = resolved / "programs"
     metadata = _read_json_object(metadata_path, "checkpoint metadata")
     best_info = _read_json_object(best_info_path, "checkpoint best-program info")
+    best_candidates = sorted(resolved.glob("best_program.*"))
+    if (
+        len(best_candidates) != 1
+        or best_candidates[0].suffix not in {".py", ".json"}
+    ):
+        raise RoundTransactionError(
+            "checkpoint must contain exactly one supported language-specific "
+            f"best_program file: {resolved}"
+        )
+    best_path = best_candidates[0]
     if best_path.is_symlink() or not best_path.is_file() or best_path.stat().st_size < 1:
         raise RoundTransactionError(
-            f"checkpoint best_program.py is missing or empty: {best_path}"
+            "checkpoint best program is not a non-empty regular file: "
+            f"{best_path}"
         )
     if programs_dir.is_symlink() or not programs_dir.is_dir():
         raise RoundTransactionError(
@@ -758,7 +780,7 @@ def _checkpoint_descriptor(
     best_program_code: str | None = None
     file_hashes: dict[str, str] = {
         "metadata.json": _file_sha256(metadata_path),
-        "best_program.py": _file_sha256(best_path),
+        best_path.name: _file_sha256(best_path),
         "best_program_info.json": _file_sha256(best_info_path),
     }
     for program_path in program_files:
@@ -789,7 +811,7 @@ def _checkpoint_descriptor(
         )
     if best_program_code is None or best_path.read_text() != best_program_code:
         raise RoundTransactionError(
-            "checkpoint best_program.py does not match the stored best program code"
+            f"checkpoint {best_path.name} does not match the stored best program code"
         )
     checkpoint_hash = hashlib.sha256(
         json.dumps(file_hashes, sort_keys=True, separators=(",", ":")).encode()
@@ -799,6 +821,93 @@ def _checkpoint_descriptor(
         "last_iteration": iteration,
         "sha256": checkpoint_hash,
         "programs": len(program_files),
+    }
+
+
+def _checkpoint_program_set_sha256(
+    checkpoint: dict[str, Any],
+) -> str:
+    """Recompute the frozen migration source identity without executing code."""
+
+    programs_dir = Path(checkpoint["path"]) / "programs"
+    if programs_dir.is_symlink() or not programs_dir.is_dir():
+        raise RoundTransactionError(
+            "checkpoint migration source programs directory is missing"
+        )
+    program_files = sorted(programs_dir.glob("*.json"))
+    if len(program_files) != checkpoint.get("programs"):
+        raise RoundTransactionError(
+            "checkpoint migration source program count changed"
+        )
+    rows: list[dict[str, str]] = []
+    for path in program_files:
+        program = _read_json_object(path, "checkpoint migration source program")
+        program_id = program.get("id")
+        code = program.get("code")
+        if program_id != path.stem or not isinstance(code, str):
+            raise RoundTransactionError(
+                "checkpoint migration source program identity is invalid"
+            )
+        rows.append({
+            "id": program_id,
+            "code_sha256": hashlib.sha256(
+                code.encode("utf-8")
+            ).hexdigest(),
+        })
+    return hashlib.sha256(
+        json.dumps(
+            rows,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _historical_coset_policy_v1_identity(
+    root_code: Any,
+    *,
+    expected_catalog_sha256: Any,
+) -> dict[str, Any]:
+    """Validate a sealed v1 root as data, independent of the live DSL code."""
+
+    if (
+        not isinstance(root_code, str)
+        or not isinstance(expected_catalog_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", expected_catalog_sha256) is None
+    ):
+        raise RoundTransactionError(
+            "checkpoint DSL migration root policy identity is invalid"
+        )
+    try:
+        root_document = _strict_json_object_bytes(
+            root_code.encode("utf-8"),
+            "checkpoint DSL migration root policy",
+        )
+    except (UnicodeError, RoundTransactionError) as exc:
+        raise RoundTransactionError(
+            "checkpoint DSL migration root policy is invalid"
+        ) from exc
+    if (
+        root_document.get("schema_version") != 1
+        or root_document.get("kind") != "qcode-coset-policy-dsl-v1"
+        or root_document.get("representation_id")
+        != "css-coset-two-block-actions-v1"
+        or root_document.get("action_catalog_sha256")
+        != expected_catalog_sha256
+    ):
+        raise RoundTransactionError(
+            "checkpoint DSL migration root policy contract is invalid"
+        )
+    canonical_policy = _canonical_compact_json(root_document)
+    return {
+        "document": root_document,
+        "policy_sha256": hashlib.sha256(
+            canonical_policy.encode("utf-8")
+        ).hexdigest(),
+        "code_sha256": hashlib.sha256(
+            root_code.encode("utf-8")
+        ).hexdigest(),
     }
 
 
@@ -1227,18 +1336,7 @@ def _expected_evolution_evaluator(config: FlowConfig) -> Path:
 def _evolution_dependencies(config: FlowConfig) -> dict[str, str]:
     dependencies = dict(LOCAL_EVOLUTION_DEPENDENCIES)
     if _flow_evaluator_kind(config) == "coset-two-block":
-        dependencies.update({
-            "coset_search_contract": "evolve/coset_search_contract.py",
-            "coset_candidate_log_wal": "evolve/openevolve_evaluator.py",
-            "coset_construction_adapter": "evaluation/construction.py",
-            "coset_action_catalog_parser": (
-                "evaluation/coset_action_catalog.py"
-            ),
-            "coset_builder": "evaluation/coset_two_block.py",
-            "coset_action_catalog": (
-                "evaluation/coset_two_block_actions.v1.json"
-            ),
-        })
+        dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
     return dependencies
 
 
@@ -4964,6 +5062,7 @@ def _validate_slice_witness(
     candidate_start_offset: int,
     legacy_candidate_source: dict[str, Any] | None = None,
     require_candidate_end_of_file: bool = False,
+    allow_historical_candidate_inode_change: bool = False,
 ) -> dict[str, Any]:
     witness = _read_json_object(witness_path, "OpenEvolve slice witness")
     witness_schema = witness.get("schema_version")
@@ -5123,6 +5222,13 @@ def _validate_slice_witness(
             "candidate_range_bytes": observed_candidate["bytes"],
             "candidate_wal_clean": observed_candidate["wal_clean"],
         }
+        # A committed slice is replayed by its immutable byte range and proof
+        # chain.  Recovery may atomically replace the aggregate candidate log
+        # while preserving those bytes, which necessarily changes its inode.
+        # Live/pre-commit validation must retain the inode lease so a file
+        # replacement cannot be mistaken for the process-owned append target.
+        if allow_historical_candidate_inode_change:
+            candidate_expected.pop("candidate_log_inode")
         for key, value in candidate_expected.items():
             if witness.get(key) != value:
                 raise RoundTransactionError(
@@ -5161,6 +5267,213 @@ def _validate_slice_witness(
         start_iteration=start_iteration,
         count=count,
     )
+    checkpoint_preflight = witness.get("checkpoint_preflight")
+    if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        if base_checkpoint is None:
+            if checkpoint_preflight is not None:
+                raise RoundTransactionError(
+                    "fresh evolution witness contains a checkpoint preflight"
+                )
+        else:
+            if not isinstance(checkpoint_preflight, dict):
+                raise RoundTransactionError(
+                    "resumed evolution witness has no checkpoint preflight"
+                )
+            report_schema = checkpoint_preflight.get("schema_version")
+            common_valid = (
+                checkpoint_preflight.get("status") == "completed"
+                and checkpoint_preflight.get("contract_version") == 2
+                and type(checkpoint_preflight.get("contract_id")) is int
+                and checkpoint_preflight["contract_id"] >= 0
+            )
+            if not common_valid or report_schema not in {1, 2}:
+                raise RoundTransactionError(
+                    "checkpoint preflight report is invalid"
+                )
+            if report_schema == 1:
+                expected_report_fields = {
+                    "schema_version",
+                    "status",
+                    "contract_version",
+                    "contract_id",
+                    "programs",
+                    "unique_program_codes",
+                    "programs_already_complete",
+                    "unique_program_codes_evaluated",
+                    "programs_updated",
+                    "worker_cap",
+                }
+                counts = [
+                    checkpoint_preflight.get(field)
+                    for field in (
+                        "programs",
+                        "unique_program_codes",
+                        "programs_already_complete",
+                        "unique_program_codes_evaluated",
+                        "programs_updated",
+                        "worker_cap",
+                    )
+                ]
+                if (
+                    set(checkpoint_preflight) != expected_report_fields
+                    or any(type(value) is not int or value < 0 for value in counts)
+                    or checkpoint_preflight["programs"] < 1
+                    or checkpoint_preflight["unique_program_codes"] < 1
+                    or checkpoint_preflight["worker_cap"] < 1
+                ):
+                    raise RoundTransactionError(
+                        "checkpoint backfill report is invalid"
+                    )
+            else:
+                expected_report_fields = {
+                    "schema_version",
+                    "status",
+                    "contract_version",
+                    "contract_id",
+                    "mode",
+                    "source_checkpoint",
+                    "source_programs",
+                    "source_program_set_sha256",
+                    "target_programs",
+                    "root_program_id",
+                    "root_policy_sha256",
+                    "root_code_sha256",
+                    "migration_candidate_range",
+                }
+                range_value = checkpoint_preflight.get(
+                    "migration_candidate_range"
+                )
+                hashes = (
+                    checkpoint_preflight.get("source_program_set_sha256"),
+                    checkpoint_preflight.get("root_policy_sha256"),
+                    checkpoint_preflight.get("root_code_sha256"),
+                )
+                if (
+                    set(checkpoint_preflight) != expected_report_fields
+                    or checkpoint_preflight.get("mode")
+                    != "legacy-python-to-typed-json-dsl-root"
+                    or checkpoint_preflight.get("source_checkpoint")
+                    != base_checkpoint
+                    or checkpoint_preflight.get("source_programs")
+                    != base_checkpoint["programs"]
+                    or checkpoint_preflight.get("target_programs") != 1
+                    or not isinstance(
+                        checkpoint_preflight.get("root_program_id"), str
+                    )
+                    or not checkpoint_preflight["root_program_id"].startswith(
+                        "coset-dsl-root-"
+                    )
+                    or any(
+                        not isinstance(value, str)
+                        or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                        for value in hashes
+                    )
+                    or not isinstance(range_value, dict)
+                    or set(range_value)
+                    != {
+                        "path",
+                        "start_offset",
+                        "end_offset",
+                        "sha256",
+                        "bytes",
+                        "wal_clean",
+                    }
+                    or range_value.get("path") != str(candidate_log.resolve())
+                    or type(range_value.get("start_offset")) is not int
+                    or type(range_value.get("end_offset")) is not int
+                    or range_value["start_offset"] != candidate_start_offset
+                    or not (
+                        candidate_start_offset
+                        <= range_value["end_offset"]
+                        <= int(witness["candidate_end_offset"])
+                    )
+                    or range_value.get("bytes")
+                    != range_value["end_offset"] - range_value["start_offset"]
+                    or not isinstance(range_value.get("sha256"), str)
+                    or re.fullmatch(r"[0-9a-f]{64}", range_value["sha256"])
+                    is None
+                    or range_value.get("wal_clean") is not True
+                ):
+                    raise RoundTransactionError(
+                        "checkpoint DSL migration report is invalid"
+                    )
+                observed_migration = _candidate_log_range_identity(
+                    candidate_log,
+                    start_offset=range_value["start_offset"],
+                    end_offset=range_value["end_offset"],
+                )
+                root_program_path = (
+                    Path(result_checkpoint["path"])
+                    / "programs"
+                    / f"{checkpoint_preflight['root_program_id']}.json"
+                )
+                if (
+                    root_program_path.is_symlink()
+                    or not root_program_path.is_file()
+                ):
+                    raise RoundTransactionError(
+                        "checkpoint DSL migration root is absent"
+                    )
+                root_program = _read_json_object(
+                    root_program_path,
+                    "checkpoint DSL migration root",
+                )
+                root_code = root_program.get("code")
+                historical_policy = _historical_coset_policy_v1_identity(
+                    root_code,
+                    expected_catalog_sha256=invocation_binding.get(
+                        "qcode_action_catalog_sha256"
+                    ),
+                )
+                root_policy_sha256 = historical_policy["policy_sha256"]
+                observed_source_program_set_sha256 = (
+                    _checkpoint_program_set_sha256(base_checkpoint)
+                )
+                root_binding = {
+                    "schema_version": 1,
+                    "kind": "qcode-coset-checkpoint-dsl-epoch",
+                    "source_checkpoint_sha256": base_checkpoint["sha256"],
+                    "source_program_set_sha256": (
+                        observed_source_program_set_sha256
+                    ),
+                    "source_last_iteration": base_checkpoint["last_iteration"],
+                    "policy_sha256": root_policy_sha256,
+                    "code_sha256": historical_policy["code_sha256"],
+                    "contract_id": checkpoint_preflight["contract_id"],
+                }
+                expected_root_id = "coset-dsl-root-" + hashlib.sha256(
+                    json.dumps(
+                        root_binding,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                        allow_nan=False,
+                    ).encode("utf-8")
+                ).hexdigest()[:32]
+                root_metadata = root_program.get("metadata")
+                if (
+                    observed_migration["sha256"] != range_value["sha256"]
+                    or observed_migration["bytes"] != range_value["bytes"]
+                    or observed_source_program_set_sha256
+                    != checkpoint_preflight["source_program_set_sha256"]
+                    or checkpoint_preflight["root_program_id"]
+                    != expected_root_id
+                    or root_program.get("id")
+                    != checkpoint_preflight["root_program_id"]
+                    or root_program.get("parent_id") is not None
+                    or root_program.get("iteration_found")
+                    != base_checkpoint["last_iteration"]
+                    or root_program.get("language") != "json"
+                    or root_policy_sha256
+                    != checkpoint_preflight["root_policy_sha256"]
+                    or historical_policy["code_sha256"]
+                    != checkpoint_preflight["root_code_sha256"]
+                    or not isinstance(root_metadata, dict)
+                    or root_metadata.get("checkpoint_genome_epoch")
+                    != root_binding
+                ):
+                    raise RoundTransactionError(
+                        "checkpoint DSL migration lineage is inconsistent"
+                    )
 
     outcomes = witness.get("outcomes")
     if not isinstance(outcomes, list) or len(outcomes) != count:
@@ -5181,6 +5494,7 @@ def _validate_slice_witness(
         )
     successful = 0
     worker_errors = 0
+    invalid_mutations = 0
     witnessed_program_ids: set[str] = set()
     for outcome in outcomes:
         if not isinstance(outcome, dict):
@@ -5193,6 +5507,7 @@ def _validate_slice_witness(
             worker_errors += 1
             digest = outcome.get("error_sha256")
             size = outcome.get("error_bytes")
+            error_kind = outcome.get("error_kind")
             if (
                 not isinstance(digest, str)
                 or len(digest) != 64
@@ -5203,10 +5518,22 @@ def _validate_slice_witness(
                 or isinstance(size, bool)
                 or not isinstance(size, int)
                 or size < 1
+                or error_kind not in (None, "invalid_mutation")
+                or (
+                    error_kind is not None
+                    and (
+                        witness_schema
+                        != EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+                        or invocation_binding.get("qcode_evaluator_kind")
+                        != "coset-two-block"
+                    )
+                )
             ):
                 raise RoundTransactionError(
                     "OpenEvolve slice witness worker error identity is invalid"
                 )
+            if error_kind == "invalid_mutation":
+                invalid_mutations += 1
         elif status == "program_added":
             successful += 1
             program_id = outcome.get("program_id")
@@ -5234,7 +5561,12 @@ def _validate_slice_witness(
             raise RoundTransactionError(
                 f"OpenEvolve slice witness has invalid outcome status: {status!r}"
             )
-    if successful < 1:
+    if successful < 1 and not (
+        witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        and invocation_binding.get("qcode_evaluator_kind")
+        == "coset-two-block"
+        and invalid_mutations == count
+    ):
         raise RoundTransactionError(
             "OpenEvolve slice witness has no successful program"
         )
@@ -5264,7 +5596,7 @@ def _validate_slice_witness(
         raise RoundTransactionError("unsupported OpenEvolve witness version")
     openevolve_sources = (
         OPENEVOLVE_EVALUATOR_BOUND_WITNESS_SOURCES
-        if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        if witness_schema in {6, EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION}
         else OPENEVOLVE_BASE_WITNESS_SOURCES
     )
     for name in openevolve_sources:
@@ -5292,6 +5624,11 @@ def _validate_slice_witness(
         "openevolve_version",
         "completed_at",
     }
+    if (
+        witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        and base_checkpoint is not None
+    ):
+        allowed_fields.add("checkpoint_preflight")
     if witness_schema in EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS:
         allowed_fields.add("search_portfolio")
     if not legacy_witness:
@@ -5501,9 +5838,14 @@ def _evolution_launch_shape_rank(
     for rank, missing in enumerate(
         LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS
     ):
+        # Coset-only dependencies are absent from the current launch schema of
+        # every other evaluator.  Project each append-only historical shape
+        # onto the active evaluator's fields so adding the typed-DSL bindings
+        # does not invalidate the existing default-evaluator rebind chain.
+        effective_missing = missing & current_fields
         if (
-            missing <= current_fields
-            and launch_fields == current_fields - missing
+            effective_missing
+            and launch_fields == current_fields - effective_missing
         ):
             return rank
     return None
@@ -5546,10 +5888,10 @@ def _validate_stored_binding_shape(
     legacy_shape = _is_legacy_evolution_launch_shape(
         launch, current_launch
     )
-    previous_committed_shape = (
-        launch_fields
-        == current_fields
-        - COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS
+    previous_committed_shape = any(
+        (missing & current_fields)
+        and launch_fields == current_fields - (missing & current_fields)
+        for missing in COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS
     )
     if launch_fields != current_fields and not (
         allow_legacy and legacy_shape
@@ -7427,6 +7769,7 @@ class HumanizeFlow:
                             transaction
                         )
                     ),
+                    allow_previous_committed=(status == "committed"),
                 )
             )
             history = self._validate_binding_rebind_history(
@@ -7651,6 +7994,8 @@ class HumanizeFlow:
         self,
         transaction: dict[str, Any],
         round_dir: Path,
+        *,
+        allow_historical_candidate_inode_change: bool = False,
     ) -> dict[str, Any] | None:
         if transaction["mode"] == "candidate-file":
             return None
@@ -7675,6 +8020,9 @@ class HumanizeFlow:
             self.candidate_log,
             int(transaction["candidate_start_offset"]),
             legacy_candidate_source=transaction,
+            allow_historical_candidate_inode_change=(
+                allow_historical_candidate_inode_change
+            ),
         )
         if witness["sha256"] != transaction.get("completion_witness_sha256"):
             raise RoundTransactionError("completion witness changed after prepare")
@@ -8630,7 +8978,13 @@ class HumanizeFlow:
             atomic_write_json(paths["manifest"], transaction)
 
         if transaction["status"] in {"source-ready", "batch-ready", "committed"}:
-            self._validate_transaction_checkpoint(transaction, round_dir)
+            self._validate_transaction_checkpoint(
+                transaction,
+                round_dir,
+                allow_historical_candidate_inode_change=(
+                    transaction["status"] == "committed"
+                ),
+            )
             source_rows = self._validate_transaction_source(transaction)
         else:
             raise RoundTransactionError(
@@ -8677,7 +9031,13 @@ class HumanizeFlow:
             atomic_write_json(paths["manifest"], transaction)
 
         if transaction["status"] in {"batch-ready", "committed"}:
-            self._validate_transaction_checkpoint(transaction, round_dir)
+            self._validate_transaction_checkpoint(
+                transaction,
+                round_dir,
+                allow_historical_candidate_inode_change=(
+                    transaction["status"] == "committed"
+                ),
+            )
             self._validate_transaction_source(transaction)
             observed_batch = self._validate_candidate_batch(transaction)
             if observed_batch != batch_rows:
@@ -8929,7 +9289,11 @@ class HumanizeFlow:
                 raise RoundTransactionError(
                     "completed transaction iteration binding is invalid"
                 )
-            self._validate_transaction_checkpoint(transaction, round_dir)
+            self._validate_transaction_checkpoint(
+                transaction,
+                round_dir,
+                allow_historical_candidate_inode_change=True,
+            )
 
         source_rows = self._validate_transaction_source(transaction)
         batch_rows = self._validate_candidate_batch(transaction)

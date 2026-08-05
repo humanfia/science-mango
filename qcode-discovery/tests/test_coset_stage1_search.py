@@ -19,7 +19,7 @@ from openevolve import Config
 
 from evaluation.coset_action_catalog import action_catalog_sha256
 from evolve import coset_openevolve_evaluator as evaluator
-from evolve import coset_seed_solution as seed_module
+from evolve import coset_policy_dsl as policy_dsl
 from evolve import run_evolution as launcher
 from evolve.coset_search_contract import (
     COSET_REPRESENTATION_ID,
@@ -29,17 +29,51 @@ from evolve.coset_search_contract import (
     normalize_candidate,
     quota_by_normality,
 )
-from evolve.coset_seed_solution import generate_candidates
 from humanize import flow as flow_module
 from scripts import audit_candidate_pool as candidate_pool
 
 
 PROJECT = Path(__file__).resolve().parents[1]
 EVOLUTION_CONFIG = PROJECT / "evolve/coset_config.yaml"
-EVOLUTION_SEED = PROJECT / "evolve/coset_seed_solution.py"
 PIPELINE_CONFIG = (
     PROJECT / "configs/five_stage_campaign.coset_two_block_v1.json"
 )
+
+
+def _render_default_policy(candidate_limit: int):
+    return policy_dsl.render_candidates(
+        policy_dsl.default_policy(candidate_limit)
+    )
+
+
+def _known_oracle_policy_json() -> str:
+    """Encode the legacy low-weight control as data-only catalog indices."""
+
+    document = policy_dsl.policy_document(policy_dsl.default_policy())
+    for action in document["actions"]:
+        view = action_search_view(action["action_id"])
+        if not action["include_published"]:
+            left = [
+                item for item in view.left_element_ids
+                if item != view.left_identity_id
+            ]
+            right = [
+                item for item in view.right_element_ids
+                if item != view.right_identity_id
+            ]
+            action["supports"] = [{
+                "left": [0, len(left) - 1],
+                "right": [0, len(right) - 1],
+            }]
+    return policy_dsl.canonical_policy_json(
+        policy_dsl.parse_policy(json.dumps(document))
+    ) + "\n"
+
+
+def _render_known_oracle_policy():
+    return policy_dsl.render_candidates(
+        policy_dsl.parse_policy(_known_oracle_policy_json())
+    )
 
 
 def _published_candidate():
@@ -78,8 +112,8 @@ def test_catalog_drives_balanced_normal_and_nonnormal_seed_pool():
         quota for view in views if view.subgroup_normal
         for quota in (quotas[view.action_id],)
     ) == 7
-    first = generate_candidates(32)
-    second = generate_candidates(32)
+    first = _render_default_policy(32)
+    second = _render_default_policy(32)
     assert first == second
     assert len(first) == len({json.dumps(row, sort_keys=True) for row in first}) == 32
     counts = Counter(row["action_id"] for row in first)
@@ -101,42 +135,80 @@ def test_catalog_drives_balanced_normal_and_nonnormal_seed_pool():
         assert view.right_identity_id in candidate["right_support"]
 
 
-def test_fallback_pool_is_deterministic_but_changes_with_evolved_support(
-    monkeypatch,
-):
-    baseline_proposals = copy.deepcopy(seed_module._propose_coset_supports())
-    monkeypatch.setattr(
-        seed_module,
-        "_propose_coset_supports",
-        lambda: copy.deepcopy(baseline_proposals),
-    )
-    baseline = seed_module.generate_candidates(64)
-    assert baseline == seed_module.generate_candidates(64)
+def test_policy_pool_is_deterministic_but_changes_with_evolved_walk():
+    baseline_policy = policy_dsl.default_policy(64)
+    baseline = policy_dsl.render_candidates(baseline_policy)
+    assert baseline == policy_dsl.render_candidates(baseline_policy)
 
-    mutated_proposals = copy.deepcopy(baseline_proposals)
-    target = mutated_proposals[0]
-    view = next(
-        item for item in action_search_views()
-        if item.action_id == target["action_id"]
+    mutated_document = policy_dsl.policy_document(baseline_policy)
+    for action in mutated_document["actions"]:
+        action["walk"] = {"enabled": True, "offset": 0, "stride": 1}
+    mutated_text = json.dumps(
+        mutated_document,
+        sort_keys=True,
+        separators=(",", ":"),
     )
-    replacement = next(
-        element for element in view.left_element_ids
-        if element not in target["left_support"]
+    mutated_policy = policy_dsl.normalize_policy(json.loads(mutated_text))
+    mutated = policy_dsl.render_candidates(mutated_policy)
+    assert mutated == policy_dsl.render_candidates(
+        policy_dsl.normalize_policy(json.loads(mutated_text))
     )
-    target["left_support"][1] = replacement
-    monkeypatch.setattr(
-        seed_module,
-        "_propose_coset_supports",
-        lambda: copy.deepcopy(mutated_proposals),
-    )
-    mutated = seed_module.generate_candidates(64)
-    assert mutated == seed_module.generate_candidates(64)
 
     baseline_digests = {candidate_digest(row) for row in baseline}
     mutated_digests = {candidate_digest(row) for row in mutated}
-    # A single accepted structural mutation re-keys both action traversals;
-    # only the other explicit proposal anchors should normally overlap.
+    # A structural walk mutation redirects both action traversals; only the
+    # immutable published anchor should normally overlap.
     assert len(baseline_digests & mutated_digests) <= 8
+
+
+def test_production_batch_and_lane_quotas_are_rechecked_by_evaluator():
+    candidates = policy_dsl.render_candidates(policy_dsl.default_policy())
+    evaluator._validate_production_candidate_batch(candidates)
+
+    with pytest.raises(RuntimeError, match="exact production batch"):
+        evaluator._validate_production_candidate_batch(candidates[:-1])
+
+    wrong_lane = copy.deepcopy(candidates)
+    wrong_lane[0]["action_id"] = next(
+        view.action_id
+        for view in action_search_views()
+        if view.action_id != wrong_lane[0]["action_id"]
+    )
+    with pytest.raises(RuntimeError, match="immutable action quotas"):
+        evaluator._validate_production_candidate_batch(wrong_lane)
+
+
+def test_structural_diversity_uses_fixed_bins_and_viable_coverage():
+    views = sorted(action_search_views(), key=lambda view: view.action_id)
+    sparse = [
+        {
+            "action_id": views[0].action_id,
+            "subgroup_normal": views[0].subgroup_normal,
+            "support_orbit_bin": 0,
+        },
+        {
+            "action_id": views[1].action_id,
+            "subgroup_normal": views[1].subgroup_normal,
+            "support_orbit_bin": 1,
+        },
+    ]
+    dense = sparse * (384 // len(sparse))
+
+    assert evaluator._fixed_categorical_entropy(
+        [row["action_id"] for row in sparse], category_count=2
+    ) == pytest.approx(evaluator._fixed_categorical_entropy(
+        [row["action_id"] for row in dense], category_count=2
+    ))
+    assert evaluator._structural_diversity(sparse) < (
+        evaluator._structural_diversity(dense) / 100
+    )
+
+    # Oracle outcome is deliberately absent from the structural calculation;
+    # pruning winner-capable rows cannot manufacture a diversity increase.
+    rejected = [dict(row, threshold_rejected=True) for row in dense]
+    assert evaluator._structural_diversity(rejected) == pytest.approx(
+        evaluator._structural_diversity(dense)
+    )
 
 
 def test_candidate_schema_rejects_bb_fields_proof_claims_and_bad_supports():
@@ -218,15 +290,38 @@ def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
     tmp_path,
     monkeypatch,
 ):
-    program = tmp_path / "program.py"
-    program.write_text(
-        "from evolve.coset_seed_solution import generate_candidates as _seed\n"
-        "def generate_candidates():\n"
-        "    return _seed(2)\n"
-    )
+    program = tmp_path / "program.json"
+    program.write_text(_known_oracle_policy_json())
     candidate_log = (tmp_path / "all_codes.jsonl").resolve()
     monkeypatch.setenv(evaluator.CANDIDATE_LOG_PATH_ENV, str(candidate_log))
     monkeypatch.setenv(evaluator.PREFLIGHT_CONTRACT_ID_ENV, "12345")
+
+    # The full production policy contains the known negative control among
+    # 384 rows while the bounded oracle probes only eight. Pin that control
+    # into this evidence-path test; probe scheduling has separate coverage.
+    rendered = _render_known_oracle_policy()
+    control = next(
+        candidate for candidate in rendered
+        if action_search_view(candidate["action_id"]).subgroup_normal
+    )
+    control_digest = candidate_digest(control)
+    original_probe = evaluator._oracle_probe_rows
+
+    def probe_with_control(rows, limit=evaluator.MAX_ORACLE_CANDIDATES):
+        selected = original_probe(rows, limit)
+        target = next(
+            row for row in rows
+            if row["candidate_sha256"] == control_digest
+        )
+        if target not in selected:
+            normal_index = next(
+                index for index, row in enumerate(selected)
+                if row["subgroup_normal"]
+            )
+            selected[normal_index] = target
+        return selected
+
+    monkeypatch.setattr(evaluator, "_oracle_probe_rows", probe_with_control)
 
     result = evaluator.evaluate_stage1(str(program))
     metrics = result.metrics
@@ -330,12 +425,8 @@ def test_evaluator_fails_closed_when_one_action_stratum_cannot_build(
     tmp_path,
     monkeypatch,
 ):
-    program = tmp_path / "program.py"
-    program.write_text(
-        "from evolve.coset_seed_solution import generate_candidates as _seed\n"
-        "def generate_candidates():\n"
-        "    return _seed(2)\n"
-    )
+    program = tmp_path / "program.json"
+    program.write_text(_known_oracle_policy_json())
     original = evaluator._static_candidate
     failed_action = next(
         view.action_id for view in action_search_views()
@@ -357,11 +448,39 @@ def test_evaluator_fails_closed_when_one_action_stratum_cannot_build(
         evaluator.evaluate_stage1(str(program))
 
 
+def test_oversize_mutation_is_a_managed_worker_error_not_evaluator_failure(
+    tmp_path,
+    monkeypatch,
+):
+    program = tmp_path / "oversize-policy.json"
+    program.write_bytes(b" " * (policy_dsl.MAX_POLICY_BYTES + 1))
+    monkeypatch.setenv(evaluator.PREFLIGHT_CONTRACT_ID_ENV, "12345")
+
+    result = evaluator.evaluate_stage1(str(program))
+
+    assert result.artifacts["failure_stage"] == "mutation_preflight"
+    assert result.artifacts["invalid_mutation"] == {
+        "reason": "source_too_large",
+        "program_sha256": None,
+        "program_bytes": policy_dsl.MAX_POLICY_BYTES + 1,
+        "detail_sha256": result.artifacts["invalid_mutation"][
+            "detail_sha256"
+        ],
+        "error_type": "CosetPolicyError",
+    }
+    incomplete = launcher._exact_incomplete_winner_preflight_markers(
+        result.metrics,
+        expected_contract_id=12345,
+        evaluator_kind="coset-two-block",
+    )
+    assert incomplete is not None
+
+
 def test_cached_stage2_replays_and_excludes_coset_search_oracle_witness(
     tmp_path,
 ):
     normal_control = next(
-        candidate for candidate in generate_candidates(2)
+        candidate for candidate in _render_known_oracle_policy()
         if action_search_view(candidate["action_id"]).subgroup_normal
     )
     evaluated = evaluator._static_candidate(normal_control)
@@ -408,9 +527,11 @@ from evolve.coset_openevolve_evaluator import (
     _fitness,
     _static_candidate,
 )
-from evolve.coset_seed_solution import generate_candidates
+from evolve.coset_policy_dsl import parse_policy, render_candidates
 
-row = _static_candidate(generate_candidates(2)[0])
+row = _static_candidate(render_candidates(parse_policy(
+    os.environ["QCODE_TEST_POLICY_JSON"]
+))[0])
 row.update({
     "oracle_outcome": "NOT_RUN",
     "oracle_threshold": None,
@@ -431,6 +552,7 @@ _append_candidate_rows([row])
 """
     environment = dict(os.environ)
     environment[evaluator.CANDIDATE_LOG_PATH_ENV] = str(candidate_log)
+    environment["QCODE_TEST_POLICY_JSON"] = _known_oracle_policy_json()
     crashed = subprocess.run(
         [sys.executable, "-c", script],
         cwd=PROJECT,
@@ -444,7 +566,7 @@ _append_candidate_rows([row])
     assert wal_path.is_file()
     assert not candidate_log.read_bytes().endswith(b"\n")
 
-    row = evaluator._static_candidate(generate_candidates(2)[1])
+    row = evaluator._static_candidate(_render_known_oracle_policy()[1])
     row.update({
         "oracle_outcome": "NOT_RUN",
         "oracle_threshold": None,
@@ -468,7 +590,7 @@ _append_candidate_rows([row])
     rows = [json.loads(line) for line in candidate_log.read_text().splitlines()]
     assert len(rows) == 2
     assert {item["action_id"] for item in rows} == {
-        candidate["action_id"] for candidate in generate_candidates(2)
+        candidate["action_id"] for candidate in _render_known_oracle_policy()
     }
     assert not wal_path.exists()
 

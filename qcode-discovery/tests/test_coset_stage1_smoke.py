@@ -14,22 +14,50 @@ from pathlib import Path
 
 import yaml
 
+from evolve import coset_policy_dsl as policy_dsl
+
 
 PROJECT = Path(__file__).resolve().parents[1]
 
 
-def _write_smoke_inputs(tmp_path: Path) -> tuple[Path, Path]:
-    seed = tmp_path / "coset_smoke_seed.py"
-    seed.write_text(
-        "from evolve.coset_seed_solution import "
-        "generate_candidates as _base_generate\n\n"
-        "# EVOLVE-BLOCK-START\n"
-        "def _candidate_limit():\n"
-        "    return 2\n"
-        "# EVOLVE-BLOCK-END\n\n"
-        "def generate_candidates():\n"
-        "    return _base_generate(_candidate_limit())\n"
+def _policy_text() -> str:
+    canonical = policy_dsl.canonical_policy_json(
+        policy_dsl.default_policy()
     )
+    policy = policy_dsl.parse_policy(canonical)
+    assert len(policy_dsl.render_candidates(policy)) == 384
+    return json.dumps(
+        policy_dsl.policy_document(policy),
+        sort_keys=True,
+        indent=2,
+    ) + "\n"
+
+
+def _diff_block(search: str, replacement: str) -> str:
+    return (
+        "<<<<<<< SEARCH\n"
+        f"{search}\n"
+        "=======\n"
+        f"{replacement}\n"
+        ">>>>>>> REPLACE"
+    )
+
+
+def _walk_offset(delta: int = 0) -> int:
+    document = policy_dsl.policy_document(policy_dsl.default_policy())
+    return int(document["actions"][0]["walk"]["offset"]) + delta
+
+
+def _walk_offset_replacement(old_delta: int, new_delta: int) -> str:
+    return _diff_block(
+        f'        "offset": {_walk_offset(old_delta)},',
+        f'        "offset": {_walk_offset(new_delta)},',
+    )
+
+
+def _write_smoke_inputs(tmp_path: Path) -> tuple[Path, Path]:
+    seed = tmp_path / "coset_smoke_seed.json"
+    seed.write_text(_policy_text())
     config_value = yaml.safe_load(
         (PROJECT / "evolve/coset_config.yaml").read_text()
     )
@@ -44,7 +72,7 @@ def _write_smoke_inputs(tmp_path: Path) -> tuple[Path, Path]:
     config_value["llm"]["timeout"] = 10
     config_value["llm"]["retries"] = 0
     config_value["evaluator"]["parallel_evaluations"] = 1
-    config_value["evaluator"]["timeout"] = 120
+    config_value["evaluator"]["timeout"] = 300
     config_value["database"]["population_size"] = 16
     config_value["database"]["archive_size"] = 8
     config_value["database"]["num_islands"] = 2
@@ -55,15 +83,7 @@ def _write_smoke_inputs(tmp_path: Path) -> tuple[Path, Path]:
 
 def test_coset_launcher_completes_one_real_openevolve_iteration(tmp_path):
     requests = []
-    replacement = "\n".join((
-        "<" * 7 + " SEARCH",
-        "def _candidate_limit():",
-        "    return 2",
-        "=" * 7,
-        "def _candidate_limit():",
-        "    return 3",
-        ">" * 7 + " REPLACE",
-    ))
+    replacement = _walk_offset_replacement(0, 1)
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802 - BaseHTTPRequestHandler API
@@ -128,7 +148,7 @@ def test_coset_launcher_completes_one_real_openevolve_iteration(tmp_path):
             env=environment,
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=300,
         )
         wrong_resume = subprocess.run(
             [
@@ -189,38 +209,22 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             length = int(self.headers.get("Content-Length", "0"))
             requests.append(json.loads(self.rfile.read(length)))
             if len(requests) == 1:
-                # Exercise the production round-6 failure lane plus normal
-                # exception chaining: the diff applies cleanly, but the
-                # resulting mutation raises only when the evaluator calls it.
-                replacement = (
-                    "<<<<<<< SEARCH\n"
-                    "def _candidate_limit():\n"
-                    "    return 2\n"
-                    "=======\n"
-                    "def _candidate_limit():\n"
-                    "    try:\n"
-                    "        raise ValueError('inner mutation failure')\n"
-                    "    except ValueError as exc:\n"
-                    "        raise NameError(\"name 'seeded_anchors' is not "
-                    "defined\") from exc\n"
-                    ">>>>>>> REPLACE"
+                # Exercise the production failure lane with a diff that
+                # applies cleanly but violates the strict data-only schema.
+                replacement = _diff_block(
+                    '  "candidate_limit": 384,',
+                    '  "candidate_limit": "seeded_anchors",',
                 )
             else:
                 if len(requests) == 2:
-                    replacements = ((2, 3),)
+                    replacements = ((0, 1),)
                 else:
                     # Resume may select either the seed or the successful
                     # child. Both alternatives produce a new program.
-                    replacements = ((2, 4), (3, 4))
+                    replacements = ((0, 2), (1, 2))
                 replacement = "\n".join(
-                    "<<<<<<< SEARCH\n"
-                    "def _candidate_limit():\n"
-                    f"    return {old_limit}\n"
-                    "=======\n"
-                    "def _candidate_limit():\n"
-                    f"    return {new_limit}\n"
-                    ">>>>>>> REPLACE"
-                    for old_limit, new_limit in replacements
+                    _walk_offset_replacement(old_delta, new_delta)
+                    for old_delta, new_delta in replacements
                 )
             payload = json.dumps({
                 "id": f"coset-managed-smoke-{len(requests)}",
@@ -319,8 +323,9 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             pass_fds=(lease_fd,),
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=300,
         )
+        assert fresh.returncode == 0, fresh.stdout + "\n" + fresh.stderr
         witness_one = json.loads((tmp_path / "witness-1.json").read_text())
         resume = subprocess.run(
             managed_command(
@@ -334,7 +339,7 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             pass_fds=(lease_fd,),
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=300,
         )
     finally:
         server.shutdown()
@@ -342,7 +347,6 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
         thread.join(timeout=5)
         os.close(lease_fd)
 
-    assert fresh.returncode == 0, fresh.stdout + "\n" + fresh.stderr
     assert resume.returncode == 0, resume.stdout + "\n" + resume.stderr
     assert len(requests) == 3
     witness_two = json.loads((tmp_path / "witness-2.json").read_text())

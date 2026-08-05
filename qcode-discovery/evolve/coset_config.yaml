@@ -6,6 +6,7 @@
 
 max_iterations: 300
 diff_based_evolution: true
+language: "json"
 log_level: "INFO"
 max_code_length: 30000
 checkpoint_interval: 25
@@ -17,7 +18,7 @@ qcode_coset_search_portfolio:
   enabled: true
   schema_version: 1
   representation_id: "css-coset-two-block-actions-v1"
-  checkpoint_compatibility_group: "coset-two-block-v1"
+  checkpoint_compatibility_group: "coset-two-block-dsl-v1"
 
 llm:
   api_base: "http://localhost:4000/v1"
@@ -39,34 +40,37 @@ llm:
 
 prompt:
   system_message: |
-    You are evolving `_propose_coset_supports()` for sparse CSS two-block
-    codes built from an immutable catalog of finite-group actions. This is a
-    nonabelian/coset representation, not a bivariate-polynomial BB search.
+    You are evolving a strict JSON policy for sparse CSS two-block codes built
+    from an immutable catalog of finite-group actions. This is a nonabelian
+    coset representation, not a bivariate-polynomial BB search. The complete
+    program must remain one JSON object: never add Python, comments, imports,
+    expressions, variable names, functions, or duplicate object keys.
 
-    Edit only the function inside the EVOLVE block. The immutable wrapper
-    dynamically loads every enabled `action_id`, its allowed left/right
-    element IDs, subgroup normality, identity IDs, and published aliases.
-    Return mappings containing only `action_id`, `left_support`, and
-    `right_support`. Never emit permutation matrices, group presentations,
-    catalog metadata, code parameters, decoder values, witnesses, distance
-    claims, or proof fields.
+    The schema and every object field are exact. Keep the root constants,
+    catalog SHA-256, representation, renderer, support_split=[3,3], both
+    action_id enum values, candidate_limit=384, quotas 288/96, and both
+    `include_published` values unchanged. The catalog lane with the published
+    candidate must remain true and the lane without one must remain false.
+    You may add or remove explicit support objects, mutate their numeric
+    indices, and mutate the pair-walk enabled enum or numeric offset/stride.
+    No other field is mutable.
 
-    Every production support has exactly three distinct left IDs and three
-    distinct right IDs. It must include the catalog-provided identity on each
-    side, so total check weight and support weight are exactly six. Use only
-    IDs exposed by the matching action descriptor. These are opaque stable
-    permutation IDs; do not reinterpret them as polynomial exponents or GAP
-    enumeration positions.
+    Each explicit support is `{ "left": [i,j], "right": [u,v] }`. The four
+    values are nonnegative integer indices into the matching action's
+    immutable non-identity catalogs; the two values on each side must be
+    distinct and in range (an index may appear once on the left and once on
+    the right). The trusted renderer inserts both identities, maps indices
+    to source-bound element IDs, enforces the exact 3+3 split, canonicalizes,
+    deduplicates, and round-robins the two action lanes. No evolved value can
+    select code, a callable, a matrix, catalog metadata, code parameters,
+    decoder scores, witnesses, distance claims, or proof fields.
 
-    The immutable wrapper enforces a 384-candidate cap, canonicalizes support
-    order, deduplicates exact definitions, and fills missing buckets. It uses
-    a 3:1 nonnormal-production versus normal-control quota while preserving
-    every enabled action ID.
-    Keep proposals deterministic and compact. Every evolved program should
-    cover all enabled actions so each evolutionary island retains both the
-    nonnormal coset lane and the normal regular-action control whenever both
-    exist. Diversify conjugacy/orbit patterns within each action instead of
-    repeatedly permuting the published support.
+    An enabled walk must have an in-range offset and a positive stride coprime
+    to that action's pair-of-pairs space. A disabled walk uses exactly
+    offset=0,stride=1 and the explicit/published anchors must then fill its
+    quota exactly. Keep the policy below 30000 bytes. Prefer small, targeted
+    SEARCH/REPLACE mutations that preserve valid JSON and diversify
+    conjugacy/orbit patterns rather than alias jitter.
 
     The objective is a novel code with rigorously certified
     FOM = k*d^2/n > 12 under the challenge degree-six constraints. Decoder or
@@ -78,10 +82,10 @@ prompt:
     diversity. UNKNOWN earns no distance credit.
 
     When artifacts contain a short logical witness, change the implicated
-    action/orbit relationship or several support elements; alias jitter inside
-    the same occupied orbit is not a repair. Preserve the published support as
-    a regression anchor, but search its structurally distinct neighborhoods
-    and underoccupied action/normality/orbit MAP cells.
+    action/orbit relationship, several numeric support indices, or the walk;
+    alias jitter inside the same occupied orbit is not a repair. Preserve the
+    published support as a regression anchor, but search structurally distinct
+    neighborhoods and underoccupied action/normality/orbit MAP cells.
   include_artifacts: true
   suggest_simplification_after_chars: 12000
 
