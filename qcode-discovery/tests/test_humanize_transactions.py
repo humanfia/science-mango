@@ -42,8 +42,14 @@ def write_launch_inputs(
     portfolio: bool = False,
     legacy_portfolio: bool = False,
     geometry_portfolio: bool = False,
+    coset_portfolio: bool = False,
 ) -> None:
-    assert sum((portfolio, legacy_portfolio, geometry_portfolio)) <= 1
+    assert sum((
+        portfolio,
+        legacy_portfolio,
+        geometry_portfolio,
+        coset_portfolio,
+    )) <= 1
     evolve = repo / "evolve"
     evolve.mkdir(parents=True, exist_ok=True)
     config_text = "evaluator:\n  parallel_evaluations: 1\n"
@@ -95,6 +101,25 @@ def write_launch_inputs(
             "  enabled: true\n"
             "  schema_version: 1\n"
         )
+    elif coset_portfolio:
+        config_text += (
+            "database:\n"
+            "  num_islands: 4\n"
+            "  feature_dimensions:\n"
+            "    - coset_nonnormal_lane_bucket\n"
+            "    - coset_normal_lane_bucket\n"
+            "    - coset_batch_orbit_profile_bucket\n"
+            "  feature_bins:\n"
+            "    coset_nonnormal_lane_bucket: 16\n"
+            "    coset_normal_lane_bucket: 16\n"
+            "    coset_batch_orbit_profile_bucket: 8\n"
+            "qcode_coset_search_portfolio:\n"
+            "  enabled: true\n"
+            "  schema_version: 2\n"
+            "  representation_id: css-coset-two-block-actions-v1\n"
+            "  checkpoint_compatibility_group: "
+            "coset-two-block-dsl-map-v2\n"
+        )
     (evolve / "config.yaml").write_text(config_text)
     (evolve / "seed_solution.py").write_text(
         "def generate_candidates(): return []\n"
@@ -112,7 +137,26 @@ def write_launch_inputs(
         (sources / f"{name}.py").write_text(f"# fake {name}\n")
 
 
-def write_checkpoint(repo: Path, run_id: str, iteration: int) -> Path:
+def write_coset_launch_inputs(repo: Path) -> None:
+    write_launch_inputs(repo, coset_portfolio=True)
+    project = Path(flow_module.__file__).resolve().parents[1]
+    for relative_path in flow_module.COSET_EVALUATOR_DEPENDENCIES.values():
+        destination = repo / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((project / relative_path).read_bytes())
+    (repo / "evolve/coset_openevolve_evaluator.py").write_text(
+        "# fake coset evaluator\n"
+    )
+
+
+def write_checkpoint(
+    repo: Path,
+    run_id: str,
+    iteration: int,
+    *,
+    coset_policy: bool = False,
+    child_iteration: int = 1,
+) -> Path:
     checkpoint = (
         repo
         / "results/evolution"
@@ -123,25 +167,52 @@ def write_checkpoint(repo: Path, run_id: str, iteration: int) -> Path:
     programs = checkpoint / "programs"
     programs.mkdir(parents=True, exist_ok=True)
     program_id = "program"
-    code = "def generate_candidates():\n    return []\n"
+    if coset_policy:
+        from evolve.coset_policy_dsl import (
+            canonical_policy_json,
+            default_policy,
+        )
+
+        code = canonical_policy_json(default_policy())
+    else:
+        code = "def generate_candidates():\n    return []\n"
+    archive = [program_id]
+    best_program_id = program_id
+    if coset_policy:
+        archive.append("evicted-child")
+        best_program_id = "evicted-child"
     atomic_write_json(checkpoint / "metadata.json", {
         "last_iteration": iteration,
-        "archive": [program_id],
-        "best_program_id": program_id,
-        "islands": [[program_id]],
-        "island_best_programs": [program_id],
-        "island_feature_maps": [{"cell": program_id}],
+        "archive": archive,
+        "best_program_id": best_program_id,
+        "islands": [archive],
+        "island_best_programs": [best_program_id],
+        "island_feature_maps": [{"cell": best_program_id}],
     })
     atomic_write_json(checkpoint / "best_program_info.json", {
-        "id": program_id,
+        "id": best_program_id,
         "current_iteration": iteration,
     })
     atomic_write_json(programs / f"{program_id}.json", {
         "id": program_id,
         "code": code,
         "metrics": {},
-        "iteration_found": iteration,
+        "iteration_found": 0 if coset_policy else iteration,
+        **(
+            {"language": "json", "parent_id": None}
+            if coset_policy
+            else {}
+        ),
     })
+    if coset_policy:
+        atomic_write_json(programs / "evicted-child.json", {
+            "id": "evicted-child",
+            "code": code,
+            "metrics": {},
+            "iteration_found": child_iteration,
+            "language": "json",
+            "parent_id": program_id,
+        })
     (checkpoint / "best_program.py").write_text(code)
     return checkpoint
 
@@ -156,6 +227,7 @@ def write_full_slice_proof(
         flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
     ),
     all_invalid_mutations: bool = False,
+    mutation_error_kind: str = "invalid_mutation",
 ) -> None:
     config = flow.config
     result = flow_module._checkpoint_descriptor(
@@ -183,15 +255,20 @@ def write_full_slice_proof(
     launch = transaction["launch_binding"]
     invocation = transaction["invocation_binding"]
     start = base_iteration + 1
+    parent_checkpoint_path = Path(
+        result["path"] if base is None else base["path"]
+    )
     program = json.loads(
         (
-            Path(result["path"])
+            parent_checkpoint_path
             / "programs"
             / "program.json"
         ).read_text()
     )
     program["id"] = "evicted-child"
     program["iteration_found"] = start
+    if program.get("language") == "json":
+        program["parent_id"] = "program"
     encoded_program = json.dumps(
         program,
         sort_keys=True,
@@ -212,16 +289,51 @@ def write_full_slice_proof(
     else:
         portfolio_contract = (
             flow_module._search_portfolio_contract_from_config(
-            Path(launch["config"]["path"])
+                Path(launch["config"]["path"])
             )
         )
         portfolio_enabled = portfolio_contract is not None
+    coset_portfolio_contract = (
+        flow_module._coset_search_portfolio_contract_from_config(
+            Path(launch["config"]["path"])
+        )
+    )
+    coset_portfolio_enabled = coset_portfolio_contract is not None
+    assert not (portfolio_enabled and coset_portfolio_enabled)
     attempts = [
         {"iteration": i, "island_id": 0, "result": "future"}
         for i in range(base_iteration + 1, base_iteration + count + 1)
     ]
     search_portfolio = None
     if (
+        schema_version
+        == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        and coset_portfolio_enabled
+    ):
+        parent_code = json.loads(
+            (
+                parent_checkpoint_path
+                / "programs"
+                / "program.json"
+            ).read_text()
+        )["code"]
+        parent_code_sha256 = hashlib.sha256(
+            parent_code.encode()
+        ).hexdigest()
+        attempts = [
+            {
+                "iteration": iteration,
+                "island_id": (
+                    (iteration - 1)
+                    % flow_module.COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+                ),
+                "result": "future",
+                "coset_parent_program_id": "program",
+                "coset_parent_code_sha256": parent_code_sha256,
+            }
+            for iteration in range(start, start + count)
+        ]
+    elif (
         schema_version
         in flow_module.EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS
         and portfolio_enabled
@@ -244,7 +356,7 @@ def write_full_slice_proof(
         )
         parent_code = json.loads(
             (
-                Path(result["path"])
+                parent_checkpoint_path
                 / "programs"
                 / "program.json"
             ).read_text()
@@ -304,7 +416,7 @@ def write_full_slice_proof(
         policy_sha256 = flow_module._adaptive_mutation_policy_sha256(policy)
         parent_code = json.loads(
             (
-                Path(result["path"])
+                parent_checkpoint_path
                 / "programs"
                 / "program.json"
             ).read_text()
@@ -362,7 +474,7 @@ def write_full_slice_proof(
                 "status": "worker_error",
                 "error_sha256": hashlib.sha256(error).hexdigest(),
                 "error_bytes": len(error),
-                "error_kind": "invalid_mutation",
+                "error_kind": mutation_error_kind,
             }
             for i in range(start, base_iteration + count + 1)
         ]
@@ -849,18 +961,17 @@ def test_candidate_range_witness_accepts_unchanged_log(tmp_path):
     assert flow._capture_round_candidates(state, 1, round_dir) == [row]
 
 
-def test_current_witness_accepts_an_all_invalid_mutation_slice(tmp_path):
+@pytest.mark.parametrize(
+    "mutation_error_kind",
+    ["invalid_mutation", "no_effect_mutation"],
+)
+def test_current_witness_accepts_an_all_invalid_mutation_slice(
+    tmp_path,
+    mutation_error_kind,
+):
     repo = tmp_path / "repo"
     repo.mkdir()
-    write_launch_inputs(repo)
-    project = Path(flow_module.__file__).resolve().parents[1]
-    for relative_path in flow_module.COSET_EVALUATOR_DEPENDENCIES.values():
-        destination = repo / relative_path
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes((project / relative_path).read_bytes())
-    (repo / "evolve/coset_openevolve_evaluator.py").write_text(
-        "# fake coset evaluator\n"
-    )
+    write_coset_launch_inputs(repo)
     config = FlowConfig(
         repo_dir=repo,
         run_id="all-invalid-mutation-slice",
@@ -874,13 +985,19 @@ def test_current_witness_accepts_an_all_invalid_mutation_slice(tmp_path):
     state = flow.store.initialize(config.serializable())
     round_dir = flow.store.round_dir(1)
     transaction = flow._prepare_transaction(state, 1, round_dir)
-    checkpoint = write_checkpoint(repo, config.run_id, 3)
+    checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        3,
+        coset_policy=True,
+    )
     write_full_slice_proof(
         flow,
         round_dir,
         checkpoint,
         None,
         all_invalid_mutations=True,
+        mutation_error_kind=mutation_error_kind,
     )
     result = flow_module._checkpoint_descriptor(
         flow.evolution_output,
@@ -901,9 +1018,295 @@ def test_current_witness_accepts_an_all_invalid_mutation_slice(tmp_path):
     assert witness["successful_evaluations"] == 0
     assert witness["worker_errors"] == 3
     assert all(
-        outcome["error_kind"] == "invalid_mutation"
+        outcome["error_kind"] == mutation_error_kind
         for outcome in witness["outcomes"]
     )
+
+
+def test_schema_v7_coset_map_witness_replays_parent_and_lineage(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_coset_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="coset-map-witness-v7",
+        iterations_per_round=5,
+        evolution_config=repo / "evolve/config.yaml",
+        evolution_seed=repo / "evolve/seed_solution.py",
+        evolution_evaluator="coset-two-block",
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        5,
+        coset_policy=True,
+    )
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+    witness_path = flow_module._slice_witness_path(round_dir)
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        checkpoint,
+    )
+
+    def validate() -> dict:
+        return flow_module._validate_slice_witness(
+            witness_path,
+            config,
+            None,
+            result,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+            flow.candidate_log,
+            int(transaction["candidate_start_offset"]),
+        )
+
+    accepted = validate()
+    assert accepted["search_portfolio"] is None
+    assert [
+        attempt["island_id"]
+        for attempt in accepted["submission_attempts"]
+    ] == [0, 1, 2, 3, 0]
+    assert all(
+        set(attempt)
+        == {
+            "iteration",
+            "island_id",
+            "result",
+            "coset_parent_program_id",
+            "coset_parent_code_sha256",
+        }
+        for attempt in accepted["submission_attempts"]
+    )
+    accepted_marker = flow_module._validate_completion_marker(
+        flow_module._completion_marker_path(round_dir),
+        config,
+        None,
+        result,
+        transaction["launch_binding"],
+        transaction["invocation_binding"],
+        accepted,
+    )
+    assert accepted_marker["schema_version"] == 7
+
+    original = json.loads(witness_path.read_text())
+
+    def reject(mutator, match):
+        changed = copy.deepcopy(original)
+        mutator(changed)
+        atomic_write_json(witness_path, changed)
+        with pytest.raises(RoundTransactionError, match=match):
+            validate()
+        atomic_write_json(witness_path, original)
+
+    reject(
+        lambda row: row["submission_attempts"][0].__setitem__(
+            "island_id", 1
+        ),
+        "island schedule",
+    )
+    reject(
+        lambda row: row["submission_attempts"][0].__setitem__(
+            "coset_parent_code_sha256", "1" * 64
+        ),
+        "parent code hash changed",
+    )
+    reject(
+        lambda row: row["submission_attempts"][0].__setitem__(
+            "coset_parent_program_id", "../program"
+        ),
+        "parent identity",
+    )
+    reject(
+        lambda row: row["submission_attempts"][0].pop(
+            "coset_parent_code_sha256"
+        ),
+        "fields are not exact",
+    )
+    reject(
+        lambda row: row["submission_attempts"][0].__setitem__(
+            "unbound", True
+        ),
+        "fields are not exact",
+    )
+    reject(
+        lambda row: row.__setitem__(
+            "search_portfolio", {"schema_version": 2}
+        ),
+        "cannot carry a BB portfolio",
+    )
+
+
+def test_schema_v7_coset_resume_replays_parent_from_base_checkpoint(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_coset_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="coset-map-resume-parent-v7",
+        iterations_per_round=5,
+        evolution_config=repo / "evolve/config.yaml",
+        evolution_seed=repo / "evolve/seed_solution.py",
+        evolution_evaluator="coset-two-block",
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    base_checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        5,
+        coset_policy=True,
+    )
+    base = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        base_checkpoint,
+    )
+    result_checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        10,
+        coset_policy=True,
+        child_iteration=6,
+    )
+    (result_checkpoint / "programs/program.json").unlink()
+    atomic_write_json(result_checkpoint / "metadata.json", {
+        "last_iteration": 10,
+        "archive": ["evicted-child"],
+        "best_program_id": "evicted-child",
+        "islands": [["evicted-child"]],
+        "island_best_programs": ["evicted-child"],
+        "island_feature_maps": [{"cell": "evicted-child"}],
+    })
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        result_checkpoint,
+        base,
+    )
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        result_checkpoint,
+    )
+
+    accepted = flow_module._validate_slice_witness(
+        flow_module._slice_witness_path(round_dir),
+        config,
+        base,
+        result,
+        transaction["launch_binding"],
+        transaction["invocation_binding"],
+        flow.candidate_log,
+        int(transaction["candidate_start_offset"]),
+    )
+
+    assert accepted["resume_checkpoint"] == base["path"]
+    assert {
+        attempt["coset_parent_program_id"]
+        for attempt in accepted["submission_attempts"]
+    } == {"program"}
+
+
+def test_schema_v7_non_coset_config_rejects_coset_parent_fields(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="non-coset-parent-fields",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    checkpoint = write_checkpoint(repo, config.run_id, 1)
+    write_full_slice_proof(flow, round_dir, checkpoint, None)
+    witness_path = flow_module._slice_witness_path(round_dir)
+    witness = json.loads(witness_path.read_text())
+    witness["submission_attempts"][0].update({
+        "coset_parent_program_id": "program",
+        "coset_parent_code_sha256": "0" * 64,
+    })
+    atomic_write_json(witness_path, witness)
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        checkpoint,
+    )
+
+    with pytest.raises(
+        RoundTransactionError,
+        match="non-portfolio submission witness fields are not exact",
+    ):
+        flow_module._validate_slice_witness(
+            witness_path,
+            config,
+            None,
+            result,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+            flow.candidate_log,
+            int(transaction["candidate_start_offset"]),
+        )
+
+
+def test_schema_v7_coset_map_rejects_untrusted_mutation_error_kind(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_coset_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="coset-untrusted-mutation-error",
+        iterations_per_round=2,
+        evolution_config=repo / "evolve/config.yaml",
+        evolution_seed=repo / "evolve/seed_solution.py",
+        evolution_evaluator="coset-two-block",
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        2,
+        coset_policy=True,
+    )
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        checkpoint,
+        None,
+        all_invalid_mutations=True,
+        mutation_error_kind="mutation_binding_invalid",
+    )
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        checkpoint,
+    )
+
+    with pytest.raises(
+        RoundTransactionError,
+        match="worker error identity is invalid",
+    ):
+        flow_module._validate_slice_witness(
+            flow_module._slice_witness_path(round_dir),
+            config,
+            None,
+            result,
+            transaction["launch_binding"],
+            transaction["invocation_binding"],
+            flow.candidate_log,
+            int(transaction["candidate_start_offset"]),
+        )
 
 
 def test_completed_transaction_accepts_same_bytes_after_inode_rotation(

@@ -30,6 +30,12 @@ from evolve.dependency_contract import (
     COSET_EVALUATOR_DEPENDENCIES,
     LOCAL_EVALUATOR_DEPENDENCIES,
 )
+from evolve.coset_search_contract import (
+    COSET_FEATURE_BINS,
+    COSET_FEATURE_DIMENSIONS,
+    COSET_MAP_SCHEMA_VERSION,
+    COSET_REPRESENTATION_ID,
+)
 from evaluation.geometry import candidate_geometry
 from evaluation.search_contract import (
     LEGACY_GEOMETRY_CONTRACT,
@@ -179,6 +185,11 @@ OPENEVOLVE_EVALUATOR_BOUND_WITNESS_SOURCES = (
 SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
+COSET_SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_coset_search_portfolio"
+COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = (
+    "coset-two-block-dsl-map-v2"
+)
+COSET_SEARCH_PORTFOLIO_ISLAND_COUNT = 4
 SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
     "algebraic_relation_type",
     "support_split_type",
@@ -4372,6 +4383,71 @@ def _search_portfolio_enabled_from_config(config_path: Path) -> bool:
     return _search_portfolio_contract_from_config(config_path) is not None
 
 
+def _coset_search_portfolio_contract_from_config(
+    config_path: Path,
+) -> tuple[int, tuple[str, ...], dict[str, int]] | None:
+    """Return the exact typed-coset MAP contract selected by ``config_path``.
+
+    Schema-7 submission witnesses carry the selected parent program and its
+    code hash.  Treating this config as an ordinary non-portfolio run drops
+    those fields at the Humanize trust boundary, so keep the producer's
+    marker and fixed 4-island geometry mirrored here and fail closed on drift.
+    """
+
+    try:
+        value = yaml.safe_load(config_path.read_text())
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise RoundTransactionError(
+            f"cannot inspect coset search portfolio config: {config_path}: "
+            f"{exc}"
+        ) from exc
+    if not isinstance(value, dict):
+        raise RoundTransactionError(
+            "evolution config must contain a YAML object"
+        )
+    if COSET_SEARCH_PORTFOLIO_CONFIG_KEY not in value:
+        return None
+    marker = value[COSET_SEARCH_PORTFOLIO_CONFIG_KEY]
+    expected_marker = {
+        "enabled": True,
+        "schema_version": COSET_MAP_SCHEMA_VERSION,
+        "representation_id": COSET_REPRESENTATION_ID,
+        "checkpoint_compatibility_group": (
+            COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP
+        ),
+    }
+    if type(marker) is not dict or marker != expected_marker:
+        raise RoundTransactionError(
+            "qcode_coset_search_portfolio must exactly select the current "
+            "representation, descriptor schema, and compatibility group"
+        )
+    database = value.get("database")
+    if (
+        not isinstance(database, dict)
+        or type(database.get("num_islands")) is not int
+        or database["num_islands"]
+        != COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+        or database.get("feature_dimensions")
+        != list(COSET_FEATURE_DIMENSIONS)
+        or not isinstance(database.get("feature_bins"), dict)
+        or set(database["feature_bins"]) != set(COSET_FEATURE_BINS)
+        or any(
+            type(database["feature_bins"].get(name)) is not int
+            or database["feature_bins"][name] != expected
+            for name, expected in COSET_FEATURE_BINS.items()
+        )
+    ):
+        raise RoundTransactionError(
+            "coset search portfolio database geometry must be exactly four "
+            "islands with the schema-v2 16/16/8 MAP grid"
+        )
+    return (
+        COSET_MAP_SCHEMA_VERSION,
+        tuple(COSET_FEATURE_DIMENSIONS),
+        dict(COSET_FEATURE_BINS),
+    )
+
+
 def _legacy_v4_search_portfolio_enabled_from_config(
     config_path: Path,
 ) -> bool:
@@ -4714,6 +4790,231 @@ def _portfolio_parent_code_sha256(
     return observed
 
 
+def _validated_live_coset_policy_code_identity(
+    code: Any,
+    *,
+    expected_catalog_sha256: Any,
+) -> dict[str, str]:
+    """Validate current typed policy text while preserving its raw hash."""
+
+    if (
+        not isinstance(code, str)
+        or not code
+        or not isinstance(expected_catalog_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", expected_catalog_sha256) is None
+    ):
+        raise RoundTransactionError(
+            "coset policy code identity is invalid"
+        )
+    from evolve.coset_policy_dsl import CosetPolicyError, parse_policy
+
+    try:
+        policy = parse_policy(code)
+    except (CosetPolicyError, UnicodeError, ValueError) as exc:
+        raise RoundTransactionError(
+            "coset checkpoint policy is invalid"
+        ) from exc
+    if policy.action_catalog_sha256 != expected_catalog_sha256:
+        raise RoundTransactionError(
+            "coset checkpoint policy catalog binding changed"
+        )
+    return {
+        "code_sha256": hashlib.sha256(code.encode("utf-8")).hexdigest(),
+        "policy_catalog_sha256": policy.action_catalog_sha256,
+    }
+
+
+def _coset_parent_program_identity(
+    program_id: str,
+    *,
+    attempt_iteration: int,
+    expected_catalog_sha256: Any,
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+    cache: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Replay one typed-coset parent from the sealed checkpoint lineage."""
+
+    cached = cache.get(program_id)
+    if cached is not None:
+        if cached["iteration_found"] >= attempt_iteration:
+            raise RoundTransactionError(
+                "coset submission parent is not older than its child"
+            )
+        return cached
+
+    identities: list[dict[str, Any]] = []
+    for checkpoint in (base_checkpoint, result_checkpoint):
+        if checkpoint is None:
+            continue
+        parent_path = (
+            Path(checkpoint["path"])
+            / "programs"
+            / f"{program_id}.json"
+        )
+        if parent_path.is_symlink():
+            raise RoundTransactionError(
+                "coset submission parent may not be a symlink"
+            )
+        if not parent_path.exists():
+            continue
+        if not parent_path.is_file():
+            raise RoundTransactionError(
+                "coset submission parent is not a regular file"
+            )
+        parent = _read_json_object(
+            parent_path, "coset submission parent checkpoint program"
+        )
+        parent_code = parent.get("code")
+        parent_iteration = parent.get("iteration_found")
+        if (
+            parent.get("id") != program_id
+            or not isinstance(parent_code, str)
+            or not parent_code
+            or parent.get("language") != "json"
+            or isinstance(parent_iteration, bool)
+            or not isinstance(parent_iteration, int)
+            or parent_iteration < 0
+        ):
+            raise RoundTransactionError(
+                "coset submission parent checkpoint program is invalid"
+            )
+        policy_identity = _validated_live_coset_policy_code_identity(
+            parent_code,
+            expected_catalog_sha256=expected_catalog_sha256,
+        )
+        identities.append({
+            "code_sha256": policy_identity["code_sha256"],
+            "iteration_found": parent_iteration,
+            "parent_id": parent.get("parent_id"),
+        })
+
+    if not identities:
+        raise RoundTransactionError(
+            "coset submission parent is absent from both slice checkpoints"
+        )
+    identity = identities[0]
+    if any(candidate != identity for candidate in identities[1:]):
+        raise RoundTransactionError(
+            "coset submission parent differs between slice checkpoints"
+        )
+    if identity["iteration_found"] >= attempt_iteration:
+        raise RoundTransactionError(
+            "coset submission parent is not older than its child"
+        )
+    cache[program_id] = identity
+    return identity
+
+
+def _validate_coset_search_portfolio_witness(
+    attempts: list[dict[str, Any]],
+    *,
+    invocation_binding: dict[str, Any],
+    base_checkpoint: dict[str, Any] | None,
+    result_checkpoint: dict[str, Any],
+) -> None:
+    """Validate the schema-7 parent and four-island coset submission trace."""
+
+    attempt_fields = {
+        "iteration",
+        "island_id",
+        "result",
+        "coset_parent_program_id",
+        "coset_parent_code_sha256",
+    }
+    expected_catalog_sha256 = invocation_binding.get(
+        "qcode_action_catalog_sha256"
+    )
+    parent_cache: dict[str, dict[str, Any]] = {}
+    for attempt in attempts:
+        if set(attempt) != attempt_fields:
+            raise RoundTransactionError(
+                "coset submission witness fields are not exact"
+            )
+        iteration = attempt["iteration"]
+        parent_program_id = attempt["coset_parent_program_id"]
+        parent_code_sha256 = attempt["coset_parent_code_sha256"]
+        if (
+            type(iteration) is not int
+            or not isinstance(parent_program_id, str)
+            or re.fullmatch(r"[A-Za-z0-9._-]+", parent_program_id) is None
+            or parent_program_id in {".", ".."}
+            or not isinstance(parent_code_sha256, str)
+            or re.fullmatch(r"[0-9a-f]{64}", parent_code_sha256) is None
+        ):
+            raise RoundTransactionError(
+                "coset submission parent identity is invalid"
+            )
+        expected_island = (
+            iteration - 1
+        ) % COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+        if attempt["island_id"] != expected_island:
+            raise RoundTransactionError(
+                "coset submission island schedule is inconsistent"
+            )
+        observed = _coset_parent_program_identity(
+            parent_program_id,
+            attempt_iteration=iteration,
+            expected_catalog_sha256=expected_catalog_sha256,
+            base_checkpoint=base_checkpoint,
+            result_checkpoint=result_checkpoint,
+            cache=parent_cache,
+        )
+        if observed["code_sha256"] != parent_code_sha256:
+            raise RoundTransactionError(
+                "coset submission parent code hash changed"
+            )
+
+
+def _validate_coset_result_program_lineage(
+    outcome: dict[str, Any],
+    attempt: dict[str, Any],
+    *,
+    result_checkpoint: dict[str, Any],
+    expected_catalog_sha256: Any,
+) -> None:
+    """Bind a successful coset outcome back to its checkpointed parent."""
+
+    program_id = outcome.get("program_id")
+    if (
+        not isinstance(program_id, str)
+        or re.fullmatch(r"[A-Za-z0-9._-]+", program_id) is None
+        or program_id in {".", ".."}
+    ):
+        raise RoundTransactionError(
+            "coset result program identity is invalid"
+        )
+    program_path = (
+        Path(result_checkpoint["path"])
+        / "programs"
+        / f"{program_id}.json"
+    )
+    if program_path.is_symlink() or not program_path.is_file():
+        raise RoundTransactionError(
+            "coset result program is absent from the result checkpoint"
+        )
+    program = _read_json_object(
+        program_path, "coset result checkpoint program"
+    )
+    code = program.get("code")
+    if (
+        program.get("id") != program_id
+        or program.get("iteration_found") != outcome["iteration"]
+        or program.get("parent_id")
+        != attempt["coset_parent_program_id"]
+        or program.get("language") != "json"
+        or not isinstance(code, str)
+        or not code
+    ):
+        raise RoundTransactionError(
+            "coset result checkpoint lineage is inconsistent"
+        )
+    _validated_live_coset_policy_code_identity(
+        code,
+        expected_catalog_sha256=expected_catalog_sha256,
+    )
+
+
 def _validate_legacy_v4_search_portfolio_witness(
     witness: dict[str, Any],
     attempts: list[dict[str, Any]],
@@ -4853,11 +5154,40 @@ def _validate_search_portfolio_witness(
     *,
     witness_schema: int,
     launch_binding: dict[str, dict[str, Any]],
+    invocation_binding: dict[str, Any],
     base_checkpoint: dict[str, Any] | None,
     result_checkpoint: dict[str, Any],
     start_iteration: int,
     count: int,
-) -> None:
+) -> bool:
+    config_path = Path(launch_binding["config"]["path"])
+    coset_contract = _coset_search_portfolio_contract_from_config(
+        config_path
+    )
+    if coset_contract is not None:
+        if (
+            witness_schema != EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+            or invocation_binding.get("qcode_evaluator_kind")
+            != "coset-two-block"
+        ):
+            raise RoundTransactionError(
+                "coset search portfolio requires a schema-7 coset witness"
+            )
+        if _search_portfolio_contract_from_config(config_path) is not None:
+            raise RoundTransactionError(
+                "BB and coset search portfolios cannot both be enabled"
+            )
+        if witness.get("search_portfolio") is not None:
+            raise RoundTransactionError(
+                "coset search portfolio cannot carry a BB portfolio witness"
+            )
+        _validate_coset_search_portfolio_witness(
+            attempts,
+            invocation_binding=invocation_binding,
+            base_checkpoint=base_checkpoint,
+            result_checkpoint=result_checkpoint,
+        )
+        return True
     if witness_schema == EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION:
         _validate_legacy_v4_search_portfolio_witness(
             witness,
@@ -4868,7 +5198,7 @@ def _validate_search_portfolio_witness(
             start_iteration=start_iteration,
             count=count,
         )
-        return
+        return False
     if witness_schema not in EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS:
         if "search_portfolio" in witness:
             raise RoundTransactionError(
@@ -4879,8 +5209,7 @@ def _validate_search_portfolio_witness(
             raise RoundTransactionError(
                 "legacy submission witness fields are not exact"
             )
-        return
-    config_path = Path(launch_binding["config"]["path"])
+        return False
     context_path = Path(launch_binding["context"]["path"])
     portfolio_contract = _search_portfolio_contract_from_config(config_path)
     enabled = portfolio_contract is not None
@@ -4895,7 +5224,7 @@ def _validate_search_portfolio_witness(
             raise RoundTransactionError(
                 "non-portfolio submission witness fields are not exact"
             )
-        return
+        return False
     assert portfolio_contract is not None
     portfolio_schema, feature_dimensions, _feature_bins = portfolio_contract
 
@@ -5049,6 +5378,7 @@ def _validate_search_portfolio_witness(
             raise RoundTransactionError(
                 "portfolio submission witness semantics are inconsistent"
             )
+    return False
 
 
 def _validate_slice_witness(
@@ -5257,11 +5587,12 @@ def _validate_slice_witness(
             raise RoundTransactionError(
                 "OpenEvolve slice witness contains an invalid submission"
             )
-    _validate_search_portfolio_witness(
+    coset_portfolio_witness = _validate_search_portfolio_witness(
         witness,
         attempts,
         witness_schema=witness_schema,
         launch_binding=binding,
+        invocation_binding=invocation_binding,
         base_checkpoint=base_checkpoint,
         result_checkpoint=result_checkpoint,
         start_iteration=start_iteration,
@@ -5494,7 +5825,15 @@ def _validate_slice_witness(
         )
     successful = 0
     worker_errors = 0
-    invalid_mutations = 0
+    controlled_mutation_rejections = 0
+    controlled_error_kinds = (
+        {"invalid_mutation", "no_effect_mutation"}
+        if coset_portfolio_witness
+        else set()
+    )
+    attempts_by_iteration = {
+        attempt["iteration"]: attempt for attempt in attempts
+    }
     witnessed_program_ids: set[str] = set()
     for outcome in outcomes:
         if not isinstance(outcome, dict):
@@ -5518,22 +5857,16 @@ def _validate_slice_witness(
                 or isinstance(size, bool)
                 or not isinstance(size, int)
                 or size < 1
-                or error_kind not in (None, "invalid_mutation")
                 or (
                     error_kind is not None
-                    and (
-                        witness_schema
-                        != EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
-                        or invocation_binding.get("qcode_evaluator_kind")
-                        != "coset-two-block"
-                    )
+                    and error_kind not in controlled_error_kinds
                 )
             ):
                 raise RoundTransactionError(
                     "OpenEvolve slice witness worker error identity is invalid"
                 )
-            if error_kind == "invalid_mutation":
-                invalid_mutations += 1
+            if error_kind in controlled_error_kinds:
+                controlled_mutation_rejections += 1
         elif status == "program_added":
             successful += 1
             program_id = outcome.get("program_id")
@@ -5556,16 +5889,23 @@ def _validate_slice_witness(
                 raise RoundTransactionError(
                     "OpenEvolve slice witness program identity is invalid"
                 )
+            if coset_portfolio_witness:
+                _validate_coset_result_program_lineage(
+                    outcome,
+                    attempts_by_iteration[iteration],
+                    result_checkpoint=result_checkpoint,
+                    expected_catalog_sha256=invocation_binding.get(
+                        "qcode_action_catalog_sha256"
+                    ),
+                )
             witnessed_program_ids.add(program_id)
         else:
             raise RoundTransactionError(
                 f"OpenEvolve slice witness has invalid outcome status: {status!r}"
             )
     if successful < 1 and not (
-        witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
-        and invocation_binding.get("qcode_evaluator_kind")
-        == "coset-two-block"
-        and invalid_mutations == count
+        coset_portfolio_witness
+        and controlled_mutation_rejections == count
     ):
         raise RoundTransactionError(
             "OpenEvolve slice witness has no successful program"
