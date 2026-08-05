@@ -22,6 +22,9 @@ from evolve import coset_openevolve_evaluator as evaluator
 from evolve import coset_policy_dsl as policy_dsl
 from evolve import run_evolution as launcher
 from evolve.coset_search_contract import (
+    COSET_FEATURE_BINS,
+    COSET_FEATURE_DIMENSIONS,
+    COSET_MAP_SCHEMA_VERSION,
     COSET_REPRESENTATION_ID,
     action_search_view,
     action_search_views,
@@ -609,21 +612,20 @@ def test_coset_evaluator_has_no_decoder_import():
     assert not any("bp" in name.lower() or "decoder" in name.lower() for name in imports)
 
 
-def test_coset_config_selects_action_normality_and_orbit_map():
+def test_coset_config_selects_batch_lane_map_v2():
     config = Config.from_yaml(EVOLUTION_CONFIG)
     assert config.random_seed == 47
     assert config.evaluator.cascade_thresholds[0] > 1.0
     assert config.database.num_islands == 4
-    assert config.database.feature_dimensions == [
-        "coset_action_family",
-        "coset_subgroup_normality",
-        "coset_support_orbit",
-    ]
-    assert config.database.feature_bins == {
-        "coset_action_family": 4,
-        "coset_subgroup_normality": 2,
-        "coset_support_orbit": 8,
-    }
+    assert config.database.feature_dimensions == list(COSET_FEATURE_DIMENSIONS)
+    assert config.database.feature_bins == dict(COSET_FEATURE_BINS)
+    assert launcher._coset_search_portfolio_schema_version(
+        EVOLUTION_CONFIG
+    ) == COSET_MAP_SCHEMA_VERSION
+    assert launcher._validated_coset_search_portfolio_config(
+        config,
+        COSET_MAP_SCHEMA_VERSION,
+    ) == 47
     campaign = json.loads(PIPELINE_CONFIG.read_text())
     assert campaign["stage1"].get(
         "evaluator_kind",

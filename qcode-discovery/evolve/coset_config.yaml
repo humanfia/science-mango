@@ -16,9 +16,9 @@ random_seed: 47
 # evaluator route, source hash, and numeric checkpoint marker independently.
 qcode_coset_search_portfolio:
   enabled: true
-  schema_version: 1
+  schema_version: 2
   representation_id: "css-coset-two-block-actions-v1"
-  checkpoint_compatibility_group: "coset-two-block-dsl-v1"
+  checkpoint_compatibility_group: "coset-two-block-dsl-map-v2"
 
 llm:
   api_base: "http://localhost:4000/v1"
@@ -85,7 +85,8 @@ prompt:
     action/orbit relationship, several numeric support indices, or the walk;
     alias jitter inside the same occupied orbit is not a repair. Preserve the
     published support as a regression anchor, but search structurally distinct
-    neighborhoods and underoccupied action/normality/orbit MAP cells.
+    neighborhoods and underoccupied nonnormal-lane, normal-lane, and whole-
+    batch orbit-profile MAP buckets.
   include_artifacts: true
   suggest_simplification_after_chars: 12000
 
@@ -106,10 +107,10 @@ database:
   exploitation_ratio: 0.30
   migration_interval: 20
   feature_dimensions:
-    - "coset_action_family"
-    - "coset_subgroup_normality"
-    - "coset_support_orbit"
+    - "coset_nonnormal_lane_bucket"
+    - "coset_normal_lane_bucket"
+    - "coset_batch_orbit_profile_bucket"
   feature_bins:
-    coset_action_family: 4
-    coset_subgroup_normality: 2
-    coset_support_orbit: 8
+    coset_nonnormal_lane_bucket: 16
+    coset_normal_lane_bucket: 16
+    coset_batch_orbit_profile_bucket: 8

@@ -182,6 +182,21 @@ def test_typed_checkpoint_requires_every_genome_marker():
         launcher._validate_typed_coset_checkpoint_programs(database)
 
 
+def test_typed_checkpoint_rejects_duplicate_policy_genomes():
+    code = canonical_policy_json(default_policy()) + "\n"
+    database = SimpleNamespace(programs={
+        program_id: Program(
+            id=program_id,
+            code=code,
+            metrics={launcher.COSET_GENOME_FORMAT_ID_METRIC: 1.0},
+        )
+        for program_id in ("duplicate-a", "duplicate-b")
+    })
+
+    with pytest.raises(RuntimeError, match="duplicate policy genomes"):
+        launcher._validate_typed_coset_checkpoint_programs(database)
+
+
 def test_historical_root_replay_does_not_depend_on_live_dsl_catalog(
     monkeypatch: pytest.MonkeyPatch,
 ):

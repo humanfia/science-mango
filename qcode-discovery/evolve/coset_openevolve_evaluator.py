@@ -37,19 +37,20 @@ from evaluation.low_weight_oracle import (
     verify_css_low_weight_oracle,
 )
 from evolve.coset_search_contract import (
-    COSET_ACTION_FAMILY_METRIC,
+    COSET_BATCH_ORBIT_PROFILE_METRIC,
     COSET_EVALUATOR_KIND,
-    COSET_FEATURE_BINS,
     COSET_MAP_SCHEMA_METRIC,
     COSET_MAP_SCHEMA_VERSION,
-    COSET_SUBGROUP_NORMALITY_METRIC,
-    COSET_SUPPORT_ORBIT_METRIC,
+    COSET_NONNORMAL_LANE_METRIC,
+    COSET_NORMAL_LANE_METRIC,
+    COSET_SUPPORT_ORBIT_BINS,
     LOW_WEIGHT_ORACLE_THRESHOLD,
     MAX_GENERATED_CANDIDATES,
     TARGET_FOM,
     action_search_view,
     action_search_views,
     candidate_digest,
+    coset_batch_map_descriptor,
     normalize_candidate,
     quota_by_normality,
     support_orbit_bin,
@@ -637,11 +638,11 @@ def _structural_diversity(rows: list[Mapping[str, Any]]) -> float:
     )
     normality_diversity = _fixed_categorical_entropy(
         [row["subgroup_normal"] for row in rows],
-        category_count=COSET_FEATURE_BINS[COSET_SUBGROUP_NORMALITY_METRIC],
+        category_count=2,
     )
     orbit_diversity = _fixed_categorical_entropy(
         [row["support_orbit_bin"] for row in rows],
-        category_count=COSET_FEATURE_BINS[COSET_SUPPORT_ORBIT_METRIC],
+        category_count=COSET_SUPPORT_ORBIT_BINS,
     )
     # A tiny statically viable subset must not receive the same diversity
     # credit as a full production batch with the same proportions.
@@ -880,6 +881,13 @@ def _evaluate(program_path: str):
         raise ValueError(
             "generate_candidates() must cover every search-enabled action"
         )
+    # Descriptor coordinates are sealed before any candidate build or oracle
+    # work.  They therefore describe the typed policy's immutable renderer
+    # output and cannot drift because of a timeout or solver outcome.
+    map_descriptor = coset_batch_map_descriptor(
+        normalized,
+        policy_sha256=preflight.policy_sha256,
+    )
     rows = []
     build_errors = 0
     for candidate in normalized:
@@ -957,14 +965,14 @@ def _evaluate(program_path: str):
         EVALUATOR_KIND_ID_METRIC: EVALUATOR_KIND_ID,
         ACTION_CATALOG_ID_METRIC: _action_catalog_contract_id(),
         COSET_GENOME_FORMAT_ID_METRIC: COSET_TYPED_DSL_GENOME_FORMAT_ID,
-        COSET_ACTION_FAMILY_METRIC: float(
-            0 if best is None else best["action_family_bin"]
+        COSET_NONNORMAL_LANE_METRIC: float(
+            map_descriptor["coordinates"][COSET_NONNORMAL_LANE_METRIC]
         ),
-        COSET_SUBGROUP_NORMALITY_METRIC: float(
-            0 if best is None else int(best["subgroup_normal"])
+        COSET_NORMAL_LANE_METRIC: float(
+            map_descriptor["coordinates"][COSET_NORMAL_LANE_METRIC]
         ),
-        COSET_SUPPORT_ORBIT_METRIC: float(
-            0 if best is None else best["support_orbit_bin"]
+        COSET_BATCH_ORBIT_PROFILE_METRIC: float(
+            map_descriptor["coordinates"][COSET_BATCH_ORBIT_PROFILE_METRIC]
         ),
         "evaluation_elapsed_s": time.monotonic() - started,
         **_preflight_markers(
@@ -999,6 +1007,7 @@ def _evaluate(program_path: str):
         "program_path": str(source_path),
         "program_sha256": program_sha256,
         "policy_sha256": preflight.policy_sha256,
+        "map_descriptor": map_descriptor,
         "mutation_preflight_elapsed_s": preflight.elapsed_s,
         "distance_semantics": {
             "bp_upper_bound_positive_credit": False,

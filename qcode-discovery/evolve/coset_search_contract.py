@@ -22,23 +22,34 @@ from typing import Any
 COSET_CANDIDATE_SCHEMA_VERSION = 1
 COSET_REPRESENTATION_ID = "css-coset-two-block-actions-v1"
 COSET_EVALUATOR_KIND = "coset-two-block"
-COSET_MAP_SCHEMA_VERSION = 1
+COSET_MAP_SCHEMA_VERSION = 2
 
+# Legacy candidate-level labels remain part of persisted candidate rows, but
+# they are deliberately no longer MAP-Elites dimensions.  Selecting one
+# highest-scoring candidate made the immutable published anchor describe every
+# policy, hiding the rest of the rendered batch.
 COSET_ACTION_FAMILY_METRIC = "coset_action_family"
 COSET_SUBGROUP_NORMALITY_METRIC = "coset_subgroup_normality"
 COSET_SUPPORT_ORBIT_METRIC = "coset_support_orbit"
 COSET_MAP_SCHEMA_METRIC = "coset_map_schema_version"
 
+COSET_NONNORMAL_LANE_METRIC = "coset_nonnormal_lane_bucket"
+COSET_NORMAL_LANE_METRIC = "coset_normal_lane_bucket"
+COSET_BATCH_ORBIT_PROFILE_METRIC = "coset_batch_orbit_profile_bucket"
+
 COSET_FEATURE_DIMENSIONS = (
-    COSET_ACTION_FAMILY_METRIC,
-    COSET_SUBGROUP_NORMALITY_METRIC,
-    COSET_SUPPORT_ORBIT_METRIC,
+    COSET_NONNORMAL_LANE_METRIC,
+    COSET_NORMAL_LANE_METRIC,
+    COSET_BATCH_ORBIT_PROFILE_METRIC,
 )
 COSET_FEATURE_BINS = {
-    COSET_ACTION_FAMILY_METRIC: 4,
-    COSET_SUBGROUP_NORMALITY_METRIC: 2,
-    COSET_SUPPORT_ORBIT_METRIC: 8,
+    COSET_NONNORMAL_LANE_METRIC: 16,
+    COSET_NORMAL_LANE_METRIC: 16,
+    COSET_BATCH_ORBIT_PROFILE_METRIC: 8,
 }
+
+COSET_SUPPORT_ORBIT_BINS = 8
+COSET_DESCRIPTOR_KIND = "qcode-coset-batch-map-descriptor-v2"
 
 MAX_TOTAL_SUPPORT_WEIGHT = 6
 PRODUCTION_LEFT_WEIGHT = 3
@@ -124,7 +135,7 @@ def normalize_action_descriptor(raw: Mapping[str, Any]) -> ActionSearchView:
     if (
         isinstance(family_bin, bool)
         or not isinstance(family_bin, int)
-        or not 0 <= family_bin < COSET_FEATURE_BINS[COSET_ACTION_FAMILY_METRIC]
+        or not 0 <= family_bin < len(ACTION_FAMILY_BINS)
     ):
         raise ValueError(f"action {action_id} has invalid action_family_bin")
     left_ids = _strict_string_tuple(
@@ -287,7 +298,181 @@ def support_orbit_bin(candidate: Mapping[str, Any]) -> int:
         "left_support": normalized["left_support"],
         "right_support": normalized["right_support"],
     })
-    return int(digest[:8], 16) % COSET_FEATURE_BINS[COSET_SUPPORT_ORBIT_METRIC]
+    return int(digest[:8], 16) % COSET_SUPPORT_ORBIT_BINS
+
+
+def _require_sha256(value: Any, *, label: str) -> str:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise ValueError(f"{label} must be a lowercase SHA-256 digest")
+    return value
+
+
+def _action_catalog_sha256() -> str:
+    from evaluation.coset_action_catalog import action_catalog_sha256
+
+    return _require_sha256(
+        action_catalog_sha256(), label="coset action catalog identity"
+    )
+
+
+def coset_batch_map_descriptor(
+    candidates: Sequence[Mapping[str, Any]],
+    *,
+    policy_sha256: str,
+) -> dict[str, Any]:
+    """Build the stable schema-v2 MAP descriptor for one rendered policy.
+
+    Coordinates depend only on the typed policy identity and the immutable
+    renderer output.  In particular, no static-code build, oracle outcome,
+    timeout, fitness, or worker completion order can move a policy between
+    cells.  Full lane candidate identities are retained in the artifact so a
+    coordinate can be independently replayed instead of trusting its bucket.
+    """
+
+    policy_sha256 = _require_sha256(policy_sha256, label="policy_sha256")
+    if not isinstance(candidates, Sequence) or isinstance(
+        candidates, (str, bytes, bytearray)
+    ):
+        raise TypeError("descriptor candidates must be a sequence")
+    if len(candidates) != MAX_GENERATED_CANDIDATES:
+        raise ValueError(
+            "descriptor requires the exact production candidate batch"
+        )
+
+    views = action_search_views()
+    if len(views) != 2 or {view.subgroup_normal for view in views} != {
+        False,
+        True,
+    }:
+        raise RuntimeError(
+            "descriptor v2 requires exactly one normal and one nonnormal lane"
+        )
+    expected_quotas = quota_by_normality(views, MAX_GENERATED_CANDIDATES)
+    lanes: dict[str, list[dict[str, Any]]] = {
+        view.action_id: [] for view in views
+    }
+    observed_digests: set[str] = set()
+    ordered_digests: list[str] = []
+    for index, raw in enumerate(candidates):
+        try:
+            normalized = normalize_candidate(raw)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(
+                f"descriptor candidate {index} is invalid"
+            ) from exc
+        if raw != normalized:
+            raise ValueError(
+                f"descriptor candidate {index} is not canonical"
+            )
+        action_id = normalized["action_id"]
+        if action_id not in lanes:
+            raise ValueError("descriptor candidate uses an unknown action")
+        digest = candidate_digest(normalized)
+        if digest in observed_digests:
+            raise ValueError("descriptor candidate batch contains duplicates")
+        observed_digests.add(digest)
+        ordered_digests.append(digest)
+        lanes[action_id].append(normalized)
+    if {
+        action_id: len(rows) for action_id, rows in lanes.items()
+    } != expected_quotas:
+        raise ValueError("descriptor candidate batch violates action quotas")
+
+    catalog_sha256 = _action_catalog_sha256()
+    lane_artifacts: list[dict[str, Any]] = []
+    coordinates: dict[str, int] = {}
+    aggregate_histogram = [0] * COSET_SUPPORT_ORBIT_BINS
+    for view in sorted(views, key=lambda item: item.action_id):
+        rows = lanes[view.action_id]
+        candidate_sha256 = [candidate_digest(row) for row in rows]
+        orbit_histogram = [0] * COSET_SUPPORT_ORBIT_BINS
+        for row in rows:
+            orbit = support_orbit_bin(row)
+            orbit_histogram[orbit] += 1
+            aggregate_histogram[orbit] += 1
+        lane_payload = {
+            "schema_version": COSET_MAP_SCHEMA_VERSION,
+            "representation_id": COSET_REPRESENTATION_ID,
+            "action_catalog_sha256": catalog_sha256,
+            "action_id": view.action_id,
+            "subgroup_normal": view.subgroup_normal,
+            "candidate_sha256": candidate_sha256,
+        }
+        lane_sha256 = canonical_json_sha256(lane_payload)
+        metric = (
+            COSET_NORMAL_LANE_METRIC
+            if view.subgroup_normal
+            else COSET_NONNORMAL_LANE_METRIC
+        )
+        bucket = int(lane_sha256[:16], 16) % COSET_FEATURE_BINS[metric]
+        coordinates[metric] = bucket
+        lane_artifacts.append({
+            **lane_payload,
+            "candidate_count": len(rows),
+            "orbit_histogram": orbit_histogram,
+            "lane_sha256": lane_sha256,
+            "metric": metric,
+            "bucket": bucket,
+        })
+
+    batch_payload = {
+        "schema_version": COSET_MAP_SCHEMA_VERSION,
+        "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_sha256": catalog_sha256,
+        "policy_sha256": policy_sha256,
+        "ordered_candidate_sha256": ordered_digests,
+    }
+    batch_sha256 = canonical_json_sha256(batch_payload)
+    orbit_profile_payload = {
+        "schema_version": COSET_MAP_SCHEMA_VERSION,
+        "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_sha256": catalog_sha256,
+        "aggregate_orbit_histogram": aggregate_histogram,
+        "lanes": [
+            {
+                "action_id": lane["action_id"],
+                "candidate_count": lane["candidate_count"],
+                "orbit_histogram": lane["orbit_histogram"],
+            }
+            for lane in lane_artifacts
+        ],
+    }
+    orbit_profile_sha256 = canonical_json_sha256(orbit_profile_payload)
+    orbit_bucket = (
+        int(orbit_profile_sha256[:16], 16)
+        % COSET_FEATURE_BINS[COSET_BATCH_ORBIT_PROFILE_METRIC]
+    )
+    coordinates[COSET_BATCH_ORBIT_PROFILE_METRIC] = orbit_bucket
+    if set(coordinates) != set(COSET_FEATURE_DIMENSIONS):
+        raise RuntimeError("descriptor v2 did not populate every coordinate")
+
+    artifact = {
+        "kind": COSET_DESCRIPTOR_KIND,
+        "schema_version": COSET_MAP_SCHEMA_VERSION,
+        "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_sha256": catalog_sha256,
+        "policy_sha256": policy_sha256,
+        "dimensions": list(COSET_FEATURE_DIMENSIONS),
+        "bins": dict(COSET_FEATURE_BINS),
+        "coordinates": {
+            name: coordinates[name] for name in COSET_FEATURE_DIMENSIONS
+        },
+        "lanes": lane_artifacts,
+        "batch": {
+            **batch_payload,
+            "candidate_count": len(candidates),
+            "batch_sha256": batch_sha256,
+            "aggregate_orbit_histogram": aggregate_histogram,
+            "orbit_profile_sha256": orbit_profile_sha256,
+            "orbit_profile_bucket": orbit_bucket,
+        },
+    }
+    artifact["descriptor_sha256"] = canonical_json_sha256(artifact)
+    return artifact
 
 
 def quota_by_normality(
@@ -330,15 +515,19 @@ __all__ = [
     "ActionSearchView",
     "ACTION_FAMILY_BINS",
     "COSET_ACTION_FAMILY_METRIC",
+    "COSET_BATCH_ORBIT_PROFILE_METRIC",
     "COSET_CANDIDATE_SCHEMA_VERSION",
     "COSET_EVALUATOR_KIND",
     "COSET_FEATURE_BINS",
     "COSET_FEATURE_DIMENSIONS",
     "COSET_MAP_SCHEMA_METRIC",
     "COSET_MAP_SCHEMA_VERSION",
+    "COSET_NONNORMAL_LANE_METRIC",
+    "COSET_NORMAL_LANE_METRIC",
     "COSET_REPRESENTATION_ID",
     "COSET_SUBGROUP_NORMALITY_METRIC",
     "COSET_SUPPORT_ORBIT_METRIC",
+    "COSET_SUPPORT_ORBIT_BINS",
     "DEFAULT_PER_ACTION_QUOTA",
     "LOW_WEIGHT_ORACLE_THRESHOLD",
     "MAX_GENERATED_CANDIDATES",
@@ -350,6 +539,7 @@ __all__ = [
     "action_search_views",
     "candidate_digest",
     "canonical_json_sha256",
+    "coset_batch_map_descriptor",
     "normalize_action_descriptor",
     "normalize_candidate",
     "quota_by_normality",

@@ -240,6 +240,20 @@ MAP_DESCRIPTOR_DIFFERENCE_SPECTRUM_METRIC = "difference_spectrum_bin"
 SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
+COSET_SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_coset_search_portfolio"
+COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = "coset-two-block-dsl-map-v2"
+COSET_SEARCH_PORTFOLIO_ISLAND_COUNT = 4
+COSET_MUTATION_REJECTION_PREFIX = "QCODE_COSET_MUTATION_REJECTED_V1="
+COSET_MUTATION_REJECTION_SCHEMA_VERSION = 1
+COSET_MUTATION_REJECTION_KINDS = {
+    "ambiguous_search": "invalid_mutation",
+    "dsl_invalid": "invalid_mutation",
+    "empty_search": "invalid_mutation",
+    "no_diff_blocks": "invalid_mutation",
+    "semantic_noop": "no_effect_mutation",
+    "textual_noop": "no_effect_mutation",
+    "unmatched_search": "no_effect_mutation",
+}
 SEARCH_PORTFOLIO_V2_FEATURE_DIMENSIONS = (
     MAP_DESCRIPTOR_ALGEBRAIC_RELATION_METRIC,
     MAP_DESCRIPTOR_SUPPORT_SPLIT_METRIC,
@@ -653,6 +667,43 @@ def _coset_action_strata_count() -> int:
     if count < 1:
         raise RuntimeError("coset preflight has no action strata")
     return count
+
+
+def _coset_mutation_bounds_prompt() -> str:
+    """Build the exact catalog-derived integer bounds shown to the LLM."""
+
+    from evolve.coset_search_contract import action_search_views
+
+    rows = [
+        "Trusted catalog-derived mutation bounds (inclusive):",
+        "Use these exact values; do not infer index sizes from block length.",
+    ]
+    for view in action_search_views():
+        left_count = sum(
+            element != view.left_identity_id
+            for element in view.left_element_ids
+        )
+        right_count = sum(
+            element != view.right_identity_id
+            for element in view.right_element_ids
+        )
+        if left_count < 2 or right_count < 2:
+            raise RuntimeError(
+                f"coset action {view.action_id} has no 3+3 support space"
+            )
+        pair_space = math.comb(left_count, 2) * math.comb(right_count, 2)
+        rows.append(
+            f"- action_id={view.action_id}: left indices 0..{left_count - 1}; "
+            f"right indices 0..{right_count - 1}; walk offset "
+            f"0..{pair_space - 1}; walk stride 1..{pair_space - 1}, "
+            f"gcd(stride,{pair_space})=1."
+        )
+    rows.extend([
+        "Every SEARCH value must be copied exactly from the current JSON and "
+        "must occur exactly once. Every block must change the policy.",
+        "Do not repeat the immutable published support in explicit supports.",
+    ])
+    return "\n".join(rows)
 
 
 def _winner_preflight_marker_fields(
@@ -1318,6 +1369,7 @@ def _checkpoint_preflight_summary(
             raise RuntimeError(f"checkpoint program has invalid code: {path}")
         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
             from evolve.coset_policy_dsl import parse_policy
+            from evolve.coset_search_contract import COSET_MAP_SCHEMA_VERSION
 
             try:
                 parse_policy(code)
@@ -1338,6 +1390,13 @@ def _checkpoint_preflight_summary(
                     "result checkpoint contains an unmarked coset DSL program: "
                     f"{path}"
                 )
+            _fixed_coset_feature_coords(
+                argparse.Namespace(
+                    id=program.get("id", path.stem),
+                    metrics=program.get("metrics"),
+                ),
+                schema_version=COSET_MAP_SCHEMA_VERSION,
+            )
         _validated_winner_preflight_markers(
             program.get("metrics"),
             expected_contract_id=expected_contract_id,
@@ -1944,18 +2003,23 @@ def _strict_coset_checkpoint_genome_kind(database: Any) -> str:
     return next(iter(kinds))
 
 
-def _validate_typed_coset_checkpoint_programs(database: Any) -> None:
+def _validate_typed_coset_checkpoint_programs(
+    database: Any,
+    *,
+    expected_map_schema_version: int | None = None,
+) -> None:
     """Require every post-migration checkpoint row to be parseable current DSL."""
 
-    from evolve.coset_policy_dsl import parse_policy
+    from evolve.coset_policy_dsl import parse_policy, policy_digest
 
     programs = getattr(database, "programs", None)
     if not isinstance(programs, dict) or not programs:
         raise RuntimeError("typed coset checkpoint has no programs")
+    policy_owners: dict[str, str] = {}
     for program_id in sorted(programs):
         program = programs[program_id]
         try:
-            parse_policy(program.code)
+            digest = policy_digest(parse_policy(program.code))
         except Exception as exc:
             raise RuntimeError(
                 f"typed coset checkpoint program is invalid: {program_id}"
@@ -1972,6 +2036,18 @@ def _validate_typed_coset_checkpoint_programs(database: Any) -> None:
             raise RuntimeError(
                 f"typed coset checkpoint program lacks its genome marker: "
                 f"{program_id}"
+            )
+        previous = policy_owners.get(digest)
+        if previous is not None:
+            raise RuntimeError(
+                "typed coset checkpoint contains duplicate policy genomes: "
+                f"{previous}, {program_id}"
+            )
+        policy_owners[digest] = program_id
+        if expected_map_schema_version is not None:
+            _fixed_coset_feature_coords(
+                program,
+                schema_version=expected_map_schema_version,
             )
 
 
@@ -2792,6 +2868,83 @@ def _search_portfolio_requested(config_path: str | Path) -> bool:
     return _search_portfolio_schema_version(config_path) is not None
 
 
+def _coset_search_portfolio_schema_version(
+    config_path: str | Path,
+) -> int | None:
+    """Return the explicitly selected fixed coset MAP schema, if present."""
+
+    from evolve.coset_search_contract import (
+        COSET_MAP_SCHEMA_VERSION,
+        COSET_REPRESENTATION_ID,
+    )
+
+    path = Path(config_path)
+    try:
+        value = yaml.safe_load(path.read_text())
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise RuntimeError(
+            f"cannot inspect coset search portfolio config: {path}: {exc}"
+        ) from exc
+    if not isinstance(value, dict):
+        raise RuntimeError("evolution config must contain a YAML object")
+    if COSET_SEARCH_PORTFOLIO_CONFIG_KEY not in value:
+        return None
+    marker = value[COSET_SEARCH_PORTFOLIO_CONFIG_KEY]
+    expected = {
+        "enabled": True,
+        "schema_version": COSET_MAP_SCHEMA_VERSION,
+        "representation_id": COSET_REPRESENTATION_ID,
+        "checkpoint_compatibility_group": (
+            COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP
+        ),
+    }
+    if type(marker) is not dict or marker != expected:
+        raise RuntimeError(
+            "qcode_coset_search_portfolio must exactly select the current "
+            "representation, descriptor schema, and compatibility group"
+        )
+    return COSET_MAP_SCHEMA_VERSION
+
+
+def _validated_coset_search_portfolio_config(
+    config: Any,
+    schema_version: int,
+) -> int:
+    """Validate the fixed, categorical four-island coset MAP geometry."""
+
+    from evolve.coset_search_contract import (
+        COSET_FEATURE_BINS,
+        COSET_FEATURE_DIMENSIONS,
+        COSET_MAP_SCHEMA_VERSION,
+    )
+
+    if schema_version != COSET_MAP_SCHEMA_VERSION:
+        raise RuntimeError(
+            f"unsupported coset MAP schema: {schema_version!r}"
+        )
+    database = getattr(config, "database", None)
+    if database is None:
+        raise RuntimeError("coset search portfolio has no database section")
+    if getattr(database, "num_islands", None) != (
+        COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+    ):
+        raise RuntimeError("coset search portfolio requires exactly four islands")
+    if getattr(database, "feature_dimensions", None) != list(
+        COSET_FEATURE_DIMENSIONS
+    ):
+        raise RuntimeError(
+            "coset feature_dimensions do not match descriptor schema v2"
+        )
+    if getattr(database, "feature_bins", None) != dict(COSET_FEATURE_BINS):
+        raise RuntimeError(
+            "coset feature_bins do not match descriptor schema v2"
+        )
+    seed = getattr(config, "random_seed", None)
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise RuntimeError("coset search portfolio requires an integer random_seed")
+    return seed
+
+
 def _validated_search_geometry_contract(
     portfolio_schema_version: int | None,
 ) -> str | None:
@@ -3107,6 +3260,151 @@ def _fixed_search_feature_coords(
     return categories
 
 
+def _fixed_coset_feature_coords(
+    program: Any,
+    schema_version: int,
+) -> list[int]:
+    """Map coset categorical metrics directly, without dynamic min/max."""
+
+    from evolve.coset_search_contract import (
+        COSET_FEATURE_BINS,
+        COSET_FEATURE_DIMENSIONS,
+        COSET_MAP_SCHEMA_METRIC,
+        COSET_MAP_SCHEMA_VERSION,
+    )
+
+    if schema_version != COSET_MAP_SCHEMA_VERSION:
+        raise RuntimeError("coset program uses an unsupported MAP schema")
+    metrics = getattr(program, "metrics", None)
+    _validated_map_descriptor_version(
+        metrics, label=f"coset MAP program {getattr(program, 'id', '?')}"
+    )
+    assert isinstance(metrics, dict)
+    marker = metrics.get(COSET_MAP_SCHEMA_METRIC)
+    if (
+        isinstance(marker, bool)
+        or not isinstance(marker, (int, float))
+        or not math.isfinite(float(marker))
+        or not float(marker).is_integer()
+        or int(marker) != schema_version
+    ):
+        raise RuntimeError("coset program MAP schema marker is incompatible")
+    coordinates: list[int] = []
+    for name in COSET_FEATURE_DIMENSIONS:
+        value = metrics.get(name)
+        limit = COSET_FEATURE_BINS[name]
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or not float(value).is_integer()
+            or not 0 <= int(value) < limit
+        ):
+            raise RuntimeError(
+                f"coset MAP metric {name} is not a fixed category"
+            )
+        coordinates.append(int(value))
+    return coordinates
+
+
+def _rebuild_fixed_coset_feature_maps(
+    database: Any,
+    *,
+    schema_version: int,
+) -> None:
+    """Deterministically rebuild four lineage-island coset MAP archives."""
+
+    from evolve.coset_search_contract import COSET_FEATURE_BINS
+
+    programs = getattr(database, "programs", None)
+    previous_islands = getattr(database, "islands", None)
+    if not isinstance(programs, dict):
+        raise RuntimeError("coset MAP database programs are invalid")
+    if (
+        not isinstance(previous_islands, list)
+        or len(previous_islands) != COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+    ):
+        raise RuntimeError("coset MAP database islands are invalid")
+
+    membership: dict[str, set[int]] = {}
+    for island, program_ids in enumerate(previous_islands):
+        if not isinstance(program_ids, (set, list, tuple)):
+            raise RuntimeError("coset MAP island membership is invalid")
+        for program_id in program_ids:
+            membership.setdefault(program_id, set()).add(island)
+
+    winners: list[dict[str, str]] = [
+        {} for _ in range(COSET_SEARCH_PORTFOLIO_ISLAND_COUNT)
+    ]
+    for program_id in sorted(membership):
+        islands = membership[program_id]
+        if len(islands) != 1:
+            raise RuntimeError(
+                f"coset MAP program {program_id} belongs to multiple islands"
+            )
+        program = programs.get(program_id)
+        if program is None or getattr(program, "id", None) != program_id:
+            raise RuntimeError("coset MAP island references a missing program")
+        island = next(iter(islands))
+        metadata = getattr(program, "metadata", None)
+        if not isinstance(metadata, dict) or metadata.get("island") != island:
+            raise RuntimeError(
+                f"coset MAP program {program_id} has inconsistent island metadata"
+            )
+        key = "-".join(str(value) for value in _fixed_coset_feature_coords(
+            program,
+            schema_version=schema_version,
+        ))
+        existing_id = winners[island].get(key)
+        if existing_id is None:
+            winners[island][key] = program_id
+            continue
+        candidate_key = (-_search_program_fitness(program), program_id)
+        existing_key = (
+            -_search_program_fitness(programs[existing_id]),
+            existing_id,
+        )
+        if candidate_key < existing_key:
+            winners[island][key] = program_id
+
+    database.island_feature_maps = winners
+    database.islands = [set(feature_map.values()) for feature_map in winners]
+    elite_ids = set().union(*(set(item.values()) for item in winners))
+    config = getattr(database, "config", None)
+    archive_size = getattr(config, "archive_size", len(elite_ids) or 1)
+    if (
+        isinstance(archive_size, bool)
+        or not isinstance(archive_size, int)
+        or archive_size < 1
+    ):
+        raise RuntimeError("coset MAP archive_size is invalid")
+    ranked = sorted(
+        elite_ids,
+        key=lambda program_id: (
+            -_search_program_fitness(programs[program_id]),
+            program_id,
+        ),
+    )
+    database.archive = set(ranked[:archive_size])
+    database.feature_stats = {}
+    database.feature_bins_per_dim = dict(COSET_FEATURE_BINS)
+    database.island_best_programs = [
+        (
+            min(
+                feature_map.values(),
+                key=lambda program_id: (
+                    -_search_program_fitness(programs[program_id]),
+                    program_id,
+                ),
+            )
+            if feature_map
+            else None
+        )
+        for feature_map in winners
+    ]
+    database.best_program_id = ranked[0] if ranked else None
+
+
 def _search_program_fitness(program: Any) -> float:
     metrics = getattr(program, "metrics", None)
     if not isinstance(metrics, dict):
@@ -3400,6 +3698,7 @@ class _SliceObserver:
     stage2_cascade_threshold: float | None = None
     checkpoint_preflight_required: bool = False
     search_portfolio_schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION
+    coset_map_schema_version: int | None = None
     run_calls: int = 0
     shutdown_requested: bool = False
     submission_attempts: list[dict[str, Any]] = field(default_factory=list)
@@ -3529,6 +3828,31 @@ class _SliceObserver:
                 self.search_role_submission_counts[search_role] = (
                     self.search_role_submission_counts.get(search_role, 0) + 1
                 )
+        elif self.coset_map_schema_version is not None:
+            if (
+                not isinstance(search_parent_program_id, str)
+                or not search_parent_program_id
+                or Path(search_parent_program_id).name
+                != search_parent_program_id
+            ):
+                self.violations.append(
+                    f"submission {iteration!r} has no valid coset parent"
+                )
+            if (
+                not isinstance(search_parent_code_sha256, str)
+                or len(search_parent_code_sha256) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in search_parent_code_sha256
+                )
+            ):
+                self.violations.append(
+                    f"submission {iteration!r} has no valid coset parent hash"
+                )
+            attempt.update({
+                "coset_parent_program_id": search_parent_program_id,
+                "coset_parent_code_sha256": search_parent_code_sha256,
+            })
         self.submission_attempts.append(attempt)
         if future is None:
             return None
@@ -3581,7 +3905,30 @@ class _SliceObserver:
                     f"future {iteration} returned an invalid worker error"
                 )
                 return result
-            self._record_worker_error(iteration, error)
+            rejection_kind: str | None = None
+            if self.coset_map_schema_version is not None:
+                attempt = next(
+                    (
+                        item for item in self.submission_attempts
+                        if item.get("iteration") == iteration
+                    ),
+                    None,
+                )
+                parent_sha256 = (
+                    attempt.get("coset_parent_code_sha256")
+                    if isinstance(attempt, dict)
+                    else None
+                )
+                if isinstance(parent_sha256, str):
+                    rejection_kind = _recognized_coset_mutation_rejection(
+                        error,
+                        expected_parent_code_sha256=parent_sha256,
+                    )
+            self._record_worker_error(
+                iteration,
+                error,
+                error_kind=rejection_kind,
+            )
             return result
         if not isinstance(child, dict):
             self.violations.append(f"future {iteration} returned neither error nor child")
@@ -3857,6 +4204,158 @@ class _SliceObserver:
                 )
                 self._record_worker_error(iteration, canonical_error)
                 return sanitized
+        if (
+            self.evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+            and isinstance(child.get("metrics"), dict)
+            and child["metrics"].get(COSET_GENOME_FORMAT_ID_METRIC)
+            == COSET_TYPED_DSL_GENOME_FORMAT_ID
+        ):
+            # The worker-side literal patcher rejects a parent no-op before
+            # evaluation.  Recheck the semantic and artifact bindings at the
+            # controller trust boundary so a future OpenEvolve refactor cannot
+            # silently reintroduce duplicate typed policies.
+            from evolve.coset_policy_dsl import (
+                parse_policy,
+                policy_digest,
+                render_candidates,
+            )
+            from evolve.coset_search_contract import (
+                COSET_FEATURE_DIMENSIONS,
+                COSET_MAP_SCHEMA_METRIC,
+                coset_batch_map_descriptor,
+            )
+
+            child_code = child.get("code")
+            parent_id = getattr(result, "parent_id", None)
+            controller = self.checkpoint_controller
+            database = getattr(controller, "database", None)
+            programs = getattr(database, "programs", None)
+            parent = (
+                programs.get(parent_id)
+                if isinstance(programs, dict) and isinstance(parent_id, str)
+                else None
+            )
+            result_artifacts = getattr(result, "artifacts", None)
+            binding_error: str | None = None
+            child_policy_sha256: str | None = None
+            if not isinstance(child_code, str) or not child_code:
+                binding_error = "child_code_invalid"
+            elif parent is None or not isinstance(
+                getattr(parent, "code", None), str
+            ):
+                binding_error = "parent_binding_missing"
+            elif not isinstance(result_artifacts, dict):
+                binding_error = "evaluation_artifacts_missing"
+            else:
+                try:
+                    child_policy_sha256 = policy_digest(
+                        parse_policy(child_code)
+                    )
+                    parent_policy_sha256 = policy_digest(
+                        parse_policy(parent.code)
+                    )
+                except Exception:
+                    binding_error = "typed_policy_parse_failed"
+                else:
+                    expected_program_sha256 = hashlib.sha256(
+                        child_code.encode("utf-8")
+                    ).hexdigest()
+                    if result_artifacts.get("program_sha256") != (
+                        expected_program_sha256
+                    ):
+                        binding_error = "program_sha256_mismatch"
+                    elif result_artifacts.get("policy_sha256") != (
+                        child_policy_sha256
+                    ):
+                        binding_error = "policy_sha256_mismatch"
+                    else:
+                        expected_descriptor = coset_batch_map_descriptor(
+                            render_candidates(parse_policy(child_code)),
+                            policy_sha256=child_policy_sha256,
+                        )
+                        if result_artifacts.get("map_descriptor") != (
+                            expected_descriptor
+                        ):
+                            binding_error = "map_descriptor_mismatch"
+                        elif child["metrics"].get(
+                            COSET_MAP_SCHEMA_METRIC
+                        ) != float(expected_descriptor["schema_version"]):
+                            binding_error = "map_schema_metric_mismatch"
+                        elif any(
+                            child["metrics"].get(name)
+                            != float(expected_descriptor["coordinates"][name])
+                            for name in COSET_FEATURE_DIMENSIONS
+                        ):
+                            binding_error = "map_coordinate_metric_mismatch"
+                    if binding_error is None and (
+                        child_policy_sha256 == parent_policy_sha256
+                    ):
+                        binding_error = "semantic_parent_noop"
+                    elif binding_error is None:
+                        for existing_id, existing in sorted(programs.items()):
+                            if existing_id == parent_id:
+                                continue
+                            existing_code = getattr(existing, "code", None)
+                            if not isinstance(existing_code, str):
+                                binding_error = "archive_code_invalid"
+                                break
+                            try:
+                                existing_digest = policy_digest(
+                                    parse_policy(existing_code)
+                                )
+                            except Exception:
+                                binding_error = "archive_policy_invalid"
+                                break
+                            if existing_digest == child_policy_sha256:
+                                binding_error = "semantic_archive_duplicate"
+                                break
+            if binding_error is not None:
+                expected_no_effect = binding_error in {
+                    "semantic_parent_noop",
+                    "semantic_archive_duplicate",
+                }
+                failure = {
+                    "child_program_bytes": len(encoded_child),
+                    "child_program_sha256": hashlib.sha256(
+                        encoded_child
+                    ).hexdigest(),
+                    "iteration": iteration,
+                    "kind": (
+                        "coset_no_effect_mutation"
+                        if expected_no_effect
+                        else "coset_mutation_binding_invalid"
+                    ),
+                    "program_id": program_id,
+                    "reason": binding_error,
+                }
+                if child_policy_sha256 is not None:
+                    failure["policy_sha256"] = child_policy_sha256
+                canonical_error = json.dumps(
+                    failure,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+                sanitized = self.result_type(
+                    child_program_dict=None,
+                    iteration=iteration,
+                    error=canonical_error,
+                )
+                if not expected_no_effect:
+                    self.violations.append(
+                        f"future {iteration} violated coset mutation binding: "
+                        f"{binding_error}"
+                    )
+                self._record_worker_error(
+                    iteration,
+                    canonical_error,
+                    error_kind=(
+                        "no_effect_mutation"
+                        if expected_no_effect
+                        else "mutation_binding_invalid"
+                    ),
+                )
+                return sanitized
         self.expected_programs[iteration] = {
             "id": program_id,
             "sha256": hashlib.sha256(encoded_child).hexdigest(),
@@ -4126,9 +4625,12 @@ class _SliceObserver:
             outcome.get("status") == "program_added"
             for outcome in self.outcomes.values()
         )
-        invalid_mutations = sum(
+        expected_mutation_rejections = sum(
             outcome.get("status") == "worker_error"
-            and outcome.get("error_kind") == "invalid_mutation"
+            and outcome.get("error_kind") in {
+                "invalid_mutation",
+                "no_effect_mutation",
+            }
             for outcome in self.outcomes.values()
         )
         # A worker_error has no checkpoint Program.  It covers both an LLM/diff
@@ -4137,13 +4639,16 @@ class _SliceObserver:
         # database.add. Neither outcome claims that a candidate universe was
         # enumerated completely. Malformed/forged marker claims and future
         # exceptions remain violations.
-        # A complete batch of schema-valid, evaluator-authenticated bad DSL
-        # mutations is still a completely accounted evolution slice.  Save an
-        # unchanged-population checkpoint at the requested iteration so the
-        # next round can ask for new mutations.  Timeouts, LLM transport
-        # errors, Stage-2 failures, and unclassified worker errors retain the
-        # at-least-one-success requirement and therefore fail closed.
-        if successful < 1 and invalid_mutations != len(expected):
+        # A complete batch of either evaluator-authenticated bad DSL mutations
+        # or source-bound pre-evaluation diff/no-op rejections is still a
+        # completely accounted evolution slice. Save an unchanged-population
+        # checkpoint so the next round can ask for new mutations. Timeouts,
+        # LLM transport errors, Stage-2 failures, and unclassified worker
+        # errors retain the at-least-one-success requirement and fail closed.
+        if (
+            successful < 1
+            and expected_mutation_rejections != len(expected)
+        ):
             self.violations.append(
                 "the OpenEvolve slice produced no successful evaluations"
             )
@@ -4233,6 +4738,177 @@ def _openevolve_source_binding() -> tuple[dict[str, dict[str, Any]], Any, Any]:
     return binding, controller_module, process_module
 
 
+def _raise_coset_mutation_rejection(
+    reason: str,
+    *,
+    parent_code: str,
+    detail: dict[str, Any],
+) -> None:
+    """Raise one canonical, controller-verifiable mutation rejection."""
+
+    if reason not in COSET_MUTATION_REJECTION_KINDS:
+        raise RuntimeError("unknown coset mutation rejection reason")
+    detail_sha256 = hashlib.sha256(json.dumps(
+        detail,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+    payload = {
+        "schema_version": COSET_MUTATION_REJECTION_SCHEMA_VERSION,
+        "kind": "qcode-coset-mutation-rejected",
+        "reason": reason,
+        "parent_code_sha256": hashlib.sha256(
+            parent_code.encode("utf-8")
+        ).hexdigest(),
+        "detail_sha256": detail_sha256,
+    }
+    raise ValueError(
+        COSET_MUTATION_REJECTION_PREFIX
+        + json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    )
+
+
+def _recognized_coset_mutation_rejection(
+    error: str,
+    *,
+    expected_parent_code_sha256: str,
+) -> str | None:
+    """Authenticate a pre-evaluation rejection emitted by the pinned worker."""
+
+    if error == "No valid diffs found in response":
+        # This exact envelope is emitted by pinned OpenEvolve immediately
+        # before our patcher would be called.  The submission's parent hash is
+        # independently bound in the slice witness.
+        return "invalid_mutation"
+    if not error.startswith(COSET_MUTATION_REJECTION_PREFIX):
+        return None
+    encoded = error[len(COSET_MUTATION_REJECTION_PREFIX):]
+    try:
+        payload = json.loads(encoded)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if (
+        type(payload) is not dict
+        or set(payload) != {
+            "schema_version",
+            "kind",
+            "reason",
+            "parent_code_sha256",
+            "detail_sha256",
+        }
+        or payload.get("schema_version")
+        != COSET_MUTATION_REJECTION_SCHEMA_VERSION
+        or payload.get("kind") != "qcode-coset-mutation-rejected"
+        or payload.get("parent_code_sha256")
+        != expected_parent_code_sha256
+        or not isinstance(payload.get("detail_sha256"), str)
+        or len(payload["detail_sha256"]) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in payload["detail_sha256"]
+        )
+        or encoded != json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    ):
+        return None
+    return COSET_MUTATION_REJECTION_KINDS.get(payload.get("reason"))
+
+
+def _apply_coset_literal_diff(
+    original_code: str,
+    diff_text: str,
+    diff_pattern: str = (
+        r"<<<<<<< SEARCH\n(.*?)=======\n(.*?)>>>>>>> REPLACE"
+    ),
+) -> str:
+    """Apply every coset SEARCH/REPLACE block as an exact JSON substring.
+
+    Pinned OpenEvolve's generic helper compares complete *lines*.  A typed
+    coset policy becomes one canonical JSON line after its first accepted
+    mutation, so a perfectly valid field-level SEARCH block otherwise applies
+    zero edits and is silently evaluated as a duplicate child.  Coset genomes
+    are data, not source code: exact, unique substring replacement is the
+    narrow contract we need here.
+
+    All blocks must apply exactly once, and the resulting canonical policy
+    must be semantically different from its parent.  Raising here happens in
+    the mutation worker before the expensive evaluator or candidate log is
+    touched.
+    """
+
+    from openevolve.utils.code_utils import extract_diffs
+    from evolve.coset_policy_dsl import (
+        parse_policy,
+        policy_digest,
+    )
+
+    if not isinstance(original_code, str) or not original_code:
+        raise ValueError("coset mutation parent is not JSON text")
+    if not isinstance(diff_text, str) or not diff_text:
+        _raise_coset_mutation_rejection(
+            "no_diff_blocks",
+            parent_code=original_code,
+            detail={"empty_response": True},
+        )
+    blocks = extract_diffs(diff_text, diff_pattern)
+    if not blocks:
+        _raise_coset_mutation_rejection(
+            "no_diff_blocks",
+            parent_code=original_code,
+            detail={"empty_response": False},
+        )
+
+    parent_policy = parse_policy(original_code)
+    mutated = original_code
+    for index, (search_text, replace_text) in enumerate(blocks, start=1):
+        if not search_text:
+            _raise_coset_mutation_rejection(
+                "empty_search",
+                parent_code=original_code,
+                detail={"block": index},
+            )
+        if search_text == replace_text:
+            _raise_coset_mutation_rejection(
+                "textual_noop",
+                parent_code=original_code,
+                detail={"block": index},
+            )
+        matches = mutated.count(search_text)
+        if matches != 1:
+            _raise_coset_mutation_rejection(
+                "unmatched_search" if matches == 0 else "ambiguous_search",
+                parent_code=original_code,
+                detail={"block": index, "matches": matches},
+            )
+        mutated = mutated.replace(search_text, replace_text, 1)
+
+    try:
+        child_policy = parse_policy(mutated)
+    except Exception as exc:
+        _raise_coset_mutation_rejection(
+            "dsl_invalid",
+            parent_code=original_code,
+            detail={"error_type": type(exc).__name__},
+        )
+    if policy_digest(child_policy) == policy_digest(parent_policy):
+        _raise_coset_mutation_rejection(
+            "semantic_noop",
+            parent_code=original_code,
+            detail={"policy_sha256": policy_digest(parent_policy)},
+        )
+    return mutated
+
+
 def _managed_openevolve_worker_init(
     config_dict: dict[str, Any],
     evaluation_file: str,
@@ -4248,6 +4924,7 @@ def _managed_openevolve_worker_init(
 
     import openevolve.evaluator as evaluator_module
     import openevolve.process_parallel as process_module
+    import openevolve.utils.code_utils as code_utils_module
 
     original_initializer = getattr(
         process_module,
@@ -4262,6 +4939,10 @@ def _managed_openevolve_worker_init(
         != Path(EVALUATOR_COSET_TWO_BLOCK).resolve()
     ):
         return
+
+    # Install only inside a source-pinned coset worker.  Other OpenEvolve
+    # evaluators retain the upstream line-oriented source-code patcher.
+    code_utils_module.apply_diff = _apply_coset_literal_diff
 
     evaluator_type = evaluator_module.Evaluator
     original_context = evaluator_type._create_cascade_error_context
@@ -4311,10 +4992,19 @@ def _verified_slice_controller(
     search_portfolio_schema_version: int = SEARCH_PORTFOLIO_SCHEMA_VERSION,
     adaptive_mutation_policy: dict[str, int] | None = None,
     search_regime: dict[str, Any] | None = None,
+    coset_map_schema_version: int | None = None,
 ):
     if isinstance(iterations, bool) or not isinstance(iterations, int) or iterations < 1:
         raise RuntimeError("managed slice iterations must be positive")
     source_binding, controller_module, process_module = _openevolve_source_binding()
+    if coset_map_schema_version is not None and (
+        evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK
+        or search_config is not None
+    ):
+        raise RuntimeError(
+            "fixed coset MAP geometry requires the coset evaluator and cannot "
+            "share the BB search portfolio"
+        )
     observer = _SliceObserver(
         base_iteration=base_iteration,
         iterations=iterations,
@@ -4324,6 +5014,7 @@ def _verified_slice_controller(
         stage2_cascade_threshold=stage2_cascade_threshold,
         checkpoint_preflight_required=checkpoint_preflight_required,
         search_portfolio_schema_version=search_portfolio_schema_version,
+        coset_map_schema_version=coset_map_schema_version,
     )
     portfolio_seed: int | None = None
     portfolio_policy: dict[str, int] | None = None
@@ -4410,6 +5101,7 @@ def _verified_slice_controller(
             self._search_slice_programs: dict[str, Any] | None = None
             self._search_slice_snapshot: dict[str, Any] | None = None
             self._search_slice_artifacts: dict[str, dict[str, Any]] | None = None
+            self._coset_iteration_targets: dict[int, int] = {}
             if portfolio_seed is not None:
                 _validated_search_portfolio_config(
                     self.config,
@@ -4425,15 +5117,90 @@ def _verified_slice_controller(
                     self.database,
                     schema_version=search_portfolio_schema_version,
                 )
+            if coset_map_schema_version is not None:
+                _validated_coset_search_portfolio_config(
+                    self.config,
+                    coset_map_schema_version,
+                )
+                self.database._calculate_feature_coords = (
+                    lambda program: _fixed_coset_feature_coords(
+                        program,
+                        schema_version=coset_map_schema_version,
+                    )
+                )
+                _rebuild_fixed_coset_feature_maps(
+                    self.database,
+                    schema_version=coset_map_schema_version,
+                )
+                # Coset workers are already scheduled across all four lineage
+                # islands.  OpenEvolve migration creates new UUIDs containing
+                # identical policies, which wastes evaluations and obscures
+                # semantic uniqueness without adding a new MAP cell.
+                self.database.should_migrate = lambda: False
 
         def request_shutdown(self) -> None:
             observer.shutdown_requested = True
             return super().request_shutdown()
 
         def _submit_iteration(self, iteration: int, island_id: Any = None) -> Any:
-            if portfolio_seed is None:
+            if portfolio_seed is None and coset_map_schema_version is None:
                 future = super()._submit_iteration(iteration, island_id)
                 return observer.record_submission(iteration, island_id, future)
+            if coset_map_schema_version is not None:
+                if (
+                    isinstance(island_id, bool)
+                    or not isinstance(island_id, int)
+                    or not 0 <= island_id < COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+                ):
+                    raise RuntimeError("coset iteration has an invalid island")
+                # Pinned OpenEvolve fills only the first ``2 * workers``
+                # island slots when worker count is smaller than island count,
+                # then repeatedly refills those same slots.  Bind the coset
+                # lineage to the global iteration instead, so even a one-
+                # worker smoke run and every resumed slice cover all 4 islands.
+                target_island = (
+                    iteration - 1
+                ) % COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+                parent, inspirations = self.database.sample_from_island(
+                    island_id=target_island,
+                    num_inspirations=self.config.prompt.num_top_programs,
+                )
+                snapshot = self._create_database_snapshot()
+                snapshot["current_island"] = target_island
+                snapshot["sampling_island"] = target_island
+                parent_row = snapshot["programs"].get(parent.id)
+                if not isinstance(parent_row, dict):
+                    raise RuntimeError("coset parent is missing from snapshot")
+                metadata = parent_row.get("metadata")
+                if not isinstance(metadata, dict):
+                    raise RuntimeError("coset parent metadata are invalid")
+                parent_row["metadata"] = {
+                    **metadata,
+                    "island": target_island,
+                }
+                inspiration_ids = [program.id for program in inspirations]
+                snapshot["islands"][target_island] = sorted({
+                    *snapshot["islands"][target_island],
+                    parent.id,
+                    *inspiration_ids,
+                })
+                self._coset_iteration_targets[iteration] = target_island
+                future = self.executor.submit(
+                    process_module._run_iteration_worker,
+                    iteration,
+                    snapshot,
+                    parent.id,
+                    inspiration_ids,
+                )
+                return observer.record_submission(
+                    iteration,
+                    target_island,
+                    future,
+                    search_parent_program_id=parent.id,
+                    search_parent_code_sha256=hashlib.sha256(
+                        parent.code.encode("utf-8")
+                    ).hexdigest(),
+                )
             assert portfolio_policy is not None
             schedule = _search_island_schedule(
                 observer.iterations,
@@ -4619,6 +5386,11 @@ def _verified_slice_controller(
                         self._search_slice_artifacts[program_id] = copy.deepcopy(
                             frozen_artifacts
                         )
+            if coset_map_schema_version is not None:
+                _rebuild_fixed_coset_feature_maps(
+                    self.database,
+                    schema_version=coset_map_schema_version,
+                )
             checkpoint_controller = getattr(checkpoint_callback, "__self__", None)
             if checkpoint_controller is None:
                 observer.violations.append(
@@ -4657,6 +5429,27 @@ def _verified_slice_controller(
                             f"database add for iteration {iteration} changed "
                             "worker island content"
                         )
+                elif (
+                    coset_map_schema_version is not None
+                    and iteration is not None
+                ):
+                    effective_target = self._coset_iteration_targets.get(
+                        iteration
+                    )
+                    if effective_target is None:
+                        observer.violations.append(
+                            f"database add for iteration {iteration} has no "
+                            "coset target island"
+                        )
+                    metadata = getattr(program, "metadata", None)
+                    if (
+                        not isinstance(metadata, dict)
+                        or metadata.get("island") != effective_target
+                    ):
+                        observer.violations.append(
+                            f"database add for iteration {iteration} changed "
+                            "coset worker island content"
+                        )
                 result = original_add(
                     program,
                     iteration=iteration,
@@ -4666,6 +5459,11 @@ def _verified_slice_controller(
                     _rebuild_fixed_search_feature_maps(
                         self.database,
                         schema_version=search_portfolio_schema_version,
+                    )
+                elif coset_map_schema_version is not None:
+                    _rebuild_fixed_coset_feature_maps(
+                        self.database,
+                        schema_version=coset_map_schema_version,
                     )
                 stored = self.database.programs.get(getattr(program, "id", None))
                 if stored is None:
@@ -6102,6 +6900,7 @@ def main():
     search_regime: dict[str, Any] | None = None
     search_portfolio_enabled = False
     search_portfolio_schema_version: int | None = None
+    coset_map_schema_version: int | None = None
     search_geometry_contract: str | None = None
     try:
         context_text: str | None = None
@@ -6129,6 +6928,23 @@ def main():
             ) = _resolve_codex_execution_binding()
             codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+            config.prompt.system_message += (
+                "\n\n" + _coset_mutation_bounds_prompt()
+            )
+            coset_map_schema_version = (
+                _coset_search_portfolio_schema_version(args.config)
+            )
+            if coset_map_schema_version is not None:
+                if not managed_requested:
+                    raise RuntimeError(
+                        "qcode_coset_search_portfolio requires managed "
+                        "Humanize slice accounting"
+                    )
+                _validated_coset_search_portfolio_config(
+                    config,
+                    coset_map_schema_version,
+                )
         if not args.noncss:
             search_portfolio_schema_version = (
                 _search_portfolio_schema_version(
@@ -6257,6 +7073,11 @@ def main():
                 "5 algebraic-mechanism islands "
                 f"(regime={search_regime['status'] if search_regime else 'normal'})"
             )
+        if coset_map_schema_version is not None:
+            print(
+                "  Coset portfolio: fixed categorical MAP-Elites "
+                f"schema v{coset_map_schema_version}, 4 lineage islands"
+            )
         print(f"  Seed: {seed_path}")
         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
             print("  Mode: CSS coset two-block actions")
@@ -6293,6 +7114,7 @@ def main():
                 ),
                 adaptive_mutation_policy=adaptive_mutation_policy,
                 search_regime=search_regime,
+                coset_map_schema_version=coset_map_schema_version,
             )
         else:
             slice_context = nullcontext((None, None))
@@ -6372,7 +7194,12 @@ def main():
                                 )
                                 observer.record_checkpoint_preflight(report)
                                 return
-                            _validate_typed_coset_checkpoint_programs(database)
+                            _validate_typed_coset_checkpoint_programs(
+                                database,
+                                expected_map_schema_version=(
+                                    coset_map_schema_version
+                                ),
+                            )
                         _validate_loaded_checkpoint_stage2_contract(
                             database,
                             expected_contract_id=preflight_contract_id,
