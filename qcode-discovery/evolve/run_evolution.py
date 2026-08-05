@@ -149,13 +149,15 @@ COSET_EVALUATOR_DEPENDENCIES = {
 
 
 # Schema 5 binds the mechanism-portfolio semantics (relation-first MAP cells,
-# lineage islands, and the recorded search regime).  Schema 4 artifacts remain
-# legacy inputs for the Humanize recovery layer; this launcher never emits a
-# schema-4 artifact with the new semantics.
+# lineage islands, and the recorded search regime).  Schema 6 additionally
+# binds the pinned OpenEvolve evaluator source whose outer Stage-1 failure
+# envelope is interpreted by this launcher.  Schema 4/5 artifacts remain
+# legacy inputs for the Humanize recovery layer; this launcher only emits the
+# current schema.
 EVOLUTION_LEGACY_COMPLETION_SCHEMA_VERSION = 4
 EVOLUTION_LEGACY_SLICE_WITNESS_SCHEMA_VERSION = 4
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 5
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 5
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 6
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 6
 WINNER_PREFLIGHT_CONTRACT_VERSION = 2
 WINNER_PREFLIGHT_CONTRACT_ID_ENV = "QCODE_WINNER_PREFLIGHT_CONTRACT_ID"
 CANDIDATE_LOG_PATH_ENV = "QCODE_CANDIDATE_LOG_PATH"
@@ -525,7 +527,10 @@ SUPPORTED_OPENEVOLVE_SHA256 = {
     "process_parallel": "66f6fa57e7afb5db54cf7bc02130f30d4040175d9cdfdf53faf668787eec2371",
     "database": "4ae70c309d7c33a3f92ad181437ec71f9ca77575d57bd673249791ecf38d754b",
     "api": "c85fcafe18f288148a5dea918b6af5c2312717f39de2a416d26e158b84924eae",
+    "evaluator": "f1deed6c378cc1e57bfb86548375ca7775de6857d829169015999d269f46bc5b",
 }
+STAGE1_EXCEPTION_PROVENANCE_FIELD = "qcode_exception_provenance"
+STAGE1_EXCEPTION_PROVENANCE_SCHEMA_VERSION = 1
 
 def _active_evaluator_dependencies(
     evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
@@ -1019,6 +1024,165 @@ def _cascade_selects_stage2(
         if name != "error" and isinstance(value, (int, float))
     ]
     return bool(values) and sum(values) / len(values) >= float(threshold)
+
+
+def _pre_marker_stage1_failure_evidence(
+    metrics: Any,
+    artifacts: Any,
+) -> dict[str, Any] | None:
+    """Recognize a coset mutation exception before project markers exist.
+
+    Pinned OpenEvolve catches every exception raised by ``evaluate_stage1``.
+    The managed worker records the live exception traceback before it is
+    stringified. Only failures whose deepest structured frame is the
+    ephemeral evolved program are safe to isolate as a bad mutation. Trusted
+    evaluator faults, unauthenticated text-only envelopes, and
+    undifferentiated timeouts remain fatal to slice accounting.
+    """
+
+    if not isinstance(metrics, dict) or not isinstance(artifacts, dict):
+        return None
+    if set(metrics) != {"stage1_passed", "error"}:
+        return None
+    for name in ("stage1_passed", "error"):
+        value = metrics.get(name)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or float(value) != 0.0
+        ):
+            return None
+
+    expected_artifact_fields = {
+        "cascade_config",
+        "cascade_thresholds",
+        "error_message",
+        "error_type",
+        "evaluation_file",
+        "failure_stage",
+        "stderr",
+        "timeout_config",
+        "timestamp",
+        "traceback",
+        STAGE1_EXCEPTION_PROVENANCE_FIELD,
+    }
+    if set(artifacts) != expected_artifact_fields:
+        return None
+    error_type = artifacts.get("error_type")
+    error_message = artifacts.get("error_message")
+    stderr = artifacts.get("stderr")
+    traceback_text = artifacts.get("traceback")
+    evaluation_file = artifacts.get("evaluation_file")
+    timestamp = artifacts.get("timestamp")
+    timeout_config = artifacts.get("timeout_config")
+    thresholds = artifacts.get("cascade_thresholds")
+    provenance = artifacts.get(STAGE1_EXCEPTION_PROVENANCE_FIELD)
+    unsafe_message_characters = frozenset(
+        "\x00\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029"
+    )
+    if (
+        artifacts.get("failure_stage") != "stage1"
+        or not isinstance(error_type, str)
+        or not error_type
+        or len(error_type) > 256
+        or not error_type.isascii()
+        or not error_type.isidentifier()
+        or not isinstance(error_message, str)
+        or len(error_message) > 4096
+        or not isinstance(stderr, str)
+        or error_message != stderr
+        or any(
+            character in unsafe_message_characters
+            for character in error_message
+        )
+        or not isinstance(traceback_text, str)
+        or not traceback_text
+        or len(traceback_text) > 1_000_000
+        or not isinstance(evaluation_file, str)
+        or not evaluation_file
+        or Path(evaluation_file).resolve()
+        != Path(EVALUATOR_COSET_TWO_BLOCK).resolve()
+        or artifacts.get("cascade_config") is not True
+        or isinstance(timestamp, bool)
+        or not isinstance(timestamp, (int, float))
+        or not math.isfinite(float(timestamp))
+        or float(timestamp) <= 0.0
+        or isinstance(timeout_config, bool)
+        or not isinstance(timeout_config, (int, float))
+        or not math.isfinite(float(timeout_config))
+        or float(timeout_config) <= 0.0
+        or not isinstance(thresholds, (list, tuple))
+        or not thresholds
+        or any(
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            for value in thresholds
+        )
+        or not isinstance(provenance, dict)
+        or set(provenance) != {"schema_version", "stage", "frames"}
+        or provenance.get("schema_version")
+        != STAGE1_EXCEPTION_PROVENANCE_SCHEMA_VERSION
+        or provenance.get("stage") != "stage1"
+    ):
+        return None
+
+    traceback_lines = traceback_text.rstrip().splitlines()
+    expected_terminal_error = (
+        error_type
+        if not error_message
+        else f"{error_type}: {error_message}"
+    )
+    traceback_header_count = traceback_lines.count(
+        "Traceback (most recent call last):"
+    )
+    if (
+        not traceback_lines
+        or not 1 <= traceback_header_count <= 64
+        or traceback_lines[-1] != expected_terminal_error
+        or traceback_lines.count(expected_terminal_error) != 1
+    ):
+        return None
+    raw_frames = provenance.get("frames")
+    if not isinstance(raw_frames, list) or not 2 <= len(raw_frames) <= 256:
+        return None
+    frames: list[tuple[Path, str]] = []
+    for frame in raw_frames:
+        if (
+            not isinstance(frame, dict)
+            or set(frame) != {"path", "function"}
+            or not isinstance(frame.get("path"), str)
+            or not frame["path"]
+            or len(frame["path"]) > 4096
+            or "\x00" in frame["path"]
+            or not isinstance(frame.get("function"), str)
+            or not frame["function"]
+            or len(frame["function"]) > 1024
+            or "\x00" in frame["function"]
+        ):
+            return None
+        frames.append((Path(frame["path"]), frame["function"]))
+    trusted_evaluator = Path(EVALUATOR_COSET_TWO_BLOCK).resolve()
+    last_trusted_frame = max(
+        (
+            index
+            for index, (path, function) in enumerate(frames)
+            if path.resolve() == trusted_evaluator and function == "_evaluate"
+        ),
+        default=-1,
+    )
+    program_path = frames[-1][0]
+    if (
+        last_trusted_frame < 0
+        or last_trusted_frame >= len(frames) - 1
+        or program_path.resolve().parent
+        != Path(tempfile.gettempdir()).resolve()
+        or program_path.suffix != ".py"
+        or not program_path.name.startswith("tmp")
+    ):
+        return None
+    return {"error_type": error_type, "timeout": False}
 
 
 def _pre_marker_stage2_failure_evidence(
@@ -2935,6 +3099,41 @@ class _SliceObserver:
             )
             return result
         if self.expected_preflight_contract_id is not None:
+            result_artifacts = getattr(result, "artifacts", None)
+            stage1_outer_failure = (
+                _pre_marker_stage1_failure_evidence(
+                    child.get("metrics"),
+                    result_artifacts,
+                )
+                if self.evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+                else None
+            )
+            if stage1_outer_failure is not None:
+                failure = {
+                    "child_program_bytes": len(encoded_child),
+                    "child_program_sha256": hashlib.sha256(
+                        encoded_child
+                    ).hexdigest(),
+                    "evidence": stage1_outer_failure,
+                    "iteration": iteration,
+                    "kind": "stage1_outer_cascade_incomplete",
+                    "preflight_contract_id":
+                        self.expected_preflight_contract_id,
+                    "program_id": program_id,
+                }
+                canonical_error = json.dumps(
+                    failure,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                )
+                sanitized = self.result_type(
+                    child_program_dict=None,
+                    iteration=iteration,
+                    error=canonical_error,
+                )
+                self._record_worker_error(iteration, canonical_error)
+                return sanitized
             incomplete = _exact_incomplete_winner_preflight_markers(
                 child.get("metrics"),
                 expected_contract_id=self.expected_preflight_contract_id,
@@ -2984,7 +3183,6 @@ class _SliceObserver:
                 preflight_is_complete = True
             except RuntimeError:
                 preflight_is_complete = False
-            result_artifacts = getattr(result, "artifacts", None)
             stage2_incomplete = (
                 _exact_incomplete_stage2_markers(
                     child.get("metrics"),
@@ -3432,6 +3630,7 @@ def _openevolve_source_binding() -> tuple[dict[str, dict[str, Any]], Any, Any]:
     import openevolve.api as api_module
     import openevolve.controller as controller_module
     import openevolve.database as database_module
+    import openevolve.evaluator as evaluator_module
     import openevolve.process_parallel as process_module
 
     if openevolve.__version__ != SUPPORTED_OPENEVOLVE_VERSION:
@@ -3444,6 +3643,7 @@ def _openevolve_source_binding() -> tuple[dict[str, dict[str, Any]], Any, Any]:
         "process_parallel": process_module,
         "database": database_module,
         "api": api_module,
+        "evaluator": evaluator_module,
     }
     binding: dict[str, dict[str, Any]] = {}
     for name, module in modules.items():
@@ -3452,6 +3652,71 @@ def _openevolve_source_binding() -> tuple[dict[str, dict[str, Any]], Any, Any]:
             raise RuntimeError(f"unsupported OpenEvolve {name} source hash")
         binding[name] = identity
     return binding, controller_module, process_module
+
+
+def _managed_openevolve_worker_init(
+    config_dict: dict[str, Any],
+    evaluation_file: str,
+    parent_env: dict[str, str] | None = None,
+) -> None:
+    """Initialize a pinned worker and preserve live exception provenance.
+
+    ``traceback.format_exc()`` is presentation text: exception chaining and
+    PEP 678 notes make it unsuitable as the sole trust boundary.  This wrapper
+    runs inside each spawned worker and records frames directly from the live
+    exception object before pinned OpenEvolve serializes its Stage-1 envelope.
+    """
+
+    import openevolve.evaluator as evaluator_module
+    import openevolve.process_parallel as process_module
+
+    original_initializer = getattr(
+        process_module,
+        "_qcode_original_worker_init",
+        process_module._worker_init,
+    )
+    if original_initializer is _managed_openevolve_worker_init:
+        raise RuntimeError("managed OpenEvolve worker initializer recursed")
+    original_initializer(config_dict, evaluation_file, parent_env)
+    if (
+        Path(evaluation_file).resolve()
+        != Path(EVALUATOR_COSET_TWO_BLOCK).resolve()
+    ):
+        return
+
+    evaluator_type = evaluator_module.Evaluator
+    original_context = evaluator_type._create_cascade_error_context
+
+    def structured_context(
+        evaluator: Any,
+        stage: str,
+        error: Exception,
+    ) -> dict[str, Any]:
+        context = original_context(evaluator, stage, error)
+        if not isinstance(context, dict):
+            raise RuntimeError("OpenEvolve cascade error context is invalid")
+        frames: list[dict[str, str]] = []
+        traceback_cursor = error.__traceback__
+        while traceback_cursor is not None:
+            code = traceback_cursor.tb_frame.f_code
+            frames.append({
+                "path": str(Path(code.co_filename).resolve()),
+                "function": str(code.co_name),
+            })
+            traceback_cursor = traceback_cursor.tb_next
+        enriched = dict(context)
+        if STAGE1_EXCEPTION_PROVENANCE_FIELD in enriched:
+            raise RuntimeError(
+                "OpenEvolve cascade error context reused qcode provenance"
+            )
+        enriched[STAGE1_EXCEPTION_PROVENANCE_FIELD] = {
+            "schema_version": STAGE1_EXCEPTION_PROVENANCE_SCHEMA_VERSION,
+            "stage": stage,
+            "frames": frames,
+        }
+        return enriched
+
+    evaluator_type._create_cascade_error_context = structured_context
 
 
 @contextmanager
@@ -3538,6 +3803,23 @@ def _verified_slice_controller(
         observer.search_regime_status = str(portfolio_regime["status"])
     original_parallel = controller_module.ProcessParallelController
     original_save = controller_module.OpenEvolve._save_checkpoint
+    original_worker_init: Any = None
+    original_worker_init_alias: Any = None
+    had_worker_init_alias = False
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        original_worker_init = getattr(process_module, "_worker_init", None)
+        if not callable(original_worker_init):
+            raise RuntimeError("pinned OpenEvolve worker initializer is missing")
+        had_worker_init_alias = hasattr(
+            process_module, "_qcode_original_worker_init"
+        )
+        original_worker_init_alias = getattr(
+            process_module,
+            "_qcode_original_worker_init",
+            None,
+        )
+        process_module._qcode_original_worker_init = original_worker_init
+        process_module._worker_init = _managed_openevolve_worker_init
 
     class VerifiedProcessParallelController(original_parallel):
         def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -3871,6 +4153,14 @@ def _verified_slice_controller(
     finally:
         controller_module.OpenEvolve._save_checkpoint = original_save
         controller_module.ProcessParallelController = original_parallel
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+            process_module._worker_init = original_worker_init
+            if had_worker_init_alias:
+                process_module._qcode_original_worker_init = (
+                    original_worker_init_alias
+                )
+            else:
+                delattr(process_module, "_qcode_original_worker_init")
 
 
 def _launch_input_identities(
@@ -5083,6 +5373,7 @@ def main():
         WINNER_PREFLIGHT_CONTRACT_ID_ENV,
         "QCODE_CODEX_BIN",
         "QCODE_CODEX_CWD",
+        "ENABLE_ARTIFACTS",
     )
     original_environment = {
         name: os.environ.get(name)
@@ -5095,6 +5386,10 @@ def main():
     )
     os.environ[CANDIDATE_LOG_PATH_ENV] = str(candidate_log_path)
     if managed_requested:
+        # Slice accounting needs pinned OpenEvolve's rich exception envelope
+        # to distinguish an invalid evolved program from a trusted evaluator
+        # failure. Do not let an inherited environment disable that evidence.
+        os.environ["ENABLE_ARTIFACTS"] = "true"
         if args.candidate_start_offset < 0:
             parser.error("--candidate-start-offset must be non-negative")
         from evolve.openevolve_evaluator import candidate_log_range_identity

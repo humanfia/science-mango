@@ -108,7 +108,7 @@ def write_launch_inputs(
         dependency.write_text(f"# dependency {relative_path}\n")
     sources = repo / "fake-openevolve"
     sources.mkdir(exist_ok=True)
-    for name in ("controller", "process_parallel", "database", "api"):
+    for name in ("controller", "process_parallel", "database", "api", "evaluator"):
         (sources / f"{name}.py").write_text(f"# fake {name}\n")
 
 
@@ -173,6 +173,7 @@ def write_full_slice_proof(
         )
         if schema_version in {
             flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+            flow_module.EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION,
             flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
         }
         else None
@@ -220,7 +221,7 @@ def write_full_slice_proof(
     search_portfolio = None
     if (
         schema_version
-        == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        in flow_module.EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS
         and portfolio_enabled
     ):
         assert portfolio_contract is not None
@@ -396,10 +397,9 @@ def write_full_slice_proof(
         "openevolve_version": "0.2.26",
         "completed_at": "test",
     }
-    if schema_version in {
-        flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
-        flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
-    }:
+    if schema_version in (
+        flow_module.EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS
+    ):
         witness["search_portfolio"] = search_portfolio
     if candidate_source is not None:
         witness.update({
@@ -417,7 +417,10 @@ def write_full_slice_proof(
             witness[f"{name}_{field}"] = descriptor[field]
     witness.update(invocation)
     sources = config.repo_dir / "fake-openevolve"
-    for name in ("controller", "process_parallel", "database", "api"):
+    source_names = ["controller", "process_parallel", "database", "api"]
+    if schema_version == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        source_names.append("evaluator")
+    for name in source_names:
         descriptor = flow_module._file_descriptor(
             sources / f"{name}.py", "fake OpenEvolve source"
         )
@@ -430,6 +433,7 @@ def write_full_slice_proof(
     witness_descriptor["schema_version"] = witness["schema_version"]
     if schema_version in {
         flow_module.EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
+        flow_module.EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION,
         flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
     }:
         witness_descriptor.update({
@@ -805,15 +809,24 @@ def test_candidate_range_witness_accepts_unchanged_log(tmp_path):
     assert flow._capture_round_candidates(state, 1, round_dir) == [row]
 
 
-def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
+@pytest.mark.parametrize(
+    "witness_schema",
+    [
+        flow_module.EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION,
+        flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
+    ],
+    ids=["schema-v5-legacy-source-binding", "schema-v6"],
+)
+def test_portfolio_witness_replays_policy_roles_tactics_and_quota(
     tmp_path,
+    witness_schema,
 ):
     repo = tmp_path / "repo"
     repo.mkdir()
     write_launch_inputs(repo, portfolio=True)
     config = FlowConfig(
         repo_dir=repo,
-        run_id="portfolio-witness-v5",
+        run_id=f"portfolio-witness-v{witness_schema}",
         iterations_per_round=7,
         milp_top=0,
     )
@@ -823,7 +836,13 @@ def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
     transaction = flow._prepare_transaction(state, 1, round_dir)
     flow.candidate_log.write_bytes(jsonl(candidate(55)))
     checkpoint = write_checkpoint(repo, config.run_id, 7)
-    write_full_slice_proof(flow, round_dir, checkpoint, None)
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        checkpoint,
+        None,
+        schema_version=witness_schema,
+    )
     witness_path = flow_module._slice_witness_path(round_dir)
     result = flow_module._checkpoint_descriptor(
         flow.evolution_output, checkpoint
@@ -842,6 +861,20 @@ def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
         )
 
     accepted = validate()
+    assert accepted["schema_version"] == witness_schema
+    assert (
+        "openevolve_evaluator_path" in accepted
+    ) == (witness_schema == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION)
+    accepted_marker = flow_module._validate_completion_marker(
+        flow_module._completion_marker_path(round_dir),
+        config,
+        None,
+        result,
+        transaction["launch_binding"],
+        transaction["invocation_binding"],
+        accepted,
+    )
+    assert accepted_marker["schema_version"] == witness_schema
     assert accepted["search_portfolio"]["role_submission_counts"] == {
         "affine_automorphism_cover": 2,
         "shared_anchor_coset_cover": 2,
@@ -850,6 +883,24 @@ def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
         "failure_repair_restart": 1,
     }
     original = json.loads(witness_path.read_text())
+
+    evaluator_source = repo / "fake-openevolve/evaluator.py"
+    if witness_schema == flow_module.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+        evaluator_source.write_text("# tampered evaluator\n")
+        with pytest.raises(RoundTransactionError, match="evaluator_sha256"):
+            validate()
+        evaluator_source.write_text("# fake evaluator\n")
+    else:
+        changed = copy.deepcopy(original)
+        descriptor = flow_module._file_descriptor(
+            evaluator_source, "fake OpenEvolve evaluator source"
+        )
+        for field in ("path", "sha256", "bytes"):
+            changed[f"openevolve_evaluator_{field}"] = descriptor[field]
+        atomic_write_json(witness_path, changed)
+        with pytest.raises(RoundTransactionError, match="fields are not exact"):
+            validate()
+    atomic_write_json(witness_path, original)
 
     mutations = []
 
@@ -904,13 +955,13 @@ def test_portfolio_witness_v5_replays_policy_roles_tactics_and_quota(
             validate()
 
 
-def test_portfolio_witness_v5_accepts_geometry_schema_v3(tmp_path):
+def test_portfolio_witness_v6_accepts_geometry_schema_v3(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     write_launch_inputs(repo, geometry_portfolio=True)
     config = FlowConfig(
         repo_dir=repo,
-        run_id="geometry-portfolio-witness-v5",
+        run_id="geometry-portfolio-witness-v6",
         max_rounds=12,
         iterations_per_round=5,
         milp_top=0,

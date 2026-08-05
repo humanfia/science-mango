@@ -1354,6 +1354,86 @@ def _incomplete_preflight_metrics(
     }
 
 
+def _coset_preflight_markers(
+    contract_id: int,
+    *,
+    evaluated: int = 3,
+    eligible: int = 2,
+) -> dict[str, float]:
+    action_strata = launcher._coset_action_strata_count()
+    return {
+        launcher.WINNER_PREFLIGHT_CONTRACT_VERSION_METRIC: float(
+            launcher.WINNER_PREFLIGHT_CONTRACT_VERSION
+        ),
+        launcher.WINNER_PREFLIGHT_CONTRACT_ID_METRIC: float(contract_id),
+        launcher.WINNER_PREFLIGHT_COMPLETE_METRIC: 1.0,
+        launcher.WINNER_PREFLIGHT_INCOMPLETE_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_UNIT_KIND_ID_METRIC: float(
+            launcher.WINNER_PREFLIGHT_UNIT_KIND_ACTION_STRATA
+        ),
+        launcher.WINNER_PREFLIGHT_UNITS_METRIC: float(action_strata),
+        launcher.WINNER_PREFLIGHT_ACTION_STRATA_METRIC: float(action_strata),
+        launcher.WINNER_PREFLIGHT_EVALUATED_METRIC: float(evaluated),
+        launcher.WINNER_PREFLIGHT_ELIGIBLE_METRIC: float(eligible),
+        launcher.WINNER_PREFLIGHT_PERSISTED_METRIC: float(eligible),
+        launcher.WINNER_PREFLIGHT_OMITTED_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_HARD_TIMEOUT_METRIC: 0.0,
+        launcher.WINNER_PREFLIGHT_SUBPROCESS_FAILED_METRIC: 0.0,
+    }
+
+
+def _outer_stage1_exception_artifacts(
+    *,
+    error_type: str = "NameError",
+    message: str = "name 'seeded_anchors' is not defined",
+    provenance_frames: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    program_path = Path(launcher.tempfile.gettempdir()) / "tmpqcode-mutant.py"
+    final_error = error_type if not message else f"{error_type}: {message}"
+    if provenance_frames is None:
+        provenance_frames = [
+            {
+                "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                "function": "evaluate_stage1",
+            },
+            {
+                "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                "function": "_evaluate",
+            },
+            {
+                "path": str(program_path),
+                "function": "generate_candidates",
+            },
+        ]
+    return {
+        "failure_stage": "stage1",
+        "error_type": error_type,
+        "error_message": message,
+        "stderr": message,
+        "traceback": (
+            "Traceback (most recent call last):\n"
+            f'  File "{launcher.EVALUATOR_COSET_TWO_BLOCK}", line 653, '
+            "in _evaluate\n"
+            "    raw = generator()\n"
+            f'  File "{program_path}", line 2, in generate_candidates\n'
+            "    return seeded_anchors\n"
+            f"{final_error}"
+        ),
+        "timestamp": time.time(),
+        "cascade_config": True,
+        "cascade_thresholds": [2.0, 2.0],
+        "timeout_config": 7200.0,
+        "evaluation_file": launcher.EVALUATOR_COSET_TWO_BLOCK,
+        launcher.STAGE1_EXCEPTION_PROVENANCE_FIELD: {
+            "schema_version": (
+                launcher.STAGE1_EXCEPTION_PROVENANCE_SCHEMA_VERSION
+            ),
+            "stage": "stage1",
+            "frames": provenance_frames,
+        },
+    }
+
+
 def _stage2_failure_metrics(
     contract_id: int,
     *,
@@ -1533,6 +1613,262 @@ def test_real_evaluator_failure_envelope_is_recognized(monkeypatch):
         metrics,
         expected_contract_id=contract_id,
     ) is not None
+
+
+def test_pinned_outer_stage1_mutation_exception_is_recognized():
+    exception_metrics = {"stage1_passed": 0.0, "error": 0.0}
+    assert launcher._pre_marker_stage1_failure_evidence(
+        exception_metrics,
+        _outer_stage1_exception_artifacts(),
+    ) == {"error_type": "NameError", "timeout": False}
+
+
+def test_empty_mutation_exception_message_is_recognized():
+    assert launcher._pre_marker_stage1_failure_evidence(
+        {"stage1_passed": 0.0, "error": 0.0},
+        _outer_stage1_exception_artifacts(
+            error_type="AssertionError",
+            message="",
+        ),
+    ) == {"error_type": "AssertionError", "timeout": False}
+
+
+def test_stage1_timeout_without_program_origin_remains_fail_closed():
+    assert launcher._pre_marker_stage1_failure_evidence(
+        {"stage1_passed": 0.0, "error": 0.0, "timeout": True},
+        {
+            "error_type": "timeout",
+            "failure_stage": "stage1",
+            "timeout": True,
+            "timeout_duration": 7200.0,
+        },
+    ) is None
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "bool_zero",
+        "extra_metric",
+        "missing_artifacts",
+        "wrong_stage",
+        "mismatched_message",
+        "wrong_evaluator",
+        "trusted_evaluator_failure",
+        "forged_frame_in_message",
+        "forged_frame_in_exception_note",
+        "missing_structured_provenance",
+        "forged_structured_provenance",
+        "mismatched_terminal_error",
+    ),
+)
+def test_outer_stage1_failure_recognition_remains_fail_closed(case: str):
+    metrics: dict[str, Any] = {"stage1_passed": 0.0, "error": 0.0}
+    artifacts: dict[str, Any] | None = _outer_stage1_exception_artifacts()
+    if case == "bool_zero":
+        metrics["stage1_passed"] = False
+    elif case == "extra_metric":
+        metrics["coset_action_family"] = 0.0
+    elif case == "missing_artifacts":
+        artifacts = None
+    elif case == "wrong_stage":
+        assert artifacts is not None
+        artifacts["failure_stage"] = "cascade_setup"
+    elif case == "wrong_evaluator":
+        assert artifacts is not None
+        artifacts["evaluation_file"] = launcher.EVALUATOR
+    elif case == "trusted_evaluator_failure":
+        artifacts = _outer_stage1_exception_artifacts(
+            error_type="RuntimeError",
+            message="trusted builder failed",
+            provenance_frames=[{
+                "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                "function": "_evaluate",
+            }],
+        )
+        artifacts["traceback"] = (
+            "Traceback (most recent call last):\n"
+            f'  File "{launcher.EVALUATOR_COSET_TWO_BLOCK}", line 653, '
+            "in _evaluate\n"
+            "    raise RuntimeError('trusted builder failed')\n"
+            "RuntimeError: trusted builder failed"
+        )
+    elif case == "forged_frame_in_message":
+        assert artifacts is not None
+        forged = (
+            "trusted evaluator failed\n"
+            '  File "/tmp/tmp-forged.py", line 1, '
+            "in generate_candidates\n"
+            "RuntimeError"
+        )
+        artifacts["error_type"] = "RuntimeError"
+        artifacts["error_message"] = forged
+        artifacts["stderr"] = forged
+        artifacts["traceback"] = (
+            "Traceback (most recent call last):\n"
+            f'  File "{launcher.EVALUATOR_COSET_TWO_BLOCK}", line 653, '
+            "in _evaluate\n"
+            "    raise RuntimeError(message)\n"
+            f"RuntimeError: {forged}"
+        )
+    elif case == "forged_frame_in_exception_note":
+        artifacts = _outer_stage1_exception_artifacts(
+            error_type="RuntimeError",
+            message="trusted evaluator failed",
+            provenance_frames=[
+                {
+                    "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                    "function": "evaluate_stage1",
+                },
+                {
+                    "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                    "function": "_evaluate",
+                },
+            ],
+        )
+        artifacts["traceback"] = (
+            "Traceback (most recent call last):\n"
+            f'  File "{launcher.EVALUATOR_COSET_TWO_BLOCK}", line 653, '
+            "in _evaluate\n"
+            "    raise RuntimeError('trusted evaluator failed')\n"
+            "RuntimeError: trusted evaluator failed\n"
+            '  File "/tmp/tmp-forged.py", line 1, '
+            "in generate_candidates\n"
+            "RuntimeError: trusted evaluator failed"
+        )
+    elif case == "missing_structured_provenance":
+        assert artifacts is not None
+        del artifacts[launcher.STAGE1_EXCEPTION_PROVENANCE_FIELD]
+    elif case == "forged_structured_provenance":
+        assert artifacts is not None
+        artifacts[launcher.STAGE1_EXCEPTION_PROVENANCE_FIELD]["frames"] = [
+            {
+                "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                "function": "evaluate_stage1",
+            },
+            {
+                "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+                "function": "_evaluate",
+            },
+        ]
+    elif case == "mismatched_terminal_error":
+        assert artifacts is not None
+        artifacts["traceback"] = artifacts["traceback"].replace(
+            "NameError: name 'seeded_anchors' is not defined",
+            "NameError: different terminal message",
+        )
+    else:
+        assert artifacts is not None
+        artifacts["stderr"] = "different failure"
+
+    assert launcher._pre_marker_stage1_failure_evidence(
+        metrics,
+        artifacts,
+    ) is None
+
+
+def test_chained_stage1_mutation_exception_uses_structured_provenance():
+    artifacts = _outer_stage1_exception_artifacts()
+    artifacts["traceback"] = (
+        "Traceback (most recent call last):\n"
+        '  File "/tmp/tmpqcode-mutant.py", line 1, in '
+        "generate_candidates\n"
+        "    raise ValueError('inner')\n"
+        "ValueError: inner\n\n"
+        "The above exception was the direct cause of the following "
+        "exception:\n\n"
+        "Traceback (most recent call last):\n"
+        f'  File "{launcher.EVALUATOR_COSET_TWO_BLOCK}", line 653, '
+        "in _evaluate\n"
+        "    raw = generator()\n"
+        '  File "/tmp/tmpqcode-mutant.py", line 4, in '
+        "generate_candidates\n"
+        "    raise NameError(\"name 'seeded_anchors' is not defined\")\n"
+        "NameError: name 'seeded_anchors' is not defined"
+    )
+
+    assert launcher._pre_marker_stage1_failure_evidence(
+        {"stage1_passed": 0.0, "error": 0.0},
+        artifacts,
+    ) == {"error_type": "NameError", "timeout": False}
+
+
+def test_default_evaluator_cannot_use_coset_mutation_failure_lane():
+    observer = launcher._SliceObserver(
+        0,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=24680,
+    )
+    observer.begin(1, 1, None)
+    raw = _child(1)
+    raw.child_program_dict["metrics"] = {
+        "stage1_passed": 0.0,
+        "error": 0.0,
+    }
+    raw.artifacts = _outer_stage1_exception_artifacts()
+
+    observed = observer.record_future_result(1, raw)
+
+    assert observed is raw
+    assert 1 in observer.expected_programs
+    assert 1 not in observer.outcomes
+
+
+def test_coset_name_error_is_accounted_between_successful_iterations():
+    contract_id = 24680
+    observer = launcher._SliceObserver(
+        129,
+        3,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        evaluator_kind=launcher.EVALUATOR_KIND_COSET_TWO_BLOCK,
+    )
+    observer.begin(130, 3, None)
+    raw_results = {
+        iteration: _child(iteration)
+        for iteration in (130, 131, 132)
+    }
+    for iteration in (130, 132):
+        raw_results[iteration].child_program_dict["metrics"].update(
+            _coset_preflight_markers(contract_id)
+        )
+    raw_results[131].child_program_dict["metrics"] = {
+        "stage1_passed": 0.0,
+        "error": 0.0,
+    }
+    raw_results[131].artifacts = _outer_stage1_exception_artifacts()
+
+    futures = {
+        iteration: observer.record_submission(
+            iteration,
+            iteration % 2,
+            FakeFuture(raw_results[iteration]),
+        )
+        for iteration in (130, 131, 132)
+    }
+    programs: dict[str, Any] = {}
+    for iteration in (132, 131, 130):
+        result = futures[iteration].result()
+        if iteration == 131:
+            assert result.child_program_dict is None
+            failure = json.loads(result.error)
+            assert failure["kind"] == "stage1_outer_cascade_incomplete"
+            assert failure["iteration"] == 131
+            assert failure["evidence"] == {
+                "error_type": "NameError",
+                "timeout": False,
+            }
+            continue
+        program = SimpleNamespace(**result.child_program_dict)
+        programs[program.id] = program
+        observer.record_program_add(iteration, program)
+
+    observer.verify(_observer_controller(programs))
+    assert observer.accounting_complete is True
+    assert observer.outcomes[131]["status"] == "worker_error"
+    assert 131 not in observer.expected_programs
+    assert set(programs) == {"program-130", "program-132"}
 
 
 @pytest.mark.parametrize("hard_timeout", (0, 1))
@@ -2972,7 +3308,13 @@ def test_backfill_failure_mutates_no_program_and_cannot_record_completion(
 def test_openevolve_source_hashes_match_pinned_0_2_26():
     pytest.importorskip("openevolve")
     binding, _controller, _process = launcher._openevolve_source_binding()
-    assert set(binding) == {"controller", "process_parallel", "database", "api"}
+    assert set(binding) == {
+        "controller",
+        "process_parallel",
+        "database",
+        "api",
+        "evaluator",
+    }
     assert {
         name: descriptor["sha256"] for name, descriptor in binding.items()
     } == launcher.SUPPORTED_OPENEVOLVE_SHA256
@@ -3021,12 +3363,16 @@ def test_real_cascade_merge_preserves_stage1_preflight_markers(tmp_path):
     )
 
 
-def test_openevolve_source_hash_mismatch_fails_closed(monkeypatch):
+@pytest.mark.parametrize("source_name", ["controller", "evaluator"])
+def test_openevolve_source_hash_mismatch_fails_closed(
+    monkeypatch,
+    source_name,
+):
     pytest.importorskip("openevolve")
     monkeypatch.setitem(
-        launcher.SUPPORTED_OPENEVOLVE_SHA256, "controller", "0" * 64
+        launcher.SUPPORTED_OPENEVOLVE_SHA256, source_name, "0" * 64
     )
-    with pytest.raises(RuntimeError, match="controller source hash"):
+    with pytest.raises(RuntimeError, match=f"{source_name} source hash"):
         launcher._openevolve_source_binding()
 
 
@@ -3234,7 +3580,14 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
     source_binding = {
         name: {"path": f"/fake/{name}.py", "sha256": char * 64, "bytes": 1}
         for name, char in zip(
-            ("controller", "process_parallel", "database", "api"), "cdef"
+            (
+                "controller",
+                "process_parallel",
+                "database",
+                "api",
+                "evaluator",
+            ),
+            "cdefg",
         )
     }
     monkeypatch.setattr(
@@ -3308,12 +3661,12 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
     witness_payload = json.loads(witness_path.read_text())
     marker_payload = json.loads(marker_path.read_text())
     assert launcher.EVOLUTION_LEGACY_SLICE_WITNESS_SCHEMA_VERSION == 4
-    assert launcher.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION == 5
-    assert witness_payload["schema_version"] == 5
+    assert launcher.EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION == 6
+    assert witness_payload["schema_version"] == 6
     assert witness_payload["search_portfolio"] is None
     assert launcher.EVOLUTION_LEGACY_COMPLETION_SCHEMA_VERSION == 4
-    assert launcher.EVOLUTION_COMPLETION_SCHEMA_VERSION == 5
-    assert marker_payload["schema_version"] == 5
+    assert launcher.EVOLUTION_COMPLETION_SCHEMA_VERSION == 6
+    assert marker_payload["schema_version"] == 6
     assert marker_payload["slice_witness_sha256"] == witness["sha256"]
     assert marker_payload["result_checkpoint_sha256"] == "b" * 64
     assert marker_payload["context_sha256"] == witness_payload["context_sha256"]

@@ -189,21 +189,39 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             length = int(self.headers.get("Content-Length", "0"))
             requests.append(json.loads(self.rfile.read(length)))
             if len(requests) == 1:
-                replacements = ((2, 3),)
+                # Exercise the production round-6 failure lane plus normal
+                # exception chaining: the diff applies cleanly, but the
+                # resulting mutation raises only when the evaluator calls it.
+                replacement = (
+                    "<<<<<<< SEARCH\n"
+                    "def _candidate_limit():\n"
+                    "    return 2\n"
+                    "=======\n"
+                    "def _candidate_limit():\n"
+                    "    try:\n"
+                    "        raise ValueError('inner mutation failure')\n"
+                    "    except ValueError as exc:\n"
+                    "        raise NameError(\"name 'seeded_anchors' is not "
+                    "defined\") from exc\n"
+                    ">>>>>>> REPLACE"
+                )
             else:
-                # Resume may select either the seed or the first child. Both
-                # alternatives deterministically produce a new program.
-                replacements = ((2, 4), (3, 4))
-            replacement = "\n".join(
-                "<<<<<<< SEARCH\n"
-                "def _candidate_limit():\n"
-                f"    return {old_limit}\n"
-                "=======\n"
-                "def _candidate_limit():\n"
-                f"    return {new_limit}\n"
-                ">>>>>>> REPLACE"
-                for old_limit, new_limit in replacements
-            )
+                if len(requests) == 2:
+                    replacements = ((2, 3),)
+                else:
+                    # Resume may select either the seed or the successful
+                    # child. Both alternatives produce a new program.
+                    replacements = ((2, 4), (3, 4))
+                replacement = "\n".join(
+                    "<<<<<<< SEARCH\n"
+                    "def _candidate_limit():\n"
+                    f"    return {old_limit}\n"
+                    "=======\n"
+                    "def _candidate_limit():\n"
+                    f"    return {new_limit}\n"
+                    ">>>>>>> REPLACE"
+                    for old_limit, new_limit in replacements
+                )
             payload = json.dumps({
                 "id": f"coset-managed-smoke-{len(requests)}",
                 "object": "chat.completion",
@@ -242,8 +260,15 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
     output = tmp_path / "managed-output"
     environment = dict(os.environ)
     environment["OPENAI_API_KEY"] = "coset-smoke-key"
+    environment["ENABLE_ARTIFACTS"] = "false"
 
-    def managed_command(*, iteration: int, offset: int, resume: Path | None):
+    def managed_command(
+        *,
+        iteration: int,
+        iterations: int,
+        offset: int,
+        resume: Path | None,
+    ):
         command = [
             sys.executable,
             str(PROJECT / "evolve/run_evolution.py"),
@@ -256,7 +281,7 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             "--output",
             str(output),
             "--iterations",
-            "1",
+            str(iterations),
             "--models",
             "coset-smoke-model",
             "--api-base",
@@ -283,7 +308,12 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
 
     try:
         fresh = subprocess.run(
-            managed_command(iteration=1, offset=0, resume=None),
+            managed_command(
+                iteration=1,
+                iterations=2,
+                offset=0,
+                resume=None,
+            ),
             cwd=PROJECT,
             env=environment,
             pass_fds=(lease_fd,),
@@ -295,8 +325,9 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
         resume = subprocess.run(
             managed_command(
                 iteration=2,
+                iterations=1,
                 offset=witness_one["candidate_end_offset"],
-                resume=output / "checkpoints/checkpoint_1",
+                resume=output / "checkpoints/checkpoint_2",
             ),
             cwd=PROJECT,
             env=environment,
@@ -313,17 +344,31 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
 
     assert fresh.returncode == 0, fresh.stdout + "\n" + fresh.stderr
     assert resume.returncode == 0, resume.stdout + "\n" + resume.stderr
-    assert len(requests) == 2
+    assert len(requests) == 3
     witness_two = json.loads((tmp_path / "witness-2.json").read_text())
+    assert witness_one["base_last_iteration"] == 0
+    assert witness_one["result_last_iteration"] == 2
+    assert witness_one["successful_evaluations"] == 1
+    assert witness_one["worker_errors"] == 1
+    assert [item["status"] for item in witness_one["outcomes"]] == [
+        "worker_error",
+        "program_added",
+    ]
     for witness in (witness_one, witness_two):
         assert witness["qcode_evaluator_kind"] == "coset-two-block"
         assert len(witness["qcode_action_catalog_sha256"]) == 64
         assert "coset_action_catalog_parser_sha256" in witness
         assert "coset_action_catalog_sha256" in witness
-    assert witness_two["base_last_iteration"] == 1
-    assert witness_two["result_last_iteration"] == 2
+    assert witness_two["base_last_iteration"] == 2
+    assert witness_two["result_last_iteration"] == 3
+    combined_output = (
+        fresh.stdout + fresh.stderr + resume.stdout + resume.stderr
+    )
+    assert "Feature dimension" not in combined_output
+    assert "was not integrated" not in combined_output
 
-    for path in sorted((output / "checkpoints/checkpoint_2/programs").glob("*.json")):
+    checkpoint_programs = output / "checkpoints/checkpoint_3/programs"
+    for path in sorted(checkpoint_programs.glob("*.json")):
         metrics = json.loads(path.read_text())["metrics"]
         assert "winner_preflight_lattices" not in metrics
         assert metrics["winner_preflight_unit_kind_id"] == 1.0

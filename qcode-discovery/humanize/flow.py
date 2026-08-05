@@ -156,10 +156,23 @@ DEFAULT_ADAPTIVE_MUTATION_POLICY = {
     "repair_dual_balance": 0,
 }
 LEGACY_BATCH_SCHEMA_VERSION = 1
-EVOLUTION_COMPLETION_SCHEMA_VERSION = 5
+EVOLUTION_COMPLETION_SCHEMA_VERSION = 6
 EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION = 4
-EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 5
-EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS = frozenset({2, 3, 4})
+EVOLUTION_SLICE_WITNESS_PRE_EVALUATOR_BINDING_SCHEMA_VERSION = 5
+EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION = 6
+EVOLUTION_SLICE_WITNESS_LEGACY_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5})
+EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS = frozenset({5, 6})
+EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS = frozenset({4, 5, 6})
+OPENEVOLVE_BASE_WITNESS_SOURCES = (
+    "openevolve_controller",
+    "openevolve_process_parallel",
+    "openevolve_database",
+    "openevolve_api",
+)
+OPENEVOLVE_EVALUATOR_BOUND_WITNESS_SOURCES = (
+    *OPENEVOLVE_BASE_WITNESS_SOURCES,
+    "openevolve_evaluator",
+)
 SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
@@ -4758,7 +4771,7 @@ def _validate_search_portfolio_witness(
             count=count,
         )
         return
-    if witness_schema != EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
+    if witness_schema not in EVOLUTION_SLICE_WITNESS_MECHANISM_SCHEMA_VERSIONS:
         if "search_portfolio" in witness:
             raise RoundTransactionError(
                 "pre-v4 witness cannot contain a portfolio contract"
@@ -5249,12 +5262,12 @@ def _validate_slice_witness(
 
     if witness.get("openevolve_version") != "0.2.26":
         raise RoundTransactionError("unsupported OpenEvolve witness version")
-    for name in (
-        "openevolve_controller",
-        "openevolve_process_parallel",
-        "openevolve_database",
-        "openevolve_api",
-    ):
+    openevolve_sources = (
+        OPENEVOLVE_EVALUATOR_BOUND_WITNESS_SOURCES
+        if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION
+        else OPENEVOLVE_BASE_WITNESS_SOURCES
+    )
+    for name in openevolve_sources:
         source_path = witness.get(f"{name}_path")
         if not isinstance(source_path, str):
             raise RoundTransactionError(
@@ -5279,10 +5292,7 @@ def _validate_slice_witness(
         "openevolve_version",
         "completed_at",
     }
-    if witness_schema in {
-        EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION,
-        EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION,
-    }:
+    if witness_schema in EVOLUTION_SLICE_WITNESS_PORTFOLIO_SCHEMA_VERSIONS:
         allowed_fields.add("search_portfolio")
     if not legacy_witness:
         allowed_fields.update({
@@ -5292,12 +5302,7 @@ def _validate_slice_witness(
             "candidate_range_sha256",
             "candidate_range_bytes",
         })
-    for name in (
-        "openevolve_controller",
-        "openevolve_process_parallel",
-        "openevolve_database",
-        "openevolve_api",
-    ):
+    for name in openevolve_sources:
         allowed_fields.update(
             f"{name}_{field}" for field in ("path", "sha256", "bytes")
         )

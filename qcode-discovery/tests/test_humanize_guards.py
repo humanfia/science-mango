@@ -60,7 +60,7 @@ def write_launch_inputs(
     (evolve / "openevolve_evaluator.py").write_text("# evaluator\n")
     sources = repo / "fake-openevolve"
     sources.mkdir(exist_ok=True)
-    for name in ("controller", "process_parallel", "database", "api"):
+    for name in ("controller", "process_parallel", "database", "api", "evaluator"):
         (sources / f"{name}.py").write_text(f"# fake {name}\n")
     config_path = config_path or evolve / "config.yaml"
     seed_path = seed_path or evolve / "seed_solution.py"
