@@ -2295,6 +2295,11 @@ class FiveStagePipeline:
             / "evaluation"
             / "coset_two_block_actions.v1.json"
         )
+        action_catalog_v2 = (
+            self.config.repo_dir
+            / "evaluation"
+            / "coset_two_block_actions.v2.json"
+        )
         return {
             "controller_source_sha256": self._source_file_sha256(
                 self.config.repo_dir / "humanize" / "pipeline.py",
@@ -2322,6 +2327,12 @@ class FiveStagePipeline:
                     label="coset two-block action catalog",
                 ),
             } if action_catalog.exists() else {}),
+            **({
+                "coset_action_catalog_v2_sha256": self._source_file_sha256(
+                    action_catalog_v2,
+                    label="coset two-block action catalog v2",
+                ),
+            } if action_catalog_v2.exists() else {}),
             **self._worker_runtime_provenance(),
         }
 
@@ -2331,6 +2342,11 @@ class FiveStagePipeline:
             self.config.repo_dir
             / "evaluation"
             / "coset_two_block_actions.v1.json"
+        )
+        action_catalog_v2 = (
+            self.config.repo_dir
+            / "evaluation"
+            / "coset_two_block_actions.v2.json"
         )
         runner = self.config.repo_dir / "tests" / "verify_known_answer_gate.py"
         return {
@@ -2356,6 +2372,12 @@ class FiveStagePipeline:
                     label="coset two-block action catalog",
                 ),
             } if action_catalog.exists() else {}),
+            **({
+                "coset_action_catalog_v2_sha256": self._source_file_sha256(
+                    action_catalog_v2,
+                    label="coset two-block action catalog v2",
+                ),
+            } if action_catalog_v2.exists() else {}),
             "strict_runner_sha256": self._source_file_sha256(
                 runner,
                 label="strict known-answer runner",
@@ -2379,6 +2401,11 @@ class FiveStagePipeline:
             self.config.repo_dir
             / "evaluation"
             / "coset_two_block_actions.v1.json"
+        )
+        action_catalog_v2 = (
+            self.config.repo_dir
+            / "evaluation"
+            / "coset_two_block_actions.v2.json"
         )
         return {
             "controller_source_sha256": self._source_file_sha256(
@@ -2406,6 +2433,12 @@ class FiveStagePipeline:
                     label="coset two-block action catalog",
                 ),
             } if action_catalog.exists() else {}),
+            **({
+                "coset_action_catalog_v2_sha256": self._source_file_sha256(
+                    action_catalog_v2,
+                    label="coset two-block action catalog v2",
+                ),
+            } if action_catalog_v2.exists() else {}),
             **self._worker_runtime_provenance(),
         }
 

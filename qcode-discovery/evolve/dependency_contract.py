@@ -41,4 +41,5 @@ COSET_EVALUATOR_DEPENDENCIES = {
     "coset_builder": "evaluation/coset_two_block.py",
     "coset_action_catalog_parser": "evaluation/coset_action_catalog.py",
     "coset_action_catalog": "evaluation/coset_two_block_actions.v1.json",
+    "coset_action_catalog_v2": "evaluation/coset_two_block_actions.v2.json",
 }

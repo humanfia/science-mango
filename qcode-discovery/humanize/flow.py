@@ -34,7 +34,9 @@ from evolve.coset_search_contract import (
     COSET_FEATURE_BINS,
     COSET_FEATURE_DIMENSIONS,
     COSET_MAP_SCHEMA_VERSION,
+    COSET_PROOF_LADDER_CONFIG_KEY,
     COSET_REPRESENTATION_ID,
+    proof_ladder_config_contract,
 )
 from evaluation.geometry import candidate_geometry
 from evaluation.search_contract import (
@@ -187,7 +189,7 @@ SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
 COSET_SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_coset_search_portfolio"
 COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = (
-    "coset-two-block-dsl-map-v2"
+    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2"
 )
 COSET_SEARCH_PORTFOLIO_ISLAND_COUNT = 4
 SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
@@ -315,6 +317,7 @@ COSET_EVOLUTION_INVOCATION_FIELDS = frozenset({
     "qcode_action_catalog_sha256",
 })
 SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD = "search_geometry_contract"
+LEGACY_COSET_REPRESENTATION_ID = "css-coset-two-block-actions-v1"
 
 
 class RoundTransactionError(RuntimeError):
@@ -1312,7 +1315,7 @@ def _expected_evolution_config(config: FlowConfig) -> Path:
     return Path(os.path.abspath(
         config.evolution_config
         or config.repo_dir / "evolve" / (
-            "coset_config.yaml"
+            "coset_config_v2.yaml"
             if _flow_evaluator_kind(config) == "coset-two-block"
             else "config.yaml"
         )
@@ -1323,7 +1326,7 @@ def _expected_evolution_seed(config: FlowConfig) -> Path:
     return Path(os.path.abspath(
         config.evolution_seed
         or config.repo_dir / "evolve" / (
-            "coset_seed_solution.py"
+            "coset_seed_solution_v2.py"
             if _flow_evaluator_kind(config) == "coset-two-block"
             else "seed_solution.py"
         )
@@ -1349,6 +1352,43 @@ def _evolution_dependencies(config: FlowConfig) -> dict[str, str]:
     if _flow_evaluator_kind(config) == "coset-two-block":
         dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
     return dependencies
+
+
+def _coset_action_catalog_dependency_key(config: FlowConfig) -> str:
+    """Select the immutable catalog named by the campaign representation.
+
+    Both catalogs remain in the frozen dependency manifest so historical v1
+    transactions can still be replayed.  A new v2 launch must bind the v2
+    bytes explicitly; using the legacy default here would prepare a valid-
+    looking Humanize transaction that the child launcher immediately rejects.
+    """
+
+    representation_id = config.search_representation_id
+    if representation_id is None:
+        try:
+            value = yaml.safe_load(_expected_evolution_config(config).read_text())
+        except (OSError, UnicodeError, yaml.YAMLError) as exc:
+            raise RoundTransactionError(
+                "cannot inspect coset representation catalog binding"
+            ) from exc
+        marker = (
+            value.get(COSET_SEARCH_PORTFOLIO_CONFIG_KEY)
+            if isinstance(value, dict)
+            else None
+        )
+        representation_id = (
+            marker.get("representation_id")
+            if isinstance(marker, dict)
+            else None
+        )
+    if representation_id == COSET_REPRESENTATION_ID:
+        return "coset_action_catalog_v2"
+    if representation_id == LEGACY_COSET_REPRESENTATION_ID:
+        return "coset_action_catalog"
+    raise RoundTransactionError(
+        "coset evaluator has no catalog for search representation "
+        f"{representation_id!r}"
+    )
 
 
 def _expected_evolution_backend(config: FlowConfig) -> Path:
@@ -1571,11 +1611,22 @@ def _fresh_invocation_binding(
             geometry_contract
         )
     if _flow_evaluator_kind(config) == "coset-two-block":
-        from evaluation.coset_action_catalog import action_catalog_sha256
+        from evaluation.coset_action_catalog import (
+            LEGACY_CATALOG_ID,
+            V2_CATALOG_ID,
+            action_catalog_sha256,
+        )
+
+        catalog_id = (
+            V2_CATALOG_ID
+            if _coset_action_catalog_dependency_key(config)
+            == "coset_action_catalog_v2"
+            else LEGACY_CATALOG_ID
+        )
 
         invocation.update({
             "qcode_evaluator_kind": "coset-two-block",
-            "qcode_action_catalog_sha256": action_catalog_sha256(),
+            "qcode_action_catalog_sha256": action_catalog_sha256(catalog_id),
         })
     return invocation
 
@@ -1724,7 +1775,9 @@ def _validate_invocation_binding(
             "evolution search geometry contract binding changed"
         )
     if _flow_evaluator_kind(config) == "coset-two-block":
-        catalog = launch_binding.get("coset_action_catalog")
+        catalog = launch_binding.get(
+            _coset_action_catalog_dependency_key(config)
+        )
         if (
             invocation.get("qcode_evaluator_kind") != "coset-two-block"
             or not isinstance(catalog, dict)
@@ -4421,6 +4474,13 @@ def _coset_search_portfolio_contract_from_config(
             "qcode_coset_search_portfolio must exactly select the current "
             "representation, descriptor schema, and compatibility group"
         )
+    if value.get(COSET_PROOF_LADDER_CONFIG_KEY) != (
+        proof_ladder_config_contract()
+    ):
+        raise RoundTransactionError(
+            "qcode_coset_stage1_proof_ladder must exactly match the current "
+            "proof ladder and budget contract"
+        )
     database = value.get("database")
     if (
         not isinstance(database, dict)
@@ -4439,7 +4499,7 @@ def _coset_search_portfolio_contract_from_config(
     ):
         raise RoundTransactionError(
             "coset search portfolio database geometry must be exactly four "
-            "islands with the schema-v2 16/16/8 MAP grid"
+            "islands with the current 16/16/8 MAP grid"
         )
     return (
         COSET_MAP_SCHEMA_VERSION,
@@ -6299,7 +6359,7 @@ def _validate_stored_binding_shape(
             "evolution search geometry contract binding changed"
         )
     if _flow_evaluator_kind(config) == "coset-two-block":
-        catalog = launch.get("coset_action_catalog")
+        catalog = launch.get(_coset_action_catalog_dependency_key(config))
         if (
             invocation.get("qcode_evaluator_kind") != "coset-two-block"
             or not isinstance(catalog, dict)

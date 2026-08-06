@@ -18,6 +18,8 @@ from evolve.coset_search_contract import (
     COSET_MAP_SCHEMA_VERSION,
     COSET_NONNORMAL_LANE_METRIC,
     COSET_NORMAL_LANE_METRIC,
+    COSET_PROOF_LADDER_SCHEMA_VERSION,
+    COSET_PROOF_LADDER_VERSION_METRIC,
     action_search_view,
     action_search_views,
     canonical_json_sha256,
@@ -37,6 +39,14 @@ def _lane(descriptor, *, normal: bool):
         lane
         for lane in descriptor["lanes"]
         if lane["subgroup_normal"] is normal
+    )
+
+
+def _normality_class(descriptor, *, normal: bool):
+    return next(
+        item
+        for item in descriptor["classes"]
+        if item["subgroup_normal"] is normal
     )
 
 
@@ -93,12 +103,12 @@ def _mutated_policy(
     return dsl.parse_policy(json.dumps(document))
 
 
-def test_descriptor_v2_has_fixed_lane_and_profile_bins_and_full_audit():
+def test_descriptor_v3_aggregates_46_lanes_into_two_class_coordinates():
     policy = dsl.default_policy()
     first = _descriptor(policy)
     second = _descriptor(policy)
 
-    assert COSET_MAP_SCHEMA_VERSION == 2
+    assert COSET_MAP_SCHEMA_VERSION == 3
     assert COSET_FEATURE_DIMENSIONS == (
         COSET_NONNORMAL_LANE_METRIC,
         COSET_NORMAL_LANE_METRIC,
@@ -115,7 +125,13 @@ def test_descriptor_v2_has_fixed_lane_and_profile_bins_and_full_audit():
     assert first["batch"]["candidate_count"] == 384
     assert len(first["batch"]["ordered_candidate_sha256"]) == 384
     assert sum(first["batch"]["aggregate_orbit_histogram"]) == 384
-    assert {lane["candidate_count"] for lane in first["lanes"]} == {96, 288}
+    assert len(first["lanes"]) == 46
+    assert {lane["candidate_count"] for lane in first["lanes"]} == {8, 9}
+    assert [(item["subgroup_normal"], item["action_count"], item["candidate_count"])
+            for item in first["classes"]] == [
+        (False, 45, 376),
+        (True, 1, 8),
+    ]
     assert all(
         len(lane["candidate_sha256"]) == lane["candidate_count"]
         and sum(lane["orbit_histogram"]) == lane["candidate_count"]
@@ -141,6 +157,12 @@ def test_each_lane_changes_independently_for_offset_mutations():
         assert _lane(mutated, normal=not normal)["lane_sha256"] == (
             _lane(baseline, normal=not normal)["lane_sha256"]
         )
+        assert _normality_class(mutated, normal=normal)["class_sha256"] != (
+            _normality_class(baseline, normal=normal)["class_sha256"]
+        )
+        assert _normality_class(mutated, normal=not normal)["class_sha256"] == (
+            _normality_class(baseline, normal=not normal)["class_sha256"]
+        )
         other_metric = (
             COSET_NORMAL_LANE_METRIC
             if not normal
@@ -164,6 +186,9 @@ def test_stride_and_explicit_support_change_only_their_lane_payload():
         )
         assert _lane(mutated, normal=not normal)["lane_sha256"] == (
             _lane(baseline, normal=not normal)["lane_sha256"]
+        )
+        assert _normality_class(mutated, normal=normal)["class_sha256"] != (
+            _normality_class(baseline, normal=normal)["class_sha256"]
         )
         assert mutated["batch"]["batch_sha256"] != (
             baseline["batch"]["batch_sha256"]
@@ -217,6 +242,9 @@ def _map_program(
                 launcher.MAP_DESCRIPTOR_VERSION
             ),
             COSET_MAP_SCHEMA_METRIC: float(COSET_MAP_SCHEMA_VERSION),
+            COSET_PROOF_LADDER_VERSION_METRIC: float(
+                COSET_PROOF_LADDER_SCHEMA_VERSION
+            ),
             **{
                 name: float(value)
                 for name, value in zip(COSET_FEATURE_DIMENSIONS, coordinates)

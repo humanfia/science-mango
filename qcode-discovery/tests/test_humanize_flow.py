@@ -2,6 +2,12 @@ import json
 
 import pytest
 
+from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
+from evaluation.coset_two_block import (
+    ACTION_CATALOG_SHA256,
+    ACTION_CATALOG_V2_SHA256,
+    CONSTRUCTION_REPRESENTATION_V2,
+)
 from humanize.audit_state import (
     authoritative_candidate_digest,
     create_unresolved_entry,
@@ -99,6 +105,47 @@ def test_candidate_archive_uses_v2_mixed_and_max_term_semantics():
         "term_count": 3.0,
         "pattern_classifier_version": 2,
     }
+
+
+def test_candidate_archive_replays_catalog_version_from_coset_construction():
+    legacy = {
+        "construction": {
+            "kind": "coset-two-block-v1",
+            "action_id": "coset2bga-l224-m53-s1-degree112-v1",
+            "action_catalog_sha256": ACTION_CATALOG_SHA256,
+            "left_support": ["L000", "L104", "L207"],
+            "right_support": ["R000", "R009", "R024"],
+        }
+    }
+    catalog = get_catalog(catalog_id=V2_CATALOG_ID)
+    action = next(
+        action for action in catalog.actions.values()
+        if action.published_support is not None
+    )
+    published = action.published_support
+    assert published is not None
+    current = {
+        "construction": {
+            "kind": "coset-two-block-v2",
+            "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+            "action_id": action.action_id,
+            "action_catalog_id": V2_CATALOG_ID,
+            "action_catalog_sha256": ACTION_CATALOG_V2_SHA256,
+            "left_support": list(published["left_support"]),
+            "right_support": list(published["right_support"]),
+        }
+    }
+
+    legacy_features = candidate_structural_features(legacy)
+    current_features = candidate_structural_features(current)
+    assert legacy_features["term_count"] == 6
+    assert current_features["term_count"] == 6
+    assert legacy_features["subgroup_normal"] == 0
+    assert current_features["subgroup_normal"] == 0
+    assert archive_cell({**legacy, "n": 224, "k": 12}).startswith("n=224|")
+    assert archive_cell({**current, "n": published["reported_n"], "k": published["reported_k"]}).startswith(
+        f"n={published['reported_n']}|"
+    )
 
 
 def test_elite_archive_migrates_metadata_without_trusting_upper_fom(tmp_path):

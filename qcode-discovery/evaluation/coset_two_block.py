@@ -21,8 +21,11 @@ import numpy as np
 from qldpc import codes
 
 from evaluation.coset_action_catalog import (
+    LEGACY_CATALOG_ID,
+    V2_CATALOG_ID,
     action_catalog_sha256,
     get_action,
+    get_catalog,
     inverse_permutation,
     list_action_descriptors,
     permutation_for_element,
@@ -31,8 +34,12 @@ from evaluation.coset_action_catalog import (
 
 
 CONSTRUCTION_KIND = "coset-two-block-v1"
+CONSTRUCTION_KIND_V2 = "coset-two-block-v2"
+CONSTRUCTION_REPRESENTATION = "css-coset-two-block-actions-v1"
+CONSTRUCTION_REPRESENTATION_V2 = "css-coset-two-block-actions-v2"
 MAX_TOTAL_SUPPORT = 6
 ACTION_CATALOG_SHA256 = action_catalog_sha256()
+ACTION_CATALOG_V2_SHA256 = action_catalog_sha256(V2_CATALOG_ID)
 
 
 def _support(value: Any, *, name: str) -> tuple[str, ...]:
@@ -51,6 +58,7 @@ def normalize_coset_two_block_construction(value: Mapping[str, Any]) -> dict[str
 
     if not isinstance(value, Mapping):
         raise ValueError("coset two-block construction must be a mapping")
+    kind = value.get("kind")
     required = {
         "kind",
         "action_id",
@@ -58,6 +66,8 @@ def normalize_coset_two_block_construction(value: Mapping[str, Any]) -> dict[str
         "left_support",
         "right_support",
     }
+    if kind == CONSTRUCTION_KIND_V2:
+        required |= {"action_catalog_id", "representation_id"}
     actual = set(value)
     if actual != required:
         raise ValueError(
@@ -65,14 +75,28 @@ def normalize_coset_two_block_construction(value: Mapping[str, Any]) -> dict[str
             f"missing={sorted(required - actual)}, "
             f"unknown={sorted(actual - required)}"
         )
-    if value["kind"] != CONSTRUCTION_KIND:
-        raise ValueError(f"unsupported construction kind {value['kind']!r}")
+    if kind == CONSTRUCTION_KIND:
+        catalog = get_catalog(catalog_id=LEGACY_CATALOG_ID)
+    elif kind == CONSTRUCTION_KIND_V2:
+        if value["representation_id"] != CONSTRUCTION_REPRESENTATION_V2:
+            raise ValueError("coset v2 construction representation_id changed")
+        if value["action_catalog_id"] != V2_CATALOG_ID:
+            raise ValueError("coset v2 construction action_catalog_id changed")
+        catalog = get_catalog(
+            catalog_id=value["action_catalog_id"],
+            catalog_sha256=value["action_catalog_sha256"],
+        )
+    else:
+        raise ValueError(f"unsupported construction kind {kind!r}")
     action_id = value["action_id"]
     if not isinstance(action_id, str) or not action_id:
         raise ValueError("action_id must be a nonempty string")
-    get_action(action_id)  # fail closed before inspecting candidate supports
+    get_action(
+        action_id,
+        catalog_id=catalog.catalog_id,
+    )  # fail closed before inspecting candidate supports
     supplied_sha = value["action_catalog_sha256"]
-    if supplied_sha != ACTION_CATALOG_SHA256:
+    if supplied_sha != catalog.sha256:
         raise ValueError(
             "construction action_catalog_sha256 does not match the frozen catalog"
         )
@@ -82,21 +106,37 @@ def normalize_coset_two_block_construction(value: Mapping[str, Any]) -> dict[str
         raise ValueError(
             f"total support exceeds the maximum {MAX_TOTAL_SUPPORT}"
         )
-    left = resolve_element_ids(action_id, "left", left_input)
-    right = resolve_element_ids(action_id, "right", right_input)
+    left = resolve_element_ids(
+        action_id,
+        "left",
+        left_input,
+        catalog_id=catalog.catalog_id,
+    )
+    right = resolve_element_ids(
+        action_id,
+        "right",
+        right_input,
+        catalog_id=catalog.catalog_id,
+    )
     if len(set(left)) != len(left):
         raise ValueError("left_support resolves to duplicate action elements")
     if len(set(right)) != len(right):
         raise ValueError("right_support resolves to duplicate action elements")
     # A/B are sums over F_2, so support ordering has no semantics.  Stable IDs
     # are zero-padded in catalog order and lexical sorting is canonical.
-    return {
-        "kind": CONSTRUCTION_KIND,
+    normalized = {
+        "kind": kind,
         "action_id": action_id,
-        "action_catalog_sha256": ACTION_CATALOG_SHA256,
+        "action_catalog_sha256": catalog.sha256,
         "left_support": sorted(left),
         "right_support": sorted(right),
     }
+    if kind == CONSTRUCTION_KIND_V2:
+        normalized.update({
+            "action_catalog_id": catalog.catalog_id,
+            "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+        })
+    return normalized
 
 
 # Compatibility names used by the Stage-1 adapter while it is kept isolated
@@ -113,12 +153,22 @@ def _permutation_matrix(permutation: tuple[int, ...]) -> np.ndarray:
 
 
 def _sum_permutation_matrices(
-    action_id: str, side: str, support: Sequence[str], degree: int
+    action_id: str,
+    side: str,
+    support: Sequence[str],
+    degree: int,
+    *,
+    catalog_id: str,
 ) -> np.ndarray:
     result = np.zeros((degree, degree), dtype=np.uint8)
     rows = np.arange(degree, dtype=np.int64)
     for element_id in support:
-        permutation = permutation_for_element(action_id, side, element_id)
+        permutation = permutation_for_element(
+            action_id,
+            side,
+            element_id,
+            catalog_id=catalog_id,
+        )
         result[rows, np.asarray(permutation, dtype=np.int64)] ^= 1
     return result
 
@@ -141,14 +191,31 @@ def _gf2_product(left: np.ndarray, right: np.ndarray) -> np.ndarray:
 
 def _build_normalized(construction: Mapping[str, Any]) -> codes.CSSCode:
     action_id = str(construction["action_id"])
-    action = get_action(action_id)
+    catalog_id = (
+        str(construction["action_catalog_id"])
+        if construction["kind"] == CONSTRUCTION_KIND_V2
+        else LEGACY_CATALOG_ID
+    )
+    catalog = get_catalog(
+        catalog_id=catalog_id,
+        catalog_sha256=str(construction["action_catalog_sha256"]),
+    )
+    action = get_action(action_id, catalog_id=catalog.catalog_id)
     left = tuple(construction["left_support"])
     right = tuple(construction["right_support"])
     matrix_a = _sum_permutation_matrices(
-        action_id, "left", left, action.block_size
+        action_id,
+        "left",
+        left,
+        action.block_size,
+        catalog_id=catalog.catalog_id,
     )
     matrix_b = _sum_permutation_matrices(
-        action_id, "right", right, action.block_size
+        action_id,
+        "right",
+        right,
+        action.block_size,
+        catalog_id=catalog.catalog_id,
     )
     if not np.array_equal(
         _gf2_product(matrix_a, matrix_b),
@@ -174,7 +241,8 @@ def _build_normalized(construction: Mapping[str, Any]) -> codes.CSSCode:
     # The exact-distance gate must prove distance independently.
     code.construction = dict(construction)
     code.action_id = action_id
-    code.action_catalog_sha256 = ACTION_CATALOG_SHA256
+    code.action_catalog_id = catalog.catalog_id
+    code.action_catalog_sha256 = catalog.sha256
     code.matrix_a = matrix_a
     code.matrix_b = matrix_b
     code.matrix_sha256_x = matrix_sha256(matrix_x)
@@ -182,7 +250,11 @@ def _build_normalized(construction: Mapping[str, Any]) -> codes.CSSCode:
     x_qubit_degrees = matrix_x.sum(axis=0)
     z_qubit_degrees = matrix_z.sum(axis=0)
     code.coset_two_block_validation = {
-        "schema_version": 1,
+        "schema_version": (
+            2 if construction["kind"] == CONSTRUCTION_KIND_V2 else 1
+        ),
+        "action_catalog_id": catalog.catalog_id,
+        "action_catalog_schema_version": catalog.schema_version,
         "block_size": action.block_size,
         "matrix_shape_x": list(matrix_x.shape),
         "matrix_shape_z": list(matrix_z.shape),
@@ -224,6 +296,27 @@ def build_coset_two_block(
     return _build_normalized(construction)
 
 
+def build_coset_two_block_v2(
+    action_id: str,
+    left_support: Sequence[str],
+    right_support: Sequence[str],
+) -> codes.CSSCode:
+    """Build from the explicitly pinned source-bound v2 action catalog."""
+
+    construction = normalize_coset_two_block_construction(
+        {
+            "kind": CONSTRUCTION_KIND_V2,
+            "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+            "action_id": action_id,
+            "action_catalog_id": V2_CATALOG_ID,
+            "action_catalog_sha256": ACTION_CATALOG_V2_SHA256,
+            "left_support": list(left_support),
+            "right_support": list(right_support),
+        }
+    )
+    return _build_normalized(construction)
+
+
 def build_coset_candidate(candidate: Mapping[str, Any]) -> codes.CSSCode:
     """Build from either a Stage-1 candidate or a compact construction."""
 
@@ -239,15 +332,30 @@ def build_coset_candidate(candidate: Mapping[str, Any]) -> codes.CSSCode:
         missing = required - set(construction_value)
         if missing:
             raise ValueError(f"coset candidate is missing {sorted(missing)}")
-        construction = normalize_coset_two_block_construction(
-            {
+        representation_id = construction_value.get("representation_id")
+        if representation_id == CONSTRUCTION_REPRESENTATION_V2:
+            compact = {
+                "kind": CONSTRUCTION_KIND_V2,
+                "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+                "action_id": construction_value["action_id"],
+                "action_catalog_id": V2_CATALOG_ID,
+                "action_catalog_sha256": ACTION_CATALOG_V2_SHA256,
+                "left_support": construction_value["left_support"],
+                "right_support": construction_value["right_support"],
+            }
+        elif representation_id in {None, CONSTRUCTION_REPRESENTATION}:
+            compact = {
                 "kind": CONSTRUCTION_KIND,
                 "action_id": construction_value["action_id"],
                 "action_catalog_sha256": ACTION_CATALOG_SHA256,
                 "left_support": construction_value["left_support"],
                 "right_support": construction_value["right_support"],
             }
-        )
+        else:
+            raise ValueError(
+                f"unsupported coset candidate representation {representation_id!r}"
+            )
+        construction = normalize_coset_two_block_construction(compact)
     return _build_normalized(construction)
 
 
@@ -267,7 +375,8 @@ def symmetry_generator_proposals(
     """
 
     canonical = normalize_coset_two_block_construction(construction)
-    action = get_action(canonical["action_id"])
+    catalog_id = canonical.get("action_catalog_id", LEGACY_CATALOG_ID)
+    action = get_action(canonical["action_id"], catalog_id=catalog_id)
     proposals: list[dict[str, Any]] = []
     for side_name, action_side in (("left", action.left), ("right", action.right)):
         for element_id in action_side.generator_ids:
@@ -294,11 +403,16 @@ def symmetry_generator_proposals(
 
 __all__ = [
     "ACTION_CATALOG_SHA256",
+    "ACTION_CATALOG_V2_SHA256",
     "CONSTRUCTION_KIND",
+    "CONSTRUCTION_KIND_V2",
+    "CONSTRUCTION_REPRESENTATION",
+    "CONSTRUCTION_REPRESENTATION_V2",
     "MAX_TOTAL_SUPPORT",
     "action_catalog_sha256",
     "build_coset_candidate",
     "build_coset_two_block",
+    "build_coset_two_block_v2",
     "list_action_descriptors",
     "matrix_sha256",
     "normalize_construction",

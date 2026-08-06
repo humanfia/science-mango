@@ -13,9 +13,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import build_bb_code
+from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
 from evaluation.coset_two_block import (
     ACTION_CATALOG_SHA256,
+    ACTION_CATALOG_V2_SHA256,
+    CONSTRUCTION_REPRESENTATION_V2,
     build_coset_two_block,
+    build_coset_two_block_v2,
 )
 from evaluation.pbb_code import build_pbb_code
 from evaluation.registry import (
@@ -120,6 +124,78 @@ def main() -> int:
             ),
         }],
     })
+
+    # Register every published 3+3 anchor carried by the source-bound v2
+    # catalog.  Without these entries, expanding Stage 1 to the official
+    # action catalog could cause Stage 2 to label a reproduced literature
+    # construction as novel.  Reported distances remain metadata only; the
+    # certificate pipeline must independently prove any distance claim.
+    coset_v2_catalog = get_catalog(catalog_id=V2_CATALOG_ID)
+    for action in sorted(
+        coset_v2_catalog.actions.values(), key=lambda item: item.action_id
+    ):
+        published = action.published_support
+        if published is None:
+            continue
+        left_support = list(published["left_support"])
+        right_support = list(published["right_support"])
+        code = build_coset_two_block_v2(
+            action.action_id, left_support, right_support,
+        )
+        reported_n = int(published["reported_n"])
+        reported_k = int(published["reported_k"])
+        if (
+            int(code.num_qudits) != reported_n
+            or int(code.dimension) != reported_k
+        ):
+            raise RuntimeError(
+                f"published v2 anchor {action.action_id} does not rebuild "
+                "its reported [[n,k]]"
+            )
+        entries.append({
+            "id": f"literature-aydin-tamo-barg-{action.action_id}",
+            "family": "css-coset-two-block",
+            "code_type": "css",
+            "n": reported_n,
+            "k": reported_k,
+            "distance_evidence": {
+                "d": int(published["reported_distance"]),
+                "status": str(published["distance_evidence_status"]),
+                "reported_exact": bool(published["reported_distance_exact"]),
+                "locally_exact_proven": False,
+            },
+            "canonical_digest": canonical_digest(code),
+            "construction": {
+                "kind": "coset-two-block-v2",
+                "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+                "action_id": action.action_id,
+                "action_catalog_id": V2_CATALOG_ID,
+                "action_catalog_sha256": ACTION_CATALOG_V2_SHA256,
+                "left_support": left_support,
+                "right_support": right_support,
+            },
+            "provenance": [
+                {
+                    "kind": "literature-coset2bga-v2",
+                    "source": (
+                        "Aydin, Tamo, and Barg, "
+                        "Coset Two-Block Group Algebra Codes"
+                    ),
+                    "arxiv": "2606.17268",
+                    "reproduction_repository": (
+                        "https://github.com/aaydinnnn/Coset2BGACodes"
+                    ),
+                    "reproduction_commit": (
+                        "a828dc43c55982e0212febea634775d36bf6e968"
+                    ),
+                    "action_id": action.action_id,
+                    "source_bindings": [
+                        dict(binding) for binding in action.source_bindings
+                    ],
+                    "action_scope": action.provenance.get("action_scope"),
+                }
+            ],
+        })
 
     for name, ell, m, a_terms, b_terms in KNOWN_CSS_REFERENCES:
         code = build_bb_code(ell, m, a_terms, b_terms)
@@ -291,7 +367,7 @@ def main() -> int:
     )
     registry = {
         "schema_version": 1,
-        "registry_version": "2026-08-04.qcode-coset-two-block-v1",
+        "registry_version": "2026-08-06.qcode-coset-two-block-v2",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "equivalence_scope": {
             "css": "colored Tanner generator permutation equivalence",
@@ -322,6 +398,12 @@ def main() -> int:
                 "path": "evaluation/coset_two_block_actions.v1.json",
                 "sha256": file_sha256(
                     project / "evaluation" / "coset_two_block_actions.v1.json"
+                ),
+            },
+            {
+                "path": "evaluation/coset_two_block_actions.v2.json",
+                "sha256": file_sha256(
+                    project / "evaluation" / "coset_two_block_actions.v2.json"
                 ),
             },
             {

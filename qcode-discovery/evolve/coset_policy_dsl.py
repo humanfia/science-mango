@@ -34,13 +34,13 @@ from evolve.coset_search_contract import (
 )
 
 
-POLICY_SCHEMA_VERSION = 1
-POLICY_KIND = "qcode-coset-policy-dsl-v1"
-RENDERER_KIND = "catalog-pair-walk-v1"
-REQUIRED_ACTION_VIEW_COUNT = 2
+POLICY_SCHEMA_VERSION = 2
+POLICY_KIND = "qcode-coset-policy-dsl-v2"
+RENDERER_KIND = "catalog-pair-walk-v2"
+REQUIRED_ACTION_VIEW_COUNT = 46
 
 MAX_POLICY_BYTES = 262_144
-MAX_ACTION_POLICIES = 8
+MAX_ACTION_POLICIES = 64
 MAX_EXPLICIT_SUPPORTS_PER_ACTION = MAX_GENERATED_CANDIDATES
 MAX_TOTAL_EXPLICIT_SUPPORTS = MAX_GENERATED_CANDIDATES
 MAX_PAIR_SPACE = 100_000_000
@@ -49,6 +49,7 @@ _ROOT_FIELDS = frozenset({
     "schema_version",
     "kind",
     "representation_id",
+    "action_catalog_id",
     "action_catalog_sha256",
     "renderer",
     "support_split",
@@ -102,29 +103,40 @@ class ActionPolicy:
 class CosetPolicy:
     """Fully validated policy ready for the trusted renderer."""
 
+    action_catalog_id: str
     action_catalog_sha256: str
     candidate_limit: int
     actions: tuple[ActionPolicy, ...]
 
 
-def _catalog_sha256() -> str:
-    from evaluation.coset_action_catalog import action_catalog_sha256
+def _catalog_identity() -> dict[str, Any]:
+    from evaluation.coset_action_catalog import (
+        V2_CATALOG_ID,
+        action_catalog_identity,
+    )
 
-    value = action_catalog_sha256()
+    identity = action_catalog_identity(V2_CATALOG_ID)
+    value = identity.get("sha256")
     if (
-        not isinstance(value, str)
+        identity.get("catalog_id") != V2_CATALOG_ID
+        or identity.get("schema_version") != 2
+        or not isinstance(value, str)
         or len(value) != 64
         or any(character not in "0123456789abcdef" for character in value)
     ):
-        raise CosetPolicyError("coset action catalog SHA-256 is invalid")
-    return value
+        raise CosetPolicyError("coset action catalog v2 identity is invalid")
+    return {"catalog_id": V2_CATALOG_ID, "sha256": value}
+
+
+def _catalog_sha256() -> str:
+    return str(_catalog_identity()["sha256"])
 
 
 def _views_by_id() -> dict[str, ActionSearchView]:
     views = action_search_views()
     if len(views) != REQUIRED_ACTION_VIEW_COUNT:
         raise CosetPolicyError(
-            "coset policy v1 requires exactly the two source-bound action views"
+            "coset policy v2 requires exactly 46 source-bound action views"
         )
     if len(views) > MAX_ACTION_POLICIES:
         raise CosetPolicyError("coset action view count exceeds the DSL cap")
@@ -423,6 +435,9 @@ def normalize_policy(document: Any) -> CosetPolicy:
     ]:
         raise CosetPolicyError("coset policy support_split must be exactly [3, 3]")
     catalog_sha256 = _catalog_sha256()
+    catalog_identity = _catalog_identity()
+    if root["action_catalog_id"] != catalog_identity["catalog_id"]:
+        raise CosetPolicyError("coset policy action catalog ID changed")
     if root["action_catalog_sha256"] != catalog_sha256:
         raise CosetPolicyError("coset policy action catalog binding changed")
     candidate_limit = _strict_int(
@@ -436,7 +451,7 @@ def normalize_policy(document: Any) -> CosetPolicy:
     if type(actions_raw) is not list:
         raise CosetPolicyError("coset policy actions must be a JSON list")
     if len(actions_raw) != REQUIRED_ACTION_VIEW_COUNT:
-        raise CosetPolicyError("coset policy must declare exactly two action lanes")
+        raise CosetPolicyError("coset policy must declare exactly 46 action lanes")
     views = _views_by_id()
     action_rows: dict[str, dict[str, Any]] = {}
     for index, raw in enumerate(actions_raw):
@@ -460,6 +475,7 @@ def normalize_policy(document: Any) -> CosetPolicy:
     if sum(len(action.supports) for action in actions) > MAX_TOTAL_EXPLICIT_SUPPORTS:
         raise CosetPolicyError("total explicit support cap exceeded")
     return CosetPolicy(
+        action_catalog_id=str(catalog_identity["catalog_id"]),
         action_catalog_sha256=catalog_sha256,
         candidate_limit=candidate_limit,
         actions=actions,
@@ -569,6 +585,7 @@ def _policy_document_unchecked(policy: CosetPolicy) -> dict[str, Any]:
         "schema_version": POLICY_SCHEMA_VERSION,
         "kind": POLICY_KIND,
         "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_id": policy.action_catalog_id,
         "action_catalog_sha256": policy.action_catalog_sha256,
         "renderer": RENDERER_KIND,
         "support_split": [PRODUCTION_LEFT_WEIGHT, PRODUCTION_RIGHT_WEIGHT],
@@ -783,12 +800,13 @@ def policy_from_candidates(rows: list[dict[str, Any]] | tuple[dict[str, Any], ..
         ))
     if any(not items for items in declarations.values()):
         raise CosetPolicyError(
-            "candidate migration must cover both source-bound action lanes"
+            "candidate migration must cover every source-bound action lane"
         )
     candidate_limit = sum(len(items) for items in declarations.values())
     if candidate_limit != len(unique):
         raise CosetPolicyError("candidate migration changed the candidate identity set")
     policy = CosetPolicy(
+        action_catalog_id=str(_catalog_identity()["catalog_id"]),
         action_catalog_sha256=_catalog_sha256(),
         candidate_limit=candidate_limit,
         actions=tuple(
@@ -833,7 +851,7 @@ def _default_walk(view: ActionSearchView) -> PairWalk:
 
 
 def default_policy(candidate_limit: int = MAX_GENERATED_CANDIDATES) -> CosetPolicy:
-    """Build the deterministic two-lane baseline policy for the current catalog."""
+    """Build the deterministic 46-lane baseline policy for catalog v2."""
 
     candidate_limit = _strict_int(
         candidate_limit,
@@ -845,6 +863,7 @@ def default_policy(candidate_limit: int = MAX_GENERATED_CANDIDATES) -> CosetPoli
     views = tuple(views_by_id[key] for key in sorted(views_by_id))
     quotas = quota_by_normality(views, candidate_limit)
     policy = CosetPolicy(
+        action_catalog_id=str(_catalog_identity()["catalog_id"]),
         action_catalog_sha256=_catalog_sha256(),
         candidate_limit=candidate_limit,
         actions=tuple(

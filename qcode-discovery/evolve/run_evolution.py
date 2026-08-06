@@ -114,7 +114,7 @@ SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
 SEED_SOLUTION_MILP = str(Path(__file__).parent / "seed_solution_milp.py")
 SEED_SOLUTION_NONCSS = str(Path(__file__).parent / "seed_solution_noncss.py")
 SEED_SOLUTION_COSET_TWO_BLOCK = str(
-    Path(__file__).parent / "coset_seed_solution.py"
+    Path(__file__).parent / "coset_seed_solution_v2.py"
 )
 EVALUATOR = str(Path(__file__).parent / "openevolve_evaluator.py")
 EVALUATOR_NONCSS = str(Path(__file__).parent / "openevolve_evaluator_noncss.py")
@@ -124,7 +124,7 @@ EVALUATOR_COSET_TWO_BLOCK = str(
 DEFAULT_CONFIG = str(Path(__file__).parent / "config.yaml")
 DEFAULT_CONFIG_NONCSS = str(Path(__file__).parent / "config_noncss.yaml")
 DEFAULT_CONFIG_COSET_TWO_BLOCK = str(
-    Path(__file__).parent / "coset_config.yaml"
+    Path(__file__).parent / "coset_config_v2.yaml"
 )
 EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
@@ -241,7 +241,9 @@ SEARCH_PORTFOLIO_SCHEMA_VERSION = 2
 SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
 COSET_SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_coset_search_portfolio"
-COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = "coset-two-block-dsl-map-v2"
+COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = (
+    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2"
+)
 COSET_SEARCH_PORTFOLIO_ISLAND_COUNT = 4
 COSET_MUTATION_REJECTION_PREFIX = "QCODE_COSET_MUTATION_REJECTED_V1="
 COSET_MUTATION_REJECTION_SCHEMA_VERSION = 1
@@ -850,6 +852,14 @@ def _exact_incomplete_winner_preflight_markers(
     expected_fields = _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS.union(
         marker_fields
     )
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        from evolve.coset_search_contract import (
+            COSET_PROOF_LADDER_VERSION_METRIC,
+        )
+
+        expected_fields = expected_fields.union(
+            {COSET_PROOF_LADDER_VERSION_METRIC}
+        )
     if (
         not isinstance(metrics, dict)
         or set(metrics) != expected_fields
@@ -889,6 +899,21 @@ def _exact_incomplete_winner_preflight_markers(
         )
     except RuntimeError:
         return None
+    if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
+        from evolve.coset_search_contract import (
+            COSET_PROOF_LADDER_SCHEMA_VERSION,
+            COSET_PROOF_LADDER_VERSION_METRIC,
+        )
+
+        proof_marker = metrics.get(COSET_PROOF_LADDER_VERSION_METRIC)
+        if (
+            isinstance(proof_marker, bool)
+            or not isinstance(proof_marker, (int, float))
+            or not math.isfinite(float(proof_marker))
+            or not float(proof_marker).is_integer()
+            or int(proof_marker) != COSET_PROOF_LADDER_SCHEMA_VERSION
+        ):
+            return None
     try:
         values = {
             name: _exact_nonnegative_metric(metrics, name)
@@ -2875,7 +2900,9 @@ def _coset_search_portfolio_schema_version(
 
     from evolve.coset_search_contract import (
         COSET_MAP_SCHEMA_VERSION,
+        COSET_PROOF_LADDER_CONFIG_KEY,
         COSET_REPRESENTATION_ID,
+        proof_ladder_config_contract,
     )
 
     path = Path(config_path)
@@ -2902,6 +2929,13 @@ def _coset_search_portfolio_schema_version(
         raise RuntimeError(
             "qcode_coset_search_portfolio must exactly select the current "
             "representation, descriptor schema, and compatibility group"
+        )
+    if value.get(COSET_PROOF_LADDER_CONFIG_KEY) != (
+        proof_ladder_config_contract()
+    ):
+        raise RuntimeError(
+            "qcode_coset_stage1_proof_ladder must exactly match the current "
+            "proof ladder and budget contract"
         )
     return COSET_MAP_SCHEMA_VERSION
 
@@ -2933,11 +2967,11 @@ def _validated_coset_search_portfolio_config(
         COSET_FEATURE_DIMENSIONS
     ):
         raise RuntimeError(
-            "coset feature_dimensions do not match descriptor schema v2"
+            "coset feature_dimensions do not match the descriptor schema"
         )
     if getattr(database, "feature_bins", None) != dict(COSET_FEATURE_BINS):
         raise RuntimeError(
-            "coset feature_bins do not match descriptor schema v2"
+            "coset feature_bins do not match the descriptor schema"
         )
     seed = getattr(config, "random_seed", None)
     if isinstance(seed, bool) or not isinstance(seed, int):
@@ -3271,6 +3305,8 @@ def _fixed_coset_feature_coords(
         COSET_FEATURE_DIMENSIONS,
         COSET_MAP_SCHEMA_METRIC,
         COSET_MAP_SCHEMA_VERSION,
+        COSET_PROOF_LADDER_SCHEMA_VERSION,
+        COSET_PROOF_LADDER_VERSION_METRIC,
     )
 
     if schema_version != COSET_MAP_SCHEMA_VERSION:
@@ -3289,6 +3325,18 @@ def _fixed_coset_feature_coords(
         or int(marker) != schema_version
     ):
         raise RuntimeError("coset program MAP schema marker is incompatible")
+    proof_marker = metrics.get(COSET_PROOF_LADDER_VERSION_METRIC)
+    if (
+        isinstance(proof_marker, bool)
+        or not isinstance(proof_marker, (int, float))
+        or not math.isfinite(float(proof_marker))
+        or not float(proof_marker).is_integer()
+        or int(proof_marker) != COSET_PROOF_LADDER_SCHEMA_VERSION
+    ):
+        raise RuntimeError(
+            "coset program proof-ladder contract is incompatible; "
+            "start a fresh checkpoint"
+        )
     coordinates: list[int] = []
     for name in COSET_FEATURE_DIMENSIONS:
         value = metrics.get(name)
@@ -6501,9 +6549,12 @@ def _validated_evaluator_kind(
 
 
 def _coset_action_catalog_sha256() -> str:
-    from evaluation.coset_action_catalog import action_catalog_sha256
+    from evaluation.coset_action_catalog import (
+        V2_CATALOG_ID,
+        action_catalog_sha256,
+    )
 
-    value = action_catalog_sha256()
+    value = action_catalog_sha256(V2_CATALOG_ID)
     if (
         not isinstance(value, str)
         or len(value) != 64
@@ -6564,6 +6615,23 @@ def _checkpoint_evaluator_kind(
         raise RuntimeError(
             f"{label} belongs to action catalog id {catalog_id!r}, not "
             f"{expected_catalog_id}; start a fresh checkpoint"
+        )
+    from evolve.coset_search_contract import (
+        COSET_PROOF_LADDER_SCHEMA_VERSION,
+        COSET_PROOF_LADDER_VERSION_METRIC,
+    )
+
+    proof_marker = metrics.get(COSET_PROOF_LADDER_VERSION_METRIC)
+    if (
+        isinstance(proof_marker, bool)
+        or not isinstance(proof_marker, (int, float))
+        or not math.isfinite(float(proof_marker))
+        or float(proof_marker) != float(COSET_PROOF_LADDER_SCHEMA_VERSION)
+    ):
+        raise RuntimeError(
+            f"{label} belongs to proof-ladder contract "
+            f"{proof_marker!r}, not {COSET_PROOF_LADDER_SCHEMA_VERSION}; "
+            "start a fresh checkpoint"
         )
     return expected_kind
 

@@ -260,26 +260,47 @@ def candidate_structural_features(
             or not isinstance(right, list)
         ):
             raise ValueError("compact construction lacks action/support fields")
+        from evaluation.coset_action_catalog import (
+            LEGACY_CATALOG_ID,
+            list_action_descriptors,
+        )
+        from evaluation.coset_two_block import (
+            normalize_coset_two_block_construction,
+        )
         from evolve.coset_search_contract import (
-            action_search_view,
-            normalize_candidate,
-            support_orbit_bin,
+            ACTION_FAMILY_BINS,
+            COSET_SUPPORT_ORBIT_BINS,
+            canonical_json_sha256,
         )
 
-        genotype = normalize_candidate({
-            "schema_version": construction.get("schema_version", 1),
-            "representation_id": construction.get(
-                "representation_id", "css-coset-two-block-actions-v1",
-            ),
-            "action_id": action_id,
-            "left_support": list(left),
-            "right_support": list(right),
+        # Archive replay must remain version-aware: the live Stage-1 schema
+        # points at catalog v2, but historical rows can carry an immutable v1
+        # construction.  Normalize through the construction dispatcher and
+        # read metadata from the catalog pinned by that construction instead
+        # of silently interpreting old element IDs in the live catalog.
+        canonical = normalize_coset_two_block_construction(construction)
+        catalog_id = canonical.get("action_catalog_id", LEGACY_CATALOG_ID)
+        descriptors = {
+            descriptor["action_id"]: descriptor
+            for descriptor in list_action_descriptors(catalog_id=catalog_id)
+        }
+        try:
+            descriptor = descriptors[action_id]
+            action_family_bin = ACTION_FAMILY_BINS[descriptor["bin"]]
+        except (KeyError, TypeError) as exc:
+            raise ValueError(
+                "compact construction action metadata is unavailable"
+            ) from exc
+        orbit_digest = canonical_json_sha256({
+            "left_support": canonical["left_support"],
+            "right_support": canonical["right_support"],
         })
-        view = action_search_view(action_id)
         return {
-            "action_family_bin": int(view.action_family_bin),
-            "subgroup_normal": int(view.subgroup_normal),
-            "support_orbit_bin": int(support_orbit_bin(genotype)),
+            "action_family_bin": int(action_family_bin),
+            "subgroup_normal": int(bool(descriptor["subgroup_normal"])),
+            "support_orbit_bin": (
+                int(orbit_digest[:8], 16) % COSET_SUPPORT_ORBIT_BINS
+            ),
             "term_count": len(left) + len(right),
         }
 

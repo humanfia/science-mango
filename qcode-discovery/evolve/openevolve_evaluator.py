@@ -2322,7 +2322,7 @@ def _structural_feedback(result: dict) -> str:
 def _append_candidate_jsonl(
     log_file: Path,
     payload: bytes | bytearray,
-) -> None:
+) -> dict[str, object] | None:
     """Append one batch through a recoverable write-ahead intent.
 
     The intent contains the complete bounded payload and its exact starting
@@ -2332,7 +2332,7 @@ def _append_candidate_jsonl(
     without interleaving or duplicating bytes.
     """
     if not payload:
-        return
+        return None
     log_file = _canonical_candidate_log_path(log_file)
     flags = os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
@@ -2368,6 +2368,22 @@ def _append_candidate_jsonl(
                 )
             raise
         _clear_candidate_log_wal(log_file)
+        _validate_locked_candidate_log(log_file, descriptor)
+        committed = os.fstat(descriptor)
+        if committed.st_size != original_size + len(payload):
+            raise CandidateLogWriteError(
+                "candidate JSONL changed before append identity was sealed"
+            )
+        return {
+            "path": str(log_file),
+            "device": committed.st_dev,
+            "inode": committed.st_ino,
+            "start_offset": original_size,
+            "end_offset": committed.st_size,
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "bytes": len(payload),
+            "wal_clean": True,
+        }
     finally:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_UN)

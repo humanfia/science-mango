@@ -115,10 +115,20 @@ def write_launch_inputs(
             "    coset_batch_orbit_profile_bucket: 8\n"
             "qcode_coset_search_portfolio:\n"
             "  enabled: true\n"
-            "  schema_version: 2\n"
-            "  representation_id: css-coset-two-block-actions-v1\n"
+            "  schema_version: 3\n"
+            "  representation_id: css-coset-two-block-actions-v2\n"
             "  checkpoint_compatibility_group: "
-            "coset-two-block-dsl-map-v2\n"
+            "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2\n"
+            "qcode_coset_stage1_proof_ladder:\n"
+            "  enabled: true\n"
+            "  schema_version: 2\n"
+            "  start_weight: 4\n"
+            "  weight_step: 2\n"
+            "  max_candidates_per_batch: 8\n"
+            "  max_new_steps_per_batch: 24\n"
+            "  batch_wall_timeout_s: 720.0\n"
+            "  step_hard_timeout_s: 30.0\n"
+            "  cache_directory: .coset-stage1-proof-cache-v2\n"
         )
     (evolve / "config.yaml").write_text(config_text)
     (evolve / "seed_solution.py").write_text(
@@ -146,6 +156,52 @@ def write_coset_launch_inputs(repo: Path) -> None:
         destination.write_bytes((project / relative_path).read_bytes())
     (repo / "evolve/coset_openevolve_evaluator.py").write_text(
         "# fake coset evaluator\n"
+    )
+
+
+def test_v2_coset_managed_launch_binds_v2_catalog(tmp_path):
+    project = Path(flow_module.__file__).resolve().parents[1]
+    context = tmp_path / "context.md"
+    context.write_text("v2 launch context\n")
+    config = FlowConfig(
+        repo_dir=project,
+        run_id="coset-v2-catalog-binding",
+        evolution_config=project / "evolve/coset_config_v2.yaml",
+        evolution_seed=project / "evolve/coset_seed_solution_v2.py",
+        evolution_evaluator="coset-two-block",
+        search_representation_id="css-coset-two-block-actions-v2",
+        milp_top=0,
+    )
+
+    invocation = flow_module._fresh_invocation_binding(
+        config,
+        codex_identity=None,
+        codex_version=None,
+        codex_cwd=None,
+    )
+    launch = flow_module._evolution_launch_binding(
+        config,
+        context_path=context,
+    )
+    validated = flow_module._validate_invocation_binding(
+        config,
+        invocation,
+        launch,
+    )
+    portfolio = flow_module._coset_search_portfolio_contract_from_config(
+        project / "evolve/coset_config_v2.yaml"
+    )
+
+    assert portfolio is not None
+    assert portfolio[0] == 3
+    assert flow_module._coset_action_catalog_dependency_key(config) == (
+        "coset_action_catalog_v2"
+    )
+    assert validated["qcode_action_catalog_sha256"] == (
+        launch["coset_action_catalog_v2"]["sha256"]
+    )
+    assert validated["qcode_action_catalog_sha256"] != (
+        launch["coset_action_catalog"]["sha256"]
     )
 
 

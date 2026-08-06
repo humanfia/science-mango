@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import itertools
+import time
 
 import numpy as np
 import pytest
@@ -88,6 +89,133 @@ def test_two_complete_unsat_sectors_are_required_for_lower_bound():
             inconsistent, hx, hz, lx, lz
         )
     )
+
+
+def test_terminal_sector_resumes_after_other_sector_unknown(monkeypatch):
+    hx, hz, lx, lz = _valid_d2_css_matrices()
+    baseline = oracle.evaluate_css_low_weight_oracle(
+        hx, hz, lx, lz, max_weight=1
+    )
+    terminal = {
+        side: copy.deepcopy(baseline["sectors"][side])
+        for side in ("X", "Z")
+    }
+    first_calls: list[str] = []
+
+    def first_solver(checks, logicals, *, max_weight, sector, hard_timeout_s):
+        first_calls.append(sector)
+        if sector == "X":
+            return copy.deepcopy(terminal["X"])
+        return oracle._timeout_sector_evidence(
+            checks,
+            logicals,
+            max_weight=max_weight,
+            sector=sector,
+        )
+
+    monkeypatch.setattr(oracle, "_solve_sector", first_solver)
+    partial = oracle.evaluate_css_low_weight_oracle(
+        hx, hz, lx, lz, max_weight=1, hard_timeout_s=1.0
+    )
+    assert first_calls == ["X", "Z"]
+    assert partial["outcome"] == "UNKNOWN"
+    assert partial["sectors"]["X"]["outcome"] == "UNSAT"
+
+    second_calls: list[str] = []
+
+    def second_solver(_checks, _logicals, *, max_weight, sector, hard_timeout_s):
+        second_calls.append(sector)
+        return copy.deepcopy(terminal[sector])
+
+    monkeypatch.setattr(oracle, "_solve_sector", second_solver)
+    completed = oracle.evaluate_css_low_weight_oracle(
+        hx,
+        hz,
+        lx,
+        lz,
+        max_weight=1,
+        hard_timeout_s=1.0,
+        terminal_sectors=partial["sectors"],
+    )
+    assert second_calls == ["Z"]
+    assert completed["outcome"] == "UNSAT"
+    assert completed["distance_lower_bound"] == 2
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ("self_hash", "source", "matrix", "threshold", "sector"),
+)
+def test_terminal_sector_resume_rejects_stale_or_tampered_binding(
+    monkeypatch,
+    tamper,
+):
+    hx, hz, lx, lz = _valid_d2_css_matrices()
+    baseline = oracle.evaluate_css_low_weight_oracle(
+        hx, hz, lx, lz, max_weight=1
+    )
+    cached_x = copy.deepcopy(baseline["sectors"]["X"])
+    binding = cached_x["binding"]
+    if tamper == "self_hash":
+        cached_x["elapsed_s"] = float(cached_x["elapsed_s"]) + 1.0
+    else:
+        if tamper == "source":
+            binding["source_sha256"] = "0" * 64
+        elif tamper == "matrix":
+            binding["check_matrix_sha256"] = "0" * 64
+        elif tamper == "threshold":
+            cached_x["max_weight"] = 2
+            binding["max_weight"] = 2
+        elif tamper == "sector":
+            binding["sector"] = "Z"
+        binding_unsigned = dict(binding)
+        binding_unsigned.pop("binding_sha256", None)
+        binding["binding_sha256"] = oracle._canonical_json_sha256(
+            binding_unsigned
+        )
+        oracle._seal_sector_evidence(cached_x)
+
+    calls: list[str] = []
+    terminal = baseline["sectors"]
+
+    def solver(_checks, _logicals, *, max_weight, sector, hard_timeout_s):
+        calls.append(sector)
+        return copy.deepcopy(terminal[sector])
+
+    monkeypatch.setattr(oracle, "_solve_sector", solver)
+    result = oracle.evaluate_css_low_weight_oracle(
+        hx,
+        hz,
+        lx,
+        lz,
+        max_weight=1,
+        hard_timeout_s=1.0,
+        terminal_sectors={"X": cached_x},
+    )
+    assert calls[0] == "X"
+    assert result["outcome"] == "UNSAT"
+
+
+def test_sector_timeouts_share_one_inner_deadline(monkeypatch):
+    hx, hz, lx, lz = _valid_d2_css_matrices()
+    baseline = oracle.evaluate_css_low_weight_oracle(
+        hx, hz, lx, lz, max_weight=1
+    )
+    timeouts: list[tuple[str, float]] = []
+
+    def solver(_checks, _logicals, *, max_weight, sector, hard_timeout_s):
+        timeouts.append((sector, hard_timeout_s))
+        if sector == "X":
+            time.sleep(0.02)
+        return copy.deepcopy(baseline["sectors"][sector])
+
+    monkeypatch.setattr(oracle, "_solve_sector", solver)
+    result = oracle.evaluate_css_low_weight_oracle(
+        hx, hz, lx, lz, max_weight=1, hard_timeout_s=0.2
+    )
+    assert result["outcome"] == "UNSAT"
+    assert [sector for sector, _timeout in timeouts] == ["X", "Z"]
+    assert timeouts[1][1] < timeouts[0][1] - 0.01
 
 
 def test_historical_source_relaxation_rejects_unsat_lower_bound(monkeypatch):

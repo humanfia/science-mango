@@ -17,14 +17,17 @@ import numpy as np
 import pytest
 from openevolve import Config
 
-from evaluation.coset_action_catalog import action_catalog_sha256
+from evaluation.coset_action_catalog import V2_CATALOG_ID, action_catalog_sha256
 from evolve import coset_openevolve_evaluator as evaluator
 from evolve import coset_policy_dsl as policy_dsl
 from evolve import run_evolution as launcher
 from evolve.coset_search_contract import (
+    ActionSearchView,
     COSET_FEATURE_BINS,
     COSET_FEATURE_DIMENSIONS,
     COSET_MAP_SCHEMA_VERSION,
+    COSET_PROOF_LADDER_SCHEMA_VERSION,
+    COSET_PROOF_LADDER_VERSION_METRIC,
     COSET_REPRESENTATION_ID,
     action_search_view,
     action_search_views,
@@ -37,10 +40,14 @@ from scripts import audit_candidate_pool as candidate_pool
 
 
 PROJECT = Path(__file__).resolve().parents[1]
-EVOLUTION_CONFIG = PROJECT / "evolve/coset_config.yaml"
+EVOLUTION_CONFIG = PROJECT / "evolve/coset_config_v2.yaml"
 PIPELINE_CONFIG = (
-    PROJECT / "configs/five_stage_campaign.coset_two_block_v1.json"
+    PROJECT / "configs/five_stage_campaign.coset_two_block_actions_v2.json"
 )
+
+
+def _v2_catalog_sha256() -> str:
+    return action_catalog_sha256(V2_CATALOG_ID)
 
 
 def _render_default_policy(candidate_limit: int):
@@ -80,12 +87,9 @@ def _render_known_oracle_policy():
 
 
 def _published_candidate():
-    view = next(
-        item for item in action_search_views()
-        if item.published_left_support is not None
-    )
+    view = action_search_view("coset2bga-l224-m53-s1-degree112-v2")
     return normalize_candidate({
-        "schema_version": 1,
+        "schema_version": 2,
         "representation_id": COSET_REPRESENTATION_ID,
         "action_id": view.action_id,
         "left_support": list(view.published_left_support),
@@ -95,11 +99,10 @@ def _published_candidate():
 
 def test_catalog_drives_balanced_normal_and_nonnormal_seed_pool():
     views = action_search_views()
-    assert {(view.subgroup_normal, view.block_size) for view in views} == {
-        (False, 112),
-        (True, 72),
-    }
-    published = next(view for view in views if not view.subgroup_normal)
+    assert len(views) == 46
+    assert sum(not view.subgroup_normal for view in views) == 45
+    assert sum(view.subgroup_normal for view in views) == 1
+    published = action_search_view("coset2bga-l224-m53-s1-degree112-v2")
     assert len(published.left_element_ids) == 224
     assert len(published.right_element_ids) == 28
     assert published.published_left_support is not None
@@ -110,15 +113,15 @@ def test_catalog_drives_balanced_normal_and_nonnormal_seed_pool():
     assert sum(
         quota for view in views if not view.subgroup_normal
         for quota in (quotas[view.action_id],)
-    ) == 24
+    ) == 30
     assert sum(
         quota for view in views if view.subgroup_normal
         for quota in (quotas[view.action_id],)
-    ) == 7
-    first = _render_default_policy(32)
-    second = _render_default_policy(32)
+    ) == 1
+    first = _render_default_policy(64)
+    second = _render_default_policy(64)
     assert first == second
-    assert len(first) == len({json.dumps(row, sort_keys=True) for row in first}) == 32
+    assert len(first) == len({json.dumps(row, sort_keys=True) for row in first}) == 64
     counts = Counter(row["action_id"] for row in first)
     assert {
         by_normality: sum(
@@ -127,7 +130,7 @@ def test_catalog_drives_balanced_normal_and_nonnormal_seed_pool():
             if view.subgroup_normal is by_normality
         )
         for by_normality in (False, True)
-    } == {False: 24, True: 8}
+    } == {False: 63, True: 1}
     by_id = {view.action_id: view for view in views}
     for raw in first:
         candidate = normalize_candidate(raw)
@@ -159,9 +162,9 @@ def test_policy_pool_is_deterministic_but_changes_with_evolved_walk():
 
     baseline_digests = {candidate_digest(row) for row in baseline}
     mutated_digests = {candidate_digest(row) for row in mutated}
-    # A structural walk mutation redirects both action traversals; only the
-    # immutable published anchor should normally overlap.
-    assert len(baseline_digests & mutated_digests) <= 8
+    # A structural walk mutation redirects all traversals; the 24 immutable
+    # published anchors remain intentional overlap.
+    assert len(baseline_digests & mutated_digests) <= 24
 
 
 def test_production_batch_and_lane_quotas_are_rechecked_by_evaluator():
@@ -246,9 +249,11 @@ def test_published_action_rebuilds_exact_k_and_combined_degree_six():
     assert row["tanner_components"] == 1
     assert row["static_legal"] is True
     assert row["construction"] == {
-        "kind": "coset-two-block-v1",
+        "kind": "coset-two-block-v2",
+        "representation_id": COSET_REPRESENTATION_ID,
         "action_id": row["action_id"],
-        "action_catalog_sha256": action_catalog_sha256(),
+        "action_catalog_id": V2_CATALOG_ID,
+        "action_catalog_sha256": _v2_catalog_sha256(),
         "left_support": row["candidate"]["left_support"],
         "right_support": row["candidate"]["right_support"],
     }
@@ -289,6 +294,247 @@ def test_fitness_ignores_decoder_upper_bounds_and_uses_only_proof_signals():
     assert evaluator._fitness({**base, "threshold_rejected": True}) == 0.0
 
 
+def test_dynamic_cutoff_is_integer_exact_strict_and_ladder_reaches_odd_end():
+    # k*w^2 == 12*n is still a rejection because the target is strictly > 12.
+    assert evaluator._dynamic_rejection_cutoff(3, 1) == 6
+    assert 1 * 6 * 6 == 12 * 3
+    assert evaluator._proof_ladder(6) == (4, 6)
+
+    # This exact-equality cutoff is odd and must not be skipped by a +2 ladder.
+    assert evaluator._dynamic_rejection_cutoff(25, 12) == 5
+    assert 12 * 5 * 5 == 12 * 25
+    assert evaluator._proof_ladder(5) == (4, 5)
+    assert evaluator._proof_ladder(3) == (3,)
+
+
+def test_proof_ladder_commits_retries_unknown_and_rejects_equality(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_log = (tmp_path / "run/all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir()
+    monkeypatch.setenv(evaluator.CANDIDATE_LOG_PATH_ENV, str(candidate_log))
+
+    monkeypatch.setattr(evaluator, "_ORACLE_UNKNOWN_RETRY_BACKOFF_S", 0.0)
+    monkeypatch.setattr(
+        evaluator,
+        "_light_oracle_evidence_valid",
+        lambda evidence, *, threshold: (
+            isinstance(evidence, dict)
+            and evidence.get("max_weight") == threshold
+            and evidence.get("outcome") in {"SAT", "UNSAT", "UNKNOWN"}
+        ),
+    )
+    calls: list[tuple[int, float]] = []
+    outcomes = iter(("UNSAT", "UNKNOWN", "UNSAT", "SAT"))
+
+    def fake_rung(
+        _row,
+        *,
+        threshold,
+        timeout_s,
+        terminal_sectors,
+    ):
+        assert 0 < timeout_s <= evaluator.COSET_PROOF_STEP_HARD_TIMEOUT_S
+        calls.append((threshold, timeout_s))
+        outcome = next(outcomes)
+        evidence = {
+            "outcome": outcome,
+            "max_weight": threshold,
+            "distance_lower_bound": threshold + 1 if outcome == "UNSAT" else None,
+            "witness": (
+                {
+                    "side": "X",
+                    "index": 0,
+                    "weight": threshold,
+                    "bits": [1] * threshold + [0] * (16 - threshold),
+                    "logical_syndrome": [1, 0, 0],
+                    "support": list(range(threshold)),
+                }
+                if outcome == "SAT" else None
+            ),
+            "evidence_sha256": f"{len(calls):064x}",
+        }
+        return evidence, {
+            "hard_wall_timeout": False,
+            "worker_failed": False,
+            "elapsed_s": 0.01,
+            "resumed_sectors": sorted(terminal_sectors),
+        }
+
+    monkeypatch.setattr(evaluator, "_run_oracle_rung_hard_wall", fake_rung)
+    candidate = _published_candidate()
+    view = action_search_view(candidate["action_id"])
+    base = {
+        "candidate": candidate,
+        "construction": evaluator._stage2_construction(candidate),
+        "candidate_sha256": "a" * 64,
+        "action_id": candidate["action_id"],
+        "subgroup_normal": view.subgroup_normal,
+        "support_orbit_bin": 0,
+        "static_legal": True,
+        "n": 16,
+        "k": 3,
+        "rank_x": 1,
+        "rank_z": 12,
+        "css_commutation": True,
+        "max_check_weight": 6,
+        "max_qubit_degree": 6,
+        "tanner_components": 1,
+        "hx": np.zeros((1, 16), dtype=np.uint8),
+        "hz": np.zeros((1, 16), dtype=np.uint8),
+    }
+
+    first = copy.deepcopy(base)
+    evaluator._run_oracle(first)
+    assert [threshold for threshold, _timeout in calls] == [4, 6]
+    assert first["distance_lower_bound"] == 5
+    assert first["oracle_ladder_next_threshold"] == 6
+    assert first["low_weight_oracle"]["outcome"] == "UNSAT"
+    assert first["distance_lower_bound_evidence"]["outcome"] == "UNSAT"
+    assert first["oracle_last_attempt"]["evidence"]["outcome"] == "UNKNOWN"
+    assert first["oracle_evidence_sha256"] == (
+        first["distance_lower_bound_evidence_sha256"]
+    )
+    first["fitness"] = evaluator._fitness(first)
+    assert evaluator._append_candidate_rows([first]) == 1
+
+    no_budget = copy.deepcopy(base)
+    evaluator._run_oracle(
+        no_budget,
+        budget=evaluator._OracleBatchBudget(
+            remaining_new_steps=0,
+            deadline=evaluator.time.monotonic() + 30,
+        ),
+        max_new_steps=0,
+    )
+    assert [threshold for threshold, _timeout in calls] == [4, 6]
+    assert no_budget["oracle_outcome"] == "UNSAT"
+    assert no_budget["oracle_retryable"] is True
+    assert no_budget["distance_lower_bound"] == 5
+    assert no_budget["oracle_ladder_next_threshold"] == 6
+
+    terminal = copy.deepcopy(base)
+    evaluator._run_oracle(terminal)
+    assert [threshold for threshold, _timeout in calls] == [4, 6, 6, 8]
+    assert [timeout for _threshold, timeout in calls] == [7.5, 7.5, 15.0, 7.5]
+    assert terminal["oracle_outcome"] == "SAT"
+    assert terminal["threshold_rejected"] is True
+    assert terminal["fom_upper_bound"] == 12.0
+    assert terminal["fitness_distance_credit"] == 0.0
+
+    # A retry generation is deliberately invisible to recovery until its
+    # candidate row is durably appended and the generation is committed.
+    terminal["fitness"] = evaluator._fitness(terminal)
+    assert evaluator._append_candidate_rows([terminal]) == 1
+
+    cache_root = candidate_log.parent / evaluator.COSET_PROOF_CACHE_DIRECTORY
+    rung_six_base = cache_root / ("a" * 2) / ("a" * 64 + "-w6.json")
+    cached = evaluator._load_cached_evidence(
+        "a" * 64,
+        6,
+        hx=base["hx"],
+        hz=base["hz"],
+    )
+    assert cached is not None
+    assert not rung_six_base.exists()
+    assert len(evaluator._proof_cache_version_paths(rung_six_base)) == 2
+    assert cached["attempts"] == 2
+    assert cached["latest_outcome"] == "UNSAT"
+    assert evaluator._strict_self_hashed_mapping(
+        cached["last_attempt"],
+        hash_field="attempt_sha256",
+    )
+
+
+def test_all_unsat_single_evaluation_reaches_360_8_cutoff_23(monkeypatch):
+    monkeypatch.delenv(evaluator.CANDIDATE_LOG_PATH_ENV, raising=False)
+    calls: list[int] = []
+
+    def fake_rung(_row, *, threshold, timeout_s, terminal_sectors):
+        calls.append(threshold)
+        return {
+            "outcome": "UNSAT",
+            "max_weight": threshold,
+            "distance_lower_bound": threshold + 1,
+            "witness": None,
+            "evidence_sha256": f"{threshold:064x}",
+        }, {
+            "hard_wall_timeout": False,
+            "worker_failed": False,
+            "elapsed_s": 0.01,
+            "resumed_sectors": [],
+        }
+
+    monkeypatch.setattr(evaluator, "_run_oracle_rung_hard_wall", fake_rung)
+    row = {
+        "candidate_sha256": "b" * 64,
+        "static_legal": True,
+        "n": 360,
+        "k": 8,
+        "hx": np.zeros((1, 360), dtype=np.uint8),
+        "hz": np.zeros((1, 360), dtype=np.uint8),
+    }
+    result = evaluator._run_oracle(row)
+    assert calls == [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 23]
+    assert result["new_steps"] == 11
+    assert row["oracle_ladder_complete"] is True
+    assert row["distance_lower_bound"] == 24
+    assert row["fom_target_lower_bound_proven"] is True
+
+
+def test_oracle_probe_rotation_covers_large_catalog_and_keeps_control_quota(
+    monkeypatch,
+):
+    views = tuple(
+        ActionSearchView(
+            action_id=f"action-{index:02d}",
+            block_size=32,
+            subgroup_normal=index == 45,
+            action_family_bin=1 if index == 45 else 0,
+            left_element_ids=("L0", "L1", "L2"),
+            right_element_ids=("R0", "R1", "R2"),
+            left_identity_id="L0",
+            right_identity_id="R0",
+        )
+        for index in range(46)
+    )
+    monkeypatch.setattr(evaluator, "action_search_views", lambda: views)
+    progressed = views[0].action_id
+    monkeypatch.setattr(
+        evaluator,
+        "_cache_progress_hint",
+        lambda row: 6 if row["action_id"] == progressed else 0,
+    )
+    rows = [
+        {
+            "action_id": view.action_id,
+            "subgroup_normal": view.subgroup_normal,
+            "static_legal": True,
+            "n": 64,
+            "k": 4,
+            "support_orbit_bin": index % 8,
+            "candidate_sha256": f"{index + 1:064x}",
+        }
+        for index, view in enumerate(views)
+    ]
+    seen_nonnormal: set[str] = set()
+    for salt in ("policy-a", "policy-b", "policy-c", "policy-d"):
+        selected = evaluator._oracle_probe_rows(
+            rows,
+            limit=8,
+            selection_salt=salt,
+        )
+        assert len(selected) == 8
+        assert sum(row["subgroup_normal"] for row in selected) == 1
+        assert progressed in {row["action_id"] for row in selected}
+        seen_nonnormal.update(
+            row["action_id"] for row in selected
+            if not row["subgroup_normal"]
+        )
+    assert len(seen_nonnormal) > 7
+
+
 def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
     tmp_path,
     monkeypatch,
@@ -310,8 +556,17 @@ def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
     control_digest = candidate_digest(control)
     original_probe = evaluator._oracle_probe_rows
 
-    def probe_with_control(rows, limit=evaluator.MAX_ORACLE_CANDIDATES):
-        selected = original_probe(rows, limit)
+    def probe_with_control(
+        rows,
+        limit=evaluator.MAX_ORACLE_CANDIDATES,
+        *,
+        selection_salt="",
+    ):
+        selected = original_probe(
+            rows,
+            limit,
+            selection_salt=selection_salt,
+        )
         target = next(
             row for row in rows
             if row["candidate_sha256"] == control_digest
@@ -337,12 +592,12 @@ def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
     )
     assert metrics[evaluator.EVALUATOR_KIND_ID_METRIC] == 1.0
     assert metrics[evaluator.ACTION_CATALOG_ID_METRIC] == float(
-        int(action_catalog_sha256()[:13], 16)
+        int(_v2_catalog_sha256()[:13], 16)
     )
     assert "winner_preflight_lattices" not in metrics
     assert metrics[evaluator.PREFLIGHT_UNIT_KIND_ID_METRIC] == 1.0
-    assert metrics[evaluator.PREFLIGHT_UNITS_METRIC] == 2.0
-    assert metrics[evaluator.PREFLIGHT_ACTION_STRATA_METRIC] == 2.0
+    assert metrics[evaluator.PREFLIGHT_UNITS_METRIC] == 46.0
+    assert metrics[evaluator.PREFLIGHT_ACTION_STRATA_METRIC] == 46.0
     launcher._validated_winner_preflight_markers(
         metrics,
         expected_contract_id=12345,
@@ -373,12 +628,14 @@ def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
         construction = row["construction"]
         assert set(construction) == {
             "kind",
+            "representation_id",
             "action_id",
+            "action_catalog_id",
             "action_catalog_sha256",
             "left_support",
             "right_support",
         }
-        assert construction["action_catalog_sha256"] == action_catalog_sha256()
+        assert construction["action_catalog_sha256"] == _v2_catalog_sha256()
     feedback = flow_module._build_search_oracle_feedback(
         round_number=1,
         source_candidate_batch={
@@ -594,8 +851,9 @@ _append_candidate_rows([row])
 
     rows = [json.loads(line) for line in candidate_log.read_text().splitlines()]
     assert len(rows) == 2
+    expected = _render_known_oracle_policy()[:2]
     assert {item["action_id"] for item in rows} == {
-        candidate["action_id"] for candidate in _render_known_oracle_policy()
+        candidate["action_id"] for candidate in expected
     }
     assert not wal_path.exists()
 
@@ -603,13 +861,22 @@ _append_candidate_rows([row])
 def test_coset_evaluator_has_no_decoder_import():
     source = Path(evaluator.__file__).read_text()
     tree = ast.parse(source)
-    imports = {
+    modules = {
         alias.name
         for node in ast.walk(tree)
-        if isinstance(node, (ast.Import, ast.ImportFrom))
+        if isinstance(node, ast.Import)
         for alias in node.names
     }
-    assert not any("bp" in name.lower() or "decoder" in name.lower() for name in imports)
+    modules.update(
+        node.module
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module is not None
+    )
+    forbidden_modules = {"bposd", "bp_osd", "decoder", "decoders"}
+    assert not any(
+        set(module.lower().replace("-", "_").split(".")) & forbidden_modules
+        for module in modules
+    )
 
 
 def test_coset_config_selects_batch_lane_map_v2():
@@ -642,6 +909,9 @@ def test_launcher_rejects_cross_evaluator_resume_and_catalog_change():
         launcher.ACTION_CATALOG_ID_METRIC: float(
             launcher._coset_action_catalog_contract_id()
         ),
+        COSET_PROOF_LADDER_VERSION_METRIC: float(
+            COSET_PROOF_LADDER_SCHEMA_VERSION
+        ),
     }
     assert launcher._checkpoint_evaluator_kind(
         {}, expected_kind="default", label="legacy BB checkpoint"
@@ -668,6 +938,15 @@ def test_launcher_rejects_cross_evaluator_resume_and_catalog_change():
             {**coset_metrics, launcher.ACTION_CATALOG_ID_METRIC: 0.0},
             expected_kind="coset-two-block",
             label="stale coset checkpoint",
+        )
+    with pytest.raises(RuntimeError, match="proof-ladder contract"):
+        launcher._checkpoint_evaluator_kind(
+            {
+                key: value for key, value in coset_metrics.items()
+                if key != COSET_PROOF_LADDER_VERSION_METRIC
+            },
+            expected_kind="coset-two-block",
+            label="pre-ladder coset checkpoint",
         )
 
 
@@ -724,7 +1003,7 @@ def test_launcher_coset_route_and_invocation_are_closed_and_source_bound():
         "codex_cwd": None,
         "codex_executable_mode": None,
         launcher.EVALUATOR_KIND_BINDING_FIELD: "coset-two-block",
-        launcher.ACTION_CATALOG_SHA256_BINDING_FIELD: action_catalog_sha256(),
+        launcher.ACTION_CATALOG_SHA256_BINDING_FIELD: _v2_catalog_sha256(),
     }
     assert launcher._validated_invocation_binding(invocation, None, None) == invocation
     with pytest.raises(RuntimeError, match="coset binding is incomplete"):

@@ -6,6 +6,7 @@ import json
 from collections import Counter
 from dataclasses import FrozenInstanceError
 from math import comb
+from pathlib import Path
 
 import pytest
 
@@ -20,7 +21,7 @@ from evolve.coset_search_contract import (
 )
 
 
-def _document(limit: int = 16) -> dict:
+def _document(limit: int = 64) -> dict:
     return dsl.policy_document(dsl.default_policy(limit))
 
 
@@ -36,20 +37,23 @@ def _action(document: dict, action_id: str) -> dict:
     return next(item for item in document["actions"] if item["action_id"] == action_id)
 
 
-def test_current_catalog_has_the_two_contract_action_views():
+def test_current_catalog_has_the_46_versioned_action_views():
     views = action_search_views()
-    assert len(views) == dsl.REQUIRED_ACTION_VIEW_COUNT == 2
+    assert len(views) == dsl.REQUIRED_ACTION_VIEW_COUNT == 46
     assert {view.subgroup_normal for view in views} == {False, True}
+    assert sum(not view.subgroup_normal for view in views) == 45
+    assert sum(view.subgroup_normal for view in views) == 1
+    assert sum(view.published_left_support is not None for view in views) == 24
     assert all(len(view.left_element_ids) >= 3 for view in views)
     assert all(len(view.right_element_ids) >= 3 for view in views)
 
 
 def test_default_policy_renders_exact_bounded_round_robin_candidates():
-    policy = dsl.default_policy(32)
+    policy = dsl.default_policy(64)
     rows = dsl.render_candidates(policy)
 
-    assert len(rows) == policy.candidate_limit == 32
-    assert sum(action.quota for action in policy.actions) == 32
+    assert len(rows) == policy.candidate_limit == 64
+    assert sum(action.quota for action in policy.actions) == 64
     counts = Counter(row["action_id"] for row in rows)
     assert counts == Counter({action.action_id: action.quota for action in policy.actions})
     assert len({candidate_digest(row) for row in rows}) == len(rows)
@@ -62,7 +66,7 @@ def test_default_policy_renders_exact_bounded_round_robin_candidates():
         assert view.right_identity_id in row["right_support"]
 
     smaller_quota = min(action.quota for action in policy.actions)
-    paired_prefix = rows[: 2 * smaller_quota]
+    paired_prefix = rows[: len(policy.actions) * smaller_quota]
     assert [row["action_id"] for row in paired_prefix] == [
         action.action_id
         for _ in range(smaller_quota)
@@ -71,7 +75,7 @@ def test_default_policy_renders_exact_bounded_round_robin_candidates():
 
 
 def test_policy_and_candidate_rendering_are_canonical_and_order_independent():
-    first = _document(16)
+    first = _document(64)
     action_id = first["actions"][0]["action_id"]
     supports = [_fresh_support(action_id, 0), _fresh_support(action_id, 2)]
     _action(first, action_id)["supports"] = supports
@@ -105,6 +109,18 @@ def test_canonical_policy_round_trip_and_jsonl_render():
     assert [json.loads(line) for line in jsonl.splitlines()] == dsl.render_candidates(policy)
 
 
+def test_v2_seed_is_the_exact_canonical_production_policy():
+    seed_path = Path(__file__).resolve().parents[1] / "evolve/coset_seed_solution_v2.py"
+    seeded = dsl.parse_policy(seed_path.read_text())
+    baseline = dsl.default_policy()
+    assert seeded == baseline
+    assert seeded.action_catalog_id == (
+        "coset2bga-official-all-coset-actions-a828dc43-v2"
+    )
+    assert len(seeded.actions) == 46
+    assert len(dsl.render_candidates(seeded)) == MAX_GENERATED_CANDIDATES
+
+
 def test_full_384_candidate_set_migrates_to_compact_exact_anchor_policy():
     source = dsl.render_candidates(dsl.default_policy())
     migrated = dsl.policy_from_candidates(list(reversed(source)))
@@ -136,17 +152,21 @@ def test_full_384_candidate_set_migrates_to_compact_exact_anchor_policy():
 
 
 def test_candidate_migration_deduplicates_and_is_order_canonical():
-    source = dsl.render_candidates(dsl.default_policy(8))
+    source = dsl.render_candidates(
+        dsl.default_policy(dsl.REQUIRED_ACTION_VIEW_COUNT)
+    )
     one = dsl.policy_from_candidates(source + [copy.deepcopy(source[0])])
     two = dsl.policy_from_candidates(list(reversed(source)))
 
     assert one == two
-    assert one.candidate_limit == 8
+    assert one.candidate_limit == dsl.REQUIRED_ACTION_VIEW_COUNT
     assert dsl.canonical_policy_json(one) == dsl.canonical_policy_json(two)
 
 
 def test_candidate_migration_requires_normalized_rows_and_both_action_lanes():
-    source = dsl.render_candidates(dsl.default_policy(8))
+    source = dsl.render_candidates(
+        dsl.default_policy(dsl.REQUIRED_ACTION_VIEW_COUNT)
+    )
     changed = copy.deepcopy(source)
     changed[0]["left_support"].reverse()
     with pytest.raises(dsl.CosetPolicyError, match="not already normalized"):
@@ -154,7 +174,7 @@ def test_candidate_migration_requires_normalized_rows_and_both_action_lanes():
 
     first_action = source[0]["action_id"]
     one_lane = [row for row in source if row["action_id"] == first_action]
-    with pytest.raises(dsl.CosetPolicyError, match="cover both"):
+    with pytest.raises(dsl.CosetPolicyError, match="cover every"):
         dsl.policy_from_candidates(one_lane)
 
 
@@ -258,7 +278,7 @@ def test_valid_parse_and_render_never_call_python_eval_or_exec(monkeypatch):
     assert len(dsl.render_candidates(policy)) == MAX_GENERATED_CANDIDATES
 
 
-@pytest.mark.parametrize("candidate_limit", [2, 383])
+@pytest.mark.parametrize("candidate_limit", [46, 383])
 def test_production_parser_requires_the_full_candidate_portfolio(candidate_limit):
     policy = dsl.default_policy(candidate_limit)
 
@@ -269,17 +289,16 @@ def test_production_parser_requires_the_full_candidate_portfolio(candidate_limit
         dsl.parse_policy(dsl.canonical_policy_json(policy))
 
 
-@pytest.mark.parametrize("quotas", [(192, 192), (287, 97)])
-def test_production_parser_requires_exact_catalog_derived_lane_quotas(quotas):
+def test_production_parser_requires_exact_catalog_derived_lane_quotas():
     document = _document(MAX_GENERATED_CANDIDATES)
-    for action, quota in zip(document["actions"], quotas, strict=True):
-        action["quota"] = quota
+    document["actions"][0]["quota"] += 1
+    document["actions"][1]["quota"] -= 1
 
-    # The generic schema permits alternative balanced lane allocations for
+    # The generic schema permits alternative per-action allocations for
     # trusted migrations; untrusted evolved text may not use them to game the
     # portfolio composition.
     normalized = dsl.normalize_policy(document)
-    assert tuple(action.quota for action in normalized.actions) == quotas
+    assert sum(action.quota for action in normalized.actions) == 384
     with pytest.raises(dsl.CosetPolicyError, match="quota must be exactly"):
         dsl.parse_policy(json.dumps(document))
 
@@ -382,6 +401,11 @@ def test_production_split_duplicates_and_catalog_binding_fail_closed():
     with pytest.raises(dsl.CosetPolicyError, match="catalog binding changed"):
         dsl.normalize_policy(wrong_catalog)
 
+    wrong_catalog_id = _document()
+    wrong_catalog_id["action_catalog_id"] = "coset-two-block-actions-v1"
+    with pytest.raises(dsl.CosetPolicyError, match="catalog ID changed"):
+        dsl.normalize_policy(wrong_catalog_id)
+
 
 def test_action_set_quota_and_published_support_contracts_are_exact():
     document = _document()
@@ -434,7 +458,7 @@ def test_pair_walk_is_bounded_coprime_and_canonical_when_disabled():
 
 
 def test_typed_policy_is_frozen_and_render_rechecks_catalog(monkeypatch):
-    policy = dsl.default_policy(8)
+    policy = dsl.default_policy(dsl.REQUIRED_ACTION_VIEW_COUNT)
     with pytest.raises(FrozenInstanceError):
         policy.candidate_limit = 9
 
@@ -444,8 +468,9 @@ def test_typed_policy_is_frozen_and_render_rechecks_catalog(monkeypatch):
 
 
 def test_manually_constructed_typed_value_cannot_bypass_schema_validation():
-    valid = dsl.default_policy(8)
+    valid = dsl.default_policy(dsl.REQUIRED_ACTION_VIEW_COUNT)
     invalid = dsl.CosetPolicy(
+        action_catalog_id=valid.action_catalog_id,
         action_catalog_sha256=valid.action_catalog_sha256,
         candidate_limit=MAX_GENERATED_CANDIDATES + 1,
         actions=valid.actions,

@@ -145,7 +145,7 @@ def _write_smoke_inputs(
     seed = tmp_path / "coset_smoke_seed.json"
     seed.write_text(_policy_text())
     config_value = yaml.safe_load(
-        (PROJECT / "evolve/coset_config.yaml").read_text()
+        (PROJECT / "evolve/coset_config_v2.yaml").read_text()
     )
     if not fixed_coset_portfolio:
         config_value.pop("qcode_coset_search_portfolio", None)
@@ -286,7 +286,7 @@ def test_coset_launcher_completes_one_real_openevolve_iteration(tmp_path):
         for line in (output / "all_codes.jsonl").read_text().splitlines()
     ]
     assert rows
-    assert all(row["construction"]["kind"] == "coset-two-block-v1" for row in rows)
+    assert all(row["construction"]["kind"] == "coset-two-block-v2" for row in rows)
     assert wrong_resume.returncode != 0
     assert "not default" in (wrong_resume.stdout + wrong_resume.stderr)
 
@@ -595,8 +595,8 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
         )
         assert "winner_preflight_lattices" not in metrics
         assert metrics["winner_preflight_unit_kind_id"] == 1.0
-        assert metrics["winner_preflight_units"] == 2.0
-        assert metrics["winner_preflight_action_strata"] == 2.0
+        assert metrics["winner_preflight_units"] == 46.0
+        assert metrics["winner_preflight_action_strata"] == 46.0
     assert len(policy_digests) >= 4
     metadata = json.loads(
         (output / "checkpoints/checkpoint_4/metadata.json").read_text()

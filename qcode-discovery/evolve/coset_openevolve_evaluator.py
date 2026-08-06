@@ -12,15 +12,20 @@ from __future__ import annotations
 
 import hashlib
 import ctypes
+import fcntl
 import json
 import math
 import os
 import signal
+import stat
+import subprocess
 import sys
 import threading
 import time
 from collections import Counter
 from collections.abc import Mapping
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -43,8 +48,16 @@ from evolve.coset_search_contract import (
     COSET_MAP_SCHEMA_VERSION,
     COSET_NONNORMAL_LANE_METRIC,
     COSET_NORMAL_LANE_METRIC,
+    COSET_PROOF_BATCH_WALL_TIMEOUT_S,
+    COSET_PROOF_CACHE_DIRECTORY,
+    COSET_PROOF_LADDER_SCHEMA_VERSION,
+    COSET_PROOF_LADDER_START_WEIGHT,
+    COSET_PROOF_LADDER_VERSION_METRIC,
+    COSET_PROOF_LADDER_WEIGHT_STEP,
+    COSET_PROOF_MAX_CANDIDATES_PER_BATCH,
+    COSET_PROOF_MAX_NEW_STEPS_PER_BATCH,
+    COSET_PROOF_STEP_HARD_TIMEOUT_S,
     COSET_SUPPORT_ORBIT_BINS,
-    LOW_WEIGHT_ORACLE_THRESHOLD,
     MAX_GENERATED_CANDIDATES,
     TARGET_FOM,
     action_search_view,
@@ -74,9 +87,21 @@ PREFLIGHT_UNIT_KIND_ID = 1.0  # action strata, not BB lattices
 PREFLIGHT_UNIT_KIND_ID_METRIC = "winner_preflight_unit_kind_id"
 PREFLIGHT_UNITS_METRIC = "winner_preflight_units"
 PREFLIGHT_ACTION_STRATA_METRIC = "winner_preflight_action_strata"
-MAX_ORACLE_CANDIDATES = 8
+MAX_ORACLE_CANDIDATES = COSET_PROOF_MAX_CANDIDATES_PER_BATCH
 COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
 COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
+_PROOF_CACHE_KIND = "qcode-coset-stage1-proof-cache"
+_PROOF_CACHE_SCHEMA_VERSION = 2
+_PROOF_CACHE_COMMIT_KIND = "qcode-coset-stage1-proof-cache-commit"
+_PROOF_LEDGER_KIND = "qcode-coset-stage1-proof-ledger-v1"
+_ORACLE_RUNG_WORKER_SCHEMA_VERSION = 1
+_ORACLE_RUNG_WORKER_MAX_BYTES = 64 * 1024 * 1024
+_ORACLE_RUNG_KILL_GRACE_S = 0.25
+_ORACLE_INITIAL_TIMEOUT_S = 7.5
+_ORACLE_UNKNOWN_RETRY_BACKOFF_S = 1.0
+_ORACLE_FRONTIER_WIDTH = 2
+_PROOF_CACHE_MAX_BYTES = 64 * 1024 * 1024
+_PROOF_EVALUATION_LOCAL = threading.local()
 
 
 def _source_sha256(path: str | Path) -> str:
@@ -171,7 +196,7 @@ def _action_catalog_sha256() -> str:
 
     from evaluation import coset_two_block as builder
 
-    value = getattr(builder, "ACTION_CATALOG_SHA256", None)
+    value = getattr(builder, "ACTION_CATALOG_V2_SHA256", None)
     if callable(value):
         value = value()
     if value is None:
@@ -180,7 +205,7 @@ def _action_catalog_sha256() -> str:
             value = provider()
     if value is None:
         catalog_path = Path(builder.__file__).with_name(
-            "coset_two_block_actions.v1.json"
+            "coset_two_block_actions.v2.json"
         )
         value = _source_sha256(catalog_path)
     if (
@@ -201,10 +226,14 @@ def _action_catalog_contract_id() -> float:
 def _stage2_construction(candidate: Mapping[str, Any]) -> dict[str, Any]:
     """Export the compact, source-bound construction consumed by Stage 2."""
 
+    from evaluation.coset_action_catalog import V2_CATALOG_ID
+
     normalized = normalize_candidate(candidate)
     construction = {
-        "kind": "coset-two-block-v1",
+        "kind": "coset-two-block-v2",
+        "representation_id": normalized["representation_id"],
         "action_id": normalized["action_id"],
+        "action_catalog_id": V2_CATALOG_ID,
         "action_catalog_sha256": _action_catalog_sha256(),
         "left_support": list(normalized["left_support"]),
         "right_support": list(normalized["right_support"]),
@@ -307,20 +336,1030 @@ def _static_candidate(candidate: Mapping[str, Any]) -> dict[str, Any]:
 def _dynamic_rejection_cutoff(n: int, k: int) -> int | None:
     if k <= 0:
         return None
-    return int(math.floor(math.sqrt(TARGET_FOM * n / k)))
+    target = int(TARGET_FOM)
+    if float(target) != TARGET_FOM:
+        raise RuntimeError("coset target FOM must have an integer contract")
+    # The challenge is strict: FOM must be greater than 12.  This is the
+    # greatest integer witness weight w for which k*w^2 <= 12*n, including
+    # equality.  Integer arithmetic avoids a perfect-square float rounding
+    # error accidentally accepting a non-winner.
+    return math.isqrt((target * int(n)) // int(k))
+
+
+def _proof_ladder(cutoff: int) -> tuple[int, ...]:
+    """Return 4,6,8,... plus the exact (possibly odd/small) cutoff."""
+
+    if isinstance(cutoff, bool) or not isinstance(cutoff, int) or cutoff < 1:
+        return ()
+    if cutoff <= COSET_PROOF_LADDER_START_WEIGHT:
+        return (cutoff,)
+    thresholds = list(range(
+        COSET_PROOF_LADDER_START_WEIGHT,
+        cutoff + 1,
+        COSET_PROOF_LADDER_WEIGHT_STEP,
+    ))
+    if thresholds[-1] != cutoff:
+        thresholds.append(cutoff)
+    return tuple(thresholds)
+
+
+@dataclass
+class _OracleBatchBudget:
+    """Non-resettable batch wall and count budget for new solver decisions."""
+
+    remaining_new_steps: int
+    deadline: float
+
+    @classmethod
+    def production(cls) -> "_OracleBatchBudget":
+        return cls(
+            remaining_new_steps=COSET_PROOF_MAX_NEW_STEPS_PER_BATCH,
+            deadline=time.monotonic() + COSET_PROOF_BATCH_WALL_TIMEOUT_S,
+        )
+
+    @classmethod
+    def single_step(cls) -> "_OracleBatchBudget":
+        return cls(
+            remaining_new_steps=1,
+            deadline=time.monotonic() + COSET_PROOF_STEP_HARD_TIMEOUT_S,
+        )
+
+    def remaining_wall(self) -> float:
+        return max(0.0, self.deadline - time.monotonic())
+
+    def claim_timeout(self, *, requested_cap_s: float) -> float | None:
+        remaining_wall = self.deadline - time.monotonic()
+        if self.remaining_new_steps <= 0 or remaining_wall <= 0:
+            return None
+        self.remaining_new_steps -= 1
+        return min(
+            COSET_PROOF_STEP_HARD_TIMEOUT_S,
+            float(requested_cap_s),
+            remaining_wall,
+        )
+
+
+def _cache_canonical_sha256(value: Any) -> str:
+    return hashlib.sha256(json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+
+
+def _module_source_sha256(module: Any, *, label: str) -> str:
+    source = getattr(module, "__file__", None)
+    if not isinstance(source, str):
+        raise RuntimeError(f"cannot fingerprint {label}")
+    path = Path(source)
+    if path.is_symlink() or not path.is_file():
+        raise RuntimeError(f"cannot fingerprint {label}")
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _binary_matrix_binding(name: str, value: np.ndarray) -> dict[str, Any]:
+    matrix = np.ascontiguousarray(np.asarray(value, dtype=np.uint8) & 1)
+    if matrix.ndim != 2:
+        raise RuntimeError(f"{name} must be a binary matrix")
+    packed = np.packbits(matrix.reshape(-1), bitorder="little").tobytes()
+    payload = {
+        "name": name,
+        "shape": [int(item) for item in matrix.shape],
+        "packed_sha256": hashlib.sha256(packed).hexdigest(),
+    }
+    payload["binding_sha256"] = _cache_canonical_sha256(payload)
+    return payload
+
+
+def _proof_problem_binding(
+    *,
+    candidate_sha256: str,
+    threshold: int,
+    hx: np.ndarray,
+    hz: np.ndarray,
+) -> dict[str, Any]:
+    from evaluation import css_logical_detector, distance_sat, low_weight_oracle
+
+    payload = {
+        "candidate_sha256": candidate_sha256,
+        "max_weight": threshold,
+        "action_catalog_sha256": _action_catalog_sha256(),
+        "hx": _binary_matrix_binding("hx", hx),
+        "hz": _binary_matrix_binding("hz", hz),
+        "source_sha256": {
+            "coset_openevolve_evaluator": _module_source_sha256(
+                sys.modules[__name__],
+                label="coset_openevolve_evaluator.py",
+            ),
+            "low_weight_oracle": _module_source_sha256(
+                low_weight_oracle,
+                label="low_weight_oracle.py",
+            ),
+            "distance_sat": _module_source_sha256(
+                distance_sat,
+                label="distance_sat.py",
+            ),
+            "css_logical_detector": _module_source_sha256(
+                css_logical_detector,
+                label="css_logical_detector.py",
+            ),
+        },
+    }
+    payload["binding_sha256"] = _cache_canonical_sha256(payload)
+    return payload
+
+
+def _strict_self_hashed_mapping(
+    value: Any,
+    *,
+    hash_field: str,
+) -> bool:
+    if not isinstance(value, Mapping):
+        return False
+    unsigned = dict(value)
+    stored = unsigned.pop(hash_field, None)
+    try:
+        return (
+            isinstance(stored, str)
+            and len(stored) == 64
+            and stored == _cache_canonical_sha256(unsigned)
+        )
+    except (TypeError, ValueError):
+        return False
+
+
+def _light_oracle_evidence_valid(
+    evidence: Any,
+    *,
+    threshold: int,
+) -> bool:
+    """Validate sealed Stage-1 evidence without rerunning MITM or SAT.
+
+    This path is restricted to a run-owned, candidate-log-committed ledger.
+    Publication stages independently rebuild and reprove the candidate.
+    """
+
+    from evaluation import low_weight_oracle
+
+    if not _strict_self_hashed_mapping(
+        evidence,
+        hash_field="evidence_sha256",
+    ):
+        return False
+    assert isinstance(evidence, Mapping)
+    outcome = evidence.get("outcome")
+    sectors = evidence.get("sectors")
+    if not (
+        evidence.get("schema_version")
+        == low_weight_oracle.LOW_WEIGHT_ORACLE_SCHEMA_VERSION
+        and evidence.get("kind") == low_weight_oracle.LOW_WEIGHT_ORACLE_KIND
+        and evidence.get("source_sha256")
+        == _module_source_sha256(low_weight_oracle, label="low_weight_oracle.py")
+        and evidence.get("max_weight") == threshold
+        and outcome in {"SAT", "UNSAT", "UNKNOWN"}
+        and isinstance(sectors, Mapping)
+        and set(sectors) <= {"X", "Z"}
+    ):
+        return False
+    sector_outcomes: dict[str, str] = {}
+    for sector, raw in sectors.items():
+        if not _strict_self_hashed_mapping(raw, hash_field="evidence_sha256"):
+            return False
+        assert isinstance(raw, Mapping)
+        sector_outcome = raw.get("outcome")
+        binding = raw.get("binding")
+        if not (
+            raw.get("schema_version")
+            == low_weight_oracle.LOW_WEIGHT_ORACLE_SCHEMA_VERSION
+            and raw.get("kind") == low_weight_oracle.LOW_WEIGHT_SECTOR_KIND
+            and raw.get("max_weight") == threshold
+            and sector_outcome in {"SAT", "UNSAT", "UNKNOWN"}
+            and isinstance(binding, Mapping)
+            and binding.get("source_sha256")
+            == _module_source_sha256(
+                low_weight_oracle,
+                label="low_weight_oracle.py",
+            )
+            and binding.get("sector") == sector
+            and binding.get("max_weight") == threshold
+        ):
+            return False
+        binding_unsigned = dict(binding)
+        binding_hash = binding_unsigned.pop("binding_sha256", None)
+        if binding_hash != _cache_canonical_sha256(binding_unsigned):
+            return False
+        sector_outcomes[str(sector)] = str(sector_outcome)
+    if outcome == "SAT":
+        sat = [side for side, value in sector_outcomes.items() if value == "SAT"]
+        return bool(
+            sat
+            and evidence.get("decision_complete") is True
+            and evidence.get("retryable") is False
+            and evidence.get("witness") == sectors[sat[0]].get("witness")
+            and evidence.get("distance_lower_bound") is None
+        )
+    if outcome == "UNSAT":
+        return bool(
+            sector_outcomes == {"X": "UNSAT", "Z": "UNSAT"}
+            and evidence.get("decision_complete") is True
+            and evidence.get("retryable") is False
+            and evidence.get("distance_lower_bound") == threshold + 1
+            and evidence.get("witness") is None
+        )
+    return bool(
+        evidence.get("decision_complete") is False
+        and evidence.get("retryable") is True
+        and evidence.get("distance_lower_bound") is None
+        and evidence.get("witness") is None
+        and not any(value == "SAT" for value in sector_outcomes.values())
+    )
+
+
+def _proof_cache_root() -> Path | None:
+    """Derive the cache solely from the managed absolute candidate log."""
+
+    raw_path = os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    if raw_path is None:
+        return None
+    if "\x00" in raw_path:
+        raise RuntimeError("coset candidate log path must be absolute")
+    candidate_log = Path(raw_path).expanduser()
+    if not candidate_log.is_absolute():
+        raise RuntimeError("coset candidate log path must be absolute")
+    from evolve.openevolve_evaluator import _canonical_candidate_log_path
+
+    candidate_log = _canonical_candidate_log_path(candidate_log)
+    return candidate_log.parent / COSET_PROOF_CACHE_DIRECTORY
+
+
+def _ensure_cache_directory(path: Path) -> None:
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError:
+        try:
+            path.mkdir(mode=0o700)
+        except FileExistsError:
+            pass
+        metadata = path.lstat()
+    if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+        raise RuntimeError(f"coset proof cache directory is unsafe: {path}")
+
+
+def _proof_cache_path(
+    candidate_sha256: str,
+    threshold: int,
+    *,
+    create_directories: bool,
+) -> Path | None:
+    if (
+        not isinstance(candidate_sha256, str)
+        or len(candidate_sha256) != 64
+        or any(character not in "0123456789abcdef" for character in candidate_sha256)
+    ):
+        raise RuntimeError("coset proof cache candidate digest is invalid")
+    if (
+        isinstance(threshold, bool)
+        or not isinstance(threshold, int)
+        or threshold < 1
+    ):
+        raise RuntimeError("coset proof cache threshold is invalid")
+    root = _proof_cache_root()
+    if root is None:
+        return None
+    try:
+        root.lstat()
+    except FileNotFoundError:
+        root_present = False
+    else:
+        root_present = True
+    if create_directories:
+        _ensure_cache_directory(root)
+    elif not root_present:
+        return root / candidate_sha256[:2] / (
+            f"{candidate_sha256}-w{threshold}.json"
+        )
+    else:
+        _ensure_cache_directory(root)
+    shard = root / candidate_sha256[:2]
+    try:
+        shard.lstat()
+    except FileNotFoundError:
+        shard_present = False
+    else:
+        shard_present = True
+    if create_directories:
+        _ensure_cache_directory(shard)
+    elif shard_present:
+        _ensure_cache_directory(shard)
+    return shard / f"{candidate_sha256}-w{threshold}.json"
+
+
+def _proof_cache_version_path(base_path: Path, cache_sha256: str) -> Path:
+    if (
+        not isinstance(cache_sha256, str)
+        or len(cache_sha256) != 64
+        or any(character not in "0123456789abcdef" for character in cache_sha256)
+    ):
+        raise RuntimeError("coset proof cache generation digest is invalid")
+    return base_path.with_name(
+        f"{base_path.stem}-{cache_sha256}{base_path.suffix}"
+    )
+
+
+def _proof_cache_version_paths(base_path: Path) -> list[Path]:
+    prefix = base_path.stem + "-"
+    versions = []
+    try:
+        entries = list(base_path.parent.iterdir())
+    except FileNotFoundError:
+        return []
+    for path in entries:
+        name = path.name
+        if not name.startswith(prefix) or not name.endswith(base_path.suffix):
+            continue
+        digest = name[len(prefix):-len(base_path.suffix)]
+        if (
+            len(digest) == 64
+            and all(character in "0123456789abcdef" for character in digest)
+        ):
+            versions.append(path)
+    return sorted(versions, key=lambda path: path.name)
+
+
+def _read_regular_json(path: Path) -> dict[str, Any] | None:
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise RuntimeError(f"cannot safely open coset proof cache: {path}") from exc
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise RuntimeError(f"coset proof cache is not a regular file: {path}")
+        if metadata.st_size < 2 or metadata.st_size > _PROOF_CACHE_MAX_BYTES:
+            return None
+        chunks: list[bytes] = []
+        remaining = metadata.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(1024 * 1024, remaining))
+            if not chunk:
+                return None
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        if os.fstat(descriptor).st_size != metadata.st_size:
+            return None
+    finally:
+        os.close(descriptor)
+    try:
+        value = json.loads(b"".join(chunks))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def _validated_cache_envelope(
+    raw: Any,
+    *,
+    candidate_sha256: str,
+    threshold: int,
+    hx: np.ndarray | None = None,
+    hz: np.ndarray | None = None,
+) -> dict[str, Any] | None:
+    if not isinstance(raw, Mapping):
+        return None
+    expected_fields = {
+        "schema_version",
+        "proof_ladder_version",
+        "kind",
+        "candidate_sha256",
+        "action_catalog_sha256",
+        "max_weight",
+        "problem_binding",
+        "attempts",
+        "latest_outcome",
+        "evidence",
+        "last_attempt",
+        "retry_not_before_unix",
+        "cache_sha256",
+    }
+    if set(raw) != expected_fields:
+        return None
+    unsigned = dict(raw)
+    stored_hash = unsigned.pop("cache_sha256", None)
+    try:
+        hash_valid = stored_hash == _cache_canonical_sha256(unsigned)
+    except (TypeError, ValueError):
+        return None
+    attempts = raw.get("attempts")
+    evidence = raw.get("evidence")
+    outcome = raw.get("latest_outcome")
+    retry_not_before = raw.get("retry_not_before_unix")
+    last_attempt = raw.get("last_attempt")
+    problem_binding = raw.get("problem_binding")
+    if not (
+        hash_valid
+        and raw.get("schema_version") == _PROOF_CACHE_SCHEMA_VERSION
+        and raw.get("proof_ladder_version")
+        == COSET_PROOF_LADDER_SCHEMA_VERSION
+        and raw.get("kind") == _PROOF_CACHE_KIND
+        and raw.get("candidate_sha256") == candidate_sha256
+        and raw.get("action_catalog_sha256") == _action_catalog_sha256()
+        and raw.get("max_weight") == threshold
+        and _strict_self_hashed_mapping(
+            problem_binding,
+            hash_field="binding_sha256",
+        )
+        and isinstance(attempts, int)
+        and not isinstance(attempts, bool)
+        and attempts >= 1
+        and outcome in {"SAT", "UNSAT", "UNKNOWN"}
+        and isinstance(retry_not_before, (int, float))
+        and not isinstance(retry_not_before, bool)
+        and math.isfinite(float(retry_not_before))
+        and float(retry_not_before) >= 0
+        and isinstance(last_attempt, Mapping)
+        and _strict_self_hashed_mapping(
+            last_attempt,
+            hash_field="attempt_sha256",
+        )
+        and last_attempt.get("outcome") == outcome
+        and last_attempt.get("strategy_id")
+        in {
+            "sector-resume-timeout-7.5s-v1",
+            "sector-resume-timeout-15s-v1",
+            "sector-resume-timeout-30s-v1",
+        }
+        and isinstance(last_attempt.get("timeout_s"), (int, float))
+        and not isinstance(last_attempt.get("timeout_s"), bool)
+        and math.isfinite(float(last_attempt["timeout_s"]))
+        and 0 < float(last_attempt["timeout_s"])
+        <= COSET_PROOF_STEP_HARD_TIMEOUT_S
+    ):
+        return None
+    if evidence is not None and not _light_oracle_evidence_valid(
+        evidence,
+        threshold=threshold,
+    ):
+        return None
+    if outcome in {"SAT", "UNSAT"} and (
+        not isinstance(evidence, Mapping)
+        or evidence.get("outcome") != outcome
+    ):
+        return None
+    if outcome == "UNKNOWN" and (
+        evidence is not None
+        and isinstance(evidence, Mapping)
+        and evidence.get("outcome") != "UNKNOWN"
+    ):
+        return None
+    if hx is not None and hz is not None:
+        expected_problem = _proof_problem_binding(
+            candidate_sha256=candidate_sha256,
+            threshold=threshold,
+            hx=hx,
+            hz=hz,
+        )
+        if dict(problem_binding) != expected_problem:
+            return None
+    return dict(raw)
+
+
+def _load_cached_evidence(
+    candidate_sha256: str,
+    threshold: int,
+    *,
+    hx: np.ndarray | None = None,
+    hz: np.ndarray | None = None,
+    require_committed: bool = True,
+) -> dict[str, Any] | None:
+    base_path = _proof_cache_path(
+        candidate_sha256,
+        threshold,
+        create_directories=False,
+    )
+    if base_path is None:
+        return None
+    candidates: list[tuple[int, str, dict[str, Any]]] = []
+    for path in _proof_cache_version_paths(base_path):
+        envelope = _validated_cache_envelope(
+            _read_regular_json(path),
+            candidate_sha256=candidate_sha256,
+            threshold=threshold,
+            hx=hx,
+            hz=hz,
+        )
+        if envelope is None:
+            continue
+        if path != _proof_cache_version_path(
+            base_path,
+            str(envelope["cache_sha256"]),
+        ):
+            continue
+        if require_committed and not _cache_commit_valid(path, envelope):
+            continue
+        candidates.append((
+            int(envelope["attempts"]),
+            str(envelope["cache_sha256"]),
+            envelope,
+        ))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda item: (item[0], item[1]))[2]
+
+
+def _cache_generations(
+    base_path: Path,
+    *,
+    candidate_sha256: str,
+    threshold: int,
+    hx: np.ndarray,
+    hz: np.ndarray,
+) -> list[tuple[Path, dict[str, Any], bool]]:
+    records = []
+    for path in _proof_cache_version_paths(base_path):
+        envelope = _validated_cache_envelope(
+            _read_regular_json(path),
+            candidate_sha256=candidate_sha256,
+            threshold=threshold,
+            hx=hx,
+            hz=hz,
+        )
+        if envelope is None or path != _proof_cache_version_path(
+            base_path,
+            str(envelope["cache_sha256"]),
+        ):
+            continue
+        records.append((path, envelope, _cache_commit_valid(path, envelope)))
+    return records
+
+
+def _atomic_write_cache(path: Path, payload: Mapping[str, Any]) -> None:
+    if path.exists() or path.is_symlink():
+        metadata = path.lstat()
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
+            raise RuntimeError(f"refusing unsafe coset proof cache target: {path}")
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    temporary = path.with_name(
+        f".{path.name}.tmp-{os.getpid()}-{threading.get_ident()}-{time.time_ns()}"
+    )
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(temporary, flags, 0o600)
+    try:
+        try:
+            written = 0
+            while written < len(encoded):
+                count = os.write(descriptor, encoded[written:])
+                if count <= 0:
+                    raise OSError("coset proof cache write made no progress")
+                written += count
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        os.replace(temporary, path)
+        directory_flags = os.O_RDONLY | os.O_CLOEXEC
+        if hasattr(os, "O_DIRECTORY"):
+            directory_flags |= os.O_DIRECTORY
+        directory = os.open(path.parent, directory_flags)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _write_immutable_cache(path: Path, payload: Mapping[str, Any]) -> None:
+    existing = _read_regular_json(path)
+    if existing is not None:
+        if existing != dict(payload):
+            raise RuntimeError("immutable coset proof generation changed")
+        return
+    if path.exists() or path.is_symlink():
+        raise RuntimeError("immutable coset proof generation is unsafe")
+    _atomic_write_cache(path, payload)
+    if _read_regular_json(path) != dict(payload):
+        raise RuntimeError("immutable coset proof generation did not replay")
+
+
+@contextmanager
+def _proof_evaluation_lease():
+    """Make pending entries live only for one active evaluator transaction."""
+
+    existing = getattr(_PROOF_EVALUATION_LOCAL, "token", None)
+    if isinstance(existing, str):
+        yield existing
+        return
+    root = _proof_cache_root()
+    if root is None:
+        yield None
+        return
+    _ensure_cache_directory(root)
+    lease_directory = root / ".leases"
+    _ensure_cache_directory(lease_directory)
+    process = _process_identity()
+    token = hashlib.sha256(json.dumps({
+        "process": process,
+        "thread": threading.get_ident(),
+        "time_ns": time.time_ns(),
+    }, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    lease_path = lease_directory / f"{token}.json"
+    marker = {
+        "schema_version": 1,
+        "kind": "qcode-coset-proof-evaluation-lease",
+        "token": token,
+        "process": process,
+    }
+    marker["lease_sha256"] = _cache_canonical_sha256(marker)
+    _atomic_write_cache(lease_path, marker)
+    _PROOF_EVALUATION_LOCAL.token = token
+    try:
+        yield token
+    finally:
+        _PROOF_EVALUATION_LOCAL.token = None
+        try:
+            lease_path.unlink()
+        except FileNotFoundError:
+            pass
+        flags = os.O_RDONLY | os.O_CLOEXEC
+        if hasattr(os, "O_DIRECTORY"):
+            flags |= os.O_DIRECTORY
+        descriptor = os.open(lease_directory, flags)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+
+
+def _seal_cache_envelope(
+    *,
+    candidate_sha256: str,
+    threshold: int,
+    attempts: int,
+    hx: np.ndarray,
+    hz: np.ndarray,
+    evidence: Mapping[str, Any] | None,
+    last_attempt: Mapping[str, Any],
+) -> dict[str, Any]:
+    unsigned_attempt = dict(last_attempt)
+    unsigned_attempt.pop("attempt_sha256", None)
+    outcome = unsigned_attempt.get("outcome")
+    if outcome not in {"SAT", "UNSAT", "UNKNOWN"}:
+        raise RuntimeError("coset proof attempt outcome is invalid")
+    envelope = {
+        "schema_version": _PROOF_CACHE_SCHEMA_VERSION,
+        "proof_ladder_version": COSET_PROOF_LADDER_SCHEMA_VERSION,
+        "kind": _PROOF_CACHE_KIND,
+        "candidate_sha256": candidate_sha256,
+        "action_catalog_sha256": _action_catalog_sha256(),
+        "max_weight": threshold,
+        "problem_binding": _proof_problem_binding(
+            candidate_sha256=candidate_sha256,
+            threshold=threshold,
+            hx=hx,
+            hz=hz,
+        ),
+        "attempts": attempts,
+        "latest_outcome": outcome,
+        "evidence": None if evidence is None else dict(evidence),
+        "last_attempt": {
+            **unsigned_attempt,
+            "attempt_sha256": _cache_canonical_sha256(unsigned_attempt),
+        },
+        "retry_not_before_unix": (
+            0.0
+            if outcome in {"SAT", "UNSAT"}
+            else time.time() + _ORACLE_UNKNOWN_RETRY_BACKOFF_S
+        ),
+    }
+    envelope["cache_sha256"] = _cache_canonical_sha256(envelope)
+    return envelope
+
+
+def _cache_commit_path(cache_path: Path) -> Path:
+    return cache_path.with_name(cache_path.name + ".commit.json")
+
+
+def _proof_ledger_for_row(row: Mapping[str, Any]) -> dict[str, Any]:
+    entries = []
+    for raw in row.get("oracle_ladder_history", []):
+        if not isinstance(raw, Mapping):
+            continue
+        cache_sha256 = raw.get("cache_sha256")
+        evidence_sha256 = raw.get("evidence_sha256")
+        attempt_sha256 = raw.get("attempt_sha256")
+        threshold = raw.get("threshold")
+        outcome = raw.get("outcome")
+        if (
+            isinstance(cache_sha256, str)
+            and len(cache_sha256) == 64
+            and (
+                isinstance(evidence_sha256, str)
+                and len(evidence_sha256) == 64
+                or evidence_sha256 is None
+                and isinstance(attempt_sha256, str)
+                and len(attempt_sha256) == 64
+            )
+            and isinstance(threshold, int)
+            and not isinstance(threshold, bool)
+            and outcome in {"SAT", "UNSAT", "UNKNOWN"}
+        ):
+            entries.append({
+                "threshold": threshold,
+                "outcome": outcome,
+                "evidence_sha256": evidence_sha256,
+                "attempt_sha256": attempt_sha256,
+                "cache_sha256": cache_sha256,
+            })
+    entries.sort(key=lambda item: item["threshold"])
+    payload = {
+        "kind": _PROOF_LEDGER_KIND,
+        "schema_version": 1,
+        "proof_ladder_version": COSET_PROOF_LADDER_SCHEMA_VERSION,
+        "candidate_sha256": row["candidate_sha256"],
+        "entries": entries,
+    }
+    payload["root_sha256"] = _cache_canonical_sha256(payload)
+    return payload
+
+
+def _candidate_range_payload(identity: Mapping[str, Any]) -> bytes | None:
+    required = {
+        "path",
+        "device",
+        "inode",
+        "start_offset",
+        "end_offset",
+        "sha256",
+        "bytes",
+        "wal_clean",
+    }
+    if set(identity) != required or identity.get("wal_clean") is not True:
+        return None
+    path_value = identity.get("path")
+    start = identity.get("start_offset")
+    end = identity.get("end_offset")
+    if (
+        not isinstance(path_value, str)
+        or not Path(path_value).is_absolute()
+        or isinstance(start, bool)
+        or not isinstance(start, int)
+        or isinstance(end, bool)
+        or not isinstance(end, int)
+        or not 0 <= start <= end
+    ):
+        return None
+    from evolve.openevolve_evaluator import candidate_log_range_identity
+
+    try:
+        observed = candidate_log_range_identity(
+            Path(path_value),
+            start_offset=start,
+            end_offset=end,
+        )
+    except Exception:
+        return None
+    if observed != dict(identity):
+        return None
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path_value, flags)
+    except OSError:
+        return None
+    try:
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_dev != identity["device"]
+            or metadata.st_ino != identity["inode"]
+            or metadata.st_size < end
+        ):
+            return None
+        payload = bytearray()
+        position = start
+        while position < end:
+            chunk = os.pread(
+                descriptor,
+                min(1 << 20, end - position),
+                position,
+            )
+            if not chunk:
+                return None
+            payload.extend(chunk)
+            position += len(chunk)
+    finally:
+        os.close(descriptor)
+    if hashlib.sha256(payload).hexdigest() != identity["sha256"]:
+        return None
+    return bytes(payload)
+
+
+def _cache_commit_valid(
+    cache_path: Path,
+    envelope: Mapping[str, Any],
+) -> bool:
+    marker = _read_regular_json(_cache_commit_path(cache_path))
+    if not isinstance(marker, Mapping):
+        return False
+    expected = {
+        "schema_version",
+        "kind",
+        "candidate_sha256",
+        "max_weight",
+        "cache_sha256",
+        "ledger_root_sha256",
+        "candidate_log_range",
+        "commit_sha256",
+    }
+    if set(marker) != expected:
+        return False
+    unsigned = dict(marker)
+    commit_sha256 = unsigned.pop("commit_sha256", None)
+    if commit_sha256 != _cache_canonical_sha256(unsigned):
+        return False
+    candidate_log = _proof_cache_root()
+    if candidate_log is None:
+        return False
+    raw_log = os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    if raw_log is None:
+        return False
+    from evolve.openevolve_evaluator import _canonical_candidate_log_path
+
+    canonical_log = str(_canonical_candidate_log_path(raw_log))
+    identity = marker.get("candidate_log_range")
+    if not (
+        marker.get("schema_version") == 1
+        and marker.get("kind") == _PROOF_CACHE_COMMIT_KIND
+        and marker.get("candidate_sha256")
+        == envelope.get("candidate_sha256")
+        and marker.get("max_weight") == envelope.get("max_weight")
+        and marker.get("cache_sha256") == envelope.get("cache_sha256")
+        and isinstance(marker.get("ledger_root_sha256"), str)
+        and isinstance(identity, Mapping)
+        and identity.get("path") == canonical_log
+    ):
+        return False
+    payload = _candidate_range_payload(identity)
+    if payload is None:
+        return False
+    try:
+        rows = [
+            json.loads(line)
+            for line in payload.splitlines()
+            if line.strip()
+        ]
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    for row in rows:
+        if not isinstance(row, Mapping):
+            continue
+        ledger = row.get("proof_ledger")
+        if not isinstance(ledger, Mapping):
+            continue
+        unsigned_ledger = dict(ledger)
+        root = unsigned_ledger.pop("root_sha256", None)
+        if (
+            root != marker["ledger_root_sha256"]
+            or root != _cache_canonical_sha256(unsigned_ledger)
+            or ledger.get("kind") != _PROOF_LEDGER_KIND
+            or ledger.get("candidate_sha256")
+            != envelope.get("candidate_sha256")
+        ):
+            continue
+        entries = ledger.get("entries")
+        if isinstance(entries, list) and any(
+            isinstance(entry, Mapping)
+            and entry.get("max_weight", entry.get("threshold"))
+            == envelope.get("max_weight")
+            and entry.get("cache_sha256") == envelope.get("cache_sha256")
+            for entry in entries
+        ):
+            return True
+    return False
+
+
+def _commit_cache_entries(
+    rows: list[dict[str, Any]],
+    candidate_log_range: Mapping[str, Any],
+) -> None:
+    for row in rows:
+        ledger = _proof_ledger_for_row(row)
+        for entry in ledger["entries"]:
+            cache_base = _proof_cache_path(
+                row["candidate_sha256"],
+                int(entry["threshold"]),
+                create_directories=False,
+            )
+            if cache_base is None:
+                continue
+            cache_path = _proof_cache_version_path(
+                cache_base,
+                str(entry["cache_sha256"]),
+            )
+            envelope = _validated_cache_envelope(
+                _read_regular_json(cache_path),
+                candidate_sha256=row["candidate_sha256"],
+                threshold=int(entry["threshold"]),
+                hx=row["hx"],
+                hz=row["hz"],
+            )
+            if (
+                envelope is None
+                or envelope.get("cache_sha256") != entry["cache_sha256"]
+            ):
+                raise RuntimeError(
+                    "proof cache changed before candidate-log commit"
+                )
+            # Never move an already durable entry's only commit marker to a
+            # newer range. If that later round is abandoned/truncated, the
+            # historical proof frontier must remain recoverable.
+            if _cache_commit_valid(cache_path, envelope):
+                continue
+            marker = {
+                "schema_version": 1,
+                "kind": _PROOF_CACHE_COMMIT_KIND,
+                "candidate_sha256": row["candidate_sha256"],
+                "max_weight": int(entry["threshold"]),
+                "cache_sha256": entry["cache_sha256"],
+                "ledger_root_sha256": ledger["root_sha256"],
+                "candidate_log_range": dict(candidate_log_range),
+            }
+            marker["commit_sha256"] = _cache_canonical_sha256(marker)
+            _atomic_write_cache(_cache_commit_path(cache_path), marker)
+
+
+def _cache_progress_hint(row: Mapping[str, Any]) -> int:
+    """Untrusted scheduling hint; proof credit is always replayed later."""
+
+    cutoff = _dynamic_rejection_cutoff(int(row["n"]), int(row["k"]))
+    if cutoff is None:
+        return 0
+    progress = 0
+    ladder = _proof_ladder(cutoff)
+    for threshold in ladder:
+        cached = _load_cached_evidence(row["candidate_sha256"], threshold)
+        if cached is None:
+            break
+        outcome = cached["latest_outcome"]
+        if outcome == "UNSAT":
+            progress = threshold
+            continue
+        if outcome == "SAT":
+            return -1
+        break
+    else:
+        # A complete threshold proof is useful when hydrated, but it must not
+        # occupy a continuation slot or consume a new-step budget forever.
+        if ladder and progress == ladder[-1]:
+            return -1
+    return progress
 
 
 def _oracle_probe_rows(
     rows: list[dict[str, Any]],
     limit: int = MAX_ORACLE_CANDIDATES,
+    *,
+    selection_salt: str = "",
 ) -> list[dict[str, Any]]:
-    """Select proof probes without starving an action/normality stratum."""
+    """Select proof probes with progress priority and salted action rotation."""
 
     eligible = [
         row for row in rows if row["static_legal"] and row["k"] > 0
     ]
+    if not eligible or limit < 1:
+        return []
+    if not isinstance(selection_salt, str):
+        raise TypeError("oracle selection salt must be a string")
     views = action_search_views()
-    quotas = quota_by_normality(views, min(limit, len(eligible)))
+    total = min(limit, len(eligible))
+    fixed_quotas = quota_by_normality(views, total)
+    class_budgets = {
+        normal: sum(
+            fixed_quotas[view.action_id]
+            for view in views
+            if view.subgroup_normal is normal
+        )
+        for normal in (False, True)
+    }
 
     def priority(row: Mapping[str, Any]) -> tuple[Any, ...]:
         return (
@@ -329,164 +1368,1140 @@ def _oracle_probe_rows(
             row["candidate_sha256"],
         )
 
-    selected: list[dict[str, Any]] = []
-    selected_digests: set[str] = set()
-    for view in views:
-        action_rows = sorted(
-            (
-                row for row in eligible
-                if row["action_id"] == view.action_id
-            ),
+    def rendezvous(label: str) -> int:
+        return int.from_bytes(hashlib.sha256(
+            (selection_salt + "\0" + label).encode("utf-8")
+        ).digest(), "big")
+
+    progress = {
+        row["candidate_sha256"]: _cache_progress_hint(row)
+        for row in eligible
+    }
+
+    def action_rows(action_id: str) -> list[dict[str, Any]]:
+        ordered = sorted(
+            (row for row in eligible if row["action_id"] == action_id),
             key=priority,
         )
-        # Probe both high-rate and low-rate ends.  Ranking only by k/n starves
-        # the short-logical controls that provide the most useful concrete
-        # mutation failures.
-        diverse_action_rows: list[dict[str, Any]] = []
-        left, right = 0, len(action_rows) - 1
+        # Keep the historical high/low-rate alternation within each action,
+        # then stably lift candidates with an unfinished cached ladder.
+        diverse: list[dict[str, Any]] = []
+        left, right = 0, len(ordered) - 1
         while left <= right:
-            diverse_action_rows.append(action_rows[left])
+            diverse.append(ordered[left])
             left += 1
             if left <= right:
-                diverse_action_rows.append(action_rows[right])
+                diverse.append(ordered[right])
                 right -= 1
-        for row in diverse_action_rows[:quotas.get(view.action_id, 0)]:
-            selected.append(row)
-            selected_digests.add(row["candidate_sha256"])
-    if len(selected) < min(limit, len(eligible)):
+        diverse_index = {
+            row["candidate_sha256"]: index
+            for index, row in enumerate(diverse)
+        }
+        return sorted(
+            diverse,
+            key=lambda row: (
+                -progress[row["candidate_sha256"]],
+                diverse_index[row["candidate_sha256"]],
+            ),
+        )
+
+    selected: list[dict[str, Any]] = []
+    selected_digests: set[str] = set()
+    for normal in (False, True):
+        budget = class_budgets[normal]
+        if budget <= 0:
+            continue
+        class_views = [
+            view for view in views
+            if view.subgroup_normal is normal
+            and any(row["action_id"] == view.action_id for row in eligible)
+        ]
+        if not class_views:
+            continue
+        action_progress = {
+            view.action_id: max(
+                progress[row["candidate_sha256"]]
+                for row in eligible
+                if row["action_id"] == view.action_id
+            )
+            for view in class_views
+        }
+        # Reserve a rotating exploration slice so a large catalog cannot be
+        # permanently reduced to the lexicographically first few actions.
+        exploration_slots = (
+            max(1, budget // 3) if len(class_views) > 1 else 0
+        )
+        continuation_slots = max(0, budget - exploration_slots)
+        progressed = sorted(
+            (
+                view for view in class_views
+                if action_progress[view.action_id] > 0
+            ),
+            key=lambda view: (
+                -action_progress[view.action_id],
+                -rendezvous("action:" + view.action_id),
+                view.action_id,
+            ),
+        )
+        chosen = progressed[:continuation_slots]
+        chosen_ids = {view.action_id for view in chosen}
+        rotating = sorted(
+            (view for view in class_views if view.action_id not in chosen_ids),
+            key=lambda view: (
+                -rendezvous("action:" + view.action_id),
+                view.action_id,
+            ),
+        )
+        action_slots = min(budget, len(class_views))
+        chosen.extend(rotating[:max(0, action_slots - len(chosen))])
+
+        for view in chosen:
+            candidate = action_rows(view.action_id)[0]
+            selected.append(candidate)
+            selected_digests.add(candidate["candidate_sha256"])
+
+        remaining_class = budget - len(chosen)
+        if remaining_class > 0:
+            extras = sorted(
+                (
+                    row for row in eligible
+                    if row["subgroup_normal"] is normal
+                    and row["candidate_sha256"] not in selected_digests
+                ),
+                key=lambda row: (
+                    -progress[row["candidate_sha256"]],
+                    -rendezvous("candidate:" + row["candidate_sha256"]),
+                    *priority(row),
+                ),
+            )
+            for row in extras[:remaining_class]:
+                selected.append(row)
+                selected_digests.add(row["candidate_sha256"])
+
+    if len(selected) < total:
         remainder = sorted(
             (
                 row for row in eligible
                 if row["candidate_sha256"] not in selected_digests
             ),
             key=lambda row: (
-                row["subgroup_normal"],
+                -progress[row["candidate_sha256"]],
+                -rendezvous("candidate:" + row["candidate_sha256"]),
                 *priority(row),
             ),
         )
-        selected.extend(remainder[:limit - len(selected)])
+        selected.extend(remainder[:total - len(selected)])
     return selected
 
 
-def _run_oracle(row: dict[str, Any]) -> None:
-    if not row["static_legal"] or row["k"] <= 0:
-        row.update({
-            "oracle_outcome": "NOT_RUN",
-            "oracle_threshold": None,
-            "low_weight_oracle": None,
-            "distance_lower_bound": None,
-            "low_weight_witness": None,
-            "threshold_rejected": False,
-            "search_status": "invalid",
-        })
-        return
-    cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
-    assert cutoff is not None
-    threshold = min(LOW_WEIGHT_ORACLE_THRESHOLD, cutoff)
-    if threshold < 1:
-        row.update({
-            "oracle_outcome": "NOT_RUN",
-            "oracle_threshold": None,
-            "low_weight_oracle": None,
-            "distance_lower_bound": None,
-            "low_weight_witness": None,
-            "threshold_rejected": False,
-            "search_status": "unresolved",
-        })
-        return
-    code = codes.CSSCode(
-        row["hx"],
-        row["hz"],
-        field=2,
-        promise_equal_distance_xz=False,
+def _encoded_binary_matrix(value: np.ndarray) -> dict[str, Any]:
+    matrix = np.ascontiguousarray(np.asarray(value, dtype=np.uint8) & 1)
+    packed = np.packbits(matrix.reshape(-1), bitorder="little").tobytes()
+    payload = {
+        "shape": [int(item) for item in matrix.shape],
+        "packed_hex": packed.hex(),
+        "packed_sha256": hashlib.sha256(packed).hexdigest(),
+    }
+    return payload
+
+
+def _decoded_binary_matrix(value: Any, *, label: str) -> np.ndarray:
+    if not isinstance(value, Mapping) or set(value) != {
+        "shape",
+        "packed_hex",
+        "packed_sha256",
+    }:
+        raise ValueError(f"{label} worker matrix envelope is invalid")
+    shape = value.get("shape")
+    if (
+        not isinstance(shape, list)
+        or len(shape) != 2
+        or any(
+            isinstance(item, bool)
+            or not isinstance(item, int)
+            or not 0 <= item <= 8192
+            for item in shape
+        )
+        or shape[1] < 1
+    ):
+        raise ValueError(f"{label} worker matrix shape is invalid")
+    try:
+        packed = bytes.fromhex(str(value.get("packed_hex")))
+    except ValueError as exc:
+        raise ValueError(f"{label} worker matrix encoding is invalid") from exc
+    expected_bytes = (shape[0] * shape[1] + 7) // 8
+    if (
+        len(packed) != expected_bytes
+        or hashlib.sha256(packed).hexdigest() != value.get("packed_sha256")
+    ):
+        raise ValueError(f"{label} worker matrix digest is invalid")
+    bits = np.unpackbits(
+        np.frombuffer(packed, dtype=np.uint8),
+        bitorder="little",
+    )[: shape[0] * shape[1]]
+    return bits.reshape(shape).astype(np.uint8)
+
+
+def _oracle_rung_worker_payload(
+    row: Mapping[str, Any],
+    *,
+    threshold: int,
+    inner_timeout_s: float,
+    terminal_sectors: Mapping[str, Mapping[str, Any]],
+) -> bytes:
+    payload = {
+        "schema_version": _ORACLE_RUNG_WORKER_SCHEMA_VERSION,
+        "candidate_sha256": row["candidate_sha256"],
+        "expected_k": int(row["k"]),
+        "max_weight": threshold,
+        "inner_timeout_s": inner_timeout_s,
+        "hx": _encoded_binary_matrix(row["hx"]),
+        "hz": _encoded_binary_matrix(row["hz"]),
+        "terminal_sectors": dict(terminal_sectors),
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    if len(encoded) > _ORACLE_RUNG_WORKER_MAX_BYTES:
+        raise RuntimeError("coset oracle rung request exceeds the safety cap")
+    return encoded
+
+
+def _oracle_rung_worker_main() -> int:
+    try:
+        encoded = sys.stdin.buffer.read(_ORACLE_RUNG_WORKER_MAX_BYTES + 1)
+        if len(encoded) > _ORACLE_RUNG_WORKER_MAX_BYTES:
+            raise ValueError("oracle rung request exceeds the safety cap")
+        request = json.loads(encoded)
+        if not isinstance(request, Mapping) or set(request) != {
+            "schema_version",
+            "candidate_sha256",
+            "expected_k",
+            "max_weight",
+            "inner_timeout_s",
+            "hx",
+            "hz",
+            "terminal_sectors",
+        }:
+            raise ValueError("oracle rung request schema is invalid")
+        threshold = request["max_weight"]
+        expected_k = request["expected_k"]
+        timeout = request["inner_timeout_s"]
+        if (
+            request["schema_version"] != _ORACLE_RUNG_WORKER_SCHEMA_VERSION
+            or not isinstance(request["candidate_sha256"], str)
+            or len(request["candidate_sha256"]) != 64
+            or isinstance(threshold, bool)
+            or not isinstance(threshold, int)
+            or threshold < 1
+            or isinstance(expected_k, bool)
+            or not isinstance(expected_k, int)
+            or expected_k < 1
+            or isinstance(timeout, bool)
+            or not isinstance(timeout, (int, float))
+            or not math.isfinite(float(timeout))
+            or float(timeout) <= 0
+            or not isinstance(request["terminal_sectors"], Mapping)
+            or set(request["terminal_sectors"]) - {"X", "Z"}
+        ):
+            raise ValueError("oracle rung request values are invalid")
+        hx = _decoded_binary_matrix(request["hx"], label="HX")
+        hz = _decoded_binary_matrix(request["hz"], label="HZ")
+        code = codes.CSSCode(
+            hx,
+            hz,
+            field=2,
+            promise_equal_distance_xz=False,
+        )
+        if int(code.dimension) != expected_k:
+            raise RuntimeError(
+                "independent CSSCode dimension disagrees with GF2 rank"
+            )
+        lx = np.asarray(code.get_logical_ops(Pauli.X), dtype=np.uint8)
+        lz = np.asarray(code.get_logical_ops(Pauli.Z), dtype=np.uint8)
+        evidence = evaluate_css_low_weight_oracle(
+            hx,
+            hz,
+            lx,
+            lz,
+            max_weight=threshold,
+            hard_timeout_s=float(timeout),
+            terminal_sectors=request["terminal_sectors"],
+        )
+        failures = verify_css_low_weight_oracle(
+            evidence,
+            hx,
+            hz,
+            lx,
+            lz,
+            replay_mitm_unsat=False,
+        )
+        if failures:
+            raise RuntimeError(
+                "low-weight oracle did not replay: " + "; ".join(failures)
+            )
+        response = {
+            "schema_version": _ORACLE_RUNG_WORKER_SCHEMA_VERSION,
+            "status": "ok",
+            "evidence": evidence,
+        }
+    except BaseException as exc:
+        response = {
+            "schema_version": _ORACLE_RUNG_WORKER_SCHEMA_VERSION,
+            "status": "error",
+            "error_type": type(exc).__name__,
+            "error_sha256": hashlib.sha256(
+                f"{type(exc).__name__}:{exc}".encode(
+                    "utf-8",
+                    errors="replace",
+                )
+            ).hexdigest(),
+        }
+    result = json.dumps(
+        response,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    if len(result) > _ORACLE_RUNG_WORKER_MAX_BYTES:
+        return 2
+    sys.stdout.buffer.write(result)
+    sys.stdout.buffer.flush()
+    return 0 if response["status"] == "ok" else 1
+
+
+def _terminate_oracle_process_group(process: subprocess.Popen[bytes]) -> None:
+    pgid = process.pid
+    process.poll()
+
+    def group_exists() -> bool:
+        try:
+            os.killpg(pgid, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        return True
+
+    try:
+        os.killpg(pgid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    deadline = time.monotonic() + _ORACLE_RUNG_KILL_GRACE_S
+    while group_exists() and time.monotonic() < deadline:
+        process.poll()
+        time.sleep(0.01)
+    if group_exists():
+        try:
+            os.killpg(pgid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        deadline = time.monotonic() + _ORACLE_RUNG_KILL_GRACE_S
+        while group_exists() and time.monotonic() < deadline:
+            process.poll()
+            time.sleep(0.01)
+    try:
+        process.wait(timeout=_ORACLE_RUNG_KILL_GRACE_S)
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError("cannot reap coset oracle process-group leader") from exc
+    if group_exists():
+        raise RuntimeError("coset oracle process group survived SIGKILL")
+
+
+def _run_oracle_rung_hard_wall(
+    row: Mapping[str, Any],
+    *,
+    threshold: int,
+    timeout_s: float,
+    terminal_sectors: Mapping[str, Mapping[str, Any]],
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+    """Run logical construction and both sectors inside one killable wall."""
+
+    started = time.monotonic()
+    inner_timeout = max(0.05, float(timeout_s) - 0.5)
+    encoded = _oracle_rung_worker_payload(
+        row,
+        threshold=threshold,
+        inner_timeout_s=inner_timeout,
+        terminal_sectors=terminal_sectors,
     )
-    if int(code.dimension) != row["k"]:
-        raise RuntimeError("independent CSSCode dimension disagrees with GF2 rank")
-    lx = np.asarray(code.get_logical_ops(Pauli.X), dtype=np.uint8)
-    lz = np.asarray(code.get_logical_ops(Pauli.Z), dtype=np.uint8)
-    evidence = evaluate_css_low_weight_oracle(
-        row["hx"],
-        row["hz"],
-        lx,
-        lz,
-        max_weight=threshold,
-        hard_timeout_s=30.0,
+    worker_environment = os.environ.copy()
+    for name in (
+        "OMP_NUM_THREADS",
+        "OMP_THREAD_LIMIT",
+        "OPENBLAS_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+        "BLIS_NUM_THREADS",
+    ):
+        worker_environment[name] = "1"
+    process = subprocess.Popen(
+        [sys.executable, str(Path(__file__).resolve()), "--oracle-rung-worker"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+        env=worker_environment,
     )
-    failures = verify_css_low_weight_oracle(
-        evidence,
-        row["hx"],
-        row["hz"],
-        lx,
-        lz,
+    hard_wall_timeout = False
+    worker_failed = False
+    try:
+        output, _ = process.communicate(input=encoded, timeout=float(timeout_s))
+    except subprocess.TimeoutExpired:
+        hard_wall_timeout = True
+        _terminate_oracle_process_group(process)
+        output = b""
+    else:
+        # A solver descendant must never outlive a normally exiting or failed
+        # worker leader. The group cleanup is intentionally unconditional.
+        _terminate_oracle_process_group(process)
+    if len(output) > _ORACLE_RUNG_WORKER_MAX_BYTES:
+        worker_failed = True
+        output = b""
+    evidence: dict[str, Any] | None = None
+    if not hard_wall_timeout and process.returncode == 0:
+        try:
+            response = json.loads(output)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            worker_failed = True
+        else:
+            if (
+                isinstance(response, Mapping)
+                and response.get("schema_version")
+                == _ORACLE_RUNG_WORKER_SCHEMA_VERSION
+                and response.get("status") == "ok"
+                and _light_oracle_evidence_valid(
+                    response.get("evidence"),
+                    threshold=threshold,
+                )
+            ):
+                evidence = dict(response["evidence"])
+            else:
+                worker_failed = True
+    elif not hard_wall_timeout:
+        worker_failed = True
+    return evidence, {
+        "hard_wall_timeout": hard_wall_timeout,
+        "worker_failed": worker_failed,
+        "elapsed_s": time.monotonic() - started,
+        "resumed_sectors": sorted(terminal_sectors),
+    }
+
+
+def _attempt_timeout_strategy(attempts_before: int) -> tuple[str, float]:
+    if attempts_before <= 0:
+        return "sector-resume-timeout-7.5s-v1", _ORACLE_INITIAL_TIMEOUT_S
+    if attempts_before == 1:
+        return "sector-resume-timeout-15s-v1", 2 * _ORACLE_INITIAL_TIMEOUT_S
+    return "sector-resume-timeout-30s-v1", COSET_PROOF_STEP_HARD_TIMEOUT_S
+
+
+def _process_identity(pid: int | None = None) -> dict[str, int]:
+    selected_pid = os.getpid() if pid is None else int(pid)
+    start_ticks = -1
+    try:
+        fields = Path(f"/proc/{selected_pid}/stat").read_text().split()
+        start_ticks = int(fields[21])
+    except (OSError, ValueError, IndexError):
+        pass
+    return {"pid": selected_pid, "linux_start_ticks": start_ticks}
+
+
+def _pending_writer_alive(last_attempt: Any) -> bool:
+    if not isinstance(last_attempt, Mapping):
+        return False
+    identity = last_attempt.get("writer_process")
+    token = last_attempt.get("evaluation_token")
+    if not isinstance(identity, Mapping) or set(identity) != {
+        "pid",
+        "linux_start_ticks",
+    }:
+        return False
+    pid = identity.get("pid")
+    start_ticks = identity.get("linux_start_ticks")
+    if (
+        isinstance(pid, bool)
+        or not isinstance(pid, int)
+        or pid < 1
+        or isinstance(start_ticks, bool)
+        or not isinstance(start_ticks, int)
+        or not isinstance(token, str)
+        or len(token) != 64
+    ):
+        return False
+    observed = _process_identity(pid)
+    if observed["linux_start_ticks"] < 0 or observed != dict(identity):
+        return False
+    root = _proof_cache_root()
+    if root is None:
+        return False
+    marker = _read_regular_json(root / ".leases" / f"{token}.json")
+    return bool(
+        isinstance(marker, Mapping)
+        and set(marker) == {
+            "schema_version",
+            "kind",
+            "token",
+            "process",
+            "lease_sha256",
+        }
+        and marker.get("schema_version") == 1
+        and marker.get("kind") == "qcode-coset-proof-evaluation-lease"
+        and marker.get("token") == token
+        and marker.get("process") == dict(identity)
+        and _strict_self_hashed_mapping(
+            marker,
+            hash_field="lease_sha256",
+        )
     )
-    if failures:
-        raise RuntimeError("low-weight oracle did not replay: " + "; ".join(failures))
-    outcome = evidence["outcome"]
-    witness = evidence.get("witness") if outcome == "SAT" else None
+
+
+def _terminal_sectors_from_cache(
+    envelope: Mapping[str, Any] | None,
+) -> dict[str, Mapping[str, Any]]:
+    if not isinstance(envelope, Mapping):
+        return {}
+    evidence = envelope.get("evidence")
+    sectors = evidence.get("sectors") if isinstance(evidence, Mapping) else None
+    if not isinstance(sectors, Mapping):
+        return {}
+    return {
+        str(sector): dict(raw)
+        for sector, raw in sectors.items()
+        if sector in {"X", "Z"}
+        and isinstance(raw, Mapping)
+        and raw.get("outcome") in {"SAT", "UNSAT"}
+    }
+
+
+def _deadline_lock(
+    descriptor: int,
+    *,
+    deadline: float,
+) -> bool:
+    while True:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return True
+        except BlockingIOError:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return False
+            time.sleep(min(0.05, remaining))
+
+
+def _run_oracle_step(
+    row: Mapping[str, Any],
+    *,
+    threshold: int,
+    budget: _OracleBatchBudget,
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+    """Load one committed terminal rung or atomically attempt a retry."""
+
+    candidate_sha256 = str(row["candidate_sha256"])
+    path = _proof_cache_path(
+        candidate_sha256,
+        threshold,
+        create_directories=True,
+    )
+    if path is None:
+        strategy_id, timeout_cap = _attempt_timeout_strategy(0)
+        timeout = budget.claim_timeout(requested_cap_s=timeout_cap)
+        if timeout is None:
+            return None, {
+                "attempts": 0,
+                "budget_exhausted": True,
+                "deferred": True,
+                "cache_hit": False,
+                "latest_outcome": None,
+            }
+        evidence, worker = _run_oracle_rung_hard_wall(
+            row,
+            threshold=threshold,
+            timeout_s=timeout,
+            terminal_sectors={},
+        )
+        outcome = (
+            evidence.get("outcome")
+            if isinstance(evidence, Mapping) else "UNKNOWN"
+        )
+        last_attempt = {
+            "outcome": outcome,
+            "strategy_id": strategy_id,
+            "timeout_s": float(timeout),
+            "hard_wall_timeout": bool(worker["hard_wall_timeout"]),
+            "worker_failed": bool(worker["worker_failed"]),
+            "elapsed_s": float(worker["elapsed_s"]),
+            "resumed_sectors": [],
+        }
+        last_attempt["attempt_sha256"] = _cache_canonical_sha256(last_attempt)
+        return evidence, {
+            "attempts": 1,
+            "budget_exhausted": False,
+            "deferred": False,
+            "cache_hit": False,
+            "cache_sha256": None,
+            "last_attempt": last_attempt,
+        }
+    lock_path = path.with_name(path.name + ".lock")
+    try:
+        metadata = lock_path.lstat()
+    except FileNotFoundError:
+        metadata = None
+    if metadata is not None and (
+        stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode)
+    ):
+        raise RuntimeError("coset proof cache lock is unsafe")
+    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        lock_descriptor = os.open(lock_path, flags, 0o600)
+    except OSError as exc:
+        raise RuntimeError(
+            f"cannot safely open coset proof cache lock: {lock_path}"
+        ) from exc
+    locked = False
+    try:
+        if not stat.S_ISREG(os.fstat(lock_descriptor).st_mode):
+            raise RuntimeError("coset proof cache lock is not a regular file")
+        locked = _deadline_lock(lock_descriptor, deadline=budget.deadline)
+        if not locked:
+            return None, {
+                "attempts": 0,
+                "budget_exhausted": True,
+                "deferred": True,
+                "cache_hit": False,
+                "latest_outcome": None,
+            }
+        generations = _cache_generations(
+            path,
+            candidate_sha256=candidate_sha256,
+            threshold=threshold,
+            hx=row["hx"],
+            hz=row["hz"],
+        )
+        committed_records = [
+            (generation_path, envelope)
+            for generation_path, envelope, is_committed in generations
+            if is_committed
+        ]
+        selected_committed = (
+            max(
+                committed_records,
+                key=lambda item: (
+                    int(item[1]["attempts"]),
+                    str(item[1]["cache_sha256"]),
+                ),
+            )
+            if committed_records else None
+        )
+        cached = None if selected_committed is None else selected_committed[1]
+        committed = cached is not None
+        active_pending = next((
+            envelope
+            for _generation_path, envelope, is_committed in generations
+            if not is_committed
+            and _pending_writer_alive(envelope.get("last_attempt"))
+        ), None)
+        if (
+            committed
+            and cached is not None
+            and cached["latest_outcome"] in {"SAT", "UNSAT"}
+        ):
+            return dict(cached["evidence"]), {
+                "attempts": cached["attempts"],
+                "budget_exhausted": False,
+                "deferred": False,
+                "cache_hit": True,
+                "cache_sha256": cached["cache_sha256"],
+                "last_attempt": dict(cached["last_attempt"]),
+            }
+        if (
+            committed
+            and cached is not None
+            and time.time() < float(cached["retry_not_before_unix"])
+        ) or active_pending is not None:
+            return None, {
+                "attempts": int(cached["attempts"]) if committed else 0,
+                "budget_exhausted": False,
+                "deferred": True,
+                "cache_hit": False,
+                "latest_outcome": (
+                    active_pending["latest_outcome"]
+                    if active_pending is not None
+                    else cached["latest_outcome"]
+                ),
+            }
+        attempts_before = int(cached["attempts"]) if committed and cached else 0
+        strategy_id, timeout_cap = _attempt_timeout_strategy(attempts_before)
+        timeout = budget.claim_timeout(requested_cap_s=timeout_cap)
+        if timeout is None:
+            return None, {
+                "attempts": attempts_before,
+                "budget_exhausted": True,
+                "deferred": True,
+                "cache_hit": False,
+                "latest_outcome": (
+                    None if cached is None else cached["latest_outcome"]
+                ),
+            }
+        terminal_sectors = _terminal_sectors_from_cache(
+            cached if committed else None
+        )
+        evidence, worker = _run_oracle_rung_hard_wall(
+            row,
+            threshold=threshold,
+            timeout_s=timeout,
+            terminal_sectors=terminal_sectors,
+        )
+        outcome = (
+            evidence.get("outcome")
+            if isinstance(evidence, Mapping)
+            else "UNKNOWN"
+        )
+        last_attempt = {
+            "outcome": outcome,
+            "strategy_id": strategy_id,
+            "timeout_s": float(timeout),
+            "hard_wall_timeout": bool(worker["hard_wall_timeout"]),
+            "worker_failed": bool(worker["worker_failed"]),
+            "elapsed_s": float(worker["elapsed_s"]),
+            "resumed_sectors": list(worker["resumed_sectors"]),
+            "writer_process": _process_identity(),
+            "evaluation_token": getattr(
+                _PROOF_EVALUATION_LOCAL,
+                "token",
+                None,
+            ),
+        }
+        attempts = attempts_before + 1
+        envelope = _seal_cache_envelope(
+            candidate_sha256=candidate_sha256,
+            threshold=threshold,
+            attempts=attempts,
+            hx=row["hx"],
+            hz=row["hz"],
+            evidence=evidence,
+            last_attempt=last_attempt,
+        )
+        generation_path = _proof_cache_version_path(
+            path,
+            str(envelope["cache_sha256"]),
+        )
+        _write_immutable_cache(generation_path, envelope)
+        return evidence, {
+            "attempts": attempts,
+            "budget_exhausted": False,
+            "deferred": False,
+            "cache_hit": False,
+            "cache_sha256": envelope["cache_sha256"],
+            "last_attempt": dict(envelope["last_attempt"]),
+        }
+    finally:
+        if locked:
+            try:
+                fcntl.flock(lock_descriptor, fcntl.LOCK_UN)
+            except OSError:
+                pass
+        os.close(lock_descriptor)
+
+
+def _apply_oracle_sat(
+    row: dict[str, Any],
+    evidence: Mapping[str, Any],
+    *,
+    cutoff: int,
+) -> None:
+    witness = evidence.get("witness")
     witness_weight = (
         witness.get("weight") if isinstance(witness, Mapping) else None
     )
+    if not isinstance(witness_weight, int):
+        raise RuntimeError("replayed SAT evidence has no witness weight")
+    rejected = witness_weight <= cutoff
+    if not rejected:
+        raise RuntimeError("ladder SAT witness exceeds its rejection cutoff")
+    upper_fom = row["k"] * witness_weight * witness_weight / row["n"]
     row.update({
-        "oracle_outcome": outcome,
-        "oracle_threshold": threshold,
-        "low_weight_oracle": evidence,
-        "distance_lower_bound": evidence.get("distance_lower_bound"),
-        "low_weight_witness": witness,
-        "threshold_rejected": bool(
-            outcome == "SAT"
-            and isinstance(witness_weight, int)
-            and witness_weight <= cutoff
-        ),
+        "oracle_outcome": "SAT",
+        "oracle_threshold": evidence["max_weight"],
+        "low_weight_oracle": dict(evidence),
+        "distance_lower_bound": None,
+        "distance_lower_bound_evidence": None,
+        "distance_lower_bound_evidence_sha256": None,
+        "low_weight_witness": dict(witness),
+        "threshold_rejected": True,
         "oracle_evidence_sha256": evidence.get("evidence_sha256"),
+        "d": witness_weight,
+        "d_is_exact": False,
+        "distance_trusted": False,
+        "distance_status": "upper_bound",
+        "distance_upper_bound": witness_weight,
+        "distance_upper_bound_source": "low_weight_oracle",
+        "fom": upper_fom,
+        "fom_upper_bound": upper_fom,
+        "fitness_distance_credit": 0.0,
+        "stage": "low_weight_oracle_rejected",
+        "search_status": "terminal_negative",
+        "distance_retry_required": False,
+        "oracle_retryable": False,
+        "oracle_ladder_complete": True,
+        "oracle_ladder_next_threshold": None,
+        "threshold_rejection_proven": True,
+        "threshold_proof_source": "low_weight_oracle",
+        "threshold_proof_distance": witness_weight,
+        "threshold_proof_witness": dict(witness),
+        "fom_rejection_cutoff": cutoff,
+        "challenge_rejection_cutoff": cutoff,
+        "minimum_winning_distance": cutoff + 1,
+        "fom_target_excluded_by_upper_bound": True,
+        "final_gate_excluded_by_upper_bound": True,
+        "search_final_gate_excluded_by_upper_bound": True,
+        "candidate_persistence_lane": "negative_search_feedback",
+        "candidate_persistence_reason": "replayed_low_weight_logical_witness",
     })
-    if outcome == "SAT" and isinstance(witness_weight, int):
-        upper_fom = row["k"] * witness_weight * witness_weight / row["n"]
-        rejected = witness_weight <= cutoff
+
+
+def _apply_oracle_lower_bound(
+    row: dict[str, Any],
+    evidence: Mapping[str, Any],
+    *,
+    cutoff: int,
+    complete: bool,
+) -> None:
+    lower_bound = evidence.get("distance_lower_bound")
+    threshold = evidence.get("max_weight")
+    if (
+        not isinstance(lower_bound, int)
+        or not isinstance(threshold, int)
+        or lower_bound != threshold + 1
+    ):
+        raise RuntimeError("UNSAT ladder evidence has no exact threshold bound")
+    row.update({
+        "oracle_outcome": "UNSAT",
+        "oracle_threshold": threshold,
+        "low_weight_oracle": dict(evidence),
+        "distance_lower_bound": lower_bound,
+        "distance_lower_bound_evidence": dict(evidence),
+        "distance_lower_bound_evidence_sha256": evidence.get(
+            "evidence_sha256"
+        ),
+        "low_weight_witness": None,
+        "threshold_rejected": False,
+        "oracle_evidence_sha256": evidence.get("evidence_sha256"),
+        "distance_lower_bound_proven": True,
+        "distance_lower_bound_status": "search_oracle_proven",
+        "fom_lower_bound": row["k"] * lower_bound * lower_bound / row["n"],
+        "low_weight_oracle_threshold": threshold,
+        "search_status": (
+            "fom_threshold_survivor" if complete else "partial_lower_bound"
+        ),
+        "distance_retry_required": not complete,
+        "oracle_retryable": not complete,
+        "oracle_ladder_complete": complete,
+        "oracle_ladder_next_threshold": None,
+        "fom_rejection_cutoff": cutoff,
+        "challenge_rejection_cutoff": cutoff,
+        "minimum_winning_distance": cutoff + 1,
+        "fom_target_lower_bound_proven": complete,
+    })
+
+
+def _run_oracle(
+    row: dict[str, Any],
+    *,
+    budget: _OracleBatchBudget | None = None,
+    max_new_steps: int | None = None,
+) -> dict[str, int | bool]:
+    """Hydrate committed rungs and climb continuously within a local quantum."""
+
+    row.update({
+        "oracle_outcome": "NOT_RUN",
+        "oracle_threshold": None,
+        "low_weight_oracle": None,
+        "distance_lower_bound": None,
+        "distance_lower_bound_evidence": None,
+        "distance_lower_bound_evidence_sha256": None,
+        "low_weight_witness": None,
+        "threshold_rejected": False,
+        "oracle_retryable": True,
+        "oracle_ladder_schema_version": COSET_PROOF_LADDER_SCHEMA_VERSION,
+        "oracle_ladder_history": [],
+        "oracle_ladder_complete": False,
+        "oracle_ladder_next_threshold": None,
+        "oracle_batch_budget_exhausted": False,
+        "oracle_last_attempt": None,
+        "oracle_deferred": False,
+    })
+    if not row["static_legal"] or row["k"] <= 0:
         row.update({
-            "d": witness_weight,
-            "d_is_exact": False,
-            "distance_trusted": False,
-            "distance_status": "upper_bound",
-            "distance_upper_bound": witness_weight,
-            "distance_upper_bound_source": "low_weight_oracle",
-            "fom": upper_fom,
-            "fom_upper_bound": upper_fom,
-            "fitness_distance_credit": 0.0,
-            "stage": "low_weight_oracle_rejected",
-            "search_status": "terminal_negative",
-            "threshold_rejection_proven": rejected,
-            "threshold_proof_source": "low_weight_oracle",
-            "threshold_proof_distance": witness_weight,
-            "threshold_proof_witness": witness,
-            "fom_rejection_cutoff": cutoff,
-            "challenge_rejection_cutoff": cutoff,
-            "minimum_winning_distance": cutoff + 1,
-            "fom_target_excluded_by_upper_bound": rejected,
-            "final_gate_excluded_by_upper_bound": rejected,
-            "search_final_gate_excluded_by_upper_bound": rejected,
-            "candidate_persistence_lane": "negative_search_feedback",
-            "candidate_persistence_reason": (
-                "replayed_low_weight_logical_witness"
-            ),
+            "oracle_retryable": False,
+            "distance_retry_required": False,
+            "search_status": "invalid",
         })
-    elif outcome == "UNSAT":
-        lower_bound = evidence.get("distance_lower_bound")
-        row.update({
-            "distance_lower_bound_proven": isinstance(lower_bound, int),
-            "distance_lower_bound_status": "search_oracle_proven",
-            "fom_lower_bound": (
-                row["k"] * lower_bound * lower_bound / row["n"]
-                if isinstance(lower_bound, int)
-                else None
-            ),
-            "low_weight_oracle_threshold": threshold,
-            "search_status": "certified_lower_bound",
-        })
-    else:
+        return {"new_steps": 0, "cache_hits": 0, "deferred": False}
+    cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
+    assert cutoff is not None
+    ladder = _proof_ladder(cutoff)
+    row.update({
+        "oracle_ladder_cutoff": cutoff,
+        "oracle_ladder_thresholds": list(ladder),
+        "fom_rejection_cutoff": cutoff,
+        "challenge_rejection_cutoff": cutoff,
+        "minimum_winning_distance": cutoff + 1,
+    })
+    if not ladder:
         row.update({
             "distance_retry_required": True,
             "search_status": "unresolved",
         })
+        return {"new_steps": 0, "cache_hits": 0, "deferred": False}
+    if budget is None:
+        budget = _OracleBatchBudget.production()
+    if max_new_steps is None:
+        max_new_steps = budget.remaining_new_steps
+    if (
+        isinstance(max_new_steps, bool)
+        or not isinstance(max_new_steps, int)
+        or max_new_steps < 0
+    ):
+        raise ValueError("max_new_steps must be a non-negative integer")
+
+    history: list[dict[str, Any]] = []
+    last_unsat: dict[str, Any] | None = None
+    next_index = 0
+    cache_hits = 0
+    for index, threshold in enumerate(ladder):
+        cached = _load_cached_evidence(
+            row["candidate_sha256"],
+            threshold,
+            hx=row["hx"],
+            hz=row["hz"],
+        )
+        if cached is None or cached["latest_outcome"] == "UNKNOWN":
+            next_index = index
+            break
+        evidence = dict(cached["evidence"])
+        cache_hits += 1
+        history.append({
+            "threshold": threshold,
+            "outcome": evidence["outcome"],
+            "attempts": cached["attempts"],
+            "cache_hit": True,
+            "evidence_sha256": evidence.get("evidence_sha256"),
+            "attempt_sha256": cached["last_attempt"].get(
+                "attempt_sha256"
+            ),
+            "cache_sha256": cached["cache_sha256"],
+        })
+        if evidence["outcome"] == "SAT":
+            row["oracle_ladder_history"] = history
+            _apply_oracle_sat(row, evidence, cutoff=cutoff)
+            return {
+                "new_steps": 0,
+                "cache_hits": cache_hits,
+                "deferred": False,
+            }
+        last_unsat = evidence
+    else:
+        next_index = len(ladder)
+
+    if next_index >= len(ladder):
+        if last_unsat is None:
+            raise RuntimeError("completed proof ladder has no UNSAT evidence")
+        row["oracle_ladder_history"] = history
+        _apply_oracle_lower_bound(
+            row,
+            last_unsat,
+            cutoff=cutoff,
+            complete=True,
+        )
+        return {
+            "new_steps": 0,
+            "cache_hits": cache_hits,
+            "deferred": False,
+        }
+
+    new_steps = 0
+    while next_index < len(ladder) and new_steps < max_new_steps:
+        threshold = ladder[next_index]
+        evidence, attempt = _run_oracle_step(
+            row,
+            threshold=threshold,
+            budget=budget,
+        )
+        if attempt.get("cache_hit"):
+            if evidence is None:
+                raise RuntimeError("terminal cache hit has no evidence")
+            cache_hits += 1
+        elif not attempt.get("deferred"):
+            new_steps += 1
+        if evidence is None:
+            last_attempt = attempt.get("last_attempt")
+            if (
+                isinstance(last_attempt, Mapping)
+                and isinstance(attempt.get("cache_sha256"), str)
+            ):
+                history.append({
+                    "threshold": threshold,
+                    "outcome": "UNKNOWN",
+                    "attempts": attempt["attempts"],
+                    "cache_hit": False,
+                    "evidence_sha256": None,
+                    "attempt_sha256": last_attempt.get("attempt_sha256"),
+                    "cache_sha256": attempt["cache_sha256"],
+                })
+            row["oracle_ladder_history"] = history
+            if last_unsat is not None:
+                _apply_oracle_lower_bound(
+                    row,
+                    last_unsat,
+                    cutoff=cutoff,
+                    complete=False,
+                )
+            row.update({
+                "oracle_outcome": (
+                    "UNKNOWN"
+                    if isinstance(last_attempt, Mapping)
+                    else "NOT_RUN"
+                ),
+                "oracle_threshold": (
+                    last_unsat.get("max_weight")
+                    if last_unsat is not None else None
+                ),
+                "oracle_ladder_next_threshold": threshold,
+                "oracle_batch_budget_exhausted": bool(
+                    attempt.get("budget_exhausted")
+                ),
+                "oracle_retryable": True,
+                "distance_retry_required": True,
+                "search_status": (
+                    "partial_lower_bound_retry"
+                    if last_unsat is not None else "unresolved"
+                ),
+                "oracle_last_attempt": last_attempt,
+                "oracle_last_attempt_outcome": (
+                    None if last_attempt is None else last_attempt.get("outcome")
+                ),
+                "oracle_last_attempt_threshold": threshold,
+                "oracle_deferred": bool(attempt.get("deferred")),
+            })
+            return {
+                "new_steps": new_steps,
+                "cache_hits": cache_hits,
+                "deferred": bool(attempt.get("deferred")),
+            }
+
+        outcome = evidence["outcome"]
+        last_attempt = attempt.get("last_attempt")
+        history.append({
+            "threshold": threshold,
+            "outcome": outcome,
+            "attempts": attempt["attempts"],
+            "cache_hit": bool(attempt["cache_hit"]),
+            "evidence_sha256": evidence.get("evidence_sha256"),
+            "attempt_sha256": (
+                None if last_attempt is None else last_attempt.get("attempt_sha256")
+            ),
+            "cache_sha256": attempt.get("cache_sha256"),
+        })
+        row["oracle_ladder_history"] = history
+        row["oracle_last_attempt"] = last_attempt
+        row["oracle_last_attempt_threshold"] = threshold
+        if outcome == "SAT":
+            _apply_oracle_sat(row, evidence, cutoff=cutoff)
+            return {
+                "new_steps": new_steps,
+                "cache_hits": cache_hits,
+                "deferred": False,
+            }
+        if outcome == "UNKNOWN":
+            if last_unsat is not None:
+                _apply_oracle_lower_bound(
+                    row,
+                    last_unsat,
+                    cutoff=cutoff,
+                    complete=False,
+                )
+                row["low_weight_oracle"] = dict(last_unsat)
+                row["oracle_evidence_sha256"] = last_unsat.get(
+                    "evidence_sha256"
+                )
+                row["oracle_threshold"] = last_unsat["max_weight"]
+            else:
+                row["low_weight_oracle"] = dict(evidence)
+                row["oracle_evidence_sha256"] = evidence.get(
+                    "evidence_sha256"
+                )
+                row["oracle_threshold"] = threshold
+            row.update({
+                "oracle_outcome": "UNKNOWN",
+                "low_weight_witness": None,
+                "threshold_rejected": False,
+                "oracle_retryable": True,
+                "distance_retry_required": True,
+                "search_status": (
+                    "partial_lower_bound_retry"
+                    if last_unsat is not None else "unresolved"
+                ),
+                "oracle_ladder_next_threshold": threshold,
+                "oracle_last_attempt": {
+                    **dict(last_attempt or {}),
+                    "evidence": dict(evidence),
+                },
+                "oracle_last_attempt_outcome": "UNKNOWN",
+            })
+            return {
+                "new_steps": new_steps,
+                "cache_hits": cache_hits,
+                "deferred": False,
+            }
+
+        last_unsat = evidence
+        next_index += 1
+        complete = next_index == len(ladder)
+        _apply_oracle_lower_bound(
+            row,
+            evidence,
+            cutoff=cutoff,
+            complete=complete,
+        )
+        if complete:
+            return {
+                "new_steps": new_steps,
+                "cache_hits": cache_hits,
+                "deferred": False,
+            }
+        row["oracle_ladder_next_threshold"] = ladder[next_index]
+
+    row["oracle_ladder_history"] = history
+    if last_unsat is not None:
+        _apply_oracle_lower_bound(
+            row,
+            last_unsat,
+            cutoff=cutoff,
+            complete=False,
+        )
+    row.update({
+        "oracle_ladder_next_threshold": ladder[next_index],
+        "oracle_retryable": True,
+        "distance_retry_required": True,
+        "oracle_deferred": True,
+        "search_status": (
+            "partial_lower_bound_budget"
+            if last_unsat is not None else "unresolved_budget"
+        ),
+    })
+    return {
+        "new_steps": new_steps,
+        "cache_hits": cache_hits,
+        "deferred": True,
+    }
 
 
 def _fitness(row: Mapping[str, Any]) -> float:
@@ -537,6 +2552,7 @@ def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "threshold_rejected": row.get("threshold_rejected", False),
         "fitness": row["fitness"],
         "distance_semantics": "proof-lower-bound-or-replayed-witness-only",
+        "proof_ledger": _proof_ledger_for_row(row),
     }
     for field in (
         "d",
@@ -550,10 +2566,26 @@ def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "fitness_distance_credit",
         "distance_lower_bound_proven",
         "distance_lower_bound_status",
+        "distance_lower_bound_evidence",
+        "distance_lower_bound_evidence_sha256",
         "fom_lower_bound",
         "stage",
         "search_status",
         "distance_retry_required",
+        "oracle_retryable",
+        "oracle_evidence_sha256",
+        "oracle_ladder_schema_version",
+        "oracle_ladder_history",
+        "oracle_ladder_cutoff",
+        "oracle_ladder_thresholds",
+        "oracle_ladder_complete",
+        "oracle_ladder_next_threshold",
+        "oracle_batch_budget_exhausted",
+        "oracle_last_attempt_outcome",
+        "oracle_last_attempt",
+        "oracle_last_attempt_threshold",
+        "oracle_deferred",
+        "oracle_frontier_selected",
         "threshold_rejection_proven",
         "threshold_proof_source",
         "threshold_proof_distance",
@@ -566,6 +2598,7 @@ def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "search_final_gate_excluded_by_upper_bound",
         "candidate_persistence_lane",
         "candidate_persistence_reason",
+        "fom_target_lower_bound_proven",
     ):
         if field in row:
             record[field] = row[field]
@@ -597,7 +2630,10 @@ def _append_candidate_rows(rows: list[dict[str, Any]]) -> int:
     # finishes before appending, so no interior corrupt JSONL row can survive.
     from evolve.openevolve_evaluator import _append_candidate_jsonl
 
-    _append_candidate_jsonl(path, payload)
+    committed_range = _append_candidate_jsonl(path, payload)
+    if not isinstance(committed_range, Mapping):
+        raise RuntimeError("candidate JSONL append did not return a range identity")
+    _commit_cache_entries(rows, committed_range)
     return len(rows)
 
 
@@ -779,6 +2815,9 @@ def _invalid_mutation_result(exc: InvalidCosetMutation):
         "num_high_k": 0.0,
         "term_count": 0.0,
         "pattern_type": 0.0,
+        COSET_PROOF_LADDER_VERSION_METRIC: float(
+            COSET_PROOF_LADDER_SCHEMA_VERSION
+        ),
     }
     metrics = {
         **zero_fields,
@@ -828,6 +2867,9 @@ def _runtime_failure_result(exc: CosetMutationRuntimeError):
         MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
         EVALUATOR_KIND_ID_METRIC: EVALUATOR_KIND_ID,
         ACTION_CATALOG_ID_METRIC: _action_catalog_contract_id(),
+        COSET_PROOF_LADDER_VERSION_METRIC: float(
+            COSET_PROOF_LADDER_SCHEMA_VERSION
+        ),
         "qcode_mutation_preflight_runtime_failure": 1.0,
     }
     artifacts = {
@@ -840,6 +2882,103 @@ def _runtime_failure_result(exc: CosetMutationRuntimeError):
         return EvaluationResult(metrics=metrics, artifacts=artifacts)
     except ImportError:
         return metrics
+
+
+def _run_proof_frontier_and_persist(
+    rows: list[dict[str, Any]],
+    oracle_order: list[dict[str, Any]],
+) -> tuple[int, list[dict[str, int | bool]]]:
+    """Execute one lease-bound proof frontier and durably commit its rows."""
+
+    with _proof_evaluation_lease():
+        for row in rows:
+            row.update({
+                "oracle_outcome": "NOT_RUN",
+                "oracle_threshold": None,
+                "low_weight_oracle": None,
+                "distance_lower_bound": None,
+                "low_weight_witness": None,
+                "threshold_rejected": False,
+                "oracle_retryable": True,
+                "oracle_ladder_schema_version": (
+                    COSET_PROOF_LADDER_SCHEMA_VERSION
+                ),
+                "oracle_ladder_history": [],
+                "oracle_ladder_complete": False,
+                "oracle_ladder_next_threshold": None,
+                "oracle_batch_budget_exhausted": False,
+                "distance_retry_required": True,
+                "search_status": "unresolved",
+            })
+        oracle_budget = _OracleBatchBudget.production()
+        hydration_budget = _OracleBatchBudget(
+            remaining_new_steps=0,
+            deadline=oracle_budget.deadline,
+        )
+        for row in oracle_order:
+            _run_oracle(row, budget=hydration_budget, max_new_steps=0)
+
+        frontier: list[dict[str, Any]] = []
+        for normal in (False, True):
+            candidate = next((
+                row for row in oracle_order
+                if row["subgroup_normal"] is normal
+                and row.get("oracle_retryable") is True
+                and row.get("threshold_rejected") is not True
+                and row.get("oracle_ladder_complete") is not True
+            ), None)
+            if candidate is not None:
+                frontier.append(candidate)
+        frontier_digests = {row["candidate_sha256"] for row in frontier}
+        for row in oracle_order:
+            if len(frontier) >= _ORACLE_FRONTIER_WIDTH:
+                break
+            if (
+                row["candidate_sha256"] not in frontier_digests
+                and row.get("oracle_retryable") is True
+                and row.get("threshold_rejected") is not True
+                and row.get("oracle_ladder_complete") is not True
+            ):
+                frontier.append(row)
+                frontier_digests.add(row["candidate_sha256"])
+        remaining = [
+            row for row in oracle_order
+            if row["candidate_sha256"] not in frontier_digests
+        ]
+        frontier_quantum = math.ceil(
+            COSET_PROOF_MAX_NEW_STEPS_PER_BATCH / _ORACLE_FRONTIER_WIDTH
+        )
+        oracle_run_stats: list[dict[str, int | bool]] = []
+        for row in [*frontier, *remaining]:
+            if (
+                oracle_budget.remaining_new_steps <= 0
+                or oracle_budget.remaining_wall() <= 0
+            ):
+                break
+            if (
+                row.get("oracle_retryable") is not True
+                or row.get("threshold_rejected") is True
+                or row.get("oracle_ladder_complete") is True
+            ):
+                continue
+            row["oracle_frontier_selected"] = True
+            oracle_run_stats.append(_run_oracle(
+                row,
+                budget=oracle_budget,
+                max_new_steps=min(
+                    frontier_quantum,
+                    oracle_budget.remaining_new_steps,
+                ),
+            ))
+        for row in oracle_order:
+            row.setdefault("oracle_frontier_selected", False)
+        for row in rows:
+            row["fitness"] = _fitness(row)
+        persistable = [
+            row for row in rows if row["static_legal"] and row["k"] > 0
+        ]
+        persisted = _append_candidate_rows(persistable)
+        return persisted, oracle_run_stats
 
 
 def _evaluate(program_path: str):
@@ -902,21 +3041,14 @@ def _evaluate(program_path: str):
             "coset evaluator failed to build every enabled action stratum: "
             f"missing={missing}"
         )
-    oracle_order = _oracle_probe_rows(rows)
-    for row in rows:
-        row.update({
-            "oracle_outcome": "NOT_RUN",
-            "oracle_threshold": None,
-            "low_weight_oracle": None,
-            "distance_lower_bound": None,
-            "low_weight_witness": None,
-            "threshold_rejected": False,
-            "search_status": "unresolved",
-        })
-    for row in oracle_order:
-        _run_oracle(row)
-    for row in rows:
-        row["fitness"] = _fitness(row)
+    oracle_order = _oracle_probe_rows(
+        rows,
+        selection_salt=preflight.policy_sha256,
+    )
+    persisted, oracle_run_stats = _run_proof_frontier_and_persist(
+        rows,
+        oracle_order,
+    )
 
     eligible_rows = [
         row for row in rows
@@ -929,7 +3061,6 @@ def _evaluate(program_path: str):
     persistable_rows = [
         row for row in rows if row["static_legal"] and row["k"] > 0
     ]
-    persisted = _append_candidate_rows(persistable_rows)
     if persisted != len(persistable_rows) and os.environ.get(CANDIDATE_LOG_PATH_ENV):
         raise RuntimeError("coset candidate persistence count is incomplete")
     winner_capable_persisted = (
@@ -957,6 +3088,44 @@ def _evaluate(program_path: str):
         "proven_lower_bound_candidates": float(sum(
             isinstance(row.get("distance_lower_bound"), int) for row in rows
         )),
+        "proof_ladder_new_steps": float(sum(
+            int(statistic["new_steps"]) for statistic in oracle_run_stats
+        )),
+        "proof_ladder_cache_hits": float(sum(
+            sum(
+                bool(step.get("cache_hit", False))
+                for step in row.get("oracle_ladder_history", [])
+            )
+            for row in oracle_order
+        )),
+        "proof_ladder_unknown": float(sum(
+            row.get("oracle_outcome") == "UNKNOWN" for row in oracle_order
+        )),
+        "proof_ladder_complete": float(sum(
+            row.get("oracle_ladder_complete") is True for row in oracle_order
+        )),
+        "proof_ladder_survivors": float(sum(
+            row.get("fom_target_lower_bound_proven") is True
+            for row in oracle_order
+        )),
+        "proof_ladder_retryable": float(sum(
+            row.get("oracle_retryable") is True for row in oracle_order
+        )),
+        "proof_ladder_deferred": float(sum(
+            row.get("oracle_deferred") is True for row in oracle_order
+        )),
+        "proof_ladder_frontier_rows": float(sum(
+            row.get("oracle_frontier_selected") is True for row in oracle_order
+        )),
+        "proof_ladder_hard_wall_timeouts": float(sum(
+            isinstance(row.get("oracle_last_attempt"), Mapping)
+            and row["oracle_last_attempt"].get("hard_wall_timeout") is True
+            for row in oracle_order
+        )),
+        "proof_ladder_batch_budget_exhausted": float(any(
+            row.get("oracle_batch_budget_exhausted") is True
+            for row in oracle_order
+        )),
         "action_coverage": float(len({row["action_id"] for row in rows})),
         "normality_coverage": float(len({row["subgroup_normal"] for row in rows})),
         "search_diversity": diversity,
@@ -965,6 +3134,9 @@ def _evaluate(program_path: str):
         EVALUATOR_KIND_ID_METRIC: EVALUATOR_KIND_ID,
         ACTION_CATALOG_ID_METRIC: _action_catalog_contract_id(),
         COSET_GENOME_FORMAT_ID_METRIC: COSET_TYPED_DSL_GENOME_FORMAT_ID,
+        COSET_PROOF_LADDER_VERSION_METRIC: float(
+            COSET_PROOF_LADDER_SCHEMA_VERSION
+        ),
         COSET_NONNORMAL_LANE_METRIC: float(
             map_descriptor["coordinates"][COSET_NONNORMAL_LANE_METRIC]
         ),
@@ -1153,10 +3325,13 @@ __all__ = [
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 2 and sys.argv[1] == "--oracle-rung-worker":
+        raise SystemExit(_oracle_rung_worker_main())
     if len(sys.argv) != 6 or sys.argv[1] != "--preflight-worker":
         raise SystemExit(
-            "usage: coset_openevolve_evaluator.py --preflight-worker "
-            "PROGRAM_PATH RESULT_PATH EXPECTED_PARENT_PID LIFECYCLE_FD"
+            "usage: coset_openevolve_evaluator.py "
+            "(--oracle-rung-worker | --preflight-worker PROGRAM_PATH "
+            "RESULT_PATH EXPECTED_PARENT_PID LIFECYCLE_FD)"
         )
     _arm_parent_lifecycle(sys.argv[4], sys.argv[5])
     raise SystemExit(_preflight_worker_main(sys.argv[2], sys.argv[3]))

@@ -1,8 +1,9 @@
 """Authoritative dispatcher for compact CSS construction claims.
 
-The adapter keeps historical BB claims replayable while adding the
-source-bound ``coset-two-block-v1`` representation.  Packed matrices and
-reported ``n``, ``k``, or distance values are never construction authority.
+The adapter keeps historical BB and frozen ``coset-two-block-v1`` claims
+replayable while routing new source-bound ``coset-two-block-v2`` claims.
+Packed matrices and reported ``n``, ``k``, or distance values are never
+construction authority.
 """
 
 from __future__ import annotations
@@ -18,7 +19,8 @@ from qldpc import codes
 from evaluation.bb_code import build_bb_code, validate_terms
 from evaluation.coset_two_block import (
     CONSTRUCTION_KIND as COSET_TWO_BLOCK_KIND,
-    build_coset_two_block,
+    CONSTRUCTION_KIND_V2 as COSET_TWO_BLOCK_KIND_V2,
+    build_coset_candidate,
     normalize_coset_two_block_construction,
     symmetry_generator_proposals,
 )
@@ -124,7 +126,7 @@ def normalize_construction_claim(claim: Mapping[str, Any]) -> dict[str, Any]:
 
     payload, nested = _construction_payload(claim)
     kind = payload.get("kind")
-    if kind == COSET_TWO_BLOCK_KIND:
+    if kind in {COSET_TWO_BLOCK_KIND, COSET_TWO_BLOCK_KIND_V2}:
         if nested:
             ambiguous = sorted(set(claim) & _AMBIGUOUS_TOP_LEVEL_FIELDS)
             if ambiguous:
@@ -149,7 +151,7 @@ def construction_identity(claim: Mapping[str, Any]) -> dict[str, Any]:
     """Return the stable, JSON-safe semantic identity of a construction."""
 
     normalized = normalize_construction_claim(claim)
-    if normalized.get("kind") == COSET_TWO_BLOCK_KIND:
+    if normalized.get("kind") in {COSET_TWO_BLOCK_KIND, COSET_TWO_BLOCK_KIND_V2}:
         return dict(normalized)
     return {"kind": LEGACY_BB_KIND, **normalized}
 
@@ -158,12 +160,8 @@ def build_css_code_from_claim(claim: Mapping[str, Any]) -> codes.CSSCode:
     """Rebuild the authoritative CSS code encoded by a compact claim."""
 
     normalized = normalize_construction_claim(claim)
-    if normalized.get("kind") == COSET_TWO_BLOCK_KIND:
-        return build_coset_two_block(
-            normalized["action_id"],
-            normalized["left_support"],
-            normalized["right_support"],
-        )
+    if normalized.get("kind") in {COSET_TWO_BLOCK_KIND, COSET_TWO_BLOCK_KIND_V2}:
+        return build_coset_candidate({"construction": normalized})
     return build_bb_code(
         normalized["ell"],
         normalized["m"],
@@ -182,7 +180,7 @@ def candidate_symmetry_generators(claim: Mapping[str, Any]):
     """
 
     normalized = normalize_construction_claim(claim)
-    if normalized.get("kind") != COSET_TWO_BLOCK_KIND:
+    if normalized.get("kind") not in {COSET_TWO_BLOCK_KIND, COSET_TWO_BLOCK_KIND_V2}:
         return ()
     return symmetry_generator_proposals(normalized)
 
@@ -197,6 +195,7 @@ def construction_source_fingerprint() -> str:
         directory / "coset_action_catalog.py",
         directory / "coset_two_block.py",
         directory / "coset_two_block_actions.v1.json",
+        directory / "coset_two_block_actions.v2.json",
         Path(__file__).resolve(),
     )
     digest = sha256()
@@ -212,6 +211,7 @@ def construction_source_fingerprint() -> str:
 
 __all__ = [
     "COSET_TWO_BLOCK_KIND",
+    "COSET_TWO_BLOCK_KIND_V2",
     "LEGACY_BB_KIND",
     "build_css_code_from_claim",
     "candidate_symmetry_generators",

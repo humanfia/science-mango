@@ -527,6 +527,103 @@ def _seal_oracle_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     return evidence
 
 
+def _combined_oracle_evidence(
+    sectors: Mapping[str, Mapping[str, Any]],
+    *,
+    logical_detector: Mapping[str, Any],
+    threshold: int,
+    elapsed_s: float,
+) -> dict[str, Any]:
+    """Seal one top-level decision from independently resumable sectors."""
+
+    copied_sectors = {
+        sector: json.loads(json.dumps(
+            evidence,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ))
+        for sector, evidence in sectors.items()
+    }
+    sat_sector = next(
+        (
+            sector
+            for sector in ("X", "Z")
+            if copied_sectors.get(sector, {}).get("outcome") == "SAT"
+        ),
+        None,
+    )
+    if sat_sector is not None:
+        outcome = "SAT"
+        witness = copied_sectors[sat_sector]["witness"]
+        lower_bound = None
+    elif len(copied_sectors) == 2 and all(
+        copied_sectors[sector].get("outcome") == "UNSAT"
+        for sector in ("X", "Z")
+    ):
+        outcome = "UNSAT"
+        witness = None
+        lower_bound = threshold + 1
+    else:
+        outcome = "UNKNOWN"
+        witness = None
+        lower_bound = None
+    return _seal_oracle_evidence({
+        "schema_version": LOW_WEIGHT_ORACLE_SCHEMA_VERSION,
+        "kind": LOW_WEIGHT_ORACLE_KIND,
+        "source_sha256": _SOURCE_SHA256,
+        "outcome": outcome,
+        "decision_complete": outcome in {"SAT", "UNSAT"},
+        "retryable": outcome == "UNKNOWN",
+        "max_weight": threshold,
+        "distance_lower_bound": lower_bound,
+        "witness": witness,
+        "sectors": copied_sectors,
+        "logical_detector": json.loads(json.dumps(
+            logical_detector,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )),
+        "message": None,
+        "elapsed_s": float(elapsed_s),
+    })
+
+
+def _timeout_sector_evidence(
+    checks: np.ndarray,
+    logicals: np.ndarray,
+    *,
+    max_weight: int,
+    sector: str,
+) -> dict[str, Any]:
+    """Return source/matrix-bound retry metadata when no sector time remains."""
+
+    engine = (
+        LOW_WEIGHT_MITM_ENGINE
+        if max_weight <= LOW_WEIGHT_MITM_MAX_THRESHOLD
+        else LOW_WEIGHT_SAT_ENGINE
+    )
+    return _seal_sector_evidence({
+        "schema_version": LOW_WEIGHT_ORACLE_SCHEMA_VERSION,
+        "kind": LOW_WEIGHT_SECTOR_KIND,
+        "outcome": "UNKNOWN",
+        "decision_complete": False,
+        "retryable": True,
+        "binding": _sector_binding(
+            checks,
+            logicals,
+            threshold=max_weight,
+            sector=sector,
+            engine=engine,
+        ),
+        "max_weight": int(max_weight),
+        "witness": None,
+        "message": "oracle rung wall budget was exhausted before this sector",
+        "elapsed_s": 0.0,
+    })
+
+
 def evaluate_css_low_weight_oracle(
     hx: np.ndarray,
     hz: np.ndarray,
@@ -535,8 +632,16 @@ def evaluate_css_low_weight_oracle(
     *,
     max_weight: int,
     hard_timeout_s: float = 30.0,
+    terminal_sectors: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Evaluate both CSS sectors with strict SAT/UNSAT/UNKNOWN semantics."""
+    """Evaluate both CSS sectors with strict SAT/UNSAT/UNKNOWN semantics.
+
+    ``hard_timeout_s`` is a shared inner deadline, not a fresh budget for each
+    sector.  The caller still owns a killable whole-rung wall around logical
+    construction, MITM, and native solver code.  Source/matrix-bound terminal
+    sectors from a prior UNKNOWN attempt may be supplied so only the missing
+    sector is recomputed.
+    """
 
     if isinstance(max_weight, bool) or not isinstance(
         max_weight, (int, np.integer)
@@ -575,57 +680,56 @@ def evaluate_css_low_weight_oracle(
         for sector in ("X", "Z")
     }
     sectors: dict[str, dict[str, Any]] = {}
+    reusable = terminal_sectors if isinstance(terminal_sectors, Mapping) else {}
     for sector in ("X", "Z"):
         checks, logicals = matrices[sector]
+        cached_sector = reusable.get(sector)
+        if (
+            isinstance(cached_sector, Mapping)
+            and cached_sector.get("outcome") in {"SAT", "UNSAT"}
+        ):
+            partial = _combined_oracle_evidence(
+                {sector: cached_sector},
+                logical_detector=logical_detector,
+                threshold=threshold,
+                elapsed_s=time.monotonic() - started,
+            )
+            if not verify_css_low_weight_oracle(
+                partial,
+                hx,
+                hz,
+                lx,
+                lz,
+                replay_mitm_unsat=False,
+            ):
+                sectors[sector] = dict(partial["sectors"][sector])
+                if sectors[sector]["outcome"] == "SAT":
+                    break
+                continue
+        remaining = timeout - (time.monotonic() - started)
+        if remaining <= 0:
+            sectors[sector] = _timeout_sector_evidence(
+                checks,
+                logicals,
+                max_weight=threshold,
+                sector=sector,
+            )
+            continue
         sectors[sector] = _solve_sector(
             checks,
             logicals,
             max_weight=threshold,
             sector=sector,
-            hard_timeout_s=timeout,
+            hard_timeout_s=remaining,
         )
         if sectors[sector]["outcome"] == "SAT":
             break
-
-    sat_sector = next(
-        (
-            sector
-            for sector in ("X", "Z")
-            if sectors.get(sector, {}).get("outcome") == "SAT"
-        ),
-        None,
+    return _combined_oracle_evidence(
+        sectors,
+        logical_detector=logical_detector,
+        threshold=threshold,
+        elapsed_s=time.monotonic() - started,
     )
-    if sat_sector is not None:
-        outcome = "SAT"
-        witness = sectors[sat_sector]["witness"]
-        lower_bound = None
-    elif len(sectors) == 2 and all(
-        sectors[sector]["outcome"] == "UNSAT" for sector in ("X", "Z")
-    ):
-        outcome = "UNSAT"
-        witness = None
-        lower_bound = threshold + 1
-    else:
-        outcome = "UNKNOWN"
-        witness = None
-        lower_bound = None
-
-    evidence = {
-        "schema_version": LOW_WEIGHT_ORACLE_SCHEMA_VERSION,
-        "kind": LOW_WEIGHT_ORACLE_KIND,
-        "source_sha256": _SOURCE_SHA256,
-        "outcome": outcome,
-        "decision_complete": outcome in {"SAT", "UNSAT"},
-        "retryable": outcome == "UNKNOWN",
-        "max_weight": threshold,
-        "distance_lower_bound": lower_bound,
-        "witness": witness,
-        "sectors": sectors,
-        "logical_detector": logical_detector,
-        "message": None,
-        "elapsed_s": time.monotonic() - started,
-    }
-    return _seal_oracle_evidence(evidence)
 
 
 def _verify_normalized_witness(
@@ -675,6 +779,7 @@ def verify_css_low_weight_oracle(
     lz: np.ndarray,
     *,
     require_current_source: bool = True,
+    replay_mitm_unsat: bool = True,
 ) -> list[str]:
     """Replay identities and every SAT witness in an oracle artifact.
 
@@ -684,7 +789,14 @@ def verify_css_low_weight_oracle(
     fail-closed. Callers requiring an independent lower-bound replay should
     invoke :func:`evaluate_css_low_weight_oracle` again or proceed to the
     formal certificate stages.
+
+    ``replay_mitm_unsat=False`` is reserved for the private, source-bound
+    Stage-1 run ledger. Publication and external verification must retain the
+    default and independently rerun deterministic MITM UNSAT decisions.
     """
+
+    if type(replay_mitm_unsat) is not bool:
+        raise TypeError("replay_mitm_unsat must be a boolean")
 
     failures: list[str] = []
     if not isinstance(evidence, Mapping):
@@ -834,7 +946,11 @@ def verify_css_low_weight_oracle(
         elif sector_evidence.get("witness") is not None:
             failures.append(f"{sector} non-SAT evidence carries a witness")
 
-        if engine == LOW_WEIGHT_MITM_ENGINE and sector_outcome == "UNSAT":
+        if (
+            replay_mitm_unsat
+            and engine == LOW_WEIGHT_MITM_ENGINE
+            and sector_outcome == "UNSAT"
+        ):
             replay = _solve_sector_mitm(
                 checks,
                 logicals,

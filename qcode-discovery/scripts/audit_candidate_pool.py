@@ -1700,6 +1700,7 @@ def certificate_source_fingerprint() -> str:
         PROJECT / "humanize" / "audit_state.py",
         PROJECT / "humanize" / "state.py",
         PROJECT / "evaluation" / "coset_two_block_actions.v1.json",
+        PROJECT / "evaluation" / "coset_two_block_actions.v2.json",
         *(PROJECT / "evaluation").rglob("*.py"),
     }
     digest = hashlib.sha256()
@@ -2449,6 +2450,7 @@ def _novelty_source_fingerprint() -> str:
         PROJECT / "evaluation" / "coset_action_catalog.py",
         PROJECT / "evaluation" / "coset_two_block.py",
         PROJECT / "evaluation" / "coset_two_block_actions.v1.json",
+        PROJECT / "evaluation" / "coset_two_block_actions.v2.json",
     }
     digest = hashlib.sha256()
     for path in sorted(

@@ -1674,9 +1674,10 @@ def test_selection_and_certificate_caches_bind_installed_package_contents(
     "dependency",
     (
         "humanize/audit_state.py",
-        "humanize/state.py",
-        "evaluation/coset_two_block_actions.v1.json",
-        "evaluation/selection_ledger.py",
+            "humanize/state.py",
+            "evaluation/coset_two_block_actions.v1.json",
+            "evaluation/coset_two_block_actions.v2.json",
+            "evaluation/selection_ledger.py",
         "scripts/screen_frontier_candidate.py",
         "scripts/screen_frontier_sat.py",
         "scripts/screen_frontier_twobga.py",
@@ -1700,9 +1701,10 @@ def test_certificate_source_fingerprint_includes_audit_dependencies(
         project / "tests" / "verify_known_answer_gate.py",
         project / "results" / "known_code_registry.json",
         project / "humanize" / "audit_state.py",
-        project / "humanize" / "state.py",
-        project / "evaluation" / "coset_two_block_actions.v1.json",
-        project / "evaluation" / "verifier.py",
+            project / "humanize" / "state.py",
+            project / "evaluation" / "coset_two_block_actions.v1.json",
+            project / "evaluation" / "coset_two_block_actions.v2.json",
+            project / "evaluation" / "verifier.py",
         project / "evaluation" / "selection_ledger.py",
     ):
         path.parent.mkdir(parents=True, exist_ok=True)

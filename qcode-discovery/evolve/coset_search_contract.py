@@ -16,13 +16,14 @@ import hashlib
 import json
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any
 
 
-COSET_CANDIDATE_SCHEMA_VERSION = 1
-COSET_REPRESENTATION_ID = "css-coset-two-block-actions-v1"
+COSET_CANDIDATE_SCHEMA_VERSION = 2
+COSET_REPRESENTATION_ID = "css-coset-two-block-actions-v2"
 COSET_EVALUATOR_KIND = "coset-two-block"
-COSET_MAP_SCHEMA_VERSION = 2
+COSET_MAP_SCHEMA_VERSION = 3
 
 # Legacy candidate-level labels remain part of persisted candidate rows, but
 # they are deliberately no longer MAP-Elites dimensions.  Selecting one
@@ -49,19 +50,50 @@ COSET_FEATURE_BINS = {
 }
 
 COSET_SUPPORT_ORBIT_BINS = 8
-COSET_DESCRIPTOR_KIND = "qcode-coset-batch-map-descriptor-v2"
+COSET_DESCRIPTOR_KIND = "qcode-coset-batch-map-descriptor-v3"
 
 MAX_TOTAL_SUPPORT_WEIGHT = 6
 PRODUCTION_LEFT_WEIGHT = 3
 PRODUCTION_RIGHT_WEIGHT = 3
 MAX_GENERATED_CANDIDATES = 384
 DEFAULT_PER_ACTION_QUOTA = 96
-LOW_WEIGHT_ORACLE_THRESHOLD = 4
 TARGET_FOM = 12.0
+
+# Stage-1 proof search is a resumable sequence of threshold decisions, not a
+# one-shot distance estimate.  Schema v2 replaces the historical fixed
+# ``max_weight=4`` probe.  A bounded, normality-balanced frontier may advance
+# multiple sequential rungs in one evaluator call; committed evidence is
+# hydrated from the source-bound run ledger before new work is attempted.
+COSET_PROOF_LADDER_SCHEMA_VERSION = 2
+COSET_PROOF_LADDER_VERSION_METRIC = "qcode_coset_proof_ladder_version"
+COSET_PROOF_LADDER_CONFIG_KEY = "qcode_coset_stage1_proof_ladder"
+COSET_PROOF_LADDER_START_WEIGHT = 4
+COSET_PROOF_LADDER_WEIGHT_STEP = 2
+COSET_PROOF_MAX_CANDIDATES_PER_BATCH = 8
+COSET_PROOF_MAX_NEW_STEPS_PER_BATCH = 24
+COSET_PROOF_BATCH_WALL_TIMEOUT_S = 720.0
+COSET_PROOF_STEP_HARD_TIMEOUT_S = 30.0
+COSET_PROOF_CACHE_DIRECTORY = ".coset-stage1-proof-cache-v2"
 ACTION_FAMILY_BINS = {
     "nonnormal-coset": 0,
     "normal-regular": 1,
 }
+
+
+def proof_ladder_config_contract() -> dict[str, Any]:
+    """Return the exact fail-closed YAML marker for this scoring contract."""
+
+    return {
+        "enabled": True,
+        "schema_version": COSET_PROOF_LADDER_SCHEMA_VERSION,
+        "start_weight": COSET_PROOF_LADDER_START_WEIGHT,
+        "weight_step": COSET_PROOF_LADDER_WEIGHT_STEP,
+        "max_candidates_per_batch": COSET_PROOF_MAX_CANDIDATES_PER_BATCH,
+        "max_new_steps_per_batch": COSET_PROOF_MAX_NEW_STEPS_PER_BATCH,
+        "batch_wall_timeout_s": COSET_PROOF_BATCH_WALL_TIMEOUT_S,
+        "step_hard_timeout_s": COSET_PROOF_STEP_HARD_TIMEOUT_S,
+        "cache_directory": COSET_PROOF_CACHE_DIRECTORY,
+    }
 
 
 @dataclass(frozen=True)
@@ -200,12 +232,13 @@ def _catalog_descriptors() -> Iterable[Mapping[str, Any]]:
         raise RuntimeError(
             "coset action catalog does not expose list_action_descriptors()"
         )
-    raw = provider()
+    raw = provider(catalog_id=catalog.V2_CATALOG_ID)
     if not isinstance(raw, (list, tuple)) or not raw:
         raise RuntimeError("coset action catalog is empty")
     return raw
 
 
+@lru_cache(maxsize=1)
 def action_search_views() -> tuple[ActionSearchView, ...]:
     enabled = []
     for raw in _catalog_descriptors():
@@ -311,12 +344,29 @@ def _require_sha256(value: Any, *, label: str) -> str:
     return value
 
 
-def _action_catalog_sha256() -> str:
-    from evaluation.coset_action_catalog import action_catalog_sha256
-
-    return _require_sha256(
-        action_catalog_sha256(), label="coset action catalog identity"
+def _action_catalog_identity() -> dict[str, Any]:
+    from evaluation.coset_action_catalog import (
+        V2_CATALOG_ID,
+        action_catalog_identity,
     )
+
+    identity = action_catalog_identity(V2_CATALOG_ID)
+    if (
+        identity.get("catalog_id") != V2_CATALOG_ID
+        or identity.get("schema_version") != 2
+    ):
+        raise ValueError("coset action catalog v2 identity changed")
+    return {
+        "catalog_id": V2_CATALOG_ID,
+        "sha256": _require_sha256(
+            identity.get("sha256"),
+            label="coset action catalog identity",
+        ),
+    }
+
+
+def _action_catalog_sha256() -> str:
+    return str(_action_catalog_identity()["sha256"])
 
 
 def coset_batch_map_descriptor(
@@ -324,7 +374,7 @@ def coset_batch_map_descriptor(
     *,
     policy_sha256: str,
 ) -> dict[str, Any]:
-    """Build the stable schema-v2 MAP descriptor for one rendered policy.
+    """Build the stable schema-v3 MAP descriptor for one rendered policy.
 
     Coordinates depend only on the typed policy identity and the immutable
     renderer output.  In particular, no static-code build, oracle outcome,
@@ -344,13 +394,8 @@ def coset_batch_map_descriptor(
         )
 
     views = action_search_views()
-    if len(views) != 2 or {view.subgroup_normal for view in views} != {
-        False,
-        True,
-    }:
-        raise RuntimeError(
-            "descriptor v2 requires exactly one normal and one nonnormal lane"
-        )
+    if {view.subgroup_normal for view in views} != {False, True}:
+        raise RuntimeError("descriptor v3 requires both normality classes")
     expected_quotas = quota_by_normality(views, MAX_GENERATED_CANDIDATES)
     lanes: dict[str, list[dict[str, Any]]] = {
         view.action_id: [] for view in views
@@ -382,11 +427,14 @@ def coset_batch_map_descriptor(
     } != expected_quotas:
         raise ValueError("descriptor candidate batch violates action quotas")
 
-    catalog_sha256 = _action_catalog_sha256()
+    catalog_identity = _action_catalog_identity()
+    catalog_id = str(catalog_identity["catalog_id"])
+    catalog_sha256 = str(catalog_identity["sha256"])
     lane_artifacts: list[dict[str, Any]] = []
     coordinates: dict[str, int] = {}
     aggregate_histogram = [0] * COSET_SUPPORT_ORBIT_BINS
-    for view in sorted(views, key=lambda item: item.action_id):
+    ordered_views = sorted(views, key=lambda item: item.action_id)
+    for lane_index, view in enumerate(ordered_views):
         rows = lanes[view.action_id]
         candidate_sha256 = [candidate_digest(row) for row in rows]
         orbit_histogram = [0] * COSET_SUPPORT_ORBIT_BINS
@@ -397,9 +445,13 @@ def coset_batch_map_descriptor(
         lane_payload = {
             "schema_version": COSET_MAP_SCHEMA_VERSION,
             "representation_id": COSET_REPRESENTATION_ID,
+            "action_catalog_id": catalog_id,
             "action_catalog_sha256": catalog_sha256,
+            "action_lane_index": lane_index,
+            "action_family_bin": view.action_family_bin,
             "action_id": view.action_id,
             "subgroup_normal": view.subgroup_normal,
+            "quota": expected_quotas[view.action_id],
             "candidate_sha256": candidate_sha256,
         }
         lane_sha256 = canonical_json_sha256(lane_payload)
@@ -408,20 +460,67 @@ def coset_batch_map_descriptor(
             if view.subgroup_normal
             else COSET_NONNORMAL_LANE_METRIC
         )
-        bucket = int(lane_sha256[:16], 16) % COSET_FEATURE_BINS[metric]
-        coordinates[metric] = bucket
         lane_artifacts.append({
             **lane_payload,
             "candidate_count": len(rows),
             "orbit_histogram": orbit_histogram,
             "lane_sha256": lane_sha256,
+            "class_metric": metric,
+        })
+
+    # Forty-five nonnormal action lanes share one MAP dimension.  Hash the
+    # complete ordered lane identity/quota list for each class before deriving
+    # its coordinate; assigning a bucket per action would silently overwrite
+    # the previous 44 coordinates and make most of the rendered batch invisible.
+    class_artifacts: list[dict[str, Any]] = []
+    for subgroup_normal, metric in (
+        (False, COSET_NONNORMAL_LANE_METRIC),
+        (True, COSET_NORMAL_LANE_METRIC),
+    ):
+        class_lanes = [
+            lane
+            for lane in lane_artifacts
+            if lane["subgroup_normal"] is subgroup_normal
+        ]
+        if not class_lanes:
+            raise RuntimeError(
+                f"descriptor v3 has no {subgroup_normal=} action lane"
+            )
+        class_payload = {
+            "schema_version": COSET_MAP_SCHEMA_VERSION,
+            "representation_id": COSET_REPRESENTATION_ID,
+            "action_catalog_id": catalog_id,
+            "action_catalog_sha256": catalog_sha256,
+            "subgroup_normal": subgroup_normal,
             "metric": metric,
+            "lanes": [
+                {
+                    "action_lane_index": lane["action_lane_index"],
+                    "action_family_bin": lane["action_family_bin"],
+                    "action_id": lane["action_id"],
+                    "quota": lane["quota"],
+                    "lane_sha256": lane["lane_sha256"],
+                }
+                for lane in class_lanes
+            ],
+        }
+        class_sha256 = canonical_json_sha256(class_payload)
+        bucket = int(class_sha256[:16], 16) % COSET_FEATURE_BINS[metric]
+        coordinates[metric] = bucket
+        class_artifacts.append({
+            **class_payload,
+            "action_count": len(class_lanes),
+            "candidate_count": sum(
+                int(lane["candidate_count"]) for lane in class_lanes
+            ),
+            "class_sha256": class_sha256,
             "bucket": bucket,
         })
 
     batch_payload = {
         "schema_version": COSET_MAP_SCHEMA_VERSION,
         "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_id": catalog_id,
         "action_catalog_sha256": catalog_sha256,
         "policy_sha256": policy_sha256,
         "ordered_candidate_sha256": ordered_digests,
@@ -430,13 +529,17 @@ def coset_batch_map_descriptor(
     orbit_profile_payload = {
         "schema_version": COSET_MAP_SCHEMA_VERSION,
         "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_id": catalog_id,
         "action_catalog_sha256": catalog_sha256,
         "aggregate_orbit_histogram": aggregate_histogram,
         "lanes": [
             {
                 "action_id": lane["action_id"],
+                "action_lane_index": lane["action_lane_index"],
+                "quota": lane["quota"],
                 "candidate_count": lane["candidate_count"],
                 "orbit_histogram": lane["orbit_histogram"],
+                "lane_sha256": lane["lane_sha256"],
             }
             for lane in lane_artifacts
         ],
@@ -454,6 +557,7 @@ def coset_batch_map_descriptor(
         "kind": COSET_DESCRIPTOR_KIND,
         "schema_version": COSET_MAP_SCHEMA_VERSION,
         "representation_id": COSET_REPRESENTATION_ID,
+        "action_catalog_id": catalog_id,
         "action_catalog_sha256": catalog_sha256,
         "policy_sha256": policy_sha256,
         "dimensions": list(COSET_FEATURE_DIMENSIONS),
@@ -462,6 +566,7 @@ def coset_batch_map_descriptor(
             name: coordinates[name] for name in COSET_FEATURE_DIMENSIONS
         },
         "lanes": lane_artifacts,
+        "classes": class_artifacts,
         "batch": {
             **batch_payload,
             "candidate_count": len(candidates),
@@ -491,11 +596,18 @@ def quota_by_normality(
     }
     present = [normal for normal in (False, True) if groups[normal]]
     if len(present) == 2:
-        # The nonnormal coset action is the production lane; the normal
-        # regular action is a useful control but should not consume half of a
-        # finite evaluation budget.  Preserve at least one control row whenever
-        # the total budget can represent both classes.
-        normal_budget = max(1, total_limit // 4) if total_limit > 1 else 0
+        # Preserve the historical 288/96 split for the exact two-action
+        # catalog.  Expanded catalogs instead allocate by class cardinality,
+        # while retaining at least one normal control in a finite oracle batch.
+        if len(views) == 2 and all(len(groups[normal]) == 1 for normal in present):
+            normal_budget = max(1, total_limit // 4) if total_limit > 1 else 0
+        else:
+            normal_budget = (
+                max(1, round(total_limit * len(groups[True]) / len(views)))
+                if total_limit > 1
+                else 0
+            )
+            normal_budget = min(normal_budget, total_limit - 1)
         class_budget = {
             False: total_limit - normal_budget,
             True: normal_budget,
@@ -529,7 +641,16 @@ __all__ = [
     "COSET_SUPPORT_ORBIT_METRIC",
     "COSET_SUPPORT_ORBIT_BINS",
     "DEFAULT_PER_ACTION_QUOTA",
-    "LOW_WEIGHT_ORACLE_THRESHOLD",
+    "COSET_PROOF_BATCH_WALL_TIMEOUT_S",
+    "COSET_PROOF_CACHE_DIRECTORY",
+    "COSET_PROOF_LADDER_CONFIG_KEY",
+    "COSET_PROOF_LADDER_SCHEMA_VERSION",
+    "COSET_PROOF_LADDER_VERSION_METRIC",
+    "COSET_PROOF_LADDER_START_WEIGHT",
+    "COSET_PROOF_LADDER_WEIGHT_STEP",
+    "COSET_PROOF_MAX_CANDIDATES_PER_BATCH",
+    "COSET_PROOF_MAX_NEW_STEPS_PER_BATCH",
+    "COSET_PROOF_STEP_HARD_TIMEOUT_S",
     "MAX_GENERATED_CANDIDATES",
     "MAX_TOTAL_SUPPORT_WEIGHT",
     "PRODUCTION_LEFT_WEIGHT",
@@ -543,5 +664,6 @@ __all__ = [
     "normalize_action_descriptor",
     "normalize_candidate",
     "quota_by_normality",
+    "proof_ladder_config_contract",
     "support_orbit_bin",
 ]
