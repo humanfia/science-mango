@@ -13,9 +13,11 @@ from humanize.audit_state import (
     create_unresolved_entry,
 )
 from humanize.flow import (
+    CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
     FlowConfig,
     HumanizeFlow,
     UnresolvedAuditError,
+    _canonical_payload_sha256,
     _deduplicate,
     _milp_is_fully_exact,
     select_for_milp,
@@ -305,6 +307,77 @@ def test_duplicate_zero_distance_rows_preserve_unresolved_provenance():
     assert selected["candidate_persistence_reason"] == (
         "selected_distance_unresolved"
     )
+
+
+def test_duplicate_search_lower_bounds_keep_stronger_complete_ledger():
+    def sealed_lower_bound(lower_bound: int, *, complete: bool) -> dict:
+        row = candidate(k=8, d=0, fom=0.0)
+        row.pop("d")
+        row["candidate_sha256"] = "a" * 64
+        threshold = lower_bound - 1
+        evidence = {
+            "schema_version": 1,
+            "kind": "qcode-css-low-weight-oracle",
+            "outcome": "UNSAT",
+            "decision_complete": True,
+            "retryable": False,
+            "max_weight": threshold,
+            "distance_lower_bound": lower_bound,
+            "witness": None,
+        }
+        evidence["evidence_sha256"] = _canonical_payload_sha256(evidence)
+        ledger = {
+            "kind": "qcode-coset-stage1-proof-ledger-v1",
+            "schema_version": 1,
+            "proof_ladder_version": 2,
+            "candidate_sha256": row["candidate_sha256"],
+            "entries": [{
+                "threshold": threshold,
+                "outcome": "UNSAT",
+                "evidence_sha256": evidence["evidence_sha256"],
+                "cache_sha256": "b" * 64,
+            }],
+        }
+        ledger["root_sha256"] = _canonical_payload_sha256(ledger)
+        row.update({
+            "distance_lower_bound": lower_bound,
+            "distance_lower_bound_proven": True,
+            "distance_lower_bound_status": "search_oracle_proven",
+            "distance_lower_bound_evidence": evidence,
+            "distance_lower_bound_evidence_sha256": evidence[
+                "evidence_sha256"
+            ],
+            "proof_ledger": ledger,
+            "oracle_ladder_complete": complete,
+            "challenge_target_lower_bound_proven": complete,
+            "search_status": (
+                "challenge_threshold_survivor"
+                if complete else "partial_lower_bound_retry"
+            ),
+        })
+        return row
+
+    partial = sealed_lower_bound(5, complete=False)
+    survivor = sealed_lower_bound(6, complete=True)
+
+    # Historical transaction policy v1 retained the first rank-zero row.  It
+    # must remain replayable after policy v2 starts preferring sealed lower
+    # bounds, otherwise a code upgrade invalidates an already committed batch.
+    legacy = _deduplicate(
+        [partial, survivor],
+        policy_version=CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
+    )
+    assert legacy[0]["distance_lower_bound"] == 5
+    assert _deduplicate([partial, survivor])[0]["distance_lower_bound"] == 6
+    assert _deduplicate([survivor, partial])[0]["distance_lower_bound"] == 6
+
+    tampered = json.loads(json.dumps(survivor))
+    tampered["distance_lower_bound_evidence"]["max_weight"] = 1
+    [selected] = _deduplicate([partial, tampered])
+    assert selected["distance_lower_bound"] == 5
+
+    with pytest.raises(ValueError, match="unsupported candidate batch policy"):
+        _deduplicate([partial, survivor], policy_version=True)
 
 
 def test_distance_error_precedes_unresolved_pending_and_quick_lanes():

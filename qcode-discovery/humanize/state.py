@@ -499,7 +499,7 @@ class RunStore:
             "created_at": utc_now(),
             "updated_at": utc_now(),
             "current_round": 0,
-            "round_transaction_version": 2,
+            "round_transaction_version": 3,
             "candidate_offset": 0,
             "best_fom": 0.0,
             "best_bp_fom_upper_bound": 0.0,

@@ -30,6 +30,60 @@ def candidate(tag: int) -> dict:
     }
 
 
+def sealed_lower_bound_candidate(
+    lower_bound: int,
+    *,
+    complete: bool,
+) -> dict:
+    row = candidate(0)
+    row.pop("d")
+    row["candidate_sha256"] = "a" * 64
+    threshold = lower_bound - 1
+    evidence = {
+        "schema_version": 1,
+        "kind": "qcode-css-low-weight-oracle",
+        "outcome": "UNSAT",
+        "decision_complete": True,
+        "retryable": False,
+        "max_weight": threshold,
+        "distance_lower_bound": lower_bound,
+        "witness": None,
+    }
+    evidence["evidence_sha256"] = flow_module._canonical_payload_sha256(
+        evidence
+    )
+    ledger = {
+        "kind": "qcode-coset-stage1-proof-ledger-v1",
+        "schema_version": 1,
+        "proof_ladder_version": 2,
+        "candidate_sha256": row["candidate_sha256"],
+        "entries": [{
+            "threshold": threshold,
+            "outcome": "UNSAT",
+            "evidence_sha256": evidence["evidence_sha256"],
+            "cache_sha256": "b" * 64,
+        }],
+    }
+    ledger["root_sha256"] = flow_module._canonical_payload_sha256(ledger)
+    row.update({
+        "distance_lower_bound": lower_bound,
+        "distance_lower_bound_proven": True,
+        "distance_lower_bound_status": "search_oracle_proven",
+        "distance_lower_bound_evidence": evidence,
+        "distance_lower_bound_evidence_sha256": evidence[
+            "evidence_sha256"
+        ],
+        "proof_ledger": ledger,
+        "oracle_ladder_complete": complete,
+        "challenge_target_lower_bound_proven": complete,
+        "search_status": (
+            "challenge_threshold_survivor"
+            if complete else "partial_lower_bound_retry"
+        ),
+    })
+    return row
+
+
 def jsonl(*rows: dict) -> bytes:
     return b"".join(
         (json.dumps(row) + "\n").encode("utf-8") for row in rows
@@ -1417,6 +1471,110 @@ def test_completed_transaction_accepts_same_bytes_after_inode_rotation(
     ) == [row]
 
 
+def test_committed_v2_batch_replays_legacy_selector_after_upgrade(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="committed-legacy-candidate-batch-policy",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    partial = sealed_lower_bound_candidate(5, complete=False)
+    survivor = sealed_lower_bound_candidate(6, complete=True)
+    source_rows = [partial, survivor]
+
+    def runner(_config, _state, runner_round):
+        flow.candidate_log.parent.mkdir(parents=True, exist_ok=True)
+        flow.candidate_log.write_bytes(jsonl(*source_rows))
+        checkpoint = write_checkpoint(repo, config.run_id, 1)
+        write_full_slice_proof(flow, runner_round, checkpoint, None)
+        return checkpoint
+
+    flow = HumanizeFlow(
+        config, reviewer=Reviewer(), evolution_runner=runner
+    )
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    [current] = flow._capture_round_candidates(state, 1, round_dir)
+    assert current["distance_lower_bound"] == 6
+
+    manifest_path = round_dir / "evolution-transaction.json"
+    transaction = json.loads(manifest_path.read_text())
+    assert transaction["schema_version"] == 3
+    assert transaction["protocol_version"] == 3
+    assert transaction["candidate_batch_policy_version"] == 2
+    bound_end = transaction["candidate_end_offset"]
+
+    # Model the immutable protocol-v2 artifact produced before selector
+    # versioning, then append a later-round row beyond its frozen source slice.
+    legacy_rows = flow_module._deduplicate(
+        source_rows,
+        policy_version=flow_module.CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
+    )
+    transaction["schema_version"] = 2
+    transaction["protocol_version"] = 2
+    transaction.pop("candidate_batch_policy_version")
+    transaction["candidate_batch_identity"] = (
+        flow_module.atomic_write_jsonl(
+            round_dir / "candidate-batch.jsonl",
+            legacy_rows,
+        )
+    )
+    atomic_write_json(manifest_path, transaction)
+    with flow.candidate_log.open("ab") as stream:
+        stream.write(jsonl(candidate(70)))
+    resumed_state = flow.store.load_state()
+    resumed_state["round_transaction_version"] = 2
+    flow.store.write_state(resumed_state)
+
+    [resumed] = flow._capture_round_candidates(
+        flow.store.load_state(), 1, round_dir
+    )
+    assert resumed["distance_lower_bound"] == 5
+    assert json.loads(manifest_path.read_text())[
+        "candidate_end_offset"
+    ] == bound_end
+    _transaction, completed_rows = flow._validate_completed_transaction(
+        1, round_dir
+    )
+    assert completed_rows == legacy_rows
+
+
+def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="candidate-batch-policy-binding",
+        iterations_per_round=1,
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    assert flow._candidate_batch_policy_version(transaction) == 2
+
+    missing = dict(transaction)
+    missing.pop("candidate_batch_policy_version")
+    with pytest.raises(
+        RoundTransactionError,
+        match="unsupported candidate batch policy",
+    ):
+        flow._candidate_batch_policy_version(missing)
+
+    invalid = dict(transaction)
+    invalid["candidate_batch_policy_version"] = True
+    with pytest.raises(
+        RoundTransactionError,
+        match="unsupported candidate batch policy",
+    ):
+        flow._candidate_batch_policy_version(invalid)
+
+
 def test_live_transaction_rejects_same_bytes_after_inode_rotation(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -2363,7 +2521,7 @@ def test_legacy_pending_checkpoint_25_migrates_without_evolution(tmp_path):
     completed = flow.run()
     assert calls == []
     assert completed["status"] == "search-complete"
-    assert completed["round_transaction_version"] == 2
+    assert completed["round_transaction_version"] == 3
     assert not (round_dir / "evolution-transaction.json").exists()
 
 
@@ -2584,6 +2742,71 @@ def test_stage2_oracle_witness_is_replayed_into_next_round_context(
                 "rows": 2,
             },
             candidate_rows=[forged, row],
+        )
+
+    # A known old evaluator may be migrated only after the complete, unchanged
+    # construction/oracle/witness replays and its scalar-only metadata matches.
+    # Patch only the cutoff functions to model a Pareto gap for this real,
+    # algebraically replayable fixture; do not forge its n/k or evidence.
+    stale_scalar_only = copy.deepcopy(row)
+    stale_witness = stale_scalar_only["low_weight_oracle"]["witness"]
+    witness_weight = stale_witness["weight"]
+    scalar_cutoff = stale_scalar_only["low_weight_oracle"]["max_weight"]
+    assert witness_weight <= scalar_cutoff
+    stale_scalar_only.update({
+        "fom_rejection_cutoff": scalar_cutoff,
+        "challenge_rejection_cutoff": scalar_cutoff,
+        "minimum_winning_distance": scalar_cutoff + 1,
+        "threshold_rejected": True,
+        "threshold_proof_distance": witness_weight,
+        "threshold_proof_witness": copy.deepcopy(stale_witness),
+        "low_weight_witness": copy.deepcopy(stale_witness),
+        "distance_upper_bound": witness_weight,
+        "distance_upper_bound_source": "low_weight_oracle",
+        "fom_target_excluded_by_upper_bound": True,
+        "final_gate_excluded_by_upper_bound": True,
+        "search_final_gate_excluded_by_upper_bound": True,
+    })
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "compute_challenge_rejection_cutoff",
+        lambda _n, _k, _target: witness_weight - 1,
+    )
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "compute_fom_rejection_cutoff",
+        lambda _n, _k, _target: scalar_cutoff,
+    )
+    feedback = flow_module._build_search_oracle_feedback(
+        round_number=1,
+        source_candidate_batch={
+            "path": "candidate-batch.jsonl",
+            "sha256": "b" * 64,
+            "bytes": 1,
+            "rows": 1,
+        },
+        candidate_rows=[stale_scalar_only],
+        allow_historical_scalar_cutoff=True,
+    )
+    assert feedback["replay_attempts"] == 0
+    assert feedback["observations"] == []
+
+    corrupted_stale = copy.deepcopy(stale_scalar_only)
+    corrupted_stale["low_weight_oracle"]["witness"]["bits"][0] ^= 1
+    with pytest.raises(
+        RoundTransactionError,
+        match="terminal Stage-2 low-weight oracle witness failed replay",
+    ):
+        flow_module._build_search_oracle_feedback(
+            round_number=1,
+            source_candidate_batch={
+                "path": "candidate-batch.jsonl",
+                "sha256": "c" * 64,
+                "bytes": 1,
+                "rows": 1,
+            },
+            candidate_rows=[corrupted_stale],
+            allow_historical_scalar_cutoff=True,
         )
 
 

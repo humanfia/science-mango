@@ -639,6 +639,7 @@ def _negative_witness_geometry(
     *,
     formal_audit: bool = False,
     allow_search_oracle: bool = False,
+    allow_historical_scalar_cutoff: bool = False,
 ) -> dict[str, Any] | None:
     """Project strict replayed witness geometry as negative evidence only."""
 
@@ -734,7 +735,10 @@ def _negative_witness_geometry(
             verify_css_logical_detectors,
         )
         from evaluation.distance_milp import get_code_matrices
-        from evaluation.evaluator import compute_challenge_rejection_cutoff
+        from evaluation.evaluator import (
+            compute_challenge_rejection_cutoff,
+            compute_fom_rejection_cutoff,
+        )
         from evaluation.low_weight_oracle import (
             verify_css_low_weight_oracle,
         )
@@ -796,8 +800,31 @@ def _negative_witness_geometry(
             (logicals @ vector) & 1
         ):
             return None
-        if weight > compute_challenge_rejection_cutoff(n, k, 12.0):
-            return None
+        challenge_cutoff = compute_challenge_rejection_cutoff(n, k, 12.0)
+        if weight > challenge_cutoff:
+            scalar_cutoff = compute_fom_rejection_cutoff(n, k, 12.0)
+            historical_scalar_contract = bool(
+                allow_historical_scalar_cutoff
+                and search_oracle_rejection
+                and challenge_cutoff < weight <= scalar_cutoff
+                and row.get("fom_rejection_cutoff") == scalar_cutoff
+                and row.get("challenge_rejection_cutoff") == scalar_cutoff
+                and row.get("minimum_winning_distance") == scalar_cutoff + 1
+                and row.get("threshold_rejected") is True
+                and row.get("threshold_proof_distance") == weight
+                and row.get("threshold_proof_witness") == witness
+                and row.get("low_weight_witness") == witness
+                and row.get("distance_upper_bound") == weight
+                and row.get("distance_upper_bound_source")
+                == "low_weight_oracle"
+                and row.get("fom_target_excluded_by_upper_bound") is True
+                and row.get("final_gate_excluded_by_upper_bound") is True
+                and row.get("search_final_gate_excluded_by_upper_bound") is True
+                and type(oracle.get("max_weight")) is int
+                and weight <= oracle["max_weight"] <= scalar_cutoff
+            )
+            if not historical_scalar_contract:
+                return None
     except Exception:
         return None
     support = [index for index, bit in enumerate(bits) if bit]
@@ -865,6 +892,25 @@ def replay_search_oracle_witness_geometry(
     """
 
     return _negative_witness_geometry(row, allow_search_oracle=True)
+
+
+def replay_historical_scalar_only_search_oracle_witness_geometry(
+    row: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Replay a source-bound old scalar-only terminal marker.
+
+    This is a narrowly scoped migration hook for immutable rounds produced by
+    a known historical evaluator.  It performs the same construction, oracle,
+    and algebraic witness replay as the normal path; the only relaxation is
+    that a valid witness may lie above today's Pareto-aware challenge cutoff
+    while remaining below the row's exactly reproduced old scalar cutoff.
+    """
+
+    return _negative_witness_geometry(
+        row,
+        allow_search_oracle=True,
+        allow_historical_scalar_cutoff=True,
+    )
 
 
 def _upper_bound_neutral_advisory(

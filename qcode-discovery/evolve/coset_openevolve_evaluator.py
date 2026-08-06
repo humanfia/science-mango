@@ -41,6 +41,11 @@ from evaluation.low_weight_oracle import (
     evaluate_css_low_weight_oracle,
     verify_css_low_weight_oracle,
 )
+from evaluation.evaluator import (
+    compute_challenge_rejection_cutoff,
+    compute_fom_rejection_cutoff,
+)
+from evaluation.final_gate import minimum_winning_distance
 from evolve.coset_search_contract import (
     COSET_BATCH_ORBIT_PROFILE_METRIC,
     COSET_EVALUATOR_KIND,
@@ -334,16 +339,39 @@ def _static_candidate(candidate: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _dynamic_rejection_cutoff(n: int, k: int) -> int | None:
+    """Return the official final-gate exclusion cutoff for ``(n, k)``.
+
+    The scalar FOM cutoff alone is insufficient at the official challenge
+    target: a code can also win by tying a published FOM at smaller block
+    length (or by either fixed-coordinate Pareto rule).  Keep Stage 1 on the
+    same machine-derived contract as the final gate so a witness at the first
+    winning distance is never mislabeled as terminal negative.
+    """
     if k <= 0:
         return None
-    target = int(TARGET_FOM)
-    if float(target) != TARGET_FOM:
-        raise RuntimeError("coset target FOM must have an integer contract")
-    # The challenge is strict: FOM must be greater than 12.  This is the
-    # greatest integer witness weight w for which k*w^2 <= 12*n, including
-    # equality.  Integer arithmetic avoids a perfect-square float rounding
-    # error accidentally accepting a non-winner.
-    return math.isqrt((target * int(n)) // int(k))
+    return compute_challenge_rejection_cutoff(int(n), int(k), TARGET_FOM)
+
+
+def _cutoff_metadata(n: int, k: int) -> dict[str, int | None]:
+    """Describe scalar and complete final-gate cutoffs without conflating them."""
+
+    challenge_cutoff = _dynamic_rejection_cutoff(n, k)
+    if challenge_cutoff is None:
+        return {
+            "fom_rejection_cutoff": None,
+            "challenge_rejection_cutoff": None,
+            "minimum_winning_distance": None,
+        }
+    scalar_cutoff = compute_fom_rejection_cutoff(n, k, TARGET_FOM)
+    try:
+        required = minimum_winning_distance(n, k)
+    except ValueError:
+        required = None
+    return {
+        "fom_rejection_cutoff": scalar_cutoff,
+        "challenge_rejection_cutoff": challenge_cutoff,
+        "minimum_winning_distance": required,
+    }
 
 
 def _proof_ladder(cutoff: int) -> tuple[int, ...]:
@@ -2117,6 +2145,9 @@ def _apply_oracle_sat(
     *,
     cutoff: int,
 ) -> None:
+    official_cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
+    if cutoff != official_cutoff:
+        raise RuntimeError("oracle rejection cutoff disagrees with final gate")
     witness = evidence.get("witness")
     witness_weight = (
         witness.get("weight") if isinstance(witness, Mapping) else None
@@ -2156,9 +2187,7 @@ def _apply_oracle_sat(
         "threshold_proof_source": "low_weight_oracle",
         "threshold_proof_distance": witness_weight,
         "threshold_proof_witness": dict(witness),
-        "fom_rejection_cutoff": cutoff,
-        "challenge_rejection_cutoff": cutoff,
-        "minimum_winning_distance": cutoff + 1,
+        **_cutoff_metadata(row["n"], row["k"]),
         "fom_target_excluded_by_upper_bound": True,
         "final_gate_excluded_by_upper_bound": True,
         "search_final_gate_excluded_by_upper_bound": True,
@@ -2174,6 +2203,9 @@ def _apply_oracle_lower_bound(
     cutoff: int,
     complete: bool,
 ) -> None:
+    official_cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
+    if cutoff != official_cutoff:
+        raise RuntimeError("oracle lower-bound cutoff disagrees with final gate")
     lower_bound = evidence.get("distance_lower_bound")
     threshold = evidence.get("max_weight")
     if (
@@ -2182,6 +2214,19 @@ def _apply_oracle_lower_bound(
         or lower_bound != threshold + 1
     ):
         raise RuntimeError("UNSAT ladder evidence has no exact threshold bound")
+    cutoff_metadata = _cutoff_metadata(row["n"], row["k"])
+    scalar_cutoff = cutoff_metadata["fom_rejection_cutoff"]
+    challenge_cutoff = cutoff_metadata["challenge_rejection_cutoff"]
+    challenge_survivor = bool(
+        complete
+        and isinstance(challenge_cutoff, int)
+        and lower_bound > challenge_cutoff
+    )
+    fom_survivor = bool(
+        complete
+        and isinstance(scalar_cutoff, int)
+        and lower_bound > scalar_cutoff
+    )
     row.update({
         "oracle_outcome": "UNSAT",
         "oracle_threshold": threshold,
@@ -2199,16 +2244,19 @@ def _apply_oracle_lower_bound(
         "fom_lower_bound": row["k"] * lower_bound * lower_bound / row["n"],
         "low_weight_oracle_threshold": threshold,
         "search_status": (
-            "fom_threshold_survivor" if complete else "partial_lower_bound"
+            "fom_threshold_survivor"
+            if fom_survivor
+            else "challenge_threshold_survivor"
+            if challenge_survivor
+            else "partial_lower_bound"
         ),
         "distance_retry_required": not complete,
         "oracle_retryable": not complete,
         "oracle_ladder_complete": complete,
         "oracle_ladder_next_threshold": None,
-        "fom_rejection_cutoff": cutoff,
-        "challenge_rejection_cutoff": cutoff,
-        "minimum_winning_distance": cutoff + 1,
-        "fom_target_lower_bound_proven": complete,
+        **cutoff_metadata,
+        "challenge_target_lower_bound_proven": challenge_survivor,
+        "fom_target_lower_bound_proven": fom_survivor,
     })
 
 
@@ -2237,6 +2285,8 @@ def _run_oracle(
         "oracle_batch_budget_exhausted": False,
         "oracle_last_attempt": None,
         "oracle_deferred": False,
+        "challenge_target_lower_bound_proven": False,
+        "fom_target_lower_bound_proven": False,
     })
     if not row["static_legal"] or row["k"] <= 0:
         row.update({
@@ -2251,9 +2301,7 @@ def _run_oracle(
     row.update({
         "oracle_ladder_cutoff": cutoff,
         "oracle_ladder_thresholds": list(ladder),
-        "fom_rejection_cutoff": cutoff,
-        "challenge_rejection_cutoff": cutoff,
-        "minimum_winning_distance": cutoff + 1,
+        **_cutoff_metadata(row["n"], row["k"]),
     })
     if not ladder:
         row.update({
@@ -2598,6 +2646,7 @@ def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "search_final_gate_excluded_by_upper_bound",
         "candidate_persistence_lane",
         "candidate_persistence_reason",
+        "challenge_target_lower_bound_proven",
         "fom_target_lower_bound_proven",
     ):
         if field in row:
@@ -3105,6 +3154,10 @@ def _evaluate(program_path: str):
             row.get("oracle_ladder_complete") is True for row in oracle_order
         )),
         "proof_ladder_survivors": float(sum(
+            row.get("challenge_target_lower_bound_proven") is True
+            for row in oracle_order
+        )),
+        "proof_ladder_fom_survivors": float(sum(
             row.get("fom_target_lower_bound_proven") is True
             for row in oracle_order
         )),

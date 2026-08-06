@@ -61,6 +61,7 @@ from .reviewer import (
     CodexReviewer,
     ReviewError,
     build_review_prompt,
+    replay_historical_scalar_only_search_oracle_witness_geometry,
     replay_search_oracle_witness_geometry,
     validate_review,
 )
@@ -88,8 +89,26 @@ MilpEvaluator = Callable[..., dict[str, Any]]
 EvolutionRunner = Callable[["FlowConfig", dict[str, Any], Path], Path | None]
 
 
-ROUND_TRANSACTION_PROTOCOL_VERSION = 2
-ROUND_TRANSACTION_SCHEMA_VERSION = 2
+ROUND_TRANSACTION_LEGACY_PROTOCOL_VERSION = 2
+ROUND_TRANSACTION_LEGACY_SCHEMA_VERSION = 2
+ROUND_TRANSACTION_PROTOCOL_VERSION = 3
+ROUND_TRANSACTION_SCHEMA_VERSION = 3
+ROUND_TRANSACTION_SUPPORTED_IDENTITIES = (
+    (
+        ROUND_TRANSACTION_LEGACY_SCHEMA_VERSION,
+        ROUND_TRANSACTION_LEGACY_PROTOCOL_VERSION,
+    ),
+    (ROUND_TRANSACTION_SCHEMA_VERSION, ROUND_TRANSACTION_PROTOCOL_VERSION),
+)
+ROUND_TRANSACTION_SUPPORTED_PROTOCOL_VERSIONS = tuple(
+    protocol for _schema, protocol in ROUND_TRANSACTION_SUPPORTED_IDENTITIES
+)
+CANDIDATE_BATCH_POLICY_LEGACY_VERSION = 1
+CANDIDATE_BATCH_POLICY_VERSION = 2
+CANDIDATE_BATCH_POLICY_VERSIONS = (
+    CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
+    CANDIDATE_BATCH_POLICY_VERSION,
+)
 ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION = 1
 SEALED_ROUND_EXACT_SCHEMA_VERSION = 1
 SEARCH_REGIME_SCHEMA_VERSION = 1
@@ -150,6 +169,9 @@ SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE = 4
 SEARCH_ORACLE_FEEDBACK_MAX_ATTEMPTS = (
     2 * SEARCH_ORACLE_FEEDBACK_MAX_PER_SIDE
 )
+HISTORICAL_SCALAR_ONLY_COSET_EVALUATOR_SHA256 = frozenset({
+    "7ddb1351f36476ed77871c1d376bc2b834bd7325d0f5dd3545ab9c0553432d8a",
+})
 ADAPTIVE_MUTATION_POLICY_SCHEMA_VERSION = 1
 ADAPTIVE_MUTATION_TOTAL_WEIGHT = 1000
 ADAPTIVE_MUTATION_EXPLORATION_FLOOR = 250
@@ -3015,7 +3037,7 @@ def _durable_round_commit_matches(
         and state.get("pending_round") is None
         and state.get("round_phase") is None
         and state.get("round_transaction_version")
-        == ROUND_TRANSACTION_PROTOCOL_VERSION
+        in ROUND_TRANSACTION_SUPPORTED_PROTOCOL_VERSIONS
     )
 
 
@@ -3512,11 +3534,67 @@ def _search_oracle_feedback_observation(
     }
 
 
+def _search_oracle_witness_exceeds_current_cutoff(
+    row: dict[str, Any],
+    witness: dict[str, Any],
+) -> bool:
+    """Return a scheduling hint; this alone never authorizes migration."""
+
+    n = row.get("n")
+    k = row.get("k")
+    weight = witness.get("weight")
+    if (
+        isinstance(n, bool)
+        or not isinstance(n, int)
+        or isinstance(k, bool)
+        or not isinstance(k, int)
+        or isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or n < 1
+        or not 1 <= k <= n
+        or weight < 1
+    ):
+        return False
+    try:
+        from evaluation.evaluator import compute_challenge_rejection_cutoff
+
+        cutoff = compute_challenge_rejection_cutoff(n, k, 12.0)
+    except (ImportError, TypeError, ValueError):
+        return False
+    return weight > cutoff
+
+
+def _round_allows_historical_scalar_cutoff_migration(
+    round_dir: Path,
+) -> bool:
+    """Bind the narrow migration to a known committed buggy evaluator."""
+
+    manifest_path = round_dir / "evolution-transaction.json"
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        return False
+    transaction = _read_json_object(
+        manifest_path,
+        "historical scalar-cutoff transaction",
+    )
+    launch = transaction.get("launch_binding")
+    evaluator = launch.get("evaluator") if isinstance(launch, dict) else None
+    path = evaluator.get("path") if isinstance(evaluator, dict) else None
+    sha256 = evaluator.get("sha256") if isinstance(evaluator, dict) else None
+    return bool(
+        transaction.get("mode") == "openevolve"
+        and transaction.get("status") == "committed"
+        and isinstance(path, str)
+        and Path(path).name == "coset_openevolve_evaluator.py"
+        and sha256 in HISTORICAL_SCALAR_ONLY_COSET_EVALUATOR_SHA256
+    )
+
+
 def _build_search_oracle_feedback(
     *,
     round_number: int,
     source_candidate_batch: dict[str, Any],
     candidate_rows: list[dict[str, Any]],
+    allow_historical_scalar_cutoff: bool = False,
 ) -> dict[str, Any]:
     """Build bounded, replayed Stage-2 witness feedback deterministically."""
 
@@ -3537,6 +3615,26 @@ def _build_search_oracle_feedback(
             or not isinstance(oracle, dict)
             or oracle.get("outcome") != "SAT"
         ):
+            continue
+        if _search_oracle_witness_exceeds_current_cutoff(row, witness):
+            historical_geometry = (
+                replay_historical_scalar_only_search_oracle_witness_geometry(
+                    row
+                )
+                if allow_historical_scalar_cutoff
+                else None
+            )
+            if (
+                historical_geometry is None
+                or historical_geometry.get("side") != side
+            ):
+                raise RoundTransactionError(
+                    "terminal Stage-2 low-weight oracle witness failed replay"
+                )
+            # The construction, oracle hash, bit vector, logical syndrome and
+            # exact old scalar-only contract all replayed.  Omitting this
+            # non-rejecting witness is negative-only and consumes no bounded
+            # feedback slot; it grants no lower bound or promotion credit.
             continue
         queues[side].append(row)
 
@@ -3696,6 +3794,9 @@ def _write_round_search_oracle_feedback(
         round_number=round_number,
         source_candidate_batch=source,
         candidate_rows=persisted_rows,
+        allow_historical_scalar_cutoff=(
+            _round_allows_historical_scalar_cutoff_migration(round_dir)
+        ),
     )
     payload = (_canonical_compact_json(feedback) + "\n").encode("utf-8")
     artifact_path = round_dir / "search-oracle-feedback.json"
@@ -3776,6 +3877,11 @@ def _previous_round_search_oracle_advisory(
         round_number=previous_number,
         source_candidate_batch=source,
         candidate_rows=candidate_rows,
+        allow_historical_scalar_cutoff=(
+            _round_allows_historical_scalar_cutoff_migration(
+                previous_round_dir
+            )
+        ),
     )
     artifact_path = previous_round_dir / "search-oracle-feedback.json"
     if artifact_path.is_symlink() or not artifact_path.is_file():
@@ -6755,15 +6861,128 @@ def _bp_observation_summary(row: dict[str, Any]) -> tuple[int, int, int] | None:
     return 1, distance, distance
 
 
+def _search_lower_bound_persistence_rank(
+    row: dict[str, Any],
+) -> tuple[int, int] | None:
+    """Rank internally sealed search lower bounds for duplicate retention.
+
+    This rank selects which copy of the *same construction* survives the
+    candidate pool; it grants no exact-distance or final-gate credit.  Require
+    the complete source-bound evidence and proof-ledger hashes so a truncated
+    or casually forged status string cannot displace a durable retry record.
+    """
+
+    lower_bound = row.get("distance_lower_bound")
+    evidence = row.get("distance_lower_bound_evidence")
+    ledger = row.get("proof_ledger")
+    candidate_sha256 = row.get("candidate_sha256")
+    if (
+        isinstance(lower_bound, bool)
+        or not isinstance(lower_bound, int)
+        or lower_bound < 1
+        or row.get("distance_lower_bound_proven") is not True
+        or row.get("distance_lower_bound_status") != "search_oracle_proven"
+        or not isinstance(evidence, dict)
+        or not isinstance(ledger, dict)
+        or not isinstance(candidate_sha256, str)
+        or len(candidate_sha256) != 64
+    ):
+        return None
+    unsigned_evidence = dict(evidence)
+    evidence_sha256 = unsigned_evidence.pop("evidence_sha256", None)
+    threshold = evidence.get("max_weight")
+    try:
+        evidence_hash_valid = (
+            evidence_sha256 == _canonical_payload_sha256(unsigned_evidence)
+        )
+    except (TypeError, ValueError):
+        return None
+    if (
+        not isinstance(evidence_sha256, str)
+        or not evidence_hash_valid
+        or row.get("distance_lower_bound_evidence_sha256")
+        != evidence_sha256
+        or evidence.get("outcome") != "UNSAT"
+        or evidence.get("decision_complete") is not True
+        or evidence.get("retryable") is not False
+        or evidence.get("witness") is not None
+        or isinstance(threshold, bool)
+        or not isinstance(threshold, int)
+        or threshold < 0
+        or lower_bound != threshold + 1
+        or evidence.get("distance_lower_bound") != lower_bound
+    ):
+        return None
+    unsigned_ledger = dict(ledger)
+    ledger_root = unsigned_ledger.pop("root_sha256", None)
+    entries = ledger.get("entries")
+    try:
+        ledger_hash_valid = (
+            ledger_root == _canonical_payload_sha256(unsigned_ledger)
+        )
+    except (TypeError, ValueError):
+        return None
+    if (
+        not ledger_hash_valid
+        or ledger.get("candidate_sha256") != candidate_sha256
+        or not isinstance(entries, list)
+        or not any(
+            isinstance(entry, dict)
+            and entry.get("threshold") == threshold
+            and entry.get("outcome") == "UNSAT"
+            and entry.get("evidence_sha256") == evidence_sha256
+            for entry in entries
+        )
+    ):
+        return None
+    complete = int(
+        row.get("oracle_ladder_complete") is True
+        and row.get("challenge_target_lower_bound_proven") is True
+    )
+    return lower_bound, complete
+
+
 def _prefer_duplicate_evidence(
     current: dict[str, Any],
     proposed: dict[str, Any],
+    *,
+    policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
 ) -> dict[str, Any]:
     """Choose the strongest evidence, then the tightest observed upper bound."""
+
+    if (
+        isinstance(policy_version, bool)
+        or policy_version not in CANDIDATE_BATCH_POLICY_VERSIONS
+    ):
+        raise ValueError(
+            f"unsupported candidate batch policy version: {policy_version!r}"
+        )
     current_rank = _distance_evidence_rank(current)
     proposed_rank = _distance_evidence_rank(proposed)
     if proposed_rank != current_rank:
+        if (
+            policy_version >= 2
+            and current_rank < 2
+            and proposed_rank < 2
+        ):
+            current_lower = _search_lower_bound_persistence_rank(current)
+            proposed_lower = _search_lower_bound_persistence_rank(proposed)
+            if current_lower != proposed_lower:
+                if current_lower is None:
+                    return proposed
+                if proposed_lower is None:
+                    return current
+                return proposed if proposed_lower > current_lower else current
         return proposed if proposed_rank > current_rank else current
+    if policy_version >= 2:
+        current_lower = _search_lower_bound_persistence_rank(current)
+        proposed_lower = _search_lower_bound_persistence_rank(proposed)
+        if current_lower != proposed_lower:
+            if current_lower is None:
+                return proposed
+            if proposed_lower is None:
+                return current
+            return proposed if proposed_lower > current_lower else current
     current_distance = _positive_distance(current)
     proposed_distance = _positive_distance(proposed)
     if current_distance is not None and proposed_distance is not None:
@@ -6788,7 +7007,18 @@ def _prefer_duplicate_evidence(
     return current
 
 
-def _deduplicate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _deduplicate(
+    rows: list[dict[str, Any]],
+    *,
+    policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
+) -> list[dict[str, Any]]:
+    if (
+        isinstance(policy_version, bool)
+        or policy_version not in CANDIDATE_BATCH_POLICY_VERSIONS
+    ):
+        raise ValueError(
+            f"unsupported candidate batch policy version: {policy_version!r}"
+        )
     best: dict[str, dict[str, Any]] = {}
     observations: dict[str, tuple[int, int, int]] = {}
     occurrences: dict[str, int] = {}
@@ -6810,7 +7040,11 @@ def _deduplicate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if current is None:
             best[key] = row
         else:
-            best[key] = _prefer_duplicate_evidence(current, row)
+            best[key] = _prefer_duplicate_evidence(
+                current,
+                row,
+                policy_version=policy_version,
+            )
 
     for key, summary in observations.items():
         selected = best[key]
@@ -7733,6 +7967,56 @@ class HumanizeFlow:
             and "committed_at" not in transaction
         )
 
+    @staticmethod
+    def _candidate_batch_policy_version(
+        transaction: dict[str, Any],
+    ) -> int:
+        """Return the immutable selector version bound to this transaction.
+
+        Protocol-v2/schema-v2 manifests created before selector versioning did
+        not carry this field.  Their batches were all derived with policy v1,
+        so absence is the exact historical v1 encoding.  Protocol v3 requires
+        an explicit v2 binding; deleting it cannot silently downgrade a new
+        transaction.
+        """
+
+        value = transaction.get("candidate_batch_policy_version")
+        identity = (
+            transaction.get("schema_version"),
+            transaction.get("protocol_version"),
+        )
+        if identity == (
+            ROUND_TRANSACTION_LEGACY_SCHEMA_VERSION,
+            ROUND_TRANSACTION_LEGACY_PROTOCOL_VERSION,
+        ):
+            if value is None:
+                return CANDIDATE_BATCH_POLICY_LEGACY_VERSION
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or value != CANDIDATE_BATCH_POLICY_LEGACY_VERSION
+            ):
+                raise RoundTransactionError(
+                    "legacy transaction has an invalid candidate batch policy"
+                )
+            return CANDIDATE_BATCH_POLICY_LEGACY_VERSION
+        if identity != (
+            ROUND_TRANSACTION_SCHEMA_VERSION,
+            ROUND_TRANSACTION_PROTOCOL_VERSION,
+        ):
+            raise RoundTransactionError(
+                "candidate batch policy has an unsupported transaction identity"
+            )
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or value != CANDIDATE_BATCH_POLICY_VERSION
+        ):
+            raise RoundTransactionError(
+                f"unsupported candidate batch policy version: {value!r}"
+            )
+        return value
+
     def _validate_binding_rebind_history(
         self,
         transaction: dict[str, Any],
@@ -8052,9 +8336,16 @@ class HumanizeFlow:
             "candidate-file" if self.config.candidate_file is not None
             else "openevolve"
         )
+        transaction_identity = (
+            transaction.get("schema_version"),
+            transaction.get("protocol_version"),
+        )
+        if transaction_identity not in ROUND_TRANSACTION_SUPPORTED_IDENTITIES:
+            raise RoundTransactionError(
+                "round transaction schema/protocol identity is unsupported: "
+                f"{transaction_identity!r}"
+            )
         identity = {
-            "schema_version": ROUND_TRANSACTION_SCHEMA_VERSION,
-            "protocol_version": ROUND_TRANSACTION_PROTOCOL_VERSION,
             "run_id": self.store.run_id,
             "round": number,
             "mode": expected_mode,
@@ -8082,6 +8373,7 @@ class HumanizeFlow:
             raise RoundTransactionError(
                 f"invalid round transaction status: {status!r}"
             )
+        self._candidate_batch_policy_version(transaction)
         start_offset = transaction.get("candidate_start_offset")
         initial_offset = transaction.get("initial_candidate_offset")
         if (
@@ -8328,6 +8620,7 @@ class HumanizeFlow:
             "candidate_source_sha256": None,
             "candidate_source_rows": None,
             "candidate_batch": str(paths["batch"].resolve()),
+            "candidate_batch_policy_version": CANDIDATE_BATCH_POLICY_VERSION,
             "candidate_batch_identity": None,
             "completion_marker": (
                 None if mode == "candidate-file" else str(paths["completion"].resolve())
@@ -9391,7 +9684,11 @@ class HumanizeFlow:
                 f"transaction did not reach source-ready: {transaction['status']!r}"
             )
 
-        batch_rows = _deduplicate(source_rows)
+        batch_policy_version = self._candidate_batch_policy_version(transaction)
+        batch_rows = _deduplicate(
+            source_rows,
+            policy_version=batch_policy_version,
+        )
         expected_batch_identity = self._candidate_rows_identity(batch_rows)
         if transaction["status"] == "source-ready":
             batch_path = paths["batch"]
@@ -9464,7 +9761,7 @@ class HumanizeFlow:
             and state.get("round_phase")
             in {"screen", "audit", "review", "finalize"}
             and state.get("round_transaction_version")
-            == ROUND_TRANSACTION_PROTOCOL_VERSION
+            == transaction["protocol_version"]
         )
 
         if transaction["status"] == "batch-ready":
@@ -9473,9 +9770,9 @@ class HumanizeFlow:
                 state["last_checkpoint"] = expected_result
                 state["pending_round"] = number
                 state["round_phase"] = "screen"
-                state["round_transaction_version"] = (
-                    ROUND_TRANSACTION_PROTOCOL_VERSION
-                )
+                state["round_transaction_version"] = transaction[
+                    "protocol_version"
+                ]
                 self.store.write_state(state)
                 postcommit = True
             elif not postcommit:
@@ -9497,7 +9794,7 @@ class HumanizeFlow:
         number: int,
         round_dir: Path,
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-        """Replay every binding of a committed v2 transaction without state."""
+        """Replay every binding of a supported committed transaction."""
         paths = self._transaction_paths(round_dir)
         transaction = _read_json_object(
             paths["manifest"], "completed round transaction"
@@ -9506,9 +9803,15 @@ class HumanizeFlow:
             "candidate-file" if self.config.candidate_file is not None
             else "openevolve"
         )
+        transaction_identity = (
+            transaction.get("schema_version"),
+            transaction.get("protocol_version"),
+        )
+        if transaction_identity not in ROUND_TRANSACTION_SUPPORTED_IDENTITIES:
+            raise RoundTransactionError(
+                "completed transaction schema/protocol identity is unsupported"
+            )
         fixed_identity = {
-            "schema_version": ROUND_TRANSACTION_SCHEMA_VERSION,
-            "protocol_version": ROUND_TRANSACTION_PROTOCOL_VERSION,
             "run_id": self.store.run_id,
             "round": number,
             "mode": expected_mode,
@@ -9697,7 +10000,11 @@ class HumanizeFlow:
 
         source_rows = self._validate_transaction_source(transaction)
         batch_rows = self._validate_candidate_batch(transaction)
-        if batch_rows != _deduplicate(source_rows):
+        batch_policy_version = self._candidate_batch_policy_version(transaction)
+        if batch_rows != _deduplicate(
+            source_rows,
+            policy_version=batch_policy_version,
+        ):
             raise RoundTransactionError(
                 "completed candidate batch disagrees with its source slice"
             )
@@ -10592,7 +10899,11 @@ class HumanizeFlow:
                 )
                 transaction_version = ROUND_TRANSACTION_PROTOCOL_VERSION
                 self.store.write_state(state)
-        if transaction_version not in (None, ROUND_TRANSACTION_PROTOCOL_VERSION):
+        if (
+            transaction_version is not None
+            and transaction_version
+            not in ROUND_TRANSACTION_SUPPORTED_PROTOCOL_VERSIONS
+        ):
             raise RoundTransactionError(
                 f"unsupported round transaction version: {transaction_version!r}"
             )
@@ -10937,8 +11248,18 @@ class HumanizeFlow:
                     unresolved=unresolved_count,
                     stop=should_stop,
                 )
+                completed_transaction_version = state.get(
+                    "round_transaction_version"
+                )
+                if (
+                    completed_transaction_version
+                    not in ROUND_TRANSACTION_SUPPORTED_PROTOCOL_VERSIONS
+                ):
+                    completed_transaction_version = (
+                        ROUND_TRANSACTION_PROTOCOL_VERSION
+                    )
                 final_state["round_transaction_version"] = (
-                    ROUND_TRANSACTION_PROTOCOL_VERSION
+                    completed_transaction_version
                 )
                 final_state.pop("pending_round", None)
                 final_state.pop("round_phase", None)

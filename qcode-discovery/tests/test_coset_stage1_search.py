@@ -294,20 +294,117 @@ def test_fitness_ignores_decoder_upper_bounds_and_uses_only_proof_signals():
     assert evaluator._fitness({**base, "threshold_rejected": True}) == 0.0
 
 
-def test_dynamic_cutoff_is_integer_exact_strict_and_ladder_reaches_odd_end():
-    # k*w^2 == 12*n is still a rejection because the target is strictly > 12.
-    assert evaluator._dynamic_rejection_cutoff(3, 1) == 6
-    assert 1 * 6 * 6 == 12 * 3
-    assert evaluator._proof_ladder(6) == (4, 6)
+def test_dynamic_cutoff_uses_official_gate_and_ladder_reaches_odd_end():
+    # No physically possible distance at n=3 can pass the final gate, so the
+    # official cutoff is capped at n rather than the scalar-only value 6.
+    assert evaluator._dynamic_rejection_cutoff(3, 1) == 3
+    assert evaluator._proof_ladder(3) == (3,)
 
     # This exact-equality cutoff is odd and must not be skipped by a +2 ladder.
-    assert evaluator._dynamic_rejection_cutoff(25, 12) == 5
-    assert 12 * 5 * 5 == 12 * 25
+    # The block is larger than every published Pareto reference, so equality
+    # itself is not a smaller-n win.
+    assert evaluator._dynamic_rejection_cutoff(375, 180) == 5
+    assert 180 * 5 * 5 == 12 * 375
     assert evaluator._proof_ladder(5) == (4, 5)
     assert evaluator._proof_ladder(3) == (3,)
 
 
-def test_proof_ladder_commits_retries_unknown_and_rejects_equality(
+def test_pareto_cutoff_rejects_48_8_d5_but_preserves_d6(
+    monkeypatch,
+):
+    """A [[48,8,6]] tie is a smaller-n Pareto win, not a FOM rejection."""
+
+    monkeypatch.delenv(evaluator.CANDIDATE_LOG_PATH_ENV, raising=False)
+    assert evaluator._dynamic_rejection_cutoff(48, 8) == 5
+    assert evaluator._cutoff_metadata(48, 8) == {
+        "fom_rejection_cutoff": 8,
+        "challenge_rejection_cutoff": 5,
+        "minimum_winning_distance": 6,
+    }
+
+    calls: list[tuple[str, int]] = []
+    exact_distances = {"5" * 64: 5, "6" * 64: 6}
+
+    def fake_rung(row, *, threshold, timeout_s, terminal_sectors):
+        del timeout_s, terminal_sectors
+        exact_distance = exact_distances[row["candidate_sha256"]]
+        calls.append((row["candidate_sha256"], threshold))
+        outcome = "SAT" if threshold >= exact_distance else "UNSAT"
+        return {
+            "outcome": outcome,
+            "max_weight": threshold,
+            "distance_lower_bound": (
+                threshold + 1 if outcome == "UNSAT" else None
+            ),
+            "witness": (
+                {
+                    "side": "X",
+                    "index": 0,
+                    "weight": exact_distance,
+                    "bits": [1] * exact_distance
+                    + [0] * (48 - exact_distance),
+                }
+                if outcome == "SAT" else None
+            ),
+            "evidence_sha256": f"{threshold:064x}",
+        }, {
+            "hard_wall_timeout": False,
+            "worker_failed": False,
+            "elapsed_s": 0.01,
+            "resumed_sectors": [],
+        }
+
+    monkeypatch.setattr(evaluator, "_run_oracle_rung_hard_wall", fake_rung)
+
+    def row(distance: int):
+        return {
+            "candidate_sha256": str(distance) * 64,
+            "static_legal": True,
+            "n": 48,
+            "k": 8,
+            "hx": np.zeros((1, 48), dtype=np.uint8),
+            "hz": np.zeros((1, 48), dtype=np.uint8),
+        }
+
+    distance_five = row(5)
+    evaluator._run_oracle(distance_five)
+    assert distance_five["search_status"] == "terminal_negative"
+    assert distance_five["threshold_rejected"] is True
+    assert distance_five["threshold_proof_distance"] == 5
+
+    distance_six = row(6)
+    evaluator._run_oracle(distance_six)
+    assert distance_six["search_status"] == "challenge_threshold_survivor"
+    assert distance_six["threshold_rejected"] is False
+    assert distance_six["distance_lower_bound"] == 6
+    assert distance_six["challenge_target_lower_bound_proven"] is True
+    assert distance_six["fom_target_lower_bound_proven"] is False
+    assert distance_six["minimum_winning_distance"] == 6
+    assert distance_six["challenge_rejection_cutoff"] == 5
+    assert distance_six["fom_rejection_cutoff"] == 8
+    with pytest.raises(RuntimeError, match="disagrees with final gate"):
+        evaluator._apply_oracle_sat(
+            row(6),
+            {
+                "max_weight": 8,
+                "witness": {
+                    "side": "X",
+                    "index": 0,
+                    "weight": 6,
+                    "bits": [1] * 6 + [0] * 42,
+                },
+            },
+            cutoff=8,
+        )
+    assert calls == [
+        ("5" * 64, 4),
+        ("5" * 64, 5),
+        ("6" * 64, 4),
+        ("6" * 64, 5),
+    ]
+
+
+def test_proof_ladder_commits_retries_unknown_and_respects_pareto_equality(
     tmp_path,
     monkeypatch,
 ):
@@ -416,11 +513,11 @@ def test_proof_ladder_commits_retries_unknown_and_rejects_equality(
 
     terminal = copy.deepcopy(base)
     evaluator._run_oracle(terminal)
-    assert [threshold for threshold, _timeout in calls] == [4, 6, 6, 8]
+    assert [threshold for threshold, _timeout in calls] == [4, 6, 6, 7]
     assert [timeout for _threshold, timeout in calls] == [7.5, 7.5, 15.0, 7.5]
     assert terminal["oracle_outcome"] == "SAT"
     assert terminal["threshold_rejected"] is True
-    assert terminal["fom_upper_bound"] == 12.0
+    assert terminal["fom_upper_bound"] == pytest.approx(3 * 7 * 7 / 16)
     assert terminal["fitness_distance_credit"] == 0.0
 
     # A retry generation is deliberately invisible to recovery until its
