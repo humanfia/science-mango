@@ -78,6 +78,16 @@ from .state import RunStore
 
 PIPELINE_SCHEMA_VERSION = 1
 REVIEW_PROMPT_VERSION = 2
+NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION = 1
+NEGATIVE_FEEDBACK_STARTUP_KIND = (
+    "qcode-pipeline-stage1-negative-feedback-startup"
+)
+NEGATIVE_FEEDBACK_CONSUMED_KIND = (
+    "qcode-pipeline-stage1-negative-feedback-consumed"
+)
+NEGATIVE_FEEDBACK_PENDING_KIND = (
+    "qcode-pipeline-negative-feedback-pending"
+)
 STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = (
     SHARED_SELECTION_LEDGER_SCHEMA_VERSION
 )
@@ -1094,6 +1104,7 @@ class PipelineConfig:
     stage2_timeout: float = 300
     stage2_candidate_workers: int = 2
     stage2_solver_workers: int = 4
+    stage2_compact_low_weight_max_weight: int = 4
 
     stage3_top: int = 0
     stage3_timeout: float = 300
@@ -1295,6 +1306,14 @@ class PipelineConfig:
             if isinstance(value, bool) or not isinstance(value, int) or value < 1:
                 raise ValueError(f"{name} must be a positive integer")
         if (
+            isinstance(self.stage2_compact_low_weight_max_weight, bool)
+            or not isinstance(self.stage2_compact_low_weight_max_weight, int)
+            or self.stage2_compact_low_weight_max_weight < 1
+        ):
+            raise ValueError(
+                "stage2_compact_low_weight_max_weight must be a positive integer"
+            )
+        if (
             isinstance(self.proof_retry_backoff_seconds, bool)
             or not math.isfinite(float(self.proof_retry_backoff_seconds))
             or self.proof_retry_backoff_seconds < 0
@@ -1353,6 +1372,9 @@ class PipelineConfig:
             "stage2_timeout": self.stage2_timeout,
             "stage2_candidate_workers": self.stage2_candidate_workers,
             "stage2_solver_workers": self.stage2_solver_workers,
+            "stage2_compact_low_weight_max_weight": (
+                self.stage2_compact_low_weight_max_weight
+            ),
             "stage3_top": self.stage3_top,
             "stage3_timeout": self.stage3_timeout,
             "stage3_candidate_workers": self.stage3_candidate_workers,
@@ -1492,6 +1514,15 @@ class PipelineConfig:
             stage2_solver_workers=parse_int(
                 "stage2_solver_workers",
                 pick("stage2_solver_workers", "stage2", "solver_workers", 4)
+            ),
+            stage2_compact_low_weight_max_weight=parse_int(
+                "stage2_compact_low_weight_max_weight",
+                pick(
+                    "stage2_compact_low_weight_max_weight",
+                    "stage2",
+                    "compact_low_weight_max_weight",
+                    4,
+                ),
             ),
             stage3_top=parse_int(
                 "stage3_top", pick("stage3_top", "stage3", "top", 0)
@@ -2057,6 +2088,873 @@ class FiveStagePipeline:
             review_model=self.config.reviewer_model,
             review_effort=self.config.reviewer_effort,
             max_total_workers=self.config.max_total_workers,
+        )
+
+    @staticmethod
+    def _feedback_file_descriptor(path: Path, *, label: str) -> dict[str, Any]:
+        selected = _reject_symlink_components(
+            path,
+            classification="UNSAFE_INPUT_PATH",
+            label=label,
+        )
+        try:
+            metadata = selected.lstat()
+        except OSError as exc:
+            raise PipelineError(
+                "INPUT_MISSING",
+                f"cannot inspect {label} {selected}: {exc}",
+                stage="stage1_search",
+            ) from exc
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
+            raise PipelineError(
+                "UNSAFE_INPUT_PATH",
+                f"{label} must be a regular non-symlink file: {selected}",
+                stage="stage1_search",
+            )
+        try:
+            digest = _file_sha256(selected)
+        except OSError as exc:
+            raise PipelineError(
+                "INPUT_MISSING",
+                f"cannot hash {label} {selected}: {exc}",
+                stage="stage1_search",
+            ) from exc
+        return {
+            "path": str(selected),
+            "sha256": digest,
+            "bytes": int(metadata.st_size),
+        }
+
+    def _sealed_feedback_document(
+        self,
+        body: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        document = dict(body)
+        document["binding_sha256"] = _canonical_sha256(document)
+        return document
+
+    def _validated_sealed_feedback_document(
+        self,
+        value: Any,
+        *,
+        kind: str,
+        fields: frozenset[str],
+    ) -> dict[str, Any]:
+        if not isinstance(value, Mapping) or set(value) != set(fields):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"{kind} fields are incomplete",
+                stage="stage1_search",
+            )
+        document = dict(value)
+        digest = document.pop("binding_sha256", None)
+        if (
+            not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+            or digest != _canonical_sha256(document)
+            or document.get("schema_version")
+            != NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION
+            or document.get("kind") != kind
+            or document.get("pipeline_run_id") != self.config.run_id
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"{kind} binding is invalid",
+                stage="stage1_search",
+            )
+        return dict(value)
+
+    @staticmethod
+    def _feedback_epoch_run_id(
+        base_run_id: str,
+        *,
+        feedback_epoch: int,
+        archive_sha256: str,
+        initial: bool,
+    ) -> str:
+        if initial:
+            return base_run_id
+        suffix = f".feedback-e{feedback_epoch}-{archive_sha256}"
+        prefix_length = 128 - len(suffix)
+        if prefix_length < 1:
+            # ``validate_run_id`` caps the original identity at 128 bytes, but
+            # leave a deterministic non-empty prefix even for a very large
+            # decimal epoch.
+            suffix = f".f{feedback_epoch}-{archive_sha256}"
+            prefix_length = max(1, 128 - len(suffix))
+        return base_run_id[:prefix_length] + suffix
+
+    def _coset_feedback_live_archive_path(
+        self,
+        flow_config: FlowConfig,
+    ) -> Path:
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            resolve_archive_path,
+        )
+
+        candidate_log = (
+            self.config.repo_dir
+            / "results"
+            / "evolution"
+            / f"humanize_{flow_config.run_id}"
+            / "all_codes.jsonl"
+        )
+        try:
+            path = resolve_archive_path(candidate_log)
+        except NegativeArchiveError as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"cannot resolve the coset negative archive: {exc}",
+                stage="stage1_search",
+            ) from exc
+        if path is None:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "coset negative archive unexpectedly resolved to disabled",
+                stage="stage1_search",
+            )
+        return _lexical_absolute(path)
+
+    def _validate_stage1_feedback_startup(
+        self,
+        value: Any,
+    ) -> dict[str, Any]:
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            load_feedback_snapshot_manifest,
+        )
+
+        fields = frozenset({
+            "schema_version",
+            "kind",
+            "pipeline_run_id",
+            "flow_run_id",
+            "feedback_epoch",
+            "live_archive_path",
+            "archive_sha256",
+            "archive_binding_sha256",
+            "snapshot",
+            "manifest",
+            "binding_sha256",
+        })
+        document = self._validated_sealed_feedback_document(
+            value,
+            kind=NEGATIVE_FEEDBACK_STARTUP_KIND,
+            fields=fields,
+        )
+        epoch = document.get("feedback_epoch")
+        live = Path(str(document.get("live_archive_path", "")))
+        flow_run_id = document.get("flow_run_id")
+        if (
+            isinstance(epoch, bool)
+            or not isinstance(epoch, int)
+            or epoch < 1
+            or not isinstance(flow_run_id, str)
+            or not flow_run_id
+            or not live.is_absolute()
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "Stage 1 negative-feedback epoch identity is invalid",
+                stage="stage1_search",
+            )
+        try:
+            from .pipeline_process import validate_run_id
+
+            validate_run_id(flow_run_id)
+        except ValueError as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"Stage 1 feedback flow identity is invalid: {exc}",
+                stage="stage1_search",
+            ) from exc
+        descriptors: dict[str, dict[str, Any]] = {}
+        for name in ("snapshot", "manifest"):
+            raw = document.get(name)
+            if not isinstance(raw, Mapping) or set(raw) != {
+                "path", "sha256", "bytes"
+            }:
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    f"Stage 1 feedback {name} descriptor is invalid",
+                    stage="stage1_search",
+                )
+            observed = self._feedback_file_descriptor(
+                Path(str(raw.get("path", ""))),
+                label=f"Stage 1 feedback {name}",
+            )
+            if observed != dict(raw):
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    f"Stage 1 feedback {name} bytes changed",
+                    stage="stage1_search",
+                )
+            descriptors[name] = observed
+        try:
+            manifest = load_feedback_snapshot_manifest(
+                Path(descriptors["manifest"]["path"]),
+                expected_live_archive_path=live,
+                expected_snapshot_path=Path(descriptors["snapshot"]["path"]),
+                expected_run_id=flow_run_id,
+                expected_round_number=1,
+                expected_feedback_epoch=1,
+                expected_parent_snapshot_sha256=None,
+            )
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"Stage 1 feedback startup cannot be replayed: {exc}",
+                stage="stage1_search",
+            ) from exc
+        if (
+            manifest.get("archive_sha256") != document.get("archive_sha256")
+            or manifest.get("archive_binding_sha256")
+            != document.get("archive_binding_sha256")
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "Stage 1 feedback startup archive binding changed",
+                stage="stage1_search",
+            )
+        return document
+
+    def _validate_stage1_feedback_consumed(
+        self,
+        value: Any,
+    ) -> dict[str, Any]:
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            load_feedback_snapshot_manifest,
+        )
+
+        fields = frozenset({
+            "schema_version",
+            "kind",
+            "pipeline_run_id",
+            "flow_run_id",
+            "feedback_epoch",
+            "round",
+            "live_archive_path",
+            "archive_sha256",
+            "archive_binding_sha256",
+            "snapshot",
+            "manifest",
+            "binding_sha256",
+        })
+        document = self._validated_sealed_feedback_document(
+            value,
+            kind=NEGATIVE_FEEDBACK_CONSUMED_KIND,
+            fields=fields,
+        )
+        epoch = document.get("feedback_epoch")
+        round_number = document.get("round")
+        flow_run_id = document.get("flow_run_id")
+        live = Path(str(document.get("live_archive_path", "")))
+        if (
+            isinstance(epoch, bool)
+            or not isinstance(epoch, int)
+            or epoch < 1
+            or isinstance(round_number, bool)
+            or not isinstance(round_number, int)
+            or round_number < 1
+            or not isinstance(flow_run_id, str)
+            or not flow_run_id
+            or not live.is_absolute()
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "consumed negative-feedback identity is invalid",
+                stage="stage1_search",
+            )
+        descriptors: dict[str, dict[str, Any]] = {}
+        for name in ("snapshot", "manifest"):
+            raw = document.get(name)
+            if not isinstance(raw, Mapping):
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    f"consumed feedback {name} descriptor is invalid",
+                    stage="stage1_search",
+                )
+            observed = self._feedback_file_descriptor(
+                Path(str(raw.get("path", ""))),
+                label=f"consumed feedback {name}",
+            )
+            if observed != dict(raw):
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    f"consumed feedback {name} bytes changed",
+                    stage="stage1_search",
+                )
+            descriptors[name] = observed
+        try:
+            manifest = load_feedback_snapshot_manifest(
+                Path(descriptors["manifest"]["path"]),
+                expected_live_archive_path=live,
+                expected_snapshot_path=Path(descriptors["snapshot"]["path"]),
+                expected_run_id=flow_run_id,
+                expected_round_number=round_number,
+                expected_feedback_epoch=round_number,
+            )
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"consumed Stage 1 feedback cannot be replayed: {exc}",
+                stage="stage1_search",
+            ) from exc
+        if (
+            manifest.get("archive_sha256") != document.get("archive_sha256")
+            or manifest.get("archive_binding_sha256")
+            != document.get("archive_binding_sha256")
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "consumed Stage 1 archive binding changed",
+                stage="stage1_search",
+            )
+        return document
+
+    def _validate_pending_feedback_state(
+        self,
+        value: Any,
+    ) -> dict[str, Any]:
+        if not isinstance(value, Mapping) or set(value) != {
+            "record", "artifact"
+        }:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback state is incomplete",
+                stage="stage1_search",
+            )
+        record_fields = frozenset({
+            "schema_version",
+            "kind",
+            "pipeline_run_id",
+            "pending_epoch",
+            "live_archive_path",
+            "archive_sha256",
+            "archive_binding_sha256",
+            "source_stage",
+            "events_added",
+            "binding_sha256",
+        })
+        record = self._validated_sealed_feedback_document(
+            value.get("record"),
+            kind=NEGATIVE_FEEDBACK_PENDING_KIND,
+            fields=record_fields,
+        )
+        epoch = record.get("pending_epoch")
+        events_added = record.get("events_added")
+        live = Path(str(record.get("live_archive_path", "")))
+        allowed_sources = {
+            "stage1-cache-recovery",
+            "stage1-search",
+            "stage2-sector-audit",
+            "stage3-direction-audit",
+        }
+        if (
+            isinstance(epoch, bool)
+            or not isinstance(epoch, int)
+            or epoch < 1
+            or isinstance(events_added, bool)
+            or not isinstance(events_added, int)
+            or events_added < 0
+            or not live.is_absolute()
+            or record.get("source_stage") not in allowed_sources
+            or not isinstance(record.get("archive_sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", record["archive_sha256"])
+            is None
+            or not isinstance(record.get("archive_binding_sha256"), str)
+            or re.fullmatch(
+                r"[0-9a-f]{64}", record["archive_binding_sha256"]
+            )
+            is None
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback record is malformed",
+                stage="stage1_search",
+            )
+        raw_artifact = value.get("artifact")
+        if not isinstance(raw_artifact, Mapping) or set(raw_artifact) != {
+            "path", "sha256", "bytes"
+        }:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback artifact identity is malformed",
+                stage="stage1_search",
+            )
+        artifact = self._feedback_file_descriptor(
+            Path(str(raw_artifact.get("path", ""))),
+            label="pending negative-feedback artifact",
+        )
+        if artifact != dict(raw_artifact):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback artifact bytes changed",
+                stage="stage1_search",
+            )
+        artifact_path = Path(artifact["path"])
+        try:
+            artifact_path.relative_to(
+                self.paths.artifacts / "negative-feedback"
+            )
+        except ValueError as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback artifact escaped its fixed root",
+                stage="stage1_search",
+            ) from exc
+        if _read_json_object(artifact_path) != record:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback artifact does not match state",
+                stage="stage1_search",
+            )
+        return {"record": record, "artifact": artifact}
+
+    def _write_pending_feedback_record(
+        self,
+        *,
+        live_archive_path: Path,
+        archive: Mapping[str, Any],
+        pending_epoch: int,
+        source_stage: str,
+        events_added: int,
+    ) -> dict[str, Any]:
+        if (
+            isinstance(pending_epoch, bool)
+            or pending_epoch < 1
+            or isinstance(events_added, bool)
+            or events_added < 0
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending negative-feedback epoch is invalid",
+                stage="stage1_search",
+            )
+        body = {
+            "schema_version": NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION,
+            "kind": NEGATIVE_FEEDBACK_PENDING_KIND,
+            "pipeline_run_id": self.config.run_id,
+            "pending_epoch": pending_epoch,
+            "live_archive_path": str(live_archive_path),
+            "archive_sha256": archive["archive_sha256"],
+            "archive_binding_sha256": archive["binding"]["binding_sha256"],
+            "source_stage": source_stage,
+            "events_added": events_added,
+        }
+        document = self._sealed_feedback_document(body)
+        path = (
+            self.paths.artifacts
+            / "negative-feedback"
+            / (
+                f"pending-epoch-{pending_epoch:04d}-"
+                f"{archive['archive_sha256']}-{source_stage}.json"
+            )
+        )
+        if path.exists() or path.is_symlink():
+            if path.is_symlink() or not path.is_file():
+                raise PipelineError(
+                    "UNSAFE_OUTPUT_PATH",
+                    f"pending feedback record is unsafe: {path}",
+                    stage="stage1_search",
+                )
+            if _read_json_object(path) != document:
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "pending feedback record changed after publication",
+                    stage="stage1_search",
+                )
+        else:
+            atomic_write_json(path, document)
+        descriptor = self._feedback_file_descriptor(
+            path,
+            label="pending negative-feedback record",
+        )
+        pending_state = self._validate_pending_feedback_state({
+            "record": document,
+            "artifact": descriptor,
+        })
+        self.state["negative_feedback_pending"] = pending_state
+        self._write_state()
+        return document
+
+    def _prepare_stage1_feedback_epoch(
+        self,
+        base_flow_config: FlowConfig,
+    ) -> tuple[FlowConfig, dict[str, Any]]:
+        """Freeze the cross-invocation feedback input for one Stage 1 run."""
+
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            load_archive,
+            materialize_feedback_snapshot,
+        )
+
+        live = self._coset_feedback_live_archive_path(base_flow_config)
+        try:
+            current_archive = load_archive(live)
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"cannot replay the live negative archive: {exc}",
+                stage="stage1_search",
+            ) from exc
+        record = self.state["stages"]["stage1_search"]
+        previous_startup: dict[str, Any] | None = None
+        previous_consumed: dict[str, Any] | None = None
+        raw_startup = record.get("negative_feedback_startup")
+        raw_consumed = record.get("negative_feedback_consumed")
+        # A source-version change gives the default archive a new path. Avoid
+        # replaying an old source-bound snapshot in that case; the Stage 1
+        # source fingerprint will independently invalidate the machine cache.
+        if (
+            isinstance(raw_startup, Mapping)
+            and raw_startup.get("live_archive_path") == str(live)
+        ):
+            previous_startup = self._validate_stage1_feedback_startup(
+                raw_startup
+            )
+        if (
+            isinstance(raw_consumed, Mapping)
+            and raw_consumed.get("live_archive_path") == str(live)
+        ):
+            previous_consumed = self._validate_stage1_feedback_consumed(
+                raw_consumed
+            )
+        if (
+            previous_startup is not None
+            and previous_consumed is not None
+            and any(
+                previous_startup[name] != previous_consumed[name]
+                for name in (
+                    "flow_run_id",
+                    "feedback_epoch",
+                    "live_archive_path",
+                )
+            )
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "Stage 1 startup and consumed feedback epochs disagree",
+                stage="stage1_search",
+            )
+        if (
+            previous_startup is not None
+            and previous_consumed is not None
+            and current_archive["archive_sha256"]
+            == previous_consumed["archive_sha256"]
+        ):
+            effective = replace(
+                base_flow_config,
+                run_id=str(previous_startup["flow_run_id"]),
+            )
+            return effective, previous_startup
+
+        completed_before = record.get("machine_status") in {
+            "COMPLETED", "SKIPPED"
+        }
+        if previous_consumed is not None:
+            feedback_epoch = int(previous_consumed["feedback_epoch"]) + 1
+        elif previous_startup is not None and not completed_before:
+            # Resume an interrupted first attempt against its already frozen
+            # input rather than sampling newer mutable archive bytes.
+            effective = replace(
+                base_flow_config,
+                run_id=str(previous_startup["flow_run_id"]),
+            )
+            return effective, previous_startup
+        elif completed_before:
+            # Legacy completed Stage 1 records had no feedback binding. Never
+            # re-enter their search-complete Humanize identity silently.
+            feedback_epoch = 2
+        else:
+            feedback_epoch = 1
+
+        existing_flow_terminal = False
+        base_flow_state = (
+            self.config.repo_dir
+            / "results"
+            / "humanize"
+            / base_flow_config.run_id
+            / "state.json"
+        )
+        if (
+            feedback_epoch == 1
+            and previous_startup is None
+            and base_flow_state.is_file()
+            and not base_flow_state.is_symlink()
+        ):
+            state_value = _read_json_object(base_flow_state)
+            existing_flow_terminal = state_value.get("status") in {
+                "search-complete",
+                "incomplete-unresolved",
+            }
+            if existing_flow_terminal:
+                feedback_epoch = 2
+
+        raw_pending = self.state.get("negative_feedback_pending")
+        pending = (
+            self._validate_pending_feedback_state(raw_pending)
+            if raw_pending is not None
+            else None
+        )
+        pending_record = pending["record"] if pending is not None else None
+        if (
+            isinstance(pending_record, Mapping)
+            and pending_record.get("archive_sha256")
+            == current_archive["archive_sha256"]
+            and pending_record.get("live_archive_path") == str(live)
+            and isinstance(pending_record.get("pending_epoch"), int)
+            and not isinstance(pending_record.get("pending_epoch"), bool)
+        ):
+            if int(pending_record["pending_epoch"]) != feedback_epoch:
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "pending feedback epoch is not the next consumed epoch",
+                    stage="stage1_search",
+                )
+        flow_run_id = self._feedback_epoch_run_id(
+            base_flow_config.run_id,
+            feedback_epoch=feedback_epoch,
+            archive_sha256=current_archive["archive_sha256"],
+            initial=(
+                feedback_epoch == 1
+                and not completed_before
+                and not existing_flow_terminal
+            ),
+        )
+        effective = replace(base_flow_config, run_id=flow_run_id)
+        round_dir = (
+            self.config.repo_dir
+            / "results"
+            / "humanize"
+            / flow_run_id
+            / "rounds"
+            / "round-001"
+        )
+        round_dir.mkdir(parents=True, exist_ok=True)
+        snapshot_path = round_dir / "negative-feedback-snapshot.json"
+        manifest_path = round_dir / "negative-feedback-snapshot-manifest.json"
+        try:
+            manifest = materialize_feedback_snapshot(
+                live,
+                snapshot_path,
+                manifest_path,
+                run_id=flow_run_id,
+                round_number=1,
+                feedback_epoch=1,
+            )
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"cannot freeze the Stage 1 feedback epoch: {exc}",
+                stage="stage1_search",
+            ) from exc
+        body = {
+            "schema_version": NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION,
+            "kind": NEGATIVE_FEEDBACK_STARTUP_KIND,
+            "pipeline_run_id": self.config.run_id,
+            "flow_run_id": flow_run_id,
+            "feedback_epoch": feedback_epoch,
+            "live_archive_path": str(live),
+            "archive_sha256": manifest["archive_sha256"],
+            "archive_binding_sha256": manifest["archive_binding_sha256"],
+            "snapshot": self._feedback_file_descriptor(
+                snapshot_path,
+                label="Stage 1 feedback snapshot",
+            ),
+            "manifest": self._feedback_file_descriptor(
+                manifest_path,
+                label="Stage 1 feedback snapshot manifest",
+            ),
+        }
+        startup = self._validate_stage1_feedback_startup(
+            self._sealed_feedback_document(body)
+        )
+        if previous_consumed is not None:
+            self._write_pending_feedback_record(
+                live_archive_path=live,
+                archive=current_archive,
+                pending_epoch=feedback_epoch,
+                source_stage="stage1-cache-recovery",
+                events_added=0,
+            )
+        return effective, startup
+
+    def _stage1_feedback_consumption(
+        self,
+        startup: Mapping[str, Any],
+        flow_state: Any,
+    ) -> dict[str, Any]:
+        """Bind the newest round snapshot actually available to Stage 1."""
+
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            load_feedback_snapshot_manifest,
+        )
+
+        flow_run_id = str(startup["flow_run_id"])
+        round_number = 1
+        if (
+            isinstance(flow_state, Mapping)
+            and isinstance(flow_state.get("current_round"), int)
+            and not isinstance(flow_state.get("current_round"), bool)
+            and flow_state["current_round"] >= 1
+        ):
+            candidate_round = int(flow_state["current_round"])
+            candidate_manifest = (
+                self.config.repo_dir
+                / "results"
+                / "humanize"
+                / flow_run_id
+                / "rounds"
+                / f"round-{candidate_round:03d}"
+                / "negative-feedback-snapshot-manifest.json"
+            )
+            if candidate_manifest.is_file() and not candidate_manifest.is_symlink():
+                round_number = candidate_round
+        manifest_path = (
+            self.config.repo_dir
+            / "results"
+            / "humanize"
+            / flow_run_id
+            / "rounds"
+            / f"round-{round_number:03d}"
+            / "negative-feedback-snapshot-manifest.json"
+        )
+        try:
+            manifest = load_feedback_snapshot_manifest(
+                manifest_path,
+                expected_live_archive_path=Path(
+                    str(startup["live_archive_path"])
+                ),
+                expected_run_id=flow_run_id,
+                expected_round_number=round_number,
+                expected_feedback_epoch=round_number,
+            )
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"cannot bind the consumed Stage 1 feedback epoch: {exc}",
+                stage="stage1_search",
+            ) from exc
+        snapshot_path = Path(manifest["snapshot_path"])
+        body = {
+            "schema_version": NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION,
+            "kind": NEGATIVE_FEEDBACK_CONSUMED_KIND,
+            "pipeline_run_id": self.config.run_id,
+            "flow_run_id": flow_run_id,
+            "feedback_epoch": startup["feedback_epoch"],
+            "round": round_number,
+            "live_archive_path": startup["live_archive_path"],
+            "archive_sha256": manifest["archive_sha256"],
+            "archive_binding_sha256": manifest["archive_binding_sha256"],
+            "snapshot": self._feedback_file_descriptor(
+                snapshot_path,
+                label="consumed Stage 1 feedback snapshot",
+            ),
+            "manifest": self._feedback_file_descriptor(
+                manifest_path,
+                label="consumed Stage 1 feedback manifest",
+            ),
+        }
+        return self._validate_stage1_feedback_consumed(
+            self._sealed_feedback_document(body)
+        )
+
+    def _record_stage1_feedback_consumption(
+        self,
+        record: dict[str, Any],
+        startup: Mapping[str, Any],
+        flow_state: Any,
+    ) -> None:
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            load_archive,
+        )
+
+        consumed = self._stage1_feedback_consumption(startup, flow_state)
+        record["negative_feedback_startup"] = dict(startup)
+        record["negative_feedback_consumed"] = consumed
+        self.state["negative_feedback_active"] = consumed
+        raw_pending = self.state.get("negative_feedback_pending")
+        pending = (
+            self._validate_pending_feedback_state(raw_pending)
+            if raw_pending is not None
+            else None
+        )
+        pending_record = pending["record"] if pending is not None else None
+        if (
+            isinstance(pending_record, Mapping)
+            and pending_record.get("pending_epoch")
+            == consumed["feedback_epoch"]
+        ):
+            self.state.pop("negative_feedback_pending", None)
+        live = Path(consumed["live_archive_path"])
+        try:
+            archive = load_archive(live)
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                f"cannot replay Stage 1 negative-feedback poststate: {exc}",
+                stage="stage1_search",
+            ) from exc
+        if archive["archive_sha256"] != consumed["archive_sha256"]:
+            self._write_pending_feedback_record(
+                live_archive_path=live,
+                archive=archive,
+                pending_epoch=int(consumed["feedback_epoch"]) + 1,
+                source_stage="stage1-search",
+                events_added=0,
+            )
+
+    def _record_coset_feedback_pending(
+        self,
+        candidates: Sequence[Path],
+        *,
+        source_stage: str,
+        events_added: int,
+    ) -> None:
+        # Existing-input campaigns have no Humanize Stage 1 to schedule on the
+        # next invocation. Their verified archive remains useful to a later
+        # explicitly configured search campaign, but there is no local epoch.
+        if events_added <= 0 or self.config.candidate_inputs:
+            return
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            load_archive,
+        )
+
+        stages = self.state.get("stages")
+        if not isinstance(stages, Mapping):
+            return
+        record = stages.get("stage1_search")
+        if not isinstance(record, Mapping) or not isinstance(
+            record.get("negative_feedback_consumed"), Mapping
+        ):
+            return
+        consumed = self._validate_stage1_feedback_consumed(
+            record.get("negative_feedback_consumed")
+        )
+        live = self._coset_negative_archive_path(candidates)
+        try:
+            archive = load_archive(live)
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                f"cannot seal the negative-feedback poststate: {exc}",
+                stage=source_stage,
+            ) from exc
+        if archive["archive_sha256"] == consumed["archive_sha256"]:
+            return
+        self._write_pending_feedback_record(
+            live_archive_path=live,
+            archive=archive,
+            pending_epoch=int(consumed["feedback_epoch"]) + 1,
+            source_stage=source_stage,
+            events_added=events_added,
         )
 
     def _run_stage1_flow(self, flow: Any) -> Any:
@@ -3056,6 +3954,7 @@ class FiveStagePipeline:
 
     def _stage1_inputs(self) -> list[Path]:
         stage = "stage1_search"
+        feedback_startup: dict[str, Any] | None = None
         if self.config.candidate_inputs:
             candidates = list(self.config.candidate_inputs)
             command = ["internal:existing-candidate-inputs", *map(str, candidates)]
@@ -3075,16 +3974,27 @@ class FiveStagePipeline:
             stage_config_revalidator = current_stage_config
             machine = lambda: 0
         else:
-            flow_config = self._flow_config()
+            base_flow_config = self._flow_config()
+            if base_flow_config.evolution_evaluator == "coset-two-block":
+                flow_config, feedback_startup = (
+                    self._prepare_stage1_feedback_epoch(base_flow_config)
+                )
+            else:
+                flow_config = base_flow_config
             flow_holder: dict[str, Any] = {}
-            command = ["internal:HumanizeFlow.run", self.config.run_id]
+            command = ["internal:HumanizeFlow.run", flow_config.run_id]
 
             def current_stage_config() -> dict[str, Any]:
-                return {
+                value = {
                     "mode": "humanize-flow",
                     "flow_config": flow_config.serializable(),
                     **self._stage1_source_provenance(),
                 }
+                if feedback_startup is not None:
+                    value["negative_feedback_startup"] = dict(
+                        feedback_startup
+                    )
+                return value
 
             stage_config = current_stage_config()
             stage_config_revalidator = current_stage_config
@@ -3106,6 +4016,29 @@ class FiveStagePipeline:
                         )
                         sys.pycache_prefix = cache
                         os.environ["PYTHONPYCACHEPREFIX"] = cache
+                        feedback_environment = {
+                            "QCODE_COSET_NEGATIVE_ARCHIVE_PATH": (
+                                os.environ.get(
+                                    "QCODE_COSET_NEGATIVE_ARCHIVE_PATH"
+                                )
+                            ),
+                            "QCODE_COSET_NEGATIVE_ARCHIVE_SNAPSHOT_PATH": (
+                                os.environ.get(
+                                    "QCODE_COSET_NEGATIVE_ARCHIVE_SNAPSHOT_PATH"
+                                )
+                            ),
+                        }
+                        if feedback_startup is not None:
+                            os.environ[
+                                "QCODE_COSET_NEGATIVE_ARCHIVE_PATH"
+                            ] = str(feedback_startup["live_archive_path"])
+                            # Each managed Humanize round installs its own
+                            # frozen snapshot. Never let a caller's stale read
+                            # view bleed into that transaction.
+                            os.environ.pop(
+                                "QCODE_COSET_NEGATIVE_ARCHIVE_SNAPSHOT_PATH",
+                                None,
+                            )
                         try:
                             flow = self.flow_factory(flow_config)
                             flow_holder["flow"] = flow
@@ -3132,6 +4065,11 @@ class FiveStagePipeline:
                                 )
                             else:
                                 os.environ.pop("PYTHONPYCACHEPREFIX", None)
+                            for name, original in feedback_environment.items():
+                                if original is None:
+                                    os.environ.pop(name, None)
+                                else:
+                                    os.environ[name] = original
                 if (
                     not isinstance(flow_state, Mapping)
                     or flow_state.get("status")
@@ -3160,6 +4098,11 @@ class FiveStagePipeline:
                 if path is not None
             ]
         )
+        if not self.config.candidate_inputs and feedback_startup is not None:
+            input_paths.extend([
+                Path(feedback_startup["snapshot"]["path"]),
+                Path(feedback_startup["manifest"]["path"]),
+            ])
         fingerprint = self._stage_config_fingerprint(command, stage_config)
         input_hashes = _hash_paths(input_paths)
         record = self.state["stages"][stage]
@@ -3231,6 +4174,12 @@ class FiveStagePipeline:
             self._require_stage_config_unchanged(
                 stage, stage_config, stage_config_revalidator
             )
+            if not self.config.candidate_inputs and feedback_startup is not None:
+                self._record_stage1_feedback_consumption(
+                    record,
+                    feedback_startup,
+                    flow_holder.get("state"),
+                )
         except PipelineError:
             raise
         except Exception as exc:
@@ -3292,6 +4241,164 @@ class FiveStagePipeline:
             values = [values]
         return [_resolve_path(value, self.config.repo_dir) for value in values]
 
+    def _coset_negative_archive_path(
+        self,
+        candidates: Sequence[Path],
+    ) -> Path:
+        """Resolve the one source-versioned archive shared by search rounds."""
+
+        from evolve.coset_negative_archive import resolve_archive_path
+
+        if self.config.candidate_inputs:
+            if not candidates:
+                raise PipelineError(
+                    "OUTPUT_MISSING",
+                    "cannot place the coset negative archive without candidates",
+                    stage="stage1_search",
+                )
+            candidate_log = candidates[0]
+        else:
+            # A feedback epoch may run under a derived Humanize/evolution
+            # identity. Stage 2/3 must append to the exact live archive frozen
+            # into that Stage 1 handoff, regardless of the derived candidate
+            # log path or a subsequently changed process environment.
+            stage1 = self.state.get("stages", {}).get("stage1_search", {})
+            raw_consumed = (
+                stage1.get("negative_feedback_consumed")
+                if isinstance(stage1, Mapping)
+                else None
+            )
+            raw_startup = (
+                stage1.get("negative_feedback_startup")
+                if isinstance(stage1, Mapping)
+                else None
+            )
+            if isinstance(raw_consumed, Mapping):
+                consumed = self._validate_stage1_feedback_consumed(
+                    raw_consumed
+                )
+                return Path(str(consumed["live_archive_path"]))
+            if isinstance(raw_startup, Mapping):
+                startup = self._validate_stage1_feedback_startup(raw_startup)
+                return Path(str(startup["live_archive_path"]))
+            candidate_log = (
+                self.config.repo_dir
+                / "results"
+                / "evolution"
+                / f"humanize_{self.config.run_id}"
+                / "all_codes.jsonl"
+            )
+        path = resolve_archive_path(candidate_log)
+        if path is None:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "coset negative archive unexpectedly resolved to disabled",
+                stage="stage1_search",
+            )
+        return path
+
+    def _archive_stage2_coset_negatives(
+        self,
+        candidates: Sequence[Path],
+    ) -> dict[str, Any]:
+        """Replay Stage-2 sparse-kernel witnesses into next-round memory."""
+
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            ingest_stage2_paths,
+        )
+
+        try:
+            summary = ingest_stage2_paths(
+                self._coset_negative_archive_path(candidates),
+                [self.paths.stage2_summary],
+            )
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                f"Stage 2 negative archive replay failed: {exc}",
+                stage="stage2_sector_audit",
+            ) from exc
+        self.state["negative_mechanism_archive"] = summary
+        self._write_state()
+        self._record_coset_feedback_pending(
+            candidates,
+            source_stage="stage2-sector-audit",
+            events_added=int(summary.get("events_added", 0)),
+        )
+        return summary
+
+    def _archive_stage3_coset_negatives(
+        self,
+        candidates: Sequence[Path],
+        stage3: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Replay terminal SAT rejections before any later search extension."""
+
+        from evolve.coset_negative_archive import (
+            NegativeArchiveError,
+            ingest_stage3_paths,
+            load_archive,
+        )
+
+        paths: list[Path] = []
+        for result in stage3.get("results", []):
+            if not isinstance(result, Mapping):
+                continue
+            if (
+                result.get("backend") != "sat-sectors"
+                or result.get("status") != "REJECTED"
+            ):
+                continue
+            raw_path = result.get("artifact_path")
+            if not isinstance(raw_path, str) or not raw_path:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 3 SAT rejection has no artifact path",
+                    stage="stage3_direction_audit",
+                )
+            path = Path(raw_path)
+            if not path.is_absolute():
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 3 SAT rejection artifact path is not absolute",
+                    stage="stage3_direction_audit",
+                )
+            paths.append(path)
+        archive_path = self._coset_negative_archive_path(candidates)
+        try:
+            if paths:
+                summary = ingest_stage3_paths(archive_path, paths)
+            else:
+                archive = load_archive(archive_path)
+                source_counts: dict[str, int] = {}
+                for event in archive["events"].values():
+                    source = str(event["proof"]["source"])
+                    source_counts[source] = source_counts.get(source, 0) + 1
+                summary = {
+                    "enabled": True,
+                    "binding_sha256": archive["binding"]["binding_sha256"],
+                    "event_count": len(archive["events"]),
+                    "motif_count": len(archive["motifs"]),
+                    "coordinate_count": len(archive["coordinate_aggregates"]),
+                    "events_added": 0,
+                    "source_counts": dict(sorted(source_counts.items())),
+                }
+        except (OSError, NegativeArchiveError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                f"Stage 3 negative archive replay failed: {exc}",
+                stage="stage3_direction_audit",
+            ) from exc
+        self.state["negative_mechanism_archive"] = summary
+        self._write_state()
+        self._record_coset_feedback_pending(
+            candidates,
+            source_stage="stage3-direction-audit",
+            events_added=int(summary.get("events_added", 0)),
+        )
+        return summary
+
     def _scaled_proof_timeout(self, value: float) -> float:
         """Scale proof time only; retry attempts never increase concurrency."""
 
@@ -3345,6 +4452,8 @@ class FiveStagePipeline:
             str(self.config.stage2_candidate_workers),
             "--solver-workers",
             str(self.config.stage2_solver_workers),
+            "--compact-low-weight-max-weight",
+            str(self.config.stage2_compact_low_weight_max_weight),
             "--certificate-workers",
             str(self.config.certificate_workers),
             "--certificate-solver-workers",
@@ -3583,6 +4692,78 @@ class FiveStagePipeline:
                     "OUTPUT_INVALID",
                     f"{path}.results[{index}] has invalid status {status!r}",
                 )
+            result_retry = result.get("retry_required", False)
+            if not isinstance(result_retry, bool):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.results[{index}].retry_required must be boolean",
+                )
+            compact_ladder = result.get("compact_low_weight_sat_ladder")
+            sparse_oracle = result.get("two_block_sparse_kernel_oracle")
+            if sparse_oracle is not None:
+                if not isinstance(sparse_oracle, Mapping):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{path}.results[{index}] sparse oracle is malformed",
+                )
+                sparse_outcome = sparse_oracle.get("outcome")
+                if sparse_outcome not in {
+                    "SAT",
+                    "NO_SINGLE_BLOCK_WITNESS",
+                    "UNKNOWN",
+                }:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{path}.results[{index}] sparse oracle was not run",
+                    )
+                if sparse_outcome == "SAT":
+                    if status != "REJECTED" or result_retry:
+                        raise PipelineError(
+                            "OUTPUT_INVALID",
+                            f"{path}.results[{index}] sparse SAT did not reject",
+                        )
+                elif (
+                    status != "ERROR"
+                    and compact_ladder is None
+                ):
+                    # NO_SINGLE_BLOCK_WITNESS is not a global lower bound and
+                    # sparse UNKNOWN is only advisory. Neither may substitute
+                    # for the mandatory unrestricted SAT rung.
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{path}.results[{index}] compact candidate did not run "
+                        "the unrestricted low-weight gate",
+                    )
+            if compact_ladder is not None:
+                if not isinstance(compact_ladder, Mapping):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{path}.results[{index}] compact ladder is malformed",
+                    )
+                compact_outcome = compact_ladder.get("outcome")
+                valid_compact_semantics = bool(
+                    (
+                        compact_outcome == "SAT"
+                        and status == "REJECTED"
+                        and not result_retry
+                    )
+                    or (
+                        compact_outcome == "UNSAT"
+                        and status == "UNRESOLVED"
+                        and not result_retry
+                        and isinstance(result.get("distance_lower_bound"), int)
+                    )
+                    or (
+                        compact_outcome == "UNKNOWN"
+                        and status == "UNRESOLVED"
+                        and result_retry
+                    )
+                )
+                if not valid_compact_semantics:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{path}.results[{index}] compact ladder semantics conflict",
+                    )
             results_by_digest[digest] = result
             computed_counts[str(status)] = computed_counts.get(str(status), 0) + 1
 
@@ -3644,6 +4825,7 @@ class FiveStagePipeline:
         )
         ranked_results: dict[str, dict[str, Any]] = {}
         selected_digests: set[str] = set()
+        selected_ranked_rows: dict[str, dict[str, Any]] = {}
         try:
             lines = ranked.read_text().splitlines()
         except OSError as exc:
@@ -3693,7 +4875,14 @@ class FiveStagePipeline:
                         "OUTPUT_INVALID",
                         f"{ranked}:{line_number} has conflicting candidate digests",
                     )
-                selected_digests.add(selection_row_digests[0])
+                selected_digest = selection_row_digests[0]
+                if selected_digest in selected_ranked_rows:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{ranked} repeats selected candidate {selected_digest!r}",
+                    )
+                selected_digests.add(selected_digest)
+                selected_ranked_rows[selected_digest] = row
             annotation = row.get(annotation_key)
             if annotation is None:
                 continue
@@ -3758,28 +4947,85 @@ class FiveStagePipeline:
                 "OUTPUT_INVALID",
                 f"{path} selection markers do not match audited results",
             )
+        if expected_gate == "qldpc-proof-oriented-candidate-pool":
+            # A compact/coset construction may enter generic Stage 3 only
+            # after the mandatory unrestricted oracle produced a complete
+            # UNSAT result.  The restricted two-block oracle is advisory and
+            # a bare ``UNRESOLVED, retry_required=false`` is not proof of this
+            # prerequisite.  Bind the requirement to the authoritative
+            # selected ranked row so deleting both ladder fields cannot turn
+            # a compact candidate into an eligible Stage-3 input.
+            for digest, result in results_by_digest.items():
+                ranked_row = selected_ranked_rows[digest]
+                compact = isinstance(ranked_row.get("construction"), Mapping)
+                advances = bool(
+                    result.get("status") == "UNRESOLVED"
+                    and result.get("retry_required", False) is False
+                )
+                if not (compact and advances):
+                    continue
+                ladder = result.get("compact_low_weight_sat_ladder")
+                max_weight = (
+                    ladder.get("max_weight")
+                    if isinstance(ladder, Mapping) else None
+                )
+                lower_bound = (
+                    ladder.get("distance_lower_bound")
+                    if isinstance(ladder, Mapping) else None
+                )
+                if not (
+                    isinstance(ladder, Mapping)
+                    and ladder.get("schema_version") == 1
+                    and ladder.get("gate")
+                    == "qldpc-stage2-compact-low-weight-gate"
+                    and ladder.get("outcome") == "UNSAT"
+                    and ladder.get("decision_complete") is True
+                    and ladder.get("retryable") is False
+                    and isinstance(max_weight, int)
+                    and not isinstance(max_weight, bool)
+                    and max_weight >= 1
+                    and lower_bound == max_weight + 1
+                    and result.get("distance_lower_bound") == lower_bound
+                    and result.get("deferred_backend") == "generic-global-sat"
+                ):
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        f"{path}.results for compact candidate {digest!r} "
+                        "lacks a complete unrestricted UNSAT prerequisite",
+                    )
         selection_exhausted = summary.get("selection_exhausted")
         if not isinstance(selection_exhausted, bool):
             raise PipelineError(
                 "OUTPUT_INVALID",
                 f"{path}.selection_exhausted must be boolean",
             )
-        if expected_gate == "qldpc-direction-candidate-pool":
-            # New Stage-3 artifacts explicitly bind the process exit status to
-            # their retryable proof state.  Cache fingerprints include the
-            # Stage-3 driver source, so an older artifact lacking this field is
-            # invalidated and rebuilt rather than silently grandfathered.
+        if expected_gate in {
+            "qldpc-proof-oriented-candidate-pool",
+            "qldpc-direction-candidate-pool",
+        }:
+            # Both proof CLIs explicitly bind process exit status to retryable
+            # work. Stage 2 uses per-result markers so an ordinary UNSAT
+            # compact prefilter may proceed to Stage 3 while UNKNOWN cannot.
             retry_required = summary.get("retry_required")
             if not isinstance(retry_required, bool):
                 raise PipelineError(
                     "OUTPUT_INVALID",
                     f"{path}.retry_required must be boolean",
                 )
-            expected_retry_required = bool(
-                not selection_exhausted
-                or computed_counts.get("UNRESOLVED", 0)
-                or has_operational_errors
-            )
+            if expected_gate == "qldpc-direction-candidate-pool":
+                expected_retry_required = bool(
+                    not selection_exhausted
+                    or computed_counts.get("UNRESOLVED", 0)
+                    or has_operational_errors
+                )
+            else:
+                expected_retry_required = bool(
+                    has_operational_errors
+                    or any(
+                        result.get("retry_required") is True
+                        for result in results_by_digest.values()
+                    )
+                )
             if retry_required is not expected_retry_required:
                 raise PipelineError(
                     "OUTPUT_INVALID",
@@ -3788,7 +5034,7 @@ class FiveStagePipeline:
             if retry_required and not allow_retry_required:
                 raise PipelineError(
                     "OUTPUT_INVALID",
-                    f"{path} requires retry but the Stage 3 CLI exited 0",
+                    f"{path} requires retry but the proof CLI exited 0",
                 )
         selection_page = summary.get("selection_page")
         if selection_page is not None:
@@ -3926,8 +5172,7 @@ class FiveStagePipeline:
                 and value > 0
             )
         reported_retry = bool(
-            expected_gate == "qldpc-direction-candidate-pool"
-            and summary.get("retry_required") is True
+            summary.get("retry_required") is True
         )
         if not (reported_error or reported_retry):
             raise PipelineError(
@@ -4231,6 +5476,13 @@ class FiveStagePipeline:
                     "Stage 2 threshold proof has incomplete or unverified certificate",
                     digest,
                     code="STAGE2_CERTIFICATE_INCOMPLETE",
+                )
+            elif status == "UNRESOLVED" and result.get("retry_required") is True:
+                add(
+                    "stage2_sector_audit",
+                    "Stage 2 compact low-weight gate is UNKNOWN and retryable",
+                    digest,
+                    code="STAGE2_COMPACT_LOW_WEIGHT_RETRY",
                 )
             elif status == "UNRESOLVED":
                 escalated = stage3_by_digest.get(digest)
@@ -7697,6 +8949,9 @@ class FiveStagePipeline:
                 "proof_budget_multiplier": self._proof_budget_multiplier,
                 "candidate_workers": self.config.stage2_candidate_workers,
                 "solver_workers": self.config.stage2_solver_workers,
+                "compact_low_weight_max_weight": (
+                    self.config.stage2_compact_low_weight_max_weight
+                ),
                 "structural_workers": self.config.max_total_workers,
                 "structural_hard_timeout": self._scaled_proof_timeout(
                     self.config.stage2_timeout
@@ -7768,9 +9023,13 @@ class FiveStagePipeline:
                     )
                 ),
             )
+            if self._flow_config().evolution_evaluator == "coset-two-block":
+                self._archive_stage2_coset_negatives(candidates)
 
             has_unresolved = any(
-                isinstance(result, Mapping) and result.get("status") == "UNRESOLVED"
+                isinstance(result, Mapping)
+                and result.get("status") == "UNRESOLVED"
+                and result.get("retry_required") is not True
                 for result in stage2.get("results", [])
             )
             if has_unresolved:
@@ -7873,6 +9132,8 @@ class FiveStagePipeline:
                 ),
                 machine_status=stage3_machine_status,
             )
+            if self._flow_config().evolution_evaluator == "coset-two-block":
+                self._archive_stage3_coset_negatives(candidates, stage3)
 
             proof_incompleteness = self._proof_incompleteness(stage2, stage3)
             proof_incompleteness = self._carry_paginated_input_incompleteness(

@@ -97,12 +97,14 @@ def test_generation_schema_requires_v2_search_action_and_is_closed():
     } <= set(action["properties"]["intent"]["enum"])
     focus_variants = action["properties"]["focus"]["items"]["anyOf"]
     assert all(variant["additionalProperties"] is False for variant in focus_variants)
-    assert {
+    enum_variants = {
         variant["properties"]["dimension"]["const"]: set(
             variant["properties"]["value"]["enum"]
         )
         for variant in focus_variants
-    } == {
+        if "enum" in variant["properties"]["value"]
+    }
+    assert enum_variants == {
         "portfolio_role": {
             "affine_automorphism_cover",
             "shared_anchor_coset_cover",
@@ -118,14 +120,26 @@ def test_generation_schema_requires_v2_search_action_and_is_closed():
             "unstructured",
         },
         "support_split_type": {"2+2", "2+3", "3+2", "2+4", "4+2", "3+3"},
-            "orbit_span_bin": {"0", "1", "2"},
-            "geometry_twist_class": {"0", "1", "2"},
-            "mutation_tactic": {
+        "orbit_span_bin": {"0", "1", "2"},
+        "geometry_twist_class": {"0", "1", "2"},
+        "mutation_tactic": {
             "novel_structure_exploration",
             "repair_x_low_weight",
             "repair_z_low_weight",
             "repair_dual_balance",
         },
+        "catalog_kind": {"action", "cover", "protograph"},
+    }
+    identifier_variants = {
+        variant["properties"]["dimension"]["const"]: variant[
+            "properties"
+        ]["value"]["pattern"]
+        for variant in focus_variants
+        if "pattern" in variant["properties"]["value"]
+    }
+    assert identifier_variants == {
+        "renderer_descriptor_id": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+        "catalog_manifest_id": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
     }
     assert "pattern" not in REVIEW_SCHEMA["properties"]["summary"]
     assert "pattern" not in action["properties"]["rationale"]

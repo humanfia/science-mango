@@ -20,6 +20,7 @@ import threading
 import time
 
 import yaml
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
@@ -36,6 +37,8 @@ from evolve.coset_search_contract import (
     COSET_MAP_SCHEMA_VERSION,
     COSET_PROOF_LADDER_CONFIG_KEY,
     COSET_REPRESENTATION_ID,
+    COSET_REPRESENTATION_ID_V3,
+    coset_renderer_portfolio_contract,
     proof_ladder_config_contract,
 )
 from evaluation.geometry import candidate_geometry
@@ -291,10 +294,27 @@ LOCAL_EVOLUTION_DEPENDENCIES = LOCAL_EVALUATOR_DEPENDENCIES
 # manifest corruption into an unaudited source upgrade.
 _COSET_DSL_LAUNCH_FIELDS = frozenset({
     "coset_policy_dsl",
+    "coset_policy_dsl_v3",
+    "coset_policy_dispatch",
     "coset_mutation_preflight",
+    "coset_negative_archive",
+    "coset_sparse_kernel_oracle",
+    "coset_witness_symmetry_verifier",
+    "coset_reviewer_contract",
+    "coset_reviewer_activation",
+})
+COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS = frozenset({
+    "coset_negative_feedback_snapshot",
+    "coset_negative_feedback_snapshot_manifest",
+})
+COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS = frozenset({
+    "coset_renderer_activation",
 })
 LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
-    _COSET_DSL_LAUNCH_FIELDS | {"evaluation_geometry"},
+    _COSET_DSL_LAUNCH_FIELDS
+    | {"evaluation_geometry"}
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
     _COSET_DSL_LAUNCH_FIELDS | {
         "evaluation_geometry",
         "evaluation_final_gate",
@@ -302,26 +322,44 @@ LEGACY_EVOLUTION_LAUNCH_MISSING_FIELDS = (
         "evaluation_search_contract",
         "evaluation_structural_features",
         "evolution_dependency_contract",
-    },
+    }
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
     _COSET_DSL_LAUNCH_FIELDS | {
         "evaluation_geometry",
         "evaluation_proof_runtime",
         "evaluation_search_contract",
         "evaluation_structural_features",
         "evolution_dependency_contract",
-    },
+    }
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
     _COSET_DSL_LAUNCH_FIELDS | {
         "evaluation_geometry",
         "evaluation_structural_features",
-    },
-    _COSET_DSL_LAUNCH_FIELDS,
+    }
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
+    _COSET_DSL_LAUNCH_FIELDS
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
+    COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
+    COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
 )
 # A committed round cannot be rebound, but the immediately preceding
 # append-only dependency schema remains replayable from its immutable
 # manifest/witness hashes. Older incomplete schemas stay rejected.
 COMMITTED_PREVIOUS_EVOLUTION_LAUNCH_MISSING_FIELDS = (
-    frozenset({"evaluation_geometry"}),
-    _COSET_DSL_LAUNCH_FIELDS,
+    frozenset({"evaluation_geometry"})
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
+    _COSET_DSL_LAUNCH_FIELDS
+    | COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
+    COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    | COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
+    COSET_RENDERER_ACTIVATION_LAUNCH_FIELDS,
 )
 EVOLUTION_INVOCATION_FIELDS = frozenset({
     "model_names",
@@ -337,6 +375,21 @@ EVOLUTION_INVOCATION_FIELDS = frozenset({
 COSET_EVOLUTION_INVOCATION_FIELDS = frozenset({
     "qcode_evaluator_kind",
     "qcode_action_catalog_sha256",
+})
+COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD = (
+    "qcode_coset_renderer_activation_sha256"
+)
+COSET_RENDERER_ACTIVATION_FILENAME = "coset-renderer-activation.json"
+COSET_RENDERER_RESOLUTION_FILENAME = "coset-renderer-resolution.json"
+COSET_RENDERER_RESOLUTION_SUMMARY_FIELD = "renderer_resolution_binding"
+COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS = frozenset({
+    "qcode_negative_feedback_live_archive_path",
+    "qcode_negative_feedback_snapshot_path",
+    "qcode_negative_feedback_snapshot_sha256",
+    "qcode_negative_feedback_archive_sha256",
+    "qcode_negative_feedback_manifest_path",
+    "qcode_negative_feedback_manifest_sha256",
+    "qcode_negative_feedback_epoch",
 })
 SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD = "search_geometry_contract"
 LEGACY_COSET_REPRESENTATION_ID = "css-coset-two-block-actions-v1"
@@ -905,7 +958,7 @@ def _historical_coset_policy_v1_identity(
     *,
     expected_catalog_sha256: Any,
 ) -> dict[str, Any]:
-    """Validate a sealed v1 root as data, independent of the live DSL code."""
+    """Validate a sealed typed root as data, independent of live renderers."""
 
     if (
         not isinstance(root_code, str)
@@ -924,11 +977,30 @@ def _historical_coset_policy_v1_identity(
         raise RoundTransactionError(
             "checkpoint DSL migration root policy is invalid"
         ) from exc
+    identity = (
+        root_document.get("schema_version"),
+        root_document.get("kind"),
+        root_document.get("representation_id"),
+    )
+    supported = {
+        (
+            1,
+            "qcode-coset-policy-dsl-v1",
+            "css-coset-two-block-actions-v1",
+        ),
+        (
+            2,
+            "qcode-coset-policy-dsl-v2",
+            "css-coset-two-block-actions-v2",
+        ),
+        (
+            3,
+            "qcode-coset-policy-dsl-v3",
+            "css-coset-two-block-actions-v3",
+        ),
+    }
     if (
-        root_document.get("schema_version") != 1
-        or root_document.get("kind") != "qcode-coset-policy-dsl-v1"
-        or root_document.get("representation_id")
-        != "css-coset-two-block-actions-v1"
+        identity not in supported
         or root_document.get("action_catalog_sha256")
         != expected_catalog_sha256
     ):
@@ -1334,21 +1406,67 @@ def _flow_evaluator_kind(config: FlowConfig) -> str:
 
 
 def _expected_evolution_config(config: FlowConfig) -> Path:
+    coset_config = "coset_config_v3.yaml"
+    if config.search_representation_id == COSET_REPRESENTATION_ID:
+        coset_config = "coset_config_v2.yaml"
     return Path(os.path.abspath(
         config.evolution_config
         or config.repo_dir / "evolve" / (
-            "coset_config_v2.yaml"
+            coset_config
             if _flow_evaluator_kind(config) == "coset-two-block"
             else "config.yaml"
         )
     ))
 
 
+def _configured_coset_representation_id(config: FlowConfig) -> str:
+    """Bind the FlowConfig field to the exact selected YAML marker."""
+
+    if _flow_evaluator_kind(config) != "coset-two-block":
+        raise RoundTransactionError("non-coset flow has no coset representation")
+    path = _expected_evolution_config(config)
+    try:
+        value = yaml.safe_load(path.read_text())
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise RoundTransactionError(
+            "cannot inspect coset representation binding"
+        ) from exc
+    marker = (
+        value.get(COSET_SEARCH_PORTFOLIO_CONFIG_KEY)
+        if isinstance(value, dict)
+        else None
+    )
+    representation_id = (
+        marker.get("representation_id")
+        if isinstance(marker, dict)
+        else None
+    )
+    if not isinstance(representation_id, str):
+        raise RoundTransactionError(
+            "coset evolution config has no representation marker"
+        )
+    if (
+        config.search_representation_id is not None
+        and config.search_representation_id != representation_id
+    ):
+        raise RoundTransactionError(
+            "FlowConfig search_representation_id disagrees with the coset "
+            "evolution config"
+        )
+    return representation_id
+
+
 def _expected_evolution_seed(config: FlowConfig) -> Path:
+    coset_seed = "coset_seed_solution_v3.py"
+    representation_id = config.search_representation_id
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        representation_id = _configured_coset_representation_id(config)
+    if representation_id == COSET_REPRESENTATION_ID:
+        coset_seed = "coset_seed_solution_v2.py"
     return Path(os.path.abspath(
         config.evolution_seed
         or config.repo_dir / "evolve" / (
-            "coset_seed_solution_v2.py"
+            coset_seed
             if _flow_evaluator_kind(config) == "coset-two-block"
             else "seed_solution.py"
         )
@@ -1385,25 +1503,11 @@ def _coset_action_catalog_dependency_key(config: FlowConfig) -> str:
     looking Humanize transaction that the child launcher immediately rejects.
     """
 
-    representation_id = config.search_representation_id
-    if representation_id is None:
-        try:
-            value = yaml.safe_load(_expected_evolution_config(config).read_text())
-        except (OSError, UnicodeError, yaml.YAMLError) as exc:
-            raise RoundTransactionError(
-                "cannot inspect coset representation catalog binding"
-            ) from exc
-        marker = (
-            value.get(COSET_SEARCH_PORTFOLIO_CONFIG_KEY)
-            if isinstance(value, dict)
-            else None
-        )
-        representation_id = (
-            marker.get("representation_id")
-            if isinstance(marker, dict)
-            else None
-        )
-    if representation_id == COSET_REPRESENTATION_ID:
+    representation_id = _configured_coset_representation_id(config)
+    if representation_id in {
+        COSET_REPRESENTATION_ID,
+        COSET_REPRESENTATION_ID_V3,
+    }:
         return "coset_action_catalog_v2"
     if representation_id == LEGACY_COSET_REPRESENTATION_ID:
         return "coset_action_catalog"
@@ -1595,12 +1699,155 @@ def _resolved_api_base(config: FlowConfig) -> str:
     return "http://localhost:4000/v1"
 
 
+def _negative_feedback_epoch_number(round_dir: Path) -> int:
+    match = re.fullmatch(r"round-([0-9]+)", round_dir.name)
+    if match is None or int(match.group(1)) < 1:
+        raise RoundTransactionError(
+            "managed negative-feedback snapshot has an invalid round directory"
+        )
+    return int(match.group(1))
+
+
+def _negative_feedback_epoch_binding(
+    config: FlowConfig,
+    round_dir: Path,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Materialize and describe the immutable read view for one round."""
+
+    from evolve.coset_negative_archive import (
+        NegativeArchiveError,
+        load_feedback_snapshot_manifest,
+        materialize_feedback_snapshot,
+        resolve_archive_path,
+    )
+
+    number = _negative_feedback_epoch_number(round_dir)
+    absolute_round = Path(os.path.abspath(round_dir))
+    candidate_log = Path(os.path.abspath(
+        config.repo_dir
+        / "results"
+        / "evolution"
+        / f"humanize_{config.run_id}"
+        / "all_codes.jsonl"
+    ))
+    try:
+        live = resolve_archive_path(candidate_log)
+    except NegativeArchiveError as exc:
+        raise RoundTransactionError(str(exc)) from exc
+    if live is None:
+        raise RoundTransactionError(
+            "managed coset evolution has no live negative archive"
+        )
+    live = Path(os.path.abspath(live))
+    snapshot = absolute_round / "negative-feedback-snapshot.json"
+    manifest_path = absolute_round / "negative-feedback-snapshot-manifest.json"
+    parent_snapshot_sha256: str | None = None
+    if number > 1:
+        parent_manifest_path = (
+            absolute_round.parent
+            / f"round-{number - 1:03d}"
+            / "negative-feedback-snapshot-manifest.json"
+        )
+        if parent_manifest_path.is_file() and not parent_manifest_path.is_symlink():
+            try:
+                parent = load_feedback_snapshot_manifest(
+                    parent_manifest_path,
+                    expected_live_archive_path=live,
+                    expected_run_id=config.run_id,
+                    expected_round_number=number - 1,
+                )
+            except (OSError, NegativeArchiveError) as exc:
+                raise RoundTransactionError(
+                    f"previous negative-feedback epoch is invalid: {exc}"
+                ) from exc
+            parent_snapshot_sha256 = str(parent["snapshot_sha256"])
+    try:
+        manifest = materialize_feedback_snapshot(
+            live,
+            snapshot,
+            manifest_path,
+            run_id=config.run_id,
+            round_number=number,
+            feedback_epoch=number,
+            parent_snapshot_sha256=parent_snapshot_sha256,
+        )
+    except (OSError, NegativeArchiveError) as exc:
+        raise RoundTransactionError(
+            f"cannot materialize negative-feedback epoch: {exc}"
+        ) from exc
+    return (
+        manifest,
+        _file_descriptor(snapshot, "negative-feedback snapshot"),
+        _file_descriptor(manifest_path, "negative-feedback snapshot manifest"),
+    )
+
+
+def _negative_feedback_invocation(
+    config: FlowConfig,
+    launch_binding: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Replay dynamic snapshot descriptors into the managed invocation."""
+
+    from evolve.coset_negative_archive import (
+        NegativeArchiveError,
+        load_feedback_snapshot_manifest,
+    )
+
+    snapshot = launch_binding.get("coset_negative_feedback_snapshot")
+    manifest_descriptor = launch_binding.get(
+        "coset_negative_feedback_snapshot_manifest"
+    )
+    if not isinstance(snapshot, Mapping) or not isinstance(
+        manifest_descriptor, Mapping
+    ):
+        raise RoundTransactionError(
+            "coset negative-feedback launch binding is incomplete"
+        )
+    observed_snapshot = _file_descriptor(
+        Path(str(snapshot.get("path", ""))), "negative-feedback snapshot"
+    )
+    observed_manifest = _file_descriptor(
+        Path(str(manifest_descriptor.get("path", ""))),
+        "negative-feedback snapshot manifest",
+    )
+    if observed_snapshot != dict(snapshot) or observed_manifest != dict(
+        manifest_descriptor
+    ):
+        raise RoundTransactionError(
+            "negative-feedback snapshot changed after transaction prepare"
+        )
+    try:
+        manifest = load_feedback_snapshot_manifest(
+            Path(observed_manifest["path"]),
+            expected_snapshot_path=Path(observed_snapshot["path"]),
+            expected_run_id=config.run_id,
+        )
+    except (OSError, NegativeArchiveError) as exc:
+        raise RoundTransactionError(
+            f"negative-feedback snapshot replay failed: {exc}"
+        ) from exc
+    return {
+        "qcode_negative_feedback_live_archive_path": manifest[
+            "live_archive_path"
+        ],
+        "qcode_negative_feedback_snapshot_path": manifest["snapshot_path"],
+        "qcode_negative_feedback_snapshot_sha256": manifest[
+            "snapshot_sha256"
+        ],
+        "qcode_negative_feedback_archive_sha256": manifest["archive_sha256"],
+        "qcode_negative_feedback_manifest_path": observed_manifest["path"],
+        "qcode_negative_feedback_manifest_sha256": observed_manifest["sha256"],
+        "qcode_negative_feedback_epoch": manifest["feedback_epoch"],
+    }
+
+
 def _fresh_invocation_binding(
     config: FlowConfig,
     *,
     codex_identity: dict[str, Any] | None,
     codex_version: str | None,
     codex_cwd: str | None,
+    launch_binding: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     configured_workers = _configured_evolution_workers(
         _expected_evolution_config(config)
@@ -1650,6 +1897,47 @@ def _fresh_invocation_binding(
             "qcode_evaluator_kind": "coset-two-block",
             "qcode_action_catalog_sha256": action_catalog_sha256(catalog_id),
         })
+        if launch_binding is not None and COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS.issubset(
+            launch_binding
+        ):
+            invocation.update(
+                _negative_feedback_invocation(config, launch_binding)
+            )
+        if _configured_coset_representation_id(config) == (
+            COSET_REPRESENTATION_ID_V3
+        ):
+            activation_descriptor = (
+                None
+                if launch_binding is None
+                else launch_binding.get("coset_renderer_activation")
+            )
+            if activation_descriptor is None:
+                from evolve.coset_search_contract import (
+                    coset_renderer_activation_document,
+                    default_coset_renderer_activation,
+                )
+
+                activation = coset_renderer_activation_document(
+                    default_coset_renderer_activation()
+                )
+            elif not isinstance(activation_descriptor, Mapping):
+                raise RoundTransactionError(
+                    "coset renderer activation launch binding is malformed"
+                )
+            else:
+                activation = _validated_coset_renderer_activation_file(
+                    Path(str(activation_descriptor.get("path", "")))
+                )
+                if _file_descriptor(
+                    Path(str(activation_descriptor.get("path", ""))),
+                    "coset renderer activation",
+                ) != activation_descriptor:
+                    raise RoundTransactionError(
+                        "coset renderer activation launch binding changed"
+                    )
+            invocation[
+                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+            ] = activation["activation_sha256"]
     return invocation
 
 
@@ -1722,6 +2010,125 @@ def _managed_search_geometry_contract(
     )
 
 
+def _validated_coset_renderer_activation_file(path: Path) -> dict[str, Any]:
+    """Replay one activation file through the installed source registries."""
+
+    observed = _read_json_object(path, "coset renderer activation")
+    from evolve.coset_search_contract import (
+        coset_renderer_activation_document,
+        trusted_coset_renderer_activation_from_document,
+    )
+
+    try:
+        activation = trusted_coset_renderer_activation_from_document(observed)
+        replayed = coset_renderer_activation_document(activation)
+    except (TypeError, ValueError) as exc:
+        raise RoundTransactionError(
+            f"coset renderer activation cannot be replayed: {exc}"
+        ) from exc
+    if observed != replayed:
+        raise RoundTransactionError(
+            "coset renderer activation is not canonical registry data"
+        )
+    return replayed
+
+
+def _materialize_round_renderer_activation(
+    config: FlowConfig,
+    state: Mapping[str, Any],
+    round_dir: Path,
+) -> Path | None:
+    """Freeze the sole renderer activation authorized for this round."""
+
+    if (
+        _flow_evaluator_kind(config) != "coset-two-block"
+        or _configured_coset_representation_id(config)
+        != COSET_REPRESENTATION_ID_V3
+    ):
+        return None
+    current_round = state.get("current_round")
+    if (
+        isinstance(current_round, bool)
+        or not isinstance(current_round, int)
+        or current_round < 0
+    ):
+        raise RoundTransactionError(
+            "renderer activation has an invalid current round"
+        )
+    target_round = current_round + 1
+    expected_round_dir = round_dir.parent / f"round-{target_round:03d}"
+    if Path(os.path.abspath(round_dir)) != Path(
+        os.path.abspath(expected_round_dir)
+    ):
+        raise RoundTransactionError(
+            "renderer activation target disagrees with the round directory"
+        )
+
+    if target_round == 1:
+        from evolve.coset_search_contract import (
+            coset_renderer_activation_document,
+            default_coset_renderer_activation,
+        )
+
+        activation_document = coset_renderer_activation_document(
+            default_coset_renderer_activation()
+        )
+    else:
+        rounds = state.get("rounds")
+        if not isinstance(rounds, list):
+            raise RoundTransactionError(
+                "renderer activation has no durable round history"
+            )
+        previous = next((
+            row for row in reversed(rounds)
+            if isinstance(row, dict) and row.get("round") == current_round
+        ), None)
+        if previous is None:
+            raise RoundTransactionError(
+                "renderer activation cannot find the preceding round"
+            )
+        resolution = _validated_bound_renderer_resolution(
+            previous, round_dir.parent
+        )
+        if resolution is None:
+            from evolve.coset_search_contract import (
+                coset_renderer_activation_document,
+                default_coset_renderer_activation,
+            )
+
+            activation_document = coset_renderer_activation_document(
+                default_coset_renderer_activation()
+            )
+        elif resolution["status"] == "activated":
+            if resolution["target_round"] != target_round:
+                raise RoundTransactionError(
+                    "reviewer activation targets a different round"
+                )
+            activation_document = resolution["renderer_activation"]
+        else:
+            raise RoundTransactionError(
+                "representation-expansion handoff forbids a fallback launch"
+            )
+
+    activation_path = Path(os.path.abspath(
+        round_dir / COSET_RENDERER_ACTIVATION_FILENAME
+    ))
+    if activation_path.exists() or activation_path.is_symlink():
+        if activation_path.is_symlink() or not activation_path.is_file():
+            raise RoundTransactionError(
+                "coset renderer activation artifact is unsafe"
+            )
+        if _validated_coset_renderer_activation_file(
+            activation_path
+        ) != activation_document:
+            raise RoundTransactionError(
+                "coset renderer activation changed after round prepare"
+            )
+    else:
+        atomic_write_json(activation_path, activation_document)
+    return activation_path
+
+
 def _evolution_launch_binding(
     config: FlowConfig,
     *,
@@ -1750,6 +2157,24 @@ def _evolution_launch_binding(
             config.repo_dir / relative_path,
             f"evolution evaluator dependency {name}",
         )
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        _manifest, snapshot, snapshot_manifest = (
+            _negative_feedback_epoch_binding(config, context_path.parent)
+        )
+        binding["coset_negative_feedback_snapshot"] = snapshot
+        binding["coset_negative_feedback_snapshot_manifest"] = (
+            snapshot_manifest
+        )
+        if _configured_coset_representation_id(config) == (
+            COSET_REPRESENTATION_ID_V3
+        ):
+            activation_path = Path(os.path.abspath(
+                context_path.parent / COSET_RENDERER_ACTIVATION_FILENAME
+            ))
+            _validated_coset_renderer_activation_file(activation_path)
+            binding["coset_renderer_activation"] = _file_descriptor(
+                activation_path, "coset renderer activation"
+            )
     if config.codex_cli:
         if codex_executable is None:
             raise RoundTransactionError(
@@ -1781,8 +2206,25 @@ def _validate_invocation_binding(
         Path(launch_binding["config"]["path"]),
     )
     expected_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    feedback_launch_fields = (
+        set(launch_binding) & set(COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS)
+    )
+    if feedback_launch_fields and feedback_launch_fields != set(
+        COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    ):
+        raise RoundTransactionError(
+            "coset negative-feedback launch binding is incomplete"
+        )
     if _flow_evaluator_kind(config) == "coset-two-block":
         expected_fields.update(COSET_EVOLUTION_INVOCATION_FIELDS)
+        if feedback_launch_fields:
+            expected_fields.update(COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS)
+        if _configured_coset_representation_id(config) == (
+            COSET_REPRESENTATION_ID_V3
+        ):
+            expected_fields.add(
+                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+            )
     if geometry_contract is not None:
         expected_fields.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
     if not isinstance(invocation, dict) or set(invocation) != expected_fields:
@@ -1809,6 +2251,47 @@ def _validate_invocation_binding(
             raise RoundTransactionError(
                 "coset evolution evaluator/catalog binding changed"
             )
+        if _configured_coset_representation_id(config) == (
+            COSET_REPRESENTATION_ID_V3
+        ):
+            activation_descriptor = launch_binding.get(
+                "coset_renderer_activation"
+            )
+            if not isinstance(activation_descriptor, dict):
+                raise RoundTransactionError(
+                    "coset renderer activation launch binding is missing"
+                )
+            activation_path = Path(str(
+                activation_descriptor.get("path", "")
+            ))
+            if _file_descriptor(
+                activation_path, "coset renderer activation"
+            ) != activation_descriptor:
+                raise RoundTransactionError(
+                    "coset renderer activation launch binding changed"
+                )
+            expected_activation = (
+                _validated_coset_renderer_activation_file(activation_path)[
+                    "activation_sha256"
+                ]
+            )
+            if invocation.get(
+                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+            ) != expected_activation:
+                raise RoundTransactionError(
+                    "coset renderer activation binding changed"
+                )
+        if feedback_launch_fields:
+            expected_feedback = _negative_feedback_invocation(
+                config, launch_binding
+            )
+            if any(
+                invocation.get(name) != value
+                for name, value in expected_feedback.items()
+            ):
+                raise RoundTransactionError(
+                    "coset negative-feedback invocation binding changed"
+                )
     if invocation["model_names"] != [config.model]:
         raise RoundTransactionError("evolution model binding changed")
     if invocation["reasoning_effort"] != config.reasoning_effort:
@@ -4127,6 +4610,208 @@ def _validated_bound_round_review(
     return review
 
 
+def _seal_round_renderer_resolution(
+    *,
+    round_number: int,
+    round_dir: Path,
+    review: dict[str, Any],
+    review_binding: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Resolve reviewer registry IDs and durably bind the next round."""
+
+    search_action = review_binding.get("search_action")
+    resolution_path = Path(os.path.abspath(
+        round_dir / COSET_RENDERER_RESOLUTION_FILENAME
+    ))
+    if search_action is None:
+        if resolution_path.exists() or resolution_path.is_symlink():
+            raise RoundTransactionError(
+                "legacy review has an unexpected renderer resolution artifact"
+            )
+        return None
+    from humanize.coset_renderer_review import (
+        ReviewerRendererResolutionError,
+        resolve_reviewer_renderer_action,
+    )
+
+    try:
+        resolution = resolve_reviewer_renderer_action(
+            search_action,
+            source_round=round_number,
+            target_round=round_number + 1,
+            review_artifact_sha256=review_binding["artifact_sha256"],
+        )
+    except ReviewerRendererResolutionError as exc:
+        raise RoundTransactionError(
+            f"reviewer renderer proposal cannot be resolved: {exc}"
+        ) from exc
+    if resolution is None:
+        if resolution_path.exists() or resolution_path.is_symlink():
+            raise RoundTransactionError(
+                "review without renderer focus has a stale resolution artifact"
+            )
+        return None
+    if resolution_path.exists() or resolution_path.is_symlink():
+        if resolution_path.is_symlink() or not resolution_path.is_file():
+            raise RoundTransactionError(
+                "renderer resolution artifact is not a regular file"
+            )
+        observed = _read_json_object(
+            resolution_path, "renderer resolution artifact"
+        )
+        if observed != resolution:
+            raise RoundTransactionError(
+                "renderer resolution artifact disagrees after recovery"
+            )
+    else:
+        atomic_write_json(resolution_path, resolution)
+    descriptor = _file_descriptor(
+        resolution_path, "reviewer renderer resolution"
+    )
+    return {
+        **descriptor,
+        "status": resolution["status"],
+        "source_round": round_number,
+        "target_round": round_number + 1,
+        "activation_sha256": resolution[
+            "renderer_activation_sha256"
+        ],
+        "resolution_sha256": resolution["resolution_sha256"],
+    }
+
+
+def _validated_bound_renderer_resolution(
+    summary: Mapping[str, Any],
+    rounds_root: Path,
+) -> dict[str, Any] | None:
+    """Replay a summary's optional reviewer-to-renderer resolution."""
+
+    binding = summary.get(COSET_RENDERER_RESOLUTION_SUMMARY_FIELD)
+    if binding is None:
+        return None
+    expected_fields = {
+        "path",
+        "sha256",
+        "bytes",
+        "status",
+        "source_round",
+        "target_round",
+        "activation_sha256",
+        "resolution_sha256",
+    }
+    if type(binding) is not dict or set(binding) != expected_fields:
+        raise RoundTransactionError("renderer resolution binding is malformed")
+    source_round = summary.get("round")
+    expected_path = Path(os.path.abspath(
+        rounds_root
+        / f"round-{source_round:03d}"
+        / COSET_RENDERER_RESOLUTION_FILENAME
+    )) if type(source_round) is int and source_round > 0 else None
+    if expected_path is None or binding.get("path") != str(expected_path):
+        raise RoundTransactionError("renderer resolution path is not round-bound")
+    observed_descriptor = _file_descriptor(
+        expected_path, "reviewer renderer resolution"
+    )
+    if any(
+        binding.get(name) != observed_descriptor[name]
+        for name in ("path", "sha256", "bytes")
+    ):
+        raise RoundTransactionError("renderer resolution bytes changed")
+    review = _validated_bound_round_review(dict(summary), rounds_root)
+    review_binding = summary.get("review_binding")
+    if not isinstance(review_binding, dict):
+        raise RoundTransactionError("renderer resolution has no review binding")
+    resolution = _read_json_object(
+        expected_path, "reviewer renderer resolution"
+    )
+    from humanize.coset_renderer_review import (
+        ReviewerRendererResolutionError,
+        validate_reviewer_renderer_resolution,
+    )
+
+    try:
+        replayed = validate_reviewer_renderer_resolution(
+            resolution,
+            search_action=review["search_action"],
+        )
+    except (KeyError, ReviewerRendererResolutionError) as exc:
+        raise RoundTransactionError(
+            f"renderer resolution cannot be replayed: {exc}"
+        ) from exc
+    expected_metadata = {
+        "status": replayed["status"],
+        "source_round": replayed["source_round"],
+        "target_round": replayed["target_round"],
+        "activation_sha256": replayed["renderer_activation_sha256"],
+        "resolution_sha256": replayed["resolution_sha256"],
+    }
+    if any(binding.get(name) != value for name, value in expected_metadata.items()):
+        raise RoundTransactionError(
+            "renderer resolution summary metadata changed"
+        )
+    if replayed["review_artifact_sha256"] != review_binding.get(
+        "artifact_sha256"
+    ):
+        raise RoundTransactionError(
+            "renderer resolution review binding changed"
+        )
+    return replayed
+
+
+def _validated_renderer_expansion_handoff(
+    state: Mapping[str, Any],
+    rounds_root: Path,
+) -> str | None:
+    """Validate a terminal, non-executable reviewer catalog handoff."""
+
+    round_value = state.get("renderer_expansion_handoff_at_round")
+    digest_value = state.get("renderer_expansion_handoff_sha256")
+    if round_value is None and digest_value is None:
+        return None
+    if (
+        type(round_value) is not int
+        or round_value < 1
+        or type(digest_value) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", digest_value) is None
+        or state.get("pending_round") is not None
+        or state.get("current_round") != round_value
+        or state.get("status") not in {
+            "search-complete",
+            "incomplete-unresolved",
+        }
+    ):
+        raise RoundTransactionError(
+            "renderer expansion handoff state is malformed"
+        )
+    rounds = state.get("rounds")
+    if (
+        not isinstance(rounds, list)
+        or not rounds
+        or not isinstance(rounds[-1], dict)
+        or rounds[-1].get("round") != round_value
+    ):
+        raise RoundTransactionError(
+            "renderer expansion handoff is not the final completed round"
+        )
+    resolution = _validated_bound_renderer_resolution(
+        rounds[-1], rounds_root
+    )
+    if (
+        resolution is None
+        or resolution.get("status")
+        != "representation_expansion_handoff"
+        or resolution.get("renderer_activation") is not None
+        or resolution.get("resolution_sha256") != digest_value
+        or resolution.get("representation_expansion_handoff", {}).get(
+            "execution_permitted"
+        ) is not False
+    ):
+        raise RoundTransactionError(
+            "renderer expansion handoff does not replay exactly"
+        )
+    return str(state["status"])
+
+
 def _v2_evolution_search_action(action: Any) -> dict[str, Any]:
     """Project a replayed reviewer action onto the executable-prompt allowlist.
 
@@ -4432,6 +5117,7 @@ def _fresh_evolution_bindings(
     state: dict[str, Any],
     round_dir: Path,
 ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    _materialize_round_renderer_activation(config, state, round_dir)
     context_path = _freeze_round_context(config, state, round_dir)
     codex_identity: dict[str, Any] | None = None
     version: str | None = None
@@ -4448,6 +5134,7 @@ def _fresh_evolution_bindings(
         codex_identity=codex_identity,
         codex_version=version,
         codex_cwd=cwd,
+        launch_binding=launch,
     )
     _validate_invocation_binding(config, invocation, launch)
     return launch, invocation
@@ -4550,7 +5237,7 @@ def _coset_search_portfolio_contract_from_config(
     Schema-7 submission witnesses carry the selected parent program and its
     code hash.  Treating this config as an ordinary non-portfolio run drops
     those fields at the Humanize trust boundary, so keep the producer's
-    marker and fixed 4-island geometry mirrored here and fail closed on drift.
+    marker and registry-owned geometry mirrored here and fail closed on drift.
     """
 
     try:
@@ -4567,13 +5254,33 @@ def _coset_search_portfolio_contract_from_config(
     if COSET_SEARCH_PORTFOLIO_CONFIG_KEY not in value:
         return None
     marker = value[COSET_SEARCH_PORTFOLIO_CONFIG_KEY]
+    if type(marker) is not dict or set(marker) != {
+        "enabled",
+        "schema_version",
+        "representation_id",
+        "checkpoint_compatibility_group",
+    }:
+        raise RoundTransactionError(
+            "qcode_coset_search_portfolio fields are not exact"
+        )
+    representation_id = marker.get("representation_id")
+    if type(representation_id) is not str:
+        raise RoundTransactionError(
+            "coset search portfolio representation_id is invalid"
+        )
+    try:
+        contract = coset_renderer_portfolio_contract(representation_id)
+    except (TypeError, ValueError) as exc:
+        raise RoundTransactionError(
+            "coset search portfolio representation is not registered"
+        ) from exc
     expected_marker = {
         "enabled": True,
-        "schema_version": COSET_MAP_SCHEMA_VERSION,
-        "representation_id": COSET_REPRESENTATION_ID,
-        "checkpoint_compatibility_group": (
-            COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP
-        ),
+        "schema_version": contract["map_schema_version"],
+        "representation_id": contract["representation_id"],
+        "checkpoint_compatibility_group": contract[
+            "checkpoint_compatibility_group"
+        ],
     }
     if type(marker) is not dict or marker != expected_marker:
         raise RoundTransactionError(
@@ -4592,25 +5299,25 @@ def _coset_search_portfolio_contract_from_config(
         not isinstance(database, dict)
         or type(database.get("num_islands")) is not int
         or database["num_islands"]
-        != COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+        != contract["num_islands"]
         or database.get("feature_dimensions")
-        != list(COSET_FEATURE_DIMENSIONS)
+        != list(contract["feature_dimensions"])
         or not isinstance(database.get("feature_bins"), dict)
-        or set(database["feature_bins"]) != set(COSET_FEATURE_BINS)
+        or set(database["feature_bins"]) != set(contract["feature_bins"])
         or any(
             type(database["feature_bins"].get(name)) is not int
             or database["feature_bins"][name] != expected
-            for name, expected in COSET_FEATURE_BINS.items()
+            for name, expected in contract["feature_bins"].items()
         )
     ):
         raise RoundTransactionError(
-            "coset search portfolio database geometry must be exactly four "
-            "islands with the current 16/16/8 MAP grid"
+            "coset search portfolio database geometry disagrees with its "
+            "registered renderer"
         )
     return (
-        COSET_MAP_SCHEMA_VERSION,
-        tuple(COSET_FEATURE_DIMENSIONS),
-        dict(COSET_FEATURE_BINS),
+        int(contract["map_schema_version"]),
+        tuple(contract["feature_dimensions"]),
+        dict(contract["feature_bins"]),
     )
 
 
@@ -4960,6 +5667,7 @@ def _validated_live_coset_policy_code_identity(
     code: Any,
     *,
     expected_catalog_sha256: Any,
+    expected_representation_id: str | None = None,
 ) -> dict[str, str]:
     """Validate current typed policy text while preserving its raw hash."""
 
@@ -4972,21 +5680,35 @@ def _validated_live_coset_policy_code_identity(
         raise RoundTransactionError(
             "coset policy code identity is invalid"
         )
-    from evolve.coset_policy_dsl import CosetPolicyError, parse_policy
+    from evolve.coset_policy_dispatch import (
+        CosetPolicyDispatchError,
+        parse_and_render_registered_policy,
+    )
 
     try:
-        policy = parse_policy(code)
-    except (CosetPolicyError, UnicodeError, ValueError) as exc:
+        rendered = parse_and_render_registered_policy(code)
+    except (CosetPolicyDispatchError, UnicodeError, ValueError) as exc:
         raise RoundTransactionError(
             "coset checkpoint policy is invalid"
         ) from exc
-    if policy.action_catalog_sha256 != expected_catalog_sha256:
+    catalog_sha256 = rendered.document.get("action_catalog_sha256")
+    representation_id = rendered.descriptor.representation_id
+    if catalog_sha256 != expected_catalog_sha256:
         raise RoundTransactionError(
             "coset checkpoint policy catalog binding changed"
         )
+    if (
+        expected_representation_id is not None
+        and representation_id != expected_representation_id
+    ):
+        raise RoundTransactionError(
+            "coset checkpoint policy renderer epoch changed"
+        )
     return {
         "code_sha256": hashlib.sha256(code.encode("utf-8")).hexdigest(),
-        "policy_catalog_sha256": policy.action_catalog_sha256,
+        "policy_sha256": rendered.policy_sha256,
+        "policy_catalog_sha256": str(catalog_sha256),
+        "representation_id": representation_id,
     }
 
 
@@ -4995,6 +5717,7 @@ def _coset_parent_program_identity(
     *,
     attempt_iteration: int,
     expected_catalog_sha256: Any,
+    expected_representation_id: str,
     base_checkpoint: dict[str, Any] | None,
     result_checkpoint: dict[str, Any],
     cache: dict[str, dict[str, Any]],
@@ -5048,6 +5771,7 @@ def _coset_parent_program_identity(
         policy_identity = _validated_live_coset_policy_code_identity(
             parent_code,
             expected_catalog_sha256=expected_catalog_sha256,
+            expected_representation_id=expected_representation_id,
         )
         identities.append({
             "code_sha256": policy_identity["code_sha256"],
@@ -5078,8 +5802,13 @@ def _validate_coset_search_portfolio_witness(
     invocation_binding: dict[str, Any],
     base_checkpoint: dict[str, Any] | None,
     result_checkpoint: dict[str, Any],
+    island_count: int,
+    expected_representation_id: str,
 ) -> None:
-    """Validate the schema-7 parent and four-island coset submission trace."""
+    """Validate the schema-7 parent and registered coset submission trace."""
+
+    if type(island_count) is not int or island_count < 1:
+        raise RoundTransactionError("coset witness island count is invalid")
 
     attempt_fields = {
         "iteration",
@@ -5113,7 +5842,7 @@ def _validate_coset_search_portfolio_witness(
             )
         expected_island = (
             iteration - 1
-        ) % COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+        ) % island_count
         if attempt["island_id"] != expected_island:
             raise RoundTransactionError(
                 "coset submission island schedule is inconsistent"
@@ -5122,6 +5851,7 @@ def _validate_coset_search_portfolio_witness(
             parent_program_id,
             attempt_iteration=iteration,
             expected_catalog_sha256=expected_catalog_sha256,
+            expected_representation_id=expected_representation_id,
             base_checkpoint=base_checkpoint,
             result_checkpoint=result_checkpoint,
             cache=parent_cache,
@@ -5138,6 +5868,7 @@ def _validate_coset_result_program_lineage(
     *,
     result_checkpoint: dict[str, Any],
     expected_catalog_sha256: Any,
+    expected_representation_id: str,
 ) -> None:
     """Bind a successful coset outcome back to its checkpointed parent."""
 
@@ -5178,6 +5909,7 @@ def _validate_coset_result_program_lineage(
     _validated_live_coset_policy_code_identity(
         code,
         expected_catalog_sha256=expected_catalog_sha256,
+        expected_representation_id=expected_representation_id,
     )
 
 
@@ -5347,11 +6079,19 @@ def _validate_search_portfolio_witness(
             raise RoundTransactionError(
                 "coset search portfolio cannot carry a BB portfolio witness"
             )
+        config_document = yaml.safe_load(config_path.read_text())
+        coset_marker = config_document[COSET_SEARCH_PORTFOLIO_CONFIG_KEY]
+        representation_id = coset_marker["representation_id"]
+        renderer_contract = coset_renderer_portfolio_contract(
+            representation_id
+        )
         _validate_coset_search_portfolio_witness(
             attempts,
             invocation_binding=invocation_binding,
             base_checkpoint=base_checkpoint,
             result_checkpoint=result_checkpoint,
+            island_count=int(renderer_contract["num_islands"]),
+            expected_representation_id=representation_id,
         )
         return True
     if witness_schema == EVOLUTION_SLICE_WITNESS_PREVIOUS_SCHEMA_VERSION:
@@ -5764,6 +6504,21 @@ def _validate_slice_witness(
         start_iteration=start_iteration,
         count=count,
     )
+    coset_representation_id: str | None = None
+    if coset_portfolio_witness:
+        config_document = yaml.safe_load(
+            Path(binding["config"]["path"]).read_text()
+        )
+        coset_marker = config_document.get(
+            COSET_SEARCH_PORTFOLIO_CONFIG_KEY
+        )
+        if not isinstance(coset_marker, dict) or not isinstance(
+            coset_marker.get("representation_id"), str
+        ):
+            raise RoundTransactionError(
+                "coset witness config representation is invalid"
+            )
+        coset_representation_id = coset_marker["representation_id"]
     checkpoint_preflight = witness.get("checkpoint_preflight")
     if witness_schema == EVOLUTION_SLICE_WITNESS_SCHEMA_VERSION:
         if base_checkpoint is None:
@@ -5916,13 +6671,18 @@ def _validate_slice_witness(
                     "checkpoint DSL migration root",
                 )
                 root_code = root_program.get("code")
-                historical_policy = _historical_coset_policy_v1_identity(
+                if coset_representation_id is None:
+                    raise RoundTransactionError(
+                        "checkpoint DSL migration has no renderer epoch"
+                    )
+                root_policy = _validated_live_coset_policy_code_identity(
                     root_code,
                     expected_catalog_sha256=invocation_binding.get(
                         "qcode_action_catalog_sha256"
                     ),
+                    expected_representation_id=coset_representation_id,
                 )
-                root_policy_sha256 = historical_policy["policy_sha256"]
+                root_policy_sha256 = root_policy["policy_sha256"]
                 observed_source_program_set_sha256 = (
                     _checkpoint_program_set_sha256(base_checkpoint)
                 )
@@ -5935,7 +6695,7 @@ def _validate_slice_witness(
                     ),
                     "source_last_iteration": base_checkpoint["last_iteration"],
                     "policy_sha256": root_policy_sha256,
-                    "code_sha256": historical_policy["code_sha256"],
+                    "code_sha256": root_policy["code_sha256"],
                     "contract_id": checkpoint_preflight["contract_id"],
                 }
                 expected_root_id = "coset-dsl-root-" + hashlib.sha256(
@@ -5962,7 +6722,7 @@ def _validate_slice_witness(
                     or root_program.get("language") != "json"
                     or root_policy_sha256
                     != checkpoint_preflight["root_policy_sha256"]
-                    or historical_policy["code_sha256"]
+                    or root_policy["code_sha256"]
                     != checkpoint_preflight["root_code_sha256"]
                     or not isinstance(root_metadata, dict)
                     or root_metadata.get("checkpoint_genome_epoch")
@@ -6056,6 +6816,7 @@ def _validate_slice_witness(
                     "OpenEvolve slice witness program identity is invalid"
                 )
             if coset_portfolio_witness:
+                assert coset_representation_id is not None
                 _validate_coset_result_program_lineage(
                     outcome,
                     attempts_by_iteration[iteration],
@@ -6063,6 +6824,7 @@ def _validate_slice_witness(
                     expected_catalog_sha256=invocation_binding.get(
                         "qcode_action_catalog_sha256"
                     ),
+                    expected_representation_id=coset_representation_id,
                 )
             witnessed_program_ids.add(program_id)
         else:
@@ -6311,6 +7073,7 @@ def _current_evolution_bindings(
         codex_identity=codex_identity,
         codex_version=codex_version,
         codex_cwd=codex_cwd,
+        launch_binding=launch,
     )
     _validate_invocation_binding(config, invocation, launch)
     return launch, invocation
@@ -6444,8 +7207,27 @@ def _validate_stored_binding_shape(
         Path(launch["config"]["path"]),
     )
     expected_invocation_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    feedback_launch_fields = (
+        launch_fields & set(COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS)
+    )
+    if feedback_launch_fields and feedback_launch_fields != set(
+        COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
+    ):
+        raise RoundTransactionError(
+            "coset negative-feedback launch binding is incomplete"
+        )
     if _flow_evaluator_kind(config) == "coset-two-block":
         expected_invocation_fields.update(COSET_EVOLUTION_INVOCATION_FIELDS)
+        if feedback_launch_fields:
+            expected_invocation_fields.update(
+                COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS
+            )
+        if _configured_coset_representation_id(config) == (
+            COSET_REPRESENTATION_ID_V3
+        ):
+            expected_invocation_fields.add(
+                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+            )
     if geometry_contract is not None:
         expected_invocation_fields.add(
             SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD,
@@ -6475,6 +7257,15 @@ def _validate_stored_binding_shape(
             raise RoundTransactionError(
                 "coset evolution evaluator/catalog binding changed"
             )
+        if feedback_launch_fields:
+            expected_feedback = _negative_feedback_invocation(config, launch)
+            if any(
+                invocation.get(name) != value
+                for name, value in expected_feedback.items()
+            ):
+                raise RoundTransactionError(
+                    "coset negative-feedback invocation binding changed"
+                )
     if invocation["model_names"] != [config.model]:
         raise RoundTransactionError("evolution model binding changed")
     if invocation["reasoning_effort"] != config.reasoning_effort:
@@ -6541,7 +7332,7 @@ def _binding_change_reason(
     changed.extend(
         f"invocation:{name}"
         for name in sorted(current_invocation)
-        if old_invocation[name] != current_invocation[name]
+        if old_invocation.get(name) != current_invocation[name]
     )
     return (
         "prepared OpenEvolve binding changed before source-ready: "
@@ -6677,8 +7468,34 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         command.extend(["--resume", base_checkpoint["path"]])
     if invocation_binding["codex_cli"]:
         command.append("--codex-cli")
+    if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(invocation_binding):
+        command.extend([
+            "--negative-feedback-live-archive",
+            invocation_binding["qcode_negative_feedback_live_archive_path"],
+            "--negative-feedback-snapshot",
+            invocation_binding["qcode_negative_feedback_snapshot_path"],
+            "--negative-feedback-snapshot-sha256",
+            invocation_binding["qcode_negative_feedback_snapshot_sha256"],
+            "--negative-feedback-archive-sha256",
+            invocation_binding["qcode_negative_feedback_archive_sha256"],
+            "--negative-feedback-manifest",
+            invocation_binding["qcode_negative_feedback_manifest_path"],
+            "--negative-feedback-manifest-sha256",
+            invocation_binding["qcode_negative_feedback_manifest_sha256"],
+            "--negative-feedback-epoch",
+            str(invocation_binding["qcode_negative_feedback_epoch"]),
+        ])
+    renderer_activation_descriptor = launch_binding.get(
+        "coset_renderer_activation"
+    )
+    if renderer_activation_descriptor is not None:
+        command.extend([
+            "--coset-renderer-activation",
+            renderer_activation_descriptor["path"],
+        ])
 
     child_environment = os.environ.copy()
+    child_environment.pop("QCODE_COSET_RENDERER_ACTIVATION_JSON", None)
     geometry_contract = invocation_binding.get(
         SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD,
     )
@@ -6694,6 +7511,13 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
     else:
         child_environment.pop("QCODE_CODEX_BIN", None)
         child_environment.pop("QCODE_CODEX_CWD", None)
+    if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(invocation_binding):
+        child_environment["QCODE_COSET_NEGATIVE_ARCHIVE_PATH"] = (
+            invocation_binding["qcode_negative_feedback_live_archive_path"]
+        )
+        child_environment["QCODE_COSET_NEGATIVE_ARCHIVE_SNAPSHOT_PATH"] = (
+            invocation_binding["qcode_negative_feedback_snapshot_path"]
+        )
     log_path = round_dir / "evolution.log"
     with tempfile.TemporaryDirectory(
         prefix="qcode-openevolve-pycache-"
@@ -10686,6 +11510,22 @@ class HumanizeFlow:
                 round_dir=round_dir,
                 candidate_rows=batch_rows,
             )
+        review_binding = _review_artifact_binding(
+            round_dir / "review.json",
+            review,
+        )
+        renderer_resolution_binding = None
+        if (
+            _flow_evaluator_kind(self.config) == "coset-two-block"
+            and _configured_coset_representation_id(self.config)
+            == COSET_REPRESENTATION_ID_V3
+        ):
+            renderer_resolution_binding = _seal_round_renderer_resolution(
+                round_number=number,
+                round_dir=round_dir,
+                review=review,
+                review_binding=review_binding,
+            )
         summary = {
             "round": number,
             "new_candidates": len(candidates),
@@ -10709,10 +11549,7 @@ class HumanizeFlow:
             "best_exact_fom": float(state.get("best_exact_fom", 0.0)),
             "review_verdict": review["verdict"],
             "review_summary": review["summary"],
-            "review_binding": _review_artifact_binding(
-                round_dir / "review.json",
-                review,
-            ),
+            "review_binding": review_binding,
             "failure_direction_feedback": failure_direction_feedback,
             "sealed_exact_audit": sealed_exact_audit,
         }
@@ -10724,6 +11561,10 @@ class HumanizeFlow:
             summary["candidate_diversity"] = candidate_diversity
         if search_oracle_feedback is not None:
             summary["search_oracle_feedback"] = search_oracle_feedback
+        if renderer_resolution_binding is not None:
+            summary[COSET_RENDERER_RESOLUTION_SUMMARY_FIELD] = (
+                renderer_resolution_binding
+            )
         regime = _replay_search_regime(
             [*state["rounds"], summary],
             rounds_root=round_dir.parent,
@@ -10918,6 +11759,18 @@ class HumanizeFlow:
                 raise UnresolvedAuditError(
                     "Stage 1 previously committed a representation-change "
                     "handoff with unresolved MILP candidate(s)"
+                )
+            return state
+        renderer_handoff_status = _validated_renderer_expansion_handoff(
+            state,
+            self.store.root / "rounds",
+        )
+        if renderer_handoff_status is not None:
+            self._write_run_meta(state)
+            if renderer_handoff_status == "incomplete-unresolved":
+                raise UnresolvedAuditError(
+                    "Stage 1 previously committed a non-executable renderer "
+                    "expansion handoff with unresolved candidate(s)"
                 )
             return state
         if trusted_wins and state.get("pending_round") is None:
@@ -11224,7 +12077,19 @@ class HumanizeFlow:
                     and final_state["search_regime"].get("status")
                     == SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE
                 )
-                should_stop = bool(trusted_wins) or representation_handoff
+                renderer_resolution = _validated_bound_renderer_resolution(
+                    final_state["rounds"][-1], round_dir.parent
+                )
+                renderer_handoff = bool(
+                    renderer_resolution is not None
+                    and renderer_resolution.get("status")
+                    == "representation_expansion_handoff"
+                )
+                should_stop = bool(
+                    trusted_wins
+                    or representation_handoff
+                    or renderer_handoff
+                )
                 if representation_handoff:
                     # These fields, the completed round summary, current_round,
                     # and removal of pending state are persisted below as one
@@ -11234,6 +12099,19 @@ class HumanizeFlow:
                         SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE
                     )
                     final_state["search_handoff_at_round"] = number
+                    final_state["status"] = (
+                        "incomplete-unresolved"
+                        if unresolved_count
+                        else "search-complete"
+                    )
+                if renderer_handoff:
+                    assert renderer_resolution is not None
+                    final_state["renderer_expansion_handoff_at_round"] = (
+                        number
+                    )
+                    final_state["renderer_expansion_handoff_sha256"] = (
+                        renderer_resolution["resolution_sha256"]
+                    )
                     final_state["status"] = (
                         "incomplete-unresolved"
                         if unresolved_count
@@ -11274,6 +12152,16 @@ class HumanizeFlow:
                         round_number=number,
                         status=final_state["status"],
                         unresolved=unresolved_count,
+                    )
+                if renderer_handoff:
+                    self.store.event(
+                        "search_renderer_expansion_handoff",
+                        round_number=number,
+                        status=final_state["status"],
+                        unresolved=unresolved_count,
+                        resolution_sha256=renderer_resolution[
+                            "resolution_sha256"
+                        ],
                     )
                 if should_stop:
                     break
@@ -11319,6 +12207,19 @@ class HumanizeFlow:
                 raise UnresolvedAuditError(
                     "Stage 1 committed a representation-change handoff with "
                     "unresolved MILP candidate(s)"
+                )
+            return state
+
+        renderer_handoff_status = _validated_renderer_expansion_handoff(
+            state,
+            self.store.root / "rounds",
+        )
+        if renderer_handoff_status is not None:
+            self._write_run_meta(state)
+            if renderer_handoff_status == "incomplete-unresolved":
+                raise UnresolvedAuditError(
+                    "Stage 1 committed a non-executable renderer expansion "
+                    "handoff with unresolved candidate(s)"
                 )
             return state
 

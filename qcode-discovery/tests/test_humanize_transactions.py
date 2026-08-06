@@ -215,7 +215,9 @@ def write_coset_launch_inputs(repo: Path) -> None:
 
 def test_v2_coset_managed_launch_binds_v2_catalog(tmp_path):
     project = Path(flow_module.__file__).resolve().parents[1]
-    context = tmp_path / "context.md"
+    round_dir = tmp_path / "round-001"
+    round_dir.mkdir()
+    context = round_dir / "context.md"
     context.write_text("v2 launch context\n")
     config = FlowConfig(
         repo_dir=project,
@@ -227,15 +229,16 @@ def test_v2_coset_managed_launch_binds_v2_catalog(tmp_path):
         milp_top=0,
     )
 
+    launch = flow_module._evolution_launch_binding(
+        config,
+        context_path=context,
+    )
     invocation = flow_module._fresh_invocation_binding(
         config,
         codex_identity=None,
         codex_version=None,
         codex_cwd=None,
-    )
-    launch = flow_module._evolution_launch_binding(
-        config,
-        context_path=context,
+        launch_binding=launch,
     )
     validated = flow_module._validate_invocation_binding(
         config,

@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import (
@@ -160,6 +162,7 @@ class AuditConfig:
     state_dir: Path
     solver_timeout_s: float = 300
     solver_workers: int = 4
+    compact_low_weight_max_weight: int = 4
     seed: int = 0
     resume: bool = True
     certify: bool = True
@@ -1721,6 +1724,12 @@ def state_paths(
     token = safe_digest(canonical_digest)
     return {
         "audit": state_dir / "xor" / f"{token}.json",
+        "compact_low_weight": (
+            state_dir / "compact-low-weight-v1" / f"{token}.json"
+        ),
+        "compact_two_block": (
+            state_dir / "compact-two-block-v1" / f"{token}.json"
+        ),
         "certificate": state_dir / "certificates" / f"{token}.json",
         "certificate_metadata": (
             state_dir / "certificates" / f"{token}.cache.json"
@@ -1818,6 +1827,500 @@ def _stage2_audit_cache_binding(
         **payload,
         "binding_sha256": _json_sha256(payload),
     }
+
+
+def _binary_matrix_sha256(name: str, value: np.ndarray) -> str:
+    """Hash one binary matrix without trusting construction metadata."""
+
+    matrix = np.ascontiguousarray(np.asarray(value, dtype=np.uint8) & 1)
+    digest = hashlib.sha256()
+    digest.update(name.encode("ascii"))
+    digest.update(b"\0")
+    digest.update(
+        json.dumps(list(matrix.shape), separators=(",", ":")).encode()
+    )
+    digest.update(b"\0")
+    digest.update(matrix.tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def _compact_low_weight_cache_binding(
+    candidate: Mapping[str, Any],
+    matrices: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+    *,
+    max_weight: int,
+) -> dict[str, Any]:
+    """Bind the compact prefilter to source, matrices, and exact threshold."""
+
+    from evaluation.construction import construction_source_fingerprint
+
+    hx, hz, lx, lz = matrices
+    source_inputs = {
+        "candidate_pool": certificate_source_fingerprint(),
+        "construction": construction_source_fingerprint(),
+        "low_weight_oracle": _file_sha256(
+            PROJECT / "evaluation" / "low_weight_oracle.py"
+        ),
+        "distance_sat": _file_sha256(
+            PROJECT / "evaluation" / "distance_sat.py"
+        ),
+        "two_block_sparse_kernel_oracle": _file_sha256(
+            PROJECT / "evaluation" / "two_block_sparse_kernel_oracle.py"
+        ),
+    }
+    if any(not _is_sha256(value) for value in source_inputs.values()):
+        raise ValueError("compact low-weight source dependencies are unavailable")
+    payload = {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-compact-low-weight-cache",
+        "candidate_sha256": _json_sha256(candidate),
+        "required_distance": int(candidate["required_distance"]),
+        "max_weight": int(max_weight),
+        "matrix_sha256": {
+            name: _binary_matrix_sha256(name, matrix)
+            for name, matrix in zip(
+                ("hx", "hz", "lx", "lz"),
+                (hx, hz, lx, lz),
+                strict=True,
+            )
+        },
+        "source_fingerprint": _json_sha256(source_inputs),
+        "solver_runtime": solver_runtime_fingerprint(),
+    }
+    return {**payload, "binding_sha256": _json_sha256(payload)}
+
+
+def _seal_compact_low_weight_cache(
+    binding: Mapping[str, Any],
+    evidence: Mapping[str, Any],
+) -> dict[str, Any]:
+    envelope = {
+        "schema_version": 1,
+        "kind": "qldpc-stage2-compact-low-weight-cache",
+        "binding": dict(binding),
+        "evidence": dict(evidence),
+    }
+    return {**envelope, "cache_sha256": _json_sha256(envelope)}
+
+
+def _load_compact_low_weight_cache(
+    path: Path,
+    binding: Mapping[str, Any],
+    matrices: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+) -> dict[str, Any] | None:
+    """Load only a self-hashed, current-source, exact-matrix oracle cache."""
+
+    from evaluation.low_weight_oracle import verify_css_low_weight_oracle
+
+    cached = _load_json_object(path)
+    if not isinstance(cached, Mapping):
+        return None
+    unsigned = dict(cached)
+    cache_sha256 = unsigned.pop("cache_sha256", None)
+    if (
+        cached.get("schema_version") != 1
+        or cached.get("kind") != "qldpc-stage2-compact-low-weight-cache"
+        or cache_sha256 != _json_sha256(unsigned)
+        or cached.get("binding") != dict(binding)
+    ):
+        return None
+    evidence = cached.get("evidence")
+    if not isinstance(evidence, Mapping):
+        return None
+    hx, hz, lx, lz = matrices
+    try:
+        failures = verify_css_low_weight_oracle(
+            evidence,
+            hx,
+            hz,
+            lx,
+            lz,
+            require_current_source=True,
+        )
+    except (TypeError, ValueError, RuntimeError):
+        return None
+    return None if failures else dict(evidence)
+
+
+def _seal_compact_two_block_cache(
+    binding: Mapping[str, Any],
+    evidence: Mapping[str, Any],
+) -> dict[str, Any]:
+    envelope = {
+        "schema_version": 1,
+        "kind": "qldpc-stage2-compact-two-block-cache",
+        "binding": dict(binding),
+        "evidence": dict(evidence),
+    }
+    return {**envelope, "cache_sha256": _json_sha256(envelope)}
+
+
+def _load_compact_two_block_cache(
+    path: Path,
+    binding: Mapping[str, Any],
+    matrices: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
+) -> dict[str, Any] | None:
+    from evaluation.two_block_sparse_kernel_oracle import (
+        verify_two_block_sparse_kernel_oracle,
+    )
+
+    cached = _load_json_object(path)
+    if not isinstance(cached, Mapping):
+        return None
+    unsigned = dict(cached)
+    cache_sha256 = unsigned.pop("cache_sha256", None)
+    if (
+        cached.get("schema_version") != 1
+        or cached.get("kind") != "qldpc-stage2-compact-two-block-cache"
+        or cache_sha256 != _json_sha256(unsigned)
+        or cached.get("binding") != dict(binding)
+    ):
+        return None
+    evidence = cached.get("evidence")
+    if not isinstance(evidence, Mapping):
+        return None
+    try:
+        failures = verify_two_block_sparse_kernel_oracle(
+            evidence,
+            *matrices,
+            require_current_source=True,
+        )
+    except (TypeError, ValueError, RuntimeError):
+        return None
+    return None if failures else dict(evidence)
+
+
+def _compact_low_weight_result(
+    *,
+    canonical_digest: str,
+    cache_path: Path,
+    evidence: Mapping[str, Any],
+    cache_hit: bool,
+    resumed_sectors: int,
+    required_distance: int,
+    two_block_evidence: Mapping[str, Any],
+    two_block_cache_path: Path,
+    two_block_cache_hit: bool,
+    two_block_verification_failures: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Map proof-safe oracle semantics onto the Stage-2 state machine."""
+
+    outcome = str(evidence.get("outcome"))
+    max_weight = int(evidence["max_weight"])
+    sectors = evidence.get("sectors")
+    completed_sectors = sum(
+        isinstance(item, Mapping) and item.get("outcome") in {"SAT", "UNSAT"}
+        for item in sectors.values()
+    ) if isinstance(sectors, Mapping) else 0
+    ladder = {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-compact-low-weight-gate",
+        "outcome": outcome,
+        "max_weight": max_weight,
+        "distance_lower_bound": evidence.get("distance_lower_bound"),
+        "witness": evidence.get("witness"),
+        "evidence_sha256": evidence.get("evidence_sha256"),
+        "cache_path": str(cache_path),
+        "cache_hit": cache_hit,
+        "resumed_sectors": resumed_sectors,
+        "decision_complete": evidence.get("decision_complete") is True,
+        "retryable": evidence.get("retryable") is True,
+    }
+    common = {
+        "canonical_digest": canonical_digest,
+        "completed_sectors": completed_sectors,
+        "resumed_sectors": resumed_sectors,
+        "compact_low_weight_sat_ladder": ladder,
+        "two_block_sparse_kernel_oracle": dict(two_block_evidence),
+        "two_block_sparse_kernel_cache": {
+            "path": str(two_block_cache_path),
+            "cache_hit": two_block_cache_hit,
+        },
+    }
+    if two_block_verification_failures:
+        common["two_block_sparse_kernel_verification_failures"] = list(
+            two_block_verification_failures
+        )
+    if outcome == "SAT":
+        witness = evidence.get("witness")
+        weight = witness.get("weight") if isinstance(witness, Mapping) else None
+        if (
+            isinstance(weight, bool)
+            or not isinstance(weight, int)
+            or not 1 <= weight < required_distance
+        ):
+            return {
+                **common,
+                "status": "UNRESOLVED",
+                "retry_required": True,
+                "reason": "compact SAT evidence has no threshold-rejecting witness",
+            }
+        return {
+            **common,
+            "status": "REJECTED",
+            "retry_required": False,
+            "distance_upper_bound": weight,
+            "threshold_rejection_proven": True,
+            "threshold_proof_source": "compact-low-weight-sat",
+        }
+    if outcome == "UNSAT":
+        lower_bound = evidence.get("distance_lower_bound")
+        if lower_bound != max_weight + 1:
+            return {
+                **common,
+                "status": "UNRESOLVED",
+                "retry_required": True,
+                "reason": "compact UNSAT evidence has no exact lower-bound semantics",
+            }
+        return {
+            **common,
+            "status": "UNRESOLVED",
+            "retry_required": False,
+            "distance_lower_bound": lower_bound,
+            "deferred_backend": "generic-global-sat",
+            "reason": (
+                "compact low-weight gate passed; Stage 3 must extend the "
+                "lower bound"
+            ),
+        }
+    return {
+        **common,
+        "status": "UNRESOLVED",
+        "retry_required": True,
+        "reason": "compact low-weight gate is UNKNOWN and must be retried",
+    }
+
+
+def _audit_compact_low_weight_candidate(
+    candidate: Mapping[str, Any],
+    config: AuditConfig,
+    *,
+    canonical_digest: str,
+    cache_path: Path,
+    two_block_cache_path: Path,
+) -> dict[str, Any]:
+    """Require one complete low-weight rung before compact Stage-3 entry."""
+
+    from evaluation.construction import build_css_code_from_claim
+    from evaluation.distance_milp import get_code_matrices
+    from evaluation.low_weight_oracle import (
+        evaluate_css_low_weight_oracle,
+        verify_css_low_weight_oracle,
+    )
+    from evaluation.two_block_sparse_kernel_oracle import (
+        evaluate_two_block_sparse_kernel_oracle,
+        verify_two_block_sparse_kernel_oracle,
+    )
+
+    configured_threshold = config.compact_low_weight_max_weight
+    if (
+        isinstance(configured_threshold, bool)
+        or not isinstance(configured_threshold, int)
+        or configured_threshold < 1
+    ):
+        raise ValueError("compact low-weight max weight must be positive")
+    required_distance = int(candidate["required_distance"])
+    if required_distance < 1:
+        raise ValueError("required_distance must be positive")
+    max_weight = min(configured_threshold, required_distance - 1)
+    single_block_max_weight = required_distance - 1
+
+    code = build_css_code_from_claim(candidate)
+    rebuilt_n = int(code.num_qudits)
+    rebuilt_k = int(code.dimension)
+    if (
+        (type(candidate.get("n")) is int and candidate["n"] != rebuilt_n)
+        or (type(candidate.get("k")) is int and candidate["k"] != rebuilt_k)
+    ):
+        raise ValueError("compact candidate parameters changed during oracle rebuild")
+    matrices = tuple(
+        np.asarray(value, dtype=np.uint8) & 1
+        for value in get_code_matrices(code)
+    )
+    if len(matrices) != 4:
+        raise ValueError("compact CSS matrix replay did not return four matrices")
+    typed_matrices = (matrices[0], matrices[1], matrices[2], matrices[3])
+    binding = _compact_low_weight_cache_binding(
+        candidate,
+        typed_matrices,
+        max_weight=max_weight,
+    )
+    two_block_payload = dict(binding)
+    two_block_payload.pop("binding_sha256", None)
+    two_block_payload["gate"] = "qldpc-stage2-compact-two-block-cache"
+    two_block_payload["max_weight"] = single_block_max_weight
+    two_block_binding = {
+        **two_block_payload,
+        "binding_sha256": _json_sha256(two_block_payload),
+    }
+    two_block = (
+        _load_compact_two_block_cache(
+            two_block_cache_path,
+            two_block_binding,
+            typed_matrices,
+        )
+        if config.resume
+        else None
+    )
+    two_block_cache_hit = bool(
+        two_block is not None
+        and two_block.get("outcome") in {"SAT", "NO_SINGLE_BLOCK_WITNESS"}
+    )
+    terminal_queries = {}
+    if two_block is not None and isinstance(two_block.get("queries"), Mapping):
+        terminal_queries = {
+            str(query_id): dict(query)
+            for query_id, query in two_block["queries"].items()
+            if (
+                isinstance(query, Mapping)
+                and query.get("outcome") in {"SAT", "UNSAT"}
+            )
+        }
+    if not two_block_cache_hit:
+        two_block = evaluate_two_block_sparse_kernel_oracle(
+            *typed_matrices,
+            max_weight=single_block_max_weight,
+            hard_timeout_s=positive_wall_timeout(
+                config.solver_timeout_s,
+                "compact two-block sparse-kernel timeout",
+            ),
+            terminal_queries=terminal_queries,
+        )
+        two_block_failures = verify_two_block_sparse_kernel_oracle(
+            two_block,
+            *typed_matrices,
+            require_current_source=True,
+        )
+        if not two_block_failures:
+            atomic_write_json(
+                two_block_cache_path,
+                _seal_compact_two_block_cache(two_block_binding, two_block),
+            )
+    else:
+        two_block_failures = []
+    assert two_block is not None
+    two_block_outcome = (
+        two_block.get("outcome") if not two_block_failures else "UNKNOWN"
+    )
+    if two_block_outcome == "SAT":
+        witness = two_block.get("witness")
+        weight = witness.get("weight") if isinstance(witness, Mapping) else None
+        if (
+            isinstance(weight, bool)
+            or not isinstance(weight, int)
+            or not 1 <= weight < required_distance
+        ):
+            return {
+                "canonical_digest": canonical_digest,
+                "status": "UNRESOLVED",
+                "retry_required": True,
+                "completed_sectors": 0,
+                "resumed_sectors": len(terminal_queries),
+                "two_block_sparse_kernel_oracle": dict(two_block),
+                "reason": "single-block SAT witness does not reject the threshold",
+            }
+        return {
+            "canonical_digest": canonical_digest,
+            "status": "REJECTED",
+            "retry_required": False,
+            "completed_sectors": 0,
+            "resumed_sectors": len(terminal_queries),
+            "distance_upper_bound": weight,
+            "threshold_rejection_proven": True,
+            "threshold_proof_source": "two-block-sparse-kernel-oracle",
+            "two_block_sparse_kernel_oracle": dict(two_block),
+            "two_block_sparse_kernel_cache": {
+                "path": str(two_block_cache_path),
+                "cache_hit": two_block_cache_hit,
+            },
+        }
+    # UNKNOWN is advisory here: this restricted oracle is an acceleration,
+    # not the trust boundary.  The mandatory unrestricted rung below still
+    # runs and alone decides whether Stage 3 may receive the candidate.
+
+    cached = (
+        _load_compact_low_weight_cache(cache_path, binding, typed_matrices)
+        if config.resume
+        else None
+    )
+    if cached is not None and cached.get("outcome") in {"SAT", "UNSAT"}:
+        return _compact_low_weight_result(
+            canonical_digest=canonical_digest,
+            cache_path=cache_path,
+            evidence=cached,
+            cache_hit=True,
+            resumed_sectors=0,
+            required_distance=required_distance,
+            two_block_evidence=two_block,
+            two_block_cache_path=two_block_cache_path,
+            two_block_cache_hit=two_block_cache_hit,
+            two_block_verification_failures=tuple(two_block_failures),
+        )
+
+    terminal_sectors = {}
+    if cached is not None and isinstance(cached.get("sectors"), Mapping):
+        terminal_sectors = {
+            str(sector): dict(evidence)
+            for sector, evidence in cached["sectors"].items()
+            if (
+                sector in {"X", "Z"}
+                and isinstance(evidence, Mapping)
+                and evidence.get("outcome") in {"SAT", "UNSAT"}
+            )
+        }
+    evidence = evaluate_css_low_weight_oracle(
+        *typed_matrices,
+        max_weight=max_weight,
+        hard_timeout_s=positive_wall_timeout(
+            config.solver_timeout_s,
+            "compact low-weight timeout",
+        ),
+        terminal_sectors=terminal_sectors,
+    )
+    failures = verify_css_low_weight_oracle(
+        evidence,
+        *typed_matrices,
+        require_current_source=True,
+    )
+    if failures:
+        return {
+            "canonical_digest": canonical_digest,
+            "status": "UNRESOLVED",
+            "retry_required": True,
+            "completed_sectors": 0,
+            "resumed_sectors": len(terminal_sectors),
+            "compact_low_weight_sat_ladder": {
+                "schema_version": 1,
+                "gate": "qldpc-stage2-compact-low-weight-gate",
+                "outcome": "UNKNOWN",
+                "max_weight": max_weight,
+                "decision_complete": False,
+                "retryable": True,
+                "cache_path": str(cache_path),
+                "verification_failures": failures,
+            },
+            "two_block_sparse_kernel_oracle": dict(two_block),
+            "two_block_sparse_kernel_verification_failures": list(
+                two_block_failures
+            ),
+            "reason": "compact low-weight evidence failed current-source replay",
+        }
+    atomic_write_json(
+        cache_path,
+        _seal_compact_low_weight_cache(binding, evidence),
+    )
+    return _compact_low_weight_result(
+        canonical_digest=canonical_digest,
+        cache_path=cache_path,
+        evidence=evidence,
+        cache_hit=False,
+        resumed_sectors=len(terminal_sectors),
+        required_distance=required_distance,
+        two_block_evidence=two_block,
+        two_block_cache_path=two_block_cache_path,
+        two_block_cache_hit=two_block_cache_hit,
+        two_block_verification_failures=tuple(two_block_failures),
+    )
 
 
 def _load_json_object(path: Path) -> dict[str, Any] | None:
@@ -4255,19 +4758,17 @@ def audit_candidate(
         }
 
     if isinstance(candidate.get("construction"), Mapping):
-        # Stage 2 has already performed the authoritative matrix rebuild,
-        # Tanner canonicalization, within-pool replay and registry replay.
-        # Its legacy sector oracle is BB-translation-specific; compact
-        # constructions deliberately remain unresolved for the generic
-        # global SAT Stage 3 instead of manufacturing BB symmetry evidence.
-        return {
-            "canonical_digest": canonical_digest,
-            "status": "UNRESOLVED",
-            "completed_sectors": 0,
-            "resumed_sectors": 0,
-            "deferred_backend": "generic-global-sat",
-            "reason": "compact construction requires Stage 3 generic SAT",
-        }
+        # Compact constructions cannot use the BB translation-specific XOR
+        # audit below.  They must nevertheless complete a source/matrix-bound
+        # low-weight rung here: SAT is a terminal rejection, UNSAT is the only
+        # route to generic Stage 3, and UNKNOWN remains a Stage-2 retry.
+        return _audit_compact_low_weight_candidate(
+            candidate,
+            config,
+            canonical_digest=canonical_digest,
+            cache_path=paths["compact_low_weight"],
+            two_block_cache_path=paths["compact_two_block"],
+        )
 
     symmetry = symmetry_checker(candidate)
     if symmetry.get("verified") is not True:
@@ -4363,13 +4864,16 @@ def _audit_worker(
 
 
 def _candidate_hard_timeout(config: AuditConfig) -> float:
-    """Bound both sequential X/Z sector calls for one Stage 2 candidate."""
+    """Bound either legacy X/Z work or compact restricted+global oracles."""
 
     configured = config.candidate_hard_timeout_s
     if configured is not None:
         return positive_wall_timeout(configured, "candidate hard timeout")
-    # Each candidate has exactly two sequential sector solves.  The fixed
-    # allowance covers reconstruction and atomic checkpoint writes.
+    # Legacy BB candidates have two sequential sector solves. Compact
+    # candidates have one shared-deadline four-query restricted oracle plus
+    # one shared-deadline unrestricted oracle. Thus neither path receives
+    # more than two full solver budgets; the fixed allowance covers rebuilds
+    # and atomic checkpoint writes.
     return 2.0 * positive_wall_timeout(
         config.solver_timeout_s, "solver timeout"
     ) + 5.0
@@ -4408,6 +4912,38 @@ def _stage2_hard_wall_result(
         identity = candidate_identity(candidate)
     digest = str(identity["canonical_digest"])
     path = state_paths(config.state_dir, digest)["audit"]
+    compact = isinstance(candidate.get("construction"), Mapping)
+    if compact:
+        compact_path = state_paths(config.state_dir, digest)[
+            "compact_low_weight"
+        ]
+        return {
+            "canonical_digest": digest,
+            "status": "UNRESOLVED",
+            "retry_required": True,
+            "completed_sectors": 0,
+            "resumed_sectors": 0,
+            "hard_wall": {
+                "timed_out": not peer_timeout,
+                "peer_timeout_interruption": peer_timeout,
+                "candidate_timeout_s": hard_timeout_s,
+            },
+            "compact_low_weight_sat_ladder": {
+                "schema_version": 1,
+                "gate": "qldpc-stage2-compact-low-weight-gate",
+                "outcome": "UNKNOWN",
+                "max_weight": min(
+                    int(config.compact_low_weight_max_weight),
+                    int(candidate["required_distance"]) - 1,
+                ),
+                "decision_complete": False,
+                "retryable": True,
+                "cache_path": str(compact_path),
+                "hard_wall_timeout": not peer_timeout,
+                "peer_timeout_interruption": peer_timeout,
+            },
+            "reason": "compact low-weight worker was interrupted and must retry",
+        }
     artifact = _load_json_object(path)
     replayed_sectors: list[dict[str, Any]] = []
     replay_status = "UNRESOLVED"
@@ -4926,6 +5462,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=300)
     parser.add_argument("--candidate-workers", type=int, default=2)
     parser.add_argument("--solver-workers", type=int, default=4)
+    parser.add_argument(
+        "--compact-low-weight-max-weight",
+        type=int,
+        default=4,
+        help=(
+            "mandatory compact-coset low-weight gate; only a complete UNSAT "
+            "decision through this weight may enter Stage 3"
+        ),
+    )
     parser.add_argument("--certificate-workers", type=int, default=1)
     parser.add_argument("--certificate-solver-workers", type=int, default=1)
     parser.add_argument("--max-total-workers", type=int, default=8)
@@ -5008,6 +5553,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.top < 0:
         parser.error("top must be non-negative")
+    if args.compact_low_weight_max_weight < 1:
+        parser.error("compact-low-weight-max-weight must be positive")
     for name in (
         "timeout",
         "certificate_timeout_per_logical",
@@ -5111,6 +5658,7 @@ def main(argv: list[str] | None = None) -> int:
         state_dir=args.state_dir,
         solver_timeout_s=args.timeout,
         solver_workers=args.solver_workers,
+        compact_low_weight_max_weight=args.compact_low_weight_max_weight,
         seed=args.seed,
         resume=args.resume,
         certify=args.certify,
@@ -5173,6 +5721,10 @@ def main(argv: list[str] | None = None) -> int:
         and result.get("certificate", {}).get("verification_passed") is True
         for result in results
     )
+    retry_required = bool(
+        any(result.get("retry_required") is True for result in results)
+        or any(result.get("status") == "ERROR" for result in results)
+    )
     summary = {
         "schema_version": 1,
         "gate": "qldpc-proof-oriented-candidate-pool",
@@ -5224,6 +5776,10 @@ def main(argv: list[str] | None = None) -> int:
             },
         },
         "certify": args.certify,
+        "compact_low_weight_max_weight": (
+            args.compact_low_weight_max_weight
+        ),
+        "retry_required": retry_required,
         "status_counts": status_counts,
         "certified_wins": certified,
         "certificate_operational_errors": sum(
@@ -5245,8 +5801,7 @@ def main(argv: list[str] | None = None) -> int:
     atomic_write_json(args.summary_output, summary)
     print(json.dumps(summary, indent=2))
     return 0 if not (
-        any(result["status"] == "ERROR" for result in results)
-        or summary["certificate_operational_errors"]
+        retry_required or summary["certificate_operational_errors"]
     ) else 2
 
 

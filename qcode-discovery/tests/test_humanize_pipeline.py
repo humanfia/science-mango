@@ -213,6 +213,25 @@ class ScenarioRunner:
             }
             if stage == "stage2":
                 summary["certificate_operational_errors"] = plan["operational_errors"]
+                explicit_result_retry = any(
+                    result.get("retry_required") is True
+                    for result in results
+                )
+                derived_retry_required = bool(
+                    plan["operational_errors"]
+                    or any(
+                        result.get("retry_required") is True
+                        or result.get("status") == "ERROR"
+                        for result in results
+                    )
+                )
+                summary["retry_required"] = (
+                    derived_retry_required
+                    if plan["retry_required"] is None
+                    else plan["retry_required"]
+                )
+                if plan["returncode"] is None and explicit_result_retry:
+                    returncode = 2
                 summary["canonicalization_errors"] = plan[
                     "canonicalization_errors"
                 ]
@@ -2218,6 +2237,102 @@ def test_proof_retry_win_stops_before_later_budgets(tmp_path):
         1,
         2,
     ]
+
+
+def test_compact_low_weight_unknown_retries_stage2_without_entering_stage3(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = replace(
+        _config(repo, candidates, run_id="compact-oracle-unknown"),
+        proof_retry_max_attempts=1,
+        proof_retry_backoff_seconds=0,
+    )
+    unknown = {
+        "canonical_digest": "compact-unknown",
+        "status": "UNRESOLVED",
+        "retry_required": True,
+        "compact_low_weight_sat_ladder": {
+            "outcome": "UNKNOWN",
+            "max_weight": 4,
+            "retryable": True,
+        },
+    }
+    runner = ScenarioRunner(stage2=[_plan([unknown])])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "INCOMPLETE"
+    assert runner.counts["stage2"] == 1
+    assert runner.counts["stage3"] == 0
+    assert any(
+        item.get("code") == "STAGE2_COMPACT_LOW_WEIGHT_RETRY"
+        for item in state["result"]["proof_incompleteness"]["reasons"]
+    )
+
+
+@pytest.mark.parametrize("compact_ladder", [None, {"outcome": "NOT_RUN"}])
+def test_compact_not_run_cannot_enter_stage3(
+    tmp_path,
+    compact_ladder,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="compact-not-run")
+    result = {
+        "canonical_digest": "compact-not-run",
+        "status": "UNRESOLVED",
+        "retry_required": False,
+        "two_block_sparse_kernel_oracle": {
+            "outcome": "NO_SINGLE_BLOCK_WITNESS",
+        },
+    }
+    if compact_ladder is not None:
+        result["compact_low_weight_sat_ladder"] = compact_ladder
+    runner = ScenarioRunner(stage2=[_plan([result])])
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert runner.counts["stage3"] == 0
+
+
+def test_sparse_unknown_with_unrestricted_unsat_may_enter_stage3(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="sparse-unknown-global-unsat")
+    digest = "sparse-unknown-global-unsat"
+    stage2_result = {
+        "canonical_digest": digest,
+        "status": "UNRESOLVED",
+        "retry_required": False,
+        "distance_lower_bound": 5,
+        "two_block_sparse_kernel_oracle": {"outcome": "UNKNOWN"},
+        "compact_low_weight_sat_ladder": {
+            "outcome": "UNSAT",
+            "max_weight": 4,
+        },
+    }
+    runner = ScenarioRunner(
+        stage2=[_plan([stage2_result])],
+        stage3=[_plan([{"canonical_digest": digest, "status": "REJECTED"}])],
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    assert runner.counts["stage3"] == 1
 
 
 def test_proof_retry_retries_hard_wall_error_then_stops_on_win(tmp_path):

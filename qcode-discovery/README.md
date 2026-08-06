@@ -438,14 +438,19 @@ stays in audit artifacts and cannot select a template, alter a proof gate, or
 change the child identity.  Non-CSS PBB remains blocked because the current
 Stage 2/3 and strict release gates accept CSS `(A,B)` claims only.
 
-The source-bound coset-action search has a separate fresh-run template at
-`configs/five_stage_campaign.coset_two_block_actions_v2.json`. Its immutable
+The source-bound coset-action search has a fresh renderer-v3 template at
+`configs/five_stage_campaign.coset_two_block_actions_v3.json`. Its immutable
 catalog contains 45 nonnormal actions and one D36 regular control; the typed
 policy renders 384 candidates across all 46 lanes, and Stage 1 advances a
-bounded `4,6,...,candidate-cutoff` proof ladder. This v2 search representation
-must not resume a v1 OpenEvolve checkpoint. Frozen v1 compact constructions,
-release artifacts, archive rows, and already committed transaction evidence
-remain replayable, but the current live mutation/search DSL is v2-only.
+bounded `4,6,...,candidate-cutoff` proof ladder. Renderer v3 admits the
+source-whitelisted `2+4`, `4+2`, `2+3`, `3+2`, and `3+3` support splits. A
+reviewer selection is sealed into the immediately following round's launch,
+preflight, and checkpoint identity. Unknown action, cover, or protograph
+catalog IDs produce a non-executable expansion handoff rather than loading
+reviewer-supplied code. The v3 search representation must start with a fresh
+run id and cannot resume a v2 checkpoint. The v2 campaign template remains
+available only for frozen replay; existing compact constructions, release
+artifacts, archive rows, and committed transaction evidence remain readable.
 
 The opt-in twisted-torus representation extends the BB outer quotient from
 the rectangular relations `x^ell = y^m = 1` to

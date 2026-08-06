@@ -47,12 +47,9 @@ from evaluation.evaluator import (
 )
 from evaluation.final_gate import minimum_winning_distance
 from evolve.coset_search_contract import (
-    COSET_BATCH_ORBIT_PROFILE_METRIC,
     COSET_EVALUATOR_KIND,
     COSET_MAP_SCHEMA_METRIC,
     COSET_MAP_SCHEMA_VERSION,
-    COSET_NONNORMAL_LANE_METRIC,
-    COSET_NORMAL_LANE_METRIC,
     COSET_PROOF_BATCH_WALL_TIMEOUT_S,
     COSET_PROOF_CACHE_DIRECTORY,
     COSET_PROOF_LADDER_SCHEMA_VERSION,
@@ -67,16 +64,28 @@ from evolve.coset_search_contract import (
     TARGET_FOM,
     action_search_view,
     action_search_views,
-    candidate_digest,
-    coset_batch_map_descriptor,
-    normalize_candidate,
+    coset_batch_map_descriptor_registered,
+    coset_candidate_digest,
+    coset_support_orbit_bin,
+    normalize_coset_candidate,
     quota_by_normality,
-    support_orbit_bin,
 )
 from evolve.coset_mutation_preflight import (
     CosetMutationRuntimeError,
     InvalidCosetMutation,
     preflight_coset_policy,
+)
+from evolve.coset_negative_archive import (
+    annotate_rows as _annotate_negative_archive_rows,
+    configured_stage2_paths as _configured_stage2_negative_paths,
+    configured_stage3_paths as _configured_stage3_negative_paths,
+    feedback_lines as _negative_archive_feedback_lines,
+    ingest_stage1_rows as _archive_stage1_negative_rows,
+    ingest_stage2_paths as _archive_stage2_negative_paths,
+    ingest_stage3_paths as _archive_stage3_negative_paths,
+    load_archive as _load_negative_archive,
+    resolve_archive_path as _resolve_negative_archive_path,
+    resolve_snapshot_path as _resolve_negative_snapshot_path,
 )
 
 
@@ -95,6 +104,7 @@ PREFLIGHT_ACTION_STRATA_METRIC = "winner_preflight_action_strata"
 MAX_ORACLE_CANDIDATES = COSET_PROOF_MAX_CANDIDATES_PER_BATCH
 COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
 COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
+COSET_TYPED_DSL_GENOME_FORMAT_ID_V3 = 2.0
 _PROOF_CACHE_KIND = "qcode-coset-stage1-proof-cache"
 _PROOF_CACHE_SCHEMA_VERSION = 2
 _PROOF_CACHE_COMMIT_KIND = "qcode-coset-stage1-proof-cache-commit"
@@ -104,6 +114,48 @@ _ORACLE_RUNG_WORKER_MAX_BYTES = 64 * 1024 * 1024
 _ORACLE_RUNG_KILL_GRACE_S = 0.25
 _ORACLE_INITIAL_TIMEOUT_S = 7.5
 _ORACLE_UNKNOWN_RETRY_BACKOFF_S = 1.0
+
+
+def _negative_feedback_paths() -> tuple[Path | None, Path | None]:
+    """Return the mutable write target and immutable scoring snapshot."""
+
+    live = _resolve_negative_archive_path()
+    return live, _resolve_negative_snapshot_path(live)
+
+
+def _archive_and_annotate_negative_rows(
+    rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Append verified evidence to live state and score from the snapshot."""
+
+    live_archive_path, snapshot_path = _negative_feedback_paths()
+    archive_events_added = 0
+    stage2_paths = _configured_stage2_negative_paths()
+    if stage2_paths:
+        stage2_summary = _archive_stage2_negative_paths(
+            live_archive_path, stage2_paths
+        )
+        archive_events_added += int(stage2_summary["events_added"])
+    stage3_paths = _configured_stage3_negative_paths()
+    if stage3_paths:
+        stage3_summary = _archive_stage3_negative_paths(
+            live_archive_path, stage3_paths
+        )
+        archive_events_added += int(stage3_summary["events_added"])
+    verified_negative_rows = [
+        row for row in rows
+        if row.get("oracle_outcome") == "SAT"
+        and row.get("threshold_rejected") is True
+        and isinstance(row.get("low_weight_oracle"), Mapping)
+    ]
+    if live_archive_path is not None and verified_negative_rows:
+        stage1_summary = _archive_stage1_negative_rows(
+            live_archive_path, verified_negative_rows
+        )
+        archive_events_added += int(stage1_summary["events_added"])
+    summary = _annotate_negative_archive_rows(snapshot_path, rows)
+    summary["events_added"] = archive_events_added
+    return summary
 _ORACLE_FRONTIER_WIDTH = 2
 _PROOF_CACHE_MAX_BYTES = 64 * 1024 * 1024
 _PROOF_EVALUATION_LOCAL = threading.local()
@@ -233,10 +285,12 @@ def _stage2_construction(candidate: Mapping[str, Any]) -> dict[str, Any]:
 
     from evaluation.coset_action_catalog import V2_CATALOG_ID
 
-    normalized = normalize_candidate(candidate)
+    normalized = normalize_coset_candidate(candidate)
     construction = {
         "kind": "coset-two-block-v2",
-        "representation_id": normalized["representation_id"],
+        # Search renderer versions do not alter the frozen mathematical
+        # construction schema consumed by Stage 2 and the release verifier.
+        "representation_id": "css-coset-two-block-actions-v2",
         "action_id": normalized["action_id"],
         "action_catalog_id": V2_CATALOG_ID,
         "action_catalog_sha256": _action_catalog_sha256(),
@@ -293,9 +347,10 @@ def _tanner_component_count(hx: np.ndarray, hz: np.ndarray) -> int:
 
 
 def _static_candidate(candidate: Mapping[str, Any]) -> dict[str, Any]:
-    normalized = normalize_candidate(candidate)
+    normalized = normalize_coset_candidate(candidate)
     view = action_search_view(normalized["action_id"])
-    hx, hz = _matrix_pair_from_builder(normalized)
+    construction = _stage2_construction(normalized)
+    hx, hz = _matrix_pair_from_builder(construction)
     n = int(hx.shape[1])
     if n != 2 * view.block_size:
         raise ValueError("coset builder block size disagrees with catalog")
@@ -318,12 +373,12 @@ def _static_candidate(candidate: Mapping[str, Any]) -> dict[str, Any]:
         raise RuntimeError("coset CSS rank accounting produced negative k")
     return {
         "candidate": normalized,
-        "construction": _stage2_construction(normalized),
-        "candidate_sha256": candidate_digest(normalized),
+        "construction": construction,
+        "candidate_sha256": coset_candidate_digest(normalized),
         "action_id": view.action_id,
         "action_family_bin": view.action_family_bin,
         "subgroup_normal": view.subgroup_normal,
-        "support_orbit_bin": support_orbit_bin(normalized),
+        "support_orbit_bin": coset_support_orbit_bin(normalized),
         "hx": hx,
         "hz": hz,
         "n": n,
@@ -2573,7 +2628,15 @@ def _fitness(row: Mapping[str, Any]) -> float:
     if isinstance(exact, int) and exact > 0:
         exact_fom = k * exact * exact / n
         score += 0.20 * min(1.0, exact_fom / TARGET_FOM)
-    return min(score, 1.0)
+    raw_penalty = row.get("negative_archive_penalty", 0.0)
+    if (
+        isinstance(raw_penalty, bool)
+        or not isinstance(raw_penalty, (int, float))
+        or not math.isfinite(float(raw_penalty))
+        or not 0.0 <= float(raw_penalty) <= 0.45
+    ):
+        raise ValueError("negative archive penalty is outside its trusted range")
+    return min(score, 1.0) * (1.0 - float(raw_penalty))
 
 
 def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -2599,6 +2662,32 @@ def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "low_weight_witness": row.get("low_weight_witness"),
         "threshold_rejected": row.get("threshold_rejected", False),
         "fitness": row["fitness"],
+        "negative_archive_penalty": row.get("negative_archive_penalty", 0.0),
+        "negative_archive_match_counts": row.get(
+            "negative_archive_match_counts",
+            {
+                "exact_construction": 0,
+                "action_support_split": 0,
+                "action": 0,
+            },
+        ),
+        "negative_archive_coordinate_sha256": row.get(
+            "negative_archive_coordinate_sha256",
+        ),
+        "negative_archive_penalty_components": row.get(
+            "negative_archive_penalty_components",
+            {
+                "construction_proxy": 0.0,
+                "verified_witness_mechanism": 0.0,
+            },
+        ),
+        "negative_archive_witness_match_counts": row.get(
+            "negative_archive_witness_match_counts",
+            {"block": 0, "action": 0, "orbit": 0, "support": 0},
+        ),
+        "negative_archive_witness_motif_sha256": row.get(
+            "negative_archive_witness_motif_sha256",
+        ),
         "distance_semantics": "proof-lower-bound-or-replayed-witness-only",
         "proof_ledger": _proof_ledger_for_row(row),
     }
@@ -2936,7 +3025,7 @@ def _runtime_failure_result(exc: CosetMutationRuntimeError):
 def _run_proof_frontier_and_persist(
     rows: list[dict[str, Any]],
     oracle_order: list[dict[str, Any]],
-) -> tuple[int, list[dict[str, int | bool]]]:
+) -> tuple[int, list[dict[str, int | bool]], dict[str, Any]]:
     """Execute one lease-bound proof frontier and durably commit its rows."""
 
     with _proof_evaluation_lease():
@@ -3021,13 +3110,15 @@ def _run_proof_frontier_and_persist(
             ))
         for row in oracle_order:
             row.setdefault("oracle_frontier_selected", False)
+
+        archive_summary = _archive_and_annotate_negative_rows(rows)
         for row in rows:
             row["fitness"] = _fitness(row)
         persistable = [
             row for row in rows if row["static_legal"] and row["k"] > 0
         ]
         persisted = _append_candidate_rows(persistable)
-        return persisted, oracle_run_stats
+        return persisted, oracle_run_stats, archive_summary
 
 
 def _evaluate(program_path: str):
@@ -3046,8 +3137,8 @@ def _evaluate(program_path: str):
     invalid = 0
     for candidate in raw:
         try:
-            item = normalize_candidate(candidate)
-            digest = candidate_digest(item)
+            item = normalize_coset_candidate(candidate)
+            digest = coset_candidate_digest(item)
         except (TypeError, ValueError):
             invalid += 1
             continue
@@ -3072,9 +3163,17 @@ def _evaluate(program_path: str):
     # Descriptor coordinates are sealed before any candidate build or oracle
     # work.  They therefore describe the typed policy's immutable renderer
     # output and cannot drift because of a timeout or solver outcome.
-    map_descriptor = coset_batch_map_descriptor(
+    map_descriptor = coset_batch_map_descriptor_registered(
         normalized,
         policy_sha256=preflight.policy_sha256,
+        renderer_activation=preflight.renderer_activation,
+    )
+    map_schema_version = int(map_descriptor["schema_version"])
+    representation_id = str(map_descriptor["representation_id"])
+    genome_format_id = (
+        COSET_TYPED_DSL_GENOME_FORMAT_ID
+        if map_schema_version == COSET_MAP_SCHEMA_VERSION
+        else COSET_TYPED_DSL_GENOME_FORMAT_ID_V3
     )
     rows = []
     build_errors = 0
@@ -3094,9 +3193,11 @@ def _evaluate(program_path: str):
         rows,
         selection_salt=preflight.policy_sha256,
     )
-    persisted, oracle_run_stats = _run_proof_frontier_and_persist(
+    persisted, oracle_run_stats, negative_archive_summary = (
+        _run_proof_frontier_and_persist(
         rows,
         oracle_order,
+        )
     )
 
     eligible_rows = [
@@ -3133,6 +3234,18 @@ def _evaluate(program_path: str):
         "invalid_candidate_definitions": float(invalid),
         "build_errors": float(build_errors),
         "low_weight_rejections": float(sum(row["threshold_rejected"] for row in rows)),
+        "negative_archive_events": float(
+            negative_archive_summary["event_count"]
+        ),
+        "negative_archive_events_added": float(
+            negative_archive_summary["events_added"]
+        ),
+        "negative_archive_penalized_candidates": float(
+            negative_archive_summary["penalized_candidates"]
+        ),
+        "negative_archive_max_penalty": float(
+            negative_archive_summary["maximum_penalty"]
+        ),
         "candidate_log_records_persisted": float(persisted),
         "proven_lower_bound_candidates": float(sum(
             isinstance(row.get("distance_lower_bound"), int) for row in rows
@@ -3183,22 +3296,17 @@ def _evaluate(program_path: str):
         "normality_coverage": float(len({row["subgroup_normal"] for row in rows})),
         "search_diversity": diversity,
         MAP_DESCRIPTOR_VERSION_METRIC: float(MAP_DESCRIPTOR_VERSION),
-        COSET_MAP_SCHEMA_METRIC: float(COSET_MAP_SCHEMA_VERSION),
+        COSET_MAP_SCHEMA_METRIC: float(map_schema_version),
         EVALUATOR_KIND_ID_METRIC: EVALUATOR_KIND_ID,
         ACTION_CATALOG_ID_METRIC: _action_catalog_contract_id(),
-        COSET_GENOME_FORMAT_ID_METRIC: COSET_TYPED_DSL_GENOME_FORMAT_ID,
+        COSET_GENOME_FORMAT_ID_METRIC: genome_format_id,
         COSET_PROOF_LADDER_VERSION_METRIC: float(
             COSET_PROOF_LADDER_SCHEMA_VERSION
         ),
-        COSET_NONNORMAL_LANE_METRIC: float(
-            map_descriptor["coordinates"][COSET_NONNORMAL_LANE_METRIC]
-        ),
-        COSET_NORMAL_LANE_METRIC: float(
-            map_descriptor["coordinates"][COSET_NORMAL_LANE_METRIC]
-        ),
-        COSET_BATCH_ORBIT_PROFILE_METRIC: float(
-            map_descriptor["coordinates"][COSET_BATCH_ORBIT_PROFILE_METRIC]
-        ),
+        **{
+            name: float(map_descriptor["coordinates"][name])
+            for name in map_descriptor["dimensions"]
+        },
         "evaluation_elapsed_s": time.monotonic() - started,
         **_preflight_markers(
             evaluated=len(normalized),
@@ -3228,6 +3336,12 @@ def _evaluate(program_path: str):
         )
     artifacts = {
         "representation": "coset-two-block",
+        "search_representation_id": representation_id,
+        "renderer_descriptor_id": (
+            map_descriptor.get("renderer_descriptor", {}).get("descriptor_id")
+            if isinstance(map_descriptor.get("renderer_descriptor"), Mapping)
+            else "catalog-pair-walk-v2"
+        ),
         "evaluator_kind": COSET_EVALUATOR_KIND,
         "program_path": str(source_path),
         "program_sha256": program_sha256,
@@ -3241,6 +3355,7 @@ def _evaluate(program_path: str):
                 "independently replayed exact distance",
             ],
         },
+        "negative_mechanism_archive": negative_archive_summary,
         "best_candidates": [
             _safe_json_row(row)
             for row in sorted(
@@ -3254,6 +3369,15 @@ def _evaluate(program_path: str):
             "Replayed short logical operators are negative-only evidence. "
             "Mutate the implicated action/orbit/support mechanism:",
             *oracle_failure_lines,
+        ])
+    archive_feedback = _negative_archive_feedback_lines(
+        _load_negative_archive(_negative_feedback_paths()[1]),
+    )
+    if archive_feedback:
+        artifacts["negative_mechanism_feedback"] = "\n".join([
+            "Verified repeated short-logical mechanisms reduce parent fitness. "
+            "Change the implicated action/orbit/support coordinates:",
+            *archive_feedback,
         ])
     try:
         from openevolve.evaluation_result import EvaluationResult

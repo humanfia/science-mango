@@ -113,9 +113,15 @@ from evaluation.search_contract import (
 SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
 SEED_SOLUTION_MILP = str(Path(__file__).parent / "seed_solution_milp.py")
 SEED_SOLUTION_NONCSS = str(Path(__file__).parent / "seed_solution_noncss.py")
-SEED_SOLUTION_COSET_TWO_BLOCK = str(
+SEED_SOLUTION_COSET_TWO_BLOCK_V2 = str(
     Path(__file__).parent / "coset_seed_solution_v2.py"
 )
+SEED_SOLUTION_COSET_TWO_BLOCK_V3 = str(
+    Path(__file__).parent / "coset_seed_solution_v3.py"
+)
+# New coset launches use renderer v3.  The v2 paths remain explicit replay
+# inputs and are selected only by a v2 config/checkpoint contract.
+SEED_SOLUTION_COSET_TWO_BLOCK = SEED_SOLUTION_COSET_TWO_BLOCK_V3
 EVALUATOR = str(Path(__file__).parent / "openevolve_evaluator.py")
 EVALUATOR_NONCSS = str(Path(__file__).parent / "openevolve_evaluator_noncss.py")
 EVALUATOR_COSET_TWO_BLOCK = str(
@@ -123,9 +129,13 @@ EVALUATOR_COSET_TWO_BLOCK = str(
 )
 DEFAULT_CONFIG = str(Path(__file__).parent / "config.yaml")
 DEFAULT_CONFIG_NONCSS = str(Path(__file__).parent / "config_noncss.yaml")
-DEFAULT_CONFIG_COSET_TWO_BLOCK = str(
+DEFAULT_CONFIG_COSET_TWO_BLOCK_V2 = str(
     Path(__file__).parent / "coset_config_v2.yaml"
 )
+DEFAULT_CONFIG_COSET_TWO_BLOCK_V3 = str(
+    Path(__file__).parent / "coset_config_v3.yaml"
+)
+DEFAULT_CONFIG_COSET_TWO_BLOCK = DEFAULT_CONFIG_COSET_TWO_BLOCK_V3
 EVOLUTION_BASE = str(Path(PROJECT_ROOT) / "results" / "evolution")
 METRICS_FILE = str(Path(PROJECT_ROOT) / "results" / "evolution_metrics.jsonl")
 
@@ -134,6 +144,25 @@ EVALUATOR_KIND_COSET_TWO_BLOCK = "coset-two-block"
 EVALUATOR_KIND_BINDING_FIELD = "qcode_evaluator_kind"
 EVALUATOR_KIND_ID_METRIC = "qcode_evaluator_kind_id"
 ACTION_CATALOG_SHA256_BINDING_FIELD = "qcode_action_catalog_sha256"
+COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD = (
+    "qcode_coset_renderer_activation_sha256"
+)
+COSET_RENDERER_ACTIVATION_JSON_ENV = (
+    "QCODE_COSET_RENDERER_ACTIVATION_JSON"
+)
+COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS = frozenset({
+    "qcode_negative_feedback_live_archive_path",
+    "qcode_negative_feedback_snapshot_path",
+    "qcode_negative_feedback_snapshot_sha256",
+    "qcode_negative_feedback_archive_sha256",
+    "qcode_negative_feedback_manifest_path",
+    "qcode_negative_feedback_manifest_sha256",
+    "qcode_negative_feedback_epoch",
+})
+NEGATIVE_ARCHIVE_PATH_ENV = "QCODE_COSET_NEGATIVE_ARCHIVE_PATH"
+NEGATIVE_ARCHIVE_SNAPSHOT_PATH_ENV = (
+    "QCODE_COSET_NEGATIVE_ARCHIVE_SNAPSHOT_PATH"
+)
 ACTION_CATALOG_ID_METRIC = "qcode_action_catalog_id"
 EVALUATOR_KIND_IDS = {
     EVALUATOR_KIND_DEFAULT: 0,
@@ -1379,6 +1408,7 @@ def _checkpoint_preflight_summary(
     expected_contract_id: int,
     cascade_threshold: float | None = None,
     evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
+    coset_map_schema_version: int | None = None,
 ) -> dict[str, int]:
     programs_dir = Path(checkpoint_path) / "programs"
     if programs_dir.is_symlink() or not programs_dir.is_dir():
@@ -1393,15 +1423,28 @@ def _checkpoint_preflight_summary(
         if not isinstance(code, str) or not code:
             raise RuntimeError(f"checkpoint program has invalid code: {path}")
         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
-            from evolve.coset_policy_dsl import parse_policy
-            from evolve.coset_search_contract import COSET_MAP_SCHEMA_VERSION
+            from evolve.coset_policy_dispatch import (
+                parse_and_render_registered_policy,
+            )
 
             try:
-                parse_policy(code)
+                rendered = parse_and_render_registered_policy(code)
             except Exception as exc:
                 raise RuntimeError(
                     f"result checkpoint contains a non-DSL coset program: {path}"
                 ) from exc
+            map_schema = rendered.descriptor.map_schema_version
+            if (
+                coset_map_schema_version is not None
+                and map_schema != coset_map_schema_version
+            ):
+                raise RuntimeError(
+                    "result checkpoint renderer epoch is incompatible with "
+                    "the selected config"
+                )
+            expected_genome_format = _coset_genome_format_id_for_schema(
+                map_schema
+            )
             genome_format = program.get("metrics", {}).get(
                 COSET_GENOME_FORMAT_ID_METRIC
             )
@@ -1409,7 +1452,7 @@ def _checkpoint_preflight_summary(
                 isinstance(genome_format, bool)
                 or not isinstance(genome_format, (int, float))
                 or not math.isfinite(float(genome_format))
-                or float(genome_format) != COSET_TYPED_DSL_GENOME_FORMAT_ID
+                or float(genome_format) != expected_genome_format
             ):
                 raise RuntimeError(
                     "result checkpoint contains an unmarked coset DSL program: "
@@ -1420,7 +1463,7 @@ def _checkpoint_preflight_summary(
                     id=program.get("id", path.stem),
                     metrics=program.get("metrics"),
                 ),
-                schema_version=COSET_MAP_SCHEMA_VERSION,
+                schema_version=map_schema,
             )
         _validated_winner_preflight_markers(
             program.get("metrics"),
@@ -1971,10 +2014,43 @@ def _execute_winner_preflight(
 
 COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
 COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
+COSET_TYPED_DSL_GENOME_FORMAT_ID_V3 = 2.0
 COSET_CHECKPOINT_MIGRATION_SCHEMA_VERSION = 1
 
 
-def _strict_coset_checkpoint_genome_kind(database: Any) -> str:
+def _coset_portfolio_contract_for_schema(
+    schema_version: int,
+) -> dict[str, Any]:
+    """Resolve a MAP schema through the immutable renderer registry."""
+
+    from evolve.coset_search_contract import (
+        coset_renderer_portfolio_contract,
+        trusted_coset_renderer_descriptors,
+    )
+
+    matches = [
+        coset_renderer_portfolio_contract(item.representation_id)
+        for item in trusted_coset_renderer_descriptors()
+        if item.map_schema_version == schema_version
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(f"unsupported coset MAP schema: {schema_version!r}")
+    return matches[0]
+
+
+def _coset_genome_format_id_for_schema(schema_version: int) -> float:
+    if schema_version == 3:
+        return COSET_TYPED_DSL_GENOME_FORMAT_ID
+    if schema_version == 4:
+        return COSET_TYPED_DSL_GENOME_FORMAT_ID_V3
+    raise RuntimeError(f"unsupported coset MAP schema: {schema_version!r}")
+
+
+def _strict_coset_checkpoint_genome_kind(
+    database: Any,
+    *,
+    expected_map_schema_version: int | None = None,
+) -> str:
     """Classify a loaded coset population without executing any program.
 
     A mixed archive is never a legitimate epoch boundary.  In particular, a
@@ -1982,7 +2058,10 @@ def _strict_coset_checkpoint_genome_kind(database: Any) -> str:
     one-time migration and later become a sampled parent.
     """
 
-    from evolve.coset_policy_dsl import CosetPolicyError, parse_policy
+    from evolve.coset_policy_dispatch import (
+        CosetPolicyDispatchError,
+        parse_and_render_registered_policy,
+    )
 
     programs = getattr(database, "programs", None)
     if not isinstance(programs, dict) or not programs:
@@ -1998,16 +2077,10 @@ def _strict_coset_checkpoint_genome_kind(database: Any) -> str:
         marker = getattr(program, "metrics", {}).get(
             COSET_GENOME_FORMAT_ID_METRIC
         )
-        marker_is_typed = (
-            not isinstance(marker, bool)
-            and isinstance(marker, (int, float))
-            and math.isfinite(float(marker))
-            and float(marker) == COSET_TYPED_DSL_GENOME_FORMAT_ID
-        )
         marker_is_absent = marker is None
         try:
-            parse_policy(code)
-        except CosetPolicyError:
+            rendered = parse_and_render_registered_policy(code)
+        except CosetPolicyDispatchError:
             if not marker_is_absent:
                 raise RuntimeError(
                     "coset checkpoint has a marked but invalid typed DSL "
@@ -2015,17 +2088,34 @@ def _strict_coset_checkpoint_genome_kind(database: Any) -> str:
                 )
             kinds.add("legacy-python")
         else:
+            map_schema = rendered.descriptor.map_schema_version
+            expected_marker = _coset_genome_format_id_for_schema(map_schema)
+            marker_is_typed = (
+                not isinstance(marker, bool)
+                and isinstance(marker, (int, float))
+                and math.isfinite(float(marker))
+                and float(marker) == expected_marker
+            )
             if not marker_is_typed:
                 raise RuntimeError(
                     "coset checkpoint has an unmarked typed DSL program: "
                     f"{program_id}"
                 )
-            kinds.add("typed-json-dsl")
+            if (
+                expected_map_schema_version is not None
+                and map_schema != expected_map_schema_version
+            ):
+                raise RuntimeError(
+                    "coset checkpoint renderer epoch is incompatible with "
+                    "the selected config; start a fresh checkpoint"
+                )
+            kinds.add(f"typed-json-dsl-map-v{map_schema}")
     if len(kinds) != 1:
         raise RuntimeError(
-            "coset checkpoint mixes legacy Python and typed DSL genomes"
+            "coset checkpoint mixes legacy Python or renderer epochs"
         )
-    return next(iter(kinds))
+    kind = next(iter(kinds))
+    return "typed-json-dsl" if kind.startswith("typed-json-dsl-") else kind
 
 
 def _validate_typed_coset_checkpoint_programs(
@@ -2035,7 +2125,7 @@ def _validate_typed_coset_checkpoint_programs(
 ) -> None:
     """Require every post-migration checkpoint row to be parseable current DSL."""
 
-    from evolve.coset_policy_dsl import parse_policy, policy_digest
+    from evolve.coset_policy_dispatch import parse_and_render_registered_policy
 
     programs = getattr(database, "programs", None)
     if not isinstance(programs, dict) or not programs:
@@ -2044,11 +2134,22 @@ def _validate_typed_coset_checkpoint_programs(
     for program_id in sorted(programs):
         program = programs[program_id]
         try:
-            digest = policy_digest(parse_policy(program.code))
+            rendered = parse_and_render_registered_policy(program.code)
+            digest = rendered.policy_sha256
         except Exception as exc:
             raise RuntimeError(
                 f"typed coset checkpoint program is invalid: {program_id}"
             ) from exc
+        map_schema = rendered.descriptor.map_schema_version
+        if (
+            expected_map_schema_version is not None
+            and map_schema != expected_map_schema_version
+        ):
+            raise RuntimeError(
+                "typed coset checkpoint renderer epoch is incompatible with "
+                "the selected config; start a fresh checkpoint"
+            )
+        expected_marker = _coset_genome_format_id_for_schema(map_schema)
         value = getattr(program, "metrics", {}).get(
             COSET_GENOME_FORMAT_ID_METRIC
         )
@@ -2056,7 +2157,7 @@ def _validate_typed_coset_checkpoint_programs(
             isinstance(value, bool)
             or not isinstance(value, (int, float))
             or not math.isfinite(float(value))
-            or float(value) != COSET_TYPED_DSL_GENOME_FORMAT_ID
+            or float(value) != expected_marker
         ):
             raise RuntimeError(
                 f"typed coset checkpoint program lacks its genome marker: "
@@ -2103,6 +2204,7 @@ def _execute_coset_checkpoint_root_evaluation(
     *,
     expected_contract_id: int,
     wall_timeout: float,
+    expected_map_schema_version: int,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     """Fully evaluate the canonical DSL root in one killable process group."""
 
@@ -2201,9 +2303,13 @@ def _execute_coset_checkpoint_root_evaluation(
         label="coset DSL checkpoint root",
     )
     if metrics.get(COSET_GENOME_FORMAT_ID_METRIC) != (
-        COSET_TYPED_DSL_GENOME_FORMAT_ID
+        _coset_genome_format_id_for_schema(expected_map_schema_version)
     ):
         raise RuntimeError("coset DSL checkpoint root genome marker is invalid")
+    _fixed_coset_feature_coords(
+        argparse.Namespace(id="checkpoint-root", metrics=metrics),
+        schema_version=expected_map_schema_version,
+    )
     after = candidate_log_range_identity(
         candidate_log,
         start_offset=int(before["end_offset"]),
@@ -2226,15 +2332,11 @@ def _install_coset_checkpoint_dsl_epoch(
     evaluator_path: str | Path,
     expected_contract_id: int,
     wall_timeout: float,
-    search_portfolio_schema_version: int | None,
+    coset_map_schema_version: int | None = None,
+    search_portfolio_schema_version: int | None = None,
 ) -> dict[str, Any]:
     """Atomically replace a sealed legacy population with one trusted DSL root."""
 
-    from evolve.coset_policy_dsl import (
-        canonical_policy_json,
-        default_policy,
-        policy_digest,
-    )
     from openevolve.database import Program
 
     if _strict_coset_checkpoint_genome_kind(database) != "legacy-python":
@@ -2251,6 +2353,37 @@ def _install_coset_checkpoint_dsl_epoch(
     if source_count != source_checkpoint.get("programs"):
         raise RuntimeError("coset migration checkpoint program count changed")
 
+    if (
+        coset_map_schema_version is not None
+        and search_portfolio_schema_version is not None
+        and coset_map_schema_version != search_portfolio_schema_version
+    ):
+        raise RuntimeError("coset migration schema selectors disagree")
+    selected_map_schema = (
+        coset_map_schema_version
+        if coset_map_schema_version is not None
+        else search_portfolio_schema_version
+    )
+    # Frozen direct callers predate a coset-specific selector and produced the
+    # v2 DSL root.  Managed v3 recovery always passes coset_map_schema_version.
+    if selected_map_schema is None:
+        selected_map_schema = 3
+    if selected_map_schema == 3:
+        from evolve.coset_policy_dsl import (
+            canonical_policy_json,
+            default_policy,
+            policy_digest,
+        )
+    elif selected_map_schema == 4:
+        from evolve.coset_policy_dsl_v3 import (
+            canonical_policy_json,
+            default_policy,
+            policy_digest,
+        )
+    else:
+        raise RuntimeError(
+            "coset DSL migration requires a registered MAP schema"
+        )
     policy = default_policy()
     code = canonical_policy_json(policy) + "\n"
     code_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
@@ -2276,6 +2409,7 @@ def _install_coset_checkpoint_dsl_epoch(
             code,
             expected_contract_id=expected_contract_id,
             wall_timeout=wall_timeout,
+            expected_map_schema_version=selected_map_schema,
         )
     )
     root_artifacts = dict(artifacts)
@@ -2337,10 +2471,10 @@ def _install_coset_checkpoint_dsl_epoch(
     database.feature_stats = {}
     database.diversity_cache = {}
     database.diversity_reference_set = []
-    if search_portfolio_schema_version is not None:
-        _rebuild_fixed_search_feature_maps(
+    if coset_map_schema_version is not None:
+        _rebuild_fixed_coset_feature_maps(
             database,
-            schema_version=search_portfolio_schema_version,
+            schema_version=coset_map_schema_version,
         )
     else:
         coordinate_builder = getattr(
@@ -2365,7 +2499,10 @@ def _install_coset_checkpoint_dsl_epoch(
         database.island_feature_maps[0]["-".join(
             str(value) for value in coordinates
         )] = root_id
-    _validate_typed_coset_checkpoint_programs(database)
+    _validate_typed_coset_checkpoint_programs(
+        database,
+        expected_map_schema_version=coset_map_schema_version,
+    )
     return {
         "schema_version": 2,
         "status": "completed",
@@ -2899,9 +3036,8 @@ def _coset_search_portfolio_schema_version(
     """Return the explicitly selected fixed coset MAP schema, if present."""
 
     from evolve.coset_search_contract import (
-        COSET_MAP_SCHEMA_VERSION,
         COSET_PROOF_LADDER_CONFIG_KEY,
-        COSET_REPRESENTATION_ID,
+        coset_renderer_portfolio_contract,
         proof_ladder_config_contract,
     )
 
@@ -2917,13 +3053,31 @@ def _coset_search_portfolio_schema_version(
     if COSET_SEARCH_PORTFOLIO_CONFIG_KEY not in value:
         return None
     marker = value[COSET_SEARCH_PORTFOLIO_CONFIG_KEY]
+    if type(marker) is not dict or set(marker) != {
+        "enabled",
+        "schema_version",
+        "representation_id",
+        "checkpoint_compatibility_group",
+    }:
+        raise RuntimeError(
+            "qcode_coset_search_portfolio fields are not exact"
+        )
+    representation_id = marker.get("representation_id")
+    if type(representation_id) is not str:
+        raise RuntimeError("coset portfolio representation_id is invalid")
+    try:
+        contract = coset_renderer_portfolio_contract(representation_id)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            "coset portfolio representation is not registered"
+        ) from exc
     expected = {
         "enabled": True,
-        "schema_version": COSET_MAP_SCHEMA_VERSION,
-        "representation_id": COSET_REPRESENTATION_ID,
-        "checkpoint_compatibility_group": (
-            COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP
-        ),
+        "schema_version": contract["map_schema_version"],
+        "representation_id": contract["representation_id"],
+        "checkpoint_compatibility_group": contract[
+            "checkpoint_compatibility_group"
+        ],
     }
     if type(marker) is not dict or marker != expected:
         raise RuntimeError(
@@ -2937,39 +3091,32 @@ def _coset_search_portfolio_schema_version(
             "qcode_coset_stage1_proof_ladder must exactly match the current "
             "proof ladder and budget contract"
         )
-    return COSET_MAP_SCHEMA_VERSION
+    return int(contract["map_schema_version"])
 
 
 def _validated_coset_search_portfolio_config(
     config: Any,
     schema_version: int,
 ) -> int:
-    """Validate the fixed, categorical four-island coset MAP geometry."""
+    """Validate the categorical geometry registered for this renderer epoch."""
 
-    from evolve.coset_search_contract import (
-        COSET_FEATURE_BINS,
-        COSET_FEATURE_DIMENSIONS,
-        COSET_MAP_SCHEMA_VERSION,
-    )
-
-    if schema_version != COSET_MAP_SCHEMA_VERSION:
-        raise RuntimeError(
-            f"unsupported coset MAP schema: {schema_version!r}"
-        )
+    contract = _coset_portfolio_contract_for_schema(schema_version)
     database = getattr(config, "database", None)
     if database is None:
         raise RuntimeError("coset search portfolio has no database section")
-    if getattr(database, "num_islands", None) != (
-        COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
-    ):
-        raise RuntimeError("coset search portfolio requires exactly four islands")
+    if getattr(database, "num_islands", None) != contract["num_islands"]:
+        raise RuntimeError(
+            "coset search portfolio island count disagrees with its renderer"
+        )
     if getattr(database, "feature_dimensions", None) != list(
-        COSET_FEATURE_DIMENSIONS
+        contract["feature_dimensions"]
     ):
         raise RuntimeError(
             "coset feature_dimensions do not match the descriptor schema"
         )
-    if getattr(database, "feature_bins", None) != dict(COSET_FEATURE_BINS):
+    if getattr(database, "feature_bins", None) != dict(
+        contract["feature_bins"]
+    ):
         raise RuntimeError(
             "coset feature_bins do not match the descriptor schema"
         )
@@ -3301,16 +3448,12 @@ def _fixed_coset_feature_coords(
     """Map coset categorical metrics directly, without dynamic min/max."""
 
     from evolve.coset_search_contract import (
-        COSET_FEATURE_BINS,
-        COSET_FEATURE_DIMENSIONS,
         COSET_MAP_SCHEMA_METRIC,
-        COSET_MAP_SCHEMA_VERSION,
         COSET_PROOF_LADDER_SCHEMA_VERSION,
         COSET_PROOF_LADDER_VERSION_METRIC,
     )
 
-    if schema_version != COSET_MAP_SCHEMA_VERSION:
-        raise RuntimeError("coset program uses an unsupported MAP schema")
+    contract = _coset_portfolio_contract_for_schema(schema_version)
     metrics = getattr(program, "metrics", None)
     _validated_map_descriptor_version(
         metrics, label=f"coset MAP program {getattr(program, 'id', '?')}"
@@ -3338,9 +3481,9 @@ def _fixed_coset_feature_coords(
             "start a fresh checkpoint"
         )
     coordinates: list[int] = []
-    for name in COSET_FEATURE_DIMENSIONS:
+    for name in contract["feature_dimensions"]:
         value = metrics.get(name)
-        limit = COSET_FEATURE_BINS[name]
+        limit = contract["feature_bins"][name]
         if (
             isinstance(value, bool)
             or not isinstance(value, (int, float))
@@ -3360,9 +3503,10 @@ def _rebuild_fixed_coset_feature_maps(
     *,
     schema_version: int,
 ) -> None:
-    """Deterministically rebuild four lineage-island coset MAP archives."""
+    """Deterministically rebuild registered lineage-island coset archives."""
 
-    from evolve.coset_search_contract import COSET_FEATURE_BINS
+    contract = _coset_portfolio_contract_for_schema(schema_version)
+    island_count = int(contract["num_islands"])
 
     programs = getattr(database, "programs", None)
     previous_islands = getattr(database, "islands", None)
@@ -3370,7 +3514,7 @@ def _rebuild_fixed_coset_feature_maps(
         raise RuntimeError("coset MAP database programs are invalid")
     if (
         not isinstance(previous_islands, list)
-        or len(previous_islands) != COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+        or len(previous_islands) != island_count
     ):
         raise RuntimeError("coset MAP database islands are invalid")
 
@@ -3382,7 +3526,7 @@ def _rebuild_fixed_coset_feature_maps(
             membership.setdefault(program_id, set()).add(island)
 
     winners: list[dict[str, str]] = [
-        {} for _ in range(COSET_SEARCH_PORTFOLIO_ISLAND_COUNT)
+        {} for _ in range(island_count)
     ]
     for program_id in sorted(membership):
         islands = membership[program_id]
@@ -3435,7 +3579,7 @@ def _rebuild_fixed_coset_feature_maps(
     )
     database.archive = set(ranked[:archive_size])
     database.feature_stats = {}
-    database.feature_bins_per_dim = dict(COSET_FEATURE_BINS)
+    database.feature_bins_per_dim = dict(contract["feature_bins"])
     database.island_best_programs = [
         (
             min(
@@ -4254,23 +4398,19 @@ class _SliceObserver:
                 return sanitized
         if (
             self.evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
-            and isinstance(child.get("metrics"), dict)
-            and child["metrics"].get(COSET_GENOME_FORMAT_ID_METRIC)
-            == COSET_TYPED_DSL_GENOME_FORMAT_ID
+            and self.coset_map_schema_version is not None
         ):
             # The worker-side literal patcher rejects a parent no-op before
             # evaluation.  Recheck the semantic and artifact bindings at the
             # controller trust boundary so a future OpenEvolve refactor cannot
             # silently reintroduce duplicate typed policies.
-            from evolve.coset_policy_dsl import (
-                parse_policy,
-                policy_digest,
-                render_candidates,
+            from evolve.coset_policy_dispatch import (
+                parse_and_render_activated_policy,
+                parse_and_render_registered_policy,
             )
             from evolve.coset_search_contract import (
-                COSET_FEATURE_DIMENSIONS,
                 COSET_MAP_SCHEMA_METRIC,
-                coset_batch_map_descriptor,
+                coset_batch_map_descriptor_registered,
             )
 
             child_code = child.get("code")
@@ -4286,7 +4426,17 @@ class _SliceObserver:
             result_artifacts = getattr(result, "artifacts", None)
             binding_error: str | None = None
             child_policy_sha256: str | None = None
-            if not isinstance(child_code, str) or not child_code:
+            child_metrics = child.get("metrics")
+            expected_genome_marker = _coset_genome_format_id_for_schema(
+                self.coset_map_schema_version
+            )
+            if (
+                not isinstance(child_metrics, dict)
+                or child_metrics.get(COSET_GENOME_FORMAT_ID_METRIC)
+                != expected_genome_marker
+            ):
+                binding_error = "genome_format_marker_mismatch"
+            elif not isinstance(child_code, str) or not child_code:
                 binding_error = "child_code_invalid"
             elif parent is None or not isinstance(
                 getattr(parent, "code", None), str
@@ -4296,19 +4446,35 @@ class _SliceObserver:
                 binding_error = "evaluation_artifacts_missing"
             else:
                 try:
-                    child_policy_sha256 = policy_digest(
-                        parse_policy(child_code)
+                    active_renderer = _configured_coset_renderer_activation()
+                    child_render = (
+                        parse_and_render_registered_policy(child_code)
+                        if active_renderer is None
+                        else parse_and_render_activated_policy(
+                            child_code, active_renderer
+                        )
                     )
-                    parent_policy_sha256 = policy_digest(
-                        parse_policy(parent.code)
+                    parent_render = parse_and_render_registered_policy(
+                        parent.code
                     )
+                    child_policy_sha256 = child_render.policy_sha256
+                    parent_policy_sha256 = parent_render.policy_sha256
                 except Exception:
                     binding_error = "typed_policy_parse_failed"
                 else:
+                    if (
+                        child_render.descriptor.map_schema_version
+                        != self.coset_map_schema_version
+                        or parent_render.descriptor.map_schema_version
+                        != self.coset_map_schema_version
+                    ):
+                        binding_error = "renderer_epoch_mismatch"
                     expected_program_sha256 = hashlib.sha256(
                         child_code.encode("utf-8")
                     ).hexdigest()
-                    if result_artifacts.get("program_sha256") != (
+                    if binding_error is not None:
+                        pass
+                    elif result_artifacts.get("program_sha256") != (
                         expected_program_sha256
                     ):
                         binding_error = "program_sha256_mismatch"
@@ -4317,22 +4483,25 @@ class _SliceObserver:
                     ):
                         binding_error = "policy_sha256_mismatch"
                     else:
-                        expected_descriptor = coset_batch_map_descriptor(
-                            render_candidates(parse_policy(child_code)),
-                            policy_sha256=child_policy_sha256,
+                        expected_descriptor = (
+                            coset_batch_map_descriptor_registered(
+                                child_render.candidates,
+                                policy_sha256=child_policy_sha256,
+                                renderer_activation=child_render.activation,
+                            )
                         )
                         if result_artifacts.get("map_descriptor") != (
                             expected_descriptor
                         ):
                             binding_error = "map_descriptor_mismatch"
-                        elif child["metrics"].get(
+                        elif child_metrics.get(
                             COSET_MAP_SCHEMA_METRIC
                         ) != float(expected_descriptor["schema_version"]):
                             binding_error = "map_schema_metric_mismatch"
                         elif any(
-                            child["metrics"].get(name)
+                            child_metrics.get(name)
                             != float(expected_descriptor["coordinates"][name])
-                            for name in COSET_FEATURE_DIMENSIONS
+                            for name in child_render.descriptor.feature_dimensions
                         ):
                             binding_error = "map_coordinate_metric_mismatch"
                     if binding_error is None and (
@@ -4348,8 +4517,10 @@ class _SliceObserver:
                                 binding_error = "archive_code_invalid"
                                 break
                             try:
-                                existing_digest = policy_digest(
-                                    parse_policy(existing_code)
+                                existing_digest = (
+                                    parse_and_render_registered_policy(
+                                        existing_code
+                                    ).policy_sha256
                                 )
                             except Exception:
                                 binding_error = "archive_policy_invalid"
@@ -4872,6 +5043,41 @@ def _recognized_coset_mutation_rejection(
     return COSET_MUTATION_REJECTION_KINDS.get(payload.get("reason"))
 
 
+def _configured_coset_renderer_activation():
+    """Return only the registry-replayed activation inherited by a worker."""
+
+    raw = os.environ.get(COSET_RENDERER_ACTIVATION_JSON_ENV)
+    if raw is None:
+        return None
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for name, value in pairs:
+            if name in result:
+                raise ValueError(f"duplicate activation field: {name}")
+            result[name] = value
+        return result
+
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite activation value: {value}")
+
+    try:
+        document = json.loads(
+            raw,
+            object_pairs_hook=reject_duplicates,
+            parse_constant=reject_constant,
+        )
+        from evolve.coset_search_contract import (
+            trusted_coset_renderer_activation_from_document,
+        )
+
+        return trusted_coset_renderer_activation_from_document(document)
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError(
+            "configured coset renderer activation is invalid"
+        ) from exc
+
+
 def _apply_coset_literal_diff(
     original_code: str,
     diff_text: str,
@@ -4895,9 +5101,9 @@ def _apply_coset_literal_diff(
     """
 
     from openevolve.utils.code_utils import extract_diffs
-    from evolve.coset_policy_dsl import (
-        parse_policy,
-        policy_digest,
+    from evolve.coset_policy_dispatch import (
+        parse_and_render_activated_policy,
+        parse_and_render_registered_policy,
     )
 
     if not isinstance(original_code, str) or not original_code:
@@ -4916,7 +5122,7 @@ def _apply_coset_literal_diff(
             detail={"empty_response": False},
         )
 
-    parent_policy = parse_policy(original_code)
+    parent_render = parse_and_render_registered_policy(original_code)
     mutated = original_code
     for index, (search_text, replace_text) in enumerate(blocks, start=1):
         if not search_text:
@@ -4941,18 +5147,23 @@ def _apply_coset_literal_diff(
         mutated = mutated.replace(search_text, replace_text, 1)
 
     try:
-        child_policy = parse_policy(mutated)
+        activation = _configured_coset_renderer_activation()
+        child_render = (
+            parse_and_render_registered_policy(mutated)
+            if activation is None
+            else parse_and_render_activated_policy(mutated, activation)
+        )
     except Exception as exc:
         _raise_coset_mutation_rejection(
             "dsl_invalid",
             parent_code=original_code,
             detail={"error_type": type(exc).__name__},
         )
-    if policy_digest(child_policy) == policy_digest(parent_policy):
+    if child_render.policy_sha256 == parent_render.policy_sha256:
         _raise_coset_mutation_rejection(
             "semantic_noop",
             parent_code=original_code,
-            detail={"policy_sha256": policy_digest(parent_policy)},
+            detail={"policy_sha256": parent_render.policy_sha256},
         )
     return mutated
 
@@ -5053,6 +5264,13 @@ def _verified_slice_controller(
             "fixed coset MAP geometry requires the coset evaluator and cannot "
             "share the BB search portfolio"
         )
+    coset_island_count = (
+        int(_coset_portfolio_contract_for_schema(
+            coset_map_schema_version
+        )["num_islands"])
+        if coset_map_schema_version is not None
+        else 0
+    )
     observer = _SliceObserver(
         base_iteration=base_iteration,
         iterations=iterations,
@@ -5180,7 +5398,8 @@ def _verified_slice_controller(
                     self.database,
                     schema_version=coset_map_schema_version,
                 )
-                # Coset workers are already scheduled across all four lineage
+                # Coset workers are already scheduled across all registered
+                # lineage
                 # islands.  OpenEvolve migration creates new UUIDs containing
                 # identical policies, which wastes evaluations and obscures
                 # semantic uniqueness without adding a new MAP cell.
@@ -5198,17 +5417,17 @@ def _verified_slice_controller(
                 if (
                     isinstance(island_id, bool)
                     or not isinstance(island_id, int)
-                    or not 0 <= island_id < COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+                    or not 0 <= island_id < coset_island_count
                 ):
                     raise RuntimeError("coset iteration has an invalid island")
                 # Pinned OpenEvolve fills only the first ``2 * workers``
                 # island slots when worker count is smaller than island count,
                 # then repeatedly refills those same slots.  Bind the coset
                 # lineage to the global iteration instead, so even a one-
-                # worker smoke run and every resumed slice cover all 4 islands.
+                # worker smoke run and every resumed slice cover every island.
                 target_island = (
                     iteration - 1
-                ) % COSET_SEARCH_PORTFOLIO_ISLAND_COUNT
+                ) % coset_island_count
                 parent, inspirations = self.database.sample_from_island(
                     island_id=target_island,
                     num_inspirations=self.config.prompt.num_top_programs,
@@ -5598,6 +5817,9 @@ def _launch_input_identities(
     backend_path: str | Path | None,
     codex_executable_identity: dict[str, Any] | None,
     evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
+    negative_feedback_snapshot_identity: dict[str, Any] | None = None,
+    negative_feedback_manifest_identity: dict[str, Any] | None = None,
+    renderer_activation_identity: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     observed_context = _file_identity(
         context_path, "evolution humanize context"
@@ -5617,6 +5839,25 @@ def _launch_input_identities(
     identities.update(
         {name: dict(value) for name, value in dependency_identities.items()}
     )
+    if (negative_feedback_snapshot_identity is None) != (
+        negative_feedback_manifest_identity is None
+    ):
+        raise RuntimeError("negative-feedback launch identity is incomplete")
+    if negative_feedback_snapshot_identity is not None:
+        identities["coset_negative_feedback_snapshot"] = dict(
+            negative_feedback_snapshot_identity
+        )
+        identities["coset_negative_feedback_snapshot_manifest"] = dict(
+            negative_feedback_manifest_identity
+        )
+    if renderer_activation_identity is not None:
+        if evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK:
+            raise RuntimeError(
+                "renderer activation launch identity requires coset evaluator"
+            )
+        identities["coset_renderer_activation"] = dict(
+            renderer_activation_identity
+        )
     if backend_path is not None:
         identities["backend"] = _file_identity(
             backend_path, "evolution model backend"
@@ -5753,10 +5994,161 @@ def _resolve_codex_execution_binding(
     return identity, version, str(project_root)
 
 
+def _validated_negative_feedback_binding(
+    *,
+    live_archive_path: str | None,
+    snapshot_path: str | None,
+    snapshot_sha256: str | None,
+    archive_sha256: str | None,
+    manifest_path: str | None,
+    manifest_sha256: str | None,
+    feedback_epoch: int | None,
+    required: bool,
+    expected_run_id: str | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]] | None:
+    """Validate the managed mutable-write/immutable-read archive split."""
+
+    values = (
+        live_archive_path,
+        snapshot_path,
+        snapshot_sha256,
+        archive_sha256,
+        manifest_path,
+        manifest_sha256,
+        feedback_epoch,
+    )
+    supplied = tuple(value is not None for value in values)
+    if not any(supplied):
+        if required:
+            raise RuntimeError(
+                "managed coset evolution requires a negative-feedback snapshot"
+            )
+        return None
+    if not all(supplied):
+        raise RuntimeError("negative-feedback invocation binding is incomplete")
+    assert (
+        live_archive_path is not None
+        and snapshot_path is not None
+        and snapshot_sha256 is not None
+        and archive_sha256 is not None
+        and manifest_path is not None
+        and manifest_sha256 is not None
+        and feedback_epoch is not None
+    )
+    live = Path(live_archive_path)
+    snapshot = Path(snapshot_path)
+    manifest_file = Path(manifest_path)
+    if (
+        not live.is_absolute()
+        or not snapshot.is_absolute()
+        or not manifest_file.is_absolute()
+        or len({live, snapshot, manifest_file}) != 3
+        or isinstance(feedback_epoch, bool)
+        or feedback_epoch < 1
+        or any(
+            re.fullmatch(r"[0-9a-f]{64}", value) is None
+            for value in (snapshot_sha256, archive_sha256, manifest_sha256)
+        )
+    ):
+        raise RuntimeError("negative-feedback invocation identity is invalid")
+    snapshot_identity = _file_identity(snapshot, "negative-feedback snapshot")
+    manifest_identity = _file_identity(
+        manifest_file, "negative-feedback snapshot manifest"
+    )
+    if (
+        snapshot_identity["sha256"] != snapshot_sha256
+        or manifest_identity["sha256"] != manifest_sha256
+    ):
+        raise RuntimeError("negative-feedback snapshot bytes changed")
+    from evolve.coset_negative_archive import (
+        NegativeArchiveError,
+        load_feedback_snapshot_manifest,
+    )
+
+    try:
+        manifest = load_feedback_snapshot_manifest(
+            manifest_file,
+            expected_live_archive_path=live,
+            expected_snapshot_path=snapshot,
+            expected_feedback_epoch=feedback_epoch,
+            expected_run_id=expected_run_id,
+        )
+    except (OSError, NegativeArchiveError) as exc:
+        raise RuntimeError(
+            f"negative-feedback snapshot validation failed: {exc}"
+        ) from exc
+    if (
+        manifest["snapshot_sha256"] != snapshot_sha256
+        or manifest["archive_sha256"] != archive_sha256
+    ):
+        raise RuntimeError("negative-feedback archive identity changed")
+    invocation = {
+        "qcode_negative_feedback_live_archive_path": str(live),
+        "qcode_negative_feedback_snapshot_path": str(snapshot),
+        "qcode_negative_feedback_snapshot_sha256": snapshot_sha256,
+        "qcode_negative_feedback_archive_sha256": archive_sha256,
+        "qcode_negative_feedback_manifest_path": str(manifest_file),
+        "qcode_negative_feedback_manifest_sha256": manifest_sha256,
+        "qcode_negative_feedback_epoch": feedback_epoch,
+    }
+    return invocation, snapshot_identity, manifest_identity
+
+
+def _validated_renderer_activation_binding(
+    activation_path: str | Path | None,
+    *,
+    required: bool,
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    """Replay one source-registry activation and bind its exact file bytes."""
+
+    if activation_path is None:
+        if required:
+            raise RuntimeError(
+                "managed renderer-v3 evolution requires a sealed activation"
+            )
+        return None
+    path = Path(activation_path)
+    if not path.is_absolute():
+        raise RuntimeError("coset renderer activation path must be absolute")
+    identity = _file_identity(path, "coset renderer activation")
+
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for name, value in pairs:
+            if name in result:
+                raise ValueError(f"duplicate activation field: {name}")
+            result[name] = value
+        return result
+
+    try:
+        document = json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=reject_duplicates,
+            parse_constant=lambda value: (_ for _ in ()).throw(
+                ValueError(f"non-finite activation value: {value}")
+            ),
+        )
+        from evolve.coset_search_contract import (
+            coset_renderer_activation_document,
+            trusted_coset_renderer_activation_from_document,
+        )
+
+        activation = trusted_coset_renderer_activation_from_document(document)
+        replayed = coset_renderer_activation_document(activation)
+    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError(
+            f"coset renderer activation cannot be replayed: {exc}"
+        ) from exc
+    if document != replayed:
+        raise RuntimeError("coset renderer activation is not canonical data")
+    return replayed, identity
+
+
 def _validated_invocation_binding(
     invocation: dict[str, Any],
     backend_path: str | Path | None,
     codex_executable_identity: dict[str, Any] | None,
+    renderer_activation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     expected_fields = {
         "model_names",
@@ -5778,11 +6170,31 @@ def _validated_invocation_binding(
     has_action_catalog = (
         ACTION_CATALOG_SHA256_BINDING_FIELD in observed_fields
     )
+    has_renderer_activation = (
+        COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD in observed_fields
+    )
+    feedback_fields = observed_fields & set(
+        COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS
+    )
+    if feedback_fields and feedback_fields != set(
+        COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS
+    ):
+        raise RuntimeError("managed invocation negative-feedback binding is incomplete")
     if has_evaluator_kind != has_action_catalog:
         raise RuntimeError("managed invocation coset binding is incomplete")
     if has_evaluator_kind:
         expected_fields.add(EVALUATOR_KIND_BINDING_FIELD)
         expected_fields.add(ACTION_CATALOG_SHA256_BINDING_FIELD)
+        if feedback_fields:
+            expected_fields.update(COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS)
+        if has_renderer_activation:
+            expected_fields.add(
+                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+            )
+    elif has_renderer_activation or feedback_fields:
+        raise RuntimeError(
+            "managed invocation coset extension has no coset evaluator"
+        )
     if observed_fields != expected_fields:
         raise RuntimeError("managed invocation binding fields are incomplete")
     if has_evaluator_kind:
@@ -5794,6 +6206,76 @@ def _validated_invocation_binding(
             != _coset_action_catalog_sha256()
         ):
             raise RuntimeError("managed invocation action catalog changed")
+        if has_renderer_activation:
+            if renderer_activation is None:
+                from evolve.coset_search_contract import (
+                    coset_renderer_activation_document,
+                    default_coset_renderer_activation,
+                )
+
+                renderer_activation = coset_renderer_activation_document(
+                    default_coset_renderer_activation()
+                )
+            else:
+                try:
+                    from evolve.coset_search_contract import (
+                        coset_renderer_activation_document,
+                        trusted_coset_renderer_activation_from_document,
+                    )
+
+                    activation_value = (
+                        trusted_coset_renderer_activation_from_document(
+                            renderer_activation
+                        )
+                    )
+                    if coset_renderer_activation_document(
+                        activation_value
+                    ) != renderer_activation:
+                        raise ValueError("activation replay changed")
+                except (TypeError, ValueError) as exc:
+                    raise RuntimeError(
+                        "managed invocation renderer activation is invalid"
+                    ) from exc
+            expected_activation = renderer_activation.get(
+                "activation_sha256"
+            )
+            if invocation[
+                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+            ] != expected_activation:
+                raise RuntimeError(
+                    "managed invocation renderer activation changed"
+                )
+        if feedback_fields:
+            replayed = _validated_negative_feedback_binding(
+                live_archive_path=invocation[
+                    "qcode_negative_feedback_live_archive_path"
+                ],
+                snapshot_path=invocation[
+                    "qcode_negative_feedback_snapshot_path"
+                ],
+                snapshot_sha256=invocation[
+                    "qcode_negative_feedback_snapshot_sha256"
+                ],
+                archive_sha256=invocation[
+                    "qcode_negative_feedback_archive_sha256"
+                ],
+                manifest_path=invocation[
+                    "qcode_negative_feedback_manifest_path"
+                ],
+                manifest_sha256=invocation[
+                    "qcode_negative_feedback_manifest_sha256"
+                ],
+                feedback_epoch=invocation["qcode_negative_feedback_epoch"],
+                required=True,
+            )
+            assert replayed is not None
+            if replayed[0] != {
+                name: invocation[name]
+                for name in COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS
+            }:
+                raise RuntimeError(
+                    "managed invocation negative-feedback binding changed"
+                )
     model_names = invocation["model_names"]
     if (
         not isinstance(model_names, list)
@@ -5875,11 +6357,16 @@ def _write_slice_witness(
     invocation: dict[str, Any],
     candidate_log_path: str | Path,
     candidate_start_offset: int,
+    renderer_activation: dict[str, Any] | None = None,
+    renderer_activation_identity: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if not observer.accounting_complete:
         raise RuntimeError("OpenEvolve slice accounting did not complete")
     effective_invocation = _validated_invocation_binding(
-        invocation, backend_path, codex_executable_identity
+        invocation,
+        backend_path,
+        codex_executable_identity,
+        renderer_activation,
     )
     current_source_binding, _, _ = _openevolve_source_binding()
     if current_source_binding != source_binding:
@@ -5896,6 +6383,7 @@ def _write_slice_witness(
             expected_contract_id=observer.expected_preflight_contract_id,
             cascade_threshold=observer.stage2_cascade_threshold,
             evaluator_kind=observer.evaluator_kind,
+            coset_map_schema_version=observer.coset_map_schema_version,
         )
     if (
         observer.checkpoint_preflight_required
@@ -5927,6 +6415,27 @@ def _write_slice_witness(
             EVALUATOR_KIND_BINDING_FIELD,
             EVALUATOR_KIND_DEFAULT,
         ),
+        (
+            _file_identity(
+                effective_invocation["qcode_negative_feedback_snapshot_path"],
+                "negative-feedback snapshot",
+            )
+            if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(
+                effective_invocation
+            )
+            else None
+        ),
+        (
+            _file_identity(
+                effective_invocation["qcode_negative_feedback_manifest_path"],
+                "negative-feedback snapshot manifest",
+            )
+            if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(
+                effective_invocation
+            )
+            else None
+        ),
+        renderer_activation_identity,
     )
     from evolve.openevolve_evaluator import candidate_log_range_identity
 
@@ -6052,9 +6561,14 @@ def _write_completion_marker(
     invocation: dict[str, Any],
     result_checkpoint: dict[str, Any],
     slice_witness: dict[str, Any],
+    renderer_activation: dict[str, Any] | None = None,
+    renderer_activation_identity: dict[str, Any] | None = None,
 ) -> None:
     effective_invocation = _validated_invocation_binding(
-        invocation, backend_path, codex_executable_identity
+        invocation,
+        backend_path,
+        codex_executable_identity,
+        renderer_activation,
     )
     resolved_output = Path(output_dir).resolve()
     launch_binding = _launch_input_identities(
@@ -6070,6 +6584,27 @@ def _write_completion_marker(
             EVALUATOR_KIND_BINDING_FIELD,
             EVALUATOR_KIND_DEFAULT,
         ),
+        (
+            _file_identity(
+                effective_invocation["qcode_negative_feedback_snapshot_path"],
+                "negative-feedback snapshot",
+            )
+            if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(
+                effective_invocation
+            )
+            else None
+        ),
+        (
+            _file_identity(
+                effective_invocation["qcode_negative_feedback_manifest_path"],
+                "negative-feedback snapshot manifest",
+            )
+            if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(
+                effective_invocation
+            )
+            else None
+        ),
+        renderer_activation_identity,
     )
     payload: dict[str, Any] = {
         "schema_version": EVOLUTION_COMPLETION_SCHEMA_VERSION,
@@ -6739,6 +7274,38 @@ def main():
         help="Read-only BitLesson/reviewer context appended to the search prompt.",
     )
     parser.add_argument(
+        "--negative-feedback-live-archive", type=str, default=None,
+        help="Managed coset live archive used only for verified append.",
+    )
+    parser.add_argument(
+        "--negative-feedback-snapshot", type=str, default=None,
+        help="Managed coset immutable archive snapshot used for scoring.",
+    )
+    parser.add_argument(
+        "--negative-feedback-snapshot-sha256", type=str, default=None,
+    )
+    parser.add_argument(
+        "--negative-feedback-archive-sha256", type=str, default=None,
+    )
+    parser.add_argument(
+        "--negative-feedback-manifest", type=str, default=None,
+    )
+    parser.add_argument(
+        "--negative-feedback-manifest-sha256", type=str, default=None,
+    )
+    parser.add_argument(
+        "--negative-feedback-epoch", type=int, default=None,
+    )
+    parser.add_argument(
+        "--coset-renderer-activation",
+        type=str,
+        default=None,
+        help=(
+            "Absolute path to the source-registry activation sealed for this "
+            "managed renderer-v3 slice."
+        ),
+    )
+    parser.add_argument(
         "--codex-cli", action="store_true",
         help="Use authenticated Codex CLI via OpenEvolve init_client.",
     )
@@ -6816,8 +7383,68 @@ def main():
         else:
             args.config = DEFAULT_CONFIG_NONCSS if args.noncss else DEFAULT_CONFIG
 
+    selected_coset_schema = (
+        _coset_search_portfolio_schema_version(args.config)
+        if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+        else None
+    )
+
     api_base = _resolve_api_base(args)
     output_dir = _resolve_output_dir(args)
+    run_name = Path(output_dir).name
+    feedback_requested = any(value is not None for value in (
+        args.negative_feedback_live_archive,
+        args.negative_feedback_snapshot,
+        args.negative_feedback_snapshot_sha256,
+        args.negative_feedback_archive_sha256,
+        args.negative_feedback_manifest,
+        args.negative_feedback_manifest_sha256,
+        args.negative_feedback_epoch,
+    ))
+    if feedback_requested and evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK:
+        parser.error("negative-feedback snapshots require the coset evaluator")
+    try:
+        negative_feedback_binding = _validated_negative_feedback_binding(
+            live_archive_path=args.negative_feedback_live_archive,
+            snapshot_path=args.negative_feedback_snapshot,
+            snapshot_sha256=args.negative_feedback_snapshot_sha256,
+            archive_sha256=args.negative_feedback_archive_sha256,
+            manifest_path=args.negative_feedback_manifest,
+            manifest_sha256=args.negative_feedback_manifest_sha256,
+            feedback_epoch=args.negative_feedback_epoch,
+            required=(
+                managed_requested
+                and evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+            ),
+            expected_run_id=(
+                run_name.removeprefix("humanize_")
+                if run_name.startswith("humanize_")
+                else None
+            ),
+        )
+    except RuntimeError as exc:
+        parser.error(str(exc))
+    if (
+        args.coset_renderer_activation is not None
+        and (
+            evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK
+            or selected_coset_schema != 4
+        )
+    ):
+        parser.error(
+            "--coset-renderer-activation requires the renderer-v3 coset config"
+        )
+    try:
+        renderer_activation_binding = _validated_renderer_activation_binding(
+            args.coset_renderer_activation,
+            required=(
+                managed_requested
+                and evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK
+                and selected_coset_schema == 4
+            ),
+        )
+    except RuntimeError as exc:
+        parser.error(str(exc))
 
     # OpenEvolve calls evaluators with no extra routing arguments. Bind the
     # exact absolute candidate log before loading any evolved program. This is
@@ -6830,18 +7457,37 @@ def main():
         WINNER_PREFLIGHT_CONTRACT_ID_ENV,
         "QCODE_CODEX_BIN",
         "QCODE_CODEX_CWD",
+        NEGATIVE_ARCHIVE_PATH_ENV,
+        NEGATIVE_ARCHIVE_SNAPSHOT_PATH_ENV,
+        COSET_RENDERER_ACTIVATION_JSON_ENV,
         "ENABLE_ARTIFACTS",
     )
     original_environment = {
         name: os.environ.get(name)
         for name in mutated_environment_names
     }
-    run_name = Path(output_dir).name
     os.environ["QCODE_RUN_NAME"] = run_name
     candidate_log_path = (
         Path(output_dir).expanduser().resolve() / "all_codes.jsonl"
     )
     os.environ[CANDIDATE_LOG_PATH_ENV] = str(candidate_log_path)
+    os.environ.pop(COSET_RENDERER_ACTIVATION_JSON_ENV, None)
+    if negative_feedback_binding is not None:
+        feedback_invocation = negative_feedback_binding[0]
+        os.environ[NEGATIVE_ARCHIVE_PATH_ENV] = feedback_invocation[
+            "qcode_negative_feedback_live_archive_path"
+        ]
+        os.environ[NEGATIVE_ARCHIVE_SNAPSHOT_PATH_ENV] = feedback_invocation[
+            "qcode_negative_feedback_snapshot_path"
+        ]
+    if renderer_activation_binding is not None:
+        os.environ[COSET_RENDERER_ACTIVATION_JSON_ENV] = json.dumps(
+            renderer_activation_binding[0],
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
     if managed_requested:
         # Slice accounting needs pinned OpenEvolve's rich exception envelope
         # to distinguish an invalid evolved program from a trusted evaluator
@@ -6868,7 +7514,11 @@ def main():
     if args.seed:
         seed_path = args.seed
     elif evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
-        seed_path = SEED_SOLUTION_COSET_TWO_BLOCK
+        seed_path = (
+            SEED_SOLUTION_COSET_TWO_BLOCK_V2
+            if selected_coset_schema == 3
+            else SEED_SOLUTION_COSET_TWO_BLOCK_V3
+        )
     elif args.noncss:
         seed_path = SEED_SOLUTION_NONCSS
     elif args.milp:
@@ -7109,6 +7759,23 @@ def main():
             invocation_binding[ACTION_CATALOG_SHA256_BINDING_FIELD] = (
                 _coset_action_catalog_sha256()
             )
+            if negative_feedback_binding is not None:
+                invocation_binding.update(negative_feedback_binding[0])
+            if coset_map_schema_version == 4:
+                if renderer_activation_binding is None:
+                    from evolve.coset_search_contract import (
+                        coset_renderer_activation_document,
+                        default_coset_renderer_activation,
+                    )
+
+                    activation = coset_renderer_activation_document(
+                        default_coset_renderer_activation()
+                    )
+                else:
+                    activation = renderer_activation_binding[0]
+                invocation_binding[
+                    COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+                ] = activation["activation_sha256"]
         if search_geometry_contract is not None:
             invocation_binding[SEARCH_GEOMETRY_CONTRACT_FIELD] = (
                 search_geometry_contract
@@ -7142,9 +7809,13 @@ def main():
                 f"(regime={search_regime['status'] if search_regime else 'normal'})"
             )
         if coset_map_schema_version is not None:
+            coset_islands = _coset_portfolio_contract_for_schema(
+                coset_map_schema_version
+            )["num_islands"]
             print(
                 "  Coset portfolio: fixed categorical MAP-Elites "
-                f"schema v{coset_map_schema_version}, 4 lineage islands"
+                f"schema v{coset_map_schema_version}, "
+                f"{coset_islands} lineage islands"
             )
         print(f"  Seed: {seed_path}")
         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
@@ -7245,7 +7916,10 @@ def main():
                         )
                         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
                             genome_kind = _strict_coset_checkpoint_genome_kind(
-                                database
+                                database,
+                                expected_map_schema_version=(
+                                    coset_map_schema_version
+                                ),
                             )
                             if genome_kind == "legacy-python":
                                 report = _install_coset_checkpoint_dsl_epoch(
@@ -7256,8 +7930,8 @@ def main():
                                     wall_timeout=_winner_preflight_wall_timeout(
                                         evaluator_timeout
                                     ),
-                                    search_portfolio_schema_version=(
-                                        search_portfolio_schema_version
+                                    coset_map_schema_version=(
+                                        coset_map_schema_version
                                     ),
                                 )
                                 observer.record_checkpoint_preflight(report)
@@ -7319,7 +7993,13 @@ def main():
                         )
                         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK and (
                             metrics.get(COSET_GENOME_FORMAT_ID_METRIC)
-                            != COSET_TYPED_DSL_GENOME_FORMAT_ID
+                            != (
+                                _coset_genome_format_id_for_schema(
+                                    coset_map_schema_version
+                                )
+                                if coset_map_schema_version is not None
+                                else COSET_TYPED_DSL_GENOME_FORMAT_ID
+                            )
                         ):
                             raise RuntimeError(
                                 "fresh coset program lacks its typed DSL marker"
@@ -7370,6 +8050,35 @@ def main():
                 and context_identity is not None
                 and dependency_identities is not None
             )
+            if negative_feedback_binding is not None:
+                replayed_feedback = _validated_negative_feedback_binding(
+                    live_archive_path=args.negative_feedback_live_archive,
+                    snapshot_path=args.negative_feedback_snapshot,
+                    snapshot_sha256=args.negative_feedback_snapshot_sha256,
+                    archive_sha256=args.negative_feedback_archive_sha256,
+                    manifest_path=args.negative_feedback_manifest,
+                    manifest_sha256=args.negative_feedback_manifest_sha256,
+                    feedback_epoch=args.negative_feedback_epoch,
+                    required=True,
+                    expected_run_id=(
+                        run_name.removeprefix("humanize_")
+                        if run_name.startswith("humanize_")
+                        else None
+                    ),
+                )
+                if replayed_feedback != negative_feedback_binding:
+                    raise RuntimeError(
+                        "negative-feedback binding changed during the slice"
+                    )
+            if renderer_activation_binding is not None:
+                replayed_activation = _validated_renderer_activation_binding(
+                    args.coset_renderer_activation,
+                    required=True,
+                )
+                if replayed_activation != renderer_activation_binding:
+                    raise RuntimeError(
+                        "coset renderer activation changed during the slice"
+                    )
             result_checkpoint, witness_identity = _write_slice_witness(
                 args.slice_witness,
                 observer=observer,
@@ -7388,6 +8097,16 @@ def main():
                 invocation=invocation_binding,
                 candidate_log_path=candidate_log_path,
                 candidate_start_offset=args.candidate_start_offset,
+                renderer_activation=(
+                    None
+                    if renderer_activation_binding is None
+                    else renderer_activation_binding[0]
+                ),
+                renderer_activation_identity=(
+                    None
+                    if renderer_activation_binding is None
+                    else renderer_activation_binding[1]
+                ),
             )
             _write_completion_marker(
                 args.completion_marker,
@@ -7405,6 +8124,16 @@ def main():
                 invocation=invocation_binding,
                 result_checkpoint=result_checkpoint,
                 slice_witness=witness_identity,
+                renderer_activation=(
+                    None
+                    if renderer_activation_binding is None
+                    else renderer_activation_binding[0]
+                ),
+                renderer_activation_identity=(
+                    None
+                    if renderer_activation_binding is None
+                    else renderer_activation_binding[1]
+                ),
             )
 
     except SystemExit as exc:

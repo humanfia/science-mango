@@ -27,8 +27,8 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
-PREFLIGHT_PROTOCOL = "qcode-coset-mutation-preflight-v1"
-PREFLIGHT_SCHEMA_VERSION = 1
+PREFLIGHT_PROTOCOL = "qcode-coset-mutation-preflight-v2"
+PREFLIGHT_SCHEMA_VERSION = 2
 DEFAULT_HARD_TIMEOUT_S = 30.0
 DEFAULT_MEMORY_LIMIT_BYTES = 512 * 1024 * 1024
 MAX_POLICY_SOURCE_BYTES = 262_144
@@ -47,6 +47,7 @@ class CosetMutationPreflightResult:
     program_bytes: int
     policy_sha256: str
     candidates: tuple[dict[str, Any], ...]
+    renderer_activation: dict[str, Any] | None
     elapsed_s: float
 
 
@@ -306,8 +307,10 @@ def _wait_for_leader_zombie(identity: _ProcessIdentity, deadline: float) -> bool
     return False
 
 
-def _child_environment() -> dict[str, str]:
-    return {
+def _child_environment(
+    renderer_activation: Mapping[str, Any] | None = None,
+) -> dict[str, str]:
+    environment = {
         "LANG": "C.UTF-8",
         "LC_ALL": "C.UTF-8",
         "OMP_NUM_THREADS": "1",
@@ -315,6 +318,15 @@ def _child_environment() -> dict[str, str]:
         "MKL_NUM_THREADS": "1",
         "NUMEXPR_NUM_THREADS": "1",
     }
+    if renderer_activation is not None:
+        from evolve.coset_search_contract import (
+            COSET_RENDERER_ACTIVATION_JSON_ENV,
+        )
+
+        environment[COSET_RENDERER_ACTIVATION_JSON_ENV] = (
+            _canonical_json_bytes(renderer_activation).decode("utf-8")
+        )
+    return environment
 
 
 def _child_command(
@@ -442,9 +454,55 @@ def _strict_json_object(payload: bytes) -> dict[str, Any]:
     return value
 
 
+def _renderer_activation_document(
+    value: Mapping[str, Any] | str | None,
+) -> dict[str, Any] | None:
+    """Validate one inert activation against the installed source registry."""
+
+    if value is None:
+        return None
+    if type(value) is str:
+        try:
+            encoded = value.encode("utf-8", errors="strict") + b"\n"
+        except UnicodeEncodeError as exc:
+            raise CosetMutationRuntimeError(
+                "renderer_activation_invalid",
+                detail_sha256=_detail_sha256(type(exc).__name__),
+            ) from exc
+        try:
+            document = _strict_json_object(encoded)
+        except CosetMutationRuntimeError as exc:
+            raise CosetMutationRuntimeError(
+                "renderer_activation_invalid",
+                detail_sha256=exc.detail_sha256,
+            ) from exc
+    elif type(value) is dict:
+        document = value
+    else:
+        raise CosetMutationRuntimeError("renderer_activation_invalid")
+    try:
+        from evolve.coset_search_contract import (
+            coset_renderer_activation_document,
+            trusted_coset_renderer_activation_from_document,
+        )
+
+        activation = trusted_coset_renderer_activation_from_document(document)
+        canonical = coset_renderer_activation_document(activation)
+    except (TypeError, ValueError) as exc:
+        raise CosetMutationRuntimeError(
+            "renderer_activation_invalid",
+            detail_sha256=_detail_sha256(type(exc).__name__),
+        ) from exc
+    if document != canonical:
+        raise CosetMutationRuntimeError("renderer_activation_not_canonical")
+    return canonical
+
+
 def _validated_response(
     response: dict[str, Any],
     snapshot: _SourceSnapshot,
+    *,
+    requested_renderer_activation: Mapping[str, Any] | None = None,
 ) -> CosetMutationPreflightResult:
     common = {"protocol", "schema_version", "status", "program_sha256", "program_bytes"}
     if (
@@ -475,6 +533,7 @@ def _validated_response(
         "policy",
         "candidate_count",
         "candidates",
+        "renderer_activation",
     }
     if status_value != "valid" or set(response) != expected:
         raise CosetMutationRuntimeError("valid_envelope_malformed")
@@ -489,14 +548,21 @@ def _validated_response(
         raise CosetMutationRuntimeError("policy_digest_mismatch")
 
     try:
-        from evolve import coset_policy_dsl as dsl
         from evolve import coset_search_contract as contract
+        from evolve.coset_policy_dispatch import (
+            parse_and_render_activated_policy,
+            parse_and_render_registered_policy,
+        )
+        from evolve.coset_search_contract import (
+            coset_renderer_activation_document,
+            trusted_coset_renderer_activation_from_document,
+        )
     except Exception as exc:
         raise CosetMutationRuntimeError(
             "parent_contract_import_failed",
             detail_sha256=_detail_sha256(type(exc).__name__),
         ) from exc
-    if dsl.MAX_POLICY_BYTES != MAX_POLICY_SOURCE_BYTES:
+    if MAX_POLICY_SOURCE_BYTES != 262_144:
         raise CosetMutationRuntimeError("policy_source_cap_mismatch")
     candidates = response.get("candidates")
     count = response.get("candidate_count")
@@ -513,10 +579,10 @@ def _validated_response(
         for candidate in candidates:
             if type(candidate) is not dict:
                 raise ValueError("candidate is not a plain object")
-            item = contract.normalize_candidate(candidate)
+            item = contract.normalize_coset_candidate(candidate)
             if item != candidate:
                 raise ValueError("candidate is not canonical")
-            digest = contract.candidate_digest(item)
+            digest = contract.coset_candidate_digest(item)
             if digest in digests:
                 raise ValueError("duplicate candidate")
             digests.add(digest)
@@ -542,11 +608,55 @@ def _validated_response(
         ) from exc
     if observed_quotas != expected_quotas:
         raise CosetMutationRuntimeError("candidate_quota_invalid")
+    response_activation = response.get("renderer_activation")
+    activation_value = None
+    if response_activation is not None:
+        if type(response_activation) is not dict:
+            raise CosetMutationRuntimeError("renderer_activation_malformed")
+        try:
+            activation_value = trusted_coset_renderer_activation_from_document(
+                response_activation
+            )
+            canonical_activation = coset_renderer_activation_document(
+                activation_value
+            )
+        except (TypeError, ValueError) as exc:
+            raise CosetMutationRuntimeError(
+                "renderer_activation_revalidation_failed",
+                detail_sha256=_detail_sha256(type(exc).__name__),
+            ) from exc
+        if canonical_activation != response_activation:
+            raise CosetMutationRuntimeError("renderer_activation_not_canonical")
+    if (
+        requested_renderer_activation is not None
+        and response_activation != requested_renderer_activation
+    ):
+        raise CosetMutationRuntimeError("renderer_activation_binding_mismatch")
+    try:
+        if activation_value is None:
+            replay = parse_and_render_registered_policy(
+                _canonical_json_bytes(policy_document)
+            )
+        else:
+            replay = parse_and_render_activated_policy(
+                _canonical_json_bytes(policy_document), activation_value
+            )
+    except Exception as exc:
+        raise CosetMutationRuntimeError(
+            "policy_revalidation_failed",
+            detail_sha256=_detail_sha256(type(exc).__name__),
+        ) from exc
+    if (
+        replay.policy_sha256 != policy_sha256
+        or list(replay.candidates) != normalized
+    ):
+        raise CosetMutationRuntimeError("policy_candidate_binding_mismatch")
     return CosetMutationPreflightResult(
         program_sha256=snapshot.sha256,
         program_bytes=snapshot.size,
         policy_sha256=policy_sha256,
         candidates=tuple(normalized),
+        renderer_activation=response_activation,
         elapsed_s=0.0,
     )
 
@@ -574,6 +684,7 @@ def preflight_coset_policy(
     python_executable: str | None = None,
     hard_timeout_s: float = DEFAULT_HARD_TIMEOUT_S,
     memory_limit_bytes: int = DEFAULT_MEMORY_LIMIT_BYTES,
+    renderer_activation: Mapping[str, Any] | None = None,
 ) -> CosetMutationPreflightResult:
     """Parse and render one evolved JSON policy behind a hard process wall."""
 
@@ -591,6 +702,17 @@ def preflight_coset_policy(
     ):
         raise CosetMutationRuntimeError("memory_limit_invalid")
     started = time.monotonic()
+    if renderer_activation is None:
+        from evolve.coset_search_contract import (
+            COSET_RENDERER_ACTIVATION_JSON_ENV,
+        )
+
+        activation_input: Mapping[str, Any] | str | None = os.environ.get(
+            COSET_RENDERER_ACTIVATION_JSON_ENV
+        )
+    else:
+        activation_input = renderer_activation
+    activation_document = _renderer_activation_document(activation_input)
     snapshot = _snapshot_regular_file(program_path)
     executable = _validated_python_executable(python_executable)
     command = _child_command(
@@ -605,7 +727,7 @@ def preflight_coset_policy(
             process = subprocess.Popen(
                 command,
                 cwd=cwd,
-                env=_child_environment(),
+                env=_child_environment(activation_document),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -664,12 +786,17 @@ def preflight_coset_policy(
             "child_stderr_nonempty", detail_sha256=_detail_sha256(stderr)
         )
     response = _strict_json_object(stdout)
-    result = _validated_response(response, snapshot)
+    result = _validated_response(
+        response,
+        snapshot,
+        requested_renderer_activation=activation_document,
+    )
     return CosetMutationPreflightResult(
         program_sha256=result.program_sha256,
         program_bytes=result.program_bytes,
         policy_sha256=result.policy_sha256,
         candidates=result.candidates,
+        renderer_activation=result.renderer_activation,
         elapsed_s=time.monotonic() - started,
     )
 
@@ -703,13 +830,23 @@ def _child_response(source: bytes) -> dict[str, Any]:
     # trusted project imports so RLIMIT_FSIZE=0 cannot turn a harmless pyc
     # cache miss into SIGXFSZ.
     sys.dont_write_bytecode = True
-    from evolve.coset_policy_dsl import (
-        MAX_POLICY_BYTES,
-        CosetPolicyError,
-        parse_policy,
-        policy_digest,
-        policy_document,
-        render_candidates,
+    from evolve.coset_policy_dispatch import (
+        CosetPolicyDispatchError,
+        parse_and_render_activated_policy,
+        parse_and_render_registered_policy,
+    )
+    from evolve.coset_search_contract import (
+        COSET_RENDERER_ACTIVATION_JSON_ENV,
+        trusted_coset_renderer_activation_from_document,
+    )
+
+    activation_document = _renderer_activation_document(
+        os.environ.get(COSET_RENDERER_ACTIVATION_JSON_ENV)
+    )
+    activation = (
+        trusted_coset_renderer_activation_from_document(activation_document)
+        if activation_document is not None
+        else None
     )
 
     program_sha256 = hashlib.sha256(source).hexdigest()
@@ -720,11 +857,15 @@ def _child_response(source: bytes) -> dict[str, Any]:
         "program_bytes": len(source),
     }
     try:
-        if len(source) > MAX_POLICY_BYTES:
-            raise CosetPolicyError("coset policy payload exceeds the source cap")
-        policy = parse_policy(source)
-        candidates = render_candidates(policy)
-    except CosetPolicyError as exc:
+        if len(source) > MAX_POLICY_SOURCE_BYTES:
+            raise CosetPolicyDispatchError(
+                "coset policy payload exceeds the source cap"
+            )
+        if activation is None:
+            rendered = parse_and_render_registered_policy(source)
+        else:
+            rendered = parse_and_render_activated_policy(source, activation)
+    except CosetPolicyDispatchError as exc:
         return {
             **common,
             "status": "invalid_mutation",
@@ -734,8 +875,9 @@ def _child_response(source: bytes) -> dict[str, Any]:
                 type(exc).__name__ + "\0" + str(exc)
             ),
         }
-    document = policy_document(policy)
-    digest = policy_digest(policy)
+    document = rendered.document
+    digest = rendered.policy_sha256
+    candidates = list(rendered.candidates)
     if hashlib.sha256(_canonical_json_bytes(document)).hexdigest() != digest:
         raise RuntimeError("trusted policy digest implementation disagrees")
     return {
@@ -745,6 +887,7 @@ def _child_response(source: bytes) -> dict[str, Any]:
         "policy": document,
         "candidate_count": len(candidates),
         "candidates": candidates,
+        "renderer_activation": rendered.activation,
     }
 
 

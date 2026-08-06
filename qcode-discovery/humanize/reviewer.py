@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import subprocess
 import time
 from collections.abc import Callable
@@ -45,6 +46,16 @@ _SEARCH_ACTION_DIMENSIONS = (
     "orbit_span_bin",
     "geometry_twist_class",
     "mutation_tactic",
+    "renderer_descriptor_id",
+    "catalog_manifest_id",
+    "catalog_kind",
+)
+_SEARCH_ACTION_IDENTIFIER_DIMENSIONS = frozenset({
+    "renderer_descriptor_id",
+    "catalog_manifest_id",
+})
+_SEARCH_ACTION_SAFE_ID = re.compile(
+    r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z"
 )
 _SEARCH_ACTION_DIRECTIONS = ("increase", "decrease", "maintain")
 _SEARCH_ACTION_PRIORITIES = ("high", "medium", "low")
@@ -87,6 +98,7 @@ _SEARCH_ACTION_VALUES = {
             "repair_dual_balance",
         }
     ),
+    "catalog_kind": frozenset({"action", "cover", "protograph"}),
 }
 
 def _review_text_schema(*, maximum: int) -> dict[str, Any]:
@@ -116,6 +128,33 @@ def _focus_item_schema(
         "properties": {
             "dimension": {"type": "string", "const": dimension},
             "value": {"type": "string", "enum": sorted(values)},
+            "direction": {
+                "type": "string",
+                "enum": list(_SEARCH_ACTION_DIRECTIONS),
+            },
+            "priority": {
+                "type": "string",
+                "enum": list(_SEARCH_ACTION_PRIORITIES),
+            },
+        },
+    }
+
+
+def _identifier_focus_item_schema(dimension: str) -> dict[str, Any]:
+    """Allow an inert registry ID while forbidding code-like text."""
+
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["dimension", "value", "direction", "priority"],
+        "properties": {
+            "dimension": {"type": "string", "const": dimension},
+            "value": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+            },
             "direction": {
                 "type": "string",
                 "enum": list(_SEARCH_ACTION_DIRECTIONS),
@@ -214,6 +253,11 @@ REVIEW_SCHEMA: dict[str, Any] = {
                         "anyOf": [
                             _focus_item_schema(dimension, values)
                             for dimension, values in _SEARCH_ACTION_VALUES.items()
+                        ] + [
+                            _identifier_focus_item_schema(dimension)
+                            for dimension in sorted(
+                                _SEARCH_ACTION_IDENTIFIER_DIMENSIONS
+                            )
                         ],
                     },
                 },
@@ -324,12 +368,21 @@ def _validate_search_action(value: Any) -> None:
             raise ReviewError(
                 f"invalid search_action focus dimension: {dimension!r}"
             )
-        allowed_values = _SEARCH_ACTION_VALUES[dimension]
-        if item["value"] not in allowed_values:
-            raise ReviewError(
-                "search_action focus value is incompatible with dimension "
-                f"{dimension!r}: {item['value']!r}"
-            )
+        if dimension in _SEARCH_ACTION_IDENTIFIER_DIMENSIONS:
+            if (
+                not isinstance(item["value"], str)
+                or _SEARCH_ACTION_SAFE_ID.fullmatch(item["value"]) is None
+            ):
+                raise ReviewError(
+                    "search_action registry identifier is unsafe"
+                )
+        else:
+            allowed_values = _SEARCH_ACTION_VALUES[dimension]
+            if item["value"] not in allowed_values:
+                raise ReviewError(
+                    "search_action focus value is incompatible with dimension "
+                    f"{dimension!r}: {item['value']!r}"
+                )
         if item["direction"] not in _SEARCH_ACTION_DIRECTIONS:
             raise ReviewError(
                 f"invalid search_action focus direction: {item['direction']!r}"
@@ -1056,6 +1109,13 @@ def build_review_prompt(
     compact_round_history = [
         _round_history_compact(row) for row in round_history
     ]
+    from evolve.coset_search_contract import (
+        trusted_coset_catalog_registry_document,
+        trusted_coset_renderer_registry_document,
+    )
+
+    renderer_registry = trusted_coset_renderer_registry_document()
+    catalog_registry = trusted_coset_catalog_registry_document()
     evidence = {
         "round": round_number,
         "contract": contract,
@@ -1113,6 +1173,32 @@ def build_review_prompt(
             "compact_index_included": len(compact_round_history),
             "compact_index_omitted": 0,
         },
+        "trusted_coset_renderer_registry": {
+            "advisory_only": True,
+            "renderer_registry_sha256": renderer_registry[
+                "registry_sha256"
+            ],
+            "installed_renderers": [
+                {
+                    "renderer_descriptor_id": row["descriptor_id"],
+                    "catalog_kind": row["catalog_kind"],
+                    "support_splits": row["support_splits"],
+                }
+                for row in renderer_registry["descriptors"]
+            ],
+            "catalog_registry_sha256": catalog_registry["registry_sha256"],
+            "installed_catalog_manifests": [
+                {
+                    "catalog_manifest_id": row["manifest_id"],
+                    "catalog_kind": row["catalog_kind"],
+                    "catalog_id": row["catalog_id"],
+                }
+                for row in catalog_registry["manifests"]
+            ],
+            "unknown_catalog_behavior": (
+                "sealed_representation_expansion_handoff_no_execution"
+            ),
+        },
         "memory_coverage": {
             "total_characters": len(memory),
             "included_characters": len(memory_excerpt),
@@ -1163,6 +1249,12 @@ Search-action contract:
   QCODE_ marker.
 - Cite concrete evidence_refs. Use round_history when recommending a regime
   change; do not infer a trend from a single round.
+- For a coset renderer request, emit exactly one support_split_type focus.
+  The current installed action catalog can be selected implicitly, or name a
+  renderer_descriptor_id, catalog_manifest_id, and catalog_kind together.
+  These are inert registry IDs, never module/callable names. Unknown action,
+  cover, or protograph IDs produce a non-executable representation-expansion
+  handoff; they never install or execute a new mathematical construction.
 
 Long-term BitLesson memory (may be empty):
 ---

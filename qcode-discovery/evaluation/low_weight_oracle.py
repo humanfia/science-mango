@@ -520,6 +520,191 @@ def _solve_sector(
     )
 
 
+def evaluate_low_weight_sector(
+    checks: np.ndarray,
+    logicals: np.ndarray,
+    *,
+    max_weight: int,
+    sector: str,
+    hard_timeout_s: float = 30.0,
+) -> dict[str, Any]:
+    """Solve one source-bound low-weight sector problem.
+
+    This is the reusable primitive behind the full CSS oracle.  In
+    particular, callers may restrict the columns to a proven coordinate
+    subset (for example one block of a two-block construction).  An UNSAT
+    result then applies *only* to that restricted problem; callers must not
+    promote it to a lower bound on the unrestricted CSS distance.
+    """
+
+    check_matrix, target_logicals, threshold, normalized_sector = (
+        _validated_sector_problem(
+            checks,
+            logicals,
+            max_weight=max_weight,
+            sector=sector,
+        )
+    )
+    timeout = float(hard_timeout_s)
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("hard_timeout_s must be positive and finite")
+    return _solve_sector(
+        check_matrix,
+        target_logicals,
+        max_weight=threshold,
+        sector=normalized_sector,
+        hard_timeout_s=timeout,
+    )
+
+
+def verify_low_weight_sector_evidence(
+    evidence: Mapping[str, Any],
+    checks: np.ndarray,
+    logicals: np.ndarray,
+    *,
+    max_weight: int,
+    sector: str,
+    require_current_source: bool = True,
+    replay_mitm_unsat: bool = True,
+) -> list[str]:
+    """Replay a standalone sector decision against the exact matrices.
+
+    Historical-source relaxation is deliberately limited to SAT witnesses,
+    whose algebraic content is independently replayed.  Search-only UNSAT
+    decisions remain tied to the current implementation and SAT backend.
+    """
+
+    if type(require_current_source) is not bool:
+        raise TypeError("require_current_source must be a boolean")
+    if type(replay_mitm_unsat) is not bool:
+        raise TypeError("replay_mitm_unsat must be a boolean")
+    try:
+        check_matrix, target_logicals, threshold, normalized_sector = (
+            _validated_sector_problem(
+                checks,
+                logicals,
+                max_weight=max_weight,
+                sector=sector,
+            )
+        )
+    except (TypeError, ValueError) as exc:
+        return [f"sector matrices are invalid: {exc}"]
+    if not isinstance(evidence, Mapping):
+        return ["sector evidence is not an object"]
+
+    failures: list[str] = []
+    unsigned = dict(evidence)
+    evidence_sha256 = unsigned.pop("evidence_sha256", None)
+    try:
+        if evidence_sha256 != _canonical_json_sha256(unsigned):
+            failures.append("sector evidence self-hash mismatch")
+    except (TypeError, ValueError):
+        failures.append("sector evidence is not strict JSON")
+
+    outcome = evidence.get("outcome")
+    expected_complete = outcome in {"SAT", "UNSAT"}
+    if not (
+        evidence.get("schema_version") == LOW_WEIGHT_ORACLE_SCHEMA_VERSION
+        and evidence.get("kind") == LOW_WEIGHT_SECTOR_KIND
+        and outcome in LOW_WEIGHT_OUTCOMES
+        and evidence.get("max_weight") == threshold
+        and evidence.get("decision_complete") is expected_complete
+        and evidence.get("retryable") is (not expected_complete)
+    ):
+        failures.append("sector schema or terminal/retry semantics are invalid")
+        if outcome not in LOW_WEIGHT_OUTCOMES:
+            return failures
+
+    binding = evidence.get("binding")
+    engine = binding.get("engine") if isinstance(binding, Mapping) else None
+    if engine not in {LOW_WEIGHT_MITM_ENGINE, LOW_WEIGHT_SAT_ENGINE}:
+        failures.append("sector engine/binding is invalid")
+        return failures
+    declared_source = binding.get("source_sha256")
+    declared_source_valid = bool(
+        isinstance(declared_source, str)
+        and len(declared_source) == 64
+        and not any(
+            character not in "0123456789abcdef"
+            for character in declared_source
+        )
+    )
+    if not declared_source_valid:
+        failures.append("sector source binding is invalid")
+    elif require_current_source and declared_source != _SOURCE_SHA256:
+        failures.append("sector source binding mismatch")
+    if not require_current_source and outcome != "SAT":
+        failures.append(
+            "historical-source relaxation is restricted to SAT upper-bound "
+            "witnesses"
+        )
+    expected_binding = _sector_binding(
+        check_matrix,
+        target_logicals,
+        threshold=threshold,
+        sector=normalized_sector,
+        engine=str(engine),
+        source_sha256=(
+            None
+            if require_current_source or not declared_source_valid
+            else str(declared_source)
+        ),
+    )
+    if not isinstance(binding, Mapping) or dict(binding) != expected_binding:
+        failures.append("sector matrix/source binding mismatch")
+    if engine == LOW_WEIGHT_MITM_ENGINE and threshold > LOW_WEIGHT_MITM_MAX_THRESHOLD:
+        failures.append("sector MITM threshold exceeds its complete range")
+    if engine == LOW_WEIGHT_SAT_ENGINE and threshold <= LOW_WEIGHT_MITM_MAX_THRESHOLD:
+        failures.append("sector SAT engine used inside the MITM range")
+
+    if outcome == "SAT":
+        failures.extend(
+            _verify_normalized_witness(
+                evidence.get("witness"),
+                checks=check_matrix,
+                logicals=target_logicals,
+                sector=normalized_sector,
+                threshold=threshold,
+            )
+        )
+    elif evidence.get("witness") is not None:
+        failures.append("non-SAT sector evidence carries a witness")
+
+    if (
+        replay_mitm_unsat
+        and engine == LOW_WEIGHT_MITM_ENGINE
+        and outcome == "UNSAT"
+    ):
+        replay = _solve_sector_mitm(
+            check_matrix,
+            target_logicals,
+            max_weight=threshold,
+            sector=normalized_sector,
+        )
+        if replay.get("outcome") != "UNSAT":
+            failures.append("sector MITM UNSAT does not replay")
+    elif engine == LOW_WEIGHT_SAT_ENGINE and outcome in {"SAT", "UNSAT"}:
+        raw = evidence.get("solver_evidence")
+        if not isinstance(raw, Mapping):
+            failures.append("sector SAT terminal evidence is missing")
+        elif isinstance(binding, Mapping):
+            checkpoint_identity = {
+                "kind": LOW_WEIGHT_ORACLE_KIND,
+                "binding_sha256": binding.get("binding_sha256"),
+            }
+            failures.extend(
+                _sat_backend_terminal_failures(
+                    raw,
+                    check_matrix,
+                    target_logicals,
+                    max_weight=threshold,
+                    sector=normalized_sector,
+                    checkpoint_identity=checkpoint_identity,
+                )
+            )
+    return failures
+
+
 def _seal_oracle_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     unsigned = dict(evidence)
     unsigned.pop("evidence_sha256", None)
@@ -1038,6 +1223,8 @@ __all__ = [
     "LOW_WEIGHT_ORACLE_SCHEMA_VERSION",
     "LOW_WEIGHT_OUTCOMES",
     "evaluate_css_low_weight_oracle",
+    "evaluate_low_weight_sector",
     "normalized_low_weight_witness",
     "verify_css_low_weight_oracle",
+    "verify_low_weight_sector_evidence",
 ]

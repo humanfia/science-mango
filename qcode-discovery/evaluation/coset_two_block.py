@@ -37,6 +37,10 @@ CONSTRUCTION_KIND = "coset-two-block-v1"
 CONSTRUCTION_KIND_V2 = "coset-two-block-v2"
 CONSTRUCTION_REPRESENTATION = "css-coset-two-block-actions-v1"
 CONSTRUCTION_REPRESENTATION_V2 = "css-coset-two-block-actions-v2"
+SEARCH_REPRESENTATION_V3 = "css-coset-two-block-actions-v3"
+SEARCH_RENDERER_DESCRIPTOR_V3 = "catalog-combination-walk-v3"
+SEARCH_CANDIDATE_SCHEMA_V3 = 3
+SEARCH_SUPPORT_SPLITS_V3 = frozenset({(2, 4), (4, 2), (2, 3), (3, 2), (3, 3)})
 MAX_TOTAL_SUPPORT = 6
 ACTION_CATALOG_SHA256 = action_catalog_sha256()
 ACTION_CATALOG_V2_SHA256 = action_catalog_sha256(V2_CATALOG_ID)
@@ -334,6 +338,43 @@ def build_coset_candidate(candidate: Mapping[str, Any]) -> codes.CSSCode:
             raise ValueError(f"coset candidate is missing {sorted(missing)}")
         representation_id = construction_value.get("representation_id")
         if representation_id == CONSTRUCTION_REPRESENTATION_V2:
+            compact = {
+                "kind": CONSTRUCTION_KIND_V2,
+                "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+                "action_id": construction_value["action_id"],
+                "action_catalog_id": V2_CATALOG_ID,
+                "action_catalog_sha256": ACTION_CATALOG_V2_SHA256,
+                "left_support": construction_value["left_support"],
+                "right_support": construction_value["right_support"],
+            }
+        elif representation_id == SEARCH_REPRESENTATION_V3:
+            exact_fields = {
+                "schema_version",
+                "representation_id",
+                "renderer_descriptor_id",
+                "action_id",
+                "support_split",
+                "left_support",
+                "right_support",
+            }
+            if set(construction_value) != exact_fields:
+                raise ValueError(
+                    "coset v3 search candidate fields do not match schema"
+                )
+            split_raw = construction_value.get("support_split")
+            if (
+                construction_value.get("schema_version")
+                != SEARCH_CANDIDATE_SCHEMA_V3
+                or construction_value.get("renderer_descriptor_id")
+                != SEARCH_RENDERER_DESCRIPTOR_V3
+                or not isinstance(split_raw, list)
+                or len(split_raw) != 2
+                or any(type(item) is not int for item in split_raw)
+                or tuple(split_raw) not in SEARCH_SUPPORT_SPLITS_V3
+                or len(construction_value["left_support"]) != split_raw[0]
+                or len(construction_value["right_support"]) != split_raw[1]
+            ):
+                raise ValueError("coset v3 search candidate binding is invalid")
             compact = {
                 "kind": CONSTRUCTION_KIND_V2,
                 "representation_id": CONSTRUCTION_REPRESENTATION_V2,

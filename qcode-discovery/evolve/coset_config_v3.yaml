@@ -1,0 +1,111 @@
+# OpenEvolve configuration for trusted coset renderer v3.
+#
+# This epoch adds five source-whitelisted support splits while retaining the
+# immutable 46-action catalog.  It is deliberately checkpoint-incompatible
+# with renderer v2 and every BB-polynomial campaign.  Use a fresh run id.
+
+max_iterations: 300
+diff_based_evolution: true
+language: "json"
+log_level: "INFO"
+max_code_length: 30000
+checkpoint_interval: 25
+random_seed: 53
+
+qcode_coset_search_portfolio:
+  enabled: true
+  schema_version: 4
+  representation_id: "css-coset-two-block-actions-v3"
+  checkpoint_compatibility_group: "coset-two-block-catalog-v2-renderer-v3-map-v4-proof-ladder-v2"
+
+qcode_coset_stage1_proof_ladder:
+  enabled: true
+  schema_version: 2
+  start_weight: 4
+  weight_step: 2
+  max_candidates_per_batch: 8
+  max_new_steps_per_batch: 24
+  batch_wall_timeout_s: 720.0
+  step_hard_timeout_s: 30.0
+  cache_directory: ".coset-stage1-proof-cache-v2"
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.34
+      temperature: 1.0
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 1.0
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are evolving a strict JSON policy for sparse CSS two-block codes built
+    from an immutable, source-bound catalog of 46 finite-group actions. The
+    program must remain one JSON object: never add Python, comments, imports,
+    expressions, variable names, functions, module paths, callables, or
+    duplicate keys.
+
+    Keep every root identity binding, renderer/catalog SHA-256, all 46
+    action_id values, candidate_limit=384, and catalog-derived quotas exact.
+    The only allowed global support_split values are [2,4], [4,2], [2,3],
+    [3,2], and [3,3]. You may change support_split, explicit numeric support
+    indices, and combination-walk offset/stride. When changing support_split,
+    update every explicit support length and every affected walk range and
+    coprimality together. Published anchors are inserted automatically only
+    when their immutable dimensions match the selected split.
+
+    An explicit support is `{ "left": [...], "right": [...] }`, containing
+    exactly support_split[0]-1 and support_split[1]-1 distinct nonnegative
+    indices into the action's immutable nonidentity catalogs. The trusted
+    renderer inserts identities, un-ranks combinations, canonicalizes,
+    deduplicates, and round-robins action lanes. An enabled walk needs an
+    in-range offset and positive stride coprime to its combination space; a
+    disabled walk is exactly offset=0,stride=1 and anchors must fill its quota.
+    Keep the complete policy below 30000 bytes.
+
+    The objective is a novel code with rigorously certified
+    FOM = k*d^2/n > 12 under the challenge degree-six constraints. Decoder or
+    BP-OSD logical weights are upper bounds and receive zero positive fitness
+    credit. A replayed low-weight SAT witness is reliable negative evidence;
+    only replayed UNSAT evidence supplies a distance lower bound. Prefer
+    targeted mutations that move underoccupied support-split/action/orbit
+    relationships. Catalog expansion is outside this policy: a separate
+    versioned proposal may name only a source-installed manifest, and only an
+    explicit trusted dispatcher can activate it. Unknown cover/protograph
+    manifests fail closed; never encode executable catalog logic here.
+  include_artifacts: true
+  suggest_simplification_after_chars: 12000
+
+evaluator:
+  timeout: 1200
+  cascade_evaluation: true
+  cascade_thresholds: [2.0, 2.0]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 192
+  num_islands: 5
+  exploration_ratio: 0.60
+  exploitation_ratio: 0.30
+  migration_interval: 20
+  feature_dimensions:
+    - "coset_nonnormal_lane_bucket"
+    - "coset_normal_lane_bucket"
+    - "coset_batch_orbit_profile_bucket"
+    - "coset_support_split_bucket"
+  feature_bins:
+    coset_nonnormal_lane_bucket: 16
+    coset_normal_lane_bucket: 16
+    coset_batch_orbit_profile_bucket: 8
+    coset_support_split_bucket: 5

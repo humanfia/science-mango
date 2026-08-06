@@ -46,7 +46,9 @@ def test_default_policy_preflight_returns_revalidated_candidates(tmp_path):
     assert result.program_bytes == len(payload)
     assert result.policy_sha256 == policy_digest(policy)
     assert len(result.candidates) == MAX_GENERATED_CANDIDATES
-    assert len({row["action_id"] for row in result.candidates}) == 2
+    assert len({row["action_id"] for row in result.candidates}) == len(
+        policy_document(policy)["actions"]
+    )
     assert result.elapsed_s > 0
 
 
@@ -160,7 +162,8 @@ def test_parent_rejects_wrong_per_action_quota():
     response, snapshot = _valid_child_response(payload)
 
     document = policy_document(source_policy)
-    assert [action["quota"] for action in document["actions"]] == [288, 96]
+    assert len(document["actions"]) >= 2
+    assert document["actions"][0]["quota"] > 0
     document["actions"][0]["quota"] -= 1
     document["actions"][1]["quota"] += 1
     wrong_policy = normalize_policy(document)

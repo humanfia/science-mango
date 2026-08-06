@@ -6,6 +6,7 @@ import json
 import os
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 import scripts.audit_candidate_pool as candidate_pool
 from evaluation.certificate import _certificate_sha256
@@ -86,6 +87,322 @@ def _construction(marker: int) -> dict:
         "k": 2,
         "required_distance": 21,
     }
+
+
+def _compact_construction(marker: int = 0) -> dict:
+    return {
+        "source": f"compact-{marker}",
+        "construction": {
+            "kind": "test-compact",
+            "marker": marker,
+        },
+        "n": 8,
+        "k": 2,
+        "required_distance": 5,
+        "triage_identity": {
+            "canonical_digest": f"compact-{marker}",
+        },
+    }
+
+
+def _compact_oracle_evidence(outcome: str, max_weight: int) -> dict:
+    witness = None
+    if outcome == "SAT":
+        witness = {
+            "side": "X",
+            "index": 0,
+            "weight": 2,
+            "bits": [1, 1, 0, 0, 0, 0, 0, 0],
+            "logical_syndrome": [1, 0],
+            "support": [0, 1],
+        }
+    sectors = {
+        "X": {"outcome": outcome if outcome == "SAT" else "UNSAT"},
+    }
+    if outcome == "UNSAT":
+        sectors["Z"] = {"outcome": "UNSAT"}
+    elif outcome == "UNKNOWN":
+        sectors = {"X": {"outcome": "UNKNOWN"}}
+    return {
+        "outcome": outcome,
+        "decision_complete": outcome in {"SAT", "UNSAT"},
+        "retryable": outcome == "UNKNOWN",
+        "max_weight": max_weight,
+        "distance_lower_bound": max_weight + 1 if outcome == "UNSAT" else None,
+        "witness": witness,
+        "sectors": sectors,
+        "evidence_sha256": (outcome.lower() + "0" * 64)[:64],
+    }
+
+
+def _two_block_oracle_evidence(outcome: str, max_weight: int) -> dict:
+    witness = None
+    if outcome == "SAT":
+        witness = {
+            "query_id": "X:A",
+            "side": "X",
+            "index": 0,
+            "block": "A",
+            "weight": 2,
+            "bits": [1, 1, 0, 0, 0, 0, 0, 0],
+            "support": [0, 1],
+        }
+    queries = {
+        query_id: {"outcome": "UNSAT"}
+        for query_id in ("X:A", "X:B", "Z:A", "Z:B")
+    }
+    if outcome == "SAT":
+        queries = {"X:A": {"outcome": "SAT"}}
+    elif outcome == "UNKNOWN":
+        queries = {"X:A": {"outcome": "UNKNOWN"}}
+    return {
+        "outcome": outcome,
+        "decision_complete": outcome != "UNKNOWN",
+        "retryable": outcome == "UNKNOWN",
+        "max_weight": max_weight,
+        "distance_lower_bound": None,
+        "distance_upper_bound": 2 if outcome == "SAT" else None,
+        "single_block_minimum_weight_lower_bound": (
+            max_weight + 1
+            if outcome == "NO_SINGLE_BLOCK_WITNESS"
+            else None
+        ),
+        "witness": witness,
+        "queries": queries,
+        "evidence_sha256": ("two-block-" + outcome.lower() + "0" * 64)[:64],
+    }
+def _install_compact_oracle_fakes(
+    monkeypatch,
+    outcomes,
+    *,
+    two_block_outcomes=None,
+):
+    from evaluation import (
+        construction,
+        distance_milp,
+        low_weight_oracle,
+        two_block_sparse_kernel_oracle,
+    )
+
+    calls: list[tuple[int, tuple[str, ...]]] = []
+    outcome_iterator = iter(outcomes)
+    two_block_iterator = (
+        None if two_block_outcomes is None else iter(two_block_outcomes)
+    )
+    matrices = [
+        np.zeros((2, 8), dtype=np.uint8),
+        np.zeros((2, 8), dtype=np.uint8),
+        np.zeros((2, 8), dtype=np.uint8),
+        np.zeros((2, 8), dtype=np.uint8),
+    ]
+    monkeypatch.setattr(
+        construction,
+        "build_css_code_from_claim",
+        lambda _claim: SimpleNamespace(num_qudits=8, dimension=2),
+    )
+    monkeypatch.setattr(
+        distance_milp,
+        "get_code_matrices",
+        lambda _code: tuple(matrix.copy() for matrix in matrices),
+    )
+
+    def evaluate(*_matrices, max_weight, hard_timeout_s, terminal_sectors):
+        assert hard_timeout_s > 0
+        calls.append((max_weight, tuple(sorted(terminal_sectors))))
+        return _compact_oracle_evidence(next(outcome_iterator), max_weight)
+
+    monkeypatch.setattr(
+        low_weight_oracle,
+        "evaluate_css_low_weight_oracle",
+        evaluate,
+    )
+    monkeypatch.setattr(
+        low_weight_oracle,
+        "verify_css_low_weight_oracle",
+        lambda *_args, **_kwargs: [],
+    )
+    monkeypatch.setattr(
+        two_block_sparse_kernel_oracle,
+        "evaluate_two_block_sparse_kernel_oracle",
+        lambda *_args, max_weight, **_kwargs: _two_block_oracle_evidence(
+            (
+                "NO_SINGLE_BLOCK_WITNESS"
+                if two_block_iterator is None
+                else next(two_block_iterator)
+            ),
+            max_weight,
+        ),
+    )
+    monkeypatch.setattr(
+        two_block_sparse_kernel_oracle,
+        "verify_two_block_sparse_kernel_oracle",
+        lambda *_args, **_kwargs: [],
+    )
+    return calls, matrices
+
+
+@pytest.mark.parametrize(
+    ("outcome", "status", "retry_required"),
+    [
+        ("SAT", "REJECTED", False),
+        ("UNSAT", "UNRESOLVED", False),
+        ("UNKNOWN", "UNRESOLVED", True),
+    ],
+)
+def test_compact_low_weight_gate_has_three_way_proof_semantics(
+    tmp_path,
+    monkeypatch,
+    outcome,
+    status,
+    retry_required,
+):
+    calls, _ = _install_compact_oracle_fakes(monkeypatch, [outcome])
+    result = audit_candidate(
+        _compact_construction(),
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert calls == [(4, ())]
+    assert result["status"] == status
+    assert result["retry_required"] is retry_required
+    assert result["compact_low_weight_sat_ladder"]["outcome"] == outcome
+    assert result["compact_low_weight_sat_ladder"]["max_weight"] == 4
+    if outcome == "SAT":
+        assert result["distance_upper_bound"] == 2
+        assert result["threshold_rejection_proven"] is True
+    elif outcome == "UNSAT":
+        assert result["distance_lower_bound"] == 5
+        assert result["deferred_backend"] == "generic-global-sat"
+
+
+def test_compact_low_weight_cache_binds_threshold_source_and_matrices(
+    tmp_path,
+    monkeypatch,
+):
+    calls, matrices = _install_compact_oracle_fakes(
+        monkeypatch,
+        ["UNSAT", "UNSAT", "UNSAT"],
+    )
+    candidate = _compact_construction(1)
+    first = audit_candidate(
+        candidate,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+    second = audit_candidate(
+        candidate,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert len(calls) == 1
+    assert first["compact_low_weight_sat_ladder"]["cache_hit"] is False
+    assert second["compact_low_weight_sat_ladder"]["cache_hit"] is True
+    cache = json.loads(
+        state_paths(tmp_path, "compact-1")["compact_low_weight"].read_text()
+    )
+    binding = cache["binding"]
+    assert binding["max_weight"] == 4
+    assert len(binding["source_fingerprint"]) == 64
+    assert set(binding["matrix_sha256"]) == {"hx", "hz", "lx", "lz"}
+
+    # A threshold change and then a matrix change both invalidate the same
+    # digest-keyed cache instead of inheriting a stale lower bound.
+    threshold_changed = audit_candidate(
+        candidate,
+        AuditConfig(
+            state_dir=tmp_path,
+            certify=False,
+            compact_low_weight_max_weight=3,
+        ),
+    )
+    assert threshold_changed["compact_low_weight_sat_ladder"]["cache_hit"] is False
+    matrices[0][0, 0] = 1
+    matrix_changed = audit_candidate(
+        candidate,
+        AuditConfig(
+            state_dir=tmp_path,
+            certify=False,
+            compact_low_weight_max_weight=3,
+        ),
+    )
+    assert matrix_changed["compact_low_weight_sat_ladder"]["cache_hit"] is False
+    assert [threshold for threshold, _ in calls] == [4, 3, 3]
+
+
+def test_compact_unknown_cache_resumes_terminal_sectors_but_never_advances(
+    tmp_path,
+    monkeypatch,
+):
+    calls, _ = _install_compact_oracle_fakes(
+        monkeypatch,
+        ["UNKNOWN", "UNSAT"],
+    )
+    candidate = _compact_construction(2)
+    first = audit_candidate(
+        candidate,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+    second = audit_candidate(
+        candidate,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert first["status"] == "UNRESOLVED"
+    assert first["retry_required"] is True
+    assert second["retry_required"] is False
+    assert len(calls) == 2
+
+
+def test_two_block_sat_rejects_before_unrestricted_oracle(
+    tmp_path,
+    monkeypatch,
+):
+    calls, _ = _install_compact_oracle_fakes(
+        monkeypatch,
+        [],
+        two_block_outcomes=["SAT"],
+    )
+    result = audit_candidate(
+        _compact_construction(3),
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert calls == []
+    assert result["status"] == "REJECTED"
+    assert result["threshold_proof_source"] == (
+        "two-block-sparse-kernel-oracle"
+    )
+    assert result["two_block_sparse_kernel_oracle"]["outcome"] == "SAT"
+
+
+def test_two_block_unknown_is_advisory_and_uses_dynamic_cutoff(
+    tmp_path,
+    monkeypatch,
+):
+    calls, _ = _install_compact_oracle_fakes(
+        monkeypatch,
+        ["UNSAT"],
+        two_block_outcomes=["UNKNOWN"],
+    )
+    candidate = _compact_construction(4)
+    candidate["required_distance"] = 9
+    result = audit_candidate(
+        candidate,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert calls == [(4, ())]
+    assert result["status"] == "UNRESOLVED"
+    assert result["retry_required"] is False
+    assert result["distance_lower_bound"] == 5
+    assert result["two_block_sparse_kernel_oracle"]["outcome"] == "UNKNOWN"
+    assert result["two_block_sparse_kernel_oracle"]["max_weight"] == 8
+    cache = json.loads(
+        state_paths(tmp_path, "compact-4")["compact_two_block"].read_text()
+    )
+    assert cache["binding"]["gate"] == (
+        "qldpc-stage2-compact-two-block-cache"
+    )
+    assert cache["binding"]["max_weight"] == 8
 
 
 def _novelty_result(

@@ -35,10 +35,22 @@ LOCAL_EVALUATOR_DEPENDENCIES = {
 COSET_EVALUATOR_DEPENDENCIES = {
     "coset_search_contract": "evolve/coset_search_contract.py",
     "coset_policy_dsl": "evolve/coset_policy_dsl.py",
+    "coset_policy_dsl_v3": "evolve/coset_policy_dsl_v3.py",
+    "coset_policy_dispatch": "evolve/coset_policy_dispatch.py",
     "coset_mutation_preflight": "evolve/coset_mutation_preflight.py",
+    "coset_negative_archive": "evolve/coset_negative_archive.py",
     "coset_candidate_log_wal": "evolve/openevolve_evaluator.py",
     "coset_construction_adapter": "evaluation/construction.py",
     "coset_builder": "evaluation/coset_two_block.py",
+    "coset_sparse_kernel_oracle": (
+        "evaluation/two_block_sparse_kernel_oracle.py"
+    ),
+    "coset_stage2_cache_binding_producer": (
+        "scripts/audit_candidate_pool.py"
+    ),
+    "coset_witness_symmetry_verifier": "scripts/screen_frontier_sat.py",
+    "coset_reviewer_contract": "humanize/reviewer.py",
+    "coset_reviewer_activation": "humanize/coset_renderer_review.py",
     "coset_action_catalog_parser": "evaluation/coset_action_catalog.py",
     "coset_action_catalog": "evaluation/coset_two_block_actions.v1.json",
     "coset_action_catalog_v2": "evaluation/coset_two_block_actions.v2.json",
