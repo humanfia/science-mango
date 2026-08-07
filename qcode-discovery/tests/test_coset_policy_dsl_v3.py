@@ -26,6 +26,9 @@ from evolve.coset_search_contract import (
     COSET_RENDERER_V3_CHECKPOINT_GROUP,
     COSET_RENDERER_V3_ID,
     COSET_REPRESENTATION_ID_V3,
+    COSET_MAP_SCHEMA_METRIC,
+    COSET_PROOF_LADDER_SCHEMA_VERSION,
+    COSET_PROOF_LADDER_VERSION_METRIC,
     TRUSTED_COSET_SUPPORT_SPLITS,
     activate_coset_renderer_proposal,
     coset_batch_map_descriptor_registered,
@@ -33,6 +36,7 @@ from evolve.coset_search_contract import (
     coset_renderer_proposal_document,
     coset_renderer_portfolio_contract,
     trusted_coset_catalog_registry_document,
+    trusted_coset_renderer_activation_from_document,
 )
 from humanize import flow as flow_module
 from humanize.flow import FlowConfig
@@ -110,6 +114,177 @@ def test_reviewer_proposal_validates_activates_and_really_renders():
         V3_SEED.read_text(), activation
     )
     assert len(rendered.candidates) == 384
+
+
+def test_only_2_plus_4_activation_drives_exact_mutation_walk_bounds():
+    proposal = coset_renderer_proposal_document(
+        renderer_descriptor_id=COSET_RENDERER_V3_ID,
+        catalog_manifest_id=COSET_ACTION_CATALOG_V2_MANIFEST_ID,
+        support_splits=((2, 4),),
+    )
+    activation_document = coset_renderer_activation_document(
+        activate_coset_renderer_proposal(proposal)
+    )
+
+    prompt = launcher._coset_mutation_bounds_prompt(activation_document)
+
+    assert (
+        "action_id=coset2bga-l120-m32-s3-degree60-v2: "
+        "left indices 0..118; right indices 0..28; walk offset "
+        "0..434825; walk stride 1..434825, "
+        "gcd(stride,434826)=1."
+    ) in prompt
+    assert "2850525" not in prompt
+
+
+def test_activation_compatible_program_ids_exclude_other_support_splits():
+    proposal = coset_renderer_proposal_document(
+        renderer_descriptor_id=COSET_RENDERER_V3_ID,
+        catalog_manifest_id=COSET_ACTION_CATALOG_V2_MANIFEST_ID,
+        support_splits=((2, 4),),
+    )
+    activation_document = coset_renderer_activation_document(
+        activate_coset_renderer_proposal(proposal)
+    )
+    programs = {
+        "split-3-plus-3": Program(
+            id="split-3-plus-3",
+            code=policy_v3.canonical_policy_json(
+                policy_v3.default_policy(support_split=(3, 3))
+            ),
+        ),
+        "split-2-plus-4": Program(
+            id="split-2-plus-4",
+            code=policy_v3.canonical_policy_json(
+                policy_v3.default_policy(support_split=(2, 4))
+            ),
+        ),
+    }
+    database = SimpleNamespace(programs=programs)
+
+    compatible = launcher._activation_compatible_coset_program_ids(
+        database,
+        activation_document,
+    )
+
+    assert set(compatible) == {"split-2-plus-4"}
+
+
+def test_activation_bridge_replaces_incompatible_epoch_with_evaluated_root(
+    monkeypatch,
+):
+    proposal = coset_renderer_proposal_document(
+        renderer_descriptor_id=COSET_RENDERER_V3_ID,
+        catalog_manifest_id=COSET_ACTION_CATALOG_V2_MANIFEST_ID,
+        support_splits=((2, 4),),
+    )
+    activation_document = coset_renderer_activation_document(
+        activate_coset_renderer_proposal(proposal)
+    )
+    old = Program(
+        id="old-3-plus-3",
+        code=policy_v3.canonical_policy_json(
+            policy_v3.default_policy(support_split=(3, 3))
+        ) + "\n",
+        metrics={},
+        metadata={"island": 0},
+        iteration_found=25,
+    )
+    database = SimpleNamespace(
+        config=SimpleNamespace(num_islands=5, archive_size=192),
+        programs={old.id: old},
+        last_iteration=25,
+        current_island=0,
+        island_generations=[0] * 5,
+        last_migration_generation=0,
+        islands=[{old.id}, set(), set(), set(), set()],
+        island_feature_maps=[{} for _ in range(5)],
+        archive={old.id},
+        best_program_id=old.id,
+        island_best_programs=[old.id, None, None, None, None],
+        feature_stats={},
+        diversity_cache={},
+        diversity_reference_set=[],
+    )
+    source_program_set_sha256 = launcher._coset_checkpoint_program_set_sha256(
+        database
+    )
+
+    def fake_root_evaluation(
+        _evaluator_path,
+        code,
+        *,
+        expected_contract_id,
+        wall_timeout,
+        expected_map_schema_version,
+    ):
+        del wall_timeout
+        rendered = parse_and_render_activated_policy(
+            code,
+            trusted_coset_renderer_activation_from_document(
+                activation_document
+            ),
+        )
+        descriptor = coset_batch_map_descriptor_registered(
+            rendered.candidates,
+            policy_sha256=rendered.policy_sha256,
+            renderer_activation=rendered.activation,
+        )
+        metrics = {
+            "combined_score": 0.0,
+            launcher.MAP_DESCRIPTOR_VERSION_METRIC: float(
+                launcher.MAP_DESCRIPTOR_VERSION
+            ),
+            launcher.COSET_GENOME_FORMAT_ID_METRIC: (
+                launcher.COSET_TYPED_DSL_GENOME_FORMAT_ID_V3
+            ),
+            COSET_MAP_SCHEMA_METRIC: float(expected_map_schema_version),
+            COSET_PROOF_LADDER_VERSION_METRIC: float(
+                COSET_PROOF_LADDER_SCHEMA_VERSION
+            ),
+            **{
+                name: float(value)
+                for name, value in descriptor["coordinates"].items()
+            },
+        }
+        return metrics, {}, {
+            "path": "/tmp/candidates.jsonl",
+            "start_offset": 10,
+            "end_offset": 20,
+            "sha256": "a" * 64,
+            "bytes": 10,
+            "wal_clean": True,
+        }
+
+    monkeypatch.setattr(
+        launcher,
+        "_execute_coset_checkpoint_root_evaluation",
+        fake_root_evaluation,
+    )
+    report = launcher._install_coset_activation_bridge_epoch(
+        database,
+        source_checkpoint={
+            "path": "/tmp/checkpoint_25",
+            "sha256": "b" * 64,
+            "last_iteration": 25,
+            "programs": 1,
+        },
+        evaluator_path="/tmp/evaluator.py",
+        expected_contract_id=17,
+        wall_timeout=10.0,
+        cascade_threshold=2.0,
+        expected_map_schema_version=COSET_MAP_SCHEMA_VERSION_V3,
+        activation_document=activation_document,
+    )
+
+    assert report["schema_version"] == 3
+    assert report["source_program_set_sha256"] == source_program_set_sha256
+    assert report["approved_support_split"] == [2, 4]
+    assert list(database.programs) == [report["root_program_id"]]
+    assert old.id not in set().union(*database.islands)
+    assert launcher._activation_compatible_coset_program_ids(
+        database, activation_document
+    ) == (report["root_program_id"],)
 
 
 @pytest.mark.parametrize(

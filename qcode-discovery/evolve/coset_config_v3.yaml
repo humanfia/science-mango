@@ -57,12 +57,13 @@ prompt:
 
     Keep every root identity binding, renderer/catalog SHA-256, all 46
     action_id values, candidate_limit=384, and catalog-derived quotas exact.
-    The only allowed global support_split values are [2,4], [4,2], [2,3],
-    [3,2], and [3,3]. You may change support_split, explicit numeric support
-    indices, and combination-walk offset/stride. When changing support_split,
-    update every explicit support length and every affected walk range and
-    coprimality together. Published anchors are inserted automatically only
-    when their immutable dimensions match the selected split.
+    The source registry contains support_split values [2,4], [4,2], [2,3],
+    [3,2], and [3,3], but the sealed activation and exact bounds appended
+    below are authoritative for this slice. Never change support_split to a
+    registry value that is absent from that activation. You may change
+    explicit numeric support indices and combination-walk offset/stride.
+    Published anchors are inserted automatically only when their immutable
+    dimensions match the activated split.
 
     An explicit support is `{ "left": [...], "right": [...] }`, containing
     exactly support_split[0]-1 and support_split[1]-1 distinct nonnegative

@@ -700,35 +700,95 @@ def _coset_action_strata_count() -> int:
     return count
 
 
-def _coset_mutation_bounds_prompt() -> str:
-    """Build the exact catalog-derived integer bounds shown to the LLM."""
+def _validated_coset_activation_document(
+    document: dict[str, Any],
+):
+    """Rehydrate one canonical, source-registered renderer activation."""
+
+    if not isinstance(document, dict):
+        raise RuntimeError("coset renderer activation is not an object")
+    try:
+        from evolve.coset_search_contract import (
+            coset_renderer_activation_document,
+            trusted_coset_renderer_activation_from_document,
+        )
+
+        activation = trusted_coset_renderer_activation_from_document(document)
+        if coset_renderer_activation_document(activation) != document:
+            raise ValueError("activation did not round-trip canonically")
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("coset renderer activation is invalid") from exc
+    return activation
+
+
+def _coset_mutation_bounds_prompt(
+    activation_document: dict[str, Any] | None = None,
+) -> str:
+    """Build exact activation- and catalog-derived bounds for the LLM."""
 
     from evolve.coset_search_contract import action_search_views
+
+    support_splits = (
+        ((3, 3),)
+        if activation_document is None
+        else _validated_coset_activation_document(
+            activation_document
+        ).approved_support_splits
+    )
 
     rows = [
         "Trusted catalog-derived mutation bounds (inclusive):",
         "Use these exact values; do not infer index sizes from block length.",
     ]
-    for view in action_search_views():
-        left_count = sum(
-            element != view.left_identity_id
-            for element in view.left_element_ids
-        )
-        right_count = sum(
-            element != view.right_identity_id
-            for element in view.right_element_ids
-        )
-        if left_count < 2 or right_count < 2:
-            raise RuntimeError(
-                f"coset action {view.action_id} has no 3+3 support space"
-            )
-        pair_space = math.comb(left_count, 2) * math.comb(right_count, 2)
+    rendered_splits = ", ".join(
+        f"[{left},{right}]" for left, right in support_splits
+    )
+    rows.append(
+        "The sealed activation for this slice permits exactly these "
+        f"support_split values: {rendered_splits}."
+    )
+    if len(support_splits) == 1:
         rows.append(
-            f"- action_id={view.action_id}: left indices 0..{left_count - 1}; "
-            f"right indices 0..{right_count - 1}; walk offset "
-            f"0..{pair_space - 1}; walk stride 1..{pair_space - 1}, "
-            f"gcd(stride,{pair_space})=1."
+            f"Keep support_split exactly {rendered_splits} in this slice; "
+            "do not mutate it to another registry value."
         )
+    for split in support_splits:
+        rows.append(
+            f"Bounds for support_split=[{split[0]},{split[1]}] "
+            f"(explicit left/right lengths {split[0] - 1}/{split[1] - 1}):"
+        )
+        for view in action_search_views():
+            left_count = sum(
+                element != view.left_identity_id
+                for element in view.left_element_ids
+            )
+            right_count = sum(
+                element != view.right_identity_id
+                for element in view.right_element_ids
+            )
+            left_choose = split[0] - 1
+            right_choose = split[1] - 1
+            if left_count < left_choose or right_count < right_choose:
+                raise RuntimeError(
+                    f"coset action {view.action_id} has no "
+                    f"{split[0]}+{split[1]} support space"
+                )
+            combination_space = (
+                math.comb(left_count, left_choose)
+                * math.comb(right_count, right_choose)
+            )
+            if combination_space < 2:
+                raise RuntimeError(
+                    f"coset action {view.action_id} has a degenerate "
+                    f"{split[0]}+{split[1]} support space"
+                )
+            rows.append(
+                f"- action_id={view.action_id}: left indices "
+                f"0..{left_count - 1}; right indices 0..{right_count - 1}; "
+                f"walk offset 0..{combination_space - 1}; walk stride "
+                f"1..{combination_space - 1}, "
+                f"gcd(stride,{combination_space})=1."
+            )
     rows.extend([
         "Every SEARCH value must be copied exactly from the current JSON and "
         "must occur exactly once. Every block must change the policy.",
@@ -2016,6 +2076,7 @@ COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
 COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
 COSET_TYPED_DSL_GENOME_FORMAT_ID_V3 = 2.0
 COSET_CHECKPOINT_MIGRATION_SCHEMA_VERSION = 1
+COSET_ACTIVATION_BRIDGE_SCHEMA_VERSION = 1
 
 
 def _coset_portfolio_contract_for_schema(
@@ -2517,6 +2578,189 @@ def _install_coset_checkpoint_dsl_epoch(
         "root_policy_sha256": policy_digest(policy),
         "root_code_sha256": code_sha256,
         "migration_candidate_range": migration_range,
+    }
+
+
+def _install_coset_activation_bridge_epoch(
+    database: Any,
+    *,
+    source_checkpoint: dict[str, Any],
+    evaluator_path: str | Path,
+    expected_contract_id: int,
+    wall_timeout: float,
+    cascade_threshold: float | None,
+    expected_map_schema_version: int,
+    activation_document: dict[str, Any],
+) -> dict[str, Any]:
+    """Replace an activation-incompatible population with one trusted root.
+
+    The base checkpoint remains immutable.  The replacement exists only in
+    the resumed controller's memory until normal slice accounting commits the
+    result checkpoint.  Metrics are produced by a fresh, killable evaluator
+    run; no fitness or artifacts are copied from an incompatible parent.
+    """
+
+    from openevolve.database import Program
+    from evolve.coset_policy_dispatch import parse_and_render_activated_policy
+    from evolve.coset_policy_dsl_v3 import (
+        canonical_policy_json,
+        default_policy,
+        policy_digest,
+    )
+
+    if expected_map_schema_version != 4:
+        raise RuntimeError(
+            "coset activation bridge requires renderer-v3 MAP schema"
+        )
+    activation = _validated_coset_activation_document(activation_document)
+    if len(activation.approved_support_splits) != 1:
+        raise RuntimeError(
+            "coset activation bridge requires exactly one approved split"
+        )
+    if _activation_compatible_coset_program_ids(
+        database, activation_document
+    ):
+        raise RuntimeError(
+            "coset activation bridge received a compatible checkpoint"
+        )
+    source_program_set_sha256 = _coset_checkpoint_program_set_sha256(database)
+    source_programs = getattr(database, "programs", None)
+    source_last_iteration = getattr(database, "last_iteration", None)
+    if (
+        not isinstance(source_programs, dict)
+        or len(source_programs) != source_checkpoint.get("programs")
+        or isinstance(source_last_iteration, bool)
+        or not isinstance(source_last_iteration, int)
+        or source_last_iteration != source_checkpoint.get("last_iteration")
+    ):
+        raise RuntimeError("coset activation bridge source changed")
+
+    target_split = activation.approved_support_splits[0]
+    policy = default_policy(support_split=target_split)
+    code = canonical_policy_json(policy) + "\n"
+    rendered = parse_and_render_activated_policy(code, activation)
+    if rendered.policy_sha256 != policy_digest(policy):
+        raise RuntimeError("coset activation bridge policy identity changed")
+    code_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
+    root_binding = {
+        "schema_version": COSET_ACTIVATION_BRIDGE_SCHEMA_VERSION,
+        "kind": "qcode-coset-activation-bridge-root",
+        "source_checkpoint_sha256": source_checkpoint["sha256"],
+        "source_program_set_sha256": source_program_set_sha256,
+        "source_last_iteration": source_last_iteration,
+        "activation_sha256": activation_document["activation_sha256"],
+        "approved_support_split": list(target_split),
+        "policy_sha256": rendered.policy_sha256,
+        "code_sha256": code_sha256,
+        "contract_id": expected_contract_id,
+    }
+    root_id = "coset-activation-root-" + hashlib.sha256(json.dumps(
+        root_binding,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()[:32]
+    metrics, artifacts, candidate_range = (
+        _execute_coset_checkpoint_root_evaluation(
+            evaluator_path,
+            code,
+            expected_contract_id=expected_contract_id,
+            wall_timeout=wall_timeout,
+            expected_map_schema_version=expected_map_schema_version,
+        )
+    )
+    _validated_managed_stage2_state(
+        metrics,
+        artifacts,
+        expected_contract_id=expected_contract_id,
+        cascade_threshold=cascade_threshold,
+    )
+    root_artifacts = dict(artifacts)
+    root_artifacts["checkpoint_activation_bridge"] = root_binding
+    root = Program(
+        id=root_id,
+        code=code,
+        changes_description=(
+            "Trusted activation bridge installed from sealed checkpoint "
+            f"{source_checkpoint['sha256']}."
+        ),
+        language="json",
+        parent_id=None,
+        generation=0,
+        timestamp=0.0,
+        iteration_found=source_last_iteration,
+        metrics=metrics,
+        metadata={
+            "island": 0,
+            "checkpoint_activation_bridge": root_binding,
+        },
+        artifacts_json=json.dumps(
+            root_artifacts,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ),
+    )
+
+    configured_islands = getattr(
+        getattr(database, "config", None), "num_islands", None
+    )
+    if (
+        isinstance(configured_islands, bool)
+        or not isinstance(configured_islands, int)
+        or configured_islands < 1
+    ):
+        configured_islands = len(getattr(database, "islands", ()))
+    if configured_islands < 1:
+        raise RuntimeError("coset checkpoint has no configured island")
+
+    # Commit the in-memory epoch only after every expensive and semantic
+    # check above succeeded.  No old metric survives this replacement.
+    database.programs = {root_id: root}
+    database.last_iteration = source_last_iteration
+    database.current_island = 0
+    database.island_generations = [0] * configured_islands
+    database.last_migration_generation = 0
+    database.islands = [set() for _ in range(configured_islands)]
+    database.islands[0].add(root_id)
+    database.island_feature_maps = [{} for _ in range(configured_islands)]
+    database.archive = {root_id}
+    database.best_program_id = root_id
+    database.island_best_programs = [root_id] + [None] * (
+        configured_islands - 1
+    )
+    database.feature_stats = {}
+    database.diversity_cache = {}
+    database.diversity_reference_set = []
+    _rebuild_fixed_coset_feature_maps(
+        database,
+        schema_version=expected_map_schema_version,
+        eligible_program_ids={root_id},
+    )
+    _validate_typed_coset_checkpoint_programs(
+        database,
+        expected_map_schema_version=expected_map_schema_version,
+    )
+    if _activation_compatible_coset_program_ids(
+        database, activation_document
+    ) != (root_id,):
+        raise RuntimeError("coset activation bridge root is not executable")
+    return {
+        "schema_version": 3,
+        "status": "completed",
+        "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
+        "contract_id": expected_contract_id,
+        "mode": "typed-json-dsl-activation-bridge-root",
+        "source_checkpoint": dict(source_checkpoint),
+        "source_programs": len(source_programs),
+        "source_program_set_sha256": source_program_set_sha256,
+        "target_programs": 1,
+        "root_program_id": root_id,
+        "root_policy_sha256": rendered.policy_sha256,
+        "root_code_sha256": code_sha256,
+        "activation_sha256": activation_document["activation_sha256"],
+        "approved_support_split": list(target_split),
+        "bridge_candidate_range": candidate_range,
     }
 
 
@@ -3498,10 +3742,61 @@ def _fixed_coset_feature_coords(
     return coordinates
 
 
+def _activation_compatible_coset_program_ids(
+    database: Any,
+    activation_document: dict[str, Any] | None,
+) -> tuple[str, ...]:
+    """Return only typed policies executable under the sealed activation."""
+
+    from evolve.coset_policy_dispatch import (
+        parse_and_render_activated_policy,
+        parse_and_render_registered_policy,
+    )
+
+    programs = getattr(database, "programs", None)
+    if not isinstance(programs, dict):
+        raise RuntimeError("coset checkpoint program database is invalid")
+    activation = (
+        None
+        if activation_document is None
+        else _validated_coset_activation_document(activation_document)
+    )
+    compatible: list[tuple[str, str]] = []
+    policy_owners: dict[str, str] = {}
+    for program_id in sorted(programs):
+        program = programs[program_id]
+        code = getattr(program, "code", None)
+        if not isinstance(program_id, str) or not isinstance(code, str):
+            raise RuntimeError("coset checkpoint program identity is invalid")
+        try:
+            rendered = (
+                parse_and_render_registered_policy(code)
+                if activation is None
+                else parse_and_render_activated_policy(code, activation)
+            )
+        except (TypeError, ValueError):
+            # A registered policy from an older reviewer activation remains
+            # immutable history, but is not an executable parent in this
+            # slice.
+            continue
+        previous = policy_owners.get(rendered.policy_sha256)
+        if previous is not None:
+            raise RuntimeError(
+                "activation-compatible coset policies are duplicated: "
+                f"{previous}, {program_id}"
+            )
+        policy_owners[rendered.policy_sha256] = program_id
+        compatible.append((rendered.policy_sha256, program_id))
+    return tuple(
+        program_id for _policy_sha256, program_id in sorted(compatible)
+    )
+
+
 def _rebuild_fixed_coset_feature_maps(
     database: Any,
     *,
     schema_version: int,
+    eligible_program_ids: set[str] | frozenset[str] | None = None,
 ) -> None:
     """Deterministically rebuild registered lineage-island coset archives."""
 
@@ -3529,6 +3824,11 @@ def _rebuild_fixed_coset_feature_maps(
         {} for _ in range(island_count)
     ]
     for program_id in sorted(membership):
+        if (
+            eligible_program_ids is not None
+            and program_id not in eligible_program_ids
+        ):
+            continue
         islands = membership[program_id]
         if len(islands) != 1:
             raise RuntimeError(
@@ -3851,6 +4151,55 @@ def _deterministic_search_order(
         program_ids,
         key=key,
     )
+
+
+def _deterministic_coset_order(
+    program_ids: list[str],
+    *,
+    programs: dict[str, Any],
+    seed: int,
+    iteration: int,
+    island: int,
+    activation_sha256: str,
+) -> list[str]:
+    """Order active coset parents without completion-order dependence."""
+
+    if (
+        isinstance(seed, bool)
+        or not isinstance(seed, int)
+        or isinstance(iteration, bool)
+        or not isinstance(iteration, int)
+        or isinstance(island, bool)
+        or not isinstance(island, int)
+        or not isinstance(activation_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", activation_sha256) is None
+    ):
+        raise RuntimeError("coset deterministic parent order is unbound")
+
+    def key(program_id: str) -> tuple[bytes, str]:
+        program = programs.get(program_id)
+        code = getattr(program, "code", None)
+        if not isinstance(code, str):
+            raise RuntimeError(
+                f"coset parent {program_id} has invalid code"
+            )
+        code_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
+        digest = hashlib.sha256(
+            (
+                str(seed)
+                + "\0"
+                + str(iteration)
+                + "\0"
+                + str(island)
+                + "\0"
+                + activation_sha256
+                + "\0"
+                + code_sha256
+            ).encode("ascii")
+        ).digest()
+        return digest, program_id
+
+    return sorted(program_ids, key=key)
 
 
 class _ObservedFuture:
@@ -4454,8 +4803,12 @@ class _SliceObserver:
                             child_code, active_renderer
                         )
                     )
-                    parent_render = parse_and_render_registered_policy(
-                        parent.code
+                    parent_render = (
+                        parse_and_render_registered_policy(parent.code)
+                        if active_renderer is None
+                        else parse_and_render_activated_policy(
+                            parent.code, active_renderer
+                        )
                     )
                     child_policy_sha256 = child_render.policy_sha256
                     parent_policy_sha256 = parent_render.policy_sha256
@@ -4683,7 +5036,7 @@ class _SliceObserver:
             return
         if (
             not isinstance(report, dict)
-            or report.get("schema_version") not in {1, 2}
+            or report.get("schema_version") not in {1, 2, 3}
             or report.get("status") != "completed"
             or report.get("contract_version")
             != WINNER_PREFLIGHT_CONTRACT_VERSION
@@ -4711,6 +5064,62 @@ class _SliceObserver:
             ):
                 self.violations.append(
                     "checkpoint genome migration report is invalid"
+                )
+                return
+        elif report.get("schema_version") == 3:
+            expected_fields = {
+                "schema_version",
+                "status",
+                "contract_version",
+                "contract_id",
+                "mode",
+                "source_checkpoint",
+                "source_programs",
+                "source_program_set_sha256",
+                "target_programs",
+                "root_program_id",
+                "root_policy_sha256",
+                "root_code_sha256",
+                "activation_sha256",
+                "approved_support_split",
+                "bridge_candidate_range",
+            }
+            hashes = (
+                report.get("source_program_set_sha256"),
+                report.get("root_policy_sha256"),
+                report.get("root_code_sha256"),
+                report.get("activation_sha256"),
+            )
+            if (
+                set(report) != expected_fields
+                or report.get("mode")
+                != "typed-json-dsl-activation-bridge-root"
+                or not isinstance(report.get("source_checkpoint"), dict)
+                or isinstance(report.get("source_programs"), bool)
+                or not isinstance(report.get("source_programs"), int)
+                or report["source_programs"] < 1
+                or report.get("target_programs") != 1
+                or not isinstance(report.get("root_program_id"), str)
+                or not report["root_program_id"].startswith(
+                    "coset-activation-root-"
+                )
+                or any(
+                    not isinstance(value, str)
+                    or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                    for value in hashes
+                )
+                or type(report.get("approved_support_split")) is not list
+                or len(report["approved_support_split"]) != 2
+                or any(
+                    type(value) is not int
+                    for value in report["approved_support_split"]
+                )
+                or not isinstance(
+                    report.get("bridge_candidate_range"), dict
+                )
+            ):
+                self.violations.append(
+                    "checkpoint activation bridge report is invalid"
                 )
                 return
         self.checkpoint_preflight_report = dict(report)
@@ -5252,6 +5661,7 @@ def _verified_slice_controller(
     adaptive_mutation_policy: dict[str, int] | None = None,
     search_regime: dict[str, Any] | None = None,
     coset_map_schema_version: int | None = None,
+    coset_renderer_activation: dict[str, Any] | None = None,
 ):
     if isinstance(iterations, bool) or not isinstance(iterations, int) or iterations < 1:
         raise RuntimeError("managed slice iterations must be positive")
@@ -5264,6 +5674,29 @@ def _verified_slice_controller(
             "fixed coset MAP geometry requires the coset evaluator and cannot "
             "share the BB search portfolio"
         )
+    if coset_renderer_activation is not None and (
+        evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK
+        or coset_map_schema_version != 4
+    ):
+        raise RuntimeError(
+            "renderer activation requires the renderer-v3 coset portfolio"
+        )
+    if coset_map_schema_version == 4 and coset_renderer_activation is None:
+        raise RuntimeError(
+            "renderer-v3 coset scheduling requires a sealed activation"
+        )
+    validated_coset_activation = (
+        None
+        if coset_renderer_activation is None
+        else _validated_coset_activation_document(
+            coset_renderer_activation
+        )
+    )
+    coset_activation_sha256 = (
+        hashlib.sha256(b"qcode-coset-registered-default").hexdigest()
+        if coset_renderer_activation is None
+        else str(coset_renderer_activation["activation_sha256"])
+    )
     coset_island_count = (
         int(_coset_portfolio_contract_for_schema(
             coset_map_schema_version
@@ -5368,6 +5801,11 @@ def _verified_slice_controller(
             self._search_slice_snapshot: dict[str, Any] | None = None
             self._search_slice_artifacts: dict[str, dict[str, Any]] | None = None
             self._coset_iteration_targets: dict[int, int] = {}
+            self._coset_active_program_ids: set[str] | None = None
+            self._coset_slice_elites: tuple[tuple[str, ...], ...] | None = None
+            self._coset_slice_programs: dict[str, Any] | None = None
+            self._coset_slice_snapshot: dict[str, Any] | None = None
+            self._coset_slice_artifacts: dict[str, dict[str, Any]] | None = None
             if portfolio_seed is not None:
                 _validated_search_portfolio_config(
                     self.config,
@@ -5394,9 +5832,20 @@ def _verified_slice_controller(
                         schema_version=coset_map_schema_version,
                     )
                 )
+                active_ids = _activation_compatible_coset_program_ids(
+                    self.database,
+                    coset_renderer_activation,
+                )
+                if not active_ids:
+                    raise RuntimeError(
+                        "coset checkpoint has no parent compatible with the "
+                        "sealed renderer activation"
+                    )
+                self._coset_active_program_ids = set(active_ids)
                 _rebuild_fixed_coset_feature_maps(
                     self.database,
                     schema_version=coset_map_schema_version,
+                    eligible_program_ids=self._coset_active_program_ids,
                 )
                 # Coset workers are already scheduled across all registered
                 # lineage
@@ -5428,11 +5877,56 @@ def _verified_slice_controller(
                 target_island = (
                     iteration - 1
                 ) % coset_island_count
-                parent, inspirations = self.database.sample_from_island(
-                    island_id=target_island,
-                    num_inspirations=self.config.prompt.num_top_programs,
+                if (
+                    self._coset_slice_elites is None
+                    or self._coset_slice_programs is None
+                    or self._coset_slice_snapshot is None
+                    or self._coset_slice_artifacts is None
+                ):
+                    raise RuntimeError(
+                        "coset activation-compatible parent archive was not "
+                        "frozen"
+                    )
+                selectable = list(
+                    self._coset_slice_elites[target_island]
                 )
-                snapshot = self._create_database_snapshot()
+                if not selectable:
+                    selectable = sorted({
+                        program_id
+                        for island_elites in self._coset_slice_elites
+                        for program_id in island_elites
+                    })
+                if not selectable:
+                    raise RuntimeError(
+                        "coset slice has no activation-compatible parent"
+                    )
+                random_seed = getattr(self.config, "random_seed", None)
+                if isinstance(random_seed, bool) or not isinstance(
+                    random_seed, int
+                ):
+                    raise RuntimeError(
+                        "coset portfolio random seed is not fixed"
+                    )
+                ordered_ids = _deterministic_coset_order(
+                    selectable,
+                    programs=self._coset_slice_programs,
+                    seed=random_seed,
+                    iteration=iteration,
+                    island=target_island,
+                    activation_sha256=coset_activation_sha256,
+                )
+                parent = self._coset_slice_programs[ordered_ids[0]]
+                inspiration_ids = ordered_ids[
+                    1:1 + self.config.prompt.num_top_programs
+                ]
+                snapshot = copy.deepcopy(self._coset_slice_snapshot)
+                snapshot["artifacts"] = {
+                    program_id: copy.deepcopy(
+                        self._coset_slice_artifacts[program_id]
+                    )
+                    for program_id in (parent.id, *inspiration_ids)
+                    if program_id in self._coset_slice_artifacts
+                }
                 snapshot["current_island"] = target_island
                 snapshot["sampling_island"] = target_island
                 parent_row = snapshot["programs"].get(parent.id)
@@ -5445,12 +5939,25 @@ def _verified_slice_controller(
                     **metadata,
                     "island": target_island,
                 }
-                inspiration_ids = [program.id for program in inspirations]
                 snapshot["islands"][target_island] = sorted({
                     *snapshot["islands"][target_island],
                     parent.id,
                     *inspiration_ids,
                 })
+                from evolve.coset_policy_dispatch import (
+                    parse_and_render_activated_policy,
+                    parse_and_render_registered_policy,
+                )
+
+                parent_render = (
+                    parse_and_render_registered_policy(parent.code)
+                    if validated_coset_activation is None
+                    else parse_and_render_activated_policy(
+                        parent.code, validated_coset_activation
+                    )
+                )
+                if not parent_render.policy_sha256:
+                    raise RuntimeError("coset parent policy identity is empty")
                 self._coset_iteration_targets[iteration] = target_island
                 future = self.executor.submit(
                     process_module._run_iteration_worker,
@@ -5654,10 +6161,53 @@ def _verified_slice_controller(
                             frozen_artifacts
                         )
             if coset_map_schema_version is not None:
+                if not self._coset_active_program_ids:
+                    raise RuntimeError(
+                        "coset slice has no activation-compatible programs"
+                    )
                 _rebuild_fixed_coset_feature_maps(
                     self.database,
                     schema_version=coset_map_schema_version,
+                    eligible_program_ids=self._coset_active_program_ids,
                 )
+                self._coset_slice_elites = tuple(
+                    tuple(sorted(program_ids))
+                    for program_ids in self.database.islands
+                )
+                frozen_coset_ids = {
+                    program_id
+                    for island_elites in self._coset_slice_elites
+                    for program_id in island_elites
+                }
+                if not frozen_coset_ids:
+                    raise RuntimeError(
+                        "coset compatible MAP archive has no elite"
+                    )
+                self._coset_slice_programs = {
+                    program_id: copy.deepcopy(
+                        self.database.programs[program_id]
+                    )
+                    for program_id in frozen_coset_ids
+                }
+                self._coset_slice_snapshot = copy.deepcopy(
+                    self._create_database_snapshot()
+                )
+                self._coset_slice_artifacts = {}
+                for program_id in sorted(frozen_coset_ids):
+                    artifact_getter = getattr(
+                        self.database, "get_artifacts", None
+                    )
+                    frozen_artifacts = (
+                        artifact_getter(program_id)
+                        if callable(artifact_getter)
+                        else getattr(self.database, "artifacts", {}).get(
+                            program_id
+                        )
+                    )
+                    if frozen_artifacts:
+                        self._coset_slice_artifacts[program_id] = copy.deepcopy(
+                            frozen_artifacts
+                        )
             checkpoint_controller = getattr(checkpoint_callback, "__self__", None)
             if checkpoint_controller is None:
                 observer.violations.append(
@@ -5728,9 +6278,20 @@ def _verified_slice_controller(
                         schema_version=search_portfolio_schema_version,
                     )
                 elif coset_map_schema_version is not None:
+                    if self._coset_active_program_ids is None:
+                        observer.violations.append(
+                            "coset active program set was not initialized"
+                        )
+                    elif self.database.programs.get(
+                        getattr(program, "id", None)
+                    ) is not None:
+                        self._coset_active_program_ids.add(program.id)
                     _rebuild_fixed_coset_feature_maps(
                         self.database,
                         schema_version=coset_map_schema_version,
+                        eligible_program_ids=(
+                            self._coset_active_program_ids
+                        ),
                     )
                 stored = self.database.programs.get(getattr(program, "id", None))
                 if stored is None:
@@ -7648,7 +8209,11 @@ def main():
         config = _build_config(args, api_base, model_names)
         if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
             config.prompt.system_message += (
-                "\n\n" + _coset_mutation_bounds_prompt()
+                "\n\n" + _coset_mutation_bounds_prompt(
+                    None
+                    if renderer_activation_binding is None
+                    else renderer_activation_binding[0]
+                )
             )
             coset_map_schema_version = (
                 _coset_search_portfolio_schema_version(args.config)
@@ -7854,6 +8419,11 @@ def main():
                 adaptive_mutation_policy=adaptive_mutation_policy,
                 search_regime=search_regime,
                 coset_map_schema_version=coset_map_schema_version,
+                coset_renderer_activation=(
+                    None
+                    if renderer_activation_binding is None
+                    else renderer_activation_binding[0]
+                ),
             )
         else:
             slice_context = nullcontext((None, None))
@@ -7942,6 +8512,44 @@ def main():
                                     coset_map_schema_version
                                 ),
                             )
+                            if coset_map_schema_version == 4:
+                                if renderer_activation_binding is None:
+                                    raise RuntimeError(
+                                        "renderer-v3 checkpoint preflight has "
+                                        "no sealed activation"
+                                    )
+                                if not _activation_compatible_coset_program_ids(
+                                    database,
+                                    renderer_activation_binding[0],
+                                ):
+                                    report = (
+                                        _install_coset_activation_bridge_epoch(
+                                            database,
+                                            source_checkpoint=(
+                                                source_checkpoint
+                                            ),
+                                            evaluator_path=EVALUATOR_ACTIVE,
+                                            expected_contract_id=(
+                                                preflight_contract_id
+                                            ),
+                                            wall_timeout=(
+                                                _winner_preflight_wall_timeout(
+                                                    evaluator_timeout
+                                                )
+                                            ),
+                                            cascade_threshold=(
+                                                stage2_cascade_threshold
+                                            ),
+                                            expected_map_schema_version=(
+                                                coset_map_schema_version
+                                            ),
+                                            activation_document=(
+                                                renderer_activation_binding[0]
+                                            ),
+                                        )
+                                    )
+                                    observer.record_checkpoint_preflight(report)
+                                    return
                         _validate_loaded_checkpoint_stage2_contract(
                             database,
                             expected_contract_id=preflight_contract_id,

@@ -5659,6 +5659,317 @@ def test_stage1_real_humanize_inherits_campaign_lease_without_relocking(
     assert observed == {"run_id": run_id}
 
 
+def test_stage1_feedback_flow_holds_exact_derived_lease_through_pipeline(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    run_id = "stage1-derived-feedback-lease"
+    base_flow = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidates,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=base_flow,
+        stage_review=False,
+    )
+    derived_id = f"{run_id}.feedback-e2-{'a' * 64}"
+    derived_flow_config = replace(base_flow, run_id=derived_id)
+    derived_flow = HumanizeFlow(
+        derived_flow_config,
+        reviewer=RecordingReviewer(),
+    )
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "_validate_stage1_feedback_startup",
+        lambda value: dict(value),
+    )
+    observed = {}
+
+    def fake_locked(flow):
+        observed["run_id"] = flow.store.run_id
+        observed["lease_paths"] = set(pipeline._humanize_run_leases)
+        with pytest.raises(HumanizeRunAlreadyActiveError):
+            with _acquire_humanize_run_lease(flow.store):
+                pass
+        return {
+            "status": "search-complete",
+            "candidate_inputs": [str(candidates)],
+        }
+
+    monkeypatch.setattr(HumanizeFlow, "_run_locked", fake_locked)
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        stage1["stage_config"] = {
+            "flow_config": derived_flow_config.serializable(),
+            "negative_feedback_startup": {
+                "flow_run_id": derived_id,
+            },
+        }
+        changed_flow = HumanizeFlow(
+            replace(
+                derived_flow_config,
+                max_rounds=derived_flow_config.max_rounds + 1,
+            ),
+            reviewer=RecordingReviewer(),
+        )
+        with pytest.raises(
+            PipelineError,
+            match="changed its sealed configuration",
+        ) as changed:
+            pipeline._run_stage1_flow(
+                changed_flow,
+                expected_flow_config=derived_flow_config,
+                feedback_startup=stage1["stage_config"][
+                    "negative_feedback_startup"
+                ],
+            )
+        assert changed.value.classification == "STAGE1_FEEDBACK_INVALID"
+
+        changed_worker_budget = HumanizeFlow(
+            replace(
+                derived_flow_config,
+                max_total_workers=(
+                    (derived_flow_config.max_total_workers or 0) + 1
+                ),
+            ),
+            reviewer=RecordingReviewer(),
+        )
+        with pytest.raises(
+            PipelineError,
+            match="changed its sealed configuration",
+        ) as changed:
+            pipeline._run_stage1_flow(
+                changed_worker_budget,
+                expected_flow_config=derived_flow_config,
+                feedback_startup=stage1["stage_config"][
+                    "negative_feedback_startup"
+                ],
+            )
+        assert changed.value.classification == "STAGE1_FEEDBACK_INVALID"
+
+        result = pipeline._run_stage1_flow(
+            derived_flow,
+            expected_flow_config=derived_flow_config,
+            feedback_startup=stage1["stage_config"][
+                "negative_feedback_startup"
+            ],
+        )
+
+        assert result["status"] == "search-complete"
+        assert observed["run_id"] == derived_id
+        assert observed["lease_paths"] == {
+            pipeline._humanize_run_lease.path,
+            derived_flow.store.lock_path.absolute(),
+        }
+        derived_path = derived_flow.store.lock_path.absolute()
+        first_derived_lease = pipeline._humanize_run_leases[derived_path]
+        repeated = pipeline._run_stage1_flow(
+            derived_flow,
+            expected_flow_config=derived_flow_config,
+            feedback_startup=stage1["stage_config"][
+                "negative_feedback_startup"
+            ],
+        )
+        assert repeated["status"] == "search-complete"
+        assert pipeline._humanize_run_leases[derived_path] is (
+            first_derived_lease
+        )
+        # The derived state and candidate log stay protected while Stages 2-5
+        # execute, not merely while HumanizeFlow.run() is on the stack.
+        with pytest.raises(HumanizeRunAlreadyActiveError):
+            with _acquire_humanize_run_lease(derived_flow.store):
+                pass
+        # Starting the next proof pass releases obsolete derived leases but
+        # keeps the campaign/base lease. A cache replay can then bind the same
+        # derived identity again without accumulating descriptors.
+        pipeline._reset_derived_humanize_run_leases()
+        assert set(pipeline._humanize_run_leases) == {
+            pipeline._humanize_run_lease.path,
+        }
+        with _acquire_humanize_run_lease(derived_flow.store):
+            pass
+        replayed = pipeline._run_stage1_flow(
+            derived_flow,
+            expected_flow_config=derived_flow_config,
+            feedback_startup=stage1["stage_config"][
+                "negative_feedback_startup"
+            ],
+        )
+        assert replayed["status"] == "search-complete"
+        with pytest.raises(HumanizeRunAlreadyActiveError):
+            with _acquire_humanize_run_lease(derived_flow.store):
+                pass
+
+    # Both leases are released by the campaign ExitStack.
+    with _acquire_humanize_run_lease(derived_flow.store):
+        pass
+    base_store = HumanizeFlow(
+        base_flow,
+        reviewer=RecordingReviewer(),
+    ).store
+    with _acquire_humanize_run_lease(base_store):
+        pass
+
+
+def test_stage1_feedback_flow_fails_closed_when_derived_lease_is_busy(
+    tmp_path,
+    monkeypatch,
+):
+    repo, candidates = _repo(tmp_path)
+    run_id = "stage1-derived-feedback-busy"
+    base_flow = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidates,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=base_flow,
+        stage_review=False,
+    )
+    derived_id = f"{run_id}.feedback-e2-{'b' * 64}"
+    derived_flow_config = replace(base_flow, run_id=derived_id)
+    derived_flow = HumanizeFlow(
+        derived_flow_config,
+        reviewer=RecordingReviewer(),
+    )
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "_validate_stage1_feedback_startup",
+        lambda value: dict(value),
+    )
+    executed = False
+
+    def fake_locked(_flow):
+        nonlocal executed
+        executed = True
+        return {}
+
+    monkeypatch.setattr(HumanizeFlow, "_run_locked", fake_locked)
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        stage1["stage_config"] = {
+            "flow_config": derived_flow_config.serializable(),
+            "negative_feedback_startup": {
+                "flow_run_id": derived_id,
+            },
+        }
+        with _acquire_humanize_run_lease(derived_flow.store):
+            with pytest.raises(PipelineBusyError) as failure:
+                pipeline._run_stage1_flow(
+                    derived_flow,
+                    expected_flow_config=derived_flow_config,
+                    feedback_startup=stage1["stage_config"][
+                        "negative_feedback_startup"
+                    ],
+                )
+
+        assert failure.value.classification == "PIPELINE_BUSY"
+        assert failure.value.stage == "stage1_search"
+        assert executed is False
+        assert derived_flow.store.lock_path.absolute() not in (
+            pipeline._humanize_run_leases
+        )
+        # A failed nonblocking acquisition leaves no partial registration;
+        # retrying after the competing owner exits succeeds in-place.
+        result = pipeline._run_stage1_flow(
+            derived_flow,
+            expected_flow_config=derived_flow_config,
+            feedback_startup=stage1["stage_config"][
+                "negative_feedback_startup"
+            ],
+        )
+        assert result == {}
+        assert executed is True
+        assert derived_flow.store.lock_path.absolute() in (
+            pipeline._humanize_run_leases
+        )
+
+
+@pytest.mark.parametrize("failure_type", (RuntimeError, KeyboardInterrupt))
+def test_stage1_feedback_flow_failure_releases_base_and_derived_leases(
+    tmp_path,
+    monkeypatch,
+    failure_type,
+):
+    repo, candidates = _repo(tmp_path)
+    run_id = f"stage1-derived-cleanup-{failure_type.__name__.lower()}"
+    base_flow = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidates,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=base_flow,
+        stage_review=False,
+    )
+    derived_id = f"{run_id}.feedback-e2-{'c' * 64}"
+    derived_config = replace(base_flow, run_id=derived_id)
+    derived_flow = HumanizeFlow(
+        derived_config,
+        reviewer=RecordingReviewer(),
+    )
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(),
+        reviewer=RecordingReviewer(),
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "_validate_stage1_feedback_startup",
+        lambda value: dict(value),
+    )
+
+    def fail(_flow):
+        raise failure_type("injected Stage 1 failure")
+
+    monkeypatch.setattr(HumanizeFlow, "_run_locked", fail)
+    with pytest.raises(failure_type, match="injected Stage 1 failure"):
+        with pipeline._exclusive_lock():
+            pipeline._load_or_initialize_state()
+            startup = {"flow_run_id": derived_id}
+            pipeline.state["stages"]["stage1_search"]["stage_config"] = {
+                "flow_config": derived_config.serializable(),
+                "negative_feedback_startup": startup,
+            }
+            pipeline._run_stage1_flow(
+                derived_flow,
+                expected_flow_config=derived_config,
+                feedback_startup=startup,
+            )
+
+    assert pipeline._humanize_run_lease is None
+    assert pipeline._humanize_run_lease_stack is None
+    assert pipeline._humanize_run_leases == {}
+    with _acquire_humanize_run_lease(derived_flow.store):
+        pass
+    base_store = HumanizeFlow(
+        base_flow,
+        reviewer=RecordingReviewer(),
+    ).store
+    with _acquire_humanize_run_lease(base_store):
+        pass
+
+
 def test_stage1_humanize_cache_is_invalidated_by_proof_runtime_change(
     tmp_path,
     monkeypatch,

@@ -5712,6 +5712,276 @@ def _validated_live_coset_policy_code_identity(
     }
 
 
+def _validate_checkpoint_activation_bridge_preflight(
+    report: Any,
+    *,
+    base_checkpoint: dict[str, Any],
+    result_checkpoint: dict[str, Any],
+    launch_binding: Mapping[str, Any],
+    invocation_binding: Mapping[str, Any],
+    candidate_log: Path,
+    candidate_start_offset: int,
+    candidate_end_offset: int,
+    expected_representation_id: str | None,
+) -> None:
+    """Strictly replay one renderer-v3 activation bridge root.
+
+    The bridge is the sole newly evaluated root that replaces a checkpoint
+    whose policies are all incompatible with the next round's sealed
+    activation.  Its report is intentionally self-contained: replay binds the
+    immutable source population, the exact activation and support split, the
+    root's canonical policy lineage, and the candidate-log bytes written by
+    the fresh evaluation.
+    """
+
+    expected_fields = {
+        "schema_version",
+        "status",
+        "contract_version",
+        "contract_id",
+        "mode",
+        "source_checkpoint",
+        "source_programs",
+        "source_program_set_sha256",
+        "target_programs",
+        "root_program_id",
+        "root_policy_sha256",
+        "root_code_sha256",
+        "activation_sha256",
+        "approved_support_split",
+        "bridge_candidate_range",
+    }
+    contract_id = report.get("contract_id") if isinstance(report, dict) else None
+    source_programs = (
+        report.get("source_programs") if isinstance(report, dict) else None
+    )
+    if (
+        type(report) is not dict
+        or set(report) != expected_fields
+        or report.get("schema_version") != 3
+        or report.get("status") != "completed"
+        or report.get("contract_version") != 2
+        or type(contract_id) is not int
+        or contract_id < 0
+        or report.get("mode")
+        != "typed-json-dsl-activation-bridge-root"
+        or report.get("source_checkpoint") != base_checkpoint
+        or type(source_programs) is not int
+        or source_programs < 1
+        or source_programs != base_checkpoint.get("programs")
+        or report.get("target_programs") != 1
+        or expected_representation_id != COSET_REPRESENTATION_ID_V3
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge report is invalid"
+        )
+
+    hashes = (
+        report.get("source_program_set_sha256"),
+        report.get("root_policy_sha256"),
+        report.get("root_code_sha256"),
+        report.get("activation_sha256"),
+    )
+    if any(
+        type(value) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", value) is None
+        for value in hashes
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge hashes are invalid"
+        )
+
+    activation_descriptor = launch_binding.get(
+        "coset_renderer_activation"
+    )
+    if type(activation_descriptor) is not dict:
+        raise RoundTransactionError(
+            "checkpoint activation bridge has no launch activation"
+        )
+    activation_path = Path(str(activation_descriptor.get("path", "")))
+    if (
+        _file_descriptor(
+            activation_path, "checkpoint activation bridge renderer activation"
+        )
+        != activation_descriptor
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge launch activation changed"
+        )
+    activation_document = _validated_coset_renderer_activation_file(
+        activation_path
+    )
+    invocation_activation = invocation_binding.get(
+        COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
+    )
+    if (
+        invocation_activation != activation_document["activation_sha256"]
+        or report["activation_sha256"] != invocation_activation
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge activation binding changed"
+        )
+
+    approved_split = report.get("approved_support_split")
+    if (
+        type(approved_split) is not list
+        or len(approved_split) != 2
+        or any(type(value) is not int or value < 1 for value in approved_split)
+        or activation_document.get("approved_support_splits")
+        != [approved_split]
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge support split is invalid"
+        )
+
+    bridge_range = report.get("bridge_candidate_range")
+    if (
+        type(bridge_range) is not dict
+        or set(bridge_range)
+        != {
+            "path",
+            "start_offset",
+            "end_offset",
+            "sha256",
+            "bytes",
+            "wal_clean",
+        }
+        or bridge_range.get("path") != str(candidate_log.resolve())
+        or type(bridge_range.get("start_offset")) is not int
+        or type(bridge_range.get("end_offset")) is not int
+        or bridge_range["start_offset"] != candidate_start_offset
+        or not (
+            candidate_start_offset
+            <= bridge_range["end_offset"]
+            <= candidate_end_offset
+        )
+        or bridge_range.get("bytes")
+        != bridge_range["end_offset"] - bridge_range["start_offset"]
+        or type(bridge_range.get("sha256")) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", bridge_range["sha256"])
+        is None
+        or bridge_range.get("wal_clean") is not True
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge candidate range is invalid"
+        )
+    observed_range = _candidate_log_range_identity(
+        candidate_log,
+        start_offset=bridge_range["start_offset"],
+        end_offset=bridge_range["end_offset"],
+    )
+    if any(
+        observed_range[name] != bridge_range[name]
+        for name in (
+            "path",
+            "start_offset",
+            "end_offset",
+            "sha256",
+            "bytes",
+            "wal_clean",
+        )
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge candidate range changed"
+        )
+
+    observed_source_program_set_sha256 = _checkpoint_program_set_sha256(
+        base_checkpoint
+    )
+    if observed_source_program_set_sha256 != report[
+        "source_program_set_sha256"
+    ]:
+        raise RoundTransactionError(
+            "checkpoint activation bridge source population changed"
+        )
+
+    root_program_id = report.get("root_program_id")
+    if type(root_program_id) is not str:
+        raise RoundTransactionError(
+            "checkpoint activation bridge root id is invalid"
+        )
+    root_program_path = (
+        Path(result_checkpoint["path"])
+        / "programs"
+        / f"{root_program_id}.json"
+    )
+    if root_program_path.is_symlink() or not root_program_path.is_file():
+        raise RoundTransactionError(
+            "checkpoint activation bridge root is absent"
+        )
+    root_program = _read_json_object(
+        root_program_path, "checkpoint activation bridge root"
+    )
+    root_code = root_program.get("code")
+    root_identity = _validated_live_coset_policy_code_identity(
+        root_code,
+        expected_catalog_sha256=invocation_binding.get(
+            "qcode_action_catalog_sha256"
+        ),
+        expected_representation_id=expected_representation_id,
+    )
+
+    from evolve.coset_policy_dispatch import (
+        CosetPolicyDispatchError,
+        parse_and_render_activated_policy,
+    )
+    from evolve.coset_search_contract import (
+        trusted_coset_renderer_activation_from_document,
+    )
+
+    try:
+        activated_root = parse_and_render_activated_policy(
+            root_code,
+            trusted_coset_renderer_activation_from_document(
+                activation_document
+            ),
+        )
+        observed_split = list(activated_root.policy.support_split)
+    except (CosetPolicyDispatchError, TypeError, ValueError) as exc:
+        raise RoundTransactionError(
+            "checkpoint activation bridge root is not activation-compatible"
+        ) from exc
+
+    root_binding = {
+        "schema_version": 1,
+        "kind": "qcode-coset-activation-bridge-root",
+        "source_checkpoint_sha256": base_checkpoint["sha256"],
+        "source_program_set_sha256": observed_source_program_set_sha256,
+        "source_last_iteration": base_checkpoint["last_iteration"],
+        "activation_sha256": activation_document["activation_sha256"],
+        "approved_support_split": approved_split,
+        "policy_sha256": root_identity["policy_sha256"],
+        "code_sha256": root_identity["code_sha256"],
+        "contract_id": contract_id,
+    }
+    expected_root_id = "coset-activation-root-" + hashlib.sha256(
+        json.dumps(
+            root_binding,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()[:32]
+    root_metadata = root_program.get("metadata")
+    if (
+        root_program_id != expected_root_id
+        or root_program.get("id") != root_program_id
+        or root_program.get("parent_id") is not None
+        or root_program.get("iteration_found")
+        != base_checkpoint["last_iteration"]
+        or root_program.get("language") != "json"
+        or root_identity["policy_sha256"] != report["root_policy_sha256"]
+        or root_identity["code_sha256"] != report["root_code_sha256"]
+        or activated_root.policy_sha256 != report["root_policy_sha256"]
+        or observed_split != approved_split
+        or not isinstance(root_metadata, dict)
+        or root_metadata.get("checkpoint_activation_bridge") != root_binding
+    ):
+        raise RoundTransactionError(
+            "checkpoint activation bridge lineage is inconsistent"
+        )
+
+
 def _coset_parent_program_identity(
     program_id: str,
     *,
@@ -6538,7 +6808,7 @@ def _validate_slice_witness(
                 and type(checkpoint_preflight.get("contract_id")) is int
                 and checkpoint_preflight["contract_id"] >= 0
             )
-            if not common_valid or report_schema not in {1, 2}:
+            if not common_valid or report_schema not in {1, 2, 3}:
                 raise RoundTransactionError(
                     "checkpoint preflight report is invalid"
                 )
@@ -6576,7 +6846,7 @@ def _validate_slice_witness(
                     raise RoundTransactionError(
                         "checkpoint backfill report is invalid"
                     )
-            else:
+            elif report_schema == 2:
                 expected_report_fields = {
                     "schema_version",
                     "status",
@@ -6731,6 +7001,18 @@ def _validate_slice_witness(
                     raise RoundTransactionError(
                         "checkpoint DSL migration lineage is inconsistent"
                     )
+            else:
+                _validate_checkpoint_activation_bridge_preflight(
+                    checkpoint_preflight,
+                    base_checkpoint=base_checkpoint,
+                    result_checkpoint=result_checkpoint,
+                    launch_binding=binding,
+                    invocation_binding=invocation_binding,
+                    candidate_log=candidate_log,
+                    candidate_start_offset=candidate_start_offset,
+                    candidate_end_offset=int(witness["candidate_end_offset"]),
+                    expected_representation_id=coset_representation_id,
+                )
 
     outcomes = witness.get("outcomes")
     if not isinstance(outcomes, list) or len(outcomes) != count:

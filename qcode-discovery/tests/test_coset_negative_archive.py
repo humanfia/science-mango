@@ -38,6 +38,7 @@ from humanize.pipeline import (
 )
 from humanize import flow as flow_module
 from humanize.flow import FlowConfig
+from humanize.state import RunStore
 from scripts.audit_candidate_pool import (
     _compact_low_weight_cache_binding,
     _construction_candidate,
@@ -497,14 +498,24 @@ def test_pipeline_feedback_epoch_is_deferred_immutable_and_keeps_one_live_archiv
     )
     config.root.mkdir(parents=True)
     flow_run_ids: list[str] = []
+    flow_lease_paths: list[Path] = []
 
     class SearchFlow:
         def __init__(self, selected: FlowConfig):
             self.config = selected
+            self.store = RunStore.create(
+                selected.repo_dir / "results",
+                selected.run_id,
+            )
             self.pipeline_candidate_inputs = (candidate_output,)
 
-        def run(self):
+        def run(self, *, inherited_run_lease):
+            flow_module._validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
             flow_run_ids.append(self.config.run_id)
+            flow_lease_paths.append(inherited_run_lease.path)
             # A verified negative appended by Stage 1 is allowed to change the
             # mutable live side. The startup snapshot remains an input and must
             # remain unchanged throughout the machine transaction.
@@ -524,60 +535,402 @@ def test_pipeline_feedback_epoch_is_deferred_immutable_and_keeps_one_live_archiv
         reviewer=None,
     )
     monkeypatch.setattr(pipeline, "_stage1_source_provenance", lambda: {})
-    monkeypatch.setattr(pipeline, "_run_stage1_flow", lambda flow: flow.run())
-    pipeline._load_or_initialize_state()
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
 
-    assert pipeline._stage1_inputs() == [candidate_output.resolve()]
-    stage1 = pipeline.state["stages"]["stage1_search"]
-    startup_one = stage1["negative_feedback_startup"]
-    consumed_one = stage1["negative_feedback_consumed"]
-    base_live = Path(consumed_one["live_archive_path"])
-    assert startup_one["feedback_epoch"] == 1
-    assert flow_run_ids == [run_id]
-    assert "negative_feedback_pending" not in pipeline.state
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        startup_one = stage1["negative_feedback_startup"]
+        consumed_one = stage1["negative_feedback_consumed"]
+        base_live = Path(consumed_one["live_archive_path"])
+        assert startup_one["feedback_epoch"] == 1
+        assert flow_run_ids == [run_id]
+        assert flow_lease_paths == [
+            pipeline._humanize_run_lease.path,
+        ]
+        assert "negative_feedback_pending" not in pipeline.state
 
-    # An unchanged immutable startup view is a real cache hit.
-    assert pipeline._stage1_inputs() == [candidate_output.resolve()]
-    assert flow_run_ids == [run_id]
-    assert pipeline.state["stages"]["stage1_search"]["attempt"] == 1
+        # An unchanged immutable startup view is a real cache hit.
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert flow_run_ids == [run_id]
+        assert pipeline.state["stages"]["stage1_search"]["attempt"] == 1
 
-    stage2_root = pipeline.paths.artifacts
-    _stage2_files(stage2_root, [two_sparse_negatives[0]])
-    first_stage2 = pipeline._archive_stage2_coset_negatives(
-        [candidate_output]
+        stage2_root = pipeline.paths.artifacts
+        _stage2_files(stage2_root, [two_sparse_negatives[0]])
+        first_stage2 = pipeline._archive_stage2_coset_negatives(
+            [candidate_output]
+        )
+        assert first_stage2["events_added"] == 1
+        pending = pipeline._validate_pending_feedback_state(
+            pipeline.state["negative_feedback_pending"]
+        )
+        assert pending["record"]["pending_epoch"] == 2
+        assert pending["record"]["source_stage"] == "stage2-sector-audit"
+        # This Stage 2 archive operation only records a pending epoch; the
+        # outer pipeline scheduler decides when the next proof pass begins.
+        assert flow_run_ids == [run_id]
+
+    with pipeline._exclusive_lock():
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert len(flow_run_ids) == 2
+        assert flow_run_ids[1] != flow_run_ids[0]
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        assert stage1["attempt"] == 2
+        assert stage1["negative_feedback_startup"]["feedback_epoch"] == 2
+        assert stage1["negative_feedback_consumed"][
+            "live_archive_path"
+        ] == str(base_live)
+        assert pipeline.state["negative_feedback_pending"]["record"][
+            "source_stage"
+        ] == "stage1-search"
+        derived_store = RunStore.create(
+            repo / "results",
+            flow_run_ids[1],
+        )
+        assert flow_lease_paths[1] == derived_store.lock_path.absolute()
+        # The derived lease remains held through the downstream proof stages.
+        with pytest.raises(flow_module.HumanizeRunAlreadyActiveError):
+            with flow_module._acquire_humanize_run_lease(derived_store):
+                pass
+
+        # A Stage 2 witness produced after the derived epoch must still land in
+        # the original base live archive, never a run-id-derived side archive.
+        _stage2_files(stage2_root, [two_sparse_negatives[1]])
+        second_stage2 = pipeline._archive_stage2_coset_negatives(
+            [candidate_output]
+        )
+        assert second_stage2["events_added"] == 1
+        assert len(archive.load_archive(base_live)["events"]) == 3
+        assert (
+            pipeline._coset_negative_archive_path([candidate_output])
+            == base_live
+        )
+
+    with flow_module._acquire_humanize_run_lease(derived_store):
+        pass
+
+
+def test_pipeline_feedback_cache_hit_reacquires_derived_run_lease(
+    tmp_path,
+    monkeypatch,
+):
+    repo = tmp_path / "repo"
+    (repo / "humanize").mkdir(parents=True)
+    candidate_output = repo / "candidate-output.jsonl"
+    candidate_output.write_text("{}\n", encoding="utf-8")
+    run_id = "pipeline-feedback-cache-lease"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidate_output,
+        evolution_evaluator="coset-two-block",
+        search_representation_id="css-coset-two-block-actions-v2",
+        milp_top=0,
     )
-    assert first_stage2["events_added"] == 1
-    pending = pipeline._validate_pending_feedback_state(
-        pipeline.state["negative_feedback_pending"]
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
     )
-    assert pending["record"]["pending_epoch"] == 2
-    assert pending["record"]["source_stage"] == "stage2-sector-audit"
-    # Stage 2 only records a pending epoch. It never calls Stage 1 again in the
-    # same five-stage invocation.
-    assert flow_run_ids == [run_id]
+    config.root.mkdir(parents=True)
+    base_store = RunStore.create(repo / "results", run_id)
+    base_state = base_store.initialize(flow_config.serializable())
+    base_state["status"] = "search-complete"
+    base_store.write_state(base_state)
+    flow_calls: list[str] = []
 
-    assert pipeline._stage1_inputs() == [candidate_output.resolve()]
-    assert len(flow_run_ids) == 2
-    assert flow_run_ids[1] != flow_run_ids[0]
-    stage1 = pipeline.state["stages"]["stage1_search"]
-    assert stage1["attempt"] == 2
-    assert stage1["negative_feedback_startup"]["feedback_epoch"] == 2
-    assert stage1["negative_feedback_consumed"]["live_archive_path"] == str(
-        base_live
-    )
-    assert pipeline.state["negative_feedback_pending"]["record"][
-        "source_stage"
-    ] == "stage1-search"
+    class SearchFlow:
+        def __init__(self, selected: FlowConfig):
+            self.config = selected
+            self.store = RunStore.create(
+                selected.repo_dir / "results",
+                selected.run_id,
+            )
+            self.pipeline_candidate_inputs = (candidate_output,)
 
-    # A Stage 2 witness produced after the derived epoch must still land in the
-    # original base live archive, never a run-id-derived side archive.
-    _stage2_files(stage2_root, [two_sparse_negatives[1]])
-    second_stage2 = pipeline._archive_stage2_coset_negatives(
-        [candidate_output]
+        def run(self, *, inherited_run_lease):
+            flow_module._validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
+            flow_calls.append(self.config.run_id)
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidate_output)],
+            }
+
+    first = FiveStagePipeline(
+        config,
+        flow_factory=SearchFlow,
+        reviewer=None,
     )
-    assert second_stage2["events_added"] == 1
-    assert len(archive.load_archive(base_live)["events"]) == 3
-    assert pipeline._coset_negative_archive_path([candidate_output]) == base_live
+    monkeypatch.setattr(first, "_stage1_source_provenance", lambda: {})
+    with first._exclusive_lock():
+        first._load_or_initialize_state()
+        assert first._stage1_inputs() == [candidate_output.resolve()]
+        startup = first.state["stages"]["stage1_search"][
+            "negative_feedback_startup"
+        ]
+        derived_id = startup["flow_run_id"]
+        assert derived_id != run_id
+        assert flow_calls == [derived_id]
+
+    resumed = FiveStagePipeline(
+        config,
+        flow_factory=SearchFlow,
+        reviewer=None,
+    )
+    monkeypatch.setattr(resumed, "_stage1_source_provenance", lambda: {})
+    with resumed._exclusive_lock():
+        resumed._load_or_initialize_state()
+        assert resumed._stage1_inputs() == [candidate_output.resolve()]
+        # Machine cache hit: SearchFlow.run() is not called a second time.
+        assert flow_calls == [derived_id]
+        derived_store = RunStore.create(repo / "results", derived_id)
+        with pytest.raises(flow_module.HumanizeRunAlreadyActiveError):
+            with flow_module._acquire_humanize_run_lease(derived_store):
+                pass
+
+    with flow_module._acquire_humanize_run_lease(derived_store):
+        pass
+
+
+def test_pipeline_feedback_output_discovery_keeps_sealed_archive_binding(
+    tmp_path,
+    monkeypatch,
+):
+    """Replay derived outputs before restoring the process archive environment."""
+
+    repo = tmp_path / "repo"
+    (repo / "humanize").mkdir(parents=True)
+    candidate_output = repo / "candidate-output.jsonl"
+    candidate_output.write_text("{}\n", encoding="utf-8")
+    run_id = "pipeline-feedback-output-discovery"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidate_output,
+        evolution_evaluator="coset-two-block",
+        search_representation_id="css-coset-two-block-actions-v2",
+        milp_top=0,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+    )
+    config.root.mkdir(parents=True)
+    # A terminal base Humanize identity forces the pipeline to create a
+    # feedback-derived run whose candidate-log default archive differs from
+    # the sealed base live archive.
+    base_store = RunStore.create(repo / "results", run_id)
+    base_state = base_store.initialize(flow_config.serializable())
+    base_state["status"] = "search-complete"
+    base_store.write_state(base_state)
+    observed: dict[str, str | int | None] = {"replays": 0}
+
+    class SearchFlow:
+        def __init__(self, selected: FlowConfig):
+            self.config = selected
+            self.store = RunStore.create(
+                selected.repo_dir / "results",
+                selected.run_id,
+            )
+
+        @property
+        def pipeline_candidate_inputs(self):
+            observed["replays"] = int(observed["replays"]) + 1
+            round_dir = (
+                repo
+                / "results"
+                / "humanize"
+                / self.config.run_id
+                / "rounds"
+                / "round-001"
+            )
+            manifest, _snapshot, _manifest = (
+                flow_module._negative_feedback_epoch_binding(
+                    self.config,
+                    round_dir,
+                )
+            )
+            observed["environment"] = os.environ.get(
+                archive.NEGATIVE_ARCHIVE_PATH_ENV
+            )
+            observed["manifest"] = manifest["live_archive_path"]
+            return (candidate_output,)
+
+        def run(self, *, inherited_run_lease):
+            flow_module._validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
+            # Force output discovery to use the property above. This matches
+            # HumanizeFlow, whose property replays committed round bindings.
+            return {"status": "search-complete"}
+
+    pipeline = FiveStagePipeline(
+        config,
+        flow_factory=SearchFlow,
+        reviewer=None,
+    )
+    monkeypatch.setattr(pipeline, "_stage1_source_provenance", lambda: {})
+    monkeypatch.delenv(archive.NEGATIVE_ARCHIVE_PATH_ENV, raising=False)
+    monkeypatch.delenv(
+        archive.NEGATIVE_ARCHIVE_SNAPSHOT_PATH_ENV,
+        raising=False,
+    )
+
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        startup = pipeline.state["stages"]["stage1_search"][
+            "negative_feedback_startup"
+        ]
+        assert startup["flow_run_id"] != run_id
+        assert observed == {
+            "replays": 1,
+            "environment": startup["live_archive_path"],
+            "manifest": startup["live_archive_path"],
+        }
+
+    assert archive.NEGATIVE_ARCHIVE_PATH_ENV not in os.environ
+    assert archive.NEGATIVE_ARCHIVE_SNAPSHOT_PATH_ENV not in os.environ
+
+
+def test_pipeline_prepared_feedback_survives_live_advance_and_recovers_terminal_orphan(
+    tmp_path,
+    monkeypatch,
+    stage1_negative_row,
+    two_sparse_negatives,
+):
+    """A post-run archive hash must not replace an unconsumed epoch input."""
+
+    repo = tmp_path / "repo"
+    (repo / "humanize").mkdir(parents=True)
+    candidate_output = repo / "candidate-output.jsonl"
+    candidate_output.write_text("{}\n", encoding="utf-8")
+    run_id = "pipeline-feedback-prepared-recovery"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidate_output,
+        evolution_evaluator="coset-two-block",
+        search_representation_id="css-coset-two-block-actions-v2",
+        milp_top=0,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+    )
+    config.root.mkdir(parents=True)
+
+    class SearchFlow:
+        def __init__(self, selected: FlowConfig):
+            self.config = selected
+            self.store = RunStore.create(
+                selected.repo_dir / "results",
+                selected.run_id,
+            )
+            self.pipeline_candidate_inputs = (candidate_output,)
+
+        def run(self, *, inherited_run_lease):
+            flow_module._validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidate_output)],
+            }
+
+    pipeline = FiveStagePipeline(
+        config,
+        flow_factory=SearchFlow,
+        reviewer=None,
+    )
+    monkeypatch.setattr(pipeline, "_stage1_source_provenance", lambda: {})
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        consumed = pipeline.state["stages"]["stage1_search"][
+            "negative_feedback_consumed"
+        ]
+        live = Path(consumed["live_archive_path"])
+
+        # H2 is the exact input frozen for derived feedback epoch 2.
+        archive.ingest_stage1_rows(live, [stage1_negative_row])
+        derived_config, startup_h2 = pipeline._prepare_stage1_feedback_epoch(
+            flow_config
+        )
+        assert startup_h2["feedback_epoch"] == 2
+        assert startup_h2["flow_run_id"] == derived_config.run_id
+        assert "negative_feedback_prepared" in pipeline.state
+
+        # The running epoch appends a different verified mechanism, advancing
+        # mutable live state to H3. Recovery must remain pinned to H2.
+        stage2_root = tmp_path / "prepared-stage2"
+        stage2_root.mkdir()
+        summary, _ranked = _stage2_files(
+            stage2_root,
+            [two_sparse_negatives[0]],
+        )
+        archive.ingest_stage2_paths(live, [summary])
+        h3 = archive.load_archive(live)["archive_sha256"]
+        assert h3 != startup_h2["archive_sha256"]
+        resumed_config, resumed_startup = (
+            pipeline._prepare_stage1_feedback_epoch(flow_config)
+        )
+        assert resumed_config.run_id == derived_config.run_id
+        assert resumed_startup == startup_h2
+
+        # Simulate an older controller that lost the prepared state after
+        # Humanize reached a terminal checkpoint but before pipeline adoption.
+        terminal_store = RunStore.create(
+            repo / "results",
+            derived_config.run_id,
+        )
+        terminal = terminal_store.initialize(derived_config.serializable())
+        terminal["status"] = "search-complete"
+        terminal["pending_round"] = None
+        terminal_store.write_state(terminal)
+        pipeline.state.pop("negative_feedback_prepared")
+        pipeline._write_state()
+
+        recovered_config, recovered_startup = (
+            pipeline._prepare_stage1_feedback_epoch(flow_config)
+        )
+        assert recovered_config.run_id == derived_config.run_id
+        assert recovered_startup == startup_h2
+        assert pipeline.state["negative_feedback_prepared"]["startup"] == (
+            startup_h2
+        )
+        wrong_h3_run = pipeline._feedback_epoch_run_id(
+            run_id,
+            feedback_epoch=2,
+            archive_sha256=h3,
+            initial=False,
+        )
+        assert wrong_h3_run != derived_config.run_id
+        assert not (repo / "results" / "humanize" / wrong_h3_run).exists()
+
+        # Preparing the adoption delta may publish an immutable epoch-3 WAL
+        # artifact, but it must not mutate or persist any pipeline pointer.
+        # The caller commits this delta together with machine_status and output
+        # hashes in one completed-state write.
+        before_adoption = copy.deepcopy(pipeline.state)
+        transition = pipeline._record_stage1_feedback_consumption(
+            startup_h2,
+            terminal,
+        )
+        assert pipeline.state == before_adoption
+        assert transition["consumed"]["feedback_epoch"] == 2
+        assert transition["next_pending"]["record"]["pending_epoch"] == 3
+        assert transition["next_pending"]["record"]["archive_sha256"] == h3
 
 
 def test_pipeline_feedback_snapshot_and_pending_state_tampering_fail_closed(
@@ -633,7 +986,11 @@ def test_pipeline_feedback_snapshot_and_pending_state_tampering_fail_closed(
         reviewer=None,
     )
     monkeypatch.setattr(pipeline, "_stage1_source_provenance", lambda: {})
-    monkeypatch.setattr(pipeline, "_run_stage1_flow", lambda flow: flow.run())
+    monkeypatch.setattr(
+        pipeline,
+        "_run_stage1_flow",
+        lambda flow, **_kwargs: flow.run(),
+    )
     pipeline._load_or_initialize_state()
     with pytest.raises(PipelineError, match="inputs changed") as captured:
         pipeline._stage1_inputs()

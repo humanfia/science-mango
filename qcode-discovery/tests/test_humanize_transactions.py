@@ -330,6 +330,214 @@ def write_checkpoint(
     return checkpoint
 
 
+def _activation_bridge_replay_fixture(tmp_path: Path) -> tuple[dict, dict]:
+    from evolve.coset_policy_dsl_v3 import (
+        canonical_policy_json,
+        default_policy,
+        policy_digest,
+    )
+    from evolve.coset_search_contract import (
+        activate_coset_renderer_proposal,
+        coset_renderer_activation_document,
+        coset_renderer_proposal_document,
+    )
+
+    split = [2, 4]
+    activation = coset_renderer_activation_document(
+        activate_coset_renderer_proposal(
+            coset_renderer_proposal_document(
+                support_splits=(tuple(split),)
+            )
+        )
+    )
+    activation_path = tmp_path / "coset-renderer-activation.json"
+    atomic_write_json(activation_path, activation)
+
+    source_policy = default_policy(support_split=(3, 3))
+    source_code = canonical_policy_json(source_policy) + "\n"
+    base_path = tmp_path / "checkpoint_25"
+    (base_path / "programs").mkdir(parents=True)
+    atomic_write_json(base_path / "programs/source.json", {
+        "id": "source",
+        "code": source_code,
+        "metrics": {},
+    })
+    base_checkpoint = {
+        "path": str(base_path.resolve()),
+        "last_iteration": 25,
+        "sha256": "a" * 64,
+        "programs": 1,
+    }
+    source_program_set_sha256 = (
+        flow_module._checkpoint_program_set_sha256(base_checkpoint)
+    )
+
+    root_policy = default_policy(support_split=tuple(split))
+    root_code = canonical_policy_json(root_policy) + "\n"
+    root_policy_sha256 = policy_digest(root_policy)
+    root_code_sha256 = hashlib.sha256(root_code.encode("utf-8")).hexdigest()
+    contract_id = 17
+    root_binding = {
+        "schema_version": 1,
+        "kind": "qcode-coset-activation-bridge-root",
+        "source_checkpoint_sha256": base_checkpoint["sha256"],
+        "source_program_set_sha256": source_program_set_sha256,
+        "source_last_iteration": base_checkpoint["last_iteration"],
+        "activation_sha256": activation["activation_sha256"],
+        "approved_support_split": split,
+        "policy_sha256": root_policy_sha256,
+        "code_sha256": root_code_sha256,
+        "contract_id": contract_id,
+    }
+    root_id = "coset-activation-root-" + hashlib.sha256(
+        json.dumps(
+            root_binding,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()[:32]
+    result_path = tmp_path / "checkpoint_50"
+    (result_path / "programs").mkdir(parents=True)
+    atomic_write_json(result_path / "programs" / f"{root_id}.json", {
+        "id": root_id,
+        "code": root_code,
+        "metrics": {"combined_score": 0.25},
+        "parent_id": None,
+        "iteration_found": base_checkpoint["last_iteration"],
+        "language": "json",
+        "metadata": {
+            "island": 0,
+            "checkpoint_activation_bridge": root_binding,
+        },
+    })
+    result_checkpoint = {
+        "path": str(result_path.resolve()),
+        "last_iteration": 50,
+        "sha256": "b" * 64,
+        "programs": 1,
+    }
+
+    candidate_log = tmp_path / "all_codes.jsonl"
+    candidate_log.write_bytes(b'{"bridge":true}\n')
+    bridge_range = flow_module._candidate_log_range_identity(
+        candidate_log,
+        start_offset=0,
+    )
+    bridge_range = {
+        name: bridge_range[name]
+        for name in (
+            "path",
+            "start_offset",
+            "end_offset",
+            "sha256",
+            "bytes",
+            "wal_clean",
+        )
+    }
+    report = {
+        "schema_version": 3,
+        "status": "completed",
+        "contract_version": 2,
+        "contract_id": contract_id,
+        "mode": "typed-json-dsl-activation-bridge-root",
+        "source_checkpoint": base_checkpoint,
+        "source_programs": base_checkpoint["programs"],
+        "source_program_set_sha256": source_program_set_sha256,
+        "target_programs": 1,
+        "root_program_id": root_id,
+        "root_policy_sha256": root_policy_sha256,
+        "root_code_sha256": root_code_sha256,
+        "activation_sha256": activation["activation_sha256"],
+        "approved_support_split": split,
+        "bridge_candidate_range": bridge_range,
+    }
+    arguments = {
+        "base_checkpoint": base_checkpoint,
+        "result_checkpoint": result_checkpoint,
+        "launch_binding": {
+            "coset_renderer_activation": flow_module._file_descriptor(
+                activation_path, "test renderer activation"
+            )
+        },
+        "invocation_binding": {
+            "qcode_action_catalog_sha256": (
+                root_policy.action_catalog_sha256
+            ),
+            "qcode_coset_renderer_activation_sha256": activation[
+                "activation_sha256"
+            ],
+        },
+        "candidate_log": candidate_log,
+        "candidate_start_offset": 0,
+        "candidate_end_offset": bridge_range["end_offset"],
+        "expected_representation_id": (
+            flow_module.COSET_REPRESENTATION_ID_V3
+        ),
+    }
+    return report, arguments
+
+
+def test_checkpoint_activation_bridge_preflight_replays_exactly(tmp_path):
+    report, arguments = _activation_bridge_replay_fixture(tmp_path)
+
+    flow_module._validate_checkpoint_activation_bridge_preflight(
+        report, **arguments
+    )
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    (
+        "extra_field",
+        "activation",
+        "support_split",
+        "candidate_range",
+        "source_population",
+        "root_metadata",
+        "root_parent",
+    ),
+)
+def test_checkpoint_activation_bridge_preflight_rejects_tampering(
+    tmp_path,
+    tamper,
+):
+    report, arguments = _activation_bridge_replay_fixture(tmp_path)
+    report = copy.deepcopy(report)
+    if tamper == "extra_field":
+        report["unexpected"] = True
+    elif tamper == "activation":
+        report["activation_sha256"] = "0" * 64
+    elif tamper == "support_split":
+        report["approved_support_split"] = [4, 2]
+    elif tamper == "candidate_range":
+        report["bridge_candidate_range"]["sha256"] = "0" * 64
+    elif tamper == "source_population":
+        report["source_program_set_sha256"] = "0" * 64
+    else:
+        root_path = (
+            Path(arguments["result_checkpoint"]["path"])
+            / "programs"
+            / f"{report['root_program_id']}.json"
+        )
+        root = json.loads(root_path.read_text())
+        if tamper == "root_metadata":
+            root["metadata"]["checkpoint_activation_bridge"][
+                "activation_sha256"
+            ] = "0" * 64
+        else:
+            assert tamper == "root_parent"
+            root["parent_id"] = "source"
+        atomic_write_json(root_path, root)
+
+    with pytest.raises(
+        RoundTransactionError, match="checkpoint activation bridge"
+    ):
+        flow_module._validate_checkpoint_activation_bridge_preflight(
+            report, **arguments
+        )
+
+
 def write_full_slice_proof(
     flow: HumanizeFlow,
     round_dir: Path,

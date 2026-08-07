@@ -86,6 +86,12 @@ def test_coset_literal_diff_rejects_unapplied_ambiguous_and_noop_blocks(
 def test_coset_mutation_prompt_has_source_bound_integer_ranges():
     prompt = launcher._coset_mutation_bounds_prompt()
 
+    assert (
+        "action_id=coset2bga-l120-m32-s3-degree60-v2: "
+        "left indices 0..118; right indices 0..28; walk offset "
+        "0..2850525; walk stride 1..2850525, "
+        "gcd(stride,2850526)=1."
+    ) in prompt
     assert "left indices 0..222; right indices 0..26" in prompt
     assert "gcd(stride,8688303)=1" in prompt
     assert "left indices 0..70; right indices 0..70" in prompt

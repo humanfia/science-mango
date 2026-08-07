@@ -8,6 +8,7 @@ terminal gate.
 
 from __future__ import annotations
 
+import copy
 import fcntl
 import hashlib
 import importlib.util
@@ -87,6 +88,9 @@ NEGATIVE_FEEDBACK_CONSUMED_KIND = (
 )
 NEGATIVE_FEEDBACK_PENDING_KIND = (
     "qcode-pipeline-negative-feedback-pending"
+)
+NEGATIVE_FEEDBACK_PREPARED_KIND = (
+    "qcode-pipeline-stage1-negative-feedback-prepared"
 )
 STAGE2_SELECTION_LEDGER_SCHEMA_VERSION = (
     SHARED_SELECTION_LEDGER_SCHEMA_VERSION
@@ -1779,6 +1783,8 @@ class FiveStagePipeline:
         # reuse continues to follow config.resume.
         self._proof_retry_resume = False
         self._humanize_run_lease: _HumanizeRunLease | None = None
+        self._humanize_run_lease_stack: ExitStack | None = None
+        self._humanize_run_leases: dict[Path, _HumanizeRunLease] = {}
         if self.reviewer is None and config.stage_review:
             self.reviewer = CodexReviewer(
                 repo_dir=config.repo_dir,
@@ -2513,7 +2519,251 @@ class FiveStagePipeline:
             )
         return {"record": record, "artifact": artifact}
 
-    def _write_pending_feedback_record(
+    def _stage1_feedback_prepared_document(
+        self,
+        base_flow_config: FlowConfig,
+        startup: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Seal the exact Stage 1 identity before its mutable run starts."""
+
+        selected = self._validate_stage1_feedback_startup(startup)
+        effective = replace(
+            base_flow_config,
+            run_id=str(selected["flow_run_id"]),
+        )
+        return self._sealed_feedback_document({
+            "schema_version": NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION,
+            "kind": NEGATIVE_FEEDBACK_PREPARED_KIND,
+            "pipeline_run_id": self.config.run_id,
+            "base_flow_run_id": base_flow_config.run_id,
+            "flow_config": effective.serializable(),
+            "startup": dict(selected),
+        })
+
+    def _validate_stage1_feedback_prepared(
+        self,
+        value: Any,
+        *,
+        base_flow_config: FlowConfig,
+        live_archive_path: Path,
+        archive_binding_sha256: str,
+        expected_epoch: int,
+    ) -> dict[str, Any]:
+        fields = frozenset({
+            "schema_version",
+            "kind",
+            "pipeline_run_id",
+            "base_flow_run_id",
+            "flow_config",
+            "startup",
+            "binding_sha256",
+        })
+        document = self._validated_sealed_feedback_document(
+            value,
+            kind=NEGATIVE_FEEDBACK_PREPARED_KIND,
+            fields=fields,
+        )
+        startup = self._validate_stage1_feedback_startup(
+            document.get("startup")
+        )
+        flow_run_id = str(startup["flow_run_id"])
+        effective = replace(base_flow_config, run_id=flow_run_id)
+        if (
+            document.get("base_flow_run_id") != base_flow_config.run_id
+            or document.get("flow_config") != effective.serializable()
+            or startup.get("feedback_epoch") != expected_epoch
+            or startup.get("live_archive_path") != str(live_archive_path)
+            or startup.get("archive_binding_sha256")
+            != archive_binding_sha256
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "prepared Stage 1 feedback identity changed",
+                stage="stage1_search",
+            )
+        expected_run_id = self._feedback_epoch_run_id(
+            base_flow_config.run_id,
+            feedback_epoch=expected_epoch,
+            archive_sha256=str(startup["archive_sha256"]),
+            # Protocol epoch 1 is always the base identity. Legacy/preexisting
+            # terminal base runs are promoted to epoch 2 before validation.
+            # Never infer this flag from the untrusted flow_run_id itself.
+            initial=expected_epoch == 1,
+        )
+        if flow_run_id != expected_run_id:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "prepared Stage 1 run id is not bound to its frozen archive",
+                stage="stage1_search",
+            )
+        expected_round = _lexical_absolute(
+            self.config.repo_dir
+            / "results"
+            / "humanize"
+            / flow_run_id
+            / "rounds"
+            / "round-001"
+        )
+        if any(
+            _lexical_absolute(Path(str(startup[name]["path"]))).parent
+            != expected_round
+            for name in ("snapshot", "manifest")
+        ):
+            raise PipelineError(
+                "UNSAFE_INPUT_PATH",
+                "prepared Stage 1 feedback escaped its run identity",
+                stage="stage1_search",
+            )
+        return document
+
+    def _write_stage1_feedback_prepared(
+        self,
+        base_flow_config: FlowConfig,
+        startup: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        document = self._stage1_feedback_prepared_document(
+            base_flow_config,
+            startup,
+        )
+        document = self._validate_stage1_feedback_prepared(
+            document,
+            base_flow_config=base_flow_config,
+            live_archive_path=Path(str(startup["live_archive_path"])),
+            archive_binding_sha256=str(
+                startup["archive_binding_sha256"]
+            ),
+            expected_epoch=int(startup["feedback_epoch"]),
+        )
+        self.state["negative_feedback_prepared"] = document
+        self._write_state()
+        return document
+
+    def _recover_terminal_stage1_feedback_prepared(
+        self,
+        base_flow_config: FlowConfig,
+        *,
+        live_archive_path: Path,
+        archive_binding_sha256: str,
+        expected_epoch: int,
+    ) -> dict[str, Any] | None:
+        """Adopt one completed flow stranded before the Stage 1 handoff.
+
+        Cache-recovery records are immutable write-ahead evidence for a
+        derived feedback identity.  A terminal Humanize state plus its sealed
+        round-one snapshot is therefore sufficient to recover a flow that
+        completed before the pipeline could record consumption.
+        """
+
+        feedback_root = self.paths.artifacts / "negative-feedback"
+        if not feedback_root.exists():
+            return None
+        if feedback_root.is_symlink() or not feedback_root.is_dir():
+            raise PipelineError(
+                "UNSAFE_INPUT_PATH",
+                "negative-feedback artifact root is unsafe",
+                stage="stage1_search",
+            )
+        recovered: list[dict[str, Any]] = []
+        pattern = (
+            f"pending-epoch-{expected_epoch:04d}-"
+            "*-stage1-cache-recovery.json"
+        )
+        for artifact_path in sorted(feedback_root.glob(pattern)):
+            descriptor = self._feedback_file_descriptor(
+                artifact_path,
+                label="orphaned Stage 1 feedback record",
+            )
+            pending = self._validate_pending_feedback_state({
+                "record": _read_json_object(artifact_path),
+                "artifact": descriptor,
+            })["record"]
+            expected_artifact_path = feedback_root / (
+                f"pending-epoch-{expected_epoch:04d}-"
+                f"{pending['archive_sha256']}-stage1-cache-recovery.json"
+            )
+            if artifact_path != expected_artifact_path:
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "orphaned Stage 1 feedback record has a non-canonical name",
+                    stage="stage1_search",
+                )
+            if (
+                pending["pending_epoch"] != expected_epoch
+                or pending["live_archive_path"] != str(live_archive_path)
+                or pending["archive_binding_sha256"]
+                != archive_binding_sha256
+                or pending["source_stage"] != "stage1-cache-recovery"
+            ):
+                continue
+            flow_run_id = self._feedback_epoch_run_id(
+                base_flow_config.run_id,
+                feedback_epoch=expected_epoch,
+                archive_sha256=str(pending["archive_sha256"]),
+                initial=False,
+            )
+            effective = replace(base_flow_config, run_id=flow_run_id)
+            run_root = _lexical_absolute(
+                self.config.repo_dir
+                / "results"
+                / "humanize"
+                / flow_run_id
+            )
+            state_path = run_root / "state.json"
+            if not state_path.exists():
+                continue
+            state_descriptor = self._feedback_file_descriptor(
+                state_path,
+                label="orphaned Stage 1 state",
+            )
+            flow_state = _read_json_object(Path(state_descriptor["path"]))
+            if flow_state.get("status") not in {
+                "search-complete",
+                "incomplete-unresolved",
+            }:
+                continue
+            if (
+                flow_state.get("pending_round") is not None
+                or flow_state.get("config") != effective.serializable()
+            ):
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "terminal orphaned Stage 1 state is not replayable",
+                    stage="stage1_search",
+                )
+            round_dir = run_root / "rounds" / "round-001"
+            startup = self._sealed_feedback_document({
+                "schema_version": NEGATIVE_FEEDBACK_EPOCH_SCHEMA_VERSION,
+                "kind": NEGATIVE_FEEDBACK_STARTUP_KIND,
+                "pipeline_run_id": self.config.run_id,
+                "flow_run_id": flow_run_id,
+                "feedback_epoch": expected_epoch,
+                "live_archive_path": str(live_archive_path),
+                "archive_sha256": pending["archive_sha256"],
+                "archive_binding_sha256": archive_binding_sha256,
+                "snapshot": self._feedback_file_descriptor(
+                    round_dir / "negative-feedback-snapshot.json",
+                    label="orphaned Stage 1 feedback snapshot",
+                ),
+                "manifest": self._feedback_file_descriptor(
+                    round_dir / "negative-feedback-snapshot-manifest.json",
+                    label="orphaned Stage 1 feedback manifest",
+                ),
+            })
+            recovered.append(
+                self._stage1_feedback_prepared_document(
+                    base_flow_config,
+                    startup,
+                )
+            )
+        if len(recovered) > 1:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "multiple terminal Stage 1 feedback attempts require explicit recovery",
+                stage="stage1_search",
+            )
+        return recovered[0] if recovered else None
+
+    def _materialize_pending_feedback_record(
         self,
         *,
         live_archive_path: Path,
@@ -2521,7 +2771,9 @@ class FiveStagePipeline:
         pending_epoch: int,
         source_stage: str,
         events_added: int,
-    ) -> dict[str, Any]:
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Publish immutable pending evidence without changing pipeline state."""
+
         if (
             isinstance(pending_epoch, bool)
             or pending_epoch < 1
@@ -2576,6 +2828,24 @@ class FiveStagePipeline:
             "record": document,
             "artifact": descriptor,
         })
+        return document, pending_state
+
+    def _write_pending_feedback_record(
+        self,
+        *,
+        live_archive_path: Path,
+        archive: Mapping[str, Any],
+        pending_epoch: int,
+        source_stage: str,
+        events_added: int,
+    ) -> dict[str, Any]:
+        document, pending_state = self._materialize_pending_feedback_record(
+            live_archive_path=live_archive_path,
+            archive=archive,
+            pending_epoch=pending_epoch,
+            source_stage=source_stage,
+            events_added=events_added,
+        )
         self.state["negative_feedback_pending"] = pending_state
         self._write_state()
         return document
@@ -2646,6 +2916,20 @@ class FiveStagePipeline:
             and current_archive["archive_sha256"]
             == previous_consumed["archive_sha256"]
         ):
+            raw_prepared = self.state.get("negative_feedback_prepared")
+            if raw_prepared is not None:
+                expected_prepared = self._stage1_feedback_prepared_document(
+                    base_flow_config,
+                    previous_startup,
+                )
+                if raw_prepared != expected_prepared:
+                    raise PipelineError(
+                        "STAGE1_FEEDBACK_INVALID",
+                        "completed Stage 1 has a different prepared identity",
+                        stage="stage1_search",
+                    )
+                self.state.pop("negative_feedback_prepared")
+                self._write_state()
             effective = replace(
                 base_flow_config,
                 run_id=str(previous_startup["flow_run_id"]),
@@ -2693,6 +2977,100 @@ class FiveStagePipeline:
             }
             if existing_flow_terminal:
                 feedback_epoch = 2
+
+        archive_binding_sha256 = str(
+            current_archive["binding"]["binding_sha256"]
+        )
+        raw_prepared = self.state.get("negative_feedback_prepared")
+        if raw_prepared is not None:
+            prepared = self._validate_stage1_feedback_prepared(
+                raw_prepared,
+                base_flow_config=base_flow_config,
+                live_archive_path=live,
+                archive_binding_sha256=archive_binding_sha256,
+                expected_epoch=feedback_epoch,
+            )
+            startup = dict(prepared["startup"])
+            return (
+                replace(
+                    base_flow_config,
+                    run_id=str(startup["flow_run_id"]),
+                ),
+                startup,
+            )
+
+        # Older controllers did not persist a dedicated prepared record.  If
+        # such a controller completed Humanize but failed before adopting its
+        # output, recover the one terminal identity proven by the immutable
+        # cache-recovery record and round-one snapshot.  Never resample the
+        # newer mutable live archive into the same feedback epoch.
+        recovered = self._recover_terminal_stage1_feedback_prepared(
+            base_flow_config,
+            live_archive_path=live,
+            archive_binding_sha256=archive_binding_sha256,
+            expected_epoch=feedback_epoch,
+        )
+        if recovered is not None:
+            self.state["negative_feedback_prepared"] = recovered
+            self._write_state()
+            startup = dict(recovered["startup"])
+            return (
+                replace(
+                    base_flow_config,
+                    run_id=str(startup["flow_run_id"]),
+                ),
+                startup,
+            )
+
+        # Transitional recovery for an interrupted pre-journal controller:
+        # its machine stage_config already sealed the exact startup even
+        # though the successful top-level consumption record was not written.
+        attempted_config = record.get("stage_config")
+        attempted_startup = (
+            attempted_config.get("negative_feedback_startup")
+            if isinstance(attempted_config, Mapping)
+            and attempted_config.get("mode") == "humanize-flow"
+            and record.get("machine_status") in {"RUNNING", "FAILED"}
+            else None
+        )
+        if attempted_startup is not None:
+            attempted = self._stage1_feedback_prepared_document(
+                base_flow_config,
+                attempted_startup,
+            )
+            attempted = self._validate_stage1_feedback_prepared(
+                attempted,
+                base_flow_config=base_flow_config,
+                live_archive_path=live,
+                archive_binding_sha256=archive_binding_sha256,
+                expected_epoch=feedback_epoch,
+            )
+            expected_command = [
+                "internal:HumanizeFlow.run",
+                attempted["startup"]["flow_run_id"],
+            ]
+            if (
+                attempted_config.get("flow_config")
+                != attempted["flow_config"]
+                or record.get("command") != expected_command
+                or record.get("command_sha256")
+                != _canonical_sha256(expected_command)
+            ):
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "interrupted Stage 1 attempt changed its sealed identity",
+                    stage="stage1_search",
+                )
+            self.state["negative_feedback_prepared"] = attempted
+            self._write_state()
+            startup = dict(attempted["startup"])
+            return (
+                replace(
+                    base_flow_config,
+                    run_id=str(startup["flow_run_id"]),
+                ),
+                startup,
+            )
 
         raw_pending = self.state.get("negative_feedback_pending")
         pending = (
@@ -2772,6 +3150,10 @@ class FiveStagePipeline:
         }
         startup = self._validate_stage1_feedback_startup(
             self._sealed_feedback_document(body)
+        )
+        self._write_stage1_feedback_prepared(
+            base_flow_config,
+            startup,
         )
         if previous_consumed is not None:
             self._write_pending_feedback_record(
@@ -2866,19 +3248,29 @@ class FiveStagePipeline:
 
     def _record_stage1_feedback_consumption(
         self,
-        record: dict[str, Any],
         startup: Mapping[str, Any],
         flow_state: Any,
-    ) -> None:
+    ) -> dict[str, Any]:
         from evolve.coset_negative_archive import (
             NegativeArchiveError,
             load_archive,
         )
 
+        # Validate every dependency and materialize immutable WAL evidence
+        # without mutating the caller-owned state. The caller applies this
+        # delta together with machine completion to a private state copy, then
+        # swaps and writes that fully-formed state exactly once.
         consumed = self._stage1_feedback_consumption(startup, flow_state)
-        record["negative_feedback_startup"] = dict(startup)
-        record["negative_feedback_consumed"] = consumed
-        self.state["negative_feedback_active"] = consumed
+        prepared = self._stage1_feedback_prepared_document(
+            self._flow_config(),
+            startup,
+        )
+        if self.state.get("negative_feedback_prepared") != prepared:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "Stage 1 completed under a different prepared identity",
+                stage="stage1_search",
+            )
         raw_pending = self.state.get("negative_feedback_pending")
         pending = (
             self._validate_pending_feedback_state(raw_pending)
@@ -2886,12 +3278,11 @@ class FiveStagePipeline:
             else None
         )
         pending_record = pending["record"] if pending is not None else None
-        if (
+        consume_pending = (
             isinstance(pending_record, Mapping)
             and pending_record.get("pending_epoch")
             == consumed["feedback_epoch"]
-        ):
-            self.state.pop("negative_feedback_pending", None)
+        )
         live = Path(consumed["live_archive_path"])
         try:
             archive = load_archive(live)
@@ -2901,14 +3292,24 @@ class FiveStagePipeline:
                 f"cannot replay Stage 1 negative-feedback poststate: {exc}",
                 stage="stage1_search",
             ) from exc
+
+        next_pending: dict[str, Any] | None = None
         if archive["archive_sha256"] != consumed["archive_sha256"]:
-            self._write_pending_feedback_record(
-                live_archive_path=live,
-                archive=archive,
-                pending_epoch=int(consumed["feedback_epoch"]) + 1,
-                source_stage="stage1-search",
-                events_added=0,
+            _document, next_pending = (
+                self._materialize_pending_feedback_record(
+                    live_archive_path=live,
+                    archive=archive,
+                    pending_epoch=int(consumed["feedback_epoch"]) + 1,
+                    source_stage="stage1-search",
+                    events_added=0,
+                )
             )
+        return {
+            "startup": dict(startup),
+            "consumed": consumed,
+            "consume_pending": consume_pending,
+            "next_pending": next_pending,
+        }
 
     def _record_coset_feedback_pending(
         self,
@@ -2957,7 +3358,116 @@ class FiveStagePipeline:
             events_added=events_added,
         )
 
-    def _run_stage1_flow(self, flow: Any) -> Any:
+    def _reset_derived_humanize_run_leases(self) -> None:
+        """Release prior proof-pass leases while retaining the base lease."""
+
+        base_lease = self._humanize_run_lease
+        lease_stack = self._humanize_run_lease_stack
+        if base_lease is None or lease_stack is None:
+            raise PipelineError(
+                "PIPELINE_LOCK_REQUIRED",
+                "proof pass cannot reset Humanize leases without the base lease",
+                stage="stage1_search",
+            )
+        lease_stack.close()
+        self._humanize_run_lease_stack = ExitStack()
+        self._humanize_run_leases = {base_lease.path: base_lease}
+
+    def _ensure_stage1_run_lease(
+        self,
+        flow_config: FlowConfig,
+        feedback_startup: Mapping[str, Any] | None,
+    ) -> _HumanizeRunLease:
+        """Hold the exact Stage 1 run lease through the current proof pass."""
+
+        base_lease = self._humanize_run_lease
+        if base_lease is None:
+            raise PipelineError(
+                "PIPELINE_LOCK_REQUIRED",
+                "Stage 1 cannot run without the campaign-wide Humanize lease",
+                stage="stage1_search",
+            )
+        expected_root = _lexical_absolute(
+            self.config.repo_dir
+            / "results"
+            / "humanize"
+            / flow_config.run_id
+        )
+        target_path = expected_root / "run.lock"
+        startup = (
+            self._validate_stage1_feedback_startup(feedback_startup)
+            if feedback_startup is not None
+            else None
+        )
+        if (
+            startup is not None
+            and startup.get("flow_run_id") != flow_config.run_id
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "Stage 1 run is not bound to its sealed feedback epoch",
+                stage="stage1_search",
+            )
+        if target_path == base_lease.path:
+            return base_lease
+
+        if startup is None:
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "derived Stage 1 run has no sealed feedback epoch",
+                stage="stage1_search",
+            )
+        lease_stack = self._humanize_run_lease_stack
+        if lease_stack is None:
+            raise PipelineError(
+                "PIPELINE_LOCK_REQUIRED",
+                "derived Stage 1 cannot run without the campaign lease stack",
+                stage="stage1_search",
+            )
+        effective_lease = self._humanize_run_leases.get(target_path)
+        if effective_lease is not None:
+            return effective_lease
+
+        flow_store = RunStore.create(
+            self.config.repo_dir / "results",
+            flow_config.run_id,
+        )
+        if (
+            _lexical_absolute(flow_store.root) != expected_root
+            or flow_store.lock_path.absolute() != target_path
+        ):
+            raise PipelineError(
+                "UNSAFE_CONTROL_PATH",
+                "derived Stage 1 RunStore escaped its sealed run identity",
+                stage="stage1_search",
+            )
+        try:
+            effective_lease = lease_stack.enter_context(
+                _acquire_humanize_run_lease(flow_store)
+            )
+        except HumanizeRunAlreadyActiveError as exc:
+            raise PipelineBusyError(
+                "PIPELINE_BUSY",
+                "another process owns the derived Humanize run lease "
+                f"for {flow_store.run_id!r}",
+                stage="stage1_search",
+            ) from exc
+        except RoundTransactionError as exc:
+            raise PipelineError(
+                "UNSAFE_CONTROL_PATH",
+                f"cannot acquire derived Humanize run lease: {exc}",
+                stage="stage1_search",
+            ) from exc
+        self._humanize_run_leases[target_path] = effective_lease
+        return effective_lease
+
+    def _run_stage1_flow(
+        self,
+        flow: Any,
+        *,
+        expected_flow_config: FlowConfig | None = None,
+        feedback_startup: Mapping[str, Any] | None = None,
+    ) -> Any:
         """Run Stage 1 under the campaign-wide Humanize lease.
 
         Real HumanizeFlow implementations explicitly accept the inherited
@@ -2978,6 +3488,50 @@ class FiveStagePipeline:
         except (TypeError, ValueError):
             parameters = {}
         if "inherited_run_lease" in parameters:
+            flow_store = getattr(flow, "store", None)
+            flow_config = getattr(flow, "config", None)
+            if not isinstance(flow_store, RunStore) or not isinstance(
+                flow_config, FlowConfig
+            ):
+                raise PipelineError(
+                    "UNSAFE_CONTROL_PATH",
+                    "lease-aware Stage 1 flow has no trusted RunStore binding",
+                    stage="stage1_search",
+                )
+            if expected_flow_config is None:
+                expected_flow_config = flow_config
+            # Compare the complete immutable dataclass, not only its logical
+            # checkpoint identity. ``serializable()`` deliberately omits the
+            # operational worker cap so checkpoints can be resumed under a
+            # newly scheduled budget; a flow factory must not use that escape
+            # hatch to alter the budget sealed by this pipeline invocation.
+            if flow_config != expected_flow_config:
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "lease-aware Stage 1 flow changed its sealed configuration",
+                    stage="stage1_search",
+                )
+            expected_root = _lexical_absolute(
+                self.config.repo_dir
+                / "results"
+                / "humanize"
+                / expected_flow_config.run_id
+            )
+            target_path = flow_store.lock_path.absolute()
+            if (
+                flow_store.run_id != expected_flow_config.run_id
+                or _lexical_absolute(flow_store.root) != expected_root
+                or target_path != expected_root / "run.lock"
+            ):
+                raise PipelineError(
+                    "UNSAFE_CONTROL_PATH",
+                    "lease-aware Stage 1 flow store does not match its run identity",
+                    stage="stage1_search",
+                )
+            run_lease = self._ensure_stage1_run_lease(
+                expected_flow_config,
+                feedback_startup,
+            )
             return run_method(inherited_run_lease=run_lease)
         return run_method()
 
@@ -3059,16 +3613,34 @@ class FiveStagePipeline:
                             "UNSAFE_CONTROL_PATH",
                             f"cannot acquire shared Humanize run lease: {exc}",
                         ) from exc
-                    if self._humanize_run_lease is not None:
+                    if (
+                        self._humanize_run_lease is not None
+                        or self._humanize_run_lease_stack is not None
+                        or self._humanize_run_leases
+                    ):
                         raise PipelineError(
                             "PIPELINE_BUSY",
                             "pipeline already owns a Humanize run lease",
                         )
-                    self._humanize_run_lease = run_lease
+                    derived_lease_stack = ExitStack()
                     try:
+                        self._humanize_run_lease = run_lease
+                        self._humanize_run_lease_stack = derived_lease_stack
+                        self._humanize_run_leases = {
+                            run_lease.path: run_lease,
+                        }
                         yield
                     finally:
-                        self._humanize_run_lease = None
+                        try:
+                            active_derived_stack = (
+                                self._humanize_run_lease_stack
+                            )
+                            if active_derived_stack is not None:
+                                active_derived_stack.close()
+                        finally:
+                            self._humanize_run_leases = {}
+                            self._humanize_run_lease_stack = None
+                            self._humanize_run_lease = None
             finally:
                 fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
 
@@ -3981,6 +4553,17 @@ class FiveStagePipeline:
                 )
             else:
                 flow_config = base_flow_config
+            # Acquire a derived feedback run lease before cache validation.
+            # A cache hit skips HumanizeFlow.run(), but its candidate/state
+            # files must remain protected through the downstream proof stages.
+            if (
+                feedback_startup is not None
+                and flow_config.run_id != base_flow_config.run_id
+            ):
+                self._ensure_stage1_run_lease(
+                    flow_config,
+                    feedback_startup,
+                )
             flow_holder: dict[str, Any] = {}
             command = ["internal:HumanizeFlow.run", flow_config.run_id]
 
@@ -4043,7 +4626,11 @@ class FiveStagePipeline:
                             flow = self.flow_factory(flow_config)
                             flow_holder["flow"] = flow
                             try:
-                                flow_state = self._run_stage1_flow(flow)
+                                flow_state = self._run_stage1_flow(
+                                    flow,
+                                    expected_flow_config=flow_config,
+                                    feedback_startup=feedback_startup,
+                                )
                             except UnresolvedAuditError:
                                 store = getattr(flow, "store", None)
                                 loader = getattr(store, "load_state", None)
@@ -4056,6 +4643,30 @@ class FiveStagePipeline:
                                     != "incomplete-unresolved"
                                 ):
                                     raise
+                            if (
+                                not isinstance(flow_state, Mapping)
+                                or flow_state.get("status")
+                                not in {
+                                    "search-complete",
+                                    "incomplete-unresolved",
+                                }
+                            ):
+                                raise PipelineError(
+                                    "STAGE1_INCOMPLETE",
+                                    "HumanizeFlow produced no auditable "
+                                    "Stage 1 handoff",
+                                    stage=stage,
+                                )
+                            flow_holder["state"] = flow_state
+                            # HumanizeFlow discovers outputs by replaying every
+                            # committed round binding. A feedback-derived run
+                            # must do that while the sealed base live-archive
+                            # identity is still installed; otherwise the
+                            # candidate-log fallback derives a different path
+                            # and rejects its valid immutable manifests.
+                            flow_holder["candidates"] = (
+                                self._discover_flow_outputs(flow, flow_state)
+                            )
                         finally:
                             sys.pycache_prefix = previous_cache_prefix
                             if cache_environment_present:
@@ -4070,17 +4681,6 @@ class FiveStagePipeline:
                                     os.environ.pop(name, None)
                                 else:
                                     os.environ[name] = original
-                if (
-                    not isinstance(flow_state, Mapping)
-                    or flow_state.get("status")
-                    not in {"search-complete", "incomplete-unresolved"}
-                ):
-                    raise PipelineError(
-                        "STAGE1_INCOMPLETE",
-                        "HumanizeFlow produced no auditable Stage 1 handoff",
-                        stage=stage,
-                    )
-                flow_holder["state"] = flow_state
                 return 0
 
             candidates = []
@@ -4146,6 +4746,7 @@ class FiveStagePipeline:
         self._reset_new_attempt_evidence(record)
         self.state["active_stage"] = stage
         self._write_state()
+        feedback_transition: dict[str, Any] | None = None
         try:
             exit_code = machine()
             self._require_inputs_unchanged(stage, input_paths, input_hashes)
@@ -4160,9 +4761,7 @@ class FiveStagePipeline:
                     exit_code=exit_code,
                 )
             if not self.config.candidate_inputs:
-                flow = flow_holder["flow"]
-                returned = flow_holder.get("state")
-                candidates = self._discover_flow_outputs(flow, returned)
+                candidates = list(flow_holder.get("candidates", ()))
             if not candidates:
                 raise PipelineError(
                     "OUTPUT_MISSING",
@@ -4175,8 +4774,7 @@ class FiveStagePipeline:
                 stage, stage_config, stage_config_revalidator
             )
             if not self.config.candidate_inputs and feedback_startup is not None:
-                self._record_stage1_feedback_consumption(
-                    record,
+                feedback_transition = self._record_stage1_feedback_consumption(
                     feedback_startup,
                     flow_holder.get("state"),
                 )
@@ -4188,17 +4786,45 @@ class FiveStagePipeline:
                 f"{type(exc).__name__}: {exc}",
                 stage=stage,
             ) from exc
-        record["exit_code"] = 0
-        record["machine_status"] = "COMPLETED"
-        record["status"] = "COMPLETED"
-        record["machine_completed_at"] = utc_now()
-        record["output_hashes"] = output_hashes
-        record["candidate_inputs"] = [str(path) for path in candidates]
-        record["review_status"] = (
+
+        # Build the complete adoption on a private copy.  Until the single
+        # pointer swap below, signal/error handling can only persist the prior
+        # prepared state; after the swap it can only persist a fully completed
+        # machine record.  Immutable pending evidence may already exist, but
+        # it is merely an unreferenced WAL artifact until this commit.
+        completed_state = copy.deepcopy(self.state)
+        completed_record = completed_state["stages"][stage]
+        if feedback_transition is not None:
+            completed_record["negative_feedback_startup"] = dict(
+                feedback_transition["startup"]
+            )
+            completed_record["negative_feedback_consumed"] = dict(
+                feedback_transition["consumed"]
+            )
+            completed_state["negative_feedback_active"] = dict(
+                feedback_transition["consumed"]
+            )
+            completed_state.pop("negative_feedback_prepared", None)
+            if feedback_transition["consume_pending"]:
+                completed_state.pop("negative_feedback_pending", None)
+            if feedback_transition["next_pending"] is not None:
+                completed_state["negative_feedback_pending"] = dict(
+                    feedback_transition["next_pending"]
+                )
+        completed_record["exit_code"] = 0
+        completed_record["machine_status"] = "COMPLETED"
+        completed_record["status"] = "COMPLETED"
+        completed_record["machine_completed_at"] = utc_now()
+        completed_record["output_hashes"] = output_hashes
+        completed_record["candidate_inputs"] = [
+            str(path) for path in candidates
+        ]
+        completed_record["review_status"] = (
             "MANAGED_BY_HUMANIZE" if not self.config.candidate_inputs else "PENDING"
         )
-        record["finished_at"] = utc_now()
-        record["resumed_machine"] = False
+        completed_record["finished_at"] = utc_now()
+        completed_record["resumed_machine"] = False
+        self.state = completed_state
         self._write_state()
         if self.config.candidate_inputs:
             self._review_stage(
@@ -4219,14 +4845,30 @@ class FiveStagePipeline:
         returned: Any,
     ) -> list[Path]:
         values: Any = None
+        missing = object()
         if isinstance(returned, Mapping):
             values = returned.get(
                 "pipeline_candidate_inputs", returned.get("candidate_inputs")
             )
-        if values is None and hasattr(flow, "pipeline_candidate_inputs"):
-            values = flow.pipeline_candidate_inputs
-        if values is None and hasattr(flow, "candidate_log"):
-            values = [flow.candidate_log]
+        if (
+            values is None
+            and inspect.getattr_static(
+                flow,
+                "pipeline_candidate_inputs",
+                missing,
+            )
+            is not missing
+        ):
+            # Avoid ``hasattr`` here: descriptors are executable, so a
+            # property-backed history replay would otherwise run twice and an
+            # AttributeError raised inside it would be mistaken for absence.
+            values = getattr(flow, "pipeline_candidate_inputs")
+        if (
+            values is None
+            and inspect.getattr_static(flow, "candidate_log", missing)
+            is not missing
+        ):
+            values = [getattr(flow, "candidate_log")]
         if values is None and self._flow_config().candidate_file is not None:
             values = [self._flow_config().candidate_file]
         if values is None:
@@ -8895,6 +9537,10 @@ class FiveStagePipeline:
         return True
 
     def _run_locked(self) -> dict[str, Any]:
+        # One proof pass may bind one feedback-derived Stage 1 identity. Drop
+        # leases from the previous completed pass before selecting/replaying
+        # the next identity; the base campaign lease remains held throughout.
+        self._reset_derived_humanize_run_leases()
         self._load_or_initialize_state()
         previous_status = self.state.get("status")
         previous_result = self.state.pop("result", None)
