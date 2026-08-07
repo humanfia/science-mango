@@ -2106,8 +2106,32 @@ def _materialize_round_renderer_activation(
                 )
             activation_document = resolution["renderer_activation"]
         else:
-            raise RoundTransactionError(
-                "representation-expansion handoff forbids a fallback launch"
+            # A non-executable reviewer proposal is sealed evidence that the
+            # requested renderer was *not* authorized.  It is not authority to
+            # stop the machine search, nor may any part of that proposal cross
+            # into the next invocation.  Continue with the source-owned default
+            # v3 activation, which is independently reconstructed from the
+            # installed registry on every replay.
+            if resolution["target_round"] != target_round:
+                raise RoundTransactionError(
+                    "reviewer renderer advisory targets a different round"
+                )
+            handoff = resolution.get("representation_expansion_handoff")
+            if (
+                not isinstance(handoff, Mapping)
+                or handoff.get("execution_permitted") is not False
+                or resolution.get("renderer_activation") is not None
+            ):
+                raise RoundTransactionError(
+                    "non-executable renderer advisory is malformed"
+                )
+            from evolve.coset_search_contract import (
+                coset_renderer_activation_document,
+                default_coset_renderer_activation,
+            )
+
+            activation_document = coset_renderer_activation_document(
+                default_coset_renderer_activation()
             )
 
     activation_path = Path(os.path.abspath(
@@ -4762,7 +4786,12 @@ def _validated_renderer_expansion_handoff(
     state: Mapping[str, Any],
     rounds_root: Path,
 ) -> str | None:
-    """Validate a terminal, non-executable reviewer catalog handoff."""
+    """Validate a legacy terminal reviewer handoff without reinterpreting it.
+
+    New runs retain rejected reviewer proposals as round-bound diagnostics and
+    continue under the trusted default renderer.  States committed by the old
+    controller remain terminal and replayable through this compatibility gate.
+    """
 
     round_value = state.get("renderer_expansion_handoff_at_round")
     digest_value = state.get("renderer_expansion_handoff_sha256")
@@ -4949,6 +4978,21 @@ def _freeze_round_context(
                 or verified_binding.get("review_schema_version") != 2
                 or verified_binding.get("search_action") is None
             ):
+                continue
+            renderer_resolution = _validated_bound_renderer_resolution(
+                summary,
+                round_dir.parent,
+            )
+            if (
+                renderer_resolution is not None
+                and renderer_resolution.get("status")
+                == "representation_expansion_handoff"
+            ):
+                # The complete rejected action remains byte-bound in the
+                # review and resolution artifacts.  It cannot enter a prompt
+                # that generates executable mutations: even inert unknown IDs
+                # or an unsupported split would otherwise bias the model into
+                # repeatedly producing mutations that preflight must reject.
                 continue
             search_action = copy.deepcopy(
                 verified_binding["search_action"]
@@ -12362,7 +12406,7 @@ class HumanizeFlow:
                 renderer_resolution = _validated_bound_renderer_resolution(
                     final_state["rounds"][-1], round_dir.parent
                 )
-                renderer_handoff = bool(
+                renderer_advisory = bool(
                     renderer_resolution is not None
                     and renderer_resolution.get("status")
                     == "representation_expansion_handoff"
@@ -12370,7 +12414,6 @@ class HumanizeFlow:
                 should_stop = bool(
                     trusted_wins
                     or representation_handoff
-                    or renderer_handoff
                 )
                 if representation_handoff:
                     # These fields, the completed round summary, current_round,
@@ -12381,19 +12424,6 @@ class HumanizeFlow:
                         SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE
                     )
                     final_state["search_handoff_at_round"] = number
-                    final_state["status"] = (
-                        "incomplete-unresolved"
-                        if unresolved_count
-                        else "search-complete"
-                    )
-                if renderer_handoff:
-                    assert renderer_resolution is not None
-                    final_state["renderer_expansion_handoff_at_round"] = (
-                        number
-                    )
-                    final_state["renderer_expansion_handoff_sha256"] = (
-                        renderer_resolution["resolution_sha256"]
-                    )
                     final_state["status"] = (
                         "incomplete-unresolved"
                         if unresolved_count
@@ -12435,12 +12465,19 @@ class HumanizeFlow:
                         status=final_state["status"],
                         unresolved=unresolved_count,
                     )
-                if renderer_handoff:
+                if renderer_advisory:
+                    assert renderer_resolution is not None
+                    handoff = renderer_resolution.get(
+                        "representation_expansion_handoff"
+                    )
+                    assert isinstance(handoff, Mapping)
                     self.store.event(
-                        "search_renderer_expansion_handoff",
+                        "search_renderer_expansion_deferred",
                         round_number=number,
                         status=final_state["status"],
                         unresolved=unresolved_count,
+                        reason=handoff.get("reason"),
+                        execution_permitted=False,
                         resolution_sha256=renderer_resolution[
                             "resolution_sha256"
                         ],

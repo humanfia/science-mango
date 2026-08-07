@@ -1110,6 +1110,7 @@ def build_review_prompt(
         _round_history_compact(row) for row in round_history
     ]
     from evolve.coset_search_contract import (
+        COSET_RENDERER_V3_ID,
         trusted_coset_catalog_registry_document,
         trusted_coset_renderer_registry_document,
     )
@@ -1178,13 +1179,18 @@ def build_review_prompt(
             "renderer_registry_sha256": renderer_registry[
                 "registry_sha256"
             ],
-            "installed_renderers": [
+            # The registry also retains historical renderer descriptors for
+            # artifact replay.  Only v3 has an installed next-round activation
+            # handler, so advertising v2 here would invite a proposal that the
+            # controller is required to reject.
+            "activatable_renderers": [
                 {
                     "renderer_descriptor_id": row["descriptor_id"],
                     "catalog_kind": row["catalog_kind"],
                     "support_splits": row["support_splits"],
                 }
                 for row in renderer_registry["descriptors"]
+                if row["descriptor_id"] == COSET_RENDERER_V3_ID
             ],
             "catalog_registry_sha256": catalog_registry["registry_sha256"],
             "installed_catalog_manifests": [
@@ -1196,7 +1202,7 @@ def build_review_prompt(
                 for row in catalog_registry["manifests"]
             ],
             "unknown_catalog_behavior": (
-                "sealed_representation_expansion_handoff_no_execution"
+                "sealed_non_executable_advisory_continue_trusted_renderer"
             ),
         },
         "memory_coverage": {
@@ -1253,8 +1259,9 @@ Search-action contract:
   The current installed action catalog can be selected implicitly, or name a
   renderer_descriptor_id, catalog_manifest_id, and catalog_kind together.
   These are inert registry IDs, never module/callable names. Unknown action,
-  cover, or protograph IDs produce a non-executable representation-expansion
-  handoff; they never install or execute a new mathematical construction.
+  cover, or protograph IDs produce a sealed non-executable advisory. They never
+  install or execute a new mathematical construction, never stop the machine
+  search, and the next round continues with the source-owned trusted renderer.
 
 Long-term BitLesson memory (may be empty):
 ---

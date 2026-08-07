@@ -19,8 +19,11 @@ from evolve.coset_policy_dispatch import parse_and_render_activated_policy
 from evolve.coset_search_contract import (
     COSET_ACTION_CATALOG_V2_MANIFEST_ID,
     COSET_RENDERER_ACTIVATION_JSON_ENV,
+    COSET_RENDERER_V2_ID,
     COSET_RENDERER_V3_ID,
     coset_batch_map_descriptor_registered,
+    coset_renderer_activation_document,
+    default_coset_renderer_activation,
     trusted_coset_renderer_activation_from_document,
 )
 from humanize.coset_renderer_review import (
@@ -29,7 +32,7 @@ from humanize.coset_renderer_review import (
     validate_reviewer_renderer_resolution,
 )
 from humanize import flow as flow_module
-from humanize.flow import FlowConfig
+from humanize.flow import FlowConfig, HumanizeFlow
 from humanize.reviewer import ReviewError, build_review_prompt, validate_review
 from humanize.state import atomic_write_json
 
@@ -315,8 +318,14 @@ def test_flow_binds_reviewer_activation_to_exact_next_round_invocation(
     activation = json.loads(activation_path.read_text())
     assert activation["approved_support_splits"] == [[2, 4]]
 
-    context_path = round_two / "search-context.md"
-    context_path.write_text("next round\n")
+    context_path = flow_module._freeze_round_context(
+        config,
+        state,
+        round_two,
+    )
+    context = context_path.read_text()
+    assert "## Independent reviewer search advisories" in context
+    assert '"value": "2+4"' in context
     live_archive = tmp_path / "negative-archive.json"
     monkeypatch.setenv(
         "QCODE_COSET_NEGATIVE_ARCHIVE_PATH", str(live_archive)
@@ -344,7 +353,9 @@ def test_flow_binds_reviewer_activation_to_exact_next_round_invocation(
     ] == activation["activation_sha256"]
 
 
-def test_flow_unknown_protograph_handoff_cannot_fallback_to_default(tmp_path):
+def test_flow_rejected_renderer_advisory_uses_trusted_default_next_round(
+    tmp_path,
+):
     project = Path(flow_module.__file__).resolve().parents[1]
     rounds_root = tmp_path / "rounds"
     round_one = rounds_root / "round-001"
@@ -386,17 +397,15 @@ def test_flow_unknown_protograph_handoff_cannot_fallback_to_default(tmp_path):
         search_representation_id="css-coset-two-block-actions-v3",
         milp_top=0,
     )
-
-    with pytest.raises(
-        flow_module.RoundTransactionError,
-        match="handoff forbids a fallback launch",
-    ):
-        flow_module._materialize_round_renderer_activation(
-            config, state, round_two
+    activation_path = flow_module._materialize_round_renderer_activation(
+        config, state, round_two
+    )
+    assert activation_path is not None
+    assert json.loads(activation_path.read_text()) == (
+        coset_renderer_activation_document(
+            default_coset_renderer_activation()
         )
-    assert not (
-        round_two / flow_module.COSET_RENDERER_ACTIVATION_FILENAME
-    ).exists()
+    )
 
     resolution = flow_module._validated_bound_renderer_resolution(
         summary, rounds_root
@@ -413,6 +422,108 @@ def test_flow_unknown_protograph_handoff_cannot_fallback_to_default(tmp_path):
     ) == "search-complete"
 
 
+def test_rejected_reviewer_renderer_advisory_does_not_stop_flow(tmp_path):
+    project = Path(flow_module.__file__).resolve().parents[1]
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    source.write_text(json.dumps({
+        "ell": 10,
+        "m": 6,
+        "n": 120,
+        "k": 8,
+        "d": 2,
+        "fom": 8 * 4 / 120,
+        "A_terms": [[0, 0], [0, 1], [1, 0]],
+        "B_terms": [[0, 0], [0, 2], [2, 0]],
+    }) + "\n")
+
+    rejected = validate_review(_review(
+        _focus("renderer_descriptor_id", COSET_RENDERER_V2_ID),
+        _focus(
+            "catalog_manifest_id", COSET_ACTION_CATALOG_V2_MANIFEST_ID
+        ),
+        _focus("catalog_kind", "action"),
+        _focus("support_split_type", "3+3"),
+    ), require_current=True)
+
+    class Reviewer:
+        def review(self, _prompt, _round_dir):
+            return copy.deepcopy(rejected)
+
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="rejected-renderer-advisory-continues",
+        max_rounds=2,
+        candidate_file=source,
+        evolution_evaluator="coset-two-block",
+        evolution_config=project / "evolve/coset_config_v3.yaml",
+        evolution_seed=project / "evolve/coset_seed_solution_v3.py",
+        search_representation_id="css-coset-two-block-actions-v3",
+        search_regime_policy_version=3,
+        stop_on_representation_change=True,
+        milp_top=0,
+    )
+    completed = HumanizeFlow(config, reviewer=Reviewer()).run()
+
+    assert completed["status"] == "search-complete"
+    assert completed["current_round"] == 2
+    assert len(completed["rounds"]) == 2
+    assert "renderer_expansion_handoff_at_round" not in completed
+    assert "renderer_expansion_handoff_sha256" not in completed
+    first_resolution = flow_module._validated_bound_renderer_resolution(
+        completed["rounds"][0],
+        repo
+        / "results"
+        / "humanize"
+        / config.run_id
+        / "rounds",
+    )
+    assert first_resolution is not None
+    assert first_resolution["status"] == "representation_expansion_handoff"
+    assert first_resolution["representation_expansion_handoff"][
+        "execution_permitted"
+    ] is False
+
+    rounds_root = (
+        repo / "results" / "humanize" / config.run_id / "rounds"
+    )
+    replay_state = copy.deepcopy(completed)
+    replay_state["current_round"] = 1
+    replay_state["rounds"] = [copy.deepcopy(completed["rounds"][0])]
+    replay_state["search_regime"] = copy.deepcopy(
+        completed["rounds"][0]["search_regime"]
+    )
+    context_path = flow_module._freeze_round_context(
+        config,
+        replay_state,
+        rounds_root / "round-002",
+    )
+    context = context_path.read_text()
+    assert "## Independent reviewer search advisories" not in context
+    assert COSET_RENDERER_V2_ID not in context
+
+    events = [
+        json.loads(line)
+        for line in (
+            repo / "results" / "humanize" / config.run_id / "events.jsonl"
+        ).read_text().splitlines()
+    ]
+    round_one = next(
+        row
+        for row in events
+        if row.get("event") == "round_completed"
+        and row.get("round_number") == 1
+    )
+    assert round_one["stop"] is False
+    assert any(
+        row.get("event") == "search_renderer_expansion_deferred"
+        and row.get("round_number") == 1
+        and row.get("execution_permitted") is False
+        for row in events
+    )
+
+
 def test_prompt_exposes_only_installed_registry_and_handoff_semantics():
     prompt = build_review_prompt(
         round_number=7,
@@ -426,6 +537,8 @@ def test_prompt_exposes_only_installed_registry_and_handoff_semantics():
         memory="",
     )
     assert COSET_RENDERER_V3_ID in prompt
+    assert COSET_RENDERER_V2_ID not in prompt
     assert COSET_ACTION_CATALOG_V2_MANIFEST_ID in prompt
-    assert "non-executable representation-expansion" in prompt
+    assert "sealed non-executable advisory" in prompt
+    assert "never stop the machine" in prompt
     assert "never module/callable names" in prompt
