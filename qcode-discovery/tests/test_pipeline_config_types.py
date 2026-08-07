@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from humanize.pipeline import PipelineConfig
+from evaluation.target_policy import TARGET_MODE_GIST, TARGET_MODE_SCALAR
 
 
 def _load_config(tmp_path: Path, values: dict) -> PipelineConfig:
@@ -149,6 +150,63 @@ def test_pipeline_json_preserves_numeric_string_compatibility(tmp_path: Path):
     assert config.stage2_timeout == 12.5
     assert config.proof_retry_max_attempts == 4
     assert config.proof_retry_backoff_seconds == 0.0
+
+
+def test_pipeline_target_mode_defaults_to_gist_and_serializes(tmp_path: Path):
+    config = _load_config(tmp_path, {})
+
+    assert config.target_mode == TARGET_MODE_GIST
+    assert config.serializable()["target_mode"] == TARGET_MODE_GIST
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {"target_mode": TARGET_MODE_SCALAR},
+        {"target": {"mode": TARGET_MODE_SCALAR}},
+    ],
+)
+def test_pipeline_json_accepts_explicit_scalar_target(
+    tmp_path: Path,
+    values: dict,
+):
+    assert _load_config(tmp_path, values).target_mode == TARGET_MODE_SCALAR
+
+
+def test_pipeline_propagates_scalar_target_into_humanize_stage1(
+    tmp_path: Path,
+):
+    config_path = tmp_path / "pipeline-humanize.json"
+    config_path.write_text(json.dumps({
+        "run_id": "scalar-humanize",
+        "target_mode": TARGET_MODE_SCALAR,
+        "flow_config": {},
+    }) + "\n")
+
+    config = PipelineConfig.from_json(config_path, repo_dir=tmp_path)
+
+    assert config.flow_config is not None
+    assert config.flow_config.target_mode == TARGET_MODE_SCALAR
+    assert config.flow_config.serializable()["target_mode"] == (
+        TARGET_MODE_SCALAR
+    )
+
+
+def test_pipeline_rejects_conflicting_stage1_target_mode(tmp_path: Path):
+    config_path = tmp_path / "pipeline-conflict.json"
+    config_path.write_text(json.dumps({
+        "run_id": "target-conflict",
+        "target_mode": TARGET_MODE_SCALAR,
+        "flow_config": {"target_mode": TARGET_MODE_GIST},
+    }) + "\n")
+
+    with pytest.raises(ValueError, match="flow_config.target_mode"):
+        PipelineConfig.from_json(config_path, repo_dir=tmp_path)
+
+
+def test_pipeline_rejects_unknown_target_mode(tmp_path: Path):
+    with pytest.raises(ValueError, match="unsupported target mode"):
+        _load_config(tmp_path, {"target_mode": "advisory-fom"})
 
 
 @pytest.mark.parametrize("not_finite", [float("nan"), "NaN"])

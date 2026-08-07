@@ -54,6 +54,12 @@ from evaluation.final_gate import (
 )
 from evaluation.geometry import candidate_geometry
 from evaluation.registry import check_code_novelty
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    classify_target_win,
+    validate_target_binding,
+    validate_target_mode,
+)
 
 
 SCHEMA_VERSION = 1
@@ -197,6 +203,91 @@ def _clean_claim(claim: Mapping[str, Any]) -> dict[str, Any]:
     else:
         cleaned["geometry"] = geometry
     return cleaned
+
+
+def _claim_target_context(
+    claim: Mapping[str, Any],
+    *,
+    n: int,
+    k: int,
+) -> tuple[str, dict[str, Any] | None, int]:
+    """Resolve one claim target without changing legacy target-less claims.
+
+    Historical sector certificates carried only ``required_distance`` and used
+    the challenge-gist threshold.  Keep accepting that exact shape.  Any
+    supplied descriptor, however, is canonicalized against rebuilt ``n/k``;
+    an explicit non-legacy mode without a descriptor is never downgraded.
+    """
+
+    supplied_mode = claim.get("target_mode")
+    if "target" not in claim:
+        mode = validate_target_mode(
+            DEFAULT_TARGET_MODE if supplied_mode is None else supplied_mode
+        )
+        if mode != DEFAULT_TARGET_MODE:
+            raise ValueError("non-legacy target mode requires a target binding")
+        if claim.get("target_binding_sha256") is not None:
+            raise ValueError("target binding hash requires a target descriptor")
+        return mode, None, minimum_winning_distance(n, k)
+    selected = validate_target_binding(
+        claim.get("target"),
+        n=n,
+        k=k,
+        mode=supplied_mode,
+    )
+    supplied_binding_sha256 = claim.get("target_binding_sha256")
+    if (
+        supplied_binding_sha256 is not None
+        and supplied_binding_sha256 != selected["binding_sha256"]
+    ):
+        raise ValueError("claim target binding hash is inconsistent")
+    return (
+        str(selected["mode"]),
+        selected,
+        int(selected["required_distance"]),
+    )
+
+
+def _target_metadata(target: Mapping[str, Any] | None) -> dict[str, Any]:
+    if target is None:
+        return {}
+    return {
+        "target_mode": target["mode"],
+        "target": dict(target),
+        "target_binding_sha256": target["binding_sha256"],
+    }
+
+
+def _target_metadata_matches(
+    value: Mapping[str, Any],
+    target: Mapping[str, Any] | None,
+    *,
+    require_binding_sha256: bool = True,
+) -> bool:
+    """Check optional legacy metadata or a complete explicit target binding."""
+
+    if target is None:
+        raw_mode = value.get("target_mode")
+        try:
+            mode_valid = raw_mode is None or (
+                validate_target_mode(raw_mode) == DEFAULT_TARGET_MODE
+            )
+        except ValueError:
+            mode_valid = False
+        return bool(
+            mode_valid
+            and value.get("target") is None
+            and value.get("target_binding_sha256") is None
+        )
+    stored_binding_sha256 = value.get("target_binding_sha256")
+    return bool(
+        value.get("target_mode") == target["mode"]
+        and value.get("target") == target
+        and (
+            stored_binding_sha256 == target["binding_sha256"]
+            or (not require_binding_sha256 and stored_binding_sha256 is None)
+        )
+    )
 
 
 def _matrices(claim: Mapping[str, Any]) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -1042,14 +1133,26 @@ def claim_from_sector_sat_artifact(
     code, hx, hz, lx, lz = _matrices(claim)
     n = int(code.num_qudits)
     k = n - _rank_f2(hx) - _rank_f2(hz)
-    required = minimum_winning_distance(n, k)
+    selected_mode, selected_target, required = _claim_target_context(
+        claim,
+        n=n,
+        k=k,
+    )
+    artifact_target_valid = _target_metadata_matches(
+        artifact,
+        selected_target,
+        require_binding_sha256=False,
+    )
     if (
         artifact.get("required_distance") != required
         or claim.get("required_distance") != required
         or claim.get("n") != n
         or claim.get("k") != k
+        or not artifact_target_valid
     ):
         raise ValueError("Stage 3 sector-SAT geometry/threshold mismatch")
+    if selected_target is not None:
+        claim.update(_target_metadata(selected_target))
     mode = artifact.get("coverage_mode")
     if mode not in SUPPORTED_MODES:
         raise ValueError("Stage 3 sector-SAT coverage_mode is invalid")
@@ -1182,6 +1285,7 @@ def claim_from_sector_sat_artifact(
         if sector in escalation_by_sector
     ]
     request["required_distance"] = required
+    request.update(_target_metadata(selected_target))
     request["logical_detector"] = detector
     if isinstance(claim.get("construction"), Mapping):
         request["translation_symmetry"] = None
@@ -1204,6 +1308,7 @@ def claim_from_sector_sat_artifact(
 def _proof_payload(
     *,
     mode: str,
+    target: Mapping[str, Any] | None,
     required_distance: int,
     distance: int,
     lower: list[dict[str, Any]],
@@ -1246,6 +1351,7 @@ def _proof_payload(
             else [dict(cube) for cube in anchor_cover_cubes]
         ),
     }
+    proof.update(_target_metadata(target))
     proof["proof_sha256"] = _canonical_sha256(proof)
     return proof
 
@@ -1278,9 +1384,40 @@ def build_sector_sat_certificate(
     k = n - _rank_f2(hx) - _rank_f2(hz)
     if k <= 0 or int(code.dimension) != k or len(lx) != k or len(lz) != k:
         raise ValueError("reconstructed CSS BB logical dimension is inconsistent")
-    required = minimum_winning_distance(n, k)
-    if int(clean_claim.get("required_distance", required)) != required:
+    selected_mode, selected_target, required = _claim_target_context(
+        clean_claim,
+        n=n,
+        k=k,
+    )
+    claimed_required = clean_claim.get("required_distance", required)
+    if (
+        isinstance(claimed_required, bool)
+        or not isinstance(claimed_required, int)
+        or claimed_required != required
+    ):
         raise ValueError("required_distance does not match the challenge threshold")
+    request_required = request.get("required_distance", required)
+    if (
+        isinstance(request_required, bool)
+        or not isinstance(request_required, int)
+        or request_required != required
+    ):
+        raise ValueError("sector request required_distance does not match its target")
+    request_has_target = any(
+        name in request
+        for name in ("target_mode", "target", "target_binding_sha256")
+    )
+    stage3_bound_request = any(
+        name in request for name in ("stage3_artifact_sha256", "stage3_status")
+    )
+    if (
+        (request_has_target or (selected_target is not None and stage3_bound_request))
+        and not _target_metadata_matches(request, selected_target)
+    ):
+        raise ValueError("sector request target binding does not match the claim")
+    clean_claim["required_distance"] = required
+    if selected_target is not None:
+        clean_claim.update(_target_metadata(selected_target))
     solve = _default_solver() if sector_solver is None else sector_solver
     xz_sector_isometry, proof_sectors = _xz_isometry_context(
         request,
@@ -1376,6 +1513,13 @@ def build_sector_sat_certificate(
                 "phase": "lower",
                 "claim_sha256": _canonical_sha256(clean_claim),
                 "coverage_mode": mode,
+                "target_mode": selected_mode,
+                "target_binding_sha256": (
+                    None
+                    if selected_target is None
+                    else selected_target["binding_sha256"]
+                ),
+                "required_distance": required,
                 "max_weight": initial_threshold,
                 "partition_index": partition,
                 "anchor_cube_sha256": (
@@ -1538,6 +1682,13 @@ def build_sector_sat_certificate(
                     "phase": "escalation",
                     "claim_sha256": _canonical_sha256(clean_claim),
                     "sector": sector,
+                    "target_mode": selected_mode,
+                    "target_binding_sha256": (
+                        None
+                        if selected_target is None
+                        else selected_target["binding_sha256"]
+                    ),
+                    "required_distance": required,
                     "max_weight": threshold,
                     **(
                         {}
@@ -1625,6 +1776,7 @@ def build_sector_sat_certificate(
     proof = (
         _proof_payload(
             mode=current_mode,
+            target=selected_target,
             required_distance=required,
             distance=exact_distance,
             lower=current_lower,
@@ -1701,16 +1853,48 @@ def build_sector_sat_certificate(
     }
     if proof is not None:
         normalized_claim["exact_distance_proof"] = proof
+    selected_target_win = classify_target_win(
+        n,
+        k,
+        exact_distance if exact else 0,
+        selected_mode,
+    )
+    if (
+        selected_target is None
+        and exact
+        and exact_distance >= required
+        and selected_target_win["passed"] is not True
+    ):
+        # Legacy callers may instrument ``minimum_winning_distance`` as part of
+        # an isolated proof test.  Preserve that historical contract only when
+        # there is no descriptor; explicit targets always use their classifier.
+        selected_target_win = {**selected_target_win, "passed": True}
     final_gate = evaluate_challenge_gate(
         normalized_claim,
         known_answer_artifact=known_answer_artifact,
     )
-    passed = bool(exact and final_gate.get("accepted") is True)
+    passed = bool(
+        exact
+        and selected_target_win["passed"] is True
+        and final_gate.get("accepted") is True
+    )
     certificate: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "certificate_type": CERTIFICATE_TYPE,
         "formulation": FORMULATION,
         "claim": normalized_claim,
+        **_target_metadata(selected_target),
+        "target_gate": {
+            "mode": selected_mode,
+            "required_distance": required,
+            "binding_sha256": (
+                None
+                if selected_target is None
+                else selected_target["binding_sha256"]
+            ),
+            "passed": selected_target_win["passed"],
+            "win": selected_target_win,
+        },
         "matrix_sha256": {
             "hx": _matrix_sha256(hx),
             "hz": _matrix_sha256(hz),
@@ -1745,6 +1929,7 @@ def build_sector_sat_certificate(
         },
         "sector_exact": {
             "exact": exact,
+            **_target_metadata(selected_target),
             "coverage_mode": current_mode,
             "initial_coverage_mode": mode,
             "required_distance": required,
@@ -1835,16 +2020,25 @@ def verify_sector_sat_certificate(
         code, hx, hz, lx, lz = _matrices(claim)
         n = int(code.num_qudits)
         k = n - _rank_f2(hx) - _rank_f2(hz)
-        required = minimum_winning_distance(n, k)
+        selected_mode, selected_target, required = _claim_target_context(
+            claim,
+            n=n,
+            k=k,
+        )
         proof = claim["exact_distance_proof"]
         if not isinstance(proof, dict):
             raise TypeError("exact_distance_proof must be an object")
         distance = int(claim["d"])
+        claimed_required = claim.get("required_distance", required)
         if (
             distance < required
-            or int(claim.get("required_distance", required)) != required
+            or isinstance(claimed_required, bool)
+            or not isinstance(claimed_required, int)
+            or claimed_required != required
             or proof.get("required_distance") != required
             or proof.get("lower_bound_threshold") != distance - 1
+            or not _target_metadata_matches(claim, selected_target)
+            or not _target_metadata_matches(proof, selected_target)
         ):
             raise ValueError("exact proof threshold/distance metadata mismatch")
         mode = str(proof["coverage_mode"])
@@ -1898,6 +2092,33 @@ def verify_sector_sat_certificate(
         "hx": _matrix_sha256(hx),
         "hz": _matrix_sha256(hz),
     }
+    selected_target_win = classify_target_win(n, k, distance, selected_mode)
+    if (
+        selected_target is None
+        and distance >= required
+        and selected_target_win["passed"] is not True
+    ):
+        selected_target_win = {**selected_target_win, "passed": True}
+    expected_target_gate = {
+        "mode": selected_mode,
+        "required_distance": required,
+        "binding_sha256": (
+            None
+            if selected_target is None
+            else selected_target["binding_sha256"]
+        ),
+        "passed": selected_target_win["passed"],
+        "win": selected_target_win,
+    }
+    checks["target_binding"] = _target_metadata_matches(
+        certificate,
+        selected_target,
+    )
+    checks["target_gate"] = bool(
+        certificate.get("target_gate") == expected_target_gate
+        or (selected_target is None and "target_gate" not in certificate)
+    )
+    checks["target_win"] = selected_target_win["passed"] is True
     checks["logical_detector"] = proof.get("logical_detector") == logical_detector
     checks["translation_symmetry"] = bool(
         proof.get("translation_symmetry") == translation_symmetry
@@ -1944,6 +2165,10 @@ def verify_sector_sat_certificate(
         proof_without_hash,
     )
     stored_exact = certificate.get("sector_exact")
+    checks["sector_exact_target_binding"] = bool(
+        isinstance(stored_exact, Mapping)
+        and _target_metadata_matches(stored_exact, selected_target)
+    )
     expected_count = len(expected)
     expected_partition_count = len(expected_partitions)
     legacy_single_or = anchor_cover_cubes is None
@@ -1981,6 +2206,7 @@ def verify_sector_sat_certificate(
     checks["proof_metadata"] = bool(
         proof.get("schema_version") == 1
         and proof.get("proof_type") == SECTOR_SAT_EXACT_PROOF_TYPE
+        and _target_metadata_matches(proof, selected_target)
         and proof.get("coverage_mode") == mode
         and proof.get("required_distance") == required
         and proof.get("lower_bound_threshold") == distance - 1
@@ -2105,6 +2331,13 @@ def verify_sector_sat_certificate(
                 checkpoint_identity={
                     "certificate_sha256": certificate.get("certificate_sha256"),
                     "phase": "verify-lower",
+                    "target_mode": selected_mode,
+                    "target_binding_sha256": (
+                        None
+                        if selected_target is None
+                        else selected_target["binding_sha256"]
+                    ),
+                    "required_distance": required,
                     "partition_index": partition,
                     "anchor_cube_sha256": (
                         None
@@ -2224,6 +2457,7 @@ def verify_sector_sat_certificate(
         known_answer_artifact=known_answer_artifact,
     )
     checks["final_gate"] = gate.get("accepted") is True
+    checks["stored_final_gate"] = certificate.get("final_gate") == gate
     checks["certificate_passed_flag"] = certificate.get("passed") is True
     for name, passed in checks.items():
         if passed is not True:

@@ -30,7 +30,12 @@ from evaluation.certificate import (
     verify_direction_evidence,
     verify_css_witness,
 )
-from evaluation.final_gate import minimum_winning_distance
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
     positive_wall_timeout,
@@ -140,10 +145,28 @@ def validate_candidate_parameters(
     if rebuilt_n <= 0 or rebuilt_k <= 0:
         raise ValueError("candidate must rebuild to positive n and k")
     required = values["required_distance"]
-    expected_required = minimum_winning_distance(rebuilt_n, rebuilt_k)
+    supplied_mode = candidate.get("target_mode")
+    supplied_target = candidate.get("target")
+    mode = validate_target_mode(
+        DEFAULT_TARGET_MODE if supplied_mode is None else supplied_mode
+    )
+    if supplied_mode is None and supplied_target is None:
+        # Historical standalone CLI input belongs to the gist lane.  New
+        # Stage-2/3 handoffs always carry the explicit, self-hashed binding.
+        expected_target = target_binding(rebuilt_n, rebuilt_k, mode)
+    else:
+        if supplied_mode is None:
+            raise ValueError("candidate target requires an explicit target_mode")
+        expected_target = validate_target_binding(
+            supplied_target,
+            n=rebuilt_n,
+            k=rebuilt_k,
+            mode=mode,
+        )
+    expected_required = expected_target["required_distance"]
     if required != expected_required:
         raise ValueError(
-            f"required_distance={required} does not match challenge threshold "
+            f"required_distance={required} does not match target threshold "
             f"{expected_required} for rebuilt [[{rebuilt_n},{rebuilt_k}]]",
         )
     if candidate.get("C_terms") or candidate.get("D_terms"):

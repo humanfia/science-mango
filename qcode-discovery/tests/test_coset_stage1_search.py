@@ -309,18 +309,36 @@ def test_dynamic_cutoff_uses_official_gate_and_ladder_reaches_odd_end():
     assert evaluator._proof_ladder(3) == (3,)
 
 
-def test_pareto_cutoff_rejects_48_8_d5_but_preserves_d6(
+def test_scalar_cutoff_keeps_pareto_diagnostics_but_rejects_48_8_d6(
     monkeypatch,
 ):
-    """A [[48,8,6]] tie is a smaller-n Pareto win, not a FOM rejection."""
+    """A [[48,8,6]] Pareto win must not stop the strict-FOM ladder."""
 
     monkeypatch.delenv(evaluator.CANDIDATE_LOG_PATH_ENV, raising=False)
     assert evaluator._dynamic_rejection_cutoff(48, 8) == 5
-    assert evaluator._cutoff_metadata(48, 8) == {
+    assert evaluator._proof_rejection_cutoff(48, 8) == 8
+    metadata = evaluator._cutoff_metadata(48, 8)
+    assert {
+        name: metadata[name]
+        for name in (
+            "fom_rejection_cutoff",
+            "challenge_rejection_cutoff",
+            "minimum_winning_distance",
+            "minimum_scalar_fom_distance",
+            "proof_target_mode",
+        )
+    } == {
         "fom_rejection_cutoff": 8,
         "challenge_rejection_cutoff": 5,
         "minimum_winning_distance": 6,
+        "minimum_scalar_fom_distance": 9,
+        "proof_target_mode": "scalar-fom-strict-v1",
     }
+    assert metadata["target"] == evaluator.target_binding(
+        48,
+        8,
+        evaluator.TARGET_MODE_SCALAR,
+    )
 
     calls: list[tuple[str, int]] = []
     exact_distances = {"5" * 64: 5, "6" * 64: 6}
@@ -374,37 +392,42 @@ def test_pareto_cutoff_rejects_48_8_d5_but_preserves_d6(
 
     distance_six = row(6)
     evaluator._run_oracle(distance_six)
-    assert distance_six["search_status"] == "challenge_threshold_survivor"
-    assert distance_six["threshold_rejected"] is False
-    assert distance_six["distance_lower_bound"] == 6
-    assert distance_six["challenge_target_lower_bound_proven"] is True
+    assert distance_six["search_status"] == "terminal_negative"
+    assert distance_six["threshold_rejected"] is True
+    assert distance_six["distance_upper_bound"] == 6
+    assert distance_six["challenge_target_excluded_by_upper_bound"] is False
+    assert distance_six[
+        "gist_challenge_possible_despite_selected_target_exclusion"
+    ] is True
     assert distance_six["fom_target_lower_bound_proven"] is False
     assert distance_six["minimum_winning_distance"] == 6
     assert distance_six["challenge_rejection_cutoff"] == 5
     assert distance_six["fom_rejection_cutoff"] == 8
-    with pytest.raises(RuntimeError, match="disagrees with final gate"):
-        evaluator._apply_oracle_sat(
-            row(6),
-            {
-                "max_weight": 8,
-                "witness": {
-                    "side": "X",
-                    "index": 0,
-                    "weight": 6,
-                    "bits": [1] * 6 + [0] * 42,
-                },
+    direct = row(6)
+    evaluator._apply_oracle_sat(
+        direct,
+        {
+            "max_weight": 8,
+            "witness": {
+                "side": "X",
+                "index": 0,
+                "weight": 6,
+                "bits": [1] * 6 + [0] * 42,
             },
-            cutoff=8,
-        )
+        },
+        cutoff=8,
+    )
+    assert direct["fom_target_excluded_by_upper_bound"] is True
+    assert direct["final_gate_excluded_by_upper_bound"] is False
     assert calls == [
         ("5" * 64, 4),
-        ("5" * 64, 5),
+        ("5" * 64, 6),
         ("6" * 64, 4),
-        ("6" * 64, 5),
+        ("6" * 64, 6),
     ]
 
 
-def test_proof_ladder_commits_retries_unknown_and_respects_pareto_equality(
+def test_proof_ladder_commits_retries_unknown_and_hydrates_retry_state(
     tmp_path,
     monkeypatch,
 ):
@@ -506,18 +529,19 @@ def test_proof_ladder_commits_retries_unknown_and_respects_pareto_equality(
         max_new_steps=0,
     )
     assert [threshold for threshold, _timeout in calls] == [4, 6]
-    assert no_budget["oracle_outcome"] == "UNSAT"
+    assert no_budget["oracle_outcome"] == "UNKNOWN"
     assert no_budget["oracle_retryable"] is True
     assert no_budget["distance_lower_bound"] == 5
     assert no_budget["oracle_ladder_next_threshold"] == 6
+    assert no_budget["oracle_last_attempt"]["timeout_s"] == 7.5
 
     terminal = copy.deepcopy(base)
     evaluator._run_oracle(terminal)
-    assert [threshold for threshold, _timeout in calls] == [4, 6, 6, 7]
+    assert [threshold for threshold, _timeout in calls] == [4, 6, 6, 8]
     assert [timeout for _threshold, timeout in calls] == [7.5, 7.5, 15.0, 7.5]
     assert terminal["oracle_outcome"] == "SAT"
     assert terminal["threshold_rejected"] is True
-    assert terminal["fom_upper_bound"] == pytest.approx(3 * 7 * 7 / 16)
+    assert terminal["fom_upper_bound"] == pytest.approx(3 * 8 * 8 / 16)
     assert terminal["fitness_distance_credit"] == 0.0
 
     # A retry generation is deliberately invisible to recovery until its
@@ -578,6 +602,104 @@ def test_all_unsat_single_evaluation_reaches_360_8_cutoff_23(monkeypatch):
     assert row["oracle_ladder_complete"] is True
     assert row["distance_lower_bound"] == 24
     assert row["fom_target_lower_bound_proven"] is True
+
+
+def test_batch_budget_never_shortens_a_configured_retry():
+    now = evaluator.time.monotonic()
+    short = evaluator._OracleBatchBudget(
+        remaining_new_steps=1,
+        deadline=now + 10.0,
+    )
+    assert short.claim_timeout(requested_cap_s=120.0) is None
+    assert short.remaining_new_steps == 1
+
+    complete = evaluator._OracleBatchBudget(
+        remaining_new_steps=1,
+        deadline=evaluator.time.monotonic() + 121.0,
+    )
+    assert complete.claim_timeout(requested_cap_s=120.0) == 120.0
+    assert complete.remaining_new_steps == 0
+
+
+def test_proof_frontier_hydrates_every_row_before_local_selection(monkeypatch):
+    rows = [
+        {
+            "candidate_sha256": f"{index + 1:064x}",
+            "static_legal": True,
+            "k": 1,
+            "subgroup_normal": index == 0,
+        }
+        for index in range(3)
+    ]
+    hydrated: set[str] = set()
+
+    def fake_oracle(row, *, budget, max_new_steps=None):
+        if max_new_steps == 0:
+            hydrated.add(row["candidate_sha256"])
+        row.update({
+            "oracle_retryable": False,
+            "threshold_rejected": False,
+            "oracle_ladder_complete": True,
+            "oracle_ladder_history": [],
+        })
+        return {"new_steps": 0, "cache_hits": 0, "deferred": False}
+
+    monkeypatch.setattr(evaluator, "_run_oracle", fake_oracle)
+    monkeypatch.setattr(
+        evaluator,
+        "_archive_and_annotate_negative_rows",
+        lambda _rows: {
+            "event_count": 0,
+            "events_added": 0,
+            "penalized_candidates": 0,
+            "maximum_penalty": 0.0,
+        },
+    )
+    monkeypatch.setattr(evaluator, "_fitness", lambda _row: 0.1)
+    monkeypatch.setattr(evaluator, "_append_candidate_rows", lambda value: len(value))
+
+    persisted, _statistics, _archive = (
+        evaluator._run_proof_frontier_and_persist(rows, [rows[0]])
+    )
+    assert hydrated == {row["candidate_sha256"] for row in rows}
+    assert persisted == 3
+
+
+def test_run_global_frontier_rebuilds_historical_candidate(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_log = (tmp_path / "run/all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir()
+    monkeypatch.setenv(evaluator.CANDIDATE_LOG_PATH_ENV, str(candidate_log))
+    rebuilt = []
+    for candidate in _render_default_policy(64):
+        row = evaluator._static_candidate(candidate)
+        if row["static_legal"] and row["k"] > 0:
+            rebuilt.append(row)
+        if len(rebuilt) == 2:
+            break
+    assert len(rebuilt) == 2
+
+    assert evaluator._global_proof_frontier_rows([rebuilt[0]]) == []
+    injected = evaluator._global_proof_frontier_rows([rebuilt[1]])
+    assert injected
+    assert injected[0]["candidate_sha256"] == rebuilt[0]["candidate_sha256"]
+    assert injected[0]["global_proof_frontier_injected"] is True
+    assert injected[0]["candidate_persistence_lane"] == (
+        "global_scalar_fom_proof_frontier"
+    )
+
+    frontier_path = (
+        candidate_log.parent
+        / evaluator.COSET_PROOF_CACHE_DIRECTORY
+        / evaluator._GLOBAL_PROOF_FRONTIER_FILENAME
+    )
+    payload = json.loads(frontier_path.read_text())
+    payload["candidates"][0]["n"] += 1
+    frontier_path.write_text(json.dumps(payload))
+    with pytest.raises(RuntimeError, match="validation failed"):
+        evaluator._global_proof_frontier_rows([rebuilt[1]])
 
 
 def test_oracle_probe_rotation_covers_large_catalog_and_keeps_control_quota(
@@ -651,7 +773,6 @@ def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
         if action_search_view(candidate["action_id"]).subgroup_normal
     )
     control_digest = candidate_digest(control)
-    original_probe = evaluator._oracle_probe_rows
 
     def probe_with_control(
         rows,
@@ -659,22 +780,16 @@ def test_evaluator_emits_numeric_metrics_and_stage2_rebuildable_rows(
         *,
         selection_salt="",
     ):
-        selected = original_probe(
-            rows,
-            limit,
-            selection_salt=selection_salt,
-        )
+        del selection_salt
+        if not rows or limit <= 0:
+            return []
         target = next(
             row for row in rows
             if row["candidate_sha256"] == control_digest
         )
-        if target not in selected:
-            normal_index = next(
-                index for index, row in enumerate(selected)
-                if row["subgroup_normal"]
-            )
-            selected[normal_index] = target
-        return selected
+        # Probe scheduling and quotas have dedicated tests.  Keep this
+        # evidence-path integration test bounded to the known fast control.
+        return [target]
 
     monkeypatch.setattr(evaluator, "_oracle_probe_rows", probe_with_control)
 

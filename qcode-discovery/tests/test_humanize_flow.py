@@ -1,7 +1,9 @@
+import copy
 import json
 
 import pytest
 
+import evaluation.evaluator as candidate_evaluator
 from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
 from evaluation.coset_two_block import (
     ACTION_CATALOG_SHA256,
@@ -361,7 +363,7 @@ def test_duplicate_search_lower_bounds_keep_stronger_complete_ledger():
     survivor = sealed_lower_bound(6, complete=True)
 
     # Historical transaction policy v1 retained the first rank-zero row.  It
-    # must remain replayable after policy v2 starts preferring sealed lower
+    # must remain replayable after later policies start preferring sealed lower
     # bounds, otherwise a code upgrade invalidates an already committed batch.
     legacy = _deduplicate(
         [partial, survivor],
@@ -378,6 +380,166 @@ def test_duplicate_search_lower_bounds_keep_stronger_complete_ledger():
 
     with pytest.raises(ValueError, match="unsupported candidate batch policy"):
         _deduplicate([partial, survivor], policy_version=True)
+
+
+def test_duplicate_occurrences_merge_replayed_lb_and_ub_into_exact_interval(
+    monkeypatch,
+):
+    """A 2f2-style split LB/UB pair must survive canonicalization intact."""
+
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "symplectic_weight_bound",
+        lambda code: (code.num_qudits, code.num_qudits, code.num_qudits),
+    )
+    upper = candidate_evaluator.evaluate_candidate(
+        12,
+        6,
+        [(0, 3), (6, 0)],
+        [(1, 1), (2, 0), (6, 0), (9, 1)],
+        skip_exact=True,
+        skip_osd_cs=True,
+        challenge_target_fom=12.0,
+        low_weight_oracle_max_weight=4,
+    )
+    candidate_sha256 = "c" * 64
+    upper["candidate_sha256"] = candidate_sha256
+    witness = upper["low_weight_oracle"]["witness"]
+    exact_distance = witness["weight"]
+    # Canonicalization must derive the UB from the replayed witness, not from
+    # status strings or scalar fields carried by this occurrence.
+    upper.update({
+        "d": exact_distance + 97,
+        "distance_upper_bound": exact_distance + 97,
+        "search_status": "partial_lower_bound_retry",
+        "threshold_rejection_proven": False,
+        "final_gate_excluded_by_upper_bound": False,
+        "search_final_gate_excluded_by_upper_bound": False,
+    })
+
+    lower = {
+        field: copy.deepcopy(upper[field])
+        for field in (
+            "ell",
+            "m",
+            "n",
+            "k",
+            "A_terms",
+            "B_terms",
+            "geometry",
+        )
+        if field in upper
+    }
+    lower["candidate_sha256"] = candidate_sha256
+    threshold = exact_distance - 1
+    lower_evidence = {
+        "schema_version": 1,
+        "kind": "qcode-css-low-weight-oracle",
+        "outcome": "UNSAT",
+        "decision_complete": True,
+        "retryable": False,
+        "max_weight": threshold,
+        "distance_lower_bound": exact_distance,
+        "witness": None,
+    }
+    lower_evidence["evidence_sha256"] = _canonical_payload_sha256(
+        lower_evidence
+    )
+    ledger = {
+        "kind": "qcode-coset-stage1-proof-ledger-v1",
+        "schema_version": 1,
+        "proof_ladder_version": 2,
+        "candidate_sha256": candidate_sha256,
+        "entries": [{
+            "threshold": threshold,
+            "outcome": "UNSAT",
+            "evidence_sha256": lower_evidence["evidence_sha256"],
+            "cache_sha256": "d" * 64,
+        }],
+    }
+    ledger["root_sha256"] = _canonical_payload_sha256(ledger)
+    lower.update({
+        "distance_lower_bound": exact_distance,
+        "distance_lower_bound_proven": True,
+        "distance_lower_bound_status": "search_oracle_proven",
+        "distance_lower_bound_evidence": lower_evidence,
+        "distance_lower_bound_evidence_sha256": lower_evidence[
+            "evidence_sha256"
+        ],
+        "proof_ledger": ledger,
+        "oracle_ladder_complete": False,
+        "challenge_target_lower_bound_proven": False,
+        "search_status": "partial_lower_bound_retry",
+    })
+    assert code_key(lower) == code_key(upper)
+
+    # Historical v2 still chooses one row and therefore cannot synthesize the
+    # split interval.  Policy v3 produces the same canonical row independent
+    # of occurrence order and remains idempotent after persistence/replay.
+    [historical] = _deduplicate([lower, upper], policy_version=2)
+    assert "search_distance_interval_proof" not in historical
+    assert historical["distance_lower_bound"] == exact_distance
+
+    [merged] = _deduplicate([lower, upper])
+    [reverse] = _deduplicate([upper, lower])
+    assert reverse == merged
+    assert _deduplicate([merged]) == [merged]
+    assert merged["distance_lower_bound"] == exact_distance
+    assert merged["distance_upper_bound"] == exact_distance
+    assert merged["search_exact_distance"] == exact_distance
+    assert merged["search_distance_interval_status"] == "exact"
+    assert merged["search_distance_interval_exact"] is True
+    assert merged["search_status"] == "terminal_negative"
+    assert merged["final_gate_excluded_by_upper_bound"] is True
+    assert merged["search_final_gate_excluded_by_upper_bound"] is True
+    # Search exactness never masquerades as a release/MILP exact result.
+    assert merged["d_is_exact"] is False
+    assert merged["distance_trusted"] is False
+    proof = merged["search_distance_interval_proof"]
+    unsigned_proof = dict(proof)
+    proof_sha256 = unsigned_proof.pop("proof_sha256")
+    assert proof_sha256 == _canonical_payload_sha256(unsigned_proof)
+    assert proof["candidate_sha256"] == candidate_sha256
+    assert proof["lower_bound_evidence_sha256"] == lower_evidence[
+        "evidence_sha256"
+    ]
+    assert proof["upper_bound_oracle_evidence_sha256"] == upper[
+        "low_weight_oracle"
+    ]["evidence_sha256"]
+
+    tampered_upper = copy.deepcopy(upper)
+    tampered_upper["low_weight_oracle"]["witness"]["bits"][0] ^= 1
+    [not_merged] = _deduplicate([lower, tampered_upper])
+    assert "distance_upper_bound" not in not_merged
+    assert not_merged["search_distance_interval_status"] == (
+        "lower_bound_only"
+    )
+
+    different_sha = copy.deepcopy(upper)
+    different_sha["candidate_sha256"] = "e" * 64
+    [sha_isolated] = _deduplicate([lower, different_sha])
+    assert "distance_upper_bound" not in sha_isolated
+    assert sha_isolated["search_distance_interval_status"] == (
+        "lower_bound_only"
+    )
+
+    scalar_lower = copy.deepcopy(lower)
+    scalar_lower["target_mode"] = "scalar-fom-strict-v1"
+    gist_upper = copy.deepcopy(upper)
+    gist_upper["target_mode"] = "gist-pareto-challenge-v1"
+    [target_conflict] = _deduplicate([scalar_lower, gist_upper])
+    assert target_conflict["target_binding_status"] == "conflict"
+    assert target_conflict["target_mode_conflict"] == [
+        "gist-pareto-challenge-v1",
+        "scalar-fom-strict-v1",
+    ]
+    assert target_conflict["search_status"] == (
+        "unresolved_target_conflict"
+    )
+    assert target_conflict["search_distance_interval_exact"] is False
+    assert "search_exact_distance" not in target_conflict
+    assert "threshold_rejection_proven" not in target_conflict
+    assert _deduplicate([target_conflict]) == [target_conflict]
 
 
 def test_distance_error_precedes_unresolved_pending_and_quick_lanes():

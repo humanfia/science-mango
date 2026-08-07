@@ -11,6 +11,11 @@ import pytest
 import scripts.audit_candidate_pool as candidate_pool
 from evaluation.certificate import _certificate_sha256
 from evaluation.proof_runtime import proof_runtime_fingerprint
+from evaluation.target_policy import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    target_binding,
+)
 from evaluation.selection_ledger import (
     acknowledge_selection_page,
     install_pending_page,
@@ -102,6 +107,32 @@ def _compact_construction(marker: int = 0) -> dict:
         "triage_identity": {
             "canonical_digest": f"compact-{marker}",
         },
+    }
+
+
+def test_stage2_replaces_input_target_after_authoritative_geometry():
+    stale = target_binding(72, 12, TARGET_MODE_GIST)
+
+    rebound = candidate_pool._bind_authoritative_target(
+        {
+            "n": 999,
+            "k": 1,
+            "required_distance": stale["required_distance"],
+            "target_mode": TARGET_MODE_GIST,
+            "target": stale,
+        },
+        n=72,
+        k=12,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+
+    assert rebound["target_mode"] == TARGET_MODE_SCALAR
+    assert rebound["target"] == target_binding(72, 12, TARGET_MODE_SCALAR)
+    assert rebound["required_distance"] == 9
+    assert rebound["input_target_advisory"]["trusted"] is False
+    assert rebound["input_target_advisory"]["evidence"] == {
+        "target": stale,
+        "target_mode": TARGET_MODE_GIST,
     }
 
 
@@ -1154,6 +1185,8 @@ def test_rank_candidate_files_derives_authoritative_stage1_threshold(tmp_path):
     assert ranked[0]["n"] == 72
     assert ranked[0]["k"] == 8
     assert ranked[0]["required_distance"] == 11
+    assert ranked[0]["target_mode"] == TARGET_MODE_GIST
+    assert ranked[0]["target"] == target_binding(72, 8, TARGET_MODE_GIST)
     assert ranked[0]["proof_score"]["required_distance"] == 11
     assert ranked[0]["authoritative_geometry"]["reported_k"] == 12
     assert ranked[0]["authoritative_geometry"]["reported_k_matches"] is False
@@ -2936,6 +2969,47 @@ def test_ranked_snapshot_reuses_ranked_pool_without_reranking(
     assert first.identity == second.identity
     assert first.rows == second.rows == 3
     assert len(calls) == 1
+
+
+def test_ranked_snapshot_target_mode_is_a_cache_dependency(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(1)
+    calls = []
+
+    def ranker(paths, *, target_mode=TARGET_MODE_GIST):
+        calls.append(target_mode)
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: "source-v1",
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: {"runtime": "test"},
+    )
+
+    candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+        target_mode=TARGET_MODE_GIST,
+    )
+    _, scalar_cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+
+    assert scalar_cache_hit is False
+    assert calls == [TARGET_MODE_GIST, TARGET_MODE_SCALAR]
 
 
 def test_ranked_snapshot_page_decodes_only_rows_needed(

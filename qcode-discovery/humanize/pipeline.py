@@ -64,6 +64,10 @@ from evaluation.selection_ledger import (
     validate_selection_ledger,
     validate_selection_page,
 )
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    validate_target_mode,
+)
 
 from .flow import (
     FlowConfig,
@@ -1103,6 +1107,7 @@ class PipelineConfig:
     pipeline_dir: Path | None = None
     python_executable: str = sys.executable
     resume: bool = True
+    target_mode: str = DEFAULT_TARGET_MODE
 
     stage2_top: int = 20
     stage2_timeout: float = 300
@@ -1142,6 +1147,11 @@ class PipelineConfig:
         repo = Path(self.repo_dir).resolve()
         object.__setattr__(self, "repo_dir", repo)
         object.__setattr__(self, "run_id", _safe_run_id(self.run_id))
+        object.__setattr__(
+            self,
+            "target_mode",
+            validate_target_mode(self.target_mode),
+        )
         raw_python = self.python_executable
         if (
             not isinstance(raw_python, str)
@@ -1360,6 +1370,10 @@ class PipelineConfig:
                 raise ValueError("flow_config.repo_dir must equal repo_dir")
             if self.flow_config.run_id != self.run_id:
                 raise ValueError("flow_config.run_id must equal run_id")
+            if self.flow_config.target_mode != self.target_mode:
+                raise ValueError(
+                    "flow_config.target_mode must equal pipeline target_mode"
+                )
 
     def serializable(self) -> dict[str, Any]:
         return {
@@ -1372,6 +1386,7 @@ class PipelineConfig:
             "pipeline_dir": str(self.pipeline_dir) if self.pipeline_dir else None,
             "python_executable": self.python_executable,
             "resume": self.resume,
+            "target_mode": self.target_mode,
             "stage2_top": self.stage2_top,
             "stage2_timeout": self.stage2_timeout,
             "stage2_candidate_workers": self.stage2_candidate_workers,
@@ -1456,6 +1471,14 @@ class PipelineConfig:
         if isinstance(raw_inputs, (str, os.PathLike)):
             raw_inputs = [raw_inputs]
         candidate_inputs = tuple(_resolve_path(item, base) for item in raw_inputs)
+        selected_target_mode = validate_target_mode(
+            pick(
+                "target_mode",
+                "target",
+                "mode",
+                DEFAULT_TARGET_MODE,
+            )
+        )
 
         flow_section = value.get("flow_config", value.get("stage1"))
         flow_config: FlowConfig | None = None
@@ -1471,6 +1494,15 @@ class PipelineConfig:
                 flow_values.get("evolution_evaluator") == "coset-two-block"
             ):
                 flow_values.setdefault("milp_top", 0)
+            nested_target_mode = flow_values.get("target_mode")
+            if nested_target_mode is not None and (
+                validate_target_mode(nested_target_mode)
+                != selected_target_mode
+            ):
+                raise ValueError(
+                    "flow_config.target_mode must equal pipeline target_mode"
+                )
+            flow_values["target_mode"] = selected_target_mode
             allowed = set(FlowConfig.__dataclass_fields__) - {"repo_dir", "run_id"}
             unknown = set(flow_values) - allowed
             if unknown:
@@ -1505,6 +1537,7 @@ class PipelineConfig:
             ),
             python_executable=str(value.get("python_executable", sys.executable)),
             resume=bool(value.get("resume", True)),
+            target_mode=selected_target_mode,
             stage2_top=parse_int(
                 "stage2_top", pick("stage2_top", "stage2", "top", 20)
             ),
@@ -2004,11 +2037,15 @@ class FiveStagePipeline:
         ):
             return None
         try:
+            target_mode = validate_target_mode(
+                pipeline_config.get("target_mode", DEFAULT_TARGET_MODE)
+            )
             flow = FlowConfig(
                 repo_dir=Path(repo_dir),
                 run_id=run_id,
                 review_model=review_model,
                 review_effort=review_effort,
+                target_mode=target_mode,
                 max_total_workers=max_total_workers,
             )
         except (TypeError, ValueError):
@@ -2093,6 +2130,7 @@ class FiveStagePipeline:
             run_id=self.config.run_id,
             review_model=self.config.reviewer_model,
             review_effort=self.config.reviewer_effort,
+            target_mode=self.config.target_mode,
             max_total_workers=self.config.max_total_workers,
         )
 
@@ -5452,6 +5490,8 @@ class FiveStagePipeline:
             *map(str, candidates),
             "--top",
             str(self.config.stage2_top),
+            "--target-mode",
+            self.config.target_mode,
             "--state-dir",
             str(self.paths.solver_state),
             "--ranked-output",
@@ -5543,6 +5583,7 @@ class FiveStagePipeline:
         summary = {
             "schema_version": 1,
             "gate": "qldpc-direction-candidate-pool",
+            "target_mode": self.config.target_mode,
             "skipped": True,
             "skip_reason": "Stage 2 produced no UNRESOLVED candidates",
             "input_rows": int(stage2.get("unique_candidates", 0) or 0),
@@ -5601,6 +5642,8 @@ class FiveStagePipeline:
             str(self.paths.stage3_thresholds),
             "--top",
             str(self.config.stage3_top),
+            "--target-mode",
+            self.config.target_mode,
             "--timeout",
             str(self._scaled_proof_timeout(self.config.stage3_timeout)),
             "--candidate-workers",
@@ -5656,6 +5699,7 @@ class FiveStagePipeline:
         *,
         allow_operational_errors: bool = False,
         allow_retry_required: bool = False,
+        expected_target_mode: str | None = None,
     ) -> dict[str, Any]:
         summary = _read_json_object(path)
         if summary.get("gate") != expected_gate:
@@ -5663,6 +5707,24 @@ class FiveStagePipeline:
                 "OUTPUT_INVALID",
                 f"{path} has unexpected gate {summary.get('gate')!r}",
             )
+        if expected_target_mode is not None:
+            expected_mode = validate_target_mode(expected_target_mode)
+            # Old summaries predate the explicit descriptor and belong only
+            # to the historical gist lane.  They may never satisfy a scalar
+            # campaign cache lookup.
+            actual_mode = summary.get("target_mode", DEFAULT_TARGET_MODE)
+            try:
+                actual_mode = validate_target_mode(actual_mode)
+            except ValueError as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.target_mode is invalid",
+                ) from exc
+            if actual_mode != expected_mode:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    f"{path}.target_mode does not match the campaign target",
+                )
         results = summary.get("results")
         if not isinstance(results, list):
             raise PipelineError("OUTPUT_INVALID", f"{path}.results must be a list")
@@ -6152,6 +6214,8 @@ class FiveStagePipeline:
         path: Path,
         ranked: Path,
         expected_gate: str,
+        *,
+        expected_target_mode: str | None = None,
     ) -> dict[str, Any]:
         """Validate a proof CLI's recoverable exit artifact fail closed.
 
@@ -6167,6 +6231,7 @@ class FiveStagePipeline:
             expected_gate,
             allow_operational_errors=True,
             allow_retry_required=True,
+            expected_target_mode=expected_target_mode,
         )
         counts = summary.get("status_counts")
         reported_error = bool(
@@ -9971,6 +10036,7 @@ class FiveStagePipeline:
                     )["binding_sha256"]
                 )
             stage2_static_config = {
+                "target_mode": self.config.target_mode,
                 "top": self.config.stage2_top,
                 "timeout": self._scaled_proof_timeout(
                     self.config.stage2_timeout
@@ -10042,6 +10108,7 @@ class FiveStagePipeline:
                         self.paths.stage2_summary,
                         self.paths.stage2_ranked,
                         "qldpc-proof-oriented-candidate-pool",
+                        expected_target_mode=self.config.target_mode,
                     ),
                 ),
                 recoverable_exit_codes=RECOVERABLE_PROOF_EXIT_CODES,
@@ -10051,6 +10118,7 @@ class FiveStagePipeline:
                             self.paths.stage2_summary,
                             self.paths.stage2_ranked,
                             "qldpc-proof-oriented-candidate-pool",
+                            expected_target_mode=self.config.target_mode,
                         ),
                     )
                 ),
@@ -10100,6 +10168,7 @@ class FiveStagePipeline:
                 stage3_machine = lambda: self._write_skipped_stage3(stage2)
                 stage3_machine_status = "SKIPPED"
             stage3_static_config = {
+                "target_mode": self.config.target_mode,
                 "routing": "audit" if has_unresolved else "skip-no-unresolved",
                 "top": self.config.stage3_top,
                 "timeout": self._scaled_proof_timeout(
@@ -10155,12 +10224,14 @@ class FiveStagePipeline:
                     self.paths.stage3_summary,
                     self.paths.stage3_ranked,
                     "qldpc-direction-candidate-pool",
+                    expected_target_mode=self.config.target_mode,
                 ),
                 recoverable_exit_codes=RECOVERABLE_PROOF_EXIT_CODES,
                 nonzero_validator=lambda: self._validate_recoverable_pool_summary(
                     self.paths.stage3_summary,
                     self.paths.stage3_ranked,
                     "qldpc-direction-candidate-pool",
+                    expected_target_mode=self.config.target_mode,
                 ),
                 machine_status=stage3_machine_status,
             )

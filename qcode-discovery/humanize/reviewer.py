@@ -692,6 +692,7 @@ def _negative_witness_geometry(
     *,
     formal_audit: bool = False,
     allow_search_oracle: bool = False,
+    allow_search_oracle_upper_bound: bool = False,
     allow_historical_scalar_cutoff: bool = False,
 ) -> dict[str, Any] | None:
     """Project strict replayed witness geometry as negative evidence only."""
@@ -721,13 +722,23 @@ def _negative_witness_geometry(
         and isinstance(oracle, dict)
         and oracle.get("outcome") == "SAT"
     )
+    search_oracle_upper_bound = bool(
+        allow_search_oracle_upper_bound
+        and isinstance(oracle, dict)
+        and oracle.get("outcome") == "SAT"
+    )
     if not (
         candidate_terminal_negative(row)
         or formal_threshold_rejection
         or search_oracle_rejection
+        or search_oracle_upper_bound
     ):
         return None
-    witness = oracle.get("witness") if search_oracle_rejection else None
+    witness = (
+        oracle.get("witness")
+        if search_oracle_rejection or search_oracle_upper_bound
+        else None
+    )
     if not isinstance(witness, dict):
         witness = row.get("threshold_proof_witness")
     if not isinstance(witness, dict):
@@ -834,7 +845,9 @@ def _negative_witness_geometry(
         detector = verify_css_logical_detectors(hx, hz, lx, lz)
         if detector.get("verified") is not True:
             return None
-        if search_oracle_rejection and verify_css_low_weight_oracle(
+        if (
+            search_oracle_rejection or search_oracle_upper_bound
+        ) and verify_css_low_weight_oracle(
             oracle,
             hx,
             hz,
@@ -854,7 +867,7 @@ def _negative_witness_geometry(
         ):
             return None
         challenge_cutoff = compute_challenge_rejection_cutoff(n, k, 12.0)
-        if weight > challenge_cutoff:
+        if not search_oracle_upper_bound and weight > challenge_cutoff:
             scalar_cutoff = compute_fom_rejection_cutoff(n, k, 12.0)
             historical_scalar_contract = bool(
                 allow_historical_scalar_cutoff
@@ -945,6 +958,25 @@ def replay_search_oracle_witness_geometry(
     """
 
     return _negative_witness_geometry(row, allow_search_oracle=True)
+
+
+def replay_search_oracle_upper_bound_geometry(
+    row: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Replay a Stage-2 SAT witness as a mathematical distance upper bound.
+
+    Unlike :func:`replay_search_oracle_witness_geometry`, this helper does not
+    require or trust pre-existing terminal/exclusion flags and does not apply a
+    challenge cutoff.  It rebuilds the candidate, replays the self-hashed SAT
+    oracle artifact, and independently checks the logical operator.  Callers
+    must compare the returned weight with their own target before excluding a
+    candidate; this function never supplies positive search credit.
+    """
+
+    return _negative_witness_geometry(
+        row,
+        allow_search_oracle_upper_bound=True,
+    )
 
 
 def replay_historical_scalar_only_search_oracle_witness_geometry(

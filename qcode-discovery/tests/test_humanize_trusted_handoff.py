@@ -452,6 +452,46 @@ def test_formal_exact_loser_is_trusted_for_review_but_cannot_stop(
         assert evidence["trusted_exact_wins"] == []
 
 
+def test_scalar_campaign_does_not_stop_on_legacy_only_win(
+    tmp_path,
+    monkeypatch,
+):
+    """A gist/Pareto pass cannot terminate a strict scalar-FOM campaign."""
+
+    _identity_structural_screen(monkeypatch)
+    _force_scalar_fom_win(monkeypatch)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    _write_jsonl(source, [_tiny_exact_candidate()])
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="scalar-rejects-legacy-only-win",
+            max_rounds=2,
+            milp_top=1,
+            milp_timeout_per_logical=5,
+            milp_total_timeout=30,
+            candidate_file=source,
+            target_mode="scalar-fom-strict-v1",
+        ),
+        reviewer=RecordingReviewer("continue"),
+    )
+
+    state = flow.run()
+
+    assert state["current_round"] == 2
+    assert state["trusted_exact_count"] == 1
+    assert state["trusted_win_count"] == 0
+    [exact] = flow._read_jsonl(flow.evaluations_path)
+    gate = flow._trusted_exact_audit_view([exact])[0][0][
+        "trusted_win_gate"
+    ]
+    assert gate["target_mode"] == "scalar-fom-strict-v1"
+    assert gate["selected_target_win"]["passed"] is False
+    assert gate["challenge_win"]["passed"] is True
+
+
 def test_trusted_exact_win_hands_off_with_unrelated_unresolved(
     tmp_path,
     monkeypatch,

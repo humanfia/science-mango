@@ -1,3 +1,5 @@
+import copy
+import json
 from pathlib import Path
 
 import pytest
@@ -15,6 +17,11 @@ from evaluation.matrix_certificate import (
 from evaluation.noncss_certificate import (
     build_noncss_certificate,
     verify_noncss_certificate,
+)
+from evaluation.target_policy import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    target_binding,
 )
 
 
@@ -70,6 +77,13 @@ def test_generic_css_certificate_exports_all_2k_directions():
     assert certificate["milp"]["completed_directions"] == 2
     assert certificate["milp"]["distance"] == 2
     assert certificate["upper_witness"]["weight"] == 2
+    expected_target = target_binding(4, 1, TARGET_MODE_GIST)
+    assert certificate["claim"]["target"] == expected_target
+    assert certificate["claim"]["target_mode"] == TARGET_MODE_GIST
+    assert certificate["target"] == expected_target
+    assert certificate["target_mode"] == TARGET_MODE_GIST
+    assert certificate["target_binding_sha256"] == expected_target["binding_sha256"]
+    assert certificate["final_gate"]["selected_target"] == expected_target
     # It is a complete exact certificate, but intentionally not a challenge win.
     assert certificate["passed"] is False
     assert certificate["failure_disposition"]["status"] == "CANDIDATE_REJECTED"
@@ -78,6 +92,111 @@ def test_generic_css_certificate_exports_all_2k_directions():
         _TERMINAL_GATE_SHAPES["qldpc-css-matrix-exact"][1]
     )
     assert terminal_candidate_rejection(certificate) is True
+
+
+def test_matrix_checkpoint_and_certificate_bind_explicit_target(tmp_path):
+    checkpoint = tmp_path / "matrix-build-checkpoint.json"
+    claim = _generic_css_claim()
+    claim["target"] = target_binding(4, 1, TARGET_MODE_SCALAR)
+
+    certificate = build_matrix_css_certificate(
+        claim,
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=10,
+        total_timeout=30,
+        checkpoint_path=checkpoint,
+    )
+
+    saved = json.loads(checkpoint.read_text())
+    binding_sha256 = claim["target"]["binding_sha256"]
+    assert saved["binding"]["target"] == claim["target"]
+    assert saved["binding"]["target_binding_sha256"] == binding_sha256
+    assert certificate["claim"]["target"] == claim["target"]
+    assert certificate["target_binding_sha256"] == binding_sha256
+    assert certificate["final_gate"]["target_gate"]["mode"] == TARGET_MODE_SCALAR
+
+
+def test_scalar_certificate_uses_selected_target_and_reports_gist_compatibility(
+    monkeypatch,
+):
+    claim = _generic_css_claim()
+    claim["target"] = target_binding(4, 1, TARGET_MODE_SCALAR)
+    monkeypatch.setattr(
+        matrix_certificate_module,
+        "classify_win",
+        lambda _n, _k, _d: {
+            "passed": True,
+            "fom": 999.0,
+            "reasons": ["synthetic_gist_compatibility"],
+        },
+    )
+
+    certificate = build_matrix_css_certificate(
+        claim,
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=10,
+        total_timeout=30,
+    )
+
+    gate = certificate["final_gate"]
+    assert gate["challenge_compatibility"]["passed"] is True
+    assert gate["selected_target_win"]["passed"] is False
+    assert gate["target_gate"]["passed"] is False
+    assert gate["checks"]["challenge_win"] is False
+    assert gate["accepted"] is False
+    assert certificate["passed"] is False
+
+
+def test_matrix_builder_and_verifier_recompute_claim_target():
+    mismatched_claim = _generic_css_claim()
+    mismatched_claim["target"] = target_binding(5, 1, TARGET_MODE_SCALAR)
+    with pytest.raises(ValueError, match="recomputed parameters"):
+        build_matrix_css_certificate(
+            mismatched_claim,
+            known_answer_artifact=KNOWN_ANSWER,
+            timeout_per_logical=10,
+            total_timeout=30,
+        )
+
+    conflicting_mode_claim = {
+        **_generic_css_claim(),
+        "target_mode": TARGET_MODE_GIST,
+        "target": target_binding(4, 1, TARGET_MODE_SCALAR),
+    }
+    with pytest.raises(ValueError, match="mode does not match"):
+        build_matrix_css_certificate(
+            conflicting_mode_claim,
+            known_answer_artifact=KNOWN_ANSWER,
+            timeout_per_logical=10,
+            total_timeout=30,
+        )
+
+    certificate = build_matrix_css_certificate(
+        {
+            **_generic_css_claim(),
+            "target": target_binding(4, 1, TARGET_MODE_SCALAR),
+        },
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=10,
+        total_timeout=30,
+    )
+    forged = copy.deepcopy(certificate)
+    forged_target = target_binding(5, 1, TARGET_MODE_SCALAR)
+    forged["claim"]["target"] = forged_target
+    forged["target"] = forged_target
+    forged["target_binding_sha256"] = forged_target["binding_sha256"]
+    forged["certificate_sha256"] = matrix_certificate_module._certificate_sha256(
+        forged
+    )
+
+    result = verify_matrix_css_certificate(
+        forged,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=False,
+    )
+    assert result["passed"] is False
+    assert result["replay_complete"] is False
+    assert "recomputed parameters" in result["failures"][0]
 
 
 def test_generic_noncss_five_qubit_certificate_exports_symplectic_witness():

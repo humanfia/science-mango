@@ -18,7 +18,7 @@ import platform
 import time
 import warnings
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 from ortools.sat.python import cp_model
@@ -36,6 +36,13 @@ from evaluation.final_gate import _matrix_sha256, _rank_f2
 from evaluation.geometry import candidate_geometry
 from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.registry import check_code_novelty
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    classify_target_win,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 
 
 SCHEMA_VERSION = 1
@@ -93,6 +100,96 @@ def _certificate_sha256(certificate: dict[str, Any]) -> str:
     unsigned = dict(certificate)
     unsigned.pop("certificate_sha256", None)
     return _json_sha256(unsigned)
+
+
+def _claim_target_binding(
+    claim: Mapping[str, Any],
+    *,
+    n: int,
+    k: int,
+) -> dict[str, Any]:
+    """Resolve a claim target after rebuilding its authoritative parameters."""
+
+    supplied_mode = claim.get("target_mode")
+    if "target" not in claim:
+        if (
+            supplied_mode is not None
+            and validate_target_mode(supplied_mode) != DEFAULT_TARGET_MODE
+        ):
+            raise ValueError("non-legacy target mode requires a target binding")
+        selected = target_binding(n, k, DEFAULT_TARGET_MODE)
+    else:
+        selected = validate_target_binding(
+            claim["target"],
+            n=n,
+            k=k,
+            mode=supplied_mode,
+        )
+    if "required_distance" in claim:
+        required = claim["required_distance"]
+        if (
+            isinstance(required, bool)
+            or not isinstance(required, int)
+            or required != selected["required_distance"]
+        ):
+            raise ValueError(
+                "required_distance does not match the selected target"
+            )
+    return selected
+
+
+def _evaluate_selected_target_gate(
+    row: dict[str, Any],
+    *,
+    known_answer_artifact: Path | str,
+    target: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Apply all historical structural checks under the selected win policy."""
+
+    selected_target = validate_target_binding(
+        target,
+        n=int(row["n"]),
+        k=int(row["k"]),
+    )
+    gate = evaluate_challenge_gate(
+        row,
+        known_answer_artifact=known_answer_artifact,
+    )
+    checks = gate.get("checks")
+    if not isinstance(checks, dict):
+        raise ValueError("challenge gate checks are unavailable")
+    challenge_compatibility = gate.get("win")
+    selected_win = classify_target_win(
+        int(row["n"]),
+        int(row["k"]),
+        int(row["d"]),
+        selected_target["mode"],
+    )
+    checks["challenge_win"] = selected_win["passed"]
+    failures = [
+        failure
+        for failure in gate.get("failures", [])
+        if failure != "challenge_win"
+    ]
+    if not selected_win["passed"]:
+        failures.append("challenge_win")
+    gate.update({
+        "accepted": all(checks.values()),
+        "failures": failures,
+        "win": selected_win,
+        "selected_target": selected_target,
+        "selected_target_win": selected_win,
+        "target_gate": {
+            "passed": selected_win["passed"],
+            "mode": selected_target["mode"],
+            "observed_distance": int(row["d"]),
+            "required_distance": selected_target["required_distance"],
+            "rejection_cutoff": selected_target["rejection_cutoff"],
+            "binding_sha256": selected_target["binding_sha256"],
+        },
+        "challenge_compatibility": challenge_compatibility,
+    })
+    return gate
 
 
 def _atomic_write_json(path: Path | str, value: dict[str, Any]) -> None:
@@ -753,6 +850,7 @@ def build_css_certificate(
     hz = np.asarray(hz, dtype=np.uint8) & 1
     n = int(code.num_qudits)
     k = n - _rank_f2(hx) - _rank_f2(hz)
+    selected_target = _claim_target_binding(claim, n=n, k=k)
 
     specs = _direction_specs(code)
     matrix_sha256 = {"hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz)}
@@ -765,6 +863,8 @@ def build_css_certificate(
     checkpoint_binding = {
         "claim_sha256": _json_sha256(checkpoint_claim),
         "matrix_sha256": matrix_sha256,
+        "target": selected_target,
+        "target_binding_sha256": selected_target["binding_sha256"],
         "known_answer_sha256": known_answer_sha256,
         "solver": _solver_environment(),
     }
@@ -851,6 +951,9 @@ def build_css_certificate(
         "k": k,
         "d": distance,
         "fom": k * distance * distance / n if distance else 0.0,
+        "target_mode": selected_target["mode"],
+        "target": selected_target,
+        "required_distance": selected_target["required_distance"],
         "d_is_exact": all_optimal,
         "milp_attempted": True,
         "milp_details": {
@@ -872,9 +975,10 @@ def build_css_certificate(
         normalized_claim.pop("geometry", None)
     else:
         normalized_claim["geometry"] = geometry
-    final_gate = evaluate_challenge_gate(
+    final_gate = _evaluate_selected_target_gate(
         normalized_claim,
         known_answer_artifact=known_answer_artifact,
+        target=selected_target,
     )
     best = min(
         (item for item in directions if item["objective"] is not None),
@@ -888,6 +992,9 @@ def build_css_certificate(
         "formulation": FORMULATION,
         "claim": normalized_claim,
         "matrix_sha256": matrix_sha256,
+        "target_mode": selected_target["mode"],
+        "target": selected_target,
+        "target_binding_sha256": selected_target["binding_sha256"],
         "known_answer": {
             "artifact_sha256": known_answer_sha256,
         },
@@ -990,6 +1097,23 @@ def verify_css_certificate(
         hx, hz, _, _ = get_code_matrices(code)
         hx = np.asarray(hx, dtype=np.uint8) & 1
         hz = np.asarray(hz, dtype=np.uint8) & 1
+        n = int(code.num_qudits)
+        k = n - _rank_f2(hx) - _rank_f2(hz)
+        selected_target = _claim_target_binding(claim, n=n, k=k)
+        # Builder input may omit a target and thereby select the historical
+        # gist policy.  A certificate may not omit the resulting canonical
+        # descriptor: deleting all target fields and recomputing the unkeyed
+        # certificate digest must not downgrade a scalar certificate.
+        checks["target_binding"] = bool(
+            claim.get("target_mode") == selected_target["mode"]
+            and claim.get("target") == selected_target
+            and claim.get("required_distance")
+            == selected_target["required_distance"]
+            and certificate.get("target_mode") == selected_target["mode"]
+            and certificate.get("target") == selected_target
+            and certificate.get("target_binding_sha256")
+            == selected_target["binding_sha256"]
+        )
         matrix_sha256 = {"hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz)}
         checks["matrix_sha256"] = certificate.get("matrix_sha256") == {
             "hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz),
@@ -1030,6 +1154,8 @@ def verify_css_certificate(
         "certificate_sha256": _json_sha256(certificate),
         "claim_sha256": _json_sha256(claim),
         "matrix_sha256": matrix_sha256,
+        "target": selected_target,
+        "target_binding_sha256": selected_target["binding_sha256"],
         "known_answer_sha256": known_answer_sha256,
         "solver": _solver_environment(),
     }
@@ -1190,10 +1316,12 @@ def verify_css_certificate(
         objectives and stored_distance == min(objectives)
         and int(claim.get("d", -1)) == min(objectives)
     )
-    gate = evaluate_challenge_gate(
+    gate = _evaluate_selected_target_gate(
         claim,
         known_answer_artifact=known_answer_artifact,
+        target=selected_target,
     )
+    checks["stored_final_gate"] = certificate.get("final_gate") == gate
     checks["final_gate"] = gate.get("accepted") is True
     checks["certificate_passed_flag"] = certificate.get("passed") is True
     for name, passed in checks.items():
@@ -1218,6 +1346,7 @@ def verify_css_certificate(
         "rerun_elapsed_s": time.monotonic() - verify_started,
         "total_timeout_s": total_timeout,
         "solver_workers": workers,
+        "target": selected_target,
         "final_gate": gate,
     }
     failure_disposition = classify_replay_failure(

@@ -4,8 +4,9 @@ There is deliberately no BP/OSD call in this module.  Decoder-returned logical
 weights are distance upper bounds and cannot improve fitness.  Positive
 distance credit is derived only from a complete two-sector low-weight UNSAT
 decision (or a future independently replayed exact-distance field produced by
-this evaluator).  A replayed SAT witness rejects the candidate whenever it is
-below the dynamic FOM=12 exclusion threshold.
+this evaluator).  The active search target is the strict scalar ``FOM > 12``
+rule.  Broader challenge/Pareto status is recorded separately and never
+shortens the scalar proof ladder.
 """
 
 from __future__ import annotations
@@ -43,22 +44,29 @@ from evaluation.low_weight_oracle import (
 )
 from evaluation.evaluator import (
     compute_challenge_rejection_cutoff,
-    compute_fom_rejection_cutoff,
 )
 from evaluation.final_gate import minimum_winning_distance
+from evaluation.target_policy import (
+    TARGET_MODE_SCALAR,
+    minimum_target_distance,
+    target_binding,
+)
 from evolve.coset_search_contract import (
     COSET_EVALUATOR_KIND,
     COSET_MAP_SCHEMA_METRIC,
     COSET_MAP_SCHEMA_VERSION,
     COSET_PROOF_BATCH_WALL_TIMEOUT_S,
     COSET_PROOF_CACHE_DIRECTORY,
+    COSET_PROOF_GLOBAL_FRONTIER_INJECTIONS,
     COSET_PROOF_LADDER_SCHEMA_VERSION,
     COSET_PROOF_LADDER_START_WEIGHT,
     COSET_PROOF_LADDER_VERSION_METRIC,
     COSET_PROOF_LADDER_WEIGHT_STEP,
     COSET_PROOF_MAX_CANDIDATES_PER_BATCH,
     COSET_PROOF_MAX_NEW_STEPS_PER_BATCH,
+    COSET_PROOF_RETRY_TIMEOUTS_S,
     COSET_PROOF_STEP_HARD_TIMEOUT_S,
+    COSET_PROOF_TARGET_MODE,
     COSET_SUPPORT_ORBIT_BINS,
     MAX_GENERATED_CANDIDATES,
     TARGET_FOM,
@@ -106,14 +114,26 @@ COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
 COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
 COSET_TYPED_DSL_GENOME_FORMAT_ID_V3 = 2.0
 _PROOF_CACHE_KIND = "qcode-coset-stage1-proof-cache"
-_PROOF_CACHE_SCHEMA_VERSION = 2
+_PROOF_CACHE_SCHEMA_VERSION = 3
 _PROOF_CACHE_COMMIT_KIND = "qcode-coset-stage1-proof-cache-commit"
 _PROOF_LEDGER_KIND = "qcode-coset-stage1-proof-ledger-v1"
+_GLOBAL_PROOF_FRONTIER_KIND = "qcode-coset-global-proof-frontier-v1"
+_GLOBAL_PROOF_FRONTIER_FILENAME = "global-proof-frontier-v1.json"
+_GLOBAL_PROOF_FRONTIER_MAX_CANDIDATES = 20_000
 _ORACLE_RUNG_WORKER_SCHEMA_VERSION = 1
 _ORACLE_RUNG_WORKER_MAX_BYTES = 64 * 1024 * 1024
 _ORACLE_RUNG_KILL_GRACE_S = 0.25
-_ORACLE_INITIAL_TIMEOUT_S = 7.5
 _ORACLE_UNKNOWN_RETRY_BACKOFF_S = 1.0
+
+
+def _retry_strategy_id(timeout_s: float) -> str:
+    return f"sector-resume-timeout-{float(timeout_s):g}s-v2"
+
+
+_ORACLE_RETRY_STRATEGY_IDS = frozenset(
+    _retry_strategy_id(timeout_s)
+    for timeout_s in COSET_PROOF_RETRY_TIMEOUTS_S
+)
 
 
 def _negative_feedback_paths() -> tuple[Path | None, Path | None]:
@@ -398,16 +418,36 @@ def _dynamic_rejection_cutoff(n: int, k: int) -> int | None:
 
     The scalar FOM cutoff alone is insufficient at the official challenge
     target: a code can also win by tying a published FOM at smaller block
-    length (or by either fixed-coordinate Pareto rule).  Keep Stage 1 on the
-    same machine-derived contract as the final gate so a witness at the first
-    winning distance is never mislabeled as terminal negative.
+    length (or by either fixed-coordinate Pareto rule).  This value describes
+    the final challenge gate only; the strict-FOM search ladder deliberately
+    uses :func:`_proof_rejection_cutoff` instead.
     """
     if k <= 0:
         return None
     return compute_challenge_rejection_cutoff(int(n), int(k), TARGET_FOM)
 
 
-def _cutoff_metadata(n: int, k: int) -> dict[str, int | None]:
+def _scalar_fom_rejection_cutoff(n: int, k: int) -> int | None:
+    """Return the largest distance that still cannot strictly beat FOM 12."""
+
+    if k <= 0:
+        return None
+    return minimum_target_distance(
+        int(n),
+        int(k),
+        TARGET_MODE_SCALAR,
+    ) - 1
+
+
+def _proof_rejection_cutoff(n: int, k: int) -> int | None:
+    """Return the active Stage-1 proof target without conflating gate modes."""
+
+    if COSET_PROOF_TARGET_MODE != TARGET_MODE_SCALAR:
+        raise RuntimeError("unsupported coset proof target mode")
+    return _scalar_fom_rejection_cutoff(n, k)
+
+
+def _cutoff_metadata(n: int, k: int) -> dict[str, Any]:
     """Describe scalar and complete final-gate cutoffs without conflating them."""
 
     challenge_cutoff = _dynamic_rejection_cutoff(n, k)
@@ -416,8 +456,15 @@ def _cutoff_metadata(n: int, k: int) -> dict[str, int | None]:
             "fom_rejection_cutoff": None,
             "challenge_rejection_cutoff": None,
             "minimum_winning_distance": None,
+            "minimum_scalar_fom_distance": None,
+            "proof_target_mode": COSET_PROOF_TARGET_MODE,
+            "target_mode": COSET_PROOF_TARGET_MODE,
+            "target_required_distance": None,
+            "target_binding_sha256": None,
+            "target": None,
         }
-    scalar_cutoff = compute_fom_rejection_cutoff(n, k, TARGET_FOM)
+    scalar_cutoff = _scalar_fom_rejection_cutoff(n, k)
+    selected_target = target_binding(n, k, COSET_PROOF_TARGET_MODE)
     try:
         required = minimum_winning_distance(n, k)
     except ValueError:
@@ -426,6 +473,14 @@ def _cutoff_metadata(n: int, k: int) -> dict[str, int | None]:
         "fom_rejection_cutoff": scalar_cutoff,
         "challenge_rejection_cutoff": challenge_cutoff,
         "minimum_winning_distance": required,
+        "minimum_scalar_fom_distance": (
+            None if scalar_cutoff is None else scalar_cutoff + 1
+        ),
+        "proof_target_mode": COSET_PROOF_TARGET_MODE,
+        "target_mode": COSET_PROOF_TARGET_MODE,
+        "target_required_distance": selected_target["required_distance"],
+        "target_binding_sha256": selected_target["binding_sha256"],
+        "target": selected_target,
     }
 
 
@@ -472,14 +527,21 @@ class _OracleBatchBudget:
 
     def claim_timeout(self, *, requested_cap_s: float) -> float | None:
         remaining_wall = self.deadline - time.monotonic()
-        if self.remaining_new_steps <= 0 or remaining_wall <= 0:
-            return None
-        self.remaining_new_steps -= 1
-        return min(
+        requested = min(
             COSET_PROOF_STEP_HARD_TIMEOUT_S,
             float(requested_cap_s),
-            remaining_wall,
         )
+        # A shortened attempt is not the configured retry strategy.  In
+        # particular, spending a nominal 120-second attempt in the last few
+        # seconds of a batch would poison the deterministic retry schedule.
+        # Defer it intact to the next transaction instead.
+        if (
+            self.remaining_new_steps <= 0
+            or remaining_wall < requested + _ORACLE_RUNG_KILL_GRACE_S
+        ):
+            return None
+        self.remaining_new_steps -= 1
+        return requested
 
 
 def _cache_canonical_sha256(value: Any) -> str:
@@ -872,12 +934,7 @@ def _validated_cache_envelope(
             hash_field="attempt_sha256",
         )
         and last_attempt.get("outcome") == outcome
-        and last_attempt.get("strategy_id")
-        in {
-            "sector-resume-timeout-7.5s-v1",
-            "sector-resume-timeout-15s-v1",
-            "sector-resume-timeout-30s-v1",
-        }
+        and last_attempt.get("strategy_id") in _ORACLE_RETRY_STRATEGY_IDS
         and isinstance(last_attempt.get("timeout_s"), (int, float))
         and not isinstance(last_attempt.get("timeout_s"), bool)
         and math.isfinite(float(last_attempt["timeout_s"]))
@@ -1027,6 +1084,252 @@ def _atomic_write_cache(path: Path, payload: Mapping[str, Any]) -> None:
         except FileNotFoundError:
             pass
         raise
+
+
+def _global_proof_frontier_paths() -> tuple[Path, Path] | None:
+    """Return the run-local advisory frontier and its serialization lock."""
+
+    root = _proof_cache_root()
+    if root is None:
+        return None
+    _ensure_cache_directory(root)
+    path = root / _GLOBAL_PROOF_FRONTIER_FILENAME
+    return path, path.with_name(path.name + ".lock")
+
+
+def _validated_global_proof_frontier(raw: Any) -> dict[str, Any] | None:
+    """Validate the advisory queue without treating it as proof evidence."""
+
+    if not isinstance(raw, Mapping) or set(raw) != {
+        "schema_version",
+        "kind",
+        "proof_ladder_version",
+        "proof_target_mode",
+        "action_catalog_sha256",
+        "next_sequence",
+        "candidates",
+        "frontier_sha256",
+    }:
+        return None
+    if not _strict_self_hashed_mapping(raw, hash_field="frontier_sha256"):
+        return None
+    candidates = raw.get("candidates")
+    if not (
+        raw.get("schema_version") == 1
+        and raw.get("kind") == _GLOBAL_PROOF_FRONTIER_KIND
+        and raw.get("proof_ladder_version")
+        == COSET_PROOF_LADDER_SCHEMA_VERSION
+        and raw.get("proof_target_mode") == COSET_PROOF_TARGET_MODE
+        and raw.get("action_catalog_sha256") == _action_catalog_sha256()
+        and isinstance(raw.get("next_sequence"), int)
+        and not isinstance(raw.get("next_sequence"), bool)
+        and int(raw["next_sequence"]) >= 0
+        and isinstance(candidates, list)
+        and len(candidates) <= _GLOBAL_PROOF_FRONTIER_MAX_CANDIDATES
+    ):
+        return None
+    seen: set[str] = set()
+    for entry in candidates:
+        if not isinstance(entry, Mapping) or set(entry) != {
+            "candidate_sha256",
+            "candidate",
+            "n",
+            "k",
+            "action_id",
+            "subgroup_normal",
+            "support_orbit_bin",
+            "first_seen_sequence",
+        }:
+            return None
+        digest = entry.get("candidate_sha256")
+        try:
+            normalized = normalize_coset_candidate(entry.get("candidate"))
+        except (TypeError, ValueError):
+            return None
+        if not (
+            isinstance(digest, str)
+            and digest not in seen
+            and coset_candidate_digest(normalized) == digest
+            and normalized["action_id"] == entry.get("action_id")
+            and action_search_view(normalized["action_id"]).subgroup_normal
+            is entry.get("subgroup_normal")
+            and coset_support_orbit_bin(normalized)
+            == entry.get("support_orbit_bin")
+            and isinstance(entry.get("n"), int)
+            and not isinstance(entry.get("n"), bool)
+            and int(entry["n"]) > 0
+            and isinstance(entry.get("k"), int)
+            and not isinstance(entry.get("k"), bool)
+            and int(entry["k"]) > 0
+            and isinstance(entry.get("action_id"), str)
+            and isinstance(entry.get("subgroup_normal"), bool)
+            and isinstance(entry.get("support_orbit_bin"), int)
+            and not isinstance(entry.get("support_orbit_bin"), bool)
+            and 0 <= int(entry["support_orbit_bin"])
+            < COSET_SUPPORT_ORBIT_BINS
+            and isinstance(entry.get("first_seen_sequence"), int)
+            and not isinstance(entry.get("first_seen_sequence"), bool)
+            and 0 <= int(entry["first_seen_sequence"])
+            < int(raw["next_sequence"])
+        ):
+            return None
+        seen.add(digest)
+    return dict(raw)
+
+
+def _register_global_proof_frontier(
+    rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Atomically merge rebuilt candidates into the run-global proof queue.
+
+    This file is only a scheduler index.  Every selected entry is rebuilt and
+    every mathematical claim is replayed from the immutable proof cache.
+    """
+
+    paths = _global_proof_frontier_paths()
+    if paths is None:
+        return []
+    frontier_path, lock_path = paths
+    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(lock_path, flags, 0o600)
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise RuntimeError("global proof frontier lock is not regular")
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        raw = _read_regular_json(frontier_path)
+        if raw is None:
+            if frontier_path.exists() or frontier_path.is_symlink():
+                raise RuntimeError("global proof frontier is corrupt")
+            frontier: dict[str, Any] = {
+                "schema_version": 1,
+                "kind": _GLOBAL_PROOF_FRONTIER_KIND,
+                "proof_ladder_version": COSET_PROOF_LADDER_SCHEMA_VERSION,
+                "proof_target_mode": COSET_PROOF_TARGET_MODE,
+                "action_catalog_sha256": _action_catalog_sha256(),
+                "next_sequence": 0,
+                "candidates": [],
+            }
+        else:
+            validated = _validated_global_proof_frontier(raw)
+            if validated is None:
+                raise RuntimeError("global proof frontier validation failed")
+            frontier = validated
+            frontier.pop("frontier_sha256", None)
+        by_digest = {
+            str(entry["candidate_sha256"]): dict(entry)
+            for entry in frontier["candidates"]
+        }
+        changed = False
+        for row in sorted(rows, key=lambda item: item["candidate_sha256"]):
+            if not row["static_legal"] or int(row["k"]) <= 0:
+                continue
+            digest = str(row["candidate_sha256"])
+            candidate = normalize_coset_candidate(row["candidate"])
+            existing = by_digest.get(digest)
+            if existing is not None:
+                if existing["candidate"] != candidate:
+                    raise RuntimeError(
+                        "global proof frontier candidate digest collision"
+                    )
+                continue
+            if len(by_digest) >= _GLOBAL_PROOF_FRONTIER_MAX_CANDIDATES:
+                raise RuntimeError("global proof frontier capacity exceeded")
+            sequence = int(frontier["next_sequence"])
+            frontier["next_sequence"] = sequence + 1
+            by_digest[digest] = {
+                "candidate_sha256": digest,
+                "candidate": candidate,
+                "n": int(row["n"]),
+                "k": int(row["k"]),
+                "action_id": str(row["action_id"]),
+                "subgroup_normal": bool(row["subgroup_normal"]),
+                "support_orbit_bin": int(row["support_orbit_bin"]),
+                "first_seen_sequence": sequence,
+            }
+            changed = True
+        frontier["candidates"] = sorted(
+            by_digest.values(),
+            key=lambda item: (
+                int(item["first_seen_sequence"]),
+                str(item["candidate_sha256"]),
+            ),
+        )
+        if changed or raw is None:
+            frontier["frontier_sha256"] = _cache_canonical_sha256(frontier)
+            _atomic_write_cache(frontier_path, frontier)
+        else:
+            frontier["frontier_sha256"] = raw["frontier_sha256"]
+        return [dict(entry) for entry in frontier["candidates"]]
+    finally:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
+
+
+def _global_proof_frontier_rows(
+    registration_rows: list[dict[str, Any]],
+    *,
+    exclude_candidate_sha256: set[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Rebuild a small target-aware slice of unfinished historical entries."""
+
+    entries = _register_global_proof_frontier(registration_rows)
+    current_digests = (
+        {str(value) for value in exclude_candidate_sha256}
+        if exclude_candidate_sha256 is not None
+        else {
+            str(row["candidate_sha256"]) for row in registration_rows
+        }
+    )
+    schedulable = []
+    for entry in entries:
+        if entry["candidate_sha256"] in current_digests:
+            continue
+        hint = _cache_progress_hint(entry)
+        if hint < 0:
+            continue
+        cutoff = _proof_rejection_cutoff(int(entry["n"]), int(entry["k"]))
+        if cutoff is None:
+            continue
+        lower_bound = max(1, hint + 1)
+        schedulable.append((
+            max(0, cutoff + 1 - lower_bound),
+            -lower_bound,
+            int(entry["first_seen_sequence"]),
+            str(entry["candidate_sha256"]),
+            entry,
+        ))
+    selected: list[dict[str, Any]] = []
+    for *_priority, entry in sorted(schedulable):
+        try:
+            row = _static_candidate(entry["candidate"])
+        except Exception as exc:
+            raise RuntimeError(
+                "global proof frontier candidate no longer rebuilds"
+            ) from exc
+        if (
+            row["candidate_sha256"] != entry["candidate_sha256"]
+            or int(row["n"]) != int(entry["n"])
+            or int(row["k"]) != int(entry["k"])
+        ):
+            raise RuntimeError("global proof frontier rebuild binding changed")
+        row.update({
+            "candidate_persistence_lane": "global_scalar_fom_proof_frontier",
+            "candidate_persistence_reason": (
+                "target_aware_cross_program_proof_continuation"
+            ),
+            "global_proof_frontier_injected": True,
+            "global_proof_frontier_first_seen_sequence": int(
+                entry["first_seen_sequence"]
+            ),
+        })
+        selected.append(row)
+        if len(selected) >= COSET_PROOF_GLOBAL_FRONTIER_INJECTIONS:
+            break
+    return selected
 
 
 def _write_immutable_cache(path: Path, payload: Mapping[str, Any]) -> None:
@@ -1393,7 +1696,7 @@ def _commit_cache_entries(
 def _cache_progress_hint(row: Mapping[str, Any]) -> int:
     """Untrusted scheduling hint; proof credit is always replayed later."""
 
-    cutoff = _dynamic_rejection_cutoff(int(row["n"]), int(row["k"]))
+    cutoff = _proof_rejection_cutoff(int(row["n"]), int(row["k"]))
     if cutoff is None:
         return 0
     progress = 0
@@ -1415,6 +1718,28 @@ def _cache_progress_hint(row: Mapping[str, Any]) -> int:
         if ladder and progress == ladder[-1]:
             return -1
     return progress
+
+
+def _scalar_proof_priority(row: Mapping[str, Any]) -> tuple[Any, ...]:
+    """Order unfinished candidates by distance-to-proof, never BP score.
+
+    Cache fields are advisory here.  Any positive proof credit is independently
+    hydrated from the matrix/source-bound committed cache before scoring.
+    """
+
+    progress = _cache_progress_hint(row)
+    cutoff = _proof_rejection_cutoff(int(row["n"]), int(row["k"]))
+    if cutoff is None:
+        return (math.inf, 0, math.inf, str(row["candidate_sha256"]))
+    lower_bound = max(1, progress + 1)
+    required_distance = cutoff + 1
+    gap = max(0, required_distance - lower_bound)
+    return (
+        gap,
+        -lower_bound,
+        required_distance,
+        str(row["candidate_sha256"]),
+    )
 
 
 def _oracle_probe_rows(
@@ -1446,9 +1771,9 @@ def _oracle_probe_rows(
 
     def priority(row: Mapping[str, Any]) -> tuple[Any, ...]:
         return (
+            *_scalar_proof_priority(row),
             -(row["k"] / row["n"]),
             row["support_orbit_bin"],
-            row["candidate_sha256"],
         )
 
     def rendezvous(label: str) -> int:
@@ -1876,11 +2201,11 @@ def _run_oracle_rung_hard_wall(
 
 
 def _attempt_timeout_strategy(attempts_before: int) -> tuple[str, float]:
-    if attempts_before <= 0:
-        return "sector-resume-timeout-7.5s-v1", _ORACLE_INITIAL_TIMEOUT_S
-    if attempts_before == 1:
-        return "sector-resume-timeout-15s-v1", 2 * _ORACLE_INITIAL_TIMEOUT_S
-    return "sector-resume-timeout-30s-v1", COSET_PROOF_STEP_HARD_TIMEOUT_S
+    if isinstance(attempts_before, bool) or not isinstance(attempts_before, int):
+        raise TypeError("oracle attempt count must be an integer")
+    index = min(max(0, attempts_before), len(COSET_PROOF_RETRY_TIMEOUTS_S) - 1)
+    timeout = float(COSET_PROOF_RETRY_TIMEOUTS_S[index])
+    return _retry_strategy_id(timeout), timeout
 
 
 def _process_identity(pid: int | None = None) -> dict[str, int]:
@@ -2114,6 +2439,12 @@ def _run_oracle_step(
                 "budget_exhausted": False,
                 "deferred": True,
                 "cache_hit": False,
+                "cache_sha256": (
+                    cached["cache_sha256"] if committed else None
+                ),
+                "last_attempt": (
+                    dict(cached["last_attempt"]) if committed else None
+                ),
                 "latest_outcome": (
                     active_pending["latest_outcome"]
                     if active_pending is not None
@@ -2200,9 +2531,9 @@ def _apply_oracle_sat(
     *,
     cutoff: int,
 ) -> None:
-    official_cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
+    official_cutoff = _proof_rejection_cutoff(row["n"], row["k"])
     if cutoff != official_cutoff:
-        raise RuntimeError("oracle rejection cutoff disagrees with final gate")
+        raise RuntimeError("oracle rejection cutoff disagrees with proof target")
     witness = evidence.get("witness")
     witness_weight = (
         witness.get("weight") if isinstance(witness, Mapping) else None
@@ -2212,6 +2543,12 @@ def _apply_oracle_sat(
     rejected = witness_weight <= cutoff
     if not rejected:
         raise RuntimeError("ladder SAT witness exceeds its rejection cutoff")
+    cutoff_metadata = _cutoff_metadata(row["n"], row["k"])
+    challenge_cutoff = cutoff_metadata["challenge_rejection_cutoff"]
+    challenge_excluded = bool(
+        isinstance(challenge_cutoff, int)
+        and witness_weight <= challenge_cutoff
+    )
     upper_fom = row["k"] * witness_weight * witness_weight / row["n"]
     row.update({
         "oracle_outcome": "SAT",
@@ -2242,12 +2579,21 @@ def _apply_oracle_sat(
         "threshold_proof_source": "low_weight_oracle",
         "threshold_proof_distance": witness_weight,
         "threshold_proof_witness": dict(witness),
-        **_cutoff_metadata(row["n"], row["k"]),
+        **cutoff_metadata,
+        "selected_target_excluded_by_upper_bound": True,
+        "scalar_fom_excluded_by_upper_bound": True,
+        "gist_challenge_excluded_by_upper_bound": challenge_excluded,
+        "gist_challenge_possible_despite_selected_target_exclusion": (
+            not challenge_excluded
+        ),
         "fom_target_excluded_by_upper_bound": True,
-        "final_gate_excluded_by_upper_bound": True,
-        "search_final_gate_excluded_by_upper_bound": True,
+        "challenge_target_excluded_by_upper_bound": challenge_excluded,
+        "final_gate_excluded_by_upper_bound": challenge_excluded,
+        "search_final_gate_excluded_by_upper_bound": challenge_excluded,
         "candidate_persistence_lane": "negative_search_feedback",
-        "candidate_persistence_reason": "replayed_low_weight_logical_witness",
+        "candidate_persistence_reason": (
+            "replayed_scalar_fom_excluding_logical_witness"
+        ),
     })
 
 
@@ -2258,9 +2604,9 @@ def _apply_oracle_lower_bound(
     cutoff: int,
     complete: bool,
 ) -> None:
-    official_cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
+    official_cutoff = _proof_rejection_cutoff(row["n"], row["k"])
     if cutoff != official_cutoff:
-        raise RuntimeError("oracle lower-bound cutoff disagrees with final gate")
+        raise RuntimeError("oracle lower-bound cutoff disagrees with proof target")
     lower_bound = evidence.get("distance_lower_bound")
     threshold = evidence.get("max_weight")
     if (
@@ -2273,8 +2619,7 @@ def _apply_oracle_lower_bound(
     scalar_cutoff = cutoff_metadata["fom_rejection_cutoff"]
     challenge_cutoff = cutoff_metadata["challenge_rejection_cutoff"]
     challenge_survivor = bool(
-        complete
-        and isinstance(challenge_cutoff, int)
+        isinstance(challenge_cutoff, int)
         and lower_bound > challenge_cutoff
     )
     fom_survivor = bool(
@@ -2310,6 +2655,7 @@ def _apply_oracle_lower_bound(
         "oracle_ladder_complete": complete,
         "oracle_ladder_next_threshold": None,
         **cutoff_metadata,
+        "selected_target_lower_bound_proven": fom_survivor,
         "challenge_target_lower_bound_proven": challenge_survivor,
         "fom_target_lower_bound_proven": fom_survivor,
     })
@@ -2342,6 +2688,7 @@ def _run_oracle(
         "oracle_deferred": False,
         "challenge_target_lower_bound_proven": False,
         "fom_target_lower_bound_proven": False,
+        "selected_target_lower_bound_proven": False,
     })
     if not row["static_legal"] or row["k"] <= 0:
         row.update({
@@ -2350,7 +2697,7 @@ def _run_oracle(
             "search_status": "invalid",
         })
         return {"new_steps": 0, "cache_hits": 0, "deferred": False}
-    cutoff = _dynamic_rejection_cutoff(row["n"], row["k"])
+    cutoff = _proof_rejection_cutoff(row["n"], row["k"])
     assert cutoff is not None
     ladder = _proof_ladder(cutoff)
     row.update({
@@ -2377,6 +2724,7 @@ def _run_oracle(
 
     history: list[dict[str, Any]] = []
     last_unsat: dict[str, Any] | None = None
+    cached_unknown: dict[str, Any] | None = None
     next_index = 0
     cache_hits = 0
     for index, threshold in enumerate(ladder):
@@ -2387,6 +2735,12 @@ def _run_oracle(
             hz=row["hz"],
         )
         if cached is None or cached["latest_outcome"] == "UNKNOWN":
+            cached_unknown = (
+                dict(cached)
+                if cached is not None
+                and cached["latest_outcome"] == "UNKNOWN"
+                else None
+            )
             next_index = index
             break
         evidence = dict(cached["evidence"])
@@ -2590,6 +2944,25 @@ def _run_oracle(
             cutoff=cutoff,
             complete=False,
         )
+    if cached_unknown is not None:
+        last_attempt = dict(cached_unknown["last_attempt"])
+        history.append({
+            "threshold": ladder[next_index],
+            "outcome": "UNKNOWN",
+            "attempts": int(cached_unknown["attempts"]),
+            "cache_hit": True,
+            "evidence_sha256": None,
+            "attempt_sha256": last_attempt.get("attempt_sha256"),
+            "cache_sha256": cached_unknown["cache_sha256"],
+        })
+        row.update({
+            "oracle_outcome": "UNKNOWN",
+            "oracle_last_attempt": last_attempt,
+            "oracle_last_attempt_outcome": "UNKNOWN",
+            "oracle_last_attempt_threshold": ladder[next_index],
+        })
+        cache_hits += 1
+    row["oracle_ladder_history"] = history
     row.update({
         "oracle_ladder_next_threshold": ladder[next_index],
         "oracle_retryable": True,
@@ -2730,13 +3103,27 @@ def _safe_json_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "fom_rejection_cutoff",
         "challenge_rejection_cutoff",
         "minimum_winning_distance",
+        "minimum_scalar_fom_distance",
+        "proof_target_mode",
+        "target_mode",
+        "target_required_distance",
+        "target_binding_sha256",
+        "target",
+        "selected_target_excluded_by_upper_bound",
+        "scalar_fom_excluded_by_upper_bound",
+        "gist_challenge_excluded_by_upper_bound",
+        "gist_challenge_possible_despite_selected_target_exclusion",
         "fom_target_excluded_by_upper_bound",
+        "challenge_target_excluded_by_upper_bound",
         "final_gate_excluded_by_upper_bound",
         "search_final_gate_excluded_by_upper_bound",
         "candidate_persistence_lane",
         "candidate_persistence_reason",
         "challenge_target_lower_bound_proven",
         "fom_target_lower_bound_proven",
+        "selected_target_lower_bound_proven",
+        "global_proof_frontier_injected",
+        "global_proof_frontier_first_seen_sequence",
     ):
         if field in row:
             record[field] = row[field]
@@ -3053,7 +3440,10 @@ def _run_proof_frontier_and_persist(
             remaining_new_steps=0,
             deadline=oracle_budget.deadline,
         )
-        for row in oracle_order:
+        # Hydrate every rebuilt row, including repeats that did not win a local
+        # probe slot.  This makes the cross-round proof state visible to
+        # fitness/reviewer logic without granting credit from the scheduler.
+        for row in rows:
             _run_oracle(row, budget=hydration_budget, max_new_steps=0)
 
         frontier: list[dict[str, Any]] = []
@@ -3189,14 +3579,35 @@ def _evaluate(program_path: str):
             "coset evaluator failed to build every enabled action stratum: "
             f"missing={missing}"
         )
-    oracle_order = _oracle_probe_rows(
+    local_candidate_order = _oracle_probe_rows(
         rows,
-        selection_salt=preflight.policy_sha256,
+        limit=MAX_ORACLE_CANDIDATES,
+        selection_salt=preflight.policy_sha256 + ":local",
     )
+    global_frontier_rows = _global_proof_frontier_rows(
+        local_candidate_order[:max(
+            0,
+            MAX_ORACLE_CANDIDATES
+            - COSET_PROOF_GLOBAL_FRONTIER_INJECTIONS,
+        )],
+        exclude_candidate_sha256={
+            str(row["candidate_sha256"]) for row in rows
+        },
+    )
+    proof_rows = [*rows, *global_frontier_rows]
+    global_oracle_order = _oracle_probe_rows(
+        global_frontier_rows,
+        limit=len(global_frontier_rows),
+        selection_salt=preflight.policy_sha256 + ":global",
+    )
+    local_oracle_order = local_candidate_order[
+        :max(0, MAX_ORACLE_CANDIDATES - len(global_oracle_order))
+    ]
+    oracle_order = [*global_oracle_order, *local_oracle_order]
     persisted, oracle_run_stats, negative_archive_summary = (
         _run_proof_frontier_and_persist(
-        rows,
-        oracle_order,
+            proof_rows,
+            oracle_order,
         )
     )
 
@@ -3211,12 +3622,18 @@ def _evaluate(program_path: str):
     persistable_rows = [
         row for row in rows if row["static_legal"] and row["k"] > 0
     ]
-    if persisted != len(persistable_rows) and os.environ.get(CANDIDATE_LOG_PATH_ENV):
+    proof_persistable_rows = [
+        row for row in proof_rows if row["static_legal"] and row["k"] > 0
+    ]
+    if (
+        persisted != len(proof_persistable_rows)
+        and os.environ.get(CANDIDATE_LOG_PATH_ENV)
+    ):
         raise RuntimeError("coset candidate persistence count is incomplete")
     winner_capable_persisted = (
         len(eligible_rows)
         if os.environ.get(CANDIDATE_LOG_PATH_ENV)
-        and persisted == len(persistable_rows)
+        and persisted == len(proof_persistable_rows)
         else 0
     )
 
@@ -3247,6 +3664,7 @@ def _evaluate(program_path: str):
             negative_archive_summary["maximum_penalty"]
         ),
         "candidate_log_records_persisted": float(persisted),
+        "global_proof_frontier_injected": float(len(global_frontier_rows)),
         "proven_lower_bound_candidates": float(sum(
             isinstance(row.get("distance_lower_bound"), int) for row in rows
         )),

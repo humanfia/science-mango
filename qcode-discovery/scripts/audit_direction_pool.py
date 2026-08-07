@@ -48,6 +48,13 @@ from evaluation.process_hard_wall import (
     start_isolated_call,
 )
 from evaluation.geometry import candidate_geometry
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    SUPPORTED_TARGET_MODES,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -62,6 +69,7 @@ RECOVERABLE_INCOMPLETE_EXIT_CODE = 2
 CONSTRUCTION_FIELDS = (
     "source", "trial", "ansatz", "construction", "geometry", "ell", "m", "A_terms", "B_terms",
     "C_terms", "D_terms", "n", "k", "required_distance",
+    "target_mode", "target",
     "max_row_weight", "max_qubit_degree", "tanner_components", "novelty",
     "canonical_digest",
 )
@@ -132,7 +140,11 @@ def canonical_digest(row: Mapping[str, Any]) -> str:
     return digest
 
 
-def candidate_from_stage2(row: Mapping[str, Any]) -> dict[str, Any]:
+def candidate_from_stage2(
+    row: Mapping[str, Any],
+    *,
+    target_mode: str = DEFAULT_TARGET_MODE,
+) -> dict[str, Any]:
     audit = row.get("campaign_audit")
     if not isinstance(audit, Mapping) or audit.get("status") != "UNRESOLVED":
         raise ValueError("Stage 3 accepts only campaign_audit.status=UNRESOLVED")
@@ -173,11 +185,34 @@ def candidate_from_stage2(row: Mapping[str, Any]) -> dict[str, Any]:
             candidate["geometry"] = geometry
     if candidate.get("C_terms") or candidate.get("D_terms"):
         raise ValueError("Stage 3 pool currently supports CSS candidates only")
+    mode = validate_target_mode(target_mode)
+    supplied_mode = candidate.get("target_mode")
+    supplied_target = candidate.get("target")
+    if supplied_mode is None and supplied_target is None:
+        if mode != DEFAULT_TARGET_MODE:
+            raise ValueError("scalar Stage 3 handoff lacks a target binding")
+        canonical_target = target_binding(candidate["n"], candidate["k"], mode)
+    else:
+        if supplied_mode != mode:
+            raise ValueError("Stage 2 target_mode does not match Stage 3")
+        canonical_target = validate_target_binding(
+            supplied_target,
+            n=candidate["n"],
+            k=candidate["k"],
+            mode=mode,
+        )
+    if candidate["required_distance"] != canonical_target["required_distance"]:
+        raise ValueError("Stage 2 required_distance does not match its target")
+    candidate["target_mode"] = mode
+    candidate["target"] = canonical_target
     return candidate
 
 
 def select_unresolved(
-    rows: list[dict[str, Any]], top: int = 0,
+    rows: list[dict[str, Any]],
+    top: int = 0,
+    *,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[list[tuple[str, dict[str, Any]]], dict[str, int]]:
     selected: list[tuple[str, dict[str, Any]]] = []
     seen: set[str] = set()
@@ -188,7 +223,10 @@ def select_unresolved(
             continue
         try:
             digest = canonical_digest(row)
-            candidate = candidate_from_stage2(row)
+            candidate = candidate_from_stage2(
+                row,
+                target_mode=target_mode,
+            )
         except (KeyError, TypeError, ValueError):
             malformed += 1
             continue
@@ -956,6 +994,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--summary-output", type=Path, required=True)
     parser.add_argument("--stage4-manifest", type=Path)
     parser.add_argument("--top", type=int, default=0)
+    parser.add_argument(
+        "--target-mode",
+        choices=sorted(SUPPORTED_TARGET_MODES),
+        default=DEFAULT_TARGET_MODE,
+        help="target policy; defaults to the historical gist gate",
+    )
     parser.add_argument("--timeout", type=float, default=300)
     parser.add_argument("--candidate-workers", type=int, default=1)
     parser.add_argument("--direction-workers", type=int, default=4)
@@ -1016,6 +1060,7 @@ def main(argv: list[str] | None = None) -> int:
     native_thread_environment = enforce_sat_native_thread_budget()
     parser = build_parser()
     args = parser.parse_args(argv)
+    args.target_mode = validate_target_mode(args.target_mode)
     if (
         args.top < 0
         or not math.isfinite(args.timeout)
@@ -1056,7 +1101,11 @@ def main(argv: list[str] | None = None) -> int:
         selection_top = (
             0 if args.resume and args.backend == "sat-sectors" else args.top
         )
-        selected, counts = select_unresolved(rows, selection_top)
+        selected, counts = select_unresolved(
+            rows,
+            selection_top,
+            target_mode=args.target_mode,
+        )
         selected = prioritize_resume_candidates(
             selected,
             args.state_dir,
@@ -1158,6 +1207,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             config = AuditConfig(
                 state_dir=args.state_dir,
+                target_mode=args.target_mode,
                 resume=args.resume,
                 certify=True,
                 known_answer_artifact=args.known_answer_artifact,
@@ -1218,6 +1268,7 @@ def main(argv: list[str] | None = None) -> int:
     summary = {
         "schema_version": 1,
         "gate": "qldpc-direction-candidate-pool",
+        "target_mode": args.target_mode,
         "backend": args.backend,
         "sat_cardinality_encoding": (
             args.sat_cardinality_encoding

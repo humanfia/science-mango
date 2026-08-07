@@ -27,6 +27,11 @@ from evaluation.sector_certificate import (
     claim_from_sector_sat_artifact,
     verify_sector_sat_certificate,
 )
+from evaluation.target_policy import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    target_binding,
+)
 from scripts.screen_frontier_sat import (
     build_anchor_cover_cubes,
     verify_css_logical_detectors,
@@ -1375,6 +1380,365 @@ def test_typed_stage3_handoff_preserves_exact_sector_evidence(monkeypatch):
     assert len(handed_off[REQUEST_FIELD]["lower_bound_decisions"]) == 2
     assert builder_for_claim(handed_off) is build_sector_sat_certificate
     assert verifier_for_certificate({"certificate_type": CERTIFICATE_TYPE})
+
+
+def test_scalar_stage3_handoff_preserves_explicit_target_binding(monkeypatch):
+    n = 16
+    k = 16
+    hx = np.zeros((0, n), dtype=np.uint8)
+    hz = np.zeros((0, n), dtype=np.uint8)
+    lx = np.eye(n, dtype=np.uint8)
+    lz = np.eye(n, dtype=np.uint8)
+    monkeypatch.setattr(
+        sector_certificate,
+        "_matrices",
+        lambda _claim: (
+            SimpleNamespace(num_qudits=n, dimension=k),
+            hx,
+            hz,
+            lx,
+            lz,
+        ),
+    )
+    monkeypatch.setattr(
+        sector_certificate,
+        "_xz_isometry_context",
+        lambda *_args, **_kwargs: (None, ("X", "Z")),
+    )
+    monkeypatch.setattr(
+        sector_certificate,
+        "_coverage_context",
+        lambda *_args, **_kwargs: (
+            {"verified": True},
+            {"verified": True, "orbit_representatives": []},
+            (),
+        ),
+    )
+    claim = {
+        "ell": 2,
+        "m": 4,
+        "A_terms": [[0, 0]],
+        "B_terms": [[0, 0]],
+        "n": n,
+        "k": k,
+        "canonical_digest": "scalar-target-digest",
+    }
+    selected_target = target_binding(n, k, TARGET_MODE_SCALAR)
+    required = selected_target["required_distance"]
+    claim.update({
+        "required_distance": required,
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": selected_target,
+    })
+    lower = []
+    for sector, checks, logicals in (("X", hz, lz), ("Z", hx, lx)):
+        evidence = _fake_solver(
+            checks,
+            logicals,
+            max_weight=1,
+            sector=sector,
+        )
+        evidence.update({
+            "max_weight": required - 1,
+            "outcome": "unsat",
+            "threshold_infeasible": True,
+            "success": False,
+            "operator": None,
+            "objective": None,
+            "logical_syndrome": None,
+        })
+        evidence.pop("evidence_sha256", None)
+        evidence["evidence_sha256"] = sector_certificate._canonical_sha256(
+            evidence,
+        )
+        lower.append({
+            "sector": sector,
+            "partition_index": None,
+            "solver_evidence": evidence,
+        })
+    artifact = {
+        "schema_version": 1,
+        "gate": STAGE3_GATE,
+        "status": "THRESHOLD_PROVEN",
+        "candidate": claim,
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": selected_target,
+        "required_distance": required,
+        "lower_bound_threshold": required - 1,
+        "coverage_mode": "global",
+        "translation_symmetry": None,
+        "logical_detector": {"verified": True},
+        "lower_bound_decisions": lower,
+        "upper_witness": None,
+    }
+    artifact["artifact_sha256"] = sector_certificate._canonical_sha256(
+        artifact,
+    )
+
+    handed_off = claim_from_sector_sat_artifact(artifact)
+    assert handed_off["target"] == selected_target
+    assert handed_off["target_binding_sha256"] == (
+        selected_target["binding_sha256"]
+    )
+    assert handed_off[REQUEST_FIELD]["target"] == selected_target
+    assert handed_off[REQUEST_FIELD]["required_distance"] == required
+
+
+def test_scalar_target_build_verify_end_to_end_uses_bound_threshold(
+    tmp_path,
+    monkeypatch,
+):
+    n = 72
+    k = 12
+    hx = np.zeros((n - k, n), dtype=np.uint8)
+    hx[:, :n - k] = np.eye(n - k, dtype=np.uint8)
+    hz = np.zeros((0, n), dtype=np.uint8)
+    lx = np.zeros((k, n), dtype=np.uint8)
+    lz = np.zeros((k, n), dtype=np.uint8)
+    lx[:, n - k:] = np.eye(k, dtype=np.uint8)
+    lz[:, n - k:] = np.eye(k, dtype=np.uint8)
+    problem = SimpleNamespace(num_qudits=n, dimension=k), hx, hz, lx, lz
+    monkeypatch.setattr(sector_certificate, "_matrices", lambda _claim: problem)
+    monkeypatch.setattr(
+        sector_certificate,
+        "check_code_novelty",
+        lambda *_args, **_kwargs: {
+            "checked": True,
+            "novel": True,
+            "canonical_digest": "scalar-target-digest",
+            "registry_sha256": "registry",
+        },
+    )
+
+    def typed_gate(row, **_kwargs):
+        accepted = _typed_exact_sector_check(
+            row,
+            distance=int(row["d"]),
+            k=k,
+            hx=hx,
+            hz=hz,
+            lx=lx,
+            lz=lz,
+        )
+        return {
+            "accepted": accepted,
+            "checks": {"typed_exact_sector_sat_proof": accepted},
+            "failures": [] if accepted else ["typed_exact_sector_sat_proof"],
+        }
+
+    monkeypatch.setattr(
+        sector_certificate,
+        "evaluate_challenge_gate",
+        typed_gate,
+    )
+
+    selected_target = target_binding(n, k, TARGET_MODE_SCALAR)
+    gist_target = target_binding(n, k, TARGET_MODE_GIST)
+    assert gist_target["required_distance"] == 7
+    assert selected_target["required_distance"] == 9
+    required = int(selected_target["required_distance"])
+    claim = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0]],
+        "B_terms": [[0, 0]],
+        "n": n,
+        "k": k,
+        "required_distance": required,
+        "canonical_digest": "scalar-target-digest",
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": selected_target,
+    }
+
+    checkpoint_identities = []
+
+    def scalar_solver(
+        checks,
+        logicals,
+        *,
+        max_weight,
+        sector,
+        partition_index=None,
+        anchor_indices=(),
+        checkpoint_identity=None,
+        **_kwargs,
+    ):
+        checks = np.asarray(checks, dtype=np.uint8)
+        logicals = np.asarray(logicals, dtype=np.uint8)
+        if checkpoint_identity is not None:
+            checkpoint_identities.append(dict(checkpoint_identity))
+        evidence = {
+            "schema_version": SAT_EVIDENCE_SCHEMA_VERSION,
+            "evidence_kind": SAT_EVIDENCE_KIND,
+            "formulation": SAT_FORMULATION,
+            "sector": sector,
+            "max_weight": max_weight,
+            "partition_index": partition_index,
+            "anchor_indices": list(anchor_indices),
+            "backend": {
+                "distribution": "python-sat",
+                "version": "test",
+                "solver": "test-solver",
+            },
+            "instance": {
+                "check_matrix_sha256": sector_certificate._array_sha256(
+                    "checks",
+                    checks,
+                ),
+                "target_logicals_sha256": sector_certificate._array_sha256(
+                    "logicals",
+                    logicals,
+                ),
+                "partition_index": partition_index,
+                "anchor_indices": list(anchor_indices),
+            },
+            "decision_complete": True,
+        }
+        if max_weight < required:
+            evidence.update({
+                "outcome": "unsat",
+                "threshold_infeasible": True,
+                "success": False,
+                "operator": None,
+                "objective": None,
+                "logical_syndrome": None,
+            })
+        else:
+            vector = np.zeros(n, dtype=np.uint8)
+            vector[n - k:n - k + required] = 1
+            evidence.update({
+                "outcome": "sat",
+                "threshold_infeasible": False,
+                "success": True,
+                "operator": pack_vector(vector),
+                "objective": required,
+                "logical_syndrome": (
+                    (logicals @ vector) & 1
+                ).astype(int).tolist(),
+            })
+        evidence["evidence_sha256"] = sector_certificate._canonical_sha256(
+            evidence,
+        )
+        return evidence
+
+    lower = []
+    for sector, checks, logicals in ("X", hz, lz), ("Z", hx, lx):
+        lower.append({
+            "sector": sector,
+            "partition_index": None,
+            "solver_evidence": scalar_solver(
+                checks,
+                logicals,
+                max_weight=required - 1,
+                sector=sector,
+            ),
+        })
+    detector = verify_css_logical_detectors(hx, hz, lx, lz)
+    assert detector["verified"] is True
+    artifact = {
+        "schema_version": 1,
+        "gate": STAGE3_GATE,
+        "status": "THRESHOLD_PROVEN",
+        "candidate": claim,
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": selected_target,
+        "required_distance": required,
+        "lower_bound_threshold": required - 1,
+        "coverage_mode": "global",
+        "translation_symmetry": None,
+        "logical_detector": detector,
+        "lower_bound_decisions": lower,
+        "upper_witness": None,
+    }
+    artifact["artifact_sha256"] = sector_certificate._canonical_sha256(
+        artifact,
+    )
+    handed_off = claim_from_sector_sat_artifact(artifact)
+    assert handed_off["target"] == selected_target
+    assert handed_off[REQUEST_FIELD]["target"] == selected_target
+    assert handed_off[REQUEST_FIELD]["target_binding_sha256"] == (
+        selected_target["binding_sha256"]
+    )
+
+    known = tmp_path / "known.json"
+    known.write_text("{}")
+    checkpoint_identities.clear()
+    certificate = build_sector_sat_certificate(
+        handed_off,
+        known_answer_artifact=known,
+        timeout_per_logical=1,
+        total_timeout=10,
+        checkpoint_path=tmp_path / "scalar-certificate.json",
+        resume=True,
+        sector_solver=scalar_solver,
+    )
+    assert certificate["passed"] is True
+    assert certificate["target"] == selected_target
+    assert certificate["target_gate"]["required_distance"] == required
+    assert certificate["target_gate"]["passed"] is True
+    assert certificate["claim"]["required_distance"] == required
+    proof = certificate["claim"]["exact_distance_proof"]
+    assert proof["distance"] == required
+    assert proof["target"] == selected_target
+    assert certificate["sector_exact"]["target"] == selected_target
+    assert checkpoint_identities
+    assert all(
+        identity["target_mode"] == TARGET_MODE_SCALAR
+        and identity["target_binding_sha256"]
+        == selected_target["binding_sha256"]
+        and identity["required_distance"] == required
+        for identity in checkpoint_identities
+    )
+
+    checkpoint_identities.clear()
+    replay = verify_sector_sat_certificate(
+        certificate,
+        known_answer_artifact=known,
+        timeout_per_logical=1,
+        total_timeout=10,
+        checkpoint_path=tmp_path / "scalar-replay.json",
+        resume=True,
+        sector_solver=scalar_solver,
+    )
+    assert replay["passed"] is True
+    assert replay["checks"]["target_binding"] is True
+    assert replay["checks"]["target_gate"] is True
+    assert replay["checks"]["target_win"] is True
+    assert replay["checks"]["stored_final_gate"] is True
+    assert checkpoint_identities
+    assert all(
+        identity["target_mode"] == TARGET_MODE_SCALAR
+        and identity["target_binding_sha256"]
+        == selected_target["binding_sha256"]
+        and identity["required_distance"] == required
+        for identity in checkpoint_identities
+    )
+
+    missing_claim_binding = deepcopy(certificate)
+    del missing_claim_binding["claim"]["target_binding_sha256"]
+    missing_claim_binding["certificate_sha256"] = (
+        sector_certificate._certificate_sha256(missing_claim_binding)
+    )
+    rejected_missing_binding = verify_sector_sat_certificate(
+        missing_claim_binding,
+        known_answer_artifact=known,
+        sector_solver=scalar_solver,
+    )
+    assert rejected_missing_binding["passed"] is False
+    assert rejected_missing_binding["failures"][0].startswith(
+        "certificate reconstruction failed",
+    )
+
+    tampered = deepcopy(certificate)
+    tampered["claim"]["exact_distance_proof"]["target"] = gist_target
+    _reseal_sector_certificate(tampered)
+    rejected = verify_sector_sat_certificate(
+        tampered,
+        known_answer_artifact=known,
+        sector_solver=scalar_solver,
+    )
+    assert rejected["passed"] is False
+    assert rejected["failures"][0].startswith("certificate reconstruction failed")
 
 
 def test_anchored_handoff_recomputes_translation_orbits(monkeypatch):

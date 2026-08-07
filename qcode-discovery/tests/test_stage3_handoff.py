@@ -10,6 +10,11 @@ import pytest
 import scripts.audit_candidate_pool as candidate_pool
 import scripts.audit_direction_pool as direction_pool
 from evaluation.certificate import _direction_specs, pack_vector
+from evaluation.target_policy import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    target_binding,
+)
 from scripts.audit_direction_pool import (
     _candidate_wall_timeout,
     _expected_proof_units,
@@ -93,6 +98,65 @@ def test_stage3_jsonl_reader_rejects_invalid_unterminated_tail(tmp_path):
 
     path.write_text(json.dumps(row))
     assert direction_pool.read_ranked_jsonl(path) == [row]
+
+
+def test_stage3_handoff_copies_and_validates_scalar_target():
+    target = target_binding(72, 12, TARGET_MODE_SCALAR)
+    row = {
+        **_candidate(),
+        "required_distance": target["required_distance"],
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": target,
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }
+
+    candidate = candidate_from_stage2(
+        row,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+    assert candidate["target_mode"] == TARGET_MODE_SCALAR
+    assert candidate["target"] == target
+    assert candidate["required_distance"] == 9
+
+    with pytest.raises(ValueError, match="required_distance"):
+        candidate_from_stage2(
+            {**row, "required_distance": 7},
+            target_mode=TARGET_MODE_SCALAR,
+        )
+    with pytest.raises(ValueError, match="target_mode"):
+        candidate_from_stage2(row, target_mode=TARGET_MODE_GIST)
+
+
+def test_stage3_legacy_handoff_is_explicitly_bound_to_gist():
+    row = {
+        **_candidate(),
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }
+
+    candidate = candidate_from_stage2(row)
+
+    assert candidate["target_mode"] == TARGET_MODE_GIST
+    assert candidate["target"] == target_binding(72, 12, TARGET_MODE_GIST)
+
+
+def test_stage3_scalar_solver_preflight_rejects_stale_binding():
+    candidate = {
+        **_candidate(),
+        "required_distance": 9,
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": target_binding(72, 12, TARGET_MODE_SCALAR),
+    }
+    code = build_candidate_code(candidate)
+    assert validate_candidate_parameters(candidate, code)[
+        "required_distance"
+    ] == 9
+
+    stale = {
+        **candidate,
+        "target": target_binding(72, 12, TARGET_MODE_GIST),
+    }
+    with pytest.raises(ValueError, match="target binding mode"):
+        validate_candidate_parameters(stale, code)
 
 
 def test_stage3_artifact_is_safe_direct_stage4_input(tmp_path):
@@ -224,8 +288,8 @@ def test_resume_accepts_zero_gap_exact_direction(monkeypatch):
         ("X", 0, "hz", np.zeros((1, 10), dtype=np.uint8), target1),
     ]
     monkeypatch.setattr(
-        "scripts.screen_frontier_candidate.minimum_winning_distance",
-        lambda n, k: 3,
+        "scripts.screen_frontier_candidate.target_binding",
+        lambda n, k, mode: {"required_distance": 3},
     )
     monkeypatch.setattr(
         "scripts.screen_frontier_candidate._direction_specs", lambda code: specs,

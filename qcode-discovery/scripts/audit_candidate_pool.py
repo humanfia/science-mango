@@ -38,7 +38,15 @@ from evaluation.failure_disposition import (
     terminal_candidate_rejection,
     validate_failure_disposition,
 )
-from evaluation.final_gate import classify_win, minimum_winning_distance
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    SUPPORTED_TARGET_MODES,
+    classify_target_win,
+    minimum_target_distance,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 from evaluation.geometry import candidate_geometry, geometry_identity
 from evaluation.process_hard_wall import (
     DEFAULT_TERMINATION_GRACE_S,
@@ -160,6 +168,7 @@ class AuditConfig:
     """Serializable configuration for one candidate-audit worker."""
 
     state_dir: Path
+    target_mode: str = DEFAULT_TARGET_MODE
     solver_timeout_s: float = 300
     solver_workers: int = 4
     compact_low_weight_max_weight: int = 4
@@ -175,6 +184,100 @@ class AuditConfig:
     candidate_hard_timeout_s: float | None = None
     certificate_hard_timeout_s: float | None = None
     hard_wall_termination_grace_s: float = DEFAULT_TERMINATION_GRACE_S
+
+
+def _bind_authoritative_target(
+    row: Mapping[str, Any],
+    *,
+    n: int,
+    k: int,
+    target_mode: str,
+) -> dict[str, Any]:
+    """Replace caller target claims with one policy-derived binding.
+
+    Candidate JSONL is untrusted.  In particular, a reported threshold from a
+    different objective must never influence Stage 2 ranking or proof work.
+    Preserve those fields as advisory provenance and derive the live target
+    only after authoritative ``n``/``k`` reconstruction.
+    """
+
+    mode = validate_target_mode(target_mode)
+    authoritative = target_binding(n, k, mode)
+    validated = validate_target_binding(
+        authoritative,
+        n=n,
+        k=k,
+        mode=mode,
+    )
+    required = validated.get("required_distance")
+    if (
+        isinstance(required, bool)
+        or not isinstance(required, int)
+        or required < 1
+    ):
+        raise ValueError("target policy returned an invalid required_distance")
+
+    updated = dict(row)
+    advisory: dict[str, Any] = {}
+    for name in ("target", "target_mode"):
+        if name in updated:
+            advisory[name] = updated.pop(name)
+    if advisory:
+        updated["input_target_advisory"] = {
+            "trusted": False,
+            "reason": (
+                "input target fields were replaced after authoritative n/k "
+                "reconstruction"
+            ),
+            "evidence": advisory,
+        }
+    updated["target_mode"] = mode
+    updated["target"] = dict(validated)
+    updated["required_distance"] = required
+    return updated
+
+
+def _validate_bound_target_for_audit(
+    candidate: Mapping[str, Any],
+    *,
+    target_mode: str,
+) -> dict[str, Any]:
+    """Fail closed on a stale Stage-2 target before starting a solver.
+
+    Legacy direct Python callers predate target descriptors and remain valid
+    in the default gist lane.  Every explicit target (and every non-default
+    lane) must carry a descriptor bound to the authoritative ``n``/``k``.
+    Production CLI rows always take the explicit path because ranking installs
+    the descriptor after reconstruction.
+    """
+
+    mode = validate_target_mode(target_mode)
+    updated = dict(candidate)
+    supplied_mode = updated.get("target_mode")
+    supplied_target = updated.get("target")
+    if supplied_mode is None and supplied_target is None:
+        if mode != DEFAULT_TARGET_MODE:
+            raise ValueError("non-default Stage 2 audit requires a target binding")
+        return updated
+    if supplied_mode != mode:
+        raise ValueError("candidate target_mode does not match the Stage 2 run")
+    n = updated.get("n")
+    k = updated.get("k")
+    if type(n) is not int or type(k) is not int or n <= 0 or k <= 0:
+        raise ValueError(
+            "target-bound Stage 2 candidate requires positive integer n/k"
+        )
+    canonical = validate_target_binding(
+        supplied_target,
+        n=n,
+        k=k,
+        mode=mode,
+    )
+    if updated.get("required_distance") != canonical["required_distance"]:
+        raise ValueError("candidate required_distance does not match its target")
+    updated["target_mode"] = mode
+    updated["target"] = canonical
+    return updated
 
 
 def _atomic_write_text(path: Path, text: str) -> None:
@@ -275,6 +378,7 @@ def read_candidate_jsonl(
 def _trusted_stage1_outcome(
     record: Mapping[str, Any],
     required_distance: int,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[str | None, bool]:
     """Replay a formal Stage 1 audit before using it as a priority lane."""
 
@@ -292,8 +396,9 @@ def _trusted_stage1_outcome(
         d = int(record["d"])
     except (KeyError, TypeError, ValueError) as exc:
         raise AuditStateError("formal Stage 1 exact row has invalid n/k/d") from exc
-    gate = classify_win(n, k, d)
-    expected = minimum_winning_distance(n, k)
+    mode = validate_target_mode(target_mode)
+    gate = classify_target_win(n, k, d, mode)
+    expected = minimum_target_distance(n, k, mode)
     if expected != required_distance:
         raise AuditStateError("formal Stage 1 threshold binding changed")
     return (
@@ -305,6 +410,7 @@ def _trusted_stage1_outcome(
 def _replay_search_oracle_rejection(
     record: Mapping[str, Any],
     required_distance: int,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> dict[str, Any] | None:
     """Independently replay a Stage-1 SAT witness as negative evidence.
 
@@ -317,11 +423,19 @@ def _replay_search_oracle_rejection(
 
     oracle = record.get("low_weight_oracle")
     witness = oracle.get("witness") if isinstance(oracle, Mapping) else None
+    mode = validate_target_mode(target_mode)
+    selected_target_marker = bool(
+        record.get("selected_target_excluded_by_upper_bound") is True
+        or (
+            mode == DEFAULT_TARGET_MODE
+            and record.get("final_gate_excluded_by_upper_bound") is True
+        )
+    )
     if (
         record.get("search_status") != "terminal_negative"
         or record.get("threshold_rejection_proven") is not True
         or record.get("threshold_proof_source") != "low_weight_oracle"
-        or record.get("final_gate_excluded_by_upper_bound") is not True
+        or not selected_target_marker
         or not isinstance(oracle, Mapping)
         or oracle.get("outcome") != "SAT"
         or not isinstance(witness, Mapping)
@@ -336,10 +450,23 @@ def _replay_search_oracle_rejection(
         or record.get("threshold_proof_distance") != weight
         or record.get("distance_upper_bound") != weight
         or record.get("distance_status") != "upper_bound"
-        or record.get("challenge_rejection_cutoff")
-        != required_distance - 1
     ):
         return None
+    try:
+        validate_target_binding(
+            record.get("target"),
+            n=int(record["n"]),
+            k=int(record["k"]),
+            mode=mode,
+        )
+    except (KeyError, TypeError, ValueError):
+        # A pre-target-binding row is replayable only in the legacy gist lane.
+        if not (
+            mode == DEFAULT_TARGET_MODE
+            and record.get("challenge_rejection_cutoff")
+            == required_distance - 1
+        ):
+            return None
     proof_witness = record.get("threshold_proof_witness")
     if not isinstance(proof_witness, Mapping) or any(
         proof_witness.get(field) != witness.get(field)
@@ -946,9 +1073,12 @@ def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
 
 def rank_candidate_files(
     paths: Iterable[Path],
+    *,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
     """Load, proof-rank, and canonical-deduplicate all candidate files."""
 
+    mode = validate_target_mode(target_mode)
     records, sources = read_candidate_jsonl(paths)
     prepared: list[dict[str, Any]] = []
     prepared_sources: list[str] = []
@@ -991,7 +1121,7 @@ def rank_candidate_files(
             if n <= 0 or k <= 0:
                 ineligible_records += 1
                 continue
-            required_distance = minimum_winning_distance(n, k)
+            required_distance = minimum_target_distance(n, k, mode)
         except (ImportError, KeyError, TypeError, ValueError, OverflowError):
             malformed_records += 1
             continue
@@ -1004,15 +1134,22 @@ def rank_candidate_files(
         # constructions before Stage 2 has rebuilt both of them.
         authoritative = _demote_input_terminal_markers(authoritative)
         reported_required_distance = authoritative.get("required_distance")
-        authoritative["required_distance"] = required_distance
+        authoritative = _bind_authoritative_target(
+            authoritative,
+            n=n,
+            k=k,
+            target_mode=mode,
+        )
         trusted_search_oracle = _replay_search_oracle_rejection(
             authoritative,
             required_distance,
+            mode,
         )
         try:
             trusted_outcome, sealed_evidence = _trusted_stage1_outcome(
                 authoritative,
                 required_distance,
+                mode,
             )
         except AuditStateError as exc:
             # A broken seal is malformed evidence, not a reason to discard the
@@ -1129,6 +1266,7 @@ def rank_candidate_files_with_structural_cache(
     structural_cache_dir: Path,
     structural_max_workers: int,
     structural_hard_timeout: float,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
     """Rank Stage 2 inputs after a durable hard-walled CSS reconstruction.
 
@@ -1138,6 +1276,7 @@ def rank_candidate_files_with_structural_cache(
     the selection cursor to skip a pathological construction.
     """
 
+    mode = validate_target_mode(target_mode)
     records, sources = read_candidate_jsonl(paths)
     prepared: list[dict[str, Any]] = []
     prepared_sources: list[str] = []
@@ -1178,8 +1317,11 @@ def rank_candidate_files_with_structural_cache(
                     "reported_k": k,
                 }
                 authoritative = _demote_input_terminal_markers(authoritative)
-                authoritative["required_distance"] = minimum_winning_distance(
-                    n, k
+                authoritative = _bind_authoritative_target(
+                    authoritative,
+                    n=n,
+                    k=k,
+                    target_mode=mode,
                 )
                 authoritative = _demote_untrusted_proof_evidence(
                     authoritative,
@@ -1460,17 +1602,24 @@ def rank_candidate_files_with_structural_cache(
             "input_sha256": structural_screen_input_sha256(css_rows[index]),
             "runtime_sha256": runtime_sha256,
         }
-        required_distance = minimum_winning_distance(n, k)
+        required_distance = minimum_target_distance(n, k, mode)
         reported_required_distance = authoritative.get("required_distance")
-        authoritative["required_distance"] = required_distance
+        authoritative = _bind_authoritative_target(
+            authoritative,
+            n=n,
+            k=k,
+            target_mode=mode,
+        )
         trusted_search_oracle = _replay_search_oracle_rejection(
             authoritative,
             required_distance,
+            mode,
         )
         try:
             trusted_outcome, sealed_evidence = _trusted_stage1_outcome(
                 authoritative,
                 required_distance,
+                mode,
             )
         except AuditStateError as exc:
             invalid_audit_records += 1
@@ -1520,16 +1669,25 @@ def rank_candidate_files_with_structural_cache(
         unresolved_row = _demote_structurally_unresolved_proof(
             unresolved_row
         )
-        unresolved_row["required_distance"] = (
-            minimum_winning_distance(reported_n, reported_k)
-            if (
-                type(reported_n) is int
-                and type(reported_k) is int
-                and reported_n > 0
-                and reported_k > 0
+        if (
+            type(reported_n) is int
+            and type(reported_k) is int
+            and reported_n > 0
+            and reported_k > 0
+        ):
+            unresolved_row = _bind_authoritative_target(
+                unresolved_row,
+                n=reported_n,
+                k=reported_k,
+                target_mode=mode,
             )
-            else 1
-        )
+        else:
+            # Geometry is unresolved, so no authoritative target can yet be
+            # derived.  Keep a harmless placeholder out of the proof path; the
+            # structural retry must replace it before selection.
+            unresolved_row["required_distance"] = 1
+            unresolved_row["target_mode"] = mode
+            unresolved_row.pop("target", None)
         marker: dict[str, Any] = {
             "status": "UNRESOLVED",
             "retryable": True,
@@ -1777,6 +1935,8 @@ def _construction_candidate(
         "n",
         "k",
         "required_distance",
+        "target_mode",
+        "target",
         "max_row_weight",
         "max_qubit_degree",
         "tanner_components",
@@ -1815,6 +1975,12 @@ def _stage2_audit_cache_binding(
         "schema_version": 1,
         "gate": "qldpc-stage2-xor-audit-cache",
         "candidate_sha256": _json_sha256(candidate),
+        "target_mode": candidate.get("target_mode", DEFAULT_TARGET_MODE),
+        "target_binding_sha256": (
+            candidate.get("target", {}).get("binding_sha256")
+            if isinstance(candidate.get("target"), Mapping)
+            else None
+        ),
         "required_distance": int(candidate["required_distance"]),
         "threshold_only": True,
         "translation_symmetry_sha256": _json_sha256(
@@ -1874,6 +2040,12 @@ def _compact_low_weight_cache_binding(
         "schema_version": 1,
         "gate": "qldpc-stage2-compact-low-weight-cache",
         "candidate_sha256": _json_sha256(candidate),
+        "target_mode": candidate.get("target_mode", DEFAULT_TARGET_MODE),
+        "target_binding_sha256": (
+            candidate.get("target", {}).get("binding_sha256")
+            if isinstance(candidate.get("target"), Mapping)
+            else None
+        ),
         "required_distance": int(candidate["required_distance"]),
         "max_weight": int(max_weight),
         "matrix_sha256": {
@@ -2374,7 +2546,11 @@ def _regular_file_identity(path: Path, *, label: str) -> dict[str, Any]:
     }
 
 
-def _ranked_snapshot_binding(paths: Iterable[Path]) -> dict[str, Any]:
+def _ranked_snapshot_binding(
+    paths: Iterable[Path],
+    *,
+    target_mode: str = DEFAULT_TARGET_MODE,
+) -> dict[str, Any]:
     """Bind a ranked pool to immutable inputs, ranking code, and runtime."""
 
     payload = {
@@ -2393,6 +2569,7 @@ def _ranked_snapshot_binding(paths: Iterable[Path]) -> dict[str, Any]:
             Path(DEFAULT_REGISTRY),
             label="known-code registry",
         ),
+        "target_mode": validate_target_mode(target_mode),
     }
     return {**payload, "binding_sha256": _json_sha256(payload)}
 
@@ -2618,6 +2795,8 @@ def _cache_path_is_safe(path: Path, *, label: str) -> bool:
 def _load_ranked_snapshot(
     ledger_path: Path,
     input_paths: Iterable[Path],
+    *,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> RankedSnapshot | None:
     """Load a manifest-bound random-access snapshot without scanning its rows."""
 
@@ -2702,6 +2881,7 @@ def _load_ranked_snapshot(
             chunk for chunk in chunks if isinstance(chunk, Mapping)
         )
         or not _binding_dependencies_unchanged(binding, input_paths)
+        or binding.get("target_mode") != validate_target_mode(target_mode)
     ):
         return None
     try:
@@ -2785,6 +2965,8 @@ def _write_ranked_snapshot(
     binding: Mapping[str, Any],
     ranked: list[dict[str, Any]],
     counts: Mapping[str, int],
+    *,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> RankedSnapshot:
     """Commit snapshot/index bytes first and their validating manifest last."""
 
@@ -2890,6 +3072,7 @@ def _write_ranked_snapshot(
     loaded = _load_ranked_snapshot(
         ledger_path,
         [Path(item["path"]) for item in binding["inputs"]],
+        target_mode=target_mode,
     )
     if loaded is None:
         raise ValueError("ranked snapshot did not replay after commit")
@@ -2903,11 +3086,17 @@ def prepare_ranked_snapshot(
     structural_cache_dir: Path | None = None,
     structural_max_workers: int = 1,
     structural_hard_timeout: float = STRUCTURAL_SCREEN_HARD_TIMEOUT_SECONDS,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[RankedSnapshot, bool]:
     """Rank once per immutable binding and cache no solver-derived verdicts."""
 
     input_paths = tuple(Path(path) for path in paths)
-    cached = _load_ranked_snapshot(ledger_path, input_paths)
+    mode = validate_target_mode(target_mode)
+    cached = _load_ranked_snapshot(
+        ledger_path,
+        input_paths,
+        target_mode=mode,
+    )
     # Unresolved rows retain their original tail position for the lifetime of
     # this immutable snapshot. Selection retries their per-candidate cache in
     # place, so prior acknowledgement hashes and committed digests never need
@@ -2915,18 +3104,35 @@ def prepare_ranked_snapshot(
     if cached is not None:
         return cached, True
 
-    binding = _ranked_snapshot_binding(input_paths)
+    binding = _ranked_snapshot_binding(input_paths, target_mode=mode)
     if structural_cache_dir is None:
-        ranked, counts = rank_candidate_files(input_paths)
+        # Preserve the deployed one-argument ranking hook in the default
+        # lane; non-default campaigns must opt into the explicit policy.
+        ranked, counts = (
+            rank_candidate_files(input_paths)
+            if mode == DEFAULT_TARGET_MODE
+            else rank_candidate_files(input_paths, target_mode=mode)
+        )
     else:
-        ranked, counts = rank_candidate_files_with_structural_cache(
-            input_paths,
-            structural_cache_dir=structural_cache_dir,
-            structural_max_workers=structural_max_workers,
-            structural_hard_timeout=structural_hard_timeout,
+        structural_kwargs = {
+            "structural_cache_dir": structural_cache_dir,
+            "structural_max_workers": structural_max_workers,
+            "structural_hard_timeout": structural_hard_timeout,
+        }
+        ranked, counts = (
+            rank_candidate_files_with_structural_cache(
+                input_paths,
+                **structural_kwargs,
+            )
+            if mode == DEFAULT_TARGET_MODE
+            else rank_candidate_files_with_structural_cache(
+                input_paths,
+                target_mode=mode,
+                **structural_kwargs,
+            )
         )
     # Full hashes close mutation during the expensive rank/dedup build.
-    if _ranked_snapshot_binding(input_paths) != binding:
+    if _ranked_snapshot_binding(input_paths, target_mode=mode) != binding:
         raise ValueError("candidate inputs changed while ranking")
     return (
         _write_ranked_snapshot(
@@ -2934,6 +3140,7 @@ def prepare_ranked_snapshot(
             binding,
             ranked,
             counts,
+            target_mode=mode,
         ),
         False,
     )
@@ -3037,6 +3244,7 @@ def _canonicalize_from_structural_screen(
     ranked: Mapping[str, Any],
     *,
     registry_path: str | Path,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> dict[str, Any]:
     """Replay registry novelty from a cache-bound hard-walled construction."""
 
@@ -3178,8 +3386,11 @@ def _canonicalize_from_structural_screen(
     updated["triage_identity"] = identity
     updated["canonical_digest"] = digest
     updated["novelty"] = novelty
-    updated["required_distance"] = minimum_winning_distance(
-        rebuilt_n, rebuilt_k
+    updated = _bind_authoritative_target(
+        updated,
+        n=rebuilt_n,
+        k=rebuilt_k,
+        target_mode=target_mode,
     )
     geometry = updated.get(_AUTHORITATIVE_GEOMETRY)
     if not isinstance(geometry, Mapping):
@@ -3206,12 +3417,17 @@ def resolve_structural_snapshot_row_for_audit(
     max_workers: int,
     hard_timeout: float,
     registry_path: str | Path = DEFAULT_REGISTRY,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> dict[str, Any]:
     """Retry one immutable unresolved row and materialize completion in-page."""
 
     marker = ranked.get(_STAGE2_STRUCTURAL_SCREEN)
     if not _is_structural_screen_unresolved(ranked):
-        return canonicalize_for_audit(ranked, registry_path=registry_path)
+        return canonicalize_for_audit(
+            ranked,
+            registry_path=registry_path,
+            target_mode=target_mode,
+        )
     assert isinstance(marker, Mapping)
     if marker.get("operation") == "within_pool_isomorphism":
         if not _is_pair_structural_unresolved(ranked):
@@ -3317,7 +3533,12 @@ def resolve_structural_snapshot_row_for_audit(
             )
         updated["n"] = n
         updated["k"] = k
-        updated["required_distance"] = minimum_winning_distance(n, k)
+        updated = _bind_authoritative_target(
+            updated,
+            n=n,
+            k=k,
+            target_mode=target_mode,
+        )
         updated[_AUTHORITATIVE_GEOMETRY] = {
             "reconstructed": True,
             "construction_sha256": marker["input_sha256"],
@@ -3405,7 +3626,12 @@ def resolve_structural_snapshot_row_for_audit(
         )
     updated["n"] = n
     updated["k"] = k
-    updated["required_distance"] = minimum_winning_distance(n, k)
+    updated = _bind_authoritative_target(
+        updated,
+        n=n,
+        k=k,
+        target_mode=target_mode,
+    )
     updated[_AUTHORITATIVE_GEOMETRY] = {
         "reconstructed": True,
         "construction_sha256": marker["input_sha256"],
@@ -3423,6 +3649,7 @@ def resolve_structural_snapshot_row_for_audit(
     return _canonicalize_from_structural_screen(
         updated,
         registry_path=registry_path,
+        target_mode=target_mode,
     )
 
 
@@ -3432,6 +3659,7 @@ def canonicalize_for_audit(
     code_builder: Callable[..., Any] | None = None,
     novelty_checker: Callable[..., dict[str, Any]] | None = None,
     registry_path: str | Path = DEFAULT_REGISTRY,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> dict[str, Any]:
     """Rebuild or replay a selected row against the current registry.
 
@@ -3449,6 +3677,7 @@ def canonicalize_for_audit(
         return _canonicalize_from_structural_screen(
             ranked,
             registry_path=registry_path,
+            target_mode=target_mode,
         )
     compact = isinstance(ranked.get("construction"), Mapping)
     code_builder = build_bb_code if code_builder is None else code_builder
@@ -3504,8 +3733,11 @@ def canonicalize_for_audit(
     reported_k = updated.get("k")
     updated["n"] = rebuilt_n
     updated["k"] = rebuilt_k
-    updated["required_distance"] = minimum_winning_distance(
-        rebuilt_n, rebuilt_k
+    updated = _bind_authoritative_target(
+        updated,
+        n=rebuilt_n,
+        k=rebuilt_k,
+        target_mode=target_mode,
     )
     selection_geometry = {
         "reconstructed": True,
@@ -4064,6 +4296,7 @@ def _selection_binding(
     known_answer_artifact: Path,
     ranked_snapshot_identity: Mapping[str, Any] | None = None,
     ranked_size: int | None = None,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> str:
     """Bind a cursor to every input that can alter candidate selection."""
 
@@ -4099,6 +4332,7 @@ def _selection_binding(
         "known_answer_sha256": _file_sha256(known_answer_artifact),
         "solver_runtime": solver_runtime_fingerprint(),
         "source_fingerprint": certificate_source_fingerprint(),
+        "target_mode": validate_target_mode(target_mode),
     })
 
 
@@ -4171,6 +4405,7 @@ def _prepare_selection_page(
     known_answer_artifact: Path,
     canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
     ranked_snapshot_identity: Mapping[str, Any] | None = None,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, int],
@@ -4184,6 +4419,7 @@ def _prepare_selection_page(
         top=top,
         known_answer_artifact=known_answer_artifact,
         ranked_snapshot_identity=ranked_snapshot_identity,
+        target_mode=target_mode,
     )
     ranked_identity_sha256 = snapshot_identity_sha256(
         dict(ranked_snapshot_identity)
@@ -4258,6 +4494,7 @@ def _prepare_snapshot_selection_page(
     ledger_path: Path,
     known_answer_artifact: Path,
     canonicalizer: Callable[[Mapping[str, Any]], dict[str, Any]] | None = None,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, int],
@@ -4272,6 +4509,7 @@ def _prepare_snapshot_selection_page(
         known_answer_artifact=known_answer_artifact,
         ranked_snapshot_identity=snapshot.identity,
         ranked_size=snapshot.rows,
+        target_mode=target_mode,
     )
     ranked_identity_sha256 = snapshot_identity_sha256(snapshot.identity)
     ledger = _load_selection_ledger(
@@ -4501,6 +4739,10 @@ def certify_candidate(
 
     builder = build_certificate if builder is None else builder
     verifier = verify_certificate if verifier is None else verifier
+    candidate = _validate_bound_target_for_audit(
+        candidate,
+        target_mode=config.target_mode,
+    )
     paths = state_paths(config.state_dir, canonical_digest)
     known_answer_sha256 = _file_sha256(config.known_answer_artifact)
     solver_runtime = solver_runtime_fingerprint()
@@ -4744,6 +4986,10 @@ def audit_candidate(
 
     try:
         candidate = _construction_candidate(ranked, canonical_digest)
+        candidate = _validate_bound_target_for_audit(
+            candidate,
+            target_mode=config.target_mode,
+        )
     except (KeyError, TypeError, ValueError) as exc:
         return {
             "canonical_digest": canonical_digest,
@@ -5448,6 +5694,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("inputs", nargs="+", type=Path)
     parser.add_argument("--top", type=int, default=20)
+    parser.add_argument(
+        "--target-mode",
+        choices=sorted(SUPPORTED_TARGET_MODES),
+        default=DEFAULT_TARGET_MODE,
+        help="target policy; omitted invocations retain the historical gist gate",
+    )
     parser.add_argument("--state-dir", type=Path, required=True)
     parser.add_argument("--ranked-output", type=Path, required=True)
     parser.add_argument("--summary-output", type=Path, required=True)
@@ -5551,6 +5803,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    args.target_mode = validate_target_mode(args.target_mode)
     if args.top < 0:
         parser.error("top must be non-negative")
     if args.compact_low_weight_max_weight < 1:
@@ -5591,7 +5844,10 @@ def main(argv: list[str] | None = None) -> int:
             else args.state_dir / "structural-screen-cache-v1"
         )
         if args.selection_ledger is None:
-            ranked, counts = rank_candidate_files(args.inputs)
+            ranked, counts = rank_candidate_files(
+                args.inputs,
+                target_mode=args.target_mode,
+            )
         else:
             ranked_snapshot, ranked_snapshot_cache_hit = prepare_ranked_snapshot(
                 args.inputs,
@@ -5599,6 +5855,7 @@ def main(argv: list[str] | None = None) -> int:
                 structural_cache_dir=structural_cache_dir,
                 structural_max_workers=args.max_total_workers,
                 structural_hard_timeout=args.structural_hard_timeout,
+                target_mode=args.target_mode,
             )
             ranked = []
             counts = dict(ranked_snapshot.counts)
@@ -5615,6 +5872,7 @@ def main(argv: list[str] | None = None) -> int:
             max_workers=args.max_total_workers,
             hard_timeout=args.structural_hard_timeout,
             registry_path=DEFAULT_REGISTRY,
+            target_mode=args.target_mode,
         )
 
     selection_page: dict[str, Any] | None = None
@@ -5638,6 +5896,7 @@ def main(argv: list[str] | None = None) -> int:
                 ledger_path=args.selection_ledger,
                 known_answer_artifact=args.known_answer_artifact,
                 canonicalizer=selection_canonicalizer,
+                target_mode=args.target_mode,
             )
             # The page artifact is intentionally bounded. Stage 3 consumes only
             # the current page's unresolved rows; the immutable snapshot and
@@ -5656,6 +5915,7 @@ def main(argv: list[str] | None = None) -> int:
 
     config = AuditConfig(
         state_dir=args.state_dir,
+        target_mode=args.target_mode,
         solver_timeout_s=args.timeout,
         solver_workers=args.solver_workers,
         compact_low_weight_max_weight=args.compact_low_weight_max_weight,
@@ -5728,6 +5988,7 @@ def main(argv: list[str] | None = None) -> int:
     summary = {
         "schema_version": 1,
         "gate": "qldpc-proof-oriented-candidate-pool",
+        "target_mode": args.target_mode,
         "inputs": [str(path) for path in args.inputs],
         **counts,
         **selection_counts,

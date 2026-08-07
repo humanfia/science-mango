@@ -35,21 +35,26 @@ from evaluation.structural_dedup import (
     check_css_code_structural_novelty,
     check_css_structural_novelty,
 )
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    FOM_THRESHOLD,
+    KNOWN_PARETO_REFERENCES,
+    SUPPORTED_TARGET_MODES,
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    classify_target_win,
+    minimum_target_distance,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 
 
-FOM_THRESHOLD = 12.0
 REQUIRED_BASELINES = {
     "[[72,12,6]]": (72, 12, 6),
     "[[90,8,10]]": (90, 8, 10),
     "[[144,12,12]]": (144, 12, 12),
 }
-KNOWN_PARETO_REFERENCES = (
-    (72, 12, 6),
-    (90, 8, 10),
-    (108, 8, 10),
-    (144, 12, 12),
-    (288, 12, 18),
-)
 
 
 def _rank_f2(matrix: np.ndarray) -> int:
@@ -358,15 +363,72 @@ def _typed_exact_sector_check(
     mode = proof.get("coverage_mode")
     lower = proof.get("lower_bound_decisions")
     try:
-        required_distance = minimum_winning_distance(int(hx.shape[1]), k)
+        n = int(hx.shape[1])
+        supplied_mode = row.get("target_mode")
+        if "target" not in row:
+            target_mode = validate_target_mode(
+                DEFAULT_TARGET_MODE if supplied_mode is None else supplied_mode
+            )
+            if (
+                target_mode != DEFAULT_TARGET_MODE
+                or row.get("target_binding_sha256") is not None
+            ):
+                return False
+            selected_target = None
+            required_distance = minimum_winning_distance(n, k)
+            proof_target_valid = bool(
+                proof.get("target") is None
+                and proof.get("target_binding_sha256") is None
+                and (
+                    proof.get("target_mode") is None
+                    or validate_target_mode(proof.get("target_mode"))
+                    == DEFAULT_TARGET_MODE
+                )
+            )
+            target_win = distance >= required_distance
+        else:
+            selected_target = validate_target_binding(
+                row.get("target"),
+                n=n,
+                k=k,
+                mode=supplied_mode,
+            )
+            target_mode = str(selected_target["mode"])
+            required_distance = int(selected_target["required_distance"])
+            proof_target_valid = bool(
+                row.get("target_mode") == target_mode
+                and row.get("target_binding_sha256")
+                == selected_target["binding_sha256"]
+                and proof.get("target_mode") == target_mode
+                and proof.get("target") == selected_target
+                and proof.get("target_binding_sha256")
+                == selected_target["binding_sha256"]
+            )
+            target_win = classify_target_win(
+                n,
+                k,
+                distance,
+                target_mode,
+            )["passed"] is True
+            reported_required = row.get("required_distance")
+        if selected_target is None:
+            reported_required = row.get(
+                "required_distance",
+                required_distance,
+            )
     except (TypeError, ValueError):
         return False
     if (
         proof.get("schema_version") != 1
         or proof.get("proof_type") != SECTOR_SAT_EXACT_PROOF_TYPE
         or proof.get("exact") is not True
+        or not proof_target_valid
+        or isinstance(reported_required, bool)
+        or not isinstance(reported_required, int)
+        or reported_required != required_distance
         or proof.get("required_distance") != required_distance
         or distance < required_distance
+        or not target_win
         or proof.get("lower_bound_threshold") != distance - 1
         or proof.get("distance") != distance
         or proof.get("lower_bound") != distance

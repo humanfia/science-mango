@@ -48,10 +48,10 @@ COSET_RENDERER_V2_ID = "catalog-pair-walk-v2"
 COSET_RENDERER_V3_ID = "catalog-combination-walk-v3"
 COSET_ACTION_CATALOG_V2_MANIFEST_ID = "coset-action-catalog-v2-installed"
 COSET_RENDERER_V2_CHECKPOINT_GROUP = (
-    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2"
+    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v3"
 )
 COSET_RENDERER_V3_CHECKPOINT_GROUP = (
-    "coset-two-block-catalog-v2-renderer-v3-map-v4-proof-ladder-v2"
+    "coset-two-block-catalog-v2-renderer-v3-map-v4-proof-ladder-v3"
 )
 TRUSTED_COSET_CATALOG_KINDS = ("action", "cover", "protograph")
 TRUSTED_COSET_SUPPORT_SPLITS = (
@@ -106,20 +106,24 @@ DEFAULT_PER_ACTION_QUOTA = 96
 TARGET_FOM = 12.0
 
 # Stage-1 proof search is a resumable sequence of threshold decisions, not a
-# one-shot distance estimate.  Schema v2 replaces the historical fixed
-# ``max_weight=4`` probe.  A bounded, normality-balanced frontier may advance
-# multiple sequential rungs in one evaluator call; committed evidence is
-# hydrated from the source-bound run ledger before new work is attempted.
-COSET_PROOF_LADDER_SCHEMA_VERSION = 2
+# one-shot distance estimate.  Schema v3 separates the strict scalar FOM goal
+# from the broader challenge/Pareto gate and adds a run-global, advisory proof
+# frontier.  The frontier never grants proof credit: every selected candidate
+# is rebuilt and every cached SAT/UNSAT decision is replayed against the
+# source-bound matrices before it can affect fitness or candidate state.
+COSET_PROOF_LADDER_SCHEMA_VERSION = 3
 COSET_PROOF_LADDER_VERSION_METRIC = "qcode_coset_proof_ladder_version"
 COSET_PROOF_LADDER_CONFIG_KEY = "qcode_coset_stage1_proof_ladder"
+COSET_PROOF_TARGET_MODE = "scalar-fom-strict-v1"
 COSET_PROOF_LADDER_START_WEIGHT = 4
 COSET_PROOF_LADDER_WEIGHT_STEP = 2
-COSET_PROOF_MAX_CANDIDATES_PER_BATCH = 8
+COSET_PROOF_MAX_CANDIDATES_PER_BATCH = 24
 COSET_PROOF_MAX_NEW_STEPS_PER_BATCH = 24
 COSET_PROOF_BATCH_WALL_TIMEOUT_S = 720.0
-COSET_PROOF_STEP_HARD_TIMEOUT_S = 30.0
-COSET_PROOF_CACHE_DIRECTORY = ".coset-stage1-proof-cache-v2"
+COSET_PROOF_RETRY_TIMEOUTS_S = (7.5, 15.0, 30.0, 120.0)
+COSET_PROOF_STEP_HARD_TIMEOUT_S = max(COSET_PROOF_RETRY_TIMEOUTS_S)
+COSET_PROOF_GLOBAL_FRONTIER_INJECTIONS = 4
+COSET_PROOF_CACHE_DIRECTORY = ".coset-stage1-proof-cache-v3"
 ACTION_FAMILY_BINS = {
     "nonnormal-coset": 0,
     "normal-regular": 1,
@@ -132,12 +136,17 @@ def proof_ladder_config_contract() -> dict[str, Any]:
     return {
         "enabled": True,
         "schema_version": COSET_PROOF_LADDER_SCHEMA_VERSION,
+        "target_mode": COSET_PROOF_TARGET_MODE,
         "start_weight": COSET_PROOF_LADDER_START_WEIGHT,
         "weight_step": COSET_PROOF_LADDER_WEIGHT_STEP,
         "max_candidates_per_batch": COSET_PROOF_MAX_CANDIDATES_PER_BATCH,
         "max_new_steps_per_batch": COSET_PROOF_MAX_NEW_STEPS_PER_BATCH,
         "batch_wall_timeout_s": COSET_PROOF_BATCH_WALL_TIMEOUT_S,
         "step_hard_timeout_s": COSET_PROOF_STEP_HARD_TIMEOUT_S,
+        "retry_timeouts_s": list(COSET_PROOF_RETRY_TIMEOUTS_S),
+        "global_frontier_injections": (
+            COSET_PROOF_GLOBAL_FRONTIER_INJECTIONS
+        ),
         "cache_directory": COSET_PROOF_CACHE_DIRECTORY,
     }
 

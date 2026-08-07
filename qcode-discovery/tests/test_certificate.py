@@ -26,6 +26,12 @@ from evaluation.certificate import (
 )
 from evaluation.distance_milp import get_code_matrices
 from evaluation.failure_disposition import terminal_candidate_rejection
+from evaluation.target_policy import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    classify_target_win,
+    target_binding,
+)
 
 
 def _tiny_direction():
@@ -246,6 +252,47 @@ def test_certificate_digest_changes_on_evidence_tamper():
     assert tampered["certificate_sha256"] != _certificate_sha256(tampered)
 
 
+def test_css_gate_rejects_legacy_only_win_under_scalar_target(monkeypatch):
+    row = {"n": 72, "k": 12, "d": 7}
+    legacy_win = classify_target_win(72, 12, 7, TARGET_MODE_GIST)
+    assert legacy_win["passed"] is True
+
+    monkeypatch.setattr(
+        certificate_module,
+        "evaluate_challenge_gate",
+        lambda *_args, **_kwargs: {
+            "accepted": True,
+            "checks": {"challenge_win": True},
+            "failures": [],
+            "win": legacy_win,
+        },
+    )
+    scalar_target = target_binding(72, 12, TARGET_MODE_SCALAR)
+    gate = certificate_module._evaluate_selected_target_gate(
+        row,
+        known_answer_artifact=KNOWN_ANSWER,
+        target=scalar_target,
+    )
+
+    assert scalar_target["required_distance"] == 9
+    assert gate["challenge_compatibility"]["passed"] is True
+    assert gate["selected_target_win"]["passed"] is False
+    assert gate["checks"]["challenge_win"] is False
+    assert gate["failures"] == ["challenge_win"]
+    assert gate["accepted"] is False
+
+    legacy_target = certificate_module._claim_target_binding(
+        {}, n=72, k=12,
+    )
+    legacy_gate = certificate_module._evaluate_selected_target_gate(
+        row,
+        known_answer_artifact=KNOWN_ANSWER,
+        target=legacy_target,
+    )
+    assert legacy_target["mode"] == TARGET_MODE_GIST
+    assert legacy_gate["accepted"] is True
+
+
 def test_css_solver_records_and_limits_highs_threads(monkeypatch):
     captured = {}
 
@@ -280,6 +327,13 @@ def test_build_checkpoint_survives_interruption_and_resumes(
     tmp_path, monkeypatch,
 ):
     checkpoint = tmp_path / "build.checkpoint.json"
+    selected_target = target_binding(8, 2, TARGET_MODE_SCALAR)
+    claim = {
+        **_tiny_claim(),
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": selected_target,
+        "required_distance": selected_target["required_distance"],
+    }
     real_solve = certificate_module.solve_css_direction
     first_calls = 0
 
@@ -295,7 +349,7 @@ def test_build_checkpoint_survives_interruption_and_resumes(
     )
     with pytest.raises(RuntimeError, match="simulated interruption"):
         build_css_certificate(
-            _tiny_claim(),
+            claim,
             known_answer_artifact=KNOWN_ANSWER,
             timeout_per_logical=30,
             total_timeout=120,
@@ -305,6 +359,11 @@ def test_build_checkpoint_survives_interruption_and_resumes(
     saved = json.loads(checkpoint.read_text())
     assert saved["completed_directions"] == 1
     assert "solver_workers" not in saved["binding"]["solver"]
+    assert saved["binding"]["target"] == selected_target
+    assert (
+        saved["binding"]["target_binding_sha256"]
+        == selected_target["binding_sha256"]
+    )
 
     resumed_calls = 0
 
@@ -317,7 +376,7 @@ def test_build_checkpoint_survives_interruption_and_resumes(
         certificate_module, "solve_css_direction", count_remaining,
     )
     certificate = build_css_certificate(
-        _tiny_claim(),
+        claim,
         known_answer_artifact=KNOWN_ANSWER,
         timeout_per_logical=30,
         total_timeout=120,
@@ -329,7 +388,116 @@ def test_build_checkpoint_survives_interruption_and_resumes(
     assert certificate["milp"]["resumed_directions"] == 1
     assert resumed_calls == certificate["milp"]["expected_directions"] - 1
     assert certificate["final_gate"]["checks"]["css_bb_candidate"] is True
+    assert certificate["claim"]["target"] == selected_target
+    assert certificate["target"] == selected_target
+    assert certificate["target_mode"] == TARGET_MODE_SCALAR
+    assert (
+        certificate["target_binding_sha256"]
+        == selected_target["binding_sha256"]
+    )
+    assert certificate["final_gate"]["selected_target"] == selected_target
+    tampered = copy.deepcopy(certificate)
+    tampered["target_mode"] = TARGET_MODE_GIST
+    assert tampered["certificate_sha256"] != _certificate_sha256(tampered)
     assert terminal_candidate_rejection(certificate) is True
+
+
+def test_css_builder_and_verifier_recompute_explicit_target():
+    mismatched_target = target_binding(9, 2, TARGET_MODE_SCALAR)
+    with pytest.raises(ValueError, match="recomputed parameters"):
+        build_css_certificate(
+            {
+                **_tiny_claim(),
+                "target_mode": TARGET_MODE_SCALAR,
+                "target": mismatched_target,
+            },
+            known_answer_artifact=KNOWN_ANSWER,
+            timeout_per_logical=30,
+            total_timeout=120,
+        )
+
+    selected_target = target_binding(8, 2, TARGET_MODE_SCALAR)
+    with pytest.raises(ValueError, match="requires a target binding"):
+        build_css_certificate(
+            {**_tiny_claim(), "target_mode": TARGET_MODE_SCALAR},
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    with pytest.raises(ValueError, match="required_distance"):
+        build_css_certificate(
+            {
+                **_tiny_claim(),
+                "target_mode": TARGET_MODE_SCALAR,
+                "target": selected_target,
+                "required_distance": selected_target["required_distance"] - 1,
+            },
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+
+    certificate = build_css_certificate(
+        {
+            **_tiny_claim(),
+            "target_mode": TARGET_MODE_SCALAR,
+            "target": selected_target,
+        },
+        known_answer_artifact=KNOWN_ANSWER,
+        timeout_per_logical=30,
+        total_timeout=120,
+    )
+    forged = copy.deepcopy(certificate)
+    forged_target = target_binding(9, 2, TARGET_MODE_SCALAR)
+    forged["claim"]["target"] = forged_target
+    forged["target"] = forged_target
+    forged["target_binding_sha256"] = forged_target["binding_sha256"]
+    forged["certificate_sha256"] = _certificate_sha256(forged)
+
+    result = verify_css_certificate(
+        forged,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=False,
+    )
+    assert result["passed"] is False
+    assert result["replay_complete"] is False
+    assert "recomputed parameters" in result["failures"][0]
+
+    top_level_forged = copy.deepcopy(certificate)
+    top_level_forged["target_mode"] = TARGET_MODE_GIST
+    top_level_forged["certificate_sha256"] = _certificate_sha256(
+        top_level_forged,
+    )
+    result = verify_css_certificate(
+        top_level_forged,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=False,
+    )
+    assert result["passed"] is False
+    assert result["checks"]["target_binding"] is False
+
+    deleted_target = copy.deepcopy(certificate)
+    for field in ("target", "target_mode", "target_binding_sha256"):
+        deleted_target.pop(field, None)
+    for field in ("target", "target_mode", "required_distance"):
+        deleted_target["claim"].pop(field, None)
+    deleted_target["certificate_sha256"] = _certificate_sha256(
+        deleted_target,
+    )
+    result = verify_css_certificate(
+        deleted_target,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=False,
+    )
+    assert result["passed"] is False
+    assert result["checks"]["target_binding"] is False
+
+    forged_gate = copy.deepcopy(certificate)
+    forged_gate["final_gate"]["target_gate"]["required_distance"] -= 1
+    forged_gate["certificate_sha256"] = _certificate_sha256(forged_gate)
+    result = verify_css_certificate(
+        forged_gate,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=False,
+    )
+    assert result["passed"] is False
+    assert result["checks"]["stored_final_gate"] is False
 
 
 def test_verify_checkpoint_and_global_timeout(tmp_path, monkeypatch):
@@ -339,6 +507,10 @@ def test_verify_checkpoint_and_global_timeout(tmp_path, monkeypatch):
         timeout_per_logical=30,
         total_timeout=120,
     )
+    expected_target = target_binding(8, 2, TARGET_MODE_GIST)
+    assert certificate["claim"]["target"] == expected_target
+    assert certificate["claim"]["target_mode"] == TARGET_MODE_GIST
+    assert certificate["target"] == expected_target
     checkpoint = tmp_path / "verify.checkpoint.json"
     real_solve = certificate_module.solve_css_direction
     first_calls = 0
@@ -362,7 +534,13 @@ def test_verify_checkpoint_and_global_timeout(tmp_path, monkeypatch):
             timeout_per_logical=30,
             total_timeout=120,
         )
-    assert json.loads(checkpoint.read_text())["completed_directions"] == 1
+    saved = json.loads(checkpoint.read_text())
+    assert saved["completed_directions"] == 1
+    assert saved["binding"]["target"] == expected_target
+    assert (
+        saved["binding"]["target_binding_sha256"]
+        == expected_target["binding_sha256"]
+    )
 
     monkeypatch.setattr(
         certificate_module, "solve_css_direction", real_solve,

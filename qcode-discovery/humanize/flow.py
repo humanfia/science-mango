@@ -48,6 +48,14 @@ from evaluation.search_contract import (
     TWISTED_TORUS_GEOMETRY_CONTRACT,
     geometry_contract_for_representation,
 )
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    TARGET_MODE_GIST,
+    classify_target_win,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 
 from .audit_state import (
     AuditOutcome,
@@ -65,6 +73,7 @@ from .reviewer import (
     ReviewError,
     build_review_prompt,
     replay_historical_scalar_only_search_oracle_witness_geometry,
+    replay_search_oracle_upper_bound_geometry,
     replay_search_oracle_witness_geometry,
     validate_review,
 )
@@ -107,10 +116,16 @@ ROUND_TRANSACTION_SUPPORTED_PROTOCOL_VERSIONS = tuple(
     protocol for _schema, protocol in ROUND_TRANSACTION_SUPPORTED_IDENTITIES
 )
 CANDIDATE_BATCH_POLICY_LEGACY_VERSION = 1
-CANDIDATE_BATCH_POLICY_VERSION = 2
+CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION = 2
+CANDIDATE_BATCH_POLICY_VERSION = 3
 CANDIDATE_BATCH_POLICY_VERSIONS = (
     CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
+    CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION,
     CANDIDATE_BATCH_POLICY_VERSION,
+)
+SEARCH_DISTANCE_INTERVAL_PROOF_SCHEMA_VERSION = 1
+SEARCH_DISTANCE_INTERVAL_PROOF_KIND = (
+    "qcode-humanize-search-distance-interval-proof"
 )
 ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION = 1
 SEALED_ROUND_EXACT_SCHEMA_VERSION = 1
@@ -214,7 +229,7 @@ SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
 COSET_SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_coset_search_portfolio"
 COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = (
-    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2"
+    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v3"
 )
 COSET_SEARCH_PORTFOLIO_ISLAND_COUNT = 4
 SEARCH_PORTFOLIO_FEATURE_DIMENSIONS = (
@@ -425,6 +440,10 @@ class FlowConfig:
     evolution_config: Path | None = None
     evolution_seed: Path | None = None
     evolution_evaluator: str = "default"
+    # The search termination rule is part of the immutable Stage-1 identity.
+    # Legacy stand-alone Humanize runs retain the historical gist policy;
+    # five-stage scalar campaigns pass their explicit policy through here.
+    target_mode: str = DEFAULT_TARGET_MODE
     # Optional, explicit identity of the search genotype.  It is deliberately
     # separate from the CSS-BB claim representation consumed by Stages 2-5.
     # Automatic campaign escalation fails closed when this identity is absent.
@@ -469,6 +488,8 @@ class FlowConfig:
                 value[name] = str(path)
         if self.evolution_evaluator == "default":
             value.pop("evolution_evaluator", None)
+        if self.target_mode == DEFAULT_TARGET_MODE:
+            value.pop("target_mode", None)
         if self.search_representation_id is None:
             value.pop("search_representation_id", None)
         if self.search_regime_policy_version == 1:
@@ -494,6 +515,7 @@ class FlowConfig:
             raise ValueError(
                 "evolution_evaluator must be default or coset-two-block"
             )
+        validate_target_mode(self.target_mode)
         if self.evolution_evaluator == "coset-two-block" and self.milp_top != 0:
             raise ValueError(
                 "coset-two-block Stage 1 requires milp_top=0; exact audits "
@@ -8157,6 +8179,399 @@ def _prefer_duplicate_evidence(
     return current
 
 
+def _valid_candidate_sha256(row: Mapping[str, Any]) -> str | None:
+    value = row.get("candidate_sha256")
+    if (
+        isinstance(value, str)
+        and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+    ):
+        return value
+    return None
+
+
+def _trusted_search_upper_bound(
+    row: dict[str, Any],
+) -> tuple[int, dict[str, Any], dict[str, Any]] | None:
+    """Replay one SAT oracle artifact and return its mathematical UB.
+
+    Reported ``d``/upper-bound/status fields are deliberately ignored.  The
+    returned weight comes only from the self-hashed oracle witness after the
+    candidate matrices and logical action have been independently rebuilt.
+    """
+
+    geometry = replay_search_oracle_upper_bound_geometry(row)
+    oracle = row.get("low_weight_oracle")
+    witness = oracle.get("witness") if isinstance(oracle, dict) else None
+    if (
+        geometry is None
+        or not isinstance(oracle, dict)
+        or not isinstance(witness, dict)
+        or type(geometry.get("weight")) is not int
+        or geometry["weight"] < 1
+        or witness.get("weight") != geometry["weight"]
+        or not isinstance(oracle.get("evidence_sha256"), str)
+        or re.fullmatch(
+            r"[0-9a-f]{64}", str(oracle.get("evidence_sha256"))
+        ) is None
+    ):
+        return None
+    return (
+        geometry["weight"],
+        copy.deepcopy(oracle),
+        copy.deepcopy(witness),
+    )
+
+
+def _merge_duplicate_search_evidence(
+    selected: dict[str, Any],
+    occurrences: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Merge independently replayable LB/UB evidence for one definition.
+
+    Policy-v3 canonicalization is evidence-preserving rather than row-
+    preserving: a Stage-1 UNSAT lower bound and a later SAT upper witness may
+    live on different raw occurrences of the same candidate.  Only rows with
+    the selected candidate's exact SHA-256 identity participate.  The merged
+    interval remains a search artifact and never impersonates a formal
+    release/MILP exact proof.
+    """
+
+    candidate_sha256 = _valid_candidate_sha256(selected)
+    merged = copy.deepcopy(selected)
+    for field in (
+        "search_distance_interval_exact",
+        "search_distance_interval_proof",
+        "search_distance_interval_status",
+        "search_exact_distance",
+    ):
+        # Never carry a self-declared interval through policy-v3.  It is
+        # rebuilt below only from evidence replayed in this invocation.
+        merged.pop(field, None)
+    if candidate_sha256 is None:
+        return merged
+    same_candidate = [
+        row
+        for row in occurrences
+        if _valid_candidate_sha256(row) == candidate_sha256
+    ]
+    if not same_candidate:
+        return merged
+
+    lower_candidates: list[
+        tuple[tuple[int, int], str, dict[str, Any]]
+    ] = []
+    upper_candidates: list[
+        tuple[int, str, dict[str, Any], dict[str, Any], dict[str, Any]]
+    ] = []
+    for row in same_candidate:
+        lower_rank = _search_lower_bound_persistence_rank(row)
+        if lower_rank is not None:
+            lower_candidates.append(
+                (lower_rank, _canonical_payload_sha256(row), row)
+            )
+        upper = _trusted_search_upper_bound(row)
+        if upper is not None:
+            weight, oracle, witness = upper
+            upper_candidates.append(
+                (
+                    weight,
+                    _canonical_payload_sha256(row),
+                    row,
+                    oracle,
+                    witness,
+                )
+            )
+
+    lower_row: dict[str, Any] | None = None
+    lower_bound: int | None = None
+    lower_complete = False
+    if lower_candidates:
+        lower_rank, _tie_break, lower_row = max(
+            lower_candidates,
+            key=lambda item: (item[0], item[1]),
+        )
+        lower_bound, complete_rank = lower_rank
+        lower_complete = bool(complete_rank)
+        for field in (
+            "distance_lower_bound_evidence",
+            "proof_ledger",
+        ):
+            merged[field] = copy.deepcopy(lower_row[field])
+        merged.update({
+            "distance_lower_bound": lower_bound,
+            "distance_lower_bound_proven": True,
+            "distance_lower_bound_status": "search_oracle_proven",
+            "distance_lower_bound_evidence_sha256": lower_row[
+                "distance_lower_bound_evidence_sha256"
+            ],
+            "oracle_ladder_complete": lower_complete,
+        })
+
+    upper_bound: int | None = None
+    upper_oracle: dict[str, Any] | None = None
+    upper_witness: dict[str, Any] | None = None
+    if upper_candidates:
+        (
+            upper_bound,
+            _tie_break,
+            _upper_row,
+            upper_oracle,
+            upper_witness,
+        ) = min(upper_candidates, key=lambda item: (item[0], item[1]))
+        merged.update({
+            "d": upper_bound,
+            "d_is_exact": False,
+            "distance_trusted": False,
+            "distance_status": "upper_bound",
+            "distance_upper_bound": upper_bound,
+            "distance_upper_bound_source": "low_weight_oracle",
+            "low_weight_oracle": upper_oracle,
+            "low_weight_oracle_outcome": "SAT",
+            "low_weight_oracle_threshold": upper_oracle["max_weight"],
+            "low_weight_witness": upper_witness,
+            "threshold_proof_distance": upper_bound,
+            "threshold_proof_source": "low_weight_oracle",
+            "threshold_proof_witness": upper_witness,
+            # A replayed feasible logical is an upper bound only, so it never
+            # earns positive search fitness even when paired with an LB.
+            "score": 0.0,
+        })
+
+    if lower_bound is None and upper_bound is None:
+        return merged
+    n = merged.get("n")
+    k = merged.get("k")
+    if (
+        type(n) is not int
+        or type(k) is not int
+        or n < 1
+        or not 1 <= k <= n
+    ):
+        return merged
+    from evaluation.evaluator import compute_challenge_rejection_cutoff
+    from evaluation.target_policy import (
+        DEFAULT_TARGET_MODE,
+        TARGET_MODE_SCALAR,
+        target_binding,
+        validate_target_mode,
+    )
+
+    explicit_modes: set[str] = set()
+    invalid_target_binding = False
+    prior_target_conflict = False
+    for occurrence in same_candidate:
+        if occurrence.get("target_binding_status") == "conflict":
+            prior_target_conflict = True
+            carried_modes = occurrence.get("target_mode_conflict")
+            if isinstance(carried_modes, list):
+                for carried_mode in carried_modes:
+                    try:
+                        explicit_modes.add(validate_target_mode(carried_mode))
+                    except ValueError:
+                        invalid_target_binding = True
+            invalid_target_binding = bool(
+                invalid_target_binding
+                or occurrence.get("target_binding_invalid") is True
+            )
+        occurrence_modes: set[str] = set()
+        for field in ("target_mode", "proof_target_mode"):
+            raw_mode = occurrence.get(field)
+            if raw_mode is None:
+                continue
+            try:
+                occurrence_modes.add(validate_target_mode(raw_mode))
+            except ValueError:
+                invalid_target_binding = True
+        explicit_modes.update(occurrence_modes)
+        supplied_target = occurrence.get("target")
+        if supplied_target is not None:
+            try:
+                normalized_target = validate_target_binding(
+                    supplied_target,
+                    n,
+                    k,
+                    (
+                        next(iter(occurrence_modes))
+                        if len(occurrence_modes) == 1
+                        else None
+                    ),
+                )
+                explicit_modes.add(normalized_target["mode"])
+            except ValueError:
+                invalid_target_binding = True
+    if (
+        prior_target_conflict
+        or invalid_target_binding
+        or len(explicit_modes) > 1
+    ):
+        # Mathematical LB/UB evidence remains useful, but evidence produced
+        # under conflicting target contracts must never be converted into a
+        # terminal rejection, exact search result, or implicit legacy-gist
+        # decision.  Stage 2 may later rebind and replay it under its
+        # authoritative campaign target.
+        for field in (
+            "target",
+            "target_mode",
+            "proof_target_mode",
+            "target_required_distance",
+            "target_binding_sha256",
+            "selected_target_lower_bound_proven",
+            "selected_target_excluded_by_upper_bound",
+            "threshold_rejected",
+            "threshold_rejection_proven",
+            "search_exact_distance",
+            "search_distance_interval_proof",
+        ):
+            merged.pop(field, None)
+        merged.update({
+            "target_binding_status": "conflict",
+            "target_mode_conflict": sorted(explicit_modes),
+            "target_binding_invalid": invalid_target_binding,
+            "search_status": "unresolved_target_conflict",
+            "search_distance_interval_status": "target_mode_conflict",
+            "search_distance_interval_exact": False,
+            "distance_retry_required": False,
+            "oracle_retryable": False,
+            "score": 0.0,
+        })
+        return merged
+    selected_mode = (
+        next(iter(explicit_modes))
+        if len(explicit_modes) == 1
+        else DEFAULT_TARGET_MODE
+    )
+    selected_target = target_binding(n, k, selected_mode)
+    scalar_target = target_binding(n, k, TARGET_MODE_SCALAR)
+    selected_minimum_distance = int(selected_target["required_distance"])
+    selected_cutoff = int(selected_target["rejection_cutoff"])
+    strict_minimum_distance = int(scalar_target["required_distance"])
+    strict_cutoff = int(scalar_target["rejection_cutoff"])
+    challenge_cutoff = compute_challenge_rejection_cutoff(n, k, 12.0)
+    merged.update({
+        "target_mode": selected_mode,
+        "proof_target_mode": selected_mode,
+        "target": selected_target,
+        "target_required_distance": selected_minimum_distance,
+        "target_binding_sha256": selected_target["binding_sha256"],
+        "minimum_scalar_fom_distance": strict_minimum_distance,
+        "fom_rejection_cutoff": strict_cutoff,
+        "challenge_rejection_cutoff": challenge_cutoff,
+    })
+    if lower_bound is not None:
+        merged["fom_lower_bound"] = k * lower_bound * lower_bound / n
+        merged["challenge_target_lower_bound_proven"] = bool(
+            lower_bound > challenge_cutoff
+        )
+        merged["fom_target_lower_bound_proven"] = bool(
+            lower_bound >= strict_minimum_distance
+        )
+        merged["selected_target_lower_bound_proven"] = bool(
+            lower_bound >= selected_minimum_distance
+        )
+    if upper_bound is not None:
+        upper_fom = k * upper_bound * upper_bound / n
+        merged["fom"] = upper_fom
+        merged["fom_upper_bound"] = upper_fom
+
+    if lower_bound is not None and upper_bound is not None:
+        if lower_bound == upper_bound:
+            interval_status = "exact"
+        elif lower_bound < upper_bound:
+            interval_status = "bounded"
+        else:
+            interval_status = "inconsistent_evidence"
+    elif lower_bound is not None:
+        interval_status = "lower_bound_only"
+    else:
+        interval_status = "upper_bound_only"
+    interval_exact = interval_status == "exact"
+    selected_target_excluded = bool(
+        upper_bound is not None and upper_bound <= selected_cutoff
+    )
+    scalar_excluded = bool(
+        upper_bound is not None and upper_bound <= strict_cutoff
+    )
+    proof = {
+        "schema_version": SEARCH_DISTANCE_INTERVAL_PROOF_SCHEMA_VERSION,
+        "kind": SEARCH_DISTANCE_INTERVAL_PROOF_KIND,
+        "candidate_sha256": candidate_sha256,
+        "lower_bound": lower_bound,
+        "lower_bound_evidence_sha256": (
+            lower_row["distance_lower_bound_evidence_sha256"]
+            if lower_row is not None
+            else None
+        ),
+        "lower_bound_ledger_root_sha256": (
+            lower_row["proof_ledger"]["root_sha256"]
+            if lower_row is not None
+            else None
+        ),
+        "upper_bound": upper_bound,
+        "upper_bound_oracle_evidence_sha256": (
+            upper_oracle["evidence_sha256"]
+            if upper_oracle is not None
+            else None
+        ),
+        "upper_bound_oracle_payload_sha256": (
+            _canonical_payload_sha256(upper_oracle)
+            if upper_oracle is not None
+            else None
+        ),
+        "upper_bound_witness_sha256": (
+            _canonical_payload_sha256(upper_witness)
+            if upper_witness is not None
+            else None
+        ),
+        "strict_fom_target": 12.0,
+        "strict_fom_target_numerator": 12,
+        "strict_fom_target_denominator": 1,
+        "strict_fom_rejection_cutoff": strict_cutoff,
+        "strict_fom_minimum_distance": strict_minimum_distance,
+        "interval_status": interval_status,
+        "interval_exact": interval_exact,
+        "selected_target_mode": selected_mode,
+        "selected_target_rejection_cutoff": selected_cutoff,
+        "selected_target_minimum_distance": selected_minimum_distance,
+        "terminal_excluded": selected_target_excluded,
+    }
+    proof["proof_sha256"] = _canonical_payload_sha256(proof)
+    merged.update({
+        "search_distance_interval_status": interval_status,
+        "search_distance_interval_exact": interval_exact,
+        "search_distance_interval_proof": proof,
+        "strict_fom_minimum_distance": strict_minimum_distance,
+    })
+    if interval_exact:
+        merged["search_exact_distance"] = upper_bound
+    if upper_bound is not None:
+        challenge_excluded = bool(
+            upper_bound <= challenge_cutoff
+        )
+        merged.update({
+            "selected_target_excluded_by_upper_bound": (
+                selected_target_excluded
+            ),
+            "scalar_fom_excluded_by_upper_bound": scalar_excluded,
+            "gist_challenge_excluded_by_upper_bound": challenge_excluded,
+            "challenge_target_excluded_by_upper_bound": challenge_excluded,
+            "fom_target_excluded_by_upper_bound": scalar_excluded,
+            "final_gate_excluded_by_upper_bound": challenge_excluded,
+            "search_final_gate_excluded_by_upper_bound": challenge_excluded,
+            "gist_challenge_possible_despite_selected_target_exclusion": bool(
+                selected_target_excluded and not challenge_excluded
+            ),
+        })
+    if selected_target_excluded:
+        merged.update({
+            "search_status": "terminal_negative",
+            "threshold_rejected": True,
+            "threshold_rejection_proven": True,
+            "distance_retry_required": False,
+            "oracle_retryable": False,
+        })
+    return merged
+
+
 def _deduplicate(
     rows: list[dict[str, Any]],
     *,
@@ -8171,10 +8586,10 @@ def _deduplicate(
         )
     best: dict[str, dict[str, Any]] = {}
     observations: dict[str, tuple[int, int, int]] = {}
-    occurrences: dict[str, int] = {}
+    occurrences: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         key = code_key(row)
-        occurrences[key] = occurrences.get(key, 0) + 1
+        occurrences.setdefault(key, []).append(row)
         summary = _bp_observation_summary(row)
         if summary is not None:
             previous = observations.get(key)
@@ -8196,10 +8611,17 @@ def _deduplicate(
                 policy_version=policy_version,
             )
 
+    if policy_version >= 3:
+        for key, selected in list(best.items()):
+            best[key] = _merge_duplicate_search_evidence(
+                selected,
+                occurrences[key],
+            )
+
     for key, summary in observations.items():
         selected = best[key]
         if (
-            occurrences[key] > 1
+            len(occurrences[key]) > 1
             and _distance_evidence_rank(selected) == 1
         ):
             count, minimum, maximum = summary
@@ -8610,7 +9032,7 @@ class HumanizeFlow:
         self,
         rows: list[dict[str, Any]],
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        """Return exact evidence and registry-replayed novel challenge WINs.
+        """Return exact evidence and registry-replayed selected-target WINs.
 
         Exact distance evidence is necessary but not sufficient to terminate
         discovery.  The candidate construction is rebuilt here and replayed
@@ -8620,6 +9042,8 @@ class HumanizeFlow:
         """
         from evaluation.final_gate import classify_win
         from evaluation.registry import check_code_novelty, load_registry
+
+        campaign_target_mode = validate_target_mode(self.config.target_mode)
 
         # Validate the whole append-only history before promoting any one row.
         rebuild_audit_state(
@@ -8702,7 +9126,57 @@ class HumanizeFlow:
                     raise ValueError(
                         "exact row n/k disagree with the rebuilt construction"
                     )
-                result = classify_win(
+                selected_target = target_binding(
+                    rebuilt_n,
+                    rebuilt_k,
+                    campaign_target_mode,
+                )
+                reported_modes = {
+                    validate_target_mode(row[name])
+                    for name in ("target_mode", "proof_target_mode")
+                    if row.get(name) is not None
+                }
+                if reported_modes and reported_modes != {
+                    campaign_target_mode
+                }:
+                    raise ValueError(
+                        "exact row target mode conflicts with the Stage-1 "
+                        "campaign target"
+                    )
+                if row.get("target") is not None:
+                    validate_target_binding(
+                        row["target"],
+                        rebuilt_n,
+                        rebuilt_k,
+                        campaign_target_mode,
+                    )
+                for name in (
+                    "required_distance",
+                    "target_required_distance",
+                ):
+                    if row.get(name) is not None and (
+                        type(row[name]) is not int
+                        or row[name] != selected_target["required_distance"]
+                    ):
+                        raise ValueError(
+                            f"exact row {name} conflicts with the selected "
+                            "target"
+                        )
+                # Preserve the historical monkeypatchable gist helper for
+                # legacy Humanize unit/API users.  Scalar campaigns use the
+                # integer target-policy decision and cannot be stopped by a
+                # merely Pareto-compatible gist result.
+                selected_result = (
+                    classify_win(rebuilt_n, rebuilt_k, distance)
+                    if campaign_target_mode == TARGET_MODE_GIST
+                    else classify_target_win(
+                        rebuilt_n,
+                        rebuilt_k,
+                        distance,
+                        campaign_target_mode,
+                    )
+                )
+                challenge_result = classify_win(
                     rebuilt_n,
                     rebuilt_k,
                     distance,
@@ -8711,6 +9185,8 @@ class HumanizeFlow:
                 row["trusted_win_gate"] = {
                     "schema_version": 1,
                     "trusted": False,
+                    "target_mode": campaign_target_mode,
+                    "selected_target_win": None,
                     "challenge_win": None,
                     "registry_novelty": {
                         "status": "INCOMPLETE",
@@ -8728,11 +9204,14 @@ class HumanizeFlow:
                 }
                 continue
 
-            if result.get("passed") is not True:
+            if selected_result.get("passed") is not True:
                 row["trusted_win_gate"] = {
                     "schema_version": 1,
                     "trusted": False,
-                    "challenge_win": result,
+                    "target_mode": campaign_target_mode,
+                    "target": selected_target,
+                    "selected_target_win": selected_result,
+                    "challenge_win": challenge_result,
                     "registry_novelty": {
                         "status": "NOT_APPLICABLE",
                         "checked": False,
@@ -8751,7 +9230,10 @@ class HumanizeFlow:
             row["trusted_win_gate"] = {
                 "schema_version": 1,
                 "trusted": trusted,
-                "challenge_win": result,
+                "target_mode": campaign_target_mode,
+                "target": selected_target,
+                "selected_target_win": selected_result,
+                "challenge_win": challenge_result,
                 "registry_novelty": novelty,
             }
             if trusted:
@@ -9126,7 +9608,8 @@ class HumanizeFlow:
         Protocol-v2/schema-v2 manifests created before selector versioning did
         not carry this field.  Their batches were all derived with policy v1,
         so absence is the exact historical v1 encoding.  Protocol v3 requires
-        an explicit v2 binding; deleting it cannot silently downgrade a new
+        an explicit binding and accepts immutable v2 batches as well as new
+        v3 evidence-merging batches; deleting it cannot silently downgrade a
         transaction.
         """
 
@@ -9160,7 +9643,10 @@ class HumanizeFlow:
         if (
             isinstance(value, bool)
             or not isinstance(value, int)
-            or value != CANDIDATE_BATCH_POLICY_VERSION
+            or value not in {
+                CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION,
+                CANDIDATE_BATCH_POLICY_VERSION,
+            }
         ):
             raise RoundTransactionError(
                 f"unsupported candidate batch policy version: {value!r}"

@@ -271,7 +271,7 @@ SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_search_portfolio"
 SEARCH_PORTFOLIO_ISLAND_COUNT = 5
 COSET_SEARCH_PORTFOLIO_CONFIG_KEY = "qcode_coset_search_portfolio"
 COSET_SEARCH_PORTFOLIO_COMPATIBILITY_GROUP = (
-    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2"
+    "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v3"
 )
 COSET_SEARCH_PORTFOLIO_ISLAND_COUNT = 4
 COSET_MUTATION_REJECTION_PREFIX = "QCODE_COSET_MUTATION_REJECTED_V1="

@@ -1,11 +1,20 @@
 """Tests for the fail-closed qLDPC challenge acceptance gate."""
 
+import hashlib
 import json
 
+import pytest
+
 from evaluation.final_gate import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    classify_target_win,
     classify_win,
+    minimum_target_distance,
     minimum_winning_distance,
     evaluate_final_gate,
+    target_binding,
+    validate_target_binding,
     validate_known_answer_artifact,
 )
 from evaluation.structural_dedup import check_css_structural_novelty
@@ -97,6 +106,47 @@ def test_minimum_winning_distance_includes_pareto_fronts():
     assert minimum_winning_distance(108, 8) == 11
     assert minimum_winning_distance(144, 12) == 13
     assert minimum_winning_distance(288, 12) == 17
+
+
+def test_explicit_scalar_target_uses_strict_integer_boundary():
+    # The gist admits d=7 by its fixed-(n,k) Pareto rule; the scalar target
+    # requires the exact integer inequality 12*d^2 > 12*72.
+    assert classify_target_win(72, 12, 7, TARGET_MODE_GIST)["passed"] is True
+    assert classify_target_win(72, 12, 8, TARGET_MODE_SCALAR)["passed"] is False
+    assert classify_target_win(72, 12, 9, TARGET_MODE_SCALAR)["passed"] is True
+    assert minimum_target_distance(72, 12, TARGET_MODE_GIST) == 7
+    assert minimum_target_distance(72, 12, TARGET_MODE_SCALAR) == 9
+
+
+def test_target_binding_is_self_hashed_and_semantically_recomputed():
+    binding = target_binding(72, 12, TARGET_MODE_SCALAR)
+    assert binding["required_distance"] == 9
+    assert binding["rejection_cutoff"] == 8
+    assert validate_target_binding(binding, n=72, k=12) == binding
+
+    forged = dict(binding)
+    forged["required_distance"] = 8
+    unsigned = dict(forged)
+    unsigned.pop("binding_sha256")
+    forged["binding_sha256"] = hashlib.sha256(
+        json.dumps(
+            unsigned,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode()
+    ).hexdigest()
+    with pytest.raises(ValueError, match="recomputed parameters"):
+        validate_target_binding(forged, n=72, k=12)
+
+
+def test_explicit_target_can_describe_an_unattainable_small_code():
+    binding = target_binding(4, 1, TARGET_MODE_GIST)
+    assert binding["required_distance"] == 7
+    assert binding["rejection_cutoff"] == 6
+    with pytest.raises(ValueError, match="no winning distance"):
+        minimum_winning_distance(4, 1)
 
 
 def test_final_gate_rejects_missing_structural_audit(tmp_path):

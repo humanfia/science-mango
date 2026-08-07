@@ -172,17 +172,20 @@ def write_launch_inputs(
             "  schema_version: 3\n"
             "  representation_id: css-coset-two-block-actions-v2\n"
             "  checkpoint_compatibility_group: "
-            "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v2\n"
+            "coset-two-block-catalog-v2-dsl-map-v3-proof-ladder-v3\n"
             "qcode_coset_stage1_proof_ladder:\n"
             "  enabled: true\n"
-            "  schema_version: 2\n"
+            "  schema_version: 3\n"
+            "  target_mode: scalar-fom-strict-v1\n"
             "  start_weight: 4\n"
             "  weight_step: 2\n"
-            "  max_candidates_per_batch: 8\n"
+            "  max_candidates_per_batch: 24\n"
             "  max_new_steps_per_batch: 24\n"
             "  batch_wall_timeout_s: 720.0\n"
-            "  step_hard_timeout_s: 30.0\n"
-            "  cache_directory: .coset-stage1-proof-cache-v2\n"
+            "  step_hard_timeout_s: 120.0\n"
+            "  retry_timeouts_s: [7.5, 15.0, 30.0, 120.0]\n"
+            "  global_frontier_injections: 4\n"
+            "  cache_directory: .coset-stage1-proof-cache-v3\n"
         )
     (evolve / "config.yaml").write_text(config_text)
     (evolve / "seed_solution.py").write_text(
@@ -1715,7 +1718,7 @@ def test_committed_v2_batch_replays_legacy_selector_after_upgrade(tmp_path):
     transaction = json.loads(manifest_path.read_text())
     assert transaction["schema_version"] == 3
     assert transaction["protocol_version"] == 3
-    assert transaction["candidate_batch_policy_version"] == 2
+    assert transaction["candidate_batch_policy_version"] == 3
     bound_end = transaction["candidate_end_offset"]
 
     # Model the immutable protocol-v2 artifact produced before selector
@@ -1767,7 +1770,11 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
     state = flow.store.initialize(config.serializable())
     round_dir = flow.store.round_dir(1)
     transaction = flow._prepare_transaction(state, 1, round_dir)
-    assert flow._candidate_batch_policy_version(transaction) == 2
+    assert flow._candidate_batch_policy_version(transaction) == 3
+
+    historical_v2 = dict(transaction)
+    historical_v2["candidate_batch_policy_version"] = 2
+    assert flow._candidate_batch_policy_version(historical_v2) == 2
 
     missing = dict(transaction)
     missing.pop("candidate_batch_policy_version")

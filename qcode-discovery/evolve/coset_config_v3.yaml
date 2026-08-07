@@ -16,18 +16,21 @@ qcode_coset_search_portfolio:
   enabled: true
   schema_version: 4
   representation_id: "css-coset-two-block-actions-v3"
-  checkpoint_compatibility_group: "coset-two-block-catalog-v2-renderer-v3-map-v4-proof-ladder-v2"
+  checkpoint_compatibility_group: "coset-two-block-catalog-v2-renderer-v3-map-v4-proof-ladder-v3"
 
 qcode_coset_stage1_proof_ladder:
   enabled: true
-  schema_version: 2
+  schema_version: 3
+  target_mode: "scalar-fom-strict-v1"
   start_weight: 4
   weight_step: 2
-  max_candidates_per_batch: 8
+  max_candidates_per_batch: 24
   max_new_steps_per_batch: 24
   batch_wall_timeout_s: 720.0
-  step_hard_timeout_s: 30.0
-  cache_directory: ".coset-stage1-proof-cache-v2"
+  step_hard_timeout_s: 120.0
+  retry_timeouts_s: [7.5, 15.0, 30.0, 120.0]
+  global_frontier_injections: 4
+  cache_directory: ".coset-stage1-proof-cache-v3"
 
 llm:
   api_base: "http://localhost:4000/v1"

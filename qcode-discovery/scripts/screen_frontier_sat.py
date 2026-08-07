@@ -751,6 +751,12 @@ def _artifact(
         "gate": SAT_STAGE3_GATE,
         "status": status,
         "candidate": dict(candidate),
+        "target_mode": candidate.get("target_mode"),
+        "target": (
+            dict(candidate["target"])
+            if isinstance(candidate.get("target"), Mapping)
+            else None
+        ),
         "required_distance": required,
         "coverage_mode": effective_mode,
         "requested_coverage_mode": mode,
@@ -1323,6 +1329,12 @@ def screen_sat_candidate(
             checkpoint_identity={
                 "stage3_gate": SAT_STAGE3_GATE,
                 "candidate_digest": candidate["canonical_digest"],
+                "target_mode": candidate.get("target_mode"),
+                "target_binding_sha256": (
+                    candidate.get("target", {}).get("binding_sha256")
+                    if isinstance(candidate.get("target"), Mapping)
+                    else None
+                ),
                 "phase": phase,
                 "coverage_mode": coverage_mode,
                 "logical_detector_sha256": detector["report_sha256"],

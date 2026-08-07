@@ -29,6 +29,7 @@ from evaluation.selection_ledger import (
     new_selection_ledger,
     seal_selection_ledger,
 )
+from evaluation.target_policy import TARGET_MODE_SCALAR
 from humanize.flow import (
     FlowConfig,
     HumanizeFlow,
@@ -669,13 +670,52 @@ def test_proof_stage_outer_walls_cover_stage3_and_stage5(tmp_path):
         config,
         stage3_backend="sat-sectors",
         stage3_exact=True,
+        target_mode=TARGET_MODE_SCALAR,
     ))
     assert sat_pipeline._stage_outer_hard_timeout(
         "stage3_direction_audit"
     ) == pytest.approx(100)
     sat_command = sat_pipeline._stage3_command()
     assert sat_command[sat_command.index("--backend") + 1] == "sat-sectors"
+    assert sat_command[sat_command.index("--target-mode") + 1] == (
+        TARGET_MODE_SCALAR
+    )
+    stage2_command = sat_pipeline._stage2_command((candidates,))
+    assert stage2_command[stage2_command.index("--target-mode") + 1] == (
+        TARGET_MODE_SCALAR
+    )
     assert "--exact" in sat_command
+
+
+def test_scalar_pipeline_rejects_gist_proof_summary_cache(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    pipeline = FiveStagePipeline(PipelineConfig(
+        repo_dir=repo,
+        run_id="target-summary-binding",
+        candidate_inputs=(candidates,),
+        target_mode=TARGET_MODE_SCALAR,
+        stage_review=False,
+    ))
+    pipeline.paths.stage2_ranked.parent.mkdir(parents=True, exist_ok=True)
+    pipeline.paths.stage2_ranked.write_text("")
+    assert pipeline._write_skipped_stage3({"unique_candidates": 0}) == 0
+    FiveStagePipeline._validate_pool_summary(
+        pipeline.paths.stage3_summary,
+        pipeline.paths.stage3_ranked,
+        "qldpc-direction-candidate-pool",
+        expected_target_mode=TARGET_MODE_SCALAR,
+    )
+
+    summary = json.loads(pipeline.paths.stage3_summary.read_text())
+    summary["target_mode"] = "gist-pareto-challenge-v1"
+    pipeline.paths.stage3_summary.write_text(json.dumps(summary) + "\n")
+    with pytest.raises(PipelineError, match="target_mode does not match"):
+        FiveStagePipeline._validate_pool_summary(
+            pipeline.paths.stage3_summary,
+            pipeline.paths.stage3_ranked,
+            "qldpc-direction-candidate-pool",
+            expected_target_mode=TARGET_MODE_SCALAR,
+        )
 
 
 def _certificate(

@@ -20,6 +20,7 @@ LOCAL_EVALUATOR_DEPENDENCIES = {
     "evaluation_distance_milp": "evaluation/distance_milp.py",
     "evaluation_proof_runtime": "evaluation/proof_runtime.py",
     "evaluation_final_gate": "evaluation/final_gate.py",
+    "evaluation_target_policy": "evaluation/target_policy.py",
     "evaluation_search_contract": "evaluation/search_contract.py",
     "evaluation_algebraic_mechanisms": "evaluation/algebraic_mechanisms.py",
     "evaluation_structural_features": "evaluation/structural_features.py",

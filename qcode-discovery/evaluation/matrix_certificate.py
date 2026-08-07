@@ -43,6 +43,13 @@ from evaluation.final_gate import (
 )
 from evaluation.matrix_io import build_css_from_matrices, css_parameters, pack_matrix
 from evaluation.registry import check_code_novelty
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    classify_target_win,
+    target_binding,
+    validate_target_binding,
+    validate_target_mode,
+)
 
 SCHEMA_VERSION = 1
 CERTIFICATE_TYPE = "qldpc-css-matrix-exact"
@@ -140,6 +147,7 @@ def _implementation_binding() -> dict[str, Any]:
         Path(__file__),
         Path(__file__).with_name("construction.py"),
         Path(__file__).with_name("matrix_io.py"),
+        Path(__file__).with_name("target_policy.py"),
     ):
         sources[path.name] = (
             hashlib.sha256(path.read_bytes()).hexdigest()
@@ -147,6 +155,30 @@ def _implementation_binding() -> dict[str, Any]:
             else None
         )
     return {"sources": sources, "sha256": _json_sha256(sources)}
+
+
+def _claim_target_binding(
+    claim: Mapping[str, Any],
+    *,
+    n: int,
+    k: int,
+) -> dict[str, Any]:
+    """Resolve a claim target, defaulting only an absent field to legacy gist."""
+
+    supplied_mode = claim.get("target_mode")
+    if "target" not in claim:
+        if (
+            supplied_mode is not None
+            and validate_target_mode(supplied_mode) != DEFAULT_TARGET_MODE
+        ):
+            raise ValueError("non-legacy target mode requires a target binding")
+        return target_binding(n, k, DEFAULT_TARGET_MODE)
+    return validate_target_binding(
+        claim["target"],
+        n=n,
+        k=k,
+        mode=supplied_mode,
+    )
 
 
 def _static_gate(
@@ -157,13 +189,25 @@ def _static_gate(
     distance: int,
     exact: bool,
     known_answer_artifact: Path | str,
+    target: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     baseline = validate_known_answer_artifact(known_answer_artifact)
     n, k = css_parameters(hx, hz)
     stacked = np.vstack((hx, hz))
     connected, components = _connected(stacked)
     novelty = check_code_novelty(code, code_type="css")
-    win = classify_win(n, k, distance)
+    selected_target = (
+        target_binding(n, k, DEFAULT_TARGET_MODE)
+        if target is None
+        else validate_target_binding(target, n=n, k=k)
+    )
+    selected_win = classify_target_win(
+        n,
+        k,
+        distance,
+        selected_target["mode"],
+    )
+    challenge_compatibility = classify_win(n, k, distance)
     checks = {
         "known_answer_gate": baseline["passed"],
         "css_commutation": not np.any((hx @ hz.T) & 1),
@@ -175,7 +219,10 @@ def _static_gate(
         "connected_tanner_graph": connected,
         "all_2k_milp_directions_optimal": exact,
         "expanded_registry_novel": novelty["novel"],
-        "challenge_win": win["passed"],
+        # This legacy check name is part of the sealed terminal-gate shape.
+        # Its value is the selected target decision; the historical gist
+        # decision is reported separately as ``challenge_compatibility``.
+        "challenge_win": selected_win["passed"],
     }
     return {
         "accepted": all(checks.values()),
@@ -183,12 +230,23 @@ def _static_gate(
         "failures": [name for name, passed in checks.items() if not passed],
         "known_answer": baseline,
         "structural_novelty": novelty,
-        "win": win,
+        "win": selected_win,
+        "selected_target": selected_target,
+        "selected_target_win": selected_win,
+        "target_gate": {
+            "passed": selected_win["passed"],
+            "mode": selected_target["mode"],
+            "observed_distance": distance,
+            "required_distance": selected_target["required_distance"],
+            "rejection_cutoff": selected_target["rejection_cutoff"],
+            "binding_sha256": selected_target["binding_sha256"],
+        },
+        "challenge_compatibility": challenge_compatibility,
         "candidate": {
             "n": n,
             "k": k,
             "d": distance,
-            "fom": win["fom"],
+            "fom": selected_win["fom"],
             "tanner_components": components,
             "matrix_sha256": {
                 "hx": _matrix_sha256(hx),
@@ -226,6 +284,7 @@ def build_matrix_css_certificate(
     n, k = css_parameters(hx, hz)
     if k <= 0:
         raise ValueError("generic CSS claim must encode at least one logical qubit")
+    selected_target = _claim_target_binding(claim, n=n, k=k)
 
     specs = _direction_specs(code)
     matrix_sha256 = {
@@ -242,6 +301,8 @@ def build_matrix_css_certificate(
         "canonical_digest": claim.get("canonical_digest"),
         "construction_source_fingerprint": construction_source,
         "matrix_sha256": matrix_sha256,
+        "target": selected_target,
+        "target_binding_sha256": selected_target["binding_sha256"],
         "known_answer_sha256": _file_sha256(known_answer_artifact),
         "solver": _solver_environment(),
         "implementation": _implementation_binding(),
@@ -324,6 +385,7 @@ def build_matrix_css_certificate(
         distance=distance,
         exact=exact,
         known_answer_artifact=known_answer_artifact,
+        target=selected_target,
     )
     best = min(
         (item for item in directions if item.get("objective") is not None),
@@ -344,12 +406,17 @@ def build_matrix_css_certificate(
             "k": k,
             "d": distance,
             "fom": gate["win"]["fom"],
+            "target_mode": selected_target["mode"],
+            "target": selected_target,
         },
         "construction_identity": construction_identity_value,
         "canonical_digest": claim.get("canonical_digest"),
         "construction_source_fingerprint": construction_source,
         "implementation": _implementation_binding(),
         "matrix_sha256": matrix_sha256,
+        "target_mode": selected_target["mode"],
+        "target": selected_target,
+        "target_binding_sha256": selected_target["binding_sha256"],
         "known_answer": {"artifact_sha256": _file_sha256(known_answer_artifact)},
         "solver": {
             "interface": "scipy.optimize.milp",
@@ -445,6 +512,20 @@ def verify_matrix_css_certificate(
             construction_source,
         ) = _rebuild_claim(claim)
         n, k = css_parameters(hx, hz)
+        selected_target = _claim_target_binding(claim, n=n, k=k)
+        has_certificate_target = bool(
+            "target" in certificate
+            or "target_mode" in certificate
+            or "target_binding_sha256" in certificate
+        )
+        checks["target_binding"] = True
+        if has_certificate_target or "target" in claim:
+            checks["target_binding"] = bool(
+                certificate.get("target_mode") == selected_target["mode"]
+                and certificate.get("target") == selected_target
+                and certificate.get("target_binding_sha256")
+                == selected_target["binding_sha256"]
+            )
         checks["known_answer_sha256"] = certificate["known_answer"][
             "artifact_sha256"
         ] == _file_sha256(known_answer_artifact)
@@ -513,6 +594,8 @@ def verify_matrix_css_certificate(
         "canonical_digest": claim.get("canonical_digest"),
         "construction_source_fingerprint": construction_source,
         "matrix_sha256": certificate.get("matrix_sha256"),
+        "target": selected_target,
+        "target_binding_sha256": selected_target["binding_sha256"],
         "known_answer_sha256": _file_sha256(known_answer_artifact),
         "solver": _solver_environment(),
         "implementation": _implementation_binding(),
@@ -643,7 +726,9 @@ def verify_matrix_css_certificate(
             )
         ),
         known_answer_artifact=known_answer_artifact,
+        target=selected_target,
     )
+    checks["stored_final_gate"] = certificate.get("final_gate") == gate
     checks["final_gate"] = gate["accepted"]
     checks["certificate_passed_flag"] = certificate.get("passed") is True
     failures.extend(name for name, passed in checks.items() if not passed)
@@ -658,6 +743,7 @@ def verify_matrix_css_certificate(
         "directions_verified": len(specs) - len(direction_failures),
         "directions_total": len(specs),
         "resumed_directions": reused_directions,
+        "target": selected_target,
         "final_gate": gate,
     }
     failure_disposition = classify_replay_failure(
