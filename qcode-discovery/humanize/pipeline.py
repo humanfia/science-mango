@@ -2850,6 +2850,347 @@ class FiveStagePipeline:
         self._write_state()
         return document
 
+    def _stage2_feedback_release_marker(
+        self,
+        summary: Mapping[str, Any],
+    ) -> dict[str, Any] | None:
+        """Seal the terminal snapshot that may release deferred feedback."""
+
+        if summary.get("selection_exhausted") is not True:
+            return None
+        page = summary.get("selection_page")
+        if not isinstance(page, Mapping):
+            return None
+        if not self.paths.stage2_selection_ledger.is_file():
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "terminal Stage 2 snapshot lacks its selection ledger",
+                stage="stage2_sector_audit",
+            )
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
+        stages = self.state.get("stages")
+        stage2_record = (
+            stages.get("stage2_sector_audit")
+            if isinstance(stages, Mapping)
+            else None
+        )
+        stage2_config = (
+            stage2_record.get("stage_config")
+            if isinstance(stage2_record, Mapping)
+            else None
+        )
+        feedback_binding = (
+            stage2_config.get("stage1_feedback_binding_sha256")
+            if isinstance(stage2_config, Mapping)
+            else None
+        )
+        if (
+            ledger.get("pending") != dict(page)
+            or page.get("binding_sha256") != ledger.get("binding_sha256")
+            or page.get("snapshot_identity_sha256")
+            != ledger.get("snapshot_identity_sha256")
+            or not isinstance(feedback_binding, str)
+            or re.fullmatch(r"[0-9a-f]{64}", feedback_binding) is None
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "terminal Stage 2 snapshot is not bound to its feedback epoch",
+                stage="stage2_sector_audit",
+            )
+        payload = {
+            "schema_version": 1,
+            "gate": "qldpc-stage2-feedback-release",
+            "stage1_feedback_binding_sha256": feedback_binding,
+            "selection_binding_sha256": ledger["binding_sha256"],
+            "snapshot_identity_sha256": ledger[
+                "snapshot_identity_sha256"
+            ],
+            "page_sha256": page["page_sha256"],
+            "ledger_progress_sha256": ledger["progress_sha256"],
+            "stage2_summary_sha256": _file_sha256(
+                self.paths.stage2_summary
+            ),
+        }
+        return {
+            **payload,
+            "marker_sha256": _canonical_sha256(payload),
+        }
+
+    def _completed_no_win_releases_stage2_feedback(
+        self,
+        *,
+        previous_consumed: Mapping[str, Any],
+        ledger: Mapping[str, Any],
+    ) -> bool:
+        """Replay the exact terminal result that closes ``ledger``."""
+
+        terminal_result: Mapping[str, Any] | None = None
+        if self.state.get("status") == "COMPLETED_NO_WIN" and isinstance(
+            self.state.get("result"), Mapping
+        ):
+            terminal_result = self.state["result"]
+        history = self.state.get("result_history")
+        if (
+            terminal_result is None
+            and isinstance(history, list)
+            and history
+            and isinstance(history[-1], Mapping)
+            and history[-1].get("status") == "COMPLETED_NO_WIN"
+            and isinstance(history[-1].get("result"), Mapping)
+        ):
+            terminal_result = history[-1]["result"]
+        if terminal_result is None:
+            return False
+        marker = terminal_result.get("stage2_feedback_release")
+        fields = {
+            "schema_version",
+            "gate",
+            "stage1_feedback_binding_sha256",
+            "selection_binding_sha256",
+            "snapshot_identity_sha256",
+            "page_sha256",
+            "ledger_progress_sha256",
+            "stage2_summary_sha256",
+            "marker_sha256",
+        }
+        if not isinstance(marker, Mapping):
+            return False
+        if set(marker) != fields:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 feedback release marker is malformed",
+                stage="stage2_sector_audit",
+            )
+        unsigned = dict(marker)
+        marker_sha256 = unsigned.pop("marker_sha256", None)
+        if (
+            marker.get("schema_version") != 1
+            or marker.get("gate") != "qldpc-stage2-feedback-release"
+            or marker_sha256 != _canonical_sha256(unsigned)
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 feedback release marker does not replay",
+                stage="stage2_sector_audit",
+            )
+        if not self.paths.stage2_summary.is_file():
+            return False
+        summary = _read_json_object(self.paths.stage2_summary)
+        page = summary.get("selection_page")
+        return bool(
+            summary.get("selection_exhausted") is True
+            and isinstance(page, Mapping)
+            and ledger.get("pending") == dict(page)
+            and marker.get("stage1_feedback_binding_sha256")
+            == previous_consumed.get("binding_sha256")
+            and marker.get("selection_binding_sha256")
+            == ledger.get("binding_sha256")
+            and marker.get("snapshot_identity_sha256")
+            == ledger.get("snapshot_identity_sha256")
+            and marker.get("page_sha256") == page.get("page_sha256")
+            and marker.get("ledger_progress_sha256")
+            == ledger.get("progress_sha256")
+            and marker.get("stage2_summary_sha256")
+            == _file_sha256(self.paths.stage2_summary)
+        )
+
+    def _stage2_snapshot_blocks_feedback_adoption(
+        self,
+        *,
+        previous_consumed: Mapping[str, Any] | None,
+    ) -> bool:
+        """Keep one immutable Stage-2 pool until its proof cursor closes.
+
+        Stage 2 deliberately paginates an immutable ranked snapshot.  A
+        verified witness may update the mutable negative archive while one
+        page is being proved, but adopting that archive into a new Stage-1
+        epoch would change the candidate inputs.  The Stage-2 ledger is bound
+        to those inputs, so the next proof pass would safely (but repeatedly)
+        restart at rank zero and could starve the old snapshot's tail.
+
+        A pending page, or an acknowledged cursor that has not reached the
+        eligible boundary, is therefore a durable feedback-adoption fence.
+        The witnesses remain in the live archive and in the pending feedback
+        record; they are consumed only after the snapshot reaches a terminal
+        page.  A later explicit resume after COMPLETED_NO_WIN is allowed to
+        start that next epoch.
+        """
+
+        if previous_consumed is None or self.config.candidate_inputs:
+            return False
+        raw_pending = self.state.get("negative_feedback_pending")
+        if raw_pending is None:
+            return False
+        pending = self._validate_pending_feedback_state(raw_pending)["record"]
+        expected_epoch = int(previous_consumed["feedback_epoch"]) + 1
+        if (
+            pending.get("pending_epoch") != expected_epoch
+            or pending.get("live_archive_path")
+            != previous_consumed.get("live_archive_path")
+            or pending.get("archive_binding_sha256")
+            != previous_consumed.get("archive_binding_sha256")
+        ):
+            raise PipelineError(
+                "STAGE1_FEEDBACK_INVALID",
+                "pending feedback does not follow the consumed Stage 1 epoch",
+                stage="stage1_search",
+            )
+
+        if not self.paths.stage2_selection_ledger.is_file():
+            return False
+        self._ensure_solver_state_tree_safe()
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
+        cursor = ledger.get("cursor")
+        eligible_rows = ledger.get("eligible_rows")
+        pending_page = ledger.get("pending")
+        if (
+            isinstance(cursor, bool)
+            or not isinstance(cursor, int)
+            or isinstance(eligible_rows, bool)
+            or not isinstance(eligible_rows, int)
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 feedback fence has an invalid selection boundary",
+                stage="stage2_sector_audit",
+            )
+        has_open_snapshot = pending_page is not None or cursor < eligible_rows
+        if not has_open_snapshot:
+            return False
+
+        # A terminal result may belong to the preceding feedback epoch when a
+        # process died after the next Stage 1 committed but before its first
+        # Stage-2 page was installed.  Bind the proof-stage record directly to
+        # the consumed feedback identity; candidate bytes alone are
+        # insufficient because two epochs may emit the same candidate file.
+        stages = self.state.get("stages")
+        stage2_record = (
+            stages.get("stage2_sector_audit")
+            if isinstance(stages, Mapping)
+            else None
+        )
+        stage2_config = (
+            stage2_record.get("stage_config")
+            if isinstance(stage2_record, Mapping)
+            else None
+        )
+        stage2_machine_status = (
+            stage2_record.get("machine_status")
+            if isinstance(stage2_record, Mapping)
+            else None
+        )
+        stage2_summary_page: Mapping[str, Any] | None = None
+        if self.paths.stage2_summary.is_file():
+            raw_summary_page = _read_json_object(
+                self.paths.stage2_summary
+            ).get("selection_page")
+            if isinstance(raw_summary_page, Mapping):
+                stage2_summary_page = raw_summary_page
+        ledger_page_matches_machine = bool(
+            stage2_summary_page is not None
+            and (
+                pending_page == dict(stage2_summary_page)
+                or (
+                    pending_page is None
+                    and ledger.get("last_acknowledged_page_sha256")
+                    == stage2_summary_page.get("page_sha256")
+                )
+            )
+        )
+        ledger_binds_current_feedback = bool(
+            isinstance(stage2_config, Mapping)
+            and stage2_config.get("stage1_feedback_binding_sha256")
+            == previous_consumed.get("binding_sha256")
+            and stage2_machine_status in {"COMPLETED", "INCOMPLETE"}
+            and ledger_page_matches_machine
+        )
+        if not ledger_binds_current_feedback:
+            # The ledger is stale relative to the already committed Stage 1.
+            # Keep that Stage-1 epoch stable so its first Stage-2 invocation
+            # can replace the stale ledger instead of skipping directly to a
+            # still newer feedback epoch.
+            return True
+
+        # Only the final state transaction may release deferred feedback.  A
+        # historical NO_WIN status by itself is not enough: after a later
+        # epoch starts, that stale status can coexist with a new terminal page
+        # that still needs Stage 3/4 or proof-retry work.
+        if self._completed_no_win_releases_stage2_feedback(
+            previous_consumed=previous_consumed,
+            ledger=ledger,
+        ):
+            return False
+
+        pagination = self.state.get("stage2_pagination")
+        if pending_page is None:
+            same_binding = bool(
+                isinstance(pagination, Mapping)
+                and pagination.get("binding_sha256")
+                == ledger.get("binding_sha256")
+            )
+            old_cursor = pagination.get("cursor") if same_binding else 0
+            old_pages = (
+                pagination.get("completed_pages") if same_binding else 0
+            )
+            old_exhausted = (
+                pagination.get("selection_exhausted")
+                if isinstance(pagination, Mapping)
+                else None
+            )
+            if (
+                isinstance(old_cursor, bool)
+                or not isinstance(old_cursor, int)
+                or isinstance(old_pages, bool)
+                or not isinstance(old_pages, int)
+                or old_cursor < 0
+                or old_pages < 0
+                or old_cursor > cursor
+                or old_pages > ledger.get("completed_pages", -1)
+                or (
+                    same_binding
+                    and old_exhausted is True
+                )
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 pagination state is ahead of its sealed ledger",
+                    stage="stage2_sector_audit",
+                )
+            if (
+                not same_binding
+                or old_cursor != cursor
+                or old_pages != ledger.get("completed_pages")
+                or old_exhausted is not False
+            ):
+                # The ledger replacement is the acknowledgement transaction.
+                # If the process dies before the subsequent state write, its
+                # validated ack chain is authoritative and can repair the
+                # lagging monitoring state without replaying the page.
+                recovered = (
+                    dict(pagination) if same_binding else {}
+                )
+                recovered.update({
+                    "binding_sha256": ledger["binding_sha256"],
+                    "cursor": cursor,
+                    "completed_pages": ledger["completed_pages"],
+                    "deferred_pages": len(ledger.get("deferred_pages", [])),
+                    "selection_exhausted": False,
+                    "last_page_sha256": ledger.get(
+                        "last_acknowledged_page_sha256"
+                    ),
+                    "last_advanced_at": ledger.get(
+                        "last_acknowledged_at", utc_now()
+                    ),
+                    "recovered_from_ledger_at": utc_now(),
+                })
+                self.state["stage2_pagination"] = recovered
+                self._write_state()
+        return True
+
     def _prepare_stage1_feedback_epoch(
         self,
         base_flow_config: FlowConfig,
@@ -2910,6 +3251,40 @@ class FiveStagePipeline:
                 "Stage 1 startup and consumed feedback epochs disagree",
                 stage="stage1_search",
             )
+        completed_before = record.get("machine_status") in {
+            "COMPLETED", "SKIPPED"
+        }
+        if (
+            previous_consumed is not None
+            and current_archive["archive_sha256"]
+            != previous_consumed["archive_sha256"]
+            and self.state.get("negative_feedback_pending") is None
+        ):
+            # Recover the narrow crash window after a verified archive append
+            # but before its pending-feedback state commit.  In particular,
+            # an open Stage-2 snapshot must still see a durable fence instead
+            # of silently adopting the newer archive and resetting its cursor.
+            self._write_pending_feedback_record(
+                live_archive_path=live,
+                archive=current_archive,
+                pending_epoch=int(previous_consumed["feedback_epoch"]) + 1,
+                source_stage="stage1-cache-recovery",
+                events_added=0,
+            )
+        if self._stage2_snapshot_blocks_feedback_adoption(
+            previous_consumed=previous_consumed,
+        ):
+            if previous_startup is None or not completed_before:
+                raise PipelineError(
+                    "STAGE1_FEEDBACK_INVALID",
+                    "an open Stage 2 snapshot lacks a completed Stage 1 identity",
+                    stage="stage1_search",
+                )
+            effective = replace(
+                base_flow_config,
+                run_id=str(previous_startup["flow_run_id"]),
+            )
+            return effective, previous_startup
         if (
             previous_startup is not None
             and previous_consumed is not None
@@ -2936,9 +3311,6 @@ class FiveStagePipeline:
             )
             return effective, previous_startup
 
-        completed_before = record.get("machine_status") in {
-            "COMPLETED", "SKIPPED"
-        }
         if previous_consumed is not None:
             feedback_epoch = int(previous_consumed["feedback_epoch"]) + 1
         elif previous_startup is not None and not completed_before:
@@ -9587,6 +9959,17 @@ class FiveStagePipeline:
             stage2_selection_ledger_prestate_sha256 = (
                 self._stage2_selection_ledger_prestate_sha256()
             )
+            stage1_record = self.state["stages"]["stage1_search"]
+            raw_feedback_consumed = stage1_record.get(
+                "negative_feedback_consumed"
+            )
+            stage1_feedback_binding_sha256 = None
+            if raw_feedback_consumed is not None:
+                stage1_feedback_binding_sha256 = (
+                    self._validate_stage1_feedback_consumed(
+                        raw_feedback_consumed
+                    )["binding_sha256"]
+                )
             stage2_static_config = {
                 "top": self.config.stage2_top,
                 "timeout": self._scaled_proof_timeout(
@@ -9624,6 +10007,9 @@ class FiveStagePipeline:
                 "resume": self.config.resume or self._proof_retry_resume,
                 "selection_ledger_prestate_sha256": (
                     stage2_selection_ledger_prestate_sha256
+                ),
+                "stage1_feedback_binding_sha256": (
+                    stage1_feedback_binding_sha256
                 ),
             }
 
@@ -10025,6 +10411,16 @@ class FiveStagePipeline:
                 )
                 terminal_status = "COMPLETED_NO_WIN"
 
+            stage2_feedback_release = None
+            if (
+                terminal_status == "COMPLETED_NO_WIN"
+                and not self.config.candidate_inputs
+                and self._flow_config().evolution_evaluator
+                == "coset-two-block"
+            ):
+                stage2_feedback_release = (
+                    self._stage2_feedback_release_marker(stage2)
+                )
             self.state["status"] = terminal_status
             self.state["active_stage"] = None
             if terminal_status in TERMINAL_STATUSES:
@@ -10033,7 +10429,7 @@ class FiveStagePipeline:
             else:
                 self.state["incomplete_at"] = utc_now()
                 self.state.pop("completed_at", None)
-            self.state["result"] = {
+            result_record = {
                 "verified_certificates": certificate_count,
                 "stage4_summary": str(self.paths.stage4_summary),
                 "strict_gate": (
@@ -10055,6 +10451,11 @@ class FiveStagePipeline:
                     else None
                 ),
             }
+            if stage2_feedback_release is not None:
+                result_record["stage2_feedback_release"] = (
+                    stage2_feedback_release
+                )
+            self.state["result"] = result_record
             self._write_state()
             return self.state
         except PipelineError as exc:

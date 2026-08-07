@@ -12,11 +12,21 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+import humanize.pipeline as pipeline_module
 from evaluation.construction import build_css_code_from_claim
 from evaluation.distance_milp import get_code_matrices
 from evaluation.distance_sat import solve_css_sector_sat
 from evaluation.final_gate import minimum_winning_distance
 from evaluation.low_weight_oracle import evaluate_css_low_weight_oracle
+from evaluation.proof_runtime import proof_runtime_fingerprint
+from evaluation.selection_ledger import (
+    acknowledge_selection_page,
+    install_pending_page,
+    make_scan_evidence,
+    make_selection_page,
+    new_selection_ledger,
+    seal_selection_ledger,
+)
 from evaluation.two_block_sparse_kernel_oracle import (
     evaluate_two_block_sparse_kernel_oracle,
 )
@@ -44,6 +54,7 @@ from scripts.audit_candidate_pool import (
     _construction_candidate,
     _seal_compact_low_weight_cache,
 )
+from tests.test_humanize_pipeline import ScenarioRunner, _plan, _repo
 
 
 def _sha256(value) -> str:
@@ -54,6 +65,11 @@ def _sha256(value) -> str:
         ensure_ascii=False,
         allow_nan=False,
     ).encode()).hexdigest()
+
+
+@pytest.fixture(scope="module")
+def stable_pipeline_runtime():
+    return proof_runtime_fingerprint()
 
 
 @pytest.fixture(scope="module")
@@ -608,6 +624,407 @@ def test_pipeline_feedback_epoch_is_deferred_immutable_and_keeps_one_live_archiv
 
     with flow_module._acquire_humanize_run_lease(derived_store):
         pass
+
+
+def test_pipeline_feedback_waits_for_bound_stage2_snapshot_exhaustion(
+    tmp_path,
+    monkeypatch,
+    two_sparse_negatives,
+):
+    repo = tmp_path / "repo"
+    (repo / "humanize").mkdir(parents=True)
+    candidate_output = repo / "candidate-output.jsonl"
+    candidate_output.write_text("{}\n", encoding="utf-8")
+    run_id = "pipeline-feedback-stage2-fence"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidate_output,
+        evolution_evaluator="coset-two-block",
+        search_representation_id="css-coset-two-block-actions-v2",
+        milp_top=0,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+    )
+    config.root.mkdir(parents=True)
+    flow_run_ids: list[str] = []
+
+    class SearchFlow:
+        def __init__(self, selected: FlowConfig):
+            self.config = selected
+            self.store = RunStore.create(
+                selected.repo_dir / "results",
+                selected.run_id,
+            )
+            self.pipeline_candidate_inputs = (candidate_output,)
+
+        def run(self, *, inherited_run_lease):
+            flow_module._validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
+            flow_run_ids.append(self.config.run_id)
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidate_output)],
+            }
+
+    pipeline = FiveStagePipeline(
+        config,
+        flow_factory=SearchFlow,
+        reviewer=None,
+    )
+    monkeypatch.setattr(pipeline, "_stage1_source_provenance", lambda: {})
+    binding = "a" * 64
+    snapshot_identity = "b" * 64
+
+    def write_ledger(value):
+        pipeline.paths.stage2_selection_ledger.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        pipeline.paths.stage2_selection_ledger.write_text(
+            json.dumps(value, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    with pipeline._exclusive_lock():
+        pipeline._load_or_initialize_state()
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert flow_run_ids == [run_id]
+
+        _stage2_files(
+            pipeline.paths.artifacts,
+            [two_sparse_negatives[0]],
+        )
+        archived = pipeline._archive_stage2_coset_negatives(
+            [candidate_output]
+        )
+        assert archived["events_added"] == 1
+        assert pipeline.state["negative_feedback_pending"]["record"][
+            "pending_epoch"
+        ] == 2
+        consumed_binding = pipeline.state["stages"]["stage1_search"][
+            "negative_feedback_consumed"
+        ]["binding_sha256"]
+        pipeline.state["stages"]["stage2_sector_audit"]["stage_config"] = {
+            "stage1_feedback_binding_sha256": consumed_binding,
+        }
+        pipeline._write_state()
+
+        ledger = new_selection_ledger(
+            binding_sha256=binding,
+            snapshot_identity_sha256_value=snapshot_identity,
+            snapshot_rows=2,
+            eligible_rows=2,
+        )
+        first_scan = make_scan_evidence(
+            snapshot_identity_sha256_value=snapshot_identity,
+            start_index=0,
+            next_index=1,
+            snapshot_rows=2,
+            eligible_rows=2,
+            selection_exhausted=False,
+        )
+        first_page = make_selection_page(
+            binding_sha256=binding,
+            snapshot_identity_sha256_value=snapshot_identity,
+            page_sequence=0,
+            previous_ack_sha256=ledger["last_ack_sha256"],
+            start_index=0,
+            next_index=1,
+            selected_digests=["page-one"],
+            scan_evidence=first_scan,
+        )
+        ledger = install_pending_page(ledger, first_page)
+        write_ledger(ledger)
+        first_summary = {
+            "selection_exhausted": False,
+            "selection_page": first_page,
+        }
+        pipeline.paths.stage2_summary.write_text(
+            json.dumps(first_summary) + "\n",
+            encoding="utf-8",
+        )
+        pipeline.state["stages"]["stage2_sector_audit"][
+            "machine_status"
+        ] = "COMPLETED"
+        pipeline._write_state()
+
+        # A proof-retry or crash may revisit Stage 1 while the current page is
+        # still pending. It must reuse the same immutable feedback epoch.
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert flow_run_ids == [run_id]
+        assert pipeline.state["stages"]["stage1_search"]["attempt"] == 1
+
+        ledger = acknowledge_selection_page(
+            ledger,
+            first_page,
+            disposition="COMPLETED",
+        )
+        ledger["last_acknowledged_page_sha256"] = first_page[
+            "page_sha256"
+        ]
+        ledger["last_acknowledged_at"] = "2026-08-07T00:00:00+00:00"
+        ledger = seal_selection_ledger(ledger)
+        write_ledger(ledger)
+        pipeline.state["stage2_pagination"] = {
+            "binding_sha256": binding,
+            "cursor": 0,
+            "completed_pages": 0,
+            "selection_exhausted": False,
+            "paginated_persistent_incompleteness": [{
+                "code": "STAGE2_STRUCTURAL_SCREEN_UNRESOLVED",
+            }],
+        }
+        pipeline._write_state()
+
+        # The ledger acknowledgement is authoritative if the process dies
+        # before the monitoring state advances; recovery must retain the same
+        # epoch and repair cursor 0 -> 1 rather than fail permanently.
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert flow_run_ids == [run_id]
+        assert pipeline.state["stages"]["stage1_search"]["attempt"] == 1
+        assert pipeline.state["stage2_pagination"]["cursor"] == 1
+        assert pipeline.state["stage2_pagination"]["completed_pages"] == 1
+        assert pipeline.state["stage2_pagination"][
+            "paginated_persistent_incompleteness"
+        ] == [{"code": "STAGE2_STRUCTURAL_SCREEN_UNRESOLVED"}]
+
+        terminal_scan = make_scan_evidence(
+            snapshot_identity_sha256_value=snapshot_identity,
+            start_index=1,
+            next_index=2,
+            snapshot_rows=2,
+            eligible_rows=2,
+            selection_exhausted=True,
+        )
+        terminal_page = make_selection_page(
+            binding_sha256=binding,
+            snapshot_identity_sha256_value=snapshot_identity,
+            page_sequence=ledger["completed_pages"],
+            previous_ack_sha256=ledger["last_ack_sha256"],
+            start_index=1,
+            next_index=2,
+            selected_digests=["page-two"],
+            scan_evidence=terminal_scan,
+        )
+        ledger = install_pending_page(ledger, terminal_page)
+        write_ledger(ledger)
+        terminal_summary = {
+            "selection_exhausted": True,
+            "selection_page": terminal_page,
+        }
+        pipeline.paths.stage2_summary.write_text(
+            json.dumps(terminal_summary) + "\n",
+            encoding="utf-8",
+        )
+        release_marker = pipeline._stage2_feedback_release_marker(
+            terminal_summary
+        )
+
+        # _run_locked archives the terminal result before asking for the next
+        # Stage-1 inputs. Model that restart boundary explicitly.
+        pipeline.state["status"] = "RUNNING"
+        pipeline.state.setdefault("result_history", []).append({
+            "status": "COMPLETED_NO_WIN",
+            "result": {"stage2_feedback_release": release_marker},
+        })
+        pipeline.state["stages"]["stage2_sector_audit"]["stage_config"][
+            "stage1_feedback_binding_sha256"
+        ] = "c" * 64
+        pipeline._write_state()
+
+        # A terminal ledger from an older feedback epoch cannot authorize
+        # skipping the current Stage 1 after a crash before its first page.
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert flow_run_ids == [run_id]
+
+        pipeline.state["stages"]["stage2_sector_audit"]["stage_config"][
+            "stage1_feedback_binding_sha256"
+        ] = consumed_binding
+        stale_marker = dict(release_marker)
+        stale_marker["stage1_feedback_binding_sha256"] = "c" * 64
+        stale_unsigned = dict(stale_marker)
+        stale_unsigned.pop("marker_sha256")
+        stale_marker["marker_sha256"] = _sha256(stale_unsigned)
+        pipeline.state["result_history"][-1]["result"] = {
+            "stage2_feedback_release": stale_marker,
+        }
+        pipeline._write_state()
+
+        # A sealed NO_WIN marker from an older feedback epoch also cannot
+        # release the current terminal page merely because it is last in
+        # result_history.
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert flow_run_ids == [run_id]
+
+        pipeline.state["result_history"][-1]["result"] = {
+            "stage2_feedback_release": release_marker,
+        }
+        pipeline._write_state()
+        assert pipeline._stage1_inputs() == [candidate_output.resolve()]
+        assert len(flow_run_ids) == 2
+        assert flow_run_ids[1] != flow_run_ids[0]
+        stage1 = pipeline.state["stages"]["stage1_search"]
+        assert stage1["attempt"] == 2
+        assert stage1["negative_feedback_startup"]["feedback_epoch"] == 2
+
+
+@pytest.mark.parametrize("proof_retry_max_attempts", [1, 2])
+def test_pipeline_run_drains_feedback_bound_snapshot_before_next_epoch(
+    tmp_path,
+    monkeypatch,
+    stage1_negative_row,
+    stable_pipeline_runtime,
+    proof_retry_max_attempts,
+):
+    runtime = json.loads(json.dumps(stable_pipeline_runtime))
+    provenance = {
+        "runtime": runtime,
+        "interpreter": runtime["interpreter"],
+    }
+    monkeypatch.setattr(
+        pipeline_module,
+        "proof_runtime_fingerprint",
+        lambda: runtime,
+    )
+    monkeypatch.setattr(
+        pipeline_module,
+        "probe_python_runtime",
+        lambda *_args, **_kwargs: provenance,
+    )
+    repo, _unused_candidates = _repo(tmp_path)
+    candidate_output = repo / "coset-candidates.jsonl"
+    candidate_output.write_text("{}\n", encoding="utf-8")
+    run_id = f"feedback-pagination-run-{proof_retry_max_attempts}"
+    flow_config = FlowConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        candidate_file=candidate_output,
+        evolution_evaluator="coset-two-block",
+        search_representation_id="css-coset-two-block-actions-v2",
+        milp_top=0,
+    )
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=flow_config,
+        stage_review=False,
+        proof_retry_max_attempts=proof_retry_max_attempts,
+        proof_retry_backoff_seconds=0,
+    )
+    flow_run_ids: list[str] = []
+
+    class SearchFlow:
+        def __init__(self, selected: FlowConfig):
+            self.config = selected
+            self.store = RunStore.create(
+                selected.repo_dir / "results",
+                selected.run_id,
+            )
+            self.pipeline_candidate_inputs = (candidate_output,)
+
+        def run(self, *, inherited_run_lease):
+            flow_module._validate_inherited_humanize_run_lease(
+                self.store,
+                inherited_run_lease,
+            )
+            flow_run_ids.append(self.config.run_id)
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidate_output)],
+            }
+
+    runner = ScenarioRunner(stage2=[
+        _plan(
+            [{"canonical_digest": "page-one", "status": "REJECTED"}],
+            selection_exhausted=False,
+            selection_page=(0, 1),
+            snapshot_rows=2,
+        ),
+        _plan(
+            [{"canonical_digest": "page-two", "status": "REJECTED"}],
+            selection_exhausted=True,
+            selection_page=(1, 2),
+            snapshot_rows=2,
+        ),
+    ])
+    pipeline = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        flow_factory=SearchFlow,
+        reviewer=None,
+        sleeper=lambda _seconds: None,
+    )
+    monkeypatch.setattr(pipeline, "_stage1_source_provenance", lambda: {})
+    archive_events_added: list[int] = []
+
+    def archive_stage2(candidates):
+        live = pipeline._coset_negative_archive_path(candidates)
+        summary = archive.ingest_stage1_rows(
+            live,
+            [stage1_negative_row],
+        )
+        events_added = int(summary["events_added"])
+        archive_events_added.append(events_added)
+        pipeline.state["negative_mechanism_archive"] = summary
+        pipeline._write_state()
+        pipeline._record_coset_feedback_pending(
+            candidates,
+            source_stage="stage2-sector-audit",
+            events_added=events_added,
+        )
+        return summary
+
+    monkeypatch.setattr(
+        pipeline,
+        "_archive_stage2_coset_negatives",
+        archive_stage2,
+    )
+    state = pipeline.run()
+
+    assert state["status"] == "COMPLETED_NO_WIN"
+    assert runner.counts == {"stage2": 2}
+    assert flow_run_ids == [run_id]
+    assert archive_events_added == [1, 0]
+    assert state["stages"]["stage1_search"]["attempt"] == 1
+    ledger = json.loads(
+        pipeline.paths.stage2_selection_ledger.read_text()
+    )
+    assert ledger["cursor"] == 1
+    assert ledger["completed_pages"] == 1
+    assert ledger["pending"]["start_index"] == 1
+    assert ledger["pending"]["next_index"] == 2
+    assert ledger["pending"]["scan_evidence"][
+        "selection_exhausted"
+    ] is True
+    assert state["result"]["stage2_feedback_release"][
+        "page_sha256"
+    ] == ledger["pending"]["page_sha256"]
+
+    # A new process invocation may now consume the accumulated feedback.  It
+    # must not have been consumed between the two proof pages above.
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        flow_factory=SearchFlow,
+        reviewer=None,
+        sleeper=lambda _seconds: None,
+    )
+    monkeypatch.setattr(resumed, "_stage1_source_provenance", lambda: {})
+    with resumed._exclusive_lock():
+        resumed._load_or_initialize_state()
+        assert resumed._stage1_inputs() == [candidate_output.resolve()]
+    assert len(flow_run_ids) == 2
+    assert flow_run_ids[1] != flow_run_ids[0]
+    assert resumed.state["stages"]["stage1_search"][
+        "negative_feedback_startup"
+    ]["feedback_epoch"] == 2
 
 
 def test_pipeline_feedback_cache_hit_reacquires_derived_run_lease(
