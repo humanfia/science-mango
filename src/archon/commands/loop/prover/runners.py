@@ -150,6 +150,23 @@ def select_prover_mode_for_target(
     blueprint chapters opt into physics-aware modes for formalization/proving;
     other targets use the normal stage default.
     """
+    # Loop-owned shared prerequisites always use the strict axiom-clean build
+    # mode. This also recovers the mode if a Review-gate objective rewrite
+    # preserved the file but accidentally dropped its textual tag.
+    from ..shared_infrastructure import pending_shared_infrastructure_objectives
+
+    try:
+        rel = target.resolve().relative_to(project_path.resolve()).as_posix()
+    except (OSError, ValueError):
+        rel = ""
+    pending_shared = {
+        item.module_path
+        for item in pending_shared_infrastructure_objectives(
+            state_dir=state_dir, project_path=project_path,
+        )
+    }
+    if rel in pending_shared and _mode_file_exists(state_dir, "mathlib-build"):
+        return "mathlib-build"
     if explicit_mode:
         return explicit_mode
     canonical = normalize_stage_for_prompt_path(stage)
@@ -158,6 +175,35 @@ def select_prover_mode_for_target(
         if physics_mode and _mode_file_exists(state_dir, physics_mode):
             return physics_mode
     return default_prover_mode_for_stage(state_dir, stage)
+
+
+def _restrict_progress_to_pending_shared_modules(
+    *, progress_file: Path, state_dir: Path, project_path: Path,
+) -> list[Path]:
+    """Keep infrastructure builds isolated from ordinary proof targets."""
+    from ..formalization_review_gate import _replace_objectives
+    from ..shared_infrastructure import pending_shared_infrastructure_objectives
+
+    pending = {
+        (project_path / item.module_path).resolve(): item
+        for item in pending_shared_infrastructure_objectives(
+            state_dir=state_dir, project_path=project_path,
+        )
+        if (project_path / item.module_path).is_file()
+    }
+    selected = [
+        path for path in parse_objective_files(progress_file, project_path)
+        if path.resolve() in pending
+    ]
+    if not selected:
+        return []
+    _replace_objectives(progress_file, [
+        f"- **`{path.resolve().relative_to(project_path.resolve()).as_posix()}`** — "
+        "Build pending shared infrastructure axiom-clean. "
+        "[prover-mode: mathlib-build]"
+        for path in selected
+    ])
+    return selected
 
 
 def _target_sha256(target: Path) -> str:
@@ -333,7 +379,15 @@ class SerialProverRunner:
         # No per-file tags on the serial whole-stage path → use the stage's
         # default prover mode (the static prover-<stage>.md prompts were
         # retired; modes are the single source of truth).
-        stage_mode = default_prover_mode_for_stage(self.state_dir, self.stage)
+        shared = _restrict_progress_to_pending_shared_modules(
+            progress_file=progress_file,
+            state_dir=self.state_dir,
+            project_path=self.project_path,
+        )
+        stage_mode = (
+            "mathlib-build" if shared
+            else default_prover_mode_for_stage(self.state_dir, self.stage)
+        )
         prompt = build_prover_prompt(
             self.project_name, self.project_path, self.state_dir, self.stage,
             self.iter_num, debug_feedback=self.debug_feedback,
@@ -446,6 +500,15 @@ class ParallelProverRunner:
 
     def run(self, *, dry_run: bool) -> None:
         progress = self.state_dir / "PROGRESS.md"
+        shared = _restrict_progress_to_pending_shared_modules(
+            progress_file=progress,
+            state_dir=self.state_dir,
+            project_path=self.project_path,
+        )
+        if shared:
+            # The dedicated axiom/build gate replaces target Review for this
+            # batch. Never start pipelined problem Review/formalization.
+            self.pipeline_review = None
         objectives_with_modes = parse_objectives_with_modes(progress, self.project_path)
         sorry_files = [p for p, _ in objectives_with_modes]
         file_modes: dict[str, str | None] = {

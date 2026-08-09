@@ -29,6 +29,7 @@ class IterationFinalizationReport:
     lake_build_ok: bool | None = None
     lake_build_error: str | None = None
     lake_build_secs: int | None = None
+    lake_build_completed_epoch: float | None = None
     blueprint_web_ok: bool | None = None
     blueprint_web_error: str | None = None
     blueprint_web_secs: int | None = None
@@ -44,6 +45,10 @@ class IterationFinalizationReport:
         if self.lake_build_ok is not None:
             d["finalize.lake.ok"] = self.lake_build_ok
             d["finalize.lake.durationSecs"] = self.lake_build_secs or 0
+            if self.lake_build_completed_epoch is not None:
+                d["finalize.lake.completedAtEpoch"] = (
+                    self.lake_build_completed_epoch
+                )
             if self.lake_build_error:
                 d["finalize.lake.error"] = self.lake_build_error[:500]
         if self.blueprint_web_ok is not None:
@@ -195,10 +200,12 @@ class IterationFinalizer:
             lake.build()
             report.lake_build_ok = True
             report.lake_build_secs = int(time.monotonic() - start)
+            report.lake_build_completed_epoch = time.time()
             log.success(f"lake build ok ({report.lake_build_secs}s)")
         except Exception as e:
             report.lake_build_ok = False
             report.lake_build_secs = int(time.monotonic() - start)
+            report.lake_build_completed_epoch = time.time()
             full_error = str(e)
             report.lake_build_error = full_error
 

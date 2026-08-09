@@ -45,6 +45,13 @@ from ..deterministic_plan import (
 from ..plan_validate import AUTO_NOTES_FILENAME
 from ..resume import PLAN_CONTINUE, persist_session_id, pick_resume_session
 from ..proof_review_gate import proof_review_prompt_block
+from ..shared_infrastructure import (
+    missing_shared_module_objectives,
+    pending_shared_consumer_migrations,
+    reconcile_shared_infrastructure,
+    reopen_resolved_shared_dependents,
+    shared_infrastructure_prompt_block,
+)
 from .base import Phase, PhaseResult
 
 
@@ -247,6 +254,39 @@ class PlanPhase(Phase):
         plan_start = time.monotonic()
         cfg = load_project_config(ctx.project_path)
         starting_stage = ctx.current_stage
+        if not ctx.dry_run:
+            shared_reconcile = reconcile_shared_infrastructure(
+                state_dir=ctx.state_dir,
+                project_path=ctx.project_path,
+            )
+            reopened_shared = reopen_resolved_shared_dependents(
+                state_dir=ctx.state_dir,
+                result=shared_reconcile,
+                iter_num=ctx.iter_num,
+            )
+            if shared_reconcile.verified_modules:
+                log.success(
+                    "Shared infrastructure verified: "
+                    + ", ".join(shared_reconcile.verified_modules)
+                    + "; consumer import migration is now required"
+                )
+            if shared_reconcile.resolved_modules:
+                log.success(
+                    "Shared infrastructure migration verified: "
+                    + ", ".join(shared_reconcile.resolved_modules)
+                    + (
+                        f"; reopened {len(reopened_shared)} dependent target(s)"
+                        if reopened_shared else ""
+                    )
+                )
+        missing_shared_modules = missing_shared_module_objectives(
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+        )
+        pending_shared_migrations = pending_shared_consumer_migrations(
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+        )
         captured_hints = _capture_user_hints(ctx.state_dir)
         captured_auto_notes = _capture_auto_notes(ctx.state_dir)
         deterministic_candidates = []
@@ -258,8 +298,13 @@ class PlanPhase(Phase):
         if pack_iter_dir is None and ctx.dry_run:
             pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
             pack_iter_dir.mkdir(parents=True, exist_ok=True)
-        if deterministic_enabled and starting_stage.strip().lower().startswith(
-            ("prover", "polish")
+        if (
+            deterministic_enabled
+            and not missing_shared_modules
+            and not pending_shared_migrations
+            and starting_stage.strip().lower().startswith(
+                ("prover", "polish")
+            )
         ):
             deterministic_candidates = select_deterministic_candidates(
                 project_path=ctx.project_path,
@@ -303,6 +348,16 @@ class PlanPhase(Phase):
                     "Deterministic Plan found no eligible prover objectives; "
                     "falling back to the normal planner for completion/blocker handling."
                 )
+        elif deterministic_enabled and (
+            missing_shared_modules or pending_shared_migrations
+        ):
+            log.warn(
+                "Deterministic Plan yielded to the full planner because "
+                f"{len(missing_shared_modules)} shared module(s) need "
+                "scaffolding and "
+                f"{len(pending_shared_migrations)} consumer(s) need import "
+                "migration."
+            )
         compact_input_pack = None
         if ctx.options.compress_plan_review_inputs or deterministic_candidate_pack:
             if pack_iter_dir is not None:
@@ -341,6 +396,10 @@ class PlanPhase(Phase):
                 captured_auto_notes=captured_auto_notes,
                 compact_input_pack=compact_input_pack,
             )
+        plan_prompt += shared_infrastructure_prompt_block(
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+        )
         plan_prompt += proof_review_prompt_block(
             state_dir=ctx.state_dir,
             max_iterations=getattr(ctx.options, "proof_review_max_iterations", 3),
@@ -376,6 +435,17 @@ class PlanPhase(Phase):
                 ctx.iter_meta, Path(str(plan_log) + ".jsonl"),
                 "plan.sessionId",
             )
+
+        if pending_shared_migrations and not ctx.dry_run:
+            # Consumer imports must pass a subsequent full build before any
+            # dependent proof runs. Enforce the mechanical hold even if the
+            # planner tried to schedule those consumers immediately.
+            from ..formalization_review_gate import _replace_objectives
+
+            _replace_objectives(ctx.progress_file, [
+                "(no prover dispatch this iter — shared consumer imports "
+                "migrated; await full lake build verification)"
+            ])
 
         if deterministic_candidates and not ctx.dry_run:
             # The planner owns strategy, not scheduling. Restore the exact

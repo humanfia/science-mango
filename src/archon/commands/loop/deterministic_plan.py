@@ -18,6 +18,7 @@ from archon.state.iter_state import objectives_sidecar_path
 
 from .formalization_review_gate import load_gate_state
 from .proof_review_gate import load_proof_review_state
+from .shared_infrastructure import pending_shared_infrastructure_objectives
 
 
 _SORRY_RE = re.compile(
@@ -36,6 +37,8 @@ class DeterministicCandidate:
     proof_reason: str
     chapter: Path | None
     physics: bool
+    prover_mode: str | None = None
+    objective_task: str | None = None
 
 
 def _strip_lean_line(line: str, block_depth: int) -> tuple[str, int]:
@@ -132,6 +135,50 @@ def select_deterministic_candidates(
     if not canonical.startswith(("prover", "polish")) or limit <= 0:
         return []
 
+    # Shared project-local infrastructure is a prerequisite frontier, not a
+    # theorem corpus target.  It bypasses the per-problem formalization gate
+    # and retains its explicit mathlib-build mode through deterministic Plan's
+    # post-agent objective restore.
+    candidates: list[DeterministicCandidate] = []
+    shared_paths: set[str] = set()
+    for shared in pending_shared_infrastructure_objectives(
+        state_dir=state_dir, project_path=project_path,
+    ):
+        path = (project_path / shared.module_path).resolve()
+        if not path.is_file():
+            # A missing module needs the full planner + configured structural
+            # subagent; PlanPhase disables bounded mode for that case.
+            continue
+        sorry_count = fast_open_sorry_count(path)
+        if sorry_count is None:
+            continue
+        shared_paths.add(shared.module_path)
+        declarations = ", ".join(shared.declarations) or "requested declarations"
+        dependents = ", ".join(shared.dependents) or "dependent targets"
+        candidates.append(DeterministicCandidate(
+            path=path,
+            relative_path=shared.module_path,
+            sorry_count=sorry_count,
+            proof_status="shared_infrastructure",
+            proof_attempts=0,
+            proof_reason=shared.reason,
+            chapter=None,
+            physics=False,
+            prover_mode=shared.mode,
+            objective_task=(
+                f"build shared project-local infrastructure axiom-clean "
+                f"({declarations}) before retrying {dependents}"
+            ),
+        ))
+        if len(candidates) >= limit:
+            return candidates
+
+    # Never mix infrastructure builders with problem provers. The dedicated
+    # axiom/build gate owns this batch; dependent problems remain quarantined
+    # until consumer imports pass their own full-build check.
+    if candidates:
+        return candidates
+
     formal_state = load_gate_state(state_dir) if formalization_gate_enabled else None
     formal_targets = formal_state.get("targets", {}) if formal_state else {}
     if formalization_gate_enabled:
@@ -158,6 +205,8 @@ def select_deterministic_candidates(
             continue
         if rel in seen or not path.is_file():
             continue
+        if rel in shared_paths:
+            continue
         seen.add(rel)
         raw_record = proof_targets.get(rel, {}) if proof_gate_enabled else {}
         record = raw_record if isinstance(raw_record, dict) else {}
@@ -171,7 +220,6 @@ def select_deterministic_candidates(
         retry_rank = 0 if status == "retry" else 1
         ranked.append(((retry_rank, -attempts, rel), path, rel, record))
 
-    candidates: list[DeterministicCandidate] = []
     for _rank, path, rel, record in sorted(ranked, key=lambda item: item[0]):
         sorry_count = fast_open_sorry_count(path)
         status = str(record.get("status") or "new")
@@ -226,7 +274,9 @@ def deterministic_objective_lines(
 ) -> list[str]:
     lines: list[str] = []
     for index, candidate in enumerate(candidates, start=1):
-        if candidate.proof_status == "retry":
+        if candidate.objective_task:
+            task = candidate.objective_task
+        elif candidate.proof_status == "retry":
             task = (
                 f"mandatory proof-Review retry {candidate.proof_attempts}; "
                 "repair the reviewed Lean elaboration/faithfulness failure"
@@ -236,7 +286,10 @@ def deterministic_objective_lines(
                 f"new proof target; fill {candidate.sorry_count} open Lean "
                 "placeholder(s)"
             )
-        mode = " [prover-mode: physics]" if candidate.physics else ""
+        mode_name = candidate.prover_mode or (
+            "physics" if candidate.physics else None
+        )
+        mode = f" [prover-mode: {mode_name}]" if mode_name else ""
         lines.append(
             f"{index}. **`{candidate.relative_path}`** — Deterministically "
             f"selected {task} without weakening the statement.{mode}"

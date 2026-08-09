@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from .shared_infrastructure import register_shared_infrastructure_request
+
 
 STATE_FILENAME = "proof-review-gate.json"
 REPORT_FILENAME = "PROOF_REVIEW_GATE.md"
@@ -201,6 +203,20 @@ def proof_review_decision(
 ) -> tuple[str, str, str, str, bool]:
     """Public, side-effect-free proof Review route normalization."""
     return _proof_review_decision(row)
+
+
+def _raw_infrastructure_request(row: dict[str, Any] | None) -> Any:
+    """Read the optional schema extension without breaking legacy rows."""
+    if not isinstance(row, dict):
+        return None
+    raw = row.get("proof_review")
+    if raw is None:
+        findings = row.get("findings")
+        if isinstance(findings, dict):
+            raw = findings.get("proof_review")
+    if not isinstance(raw, dict):
+        return None
+    return raw.get("infrastructure_request")
 
 
 def _load_milestones(session_dir: Path, project_path: Path) -> dict[str, dict]:
@@ -425,6 +441,20 @@ def apply_proof_review(
             "explicit_route": explicit_route,
             "reviewed_at": _utcnow(),
         })
+        infrastructure_request = None
+        infrastructure_request_error = ""
+        if route == "blocked_infrastructure":
+            infrastructure_request, infrastructure_request_error = (
+                register_shared_infrastructure_request(
+                    state_dir=state_dir,
+                    project_path=project_path,
+                    target_rel=rel,
+                    raw_request=_raw_infrastructure_request(row),
+                    reason=reason,
+                    evidence=evidence,
+                    iter_num=iter_num,
+                )
+            )
         targets[rel] = {
             **previous,
             "status": status,
@@ -434,6 +464,8 @@ def apply_proof_review(
             "evidence": evidence,
             "redraft_kind": redraft_kind,
             "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+            "infrastructure_request": infrastructure_request,
+            "infrastructure_request_error": infrastructure_request_error,
             "history": history[-50:],
             "updated_at": _utcnow(),
         }
@@ -553,6 +585,20 @@ def apply_target_proof_review(
         "explicit_route": explicit_route,
         "reviewed_at": _utcnow(),
     })
+    infrastructure_request = None
+    infrastructure_request_error = ""
+    if route == "blocked_infrastructure":
+        infrastructure_request, infrastructure_request_error = (
+            register_shared_infrastructure_request(
+                state_dir=state_dir,
+                project_path=project_path,
+                target_rel=rel,
+                raw_request=_raw_infrastructure_request(milestone),
+                reason=reason,
+                evidence=evidence,
+                iter_num=iter_num,
+            )
+        )
     targets[rel] = {
         **previous,
         "status": status,
@@ -562,6 +608,8 @@ def apply_target_proof_review(
         "evidence": evidence,
         "redraft_kind": redraft_kind,
         "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+        "infrastructure_request": infrastructure_request,
+        "infrastructure_request_error": infrastructure_request_error,
         "history": history[-50:],
         "updated_at": _utcnow(),
     }
@@ -655,10 +703,21 @@ def filter_objectives_for_proof_review_gate(
         return items, []
     state = load_proof_review_state(state_dir)
     targets = state.get("targets", {}) if state else {}
+    from .shared_infrastructure import pending_shared_infrastructure_objectives
+
+    shared_paths = {
+        item.module_path
+        for item in pending_shared_infrastructure_objectives(
+            state_dir=state_dir, project_path=project_path,
+        )
+    }
     kept: list[Path] = []
     dropped: list[tuple[Path, str]] = []
     for path in items:
         rel = _relative_file(str(path), project_path)
+        if rel in shared_paths:
+            kept.append(path)
+            continue
         record = targets.get(rel) if isinstance(targets, dict) else None
         status = str(record.get("status") or "") if isinstance(record, dict) else ""
         if status in _NON_DISPATCH_STATUSES:

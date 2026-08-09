@@ -128,6 +128,19 @@ def default_config() -> dict[str, Any]:
                 "the model cannot expand or replace the selected batch."
             ),
             'deterministic_plan': False,
+            '_shared_infrastructure_help': (
+                "Opt-in queue for reusable project-local Lean modules requested "
+                "by proof Review. module_roots is a strict project-relative "
+                "write allowlist; external Lake packages are never installed. "
+                "The configured scaffolder and migration_refactor must also "
+                "be enabled under subagents."
+            ),
+            'shared_infrastructure': {
+                'enabled': False,
+                'module_roots': [],
+                'scaffolder': 'lean-scaffolder',
+                'migration_refactor': 'refactor',
+            },
             '_deterministic_review_help': (
                 "If true, run direct Lean checks for the current Review batch "
                 "in parallel, build a bounded evidence pack, and prohibit the "
@@ -201,6 +214,7 @@ def default_config() -> dict[str, Any]:
                 'blueprint-clean',
                 'blueprint-reviewer',
                 'blueprint-writer',
+                'chemistry-module-refactor',
                 'dag-walker',
                 'effort-breaker',
                 'lean-auditor',

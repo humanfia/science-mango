@@ -817,10 +817,26 @@ def filter_objectives_for_review_gate(
     state = load_gate_state(state_dir)
     canonical = stage.strip().lower()
     targets = state.get("targets", {}) if state else {}
+    shared_paths: set[str] = set()
+    if canonical.startswith(("prover", "polish")):
+        # Shared infrastructure is a prerequisite build objective, not a
+        # source-problem formalization target, so it has no target semantic
+        # certificate to present at this gate.
+        from .shared_infrastructure import pending_shared_infrastructure_objectives
+
+        shared_paths = {
+            item.module_path
+            for item in pending_shared_infrastructure_objectives(
+                state_dir=state_dir, project_path=project_path,
+            )
+        }
     kept: list[Path] = []
     dropped: list[tuple[Path, str]] = []
     for path in items:
         rel = _relative_file(str(path), project_path)
+        if rel in shared_paths:
+            kept.append(path)
+            continue
         record = targets.get(rel) if rel else None
         status = str(record.get("status") or "") if isinstance(record, dict) else ""
         if canonical.startswith("autoformalize"):

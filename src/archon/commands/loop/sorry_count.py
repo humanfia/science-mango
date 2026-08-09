@@ -63,8 +63,10 @@ def filter_noop_objectives(
     """
     exempt = _scaffold_exempt_basenames(progress_file)
     retry_paths: set[Path] = set()
+    shared_infrastructure_paths: set[Path] = set()
     if state_dir is not None:
         from .proof_review_gate import load_proof_review_state
+        from .shared_infrastructure import pending_shared_infrastructure_objectives
 
         targets = load_proof_review_state(state_dir).get("targets", {})
         if isinstance(targets, dict):
@@ -73,10 +75,21 @@ def filter_noop_objectives(
                 for rel, record in targets.items()
                 if isinstance(record, dict) and record.get("status") == "retry"
             }
+        shared_infrastructure_paths = {
+            (state_dir.parent / objective.module_path).resolve()
+            for objective in pending_shared_infrastructure_objectives(
+                state_dir=state_dir,
+                project_path=state_dir.parent,
+            )
+        }
     kept: list[Path] = []
     dropped: list[Path] = []
     for obj in objectives:
-        if obj.name.lower() in exempt or obj.resolve() in retry_paths:
+        if (
+            obj.name.lower() in exempt
+            or obj.resolve() in retry_paths
+            or obj.resolve() in shared_infrastructure_paths
+        ):
             kept.append(obj)
             continue
         if file_open_sorry_count(obj) == 0:

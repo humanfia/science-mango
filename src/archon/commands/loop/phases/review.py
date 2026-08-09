@@ -418,6 +418,45 @@ class ReviewPhase(Phase):
             or reviewed_objectives
             or parse_objective_files(ctx.progress_file, ctx.project_path)
         )
+        from ..shared_infrastructure import pending_shared_infrastructure_objectives
+
+        pending_shared_paths = {
+            (ctx.project_path / item.module_path).resolve()
+            for item in pending_shared_infrastructure_objectives(
+                state_dir=getattr(
+                    ctx, "state_dir", ctx.project_path / ".archon"
+                ),
+                project_path=ctx.project_path,
+            )
+        }
+        if exact_objectives and all(
+            path.resolve() in pending_shared_paths for path in exact_objectives
+        ):
+            # These files are governed by the mandatory axiom sweep + full
+            # Lake build lifecycle. Ordinary problem Review requires source
+            # contracts/blueprints and can incorrectly route infrastructure to
+            # statement redraft, so it must not consume this isolated batch.
+            review_secs = int(time.monotonic() - review_start)
+            log.info(
+                "Review skipped for isolated shared-infrastructure batch; "
+                "axiom/build verification owns the verdict."
+            )
+            write_meta(ctx.iter_meta, **{
+                # Resume detection treats only status=done as terminal. Keep
+                # the specialized outcome separately so --resume can reach
+                # Plan, where queue reconciliation happens.
+                "review.status": "done",
+                "review.outcome": "shared_infrastructure_deferred",
+                "review.durationSecs": review_secs,
+                "review.sharedInfrastructureTargets": len(exact_objectives),
+            })
+            commit_phase(
+                ctx.project_path,
+                iter_num=ctx.iter_num,
+                phase="review",
+                summary=f"shared infrastructure gate ({review_secs}s)",
+            )
+            return PhaseResult(skipped=True)
         parallel_target_review = (
             deterministic_review
             and proof_gate_active

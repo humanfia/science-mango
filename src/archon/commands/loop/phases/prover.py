@@ -65,6 +65,42 @@ class ProverPhase(Phase):
         ctx = self.ctx
         if not self._review_gate_allows_dispatch():
             return
+        # The legacy multilane dispatcher ignores per-objective prover modes.
+        # Fail closed for preview and route execution through a runner that
+        # enforces mathlib-build until multilane carries mode metadata itself.
+        from ..prover.runners import _restrict_progress_to_pending_shared_modules
+
+        shared_batch = _restrict_progress_to_pending_shared_modules(
+            progress_file=ctx.progress_file,
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+        )
+        if shared_batch and ctx.options.multilane_preview:
+            log.warn(
+                "multilane preview skipped for shared infrastructure: the "
+                "multilane prompt path does not preserve mathlib-build mode"
+            )
+            if not ctx.dry_run:
+                write_meta(ctx.iter_meta, **{
+                    "prover.multilanePreview": False,
+                    "prover.multilaneSharedInfrastructureBlocked": True,
+                })
+            return
+        if shared_batch and ctx.options.multilane_execute:
+            log.warn(
+                "multilane execution does not preserve mathlib-build mode; "
+                "using the safe standard prover runner for this isolated "
+                "shared-infrastructure batch"
+            )
+            if not ctx.dry_run:
+                write_meta(ctx.iter_meta, **{
+                    "prover.multilaneSharedInfrastructureFallback": True,
+                })
+            if ctx.options.parallel:
+                self._run_parallel()
+            else:
+                self._run_serial()
+            return
         if ctx.options.multilane_preview:
             self._run_multilane_preview()
         elif ctx.options.multilane_execute:

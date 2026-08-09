@@ -2105,7 +2105,8 @@ def build_review_prompt(
               "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
               "reason": "specific root-cause classification",
               "evidence": "Lean goal/error plus contract evidence",
-              "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect"
+              "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
+              "infrastructure_request": null
             }
             ```
 
@@ -2129,11 +2130,16 @@ def build_review_prompt(
               formalization pass certificate and route only this target back
               to `autoformalize`.
             - `blocked_infrastructure`: the contract is sound and adequately
-              modeled, but an unavailable external tool/library/permission is
-              indispensable and neither local helper formalization nor a
-              statement redraft can repair it. Use this sparingly; a missing
-              mathematical bridge normally means `needs_redraft`, not
-              infrastructure.
+              modeled, but either a reusable project-local module or an
+              unavailable external capability is indispensable. For a
+              cross-target local gap, set `infrastructure_request` to
+              `{"kind":"project_local_shared_module","module":"<allowlisted/root/File.lean>","declarations":["Name"]}`.
+              For an external package/tool, use
+              `{"kind":"external_dependency","package":"name"}`; the loop
+              records but never installs it. The field is optional for legacy
+              rows and must be null/absent for other routes. A target-local
+              helper is still `retry_proof`; a missing mathematical bridge normally means `needs_redraft` unless the missing item is the
+              explicitly requested reusable shared module itself.
 
             A compiling but unfaithful/underdetermined theorem is never
             `solved` or `retry_proof`. A tactic failure does not by itself

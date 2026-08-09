@@ -19,6 +19,7 @@ from .proof_review_gate import (
     PROOF_REVIEW_SCHEMA_VERSION,
     REDRAFT_KINDS,
 )
+from .shared_infrastructure import load_shared_infrastructure_policy
 
 PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
 PIPELINED_REVIEW_SCHEMA_VERSION = 1
@@ -173,6 +174,8 @@ def build_target_review_prompt(
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
+    shared_policy = load_shared_infrastructure_policy(project_path)
+    shared_roots = [path.as_posix() for path in shared_policy.module_roots]
     blueprint_label = f"{profile.display_name.title()} blueprint"
     if profile.enforce_classical_physics_modeling:
         semantic_checks = (
@@ -233,7 +236,8 @@ Write exactly one JSON object line to {milestone}. Required shape:
     "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
     "reason": "<specific root cause>",
     "evidence": "<Lean goal/error plus contract evidence>",
-    "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect"
+    "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
+    "infrastructure_request": null
   }},
   "attempts": [{{"attempt": 1, "strategy": "review", "code_tried": "",
     "lean_error": "", "goal_before": "", "goal_after": "",
@@ -251,10 +255,18 @@ Classify root cause, not just the last Lean error:
 - route=needs_redraft for an underdetermined/wrong/weakened contract,
   answer-as-assumption, missing requested output, uncertainty/branch omission,
   opaque relation without an eliminator, or missing foundational bridge;
-- route=blocked_infrastructure only when an unavailable external capability is
-  indispensable and neither a local helper nor contract redraft can repair it.
-A missing mathematical bridge normally routes to needs_redraft. Use
-redraft_kind=not_applicable for every route except needs_redraft.
+- route=blocked_infrastructure when an indispensable gap is either a reusable
+  cross-target project-local module or an unavailable external capability.
+  Project-local automatic builds are enabled={shared_policy.enabled} and the
+  only allowed module roots are {json.dumps(shared_roots)}. For an allowlisted
+  local gap use
+  {{"kind":"project_local_shared_module","module":"<root/File.lean>","declarations":["Name"]}};
+  for an external package/tool use
+  {{"kind":"external_dependency","package":"name"}}. The loop records but
+  never installs external dependencies. Keep the optional field null/absent
+  for every other route. A target-local helper is retry_proof; a missing
+  statement/modeling bridge normally routes to needs_redraft. Use
+  redraft_kind=not_applicable for every route except needs_redraft.
 
 Use status=solved only when all five checks pass and route=solved. Use
 status=blocked for needs_redraft or blocked_infrastructure, and partial/blocked

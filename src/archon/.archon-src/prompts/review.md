@@ -114,7 +114,8 @@ every milestone must also include this root-cause routing certificate:
   "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
   "reason": "specific root cause",
   "evidence": "Lean goal/error plus statement-contract evidence",
-  "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect"
+  "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
+  "infrastructure_request": null
 }
 ```
 
@@ -123,11 +124,17 @@ remaining failure is proof construction (tactics, lemmas, arithmetic,
 elaboration, or budget). Use `needs_redraft` when proving exposes an
 underdetermined/wrong/weakened contract, answer-as-assumption, missing output,
 uncertainty or branch omission, opaque relation without an eliminator, or a
-missing foundational bridge. Use `blocked_infrastructure` only for an
-indispensable unavailable external capability that neither a local helper nor a
-statement redraft can repair. A missing mathematical bridge normally means
-`needs_redraft`. Keep top-level status consistent: only `route=solved` may use
-`status=solved`; redraft/infrastructure routes use `status=blocked`.
+missing foundational bridge. Use `blocked_infrastructure` for an indispensable
+cross-target project-local shared module or unavailable external capability.
+For the former, set `infrastructure_request` to
+`{"kind":"project_local_shared_module","module":"<allowlisted/root/File.lean>","declarations":["Name"]}`;
+for the latter use `{"kind":"external_dependency","package":"name"}`. The
+loop may build only explicitly allowlisted project-local modules and never
+installs external packages. Keep this optional field null/absent for all other
+routes. A target-local helper is `retry_proof`; a missing statement/modeling
+bridge normally means `needs_redraft`. Keep top-level status consistent: only
+`route=solved` may use `status=solved`; redraft/infrastructure routes use
+`status=blocked`.
 
 
 ### `recommendations.md`

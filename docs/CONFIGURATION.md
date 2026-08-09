@@ -287,6 +287,46 @@ Per-subagent model override (no harness change, it inherits the parent harness !
 { "subagents": { "strategy-critic": "opus", "mathlib-analogist": "sonnet" } }
 ```
 
+### Cross-target shared Lean modules
+
+Shared infrastructure is opt-in. When proof Review identifies an API needed by
+more than one target, the loop can scaffold and prove an allowlisted
+project-local module, migrate its consumers, and then retry those targets:
+
+```json
+{
+  "loop": {
+    "shared_infrastructure": {
+      "enabled": true,
+      "module_roots": ["IChO2026Chem"],
+      "scaffolder": "chemistry-module-refactor",
+      "migration_refactor": "refactor"
+    }
+  },
+  "subagents": {
+    "enabled": ["chemistry-module-refactor", "refactor"]
+  }
+}
+```
+
+The lifecycle is deliberately gated:
+
+1. Proof Review emits a structured `project_local_shared_module` request.
+2. Requests for the same module are coalesced, and the module is built in
+   `mathlib-build` mode.
+3. The module must export every requested declaration (checked by importing it
+   and running Lean `#check` on each exact, namespace-preserving name), contain
+   no placeholders, produce an up-to-date `.olean`, pass the targeted axiom
+   sweep, and be followed by a successful full `lake build`.
+4. Only then may `refactor` add the canonical imports to consumer files. A
+   direct `lake env lean <consumer.lean>` file check and a subsequent successful
+   full build are both required before their proofs are retried (the default
+   Lake target may not include every problem file).
+
+`module_roots` is a strict project-relative allowlist. This workflow never adds,
+updates, or installs external Lake packages; an `external_dependency` Review
+request remains a reported blocker for a human to resolve.
+
 ---
 
 ## 4. Model aliases

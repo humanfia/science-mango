@@ -15,6 +15,7 @@ from archon.state import parse_objective_files, write_meta
 from archon.state.progress import is_complete
 
 from ..axiom_sweep import run_axiom_sweep, write_reports
+from ..shared_infrastructure import pending_shared_infrastructure_objectives
 from .base import Phase, PhaseResult
 
 
@@ -35,7 +36,17 @@ class AxiomSweepPhase(Phase):
 
         cfg = load_project_config(ctx.project_path)
         loop_cfg = cfg.loop_section()
-        if not bool(loop_cfg.get("axiom_sweep")):
+        pending_shared = pending_shared_infrastructure_objectives(
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+        )
+        pending_shared_paths = [
+            (ctx.project_path / item.module_path).resolve()
+            for item in pending_shared
+            if (ctx.project_path / item.module_path).is_file()
+        ]
+        force_shared_sweep = bool(pending_shared_paths)
+        if not bool(loop_cfg.get("axiom_sweep")) and not force_shared_sweep:
             # Off by default — silent skip.
             return PhaseResult()
 
@@ -53,11 +64,25 @@ class AxiomSweepPhase(Phase):
             or ctx.current_stage == "polish"
             or is_complete(ctx.progress_file)
         )
-        targets = None if full else parse_objective_files(
-            ctx.progress_file, ctx.project_path,
-        )
+        if full:
+            targets = None
+        else:
+            targets = parse_objective_files(
+                ctx.progress_file, ctx.project_path,
+            )
+            if force_shared_sweep:
+                # Shared modules are soundness prerequisites.  Sweep them even
+                # when a gate/model rewrite removed one from PROGRESS, and even
+                # when the project's general axiom_sweep option is off.
+                targets = list(dict.fromkeys(targets + pending_shared_paths))
 
-        log.phase(0, self.name)
+        log.phase(
+            0,
+            self.name + (
+                " — required for pending shared infrastructure"
+                if force_shared_sweep else ""
+            ),
+        )
         try:
             report = run_axiom_sweep(
                 ctx.project_path,
