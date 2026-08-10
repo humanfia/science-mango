@@ -17,6 +17,29 @@ from archon.commands.tooling.project_lean_index import build_project_index
 
 
 class ProjectLeanIndexTests(unittest.TestCase):
+    def test_lake_dependency_sources_keep_their_lean_module_name(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            project = Path(temp_dir)
+            source = project / ".lake/packages/crnt-lean/CRNT/Basic/Reaction.lean"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "namespace CRNT\n\n/-- A reaction. -/\n"
+                "structure Reaction where\n  source : Nat\n\nend CRNT\n",
+                encoding="utf-8",
+            )
+
+            payload = build_project_index(
+                project,
+                source_roots=[source.parent.parent.parent],
+                package="Chemistry",
+                output_path=project / ".archon/lean-explore/project-index.json",
+            )
+
+            self.assertEqual(payload["declarations"][0]["name"], "CRNT.Reaction")
+            self.assertEqual(
+                payload["declarations"][0]["module"], "CRNT.Basic.Reaction"
+            )
+
     def _index(self, root: Path) -> Path:
         source = root / "QBench" / "Base.lean"
         source.parent.mkdir(parents=True)

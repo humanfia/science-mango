@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.state import parse_objective_files
 from archon.state.progress import write_stage
 
@@ -332,7 +333,11 @@ def _doctor_failures(
         reason = str(item.get("reason") or item.get("kind") or "physics Review blocker")
         if rel:
             per_file[rel] = reason
-        elif item.get("source") in {"review-agent", "physics-reviewer"}:
+        elif item.get("source") in {
+            "review-agent",
+            "physics-reviewer",
+            "chemistry-reviewer",
+        }:
             global_blocker = True
     return per_file, global_blocker
 
@@ -549,11 +554,15 @@ def reopen_formalization_targets(
     _write_state(state_dir, data)
     _write_report(state_dir, data)
     if route_progress:
+        formalize_mode = (
+            load_domain_profile(project_path).mode_for_stage("autoformalize")
+            or "physics-formalize"
+        )
         write_stage(progress_file, "autoformalize")
         _replace_objectives(progress_file, [
             f"- **`{rel}`** — Proof Review routed this target to statement redraft "
             f"({objective_details[rel][0]}): {objective_details[rel][1]} "
-            "[prover-mode: physics-formalize]"
+            f"[prover-mode: {formalize_mode}]"
             for rel in sorted(set(reopened))
         ])
     return tuple(sorted(set(reopened)))
@@ -597,7 +606,7 @@ def apply_formalization_review(
             reason = per_file_blockers[rel]
         elif global_blocker:
             decision = "failed"
-            reason = "global physics Review blocker; no per-target pass certificate"
+            reason = "global semantics Review blocker; no per-target pass certificate"
 
         old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
         reviews = int(old.get("reviews") or 0)
@@ -655,11 +664,15 @@ def apply_formalization_review(
         )
 
     if retry:
+        formalize_mode = (
+            load_domain_profile(project_path).mode_for_stage("autoformalize")
+            or "physics-formalize"
+        )
         write_stage(progress_file, "autoformalize")
         _replace_objectives(progress_file, [
             f"- **`{rel}`** — Redraft after failed formalization Review "
             f"({targets[rel]['reviews']}/{max_iterations} used). "
-            f"[prover-mode: physics-formalize]"
+            f"[prover-mode: {formalize_mode}]"
             for rel in retry
         ])
     else:
@@ -670,8 +683,13 @@ def apply_formalization_review(
             if count is None or count > 0:
                 proof_ready.append(rel)
         if proof_ready:
+            proof_mode = (
+                load_domain_profile(project_path).mode_for_stage("prover")
+                or "physics"
+            )
             _replace_objectives(progress_file, [
-                f"- **`{rel}`** — Formalization Review passed; prove remaining obligations."
+                f"- **`{rel}`** — Formalization Review passed; prove remaining "
+                f"obligations. [prover-mode: {proof_mode}]"
                 for rel in proof_ready
             ])
         else:
@@ -936,9 +954,11 @@ def enforce_progress_review_gate(
         return kept, dropped
 
     if kept:
+        mode = load_domain_profile(project_path).mode_for_stage(stage)
+        mode_tag = f" [prover-mode: {mode}]" if mode else ""
         _replace_objectives(progress_file, [
             f"- **`{_relative_file(str(path), project_path)}`** — "
-            "eligible under the formalization Review gate."
+            f"eligible under the formalization Review gate.{mode_tag}"
             for path in kept
         ])
     else:

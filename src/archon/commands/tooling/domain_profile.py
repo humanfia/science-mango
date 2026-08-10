@@ -85,6 +85,28 @@ class DomainProfile:
     def is_legacy_physics(self) -> bool:
         return self.name == "physics" and self.enforce_classical_physics_modeling
 
+    @property
+    def blueprint_markers(self) -> tuple[str, ...]:
+        """Markers that opt a chapter into this profile's specialized loop."""
+        if self.name == "chemistry":
+            # Keep the historical marker as a compatibility alias for
+            # chemistry chapters prepared before the domain-specific marker.
+            return ("% archon:chemistry", "% archon:physics")
+        return ("% archon:physics",)
+
+    def mode_for_stage(self, stage: str) -> str | None:
+        """Return the profile-specific formalizer/prover mode for ``stage``."""
+        canonical = stage.strip().lower()
+        if canonical.startswith("autoformalize"):
+            return (
+                "chemistry-formalize"
+                if self.name == "chemistry"
+                else "physics-formalize"
+            )
+        if canonical.startswith("prover"):
+            return "chemistry" if self.name == "chemistry" else "physics"
+        return None
+
 
 def load_domain_profile(project_path: Path) -> DomainProfile:
     """Load ``loop.domain_profile`` while preserving historical defaults."""

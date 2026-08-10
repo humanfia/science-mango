@@ -130,6 +130,56 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
             self.assertEqual([item.relative_path for item in selected], ["A.lean", "B.lean"])
             self.assertEqual(skipped, [])
 
+    def test_chemistry_profile_keeps_chemistry_mode_in_deterministic_prover(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, chapters = self._project(root)
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {
+                        "domain_profile": {
+                            "name": "chemistry",
+                            "enforce_classical_physics_modeling": False,
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            self._target(root, chapters, "Chem.lean", "theorem c : True := by sorry\n")
+            (chapters / "Chem.tex").write_text(
+                "% archon:chemistry\n% archon:covers Chem.lean\n",
+                encoding="utf-8",
+            )
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "targets": {"Chem.lean": {"status": "passed"}},
+                }),
+                encoding="utf-8",
+            )
+
+            candidates = select_deterministic_candidates(
+                project_path=root,
+                state_dir=state,
+                stage="prover",
+                limit=1,
+                formalization_gate_enabled=True,
+                proof_gate_enabled=False,
+            )
+            self.assertEqual(len(candidates), 1)
+            self.assertEqual(candidates[0].prover_mode, "chemistry")
+
+            write_deterministic_objectives(
+                progress_file=state / "PROGRESS.md",
+                state_dir=state,
+                iter_num=2,
+                candidates=candidates,
+            )
+            self.assertIn(
+                "[prover-mode: chemistry]",
+                (state / "PROGRESS.md").read_text(encoding="utf-8"),
+            )
+
     def test_fast_sorry_count_ignores_comments_and_strings(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "T.lean"

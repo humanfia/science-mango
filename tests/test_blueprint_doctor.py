@@ -11,6 +11,7 @@ Both are deterministic; the doctor never mutates the blueprint.
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -545,6 +546,51 @@ class RunBlueprintDoctorTest(unittest.TestCase):
         self.assertIsNotNone(r)
         self.assertEqual(r.physics_grounding_problems, [])
 
+    def test_physics_mode_accepts_complete_grounding_log_archived_this_iteration(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n"
+            "% archon:covers Phys.lean\n",
+        )
+        (self.root / "Phys.lean").write_text(
+            "theorem target : True := by sorry\n",
+            encoding="utf-8",
+        )
+        archived = (
+            self.root
+            / ".archon"
+            / "logs"
+            / "iter-003"
+            / "task_results-archive"
+        )
+        archived.mkdir(parents=True)
+        # A newer iteration can archive reports for other targets only.
+        (
+            self.root
+            / ".archon"
+            / "logs"
+            / "iter-004"
+            / "task_results-archive"
+        ).mkdir(parents=True)
+        (archived / "chemistry-reviewer-phys-grounding.md").write_text(
+            "# Grounding review for Phys.lean\n\n"
+            "## LeanExplore queries/candidates actually used\n"
+            "- query: electric charge, packages: Mathlib, Physlib\n"
+            "- candidate: Physlib.Units.WithDim\n\n"
+            "## Physlib/Mathlib names grounded\n"
+            "- Physlib.Units.WithDim\n\n"
+            "## Local abstractions introduced\n"
+            "- none\n\n"
+            "## Grounding gaps\n"
+            "- none\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        self.assertIsNotNone(r)
+        self.assertEqual(r.physics_grounding_problems, [])
+
     def test_physics_mode_rejects_incomplete_grounding_log(self):
         self.bp.write_chapter(
             "Good",
@@ -577,6 +623,110 @@ class RunBlueprintDoctorTest(unittest.TestCase):
         self.assertIsNotNone(r)
         reasons = [reason for _, _, reason in r.physics_grounding_problems]
         self.assertTrue(any("successful LeanExplore search" in reason for reason in reasons), reasons)
+
+    def test_chemistry_mode_accepts_transitive_mathlib_and_semantic_search_reports(self):
+        state = self.root / ".archon"
+        state.mkdir()
+        (state / "config.json").write_text(
+            json.dumps({
+                "loop": {
+                    "domain_profile": {
+                        "name": "chemistry",
+                        "display_name": "IChO chemistry",
+                        "lean_search_packages": [
+                            "Mathlib", "Physlib", "Chemistry",
+                        ],
+                        "target_import_prefixes": [],
+                        "enforce_classical_physics_modeling": False,
+                        "require_explicit_mathlib_import": True,
+                    }
+                }
+            }),
+            encoding="utf-8",
+        )
+        self.bp.write_chapter(
+            "Good",
+            "% archon:chemistry\n% archon:covers ChemA.lean\n",
+        )
+        self.bp.write_chapter(
+            "Second",
+            "% archon:chemistry\n% archon:covers ChemB.lean\n",
+        )
+        self.bp.include_chapter("Second")
+        (self.root / "IChOChem.lean").write_text(
+            "import IChOChem.Core\n",
+            encoding="utf-8",
+        )
+        chemistry = self.root / "IChOChem"
+        chemistry.mkdir()
+        (chemistry / "Core.lean").write_text(
+            "import Mathlib\n",
+            encoding="utf-8",
+        )
+        for target in ("ChemA.lean", "ChemB.lean"):
+            (self.root / target).write_text(
+                "import IChOChem\ntheorem target : True := by sorry\n",
+                encoding="utf-8",
+            )
+        task_results = state / "task_results"
+        task_results.mkdir()
+        (task_results / "ChemA.lean.md").write_text(
+            "## Lean API search\n"
+            "Configured package filter: Mathlib, Physlib, Chemistry.\n"
+            "- Query `reaction enthalpy`; no usable thermochemistry API.\n"
+            "- `CRNT.Reaction` was verified as a candidate.\n"
+            "The target uses a minimal local thermochemistry interface.\n",
+            encoding="utf-8",
+        )
+        (task_results / "ChemB.lean.md").write_text(
+            "## Lean API search\n"
+            "Configured package filter: Mathlib, Physlib, Chemistry.\n"
+            "- reaction enthalpy temperature heat capacity Kirchhoff law\n"
+            "All LeanExplore searches returned unrelated results; none provided "
+            "a usable API, so no unverified external name was used.\n"
+            "The file uses finite local inductive carriers.\n",
+            encoding="utf-8",
+        )
+
+        report = run_blueprint_doctor(self.root)
+
+        self.assertEqual(report.physics_modeling_problems, [])
+        self.assertEqual(report.physics_grounding_problems, [])
+
+    def test_chemistry_transitive_mathlib_check_still_rejects_ungrounded_umbrella(self):
+        state = self.root / ".archon"
+        state.mkdir()
+        (state / "config.json").write_text(
+            json.dumps({
+                "loop": {
+                    "domain_profile": {
+                        "name": "chemistry",
+                        "lean_search_packages": ["Mathlib"],
+                        "target_import_prefixes": [],
+                        "enforce_classical_physics_modeling": False,
+                        "require_explicit_mathlib_import": True,
+                    }
+                }
+            }),
+            encoding="utf-8",
+        )
+        self.bp.write_chapter(
+            "Good",
+            "% archon:chemistry\n% archon:covers Chem.lean\n",
+        )
+        (self.root / "LocalOnly.lean").write_text(
+            "def localValue := 1\n",
+            encoding="utf-8",
+        )
+        (self.root / "Chem.lean").write_text(
+            "import LocalOnly\ntheorem target : True := by sorry\n",
+            encoding="utf-8",
+        )
+
+        report = run_blueprint_doctor(self.root)
+
+        kinds = {kind for _, kind, _ in report.physics_modeling_problems}
+        self.assertIn("missing-mathlib-import", kinds)
 
     def test_non_physics_project_allows_scalar_abbrevs(self):
         self.bp.write_chapter("Good", "\\label{thm:foo}\n")

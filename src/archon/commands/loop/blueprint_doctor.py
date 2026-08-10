@@ -170,6 +170,43 @@ _PHYSICS_GROUNDING_REQUIRED_TERMS = (
     ("local-abstraction section", ("local abstraction", "local abstractions")),
     ("grounding-gap section", ("grounding gap", "grounding gaps")),
 )
+_CHEMISTRY_GROUNDING_REQUIRED_TERMS = (
+    (
+        "LeanExplore/search evidence",
+        ("leanexplore", "lean-explore", "lean api search"),
+    ),
+    (
+        "query/candidate evidence",
+        ("query", "queries", "candidate", "candidates", "lean api search"),
+    ),
+    (
+        "verified-name or negative-result evidence",
+        ("grounded", "verified", "no usable", "none provided"),
+    ),
+    (
+        "local-abstraction evidence",
+        (
+            "local abstraction",
+            "local abstractions",
+            "local interface",
+            "minimal local",
+            "local inductive",
+            "transparently local",
+            "shared infrastructure request",
+        ),
+    ),
+    (
+        "grounding-gap or negative-result evidence",
+        (
+            "grounding gap",
+            "grounding gaps",
+            "no usable",
+            "none provided",
+            "did not provide",
+            "missing api",
+        ),
+    ),
+)
 _PHYSICS_PROP_FIELD_RE = re.compile(
     r"^[ \t]+([a-z][A-Za-z0-9_']*)[ \t]*:[^\n]*(?:→|->)[ \t]*Prop[ \t]*$",
     re.MULTILINE,
@@ -765,11 +802,16 @@ def _strip_lean_comments(text: str) -> str:
     return "".join(result)
 
 
-def _has_physics_blueprint_marker(chapter_files: list[Path]) -> bool:
-    """Return true when any live blueprint chapter opts into physics checks."""
+def _has_physics_blueprint_marker(
+    chapter_files: list[Path],
+    *,
+    blueprint_markers: tuple[str, ...] = (_PHYSICS_MARKER,),
+) -> bool:
+    """Return true when a live chapter opts into domain-aware checks."""
     for tex in chapter_files:
         try:
-            if _PHYSICS_MARKER in tex.read_text(encoding="utf-8", errors="ignore"):
+            text = tex.read_text(encoding="utf-8", errors="ignore")
+            if any(marker in text for marker in blueprint_markers):
                 return True
         except OSError:
             continue
@@ -932,8 +974,13 @@ def _scan_physics_modeling_problems(
     return out
 
 
-def _physics_chapter_targets(project_path: Path, chapter_files: list[Path]) -> list[Path]:
-    """Return existing Lean files covered by live `% archon:physics` chapters."""
+def _physics_chapter_targets(
+    project_path: Path,
+    chapter_files: list[Path],
+    *,
+    blueprint_markers: tuple[str, ...] = (_PHYSICS_MARKER,),
+) -> list[Path]:
+    """Return Lean files covered by live domain-marked chapters."""
     try:
         from archon.commands.tooling.blueprint import parse_chapter_covers
     except Exception:
@@ -945,7 +992,7 @@ def _physics_chapter_targets(project_path: Path, chapter_files: list[Path]) -> l
             text = tex.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if _PHYSICS_MARKER not in text:
+        if not any(marker in text for marker in blueprint_markers):
             continue
 
         covers: list[str] = []
@@ -968,7 +1015,12 @@ def _physics_chapter_targets(project_path: Path, chapter_files: list[Path]) -> l
     return sorted(targets)
 
 
-def _physics_exempt_targets(project_path: Path, chapter_files: list[Path]) -> set[Path]:
+def _physics_exempt_targets(
+    project_path: Path,
+    chapter_files: list[Path],
+    *,
+    blueprint_markers: tuple[str, ...] = (_PHYSICS_MARKER,),
+) -> set[Path]:
     """Lean targets whose covering chapter records a PhysLean-coverage exemption.
 
     Mirrors ``_physics_chapter_targets`` but keeps only chapters carrying a
@@ -992,7 +1044,7 @@ def _physics_exempt_targets(project_path: Path, chapter_files: list[Path]) -> se
             text = tex.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if _PHYSICS_MARKER not in text:
+        if not any(marker in text for marker in blueprint_markers):
             continue
         if not _PHYSLEAN_COVERAGE_EXEMPTION_RE.search(text):
             continue
@@ -1012,6 +1064,41 @@ def _physics_exempt_targets(project_path: Path, chapter_files: list[Path]) -> se
     return targets
 
 
+def _local_lean_module_path(project_path: Path, module: str) -> Path | None:
+    """Resolve a project-local Lean import without entering Lake packages."""
+    relative = Path(*module.replace("/", ".").split(".")).with_suffix(".lean")
+    candidate = project_path / relative
+    return candidate if candidate.is_file() else None
+
+
+def _project_imports_mathlib(
+    project_path: Path,
+    imports: list[str],
+    *,
+    seen: set[str] | None = None,
+) -> bool:
+    """Check whether a project-local umbrella import reaches Mathlib."""
+    seen = set() if seen is None else seen
+    for module in imports:
+        if module == "Mathlib" or module.startswith("Mathlib."):
+            return True
+        if module in seen:
+            continue
+        seen.add(module)
+        source = _local_lean_module_path(project_path, module)
+        if source is None:
+            continue
+        try:
+            nested = _LEAN_IMPORT_RE.findall(
+                source.read_text(encoding="utf-8", errors="ignore")
+            )
+        except OSError:
+            continue
+        if _project_imports_mathlib(project_path, nested, seen=seen):
+            return True
+    return False
+
+
 def _scan_physics_target_import_problems(
     project_path: Path,
     chapter_files: list[Path],
@@ -1020,20 +1107,34 @@ def _scan_physics_target_import_problems(
     require_explicit_mathlib: bool = True,
     target_import_prefixes: tuple[str, ...] = ("Physlib", "PhysLean"),
     domain_display_name: str = "physics",
+    blueprint_markers: tuple[str, ...] = (_PHYSICS_MARKER,),
+    allow_project_mathlib_reexport: bool = False,
 ) -> list[tuple[Path, str, str]]:
     """Require domain targets to visibly import their configured Lean library."""
     if not enabled:
         return []
 
     out: list[tuple[Path, str, str]] = []
-    exempt = _physics_exempt_targets(project_path, chapter_files)
-    for lean_file in _physics_chapter_targets(project_path, chapter_files):
+    exempt = _physics_exempt_targets(
+        project_path,
+        chapter_files,
+        blueprint_markers=blueprint_markers,
+    )
+    for lean_file in _physics_chapter_targets(
+        project_path,
+        chapter_files,
+        blueprint_markers=blueprint_markers,
+    ):
         try:
             text = lean_file.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
         imports = _LEAN_IMPORT_RE.findall(text)
-        has_mathlib = any(pkg == "Mathlib" or pkg.startswith("Mathlib.") for pkg in imports)
+        has_mathlib = any(
+            pkg == "Mathlib" or pkg.startswith("Mathlib.") for pkg in imports
+        )
+        if allow_project_mathlib_reexport and not has_mathlib:
+            has_mathlib = _project_imports_mathlib(project_path, imports)
         has_domain_library = any(
             pkg == prefix or pkg.startswith(prefix + ".")
             for pkg in imports
@@ -1043,7 +1144,7 @@ def _scan_physics_target_import_problems(
             out.append((
                 lean_file,
                 "missing-mathlib-import",
-                "physics target does not import Mathlib; autoformalization "
+                f"{domain_display_name} target does not import Mathlib; autoformalization "
                 "must be checked in a real Lake/Mathlib environment, not as "
                 "a standalone Lean smoke file",
             ))
@@ -1064,10 +1165,24 @@ def _scan_physics_target_import_problems(
 
 
 def _candidate_grounding_reports(project_path: Path, lean_file: Path) -> list[Path]:
-    """Return likely task_results reports for one Lean target."""
+    """Return likely current or just-archived reports for one Lean target.
+
+    Prover startup archives ``.archon/task_results`` into the current
+    iteration before the blueprint doctor runs.  Grounding evidence produced
+    during Plan must remain visible across that archive boundary, otherwise a
+    sound target is deterministically reported as ungrounded.
+    """
     state_dir = project_path / ".archon"
     task_results = state_dir / "task_results"
-    if not task_results.is_dir():
+    report_roots = [task_results] if task_results.is_dir() else []
+    iteration_dirs = sorted(
+        path for path in (state_dir / "logs").glob("iter-*") if path.is_dir()
+    )
+    for iteration_dir in reversed(iteration_dirs):
+        archive = iteration_dir / "task_results-archive"
+        if archive.is_dir():
+            report_roots.append(archive)
+    if not report_roots:
         return []
     try:
         rel = lean_file.resolve().relative_to(project_path.resolve())
@@ -1088,35 +1203,38 @@ def _candidate_grounding_reports(project_path: Path, lean_file: Path) -> list[Pa
     ]
     out: list[Path] = []
     seen: set[Path] = set()
-    for name in names:
-        p = task_results / name
-        if p.is_file() and p not in seen:
-            out.append(p)
-            seen.add(p)
+    for report_root in report_roots:
+        for name in names:
+            p = report_root / name
+            if p.is_file() and p not in seen:
+                out.append(p)
+                seen.add(p)
 
     # Some agent-generated reports include extra slug text. Accept fuzzy
     # matches only when the report file itself looks like a physics/formalize/
     # prover report; generic blueprint-reviewer reports often mention the Lean
     # target, but they are not grounding logs.
     stem_key = rel.stem.lower().replace("_", "-")
-    for p in sorted(task_results.rglob("*.md")):
-        if p in seen:
-            continue
-        p_key = p.stem.lower().replace("_", "-")
-        if (
-            not p_key.startswith(stem_key)
-            and "physics" not in p_key
-            and "formalize" not in p_key
-            and "prover" not in p_key
-        ):
-            continue
-        try:
-            text = p.read_text(encoding="utf-8", errors="ignore")
-        except OSError:
-            continue
-        if rel_posix in text or rel.name in text:
-            out.append(p)
-            seen.add(p)
+    for report_root in report_roots:
+        for p in sorted(report_root.rglob("*.md")):
+            if p in seen:
+                continue
+            p_key = p.stem.lower().replace("_", "-")
+            if (
+                not p_key.startswith(stem_key)
+                and "physics" not in p_key
+                and "chemistry" not in p_key
+                and "formalize" not in p_key
+                and "prover" not in p_key
+            ):
+                continue
+            try:
+                text = p.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            if rel_posix in text or rel.name in text:
+                out.append(p)
+                seen.add(p)
     return out
 
 
@@ -1124,10 +1242,13 @@ def _grounding_report_missing_terms(
     text: str,
     *,
     expected_packages: tuple[str, ...] = ("Mathlib", "Physlib"),
+    required_terms: tuple[tuple[str, tuple[str, ...]], ...] = (
+        _PHYSICS_GROUNDING_REQUIRED_TERMS
+    ),
 ) -> list[str]:
     hay = text.lower()
     missing: list[str] = []
-    for label, terms in _PHYSICS_GROUNDING_REQUIRED_TERMS:
+    for label, terms in required_terms:
         if not any(term in hay for term in terms):
             missing.append(label)
     for package in expected_packages:
@@ -1155,13 +1276,23 @@ def _scan_physics_grounding_problems(
     *,
     enabled: bool,
     expected_packages: tuple[str, ...] = ("Mathlib", "Physlib"),
+    required_terms: tuple[tuple[str, tuple[str, ...]], ...] = (
+        _PHYSICS_GROUNDING_REQUIRED_TERMS
+    ),
+    blueprint_markers: tuple[str, ...] = (_PHYSICS_MARKER,),
+    domain_display_name: str = "physics",
 ) -> list[tuple[Path, str, str]]:
     """Flag missing/incomplete LeanExplore grounding logs for physics targets."""
     if not enabled:
         return []
 
     out: list[tuple[Path, str, str]] = []
-    for lean_file in _physics_chapter_targets(project_path, chapter_files):
+    marker_label = blueprint_markers[0] if blueprint_markers else _PHYSICS_MARKER
+    for lean_file in _physics_chapter_targets(
+        project_path,
+        chapter_files,
+        blueprint_markers=blueprint_markers,
+    ):
         reports = _candidate_grounding_reports(project_path, lean_file)
         try:
             rel = lean_file.relative_to(project_path.resolve()).as_posix()
@@ -1171,11 +1302,11 @@ def _scan_physics_grounding_problems(
             out.append((
                 lean_file,
                 "missing-grounding-log",
-                f"{rel} exists under a `% archon:physics` chapter, but no "
+                f"{rel} exists under a `{marker_label}` chapter, but no "
                 "task_results report records LeanExplore grounding. The "
-                "autoformalize/prover report must list LeanExplore queries, "
-                "candidates, grounded Mathlib/PhysLean names, local "
-                "abstractions, and grounding gaps.",
+                f"autoformalize/prover report must record {domain_display_name} "
+                "library searches, verified candidates or negative results, "
+                "local abstractions, and grounding gaps.",
             ))
             continue
 
@@ -1189,6 +1320,7 @@ def _scan_physics_grounding_problems(
             missing = _grounding_report_missing_terms(
                 text,
                 expected_packages=expected_packages,
+                required_terms=required_terms,
             )
             if not missing:
                 best_missing = []
@@ -1303,11 +1435,15 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
 
     axiom_decls = _scan_axiom_decls(project_path)
     covers_problems = _scan_covers_problems(project_path) if has_blueprint else []
+    domain_profile = load_domain_profile(project_path)
+    blueprint_markers = domain_profile.blueprint_markers
     physics_enabled = (
-        _has_physics_blueprint_marker(chapters_included or chapters_present)
+        _has_physics_blueprint_marker(
+            chapters_included or chapters_present,
+            blueprint_markers=blueprint_markers,
+        )
         if has_blueprint else False
     )
-    domain_profile = load_domain_profile(project_path)
     physics_modeling_problems = _scan_physics_modeling_problems(
         project_path,
         enabled=(
@@ -1325,6 +1461,10 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
             ),
             target_import_prefixes=domain_profile.target_import_prefixes,
             domain_display_name=domain_profile.display_name,
+            blueprint_markers=blueprint_markers,
+            allow_project_mathlib_reexport=(
+                domain_profile.name == "chemistry"
+            ),
         )
     )
     physics_grounding_problems = _scan_physics_grounding_problems(
@@ -1332,6 +1472,13 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
         chapters_included or chapters_present,
         enabled=physics_enabled,
         expected_packages=domain_profile.lean_search_packages,
+        required_terms=(
+            _CHEMISTRY_GROUNDING_REQUIRED_TERMS
+            if domain_profile.name == "chemistry"
+            else _PHYSICS_GROUNDING_REQUIRED_TERMS
+        ),
+        blueprint_markers=blueprint_markers,
+        domain_display_name=domain_profile.display_name,
     )
 
     if (

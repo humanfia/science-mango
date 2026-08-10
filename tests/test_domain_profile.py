@@ -63,6 +63,35 @@ class DomainProfileTests(unittest.TestCase):
         self.assertFalse(profile.enforce_classical_physics_modeling)
         self.assertFalse(profile.require_explicit_mathlib_import)
 
+    def test_chemistry_profile_exposes_specialized_marker_and_loop_modes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            state = project / ".archon"
+            state.mkdir()
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {
+                        "domain_profile": {
+                            "name": "chemistry",
+                            "enforce_classical_physics_modeling": False,
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            profile = load_domain_profile(project)
+
+        self.assertEqual(
+            profile.blueprint_markers,
+            ("% archon:chemistry", "% archon:physics"),
+        )
+        self.assertEqual(
+            profile.mode_for_stage("autoformalize"),
+            "chemistry-formalize",
+        )
+        self.assertEqual(profile.mode_for_stage("prover"), "chemistry")
+        self.assertIsNone(profile.mode_for_stage("review"))
+
 
 if __name__ == "__main__":
     unittest.main()

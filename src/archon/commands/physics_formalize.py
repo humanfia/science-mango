@@ -34,6 +34,9 @@ from archon.commands.tooling.domain_profile import (
 PHYSICS_FORMALIZE_MODE = "physics-formalize"
 PHYSICS_PROVER_MODE = "physics"
 PHYSICS_REVIEWER = "physics-reviewer"
+CHEMISTRY_FORMALIZE_MODE = "chemistry-formalize"
+CHEMISTRY_PROVER_MODE = "chemistry"
+CHEMISTRY_REVIEWER = "chemistry-reviewer"
 SUPPORTED_DATASET_FORMATS = {"auto", "native", "phyx"}
 
 PHYSLEAN_GIT_URL = "https://github.com/HEPLean/PhysLean"
@@ -110,6 +113,23 @@ class PhysicsFormalizeCommand:
         self.with_rethlas_blueprint = with_rethlas_blueprint
         self.rethlas_command = rethlas_command
         self.rethlas_timeout = rethlas_timeout
+
+    @property
+    def _formalize_mode(self) -> str:
+        return (
+            self.domain_profile.mode_for_stage("autoformalize")
+            or PHYSICS_FORMALIZE_MODE
+        )
+
+    @property
+    def _proof_mode(self) -> str:
+        return self.domain_profile.mode_for_stage("prover") or PHYSICS_PROVER_MODE
+
+    @property
+    def _reviewer(self) -> str:
+        if self.domain_profile.name == "chemistry":
+            return CHEMISTRY_REVIEWER
+        return PHYSICS_REVIEWER
 
     def run(self) -> None:
         log.header("archon physics-formalize")
@@ -437,6 +457,27 @@ class PhysicsFormalizeCommand:
                 return first
         return None
 
+    @staticmethod
+    def _entry_image_references(entry: dict) -> list[str]:
+        """Return every image reference, keeping the legacy primary image first."""
+        references: list[str] = []
+
+        def add(value: object) -> None:
+            if isinstance(value, dict):
+                value = value.get("path")
+            if value is None:
+                return
+            reference = str(value).strip()
+            if reference and reference not in references:
+                references.append(reference)
+
+        add(entry.get("image"))
+        images = entry.get("images")
+        if isinstance(images, list):
+            for image in images:
+                add(image)
+        return references
+
     def _build_problem_set_entries(
         self, raw_entries: list[dict]
     ) -> tuple[str, list[dict], str]:
@@ -561,7 +602,7 @@ class PhysicsFormalizeCommand:
         return path
 
     def _resolve_batch_image_root(self, input_path: Path, entries: list[dict]) -> Path | None:
-        has_images = any(entry.get("image") for entry in entries)
+        has_images = any(self._entry_image_references(entry) for entry in entries)
         if self.image_root:
             root = self.image_root.expanduser()
             if not root.is_absolute():
@@ -649,17 +690,55 @@ class PhysicsFormalizeCommand:
             "answer": self.answer,
             "category": self.category,
             "image": image_path.name if image_path else None,
+            "images": [image_path.name] if image_path else [],
             "image_path": str(image_path) if image_path else None,
+            "image_paths": [str(image_path)] if image_path else [],
         }
 
     def _entry_image_path(self, entry: dict, image_root: Path | None) -> str | None:
-        image = entry.get("image")
-        if not image:
-            return None
-        path = Path(str(image))
-        if not path.is_absolute() and image_root is not None:
-            path = image_root / path
-        return str(path.resolve())
+        image_paths = self._entry_image_paths(entry, image_root)
+        return image_paths[0] if image_paths else None
+
+    def _entry_image_paths(self, entry: dict, image_root: Path | None) -> list[str]:
+        image_paths: list[str] = []
+        for image in self._entry_image_references(entry):
+            path = Path(image)
+            if not path.is_absolute() and image_root is not None:
+                path = image_root / path
+            resolved = str(path.resolve())
+            if resolved not in image_paths:
+                image_paths.append(resolved)
+        return image_paths
+
+    def _artifact_path(self, path: Path) -> str:
+        """Return a portable POSIX locator rooted at the Lean project.
+
+        Runtime metadata keeps fully resolved paths for diagnostics.  Source
+        reports and blueprint prose are tracked artifacts, however, so they
+        must not capture the machine-specific checkout prefix.  ``relpath``
+        also gives project-external resources a stable sibling locator such
+        as ``../dataset/images/figure.png``.
+        """
+        candidate = path.expanduser()
+        if not candidate.is_absolute():
+            candidate = self.project_path / candidate
+        relative = os.path.relpath(candidate.resolve(), start=self.project_path)
+        return Path(relative).as_posix()
+
+    def _entry_for_artifact(self, entry: dict) -> dict:
+        """Copy an input entry with generated image locators made portable."""
+        portable = dict(entry)
+        image_path = entry.get("image_path")
+        if image_path:
+            portable["image_path"] = self._artifact_path(Path(str(image_path)))
+        image_paths = entry.get("image_paths")
+        if isinstance(image_paths, list):
+            portable["image_paths"] = [
+                self._artifact_path(Path(str(path)))
+                for path in image_paths
+                if str(path).strip()
+            ]
+        return portable
 
     # batch/problem set -----------------------------------------------
 
@@ -722,7 +801,8 @@ class PhysicsFormalizeCommand:
         for entry in entries:
             idx = str(entry["index"])
             entry = dict(entry)
-            entry["image_path"] = self._entry_image_path(entry, image_root)
+            entry["image_paths"] = self._entry_image_paths(entry, image_root)
+            entry["image_path"] = entry["image_paths"][0] if entry["image_paths"] else None
             records.append(
                 self._prepare_one(
                     entry=entry,
@@ -825,7 +905,8 @@ class PhysicsFormalizeCommand:
         records: list[dict] = []
         for entry in entries:
             entry = dict(entry)
-            entry["image_path"] = self._entry_image_path(entry, image_root)
+            entry["image_paths"] = self._entry_image_paths(entry, image_root)
+            entry["image_path"] = entry["image_paths"][0] if entry["image_paths"] else None
             records.append(
                 self._prepare_one(
                     entry=entry,
@@ -917,22 +998,24 @@ class PhysicsFormalizeCommand:
         return record
 
     def _source_report(self, entry: dict, out_path: Path, report_path: Path) -> dict:
+        portable_entry = self._entry_for_artifact(entry)
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "command": "physics-formalize",
             "status": "prepared",
             "next_stage": "autoformalize",
-            "prover_mode": PHYSICS_FORMALIZE_MODE,
-            "proof_mode": PHYSICS_PROVER_MODE,
-            "project_path": str(self.project_path),
-            "output_lean": str(out_path),
-            "source_report": str(report_path),
+            "prover_mode": self._formalize_mode,
+            "proof_mode": self._proof_mode,
+            "path_base": "project",
+            "project_path": ".",
+            "output_lean": self._artifact_path(out_path),
+            "source_report": self._artifact_path(report_path),
             "domain": self.domain_profile.name,
             "lean_search_packages": list(self.domain_profile.lean_search_packages),
-            "entry": entry,
-            "problem_id": entry.get("problem_id"),
-            "part_id": entry.get("part_id"),
-            "previous_parts": entry.get("previous_parts", []),
+            "entry": portable_entry,
+            "problem_id": portable_entry.get("problem_id"),
+            "part_id": portable_entry.get("part_id"),
+            "previous_parts": portable_entry.get("previous_parts", []),
         }
 
     def _write_physics_blueprint_chapter(
@@ -955,7 +1038,7 @@ class PhysicsFormalizeCommand:
 
         chapter = BlueprintChapter(self.project_path, rel_lean)
         generated = self._physics_blueprint_block(
-            entry=entry,
+            entry=self._entry_for_artifact(entry),
             rel_lean=rel_lean,
             rel_report=rel_report,
             slug=chapter.slug,
@@ -989,9 +1072,13 @@ class PhysicsFormalizeCommand:
         lines = [
             "% --- Archon physics formalization source begin ---",
             "% archon:physics",
+        ]
+        if self.domain_profile.name == "chemistry":
+            lines.append("% archon:chemistry")
+        lines.extend([
             f"% archon:covers {rel_lean}",
             f"% archon:source-report {rel_report}",
-        ]
+        ])
         if entry.get("problem_id"):
             lines.append(f"% archon:problem-id {entry['problem_id']}")
         if entry.get("part_id"):
@@ -1030,7 +1117,15 @@ class PhysicsFormalizeCommand:
             ])
         if answer:
             lines.extend(["", "\\paragraph{Recorded answer/context.}", self._latex_escape(answer)])
-        if entry.get("image_path"):
+        image_paths = entry.get("image_paths")
+        if isinstance(image_paths, list) and len(image_paths) > 1:
+            lines.extend(["", "\\paragraph{Figure/image paths.}", "\\begin{itemize}"])
+            lines.extend(
+                f"\\item {self._latex_escape(str(image_path))}"
+                for image_path in image_paths
+            )
+            lines.append("\\end{itemize}")
+        elif entry.get("image_path"):
             lines.extend(["", "\\paragraph{Figure/image path.}", self._latex_escape(str(entry["image_path"]))])
         if entry.get("previous_parts"):
             lines.extend(["", "\\paragraph{Reusable previous-part conclusions.}"])
@@ -1160,13 +1255,23 @@ class PhysicsFormalizeCommand:
         begin = "% --- Archon physics formalization source begin ---"
         end = "% --- Archon physics formalization source end ---"
         pattern = rf"{re.escape(begin)}.*?{re.escape(end)}"
-        new_text, count = re.subn(pattern, generated.strip(), existing, count=1, flags=re.DOTALL)
+        new_text, count = re.subn(
+            pattern,
+            lambda _match: generated.strip(),
+            existing,
+            count=1,
+            flags=re.DOTALL,
+        )
         if count:
             return new_text.rstrip() + "\n"
         return existing.rstrip() + "\n\n" + generated
 
     def _ensure_loop_assets(self) -> None:
-        if self.domain_profile.is_legacy_physics:
+        if self.domain_profile.name == "chemistry":
+            formalize_src = f"{CHEMISTRY_FORMALIZE_MODE}.md"
+            prover_src = f"{CHEMISTRY_PROVER_MODE}.md"
+            reviewer_src = f"{CHEMISTRY_REVIEWER}.md"
+        elif self.domain_profile.is_legacy_physics:
             formalize_src = f"{PHYSICS_FORMALIZE_MODE}.md"
             prover_src = f"{PHYSICS_PROVER_MODE}.md"
             reviewer_src = f"{PHYSICS_REVIEWER}.md"
@@ -1176,17 +1281,17 @@ class PhysicsFormalizeCommand:
             reviewer_src = "quantum-reviewer.md"
         self._copy_archon_asset(
             "prover-modes",
-            f"{PHYSICS_FORMALIZE_MODE}.md",
+            f"{self._formalize_mode}.md",
             source_filename=formalize_src,
         )
         self._copy_archon_asset(
             "prover-modes",
-            f"{PHYSICS_PROVER_MODE}.md",
+            f"{self._proof_mode}.md",
             source_filename=prover_src,
         )
         self._copy_archon_asset(
             "subagents",
-            f"{PHYSICS_REVIEWER}.md",
+            f"{self._reviewer}.md",
             source_filename=reviewer_src,
         )
 
@@ -1291,8 +1396,8 @@ class PhysicsFormalizeCommand:
             "output_report": str(report_path),
             "domain": self.domain_profile.name,
             "next_stage": "autoformalize",
-            "prover_mode": PHYSICS_FORMALIZE_MODE,
-            "proof_mode": PHYSICS_PROVER_MODE,
+            "prover_mode": self._formalize_mode,
+            "proof_mode": self._proof_mode,
             "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "physlean_dependency": self._metadata_physlean_dependency(ensure_result),
             "physlean_build": self._metadata_physlean_build(build_result),
@@ -1369,8 +1474,8 @@ class PhysicsFormalizeCommand:
             "image_root": str(image_root) if image_root else None,
             "domain": self.domain_profile.name,
             "next_stage": "autoformalize",
-            "prover_mode": PHYSICS_FORMALIZE_MODE,
-            "proof_mode": PHYSICS_PROVER_MODE,
+            "prover_mode": self._formalize_mode,
+            "proof_mode": self._proof_mode,
             "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "limit": self.limit,
             "entry_count": len(entries),
@@ -1429,8 +1534,8 @@ class PhysicsFormalizeCommand:
             "image_root": str(image_root) if image_root else None,
             "domain": self.domain_profile.name,
             "next_stage": "autoformalize",
-            "prover_mode": PHYSICS_FORMALIZE_MODE,
-            "proof_mode": PHYSICS_PROVER_MODE,
+            "prover_mode": self._formalize_mode,
+            "proof_mode": self._proof_mode,
             "lean_search_packages": list(self.domain_profile.lean_search_packages),
             "limit": self.limit,
             "dependencies": dependencies,
@@ -1454,18 +1559,16 @@ class PhysicsFormalizeCommand:
         if image_root is None:
             return missing
         for entry in entries:
-            image = entry.get("image")
-            if not image:
-                continue
-            image_path = Path(str(image))
-            if not image_path.is_absolute():
-                image_path = image_root / image_path
-            if not image_path.is_file():
-                missing.append({
-                    "index": str(entry.get("index")),
-                    "image": str(image),
-                    "expected_path": str(image_path),
-                })
+            for image in PhysicsFormalizeCommand._entry_image_references(entry):
+                image_path = Path(image)
+                if not image_path.is_absolute():
+                    image_path = image_root / image_path
+                if not image_path.is_file():
+                    missing.append({
+                        "index": str(entry.get("index")),
+                        "image": image,
+                        "expected_path": str(image_path),
+                    })
         return missing
 
     def _metadata_physlean_dependency(self, ensure_result: dict | None) -> dict:
@@ -1500,11 +1603,11 @@ class PhysicsFormalizeCommand:
             rel_report = record["rel_report"]
             rel_chapter = record["rel_chapter"]
             objective_parts.append(
-                f"### {number}. **`{rel_lean}`** [prover-mode: {PHYSICS_FORMALIZE_MODE}]\n"
+                f"### {number}. **`{rel_lean}`** [prover-mode: {self._formalize_mode}]\n"
                 f"- Autoformalize this {self.domain_profile.display_name} blueprint chapter into Lean declarations with `by sorry` bodies.\n"
                 f"- Blueprint chapter: `{rel_chapter}`.\n"
                 f"- Source report: `{rel_report}`.\n"
-                f"- After this file compiles with expected sorry warnings, move it to prover mode `{PHYSICS_PROVER_MODE}`.\n"
+                f"- After this file compiles with expected sorry warnings, move it to prover mode `{self._proof_mode}`.\n"
             )
         objective = "\n".join(objective_parts)
         if progress.exists():
@@ -1541,6 +1644,23 @@ class PhysicsFormalizeCommand:
         new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.DOTALL)
         if count:
             return new_text
+        if before:
+            # Some problem-set progress files intentionally omit the template's
+            # ``## Stages`` section.  Replace the existing section up to the
+            # next H2 heading (or EOF) instead of appending a duplicate Current
+            # Stage that ``read_stage`` will never see.
+            fallback = (
+                rf"^{re.escape(heading)}[^\n]*\n.*?(?=^## |\Z)"
+            )
+            new_text, count = re.subn(
+                fallback,
+                replacement,
+                text,
+                count=1,
+                flags=re.DOTALL | re.MULTILINE,
+            )
+            if count:
+                return new_text
         suffix = "" if text.endswith("\n") else "\n"
         return f"{text}{suffix}\n{replacement}"
 

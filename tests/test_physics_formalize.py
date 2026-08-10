@@ -16,6 +16,9 @@ from unittest import mock
 import typer
 
 from archon.commands.physics_formalize import (
+    CHEMISTRY_FORMALIZE_MODE,
+    CHEMISTRY_PROVER_MODE,
+    CHEMISTRY_REVIEWER,
     PHYSICS_FORMALIZE_MODE,
     PHYSICS_PROVER_MODE,
     PHYSLEAN_GIT_URL,
@@ -33,6 +36,36 @@ def _make_project(root: Path) -> Path:
 
 
 class PhysicsFormalizePrepareTests(unittest.TestCase):
+    def test_replace_generated_block_preserves_latex_backslashes(self):
+        existing = r"""Hand-written preface.
+
+% --- Archon physics formalization source begin ---
+\section{Old source}
+% --- Archon physics formalization source end ---
+
+Hand-written appendix.
+"""
+        generated = r"""% --- Archon physics formalization source begin ---
+\section{Updated source}
+The uncertainty is $\sigma$.
+% --- Archon physics formalization source end ---
+"""
+
+        replaced = PhysicsFormalizeCommand._replace_or_append_generated_block(
+            existing,
+            generated,
+        )
+
+        self.assertIn(r"\section{Updated source}", replaced)
+        self.assertIn(r"$\sigma$", replaced)
+        self.assertNotIn(r"\section{Old source}", replaced)
+        self.assertIn("Hand-written preface.", replaced)
+        self.assertIn("Hand-written appendix.", replaced)
+        self.assertEqual(
+            replaced.count("% --- Archon physics formalization source begin ---"),
+            1,
+        )
+
     def test_phyx_entry_normalization_resolves_answer_and_context(self):
         entry = PhysicsFormalizeCommand._normalize_phyx_entry(
             {
@@ -92,6 +125,11 @@ class PhysicsFormalizePrepareTests(unittest.TestCase):
             self.assertFalse(lean_path.exists())
             self.assertTrue(report_path.exists())
             report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(report["schema_version"], 2)
+            self.assertEqual(report["path_base"], "project")
+            self.assertEqual(report["project_path"], ".")
+            self.assertEqual(report["output_lean"], "PhysicsProblems/p001.lean")
+            self.assertEqual(report["source_report"], "reports/p001.source.json")
             self.assertEqual(report["status"], "prepared")
             self.assertEqual(report["next_stage"], "autoformalize")
             self.assertEqual(report["entry"]["answer"], "10 N")
@@ -100,7 +138,9 @@ class PhysicsFormalizePrepareTests(unittest.TestCase):
             self.assertFalse(latest["dry_run"])
             self.assertEqual(latest["result"]["status"], "prepared")
             self.assertEqual(latest["result"]["next_stage"], "autoformalize")
+            self.assertEqual(latest["project_path"], str(project.resolve()))
             self.assertEqual(latest["output_lean"], str(lean_path.resolve()))
+            self.assertEqual(latest["source_report"], str(report_path.resolve()))
 
             progress = progress_path.read_text(encoding="utf-8")
             self.assertIn("## Current Stage", progress)
@@ -120,6 +160,101 @@ class PhysicsFormalizePrepareTests(unittest.TestCase):
             self.assertTrue(
                 (project / ".archon" / "prover-modes" / "physics-formalize.md").exists()
             )
+
+    def test_single_image_is_portable_but_runtime_metadata_stays_absolute(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            image_path = project / "references" / "figure.png"
+            image_path.parent.mkdir()
+            image_path.write_bytes(b"figure")
+            work_dir = project / ".archon" / "physics-formalize" / "image"
+            report_path = project / "reports" / "image.source.json"
+
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                question="Read the project-local figure.",
+                image=image_path,
+                out=Path("PhysicsProblems/image.lean"),
+                report_out=Path("reports/image.source.json"),
+                work_dir=work_dir,
+                index="image",
+            )
+            cmd.run()
+
+            report_text = report_path.read_text(encoding="utf-8")
+            report = json.loads(report_text)
+            self.assertEqual(report["entry"]["image_path"], "references/figure.png")
+            self.assertEqual(report["entry"]["image_paths"], ["references/figure.png"])
+            self.assertNotIn(str(project.resolve()), report_text)
+
+            chapter = (
+                project
+                / "blueprint"
+                / "src"
+                / "chapters"
+                / "PhysicsProblems_image.tex"
+            ).read_text(encoding="utf-8")
+            self.assertIn("references/figure.png", chapter)
+            self.assertNotIn(str(project.resolve()), chapter)
+
+            manifest = json.loads(
+                (work_dir / "problem_image_manifest.json").read_text(encoding="utf-8")
+            )
+            latest = json.loads(
+                (
+                    project / ".archon" / "physics-formalize" / "latest.json"
+                ).read_text(encoding="utf-8")
+            )
+            for runtime in (manifest, latest):
+                self.assertEqual(runtime["project_path"], str(project.resolve()))
+                self.assertEqual(
+                    runtime["output_lean"],
+                    str((project / "PhysicsProblems/image.lean").resolve()),
+                )
+                self.assertEqual(runtime["source_report"], str(report_path.resolve()))
+                self.assertEqual(
+                    runtime["entry"]["image_path"], str(image_path.resolve())
+                )
+                self.assertEqual(
+                    runtime["entry"]["image_paths"], [str(image_path.resolve())]
+                )
+
+    def test_update_progress_replaces_stage_when_stages_section_is_absent(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            state = project / ".archon"
+            state.mkdir()
+            progress_path = state / "PROGRESS.md"
+            progress_path.write_text(
+                "# Progress\n\n"
+                "## Current Stage\n\n"
+                "prover\n\n"
+                "## Current Objectives\n\n"
+                "old objective\n",
+                encoding="utf-8",
+            )
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                question="A chemistry target.",
+                out=Path("Chem/Target.lean"),
+                work_dir=state / "physics-formalize" / "single",
+            )
+
+            cmd._update_progress_records([
+                {
+                    "rel_lean": "Chem/Target.lean",
+                    "rel_report": "reports/target.source.json",
+                    "rel_chapter": "blueprint/src/chapters/Chem_Target.tex",
+                }
+            ])
+
+            progress = progress_path.read_text(encoding="utf-8")
+            self.assertEqual(progress.count("## Current Stage"), 1)
+            self.assertIn("## Current Stage\n\nautoformalize\n", progress)
+            self.assertIn("**`Chem/Target.lean`**", progress)
+            self.assertNotIn("old objective", progress)
 
     def test_batch_prepare_writes_one_chapter_and_objective_per_entry(self):
         with tempfile.TemporaryDirectory() as d:
@@ -186,6 +321,148 @@ class PhysicsFormalizePrepareTests(unittest.TestCase):
             )
             self.assertEqual(latest["mode"], "batch")
             self.assertEqual(latest["result"]["prepared"], 2)
+
+    def test_chemistry_profile_installs_domain_assets_and_preserves_all_images(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            state = project / ".archon"
+            state.mkdir()
+            (state / "config.json").write_text(
+                json.dumps(
+                    {
+                        "loop": {
+                            "domain_profile": {
+                                "name": "chemistry",
+                                "display_name": "chemistry",
+                                "preflight_imports": ["Mathlib"],
+                                "lean_search_packages": [
+                                    "Mathlib",
+                                    "Physlib",
+                                    "CRNT",
+                                ],
+                                "target_import_prefixes": ["IChO2026Chem"],
+                                "enforce_classical_physics_modeling": False,
+                                "require_explicit_mathlib_import": False,
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            dataset = root / "dataset"
+            images = dataset / "images"
+            images.mkdir(parents=True)
+            (images / "primary.png").write_bytes(b"primary")
+            (images / "context.png").write_bytes(b"context")
+            input_jsonl = dataset / "data.jsonl"
+            input_jsonl.write_text(
+                json.dumps(
+                    {
+                        "index": "icho_t1_a1",
+                        "question": "Determine the isotope abundance from both pages.",
+                        "answer": "x = 0.75",
+                        "image": "primary.png",
+                        "images": ["primary.png", "context.png"],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                input_jsonl=input_jsonl,
+                image_root=Path("images"),
+                work_dir=state / "physics-formalize" / "chemistry",
+                out_dir=Path("IChO2026Problems"),
+                report_dir=Path("reports/chemistry"),
+                update_progress=True,
+            )
+            cmd.run()
+
+            report = json.loads(
+                (
+                    project
+                    / "reports"
+                    / "chemistry"
+                    / "problem_icho_t1_a1.source.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertEqual(report["domain"], "chemistry")
+            self.assertEqual(report["prover_mode"], CHEMISTRY_FORMALIZE_MODE)
+            self.assertEqual(report["proof_mode"], CHEMISTRY_PROVER_MODE)
+            self.assertEqual(
+                report["entry"]["images"],
+                ["primary.png", "context.png"],
+            )
+            self.assertEqual(
+                report["entry"]["image_path"],
+                "../dataset/images/primary.png",
+            )
+            self.assertEqual(
+                report["entry"]["image_paths"],
+                [
+                    "../dataset/images/primary.png",
+                    "../dataset/images/context.png",
+                ],
+            )
+
+            chapter = (
+                project
+                / "blueprint"
+                / "src"
+                / "chapters"
+                / "IChO2026Problems_problem_icho_t1_a1.tex"
+            ).read_text(encoding="utf-8")
+            self.assertIn("% archon:chemistry", chapter)
+            self.assertIn("Figure/image paths", chapter)
+            self.assertIn("../dataset/images/primary.png", chapter)
+            self.assertIn("../dataset/images/context.png", chapter)
+            self.assertIn("primary.png", chapter)
+            self.assertIn("context.png", chapter)
+            self.assertNotIn(str(images.resolve()), chapter)
+
+            latest = json.loads(
+                (state / "physics-formalize" / "latest.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(latest["project_path"], str(project.resolve()))
+            self.assertEqual(latest["image_root"], str(images.resolve()))
+            self.assertEqual(
+                latest["records"][0]["output_lean"],
+                str((project / "IChO2026Problems/problem_icho_t1_a1.lean").resolve()),
+            )
+            self.assertEqual(
+                latest["records"][0]["source_report"],
+                str(
+                    (
+                        project
+                        / "reports"
+                        / "chemistry"
+                        / "problem_icho_t1_a1.source.json"
+                    ).resolve()
+                ),
+            )
+
+            progress = (state / "PROGRESS.md").read_text(encoding="utf-8")
+            self.assertIn(f"[prover-mode: {CHEMISTRY_FORMALIZE_MODE}]", progress)
+            self.assertIn(f"prover mode `{CHEMISTRY_PROVER_MODE}`", progress)
+            self.assertTrue(
+                (state / "prover-modes" / f"{CHEMISTRY_FORMALIZE_MODE}.md").is_file()
+            )
+            self.assertTrue(
+                (state / "prover-modes" / f"{CHEMISTRY_PROVER_MODE}.md").is_file()
+            )
+            reviewer = state / "subagents" / f"{CHEMISTRY_REVIEWER}.md"
+            self.assertTrue(reviewer.is_file())
+            self.assertIn(
+                f"name: {CHEMISTRY_REVIEWER}",
+                reviewer.read_text(encoding="utf-8"),
+            )
+            self.assertFalse((state / "prover-modes" / "quantum-formalize.md").exists())
 
     def test_problem_set_prepare_moves_previous_parts_into_blueprint_not_formalizer(self):
         with tempfile.TemporaryDirectory() as d:

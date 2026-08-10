@@ -527,13 +527,60 @@ class ValidatePlanOutputNoopFilterTest(unittest.TestCase):
             self.assertTrue(result)
             self.assertFalse((state / "AUTO_NOTES.md").exists())
 
+    def test_polish_stage_keeps_zero_sorry_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve()
+            state = self._setup(root)
+            (root / "Clean.lean").write_text("theorem a : True := trivial\n")
+            (state / "PROGRESS.md").write_text(
+                "# Progress\n\n"
+                "## Current Stage\n\n"
+                "polish\n\n"
+                "## Current Objectives\n\n"
+                "1. **`Clean.lean`** — refactor the completed proof.\n",
+            )
+
+            result = validate_plan_output(self._make_ctx(root, state))
+
+            self.assertTrue(result)
+            self.assertFalse((state / "AUTO_NOTES.md").exists())
+
+    def test_explicit_polish_only_exempts_its_target_in_prover_stage(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve()
+            state = self._setup(root)
+            (root / "Polish.lean").write_text("theorem a : True := trivial\n")
+            (root / "Done.lean").write_text("theorem b : True := trivial\n")
+            (state / "PROGRESS.md").write_text(
+                "# Progress\n\n"
+                "## Current Stage\n\n"
+                "prover\n\n"
+                "## Current Objectives\n\n"
+                "1. **`Polish.lean`** [prover-mode: polish] — refactor it.\n"
+                "2. **`Done.lean`** — fill its remaining proof holes.\n",
+            )
+
+            result = validate_plan_output(self._make_ctx(root, state))
+
+            self.assertTrue(result)
+            notes = (state / "AUTO_NOTES.md").read_text(encoding="utf-8")
+            self.assertIn("Done.lean", notes)
+            self.assertNotIn("Polish.lean", notes)
+            meta = json.loads(
+                (state / "logs" / "iter-042" / "meta.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(meta["planValidate"]["objectivesNoop"], ["Done.lean"])
+
     def test_all_noop_skips_prover(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d).resolve()
             state = self._setup(root)
             (root / "Done.lean").write_text("theorem a : True := trivial\n")
             (state / "PROGRESS.md").write_text(
-                "# Progress\n\n## Current Objectives\n\n"
+                "# Progress\n\n## Current Stage\n\nprover\n\n"
+                "## Current Objectives\n\n"
                 "1. **`Done.lean`** — Fill sorry.\n",
             )
             ctx = self._make_ctx(root, state)

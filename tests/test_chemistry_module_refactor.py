@@ -69,6 +69,7 @@ def test_default_config_advertises_safe_opt_in() -> None:
     config = default_config()
 
     assert NAME in config["subagents"]["_available"]
+    assert "chemistry-reviewer" in config["subagents"]["_available"]
     assert config["loop"]["shared_infrastructure"] == {
         "enabled": False,
         "module_roots": [],

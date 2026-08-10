@@ -35,7 +35,12 @@ from pathlib import Path
 
 from archon import log
 from archon.commands.tooling.iteration import commit_phase
-from archon.state import auto_fix_objectives, read_stage, write_meta
+from archon.state import (
+    auto_fix_objectives,
+    parse_objectives_with_modes,
+    read_stage,
+    write_meta,
+)
 from archon.state.progress import _extract_section
 
 from .blocked_deps import (
@@ -191,12 +196,13 @@ def validate_plan_output(ctx: LoopContext) -> bool:
         noop_dropped: list[Path] = []
         if (
             getattr(ctx.options, "filter_noop_objectives", True)
-            and not _allows_zero_sorry_redraft(ctx)
+            and not _stage_allows_zero_sorry_objectives(ctx)
         ):
             objectives, noop_dropped = filter_noop_objectives(
                 objectives,
                 progress_file=ctx.progress_file,
                 state_dir=ctx.state_dir,
+                zero_sorry_exemptions=_explicit_polish_objectives(ctx),
             )
         noop_rels = [_rel_to_project(p, ctx.project_path) for p in noop_dropped]
         if noop_dropped:
@@ -294,14 +300,14 @@ def validate_plan_output(ctx: LoopContext) -> bool:
     return False
 
 
-def _allows_zero_sorry_redraft(ctx: LoopContext) -> bool:
-    """Autoformalize can redraft an existing proof-clean Lean file.
+def _stage_allows_zero_sorry_objectives(ctx: LoopContext) -> bool:
+    """Return whether the current stage intentionally works proof-clean files.
 
     The no-op filter is correct for proof mode: a prover has no work when
     an existing file has zero open sorries. Physics modeling review can
     reopen a proof-clean file for statement redraft, though, and that
-    work runs through the autoformalize mode rather than through ordinary
-    sorry filling.
+    work runs through the autoformalize stage. Likewise, polish starts only
+    after proofs are complete, so zero-sorry files are its actual inputs.
     """
     force_stage = None
     force_stage_fn = getattr(ctx, "force_stage", None)
@@ -311,7 +317,24 @@ def _allows_zero_sorry_redraft(ctx: LoopContext) -> bool:
         stage = read_stage(ctx.progress_file, force_stage)
     except (FileNotFoundError, ValueError):
         stage = str(getattr(ctx, "current_stage", "") or "")
-    return stage.strip().lower().startswith("autoformalize")
+    canonical = stage.strip().lower()
+    return canonical.startswith(("autoformalize", "polish"))
+
+
+def _explicit_polish_objectives(ctx: LoopContext) -> set[Path]:
+    """Return targets explicitly routed to the zero-sorry polish mode.
+
+    This is target-scoped so a mixed prover-stage plan can dispatch a clean
+    ``[prover-mode: polish]`` target while still dropping ordinary clean
+    prover targets as no-ops.
+    """
+    return {
+        path.resolve()
+        for path, mode in parse_objectives_with_modes(
+            ctx.progress_file, ctx.project_path,
+        )
+        if mode is not None and mode.strip().casefold() == "polish"
+    }
 
 
 def _check_strategy_bounds(ctx: LoopContext) -> None:

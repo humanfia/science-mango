@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from archon.commands.tooling.blueprint import chapter_coverage_map
+from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.state.iter_state import objectives_sidecar_path
 
 from .formalization_review_gate import load_gate_state
@@ -134,6 +135,7 @@ def select_deterministic_candidates(
     canonical = stage.strip().lower()
     if not canonical.startswith(("prover", "polish")) or limit <= 0:
         return []
+    domain_profile = load_domain_profile(project_path)
 
     # Shared project-local infrastructure is a prerequisite frontier, not a
     # theorem corpus target.  It bypasses the per-problem formalization gate
@@ -233,8 +235,12 @@ def select_deterministic_candidates(
         physics = False
         if chapter is not None:
             try:
-                physics = "% archon:physics" in chapter.read_text(
-                    encoding="utf-8", errors="ignore"
+                chapter_text = chapter.read_text(
+                    encoding="utf-8", errors="ignore",
+                )
+                physics = any(
+                    marker in chapter_text
+                    for marker in domain_profile.blueprint_markers
                 )
             except OSError:
                 pass
@@ -248,6 +254,10 @@ def select_deterministic_candidates(
                 proof_reason=str(record.get("reason") or ""),
                 chapter=chapter,
                 physics=physics,
+                prover_mode=(
+                    domain_profile.mode_for_stage("prover")
+                    if physics else None
+                ),
             )
         )
         if len(candidates) >= limit:

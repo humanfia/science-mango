@@ -1,9 +1,10 @@
-"""Deterministic LeanExplore grounding reports for physics targets.
+"""Deterministic LeanExplore grounding reports for domain-marked targets.
 
-Physics formalization agents are asked to use LeanExplore and record the
-queries they used, but that alone is too easy to miss. This module provides a
-loop-owned preflight that searches LeanExplore for the physics blueprint target
-before autoformalization/proving and writes a reviewable task_results report.
+Physics and chemistry formalization agents are asked to use LeanExplore and
+record the queries they used, but that alone is too easy to miss. This module
+provides a loop-owned preflight that searches LeanExplore for domain-marked
+blueprint targets before autoformalization/proving and writes reviewable
+task_results reports.
 """
 
 from __future__ import annotations
@@ -19,6 +20,12 @@ from typing import Callable, Iterable
 
 
 PHYSICS_MARKER = "% archon:physics"
+CHEMISTRY_MARKER = "% archon:chemistry"
+GROUNDING_MARKERS = (PHYSICS_MARKER, CHEMISTRY_MARKER)
+GROUNDING_MARKER_RE = re.compile(
+    r"^[ \t]*%[ \t]*archon:(?:physics|chemistry)[ \t]*\r?$",
+    re.MULTILINE,
+)
 COVERS_RE = re.compile(r"^\s*%\s*archon:covers\s+(.+?)\s*$", re.MULTILINE)
 TITLE_RE = re.compile(
     r"\\begin\{(?:definition|lemma|theorem|proposition)\}(?:\[(.*?)\])?",
@@ -90,7 +97,7 @@ class PhysicsGroundingReport:
 
 
 SearchFn = Callable[[str, list[str], int], list[GroundingCandidate]]
-GROUNDING_BACKENDS = frozenset({"auto", "api", "local"})
+GROUNDING_BACKENDS = frozenset({"auto", "api", "hosted", "local"})
 
 
 def physics_chapter_targets(
@@ -98,7 +105,7 @@ def physics_chapter_targets(
     *,
     lean_files: Iterable[Path] | None = None,
 ) -> list[tuple[Path, Path]]:
-    """Return ``(chapter, lean_file)`` pairs for live physics chapters.
+    """Return ``(chapter, lean_file)`` pairs for live grounded-domain chapters.
 
     When ``lean_files`` is provided, only chapters covering those objectives
     are returned. An empty iterable deliberately means no targets.
@@ -119,7 +126,7 @@ def physics_chapter_targets(
             text = chapter.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if PHYSICS_MARKER not in text:
+        if GROUNDING_MARKER_RE.search(text) is None:
             continue
         covers = [m.group(1).strip() for m in COVERS_RE.finditer(text)]
         if not covers:
@@ -155,6 +162,16 @@ def _blueprint_queries(chapter: Path, *, max_queries: int = 10) -> list[str]:
     # "Ring figure geometry" otherwise bias LeanExplore toward algebraic rings
     # before the search ever reaches the actual electric-field content.
     lower = text.lower()
+    chemistry_concept_seeds = [
+        (("steady-state", "steady state"), "chemical reaction steady state"),
+        (("reaction kinetics", "kinetics"), "chemical reaction kinetics"),
+        (("concentration",), "chemical species concentration"),
+        (("chemical reaction",), "chemical reaction"),
+    ]
+    for needles, query in chemistry_concept_seeds:
+        if any(needle in lower for needle in needles):
+            queries.append(query)
+
     concept_seeds = [
         ("electric field", "electric field"),
         ("charged ring", "electric field charged ring"),
@@ -245,6 +262,103 @@ def _api_searcher(
         )
 
     return search
+
+
+class _HostedSearcher:
+    """Hosted LeanExplore search with an optional project-local overlay.
+
+    The public ``ApiClient`` is intentionally usable without an API key and
+    does not load LeanExplore's local embedding stack.  When the project has a
+    generated overlay, the composite service searches it in the same request
+    while forwarding the remaining package filters to the hosted service.
+    """
+
+    def __init__(self, project_path: Path | None, *, timeout: float) -> None:
+        from lean_explore.api import ApiClient
+
+        self._base_service = ApiClient(timeout=timeout)
+        self._overlay = None
+        if project_path is not None:
+            index_path = (
+                project_path.resolve()
+                / ".archon"
+                / "lean-explore"
+                / "project-index.json"
+            )
+            if index_path.is_file():
+                from archon.commands.tooling.lean_explore_overlay import (
+                    ProjectOverlayIndex,
+                )
+
+                self._overlay = ProjectOverlayIndex(index_path)
+
+    def __call__(
+        self,
+        query: str,
+        packages: list[str],
+        limit: int,
+    ) -> list[GroundingCandidate]:
+        overlay_results: list[object] = []
+        base_packages = packages
+        run_base = True
+        if self._overlay is not None:
+            overlay_results = list(
+                self._overlay.search(
+                    query,
+                    limit=limit,
+                    packages=packages,
+                )
+            )
+            if packages and self._overlay.accepts_packages(packages):
+                overlay_names = {
+                    self._overlay.package,
+                    self._overlay.package.split(".", 1)[0],
+                }
+                base_packages = [
+                    package for package in packages if package not in overlay_names
+                ]
+                run_base = bool(base_packages)
+
+        base_results: list[object] = []
+        if run_base:
+            response = asyncio.run(
+                self._base_service.search(
+                    query=query,
+                    limit=limit,
+                    rerank_top=0,
+                    packages=base_packages,
+                )
+            )
+            base_results = list(response.results)
+
+        # Keep both indexes visible even when one returns enough candidates to
+        # fill the entire limit.  This is especially important for broad
+        # chemistry queries, where a large CRNT overlay must not hide a useful
+        # Mathlib or Physlib result (and vice versa).
+        merged: list[GroundingCandidate] = []
+        seen: set[str] = set()
+        width = max(len(overlay_results), len(base_results))
+        for offset in range(width):
+            for source in (overlay_results, base_results):
+                if offset >= len(source):
+                    continue
+                candidate = _candidate_from_result(source[offset])
+                if candidate.name in seen:
+                    continue
+                seen.add(candidate.name)
+                merged.append(candidate)
+                if len(merged) >= limit:
+                    return merged
+        return merged
+
+
+def _hosted_searcher(
+    project_path: Path | None = None,
+    *,
+    timeout: float,
+) -> SearchFn:
+    """Build a keyless hosted searcher, adding the project overlay if present."""
+    return _HostedSearcher(project_path, timeout=timeout)
 
 
 class _LocalSearcher:
@@ -345,6 +459,23 @@ def _resolve_searcher(
     if normalized == "auto" and api_key:
         return _api_searcher(api_key=api_key, timeout=timeout), "api", None, False
 
+    if normalized == "hosted":
+        try:
+            return (
+                _hosted_searcher(project_path, timeout=timeout),
+                "hosted",
+                None,
+                False,
+            )
+        except Exception as exc:
+            return (
+                None,
+                "hosted",
+                f"LeanExplore hosted backend is unavailable: {exc}. "
+                "Check network access and the project overlay index.",
+                False,
+            )
+
     try:
         index_path = (
             project_path.resolve()
@@ -394,7 +525,14 @@ def _report_name(project_path: Path, lean_file: Path) -> str:
     return f"physics-grounding-{Path(rel_stem).name}.md"
 
 
-def _input_fingerprint(chapter: Path, lean_file: Path) -> str | None:
+def _input_fingerprint(
+    chapter: Path,
+    lean_file: Path,
+    *,
+    project_path: Path | None = None,
+    backend: str = "",
+    packages: Iterable[str] = (),
+) -> str | None:
     """Hash grounding inputs so cache validity does not depend on mtimes."""
     digest = hashlib.sha256()
     try:
@@ -404,6 +542,23 @@ def _input_fingerprint(chapter: Path, lean_file: Path) -> str | None:
             digest.update(lean_file.read_bytes())
         else:
             digest.update(b"<missing-lean-file>")
+        normalized_backend = backend.lower().strip()
+        if normalized_backend in {"hosted", "local"}:
+            digest.update(f"\0backend:{normalized_backend}\0".encode())
+            digest.update("\0".join(packages).encode())
+            index_path = (
+                project_path.resolve()
+                / ".archon"
+                / "lean-explore"
+                / "project-index.json"
+                if project_path is not None
+                else None
+            )
+            digest.update(b"\0project-overlay\0")
+            if index_path is not None and index_path.is_file():
+                digest.update(index_path.read_bytes())
+            else:
+                digest.update(b"<missing-project-overlay>")
     except OSError:
         return None
     return digest.hexdigest()
@@ -416,6 +571,7 @@ def _reuse_complete_report(
     report_path: Path,
     *,
     backend: str,
+    packages: Iterable[str],
 ) -> PhysicsGroundingReport | None:
     """Reuse a complete report when neither of its inputs has changed."""
     try:
@@ -423,12 +579,28 @@ def _reuse_complete_report(
     except OSError:
         return None
 
-    fingerprint = _input_fingerprint(chapter, lean_file)
-    if "- Grounding status: complete" not in text:
+    metadata_lines = set(text.splitlines())
+    package_list = list(packages)
+    fingerprint_backend = backend.lower().strip()
+    fingerprint = _input_fingerprint(
+        chapter,
+        lean_file,
+        project_path=project_path,
+        backend=fingerprint_backend,
+        packages=package_list,
+    )
+    if "- Grounding status: complete" not in metadata_lines:
         return None
-    if backend in {"api", "local"} and f"- Search backend: {backend}" not in text:
+    if backend in {"api", "hosted", "local"} and (
+        f"- Search backend: {backend}" not in metadata_lines
+    ):
         return None
-    if not fingerprint or f"- Input fingerprint: sha256:{fingerprint}" not in text:
+    if f"- Packages searched: {', '.join(package_list)}" not in metadata_lines:
+        return None
+    if (
+        not fingerprint
+        or f"- Input fingerprint: sha256:{fingerprint}" not in metadata_lines
+    ):
         return None
 
     return PhysicsGroundingReport(
@@ -497,7 +669,17 @@ def _write_report(
         f"- Blueprint chapter: `{_rel(chapter, project_path)}`",
         f"- Grounding status: {status}",
         f"- Search backend: {backend}",
-        f"- Input fingerprint: sha256:{_input_fingerprint(chapter, lean_file) or 'unavailable'}",
+        "- Input fingerprint: sha256:"
+        + (
+            _input_fingerprint(
+                chapter,
+                lean_file,
+                project_path=project_path,
+                backend=backend,
+                packages=packages,
+            )
+            or "unavailable"
+        ),
         f"- Packages searched: {', '.join(packages)}",
         "",
         "## LeanExplore queries/candidates actually used",
@@ -608,11 +790,19 @@ def run_physics_grounding(
     lean_files: Iterable[Path] | None = None,
     reuse_unchanged: bool = True,
 ) -> list[PhysicsGroundingReport]:
-    """Generate task_results grounding logs for selected physics targets."""
+    """Generate task_results grounding logs for selected domain targets."""
     project_path = project_path.resolve()
     state_dir = project_path / ".archon"
     task_results = state_dir / "task_results"
     package_list = list(packages)
+    api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
+    normalized_backend = backend.lower().strip()
+    if searcher is not None:
+        cache_backend = "custom"
+    elif normalized_backend == "auto":
+        cache_backend = "api" if api_key else "local"
+    else:
+        cache_backend = normalized_backend
     targets = physics_chapter_targets(project_path, lean_files=lean_files)
 
     reports: list[PhysicsGroundingReport] = []
@@ -625,7 +815,8 @@ def run_physics_grounding(
                 chapter,
                 lean_file,
                 report_path,
-                backend=backend,
+                backend=cache_backend,
+                packages=package_list,
             )
             if reuse_unchanged
             else None
@@ -636,11 +827,10 @@ def run_physics_grounding(
             pending.append((chapter, lean_file, report_path))
 
     # Avoid loading the local embedding model when every selected report is
-    # already current (or when the current batch contains no physics targets).
+    # already current (or when the current batch contains no marked targets).
     if not pending:
         return reports
 
-    api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
     real_searcher, resolved_backend, backend_error, owns_searcher = _resolve_searcher(
         project_path=project_path,
         backend=backend,

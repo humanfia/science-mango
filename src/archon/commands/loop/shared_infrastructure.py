@@ -343,6 +343,8 @@ def register_shared_infrastructure_request(
         prior_status in {"verified_awaiting_migration", "resolved"}
         and not declarations_grew
         and bool(prior.get("verified_sha256"))
+        and _sha256(project_path / module)
+        == str(prior.get("verified_sha256") or "")
     )
     if reusable_verified:
         next_status = "verified_awaiting_migration"

@@ -215,6 +215,7 @@ def default_config() -> dict[str, Any]:
                 'blueprint-reviewer',
                 'blueprint-writer',
                 'chemistry-module-refactor',
+                'chemistry-reviewer',
                 'dag-walker',
                 'effort-breaker',
                 'lean-auditor',

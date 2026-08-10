@@ -5,7 +5,10 @@ from types import SimpleNamespace
 from pathlib import Path
 
 from archon.commands.loop.command import parse_from_phase
-from archon.commands.loop.phases.review import ReviewPhase
+from archon.commands.loop.phases.review import (
+    ReviewPhase,
+    _load_domain_reviewer_blockers,
+)
 from archon.commands.loop.formalization_review_gate import (
     apply_formalization_review,
     enforce_progress_review_gate,
@@ -35,6 +38,19 @@ class FormalizationReviewGateTests(unittest.TestCase):
             + stage
             + "\n\n## Stages\n\n- autoformalize\n- prover\n\n"
             + "## Current Objectives\n\n- **`Problems/p.lean`** — target\n",
+            encoding="utf-8",
+        )
+
+    def _set_chemistry_profile(self):
+        (self.state / "config.json").write_text(
+            json.dumps({
+                "loop": {
+                    "domain_profile": {
+                        "name": "chemistry",
+                        "enforce_classical_physics_modeling": False,
+                    }
+                }
+            }),
             encoding="utf-8",
         )
 
@@ -75,6 +91,7 @@ class FormalizationReviewGateTests(unittest.TestCase):
         status,
         reason="review verdict",
         formalization_review=None,
+        blockers=(),
     ):
         session = self.state / "proof-journal" / "sessions" / f"session_{iteration}"
         session.mkdir(parents=True)
@@ -99,6 +116,7 @@ class FormalizationReviewGateTests(unittest.TestCase):
             iter_num=iteration,
             reviewed_objectives=[self.target],
             max_iterations=3,
+            blockers=blockers,
         )
 
     def test_failed_review_retries_then_exhausts_on_third_attempt(self):
@@ -134,6 +152,76 @@ class FormalizationReviewGateTests(unittest.TestCase):
         )
         self.assertEqual(kept, [self.target])
         self.assertEqual(dropped, [])
+
+    def test_chemistry_modes_survive_retry_pass_and_gate_rewrite(self):
+        self._set_chemistry_profile()
+
+        failed = self._review(1, "failed")
+        self.assertEqual(failed.retry, ("Problems/p.lean",))
+        self.assertIn(
+            "[prover-mode: chemistry-formalize]",
+            self.progress.read_text(encoding="utf-8"),
+        )
+
+        passed = self._review(2, "passed")
+        self.assertEqual(passed.passed, ("Problems/p.lean",))
+        self.assertEqual(read_stage(self.progress), "prover")
+        self.assertIn(
+            "[prover-mode: chemistry]",
+            self.progress.read_text(encoding="utf-8"),
+        )
+
+        blocked = self.project / "Problems" / "blocked.lean"
+        blocked.write_text("theorem blocked : True := by sorry\n", encoding="utf-8")
+        self.progress.write_text(
+            "# Progress\n\n## Current Stage\n\nprover\n\n"
+            "## Stages\n\n- autoformalize\n- prover\n\n"
+            "## Current Objectives\n\n"
+            "- **`Problems/p.lean`** — passed target\n"
+            "- **`Problems/blocked.lean`** — missing certificate\n",
+            encoding="utf-8",
+        )
+        kept, dropped = enforce_progress_review_gate(
+            progress_file=self.progress,
+            state_dir=self.state,
+            project_path=self.project,
+            stage="prover",
+            enabled=True,
+        )
+        self.assertEqual(kept, [self.target])
+        self.assertEqual(dropped, [(blocked, "missing formalization Review certificate")])
+        progress = self.progress.read_text(encoding="utf-8")
+        self.assertIn("[prover-mode: chemistry]", progress)
+        self.assertNotIn("[prover-mode: physics]", progress)
+
+    def test_chemistry_must_fix_overrides_passing_milestone(self):
+        self._set_chemistry_profile()
+        reports = self.state / "task_results"
+        reports.mkdir()
+        report = reports / "chemistry-reviewer-p.md"
+        report.write_text(
+            "## Must-fix-this-iter\n"
+            "- Problems/p.lean:p — current answer is assumed by the contract.\n"
+            "\n"
+            "## Overall verdict\n"
+            "SOUND\n",
+            encoding="utf-8",
+        )
+        blockers = _load_domain_reviewer_blockers(self.state, self.project)
+
+        result = self._review(1, "passed", blockers=blockers)
+
+        self.assertEqual(len(blockers), 1)
+        self.assertEqual(blockers[0]["source"], "chemistry-reviewer")
+        self.assertEqual(result.passed, ())
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        self.assertEqual(read_stage(self.progress), "autoformalize")
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(record["status"], "retry")
+        self.assertEqual(
+            record["reason"],
+            "global semantics Review blocker; no per-target pass certificate",
+        )
 
     def test_legacy_string_target_replay_preserves_review_count(self):
         (self.state / "formalization-review-gate.json").write_text(

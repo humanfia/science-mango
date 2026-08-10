@@ -49,19 +49,26 @@ def filter_noop_objectives(
     *,
     progress_file: Path,
     state_dir: Path | None = None,
+    zero_sorry_exemptions: set[Path] | None = None,
 ) -> tuple[list[Path], list[Path]]:
     """Drop objective files that would dispatch a no-op prover.
 
     A file is dropped when it *exists on disk* and has *zero open
     sorries*, unless the planner's objective text marks it as a scaffold
-    dispatch or the proof Review gate marks it as `retry`. A retry can have
-    zero sorries when the previous replacement term fails elaboration or
-    faithfulness review. New (non-existent) files and files whose sorry count
-    cannot be determined are kept — the filter never drops on uncertainty.
+    dispatch, the proof Review gate marks it as `retry`, or its resolved path
+    appears in ``zero_sorry_exemptions``. A retry can have zero sorries when
+    the previous replacement term fails elaboration or faithfulness review.
+    The explicit exemption hook is used for modes such as ``polish`` whose
+    work begins only after all placeholders are closed. New (non-existent)
+    files and files whose sorry count cannot be determined are kept — the
+    filter never drops on uncertainty.
 
     Returns ``(kept, dropped)``.
     """
     exempt = _scaffold_exempt_basenames(progress_file)
+    explicit_paths = {
+        path.resolve() for path in (zero_sorry_exemptions or set())
+    }
     retry_paths: set[Path] = set()
     shared_infrastructure_paths: set[Path] = set()
     if state_dir is not None:
@@ -87,6 +94,7 @@ def filter_noop_objectives(
     for obj in objectives:
         if (
             obj.name.lower() in exempt
+            or obj.resolve() in explicit_paths
             or obj.resolve() in retry_paths
             or obj.resolve() in shared_infrastructure_paths
         ):

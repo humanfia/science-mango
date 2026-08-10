@@ -232,6 +232,45 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         )
         self.assertEqual(read_stage(self.progress), "prover")
 
+    def test_chemistry_proof_review_redraft_restores_chemistry_formalizer(self):
+        (self.state / "config.json").write_text(
+            json.dumps({
+                "loop": {
+                    "domain_profile": {
+                        "name": "chemistry",
+                        "enforce_classical_physics_modeling": False,
+                    }
+                }
+            }),
+            encoding="utf-8",
+        )
+        self._write_progress("autoformalize")
+        self._apply_formalization(1)
+        proof_session = self._proof_session(
+            2,
+            route="needs_redraft",
+            status="blocked",
+            redraft_kind="answer_as_assumption",
+        )
+        self._apply_proof(2, proof_session)
+        proof_record = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+
+        reopened = reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={"Problems/p.lean": proof_record},
+            iter_num=2,
+            max_iterations=3,
+        )
+
+        self.assertEqual(reopened, ("Problems/p.lean",))
+        progress = self.progress.read_text(encoding="utf-8")
+        self.assertIn("[prover-mode: chemistry-formalize]", progress)
+        self.assertNotIn("[prover-mode: physics-formalize]", progress)
+
 
 if __name__ == "__main__":
     unittest.main()

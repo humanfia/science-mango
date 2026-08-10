@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import typer
+from lean_explore.models import SearchResponse, SearchResult
 
 from archon.commands.loop.blueprint_doctor import run_blueprint_doctor
 from archon.commands.loop.command import (
@@ -17,11 +18,14 @@ from archon.commands.loop.command import (
 from archon.commands.loop.preflight import require_physics_lean_environment
 from archon.commands.loop.physics_grounding import (
     GroundingCandidate,
+    _blueprint_queries,
     run_physics_grounding,
 )
 from archon.commands.loop.phases.physics_grounding import PhysicsGroundingPhase
 from archon.commands.loop.phases.review import (
+    _enforce_domain_review_blocker_gate,
     _enforce_physics_doctor_blocker_gate,
+    _load_domain_reviewer_blockers,
     _load_physics_doctor_blockers,
     _load_physics_reviewer_blockers,
     _load_physics_session_review_blockers,
@@ -90,6 +94,73 @@ class PhysicsLoopModeSelectionTest(unittest.TestCase):
                 "physics",
             )
 
+    def test_chemistry_profile_routes_marked_chapter_through_chemistry_modes(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            state.mkdir()
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {
+                        "domain_profile": {
+                            "name": "chemistry",
+                            "enforce_classical_physics_modeling": False,
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            _write_mode(state, "formalize", default_for="autoformalize")
+            _write_mode(state, "prove", default_for="prover")
+            _write_mode(state, "chemistry-formalize")
+            _write_mode(state, "chemistry")
+
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "Chem_Main.tex").write_text(
+                "% archon:chemistry\n",
+                encoding="utf-8",
+            )
+            target = project / "Chem" / "Main.lean"
+
+            self.assertEqual(
+                select_prover_mode_for_target(
+                    state,
+                    "autoformalize",
+                    project,
+                    target,
+                    explicit_mode=None,
+                ),
+                "chemistry-formalize",
+            )
+            self.assertEqual(
+                select_prover_mode_for_target(
+                    state,
+                    "prover",
+                    project,
+                    target,
+                    explicit_mode=None,
+                ),
+                "chemistry",
+            )
+
+            # Chemistry projects prepared before the new marker used the
+            # historical physics-style marker; keep that route compatible.
+            (chapters / "Legacy.tex").write_text(
+                "% archon:physics\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                select_prover_mode_for_target(
+                    state,
+                    "prover",
+                    project,
+                    project / "Legacy.lean",
+                    explicit_mode=None,
+                ),
+                "chemistry",
+            )
+
     def test_explicit_mode_tag_wins_over_physics_auto_selection(self):
         with tempfile.TemporaryDirectory() as d:
             project = Path(d)
@@ -141,6 +212,10 @@ class LoopProverModeInstallTest(unittest.TestCase):
             self.assertTrue(
                 (state / "prover-modes" / "physics-formalize.md").is_file()
             )
+            self.assertTrue((state / "prover-modes" / "chemistry.md").is_file())
+            self.assertTrue(
+                (state / "prover-modes" / "chemistry-formalize.md").is_file()
+            )
 
     def test_loop_bootstrap_installs_missing_builtin_subagents(self):
         with tempfile.TemporaryDirectory() as d:
@@ -148,6 +223,7 @@ class LoopProverModeInstallTest(unittest.TestCase):
             _ensure_loop_subagents(state)
 
             self.assertTrue((state / "subagents" / "physics-reviewer.md").is_file())
+            self.assertTrue((state / "subagents" / "chemistry-reviewer.md").is_file())
             self.assertTrue((state / "subagents" / "lean-auditor.md").is_file())
 
 
@@ -330,6 +406,94 @@ class PhysicsReviewDoctorGateTest(unittest.TestCase):
             self.assertIn("archon[physics-reviewer]", notes)
             self.assertIn("goal weakening", notes)
 
+    def test_chemistry_profile_must_fix_blocks_complete_end_to_end(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            reports = state / "task_results"
+            reports.mkdir(parents=True)
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {
+                        "domain_profile": {
+                            "name": "chemistry",
+                            "enforce_classical_physics_modeling": False,
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            chemistry_report = reports / "chemistry-reviewer-T4-A5.md"
+            chemistry_report.write_text(
+                "\n".join([
+                    "# Chemistry Review Report",
+                    "",
+                    "## Must-fix-this-iter",
+                    "- IChO2026/T4_A5.lean:criticalElectronCount — "
+                    "the MeV-to-eV conversion is absent.",
+                    "",
+                    "## Overall verdict",
+                    "SOUND",
+                ]),
+                encoding="utf-8",
+            )
+            (reports / "physics-reviewer-stale.md").write_text(
+                "## Must-fix-this-iter\n"
+                "- This stale physics report must not govern chemistry.\n",
+                encoding="utf-8",
+            )
+            progress = state / "PROGRESS.md"
+            _write_progress(progress, "COMPLETE")
+
+            blockers, reset = _enforce_domain_review_blocker_gate(
+                state,
+                progress,
+                5,
+                project_path=project,
+            )
+
+            self.assertEqual(blockers, [{
+                "source": "chemistry-reviewer",
+                "file": str(chemistry_report),
+                "kind": "must-fix-this-iter",
+                "reason": (
+                    "must-fix: - IChO2026/T4_A5.lean:criticalElectronCount "
+                    "— the MeV-to-eV conversion is absent."
+                ),
+            }])
+            self.assertTrue(reset)
+            self.assertEqual(read_stage(progress), "autoformalize")
+            notes = (state / "AUTO_NOTES.md").read_text(encoding="utf-8")
+            self.assertIn("archon[chemistry-reviewer]", notes)
+            self.assertIn("1 chemistry blocker(s)", notes)
+            self.assertNotIn("stale physics report", notes)
+
+    def test_chemistry_reviewer_placeholders_are_not_must_fixes(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            reports = state / "task_results"
+            reports.mkdir(parents=True)
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {"domain_profile": {"name": "chemistry"}}
+                }),
+                encoding="utf-8",
+            )
+            (reports / "chemistry-reviewer-clean.md").write_text(
+                "## Must-fix-this-iter\n"
+                "- <file:line/declaration — finding — evidence, or none>\n"
+                "- None.\n"
+                "\n"
+                "## Overall verdict\n"
+                "SOUND\n",
+                encoding="utf-8",
+            )
+
+            blockers = _load_domain_reviewer_blockers(state, project)
+
+            self.assertEqual(blockers, [])
+
     def test_gate_resets_complete_for_main_review_blocker(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
@@ -361,6 +525,131 @@ class PhysicsReviewDoctorGateTest(unittest.TestCase):
 
 
 class PhysicsGroundingLogTest(unittest.TestCase):
+    def test_chemistry_concepts_precede_generic_blueprint_titles(self):
+        with tempfile.TemporaryDirectory() as d:
+            chapter = Path(d) / "T2.tex"
+            chapter.write_text(
+                "T2. Kinetics of a chemical reaction.\n"
+                "Using the steady-state approximation, calculate the "
+                "stationary molar concentration.\n"
+                "\\begin{theorem}[Icho Chemistry formalization target]\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+
+            queries = _blueprint_queries(chapter)
+
+            self.assertEqual(
+                queries[:4],
+                [
+                    "chemical reaction steady state",
+                    "chemical reaction kinetics",
+                    "chemical species concentration",
+                    "chemical reaction",
+                ],
+            )
+            self.assertIn("Icho Chemistry formalization target", queries)
+
+    def test_chemistry_only_marker_generates_grounding_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            (project / ".archon").mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            chapter = chapters / "Chem.tex"
+            chapter.write_text(
+                " \t% \tarchon:chemistry \t\r\n"
+                "% archon:covers Chem.lean\n"
+                "\\begin{theorem}[Chemical reaction rate]\n"
+                "A chemical kinetics target.\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            target = project / "Chem.lean"
+            target.write_text(
+                "theorem target : True := by trivial\n",
+                encoding="utf-8",
+            )
+            seen: list[str] = []
+
+            def fake_searcher(query: str, packages: list[str], limit: int):
+                del packages
+                seen.append(query)
+                return [
+                    GroundingCandidate(
+                        name="Real.exp",
+                        module="Mathlib.Analysis.SpecialFunctions.Exp",
+                    )
+                ][:limit]
+
+            reports = run_physics_grounding(project, searcher=fake_searcher)
+
+            self.assertEqual(len(reports), 1)
+            self.assertEqual(reports[0].chapter, chapter)
+            self.assertEqual(reports[0].lean_file, target.resolve())
+            self.assertTrue(reports[0].is_complete)
+            self.assertTrue(seen)
+
+    def test_unmarked_chapter_does_not_generate_grounding_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            (project / ".archon").mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "Chem.tex").write_text(
+                "% archon:covers Chem.lean\n"
+                "\\begin{theorem}[Chemical reaction rate]\n"
+                "A chemical kinetics target without an Archon domain marker.\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "Chem.lean").write_text(
+                "theorem target : True := by trivial\n",
+                encoding="utf-8",
+            )
+
+            def unexpected_searcher(
+                query: str, packages: list[str], limit: int,
+            ) -> list[GroundingCandidate]:
+                raise AssertionError(
+                    f"unmarked chapter unexpectedly searched: {query}, "
+                    f"{packages}, {limit}"
+                )
+
+            reports = run_physics_grounding(project, searcher=unexpected_searcher)
+
+            self.assertEqual(reports, [])
+
+    def test_marker_like_substrings_do_not_generate_grounding_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            (project / ".archon").mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "Chem.tex").write_text(
+                "% archon:chemistry-disabled\n"
+                "% archon:physics-disabled\r\n"
+                "% archon:covers Chem.lean\n"
+                "This prose mentions % archon:chemistry inline.\n",
+                encoding="utf-8",
+            )
+            (project / "Chem.lean").write_text(
+                "theorem target : True := by trivial\n",
+                encoding="utf-8",
+            )
+
+            def unexpected_searcher(
+                query: str, packages: list[str], limit: int,
+            ) -> list[GroundingCandidate]:
+                raise AssertionError(
+                    f"marker-like substring unexpectedly searched: {query}, "
+                    f"{packages}, {limit}"
+                )
+
+            reports = run_physics_grounding(project, searcher=unexpected_searcher)
+
+            self.assertEqual(reports, [])
+
     def test_generates_doctor_accepted_grounding_log_from_blueprint(self):
         with tempfile.TemporaryDirectory() as d:
             project = Path(d)
@@ -490,6 +779,57 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             )
             self.assertFalse(refreshed[0].cached)
             self.assertGreater(len(calls), first_call_count)
+
+    def test_auto_cache_does_not_reuse_api_report_when_it_resolves_local(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            (project / ".archon").mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "P.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers P.lean\n"
+                "\\begin{theorem}[Electric field]\\lean{P.field}"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "P.lean").write_text(
+                "theorem p : True := by trivial\n",
+                encoding="utf-8",
+            )
+
+            def api_searcher(query: str, packages: list[str], limit: int):
+                return [GroundingCandidate(name="Api.result", module="Mathlib")]
+
+            with patch(
+                "archon.commands.loop.physics_grounding._api_searcher",
+                return_value=api_searcher,
+            ):
+                first = run_physics_grounding(
+                    project,
+                    backend="api",
+                    api_key="legacy-key",
+                )
+
+            def local_searcher(query: str, packages: list[str], limit: int):
+                return [GroundingCandidate(name="Local.result", module="Mathlib")]
+
+            with patch(
+                "archon.commands.loop.physics_grounding._local_searcher",
+                return_value=local_searcher,
+            ) as build_local:
+                second = run_physics_grounding(
+                    project,
+                    backend="auto",
+                    api_key="",
+                )
+
+            self.assertFalse(first[0].cached)
+            self.assertFalse(second[0].cached)
+            build_local.assert_called_once_with()
+            report = second[0].report_path.read_text(encoding="utf-8")
+            self.assertIn("Search backend: local", report)
+            self.assertIn("Local.result", report)
 
     def test_partial_leanexplore_failures_do_not_poison_successful_grounding_log(self):
         with tempfile.TemporaryDirectory() as d:
@@ -653,6 +993,152 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             self.assertTrue(seen)
             self.assertTrue(all(packages == ("Mathlib", "Physlib") for _, packages in seen))
 
+    def test_hosted_backend_combines_public_search_with_project_overlay(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            overlay_dir = state / "lean-explore"
+            overlay_dir.mkdir(parents=True)
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "Chem.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers Chem.lean\n"
+                "\\begin{theorem}[Reaction vector]\n"
+                "\\lean{Chem.reactionVector}\n"
+                "A chemical reaction vector identity.\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "Chem.lean").write_text(
+                "theorem target : True := by sorry\n",
+                encoding="utf-8",
+            )
+            (overlay_dir / "project-index.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "package": "Chemistry",
+                        "declarations": [
+                            {
+                                "name": "CRNT.Reaction.vector",
+                                "module": "CRNT.Basic.Reaction",
+                                "source_text": "def vector := reactants - products",
+                            },
+                            {
+                                "name": "CRNT.Network.reactionVector",
+                                "module": "CRNT.Stoich.Vector",
+                                "source_text": "def reactionVector := 0",
+                            },
+                            {
+                                "name": "Chem.reactionVectorIdentity",
+                                "module": "Chem.Reactions",
+                                "source_text": "theorem reactionVectorIdentity : True",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            hosted_calls: list[tuple[str, tuple[str, ...]]] = []
+            client_timeouts: list[float] = []
+
+            class FakeApiClient:
+                def __init__(self, *, timeout: float):
+                    client_timeouts.append(timeout)
+
+                async def search(
+                    self,
+                    query: str,
+                    limit: int = 20,
+                    rerank_top: int | None = None,
+                    packages: list[str] | None = None,
+                ) -> SearchResponse:
+                    del rerank_top
+                    hosted_calls.append((query, tuple(packages or ())))
+                    result = SearchResult(
+                        id=1,
+                        name="Real.sqrt",
+                        module="Mathlib.Analysis.SpecialFunctions.Pow.Real",
+                        docstring="The real square root.",
+                        source_text="",
+                        source_link="",
+                        dependencies=None,
+                        informalization=None,
+                    )
+                    return SearchResponse(
+                        query=query,
+                        results=[result][:limit],
+                        count=1,
+                    )
+
+            with (
+                patch("lean_explore.api.ApiClient", FakeApiClient),
+                patch(
+                    "archon.commands.loop.physics_grounding._local_searcher"
+                ) as build_local,
+            ):
+                reports = run_physics_grounding(
+                    project,
+                    backend="hosted",
+                    api_key="",
+                    packages=("Mathlib", "Physlib", "Chemistry"),
+                    timeout=7.5,
+                    max_queries=1,
+                )
+
+            build_local.assert_not_called()
+            self.assertEqual(client_timeouts, [7.5])
+            self.assertEqual(len(reports), 1)
+            self.assertTrue(reports[0].is_complete)
+            self.assertTrue(hosted_calls)
+            self.assertTrue(
+                all(
+                    packages == ("Mathlib", "Physlib")
+                    for _, packages in hosted_calls
+                )
+            )
+            text = reports[0].report_path.read_text(encoding="utf-8")
+            self.assertIn("Search backend: hosted", text)
+            self.assertIn("CRNT.Reaction.vector", text)
+            self.assertIn("Real.sqrt", text)
+            self.assertIn("Packages searched: Mathlib, Physlib, Chemistry", text)
+
+            cached = run_physics_grounding(
+                project,
+                backend="hosted",
+                api_key="",
+                packages=("Mathlib", "Physlib", "Chemistry"),
+                timeout=7.5,
+                max_queries=1,
+            )
+            self.assertTrue(cached[0].cached)
+            self.assertEqual(client_timeouts, [7.5])
+
+            index_path = overlay_dir / "project-index.json"
+            payload = json.loads(index_path.read_text(encoding="utf-8"))
+            payload["declarations"].append(
+                {
+                    "name": "CRNT.Reaction.newOverlayDeclaration",
+                    "module": "CRNT.Basic.Reaction",
+                    "source_text": "def newOverlayDeclaration := 1",
+                }
+            )
+            index_path.write_text(json.dumps(payload), encoding="utf-8")
+            with patch("lean_explore.api.ApiClient", FakeApiClient):
+                refreshed = run_physics_grounding(
+                    project,
+                    backend="hosted",
+                    api_key="",
+                    packages=("Mathlib", "Physlib", "Chemistry"),
+                    timeout=7.5,
+                    max_queries=1,
+                )
+
+            self.assertFalse(refreshed[0].cached)
+            self.assertEqual(client_timeouts, [7.5, 7.5])
+
     def test_local_backend_missing_index_writes_actionable_report(self):
         with tempfile.TemporaryDirectory() as d:
             project = Path(d)
@@ -708,6 +1194,31 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             run_grounding.assert_called_once_with(
                 project,
                 backend="local",
+                lean_files=[],
+                reuse_unchanged=True,
+            )
+
+    def test_phase_forwards_prover_harness_hosted_backend(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            descriptor = SimpleNamespace(raw={"lean_explore_backend": "hosted"})
+            ctx = SimpleNamespace(
+                skip_now=set(),
+                dry_run=False,
+                current_stage="autoformalize",
+                project_path=project,
+                progress_file=project / ".archon" / "PROGRESS.md",
+                harness_descriptor_for=lambda role: descriptor,
+            )
+            with patch(
+                "archon.commands.loop.phases.physics_grounding.run_physics_grounding",
+                return_value=[],
+            ) as run_grounding:
+                PhysicsGroundingPhase(ctx).run()
+
+            run_grounding.assert_called_once_with(
+                project,
+                backend="hosted",
                 lean_files=[],
                 reuse_unchanged=True,
             )

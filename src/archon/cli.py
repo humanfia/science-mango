@@ -96,6 +96,9 @@ from archon.commands.branch import branch, inner_log  # noqa: E402
 from archon.commands.version import version as version_cmd  # noqa: E402
 from archon.commands.subagent import subagent_command  # noqa: E402
 from archon.commands.migrate import app as migrate_app  # noqa: E402
+from archon.commands.shared_infrastructure import (  # noqa: E402
+    app as shared_infrastructure_app,
+)
 from archon.commands.qcode import qcode_discovery  # noqa: E402
 from archon.commands.qcode_humanize import qcode_humanize  # noqa: E402
 from archon.commands.dag import dag  # noqa: E402
@@ -135,6 +138,7 @@ app.command("qcode-humanize")(qcode_humanize)
 app.add_typer(refactor_app, name="refactor")
 app.command("subagent", hidden=True)(subagent_command)
 app.add_typer(migrate_app, name="migrate")
+app.add_typer(shared_infrastructure_app, name="shared-infrastructure")
 
 if __name__ == "__main__":
     app()

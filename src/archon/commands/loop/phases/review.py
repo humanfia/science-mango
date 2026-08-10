@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from archon import log
+from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.commands.tooling.iteration import commit_phase
 from archon.commands.tooling.project_config import (
     load_project_config,
@@ -69,6 +70,8 @@ PHYSICS_REVIEWER_BLOCKING_VERDICTS = (
     "BLOCKED ON GROUNDING",
     "NEEDS REDRAFT",
 )
+PHYSICS_REVIEWER = "physics-reviewer"
+CHEMISTRY_REVIEWER = "chemistry-reviewer"
 AUTO_NOTES_FILENAME = "AUTO_NOTES.md"
 
 
@@ -146,11 +149,15 @@ def _is_substantive_must_fix(line: str) -> bool:
     if not stripped:
         return False
     low = stripped.lower()
-    if low in {"none", "- none", "* none", "n/a", "- n/a", "* n/a"}:
+    bullet = re.match(r"^[-*]\s+(.*)$", low)
+    if not bullet:
         return False
-    if "<finding>" in low or "<file>" in low:
+    content = bullet.group(1).strip().rstrip(".;:").strip()
+    if content in {"none", "n/a", "na"}:
         return False
-    return bool(re.match(r"^[-*]\s+\S", stripped))
+    if "<finding" in content or "<file" in content:
+        return False
+    return bool(content)
 
 
 def _extract_physics_reviewer_must_fixes(text: str) -> list[str]:
@@ -161,14 +168,24 @@ def _extract_physics_reviewer_must_fixes(text: str) -> list[str]:
     ]
 
 
-def _load_physics_reviewer_blockers(state_dir: Path) -> list[dict[str, str]]:
-    """Load current physics-reviewer verdicts that should block COMPLETE."""
+def _reviewer_for_project(project_path: Path) -> str:
+    """Select the semantics reviewer paired with the project's domain profile."""
+    if load_domain_profile(project_path).name == "chemistry":
+        return CHEMISTRY_REVIEWER
+    return PHYSICS_REVIEWER
+
+
+def _load_reviewer_blockers(
+    state_dir: Path,
+    reviewer: str,
+) -> list[dict[str, str]]:
+    """Load blocking verdicts or must-fixes from one reviewer kind."""
     task_results = state_dir / "task_results"
     if not task_results.is_dir():
         return []
 
     blockers: list[dict[str, str]] = []
-    for report in sorted(task_results.rglob("physics-reviewer-*.md")):
+    for report in sorted(task_results.rglob(f"{reviewer}-*.md")):
         try:
             text = report.read_text(encoding="utf-8", errors="ignore")
         except OSError:
@@ -187,12 +204,26 @@ def _load_physics_reviewer_blockers(state_dir: Path) -> list[dict[str, str]]:
                 reason_parts.append(f"... and {len(must_fixes) - 3} more")
 
         blockers.append({
-            "source": "physics-reviewer",
+            "source": reviewer,
             "file": str(report),
             "kind": verdict or "must-fix-this-iter",
             "reason": "; ".join(reason_parts),
         })
     return blockers
+
+
+def _load_domain_reviewer_blockers(
+    state_dir: Path,
+    project_path: Path | None = None,
+) -> list[dict[str, str]]:
+    """Load reports from the reviewer selected by the project domain profile."""
+    project = project_path if project_path is not None else state_dir.parent
+    return _load_reviewer_blockers(state_dir, _reviewer_for_project(project))
+
+
+def _load_physics_reviewer_blockers(state_dir: Path) -> list[dict[str, str]]:
+    """Load physics-reviewer blockers (legacy helper kept for compatibility)."""
+    return _load_reviewer_blockers(state_dir, PHYSICS_REVIEWER)
 
 
 def _first_matching_line(text: str, needle: str) -> str:
@@ -247,6 +278,16 @@ def _append_physics_review_auto_note(
     notes_file: Path,
     blockers: list[dict[str, str]],
 ) -> None:
+    """Write the legacy physics gate note."""
+    _append_domain_review_auto_note(notes_file, blockers, domain_name="physics")
+
+
+def _append_domain_review_auto_note(
+    notes_file: Path,
+    blockers: list[dict[str, str]],
+    *,
+    domain_name: str,
+) -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     sources = sorted({
         _physics_blocker_label(item.get("source") or "")
@@ -255,10 +296,10 @@ def _append_physics_review_auto_note(
     if len(sources) == 1:
         label = sources[0]
     else:
-        label = "physics-review-gate"
+        label = f"{domain_name}-review-gate"
     lines = [
         f"\n- [{ts}] archon[{label}]: current review found "
-        f"{len(blockers)} physics blocker(s), so the project must not "
+        f"{len(blockers)} {domain_name} blocker(s), so the project must not "
         f"mark COMPLETE until these are repaired. The review gate reset "
         f"the stage to `autoformalize` for statement redraft:",
     ]
@@ -281,15 +322,22 @@ def _append_physics_review_auto_note(
     notes_file.write_text(existing + note, encoding="utf-8")
 
 
-def _enforce_physics_review_blocker_gate(
+def _enforce_domain_review_blocker_gate(
     state_dir: Path,
     progress_file: Path,
     iter_num: int,
+    *,
+    project_path: Path | None = None,
 ) -> tuple[list[dict[str, str]], bool]:
-    """Prevent physics review blockers from being hidden by COMPLETE."""
+    """Prevent profile-selected semantics blockers from hiding behind COMPLETE."""
+    project = project_path if project_path is not None else state_dir.parent
+    profile = load_domain_profile(project)
     blockers = (
         _load_physics_doctor_blockers(state_dir, iter_num)
-        + _load_physics_reviewer_blockers(state_dir)
+        + _load_reviewer_blockers(
+            state_dir,
+            _reviewer_for_project(project),
+        )
         + _load_physics_session_review_blockers(state_dir, iter_num)
     )
     if not blockers:
@@ -298,20 +346,44 @@ def _enforce_physics_review_blocker_gate(
         return blockers, False
 
     write_stage(progress_file, "autoformalize")
-    _append_physics_review_auto_note(
+    _append_domain_review_auto_note(
         state_dir / AUTO_NOTES_FILENAME,
         blockers,
+        domain_name=profile.name,
     )
     return blockers, True
+
+
+def _enforce_physics_review_blocker_gate(
+    state_dir: Path,
+    progress_file: Path,
+    iter_num: int,
+    *,
+    project_path: Path | None = None,
+) -> tuple[list[dict[str, str]], bool]:
+    """Backward-compatible name for the profile-aware semantics review gate."""
+    return _enforce_domain_review_blocker_gate(
+        state_dir,
+        progress_file,
+        iter_num,
+        project_path=project_path,
+    )
 
 
 def _enforce_physics_doctor_blocker_gate(
     state_dir: Path,
     progress_file: Path,
     iter_num: int,
+    *,
+    project_path: Path | None = None,
 ) -> tuple[list[dict[str, str]], bool]:
     """Backward-compatible alias for the broader physics review gate."""
-    return _enforce_physics_review_blocker_gate(state_dir, progress_file, iter_num)
+    return _enforce_physics_review_blocker_gate(
+        state_dir,
+        progress_file,
+        iter_num,
+        project_path=project_path,
+    )
 
 
 def _maybe_compress_review_prompt(
@@ -701,11 +773,17 @@ class ReviewPhase(Phase):
                     else ()
                 )
                 if pending_formalization:
+                    formalize_mode = (
+                        load_domain_profile(ctx.project_path).mode_for_stage(
+                            "autoformalize"
+                        )
+                        or "physics-formalize"
+                    )
                     write_stage(ctx.progress_file, "autoformalize")
                     _replace_objectives(ctx.progress_file, [
                         f"- **`{rel}`** — Resume the target-local redraft "
                         "that could not finish inside the prover pipeline. "
-                        "[prover-mode: physics-formalize]"
+                        f"[prover-mode: {formalize_mode}]"
                         for rel in pending_formalization
                     ])
                     ctx.current_stage = read_stage(ctx.progress_file)
@@ -717,9 +795,16 @@ class ReviewPhase(Phase):
                 elif pipeline_lifecycle and formalization_gate_active:
                     write_stage(ctx.progress_file, "prover")
                     if proof_result.retry:
+                        proof_mode = (
+                            load_domain_profile(ctx.project_path).mode_for_stage(
+                                "prover"
+                            )
+                            or "physics"
+                        )
                         _replace_objectives(ctx.progress_file, [
                             f"- **`{rel}`** — Continue the target-local proof "
-                            "retry requested by Proof Review."
+                            "retry requested by Proof Review. "
+                            f"[prover-mode: {proof_mode}]"
                             for rel in proof_result.retry
                         ])
                     else:
@@ -815,9 +900,14 @@ class ReviewPhase(Phase):
             b for b in blockers
             if b.get("source") in PHYSICS_DOCTOR_BLOCKER_KEYS
         ])
-        reviewer_blocker_count = len([
+        reviewer = _reviewer_for_project(ctx.project_path)
+        domain_reviewer_blocker_count = len([
             b for b in blockers
-            if b.get("source") == "physics-reviewer"
+            if b.get("source") == reviewer
+        ])
+        physics_reviewer_blocker_count = len([
+            b for b in blockers
+            if b.get("source") == PHYSICS_REVIEWER
         ])
         review_agent_blocker_count = len([
             b for b in blockers
@@ -828,9 +918,13 @@ class ReviewPhase(Phase):
             "review.durationSecs": review_secs,
             "review.physicsBlockers": len(blockers),
             "review.physicsDoctorBlockers": doctor_blocker_count,
-            "review.physicsReviewerBlockers": reviewer_blocker_count,
+            "review.physicsReviewerBlockers": physics_reviewer_blocker_count,
             "review.physicsReviewAgentBlockers": review_agent_blocker_count,
             "review.physicsGateResetComplete": reset_complete,
+            "review.domainReviewer": reviewer,
+            "review.domainReviewerBlockers": domain_reviewer_blocker_count,
+            "review.domainBlockers": len(blockers),
+            "review.domainGateResetComplete": reset_complete,
         })
         if formalization_result is not None:
             if formalization_result.retry:
@@ -868,10 +962,13 @@ class ReviewPhase(Phase):
 
     def _run_physics_doctor_gate(self) -> tuple[list[dict[str, str]], bool]:
         ctx = self.ctx
+        profile = load_domain_profile(ctx.project_path)
+        reviewer = _reviewer_for_project(ctx.project_path)
         blockers, reset_complete = _enforce_physics_review_blocker_gate(
             ctx.state_dir,
             ctx.progress_file,
             ctx.iter_num,
+            project_path=ctx.project_path,
         )
         doctor_blockers = [
             b for b in blockers
@@ -879,7 +976,7 @@ class ReviewPhase(Phase):
         ]
         reviewer_blockers = [
             b for b in blockers
-            if b.get("source") == "physics-reviewer"
+            if b.get("source") == reviewer
         ]
         review_agent_blockers = [
             b for b in blockers
@@ -887,7 +984,7 @@ class ReviewPhase(Phase):
         ]
         if blockers:
             log.warn(
-                f"physics review gate: {len(blockers)} blocker(s) remain "
+                f"{profile.name} review gate: {len(blockers)} blocker(s) remain "
                 f"(doctor={len(doctor_blockers)}, "
                 f"reviewer={len(reviewer_blockers)}, "
                 f"review-agent={len(review_agent_blockers)})"
@@ -895,8 +992,9 @@ class ReviewPhase(Phase):
         if reset_complete:
             ctx.current_stage = read_stage(ctx.progress_file)
             log.warn(
-                "physics review gate: PROGRESS.md was COMPLETE despite "
-                f"physics blockers; reset stage to '{ctx.current_stage}'."
+                f"{profile.name} review gate: PROGRESS.md was COMPLETE "
+                f"despite {profile.name} blockers; reset stage to "
+                f"'{ctx.current_stage}'."
             )
         return blockers, reset_complete
 

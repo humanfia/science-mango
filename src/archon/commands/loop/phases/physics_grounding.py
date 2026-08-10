@@ -35,7 +35,7 @@ class PhysicsGroundingPhase(Phase):
             configured_backend = descriptor.raw.get("lean_explore_backend")
             backend = (
                 configured_backend
-                if configured_backend in {"api", "local"}
+                if configured_backend in {"api", "hosted", "local"}
                 else "auto"
             )
             objective_files = parse_objective_files(

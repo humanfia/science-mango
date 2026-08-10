@@ -1,0 +1,181 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:chemistry
+% archon:covers IChO2026Problems/problem_icho_2026_t2_a2.lean
+% archon:source-report reports/icho_2026/problem_icho_2026_t2_a2.source.json
+% archon:problem-id icho_2026_t2
+% archon:part-id T2-A2
+
+\section{Icho Chemistry problem icho\_2026\_t2\_a2}
+
+\paragraph{Problem source.}
+\#\# Source
+58th International Chemistry Olympiad, Tashkent, Uzbekistan, 2026.
+Official-materials index: https://www.icho2026.uz/problems
+English problem PDF: ../icho\_2026\_source/raw/theory\_problem.pdf
+English solution/rubric PDF: ../icho\_2026\_source/raw/theory\_solution.pdf
+Problem PDF page 16; printed local question page 2; solution starts on PDF page 16.
+The page PNG is primary visual evidence for formulas, structures, tables, and figures.
+
+\#\# T2. Kinetics of the Belousov-Zhabotinsky Reaction
+T2. Kinetics of the Belousov-Zhabotinsky reaction 6\% When the chemicals KBrO3, CH2(COOH)2 (malonic acid, – MA), Ce(SO4)2, and H2SO4 are mixed, the concentration, 𝐶, of Ce species and the colour of the solution oscillates between yellow (due to Ce4+) and colourless (due to Ce3+). A schematic picture is given below: 2.1 Write the overall balanced reaction equation of the Belousov-Zhabotinsky reaction (BZ reaction). Note: in this reaction, MA is oxidised to CO2, BrO− 3 is reduced to Br−, and Ce(IV) is a catalyst. The mechanism of the BZ reaction is shown below (BMA −CHBr(COOH)2): Process A ⎧ ⎪ ⎪ ⎨ ⎪ ⎪ ⎩ (1) HBrO2 + BrO− 3 + H+ 𝑘1 −−→2BrO⋅ 2 + H2O (2) BrO⋅ 2 + Ce3+ + H+ 𝑘2 −−→HBrO2 + Ce4+ (3) 2HBrO2 𝑘3 −−→BrO− 3 + HBrO + H+ 𝑘1 = 1.0 × 104 M−2 s−1 𝑘2 = 6.2 × 104 M−2 s−1 𝑘3 = 4.0 × 107 M−1 s−1 Process B ⎧ ⎪ ⎪ ⎨ ⎪ ⎪ ⎩ (4) HBrO2 + Br−+ H+ 𝑘4 −−→2HBrO (5) BrO− 3 + Br−+ 2H+ 𝑘5 −−→HBrO + HBrO2 (6) HBrO + MA 𝑘6 −−→BMA + H2O 𝑘4 = 2.0 × 109 M−2 s−1 𝑘5 = 2.1 M−3 s−1 𝑘6 = 8.2 M−1 s−1 Process C \{(7) Ce4+ + BMA 𝑘7 −−→Ce3+ + Br−+ other products 𝑘7 = 1.0 × 102 M−1 s−1 In the BZ reaction, Process C occurs continuously, while Processes A and B alternate with each other. Assume that: - when Process A occurs the solution is yellow and Process B practically does not occur; - when Process B occurs the solution is colourless and Process A practically does not occur; - [BrO3−]0 = 0.06 M, [MA]0 = 0.1 M, [H+]0 = 0.8 M, [Ce4+]0 = 0.001 M; - the concentrations of the reactants (except Ce4+) and pH are maintained constant throughout the BZ reaction.
+
+\#\# Current subquestion 2.2
+Using the steady-state approximation, calculate the stationary molar concentrations of HBrO2 in Processes A and B, [HBrO2]A and [HBrO2]B.
+
+\#\# Dataset metadata
+IChO 2026; T2; raw rubric points=11; kind=theory; formalization\_ready=true.
+
+\paragraph{Shared problem context.}
+T2. Kinetics of the Belousov-Zhabotinsky reaction 6\% When the chemicals KBrO3, CH2(COOH)2 (malonic acid, – MA), Ce(SO4)2, and H2SO4 are mixed, the concentration, 𝐶, of Ce species and the colour of the solution oscillates between yellow (due to Ce4+) and colourless (due to Ce3+). A schematic picture is given below: 2.1 Write the overall balanced reaction equation of the Belousov-Zhabotinsky reaction (BZ reaction). Note: in this reaction, MA is oxidised to CO2, BrO− 3 is reduced to Br−, and Ce(IV) is a catalyst. The mechanism of the BZ reaction is shown below (BMA −CHBr(COOH)2): Process A ⎧ ⎪ ⎪ ⎨ ⎪ ⎪ ⎩ (1) HBrO2 + BrO− 3 + H+ 𝑘1 −−→2BrO⋅ 2 + H2O (2) BrO⋅ 2 + Ce3+ + H+ 𝑘2 −−→HBrO2 + Ce4+ (3) 2HBrO2 𝑘3 −−→BrO− 3 + HBrO + H+ 𝑘1 = 1.0 × 104 M−2 s−1 𝑘2 = 6.2 × 104 M−2 s−1 𝑘3 = 4.0 × 107 M−1 s−1 Process B ⎧ ⎪ ⎪ ⎨ ⎪ ⎪ ⎩ (4) HBrO2 + Br−+ H+ 𝑘4 −−→2HBrO (5) BrO− 3 + Br−+ 2H+ 𝑘5 −−→HBrO + HBrO2 (6) HBrO + MA 𝑘6 −−→BMA + H2O 𝑘4 = 2.0 × 109 M−2 s−1 𝑘5 = 2.1 M−3 s−1 𝑘6 = 8.2 M−1 s−1 Process C \{(7) Ce4+ + BMA 𝑘7 −−→Ce3+ + Br−+ other products 𝑘7 = 1.0 × 102 M−1 s−1 In the BZ reaction, Process C occurs continuously, while Processes A and B alternate with each other. Assume that: - when Process A occurs the solution is yellow and Process B practically does not occur; - when Process B occurs the solution is colourless and Process A practically does not occur; - [BrO3−]0 = 0.06 M, [MA]0 = 0.1 M, [H+]0 = 0.8 M, [Ce4+]0 = 0.001 M; - the concentrations of the reactants (except Ce4+) and pH are maintained constant throughout the BZ reaction.
+
+\paragraph{Current subquestion.}
+Using the steady-state approximation, calculate the stationary molar concentrations of HBrO2 in Processes A and B, [HBrO2]A and [HBrO2]B.
+
+\paragraph{Recorded answer/context.}
+𝑑[BrO⋅ 2] 𝑑𝑡 = 2𝑘1[HBrO2][BrO− 3 ][H+] −𝑘2[BrO⋅ 2][Ce3+][H+] = 0 (eq.2.1) 𝑑[HBrO2] 𝑑𝑡 = −𝑘1[HBrO2][BrO− 3 ][H+]+𝑘2[BrO⋅ 2][Ce3+][H+]−2𝑘3[HBrO2]2 = 0 (eq.2.2) When adding equations 2.1 and 2.2 we get the following: 𝑘1[HBrO2][BrO− 3 ][H+] −2𝑘3[HBrO2]2 = 0 (eq.2.3) [HBrO2]𝐴= 𝑘1 2𝑘3 [BrO− 3 ][H+] (eq.2.4) [HBrO2]𝐴= 1.0×104 2×4.0×107 × 0.06 × 0.8 = 6.0 × 10−6 M The steady-state approximation for Process B: 𝑑[HBrO2] 𝑑𝑡 = −𝑘4[HBrO2][Br−][H+] + 𝑘5[BrO− 3 ][Br−][H+]2 = 0 (eq.2.5) [HBrO2]𝐵= 𝑘5 𝑘4 [BrO− 3 ][H+] (eq.2.6) [HBrO2]𝐵= 2.1 2.0×109 × 0.06 × 0.8 = 5.04 × 10−11 M [HBrO2]𝐴= 6.0 × 10−6 M [HBrO2]𝐵= 5.04 × 10−11 M For fully correct equations 2.1, 2.2 and 2.5: 2 points each. If only one incorrect coefficient in front of the rate constant in equations 2.1, 2.2 and 2.5: 1 point each. For corresponding equations 2.3, 2.4 and 2.6: 1 point each. For calculated [HBrO2]A and [HBrO2]B values: 1 point each. For correct calculation without formula derivation: full marks. 11.0 pt
+
+\paragraph{Figure/image paths.}
+\begin{itemize}
+\item ../icho\_2026\_source/image/T2\_page-2.png
+\item ../icho\_2026\_source/image/T2\_page-1.png
+\end{itemize}
+
+\begin{definition}\leanok
+[Pair of stationary HBrO2 concentrations]
+\label{def:chem:icho_2026_t2_a2:hbro2_stationary_concentrations}
+\lean{IChO2026Problems.T2A2.HBrO2StationaryConcentrations}
+\uses{def:chem:bz:molar_concentration}
+The requested output is a pair consisting of the stationary Process-A and
+Process-B molar concentrations of $\mathrm{HBrO_2}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+The two fields simply collect the two concentration values whose source order
+is Process A followed by Process B.
+\end{proof}
+
+\begin{definition}\leanok
+[T2-A2 kinetic data]
+\label{def:chem:icho_2026_t2_a2:data}
+\lean{IChO2026Problems.T2A2.BZKineticData}
+\uses{def:chem:bz:state, def:chem:bz:kinetic_parameters}
+The data selects the shared BZ state and kinetic-parameter vocabulary for
+$k_1,k_2,k_3,k_4,k_5$, $b=[\mathrm{BrO_3^-}]$, and $h=[\mathrm{H^+}]$.
+The source data
+fix $k_1=10^4$, $k_2=6.2\cdot10^4$, $k_3=4\cdot10^7$,
+$k_4=2\cdot10^9$, $k_5=2.1$, $b=0.06$, and $h=0.8$ in the displayed
+units.  The model must retain these as hypotheses/readouts rather than bake
+the requested answers into the data.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is a faithful carrier for the independently supplied numerical data; it
+makes the rate constants and maintained concentrations available without
+asserting either requested stationary concentration.
+\end{proof}
+
+\begin{definition}\leanok
+[Supplied T2-A2 numerical data]
+\label{def:chem:icho_2026_t2_a2:matches_supplied_data}
+\lean{IChO2026Problems.T2A2.BZKineticData.matchesSuppliedData}
+\uses{def:chem:icho_2026_t2_a2:data}
+This predicate says that the kinetic-data fields equal the seven numerical
+constants supplied on the T2 page: the five rate constants, bromate
+concentration, and proton concentration.
+\end{definition}
+\begin{proof}
+
+\leanok
+It is exactly the conjunction of the independently supplied numerical
+readouts, so it contains no stationary-concentration conclusion.
+\end{proof}
+
+\begin{theorem}\leanok
+[Process-A stationary balance]
+\label{lem:chem:icho_2026_t2_a2:process_a_balance}
+\lean{IChO2026Problems.T2A2.processA_stationary_balance}
+\uses{def:chem:icho_2026_t2_a2:data}
+For $x_A=[\mathrm{HBrO_2}]_A$, $r=[\mathrm{BrO_2^{\bullet}}]$, and
+$c=[\mathrm{Ce^{3+}}]$, assume the two stationary rate equations
+\[
+  2k_1x_Abh-k_2rch=0,
+  \qquad -k_1x_Abh+k_2rch-2k_3x_A^2=0.
+\]
+Then $k_1x_Abh-2k_3x_A^2=0$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Add the two displayed equalities.  The $k_2rch$ terms cancel and the
+coefficient $2-1$ of $k_1x_Abh$ leaves precisely the claimed balance.
+\end{proof}
+
+\begin{theorem}\leanok
+[Process-A stationary concentration]
+\label{lem:chem:icho_2026_t2_a2:process_a_concentration}
+\lean{IChO2026Problems.T2A2.processA_hbro2_concentration}
+\uses{def:chem:icho_2026_t2_a2:data, def:chem:icho_2026_t2_a2:matches_supplied_data, lem:chem:icho_2026_t2_a2:process_a_balance}
+If $x_A>0$, then the Process-A balance gives
+\[
+ x_A=\frac{k_1}{2k_3}bh.
+\]
+With the source values this is $6.0\cdot10^{-6}\,\mathrm{M}$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Factor the balance as $x_A(k_1bh-2k_3x_A)=0$.  Positivity excludes the
+zero factor, so division by the positive $2k_3$ yields the formula.
+Substitution gives $(10^4/(2\cdot4\cdot10^7))\cdot0.06\cdot0.8
+=6.0\cdot10^{-6}$.
+\end{proof}
+
+\begin{theorem}\leanok
+[Process-B stationary concentration]
+\label{lem:chem:icho_2026_t2_a2:process_b_concentration}
+\lean{IChO2026Problems.T2A2.processB_hbro2_concentration}
+\uses{def:chem:icho_2026_t2_a2:data, def:chem:icho_2026_t2_a2:matches_supplied_data}
+For $x_B=[\mathrm{HBrO_2}]_B$ and $y=[\mathrm{Br^-}]$, assume $y>0$ and
+the Process-B stationary equation
+\[
+ -k_4x_Byh+k_5byh^2=0.
+\]
+Then $x_B=(k_5/k_4)bh$, hence $x_B=5.04\cdot10^{-11}\,\mathrm{M}$ for
+the source data.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Factor the equation as $yh(-k_4x_B+k_5bh)=0$.  The maintained acid
+concentration and $y$ are positive, so the second factor is zero.  Divide by
+$k_4>0$ and substitute $(2.1/(2\cdot10^9))\cdot0.06\cdot0.8$.
+\end{proof}
+
+% SOURCE: IChO 2026 Theory Solutions, T2.2 (read from references/icho_2026_theory_ready.jsonl)
+% SOURCE QUOTE: "[HBrO2]𝐴= 6.0 × 10−6 M [HBrO2]𝐵= 5.04 × 10−11 M"
+\begin{theorem}\leanok
+[Steady-state HBrO2 concentrations]
+\label{thm:physics:icho_2026_t2_a2:target}
+\lean{IChO2026Problems.T2A2.steady_state_hbro2_concentrations}
+\uses{def:chem:icho_2026_t2_a2:hbro2_stationary_concentrations, lem:chem:icho_2026_t2_a2:process_a_concentration, lem:chem:icho_2026_t2_a2:process_b_concentration}
+\textit{Source: IChO 2026 Theory Solutions, T2.2.}
+Under the respective stationary equations and positivity conditions above,
+the pair of requested concentrations is
+\[
+([\mathrm{HBrO_2}]_A,[\mathrm{HBrO_2}]_B)
+=(6.0\cdot10^{-6},5.04\cdot10^{-11})\ \mathrm{M}.
+\]
+\end{theorem}
+% SOURCE QUOTE PROOF: "When adding equations 2.1 and 2.2 we get the following: 𝑘1[HBrO2][BrO− 3 ][H+] −2𝑘3[HBrO2]2 = 0 (eq.2.3)"
+\begin{proof}
+
+\leanok
+Apply the Process-A and Process-B concentration results to their independently
+stated stationary hypotheses, and pair the two numerical equalities.  No
+unprovided cerium concentration or bromide value is required after the
+documented cancellations.
+\end{proof}
+% --- Archon physics formalization source end ---

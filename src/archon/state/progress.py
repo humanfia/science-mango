@@ -92,15 +92,23 @@ def _has_stop_marker(line: str) -> bool:
 def write_stage(progress_file: Path, new_stage: str) -> None:
     """Reconstruct the Current Stage section with `\\n\\n{stage}\\n\\n` spacing.
 
-    Raises ValueError if the `## Current Stage` ... `## Stages` section cannot
-    be located, so a corrupted PROGRESS.md surfaces loudly instead of silently
-    leaving the stage unchanged.
+    The project template places ``## Stages`` immediately after this section,
+    while generated problem-set progress files may go straight to
+    ``## Current Objectives``. Treat the next level-two heading (or EOF) as the
+    boundary so both layouts remain valid.
+
+    Raises ValueError if the ``## Current Stage`` section cannot be located, so
+    a corrupted PROGRESS.md surfaces loudly instead of silently leaving the
+    stage unchanged.
     """
     if not progress_file.exists():
         return
 
     content = progress_file.read_text()
-    pattern = r"## Current Stage.*?(?=## Stages)"
+    pattern = (
+        r"^## Current Stage[^\n]*\n.*?"
+        r"(?=^##(?!#)(?:[ \t]+|$)|\Z)"
+    )
     replacement = f"## Current Stage\n\n{new_stage}\n\n"
 
     new_content, n = re.subn(
@@ -108,12 +116,12 @@ def write_stage(progress_file: Path, new_stage: str) -> None:
         replacement,
         content,
         count=1,
-        flags=re.DOTALL,
+        flags=re.DOTALL | re.MULTILINE,
     )
 
     if n == 0:
         raise ValueError(
-            f"Could not locate '## Current Stage' ... '## Stages' section in "
+            f"Could not locate a '## Current Stage' section in "
             f"{progress_file}; stage not updated."
         )
 

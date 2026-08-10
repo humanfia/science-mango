@@ -1,0 +1,9 @@
+import IChO2026Chem
+import IChO2026Problems.problem_icho_2026_t2_a2
+import IChO2026Problems.problem_icho_2026_t2_a3
+import IChO2026Problems.problem_icho_2026_t2_a5
+import IChO2026Problems.problem_icho_2026_t4_a5
+import IChO2026Problems.problem_icho_2026_t4_a6
+import IChO2026Problems.problem_icho_2026_t4_a7
+
+/-! Umbrella module for verified IChO 2026 theory-problem formalizations. -/

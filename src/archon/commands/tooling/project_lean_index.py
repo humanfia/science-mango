@@ -54,6 +54,13 @@ def _git_value(project_path: Path, *args: str) -> str | None:
 
 def _module_name(project_path: Path, source: Path) -> str:
     rel = source.relative_to(project_path).with_suffix("")
+    # Lake dependencies live below `.lake/packages/<package>/`.  When a
+    # dependency source root is deliberately included in a project overlay,
+    # its import name starts after the package directory (for example
+    # `.lake/packages/crnt-lean/CRNT/Basic/Reaction.lean` is
+    # `CRNT.Basic.Reaction`, not a synthetic `.lake.packages...` module).
+    if len(rel.parts) >= 4 and rel.parts[:2] == (".lake", "packages"):
+        rel = Path(*rel.parts[3:])
     return ".".join(rel.parts)
 
 

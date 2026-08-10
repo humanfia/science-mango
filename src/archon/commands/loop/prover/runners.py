@@ -35,6 +35,7 @@ from archon.agent import (
     build_runner,
 )
 from archon.commands.tooling.project_config import HarnessDescriptor
+from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.prompts import (
     build_parallel_prover_prompt,
     build_prover_prompt,
@@ -106,13 +107,6 @@ def _load_mode_content(state_dir: Path, mode_name: str | None) -> str | None:
     return stripped.strip() or None
 
 
-_PHYSICS_BLUEPRINT_MARKER = "% archon:physics"
-_PHYSICS_STAGE_MODES = {
-    "autoformalize": "physics-formalize",
-    "prover": "physics",
-}
-
-
 def _blueprint_chapter_for_target(project_path: Path, target: Path) -> Path:
     """Return the conventional blueprint chapter path for a Lean target."""
     try:
@@ -124,12 +118,14 @@ def _blueprint_chapter_for_target(project_path: Path, target: Path) -> Path:
     return project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
 
 
-def _target_has_physics_blueprint_marker(project_path: Path, target: Path) -> bool:
+def _target_has_domain_blueprint_marker(project_path: Path, target: Path) -> bool:
     chapter = _blueprint_chapter_for_target(project_path, target)
     try:
-        return _PHYSICS_BLUEPRINT_MARKER in chapter.read_text(encoding="utf-8")
+        text = chapter.read_text(encoding="utf-8")
     except OSError:
         return False
+    profile = load_domain_profile(project_path)
+    return any(marker in text for marker in profile.blueprint_markers)
 
 
 def _mode_file_exists(state_dir: Path, mode_name: str) -> bool:
@@ -146,9 +142,9 @@ def select_prover_mode_for_target(
 ) -> str | None:
     """Resolve the prover mode for one objective file.
 
-    Explicit ``[prover-mode: ...]`` tags still win. Without a tag, physics
-    blueprint chapters opt into physics-aware modes for formalization/proving;
-    other targets use the normal stage default.
+    Explicit ``[prover-mode: ...]`` tags still win. Without a tag, marked
+    domain chapters opt into their profile's formalization/proof modes; other
+    targets use the normal stage default.
     """
     # Loop-owned shared prerequisites always use the strict axiom-clean build
     # mode. This also recovers the mode if a Review-gate objective rewrite
@@ -170,10 +166,10 @@ def select_prover_mode_for_target(
     if explicit_mode:
         return explicit_mode
     canonical = normalize_stage_for_prompt_path(stage)
-    if _target_has_physics_blueprint_marker(project_path, target):
-        physics_mode = _PHYSICS_STAGE_MODES.get(canonical)
-        if physics_mode and _mode_file_exists(state_dir, physics_mode):
-            return physics_mode
+    if _target_has_domain_blueprint_marker(project_path, target):
+        domain_mode = load_domain_profile(project_path).mode_for_stage(canonical)
+        if domain_mode and _mode_file_exists(state_dir, domain_mode):
+            return domain_mode
     return default_prover_mode_for_stage(state_dir, stage)
 
 
@@ -569,13 +565,20 @@ class ParallelProverRunner:
             self.pipeline_review is not None and self.resume_enabled
         )
         if (
-            not self.stage.strip().lower().startswith("autoformalize")
+            normalize_stage_for_prompt_path(self.stage)
+            not in {"autoformalize", "polish"}
             and not pipeline_resume
         ):
+            polish_targets = {
+                path.resolve()
+                for path, mode in objectives_with_modes
+                if mode is not None and mode.strip().casefold() == "polish"
+            }
             sorry_files, noop_dropped = filter_noop_objectives(
                 sorry_files,
                 progress_file=progress,
                 state_dir=self.state_dir,
+                zero_sorry_exemptions=polish_targets,
             )
         if noop_dropped:
             log.warn(

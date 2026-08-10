@@ -1,0 +1,294 @@
+% Shared, project-local BZ kinetics infrastructure.
+% Its source content is the T2 mechanism already transcribed in the T2 chapters.
+\section{Shared Belousov--Zhabotinsky kinetics}
+
+\subsection{Formalization contract and informal proof}
+
+This project-local module factors only the numerical species, state, kinetic
+constant, and mass-action-rate vocabulary common to T2-A2, T2-A3, and T2-A5.
+It contains no target-specific stationary-state, period, or numerical-answer
+theorem.  Its three generic algebraic lemmas only cancel shared positive
+factors or specialize a state update.  All concentrations and rates are scalar
+numerical readouts in the units printed by the source.
+
+\begin{definition}
+
+\leanok
+[Molar concentration]
+\label{def:chem:bz:molar_concentration}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.MolarConcentration}
+A molar concentration is represented by its real numerical value in the
+source's molar scale.
+\end{definition}
+\begin{proof}
+
+\leanok
+The common T2 calculations use real arithmetic on numerical concentration
+readouts.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Second-order rate constant]
+\label{def:chem:bz:second_order_rate_constant}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.SecondOrderRateConstant}
+A second-order rate constant is represented by its real numerical value in
+the printed $\mathrm{M^{-1}s^{-1}}$ scale.
+\end{definition}
+\begin{proof}
+
+\leanok
+This type records the units of the constants multiplying two concentration
+factors in the shared mass-action model.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Third-order rate constant]
+\label{def:chem:bz:third_order_rate_constant}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.ThirdOrderRateConstant}
+A third-order rate constant is represented by its real numerical value in
+the printed $\mathrm{M^{-2}s^{-1}}$ scale.
+\end{definition}
+\begin{proof}
+
+\leanok
+This type records the units of the constants multiplying three concentration
+factors in the shared mass-action model.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Fourth-order rate constant]
+\label{def:chem:bz:fourth_order_rate_constant}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.FourthOrderRateConstant}
+A fourth-order rate constant is represented by its real numerical value in
+the printed $\mathrm{M^{-3}s^{-1}}$ scale.
+\end{definition}
+\begin{proof}
+
+\leanok
+This type records the units of the step-(5) constant multiplying four
+concentration factors.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[BZ species]
+\label{def:chem:bz:species}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.Species}
+The finite species type includes HBrO$_2$, BrO$_3^-$, Br$^-$, H$^+$,
+BrO$_2^\bullet$, HBrO, Ce(III), Ce(IV), BMA, and malonic acid.
+\end{definition}
+\begin{proof}
+
+\leanok
+These are the species named in the elementary-step mechanism used by the
+three T2 targets.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[BZ concentration state]
+\label{def:chem:bz:state}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.State}
+\uses{def:chem:bz:molar_concentration, def:chem:bz:species}
+A state assigns a molar concentration to each shared BZ species.
+\end{definition}
+\begin{proof}
+
+\leanok
+The mass-action expressions require only lookup of the current concentration
+of each reactant.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[BZ kinetic parameters]
+\label{def:chem:bz:kinetic_parameters}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.KineticParameters}
+\uses{def:chem:bz:second_order_rate_constant, def:chem:bz:third_order_rate_constant, def:chem:bz:fourth_order_rate_constant}
+The parameter record supplies $k_1,\ldots,k_7$, typed by the order of their
+corresponding elementary reactions.
+\end{definition}
+\begin{proof}
+
+\leanok
+The fields are the source-given kinetic constants, kept separate from a state
+and from all requested numerical conclusions.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 1]
+\label{def:chem:bz:rate1}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate1}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(1) rate is $k_1[\mathrm{HBrO_2}][\mathrm{BrO_3^-}][\mathrm{H^+}]$.
+\end{definition}
+\begin{proof}
+
+\leanok
+It is the mass-action product for the three reactants in elementary step
+(1).
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 2]
+\label{def:chem:bz:rate2}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate2}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(2) rate is
+$k_2[\mathrm{BrO_2^\bullet}][\mathrm{Ce^{III}}][\mathrm{H^+}]$.
+\end{definition}
+\begin{proof}
+
+\leanok
+It is the mass-action product for the three reactants in elementary step
+(2).
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 3]
+\label{def:chem:bz:rate3}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate3}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(3) rate is $k_3[\mathrm{HBrO_2}]^2$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Two HBrO$_2$ reactants give the squared concentration factor in the
+mass-action expression.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 4]
+\label{def:chem:bz:rate4}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate4}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(4) rate is $k_4[\mathrm{HBrO_2}][\mathrm{Br^-}][\mathrm{H^+}]$.
+\end{definition}
+\begin{proof}
+
+\leanok
+It is the mass-action product for the three reactants in elementary step
+(4).
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 5]
+\label{def:chem:bz:rate5}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate5}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(5) rate is
+$k_5[\mathrm{BrO_3^-}][\mathrm{Br^-}][\mathrm{H^+}]^2$.
+\end{definition}
+\begin{proof}
+
+\leanok
+The two proton reactants supply the squared proton-concentration factor in
+the fourth-order mass-action product.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 6]
+\label{def:chem:bz:rate6}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate6}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(6) rate is
+$k_6[\mathrm{HBrO}][\mathrm{MA}]$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Step (6) has two reactants, HBrO and malonic acid, so its mass-action rate is
+the second-order constant times their two concentration readouts.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Elementary rate 7]
+\label{def:chem:bz:rate7}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate7}
+\uses{def:chem:bz:kinetic_parameters, def:chem:bz:state}
+The step-(7) rate is $k_7[\mathrm{Ce^{IV}}][\mathrm{BMA}]$.
+\end{definition}
+\begin{proof}
+
+\leanok
+It is the mass-action product for the two reactants in the continuous
+Process-C elementary step.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Cancellation in the step-(1)/step-(4) switching balance]
+\label{lem:chem:bz:rate1_eq_rate4_of_positive}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate1_eq_rate4_of_positive}
+\uses{def:chem:bz:rate1, def:chem:bz:rate4}
+If the step-(1) and step-(4) rates are equal and the common
+$[\mathrm{HBrO_2}]$ and $[\mathrm{H^+}]$ factors are positive, then
+$k_1[\mathrm{BrO_3^-}]=k_4[\mathrm{Br^-}]$.
+\end{lemma}
+\begin{proof}
+
+\leanok
+Reassociate both mass-action products so that the two positive common factors
+form one nonzero left factor, then cancel that factor.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Step-(4) rate after updating bromide]
+\label{lem:chem:bz:rate4_update_bromide}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate4_update_bromide}
+\uses{def:chem:bz:rate4}
+Updating only the bromide coordinate specializes the step-(4) rate to
+$k_4[\mathrm{HBrO_2}][\mathrm{Br^-}][\mathrm{H^+}]$ with the supplied new
+bromide value.
+\end{lemma}
+\begin{proof}
+
+\leanok
+The updated bromide lookup reduces by decidable equality, while every other
+species lookup remains the original state value.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Step-(5) rate after updating bromide]
+\label{lem:chem:bz:rate5_update_bromide}
+\lean{IChO2026Chem.Kinetics.BelousovZhabotinsky.rate5_update_bromide}
+\uses{def:chem:bz:rate5}
+Updating only the bromide coordinate specializes the step-(5) rate to
+$k_5[\mathrm{BrO_3^-}][\mathrm{Br^-}][\mathrm{H^+}]^2$ with the supplied new
+bromide value.
+\end{lemma}
+\begin{proof}
+
+\leanok
+As for step (4), simplification of the coordinate update yields the stated
+mass-action product.
+\end{proof}
