@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
-from humanize.escalation import load_template_registry
+from humanize.escalation import (
+    load_template_registry,
+    parse_auto_escalation_policy,
+)
 from humanize.pipeline import PipelineConfig
 
 
@@ -56,6 +60,65 @@ def test_auto_v3_campaign_closes_budget_into_proof_compatible_ansatz():
     assert template.proof_compatible is True
     assert template.launch_compatible is True
     assert template.auto_materialize is True
+
+
+def test_paper_auto_family_campaign_closes_into_twisted_torus_child():
+    path = CONFIGS / (
+        "five_stage_campaign.coset_two_block_actions_v3."
+        "paper_auto_family_v2_gpt56sol_20260811.json"
+    )
+    raw = json.loads(path.read_text())
+    config = PipelineConfig.from_json(path, repo_dir=PROJECT)
+
+    assert config.target_mode == "scalar-fom-strict-v1"
+    assert config.max_total_workers == 12
+    assert config.flow_config is not None
+    assert config.flow_config.model == "gpt-5.6-sol"
+    assert config.flow_config.reasoning_effort == "xhigh"
+    assert config.flow_config.search_representation_id == (
+        "css-coset-two-block-actions-v3"
+    )
+    assert config.flow_config.search_regime_policy_version == 4
+    assert config.flow_config.stop_on_representation_change is True
+
+    policy = parse_auto_escalation_policy(
+        repo_dir=PROJECT,
+        pipeline_config_path=path,
+    )
+    assert policy.enabled is True
+    assert policy.template_by_regime == {
+        "representation_change_required": (
+            "css-bb-twisted-torus-generator-v1"
+        )
+    }
+    template = load_template_registry(
+        repo_dir=PROJECT,
+        registry_path=Path("configs/campaign_templates.v2.json"),
+    ).template(
+        "css-bb-twisted-torus-generator-v1"
+    )
+    assert "css-coset-two-block-actions-v3" in (
+        template.allowed_parent_representations
+    )
+    assert template.proof_compatible is True
+    assert template.launch_compatible is True
+    assert template.auto_materialize is True
+    assert template.template_version == 2
+    assert template.base_pipeline is not None
+    assert template.base_pipeline.path == (
+        "configs/five_stage_campaign.twisted_torus_paper_v2.json"
+    )
+    assert hashlib.sha256(
+        (PROJECT / template.base_pipeline.path).read_bytes()
+    ).hexdigest() == template.base_pipeline.sha256
+
+    child_path = CONFIGS / "five_stage_campaign.twisted_torus_paper_v2.json"
+    child = PipelineConfig.from_json(child_path, repo_dir=PROJECT)
+    assert child.target_mode == "scalar-fom-strict-v1"
+    assert child.flow_config is not None
+    assert child.flow_config.model == "gpt-5.6-sol"
+    assert child.flow_config.review_model == "gpt-5.6-sol"
+    assert child.stage3_backend == "sat-sectors"
 
 
 def test_ansatz_child_base_is_immutable_resume_template_without_parent_policy():

@@ -141,11 +141,14 @@ SEARCH_REGIME_KIND = "qcode-humanize-search-regime"
 SEARCH_REGIME_PREFIX = "QCODE_SEARCH_REGIME_V1="
 SEARCH_REGIME_V2_PREFIX = "QCODE_SEARCH_REGIME_V2="
 SEARCH_REGIME_V3_PREFIX = "QCODE_SEARCH_REGIME_V3="
-SEARCH_REGIME_POLICY_VERSIONS = (1, 2, 3)
+SEARCH_REGIME_V4_PREFIX = "QCODE_SEARCH_REGIME_V4="
+SEARCH_REGIME_POLICY_VERSIONS = (1, 2, 3, 4)
+SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS = frozenset({3, 4})
 SEARCH_REGIME_PREFIX_BY_POLICY_VERSION = {
     1: SEARCH_REGIME_PREFIX,
     2: SEARCH_REGIME_V2_PREFIX,
     3: SEARCH_REGIME_V3_PREFIX,
+    4: SEARCH_REGIME_V4_PREFIX,
 }
 SEARCH_REGIME_V1_STATUSES = (
     "normal",
@@ -458,8 +461,10 @@ class FlowConfig:
     # Policy v1 is the historical three-round diversity-collapse algorithm.
     # Policy v2 opts a fresh run into four/seven-round structural transitions.
     # Policy v3 keeps timeout/empty-exact rounds neutral and closes an exhausted
-    # expansion budget with a representation-change handoff.  Versions are
-    # never reinterpreted so sealed v1/v2 campaigns remain byte-replayable.
+    # expansion budget with a representation-change handoff. Policy v4 also
+    # closes a fully exhausted no-WIN budget when Stage-1 exact work is empty.
+    # Versions are never reinterpreted so sealed v1-v3 campaigns remain
+    # byte-replayable.
     search_regime_policy_version: int = 1
     stop_on_representation_change: bool = False
     milp_top: int = 3
@@ -573,21 +578,23 @@ class FlowConfig:
             or self.search_regime_policy_version
             not in SEARCH_REGIME_POLICY_VERSIONS
         ):
-            raise ValueError("search_regime_policy_version must be 1, 2, or 3")
+            raise ValueError(
+                "search_regime_policy_version must be 1, 2, 3, or 4"
+            )
         if not isinstance(self.stop_on_representation_change, bool):
             raise ValueError("stop_on_representation_change must be boolean")
-        if self.search_regime_policy_version in {2, 3} and (
+        if self.search_regime_policy_version in {2, 3, 4} and (
             self.search_representation_id is None
         ):
             raise ValueError(
-                "search regime policy v2/v3 requires search_representation_id"
+                "search regime policy v2/v3/v4 requires search_representation_id"
             )
         if (
             self.stop_on_representation_change
-            and self.search_regime_policy_version not in {2, 3}
+            and self.search_regime_policy_version not in {2, 3, 4}
         ):
             raise ValueError(
-                "stop_on_representation_change requires policy version 2 or 3"
+                "stop_on_representation_change requires policy version 2, 3, or 4"
             )
 
 
@@ -3280,6 +3287,56 @@ def _advance_search_regime_v3(
     return regime
 
 
+def _advance_search_regime_v4(
+    previous: dict[str, Any],
+    completed: list[dict[str, Any]],
+    *,
+    max_rounds: int,
+) -> dict[str, Any]:
+    """Close a fully used representation budget without a trusted WIN.
+
+    V3 intentionally treats rounds with no Stage-1 exact distance as neutral.
+    That is correct for proof credit, but a representation whose exact work is
+    deferred to Stage 2 can consequently consume its complete authorized
+    search budget without ever reaching the representation-handoff state. V4
+    preserves every V3 transition and adds one search-control-only terminal
+    rule: after all bound rounds are complete, no trusted WIN authorizes a
+    fresh, registry-allowlisted representation. Reviewer advice can shape the
+    experiments inside those rounds, but it never enters this decision.
+    """
+
+    regime = _advance_search_regime_v3(
+        previous,
+        completed,
+        max_rounds=max_rounds,
+    )
+    if regime.get("status") == "representation_change_required":
+        return regime
+    latest = completed[-1]
+    if (
+        latest["round"] == max_rounds
+        and len(completed) == max_rounds
+        and latest["trusted_win_total"] == 0
+    ):
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "representation_change_required",
+            "reason": "round_budget_exhausted_without_trusted_win",
+            "evidence": {
+                "basis": (
+                    "durable-authorized-round-budget-and-trusted-win-total"
+                ),
+                "round": latest["round"],
+                "max_rounds": max_rounds,
+                "prior_regime_status": regime["status"],
+                "prior_regime_reason": regime["reason"],
+                "prior_regime_evidence": copy.deepcopy(regime["evidence"]),
+            },
+        }
+    return regime
+
+
 def _advance_search_regime(
     previous: dict[str, Any],
     completed: list[dict[str, Any]],
@@ -3301,6 +3358,20 @@ def _advance_search_regime(
                 "search regime policy v3 requires a positive max_rounds"
             )
         return _advance_search_regime_v3(
+            previous,
+            completed,
+            max_rounds=max_rounds,
+        )
+    if policy_version == 4:
+        if (
+            isinstance(max_rounds, bool)
+            or not isinstance(max_rounds, int)
+            or max_rounds < 1
+        ):
+            raise RoundTransactionError(
+                "search regime policy v4 requires a positive max_rounds"
+            )
+        return _advance_search_regime_v4(
             previous,
             completed,
             max_rounds=max_rounds,
@@ -3359,13 +3430,17 @@ def _replay_search_regime(
             raise RoundTransactionError(
                 "search-regime history disagrees with configured policy version"
             )
-    if selected_policy_version == 3 and (
-        isinstance(max_rounds, bool)
-        or not isinstance(max_rounds, int)
-        or max_rounds < 1
+    if (
+        selected_policy_version
+        in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+        and (
+            isinstance(max_rounds, bool)
+            or not isinstance(max_rounds, int)
+            or max_rounds < 1
+        )
     ):
         raise RoundTransactionError(
-            "search regime policy v3 replay requires a positive max_rounds"
+            "budget-bound search regime replay requires a positive max_rounds"
         )
     regime = _normal_search_regime(0)
     completed: list[dict[str, Any]] = []
@@ -3383,16 +3458,27 @@ def _replay_search_regime(
             raise RoundTransactionError(
                 "search-regime round numbers are not strictly increasing"
             )
-        if selected_policy_version == 3 and number != previous_number + 1:
+        if (
+            selected_policy_version
+            in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+            and number != previous_number + 1
+        ):
             raise RoundTransactionError(
-                "search regime policy v3 requires contiguous rounds from one"
+                "budget-bound search regime requires contiguous rounds from one"
             )
         previous_number = number
-        if selected_policy_version == 3 and number > max_rounds:
+        if (
+            selected_policy_version
+            in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+            and number > max_rounds
+        ):
             raise RoundTransactionError(
-                "search-regime round exceeds the policy-v3 max_rounds binding"
+                "search-regime round exceeds the bound max_rounds"
             )
-        if selected_policy_version == 3:
+        if (
+            selected_policy_version
+            in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+        ):
             trusted_win_total = summary.get("trusted_win_total")
             if (
                 isinstance(trusted_win_total, bool)
@@ -3400,7 +3486,8 @@ def _replay_search_regime(
                 or trusted_win_total < previous_trusted_win_total
             ):
                 raise RoundTransactionError(
-                    "policy-v3 trusted_win_total must be a nondecreasing integer"
+                    "budget-bound trusted_win_total must be a "
+                    "nondecreasing integer"
                 )
             previous_trusted_win_total = trusted_win_total
         if "sealed_exact_audit" in summary:
@@ -3465,7 +3552,7 @@ def _validated_search_handoff(
             "search handoff has only one of reason/round markers"
         )
     if (
-        config.search_regime_policy_version not in {2, 3}
+        config.search_regime_policy_version not in {2, 3, 4}
         or not config.stop_on_representation_change
     ):
         raise RoundTransactionError(
@@ -3508,7 +3595,8 @@ def _validated_search_handoff(
         policy_version=config.search_regime_policy_version,
         max_rounds=(
             config.max_rounds
-            if config.search_regime_policy_version == 3
+            if config.search_regime_policy_version
+            in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
             else None
         ),
     )
@@ -3521,7 +3609,10 @@ def _validated_search_handoff(
         raise RoundTransactionError(
             "search handoff disagrees with replayed regime evidence"
         )
-    if config.search_regime_policy_version == 3:
+    if (
+        config.search_regime_policy_version
+        in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+    ):
         trusted_win_count = state.get("trusted_win_count")
         final_trusted_win_total = rounds[-1].get("trusted_win_total")
         if (
@@ -3538,7 +3629,7 @@ def _validated_search_handoff(
         prior_regime = _replay_search_regime(
             rounds[:-1],
             rounds_root=rounds_root,
-            policy_version=3,
+            policy_version=config.search_regime_policy_version,
             max_rounds=config.max_rounds,
         )
         if prior_regime.get("status") == (
@@ -5018,7 +5109,7 @@ def _freeze_round_context(
         / config.run_id
         / "bitlesson.md"
     )
-    prompt_safe_reviewer_v2 = config.search_regime_policy_version in {2, 3}
+    prompt_safe_reviewer_v2 = config.search_regime_policy_version in {2, 3, 4}
     # Policy-v2 contexts can produce executable evolved Python.  Reviewer
     # lessons and the accumulated BitLesson are deliberately retained on disk
     # for audit but cannot enter that prompt as free text.  Policy v1 keeps its
@@ -5212,7 +5303,7 @@ def _freeze_round_context(
         if oracle_advisory is not None:
             context_parts.append(oracle_advisory)
     regime_enabled = (
-        config.search_regime_policy_version in {2, 3}
+        config.search_regime_policy_version in {2, 3, 4}
         or state.get("search_regime") is not None
         or any(
             isinstance(summary, dict) and "sealed_exact_audit" in summary
@@ -5226,7 +5317,8 @@ def _freeze_round_context(
             policy_version=config.search_regime_policy_version,
             max_rounds=(
                 config.max_rounds
-                if config.search_regime_policy_version == 3
+                if config.search_regime_policy_version
+                in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
                 else None
             ),
         )
@@ -13287,7 +13379,7 @@ class HumanizeFlow:
             "failure_direction_feedback": failure_direction_feedback,
             "sealed_exact_audit": sealed_exact_audit,
         }
-        if self.config.search_regime_policy_version in {2, 3}:
+        if self.config.search_regime_policy_version in {2, 3, 4}:
             summary["search_regime_policy_version"] = (
                 self.config.search_regime_policy_version
             )
@@ -13305,7 +13397,8 @@ class HumanizeFlow:
             policy_version=self.config.search_regime_policy_version,
             max_rounds=(
                 self.config.max_rounds
-                if self.config.search_regime_policy_version == 3
+                if self.config.search_regime_policy_version
+                in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
                 else None
             ),
         )
@@ -13405,7 +13498,8 @@ class HumanizeFlow:
                         # V3 binds max_rounds into replay and terminal handoff
                         # evidence.  Rebinding that value under the same run_id
                         # would reinterpret already-sealed rounds.
-                        and durable_policy_version != 3
+                        and durable_policy_version
+                        not in SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
                         and requested_max_rounds > previous_max_rounds
                         and durable_context == requested_context
                     )
@@ -13858,7 +13952,7 @@ class HumanizeFlow:
                 representation_handoff = bool(
                     not trusted_wins
                     and self.config.stop_on_representation_change
-                    and self.config.search_regime_policy_version in {2, 3}
+                    and self.config.search_regime_policy_version in {2, 3, 4}
                     and isinstance(final_state.get("search_regime"), dict)
                     and final_state["search_regime"].get("status")
                     == SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE

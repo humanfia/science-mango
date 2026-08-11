@@ -225,11 +225,16 @@ class AutoEscalationPolicy:
                 self.source_search_representation_id
             ),
         }
-        # Keep historical V1/V2 durable policy snapshots byte-compatible.  V3
-        # alone makes these fields part of escalation authority.
-        if self.source_search_regime_policy_version == 3:
+        # Keep historical V1/V2 durable policy snapshots byte-compatible.
+        # Budget-bound V3/V4 make these fields part of escalation authority.
+        if (
+            self.source_search_regime_policy_version
+            in flow_module.SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+        ):
             value.update({
-                "source_search_regime_policy_version": 3,
+                "source_search_regime_policy_version": (
+                    self.source_search_regime_policy_version
+                ),
                 "source_max_rounds": self.source_max_rounds,
                 "source_stop_on_representation_change": (
                     self.source_stop_on_representation_change
@@ -773,13 +778,17 @@ def _validated_parent_machine_evidence(
             "parent search_regime_policy_version is invalid"
         )
     max_rounds = config.get("max_rounds")
-    if policy_version == 3 and (
-        isinstance(max_rounds, bool)
-        or not isinstance(max_rounds, int)
-        or max_rounds < 1
+    if (
+        policy_version
+        in flow_module.SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+        and (
+            isinstance(max_rounds, bool)
+            or not isinstance(max_rounds, int)
+            or max_rounds < 1
+        )
     ):
         raise ParentEvidenceError(
-            "parent policy-v3 max_rounds binding is invalid"
+            "parent budget-bound max_rounds binding is invalid"
         )
     try:
         search_representation_id = _safe_id(
@@ -810,7 +819,12 @@ def _validated_parent_machine_evidence(
             rounds,
             rounds_root=rounds_root,
             policy_version=policy_version,
-            max_rounds=max_rounds if policy_version == 3 else None,
+            max_rounds=(
+                max_rounds
+                if policy_version
+                in flow_module.SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+                else None
+            ),
         )
     except Exception as exc:
         raise ParentEvidenceError(f"parent search regime replay failed: {exc}") from exc
@@ -833,7 +847,7 @@ def _validated_parent_machine_evidence(
         stop_on_change = config.get("stop_on_representation_change")
         if (
             isinstance(policy_version, bool)
-            or policy_version not in {2, 3}
+            or policy_version not in {2, 3, 4}
             or stop_on_change is not True
         ):
             raise ParentEvidenceError(
@@ -915,7 +929,10 @@ def _validated_parent_machine_evidence(
         "rounds": canonical_rounds,
         "search_regime": copy.deepcopy(replayed),
     }
-    if policy_version == 3:
+    if (
+        policy_version
+        in flow_module.SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+    ):
         canonical_evidence["search_regime_policy_version"] = policy_version
         canonical_evidence["max_rounds"] = max_rounds
         for canonical, summary in zip(canonical_rounds, rounds, strict=True):
@@ -1137,11 +1154,17 @@ def parse_auto_escalation_policy(
         label="auto_escalation",
     )
     enabled = _bool(raw_policy["enabled"], label="auto_escalation.enabled")
-    if enabled and source_policy_version == 3 and (
-        source_max_rounds is None or not source_stop_on_change
+    if (
+        enabled
+        and source_policy_version
+        in flow_module.SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+        and (
+            source_max_rounds is None or not source_stop_on_change
+        )
     ):
         raise RegistryError(
-            "enabled pipeline policy v3 requires max_rounds and terminal handoff"
+            "enabled budget-bound pipeline policy requires max_rounds and "
+            "terminal handoff"
         )
     try:
         registry_relative = _relative_path(
@@ -1259,13 +1282,17 @@ def reconcile_campaign_escalation(
         raise ParentEvidenceError(
             "parent search-regime policy version disagrees with pipeline policy"
         )
-    if policy.source_search_regime_policy_version == 3 and (
-        evidence.max_rounds != policy.source_max_rounds
-        or evidence.stop_on_representation_change
-        != policy.source_stop_on_representation_change
+    if (
+        policy.source_search_regime_policy_version
+        in flow_module.SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS
+        and (
+            evidence.max_rounds != policy.source_max_rounds
+            or evidence.stop_on_representation_change
+            != policy.source_stop_on_representation_change
+        )
     ):
         raise ParentEvidenceError(
-            "parent policy-v3 budget/handoff authority disagrees with pipeline policy"
+            "parent budget/handoff authority disagrees with pipeline policy"
         )
     machine_regime = evidence.regime.get("status")
     if machine_regime not in _MACHINE_REGIMES:

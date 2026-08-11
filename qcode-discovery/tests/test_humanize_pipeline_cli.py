@@ -193,6 +193,110 @@ def test_durable_policy_snapshot_allows_operational_config_changes_only(tmp_path
         )
 
 
+def test_v2_durable_policy_snapshot_keeps_round_budget_operational(tmp_path):
+    repo = _repo(tmp_path)
+    config = repo / "pipeline.json"
+    paths = process_control.control_paths(repo, "snapshot-v2", create=True)
+    config.write_text(
+        json.dumps({
+            "run_id": "snapshot-v2",
+            "stage1": {
+                "search_representation_id": "css-bb-v2",
+                "search_regime_policy_version": 2,
+                "max_rounds": 12,
+            },
+        })
+        + "\n"
+    )
+    first = process_control._capture_durable_escalation_policy(
+        repo_dir=repo,
+        config_path=config,
+        config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(),
+        run_id="snapshot-v2",
+        snapshot_path=paths.escalation_policy,
+    )
+
+    config.write_text(
+        json.dumps({
+            "run_id": "snapshot-v2",
+            "stage1": {
+                "search_representation_id": "css-bb-v2",
+                "search_regime_policy_version": 2,
+                "max_rounds": 20,
+            },
+        })
+        + "\n"
+    )
+    second = process_control._capture_durable_escalation_policy(
+        repo_dir=repo,
+        config_path=config,
+        config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(),
+        run_id="snapshot-v2",
+        snapshot_path=paths.escalation_policy,
+    )
+
+    assert second == first
+    assert "source_search_regime_policy_version" not in first
+    assert "source_max_rounds" not in first
+
+
+def test_v4_durable_policy_snapshot_binds_handoff_authority(tmp_path):
+    repo = _repo(tmp_path)
+    config = repo / "pipeline.json"
+    paths = process_control.control_paths(repo, "snapshot-v4", create=True)
+
+    def write_config(*, policy_version: int, max_rounds: int, stop: bool) -> str:
+        config.write_text(
+            json.dumps({
+                "run_id": "snapshot-v4",
+                "stage1": {
+                    "search_representation_id": "css-coset-v3",
+                    "search_regime_policy_version": policy_version,
+                    "max_rounds": max_rounds,
+                    "stop_on_representation_change": stop,
+                },
+            })
+            + "\n"
+        )
+        return hashlib.sha256(config.read_bytes()).hexdigest()
+
+    first = process_control._capture_durable_escalation_policy(
+        repo_dir=repo,
+        config_path=config,
+        config_sha256=write_config(
+            policy_version=4,
+            max_rounds=12,
+            stop=True,
+        ),
+        run_id="snapshot-v4",
+        snapshot_path=paths.escalation_policy,
+    )
+    assert first["source_search_regime_policy_version"] == 4
+    assert first["source_max_rounds"] == 12
+    assert first["source_stop_on_representation_change"] is True
+
+    for policy_version, max_rounds, stop in (
+        (3, 12, True),
+        (4, 13, True),
+        (4, 12, False),
+    ):
+        with pytest.raises(
+            process_control.ProcessControlError,
+            match="differs from the durable run snapshot",
+        ):
+            process_control._capture_durable_escalation_policy(
+                repo_dir=repo,
+                config_path=config,
+                config_sha256=write_config(
+                    policy_version=policy_version,
+                    max_rounds=max_rounds,
+                    stop=stop,
+                ),
+                run_id="snapshot-v4",
+                snapshot_path=paths.escalation_policy,
+            )
+
+
 def test_pending_escalation_retries_without_rerunning_science(tmp_path):
     repo = _repo(tmp_path)
     paths = process_control.control_paths(repo, "retry-parent", create=True)

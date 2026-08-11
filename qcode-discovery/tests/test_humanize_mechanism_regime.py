@@ -17,6 +17,7 @@ from humanize.flow import (
     SEARCH_REGIME_PREFIX,
     SEARCH_REGIME_V2_PREFIX,
     SEARCH_REGIME_V3_PREFIX,
+    SEARCH_REGIME_V4_PREFIX,
     UnresolvedAuditError,
     _review_artifact_binding,
     _candidate_audit_stratum,
@@ -100,7 +101,7 @@ def _round(
     }
     if policy_version is not None:
         summary["search_regime_policy_version"] = policy_version
-    if policy_version == 3:
+    if policy_version in {3, 4}:
         summary["trusted_win_total"] = 0
     return summary
 
@@ -384,6 +385,48 @@ def test_policy_v3_terminal_fallback_is_fail_closed():
         )
 
 
+def test_policy_v4_exhausted_budget_without_win_forces_fresh_representation():
+    rounds = [
+        _round(number, raw=100, unique=100, policy_version=4)
+        for number in range(1, 13)
+    ]
+
+    before = _replay_search_regime(
+        rounds[:-1], policy_version=4, max_rounds=12
+    )
+    regime = _replay_search_regime(
+        rounds, policy_version=4, max_rounds=12
+    )
+    historical_v3 = [
+        _round(number, raw=100, unique=100, policy_version=3)
+        for number in range(1, 13)
+    ]
+
+    assert before["status"] == "normal"
+    assert regime["status"] == "representation_change_required"
+    assert regime["reason"] == "round_budget_exhausted_without_trusted_win"
+    assert regime["evidence"]["round"] == 12
+    assert regime["evidence"]["max_rounds"] == 12
+    assert regime["evidence"]["prior_regime_status"] == "normal"
+    assert _replay_search_regime(
+        historical_v3, policy_version=3, max_rounds=12
+    )["status"] == "normal"
+
+
+def test_policy_v4_trusted_win_prevents_terminal_representation_change():
+    rounds = [
+        _round(number, raw=100, unique=100, policy_version=4)
+        for number in range(1, 13)
+    ]
+    rounds[-1]["trusted_win_total"] = 1
+
+    regime = _replay_search_regime(
+        rounds, policy_version=4, max_rounds=12
+    )
+
+    assert regime["status"] == "normal"
+
+
 def test_policy_v3_handoff_rejects_post_transition_rounds(
     tmp_path, monkeypatch
 ):
@@ -603,6 +646,32 @@ def test_v3_policy_emits_distinct_bound_marker_from_the_first_round(tmp_path):
     assert _search_regime_policy_from_context(context) == {
         **_normal_search_regime(0),
         "policy_version": 3,
+    }
+
+
+def test_v4_policy_emits_distinct_bound_marker_from_the_first_round(tmp_path):
+    repo = tmp_path / "repo"
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="v4-marker",
+        max_rounds=12,
+        milp_top=0,
+        search_representation_id="css-bb-test-v4",
+        search_regime_policy_version=4,
+    )
+
+    context = _freeze_round_context(
+        config,
+        {"current_round": 0, "rounds": []},
+        repo / "results/humanize/v4-marker/rounds/round-001",
+    )
+
+    lines = context.read_text().splitlines()
+    assert not any(line.startswith(SEARCH_REGIME_V3_PREFIX) for line in lines)
+    assert sum(line.startswith(SEARCH_REGIME_V4_PREFIX) for line in lines) == 1
+    assert _search_regime_policy_from_context(context) == {
+        **_normal_search_regime(0),
+        "policy_version": 4,
     }
 
 

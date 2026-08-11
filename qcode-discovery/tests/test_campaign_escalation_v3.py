@@ -181,14 +181,19 @@ def _install_parent_pipeline(
 
 
 def _install_sealed_history(
-    repo: Path, *, run_id: str, policy_version: int
+    repo: Path,
+    *,
+    run_id: str,
+    policy_version: int,
+    exact_low_rounds: int = 4,
 ) -> tuple[Path, list[dict], dict]:
-    """Create four exact-low rounds followed by eight exact-empty rounds.
+    """Create exact-low rounds followed by exact-empty rounds.
 
     The history reaches family expansion in round four.  Under V2 the empty
     rounds break the exact-low streak and leave that directive in place.  V3
     treats them as neutral and converts the exhausted round-12 budget into a
-    representation-change handoff.
+    representation-change handoff. V4 additionally closes an entirely empty
+    exact history after the authorized budget is exhausted without a WIN.
     """
 
     run_root = repo / f"results/humanize/{run_id}"
@@ -197,7 +202,7 @@ def _install_sealed_history(
     for number in range(1, MAX_ROUNDS + 1):
         round_dir = rounds_root / f"round-{number:03d}"
         exact_rows = []
-        if number <= 4:
+        if number <= exact_low_rounds:
             exact_rows = [
                 {
                     "n": 360,
@@ -264,7 +269,7 @@ def _install_sealed_history(
             [*rounds, summary],
             rounds_root=rounds_root,
             policy_version=policy_version,
-            max_rounds=MAX_ROUNDS if policy_version == 3 else None,
+            max_rounds=MAX_ROUNDS if policy_version in {3, 4} else None,
         )
         summary["search_regime"] = regime
         rounds.append(summary)
@@ -273,7 +278,7 @@ def _install_sealed_history(
         rounds,
         rounds_root=rounds_root,
         policy_version=policy_version,
-        max_rounds=MAX_ROUNDS if policy_version == 3 else None,
+        max_rounds=MAX_ROUNDS if policy_version in {3, 4} else None,
     )
     state = {
         "run_id": run_id,
@@ -291,7 +296,7 @@ def _install_sealed_history(
         "search_regime": final_regime,
         "trusted_win_count": 0,
     }
-    if policy_version == 3:
+    if policy_version in {3, 4}:
         state["search_handoff_reason"] = "representation_change_required"
         state["search_handoff_at_round"] = MAX_ROUNDS
     state_path = run_root / "state.json"
@@ -429,6 +434,52 @@ def test_v3_terminal_fallback_materializes_schema_v3_twisted_sat_child(
         "exact": True,
     }
     assert "auto_escalation" not in child
+
+
+def test_v4_empty_exact_budget_materializes_fresh_twisted_child(
+    tmp_path, sealed_exact_classifier
+):
+    twisted_representation = "css-bb-twisted-torus-generator-v1"
+    repo = _install_repo(
+        tmp_path,
+        target_representation=twisted_representation,
+        template_id=twisted_representation,
+        portfolio_schema=3,
+        stage3_backend="sat-sectors",
+    )
+    run_id = "parent-v4-empty-exact"
+    pipeline_config = _install_parent_pipeline(
+        repo,
+        run_id=run_id,
+        policy_version=4,
+        template_id=twisted_representation,
+    )
+    state_path, _rounds, regime = _install_sealed_history(
+        repo,
+        run_id=run_id,
+        policy_version=4,
+        exact_low_rounds=0,
+    )
+
+    assert regime["status"] == "representation_change_required"
+    assert regime["reason"] == "round_budget_exhausted_without_trusted_win"
+    reconciled = reconcile_campaign_escalation(
+        repo_dir=repo,
+        parent_state_path=state_path,
+        pipeline_config_path=pipeline_config,
+        destination=Path("results/escalations/v4-twisted-child.json"),
+    )
+
+    assert reconciled.disposition == "materialized"
+    assert reconciled.materialized is not None
+    assert reconciled.policy.source_search_regime_policy_version == 4
+    child = json.loads(reconciled.materialized.path.read_text())
+    assert child["stage1"]["search_representation_id"] == (
+        twisted_representation
+    )
+    assert child["stage3"] == {"backend": "sat-sectors", "exact": True}
+    assert "auto_escalation" not in child
+    assert "stop_on_representation_change" not in child["stage1"]
 
 
 def test_v3_auto_escalation_rejects_pipeline_budget_rebinding(

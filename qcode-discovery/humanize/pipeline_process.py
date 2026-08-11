@@ -627,6 +627,17 @@ def _capture_durable_escalation_policy(
             policy.source_search_representation_id
         ),
     }
+    # V4 is the first policy whose no-WIN round budget directly authorizes a
+    # representation handoff.  Bind that authority into the launch snapshot
+    # without changing historical V1-V3 snapshot bytes.
+    if policy.source_search_regime_policy_version == 4:
+        snapshot.update({
+            "source_search_regime_policy_version": 4,
+            "source_max_rounds": policy.source_max_rounds,
+            "source_stop_on_representation_change": (
+                policy.source_stop_on_representation_change
+            ),
+        })
     return _exclusive_create_or_compare_json(snapshot_path, snapshot)
 
 
