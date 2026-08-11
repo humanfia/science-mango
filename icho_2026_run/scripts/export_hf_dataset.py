@@ -66,7 +66,10 @@ _SECRET_PATTERNS = (
     ),
 )
 _ABSOLUTE_PATH_PATTERNS = (
-    re.compile(r"(?<![:/\w])/(?!/)(?:[A-Za-z0-9._-]+/)+[A-Za-z0-9._-]+"),
+    # Do not flag project-relative provenance such as
+    # ``../icho_2026_source/image/T9_page-1.png``.  The leading slash in that
+    # spelling is preceded by a dot, unlike a POSIX absolute path.
+    re.compile(r"(?<![:/.\w])/(?!/)(?:[A-Za-z0-9._-]+/)+[A-Za-z0-9._-]+"),
     re.compile(r"/(?:root|home|Users|tmp)(?:/|\b)"),
     re.compile(r"\b[A-Za-z]:[\\/][^\s'\"]+"),
 )

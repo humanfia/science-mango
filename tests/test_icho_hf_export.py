@@ -94,6 +94,15 @@ class PublicBundlePolicyTest(unittest.TestCase):
             )
             _EXPORTER._validate_public_bundle(bundle)
 
+    def test_project_relative_source_path_is_not_mistaken_for_absolute(self):
+        with tempfile.TemporaryDirectory() as td:
+            bundle = Path(td)
+            (bundle / "record.txt").write_text(
+                "Visual evidence: ../icho_2026_source/image/T9_page-1.png\n",
+                encoding="utf-8",
+            )
+            _EXPORTER._validate_public_bundle(bundle)
+
     def test_banned_directories_are_rejected(self):
         with tempfile.TemporaryDirectory() as td:
             bundle = Path(td)
