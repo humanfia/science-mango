@@ -270,7 +270,28 @@ question for a contestant who could not calculate the preceding parts.
 \end{proof}
 
 \begin{definition}\leanok
-[First-order decay at the switching time]
+[Process-B bromide trajectory]
+\label{def:chem:icho_2026_t2_a5:trajectory}
+\lean{IChO2026Problems.T2A5.BromideDecayTrajectory}
+\uses{def:chem:icho_2026_t2_a5:data, def:chem:icho_2026_t2_a5:effective_decay_rate}
+A trajectory supplies a bromide concentration function $b(t)$, the observed
+endpoints $b(0)=[\mathrm{Br^-}]_{\max}$ and
+$b(\tau)=[\mathrm{Br^-}]_{\mathrm{critical}}$, and the differential law
+[
+ b'(t)=-k_*b(t).
+]
+It does not contain the exponential solution or either reported period.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is equation (5.2) after factoring the maintained concentrations in
+equation (5.3), together with the two endpoint observations stated in the
+question.
+\end{proof}
+
+\begin{definition}\leanok
+[Derived first-order decay relation]
 \label{def:chem:icho_2026_t2_a5:decay_law}
 \lean{IChO2026Problems.T2A5.BromidePeriodData.reachesCriticalByDecay}
 \uses{def:chem:icho_2026_t2_a5:data, def:chem:icho_2026_t2_a5:effective_decay_rate, def:chem:icho_2026_t2_a5:first_order_process_b_law}
@@ -285,12 +306,29 @@ first-order solution evaluated at the switching time.
 \end{definition}
 \begin{proof}
 
+\leanok
+This proposition is a named downstream consequence used by the logarithmic
+algebra.  It is not a premise of the public result: the next lemma derives it
+from the trajectory ODE.
+\end{proof}
+
+\begin{lemma}\leanok
+[Solve the Process-B ODE]
+\label{lem:chem:icho_2026_t2_a5:solve_ode}
+\lean{IChO2026Problems.T2A5.reachesCriticalByDecay_of_trajectory}
+\uses{def:chem:icho_2026_t2_a5:trajectory, def:chem:icho_2026_t2_a5:decay_law}
+Every Process-B trajectory satisfies
+[
+ [\mathrm{Br^-}]_{\mathrm{critical}}
+ =[\mathrm{Br^-}]_{\max}\exp(-k_*\tau).
+]
+\end{lemma}
+\begin{proof}
 
 \leanok
-The approximation removing Process C leaves only the step-(4) and step-(5)
-loss terms.  Constancy of the other reactant concentrations makes their sum a
-constant multiple of bromide, whose positive first-order solution is the
-displayed exponential relation.
+Differentiate the integrating factor $b(t)\exp(k_*t)$.  The ODE makes its
+derivative zero everywhere, hence it is constant.  Evaluating at $0$ and
+$\tau$, then using $\exp(-x)=1/\exp(x)$, gives the switching relation.
 \end{proof}
 
 \begin{lemma}\leanok
@@ -315,7 +353,7 @@ isolating $\tau$.  No numerical answer is used in this derivation.
 [Official oscillation period]
 \label{thm:chem:icho_2026_t2_a5:official_period}
 \lean{IChO2026Problems.T2A5.official_oscillation_period}
-\uses{def:chem:icho_2026_t2_a5:official_previous_part_data, lem:chem:icho_2026_t2_a5:period_formula}
+\uses{def:chem:icho_2026_t2_a5:official_previous_part_data, lem:chem:icho_2026_t2_a5:solve_ode, lem:chem:icho_2026_t2_a5:period_formula}
 For the official data, $k_*=0.16128\,\mathrm{s^{-1}}$ and
 \[
  \tau=\frac{\log((7.0\cdot10^{-4})/(3.0\cdot10^{-7}))}{0.16128}.
@@ -337,7 +375,7 @@ means, rather than asserting an inexact real equality.
 [Fallback oscillation period]
 \label{thm:chem:icho_2026_t2_a5:fallback_period}
 \lean{IChO2026Problems.T2A5.fallback_oscillation_period}
-\uses{def:chem:icho_2026_t2_a5:fallback_previous_part_data, lem:chem:icho_2026_t2_a5:period_formula}
+\uses{def:chem:icho_2026_t2_a5:fallback_previous_part_data, lem:chem:icho_2026_t2_a5:solve_ode, lem:chem:icho_2026_t2_a5:period_formula}
 For the explicitly permitted fallback inputs, $k_*=0.24064\,\mathrm{s^{-1}}$
 and the period formula has the fallback numerator
 $\log((7.0\cdot10^{-4})/(1.0\cdot10^{-7}))$.  Its reported answer is captured
@@ -357,8 +395,9 @@ branch rather than letting it alter the official result.
 \lean{IChO2026Problems.T2A5.oscillation_periods}
 \uses{thm:chem:icho_2026_t2_a5:official_period, thm:chem:icho_2026_t2_a5:fallback_period}
 The covered Lean file exposes both source-authorized branches: the official
-48-second result and the conditional 37-second fallback, each together with
-its exact logarithmic formula and no answer-bearing premise.
+48-second result and the conditional 37-second fallback, each derived from a
+first-order ODE trajectory and accompanied by its exact logarithmic formula.
+No exponential endpoint solution or reported answer is assumed.
 \end{theorem}
 \begin{proof}
 

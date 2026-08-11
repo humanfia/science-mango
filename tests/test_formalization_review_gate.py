@@ -14,6 +14,10 @@ from archon.commands.loop.formalization_review_gate import (
     enforce_progress_review_gate,
     load_gate_state,
 )
+from archon.commands.loop.review_source_contract import (
+    build_review_source_contract,
+    source_contract_provenance,
+)
 from archon.state import read_stage
 
 
@@ -53,6 +57,82 @@ class FormalizationReviewGateTests(unittest.TestCase):
             }),
             encoding="utf-8",
         )
+        image = self.project / "images" / "p.png"
+        image.parent.mkdir()
+        image.write_bytes(b"chemistry source image")
+        report = self.project / "reports" / "p.source.json"
+        report.parent.mkdir()
+        previous_parts = []
+        report.write_text(json.dumps({
+            "output_lean": "Problems/p.lean",
+            "entry": {
+                "current_question": "Prove p.",
+                "answer": "p is true.",
+                "previous_parts": previous_parts,
+                "image_paths": ["images/p.png"],
+            },
+            "previous_parts": previous_parts,
+        }), encoding="utf-8")
+        chapter = (
+            self.project / "blueprint" / "src" / "chapters" / "Problems_p.tex"
+        )
+        chapter.parent.mkdir(parents=True)
+        chapter.write_text(
+            "% archon:chemistry\n"
+            "% archon:source-report reports/p.source.json\n"
+            "The official target is p.\n",
+            encoding="utf-8",
+        )
+
+    def _chemistry_passing_certificate(self) -> dict:
+        certificate = self._passing_certificate()
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        certificate.update({
+            "source_contract": source_contract_provenance(contract),
+            "independent_source_audit": {
+                name: {"status": "passed", "evidence": f"{name} audited"}
+                for name in (
+                    "requested_outputs", "official_answer", "image_grounding",
+                    "domain_invariants", "reporting_convention",
+                    "adversarial_counterexample",
+                )
+            },
+            "contract_audit": {
+                name: {"status": "passed", "evidence": f"{name} audited"}
+                for name in (
+                    "statement_scope", "hypothesis_derivability",
+                    "conclusion_alignment", "bridge_completeness",
+                )
+            },
+            "requested_outputs": [{
+                "source_requirement": "prove p",
+                "lean_carrier": "p",
+                "status": "covered",
+                "evidence": "p carries the official output",
+            }],
+            "official_answer_alignment": {
+                "status": "aligned", "evidence": "p matches the rubric",
+            },
+            "blueprint_conflicts": [],
+            "image_audit": [{
+                **item,
+                "inspected": True,
+                "evidence": "source image inspected",
+            } for item in source_contract_provenance(contract)["images"]],
+            "chemistry_checks": {
+                name: {"status": "passed", "evidence": f"{name} audited"}
+                for name in (
+                    "chemical_semantics", "formula_mass_consistency",
+                    "conservation_laws", "units_dimensions",
+                    "numerical_reporting", "structure_stereochemistry",
+                    "identification_uniqueness", "answer_smuggling",
+                )
+            },
+        })
+        return certificate
 
     @staticmethod
     def _passing_certificate(reason="review verdict"):
@@ -163,7 +243,11 @@ class FormalizationReviewGateTests(unittest.TestCase):
             self.progress.read_text(encoding="utf-8"),
         )
 
-        passed = self._review(2, "passed")
+        passed = self._review(
+            2,
+            "passed",
+            formalization_review=self._chemistry_passing_certificate(),
+        )
         self.assertEqual(passed.passed, ("Problems/p.lean",))
         self.assertEqual(read_stage(self.progress), "prover")
         self.assertIn(

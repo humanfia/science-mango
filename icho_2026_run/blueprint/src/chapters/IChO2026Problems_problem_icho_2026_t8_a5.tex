@@ -1,0 +1,67 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:chemistry
+% archon:covers IChO2026Problems/problem_icho_2026_t8_a5.lean
+% archon:source-report reports/icho_2026/problem_icho_2026_t8_a5.source.json
+% archon:problem-id icho_2026_t8
+% archon:part-id T8-A5
+
+\section{Icho Chemistry problem icho\_2026\_t8\_a5}
+
+\paragraph{Problem source.}
+\#\# Source
+58th International Chemistry Olympiad, Tashkent, Uzbekistan, 2026.
+Official-materials index: https://www.icho2026.uz/problems
+English problem PDF: ../icho\_2026\_source/raw/theory\_problem.pdf
+English solution/rubric PDF: ../icho\_2026\_source/raw/theory\_solution.pdf
+Problem PDF page 73; printed local question page 2; solution starts on PDF page 74.
+The page PNG is primary visual evidence for formulas, structures, tables, and figures.
+
+\#\# T8. Recycling of Carbon Dioxide
+T8. Recycling of Carbon Dioxide 7\% Removing CO2 gas from the atmosphere is key to combat climate change. One promising solution is the photocatalytic reduction of CO2 to CO using molecular catalyst 1. 8.1 Write the half equation for the reduction of CO2 to CO in an acidic medium. The conjugate oxidation reaction occurs with sacrificial reductant 2 in aqueous solution with the following mechanism: Species 3, 4, and 5 are short-lived ionic and radical intermediates. 7 yields a silver mirror with the [Ag(NH3)2]OH test. 8.2 Draw the structures of 3-7. Catalyst 1 can be synthesised with the following reaction. 8.3 Tick the correct geometry for the structure of 1. When 1 is loaded on crystalline carbon nitride (C3N4) support material, it can reduce CO2 via the following mechanism. 8.4 Draw the structures of 9-15. Use the cartoon structure for ligand 8 shown above. For 9-15, specify the oxidation state, 𝑂𝑆, coordination number, 𝐶𝑁, and number of valence electrons, 𝑉𝐸, of Fe, along with the total charge of corresponding complex structures, 𝑍. Note: Some information is provided on the answer sheet.
+
+\#\# Current subquestion 8.5
+Calculate the number of catalytic molecules per nm2, 𝑁𝑐𝑎𝑡, of C3N4 loaded with 1, when the mass fraction of catalyst, 𝜔𝑐𝑎𝑡= 3.8\%, if the specific surface area of C3N4 is 17.8 m2 g−1. M𝑐𝑎𝑡= 557.21 g mol−1.
+
+\#\# Dataset metadata
+IChO 2026; T8; raw rubric points=5; kind=theory; formalization\_ready=true.
+
+\paragraph{Shared problem context.}
+T8. Recycling of Carbon Dioxide 7\% Removing CO2 gas from the atmosphere is key to combat climate change. One promising solution is the photocatalytic reduction of CO2 to CO using molecular catalyst 1. 8.1 Write the half equation for the reduction of CO2 to CO in an acidic medium. The conjugate oxidation reaction occurs with sacrificial reductant 2 in aqueous solution with the following mechanism: Species 3, 4, and 5 are short-lived ionic and radical intermediates. 7 yields a silver mirror with the [Ag(NH3)2]OH test. 8.2 Draw the structures of 3-7. Catalyst 1 can be synthesised with the following reaction. 8.3 Tick the correct geometry for the structure of 1. When 1 is loaded on crystalline carbon nitride (C3N4) support material, it can reduce CO2 via the following mechanism. 8.4 Draw the structures of 9-15. Use the cartoon structure for ligand 8 shown above. For 9-15, specify the oxidation state, 𝑂𝑆, coordination number, 𝐶𝑁, and number of valence electrons, 𝑉𝐸, of Fe, along with the total charge of corresponding complex structures, 𝑍. Note: Some information is provided on the answer sheet.
+
+\paragraph{Current subquestion.}
+Calculate the number of catalytic molecules per nm2, 𝑁𝑐𝑎𝑡, of C3N4 loaded with 1, when the mass fraction of catalyst, 𝜔𝑐𝑎𝑡= 3.8\%, if the specific surface area of C3N4 is 17.8 m2 g−1. M𝑐𝑎𝑡= 557.21 g mol−1.
+
+\paragraph{Recorded answer/context.}
+In 1 nm2 there is 1 17.8×1018 = 5.618 × 10−20 g C3N4. The catalytic loading formula is 𝑚cat 𝑚cat+𝑚𝐶3𝑁4 × 100\% = 3.8\%. If we find 𝑚cat from here it will be 𝑚cat = 2.219 × 10−21 g. The molar mass of catalyst is 557.21 g mol−1 →𝑁= 2.219×10−21 557.21 ×6.02×1023 = 2.4. 3 points for using the specific surface area of 17.8 m2g−1 for the 𝐶3𝑁4/1 mixture and, calculating 𝑁cat as 2.3. 5 points for the correct 𝑁𝑐𝑎𝑡value. 5.0 pt
+
+\paragraph{Figure/image paths.}
+\begin{itemize}
+\item ../icho\_2026\_source/image/T8\_page-2.png
+\item ../icho\_2026\_source/image/T8\_page-1.png
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t8\_a5.lean`.
+The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
+Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+
+\begin{theorem}\leanok
+[Icho Chemistry formalization target]
+\label{thm:physics:icho_2026_t8_a5:target}
+\lean{IChO2026Problems.T8A5.catalytic_molecules_per_square_nanometre}
+The catalyst loading, surface area, molar mass, and Avogadro constant determine
+the catalyst molecules per square nanometre.
+\end{theorem}
+\begin{proof}
+
+\leanok
+For a $1\ \mathrm{nm^2}$ patch, the specific-area relation gives support mass
+$1/(17.8\times10^{18})\ \mathrm g$.  Solve
+$m_{\rm cat}/(m_{\rm cat}+m_{\rm support})=0.038$ for the uniformly loaded
+catalyst mass, then multiply $m_{\rm cat}/557.21$ by
+$6.02\times10^{23}$.  The resulting molecular surface density lies within a
+half tenth of $2.4$; the reported number is therefore a rounding conclusion,
+not a stored experimental field.
+\end{proof}
+% --- Archon physics formalization source end ---

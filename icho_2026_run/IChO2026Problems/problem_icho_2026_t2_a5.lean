@@ -86,6 +86,16 @@ def BromidePeriodData.reachesCriticalByDecay (data : BromidePeriodData) : Prop :
     data.bromideCritical =
       data.bromideMax * Real.exp (-effectiveDecayRate data * data.period)
 
+/-- A bromide-concentration trajectory governed by the Process-B first-order
+ODE.  The endpoint fields are source observations; the exponential solution is
+not assumed and is instead derived below from the differential equation. -/
+structure BromideDecayTrajectory (data : BromidePeriodData) where
+  concentration : ℝ → ℝ
+  initial : concentration 0 = data.bromideMax
+  switching : concentration data.period = data.bromideCritical
+  obeysRateLaw : ∀ t : ℝ,
+    HasDerivAt concentration (-effectiveDecayRate data * concentration t) t
+
 /-- The official values supplied or obtained in the preceding source parts. -/
 def BromidePeriodData.matchesOfficialData (data : BromidePeriodData) : Prop :=
   data.parameters.k4 = 2 * 10 ^ 9 ∧
@@ -126,6 +136,46 @@ lemma firstOrderProcessBLaw_of_processC_neglected
   unfold firstOrderProcessBLaw processBNetBromideRate
   rw [data.processC_neglected, zero_sub, neg_neg,
     processBromideLossRate_factor]
+
+/-- Solving the first-order Process-B ODE with an integrating factor gives the
+exponential switching relation used in the official calculation. -/
+theorem reachesCriticalByDecay_of_trajectory
+    (data : BromidePeriodData) (trajectory : BromideDecayTrajectory data) :
+    data.reachesCriticalByDecay := by
+  constructor
+  · exact firstOrderProcessBLaw_of_processC_neglected data
+  · let weighted : ℝ → ℝ := fun t ↦
+      trajectory.concentration t * Real.exp (effectiveDecayRate data * t)
+    have hweighted : ∀ t : ℝ, HasDerivAt weighted 0 t := by
+      intro t
+      have hexp : HasDerivAt
+          (fun s : ℝ ↦ Real.exp (effectiveDecayRate data * s))
+          (Real.exp (effectiveDecayRate data * t) * effectiveDecayRate data) t :=
+        (Real.hasDerivAt_exp _).comp t (hasDerivAt_const_mul _)
+      have hmul := (trajectory.obeysRateLaw t).mul hexp
+      have hzero :
+          -effectiveDecayRate data * trajectory.concentration t *
+              Real.exp (effectiveDecayRate data * t) +
+            trajectory.concentration t *
+              (Real.exp (effectiveDecayRate data * t) * effectiveDecayRate data) = 0 := by
+        ring
+      rw [hzero] at hmul
+      exact hmul
+    have hconstant : weighted data.period = weighted 0 := by
+      apply is_const_of_deriv_eq_zero
+      · exact fun t ↦ (hweighted t).differentiableAt
+      · exact fun t ↦ (hweighted t).deriv
+    dsimp [weighted] at hconstant
+    rw [trajectory.switching, trajectory.initial] at hconstant
+    simp only [mul_zero, Real.exp_zero, mul_one] at hconstant
+    calc
+      data.bromideCritical =
+          data.bromideMax / Real.exp (effectiveDecayRate data * data.period) := by
+            exact (eq_div_iff (ne_of_gt (Real.exp_pos _))).2 hconstant
+      _ = data.bromideMax * Real.exp (-effectiveDecayRate data * data.period) := by
+            rw [show -effectiveDecayRate data * data.period =
+                -(effectiveDecayRate data * data.period) by ring, Real.exp_neg]
+            rfl
 
 /--
 Positive source data and the exponential switching relation yield the exact
@@ -170,11 +220,12 @@ half-second inequality represents the reported integer `48` faithfully.
 theorem official_oscillation_period
     (data : BromidePeriodData)
     (hdata : data.matchesOfficialData)
-    (hdecay : data.reachesCriticalByDecay) :
+    (trajectory : BromideDecayTrajectory data) :
     effectiveDecayRate data = (504 : ℝ) / 3125 ∧
       data.period =
         Real.log ((7 / 10000 : ℝ) / (3 / 10 ^ 7)) / ((504 : ℝ) / 3125) ∧
       |data.period - 48| < (1 : ℝ) / 2 := by
+  have hdecay := reachesCriticalByDecay_of_trajectory data trajectory
   rcases hdata with ⟨hk4, hk5, hhbro2, hproton, hbromate, hmax, hcritical⟩
   have heffective : effectiveDecayRate data = (504 : ℝ) / 3125 := by
     norm_num [effectiveDecayRate, hk4, hk5, hhbro2, hproton, hbromate]
@@ -259,11 +310,12 @@ not alter the official data branch.
 theorem fallback_oscillation_period
     (data : BromidePeriodData)
     (hdata : data.matchesFallbackData)
-    (hdecay : data.reachesCriticalByDecay) :
+    (trajectory : BromideDecayTrajectory data) :
     effectiveDecayRate data = (752 : ℝ) / 3125 ∧
       data.period =
         Real.log ((7 / 10000 : ℝ) / (1 / 10 ^ 7)) / ((752 : ℝ) / 3125) ∧
       |data.period - 37| < (1 : ℝ) / 2 := by
+  have hdecay := reachesCriticalByDecay_of_trajectory data trajectory
   rcases hdata with ⟨hk4, hk5, hhbro2, hproton, hbromate, hmax, hcritical⟩
   have heffective : effectiveDecayRate data = (752 : ℝ) / 3125 := by
     norm_num [effectiveDecayRate, hk4, hk5, hhbro2, hproton, hbromate]
@@ -332,13 +384,13 @@ contain only data and the first-order decay law, never either requested answer.
 -/
 theorem oscillation_periods :
     (∀ data : BromidePeriodData,
-      data.matchesOfficialData → data.reachesCriticalByDecay →
+      data.matchesOfficialData → BromideDecayTrajectory data →
         effectiveDecayRate data = (504 : ℝ) / 3125 ∧
           data.period =
             Real.log ((7 / 10000 : ℝ) / (3 / 10 ^ 7)) / ((504 : ℝ) / 3125) ∧
           |data.period - 48| < (1 : ℝ) / 2) ∧
       (∀ data : BromidePeriodData,
-        data.matchesFallbackData → data.reachesCriticalByDecay →
+        data.matchesFallbackData → BromideDecayTrajectory data →
           effectiveDecayRate data = (752 : ℝ) / 3125 ∧
             data.period =
               Real.log ((7 / 10000 : ℝ) / (1 / 10 ^ 7)) / ((752 : ℝ) / 3125) ∧

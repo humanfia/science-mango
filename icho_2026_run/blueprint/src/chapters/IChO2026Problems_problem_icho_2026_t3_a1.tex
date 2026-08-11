@@ -1,0 +1,75 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:chemistry
+% archon:covers IChO2026Problems/problem_icho_2026_t3_a1.lean
+% archon:source-report reports/icho_2026/problem_icho_2026_t3_a1.source.json
+% archon:problem-id icho_2026_t3
+% archon:part-id T3-A1
+
+\section{Icho Chemistry problem icho\_2026\_t3\_a1}
+
+\paragraph{Problem source.}
+\#\# Source
+58th International Chemistry Olympiad, Tashkent, Uzbekistan, 2026.
+Official-materials index: https://www.icho2026.uz/problems
+English problem PDF: ../icho\_2026\_source/raw/theory\_problem.pdf
+English solution/rubric PDF: ../icho\_2026\_source/raw/theory\_solution.pdf
+Problem PDF page 25; printed local question page 1; solution starts on PDF page 22.
+The page PNG is primary visual evidence for formulas, structures, tables, and figures.
+
+\#\# T3. Into Reticular Chemistry
+T3. Into Reticular Chemistry 7\% Covalent organic frameworks (COFs) are a class of polymers that form two- or three-dimensional structures through reactions between organic precursors, resulting in covalent bonds to afford porous, crystalline materials. Two examples of honeycomb type 2D-COFs formed by boronate ester and boroxine rings (repeat units indicated using dashed lines) are shown in the figure below. The black and red bold lines represent different building blocks in all COF topology figures.
+
+\#\# Current subquestion 3.1
+Determine the empirical formula of COF-1 and calculate the mass percentage (\%, to two decimal places) of carbon in COF-1.
+
+\#\# Dataset metadata
+IChO 2026; T3; raw rubric points=2; kind=theory; formalization\_ready=true.
+
+\paragraph{Shared problem context.}
+T3. Into Reticular Chemistry 7\% Covalent organic frameworks (COFs) are a class of polymers that form two- or three-dimensional structures through reactions between organic precursors, resulting in covalent bonds to afford porous, crystalline materials. Two examples of honeycomb type 2D-COFs formed by boronate ester and boroxine rings (repeat units indicated using dashed lines) are shown in the figure below. The black and red bold lines represent different building blocks in all COF topology figures.
+
+\paragraph{Current subquestion.}
+Determine the empirical formula of COF-1 and calculate the mass percentage (\%, to two decimal places) of carbon in COF-1.
+
+\paragraph{Recorded answer/context.}
+The empirical formula of COF-1 is C9H4BO2, its elemental composition is C – 12.01⋅9 12.01⋅9+4⋅1.008+10.81+32 ⋅100\% = 69.77\%; C: 69.77\% Empirical formula: C9H4BO2 1 pt for empirical formula. No penalty for [C9H4BO2]𝑛 1 pt for C mass fraction. no penalty if integer values are used for atomic masses 2.0 pt
+
+\paragraph{Figure/image path.}
+../icho\_2026\_source/image/T3\_page-1.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t3\_a1.lean`.
+The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
+Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+
+\begin{theorem}\leanok
+[Icho Chemistry formalization target]
+\label{thm:physics:icho_2026_t3_a1:target}
+\lean{IChO2026Problems.T3A1.cof1_empirical_formula_and_carbon_mass_percentage}
+\uses{def:icho_2026_t3_a1:carbon_mass_percentage}
+Counting the dashed COF-1 cell gives its empirical formula and carbon mass
+percentage at the source precision.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Reduce the counted atom inventory to its primitive formula.  Evaluate its molar
+mass with the supplied atomic masses and divide the carbon contribution by that
+total; the stated reporting interval supplies the two-decimal conclusion.
+\end{proof}
+
+\begin{definition}\leanok
+[Carbon mass percentage]
+\label{def:icho_2026_t3_a1:carbon_mass_percentage}
+\lean{IChO2026Problems.T3A1.Formula.carbonMassPercentage}
+The carbon mass percentage of a formula is one hundred times the carbon mass
+contribution divided by the formula's total molar mass.
+\end{definition}
+\begin{proof}
+
+\leanok
+The supplied atomic-mass table determines both the carbon contribution and
+the total molar mass, so their ratio is the required percentage.
+\end{proof}
+% --- Archon physics formalization source end ---

@@ -21,6 +21,12 @@ from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.state import parse_objective_files
 from archon.state.progress import write_stage
 
+from .review_source_contract import (
+    build_review_source_contract,
+    provenance_from_review,
+    stored_provenance_matches_current,
+    validate_review_source_certificate,
+)
 from .sorry_count import file_open_sorry_count
 
 
@@ -151,6 +157,7 @@ def _status_and_evidence(raw: Any) -> tuple[str, str]:
 
 def _validate_structured_review(
     raw: dict[str, Any],
+    expected_source_contract: Mapping[str, Any] | None = None,
 ) -> tuple[bool, str, dict[str, Any]]:
     """Validate and normalize the machine-checkable Review certificate."""
     failures: list[str] = []
@@ -207,7 +214,15 @@ def _validate_structured_review(
         "schema_version": REVIEW_SCHEMA_VERSION,
         "checks": normalized_checks,
         "bridge_obligations": normalized_bridges,
+        "source_contract": provenance_from_review(raw),
     }
+    source_error = validate_review_source_certificate(
+        raw,
+        expected_source_contract,
+        passing=True,
+    )
+    if source_error:
+        failures.append(source_error)
     if failures:
         return False, "; ".join(dict.fromkeys(failures))[:2000], certificate
     return True, "structured formalization Review certificate passed", certificate
@@ -215,6 +230,7 @@ def _validate_structured_review(
 
 def _decision_from_milestone(
     item: dict[str, Any],
+    expected_source_contract: Mapping[str, Any] | None = None,
 ) -> tuple[str, str, dict[str, Any]]:
     """Return ``(passed|failed, reason, certificate)``; fail closed."""
     raw: Any = item.get("formalization_review")
@@ -234,7 +250,9 @@ def _decision_from_milestone(
     if status in _PASS_WORDS:
         if not isinstance(raw, dict):
             return "failed", "bare formalization Review pass lacks structured checks", {}
-        valid, validation_reason, certificate = _validate_structured_review(raw)
+        valid, validation_reason, certificate = _validate_structured_review(
+            raw, expected_source_contract,
+        )
         if not valid:
             return "failed", validation_reason, certificate
         return "passed", reason or validation_reason, certificate
@@ -298,7 +316,13 @@ def _load_milestone_decisions(
         rel = _milestone_target_file(item, project_path)
         if not rel:
             continue
-        decisions.setdefault(rel, []).append(_decision_from_milestone(item))
+        source_contract = build_review_source_contract(
+            project_path=project_path,
+            target=project_path / rel,
+        )
+        decisions.setdefault(rel, []).append(
+            _decision_from_milestone(item, source_contract)
+        )
 
     aggregated: dict[str, tuple[str, str, dict[str, Any]]] = {}
     for rel, verdicts in decisions.items():
@@ -759,7 +783,13 @@ def apply_target_formalization_review(
         certificate: dict[str, Any] = {}
         decision = "failed"
     else:
-        decision, reason, certificate = _decision_from_milestone(milestone)
+        source_contract = build_review_source_contract(
+            project_path=project_path,
+            target=target,
+        )
+        decision, reason, certificate = _decision_from_milestone(
+            milestone, source_contract,
+        )
         reviews += 1
         if decision == "passed":
             status = "passed"
@@ -820,6 +850,80 @@ def apply_target_formalization_review(
     )
 
 
+def _certificate_source_provenance(certificate: Any) -> dict[str, Any] | None:
+    if not isinstance(certificate, Mapping):
+        return None
+    direct = certificate.get("source_contract")
+    if isinstance(direct, Mapping):
+        return dict(direct)
+    milestones = certificate.get("milestones")
+    if isinstance(milestones, list):
+        for item in milestones:
+            found = _certificate_source_provenance(item)
+            if found is not None:
+                return found
+    return None
+
+
+def _invalidate_stale_passes(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    state: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Reopen chemistry passes whose bound Lean/source inputs changed."""
+    if state is None or load_domain_profile(project_path).name != "chemistry":
+        return state
+    targets = state.get("targets")
+    if not isinstance(targets, dict):
+        return state
+    changed = False
+    for rel, raw_record in list(targets.items()):
+        if not isinstance(raw_record, dict) or raw_record.get("status") != "passed":
+            continue
+        provenance = _certificate_source_provenance(
+            raw_record.get("certificate")
+        )
+        fresh, reason = stored_provenance_matches_current(
+            project_path=project_path,
+            target=project_path / rel,
+            provenance=provenance,
+        )
+        if fresh:
+            continue
+        reopen_history = raw_record.get("reopen_history")
+        reopen_history = (
+            list(reopen_history) if isinstance(reopen_history, list) else []
+        )
+        reopen_history.append({
+            "reopened_at": _utcnow(),
+            "reopened_by": "source_contract_freshness",
+            "previous_status": "passed",
+            "previous_reviews": int(raw_record.get("reviews") or 0),
+            "previous_reason": raw_record.get("reason"),
+            "previous_certificate": raw_record.get("certificate"),
+            "reason": reason,
+        })
+        targets[rel] = {
+            **raw_record,
+            "status": "retry",
+            "reviews": 0,
+            "reason": f"formalization Review certificate invalidated: {reason}",
+            "certificate": {},
+            "certificate_revoked_at": _utcnow(),
+            "reopened_by": "source_contract_freshness",
+            "reopen_history": reopen_history[-20:],
+            "updated_at": _utcnow(),
+        }
+        changed = True
+    if changed:
+        state["targets"] = targets
+        state["updated_at"] = _utcnow()
+        _write_state(state_dir, state)
+        _write_report(state_dir, state)
+    return state
+
+
 def filter_objectives_for_review_gate(
     objectives: Iterable[Path],
     *,
@@ -832,7 +936,11 @@ def filter_objectives_for_review_gate(
     items = list(objectives)
     if not enabled:
         return items, []
-    state = load_gate_state(state_dir)
+    state = _invalidate_stale_passes(
+        state_dir=state_dir,
+        project_path=project_path,
+        state=load_gate_state(state_dir),
+    )
     canonical = stage.strip().lower()
     targets = state.get("targets", {}) if state else {}
     shared_paths: set[str] = set()

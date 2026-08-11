@@ -76,6 +76,7 @@ from ..proof_review_gate import (
     proof_review_decision,
 )
 from ..review_preflight import check_review_target
+from ..review_source_contract import build_review_source_contract
 from ..resume import PROVER_CONTINUE, persist_session_id, pick_resume_session
 from ..sorry_count import file_open_sorry_count
 from ..utils import file_slug, relpath
@@ -1184,6 +1185,10 @@ class ParallelProverRunner:
                 self.iter_dir / "review-targets" / slug
                 / f"cycle-{cycle}" / f"attempt-{attempt}"
             )
+            source_contract = build_review_source_contract(
+                project_path=self.project_path,
+                target=target,
+            )
             prompt = build_target_review_prompt(
                 project_path=self.project_path,
                 state_dir=self.state_dir,
@@ -1193,6 +1198,7 @@ class ParallelProverRunner:
                 output_dir=output_dir,
                 preflight=preflight_rows.get(rel, {}),
                 prior_gate_record=shadow_proof_records.get(rel) or None,
+                source_contract=source_contract,
             )
             spec = TargetReviewSpec(
                 rel=rel,
@@ -1200,6 +1206,7 @@ class ParallelProverRunner:
                 output_dir=str(output_dir),
                 log_base=str(output_dir / "agent"),
                 attempt=attempt,
+                source_contract=source_contract,
             )
             future = pool.submit(
                 self.review_worker,
@@ -1446,6 +1453,10 @@ class ParallelProverRunner:
                 self.iter_dir / "formalization-review-targets" / slug
                 / f"cycle-{cycle}" / f"attempt-{attempt}"
             )
+            source_contract = build_review_source_contract(
+                project_path=self.project_path,
+                target=target,
+            )
             prompt = build_target_formalization_review_prompt(
                 project_path=self.project_path,
                 state_dir=self.state_dir,
@@ -1455,6 +1466,7 @@ class ParallelProverRunner:
                 output_dir=output_dir,
                 preflight=preflight_rows.get(rel, {}),
                 prior_gate_record=shadow_formalization_records.get(rel),
+                source_contract=source_contract,
             )
             spec = TargetReviewSpec(
                 rel=rel,
@@ -1462,6 +1474,7 @@ class ParallelProverRunner:
                 output_dir=str(output_dir),
                 log_base=str(output_dir / "agent"),
                 attempt=attempt,
+                source_contract=source_contract,
             )
             future = pool.submit(
                 self.formalization_review_worker,

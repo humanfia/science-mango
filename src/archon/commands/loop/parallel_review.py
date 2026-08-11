@@ -19,6 +19,12 @@ from .proof_review_gate import (
     PROOF_REVIEW_SCHEMA_VERSION,
     REDRAFT_KINDS,
 )
+from .review_source_contract import (
+    build_review_source_contract,
+    render_source_contract_prompt,
+    source_contract_provenance,
+    validate_review_source_certificate,
+)
 from .shared_infrastructure import load_shared_infrastructure_policy
 
 PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
@@ -32,6 +38,7 @@ class TargetReviewSpec:
     output_dir: str
     log_base: str
     attempt: int
+    source_contract: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -64,7 +71,11 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def _validate_proof_review_route(row: dict, status: str) -> str:
+def _validate_proof_review_route(
+    row: dict,
+    status: str,
+    expected_source_contract: dict | None = None,
+) -> str:
     raw = row.get("proof_review")
     if raw is None:
         findings = row.get("findings")
@@ -100,10 +111,21 @@ def _validate_proof_review_route(row: dict, status: str) -> str:
         return f"proof_review route={route} requires milestone status=blocked"
     if route == "retry_proof" and status not in {"partial", "blocked"}:
         return "proof_review route=retry_proof requires status=partial|blocked"
+    source_error = validate_review_source_certificate(
+        raw,
+        expected_source_contract,
+        passing=route == "solved",
+    )
+    if source_error:
+        return source_error
     return ""
 
 
-def load_target_milestone(path: Path, expected_rel: str) -> tuple[dict | None, str]:
+def load_target_milestone(
+    path: Path,
+    expected_rel: str,
+    expected_source_contract: dict | None = None,
+) -> tuple[dict | None, str]:
     """Load exactly one well-formed milestone for ``expected_rel``."""
     try:
         lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -128,7 +150,9 @@ def load_target_milestone(path: Path, expected_rel: str) -> tuple[dict | None, s
         status = str(row.get("status") or "").strip().lower()
         if status not in {"solved", "partial", "blocked", "not_started"}:
             return None, f"unsupported milestone status {status!r}"
-        route_error = _validate_proof_review_route(row, status)
+        route_error = _validate_proof_review_route(
+            row, status, expected_source_contract,
+        )
         if route_error:
             return None, route_error
         rows.append(row)
@@ -147,6 +171,7 @@ def build_target_review_prompt(
     output_dir: Path,
     preflight: dict,
     prior_gate_record: dict | None,
+    source_contract: dict | None = None,
 ) -> str:
     rel = target.resolve().relative_to(project_path.resolve()).as_posix()
     slug = "_".join(Path(rel).with_suffix("").parts)
@@ -174,6 +199,13 @@ def build_target_review_prompt(
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
+    source_contract = source_contract or build_review_source_contract(
+        project_path=project_path,
+        target=target,
+        profile=profile,
+    )
+    source_block = render_source_contract_prompt(source_contract)
+    source_provenance = source_contract_provenance(source_contract)
     shared_policy = load_shared_infrastructure_policy(project_path)
     shared_roots = [path.as_posix() for path in shared_policy.module_roots]
     blueprint_label = f"{profile.display_name.title()} blueprint"
@@ -193,6 +225,9 @@ Assigned target (the only target you may review):
   {rel}
 
 Read these bounded sources completely:
+- Source report: {source_contract.get("source_report") or "MISSING"}
+- Every source image with its expected digest:
+  {json.dumps(source_contract.get("images", []), ensure_ascii=False)}
 - Lean statement/proof: {target}
 - {blueprint_label}: {chapter}
 - Prover trace: {prover_log}
@@ -201,12 +236,33 @@ Read these bounded sources completely:
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
 - Prior proof Review record: {json.dumps(prior_gate_record or {}, ensure_ascii=False)}
 
+{source_block}
+
+Mandatory source-first two-pass protocol:
+1. Before using the blueprint, traces, task results, or prior gate rationale,
+   compare only the official source contract/images against the Lean statement
+   and proof. Record this adversarial pass in independent_source_audit; treat
+   generated interpretations as untrusted during this pass.
+2. Only after fixing that verdict, inspect the blueprint and generated reports
+   and record contract/bridge consistency in contract_audit. The second pass
+   may expose conflicts but may not revise official-source facts from pass one.
+Both audit groups must pass before route=solved.
+
 Review the actual theorem contract and proof for:
 1. direct Lean compilation and zero active sorry/admit/axiom laundering,
 2. signature preservation and no weakened/trivialized statement,
 {semantic_checks}
 5. whether the current prover trace and newest matching task result support
    the claimed proof.
+
+For chemistry, perform the full chemistry-reviewer audit inside this target
+Review: enumerate every requested output; inspect every image; check chemical
+identity and invariants (including formula/molar-mass consistency and
+conservation), units, structures/stereochemistry, identification uniqueness,
+answer smuggling through definitions/cardinalities/tables, and official
+rounding/significant-figure conventions. Record every blueprint/Lean conflict.
+An official-answer conflict is a modeling failure even when Lean compiles and
+even when the blueprint and generated reports agree with one another.
 
 Task-result layouts can be nested or flattened. Prefer the newest matching
 artifact whose contents agree with this iteration's trace. Do not fail a target
@@ -237,7 +293,36 @@ Write exactly one JSON object line to {milestone}. Required shape:
     "reason": "<specific root cause>",
     "evidence": "<Lean goal/error plus contract evidence>",
     "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
-    "infrastructure_request": null
+    "infrastructure_request": null,
+    "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
+    "independent_source_audit": {{
+      "requested_outputs": {{"status":"passed|failed","evidence":"..."}},
+      "official_answer": {{"status":"passed|failed","evidence":"..."}},
+      "image_grounding": {{"status":"passed|failed","evidence":"..."}},
+      "domain_invariants": {{"status":"passed|failed","evidence":"..."}},
+      "reporting_convention": {{"status":"passed|failed","evidence":"..."}},
+      "adversarial_counterexample": {{"status":"passed|failed","evidence":"..."}}
+    }},
+    "contract_audit": {{
+      "statement_scope": {{"status":"passed|failed","evidence":"..."}},
+      "hypothesis_derivability": {{"status":"passed|failed","evidence":"..."}},
+      "conclusion_alignment": {{"status":"passed|failed","evidence":"..."}},
+      "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
+    }},
+    "requested_outputs": [{{"source_requirement":"<exact requested output>","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"..."}}],
+    "official_answer_alignment": {{"status":"aligned|conflict","evidence":"<compare Lean result and reporting convention to official rubric>"}},
+    "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"resolved_in_favor_of_official_source|unresolved|failed","evidence":"..."}}],
+    "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
+    "chemistry_checks": {{
+      "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "numerical_reporting": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "structure_stereochemistry": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "identification_uniqueness": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "answer_smuggling": {{"status":"passed|failed|not_applicable","evidence":"..."}}
+    }}
   }},
   "attempts": [{{"attempt": 1, "strategy": "review", "code_tried": "",
     "lean_error": "", "goal_before": "", "goal_after": "",
@@ -301,7 +386,9 @@ def _run_review_worker(
     except Exception as exc:  # worker isolation; parent decides whether to retry
         error = f"{type(exc).__name__}: {exc}"
     milestone, validation_error = load_target_milestone(
-        output_dir / "milestones.jsonl", spec.rel,
+        output_dir / "milestones.jsonl",
+        spec.rel,
+        spec.source_contract,
     )
     if validation_error:
         error = "; ".join(x for x in (error, validation_error) if x)
@@ -561,6 +648,10 @@ def run_parallel_target_reviews(
         for rel, target in sorted(pending.items()):
             slug = "_".join(Path(rel).with_suffix("").parts)
             attempt_dir = iter_dir / "review-targets" / slug / f"attempt-{attempt}"
+            source_contract = build_review_source_contract(
+                project_path=project_path,
+                target=target,
+            )
             prompt = build_target_review_prompt(
                 project_path=project_path,
                 state_dir=state_dir,
@@ -570,6 +661,7 @@ def run_parallel_target_reviews(
                 output_dir=attempt_dir,
                 preflight=preflight_rows.get(rel, {}),
                 prior_gate_record=prior_gate_targets.get(rel),
+                source_contract=source_contract,
             )
             specs.append(TargetReviewSpec(
                 rel=rel,
@@ -577,6 +669,7 @@ def run_parallel_target_reviews(
                 output_dir=str(attempt_dir),
                 log_base=str(attempt_dir / "agent"),
                 attempt=attempt,
+                source_contract=source_contract,
             ))
         failed: dict[str, Path] = {}
         with executor_factory(max_workers=round_jobs) as pool:

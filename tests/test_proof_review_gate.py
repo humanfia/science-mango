@@ -14,6 +14,7 @@ from archon.commands.loop.proof_review_gate import (
     apply_proof_review,
     filter_objectives_for_proof_review_gate,
     load_proof_review_state,
+    reopen_exhausted_proof_review_targets,
 )
 from archon.state import parse_objective_files, read_stage
 
@@ -159,6 +160,56 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         result = self._apply_proof(2, second, maximum=2)
         self.assertEqual(result.exhausted, ("Problems/p.lean",))
         self.assertEqual(result.needs_redraft, ())
+
+    def test_explicit_budget_extension_reopens_exhausted_target(self):
+        session = self._proof_session(1, route="retry_proof", status="partial")
+        self.assertEqual(
+            self._apply_proof(1, session, maximum=1).exhausted,
+            ("Problems/p.lean",),
+        )
+
+        reopened = reopen_exhausted_proof_review_targets(
+            state_dir=self.state,
+            targets=["Problems/p.lean"],
+            iter_num=2,
+            max_iterations=4,
+            reason="user authorized another reviewed proof attempt",
+        )
+
+        self.assertEqual(reopened, ("Problems/p.lean",))
+        state = load_proof_review_state(self.state)
+        record = state["targets"]["Problems/p.lean"]
+        self.assertEqual(state["max_iterations"], 4)
+        self.assertEqual(record["status"], "retry")
+        self.assertEqual(record["attempts"], 1)
+        self.assertEqual(
+            record["history"][-1]["event"],
+            "proof_review_budget_extended",
+        )
+        kept, dropped = filter_objectives_for_proof_review_gate(
+            [self.target],
+            state_dir=self.state,
+            project_path=self.project,
+            enabled=True,
+        )
+        self.assertEqual(kept, [self.target])
+        self.assertEqual(dropped, [])
+
+    def test_budget_extension_must_exceed_consumed_attempts(self):
+        session = self._proof_session(1, route="retry_proof", status="partial")
+        self._apply_proof(1, session, maximum=1)
+
+        with self.assertRaisesRegex(ValueError, "must exceed"):
+            reopen_exhausted_proof_review_targets(
+                state_dir=self.state,
+                targets=["Problems/p.lean"],
+                iter_num=2,
+                max_iterations=1,
+                reason="insufficient extension",
+            )
+
+        record = load_proof_review_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(record["status"], "proof_review_exhausted")
 
     def test_infrastructure_blocker_is_quarantined_without_retry(self):
         session = self._proof_session(

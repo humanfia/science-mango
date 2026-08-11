@@ -14,6 +14,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from .review_source_contract import (
+    build_review_source_contract,
+    provenance_from_review,
+    stored_provenance_matches_current,
+    validate_review_source_certificate,
+)
 from .shared_infrastructure import register_shared_infrastructure_request
 
 
@@ -205,6 +211,50 @@ def proof_review_decision(
     return _proof_review_decision(row)
 
 
+def _source_validated_proof_review_decision(
+    row: dict[str, Any] | None,
+    *,
+    project_path: Path,
+    target: Path,
+) -> tuple[str, str, str, str, bool]:
+    decision = _proof_review_decision(row)
+    route, reason, evidence, _redraft_kind, _explicit = decision
+    expected = build_review_source_contract(
+        project_path=project_path,
+        target=target,
+    )
+    raw: Any = row.get("proof_review") if isinstance(row, dict) else None
+    if raw is None and isinstance(row, dict):
+        findings = row.get("findings")
+        if isinstance(findings, dict):
+            raw = findings.get("proof_review")
+    error = validate_review_source_certificate(
+        raw if isinstance(raw, dict) else {},
+        expected,
+        passing=route == "solved",
+    )
+    if not error:
+        return decision
+    return (
+        "needs_redraft",
+        f"official source contract validation failed: {error}",
+        evidence or error,
+        "other_modeling_defect",
+        True,
+    )
+
+
+def _milestone_source_provenance(row: dict[str, Any] | None) -> dict | None:
+    if not isinstance(row, dict):
+        return None
+    raw: Any = row.get("proof_review")
+    if raw is None:
+        findings = row.get("findings")
+        if isinstance(findings, dict):
+            raw = findings.get("proof_review")
+    return provenance_from_review(raw)
+
+
 def _raw_infrastructure_request(row: dict[str, Any] | None) -> Any:
     """Read the optional schema extension without breaking legacy rows."""
     if not isinstance(row, dict):
@@ -376,7 +426,11 @@ def apply_proof_review(
 ) -> ProofReviewResult:
     """Consume one proof Review verdict for every dispatched objective."""
     max_iterations = max(1, int(max_iterations))
-    state = load_proof_review_state(state_dir)
+    state = _invalidate_stale_solved_records(
+        state_dir=state_dir,
+        project_path=project_path,
+        state=load_proof_review_state(state_dir),
+    )
     targets = state.get("targets")
     if not isinstance(targets, dict):
         targets = {}
@@ -402,7 +456,11 @@ def apply_proof_review(
         row = milestones.get(rel)
         raw_status = str(row.get("status") or "") if row else ""
         route, reason, evidence, redraft_kind, explicit_route = (
-            _proof_review_decision(row)
+            _source_validated_proof_review_decision(
+                row,
+                project_path=project_path,
+                target=project_path / rel,
+            )
         )
         try:
             prior_attempts = int(previous.get("attempts") or 0)
@@ -464,6 +522,7 @@ def apply_proof_review(
             "evidence": evidence,
             "redraft_kind": redraft_kind,
             "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+            "source_contract": _milestone_source_provenance(row),
             "infrastructure_request": infrastructure_request,
             "infrastructure_request_error": infrastructure_request_error,
             "history": history[-50:],
@@ -522,7 +581,11 @@ def apply_target_proof_review(
     if not event_id.strip():
         raise ValueError("proof Review pipeline event_id is required")
 
-    state = load_proof_review_state(state_dir)
+    state = _invalidate_stale_solved_records(
+        state_dir=state_dir,
+        project_path=project_path,
+        state=load_proof_review_state(state_dir),
+    )
     targets = state.get("targets")
     if not isinstance(targets, dict):
         targets = {}
@@ -553,7 +616,11 @@ def apply_target_proof_review(
 
     raw_status = str(milestone.get("status") or "")
     route, reason, evidence, redraft_kind, explicit_route = (
-        _proof_review_decision(milestone)
+        _source_validated_proof_review_decision(
+            milestone,
+            project_path=project_path,
+            target=target,
+        )
     )
     try:
         prior_attempts = int(previous.get("attempts") or 0)
@@ -608,6 +675,7 @@ def apply_target_proof_review(
         "evidence": evidence,
         "redraft_kind": redraft_kind,
         "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+        "source_contract": _milestone_source_provenance(milestone),
         "infrastructure_request": infrastructure_request,
         "infrastructure_request_error": infrastructure_request_error,
         "history": history[-50:],
@@ -686,6 +754,142 @@ def reset_proof_review_targets_after_redraft(
     return tuple(sorted(reset))
 
 
+def reopen_exhausted_proof_review_targets(
+    *,
+    state_dir: Path,
+    targets: Iterable[str],
+    iter_num: int,
+    max_iterations: int,
+    reason: str,
+) -> tuple[str, ...]:
+    """Reopen exhausted targets after an explicit proof-budget extension.
+
+    This is an administrative transition, not a fresh proof certificate.  It
+    preserves the consumed-attempt count and full Review history, records why
+    the target was reopened, and requires the new budget to exceed every
+    reopened target's prior attempt count.
+    """
+    if max_iterations < 1:
+        raise ValueError("max_iterations must be positive")
+    audit_reason = reason.strip()
+    if not audit_reason:
+        raise ValueError("reason must be non-empty")
+
+    state = load_proof_review_state(state_dir)
+    records = state.get("targets")
+    if not isinstance(records, dict):
+        return ()
+
+    candidates: list[tuple[str, dict[str, Any], int]] = []
+    for raw_rel in targets:
+        rel = Path(str(raw_rel)).as_posix().lstrip("./")
+        record = records.get(rel)
+        if not isinstance(record, dict):
+            continue
+        if record.get("status") != "proof_review_exhausted":
+            continue
+        try:
+            attempts = int(record.get("attempts") or 0)
+        except (TypeError, ValueError):
+            attempts = 0
+        if max_iterations <= attempts:
+            raise ValueError(
+                f"new proof Review budget {max_iterations} must exceed "
+                f"the {attempts} attempt(s) already used by {rel}"
+            )
+        candidates.append((rel, record, attempts))
+
+    if not candidates:
+        return ()
+
+    reopened_at = _utcnow()
+    reopened: list[str] = []
+    for rel, record, attempts in candidates:
+        history = record.get("history")
+        history = list(history) if isinstance(history, list) else []
+        history.append({
+            "iter": iter_num,
+            "event": "proof_review_budget_extended",
+            "prior_status": "proof_review_exhausted",
+            "prior_attempts": attempts,
+            "new_max_iterations": max_iterations,
+            "reason": audit_reason,
+            "reviewed_at": reopened_at,
+        })
+        records[rel] = {
+            **record,
+            "status": "retry",
+            "reason": (
+                f"proof Review budget extended to {max_iterations}: "
+                f"{audit_reason}"
+            ),
+            "evidence": "",
+            "history": history[-50:],
+            "budget_extended_iter": iter_num,
+            "updated_at": reopened_at,
+        }
+        reopened.append(rel)
+
+    state["version"] = STATE_VERSION
+    state["max_iterations"] = max_iterations
+    state["updated_at"] = reopened_at
+    state["targets"] = records
+    _write_state(state_dir, state)
+    _write_report(state_dir, state)
+    _write_routing_notes(state_dir, state)
+    return tuple(sorted(reopened))
+
+
+def _invalidate_stale_solved_records(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    state: dict[str, Any],
+) -> dict[str, Any]:
+    """Reopen chemistry proof passes after any bound input changes."""
+    records = state.get("targets")
+    if not isinstance(records, dict):
+        return state
+    changed = False
+    for rel, raw_record in list(records.items()):
+        if not isinstance(raw_record, dict) or raw_record.get("status") != "solved":
+            continue
+        fresh, reason = stored_provenance_matches_current(
+            project_path=project_path,
+            target=project_path / rel,
+            provenance=raw_record.get("source_contract"),
+        )
+        if fresh:
+            continue
+        history = raw_record.get("history")
+        history = list(history) if isinstance(history, list) else []
+        history.append({
+            "event": "source_contract_freshness_invalidated",
+            "prior_status": "solved",
+            "prior_attempts": int(raw_record.get("attempts") or 0),
+            "reason": reason,
+            "reviewed_at": _utcnow(),
+        })
+        records[rel] = {
+            **raw_record,
+            "status": "retry",
+            "attempts": 0,
+            "reason": f"proof Review certificate invalidated: {reason}",
+            "evidence": "",
+            "source_contract": None,
+            "history": history[-50:],
+            "updated_at": _utcnow(),
+        }
+        changed = True
+    if changed:
+        state["targets"] = records
+        state["updated_at"] = _utcnow()
+        _write_state(state_dir, state)
+        _write_report(state_dir, state)
+        _write_routing_notes(state_dir, state)
+    return state
+
+
 def filter_objectives_for_proof_review_gate(
     objectives: Iterable[Path],
     *,
@@ -701,7 +905,11 @@ def filter_objectives_for_proof_review_gate(
         and not canonical_stage.startswith(("prover", "polish"))
     ):
         return items, []
-    state = load_proof_review_state(state_dir)
+    state = _invalidate_stale_solved_records(
+        state_dir=state_dir,
+        project_path=project_path,
+        state=load_proof_review_state(state_dir),
+    )
     targets = state.get("targets", {}) if state else {}
     from .shared_infrastructure import pending_shared_infrastructure_objectives
 

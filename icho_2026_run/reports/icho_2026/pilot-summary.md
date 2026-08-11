@@ -1,12 +1,12 @@
 # IChO 2026 theory checkpoint
 
-Checkpoint completed on 2026-08-10. Six of the 32 theory-ready subquestions
-have now completed autoformalization, proof, deterministic compile checks,
-semantic Review, and final Lake builds. Practical/experimental papers P1--P3
-were excluded before target selection; the ready queue contains only T1--T9
-theory entries.
+Checkpoint completed on 2026-08-11. All 32 theory-ready subquestions have now
+completed autoformalization, proof, deterministic compile checks, hash-bound
+source-aware formalization and proof Review, and final Lake builds.
+Practical/experimental papers P1--P3 were excluded before target selection;
+the verified queue contains only T1--T9 theory entries.
 
-## Verified targets
+## Representative verified targets
 
 | Target | Formalized and proved conclusion |
 | --- | --- |
@@ -16,6 +16,9 @@ theory entries.
 | `icho_2026_t4_a5` | After converting `2 MeV` to `2,000,000 eV`, the cumulative logarithmic-decrement law gives the exact collision-count formula. Certified log-series bounds place the result within `1e-4` of `19.97` and within one half of `20`. Neither number is included in the input predicate. |
 | `icho_2026_t4_a6` | The balanced all-gas methane-combustion reaction and formation enthalpies give exactly `-802.3 kJ mol⁻¹` at 298 K. |
 | `icho_2026_t4_a7` | The reaction-weighted constant heat-capacities give `ΔCp = 12 J mol⁻¹ K⁻¹` and exactly `-781.876 kJ mol⁻¹` at 2000 K, with `< 0.05` error from the reported `-781.9`. The source-authorized `-750` fallback is kept as a separate conditional theorem. |
+
+The other 26 targets are imported by `IChO2026Problems.lean` and carry the
+same compile, source-contract, proof-Review, and axiom-sweep guarantees.
 
 ## Automated review history
 
@@ -29,16 +32,24 @@ theory entries.
 - T2-A5 completed its mandatory proof-Review retry in iteration 015. The final
   Review found the two Process-B loss terms, named Process-C approximation,
   exact logarithmic formula, and both official/fallback branches faithful.
+- A new source-first Review policy then invalidated every legacy certificate
+  and re-audited all 32 targets against the official question, answer, previous
+  parts, and every source image. It rejected and forced repairs to T1-A3
+  (rounding at the wrong locus), T5-A4 (answer-shaped reagent candidates),
+  T6-A4 (answer-shaped ion universe), and T9-A6 (a spurious regioisomer branch).
+- The final gates contain 32 formalization passes and 32 solved proof Reviews;
+  all stored source-contract hashes match the current files.
 
-Every active target now compiles with zero proof placeholders. Objective-scoped
-axiom sweeps found no `sorryAx` laundering, and source audits found no `unsafe`
-proof escape or newly declared axiom. The latest default `lake build` succeeded;
-the remaining diagnostics are non-blocking style lints.
+Every active target now compiles with zero proof placeholders. The 32-file
+axiom sweep and the final post-redraft single-file sweep found no `sorryAx`
+laundering or nonstandard axiom, and source audits found no `unsafe` proof
+escape. The latest default `lake build` succeeded across 8611 jobs; the
+remaining diagnostics are non-blocking style lints.
 
 ## Automatically generated shared BZ module
 
 Proof Review identified duplicated BZ kinetics in T2-A2, T2-A3, and T2-A5 and
-admitted a shared-infrastructure request. Archon then:
+admitted a shared-infrastructure request. The workflow then:
 
 1. generated and chemistry-reviewed
    `IChO2026Chem/Kinetics/BelousovZhabotinsky.lean`;
@@ -70,11 +81,6 @@ hosted Mathlib/Physlib backend with a local `Chemistry` index built from
 library declarations and newly generated shared BZ declarations available to
 agents through one MCP endpoint.
 
-The chemistry domain profile and Review/shared-infrastructure settings live in
-the trackable `.archon/config.json`. `.archon/.env`, logs, PIDs, iteration state,
-and other runtime artifacts are not portable configuration and must not carry
-committed credentials.
-
 ## Verification and rerun commands
 
 Run from the project root:
@@ -91,12 +97,10 @@ rg -n '\b(sorry|admit|axiom|sorryAx)\b' IChO2026Chem IChO2026Problems
 ./scripts/rebuild_lean_explore_index.sh
 ./scripts/start_lean_explore.sh
 
-# Continue the configured plan -> prove -> Review loop.
-../.venv/bin/archon loop .
 ```
 
 The umbrella imports in `IChO2026Problems.lean` and `IChO2026Run.lean` ensure
-that the default build covers the shared BZ module and all six problem files.
+that the default build covers the shared BZ module and all 32 problem files.
 The index script requires the pinned CRNT source checkout; a fresh Lake setup
 obtains it during dependency resolution.
 

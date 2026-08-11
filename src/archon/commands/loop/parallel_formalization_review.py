@@ -15,6 +15,12 @@ from archon.commands.tooling.project_config import HarnessDescriptor
 
 from .formalization_review_gate import REVIEW_SCHEMA_VERSION
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
+from .review_source_contract import (
+    build_review_source_contract,
+    render_source_contract_prompt,
+    source_contract_provenance,
+    validate_review_source_certificate,
+)
 
 
 FORMALIZATION_REVIEW_REPORT_FILENAME = "parallel-formalization-review.json"
@@ -50,7 +56,10 @@ def _formalization_review(row: dict) -> dict | None:
     return raw if isinstance(raw, dict) else None
 
 
-def _validate_certificate(row: dict) -> str:
+def _validate_certificate(
+    row: dict,
+    expected_source_contract: dict | None = None,
+) -> str:
     """Validate one explicit pass/fail certificate without judging its verdict."""
     top_status = str(row.get("status") or "").strip().lower()
     if top_status not in {"solved", "blocked"}:
@@ -122,12 +131,20 @@ def _validate_certificate(row: dict) -> str:
                 return f"passing verdict contradicts bridge {index}={status!r}"
     elif not has_failure:
         return "failed verdict has no failed check or blocked bridge"
+    source_error = validate_review_source_certificate(
+        raw,
+        expected_source_contract,
+        passing=verdict in _PASS,
+    )
+    if source_error:
+        return source_error
     return ""
 
 
 def load_target_formalization_milestone(
     path: Path,
     expected_rel: str,
+    expected_source_contract: dict | None = None,
 ) -> tuple[dict | None, str]:
     """Load exactly one target-bound, structurally valid semantic certificate."""
     try:
@@ -150,7 +167,7 @@ def load_target_formalization_milestone(
         rel = str(target.get("file") or "").lstrip("./")
         if rel != expected_rel:
             return None, f"milestone target {rel!r} != {expected_rel!r}"
-        error = _validate_certificate(row)
+        error = _validate_certificate(row, expected_source_contract)
         if error:
             return None, error
         rows.append(row)
@@ -194,6 +211,7 @@ def build_target_formalization_review_prompt(
     output_dir: Path,
     preflight: dict,
     prior_gate_record: dict | None,
+    source_contract: dict | None = None,
 ) -> str:
     rel = target.resolve().relative_to(project_path.resolve()).as_posix()
     slug = "_".join(Path(rel).with_suffix("").parts)
@@ -207,18 +225,41 @@ def build_target_formalization_review_prompt(
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
+    source_contract = source_contract or build_review_source_contract(
+        project_path=project_path,
+        target=target,
+        profile=profile,
+    )
+    source_block = render_source_contract_prompt(source_contract)
+    source_provenance = source_contract_provenance(source_contract)
     return f"""You are one target-scoped formalization Review worker for Archon iteration {iter_num}.
 
 Assigned target (review only this target):
   {rel}
 
 Read these bounded sources completely:
+- Source report: {source_contract.get("source_report") or "MISSING"}
+- Every source image with its expected digest:
+  {json.dumps(source_contract.get("images", []), ensure_ascii=False)}
 - Lean formalization: {target}
 - {profile.display_name.title()} blueprint: {chapter}
 - Formalizer traces: {json.dumps([str(path) for path in traces], ensure_ascii=False)}
 - Matching task results, newest first: {json.dumps(_result_evidence(state_dir, rel), ensure_ascii=False)}
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
 - Prior formalization gate record: {json.dumps(prior_gate_record or {}, ensure_ascii=False)}
+
+{source_block}
+
+Mandatory source-first two-pass protocol:
+1. Before using the blueprint, traces, task results, or prior gate rationale,
+   compare only the official source contract/images against the Lean statement.
+   Record this adversarial pass in independent_source_audit. Treat every
+   generated interpretation as untrusted during this pass.
+2. Only after fixing that source-only verdict, inspect the blueprint and other
+   generated artifacts. Record their contract/bridge consistency separately in
+   contract_audit. The second pass may expose conflicts but may not revise the
+   official-source facts established by the first pass.
+Both audit groups must pass before the target can pass.
 
 This is semantic formalization Review, not proof Review. `sorry` proof bodies are
 allowed. Decide whether the statements faithfully and derivably encode the
@@ -229,6 +270,17 @@ abstraction_sufficiency, uncertainty_propagation, branch_orientation, and
 countermodel_resistance. Every check needs concrete evidence. Only uncertainty
 and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
+
+For chemistry, perform the full chemistry-reviewer audit inside this target
+Review: enumerate every requested output; inspect every image; check chemical
+identity and invariants (especially formula/molar-mass consistency and
+conservation), units, structures/stereochemistry, identification uniqueness,
+definition/cardinality/table-level answer smuggling, and the official
+rounding/significant-figure convention. Record every blueprint/Lean conflict.
+If an official answer says to identify or calculate an object, a theorem that
+instead proves non-identifiability, merely verifies preselected candidates, or
+reports a differently rounded result is a failed formalization—not a valid
+reinterpretation or refinement.
 
 The deterministic preflight already ran. Do not run lake, Lean, leandag, broad
 searches, or other agents unless preflight reports timeout/error. Do not edit
@@ -254,7 +306,36 @@ Write exactly one JSON object line to {milestone}:
       "branch_orientation": {{"status": "passed|failed|not_applicable", "evidence": "..."}},
       "countermodel_resistance": {{"status": "passed|failed", "evidence": "..."}}
     }},
-    "bridge_obligations": [{{"claim": "...", "carrier": "...", "status": "covered|blocked", "evidence": "..."}}]
+    "bridge_obligations": [{{"claim": "...", "carrier": "...", "status": "covered|blocked", "evidence": "..."}}],
+    "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
+    "independent_source_audit": {{
+      "requested_outputs": {{"status":"passed|failed","evidence":"..."}},
+      "official_answer": {{"status":"passed|failed","evidence":"..."}},
+      "image_grounding": {{"status":"passed|failed","evidence":"..."}},
+      "domain_invariants": {{"status":"passed|failed","evidence":"..."}},
+      "reporting_convention": {{"status":"passed|failed","evidence":"..."}},
+      "adversarial_counterexample": {{"status":"passed|failed","evidence":"..."}}
+    }},
+    "contract_audit": {{
+      "statement_scope": {{"status":"passed|failed","evidence":"..."}},
+      "hypothesis_derivability": {{"status":"passed|failed","evidence":"..."}},
+      "conclusion_alignment": {{"status":"passed|failed","evidence":"..."}},
+      "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
+    }},
+    "requested_outputs": [{{"source_requirement":"<exact requested output>","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"..."}}],
+    "official_answer_alignment": {{"status":"aligned|conflict","evidence":"<compare Lean result and reporting convention to official rubric>"}},
+    "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"resolved_in_favor_of_official_source|unresolved|failed","evidence":"..."}}],
+    "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
+    "chemistry_checks": {{
+      "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "numerical_reporting": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "structure_stereochemistry": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "identification_uniqueness": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "answer_smuggling": {{"status":"passed|failed|not_applicable","evidence":"..."}}
+    }}
   }},
   "attempts": [{{"attempt": 1, "strategy": "formalization-review", "code_tried": "", "lean_error": "", "goal_before": "", "goal_after": "", "result": "success|failed", "insight": "..."}}],
   "findings": {{"blocker": "<empty iff passed>", "verification": "...", "key_lemmas_used": []}},
@@ -294,7 +375,9 @@ def _run_formalization_review_worker(
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
     milestone, validation_error = load_target_formalization_milestone(
-        output_dir / "milestones.jsonl", spec.rel,
+        output_dir / "milestones.jsonl",
+        spec.rel,
+        spec.source_contract,
     )
     if validation_error:
         error = "; ".join(part for part in (error, validation_error) if part)
@@ -394,6 +477,10 @@ def run_parallel_formalization_reviews(
                 iter_dir / "formalization-review-targets" / slug
                 / f"attempt-{attempt}"
             )
+            source_contract = build_review_source_contract(
+                project_path=project_path,
+                target=target,
+            )
             specs.append(TargetReviewSpec(
                 rel=rel,
                 prompt=build_target_formalization_review_prompt(
@@ -405,10 +492,12 @@ def run_parallel_formalization_reviews(
                     output_dir=output_dir,
                     preflight=preflight_rows.get(rel, {}),
                     prior_gate_record=prior_gate_targets.get(rel),
+                    source_contract=source_contract,
                 ),
                 output_dir=str(output_dir),
                 log_base=str(output_dir / "agent"),
                 attempt=attempt,
+                source_contract=source_contract,
             ))
         failed: dict[str, Path] = {}
         with executor_factory(max_workers=round_jobs) as pool:

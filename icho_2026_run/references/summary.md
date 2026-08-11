@@ -1,6 +1,6 @@
 # References
 
-<!-- archon:references-summary -->
+<!-- references-summary -->
 <!-- One row per file. Agents append/update rows as they discover what -->
 <!-- actually works. The `How to read` column is a LIVING LOG, not a -->
 <!-- static cheat-sheet — fill it in the first time you successfully -->
@@ -10,7 +10,7 @@
 
 | File | Description | How to read (confirmed working) |
 | ---- | ----------- | ------------------------------- |
-| `icho_2026_theory_ready.jsonl` | Extracted official IChO 2026 theory questions and marking-scheme answers | `jq -c 'select(.id == "icho_2026_t2_a2" or .id == "icho_2026_t2_a3" or .id == "icho_2026_t2_a5" or .id == "icho_2026_t4_a5" or .id == "icho_2026_t4_a6" or .id == "icho_2026_t4_a7") | {id, current_question, answer, previous_parts, image_paths}' references/icho_2026_theory_ready.jsonl` |
+| `icho_2026_theory_ready.jsonl` | Extracted official IChO 2026 theory questions and marking-scheme answers | `jq -c 'select(.id == "<target-id>") | {id, current_question, answer, previous_parts, image_paths}' references/icho_2026_theory_ready.jsonl`; confirmed for T2, T4-A9, T8-A6/A9, and T9-A1/A3/A6/A7/A9. |
 <!-- Example row (delete once you have real entries):                   -->
 <!-- | `paper.pdf` | Source paper for chapter 3 | `Read` with `pages: "1-12"` (poppler installed); for the appendix tables, `pdftotext paper.pdf - \| sed -n '120,180p'` was clearer. |  -->
 
