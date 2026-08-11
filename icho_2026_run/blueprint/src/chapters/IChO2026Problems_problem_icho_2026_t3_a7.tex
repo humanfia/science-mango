@@ -6,7 +6,8 @@
 % archon:problem-id icho_2026_t3
 % archon:part-id T3-A7
 
-\section{Icho Chemistry problem icho\_2026\_t3\_a7}
+\chapter{Icho Chemistry problem icho\_2026\_t3\_a7}
+\label{ch:IChO2026Problems_problem_icho_2026_t3_a7}
 
 \paragraph{Problem source.}
 \#\# Source
@@ -46,92 +47,11 @@ create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_ich
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
 Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
 
-\begin{theorem}\leanok
-[Icho Chemistry formalization target]
+\begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t3_a7:target}
-\lean{IChO2026Problems.T3A7.cof9_equilibrium_absorption_capacity_and_ions_per_pore}
-\uses{def:icho_2026_t3_a7:equilibrium_capacity, def:icho_2026_t3_a7:average_uranyl_per_pore}
-The concentration loss of uranyl solution determines the COF-9 equilibrium
-capacity and the reported average uranyl occupancy per pore.
+The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
-
-\leanok
-Subtract equilibrium from initial concentration, multiply by volume, and divide
-by sorbent mass for the capacity.  Convert adsorbed mass and repeat-unit mass
-to amounts, divide by the one-pore-per-unit count, and use whole-number
-reporting for the occupancy.
-\end{proof}
-
-\begin{definition}\leanok
-[Equilibrium absorption capacity]
-\label{def:icho_2026_t3_a7:equilibrium_capacity}
-\lean{IChO2026Problems.T3A7.equilibriumAbsorptionCapacity_mg_per_g}
-The equilibrium capacity is the mass of uranyl removed from solution divided
-by the mass of COF-9 adsorbent.
-\end{definition}
-\begin{proof}
-
-\leanok
-The concentration decrease times solution volume is the adsorbed mass; its
-quotient by adsorbent mass has units of milligrams per gram.
-\end{proof}
-
-\begin{definition}\leanok
-[Adsorbed uranyl amount]
-\label{def:icho_2026_t3_a7:adsorbed_uranyl_amount}
-\lean{IChO2026Problems.T3A7.adsorbedDissolvedUraniumAmount_mol}
-The absorbed amount in moles is the removed uranyl mass, converted from mg to
-g, divided by the uranyl molar mass.
-\end{definition}
-\begin{proof}
-
-\leanok
-Mass divided by molar mass is amount of substance, with the factor $1000$
-performing the printed milligram-to-gram conversion.
-\end{proof}
-
-\begin{definition}\leanok
-[COF-9 repeat-unit amount]
-\label{def:icho_2026_t3_a7:repeat_unit_amount}
-\lean{IChO2026Problems.T3A7.cof9RepeatUnitAmount_mol}
-The amount of COF-9 repeat units is the adsorbent mass divided by its repeat-
-unit molar mass.
-\end{definition}
-\begin{proof}
-
-\leanok
-The definition is the standard mass-to-amount conversion for the specified
-COF-9 repeat unit.
-\end{proof}
-
-\begin{definition}\leanok
-[Pore amount]
-\label{def:icho_2026_t3_a7:pore_amount}
-\lean{IChO2026Problems.T3A7.poreAmount_mol}
-\uses{def:icho_2026_t3_a7:repeat_unit_amount}
-The amount of pores equals the stated pores-per-repeat-unit multiplicity times
-the amount of repeat units.
-\end{definition}
-\begin{proof}
-
-\leanok
-Each repeat unit contributes the declared number of pores, so multiplication
-transports the repeat-unit amount to a pore amount.
-\end{proof}
-
-\begin{definition}\leanok
-[Average uranyl occupancy]
-\label{def:icho_2026_t3_a7:average_uranyl_per_pore}
-\lean{IChO2026Problems.T3A7.averageUranylIonsPerPore}
-\uses{def:icho_2026_t3_a7:adsorbed_uranyl_amount, def:icho_2026_t3_a7:pore_amount}
-The mean uranyl occupancy is the adsorbed uranyl amount divided by the amount
-of pores in the same sample.
-\end{definition}
-\begin{proof}
-
-\leanok
-Dividing the amount of adsorbed ions by the amount of pores gives the
-dimensionless number of ions per pore.
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
 % --- Archon physics formalization source end ---

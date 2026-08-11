@@ -10,7 +10,8 @@
 % archon:previous-part icho_2026_t1_a5
 % archon:previous-part-policy natural_language_prerequisite_only
 
-\section{Icho Chemistry problem icho\_2026\_t1\_a6}
+\chapter{Icho Chemistry problem icho\_2026\_t1\_a6}
+\label{ch:IChO2026Problems_problem_icho_2026_t1_a6}
 
 \paragraph{Problem source.}
 \#\# Source
@@ -56,61 +57,11 @@ create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_ich
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
 Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
 
-\begin{theorem}\leanok
-[Icho Chemistry formalization target]
+\begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t1_a6:target}
-\lean{IChO2026Problems.T1A6.identify_stone_and_compound_H}
-\uses{def:icho_2026_t1_a6:formula_add, def:icho_2026_t1_a6:formula_nsmul}
-Calibrated thermogravimetric mass balances identify the stone as aluminium
-mellitate hexadecahydrate and constrain the open-air residue to aluminium oxide.
-The source asks for formulae only: no phase of $H$ is an input to, or a
-conclusion of, this calculation.
+The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
-
-\leanok
-Represent each displayed two-decimal mass by an actual mass in its half-unit
-rounding interval, rather than postulating an uncalibrated residual bound.
-The first-step dehydration conservation equation then has a derived error
-envelope (at most $6$ in the dry-molar-mass-scaled equation); the neighbouring
-integer water counts are more than $100$ apart, so only $n=16$ is possible.
-For the second step, conserve the amount of dry aluminium mellitate from the
-$5.75\ \mathrm g$ plateau to the $1.50\ \mathrm g$ stable residue.  This
-puts the residue molar mass between $101$ and $103\ \mathrm{g\,mol^{-1}}$.
-The open-air calcination bridge retains two aluminium atoms and removes the
-organic carbon and hydrogen, but does not impose an oxide charge equation.
-The explicit formula molar mass in that interval then leaves exactly three
-oxygen atoms, yielding $\mathrm{Al_2O_3}$ from the final plateau itself.
-The formal contract must therefore range directly over the stone and residue
-formulae (or over samples with unconstrained phases) and must not introduce a
-``solid'' premise for $H$; the printed experiment contains no such datum.
-\end{proof}
-
-\begin{definition}\leanok
-[Formula addition]
-\label{def:icho_2026_t1_a6:formula_add}
-\lean{IChO2026Problems.T1A6.Formula.add}
-For two stoichiometric formulae, their sum assigns to each element the sum of
-the two atom counts.
-\end{definition}
-\begin{proof}
-
-\leanok
-Addition is defined componentwise, so it represents adjoining formula units
-without changing their element labels.
-\end{proof}
-
-\begin{definition}\leanok
-[Repeated formula]
-\label{def:icho_2026_t1_a6:formula_nsmul}
-\lean{IChO2026Problems.T1A6.Formula.nsmul}
-For a natural number $n$, the repeated formula has $n$ times each atom count
-of the original formula.
-\end{definition}
-\begin{proof}
-
-\leanok
-Multiplying every stoichiometric coordinate by $n$ is exactly the atom count
-of $n$ identical formula units.
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
 % --- Archon physics formalization source end ---

@@ -47,108 +47,11 @@ create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_ich
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
 Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
 
-\begin{definition}\leanok
-[Gaseous combustion-species carrier]
-\label{def:physics:icho_2026_t4_a6:gaseous_species}
-\lean{IChO2026Problems.T4A6.GaseousSpecies}
-The finite carrier consists exactly of methane, dioxygen, carbon dioxide, and
-water, all in the gas phase.  This fixes the species over which reaction sums
-are evaluated.
-\end{definition}
-\begin{proof}
-
-\leanok
-The four constructors are precisely the species printed in the balanced
-all-gas combustion equation.
-\end{proof}
-
-\begin{definition}\leanok
-[Molar enthalpy unit]
-\label{def:physics:icho_2026_t4_a6:molar_enthalpy}
-\lean{IChO2026Problems.T4A6.MolarEnthalpy}
-Molar enthalpy is represented by a real number in $\mathrm{kJ\,mol^{-1}}$.
-\end{definition}
-\begin{proof}\leanok
-It is a unit-bearing scalar readout for this numerical exercise.\end{proof}
-
-\begin{definition}\leanok
-[Molar heat-capacity unit]
-\label{def:physics:icho_2026_t4_a6:molar_heat_capacity}
-\lean{IChO2026Problems.T4A6.MolarHeatCapacity}
-Molar constant-pressure heat capacity is represented by a real number in
-$\mathrm{J\,mol^{-1}\,K^{-1}}$.
-\end{definition}
-\begin{proof}\leanok
-It records the unit convention of the supplied table.\end{proof}
-
-\begin{definition}\leanok
-[Methane combustion]
-\label{def:physics:icho_2026_t4_a6:methane_combustion}
-\lean{IChO2026Problems.T4A6.methaneCombustion}
-\uses{def:physics:icho_2026_t4_a6:gaseous_species}
-The reactant coefficients are $1$ for methane and $2$ for dioxygen; the
-product coefficients are $1$ for carbon dioxide and $2$ for water, with all
-other coefficients zero.
-\end{definition}
-\begin{proof}\leanok
-This is the source's balanced equation
-$\mathrm{CH_4(g)+2O_2(g)\to CO_2(g)+2H_2O(g)}$.\end{proof}
-
-\begin{definition}\leanok
-[Thermodynamic data at 298 K]
-\label{def:physics:icho_2026_t4_a6:data_298}
-\lean{IChO2026Problems.T4A6.ThermodynamicData298}
-\uses{def:physics:icho_2026_t4_a6:gaseous_species, def:physics:icho_2026_t4_a6:molar_enthalpy, def:physics:icho_2026_t4_a6:molar_heat_capacity}
-The record supplies a standard formation enthalpy and a constant-pressure heat
-capacity for each member of the finite gaseous carrier.
-\end{definition}
-\begin{proof}\leanok
-These are exactly the two columns of thermodynamic information
-needed by T4-A6 and the following part.\end{proof}
-
-\begin{definition}\leanok
-[Supplied table data]
-\label{def:physics:icho_2026_t4_a6:matches_data}
-\lean{IChO2026Problems.T4A6.MatchesSuppliedThermodynamicData}
-\uses{def:physics:icho_2026_t4_a6:data_298}
-This predicate records the three displayed formation enthalpies and all four
-displayed heat capacities.  The conventional zero formation enthalpy of
-$\mathrm{O_2(g)}$ remains a separate explicit assumption.
-\end{definition}
-\begin{proof}\leanok
-It is a faithful transcription of the table, without inventing
-the unprinted elemental reference value.\end{proof}
-
-\begin{definition}\leanok
-[Formation-enthalpy reaction sum]
-\label{def:physics:icho_2026_t4_a6:standard_reaction_enthalpy}
-\lean{IChO2026Problems.T4A6.standardReactionEnthalpy}
-\uses{def:physics:icho_2026_t4_a6:gaseous_species, def:physics:icho_2026_t4_a6:molar_enthalpy}
-For a reaction, the standard reaction enthalpy is the sum of product
-coefficients times formation enthalpies minus the analogous reactant sum.
-\end{definition}
-\begin{proof}\leanok
-This is the products-minus-reactants formula displayed in the
-official solution.\end{proof}
-
-\begin{theorem}\leanok
-[Methane-combustion enthalpy at 298 K]
+\begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t4_a6:target}
-\lean{IChO2026Problems.T4A6.methane_combustion_standard_reaction_enthalpy_298}
-\uses{def:physics:icho_2026_t4_a6:methane_combustion, def:physics:icho_2026_t4_a6:matches_data, def:physics:icho_2026_t4_a6:standard_reaction_enthalpy}
-% SOURCE: IChO 2026 Theory Solutions, T4.6, Q4-4 (read from references/icho_2026_theory_ready.jsonl)
-% SOURCE QUOTE: "Balanced reaction: CH4 (g) + 2O2 (g) → CO2 (g) + 2H2 O(g)" and "Δr H°298 = ([−393.5 + 2(−241.8)] − [−74.8 + 0])kJ mol−1 = −802.3 kJ mol−1"
-\textit{Source: IChO 2026 Theory Solutions, T4.6.}
-Under the supplied gaseous data and the conventional value
-$\Delta_fH^\circ(\mathrm{O_2(g)})=0$, the formation-enthalpy reaction sum for
-the displayed methane combustion is $-802.3\,\mathrm{kJ\,mol^{-1}}$.
+The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
-% SOURCE QUOTE PROOF: "Δr H°298 = [Δf H°(CO2) + 2Δf H°(H2 O)] − [Δf H°(CH4) + 2Δf H°(O2)]"
 \begin{proof}
-
-\leanok
-Expand the product sum as $-393.5+2(-241.8)$ and the reactant sum as
-$-74.8+2(0)$.  Their difference is $-802.3$, with the stated molar-enthalpy
-unit.
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
 % --- Archon physics formalization source end ---

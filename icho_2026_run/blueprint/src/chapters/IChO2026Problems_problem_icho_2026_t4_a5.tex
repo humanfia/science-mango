@@ -6,7 +6,8 @@
 % archon:problem-id icho_2026_t4
 % archon:part-id T4-A5
 
-\section{Icho Chemistry problem icho\_2026\_t4\_a5}
+\chapter{Icho Chemistry problem icho\_2026\_t4\_a5}
+\label{ch:IChO2026Problems_problem_icho_2026_t4_a5}
 
 \paragraph{Problem source.}
 \#\# Source
@@ -41,164 +42,16 @@ Determine the average number of collisions required, n𝑐, to slow a neutron fr
 \item ../icho\_2026\_source/image/T4\_page-1.png
 \end{itemize}
 
-\subsection{Formalization contract and informal proof}
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t4\_a5.lean`.
+The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
+Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
 
-The requested collision count is an average and is therefore a nonnegative
-real number, not an integer-valued count.  Energies are represented by their
-numerical values in electronvolts; thus the source's $2\,\mathrm{MeV}$ is
-$2{,}000{,}000\,\mathrm{eV}$.  The reported answer is a nearest-integer
-presentation of that average.
-
-\begin{definition}
-
-\leanok
-[Electronvolt energy readout]
-\label{def:physics:icho_2026_t4_a5:energy_ev}
-\lean{IChO2026Problems.T4A5.EnergyEV}
-An energy is represented by its real numerical value in electronvolts.
-\end{definition}
-\begin{proof}
-
-\leanok
-The source data are converted to and manipulated in the common eV scale.
-\end{proof}
-
-\begin{definition}
-
-\leanok
-[Average collision-count readout]
-\label{def:physics:icho_2026_t4_a5:average_collision_count}
-\lean{IChO2026Problems.T4A5.AverageCollisionCount}
-An average collision count is represented by a nonnegative real readout.
-\end{definition}
-\begin{proof}
-
-\leanok
-The physical quantity is an average, so its formal representation need not be
-an integer.
-\end{proof}
-
-\begin{definition}
-
-\leanok
-[Moderator identity]
-\label{def:physics:icho_2026_t4_a5:moderator}
-\lean{IChO2026Problems.T4A5.Moderator}
-The local moderator identity distinguishes water, the material supplied in
-T4-A5.
-\end{definition}
-\begin{proof}
-
-\leanok
-The identity records which material's logarithmic decrement is being used.
-\end{proof}
-
-\begin{definition}\leanok
-[Neutron moderation data]
-\label{def:physics:icho_2026_t4_a5:data}
-\lean{IChO2026Problems.T4A5.NeutronModerationData}
-\uses{def:physics:icho_2026_t4_a5:energy_ev, def:physics:icho_2026_t4_a5:average_collision_count, def:physics:icho_2026_t4_a5:moderator}
-The data record contains the positive initial and final neutron energies in
-eV, the positive moderator logarithmic energy decrement $\xi$, and the
-nonnegative average collision count $n_c$.
-\end{definition}
-\begin{proof}
-
-\leanok
-These are the physical quantities named in T4-A5.  Positivity ensures that
-the energy ratio and its logarithm are meaningful and that division by
-$\xi$ is valid.
-\end{proof}
-
-\begin{definition}\leanok
-[Cumulative logarithmic-decrement law]
-\label{def:physics:icho_2026_t4_a5:moderation_law}
-\lean{IChO2026Problems.T4A5.NeutronModerationData.satisfiesModerationLaw}
-\uses{def:physics:icho_2026_t4_a5:data}
-The moderator law states
-\[
- n_c\,\xi=\log(E_{\mathrm{initial}}/E_{\mathrm{final}}).
-\]
-It accumulates the source's average logarithmic decrease per collision over
-the average number of collisions; the decrement is independent of initial
-energy as stipulated in the question.
-\end{definition}
-\begin{proof}
-
-\leanok
-Each collision contributes the same mean logarithmic decrement.  Summing
-those $n_c$ contributions gives the logarithm of the total energy ratio.
-\end{proof}
-
-\begin{definition}\leanok
-[Water moderation inputs]
-\label{def:physics:icho_2026_t4_a5:water_data}
-\lean{IChO2026Problems.T4A5.NeutronModerationData.matchesWaterData}
-\uses{def:physics:icho_2026_t4_a5:data}
-For water, the supplied values are
-\[
- E_{\mathrm{initial}}=2{,}000{,}000\ \mathrm{eV},\qquad
- E_{\mathrm{final}}=0.012\ \mathrm{eV},\qquad \xi=0.948.
-\]
-\end{definition}
-\begin{proof}
-
-\leanok
-The first equality is the stated MeV-to-eV conversion; the latter two are the
-given final energy and water decrement.  None is a collision-count answer.
-\end{proof}
-
-\begin{lemma}\leanok
-[Collision-count formula]
-\label{lem:physics:icho_2026_t4_a5:collision_count_formula}
-\lean{IChO2026Problems.T4A5.collision_count_formula}
-\uses{def:physics:icho_2026_t4_a5:data, def:physics:icho_2026_t4_a5:moderation_law}
-Every positive moderation datum satisfying the cumulative law has
-\[
- n_c=\frac{\log(E_{\mathrm{initial}}/E_{\mathrm{final}})}{\xi}.
-\]
-\end{lemma}
-\begin{proof}
-
-\leanok
-The law is a linear equation in $n_c$.  Since $\xi>0$, division by $\xi$
-uniquely isolates the average collision count.
-\end{proof}
-
-\begin{theorem}\leanok
-[Water collision count]
-\label{thm:physics:icho_2026_t4_a5:water_collision_count}
-\lean{IChO2026Problems.T4A5.water_collision_count}
-\uses{def:physics:icho_2026_t4_a5:water_data, lem:physics:icho_2026_t4_a5:collision_count_formula}
-For water, the exact model readout is
-\[
- n_c=\frac{\log(2{,}000{,}000/0.012)}{0.948},
-\]
-and the source's $19.97\approx20$ report is encoded by
-$|n_c-19.97|<10^{-4}$ together with $|n_c-20|<\tfrac12$.
-\end{theorem}
-\begin{proof}
-
-\leanok
-Substitute the three water data equations into the collision-count formula.
-The resulting real number is approximately $19.9699434$.  Explicit logarithm
-bounds put it within $10^{-4}$ of the reported two-decimal value $19.97$ and
-within one half of the reported nearest integer $20$; neither rounded value is
-treated as an exact equality.
-\end{proof}
-
-\begin{theorem}\leanok
-[IChO T4-A5 target]
+\begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t4_a5:target}
-\lean{IChO2026Problems.T4A5.average_collisions_for_water}
-\uses{thm:physics:icho_2026_t4_a5:water_collision_count}
-The covered Lean file presents the source formula, its two-decimal value
-$19.97$, and its nearest-integer water result $20$, with the total
-logarithmic-decrement law as the load-bearing governing assumption.
+The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
 \end{theorem}
 \begin{proof}
-
-\leanok
-This is the requested conclusion of the preceding water calculation.
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
 \end{proof}
 % --- Archon physics formalization source end ---
