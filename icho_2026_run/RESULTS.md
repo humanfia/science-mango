@@ -24,7 +24,7 @@ K3 workers consulted sibling K3 files from the same run for formatting patterns.
 | Active placeholders and escape hatches | None: `sorry`, `admit`, custom axioms, `native_decide`, and `unsafe` all absent |
 | Final all-declaration axiom sweep | 32/32 passed; 0 findings, laundering cases, or custom axioms |
 | Default `lake build` | Passed; 8,611 jobs completed successfully |
-| Python test suite | 862 passed, including 95 subtests; 3 deprecation warnings |
+| Python test suite | 863 passed, including 95 subtests; 3 deprecation warnings |
 | Blueprint consistency check | Clean |
 
 ## T8-A6 source discrepancy
