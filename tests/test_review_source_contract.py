@@ -19,12 +19,14 @@ from archon.commands.loop.parallel_review import (
     load_target_milestone,
 )
 from archon.commands.loop.proof_review_gate import (
+    apply_proof_review,
     apply_target_proof_review,
     filter_objectives_for_proof_review_gate,
     load_proof_review_state,
 )
 from archon.commands.loop.review_source_contract import (
     SOURCE_AUTHORITY,
+    SOURCE_INCONSISTENCY_KIND,
     build_review_source_contract,
     render_source_contract_prompt,
     source_contract_provenance,
@@ -122,6 +124,7 @@ class ReviewSourceContractTest(unittest.TestCase):
         alignment: str = "aligned",
         conflicts: list[dict] | None = None,
         numerical: str = "passed",
+        source_inconsistency: dict | None = None,
     ) -> dict:
         independent = {
             name: {"status": "passed", "evidence": f"{name} source-only audit"}
@@ -146,11 +149,9 @@ class ReviewSourceContractTest(unittest.TestCase):
         if output_status == "blocked":
             independent["requested_outputs"]["status"] = "failed"
             contract_audit["conclusion_alignment"]["status"] = "failed"
-        if alignment == "conflict":
-            independent["official_answer"]["status"] = "failed"
         if numerical == "failed":
             independent["reporting_convention"]["status"] = "failed"
-        return {
+        audit = {
             "source_contract": source_contract_provenance(contract),
             "independent_source_audit": independent,
             "contract_audit": contract_audit,
@@ -171,6 +172,23 @@ class ReviewSourceContractTest(unittest.TestCase):
                 "evidence": "reaction scheme and displayed formula inspected",
             } for image in source_contract_provenance(contract)["images"]],
             "chemistry_checks": self._chemistry_checks(numerical=numerical),
+        }
+        if source_inconsistency is not None:
+            audit["source_inconsistency"] = source_inconsistency
+        return audit
+
+    @staticmethod
+    def _verified_source_inconsistency() -> dict:
+        return {
+            "kind": SOURCE_INCONSISTENCY_KIND,
+            "status": "verified",
+            "official_claim": "the official final answer states X = 79.9",
+            "derived_claim": "the printed givens derive X = 80.9",
+            "derivation_carrier": "identify_X.source_data_imply_80_9",
+            "evidence": (
+                "Substitution into the official displayed equation yields "
+                "80.9, and Lean proves both that value and its conflict with 79.9."
+            ),
         }
 
     def _formalization_milestone(self, contract: dict) -> dict:
@@ -268,6 +286,310 @@ class ReviewSourceContractTest(unittest.TestCase):
             self.assertIn("contract_audit", worker_prompt)
             self.assertIn(contract["source_sha256"], worker_prompt)
             self.assertIn(contract["answer_sha256"], worker_prompt)
+
+    def test_both_prompts_define_the_narrow_source_inconsistency_route(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        prompts = (
+            build_target_formalization_review_prompt(
+                project_path=self.project,
+                state_dir=self.state,
+                iter_dir=self.state / "logs" / "iter-001",
+                iter_num=1,
+                target=self.target,
+                output_dir=self.state / "formalization-review",
+                preflight={"compiles": True},
+                prior_gate_record=None,
+                source_contract=contract,
+            ),
+            build_target_review_prompt(
+                project_path=self.project,
+                state_dir=self.state,
+                iter_dir=self.state / "logs" / "iter-001",
+                iter_num=1,
+                target=self.target,
+                output_dir=self.state / "proof-review",
+                preflight={"compiles": True},
+                prior_gate_record=None,
+                source_contract=contract,
+            ),
+        )
+        for prompt in prompts:
+            with self.subTest(prompt=prompt.splitlines()[0]):
+                self.assertIn('"source_inconsistency"', prompt)
+                self.assertIn(
+                    '"kind":"official_internal_contradiction"', prompt,
+                )
+                self.assertIn('"status":"verified"', prompt)
+                self.assertIn("official givens or printed intermediates", prompt)
+                self.assertIn("Lean explicitly carries", prompt)
+                self.assertIn("Otherwise official_answer_alignment", prompt)
+
+    def test_aligned_legacy_audit_passes_without_source_inconsistency(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        audit = self._source_audit(contract)
+        self.assertNotIn("source_inconsistency", audit)
+        self.assertEqual(
+            validate_review_source_certificate(audit, contract, passing=True),
+            "",
+        )
+
+    def test_passing_conflict_requires_complete_verified_inconsistency(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        conflict = self._source_audit(contract, alignment="conflict")
+        self.assertIn(
+            "verified source_inconsistency",
+            validate_review_source_certificate(conflict, contract, passing=True),
+        )
+
+        complete = self._verified_source_inconsistency()
+        for bad_kind in (None, "internal_contradiction", "rounding_dispute"):
+            with self.subTest(kind=bad_kind):
+                wrong_kind = dict(complete)
+                if bad_kind is None:
+                    wrong_kind.pop("kind")
+                else:
+                    wrong_kind["kind"] = bad_kind
+                self.assertIn(
+                    "source_inconsistency kind must be "
+                    "official_internal_contradiction",
+                    validate_review_source_certificate(
+                        self._source_audit(
+                            contract,
+                            alignment="conflict",
+                            source_inconsistency=wrong_kind,
+                        ),
+                        contract,
+                        passing=True,
+                    ),
+                )
+
+        unverified = dict(complete, status="suspected")
+        self.assertIn(
+            "status must be verified",
+            validate_review_source_certificate(
+                self._source_audit(
+                    contract,
+                    alignment="conflict",
+                    source_inconsistency=unverified,
+                ),
+                contract,
+                passing=True,
+            ),
+        )
+        for missing in (
+            "official_claim",
+            "derived_claim",
+            "derivation_carrier",
+            "evidence",
+        ):
+            with self.subTest(missing=missing):
+                incomplete = dict(complete)
+                incomplete.pop(missing)
+                audit = self._source_audit(
+                    contract,
+                    alignment="conflict",
+                    source_inconsistency=incomplete,
+                )
+                self.assertIn(
+                    f"source_inconsistency {missing} is missing",
+                    validate_review_source_certificate(
+                        audit, contract, passing=True,
+                    ),
+                )
+
+    def test_verified_source_inconsistency_allows_passing_conflict(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        audit = self._source_audit(
+            contract,
+            alignment="conflict",
+            source_inconsistency=self._verified_source_inconsistency(),
+        )
+        self.assertEqual(
+            validate_review_source_certificate(audit, contract, passing=True),
+            "",
+        )
+
+        aligned = self._source_audit(
+            contract,
+            source_inconsistency=self._verified_source_inconsistency(),
+        )
+        self.assertIn(
+            "official_answer_alignment status=conflict",
+            validate_review_source_certificate(aligned, contract, passing=True),
+        )
+
+    def test_both_target_loaders_accept_a_verified_source_conflict(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        formalization = self._formalization_milestone(contract)
+        proof = self._proof_milestone(contract)
+        for milestone, review_key in (
+            (formalization, "formalization_review"),
+            (proof, "proof_review"),
+        ):
+            review = milestone[review_key]
+            review["official_answer_alignment"]["status"] = "conflict"
+            review["source_inconsistency"] = (
+                self._verified_source_inconsistency()
+            )
+
+        formal_path = self.project / "formal-conflict.jsonl"
+        proof_path = self.project / "proof-conflict.jsonl"
+        formal_path.write_text(json.dumps(formalization) + "\n", encoding="utf-8")
+        proof_path.write_text(json.dumps(proof) + "\n", encoding="utf-8")
+
+        self.assertEqual(
+            load_target_formalization_milestone(
+                formal_path, "Problems/T5.lean", contract,
+            )[1],
+            "",
+        )
+        self.assertEqual(
+            load_target_milestone(
+                proof_path, "Problems/T5.lean", contract,
+            )[1],
+            "",
+        )
+
+    def test_both_gates_persist_normalized_verified_source_conflict(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        formalization = self._formalization_milestone(contract)
+        proof = self._proof_milestone(contract)
+        for milestone, review_key in (
+            (formalization, "formalization_review"),
+            (proof, "proof_review"),
+        ):
+            review = milestone[review_key]
+            review["official_answer_alignment"] = {
+                "status": "CONFLICT",
+                "evidence": "  official final claim contradicts its data  ",
+            }
+            review["source_inconsistency"] = {
+                key: f"  {value}  " if isinstance(value, str) else value
+                for key, value in self._verified_source_inconsistency().items()
+            }
+            # The kind is an exact discriminator rather than a token that may
+            # be case/whitespace normalized.
+            review["source_inconsistency"]["kind"] = (
+                SOURCE_INCONSISTENCY_KIND
+            )
+
+        formal_update = apply_target_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=formalization,
+            iter_num=1,
+            max_iterations=3,
+            event_id="formal-conflict-1",
+        )
+        proof_session = self.state / "proof-conflict-session"
+        proof_session.mkdir()
+        (proof_session / "milestones.jsonl").write_text(
+            json.dumps(proof) + "\n",
+            encoding="utf-8",
+        )
+        proof_update = apply_proof_review(
+            state_dir=self.state,
+            project_path=self.project,
+            session_dir=proof_session,
+            iter_num=1,
+            reviewed_objectives=[self.target],
+            max_iterations=3,
+        )
+
+        self.assertTrue(formal_update.passed)
+        self.assertEqual(proof_update.solved, ("Problems/T5.lean",))
+        formal_certificate = load_gate_state(self.state)["targets"][
+            "Problems/T5.lean"
+        ]["certificate"]
+        proof_certificate = load_proof_review_state(self.state)["targets"][
+            "Problems/T5.lean"
+        ]
+        expected_alignment = {
+            "status": "conflict",
+            "evidence": "official final claim contradicts its data",
+        }
+        expected_inconsistency = self._verified_source_inconsistency()
+        for certificate in (formal_certificate, proof_certificate):
+            with self.subTest(certificate=certificate):
+                self.assertEqual(
+                    certificate["official_answer_alignment"],
+                    expected_alignment,
+                )
+                self.assertEqual(
+                    certificate["source_inconsistency"],
+                    expected_inconsistency,
+                )
+
+    def test_verified_inconsistency_does_not_relax_other_passing_checks(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+
+        def verified_audit() -> dict:
+            return self._source_audit(
+                contract,
+                alignment="conflict",
+                source_inconsistency=self._verified_source_inconsistency(),
+            )
+
+        cases = {}
+        independent = verified_audit()
+        independent["independent_source_audit"]["domain_invariants"][
+            "status"
+        ] = "failed"
+        cases["independent_source_audit"] = independent
+
+        contract_check = verified_audit()
+        contract_check["contract_audit"]["bridge_completeness"][
+            "status"
+        ] = "failed"
+        cases["contract_audit"] = contract_check
+
+        requested = verified_audit()
+        requested["requested_outputs"][0]["status"] = "blocked"
+        cases["requested output"] = requested
+
+        chemistry = verified_audit()
+        chemistry["chemistry_checks"]["conservation_laws"]["status"] = "failed"
+        cases["chemistry check"] = chemistry
+
+        blueprint = verified_audit()
+        blueprint["blueprint_conflicts"] = [{
+            "source_claim": "official givens derive 80.9",
+            "blueprint_or_lean_claim": "blueprint asserts 79.9 without derivation",
+            "status": "unresolved",
+            "evidence": "the generated blueprint conflict remains open",
+        }]
+        cases["blueprint/source conflict"] = blueprint
+
+        for expected_error, audit in cases.items():
+            with self.subTest(expected_error=expected_error):
+                self.assertIn(
+                    expected_error,
+                    validate_review_source_certificate(
+                        audit, contract, passing=True,
+                    ),
+                )
 
     def test_missing_source_or_image_can_never_receive_a_pass(self):
         self.report.unlink()

@@ -7,6 +7,8 @@ launderings into the next plan prompt as open sorries.
 
 from __future__ import annotations
 
+import os
+import subprocess
 import tempfile
 import threading
 import time
@@ -29,6 +31,19 @@ from archon.commands.loop.axiom_sweep import (
 from archon.prompts import _axiom_sweep_findings_block
 
 
+_CHECK_AXIOMS_SCRIPT = (
+    Path(__file__).resolve().parents[1]
+    / "src"
+    / "archon"
+    / ".archon-src"
+    / "skills"
+    / "lean4"
+    / "lib"
+    / "scripts"
+    / "check_axioms_inline.sh"
+)
+
+
 class FindingParseTest(unittest.TestCase):
     def test_parses_decls_and_strips_ansi(self):
         raw = (
@@ -44,6 +59,180 @@ class FindingParseTest(unittest.TestCase):
         self.assertEqual([f.decl for f in found], ["Foo.bar", "Foo.baz"])
         self.assertTrue(found[0].is_sorry)
         self.assertFalse(found[1].is_sorry)
+
+
+class DeclarationExtractionRegressionTest(unittest.TestCase):
+    """End-to-end regressions for checker declaration discovery."""
+
+    def _printed_declarations_from_source(self, source_text: str) -> list[str]:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "Regression.lean"
+            source.write_text(source_text, encoding="utf-8")
+            capture = root / "printed.txt"
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+            fake_lake = fake_bin / "lake"
+            fake_lake.write_text(
+                "#!/usr/bin/env bash\n"
+                "set -euo pipefail\n"
+                "probe=${3:?missing Lean probe}\n"
+                "awk '\n"
+                "  /AUTO_AXIOM_CHECK_MARKER_DO_NOT_COMMIT/ { active = 1; next }\n"
+                "  active && /^#print axioms / { print }\n"
+                "' \"$probe\" > \"$AXIOM_CAPTURE\"\n",
+                encoding="utf-8",
+            )
+            fake_lake.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env.get('PATH', '')}"
+            env["AXIOM_CAPTURE"] = str(capture)
+
+            result = subprocess.run(
+                ["bash", str(_CHECK_AXIOMS_SCRIPT), str(source), "--report-only"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                env=env,
+                timeout=10,
+            )
+
+            self.assertEqual(
+                result.returncode,
+                0,
+                msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertEqual(
+                source.read_text(encoding="utf-8"),
+                source_text,
+            )
+            return capture.read_text(encoding="utf-8").splitlines()
+
+    def _printed_declarations(self, false_failure_fragment: str) -> list[str]:
+        return self._printed_declarations_from_source(
+            "namespace Regression\n"
+            "def kept : True := True\n"
+            "instance keptInstance : Inhabited Unit := ⟨()⟩\n"
+            "structure KeptStructure where\n"
+            "  value : Nat\n"
+            f"{false_failure_fragment}\n"
+            "end Regression\n"
+        )
+
+    def test_k3_iter_001_false_failure_patterns_are_not_declarations(self):
+        cases = {
+            "t5_a1_parameterized_anonymous_instance": (
+                "instance (n : ℕ) : Fintype (OpenEnd n) := inferInstance"
+            ),
+            "t5_a3_anonymous_example": (
+                "example : pl1TotalBonds 17 31 = 255 := by norm_num"
+            ),
+            "t9_a1_module_doc_structure_prose": (
+                "/-!\n"
+                "The page figure labels the cyclic\n"
+                "structure \"n = 7, β-CD\" and counts its substituents.\n"
+                "-/"
+            ),
+            "t9_a3_colon_anonymous_instance": (
+                "instance : BEq PrecursorAtom := "
+                "⟨fun a b => a.1 == b.1⟩"
+            ),
+            "t9_a7_declaration_doc_structure_prose": (
+                "/-- The cyclic positions form a ring; the ring\n"
+                "structure makes `ZMod 7` the natural carrier. -/"
+            ),
+        }
+        expected = [
+            "#print axioms Regression.kept",
+            "#print axioms Regression.keptInstance",
+            "#print axioms Regression.KeptStructure",
+        ]
+        for name, fragment in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(self._printed_declarations(fragment), expected)
+
+    def test_nested_namespace_stack_qualifies_inner_and_outer_declarations(self):
+        source = (
+            "namespace Icho2026T6A7\n"
+            "def piElectrons : Nat := 14\n"
+            "namespace PathwayPiFeature\n"
+            "def piElectrons : Nat := 2\n"
+            "namespace Deep.Tools\n"
+            "theorem counted : True := by trivial\n"
+            "end Deep.Tools\n"
+            "end PathwayPiFeature\n"
+            "namespace PorphyrinNanoring\n"
+            "def piElectrons : Nat := 84\n"
+            "end PorphyrinNanoring\n"
+            "lemma outerAgain : True := by trivial\n"
+            "end Icho2026T6A7\n"
+            "def rootDeclaration : Nat := 0\n"
+        )
+
+        self.assertEqual(
+            self._printed_declarations_from_source(source),
+            [
+                "#print axioms Icho2026T6A7.piElectrons",
+                "#print axioms Icho2026T6A7.PathwayPiFeature.piElectrons",
+                "#print axioms "
+                "Icho2026T6A7.PathwayPiFeature.Deep.Tools.counted",
+                "#print axioms Icho2026T6A7.PorphyrinNanoring.piElectrons",
+                "#print axioms Icho2026T6A7.outerAgain",
+                "#print axioms rootDeclaration",
+            ],
+        )
+
+    def test_bare_and_named_ends_preserve_the_remaining_namespace_stack(self):
+        source = (
+            "namespace Outer\n"
+            "section LocalFacts\n"
+            "def insideSection : Nat := 1\n"
+            "namespace Inner\n"
+            "def nested : Nat := 2\n"
+            "end\n"
+            "def afterBareEnd : Nat := 3\n"
+            "end LocalFacts\n"
+            "def afterNamedSectionEnd : Nat := 4\n"
+            "namespace Final\n"
+            "def lastNested : Nat := 5\n"
+            "end Final\n"
+            "end Outer\n"
+        )
+
+        self.assertEqual(
+            self._printed_declarations_from_source(source),
+            [
+                "#print axioms Outer.insideSection",
+                "#print axioms Outer.Inner.nested",
+                "#print axioms Outer.afterBareEnd",
+                "#print axioms Outer.afterNamedSectionEnd",
+                "#print axioms Outer.Final.lastNested",
+            ],
+        )
+
+    def test_comments_and_string_delimiters_do_not_change_namespace_stack(self):
+        source = (
+            "namespace Visible\n"
+            "def before : Nat := 1\n"
+            "/- namespace Fake\n"
+            "def hidden : Nat := 0\n"
+            "/- end Fake -/\n"
+            "end Fake -/\n"
+            'def literal : String := "/- not a comment; -- still a string"\n'
+            "namespace Nested\n"
+            "def after : Nat := 2\n"
+            "end Nested\n"
+            "end Visible\n"
+        )
+
+        self.assertEqual(
+            self._printed_declarations_from_source(source),
+            [
+                "#print axioms Visible.before",
+                "#print axioms Visible.literal",
+                "#print axioms Visible.Nested.after",
+            ],
+        )
 
 
 class ReportTest(unittest.TestCase):

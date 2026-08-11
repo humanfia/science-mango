@@ -165,6 +165,15 @@ class FormalizationReviewGateTests(unittest.TestCase):
             }],
         }
 
+    @staticmethod
+    def _grounding_blocker(reason="LeanExplore grounding evidence is incomplete"):
+        return {
+            "source": "physics_grounding_problems",
+            "file": "Problems/p.lean",
+            "kind": "incomplete-grounding-log",
+            "reason": reason,
+        }
+
     def _review(
         self,
         iteration,
@@ -210,6 +219,112 @@ class FormalizationReviewGateTests(unittest.TestCase):
         state = load_gate_state(self.state)
         self.assertEqual(state["targets"]["Problems/p.lean"]["reviews"], 3)
         self.assertEqual(read_stage(self.progress), "prover")
+
+    def test_semantic_failure_and_grounding_blockers_are_both_preserved(self):
+        review = self._passing_certificate()
+        review["status"] = "failed"
+        review["reason"] = "the requested product is assumed rather than derived"
+        review["checks"]["derivability"] = {
+            "status": "failed",
+            "evidence": "the answer occurs in a structure field",
+        }
+        blockers = (
+            self._grounding_blocker(),
+            self._grounding_blocker("local-abstraction evidence is missing"),
+        )
+
+        result = self._review(
+            1,
+            "failed",
+            formalization_review=review,
+            blockers=blockers,
+        )
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertIn(review["reason"], record["reason"])
+        self.assertIn(blockers[0]["reason"], record["reason"])
+        self.assertIn(blockers[1]["reason"], record["reason"])
+        failed_certificate = record["certificate"]["milestones"][0]
+        self.assertEqual(failed_certificate["status"], "failed")
+        self.assertEqual(
+            failed_certificate["checks"]["derivability"]["evidence"],
+            "the answer occurs in a structure field",
+        )
+
+        clean_result = self._review(
+            2,
+            "failed",
+            formalization_review=review,
+        )
+        self.assertEqual(clean_result.retry, ("Problems/p.lean",))
+        clean_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertIn(review["reason"], clean_record["reason"])
+        self.assertNotIn(blockers[0]["reason"], clean_record["reason"])
+
+    def test_semantic_pass_with_grounding_blocker_retries_and_keeps_certificate(self):
+        blocker = self._grounding_blocker()
+
+        result = self._review(1, "passed", blockers=(blocker,))
+
+        self.assertEqual(result.passed, ())
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertIn("all formalization Review entries passed", record["reason"])
+        self.assertIn(blocker["reason"], record["reason"])
+        passing_certificate = record["certificate"]["milestones"][0]
+        self.assertEqual(passing_certificate["schema_version"], 2)
+        self.assertEqual(
+            passing_certificate["checks"]["derivability"]["status"],
+            "passed",
+        )
+
+    def test_clean_semantic_pass_remains_eligible_after_grounding_retry(self):
+        blocker = self._grounding_blocker()
+        blocked = self._review(1, "passed", blockers=(blocker,))
+        self.assertEqual(blocked.retry, ("Problems/p.lean",))
+
+        clean = self._review(2, "passed")
+
+        self.assertEqual(clean.passed, ("Problems/p.lean",))
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(record["status"], "passed")
+        self.assertEqual(record["reason"], "all formalization Review entries passed")
+
+    def test_batch_gate_persists_verified_official_source_conflict(self):
+        self._set_chemistry_profile()
+        review = self._chemistry_passing_certificate()
+        review["official_answer_alignment"] = {
+            "status": "conflict",
+            "evidence": "official final answer contradicts the displayed data",
+        }
+        review["source_inconsistency"] = {
+            "kind": "official_internal_contradiction",
+            "status": "verified",
+            "official_claim": "the rubric says 1.94",
+            "derived_claim": "the rubric data derive 1.93",
+            "derivation_carrier": "p.source_data_round_to_1_93",
+            "evidence": "the Lean carrier proves the displayed-data rounding",
+        }
+
+        result = self._review(
+            1,
+            "passed",
+            formalization_review=review,
+        )
+
+        self.assertEqual(result.passed, ("Problems/p.lean",))
+        certificate = load_gate_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]["certificate"]["milestones"][0]
+        self.assertEqual(
+            certificate["official_answer_alignment"],
+            review["official_answer_alignment"],
+        )
+        self.assertEqual(
+            certificate["source_inconsistency"],
+            review["source_inconsistency"],
+        )
 
     def test_review_count_stays_capped_after_exhaustion(self):
         self._review(1, "failed")
@@ -293,7 +408,12 @@ class FormalizationReviewGateTests(unittest.TestCase):
         )
         blockers = _load_domain_reviewer_blockers(self.state, self.project)
 
-        result = self._review(1, "passed", blockers=blockers)
+        result = self._review(
+            1,
+            "passed",
+            formalization_review=self._chemistry_passing_certificate(),
+            blockers=blockers,
+        )
 
         self.assertEqual(len(blockers), 1)
         self.assertEqual(blockers[0]["source"], "chemistry-reviewer")
@@ -302,10 +422,8 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertEqual(read_stage(self.progress), "autoformalize")
         record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
         self.assertEqual(record["status"], "retry")
-        self.assertEqual(
-            record["reason"],
-            "global semantics Review blocker; no per-target pass certificate",
-        )
+        self.assertIn("semantic Review passed", record["reason"])
+        self.assertIn("current answer is assumed by the contract", record["reason"])
 
     def test_legacy_string_target_replay_preserves_review_count(self):
         (self.state / "formalization-review-gate.json").write_text(

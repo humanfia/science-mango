@@ -26,6 +26,7 @@ SOURCE_CONTRACT_SCHEMA_VERSION = 1
 SOURCE_AUTHORITY = (
     "official source/rubric/images > blueprint > generated reports"
 )
+SOURCE_INCONSISTENCY_KIND = "official_internal_contradiction"
 _SOURCE_REPORT_RE = re.compile(
     r"^\s*%\s*archon:source-report\s+(.+?)\s*$", re.MULTILINE,
 )
@@ -59,6 +60,12 @@ _FAIL = {
     "unresolved",
 }
 _NOT_APPLICABLE = {"not_applicable", "not applicable", "n/a", "na"}
+_SOURCE_INCONSISTENCY_FIELDS = (
+    "official_claim",
+    "derived_claim",
+    "derivation_carrier",
+    "evidence",
+)
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -309,7 +316,20 @@ def render_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         "override this source contract. If the blueprint or Lean reverses, "
         "weakens, rounds differently from, or otherwise conflicts with an "
         "official requested output, fail with a redraft route. Never reinterpret "
-        "the official question to make generated artifacts self-consistent.\n"
+        "the official question to make generated artifacts self-consistent. "
+        "The official rubric remains immutable. A passing Review may report "
+        "official_answer_alignment=conflict only in the narrow case where the "
+        "official givens or printed intermediates mathematically derive a claim "
+        "that contradicts the official final claim, and Lean explicitly carries "
+        "the honest derived result and the conflict. In that case include a "
+        "source_inconsistency object with "
+        f"kind={SOURCE_INCONSISTENCY_KIND}, status=verified, and nonempty "
+        "official_claim, derived_claim, derivation_carrier, and evidence. This "
+        "route is not for alternate interpretations, rounding preferences, "
+        "missing information, or conflicts introduced by a blueprint, Lean, or "
+        "generated report. Otherwise official_answer_alignment must be aligned; "
+        "omit source_inconsistency. Every other source, contract, requested-"
+        "output, image, chemistry, and blueprint-conflict check remains strict.\n"
     )
 
 
@@ -320,6 +340,75 @@ def _status_and_evidence(value: Any) -> tuple[str, str]:
         str(value.get("status") or "").strip().lower(),
         str(value.get("evidence") or value.get("reason") or "").strip(),
     )
+
+
+def _verified_source_inconsistency(
+    review: Mapping[str, Any],
+) -> tuple[bool, str]:
+    """Validate the optional, narrow official-source inconsistency claim."""
+    raw = review.get("source_inconsistency")
+    if raw is None:
+        return False, ""
+    if not isinstance(raw, Mapping):
+        return False, "source_inconsistency must be an object"
+    if raw.get("kind") != SOURCE_INCONSISTENCY_KIND:
+        return (
+            False,
+            "source_inconsistency kind must be "
+            f"{SOURCE_INCONSISTENCY_KIND}",
+        )
+    status = str(raw.get("status") or "").strip().lower()
+    if status != "verified":
+        return False, "source_inconsistency status must be verified"
+    for key in _SOURCE_INCONSISTENCY_FIELDS:
+        value = raw.get(key)
+        if not isinstance(value, str) or not value.strip():
+            return False, f"source_inconsistency {key} is missing"
+    return True, ""
+
+
+def source_assessment_from_review(review: Any) -> dict[str, Any]:
+    """Normalize the source verdict fields retained by persistent gates.
+
+    Validation remains the authority for accepting a Review.  This helper is
+    deliberately loss-minimizing for the small source-assessment schema so a
+    rejected certificate also leaves an inspectable, deterministic record.
+    """
+    alignment: dict[str, str] | None = None
+    inconsistency: dict[str, str] | None = None
+    if isinstance(review, Mapping):
+        raw_alignment = review.get("official_answer_alignment")
+        if isinstance(raw_alignment, Mapping):
+            alignment = {
+                "status": str(
+                    raw_alignment.get("status")
+                    or raw_alignment.get("verdict")
+                    or ""
+                ).strip().lower(),
+                "evidence": str(
+                    raw_alignment.get("evidence")
+                    or raw_alignment.get("reason")
+                    or ""
+                ).strip(),
+            }
+        raw_inconsistency = review.get("source_inconsistency")
+        if isinstance(raw_inconsistency, Mapping):
+            inconsistency = {
+                # ``kind`` is deliberately not token-normalized: validation
+                # treats it as an exact schema discriminator.
+                "kind": str(raw_inconsistency.get("kind") or ""),
+                "status": str(
+                    raw_inconsistency.get("status") or ""
+                ).strip().lower(),
+                **{
+                    key: str(raw_inconsistency.get(key) or "").strip()
+                    for key in _SOURCE_INCONSISTENCY_FIELDS
+                },
+            }
+    return {
+        "official_answer_alignment": alignment,
+        "source_inconsistency": inconsistency,
+    }
 
 
 def validate_review_source_certificate(
@@ -410,8 +499,25 @@ def validate_review_source_certificate(
     status, evidence = _status_and_evidence(alignment)
     if status not in _PASS | _FAIL or not evidence:
         return "official_answer_alignment status/evidence is missing"
-    if passing and status not in _PASS:
-        return "passing verdict contradicts official answer alignment"
+    verified_inconsistency, inconsistency_error = (
+        _verified_source_inconsistency(review)
+    )
+    if inconsistency_error:
+        return inconsistency_error
+    if status == "conflict":
+        if passing and not verified_inconsistency:
+            return (
+                "passing official_answer_alignment conflict requires verified "
+                "source_inconsistency"
+            )
+    else:
+        if verified_inconsistency:
+            return (
+                "verified source_inconsistency requires "
+                "official_answer_alignment status=conflict"
+            )
+        if passing and status not in _PASS:
+            return "passing verdict contradicts official answer alignment"
 
     conflicts = review.get("blueprint_conflicts")
     if not isinstance(conflicts, list):

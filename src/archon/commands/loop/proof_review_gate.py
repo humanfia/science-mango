@@ -17,6 +17,7 @@ from typing import Any, Iterable
 from .review_source_contract import (
     build_review_source_contract,
     provenance_from_review,
+    source_assessment_from_review,
     stored_provenance_matches_current,
     validate_review_source_certificate,
 )
@@ -253,6 +254,17 @@ def _milestone_source_provenance(row: dict[str, Any] | None) -> dict | None:
         if isinstance(findings, dict):
             raw = findings.get("proof_review")
     return provenance_from_review(raw)
+
+
+def _milestone_source_assessment(row: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(row, dict):
+        return source_assessment_from_review(None)
+    raw: Any = row.get("proof_review")
+    if raw is None:
+        findings = row.get("findings")
+        if isinstance(findings, dict):
+            raw = findings.get("proof_review")
+    return source_assessment_from_review(raw)
 
 
 def _raw_infrastructure_request(row: dict[str, Any] | None) -> Any:
@@ -523,6 +535,7 @@ def apply_proof_review(
             "redraft_kind": redraft_kind,
             "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
             "source_contract": _milestone_source_provenance(row),
+            **_milestone_source_assessment(row),
             "infrastructure_request": infrastructure_request,
             "infrastructure_request_error": infrastructure_request_error,
             "history": history[-50:],
@@ -676,6 +689,7 @@ def apply_target_proof_review(
         "redraft_kind": redraft_kind,
         "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
         "source_contract": _milestone_source_provenance(milestone),
+        **_milestone_source_assessment(milestone),
         "infrastructure_request": infrastructure_request,
         "infrastructure_request_error": infrastructure_request_error,
         "history": history[-50:],
@@ -868,6 +882,12 @@ def _invalidate_stale_solved_records(
             "prior_status": "solved",
             "prior_attempts": int(raw_record.get("attempts") or 0),
             "reason": reason,
+            "previous_official_answer_alignment": raw_record.get(
+                "official_answer_alignment"
+            ),
+            "previous_source_inconsistency": raw_record.get(
+                "source_inconsistency"
+            ),
             "reviewed_at": _utcnow(),
         })
         records[rel] = {
@@ -877,6 +897,8 @@ def _invalidate_stale_solved_records(
             "reason": f"proof Review certificate invalidated: {reason}",
             "evidence": "",
             "source_contract": None,
+            "official_answer_alignment": None,
+            "source_inconsistency": None,
             "history": history[-50:],
             "updated_at": _utcnow(),
         }

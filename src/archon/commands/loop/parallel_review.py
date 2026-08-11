@@ -20,6 +20,7 @@ from .proof_review_gate import (
     REDRAFT_KINDS,
 )
 from .review_source_contract import (
+    SOURCE_INCONSISTENCY_KIND,
     build_review_source_contract,
     render_source_contract_prompt,
     source_contract_provenance,
@@ -262,7 +263,11 @@ conservation), units, structures/stereochemistry, identification uniqueness,
 answer smuggling through definitions/cardinalities/tables, and official
 rounding/significant-figure conventions. Record every blueprint/Lean conflict.
 An official-answer conflict is a modeling failure even when Lean compiles and
-even when the blueprint and generated reports agree with one another.
+even when the blueprint and generated reports agree with one another, except
+for the verified internal-source inconsistency route defined in the official
+source contract. That narrow route requires the official givens or printed
+intermediates themselves to contradict the final official claim and Lean to
+carry the honest derivation and conflict explicitly.
 
 Task-result layouts can be nested or flattened. Prefer the newest matching
 artifact whose contents agree with this iteration's trace. Do not fail a target
@@ -311,6 +316,7 @@ Write exactly one JSON object line to {milestone}. Required shape:
     }},
     "requested_outputs": [{{"source_requirement":"<exact requested output>","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"..."}}],
     "official_answer_alignment": {{"status":"aligned|conflict","evidence":"<compare Lean result and reporting convention to official rubric>"}},
+    "source_inconsistency": {{"kind":"{SOURCE_INCONSISTENCY_KIND}","status":"verified","official_claim":"<official final claim>","derived_claim":"<claim mathematically derived from official givens/intermediates>","derivation_carrier":"<Lean declaration carrying the derivation and conflict>","evidence":"<exact source arithmetic and Lean evidence>"}} | null,
     "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"resolved_in_favor_of_official_source|unresolved|failed","evidence":"..."}}],
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{

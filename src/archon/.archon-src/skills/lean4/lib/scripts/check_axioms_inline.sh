@@ -13,9 +13,9 @@
 # runs Lean to check axioms, then removes the additions.
 #
 # Limitations:
-#   - Only detects the first namespace in a file
-#   - Only captures top-level (unindented) declarations
-#   - Nested namespaces, sections, and indented declarations may be missed
+#   - Only captures named top-level (unindented) declarations
+#   - Indented declarations and declarations prefixed by private/protected/local
+#     are intentionally skipped
 #
 # Standard mathlib axioms (propext, quot.sound, choice) are filtered out,
 # highlighting only custom axioms or unexpected dependencies.
@@ -71,6 +71,158 @@ STANDARD_AXIOMS="propext|quot.sound|Classical.choice|Quot.sound"
 
 # Global counter for unique marker filenames (avoids basename collisions)
 MARKER_COUNT=0
+
+# Print Lean source with line and nested block comments removed.  Declaration
+# discovery below is intentionally lightweight, but it must not treat prose in
+# a `/-- ... -/` or `/-! ... -/` comment as executable Lean.  Preserve quoted
+# strings so comment delimiters occurring inside string literals do not alter
+# the block-comment depth.
+strip_lean_comments() {
+    awk '
+    BEGIN { block_depth = 0 }
+    {
+        line = $0
+        clean = ""
+        in_string = 0
+        escaped = 0
+        i = 1
+        while (i <= length(line)) {
+            ch = substr(line, i, 1)
+            pair = substr(line, i, 2)
+
+            if (block_depth > 0) {
+                if (pair == "/-") {
+                    block_depth++
+                    i += 2
+                } else if (pair == "-/") {
+                    block_depth--
+                    i += 2
+                } else {
+                    i++
+                }
+                continue
+            }
+
+            if (in_string) {
+                clean = clean ch
+                if (escaped) {
+                    escaped = 0
+                } else if (ch == "\\") {
+                    escaped = 1
+                } else if (ch == "\"") {
+                    in_string = 0
+                }
+                i++
+            } else if (ch == "\"") {
+                in_string = 1
+                clean = clean ch
+                i++
+            } else if (pair == "/-") {
+                block_depth++
+                i += 2
+            } else if (pair == "--") {
+                break
+            } else {
+                clean = clean ch
+                i++
+            }
+        }
+        print clean
+    }
+    ' "$1"
+}
+
+# Print fully-qualified names for declarations that can be referenced by an
+# appended `#print axioms`.  Lean's `end` closes the innermost explicit scope,
+# not necessarily a namespace, so retain section and mutual frames alongside
+# namespace frames while building the current namespace prefix.
+extract_lean_declarations() {
+    awk '
+    function push_scope(kind, name) {
+        ++depth
+        scope_kind[depth] = kind
+        scope_name[depth] = name
+    }
+
+    function pop_scope() {
+        if (depth > 0) {
+            delete scope_kind[depth]
+            delete scope_name[depth]
+            --depth
+        }
+    }
+
+    function namespace_prefix(    i, prefix) {
+        prefix = ""
+        for (i = 1; i <= depth; ++i) {
+            if (scope_kind[i] != "namespace" || scope_name[i] == "") {
+                continue
+            }
+            if (prefix == "") {
+                prefix = scope_name[i]
+            } else {
+                prefix = prefix "." scope_name[i]
+            }
+        }
+        return prefix
+    }
+
+    {
+        line = $0
+
+        if (line ~ /^[[:space:]]*namespace[[:space:]]+/) {
+            name = line
+            sub(/^[[:space:]]*namespace[[:space:]]+/, "", name)
+            sub(/[[:space:]].*$/, "", name)
+            push_scope("namespace", name)
+            next
+        }
+
+        if (line ~ /^[[:space:]]*section([[:space:]]+[^[:space:]]+)?[[:space:]]*$/) {
+            name = line
+            sub(/^[[:space:]]*section[[:space:]]*/, "", name)
+            sub(/[[:space:]].*$/, "", name)
+            push_scope("section", name)
+            next
+        }
+
+        if (line ~ /^[[:space:]]*mutual[[:space:]]*$/) {
+            push_scope("mutual", "")
+            next
+        }
+
+        if (line ~ /^[[:space:]]*end([[:space:]]+[^[:space:]]+)?[[:space:]]*$/) {
+            pop_scope()
+            next
+        }
+
+        # Match only declarations that start at column 0 with the keyword
+        # directly.  This intentionally excludes private/protected/local
+        # declarations and declarations nested inside terms.
+        if (line ~ /^(theorem|lemma|def|instance|abbrev|structure|class|inductive)[[:space:]]+/) {
+            decl = line
+            sub(/^(theorem|lemma|def|instance|abbrev|structure|class|inductive)[[:space:]]+/, "", decl)
+            sub(/[[:space:]:([{=].*$/, "", decl)
+
+            # `example` is not in the keyword set.  This empty-name check also
+            # rejects anonymous instances beginning with :, (, [, {, or :=.
+            if (decl == "") {
+                next
+            }
+
+            prefix = namespace_prefix()
+            if (decl ~ /^_root_\./) {
+                sub(/^_root_\./, "", decl)
+                print decl
+            } else if (prefix == "") {
+                print decl
+            } else {
+                print prefix "." decl
+            }
+        }
+    }
+    '
+}
 
 # Parse arguments: collect flags first, then positional args
 # This ensures --report-only works regardless of position
@@ -195,28 +347,17 @@ check_file() {
 
     echo -e "${BLUE}File: ${YELLOW}$FILE${NC}"
 
-    # Extract namespace if any
-    local NAMESPACE=""
-    if grep -q "^namespace " "$FILE"; then
-        NAMESPACE=$(grep "^namespace " "$FILE" | head -1 | sed 's/namespace //')
-    fi
+    # Strip comments once so namespace and declaration discovery operate on
+    # the same source view.
+    local CLEAN_SOURCE
+    CLEAN_SOURCE=$(strip_lean_comments "$FILE")
 
-    # Extract all theorem/lemma/def declarations (including structure, class, inductive)
+    # Extract named theorem/lemma/def declarations (including named instances,
+    # structures, classes, and inductives) with their namespace-stack prefix.
+    # `example` is always anonymous, and an `instance` whose first token is `:`,
+    # `(`, `[`, or `{` has no name that can be passed to `#print axioms`.
     local DECLARATIONS=()
-    while IFS= read -r line; do
-        decl=$(echo "$line" | sed -E 's/^(theorem|lemma|def|instance|abbrev|example|structure|class|inductive) +([^ :(]+).*/\2/')
-        if [[ -n "$decl" ]]; then
-            # Add namespace prefix if present
-            if [[ -n "$NAMESPACE" ]]; then
-                DECLARATIONS+=("$NAMESPACE.$decl")
-            else
-                DECLARATIONS+=("$decl")
-            fi
-        fi
-    # Note: We match only declarations that START at column 0 with the keyword directly
-    # Lines starting with 'private ', 'protected ', or 'local ' won't match
-    # This is intentional - those declarations are not accessible outside their scope
-    done < <(grep -E '^(theorem|lemma|def|instance|abbrev|example|structure|class|inductive) ' "$FILE" 2>/dev/null || true)
+    mapfile -t DECLARATIONS < <(extract_lean_declarations <<< "$CLEAN_SOURCE")
 
     if [[ ${#DECLARATIONS[@]} -eq 0 ]]; then
         echo -e "  ${YELLOW}No declarations found${NC}"

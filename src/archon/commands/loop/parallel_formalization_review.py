@@ -16,6 +16,7 @@ from archon.commands.tooling.project_config import HarnessDescriptor
 from .formalization_review_gate import REVIEW_SCHEMA_VERSION
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
 from .review_source_contract import (
+    SOURCE_INCONSISTENCY_KIND,
     build_review_source_contract,
     render_source_contract_prompt,
     source_contract_provenance,
@@ -280,7 +281,10 @@ rounding/significant-figure convention. Record every blueprint/Lean conflict.
 If an official answer says to identify or calculate an object, a theorem that
 instead proves non-identifiability, merely verifies preselected candidates, or
 reports a differently rounded result is a failed formalization—not a valid
-reinterpretation or refinement.
+reinterpretation or refinement. The only exception is the verified internal-
+source inconsistency route defined in the official source contract; it requires
+the official givens or printed intermediates themselves to contradict the final
+official claim and Lean to carry the honest derivation and conflict explicitly.
 
 The deterministic preflight already ran. Do not run lake, Lean, leandag, broad
 searches, or other agents unless preflight reports timeout/error. Do not edit
@@ -324,6 +328,7 @@ Write exactly one JSON object line to {milestone}:
     }},
     "requested_outputs": [{{"source_requirement":"<exact requested output>","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"..."}}],
     "official_answer_alignment": {{"status":"aligned|conflict","evidence":"<compare Lean result and reporting convention to official rubric>"}},
+    "source_inconsistency": {{"kind":"{SOURCE_INCONSISTENCY_KIND}","status":"verified","official_claim":"<official final claim>","derived_claim":"<claim mathematically derived from official givens/intermediates>","derivation_carrier":"<Lean declaration carrying the derivation and conflict>","evidence":"<exact source arithmetic and Lean evidence>"}} | null,
     "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"resolved_in_favor_of_official_source|unresolved|failed","evidence":"..."}}],
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{

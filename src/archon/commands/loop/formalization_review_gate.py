@@ -24,6 +24,7 @@ from archon.state.progress import write_stage
 from .review_source_contract import (
     build_review_source_contract,
     provenance_from_review,
+    source_assessment_from_review,
     stored_provenance_matches_current,
     validate_review_source_certificate,
 )
@@ -215,6 +216,7 @@ def _validate_structured_review(
         "checks": normalized_checks,
         "bridge_obligations": normalized_bridges,
         "source_contract": provenance_from_review(raw),
+        **source_assessment_from_review(raw),
     }
     source_error = validate_review_source_certificate(
         raw,
@@ -257,7 +259,13 @@ def _decision_from_milestone(
             return "failed", validation_reason, certificate
         return "passed", reason or validation_reason, certificate
     if status in _FAIL_WORDS:
-        return "failed", reason or "formalization Review failed", {}
+        # A failing certificate is still valuable audit evidence.  In
+        # particular, its failed checks explain which part of the statement
+        # needs redrafting.  It cannot authorize prover dispatch because the
+        # decision remains failed, so preserve the complete payload rather
+        # than replacing it with an empty object.
+        certificate = dict(raw) if isinstance(raw, dict) else {}
+        return "failed", reason or "formalization Review failed", certificate
 
     legacy = str(item.get("status") or "").strip().lower()
     findings = item.get("findings")
@@ -348,22 +356,55 @@ def _load_milestone_decisions(
 def _doctor_failures(
     blockers: Iterable[dict[str, str]],
     project_path: Path,
-) -> tuple[dict[str, str], bool]:
-    """Map deterministic blockers to files; return whether any is global."""
-    per_file: dict[str, str] = {}
-    global_blocker = False
+) -> tuple[dict[str, list[dict[str, str]]], list[dict[str, str]]]:
+    """Map every deterministic blocker to a file or the global scope.
+
+    Keep structured, de-duplicated findings instead of a single reason per
+    file.  A target can simultaneously fail semantic Review and have more
+    than one blueprint-doctor finding; neither source may overwrite another.
+    """
+    per_file: dict[str, list[dict[str, str]]] = {}
+    global_blockers: list[dict[str, str]] = []
+    seen: set[tuple[str, str, str, str]] = set()
     for item in blockers:
         rel = _relative_file(str(item.get("file") or ""), project_path)
         reason = str(item.get("reason") or item.get("kind") or "physics Review blocker")
+        finding = {
+            "source": str(item.get("source") or "review-gate"),
+            "kind": str(item.get("kind") or "blocker"),
+            "reason": reason,
+        }
+        key = (rel, finding["source"], finding["kind"], reason)
+        if key in seen:
+            continue
+        seen.add(key)
         if rel:
-            per_file[rel] = reason
+            per_file.setdefault(rel, []).append(finding)
         elif item.get("source") in {
             "review-agent",
             "physics-reviewer",
             "chemistry-reviewer",
         }:
-            global_blocker = True
-    return per_file, global_blocker
+            global_blockers.append(finding)
+    return per_file, global_blockers
+
+
+def _merge_review_failure_reasons(
+    semantic_decision: str,
+    semantic_reason: str,
+    blockers: Iterable[Mapping[str, str]],
+) -> str:
+    """Render all independent gate inputs for the next planner/redrafter."""
+    parts = [
+        f"semantic Review {semantic_decision}: "
+        f"{semantic_reason or 'no semantic reason was recorded'}"
+    ]
+    for blocker in blockers:
+        source = str(blocker.get("source") or "review-gate")
+        kind = str(blocker.get("kind") or "blocker")
+        reason = str(blocker.get("reason") or "Review blocker")
+        parts.append(f"Review blocker [{source}/{kind}]: {reason}")
+    return "; ".join(parts)
 
 
 def _initial_state(max_iterations: int) -> dict[str, Any]:
@@ -619,18 +660,26 @@ def apply_formalization_review(
     # to the gate. Conversely, a dispatched objective missing from the journal
     # fails closed.
     review_scope = objective_rels | set(decisions)
-    per_file_blockers, global_blocker = _doctor_failures(blockers, project_path)
+    per_file_blockers, global_blockers = _doctor_failures(blockers, project_path)
 
     for rel in sorted(review_scope):
-        decision, reason, certificate = decisions.get(
+        semantic_decision, semantic_reason, certificate = decisions.get(
             rel, ("failed", "review output omitted this dispatched target", {})
         )
-        if rel in per_file_blockers:
+        target_blockers = [
+            *per_file_blockers.get(rel, []),
+            *global_blockers,
+        ]
+        if target_blockers:
             decision = "failed"
-            reason = per_file_blockers[rel]
-        elif global_blocker:
-            decision = "failed"
-            reason = "global semantics Review blocker; no per-target pass certificate"
+            reason = _merge_review_failure_reasons(
+                semantic_decision,
+                semantic_reason,
+                target_blockers,
+            )
+        else:
+            decision = semantic_decision
+            reason = semantic_reason
 
         old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
         reviews = int(old.get("reviews") or 0)
