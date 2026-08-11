@@ -53,15 +53,30 @@ From the conditions of the problem, it can be understood that the period of osci
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t2\_a5.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t2\_a5.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t2_a5:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T2.A5.FirstOrderDecay.final_eq_exp, IChO2026.T2.A5.FirstOrderDecay.duration_eq, IChO2026.T2.A5.oscillation_period}
+\leanok
+The mapped declarations encode the stated calculation and its verified conclusion.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+All proof bodies are now closed.  The endpoint relation
+$\mathrm{final} = \mathrm{initial}\cdot e^{-k\tau}$ follows from the
+first-order ODE $-dy/dt = k\,y$ because the integrating-factor product
+$y(t)\,e^{kt}$ has derivative zero everywhere, hence is constant
+(\texttt{is\_const\_of\_deriv\_eq\_zero}); taking logarithms gives
+$\tau = \ln(\mathrm{initial}/\mathrm{final})/k$.  Numerically,
+$[\mathrm{Br}^-]_{\max}/[\mathrm{Br}^-]_{\mathrm{critical}} = 7000/3 =
+2^{11}\cdot(875/768)$, so $\ln(7000/3) = 11\ln 2 + \ln(875/768)$ is
+sandwiched using Mathlib's decimal bounds on $\ln 2$ and the rational
+bounds $1 - x^{-1} \le \ln x \le x - 1$ near $x = 1$, yielding
+$|\tau - 48| \le 0.5$ with $k^* = 0.16128\,\mathrm{s}^{-1}$.
 \end{proof}
 % --- Archon physics formalization source end ---

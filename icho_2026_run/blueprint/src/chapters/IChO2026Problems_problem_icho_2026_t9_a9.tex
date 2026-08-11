@@ -43,15 +43,38 @@ If we have 6 linear positions for 6 coloured balls, the total number of arrangem
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t9\_a9.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t9\_a9.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t9_a9:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T9.A9.arrangement_count_eq, IChO2026.T9.A9.arrangement_count}
+\leanok
+The mapped declarations encode the stated calculation and its verified conclusion.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Model the six glucopyranose positions of the $\alpha$-CD macrocycle as
+$\mathbb{Z}/6$ (\texttt{CDPosition}) and the six pairwise distinct functional
+groups as \texttt{Fin 6}; an arrangement is a bijection
+\texttt{CDPosition $\simeq$ FuncGroup}.  Molecular identity is equality up to
+precomposition with a translation $x \mapsto x + k$ of the ring
+(\texttt{SameMolecule}), which forms a setoid (\texttt{arrangementSetoid})
+because translations form a group (\texttt{rotateBy\_zero},
+\texttt{rotateBy\_add}).  There are $6!$ labelled arrangements
+(\texttt{card\_arrangements}: $\mathrm{card}(\alpha \simeq \beta) =
+(\mathrm{card}\,\alpha)!$).  The rotation action is free
+(\texttt{rotateBy\_eq\_self\_iff}): a rotation fixing an arrangement fixes the
+group at every position, hence is the identity by bijectivity.  So every
+equivalence class has exactly $6$ elements (\texttt{card\_arrangement\_class}),
+and the map $(q, k) \mapsto \mathrm{rotateBy}\ k\ q.\mathrm{out}$ from
+\texttt{Quotient arrangementSetoid $\times$ CDPosition} to arrangements is a
+bijection, giving $\#\text{molecules} \cdot 6 = 6!$, i.e. $6!/6 = 120$
+(\texttt{arrangement\_count\_eq}, \texttt{arrangement\_count}).  Reflections
+are not quotiented out, matching the marking scheme's answer $6!/6 = 120$
+rather than $6!/12 = 60$.
 \end{proof}
 % --- Archon physics formalization source end ---

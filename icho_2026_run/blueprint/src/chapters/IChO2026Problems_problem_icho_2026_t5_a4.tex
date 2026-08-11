@@ -50,15 +50,113 @@ During determination of the iodine number, the following reaction takes place: T
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t5\_a4.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t5\_a4.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
-\label{thm:physics:icho_2026_t5_a4:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\begin{definition}[Iodine atomic mass, candidate halogens, and interhalogen formulas]
+\label{def:physics:icho_2026_t5_a4:setup}
+\lean{IChO2026T5A4.ArI, IChO2026T5A4.Halogen, IChO2026T5A4.Halogen.atomicMass, IChO2026T5A4.MolecularFormula, IChO2026T5A4.MolecularFormula.IHal, IChO2026T5A4.MolecularFormula.IBr, IChO2026T5A4.MolecularFormula.molarMass, IChO2026T5A4.MolecularFormula.iodineMass, IChO2026T5A4.ReagentX}
+\leanok
+The standard atomic mass of iodine is $\mathrm{ArI} = 126.9$ g·mol${}^{-1}$
+(exam periodic table), so the molar mass of $\mathrm{I_2}$ is
+$2\,\mathrm{ArI} = 253.8$ g·mol${}^{-1}$.  The unknown reagent $X$ reacts
+with RCOOH "in a similar way" to iodine, so it is modeled as a diatomic
+interhalogen $\mathrm{I\!-\!Hal}$ whose second atom ranges over the four
+candidate halogens F, Cl, Br, I (the I branch being molecular iodine
+$\mathrm{I_2}$ itself).  A molecular formula is an explicit atom count per
+element; its molar-mass law sums count times standard atomic mass, and its
+iodine-content law counts the iodine atoms times $\mathrm{ArI}$.
+\end{definition}
+
+\begin{lemma}[Mass laws of an interhalogen $\mathrm{I\!-\!Hal}$]
+\label{lem:physics:icho_2026_t5_a4:masslaws}
+\lean{IChO2026T5A4.MolecularFormula.molarMass_IHal, IChO2026T5A4.MolecularFormula.iodineMass_IHal}
+\leanok
+For every candidate halogen $h$, the formula $\mathrm{I\!-\!}h$ has molar
+mass $\mathrm{ArI} + \mathrm{Ar}(h)$ (in particular
+$M(\mathrm{I_2}) = 2\,\mathrm{ArI}$) and carries
+$1$ mole of iodine atoms per mole ($2$ for $\mathrm{I_2}$).
+\end{lemma}
+\begin{proof}
+\leanok
+Case analysis on $h$: the atom counts of $\mathrm{I\!-\!}h$ evaluate by
+constructor computation, and both sides reduce to the same sum of tabulated
+atomic masses.
+\end{proof}
+
+\begin{theorem}[Iodine-number experiment: molar mass per double bond]
+\label{thm:physics:icho_2026_t5_a4:iodinenumber}
+\lean{IChO2026T5A4.molarMass_of_iodine_experiment}
+\leanok
+If $100$ g of an acid of molar mass $M$ with $N = 2$ C=C bonds consumes
+$181.0$ g of iodine at one molecule of $\mathrm{I_2}$ per double bond, i.e.\
+$N \cdot (100/M) \cdot 2\,\mathrm{ArI} = 181.0$, then
+$M = N \cdot 2\,\mathrm{ArI} \cdot 100 / 181.0$ and
+$|M/N - 140.2| \le 0.03$ (exact value $M/N = 25380/181 = 140.221\ldots$).
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Clearing the denominator $M > 0$ in the iodine-number relation gives
+$181 \cdot M = 2 \cdot 100 \cdot 2\,\mathrm{ArI} = 50760$, so
+$M = 50760/181$ and $M/N = 25380/181 = 140.2209\ldots$, within $0.03$ of the
+marking scheme's rounded $140.2$.
+\end{proof}
+
+\begin{theorem}[Experimental atomic mass of the second halogen]
+\label{thm:physics:icho_2026_t5_a4:halogenmass}
+\lean{IChO2026T5A4.experimental_halogen_mass_exact, IChO2026T5A4.experimental_halogen_mass_approx}
+\leanok
+If the adduct's iodine mass fraction obeys
+$N \cdot \mathrm{ArI} / (M + N \cdot (\mathrm{ArI} + A)) = 0.3657$ together
+with the iodine-number relation, then the second halogen's experimental
+atomic mass is
+$A = \mathrm{ArI}/0.3657 - \mathrm{ArI} - 2\,\mathrm{ArI}\cdot 100/181.0
+= 79.885\ldots$ g·mol${}^{-1}$, i.e.\ $|A - 79.9| \le 0.02$.
+\end{theorem}
+\begin{proof}
+\leanok
+The denominator $M + N(\mathrm{ArI} + A)$ is positive, so the mass-fraction
+equation rearranges to $A = \mathrm{ArI}/0.3657 - \mathrm{ArI} - M/N$;
+substituting $M/N = 25380/181$ from the iodine-number experiment gives the
+closed form, and exact rational evaluation yields
+$A = 79.8847\ldots$, within $0.02$ of the printed $79.9$.
+\end{proof}
+
+\begin{theorem}[Requested conclusion: $X$ is iodine monobromide $\mathrm{IBr}$]
+\label{thm:physics:icho_2026_t5_a4:target}
+\lean{IChO2026T5A4.X_formula_eq_IBr}
+\leanok
+If $X = \mathrm{I\!-\!}h$ for some candidate halogen $h$ and the
+formula-derived iodine mass fraction of the adduct matches the measured
+(rounded) value $0.3657$ within half a unit of the last digit
+($|\omega - 0.3657| \le 0.00005$), then $X$ is $\mathrm{IBr}$.
+\end{theorem}
+\begin{proof}
+\leanok
+Case analysis on $h$.  With $M = 50760/181$ fixed by the iodine-number
+experiment, the adduct fractions for $\mathrm{IF}$, $\mathrm{ICl}$ and
+$\mathrm{I_2}$ evaluate exactly to $0.4435\ldots$, $0.4194\ldots$ and
+$181/281 = 0.6441\ldots$, each violating the $0.00005$ tolerance, while
+$\mathrm{IBr}$ gives $0.36568\ldots$, within tolerance; definitionally
+$\mathrm{IBr} = \mathrm{I\!-\!Br}$.
+\end{proof}
+
+\begin{theorem}[Consistency check: the $\mathrm{I_2}$ branch is refuted]
+\label{thm:physics:icho_2026_t5_a4:diiodine}
+\lean{IChO2026T5A4.diiodine_adduct_fraction}
+\leanok
+Had $X$ been molecular iodine $\mathrm{I_2}$, the adduct's iodine mass
+fraction would be exactly
+$N \cdot 2\,\mathrm{ArI} / (M + N \cdot 2\,\mathrm{ArI}) = 181/281
+= 0.6441\ldots \neq 0.3657$.
+\end{theorem}
+\begin{proof}
+\leanok
+Substituting $M = 50760/181$ and $\mathrm{ArI} = 126.9$ makes the fraction a
+concrete rational: $507.6 \cdot 181 / (50760 + 507.6 \cdot 181) = 181/281$,
+which differs from $0.3657$.
 \end{proof}
 % --- Archon physics formalization source end ---

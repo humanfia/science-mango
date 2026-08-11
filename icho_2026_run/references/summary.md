@@ -11,6 +11,8 @@
 | File | Description | How to read (confirmed working) |
 | ---- | ----------- | ------------------------------- |
 | `icho_2026_theory_ready.jsonl` | Extracted official IChO 2026 theory questions and marking-scheme answers | `jq -c 'select(.id == "<target-id>") | {id, current_question, answer, previous_parts, images}' references/icho_2026_theory_ready.jsonl` |
+| `../icho_2026_source/raw/theory_solution.pdf` | Official theory marking scheme (solutions + rubrics), PDF page numbering | Answer-page PNGs exist only for P1–P3 (practical); theory answer pages must be rendered: `pdftoppm -f <pdfpage> -l <pdfpage> -r 400 -png ../icho_2026_source/raw/theory_solution.pdf out` (poppler installed), then Read the PNG; 400 dpi + PIL crop/2–3x LANCZOS upscale resolves red pathway highlights (confirmed on p.58, the 6.7 electron-count figure). |
+| `../icho_2026_source/image/T<n>_page-<k>.png` | Problem-statement page PNGs (primary visual evidence) | Read directly. Structure figures resolve well; for fine bond-highlight detail render the matching `../icho_2026_source/raw/theory_problem.pdf` page at 400 dpi and crop. |
 <!-- Example row (delete once you have real entries):                   -->
 <!-- | `paper.pdf` | Source paper for chapter 3 | `Read` with `pages: "1-12"` (poppler installed); for the appendix tables, `pdftotext paper.pdf - \| sed -n '120,180p'` was clearer. |  -->
 

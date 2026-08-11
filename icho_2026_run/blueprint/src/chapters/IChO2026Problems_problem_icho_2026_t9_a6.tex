@@ -52,15 +52,61 @@ Correct structure 2 points. -1 p for each incorrect substituent 0 p if 2 or more
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t9\_a6.lean`.
-The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The β-CD ring is modeled as \texttt{ZMod 7} with primary-face substitution
+patterns valued in \texttt{\{OBn, OH, alkenyl\}}, identified up to rotation only
+(chirality: no reflection).  The Sinay directing rule places the second free OH
+of the intermediate L at ring offset $+3$ from the directing unit; alkylating
+either free OH of L gives the two monomer regioisomers M-1R and M-4R, and a
+dimer is an unordered pair (\texttt{Sym2}) of monomer regioisomers.
 
-\begin{theorem}[Icho Chemistry formalization target]
+\begin{definition}[β-CD ring, Sinay offset, L, alkylated monomers, dimers]
+\label{def:physics:icho_2026_t9_a6:setup}
+\lean{IChO2026.T9.A6.betaCDNumUnits, IChO2026.T9.A6.UnitPos, IChO2026.T9.A6.PrimarySubstituent, IChO2026.T9.A6.Pattern, IChO2026.T9.A6.RotationEquiv, IChO2026.T9.A6.sinayOffset, IChO2026.T9.A6.IsLPattern, IChO2026.T9.A6.IsAlkylatedMonomer, IChO2026.T9.A6.MonomerIsomer, IChO2026.T9.A6.DimerIsomer, IChO2026.T9.A6.patternL, IChO2026.T9.A6.patternM1R, IChO2026.T9.A6.patternM4R, IChO2026.T9.A6.M1R, IChO2026.T9.A6.M4R}
+\leanok
+Patterns of primary substituents on the seven units of β-CD, rotation
+equivalence, the Sinay offset ($+3$ for ring size $7$), the intermediate L
+(two free primary OH groups at offset $+3$), single-site alkylated monomers,
+monomer regioisomers as rotation classes, and dimers as unordered pairs of
+monomer regioisomers.
+\end{definition}
+
+\begin{lemma}[The two monomer regioisomers]
+\label{lem:physics:icho_2026_t9_a6:monomers}
+\lean{IChO2026.T9.A6.isLPattern_patternL, IChO2026.T9.A6.isAlkylatedMonomer_patternM1R, IChO2026.T9.A6.isAlkylatedMonomer_patternM4R, IChO2026.T9.A6.M1R_ne_M4R, IChO2026.T9.A6.monomer_isomers_enumeration, IChO2026.T9.A6.monomer_regioisomers_card}
+\leanok
+The canonical L satisfies the L-specification; M-1R and M-4R arise by
+alkylating L at unit 1 resp.\ unit 4; they are distinct because a rotation
+identifying them would have to send the alkenyl site $0$ to $3$, i.e.\ be the
+shift $+3$, which sends the free-OH site $3$ to $6 \neq 0$
+(equivalently $+3 \not\equiv -3 \pmod 7$); every valid alkylated monomer is
+M-1R or M-4R; hence exactly two monomer regioisomers exist.
+\end{lemma}
+\begin{proof}
+\leanok
+Validity of L and of the two alkylations is by finite case analysis on
+\texttt{ZMod 7}.  For the enumeration, an L-pattern is determined up to
+rotation by its OH pair $\{i, i+3\}$, and the alkylated site is one of the two
+free OH positions; composing with the rotation $-i$ matches the monomer onto
+\texttt{patternM1R} or \texttt{patternM4R}.  The cardinality is transported
+along the bijection $\texttt{Bool} \to $ monomer isomers.
+\end{proof}
+
+\begin{theorem}[IChO 2026 T9.6: number of dimer isomers]
 \label{thm:physics:icho_2026_t9_a6:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T9.A6.dimer_isomers_enumeration, IChO2026.T9.A6.dimer_isomers_distinct, IChO2026.T9.A6.icho_2026_t9_a6_number_of_dimer_isomers}
+\leanok
+The number of constitutional (linkage) isomers of the β-CD dimer that can form
+during the synthesis by Sinay et al.\ is $3$: the 4-4, 1-1 and 1-4 connected
+dimers (note $4\text{-}1 = 1\text{-}4$).
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Every dimer is an unordered pair of monomer regioisomers, hence one of
+$s(\mathrm{M4R},\mathrm{M4R})$, $s(\mathrm{M1R},\mathrm{M1R})$,
+$s(\mathrm{M1R},\mathrm{M4R})$ by the monomer enumeration and symmetry of
+\texttt{Sym2}.  The three are pairwise distinct by the component
+characterization of \texttt{Sym2} equality together with
+$\mathrm{M1R} \neq \mathrm{M4R}$.  The count is transported along the
+bijection $\texttt{Fin 3} \to$ dimer isomers.
 \end{proof}
 % --- Archon physics formalization source end ---

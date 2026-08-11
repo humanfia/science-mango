@@ -43,15 +43,20 @@ Balanced reaction: CH4(𝑔) + 2O2(𝑔) → CO2(𝑔) + 2H2O(𝑔) Δ𝑟𝐻�
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t4\_a6.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t4\_a6.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t4_a6:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T4.A6.methaneCombustion_balanced, IChO2026.T4.A6.combustion_enthalpy_298, IChO2026.T4.A6.combustion_enthalpy_298_sourced}
+\leanok
+The mapped declarations encode the stated calculation and its verified conclusion.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+The combustion equation is balanced element-wise: for each of carbon, hydrogen and oxygen the signed stoichiometric sum of atom counts over the four species vanishes (case split on the element, then expansion of the finite sum over the four-species universe and arithmetic).  Hess's law then gives the reaction enthalpy as the stoichiometric sum of the tabulated formation enthalpies: expanding $\sum_s \nu_s\,\Delta_f H^\circ_{298}(s)$ over the universe $\{\mathrm{CH_4}, \mathrm{O_2}, \mathrm{CO_2}, \mathrm{H_2O}\}$ and substituting the tabulated values yields $[\Delta_f H^\circ(\mathrm{CO_2}) + 2\Delta_f H^\circ(\mathrm{H_2O})] - [\Delta_f H^\circ(\mathrm{CH_4}) + 2\Delta_f H^\circ(\mathrm{O_2})] = [-393.5 + 2(-241.8)] - [-74.8 + 0] = -802.3\ \mathrm{kJ\,mol^{-1}}$, closed by \texttt{norm\_num}.  The instantiated corollary \texttt{combustion\_enthalpy\_298\_sourced} applies this to the printed dataset.
 \end{proof}
 % --- Archon physics formalization source end ---

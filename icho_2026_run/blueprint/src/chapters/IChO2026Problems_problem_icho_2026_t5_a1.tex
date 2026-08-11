@@ -40,15 +40,97 @@ Each bond involves two atoms, so the total number of atoms with broken bonds (in
 ../icho\_2026\_source/image/T5\_page-1.png
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t5\_a1.lean`.
-The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The fragment census is the inductive type
+\texttt{FragmentKind} with one broken bond on a (hydrogen), two on b
+(phosphorus), three on c (oxygen) and one on d (carbonyl carbon), in
+quantities $n, 2, 3, 4$ (\texttt{pl1Copies}); an \texttt{Assembly} is a
+fixed-point-free involution \texttt{bond} on the terminus pool
+\texttt{OpenEnd n} that pairs no two oxygen-borne termini
+(\texttt{no\_peroxide}).
 
-\begin{theorem}[Icho Chemistry formalization target]
-\label{thm:physics:icho_2026_t5_a1:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\begin{lemma}[Pool census]
+\label{thm:physics:icho_2026_t5_a1:card_openEnd}
+\lean{IChO2026.T5.A1.card_openEnd}
+\leanok
+The number of broken-bond termini in the fragment pool with $n$ type-a
+fragments is $\sum_k \mathrm{copies}(k)\cdot\mathrm{openEnds}(k)$.
+\end{lemma}
+\begin{proof}
+\leanok
+\texttt{Fintype.card\_sigma} turns the $\Sigma$-type of termini into
+the sum over fragment kinds; each factor has cardinality
+$\mathrm{copies}(k)\cdot\mathrm{openEnds}(k)$ by
+\texttt{Fintype.card\_prod} and \texttt{Fintype.card\_fin}.
+\end{proof}
+
+\begin{lemma}[Handshaking: the terminus pool is even]
+\label{thm:physics:icho_2026_t5_a1:even_totalOpenEnds_of_assembly}
+\lean{IChO2026.T5.A1.even_totalOpenEnds_of_assembly}
+\leanok
+In any assembly the total number of atoms with broken bonds is even:
+each bond involves exactly two of them.
+\end{lemma}
+\begin{proof}
+\leanok
+Pair each terminus $e$ with its bond partner as the unordered pair
+$\mathrm{s}(e,\mathrm{bond}\,e) \in \mathrm{Sym2}$.  Every fibre of this
+pairing map is exactly the two-element set $\{e, \mathrm{bond}\,e\}$ ---
+by \texttt{Sym2.eq\_iff}, membership forces $x = e$ or
+$x = \mathrm{bond}\,e$, involutivity shows both are indeed mapped there,
+and fixed-point-freeness keeps them distinct --- so the cardinality of
+the pool is twice the number of pairs
+(\texttt{Finset.card\_eq\_sum\_card\_image},
+\texttt{Finset.card\_pair}).
+\end{proof}
+
+\begin{lemma}[The known fragments contribute $17$]
+\label{thm:physics:icho_2026_t5_a1:totalOpenEnds_eq}
+\lean{IChO2026.T5.A1.totalOpenEnds_eq}
+\leanok
+The pool total is $n + (2\cdot 2 + 3\cdot 3 + 4) = n + 17$.
+\end{lemma}
+\begin{proof}
+\leanok
+Enumerate the four-element \texttt{Finset.univ} of fragment kinds and
+evaluate each summand; simp's numeral arithmetic closes
+$n\cdot 1 + (2\cdot 2 + 3\cdot 3 + 4\cdot 1) = n + 17$.
+\end{proof}
+
+\begin{theorem}[Subquestion 5.1: option (b) is correct]
+\label{thm:physics:icho_2026_t5_a1:subquestion_5_1}
+\lean{IChO2026.T5.A1.subquestion_5_1}
+\leanok
+If the fragment pool with $n$ type-a fragments assembles into the
+non-ionised form of PL1, then $n$ is odd.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+By the two counting principles above, $n + 17$ is even, say
+$n + 17 = r + r$; then $r \geq 9$ and $n = 2(r - 9) + 1$ is odd
+(\texttt{omega}).
+\end{proof}
+
+\begin{lemma}[Option (a) is incorrect]
+\label{thm:physics:icho_2026_t5_a1:option_a_incorrect}
+\lean{IChO2026.T5.A1.option_a_incorrect}
+\leanok
+An assemblable fragment count $n$ is never even.
+\end{lemma}
+\begin{proof}
+\leanok
+Immediate from subquestion 5.1 via \texttt{Nat.not\_even\_iff\_odd}.
+\end{proof}
+
+\begin{lemma}[Option (c) is incorrect]
+\label{thm:physics:icho_2026_t5_a1:option_c_incorrect}
+\lean{IChO2026.T5.A1.option_c_incorrect}
+\leanok
+No even number of type-a fragments can be assembled into PL1, so the
+parity of $n$ is not free.
+\end{lemma}
+\begin{proof}
+\leanok
+Destructure an even $n$ with an assembly and apply option (a)'s
+refutation.
 \end{proof}
 % --- Archon physics formalization source end ---

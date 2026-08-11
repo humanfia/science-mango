@@ -43,15 +43,37 @@ Calculate the equilibrium absorption capacity at a given temperature (𝑞𝑒) 
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t3\_a7.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t3\_a7.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t3_a7:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\leanok
+\lean{IChO2026.T3A7.qe_cof9UranylExperiment, IChO2026.T3A7.uranylIonsPerPore_cof9UranylExperiment, IChO2026.T3A7.uranylIonsPerPore_cof9UranylExperiment_approx, IChO2026.T3A7.qe_mul_adsorbentMass, IChO2026.T3A7.qe_nonneg}
+For the COF-9 uranyl-adsorption experiment ($5.000$ mg COF-9 suspended in
+$200.0$ mL of $19.90$ mg dm$^{-3}$ UO$_2^{2+}$ solution, equilibrium
+concentration $9.225$ mg dm$^{-3}$, all uranium as UO$_2^{2+}$ with
+$M = 270.03$ g mol$^{-1}$, one C$_{36}$H$_{27}$N$_9$O$_3$ repeat unit of
+$M = 633.67$ g mol$^{-1}$ per pore), the equilibrium adsorption capacity is
+$q_e = 427.0$ mg g$^{-1}$, and the number of UO$_2^{2+}$ ions adsorbed per
+pore is $1$: the per-pore molar ratio rounds to the nearest integer $1$ and
+lies within $0.01$ of exactly $1$.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Mass balance gives $q_e \cdot m = (C_0 - C_e)\cdot V$
+(\texttt{qe\_mul\_adsorbentMass}, via \texttt{div\_mul\_cancel₀}) and
+$0 \le q_e$ (\texttt{qe\_nonneg}, via \texttt{div\_nonneg} on
+$C_e \le C_0$).  Numerically
+$q_e = (19.90 - 9.225)\cdot 0.2000 / 0.005000 = 427.0$ mg g$^{-1}$ exactly
+(\texttt{norm\_num} over the experiment record).  The per-pore ratio is
+$(q_e \cdot 10^{-3} / 270.03) / (1 / 633.67)
+= 0.4270 \cdot 633.67 / 270.03 \approx 1.0020$; its \texttt{round} is $1$
+(\texttt{round\_eq} + \texttt{Int.floor\_eq\_iff}) and
+$|\mathrm{ratio} - 1| < 0.01$ (\texttt{abs\_lt}), both bounds discharged by
+\texttt{norm\_num} after unfolding the experiment definitions.
 \end{proof}
 % --- Archon physics formalization source end ---

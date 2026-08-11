@@ -50,15 +50,110 @@ During the switching process the following equality is observed: 𝑘1[HBrO2][Br
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t2\_a3.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t2\_a3.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
-\label{thm:physics:icho_2026_t2_a3:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\begin{definition}[Sourced kinetic parameters and maintained state]
+\label{def:physics:icho_2026_t2_a3:parameters}
+\lean{Icho2026T2A3.sourcedKineticParameters, Icho2026T2A3.IsMaintainedState}
+\leanok
+The seven rate constants printed in the problem
+($k_1 = 1.0 \times 10^4\,\mathrm{M^{-2}s^{-1}}$, $k_2 = 6.2 \times 10^4$, $k_3 = 4.0 \times 10^7$,
+$k_4 = 2.0 \times 10^9$, $k_5 = 2.1$, $k_6 = 8.2$, $k_7 = 1.0 \times 10^2$ in their source units)
+and the maintained reactant state $[\mathrm{BrO_3^-}] = 0.06\,\mathrm{M}$,
+$[\mathrm{MA}] = 0.1\,\mathrm{M}$, $[\mathrm{H^+}] = 0.8\,\mathrm{M}$.
+\end{definition}
+
+\begin{definition}[Critical bromide concentration, source equation (3.1)]
+\label{def:physics:icho_2026_t2_a3:IsCriticalBromide}
+\lean{Icho2026T2A3.IsCriticalBromide}
+\leanok
+The critical bromide concentration $[\mathrm{Br^-}]_{\mathrm{critical}}$ is defined by the
+switchover rate balance
+$k_1[\mathrm{HBrO_2}][\mathrm{BrO_3^-}][\mathrm{H^+}]
+ = k_4[\mathrm{HBrO_2}][\mathrm{Br^-}]_{\mathrm{critical}}[\mathrm{H^+}]$,
+i.e.\ the mass-action rate of step (1) equals that of step (4) evaluated at the state whose
+bromide concentration is set to $[\mathrm{Br^-}]_{\mathrm{critical}}$.
+\end{definition}
+
+\begin{theorem}[Switchover relation after cancellation]
+\label{thm:physics:icho_2026_t2_a3:k1_bromate_eq_k4_bromide_critical}
+\lean{Icho2026T2A3.k1_bromate_eq_k4_bromide_critical}
+\leanok
+\uses{def:physics:icho_2026_t2_a3:IsCriticalBromide}
+If $[\mathrm{HBrO_2}] > 0$ and $[\mathrm{H^+}] > 0$ at the switchover, then the defining
+rate balance simplifies to
+$k_1 [\mathrm{BrO_3^-}] = k_4 [\mathrm{Br^-}]_{\mathrm{critical}}$.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+The common positive factors $[\mathrm{HBrO_2}]$ and $[\mathrm{H^+}]$ are cancelled from
+both sides of equation (3.1).
+\end{proof}
+
+\begin{theorem}[Closed form, source equation (3.2)]
+\label{thm:physics:icho_2026_t2_a3:bromide_critical_eq_ratio}
+\lean{Icho2026T2A3.bromide_critical_eq_ratio}
+\leanok
+\uses{thm:physics:icho_2026_t2_a3:k1_bromate_eq_k4_bromide_critical}
+For $k_4 > 0$ the critical bromide concentration is
+$[\mathrm{Br^-}]_{\mathrm{critical}} = \dfrac{k_1}{k_4} [\mathrm{BrO_3^-}]$.
+\end{theorem}
+\begin{proof}
+\leanok
+Divide the switchover relation $k_1 [\mathrm{BrO_3^-}] = k_4 [\mathrm{Br^-}]_{\mathrm{critical}}$
+by the positive constant $k_4$.
+\end{proof}
+
+\begin{theorem}[Existence of a critical bromide concentration]
+\label{thm:physics:icho_2026_t2_a3:isCriticalBromide_ratio}
+\lean{Icho2026T2A3.isCriticalBromide_ratio}
+\leanok
+\uses{def:physics:icho_2026_t2_a3:IsCriticalBromide}
+For any $k_4 > 0$, the ratio candidate $(k_1/k_4)[\mathrm{BrO_3^-}]$ indeed satisfies the
+defining rate balance (3.1), so a critical bromide concentration exists.
+\end{theorem}
+\begin{proof}
+\leanok
+Substituting the candidate into the step-(4) mass-action rate gives
+$k_4 [\mathrm{HBrO_2}] \cdot \frac{k_1}{k_4}[\mathrm{BrO_3^-}] \cdot [\mathrm{H^+}]
+ = k_1 [\mathrm{HBrO_2}][\mathrm{BrO_3^-}][\mathrm{H^+}]$,
+which is exactly the step-(1) rate.
+\end{proof}
+
+\begin{theorem}[Switching criterion]
+\label{thm:physics:icho_2026_t2_a3:rate1_lt_rate4_iff_bromide_critical_lt}
+\lean{Icho2026T2A3.rate1_lt_rate4_iff_bromide_critical_lt}
+\leanok
+\uses{thm:physics:icho_2026_t2_a3:k1_bromate_eq_k4_bromide_critical}
+With positive rate constants and positive $[\mathrm{HBrO_2}]$, $[\mathrm{BrO_3^-}]$ and
+$[\mathrm{H^+}]$, the rate of step (4) exceeds that of step (1) — Process A switches to
+Process B — exactly when $[\mathrm{Br^-}] > [\mathrm{Br^-}]_{\mathrm{critical}}$, and vice versa.
+\end{theorem}
+\begin{proof}
+\leanok
+Cancelling the positive factor $[\mathrm{HBrO_2}][\mathrm{H^+}]$ from both rates turns the
+rate inequality into $k_1[\mathrm{BrO_3^-}] < k_4[\mathrm{Br^-}]$; substituting
+$k_1[\mathrm{BrO_3^-}] = k_4[\mathrm{Br^-}]_{\mathrm{critical}}$ and cancelling the positive
+$k_4$ leaves $[\mathrm{Br^-}]_{\mathrm{critical}} < [\mathrm{Br^-}]$.
+\end{proof}
+
+\begin{theorem}[Numerical value, subquestion 2.3]
+\label{thm:physics:icho_2026_t2_a3:bromide_critical_value}
+\lean{Icho2026T2A3.bromide_critical_value}
+\leanok
+\uses{def:physics:icho_2026_t2_a3:parameters, thm:physics:icho_2026_t2_a3:bromide_critical_eq_ratio}
+Under the sourced conditions of the BZ experiment,
+$[\mathrm{Br^-}]_{\mathrm{critical}} = 3.0 \times 10^{-7}\,\mathrm{M}$.
+\end{theorem}
+\begin{proof}
+\leanok
+Insert the sourced constants into equation (3.2):
+$[\mathrm{Br^-}]_{\mathrm{critical}}
+ = \dfrac{1.0 \times 10^4}{2.0 \times 10^9} \cdot 0.06
+ = 3.0 \times 10^{-7}\,\mathrm{M}$.
 \end{proof}
 % --- Archon physics formalization source end ---

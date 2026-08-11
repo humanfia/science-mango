@@ -40,15 +40,50 @@ Using the average atomic mass of uranium from the Periodic Table as 238.03 a.u.,
 ../icho\_2026\_source/image/T4\_page-1.png
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t4\_a1.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t4\_a1.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
+\begin{definition}[Uranium isotopes, mass readouts, and isotopic composition]
+\label{def:physics:icho_2026_t4_a1:setup}
+\lean{IChO2026Problems.T4.A1.UraniumIsotope, IChO2026Problems.T4.A1.UraniumIsotope.mass, IChO2026Problems.T4.A1.IsotopicComposition, IChO2026Problems.T4.A1.naturalUraniumAverageMass, IChO2026Problems.T4.A1.averageAtomicMass}
+\leanok
+Natural uranium is modeled as a sample consisting only of the two isotopes
+${}^{235}\mathrm{U}$ and ${}^{238}\mathrm{U}$, with printed isotope masses
+$235.04$ a.u.\ and $238.05$ a.u.  An isotopic composition assigns each
+isotope its atom fraction, the periodic-table average atomic mass of natural
+uranium is $238.03$ a.u., and the average-mass (mixing) law takes the
+atom-fraction-weighted sum of the isotope masses.
+\end{definition}
+
+\begin{theorem}[Atomic abundance of ${}^{235}\mathrm{U}$ in natural uranium]
 \label{thm:physics:icho_2026_t4_a1:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026Problems.T4.A1.atomic_abundance_u235}
+\leanok
+If an isotopic composition of natural uranium assigns a nonnegative atom
+fraction to each of the two isotopes, is normalized (the sample consists only
+of ${}^{235}\mathrm{U}$ and ${}^{238}\mathrm{U}$), and reproduces the
+periodic-table average atomic mass $238.03$ a.u.\ under the average-mass law,
+then the atomic abundance of ${}^{235}\mathrm{U}$ is exactly
+$0.02 / 3.01 \approx 0.00664$, i.e.\ $0.66\,\%$ at the precision quoted by
+the official answer ($|100 x - 0.66| \le 0.005$).
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Write $x$ for the ${}^{235}\mathrm{U}$ atom fraction.  Normalization gives
+the ${}^{238}\mathrm{U}$ fraction $1 - x$, and substituting the printed
+isotope masses and the periodic-table average mass into the mixing law yields
+equation (1) of the rubric,
+$238.03 = 235.04\,x + 238.05\,(1 - x)$.
+Collecting the linear terms,
+$x\,(235.04 - 238.05) = 238.03 - 238.05$, so $-3.01\,x = -0.02$ and
+$x = 0.02 / 3.01 \approx 0.00664$.
+As a percentage, $100 x = 200 / 301 \approx 0.6645$, which differs from the
+official $0.66\,\%$ readout by less than $0.005$.
+In Lean the equation is solved by \texttt{linarith} after unfolding the
+average-mass law, and the percentage bound is closed by \texttt{norm_num}
+via \texttt{abs\_le}.
 \end{proof}
 % --- Archon physics formalization source end ---

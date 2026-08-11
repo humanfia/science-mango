@@ -56,15 +56,99 @@ To obtain the diastereomer of PL1 with a plane of symmetry, we must construct a 
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t5\_a3.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t5\_a3.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t5_a3:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+The mapped declarations encode the stated calculation and its verified conclusion.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+The proof unfolds the source-specific definitions and establishes the mapped
+conclusion from the encoded hypotheses.
+\end{proof}
+
+\paragraph{Informal proof (official marking scheme).}
+Writing the hydrocarbon substituent as $R = C_xH_y$: since $R$ is an
+acyclic monovalent hydrocarbon group whose only unsaturation is
+$N_{C=C}$ double bonds, the saturated formula $C_xH_{2x+1}$ loses two
+hydrogens per double bond,
+\begin{equation}
+y = (2x+1) - 2N_{C=C}. \tag{eq.\,3.1}
+\end{equation}
+Reductive ozonolysis cleaves each C=C once, so an acyclic acid with
+$N_{C=C}$ double bonds affords $N_{C=C}+1$ carbonyl products, one
+molecule of each per molecule of acid (hence automatically equimolar);
+the observed three products force $N_{C=C} + 1 = 3$, i.e.\
+$N_{C=C} = 2$ and $y = 2x - 3$.
+
+Counting $\sigma$- and $\pi$-bonds of non-ionised PL1 fragmentwise
+(each fragment contributes its internal bonds, a double bond counting
+as $2$, plus $\tfrac12$ per open valence, so that each inter-fragment
+bond is counted once in total) with $1\times a$, $2\times b$,
+$3\times c$, $4\times d$ gives
+\[
+0.5\cdot 1 + 5\cdot 2 + 11.5\cdot 3 + 4\cdot(3 + 2x + 0.5y) = 255,
+\]
+which simplifies to
+\begin{equation}
+4x + y = 99. \tag{eq.\,3.2}
+\end{equation}
+Combining (eq.\,3.1) and (eq.\,3.2): $4x + (2x - 3) = 6x - 3 = 99$,
+hence $x = 17$ and $y = 31$. The fatty acid is $C_{17}H_{31}COOH$,
+molecular formula $C_{18}H_{32}O_2$.
+
+\begin{lemma}[Ozonolysis forces two double bonds]
+\label{thm:physics:icho_2026_t5_a3:ozonolysis_gives_two_double_bonds}
+\lean{IChO2026T5A3.ozonolysis_gives_two_double_bonds}
+\leanok
+If the reductive ozonolysis of the acyclic fatty acid produces
+\textup{three} organic products, then the acid contains exactly two
+C=C double bonds: \texttt{ozonolysisProductCount} $d = d + 1 = 3$
+forces $d = 2$.
+\end{lemma}
+\begin{proof}
+\leanok
+Unfold \texttt{ozonolysisProductCount} to $d + 1 = 3$ and close by
+\texttt{omega}.
+\end{proof}
+
+\begin{lemma}[Bond-count equation $4x + y = 99$]
+\label{thm:physics:icho_2026_t5_a3:bond_count_equation}
+\lean{IChO2026T5A3.bond_count_equation}
+\leanok
+The 255 $\sigma$-and-$\pi$-bond count of non-ionised PL1 yields the
+marking scheme's equation~\textup{(eq.\,3.2)},
+$4x + y = 99$ over $\mathbb{Q}$.
+\end{lemma}
+\begin{proof}
+\leanok
+Unfold \texttt{pl1TotalBonds} and the fragment bond counts; the
+hypothesis becomes $57 + 8x + 2y = 255$ over $\mathbb{Q}$, and
+\texttt{linarith} derives $4x + y = 99$.
+\end{proof}
+
+\begin{theorem}[The fatty acid is $C_{17}H_{31}COOH$]
+\label{thm:physics:icho_2026_t5_a3:icho_2026_t5_a3}
+\lean{IChO2026T5A3.icho_2026_t5_a3}
+\leanok
+For a hydrocarbon substituent $R = C_xH_y$ ($x \geq 1$) that is acyclic
+and monovalent with $d$ C=C bonds as its only unsaturation
+($y + 2d = 2x + 1$), whose acid affords three ozonolysis products, and
+for which non-ionised PL1 has 255 $\sigma$-and-$\pi$ bonds, one has
+$x = 17$, $y = 31$, and the acid's molecular formula is
+$C_{18}H_{32}O_2$.
+\end{theorem}
+\begin{proof}
+\leanok
+Combine the two lemmas above: $d = 2$ in (eq.\,3.1) gives
+$y = 2x - 3$; together with $4x + y = 99$ (transported to
+$\mathbb{N}$ by \texttt{exact\_mod\_cast}) \texttt{omega} yields
+$x = 17$ and $y = 31$; the formula check
+\texttt{rcoohFormula} $17\ 31 = \langle 18, 32, 2\rangle$ is
+definitional (\texttt{rfl}).
 \end{proof}
 % --- Archon physics formalization source end ---

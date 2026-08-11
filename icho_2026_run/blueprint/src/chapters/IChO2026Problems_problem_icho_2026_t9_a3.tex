@@ -52,15 +52,39 @@ Since in this reaction we observe the formation of new ring on glucopyranose uni
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t9\_a3.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t9\_a3.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
+\begin{theorem}[IChO 2026 T9-A3: ring size and stereocentre count]
 \label{thm:physics:icho_2026_t9_a3:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T9.A3.icho_2026_t9_a3}
+\leanok
+For the seven-repeat macrocycle $X$, the ring contains $35$ atoms and $X$
+has $21$ stereocentres.  Each repeat contributes five ring atoms and three
+stereocentres, including one pseudochiral acetal carbon; the complete
+macrocycle is achiral.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Proved in full.  Ring membership is decided by graph connectivity: an
+explicit 35-edge closed walk through `C4–C5–O5–C1–OGly` of each of the seven
+units is shown to be a cycle (`ringCycle_isCycle`), so every
+`{C1, O5, C5, C4, OGly}` atom is a ring atom; the pendant hydroxymethyl and
+hydroxyl atoms are excluded by leaf pruning (a cycle vertex has two distinct
+neighbors, via `IsCycle.snd_ne_penultimate`, and rotation moves any cycle
+vertex to the start).  Stereogenicity uses the automorphism definition: C4
+and C5 have pairwise distinct ligand labels, and at the acetal carbon C1 the
+two ring-oxygen ligands cannot be swapped by any reference-label-preserving
+automorphism because the swap would force the oppositely labelled C4/C5
+branches to coincide (`not_ligandEquivalent_C1_O5_OGly`), while the
+configuration-blind reflection about C1 does swap them
+(`reflectionAutomorphism`), making C1 pseudochiral.  The per-unit counts
+(5 ring atoms, 3 stereocentres, 1 pseudochiral centre) follow by Finset
+enumeration, achirality from the reflection inverting every true-centre
+label, and `rs = 7 · 5 = 35`, `sc = 7 · 3 = 21` by the disjoint-union
+bookkeeping sums.
 \end{proof}
 % --- Archon physics formalization source end ---

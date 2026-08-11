@@ -5,6 +5,7 @@ import CRNT.Basic.Reaction
 
 /-!
 This import probe keeps the pinned Mathlib, Physlib units, and CRNT reaction
-core in the verified project graph used by the IChO automation run. LeanExplore
-may still search the full installed `Mathlib`, `Physlib`, and `CRNT` module trees.
+core in the verified project graph used by the IChO formalization. Library
+search may still inspect the full installed `Mathlib`, `Physlib`, and `CRNT`
+module trees.
 -/

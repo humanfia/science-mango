@@ -49,15 +49,73 @@ CH4 H2O CO O2 H2 N2 NH3 CO2 M1 ✓ ✓ ✓ M2 ✓ ✓ ✓ 𝑥> 𝑦 𝑥= 𝑦 
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t7\_a2.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t7\_a2.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
+\begin{definition}[Flow-sheet balance of the Navoiazot ammonia plant]
+\label{def:physics:icho_2026_t7_a2:balance}
+\lean{IChO2026.T7.A2.AmmoniaPlantBalance, IChO2026.T7.A2.FlowSheetBalance}
+\leanok
+The annual mole/mass bookkeeping of the Fig.~1 flow sheet records the ammonia
+output (tons), the overall yield, the molar masses of $\mathrm{NH_3}$ and
+$\mathrm{CH_4}$, and the annual molar amounts of every stream species.  The
+balance predicate imposes the unit conversions $n = m/M$ and
+$m = n \cdot M$ (with $1$ ton $= 10^6$ g), the quantitative stoichiometry of
+R1 ($\mathrm{CH_4 + H_2O \to CO + 3H_2}$), R2
+($\mathrm{2CH_4 + O_2 \to 2CO + 4H_2}$, $\mathrm{O_2}$ fully consumed) and R3
+($\mathrm{CO + H_2O \to CO_2 + H_2}$, all CO shifted), the stoichiometric
+fresh synthesis gas $n(\mathrm{H_2}) = 3\,n(\mathrm{N_2})$, the air feed
+$n(\mathrm{N_2}) = 4\,n(\mathrm{O_2})$, the overall-yield relation
+$n(\mathrm{NH_3}) = 2 \cdot \mathrm{yield} \cdot n(\mathrm{N_2})$ of R4, the
+hydrogen and methane front-end balances, and the physical positivity and
+nonnegativity side conditions.
+\end{definition}
+
+\begin{theorem}[Annual methane demand of the Navoiazot plant]
 \label{thm:physics:icho_2026_t7_a2:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T7.A2.icho_2026_t7_a2}
+\leanok
+For a plant satisfying the Fig.~1 flow-sheet balances, producing
+$660\,000$ tons of $\mathrm{NH_3}$ per year at a $97.0\,\%$ overall yield,
+with $M(\mathrm{NH_3}) = 17$ g/mol and $M(\mathrm{CH_4}) = 16$ g/mol, the
+annual methane demand satisfies the mole-ratio bridge
+$n(\mathrm{CH_4}) = \tfrac{7}{8}\,n(\mathrm{N_2})$ and its mass is the
+recorded answer $280\,000$ tons to the nearest $1000$ tons, i.e.\
+$|m(\mathrm{CH_4}) - 280\,000| \le 500$ tons.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+The amount of ammonia is
+$n(\mathrm{NH_3}) = 6.6\cdot 10^{11} / 17 = 3.88\cdot 10^{10}$ mol, so the
+yield relation of R4 gives the fresh nitrogen feed
+$n(\mathrm{N_2}) = 3.88\cdot 10^{10} / (2 \cdot 0.97) = 2\cdot 10^{10}$ mol,
+the stoichiometric hydrogen demand
+$n(\mathrm{H_2}) = 3 \cdot 2\cdot 10^{10} = 6\cdot 10^{10}$ mol, and the air
+feed $n(\mathrm{O_2}) = 2\cdot 10^{10}/4 = 5\cdot 10^{9}$ mol.
+Partial oxidation (R2) then consumes $2\,n(\mathrm{O_2}) = 1\cdot 10^{10}$
+mol of $\mathrm{CH_4}$ and delivers $1\cdot 10^{10}$ mol CO and
+$2\cdot 10^{10}$ mol $\mathrm{H_2}$.  Writing $x = n(\mathrm{CH_4,ref})$ for
+the steam-reforming feed, R1 delivers $x$ mol CO and $3x$ mol
+$\mathrm{H_2}$, and the water--gas shift (R3) converts all CO, contributing
+a further $x + 1\cdot 10^{10}$ mol $\mathrm{H_2}$.  The hydrogen balance
+reads $6\cdot 10^{10} = 2\cdot 10^{10} + 3x + (x + 1\cdot 10^{10})$, whence
+$x = 7.5\cdot 10^{9}$ mol and
+$n(\mathrm{CH_4}) = x + 1\cdot 10^{10} = 1.75\cdot 10^{10}$ mol; exactly,
+eliminating the R1--R3 intermediates gives
+$n(\mathrm{H_2}) = 4\,n(\mathrm{CH_4,ref}) + 6\,n(\mathrm{O_2})$, hence
+$n(\mathrm{CH_4,ref}) = \tfrac{3}{8}\,n(\mathrm{N_2})$ and
+$n(\mathrm{CH_4}) = \tfrac{3}{8}\,n(\mathrm{N_2}) +
+\tfrac{1}{2}\,n(\mathrm{N_2}) = \tfrac{7}{8}\,n(\mathrm{N_2})$.
+Finally
+$m(\mathrm{CH_4}) = 1.75\cdot 10^{10} \cdot 0.016 \cdot 10^{-3}
+= 280\,000$ tons; using the unrounded values,
+$m(\mathrm{CH_4}) = 14\,n(\mathrm{N_2})/10^{6}
+= 9\,240\,000 / 32.98 \approx 280\,170$ tons, which lies within $500$ tons
+of $280\,000$.  In Lean, the bridge is closed by \texttt{linarith} from the
+linear stoichiometric relations, and the mass bound is closed by
+\texttt{linarith} via \texttt{abs\_le} after substituting the given data.
 \end{proof}
 % --- Archon physics formalization source end ---

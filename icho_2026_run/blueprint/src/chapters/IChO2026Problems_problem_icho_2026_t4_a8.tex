@@ -50,15 +50,31 @@ Using the flow as a gas volume measured at 1 atm and 298 K: 𝑛= 𝑃𝑉 𝑅�
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t4\_a8.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t4\_a8.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t4_a8:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T4.A8.UrtabulakBlowout.molarFlow_eq, IChO2026.T4.A8.UrtabulakBlowout.molarFlow_value, IChO2026.T4.A8.UrtabulakBlowout.energyPerDay_value, IChO2026.T4.A8.UrtabulakBlowout.energyPerDay_fallback}
+\leanok
+The mapped declarations encode the stated calculation and its verified conclusion.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+The ideal-gas law at the well conditions gives the molar flow
+$n = P Q / (R T) = 101325 \cdot 2.2 \times 10^{5} / (8.314 \cdot 298)
+\approx 8.997 \times 10^{6}\ \mathrm{mol\,day^{-1}}$, within
+$3 \times 10^{4}$ of the marking-scheme intermediate $9.00 \times 10^{6}$.
+The isothermal-combustion energy balance $E = -n \cdot \Delta_r H^{\circ}_{2000}
+\cdot 1000$ then yields $E \approx 7.035 \times 10^{12}\ \mathrm{J\,day^{-1}}$
+(main branch, $\Delta_r H^{\circ}_{2000} = -781.9\ \mathrm{kJ\,mol^{-1}}$) and
+$E \approx 6.298 \times 10^{12}\ \mathrm{J\,day^{-1}}$ (fallback branch,
+$\Delta H_{2000} = -700\ \mathrm{kJ\,mol^{-1}}$), each within the stated
+tolerance of the recorded answers $7.04 \times 10^{12}$ and
+$6.30 \times 10^{12}\ \mathrm{J\,day^{-1}}$.  All steps are closed numerically
+over $\mathbb{R}$.
 \end{proof}
 % --- Archon physics formalization source end ---

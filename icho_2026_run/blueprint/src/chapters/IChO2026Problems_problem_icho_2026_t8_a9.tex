@@ -43,15 +43,70 @@ The decay process of the S1 excited state can be represented by the following eq
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t8\_a9.lean`.
-The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The compiling Lean file lives at
+`IChO2026Problems/problem\_icho\_2026\_t8\_a9.lean` with all proof bodies
+complete.  The Lean declarations preserve every mathematical object,
+quantifier, hypothesis, side condition, approximation/error guarantee, and
+requested conclusion from the source statement.
 
-\begin{theorem}[Icho Chemistry formalization target]
+\begin{definition}[Excited-state channels, first-order decay, and the quenched fraction]
+\label{def:physics:icho_2026_t8_a9:setup}
+\lean{IChO2026.T8.A9.S1Channels, IChO2026.T8.A9.T1Channels, IChO2026.T8.A9.FirstOrderDecay, IChO2026.T8.A9.intrinsicDecayS1, IChO2026.T8.A9.effectiveDecayS1, IChO2026.T8.A9.intrinsicDecayT1, IChO2026.T8.A9.quenchedFraction, IChO2026.T8.A9.quenchingConstant, IChO2026.T8.A9.tau0, IChO2026.T8.A9.redConcentration, IChO2026.T8.A9.quenchingPercent}
+\leanok
+The S1 state decays unimolecularly through fluorescence ($kF$), internal
+conversion ($kIC$), and intersystem crossing ($kISC$), and the T1 state
+through phosphorescence ($kP$), non-radiative decay ($kN$), and reverse
+intersystem crossing ($kRISC$); a first-order decay law for a concentration
+readout $c$ with constant $k_0$ is $\dot c = -k_0 c$.  The quenched fraction
+of an excited state with intrinsic first-order constant $k_0$, bimolecular
+quenching constant $k_q$, and reductant concentration $Q$ is
+$k_q Q / (k_0 + k_q Q)$.  The source readouts are $k_S = 2.7\times10^{9}$,
+$k_T = 1.5\times10^{8}$ $\mathrm{M^{-1}\,s^{-1}}$, $\tau_0(S1) = 2.9$ ns,
+$\tau_0(T1) = 84$ $\mu$s, and $[\mathrm{Red}] = 0.1$ M; the quenching
+percentage is $100$ times the quenched fraction with $k_0 = \tau_0^{-1}$.
+\end{definition}
+
+\begin{lemma}[First-order decay trajectory and lifetime]
+\label{lem:physics:icho_2026_t8_a9:trajectory}
+\lean{IChO2026.T8.A9.FirstOrderDecay_trajectory, IChO2026.T8.A9.FirstOrderDecay_at_lifetime}
+\leanok
+A first-order decay $\dot c = -k_0 c$ has the exponential trajectory
+$c(t) = c(0) e^{-k_0 t}$: the product $c(t) e^{k_0 t}$ has zero derivative
+everywhere, hence is constant.  In particular, at the unquenched emission
+lifetime $t = \tau_0 = k_0^{-1}$ the concentration has fallen to
+$c(0) e^{-1}$, the formula for the lifetime of a reagent in a first-order
+reaction invoked by the marking scheme.
+\end{lemma}
+
+\begin{lemma}[Ratio-of-rates and Stern--Volmer forms of the quenched fraction]
+\label{lem:physics:icho_2026_t8_a9:sternvolmer}
+\lean{IChO2026.T8.A9.quenchedFraction_eq_ratio, IChO2026.T8.A9.quenchedFraction_sternVolmer, IChO2026.T8.A9.eq_8_10_3, IChO2026.T8.A9.eq_8_10_4}
+\leanok
+For $c \neq 0$ the ratio-of-rates form is independent of the excited-state
+concentration,
+$\frac{k_q c Q}{k_0 c + k_q c Q} = \frac{k_q Q}{k_0 + k_q Q}$, and with
+$\tau_0 = k_0^{-1}$ it takes the Stern--Volmer form
+$\frac{k_q \tau_0 Q}{1 + k_q \tau_0 Q}$; both identities are plain fraction
+arithmetic, the first cancelling $c$ and the second cancelling $k_0^{-1}$.
+Specializing to $k_0 = kF + kIC$ (the $kF \gg kISC$ approximation) gives the
+recorded eq.~8.10.3, and $k_0 = kP + kN + kRISC$ gives eq.~8.10.4.
+\end{lemma}
+
+\begin{theorem}[Quenching percentages of S1 and T1 at $[\mathrm{Red}] = 0.1$ M]
 \label{thm:physics:icho_2026_t8_a9:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T8.A9.quenchingPercent_S1_exact, IChO2026.T8.A9.quenchingPercent_T1_exact, IChO2026.T8.A9.quenching_percentages}
+\leanok
+With the source readouts, the S1 quenching percentage is exactly
+$100\,\frac{2.7\times10^{9}\cdot2.9\times10^{-9}\cdot0.1}{1 + 2.7\times10^{9}\cdot2.9\times10^{-9}\cdot0.1} = \frac{78300}{1783}$
+and the T1 quenching percentage is exactly
+$100\,\frac{1.5\times10^{8}\cdot84\times10^{-6}\cdot0.1}{1 + 1.5\times10^{8}\cdot84\times10^{-6}\cdot0.1} = \frac{126000}{1261}$;
+to the recorded precision these are $44\,\%$ and $99.9\,\%$
+($|\eta_q(S1) - 44| \le 0.5$ and $|\eta_q(T1) - 99.9| \le 0.05$).
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Unfolding the definitions leaves concrete rational identities in the source
+readouts, which \texttt{norm\_num} evaluates; the percentage bounds follow by
+rewriting with the exact values and comparing the absolute deviations.
 \end{proof}
 % --- Archon physics formalization source end ---

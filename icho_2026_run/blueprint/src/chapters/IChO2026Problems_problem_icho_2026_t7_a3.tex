@@ -52,15 +52,125 @@ CH4 H2O CO O2 H2 N2 NH3 CO2 M1 ✓ ✓ ✓ M2 ✓ ✓ ✓ 𝑥> 𝑦 𝑥= 𝑦 
 \end{itemize}
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t7\_a3.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t7\_a3.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
-\label{thm:physics:icho_2026_t7_a3:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\begin{definition}[Recirculation model: stoichiometric feed and the N$_2$ recurrence]
+\label{def:physics:icho_2026_t7_a3:setup}
+\lean{IChO2026.T7.A3.stoichCoeffN2, IChO2026.T7.A3.stoichCoeffH2, IChO2026.T7.A3.n2FeedFraction, IChO2026.T7.A3.freshN2PerCycle, IChO2026.T7.A3.nitrogenAfterCycle, IChO2026.T7.A3.nitrogenAfterCycle_zero, IChO2026.T7.A3.nitrogenAfterCycle_succ, IChO2026.T7.A3.overallYield}
+\leanok
+The fresh feed is a stoichiometric N$_2$ : H$_2$ $= 1 : 3$ mixture, so each
+cycle feeds $n_0/4$ mol of N$_2$ (coefficients \texttt{stoichCoeffN2} $= 1$,
+\texttt{stoichCoeffH2} $= 3$, N$_2$ feed fraction $1/(1+3)$).  Writing
+$f_n$ for the moles of N$_2$ present after the reaction and liquefaction
+steps of cycle $n$ (before portion $n+1$ is added), the recirculation model
+of steps 1--4 is the rubric recurrence
+$f_0 = 0$, $f_{n+1} = (f_n + n_0/4)(1 - \eta)$
+(\texttt{nitrogenAfterCycle}, with \texttt{nitrogenAfterCycle\_zero} and
+\texttt{nitrogenAfterCycle\_succ} giving the base and step equations), and
+the overall yield after $n$ cycles is the fraction of all fed N$_2$ that has
+been converted, $1 - f_n / (n \cdot n_0/4)$ (\texttt{overallYield}).
+\end{definition}
+
+\begin{lemma}[Geometric-progression form of the N$_2$ amount]
+\label{lem:physics:icho_2026_t7_a3:geom}
+\lean{IChO2026.T7.A3.nitrogenAfterCycle_eq_geom_sum}
+\leanok
+For every $n$, $f_n = \dfrac{n_0}{4}\,\sum_{i=1}^{n} (1 - \eta)^i$.
+\end{lemma}
+\begin{proof}
+\leanok
+Induction on $n$.  The step pulls the last feed portion through the
+recurrence: reindexing the tail sum
+$\sum_{i<n+1}(1-\eta)^{i+1} = (1-\eta) + (1-\eta)\sum_{i<n}(1-\eta)^{i+1}$
+(via \texttt{Finset.sum\_range\_succ'}, \texttt{Finset.sum\_mul}, and
+\texttt{pow\_succ}) turns the induction step into a ring identity.  This is
+the unfolding $f_n = (1-\eta) + (1-\eta)^2 + \cdots + (1-\eta)^n$ of the
+official solution.
+\end{proof}
+
+\begin{lemma}[Closed form via the geometric-series formula]
+\label{lem:physics:icho_2026_t7_a3:closed}
+\lean{IChO2026.T7.A3.nitrogenAfterCycle_eq_closed}
+\leanok
+If $\eta \neq 0$, then
+$f_n = \dfrac{n_0}{4}\left(\dfrac{1}{\eta} - 1\right)\bigl(1 - (1-\eta)^n\bigr)$.
+\end{lemma}
+\begin{proof}
+\leanok
+Factor one $(1-\eta)$ out of the geometric sum of the previous lemma and
+apply the finite geometric-series formula \texttt{geom\_sum\_eq} with ratio
+$1 - \eta \neq 1$; clearing the denominators $\eta$ and $1 - \eta - 1$
+(\texttt{field\_simp}) reduces the identity to
+$(1-\eta)\,\bigl((1-\eta)^n - 1\bigr) / \bigl((1-\eta) - 1\bigr)
+ = (1/\eta - 1)\bigl(1 - (1-\eta)^n\bigr)$, a ring identity.  This is the
+rubric step
+$f_n = (1-\eta)\,\dfrac{1-(1-\eta)^n}{1-(1-\eta)}
+ = \bigl(\tfrac1\eta - 1\bigr)\bigl(1 - (1-\eta)^n\bigr)$ (with $n_0 = 4$,
+$n_0/4 = 1$).
+\end{proof}
+
+\begin{lemma}[First-cycle overall yield equals the per-pass yield]
+\label{lem:physics:icho_2026_t7_a3:first}
+\lean{IChO2026.T7.A3.overallYield_first_cycle}
+\leanok
+If $n_0 \neq 0$, the overall yield after one cycle is exactly $\eta$ — the
+``from $15.0\,\%$'' baseline of part (b).
+\end{lemma}
+\begin{proof}
+\leanok
+After one cycle $f_1 = (n_0/4)(1-\eta)$ and the total fed is $n_0/4$, so the
+overall yield is $1 - (1-\eta) = \eta$; the feed portion cancels by
+\texttt{field\_simp} using $n_0 \neq 0$.
+\end{proof}
+
+\begin{theorem}[Part (a): N$_2$ present after the 58th cycle]
+\label{thm:physics:icho_2026_t7_a3:parta}
+\lean{IChO2026.T7.A3.nitrogen_after_58_cycles}
+\leanok
+With $n_0 = 4$ mol and $\eta = 0.150$, the amount of N$_2$ in the system
+after the 58th cycle rounds to $5.6662$ mol at four decimal places:
+$|f_{58} - 5.6662| < 0.00005$.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+The closed form with $n_0/4 = 1$ and $1/\eta - 1 = 17/3$ gives
+$f_{58} = \frac{17}{3}\bigl(1 - 0.85^{58}\bigr) \approx 5.66621$, since
+$0.85^{58} \approx 8.06 \cdot 10^{-5}$.  In Lean both sides of the
+absolute-value bound are decided exactly by \texttt{norm\_num}, which
+evaluates the rational power $(17/20)^{58}$ and compares: the true error is
+$\approx 9.97 \cdot 10^{-6} < 5 \cdot 10^{-5}$, matching the recorded answer
+$f_n = 5.6662$.
+\end{proof}
+
+\begin{theorem}[Part (b): 189 cycles to reach 97.0 \% overall yield]
+\label{thm:physics:icho_2026_t7_a3:target}
+\lean{IChO2026.T7.A3.cycles_needed_for_overall_yield_97}
+\leanok
+$189$ is the least number of cycles at which the overall yield reaches
+$97.0\,\%$: $189 \in \{n \mid 1 \le n \wedge 0.97 \le
+\texttt{overallYield}\ 4\ 0.15\ n\}$ and no smaller positive $n$ qualifies.
+\end{theorem}
+\begin{proof}
+\leanok
+With the closed form $f_n = \frac{17}{3}(1 - 0.85^n)$ the overall yield is
+$1 - f_n / n$.
+\emph{Membership at $189$:} $f_{189} < 17/3$ (because $0.85^{189} > 0$), so
+the yield exceeds $1 - \frac{17/3}{189} = \frac{550}{567} \approx 0.970018
+\ge 0.97$.
+\emph{Minimality:} the yield is increasing for $n \ge 1$: cross-multiplying
+$f_{n+1}/(n+1) \le f_n/n$ and expanding the closed form reduces the step to
+the Bernoulli-type bound $0.85^n (0.15 n + 1) \le 1$, proved by induction
+since $0.85\,(0.15(k+1) + 1) \le 0.15 k + 1$.  Hence any qualifying
+$n \le 188$ would give yield $\le$ the value at $188$; but
+$f_{188} > \frac{17}{3}\bigl(1 - \tfrac{8}{1700}\bigr) = 5.64 = 0.03 \cdot 188$
+(because $0.85^{188} \le 0.85^{40} < 8/1700$), so the yield at $188$ is still
+$< 0.97$, a contradiction.  This matches the official answer: the exact
+solution of $1 - \eta_{\mathrm{final}} = \bigl(\frac1\eta -
+1\bigr)\bigl(1-(1-\eta)^n\bigr)/n$ is $n \approx 188.9$, so $189$ whole
+cycles are needed.
 \end{proof}
 % --- Archon physics formalization source end ---

@@ -40,15 +40,32 @@ Calculate the molar mass of β-CD. Assume M𝑤(glucose) = 180.16 g mol−1.
 ../icho\_2026\_source/image/T9\_page-1.png
 
 \paragraph{Formalization target.}
-create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t9\_a1.lean`.
+The verified Lean formalization is in `IChO2026Problems/problem\_icho\_2026\_t9\_a1.lean`,
+with its theorem and lemma proofs complete.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+The implementation reuses the pinned Mathlib, Physlib, and Chemistry libraries,
+with local definitions only for source-specific objects.
 
-\begin{theorem}[Icho Chemistry formalization target]
+\begin{theorem}[IChO 2026 T9-A1: molar mass of $\beta$-cyclodextrin]
 \label{thm:physics:icho_2026_t9_a1:target}
-The assigned autoformalize agent should translate this IChO chemistry problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\lean{IChO2026.T9.A1.betaCD_molarMass_exact, IChO2026.T9.A1.betaCD_molarMass_reported}
+\leanok
+The molar mass of $\beta$-cyclodextrin, computed from the condensation
+stoichiometry of the cyclic $\alpha$-1,4-glucan
+($n = 7$ glucose units, one water eliminated per glycosidic bond, $n$ bonds
+in the ring), is exactly
+$M_w(\beta\text{-CD}) = 7 \cdot 180.16 - 7 \cdot 18.016 = 1135.008~\mathrm{g\,mol^{-1}}$,
+which rounds to the reported $1135.01~\mathrm{g\,mol^{-1}}$ of the official
+marking scheme.
 \end{theorem}
 \begin{proof}
-This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\leanok
+Unfold the local stoichiometric interface
+(\texttt{Cyclodextrin.molarMass}, \texttt{cyclicGlucanMolarMass},
+\texttt{cyclicGlycosidicBonds}, \texttt{glucoseMolarMass},
+\texttt{waterMolarMass}, \texttt{Cyclodextrin.glucoseUnits}) and close the
+resulting numeral identity over $\mathbb{R}$ by \texttt{norm\_num}; the
+reported value follows by \texttt{round\_eq} and \texttt{Int.floor\_eq\_iff},
+since $\lfloor 1135.008 \cdot 100 + 1/2 \rfloor = 113501$.
 \end{proof}
 % --- Archon physics formalization source end ---
