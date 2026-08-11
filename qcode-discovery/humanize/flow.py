@@ -117,10 +117,17 @@ ROUND_TRANSACTION_SUPPORTED_PROTOCOL_VERSIONS = tuple(
 )
 CANDIDATE_BATCH_POLICY_LEGACY_VERSION = 1
 CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION = 2
-CANDIDATE_BATCH_POLICY_VERSION = 3
+CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION = 3
+CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION = 4
+CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION = 5
+CANDIDATE_BATCH_POLICY_VERSION = (
+    CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION
+)
 CANDIDATE_BATCH_POLICY_VERSIONS = (
     CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
     CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION,
+    CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
+    CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION,
     CANDIDATE_BATCH_POLICY_VERSION,
 )
 SEARCH_DISTANCE_INTERVAL_PROOF_SCHEMA_VERSION = 1
@@ -4141,6 +4148,11 @@ def _build_search_oracle_feedback(
             or row.get("search_status") != "terminal_negative"
             or row.get("threshold_rejection_proven") is not True
             or row.get("threshold_proof_source") != "low_weight_oracle"
+            # Stage 1 may terminate a row against the stricter scalar-FOM
+            # target without excluding the official Pareto/final gate.  Such
+            # a witness remains durable scalar-negative evidence, but it must
+            # not enter the final-gate repair feedback queue.
+            or row.get("final_gate_excluded_by_upper_bound") is not True
             or not isinstance(oracle, dict)
             or oracle.get("outcome") != "SAT"
         ):
@@ -4656,6 +4668,62 @@ def _validated_bound_round_review(
     return review
 
 
+def _bound_executable_search_action(
+    summary: Mapping[str, Any],
+    rounds_root: Path,
+    target_round: int,
+) -> dict[str, Any] | None:
+    """Return only an authenticated, accepted, in-horizon reviewer action.
+
+    The summary's copied ``search_action`` remains durable audit metadata, but
+    it is never execution authority.  Every consumer must replay the exact
+    hash-bound ``review.json``, read the verdict from those authenticated
+    bytes, and enforce the source action's finite target-round horizon.
+    """
+
+    if (
+        isinstance(target_round, bool)
+        or not isinstance(target_round, int)
+        or target_round < 1
+    ):
+        raise RoundTransactionError(
+            "reviewer action target round must be a positive integer"
+        )
+    review = _validated_bound_round_review(dict(summary), rounds_root)
+    binding = summary.get("review_binding")
+    if binding is None:
+        return None
+    if (
+        not isinstance(binding, dict)
+        or binding.get("review_schema_version") != 2
+        or binding.get("search_action") is None
+    ):
+        return None
+    if review.get("verdict") == "reject_round":
+        return None
+    action = review.get("search_action")
+    if not isinstance(action, dict):
+        raise RoundTransactionError(
+            "bound reviewer-v2 search action is missing"
+        )
+    source_round = summary.get("round")
+    horizon = action.get("horizon_rounds")
+    if (
+        isinstance(source_round, bool)
+        or not isinstance(source_round, int)
+        or source_round < 1
+        or isinstance(horizon, bool)
+        or not isinstance(horizon, int)
+        or not 1 <= horizon <= 3
+    ):
+        raise RoundTransactionError(
+            "bound reviewer action has an invalid round horizon"
+        )
+    if not source_round < target_round <= source_round + horizon:
+        return None
+    return copy.deepcopy(action)
+
+
 def _seal_round_renderer_resolution(
     *,
     round_number: int,
@@ -4665,38 +4733,30 @@ def _seal_round_renderer_resolution(
 ) -> dict[str, Any] | None:
     """Resolve reviewer registry IDs and durably bind the next round."""
 
-    search_action = review_binding.get("search_action")
     resolution_path = Path(os.path.abspath(
         round_dir / COSET_RENDERER_RESOLUTION_FILENAME
     ))
+    search_action = _bound_executable_search_action(
+        {
+            "round": round_number,
+            "review_binding": review_binding,
+        },
+        round_dir.parent,
+        round_number + 1,
+    )
     if search_action is None:
         if resolution_path.exists() or resolution_path.is_symlink():
             raise RoundTransactionError(
-                "legacy review has an unexpected renderer resolution artifact"
+                "non-executable review has an unexpected renderer resolution "
+                "artifact"
             )
         return None
     from humanize.coset_renderer_review import (
         ReviewerRendererResolutionError,
         resolve_reviewer_renderer_action,
+        validate_reviewer_renderer_resolution,
     )
 
-    try:
-        resolution = resolve_reviewer_renderer_action(
-            search_action,
-            source_round=round_number,
-            target_round=round_number + 1,
-            review_artifact_sha256=review_binding["artifact_sha256"],
-        )
-    except ReviewerRendererResolutionError as exc:
-        raise RoundTransactionError(
-            f"reviewer renderer proposal cannot be resolved: {exc}"
-        ) from exc
-    if resolution is None:
-        if resolution_path.exists() or resolution_path.is_symlink():
-            raise RoundTransactionError(
-                "review without renderer focus has a stale resolution artifact"
-            )
-        return None
     if resolution_path.exists() or resolution_path.is_symlink():
         if resolution_path.is_symlink() or not resolution_path.is_file():
             raise RoundTransactionError(
@@ -4705,11 +4765,38 @@ def _seal_round_renderer_resolution(
         observed = _read_json_object(
             resolution_path, "renderer resolution artifact"
         )
-        if observed != resolution:
+        try:
+            resolution = validate_reviewer_renderer_resolution(
+                observed,
+                search_action=search_action,
+            )
+        except ReviewerRendererResolutionError as exc:
             raise RoundTransactionError(
                 "renderer resolution artifact disagrees after recovery"
+            ) from exc
+        if (
+            resolution.get("source_round") != round_number
+            or resolution.get("target_round") != round_number + 1
+            or resolution.get("review_artifact_sha256")
+            != review_binding["artifact_sha256"]
+        ):
+            raise RoundTransactionError(
+                "renderer resolution recovery binding changed"
             )
     else:
+        try:
+            resolution = resolve_reviewer_renderer_action(
+                search_action,
+                source_round=round_number,
+                target_round=round_number + 1,
+                review_artifact_sha256=review_binding["artifact_sha256"],
+            )
+        except ReviewerRendererResolutionError as exc:
+            raise RoundTransactionError(
+                f"reviewer renderer proposal cannot be resolved: {exc}"
+            ) from exc
+        if resolution is None:
+            return None
         atomic_write_json(resolution_path, resolution)
     descriptor = _file_descriptor(
         resolution_path, "reviewer renderer resolution"
@@ -4800,6 +4887,21 @@ def _validated_bound_renderer_resolution(
     ):
         raise RoundTransactionError(
             "renderer resolution review binding changed"
+        )
+    executable_action = _bound_executable_search_action(
+        summary,
+        rounds_root,
+        replayed["target_round"],
+    )
+    if executable_action is None:
+        # Old controllers could seal a renderer resolution even when the
+        # authenticated reviewer rejected the round.  Keep validating that
+        # historical artifact for audit, but never return it to an executable
+        # consumer; the next round reconstructs the trusted default renderer.
+        return None
+    if executable_action != review["search_action"]:
+        raise RoundTransactionError(
+            "renderer resolution action is outside its executable binding"
         )
     return replayed
 
@@ -4985,21 +5087,22 @@ def _freeze_round_context(
                         + "\n- ".join(map(str, focus))
                     )
 
-        structured_actions: list[dict[str, Any]] = []
+        # Reviewer actions have finite rolling horizons, but overlapping
+        # focus dimensions are not additive. Collect only authenticated,
+        # accepted actions here, then project each dimension from its newest
+        # source below. This retains older non-conflicting advice without
+        # presenting competing support-split or mutation-tactic directives.
+        active_structured_actions: list[dict[str, Any]] = []
         for summary in rounds[-3:]:
             binding = summary.get("review_binding")
             if binding is None:
                 continue
-            _validated_bound_round_review(
+            search_action = _bound_executable_search_action(
                 summary,
                 round_dir.parent,
+                previous_number + 1,
             )
-            verified_binding = summary.get("review_binding")
-            if (
-                not isinstance(verified_binding, dict)
-                or verified_binding.get("review_schema_version") != 2
-                or verified_binding.get("search_action") is None
-            ):
+            if search_action is None:
                 continue
             renderer_resolution = _validated_bound_renderer_resolution(
                 summary,
@@ -5010,27 +5113,73 @@ def _freeze_round_context(
                 and renderer_resolution.get("status")
                 == "representation_expansion_handoff"
             ):
-                # The complete rejected action remains byte-bound in the
-                # review and resolution artifacts.  It cannot enter a prompt
-                # that generates executable mutations: even inert unknown IDs
-                # or an unsupported split would otherwise bias the model into
-                # repeatedly producing mutations that preflight must reject.
+                active_structured_actions.append({
+                    "round": summary["round"],
+                    "renderer_handoff": True,
+                    "search_action": search_action,
+                })
                 continue
-            search_action = copy.deepcopy(
-                verified_binding["search_action"]
-            )
+            active_structured_actions.append({
+                "round": summary["round"],
+                "renderer_handoff": False,
+                "search_action": search_action,
+            })
+
+        from humanize.coset_renderer_review import (
+            REVIEWER_RENDERER_FOCUS_DIMENSIONS,
+        )
+
+        shadowed_dimensions: set[str] = set()
+        newest_first: list[dict[str, Any]] = []
+        for active in reversed(active_structured_actions):
+            search_action = copy.deepcopy(active["search_action"])
+            focus = search_action["focus"]
+            if active["renderer_handoff"] is True:
+                # Renderer-control focus from the accepted handoff remains
+                # sealed audit metadata and cannot enter an executable prompt.
+                # It nevertheless supersedes every older renderer-control
+                # focus: the machine will use its source-owned default
+                # activation, so reviving an older split or registry request
+                # would invite guaranteed preflight rejection. The handoff's
+                # own non-renderer focus remains executable advisory data and
+                # must enter the common newest-first filter below so it also
+                # supersedes older advice on those dimensions.
+                shadowed_dimensions.update(
+                    REVIEWER_RENDERER_FOCUS_DIMENSIONS
+                )
+                focus = [
+                    item for item in focus
+                    if item["dimension"]
+                    not in REVIEWER_RENDERER_FOCUS_DIMENSIONS
+                ]
+                if not focus:
+                    continue
+            focus_dimensions = {
+                item["dimension"] for item in focus
+            }
+            filtered_focus = [
+                item for item in focus
+                if item["dimension"] not in shadowed_dimensions
+            ]
+            shadowed_dimensions.update(focus_dimensions)
+            if focus and not filtered_focus:
+                continue
+            search_action["focus"] = filtered_focus
             if prompt_safe_reviewer_v2:
                 search_action = _v2_evolution_search_action(search_action)
-            structured_actions.append({
-                "round": summary["round"],
+            newest_first.append({
+                "round": active["round"],
                 "advisory_only": True,
                 "search_action": search_action,
             })
+        structured_actions = list(reversed(newest_first))
         if structured_actions:
             context_parts.append("\n".join([
                 "## Independent reviewer search advisories",
                 (
-                    "- Advisory only: these entries cannot alter machine "
+                    "- For each focus dimension, only the newest authenticated, "
+                    "accepted, in-horizon advice is projected; it cannot alter "
+                    "machine "
                     "regimes, mutation weights, budgets, proof gates, or stop "
                     "decisions."
                 ),
@@ -5800,7 +5949,7 @@ def _validate_checkpoint_activation_bridge_preflight(
     the fresh evaluation.
     """
 
-    expected_fields = {
+    legacy_fields = {
         "schema_version",
         "status",
         "contract_version",
@@ -5817,6 +5966,20 @@ def _validate_checkpoint_activation_bridge_preflight(
         "approved_support_split",
         "bridge_candidate_range",
     }
+    current_fields = (
+        legacy_fields
+        - {"approved_support_split"}
+        | {"approved_support_splits", "root_support_split"}
+    )
+    report_schema = (
+        report.get("schema_version") if isinstance(report, dict) else None
+    )
+    if report_schema == 3:
+        expected_fields = legacy_fields
+    elif report_schema == 4:
+        expected_fields = current_fields
+    else:
+        expected_fields = set()
     contract_id = report.get("contract_id") if isinstance(report, dict) else None
     source_programs = (
         report.get("source_programs") if isinstance(report, dict) else None
@@ -5824,7 +5987,7 @@ def _validate_checkpoint_activation_bridge_preflight(
     if (
         type(report) is not dict
         or set(report) != expected_fields
-        or report.get("schema_version") != 3
+        or report_schema not in {3, 4}
         or report.get("status") != "completed"
         or report.get("contract_version") != 2
         or type(contract_id) is not int
@@ -5888,13 +6051,30 @@ def _validate_checkpoint_activation_bridge_preflight(
             "checkpoint activation bridge activation binding changed"
         )
 
-    approved_split = report.get("approved_support_split")
+    if report_schema == 3:
+        approved_splits = [report.get("approved_support_split")]
+        root_split = report.get("approved_support_split")
+    else:
+        approved_splits = report.get("approved_support_splits")
+        root_split = report.get("root_support_split")
+    def valid_split(split: Any) -> bool:
+        return (
+            type(split) is list
+            and len(split) == 2
+            and all(type(value) is int and value > 0 for value in split)
+        )
     if (
-        type(approved_split) is not list
-        or len(approved_split) != 2
-        or any(type(value) is not int or value < 1 for value in approved_split)
+        type(approved_splits) is not list
+        or not approved_splits
+        or (report_schema == 3 and len(approved_splits) != 1)
+        or (report_schema == 4 and len(approved_splits) <= 1)
+        or any(not valid_split(split) for split in approved_splits)
+        or len({tuple(split) for split in approved_splits})
+        != len(approved_splits)
+        or not valid_split(root_split)
+        or root_split != approved_splits[0]
         or activation_document.get("approved_support_splits")
-        != [approved_split]
+        != approved_splits
     ):
         raise RoundTransactionError(
             "checkpoint activation bridge support split is invalid"
@@ -6009,17 +6189,21 @@ def _validate_checkpoint_activation_bridge_preflight(
         ) from exc
 
     root_binding = {
-        "schema_version": 1,
+        "schema_version": 1 if report_schema == 3 else 2,
         "kind": "qcode-coset-activation-bridge-root",
         "source_checkpoint_sha256": base_checkpoint["sha256"],
         "source_program_set_sha256": observed_source_program_set_sha256,
         "source_last_iteration": base_checkpoint["last_iteration"],
         "activation_sha256": activation_document["activation_sha256"],
-        "approved_support_split": approved_split,
         "policy_sha256": root_identity["policy_sha256"],
         "code_sha256": root_identity["code_sha256"],
         "contract_id": contract_id,
     }
+    if report_schema == 3:
+        root_binding["approved_support_split"] = root_split
+    else:
+        root_binding["approved_support_splits"] = approved_splits
+        root_binding["root_support_split"] = root_split
     expected_root_id = "coset-activation-root-" + hashlib.sha256(
         json.dumps(
             root_binding,
@@ -6039,7 +6223,7 @@ def _validate_checkpoint_activation_bridge_preflight(
         or root_identity["policy_sha256"] != report["root_policy_sha256"]
         or root_identity["code_sha256"] != report["root_code_sha256"]
         or activated_root.policy_sha256 != report["root_policy_sha256"]
-        or observed_split != approved_split
+        or observed_split != root_split
         or not isinstance(root_metadata, dict)
         or root_metadata.get("checkpoint_activation_bridge") != root_binding
     ):
@@ -6874,7 +7058,7 @@ def _validate_slice_witness(
                 and type(checkpoint_preflight.get("contract_id")) is int
                 and checkpoint_preflight["contract_id"] >= 0
             )
-            if not common_valid or report_schema not in {1, 2, 3}:
+            if not common_valid or report_schema not in {1, 2, 3, 4}:
                 raise RoundTransactionError(
                     "checkpoint preflight report is invalid"
                 )
@@ -8176,6 +8360,21 @@ def _prefer_duplicate_evidence(
             )
         if proposed_lane and not current_lane:
             return proposed
+        if current_lane and not proposed_lane:
+            return current
+    if (
+        policy_version
+        >= CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION
+    ):
+        # Every evidence/lifecycle tie must have a content-addressed winner;
+        # otherwise reversing raw occurrence order changes the primary row
+        # beneath an otherwise canonical composite proof bundle.
+        return (
+            proposed
+            if _canonical_payload_sha256(proposed)
+            > _canonical_payload_sha256(current)
+            else current
+        )
     return current
 
 
@@ -8222,19 +8421,607 @@ def _trusted_search_upper_bound(
     )
 
 
+_COMPOSITE_LEDGER_KIND = "qcode-coset-stage1-proof-ledger-v1"
+_COMPOSITE_LEDGER_ENTRY_FIELDS = (
+    "threshold",
+    "outcome",
+    "evidence_sha256",
+    "attempt_sha256",
+    "cache_sha256",
+)
+_COMPOSITE_HISTORY_ENTRY_FIELDS = frozenset({
+    *_COMPOSITE_LEDGER_ENTRY_FIELDS,
+    "attempts",
+    "cache_hit",
+})
+_COMPOSITE_GENERATION_BINDING_FIELDS = (
+    "threshold",
+    "outcome",
+    "attempts",
+    "evidence_sha256",
+    "attempt_sha256",
+    "cache_sha256",
+)
+_COMPOSITE_STAGE1_SEARCH_STATUSES = frozenset({
+    "challenge_threshold_survivor",
+    "fom_threshold_survivor",
+    "partial_lower_bound",
+    "partial_lower_bound_budget",
+    "partial_lower_bound_retry",
+    "terminal_negative",
+    "unresolved",
+    "unresolved_budget",
+})
+
+
+def _sealed_oracle_provenance(
+    row: Mapping[str, Any],
+    *,
+    candidate_sha256: str,
+) -> tuple[list[dict[str, Any]], int] | None:
+    """Return one internally coherent v3 attempt history and ledger.
+
+    Policy-v5 may combine generations only after each source occurrence proves
+    that its occurrence-local history, last-attempt triple, and self-hashed
+    ledger describe the same cache generations.  Older ladder schemas remain
+    opaque so historical policy bytes can still be replayed unchanged.
+    """
+
+    history = row.get("oracle_ladder_history")
+    ledger = row.get("proof_ledger")
+    declared_v3 = bool(
+        row.get("oracle_ladder_schema_version") == 3
+        or isinstance(ledger, dict)
+        and ledger.get("proof_ladder_version") == 3
+    )
+    if not declared_v3:
+        return None
+    if not isinstance(history, list) or not isinstance(ledger, dict):
+        raise RoundTransactionError(
+            "policy-v5 declared v3 provenance is incomplete"
+        )
+    proof_ladder_version = ledger.get("proof_ladder_version")
+    if type(proof_ladder_version) is not int or proof_ladder_version != 3:
+        raise RoundTransactionError(
+            "policy-v5 oracle/ledger schema versions disagree"
+        )
+    row_ladder_version = row.get("oracle_ladder_schema_version")
+    if row_ladder_version is not None and (
+        type(row_ladder_version) is not int or row_ladder_version != 3
+    ):
+        raise RoundTransactionError(
+            "policy-v5 oracle/ledger schema versions disagree"
+        )
+    if (
+        ledger.get("kind") != _COMPOSITE_LEDGER_KIND
+        or type(ledger.get("schema_version")) is not int
+        or ledger.get("schema_version") != 1
+        or ledger.get("candidate_sha256") != candidate_sha256
+        or not isinstance(ledger.get("entries"), list)
+    ):
+        raise RoundTransactionError(
+            "policy-v5 source proof ledger is malformed"
+        )
+    entries: list[dict[str, Any]] = []
+    thresholds: list[int] = []
+    for raw in history:
+        if not isinstance(raw, dict):
+            raise RoundTransactionError(
+                "policy-v5 source oracle history is malformed"
+            )
+        if set(raw) != _COMPOSITE_HISTORY_ENTRY_FIELDS:
+            raise RoundTransactionError(
+                "policy-v5 source oracle history fields are malformed"
+            )
+        threshold = raw.get("threshold")
+        outcome = raw.get("outcome")
+        attempts = raw.get("attempts")
+        if (
+            isinstance(threshold, bool)
+            or not isinstance(threshold, int)
+            or threshold < 1
+            or outcome not in {"SAT", "UNSAT", "UNKNOWN"}
+            or isinstance(attempts, bool)
+            or not isinstance(attempts, int)
+            or attempts < 1
+            or not isinstance(raw.get("cache_hit"), bool)
+        ):
+            raise RoundTransactionError(
+                "policy-v5 source oracle history entry is malformed"
+            )
+        for field in ("attempt_sha256", "cache_sha256"):
+            value = raw.get(field)
+            if (
+                not isinstance(value, str)
+                or re.fullmatch(r"[0-9a-f]{64}", value) is None
+            ):
+                raise RoundTransactionError(
+                    "policy-v5 source oracle history digest is malformed"
+                )
+        evidence_sha256 = raw.get("evidence_sha256")
+        if (
+            evidence_sha256 is not None
+            and (
+                not isinstance(evidence_sha256, str)
+                or re.fullmatch(r"[0-9a-f]{64}", evidence_sha256) is None
+            )
+        ):
+            raise RoundTransactionError(
+                "policy-v5 source oracle evidence digest is malformed"
+            )
+        if (
+            (
+                outcome in {"SAT", "UNSAT"}
+                and evidence_sha256 is None
+            )
+            or (
+                outcome == "UNKNOWN"
+                and evidence_sha256 is not None
+            )
+        ):
+            raise RoundTransactionError(
+                "policy-v5 source oracle outcome/evidence binding is invalid"
+            )
+        thresholds.append(threshold)
+        entries.append({
+            field: copy.deepcopy(raw.get(field))
+            for field in _COMPOSITE_LEDGER_ENTRY_FIELDS
+        })
+    if thresholds != sorted(set(thresholds)):
+        raise RoundTransactionError(
+            "policy-v5 source oracle history is not threshold-unique"
+        )
+    ladder = row.get("oracle_ladder_thresholds")
+    if (
+        not isinstance(ladder, list)
+        or not ladder
+        or any(
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or value < 1
+            for value in ladder
+        )
+        or ladder != sorted(set(ladder))
+        or thresholds != ladder[:len(thresholds)]
+        or any(
+            entry["outcome"] != "UNSAT"
+            for entry in history[:-1]
+        )
+    ):
+        raise RoundTransactionError(
+            "policy-v5 source oracle history is not a valid ladder prefix"
+        )
+    ladder_cutoff = row.get("oracle_ladder_cutoff")
+    if (
+        type(ladder_cutoff) is not int
+        or ladder_cutoff != ladder[-1]
+    ):
+        raise RoundTransactionError(
+            "policy-v5 source oracle ladder cutoff is malformed"
+        )
+    expected_ledger = {
+        "kind": _COMPOSITE_LEDGER_KIND,
+        "schema_version": 1,
+        "proof_ladder_version": proof_ladder_version,
+        "candidate_sha256": candidate_sha256,
+        "entries": entries,
+    }
+    expected_ledger["root_sha256"] = _canonical_payload_sha256(
+        expected_ledger
+    )
+    try:
+        ledger_matches = (
+            _canonical_compact_json(ledger)
+            == _canonical_compact_json(expected_ledger)
+        )
+    except RoundTransactionError:
+        ledger_matches = False
+    if not ledger_matches:
+        raise RoundTransactionError(
+            "policy-v5 source oracle history disagrees with its proof ledger"
+        )
+
+    last_attempt = row.get("oracle_last_attempt")
+    if not history:
+        if (
+            last_attempt is not None
+            or "oracle_last_attempt_outcome" in row
+            or "oracle_last_attempt_threshold" in row
+        ):
+            raise RoundTransactionError(
+                "policy-v5 source contains a phantom last-attempt triple"
+            )
+    else:
+        tail = history[-1]
+        last_attempt_threshold = row.get("oracle_last_attempt_threshold")
+        unsigned_last_attempt = (
+            dict(last_attempt) if isinstance(last_attempt, dict) else {}
+        )
+        claimed_attempt_sha256 = unsigned_last_attempt.pop(
+            "attempt_sha256", None
+        )
+        try:
+            last_attempt_hash_valid = bool(
+                isinstance(last_attempt, dict)
+                and claimed_attempt_sha256
+                == _canonical_payload_sha256(unsigned_last_attempt)
+            )
+        except (RoundTransactionError, TypeError, ValueError):
+            last_attempt_hash_valid = False
+        if (
+            not isinstance(last_attempt, dict)
+            or not last_attempt_hash_valid
+            or last_attempt.get("attempt_sha256")
+            != tail.get("attempt_sha256")
+            or last_attempt.get("outcome") != tail.get("outcome")
+            or row.get("oracle_last_attempt_outcome")
+            != tail.get("outcome")
+            or type(last_attempt_threshold) is not int
+            or last_attempt_threshold != tail.get("threshold")
+        ):
+            raise RoundTransactionError(
+                "policy-v5 source last-attempt triple disagrees with history"
+            )
+    return copy.deepcopy(history), proof_ladder_version
+
+
+def _canonicalize_composite_oracle_provenance(
+    merged: dict[str, Any],
+    occurrences: list[dict[str, Any]],
+    *,
+    required_lower_evidence_sha256: str | None,
+    required_upper_evidence_sha256: str | None,
+    normalize_stage1_lifecycle: bool,
+) -> dict[str, Any]:
+    """Build an order-independent proof ladder from sealed occurrences."""
+
+    candidate_sha256 = _valid_candidate_sha256(merged)
+    if candidate_sha256 is None:
+        return merged
+    sources: list[tuple[dict[str, Any], list[dict[str, Any]]]] = []
+    ladder_versions: set[int] = set()
+    declared_v3 = False
+    for row in occurrences:
+        ledger = row.get("proof_ledger")
+        if (
+            row.get("oracle_ladder_schema_version") == 3
+            or isinstance(ledger, dict)
+            and ledger.get("proof_ladder_version") == 3
+        ):
+            declared_v3 = True
+        sealed = _sealed_oracle_provenance(
+            row,
+            candidate_sha256=candidate_sha256,
+        )
+        if sealed is None:
+            continue
+        history, version = sealed
+        ladder_versions.add(version)
+        sources.append((row, history))
+    if not declared_v3:
+        # Pre-v3 synthetic/unit-test rows are outside this migration.
+        return merged
+    if not sources or ladder_versions != {3}:
+        raise RoundTransactionError(
+            "policy-v5 has no coherent v3 oracle provenance source"
+        )
+
+    ladders = {
+        tuple(row.get("oracle_ladder_thresholds", ()))
+        for row, _history in sources
+    }
+    if (
+        len(ladders) != 1
+        or not ladders
+        or not all(
+            isinstance(value, int) and not isinstance(value, bool) and value > 0
+            for value in next(iter(ladders))
+        )
+    ):
+        raise RoundTransactionError(
+            "policy-v5 source oracle ladders disagree"
+        )
+    ladder = next(iter(ladders))
+
+    cache_bindings: dict[str, tuple[Any, ...]] = {}
+    by_threshold: dict[
+        int, list[tuple[dict[str, Any], dict[str, Any]]]
+    ] = {}
+    for row, history in sources:
+        for entry in history:
+            binding = tuple(
+                entry[field]
+                for field in _COMPOSITE_GENERATION_BINDING_FIELDS
+            )
+            cache_sha256 = str(entry["cache_sha256"])
+            previous_cache_binding = cache_bindings.setdefault(
+                cache_sha256, binding
+            )
+            if previous_cache_binding != binding:
+                raise RoundTransactionError(
+                    "policy-v5 cache SHA binds conflicting generation metadata"
+                )
+            by_threshold.setdefault(int(entry["threshold"]), []).append(
+                (row, entry)
+            )
+
+    chosen: list[
+        tuple[dict[str, Any], list[tuple[dict[str, Any], dict[str, Any]]]]
+    ] = []
+    for threshold in sorted(by_threshold):
+        candidates = by_threshold[threshold]
+        terminal_outcomes = {
+            entry["outcome"]
+            for _row, entry in candidates
+            if entry["outcome"] in {"SAT", "UNSAT"}
+        }
+        if len(terminal_outcomes) > 1:
+            raise RoundTransactionError(
+                "policy-v5 found conflicting SAT/UNSAT cache generations"
+            )
+        outcome = (
+            next(iter(terminal_outcomes))
+            if terminal_outcomes else "UNKNOWN"
+        )
+        candidates = [
+            item for item in candidates if item[1]["outcome"] == outcome
+        ]
+        generation = max(
+            (int(entry["attempts"]), str(entry["cache_sha256"]))
+            for _row, entry in candidates
+        )
+        generation_sources = [
+            item for item in candidates
+            if (
+                int(item[1]["attempts"]),
+                str(item[1]["cache_sha256"]),
+            ) == generation
+        ]
+        immutable_fields = {
+            tuple(entry.get(field) for field in _COMPOSITE_LEDGER_ENTRY_FIELDS)
+            for _row, entry in generation_sources
+        }
+        if len(immutable_fields) != 1:
+            raise RoundTransactionError(
+                "policy-v5 cache generation metadata conflicts"
+            )
+        entry = copy.deepcopy(generation_sources[0][1])
+        # Cache-hit is occurrence-local.  The composite records whether this
+        # exact immutable generation was ever hydrated, deterministically.
+        entry["cache_hit"] = any(
+            bool(source_entry["cache_hit"])
+            for _row, source_entry in generation_sources
+        )
+        chosen.append((entry, generation_sources))
+
+    thresholds = [entry["threshold"] for entry, _sources in chosen]
+    if thresholds != list(ladder[:len(thresholds)]):
+        raise RoundTransactionError(
+            "policy-v5 composite oracle history is not a ladder prefix"
+        )
+    non_unsat = [
+        index for index, (entry, _sources) in enumerate(chosen)
+        if entry["outcome"] != "UNSAT"
+    ]
+    if non_unsat and non_unsat != [len(chosen) - 1]:
+        raise RoundTransactionError(
+            "policy-v5 composite ladder advances beyond a terminal/UNKNOWN rung"
+        )
+
+    history = [copy.deepcopy(entry) for entry, _sources in chosen]
+    composite_ledger = {
+        "kind": _COMPOSITE_LEDGER_KIND,
+        "schema_version": 1,
+        "proof_ladder_version": 3,
+        "candidate_sha256": candidate_sha256,
+        "entries": [{
+            field: copy.deepcopy(entry.get(field))
+            for field in _COMPOSITE_LEDGER_ENTRY_FIELDS
+        } for entry in history],
+    }
+    composite_ledger["root_sha256"] = _canonical_payload_sha256(
+        composite_ledger
+    )
+    if (
+        any(entry["outcome"] == "UNSAT" for entry in composite_ledger["entries"])
+        and required_lower_evidence_sha256 is None
+    ):
+        raise RoundTransactionError(
+            "policy-v5 UNSAT history has no selected lower-bound artifact"
+        )
+    if (
+        any(entry["outcome"] == "SAT" for entry in composite_ledger["entries"])
+        and required_upper_evidence_sha256 is None
+    ):
+        raise RoundTransactionError(
+            "policy-v5 SAT history has no replayed upper-bound artifact"
+        )
+    if required_lower_evidence_sha256 is not None and not any(
+        entry["outcome"] == "UNSAT"
+        and entry["evidence_sha256"] == required_lower_evidence_sha256
+        for entry in composite_ledger["entries"]
+    ):
+        raise RoundTransactionError(
+            "policy-v5 composite ledger dropped the selected lower bound"
+        )
+    if required_upper_evidence_sha256 is not None and not any(
+        entry["outcome"] == "SAT"
+        and entry["evidence_sha256"] == required_upper_evidence_sha256
+        for entry in composite_ledger["entries"]
+    ):
+        raise RoundTransactionError(
+            "policy-v5 composite ledger dropped the selected upper bound"
+        )
+
+    merged.update({
+        "oracle_ladder_schema_version": 3,
+        "oracle_ladder_cutoff": ladder[-1],
+        "oracle_ladder_thresholds": list(ladder),
+        "oracle_ladder_history": history,
+        "proof_ledger": composite_ledger,
+    })
+    injected_sequences = [
+        int(row["global_proof_frontier_first_seen_sequence"])
+        for row, _history in sources
+        if row.get("global_proof_frontier_injected") is True
+        and isinstance(
+            row.get("global_proof_frontier_first_seen_sequence"), int
+        )
+        and not isinstance(
+            row.get("global_proof_frontier_first_seen_sequence"), bool
+        )
+    ]
+    if injected_sequences:
+        merged["global_proof_frontier_injected"] = True
+        merged["global_proof_frontier_first_seen_sequence"] = min(
+            injected_sequences
+        )
+    else:
+        merged.pop("global_proof_frontier_injected", None)
+        merged.pop("global_proof_frontier_first_seen_sequence", None)
+    if not chosen:
+        merged["oracle_last_attempt"] = None
+        merged.pop("oracle_last_attempt_outcome", None)
+        merged.pop("oracle_last_attempt_threshold", None)
+    else:
+        tail, tail_sources = chosen[-1]
+        authorities: list[
+            tuple[str, str, dict[str, Any], dict[str, Any]]
+        ] = []
+        for row, source_entry in tail_sources:
+            last_attempt = row.get("oracle_last_attempt")
+            if (
+                isinstance(last_attempt, dict)
+                and row.get("oracle_last_attempt_threshold")
+                == tail["threshold"]
+                and row.get("oracle_last_attempt_outcome")
+                == tail["outcome"]
+                and last_attempt.get("attempt_sha256")
+                == tail["attempt_sha256"]
+            ):
+                authorities.append((
+                    _canonical_payload_sha256(last_attempt),
+                    _canonical_payload_sha256(row),
+                    row,
+                    last_attempt,
+                ))
+        if not authorities:
+            raise RoundTransactionError(
+                "policy-v5 composite tail has no last-attempt authority"
+            )
+        _attempt_tie_break, _row_tie_break, authority, last_attempt = max(
+            authorities,
+            key=lambda item: (item[0], item[1]),
+        )
+        merged["oracle_last_attempt"] = copy.deepcopy(last_attempt)
+        merged["oracle_last_attempt_outcome"] = tail["outcome"]
+        merged["oracle_last_attempt_threshold"] = tail["threshold"]
+        for field in (
+            "oracle_frontier_selected",
+            "oracle_batch_budget_exhausted",
+        ):
+            if field in authority:
+                merged[field] = copy.deepcopy(authority[field])
+            else:
+                merged.pop(field, None)
+
+    if normalize_stage1_lifecycle:
+        tail_outcome = None if not history else history[-1]["outcome"]
+        complete = bool(
+            tail_outcome == "SAT"
+            or history
+            and tail_outcome == "UNSAT"
+            and len(history) == len(ladder)
+        )
+        deferred = bool(
+            not complete
+            and (
+                not history
+                or tail_outcome == "UNSAT"
+                or tail_outcome == "UNKNOWN"
+                and history[-1]["cache_hit"] is True
+            )
+        )
+        merged.update({
+            "low_weight_oracle_outcome": (
+                "NOT_RUN" if tail_outcome is None else tail_outcome
+            ),
+            "oracle_ladder_complete": complete,
+            "oracle_retryable": not complete,
+            "distance_retry_required": not complete,
+            "oracle_deferred": deferred,
+            "oracle_ladder_next_threshold": (
+                None
+                if complete
+                else history[-1]["threshold"]
+                if tail_outcome == "UNKNOWN"
+                else ladder[len(history)]
+            ),
+        })
+        if required_upper_evidence_sha256 is not None:
+            # The trusted upper-bound merge above decides whether this is a
+            # selected-target rejection.  It is always terminal with respect
+            # to the Stage-1 proof ladder itself.
+            merged.update({
+                "oracle_ladder_complete": True,
+                "oracle_retryable": False,
+                "distance_retry_required": False,
+                "oracle_deferred": False,
+                "oracle_ladder_next_threshold": None,
+            })
+        elif complete:
+            merged["search_status"] = (
+                "fom_threshold_survivor"
+                if merged.get("fom_target_lower_bound_proven") is True
+                else "challenge_threshold_survivor"
+                if merged.get("challenge_target_lower_bound_proven") is True
+                else "partial_lower_bound"
+            )
+        elif required_lower_evidence_sha256 is not None:
+            merged["search_status"] = (
+                "partial_lower_bound_budget"
+                if deferred else "partial_lower_bound_retry"
+            )
+        else:
+            merged["search_status"] = (
+                "unresolved_budget" if deferred else "unresolved"
+            )
+
+    proof = merged.get("search_distance_interval_proof")
+    if isinstance(proof, dict) and required_lower_evidence_sha256 is not None:
+        proof = copy.deepcopy(proof)
+        proof["lower_bound_ledger_root_sha256"] = composite_ledger[
+            "root_sha256"
+        ]
+        proof.pop("proof_sha256", None)
+        proof["proof_sha256"] = _canonical_payload_sha256(proof)
+        merged["search_distance_interval_proof"] = proof
+    return merged
+
+
 def _merge_duplicate_search_evidence(
     selected: dict[str, Any],
     occurrences: list[dict[str, Any]],
+    *,
+    policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
 ) -> dict[str, Any]:
     """Merge independently replayable LB/UB evidence for one definition.
 
-    Policy-v3 canonicalization is evidence-preserving rather than row-
+    Policy-v3+ canonicalization is evidence-preserving rather than row-
     preserving: a Stage-1 UNSAT lower bound and a later SAT upper witness may
     live on different raw occurrences of the same candidate.  Only rows with
     the selected candidate's exact SHA-256 identity participate.  The merged
     interval remains a search artifact and never impersonates a formal
     release/MILP exact proof.
     """
+
+    if (
+        isinstance(policy_version, bool)
+        or policy_version not in CANDIDATE_BATCH_POLICY_VERSIONS
+    ):
+        raise ValueError(
+            f"unsupported candidate batch policy version: {policy_version!r}"
+        )
 
     candidate_sha256 = _valid_candidate_sha256(selected)
     merged = copy.deepcopy(selected)
@@ -8318,6 +9105,42 @@ def _merge_duplicate_search_evidence(
             upper_oracle,
             upper_witness,
         ) = min(upper_candidates, key=lambda item: (item[0], item[1]))
+        if policy_version >= CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION:
+            # These annotations form one archive-snapshot-dependent bundle.
+            # Once the SAT row supplies the canonical witness, retaining any
+            # member from the selected LB row would bind penalty provenance to
+            # the wrong occurrence.  Missing fields are cleared rather than
+            # silently falling back to stale LB metadata.
+            for field in (
+                "negative_archive_match_counts",
+                "negative_archive_coordinate_sha256",
+                "negative_archive_penalty",
+                "negative_archive_penalty_components",
+                "negative_archive_witness_match_counts",
+                "negative_archive_witness_motif_sha256",
+            ):
+                if field in _upper_row:
+                    merged[field] = copy.deepcopy(_upper_row[field])
+                else:
+                    merged.pop(field, None)
+            # Attempt history is likewise occurrence-local.  The evidence
+            # digest itself is normalized from the replayed oracle rather than
+            # trusted from either row's scalar metadata.
+            for field in (
+                "oracle_ladder_history",
+                "oracle_last_attempt",
+                "oracle_last_attempt_outcome",
+                "oracle_last_attempt_threshold",
+                "oracle_frontier_selected",
+                "oracle_batch_budget_exhausted",
+            ):
+                if field in _upper_row:
+                    merged[field] = copy.deepcopy(_upper_row[field])
+                else:
+                    merged.pop(field, None)
+            merged["oracle_evidence_sha256"] = upper_oracle[
+                "evidence_sha256"
+            ]
         merged.update({
             "d": upper_bound,
             "d_is_exact": False,
@@ -8337,8 +9160,54 @@ def _merge_duplicate_search_evidence(
             "score": 0.0,
         })
 
+    def finalize_provenance(
+        value: dict[str, Any],
+        *,
+        normalize_stage1_lifecycle: bool | None = None,
+    ) -> dict[str, Any]:
+        if (
+            policy_version
+            < CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION
+        ):
+            return value
+        if normalize_stage1_lifecycle is None:
+            evidence_rank = _distance_evidence_rank(value)
+            n = value.get("n")
+            k = value.get("k")
+            normalize_stage1_lifecycle = bool(
+                evidence_rank < 2
+                and (
+                    lower_row is not None
+                    or upper_oracle is not None
+                    or evidence_rank == 0
+                )
+                and type(n) is int
+                and type(k) is int
+                and n >= 1
+                and 1 <= k <= n
+                and value.get("static_legal") is not False
+                and value.get("target_binding_status") != "conflict"
+                and value.get("search_status")
+                in _COMPOSITE_STAGE1_SEARCH_STATUSES
+            )
+        return _canonicalize_composite_oracle_provenance(
+            value,
+            same_candidate,
+            required_lower_evidence_sha256=(
+                None
+                if lower_row is None
+                else str(lower_row["distance_lower_bound_evidence_sha256"])
+            ),
+            required_upper_evidence_sha256=(
+                None
+                if upper_oracle is None
+                else str(upper_oracle["evidence_sha256"])
+            ),
+            normalize_stage1_lifecycle=normalize_stage1_lifecycle,
+        )
+
     if lower_bound is None and upper_bound is None:
-        return merged
+        return finalize_provenance(merged)
     n = merged.get("n")
     k = merged.get("k")
     if (
@@ -8347,7 +9216,10 @@ def _merge_duplicate_search_evidence(
         or n < 1
         or not 1 <= k <= n
     ):
-        return merged
+        return finalize_provenance(
+            merged,
+            normalize_stage1_lifecycle=False,
+        )
     from evaluation.evaluator import compute_challenge_rejection_cutoff
     from evaluation.target_policy import (
         DEFAULT_TARGET_MODE,
@@ -8434,7 +9306,10 @@ def _merge_duplicate_search_evidence(
             "oracle_retryable": False,
             "score": 0.0,
         })
-        return merged
+        return finalize_provenance(
+            merged,
+            normalize_stage1_lifecycle=False,
+        )
     selected_mode = (
         next(iter(explicit_modes))
         if len(explicit_modes) == 1
@@ -8568,8 +9443,25 @@ def _merge_duplicate_search_evidence(
             "threshold_rejection_proven": True,
             "distance_retry_required": False,
             "oracle_retryable": False,
+            "oracle_deferred": False,
+            "oracle_ladder_complete": True,
+            "oracle_ladder_next_threshold": None,
+            "candidate_persistence_lane": "negative_search_feedback",
+            "candidate_persistence_reason": (
+                "replayed_scalar_fom_excluding_logical_witness"
+            ),
         })
-    return merged
+        if policy_version >= CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION:
+            # A replayed excluding witness is terminal and earns no search or
+            # evolutionary credit, regardless of which LB row was initially
+            # selected as the canonical occurrence.
+            merged.update({
+                "stage": "low_weight_oracle_rejected",
+                "score": 0.0,
+                "fitness": 0.0,
+                "fitness_distance_credit": 0.0,
+            })
+    return finalize_provenance(merged)
 
 
 def _deduplicate(
@@ -8611,11 +9503,12 @@ def _deduplicate(
                 policy_version=policy_version,
             )
 
-    if policy_version >= 3:
+    if policy_version >= CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION:
         for key, selected in list(best.items()):
             best[key] = _merge_duplicate_search_evidence(
                 selected,
                 occurrences[key],
+                policy_version=policy_version,
             )
 
     for key, summary in observations.items():
@@ -8669,12 +9562,17 @@ def select_for_milp(
     audited_keys: set[str],
     limit: int,
     audited_digests: set[str] | None = None,
+    *,
+    policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
 ) -> list[dict[str, Any]]:
     """Select diverse candidates without rewarding BP upper-bound magnitude."""
     if limit <= 0:
         return []
     archive_rows = [] if archive is None else archive.ranked()
-    pool = _deduplicate(new_elites + archive_rows)
+    pool = _deduplicate(
+        new_elites + archive_rows,
+        policy_version=policy_version,
+    )
     eligible = []
     for row in pool:
         if code_key(row) in audited_keys:
@@ -9392,6 +10290,7 @@ class HumanizeFlow:
         state: dict[str, Any],
         *,
         screened_history: list[dict[str, Any]] | None = None,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
     ) -> list[dict[str, Any]]:
         if self.config.milp_top <= 0:
             return []
@@ -9407,7 +10306,10 @@ class HumanizeFlow:
         )
         if screened_history is None:
             screened_history, _rejected = (
-                self._replay_screened_candidate_pool(candidates)
+                self._replay_screened_candidate_pool(
+                    candidates,
+                    policy_version=policy_version,
+                )
             )
 
         # An unresolved solver call is evidence that the candidate needs more
@@ -9448,6 +10350,7 @@ class HumanizeFlow:
             blocked_keys,
             fresh_capacity,
             blocked_digests,
+            policy_version=policy_version,
         )
 
         # Do not leave compute idle when the fresh pool is empty (including a
@@ -9608,9 +10511,9 @@ class HumanizeFlow:
         Protocol-v2/schema-v2 manifests created before selector versioning did
         not carry this field.  Their batches were all derived with policy v1,
         so absence is the exact historical v1 encoding.  Protocol v3 requires
-        an explicit binding and accepts immutable v2 batches as well as new
-        v3 evidence-merging batches; deleting it cannot silently downgrade a
-        transaction.
+        an explicit binding and accepts immutable v2/v3 batches as well as
+        v4 witness-metadata-canonicalizing and v5 composite-provenance
+        batches; deleting it cannot silently downgrade a transaction.
         """
 
         value = transaction.get("candidate_batch_policy_version")
@@ -9645,6 +10548,8 @@ class HumanizeFlow:
             or not isinstance(value, int)
             or value not in {
                 CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION,
+                CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
+                CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION,
                 CANDIDATE_BATCH_POLICY_VERSION,
             }
         ):
@@ -12004,6 +12909,8 @@ class HumanizeFlow:
     def _replay_screened_candidate_pool(
         self,
         current: list[dict[str, Any]],
+        *,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Rebuild the eligible pool from bound history with verified cache."""
         from evaluation.structural_dedup import (
@@ -12011,7 +12918,10 @@ class HumanizeFlow:
         )
 
         _paths, historical = self._validated_committed_candidate_history()
-        combined = _deduplicate(historical + current)
+        combined = _deduplicate(
+            historical + current,
+            policy_version=policy_version,
+        )
         combined.sort(key=candidate_evidence_priority, reverse=True)
         worker_budget = self.config.max_total_workers or 1
         kept, rejected, unresolved = (
@@ -12032,7 +12942,10 @@ class HumanizeFlow:
         return kept, rejected
 
     def _screen_candidates_with_pool(
-        self, rows: list[dict[str, Any]]
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
     ) -> tuple[
         list[dict[str, Any]],
         list[dict[str, Any]],
@@ -12044,17 +12957,26 @@ class HumanizeFlow:
         Selection separately replays all transaction-bound history, retaining
         same-cell runners-up that MAP-Elites intentionally omits.
         """
-        current = _deduplicate(rows)
+        current = _deduplicate(rows, policy_version=policy_version)
         current_keys = {code_key(row) for row in current}
-        kept, rejected = self._replay_screened_candidate_pool(current)
+        kept, rejected = self._replay_screened_candidate_pool(
+            current,
+            policy_version=policy_version,
+        )
         self.archive.replace(kept)
         accepted = [row for row in kept if code_key(row) in current_keys]
         return accepted, rejected, kept
 
     def _screen_candidates(
-        self, rows: list[dict[str, Any]]
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        accepted, rejected, _pool = self._screen_candidates_with_pool(rows)
+        accepted, rejected, _pool = self._screen_candidates_with_pool(
+            rows,
+            policy_version=policy_version,
+        )
         return accepted, rejected
 
     def _audit_selected(
@@ -12676,6 +13598,7 @@ class HumanizeFlow:
                     )
                 else:
                     screened_history: list[dict[str, Any]] | None = None
+                    batch_policy_version = CANDIDATE_BATCH_POLICY_VERSION
                     if pending and phase not in {"screen", "audit"}:
                         raise RoundTransactionError(
                             f"cannot resume pending round phase {phase!r}"
@@ -12696,12 +13619,38 @@ class HumanizeFlow:
                             state, number, round_dir
                         )
 
+                    if legacy_pending:
+                        batch_policy_version = (
+                            CANDIDATE_BATCH_POLICY_LEGACY_VERSION
+                        )
+                    else:
+                        screen_transaction = self._load_transaction(
+                            state,
+                            number,
+                            round_dir,
+                        )
+                        if (
+                            screen_transaction is None
+                            or screen_transaction.get("status") != "committed"
+                        ):
+                            raise RoundTransactionError(
+                                "screen phase has no committed candidate batch"
+                            )
+                        batch_policy_version = (
+                            self._candidate_batch_policy_version(
+                                screen_transaction
+                            )
+                        )
+
                     if state.get("round_phase") == "screen":
                         (
                             candidates,
                             rejected,
                             screened_history,
-                        ) = self._screen_candidates_with_pool(candidates)
+                        ) = self._screen_candidates_with_pool(
+                            candidates,
+                            policy_version=batch_policy_version,
+                        )
                         self._write_jsonl(candidate_path, candidates)
                         self._write_jsonl(rejected_path, rejected)
                     elif state.get("round_phase") == "audit":
@@ -12722,6 +13671,7 @@ class HumanizeFlow:
                             candidates,
                             state,
                             screened_history=screened_history,
+                            policy_version=batch_policy_version,
                         )
                         self._write_jsonl(selected_path, selected)
                     else:
@@ -12747,6 +13697,27 @@ class HumanizeFlow:
                     state["round_phase"] = "review"
                     self.store.write_state(state)
 
+                current_candidate_diversity: dict[str, Any] | None = None
+                transaction_manifest = self._transaction_paths(
+                    round_dir
+                )["manifest"]
+                if transaction_manifest.is_file():
+                    transaction, transaction_batch_rows = (
+                        self._validate_completed_transaction(
+                            number, round_dir
+                        )
+                    )
+                    current_candidate_diversity = (
+                        _candidate_diversity_summary(
+                            transaction,
+                            transaction_batch_rows,
+                        )
+                    )
+                elif not legacy_pending:
+                    raise RoundTransactionError(
+                        "review phase has no committed evolution transaction"
+                    )
+
                 canonical_rows = self._read_canonical_evaluations(
                     recover_final_partial=False
                 )
@@ -12764,6 +13735,9 @@ class HumanizeFlow:
                     trusted_exact_wins=trusted_wins,
                     memory=memory,
                     round_history=state.get("rounds", []),
+                    current_candidate_diversity=(
+                        current_candidate_diversity
+                    ),
                 )
                 (round_dir / "review-request.md").write_text(prompt)
                 if state.get("round_phase") == "finalize" and review_path.is_file():

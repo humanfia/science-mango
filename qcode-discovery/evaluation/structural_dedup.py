@@ -26,6 +26,7 @@ from typing import Any, Callable, Mapping
 import numpy as np
 
 from evaluation.bb_code import build_bb_code, get_code_params_fast, validate_terms
+from evaluation.distance_milp import symplectic_weight_witness
 from evaluation.geometry import candidate_geometry, normalize_geometry
 from evaluation.tanner_equivalence import (
     canonical_hash,
@@ -215,6 +216,7 @@ def structural_screen_runtime_fingerprint() -> dict[str, Any]:
         "geometry.py",
         "tanner_equivalence.py",
         "construction.py",
+        "distance_milp.py",
     ):
         path = module_dir / name
         sources[name] = (
@@ -263,6 +265,79 @@ def _annotation_payload(result: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
+def _logical_basis_upper_bound_report(code: Any) -> dict[str, Any]:
+    witness = symplectic_weight_witness(code)
+    payload: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "qcode-logical-basis-upper-bound-v1",
+        "method": "replayed-minimum-symplectic-basis-row",
+        "available": witness is not None,
+        "upper_bound": None if witness is None else int(witness["weight"]),
+        "witness": None if witness is None else witness,
+    }
+    return {**payload, "report_sha256": _sha256_json(payload)}
+
+
+def _validate_logical_basis_upper_bound_report(value: Any) -> None:
+    if not isinstance(value, dict) or set(value) != {
+        "schema_version", "kind", "method", "available", "upper_bound",
+        "witness", "report_sha256",
+    }:
+        raise StructuralScreenCacheError(
+            "logical-basis upper-bound report fields changed"
+        )
+    unsigned = dict(value)
+    digest = unsigned.pop("report_sha256", None)
+    if digest != _sha256_json(unsigned):
+        raise StructuralScreenCacheError(
+            "logical-basis upper-bound report self-hash mismatch"
+        )
+    if (
+        value.get("schema_version") != 1
+        or value.get("kind") != "qcode-logical-basis-upper-bound-v1"
+        or value.get("method")
+        != "replayed-minimum-symplectic-basis-row"
+        or not isinstance(value.get("available"), bool)
+    ):
+        raise StructuralScreenCacheError(
+            "logical-basis upper-bound report schema is invalid"
+        )
+    witness = value.get("witness")
+    if value["available"]:
+        upper = value.get("upper_bound")
+        if (
+            isinstance(upper, bool)
+            or not isinstance(upper, int)
+            or upper < 1
+            or not isinstance(witness, dict)
+            or set(witness) != {
+                "side", "index", "dual_side", "dual_index", "weight",
+                "bits",
+            }
+            or witness.get("weight") != upper
+            or witness.get("side") not in {"X", "Z"}
+            or witness.get("dual_side")
+            != ("Z" if witness.get("side") == "X" else "X")
+            or isinstance(witness.get("index"), bool)
+            or not isinstance(witness.get("index"), int)
+            or witness["index"] < 0
+            or isinstance(witness.get("dual_index"), bool)
+            or not isinstance(witness.get("dual_index"), int)
+            or witness["dual_index"] < 0
+            or not isinstance(witness.get("bits"), list)
+            or not witness["bits"]
+            or any(type(bit) is not int or bit not in {0, 1} for bit in witness["bits"])
+            or sum(witness["bits"]) != upper
+        ):
+            raise StructuralScreenCacheError(
+                "logical-basis upper-bound witness is invalid"
+            )
+    elif value.get("upper_bound") is not None or witness is not None:
+        raise StructuralScreenCacheError(
+            "unavailable logical-basis report carries a witness"
+        )
+
+
 def _validate_annotation_payload(payload: Any) -> None:
     if not isinstance(payload, dict) or set(payload) != {
         "static_eligibility",
@@ -301,6 +376,9 @@ def _validate_annotation_payload(payload: Any) -> None:
             "structural-screen static evidence is internally inconsistent"
         )
     if static["eligible"]:
+        basis_report = static.get("logical_basis_upper_bound")
+        if basis_report is not None:
+            _validate_logical_basis_upper_bound_report(basis_report)
         for name in ("n", "k"):
             value = static.get(name)
             if (
@@ -1459,9 +1537,11 @@ def annotate_css_result(result: dict) -> dict:
         }
         annotated["structural_rejection"] = "static_ineligible"
         return annotated
+    code = None
     if _has_compact_construction(result):
+        code = _build_css_result(result)
         annotated["structural_novelty"] = check_css_code_structural_novelty(
-            _build_css_result(result)
+            code
         )
     else:
         annotated["structural_novelty"] = check_css_structural_novelty(
@@ -1473,6 +1553,12 @@ def annotate_css_result(result: dict) -> dict:
         )
     if not annotated["structural_novelty"]["novel"]:
         annotated["structural_rejection"] = "known_reference"
+    else:
+        if code is None:
+            code = _build_css_result(result)
+        static["logical_basis_upper_bound"] = (
+            _logical_basis_upper_bound_report(code)
+        )
     return annotated
 
 

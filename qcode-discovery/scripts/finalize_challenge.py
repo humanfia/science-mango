@@ -24,6 +24,7 @@ from typing import Any, Mapping
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.certificate_dispatch import (
+    EXACT_ANCHOR_CSS_TYPE,
     SUPPORTED_CERTIFICATE_TYPES,
     verify_certificate,
 )
@@ -509,6 +510,16 @@ def main() -> int:
         rows = load_rows(args.claims)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"FINAL GATE FAILED: cannot load claims: {exc}", file=sys.stderr)
+        return 2
+
+    if any(
+        row.get("certificate_type") == EXACT_ANCHOR_CSS_TYPE for row in rows
+    ):
+        print(
+            "FINAL GATE FAILED: published calibration certificates are "
+            "explicitly ineligible for challenge finalization",
+            file=sys.stderr,
+        )
         return 2
 
     if not rows or any(

@@ -10,7 +10,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.certificate_dispatch import build_certificate
+from evaluation.certificate_dispatch import (
+    EXACT_ANCHOR_CSS_TYPE,
+    build_certificate,
+)
 from evaluation.sector_certificate import (
     STAGE3_GATE as SECTOR_SAT_STAGE3_GATE,
     claim_from_sector_sat_artifact,
@@ -91,6 +94,15 @@ def main() -> int:
     temporary = args.output.with_suffix(args.output.suffix + ".tmp")
     temporary.write_text(json.dumps(certificate, indent=2) + "\n")
     temporary.replace(args.output)
+    if certificate.get("certificate_type") == EXACT_ANCHOR_CSS_TYPE:
+        parameters = certificate.get("parameters") or {}
+        print(
+            "CERTIFICATE PACKAGED (VERIFICATION REQUIRED; "
+            "CALIBRATION ONLY / NOT A WIN): "
+            f"n={parameters.get('n')} k={parameters.get('k')} "
+            f"d={parameters.get('d')} output={args.output}"
+        )
+        return 0
     status = (
         "BUILT (INDEPENDENT REPLAY REQUIRED)"
         if certificate["passed"] else "NOT A CHALLENGE WIN"

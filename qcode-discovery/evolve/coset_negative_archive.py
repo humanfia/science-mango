@@ -11,6 +11,7 @@ import argparse
 import fcntl
 import hashlib
 import json
+import math
 import os
 import stat
 import uuid
@@ -26,6 +27,13 @@ from evaluation.construction import (
     build_css_code_from_claim,
     construction_source_fingerprint,
 )
+from evaluation.certificate import (
+    FORMULATION as CSS_EXACT_FORMULATION,
+    THRESHOLD_FORMULATION as CSS_THRESHOLD_FORMULATION,
+    pack_vector,
+    verify_css_witness,
+    verify_direction_evidence,
+)
 from evaluation.coset_action_catalog import (
     V2_CATALOG_ID,
     action_catalog_identity,
@@ -39,12 +47,27 @@ from evaluation.distance_sat import (
 )
 from evaluation.final_gate import minimum_winning_distance
 from evaluation.low_weight_oracle import verify_css_low_weight_oracle
+from evaluation.structural_dedup import (
+    canonical_digest as structural_canonical_digest,
+    structural_screen_runtime_fingerprint,
+)
+from evaluation.target_policy import (
+    DEFAULT_TARGET_MODE,
+    TARGET_MODE_GIST,
+    minimum_target_distance,
+    validate_target_binding,
+    validate_target_mode,
+)
 from evaluation.coset_two_block import normalize_coset_two_block_construction
 from evaluation.two_block_sparse_kernel_oracle import (
     verify_two_block_sparse_kernel_oracle,
 )
 from evolve.coset_search_contract import (
+    COSET_CANDIDATE_SCHEMA_VERSION,
+    COSET_CANDIDATE_SCHEMA_VERSION_V3,
+    COSET_RENDERER_V3_ID,
     COSET_REPRESENTATION_ID,
+    COSET_REPRESENTATION_ID_V3,
     action_search_view,
     coset_candidate_digest,
     normalize_coset_candidate,
@@ -61,6 +84,7 @@ NEGATIVE_FEEDBACK_SNAPSHOT_KIND = "qcode-coset-negative-feedback-snapshot-v1"
 NEGATIVE_FEEDBACK_SNAPSHOT_SCHEMA_VERSION = 1
 STAGE3_NEGATIVE_INPUTS_ENV = "QCODE_COSET_STAGE3_NEGATIVE_INPUTS"
 STAGE2_NEGATIVE_INPUTS_ENV = "QCODE_COSET_STAGE2_NEGATIVE_INPUTS"
+FRONTIER_NEGATIVE_INPUTS_ENV = "QCODE_COSET_FRONTIER_NEGATIVE_INPUTS"
 NEGATIVE_ARCHIVE_KIND = "qcode-coset-verified-negative-mechanisms"
 NEGATIVE_ARCHIVE_SCHEMA_VERSION = 1
 NEGATIVE_EVENT_KIND = "qcode-coset-verified-negative-event"
@@ -69,6 +93,8 @@ NEGATIVE_MOTIF_KIND = "qcode-coset-negative-mechanism-motif"
 NEGATIVE_MOTIF_SCHEMA_VERSION = 1
 STAGE3_GATE = "qldpc-frontier-sat-sector-exact-screen"
 STAGE3_SCHEMA_VERSION = 1
+FRONTIER_GATE = "qldpc-frontier-threshold-screen"
+FRONTIER_SCHEMA_VERSION = 2
 _MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
 _MAX_STAGE3_BYTES = 512 * 1024 * 1024
 _MAX_ARCHIVE_EVENTS = 250_000
@@ -111,6 +137,10 @@ def _is_sha256(value: Any) -> bool:
     )
 
 
+def _is_finite_number(value: Any) -> bool:
+    return type(value) in {int, float} and math.isfinite(float(value))
+
+
 _PROJECT = Path(__file__).resolve().parent.parent
 
 
@@ -128,6 +158,21 @@ def _source_binding() -> dict[str, Any]:
         "distance_sat.py": _file_sha256(
             _PROJECT / "evaluation" / "distance_sat.py"
         ),
+        "distance_milp.py": _file_sha256(
+            _PROJECT / "evaluation" / "distance_milp.py"
+        ),
+        "structural_dedup.py": _file_sha256(
+            _PROJECT / "evaluation" / "structural_dedup.py"
+        ),
+        "tanner_equivalence.py": _file_sha256(
+            _PROJECT / "evaluation" / "tanner_equivalence.py"
+        ),
+        "certificate.py": _file_sha256(
+            _PROJECT / "evaluation" / "certificate.py"
+        ),
+        "target_policy.py": _file_sha256(
+            _PROJECT / "evaluation" / "target_policy.py"
+        ),
         "two_block_sparse_kernel_oracle.py": _file_sha256(
             _PROJECT / "evaluation" / "two_block_sparse_kernel_oracle.py"
         ),
@@ -140,19 +185,19 @@ def _source_binding() -> dict[str, Any]:
         "screen_frontier_sat.py": _file_sha256(
             _PROJECT / "scripts" / "screen_frontier_sat.py"
         ),
+        "screen_frontier_candidate.py": _file_sha256(
+            _PROJECT / "scripts" / "screen_frontier_candidate.py"
+        ),
     }
-    return {
+    structural_runtime = structural_screen_runtime_fingerprint()
+    binding = {
         "renderer_registry": renderer_registry,
         "action_catalog": catalog,
         "construction_source_fingerprint": construction_source_fingerprint(),
+        "structural_runtime": structural_runtime,
         "verifier_sources": sources,
-        "binding_sha256": _sha256({
-            "renderer_registry": renderer_registry,
-            "action_catalog": catalog,
-            "construction_source_fingerprint": construction_source_fingerprint(),
-            "verifier_sources": sources,
-        }),
     }
+    return {**binding, "binding_sha256": _sha256(binding)}
 
 
 # Freeze the identity of the code actually imported into this process.  This
@@ -884,6 +929,118 @@ def _build_candidate(
     return normalized, _build_construction(expected)
 
 
+def _candidate_core_from_ranked_row(row: Mapping[str, Any]) -> dict[str, Any]:
+    """Extract or reconstruct the exact registered search genotype.
+
+    Early paper-screen artifacts retained the canonical construction and the
+    search candidate digest, but compacted away the renderer-v3 genotype
+    fields.  The construction contains every mathematical support choice.  In
+    that legacy shape we deterministically rebuild every registered genotype
+    that could compile to it and accept only the unique one whose digest is
+    the artifact's sealed candidate identity.
+    """
+
+    identity = (row.get("schema_version"), row.get("representation_id"))
+    if identity == (COSET_CANDIDATE_SCHEMA_VERSION, COSET_REPRESENTATION_ID):
+        names = (
+            "schema_version", "representation_id", "action_id",
+            "left_support", "right_support",
+        )
+    elif identity == (
+        COSET_CANDIDATE_SCHEMA_VERSION_V3,
+        COSET_REPRESENTATION_ID_V3,
+    ):
+        names = (
+            "schema_version", "representation_id", "renderer_descriptor_id",
+            "action_id", "support_split", "left_support", "right_support",
+        )
+        if row.get("renderer_descriptor_id") != COSET_RENDERER_V3_ID:
+            raise NegativeArchiveError(
+                "frontier candidate renderer is not registered"
+            )
+    else:
+        genotype_fields = {
+            "schema_version", "representation_id", "renderer_descriptor_id",
+            "action_id", "support_split", "left_support", "right_support",
+        }
+        if genotype_fields & set(row):
+            raise NegativeArchiveError(
+                "frontier candidate representation is not registered"
+            )
+        compact_fields = {
+            "candidate_sha256", "canonical_digest", "construction", "k",
+            "n", "required_distance", "source", "target", "target_mode",
+            "trial",
+        }
+        if set(row) != compact_fields:
+            raise NegativeArchiveError(
+                "frontier compact candidate fields are not exact"
+            )
+        construction = row.get("construction")
+        candidate_sha256 = row.get("candidate_sha256")
+        if not isinstance(construction, Mapping) or not _is_sha256(
+            candidate_sha256
+        ):
+            raise NegativeArchiveError(
+                "frontier compact candidate identity is incomplete"
+            )
+        try:
+            canonical = normalize_coset_two_block_construction(construction)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise NegativeArchiveError(
+                "frontier compact construction does not replay"
+            ) from exc
+        if canonical != dict(construction):
+            raise NegativeArchiveError(
+                "frontier compact construction is not canonical"
+            )
+        split = [
+            len(canonical["left_support"]),
+            len(canonical["right_support"]),
+        ]
+        proposed = (
+            {
+                "schema_version": COSET_CANDIDATE_SCHEMA_VERSION,
+                "representation_id": COSET_REPRESENTATION_ID,
+                "action_id": canonical["action_id"],
+                "left_support": canonical["left_support"],
+                "right_support": canonical["right_support"],
+            },
+            {
+                "schema_version": COSET_CANDIDATE_SCHEMA_VERSION_V3,
+                "representation_id": COSET_REPRESENTATION_ID_V3,
+                "renderer_descriptor_id": COSET_RENDERER_V3_ID,
+                "action_id": canonical["action_id"],
+                "support_split": split,
+                "left_support": canonical["left_support"],
+                "right_support": canonical["right_support"],
+            },
+        )
+        matches: list[dict[str, Any]] = []
+        for proposed_core in proposed:
+            try:
+                normalized = normalize_coset_candidate(proposed_core)
+            except (KeyError, TypeError, ValueError):
+                continue
+            if (
+                coset_candidate_digest(normalized) == candidate_sha256
+                and _expected_construction(normalized) == canonical
+            ):
+                matches.append(normalized)
+        if len(matches) != 1:
+            raise NegativeArchiveError(
+                "frontier compact candidate digest is ambiguous or changed"
+            )
+        return matches[0]
+    try:
+        core = {name: row[name] for name in names}
+        return normalize_coset_candidate(core)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise NegativeArchiveError(
+            "frontier candidate genotype does not replay"
+        ) from exc
+
+
 def _coordinate(key_kind: str, value: Mapping[str, Any]) -> dict[str, Any]:
     payload = {"kind": key_kind, **dict(value)}
     return {**payload, "key_sha256": _sha256(payload)}
@@ -895,6 +1052,16 @@ def _weight_bucket(weight: int) -> str:
             lower = 1 if upper == 2 else {4: 3, 8: 5, 12: 9, 16: 13, 23: 17}[upper]
             return f"w{lower}-{upper}"
     return "w24+"
+
+
+def _shortfall_bucket(shortfall: int) -> str:
+    if shortfall <= 0:
+        raise NegativeArchiveError("negative witness does not miss its target")
+    for upper in (1, 2, 4, 8, 16):
+        if shortfall <= upper:
+            lower = 1 if upper == 1 else {2: 2, 4: 3, 8: 5, 16: 9}[upper]
+            return f"g{lower}-{upper}"
+    return "g17+"
 
 
 def _verified_witness_orbit(
@@ -994,6 +1161,7 @@ def _motif(
     *,
     rebuilt: Mapping[str, Any],
     witness: Mapping[str, Any],
+    required_distance: int,
 ) -> dict[str, Any]:
     canonical_construction = dict(construction)
     view = action_search_view(str(canonical_construction["action_id"]))
@@ -1016,6 +1184,15 @@ def _motif(
     )
     sector = str(witness["sector"])
     weight = int(witness["weight"])
+    if (
+        isinstance(required_distance, bool)
+        or not isinstance(required_distance, int)
+        or required_distance <= weight
+    ):
+        raise NegativeArchiveError(
+            "verified witness does not exclude the selected target"
+        )
+    shortfall = required_distance - weight
     profile = [len(left_qubits), len(right_qubits)]
     orbit = _verified_witness_orbit(
         canonical_construction,
@@ -1047,6 +1224,13 @@ def _motif(
             "left_relative_support": left_qubits,
             "right_relative_support": right_qubits,
         }),
+        "shortfall": _coordinate("witness-threshold-shortfall", {
+            "action_family_bin": view.action_family_bin,
+            "sector": sector,
+            "layout": layout,
+            "required_distance": required_distance,
+            "shortfall_bucket": _shortfall_bucket(shortfall),
+        }),
     }
     if orbit.get("available") is True:
         canonical_support = list(orbit["canonical_support"])
@@ -1074,6 +1258,9 @@ def _motif(
             "block_layout": layout,
             "block_weight_profile": profile,
             "weight_bucket": _weight_bucket(weight),
+            "target_required_distance": required_distance,
+            "threshold_shortfall": shortfall,
+            "threshold_shortfall_bucket": _shortfall_bucket(shortfall),
             "logical_syndrome": witness.get("logical_syndrome"),
         },
     }
@@ -1116,6 +1303,12 @@ def _stage1_event(row: Mapping[str, Any]) -> dict[str, Any]:
         raise NegativeArchiveError("Stage-1 candidate digest does not replay")
     if row.get("n") != rebuilt["n"] or row.get("k") != rebuilt["k"]:
         raise NegativeArchiveError("Stage-1 candidate n/k does not replay")
+    required = _candidate_target_required_distance(
+        row,
+        n=rebuilt["n"],
+        k=rebuilt["k"],
+        where="Stage-1 candidate",
+    )
     failures = verify_css_low_weight_oracle(
         evidence,
         rebuilt["hx"], rebuilt["hz"], rebuilt["lx"], rebuilt["lz"],
@@ -1134,7 +1327,7 @@ def _stage1_event(row: Mapping[str, Any]) -> dict[str, Any]:
     if (
         isinstance(weight, bool)
         or not isinstance(weight, int)
-        or weight >= minimum_winning_distance(rebuilt["n"], rebuilt["k"])
+        or weight >= required
     ):
         raise NegativeArchiveError("Stage-1 witness does not exclude the final gate")
     normalized_witness = {
@@ -1147,6 +1340,7 @@ def _stage1_event(row: Mapping[str, Any]) -> dict[str, Any]:
         rebuilt["construction"],
         rebuilt=rebuilt,
         witness=normalized_witness,
+        required_distance=required,
     )
     return _event(
         motif,
@@ -1184,6 +1378,10 @@ def _row_canonical_digest(row: Mapping[str, Any]) -> str | None:
     for value in (
         row.get("canonical_digest"),
         (
+            row.get("structural_novelty", {}).get("canonical_digest")
+            if isinstance(row.get("structural_novelty"), Mapping) else None
+        ),
+        (
             row.get("triage_identity", {}).get("canonical_digest")
             if isinstance(row.get("triage_identity"), Mapping) else None
         ),
@@ -1197,6 +1395,167 @@ def _row_canonical_digest(row: Mapping[str, Any]) -> str | None:
     return values[0]
 
 
+def _candidate_target_required_distance(
+    candidate: Mapping[str, Any],
+    *,
+    n: int,
+    k: int,
+    where: str,
+) -> int:
+    """Replay an explicit target contract or the all-absent legacy policy."""
+
+    contract_fields = (
+        "target_mode",
+        "target",
+        "target_binding_sha256",
+        "target_required_distance",
+    )
+    if all(name not in candidate for name in contract_fields):
+        if DEFAULT_TARGET_MODE != TARGET_MODE_GIST:
+            raise NegativeArchiveError(
+                f"{where} legacy target policy is no longer the default gist"
+            )
+        required = minimum_target_distance(n, k, DEFAULT_TARGET_MODE)
+        if candidate.get("required_distance") != required:
+            raise NegativeArchiveError(
+                f"{where} legacy target threshold does not replay"
+            )
+        return required
+
+    raw_mode = candidate.get("target_mode")
+    raw_target = candidate.get("target")
+    if not isinstance(raw_mode, str) or not isinstance(raw_target, Mapping):
+        raise NegativeArchiveError(f"{where} lacks an explicit target binding")
+    try:
+        mode = validate_target_mode(raw_mode)
+        target = validate_target_binding(raw_target, n, k, mode)
+        required = minimum_target_distance(n, k, mode)
+    except ValueError as exc:
+        raise NegativeArchiveError(
+            f"{where} target binding does not replay"
+        ) from exc
+    if target["required_distance"] != required:
+        raise NegativeArchiveError(f"{where} target threshold does not replay")
+    if (
+        "target_binding_sha256" in candidate
+        and candidate.get("target_binding_sha256") != target["binding_sha256"]
+    ):
+        raise NegativeArchiveError(f"{where} target binding mirror changed")
+    if (
+        "target_required_distance" in candidate
+        and candidate.get("target_required_distance") != required
+    ):
+        raise NegativeArchiveError(f"{where} target threshold mirror changed")
+    if (
+        "required_distance" in candidate
+        and candidate.get("required_distance") != required
+    ):
+        raise NegativeArchiveError(f"{where} target threshold does not replay")
+    return required
+
+
+def _stage2_basis_event(
+    result: Mapping[str, Any],
+    candidate: Mapping[str, Any],
+) -> dict[str, Any]:
+    evidence = result.get("logical_basis_upper_bound")
+    construction = candidate.get("construction")
+    if not isinstance(evidence, Mapping) or not isinstance(construction, Mapping):
+        raise NegativeArchiveError(
+            "Stage-2 basis rejection lacks evidence/construction"
+        )
+    if set(evidence) != {
+        "schema_version", "gate", "canonical_digest", "n", "k",
+        "required_distance", "witness", "evidence_sha256",
+    }:
+        raise NegativeArchiveError("Stage-2 basis evidence fields changed")
+    _validate_sealed_record(
+        evidence,
+        hash_field="evidence_sha256",
+        where="Stage-2 basis evidence",
+    )
+    rebuilt = _build_construction(construction)
+    if candidate.get("n") != rebuilt["n"] or candidate.get("k") != rebuilt["k"]:
+        raise NegativeArchiveError("Stage-2 basis candidate n/k does not replay")
+    required = _candidate_target_required_distance(
+        candidate,
+        n=rebuilt["n"],
+        k=rebuilt["k"],
+        where="Stage-2 basis candidate",
+    )
+    digest = result.get("canonical_digest")
+    if (
+        not _is_sha256(digest)
+        or evidence.get("canonical_digest") != digest
+        or structural_canonical_digest(rebuilt["code"]) != digest
+    ):
+        raise NegativeArchiveError("Stage-2 basis candidate digest changed")
+    from evaluation.distance_milp import symplectic_weight_witness
+
+    witness = symplectic_weight_witness(rebuilt["code"])
+    if not isinstance(witness, Mapping):
+        raise NegativeArchiveError("Stage-2 basis witness cannot be rebuilt")
+    expected = {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-logical-basis-upper-bound",
+        "canonical_digest": digest,
+        "n": rebuilt["n"],
+        "k": rebuilt["k"],
+        "required_distance": required,
+        "witness": dict(witness),
+    }
+    expected["evidence_sha256"] = _sha256(expected)
+    weight = witness.get("weight")
+    if (
+        dict(evidence) != expected
+        or result.get("status") != "REJECTED"
+        or result.get("retry_required") is not False
+        or result.get("threshold_rejection_proven") is not True
+        or result.get("threshold_proof_source")
+        != "logical-basis-upper-bound"
+        or result.get("distance_upper_bound") != weight
+        or isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or not 1 <= weight < required
+    ):
+        raise NegativeArchiveError(
+            "Stage-2 basis witness does not replay a threshold rejection"
+        )
+    bits = witness.get("bits")
+    if (
+        not isinstance(bits, list)
+        or len(bits) != rebuilt["n"]
+        or any(type(bit) is not int or bit not in {0, 1} for bit in bits)
+    ):
+        raise NegativeArchiveError("Stage-2 basis witness bits are invalid")
+    vector = np.asarray(bits, dtype=np.uint8)
+    side = witness.get("side")
+    logicals = (
+        rebuilt["lz"] if side == "X"
+        else rebuilt["lx"] if side == "Z"
+        else None
+    )
+    if logicals is None:
+        raise NegativeArchiveError("Stage-2 basis witness side is invalid")
+    motif = _motif(
+        rebuilt["construction"],
+        rebuilt=rebuilt,
+        witness={
+            "sector": side,
+            "weight": weight,
+            "support": [int(index) for index in np.flatnonzero(vector)],
+            "logical_syndrome": ((logicals @ vector) & 1).astype(int).tolist(),
+        },
+        required_distance=required,
+    )
+    return _event(
+        motif,
+        source="stage2-logical-basis-upper-bound",
+        evidence_sha256=str(evidence["evidence_sha256"]),
+        artifact_sha256=None,
+    )
+
+
 def _stage2_sparse_event(
     result: Mapping[str, Any],
     candidate: Mapping[str, Any],
@@ -1206,13 +1565,17 @@ def _stage2_sparse_event(
     if not isinstance(evidence, Mapping) or not isinstance(construction, Mapping):
         raise NegativeArchiveError("Stage-2 sparse-kernel result lacks evidence/construction")
     rebuilt = _build_construction(construction)
-    required = minimum_winning_distance(rebuilt["n"], rebuilt["k"])
     if (
         candidate.get("n") != rebuilt["n"]
         or candidate.get("k") != rebuilt["k"]
-        or candidate.get("required_distance") != required
     ):
-        raise NegativeArchiveError("Stage-2 candidate n/k/threshold does not replay")
+        raise NegativeArchiveError("Stage-2 candidate n/k does not replay")
+    required = _candidate_target_required_distance(
+        candidate,
+        n=rebuilt["n"],
+        k=rebuilt["k"],
+        where="Stage-2 candidate",
+    )
     failures = verify_two_block_sparse_kernel_oracle(
         evidence,
         rebuilt["hx"], rebuilt["hz"], rebuilt["lx"], rebuilt["lz"],
@@ -1246,6 +1609,7 @@ def _stage2_sparse_event(
             "support": witness.get("support"),
             "logical_syndrome": witness.get("logical_syndrome"),
         },
+        required_distance=required,
     )
     return _event(
         motif,
@@ -1275,13 +1639,17 @@ def _stage2_global_event(
             "Stage-2 global low-weight result lacks ladder/construction"
         )
     rebuilt = _build_construction(construction)
-    required = minimum_winning_distance(rebuilt["n"], rebuilt["k"])
     if (
         candidate.get("n") != rebuilt["n"]
         or candidate.get("k") != rebuilt["k"]
-        or candidate.get("required_distance") != required
     ):
-        raise NegativeArchiveError("Stage-2 candidate n/k/threshold does not replay")
+        raise NegativeArchiveError("Stage-2 candidate n/k does not replay")
+    required = _candidate_target_required_distance(
+        candidate,
+        n=rebuilt["n"],
+        k=rebuilt["k"],
+        where="Stage-2 candidate",
+    )
     digest = result.get("canonical_digest")
     max_weight = ladder.get("max_weight")
     if (
@@ -1395,6 +1763,7 @@ def _stage2_global_event(
             "support": witness.get("support"),
             "logical_syndrome": witness.get("logical_syndrome"),
         },
+        required_distance=required,
     )
     return _event(
         motif,
@@ -1418,18 +1787,30 @@ def _stage2_summary_events(summary: Mapping[str, Any]) -> list[dict[str, Any]]:
     for raw in summary["results"]:
         if not isinstance(raw, Mapping):
             raise NegativeArchiveError("Stage-2 summary result is not an object")
+        basis = raw.get("logical_basis_upper_bound")
         sparse = raw.get("two_block_sparse_kernel_oracle")
         ladder = raw.get("compact_low_weight_sat_ladder")
+        basis_reject = (
+            isinstance(basis, Mapping)
+            and raw.get("threshold_proof_source")
+            == "logical-basis-upper-bound"
+        )
         sparse_sat = isinstance(sparse, Mapping) and sparse.get("outcome") == "SAT"
         global_sat = isinstance(ladder, Mapping) and ladder.get("outcome") == "SAT"
-        if sparse_sat and global_sat:
+        if sum((basis_reject, sparse_sat, global_sat)) > 1:
             raise NegativeArchiveError(
-                "Stage-2 result claims both restricted and global SAT terminals"
+                "Stage-2 result claims multiple negative terminal sources"
             )
-        if sparse_sat:
+        if basis_reject:
+            selected_results.append(("basis", raw))
+        elif sparse_sat:
             selected_results.append(("sparse", raw))
         elif global_sat:
             selected_results.append(("global", raw))
+        elif raw.get("threshold_proof_source") == "logical-basis-upper-bound":
+            raise NegativeArchiveError(
+                "Stage-2 basis rejection lost its evidence"
+            )
         elif raw.get("threshold_proof_source") == "two-block-sparse-kernel-oracle":
             raise NegativeArchiveError("Stage-2 sparse-kernel rejection lost its evidence")
         elif raw.get("threshold_proof_source") == "compact-low-weight-sat":
@@ -1461,11 +1842,12 @@ def _stage2_summary_events(summary: Mapping[str, Any]) -> list[dict[str, Any]]:
             raise NegativeArchiveError(
                 "Stage-2 negative result does not resolve to one ranked candidate"
             )
-        events.append(
-            _stage2_sparse_event(result, matches[0])
-            if source == "sparse"
-            else _stage2_global_event(result, matches[0])
-        )
+        if source == "basis":
+            events.append(_stage2_basis_event(result, matches[0]))
+        elif source == "sparse":
+            events.append(_stage2_sparse_event(result, matches[0]))
+        else:
+            events.append(_stage2_global_event(result, matches[0]))
     return events
 
 
@@ -1522,6 +1904,254 @@ def _unpack_operator(record: Mapping[str, Any]) -> np.ndarray:
     if canonical != dict(record):
         raise NegativeArchiveError("Stage-3 packed operator metadata/hash mismatch")
     return vector
+
+
+def _frontier_direction_specs(
+    rebuilt: Mapping[str, Any],
+) -> list[tuple[str, int, str, np.ndarray, np.ndarray]]:
+    return [
+        ("Z", index, "hx", rebuilt["hx"], rebuilt["lx"][index])
+        for index in range(len(rebuilt["lx"]))
+    ] + [
+        ("X", index, "hz", rebuilt["hz"], rebuilt["lz"][index])
+        for index in range(len(rebuilt["lz"]))
+    ]
+
+
+def _frontier_events(
+    artifact: Mapping[str, Any],
+    *,
+    artifact_file_sha256: str,
+) -> list[dict[str, Any]]:
+    """Replay paper-standard exact-ILP counterexamples into search memory."""
+
+    if not _is_sha256(artifact_file_sha256):
+        raise NegativeArchiveError("frontier artifact file hash is invalid")
+    threshold_only = artifact.get("threshold_only")
+    claim = artifact.get("candidate")
+    directions = artifact.get("directions")
+    if (
+        artifact.get("schema_version") != FRONTIER_SCHEMA_VERSION
+        or artifact.get("gate") != FRONTIER_GATE
+        or artifact.get("status") != "REJECTED"
+        or not isinstance(threshold_only, bool)
+        or not isinstance(claim, Mapping)
+        or not isinstance(claim.get("construction"), Mapping)
+        or not isinstance(directions, list)
+        or not directions
+    ):
+        raise NegativeArchiveError(
+            "frontier artifact is not a terminal rejected CSS screen"
+        )
+
+    core = _candidate_core_from_ranked_row(claim)
+    candidate_sha256 = claim.get("candidate_sha256")
+    if (
+        not _is_sha256(candidate_sha256)
+        or candidate_sha256 != coset_candidate_digest(core)
+        or dict(claim["construction"]) != _expected_construction(core)
+    ):
+        raise NegativeArchiveError(
+            "frontier candidate genotype/construction binding does not replay"
+        )
+    rebuilt = _build_construction(claim["construction"])
+    if claim.get("n") != rebuilt["n"] or claim.get("k") != rebuilt["k"]:
+        raise NegativeArchiveError("frontier candidate n/k does not replay")
+    canonical_digest = _row_canonical_digest(claim)
+    if (
+        not _is_sha256(canonical_digest)
+        or canonical_digest != structural_canonical_digest(rebuilt["code"])
+    ):
+        raise NegativeArchiveError(
+            "frontier candidate canonical digest does not replay"
+        )
+    required = _candidate_target_required_distance(
+        claim,
+        n=rebuilt["n"],
+        k=rebuilt["k"],
+        where="frontier candidate",
+    )
+    specs = _frontier_direction_specs(rebuilt)
+    geometry = {
+        "n": rebuilt["n"],
+        "k": rebuilt["k"],
+        "required_distance": required,
+        "expected_directions": len(specs),
+    }
+    if (
+        artifact.get("required_distance") != required
+        or artifact.get("reconstructed_parameters") != geometry
+        or artifact.get("expected_directions") != len(specs)
+        or artifact.get("completed_directions") != len(directions)
+    ):
+        raise NegativeArchiveError(
+            "frontier artifact geometry/envelope does not replay"
+        )
+
+    seen_positions: set[int] = set()
+    events: list[dict[str, Any]] = []
+    low_count = 0
+    for raw in directions:
+        if not isinstance(raw, Mapping):
+            raise NegativeArchiveError("frontier direction is not an object")
+        position = raw.get("position")
+        if (
+            isinstance(position, bool)
+            or not isinstance(position, int)
+            or not 0 <= position < len(specs)
+            or position in seen_positions
+        ):
+            raise NegativeArchiveError(
+                "frontier direction position is invalid or duplicated"
+            )
+        seen_positions.add(position)
+        objective = raw.get("objective")
+        if (
+            isinstance(objective, bool)
+            or not isinstance(objective, int)
+            or objective >= required
+        ):
+            # Only a concrete sub-threshold operator affects search. Other
+            # completed/unknown directions remain inert artifact provenance.
+            continue
+
+        logical_type, logical_index, check_name, checks, target = specs[position]
+        expected_formulation = (
+            CSS_THRESHOLD_FORMULATION
+            if threshold_only else CSS_EXACT_FORMULATION
+        )
+        if (
+            raw.get("logical_type") != logical_type
+            or raw.get("logical_index") != logical_index
+            or raw.get("check_matrix") != check_name
+            or raw.get("target_logical") != pack_vector(target)
+            or raw.get("formulation") != expected_formulation
+            or raw.get("solver") != "scipy.optimize.milp"
+            or raw.get("backend") != "HiGHS"
+            or raw.get("solver_workers") != 1
+            or raw.get("witness_verified") is not True
+            or raw.get("witness_failures") != []
+            or (
+                threshold_only
+                and raw.get("max_weight") != required - 1
+            )
+            or (
+                not threshold_only
+                and raw.get("max_weight") is not None
+            )
+        ):
+            raise NegativeArchiveError(
+                "frontier low witness direction binding changed"
+            )
+        is_zero_gap_optimum = bool(
+            raw.get("success") is True
+            and type(raw.get("status")) is int
+            and raw.get("status") == 0
+            and _is_finite_number(raw.get("mip_gap"))
+            and float(raw["mip_gap"]) == 0.0
+            and _is_finite_number(raw.get("mip_dual_bound"))
+            and abs(float(raw["mip_dual_bound"]) - objective) <= 1e-7
+        )
+        is_timeout_incumbent = bool(
+            threshold_only
+            and raw.get("formulation") == CSS_THRESHOLD_FORMULATION
+            and raw.get("has_incumbent") is True
+            and raw.get("optimal") is False
+            and raw.get("outcome") == "incumbent_witness"
+            and raw.get("success") is False
+            and type(raw.get("status")) is int
+            and raw.get("status") == 1
+            and raw.get("threshold_infeasible") is False
+            and _is_finite_number(raw.get("mip_primal_bound"))
+            and abs(float(raw["mip_primal_bound"]) - objective) <= 1e-7
+            and _is_finite_number(raw.get("mip_dual_bound"))
+            and float(raw["mip_dual_bound"]) <= objective + 1e-7
+            and _is_finite_number(raw.get("mip_gap"))
+            and 0.0 <= float(raw["mip_gap"])
+        )
+        if is_zero_gap_optimum:
+            failures = verify_direction_evidence(dict(raw), checks, target)
+            source = "frontier-exact-ilp"
+        elif is_timeout_incumbent:
+            failures = verify_css_witness(dict(raw), checks, target)
+            source = "frontier-replayed-incumbent"
+        else:
+            failures = [
+                "stored solver result is neither a zero-gap optimum "
+                "nor a bound timeout incumbent"
+            ]
+        if failures:
+            raise NegativeArchiveError(
+                "frontier low witness replay failed: " + "; ".join(failures)
+            )
+        vector = _unpack_operator(raw["operator"])
+        if objective != int(vector.sum()):
+            raise NegativeArchiveError(
+                "frontier low witness objective changed after unpacking"
+            )
+        logicals = rebuilt["lx"] if logical_type == "Z" else rebuilt["lz"]
+        logical_syndrome = ((logicals @ vector) & 1).astype(int).tolist()
+        motif = _motif(
+            rebuilt["construction"],
+            rebuilt=rebuilt,
+            witness={
+                "sector": logical_type,
+                "weight": objective,
+                "support": [int(index) for index in np.flatnonzero(vector)],
+                "logical_syndrome": logical_syndrome,
+            },
+            required_distance=required,
+        )
+        evidence_sha256 = _sha256({
+            "schema_version": 1,
+            "kind": "qcode-frontier-exact-ilp-negative-binding",
+            "artifact_file_sha256": artifact_file_sha256,
+            "candidate_sha256": candidate_sha256,
+            "position": position,
+            "direction": dict(raw),
+        })
+        events.append(_event(
+            motif,
+            source=source,
+            evidence_sha256=evidence_sha256,
+            artifact_sha256=artifact_file_sha256,
+        ))
+        low_count += 1
+
+    stored_low_count = artifact.get("low_witnesses")
+    if (
+        isinstance(stored_low_count, bool)
+        or not isinstance(stored_low_count, int)
+        or stored_low_count != low_count
+        or low_count < 1
+    ):
+        raise NegativeArchiveError(
+            "frontier artifact low-witness count does not replay"
+        )
+    return events
+
+
+def ingest_frontier_paths(
+    archive_path: Path | str | None,
+    paths: Sequence[Path | str],
+) -> dict[str, Any]:
+    """Verify exact-ILP rejection artifacts and commit them atomically."""
+
+    events: list[dict[str, Any]] = []
+    for raw_path in paths:
+        path = Path(raw_path).expanduser()
+        if not path.is_absolute():
+            raise NegativeArchiveError(
+                "frontier negative input path must be absolute"
+            )
+        payload = _read_regular_bytes(path, limit=_MAX_STAGE3_BYTES)
+        artifact = _strict_json_bytes(payload, where=str(path))
+        events.extend(_frontier_events(
+            artifact,
+            artifact_file_sha256=hashlib.sha256(payload).hexdigest(),
+        ))
+    selected = None if archive_path is None else Path(archive_path)
+    return _merge_events(selected, events)
 
 
 def _validate_sat_binding(
@@ -1591,17 +2221,28 @@ def _stage3_events(artifact: Mapping[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(claim, Mapping) or not isinstance(claim.get("construction"), Mapping):
         raise NegativeArchiveError("Stage-3 artifact has no compact construction")
     rebuilt = _build_construction(claim["construction"])
-    required = minimum_winning_distance(rebuilt["n"], rebuilt["k"])
     canonical_digest = claim.get("canonical_digest")
     if not _is_sha256(canonical_digest):
         raise NegativeArchiveError("Stage-3 candidate canonical digest is invalid")
     if (
         claim.get("n") != rebuilt["n"]
         or claim.get("k") != rebuilt["k"]
-        or claim.get("required_distance") != required
+    ):
+        raise NegativeArchiveError("Stage-3 candidate n/k does not replay")
+    required = _candidate_target_required_distance(
+        claim,
+        n=rebuilt["n"],
+        k=rebuilt["k"],
+        where="Stage-3 candidate",
+    )
+    if (
+        artifact.get("target_mode") != claim.get("target_mode")
+        or artifact.get("target") != claim.get("target")
         or artifact.get("required_distance") != required
     ):
-        raise NegativeArchiveError("Stage-3 candidate n/k/threshold does not replay")
+        raise NegativeArchiveError(
+            "Stage-3 artifact target contract does not replay"
+        )
     wrappers = artifact.get("low_witnesses")
     units = artifact.get("units")
     if not isinstance(wrappers, list) or not wrappers or not isinstance(units, list):
@@ -1661,6 +2302,7 @@ def _stage3_events(artifact: Mapping[str, Any]) -> list[dict[str, Any]]:
             rebuilt["construction"],
             rebuilt=rebuilt,
             witness=witness,
+            required_distance=required,
         )
         events.append(_event(
             motif,
@@ -1718,6 +2360,10 @@ def configured_stage2_paths() -> tuple[Path, ...]:
 
 def configured_stage3_paths() -> tuple[Path, ...]:
     return _configured_paths(STAGE3_NEGATIVE_INPUTS_ENV, label="Stage-3")
+
+
+def configured_frontier_paths() -> tuple[Path, ...]:
+    return _configured_paths(FRONTIER_NEGATIVE_INPUTS_ENV, label="frontier")
 
 
 def _candidate_associations(candidate: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
@@ -1880,17 +2526,30 @@ def _main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--archive", required=True, type=Path)
     parser.add_argument("--stage2-summary", action="append", default=[], type=Path)
     parser.add_argument("--stage3-artifact", action="append", default=[], type=Path)
+    parser.add_argument("--frontier-artifact", action="append", default=[], type=Path)
     arguments = parser.parse_args(argv)
     if not arguments.archive.is_absolute():
         parser.error("--archive must be absolute")
-    if not arguments.stage2_summary and not arguments.stage3_artifact:
-        parser.error("at least one Stage-2 summary or Stage-3 artifact is required")
+    if not (
+        arguments.stage2_summary
+        or arguments.stage3_artifact
+        or arguments.frontier_artifact
+    ):
+        parser.error(
+            "at least one Stage-2, Stage-3, or frontier artifact is required"
+        )
     added = 0
     if arguments.stage2_summary:
         result = ingest_stage2_paths(arguments.archive, arguments.stage2_summary)
         added += int(result["events_added"])
     if arguments.stage3_artifact:
         result = ingest_stage3_paths(arguments.archive, arguments.stage3_artifact)
+        added += int(result["events_added"])
+    if arguments.frontier_artifact:
+        result = ingest_frontier_paths(
+            arguments.archive,
+            arguments.frontier_artifact,
+        )
         added += int(result["events_added"])
     summary = _archive_summary(load_archive(arguments.archive), added=added)
     print(json.dumps(summary, sort_keys=True, allow_nan=False))
@@ -1909,16 +2568,19 @@ __all__ = [
     "NEGATIVE_FEEDBACK_SNAPSHOT_KIND",
     "NEGATIVE_FEEDBACK_SNAPSHOT_SCHEMA_VERSION",
     "NegativeArchiveError",
+    "FRONTIER_NEGATIVE_INPUTS_ENV",
     "STAGE2_NEGATIVE_INPUTS_ENV",
     "STAGE3_NEGATIVE_INPUTS_ENV",
     "annotate_rows",
     "configured_stage2_paths",
     "configured_stage3_paths",
+    "configured_frontier_paths",
     "feedback_lines",
     "ingest_stage1_rows",
     "ingest_stage2_paths",
     "ingest_stage3_artifact",
     "ingest_stage3_paths",
+    "ingest_frontier_paths",
     "load_archive",
     "load_feedback_snapshot_manifest",
     "materialize_feedback_snapshot",

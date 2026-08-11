@@ -3,6 +3,7 @@ import pytest
 from evaluation.certificate import build_css_certificate
 from evaluation.certificate_dispatch import (
     BB_CSS_TYPE,
+    EXACT_ANCHOR_CSS_TYPE,
     SUPPORTED_CERTIFICATE_TYPES,
     builder_for_claim,
     verifier_for_certificate,
@@ -31,7 +32,16 @@ def test_builder_dispatches_every_claim_shape():
 
 
 def test_verifier_dispatch_is_fail_closed():
-    assert len(SUPPORTED_CERTIFICATE_TYPES) == 6
+    assert len(SUPPORTED_CERTIFICATE_TYPES) == 7
+    assert SUPPORTED_CERTIFICATE_TYPES[-1] == EXACT_ANCHOR_CSS_TYPE
+    assert tuple(value.encode("ascii") for value in SUPPORTED_CERTIFICATE_TYPES[:6]) == (
+        b"qldpc-css-bb-exact",
+        b"qldpc-css-matrix-exact",
+        b"qldpc-pbb-noncss-exact",
+        b"qldpc-noncss-matrix-exact",
+        b"qldpc-css-bb-sector-sat-exact",
+        b"qldpc-css-bb-twobga-subsystem-exact",
+    )
     assert verifier_for_certificate({"certificate_type": BB_CSS_TYPE})
     with pytest.raises(ValueError, match="unsupported certificate_type"):
         verifier_for_certificate({"certificate_type": "untrusted"})
@@ -125,6 +135,9 @@ def test_css_checkpoint_controls_reach_bb_and_matrix_schemas(monkeypatch):
         "resume": True,
         "total_timeout": 22,
         "solver_workers": 3,
+        "artifact_root": "unused-artifacts",
+        "trusted_checkers": {"unused": {}},
+        "checker_timeout_s": 9,
     }
     dispatch.verify_certificate(
         {"certificate_type": BB_CSS_TYPE},

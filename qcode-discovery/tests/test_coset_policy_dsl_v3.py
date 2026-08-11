@@ -50,6 +50,11 @@ V3_CONFIG = PROJECT / "evolve/coset_config_v3.yaml"
 V3_CAMPAIGN = (
     PROJECT / "configs/five_stage_campaign.coset_two_block_actions_v3.json"
 )
+V3_GPT56_FULL_CAMPAIGN = (
+    PROJECT
+    / "configs/five_stage_campaign.coset_two_block_actions_v3."
+    "gpt56sol_full_orbit_review_fix_v1_20260809.json"
+)
 
 
 @pytest.mark.parametrize("support_split", TRUSTED_COSET_SUPPORT_SPLITS)
@@ -135,6 +140,14 @@ def test_only_2_plus_4_activation_drives_exact_mutation_walk_bounds():
         "gcd(stride,434826)=1."
     ) in prompt
     assert "2850525" not in prompt
+    assert "keep actions in ascending action_id order" in prompt
+    assert "left and right indices must be strictly increasing" in prompt
+    assert "strictly lexicographically increasing by (left,right)" in prompt
+    assert "rejects noncanonical ordering instead of repairing it" in prompt
+
+    config = Config.from_yaml(str(V3_CONFIG))
+    assert "canonicalizes generated candidates" in config.prompt.system_message
+    assert "Policy arrays are not repaired" in config.prompt.system_message
 
 
 def test_activation_compatible_program_ids_exclude_other_support_splits():
@@ -170,21 +183,31 @@ def test_activation_compatible_program_ids_exclude_other_support_splits():
     assert set(compatible) == {"split-2-plus-4"}
 
 
+@pytest.mark.parametrize(
+    ("support_splits", "expected_report_schema"),
+    (
+        (((2, 4),), 3),
+        (((2, 4), (2, 3), (3, 2), (3, 3)), 4),
+    ),
+)
 def test_activation_bridge_replaces_incompatible_epoch_with_evaluated_root(
     monkeypatch,
+    support_splits,
+    expected_report_schema,
 ):
     proposal = coset_renderer_proposal_document(
         renderer_descriptor_id=COSET_RENDERER_V3_ID,
         catalog_manifest_id=COSET_ACTION_CATALOG_V2_MANIFEST_ID,
-        support_splits=((2, 4),),
+        support_splits=support_splits,
     )
     activation_document = coset_renderer_activation_document(
         activate_coset_renderer_proposal(proposal)
     )
+    old_split = (3, 3) if expected_report_schema == 3 else (4, 2)
     old = Program(
-        id="old-3-plus-3",
+        id=f"old-{old_split[0]}-plus-{old_split[1]}",
         code=policy_v3.canonical_policy_json(
-            policy_v3.default_policy(support_split=(3, 3))
+            policy_v3.default_policy(support_split=old_split)
         ) + "\n",
         metrics={},
         metadata={"island": 0},
@@ -277,9 +300,15 @@ def test_activation_bridge_replaces_incompatible_epoch_with_evaluated_root(
         activation_document=activation_document,
     )
 
-    assert report["schema_version"] == 3
+    assert report["schema_version"] == expected_report_schema
     assert report["source_program_set_sha256"] == source_program_set_sha256
-    assert report["approved_support_split"] == [2, 4]
+    if expected_report_schema == 3:
+        assert report["approved_support_split"] == [2, 4]
+    else:
+        assert report["approved_support_splits"] == [
+            list(split) for split in support_splits
+        ]
+        assert report["root_support_split"] == [2, 4]
     assert list(database.programs) == [report["root_program_id"]]
     assert old.id not in set().union(*database.islands)
     assert launcher._activation_compatible_coset_program_ids(
@@ -402,6 +431,41 @@ def test_v3_five_stage_template_uses_the_new_renderer_and_sat_gate():
         COSET_REPRESENTATION_ID_V3
     )
     assert campaign.stage2_compact_low_weight_max_weight == 4
+
+
+def test_gpt56_full_orbit_review_campaign_keeps_production_budget():
+    raw = json.loads(V3_GPT56_FULL_CAMPAIGN.read_text())
+    assert raw["run_id"] == (
+        "qcode-coset-two-block-actions-v3-scalar-proof-v1-gpt56sol-"
+        "20260809-full-orbit-fix-v1"
+    )
+    assert raw["max_total_workers"] == 12
+    assert raw["stage1"]["max_rounds"] == 12
+    assert raw["stage1"]["iterations_per_round"] == 25
+    assert raw["stage1"]["model"] == "gpt-5.6-sol"
+    assert raw["stage1"]["reasoning_effort"] == "xhigh"
+    assert raw["stage1"]["review_model"] == "gpt-5.6-sol"
+    assert raw["stage1"]["review_effort"] == "xhigh"
+    assert raw["stage2"]["top"] == 48
+    assert raw["stage3"]["top"] == 0
+    assert raw["certificate"]["total_timeout"] == 86400
+    assert raw["strict"]["total_timeout"] == 21600
+    assert raw["review"] == {
+        "enabled": True,
+        "model": "gpt-5.6-sol",
+        "effort": "xhigh",
+    }
+
+    campaign = PipelineConfig.from_json(
+        V3_GPT56_FULL_CAMPAIGN,
+        repo_dir=PROJECT,
+    )
+    assert campaign.flow_config is not None
+    assert campaign.flow_config.search_representation_id == (
+        COSET_REPRESENTATION_ID_V3
+    )
+    assert campaign.flow_config.max_rounds == 12
+    assert campaign.flow_config.iterations_per_round == 25
 
 
 def test_flow_config_and_explicit_yaml_representation_mismatch_fails_closed():

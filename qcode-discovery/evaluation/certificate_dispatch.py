@@ -6,6 +6,11 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from evaluation.certificate import build_css_certificate, verify_css_certificate
+from evaluation.exact_anchor_certificate import (
+    CERTIFICATE_TYPE as EXACT_ANCHOR_CSS_TYPE,
+    build_exact_anchor_certificate,
+    validate_exact_anchor_certificate,
+)
 from evaluation.matrix_certificate import (
     CERTIFICATE_TYPE as MATRIX_CSS_TYPE,
 )
@@ -42,6 +47,7 @@ SUPPORTED_CERTIFICATE_TYPES = (
     NONCSS_MATRIX_TYPE,
     SECTOR_SAT_CSS_TYPE,
     TWOBGA_CSS_TYPE,
+    EXACT_ANCHOR_CSS_TYPE,
 )
 CHECKPOINT_CERTIFICATE_TYPES = frozenset({
     BB_CSS_TYPE,
@@ -60,10 +66,23 @@ VERIFIERS: dict[str, Verifier] = {
     NONCSS_MATRIX_TYPE: verify_noncss_certificate,
     SECTOR_SAT_CSS_TYPE: verify_sector_sat_certificate,
     TWOBGA_CSS_TYPE: verify_twobga_certificate,
+    EXACT_ANCHOR_CSS_TYPE: validate_exact_anchor_certificate,
 }
 
 
 def builder_for_claim(claim: dict[str, Any]) -> Builder:
+    # Proof-carrying published anchors are never inferred from matrix shape.
+    # The caller must opt into this calibration-only schema byte-for-byte.
+    explicit_type = claim.get("certificate_type")
+    if explicit_type == EXACT_ANCHOR_CSS_TYPE:
+        return build_exact_anchor_certificate
+    # Preserve historical inference for old supported schemas, while making a
+    # non-null typo fail closed instead of silently changing certificate kind.
+    if (
+        explicit_type is not None
+        and explicit_type not in SUPPORTED_CERTIFICATE_TYPES
+    ):
+        raise ValueError(f"unsupported claim certificate_type: {explicit_type!r}")
     if claim.get(TWOBGA_REQUEST_FIELD) is not None:
         return build_twobga_certificate
     # Compact constructions are always independently rebuilt into the generic
@@ -95,6 +114,8 @@ def build_certificate(
     solver_workers: int = 1,
 ) -> dict[str, Any]:
     builder = builder_for_claim(claim)
+    if claim.get("certificate_type") == EXACT_ANCHOR_CSS_TYPE:
+        return builder(claim)
     kwargs: dict[str, Any] = {
         "known_answer_artifact": known_answer_artifact,
         "timeout_per_logical": timeout_per_logical,
@@ -140,9 +161,25 @@ def verify_certificate(
     resume: bool = False,
     total_timeout: float | None = None,
     solver_workers: int = 1,
+    artifact_root: Path | str | None = None,
+    trusted_checkers: Mapping[str, Mapping[str, Any]] | None = None,
+    checker_timeout_s: float | None = None,
 ) -> dict[str, Any]:
     verifier = verifier_for_certificate(certificate)
     certificate_type = str(certificate.get("certificate_type"))
+    if certificate_type == EXACT_ANCHOR_CSS_TYPE:
+        if artifact_root is None:
+            raise ValueError("exact anchor verification requires artifact_root")
+        if trusted_checkers is None:
+            raise ValueError("exact anchor verification requires trusted_checkers")
+        if checker_timeout_s is None:
+            raise ValueError("exact anchor verification requires checker_timeout_s")
+        return verifier(
+            certificate,
+            artifact_root=artifact_root,
+            trusted_checkers=trusted_checkers,
+            checker_timeout_s=checker_timeout_s,
+        )
     kwargs: dict[str, Any] = {
         "known_answer_artifact": known_answer_artifact,
         "rerun_milp": rerun_milp,

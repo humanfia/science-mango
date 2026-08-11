@@ -333,7 +333,11 @@ def write_checkpoint(
     return checkpoint
 
 
-def _activation_bridge_replay_fixture(tmp_path: Path) -> tuple[dict, dict]:
+def _activation_bridge_replay_fixture(
+    tmp_path: Path,
+    *,
+    support_splits: tuple[tuple[int, int], ...] = ((2, 4),),
+) -> tuple[dict, dict]:
     from evolve.coset_policy_dsl_v3 import (
         canonical_policy_json,
         default_policy,
@@ -345,11 +349,12 @@ def _activation_bridge_replay_fixture(tmp_path: Path) -> tuple[dict, dict]:
         coset_renderer_proposal_document,
     )
 
-    split = [2, 4]
+    split = list(support_splits[0])
+    multi_split = len(support_splits) > 1
     activation = coset_renderer_activation_document(
         activate_coset_renderer_proposal(
             coset_renderer_proposal_document(
-                support_splits=(tuple(split),)
+                support_splits=support_splits
             )
         )
     )
@@ -381,17 +386,23 @@ def _activation_bridge_replay_fixture(tmp_path: Path) -> tuple[dict, dict]:
     root_code_sha256 = hashlib.sha256(root_code.encode("utf-8")).hexdigest()
     contract_id = 17
     root_binding = {
-        "schema_version": 1,
+        "schema_version": 2 if multi_split else 1,
         "kind": "qcode-coset-activation-bridge-root",
         "source_checkpoint_sha256": base_checkpoint["sha256"],
         "source_program_set_sha256": source_program_set_sha256,
         "source_last_iteration": base_checkpoint["last_iteration"],
         "activation_sha256": activation["activation_sha256"],
-        "approved_support_split": split,
         "policy_sha256": root_policy_sha256,
         "code_sha256": root_code_sha256,
         "contract_id": contract_id,
     }
+    if multi_split:
+        root_binding["approved_support_splits"] = [
+            list(value) for value in support_splits
+        ]
+        root_binding["root_support_split"] = split
+    else:
+        root_binding["approved_support_split"] = split
     root_id = "coset-activation-root-" + hashlib.sha256(
         json.dumps(
             root_binding,
@@ -439,7 +450,7 @@ def _activation_bridge_replay_fixture(tmp_path: Path) -> tuple[dict, dict]:
         )
     }
     report = {
-        "schema_version": 3,
+        "schema_version": 4 if multi_split else 3,
         "status": "completed",
         "contract_version": 2,
         "contract_id": contract_id,
@@ -452,9 +463,15 @@ def _activation_bridge_replay_fixture(tmp_path: Path) -> tuple[dict, dict]:
         "root_policy_sha256": root_policy_sha256,
         "root_code_sha256": root_code_sha256,
         "activation_sha256": activation["activation_sha256"],
-        "approved_support_split": split,
         "bridge_candidate_range": bridge_range,
     }
+    if multi_split:
+        report["approved_support_splits"] = [
+            list(value) for value in support_splits
+        ]
+        report["root_support_split"] = split
+    else:
+        report["approved_support_split"] = split
     arguments = {
         "base_checkpoint": base_checkpoint,
         "result_checkpoint": result_checkpoint,
@@ -487,6 +504,76 @@ def test_checkpoint_activation_bridge_preflight_replays_exactly(tmp_path):
     flow_module._validate_checkpoint_activation_bridge_preflight(
         report, **arguments
     )
+
+
+def test_multisplit_checkpoint_activation_bridge_preflight_replays_exactly(
+    tmp_path,
+):
+    report, arguments = _activation_bridge_replay_fixture(
+        tmp_path,
+        support_splits=((2, 4), (2, 3), (3, 2), (3, 3)),
+    )
+
+    assert report["schema_version"] == 4
+    assert report["root_support_split"] == [2, 4]
+    flow_module._validate_checkpoint_activation_bridge_preflight(
+        report, **arguments
+    )
+
+
+def test_checkpoint_activation_bridge_schema_v4_requires_multiple_splits(
+    tmp_path,
+):
+    report, arguments = _activation_bridge_replay_fixture(tmp_path)
+    split = report.pop("approved_support_split")
+    report["schema_version"] = 4
+    report["approved_support_splits"] = [split]
+    report["root_support_split"] = split
+
+    with pytest.raises(
+        RoundTransactionError,
+        match="checkpoint activation bridge support split is invalid",
+    ):
+        flow_module._validate_checkpoint_activation_bridge_preflight(
+            report, **arguments
+        )
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ("approved_splits", "root_split", "root_metadata"),
+)
+def test_multisplit_checkpoint_activation_bridge_rejects_tampering(
+    tmp_path,
+    tamper,
+):
+    report, arguments = _activation_bridge_replay_fixture(
+        tmp_path,
+        support_splits=((2, 4), (2, 3), (3, 2), (3, 3)),
+    )
+    report = copy.deepcopy(report)
+    if tamper == "approved_splits":
+        report["approved_support_splits"] = [[2, 4], [3, 2]]
+    elif tamper == "root_split":
+        report["root_support_split"] = [3, 2]
+    else:
+        root_path = (
+            Path(arguments["result_checkpoint"]["path"])
+            / "programs"
+            / f"{report['root_program_id']}.json"
+        )
+        root = json.loads(root_path.read_text())
+        root["metadata"]["checkpoint_activation_bridge"][
+            "approved_support_splits"
+        ] = [[2, 4]]
+        atomic_write_json(root_path, root)
+
+    with pytest.raises(
+        RoundTransactionError, match="checkpoint activation bridge"
+    ):
+        flow_module._validate_checkpoint_activation_bridge_preflight(
+            report, **arguments
+        )
 
 
 @pytest.mark.parametrize(
@@ -1537,6 +1624,92 @@ def test_schema_v7_coset_resume_replays_parent_from_base_checkpoint(tmp_path):
     } == {"program"}
 
 
+def test_schema_v7_dispatches_multisplit_checkpoint_preflight(
+    tmp_path,
+    monkeypatch,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_coset_launch_inputs(repo)
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="coset-multisplit-preflight-v7",
+        iterations_per_round=1,
+        evolution_config=repo / "evolve/config.yaml",
+        evolution_seed=repo / "evolve/seed_solution.py",
+        evolution_evaluator="coset-two-block",
+        milp_top=0,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    transaction = flow._prepare_transaction(state, 1, round_dir)
+    base_checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        1,
+        coset_policy=True,
+    )
+    base = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        base_checkpoint,
+    )
+    result_checkpoint = write_checkpoint(
+        repo,
+        config.run_id,
+        2,
+        coset_policy=True,
+        child_iteration=2,
+    )
+    write_full_slice_proof(
+        flow,
+        round_dir,
+        result_checkpoint,
+        base,
+    )
+    witness_path = flow_module._slice_witness_path(round_dir)
+    witness = json.loads(witness_path.read_text())
+    report = {
+        "schema_version": 4,
+        "status": "completed",
+        "contract_version": 2,
+        "contract_id": 17,
+    }
+    witness["checkpoint_preflight"] = report
+    atomic_write_json(witness_path, witness)
+    result = flow_module._checkpoint_descriptor(
+        flow.evolution_output,
+        result_checkpoint,
+    )
+    calls = []
+
+    def record_dispatch(observed_report, **kwargs):
+        calls.append((observed_report, kwargs))
+
+    monkeypatch.setattr(
+        flow_module,
+        "_validate_checkpoint_activation_bridge_preflight",
+        record_dispatch,
+    )
+
+    accepted = flow_module._validate_slice_witness(
+        witness_path,
+        config,
+        base,
+        result,
+        transaction["launch_binding"],
+        transaction["invocation_binding"],
+        flow.candidate_log,
+        int(transaction["candidate_start_offset"]),
+    )
+
+    assert accepted["checkpoint_preflight"] == report
+    assert len(calls) == 1
+    assert calls[0][0] == report
+    assert calls[0][1]["base_checkpoint"] == base
+    assert calls[0][1]["result_checkpoint"] == result
+
+
 def test_schema_v7_non_coset_config_rejects_coset_parent_fields(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -1718,7 +1891,7 @@ def test_committed_v2_batch_replays_legacy_selector_after_upgrade(tmp_path):
     transaction = json.loads(manifest_path.read_text())
     assert transaction["schema_version"] == 3
     assert transaction["protocol_version"] == 3
-    assert transaction["candidate_batch_policy_version"] == 3
+    assert transaction["candidate_batch_policy_version"] == 5
     bound_end = transaction["candidate_end_offset"]
 
     # Model the immutable protocol-v2 artifact produced before selector
@@ -1770,7 +1943,15 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
     state = flow.store.initialize(config.serializable())
     round_dir = flow.store.round_dir(1)
     transaction = flow._prepare_transaction(state, 1, round_dir)
-    assert flow._candidate_batch_policy_version(transaction) == 3
+    assert flow._candidate_batch_policy_version(transaction) == 5
+
+    historical_v4 = dict(transaction)
+    historical_v4["candidate_batch_policy_version"] = 4
+    assert flow._candidate_batch_policy_version(historical_v4) == 4
+
+    historical_v3 = dict(transaction)
+    historical_v3["candidate_batch_policy_version"] = 3
+    assert flow._candidate_batch_policy_version(historical_v3) == 3
 
     historical_v2 = dict(transaction)
     historical_v2["candidate_batch_policy_version"] = 2
@@ -1791,6 +1972,88 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
         match="unsupported candidate batch policy",
     ):
         flow._candidate_batch_policy_version(invalid)
+
+
+@pytest.mark.parametrize("bound_policy", [2, 3, 4, 5])
+def test_pending_screen_uses_committed_candidate_batch_policy(
+    tmp_path,
+    monkeypatch,
+    bound_policy,
+):
+    """A pending round must use its committed selector policy exactly."""
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    candidate_file = repo / "candidates.jsonl"
+    source_row = candidate(0)
+    candidate_file.write_bytes(jsonl(source_row))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="pending-screen-candidate-batch-policy",
+        candidate_file=candidate_file,
+        max_rounds=1,
+        milp_top=1,
+    )
+    flow = HumanizeFlow(config, reviewer=Reviewer())
+    state = flow.store.initialize(config.serializable())
+    round_dir = flow.store.round_dir(1)
+    batch_rows = flow._capture_round_candidates(state, 1, round_dir)
+
+    manifest_path = round_dir / "evolution-transaction.json"
+    transaction = json.loads(manifest_path.read_text())
+    transaction["candidate_batch_policy_version"] = bound_policy
+    transaction["candidate_batch_identity"] = (
+        flow_module.atomic_write_jsonl(
+            round_dir / "candidate-batch.jsonl",
+            flow_module._deduplicate(
+                [source_row],
+                policy_version=bound_policy,
+            ),
+        )
+    )
+    atomic_write_json(manifest_path, transaction)
+    assert batch_rows == [source_row]
+    assert flow.store.load_state()["round_phase"] == "screen"
+
+    observed_screen_policy_versions = []
+    observed_select_policy_versions = []
+
+    def screen_with_bound_policy(rows, *, policy_version):
+        observed_screen_policy_versions.append(policy_version)
+        return list(rows), [], list(rows)
+
+    def select_with_bound_policy(
+        _candidates,
+        _state,
+        *,
+        screened_history=None,
+        policy_version,
+    ):
+        assert screened_history == [source_row]
+        observed_select_policy_versions.append(policy_version)
+        return []
+
+    monkeypatch.setattr(
+        flow,
+        "_screen_candidates_with_pool",
+        screen_with_bound_policy,
+    )
+    monkeypatch.setattr(
+        flow,
+        "_select_audit_candidates",
+        select_with_bound_policy,
+    )
+    completed = flow.run()
+
+    assert observed_screen_policy_versions == [
+        bound_policy
+    ]
+    assert observed_select_policy_versions == [
+        bound_policy
+    ]
+    assert completed["current_round"] == 1
+    assert completed.get("pending_round") is None
 
 
 def test_live_transaction_rejects_same_bytes_after_inode_rotation(tmp_path):
@@ -2855,6 +3118,118 @@ def test_completed_round_records_transaction_bound_candidate_diversity(
     }
 
 
+def _prompt_round_evidence(prompt: str) -> dict:
+    encoded = prompt.split("Round evidence JSON:\n", 1)[1].split(
+        "\n\nReturn only the JSON object", 1
+    )[0]
+    return json.loads(encoded)
+
+
+def test_review_receives_committed_current_diversity_and_resume_is_stable(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    first = candidate(70)
+    duplicate = copy.deepcopy(first)
+    duplicate["d"] = 999
+    duplicate["fom"] = 9999.0
+    second = candidate(71)
+    source.write_bytes(jsonl(first, duplicate, second))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="review-current-diversity-resume",
+        max_rounds=1,
+        candidate_file=source,
+        milp_top=0,
+    )
+
+    class CrashReviewer:
+        def __init__(self):
+            self.prompts = []
+
+        def review(self, prompt, _round_dir):
+            self.prompts.append(prompt)
+            raise RuntimeError("crash after durable review request")
+
+    crashing = CrashReviewer()
+    with pytest.raises(RuntimeError, match="durable review request"):
+        HumanizeFlow(config, reviewer=crashing).run()
+    assert len(crashing.prompts) == 1
+    first_prompt = crashing.prompts[0]
+    first_evidence = _prompt_round_evidence(first_prompt)
+    diversity = first_evidence["current_candidate_diversity"]
+    assert diversity["raw_candidate_source_rows"] == 3
+    assert diversity["canonical_unique_batch_rows"] == 2
+    assert diversity["duplicate_count"] == 1
+
+    class ResumeReviewer:
+        def __init__(self):
+            self.prompts = []
+
+        def review(self, prompt, _round_dir):
+            self.prompts.append(prompt)
+            return Reviewer().review(prompt, _round_dir)
+
+    resumed_reviewer = ResumeReviewer()
+    completed = HumanizeFlow(config, reviewer=resumed_reviewer).run()
+
+    assert completed["status"] == "search-complete"
+    assert resumed_reviewer.prompts == [first_prompt]
+    assert (
+        repo
+        / "results"
+        / "humanize"
+        / config.run_id
+        / "rounds"
+        / "round-001"
+        / "review-request.md"
+    ).read_text() == first_prompt
+
+
+def test_review_phase_replays_transaction_and_fails_on_manifest_tamper(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    source.write_bytes(jsonl(candidate(72), candidate(73)))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="review-current-diversity-tamper",
+        max_rounds=1,
+        candidate_file=source,
+        milp_top=0,
+    )
+
+    class CrashReviewer:
+        def review(self, _prompt, _round_dir):
+            raise RuntimeError("pause in review")
+
+    with pytest.raises(RuntimeError, match="pause in review"):
+        HumanizeFlow(config, reviewer=CrashReviewer()).run()
+    manifest_path = (
+        repo
+        / "results"
+        / "humanize"
+        / config.run_id
+        / "rounds"
+        / "round-001"
+        / "evolution-transaction.json"
+    )
+    manifest = json.loads(manifest_path.read_text())
+    manifest["candidate_source_rows"] += 1
+    atomic_write_json(manifest_path, manifest)
+
+    class MustNotReview:
+        def review(self, _prompt, _round_dir):
+            raise AssertionError("tampered evidence reached the reviewer")
+
+    with pytest.raises(RoundTransactionError):
+        HumanizeFlow(config, reviewer=MustNotReview()).run()
+
+
 def test_stage2_oracle_witness_is_replayed_into_next_round_context(
     tmp_path, monkeypatch
 ):
@@ -2961,6 +3336,55 @@ def test_stage2_oracle_witness_is_replayed_into_next_round_context(
             },
             candidate_rows=[forged, row],
         )
+
+    # The current strict scalar-FOM target can reject a candidate with a
+    # witness that does not exclude the smaller-n Pareto/final gate.  It is a
+    # valid terminal scalar-negative row, but not a final-gate repair signal.
+    current_scalar_only = copy.deepcopy(row)
+    current_witness = current_scalar_only["low_weight_oracle"]["witness"]
+    witness_weight = current_witness["weight"]
+    scalar_cutoff = current_scalar_only["low_weight_oracle"]["max_weight"]
+    assert witness_weight <= scalar_cutoff
+    current_scalar_only.update({
+        "fom_rejection_cutoff": scalar_cutoff,
+        "challenge_rejection_cutoff": witness_weight - 1,
+        "minimum_winning_distance": witness_weight,
+        "threshold_rejected": True,
+        "threshold_proof_distance": witness_weight,
+        "threshold_proof_witness": copy.deepcopy(current_witness),
+        "low_weight_witness": copy.deepcopy(current_witness),
+        "distance_upper_bound": witness_weight,
+        "distance_upper_bound_source": "low_weight_oracle",
+        "fom_target_excluded_by_upper_bound": True,
+        "final_gate_excluded_by_upper_bound": False,
+        "search_final_gate_excluded_by_upper_bound": False,
+    })
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "compute_challenge_rejection_cutoff",
+        lambda _n, _k, _target: witness_weight - 1,
+    )
+    monkeypatch.setattr(
+        candidate_evaluator,
+        "compute_fom_rejection_cutoff",
+        lambda _n, _k, _target: scalar_cutoff,
+    )
+    scalar_round = repo / "scalar-only-round"
+    scalar_round.mkdir()
+    scalar_payload = jsonl(current_scalar_only)
+    scalar_round_row = json.loads(scalar_payload)
+    (scalar_round / "candidate-batch.jsonl").write_bytes(scalar_payload)
+    scalar_feedback = flow_module._write_round_search_oracle_feedback(
+        round_number=2,
+        round_dir=scalar_round,
+        candidate_rows=[scalar_round_row],
+    )
+    assert scalar_feedback["replay_attempts"] == 0
+    assert scalar_feedback["replayed_witnesses"] == 0
+    scalar_artifact = json.loads(
+        (scalar_round / "search-oracle-feedback.json").read_text()
+    )
+    assert scalar_artifact["observations"] == []
 
     # A known old evaluator may be migrated only after the complete, unchanged
     # construction/oracle/witness replays and its scalar-only metadata matches.
@@ -3124,11 +3548,17 @@ def test_legacy_round_summary_without_diversity_keeps_context_unchanged(
     assert "Machine-derived" not in context_path.read_text()
 
 
-def _reviewer_v2(round_number: int, *, intent: str = "maintain") -> dict:
+def _reviewer_v2(
+    round_number: int,
+    *,
+    intent: str = "maintain",
+    verdict: str = "continue",
+    horizon_rounds: int = 1,
+) -> dict:
     return validate_review(
         {
             "schema_version": 2,
-            "verdict": "continue",
+            "verdict": verdict,
             "summary": f"Independent review for round {round_number}.",
             "risks": [],
             "recommended_focus": [],
@@ -3137,7 +3567,7 @@ def _reviewer_v2(round_number: int, *, intent: str = "maintain") -> dict:
                 "schema_version": 1,
                 "advisory_only": True,
                 "intent": intent,
-                "horizon_rounds": 1,
+                "horizon_rounds": horizon_rounds,
                 "focus": [],
                 "evidence_refs": [
                     {
@@ -3158,10 +3588,17 @@ def _write_bound_round_review(
     round_number: int,
     *,
     intent: str = "maintain",
+    verdict: str = "continue",
+    horizon_rounds: int = 1,
 ) -> tuple[dict, Path, dict]:
     round_dir = flow.store.round_dir(round_number)
     review_path = round_dir / "review.json"
-    review = _reviewer_v2(round_number, intent=intent)
+    review = _reviewer_v2(
+        round_number,
+        intent=intent,
+        verdict=verdict,
+        horizon_rounds=horizon_rounds,
+    )
     atomic_write_json(review_path, review)
     summary = {
         "round": round_number,
@@ -3258,7 +3695,7 @@ def test_bound_review_replay_fails_closed_on_artifact_corruption(
         )
 
 
-def test_next_round_injects_only_three_latest_bound_structured_advisories(
+def test_next_round_injects_only_unexpired_bound_structured_advisories(
     tmp_path,
 ):
     repo = tmp_path / "repo"
@@ -3295,20 +3732,69 @@ def test_next_round_injects_only_three_latest_bound_structured_advisories(
     )[1].split("```json\n", 1)[1].split("\n```", 1)[0]
     actions = json.loads(encoded_actions)
 
-    assert [entry["round"] for entry in actions] == [2, 3, 4]
+    assert [entry["round"] for entry in actions] == [4]
     assert [entry["search_action"]["intent"] for entry in actions] == [
-        "diversify",
-        "expand_bb_family",
         "change_bb_search_representation",
     ]
     assert all(entry["advisory_only"] is True for entry in actions)
     assert "review-action-round-1" not in text
-    assert "review-action-round-2" in text
-    assert "review-action-round-3" in text
+    assert "review-action-round-2" not in text
+    assert "review-action-round-3" not in text
     assert "review-action-round-4" in text
     assert "QCODE_ADAPTIVE_MUTATION_POLICY_V1" not in text
     assert "QCODE_SEARCH_REGIME_V1" not in text
     assert "cannot alter machine regimes" in text
+
+
+@pytest.mark.parametrize("horizon_rounds", [1, 2, 3])
+def test_bound_executable_action_uses_real_verdict_and_enforces_horizon(
+    tmp_path,
+    horizon_rounds,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=repo, run_id="bound-action-gate", milp_top=0),
+        reviewer=Reviewer(),
+    )
+    rounds_root = flow.store.root / "rounds"
+    active, _path, _review = _write_bound_round_review(
+        flow,
+        2,
+        intent="diversify",
+        horizon_rounds=horizon_rounds,
+    )
+    # Unbound summary mirrors are never authority for either verdict or action.
+    active["review_verdict"] = "reject_round"
+    active["review_binding"]["search_action"] = copy.deepcopy(
+        active["review_binding"]["search_action"]
+    )
+
+    for target_round in range(3, 3 + horizon_rounds):
+        assert flow_module._bound_executable_search_action(
+            active, rounds_root, target_round
+        )["intent"] == "diversify"
+    assert flow_module._bound_executable_search_action(
+        active, rounds_root, 3 + horizon_rounds
+    ) is None
+
+    rejected, _path, rejected_review = _write_bound_round_review(
+        flow,
+        3,
+        intent="expand_bb_family",
+        verdict="reject_round",
+        horizon_rounds=3,
+    )
+    assert rejected_review["search_action"]["intent"] == "expand_bb_family"
+    rejected["review_verdict"] = "continue"
+    assert flow_module._bound_executable_search_action(
+        rejected, rounds_root, 4
+    ) is None
+    # Audit metadata is retained even though it cannot enter execution.
+    assert rejected["review_binding"]["search_action"] == (
+        rejected_review["search_action"]
+    )
 
 
 def test_policy_v2_context_projects_reviewer_to_closed_structured_action(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import concurrent.futures
 import fcntl
 import hashlib
@@ -2022,6 +2023,57 @@ def test_coset_name_error_is_accounted_between_successful_iterations():
     assert set(programs) == {"program-130", "program-132"}
 
 
+def test_trusted_stage1_exception_is_fatal_but_not_a_genome_marker_error():
+    contract_id = 24680
+    observer = launcher._SliceObserver(
+        0,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        evaluator_kind=launcher.EVALUATOR_KIND_COSET_TWO_BLOCK,
+        coset_map_schema_version=4,
+    )
+    observer.begin(1, 1, None)
+    raw = _child(1)
+    raw.child_program_dict["metrics"] = {
+        "stage1_passed": 0.0,
+        "error": 0.0,
+    }
+    raw.artifacts = _outer_stage1_exception_artifacts(
+        error_type="RuntimeError",
+        message="proof cache changed before candidate-log commit",
+        provenance_frames=[{
+            "path": launcher.EVALUATOR_COSET_TWO_BLOCK,
+            "function": "_evaluate",
+        }],
+    )
+    raw.artifacts["traceback"] = (
+        "Traceback (most recent call last):\n"
+        f'  File "{launcher.EVALUATOR_COSET_TWO_BLOCK}", line 653, '
+        "in _evaluate\n"
+        "    raise RuntimeError(message)\n"
+        "RuntimeError: proof cache changed before candidate-log commit"
+    )
+
+    observed = observer.record_future_result(1, raw)
+
+    assert observed.child_program_dict is None
+    failure = json.loads(observed.error)
+    assert failure["kind"] == "coset_stage1_evaluation_failed"
+    assert failure["reason"] == "stage1_evaluation_failed_before_markers"
+    assert failure["error_type"] == "RuntimeError"
+    assert failure["evaluator_error_bytes"] == len(
+        b"proof cache changed before candidate-log commit"
+    )
+    assert observer.outcomes[1]["error_kind"] == "stage1_evaluation_failed"
+    assert any(
+        "failed trusted Stage 1 evaluation before markers" in violation
+        for violation in observer.violations
+    )
+    with pytest.raises(RuntimeError):
+        observer.verify(_observer_controller({}))
+
+
 @pytest.mark.parametrize("hard_timeout", (0, 1))
 def test_exact_stage2_failure_is_quarantined_before_database_add(
     hard_timeout: int,
@@ -2357,6 +2409,80 @@ def test_missing_resume_backfill_report_cannot_complete_slice():
             _observer_controller({program.id: program})
         )
     assert observer.accounting_complete is False
+
+
+def test_observer_accepts_only_well_formed_multisplit_bridge_report():
+    contract_id = 67891
+    report = {
+        "schema_version": 4,
+        "status": "completed",
+        "contract_version": launcher.WINNER_PREFLIGHT_CONTRACT_VERSION,
+        "contract_id": contract_id,
+        "mode": "typed-json-dsl-activation-bridge-root",
+        "source_checkpoint": {
+            "path": "/tmp/checkpoint_125",
+            "sha256": "a" * 64,
+            "last_iteration": 125,
+            "programs": 26,
+        },
+        "source_programs": 26,
+        "source_program_set_sha256": "b" * 64,
+        "target_programs": 1,
+        "root_program_id": "coset-activation-root-" + "c" * 32,
+        "root_policy_sha256": "d" * 64,
+        "root_code_sha256": "e" * 64,
+        "activation_sha256": "f" * 64,
+        "approved_support_splits": [
+            [2, 4],
+            [2, 3],
+            [3, 2],
+            [3, 3],
+        ],
+        "root_support_split": [2, 4],
+        "bridge_candidate_range": {},
+    }
+    accepted = launcher._SliceObserver(
+        125,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        checkpoint_preflight_required=True,
+    )
+    accepted.record_checkpoint_preflight(report)
+
+    assert accepted.violations == []
+    assert accepted.checkpoint_preflight_report == report
+
+    tampered = copy.deepcopy(report)
+    tampered["root_support_split"] = [3, 2]
+    rejected = launcher._SliceObserver(
+        125,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        checkpoint_preflight_required=True,
+    )
+    rejected.record_checkpoint_preflight(tampered)
+    assert rejected.checkpoint_preflight_report is None
+    assert rejected.violations == [
+        "checkpoint activation bridge report is invalid"
+    ]
+
+    singleton = copy.deepcopy(report)
+    singleton["approved_support_splits"] = [[2, 4]]
+    singleton["root_support_split"] = [2, 4]
+    rejected_singleton = launcher._SliceObserver(
+        125,
+        1,
+        FakeResult,
+        expected_preflight_contract_id=contract_id,
+        checkpoint_preflight_required=True,
+    )
+    rejected_singleton.record_checkpoint_preflight(singleton)
+    assert rejected_singleton.checkpoint_preflight_report is None
+    assert rejected_singleton.violations == [
+        "checkpoint activation bridge report is invalid"
+    ]
 
 
 @pytest.mark.parametrize(

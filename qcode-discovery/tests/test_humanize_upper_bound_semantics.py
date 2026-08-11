@@ -5,11 +5,19 @@ import math
 import evaluation.evaluator as candidate_evaluator
 import evaluation.low_weight_oracle as low_weight_oracle
 import evaluation.bb_code as bb_code
+from evaluation.coset_action_catalog import V2_CATALOG_ID
+from evaluation.coset_two_block import (
+    ACTION_CATALOG_V2_SHA256,
+    CONSTRUCTION_REPRESENTATION_V2,
+)
+from evolve import coset_policy_dsl_v3 as policy_v3
+from evolve.coset_search_contract import coset_support_orbit_bin
 from evolve.openevolve_evaluator import _candidate_jsonl_record
 from humanize.flow import select_for_milp
 from humanize.reviewer import build_review_prompt
 from humanize.state import (
     EliteArchive,
+    archive_cell,
     candidate_proven_fom,
     code_key,
 )
@@ -35,6 +43,30 @@ def _candidate(*, shift: int, d: int, fom: float) -> dict:
         "A_terms": [[0, 0], [0, 1 + shift], [1, 0]],
         "B_terms": [[0, 0], [0, 2 + shift], [2, 0]],
     }
+
+
+def _renderer_v3_row(*, support_split=(2, 4)) -> tuple[dict, dict]:
+    candidate_row = policy_v3.render_candidates(
+        policy_v3.default_policy(support_split=support_split)
+    )[0]
+    row = {
+        **copy.deepcopy(candidate_row),
+        "construction": {
+            "kind": "coset-two-block-v2",
+            "representation_id": CONSTRUCTION_REPRESENTATION_V2,
+            "action_id": candidate_row["action_id"],
+            "action_catalog_id": V2_CATALOG_ID,
+            "action_catalog_sha256": ACTION_CATALOG_V2_SHA256,
+            "left_support": copy.deepcopy(candidate_row["left_support"]),
+            "right_support": copy.deepcopy(candidate_row["right_support"]),
+        },
+        "n": 240,
+        "k": 12,
+        "distance_status": "unresolved",
+        "d_is_exact": False,
+        "distance_trusted": False,
+    }
+    return candidate_row, row
 
 
 def _archive_winner(tmp_path, rows: list[dict], name: str) -> str:
@@ -159,6 +191,55 @@ def test_reviewer_withholds_unresolved_upper_magnitudes_but_keeps_exact():
     assert "proof_backed_terminal_negative" not in audited
     assert evidence["trusted_exact_history"][0]["d"] == 3
     assert evidence["trusted_exact_history"][0]["fom"] == 1.0
+
+
+def test_reviewer_projects_v3_provenance_and_one_canonical_coordinate():
+    candidate_row, row = _renderer_v3_row(support_split=(2, 4))
+    authoritative = coset_support_orbit_bin(candidate_row)
+    new_row = copy.deepcopy(row)
+    new_row.update({
+        "candidate_key": "forged-new-key",
+        "support_orbit_bin": (authoritative + 1) % 8,
+        "archive_cell": "forged-new-cell",
+    })
+    archive_row = copy.deepcopy(row)
+    archive_row.update({
+        "candidate_key": "forged-archive-key",
+        "support_orbit_bin": (authoritative + 2) % 8,
+        "archive_cell": "forged-archive-cell",
+    })
+
+    evidence = _review_evidence(build_review_prompt(
+        round_number=1,
+        contract={},
+        candidates=[new_row],
+        audited=[],
+        archive_top=[archive_row],
+        memory="",
+    ))
+
+    projected_new = evidence["new_candidates"][0]
+    projected_archive = evidence["archive_top"][0]
+    for projected in (projected_new, projected_archive):
+        assert projected["schema_version"] == candidate_row["schema_version"]
+        assert projected["representation_id"] == candidate_row[
+            "representation_id"
+        ]
+        assert projected["renderer_descriptor_id"] == candidate_row[
+            "renderer_descriptor_id"
+        ]
+        assert projected["support_split"] == [2, 4]
+        assert projected["left_support"] == row["construction"][
+            "left_support"
+        ]
+        assert projected["right_support"] == row["construction"][
+            "right_support"
+        ]
+        assert projected["support_orbit_bin"] == authoritative
+        assert projected["archive_cell"] == archive_cell(row)
+    assert projected_new["candidate_key"] == projected_archive[
+        "candidate_key"
+    ]
 
 
 def test_reviewer_receives_formally_audited_negative_witness_geometry():

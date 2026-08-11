@@ -279,6 +279,7 @@ COSET_MUTATION_REJECTION_SCHEMA_VERSION = 1
 COSET_MUTATION_REJECTION_KINDS = {
     "ambiguous_search": "invalid_mutation",
     "dsl_invalid": "invalid_mutation",
+    "dsl_noncanonical": "invalid_mutation",
     "empty_search": "invalid_mutation",
     "no_diff_blocks": "invalid_mutation",
     "semantic_noop": "no_effect_mutation",
@@ -790,6 +791,12 @@ def _coset_mutation_bounds_prompt(
                 f"gcd(stride,{combination_space})=1."
             )
     rows.extend([
+        "Policy arrays must already be canonical: keep actions in ascending "
+        "action_id order; within every explicit support, left and right "
+        "indices must be strictly increasing; within each supports list, "
+        "entries must be strictly lexicographically increasing by "
+        "(left,right). The worker rejects noncanonical ordering instead of "
+        "repairing it.",
         "Every SEARCH value must be copied exactly from the current JSON and "
         "must occur exactly once. Every block must change the policy.",
         "Do not repeat the immutable published support in explicit supports.",
@@ -1264,6 +1271,21 @@ def _cascade_selects_stage2(
     return bool(values) and sum(values) / len(values) >= float(threshold)
 
 
+def _exact_pre_marker_stage1_failure_metrics(metrics: Any) -> bool:
+    if not isinstance(metrics, dict) or set(metrics) != {
+        "stage1_passed",
+        "error",
+    }:
+        return False
+    return all(
+        not isinstance(metrics.get(name), bool)
+        and isinstance(metrics.get(name), (int, float))
+        and math.isfinite(float(metrics[name]))
+        and float(metrics[name]) == 0.0
+        for name in ("stage1_passed", "error")
+    )
+
+
 def _pre_marker_stage1_failure_evidence(
     metrics: Any,
     artifacts: Any,
@@ -1278,19 +1300,11 @@ def _pre_marker_stage1_failure_evidence(
     undifferentiated timeouts remain fatal to slice accounting.
     """
 
-    if not isinstance(metrics, dict) or not isinstance(artifacts, dict):
+    if (
+        not _exact_pre_marker_stage1_failure_metrics(metrics)
+        or not isinstance(artifacts, dict)
+    ):
         return None
-    if set(metrics) != {"stage1_passed", "error"}:
-        return None
-    for name in ("stage1_passed", "error"):
-        value = metrics.get(name)
-        if (
-            isinstance(value, bool)
-            or not isinstance(value, (int, float))
-            or not math.isfinite(float(value))
-            or float(value) != 0.0
-        ):
-            return None
 
     expected_artifact_fields = {
         "cascade_config",
@@ -2076,7 +2090,8 @@ COSET_GENOME_FORMAT_ID_METRIC = "qcode_coset_genome_format_id"
 COSET_TYPED_DSL_GENOME_FORMAT_ID = 1.0
 COSET_TYPED_DSL_GENOME_FORMAT_ID_V3 = 2.0
 COSET_CHECKPOINT_MIGRATION_SCHEMA_VERSION = 1
-COSET_ACTIVATION_BRIDGE_SCHEMA_VERSION = 1
+COSET_ACTIVATION_BRIDGE_LEGACY_SCHEMA_VERSION = 1
+COSET_ACTIVATION_BRIDGE_SCHEMA_VERSION = 2
 
 
 def _coset_portfolio_contract_for_schema(
@@ -2613,10 +2628,6 @@ def _install_coset_activation_bridge_epoch(
             "coset activation bridge requires renderer-v3 MAP schema"
         )
     activation = _validated_coset_activation_document(activation_document)
-    if len(activation.approved_support_splits) != 1:
-        raise RuntimeError(
-            "coset activation bridge requires exactly one approved split"
-        )
     if _activation_compatible_coset_program_ids(
         database, activation_document
     ):
@@ -2635,7 +2646,14 @@ def _install_coset_activation_bridge_epoch(
     ):
         raise RuntimeError("coset activation bridge source changed")
 
-    target_split = activation.approved_support_splits[0]
+    approved_splits = activation.approved_support_splits
+    if not approved_splits:
+        raise RuntimeError("coset activation bridge has no approved split")
+    # The activation document is registry-ordered and hash-bound. Its first
+    # approved split is therefore a deterministic bootstrap root, while the
+    # full activation remains authoritative for all subsequent mutations.
+    target_split = approved_splits[0]
+    multi_split_activation = len(approved_splits) > 1
     policy = default_policy(support_split=target_split)
     code = canonical_policy_json(policy) + "\n"
     rendered = parse_and_render_activated_policy(code, activation)
@@ -2643,17 +2661,27 @@ def _install_coset_activation_bridge_epoch(
         raise RuntimeError("coset activation bridge policy identity changed")
     code_sha256 = hashlib.sha256(code.encode("utf-8")).hexdigest()
     root_binding = {
-        "schema_version": COSET_ACTIVATION_BRIDGE_SCHEMA_VERSION,
+        "schema_version": (
+            COSET_ACTIVATION_BRIDGE_SCHEMA_VERSION
+            if multi_split_activation
+            else COSET_ACTIVATION_BRIDGE_LEGACY_SCHEMA_VERSION
+        ),
         "kind": "qcode-coset-activation-bridge-root",
         "source_checkpoint_sha256": source_checkpoint["sha256"],
         "source_program_set_sha256": source_program_set_sha256,
         "source_last_iteration": source_last_iteration,
         "activation_sha256": activation_document["activation_sha256"],
-        "approved_support_split": list(target_split),
         "policy_sha256": rendered.policy_sha256,
         "code_sha256": code_sha256,
         "contract_id": expected_contract_id,
     }
+    if multi_split_activation:
+        root_binding["approved_support_splits"] = [
+            list(split) for split in approved_splits
+        ]
+        root_binding["root_support_split"] = list(target_split)
+    else:
+        root_binding["approved_support_split"] = list(target_split)
     root_id = "coset-activation-root-" + hashlib.sha256(json.dumps(
         root_binding,
         sort_keys=True,
@@ -2745,8 +2773,8 @@ def _install_coset_activation_bridge_epoch(
         database, activation_document
     ) != (root_id,):
         raise RuntimeError("coset activation bridge root is not executable")
-    return {
-        "schema_version": 3,
+    report = {
+        "schema_version": 4 if multi_split_activation else 3,
         "status": "completed",
         "contract_version": WINNER_PREFLIGHT_CONTRACT_VERSION,
         "contract_id": expected_contract_id,
@@ -2759,9 +2787,16 @@ def _install_coset_activation_bridge_epoch(
         "root_policy_sha256": rendered.policy_sha256,
         "root_code_sha256": code_sha256,
         "activation_sha256": activation_document["activation_sha256"],
-        "approved_support_split": list(target_split),
         "bridge_candidate_range": candidate_range,
     }
+    if multi_split_activation:
+        report["approved_support_splits"] = [
+            list(split) for split in approved_splits
+        ]
+        report["root_support_split"] = list(target_split)
+    else:
+        report["approved_support_split"] = list(target_split)
+    return report
 
 
 def _backfill_checkpoint_programs(
@@ -4779,7 +4814,13 @@ class _SliceObserver:
             expected_genome_marker = _coset_genome_format_id_for_schema(
                 self.coset_map_schema_version
             )
-            if (
+            if _exact_pre_marker_stage1_failure_metrics(child_metrics):
+                # OpenEvolve converts a trusted evaluator exception into this
+                # exact two-zero metric envelope.  A genuine mutation-origin
+                # exception was already isolated above; anything remaining is
+                # fatal, but it is not a genome-format failure.
+                binding_error = "stage1_evaluation_failed_before_markers"
+            elif (
                 not isinstance(child_metrics, dict)
                 or child_metrics.get(COSET_GENOME_FORMAT_ID_METRIC)
                 != expected_genome_marker
@@ -4886,6 +4927,10 @@ class _SliceObserver:
                     "semantic_parent_noop",
                     "semantic_archive_duplicate",
                 }
+                stage1_evaluation_failed = (
+                    binding_error
+                    == "stage1_evaluation_failed_before_markers"
+                )
                 failure = {
                     "child_program_bytes": len(encoded_child),
                     "child_program_sha256": hashlib.sha256(
@@ -4895,6 +4940,8 @@ class _SliceObserver:
                     "kind": (
                         "coset_no_effect_mutation"
                         if expected_no_effect
+                        else "coset_stage1_evaluation_failed"
+                        if stage1_evaluation_failed
                         else "coset_mutation_binding_invalid"
                     ),
                     "program_id": program_id,
@@ -4902,6 +4949,21 @@ class _SliceObserver:
                 }
                 if child_policy_sha256 is not None:
                     failure["policy_sha256"] = child_policy_sha256
+                if stage1_evaluation_failed and isinstance(
+                    result_artifacts, dict
+                ):
+                    error_type = result_artifacts.get("error_type")
+                    if isinstance(error_type, str) and error_type:
+                        failure["error_type"] = error_type
+                    error_message = result_artifacts.get("error_message")
+                    if isinstance(error_message, str):
+                        encoded_error = error_message.encode("utf-8")
+                        failure.update({
+                            "evaluator_error_bytes": len(encoded_error),
+                            "evaluator_error_sha256": hashlib.sha256(
+                                encoded_error
+                            ).hexdigest(),
+                        })
                 canonical_error = json.dumps(
                     failure,
                     sort_keys=True,
@@ -4913,7 +4975,12 @@ class _SliceObserver:
                     iteration=iteration,
                     error=canonical_error,
                 )
-                if not expected_no_effect:
+                if stage1_evaluation_failed:
+                    self.violations.append(
+                        f"future {iteration} failed trusted Stage 1 "
+                        "evaluation before markers"
+                    )
+                elif not expected_no_effect:
                     self.violations.append(
                         f"future {iteration} violated coset mutation binding: "
                         f"{binding_error}"
@@ -4924,6 +4991,8 @@ class _SliceObserver:
                     error_kind=(
                         "no_effect_mutation"
                         if expected_no_effect
+                        else "stage1_evaluation_failed"
+                        if stage1_evaluation_failed
                         else "mutation_binding_invalid"
                     ),
                 )
@@ -5036,7 +5105,7 @@ class _SliceObserver:
             return
         if (
             not isinstance(report, dict)
-            or report.get("schema_version") not in {1, 2, 3}
+            or report.get("schema_version") not in {1, 2, 3, 4}
             or report.get("status") != "completed"
             or report.get("contract_version")
             != WINNER_PREFLIGHT_CONTRACT_VERSION
@@ -5114,6 +5183,75 @@ class _SliceObserver:
                     type(value) is not int
                     for value in report["approved_support_split"]
                 )
+                or not isinstance(
+                    report.get("bridge_candidate_range"), dict
+                )
+            ):
+                self.violations.append(
+                    "checkpoint activation bridge report is invalid"
+                )
+                return
+        elif report.get("schema_version") == 4:
+            expected_fields = {
+                "schema_version",
+                "status",
+                "contract_version",
+                "contract_id",
+                "mode",
+                "source_checkpoint",
+                "source_programs",
+                "source_program_set_sha256",
+                "target_programs",
+                "root_program_id",
+                "root_policy_sha256",
+                "root_code_sha256",
+                "activation_sha256",
+                "approved_support_splits",
+                "root_support_split",
+                "bridge_candidate_range",
+            }
+            hashes = (
+                report.get("source_program_set_sha256"),
+                report.get("root_policy_sha256"),
+                report.get("root_code_sha256"),
+                report.get("activation_sha256"),
+            )
+            approved_splits = report.get("approved_support_splits")
+            root_split = report.get("root_support_split")
+            def valid_split(split: Any) -> bool:
+                return (
+                    type(split) is list
+                    and len(split) == 2
+                    and all(
+                        type(value) is int and value > 0
+                        for value in split
+                    )
+                )
+            if (
+                set(report) != expected_fields
+                or report.get("mode")
+                != "typed-json-dsl-activation-bridge-root"
+                or not isinstance(report.get("source_checkpoint"), dict)
+                or isinstance(report.get("source_programs"), bool)
+                or not isinstance(report.get("source_programs"), int)
+                or report["source_programs"] < 1
+                or report.get("target_programs") != 1
+                or not isinstance(report.get("root_program_id"), str)
+                or not report["root_program_id"].startswith(
+                    "coset-activation-root-"
+                )
+                or any(
+                    not isinstance(value, str)
+                    or re.fullmatch(r"[0-9a-f]{64}", value) is None
+                    for value in hashes
+                )
+                or type(approved_splits) is not list
+                or len(approved_splits) <= 1
+                or any(not valid_split(split) for split in approved_splits)
+                or len({tuple(split) for split in approved_splits})
+                != len(approved_splits)
+                or not valid_split(root_split)
+                or root_split != approved_splits[0]
                 or not isinstance(
                     report.get("bridge_candidate_range"), dict
                 )
@@ -5511,6 +5649,7 @@ def _apply_coset_literal_diff(
 
     from openevolve.utils.code_utils import extract_diffs
     from evolve.coset_policy_dispatch import (
+        CosetPolicyDispatchError,
         parse_and_render_activated_policy,
         parse_and_render_registered_policy,
     )
@@ -5563,10 +5702,28 @@ def _apply_coset_literal_diff(
             else parse_and_render_activated_policy(mutated, activation)
         )
     except Exception as exc:
+        rejection_reason = (
+            "dsl_noncanonical"
+            if type(exc) is CosetPolicyDispatchError
+            and str(exc) == "policy text is not canonicalizable"
+            else "dsl_invalid"
+        )
+        response_payload = diff_text.encode("utf-8")
+        mutated_payload = mutated.encode("utf-8")
         _raise_coset_mutation_rejection(
-            "dsl_invalid",
+            rejection_reason,
             parent_code=original_code,
-            detail={"error_type": type(exc).__name__},
+            detail={
+                "error_type": type(exc).__name__,
+                "response_sha256": hashlib.sha256(
+                    response_payload
+                ).hexdigest(),
+                "response_bytes": len(response_payload),
+                "mutated_sha256": hashlib.sha256(
+                    mutated_payload
+                ).hexdigest(),
+                "mutated_bytes": len(mutated_payload),
+            },
         )
     if child_render.policy_sha256 == parent_render.policy_sha256:
         _raise_coset_mutation_rejection(

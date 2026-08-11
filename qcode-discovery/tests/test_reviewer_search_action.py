@@ -76,6 +76,28 @@ def _review_evidence(prompt: str) -> dict:
     return json.loads(encoded)
 
 
+def _structural_candidate(index: int, split: tuple[int, int]) -> dict:
+    left, right = split
+    return {
+        "ell": 10 + index,
+        "m": 6,
+        "n": 120 + 2 * index,
+        "k": 8,
+        "A_terms": [[term, 0] for term in range(left)],
+        "B_terms": [[0, term] for term in range(right)],
+        "d": 1000 + index,
+        "fom": 2000.0 + index,
+        "score": 3000.0 + index,
+        "reward": 4000.0 + index,
+        "d_is_exact": False,
+        "distance_trusted": False,
+        "candidate_key": "f" * 20,
+        "archive_cell": f"forged-{index}",
+        "pattern_type": "forged",
+        "term_count": 999,
+    }
+
+
 def test_generation_schema_requires_v2_search_action_and_is_closed():
     assert REVIEW_SCHEMA["additionalProperties"] is False
     assert set(REVIEW_SCHEMA["required"]) == {
@@ -359,3 +381,154 @@ def test_prompt_reports_memory_tail_coverage_explicitly():
         "omitted_characters": 3_000,
         "selection": "most_recent_12000_characters",
     }
+
+
+def test_prompt_samples_structural_representatives_and_reports_full_coverage():
+    splits = ((2, 2), (2, 3), (3, 2), (2, 4), (4, 2), (3, 3))
+    # Exercise the production-scale projection shape: 120 current rows and
+    # 369 archive rows must remain bounded to 20 representatives without
+    # hiding a rare support split or the full-population duplicate arithmetic.
+    unique_candidates = [
+        _structural_candidate(
+            index,
+            (3, 3) if index == 117 else splits[index % 5],
+        )
+        for index in range(118)
+    ]
+    candidates = [
+        *unique_candidates,
+        copy.deepcopy(unique_candidates[0]),
+        copy.deepcopy(unique_candidates[1]),
+    ]
+    archive_unique = [
+        *[copy.deepcopy(row) for row in unique_candidates[:25]],
+        *[
+            _structural_candidate(200 + index, splits[index % len(splits)])
+            for index in range(40)
+        ],
+    ]
+    archive = [
+        copy.deepcopy(archive_unique[index % len(archive_unique)])
+        for index in range(369)
+    ]
+    diversity = {
+        "schema_version": 1,
+        "basis": "transaction-bound-source-and-canonical-batch",
+        "raw_candidate_source_rows": 120,
+        "canonical_unique_batch_rows": 118,
+        "duplicate_count": 2,
+        "duplicate_rate": 2 / 120,
+        "candidate_source_sha256": "a" * 64,
+        "candidate_batch_sha256": "b" * 64,
+        "support_split_counts": {
+            f"{left}+{right}": sum(
+                1
+                for row in unique_candidates
+                if (len(row["A_terms"]), len(row["B_terms"]))
+                == (left, right)
+            )
+            for left, right in splits
+        },
+        "mixed_vs_nonmixed_counts": {
+            "mixed": 0,
+            "nonmixed": 118,
+            "unclassified": 0,
+        },
+    }
+
+    first = _review_evidence(build_review_prompt(
+        round_number=2,
+        contract={},
+        candidates=candidates,
+        audited=[],
+        archive_top=archive,
+        memory="",
+        current_candidate_diversity=diversity,
+    ))
+    second = _review_evidence(build_review_prompt(
+        round_number=2,
+        contract={},
+        candidates=list(reversed(candidates)),
+        audited=[],
+        archive_top=list(reversed(archive)),
+        memory="",
+        current_candidate_diversity=copy.deepcopy(diversity),
+    ))
+
+    assert first["current_candidate_diversity"] == diversity
+    assert first["new_candidates"] == second["new_candidates"]
+    assert first["archive_top"] == second["archive_top"]
+    assert len(first["new_candidates"]) == 20
+    assert {
+        row["support_split_type"] for row in first["new_candidates"]
+    } == {f"{left}+{right}" for left, right in splits}
+    assert all(row["candidate_key"] != "f" * 20 for row in first["new_candidates"])
+    assert all(not row["archive_cell"].startswith("forged-") for row in first["new_candidates"])
+
+    new_coverage = first["new_candidates_coverage"]
+    assert new_coverage["schema_version"] == 1
+    assert new_coverage["stage"] == "new_candidates"
+    assert new_coverage["total"] == 120
+    assert new_coverage["included"] == 20
+    assert new_coverage["omitted"] == 100
+    assert new_coverage["unique_defining_keys"] == 118
+    assert sum(new_coverage["support_split_counts"].values()) == 120
+    assert sum(new_coverage["action_family_bin_counts"].values()) == 120
+    assert sum(new_coverage["subgroup_normal_counts"].values()) == 120
+    assert sum(new_coverage["support_orbit_bin_counts"].values()) == 120
+    assert new_coverage["canonical_archive_cell_count"] == 118
+
+    archive_coverage = first["archive_top_coverage"]
+    assert archive_coverage["total"] == 369
+    assert archive_coverage["included"] == 20
+    assert archive_coverage["omitted"] == 349
+    assert archive_coverage["unique_defining_keys"] == 65
+    assert archive_coverage["canonical_archive_cell_count"] == 65
+    for aggregate in (
+        "support_split_counts",
+        "action_family_bin_counts",
+        "subgroup_normal_counts",
+        "support_orbit_bin_counts",
+    ):
+        assert sum(archive_coverage[aggregate].values()) == 369
+
+    accounting = first["projection_duplicate_accounting"]
+    assert accounting["schema_version"] == 1
+    assert accounting["new_candidates_within_duplicate_count"] == 2
+    assert accounting["archive_top_within_duplicate_count"] == 304
+    assert accounting["new_archive_unique_key_overlap_count"] == 25
+    assert accounting["combined_unique_defining_key_count"] == 158
+    assert len(accounting["overlap_examples"]) == 5
+    assert accounting["overlap_examples"] == sorted(
+        accounting["overlap_examples"]
+    )
+
+    forbidden = {"d", "fom", "score", "reward"}
+    for section in (
+        first["new_candidates"],
+        first["archive_top"],
+        first["new_candidates_coverage"],
+        first["archive_top_coverage"],
+        first["projection_duplicate_accounting"],
+    ):
+        stack = [section]
+        while stack:
+            value = stack.pop()
+            if isinstance(value, dict):
+                assert forbidden.isdisjoint(value)
+                stack.extend(value.values())
+            elif isinstance(value, list):
+                stack.extend(value)
+
+
+def test_prompt_rejects_tampered_current_candidate_diversity_shape():
+    with pytest.raises(ValueError, match="diversity fields"):
+        build_review_prompt(
+            round_number=1,
+            contract={},
+            candidates=[],
+            audited=[],
+            archive_top=[],
+            memory="",
+            current_candidate_diversity={"score": 999},
+        )

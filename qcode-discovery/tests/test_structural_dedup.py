@@ -28,6 +28,33 @@ def test_exact_gross_code_is_known():
     assert result["explicit_isomorphism"]["verified"] is True
 
 
+def test_logical_basis_upper_bound_report_is_sealed_and_tamper_closed(
+    monkeypatch,
+):
+    witness = {
+        "side": "Z",
+        "index": 0,
+        "dual_side": "X",
+        "dual_index": 1,
+        "weight": 3,
+        "bits": [1, 0, 1, 0, 1],
+    }
+    monkeypatch.setattr(
+        structural_dedup,
+        "symplectic_weight_witness",
+        lambda _code: witness,
+    )
+    report = structural_dedup._logical_basis_upper_bound_report(object())
+    structural_dedup._validate_logical_basis_upper_bound_report(report)
+    assert report["available"] is True
+    assert report["upper_bound"] == 3
+
+    tampered = json.loads(json.dumps(report))
+    tampered["upper_bound"] = 4
+    with pytest.raises(StructuralScreenCacheError, match="self-hash"):
+        structural_dedup._validate_logical_basis_upper_bound_report(tampered)
+
+
 def test_known_reference_dedup_carries_verified_rejection():
     row = {
         "ell": 12,

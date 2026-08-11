@@ -36,10 +36,16 @@ def _write_registry(path, entries):
 
 def test_registry_integrity_and_coverage():
     registry = load_registry()
-    assert registry["summary"]["css"] >= 30
-    assert registry["summary"]["noncss"] >= 300
-    assert len(registry["entries"]) == 1150
-    assert all(isinstance(row.get("construction"), dict) for row in registry["entries"])
+    entries = registry["entries"]
+    summary = registry["summary"]
+    assert summary["css"] >= 30
+    assert summary["noncss"] >= 300
+    assert len(entries) == summary["deduplicated_entries"] == 1171
+    assert summary["css"] == sum(row["code_type"] == "css" for row in entries)
+    assert summary["noncss"] == sum(
+        row["code_type"] == "noncss" for row in entries
+    )
+    assert all(isinstance(row.get("construction"), dict) for row in entries)
 
 
 def test_known_gross_code_is_in_expanded_registry():
@@ -157,7 +163,11 @@ def test_digest_hit_requires_successful_explicit_matrix_replay(
     monkeypatch,
 ):
     registry = load_registry()
-    entry = next(row for row in registry["entries"] if row["code_type"] == "css")
+    entry = next(
+        row
+        for row in registry["entries"]
+        if row["code_type"] == "css" and row["family"] == "css-bb"
+    )
     code = build_bb_code(**entry["construction"])
     path = _write_registry(tmp_path / "registry.json", [entry])
     monkeypatch.setattr(

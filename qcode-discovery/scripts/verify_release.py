@@ -10,7 +10,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.certificate_dispatch import verify_certificate
+from evaluation.certificate_dispatch import (
+    EXACT_ANCHOR_CSS_TYPE,
+    verify_certificate,
+)
 from evaluation.known_answer_integrity import check_known_answer_integrity
 from evaluation.release_gate import (
     resolve_release_certificate_path,
@@ -32,6 +35,15 @@ def compare_strict_provenance(recorded: dict, fresh: dict) -> list[str]:
         for field in STRICT_PROVENANCE_FIELDS
         if fresh.get(field) != recorded.get(field)
     ]
+
+
+def calibration_release_failure(certificate: dict) -> str | None:
+    if certificate.get("certificate_type") == EXACT_ANCHOR_CSS_TYPE:
+        return (
+            "published calibration certificates are explicitly ineligible "
+            "for challenge release"
+        )
+    return None
 
 
 def main() -> int:
@@ -89,6 +101,10 @@ def main() -> int:
                 args.manifest, entry.get("file"),
             )
             certificate = json.loads(certificate_path.read_text())
+            calibration_failure = calibration_release_failure(certificate)
+            if calibration_failure is not None:
+                failures.append(f"certificate[{index}]: {calibration_failure}")
+                continue
             result = verify_certificate(
                 certificate,
                 known_answer_artifact=args.known_answer_artifact,

@@ -660,6 +660,62 @@ def test_ranked_snapshot_sorts_trusted_terminal_rows_after_eligible_rows():
     )
 
 
+def test_basis_upper_bound_promotes_rejects_then_required_weight_near_misses():
+    def row(name: str, upper: int | None) -> dict:
+        value = {
+            **_construction(0),
+            "required_distance": 13,
+            "proof_score": {"status": "UNSCREENED", "rejected": False},
+            "triage_identity": {
+                "canonical_digest": name,
+                "digest_kind": "registry-canonical",
+            },
+            "stage2_structural_screen": {"status": "COMPLETE"},
+            "static_eligibility": {"checked": True, "eligible": True},
+        }
+        if upper is not None:
+            body = {
+                "schema_version": 1,
+                "kind": "qcode-logical-basis-upper-bound-v1",
+                "method": "replayed-minimum-symplectic-basis-row",
+                "available": True,
+                "upper_bound": upper,
+                "witness": {
+                    "side": "Z",
+                    "index": 0,
+                    "dual_side": "X",
+                    "dual_index": 0,
+                    "weight": upper,
+                    "bits": [1] * upper,
+                },
+            }
+            value["static_eligibility"]["logical_basis_upper_bound"] = {
+                **body,
+                "report_sha256": candidate_pool._json_sha256(body),
+            }
+        return value
+
+    ranked = sorted(
+        [
+            row("missing", None),
+            row("headroom-five", 18),
+            row("required-weight", 13),
+            row("basis-reject", 12),
+            row("headroom-two", 15),
+        ],
+        key=candidate_pool._ranked_selection_key,
+    )
+    assert [
+        item["triage_identity"]["canonical_digest"] for item in ranked
+    ] == [
+        "basis-reject",
+        "required-weight",
+        "headroom-two",
+        "headroom-five",
+        "missing",
+    ]
+
+
 def test_ranked_snapshot_rejects_rejected_score_without_trusted_marker():
     row = {
         **_construction(0),

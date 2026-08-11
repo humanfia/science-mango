@@ -310,6 +310,7 @@ def test_dynamic_cutoff_uses_official_gate_and_ladder_reaches_odd_end():
 
 
 def test_scalar_cutoff_keeps_pareto_diagnostics_but_rejects_48_8_d6(
+    tmp_path,
     monkeypatch,
 ):
     """A [[48,8,6]] Pareto win must not stop the strict-FOM ladder."""
@@ -404,6 +405,14 @@ def test_scalar_cutoff_keeps_pareto_diagnostics_but_rejects_48_8_d6(
     assert distance_six["challenge_rejection_cutoff"] == 5
     assert distance_six["fom_rejection_cutoff"] == 8
     direct = row(6)
+    direct.update({
+        "distance_lower_bound": 5,
+        "distance_lower_bound_proven": True,
+        "distance_lower_bound_status": "search_oracle_proven",
+        "distance_lower_bound_evidence": {"outcome": "UNSAT"},
+        "distance_lower_bound_evidence_sha256": "f" * 64,
+        "fom_lower_bound": 1.0,
+    })
     evaluator._apply_oracle_sat(
         direct,
         {
@@ -419,6 +428,50 @@ def test_scalar_cutoff_keeps_pareto_diagnostics_but_rejects_48_8_d6(
     )
     assert direct["fom_target_excluded_by_upper_bound"] is True
     assert direct["final_gate_excluded_by_upper_bound"] is False
+    assert direct["distance_lower_bound"] is None
+    assert direct["distance_lower_bound_evidence"] is None
+    assert direct["distance_lower_bound_evidence_sha256"] is None
+    assert "distance_lower_bound_proven" not in direct
+    assert "distance_lower_bound_status" not in direct
+    assert "fom_lower_bound" not in direct
+
+    archived = []
+    live_archive = (tmp_path / "negative-archive.json").resolve()
+    monkeypatch.setattr(
+        evaluator,
+        "_negative_feedback_paths",
+        lambda: (live_archive, None),
+    )
+    monkeypatch.setattr(
+        evaluator, "_configured_stage2_negative_paths", lambda: ()
+    )
+    monkeypatch.setattr(
+        evaluator, "_configured_stage3_negative_paths", lambda: ()
+    )
+
+    def capture_stage1_rows(path, rows):
+        assert path == live_archive
+        archived.extend(rows)
+        return {"events_added": len(rows)}
+
+    monkeypatch.setattr(
+        evaluator, "_archive_stage1_negative_rows", capture_stage1_rows
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_annotate_negative_archive_rows",
+        lambda _path, _rows: {
+            "event_count": 0,
+            "penalized_candidates": 0,
+            "maximum_penalty": 0.0,
+        },
+    )
+    summary = evaluator._archive_and_annotate_negative_rows([
+        distance_six,
+        distance_five,
+    ])
+    assert archived == [distance_five]
+    assert summary["events_added"] == 1
     assert calls == [
         ("5" * 64, 4),
         ("5" * 64, 6),
@@ -512,7 +565,18 @@ def test_proof_ladder_commits_retries_unknown_and_hydrates_retry_state(
     assert first["oracle_ladder_next_threshold"] == 6
     assert first["low_weight_oracle"]["outcome"] == "UNSAT"
     assert first["distance_lower_bound_evidence"]["outcome"] == "UNSAT"
-    assert first["oracle_last_attempt"]["evidence"]["outcome"] == "UNKNOWN"
+    assert first["oracle_last_attempt"]["outcome"] == "UNKNOWN"
+    assert "evidence" not in first["oracle_last_attempt"]
+    assert evaluator._strict_self_hashed_mapping(
+        first["oracle_last_attempt"],
+        hash_field="attempt_sha256",
+    )
+    assert first["oracle_ladder_history"][-1]["evidence_sha256"] is None
+    first["proof_ledger"] = evaluator._proof_ledger_for_row(first)
+    assert flow_module._sealed_oracle_provenance(
+        first,
+        candidate_sha256=first["candidate_sha256"],
+    ) is not None
     assert first["oracle_evidence_sha256"] == (
         first["distance_lower_bound_evidence_sha256"]
     )
@@ -534,6 +598,18 @@ def test_proof_ladder_commits_retries_unknown_and_hydrates_retry_state(
     assert no_budget["distance_lower_bound"] == 5
     assert no_budget["oracle_ladder_next_threshold"] == 6
     assert no_budget["oracle_last_attempt"]["timeout_s"] == 7.5
+    assert no_budget["oracle_ladder_history"][-1]["evidence_sha256"] is None
+    assert evaluator._strict_self_hashed_mapping(
+        no_budget["oracle_last_attempt"],
+        hash_field="attempt_sha256",
+    )
+    no_budget["proof_ledger"] = evaluator._proof_ledger_for_row(no_budget)
+    assert flow_module._sealed_oracle_provenance(
+        no_budget,
+        candidate_sha256=no_budget["candidate_sha256"],
+    ) is not None
+    no_budget["fitness"] = evaluator._fitness(no_budget)
+    assert evaluator._append_candidate_rows([no_budget]) == 1
 
     terminal = copy.deepcopy(base)
     evaluator._run_oracle(terminal)
@@ -543,6 +619,19 @@ def test_proof_ladder_commits_retries_unknown_and_hydrates_retry_state(
     assert terminal["threshold_rejected"] is True
     assert terminal["fom_upper_bound"] == pytest.approx(3 * 8 * 8 / 16)
     assert terminal["fitness_distance_credit"] == 0.0
+    assert terminal["distance_lower_bound"] == 7
+    assert terminal["distance_lower_bound_proven"] is True
+    assert terminal["distance_lower_bound_status"] == "search_oracle_proven"
+    assert terminal["distance_lower_bound_evidence"]["outcome"] == "UNSAT"
+    assert terminal["distance_lower_bound_evidence"]["max_weight"] == 6
+    assert terminal["distance_lower_bound_evidence_sha256"] == (
+        terminal["distance_lower_bound_evidence"]["evidence_sha256"]
+    )
+    terminal["proof_ledger"] = evaluator._proof_ledger_for_row(terminal)
+    assert flow_module._sealed_oracle_provenance(
+        terminal,
+        candidate_sha256=terminal["candidate_sha256"],
+    ) is not None
 
     # A retry generation is deliberately invisible to recovery until its
     # candidate row is durably appended and the generation is committed.
@@ -566,6 +655,223 @@ def test_proof_ladder_commits_retries_unknown_and_hydrates_retry_state(
         cached["last_attempt"],
         hash_field="attempt_sha256",
     )
+
+    # Replaying the now-terminal cache must retain the same strongest UNSAT
+    # artifact instead of emitting a SAT row whose ledger has an unbound
+    # lower-bound prefix.
+    hydrated_terminal = copy.deepcopy(base)
+    evaluator._run_oracle(hydrated_terminal)
+    assert [threshold for threshold, _timeout in calls] == [4, 6, 6, 8]
+    assert [
+        (entry["threshold"], entry["outcome"])
+        for entry in hydrated_terminal["oracle_ladder_history"]
+    ] == [(4, "UNSAT"), (6, "UNSAT"), (8, "SAT")]
+    assert hydrated_terminal["distance_lower_bound"] == 7
+    assert hydrated_terminal["distance_lower_bound_evidence"]["outcome"] == (
+        "UNSAT"
+    )
+    assert hydrated_terminal["distance_lower_bound_evidence"][
+        "max_weight"
+    ] == 6
+    assert hydrated_terminal["distance_lower_bound_evidence_sha256"] == (
+        hydrated_terminal["distance_lower_bound_evidence"]["evidence_sha256"]
+    )
+    hydrated_terminal["proof_ledger"] = evaluator._proof_ledger_for_row(
+        hydrated_terminal
+    )
+    assert flow_module._sealed_oracle_provenance(
+        hydrated_terminal,
+        candidate_sha256=hydrated_terminal["candidate_sha256"],
+    ) is not None
+
+
+def test_resolved_cached_unknown_is_not_rebound_to_the_next_rung(
+    tmp_path,
+    monkeypatch,
+):
+    """A one-step quantum must not relabel an old UNKNOWN after advancing."""
+
+    candidate_log = (tmp_path / "run/all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir()
+    monkeypatch.setenv(evaluator.CANDIDATE_LOG_PATH_ENV, str(candidate_log))
+    monkeypatch.setattr(evaluator, "_ORACLE_UNKNOWN_RETRY_BACKOFF_S", 0.0)
+    monkeypatch.setattr(
+        evaluator,
+        "_light_oracle_evidence_valid",
+        lambda evidence, *, threshold: (
+            isinstance(evidence, dict)
+            and evidence.get("max_weight") == threshold
+            and evidence.get("outcome") in {"SAT", "UNSAT", "UNKNOWN"}
+        ),
+    )
+    calls: list[int] = []
+    outcomes = iter(("UNSAT", "UNKNOWN", "UNSAT"))
+
+    def fake_rung(_row, *, threshold, timeout_s, terminal_sectors):
+        del timeout_s, terminal_sectors
+        calls.append(threshold)
+        outcome = next(outcomes)
+        return {
+            "outcome": outcome,
+            "max_weight": threshold,
+            "distance_lower_bound": (
+                threshold + 1 if outcome == "UNSAT" else None
+            ),
+            "witness": None,
+            "evidence_sha256": f"{len(calls):064x}",
+        }, {
+            "hard_wall_timeout": False,
+            "worker_failed": False,
+            "elapsed_s": 0.01,
+            "resumed_sectors": [],
+        }
+
+    monkeypatch.setattr(evaluator, "_run_oracle_rung_hard_wall", fake_rung)
+    candidate = _published_candidate()
+    view = action_search_view(candidate["action_id"])
+    base = {
+        "candidate": candidate,
+        "construction": evaluator._stage2_construction(candidate),
+        "candidate_sha256": "c" * 64,
+        "action_id": candidate["action_id"],
+        "subgroup_normal": view.subgroup_normal,
+        "support_orbit_bin": 0,
+        "static_legal": True,
+        "n": 16,
+        "k": 3,
+        "rank_x": 1,
+        "rank_z": 12,
+        "css_commutation": True,
+        "max_check_weight": 6,
+        "max_qubit_degree": 6,
+        "tanner_components": 1,
+        "hx": np.zeros((1, 16), dtype=np.uint8),
+        "hz": np.zeros((1, 16), dtype=np.uint8),
+    }
+
+    initial = copy.deepcopy(base)
+    evaluator._run_oracle(initial)
+    initial["fitness"] = evaluator._fitness(initial)
+    assert evaluator._append_candidate_rows([initial]) == 1
+    assert calls == [4, 6]
+
+    resumed = copy.deepcopy(base)
+    result = evaluator._run_oracle(
+        resumed,
+        budget=evaluator._OracleBatchBudget(
+            remaining_new_steps=1,
+            deadline=evaluator.time.monotonic() + 30,
+        ),
+        max_new_steps=1,
+    )
+    assert result == {"new_steps": 1, "cache_hits": 1, "deferred": True}
+    assert calls == [4, 6, 6]
+    assert [
+        (entry["threshold"], entry["outcome"])
+        for entry in resumed["oracle_ladder_history"]
+    ] == [(4, "UNSAT"), (6, "UNSAT")]
+    assert resumed["oracle_ladder_next_threshold"] == 8
+    assert resumed["oracle_last_attempt_outcome"] == "UNSAT"
+    assert resumed["oracle_last_attempt_threshold"] == 6
+    resumed["fitness"] = evaluator._fitness(resumed)
+    log_size = candidate_log.stat().st_size
+    phantom = copy.deepcopy(resumed)
+    phantom["oracle_ladder_history"][-1]["threshold"] = 8
+    with pytest.raises(
+        RuntimeError,
+        match="invalid before candidate-log append",
+    ):
+        evaluator._append_candidate_rows([phantom])
+    assert candidate_log.stat().st_size == log_size
+    assert evaluator._append_candidate_rows([resumed]) == 1
+    assert [
+        entry["threshold"]
+        for entry in evaluator._proof_ledger_for_row(resumed)["entries"]
+    ] == [4, 6]
+
+
+def test_fresh_and_cached_sat_hydrate_last_attempt_provenance(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_log = (tmp_path / "run/all_codes.jsonl").resolve()
+    candidate_log.parent.mkdir()
+    monkeypatch.setenv(evaluator.CANDIDATE_LOG_PATH_ENV, str(candidate_log))
+    monkeypatch.setattr(
+        evaluator,
+        "_light_oracle_evidence_valid",
+        lambda evidence, *, threshold: (
+            isinstance(evidence, dict)
+            and evidence.get("max_weight") == threshold
+            and evidence.get("outcome") == "SAT"
+        ),
+    )
+    calls: list[int] = []
+
+    def fake_rung(_row, *, threshold, timeout_s, terminal_sectors):
+        del timeout_s, terminal_sectors
+        calls.append(threshold)
+        return {
+            "outcome": "SAT",
+            "max_weight": threshold,
+            "distance_lower_bound": None,
+            "witness": {
+                "side": "X",
+                "index": 0,
+                "weight": threshold,
+                "bits": [1] * threshold + [0] * (16 - threshold),
+                "logical_syndrome": [1, 0, 0],
+                "support": list(range(threshold)),
+            },
+            "evidence_sha256": "1" * 64,
+        }, {
+            "hard_wall_timeout": False,
+            "worker_failed": False,
+            "elapsed_s": 0.01,
+            "resumed_sectors": [],
+        }
+
+    monkeypatch.setattr(evaluator, "_run_oracle_rung_hard_wall", fake_rung)
+    candidate = _published_candidate()
+    view = action_search_view(candidate["action_id"])
+    base = {
+        "candidate": candidate,
+        "construction": evaluator._stage2_construction(candidate),
+        "candidate_sha256": "d" * 64,
+        "action_id": candidate["action_id"],
+        "subgroup_normal": view.subgroup_normal,
+        "support_orbit_bin": 0,
+        "static_legal": True,
+        "n": 16,
+        "k": 3,
+        "rank_x": 1,
+        "rank_z": 12,
+        "css_commutation": True,
+        "max_check_weight": 6,
+        "max_qubit_degree": 6,
+        "tanner_components": 1,
+        "hx": np.zeros((1, 16), dtype=np.uint8),
+        "hz": np.zeros((1, 16), dtype=np.uint8),
+        "oracle_last_attempt_outcome": "UNKNOWN",
+        "oracle_last_attempt_threshold": 999,
+    }
+
+    fresh = copy.deepcopy(base)
+    evaluator._run_oracle(fresh)
+    assert calls == [4]
+    assert fresh["oracle_last_attempt"]["outcome"] == "SAT"
+    assert fresh["oracle_last_attempt_outcome"] == "SAT"
+    assert fresh["oracle_last_attempt_threshold"] == 4
+    fresh["fitness"] = evaluator._fitness(fresh)
+    assert evaluator._append_candidate_rows([fresh]) == 1
+
+    cached = copy.deepcopy(base)
+    evaluator._run_oracle(cached)
+    assert calls == [4]
+    assert cached["oracle_last_attempt"]["outcome"] == "SAT"
+    assert cached["oracle_last_attempt_outcome"] == "SAT"
+    assert cached["oracle_last_attempt_threshold"] == 4
+    assert cached["oracle_ladder_history"][-1]["cache_hit"] is True
 
 
 def test_all_unsat_single_evaluation_reaches_360_8_cutoff_23(monkeypatch):
@@ -619,6 +925,124 @@ def test_batch_budget_never_shortens_a_configured_retry():
     )
     assert complete.claim_timeout(requested_cap_s=120.0) == 120.0
     assert complete.remaining_new_steps == 0
+
+
+@pytest.mark.parametrize("budget_exhausted", [False, True])
+def test_deferred_without_attempt_does_not_claim_last_attempt_threshold(
+    monkeypatch,
+    budget_exhausted,
+):
+    monkeypatch.delenv(evaluator.CANDIDATE_LOG_PATH_ENV, raising=False)
+
+    def defer_without_attempt(_row, *, threshold, budget):
+        del threshold, budget
+        return None, {
+            "attempts": 0,
+            "budget_exhausted": budget_exhausted,
+            "deferred": True,
+            "cache_hit": False,
+            "latest_outcome": None,
+        }
+
+    monkeypatch.setattr(evaluator, "_run_oracle_step", defer_without_attempt)
+    row = {
+        "candidate_sha256": "a" * 64,
+        "static_legal": True,
+        "n": 16,
+        "k": 3,
+        "hx": np.zeros((1, 16), dtype=np.uint8),
+        "hz": np.zeros((1, 16), dtype=np.uint8),
+    }
+    result = evaluator._run_oracle(
+        row,
+        budget=evaluator._OracleBatchBudget(
+            remaining_new_steps=1,
+            deadline=evaluator.time.monotonic() + 30.0,
+        ),
+        max_new_steps=1,
+    )
+
+    assert result == {"new_steps": 0, "cache_hits": 0, "deferred": True}
+    assert row["oracle_last_attempt"] is None
+    assert "oracle_last_attempt_outcome" not in row
+    assert "oracle_last_attempt_threshold" not in row
+    assert row["oracle_ladder_history"] == []
+    assert row["oracle_ladder_next_threshold"] == 4
+    assert row["oracle_batch_budget_exhausted"] is budget_exhausted
+    assert row["oracle_deferred"] is True
+
+
+def test_deferred_without_attempt_preserves_last_hydrated_terminal_attempt(
+    monkeypatch,
+):
+    monkeypatch.delenv(evaluator.CANDIDATE_LOG_PATH_ENV, raising=False)
+    evidence = {
+        "outcome": "UNSAT",
+        "max_weight": 4,
+        "distance_lower_bound": 5,
+        "witness": None,
+        "evidence_sha256": "1" * 64,
+    }
+    last_attempt = {
+        "outcome": "UNSAT",
+        "attempt_sha256": "2" * 64,
+    }
+
+    def cached(_candidate_sha256, threshold, *, hx, hz):
+        del hx, hz
+        if threshold != 4:
+            return None
+        return {
+            "latest_outcome": "UNSAT",
+            "evidence": evidence,
+            "last_attempt": last_attempt,
+            "attempts": 1,
+            "cache_sha256": "3" * 64,
+        }
+
+    def defer_without_attempt(_row, *, threshold, budget):
+        del threshold, budget
+        return None, {
+            "attempts": 0,
+            "budget_exhausted": False,
+            "deferred": True,
+            "cache_hit": False,
+            "latest_outcome": None,
+        }
+
+    monkeypatch.setattr(evaluator, "_load_cached_evidence", cached)
+    monkeypatch.setattr(evaluator, "_run_oracle_step", defer_without_attempt)
+    row = {
+        "candidate_sha256": "b" * 64,
+        "static_legal": True,
+        "n": 16,
+        "k": 3,
+        "hx": np.zeros((1, 16), dtype=np.uint8),
+        "hz": np.zeros((1, 16), dtype=np.uint8),
+    }
+    evaluator._run_oracle(
+        row,
+        budget=evaluator._OracleBatchBudget(
+            remaining_new_steps=1,
+            deadline=evaluator.time.monotonic() + 30.0,
+        ),
+        max_new_steps=1,
+    )
+
+    assert row["oracle_last_attempt"] == last_attempt
+    assert row["oracle_last_attempt_outcome"] == "UNSAT"
+    assert row["oracle_last_attempt_threshold"] == 4
+    assert row["oracle_outcome"] == "UNSAT"
+    assert row["oracle_ladder_next_threshold"] == 6
+    assert row["oracle_ladder_history"] == [{
+        "threshold": 4,
+        "outcome": "UNSAT",
+        "attempts": 1,
+        "cache_hit": True,
+        "evidence_sha256": "1" * 64,
+        "attempt_sha256": "2" * 64,
+        "cache_sha256": "3" * 64,
+    }]
 
 
 def test_proof_frontier_hydrates_every_row_before_local_selection(monkeypatch):

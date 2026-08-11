@@ -95,6 +95,7 @@ from evaluation.structural_dedup import (
     STRUCTURAL_PAIR_CACHE_SCHEMA_VERSION,
     STRUCTURAL_PAIR_REPLAY_FIELD,
     STRUCTURAL_SCREEN_HARD_TIMEOUT_SECONDS,
+    _validate_logical_basis_upper_bound_report,
     annotate_css_results_with_deferred_cache,
     screen_css_results_with_deferred_cache,
     structural_pair_input_sha256,
@@ -1028,6 +1029,46 @@ def _validate_completed_pair_binding(
         )
 
 
+def _trusted_basis_promotion_key(
+    row: Mapping[str, Any],
+) -> tuple[int, int]:
+    """Rank a hard-walled basis UB without turning it into proof credit."""
+
+    static = row.get("static_eligibility")
+    structural = row.get(_STAGE2_STRUCTURAL_SCREEN)
+    required = row.get("required_distance")
+    report = (
+        static.get("logical_basis_upper_bound")
+        if isinstance(static, Mapping) else None
+    )
+    if (
+        not isinstance(static, Mapping)
+        or static.get("eligible") is not True
+        or not isinstance(structural, Mapping)
+        or structural.get("status") != "COMPLETE"
+        or isinstance(required, bool)
+        or not isinstance(required, int)
+        or required < 1
+        or not isinstance(report, Mapping)
+    ):
+        return (3, 0)
+    try:
+        _validate_logical_basis_upper_bound_report(dict(report))
+    except (TypeError, ValueError, RuntimeError):
+        return (3, 0)
+    upper = report.get("upper_bound")
+    if report.get("available") is not True or not isinstance(upper, int):
+        return (3, 0)
+    headroom = upper - required
+    if headroom < 0:
+        # A later audit must rebuild this witness before rejecting the row.
+        return (0, headroom)
+    if headroom == 0:
+        # U=R is the cheapest exact win: proving no operator below R closes d.
+        return (1, 0)
+    return (2, headroom)
+
+
 def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     """Preserve proof priority, then rank proof ties by search upside."""
 
@@ -1061,11 +1102,13 @@ def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     # prefix. Every completed candidate remains pageable ahead of the barrier,
     # while the selection cursor can never cross a timed-out reconstruction.
     structural_lane = 1 if _is_structural_screen_unresolved(row) else 0
+    basis_promotion = _trusted_basis_promotion_key(row)
     return (
         terminal_lane,
         proof_key[0],
         structural_lane,
         *proof_key[1:-2],
+        *basis_promotion,
         -estimated_fom,
         *proof_key[-2:],
     )
@@ -2274,7 +2317,10 @@ def _audit_compact_low_weight_candidate(
     """Require one complete low-weight rung before compact Stage-3 entry."""
 
     from evaluation.construction import build_css_code_from_claim
-    from evaluation.distance_milp import get_code_matrices
+    from evaluation.distance_milp import (
+        get_code_matrices,
+        symplectic_weight_witness,
+    )
     from evaluation.low_weight_oracle import (
         evaluate_css_low_weight_oracle,
         verify_css_low_weight_oracle,
@@ -2312,6 +2358,33 @@ def _audit_compact_low_weight_candidate(
     if len(matrices) != 4:
         raise ValueError("compact CSS matrix replay did not return four matrices")
     typed_matrices = (matrices[0], matrices[1], matrices[2], matrices[3])
+    basis_witness = symplectic_weight_witness(code)
+    if basis_witness is not None:
+        basis_payload = {
+            "schema_version": 1,
+            "gate": "qldpc-stage2-logical-basis-upper-bound",
+            "canonical_digest": canonical_digest,
+            "n": rebuilt_n,
+            "k": rebuilt_k,
+            "required_distance": required_distance,
+            "witness": basis_witness,
+        }
+        basis_evidence = {
+            **basis_payload,
+            "evidence_sha256": _json_sha256(basis_payload),
+        }
+        if int(basis_witness["weight"]) < required_distance:
+            return {
+                "canonical_digest": canonical_digest,
+                "status": "REJECTED",
+                "retry_required": False,
+                "completed_sectors": 0,
+                "resumed_sectors": 0,
+                "distance_upper_bound": int(basis_witness["weight"]),
+                "threshold_rejection_proven": True,
+                "threshold_proof_source": "logical-basis-upper-bound",
+                "logical_basis_upper_bound": basis_evidence,
+            }
     binding = _compact_low_weight_cache_binding(
         candidate,
         typed_matrices,

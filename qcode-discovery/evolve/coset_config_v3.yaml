@@ -71,8 +71,11 @@ prompt:
     An explicit support is `{ "left": [...], "right": [...] }`, containing
     exactly support_split[0]-1 and support_split[1]-1 distinct nonnegative
     indices into the action's immutable nonidentity catalogs. The trusted
-    renderer inserts identities, un-ranks combinations, canonicalizes,
-    deduplicates, and round-robins action lanes. An enabled walk needs an
+    renderer inserts identities, un-ranks combinations, canonicalizes generated candidates,
+    deduplicates, and round-robins action lanes. Policy arrays are not repaired:
+    keep actions ordered by action_id, each explicit
+    support's left/right indices strictly increasing, and each supports list
+    lexicographically ordered by (left,right). An enabled walk needs an
     in-range offset and positive stride coprime to its combination space; a
     disabled walk is exactly offset=0,stride=1 and anchors must fill its quota.
     Keep the complete policy below 30000 bytes.

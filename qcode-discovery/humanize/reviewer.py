@@ -7,7 +7,7 @@ import json
 import re
 import subprocess
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +18,12 @@ from evaluation.search_contract import (
     lattices_for_geometry_contract,
 )
 
-from .state import candidate_terminal_negative
+from .state import (
+    archive_cell,
+    candidate_structural_features,
+    candidate_terminal_negative,
+    code_key,
+)
 
 
 _LEGACY_REVIEW_FIELDS = frozenset(
@@ -560,6 +565,10 @@ def validate_review(
 
 
 _ADVISORY_ROW_FIELDS = (
+    "schema_version",
+    "representation_id",
+    "renderer_descriptor_id",
+    "support_split",
     "candidate_key",
     "construction",
     "action_id",
@@ -598,6 +607,10 @@ _ADVISORY_ROW_FIELDS = (
 )
 
 _TRUSTED_EXACT_COMPACT_FIELDS = (
+    "schema_version",
+    "representation_id",
+    "renderer_descriptor_id",
+    "support_split",
     "candidate_key",
     "construction",
     "action_id",
@@ -659,7 +672,22 @@ _ROUND_HISTORY_COMPACT_FIELDS = (
     "stage_statuses",
 )
 _TRUSTED_EXACT_DETAILS_LIMIT = 20
+_ADVISORY_SAMPLE_LIMIT = 20
+_ADVISORY_OVERLAP_EXAMPLE_LIMIT = 5
 _MEMORY_EXCERPT_LIMIT = 12000
+_ADVISORY_SUPPORT_SPLIT_VALUES = (
+    "2+2",
+    "2+3",
+    "3+2",
+    "2+4",
+    "4+2",
+    "3+3",
+)
+_ADVISORY_UNCLASSIFIED = "unclassified"
+_ADVISORY_SELECTION_RULE = (
+    "support_split_representatives_then_canonical_archive_cell_"
+    "representatives_then_upper_bound_neutral_priority_v1"
+)
 _REVIEWABLE_EVOLUTION_LATTICES = frozenset(
     lattices_for_geometry_contract(LEGACY_GEOMETRY_CONTRACT)
 ) | frozenset(
@@ -685,6 +713,518 @@ def _normalized_compact_construction(
         return dict(construction) if isinstance(construction, dict) else None
     except (ImportError, KeyError, TypeError, ValueError, OverflowError):
         return None
+
+
+def _canonical_reviewer_candidate_projection(
+    row: dict[str, Any],
+    projected: dict[str, Any],
+    *,
+    require_definition: bool = False,
+) -> dict[str, Any] | None:
+    """Bind reviewer coordinates to canonical candidate identity.
+
+    Candidate rows can reach the prompt from the new batch, the Humanize
+    archive, or the exact-audit history.  Stored feature labels are advisory,
+    so every projection recomputes the same code key, structural coordinates,
+    and archive cell.  For compact coset rows, top-level action/support fields
+    are also replaced with the normalized source-bound construction values;
+    this gives renderer-v3's schema/representation/renderer/split provenance
+    an exact candidate body with which to replay its orbit bin.
+    """
+
+    recomputed_fields = {
+        "candidate_key",
+        "action_id",
+        "action_family_bin",
+        "subgroup_normal",
+        "support_orbit_bin",
+        "left_support",
+        "right_support",
+        "archive_cell",
+        "pattern_type",
+        "pattern_classifier_version",
+        "term_count",
+        "support_split_type",
+    }
+    for name in recomputed_fields:
+        projected.pop(name, None)
+
+    compact = None
+    if isinstance(row.get("construction"), dict):
+        compact = _normalized_compact_construction(row)
+        if compact is None:
+            projected.pop("construction", None)
+            if require_definition:
+                raise ValueError(
+                    "review evidence compact construction is invalid"
+                )
+            return None
+        projected["construction"] = compact
+        for name in ("action_id", "left_support", "right_support"):
+            if name in compact:
+                projected[name] = copy.deepcopy(compact[name])
+
+    if compact is not None:
+        from evolve.coset_search_contract import (
+            COSET_CANDIDATE_SCHEMA_VERSION_V3,
+            COSET_RENDERER_V3_ID,
+            COSET_REPRESENTATION_ID_V3,
+            normalize_candidate_v3,
+        )
+
+        left = compact.get("left_support")
+        right = compact.get("right_support")
+        if not isinstance(left, list) or not isinstance(right, list):
+            raise ValueError(
+                "review evidence compact construction lacks supports"
+            )
+        claims_renderer_v3 = bool(
+            row.get("schema_version") == COSET_CANDIDATE_SCHEMA_VERSION_V3
+            or row.get("representation_id")
+            == COSET_REPRESENTATION_ID_V3
+            or row.get("renderer_descriptor_id")
+            == COSET_RENDERER_V3_ID
+        )
+        if claims_renderer_v3:
+            canonical_candidate = normalize_candidate_v3({
+                "schema_version": row.get("schema_version"),
+                "representation_id": row.get("representation_id"),
+                "renderer_descriptor_id": row.get(
+                    "renderer_descriptor_id"
+                ),
+                "action_id": compact.get("action_id"),
+                "support_split": row.get("support_split"),
+                "left_support": left,
+                "right_support": right,
+            })
+            projected.update(copy.deepcopy(canonical_candidate))
+        support_split_type = f"{len(left)}+{len(right)}"
+    elif isinstance(row.get("A_terms"), (list, tuple)) and isinstance(
+        row.get("B_terms"), (list, tuple)
+    ):
+        support_split_type = (
+            f"{len(row['A_terms'])}+{len(row['B_terms'])}"
+        )
+    else:
+        if require_definition:
+            raise ValueError(
+                "review evidence row lacks a canonical candidate definition"
+            )
+        return None
+
+    features = candidate_structural_features(row)
+    projected.update(features)
+    projected["candidate_key"] = code_key(row)
+    projected["archive_cell"] = archive_cell(row)
+    projected["support_split_type"] = (
+        support_split_type
+        if support_split_type in _ADVISORY_SUPPORT_SPLIT_VALUES
+        else _ADVISORY_UNCLASSIFIED
+    )
+    return {
+        "candidate_key": projected["candidate_key"],
+        "representation_id": projected.get("representation_id"),
+        "archive_cell": projected["archive_cell"],
+        "support_split_type": projected["support_split_type"],
+        "action_family_bin": features.get("action_family_bin"),
+        "subgroup_normal": features.get("subgroup_normal"),
+        "support_orbit_bin": features.get("support_orbit_bin"),
+    }
+
+
+def _advisory_sampling_priority(row: Mapping[str, Any]) -> tuple[int, ...]:
+    """Rank prompt representatives without BP/OSD or FOM magnitudes."""
+
+    return (
+        int(candidate_terminal_negative(dict(row))),
+        int(
+            row.get("distance_trusted") is True
+            and row.get("d_is_exact") is True
+        ),
+        int(row.get("milp_attempted") is True),
+        int(row.get("distance_retry_required") is True),
+        int(row.get("structural_novelty") is True),
+        int(row.get("static_eligibility") is True),
+    )
+
+
+def _advisory_tiebreak(
+    row: dict[str, Any], coordinates: Mapping[str, Any]
+) -> str:
+    """Return a stable, upper-bound-neutral duplicate representative key."""
+
+    direct = {
+        name: copy.deepcopy(row[name])
+        for name in _ADVISORY_ROW_FIELDS
+        if name in row
+        and name not in {
+            "candidate_key",
+            "action_id",
+            "action_family_bin",
+            "subgroup_normal",
+            "support_orbit_bin",
+            "left_support",
+            "right_support",
+            "archive_cell",
+            "pattern_type",
+            "pattern_classifier_version",
+            "term_count",
+        }
+    }
+    compact = _normalized_compact_construction(row)
+    if compact is not None:
+        direct["construction"] = compact
+    direct["canonical_coordinates"] = copy.deepcopy(dict(coordinates))
+    direct["negative_evidence_flags"] = {
+        name: copy.deepcopy(row[name])
+        for name in (
+            "threshold_rejection_proven",
+            "threshold_proof_source",
+            "final_gate_excluded_by_upper_bound",
+            "search_final_gate_excluded_by_upper_bound",
+        )
+        if name in row
+    }
+    return json.dumps(
+        direct,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    )
+
+
+def _canonical_advisory_records(
+    rows: list[dict[str, Any]], *, stage: str
+) -> tuple[
+    list[dict[str, Any]],
+    dict[str, Any],
+    set[str],
+    dict[tuple[str, Any], tuple[Any, ...]],
+]:
+    """Canonicalize a full section, aggregate it, and select at most 20 rows."""
+
+    from evolve.coset_search_contract import (
+        ACTION_FAMILY_BINS,
+        COSET_SUPPORT_ORBIT_BINS,
+    )
+
+    records: list[dict[str, Any]] = []
+    coordinate_by_identity: dict[tuple[str, Any], tuple[Any, ...]] = {}
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise ValueError(f"review {stage}[{index}] must be an object")
+        canonical: dict[str, Any] = {}
+        coordinates = _canonical_reviewer_candidate_projection(
+            row,
+            canonical,
+            require_definition=True,
+        )
+        assert coordinates is not None
+        identity = (
+            str(coordinates["candidate_key"]),
+            coordinates.get("representation_id"),
+        )
+        coordinate = tuple(
+            coordinates.get(name)
+            for name in (
+                "action_family_bin",
+                "subgroup_normal",
+                "support_orbit_bin",
+                "archive_cell",
+            )
+        )
+        previous = coordinate_by_identity.setdefault(identity, coordinate)
+        if previous != coordinate:
+            raise ValueError(
+                "review evidence gives one canonical candidate conflicting "
+                "archive coordinates"
+            )
+        records.append({
+            "row": row,
+            **coordinates,
+            "priority": _advisory_sampling_priority(row),
+            "tiebreak": _advisory_tiebreak(row, coordinates),
+        })
+
+    representatives: dict[str, dict[str, Any]] = {}
+    for record in records:
+        key = str(record["candidate_key"])
+        current = representatives.get(key)
+        if current is None or (
+            record["priority"] > current["priority"]
+            or (
+                record["priority"] == current["priority"]
+                and record["tiebreak"] < current["tiebreak"]
+            )
+        ):
+            representatives[key] = record
+    unique_records = list(representatives.values())
+
+    selected: list[dict[str, Any]] = []
+    selected_keys: set[str] = set()
+
+    def add(record: dict[str, Any]) -> None:
+        key = str(record["candidate_key"])
+        if len(selected) >= _ADVISORY_SAMPLE_LIMIT or key in selected_keys:
+            return
+        selected.append(record)
+        selected_keys.add(key)
+
+    split_order = (*_ADVISORY_SUPPORT_SPLIT_VALUES, _ADVISORY_UNCLASSIFIED)
+    for split in split_order:
+        matching = sorted(
+            (
+                record
+                for record in unique_records
+                if record["support_split_type"] == split
+            ),
+            key=lambda record: (
+                str(record["archive_cell"]),
+                str(record["candidate_key"]),
+            ),
+        )
+        if matching:
+            add(matching[0])
+
+    cells: dict[str, list[dict[str, Any]]] = {}
+    for record in unique_records:
+        cells.setdefault(str(record["archive_cell"]), []).append(record)
+    for cell in sorted(cells):
+        matching = sorted(
+            cells[cell],
+            key=lambda record: (
+                tuple(-value for value in record["priority"]),
+                str(record["candidate_key"]),
+                record["tiebreak"],
+            ),
+        )
+        add(matching[0])
+
+    for record in sorted(
+        unique_records,
+        key=lambda item: (
+            tuple(-value for value in item["priority"]),
+            split_order.index(str(item["support_split_type"])),
+            str(item["archive_cell"]),
+            str(item["candidate_key"]),
+            item["tiebreak"],
+        ),
+    ):
+        add(record)
+
+    support_split_counts = {value: 0 for value in split_order}
+    action_family_bin_counts = {
+        str(value): 0 for value in sorted(set(ACTION_FAMILY_BINS.values()))
+    }
+    action_family_bin_counts[_ADVISORY_UNCLASSIFIED] = 0
+    subgroup_normal_counts = {"0": 0, "1": 0, _ADVISORY_UNCLASSIFIED: 0}
+    support_orbit_bin_counts = {
+        str(value): 0 for value in range(COSET_SUPPORT_ORBIT_BINS)
+    }
+    support_orbit_bin_counts[_ADVISORY_UNCLASSIFIED] = 0
+
+    for record in records:
+        support_split_counts[str(record["support_split_type"])] += 1
+        family = record.get("action_family_bin")
+        family_key = (
+            str(family)
+            if type(family) is int
+            and str(family) in action_family_bin_counts
+            else _ADVISORY_UNCLASSIFIED
+        )
+        action_family_bin_counts[family_key] += 1
+        normal = record.get("subgroup_normal")
+        normal_key = (
+            str(normal)
+            if type(normal) is int and normal in {0, 1}
+            else _ADVISORY_UNCLASSIFIED
+        )
+        subgroup_normal_counts[normal_key] += 1
+        orbit = record.get("support_orbit_bin")
+        orbit_key = (
+            str(orbit)
+            if type(orbit) is int
+            and 0 <= orbit < COSET_SUPPORT_ORBIT_BINS
+            else _ADVISORY_UNCLASSIFIED
+        )
+        support_orbit_bin_counts[orbit_key] += 1
+
+    coverage = {
+        "schema_version": 1,
+        "stage": stage,
+        "basis": (
+            "all_input_rows_with_canonical_defining_identity_and_"
+            "recomputed_structural_features"
+        ),
+        "total": len(records),
+        "included": len(selected),
+        "omitted": len(records) - len(selected),
+        "unique_defining_keys": len(representatives),
+        "selection_rule": _ADVISORY_SELECTION_RULE,
+        "support_split_counts": support_split_counts,
+        "action_family_bin_counts": action_family_bin_counts,
+        "subgroup_normal_counts": subgroup_normal_counts,
+        "support_orbit_bin_counts": support_orbit_bin_counts,
+        "canonical_archive_cell_count": len(cells),
+    }
+    return (
+        [record["row"] for record in selected],
+        coverage,
+        set(representatives),
+        coordinate_by_identity,
+    )
+
+
+def _projection_duplicate_accounting(
+    *,
+    new_total: int,
+    new_keys: set[str],
+    archive_total: int,
+    archive_keys: set[str],
+) -> dict[str, Any]:
+    overlap = sorted(new_keys & archive_keys)
+    return {
+        "schema_version": 1,
+        "basis": "canonical_defining_key_recomputed_from_definitions",
+        "new_candidates_within_duplicate_count": new_total - len(new_keys),
+        "archive_top_within_duplicate_count": archive_total - len(archive_keys),
+        "new_archive_unique_key_overlap_count": len(overlap),
+        "combined_unique_defining_key_count": len(new_keys | archive_keys),
+        "overlap_examples": overlap[:_ADVISORY_OVERLAP_EXAMPLE_LIMIT],
+    }
+
+
+def _current_candidate_diversity_projection(
+    value: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Close the transaction-derived diversity object before prompting."""
+
+    if value is None:
+        return None
+    expected = {
+        "schema_version",
+        "basis",
+        "raw_candidate_source_rows",
+        "canonical_unique_batch_rows",
+        "duplicate_count",
+        "duplicate_rate",
+        "candidate_source_sha256",
+        "candidate_batch_sha256",
+        "support_split_counts",
+        "mixed_vs_nonmixed_counts",
+    }
+    if not isinstance(value, dict) or set(value) != expected:
+        raise ValueError("current candidate diversity fields are invalid")
+    integer_fields = (
+        "raw_candidate_source_rows",
+        "canonical_unique_batch_rows",
+        "duplicate_count",
+    )
+    if (
+        type(value.get("schema_version")) is not int
+        or value.get("schema_version") != 1
+        or value.get("basis")
+        != "transaction-bound-source-and-canonical-batch"
+        or any(
+            isinstance(value.get(name), bool)
+            or not isinstance(value.get(name), int)
+            or value[name] < 0
+            for name in integer_fields
+        )
+    ):
+        raise ValueError("current candidate diversity schema is invalid")
+    raw = value["raw_candidate_source_rows"]
+    unique = value["canonical_unique_batch_rows"]
+    duplicates = value["duplicate_count"]
+    rate = value.get("duplicate_rate")
+    expected_rate = duplicates / raw if raw else 0.0
+    if (
+        unique > raw
+        or duplicates != raw - unique
+        or isinstance(rate, bool)
+        or not isinstance(rate, (int, float))
+        or not 0.0 <= float(rate) <= 1.0
+        or abs(float(rate) - expected_rate) > 1e-12
+    ):
+        raise ValueError("current candidate diversity counts are invalid")
+    for name in ("candidate_source_sha256", "candidate_batch_sha256"):
+        digest = value.get(name)
+        if (
+            not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        ):
+            raise ValueError("current candidate diversity binding is invalid")
+    split_counts = value.get("support_split_counts")
+    if (
+        not isinstance(split_counts, dict)
+        or any(
+            not isinstance(name, str)
+            or (
+                name != _ADVISORY_UNCLASSIFIED
+                and re.fullmatch(r"\d+\+\d+", name) is None
+            )
+            or isinstance(count, bool)
+            or not isinstance(count, int)
+            or count < 0
+            for name, count in split_counts.items()
+        )
+        or sum(split_counts.values()) != unique
+    ):
+        raise ValueError(
+            "current candidate diversity support splits are invalid"
+        )
+    mixed = value.get("mixed_vs_nonmixed_counts")
+    if (
+        not isinstance(mixed, dict)
+        or set(mixed) != {"mixed", "nonmixed", _ADVISORY_UNCLASSIFIED}
+        or any(
+            isinstance(count, bool)
+            or not isinstance(count, int)
+            or count < 0
+            for count in mixed.values()
+        )
+        or sum(mixed.values()) != unique
+    ):
+        raise ValueError(
+            "current candidate diversity mixed counts are invalid"
+        )
+    projected = copy.deepcopy(value)
+    projected["support_split_counts"] = dict(sorted(split_counts.items()))
+    projected["mixed_vs_nonmixed_counts"] = {
+        name: mixed[name]
+        for name in ("mixed", "nonmixed", _ADVISORY_UNCLASSIFIED)
+    }
+    return projected
+
+
+def _assert_advisory_coordinate_consistency(
+    evidence: dict[str, Any],
+) -> None:
+    """Fail closed if one current-epoch candidate has two MAP coordinates."""
+
+    seen: dict[tuple[str, Any], tuple[Any, ...]] = {}
+    coordinate_fields = (
+        "action_family_bin",
+        "subgroup_normal",
+        "support_orbit_bin",
+        "archive_cell",
+    )
+    for section in ("new_candidates", "milp_audited", "archive_top"):
+        for row in evidence.get(section, []):
+            if not isinstance(row, dict):
+                continue
+            candidate_key = row.get("candidate_key")
+            if not isinstance(candidate_key, str) or not candidate_key:
+                continue
+            coordinate = tuple(row.get(name) for name in coordinate_fields)
+            identity = (candidate_key, row.get("representation_id"))
+            previous = seen.setdefault(identity, coordinate)
+            if previous != coordinate:
+                raise ValueError(
+                    "review evidence gives one canonical candidate "
+                    "conflicting archive coordinates"
+                )
 
 
 def _negative_witness_geometry(
@@ -1010,12 +1550,7 @@ def _upper_bound_neutral_advisory(
         for name in _ADVISORY_ROW_FIELDS
         if name in row
     }
-    if "construction" in projected:
-        normalized_construction = _normalized_compact_construction(row)
-        if normalized_construction is None:
-            projected.pop("construction", None)
-        else:
-            projected["construction"] = normalized_construction
+    _canonical_reviewer_candidate_projection(row, projected)
     projected["distance_policy"] = (
         "unresolved upper-bound magnitude withheld; no positive distance "
         "credit"
@@ -1094,12 +1629,7 @@ def _trusted_exact_compact(row: dict[str, Any]) -> dict[str, Any]:
         for name in _TRUSTED_EXACT_COMPACT_FIELDS
         if name in row
     }
-    if "construction" in projected:
-        normalized_construction = _normalized_compact_construction(row)
-        if normalized_construction is None:
-            projected.pop("construction", None)
-        else:
-            projected["construction"] = normalized_construction
+    _canonical_reviewer_candidate_projection(row, projected)
     return projected
 
 
@@ -1123,6 +1653,7 @@ def build_review_prompt(
     trusted_exact_history: list[dict[str, Any]] | None = None,
     trusted_exact_wins: list[dict[str, Any]] | None = None,
     round_history: list[dict[str, Any]] | None = None,
+    current_candidate_diversity: dict[str, Any] | None = None,
 ) -> str:
     """Build an evidence-only review prompt with explicit trust boundaries."""
     trusted_exact_history = trusted_exact_history or []
@@ -1135,12 +1666,55 @@ def build_review_prompt(
     exact_history_details = copy.deepcopy(
         trusted_exact_history[:_TRUSTED_EXACT_DETAILS_LIMIT]
     )
+    for source, projected in zip(
+        trusted_exact_history[:_TRUSTED_EXACT_DETAILS_LIMIT],
+        exact_history_details,
+    ):
+        _canonical_reviewer_candidate_projection(source, projected)
     compact_exact_wins = [
         _trusted_exact_compact(row) for row in trusted_exact_wins
     ]
     compact_round_history = [
         _round_history_compact(row) for row in round_history
     ]
+    (
+        selected_new_candidates,
+        new_candidates_coverage,
+        new_candidate_keys,
+        new_candidate_coordinates,
+    ) = _canonical_advisory_records(
+        candidates,
+        stage="new_candidates",
+    )
+    (
+        selected_archive_top,
+        archive_top_coverage,
+        archive_candidate_keys,
+        archive_candidate_coordinates,
+    ) = _canonical_advisory_records(
+        archive_top,
+        stage="archive_top",
+    )
+    for identity in new_candidate_coordinates.keys() & (
+        archive_candidate_coordinates.keys()
+    ):
+        if (
+            new_candidate_coordinates[identity]
+            != archive_candidate_coordinates[identity]
+        ):
+            raise ValueError(
+                "review new/archive evidence gives one canonical candidate "
+                "conflicting archive coordinates"
+            )
+    duplicate_accounting = _projection_duplicate_accounting(
+        new_total=len(candidates),
+        new_keys=new_candidate_keys,
+        archive_total=len(archive_top),
+        archive_keys=archive_candidate_keys,
+    )
+    current_diversity = _current_candidate_diversity_projection(
+        current_candidate_diversity
+    )
     from evolve.coset_search_contract import (
         COSET_RENDERER_V3_ID,
         trusted_coset_catalog_registry_document,
@@ -1157,16 +1731,20 @@ def build_review_prompt(
             _upper_bound_neutral_advisory(
                 row, allow_search_oracle=True
             )
-            for row in candidates[:20]
+            for row in selected_new_candidates
         ],
+        "current_candidate_diversity": current_diversity,
+        "new_candidates_coverage": new_candidates_coverage,
         "milp_audited": [
             _upper_bound_neutral_advisory(row, formal_audit=True)
             for row in audited
         ],
         "archive_top": [
             _upper_bound_neutral_advisory(row)
-            for row in archive_top[:20]
+            for row in selected_archive_top
         ],
+        "archive_top_coverage": archive_top_coverage,
+        "projection_duplicate_accounting": duplicate_accounting,
         "upper_bound_neutralization_policy": {
             "bp_osd_distance_and_fom_magnitudes_withheld": True,
             "unreplayed_upper_bounds_cannot_permanently_reject": True,
@@ -1244,6 +1822,7 @@ def build_review_prompt(
             "selection": "most_recent_12000_characters",
         },
     }
+    _assert_advisory_coordinate_consistency(evidence)
     return f"""You are the independent reviewer in a Humanize-style RLCR loop for
 quantum error-correcting code discovery. Review the round evidence below. You
 did not generate these candidates and must remain skeptical.
@@ -1261,8 +1840,18 @@ Trust boundary:
   object states exactly how many detail rows were included or omitted.
 - round_history is the complete compact index of prior-round aggregate
   evidence. It never grants positive distance credit to unresolved rows.
+- current_candidate_diversity is computed from the current round's committed,
+  transaction-bound raw source slice and canonical candidate batch. A null
+  value means only that a historical transaction predates this evidence.
 - archive_top, new_candidates, and milp_audited are upper-bound-neutral
   projections: unresolved BP/OSD d and FOM magnitudes are deliberately absent.
+- new_candidates and archive_top contain at most 20 deterministic structural
+  representatives. Their coverage objects aggregate every input row over
+  finite, recomputed structural coordinates; use those full aggregates rather
+  than treating the bounded representatives as the population distribution.
+- projection_duplicate_accounting uses recomputed defining keys for within-
+  section duplicates and the complete new/archive intersection. At most five
+  stable overlap examples are shown.
 - A replayable low-weight witness may be used only as negative evidence.
 - Positive distance credit requires trusted exact history or a formally
   certified lower bound; survival under BP/OSD is not such a bound.
@@ -1290,6 +1879,10 @@ Search-action contract:
 - For a coset renderer request, emit exactly one support_split_type focus.
   The current installed action catalog can be selected implicitly, or name a
   renderer_descriptor_id, catalog_manifest_id, and catalog_kind together.
+  For the immediately following round, support_split_type direction=increase
+  or maintain authorizes only that installed split; direction=decrease
+  authorizes every installed split except that value. The direction is a
+  hash-bound machine instruction, not free-form prose.
   These are inert registry IDs, never module/callable names. Unknown action,
   cover, or protograph IDs produce a sealed non-executable advisory. They never
   install or execute a new mathematical construction, never stop the machine

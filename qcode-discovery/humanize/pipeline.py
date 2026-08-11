@@ -2676,6 +2676,95 @@ class FiveStagePipeline:
         self._write_state()
         return document
 
+    def _stranded_stage1_epoch1_prepared(
+        self,
+        base_flow_config: FlowConfig,
+        *,
+        record: Mapping[str, Any],
+        expected_epoch: int,
+        previous_startup: Mapping[str, Any] | None,
+        previous_consumed: Mapping[str, Any] | None,
+        completed_before: bool,
+        base_flow_state: Mapping[str, Any] | None,
+        live_archive_path: Path,
+        archive_binding_sha256: str,
+    ) -> dict[str, Any] | None:
+        """Recognize only the epoch-1 attempt that made its base flow terminal.
+
+        The ordinary epoch derivation promotes a preexisting terminal base
+        flow to epoch 2.  There is one narrower crash state: this pipeline
+        durably prepared and attempted epoch 1, Humanize completed that exact
+        base run, and the pipeline died before adopting it.  Every durable
+        identity must cross-bind before the caller may undo that promotion.
+        """
+
+        if not (
+            expected_epoch == 2
+            and previous_startup is None
+            and previous_consumed is None
+            and not completed_before
+            and isinstance(base_flow_state, Mapping)
+            and base_flow_state.get("status")
+            in {"search-complete", "incomplete-unresolved"}
+            and base_flow_state.get("config")
+            == base_flow_config.serializable()
+            and base_flow_state.get("pending_round") is None
+            and record.get("status") in {"RUNNING", "FAILED"}
+            and record.get("machine_status") in {"RUNNING", "FAILED"}
+        ):
+            return None
+
+        attempted_config = record.get("stage_config")
+        attempted_startup = (
+            attempted_config.get("negative_feedback_startup")
+            if isinstance(attempted_config, Mapping)
+            and attempted_config.get("mode") == "humanize-flow"
+            else None
+        )
+        if attempted_startup is None:
+            return None
+
+        attempted = self._stage1_feedback_prepared_document(
+            base_flow_config,
+            attempted_startup,
+        )
+        startup = attempted["startup"]
+        expected_command = [
+            "internal:HumanizeFlow.run",
+            base_flow_config.run_id,
+        ]
+        raw_prepared = self.state.get("negative_feedback_prepared")
+        if not (
+            startup["feedback_epoch"] == 1
+            and startup["flow_run_id"] == base_flow_config.run_id
+            and (
+                raw_prepared is None
+                or raw_prepared == attempted
+            )
+            and attempted_config.get("flow_config")
+            == attempted["flow_config"]
+            and record.get("command") == expected_command
+            and record.get("command_sha256")
+            == _canonical_sha256(expected_command)
+            and record.get("stage_fingerprint")
+            == self._stage_config_fingerprint(
+                expected_command,
+                attempted_config,
+            )
+        ):
+            return None
+
+        # This is the full sealed-file/path/archive validator.  In particular,
+        # equality between attempted and prepared records cannot waive replay
+        # of the snapshot and manifest bytes or their live-archive binding.
+        return self._validate_stage1_feedback_prepared(
+            attempted,
+            base_flow_config=base_flow_config,
+            live_archive_path=live_archive_path,
+            archive_binding_sha256=archive_binding_sha256,
+            expected_epoch=1,
+        )
+
     def _recover_terminal_stage1_feedback_prepared(
         self,
         base_flow_config: FlowConfig,
@@ -3367,6 +3456,7 @@ class FiveStagePipeline:
             feedback_epoch = 1
 
         existing_flow_terminal = False
+        base_flow_state_value: dict[str, Any] | None = None
         base_flow_state = (
             self.config.repo_dir
             / "results"
@@ -3380,8 +3470,8 @@ class FiveStagePipeline:
             and base_flow_state.is_file()
             and not base_flow_state.is_symlink()
         ):
-            state_value = _read_json_object(base_flow_state)
-            existing_flow_terminal = state_value.get("status") in {
+            base_flow_state_value = _read_json_object(base_flow_state)
+            existing_flow_terminal = base_flow_state_value.get("status") in {
                 "search-complete",
                 "incomplete-unresolved",
             }
@@ -3391,7 +3481,36 @@ class FiveStagePipeline:
         archive_binding_sha256 = str(
             current_archive["binding"]["binding_sha256"]
         )
+        stranded_epoch1 = self._stranded_stage1_epoch1_prepared(
+            base_flow_config,
+            record=record,
+            expected_epoch=feedback_epoch,
+            previous_startup=previous_startup,
+            previous_consumed=previous_consumed,
+            completed_before=completed_before,
+            base_flow_state=base_flow_state_value,
+            live_archive_path=live,
+            archive_binding_sha256=archive_binding_sha256,
+        )
+        if stranded_epoch1 is not None:
+            feedback_epoch = 1
+
         raw_prepared = self.state.get("negative_feedback_prepared")
+        if stranded_epoch1 is not None and raw_prepared is None:
+            # The attempted identity has already passed the full epoch-1
+            # validator.  Persist and return it before the generic orphan
+            # scan: a valid but unrelated cache-recovery artifact must not
+            # steal this exact pre-journal attempt's epoch.
+            self.state["negative_feedback_prepared"] = stranded_epoch1
+            self._write_state()
+            startup = dict(stranded_epoch1["startup"])
+            return (
+                replace(
+                    base_flow_config,
+                    run_id=str(startup["flow_run_id"]),
+                ),
+                startup,
+            )
         if raw_prepared is not None:
             prepared = self._validate_stage1_feedback_prepared(
                 raw_prepared,

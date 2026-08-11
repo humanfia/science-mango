@@ -14,11 +14,21 @@ import pytest
 
 import humanize.pipeline as pipeline_module
 from evaluation.construction import build_css_code_from_claim
+from evaluation.certificate import (
+    FORMULATION as CSS_EXACT_FORMULATION,
+    THRESHOLD_FORMULATION as CSS_THRESHOLD_FORMULATION,
+    pack_vector,
+)
 from evaluation.distance_milp import get_code_matrices
 from evaluation.distance_sat import solve_css_sector_sat
 from evaluation.final_gate import minimum_winning_distance
 from evaluation.low_weight_oracle import evaluate_css_low_weight_oracle
 from evaluation.proof_runtime import proof_runtime_fingerprint
+from evaluation.structural_dedup import canonical_digest
+from evaluation.target_policy import (
+    TARGET_MODE_SCALAR,
+    target_binding,
+)
 from evaluation.selection_ledger import (
     acknowledge_selection_page,
     install_pending_page,
@@ -50,10 +60,12 @@ from humanize import flow as flow_module
 from humanize.flow import FlowConfig
 from humanize.state import RunStore
 from scripts.audit_candidate_pool import (
+    AuditConfig,
     _compact_low_weight_cache_binding,
     _construction_candidate,
     _seal_compact_low_weight_cache,
 )
+import scripts.audit_candidate_pool as candidate_pool
 from tests.test_humanize_pipeline import ScenarioRunner, _plan, _repo
 
 
@@ -1547,6 +1559,68 @@ def test_stage2_global_cross_block_cache_is_replayed_and_tamper_closed(
     assert archive_path.read_bytes() == before
 
 
+def test_stage2_basis_witness_rejects_before_solver_and_enters_feedback(
+    tmp_path,
+    rendered_candidates,
+):
+    row = evaluator._static_candidate(rendered_candidates[1])
+    assert row["static_legal"] is True and row["k"] > 0
+    target = target_binding(row["n"], row["k"], TARGET_MODE_SCALAR)
+    digest = canonical_digest(build_css_code_from_claim({
+        "construction": row["construction"],
+    }))
+    ranked_row = {
+        **row["candidate"],
+        "canonical_digest": digest,
+        "construction": row["construction"],
+        "n": row["n"],
+        "k": row["k"],
+        "required_distance": target["required_distance"],
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": target,
+        "target_binding_sha256": target["binding_sha256"],
+        "target_required_distance": target["required_distance"],
+    }
+    result = candidate_pool._audit_compact_low_weight_candidate(
+        ranked_row,
+        AuditConfig(
+            state_dir=tmp_path / "state",
+            target_mode=TARGET_MODE_SCALAR,
+            solver_workers=1,
+        ),
+        canonical_digest=digest,
+        cache_path=tmp_path / "global.json",
+        two_block_cache_path=tmp_path / "single-block.json",
+    )
+    assert result["status"] == "REJECTED"
+    assert result["threshold_proof_source"] == "logical-basis-upper-bound"
+    assert result["distance_upper_bound"] < target["required_distance"]
+    assert not (tmp_path / "global.json").exists()
+    assert not (tmp_path / "single-block.json").exists()
+
+    ranked = (tmp_path / "basis-ranked.jsonl").resolve()
+    ranked.write_text(
+        json.dumps(ranked_row, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    summary = (tmp_path / "basis-summary.json").resolve()
+    summary.write_text(json.dumps({
+        "schema_version": 1,
+        "gate": "qldpc-proof-oriented-candidate-pool",
+        "ranked_output": str(ranked),
+        "results": [result],
+    }, sort_keys=True), encoding="utf-8")
+    archive_path = tmp_path / "basis-negative.json"
+    archived = archive.ingest_stage2_paths(archive_path, [summary])
+    assert archived["source_counts"] == {
+        "stage2-logical-basis-upper-bound": 1,
+    }
+    event = next(iter(archive.load_archive(archive_path)["events"].values()))
+    assert event["motif"]["witness"]["weight"] == result[
+        "distance_upper_bound"
+    ]
+
+
 def test_stage2_compact_stage3_advance_requires_complete_global_unsat(tmp_path):
     digest = "compact-stage3-prerequisite"
     ranked = tmp_path / "compact-ranked.jsonl"
@@ -1613,6 +1687,270 @@ def test_stage2_compact_stage3_advance_requires_complete_global_unsat(tmp_path):
             ranked,
             "qldpc-proof-oriented-candidate-pool",
         )
+
+
+def _frontier_artifact(row: dict, sparse_evidence: dict) -> dict:
+    code = build_css_code_from_claim({"construction": row["construction"]})
+    hx, hz, lx, lz = (
+        np.asarray(value, dtype=np.uint8) & 1
+        for value in get_code_matrices(code)
+    )
+    support = sparse_evidence["witness"]["support"]
+    operator = np.zeros(row["n"], dtype=np.uint8)
+    operator[support] = 1
+    specs = [
+        ("Z", index, "hx", hx, lx[index])
+        for index in range(len(lx))
+    ] + [
+        ("X", index, "hz", hz, lz[index])
+        for index in range(len(lz))
+    ]
+    sector = sparse_evidence["witness"]["side"]
+    position, spec = next(
+        (position, spec)
+        for position, spec in enumerate(specs)
+        if spec[0] == sector
+        and not np.any((spec[3] @ operator) & 1)
+        and int(np.dot(spec[4], operator) & 1) == 1
+    )
+    logical_type, logical_index, check_name, _checks, target = spec
+    target = target_binding(row["n"], row["k"], TARGET_MODE_SCALAR)
+    candidate = {
+        **row["candidate"],
+        "construction": row["construction"],
+        "candidate_sha256": row["candidate_sha256"],
+        "canonical_digest": canonical_digest(code),
+        "source": "fixture-ranked-snapshot",
+        "trial": 1,
+        "n": row["n"],
+        "k": row["k"],
+        "required_distance": target["required_distance"],
+        "target_mode": TARGET_MODE_SCALAR,
+        "target": target,
+        "target_binding_sha256": target["binding_sha256"],
+        "target_required_distance": target["required_distance"],
+    }
+    direction = {
+        "formulation": CSS_EXACT_FORMULATION,
+        "solver": "scipy.optimize.milp",
+        "backend": "HiGHS",
+        "solver_workers": 1,
+        "success": True,
+        "status": 0,
+        "message": "fixture zero-gap optimum",
+        "objective": int(operator.sum()),
+        "mip_dual_bound": float(operator.sum()),
+        "mip_gap": 0.0,
+        "mip_node_count": 1,
+        "elapsed_s": 0.01,
+        "operator": pack_vector(operator),
+        "position": position,
+        "logical_type": logical_type,
+        "logical_index": logical_index,
+        "check_matrix": check_name,
+        "target_logical": pack_vector(spec[4]),
+        "witness_verified": True,
+        "witness_failures": [],
+    }
+    return {
+        "schema_version": archive.FRONTIER_SCHEMA_VERSION,
+        "gate": archive.FRONTIER_GATE,
+        "status": "REJECTED",
+        "candidate": candidate,
+        "required_distance": target["required_distance"],
+        "threshold_only": False,
+        "reconstructed_parameters": {
+            "n": row["n"],
+            "k": row["k"],
+            "required_distance": target["required_distance"],
+            "expected_directions": 2 * row["k"],
+        },
+        "expected_directions": 2 * row["k"],
+        "completed_directions": 1,
+        "low_witnesses": 1,
+        "directions": [direction],
+    }
+
+
+def test_frontier_exact_witness_is_replayed_into_next_epoch_feedback(
+    tmp_path,
+    two_sparse_negatives,
+):
+    row, sparse = two_sparse_negatives[0]
+    artifact = _frontier_artifact(row, sparse)
+    artifact_path = (tmp_path / "frontier-exact.json").resolve()
+    artifact_path.write_text(
+        json.dumps(artifact, sort_keys=True),
+        encoding="utf-8",
+    )
+    archive_path = tmp_path / "paper-negative.json"
+    result = archive.ingest_frontier_paths(archive_path, [artifact_path])
+    assert result["events_added"] == 1
+    assert result["source_counts"] == {"frontier-exact-ilp": 1}
+    assert archive.ingest_frontier_paths(archive_path, [artifact_path])[
+        "events_added"
+    ] == 0
+
+    stored = archive.load_archive(archive_path)
+    event = next(iter(stored["events"].values()))
+    witness = event["motif"]["witness"]
+    assert witness["target_required_distance"] == artifact[
+        "required_distance"
+    ]
+    assert witness["threshold_shortfall"] == (
+        artifact["required_distance"] - witness["weight"]
+    )
+    assert "shortfall" in event["motif"]["coordinates"]
+    assert any(
+        "witness-threshold-shortfall" in line
+        for line in archive.feedback_lines(stored)
+    )
+
+    next_round = evaluator._static_candidate(row["candidate"])
+    summary = archive.annotate_rows(archive_path, [next_round])
+    assert summary["penalized_candidates"] == 1
+    assert next_round["negative_archive_match_counts"][
+        "exact_construction"
+    ] == 1
+
+
+def test_frontier_compact_candidate_reconstructs_unique_registered_genotype(
+    tmp_path,
+    two_sparse_negatives,
+):
+    row, sparse = two_sparse_negatives[0]
+    artifact = _frontier_artifact(row, sparse)
+    full = artifact["candidate"]
+    artifact["candidate"] = {
+        key: full[key]
+        for key in (
+            "candidate_sha256", "canonical_digest", "construction", "k",
+            "n", "required_distance", "source", "target", "target_mode",
+            "trial",
+        )
+    }
+    path = (tmp_path / "compact-frontier.json").resolve()
+    path.write_text(json.dumps(artifact, sort_keys=True), encoding="utf-8")
+    result = archive.ingest_frontier_paths(
+        tmp_path / "compact-negative.json", [path],
+    )
+    assert result["events_added"] == 1
+
+    artifact["candidate"]["candidate_sha256"] = "0" * 64
+    path.write_text(json.dumps(artifact, sort_keys=True), encoding="utf-8")
+    with pytest.raises(
+        archive.NegativeArchiveError,
+        match="ambiguous or changed",
+    ):
+        archive.ingest_frontier_paths(
+            tmp_path / "compact-negative.json", [path],
+        )
+
+
+def test_frontier_verified_threshold_incumbent_is_negative_only_evidence(
+    tmp_path,
+    two_sparse_negatives,
+):
+    row, sparse = two_sparse_negatives[0]
+    artifact = _frontier_artifact(row, sparse)
+    artifact["threshold_only"] = True
+    direction = artifact["directions"][0]
+    objective = direction["objective"]
+    direction.update({
+        "formulation": CSS_THRESHOLD_FORMULATION,
+        "max_weight": artifact["required_distance"] - 1,
+        "objective_sense": "minimize",
+        "objective_name": "hamming_weight",
+        "has_incumbent": True,
+        "optimal": False,
+        "outcome": "incumbent_witness",
+        "success": False,
+        "status": 1,
+        "message": "Time limit reached with a verified incumbent",
+        "threshold_infeasible": False,
+        "mip_primal_bound": float(objective),
+        "mip_dual_bound": float(max(0, objective - 1)),
+        "mip_gap": 0.25,
+    })
+    path = (tmp_path / "incumbent-frontier.json").resolve()
+    path.write_text(json.dumps(artifact, sort_keys=True), encoding="utf-8")
+    result = archive.ingest_frontier_paths(
+        tmp_path / "incumbent-negative.json", [path],
+    )
+    assert result["events_added"] == 1
+    assert result["source_counts"] == {"frontier-replayed-incumbent": 1}
+
+
+def test_frontier_full_row_replays_nested_structural_canonical_digest(
+    tmp_path,
+    two_sparse_negatives,
+):
+    row, sparse = two_sparse_negatives[0]
+    artifact = _frontier_artifact(row, sparse)
+    digest = artifact["candidate"].pop("canonical_digest")
+    artifact["candidate"]["structural_novelty"] = {
+        "checked": True,
+        "novel": True,
+        "canonical_digest": digest,
+    }
+    path = (tmp_path / "full-frontier.json").resolve()
+    path.write_text(json.dumps(artifact, sort_keys=True), encoding="utf-8")
+    result = archive.ingest_frontier_paths(
+        tmp_path / "full-negative.json", [path],
+    )
+    assert result["events_added"] == 1
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        (lambda value: value.update(status="UNRESOLVED"), "terminal rejected"),
+        (
+            lambda value: value["candidate"]["target"].update(
+                required_distance=value["required_distance"] + 1,
+            ),
+            "target binding",
+        ),
+        (
+            lambda value: value["directions"][0].update(mip_gap=0.5),
+            "replay failed",
+        ),
+        (
+            lambda value: value["directions"][0]["operator"].update(
+                packed_hex="00",
+            ),
+            "replay failed",
+        ),
+        (
+            lambda value: value.update(low_witnesses=0),
+            "low-witness count",
+        ),
+    ],
+)
+def test_frontier_exact_tampering_fails_before_archive_mutation(
+    tmp_path,
+    two_sparse_negatives,
+    mutation,
+    message,
+):
+    row, sparse = two_sparse_negatives[0]
+    artifact = _frontier_artifact(row, sparse)
+    valid_path = (tmp_path / "valid-frontier.json").resolve()
+    valid_path.write_text(json.dumps(artifact, sort_keys=True), encoding="utf-8")
+    archive_path = tmp_path / "paper-negative.json"
+    archive.ingest_frontier_paths(archive_path, [valid_path])
+    before = archive_path.read_bytes()
+
+    tampered = copy.deepcopy(artifact)
+    mutation(tampered)
+    tampered_path = (tmp_path / "tampered-frontier.json").resolve()
+    tampered_path.write_text(
+        json.dumps(tampered, sort_keys=True),
+        encoding="utf-8",
+    )
+    with pytest.raises(archive.NegativeArchiveError, match=message):
+        archive.ingest_frontier_paths(archive_path, [tampered_path])
+    assert archive_path.read_bytes() == before
 
 
 def _stage3_artifact(row: dict, sparse_evidence: dict) -> dict:

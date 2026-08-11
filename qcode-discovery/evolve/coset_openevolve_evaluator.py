@@ -166,6 +166,12 @@ def _archive_and_annotate_negative_rows(
         row for row in rows
         if row.get("oracle_outcome") == "SAT"
         and row.get("threshold_rejected") is True
+        # The active Stage-1 ladder targets strict scalar FOM, which can
+        # reject a candidate that still satisfies a smaller-n Pareto arm of
+        # the official final gate.  The shared negative archive is bound to
+        # final-gate exclusions, so scalar-only witnesses must stay in the
+        # candidate stream without being ingested here.
+        and row.get("final_gate_excluded_by_upper_bound") is True
         and isinstance(row.get("low_weight_oracle"), Mapping)
     ]
     if live_archive_path is not None and verified_negative_rows:
@@ -1475,6 +1481,8 @@ def _proof_ledger_for_row(row: Mapping[str, Any]) -> dict[str, Any]:
                 "cache_sha256": cache_sha256,
             })
     entries.sort(key=lambda item: item["threshold"])
+    if len(entries) != len({entry["threshold"] for entry in entries}):
+        raise RuntimeError("proof ledger contains duplicate thresholds")
     payload = {
         "kind": _PROOF_LEDGER_KIND,
         "schema_version": 1,
@@ -1643,6 +1651,75 @@ def _cache_commit_valid(
     return False
 
 
+def _validated_ledger_cache_entry(
+    row: Mapping[str, Any],
+    entry: Mapping[str, Any],
+    *,
+    failure_message: str,
+) -> tuple[Path, dict[str, Any]] | None:
+    cache_base = _proof_cache_path(
+        str(row["candidate_sha256"]),
+        int(entry["threshold"]),
+        create_directories=False,
+    )
+    if cache_base is None:
+        return None
+    cache_path = _proof_cache_version_path(
+        cache_base,
+        str(entry["cache_sha256"]),
+    )
+    envelope = _validated_cache_envelope(
+        _read_regular_json(cache_path),
+        candidate_sha256=str(row["candidate_sha256"]),
+        threshold=int(entry["threshold"]),
+        hx=row["hx"],
+        hz=row["hz"],
+    )
+    if (
+        envelope is None
+        or envelope.get("cache_sha256") != entry["cache_sha256"]
+    ):
+        raise RuntimeError(failure_message)
+    evidence = envelope.get("evidence")
+    # UNKNOWN cache envelopes may retain retry/resume diagnostics, but the
+    # sealed proof history deliberately binds evidence only for terminal
+    # SAT/UNSAT generations.  The content-addressed cache digest still binds
+    # the complete UNKNOWN envelope.
+    evidence_sha256 = (
+        evidence.get("evidence_sha256")
+        if envelope.get("latest_outcome") in {"SAT", "UNSAT"}
+        and isinstance(evidence, Mapping)
+        else None
+    )
+    last_attempt = envelope.get("last_attempt")
+    if (
+        entry.get("outcome") != envelope.get("latest_outcome")
+        or entry.get("evidence_sha256") != evidence_sha256
+        or not isinstance(last_attempt, Mapping)
+        or entry.get("attempt_sha256")
+        != last_attempt.get("attempt_sha256")
+    ):
+        raise RuntimeError(failure_message)
+    return cache_path, envelope
+
+
+def _validate_cache_entries_before_append(
+    rows: list[dict[str, Any]],
+) -> None:
+    """Reject a misbound proof ledger before it can enter the JSONL WAL."""
+
+    for row in rows:
+        ledger = _proof_ledger_for_row(row)
+        for entry in ledger["entries"]:
+            _validated_ledger_cache_entry(
+                row,
+                entry,
+                failure_message=(
+                    "proof cache is invalid before candidate-log append"
+                ),
+            )
+
+
 def _commit_cache_entries(
     rows: list[dict[str, Any]],
     candidate_log_range: Mapping[str, Any],
@@ -1650,31 +1727,16 @@ def _commit_cache_entries(
     for row in rows:
         ledger = _proof_ledger_for_row(row)
         for entry in ledger["entries"]:
-            cache_base = _proof_cache_path(
-                row["candidate_sha256"],
-                int(entry["threshold"]),
-                create_directories=False,
-            )
-            if cache_base is None:
-                continue
-            cache_path = _proof_cache_version_path(
-                cache_base,
-                str(entry["cache_sha256"]),
-            )
-            envelope = _validated_cache_envelope(
-                _read_regular_json(cache_path),
-                candidate_sha256=row["candidate_sha256"],
-                threshold=int(entry["threshold"]),
-                hx=row["hx"],
-                hz=row["hz"],
-            )
-            if (
-                envelope is None
-                or envelope.get("cache_sha256") != entry["cache_sha256"]
-            ):
-                raise RuntimeError(
+            validated = _validated_ledger_cache_entry(
+                row,
+                entry,
+                failure_message=(
                     "proof cache changed before candidate-log commit"
-                )
+                ),
+            )
+            if validated is None:
+                continue
+            cache_path, envelope = validated
             # Never move an already durable entry's only commit marker to a
             # newer range. If that later round is abandoned/truncated, the
             # historical proof frontier must remain recoverable.
@@ -2530,10 +2592,36 @@ def _apply_oracle_sat(
     evidence: Mapping[str, Any],
     *,
     cutoff: int,
+    lower_bound_evidence: Mapping[str, Any] | None = None,
 ) -> None:
     official_cutoff = _proof_rejection_cutoff(row["n"], row["k"])
     if cutoff != official_cutoff:
         raise RuntimeError("oracle rejection cutoff disagrees with proof target")
+    # A SAT rung terminates the ladder, but it does not invalidate the
+    # already-proved UNSAT prefix.  Keep the strongest replayed lower-bound
+    # artifact so the persisted history, proof ledger, and scalar projection
+    # all describe the same bounded interval.  This is especially important
+    # for global-frontier candidates whose UNSAT prefix is hydrated from the
+    # cache before a later SAT rung is solved.
+    if lower_bound_evidence is None:
+        row.update({
+            "distance_lower_bound": None,
+            "distance_lower_bound_evidence": None,
+            "distance_lower_bound_evidence_sha256": None,
+        })
+        for field in (
+            "distance_lower_bound_proven",
+            "distance_lower_bound_status",
+            "fom_lower_bound",
+        ):
+            row.pop(field, None)
+    else:
+        _apply_oracle_lower_bound(
+            row,
+            lower_bound_evidence,
+            cutoff=cutoff,
+            complete=False,
+        )
     witness = evidence.get("witness")
     witness_weight = (
         witness.get("weight") if isinstance(witness, Mapping) else None
@@ -2554,9 +2642,6 @@ def _apply_oracle_sat(
         "oracle_outcome": "SAT",
         "oracle_threshold": evidence["max_weight"],
         "low_weight_oracle": dict(evidence),
-        "distance_lower_bound": None,
-        "distance_lower_bound_evidence": None,
-        "distance_lower_bound_evidence_sha256": None,
         "low_weight_witness": dict(witness),
         "threshold_rejected": True,
         "oracle_evidence_sha256": evidence.get("evidence_sha256"),
@@ -2669,6 +2754,16 @@ def _run_oracle(
 ) -> dict[str, int | bool]:
     """Hydrate committed rungs and climb continuously within a local quantum."""
 
+    # These fields describe the attempt hydrated or executed by this call.
+    # Do not let a reused row retain provenance from an earlier oracle run.
+    row.pop("oracle_last_attempt_outcome", None)
+    row.pop("oracle_last_attempt_threshold", None)
+    for field in (
+        "distance_lower_bound_proven",
+        "distance_lower_bound_status",
+        "fom_lower_bound",
+    ):
+        row.pop(field, None)
     row.update({
         "oracle_outcome": "NOT_RUN",
         "oracle_threshold": None,
@@ -2725,6 +2820,7 @@ def _run_oracle(
     history: list[dict[str, Any]] = []
     last_unsat: dict[str, Any] | None = None
     cached_unknown: dict[str, Any] | None = None
+    cached_unknown_threshold: int | None = None
     next_index = 0
     cache_hits = 0
     for index, threshold in enumerate(ladder):
@@ -2741,9 +2837,17 @@ def _run_oracle(
                 and cached["latest_outcome"] == "UNKNOWN"
                 else None
             )
+            cached_unknown_threshold = (
+                threshold if cached_unknown is not None else None
+            )
             next_index = index
             break
         evidence = dict(cached["evidence"])
+        cached_last_attempt = dict(cached["last_attempt"])
+        if cached_last_attempt.get("outcome") != evidence.get("outcome"):
+            raise RuntimeError(
+                "cached oracle attempt outcome disagrees with evidence"
+            )
         cache_hits += 1
         history.append({
             "threshold": threshold,
@@ -2751,14 +2855,24 @@ def _run_oracle(
             "attempts": cached["attempts"],
             "cache_hit": True,
             "evidence_sha256": evidence.get("evidence_sha256"),
-            "attempt_sha256": cached["last_attempt"].get(
+            "attempt_sha256": cached_last_attempt.get(
                 "attempt_sha256"
             ),
             "cache_sha256": cached["cache_sha256"],
         })
+        row.update({
+            "oracle_last_attempt": cached_last_attempt,
+            "oracle_last_attempt_outcome": evidence["outcome"],
+            "oracle_last_attempt_threshold": threshold,
+        })
         if evidence["outcome"] == "SAT":
             row["oracle_ladder_history"] = history
-            _apply_oracle_sat(row, evidence, cutoff=cutoff)
+            _apply_oracle_sat(
+                row,
+                evidence,
+                cutoff=cutoff,
+                lower_bound_evidence=last_unsat,
+            )
             return {
                 "new_steps": 0,
                 "cache_hits": cache_hits,
@@ -2825,6 +2939,8 @@ def _run_oracle(
                 "oracle_outcome": (
                     "UNKNOWN"
                     if isinstance(last_attempt, Mapping)
+                    else "UNSAT"
+                    if last_unsat is not None
                     else "NOT_RUN"
                 ),
                 "oracle_threshold": (
@@ -2841,13 +2957,14 @@ def _run_oracle(
                     "partial_lower_bound_retry"
                     if last_unsat is not None else "unresolved"
                 ),
-                "oracle_last_attempt": last_attempt,
-                "oracle_last_attempt_outcome": (
-                    None if last_attempt is None else last_attempt.get("outcome")
-                ),
-                "oracle_last_attempt_threshold": threshold,
                 "oracle_deferred": bool(attempt.get("deferred")),
             })
+            if isinstance(last_attempt, Mapping):
+                row.update({
+                    "oracle_last_attempt": dict(last_attempt),
+                    "oracle_last_attempt_outcome": last_attempt.get("outcome"),
+                    "oracle_last_attempt_threshold": threshold,
+                })
             return {
                 "new_steps": new_steps,
                 "cache_hits": cache_hits,
@@ -2856,12 +2973,31 @@ def _run_oracle(
 
         outcome = evidence["outcome"]
         last_attempt = attempt.get("last_attempt")
+        if (
+            not isinstance(last_attempt, Mapping)
+            or last_attempt.get("outcome") != outcome
+        ):
+            raise RuntimeError(
+                "oracle attempt outcome disagrees with returned evidence"
+            )
+        # A fresh or concurrently committed terminal result supersedes the
+        # UNKNOWN generation hydrated for this same rung.  Retaining it after
+        # advancing next_index would bind its cache digest to the next rung.
+        cached_unknown = None
+        cached_unknown_threshold = None
         history.append({
             "threshold": threshold,
             "outcome": outcome,
             "attempts": attempt["attempts"],
             "cache_hit": bool(attempt["cache_hit"]),
-            "evidence_sha256": evidence.get("evidence_sha256"),
+            # UNKNOWN evidence is retry state rather than a terminal proof
+            # artifact.  Its full envelope remains bound by cache_sha256,
+            # while policy-v5 histories use a null evidence projection.
+            "evidence_sha256": (
+                evidence.get("evidence_sha256")
+                if outcome in {"SAT", "UNSAT"}
+                else None
+            ),
             "attempt_sha256": (
                 None if last_attempt is None else last_attempt.get("attempt_sha256")
             ),
@@ -2869,9 +3005,15 @@ def _run_oracle(
         })
         row["oracle_ladder_history"] = history
         row["oracle_last_attempt"] = last_attempt
+        row["oracle_last_attempt_outcome"] = outcome
         row["oracle_last_attempt_threshold"] = threshold
         if outcome == "SAT":
-            _apply_oracle_sat(row, evidence, cutoff=cutoff)
+            _apply_oracle_sat(
+                row,
+                evidence,
+                cutoff=cutoff,
+                lower_bound_evidence=last_unsat,
+            )
             return {
                 "new_steps": new_steps,
                 "cache_hits": cache_hits,
@@ -2907,10 +3049,10 @@ def _run_oracle(
                     if last_unsat is not None else "unresolved"
                 ),
                 "oracle_ladder_next_threshold": threshold,
-                "oracle_last_attempt": {
-                    **dict(last_attempt or {}),
-                    "evidence": dict(evidence),
-                },
+                # Keep the exact self-hashed attempt sealed in the cache.
+                # Retry diagnostics belong to the cache envelope; extending
+                # this mapping after sealing invalidates attempt_sha256.
+                "oracle_last_attempt": dict(last_attempt),
                 "oracle_last_attempt_outcome": "UNKNOWN",
             })
             return {
@@ -2945,9 +3087,18 @@ def _run_oracle(
             complete=False,
         )
     if cached_unknown is not None:
+        if (
+            not 0 <= next_index < len(ladder)
+            or cached_unknown_threshold is None
+            or cached_unknown_threshold != ladder[next_index]
+            or cached_unknown.get("max_weight") != cached_unknown_threshold
+        ):
+            raise RuntimeError(
+                "cached UNKNOWN rung no longer matches the next threshold"
+            )
         last_attempt = dict(cached_unknown["last_attempt"])
         history.append({
-            "threshold": ladder[next_index],
+            "threshold": cached_unknown_threshold,
             "outcome": "UNKNOWN",
             "attempts": int(cached_unknown["attempts"]),
             "cache_hit": True,
@@ -2959,7 +3110,7 @@ def _run_oracle(
             "oracle_outcome": "UNKNOWN",
             "oracle_last_attempt": last_attempt,
             "oracle_last_attempt_outcome": "UNKNOWN",
-            "oracle_last_attempt_threshold": ladder[next_index],
+            "oracle_last_attempt_threshold": cached_unknown_threshold,
         })
         cache_hits += 1
     row["oracle_ladder_history"] = history
@@ -3138,6 +3289,10 @@ def _append_candidate_rows(rows: list[dict[str, Any]]) -> int:
     if not path.is_absolute():
         raise RuntimeError("coset candidate log path must be absolute")
     path.parent.mkdir(parents=True, exist_ok=True)
+    # Version files are immutable, so this catches ledger/rung state-machine
+    # mistakes without leaving an otherwise valid but uncommittable JSONL
+    # range.  The post-append validation remains the transactional authority.
+    _validate_cache_entries_before_append(rows)
     payload = bytearray()
     for row in rows:
         payload.extend(

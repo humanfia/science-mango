@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import hashlib
 import fcntl
@@ -17,10 +18,15 @@ import yaml
 import pytest
 
 from evolve import coset_policy_dsl as policy_dsl
+from evolve import coset_policy_dsl_v3 as policy_dsl_v3
 from evolve import run_evolution as launcher
+from evolve.coset_negative_archive import materialize_feedback_snapshot
+from evolve.coset_policy_dispatch import parse_and_render_registered_policy
 
 
 PROJECT = Path(__file__).resolve().parents[1]
+PRODUCTION_EVALUATOR_TIMEOUT_S = 1200
+REAL_PROOF_SMOKE_TIMEOUT_S = 2 * PRODUCTION_EVALUATOR_TIMEOUT_S + 300
 
 
 def test_coset_literal_diff_changes_the_typed_policy_and_candidate_pool():
@@ -96,6 +102,129 @@ def test_coset_mutation_prompt_has_source_bound_integer_ranges():
     assert "gcd(stride,8688303)=1" in prompt
     assert "left indices 0..70; right indices 0..70" in prompt
     assert "gcd(stride,6175225)=1" in prompt
+    assert "keep actions in ascending action_id order" in prompt
+    assert "left and right indices must be strictly increasing" in prompt
+    assert "strictly lexicographically increasing by (left,right)" in prompt
+    assert "rejects noncanonical ordering instead of repairing it" in prompt
+
+
+def _compact_json(value) -> str:
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+
+
+def _v3_three_plus_two_parent() -> str:
+    return policy_dsl_v3.canonical_policy_json(
+        policy_dsl_v3.default_policy(support_split=(3, 2))
+    ) + "\n"
+
+
+def _replace_v3_action(parent: str, action_index: int, replacement: dict) -> str:
+    document = json.loads(parent)
+    return _diff_block(
+        _compact_json(document["actions"][action_index]),
+        _compact_json(replacement),
+    )
+
+
+def _mutation_rejection_payload(error: ValueError) -> dict:
+    encoded = str(error)
+    assert encoded.startswith(launcher.COSET_MUTATION_REJECTION_PREFIX)
+    return json.loads(
+        encoded[len(launcher.COSET_MUTATION_REJECTION_PREFIX):]
+    )
+
+
+def test_v3_three_plus_two_unsorted_supports_fail_closed_but_sorted_accepts():
+    parent = _v3_three_plus_two_parent()
+    assert hashlib.sha256(parent.encode()).hexdigest() == (
+        "60e5d61b3b201ff6ac0386bc00661b5c35aca1423c6bf8392eabf921902cbd46"
+    )
+    action = json.loads(parent)["actions"][0]
+    rejection_payloads = []
+    for left in ([1, 0], [2, 0]):
+        replacement = copy.deepcopy(action)
+        replacement["supports"] = [{"left": left, "right": [0]}]
+        with pytest.raises(ValueError) as captured:
+            launcher._apply_coset_literal_diff(
+                parent,
+                _replace_v3_action(parent, 0, replacement),
+            )
+        assert launcher._recognized_coset_mutation_rejection(
+            str(captured.value),
+            expected_parent_code_sha256=hashlib.sha256(
+                parent.encode()
+            ).hexdigest(),
+        ) == "invalid_mutation"
+        payload = _mutation_rejection_payload(captured.value)
+        assert payload["reason"] == "dsl_noncanonical"
+        rejection_payloads.append(payload)
+    # The raw responses are deliberately not persisted, but their bounded
+    # identities now make distinct invalid outputs distinguishable.
+    assert rejection_payloads[0]["detail_sha256"] != (
+        rejection_payloads[1]["detail_sha256"]
+    )
+
+    replacement = copy.deepcopy(action)
+    replacement["supports"] = [{"left": [0, 1], "right": [0]}]
+    child = launcher._apply_coset_literal_diff(
+        parent,
+        _replace_v3_action(parent, 0, replacement),
+    )
+    rendered = parse_and_render_registered_policy(child)
+    assert rendered.document["actions"][0]["supports"] == [
+        {"left": [0, 1], "right": [0]}
+    ]
+
+
+def test_v3_noncanonical_support_action_lists_and_nonroot_parent_reject():
+    parent = _v3_three_plus_two_parent()
+    document = json.loads(parent)
+    first_action = document["actions"][0]
+
+    reversed_supports = copy.deepcopy(first_action)
+    reversed_supports["supports"] = [
+        {"left": [0, 2], "right": [0]},
+        {"left": [0, 1], "right": [0]},
+    ]
+    responses = [_replace_v3_action(parent, 0, reversed_supports)]
+
+    first = _compact_json(document["actions"][0])
+    second = _compact_json(document["actions"][1])
+    responses.append(_diff_block(
+        f'"actions":[{first},{second},',
+        f'"actions":[{second},{first},',
+    ))
+    for response in responses:
+        with pytest.raises(ValueError) as captured:
+            launcher._apply_coset_literal_diff(parent, response)
+        assert _mutation_rejection_payload(captured.value)["reason"] == (
+            "dsl_noncanonical"
+        )
+
+    # The same invariant applies to a non-root parent that already contains a
+    # valid explicit support, matching the later-round failure mode.
+    canonical_action = copy.deepcopy(first_action)
+    canonical_action["supports"] = [{"left": [0, 1], "right": [0]}]
+    nonroot = launcher._apply_coset_literal_diff(
+        parent,
+        _replace_v3_action(parent, 0, canonical_action),
+    )
+    with pytest.raises(ValueError) as captured:
+        launcher._apply_coset_literal_diff(
+            nonroot,
+            _diff_block('"left":[0,1]', '"left":[1,0]'),
+        )
+    payload = _mutation_rejection_payload(captured.value)
+    assert payload["reason"] == "dsl_noncanonical"
+    assert payload["parent_code_sha256"] == hashlib.sha256(
+        nonroot.encode()
+    ).hexdigest()
 
 
 def _policy_text() -> str:
@@ -165,7 +294,11 @@ def _write_smoke_inputs(
     config_value["llm"]["timeout"] = 10
     config_value["llm"]["retries"] = 0
     config_value["evaluator"]["parallel_evaluations"] = 1
-    config_value["evaluator"]["timeout"] = 300
+    # The production proof ladder has a 720-second batch wall.  Keep the
+    # evaluator and its outer smoke-process bound strictly above that wall;
+    # a 300-second test-only cap can kill healthy, actively progressing proof
+    # work before the production contract has a chance to finish it.
+    config_value["evaluator"]["timeout"] = PRODUCTION_EVALUATOR_TIMEOUT_S
     config_value["database"]["population_size"] = 16
     config_value["database"]["archive_size"] = 8
     config_value["database"]["num_islands"] = (
@@ -174,6 +307,38 @@ def _write_smoke_inputs(
     config = tmp_path / "coset_smoke_config.yaml"
     config.write_text(yaml.safe_dump(config_value, sort_keys=False))
     return seed, config
+
+
+def _negative_feedback_args(tmp_path: Path) -> list[str]:
+    live = (tmp_path / "negative-feedback-live.json").resolve()
+    snapshot = (tmp_path / "negative-feedback-snapshot.json").resolve()
+    manifest_path = (
+        tmp_path / "negative-feedback-snapshot-manifest.json"
+    ).resolve()
+    manifest = materialize_feedback_snapshot(
+        live,
+        snapshot,
+        manifest_path,
+        run_id="coset-stage1-smoke",
+        round_number=1,
+        feedback_epoch=1,
+    )
+    return [
+        "--negative-feedback-live-archive",
+        str(live),
+        "--negative-feedback-snapshot",
+        str(snapshot),
+        "--negative-feedback-snapshot-sha256",
+        manifest["snapshot_sha256"],
+        "--negative-feedback-archive-sha256",
+        manifest["archive_sha256"],
+        "--negative-feedback-manifest",
+        str(manifest_path),
+        "--negative-feedback-manifest-sha256",
+        hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        "--negative-feedback-epoch",
+        "1",
+    ]
 
 
 def test_coset_launcher_completes_one_real_openevolve_iteration(tmp_path):
@@ -244,7 +409,7 @@ def test_coset_launcher_completes_one_real_openevolve_iteration(tmp_path):
             env=environment,
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=REAL_PROOF_SMOKE_TIMEOUT_S,
         )
         wrong_resume = subprocess.run(
             [
@@ -345,6 +510,7 @@ def test_managed_all_no_effect_mutations_save_unchanged_checkpoint(tmp_path):
     thread.start()
     output = tmp_path / "no-effect-output"
     witness = tmp_path / "no-effect-witness.json"
+    feedback_args = _negative_feedback_args(tmp_path)
     environment = dict(os.environ)
     environment["OPENAI_API_KEY"] = "coset-smoke-key"
     try:
@@ -381,6 +547,7 @@ def test_managed_all_no_effect_mutations_save_unchanged_checkpoint(tmp_path):
                 str(lease_fd),
                 "--lifecycle-lease-path",
                 str(lease_path),
+                *feedback_args,
             ],
             cwd=PROJECT,
             env=environment,
@@ -485,6 +652,7 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
     environment = dict(os.environ)
     environment["OPENAI_API_KEY"] = "coset-smoke-key"
     environment["ENABLE_ARTIFACTS"] = "false"
+    feedback_args = _negative_feedback_args(tmp_path)
 
     def managed_command(
         *,
@@ -525,6 +693,7 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             str(lease_fd),
             "--lifecycle-lease-path",
             str(lease_path),
+            *feedback_args,
         ]
         if resume is not None:
             command.extend(["--resume", str(resume)])
@@ -543,7 +712,7 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             pass_fds=(lease_fd,),
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=REAL_PROOF_SMOKE_TIMEOUT_S,
         )
         assert fresh.returncode == 0, fresh.stdout + "\n" + fresh.stderr
         witness_one = json.loads((tmp_path / "witness-1.json").read_text())
@@ -559,7 +728,7 @@ def test_managed_coset_fresh_and_resume_bind_action_preflight(tmp_path):
             pass_fds=(lease_fd,),
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=REAL_PROOF_SMOKE_TIMEOUT_S,
         )
     finally:
         server.shutdown()

@@ -24,7 +24,13 @@ from .pipeline_process import validate_run_id
 
 
 SCHEMA_VERSION = 1
-ELITE_ARCHIVE_SCHEMA_VERSION = 3
+ELITE_ARCHIVE_SCHEMA_VERSION = 4
+_ELITE_ARCHIVE_COMPATIBLE_SCHEMA_VERSIONS = frozenset({
+    1,
+    2,
+    3,
+    ELITE_ARCHIVE_SCHEMA_VERSION,
+})
 
 
 def utc_now() -> str:
@@ -269,8 +275,12 @@ def candidate_structural_features(
         )
         from evolve.coset_search_contract import (
             ACTION_FAMILY_BINS,
+            COSET_CANDIDATE_SCHEMA_VERSION_V3,
+            COSET_RENDERER_V3_ID,
+            COSET_REPRESENTATION_ID_V3,
             COSET_SUPPORT_ORBIT_BINS,
             canonical_json_sha256,
+            coset_support_orbit_bin,
         )
 
         # Archive replay must remain version-aware: the live Stage-1 schema
@@ -291,16 +301,45 @@ def candidate_structural_features(
             raise ValueError(
                 "compact construction action metadata is unavailable"
             ) from exc
-        orbit_digest = canonical_json_sha256({
-            "left_support": canonical["left_support"],
-            "right_support": canonical["right_support"],
-        })
+        claims_renderer_v3 = bool(
+            row.get("schema_version") == COSET_CANDIDATE_SCHEMA_VERSION_V3
+            or row.get("representation_id") == COSET_REPRESENTATION_ID_V3
+            or row.get("renderer_descriptor_id") == COSET_RENDERER_V3_ID
+        )
+        if claims_renderer_v3:
+            # Renderer-v3 changed the support-orbit coordinate by binding the
+            # representation and explicit support split.  The mathematical
+            # construction remains v2, so recover the supports from that
+            # independently normalized source-bound construction, while the
+            # renderer identity must be present at the candidate top level.
+            # Passing the exact seven-field object through the authoritative
+            # candidate normalizer also makes partial/forged v3 claims fail
+            # closed instead of silently falling back to the legacy hash.
+            support_orbit_bin = coset_support_orbit_bin({
+                "schema_version": row.get("schema_version"),
+                "representation_id": row.get("representation_id"),
+                "renderer_descriptor_id": row.get(
+                    "renderer_descriptor_id"
+                ),
+                "action_id": canonical["action_id"],
+                "support_split": row.get("support_split"),
+                "left_support": canonical["left_support"],
+                "right_support": canonical["right_support"],
+            })
+        else:
+            # Construction-only rows and the frozen v1/v2 search epoch retain
+            # their historical supports-only coordinate for replay.
+            orbit_digest = canonical_json_sha256({
+                "left_support": canonical["left_support"],
+                "right_support": canonical["right_support"],
+            })
+            support_orbit_bin = (
+                int(orbit_digest[:8], 16) % COSET_SUPPORT_ORBIT_BINS
+            )
         return {
             "action_family_bin": int(action_family_bin),
             "subgroup_normal": int(bool(descriptor["subgroup_normal"])),
-            "support_orbit_bin": (
-                int(orbit_digest[:8], 16) % COSET_SUPPORT_ORBIT_BINS
-            ),
+            "support_orbit_bin": support_orbit_bin,
             "term_count": len(left) + len(right),
         }
 
@@ -362,11 +401,10 @@ class EliteArchive:
         self.cells: dict[str, dict[str, Any]] = {}
         if path.is_file():
             raw = json.loads(path.read_text())
-            if raw.get("schema_version") not in {
-                1,
-                2,
-                ELITE_ARCHIVE_SCHEMA_VERSION,
-            }:
+            archive_schema_version = raw.get("schema_version")
+            if archive_schema_version not in (
+                _ELITE_ARCHIVE_COMPATIBLE_SCHEMA_VERSIONS
+            ):
                 raise ValueError("unsupported elite archive schema")
             stored_cells = raw.get("cells", {})
             if not isinstance(stored_cells, dict):
@@ -385,6 +423,12 @@ class EliteArchive:
                     > candidate_evidence_priority(current)
                 ):
                     self.cells[row["archive_cell"]] = row
+            # Schema v3 stored renderer-v3 rows with the obsolete
+            # supports-only orbit coordinate.  Persist the canonicalized,
+            # best-per-new-cell replay immediately so a subsequent process
+            # never observes the stale coordinate or its false cell count.
+            if archive_schema_version == 3:
+                self.save()
 
     def update(self, rows: Iterable[dict[str, Any]], round_number: int) -> list[dict[str, Any]]:
         promoted: list[dict[str, Any]] = []
