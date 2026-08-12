@@ -703,10 +703,7 @@ def test_milp_selection_bounds_positive_claim_replay_work(monkeypatch):
     )
 
     assert len(select_for_milp(claims, None, set(), 1)) == 1
-    # One verified survivor already fills the only audit slot.  Stopping here
-    # leaves the shared 4x replay budget available to screen a fallback/quick
-    # candidate for a rebuilt structural rejection.
-    assert len(replayed) == 1
+    assert len(replayed) == 4
 
 
 def test_milp_selection_bounds_failed_claim_replay_work(monkeypatch):

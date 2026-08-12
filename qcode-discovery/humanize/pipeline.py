@@ -4416,6 +4416,7 @@ class FiveStagePipeline:
             "source_fingerprint": self._source_fingerprint(
                 self.config.repo_dir / "humanize" / "pipeline.py",
                 self.config.repo_dir / "humanize" / "flow.py",
+                self.config.repo_dir / "humanize" / "negative_evidence.py",
                 self.config.repo_dir / "humanize" / "audit_state.py",
                 self.config.repo_dir / "humanize" / "state.py",
                 self.config.repo_dir / "humanize" / "reviewer.py",

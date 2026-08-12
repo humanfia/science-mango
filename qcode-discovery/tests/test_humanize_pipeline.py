@@ -577,7 +577,12 @@ def _repo(tmp_path: Path) -> tuple[Path, Path]:
     )
     humanize = repo / "humanize"
     humanize.mkdir()
-    for name in ("pipeline.py", "audit_state.py", "state.py"):
+    for name in (
+        "pipeline.py",
+        "negative_evidence.py",
+        "audit_state.py",
+        "state.py",
+    ):
         (humanize / name).write_text(f"# fake humanize/{name}\n")
     tests = repo / "tests"
     tests.mkdir()
@@ -6078,6 +6083,34 @@ def test_stage1_humanize_cache_is_invalidated_by_proof_runtime_change(
         second["stages"]["stage1_search"]["stage_config"]["controller_runtime"]
         == runtime["current"]
     )
+
+
+def test_stage1_source_fingerprint_binds_negative_evidence_helper(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    for name in ("flow.py", "reviewer.py"):
+        (repo / "humanize" / name).write_text(f"# fake {name}\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    (repo / "main.py").write_text("# fake main\n")
+    run_id = "stage1-negative-evidence-source-binding"
+    pipeline = FiveStagePipeline(PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage_review=False,
+    ))
+
+    before = pipeline._stage1_source_provenance()["source_fingerprint"]
+    helper = repo / "humanize" / "negative_evidence.py"
+    helper.write_text("# changed negative-evidence gate\n")
+    after = pipeline._stage1_source_provenance()["source_fingerprint"]
+
+    assert after != before
 
 
 def test_stage1_new_attempt_clears_stale_terminal_monitoring_fields(

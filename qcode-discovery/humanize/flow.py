@@ -9845,20 +9845,22 @@ def select_for_milp(
         row for row in eligible
         if row not in quick_exploration
     ]
-    audit_funnel_replay_limit = 4 * limit
-    audit_funnel_attempted_keys: set[str] = set()
+    structural_replay_limit = 4 * limit
+    structural_attempted_keys: set[str] = set()
+    lower_bound_replay_limit = 4 * limit
+    lower_bound_replay_attempts = 0
     structural_negative_keys: set[str] = set()
     structural_nonnegative_keys: set[str] = set()
 
-    def reserve_audit_funnel_replay(row: dict[str, Any]) -> bool:
-        """Bound all candidate rebuild/replay work added by policy v6."""
+    def reserve_structural_replay(row: dict[str, Any]) -> bool:
+        """Bound negative-witness rebuilds independently of LB replays."""
 
         key = code_key(row)
-        if key in audit_funnel_attempted_keys:
+        if key in structural_attempted_keys:
             return True
-        if len(audit_funnel_attempted_keys) >= audit_funnel_replay_limit:
+        if len(structural_attempted_keys) >= structural_replay_limit:
             return False
-        audit_funnel_attempted_keys.add(key)
+        structural_attempted_keys.add(key)
         return True
 
     def has_replayed_structural_rejection(row: dict[str, Any]) -> bool:
@@ -9886,7 +9888,7 @@ def select_for_milp(
         )
         if not isinstance(report, Mapping):
             return False
-        if not reserve_audit_funnel_replay(row):
+        if not reserve_structural_replay(row):
             # The replay budget is operational, never mathematical.  Once it
             # is exhausted an unchecked row remains eligible for formal audit.
             return False
@@ -9943,10 +9945,7 @@ def select_for_milp(
         verified_lower_bounds: list[tuple[dict[str, Any], int]] = []
         unverified_claims: list[dict[str, Any]] = []
         for index, row in enumerate(lower_bound_claims):
-            if len(verified_lower_bounds) >= limit:
-                unverified_claims.extend(lower_bound_claims[index:])
-                break
-            if not reserve_audit_funnel_replay(row):
+            if lower_bound_replay_attempts >= lower_bound_replay_limit:
                 unverified_claims.extend(lower_bound_claims[index:])
                 break
             if has_replayed_structural_rejection(row):
@@ -9954,6 +9953,7 @@ def select_for_milp(
                 # remains in the immutable source history, but cannot consume
                 # one of this round's scarce exact-audit slots.
                 continue
+            lower_bound_replay_attempts += 1
             replayed_lower_bound = (
                 _replayable_search_lower_bound_for_audit(row)
             )
