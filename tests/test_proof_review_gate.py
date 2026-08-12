@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from archon.commands.loop.formalization_review_gate import (
@@ -16,6 +17,7 @@ from archon.commands.loop.proof_review_gate import (
     load_proof_review_state,
     reopen_exhausted_proof_review_targets,
 )
+from archon.commands.loop import proof_review_gate
 from archon.state import parse_objective_files, read_stage
 
 
@@ -33,6 +35,20 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
 
     def tearDown(self):
         self.tempdir.cleanup()
+
+    def test_state_writer_updates_precreated_inode_when_parent_blocks_tempfile(self):
+        path = self.state / "proof-review-gate.json"
+        path.write_text("{}\n", encoding="utf-8")
+        inode = path.stat().st_ino
+        with mock.patch.object(
+            Path, "write_bytes", side_effect=PermissionError("controller-owned parent")
+        ):
+            proof_review_gate._write_state(
+                self.state, {"version": 1, "targets": {}}
+            )
+        self.assertEqual(path.stat().st_ino, inode)
+        self.assertEqual(json.loads(path.read_text()), {"version": 1, "targets": {}})
+        self.assertFalse(path.with_suffix(".json.tmp").exists())
 
     def _write_progress(self, stage: str) -> None:
         self.progress.write_text(

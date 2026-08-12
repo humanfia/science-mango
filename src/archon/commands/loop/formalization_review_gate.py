@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +26,7 @@ from archon.state.progress import write_stage
 from .review_source_contract import (
     build_review_source_contract,
     provenance_from_review,
+    normalized_review_source_certificate,
     source_assessment_from_review,
     stored_provenance_matches_current,
     validate_review_source_certificate,
@@ -216,6 +219,7 @@ def _validate_structured_review(
         "checks": normalized_checks,
         "bridge_obligations": normalized_bridges,
         "source_contract": provenance_from_review(raw),
+        "blind_review_certificate": normalized_review_source_certificate(raw),
         **source_assessment_from_review(raw),
     }
     source_error = validate_review_source_certificate(
@@ -334,13 +338,25 @@ def _load_milestone_decisions(
 
     aggregated: dict[str, tuple[str, str, dict[str, Any]]] = {}
     for rel, verdicts in decisions.items():
+        if len(verdicts) != 1:
+            aggregated[rel] = (
+                "failed",
+                f"expected exactly one target-bound formalization Review milestone; found {len(verdicts)}",
+                {"schema_version": REVIEW_SCHEMA_VERSION, "milestones": []},
+            )
+            continue
         failures = [
             reason for status, reason, _certificate in verdicts
             if status != "passed"
         ]
+        item_certificate = verdicts[0][2]
         certificate = {
             "schema_version": REVIEW_SCHEMA_VERSION,
-            "milestones": [item_certificate for _, _, item_certificate in verdicts],
+            "milestones": [item_certificate],
+            "source_contract": item_certificate.get("source_contract"),
+            "blind_review_certificate": item_certificate.get(
+                "blind_review_certificate"
+            ),
         }
         if failures:
             aggregated[rel] = (
@@ -419,9 +435,40 @@ def _initial_state(max_iterations: int) -> dict[str, Any]:
 def _write_state(state_dir: Path, data: dict[str, Any]) -> None:
     path = state_path(state_dir)
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload = (json.dumps(data, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    tmp.replace(path)
+    try:
+        tmp.write_bytes(payload)
+        tmp.replace(path)
+        return
+    except PermissionError:
+        # An answer-blind workspace deliberately keeps `.archon/` owned by
+        # the trusted controller while pre-creating this one state inode as
+        # solver-owned.  That layout prevents a solver from replacing config
+        # or inventing peer state files, but it also makes the usual
+        # write-temp-and-rename operation impossible.  In that one narrowly
+        # defined case, update the existing regular inode in place.  Never use
+        # this fallback when the temporary file was created: a later rename
+        # failure must remain fail-closed.
+        if tmp.exists() or tmp.is_symlink():
+            raise
+        try:
+            metadata = path.lstat()
+        except OSError:
+            raise
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+            raise
+        flags = os.O_WRONLY | os.O_TRUNC | os.O_CLOEXEC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(path, flags)
+        try:
+            with os.fdopen(descriptor, "wb", closefd=False) as stream:
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+        finally:
+            os.close(descriptor)
 
 
 def _replace_objectives(progress_file: Path, lines: list[str]) -> None:

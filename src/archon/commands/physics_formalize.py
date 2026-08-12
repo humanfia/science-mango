@@ -10,6 +10,7 @@ using the `physics-formalize` prover mode; proof filling then uses the
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -38,6 +39,105 @@ CHEMISTRY_FORMALIZE_MODE = "chemistry-formalize"
 CHEMISTRY_PROVER_MODE = "chemistry"
 CHEMISTRY_REVIEWER = "chemistry-reviewer"
 SUPPORTED_DATASET_FORMATS = {"auto", "native", "phyx"}
+SUPPORTED_EVALUATION_MODES = {"visible", "answer_blind"}
+
+# Answer-blind ingestion is deliberately fail-closed.  These names identify
+# solution-side material rather than problem-side evidence.  Prefix matching
+# below also rejects variants such as ``official_answer``, ``solution_notes``,
+# and ``marking_scheme`` at any nesting depth.
+ANSWER_BLIND_FORBIDDEN_KEY_PARTS = {
+    "answer",
+    "grader",
+    "marking",
+    "rubric",
+    "explanation",
+    "reasoning",
+    "solution",
+}
+
+# Only these problem-side fields may cross an answer-blind artifact boundary.
+# Keeping this list explicit is a second line of defence after recursive input
+# validation: newly added dataset columns do not silently become model input.
+ANSWER_BLIND_ENTRY_ALLOWLIST = {
+    "schema_version",
+    "protocol",
+    "evaluation_mode",
+    "official_answer_seen",
+    "phase",
+    "index",
+    "id",
+    "source_index",
+    "dataset",
+    "dataset_format",
+    "category",
+    "source_dataset",
+    "source_dataset_url",
+    "year",
+    "problem_id",
+    "problem_number",
+    "part_id",
+    "part_letter",
+    "subquestion_number",
+    "question",
+    "current_question",
+    "context",
+    "shared_context",
+    "local_context",
+    "description",
+    "question_description",
+    "question_simply",
+    "question_description_simplified",
+    "options",
+    "options_parsed",
+    "subfield",
+    "modality",
+    "field",
+    "source",
+    "image",
+    "images",
+    "image_path",
+    "image_paths",
+    "image_count",
+    "image_caption",
+    "problem_assets",
+    "previous_parts",
+    "previous_part_count",
+    "blind_record_sha256",
+    "source_pdf",
+    "source_page",
+    "printed_page",
+    "points",
+    "paper",
+    "kind",
+    "formalization_ready",
+    "reporting_policy",
+    "requested_outputs",
+    "measurement_policy",
+    "candidate_domain_policy",
+}
+
+ANSWER_BLIND_PREVIOUS_PART_ALLOWLIST = {
+    "source_id",
+    "part_id",
+    "problem_id",
+    "question",
+    "dependency_policy",
+    # These are references to independently frozen solve artifacts, not
+    # natural-language official answers.  They are optional and inert here.
+    "source_report",
+    "output_lean",
+    "theorem_name",
+    "commit",
+    "sha256",
+}
+
+ANSWER_BLIND_IMAGE_ALLOWLIST = {
+    "path",
+    "original_path",
+    "role",
+    "evidence",
+    "caption",
+}
 
 PHYSLEAN_GIT_URL = "https://github.com/HEPLean/PhysLean"
 PHYSLEAN_REQUIRE_LEAN = f'\nrequire PhysLean from git "{PHYSLEAN_GIT_URL}" @ "master"\n'
@@ -77,6 +177,7 @@ class PhysicsFormalizeCommand:
         category: str = "physics",
         limit: int = -1,
         dataset_format: str = "auto",
+        evaluation_mode: str = "visible",
         ensure_physlean: bool = False,
         build_physlean: bool = False,
         preflight: bool = False,
@@ -105,6 +206,7 @@ class PhysicsFormalizeCommand:
         self.category = category
         self.limit = limit
         self.dataset_format = dataset_format.lower().strip()
+        self.evaluation_mode = evaluation_mode.lower().strip().replace("-", "_")
         self.ensure_physlean = ensure_physlean
         self.build_physlean = build_physlean
         self.preflight = preflight
@@ -133,6 +235,7 @@ class PhysicsFormalizeCommand:
 
     def run(self) -> None:
         log.header("archon physics-formalize")
+        self._validate_evaluation_mode()
         self._validate_project()
         if self.input_jsonl:
             self._validate_batch_mode()
@@ -238,6 +341,23 @@ class PhysicsFormalizeCommand:
 
     # setup and input -------------------------------------------------
 
+    @property
+    def _is_answer_blind(self) -> bool:
+        return self.evaluation_mode == "answer_blind"
+
+    def _validate_evaluation_mode(self) -> None:
+        if self.evaluation_mode not in SUPPORTED_EVALUATION_MODES:
+            supported = ", ".join(sorted(SUPPORTED_EVALUATION_MODES))
+            log.error(f"--evaluation-mode must be one of: {supported}.")
+            raise typer.Exit(1)
+
+    def _evaluation_metadata(self) -> dict:
+        return {
+            "evaluation_mode": self.evaluation_mode,
+            "official_answer_seen": not self._is_answer_blind,
+            "phase": "solve",
+        }
+
     def _validate_project(self) -> None:
         if not self.project_path.exists():
             log.error(f"Project path does not exist: {self.project_path}")
@@ -257,6 +377,9 @@ class PhysicsFormalizeCommand:
     def _validate_single_mode(self) -> None:
         if self.out_dir or self.report_dir or self.image_root:
             log.error("--out-dir, --report-dir, and --image-root are only used with --input-jsonl.")
+            raise typer.Exit(1)
+        if self._is_answer_blind and self.answer:
+            log.error("--answer is forbidden when --evaluation-mode=answer-blind.")
             raise typer.Exit(1)
 
     def _validate_batch_mode(self) -> None:
@@ -321,16 +444,33 @@ class PhysicsFormalizeCommand:
                 if not isinstance(entry, dict):
                     log.error(f"JSONL line {line_no} must be an object.")
                     raise typer.Exit(1)
+                if self._is_answer_blind:
+                    self._reject_answer_blind_fields(entry, line_no=line_no)
+                    if "blind_record_sha256" in entry:
+                        log.error(
+                            "Answer-blind JSONL line "
+                            f"{line_no} contains reserved field `$.blind_record_sha256`."
+                        )
+                        raise typer.Exit(1)
+                    blind_record_sha256 = self._blind_record_sha256(entry)
+                else:
+                    blind_record_sha256 = None
                 question = str(entry.get("question", "")).strip()
                 if not question:
                     log.error(f"JSONL line {line_no} is missing a non-empty `question`.")
                     raise typer.Exit(1)
                 normalized = self._normalize_dataset_entry(entry, line_no=line_no)
-                normalized["index"] = str(normalized.get("index") or f"{line_no:03d}")
+                normalized["index"] = str(
+                    normalized.get("index") or normalized.get("id") or f"{line_no:03d}"
+                )
                 normalized["question"] = str(normalized.get("question", "")).strip()
-                normalized["answer"] = str(normalized.get("answer", ""))
+                if not self._is_answer_blind:
+                    normalized["answer"] = str(normalized.get("answer", ""))
                 normalized["category"] = str(normalized.get("category", self.category))
                 normalized["image"] = self._normalize_entry_image(normalized)
+                if self._is_answer_blind:
+                    normalized["blind_record_sha256"] = blind_record_sha256
+                    normalized = self._answer_blind_entry(normalized)
                 entries.append(normalized)
                 if not self.as_problem_set and self.limit > 0 and len(entries) >= self.limit:
                     break
@@ -342,6 +482,72 @@ class PhysicsFormalizeCommand:
             )
             raise typer.Exit(1)
         return path, entries
+
+    @staticmethod
+    def _blind_record_sha256(entry: dict) -> str:
+        canonical = json.dumps(
+            entry,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ) + "\n"
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+    @classmethod
+    def _is_answer_blind_forbidden_key(cls, key: object) -> bool:
+        snake = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str(key).strip())
+        normalized = re.sub(r"[^a-z0-9]+", "_", snake.lower()).strip("_")
+        parts = [part for part in normalized.split("_") if part]
+        if normalized == "reusable_conclusions":
+            return True
+        return any(
+            any(part == stem or part == stem + "s" for stem in ANSWER_BLIND_FORBIDDEN_KEY_PARTS)
+            for part in parts
+        )
+
+    def _reject_answer_blind_fields(
+        self,
+        value: object,
+        *,
+        line_no: int,
+        path: str = "$",
+    ) -> None:
+        if isinstance(value, dict):
+            for key, nested in value.items():
+                key_path = f"{path}.{key}"
+                snake = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str(key).strip())
+                normalized_key = re.sub(
+                    r"[^a-z0-9]+", "_", snake.lower()
+                ).strip("_")
+                if normalized_key == "official_answer_seen":
+                    if nested is not False:
+                        log.error(
+                            "Answer-blind JSONL line "
+                            f"{line_no} must set `{key_path}` to false."
+                        )
+                        raise typer.Exit(1)
+                    self._reject_answer_blind_fields(
+                        nested, line_no=line_no, path=key_path
+                    )
+                    continue
+                if self._is_answer_blind_forbidden_key(key):
+                    log.error(
+                        "Answer-blind JSONL line "
+                        f"{line_no} contains forbidden field `{key_path}`."
+                    )
+                    raise typer.Exit(1)
+                self._reject_answer_blind_fields(
+                    nested,
+                    line_no=line_no,
+                    path=key_path,
+                )
+        elif isinstance(value, list):
+            for index, nested in enumerate(value):
+                self._reject_answer_blind_fields(
+                    nested,
+                    line_no=line_no,
+                    path=f"{path}[{index}]",
+                )
 
     def _normalize_dataset_entry(self, entry: dict, *, line_no: int) -> dict:
         dataset_format = self.dataset_format
@@ -549,8 +755,8 @@ class PhysicsFormalizeCommand:
         )
         return enriched
 
-    @staticmethod
     def _assemble_problem_set_question(
+        self,
         *,
         part_id: str,
         shared_context: str,
@@ -578,10 +784,14 @@ class PhysicsFormalizeCommand:
                 if question:
                     sections.append(f"  Previous question: {question}")
                 conclusions = previous.get("reusable_conclusions") or []
-                if isinstance(conclusions, list) and conclusions:
+                if (
+                    not self._is_answer_blind
+                    and isinstance(conclusions, list)
+                    and conclusions
+                ):
                     for conclusion in conclusions:
                         sections.append(f"  Reusable conclusion: {conclusion}")
-                else:
+                elif not self._is_answer_blind:
                     answer = str(previous.get("answer") or "").strip()
                     if answer:
                         sections.append(f"  Reusable answer: {answer}")
@@ -684,16 +894,20 @@ class PhysicsFormalizeCommand:
         return safe or "item"
 
     def _build_entry(self, question: str, image_path: Path | None) -> dict:
-        return {
+        entry = {
             "index": self.index,
             "question": question,
-            "answer": self.answer,
             "category": self.category,
             "image": image_path.name if image_path else None,
             "images": [image_path.name] if image_path else [],
             "image_path": str(image_path) if image_path else None,
             "image_paths": [str(image_path)] if image_path else [],
         }
+        if self._is_answer_blind:
+            entry["blind_record_sha256"] = self._blind_record_sha256(entry)
+        else:
+            entry["answer"] = self.answer
+        return entry
 
     def _entry_image_path(self, entry: dict, image_root: Path | None) -> str | None:
         image_paths = self._entry_image_paths(entry, image_root)
@@ -727,7 +941,11 @@ class PhysicsFormalizeCommand:
 
     def _entry_for_artifact(self, entry: dict) -> dict:
         """Copy an input entry with generated image locators made portable."""
-        portable = dict(entry)
+        portable = (
+            self._answer_blind_entry(entry)
+            if self._is_answer_blind
+            else dict(entry)
+        )
         image_path = entry.get("image_path")
         if image_path:
             portable["image_path"] = self._artifact_path(Path(str(image_path)))
@@ -739,6 +957,43 @@ class PhysicsFormalizeCommand:
                 if str(path).strip()
             ]
         return portable
+
+    @staticmethod
+    def _answer_blind_previous_part(previous: dict) -> dict:
+        return {
+            key: value
+            for key, value in previous.items()
+            if key in ANSWER_BLIND_PREVIOUS_PART_ALLOWLIST
+        }
+
+    @staticmethod
+    def _answer_blind_image(image: object) -> object:
+        if not isinstance(image, dict):
+            return image
+        return {
+            key: value
+            for key, value in image.items()
+            if key in ANSWER_BLIND_IMAGE_ALLOWLIST
+        }
+
+    def _answer_blind_entry(self, entry: dict) -> dict:
+        """Project an entry onto problem-side fields safe for blind solving."""
+        safe = {
+            key: value
+            for key, value in entry.items()
+            if key in ANSWER_BLIND_ENTRY_ALLOWLIST
+        }
+        previous_parts = safe.get("previous_parts")
+        if isinstance(previous_parts, list):
+            safe["previous_parts"] = [
+                self._answer_blind_previous_part(previous)
+                for previous in previous_parts
+                if isinstance(previous, dict)
+            ]
+        images = safe.get("images")
+        if isinstance(images, list):
+            safe["images"] = [self._answer_blind_image(image) for image in images]
+        return safe
 
     # batch/problem set -----------------------------------------------
 
@@ -999,9 +1254,10 @@ class PhysicsFormalizeCommand:
 
     def _source_report(self, entry: dict, out_path: Path, report_path: Path) -> dict:
         portable_entry = self._entry_for_artifact(entry)
-        return {
-            "schema_version": 2,
+        report = {
+            "schema_version": 3,
             "command": "physics-formalize",
+            **self._evaluation_metadata(),
             "status": "prepared",
             "next_stage": "autoformalize",
             "prover_mode": self._formalize_mode,
@@ -1017,6 +1273,9 @@ class PhysicsFormalizeCommand:
             "part_id": portable_entry.get("part_id"),
             "previous_parts": portable_entry.get("previous_parts", []),
         }
+        if self._is_answer_blind:
+            report["blind_record_sha256"] = portable_entry["blind_record_sha256"]
+        return report
 
     def _write_physics_blueprint_chapter(
         self,
@@ -1064,7 +1323,7 @@ class PhysicsFormalizeCommand:
         include_chapter: bool,
     ) -> str:
         index = str(entry.get("index") or "physics")
-        answer = str(entry.get("answer") or "")
+        answer = "" if self._is_answer_blind else str(entry.get("answer") or "")
         question = str(entry.get("question") or "")
         title = self._latex_escape(
             f"{self.domain_profile.display_name.title()} problem {index}"
@@ -1157,6 +1416,19 @@ class PhysicsFormalizeCommand:
             "create a compiling Lean file with sorry bodies at "
             f"`{self._latex_escape(rel_lean)}`.",
             *contract,
+        ])
+        if self._is_answer_blind:
+            lines.extend([
+                "This is an answer-blind solve-phase task. Derive a candidate "
+                "result only from the problem-side evidence above; do not assume "
+                "a target value, select a tolerance around a desired value, or "
+                "encode a desired result into a candidate domain.",
+                "For numerical questions, define the raw end-to-end quantity and "
+                "apply an explicit source-derived rounding rule. For identification "
+                "questions, characterize or prove uniqueness before recording the "
+                "derived candidate.",
+            ])
+        lines.extend([
             "",
             f"\\begin{{theorem}}[{self._latex_escape(self.domain_profile.display_name.title())} formalization target]",
             f"\\label{{thm:physics:{self._safe_label(index)}:target}}",
@@ -1194,9 +1466,13 @@ class PhysicsFormalizeCommand:
             if question:
                 chunks.append(f"Question: {question}")
             conclusions = previous.get("reusable_conclusions") or []
-            if isinstance(conclusions, list) and conclusions:
+            if (
+                not self._is_answer_blind
+                and isinstance(conclusions, list)
+                and conclusions
+            ):
                 chunks.append("Reusable conclusions: " + "; ".join(map(str, conclusions)))
-            elif previous.get("answer"):
+            elif not self._is_answer_blind and previous.get("answer"):
                 chunks.append("Reusable answer: " + str(previous["answer"]))
             policy = str(previous.get("dependency_policy") or "").strip()
             if policy:
@@ -1218,12 +1494,23 @@ class PhysicsFormalizeCommand:
                 "message": "Rethlas command not configured.",
                 "sketch": "",
             }
-        payload = {
-            "index": entry.get("index"),
-            "question": entry.get("question"),
-            "answer": entry.get("answer"),
-            "previous_parts": entry.get("previous_parts", []),
-        }
+        if self._is_answer_blind:
+            payload = {
+                "index": entry.get("index"),
+                "question": entry.get("question"),
+                "previous_parts": [
+                    self._answer_blind_previous_part(previous)
+                    for previous in entry.get("previous_parts", [])
+                    if isinstance(previous, dict)
+                ],
+            }
+        else:
+            payload = {
+                "index": entry.get("index"),
+                "question": entry.get("question"),
+                "answer": entry.get("answer"),
+                "previous_parts": entry.get("previous_parts", []),
+            }
         try:
             proc = subprocess.run(
                 shlex.split(command),
@@ -1385,8 +1672,9 @@ class PhysicsFormalizeCommand:
         record: dict | None,
     ) -> dict:
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "command": "physics-formalize",
+            **self._evaluation_metadata(),
             "mode": "single",
             "dry_run": dry_run,
             "project_path": str(self.project_path),
@@ -1462,8 +1750,9 @@ class PhysicsFormalizeCommand:
         preflight_result: dict | None,
     ) -> dict:
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "command": "physics-formalize",
+            **self._evaluation_metadata(),
             "mode": "batch",
             "dry_run": dry_run,
             "project_path": str(self.project_path),
@@ -1519,8 +1808,9 @@ class PhysicsFormalizeCommand:
             for entry in entries
         }
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "command": "physics-formalize",
+            **self._evaluation_metadata(),
             "mode": "problem-set",
             "dry_run": dry_run,
             "project_path": str(self.project_path),
@@ -1977,6 +2267,14 @@ def physics_formalize(
             "scenario/question/options and resolves letter answers to answer text."
         ),
     ),
+    evaluation_mode: str = typer.Option(
+        "visible",
+        "--evaluation-mode",
+        help=(
+            "Evaluation contract: visible (legacy answer-visible input) or "
+            "answer-blind (fail-closed problem-side input only; serialized as answer_blind)."
+        ),
+    ),
     ensure_physlean: bool = typer.Option(
         False,
         "--ensure-physlean/--no-ensure-physlean",
@@ -2041,6 +2339,7 @@ def physics_formalize(
         category=category,
         limit=limit,
         dataset_format=dataset_format,
+        evaluation_mode=evaluation_mode,
         ensure_physlean=ensure_physlean,
         build_physlean=build_physlean,
         preflight=preflight,

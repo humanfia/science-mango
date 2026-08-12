@@ -89,6 +89,13 @@ from archon.commands.dashboard import dashboard  # noqa: E402
 from archon.commands.setup import setup  # noqa: E402
 from archon.commands.prove import prove  # noqa: E402
 from archon.commands.physics_formalize import physics_formalize  # noqa: E402
+from archon.commands.blind_evaluation import (  # noqa: E402
+    blind_create_seal,
+    blind_create_verifier_snapshot,
+    blind_freeze,
+    blind_grade,
+    blind_verify_lean,
+)
 from archon.commands.update import update  # noqa: E402
 from archon.commands.discuss import discuss  # noqa: E402
 from archon.commands.refactor import app as refactor_app  # noqa: E402
@@ -127,6 +134,11 @@ app.command()(doctor)
 app.command()(dashboard)
 app.command()(prove)
 app.command("physics-formalize")(physics_formalize)
+app.command("blind-create-seal")(blind_create_seal)
+app.command("blind-create-verifier-snapshot")(blind_create_verifier_snapshot)
+app.command("blind-freeze")(blind_freeze)
+app.command("blind-grade")(blind_grade)
+app.command("blind-verify-lean")(blind_verify_lean)
 app.command()(setup)
 app.command()(update)
 app.command()(discuss)

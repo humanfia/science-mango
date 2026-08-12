@@ -9,6 +9,8 @@ statement/modeling redraft or a genuine infrastructure blocker.
 from __future__ import annotations
 
 import json
+import os
+import stat
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +18,7 @@ from typing import Any, Iterable
 
 from .review_source_contract import (
     build_review_source_contract,
+    normalized_review_source_certificate,
     provenance_from_review,
     source_assessment_from_review,
     stored_provenance_matches_current,
@@ -110,12 +113,37 @@ def load_proof_review_state(state_dir: Path) -> dict:
 def _write_state(state_dir: Path, state: dict[str, Any]) -> None:
     path = state_dir / STATE_FILENAME
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(
-        json.dumps(state, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
+    payload = (json.dumps(state, ensure_ascii=False, indent=2) + "\n").encode(
+        "utf-8"
     )
-    tmp.replace(path)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp.write_bytes(payload)
+        tmp.replace(path)
+        return
+    except PermissionError:
+        # See formalization_review_gate._write_state.  The only supported
+        # non-atomic layout is a controller-owned parent with this exact,
+        # pre-created solver-writable regular inode.
+        if tmp.exists() or tmp.is_symlink():
+            raise
+        try:
+            metadata = path.lstat()
+        except OSError:
+            raise
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+            raise
+        flags = os.O_WRONLY | os.O_TRUNC | os.O_CLOEXEC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(path, flags)
+        try:
+            with os.fdopen(descriptor, "wb", closefd=False) as stream:
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+        finally:
+            os.close(descriptor)
 
 
 def _normalize_token(value: Any) -> str:
@@ -534,7 +562,17 @@ def apply_proof_review(
             "evidence": evidence,
             "redraft_kind": redraft_kind,
             "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+            "proof_review_route": route,
             "source_contract": _milestone_source_provenance(row),
+            "blind_review_certificate": normalized_review_source_certificate(
+                row.get("proof_review")
+                if isinstance(row.get("proof_review"), dict)
+                else (
+                    row.get("findings", {}).get("proof_review")
+                    if isinstance(row.get("findings"), dict)
+                    else None
+                )
+            ),
             **_milestone_source_assessment(row),
             "infrastructure_request": infrastructure_request,
             "infrastructure_request_error": infrastructure_request_error,
@@ -688,7 +726,17 @@ def apply_target_proof_review(
         "evidence": evidence,
         "redraft_kind": redraft_kind,
         "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
+        "proof_review_route": route,
         "source_contract": _milestone_source_provenance(milestone),
+        "blind_review_certificate": normalized_review_source_certificate(
+            milestone.get("proof_review")
+            if isinstance(milestone.get("proof_review"), dict)
+            else (
+                milestone.get("findings", {}).get("proof_review")
+                if isinstance(milestone.get("findings"), dict)
+                else None
+            )
+        ),
         **_milestone_source_assessment(milestone),
         "infrastructure_request": infrastructure_request,
         "infrastructure_request_error": infrastructure_request_error,

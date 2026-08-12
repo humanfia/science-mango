@@ -72,6 +72,17 @@ class DisallowedToolsTest(unittest.TestCase):
         for keep in ("Bash", "Read", "Write", "Edit", "Grep", "Glob"):
             self.assertNotIn(keep, disallowed)
 
+    def test_isolated_descriptor_tools_are_added_without_swallowing_flags(self) -> None:
+        agent = ClaudeAgent(
+            model="kimi-k3[1m]",
+            extra_flags=("--bare", "--no-session-persistence"),
+            extra_disallowed_tools=("WebSearch", "WebFetch"),
+        )
+        flags = agent._build_flags("kimi-k3[1m]")
+        self.assertLess(flags.index("--bare"), flags.index("--disallowedTools"))
+        self.assertIn("WebSearch", _disallowed_in(flags))
+        self.assertIn("WebFetch", _disallowed_in(flags))
+
     def test_headless_cmd_carries_disallowed_default_backend(self) -> None:
         agent = ClaudeAgent(model="opus")
         cmd, _ = ClaudeBackend().build_headless(

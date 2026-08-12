@@ -14,6 +14,41 @@ from archon.commands.loop.parallel_formalization_review import (
 from archon.commands.loop.parallel_review import TargetReviewOutcome
 
 
+def _blind_contract(rel: str) -> dict:
+    digest = "b" * 64
+    return {
+        "schema_version": 3,
+        "required": True,
+        "available": True,
+        "valid": True,
+        "domain": "chemistry",
+        "evaluation_mode": "answer_blind",
+        "official_answer_seen": False,
+        "authority": "problem-only",
+        "target": rel,
+        "lean_sha256": digest,
+        "blueprint": "blueprint.tex",
+        "blueprint_sha256": digest,
+        "source_report": "problem.source.json",
+        "source_sha256": digest,
+        "entry_id": "problem_a",
+        "blind_record_sha256": digest,
+        "blind_candidate_record": "blind_candidates/problem_a.json",
+        "blind_candidate_sha256": digest,
+        "lean_result_contracts_sha256": digest,
+        "question_field": "question",
+        "question_sha256": digest,
+        "previous_blind_sha256": digest,
+        "previous_blind_hashes": [],
+        "images": [],
+        "errors": [],
+        "problem_evidence": {
+            "current_question": "Compute the requested quantity.",
+            "previous_parts": [],
+        },
+    }
+
+
 def _milestone(rel: str, *, passed: bool = True) -> dict:
     checks = {
         "source_faithfulness": {
@@ -81,6 +116,35 @@ def _milestone(rel: str, *, passed: bool = True) -> dict:
 
 
 class ParallelFormalizationReviewTest(unittest.TestCase):
+    def test_blind_prompt_uses_blind_schema_and_freeze_protocol(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "Problems" / "A.lean"
+            target.parent.mkdir(parents=True)
+            target.write_text("theorem a : True := by sorry\n")
+            prompt = build_target_formalization_review_prompt(
+                project_path=root,
+                state_dir=root / ".archon",
+                iter_dir=root / ".archon" / "iter-1",
+                iter_num=1,
+                target=target,
+                output_dir=root / ".archon" / "review",
+                preflight={"compiles": True},
+                prior_gate_record=None,
+                source_contract=_blind_contract("Problems/A.lean"),
+            )
+            self.assertIn("Mandatory answer-blind derivation protocol", prompt)
+            self.assertIn("symbolic specification", prompt)
+            self.assertIn("frozen before any later reveal", prompt)
+            for name in (
+                "answer_independence", "raw_derivation",
+                "reporting_rule_source", "tolerance_provenance",
+                "candidate_domain_provenance", "lean_result_binding",
+            ):
+                self.assertIn(name, prompt)
+            self.assertNotIn('"official_answer_alignment"', prompt)
+            self.assertNotIn('"source_inconsistency"', prompt)
+
     def test_prompt_is_target_scoped_and_allows_sorry_bodies(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

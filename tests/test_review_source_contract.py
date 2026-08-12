@@ -25,14 +25,98 @@ from archon.commands.loop.proof_review_gate import (
     load_proof_review_state,
 )
 from archon.commands.loop.review_source_contract import (
+    BLIND_SOURCE_AUTHORITY,
     SOURCE_AUTHORITY,
     SOURCE_INCONSISTENCY_KIND,
+    blind_result_payload_sha256,
     build_review_source_contract,
+    expected_nonnumeric_result_types,
+    expected_numeric_result_types,
+    lean_result_type_sha256,
     render_source_contract_prompt,
     source_contract_provenance,
     stored_provenance_matches_current,
     validate_review_source_certificate,
+    validate_blind_result_contracts,
 )
+
+
+REPORTING_POLICY = {
+    "intermediate_rounding": "forbidden",
+    "explicit_precision": "use_only_precision_requested_in_problem",
+    "default_final_display": "three_significant_figures",
+    "final_precision": {
+        "kind": "significant_figures",
+        "digits": 3,
+        "source": "uniform_blind_evaluation_default",
+    },
+    "tie_rule": "half_away_from_zero",
+    "raw_result_required": True,
+}
+MEASUREMENT_POLICY = {
+    "stipulated_constants": "exact_as_printed_unless_problem_calls_them_measured",
+    "measured_display_half_width": "one_half_of_last_displayed_quantum",
+    "derived_tolerances": "must_be_proved_from_source_measurement_intervals",
+}
+CANDIDATE_DOMAIN_POLICY = {
+    "allowed_sources": ["problem_text", "problem_image", "derived_theorem"],
+    "previous_part_results": "derive_inline_from_problem_only_material",
+    "unjustified_search_bounds": "forbidden",
+    "underdetermined_result": "must_be_reported",
+}
+
+
+def _classification_candidate() -> dict:
+    candidate = {
+        "schema_version": 1,
+        "protocol": "icho-answer-blind-v1",
+        "phase": "solve",
+        "evaluation_mode": "answer_blind",
+        "official_answer_seen": False,
+        "id": "icho_t5_a3",
+        "blind_record_sha256": "d" * 64,
+        "result_kind": "classification",
+        "raw_result": {
+            "expression": "derived from source",
+            "lean_expression": "BlindFixture.rawClassificationSpec",
+        },
+        "reported_result": {
+            "value": "IBr",
+            "text": "independent candidate",
+            "lean_expression": "BlindFixture.reportedClassificationSpec",
+            "rounding_rule": "half_away_from_zero",
+        },
+        "reporting_rule_source": REPORTING_POLICY,
+        "tolerance_provenance": {
+            "measurement_policy": MEASUREMENT_POLICY,
+            "derivation": "not_applicable_to_classification",
+        },
+        "candidate_domain_provenance": {
+            "candidate_domain_policy": CANDIDATE_DOMAIN_POLICY,
+            "derivation": {"kind": "source_enumeration", "evidence": "problem_text"},
+        },
+        "lean_declarations": [
+            "BlindFixture.identifyXRaw",
+            "BlindFixture.identifyXReported",
+        ],
+    }
+    types = expected_nonnumeric_result_types(candidate)
+    assert types is not None
+    candidate["lean_result_contracts"] = [
+        {
+            "role": role,
+            "declaration": declaration,
+            "expected_type": types[role],
+            "expected_type_sha256": lean_result_type_sha256(types[role]),
+            "result_payload_sha256": blind_result_payload_sha256(candidate, role),
+        }
+        for role, declaration in zip(
+            ("raw_result", "reported_result"),
+            candidate["lean_declarations"],
+            strict=True,
+        )
+    ]
+    return candidate
 
 
 class ReviewSourceContractTest(unittest.TestCase):
@@ -47,7 +131,14 @@ class ReviewSourceContractTest(unittest.TestCase):
         )
         self.target = self.project / "Problems" / "T5.lean"
         self.target.parent.mkdir()
-        self.target.write_text("theorem identify_X : True := by trivial\n")
+        self.target.write_text(
+            "namespace BlindFixture\n"
+            "def rawClassificationSpec : Prop := True\n"
+            "def reportedClassificationSpec : Prop := rawClassificationSpec\n"
+            "theorem identifyXRaw : rawClassificationSpec := by trivial\n"
+            "theorem identifyXReported : reportedClassificationSpec := by trivial\n"
+            "end BlindFixture\n"
+        )
         self.chapter = (
             self.project / "blueprint" / "src" / "chapters" / "Problems_T5.tex"
         )
@@ -94,6 +185,64 @@ class ReviewSourceContractTest(unittest.TestCase):
                     "previous_parts": previous,
                     "image_paths": ["images/t5.png"],
                 },
+                "previous_parts": previous,
+            }, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        candidate_dir = self.project / "blind_candidates"
+        candidate_dir.mkdir(exist_ok=True)
+        (candidate_dir / "icho_t5_a3.json").write_text(
+            json.dumps(_classification_candidate()),
+            encoding="utf-8",
+        )
+
+    def _write_blind_bundle(self, *, question_field: str = "question") -> None:
+        self.chapter.write_text(
+            "% archon:chemistry\n"
+            "% archon:covers Problems/T5.lean\n"
+            "% archon:source-report reports/t5.source.json\n"
+            "Blind problem statement only.\n",
+            encoding="utf-8",
+        )
+        previous = [{
+            "source_id": "T5-A3",
+            "question": "Determine the fatty-acid formula.",
+            "dependency_policy": "frozen_blind_proof_only",
+            "frozen_artifact_sha256": "a" * 64,
+        }]
+        entry = {
+            "id": "icho_t5_a3",
+            "blind_record_sha256": "d" * 64,
+            question_field: (
+                "Determine the molecular formula of X and support it with "
+                "calculations."
+            ),
+            "previous_parts": previous,
+            "image_paths": ["images/t5.png"],
+            "reporting_policy": REPORTING_POLICY,
+            "measurement_policy": MEASUREMENT_POLICY,
+            "candidate_domain_policy": CANDIDATE_DOMAIN_POLICY,
+            "requested_outputs": [{
+                "id": "molecular_formula",
+                "source_requirement": "molecular formula of X",
+                "kind": "formula",
+                "unit": "",
+                "reporting_policy": {
+                    "kind": "exact_symbolic",
+                    "source": "requested_outputs",
+                },
+            }],
+        }
+        self.report.write_text(
+            json.dumps({
+                "schema_version": 3,
+                "evaluation_mode": "answer_blind",
+                "official_answer_seen": False,
+                "phase": "solve",
+                "blind_record_sha256": "d" * 64,
+                "output_lean": "Problems/T5.lean",
+                "domain": "chemistry",
+                "entry": entry,
                 "previous_parts": previous,
             }, ensure_ascii=False),
             encoding="utf-8",
@@ -176,6 +325,44 @@ class ReviewSourceContractTest(unittest.TestCase):
         if source_inconsistency is not None:
             audit["source_inconsistency"] = source_inconsistency
         return audit
+
+    def _blind_source_audit(self, contract: dict) -> dict:
+        return {
+            "source_contract": source_contract_provenance(contract),
+            "blind_source_audit": {
+                name: {"status": "passed", "evidence": f"{name} audited"}
+                for name in (
+                    "answer_independence",
+                    "raw_derivation",
+                    "reporting_rule_source",
+                    "tolerance_provenance",
+                    "candidate_domain_provenance",
+                    "lean_result_binding",
+                )
+            },
+            "contract_audit": {
+                name: {"status": "passed", "evidence": f"{name} audited"}
+                for name in (
+                    "statement_scope",
+                    "hypothesis_derivability",
+                    "conclusion_alignment",
+                    "bridge_completeness",
+                )
+            },
+            "requested_outputs": [{
+                "source_requirement": "identify X from the problem data",
+                "lean_carrier": "identify_X",
+                "status": "covered",
+                "evidence": "the candidate follows from the raw derivation",
+            }],
+            "blueprint_conflicts": [],
+            "image_audit": [{
+                **image,
+                "inspected": True,
+                "evidence": "problem image inspected without answer context",
+            } for image in source_contract_provenance(contract)["images"]],
+            "chemistry_checks": self._chemistry_checks(),
+        }
 
     @staticmethod
     def _verified_source_inconsistency() -> dict:
@@ -286,6 +473,235 @@ class ReviewSourceContractTest(unittest.TestCase):
             self.assertIn("contract_audit", worker_prompt)
             self.assertIn(contract["source_sha256"], worker_prompt)
             self.assertIn(contract["answer_sha256"], worker_prompt)
+
+    def test_blind_contract_omits_answer_and_binds_problem_provenance(self):
+        self._write_blind_bundle()
+        contract = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        self.assertTrue(contract["valid"])
+        self.assertEqual(contract["authority"], BLIND_SOURCE_AUTHORITY)
+        self.assertEqual(contract["evaluation_mode"], "answer_blind")
+        self.assertFalse(contract["official_answer_seen"])
+        self.assertNotIn("answer_sha256", contract)
+        self.assertNotIn("official_evidence", contract)
+        provenance = source_contract_provenance(contract)
+        self.assertNotIn("answer_sha256", provenance)
+        self.assertEqual(provenance["question_sha256"], contract["question_sha256"])
+        self.assertEqual(provenance["entry_id"], "icho_t5_a3")
+        self.assertEqual(provenance["blind_record_sha256"], "d" * 64)
+        self.assertEqual(
+            contract["blind_candidate_record"],
+            "blind_candidates/icho_t5_a3.json",
+        )
+        self.assertEqual(len(provenance["blind_candidate_sha256"]), 64)
+        self.assertEqual(
+            provenance["previous_blind_hashes"][0]["sha256"], "a" * 64,
+        )
+        prompt = render_source_contract_prompt(contract)
+        self.assertIn("ANSWER-BLIND PROBLEM CONTRACT", prompt)
+        self.assertIn("Authority: problem-only", prompt)
+        self.assertNotIn("entry.answer", prompt)
+
+    def test_blind_candidate_is_required_and_hash_bound(self):
+        self._write_blind_bundle()
+        candidate = self.project / "blind_candidates" / "icho_t5_a3.json"
+        candidate.unlink()
+        missing = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        self.assertFalse(missing["valid"])
+        self.assertIn("candidate is missing", "; ".join(missing["errors"]))
+
+        self._write_bundle()
+        self._write_blind_bundle()
+        valid = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        provenance = source_contract_provenance(valid)
+        candidate.write_text(candidate.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        ok, reason = stored_provenance_matches_current(
+            project_path=self.project, target=self.target, provenance=provenance,
+        )
+        self.assertFalse(ok)
+        self.assertIn("blind_candidate_sha256 changed", reason)
+
+    def test_numeric_contract_preserves_exact_nonterminating_rational(self):
+        candidate = {
+            "schema_version": 1,
+            "protocol": "icho-answer-blind-v1",
+            "phase": "solve",
+            "evaluation_mode": "answer_blind",
+            "official_answer_seen": False,
+            "id": "icho_t4_a8",
+            "blind_record_sha256": "e" * 64,
+            "result_kind": "numeric",
+            "raw_result": {
+                "expression": "raw thermodynamic quotient",
+                "lean_expression": "IchoT4A8.rawEnergy",
+                "derivation_spec": "IchoT4A8.rawEnergyDerivedFromProblemData",
+                "certified_interval": {
+                    "lower": "4357297213499999999/619393",
+                    "upper": "4357297213500000001/619393",
+                },
+                "value": "4357297213500000000/619393",
+                "unit": "J mol^-1",
+            },
+            "reported_result": {
+                "value": "7.03e12",
+                "text": "7.03e12 J mol^-1",
+                "unit": "J mol^-1",
+                "precision": REPORTING_POLICY["final_precision"],
+                "rounding_rule": REPORTING_POLICY["tie_rule"],
+            },
+            "reporting_rule_source": REPORTING_POLICY,
+            "tolerance_provenance": {
+                "measurement_policy": MEASUREMENT_POLICY,
+                "derivation": "fixed final reporting quantum",
+            },
+            "candidate_domain_provenance": {
+                "candidate_domain_policy": CANDIDATE_DOMAIN_POLICY,
+                "derivation": {"kind": "derived_theorem", "evidence": "quotient bounds"},
+            },
+            "lean_declarations": [
+                "IchoT4A8.rawEnergy_exact",
+                "IchoT4A8.reportedEnergy",
+            ],
+        }
+        types = expected_numeric_result_types(candidate)
+        self.assertIsNotNone(types)
+        assert types is not None
+        self.assertIn("IchoT4A8.rawEnergyDerivedFromProblemData", types["raw_result"])
+        self.assertIn("4357297213499999999 : ℝ", types["raw_result"])
+        self.assertIn("4357297213500000001 : ℝ", types["raw_result"])
+        self.assertIn("/ 619393", types["raw_result"])
+        self.assertIn("(10000000000 : ℝ)", types["reported_result"])
+        candidate["lean_result_contracts"] = [
+            {
+                "role": role,
+                "declaration": declaration,
+                "expected_type": types[role],
+                "expected_type_sha256": lean_result_type_sha256(types[role]),
+                "result_payload_sha256": blind_result_payload_sha256(candidate, role),
+            }
+            for role, declaration in zip(
+                ("raw_result", "reported_result"),
+                candidate["lean_declarations"],
+                strict=True,
+            )
+        ]
+        self.assertEqual(validate_blind_result_contracts(candidate), [])
+
+        candidate["raw_result"]["value"] = "8714594427000000000/1238786"
+        self.assertIn(
+            "raw_result.value",
+            "; ".join(validate_blind_result_contracts(candidate)),
+        )
+
+    def test_arbitrary_candidate_bound_only_to_true_is_rejected(self):
+        candidate = _classification_candidate()
+        candidate["raw_result"]["lean_expression"] = "True"
+        candidate["reported_result"]["lean_expression"] = "True"
+        for contract in candidate["lean_result_contracts"]:
+            contract["expected_type"] = "True"
+            contract["expected_type_sha256"] = lean_result_type_sha256("True")
+            contract["result_payload_sha256"] = blind_result_payload_sha256(
+                candidate, contract["role"]
+            )
+        errors = "; ".join(validate_blind_result_contracts(candidate))
+        self.assertIn("safe fully-qualified Prop names", errors)
+
+    def test_blind_source_paths_cannot_escape_or_traverse_symlinks(self):
+        self._write_blind_bundle()
+        outside = self.project.parent / "sealed-solution.json"
+        outside.write_text('{"secret":"must not read"}', encoding="utf-8")
+        self.chapter.write_text(
+            "% archon:source-report ../../sealed-solution.json\n",
+            encoding="utf-8",
+        )
+        escaped = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        self.assertFalse(escaped["valid"])
+        self.assertIn("source report path is unsafe", "; ".join(escaped["errors"]))
+
+        self._write_blind_bundle()
+        link = self.project / "images" / "linked-secret.png"
+        link.symlink_to(outside)
+        loaded = json.loads(self.report.read_text(encoding="utf-8"))
+        loaded["entry"]["image_paths"] = ["images/linked-secret.png"]
+        self.report.write_text(json.dumps(loaded), encoding="utf-8")
+        linked = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        self.assertFalse(linked["valid"])
+        self.assertIn("source image path 1 is unsafe", "; ".join(linked["errors"]))
+
+    def test_blind_report_and_certificate_forbidden_fields_fail_closed(self):
+        self._write_blind_bundle()
+        loaded = json.loads(self.report.read_text())
+        loaded["entry"]["nested"] = {"marking_scheme": "secret"}
+        self.report.write_text(json.dumps(loaded), encoding="utf-8")
+        poisoned = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        self.assertFalse(poisoned["valid"])
+        self.assertIn("forbidden field", "; ".join(poisoned["errors"]))
+
+        self._write_blind_bundle(question_field="current_question")
+        contract = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        audit = self._blind_source_audit(contract)
+        self.assertEqual(
+            validate_review_source_certificate(audit, contract, passing=True), "",
+        )
+        audit["official_answer_alignment"] = {
+            "status": "aligned", "evidence": "looked at the key",
+        }
+        self.assertIn(
+            "forbidden field",
+            validate_review_source_certificate(audit, contract, passing=True),
+        )
+        for key in ("officialAnswer", "workedSolutions", "graderPayload"):
+            with self.subTest(key=key):
+                poisoned_audit = self._blind_source_audit(contract)
+                poisoned_audit["nested"] = {key: "secret"}
+                self.assertIn(
+                    "forbidden field",
+                    validate_review_source_certificate(
+                        poisoned_audit, contract, passing=True
+                    ),
+                )
+        nested_seen = self._blind_source_audit(contract)
+        nested_seen["nested"] = {"officialAnswerSeen": True}
+        self.assertIn(
+            "forbidden field",
+            validate_review_source_certificate(nested_seen, contract, passing=True),
+        )
+
+    def test_blind_audit_requires_all_six_passing_evidenced_checks(self):
+        self._write_blind_bundle()
+        contract = build_review_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        for name in (
+            "answer_independence",
+            "raw_derivation",
+            "reporting_rule_source",
+            "tolerance_provenance",
+            "candidate_domain_provenance",
+            "lean_result_binding",
+        ):
+            with self.subTest(name=name):
+                audit = self._blind_source_audit(contract)
+                audit["blind_source_audit"][name]["status"] = "failed"
+                self.assertIn(
+                    "failed blind_source_audit",
+                    validate_review_source_certificate(
+                        audit, contract, passing=True,
+                    ),
+                )
 
     def test_both_prompts_define_the_narrow_source_inconsistency_route(self):
         contract = build_review_source_contract(

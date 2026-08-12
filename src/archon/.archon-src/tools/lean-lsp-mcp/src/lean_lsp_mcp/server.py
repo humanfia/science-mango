@@ -29,6 +29,7 @@ from lean_lsp_mcp.client_utils import (
     setup_client_for_file,
     startup_client,
 )
+from lean_lsp_mcp.blind_contract import BlindContractError, blind_contract_hashes
 from lean_lsp_mcp.file_utils import get_file_contents
 from lean_lsp_mcp.instructions import INSTRUCTIONS
 from lean_lsp_mcp.loogle import LoogleManager, loogle_remote
@@ -98,8 +99,6 @@ DIAGNOSTIC_SEVERITY: Dict[int, str] = {1: "error", 2: "warning", 3: "info", 4: "
 _DISABLED_TOOLS_ENV = "LEAN_MCP_DISABLED_TOOLS"
 _INSTRUCTIONS_ENV = "LEAN_MCP_INSTRUCTIONS"
 _TOOL_DESCRIPTIONS_ENV = "LEAN_MCP_TOOL_DESCRIPTIONS"
-
-
 def _raise_invalid_path(file_path: str) -> None:
     """Raise a descriptive error when a file can't be resolved to a Lean project."""
     raise LeanToolError(
@@ -477,6 +476,37 @@ def rate_limited(category: str, max_requests: int, per_seconds: int):
         return wrapper
 
     return decorator
+
+
+@mcp.tool(
+    "lean_blind_result_contract",
+    annotations=ToolAnnotations(
+        title="Answer-Blind Result Contract",
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
+)
+def blind_result_contract(
+    candidate_json: Annotated[
+        str,
+        Field(
+            description=(
+                "Complete answer-blind candidate JSON object as text. The tool "
+                "does not read a path or any project/answer artifact."
+            )
+        ),
+    ],
+    role: Annotated[
+        str, Field(description="Contract role: raw_result or reported_result")
+    ],
+) -> dict[str, str]:
+    """Return the canonical Lean type and hashes for one blind result role."""
+
+    try:
+        return blind_contract_hashes(candidate_json, role)
+    except BlindContractError as exc:
+        raise LeanToolError(str(exc)) from exc
 
 
 @mcp.tool(

@@ -1024,6 +1024,10 @@ class ClaudeAgent:
     permission_mode: str = "bypassPermissions"
     skip_permissions: bool = True
     backend: ClaudeBackend = field(default_factory=ClaudeBackend)
+    # Optional descriptor-owned hardening for isolated runs.  These fields are
+    # empty on the legacy path, preserving the exact default command line.
+    extra_flags: tuple[str, ...] = ()
+    extra_disallowed_tools: tuple[str, ...] = ()
 
     # ── command assembly ─────────────────────────────────────────────
 
@@ -1033,6 +1037,7 @@ class ClaudeAgent:
             flags.append("--dangerously-skip-permissions")
         flags.extend(["--permission-mode", self.permission_mode])
         flags.extend(["--model", model])
+        flags.extend(self.extra_flags)
         # Force the blocking-Bash dispatch path: a HEADLESS agent must never
         # spawn subagents natively or schedule a wakeup, or it ends its turn
         # mid-dispatch and the orchestrator advances over in-flight work.
@@ -1045,8 +1050,11 @@ class ClaudeAgent:
         # swallow the prompt as a bogus tool name and the TUI would open with
         # no initial message (the bare-welcome-screen bug). Headless backends
         # pass the prompt via ``-p`` BEFORE the flags, so they are unaffected.
-        if include_disallowed and DISALLOWED_NATIVE_TOOLS:
-            flags.extend(["--disallowedTools", *DISALLOWED_NATIVE_TOOLS])
+        disallowed = tuple(
+            dict.fromkeys((*DISALLOWED_NATIVE_TOOLS, *self.extra_disallowed_tools))
+        )
+        if include_disallowed and disallowed:
+            flags.extend(["--disallowedTools", *disallowed])
         return flags
 
     def _resolve_provider(self) -> tuple[str, dict[str, str], str | None]:
@@ -1929,7 +1937,21 @@ def _runner_from_descriptor(
             chosen = _claude_backend_from_name(descriptor.backend)
         else:
             chosen = default_backend or ClaudeBackend()
-        return ClaudeAgent(model=model, role=role, backend=chosen)
+        def _raw_tuple(key: str) -> tuple[str, ...]:
+            value = descriptor.raw.get(key)
+            if isinstance(value, str):
+                return (value,) if value else ()
+            if isinstance(value, (list, tuple)):
+                return tuple(str(item) for item in value if str(item))
+            return ()
+
+        return ClaudeAgent(
+            model=model,
+            role=role,
+            backend=chosen,
+            extra_flags=_raw_tuple("claude_extra_args"),
+            extra_disallowed_tools=_raw_tuple("disallowed_tools"),
+        )
     if runner == "codex":
         from archon.agents.codex import CodexAgent
 

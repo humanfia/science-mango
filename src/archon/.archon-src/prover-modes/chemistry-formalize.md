@@ -20,6 +20,11 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
 
 1. Read `PROGRESS.md`, the assigned blueprint chapter, and the source report
    linked by `% archon:source-report`.
+   If the report declares `evaluation_mode: answer_blind`, treat that mode as
+   a hard integrity boundary: no official answer, marking scheme, solution
+   image/PDF, explanation, old formalization, or grader artifact is an
+   admissible input. If any such artifact is visible, stop and report an
+   integrity failure without reading or using it.
 2. Read every path in `entry.image_paths` (or the legacy `entry.image_path`).
    Images may carry different pages of a table, molecular structure, spectrum,
    graph, apparatus, or reaction scheme. Do not silently use only the first.
@@ -29,10 +34,12 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
    - supplied empirical data and governing chemical or mathematical laws;
    - previous-part conclusions that are explicitly reusable;
    - every conclusion requested by the current subquestion.
-4. Write an explicit assumption/target split. The recorded answer may guide
-   validation, but the current answer must not be copied into a premise,
-   structure field, definition, or opaque predicate that makes the theorem
-   true by unfolding.
+4. Write an explicit assumption/target split. Derive a candidate output from
+   the problem contract, then state and prove a specification for that
+   candidate; do not copy a recorded answer into a premise, structure field,
+   definition, selected case, search bound, or opaque predicate that makes the
+   theorem true by unfolding. In answer-blind mode there is no recorded answer
+   to consult, even for validation.
 5. Search before inventing APIs. Read `lean_search_packages` from the source
    report or `.archon/config.json`, pass that exact configured package list to
    LeanExplore, and search natural-language concepts plus likely Lean names.
@@ -66,8 +73,28 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
   language prerequisite may be restated as an explicit hypothesis; do not
   import another generated problem file when the policy forbids it.
 - Preserve alternatives and branches (species assignment, stereochemistry,
-  sign, oxidation state, root, pathway) rather than selecting the recorded
-  answer in a definition.
+  sign, oxidation state, root, pathway) rather than selecting one branch in a
+  definition before it has been derived.
+- In answer-blind mode, compute quantitative results end to end from the raw
+  source inputs without intermediate rounding. State the reporting rule before
+  choosing the displayed result: use precision explicitly requested by the
+  problem, otherwise the project policy recorded in the source report. Keep a
+  theorem for the raw value as well as the final reported value.
+- A numerical tolerance is admissible only when its width is mechanically
+  derived from a displayed measurement quantum, a source-specified uncertainty,
+  or a previously declared reporting cell. Never widen a tolerance after seeing
+  which decimal would make a target provable.
+- Every finite candidate set, charge/count bound, structural case split, and
+  image readout must name its provenance (`problem_text`, `problem_image`,
+  `problem_stated_fallback`,
+  `trusted_general_law`, or `derived_theorem`). If the supplied facts leave
+  infinitely many or multiple candidates, formalize that underdetermination
+  instead of silently importing a finite official-answer table.
+- In this run, previous-part certificates are not yet controller-bound. Derive
+  any needed earlier result inline from the problem-only material, or use only
+  a fallback value explicitly printed in the current problem. A previous
+  question alone is not its answer, and an unbound frozen proof is not an
+  admissible dependency.
 - Do not replace the requested result with `True`, a reflexive equality, an
   existence witness disconnected from the chemistry, or an unrelated numeric
   tautology.
@@ -76,6 +103,83 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
 
 Edit only the assigned `.lean` file and its task-result report. Do not edit the
 blueprint, source report, `PROGRESS.md`, shared modules, or dependency files.
+For an answer-blind source report, also write exactly one machine-readable
+`blind_candidates/<entry.id>.json` record. It is part of the solve artifact,
+not a grader result, and must contain:
+
+- `schema_version: 1`, `protocol: icho-answer-blind-v1`, `phase: solve`,
+  `evaluation_mode: answer_blind`, and `official_answer_seen: false`;
+- the source report's exact `id` and `blind_record_sha256`;
+- `result_kind` (`numeric`, `symbolic`, `classification`, or
+  `underdetermined`), raw and reported results, units, and Lean declaration
+  names;
+- `reporting_rule_source`, `tolerance_provenance`, and
+  `candidate_domain_provenance`.
+- `lean_result_contracts`, exactly two objects in `raw_result` then
+  `reported_result` order. Each object has `role`, an exact fully-qualified
+  `declaration`, `expected_type`, SHA-256 of its whitespace-normalized type in
+  `expected_type_sha256`, and `result_payload_sha256`. The payload digest is
+  computed by the pipeline helper over the exact candidate fields for that
+  role. `lean_declarations` must be the same two names in the same order.
+
+For a numeric result, put a fully-qualified source-derived raw `ℝ` expression
+in `raw_result.lean_expression`, a fully-qualified problem-specific `Prop` in
+`raw_result.derivation_spec`, and exact `lower`/`upper` strings in
+`raw_result.certified_interval`. The raw theorem proves that derivation spec
+together with both non-degenerate interval bounds; it must expose the unrounded formula or
+governing relation, not define a constant to be the submitted decimal. The
+reported contract proves `IChO2026Chem.Reporting.ReportsAtQuantum` for that
+same raw expression. The interval supports irrational/transcendental raw
+expressions without falsely equating them to a finite decimal, while
+`raw_result.value` is only a certified decimal/rational reference (an interval
+witness) lying inside the interval, never a claim that the raw carrier equals
+that finite value.
+Copy the complete source `reporting_policy` object into `reporting_rule_source`,
+copy its `final_precision` object into `reported_result.precision`, use its
+`tie_rule`, and include the complete source `measurement_policy` under
+`tolerance_provenance.measurement_policy`.  Set
+`candidate_domain_provenance.candidate_domain_policy` to the source report's
+complete candidate-domain policy and give a nonempty structured `derivation`
+explaining every bound/case. For a nonnumeric result, both
+`lean_expression` fields must be fully-qualified problem-specific `Prop`
+declarations; the generated exact type includes the role payload digest and
+that semantic proposition. A theorem of `True`, a reflexive result disconnected
+from the problem, or an unrelated tautology is not a result contract.
+
+Use `result_kind: numeric` only when the current subquestion has exactly one
+scalar numerical output. If it requests several numbers, a number together
+with a classification/formula/structure, or any other mixed output, use one
+`result_kind: symbolic` record whose problem-specific raw and reported `Prop`
+declarations are conjunctions or structures covering every requested output.
+The Review `requested_outputs` audit must map every source requirement to a
+field/conjunct of those declarations. Never discard secondary outputs merely
+to fit the scalar numeric schema. Each numeric field inside such a symbolic
+result must still include an exact unrounded equality and its own
+`ReportsAtQuantum` proposition; human-readable candidate text is not a proof.
+The source report's `requested_outputs` list is a controller-fixed inventory.
+Cover every item, in order, and use that item's own `reporting_policy`: an
+exact formula/classification/integer is not rounded, while each numeric output
+uses only its own declared decimal-place or significant-figure rule.
+
+Compute hashes exactly as UTF-8 lowercase SHA-256. Normalize an
+`expected_type` with Unicode NFKC and collapse every whitespace run to one
+ASCII space before hashing. For a role payload, serialize the following object
+as UTF-8 JSON with keys sorted, no whitespace, and `ensure_ascii=false`: common
+fields `schema_version`, `protocol`, `id`, `blind_record_sha256`, `result_kind`,
+and `role`, plus `raw_result` for the raw role; for the reported role also add
+`reported_result`, `reporting_rule_source`, and `tolerance_provenance`. Hash
+those bytes with no trailing newline. The reported-role payload also includes
+`candidate_domain_provenance`. If available, use
+the read-only `lean_blind_result_contract` MCP tool for each role. It accepts
+the complete candidate JSON as text and returns the canonical `expected_type`,
+`expected_type_sha256`, and `result_payload_sha256` without reading any file,
+environment variable, or official answer. Do not try to calculate SHA-256 by
+hand. If shell access happens to be available, the equivalent trusted helpers
+are `lean_result_type_sha256` and `blind_result_payload_sha256` from
+`archon.commands.loop.review_source_contract`.
+
+Never put an official answer/alignment verdict in this record. Freeze and
+grading occur later in a separate trusted phase.
 
 The task result must record:
 
@@ -83,6 +187,9 @@ The task result must record:
 - every image path inspected and the facts taken from it;
 - LeanExplore queries, configured package filters, and verified declarations;
 - source-to-Lean bridge obligations and their carriers;
+- in answer-blind mode: the raw derivation, reporting-rule source, tolerance
+  provenance, candidate-domain provenance, and whether the source is
+  underdetermined;
 - empirical facts represented as data or hypotheses;
 - local abstractions and a countermodel-sufficiency check;
 - any proposed shared-infrastructure request, including module, declarations,

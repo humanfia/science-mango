@@ -8,6 +8,7 @@ entry; `archon loop` owns Lean generation and proof.
 from __future__ import annotations
 
 import json
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -125,7 +126,10 @@ The uncertainty is $\sigma$.
             self.assertFalse(lean_path.exists())
             self.assertTrue(report_path.exists())
             report = json.loads(report_path.read_text(encoding="utf-8"))
-            self.assertEqual(report["schema_version"], 2)
+            self.assertEqual(report["schema_version"], 3)
+            self.assertEqual(report["evaluation_mode"], "visible")
+            self.assertTrue(report["official_answer_seen"])
+            self.assertEqual(report["phase"], "solve")
             self.assertEqual(report["path_base"], "project")
             self.assertEqual(report["project_path"], ".")
             self.assertEqual(report["output_lean"], "PhysicsProblems/p001.lean")
@@ -159,6 +163,237 @@ The uncertainty is $\sigma$.
             self.assertTrue((project / ".archon" / "prover-modes" / "physics.md").exists())
             self.assertTrue(
                 (project / ".archon" / "prover-modes" / "physics-formalize.md").exists()
+            )
+
+    def test_answer_blind_rejects_forbidden_keys_at_any_nesting_depth(self):
+        forbidden_keys = [
+            "answer",
+            "answers",
+            "solution_notes",
+            "marking_scheme",
+            "rubric",
+            "explanation",
+            "reasoning",
+            "reusable_conclusions",
+            "officialAnswer",
+            "finalAnswer",
+            "workedSolution",
+            "graderPayload",
+            "officialAnswerSeen",
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            input_jsonl = root / "blind.jsonl"
+            for forbidden_key in forbidden_keys:
+                with self.subTest(forbidden_key=forbidden_key):
+                    input_jsonl.write_text(
+                        json.dumps(
+                            {
+                                "index": "blind-1",
+                                "question": "Determine the force from the stated data.",
+                                "metadata": {
+                                    "nested": [{forbidden_key: "SECRET-SOLUTION"}]
+                                },
+                            }
+                        )
+                        + "\n",
+                        encoding="utf-8",
+                    )
+                    cmd = PhysicsFormalizeCommand(
+                        str(project),
+                        input_jsonl=input_jsonl,
+                        evaluation_mode="answer_blind",
+                        dry_run=True,
+                    )
+                    with self.assertRaises(Exit) as caught:
+                        cmd.run()
+                    self.assertEqual(caught.exception.exit_code, 1)
+
+    def test_answer_blind_rejects_previous_part_answer_instead_of_falling_back(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            input_jsonl = root / "blind-previous.jsonl"
+            input_jsonl.write_text(
+                json.dumps(
+                    {
+                        "index": "part-2",
+                        "problem_id": "problem",
+                        "part_id": "2",
+                        "question": "Use a prior independently proved relation.",
+                        "previous_parts": [
+                            {
+                                "source_id": "part-1",
+                                "question": "Find the prior relation.",
+                                "answer": "SECRET-PREVIOUS-ANSWER",
+                            }
+                        ],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                input_jsonl=input_jsonl,
+                as_problem_set=True,
+                evaluation_mode="answer_blind",
+                dry_run=True,
+            )
+            with self.assertRaises(Exit) as caught:
+                cmd.run()
+            self.assertEqual(caught.exception.exit_code, 1)
+
+    def test_answer_blind_blueprint_reports_runtime_and_rethlas_are_solution_free(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            dataset = root / "dataset"
+            dataset.mkdir()
+            input_jsonl = dataset / "blind.jsonl"
+            secret = "SECRET-OFFICIAL-VALUE-42"
+            raw_entry = {
+                "id": "grader-blind-42",
+                "index": "blind-42",
+                "question": "A 3 kg body accelerates at 4 m/s^2. Determine force.",
+                # Unknown columns are not trusted merely because their key
+                # is not one of the known solution-side names.
+                "private_note": secret,
+                "previous_parts": [
+                    {
+                        "source_id": "blind-41",
+                        "part_id": "1",
+                        "question": "Establish the governing law.",
+                        "dependency_policy": "independently_frozen_solve_artifact",
+                        "sha256": "abc123",
+                        "private_note": secret,
+                    }
+                ],
+            }
+            input_jsonl.write_text(
+                json.dumps(raw_entry) + "\n",
+                encoding="utf-8",
+            )
+            work_dir = project / ".archon" / "physics-formalize" / "blind"
+            completed = type(
+                "Result",
+                (),
+                {"returncode": 0, "stdout": "Derive it from F = m*a.", "stderr": ""},
+            )()
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                input_jsonl=input_jsonl,
+                evaluation_mode="answer_blind",
+                work_dir=work_dir,
+                out_dir=Path("BlindProblems"),
+                report_dir=Path("reports/blind"),
+                with_rethlas_blueprint=True,
+                rethlas_command="rethlas-test",
+            )
+            with mock.patch(
+                "archon.commands.physics_formalize.subprocess.run",
+                return_value=completed,
+            ) as run_rethlas:
+                cmd.run()
+
+            report_path = project / "reports" / "blind" / "problem_blind-42.source.json"
+            chapter_path = (
+                project
+                / "blueprint"
+                / "src"
+                / "chapters"
+                / "BlindProblems_problem_blind-42.tex"
+            )
+            latest_path = project / ".archon" / "physics-formalize" / "latest.json"
+            manifest_path = work_dir / "batch_manifest.json"
+            artifacts = {
+                "report": report_path.read_text(encoding="utf-8"),
+                "blueprint": chapter_path.read_text(encoding="utf-8"),
+                "runtime": latest_path.read_text(encoding="utf-8"),
+                "manifest": manifest_path.read_text(encoding="utf-8"),
+            }
+            for name, payload_text in artifacts.items():
+                with self.subTest(artifact=name):
+                    self.assertNotIn(secret, payload_text)
+                    self.assertNotIn("Recorded answer/context", payload_text)
+
+            report = json.loads(artifacts["report"])
+            latest = json.loads(artifacts["runtime"])
+            manifest = json.loads(artifacts["manifest"])
+            for metadata in (report, latest, manifest):
+                self.assertEqual(metadata["schema_version"], 3)
+                self.assertEqual(metadata["evaluation_mode"], "answer_blind")
+                self.assertFalse(metadata["official_answer_seen"])
+                self.assertEqual(metadata["phase"], "solve")
+            self.assertNotIn("private_note", report["entry"])
+            self.assertNotIn("answer", report["entry"])
+            self.assertNotIn("answer", latest["entries"][0])
+            canonical = json.dumps(
+                raw_entry,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ) + "\n"
+            expected_blind_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+            self.assertEqual(report["blind_record_sha256"], expected_blind_hash)
+            self.assertEqual(
+                report["entry"]["blind_record_sha256"],
+                expected_blind_hash,
+            )
+            self.assertEqual(report["entry"]["id"], "grader-blind-42")
+
+            rethlas_payload = json.loads(run_rethlas.call_args.kwargs["input"])
+            self.assertNotIn("answer", rethlas_payload)
+            self.assertNotIn(secret, json.dumps(rethlas_payload))
+            self.assertEqual(
+                rethlas_payload["previous_parts"][0]["sha256"],
+                "abc123",
+            )
+
+    def test_answer_blind_single_problem_rejects_answer_option(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                question="Determine force.",
+                answer="SECRET-ANSWER",
+                evaluation_mode="answer_blind",
+                dry_run=True,
+            )
+            with self.assertRaises(Exit) as caught:
+                cmd.run()
+            self.assertEqual(caught.exception.exit_code, 1)
+
+    def test_visible_rethlas_payload_retains_legacy_answer_context(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            project = _make_project(root)
+            cmd = PhysicsFormalizeCommand(
+                str(project),
+                with_rethlas_blueprint=True,
+                rethlas_command="rethlas-test",
+                evaluation_mode="visible",
+            )
+            completed = type(
+                "Result", (), {"returncode": 0, "stdout": "ok", "stderr": ""}
+            )()
+            entry = {
+                "index": "visible-1",
+                "question": "Question",
+                "answer": "VISIBLE-ANSWER",
+                "previous_parts": [{"answer": "VISIBLE-PREVIOUS"}],
+            }
+            with mock.patch(
+                "archon.commands.physics_formalize.subprocess.run",
+                return_value=completed,
+            ) as run_rethlas:
+                cmd._run_rethlas_blueprint_agent(entry)
+            payload = json.loads(run_rethlas.call_args.kwargs["input"])
+            self.assertEqual(payload["answer"], "VISIBLE-ANSWER")
+            self.assertEqual(
+                payload["previous_parts"][0]["answer"], "VISIBLE-PREVIOUS"
             )
 
     def test_single_image_is_portable_but_runtime_metadata_stays_absolute(self):

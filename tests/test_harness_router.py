@@ -251,6 +251,26 @@ class BuildRunnerTest(unittest.TestCase):
         self.assertIsInstance(r, ClaudeAgent)
         self.assertEqual(r.model, "haiku")
 
+    def test_explicit_claude_descriptor_applies_isolation_flags(self):
+        cfg = ProjectConfig(
+            raw={
+                "harnesses": {
+                    "blind-k3": {
+                        "runner": "claude-code",
+                        "model": "kimi-k3[1m]",
+                        "claude_extra_args": ["--bare", "--no-session-persistence"],
+                        "disallowed_tools": ["WebSearch", "WebFetch"],
+                    }
+                },
+                "loop": {"harness": "blind-k3"},
+            }
+        )
+        r = build_runner(role="prover", model="opus", cfg=cfg)
+        self.assertIsInstance(r, ClaudeAgent)
+        self.assertEqual(r.model, "kimi-k3[1m]")
+        self.assertEqual(r.extra_flags, ("--bare", "--no-session-persistence"))
+        self.assertEqual(r.extra_disallowed_tools, ("WebSearch", "WebFetch"))
+
     def test_unknown_harness_raises(self):
         cfg = ProjectConfig(
             raw={

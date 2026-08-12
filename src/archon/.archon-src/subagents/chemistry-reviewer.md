@@ -26,6 +26,10 @@ task-result evidence. Write only your assigned review report.
 
 1. Confirm the blueprint covers the assigned Lean file and the source report
    belongs to the same problem/part.
+   When the report is `evaluation_mode: answer_blind`, the authority is the
+   problem-only contract. Reject any review context containing an official
+   answer, rubric/solution artifact, old proof, grader result, or other model's
+   output; do not read through the contamination.
 2. Read every `entry.image_paths` item, falling back to `entry.image_path` for
    older reports. Verify that facts from tables, structures, plots, spectra,
    schemes, and apparatus are neither omitted nor inferred from an unseen page.
@@ -35,7 +39,7 @@ task-result evidence. Write only your assigned review report.
 4. Build an assumption/target split:
    - governing mathematical/chemical relations;
    - source-supplied empirical data and image readouts;
-   - explicitly reusable previous-part conclusions;
+   - earlier results rederived inline or a fallback printed in the problem;
    - every output requested by the current subquestion.
 5. Reject answer smuggling. The current target must not already appear in a
    premise, record field, local definition, opaque `...Law`/`Valid...`
@@ -58,6 +62,35 @@ task-result evidence. Write only your assigned review report.
    explicit hypotheses, but forbidden generated-problem imports are blockers.
 9. At proof stage, confirm signature preservation, direct Lean compilation,
    zero active `sorry`/`admit`, and no axiom laundering or trivialized proof.
+10. In answer-blind mode, separately audit:
+    - a raw, unrounded end-to-end derivation;
+    - the source of the final reporting/rounding rule;
+    - mechanical provenance for every tolerance or uncertainty interval;
+    - provenance and completeness of every candidate domain;
+    - proof that any previous-part value was rederived inline or was explicitly
+      printed as a fallback in the current problem (no prior certificate is
+      controller-bound in this run).
+    Read `blind_candidates/<entry.id>.json` as an untrusted generated artifact;
+    verify its source hash, raw/reported values, provenance fields, and Lean
+    declarations agree with the report and theorem contract. Recompute each
+    `lean_result_contracts` payload digest and normalized exact-type digest;
+    require the exact fully-qualified declarations to prove those types, and
+    reject `True`, reflexive guessed values, or unrelated tautologies. Confirm
+    the candidate has no official-answer or grader fields.
+    A post-hoc decimal interval, staged rounding introduced only to cross a
+    rounding boundary, or solution-only finite search domain is a must-fix
+    modeling failure.
+    Require `result_kind: numeric` to represent exactly one scalar requested
+    output. For a multi-output or mixed-output subquestion, require a single
+    problem-specific symbolic proposition/structure covering every output and
+    map each requested output to its exact conjunct or field. Treat a scalar
+    candidate that silently omits another requested result as failed. Each
+    numeric field in a symbolic multi-output result still needs an exact raw
+    equality and its own `ReportsAtQuantum` proposition; prose is insufficient.
+    Compare against the controller-fixed `requested_outputs` inventory in
+    order. Verify that every field/conjunct uses its own predeclared reporting
+    policy; do not reuse one decimal-place rule for an integer, formula,
+    classification, or another numeric output.
 
 ## Severity and routing
 
@@ -69,6 +102,8 @@ Classify as must-fix-this-iteration:
 - underdetermined opaque relation or missing foundational bridge;
 - invented empirical chemistry fact;
 - dropped units/error/branch/species conditions that change the claim;
+- post-hoc tolerances, unannounced intermediate rounding, or candidate-domain
+  bounds without problem/derived provenance;
 - proof-stage signature weakening, active placeholder, or new axiom.
 
 Use `needs_redraft` for a defective theorem contract, `retry_proof` for a sound

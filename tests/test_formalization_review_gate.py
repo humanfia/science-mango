@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 from types import SimpleNamespace
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from archon.commands.loop.formalization_review_gate import (
     enforce_progress_review_gate,
     load_gate_state,
 )
+from archon.commands.loop import formalization_review_gate
 from archon.commands.loop.review_source_contract import (
     build_review_source_contract,
     source_contract_provenance,
@@ -35,6 +37,20 @@ class FormalizationReviewGateTests(unittest.TestCase):
 
     def tearDown(self):
         self.tempdir.cleanup()
+
+    def test_state_writer_updates_precreated_inode_when_parent_blocks_tempfile(self):
+        path = self.state / "formalization-review-gate.json"
+        path.write_text("{}\n", encoding="utf-8")
+        inode = path.stat().st_ino
+        with mock.patch.object(
+            Path, "write_bytes", side_effect=PermissionError("controller-owned parent")
+        ):
+            formalization_review_gate._write_state(
+                self.state, {"version": 1, "targets": {}}
+            )
+        self.assertEqual(path.stat().st_ino, inode)
+        self.assertEqual(json.loads(path.read_text()), {"version": 1, "targets": {}})
+        self.assertFalse(path.with_suffix(".json.tmp").exists())
 
     def _write_progress(self, stage):
         self.progress.write_text(

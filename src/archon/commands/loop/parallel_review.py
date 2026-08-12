@@ -22,6 +22,7 @@ from .proof_review_gate import (
 from .review_source_contract import (
     SOURCE_INCONSISTENCY_KIND,
     build_review_source_contract,
+    is_answer_blind_contract,
     render_source_contract_prompt,
     source_contract_provenance,
     validate_review_source_certificate,
@@ -207,6 +208,90 @@ def build_target_review_prompt(
     )
     source_block = render_source_contract_prompt(source_contract)
     source_provenance = source_contract_provenance(source_contract)
+    answer_blind = is_answer_blind_contract(source_contract)
+    if answer_blind:
+        candidate_source_line = (
+            "- Blind solve candidate record (untrusted generated artifact; read "
+            "completely): "
+            f"{project_path / str(source_contract.get('blind_candidate_record') or 'MISSING')}"
+        )
+        source_protocol = """Mandatory answer-blind derivation protocol:
+1. Audit the symbolic specification against only the problem text and images.
+   Earlier results must be rederived inline unless the current problem prints
+   a fallback; no previous certificate is controller-bound. No answer-bearing source may be
+   opened or searched; generated interpretations are untrusted.
+2. Audit the independently derived candidate and raw end-to-end proof. Every
+   reporting rule, tolerance, and candidate-domain restriction must come from
+   the problem or a predeclared mechanical rule, never a known result.
+3. Verify that the symbolic specification, candidate, reporting rule, Lean
+   carrier, and hashes were frozen before any later reveal or scoring.
+Read the solve candidate JSON and require schema_version=1, id and
+blind_record_sha256 equal the source contract, its raw/reported values and Lean
+declarations equal the reviewed theorem/proof, and reporting-rule, tolerance,
+and candidate-domain provenance are present. Recompute both
+lean_result_contracts payload and normalized exact-type hashes; reject a carrier
+of True or an unrelated tautology. It is generated evidence, not a source of
+problem facts.
+Numeric candidates are valid only for a single scalar requested output. For a
+multi-output or mixed-output subquestion, require a problem-specific symbolic
+conjunction/structure and map every requested output to its exact field or
+conjunct; reject a scalar record that omits any requested output. Every numeric
+field inside such a symbolic result must still carry its own exact raw equality
+and `ReportsAtQuantum` reporting proposition.
+Both the blind source audit and contract audit must pass. Missing provenance
+fails closed."""
+        chemistry_protocol = """For chemistry, enumerate every problem-requested
+output; inspect every problem image; check chemical identity, formula/molar-mass
+consistency, conservation, units, structures/stereochemistry, identification
+uniqueness, raw arithmetic, and mechanical significant-figure rules. Reject
+answer-shaped definitions, preselected witness tables, post-hoc tolerances,
+staged rounding chosen to reach a candidate, or an ungrounded finite candidate
+domain. Do not consult an official answer, worked solution, marking scheme,
+rubric, answer key, or visible run."""
+        source_audit_schema = """    \"blind_source_audit\": {
+      \"answer_independence\": {\"status\":\"passed|failed\",\"evidence\":\"<why no answer-bearing input influenced statement or proof>\"},
+      \"raw_derivation\": {\"status\":\"passed|failed\",\"evidence\":\"<end-to-end unrounded/symbolic derivation carrier>\"},
+      \"reporting_rule_source\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-stated or predeclared mechanical reporting rule>\"},
+      \"tolerance_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<measurement/rounding derivation for every tolerance>\"},
+      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-derived domain or explicit underdetermination>\"},
+      \"lean_result_binding\": {\"status\":\"passed|failed\",\"evidence\":\"<payload hash, exact type hash, and nontrivial Lean result carrier>\"}
+    },"""
+        alignment_schema = ""
+        conflict_resolution_status = "resolved_in_favor_of_problem_source"
+    else:
+        candidate_source_line = ""
+        source_protocol = """Mandatory source-first two-pass protocol:
+1. Before using the blueprint, traces, task results, or prior gate rationale,
+   compare only the official source contract/images against the Lean statement
+   and proof. Record this adversarial pass in independent_source_audit; treat
+   generated interpretations as untrusted during this pass.
+2. Only after fixing that verdict, inspect the blueprint and generated reports
+   and record contract/bridge consistency in contract_audit. The second pass
+   may expose conflicts but may not revise official-source facts from pass one.
+Both audit groups must pass before route=solved."""
+        chemistry_protocol = """For chemistry, perform the full chemistry-reviewer
+audit inside this target Review: enumerate every requested output; inspect every
+image; check chemical identity and invariants (including formula/molar-mass
+consistency and conservation), units, structures/stereochemistry, identification
+uniqueness, answer smuggling through definitions/cardinalities/tables, and official
+rounding/significant-figure conventions. Record every blueprint/Lean conflict.
+An official-answer conflict is a modeling failure even when Lean compiles and
+even when the blueprint and generated reports agree with one another, except
+for the verified internal-source inconsistency route defined in the official
+source contract. That narrow route requires the official givens or printed
+intermediates themselves to contradict the final official claim and Lean to
+carry the honest derivation and conflict explicitly."""
+        source_audit_schema = """    \"independent_source_audit\": {
+      \"requested_outputs\": {\"status\":\"passed|failed\",\"evidence\":\"...\"},
+      \"official_answer\": {\"status\":\"passed|failed\",\"evidence\":\"...\"},
+      \"image_grounding\": {\"status\":\"passed|failed\",\"evidence\":\"...\"},
+      \"domain_invariants\": {\"status\":\"passed|failed\",\"evidence\":\"...\"},
+      \"reporting_convention\": {\"status\":\"passed|failed\",\"evidence\":\"...\"},
+      \"adversarial_counterexample\": {\"status\":\"passed|failed\",\"evidence\":\"...\"}
+    },"""
+        alignment_schema = f"""    \"official_answer_alignment\": {{\"status\":\"aligned|conflict\",\"evidence\":\"<compare Lean result and reporting convention to official rubric>\"}},
+    \"source_inconsistency\": {{\"kind\":\"{SOURCE_INCONSISTENCY_KIND}\",\"status\":\"verified\",\"official_claim\":\"<official final claim>\",\"derived_claim\":\"<claim mathematically derived from official givens/intermediates>\",\"derivation_carrier\":\"<Lean declaration carrying the derivation and conflict>\",\"evidence\":\"<exact source arithmetic and Lean evidence>\"}} | null,"""
+        conflict_resolution_status = "resolved_in_favor_of_official_source"
     shared_policy = load_shared_infrastructure_policy(project_path)
     shared_roots = [path.as_posix() for path in shared_policy.module_roots]
     blueprint_label = f"{profile.display_name.title()} blueprint"
@@ -227,6 +312,7 @@ Assigned target (the only target you may review):
 
 Read these bounded sources completely:
 - Source report: {source_contract.get("source_report") or "MISSING"}
+{candidate_source_line}
 - Every source image with its expected digest:
   {json.dumps(source_contract.get("images", []), ensure_ascii=False)}
 - Lean statement/proof: {target}
@@ -239,15 +325,7 @@ Read these bounded sources completely:
 
 {source_block}
 
-Mandatory source-first two-pass protocol:
-1. Before using the blueprint, traces, task results, or prior gate rationale,
-   compare only the official source contract/images against the Lean statement
-   and proof. Record this adversarial pass in independent_source_audit; treat
-   generated interpretations as untrusted during this pass.
-2. Only after fixing that verdict, inspect the blueprint and generated reports
-   and record contract/bridge consistency in contract_audit. The second pass
-   may expose conflicts but may not revise official-source facts from pass one.
-Both audit groups must pass before route=solved.
+{source_protocol}
 
 Review the actual theorem contract and proof for:
 1. direct Lean compilation and zero active sorry/admit/axiom laundering,
@@ -256,18 +334,7 @@ Review the actual theorem contract and proof for:
 5. whether the current prover trace and newest matching task result support
    the claimed proof.
 
-For chemistry, perform the full chemistry-reviewer audit inside this target
-Review: enumerate every requested output; inspect every image; check chemical
-identity and invariants (including formula/molar-mass consistency and
-conservation), units, structures/stereochemistry, identification uniqueness,
-answer smuggling through definitions/cardinalities/tables, and official
-rounding/significant-figure conventions. Record every blueprint/Lean conflict.
-An official-answer conflict is a modeling failure even when Lean compiles and
-even when the blueprint and generated reports agree with one another, except
-for the verified internal-source inconsistency route defined in the official
-source contract. That narrow route requires the official givens or printed
-intermediates themselves to contradict the final official claim and Lean to
-carry the honest derivation and conflict explicitly.
+{chemistry_protocol}
 
 Task-result layouts can be nested or flattened. Prefer the newest matching
 artifact whose contents agree with this iteration's trace. Do not fail a target
@@ -300,14 +367,7 @@ Write exactly one JSON object line to {milestone}. Required shape:
     "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
     "infrastructure_request": null,
     "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
-    "independent_source_audit": {{
-      "requested_outputs": {{"status":"passed|failed","evidence":"..."}},
-      "official_answer": {{"status":"passed|failed","evidence":"..."}},
-      "image_grounding": {{"status":"passed|failed","evidence":"..."}},
-      "domain_invariants": {{"status":"passed|failed","evidence":"..."}},
-      "reporting_convention": {{"status":"passed|failed","evidence":"..."}},
-      "adversarial_counterexample": {{"status":"passed|failed","evidence":"..."}}
-    }},
+{source_audit_schema}
     "contract_audit": {{
       "statement_scope": {{"status":"passed|failed","evidence":"..."}},
       "hypothesis_derivability": {{"status":"passed|failed","evidence":"..."}},
@@ -315,9 +375,8 @@ Write exactly one JSON object line to {milestone}. Required shape:
       "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
     }},
     "requested_outputs": [{{"source_requirement":"<exact requested output>","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"..."}}],
-    "official_answer_alignment": {{"status":"aligned|conflict","evidence":"<compare Lean result and reporting convention to official rubric>"}},
-    "source_inconsistency": {{"kind":"{SOURCE_INCONSISTENCY_KIND}","status":"verified","official_claim":"<official final claim>","derived_claim":"<claim mathematically derived from official givens/intermediates>","derivation_carrier":"<Lean declaration carrying the derivation and conflict>","evidence":"<exact source arithmetic and Lean evidence>"}} | null,
-    "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"resolved_in_favor_of_official_source|unresolved|failed","evidence":"..."}}],
+{alignment_schema}
+    "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"{conflict_resolution_status}|unresolved|failed","evidence":"..."}}],
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
       "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},

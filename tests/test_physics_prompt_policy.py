@@ -11,6 +11,15 @@ PHYSICS_PROVER_MODE = (
 PHYSICS_REVIEWER = (
     ROOT / "src" / "archon" / ".archon-src" / "subagents" / "physics-reviewer.md"
 )
+CHEMISTRY_FORMALIZE_MODE = (
+    ROOT / "src" / "archon" / ".archon-src" / "prover-modes" / "chemistry-formalize.md"
+)
+CHEMISTRY_PROVER_MODE = (
+    ROOT / "src" / "archon" / ".archon-src" / "prover-modes" / "chemistry.md"
+)
+CHEMISTRY_REVIEWER = (
+    ROOT / "src" / "archon" / ".archon-src" / "subagents" / "chemistry-reviewer.md"
+)
 PYPROJECT = ROOT / "pyproject.toml"
 
 
@@ -118,3 +127,40 @@ def test_package_data_does_not_ship_copied_auto_formalizer():
     pyproject = PYPROJECT.read_text(encoding="utf-8")
 
     assert '"formalizer/**/*"' not in pyproject
+
+
+def test_chemistry_answer_blind_policy_requires_raw_derivation_and_provenance():
+    formalize = CHEMISTRY_FORMALIZE_MODE.read_text(encoding="utf-8")
+    prover = CHEMISTRY_PROVER_MODE.read_text(encoding="utf-8")
+    reviewer = CHEMISTRY_REVIEWER.read_text(encoding="utf-8")
+
+    assert "The recorded answer may guide validation" not in formalize
+    for phrase in [
+        "evaluation_mode: answer_blind",
+        "official answer",
+        "without intermediate rounding",
+        "width is mechanically",
+        "candidate set",
+        "underdetermination",
+        "frozen proof",
+        "blind_candidates/<entry.id>.json",
+        "lean_blind_result_contract",
+        "Do not try to calculate SHA-256",
+    ]:
+        assert phrase in formalize
+    for phrase in [
+        "evaluation_mode: answer_blind",
+        "raw end-to-end calculation",
+            "or add a finite",
+            "underdetermination",
+            "blind_candidates/<entry.id>.json",
+    ]:
+        assert phrase in prover
+    for phrase in [
+        "evaluation_mode: answer_blind",
+        "raw, unrounded end-to-end derivation",
+        "reporting/rounding rule",
+        "candidate domain",
+        "post-hoc tolerances",
+    ]:
+        assert phrase in reviewer
