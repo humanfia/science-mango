@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "qcode-bounded-target-aware-ladder-design-v1",
+  "implementation_status": "design_only",
+  "launchable": false,
+  "all_pool_scan_allowed": false,
+  "source_population": "post-r4-replayed-lower-bound-survivors-only",
+  "maximum_candidates": 8,
+  "thresholds": [
+    6,
+    8,
+    "required_distance_minus_1"
+  ],
+  "candidate_order": [
+    "largest_replayed_lower_bound_fraction_of_required_distance",
+    "largest_proven_fom_lower_bound",
+    "canonical_candidate_key"
+  ],
+  "stop_per_candidate": [
+    "first_replayed_sat_witness",
+    "first_unknown_or_timeout",
+    "required_distance_minus_1_unsat"
+  ],
+  "required_evidence": [
+    "source-bound-candidate-definition",
+    "replayed-r4-lower-bound",
+    "self-hashed-per-rung-sat-or-unsat-evidence",
+    "candidate-and-matrix-bound-cache",
+    "bounded-wall-time-and-candidate-count"
+  ],
+  "safety_note": "The installed target-aware ladder is specific to the compact coset evaluator. There is no launch-safe hook for replaying the selected twisted-torus pool through a bounded 6/8/required-1 ladder, so this artifact is intentionally non-executable until that adapter and its replay tests exist."
+}
