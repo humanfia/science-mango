@@ -1,0 +1,64 @@
+{
+  "run_id": "qcode-twisted-torus-lb-replay-v1-gpt56sol-20260812",
+  "resume": true,
+  "target_mode": "scalar-fom-strict-v1",
+  "max_total_workers": 12,
+  "stage1": {
+    "max_rounds": 12,
+    "iterations_per_round": 25,
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "xhigh",
+    "review_model": "gpt-5.6-sol",
+    "review_effort": "xhigh",
+    "evolution_config": "evolve/config_twisted_torus.yaml",
+    "evolution_seed": "evolve/seed_solution_twisted_torus.py",
+    "search_representation_id": "css-bb-twisted-torus-generator-v1",
+    "search_regime_policy_version": 3,
+    "milp_top": 6,
+    "milp_timeout_per_logical": 300,
+    "milp_total_timeout": 7200,
+    "milp_early_stop": 4,
+    "patience": 12,
+    "min_improvement": 0.01,
+    "codex_cli": true
+  },
+  "stage2": {
+    "top": 48,
+    "timeout": 600,
+    "candidate_workers": 3,
+    "solver_workers": 4
+  },
+  "stage3": {
+    "top": 0,
+    "timeout": 3600,
+    "candidate_workers": 2,
+    "direction_workers": 6,
+    "backend": "sat-sectors",
+    "exact": true
+  },
+  "certificate": {
+    "workers": 2,
+    "solver_workers": 6,
+    "timeout_per_logical": 3600,
+    "total_timeout": 86400,
+    "verification_timeout_per_logical": 3600,
+    "verification_total_timeout": 86400
+  },
+  "proof_retry": {
+    "max_attempts": 6,
+    "max_multiplier": 4,
+    "campaign_total_timeout": 86400,
+    "backoff_seconds": 2
+  },
+  "known_answer_artifact": "results/known_answer_gate.json",
+  "known_answer_trust": "results/known_answer_trust.json",
+  "strict": {
+    "timeout_per_logical": 600,
+    "total_timeout": 21600
+  },
+  "review": {
+    "enabled": true,
+    "model": "gpt-5.6-sol",
+    "effort": "xhigh"
+  }
+}

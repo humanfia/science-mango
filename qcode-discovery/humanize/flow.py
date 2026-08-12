@@ -9792,9 +9792,12 @@ def select_for_milp(
     *,
     policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
     target_mode: str = DEFAULT_TARGET_MODE,
+    replay_structural_negatives: bool = True,
 ) -> list[dict[str, Any]]:
     """Select diverse candidates without rewarding BP upper-bound magnitude."""
     selected_target_mode = validate_target_mode(target_mode)
+    if not isinstance(replay_structural_negatives, bool):
+        raise ValueError("replay_structural_negatives must be boolean")
     if limit <= 0:
         return []
     archive_rows = [] if archive is None else archive.ranked()
@@ -9842,6 +9845,65 @@ def select_for_milp(
         row for row in eligible
         if row not in quick_exploration
     ]
+    audit_funnel_replay_limit = 4 * limit
+    audit_funnel_attempted_keys: set[str] = set()
+    structural_negative_keys: set[str] = set()
+    structural_nonnegative_keys: set[str] = set()
+
+    def reserve_audit_funnel_replay(row: dict[str, Any]) -> bool:
+        """Bound all candidate rebuild/replay work added by policy v6."""
+
+        key = code_key(row)
+        if key in audit_funnel_attempted_keys:
+            return True
+        if len(audit_funnel_attempted_keys) >= audit_funnel_replay_limit:
+            return False
+        audit_funnel_attempted_keys.add(key)
+        return True
+
+    def has_replayed_structural_rejection(row: dict[str, Any]) -> bool:
+        """Return only a rebuilt negative witness; failures keep the row."""
+
+        if (
+            policy_version < CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION
+            or not replay_structural_negatives
+        ):
+            return False
+        # Internally exact evidence is handled by the historical proof-aware
+        # order.  A conflicting basis report must reach the formal audit
+        # rather than silently overriding stronger evidence here.
+        if candidate_evidence_priority(row)[0] > 0:
+            return False
+        key = code_key(row)
+        if key in structural_negative_keys:
+            return True
+        if key in structural_nonnegative_keys:
+            return False
+        static = row.get("static_eligibility")
+        report = (
+            static.get("logical_basis_upper_bound")
+            if isinstance(static, Mapping) else None
+        )
+        if not isinstance(report, Mapping):
+            return False
+        if not reserve_audit_funnel_replay(row):
+            # The replay budget is operational, never mathematical.  Once it
+            # is exhausted an unchecked row remains eligible for formal audit.
+            return False
+        from .negative_evidence import (
+            replay_structural_logical_basis_rejection,
+        )
+
+        rejection = replay_structural_logical_basis_rejection(
+            row,
+            target_mode=selected_target_mode,
+        )
+        if rejection is None:
+            structural_nonnegative_keys.add(key)
+            return False
+        structural_negative_keys.add(key)
+        return True
+
     if policy_version < CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION:
         # Preserve the immutable selector semantics of committed v1-v5
         # transactions.  Only a fresh policy-v6 transaction opts into the
@@ -9880,11 +9942,18 @@ def select_for_milp(
         )
         verified_lower_bounds: list[tuple[dict[str, Any], int]] = []
         unverified_claims: list[dict[str, Any]] = []
-        replay_limit = 4 * limit
         for index, row in enumerate(lower_bound_claims):
-            if index >= replay_limit:
+            if len(verified_lower_bounds) >= limit:
                 unverified_claims.extend(lower_bound_claims[index:])
                 break
+            if not reserve_audit_funnel_replay(row):
+                unverified_claims.extend(lower_bound_claims[index:])
+                break
+            if has_replayed_structural_rejection(row):
+                # This is negative-only scheduling evidence.  The candidate
+                # remains in the immutable source history, but cannot consume
+                # one of this round's scarce exact-audit slots.
+                continue
             replayed_lower_bound = (
                 _replayable_search_lower_bound_for_audit(row)
             )
@@ -9931,6 +10000,8 @@ def select_for_milp(
         for row in rows:
             if len(selected) >= target or len(selected) >= limit:
                 return
+            if has_replayed_structural_rejection(row):
+                continue
             stratum = _candidate_audit_stratum(row)
             if stratum in used_strata:
                 continue
@@ -9946,6 +10017,8 @@ def select_for_milp(
                 if len(selected) >= target or len(selected) >= limit:
                     return
                 if row in selected:
+                    continue
+                if has_replayed_structural_rejection(row):
                     continue
                 cell = str(row.get("archive_cell", ""))
                 if require_new_cell and cell and cell in used_cells:
@@ -10653,6 +10726,9 @@ class HumanizeFlow:
             blocked_digests,
             policy_version=policy_version,
             target_mode=self.config.target_mode,
+            replay_structural_negatives=(
+                not self.config.allow_debug_audit_evaluator
+            ),
         )
 
         # Do not leave compute idle when the fresh pool is empty (including a

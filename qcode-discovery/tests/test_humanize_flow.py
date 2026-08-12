@@ -5,6 +5,7 @@ import pytest
 
 import evaluation.evaluator as candidate_evaluator
 import humanize.flow as flow_module
+import humanize.negative_evidence as negative_evidence
 from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
 from evaluation.coset_two_block import (
     ACTION_CATALOG_SHA256,
@@ -443,6 +444,89 @@ def _claimed_search_lower_bound(row, lower_bound=5):
     return claimed
 
 
+def _structural_basis_candidate(row):
+    marked = copy.deepcopy(row)
+    marked["static_eligibility"] = {
+        "checked": True,
+        "eligible": True,
+        # Selector tests mock the independent mathematical replay.  The
+        # report validator itself is covered in test_humanize_negative_evidence.
+        "logical_basis_upper_bound": {"available": True},
+    }
+    return marked
+
+
+def test_milp_selection_skips_only_replayed_structural_negative(monkeypatch):
+    negative = _structural_basis_candidate(
+        candidate(k=24, d=4, fom=4.0, shift=1)
+    )
+    survivor = _structural_basis_candidate(
+        candidate(k=8, d=4, fom=4.0, shift=2)
+    )
+    monkeypatch.setattr(
+        negative_evidence,
+        "replay_structural_logical_basis_rejection",
+        lambda row, *, target_mode: (
+            object() if code_key(row) == code_key(negative) else None
+        ),
+    )
+
+    [selected] = select_for_milp([negative, survivor], None, set(), 1)
+
+    assert code_key(selected) == code_key(survivor)
+
+
+def test_milp_selection_bounds_structural_negative_replay_and_refills(
+    monkeypatch,
+):
+    rows = [
+        _structural_basis_candidate(
+            candidate(k=8, d=4, fom=4.0, shift=shift)
+        )
+        for shift in range(10)
+    ]
+    replayed = []
+
+    def reject(row, *, target_mode):
+        replayed.append(code_key(row))
+        return object()
+
+    monkeypatch.setattr(
+        negative_evidence,
+        "replay_structural_logical_basis_rejection",
+        reject,
+    )
+
+    [selected] = select_for_milp(rows, None, set(), 1)
+
+    assert len(replayed) == 4
+    # Exhausting an operational replay budget cannot discard unchecked rows.
+    assert code_key(selected) not in replayed
+
+
+def test_historical_selector_policy_never_calls_structural_replay(monkeypatch):
+    row = _structural_basis_candidate(
+        candidate(k=8, d=4, fom=4.0, shift=1)
+    )
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("policy v5 must preserve historical selection")
+
+    monkeypatch.setattr(
+        negative_evidence,
+        "replay_structural_logical_basis_rejection",
+        forbidden,
+    )
+
+    assert select_for_milp(
+        [row],
+        None,
+        set(),
+        1,
+        policy_version=CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
+    ) == [row]
+
+
 def test_milp_selection_promotes_replayed_lower_bound_over_bp_rate(
     monkeypatch,
 ):
@@ -619,7 +703,10 @@ def test_milp_selection_bounds_positive_claim_replay_work(monkeypatch):
     )
 
     assert len(select_for_milp(claims, None, set(), 1)) == 1
-    assert len(replayed) == 4
+    # One verified survivor already fills the only audit slot.  Stopping here
+    # leaves the shared 4x replay budget available to screen a fallback/quick
+    # candidate for a rebuilt structural rejection.
+    assert len(replayed) == 1
 
 
 def test_milp_selection_bounds_failed_claim_replay_work(monkeypatch):
