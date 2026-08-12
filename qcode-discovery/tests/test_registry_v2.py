@@ -12,12 +12,12 @@ from evaluation.registry import load_registry
 def test_registry_v2_pins_all_verified_catalog_sources():
     registry = load_registry()
     assert registry["registry_version"] == (
-        "2026-08-06.qcode-coset-two-block-v2"
+        "2026-08-12.twisted-published-volume-v2"
     )
     assert registry["summary"] == {
-        "raw_entries": 1888,
-        "deduplicated_entries": 1171,
-        "css": 803,
+        "raw_entries": 1896,
+        "deduplicated_entries": 1178,
+        "css": 810,
         "noncss": 368,
     }
     kinds = Counter(
@@ -27,10 +27,11 @@ def test_registry_v2_pins_all_verified_catalog_sources():
     )
     assert kinds["literature"] == 7
     assert kinds["literature-coset2bga-v2"] == 24
+    assert kinds["literature-generalized-toric-twisted"] == 8
     assert kinds["qcode-discovery-css-milp-verified"] == 1188
     assert kinds["qcode-discovery-css-ensemble-verified"] == 145
     assert kinds["qcode-discovery-pbb-publication"] == 368
-    assert len(registry["sources"]) == 8
+    assert len(registry["sources"]) == 10
     catalog_actions = {
         action.action_id
         for action in get_catalog(catalog_id=V2_CATALOG_ID).actions.values()

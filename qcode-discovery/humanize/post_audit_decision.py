@@ -905,8 +905,8 @@ def _validate_broader_design(
     expected = {
         "schema_version": 1,
         "kind": "qcode-broader-published-volume-coverage-design-v1",
-        "implementation_status": "required_not_installed",
-        "launchable": False,
+        "implementation_status": "installed_reviewed",
+        "launchable": True,
         "required_experiment_id": (
             "qcode-twisted-torus-published-volume-coverage-v2-gpt56sol"
         ),
@@ -933,6 +933,92 @@ def _validate_broader_design(
             "NEXT_EXPERIMENT_DESIGN",
             "published-volume design does not exclude the known q=0 aliases",
         )
+    expected_coverage = {
+        "target_volumes": [105, 124, 126, 127, 132, 147, 170],
+        "target_shapes": 41,
+        "all_shapes_with_pareto": 44,
+        "contracted_twist_strata": 822,
+        "seed_rows": 3627,
+        "thin_lattice": [1, 127],
+        "thin_twists": [25],
+        "stage2_deep_lattices": 11,
+    }
+    if raw.get("coverage_contract") != expected_coverage:
+        _fail(
+            "NEXT_EXPERIMENT_DESIGN",
+            "published-volume coverage contract is not the reviewed contract",
+        )
+    expected_paths = (
+        "configs/five_stage_campaign."
+        "twisted_torus_published_volume_v2_gpt56sol_20260812.json",
+        "evolve/config_twisted_torus_published.yaml",
+        "evolve/seed_solution_twisted_torus_published.py",
+        "evaluation/twisted_torus_published_anchors.v1.json",
+        "results/known_code_registry.json",
+        "evaluation/search_contract.py",
+        "evolve/openevolve_evaluator.py",
+        "evolve/run_evolution.py",
+        "humanize/flow.py",
+        "humanize/reviewer.py",
+    )
+    installed = raw.get("installed_artifacts")
+    if (
+        not isinstance(installed, list)
+        or [item.get("path") for item in installed if isinstance(item, dict)]
+        != list(expected_paths)
+    ):
+        _fail(
+            "NEXT_EXPERIMENT_DESIGN",
+            "published-volume installed artifact manifest is incomplete",
+        )
+    installed_identities: list[dict[str, Any]] = []
+    for index, expected_path in enumerate(expected_paths):
+        descriptor = installed[index]
+        if (
+            not isinstance(descriptor, dict)
+            or set(descriptor) != {"path", "sha256"}
+            or descriptor.get("path") != expected_path
+            or not isinstance(descriptor.get("sha256"), str)
+            or _SHA256.fullmatch(descriptor["sha256"]) is None
+        ):
+            _fail(
+                "NEXT_EXPERIMENT_DESIGN",
+                "published-volume installed artifact descriptor is malformed",
+            )
+        observed = _relative_config_identity(repo_dir, Path(expected_path))
+        if observed["sha256"] != descriptor["sha256"]:
+            _fail(
+                "NEXT_EXPERIMENT_DESIGN",
+                f"published-volume installed artifact changed: {expected_path}",
+            )
+        installed_identities.append(observed)
+
+    pipeline, _pipeline_payload = _read_json_object(
+        repo_dir / expected_paths[0], "published-volume pipeline config"
+    )
+    stage1 = pipeline.get("stage1")
+    stage3 = pipeline.get("stage3")
+    if (
+        pipeline.get("run_id") != raw["required_experiment_id"]
+        or pipeline.get("resume") is not True
+        or pipeline.get("target_mode") != raw["target_mode"]
+        or pipeline.get("max_total_workers") != raw["max_total_workers"]
+        or not isinstance(stage1, dict)
+        or stage1.get("model") != raw["model"]
+        or stage1.get("reasoning_effort") != raw["reasoning_effort"]
+        or stage1.get("search_representation_id")
+        != raw["required_representation_id"]
+        or stage1.get("evolution_config") != expected_paths[1]
+        or stage1.get("evolution_seed") != expected_paths[2]
+        or stage1.get("milp_top") != 6
+        or stage1.get("codex_cli") is not True
+        or not isinstance(stage3, dict)
+        or stage3.get("backend") != raw["required_stage3_backend"]
+    ):
+        _fail(
+            "NEXT_EXPERIMENT_DESIGN",
+            "published-volume pipeline config violates the reviewed launch contract",
+        )
     return {
         **_relative_config_identity(repo_dir, absolute),
         "required_experiment_id": raw["required_experiment_id"],
@@ -946,7 +1032,9 @@ def _validate_broader_design(
         "max_total_workers": raw["max_total_workers"],
         "required_stage3_backend": raw["required_stage3_backend"],
         "implementation_status": raw["implementation_status"],
-        "launchable": False,
+        "installed_artifacts": installed_identities,
+        "coverage_contract": copy.deepcopy(expected_coverage),
+        "launchable": True,
         "started": False,
     }
 

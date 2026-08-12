@@ -159,13 +159,14 @@ from evaluation.low_weight_oracle import (
 from evaluation.results import save_code, update_pareto_front
 from evaluation.search_contract import (
     ACTIVE_GEOMETRY_CONTRACT,
+    ACTIVE_STAGE1_FITNESS_LATTICES as CONTRACT_STAGE1_FITNESS_LATTICES,
     ACTIVE_STAGE2_DEEP_LATTICES as CONTRACT_STAGE2_DEEP_LATTICES,
     ACTIVE_STAGE2_FITNESS_LATTICES as CONTRACT_STAGE2_FITNESS_LATTICES,
     EVOLUTION_LATTICES,
     FINAL_GATE_PARETO_LATTICES as CONTRACT_PARETO_LATTICES,
     TWISTED_MIN_CANDIDATES_PER_TWIST,
-    TWISTED_TORUS_GEOMETRY_CONTRACT,
     allowed_twists,
+    is_twisted_geometry_contract,
 )
 from evaluation.structural_dedup import (
     check_css_static_eligibility,
@@ -924,7 +925,7 @@ def _current_winner_preflight_contract_id() -> int:
             "run_name": output_dir.name,
         },
     }
-    if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+    if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT):
         # Keep the historical payload byte shape for rectangular campaigns,
         # while making the fresh q-stratified contract explicit even if a
         # future representation happens to reuse the same lattice list.
@@ -1077,7 +1078,7 @@ _STAGE1_LATTICE_SUMMARY_COUNT_FIELDS = (
     *((
         GEOMETRY_TWISTS_REQUIRED_METRIC,
         GEOMETRY_TWISTS_OBSERVED_METRIC,
-    ) if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else ()),
+    ) if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT) else ()),
 )
 
 
@@ -1094,7 +1095,7 @@ def _validated_stage1_lattice_summary(
         SUPPORT_FILTER_VERSION_METRIC,
         SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC,
         *({GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC}
-          if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+          if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
           else set()),
         *_STAGE1_LATTICE_SUMMARY_COUNT_FIELDS,
     }
@@ -1144,7 +1145,7 @@ def _validated_stage1_lattice_summary(
         != CHALLENGE_SUPPORT_FILTER_VERSION
         or values[SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC] != 1
         or (
-            ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+            is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
             and (
                 values[GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC] != 1
                 or values[GEOMETRY_TWISTS_OBSERVED_METRIC]
@@ -1194,7 +1195,7 @@ def _stage1_lattice_summary(
             GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC: metrics.get(
                 GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC
             ),
-        } if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else {}),
+        } if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT) else {}),
         **{
             name: metrics.get(name)
             for name in _STAGE1_LATTICE_SUMMARY_COUNT_FIELDS
@@ -1279,7 +1280,7 @@ def _aggregate_stage1_lattice_summaries(
             GEOMETRY_TWISTS_OBSERVED_METRIC: totals[
                 GEOMETRY_TWISTS_OBSERVED_METRIC
             ],
-        } if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else {}),
+        } if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT) else {}),
         "lattices_completed": len(validated),
         "lattice_failures": 0,
     }
@@ -2043,10 +2044,7 @@ def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]
 # the checkpoint-incompatible twisted representation uses one quick probe per
 # formal target length so an elongated-only support family can cross the
 # cascade threshold instead of being rejected on two small rectangular probes.
-if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
-    STAGE1_LATTICES = [(12, 6), (10, 10), (12, 12), (6, 30)]
-else:
-    STAGE1_LATTICES = [(6, 6), (12, 6)]
+STAGE1_LATTICES = list(CONTRACT_STAGE1_FITNESS_LATTICES)
 # These are the defining lattices for the n=72, 90 and 108 final-gate Pareto
 # references.  They run first in the full evaluator so every accepted win class
 # has a durable OpenEvolve -> Humanize route even if a later large lattice uses
@@ -2067,7 +2065,7 @@ STAGE2_DEEP_LATTICES = list(CONTRACT_STAGE2_DEEP_LATTICES)
 # Historical MILP fitness basis. Keep it separate from the added persistence
 # probes for the same checkpoint-compatibility reason as
 # ``STAGE2_FITNESS_LATTICES`` above.
-if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT):
     STAGE2_MILP_FITNESS_LATTICES = list(STAGE2_FITNESS_LATTICES)
 else:
     STAGE2_MILP_FITNESS_LATTICES = [
@@ -2203,7 +2201,7 @@ def _pool_map_descriptor(
             MAP_DESCRIPTOR_POOL_SIZE_METRIC: 0.0,
             MAP_DESCRIPTOR_DOMINANT_SHARE_METRIC: 0.0,
         }
-        if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+        if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT):
             descriptor[MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC] = 0.0
         return descriptor
 
@@ -2273,7 +2271,7 @@ def _pool_map_descriptor(
             dominant_count / pool_size
         ),
     }
-    if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+    if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT):
         descriptor[MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC] = float(
             dominant_bin(MAP_DESCRIPTOR_GEOMETRY_TWIST_CLASS_METRIC)
         )
@@ -3278,8 +3276,7 @@ def _run_evaluation(
                 lattice_rejection_splits,
             ) = _partition_challenge_support(candidates)
             if (
-                ACTIVE_GEOMETRY_CONTRACT
-                == TWISTED_TORUS_GEOMETRY_CONTRACT
+                is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
             ):
                 required_twists = set(allowed_twists(
                     ell,
@@ -4072,7 +4069,7 @@ def _run_evaluation(
             GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC: (
                 geometry_twist_coverage_complete
             ),
-        } if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else {}),
+        } if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT) else {}),
         "support_split_counts": {
             f"{a_count}+{b_count}": support_split_counts[
                 (a_count, b_count)
@@ -4188,7 +4185,7 @@ def _require_complete_support_evaluation(
         metrics, SUPPORT_WEIGHT_PARTITION_COMPLETE_METRIC
     )
     twisted_contract = (
-        ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+        is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
     )
     twists_required = (
         _exact_nonnegative_preflight_metric(
@@ -4291,7 +4288,7 @@ def _support_observability_metrics(metrics: dict) -> dict[str, float]:
             GEOMETRY_TWISTS_OBSERVED_METRIC,
             GEOMETRY_TWIST_COVERAGE_METRIC,
             GEOMETRY_TWIST_COVERAGE_COMPLETE_METRIC,
-        ) if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT else ()),
+        ) if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT) else ()),
         PATTERN_CLASSIFIER_VERSION_METRIC,
     )
     return {name: float(metrics.get(name, 0)) for name in names}
@@ -6224,8 +6221,7 @@ def _evaluate_stage2_impl(program_path: str) -> dict:
             PATTERN_CLASSIFIER_VERSION_METRIC: PATTERN_CLASSIFIER_VERSION,
         }
         if (
-            ACTIVE_GEOMETRY_CONTRACT
-            == TWISTED_TORUS_GEOMETRY_CONTRACT
+            is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
         ):
             # The compact Stage-1 handoff does not repeat diagnostic q counts,
             # but its source-bound completion marker was issued only after

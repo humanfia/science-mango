@@ -14,6 +14,7 @@ from typing import Any
 from evaluation.geometry import candidate_geometry
 from evaluation.search_contract import (
     LEGACY_GEOMETRY_CONTRACT,
+    PUBLISHED_VOLUME_GEOMETRY_CONTRACT,
     TWISTED_TORUS_GEOMETRY_CONTRACT,
     lattices_for_geometry_contract,
 )
@@ -692,6 +693,8 @@ _REVIEWABLE_EVOLUTION_LATTICES = frozenset(
     lattices_for_geometry_contract(LEGACY_GEOMETRY_CONTRACT)
 ) | frozenset(
     lattices_for_geometry_contract(TWISTED_TORUS_GEOMETRY_CONTRACT)
+) | frozenset(
+    lattices_for_geometry_contract(PUBLISHED_VOLUME_GEOMETRY_CONTRACT)
 )
 
 

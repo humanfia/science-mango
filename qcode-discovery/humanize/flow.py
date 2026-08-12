@@ -45,8 +45,8 @@ from evaluation.geometry import candidate_geometry
 from evaluation.search_contract import (
     LEGACY_GEOMETRY_CONTRACT,
     SEARCH_GEOMETRY_CONTRACT_ENV,
-    TWISTED_TORUS_GEOMETRY_CONTRACT,
     geometry_contract_for_representation,
+    is_twisted_geometry_contract,
 )
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
@@ -2029,7 +2029,7 @@ def _managed_search_geometry_contract(
         # future source-bound mapping opts one into a new geometry, changing
         # search_contract.py forces a prepared transaction rebind first.
         return None
-    if geometry_contract == TWISTED_TORUS_GEOMETRY_CONTRACT:
+    if is_twisted_geometry_contract(geometry_contract):
         if portfolio_schema != SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
             raise RoundTransactionError(
                 "twisted-torus search representation requires geometry-aware "

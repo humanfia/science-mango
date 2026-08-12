@@ -115,6 +115,10 @@ def _copy_next_artifacts(repo: Path) -> tuple[Path, Path]:
     ladder = repo / DEFAULT_LADDER_DESIGN
     _write(broader, (PROJECT / DEFAULT_BROADER_DESIGN).read_bytes())
     _write(ladder, (PROJECT / DEFAULT_LADDER_DESIGN).read_bytes())
+    design = json.loads(broader.read_text())
+    for descriptor in design["installed_artifacts"]:
+        relative = Path(descriptor["path"])
+        _write(repo / relative, (PROJECT / relative).read_bytes())
     return broader, ladder
 
 
@@ -330,7 +334,7 @@ def test_post_r4_requires_published_volume_coverage_from_low_weight_failures(
         "broader_published_volume_coverage"
     )
     assert decision["decision"]["reviewer_text_votes"] is False
-    assert decision["decision"]["launch_authorized"] is False
+    assert decision["decision"]["launch_authorized"] is True
     assert decision["metrics"]["selected_audits"] == 24
     assert decision["metrics"]["distinct_candidate_keys"] == 24
     assert decision["metrics"]["distinct_canonical_digests"] == 24
@@ -343,7 +347,7 @@ def test_post_r4_requires_published_volume_coverage_from_low_weight_failures(
         "css-bb-twisted-torus-published-volume-generator-v2"
     )
     assert decision["next_experiment"]["implementation_status"] == (
-        "required_not_installed"
+        "installed_reviewed"
     )
     unsigned = dict(decision)
     observed = unsigned.pop("decision_sha256")
@@ -434,10 +438,10 @@ def test_post_r4_cli_writes_nonlaunchable_not_ready_json(tmp_path: Path):
     assert blocked["decision"]["launch_authorized"] is False
 
 
-def test_post_r4_next_experiment_designs_are_nonlaunchable_and_bounded():
+def test_post_r4_next_experiment_broader_is_installed_and_ladder_is_bounded():
     broader = json.loads((PROJECT / DEFAULT_BROADER_DESIGN).read_text())
-    assert broader["implementation_status"] == "required_not_installed"
-    assert broader["launchable"] is False
+    assert broader["implementation_status"] == "installed_reviewed"
+    assert broader["launchable"] is True
     assert broader["required_representation_id"] == (
         "css-bb-twisted-torus-published-volume-generator-v2"
     )
@@ -451,3 +455,22 @@ def test_post_r4_next_experiment_designs_are_nonlaunchable_and_bounded():
     assert design["launchable"] is False
     assert design["all_pool_scan_allowed"] is False
     assert design["thresholds"] == [6, 8, "required_distance_minus_1"]
+
+
+def test_post_r4_installed_broader_artifact_tamper_fails_closed(tmp_path: Path):
+    repo, run_root, broader, ladder = _fixture(
+        tmp_path,
+        low_upper_bound_count=20,
+    )
+    config = repo / json.loads(broader.read_text())["installed_artifacts"][0][
+        "path"
+    ]
+    config.write_bytes(config.read_bytes() + b"\n")
+    with pytest.raises(PostAuditDecisionError) as raised:
+        _decide(
+            repo=repo,
+            run_root=run_root,
+            broader=broader,
+            ladder=ladder,
+        )
+    assert raised.value.code == "NEXT_EXPERIMENT_DESIGN"

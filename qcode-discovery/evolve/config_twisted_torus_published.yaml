@@ -1,0 +1,83 @@
+# Fresh, checkpoint-incompatible search for the canonical generalized-toric
+# ansatz on published high-FOM twisted-torus volumes.  Portfolio schema v3
+# binds the immutable q-stratified geometry contract before evaluator import.
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+random_seed: 43
+
+qcode_search_portfolio:
+  enabled: true
+  schema_version: 3
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "azure/gpt-5.3-codex"
+      weight: 1.0
+      temperature: null
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are evolving `_generate_parameter_proposals(ell, m)` for the
+    generalized-toric CSS ansatz
+
+      A = 1 + x + x^a y^b,
+      B = 1 + y + x^c y^d.
+
+    Return only deterministic proposals for the two variable monomials,
+    either `((a,b),(c,d))` or a mapping containing exactly `a,b,c,d` (or
+    `third_a,third_b`). Never edit the immutable public wrapper, enumerate q,
+    claim a distance, or insert geometry into a proposal.
+
+    The wrapper owns the twisted quotient y^m=1, x^ell*y^q=1 and covers every
+    canonical 0 <= q < m across the non-thin ordered factor shapes of
+    paper-backed fertile cell volumes 105,124,126,127,132,147,170. It also
+    retains the historical Pareto controls. The ell=1 lane is a deliberately
+    bounded paper-representative sample at q=25; no equivalence or complete
+    coverage is claimed for its omitted q values. Eight published codes at n=210,
+    248,252,254,264,288,294,340 are injected only as calibration anchors.
+    Reproducing an anchor is useful for reachability calibration but is never
+    a novel discovery or formal win; seek nearby supports that are
+    structurally distinct under the pinned registry.
+
+    Optimize only independently replayed lower bounds, exact evidence,
+    positive k/rate, and canonical structural diversity. BP/OSD and all
+    decoder-returned distances are upper bounds and receive no positive proof
+    credit. Low-weight logical witnesses should drive changes to (a,b,c,d),
+    especially asymmetries between X and Z sectors. Keep every proposal
+    sparse, deterministic, and valid for thin shapes including ell=1.
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  # This contract has 822 contracted q strata including Pareto controls,
+  # comparable to v1's 876 while adding a q=25 prime lane and seven volumes.
+  timeout: 2400
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 180
+  num_islands: 5
+  exploration_ratio: 0.6
+  exploitation_ratio: 0.3
+  migration_interval: 20
+  feature_dimensions:
+    - "algebraic_relation_type"
+    - "support_split_type"
+    - "geometry_twist_class"
+  feature_bins:
+    algebraic_relation_type: 5
+    support_split_type: 6
+    geometry_twist_class: 3

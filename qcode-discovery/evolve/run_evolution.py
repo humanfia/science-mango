@@ -108,6 +108,7 @@ from evaluation.search_contract import (
     LEGACY_GEOMETRY_CONTRACT,
     SEARCH_GEOMETRY_CONTRACT_ENV,
     TWISTED_TORUS_GEOMETRY_CONTRACT,
+    is_twisted_geometry_contract,
 )
 
 SEED_SOLUTION = str(Path(__file__).parent / "seed_solution.py")
@@ -655,7 +656,7 @@ def _winner_preflight_contract_id(
             "kind_id": WINNER_PREFLIGHT_UNIT_KIND_ACTION_STRATA,
             "count": _coset_action_strata_count(),
         }
-    if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT:
+    if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT):
         payload[SEARCH_GEOMETRY_CONTRACT_FIELD] = ACTIVE_GEOMETRY_CONTRACT
     digest = hashlib.sha256(
         json.dumps(
@@ -830,7 +831,7 @@ _WINNER_PREFLIGHT_FAILURE_BASE_FIELDS = frozenset({
     "term_count",
     "pattern_type",
     *({SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC}
-      if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+      if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
       else set()),
 })
 
@@ -979,7 +980,7 @@ def _exact_incomplete_winner_preflight_markers(
         "term_count",
         "pattern_type",
         *((SEARCH_PORTFOLIO_V3_GEOMETRY_METRIC,)
-          if ACTIVE_GEOMETRY_CONTRACT == TWISTED_TORUS_GEOMETRY_CONTRACT
+          if is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT)
           else ()),
     ):
         value = metrics.get(name)
@@ -3421,13 +3422,13 @@ def _validated_search_geometry_contract(
     """
 
     if portfolio_schema_version == SEARCH_PORTFOLIO_V3_SCHEMA_VERSION:
-        if ACTIVE_GEOMETRY_CONTRACT != TWISTED_TORUS_GEOMETRY_CONTRACT:
+        if not is_twisted_geometry_contract(ACTIVE_GEOMETRY_CONTRACT):
             raise RuntimeError(
                 "search portfolio schema v3 requires the launch-bound "
-                f"{SEARCH_GEOMETRY_CONTRACT_ENV}="
-                f"{TWISTED_TORUS_GEOMETRY_CONTRACT} before runner import"
+                f"{SEARCH_GEOMETRY_CONTRACT_ENV}=<registered-twisted-contract> "
+                "before runner import"
             )
-        return TWISTED_TORUS_GEOMETRY_CONTRACT
+        return ACTIVE_GEOMETRY_CONTRACT
     if ACTIVE_GEOMETRY_CONTRACT != LEGACY_GEOMETRY_CONTRACT:
         raise RuntimeError(
             "the twisted-torus geometry contract requires search portfolio "

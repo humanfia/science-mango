@@ -40,7 +40,7 @@ def test_registry_integrity_and_coverage():
     summary = registry["summary"]
     assert summary["css"] >= 30
     assert summary["noncss"] >= 300
-    assert len(entries) == summary["deduplicated_entries"] == 1171
+    assert len(entries) == summary["deduplicated_entries"] == 1178
     assert summary["css"] == sum(row["code_type"] == "css" for row in entries)
     assert summary["noncss"] == sum(
         row["code_type"] == "noncss" for row in entries

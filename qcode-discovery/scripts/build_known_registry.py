@@ -13,6 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.bb_code import build_bb_code
+from evaluation.geometry import reduce_coordinate
 from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
 from evaluation.coset_two_block import (
     ACTION_CATALOG_SHA256,
@@ -73,6 +74,10 @@ def main() -> int:
     )
     args = parser.parse_args()
     entries = []
+
+    published_twisted_manifest_path = (
+        project / "evaluation" / "twisted_torus_published_anchors.v1.json"
+    )
 
     # Published nonnormal-coset two-block code from Aydin--Tamo--Barg.  The
     # frozen action catalog is the reconstruction authority; the paper's
@@ -195,6 +200,93 @@ def main() -> int:
                     "action_scope": action.provenance.get("action_scope"),
                 }
             ],
+        })
+
+    # Published generalized-toric anchors are calibration controls for the
+    # fresh published-volume representation.  Rebuild every matrix locally so
+    # a typo in the transcribed paper table cannot enter the novelty registry.
+    published_twisted = json.loads(
+        published_twisted_manifest_path.read_text(encoding="utf-8")
+    )
+    if (
+        published_twisted.get("schema_version") != 1
+        or published_twisted.get("manifest_id")
+        != "liang-generalized-toric-exact-fom12-anchors-v1"
+        or not isinstance(published_twisted.get("anchors"), list)
+    ):
+        raise RuntimeError("published twisted-torus anchor manifest is invalid")
+    source = published_twisted.get("source")
+    if not isinstance(source, dict) or source.get("arxiv") != "2503.03827v3":
+        raise RuntimeError("published twisted-torus source binding is invalid")
+    for raw in published_twisted["anchors"]:
+        if not isinstance(raw, dict):
+            raise RuntimeError("published twisted-torus anchor is not an object")
+        ell = int(raw["ell"])
+        m = int(raw["m"])
+        twist = int(raw["twist"])
+        geometry = {
+            "schema_version": 1,
+            "family": "twisted_torus",
+            "twist": twist,
+        }
+        a_terms = [
+            reduce_coordinate(ell, m, *term, geometry)
+            for term in ((0, 0), (1, 0), tuple(raw["third_a"]))
+        ]
+        b_terms = [
+            reduce_coordinate(ell, m, *term, geometry)
+            for term in ((0, 0), (0, 1), tuple(raw["third_b"]))
+        ]
+        code = build_bb_code(
+            ell, m, a_terms, b_terms, geometry=geometry
+        )
+        reported_n = int(raw["n"])
+        reported_k = int(raw["k"])
+        reported_d = int(raw["d"])
+        if (
+            int(code.num_qudits) != reported_n
+            or int(code.dimension) != reported_k
+            or reported_k * reported_d * reported_d <= 12 * reported_n
+        ):
+            raise RuntimeError(
+                f"published twisted anchor {raw.get('id')} failed [[n,k]] "
+                "replay or strict FOM calibration threshold"
+            )
+        construction = {
+            "ell": ell,
+            "m": m,
+            "A_terms": [list(term) for term in a_terms],
+            "B_terms": [list(term) for term in b_terms],
+        }
+        if twist:
+            construction["geometry"] = geometry
+        entries.append({
+            "id": f"literature-{raw['id']}",
+            "family": "css-generalized-toric-twisted",
+            "code_type": "css",
+            "n": reported_n,
+            "k": reported_k,
+            "distance_evidence": {
+                "d": reported_d,
+                "status": "published-exact-not-locally-proven",
+                "reported_exact": True,
+                "locally_exact_proven": False,
+            },
+            "canonical_digest": canonical_digest(code),
+            "construction": construction,
+            "provenance": [{
+                "kind": "literature-generalized-toric-twisted",
+                "source": source["title"],
+                "arxiv": source["arxiv"],
+                "url": source["url"],
+                "table": int(raw["table"]),
+                "manifest_path": str(
+                    published_twisted_manifest_path.relative_to(project)
+                ),
+                "manifest_sha256": file_sha256(
+                    published_twisted_manifest_path
+                ),
+            }],
         })
 
     for name, ell, m, a_terms, b_terms in KNOWN_CSS_REFERENCES:
@@ -367,7 +459,7 @@ def main() -> int:
     )
     registry = {
         "schema_version": 1,
-        "registry_version": "2026-08-06.qcode-coset-two-block-v2",
+        "registry_version": "2026-08-12.twisted-published-volume-v2",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "equivalence_scope": {
             "css": "colored Tanner generator permutation equivalence",
@@ -405,6 +497,17 @@ def main() -> int:
                 "sha256": file_sha256(
                     project / "evaluation" / "coset_two_block_actions.v2.json"
                 ),
+            },
+            {
+                "path": str(
+                    published_twisted_manifest_path.relative_to(project)
+                ),
+                "sha256": file_sha256(published_twisted_manifest_path),
+            },
+            {
+                "source": source["title"],
+                "url": source["url"],
+                "arxiv": source["arxiv"],
             },
             {
                 "source": (
