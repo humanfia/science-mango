@@ -1891,7 +1891,7 @@ def test_committed_v2_batch_replays_legacy_selector_after_upgrade(tmp_path):
     transaction = json.loads(manifest_path.read_text())
     assert transaction["schema_version"] == 3
     assert transaction["protocol_version"] == 3
-    assert transaction["candidate_batch_policy_version"] == 5
+    assert transaction["candidate_batch_policy_version"] == 6
     bound_end = transaction["candidate_end_offset"]
 
     # Model the immutable protocol-v2 artifact produced before selector
@@ -1943,7 +1943,11 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
     state = flow.store.initialize(config.serializable())
     round_dir = flow.store.round_dir(1)
     transaction = flow._prepare_transaction(state, 1, round_dir)
-    assert flow._candidate_batch_policy_version(transaction) == 5
+    assert flow._candidate_batch_policy_version(transaction) == 6
+
+    historical_v5 = dict(transaction)
+    historical_v5["candidate_batch_policy_version"] = 5
+    assert flow._candidate_batch_policy_version(historical_v5) == 5
 
     historical_v4 = dict(transaction)
     historical_v4["candidate_batch_policy_version"] = 4
@@ -1974,7 +1978,7 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
         flow._candidate_batch_policy_version(invalid)
 
 
-@pytest.mark.parametrize("bound_policy", [2, 3, 4, 5])
+@pytest.mark.parametrize("bound_policy", [2, 3, 4, 5, 6])
 def test_pending_screen_uses_committed_candidate_batch_policy(
     tmp_path,
     monkeypatch,

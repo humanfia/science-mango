@@ -4,12 +4,14 @@ import json
 import pytest
 
 import evaluation.evaluator as candidate_evaluator
+import humanize.flow as flow_module
 from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
 from evaluation.coset_two_block import (
     ACTION_CATALOG_SHA256,
     ACTION_CATALOG_V2_SHA256,
     CONSTRUCTION_REPRESENTATION_V2,
 )
+from evaluation.target_policy import TARGET_MODE_GIST, TARGET_MODE_SCALAR
 from evolve import coset_policy_dsl_v3 as policy_v3
 from evolve.coset_search_contract import (
     COSET_SUPPORT_ORBIT_BINS,
@@ -22,6 +24,7 @@ from humanize.audit_state import (
     create_unresolved_entry,
 )
 from humanize.flow import (
+    CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION,
     CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
     CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
     CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
@@ -427,6 +430,219 @@ def test_milp_selection_never_takes_more_than_one_quick_exploration():
     assert selected[0]["candidate_persistence_lane"] == (
         "winner_capable_quick_exploration"
     )
+
+
+def _claimed_search_lower_bound(row, lower_bound=5):
+    claimed = copy.deepcopy(row)
+    claimed.update({
+        "distance_lower_bound": lower_bound,
+        "distance_lower_bound_proven": True,
+        "distance_lower_bound_status": "search_oracle_proven",
+        "search_status": "certified_lower_bound",
+    })
+    return claimed
+
+
+def test_milp_selection_promotes_replayed_lower_bound_over_bp_rate(
+    monkeypatch,
+):
+    high_rate_bp = candidate(k=24, d=40, fom=500.0, shift=1)
+    replayed = _claimed_search_lower_bound(
+        candidate(k=8, d=6, fom=4.0, shift=2)
+    )
+    monkeypatch.setattr(
+        flow_module,
+        "_replayable_search_lower_bound_for_audit",
+        lambda row: row.get("distance_lower_bound"),
+    )
+
+    [selected] = select_for_milp(
+        [high_rate_bp, replayed], None, set(), 1
+    )
+
+    assert code_key(selected) == code_key(replayed)
+
+
+def test_milp_selection_replays_claim_before_granting_funnel_priority(
+    monkeypatch,
+):
+    forged = _claimed_search_lower_bound(
+        candidate(k=24, d=50, fom=800.0, shift=1),
+        lower_bound=9,
+    )
+    replayed = _claimed_search_lower_bound(
+        candidate(k=8, d=6, fom=4.0, shift=2)
+    )
+    monkeypatch.setattr(
+        flow_module,
+        "_replayable_search_lower_bound_for_audit",
+        lambda row: (
+            row.get("distance_lower_bound")
+            if code_key(row) == code_key(replayed)
+            else None
+        ),
+    )
+
+    [selected] = select_for_milp([forged, replayed], None, set(), 1)
+
+    assert code_key(selected) == code_key(replayed)
+
+
+def test_milp_selection_requires_replayed_bound_to_equal_claim(monkeypatch):
+    forged = _claimed_search_lower_bound(
+        candidate(k=24, d=50, fom=800.0, shift=1),
+        lower_bound=9,
+    )
+    replayed = _claimed_search_lower_bound(
+        candidate(k=8, d=6, fom=4.0, shift=2),
+        lower_bound=5,
+    )
+    monkeypatch.setattr(
+        flow_module,
+        "_replayable_search_lower_bound_for_audit",
+        lambda _row: 5,
+    )
+
+    [selected] = select_for_milp([forged, replayed], None, set(), 1)
+
+    assert code_key(selected) == code_key(replayed)
+
+
+def test_lower_bound_audit_priority_uses_campaign_target_mode():
+    gist_only = _claimed_search_lower_bound(
+        candidate(k=12, d=7, fom=49 / 6),
+        lower_bound=7,
+    )
+
+    gist_priority = flow_module._search_lower_bound_claim_priority(
+        gist_only,
+        target_mode=TARGET_MODE_GIST,
+    )
+    scalar_priority = flow_module._search_lower_bound_claim_priority(
+        gist_only,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+
+    assert gist_priority is not None and gist_priority[0] == 1
+    assert scalar_priority is not None and scalar_priority[0] == 0
+
+
+def test_policy_v5_keeps_historical_rate_first_audit_selection(monkeypatch):
+    high_rate_bp = candidate(k=24, d=40, fom=500.0, shift=1)
+    claimed = _claimed_search_lower_bound(
+        candidate(k=8, d=6, fom=4.0, shift=2)
+    )
+
+    def fail_replay(_row):
+        pytest.fail("policy v5 must not enter the v6 replay funnel")
+
+    monkeypatch.setattr(
+        flow_module,
+        "_replayable_search_lower_bound_for_audit",
+        fail_replay,
+    )
+
+    [selected] = select_for_milp(
+        [high_rate_bp, claimed],
+        None,
+        set(),
+        1,
+        policy_version=CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+
+    assert code_key(selected) == code_key(high_rate_bp)
+    assert CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION == 6
+
+
+def test_ledger_lower_bound_requires_mathematical_oracle_replay(monkeypatch):
+    row = _v5_source_row(
+        final_outcome="UNKNOWN",
+        final_attempts=2,
+        cache_digit="4",
+    )
+
+    class RebuiltCode:
+        num_qudits = row["n"]
+        dimension = row["k"]
+
+    matrices = (object(), object(), object(), object())
+    monkeypatch.setattr(
+        "evaluation.construction.build_css_code_from_claim",
+        lambda _row: RebuiltCode(),
+    )
+    monkeypatch.setattr(
+        "evaluation.distance_milp.get_code_matrices",
+        lambda _code: matrices,
+    )
+    monkeypatch.setattr(
+        "evaluation.low_weight_oracle.verify_css_low_weight_oracle",
+        lambda evidence, *actual: (
+            ["UNSAT replay failed"]
+            if evidence is row["distance_lower_bound_evidence"]
+            and actual == matrices
+            else ["wrong replay inputs"]
+        ),
+    )
+
+    assert flow_module._replayable_search_lower_bound_for_audit(row) is None
+
+    monkeypatch.setattr(
+        "evaluation.low_weight_oracle.verify_css_low_weight_oracle",
+        lambda evidence, *actual: (
+            []
+            if evidence is row["distance_lower_bound_evidence"]
+            and actual == matrices
+            else ["wrong replay inputs"]
+        ),
+    )
+    assert flow_module._replayable_search_lower_bound_for_audit(row) == 5
+
+
+def test_milp_selection_bounds_positive_claim_replay_work(monkeypatch):
+    claims = [
+        _claimed_search_lower_bound(
+            candidate(k=8, d=6, fom=4.0, shift=shift)
+        )
+        for shift in range(10)
+    ]
+    replayed = []
+
+    def replay(row):
+        replayed.append(code_key(row))
+        return row["distance_lower_bound"]
+
+    monkeypatch.setattr(
+        flow_module,
+        "_replayable_search_lower_bound_for_audit",
+        replay,
+    )
+
+    assert len(select_for_milp(claims, None, set(), 1)) == 1
+    assert len(replayed) == 4
+
+
+def test_milp_selection_bounds_failed_claim_replay_work(monkeypatch):
+    claims = [
+        _claimed_search_lower_bound(
+            candidate(k=8, d=6, fom=4.0, shift=shift)
+        )
+        for shift in range(10)
+    ]
+    replayed = []
+
+    def reject(row):
+        replayed.append(code_key(row))
+        return None
+
+    monkeypatch.setattr(
+        flow_module,
+        "_replayable_search_lower_bound_for_audit",
+        reject,
+    )
+
+    assert len(select_for_milp(claims, None, set(), 1)) == 1
+    assert len(replayed) == 4
 
 
 def test_unresolved_distance_selection_precedes_arbitrary_quick_lane():

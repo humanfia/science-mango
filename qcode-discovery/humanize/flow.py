@@ -120,14 +120,16 @@ CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION = 2
 CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION = 3
 CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION = 4
 CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION = 5
+CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION = 6
 CANDIDATE_BATCH_POLICY_VERSION = (
-    CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION
+    CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION
 )
 CANDIDATE_BATCH_POLICY_VERSIONS = (
     CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
     CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION,
     CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
     CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION,
+    CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
     CANDIDATE_BATCH_POLICY_VERSION,
 )
 SEARCH_DISTANCE_INTERVAL_PROOF_SCHEMA_VERSION = 1
@@ -9648,6 +9650,139 @@ def _quick_exploration_priority(
     return selected_distance_rank, singleton_upper / required, code_key(row)
 
 
+def _search_lower_bound_audit_priority(
+    row: dict[str, Any],
+    lower_bound: int,
+    *,
+    target_mode: str,
+) -> tuple[int, float, float, float, str] | None:
+    """Rank one already-replayed lower bound for scarce exact-audit work."""
+
+    n = row.get("n")
+    k = row.get("k")
+    if (
+        isinstance(lower_bound, bool)
+        or not isinstance(lower_bound, int)
+        or lower_bound < 1
+        or isinstance(n, bool)
+        or not isinstance(n, int)
+        or n < 1
+        or isinstance(k, bool)
+        or not isinstance(k, int)
+        or not 1 <= k <= n
+        or lower_bound > n
+    ):
+        return None
+    try:
+        required = int(
+            target_binding(n, k, target_mode)["required_distance"]
+        )
+    except (KeyError, TypeError, ValueError):
+        return None
+    lower_fom = k * lower_bound * lower_bound / n
+    return (
+        int(lower_bound >= required),
+        lower_bound / required,
+        lower_fom,
+        k / n,
+        code_key(row),
+    )
+
+
+def _search_lower_bound_claim_priority(
+    row: dict[str, Any],
+    *,
+    target_mode: str,
+) -> tuple[int, float, float, float, str] | None:
+    """Return an audit-only priority for a claimed positive search bound.
+
+    This helper deliberately does not grant mathematical credit.  It only
+    orders the small set of claims that :func:`select_for_milp` will replay
+    before spending an exact-audit slot.  BP/OSD ``d`` and FOM magnitudes are
+    absent: the ordering uses the claimed lower bound, the authoritative
+    campaign target derived from ``(n, k)``, and the exact encoding rate.
+    """
+
+    lower_bound = row.get("distance_lower_bound")
+    if (
+        isinstance(lower_bound, bool)
+        or not isinstance(lower_bound, int)
+        or lower_bound < 1
+        or row.get("distance_lower_bound_proven") is not True
+        or row.get("distance_lower_bound_status")
+        != "search_oracle_proven"
+    ):
+        return None
+    return _search_lower_bound_audit_priority(
+        row,
+        lower_bound,
+        target_mode=target_mode,
+    )
+
+
+def _replayable_search_lower_bound_for_audit(
+    row: dict[str, Any],
+) -> int | None:
+    """Replay a positive search bound for scheduling, never final acceptance.
+
+    Compact coset rows carry a source-bound proof-ledger contract checked by
+    ``_search_lower_bound_persistence_rank`` and then receive a fresh matrix /
+    two-sector oracle replay here.  Legacy/default BB rows reuse the
+    evaluator's independent matrix/oracle replay.  Neither path changes exact-
+    distance or final-gate semantics: the returned value is consumed solely
+    by the scarce Stage-1 audit scheduler.
+    """
+
+    ledger_rank = _search_lower_bound_persistence_rank(row)
+    if ledger_rank is not None:
+        # A proof-ledger self-hash is durable provenance, but is not by itself
+        # mathematical authority.  Rebuild the claimed construction and rerun
+        # the deterministic two-sector UNSAT verifier before this row can gain
+        # even audit-scheduling priority.
+        try:
+            from evaluation.construction import build_css_code_from_claim
+            from evaluation.distance_milp import get_code_matrices
+            from evaluation.low_weight_oracle import (
+                verify_css_low_weight_oracle,
+            )
+
+            code = build_css_code_from_claim(row)
+            n = row.get("n")
+            k = row.get("k")
+            if (
+                isinstance(n, bool)
+                or not isinstance(n, int)
+                or isinstance(k, bool)
+                or not isinstance(k, int)
+                or int(code.num_qudits) != n
+                or int(code.dimension) != k
+            ):
+                return None
+            hx, hz, lx, lz = get_code_matrices(code)
+            evidence = row.get("distance_lower_bound_evidence")
+            if not isinstance(evidence, Mapping) or (
+                verify_css_low_weight_oracle(evidence, hx, hz, lx, lz)
+            ):
+                return None
+        except Exception:
+            return None
+        return ledger_rank[0]
+    try:
+        from evolve.openevolve_evaluator import (
+            _normalized_stage2_lower_bound_row,
+        )
+
+        normalized = _normalized_stage2_lower_bound_row(row)
+    except Exception:
+        return None
+    if normalized is None:
+        return None
+    lower_bound = normalized.get("distance_lower_bound")
+    if isinstance(lower_bound, bool) or not isinstance(lower_bound, int):
+        return None
+    return lower_bound if lower_bound >= 1 else None
+
+
 def select_for_milp(
     new_elites: list[dict[str, Any]],
     archive: EliteArchive | None,
@@ -9656,8 +9791,10 @@ def select_for_milp(
     audited_digests: set[str] | None = None,
     *,
     policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
+    target_mode: str = DEFAULT_TARGET_MODE,
 ) -> list[dict[str, Any]]:
     """Select diverse candidates without rewarding BP upper-bound magnitude."""
+    selected_target_mode = validate_target_mode(target_mode)
     if limit <= 0:
         return []
     archive_rows = [] if archive is None else archive.ranked()
@@ -9705,7 +9842,79 @@ def select_for_milp(
         row for row in eligible
         if row not in quick_exploration
     ]
-    evidence_candidates.sort(key=candidate_evidence_priority, reverse=True)
+    if policy_version < CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION:
+        # Preserve the immutable selector semantics of committed v1-v5
+        # transactions.  Only a fresh policy-v6 transaction opts into the
+        # lower-bound replay funnel below.
+        evidence_candidates.sort(
+            key=candidate_evidence_priority,
+            reverse=True,
+        )
+    else:
+        # Exact/certified evidence keeps the historical lead.  Among the
+        # remaining rows, replay a bounded proof-funnel (at most four
+        # candidates per audit slot) and put validated positive lower bounds
+        # ahead of rate-only rows.  This fixes the previous funnel inversion
+        # in which every d>=5 survivor tied at zero and top-k selection was
+        # effectively rate-first.
+        exact_candidates: list[dict[str, Any]] = []
+        lower_bound_claims: list[dict[str, Any]] = []
+        ordinary_candidates: list[dict[str, Any]] = []
+        for row in evidence_candidates:
+            if candidate_evidence_priority(row)[0] > 0:
+                exact_candidates.append(row)
+            elif _search_lower_bound_claim_priority(
+                row,
+                target_mode=selected_target_mode,
+            ) is not None:
+                lower_bound_claims.append(row)
+            else:
+                ordinary_candidates.append(row)
+        exact_candidates.sort(key=candidate_evidence_priority, reverse=True)
+        lower_bound_claims.sort(
+            key=lambda row: _search_lower_bound_claim_priority(
+                row,
+                target_mode=selected_target_mode,
+            ),
+            reverse=True,
+        )
+        verified_lower_bounds: list[tuple[dict[str, Any], int]] = []
+        unverified_claims: list[dict[str, Any]] = []
+        replay_limit = 4 * limit
+        for index, row in enumerate(lower_bound_claims):
+            if index >= replay_limit:
+                unverified_claims.extend(lower_bound_claims[index:])
+                break
+            replayed_lower_bound = (
+                _replayable_search_lower_bound_for_audit(row)
+            )
+            claimed_lower_bound = row.get("distance_lower_bound")
+            if (
+                isinstance(replayed_lower_bound, bool)
+                or not isinstance(replayed_lower_bound, int)
+                or replayed_lower_bound != claimed_lower_bound
+            ):
+                unverified_claims.append(row)
+                continue
+            verified_lower_bounds.append((row, replayed_lower_bound))
+        verified_lower_bounds.sort(
+            key=lambda item: _search_lower_bound_audit_priority(
+                item[0],
+                item[1],
+                target_mode=selected_target_mode,
+            ),
+            reverse=True,
+        )
+        ordinary_candidates.extend(unverified_claims)
+        ordinary_candidates.sort(
+            key=candidate_evidence_priority,
+            reverse=True,
+        )
+        evidence_candidates = (
+            exact_candidates
+            + [row for row, _lower_bound in verified_lower_bounds]
+            + ordinary_candidates
+        )
     quick_exploration.sort(
         key=lambda row: _quick_exploration_priority(row),
         reverse=True,
@@ -10443,6 +10652,7 @@ class HumanizeFlow:
             fresh_capacity,
             blocked_digests,
             policy_version=policy_version,
+            target_mode=self.config.target_mode,
         )
 
         # Do not leave compute idle when the fresh pool is empty (including a
@@ -10604,8 +10814,9 @@ class HumanizeFlow:
         not carry this field.  Their batches were all derived with policy v1,
         so absence is the exact historical v1 encoding.  Protocol v3 requires
         an explicit binding and accepts immutable v2/v3 batches as well as
-        v4 witness-metadata-canonicalizing and v5 composite-provenance
-        batches; deleting it cannot silently downgrade a transaction.
+        v4 witness-metadata-canonicalizing, v5 composite-provenance, and v6
+        lower-bound audit-funnel batches; deleting it cannot silently
+        downgrade a transaction.
         """
 
         value = transaction.get("candidate_batch_policy_version")
@@ -10642,6 +10853,7 @@ class HumanizeFlow:
                 CANDIDATE_BATCH_POLICY_LOWER_BOUND_VERSION,
                 CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
                 CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION,
+                CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
                 CANDIDATE_BATCH_POLICY_VERSION,
             }
         ):
