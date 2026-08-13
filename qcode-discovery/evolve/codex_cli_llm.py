@@ -25,6 +25,7 @@ _ISOLATED_SOURCE_SHA_ENV = (
 )
 _ISOLATED_BOUNDARY_ENV = "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY"
 _CHROOT_USER = 65534
+_CHROOT_CODEX_PATH = "/bin/codex"
 
 
 def _copy_regular(source: Path, destination: Path, *, mode: int = 0o555) -> None:
@@ -73,6 +74,65 @@ def _device(path: Path, major: int, minor: int, mode: int) -> None:
     os.mknod(path, stat.S_IFCHR | mode, os.makedev(major, minor))
 
 
+def _validate_minimal_proc_self_exe(runtime: Path) -> None:
+    """Validate the non-mounted ``current_exe`` shim used by native Codex.
+
+    Rust resolves ``std::env::current_exe()`` through ``/proc/self/exe`` on
+    Linux.  Mounting procfs would expose process and host-runtime information
+    inside the blind-search chroot, so the v3 backend provides exactly one
+    root-owned symlink instead.  Its target is the already launch-hash-bound
+    Codex binary copied into the otherwise private chroot.
+    """
+
+    root = Path(runtime)
+    if root.is_symlink() or not root.is_dir():
+        raise RuntimeError("Codex chroot root is not a regular directory")
+    proc = root / "proc"
+    self_dir = proc / "self"
+    executable_link = self_dir / "exe"
+    for directory, label in ((proc, "/proc"), (self_dir, "/proc/self")):
+        if directory.is_symlink() or not directory.is_dir():
+            raise RuntimeError(f"Codex pseudo-proc {label} is not a directory")
+        if stat.S_IMODE(directory.stat().st_mode) != 0o555:
+            raise RuntimeError(f"Codex pseudo-proc {label} is not read-only")
+        if directory.stat().st_uid != 0:
+            raise RuntimeError(f"Codex pseudo-proc {label} is not root-owned")
+    if os.path.ismount(proc):
+        raise RuntimeError("Codex chroot must not mount procfs")
+    if {entry.name for entry in proc.iterdir()} != {"self"}:
+        raise RuntimeError("Codex pseudo-proc contains unexpected entries")
+    if {entry.name for entry in self_dir.iterdir()} != {"exe"}:
+        raise RuntimeError("Codex pseudo-proc/self contains unexpected entries")
+    if (
+        not executable_link.is_symlink()
+        or os.readlink(executable_link) != _CHROOT_CODEX_PATH
+        or executable_link.lstat().st_uid != 0
+    ):
+        raise RuntimeError("Codex pseudo-proc/self/exe binding changed")
+    executable = root / _CHROOT_CODEX_PATH.lstrip("/")
+    if (
+        executable.is_symlink()
+        or not executable.is_file()
+        or executable.stat().st_uid != 0
+        or stat.S_IMODE(executable.stat().st_mode) != 0o555
+    ):
+        raise RuntimeError("Codex chroot executable binding changed")
+
+
+def _install_minimal_proc_self_exe(runtime: Path) -> None:
+    """Install only ``/proc/self/exe``; never mount or copy host procfs."""
+
+    proc = Path(runtime) / "proc"
+    if proc.exists() or proc.is_symlink():
+        raise RuntimeError("Codex chroot pseudo-proc already exists")
+    self_dir = proc / "self"
+    self_dir.mkdir(parents=True, mode=0o555)
+    self_dir.chmod(0o555)
+    proc.chmod(0o555)
+    (self_dir / "exe").symlink_to(_CHROOT_CODEX_PATH)
+    _validate_minimal_proc_self_exe(runtime)
+
+
 def _materialize_chroot_runtime(
     runtime: Path,
     *,
@@ -85,7 +145,7 @@ def _materialize_chroot_runtime(
 
     runtime.chmod(0o755)
     validate_sanitized_codex_view(PROJECT_ROOT, view)
-    _copy_executable(runtime, codex_executable, "/bin/codex")
+    _copy_executable(runtime, codex_executable, _CHROOT_CODEX_PATH)
     tools = (
         (Path("/bin/bash"), "/bin/bash"),
         (Path("/bin/dash"), "/bin/dash"),
@@ -142,7 +202,7 @@ def _materialize_chroot_runtime(
 
     temporary = runtime / "tmp"
     temporary.mkdir(mode=0o1777)
-    (runtime / "proc").mkdir()
+    _install_minimal_proc_self_exe(runtime)
     _device(runtime / "dev/null", 1, 3, 0o666)
     _device(runtime / "dev/zero", 1, 5, 0o666)
     _device(runtime / "dev/random", 1, 8, 0o444)
@@ -258,12 +318,13 @@ class CodexCliLLM:
                 codex_executable=Path(self.codex_bin),
                 view=self.cwd,
             )
+            _validate_minimal_proc_self_exe(runtime)
             output_dir = runtime / "tmp/qcode-codex-output"
             output_dir.mkdir(mode=0o700)
             os.chown(output_dir, _CHROOT_USER, _CHROOT_USER)
             output_path = output_dir / "response.txt"
             output_argument = "/tmp/qcode-codex-output/response.txt"
-            codex_path = "/bin/codex"
+            codex_path = _CHROOT_CODEX_PATH
             codex_cwd = "/workspace"
             command_prefix = [
                 chroot,

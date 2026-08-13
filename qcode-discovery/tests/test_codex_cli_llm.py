@@ -1,10 +1,18 @@
 import asyncio
+import os
+import shutil
 from types import SimpleNamespace
+from pathlib import Path
 
 import pytest
 
 from evolve.ansatz_v3_codex_view import materialize_sanitized_codex_view
-from evolve.codex_cli_llm import CodexCliLLM, render_prompt
+from evolve.codex_cli_llm import (
+    CodexCliLLM,
+    _install_minimal_proc_self_exe,
+    _validate_minimal_proc_self_exe,
+    render_prompt,
+)
 from evolve.codex_cli_llm import PROJECT_ROOT
 
 
@@ -68,6 +76,9 @@ done
 [ ! -e /workspace/evaluation/twisted_torus_published_anchors.v1.json ] || exit 33
 [ ! -e /workspace/scripts/verify_blind_ansatz_v3_calibration.py ] || exit 34
 [ ! -e /root/qcode-ansatz-v3-preregister ] || exit 35
+[ -L /proc/self/exe ] || exit 36
+[ /proc/self/exe -ef /bin/codex ] || exit 37
+[ ! -e /proc/self/mountinfo ] || exit 38
 cat >/dev/null
 printf 'ISOLATED_CODEX_OK\n' > "$out"
 """, encoding="utf-8")
@@ -112,3 +123,105 @@ printf 'ISOLATED_CODEX_OK\n' > "$out"
     )
     with pytest.raises(RuntimeError, match="binding changed"):
         CodexCliLLM(config)
+
+
+@pytest.mark.parametrize("tamper", ["extra_entry", "wrong_target"])
+def test_minimal_pseudo_proc_is_exact_and_tamper_fails_closed(
+    tmp_path, tamper
+):
+    runtime = tmp_path / "runtime"
+    executable = runtime / "bin/codex"
+    executable.parent.mkdir(parents=True)
+    executable.write_bytes(b"native-codex")
+    executable.chmod(0o555)
+    _install_minimal_proc_self_exe(runtime)
+    _validate_minimal_proc_self_exe(runtime)
+    proc = runtime / "proc"
+    assert not os.path.ismount(proc)
+    assert sorted(
+        str(path.relative_to(proc)) for path in proc.rglob("*")
+    ) == ["self", "self/exe"]
+    if tamper == "extra_entry":
+        (proc / "self/mountinfo").write_text("not procfs\n")
+        match = "unexpected entries"
+    else:
+        link = proc / "self/exe"
+        link.unlink()
+        link.symlink_to("/bin/sh")
+        match = "binding changed"
+    with pytest.raises(RuntimeError, match=match):
+        _validate_minimal_proc_self_exe(runtime)
+
+
+@pytest.mark.skipif(
+    os.environ.get("QCODE_RUN_REAL_CODEX_CHROOT_SMOKE") != "1",
+    reason="requires an authenticated native Codex CLI and network access",
+)
+def test_real_ansatz_v3_chroot_returns_parseable_mutation(
+    tmp_path, monkeypatch
+):
+    from evaluation.ansatz_v3_program_guard import (
+        validate_ansatz_v3_program_source,
+    )
+    from openevolve.utils.code_utils import apply_diff, extract_diffs
+
+    installed = shutil.which("codex")
+    if installed is None:
+        pytest.skip("Codex CLI is not installed")
+    native = Path(installed).resolve(strict=True)
+    if native.read_bytes()[:4] not in (b"\x7fELF", b"MZ\x90\x00"):
+        pytest.skip("Codex launcher does not resolve directly to native binary")
+    auth_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
+    if not (auth_home / "auth.json").is_file():
+        pytest.skip("Codex authentication is unavailable")
+    view_path = tmp_path / "real-view"
+    view = materialize_sanitized_codex_view(PROJECT_ROOT, view_path)
+    monkeypatch.setenv("QCODE_CODEX_BIN", str(native))
+    monkeypatch.setenv("QCODE_CODEX_CWD", str(view_path))
+    monkeypatch.setenv("CODEX_HOME", str(auth_home))
+    monkeypatch.setenv(
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST", view["manifest_path"]
+    )
+    monkeypatch.setenv(
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256",
+        view["manifest_file_sha256"],
+    )
+    monkeypatch.setenv(
+        "QCODE_ANSATZ_V3_CODEX_VIEW_SOURCE_FINGERPRINT_SHA256",
+        view["source_fingerprint_sha256"],
+    )
+    monkeypatch.setenv(
+        "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY",
+        view["filesystem_boundary"],
+    )
+    config = SimpleNamespace(
+        name=os.environ.get("QCODE_REAL_CODEX_SMOKE_MODEL", "gpt-5.6-sol"),
+        system_message=(
+            "You are an OpenEvolve mutation backend. Return exactly one "
+            "SEARCH/REPLACE block and do not call tools."
+        ),
+        reasoning_effort="low",
+        timeout=180,
+        retries=0,
+        retry_delay=0,
+    )
+    response = asyncio.run(CodexCliLLM(config).generate(
+        "Return this mutation with the markers exactly as written:\n"
+        "<<<<<<< SEARCH\n"
+        "    for step in range(220):\n"
+        "=======\n"
+        "    for step in range(224):\n"
+        ">>>>>>> REPLACE\n"
+    ))
+    blocks = extract_diffs(response)
+    assert blocks == [(
+        "    for step in range(220):",
+        "    for step in range(224):",
+    )]
+    source = (
+        PROJECT_ROOT / "evolve/seed_solution_twisted_torus_ansatz_v3.py"
+    ).read_text(encoding="utf-8")
+    mutated = apply_diff(source, response)
+    assert mutated != source
+    assert "    for step in range(224):" in mutated
+    validate_ansatz_v3_program_source(mutated)
