@@ -26,7 +26,10 @@ import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
-from archon.commands.loop.physics_grounding import run_physics_grounding
+from archon.commands.loop.physics_grounding import (
+    _report_name as grounding_report_name,
+    run_physics_grounding,
+)
 from archon.commands.tooling.project_lean_index import build_project_index
 
 
@@ -581,7 +584,9 @@ def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]
     task_results = (config.workspace / ".archon/task_results").resolve()
     for lean_file, report in actual.items():
         report_path = Path(getattr(report, "report_path", ""))
-        expected_report = task_results / f"physics-grounding-{lean_file.stem}.md"
+        expected_report = task_results / grounding_report_name(
+            config.workspace, lean_file
+        )
         if (
             report_path.is_symlink()
             or not report_path.is_file()

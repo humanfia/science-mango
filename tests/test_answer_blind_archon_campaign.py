@@ -171,7 +171,9 @@ class NativeArchonCampaignTests(unittest.TestCase):
         reports = []
         for lean_file in kwargs.get("lean_files", []):
             lean_path = Path(lean_file)
-            report_path = task_results / f"physics-grounding-{lean_path.stem}.md"
+            report_path = task_results / RUNNER.grounding_report_name(
+                project, lean_path
+            )
             report_path.write_text(
                 "# Physics LeanExplore Grounding Log\n\n"
                 "- Grounding status: complete\n"
@@ -489,7 +491,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
             lean_file = workspace / target
             report_path = (
                 workspace / ".archon/task_results"
-                / f"physics-grounding-{lean_file.stem}.md"
+                / RUNNER.grounding_report_name(workspace, lean_file)
             )
             report_path.parent.mkdir(parents=True, exist_ok=True)
             status = "incomplete" if offset == len(targets) - 1 else "complete"
