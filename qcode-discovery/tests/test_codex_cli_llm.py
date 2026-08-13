@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import shutil
 from types import SimpleNamespace
@@ -63,6 +64,35 @@ def test_ansatz_v3_codex_cli_runs_inside_physical_chroot(tmp_path, monkeypatch):
     fake.write_text("""#!/bin/sh
 out=''
 cwd=''
+model=''
+strict=0
+apps=0
+auth_elicitation=0
+browser_use=0
+browser_use_external=0
+browser_use_full_cdp_access=0
+code_mode=0
+code_mode_host=0
+computer_use=0
+hooks=0
+image_generation=0
+in_app_browser=0
+multi_agent=0
+plugin_sharing=0
+plugins=0
+remote_plugin=0
+shell_snapshot=0
+shell_tool=0
+skill_mcp_dependency_install=0
+skill_search=0
+tool_call_mcp_elicitation=0
+tool_suggest=0
+unified_exec=0
+view_image=0
+workspace_dependencies=0
+request_user_input=0
+update_plan=0
+web_search=0
 while [ "$#" -gt 0 ]; do
   if [ "$1" = '--output-last-message' ]; then
     shift
@@ -70,10 +100,47 @@ while [ "$#" -gt 0 ]; do
   elif [ "$1" = '--cd' ]; then
     shift
     cwd="$1"
+  elif [ "$1" = '--model' ]; then
+    shift
+    model="$1"
+  elif [ "$1" = '--strict-config' ]; then
+    strict=1
+  elif [ "$1" = '--config' ]; then
+    shift
+    case "$1" in
+      'features.apps=false') apps=1 ;;
+      'features.auth_elicitation=false') auth_elicitation=1 ;;
+      'features.browser_use=false') browser_use=1 ;;
+      'features.browser_use_external=false') browser_use_external=1 ;;
+      'features.browser_use_full_cdp_access=false') browser_use_full_cdp_access=1 ;;
+      'features.code_mode.enabled=false') code_mode=1 ;;
+      'features.code_mode_host=false') code_mode_host=1 ;;
+      'features.computer_use=false') computer_use=1 ;;
+      'features.hooks=false') hooks=1 ;;
+      'features.image_generation=false') image_generation=1 ;;
+      'features.in_app_browser=false') in_app_browser=1 ;;
+      'features.multi_agent=false') multi_agent=1 ;;
+      'features.plugin_sharing=false') plugin_sharing=1 ;;
+      'features.plugins=false') plugins=1 ;;
+      'features.remote_plugin=false') remote_plugin=1 ;;
+      'features.shell_snapshot=false') shell_snapshot=1 ;;
+      'features.shell_tool=false') shell_tool=1 ;;
+      'features.skill_mcp_dependency_install=false') skill_mcp_dependency_install=1 ;;
+      'features.skill_search=false') skill_search=1 ;;
+      'features.tool_call_mcp_elicitation=false') tool_call_mcp_elicitation=1 ;;
+      'features.tool_suggest=false') tool_suggest=1 ;;
+      'features.unified_exec=false') unified_exec=1 ;;
+      'features.view_image=false') view_image=1 ;;
+      'features.workspace_dependencies=false') workspace_dependencies=1 ;;
+      'tools.experimental_request_user_input.enabled=false') request_user_input=1 ;;
+      'tools.update_plan.enabled=false') update_plan=1 ;;
+      'web_search="disabled"') web_search=1 ;;
+    esac
   fi
   shift
 done
 [ "$cwd" = '/workspace' ] || exit 31
+[ "$model" = 'gpt-5.6-sol' ] || exit 44
 [ -f /workspace/evolve/seed_solution_twisted_torus_ansatz_v3.py ] || exit 32
 [ ! -e /workspace/evaluation/twisted_torus_published_anchors.v1.json ] || exit 33
 [ ! -e /workspace/scripts/verify_blind_ansatz_v3_calibration.py ] || exit 34
@@ -83,6 +150,10 @@ done
 [ ! -e /proc/self/mountinfo ] || exit 38
 [ ! -e /bin/codex-code-mode-host ] || exit 39
 [ ! -e /bin/bwrap ] || exit 40
+[ "$strict$apps$auth_elicitation$browser_use$browser_use_external$browser_use_full_cdp_access$code_mode$code_mode_host$computer_use$hooks$image_generation$in_app_browser$multi_agent$plugin_sharing$plugins$remote_plugin$shell_snapshot$shell_tool$skill_mcp_dependency_install$skill_search$tool_call_mcp_elicitation$tool_suggest$unified_exec$view_image$workspace_dependencies$request_user_input$update_plan$web_search" = '1111111111111111111111111111' ] || exit 41
+[ -z "${QCODE_TEST_SENTINEL_SECRET+x}" ] || exit 42
+[ -z "${OPENAI_API_KEY+x}" ] || exit 43
+[ "${CODEX_EXEC_SERVER_URL:-}" = 'none' ] || exit 45
 cat >/dev/null
 printf 'ISOLATED_CODEX_OK\n' > "$out"
 """, encoding="utf-8")
@@ -95,6 +166,8 @@ printf 'ISOLATED_CODEX_OK\n' > "$out"
     monkeypatch.setenv("QCODE_CODEX_BIN", str(fake))
     monkeypatch.setenv("QCODE_CODEX_CWD", str(view_path))
     monkeypatch.setenv("CODEX_HOME", str(auth_home))
+    monkeypatch.setenv("QCODE_TEST_SENTINEL_SECRET", "must-not-cross")
+    monkeypatch.setenv("OPENAI_API_KEY", "must-not-cross")
     monkeypatch.setenv(
         "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST", view["manifest_path"]
     )
@@ -111,7 +184,7 @@ printf 'ISOLATED_CODEX_OK\n' > "$out"
         view["filesystem_boundary"],
     )
     config = SimpleNamespace(
-        name="gpt-5.5",
+        name="gpt-5.6-sol",
         system_message="system",
         reasoning_effort="xhigh",
         timeout=30,
@@ -168,6 +241,7 @@ def test_isolated_codex_config_and_environment_are_exact(monkeypatch):
     assert environment == {
         "HOME": "/root",
         "CODEX_HOME": "/root/.codex",
+        "CODEX_EXEC_SERVER_URL": "none",
         "PATH": "/bin:/usr/bin",
         "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
     }
@@ -175,13 +249,44 @@ def test_isolated_codex_config_and_environment_are_exact(monkeypatch):
     assert "OPENAI_API_KEY" not in environment
     assert "HTTPS_PROXY" not in environment
     assert arguments == [
-        "--config", "features.shell_tool=false",
-        "--config", "features.unified_exec=false",
         "--config", "features.apps=false",
+        "--config", "features.auth_elicitation=false",
+        "--config", "features.browser_use=false",
+        "--config", "features.browser_use_external=false",
+        "--config", "features.browser_use_full_cdp_access=false",
         "--config", "features.code_mode.enabled=false",
-        "--config", "tools.view_image=false",
+        "--config", "features.code_mode_host=false",
+        "--config", "features.computer_use=false",
+        "--config", "features.hooks=false",
+        "--config", "features.image_generation=false",
+        "--config", "features.in_app_browser=false",
+        "--config", "features.multi_agent=false",
+        "--config", "features.plugin_sharing=false",
+        "--config", "features.plugins=false",
+        "--config", "features.remote_plugin=false",
+        "--config", "features.shell_snapshot=false",
+        "--config", "features.shell_tool=false",
+        "--config", "features.skill_mcp_dependency_install=false",
+        "--config", "features.skill_search=false",
+        "--config", "features.tool_call_mcp_elicitation=false",
+        "--config", "features.tool_suggest=false",
+        "--config", "features.unified_exec=false",
+        "--config", "features.view_image=false",
+        "--config", "features.workspace_dependencies=false",
+        "--config", "tools.experimental_request_user_input.enabled=false",
+        "--config", "tools.update_plan.enabled=false",
         "--config", 'web_search="disabled"',
     ]
+
+
+def _managed_v3_model_name() -> str:
+    config = json.loads((
+        PROJECT_ROOT
+        / "configs/five_stage_campaign.twisted_torus_ansatz_v3_preregistered.json"
+    ).read_text(encoding="utf-8"))
+    name = config["stage1"]["model"]
+    assert name == "gpt-5.6-sol"
+    return name
 
 
 @pytest.mark.skipif(
@@ -226,7 +331,7 @@ def test_real_ansatz_v3_chroot_returns_parseable_mutation(
         view["filesystem_boundary"],
     )
     config = SimpleNamespace(
-        name=os.environ.get("QCODE_REAL_CODEX_SMOKE_MODEL", "gpt-5.6-sol"),
+        name=_managed_v3_model_name(),
         system_message=(
             "You are an OpenEvolve mutation backend. Return exactly one "
             "SEARCH/REPLACE block and do not call tools."
@@ -295,7 +400,7 @@ def test_real_ansatz_v3_chroot_tool_attempt_stays_text_only(
         view["filesystem_boundary"],
     )
     config = SimpleNamespace(
-        name=os.environ.get("QCODE_REAL_CODEX_SMOKE_MODEL", "gpt-5.6-sol"),
+        name=_managed_v3_model_name(),
         system_message="Return plain text only.",
         reasoning_effort="low",
         timeout=180,

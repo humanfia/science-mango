@@ -29,15 +29,37 @@ _CHROOT_CODEX_PATH = "/bin/codex"
 _CHROOT_CODEX_ENVIRONMENT = {
     "HOME": "/root",
     "CODEX_HOME": "/root/.codex",
+    "CODEX_EXEC_SERVER_URL": "none",
     "PATH": "/bin:/usr/bin",
     "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
 }
 _CHROOT_CODEX_CONFIG_OVERRIDES = (
-    "features.shell_tool=false",
-    "features.unified_exec=false",
     "features.apps=false",
+    "features.auth_elicitation=false",
+    "features.browser_use=false",
+    "features.browser_use_external=false",
+    "features.browser_use_full_cdp_access=false",
     "features.code_mode.enabled=false",
-    "tools.view_image=false",
+    "features.code_mode_host=false",
+    "features.computer_use=false",
+    "features.hooks=false",
+    "features.image_generation=false",
+    "features.in_app_browser=false",
+    "features.multi_agent=false",
+    "features.plugin_sharing=false",
+    "features.plugins=false",
+    "features.remote_plugin=false",
+    "features.shell_snapshot=false",
+    "features.shell_tool=false",
+    "features.skill_mcp_dependency_install=false",
+    "features.skill_search=false",
+    "features.tool_call_mcp_elicitation=false",
+    "features.tool_suggest=false",
+    "features.unified_exec=false",
+    "features.view_image=false",
+    "features.workspace_dependencies=false",
+    "tools.experimental_request_user_input.enabled=false",
+    "tools.update_plan.enabled=false",
     'web_search="disabled"',
 )
 
@@ -373,7 +395,7 @@ class CodexCliLLM:
             "--model", self.model,
             "--config", f'model_reasoning_effort="{self.reasoning_effort}"',
             *(
-                _isolated_codex_config_arguments()
+                ["--strict-config", *_isolated_codex_config_arguments()]
                 if self.sanitized_view is not None
                 else ()
             ),
