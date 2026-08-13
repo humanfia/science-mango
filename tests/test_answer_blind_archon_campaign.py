@@ -218,7 +218,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
         harness = value["harnesses"]["answer-blind-gpt"]
         loop = value["loop"]
         self.assertEqual(harness["runner"], "codex")
-        self.assertEqual(harness["sandbox"], "workspace-write")
+        self.assertEqual(harness["sandbox"], "danger-full-access")
         self.assertEqual(harness["mcp"], [])
         self.assertNotIn("lean_lsp_mcp_bin", harness)
         self.assertIn("features.code_mode=false", harness["extra_args"])
@@ -264,6 +264,12 @@ class NativeArchonCampaignTests(unittest.TestCase):
             json.loads((workspace / ".mcp.json").read_text()),
             {"mcpServers": {}},
         )
+        value["harnesses"]["answer-blind-gpt"]["sandbox"] = "workspace-write"
+        (workspace / ".archon/config.json").write_text(
+            json.dumps(value), encoding="utf-8"
+        )
+        with self.assertRaisesRegex(RUNNER.CampaignError, "native non-root Codex"):
+            RUNNER._check_native_config(workspace, preparation=True)
 
     def test_default_fresh_run_prepares_without_starting_loop(self) -> None:
         commands: list[list[str]] = []
@@ -274,11 +280,14 @@ class NativeArchonCampaignTests(unittest.TestCase):
             return 0, 0.25
 
         patches = self._prepare_patches()
-        with patches[0], patches[1], patches[2], mock.patch.object(
-            RUNNER, "_run", side_effect=fake_run
+        with (
+            patches[0], patches[1], patches[2],
+            mock.patch.object(RUNNER.os, "geteuid", return_value=0) as geteuid,
+            mock.patch.object(RUNNER, "_run", side_effect=fake_run),
         ):
             result = RUNNER.run_fresh(self.config, start_loop=False)
 
+        geteuid.assert_not_called()
         self.assertEqual(result["status"], "prepared")
         self.assertEqual(len(commands), 1)
         self.assertEqual(commands[0][1], "physics-formalize")
@@ -297,6 +306,17 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertNotIn("archon:physics", chapter.read_text())
             self.assertNotIn("archon:chemistry", chapter.read_text())
 
+    def test_dry_run_is_permitted_as_root(self) -> None:
+        validate = self._prepare_patches()[0]
+        with (
+            validate,
+            mock.patch.object(RUNNER.os, "geteuid", return_value=0) as geteuid,
+        ):
+            result = RUNNER.dry_run(self.config, include_loop=True)
+
+        geteuid.assert_not_called()
+        self.assertEqual(result["status"], "dry-run")
+
     def test_explicit_run_invokes_one_loop_and_uses_native_success(self) -> None:
         commands: list[list[str]] = []
 
@@ -309,8 +329,10 @@ class NativeArchonCampaignTests(unittest.TestCase):
             return 0, 0.5
 
         patches = self._prepare_patches()
-        with patches[0], patches[1], patches[2], mock.patch.object(
-            RUNNER, "_run", side_effect=fake_run
+        with (
+            patches[0], patches[1], patches[2],
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+            mock.patch.object(RUNNER, "_run", side_effect=fake_run),
         ):
             result = RUNNER.run_fresh(self.config, start_loop=True)
 
@@ -343,9 +365,24 @@ class NativeArchonCampaignTests(unittest.TestCase):
         (config.workspace / ".archon").mkdir()
         self._write_success_state(config.workspace)
         index = {"pipeline": RUNNER.PIPELINE, "status": "running"}
-        with mock.patch.object(RUNNER, "_run", return_value=(1, 0.1)):
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+            mock.patch.object(RUNNER, "_run", return_value=(1, 0.1)),
+        ):
             result = RUNNER._run_loop(config, self.ids, index, resume=False)
         self.assertEqual(result["status"], "failed")
+
+    def test_model_loop_refuses_root_before_starting_process(self) -> None:
+        config = RUNNER.Config(campaign_root=self.base / "root-campaign")
+        index = {"pipeline": RUNNER.PIPELINE, "status": "prepared"}
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=0),
+            mock.patch.object(RUNNER, "_run") as run,
+            self.assertRaisesRegex(RUNNER.CampaignError, "non-root solver UID"),
+        ):
+            RUNNER._run_loop(config, self.ids, index, resume=False)
+        run.assert_not_called()
+        self.assertEqual(index["status"], "prepared")
 
     def test_prepared_campaign_starts_without_repreparing(self) -> None:
         patches = self._prepare_patches()
@@ -376,6 +413,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
             mock.patch.object(
                 RUNNER._CONFIGURE, "configure_answer_blind_workspace"
             ) as configure,
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
             mock.patch.object(RUNNER, "_run", side_effect=resume_run),
         ):
             result = RUNNER.resume_campaign(resume_config)
@@ -415,7 +453,10 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self._write_success_state(config.workspace)
             return 0, 0.2
 
-        with mock.patch.object(RUNNER, "_run", side_effect=resume_run):
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+            mock.patch.object(RUNNER, "_run", side_effect=resume_run),
+        ):
             result = RUNNER.resume_campaign(resume_config)
 
         self.assertIn("--resume", seen[0])

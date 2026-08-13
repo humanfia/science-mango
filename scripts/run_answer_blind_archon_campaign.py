@@ -265,7 +265,11 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "runner": "codex",
         "model": "gpt-5.6-sol",
         "effort": "max",
-        "sandbox": "workspace-write",
+        # This host disables unprivileged user namespaces, so Codex's
+        # workspace-write sandbox cannot provide its execution host.  The
+        # native loop instead runs as a dedicated non-root UID, while answer
+        # and controller paths stay root-only; _run_loop enforces that boundary.
+        "sandbox": "danger-full-access",
         "ignore_user_config": True,
         "ephemeral": True,
         # Keep the native path deliberately small.  Archon's deterministic
@@ -373,7 +377,7 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         raise CampaignError("prepared Archon config is invalid") from exc
     if (
         harness.get("runner") != "codex"
-        or harness.get("sandbox") != "workspace-write"
+        or harness.get("sandbox") != "danger-full-access"
         or harness.get("mcp") != []
         or "lean_lsp_mcp_bin" in harness
         or any(key in harness for key in ("base_url_env", "key_env"))
@@ -385,7 +389,7 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         or loop.get("parallel_target_review") is not False
         or loop.get("pipeline_target_review") is not False
     ):
-        raise CampaignError("prepared harness is not native workspace-write Codex")
+        raise CampaignError("prepared harness is not native non-root Codex")
     for key in (
         "max_parallel",
         "review_preflight_jobs",
@@ -624,6 +628,10 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
 def _run_loop(
     config: Config, ids: Sequence[str], index: dict[str, Any], *, resume: bool
 ) -> dict[str, Any]:
+    if os.geteuid() == 0:
+        raise CampaignError(
+            "refusing to start the model loop as root; use the dedicated non-root solver UID"
+        )
     index.update(status="running", phase="resume" if resume else "loop", updated_at=_utcnow())
     _write_index(config, index)
     code, seconds = _run(loop_command(config, resume=resume), config=config)
