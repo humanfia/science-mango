@@ -899,6 +899,14 @@ def _prepare_layout(config: Config) -> None:
     config.home_root.mkdir(mode=0o711)
     config.controller_log_root.mkdir(mode=0o700)
     (root / "quarantine").mkdir(mode=0o700)
+    # mkdir(2) applies the caller's umask.  Deployment intentionally uses
+    # umask 077, so normalize the two traversal-only parents explicitly after
+    # creation; otherwise every solver is blocked before reaching its own
+    # UID-owned 0700 leaf.  Neither parent grants read or write authority.
+    os.chmod(config.item_root, 0o711)
+    os.chmod(config.home_root, 0o711)
+    os.chmod(config.controller_log_root, 0o700)
+    os.chmod(root / "quarantine", 0o700)
     os.chown(root, 0, 0)
     os.chmod(root, 0o700)
 

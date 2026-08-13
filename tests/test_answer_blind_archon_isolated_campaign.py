@@ -106,6 +106,23 @@ class IsolatedCampaignTests(unittest.TestCase):
         self.assertEqual(command[command.index("--max-parallel") + 1], "1")
         self.assertEqual(command[command.index("--max-objectives") + 1], "1")
 
+    def test_prepare_layout_normalizes_traversal_parents_under_umask_077(self) -> None:
+        previous = os.umask(0o077)
+        try:
+            RUNNER._prepare_layout(self.config)
+        finally:
+            os.umask(previous)
+        self.assertEqual(stat.S_IMODE(self.config.campaign_root.stat().st_mode), 0o700)
+        self.assertEqual(stat.S_IMODE(self.config.item_root.stat().st_mode), 0o711)
+        self.assertEqual(stat.S_IMODE(self.config.home_root.stat().st_mode), 0o711)
+        self.assertEqual(
+            stat.S_IMODE(self.config.controller_log_root.stat().st_mode), 0o700,
+        )
+        self.assertEqual(
+            stat.S_IMODE((self.config.campaign_root / "quarantine").stat().st_mode),
+            0o700,
+        )
+
     def test_aggregate_index_is_atomic_and_contains_no_peer_payloads(self) -> None:
         identities = RUNNER._identity_plan(self.config)
         self.config.campaign_root.mkdir()
