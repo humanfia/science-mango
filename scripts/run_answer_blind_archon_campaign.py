@@ -258,6 +258,8 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "features.code_mode_host=false",
         "features.shell_snapshot=false",
         "features.shell_tool=true",
+        "features.multi_agent=false",
+        "features.multi_agent_v2=false",
     ):
         extra_args.extend(("-c", setting))
     harness.update({
@@ -378,6 +380,7 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         or any(key in harness for key in ("base_url_env", "key_env"))
         or "features.code_mode_host=false" not in (harness.get("extra_args") or [])
         or "features.shell_tool=true" not in (harness.get("extra_args") or [])
+        or "features.multi_agent=false" not in (harness.get("extra_args") or [])
         or (loop.get("domain_profile") or {}).get("name")
         != ("chemistry" if preparation else "chemistry-native")
         or loop.get("parallel_formalization_review") is not False

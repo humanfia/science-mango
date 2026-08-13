@@ -223,6 +223,8 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertNotIn("lean_lsp_mcp_bin", harness)
         self.assertIn("features.code_mode_host=false", harness["extra_args"])
         self.assertIn("features.shell_tool=true", harness["extra_args"])
+        self.assertIn("features.multi_agent=false", harness["extra_args"])
+        self.assertIn("features.multi_agent_v2=false", harness["extra_args"])
         self.assertEqual(loop["domain_profile"]["name"], "chemistry")
         self.assertIs(loop["parallel_formalization_review"], False)
         self.assertIs(loop["parallel_target_review"], False)
