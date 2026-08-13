@@ -198,6 +198,18 @@ class CompactInputPackTest(unittest.TestCase):
             attempts = state / "proof-journal" / "current_session" / "attempts_raw.jsonl"
             attempts.parent.mkdir(parents=True)
             attempts.write_text("", encoding="utf-8")
+            prompts = state / "prompts"
+            prompts.mkdir()
+            agents_tail = "AGENTS_POLICY_TAIL_MUST_SURVIVE"
+            review_tail = "REVIEW_POLICY_TAIL_MUST_SURVIVE"
+            (state / "AGENTS.md").write_text(
+                "agents policy\n" + ("a" * 5000) + agents_tail,
+                encoding="utf-8",
+            )
+            (prompts / "review.md").write_text(
+                "review policy\n" + ("r" * 5000) + review_tail,
+                encoding="utf-8",
+            )
 
             pack = build_review_input_pack(
                 project_path=root,
@@ -212,6 +224,10 @@ class CompactInputPackTest(unittest.TestCase):
         self.assertIn("# Compact Review Input Pack", text)
         self.assertIn("proved helper", text)
         self.assertIn("in_total=1234", text)
+        self.assertIn("## Project-local Review Policy (verbatim", text)
+        self.assertIn(agents_tail, text)
+        self.assertIn(review_tail, text)
+        self.assertNotIn("truncated by compact input pack", text)
 
 
 if __name__ == "__main__":

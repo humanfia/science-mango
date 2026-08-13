@@ -431,6 +431,18 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertNotIn("lean-lsp mcp", text.lower())
         self.assertIn("formalization Review", agents)
         self.assertIn("create a candidate JSON", formalize)
+        self.assertIn("Semantic Card", formalize)
+        self.assertIn("cumulative/overall/repeated-process", formalize)
+        self.assertIn("numerator and denominator", formalize)
+        self.assertIn("exact unrounded raw value", formalize)
+        self.assertIn("source locator", formalize)
+        self.assertIn("source-first independent derivation", review)
+        self.assertIn("method: source_first_without_lean", review)
+        self.assertIn("semantic_card_comparison", review)
+        self.assertIn("lean_statement_comparison", review)
+        self.assertIn("needs_redraft", review)
+        self.assertIn("proof of the encoded statement is no", review)
+        self.assertIn("evidence that the encoding matches the problem", review)
         self.assertEqual(
             json.loads((workspace / ".mcp.json").read_text()),
             {"mcpServers": {}},

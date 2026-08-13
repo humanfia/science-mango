@@ -60,6 +60,13 @@ report. Preserve the quantities, units, hypotheses, requested outputs, and
 chemical alternatives stated in the problem; do not replace the goal with a
 tautology or unsupported premise.
 
+A compiling theorem is not by itself a faithful answer. For every requested
+output, formalization must leave a source-grounded semantic card in the target
+task-result, and formalization Review must independently rederive the output
+from the problem statement and images before inspecting that card or the Lean
+statement. Missing cards, ambiguous source meaning, or a mismatch between the
+independent derivation, card, and Lean contract require redraft.
+
 Archon's native acceptance path is: formalization, formalization Review, proof,
 proof Review, and final Lake build. There is no separate seal/freeze protocol in
 this run.
@@ -97,6 +104,31 @@ solve the proof.
   conservation law, stoichiometric coefficient, and domain condition.
 - Derive numerical values from the supplied data; do not invent empirical facts
   or encode a desired result as an assumption.
+- Before writing the Lean statement, derive and record a `Semantic Card` section
+  in the assigned task-result. It must contain exactly one entry for every
+  requested output and, for each entry:
+  - the source wording/part label and an exact definition of the requested
+    quantity, explicitly distinguishing cumulative/overall/repeated-process
+    quantities from per-step, per-cycle, marginal, or instantaneous ones;
+  - the numerator and denominator or composition/mass basis (for example dry
+    carrier, loaded material, solution, aliquot, or total mixture), or an
+    explicit source-based reason that this field is not applicable;
+  - every numerical or symbolic constant used, each with exact value, unit,
+    and a source locator such as a problem paragraph, table cell, figure label,
+    image filename plus region, or pinned-library declaration;
+  - upstream requested-output dependencies, governing equations, evaluation
+    order, and every sign, case, branch, stereochemical, or identification
+    condition (or a source-based not-applicable reason);
+  - the output unit/dimension, exact unrounded raw value or symbolic result,
+    source-authorized reporting/rounding rule, and the Lean declarations that
+    carry each input, relation, raw result, and reported result; and
+  - `ambiguity_status: clear`. If any source meaning, basis, constant, branch,
+    or reporting rule cannot be justified from the allowed inputs, record the
+    ambiguity and report `needs_redraft`; do not choose the interpretation that
+    makes the current Lean goal easiest to prove.
+- Keep exact values through the derivation and round only the final requested
+  output unless the problem explicitly directs an intermediate rounding step.
+  Record such a direction with its source locator.
 - Do not weaken the requested result to `True`, a reflexive equality, or an
   unrelated existence claim.
 - Use local Mathlib/Physlib/CRNT/project declarations whose signatures you have
@@ -161,6 +193,45 @@ JSONL row for every listed objective: no omissions, duplicates, or extra
 targets. Also write the requested summary, recommendations, and PROJECT_STATUS
 files. Do not modify Lean files and never seek an official answer, solution,
 rubric, grader output, prior run, or another solver's work.
+
+For autoformalize, semantic Review is a source-first independent derivation,
+not a consistency check of generated artifacts. For each target, follow this
+order:
+
+1. Read the problem statement and every referenced problem image. Before
+   inspecting the target Lean file, its Semantic Card, prover trace, or claimed
+   result, independently reconstruct exactly one audit entry per requested
+   output. Do the arithmetic, stoichiometric counting, conservation reasoning,
+   and case analysis yourself from those allowed sources.
+2. Each independent entry must state the requested quantity's exact meaning,
+   including cumulative/overall/repeated-process versus per-step/per-cycle
+   scope; numerator and denominator or composition/mass basis; every constant
+   with value, unit, and source locator; upstream dependencies and governing
+   equations; branch/sign/case/stereochemical conditions; unit/dimension;
+   exact unrounded raw value or symbolic result; and source-authorized final
+   reporting rule. Use an explicit source-based `not_applicable`, never a blank.
+3. Only then inspect the formalizer's Semantic Card and Lean statement. Compare
+   the independently derived entry field by field with both artifacts. Check
+   atom/repeating-unit counts, mass-balance bases, cumulative yields or losses,
+   denominators, constants, unit conversions, branches, and the absence of
+   unauthorized intermediate rounding. A proof of the encoded statement is no
+   evidence that the encoding matches the problem.
+4. Put an `independent_rederivation` object in `formalization_review` with
+   `method: source_first_without_lean`, `ambiguity: clear|needs_redraft`, and a
+   `requested_outputs` array containing the fields in step 2 plus
+   `semantic_card_comparison`, `lean_statement_comparison`, and concrete
+   evidence. The array must cover every requested output exactly once.
+5. `formalization_review.status=passed` is allowed only when ambiguity is clear
+   and every independent entry exactly matches both the Semantic Card and Lean
+   contract. A missing/duplicate output, missing locator or field, conflicting
+   reasonable interpretation, or any mismatch is `status=failed` with a
+   `needs_redraft` reason. Do not silently select one ambiguous interpretation.
+
+During prover Review, re-check that the proof closes the already reviewed raw
+and reported result carriers without changing this semantic mapping. If proof
+work exposes a wrong quantity, basis, constant, branch, unit, dependency, or
+reporting rule, route `needs_redraft`, even if Lean compiles. Use `solved` only
+when the faithful contract and its proof both pass.
 """
 
 
