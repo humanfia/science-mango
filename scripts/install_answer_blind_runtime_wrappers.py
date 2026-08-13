@@ -9,9 +9,12 @@ workspace and makes the MCP server import only from the root-owned wheel.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
+import re
 import shutil
 import stat
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -23,6 +26,10 @@ PYTHON_CACHE_DIRS = {
     ".mypy_cache",
     ".ruff_cache",
 }
+CODEX_VERSION_RE = re.compile(
+    r"^codex-cli (?P<version>[0-9]+(?:\.[0-9]+){2}(?:[-+][A-Za-z0-9._-]+)?)$",
+    re.MULTILINE,
+)
 
 
 def _inside(path: Path, root: Path) -> bool:
@@ -64,6 +71,108 @@ def _purge_python_caches(root: Path) -> None:
             path.unlink()
         elif path.is_dir() and path.name in PYTHON_CACHE_DIRS:
             shutil.rmtree(path)
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _codex_version(binary: Path) -> str:
+    completed = subprocess.run(
+        [str(binary), "--version"],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"standalone Codex version probe failed with {completed.returncode}"
+        )
+    output = f"{completed.stdout}\n{completed.stderr}"
+    matches = [match.group("version") for match in CODEX_VERSION_RE.finditer(output)]
+    if len(matches) != 1:
+        raise RuntimeError("standalone Codex emitted no unique codex-cli version")
+    return matches[0]
+
+
+def _resolve_standalone_codex_pair() -> tuple[Path, Path, str]:
+    """Resolve Codex and its host from one versioned standalone release.
+
+    The host is deliberately not resolved independently from ``PATH``.  Doing
+    that could silently pair a new CLI with a stale protocol implementation.
+    A valid install is the exact sibling pair shipped under a versioned
+    ``standalone/releases/<version>-<target>/bin`` directory.
+    """
+
+    raw_codex = shutil.which("codex")
+    if not raw_codex:
+        raise FileNotFoundError("required controller tool is unavailable: codex")
+    codex = Path(raw_codex).resolve(strict=True)
+    release_bin = codex.parent
+    release = release_bin.parent
+    if (
+        codex.name != "codex"
+        or release_bin.name != "bin"
+        or release.parent.name != "releases"
+        or release.parent.parent.name != "standalone"
+    ):
+        raise RuntimeError(
+            "codex must resolve inside a versioned standalone release"
+        )
+
+    host_candidate = release_bin / "codex-code-mode-host"
+    try:
+        host = host_candidate.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            f"standalone Codex release is missing sibling host: {host_candidate}"
+        ) from exc
+    if host.parent != release_bin or host.name != "codex-code-mode-host":
+        raise RuntimeError("Codex host must be an in-release sibling of codex")
+    if not codex.is_file() or not host.is_file():
+        raise FileNotFoundError("standalone Codex pair must contain regular files")
+
+    version = _codex_version(codex)
+    if not release.name.startswith(f"{version}-"):
+        raise RuntimeError(
+            f"Codex binary version {version} does not match release {release.name}"
+        )
+    return codex, host, version
+
+
+def _copy_verified_executable(source: Path, destination: Path) -> str:
+    """Atomically install one exact, immutable root-owned executable."""
+
+    before = _sha256(source)
+    temporary = destination.with_name(f".{destination.name}.answer-blind.tmp")
+    if temporary.exists() or temporary.is_symlink():
+        raise FileExistsError(f"unsafe stale runtime executable: {temporary}")
+    try:
+        shutil.copyfile(source, temporary)
+        copied = _sha256(temporary)
+        after = _sha256(source)
+        if before != copied or before != after:
+            raise RuntimeError(f"controller tool changed while copying: {source}")
+        os.chown(temporary, 0, 0)
+        os.chmod(temporary, 0o555)
+        os.replace(temporary, destination)
+    finally:
+        if temporary.exists() or temporary.is_symlink():
+            temporary.unlink()
+
+    installed = destination.stat()
+    if installed.st_uid != 0 or stat.S_IMODE(installed.st_mode) != 0o555:
+        raise PermissionError(
+            f"installed controller tool ownership/mode is invalid: {destination}"
+        )
+    if _sha256(destination) != before:
+        raise RuntimeError(f"installed controller tool hash mismatch: {destination}")
+    return before
 
 
 def _materialize_python(root: Path) -> Path:
@@ -150,21 +259,23 @@ def _copy_controller_tools(root: Path) -> None:
     remain exact-file grants recorded by the launch authorization.
     """
 
-    bin_dir = root / "bin"
-    bin_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
-    # ``codex`` is used only as an authentication-header transport for the
-    # controller's pre-registered, tool-free GPT request.  Copy its resolved
-    # standalone binary into the inventoried runtime: the developer install
-    # may be owned by a non-controller UID and is therefore not an admissible
-    # production executable.
-    for name in ("bash", "dash", "git", "rg", "ssh", "codex"):
+    # Resolve every source, including the complete Codex release pair, before
+    # mutating the runtime.  In particular, a missing host must fail closed
+    # without leaving a deceptively usable standalone ``codex`` behind.
+    sources: dict[str, Path] = {}
+    for name in ("bash", "dash", "git", "rg", "ssh"):
         source = shutil.which(name)
         if not source:
             raise FileNotFoundError(f"required controller tool is unavailable: {name}")
-        destination = bin_dir / name
-        shutil.copy2(Path(source).resolve(), destination)
-        os.chown(destination, 0, 0)
-        os.chmod(destination, 0o755)
+        sources[name] = Path(source).resolve(strict=True)
+    codex, codex_host, _codex_release_version = _resolve_standalone_codex_pair()
+    sources["codex"] = codex
+    sources["codex-code-mode-host"] = codex_host
+
+    bin_dir = root / "bin"
+    bin_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
+    for name, source in sources.items():
+        _copy_verified_executable(source, bin_dir / name)
     sh_link = bin_dir / "sh"
     temporary = bin_dir / ".sh.answer-blind.tmp"
     if temporary.exists() or temporary.is_symlink():
