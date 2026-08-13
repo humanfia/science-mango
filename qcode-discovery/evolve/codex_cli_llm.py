@@ -26,6 +26,20 @@ _ISOLATED_SOURCE_SHA_ENV = (
 _ISOLATED_BOUNDARY_ENV = "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY"
 _CHROOT_USER = 65534
 _CHROOT_CODEX_PATH = "/bin/codex"
+_CHROOT_CODEX_ENVIRONMENT = {
+    "HOME": "/root",
+    "CODEX_HOME": "/root/.codex",
+    "PATH": "/bin:/usr/bin",
+    "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+}
+_CHROOT_CODEX_CONFIG_OVERRIDES = (
+    "features.shell_tool=false",
+    "features.unified_exec=false",
+    "features.apps=false",
+    "features.code_mode.enabled=false",
+    "tools.view_image=false",
+    'web_search="disabled"',
+)
 
 
 def _copy_regular(source: Path, destination: Path, *, mode: int = 0o555) -> None:
@@ -131,6 +145,26 @@ def _install_minimal_proc_self_exe(runtime: Path) -> None:
     proc.chmod(0o555)
     (self_dir / "exe").symlink_to(_CHROOT_CODEX_PATH)
     _validate_minimal_proc_self_exe(runtime)
+
+
+def _isolated_codex_environment() -> dict[str, str]:
+    """Return the complete deterministic environment for blind generation."""
+
+    return dict(_CHROOT_CODEX_ENVIRONMENT)
+
+
+def _isolated_codex_config_arguments() -> list[str]:
+    """Disable supported tool surfaces at the CLI's highest precedence.
+
+    The v3 runtime additionally omits every code-mode host and sandbox helper,
+    so model-mandated executor calls fail closed rather than reaching a shell.
+    """
+
+    return [
+        argument
+        for override in _CHROOT_CODEX_CONFIG_OVERRIDES
+        for argument in ("--config", override)
+    ]
 
 
 def _materialize_chroot_runtime(
@@ -331,28 +365,18 @@ class CodexCliLLM:
                 f"--userspec={_CHROOT_USER}:{_CHROOT_USER}",
                 str(runtime),
             ]
-            child_environment = os.environ.copy()
-            child_environment.update({
-                "HOME": "/root",
-                "CODEX_HOME": "/root/.codex",
-                "PATH": "/bin:/usr/bin",
-                "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
-                "QCODE_CODEX_CWD": "/workspace",
-            })
-            for name in (
-                _ISOLATED_VIEW_ENV,
-                _ISOLATED_VIEW_SHA_ENV,
-                _ISOLATED_SOURCE_SHA_ENV,
-                _ISOLATED_BOUNDARY_ENV,
-                "QCODE_CODEX_BIN",
-            ):
-                child_environment.pop(name, None)
+            child_environment = _isolated_codex_environment()
         command = [
             *command_prefix,
             codex_path,
             "exec",
             "--model", self.model,
             "--config", f'model_reasoning_effort="{self.reasoning_effort}"',
+            *(
+                _isolated_codex_config_arguments()
+                if self.sanitized_view is not None
+                else ()
+            ),
             "--sandbox", "read-only",
             "--ephemeral",
             "--ignore-user-config",
