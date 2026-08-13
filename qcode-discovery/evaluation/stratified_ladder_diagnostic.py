@@ -271,6 +271,44 @@ def _runtime_binding() -> dict[str, Any]:
     }
 
 
+def _git_binding() -> dict[str, Any]:
+    source_root = Path(__file__).resolve().parents[1]
+
+    def git(*arguments: str) -> str:
+        try:
+            return subprocess.check_output(
+                ["git", "-C", str(source_root), *arguments],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise DiagnosticError("diagnostic Git identity is unavailable") from exc
+
+    top_level = Path(git("rev-parse", "--show-toplevel")).resolve()
+    head = git("rev-parse", "HEAD")
+    branch = git("branch", "--show-current")
+    upstream = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    upstream_commit = git("rev-parse", "@{u}")
+    if head != upstream_commit:
+        raise DiagnosticError("diagnostic HEAD is not published at its upstream")
+    remote_name = upstream.split("/", 1)[0]
+    remote_url = git("remote", "get-url", remote_name)
+    tracked_diff = subprocess.run(
+        ["git", "-C", str(top_level), "diff", "--quiet", "HEAD", "--"],
+        check=False,
+    )
+    if tracked_diff.returncode != 0:
+        raise DiagnosticError("diagnostic tracked sources are not clean")
+    return {
+        "top_level": str(top_level),
+        "head": head,
+        "branch": branch,
+        "upstream": upstream,
+        "upstream_commit": upstream_commit,
+        "remote_url": remote_url,
+    }
+
+
 def _twist(row: Mapping[str, Any]) -> int:
     geometry = row.get("geometry")
     if isinstance(geometry, Mapping):
@@ -851,6 +889,7 @@ def prepare_diagnostic(
         "selection_preterminal_exclusions": preterminal_exclusions,
         "source_bindings": _source_bindings(),
         "runtime_binding": _runtime_binding(),
+        "git_binding": _git_binding(),
     }, "contract_sha256")
     _atomic_json(output_dir / "contract.json", contract)
     return contract
@@ -867,6 +906,8 @@ def _load_contract(output_dir: Path) -> tuple[dict[str, Any], list[dict[str, Any
             raise DiagnosticError(f"bound source changed: {path.name}")
     if contract.get("runtime_binding") != _runtime_binding():
         raise DiagnosticError("diagnostic runtime binding changed")
+    if contract.get("git_binding") != _git_binding():
+        raise DiagnosticError("diagnostic Git binding changed")
     selected_path = output_dir / "selected.jsonl"
     if _file_identity(selected_path) != contract.get("selected"):
         raise DiagnosticError("selected sample changed")
@@ -966,6 +1007,7 @@ def run_candidate_ladder(
     isolate_sector_calls: bool = True,
     contract_sha256: str | None = None,
     selected_sha256: str | None = None,
+    result_path: Path | None = None,
 ) -> dict[str, Any]:
     """Run the two-sector ladder for one independently bound candidate."""
 
@@ -990,7 +1032,63 @@ def run_candidate_ladder(
     upper_bound: int | None = None
     rungs: list[dict[str, Any]] = []
     stopped_reason = "ladder_complete"
-    for threshold in thresholds:
+    if result_path is not None and result_path.is_file():
+        partial = _read_json(result_path)
+        _validate_self_hash(partial, "result_sha256")
+        if (
+            partial.get("status") != "RUNNING"
+            or partial.get("candidate_key") != selected["candidate_key"]
+            or partial.get("contract_sha256") != contract_sha256
+            or partial.get("selected_sha256") != selected_sha256
+            or partial.get("structural_digest") != selected["structural_digest"]
+            or not isinstance(partial.get("rungs"), list)
+            or not partial["rungs"]
+            or partial.get("completed_rungs") != len(partial["rungs"])
+        ):
+            raise DiagnosticError("partial ladder checkpoint binding is invalid")
+        rungs = list(partial["rungs"])
+        last = rungs[-1]
+        if last.get("outcome") != "UNSAT":
+            raise DiagnosticError("terminal partial ladder checkpoint is invalid")
+        lower_bound = int(last["distance_lower_bound_after_rung"])
+        upper_bound = last.get("distance_upper_bound_after_rung")
+        # Replay every durable rung before trusting it as resume state.
+        replay_probe = _seal(
+            {
+                "schema_version": DIAGNOSTIC_SCHEMA_VERSION,
+                "kind": DIAGNOSTIC_KIND,
+                "candidate_key": selected["candidate_key"],
+                "contract_sha256": contract_sha256,
+                "selected_sha256": selected_sha256,
+                "structural_digest": selected["structural_digest"],
+                "n": selected["n"],
+                "k": selected["k"],
+                "target": selected["target"],
+                "strata": selected["strata"],
+                "initial_distance_lower_bound": 5,
+                "final_distance_lower_bound": lower_bound,
+                "trusted_distance_upper_bound": upper_bound,
+                "target_gap": max(0, required - lower_bound),
+                "rejected_by_w8": False,
+                "survived_w8": True,
+                "unknown_fail_open": False,
+                "stopped_reason": "partial_resume_probe",
+                "rungs": rungs,
+                "elapsed_s": 0.0,
+            },
+            "result_sha256",
+        )
+        # A partial prefix is intentionally incomplete; replay individual
+        # sectors and derived rung fields here, without requiring the next
+        # rung to have already run.
+        _replay_result(
+            replay_probe,
+            selected,
+            str(contract_sha256),
+            allow_incomplete_unsat=True,
+        )
+
+    for threshold in thresholds[len(rungs) :]:
         timeout_key: int | str = threshold if threshold in RUNG_THRESHOLDS else "target"
         timeout = float(timeouts[timeout_key])
         sectors: dict[str, dict[str, Any]] = {}
@@ -1071,6 +1169,22 @@ def run_candidate_ladder(
             "distance_lower_bound_after_rung": lower_bound,
             "distance_upper_bound_after_rung": upper_bound,
         })
+        if rung_outcome == "UNSAT" and result_path is not None:
+            checkpoint = _seal(
+                {
+                    "schema_version": DIAGNOSTIC_SCHEMA_VERSION,
+                    "kind": DIAGNOSTIC_KIND,
+                    "status": "RUNNING",
+                    "candidate_key": selected["candidate_key"],
+                    "contract_sha256": contract_sha256,
+                    "selected_sha256": selected_sha256,
+                    "structural_digest": selected["structural_digest"],
+                    "completed_rungs": len(rungs),
+                    "rungs": rungs,
+                },
+                "result_sha256",
+            )
+            _atomic_json(result_path, checkpoint)
         if rung_outcome == "SAT":
             stopped_reason = f"trusted_negative_at_w{threshold}"
             break
@@ -1120,7 +1234,9 @@ def _worker(output_dir: Path, index: int) -> None:
     if result_path.is_file():
         result = _read_json(result_path)
         _validate_self_hash(result, "result_sha256")
-        return
+        if result.get("status") != "RUNNING":
+            _replay_result(result, selected[index], contract["contract_sha256"])
+            return
     raw_timeouts = contract["timeouts_s"]
     timeouts: dict[int | str, float] = {
         6: float(raw_timeouts["6"]),
@@ -1133,6 +1249,7 @@ def _worker(output_dir: Path, index: int) -> None:
             timeouts=timeouts,
             contract_sha256=contract["contract_sha256"],
             selected_sha256=_canonical_sha256(selected[index]),
+            result_path=result_path,
         )
     except Exception as exc:
         # Operational failure is a scientific survivor, never a rejection.
@@ -1215,6 +1332,8 @@ def _replay_result(
     result: Mapping[str, Any],
     candidate: Mapping[str, Any],
     contract_sha256: str,
+    *,
+    allow_incomplete_unsat: bool = False,
 ) -> dict[str, Any]:
     """Replay proof rows and recompute every field consumed by the decision."""
 
@@ -1331,6 +1450,7 @@ def _replay_result(
     if (
         rungs[-1].get("outcome") == "UNSAT"
         and len(rungs) != len(expected_thresholds)
+        and not allow_incomplete_unsat
     ):
         raise DiagnosticError("candidate ladder stopped before its next required rung")
     derived = {

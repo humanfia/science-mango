@@ -304,6 +304,74 @@ def test_sixty_four_sample_decision_has_unambiguous_integer_boundary() -> None:
     )
 
 
+def test_candidate_resume_replays_checkpoint_and_skips_completed_rung(
+    tmp_path, monkeypatch
+) -> None:
+    import evaluation.stratified_ladder_diagnostic as module
+
+    class FakeCode:
+        num_qudits = 24
+        dimension = 4
+
+    monkeypatch.setattr(module, "build_css_code_from_claim", lambda _claim: FakeCode())
+    matrices = tuple(np.zeros((2, 24), dtype=np.uint8) for _ in range(4))
+    monkeypatch.setattr(module, "get_code_matrices", lambda _code: matrices)
+    monkeypatch.setattr(module, "verify_css_low_weight_oracle", lambda *_a, **_k: [])
+    monkeypatch.setattr(module, "authoritative_candidate_digest", lambda _claim: "digest")
+    monkeypatch.setattr(module, "verify_low_weight_sector_evidence", lambda *_a, **_k: [])
+    selected = {
+        "candidate_key": "candidate",
+        "structural_digest": "digest",
+        "claim": {"ell": 3, "m": 4, "A_terms": [], "B_terms": []},
+        "n": 24,
+        "k": 4,
+        "target": {"required_distance": 13},
+        "strata": {},
+        "initial_low_weight_oracle": {"outcome": "UNSAT", "max_weight": 4},
+    }
+    checkpoint = tmp_path / "result.json"
+    first_calls: list[tuple[int, str]] = []
+
+    def interrupted(*_args, max_weight: int, sector: str, **_kwargs):
+        first_calls.append((max_weight, sector))
+        if max_weight == 8:
+            raise SystemExit("simulated process interruption")
+        return {"outcome": "UNSAT", "witness": None}
+
+    with pytest.raises(SystemExit):
+        run_candidate_ladder(
+            selected,
+            timeouts={6: 1.0, 8: 1.0, "target": 1.0},
+            sector_evaluator=interrupted,
+            isolate_sector_calls=False,
+            contract_sha256="contract",
+            selected_sha256=module._canonical_sha256(selected),
+            result_path=checkpoint,
+        )
+    assert first_calls == [(6, "X"), (6, "Z"), (8, "X")]
+    assert module._read_json(checkpoint)["status"] == "RUNNING"
+
+    resumed_calls: list[tuple[int, str]] = []
+
+    def resumed(*_args, max_weight: int, sector: str, **_kwargs):
+        resumed_calls.append((max_weight, sector))
+        if max_weight == 8 and sector == "X":
+            return {"outcome": "SAT", "witness": {"weight": 8}}
+        return {"outcome": "UNSAT", "witness": None}
+
+    result = run_candidate_ladder(
+        selected,
+        timeouts={6: 1.0, 8: 1.0, "target": 1.0},
+        sector_evaluator=resumed,
+        isolate_sector_calls=False,
+        contract_sha256="contract",
+        selected_sha256=module._canonical_sha256(selected),
+        result_path=checkpoint,
+    )
+    assert resumed_calls == [(8, "X"), (8, "Z")]
+    assert result["rejected_by_w8"] is True
+
+
 def test_historical_snapshot_replays_bytes_without_rotating_source_fingerprint(
     tmp_path, monkeypatch
 ) -> None:
