@@ -14,7 +14,7 @@ import stat
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from .review_source_contract import (
     build_review_source_contract,
@@ -94,11 +94,27 @@ def _utcnow() -> str:
 
 
 def _relative_file(value: str, project_path: Path) -> str:
+    """Return a safe project-relative Lean target, or ``""``.
+
+    Relative milestone paths are rooted at the reviewed project, not at the
+    controller's current working directory.  Resolving before ``relative_to``
+    also rejects absolute paths and symlink/traversal paths that escape the
+    project.  This matches the target-safety contract used by the
+    formalization Review gate.
+    """
+    if not value:
+        return ""
     path = Path(value)
     try:
-        return str(path.resolve().relative_to(project_path.resolve()))
-    except (OSError, ValueError):
-        return str(path)
+        root = project_path.resolve()
+        resolved = path.resolve() if path.is_absolute() else (root / path).resolve()
+        relative = resolved.relative_to(root)
+    except (OSError, RuntimeError, ValueError):
+        return ""
+    normalized = relative.as_posix()
+    if not normalized.endswith(".lean"):
+        return ""
+    return normalized
 
 
 def load_proof_review_state(state_dir: Path) -> dict:
@@ -247,6 +263,12 @@ def _source_validated_proof_review_decision(
     target: Path,
 ) -> tuple[str, str, str, str, bool]:
     decision = _proof_review_decision(row)
+    # A missing target-bound Review row is an output failure, not evidence of
+    # a statement defect.  Preserve the decision contract's auditable proof
+    # retry instead of trying to validate a source certificate that does not
+    # exist (and potentially misrouting it as a redraft).
+    if not isinstance(row, dict):
+        return decision
     route, reason, evidence, _redraft_kind, _explicit = decision
     expected = build_review_source_contract(
         project_path=project_path,
@@ -309,13 +331,28 @@ def _raw_infrastructure_request(row: dict[str, Any] | None) -> Any:
     return raw.get("infrastructure_request")
 
 
-def _load_milestones(session_dir: Path, project_path: Path) -> dict[str, dict]:
+def _milestone_target_file(row: Mapping[str, Any], project_path: Path) -> str:
+    """Normalize current object and legacy string target encodings."""
+    target = row.get("target")
+    if isinstance(target, Mapping):
+        raw_file = target.get("file")
+    elif isinstance(target, str):
+        raw_file = target
+    else:
+        return ""
+    return _relative_file(str(raw_file or ""), project_path)
+
+
+def _load_milestones(
+    session_dir: Path,
+    project_path: Path,
+) -> dict[str, tuple[dict[str, Any], ...]]:
     path = session_dir / "milestones.jsonl"
-    rows: dict[str, dict] = {}
+    rows: dict[str, list[dict[str, Any]]] = {}
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
     except OSError:
-        return rows
+        return {}
     for line in lines:
         try:
             row = json.loads(line)
@@ -323,13 +360,12 @@ def _load_milestones(session_dir: Path, project_path: Path) -> dict[str, dict]:
             continue
         if not isinstance(row, dict):
             continue
-        target = row.get("target")
-        if not isinstance(target, dict):
-            continue
-        raw_file = str(target.get("file") or "")
-        if raw_file:
-            rows[_relative_file(raw_file, project_path)] = row
-    return rows
+        rel = _milestone_target_file(row, project_path)
+        if rel:
+            rows.setdefault(rel, []).append(row)
+    # Preserve multiplicity so the caller can reject duplicate target-bound
+    # verdicts instead of silently accepting the last one in the journal.
+    return {rel: tuple(target_rows) for rel, target_rows in rows.items()}
 
 
 def _write_report(state_dir: Path, state: dict) -> None:
@@ -493,15 +529,26 @@ def apply_proof_review(
         if str(previous.get("status") or "") in _NON_DISPATCH_STATUSES:
             continue
 
-        row = milestones.get(rel)
+        milestone_rows = milestones.get(rel, ())
+        row = milestone_rows[0] if len(milestone_rows) == 1 else None
         raw_status = str(row.get("status") or "") if row else ""
-        route, reason, evidence, redraft_kind, explicit_route = (
-            _source_validated_proof_review_decision(
-                row,
-                project_path=project_path,
-                target=project_path / rel,
+        if len(milestone_rows) > 1:
+            route = "retry_proof"
+            reason = (
+                "expected exactly one target-bound proof Review milestone; "
+                f"found {len(milestone_rows)}"
             )
-        )
+            evidence = "duplicate target-bound milestones rejected by proof Review gate"
+            redraft_kind = "not_applicable"
+            explicit_route = False
+        else:
+            route, reason, evidence, redraft_kind, explicit_route = (
+                _source_validated_proof_review_decision(
+                    row,
+                    project_path=project_path,
+                    target=project_path / rel,
+                )
+            )
         try:
             prior_attempts = int(previous.get("attempts") or 0)
         except (TypeError, ValueError):
@@ -565,13 +612,17 @@ def apply_proof_review(
             "proof_review_route": route,
             "source_contract": _milestone_source_provenance(row),
             "blind_review_certificate": normalized_review_source_certificate(
-                row.get("proof_review")
-                if isinstance(row.get("proof_review"), dict)
-                else (
-                    row.get("findings", {}).get("proof_review")
-                    if isinstance(row.get("findings"), dict)
-                    else None
+                (
+                    row.get("proof_review")
+                    if isinstance(row.get("proof_review"), dict)
+                    else (
+                        row.get("findings", {}).get("proof_review")
+                        if isinstance(row.get("findings"), dict)
+                        else None
+                    )
                 )
+                if isinstance(row, dict)
+                else None
             ),
             **_milestone_source_assessment(row),
             "infrastructure_request": infrastructure_request,
@@ -620,11 +671,7 @@ def apply_target_proof_review(
     """
     max_iterations = max(1, int(max_iterations))
     rel = _relative_file(str(target), project_path)
-    raw_target = milestone.get("target")
-    milestone_rel = (
-        _relative_file(str(raw_target.get("file") or ""), project_path)
-        if isinstance(raw_target, dict) else ""
-    )
+    milestone_rel = _milestone_target_file(milestone, project_path)
     if not rel or milestone_rel != rel:
         raise ValueError(
             f"proof Review milestone target {milestone_rel!r} != {rel!r}"

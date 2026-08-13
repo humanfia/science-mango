@@ -21,6 +21,15 @@ from pathlib import Path
 from collections import Counter
 
 
+def target_fields(raw) -> dict:
+    """Normalize current object and legacy string milestone targets."""
+    if isinstance(raw, dict):
+        return raw
+    if isinstance(raw, str):
+        return {'file': raw}
+    return {}
+
+
 def load_jsonl(path: str) -> list:
     items = []
     with open(path, 'r') as f:
@@ -56,9 +65,13 @@ def validate(session_dir: str, attempts_path: str = None):
             issues.append(f"FAIL: milestone {i} has JSON parse error: {m['_parse_error'][:100]}")
             continue
 
-        target = m.get('target', {})
-        if not isinstance(target, dict):
-            issues.append(f"FAIL: milestone {i} target is not a dict (got {type(target).__name__})")
+        raw_target = m.get('target', {})
+        target = target_fields(raw_target)
+        if not isinstance(raw_target, (dict, str)):
+            issues.append(
+                f"FAIL: milestone {i} target is not an object or string "
+                f"(got {type(raw_target).__name__})"
+            )
         elif not target.get('file'):
             issues.append(f"FAIL: milestone {i} missing target.file")
         elif not target.get('theorem'):
@@ -161,9 +174,10 @@ def validate(session_dir: str, attempts_path: str = None):
         for m in milestones:
             if '_parse_error' in m:
                 continue
-            target = m.get('target', {})
-            if not isinstance(target, dict):
+            raw_target = m.get('target', {})
+            if not isinstance(raw_target, (dict, str)):
                 continue
+            target = target_fields(raw_target)
             status = m.get('status', '')
             if status in ('blocked', 'not_started'):
                 continue
