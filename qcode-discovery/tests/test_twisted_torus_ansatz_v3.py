@@ -338,6 +338,136 @@ def test_only_v3_codex_binding_changes_cwd(tmp_path, monkeypatch):
         assert Path(cwd) == PROJECT
 
 
+def _v3_humanize_bindings(tmp_path, monkeypatch):
+    executable = tmp_path / "codex"
+    executable.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    executable.chmod(0o755)
+    monkeypatch.setattr(
+        flow_module,
+        "_resolve_native_codex_path",
+        lambda _requested: executable,
+    )
+    monkeypatch.setattr(flow_module, "_codex_version", lambda _path: "test")
+    pipeline = PipelineConfig.from_json(
+        PIPELINE,
+        repo_dir=PROJECT,
+        run_id="ansatz-v3-stored-binding-test",
+    )
+    config = pipeline.flow_config
+    assert config is not None
+    round_dir = tmp_path / "round-001"
+    round_dir.mkdir()
+    context = round_dir / "search-context.md"
+    context.write_text("test context\n", encoding="utf-8")
+    identity, version, cwd = flow_module._fresh_codex_binding(
+        config,
+        round_dir=round_dir,
+    )
+    launch = flow_module._evolution_launch_binding(
+        config,
+        context_path=context,
+        codex_executable=identity,
+    )
+    invocation = flow_module._fresh_invocation_binding(
+        config,
+        codex_identity=identity,
+        codex_version=version,
+        codex_cwd=cwd,
+        launch_binding=launch,
+    )
+    return config, round_dir, launch, invocation
+
+
+def test_committed_v3_binding_replays_through_stored_shape_validator(
+    tmp_path, monkeypatch
+):
+    config, round_dir, launch, invocation = _v3_humanize_bindings(
+        tmp_path, monkeypatch
+    )
+
+    validated_launch, validated_invocation = (
+        flow_module._validate_stored_binding_shape(
+            config,
+            launch,
+            invocation,
+            round_dir,
+            launch,
+            allow_previous_committed=True,
+        )
+    )
+
+    assert validated_launch == launch
+    assert validated_invocation == invocation
+    assert set(invocation) == flow_module._expected_evolution_invocation_fields(
+        config,
+        set(launch),
+        invocation["search_geometry_contract"],
+    )
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        *sorted(flow_module.ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS),
+        "codex_cwd",
+    ],
+)
+def test_committed_v3_binding_rejects_missing_or_redirected_view(
+    tmp_path, monkeypatch, tamper
+):
+    config, round_dir, launch, invocation = _v3_humanize_bindings(
+        tmp_path, monkeypatch
+    )
+    changed = dict(invocation)
+    if tamper == "codex_cwd":
+        changed[tamper] = str(PROJECT)
+        message = "sanitized Codex view changed"
+    else:
+        changed.pop(tamper)
+        message = "invocation binding fields are incomplete"
+
+    with pytest.raises(flow_module.RoundTransactionError, match=message):
+        flow_module._validate_stored_binding_shape(
+            config,
+            launch,
+            changed,
+            round_dir,
+            launch,
+            allow_previous_committed=True,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("ansatz_v3_codex_view_manifest_path", "/redirected/manifest.json"),
+        ("ansatz_v3_codex_view_manifest_sha256", "0" * 64),
+        ("ansatz_v3_codex_view_source_fingerprint_sha256", "0" * 64),
+        ("ansatz_v3_codex_filesystem_boundary", "untrusted-boundary"),
+    ],
+)
+def test_committed_v3_binding_rejects_tampered_view_identity(
+    tmp_path, monkeypatch, field, value
+):
+    config, round_dir, launch, invocation = _v3_humanize_bindings(
+        tmp_path, monkeypatch
+    )
+    changed = {**invocation, field: value}
+
+    with pytest.raises(
+        flow_module.RoundTransactionError,
+        match="sanitized Codex view binding changed",
+    ):
+        flow_module._validate_stored_binding_shape(
+            config,
+            launch,
+            changed,
+            round_dir,
+            launch,
+            allow_previous_committed=True,
+        )
+
+
 def test_run_evolution_replays_and_emits_v3_codex_view_binding(
     tmp_path, monkeypatch
 ):

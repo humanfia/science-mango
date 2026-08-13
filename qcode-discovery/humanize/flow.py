@@ -20,7 +20,7 @@ import threading
 import time
 
 import yaml
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
@@ -2433,6 +2433,93 @@ def _evolution_launch_binding(
     return binding
 
 
+def _is_ansatz_v3_codex_invocation(config: FlowConfig) -> bool:
+    """Return whether Codex must run inside the ansatz-v3 readable view."""
+
+    return (
+        config.codex_cli
+        and config.search_representation_id
+        == PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    )
+
+
+def _expected_evolution_invocation_fields(
+    config: FlowConfig,
+    launch_fields: Collection[str],
+    geometry_contract: str | None,
+) -> set[str]:
+    """Return the one closed invocation schema used by every consumer."""
+
+    expected = set(EVOLUTION_INVOCATION_FIELDS)
+    if _flow_evaluator_kind(config) == "coset-two-block":
+        expected.update(COSET_EVOLUTION_INVOCATION_FIELDS)
+        if set(launch_fields) & set(COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS):
+            expected.update(COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS)
+        if _configured_coset_representation_id(config) == (
+            COSET_REPRESENTATION_ID_V3
+        ):
+            expected.add(COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD)
+    if geometry_contract is not None:
+        expected.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
+    if _is_ansatz_v3_codex_invocation(config):
+        expected.update(ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS)
+    return expected
+
+
+def _validated_codex_cwd(
+    config: FlowConfig,
+    invocation: Mapping[str, Any],
+    launch_binding: Mapping[str, Any],
+    *,
+    ansatz_v3_codex: bool,
+) -> str:
+    """Replay the representation-specific Codex cwd and readable-view bind."""
+
+    expected_codex_cwd = str(config.repo_dir.resolve(strict=True))
+    if not ansatz_v3_codex:
+        return expected_codex_cwd
+
+    from evolve.ansatz_v3_codex_view import (
+        AnsatzV3CodexViewError,
+        validate_sanitized_codex_view,
+    )
+
+    view_descriptor = launch_binding.get(ANSATZ_V3_CODEX_VIEW_LAUNCH_FIELD)
+    if not isinstance(view_descriptor, dict):
+        raise RoundTransactionError(
+            "ansatz-v3 sanitized Codex view launch binding is missing"
+        )
+    try:
+        view = validate_sanitized_codex_view(
+            config.repo_dir,
+            Path(str(invocation["codex_cwd"])),
+        )
+    except (KeyError, OSError, AnsatzV3CodexViewError) as exc:
+        raise RoundTransactionError(
+            f"ansatz-v3 sanitized Codex view changed: {exc}"
+        ) from exc
+    if (
+        _file_descriptor(
+            Path(view["manifest_path"]),
+            "ansatz-v3 sanitized Codex view manifest",
+        )
+        != view_descriptor
+        or invocation.get("ansatz_v3_codex_view_manifest_path")
+        != view["manifest_path"]
+        or invocation.get("ansatz_v3_codex_view_manifest_sha256")
+        != view["manifest_file_sha256"]
+        or invocation.get(
+            "ansatz_v3_codex_view_source_fingerprint_sha256"
+        ) != view["source_fingerprint_sha256"]
+        or invocation.get("ansatz_v3_codex_filesystem_boundary")
+        != view["filesystem_boundary"]
+    ):
+        raise RoundTransactionError(
+            "ansatz-v3 sanitized Codex view binding changed"
+        )
+    return view["view_path"]
+
+
 def _validate_invocation_binding(
     config: FlowConfig,
     invocation: Any,
@@ -2442,9 +2529,9 @@ def _validate_invocation_binding(
         config,
         Path(launch_binding["config"]["path"]),
     )
-    expected_fields = set(EVOLUTION_INVOCATION_FIELDS)
+    launch_fields = set(launch_binding)
     feedback_launch_fields = (
-        set(launch_binding) & set(COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS)
+        launch_fields & set(COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS)
     )
     if feedback_launch_fields and feedback_launch_fields != set(
         COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS
@@ -2452,25 +2539,10 @@ def _validate_invocation_binding(
         raise RoundTransactionError(
             "coset negative-feedback launch binding is incomplete"
         )
-    if _flow_evaluator_kind(config) == "coset-two-block":
-        expected_fields.update(COSET_EVOLUTION_INVOCATION_FIELDS)
-        if feedback_launch_fields:
-            expected_fields.update(COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS)
-        if _configured_coset_representation_id(config) == (
-            COSET_REPRESENTATION_ID_V3
-        ):
-            expected_fields.add(
-                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
-            )
-    if geometry_contract is not None:
-        expected_fields.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
-    ansatz_v3_codex = (
-        config.codex_cli
-        and config.search_representation_id
-        == PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    expected_fields = _expected_evolution_invocation_fields(
+        config, launch_fields, geometry_contract
     )
-    if ansatz_v3_codex:
-        expected_fields.update(ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS)
+    ansatz_v3_codex = _is_ansatz_v3_codex_invocation(config)
     if not isinstance(invocation, dict) or set(invocation) != expected_fields:
         raise RoundTransactionError(
             "evolution invocation binding fields are incomplete"
@@ -2585,49 +2657,12 @@ def _validate_invocation_binding(
             raise RoundTransactionError(
                 "Codex CLI native executable changed after transaction prepare"
             )
-        expected_codex_cwd = str(config.repo_dir.resolve(strict=True))
-        if ansatz_v3_codex:
-            from evolve.ansatz_v3_codex_view import (
-                AnsatzV3CodexViewError,
-                validate_sanitized_codex_view,
-            )
-
-            view_descriptor = launch_binding.get(
-                ANSATZ_V3_CODEX_VIEW_LAUNCH_FIELD
-            )
-            if not isinstance(view_descriptor, dict):
-                raise RoundTransactionError(
-                    "ansatz-v3 sanitized Codex view launch binding is missing"
-                )
-            try:
-                view = validate_sanitized_codex_view(
-                    config.repo_dir,
-                    Path(str(invocation["codex_cwd"])),
-                )
-            except (OSError, AnsatzV3CodexViewError) as exc:
-                raise RoundTransactionError(
-                    f"ansatz-v3 sanitized Codex view changed: {exc}"
-                ) from exc
-            if (
-                _file_descriptor(
-                    Path(view["manifest_path"]),
-                    "ansatz-v3 sanitized Codex view manifest",
-                )
-                != view_descriptor
-                or invocation["ansatz_v3_codex_view_manifest_path"]
-                != view["manifest_path"]
-                or invocation["ansatz_v3_codex_view_manifest_sha256"]
-                != view["manifest_file_sha256"]
-                or invocation[
-                    "ansatz_v3_codex_view_source_fingerprint_sha256"
-                ] != view["source_fingerprint_sha256"]
-                or invocation["ansatz_v3_codex_filesystem_boundary"]
-                != view["filesystem_boundary"]
-            ):
-                raise RoundTransactionError(
-                    "ansatz-v3 sanitized Codex view binding changed"
-                )
-            expected_codex_cwd = view["view_path"]
+        expected_codex_cwd = _validated_codex_cwd(
+            config,
+            invocation,
+            launch_binding,
+            ansatz_v3_codex=ansatz_v3_codex,
+        )
         if (
             invocation["codex_executable_mode"] != executable["mode"]
             or invocation["codex_cwd"]
@@ -8104,7 +8139,6 @@ def _validate_stored_binding_shape(
         config,
         Path(launch["config"]["path"]),
     )
-    expected_invocation_fields = set(EVOLUTION_INVOCATION_FIELDS)
     feedback_launch_fields = (
         launch_fields & set(COSET_NEGATIVE_FEEDBACK_LAUNCH_FIELDS)
     )
@@ -8114,22 +8148,10 @@ def _validate_stored_binding_shape(
         raise RoundTransactionError(
             "coset negative-feedback launch binding is incomplete"
         )
-    if _flow_evaluator_kind(config) == "coset-two-block":
-        expected_invocation_fields.update(COSET_EVOLUTION_INVOCATION_FIELDS)
-        if feedback_launch_fields:
-            expected_invocation_fields.update(
-                COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS
-            )
-        if _configured_coset_representation_id(config) == (
-            COSET_REPRESENTATION_ID_V3
-        ):
-            expected_invocation_fields.add(
-                COSET_RENDERER_ACTIVATION_SHA256_BINDING_FIELD
-            )
-    if geometry_contract is not None:
-        expected_invocation_fields.add(
-            SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD,
-        )
+    expected_invocation_fields = _expected_evolution_invocation_fields(
+        config, launch_fields, geometry_contract
+    )
+    ansatz_v3_codex = _is_ansatz_v3_codex_invocation(config)
     if (
         not isinstance(invocation, dict)
         or set(invocation) != expected_invocation_fields
@@ -8192,10 +8214,15 @@ def _validate_stored_binding_shape(
         )
     if config.codex_cli:
         executable = launch["codex_executable"]
+        expected_codex_cwd = _validated_codex_cwd(
+            config,
+            invocation,
+            launch,
+            ansatz_v3_codex=ansatz_v3_codex,
+        )
         if (
             invocation["codex_executable_mode"] != executable["mode"]
-            or invocation["codex_cwd"]
-            != str(config.repo_dir.resolve(strict=True))
+            or invocation["codex_cwd"] != expected_codex_cwd
             or not isinstance(invocation["codex_version"], str)
             or not invocation["codex_version"]
         ):
