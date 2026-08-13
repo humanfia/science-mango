@@ -20,10 +20,12 @@ class FinalizePhase(Phase):
     def run(self) -> PhaseResult:
         ctx = self.ctx
         if ctx.dry_run or not ctx.options.has_finalize:
+            ctx.finalize_lake_ok_current = None
             return PhaseResult(skipped=True)
 
         log.phase(self.number, self.name)
         report = self._invoke_finalizer()
+        ctx.finalize_lake_ok_current = report.lake_build_ok
         write_meta(ctx.iter_meta, **report.to_meta_dict())
         for w in report.warnings:
             log.warn(w)

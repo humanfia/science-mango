@@ -112,6 +112,9 @@ class LoopContext:
     initial_sorry: int | None = None
     prev_sorry: int | None = None
     sorry_after: int | None = None
+    # Fresh evidence from Finalize in this invocation.  Never infer this from
+    # persisted meta on resume because that may contain an older build result.
+    finalize_lake_ok_current: bool | None = None
 
     @property
     def model(self) -> str:

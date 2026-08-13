@@ -244,6 +244,11 @@ class NativeArchonCampaignTests(unittest.TestCase):
     def _write_success_state(self, workspace: Path) -> None:
         state = workspace / ".archon"
         targets = RUNNER._targets(self.ids)
+        (state / "PROGRESS.md").write_text(
+            "# Progress\n\n## Current Stage\n\nprover\n\n"
+            "## Current Objectives\n\n",
+            encoding="utf-8",
+        )
         (state / "formalization-review-gate.json").write_text(
             json.dumps({"targets": {target: {"status": "passed"} for target in targets}}),
             encoding="utf-8",
@@ -650,6 +655,37 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertFalse(result["complete"])
         self.assertFalse(result["lake_build_ok"])
 
+    def test_native_success_rejects_extra_gate_target(self) -> None:
+        workspace = self.base / "native-extra-target"
+        (workspace / ".archon").mkdir(parents=True)
+        self._write_success_state(workspace)
+        gate_path = workspace / ".archon/proof-review-gate.json"
+        gate = json.loads(gate_path.read_text(encoding="utf-8"))
+        gate["targets"]["Problems/Unexpected.lean"] = {"status": "solved"}
+        gate_path.write_text(json.dumps(gate), encoding="utf-8")
+
+        result = RUNNER.native_summary(workspace, self.ids)
+
+        self.assertFalse(result["complete"])
+        self.assertEqual(result["proof_review"], {"solved": 32})
+
+    def test_native_success_rejects_older_build_after_interrupted_iteration(self) -> None:
+        workspace = self.base / "stale-native-state"
+        (workspace / ".archon").mkdir(parents=True)
+        self._write_success_state(workspace)
+        newer = workspace / ".archon/logs/iter-002/meta.json"
+        newer.parent.mkdir(parents=True)
+        newer.write_text(json.dumps({
+            "iteration": 2,
+            "plan": {"status": "running"},
+        }), encoding="utf-8")
+
+        result = RUNNER.native_summary(workspace, self.ids)
+
+        self.assertFalse(result["complete"])
+        self.assertIsNone(result["lake_build_ok"])
+        self.assertIsNone(result["sorry_count"])
+
     def test_nonzero_loop_cannot_reuse_an_old_complete_summary(self) -> None:
         config = RUNNER.Config(campaign_root=self.base / "failed-campaign")
         config.campaign_root.mkdir()
@@ -756,6 +792,88 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("--resume", seen[0])
         self.assertNotIn("--from", seen[0])
         self.assertEqual(result["status"], "succeeded")
+
+    def test_resume_idempotently_records_an_already_complete_native_state(self) -> None:
+        self._prepare_only()
+        self._write_success_state(self.config.workspace)
+        index_path = self.config.index_path
+        payload = json.loads(index_path.read_text())
+        payload.update({
+            "status": "incomplete",
+            "phase": "resume",
+            "returncode": 7,
+            "duration_seconds": 123.5,
+            "audit": {"proof_review_verdicts": 32},
+        })
+        index_path.write_text(json.dumps(payload), encoding="utf-8")
+        resume_config = RUNNER.Config(
+            campaign_root=self.config.campaign_root,
+            archon_bin=self.config.archon_bin,
+            max_iterations=self.config.max_iterations,
+        )
+
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000) as geteuid,
+            mock.patch.object(RUNNER, "_run") as run,
+            mock.patch.object(RUNNER, "_utcnow", return_value="2026-08-13T00:00:00Z"),
+        ):
+            first = RUNNER.resume_campaign(resume_config)
+            second = RUNNER.resume_campaign(resume_config)
+
+        run.assert_not_called()
+        geteuid.assert_not_called()
+        self.assertEqual(first, second)
+        self.assertEqual(second["status"], "succeeded")
+        self.assertEqual(second["phase"], "complete")
+        self.assertEqual(second["returncode"], 0)
+        self.assertTrue(second["native"]["complete"])
+        progress = self.config.workspace / ".archon/PROGRESS.md"
+        self.assertIn("\ncomplete\n", progress.read_text(encoding="utf-8"))
+        self.assertEqual(second["duration_seconds"], 123.5)
+        self.assertEqual(second["audit"], {"proof_review_verdicts": 32})
+        self.assertEqual(json.loads(index_path.read_text()), second)
+
+    def test_resume_runs_archon_when_any_native_target_is_unsettled(self) -> None:
+        unsettled_statuses = (
+            "retry",
+            "needs_redraft",
+            "blocked_infrastructure",
+            "proof_review_exhausted",
+        )
+        for status in unsettled_statuses:
+            with self.subTest(status=status):
+                fresh = dataclasses.replace(
+                    self.config,
+                    campaign_root=self.base / f"resume-unsettled-{status}",
+                )
+                self._prepare_only(fresh)
+                self._write_success_state(fresh.workspace)
+                gate_path = fresh.workspace / ".archon/proof-review-gate.json"
+                gate = json.loads(gate_path.read_text())
+                gate["targets"][RUNNER._targets(self.ids)[0]]["status"] = status
+                gate_path.write_text(json.dumps(gate), encoding="utf-8")
+                index_path = fresh.index_path
+                payload = json.loads(index_path.read_text())
+                payload["status"] = "incomplete"
+                index_path.write_text(json.dumps(payload), encoding="utf-8")
+                resume_config = RUNNER.Config(
+                    campaign_root=fresh.campaign_root,
+                    archon_bin=fresh.archon_bin,
+                    max_iterations=fresh.max_iterations,
+                )
+
+                with (
+                    mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+                    mock.patch.object(RUNNER, "_run", return_value=(1, 0.2)) as run,
+                ):
+                    result = RUNNER.resume_campaign(resume_config)
+
+                run.assert_called_once()
+                command = run.call_args.args[0]
+                self.assertIn("--resume", command)
+                self.assertEqual(result["status"], "failed")
+                self.assertFalse(result["native"]["complete"])
+                self.assertEqual(result["native"]["proof_review"][status], 1)
 
 
 if __name__ == "__main__":

@@ -810,7 +810,7 @@ def validate_physics_metadata(workspace: Path, ids: Sequence[str]) -> None:
         raise CampaignError("physics-formalize did not prepare the exact blind full32 set")
 
 
-def _gate_counts(path: Path, expected: set[str]) -> dict[str, int]:
+def _gate_counts(path: Path, expected: set[str]) -> tuple[dict[str, int], bool]:
     try:
         targets = json.loads(path.read_text()).get("targets", {})
     except (OSError, json.JSONDecodeError, AttributeError):
@@ -824,7 +824,10 @@ def _gate_counts(path: Path, expected: set[str]) -> dict[str, int]:
         if isinstance(normalized.get(rel), dict) else "missing"
         for rel in expected
     ]
-    return dict(sorted(collections.Counter(statuses).items()))
+    return (
+        dict(sorted(collections.Counter(statuses).items())),
+        set(normalized) == expected,
+    )
 
 
 def _latest_build(workspace: Path) -> tuple[bool | None, int | None]:
@@ -833,13 +836,15 @@ def _latest_build(workspace: Path) -> tuple[bool | None, int | None]:
         number = path.parent.name.removeprefix("iter-")
         if number.isdigit():
             metas.append((int(number), path))
-    for _number, path in sorted(metas, reverse=True):
+    # A newer interrupted iteration invalidates an older terminal snapshot.
+    # Do not scan past it and silently reuse stale Lake/sorry evidence.
+    for _number, path in sorted(metas, reverse=True)[:1]:
         try:
             value = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError):
-            continue
+            return None, None
         if not value.get("completedAt"):
-            continue
+            return None, None
         lake = value.get("finalize", {}).get("lake", {})
         return lake.get("ok"), value.get("sorry_count")
     return None, None
@@ -848,11 +853,14 @@ def _latest_build(workspace: Path) -> tuple[bool | None, int | None]:
 def native_summary(workspace: Path, ids: Sequence[str]) -> dict[str, Any]:
     expected = set(_targets(ids))
     state = workspace / ".archon"
-    formal = _gate_counts(state / "formalization-review-gate.json", expected)
-    proof = _gate_counts(state / "proof-review-gate.json", expected)
+    formal, formal_exact = _gate_counts(
+        state / "formalization-review-gate.json", expected
+    )
+    proof, proof_exact = _gate_counts(state / "proof-review-gate.json", expected)
     build_ok, sorry_count = _latest_build(workspace)
     complete = (
-        formal.get("passed") == EXPECTED_ITEMS
+        formal_exact and proof_exact
+        and formal.get("passed") == EXPECTED_ITEMS
         and proof.get("solved") == EXPECTED_ITEMS
         and build_ok is True and sorry_count == 0
     )
@@ -953,6 +961,22 @@ def resume_campaign(config: Config) -> dict[str, Any]:
     if index.get("pipeline") != PIPELINE:
         raise CampaignError("campaign.json belongs to a different pipeline")
     validate_physics_metadata(config.workspace, ids)
+    native = native_summary(config.workspace, ids)
+    if native["complete"]:
+        # Keep the native Archon state terminal too.  Without this, a later
+        # direct `archon loop` would see the old prover stage and start Plan.
+        from archon.state.progress import write_stage
+
+        write_stage(config.workspace / ".archon" / "PROGRESS.md", "complete")
+        index.update(
+            status="succeeded",
+            phase="complete",
+            returncode=0,
+            native=native,
+            updated_at=_utcnow(),
+        )
+        _write_index(config, index)
+        return index
     # A prepare-only run has no Archon iteration to resume.  Treat the first
     # follow-up invocation as a normal start; after that, delegate recovery to
     # Archon's native --resume machinery.

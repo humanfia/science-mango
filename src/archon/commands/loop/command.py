@@ -36,6 +36,7 @@ from archon.state import (
 
 from . import plan_validate
 from .context import LoopContext, LoopOptions
+from .native_completion import native_iteration_completion
 from .phases import (
     AxiomSweepPhase,
     BlueprintDoctorPhase,
@@ -285,6 +286,8 @@ class LoopCommand:
         """Run one iteration. Returns False if the outer loop should break."""
         ctx = self.ctx
         ctx.iter_index = i
+        ctx.sorry_after = None
+        ctx.finalize_lake_ok_current = None
         ctx.current_stage = read_stage(ctx.progress_file, ctx.force_stage())
 
         if is_complete(ctx.progress_file, ctx.force_stage()):
@@ -389,6 +392,25 @@ class LoopCommand:
                     data.totals_dict(),
                     data.model_rows() or None,
                 )
+            native = native_iteration_completion(
+                project_path=ctx.project_path,
+                state_dir=ctx.state_dir,
+                progress_file=ctx.progress_file,
+                iter_meta=ctx.iter_meta,
+                formalization_gate_enabled=ctx.options.formalization_review_gate,
+                proof_gate_enabled=ctx.options.proof_review_gate,
+                current_sorry_count=ctx.sorry_after,
+                current_lake_ok=ctx.finalize_lake_ok_current,
+                force_stage=ctx.force_stage(),
+            )
+            if native.complete:
+                write_stage(ctx.progress_file, "complete")
+                ctx.current_stage = "complete"
+                log.success(
+                    f"All {native.target_count} native gated targets are solved; "
+                    "exiting before the next Plan phase."
+                )
+                return False
         return True
 
     def _setup_iteration_dir(self, i: int) -> None:
