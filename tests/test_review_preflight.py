@@ -100,8 +100,21 @@ class ReviewPreflightTest(unittest.TestCase):
                 doctor_path=iter_dir / "blueprint-doctor.json",
             )
 
-            self.assertIn("Exact review target count: 1", pack.read_text())
+            pack_text = pack.read_text()
+            self.assertIn("Exact review target count: 1", pack_text)
+            self.assertLess(
+                pack_text.index("### Blueprint excerpt"),
+                pack_text.index("### Report excerpt"),
+            )
+            self.assertLess(
+                pack_text.index("### Report excerpt"),
+                pack_text.index("### Lean excerpt"),
+            )
             self.assertIn("DETERMINISTIC BOUNDED REVIEW MODE", prompt)
+            self.assertLess(
+                prompt.index("project-local Review policy"),
+                prompt.index(str(pack)),
+            )
             self.assertIn("Do not run `lake env lean`", prompt)
             self.assertIn("Do not run leandag", prompt)
 

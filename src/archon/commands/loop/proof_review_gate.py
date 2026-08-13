@@ -499,6 +499,8 @@ def apply_proof_review(
     iter_num: int,
     reviewed_objectives: Iterable[Path],
     max_iterations: int,
+    deterministic_blockers: Mapping[str, str] | None = None,
+    deterministic_retry_blockers: Mapping[str, str] | None = None,
 ) -> ProofReviewResult:
     """Consume one proof Review verdict for every dispatched objective."""
     max_iterations = max(1, int(max_iterations))
@@ -518,6 +520,16 @@ def apply_proof_review(
     exhausted: list[str] = []
     reviewed: list[str] = []
     seen: set[str] = set()
+    forced_redrafts = {
+        Path(str(rel)).as_posix().lstrip("./"): str(reason).strip()
+        for rel, reason in (deterministic_blockers or {}).items()
+        if str(rel).strip()
+    }
+    forced_retries = {
+        Path(str(rel)).as_posix().lstrip("./"): str(reason).strip()
+        for rel, reason in (deterministic_retry_blockers or {}).items()
+        if str(rel).strip()
+    }
     for objective in reviewed_objectives:
         rel = _relative_file(str(objective), project_path)
         if not rel or rel in seen:
@@ -532,7 +544,30 @@ def apply_proof_review(
         milestone_rows = milestones.get(rel, ())
         row = milestone_rows[0] if len(milestone_rows) == 1 else None
         raw_status = str(row.get("status") or "") if row else ""
-        if len(milestone_rows) > 1:
+        if rel in forced_redrafts:
+            route = "needs_redraft"
+            reason = (
+                "deterministic numeric reporting guard rejected the Lean "
+                f"contract: {forced_redrafts[rel] or 'missing mechanical evidence'}"
+            )
+            evidence = (
+                "the problem-only precision policy and trusted Lean probe are "
+                "mandatory independently of the model Review verdict"
+            )
+            redraft_kind = "wrong_or_weakened_target"
+            explicit_route = True
+        elif rel in forced_retries:
+            route = "retry_proof"
+            reason = (
+                "deterministic numeric reporting verification was unavailable: "
+                f"{forced_retries[rel] or 'missing mechanical evidence'}"
+            )
+            evidence = (
+                "the reporting guard must complete before this proof can be solved"
+            )
+            redraft_kind = "not_applicable"
+            explicit_route = True
+        elif len(milestone_rows) > 1:
             route = "retry_proof"
             reason = (
                 "expected exactly one target-bound proof Review milestone; "

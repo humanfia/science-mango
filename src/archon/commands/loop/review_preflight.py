@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
+import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .deterministic_plan import fast_open_sorry_count
+from .numeric_reporting_guard import (
+    finalized_guard_evidence,
+    prepare_numeric_reporting_guard,
+)
 
 
 @dataclass(frozen=True)
@@ -21,6 +27,7 @@ class ReviewPreflightCheck:
     sorry_count: int | None
     duration_secs: float
     diagnostics: str
+    numeric_reporting: dict
 
 
 def _relative(path: Path, project_path: Path) -> str:
@@ -40,41 +47,133 @@ def _check_target(
     sorry_count = fast_open_sorry_count(target)
     if not target.is_file():
         return ReviewPreflightCheck(
-            rel, "missing", False, None, sorry_count, 0.0, "target file is missing"
+            rel, "missing", False, None, sorry_count, 0.0,
+            "target file is missing",
+            {
+                "active": False,
+                "status": "not_applicable",
+                "reason": "target file is missing",
+            },
         )
     start = time.monotonic()
-    try:
-        result = subprocess.run(
-            ["lake", "env", "lean", rel],
+
+    def invoke(source: Path) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["lake", "env", "lean", str(source)],
             cwd=project_path,
             capture_output=True,
             text=True,
             timeout=timeout_sec,
         )
+
+    try:
+        source_bytes = target.read_bytes()
+        reporting_guard = prepare_numeric_reporting_guard(
+            project_path=project_path,
+            target=target,
+            source_bytes=source_bytes,
+        )
+        lean_probe_passed: bool | None = None
+        if reporting_guard.status == "ready":
+            # Compile the exact target source and the trusted examples in one
+            # Lean invocation.  This avoids parsing theorem syntax and avoids
+            # importing a possibly stale olean for the solver-owned target.
+            with tempfile.TemporaryDirectory(
+                prefix="archon-numeric-reporting-",
+            ) as temporary:
+                probe = Path(temporary) / target.name
+                if (
+                    hashlib.sha256(source_bytes).hexdigest()
+                    != reporting_guard.lean_source_sha256
+                ):
+                    raise OSError(
+                        "numeric target bytes changed while preparing the Lean probe"
+                    )
+                probe.write_bytes(
+                    source_bytes + reporting_guard.probe_suffix.encode("utf-8")
+                )
+                result = invoke(probe)
+            if result.returncode == 0:
+                lean_probe_passed = True
+            else:
+                # Distinguish a reporting-proof failure from an unrelated
+                # target compile failure.  The common successful path remains
+                # a single Lean invocation.
+                original = invoke(Path(rel))
+                if original.returncode == 0:
+                    lean_probe_passed = False
+                else:
+                    result = original
+        else:
+            result = invoke(Path(rel))
         duration = time.monotonic() - start
         diagnostics = ((result.stdout or "") + (result.stderr or "")).strip()
         if len(diagnostics) > 4000:
             diagnostics = diagnostics[:4000].rstrip() + "\n... [truncated]"
+        reporting = finalized_guard_evidence(
+            reporting_guard, lean_probe_passed=lean_probe_passed,
+        )
+        # When the target itself does not compile, the reporting theorem was
+        # not isolated as the cause.  Preserve that distinction so proof
+        # routing treats this as an ordinary compile retry, not a semantic
+        # reporting redraft.
+        if (
+            reporting_guard.status == "ready"
+            and lean_probe_passed is None
+            and result.returncode != 0
+        ):
+            reporting.update(
+                status="blocked",
+                reason="target compilation failed before reporting proof verification",
+                lean_probe_passed=None,
+            )
+        passed = result.returncode == 0 and reporting.get("status") in {
+            "passed", "not_applicable",
+        }
         return ReviewPreflightCheck(
             rel,
-            "passed" if result.returncode == 0 else "failed",
+            "passed" if passed else "failed",
             result.returncode == 0,
             result.returncode,
             sorry_count,
             round(duration, 3),
             diagnostics,
+            reporting,
         )
     except subprocess.TimeoutExpired as exc:
         duration = time.monotonic() - start
         diagnostics = str(exc.stderr or exc.stdout or "direct Lean check timed out")
+        reporting = reporting_guard.evidence()
+        if reporting_guard.status == "ready":
+            reporting.update(
+                status="blocked",
+                reason="target/reporting Lean probe timed out",
+                lean_probe_passed=None,
+            )
         return ReviewPreflightCheck(
             rel, "timeout", False, None, sorry_count, round(duration, 3),
-            diagnostics[:4000],
+            diagnostics[:4000], reporting,
         )
     except OSError as exc:
         duration = time.monotonic() - start
+        reporting = (
+            reporting_guard.evidence()
+            if "reporting_guard" in locals()
+            else {
+                "active": True,
+                "status": "failed",
+                "reason": f"numeric target could not be read: {exc}",
+            }
+        )
+        if reporting.get("status") == "ready":
+            reporting.update(
+                status="blocked",
+                reason=f"target/reporting Lean probe could not run: {exc}",
+                lean_probe_passed=None,
+            )
         return ReviewPreflightCheck(
             rel, "error", False, None, sorry_count, round(duration, 3), str(exc),
+            reporting,
         )
 
 
@@ -124,13 +223,18 @@ def run_parallel_review_preflight(
                     fast_open_sorry_count(path),
                     0.0,
                     str(exc),
+                    {
+                        "active": False,
+                        "status": "error",
+                        "reason": str(exc),
+                    },
                 )
     checks = [by_path[path] for path in ordered]
     duration = round(time.monotonic() - start, 3)
     summary = {
         "total": len(checks),
-        "passed": sum(check.compiles for check in checks),
-        "failed": sum(not check.compiles for check in checks),
+        "passed": sum(check.status == "passed" for check in checks),
+        "failed": sum(check.status != "passed" for check in checks),
     }
     payload = {
         "iteration": iter_num,
@@ -154,12 +258,13 @@ def run_parallel_review_preflight(
         f"- Duration: {duration:.3f}s",
         f"- Result: {summary['passed']} passed / {summary['failed']} failed",
         "",
-        "| Target | Compile | Sorries | Seconds |",
-        "| --- | ---: | ---: | ---: |",
+        "| Target | Preflight | Reporting guard | Sorries | Seconds |",
+        "| --- | ---: | ---: | ---: | ---: |",
     ]
     for check in checks:
         lines.append(
             f"| `{check.file}` | {check.status} | "
+            f"{check.numeric_reporting.get('status', 'unknown')} | "
             f"{check.sorry_count if check.sorry_count is not None else '?'} | "
             f"{check.duration_secs:.3f} |"
         )
@@ -230,16 +335,17 @@ def write_deterministic_review_pack(
             f"- Compile status: {check.get('status', 'unknown')}",
             f"- Open sorries: {check.get('sorry_count', 'unknown')}",
             f"- Direct-check seconds: {check.get('duration_secs', 'unknown')}",
+            "- Numeric reporting guard: "
+            + json.dumps(
+                check.get("numeric_reporting", {}),
+                ensure_ascii=False,
+                sort_keys=True,
+            ),
             f"- Blueprint: `{_relative(chapter, project_path)}`",
             "- Reports: " + (
                 ", ".join(f"`{_relative(path, project_path)}`" for path in reports)
                 if reports else "(none)"
             ),
-            "",
-            "### Lean excerpt",
-            "```lean",
-            _excerpt(target, 2600),
-            "```",
             "",
             "### Blueprint excerpt",
             "```tex",
@@ -255,6 +361,13 @@ def write_deterministic_review_pack(
                 "```",
                 "",
             ])
+        lines.extend([
+            "### Lean excerpt",
+            "```lean",
+            _excerpt(target, 2600),
+            "```",
+            "",
+        ])
     path = iter_dir / "deterministic-review-candidates.md"
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return path
@@ -268,7 +381,9 @@ def deterministic_review_prompt_prefix(
 ) -> str:
     return (
         "DETERMINISTIC BOUNDED REVIEW MODE IS ACTIVE.\n"
-        f"Read `{preflight_path}` and `{candidate_pack}` first.\n"
+        "Read the project-local Review policy in the compact input pack named "
+        "below FIRST. Then read "
+        f"`{preflight_path}` and `{candidate_pack}`.\n"
         "Review exactly the listed current objectives; do not enumerate or audit "
         "targets outside that set.\n"
         "The orchestrator already ran every direct Lean check in parallel. Do not "

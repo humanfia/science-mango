@@ -23,6 +23,10 @@ from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.state import parse_objective_files
 from archon.state.progress import write_stage
 
+from .native_semantic_review import (
+    build_native_semantic_review_contract,
+    validate_independent_rederivation,
+)
 from .review_source_contract import (
     build_review_source_contract,
     provenance_from_review,
@@ -162,6 +166,7 @@ def _status_and_evidence(raw: Any) -> tuple[str, str]:
 def _validate_structured_review(
     raw: dict[str, Any],
     expected_source_contract: Mapping[str, Any] | None = None,
+    native_semantic_contract: Mapping[str, Any] | None = None,
 ) -> tuple[bool, str, dict[str, Any]]:
     """Validate and normalize the machine-checkable Review certificate."""
     failures: list[str] = []
@@ -229,6 +234,13 @@ def _validate_structured_review(
     )
     if source_error:
         failures.append(source_error)
+    native_error, native_certificate = validate_independent_rederivation(
+        raw, native_semantic_contract,
+    )
+    if native_error:
+        failures.append(native_error)
+    elif native_semantic_contract is not None:
+        certificate["independent_rederivation"] = native_certificate
     if failures:
         return False, "; ".join(dict.fromkeys(failures))[:2000], certificate
     return True, "structured formalization Review certificate passed", certificate
@@ -237,6 +249,7 @@ def _validate_structured_review(
 def _decision_from_milestone(
     item: dict[str, Any],
     expected_source_contract: Mapping[str, Any] | None = None,
+    native_semantic_contract: Mapping[str, Any] | None = None,
 ) -> tuple[str, str, dict[str, Any]]:
     """Return ``(passed|failed, reason, certificate)``; fail closed."""
     raw: Any = item.get("formalization_review")
@@ -257,7 +270,7 @@ def _decision_from_milestone(
         if not isinstance(raw, dict):
             return "failed", "bare formalization Review pass lacks structured checks", {}
         valid, validation_reason, certificate = _validate_structured_review(
-            raw, expected_source_contract,
+            raw, expected_source_contract, native_semantic_contract,
         )
         if not valid:
             return "failed", validation_reason, certificate
@@ -328,12 +341,22 @@ def _load_milestone_decisions(
         rel = _milestone_target_file(item, project_path)
         if not rel:
             continue
-        source_contract = build_review_source_contract(
+        native_semantic_contract = build_native_semantic_review_contract(
             project_path=project_path,
             target=project_path / rel,
         )
+        source_contract = (
+            None
+            if native_semantic_contract is not None
+            else build_review_source_contract(
+                project_path=project_path,
+                target=project_path / rel,
+            )
+        )
         decisions.setdefault(rel, []).append(
-            _decision_from_milestone(item, source_contract)
+            _decision_from_milestone(
+                item, source_contract, native_semantic_contract,
+            )
         )
 
     aggregated: dict[str, tuple[str, str, dict[str, Any]]] = {}
@@ -879,12 +902,20 @@ def apply_target_formalization_review(
         certificate: dict[str, Any] = {}
         decision = "failed"
     else:
-        source_contract = build_review_source_contract(
+        native_semantic_contract = build_native_semantic_review_contract(
             project_path=project_path,
             target=target,
         )
+        source_contract = (
+            None
+            if native_semantic_contract is not None
+            else build_review_source_contract(
+                project_path=project_path,
+                target=target,
+            )
+        )
         decision, reason, certificate = _decision_from_milestone(
-            milestone, source_contract,
+            milestone, source_contract, native_semantic_contract,
         )
         reviews += 1
         if decision == "passed":

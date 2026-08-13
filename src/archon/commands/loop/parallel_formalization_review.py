@@ -14,6 +14,13 @@ from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.commands.tooling.project_config import HarnessDescriptor
 
 from .formalization_review_gate import REVIEW_SCHEMA_VERSION
+from .native_semantic_review import (
+    build_independent_rederivation_example,
+    build_native_semantic_review_contract,
+    render_independent_rederivation_instructions,
+    render_native_problem_contract_prompt,
+    validate_independent_rederivation,
+)
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
 from .review_source_contract import (
     SOURCE_INCONSISTENCY_KIND,
@@ -61,6 +68,7 @@ def _formalization_review(row: dict) -> dict | None:
 def _validate_certificate(
     row: dict,
     expected_source_contract: dict | None = None,
+    native_semantic_contract: dict | None = None,
 ) -> str:
     """Validate one explicit pass/fail certificate without judging its verdict."""
     top_status = str(row.get("status") or "").strip().lower()
@@ -140,6 +148,12 @@ def _validate_certificate(
     )
     if source_error:
         return source_error
+    if verdict in _PASS:
+        native_error, _normalized = validate_independent_rederivation(
+            raw, native_semantic_contract,
+        )
+        if native_error:
+            return native_error
     return ""
 
 
@@ -147,6 +161,7 @@ def load_target_formalization_milestone(
     path: Path,
     expected_rel: str,
     expected_source_contract: dict | None = None,
+    native_semantic_contract: dict | None = None,
 ) -> tuple[dict | None, str]:
     """Load exactly one target-bound, structurally valid semantic certificate."""
     try:
@@ -169,7 +184,9 @@ def load_target_formalization_milestone(
         rel = str(target.get("file") or "").lstrip("./")
         if rel != expected_rel:
             return None, f"milestone target {rel!r} != {expected_rel!r}"
-        error = _validate_certificate(row, expected_source_contract)
+        error = _validate_certificate(
+            row, expected_source_contract, native_semantic_contract,
+        )
         if error:
             return None, error
         rows.append(row)
@@ -203,6 +220,130 @@ def _result_evidence(state_dir: Path, rel: str) -> list[dict]:
     ]
 
 
+def _native_target_formalization_review_prompt(
+    *,
+    project_path: Path,
+    state_dir: Path,
+    iter_dir: Path,
+    iter_num: int,
+    target: Path,
+    output_dir: Path,
+    preflight: dict,
+    prior_gate_record: dict | None,
+    native_contract: dict,
+) -> str:
+    """Build the problem-only target prompt, excluding strict candidate routes."""
+    rel = target.resolve().relative_to(project_path.resolve()).as_posix()
+    slug = "_".join(Path(rel).with_suffix("").parts)
+    chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
+    traces = [
+        path for path in (
+            iter_dir / "provers" / f"{slug}.jsonl",
+            iter_dir / "formalizers" / f"{slug}.jsonl",
+        ) if path.is_file()
+    ]
+    milestone = output_dir / "milestones.jsonl"
+    summary = output_dir / "summary.md"
+    checks = {
+        name: {
+            "status": "passed",
+            "evidence": f"concise target-specific {name} evidence",
+        }
+        for name in _REQUIRED_CHECKS
+    }
+    example_review = {
+        "schema_version": REVIEW_SCHEMA_VERSION,
+        "status": "passed",
+        "reason": "source-first derivation, Semantic Card, and Lean contract match",
+        "checks": checks,
+        "bridge_obligations": [{
+            "claim": "nontrivial source reasoning step",
+            "carrier": "Qualified.bridgeCarrier",
+            "status": "covered",
+            "evidence": "the named carrier supplies the source-to-Lean step",
+        }],
+    }
+    if native_contract.get("valid"):
+        example_review["independent_rederivation"] = (
+            build_independent_rederivation_example(native_contract)
+        )
+    example_row = {
+        "timestamp": _utcnow(),
+        "target": {"file": rel, "theorem": "Qualified.mainDeclaration"},
+        "status": "solved",
+        "formalization_review": example_review,
+        "attempts": [{
+            "attempt": 1,
+            "strategy": "source-first-native-formalization-review",
+            "code_tried": "",
+            "lean_error": "",
+            "goal_before": "",
+            "goal_after": "",
+            "result": "success",
+            "insight": "concise semantic audit result",
+        }],
+        "findings": {
+            "blocker": "",
+            "verification": "problem-only source-first semantic review",
+            "key_lemmas_used": [],
+        },
+        "session": {
+            "id": f"session_{iter_num}",
+            "model": "parallel-formalization-review",
+        },
+        "next_steps": "",
+    }
+    return f"""You are one target-scoped native answer-blind chemistry formalization Review worker for Archon iteration {iter_num}.
+
+Assigned target (review exactly this target and no other):
+  {rel}
+
+PHASE 1 — problem-only source-first derivation. Complete this phase before
+opening any generated artifact:
+
+{render_native_problem_contract_prompt(native_contract)}
+
+Fix exactly one concise derivation entry per requested output, including its
+meaning, cumulative/per-step scope, numerator/denominator or mass/composition
+basis, constants, dependencies, branches, unit, exact unrounded raw result, and
+the exact problem-only reporting policies. If the contract is invalid or any
+interpretation remains ambiguous, the verdict must be failed/blocked with a
+specific needs_redraft reason.
+
+PHASE 2 — only after fixing phase 1, inspect the generated artifacts below and
+compare them field by field with the fixed derivation:
+- Semantic Card/task results, newest first: {json.dumps(_result_evidence(state_dir, rel), ensure_ascii=False)}
+- Chemistry blueprint: {chapter}
+- Lean formalization: {target}
+- Formalizer traces: {json.dumps([str(path) for path in traces], ensure_ascii=False)}
+- Deterministic Lean/reporting preflight: {json.dumps(preflight, ensure_ascii=False)}
+
+A compiling or proved Lean statement is not evidence that it formalizes the
+requested quantity. Check all six ordinary semantic checks and at least one
+nontrivial source-to-Lean bridge. `sorry` proof bodies are allowed in this
+formalization Review. Do not run other agents, broad searches, Lake, Lean, or
+leandag unless the supplied preflight says timeout/error. Do not modify Lean,
+the blueprint, task results, PROGRESS, gates, or journals.
+
+{render_independent_rederivation_instructions(native_contract)}
+
+Write exactly one JSON object line to {milestone} and a <=12-line summary to
+{summary}. Use exactly this outer schema, replacing the example values with
+your target-specific audit and the bundle-bound independent_rederivation:
+
+```json
+{json.dumps(example_row, ensure_ascii=False, indent=2, sort_keys=True)}
+```
+
+For any failure, use top-level status=blocked and
+formalization_review.status=failed, identify at least one failed check or
+blocked bridge, put the redraft reason in findings.blocker and next_steps, and
+do not claim a passing independent_rederivation. Return only after both files
+are durable. Never seek or read an official answer, grader, solution, rubric,
+candidate artifact, prior run, external workspace, or network source.
+"""
+
+
 def build_target_formalization_review_prompt(
     *,
     project_path: Path,
@@ -227,6 +368,22 @@ def build_target_formalization_review_prompt(
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
+    native_contract = build_native_semantic_review_contract(
+        project_path=project_path,
+        target=target,
+    )
+    if native_contract is not None:
+        return _native_target_formalization_review_prompt(
+            project_path=project_path,
+            state_dir=state_dir,
+            iter_dir=iter_dir,
+            iter_num=iter_num,
+            target=target,
+            output_dir=output_dir,
+            preflight=preflight,
+            prior_gate_record=prior_gate_record,
+            native_contract=native_contract,
+        )
     source_contract = source_contract or build_review_source_contract(
         project_path=project_path,
         target=target,
@@ -438,6 +595,10 @@ def _run_formalization_review_worker(
         output_dir / "milestones.jsonl",
         spec.rel,
         spec.source_contract,
+        build_native_semantic_review_contract(
+            project_path=project_path,
+            target=project_path / spec.rel,
+        ),
     )
     if validation_error:
         error = "; ".join(part for part in (error, validation_error) if part)
@@ -537,9 +698,17 @@ def run_parallel_formalization_reviews(
                 iter_dir / "formalization-review-targets" / slug
                 / f"attempt-{attempt}"
             )
-            source_contract = build_review_source_contract(
+            native_contract = build_native_semantic_review_contract(
                 project_path=project_path,
                 target=target,
+            )
+            source_contract = (
+                None
+                if native_contract is not None
+                else build_review_source_contract(
+                    project_path=project_path,
+                    target=target,
+                )
             )
             specs.append(TargetReviewSpec(
                 rel=rel,

@@ -30,6 +30,9 @@ from archon.commands.loop.physics_grounding import (
     _report_name as grounding_report_name,
     run_physics_grounding,
 )
+from archon.commands.loop.native_semantic_review import (
+    render_independent_rederivation_instructions,
+)
 from archon.commands.tooling.project_lean_index import build_project_index
 
 
@@ -66,6 +69,12 @@ task-result, and formalization Review must independently rederive the output
 from the problem statement and images before inspecting that card or the Lean
 statement. Missing cards, ambiguous source meaning, or a mismatch between the
 independent derivation, card, and Lean contract require redraft.
+
+For every numeric requested output, the Lean file must also carry the exact
+machine-readable numeric-reporting certificate required by the formalizer
+mode. Archon derives the reporting quantum from the sealed problem-only policy
+and type-checks its named `ReportsAtQuantum` theorem; an agent verdict cannot
+override a missing or failed deterministic certificate.
 
 Archon's native acceptance path is: formalization, formalization Review, proof,
 proof Review, and final Lake build. There is no separate seal/freeze protocol in
@@ -129,6 +138,22 @@ solve the proof.
 - Keep exact values through the derivation and round only the final requested
   output unless the problem explicitly directs an intermediate rounding step.
   Record such a direction with its source locator.
+- For every requested output whose `kind` is `numeric`, read its predeclared
+  policy from the matching row of
+  `icho_2026_source/questions_only.jsonl`. Define a fully-qualified raw scalar
+  declaration of type `ℝ` and a fully-qualified theorem whose exact type is
+  `IChO2026Chem.Reporting.ReportsAtQuantum raw reported quantum`. Immediately
+  before that theorem, write exactly one single-line Lean comment in this form
+  (JSON keys and value types are exact):
+  `-- archon:numeric-reporting-certificate {"schema_version":1,"output_id":"<requested id>","reporting_policy_kind":"significant_figures|decimal_places","reporting_policy_digits":<integer>,"reported_value":"<exact decimal or reduced fraction>","reporting_quantum":"<exact decimal or reduced fraction>","raw_declaration":"<fully.qualified.raw.name>","reporting_declaration":"<fully.qualified.theorem.name>"}`
+  The two declaration names must be distinct across outputs. Decimal-place
+  quantum is `10^-digits`. Significant-figure quantum is determined from the
+  nonzero reported magnitude and digits (for example three significant figures
+  at magnitude `10^3` has quantum `10`). Do not choose it from a desired
+  answer. A zero significant-figure report is ambiguous in this protocol and
+  must be routed to `needs_redraft`; do not invent a quantum. The deterministic
+  guard rejects missing/duplicate certificates, booleans in numeric fields,
+  unsafe names, noncanonical numbers, and any policy or quantum mismatch.
 - Do not weaken the requested result to `True`, a reflexive equality, or an
   unrelated existence claim.
 - Use local Mathlib/Physlib/CRNT/project declarations whose signatures you have
@@ -165,6 +190,10 @@ rebuild the formalization; do not weaken it. Never install, update, fetch, or
 replace Lake dependencies. Edit only the assigned Lean file and its task-result
 report. Never seek or use an official answer, solution, rubric, grader output,
 prior run, or another solver's work.
+Do not edit numeric-reporting certificate comments, raw declaration types, or
+reporting theorem types. Prove every named `ReportsAtQuantum` theorem exactly;
+the deterministic Review preflight will type-check it against the problem-only
+policy after proof completion.
 """
 
 NATIVE_PLAN_GUIDE = """# Native answer-blind planning
@@ -178,7 +207,7 @@ four prover lanes. Never seek an official answer, solution, rubric, grader
 output, prior run, or another solver's work.
 """
 
-NATIVE_REVIEW_GUIDE = """# Native answer-blind Review
+NATIVE_REVIEW_GUIDE = f"""# Native answer-blind Review
 
 Review the current targets against their problem-only blueprint chapters and
 problem images and current LeanExplore grounding report. During autoformalize,
@@ -193,6 +222,12 @@ JSONL row for every listed objective: no omissions, duplicates, or extra
 targets. Also write the requested summary, recommendations, and PROJECT_STATUS
 files. Do not modify Lean files and never seek an official answer, solution,
 rubric, grader output, prior run, or another solver's work.
+
+The deterministic preflight includes `numeric_reporting` evidence for each
+target. A numeric target may pass only when that evidence has status `passed`;
+`failed` requires formalization redraft and cannot be waived by semantic
+judgment. `not_applicable` is valid only when the problem-only requested-output
+inventory contains no numeric output.
 
 For autoformalize, semantic Review is a source-first independent derivation,
 not a consistency check of generated artifacts. For each target, follow this
@@ -216,11 +251,11 @@ order:
    denominators, constants, unit conversions, branches, and the absence of
    unauthorized intermediate rounding. A proof of the encoded statement is no
    evidence that the encoding matches the problem.
-4. Put an `independent_rederivation` object in `formalization_review` with
-   `method: source_first_without_lean`, `ambiguity: clear|needs_redraft`, and a
-   `requested_outputs` array containing the fields in step 2 plus
-   `semantic_card_comparison`, `lean_statement_comparison`, and concrete
-   evidence. The array must cover every requested output exactly once.
+4. Include the following machine-validated compact certificate in
+   `formalization_review`:
+
+{render_independent_rederivation_instructions()}
+
 5. `formalization_review.status=passed` is allowed only when ambiguity is clear
    and every independent entry exactly matches both the Semantic Card and Lean
    contract. A missing/duplicate output, missing locator or field, conflicting
@@ -398,15 +433,17 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "max_objectives": EXPECTED_ITEMS,
         "formalization_review_gate": True,
         "proof_review_gate": True,
+        # The numeric reporting certificate is enforced inside deterministic
+        # Review preflight, so native answer-blind runs may not disable it.
+        "deterministic_review": True,
         "review_preflight_jobs": MAX_PARALLEL,
         "parallel_target_review_jobs": MAX_PARALLEL,
         "parallel_formalization_review_jobs": MAX_PARALLEL,
-        # Keep the semantic gates, but use Archon's ordinary Review agent.
-        # The strict target-scoped reviewers implement the removed
-        # candidate/seal protocol and are intentionally not part of this
-        # problem-input-level workflow. Deterministic Lean preflight remains
-        # four-way through review_preflight_jobs.
-        "parallel_formalization_review": False,
+        # Formalization semantics are independently rederived by one bounded
+        # problem-only reviewer per target.  The chemistry-native branch does
+        # not expose the strict candidate/official source protocols. Proof
+        # Review remains the ordinary native Review agent below.
+        "parallel_formalization_review": True,
         "parallel_target_review": False,
         "pipeline_target_review": False,
     })
@@ -719,7 +756,8 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         or (loop.get("domain_profile") or {}).get("lean_search_packages")
         != list(LEAN_SEARCH_PACKAGES)
         or (loop.get("shared_infrastructure") or {}).get("enabled") is not False
-        or loop.get("parallel_formalization_review") is not False
+        or loop.get("deterministic_review") is not True
+        or loop.get("parallel_formalization_review") is not True
         or loop.get("parallel_target_review") is not False
         or loop.get("pipeline_target_review") is not False
     ):

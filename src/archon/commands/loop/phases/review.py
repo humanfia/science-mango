@@ -46,6 +46,7 @@ from ..parallel_review import (
     load_pipelined_review_report,
     run_parallel_target_reviews,
 )
+from ..numeric_reporting_guard import numeric_reporting_blockers
 from ..proof_review_gate import (
     ProofReviewResult,
     apply_proof_review,
@@ -670,6 +671,8 @@ class ReviewPhase(Phase):
                 "formalization verdicts or consume Review attempts"
             )
         blockers, reset_complete = self._run_physics_doctor_gate()
+        reporting_blockers = numeric_reporting_blockers(self._review_preflight)
+        blockers.extend(reporting_blockers)
         formalization_result = None
         proof_result = None
         proof_redrafts_reopened: tuple[str, ...] = ()
@@ -836,6 +839,19 @@ class ReviewPhase(Phase):
                     max_iterations=getattr(
                         ctx.options, "proof_review_max_iterations", 3,
                     ),
+                    deterministic_blockers={
+                        str(item.get("file") or ""): str(item.get("reason") or "")
+                        for item in reporting_blockers
+                        if str(item.get("file") or "").strip()
+                        and item.get("kind") == "invalid_reporting_certificate"
+                    },
+                    deterministic_retry_blockers={
+                        str(item.get("file") or ""): str(item.get("reason") or "")
+                        for item in reporting_blockers
+                        if str(item.get("file") or "").strip()
+                        and item.get("kind")
+                        == "reporting_verification_unavailable"
+                    },
                 )
                 if proof_result.needs_redraft:
                     proof_state = load_proof_review_state(ctx.state_dir)
@@ -913,6 +929,7 @@ class ReviewPhase(Phase):
             b for b in blockers
             if b.get("source") == "review-agent"
         ])
+        numeric_reporting_blocker_count = len(reporting_blockers)
         write_meta(ctx.iter_meta, **{
             "review.status": "done",
             "review.durationSecs": review_secs,
@@ -925,6 +942,7 @@ class ReviewPhase(Phase):
             "review.domainReviewerBlockers": domain_reviewer_blocker_count,
             "review.domainBlockers": len(blockers),
             "review.domainGateResetComplete": reset_complete,
+            "review.numericReportingBlockers": numeric_reporting_blocker_count,
         })
         if formalization_result is not None:
             if formalization_result.retry:

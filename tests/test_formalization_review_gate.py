@@ -1,4 +1,5 @@
 import json
+import hashlib
 import tempfile
 import unittest
 from unittest import mock
@@ -14,6 +15,10 @@ from archon.commands.loop.formalization_review_gate import (
     apply_formalization_review,
     enforce_progress_review_gate,
     load_gate_state,
+)
+from archon.commands.loop.native_semantic_review import (
+    build_independent_rederivation_example,
+    build_native_semantic_review_contract,
 )
 from archon.commands.loop import formalization_review_gate
 from archon.commands.loop.review_source_contract import (
@@ -53,11 +58,12 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertFalse(path.with_suffix(".json.tmp").exists())
 
     def _write_progress(self, stage):
+        rel = self.target.relative_to(self.project).as_posix()
         self.progress.write_text(
             "# Progress\n\n## Current Stage\n\n"
             + stage
             + "\n\n## Stages\n\n- autoformalize\n- prover\n\n"
-            + "## Current Objectives\n\n- **`Problems/p.lean`** — target\n",
+            + f"## Current Objectives\n\n- **`{rel}`** — target\n",
             encoding="utf-8",
         )
 
@@ -99,6 +105,99 @@ class FormalizationReviewGateTests(unittest.TestCase):
             "The official target is p.\n",
             encoding="utf-8",
         )
+
+    def _set_native_profile_and_bundle(self) -> dict:
+        (self.state / "config.json").write_text(
+            json.dumps({
+                "loop": {
+                    "domain_profile": {
+                        "name": "chemistry-native",
+                        "lean_search_packages": ["Mathlib", "Physlib", "CRNT"],
+                    }
+                }
+            }),
+            encoding="utf-8",
+        )
+        self.target = self.project / "IChO2026Problems/problem_native_case.lean"
+        self.target.parent.mkdir(exist_ok=True)
+        self.target.write_text(
+            "namespace NativeCase\n"
+            "theorem result : True := by sorry\n"
+            "end NativeCase\n",
+            encoding="utf-8",
+        )
+        self._write_progress("autoformalize")
+        image_payload = b"native problem image"
+        image_sha = hashlib.sha256(image_payload).hexdigest()
+        image = self.project / "icho_2026_source/image/page.png"
+        image.parent.mkdir(parents=True)
+        image.write_bytes(image_payload)
+        row = {
+            "schema_version": 1,
+            "protocol": "icho-answer-blind-v1",
+            "evaluation_mode": "answer_blind",
+            "official_answer_seen": False,
+            "phase": "solve",
+            "id": "native_case",
+            "question": "Derive the requested amount from the printed relation.",
+            "current_question": "Report the final amount.",
+            "shared_context": "Use the printed quantities exactly.",
+            "previous_parts": [],
+            "images": ["page.png"],
+            "problem_assets": [{
+                "kind": "problem_page",
+                "path": "page.png",
+                "sha256": image_sha,
+            }],
+            "requested_outputs": [{
+                "id": "amount",
+                "source_requirement": "the final amount",
+                "kind": "numeric",
+                "unit": "mol",
+                "reporting_policy": {
+                    "kind": "significant_figures",
+                    "digits": 3,
+                },
+            }],
+            "reporting_policy": {
+                "intermediate_rounding": "forbidden",
+                "final_precision": {
+                    "kind": "significant_figures",
+                    "digits": 3,
+                },
+                "tie_rule": "half_away_from_zero",
+            },
+            "measurement_policy": {"stipulated_constants": "exact_as_printed"},
+            "candidate_domain_policy": {
+                "underdetermined_result": "must_be_reported",
+            },
+        }
+        bundle = self.project / "icho_2026_source/questions_only.jsonl"
+        payload = (json.dumps(row) + "\n").encode()
+        bundle.write_bytes(payload)
+        bundle_sha = hashlib.sha256(payload).hexdigest()
+        (self.project / "isolation_manifest.json").write_text(
+            json.dumps({
+                "blind_bundle": {
+                    "path": "icho_2026_source/questions_only.jsonl",
+                    "row_count": 1,
+                    "sha256": bundle_sha,
+                    "size": len(payload),
+                },
+                "blind_bundle_sha256": bundle_sha,
+                "target_ids": ["native_case"],
+                "assets": {"icho_2026_source/image/page.png": image_sha},
+            }),
+            encoding="utf-8",
+        )
+        contract = build_native_semantic_review_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        self.assertIsInstance(contract, dict)
+        assert isinstance(contract, dict)
+        self.assertTrue(contract["valid"])
+        return contract
 
     def _chemistry_passing_certificate(self) -> dict:
         certificate = self._passing_certificate()
@@ -207,7 +306,10 @@ class FormalizationReviewGateTests(unittest.TestCase):
                 formalization_review = {"status": status, "reason": reason}
         milestone = {
             "status": "blocked" if status == "failed" else "solved",
-            "target": {"file": "Problems/p.lean", "theorem": "p"},
+            "target": {
+                "file": self.target.relative_to(self.project).as_posix(),
+                "theorem": "p",
+            },
             "formalization_review": formalization_review,
         }
         (session / "milestones.jsonl").write_text(
@@ -363,6 +465,45 @@ class FormalizationReviewGateTests(unittest.TestCase):
         )
         self.assertEqual(kept, [self.target])
         self.assertEqual(dropped, [])
+
+    def test_native_source_first_certificate_is_persisted_by_batch_gate(self):
+        contract = self._set_native_profile_and_bundle()
+        review = self._passing_certificate()
+        review["independent_rederivation"] = (
+            build_independent_rederivation_example(contract)
+        )
+
+        with mock.patch.object(
+            formalization_review_gate,
+            "build_review_source_contract",
+            side_effect=AssertionError("native Review must not load strict sources"),
+        ):
+            result = self._review(1, "passed", formalization_review=review)
+
+        rel = self.target.relative_to(self.project).as_posix()
+        self.assertEqual(result.passed, (rel,))
+        stored = load_gate_state(self.state)["targets"][rel]["certificate"]
+        self.assertEqual(
+            stored["milestones"][0]["independent_rederivation"],
+            review["independent_rederivation"],
+        )
+
+    def test_native_mismatched_comparison_cannot_pass_batch_gate(self):
+        contract = self._set_native_profile_and_bundle()
+        review = self._passing_certificate()
+        review["independent_rederivation"] = (
+            build_independent_rederivation_example(contract)
+        )
+        review["independent_rederivation"]["requested_outputs"][0][
+            "semantic_card_comparison"
+        ]["status"] = "mismatched"
+
+        result = self._review(1, "passed", formalization_review=review)
+
+        rel = self.target.relative_to(self.project).as_posix()
+        self.assertEqual(result.retry, (rel,))
+        reason = load_gate_state(self.state)["targets"][rel]["reason"]
+        self.assertIn("must be matched", reason)
 
     def test_chemistry_modes_survive_retry_pass_and_gate_rewrite(self):
         self._set_chemistry_profile()

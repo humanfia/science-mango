@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
@@ -12,6 +13,10 @@ from archon.commands.loop.parallel_formalization_review import (
     run_parallel_formalization_reviews,
 )
 from archon.commands.loop.parallel_review import TargetReviewOutcome
+from archon.commands.loop.native_semantic_review import (
+    build_independent_rederivation_example,
+    build_native_semantic_review_contract,
+)
 
 
 def _blind_contract(rel: str) -> dict:
@@ -115,7 +120,145 @@ def _milestone(rel: str, *, passed: bool = True) -> dict:
     }
 
 
+def _native_project(root: Path) -> tuple[Path, dict]:
+    state = root / ".archon"
+    state.mkdir()
+    (state / "config.json").write_text(json.dumps({
+        "loop": {
+            "domain_profile": {
+                "name": "chemistry-native",
+                "lean_search_packages": ["Mathlib", "Physlib", "CRNT"],
+            }
+        }
+    }))
+    target = root / "IChO2026Problems/problem_native_a.lean"
+    target.parent.mkdir()
+    target.write_text("theorem nativeA : True := by sorry\n")
+    image_bytes = b"problem-only page"
+    image_sha = hashlib.sha256(image_bytes).hexdigest()
+    image = root / "icho_2026_source/image/page.png"
+    image.parent.mkdir(parents=True)
+    image.write_bytes(image_bytes)
+    row = {
+        "schema_version": 1,
+        "protocol": "icho-answer-blind-v1",
+        "evaluation_mode": "answer_blind",
+        "official_answer_seen": False,
+        "phase": "solve",
+        "id": "native_a",
+        "question": "Use the printed source relation.",
+        "current_question": "Find the requested amount.",
+        "shared_context": "Keep intermediate values exact.",
+        "previous_parts": [],
+        "images": ["page.png"],
+        "problem_assets": [{
+            "kind": "problem_page", "path": "page.png", "sha256": image_sha,
+        }],
+        "requested_outputs": [{
+            "id": "amount",
+            "source_requirement": "the requested amount",
+            "kind": "numeric",
+            "unit": "mol",
+            "reporting_policy": {"kind": "significant_figures", "digits": 3},
+        }],
+        "reporting_policy": {
+            "intermediate_rounding": "forbidden",
+            "final_precision": {"kind": "significant_figures", "digits": 3},
+            "tie_rule": "half_away_from_zero",
+        },
+        "measurement_policy": {"stipulated_constants": "exact_as_printed"},
+        "candidate_domain_policy": {
+            "underdetermined_result": "must_be_reported",
+        },
+    }
+    bundle = root / "icho_2026_source/questions_only.jsonl"
+    payload = (json.dumps(row) + "\n").encode()
+    bundle.write_bytes(payload)
+    digest = hashlib.sha256(payload).hexdigest()
+    (root / "isolation_manifest.json").write_text(json.dumps({
+        "blind_bundle": {
+            "path": "icho_2026_source/questions_only.jsonl",
+            "row_count": 1,
+            "sha256": digest,
+            "size": len(payload),
+        },
+        "blind_bundle_sha256": digest,
+        "target_ids": ["native_a"],
+        "assets": {"icho_2026_source/image/page.png": image_sha},
+    }))
+    contract = build_native_semantic_review_contract(
+        project_path=root,
+        target=target,
+    )
+    assert isinstance(contract, dict) and contract["valid"]
+    return target, contract
+
+
 class ParallelFormalizationReviewTest(unittest.TestCase):
+    def test_native_prompt_is_problem_only_source_first_and_target_scoped(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            state = root / ".archon"
+            iter_dir = state / "logs/iter-001"
+            output = iter_dir / "formalization-review-targets/native/attempt-1"
+
+            prompt = build_target_formalization_review_prompt(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=1,
+                target=target,
+                output_dir=output,
+                preflight={"file": target.relative_to(root).as_posix(), "compiles": True},
+                prior_gate_record={"reason": "OLD_CANDIDATE_BIAS_SENTINEL"},
+            )
+
+            self.assertIn("NATIVE ANSWER-BLIND PROBLEM CONTRACT", prompt)
+            self.assertIn(contract["image_assets"][0]["sha256"], prompt)
+            self.assertIn("source_first_without_lean", prompt)
+            self.assertIn('"independent_rederivation"', prompt)
+            self.assertNotIn("OFFICIAL SOURCE CONTRACT", prompt)
+            self.assertNotIn("Blind solve candidate record", prompt)
+            self.assertNotIn("Mandatory answer-blind derivation protocol", prompt)
+            self.assertNotIn("OLD_CANDIDATE_BIAS_SENTINEL", prompt)
+            self.assertIn("measurement_policy", prompt)
+            self.assertIn("candidate_domain_policy", prompt)
+            source = prompt.index("NATIVE ANSWER-BLIND PROBLEM CONTRACT")
+            generated = prompt.index("PHASE 2")
+            card = prompt.index("Semantic Card/task results", generated)
+            lean = prompt.index("Lean formalization", generated)
+            self.assertLess(source, generated)
+            self.assertLess(card, lean)
+
+    def test_native_target_worker_certificate_uses_semantic_validator(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            rel = target.relative_to(root).as_posix()
+            path = root / "milestones.jsonl"
+            milestone = _milestone(rel)
+            milestone["formalization_review"]["independent_rederivation"] = (
+                build_independent_rederivation_example(contract)
+            )
+            path.write_text(json.dumps(milestone) + "\n")
+
+            row, error = load_target_formalization_milestone(
+                path, rel, None, contract,
+            )
+            self.assertEqual(error, "")
+            self.assertIsNotNone(row)
+
+            milestone["formalization_review"]["independent_rederivation"][
+                "requested_outputs"
+            ][0]["lean_statement_comparison"]["status"] = "mismatched"
+            path.write_text(json.dumps(milestone) + "\n")
+            row, error = load_target_formalization_milestone(
+                path, rel, None, contract,
+            )
+            self.assertIsNone(row)
+            self.assertIn("must be matched", error)
+
     def test_blind_prompt_uses_blind_schema_and_freeze_protocol(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
