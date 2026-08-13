@@ -634,7 +634,7 @@ class RunBlueprintDoctorTest(unittest.TestCase):
                         "name": "chemistry",
                         "display_name": "IChO chemistry",
                         "lean_search_packages": [
-                            "Mathlib", "Physlib", "Chemistry",
+                            "Mathlib", "Physlib", "CRNT",
                         ],
                         "target_import_prefixes": [],
                         "enforce_classical_physics_modeling": False,
@@ -672,7 +672,7 @@ class RunBlueprintDoctorTest(unittest.TestCase):
         task_results.mkdir()
         (task_results / "ChemA.lean.md").write_text(
             "## Lean API search\n"
-            "Configured package filter: Mathlib, Physlib, Chemistry.\n"
+            "Configured package filter: Mathlib, Physlib, CRNT.\n"
             "- Query `reaction enthalpy`; no usable thermochemistry API.\n"
             "- `CRNT.Reaction` was verified as a candidate.\n"
             "The target uses a minimal local thermochemistry interface.\n",
@@ -680,7 +680,7 @@ class RunBlueprintDoctorTest(unittest.TestCase):
         )
         (task_results / "ChemB.lean.md").write_text(
             "## Lean API search\n"
-            "Configured package filter: Mathlib, Physlib, Chemistry.\n"
+            "Configured package filter: Mathlib, Physlib, CRNT.\n"
             "- reaction enthalpy temperature heat capacity Kirchhoff law\n"
             "All LeanExplore searches returned unrelated results; none provided "
             "a usable API, so no unverified external name was used.\n"
@@ -727,6 +727,55 @@ class RunBlueprintDoctorTest(unittest.TestCase):
 
         kinds = {kind for _, kind, _ in report.physics_modeling_problems}
         self.assertIn("missing-mathlib-import", kinds)
+
+    def test_native_chemistry_uses_chemistry_marker_and_grounding_rules(self):
+        state = self.root / ".archon"
+        state.mkdir()
+        (state / "config.json").write_text(
+            json.dumps({
+                "loop": {
+                    "domain_profile": {
+                        "name": "chemistry-native",
+                        "display_name": "IChO chemistry",
+                        "lean_search_packages": ["Mathlib", "Physlib", "CRNT"],
+                        "target_import_prefixes": [],
+                        "enforce_classical_physics_modeling": False,
+                        "require_explicit_mathlib_import": True,
+                    }
+                }
+            }),
+            encoding="utf-8",
+        )
+        self.bp.write_chapter(
+            "Good",
+            "% archon:chemistry\n% archon:covers Chem.lean\n",
+        )
+        (self.root / "IChOChem.lean").write_text(
+            "import Mathlib\n", encoding="utf-8"
+        )
+        (self.root / "Chem.lean").write_text(
+            "import IChOChem\ntheorem target : True := by sorry\n",
+            encoding="utf-8",
+        )
+        task_results = state / "task_results"
+        task_results.mkdir()
+        (task_results / "physics-grounding-Chem.md").write_text(
+            "# Physics LeanExplore Grounding Log\n\n"
+            "- Target Lean file: `Chem.lean`\n"
+            "- Grounding status: complete\n"
+            "- Search backend: hosted\n"
+            "- Packages searched: Mathlib, Physlib, CRNT\n\n"
+            "## LeanExplore queries/candidates actually used\n"
+            "- `CRNT.Reaction` was verified as a candidate.\n\n"
+            "## Local abstractions introduced\n- None detected.\n\n"
+            "## Grounding gaps\n- No unresolved gaps.\n",
+            encoding="utf-8",
+        )
+
+        report = run_blueprint_doctor(self.root)
+
+        self.assertEqual(report.physics_modeling_problems, [])
+        self.assertEqual(report.physics_grounding_problems, [])
 
     def test_non_physics_project_allows_scalar_abbrevs(self):
         self.bp.write_chapter("Good", "\\label{thm:foo}\n")

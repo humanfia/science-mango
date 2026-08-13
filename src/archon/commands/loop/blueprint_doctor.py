@@ -1436,6 +1436,7 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
     axiom_decls = _scan_axiom_decls(project_path)
     covers_problems = _scan_covers_problems(project_path) if has_blueprint else []
     domain_profile = load_domain_profile(project_path)
+    chemistry_profile = domain_profile.name in {"chemistry", "chemistry-native"}
     blueprint_markers = domain_profile.blueprint_markers
     physics_enabled = (
         _has_physics_blueprint_marker(
@@ -1463,7 +1464,7 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
             domain_display_name=domain_profile.display_name,
             blueprint_markers=blueprint_markers,
             allow_project_mathlib_reexport=(
-                domain_profile.name == "chemistry"
+                chemistry_profile
             ),
         )
     )
@@ -1474,7 +1475,7 @@ def run_blueprint_doctor(project_path: Path) -> DoctorReport | None:
         expected_packages=domain_profile.lean_search_packages,
         required_terms=(
             _CHEMISTRY_GROUNDING_REQUIRED_TERMS
-            if domain_profile.name == "chemistry"
+            if chemistry_profile
             else _PHYSICS_GROUNDING_REQUIRED_TERMS
         ),
         blueprint_markers=blueprint_markers,

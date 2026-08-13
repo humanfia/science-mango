@@ -88,6 +88,11 @@ class DomainProfile:
     @property
     def blueprint_markers(self) -> tuple[str, ...]:
         """Markers that opt a chapter into this profile's specialized loop."""
+        if self.name == "chemistry-native":
+            # Native answer-blind chemistry keeps grounding active without the
+            # legacy physics marker, which also opts into physics-only Review
+            # prompt checks.
+            return ("% archon:chemistry",)
         if self.name == "chemistry":
             # Keep the historical marker as a compatibility alias for
             # chemistry chapters prepared before the domain-specific marker.
@@ -97,14 +102,15 @@ class DomainProfile:
     def mode_for_stage(self, stage: str) -> str | None:
         """Return the profile-specific formalizer/prover mode for ``stage``."""
         canonical = stage.strip().lower()
+        chemistry = self.name in {"chemistry", "chemistry-native"}
         if canonical.startswith("autoformalize"):
             return (
                 "chemistry-formalize"
-                if self.name == "chemistry"
+                if chemistry
                 else "physics-formalize"
             )
         if canonical.startswith("prover"):
-            return "chemistry" if self.name == "chemistry" else "physics"
+            return "chemistry" if chemistry else "physics"
         return None
 
 

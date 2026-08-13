@@ -17,6 +17,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -25,6 +26,9 @@ import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
+from archon.commands.loop.physics_grounding import run_physics_grounding
+from archon.commands.tooling.project_lean_index import build_project_index
+
 
 SCHEMA_VERSION = 1
 PIPELINE = "archon-native-answer-blind-full32"
@@ -32,6 +36,11 @@ EXPECTED_ITEMS = 32
 MAX_PARALLEL = 4
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
 SOURCE_REPORT_MARKER = "% archon:source-report "
+PHYSICS_MARKER = "% archon:physics"
+CHEMISTRY_MARKER = "% archon:chemistry"
+LEAN_SEARCH_PACKAGES = ("Mathlib", "Physlib", "CRNT")
+CRNT_PACKAGE_REL = Path("crnt-lean")
+CRNT_INDEX_REL = Path(".archon/lean-explore/project-index.json")
 
 NATIVE_AGENTS = """# Answer-Blind Native Archon Instructions
 
@@ -88,7 +97,11 @@ solve the proof.
 - Do not weaken the requested result to `True`, a reflexive equality, or an
   unrelated existence claim.
 - Use local Mathlib/Physlib/CRNT/project declarations whose signatures you have
-  checked. Use `lake env lean` to compile the assigned file.
+  checked. Read the current target's `physics-grounding-*` report before
+  editing, then use `lake env lean` to compile the assigned file.
+- If the searched libraries do not provide a problem-specific bridge, state
+  and prove a target-local helper from available foundations. Do not install,
+  update, fetch, or replace Lake dependencies.
 - Edit only the assigned Lean file and its `.archon/task_results` report. Do not
   create a candidate JSON, edit the problem sources, or edit another target.
 - If official answers, solutions, rubrics, grader data, or prior-run answers are
@@ -107,32 +120,44 @@ read_blueprint: true
 
 Replace `sorry` in the assigned chemistry Lean file with sound proofs. Keep the
 reviewed declaration signatures and chemical meaning fixed. Use the encoded
-source data and governing relations, search the local Lean libraries, and run
-`lake env lean` until the file compiles. Edit only the assigned Lean file and
-its task-result report. If the statement is genuinely insufficient, report a
-precise redraft need; do not weaken it. Never seek or use an official answer,
-solution, rubric, grader output, prior run, or another solver's work.
+source data and governing relations. Read the current target's
+`physics-grounding-*` report before proving; search Mathlib/Physlib and the CRNT
+overlay, and run `lake env lean` until the file compiles. A missing
+problem-specific bridge may be synthesized as a proved target-local helper. If
+a foundational bridge cannot be derived from the pinned libraries and source
+hypotheses, report `needs_redraft` so the next iteration can re-ground and
+rebuild the formalization; do not weaken it. Never install, update, fetch, or
+replace Lake dependencies. Edit only the assigned Lean file and its task-result
+report. Never seek or use an official answer, solution, rubric, grader output,
+prior run, or another solver's work.
 """
 
 NATIVE_PLAN_GUIDE = """# Native answer-blind planning
 
 Plan only from the problem-only blueprint, current Lean files, deterministic
-Lean diagnostics, and the preceding Archon Review. Keep the current target set
-small enough for the configured four prover lanes. Never seek an official
-answer, solution, rubric, grader output, prior run, or another solver's work.
+Lean diagnostics, current target grounding reports, and the preceding Archon
+Review. Missing problem-specific bridges may be target-local proved helpers;
+missing foundational bridges must be routed through `needs_redraft`, never a
+dependency update. Keep the current target set small enough for the configured
+four prover lanes. Never seek an official answer, solution, rubric, grader
+output, prior run, or another solver's work.
 """
 
 NATIVE_REVIEW_GUIDE = """# Native answer-blind Review
 
 Review the current targets against their problem-only blueprint chapters and
-problem images. During autoformalize, decide whether each Lean statement is a
-faithful and derivable encoding and emit the structured formalization Review
-certificate requested by the invocation. During prover, audit the exact Lean
-proof and emit the requested proof Review route. Write exactly one JSONL row for
-every listed objective: no omissions, duplicates, or extra targets. Also write
-the requested summary, recommendations, and PROJECT_STATUS files. Do not modify
-Lean files and never seek an official answer, solution, rubric, grader output,
-prior run, or another solver's work.
+problem images and current LeanExplore grounding report. During autoformalize,
+decide whether each Lean statement is a faithful and derivable encoding and
+emit the structured formalization Review certificate requested by the
+invocation. During prover, audit the exact Lean proof and emit the requested
+proof Review route. Accept proved target-local helper lemmas when they derive
+the required bridge from pinned foundations; route a missing foundational
+bridge to `needs_redraft` so grounding and formalization are rebuilt on the next
+iteration. Never request a dependency install or update. Write exactly one
+JSONL row for every listed objective: no omissions, duplicates, or extra
+targets. Also write the requested summary, recommendations, and PROJECT_STATUS
+files. Do not modify Lean files and never seek an official answer, solution,
+rubric, grader output, prior run, or another solver's work.
 """
 
 
@@ -237,8 +262,11 @@ def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError(f"prepared workspace is missing: {config.workspace}")
     if config.max_iterations < 1:
         raise CampaignError("max_iterations must be positive")
+    ids = _target_ids(config.workspace)
     _check_native_config(config.workspace)
-    return config, _target_ids(config.workspace)
+    _validate_native_markers(config.workspace, ids)
+    _validate_crnt_project_index(config)
+    return config, ids
 
 
 def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
@@ -247,8 +275,12 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         value = json.loads(path.read_text())
         loop = value["loop"]
         harness = value["harnesses"]["answer-blind-gpt"]
+        domain = loop["domain_profile"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
         raise CampaignError("configured workspace lacks the GPT Archon harness") from exc
+    if not isinstance(domain, dict) or domain.get("name") != "chemistry":
+        raise CampaignError("configured workspace lacks the chemistry profile")
+    domain["lean_search_packages"] = list(LEAN_SEARCH_PACKAGES)
     for key in ("base_url_env", "key_env", "wire_api"):
         harness.pop(key, None)
     extra_args = list(harness.get("extra_args") or [])
@@ -270,6 +302,9 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         # native loop instead runs as a dedicated non-root UID, while answer
         # and controller paths stay root-only; _run_loop enforces that boundary.
         "sandbox": "danger-full-access",
+        # Loop-owned deterministic grounding uses hosted LeanExplore for the
+        # public Mathlib/Physlib index and the generated local CRNT overlay.
+        "lean_explore_backend": "hosted",
         "ignore_user_config": True,
         "ephemeral": True,
         # Keep the native path deliberately small.  Archon's deterministic
@@ -301,6 +336,9 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "parallel_target_review": False,
         "pipeline_target_review": False,
     })
+    shared = loop.get("shared_infrastructure")
+    if isinstance(shared, dict):
+        shared["enabled"] = False
     path.write_bytes(_json_bytes(value))
 
 
@@ -336,7 +374,7 @@ def _activate_native_review_profile(workspace: Path) -> None:
 
 
 def _detach_strict_source_contract(workspace: Path, ids: Sequence[str]) -> None:
-    """Keep problem text while selecting Archon's ordinary native Review."""
+    """Drop strict source metadata while retaining the grounding trigger."""
     chapter_root = workspace / "blueprint/src/chapters"
     for target_id in ids:
         path = chapter_root / f"IChO2026Problems_problem_{target_id}.tex"
@@ -353,19 +391,235 @@ def _detach_strict_source_contract(workspace: Path, ids: Sequence[str]) -> None:
         del lines[marker_indexes[0]]
         physics_indexes = [
             index for index, line in enumerate(lines)
-            if line.strip() == "% archon:physics"
+            if line.strip() == PHYSICS_MARKER
         ]
         if len(physics_indexes) != 1:
             raise CampaignError(f"prepared chapter has an invalid domain marker: {path}")
         del lines[physics_indexes[0]]
         chemistry_indexes = [
             index for index, line in enumerate(lines)
-            if line.strip() == "% archon:chemistry"
+            if line.strip() == CHEMISTRY_MARKER
         ]
         if len(chemistry_indexes) != 1:
             raise CampaignError(f"prepared chapter has an invalid chemistry marker: {path}")
-        del lines[chemistry_indexes[0]]
         path.write_text("".join(lines), encoding="utf-8")
+
+
+def _validate_native_markers(workspace: Path, ids: Sequence[str]) -> None:
+    """Fail closed unless every live target has only the chemistry trigger."""
+    chapter_root = workspace / "blueprint/src/chapters"
+    for target_id in ids:
+        path = chapter_root / f"IChO2026Problems_problem_{target_id}.tex"
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError as exc:
+            raise CampaignError(f"missing native blueprint chapter: {path}") from exc
+        physics = sum(line.strip() == PHYSICS_MARKER for line in lines)
+        chemistry = sum(line.strip() == CHEMISTRY_MARKER for line in lines)
+        source_reports = sum(
+            line.lstrip().startswith(SOURCE_REPORT_MARKER.rstrip()) for line in lines
+        )
+        if physics != 0 or chemistry != 1 or source_reports != 0:
+            raise CampaignError(
+                f"native chapter has invalid grounding/source markers: {path}"
+            )
+
+
+def _crnt_package_root(config: Config) -> Path:
+    root = config.private_lake_packages / CRNT_PACKAGE_REL
+    source_dir = root / "CRNT"
+    root_module = root / "CRNT.lean"
+    if root.is_symlink() or not root.is_dir():
+        raise CampaignError(f"private CRNT package is missing or unsafe: {root}")
+    if source_dir.is_symlink() or not source_dir.is_dir():
+        raise CampaignError(f"private CRNT source directory is missing or unsafe: {source_dir}")
+    if root_module.is_symlink() or not root_module.is_file():
+        raise CampaignError(f"private CRNT root module is missing or unsafe: {root_module}")
+    return root
+
+
+def _crnt_manifest_pin(config: Config) -> tuple[str, str]:
+    path = config.workspace / "lake-manifest.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        packages = payload["packages"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise CampaignError("workspace lake-manifest.json is invalid") from exc
+    matches = [
+        row for row in packages
+        if isinstance(row, dict)
+        and str(row.get("name") or "").strip().strip("«»") == "crnt-lean"
+    ] if isinstance(packages, list) else []
+    if len(matches) != 1:
+        raise CampaignError("lake-manifest.json must pin exactly one crnt-lean package")
+    row = matches[0]
+    revision = str(row.get("rev") or "").strip()
+    url = str(row.get("url") or "").strip()
+    if row.get("type") != "git" or re.fullmatch(r"[0-9a-f]{40}", revision) is None or not url:
+        raise CampaignError("lake-manifest.json has an invalid crnt-lean pin")
+    return revision, url
+
+
+def _crnt_git_value(root: Path, *arguments: str) -> str:
+    environment = os.environ.copy()
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    try:
+        result = subprocess.run(
+            ["git", "-c", f"safe.directory={root}", *arguments],
+            cwd=root,
+            env=environment,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise CampaignError("private CRNT checkout metadata is invalid") from exc
+    value = result.stdout.strip()
+    if not value:
+        raise CampaignError("private CRNT checkout metadata is empty")
+    return value
+
+
+def _validate_crnt_project_index(config: Config) -> dict[str, Any]:
+    path = config.workspace / CRNT_INDEX_REL
+    if path.is_symlink() or not path.is_file():
+        raise CampaignError(f"CRNT LeanExplore overlay index is missing or unsafe: {path}")
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise CampaignError("CRNT LeanExplore overlay index is invalid") from exc
+    declarations = payload.get("declarations")
+    source_files = payload.get("source_files")
+    count = payload.get("declaration_count")
+    crnt_root = _crnt_package_root(config).resolve()
+    pinned_revision, pinned_url = _crnt_manifest_pin(config)
+    checkout_revision = _crnt_git_value(crnt_root, "rev-parse", "HEAD")
+    checkout_url = _crnt_git_value(crnt_root, "remote", "get-url", "origin")
+    if (
+        payload.get("schema_version") != 1
+        or payload.get("package") != "CRNT"
+        or payload.get("project_path") != str(crnt_root)
+        or payload.get("commit") != pinned_revision
+        or payload.get("repo_url") != pinned_url
+        or checkout_revision != pinned_revision
+        or checkout_url != pinned_url
+        or not isinstance(declarations, list)
+        or not declarations
+        or isinstance(count, bool)
+        or not isinstance(count, int)
+        or count != len(declarations)
+        or not isinstance(source_files, list)
+        or "CRNT.lean" not in source_files
+        or not any(
+            isinstance(item, str)
+            and item.startswith("CRNT/")
+            and item.endswith(".lean")
+            for item in source_files
+        )
+        or any(
+            not isinstance(item, str)
+            or not (item == "CRNT.lean" or (
+                item.startswith("CRNT/") and item.endswith(".lean")
+            ))
+            for item in source_files
+        )
+    ):
+        raise CampaignError("CRNT LeanExplore overlay index has invalid metadata")
+    for declaration in declarations:
+        if (
+            not isinstance(declaration, dict)
+            or declaration.get("package") != "CRNT"
+            or not isinstance(declaration.get("name"), str)
+            or not declaration["name"].strip()
+            or not isinstance(declaration.get("module"), str)
+            or not declaration["module"].startswith("CRNT.")
+        ):
+            raise CampaignError(
+                "CRNT LeanExplore overlay contains a non-CRNT declaration"
+            )
+    return payload
+
+
+def _build_crnt_project_index(config: Config) -> dict[str, Any]:
+    root = _crnt_package_root(config)
+    try:
+        build_project_index(
+            root,
+            source_roots=(Path("CRNT"), Path("CRNT.lean")),
+            package="CRNT",
+            output_path=config.workspace / CRNT_INDEX_REL,
+        )
+    except (OSError, ValueError, subprocess.SubprocessError) as exc:
+        raise CampaignError(f"cannot build the CRNT LeanExplore overlay: {exc}") from exc
+    return _validate_crnt_project_index(config)
+
+
+def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]:
+    """Ground all targets before the first ``--from prover`` iteration."""
+    expected = {(config.workspace / target).resolve() for target in _targets(ids)}
+    try:
+        reports = run_physics_grounding(
+            config.workspace,
+            backend="hosted",
+            packages=LEAN_SEARCH_PACKAGES,
+            lean_files=sorted(expected),
+            reuse_unchanged=True,
+        )
+    except Exception as exc:
+        raise CampaignError(f"initial LeanExplore grounding crashed: {exc}") from exc
+
+    actual: dict[Path, Any] = {}
+    for report in reports:
+        lean_file = Path(getattr(report, "lean_file", "")).resolve()
+        if lean_file in actual:
+            raise CampaignError(f"initial grounding returned a duplicate target: {lean_file}")
+        actual[lean_file] = report
+    if set(actual) != expected:
+        raise CampaignError("initial grounding did not cover the exact blind full32 set")
+    counts = collections.Counter()
+    task_results = (config.workspace / ".archon/task_results").resolve()
+    for lean_file, report in actual.items():
+        report_path = Path(getattr(report, "report_path", ""))
+        expected_report = task_results / f"physics-grounding-{lean_file.stem}.md"
+        if (
+            report_path.is_symlink()
+            or not report_path.is_file()
+            or report_path.resolve() != expected_report
+        ):
+            raise CampaignError(f"initial grounding report has invalid scope: {report_path}")
+        try:
+            metadata = set(report_path.read_text(encoding="utf-8").splitlines())
+        except OSError as exc:
+            raise CampaignError(f"initial grounding report is missing: {report_path}") from exc
+        statuses = {
+            line.removeprefix("- Grounding status: ")
+            for line in metadata
+            if line.startswith("- Grounding status: ")
+        }
+        if statuses not in ({"complete"}, {"incomplete"}):
+            raise CampaignError(f"initial grounding report has invalid status: {report_path}")
+        status = next(iter(statuses))
+        if bool(getattr(report, "is_complete", False)) != (status == "complete"):
+            raise CampaignError(f"initial grounding status disagrees with report: {report_path}")
+        if not {
+            "- Search backend: hosted",
+            f"- Packages searched: {', '.join(LEAN_SEARCH_PACKAGES)}",
+        }.issubset(metadata) or not any(
+            re.fullmatch(r"- Input fingerprint: sha256:[0-9a-f]{64}", line)
+            for line in metadata
+        ):
+            raise CampaignError(f"initial grounding report metadata is invalid: {report_path}")
+        counts[status] += 1
+    if counts["incomplete"]:
+        with config.log_path.open("a", encoding="utf-8") as log:
+            log.write(
+                f"[{_utcnow()}] warning: initial LeanExplore grounding left "
+                f"{counts['incomplete']} target(s) incomplete; continue so the "
+                "native loop can synthesize target-local helpers or route "
+                "foundational gaps to needs_redraft.\n"
+            )
+    return dict(sorted(counts.items()))
 
 
 def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
@@ -378,6 +632,7 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
     if (
         harness.get("runner") != "codex"
         or harness.get("sandbox") != "danger-full-access"
+        or harness.get("lean_explore_backend") != "hosted"
         or harness.get("mcp") != []
         or "lean_lsp_mcp_bin" in harness
         or any(key in harness for key in ("base_url_env", "key_env"))
@@ -385,6 +640,9 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         or "features.multi_agent=false" not in (harness.get("extra_args") or [])
         or (loop.get("domain_profile") or {}).get("name")
         != ("chemistry" if preparation else "chemistry-native")
+        or (loop.get("domain_profile") or {}).get("lean_search_packages")
+        != list(LEAN_SEARCH_PACKAGES)
+        or (loop.get("shared_infrastructure") or {}).get("enabled") is not False
         or loop.get("parallel_formalization_review") is not False
         or loop.get("parallel_target_review") is not False
         or loop.get("pipeline_target_review") is not False
@@ -438,6 +696,7 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     link.parent.mkdir(parents=True, exist_ok=True)
     link.symlink_to(config.private_lake_packages, target_is_directory=True)
     _write_all(config.workspace, ids)
+    _build_crnt_project_index(config)
 
 
 def physics_command(config: Config) -> list[str]:
@@ -638,9 +897,16 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
         _write_index(config, index)
         return index
     _detach_strict_source_contract(config.workspace, ids)
+    _validate_native_markers(config.workspace, ids)
     _activate_native_review_profile(config.workspace)
     _check_native_config(config.workspace)
-    index.update(status="prepared", native=native_summary(config.workspace, ids))
+    _validate_crnt_project_index(config)
+    grounding = _run_initial_grounding(config, ids)
+    index.update(
+        status="prepared",
+        grounding=grounding,
+        native=native_summary(config.workspace, ids),
+    )
     _write_index(config, index)
     if not start_loop:
         return index

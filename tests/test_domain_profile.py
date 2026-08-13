@@ -92,6 +92,32 @@ class DomainProfileTests(unittest.TestCase):
         self.assertEqual(profile.mode_for_stage("prover"), "chemistry")
         self.assertIsNone(profile.mode_for_stage("review"))
 
+    def test_native_chemistry_uses_only_chemistry_marker_and_modes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            state = project / ".archon"
+            state.mkdir()
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {
+                        "domain_profile": {
+                            "name": "chemistry-native",
+                            "lean_search_packages": ["Mathlib", "Physlib", "CRNT"],
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            profile = load_domain_profile(project)
+
+        self.assertEqual(profile.blueprint_markers, ("% archon:chemistry",))
+        self.assertEqual(profile.mode_for_stage("autoformalize"), "chemistry-formalize")
+        self.assertEqual(profile.mode_for_stage("prover"), "chemistry")
+        self.assertEqual(
+            profile.lean_search_packages,
+            ("Mathlib", "Physlib", "CRNT"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

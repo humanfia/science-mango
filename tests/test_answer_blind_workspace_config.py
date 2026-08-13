@@ -155,6 +155,10 @@ class AnswerBlindWorkspaceConfigTests(unittest.TestCase):
             )
             loop = config["loop"]
             self.assertEqual(loop["domain_profile"]["name"], "chemistry")
+            self.assertEqual(
+                loop["domain_profile"]["lean_search_packages"],
+                ["Mathlib", "Physlib", "CRNT"],
+            )
             self.assertEqual(loop["max_objectives"], 7)
             self.assertEqual(loop["max_parallel"], 3)
             for enabled in (
@@ -176,6 +180,7 @@ class AnswerBlindWorkspaceConfigTests(unittest.TestCase):
             self.assertEqual(descriptor["model"], "gpt-5.6-sol")
             self.assertEqual(descriptor["effort"], "max")
             self.assertEqual(descriptor["sandbox"], "workspace-write")
+            self.assertEqual(descriptor["lean_explore_backend"], "hosted")
             self.assertIs(descriptor["ignore_user_config"], True)
             self.assertEqual(
                 descriptor["base_url_env"], "ANSWER_BLIND_MODEL_BASE_URL"

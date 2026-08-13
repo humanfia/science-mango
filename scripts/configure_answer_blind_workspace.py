@@ -357,7 +357,7 @@ def _domain_profile() -> dict[str, Any]:
             "CRNT.Basic.Reaction",
             "IChO2026Chem",
         ],
-        "lean_search_packages": ["Mathlib", "Physlib", "Chemistry"],
+        "lean_search_packages": ["Mathlib", "Physlib", "CRNT"],
         "target_import_prefixes": [],
         "enforce_classical_physics_modeling": False,
         "require_explicit_mathlib_import": True,
@@ -384,6 +384,10 @@ def _gpt_descriptor(*, lean_explore_url: str | None) -> dict[str, Any]:
         # project-relative tool tree, which is both mutable and networked.
         "lean_lsp_mcp_bin": "lean-lsp-mcp-trusted",
         "sandbox": "workspace-write",
+        # The loop-owned grounding phase uses keyless hosted LeanExplore for
+        # Mathlib/Physlib and the project-local overlay for CRNT.  This is not
+        # an MCP/tool grant to the model.
+        "lean_explore_backend": "hosted",
         "ignore_user_config": True,
         "ephemeral": True,
         "mcp": mcp,

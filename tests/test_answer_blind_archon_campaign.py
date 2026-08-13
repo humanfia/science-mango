@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import dataclasses
 import importlib.util
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 
@@ -48,6 +51,58 @@ class NativeArchonCampaignTests(unittest.TestCase):
         )
         self.packages = self.base / "packages"
         self.packages.mkdir()
+        crnt = self.packages / "crnt-lean"
+        (crnt / "CRNT/Basic").mkdir(parents=True)
+        (crnt / "CRNT.lean").write_text(
+            "import CRNT.Basic.Reaction\n", encoding="utf-8"
+        )
+        (crnt / "CRNT/Basic/Reaction.lean").write_text(
+            "namespace CRNT\n"
+            "def indexedReactionBridge : Nat := 1\n"
+            "end CRNT\n",
+            encoding="utf-8",
+        )
+        subprocess.run(
+            ["git", "init", "--quiet", "--initial-branch=main", "--template="],
+            cwd=crnt,
+            check=True,
+        )
+        subprocess.run(["git", "add", "."], cwd=crnt, check=True)
+        subprocess.run(
+            [
+                "git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                "commit", "--quiet", "-m", "test CRNT pin",
+            ],
+            cwd=crnt,
+            check=True,
+        )
+        crnt_url = "https://github.com/marpaia/crnt-lean"
+        subprocess.run(
+            ["git", "remote", "add", "origin", crnt_url], cwd=crnt, check=True
+        )
+        crnt_revision = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=crnt,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        self.crnt_url = crnt_url
+        self.crnt_revision = crnt_revision
+        (self.seed / "lake-manifest.json").write_text(
+            json.dumps({
+                "version": "1.2.0",
+                "packages": [{
+                    "name": "crnt-lean",
+                    "type": "git",
+                    "url": crnt_url,
+                    "rev": crnt_revision,
+                    "inputRev": crnt_revision,
+                }],
+            }),
+            encoding="utf-8",
+        )
+        self.grounding_calls: list[dict[str, object]] = []
         self.config = RUNNER.Config(
             campaign_root=self.base / "campaign",
             seed_workspace=self.seed,
@@ -79,6 +134,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
                     "parallel_formalization_review": True,
                     "pipeline_target_review": True,
                     "domain_profile": {"name": "chemistry"},
+                    "shared_infrastructure": {"enabled": False},
                 },
                 "harnesses": {
                     "answer-blind-gpt": {
@@ -107,6 +163,50 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 side_effect=self._fake_configure,
             ),
         )
+
+    def _fake_grounding(self, project: Path, **kwargs: object):
+        self.grounding_calls.append(dict(kwargs))
+        task_results = project / ".archon/task_results"
+        task_results.mkdir(parents=True, exist_ok=True)
+        reports = []
+        for lean_file in kwargs.get("lean_files", []):
+            lean_path = Path(lean_file)
+            report_path = task_results / f"physics-grounding-{lean_path.stem}.md"
+            report_path.write_text(
+                "# Physics LeanExplore Grounding Log\n\n"
+                "- Grounding status: complete\n"
+                "- Search backend: hosted\n"
+                f"- Input fingerprint: sha256:{'a' * 64}\n"
+                "- Packages searched: Mathlib, Physlib, CRNT\n",
+                encoding="utf-8",
+            )
+            reports.append(SimpleNamespace(
+                lean_file=lean_path,
+                report_path=report_path,
+                is_complete=True,
+            ))
+        return reports
+
+    def _grounding_patch(self):
+        return mock.patch.object(
+            RUNNER, "run_physics_grounding", side_effect=self._fake_grounding
+        )
+
+    def _prepare_only(self, config: RUNNER.Config | None = None) -> RUNNER.Config:
+        selected = config or self.config
+
+        def prepare_run(command: list[str], *, config: RUNNER.Config) -> tuple[int, float]:
+            self._write_physics_metadata(config.workspace)
+            return 0, 0.1
+
+        patches = self._prepare_patches()
+        with (
+            patches[0], patches[1], patches[2], self._grounding_patch(),
+            mock.patch.object(RUNNER, "_run", side_effect=prepare_run),
+        ):
+            result = RUNNER.run_fresh(selected, start_loop=False)
+        self.assertEqual(result["status"], "prepared")
+        return selected
 
     def _write_physics_metadata(self, workspace: Path) -> None:
         path = workspace / ".archon/physics-formalize/latest.json"
@@ -266,6 +366,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
         loop = value["loop"]
         self.assertEqual(harness["runner"], "codex")
         self.assertEqual(harness["sandbox"], "danger-full-access")
+        self.assertEqual(harness["lean_explore_backend"], "hosted")
         self.assertEqual(harness["mcp"], [])
         self.assertNotIn("lean_lsp_mcp_bin", harness)
         self.assertIn("features.code_mode=false", harness["extra_args"])
@@ -275,6 +376,11 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("features.multi_agent=false", harness["extra_args"])
         self.assertIn("features.multi_agent_v2=false", harness["extra_args"])
         self.assertEqual(loop["domain_profile"]["name"], "chemistry")
+        self.assertEqual(
+            loop["domain_profile"]["lean_search_packages"],
+            ["Mathlib", "Physlib", "CRNT"],
+        )
+        self.assertIs(loop["shared_infrastructure"]["enabled"], False)
         self.assertIs(loop["parallel_formalization_review"], False)
         self.assertIs(loop["parallel_target_review"], False)
         self.assertIs(loop["pipeline_target_review"], False)
@@ -293,6 +399,17 @@ class NativeArchonCampaignTests(unittest.TestCase):
             config.private_lake_packages,
         )
         self.assertTrue(config.private_lake_packages.is_dir())
+        crnt_index = json.loads(
+            (workspace / ".archon/lean-explore/project-index.json").read_text()
+        )
+        self.assertEqual(crnt_index["package"], "CRNT")
+        self.assertEqual(crnt_index["commit"], self.crnt_revision)
+        self.assertEqual(crnt_index["repo_url"], self.crnt_url)
+        self.assertGreater(crnt_index["declaration_count"], 0)
+        self.assertEqual(
+            {row["module"] for row in crnt_index["declarations"]},
+            {"CRNT.Basic.Reaction"},
+        )
         imports = (workspace / "IChO2026Problems/All.lean").read_text().splitlines()
         self.assertEqual(len(imports), 32)
         self.assertEqual(imports[0], f"import IChO2026Problems.problem_{self.ids[0]}")
@@ -329,6 +446,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
         patches = self._prepare_patches()
         with (
             patches[0], patches[1], patches[2],
+            self._grounding_patch(),
             mock.patch.object(RUNNER.os, "geteuid", return_value=0) as geteuid,
             mock.patch.object(RUNNER, "_run", side_effect=fake_run),
         ):
@@ -341,17 +459,141 @@ class NativeArchonCampaignTests(unittest.TestCase):
         index = json.loads((self.config.campaign_root / "campaign.json").read_text())
         self.assertEqual(index["row_count"], 32)
         self.assertEqual(index["max_parallel"], 4)
+        self.assertEqual(index["grounding"], {"complete": 32})
         final_config = json.loads(
             (self.config.campaign_root / "workspace/.archon/config.json").read_text()
         )
         self.assertEqual(
             final_config["loop"]["domain_profile"]["name"], "chemistry-native"
         )
+        self.assertEqual(len(self.grounding_calls), 1)
+        self.assertEqual(self.grounding_calls[0]["backend"], "hosted")
+        self.assertEqual(
+            self.grounding_calls[0]["packages"],
+            ("Mathlib", "Physlib", "CRNT"),
+        )
+        self.assertEqual(len(self.grounding_calls[0]["lean_files"]), 32)
         chapters = self.config.campaign_root / "workspace/blueprint/src/chapters"
         for chapter in chapters.glob("*.tex"):
             self.assertNotIn("archon:source-report", chapter.read_text())
             self.assertNotIn("archon:physics", chapter.read_text())
-            self.assertNotIn("archon:chemistry", chapter.read_text())
+            self.assertEqual(chapter.read_text().count("% archon:chemistry"), 1)
+
+    def test_initial_grounding_accepts_incomplete_evidence_and_counts_it(self) -> None:
+        workspace = self.base / "grounding-fail-closed" / "workspace"
+        workspace.mkdir(parents=True)
+        config = RUNNER.Config(campaign_root=workspace.parent)
+        reports = []
+        targets = RUNNER._targets(self.ids)
+        for offset, target in enumerate(targets):
+            lean_file = workspace / target
+            report_path = (
+                workspace / ".archon/task_results"
+                / f"physics-grounding-{lean_file.stem}.md"
+            )
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            status = "incomplete" if offset == len(targets) - 1 else "complete"
+            report_path.write_text(
+                f"- Grounding status: {status}\n"
+                "- Search backend: hosted\n"
+                f"- Input fingerprint: sha256:{'a' * 64}\n"
+                "- Packages searched: Mathlib, Physlib, CRNT\n",
+                encoding="utf-8",
+            )
+            reports.append(SimpleNamespace(
+                lean_file=lean_file,
+                report_path=report_path,
+                is_complete=status == "complete",
+            ))
+
+        with mock.patch.object(
+            RUNNER, "run_physics_grounding", return_value=reports
+        ):
+            counts = RUNNER._run_initial_grounding(config, self.ids)
+
+        self.assertEqual(counts, {"complete": 31, "incomplete": 1})
+        warning = config.log_path.read_text(encoding="utf-8")
+        self.assertIn("1 target(s) incomplete", warning)
+        self.assertIn("needs_redraft", warning)
+
+    def test_initial_grounding_fails_closed_on_missing_or_wrong_scope(self) -> None:
+        workspace = self.base / "grounding-invalid" / "workspace"
+        workspace.mkdir(parents=True)
+        config = RUNNER.Config(campaign_root=workspace.parent)
+        reports = self._fake_grounding(
+            workspace,
+            lean_files=[workspace / target for target in RUNNER._targets(self.ids)],
+        )
+        outside = workspace / "wrong-scope.md"
+        outside.write_bytes(reports[-1].report_path.read_bytes())
+        wrong_scope = [*reports[:-1], SimpleNamespace(
+            lean_file=reports[-1].lean_file,
+            report_path=outside,
+            is_complete=True,
+        )]
+
+        for anomaly, returned in (("missing", reports[:-1]), ("scope", wrong_scope)):
+            with self.subTest(anomaly=anomaly), mock.patch.object(
+                RUNNER, "run_physics_grounding", return_value=returned
+            ), self.assertRaisesRegex(RUNNER.CampaignError, "grounding"):
+                RUNNER._run_initial_grounding(config, self.ids)
+
+    def test_resume_fails_closed_on_config_marker_or_crnt_index_tampering(self) -> None:
+        for anomaly in ("config", "marker", "index", "manifest", "checkout"):
+            with self.subTest(anomaly=anomaly):
+                fresh = dataclasses.replace(
+                    self.config,
+                    campaign_root=self.base / f"resume-invalid-{anomaly}",
+                )
+                self._prepare_only(fresh)
+                workspace = fresh.workspace
+                if anomaly == "config":
+                    path = workspace / ".archon/config.json"
+                    payload = json.loads(path.read_text())
+                    payload["loop"]["domain_profile"]["lean_search_packages"] = [
+                        "Mathlib", "Physlib", "WrongPackage",
+                    ]
+                    path.write_text(json.dumps(payload), encoding="utf-8")
+                elif anomaly == "marker":
+                    path = next((workspace / "blueprint/src/chapters").glob("*.tex"))
+                    path.write_text(
+                        path.read_text().replace(
+                            "% archon:chemistry", "% archon:physics"
+                        ),
+                        encoding="utf-8",
+                    )
+                else:
+                    if anomaly == "index":
+                        path = workspace / RUNNER.CRNT_INDEX_REL
+                        payload = json.loads(path.read_text())
+                        payload["commit"] = "0" * 40
+                        path.write_text(json.dumps(payload), encoding="utf-8")
+                    elif anomaly == "manifest":
+                        path = workspace / "lake-manifest.json"
+                        payload = json.loads(path.read_text())
+                        payload["packages"][0]["rev"] = "0" * 40
+                        path.write_text(json.dumps(payload), encoding="utf-8")
+                    else:
+                        subprocess.run(
+                            [
+                                "git", "remote", "set-url", "origin",
+                                "https://example.invalid/wrong-crnt",
+                            ],
+                            cwd=fresh.private_lake_packages / "crnt-lean",
+                            check=True,
+                        )
+
+                resumed = RUNNER.Config(
+                    campaign_root=fresh.campaign_root,
+                    archon_bin=fresh.archon_bin,
+                    max_iterations=fresh.max_iterations,
+                )
+                with (
+                    mock.patch.object(RUNNER, "_run") as run,
+                    self.assertRaises(RUNNER.CampaignError),
+                ):
+                    RUNNER.resume_campaign(resumed)
+                run.assert_not_called()
 
     def test_dry_run_is_permitted_as_root(self) -> None:
         validate = self._prepare_patches()[0]
@@ -378,6 +620,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
         patches = self._prepare_patches()
         with (
             patches[0], patches[1], patches[2],
+            self._grounding_patch(),
             mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
             mock.patch.object(RUNNER, "_run", side_effect=fake_run),
         ):
@@ -438,8 +681,9 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self._write_physics_metadata(config.workspace)
             return 0, 0.1
 
-        with patches[0], patches[1], patches[2], mock.patch.object(
-            RUNNER, "_run", side_effect=prepare_run
+        with (
+            patches[0], patches[1], patches[2], self._grounding_patch(),
+            mock.patch.object(RUNNER, "_run", side_effect=prepare_run),
         ):
             RUNNER.run_fresh(self.config, start_loop=False)
 
@@ -479,8 +723,9 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self._write_physics_metadata(config.workspace)
             return 0, 0.1
 
-        with patches[0], patches[1], patches[2], mock.patch.object(
-            RUNNER, "_run", side_effect=prepare_run
+        with (
+            patches[0], patches[1], patches[2], self._grounding_patch(),
+            mock.patch.object(RUNNER, "_run", side_effect=prepare_run),
         ):
             RUNNER.run_fresh(self.config, start_loop=False)
 

@@ -1018,7 +1018,7 @@ class PhysicsGroundingLogTest(unittest.TestCase):
                 json.dumps(
                     {
                         "schema_version": 1,
-                        "package": "Chemistry",
+                        "package": "CRNT",
                         "declarations": [
                             {
                                 "name": "CRNT.Reaction.vector",
@@ -1083,7 +1083,7 @@ class PhysicsGroundingLogTest(unittest.TestCase):
                     project,
                     backend="hosted",
                     api_key="",
-                    packages=("Mathlib", "Physlib", "Chemistry"),
+                    packages=("Mathlib", "Physlib", "CRNT"),
                     timeout=7.5,
                     max_queries=1,
                 )
@@ -1103,13 +1103,13 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             self.assertIn("Search backend: hosted", text)
             self.assertIn("CRNT.Reaction.vector", text)
             self.assertIn("Real.sqrt", text)
-            self.assertIn("Packages searched: Mathlib, Physlib, Chemistry", text)
+            self.assertIn("Packages searched: Mathlib, Physlib, CRNT", text)
 
             cached = run_physics_grounding(
                 project,
                 backend="hosted",
                 api_key="",
-                packages=("Mathlib", "Physlib", "Chemistry"),
+                packages=("Mathlib", "Physlib", "CRNT"),
                 timeout=7.5,
                 max_queries=1,
             )
@@ -1131,7 +1131,7 @@ class PhysicsGroundingLogTest(unittest.TestCase):
                     project,
                     backend="hosted",
                     api_key="",
-                    packages=("Mathlib", "Physlib", "Chemistry"),
+                    packages=("Mathlib", "Physlib", "CRNT"),
                     timeout=7.5,
                     max_queries=1,
                 )
