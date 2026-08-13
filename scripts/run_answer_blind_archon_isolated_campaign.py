@@ -84,6 +84,7 @@ _LANDLOCK_READ_FILE = 1 << 2
 _LANDLOCK_READ_DIR = 1 << 3
 _LANDLOCK_REFER = 1 << 13
 _LANDLOCK_TRUNCATE = 1 << 14
+_LANDLOCK_READ_WRITE_DEVICE_FILES = ("/dev/null",)
 
 
 class _LandlockRulesetAttr(ctypes.Structure):
@@ -1081,12 +1082,28 @@ def _system_read_paths(runtime: Path) -> tuple[Path, ...]:
         system, _inventory = ITERATION._system_readonly_inventory(runtime)
     except Exception as exc:
         raise CampaignError(f"cannot inventory exact runtime dependencies: {exc}") from exc
+    read_write_devices = set(_system_read_write_paths())
     devices = tuple(
         Path(raw).resolve(strict=True)
         for raw in ITERATION.SYSTEM_DEVICE_FILES
         if Path(raw).exists()
+        and Path(raw).resolve(strict=True) not in read_write_devices
     )
     return tuple(dict.fromkeys((*system, *devices)))
+
+
+def _system_read_write_paths() -> tuple[Path, ...]:
+    devices: list[Path] = []
+    for raw in _LANDLOCK_READ_WRITE_DEVICE_FILES:
+        try:
+            resolved = Path(raw).resolve(strict=True)
+            metadata = resolved.stat()
+        except OSError as exc:
+            raise CampaignError(f"required writable device is unavailable: {raw}") from exc
+        if not stat.S_ISCHR(metadata.st_mode) or metadata.st_uid != 0:
+            raise CampaignError(f"required writable device is unsafe: {resolved}")
+        devices.append(resolved)
+    return tuple(dict.fromkeys(devices))
 
 
 def _deny_probe_paths(
@@ -1364,6 +1381,7 @@ def _child_main(
                 *_system_read_paths(runtime),
             ),
             read_write=(
+                *_system_read_write_paths(),
                 target_root / "campaign.json", target_root / "run.log",
                 config.user_home(identity.target_id), *mutable,
             ),

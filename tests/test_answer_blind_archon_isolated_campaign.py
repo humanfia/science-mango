@@ -5,7 +5,9 @@ import hashlib
 import importlib.util
 import json
 import os
+import shutil
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -169,8 +171,15 @@ class IsolatedCampaignTests(unittest.TestCase):
         ):
             paths = RUNNER._system_read_paths(runtime)
         self.assertIn(allowed_file, paths)
+        self.assertNotIn(Path("/dev/null"), paths)
+        self.assertEqual(RUNNER._system_read_write_paths(), (Path("/dev/null"),))
+        for raw in ("/dev/zero", "/dev/random", "/dev/urandom"):
+            if Path(raw).exists():
+                self.assertIn(Path(raw).resolve(strict=True), paths)
         self.assertNotIn(Path("/usr/lib"), paths)
         self.assertNotIn(Path("/lib"), paths)
+        self.assertNotIn(Path("/usr/bin"), paths)
+        self.assertNotIn(Path("/usr/bin/git"), paths)
         self.assertNotIn(Path("/dev/tty"), paths)
 
     def test_codex_home_rejects_hardlinked_auth(self) -> None:
@@ -648,6 +657,128 @@ class RealLandlockIsolationTests(unittest.TestCase):
                     os._exit(2)
             _waited, status = os.waitpid(pid, 0)
             self.assertEqual(os.waitstatus_to_exitcode(status), 0)
+
+    def test_real_kernel_allows_sealed_git_and_dev_null_but_denies_system_git(self) -> None:
+        if RUNNER.landlock_abi() < 4:
+            self.skipTest("Landlock ABI 4 required")
+        source_git_raw = shutil.which("git")
+        if source_git_raw is None:
+            self.skipTest("git is required for the real Landlock regression")
+        source_git = Path(source_git_raw).resolve(strict=True)
+        with tempfile.TemporaryDirectory(prefix="isolated-landlock-git-") as raw:
+            root = Path(raw)
+            runtime = root / "runtime"
+            runtime_git = runtime / "bin/git"
+            checkout = root / "crnt"
+            peer = root / "peer"
+            runtime_git.parent.mkdir(parents=True)
+            checkout.mkdir()
+            peer.mkdir()
+            shutil.copy2(source_git, runtime_git)
+            subprocess.run(
+                [str(runtime_git), "init", "--quiet", "--initial-branch=main", "--template="],
+                cwd=checkout, check=True,
+            )
+            (checkout / "CRNT.lean").write_text("def crnt := 1\n", encoding="utf-8")
+            subprocess.run([str(runtime_git), "add", "CRNT.lean"], cwd=checkout, check=True)
+            subprocess.run(
+                [
+                    str(runtime_git), "-c", "user.name=Test", "-c",
+                    "user.email=test@example.invalid", "commit", "--quiet", "-m", "init",
+                ],
+                cwd=checkout, check=True,
+            )
+            remote_url = "https://example.invalid/crnt-lean"
+            subprocess.run(
+                [str(runtime_git), "remote", "add", "origin", remote_url],
+                cwd=checkout, check=True,
+            )
+            revision = subprocess.check_output(
+                [str(runtime_git), "rev-parse", "HEAD"], cwd=checkout, text=True,
+            ).strip()
+            (peer / "value").write_text("peer", encoding="utf-8")
+            read_only = (
+                runtime, checkout, *RUNNER._system_read_paths(runtime),
+            )
+            read_write = RUNNER._system_read_write_paths()
+
+            for path in sorted(root.rglob("*"), key=lambda item: len(item.parts), reverse=True):
+                if path.is_symlink():
+                    continue
+                os.chown(path, 0, 0)
+                if path.is_dir():
+                    os.chmod(path, 0o555)
+                elif path == runtime_git:
+                    os.chmod(path, 0o555)
+                else:
+                    os.chmod(path, 0o444)
+            os.chown(root, 0, 0)
+            os.chmod(root, 0o755)
+
+            read_fd, write_fd = os.pipe()
+            pid = os.fork()
+            if pid == 0:
+                os.close(read_fd)
+                try:
+                    receipt = RUNNER._apply_landlock(
+                        read_only=read_only, read_write=read_write,
+                    )
+                    os.setgroups([])
+                    os.setgid(65534)
+                    os.setuid(65534)
+                    os.environ.clear()
+                    os.environ.update({
+                        "PATH": str(runtime_git.parent),
+                        "HOME": str(root / "absent-home"),
+                        "LANG": "C.UTF-8",
+                        "LC_ALL": "C.UTF-8",
+                        "GIT_CONFIG_NOSYSTEM": "1",
+                        "GIT_CONFIG_GLOBAL": os.devnull,
+                    })
+                    actual_revision = RUNNER.NATIVE._crnt_git_value(
+                        checkout, "rev-parse", "HEAD",
+                    )
+                    actual_url = RUNNER.NATIVE._crnt_git_value(
+                        checkout, "remote", "get-url", "origin",
+                    )
+                    descriptor = os.open(
+                        os.devnull, os.O_RDWR | os.O_CLOEXEC,
+                    )
+                    try:
+                        os.write(descriptor, b"landlock-regression\n")
+                    finally:
+                        os.close(descriptor)
+                    denied = all(
+                        RUNNER._negative_open_probe(path)["denied"]
+                        for path in (
+                            peer / "value", Path("/proc/self/cmdline"),
+                            Path("/usr/bin/git"), Path("/usr/bin"), Path("/usr/lib"),
+                        )
+                    )
+                    authorized = set(receipt["read_only_paths"]) | set(
+                        receipt["read_write_paths"]
+                    )
+                    exact_surface = all(
+                        str(path) not in authorized
+                        for path in (Path("/usr/bin/git"), Path("/usr/bin"), Path("/usr/lib"))
+                    )
+                    ok = (
+                        actual_revision == revision
+                        and actual_url == remote_url
+                        and denied
+                        and exact_surface
+                        and receipt["read_write_paths"] == [str(Path(os.devnull))]
+                    )
+                    os.write(write_fd, ("ok\n" if ok else "assertion failed\n").encode())
+                    os._exit(0 if ok else 1)
+                except BaseException as exc:
+                    os.write(write_fd, f"{type(exc).__name__}: {exc}\n".encode())
+                    os._exit(2)
+            os.close(write_fd)
+            message = os.read(read_fd, 4096).decode("utf-8", errors="replace").strip()
+            os.close(read_fd)
+            _waited, status = os.waitpid(pid, 0)
+            self.assertEqual(os.waitstatus_to_exitcode(status), 0, message)
 
 
 if __name__ == "__main__":
