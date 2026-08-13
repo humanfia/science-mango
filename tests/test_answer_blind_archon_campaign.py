@@ -190,20 +190,67 @@ class NativeArchonCampaignTests(unittest.TestCase):
         config = RUNNER.Config(campaign_root=self.base / "campaign")
         config.campaign_root.mkdir()
         config.workspace.mkdir()
+        for name in ("zeta", "alpha"):
+            (config.private_lake_packages / name / ".git").mkdir(parents=True)
+        (config.private_lake_packages / "not-a-git-package").mkdir()
         with mock.patch.object(RUNNER.subprocess, "run") as run:
             run.return_value.returncode = 0
             code, _seconds = RUNNER._run(["archon", "--help"], config=config)
 
         self.assertEqual(code, 0)
         environment = run.call_args.kwargs["env"]
-        self.assertEqual(environment["GIT_CONFIG_COUNT"], "2")
-        self.assertEqual(environment["GIT_CONFIG_KEY_0"], "safe.directory")
-        self.assertEqual(environment["GIT_CONFIG_VALUE_0"], str(config.workspace))
-        self.assertEqual(environment["GIT_CONFIG_KEY_1"], "safe.directory")
+        self.assertEqual(environment["GIT_CONFIG_COUNT"], "3")
         self.assertEqual(
-            environment["GIT_CONFIG_VALUE_1"],
-            str(config.private_lake_packages / "*"),
+            [environment[f"GIT_CONFIG_KEY_{index}"] for index in range(3)],
+            ["safe.directory"] * 3,
         )
+        self.assertEqual(
+            [environment[f"GIT_CONFIG_VALUE_{index}"] for index in range(3)],
+            [
+                str(config.workspace),
+                str(config.private_lake_packages / "alpha"),
+                str(config.private_lake_packages / "zeta"),
+            ],
+        )
+        self.assertFalse(
+            any(
+                "*" in environment[f"GIT_CONFIG_VALUE_{index}"]
+                for index in range(3)
+            )
+        )
+
+    def test_run_rejects_empty_private_git_package_set(self) -> None:
+        config = RUNNER.Config(campaign_root=self.base / "empty-packages")
+        config.workspace.mkdir(parents=True)
+        config.private_lake_packages.mkdir()
+        with (
+            mock.patch.object(RUNNER.subprocess, "run") as run,
+            self.assertRaisesRegex(RUNNER.CampaignError, "contains no Git packages"),
+        ):
+            RUNNER._run(["archon", "--help"], config=config)
+        run.assert_not_called()
+
+    def test_run_rejects_symlink_or_non_directory_package_entry(self) -> None:
+        for anomaly in ("symlink", "file"):
+            with self.subTest(anomaly=anomaly):
+                config = RUNNER.Config(campaign_root=self.base / f"invalid-{anomaly}")
+                config.workspace.mkdir(parents=True)
+                (config.private_lake_packages / "valid" / ".git").mkdir(parents=True)
+                invalid = config.private_lake_packages / "invalid"
+                if anomaly == "symlink":
+                    target = self.base / "external-package"
+                    target.mkdir(exist_ok=True)
+                    invalid.symlink_to(target, target_is_directory=True)
+                else:
+                    invalid.write_text("not a package", encoding="utf-8")
+                with (
+                    mock.patch.object(RUNNER.subprocess, "run") as run,
+                    self.assertRaisesRegex(
+                        RUNNER.CampaignError, "invalid private Lake package entry"
+                    ),
+                ):
+                    RUNNER._run(["archon", "--help"], config=config)
+                run.assert_not_called()
 
     def test_prepare_uses_shared_helpers_and_patches_native_codex(self) -> None:
         with self._prepare_patches()[0] as validate, self._prepare_patches()[1] as copy, self._prepare_patches()[2] as configure:

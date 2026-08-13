@@ -465,21 +465,43 @@ def loop_command(config: Config, *, resume: bool) -> list[str]:
     ]
 
 
+def _private_git_packages(config: Config) -> tuple[Path, ...]:
+    root = config.private_lake_packages
+    if root.is_symlink() or not root.is_dir():
+        raise CampaignError(f"private Lake package root is not a real directory: {root}")
+    try:
+        entries = sorted(root.iterdir(), key=lambda path: path.name)
+    except OSError as exc:
+        raise CampaignError(f"cannot enumerate private Lake packages: {root}") from exc
+
+    packages: list[Path] = []
+    for entry in entries:
+        if entry.is_symlink() or not entry.is_dir():
+            raise CampaignError(f"invalid private Lake package entry: {entry}")
+        git_dir = entry / ".git"
+        if not git_dir.exists():
+            continue
+        if git_dir.is_symlink() or not git_dir.is_dir():
+            raise CampaignError(f"invalid private Lake package Git directory: {git_dir}")
+        packages.append(entry)
+    if not packages:
+        raise CampaignError(f"private Lake package root contains no Git packages: {root}")
+    return tuple(packages)
+
+
 def _run(command: Sequence[str], *, config: Config) -> tuple[int, float]:
     started = time.monotonic()
     # The campaign-local dependency checkout is controller-owned and read-only.
     # Git otherwise rejects it when Archon/Lean runs as the dedicated solver
     # user, which Lake misleadingly reports as a changed remote URL.  Limit the
-    # ownership exceptions to this fresh workspace and this campaign's
-    # package children.
+    # ownership exceptions to this fresh workspace and the exact Git package
+    # directories in this campaign. Git does not expand safe.directory globs.
+    safe_directories = (config.workspace, *_private_git_packages(config))
     environment = os.environ.copy()
-    environment.update({
-        "GIT_CONFIG_COUNT": "2",
-        "GIT_CONFIG_KEY_0": "safe.directory",
-        "GIT_CONFIG_VALUE_0": str(config.workspace),
-        "GIT_CONFIG_KEY_1": "safe.directory",
-        "GIT_CONFIG_VALUE_1": str(config.private_lake_packages / "*"),
-    })
+    environment["GIT_CONFIG_COUNT"] = str(len(safe_directories))
+    for index, path in enumerate(safe_directories):
+        environment[f"GIT_CONFIG_KEY_{index}"] = "safe.directory"
+        environment[f"GIT_CONFIG_VALUE_{index}"] = str(path)
     with config.log_path.open("a", encoding="utf-8") as log:
         log.write(f"\n[{_utcnow()}] $ {shlex.join(command)}\n")
         log.flush()
