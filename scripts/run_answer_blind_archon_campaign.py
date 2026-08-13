@@ -31,6 +31,109 @@ PIPELINE = "archon-native-answer-blind-full32"
 EXPECTED_ITEMS = 32
 MAX_PARALLEL = 4
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
+SOURCE_REPORT_MARKER = "% archon:source-report "
+
+NATIVE_AGENTS = """# Answer-Blind Native Archon Instructions
+
+Use only the problem statement, problem images, local Lean libraries, and
+artifacts created in this workspace. Never seek or read an official answer,
+solution, rubric, marking scheme, grader output, prior run, or another solver's
+workspace. Web/search/browser tools are disabled. If answer-bearing material is
+visible, stop and report it without using it.
+
+Do not edit the question bundle, source reports, problem PDF/images,
+`isolation_manifest.json`, `.archon/config.json`, or this file. During a
+target-scoped prover task, edit only the assigned Lean file and its task-result
+report. Preserve the quantities, units, hypotheses, requested outputs, and
+chemical alternatives stated in the problem; do not replace the goal with a
+tautology or unsupported premise.
+
+Archon's native acceptance path is: formalization, formalization Review, proof,
+proof Review, and final Lake build. There is no separate seal/freeze protocol in
+this run.
+"""
+
+NATIVE_PROTOCOL = """# Answer-Blind Native Archon Protocol
+
+This run provides the model only the problem-only bundle, its referenced problem
+assets, and local Lean libraries. `official_answer_seen = false`. It does not
+claim operating-system network isolation; the harness disables web, search,
+browser, plugins, and apps, and the solver must not seek answer-bearing material.
+
+Archon performs the normal chemistry workflow in one workspace: create faithful
+Lean statements, run formalization Review, fill proofs, run proof Review, then
+run the final Lake build. No external answer-blind controller, seal, or freeze
+step is part of this simplified run.
+"""
+
+NATIVE_FORMALIZE_MODE = """---
+name: physics-formalize
+description: "Formalize a problem-only chemistry chapter into compiling Lean statements."
+compatible_stages:
+  - autoformalize
+read_blueprint: true
+---
+
+## Goal
+
+Read the assigned problem-only blueprint chapter and every problem image listed
+there. Translate the chemistry faithfully into definitions and theorem
+statements with `by sorry` bodies. This stage writes the statement; it does not
+solve the proof.
+
+- Preserve every requested output, given quantity, unit, sign, bound, branch,
+  conservation law, stoichiometric coefficient, and domain condition.
+- Derive numerical values from the supplied data; do not invent empirical facts
+  or encode a desired result as an assumption.
+- Do not weaken the requested result to `True`, a reflexive equality, or an
+  unrelated existence claim.
+- Use local Mathlib/Physlib/CRNT/project declarations whose signatures you have
+  checked. Use `lake env lean` to compile the assigned file.
+- Edit only the assigned Lean file and its `.archon/task_results` report. Do not
+  create a candidate JSON, edit the problem sources, or edit another target.
+- If official answers, solutions, rubrics, grader data, or prior-run answers are
+  visible, stop and report an answer-blind violation without reading them.
+"""
+
+NATIVE_PROOF_MODE = """---
+name: physics
+description: "Prove the reviewed chemistry statements without weakening them."
+compatible_stages:
+  - prover
+read_blueprint: true
+---
+
+## Goal
+
+Replace `sorry` in the assigned chemistry Lean file with sound proofs. Keep the
+reviewed declaration signatures and chemical meaning fixed. Use the encoded
+source data and governing relations, search the local Lean libraries, and run
+`lake env lean` until the file compiles. Edit only the assigned Lean file and
+its task-result report. If the statement is genuinely insufficient, report a
+precise redraft need; do not weaken it. Never seek or use an official answer,
+solution, rubric, grader output, prior run, or another solver's work.
+"""
+
+NATIVE_PLAN_GUIDE = """# Native answer-blind planning
+
+Plan only from the problem-only blueprint, current Lean files, deterministic
+Lean diagnostics, and the preceding Archon Review. Keep the current target set
+small enough for the configured four prover lanes. Never seek an official
+answer, solution, rubric, grader output, prior run, or another solver's work.
+"""
+
+NATIVE_REVIEW_GUIDE = """# Native answer-blind Review
+
+Review the current targets against their problem-only blueprint chapters and
+problem images. During autoformalize, decide whether each Lean statement is a
+faithful and derivable encoding and emit the structured formalization Review
+certificate requested by the invocation. During prover, audit the exact Lean
+proof and emit the requested proof Review route. Write exactly one JSONL row for
+every listed objective: no omissions, duplicates, or extra targets. Also write
+the requested summary, recommendations, and PROJECT_STATUS files. Do not modify
+Lean files and never seek an official answer, solution, rubric, grader output,
+prior run, or another solver's work.
+"""
 
 
 class CampaignError(RuntimeError):
@@ -148,6 +251,15 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         raise CampaignError("configured workspace lacks the GPT Archon harness") from exc
     for key in ("base_url_env", "key_env", "wire_api"):
         harness.pop(key, None)
+    extra_args = list(harness.get("extra_args") or [])
+    for setting in (
+        "features.code_mode=false",
+        "features.code_mode.enabled=false",
+        "features.code_mode_host=false",
+        "features.shell_snapshot=false",
+        "features.shell_tool=true",
+    ):
+        extra_args.extend(("-c", setting))
     harness.update({
         "runner": "codex",
         "model": "gpt-5.6-sol",
@@ -160,6 +272,7 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         # use the workspace shell for intermediate Lean checks.  No separate
         # answer-blind MCP jail is needed in this input-level isolation mode.
         "mcp": [],
+        "extra_args": extra_args,
     })
     harness.pop("lean_lsp_mcp_bin", None)
     loop.update({
@@ -174,11 +287,83 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "review_preflight_jobs": MAX_PARALLEL,
         "parallel_target_review_jobs": MAX_PARALLEL,
         "parallel_formalization_review_jobs": MAX_PARALLEL,
+        # Keep the semantic gates, but use Archon's ordinary Review agent.
+        # The strict target-scoped reviewers implement the removed
+        # candidate/seal protocol and are intentionally not part of this
+        # problem-input-level workflow. Deterministic Lean preflight remains
+        # four-way through review_preflight_jobs.
+        "parallel_formalization_review": False,
+        "parallel_target_review": False,
+        "pipeline_target_review": False,
     })
     path.write_bytes(_json_bytes(value))
 
 
-def _check_native_config(workspace: Path) -> None:
+def _write_native_policy_files(workspace: Path) -> None:
+    payloads = {
+        workspace / ".archon/AGENTS.md": NATIVE_AGENTS,
+        workspace / "ANSWER_BLIND_PROTOCOL.md": NATIVE_PROTOCOL,
+        workspace / ".archon/prover-modes/physics-formalize.md": NATIVE_FORMALIZE_MODE,
+        workspace / ".archon/prover-modes/chemistry-formalize.md": NATIVE_FORMALIZE_MODE,
+        workspace / ".archon/prover-modes/physics.md": NATIVE_PROOF_MODE,
+        workspace / ".archon/prover-modes/chemistry.md": NATIVE_PROOF_MODE,
+        workspace / ".archon/prompts/plan.md": NATIVE_PLAN_GUIDE,
+        workspace / ".archon/prompts/review.md": NATIVE_REVIEW_GUIDE,
+        workspace / ".mcp.json": '{"mcpServers": {}}\n',
+    }
+    for path, text in payloads.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text.rstrip() + "\n", encoding="utf-8")
+
+
+def _activate_native_review_profile(workspace: Path) -> None:
+    path = workspace / ".archon/config.json"
+    try:
+        value = json.loads(path.read_text())
+        domain = value["loop"]["domain_profile"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise CampaignError("cannot activate the native review profile") from exc
+    if not isinstance(domain, dict) or domain.get("name") != "chemistry":
+        raise CampaignError("prepared workspace lost its chemistry profile")
+    domain.update({"name": "chemistry-native", "display_name": "IChO chemistry"})
+    path.write_bytes(_json_bytes(value))
+    _write_native_policy_files(workspace)
+
+
+def _detach_strict_source_contract(workspace: Path, ids: Sequence[str]) -> None:
+    """Keep problem text while selecting Archon's ordinary native Review."""
+    chapter_root = workspace / "blueprint/src/chapters"
+    for target_id in ids:
+        path = chapter_root / f"IChO2026Problems_problem_{target_id}.tex"
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+        except OSError as exc:
+            raise CampaignError(f"missing prepared blueprint chapter: {path}") from exc
+        marker_indexes = [
+            index for index, line in enumerate(lines)
+            if line.lstrip().startswith(SOURCE_REPORT_MARKER)
+        ]
+        if len(marker_indexes) != 1:
+            raise CampaignError(f"prepared chapter has an invalid source marker: {path}")
+        del lines[marker_indexes[0]]
+        physics_indexes = [
+            index for index, line in enumerate(lines)
+            if line.strip() == "% archon:physics"
+        ]
+        if len(physics_indexes) != 1:
+            raise CampaignError(f"prepared chapter has an invalid domain marker: {path}")
+        del lines[physics_indexes[0]]
+        chemistry_indexes = [
+            index for index, line in enumerate(lines)
+            if line.strip() == "% archon:chemistry"
+        ]
+        if len(chemistry_indexes) != 1:
+            raise CampaignError(f"prepared chapter has an invalid chemistry marker: {path}")
+        del lines[chemistry_indexes[0]]
+        path.write_text("".join(lines), encoding="utf-8")
+
+
+def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
     try:
         value = json.loads((workspace / ".archon/config.json").read_text())
         loop = value["loop"]
@@ -191,6 +376,13 @@ def _check_native_config(workspace: Path) -> None:
         or harness.get("mcp") != []
         or "lean_lsp_mcp_bin" in harness
         or any(key in harness for key in ("base_url_env", "key_env"))
+        or "features.code_mode_host=false" not in (harness.get("extra_args") or [])
+        or "features.shell_tool=true" not in (harness.get("extra_args") or [])
+        or (loop.get("domain_profile") or {}).get("name")
+        != ("chemistry" if preparation else "chemistry-native")
+        or loop.get("parallel_formalization_review") is not False
+        or loop.get("parallel_target_review") is not False
+        or loop.get("pipeline_target_review") is not False
     ):
         raise CampaignError("prepared harness is not native workspace-write Codex")
     for key in (
@@ -224,7 +416,8 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     except Exception as exc:
         raise CampaignError(f"workspace preparation failed: {exc}") from exc
     _patch_native_config(config.workspace, max_iterations=config.max_iterations)
-    _check_native_config(config.workspace)
+    _write_native_policy_files(config.workspace)
+    _check_native_config(config.workspace, preparation=True)
     # Lake may refresh package-local Git metadata even for an otherwise clean
     # build.  Give this campaign its own copy so the native workflow cannot
     # mutate (or be invalidated by) a shared cache.
@@ -417,6 +610,9 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
         index.update(status="failed", updated_at=_utcnow())
         _write_index(config, index)
         return index
+    _detach_strict_source_contract(config.workspace, ids)
+    _activate_native_review_profile(config.workspace)
+    _check_native_config(config.workspace)
     index.update(status="prepared", native=native_summary(config.workspace, ids))
     _write_index(config, index)
     if not start_loop:
@@ -435,7 +631,11 @@ def _run_loop(
         returncode=code,
         duration_seconds=round(seconds, 3),
         native=native,
-        status="succeeded" if native["complete"] else "failed" if code else "incomplete",
+        status=(
+            "succeeded" if code == 0 and native["complete"]
+            else "failed" if code != 0
+            else "incomplete"
+        ),
         updated_at=_utcnow(),
     )
     _write_index(config, index)

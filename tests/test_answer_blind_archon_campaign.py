@@ -75,6 +75,10 @@ class NativeArchonCampaignTests(unittest.TestCase):
                     "review_preflight_jobs": 32,
                     "parallel_target_review_jobs": 32,
                     "parallel_formalization_review_jobs": 32,
+                    "parallel_target_review": True,
+                    "parallel_formalization_review": True,
+                    "pipeline_target_review": True,
+                    "domain_profile": {"name": "chemistry"},
                 },
                 "harnesses": {
                     "answer-blind-gpt": {
@@ -124,6 +128,16 @@ class NativeArchonCampaignTests(unittest.TestCase):
             "work_dir": str(work_dir),
             "entries": [{"id": record_id} for record_id in self.ids],
         }), encoding="utf-8")
+        chapters = workspace / "blueprint/src/chapters"
+        chapters.mkdir(parents=True, exist_ok=True)
+        for record_id in self.ids:
+            (chapters / f"IChO2026Problems_problem_{record_id}.tex").write_text(
+                "% archon:physics\n"
+                "% archon:chemistry\n"
+                f"% archon:source-report reports/icho_2026/problem_{record_id}.source.json\n"
+                f"Problem-only chapter for {record_id}.\n",
+                encoding="utf-8",
+            )
 
     def _write_success_state(self, workspace: Path) -> None:
         state = workspace / ".archon"
@@ -169,7 +183,8 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertNotIn("ThreadPoolExecutor", source)
         self.assertNotIn("run_answer_blind_structured_solver", source)
         self.assertNotIn("artifact-finalize", source)
-        self.assertNotIn("freeze", source.lower())
+        self.assertNotIn("blind-freeze", source.lower())
+        self.assertNotIn("create_blind_controller_seal", source)
 
     def test_run_scopes_git_safe_directory_to_private_packages(self) -> None:
         config = RUNNER.Config(campaign_root=self.base / "campaign")
@@ -206,6 +221,12 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertEqual(harness["sandbox"], "workspace-write")
         self.assertEqual(harness["mcp"], [])
         self.assertNotIn("lean_lsp_mcp_bin", harness)
+        self.assertIn("features.code_mode_host=false", harness["extra_args"])
+        self.assertIn("features.shell_tool=true", harness["extra_args"])
+        self.assertEqual(loop["domain_profile"]["name"], "chemistry")
+        self.assertIs(loop["parallel_formalization_review"], False)
+        self.assertIs(loop["parallel_target_review"], False)
+        self.assertIs(loop["pipeline_target_review"], False)
         self.assertNotIn("base_url_env", harness)
         self.assertNotIn("key_env", harness)
         for key in (
@@ -225,6 +246,20 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertEqual(len(imports), 32)
         self.assertEqual(imports[0], f"import IChO2026Problems.problem_{self.ids[0]}")
         self.assertFalse((config.campaign_root / "workspaces").exists())
+        agents = (workspace / ".archon/AGENTS.md").read_text()
+        protocol = (workspace / "ANSWER_BLIND_PROTOCOL.md").read_text()
+        formalize = (workspace / ".archon/prover-modes/physics-formalize.md").read_text()
+        plan = (workspace / ".archon/prompts/plan.md").read_text()
+        review = (workspace / ".archon/prompts/review.md").read_text()
+        for text in (agents, protocol, formalize, plan, review):
+            self.assertNotIn("freeze gates", text.lower())
+            self.assertNotIn("lean-lsp mcp", text.lower())
+        self.assertIn("formalization Review", agents)
+        self.assertIn("create a candidate JSON", formalize)
+        self.assertEqual(
+            json.loads((workspace / ".mcp.json").read_text()),
+            {"mcpServers": {}},
+        )
 
     def test_default_fresh_run_prepares_without_starting_loop(self) -> None:
         commands: list[list[str]] = []
@@ -246,6 +281,17 @@ class NativeArchonCampaignTests(unittest.TestCase):
         index = json.loads((self.config.campaign_root / "campaign.json").read_text())
         self.assertEqual(index["row_count"], 32)
         self.assertEqual(index["max_parallel"], 4)
+        final_config = json.loads(
+            (self.config.campaign_root / "workspace/.archon/config.json").read_text()
+        )
+        self.assertEqual(
+            final_config["loop"]["domain_profile"]["name"], "chemistry-native"
+        )
+        chapters = self.config.campaign_root / "workspace/blueprint/src/chapters"
+        for chapter in chapters.glob("*.tex"):
+            self.assertNotIn("archon:source-report", chapter.read_text())
+            self.assertNotIn("archon:physics", chapter.read_text())
+            self.assertNotIn("archon:chemistry", chapter.read_text())
 
     def test_explicit_run_invokes_one_loop_and_uses_native_success(self) -> None:
         commands: list[list[str]] = []
@@ -285,6 +331,17 @@ class NativeArchonCampaignTests(unittest.TestCase):
 
         self.assertFalse(result["complete"])
         self.assertFalse(result["lake_build_ok"])
+
+    def test_nonzero_loop_cannot_reuse_an_old_complete_summary(self) -> None:
+        config = RUNNER.Config(campaign_root=self.base / "failed-campaign")
+        config.campaign_root.mkdir()
+        config.workspace.mkdir()
+        (config.workspace / ".archon").mkdir()
+        self._write_success_state(config.workspace)
+        index = {"pipeline": RUNNER.PIPELINE, "status": "running"}
+        with mock.patch.object(RUNNER, "_run", return_value=(1, 0.1)):
+            result = RUNNER._run_loop(config, self.ids, index, resume=False)
+        self.assertEqual(result["status"], "failed")
 
     def test_prepared_campaign_starts_without_repreparing(self) -> None:
         patches = self._prepare_patches()
