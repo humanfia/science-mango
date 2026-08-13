@@ -24,6 +24,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("evidence", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--realized-domain-manifest", type=Path, required=True)
+    parser.add_argument("--stage2-selection-ledger", type=Path, required=True)
     parser.add_argument(
         "--finite-domain",
         type=Path,
@@ -49,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
         evidence,
         contract=finite,
         quota_contract=quota,
+        realized_domain_manifest_path=args.realized_domain_manifest,
+        stage2_selection_ledger_path=args.stage2_selection_ledger,
     )
     if args.output.exists() or args.output.is_symlink():
         parser.error("output already exists; decisions are immutable")

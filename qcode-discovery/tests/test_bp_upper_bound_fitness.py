@@ -52,8 +52,14 @@ def _bp_only_row(distance_upper_bound: int) -> dict:
     }
 
 
-def test_bp_only_d5_and_d86_have_identical_distance_and_parent_fitness():
-    """A looser BP upper bound must never look like stronger distance proof."""
+def test_ansatz_v3_bp_only_d5_and_d86_get_no_positive_credit(monkeypatch):
+    """Ansatz-v3 BP-only rows are diagnostics, never parent promotion."""
+
+    monkeypatch.setattr(
+        search_evaluator,
+        "ACTIVE_GEOMETRY_CONTRACT",
+        search_evaluator.PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    )
 
     d5 = _bp_only_row(5)
     d86 = _bp_only_row(86)
@@ -64,14 +70,27 @@ def test_bp_only_d5_and_d86_have_identical_distance_and_parent_fitness():
     assert d5["fom_upper_bound"] < d86["fom_upper_bound"]
     assert score_d5["fitness_distance_credit"] == 0.0
     assert score_d86["fitness_distance_credit"] == 0.0
-    assert score_d5["combined_score"] == score_d86["combined_score"]
+    assert score_d5["fitness_survivor_credit"] == 0.0
+    assert score_d86["fitness_survivor_credit"] == 0.0
+    assert score_d5["fitness_rate_tie_break"] == 0.0
+    assert score_d86["fitness_rate_tie_break"] == 0.0
+    assert score_d5["fitness_structural_tie_break"] == 0.0
+    assert score_d86["fitness_structural_tie_break"] == 0.0
+    assert score_d5["combined_score"] == 0.0
+    assert score_d86["combined_score"] == 0.0
     assert score_d5["per_lattice_credit"] == score_d86["per_lattice_credit"]
     assert score_d5["survivor_count"] == score_d86["survivor_count"] == 1
     assert search_evaluator._verified_distance_persistence_rows([d5, d86]) == []
 
 
-def test_exact_credit_and_persistence_recompute_fom_from_consistent_evidence():
+def test_ansatz_v3_exact_credit_survives_proof_only_gate(monkeypatch):
     """Self-reported exact FOM/credit fields must not influence selection."""
+
+    monkeypatch.setattr(
+        search_evaluator,
+        "ACTIVE_GEOMETRY_CONTRACT",
+        search_evaluator.PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    )
 
     row = {
         "ell": 12,
@@ -95,6 +114,7 @@ def test_exact_credit_and_persistence_recompute_fom_from_consistent_evidence():
 
     assert score["fitness_distance_credit"] == pytest.approx(3.0)
     assert score["fitness_survivor_credit"] == 0.0
+    assert score["combined_score"] > 0.0
     assert len(verified) == 1
     assert verified[0]["d"] == verified[0]["exact_distance"] == 6
     assert verified[0]["fom"] == verified[0]["exact_fom"] == pytest.approx(3.0)

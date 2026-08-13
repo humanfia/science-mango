@@ -17,11 +17,9 @@ from collections.abc import Mapping, Sequence
 from math import gcd, lcm
 from typing import Any
 
-from evaluation.algebraic_mechanisms import classify_algebraic_mechanism
 from evaluation.geometry import reduce_coordinate
 from evaluation.search_contract import (
     PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
-    PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID,
     allowed_twists,
 )
 
@@ -176,22 +174,10 @@ def _records_for_twist(
         if key in seen:
             continue
         seen.add(key)
-        mechanism = classify_algebraic_mechanism(
-            support_a,
-            support_b,
-            ell=ell,
-            m=m,
-            geometry=geometry,
-        )
         by_split[split].append({
             "A_terms": [tuple(term) for term in support_a],
             "B_terms": [tuple(term) for term in support_b],
             "geometry": geometry,
-            "relation_type": mechanism["relation_type"],
-            "support_split_type": mechanism["support_split_type"],
-            "search_representation_id": (
-                PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
-            ),
         })
 
     output: list[dict[str, Any]] = []

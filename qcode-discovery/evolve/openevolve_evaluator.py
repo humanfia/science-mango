@@ -5994,8 +5994,11 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
     BP-OSD and OSD-CS produce valid upper bounds.  A larger upper bound is not
     evidence that the true minimum distance is larger, so neither ``d`` nor
     ``fom`` is read here. A source-bound two-sector oracle UNSAT may contribute
-    its recomputed lower-bound FOM. Each historical fitness lattice remains
-    capped and receives only small, independently bounded tie-breaks.
+    its recomputed lower-bound FOM. For the ansatz-v3 representation, BP-only
+    rows are diagnostic/negative feedback only: survivor, rate, and structural
+    promotion all require exact or replayed lower-bound evidence. Historical
+    representations retain their checkpoint-compatible bounded exploration
+    credit. Each fitness lattice remains capped.
     """
 
     survivors_by_lattice: dict[tuple[int, int], list[dict]] = {}
@@ -6028,6 +6031,9 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
     rate_tie_break = 0.0
     structural_tie_break = 0.0
     per_lattice_credit: dict[tuple[int, int], float] = {}
+    proof_only_promotion = ACTIVE_GEOMETRY_CONTRACT == (
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    )
     for key, survivors in sorted(survivors_by_lattice.items()):
         exact_rows = [
             row for row in survivors if row.get("search_status") == "exact"
@@ -6075,18 +6081,30 @@ def _score_stage2_upper_bound_safe(rows: list[dict]) -> dict[str, object]:
             )
             distance_credit += base
             lower_bound_credit += base
-        else:
+        elif not proof_only_promotion:
             # An unresolved BP/OSD upper bound earns exploration/survival
-            # credit, never distance credit.
+            # credit, never distance credit, for checkpoint-compatible legacy
+            # representations only. Ansatz v3 forbids all positive promotion
+            # from decoder upper bounds.
             base = STAGE2_SURVIVOR_CREDIT_PER_LATTICE
             survivor_credit += base
+        else:
+            base = 0.0
+        promotion_rows = (
+            [*exact_rows, *lower_bound_rows]
+            if proof_only_promotion
+            else survivors
+        )
         rate_bonus = (
             STAGE2_RATE_TIE_BREAK_MAX_PER_LATTICE
-            * max((_stage2_result_rate(row) for row in survivors), default=0.0)
+            * max(
+                (_stage2_result_rate(row) for row in promotion_rows),
+                default=0.0,
+            )
         )
         support_splits = {
             (len(row.get("A_terms", [])), len(row.get("B_terms", [])))
-            for row in survivors
+            for row in promotion_rows
             if (
                 isinstance(row.get("A_terms"), (list, tuple))
                 and isinstance(row.get("B_terms"), (list, tuple))

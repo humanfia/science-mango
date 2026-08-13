@@ -28,6 +28,19 @@ before import: the mutable block cannot import, perform filesystem/network
 I/O, introspect Python internals, or add top-level execution.  Thus the blind
 boundary is enforced by evaluator code as well as stated in the prompt.
 
+Generation-time reading is independently isolated.  Before each v3 round,
+`evolve/ansatz_v3_codex_view.py` creates a hash-bound, symlink-free view that
+contains only the v3 seed and evolution config.  Every copied byte and the
+complete allowlist are recorded in a self-hashed manifest.  The Codex adapter
+copies this view into a minimal OS `chroot`, drops to uid/gid 65534, and mounts
+no main repository path; its actual working directory is `/workspace` inside
+that filesystem.  The anchor manifest and calibration implementation are
+therefore physically absent and cannot be reached through `..`, absolute
+paths, or symlinks.  v1/v2 representations retain their existing working
+directory behavior.  A changed source, extra file, symlink, manifest mismatch,
+missing chroot capability, or changed source fingerprint fails before model
+invocation.
+
 ## Formal audit allocation
 
 `configs/twisted_torus_ansatz_v3.formal_audit_quota.v1.json` fixes 72 fresh
@@ -107,6 +120,14 @@ excluding FOM greater than 12, Stage 2 is exhausted, all 72 quota slots are
 filled, and there are no wins, UNKNOWNs, or unresolved items.  Even a passing
 decision only makes a manual transition eligible; it never automatically
 launches lifted-product, protograph, or non-Abelian group-algebra search.
+
+The gate does not trust self-declared `replayed` flags.  It requires the
+realized-domain manifest and Stage-2 selection ledger as explicit inputs,
+rebuilds the domain manifest from the sealed round transactions, replays the
+ranked-snapshot and ledger hash chains, compares their complete candidate key
+sets, and reconstructs every excluding logical witness against the code
+matrices.  Missing, changed, pending, deferred, or unequal artifacts block the
+transition.
 
 ## Launch entrypoint
 

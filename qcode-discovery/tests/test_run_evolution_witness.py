@@ -3721,13 +3721,16 @@ def test_managed_codex_resolves_and_pins_native_binary(monkeypatch):
     monkeypatch.delenv("QCODE_CODEX_BIN", raising=False)
     monkeypatch.delenv("QCODE_CODEX_CWD", raising=False)
 
-    identity, version, cwd = launcher._resolve_codex_execution_binding()
+    identity, version, cwd, view_binding = (
+        launcher._resolve_codex_execution_binding()
+    )
 
     native_path = Path(identity["path"])
     assert native_path.read_bytes()[:4] in (b"\x7fELF", b"MZ\x90\x00")
     assert identity["mode"] == native_path.stat().st_mode & 0o7777
     assert version
     assert cwd == str(Path(launcher.PROJECT_ROOT).resolve())
+    assert view_binding is None
     assert os.environ["QCODE_CODEX_BIN"] == str(native_path)
     assert os.environ["QCODE_CODEX_CWD"] == cwd
 

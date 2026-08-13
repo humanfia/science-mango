@@ -8,12 +8,146 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
+import shutil
+import stat
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_ISOLATED_VIEW_ENV = "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST"
+_ISOLATED_VIEW_SHA_ENV = "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256"
+_ISOLATED_SOURCE_SHA_ENV = (
+    "QCODE_ANSATZ_V3_CODEX_VIEW_SOURCE_FINGERPRINT_SHA256"
+)
+_ISOLATED_BOUNDARY_ENV = "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY"
+_CHROOT_USER = 65534
+
+
+def _copy_regular(source: Path, destination: Path, *, mode: int = 0o555) -> None:
+    source = source.resolve(strict=True)
+    if not source.is_file():
+        raise RuntimeError(f"Codex chroot source is not regular: {source}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, destination)
+    destination.chmod(mode)
+
+
+def _dynamic_dependencies(path: Path) -> tuple[Path, ...]:
+    try:
+        completed = subprocess.run(
+            ["ldd", str(path)],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ()
+    if completed.returncode != 0:
+        return ()
+    dependencies: set[Path] = set()
+    for line in completed.stdout.splitlines():
+        matched = re.search(r"(?:=>\s+)?(/[A-Za-z0-9_+.,/@=-]+)", line)
+        if matched is not None:
+            dependency = Path(matched.group(1))
+            if dependency.exists():
+                dependencies.add(dependency)
+    return tuple(sorted(dependencies, key=str))
+
+
+def _copy_executable(runtime: Path, source: Path, destination: str) -> None:
+    resolved = source.resolve(strict=True)
+    _copy_regular(resolved, runtime / destination.lstrip("/"))
+    for dependency in _dynamic_dependencies(resolved):
+        _copy_regular(
+            dependency,
+            runtime / str(dependency).lstrip("/"),
+        )
+
+
+def _device(path: Path, major: int, minor: int, mode: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    os.mknod(path, stat.S_IFCHR | mode, os.makedev(major, minor))
+
+
+def _materialize_chroot_runtime(
+    runtime: Path,
+    *,
+    codex_executable: Path,
+    view: Path,
+) -> Path:
+    """Create a minimal filesystem with no mount or path to the main repo."""
+
+    from evolve.ansatz_v3_codex_view import validate_sanitized_codex_view
+
+    runtime.chmod(0o755)
+    validate_sanitized_codex_view(PROJECT_ROOT, view)
+    _copy_executable(runtime, codex_executable, "/bin/codex")
+    tools = (
+        (Path("/bin/bash"), "/bin/bash"),
+        (Path("/bin/dash"), "/bin/dash"),
+        (Path("/usr/bin/cat"), "/usr/bin/cat"),
+        (Path("/usr/bin/find"), "/usr/bin/find"),
+        (Path("/usr/bin/head"), "/usr/bin/head"),
+        (Path("/usr/bin/ls"), "/usr/bin/ls"),
+        (Path("/usr/bin/pwd"), "/usr/bin/pwd"),
+        (Path("/usr/bin/rg"), "/usr/bin/rg"),
+        (Path("/usr/bin/sed"), "/usr/bin/sed"),
+        (Path("/usr/bin/sha256sum"), "/usr/bin/sha256sum"),
+        (Path("/usr/bin/stat"), "/usr/bin/stat"),
+        (Path("/usr/bin/tail"), "/usr/bin/tail"),
+    )
+    for source, destination in tools:
+        _copy_executable(runtime, source, destination)
+    (runtime / "bin/sh").symlink_to("dash")
+
+    workspace = runtime / "workspace"
+    shutil.copytree(view, workspace, symlinks=False)
+    for root, directories, files in os.walk(workspace, topdown=False):
+        for name in files:
+            (Path(root) / name).chmod(0o444)
+        for name in directories:
+            (Path(root) / name).chmod(0o555)
+    workspace.chmod(0o555)
+
+    for relative in (
+        "etc/hosts",
+        "etc/nsswitch.conf",
+        "etc/resolv.conf",
+        "etc/ssl/certs/ca-certificates.crt",
+    ):
+        source = Path("/") / relative
+        if source.is_file() and not source.is_symlink():
+            _copy_regular(source, runtime / relative, mode=0o444)
+    (runtime / "etc").mkdir(parents=True, exist_ok=True)
+    (runtime / "etc/passwd").write_text(
+        "nobody:x:65534:65534:ansatz-v3-codex:/nonexistent:/bin/sh\n",
+        encoding="utf-8",
+    )
+    (runtime / "etc/group").write_text("nogroup:x:65534:\n", encoding="utf-8")
+    (runtime / "etc/passwd").chmod(0o444)
+    (runtime / "etc/group").chmod(0o444)
+
+    auth_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
+    auth_source = auth_home / "auth.json"
+    auth_destination = runtime / "root/.codex/auth.json"
+    _copy_regular(auth_source, auth_destination, mode=0o600)
+    os.chown(auth_destination, _CHROOT_USER, _CHROOT_USER)
+    for directory in (runtime / "root", runtime / "root/.codex"):
+        os.chown(directory, _CHROOT_USER, _CHROOT_USER)
+        directory.chmod(0o700)
+
+    temporary = runtime / "tmp"
+    temporary.mkdir(mode=0o1777)
+    (runtime / "proc").mkdir()
+    _device(runtime / "dev/null", 1, 3, 0o666)
+    _device(runtime / "dev/zero", 1, 5, 0o666)
+    _device(runtime / "dev/random", 1, 8, 0o444)
+    _device(runtime / "dev/urandom", 1, 9, 0o444)
+    return workspace
 
 
 def render_prompt(system_message: str, messages: list[dict[str, str]]) -> str:
@@ -42,6 +176,36 @@ class CodexCliLLM:
         self.retry_delay = int(getattr(model_cfg, "retry_delay", None) or 5)
         self.codex_bin = os.environ.get("QCODE_CODEX_BIN", "codex")
         self.cwd = Path(os.environ.get("QCODE_CODEX_CWD", PROJECT_ROOT)).resolve()
+        view_fields = {
+            _ISOLATED_VIEW_ENV: os.environ.get(_ISOLATED_VIEW_ENV),
+            _ISOLATED_VIEW_SHA_ENV: os.environ.get(_ISOLATED_VIEW_SHA_ENV),
+            _ISOLATED_SOURCE_SHA_ENV: os.environ.get(_ISOLATED_SOURCE_SHA_ENV),
+            _ISOLATED_BOUNDARY_ENV: os.environ.get(_ISOLATED_BOUNDARY_ENV),
+        }
+        present = {name for name, value in view_fields.items() if value is not None}
+        if present and present != set(view_fields):
+            raise RuntimeError("ansatz-v3 Codex view environment is incomplete")
+        self.sanitized_view: dict[str, Any] | None = None
+        if present:
+            from evolve.ansatz_v3_codex_view import (
+                validate_sanitized_codex_view,
+            )
+
+            manifest_path = Path(str(view_fields[_ISOLATED_VIEW_ENV])).resolve()
+            if manifest_path.parent != self.cwd:
+                raise RuntimeError("ansatz-v3 Codex manifest is outside its view")
+            view = validate_sanitized_codex_view(PROJECT_ROOT, self.cwd)
+            if (
+                view["manifest_path"] != str(manifest_path)
+                or view["manifest_file_sha256"]
+                != view_fields[_ISOLATED_VIEW_SHA_ENV]
+                or view["source_fingerprint_sha256"]
+                != view_fields[_ISOLATED_SOURCE_SHA_ENV]
+                or view["filesystem_boundary"]
+                != view_fields[_ISOLATED_BOUNDARY_ENV]
+            ):
+                raise RuntimeError("ansatz-v3 Codex view binding changed")
+            self.sanitized_view = view
 
     async def generate(self, prompt: str, **kwargs: Any) -> str:
         return await self.generate_with_context(
@@ -70,10 +234,61 @@ class CodexCliLLM:
         raise RuntimeError(last_error)
 
     async def _invoke(self, prompt: str, timeout: int) -> str:
-        output_dir = Path(tempfile.mkdtemp(prefix="qcode-codex-"))
-        output_path = output_dir / "response.txt"
+        runtime: Path | None = None
+        output_dir: Path
+        command_prefix: list[str]
+        codex_path = self.codex_bin
+        codex_cwd = str(self.cwd)
+        output_argument: str
+        child_environment: dict[str, str] | None = None
+        if self.sanitized_view is None:
+            output_dir = Path(tempfile.mkdtemp(prefix="qcode-codex-"))
+            output_path = output_dir / "response.txt"
+            output_argument = str(output_path)
+            command_prefix = []
+        else:
+            chroot = shutil.which("chroot")
+            if chroot is None or os.geteuid() != 0:
+                raise RuntimeError(
+                    "ansatz-v3 Codex isolation requires root chroot support"
+                )
+            runtime = Path(tempfile.mkdtemp(prefix="qcode-ansatz-v3-chroot-"))
+            _materialize_chroot_runtime(
+                runtime,
+                codex_executable=Path(self.codex_bin),
+                view=self.cwd,
+            )
+            output_dir = runtime / "tmp/qcode-codex-output"
+            output_dir.mkdir(mode=0o700)
+            os.chown(output_dir, _CHROOT_USER, _CHROOT_USER)
+            output_path = output_dir / "response.txt"
+            output_argument = "/tmp/qcode-codex-output/response.txt"
+            codex_path = "/bin/codex"
+            codex_cwd = "/workspace"
+            command_prefix = [
+                chroot,
+                f"--userspec={_CHROOT_USER}:{_CHROOT_USER}",
+                str(runtime),
+            ]
+            child_environment = os.environ.copy()
+            child_environment.update({
+                "HOME": "/root",
+                "CODEX_HOME": "/root/.codex",
+                "PATH": "/bin:/usr/bin",
+                "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+                "QCODE_CODEX_CWD": "/workspace",
+            })
+            for name in (
+                _ISOLATED_VIEW_ENV,
+                _ISOLATED_VIEW_SHA_ENV,
+                _ISOLATED_SOURCE_SHA_ENV,
+                _ISOLATED_BOUNDARY_ENV,
+                "QCODE_CODEX_BIN",
+            ):
+                child_environment.pop(name, None)
         command = [
-            self.codex_bin,
+            *command_prefix,
+            codex_path,
             "exec",
             "--model", self.model,
             "--config", f'model_reasoning_effort="{self.reasoning_effort}"',
@@ -83,8 +298,8 @@ class CodexCliLLM:
             "--ignore-rules",
             "--skip-git-repo-check",
             "--color", "never",
-            "--cd", str(self.cwd),
-            "--output-last-message", str(output_path),
+            "--cd", codex_cwd,
+            "--output-last-message", output_argument,
             "-",
         ]
         process = await asyncio.create_subprocess_exec(
@@ -92,6 +307,7 @@ class CodexCliLLM:
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.DEVNULL,
             stderr=asyncio.subprocess.PIPE,
+            env=child_environment,
         )
         try:
             _, stderr = await asyncio.wait_for(
@@ -117,8 +333,11 @@ class CodexCliLLM:
             return response
         finally:
             try:
-                output_path.unlink(missing_ok=True)
-                output_dir.rmdir()
+                if runtime is None:
+                    output_path.unlink(missing_ok=True)
+                    output_dir.rmdir()
+                else:
+                    shutil.rmtree(runtime)
             except OSError:
                 pass
 

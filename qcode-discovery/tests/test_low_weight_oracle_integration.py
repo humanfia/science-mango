@@ -63,6 +63,11 @@ def test_replayed_d2_oracle_witness_rejects_before_bp(monkeypatch):
 def test_two_sector_unsat_survives_bp_and_earns_bounded_lower_signal(
     monkeypatch,
 ):
+    monkeypatch.setattr(
+        search_evaluator,
+        "ACTIVE_GEOMETRY_CONTRACT",
+        search_evaluator.PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    )
     _hide_symplectic_shortcuts(monkeypatch)
     monkeypatch.setattr(candidate_evaluator, "estimate_distance", lambda *_a, **_k: 6)
     row = candidate_evaluator.evaluate_candidate(
@@ -103,6 +108,9 @@ def test_two_sector_unsat_survives_bp_and_earns_bounded_lower_signal(
     baseline = search_evaluator._score_stage2_upper_bound_safe([unresolved])
 
     assert scored["fitness_lower_bound_credit"] == pytest.approx(12 * 25 / 144)
+    assert baseline["fitness_distance_credit"] == 0.0
+    assert baseline["fitness_survivor_credit"] == 0.0
+    assert baseline["combined_score"] == 0.0
     assert scored["combined_score"] > baseline["combined_score"]
 
     tampered = copy.deepcopy(row)

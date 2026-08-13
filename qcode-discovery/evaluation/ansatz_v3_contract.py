@@ -23,6 +23,349 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _canonical_sha256(value: Any) -> str:
+    return hashlib.sha256(json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+
+
+def _regular_json(path: Path, label: str) -> dict[str, Any]:
+    lexical_path = Path(path)
+    if lexical_path.is_symlink() or not lexical_path.is_file():
+        raise ValueError(f"{label} must be a regular file: {lexical_path}")
+    path = lexical_path.resolve(strict=True)
+    if not path.is_file():
+        raise ValueError(f"{label} must be a regular file: {path}")
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read {label}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must contain an object")
+    return value
+
+
+def _regular_jsonl(path: Path, label: str) -> list[dict[str, Any]]:
+    lexical_path = Path(path)
+    if lexical_path.is_symlink() or not lexical_path.is_file():
+        raise ValueError(f"{label} must be a regular file: {lexical_path}")
+    path = lexical_path.resolve(strict=True)
+    if not path.is_file():
+        raise ValueError(f"{label} must be a regular file: {path}")
+    payload = path.read_bytes()
+    if payload and not payload.endswith(b"\n"):
+        raise ValueError(f"{label} ends in a partial row")
+    rows: list[dict[str, Any]] = []
+    for number, raw in enumerate(payload.splitlines(), 1):
+        if not raw:
+            continue
+        try:
+            row = json.loads(raw)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise ValueError(f"{label}:{number} is invalid: {exc}") from exc
+        if not isinstance(row, dict):
+            raise ValueError(f"{label}:{number} is not an object")
+        rows.append(row)
+    return rows
+
+
+def _descriptor_rows(descriptor: Mapping[str, Any]) -> list[dict[str, Any]]:
+    path_text = descriptor.get("path")
+    if not isinstance(path_text, str) or not path_text:
+        raise ValueError("realized-domain source batch has no path")
+    lexical_path = Path(path_text)
+    rows = _regular_jsonl(lexical_path, "realized-domain source batch")
+    path = lexical_path.resolve(strict=True)
+    payload = path.read_bytes()
+    if descriptor.get("sha256") != hashlib.sha256(payload).hexdigest() or (
+        descriptor.get("bytes") != len(payload)
+        or descriptor.get("rows") != len(rows)
+    ):
+        raise ValueError("realized-domain source batch identity changed")
+    return rows
+
+
+def _replay_stage2_upper_bound(
+    row: dict[str, Any],
+    *,
+    canonical_digest: str,
+    ledger_dir: Path,
+) -> int:
+    """Return only a freshly replayed mathematical upper bound."""
+
+    from evaluation.construction import build_css_code_from_claim
+    from humanize.reviewer import replay_search_oracle_upper_bound_geometry
+    from scripts.audit_candidate_pool import (
+        _construction_candidate,
+        _stage2_audit_cache_binding,
+        state_paths,
+    )
+    from scripts.screen_frontier_xor import (
+        classify_xor_results,
+        load_replayable_sectors,
+        verify_bb_translation_symmetry,
+    )
+
+    geometry = replay_search_oracle_upper_bound_geometry(row)
+    if isinstance(geometry, Mapping) and type(geometry.get("weight")) is int:
+        code = build_css_code_from_claim(row)
+        if (
+            int(code.num_qudits) != row.get("n")
+            or int(code.dimension) != row.get("k")
+        ):
+            raise ValueError("candidate parameters changed during witness replay")
+        return int(geometry["weight"])
+
+    candidate = _construction_candidate(row, canonical_digest)
+    if isinstance(candidate.get("construction"), Mapping):
+        # The installed v3 representation is BB/twisted-torus.  Do not
+        # silently extend this gate to another proof schema.
+        raise ValueError("compact Stage-2 witness replay is not installed")
+    symmetry = verify_bb_translation_symmetry(candidate)
+    if symmetry.get("verified") is not True:
+        raise ValueError("Stage-2 translation symmetry did not replay")
+    sectors = load_replayable_sectors(
+        state_paths(ledger_dir, canonical_digest)["audit"],
+        candidate,
+        threshold_only=True,
+        translation_symmetry=symmetry,
+        expected_cache_binding=_stage2_audit_cache_binding(candidate, symmetry),
+    )
+    if classify_xor_results(
+        sectors,
+        required_distance=int(candidate["required_distance"]),
+        threshold_only=True,
+        symmetry_coverage_verified=True,
+    ) != "REJECTED":
+        raise ValueError("candidate has no replayed Stage-2 rejecting witness")
+    weights = [
+        int(sector["objective"])
+        for sector in sectors
+        if sector.get("witness_verified") is True
+        and type(sector.get("objective")) is int
+    ]
+    if not weights:
+        raise ValueError("Stage-2 rejection has no replayed witness weight")
+    code = build_css_code_from_claim(candidate)
+    if (
+        int(code.num_qudits) != row.get("n")
+        or int(code.dimension) != row.get("k")
+    ):
+        raise ValueError("candidate parameters changed during witness replay")
+    return min(weights)
+
+
+def replay_family_switch_artifacts(
+    *,
+    realized_domain_manifest_path: Path,
+    stage2_selection_ledger_path: Path,
+    contract: Mapping[str, Any],
+    quota_contract: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Replay the concrete Stage-1 domain and complete Stage-2 ledger.
+
+    Self-declared ``replayed=true`` rows are deliberately not inputs to this
+    function.  Eligibility is reconstructed from immutable source bytes and
+    current-source mathematical witness replay.
+    """
+
+    from evaluation.selection_ledger import (
+        snapshot_identity_sha256,
+        validate_selection_ledger,
+    )
+    from humanize.state import code_key
+    from scripts.audit_candidate_pool import _load_ranked_snapshot
+
+    lexical_manifest_path = Path(realized_domain_manifest_path)
+    manifest = _regular_json(
+        lexical_manifest_path,
+        "realized-domain manifest",
+    )
+    manifest_path = lexical_manifest_path.resolve(strict=True)
+    unsigned_manifest = dict(manifest)
+    manifest_sha256 = unsigned_manifest.pop("manifest_sha256", None)
+    finite_binding = manifest.get("finite_domain_contract")
+    quota_binding = manifest.get("formal_audit_quota")
+    if (
+        manifest.get("schema_version") != 1
+        or manifest.get("kind") != "qcode-ansatz-v3-realized-finite-domain"
+        or manifest.get("manifest_complete") is not True
+        or manifest.get("representation_id") != contract.get("representation_id")
+        or not isinstance(manifest_sha256, str)
+        or manifest_sha256 != _canonical_sha256(unsigned_manifest)
+        or not isinstance(finite_binding, Mapping)
+        or finite_binding.get("sha256") != contract.get("contract_sha256")
+        or not isinstance(quota_binding, Mapping)
+        or quota_binding.get("sha256") != quota_contract.get("contract_sha256")
+        or quota_binding.get("complete") is not True
+        or quota_binding.get("unfilled_slots") != 0
+    ):
+        raise ValueError("realized-domain manifest is invalid or unbound")
+
+    # A canonical self-hash detects accidental changes but cannot establish
+    # that a manifest came from the sealed Stage-1 transaction history.  Rebuild
+    # it from the bound state/round artifacts and demand byte-for-byte semantic
+    # identity before accepting any claimed finite-domain coverage.
+    state_binding = manifest.get("state")
+    state_path_text = (
+        state_binding.get("path")
+        if isinstance(state_binding, Mapping)
+        else None
+    )
+    if not isinstance(state_path_text, str) or not state_path_text:
+        raise ValueError("realized-domain manifest has no Stage-1 state path")
+    state_path = Path(state_path_text)
+    if state_path.is_symlink() or not state_path.is_file():
+        raise ValueError("realized-domain Stage-1 state is not a regular file")
+    state_path = state_path.resolve(strict=True)
+    if (
+        not isinstance(state_binding, Mapping)
+        or state_binding.get("sha256") != _sha256(state_path)
+    ):
+        raise ValueError("realized-domain Stage-1 state identity changed")
+    finite_path = contract.get("contract_path")
+    quota_path = quota_contract.get("contract_path")
+    if not isinstance(finite_path, str) or not isinstance(quota_path, str):
+        raise ValueError("family-switch contracts have no source paths")
+    from scripts.build_ansatz_v3_domain_manifest import build_manifest
+
+    rebuilt_manifest = build_manifest(
+        state_path.parent,
+        finite_domain_path=Path(finite_path),
+        quota_path=Path(quota_path),
+    )
+    if rebuilt_manifest != manifest:
+        raise ValueError(
+            "realized-domain manifest does not replay from Stage-1 artifacts"
+        )
+
+    raw_batches = manifest.get("source_batches")
+    if not isinstance(raw_batches, list) or not raw_batches:
+        raise ValueError("realized-domain manifest has no source batches")
+    domain_rows = [
+        row
+        for descriptor in raw_batches
+        if isinstance(descriptor, Mapping)
+        for row in _descriptor_rows(descriptor)
+    ]
+    domain_keys = {code_key(row) for row in domain_rows}
+    if (
+        len(domain_keys) != manifest.get("total_unique_candidates")
+        or _canonical_sha256(sorted(domain_keys))
+        != manifest.get("candidate_key_set_sha256")
+    ):
+        raise ValueError("realized-domain candidate key set did not replay")
+
+    lexical_ledger_path = Path(stage2_selection_ledger_path)
+    ledger = _regular_json(
+        lexical_ledger_path,
+        "Stage-2 selection ledger",
+    )
+    ledger_path = lexical_ledger_path.resolve(strict=True)
+    prefix = f"{ledger_path.name}.ranked-snapshot"
+    snapshot_manifest_path = ledger_path.with_name(f"{prefix}.manifest.json")
+    snapshot_manifest = _regular_json(
+        snapshot_manifest_path, "Stage-2 ranked snapshot manifest"
+    )
+    binding = snapshot_manifest.get("binding")
+    inputs = binding.get("inputs") if isinstance(binding, Mapping) else None
+    if not isinstance(inputs, list) or any(
+        not isinstance(item, Mapping) or not isinstance(item.get("path"), str)
+        for item in inputs
+    ):
+        raise ValueError("Stage-2 ranked snapshot input binding is malformed")
+    snapshot = _load_ranked_snapshot(
+        ledger_path,
+        [Path(str(item["path"])) for item in inputs],
+        target_mode=str(contract.get("target_mode")),
+    )
+    if snapshot is None:
+        raise ValueError("Stage-2 ranked snapshot did not replay")
+    validated_ledger = validate_selection_ledger(
+        ledger,
+        binding_sha256=str(ledger.get("binding_sha256")),
+        snapshot_identity_sha256_value=snapshot_identity_sha256(snapshot.identity),
+        snapshot_rows=snapshot.rows,
+        eligible_rows=snapshot.eligible_rows,
+    )
+    if (
+        validated_ledger.get("pending") is not None
+        or validated_ledger.get("deferred_pages") != []
+        or validated_ledger.get("cursor") != snapshot.eligible_rows
+    ):
+        raise ValueError("Stage-2 selection ledger is pending or unexhausted")
+
+    snapshot_rows = _regular_jsonl(snapshot.snapshot_path, "Stage-2 ranked snapshot")
+    snapshot_keys = {code_key(row) for row in snapshot_rows}
+    if snapshot_keys != domain_keys or len(snapshot_rows) != len(domain_keys):
+        raise ValueError("Stage-2 candidate key set differs from realized domain")
+    eligible_digests = []
+    all_digests = []
+    for index, row in enumerate(snapshot_rows):
+        identity = row.get("triage_identity")
+        digest = identity.get("canonical_digest") if isinstance(identity, Mapping) else None
+        if not isinstance(digest, str) or not digest or digest in all_digests:
+            raise ValueError("Stage-2 ranked candidate digest is malformed")
+        all_digests.append(digest)
+        if index < snapshot.eligible_rows:
+            eligible_digests.append(digest)
+    if validated_ledger.get("committed_digests") != eligible_digests:
+        raise ValueError("Stage-2 ledger does not commit the eligible candidate set")
+
+    replayed = []
+    for row, digest in zip(snapshot_rows, all_digests, strict=True):
+        weight = _replay_stage2_upper_bound(
+            row,
+            canonical_digest=digest,
+            ledger_dir=ledger_path.parent,
+        )
+        n, k = row.get("n"), row.get("k")
+        if (
+            type(n) is not int
+            or type(k) is not int
+            or n < 1
+            or k < 1
+            or weight < 1
+            or k * weight * weight > 12 * n
+        ):
+            raise ValueError("replayed witness does not exclude strict FOM > 12")
+        replayed.append({
+            "canonical_digest": digest,
+            "candidate_key": code_key(row),
+            "n": n,
+            "k": k,
+            "trusted_upper_bound": {
+                "kind": "replayed-logical-witness",
+                "replayed": True,
+                "weight": weight,
+            },
+            "fom_gt_12_excluded": True,
+        })
+    candidate_set_sha256 = _canonical_sha256(replayed)
+    return {
+        "realized_domain_manifest_path": str(manifest_path),
+        "realized_domain_manifest_file_sha256": _sha256(manifest_path),
+        "realized_domain_manifest_sha256": manifest_sha256,
+        "stage2_selection_ledger_path": str(ledger_path),
+        "stage2_selection_ledger_file_sha256": _sha256(ledger_path),
+        "stage2_ranked_snapshot_manifest_path": str(snapshot.manifest_path),
+        "stage2_ranked_snapshot_manifest_file_sha256": _sha256(snapshot.manifest_path),
+        "candidate_key_set_sha256": _canonical_sha256(sorted(domain_keys)),
+        "replayed_candidate_set_sha256": candidate_set_sha256,
+        "total_unique_candidates": len(domain_keys),
+        "candidates": replayed,
+        "campaign": dict(manifest["state"]),
+        "formal_audit": {
+            "unfilled_slots": quota_binding["unfilled_slots"],
+            "volume_counts": dict(quota_binding["volume_counts"]),
+        },
+    }
+
+
 def load_finite_domain_contract(
     path: Path,
     *,
@@ -119,6 +462,8 @@ def family_switch_decision(
     *,
     contract: Mapping[str, Any],
     quota_contract: Mapping[str, Any],
+    realized_domain_manifest_path: Path | None = None,
+    stage2_selection_ledger_path: Path | None = None,
 ) -> dict[str, Any]:
     """Authorize only a manual family transition after complete negatives.
 
@@ -128,6 +473,22 @@ def family_switch_decision(
     """
 
     blockers: list[str] = []
+    replay: dict[str, Any] | None = None
+    if (
+        realized_domain_manifest_path is None
+        or stage2_selection_ledger_path is None
+    ):
+        blockers.append("bound_artifact_replay_missing")
+    else:
+        try:
+            replay = replay_family_switch_artifacts(
+                realized_domain_manifest_path=realized_domain_manifest_path,
+                stage2_selection_ledger_path=stage2_selection_ledger_path,
+                contract=contract,
+                quota_contract=quota_contract,
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            blockers.append("bound_artifact_replay_failed")
     if (
         not isinstance(evidence, Mapping)
         or evidence.get("schema_version") != 1
@@ -147,12 +508,18 @@ def family_switch_decision(
         blockers.append("formal_audit_quota_unbound")
 
     campaign = evidence.get("campaign")
+    replay_campaign = replay.get("campaign") if replay is not None else None
     if not (
         isinstance(campaign, Mapping)
         and campaign.get("sealed") is True
         and campaign.get("rounds_completed")
         == contract.get("search_budget", {}).get("rounds")
         and campaign.get("pending_round") is None
+        and isinstance(replay_campaign, Mapping)
+        and replay_campaign.get("status") == "search-complete"
+        and replay_campaign.get("rounds_completed")
+        == campaign.get("rounds_completed")
+        and replay_campaign.get("pending_round") is None
     ):
         blockers.append("campaign_budget_not_sealed")
 
@@ -165,6 +532,12 @@ def family_switch_decision(
         and type(total_unique) is int
         and total_unique > 0
         and audited_unique == total_unique
+        and replay is not None
+        and total_unique == replay.get("total_unique_candidates")
+        and domain.get("manifest_sha256")
+        == replay.get("realized_domain_manifest_sha256")
+        and domain.get("candidate_key_set_sha256")
+        == replay.get("candidate_key_set_sha256")
     ):
         blockers.append("realized_finite_domain_not_fully_audited")
 
@@ -175,6 +548,11 @@ def family_switch_decision(
         and stage2.get("selection_ledger_pending") is None
         and stage2.get("unresolved_candidates") == 0
         and stage2.get("unknown_candidates") == 0
+        and replay is not None
+        and stage2.get("selection_ledger_sha256")
+        == replay.get("stage2_selection_ledger_file_sha256")
+        and stage2.get("replayed_candidate_set_sha256")
+        == replay.get("replayed_candidate_set_sha256")
     ):
         blockers.append("stage2_unresolved_or_unexhausted")
 
@@ -215,9 +593,12 @@ def family_switch_decision(
             seen.add(digest)
         if invalid or (type(total_unique) is int and len(seen) != total_unique):
             blockers.append("not_every_candidate_has_trusted_excluding_upper_bound")
+        if replay is None or candidates != replay.get("candidates"):
+            blockers.append("candidate_witness_replay_mismatch")
 
     audit = evidence.get("formal_audit")
     counts = audit.get("volume_counts") if isinstance(audit, Mapping) else None
+    replay_audit = replay.get("formal_audit") if replay is not None else None
     required_counts = {
         str(row["volume"]): row["quota"]
         for row in quota_contract.get("volume_quotas", [])
@@ -227,6 +608,8 @@ def family_switch_decision(
         and audit.get("unfilled_slots") == 0
         and isinstance(counts, Mapping)
         and all(counts.get(volume) == quota for volume, quota in required_counts.items())
+        and isinstance(replay_audit, Mapping)
+        and dict(audit) == dict(replay_audit)
     ):
         blockers.append("formal_audit_quota_incomplete")
     if evidence.get("trusted_novel_wins") != 0:
@@ -242,6 +625,7 @@ def family_switch_decision(
         "eligible_for_manual_family_transition": not blockers,
         "automatic_family_switch": False,
         "block_reasons": blockers,
+        "artifact_replay": replay,
         "allowed_next_family_examples": list(
             contract.get("allowed_next_family_examples", [])
         ) if not blockers else [],
@@ -256,4 +640,5 @@ __all__ = [
     "FAMILY_SWITCH_EVIDENCE_KIND",
     "family_switch_decision",
     "load_finite_domain_contract",
+    "replay_family_switch_artifacts",
 ]

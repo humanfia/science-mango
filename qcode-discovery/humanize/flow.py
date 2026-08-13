@@ -401,6 +401,13 @@ EVOLUTION_INVOCATION_FIELDS = frozenset({
     "codex_cwd",
     "codex_executable_mode",
 })
+ANSATZ_V3_CODEX_VIEW_LAUNCH_FIELD = "ansatz_v3_codex_view_manifest"
+ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS = frozenset({
+    "ansatz_v3_codex_view_manifest_path",
+    "ansatz_v3_codex_view_manifest_sha256",
+    "ansatz_v3_codex_view_source_fingerprint_sha256",
+    "ansatz_v3_codex_filesystem_boundary",
+})
 COSET_EVOLUTION_INVOCATION_FIELDS = frozenset({
     "qcode_evaluator_kind",
     "qcode_action_catalog_sha256",
@@ -1796,6 +1803,8 @@ def _codex_version(executable: Path) -> str:
 
 def _fresh_codex_binding(
     config: FlowConfig,
+    *,
+    round_dir: Path | None = None,
 ) -> tuple[dict[str, Any], str, str]:
     executable = _resolve_native_codex_path(
         os.environ.get("QCODE_CODEX_BIN", "codex")
@@ -1808,7 +1817,31 @@ def _fresh_codex_binding(
         executable, "Codex CLI native executable"
     )
     identity["mode"] = stat.S_IMODE(executable.stat().st_mode)
-    cwd = str(config.repo_dir.resolve(strict=True))
+    if config.search_representation_id == (
+        PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    ):
+        if round_dir is None:
+            raise RoundTransactionError(
+                "ansatz-v3 Codex binding requires a round-local sanitized view"
+            )
+        from evolve.ansatz_v3_codex_view import (
+            AnsatzV3CodexViewError,
+            VIEW_DIRECTORY_NAME,
+            materialize_sanitized_codex_view,
+        )
+
+        try:
+            view = materialize_sanitized_codex_view(
+                config.repo_dir,
+                Path(os.path.abspath(round_dir / VIEW_DIRECTORY_NAME)),
+            )
+        except (OSError, AnsatzV3CodexViewError) as exc:
+            raise RoundTransactionError(
+                f"cannot prepare ansatz-v3 sanitized Codex view: {exc}"
+            ) from exc
+        cwd = str(view["view_path"])
+    else:
+        cwd = str(config.repo_dir.resolve(strict=True))
     return identity, _codex_version(executable), cwd
 
 
@@ -2002,6 +2035,41 @@ def _fresh_invocation_binding(
         invocation[SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD] = (
             geometry_contract
         )
+    if (
+        config.codex_cli
+        and config.search_representation_id
+        == PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    ):
+        from evolve.ansatz_v3_codex_view import (
+            AnsatzV3CodexViewError,
+            validate_sanitized_codex_view,
+        )
+
+        if codex_cwd is None:
+            raise RoundTransactionError(
+                "ansatz-v3 Codex invocation lacks its sanitized view"
+            )
+        try:
+            view = validate_sanitized_codex_view(
+                config.repo_dir,
+                Path(codex_cwd),
+            )
+        except (OSError, AnsatzV3CodexViewError) as exc:
+            raise RoundTransactionError(
+                f"ansatz-v3 sanitized Codex view failed replay: {exc}"
+            ) from exc
+        invocation.update({
+            "ansatz_v3_codex_view_manifest_path": view["manifest_path"],
+            "ansatz_v3_codex_view_manifest_sha256": view[
+                "manifest_file_sha256"
+            ],
+            "ansatz_v3_codex_view_source_fingerprint_sha256": view[
+                "source_fingerprint_sha256"
+            ],
+            "ansatz_v3_codex_filesystem_boundary": view[
+                "filesystem_boundary"
+            ],
+        })
     if _flow_evaluator_kind(config) == "coset-two-block":
         from evaluation.coset_action_catalog import (
             LEGACY_CATALOG_ID,
@@ -2340,6 +2408,28 @@ def _evolution_launch_binding(
                 "Codex CLI native executable changed after transaction prepare"
             )
         binding["codex_executable"] = dict(codex_executable)
+        if config.search_representation_id == (
+            PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+        ):
+            from evolve.ansatz_v3_codex_view import (
+                AnsatzV3CodexViewError,
+                VIEW_DIRECTORY_NAME,
+                validate_sanitized_codex_view,
+            )
+
+            try:
+                view = validate_sanitized_codex_view(
+                    config.repo_dir,
+                    context_path.parent / VIEW_DIRECTORY_NAME,
+                )
+            except (OSError, AnsatzV3CodexViewError) as exc:
+                raise RoundTransactionError(
+                    f"ansatz-v3 sanitized Codex view failed binding: {exc}"
+                ) from exc
+            binding[ANSATZ_V3_CODEX_VIEW_LAUNCH_FIELD] = _file_descriptor(
+                Path(view["manifest_path"]),
+                "ansatz-v3 sanitized Codex view manifest",
+            )
     return binding
 
 
@@ -2374,6 +2464,13 @@ def _validate_invocation_binding(
             )
     if geometry_contract is not None:
         expected_fields.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
+    ansatz_v3_codex = (
+        config.codex_cli
+        and config.search_representation_id
+        == PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    )
+    if ansatz_v3_codex:
+        expected_fields.update(ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS)
     if not isinstance(invocation, dict) or set(invocation) != expected_fields:
         raise RoundTransactionError(
             "evolution invocation binding fields are incomplete"
@@ -2488,10 +2585,53 @@ def _validate_invocation_binding(
             raise RoundTransactionError(
                 "Codex CLI native executable changed after transaction prepare"
             )
+        expected_codex_cwd = str(config.repo_dir.resolve(strict=True))
+        if ansatz_v3_codex:
+            from evolve.ansatz_v3_codex_view import (
+                AnsatzV3CodexViewError,
+                validate_sanitized_codex_view,
+            )
+
+            view_descriptor = launch_binding.get(
+                ANSATZ_V3_CODEX_VIEW_LAUNCH_FIELD
+            )
+            if not isinstance(view_descriptor, dict):
+                raise RoundTransactionError(
+                    "ansatz-v3 sanitized Codex view launch binding is missing"
+                )
+            try:
+                view = validate_sanitized_codex_view(
+                    config.repo_dir,
+                    Path(str(invocation["codex_cwd"])),
+                )
+            except (OSError, AnsatzV3CodexViewError) as exc:
+                raise RoundTransactionError(
+                    f"ansatz-v3 sanitized Codex view changed: {exc}"
+                ) from exc
+            if (
+                _file_descriptor(
+                    Path(view["manifest_path"]),
+                    "ansatz-v3 sanitized Codex view manifest",
+                )
+                != view_descriptor
+                or invocation["ansatz_v3_codex_view_manifest_path"]
+                != view["manifest_path"]
+                or invocation["ansatz_v3_codex_view_manifest_sha256"]
+                != view["manifest_file_sha256"]
+                or invocation[
+                    "ansatz_v3_codex_view_source_fingerprint_sha256"
+                ] != view["source_fingerprint_sha256"]
+                or invocation["ansatz_v3_codex_filesystem_boundary"]
+                != view["filesystem_boundary"]
+            ):
+                raise RoundTransactionError(
+                    "ansatz-v3 sanitized Codex view binding changed"
+                )
+            expected_codex_cwd = view["view_path"]
         if (
             invocation["codex_executable_mode"] != executable["mode"]
             or invocation["codex_cwd"]
-            != str(config.repo_dir.resolve(strict=True))
+            != expected_codex_cwd
             or not isinstance(invocation["codex_version"], str)
             or not invocation["codex_version"]
             or _codex_version(path) != invocation["codex_version"]
@@ -5558,7 +5698,10 @@ def _fresh_evolution_bindings(
     version: str | None = None
     cwd: str | None = None
     if config.codex_cli:
-        codex_identity, version, cwd = _fresh_codex_binding(config)
+        codex_identity, version, cwd = _fresh_codex_binding(
+            config,
+            round_dir=round_dir,
+        )
     launch = _evolution_launch_binding(
         config,
         context_path=context_path,
@@ -7814,7 +7957,10 @@ def _current_evolution_bindings(
     codex_version: str | None = None
     codex_cwd: str | None = None
     if config.codex_cli:
-        codex_identity, codex_version, codex_cwd = _fresh_codex_binding(config)
+        codex_identity, codex_version, codex_cwd = _fresh_codex_binding(
+            config,
+            round_dir=round_dir,
+        )
     launch = _evolution_launch_binding(
         config,
         context_path=context_path,
@@ -8260,9 +8406,39 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
             "codex_executable"
         ]["path"]
         child_environment["QCODE_CODEX_CWD"] = invocation_binding["codex_cwd"]
+        if ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS.issubset(
+            invocation_binding
+        ):
+            child_environment[
+                "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST"
+            ] = invocation_binding["ansatz_v3_codex_view_manifest_path"]
+            child_environment[
+                "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256"
+            ] = invocation_binding[
+                "ansatz_v3_codex_view_manifest_sha256"
+            ]
+            child_environment[
+                "QCODE_ANSATZ_V3_CODEX_VIEW_SOURCE_FINGERPRINT_SHA256"
+            ] = invocation_binding[
+                "ansatz_v3_codex_view_source_fingerprint_sha256"
+            ]
+            child_environment[
+                "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY"
+            ] = invocation_binding["ansatz_v3_codex_filesystem_boundary"]
     else:
         child_environment.pop("QCODE_CODEX_BIN", None)
         child_environment.pop("QCODE_CODEX_CWD", None)
+    if not ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS.issubset(invocation_binding):
+        child_environment.pop("QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST", None)
+        child_environment.pop(
+            "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256", None
+        )
+        child_environment.pop(
+            "QCODE_ANSATZ_V3_CODEX_VIEW_SOURCE_FINGERPRINT_SHA256", None
+        )
+        child_environment.pop(
+            "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY", None
+        )
     if COSET_NEGATIVE_FEEDBACK_INVOCATION_FIELDS.issubset(invocation_binding):
         child_environment["QCODE_COSET_NEGATIVE_ARCHIVE_PATH"] = (
             invocation_binding["qcode_negative_feedback_live_archive_path"]

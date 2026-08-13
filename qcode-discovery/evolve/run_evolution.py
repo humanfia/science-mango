@@ -6684,8 +6684,66 @@ def _resolve_native_codex_path(requested_bin: str) -> Path:
     )
 
 
+_ANSATZ_V3_CODEX_VIEW_ENV_BINDINGS = {
+    "ansatz_v3_codex_view_manifest_path": (
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST"
+    ),
+    "ansatz_v3_codex_view_manifest_sha256": (
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256"
+    ),
+    "ansatz_v3_codex_view_source_fingerprint_sha256": (
+        "QCODE_ANSATZ_V3_CODEX_VIEW_SOURCE_FINGERPRINT_SHA256"
+    ),
+    "ansatz_v3_codex_filesystem_boundary": (
+        "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY"
+    ),
+}
+
+
+def _ansatz_v3_codex_view_invocation_binding(
+    codex_cwd: str | Path,
+) -> dict[str, str]:
+    """Replay the v3 readable view and its launch-frozen environment."""
+
+    from evolve.ansatz_v3_codex_view import (
+        AnsatzV3CodexViewError,
+        validate_sanitized_codex_view,
+    )
+
+    try:
+        view = validate_sanitized_codex_view(
+            Path(PROJECT_ROOT),
+            Path(codex_cwd),
+        )
+    except (OSError, AnsatzV3CodexViewError) as exc:
+        raise RuntimeError(
+            f"managed ansatz-v3 Codex view is invalid: {exc}"
+        ) from exc
+    expected = {
+        "ansatz_v3_codex_view_manifest_path": view["manifest_path"],
+        "ansatz_v3_codex_view_manifest_sha256": view[
+            "manifest_file_sha256"
+        ],
+        "ansatz_v3_codex_view_source_fingerprint_sha256": view[
+            "source_fingerprint_sha256"
+        ],
+        "ansatz_v3_codex_filesystem_boundary": view[
+            "filesystem_boundary"
+        ],
+    }
+    observed = {
+        field: os.environ.get(environment)
+        for field, environment in _ANSATZ_V3_CODEX_VIEW_ENV_BINDINGS.items()
+    }
+    if observed != expected:
+        raise RuntimeError(
+            "managed ansatz-v3 Codex view environment changed"
+        )
+    return expected
+
+
 def _resolve_codex_execution_binding(
-) -> tuple[dict[str, Any], str, str]:
+) -> tuple[dict[str, Any], str, str, dict[str, str] | None]:
     native_path = _resolve_native_codex_path(
         os.environ.get("QCODE_CODEX_BIN", "codex")
     )
@@ -6699,7 +6757,14 @@ def _resolve_codex_execution_binding(
     requested_cwd = Path(
         os.environ.get("QCODE_CODEX_CWD", str(project_root))
     ).resolve(strict=True)
-    if requested_cwd != project_root:
+    ansatz_v3_view_binding: dict[str, str] | None = None
+    if ACTIVE_GEOMETRY_CONTRACT == (
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    ):
+        ansatz_v3_view_binding = _ansatz_v3_codex_view_invocation_binding(
+            requested_cwd
+        )
+    elif requested_cwd != project_root:
         raise RuntimeError(
             "managed Codex CLI cwd must be the qcode-discovery project root"
         )
@@ -6717,8 +6782,8 @@ def _resolve_codex_execution_binding(
     if not version or len(version) > 500:
         raise RuntimeError("Codex CLI returned an invalid version identity")
     os.environ["QCODE_CODEX_BIN"] = str(native_path)
-    os.environ["QCODE_CODEX_CWD"] = str(project_root)
-    return identity, version, str(project_root)
+    os.environ["QCODE_CODEX_CWD"] = str(requested_cwd)
+    return identity, version, str(requested_cwd), ansatz_v3_view_binding
 
 
 def _validated_negative_feedback_binding(
@@ -6892,6 +6957,19 @@ def _validated_invocation_binding(
         expected_fields.add(SEARCH_GEOMETRY_CONTRACT_FIELD)
     if not isinstance(invocation, dict):
         raise RuntimeError("managed invocation binding fields are incomplete")
+    ansatz_v3_codex = (
+        invocation.get("codex_cli") is True
+        and ACTIVE_GEOMETRY_CONTRACT
+        == PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    )
+    ansatz_v3_view_fields = {
+        "ansatz_v3_codex_view_manifest_path",
+        "ansatz_v3_codex_view_manifest_sha256",
+        "ansatz_v3_codex_view_source_fingerprint_sha256",
+        "ansatz_v3_codex_filesystem_boundary",
+    }
+    if ansatz_v3_codex:
+        expected_fields.update(ansatz_v3_view_fields)
     observed_fields = set(invocation)
     has_evaluator_kind = EVALUATOR_KIND_BINDING_FIELD in observed_fields
     has_action_catalog = (
@@ -7028,10 +7106,38 @@ def _validated_invocation_binding(
     if codex_cli:
         if not isinstance(codex_version, str) or not codex_version:
             raise RuntimeError("managed invocation codex_version is invalid")
-        if (
-            not isinstance(codex_cwd, str)
-            or Path(codex_cwd) != Path(PROJECT_ROOT).resolve()
-        ):
+        if not isinstance(codex_cwd, str):
+            raise RuntimeError("managed invocation codex_cwd is invalid")
+        if ansatz_v3_codex:
+            from evolve.ansatz_v3_codex_view import (
+                AnsatzV3CodexViewError,
+                validate_sanitized_codex_view,
+            )
+
+            try:
+                view = validate_sanitized_codex_view(
+                    Path(PROJECT_ROOT),
+                    Path(codex_cwd),
+                )
+            except (OSError, AnsatzV3CodexViewError) as exc:
+                raise RuntimeError(
+                    f"managed ansatz-v3 Codex view is invalid: {exc}"
+                ) from exc
+            if (
+                invocation["ansatz_v3_codex_view_manifest_path"]
+                != view["manifest_path"]
+                or invocation["ansatz_v3_codex_view_manifest_sha256"]
+                != view["manifest_file_sha256"]
+                or invocation[
+                    "ansatz_v3_codex_view_source_fingerprint_sha256"
+                ] != view["source_fingerprint_sha256"]
+                or invocation["ansatz_v3_codex_filesystem_boundary"]
+                != view["filesystem_boundary"]
+            ):
+                raise RuntimeError(
+                    "managed ansatz-v3 Codex view binding changed"
+                )
+        elif Path(codex_cwd) != Path(PROJECT_ROOT).resolve():
             raise RuntimeError("managed invocation codex_cwd is invalid")
         if (
             isinstance(codex_mode, bool)
@@ -8365,11 +8471,13 @@ def main():
         codex_version: str | None = None
         codex_cwd: str | None = None
         codex_executable_mode: int | None = None
+        ansatz_v3_codex_view_binding: dict[str, str] | None = None
         if managed_requested and args.codex_cli:
             (
                 codex_executable_identity,
                 codex_version,
                 codex_cwd,
+                ansatz_v3_codex_view_binding,
             ) = _resolve_codex_execution_binding()
             codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
@@ -8511,6 +8619,8 @@ def main():
             invocation_binding[SEARCH_GEOMETRY_CONTRACT_FIELD] = (
                 search_geometry_contract
             )
+        if ansatz_v3_codex_view_binding is not None:
+            invocation_binding.update(ansatz_v3_codex_view_binding)
         backend_path = (
             Path(__file__).resolve().parent / "codex_cli_llm.py"
             if args.codex_cli

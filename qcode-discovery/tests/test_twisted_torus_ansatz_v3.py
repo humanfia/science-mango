@@ -3,14 +3,26 @@
 from __future__ import annotations
 
 import json
+import os
 from collections import Counter
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
 import evaluation.ansatz_v3_dual_track as dual_track_module
+import evolve.run_evolution as launcher_module
 import humanize.escalation as escalation_module
+import humanize.flow as flow_module
+from evolve.ansatz_v3_codex_view import (
+    AnsatzV3CodexViewError,
+    FORBIDDEN_READABLE_PATHS,
+    VIEW_MANIFEST_NAME,
+    VIEW_SOURCE_ALLOWLIST,
+    materialize_sanitized_codex_view,
+    validate_sanitized_codex_view,
+)
 from evaluation.ansatz_v3_contract import (
     FAMILY_SWITCH_EVIDENCE_KIND,
     family_switch_decision,
@@ -48,6 +60,7 @@ from evolve.seed_solution_twisted_torus_ansatz_v3 import (
     _expand_twist_quota,
     _generate_support_proposals,
     _proposal_supports,
+    generate_candidates,
 )
 from humanize.flow import select_for_milp
 from humanize.escalation import (
@@ -195,6 +208,155 @@ def test_v3_evaluator_applies_program_guard_before_import(tmp_path, monkeypatch)
         evaluator_module._load_generate_candidates(str(candidate))
 
 
+def test_v3_codex_view_is_exact_allowlist_without_anchor_or_calibration(tmp_path):
+    view_path = tmp_path / "sanitized-view"
+    view = materialize_sanitized_codex_view(PROJECT, view_path)
+    assert set(view["allowlist"]) == set(VIEW_SOURCE_ALLOWLIST)
+    assert view["filesystem_boundary"] == "os-chroot-no-main-repository-mount"
+    assert (view_path / VIEW_MANIFEST_NAME).is_file()
+    for relative in VIEW_SOURCE_ALLOWLIST:
+        assert (view_path / relative).is_file()
+        assert not (view_path / relative).is_symlink()
+    for relative in FORBIDDEN_READABLE_PATHS:
+        assert not (view_path / relative).exists()
+        assert not (view_path / relative).is_symlink()
+
+
+def test_v3_codex_view_tamper_and_symlink_fail_closed(tmp_path):
+    tampered = tmp_path / "tampered"
+    materialize_sanitized_codex_view(PROJECT, tampered)
+    copied_seed = tampered / "evolve/seed_solution_twisted_torus_ansatz_v3.py"
+    copied_seed.chmod(0o644)
+    copied_seed.write_text("tampered\n", encoding="utf-8")
+    with pytest.raises(AnsatzV3CodexViewError, match="writable|changed"):
+        validate_sanitized_codex_view(PROJECT, tampered)
+
+    escaped = tmp_path / "escaped"
+    materialize_sanitized_codex_view(PROJECT, escaped)
+    os.symlink(PROJECT / "evaluation", escaped / "anchor-escape")
+    with pytest.raises(AnsatzV3CodexViewError, match="unsafe"):
+        validate_sanitized_codex_view(PROJECT, escaped)
+
+
+def test_only_v3_codex_binding_changes_cwd(tmp_path, monkeypatch):
+    executable = tmp_path / "codex"
+    executable.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    executable.chmod(0o755)
+    monkeypatch.setattr(
+        flow_module,
+        "_resolve_native_codex_path",
+        lambda _requested: executable,
+    )
+    monkeypatch.setattr(flow_module, "_codex_version", lambda _path: "test")
+    v3 = SimpleNamespace(
+        repo_dir=PROJECT,
+        search_representation_id=PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID,
+    )
+    _identity, _version, v3_cwd = flow_module._fresh_codex_binding(
+        v3,
+        round_dir=tmp_path / "round-001",
+    )
+    assert Path(v3_cwd).parent == tmp_path / "round-001"
+    assert Path(v3_cwd) != PROJECT
+
+    for representation in (
+        PUBLISHED_VOLUME_REPRESENTATION_ID,
+        "css-bb-twisted-torus-generator-v1",
+    ):
+        legacy = SimpleNamespace(
+            repo_dir=PROJECT,
+            search_representation_id=representation,
+        )
+        _identity, _version, cwd = flow_module._fresh_codex_binding(
+            legacy,
+            round_dir=tmp_path / f"round-{representation}",
+        )
+        assert Path(cwd) == PROJECT
+
+
+def test_run_evolution_replays_and_emits_v3_codex_view_binding(
+    tmp_path, monkeypatch
+):
+    executable = tmp_path / "codex"
+    executable.write_text(
+        "#!/bin/sh\nprintf 'codex-test 1.0\\n'\n",
+        encoding="utf-8",
+    )
+    executable.chmod(0o755)
+    view = materialize_sanitized_codex_view(PROJECT, tmp_path / "view")
+    monkeypatch.setattr(
+        launcher_module,
+        "ACTIVE_GEOMETRY_CONTRACT",
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    )
+    monkeypatch.setattr(
+        launcher_module,
+        "_resolve_native_codex_path",
+        lambda _requested: executable,
+    )
+    monkeypatch.setenv("QCODE_CODEX_CWD", view["view_path"])
+    environment = {
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST": view["manifest_path"],
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256": view[
+            "manifest_file_sha256"
+        ],
+        "QCODE_ANSATZ_V3_CODEX_VIEW_SOURCE_FINGERPRINT_SHA256": view[
+            "source_fingerprint_sha256"
+        ],
+        "QCODE_ANSATZ_V3_CODEX_FILESYSTEM_BOUNDARY": view[
+            "filesystem_boundary"
+        ],
+    }
+    for name, value in environment.items():
+        monkeypatch.setenv(name, value)
+
+    identity, version, cwd, binding = (
+        launcher_module._resolve_codex_execution_binding()
+    )
+    assert version == "codex-test 1.0"
+    assert cwd == view["view_path"]
+    assert binding == {
+        "ansatz_v3_codex_view_manifest_path": view["manifest_path"],
+        "ansatz_v3_codex_view_manifest_sha256": view[
+            "manifest_file_sha256"
+        ],
+        "ansatz_v3_codex_view_source_fingerprint_sha256": view[
+            "source_fingerprint_sha256"
+        ],
+        "ansatz_v3_codex_filesystem_boundary": view[
+            "filesystem_boundary"
+        ],
+    }
+    backend = tmp_path / "backend.py"
+    backend.write_text("backend\n", encoding="utf-8")
+    invocation = {
+        "model_names": ["fake-model"],
+        "reasoning_effort": "xhigh",
+        "codex_cli": True,
+        "max_parallel_evaluations": 1,
+        "api_base": "http://localhost:4000/v1",
+        "temperature_disabled": True,
+        "codex_version": version,
+        "codex_cwd": cwd,
+        "codex_executable_mode": identity["mode"],
+        "search_geometry_contract": (
+            PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+        ),
+        **binding,
+    }
+    assert launcher_module._validated_invocation_binding(
+        invocation,
+        backend,
+        identity,
+    ) == invocation
+
+    monkeypatch.setenv(
+        "QCODE_ANSATZ_V3_CODEX_VIEW_MANIFEST_SHA256", "0" * 64
+    )
+    with pytest.raises(RuntimeError, match="environment changed"):
+        launcher_module._ansatz_v3_codex_view_invocation_binding(cwd)
+
+
 def test_wrapper_interleaves_splits_across_q_and_never_injects_malformed_defaults():
     rows = _expand_twist_quota(
         5,
@@ -206,13 +368,39 @@ def test_wrapper_interleaves_splits_across_q_and_never_injects_malformed_default
     assert {row["geometry"]["twist"] for row in rows} == set(range(21))
     observed = Counter((len(row["A_terms"]), len(row["B_terms"])) for row in rows)
     assert {(2, 4), (4, 2), (2, 3), (3, 2)}.issubset(observed)
-    assert all(
-        row["search_representation_id"]
-        == PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
-        for row in rows
-    )
+    assert all(set(row) == {"A_terms", "B_terms", "geometry"} for row in rows)
     with pytest.raises(RuntimeError, match="failed immutable q coverage"):
         _expand_twist_quota(5, 21, [], limit=63)
+
+
+def test_production_quick_evaluator_accepts_v3_at_127_and_132(
+    tmp_path, monkeypatch
+):
+    import evolve.openevolve_evaluator as evaluator_module
+
+    monkeypatch.setattr(
+        evaluator_module,
+        "ACTIVE_GEOMETRY_CONTRACT",
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    )
+    metrics = evaluator_module._run_evaluation(
+        generate_candidates,
+        [(1, 127), (2, 66)],
+        quick=True,
+        candidate_limit=420,
+        candidate_log_path=tmp_path / "production-quick.jsonl",
+    )
+    assert metrics["lattices_completed"] == 2
+    assert metrics["lattice_failures"] == 0
+    assert metrics["malformed_candidate_definitions"] == 0
+    assert metrics["unique_candidates"] > 0
+    assert metrics["geometry_twists_required"] == 67
+    assert metrics["geometry_twists_observed"] == 67
+    assert metrics["geometry_twist_coverage_complete"] == 1
+    assert set(metrics["support_split_counts"]) == {
+        "2+4", "4+2", "2+3", "3+2", "2+2", "3+3"
+    }
+    assert all(metrics["support_split_counts"].values())
 
 
 def test_quota_contract_is_deterministic_and_makes_127_132_mandatory():
@@ -464,7 +652,8 @@ def test_family_switch_gate_is_fail_closed_and_never_auto_launches():
     quota = load_quota_contract(QUOTA)
     evidence = _switch_evidence(finite, quota)
     allowed = family_switch_decision(evidence, contract=finite, quota_contract=quota)
-    assert allowed["eligible_for_manual_family_transition"] is True
+    assert allowed["eligible_for_manual_family_transition"] is False
+    assert "bound_artifact_replay_missing" in allowed["block_reasons"]
     assert allowed["automatic_family_switch"] is False
 
     evidence["stage2"]["unknown_candidates"] = 1

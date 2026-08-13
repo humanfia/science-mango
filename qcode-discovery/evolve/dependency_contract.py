@@ -46,6 +46,9 @@ ANSATZ_V3_EVALUATOR_DEPENDENCIES = {
     "ansatz_v3_program_capability_guard": (
         "evaluation/ansatz_v3_program_guard.py"
     ),
+    "ansatz_v3_codex_sanitized_view": (
+        "evolve/ansatz_v3_codex_view.py"
+    ),
     "ansatz_v3_dual_track_planner": (
         "evaluation/ansatz_v3_dual_track.py"
     ),
