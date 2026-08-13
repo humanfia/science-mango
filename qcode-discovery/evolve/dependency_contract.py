@@ -29,6 +29,45 @@ LOCAL_EVALUATOR_DEPENDENCIES = {
 }
 
 
+# Additional executable and preregistered inputs for the checkpoint-
+# incompatible full-support published-volume ansatz.  They are conditional so
+# historical representations retain their exact dependency shape.
+ANSATZ_V3_EVALUATOR_DEPENDENCIES = {
+    "ansatz_v3_formal_audit_quota": (
+        "configs/twisted_torus_ansatz_v3.formal_audit_quota.v1.json"
+    ),
+    "ansatz_v3_finite_domain": (
+        "configs/twisted_torus_ansatz_v3.finite_domain.v1.json"
+    ),
+    "ansatz_v3_dual_track_preregistration": (
+        "configs/twisted_torus_ansatz_v3.dual_track.v1.json"
+    ),
+    "ansatz_v3_contract_validator": "evaluation/ansatz_v3_contract.py",
+    "ansatz_v3_program_capability_guard": (
+        "evaluation/ansatz_v3_program_guard.py"
+    ),
+    "ansatz_v3_dual_track_planner": (
+        "evaluation/ansatz_v3_dual_track.py"
+    ),
+    "ansatz_v3_formal_audit_selector": "evaluation/formal_audit_quota.py",
+    "ansatz_v3_witness_fingerprint": (
+        "evaluation/ansatz_witness_fingerprint.py"
+    ),
+    "ansatz_v3_blind_calibration": (
+        "scripts/verify_blind_ansatz_v3_calibration.py"
+    ),
+    "ansatz_v3_realized_domain_manifest": (
+        "scripts/build_ansatz_v3_domain_manifest.py"
+    ),
+    "ansatz_v3_family_switch_gate": (
+        "scripts/evaluate_ansatz_v3_family_switch.py"
+    ),
+    "ansatz_v3_dual_track_plan_builder": (
+        "scripts/build_ansatz_v3_dual_track_plan.py"
+    ),
+}
+
+
 # Extra immutable inputs used only by the coset two-block evaluator.  Keep
 # this mapping shared by the launcher and Humanize transaction verifier: a
 # dependency present on just one side would either make a completed slice

@@ -164,6 +164,8 @@ from evaluation.search_contract import (
     ACTIVE_STAGE2_FITNESS_LATTICES as CONTRACT_STAGE2_FITNESS_LATTICES,
     EVOLUTION_LATTICES,
     FINAL_GATE_PARETO_LATTICES as CONTRACT_PARETO_LATTICES,
+    PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID,
     TWISTED_MIN_CANDIDATES_PER_TWIST,
     allowed_twists,
     is_twisted_geometry_contract,
@@ -2974,6 +2976,12 @@ def _candidate_jsonl_record(result: dict) -> dict | None:
     )
     if canonical_geometry is not None:
         record["geometry"] = canonical_geometry
+    if ACTIVE_GEOMETRY_CONTRACT == (
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    ):
+        record["search_representation_id"] = (
+            PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+        )
     # Preserve distance semantics across the OpenEvolve -> Humanize handoff.
     # In particular, Humanize must be able to distinguish an unresolved
     # BP/OSD upper bound from exact/certified evidence without inferring that
@@ -3146,6 +3154,14 @@ def _load_generate_candidates(program_path: str):
     """Load generate_candidates from an evolved program file."""
     if not Path(program_path).exists():
         raise FileNotFoundError(f"Evolved program not found: {program_path}")
+    if ACTIVE_GEOMETRY_CONTRACT == (
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    ):
+        from evaluation.ansatz_v3_program_guard import (
+            validate_ansatz_v3_program,
+        )
+
+        validate_ansatz_v3_program(Path(program_path))
     spec = importlib.util.spec_from_file_location("evolved_program", program_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

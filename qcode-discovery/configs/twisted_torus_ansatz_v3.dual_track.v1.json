@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "qcode-ansatz-v3-dual-track-preregistration",
+  "diagnostic_contract": {
+    "kind": "qcode-stratified-target-aware-ladder-v1",
+    "schema_version": 1,
+    "decision_policy": "ansatz-or-deep-proof-gate-v1",
+    "installed_git_commit": "eb4347518fe801057783dd43051bd5266f69e0a8",
+    "rungs": [
+      6,
+      8,
+      "required_distance_minus_1"
+    ],
+    "unknown_semantics": "fail_open_survivor"
+  },
+  "fresh_ansatz_track": {
+    "registry": "configs/campaign_templates.ansatz_v3.json",
+    "template_id": "css-bb-twisted-torus-published-volume-ansatz-v3",
+    "representation_id": "css-bb-twisted-torus-published-volume-ansatz-generator-v3",
+    "fresh_checkpoint_required": true,
+    "may_consume_diagnostic_candidates": false,
+    "may_consume_diagnostic_proof_scores": false,
+    "launch_by_plan_builder": false
+  },
+  "targeted_deep_proof_track": {
+    "source_population": [
+      "result.trusted_distance_upper_bound_absent"
+    ],
+    "minimum_meaningful_replayed_lower_bound": 9,
+    "maximum_active_candidates": 8,
+    "durable_queue_all_remainder": true,
+    "priority_policy": "threshold-survivor-first-then-descending-lower-bound-ascending-target-gap-candidate-key",
+    "maximum_additional_rungs_per_candidate": 16,
+    "join_key": "candidate_key",
+    "required_bindings": [
+      "contract_sha256",
+      "decision_sha256",
+      "selected_file_sha256",
+      "selected_sha256",
+      "structural_digest",
+      "triage_digest",
+      "result_sha256"
+    ],
+    "next_threshold_policy": "resume-first-unresolved-diagnostic-rung-then-remaining-ladder-otherwise-exactify-lb-through-min-upper-minus-one-required-minus-one",
+    "checkpoint_reuse_policy": "replay-bound-unsat-sectors-retry-only-unknown-sectors-then-both-sectors-on-new-rungs",
+    "positive_threshold_survivor_route": "independent-exact-certificate-pipeline",
+    "fresh_ansatz_when_threshold_survivor": "remain-prepared-no-automatic-launch",
+    "both_sectors_required_for_lower_bound": true,
+    "unknown_semantics": "fail_open_unresolved",
+    "separate_run_required": true,
+    "may_write_fresh_search_archive": false,
+    "launch_by_plan_builder": false
+  },
+  "joint_semantics": {
+    "tracks_may_be_planned_together": true,
+    "distinct_run_ids_required": true,
+    "distinct_artifact_roots_required": true,
+    "distinct_checkpoint_ledgers_required": true,
+    "retain_family_does_not_mean_reuse_fixed_ansatz": true,
+    "fresh_search_and_old_survivor_proof_are_evidence_isolated": true,
+    "bp_osd_positive_credit": false,
+    "whole_family_abandonment_authorized": false,
+    "automatic_launch": false
+  }
+}

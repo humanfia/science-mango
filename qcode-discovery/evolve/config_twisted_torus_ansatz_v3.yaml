@@ -1,0 +1,74 @@
+# Fresh, checkpoint-incompatible full-support generalized-toric/BB ansatz.
+# The mutable program proposes complete A/B supports.  Published anchor
+# supports are unavailable to search and are assessed only after sealing.
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+random_seed: 47
+
+qcode_search_portfolio:
+  enabled: true
+  schema_version: 3
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "azure/gpt-5.6-sol"
+      weight: 1.0
+      temperature: null
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are evolving `_generate_support_proposals(ell, m)` for a fresh
+    generalized-toric CSS BB representation.  Each proposal must contain the
+    complete `A_terms` and `B_terms`; the immutable wrapper adds no monomial.
+
+    Generate genuinely different sparse supports with total weight at most 6.
+    The installed support splits are 2+4, 4+2, 2+3, 3+2, 2+2 and 3+3.  Do not
+    assume that either polynomial contains (0,0), (1,0), or (0,1).  Return
+    deterministic JSON-like Python data only; do not edit the wrapper, choose
+    q, claim distance, or load literature constructions.
+
+    The wrapper owns the finite HNF geometry contract over the preregistered
+    published-volume cells and historical controls.  Exact published supports
+    are deliberately hidden until post-search blind calibration.  A blind
+    reconstruction receives calibration credit only, never novelty, coverage,
+    fitness, or a discovery claim.
+
+    Use replayed X/Z low-weight logical witnesses to disrupt their exponent
+    difference orbits and factor mechanisms.  Such witnesses and every
+    BP/OSD value are distance upper bounds and negative feedback only.  They
+    must never provide positive promotion.  Positive distance credit requires
+    a replayed lower-bound proof or exact certificate.
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  timeout: 2400
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  parallel_evaluations: 12
+
+database:
+  population_size: 500
+  archive_size: 180
+  num_islands: 5
+  exploration_ratio: 0.6
+  exploitation_ratio: 0.3
+  migration_interval: 20
+  feature_dimensions:
+    - "algebraic_relation_type"
+    - "support_split_type"
+    - "geometry_twist_class"
+  feature_bins:
+    algebraic_relation_type: 5
+    support_split_type: 6
+    geometry_twist_class: 3

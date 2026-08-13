@@ -98,11 +98,13 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from evolve.dependency_contract import (
+    ANSATZ_V3_EVALUATOR_DEPENDENCIES,
     COSET_EVALUATOR_DEPENDENCIES,
     LOCAL_EVALUATOR_DEPENDENCIES,
 )
 from evaluation.search_contract import (
     ACTIVE_GEOMETRY_CONTRACT,
+    PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
     ACTIVE_STAGE2_DEEP_LATTICES,
     EVOLUTION_LATTICES,
     LEGACY_GEOMETRY_CONTRACT,
@@ -582,6 +584,10 @@ def _active_evaluator_dependencies(
 ) -> dict[str, str]:
     _validated_evaluator_kind(evaluator_kind, noncss=False, milp=False)
     dependencies = dict(LOCAL_EVALUATOR_DEPENDENCIES)
+    if ACTIVE_GEOMETRY_CONTRACT == (
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    ):
+        dependencies.update(ANSATZ_V3_EVALUATOR_DEPENDENCIES)
     if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
         dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
     return dependencies

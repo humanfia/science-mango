@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterator, Protocol
 
 from evolve.dependency_contract import (
+    ANSATZ_V3_EVALUATOR_DEPENDENCIES,
     COSET_EVALUATOR_DEPENDENCIES,
     LOCAL_EVALUATOR_DEPENDENCIES,
 )
@@ -44,6 +45,7 @@ from evolve.coset_search_contract import (
 from evaluation.geometry import candidate_geometry
 from evaluation.search_contract import (
     LEGACY_GEOMETRY_CONTRACT,
+    PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID,
     SEARCH_GEOMETRY_CONTRACT_ENV,
     geometry_contract_for_representation,
     is_twisted_geometry_contract,
@@ -451,6 +453,9 @@ class FlowConfig:
     api_base: str | None = None
     evolution_config: Path | None = None
     evolution_seed: Path | None = None
+    formal_audit_quota_contract: Path | None = None
+    finite_search_domain_contract: Path | None = None
+    dual_track_contract: Path | None = None
     evolution_evaluator: str = "default"
     # The search termination rule is part of the immutable Stage-1 identity.
     # Legacy stand-alone Humanize runs retain the historical gist policy;
@@ -494,7 +499,13 @@ class FlowConfig:
             value.pop("allow_debug_audit_evaluator", None)
         # Omit unset optional launch fields so pre-fix failed runs retain an
         # identical serialized configuration and can resume their audit.
-        for name in ("evolution_config", "evolution_seed"):
+        for name in (
+            "evolution_config",
+            "evolution_seed",
+            "formal_audit_quota_contract",
+            "finite_search_domain_contract",
+            "dual_track_contract",
+        ):
             path = value.get(name)
             if path is None:
                 value.pop(name, None)
@@ -560,7 +571,13 @@ class FlowConfig:
         if self.patience < 1:
             raise ValueError("patience must be positive")
 
-        for name in ("evolution_config", "evolution_seed"):
+        for name in (
+            "evolution_config",
+            "evolution_seed",
+            "formal_audit_quota_contract",
+            "finite_search_domain_contract",
+            "dual_track_contract",
+        ):
             path = getattr(self, name)
             if path is not None and not path.is_file():
                 raise ValueError(f"{name} does not exist: {path}")
@@ -597,6 +614,70 @@ class FlowConfig:
         ):
             raise ValueError(
                 "stop_on_representation_change requires policy version 2, 3, or 4"
+            )
+        if self.formal_audit_quota_contract is not None:
+            if self.search_representation_id != (
+                PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+            ):
+                raise ValueError(
+                    "formal_audit_quota_contract is installed only for the "
+                    "published-volume ansatz-v3 representation"
+                )
+            from evaluation.formal_audit_quota import load_quota_contract
+
+            load_quota_contract(
+                self.formal_audit_quota_contract,
+                representation_id=self.search_representation_id,
+                rounds=self.max_rounds,
+                slots_per_round=self.milp_top,
+            )
+        if self.search_representation_id == (
+            PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+        ) and (
+            self.formal_audit_quota_contract is None
+            or self.finite_search_domain_contract is None
+            or self.dual_track_contract is None
+        ):
+            raise ValueError(
+                "published-volume ansatz-v3 requires all preregistration contracts"
+            )
+        if self.search_representation_id == (
+            PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+        ):
+            expected_contracts = {
+                "formal_audit_quota_contract": (
+                    self.repo_dir
+                    / "configs/twisted_torus_ansatz_v3.formal_audit_quota.v1.json"
+                ).resolve(),
+                "finite_search_domain_contract": (
+                    self.repo_dir
+                    / "configs/twisted_torus_ansatz_v3.finite_domain.v1.json"
+                ).resolve(),
+                "dual_track_contract": (
+                    self.repo_dir
+                    / "configs/twisted_torus_ansatz_v3.dual_track.v1.json"
+                ).resolve(),
+            }
+            for name, expected in expected_contracts.items():
+                if Path(getattr(self, name)).resolve() != expected:
+                    raise ValueError(
+                        f"published-volume ansatz-v3 requires installed {name}"
+                    )
+        if self.finite_search_domain_contract is not None:
+            from evaluation.ansatz_v3_contract import load_finite_domain_contract
+
+            load_finite_domain_contract(
+                self.finite_search_domain_contract,
+                representation_id=self.search_representation_id,
+                rounds=self.max_rounds,
+                iterations_per_round=self.iterations_per_round,
+            )
+        if self.dual_track_contract is not None:
+            from evaluation.ansatz_v3_dual_track import load_dual_track_contract
+
+            load_dual_track_contract(
+                self.dual_track_contract,
+                repo_dir=self.repo_dir,
             )
 
 
@@ -1527,6 +1608,10 @@ def _expected_evolution_evaluator(config: FlowConfig) -> Path:
 
 def _evolution_dependencies(config: FlowConfig) -> dict[str, str]:
     dependencies = dict(LOCAL_EVOLUTION_DEPENDENCIES)
+    if config.search_representation_id == (
+        PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    ):
+        dependencies.update(ANSATZ_V3_EVALUATOR_DEPENDENCIES)
     if _flow_evaluator_kind(config) == "coset-two-block":
         dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
     return dependencies
@@ -3745,7 +3830,7 @@ def _failure_direction_observation(
     if weight >= required:
         return None
     normalized_bits = list(bits)
-    return {
+    observation = {
         "candidate_key": code_key(row),
         "source": source,
         "side": side,
@@ -3756,6 +3841,25 @@ def _failure_direction_observation(
         "bits": normalized_bits,
         "witness_sha256": _canonical_payload_sha256(witness),
     }
+    if row.get("search_representation_id") == (
+        PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    ):
+        from evaluation.ansatz_witness_fingerprint import (
+            negative_witness_algebraic_fingerprint,
+        )
+
+        observation["algebraic_fingerprint"] = (
+            negative_witness_algebraic_fingerprint(
+                row,
+                sector=side,
+                weight=weight,
+                support=[
+                    index for index, bit in enumerate(normalized_bits) if bit
+                ],
+                witness_sha256=observation["witness_sha256"],
+            )
+        )
+    return observation
 
 
 def _integer_mutation_weights(
@@ -4093,6 +4197,11 @@ def _previous_round_failure_feedback_advisory(
                     for index in support
                 ],
                 "witness_sha256": item["witness_sha256"],
+                **(
+                    {"algebraic_fingerprint": item["algebraic_fingerprint"]}
+                    if isinstance(item.get("algebraic_fingerprint"), Mapping)
+                    else {}
+                ),
                 "semantics": "negative_upper_bound_witness",
             })
     geometry_lines: list[str] = []
@@ -4153,7 +4262,7 @@ def _search_oracle_feedback_observation(
     weight = geometry["weight"]
     if weight >= required:
         return None
-    return {
+    observation = {
         "candidate_key": candidate_key,
         "oracle_evidence_sha256": oracle_sha256,
         "witness_sha256": witness_sha256,
@@ -4161,6 +4270,23 @@ def _search_oracle_feedback_observation(
         "distance_deficit": required - weight,
         **geometry,
     }
+    if row.get("search_representation_id") == (
+        PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+    ):
+        from evaluation.ansatz_witness_fingerprint import (
+            negative_witness_algebraic_fingerprint,
+        )
+
+        observation["algebraic_fingerprint"] = (
+            negative_witness_algebraic_fingerprint(
+                row,
+                sector=str(geometry["side"]),
+                weight=int(weight),
+                support=list(geometry["support"]),
+                witness_sha256=witness_sha256,
+            )
+        )
+    return observation
 
 
 def _search_oracle_witness_exceeds_current_cutoff(
@@ -9793,6 +9919,8 @@ def select_for_milp(
     policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
     target_mode: str = DEFAULT_TARGET_MODE,
     replay_structural_negatives: bool = True,
+    formal_audit_slots: list[Mapping[str, int]] | None = None,
+    prior_audit_rows: list[Mapping[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     """Select diverse candidates without rewarding BP upper-bound magnitude."""
     selected_target_mode = validate_target_mode(target_mode)
@@ -9988,6 +10116,66 @@ def select_for_milp(
         key=lambda row: _quick_exploration_priority(row),
         reverse=True,
     )
+
+    if formal_audit_slots is not None:
+        from evaluation.formal_audit_quota import (
+            assigned_candidate,
+            candidate_audit_strata,
+            observe_strata,
+            strata_sets,
+            stratum_novelty_key,
+        )
+
+        if (
+            not isinstance(formal_audit_slots, list)
+            or len(formal_audit_slots) > limit
+            or any(
+                not isinstance(slot, Mapping)
+                or type(slot.get("slot_index")) is not int
+                or type(slot.get("volume")) is not int
+                for slot in formal_audit_slots
+            )
+        ):
+            raise ValueError("formal-audit slots are malformed")
+        observed = strata_sets(prior_audit_rows or [])
+        ordered_pool = [*evidence_candidates, *quick_exploration]
+        quick_identities = {id(row) for row in quick_exploration}
+        selected_rows: list[dict[str, Any]] = []
+        selected_ids: set[int] = set()
+        quick_selected = 0
+        for slot in formal_audit_slots:
+            ranked_slot: list[
+                tuple[tuple[int, int, int, int], int, dict[str, Any], dict[str, Any]]
+            ] = []
+            for position, row in enumerate(ordered_pool):
+                if id(row) in selected_ids:
+                    continue
+                if id(row) in quick_identities and quick_selected >= 1:
+                    continue
+                strata = candidate_audit_strata(row)
+                if strata is None or strata["published_volume"] != slot["volume"]:
+                    continue
+                ranked_slot.append((
+                    stratum_novelty_key(strata, observed),
+                    -position,
+                    row,
+                    strata,
+                ))
+            ranked_slot.sort(key=lambda item: (item[0], item[1]), reverse=True)
+            for _novelty, _position, row, strata in ranked_slot:
+                if has_replayed_structural_rejection(row):
+                    continue
+                selected_rows.append(assigned_candidate(
+                    row,
+                    slot=slot,
+                    strata=strata,
+                ))
+                selected_ids.add(id(row))
+                if id(row) in quick_identities:
+                    quick_selected += 1
+                observe_strata(strata, observed)
+                break
+        return selected_rows
 
     selected: list[dict[str, Any]] = []
     used_cells: set[str] = set()
@@ -10686,6 +10874,27 @@ class HumanizeFlow:
                 )
             )
 
+        quota_contract: dict[str, Any] | None = None
+        quota_slots: list[Mapping[str, int]] | None = None
+        prior_audit_rows: list[Mapping[str, Any]] | None = None
+        quota_round = int(state.get("current_round", 0)) + 1
+        if self.config.formal_audit_quota_contract is not None:
+            from evaluation.formal_audit_quota import (
+                load_quota_contract,
+                round_quota_slots,
+            )
+
+            quota_contract = load_quota_contract(
+                self.config.formal_audit_quota_contract,
+                representation_id=self.config.search_representation_id,
+                rounds=self.config.max_rounds,
+                slots_per_round=self.config.milp_top,
+            )
+            quota_slots = list(round_quota_slots(quota_contract, quota_round))
+            prior_audit_rows = self._read_canonical_evaluations(
+                recover_final_partial=False
+            )
+
         # An unresolved solver call is evidence that the candidate needs more
         # budget, not permission to monopolize every future discovery round.
         # With two or more lanes, reserve one for a never-audited candidate and
@@ -10729,6 +10938,12 @@ class HumanizeFlow:
             replay_structural_negatives=(
                 not self.config.allow_debug_audit_evaluator
             ),
+            formal_audit_slots=(
+                None
+                if quota_slots is None
+                else quota_slots[:fresh_capacity]
+            ),
+            prior_audit_rows=prior_audit_rows,
         )
 
         # Do not leave compute idle when the fresh pool is empty (including a
@@ -10738,7 +10953,7 @@ class HumanizeFlow:
         remaining = self.config.milp_top - (
             len(retry_candidates) + len(new_candidates)
         )
-        if remaining > 0 and unresolved:
+        if remaining > 0 and unresolved and quota_contract is None:
             selected_retry_keys = {
                 str(entry["candidate_key"]) for entry in retry_entries
             }
@@ -10753,6 +10968,47 @@ class HumanizeFlow:
                 remaining -= 1
                 if remaining == 0:
                     break
+        if quota_contract is not None:
+            from evaluation.formal_audit_quota import (
+                selection_report,
+                validate_selection_report,
+            )
+
+            report = selection_report(
+                contract=quota_contract,
+                round_number=quota_round,
+                selected_fresh=new_candidates,
+                retry_candidate_keys=[
+                    code_key(candidate) for candidate in retry_candidates
+                ],
+                candidate_key_fn=code_key,
+            )
+            report_path = (
+                self.store.root
+                / "rounds"
+                / f"round-{quota_round:03d}"
+                / "formal-audit-quota-selection.json"
+            )
+            if report_path.is_symlink():
+                raise AuditStateError(
+                    "formal-audit quota selection report may not be a symlink"
+                )
+            if report_path.exists():
+                existing = _read_json_object(
+                    report_path,
+                    "formal-audit quota selection report",
+                )
+                validate_selection_report(
+                    existing,
+                    contract=quota_contract,
+                    round_number=quota_round,
+                )
+                if existing != report:
+                    raise AuditStateError(
+                        "formal-audit quota selection changed during resume"
+                    )
+            else:
+                atomic_write_json(report_path, report)
         return retry_candidates + new_candidates
 
     def _attempt_plan(
@@ -13420,7 +13676,12 @@ class HumanizeFlow:
             defining_fields = (
                 "construction", "geometry", "ell", "m", "A_terms", "B_terms",
             )
-            provenance_fields = ("static_eligibility", "structural_novelty")
+            provenance_fields = (
+                "static_eligibility",
+                "structural_novelty",
+                "search_representation_id",
+                "formal_audit_quota_assignment",
+            )
             proposed_identity = dict(result)
             for field in defining_fields:
                 if (
@@ -13640,6 +13901,53 @@ class HumanizeFlow:
                 review=review,
                 review_binding=review_binding,
             )
+        formal_audit_quota_summary: dict[str, Any] | None = None
+        if self.config.formal_audit_quota_contract is not None:
+            from evaluation.formal_audit_quota import (
+                load_quota_contract,
+                validate_selection_report,
+            )
+
+            quota_contract = load_quota_contract(
+                self.config.formal_audit_quota_contract,
+                representation_id=self.config.search_representation_id,
+                rounds=self.config.max_rounds,
+                slots_per_round=self.config.milp_top,
+            )
+            quota_path = round_dir / "formal-audit-quota-selection.json"
+            quota_report = validate_selection_report(
+                _read_json_object(
+                    quota_path,
+                    "formal-audit quota selection report",
+                ),
+                contract=quota_contract,
+                round_number=number,
+            )
+            audited_keys = {code_key(row) for row in audited}
+            scheduled_keys = {
+                row["candidate_key"]
+                for row in quota_report["slots"]
+                if row["status"] == "FILLED"
+            }.union(quota_report["retry_candidate_keys"])
+            if audited_keys != scheduled_keys:
+                raise RoundTransactionError(
+                    "formal-audit quota report disagrees with sealed audits"
+                )
+            volume_counts: dict[str, int] = {}
+            for row in quota_report["slots"]:
+                if row["status"] != "FILLED":
+                    continue
+                volume = str(row["volume"])
+                volume_counts[volume] = volume_counts.get(volume, 0) + 1
+            formal_audit_quota_summary = {
+                "schema_version": 1,
+                "contract_sha256": quota_contract["contract_sha256"],
+                "report_sha256": quota_report["report_sha256"],
+                "filled_fresh_slots": quota_report["filled_fresh_slots"],
+                "unfilled_fresh_slots": quota_report["unfilled_fresh_slots"],
+                "retry_slots": len(quota_report["retry_candidate_keys"]),
+                "volume_counts": dict(sorted(volume_counts.items())),
+            }
         summary = {
             "round": number,
             "new_candidates": len(candidates),
@@ -13675,6 +13983,8 @@ class HumanizeFlow:
             summary["candidate_diversity"] = candidate_diversity
         if search_oracle_feedback is not None:
             summary["search_oracle_feedback"] = search_oracle_feedback
+        if formal_audit_quota_summary is not None:
+            summary["formal_audit_quota"] = formal_audit_quota_summary
         if renderer_resolution_binding is not None:
             summary[COSET_RENDERER_RESOLUTION_SUMMARY_FIELD] = (
                 renderer_resolution_binding

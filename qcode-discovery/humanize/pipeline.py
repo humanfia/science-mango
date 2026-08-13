@@ -1487,7 +1487,14 @@ class PipelineConfig:
             if not isinstance(flow_section, (dict, type(None))):
                 raise ValueError("flow_config/stage1 must be an object")
             flow_values = dict(flow_section or {})
-            flow_path_fields = ("evolution_config", "evolution_seed", "candidate_file")
+            flow_path_fields = (
+                "evolution_config",
+                "evolution_seed",
+                "formal_audit_quota_contract",
+                "finite_search_domain_contract",
+                "dual_track_contract",
+                "candidate_file",
+            )
             for name in flow_path_fields:
                 if flow_values.get(name) is not None:
                     flow_values[name] = _resolve_path(flow_values[name], base)

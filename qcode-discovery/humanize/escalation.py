@@ -24,9 +24,15 @@ import yaml
 from . import flow as flow_module
 
 
-REGISTRY_SCHEMA_VERSION = 1
+REGISTRY_SCHEMA_VERSION = 2
+SUPPORTED_REGISTRY_SCHEMA_VERSIONS = frozenset({1, 2})
 PLAN_SCHEMA_VERSION = 1
 PROVENANCE_SCHEMA_VERSION = 1
+REPRESENTATION_CONTRACT_PROVENANCE_SCHEMA_VERSION = 2
+SUPPORTED_PROVENANCE_SCHEMA_VERSIONS = frozenset({
+    PROVENANCE_SCHEMA_VERSION,
+    REPRESENTATION_CONTRACT_PROVENANCE_SCHEMA_VERSION,
+})
 MACHINE_EVIDENCE_SCHEMA_VERSION = 1
 DEFAULT_REGISTRY_PATH = Path("configs/campaign_templates.v1.json")
 
@@ -89,11 +95,12 @@ class CampaignTemplate:
     base_pipeline: BoundFile | None
     evolution_config: BoundFile
     evolution_seed: BoundFile
+    representation_contracts: tuple[BoundFile, ...]
     required_stage3_backend: str | None
     entry_sha256: str
 
     def serializable(self) -> dict[str, Any]:
-        return {
+        value = {
             "template_id": self.template_id,
             "template_version": self.template_version,
             "description": self.description,
@@ -120,6 +127,12 @@ class CampaignTemplate:
             "evolution_seed": self.evolution_seed.serializable(),
             "required_stage3_backend": self.required_stage3_backend,
         }
+        if self.representation_contracts:
+            value["representation_contracts"] = [
+                contract.serializable()
+                for contract in self.representation_contracts
+            ]
+        return value
 
 
 @dataclass(frozen=True)
@@ -501,6 +514,7 @@ def _validate_launch_claim(
     base_pipeline: BoundFile,
     evolution_config: BoundFile,
     required_stage3_backend: str | None,
+    representation_contracts: tuple[BoundFile, ...] = (),
 ) -> None:
     pipeline_value = _load_json(
         (repo / base_pipeline.path).read_bytes(), label="base pipeline"
@@ -512,6 +526,18 @@ def _validate_launch_claim(
     if pipeline_value.get("candidate_inputs"):
         raise RegistryError("launch-compatible base pipeline cannot use candidate_inputs")
     stage3 = pipeline_value.get("stage3")
+    if representation_contracts:
+        stage1 = pipeline_value["stage1"]
+        contracted_paths = {item.path for item in representation_contracts}
+        declared = {
+            stage1.get("formal_audit_quota_contract"),
+            stage1.get("finite_search_domain_contract"),
+            stage1.get("dual_track_contract"),
+        }
+        if None in declared or declared != contracted_paths:
+            raise RegistryError(
+                "base pipeline does not consume every hash-bound representation contract"
+            )
     if required_stage3_backend is not None:
         if (
             not isinstance(stage3, dict)
@@ -593,7 +619,8 @@ def load_template_registry(
     if not isinstance(value, dict):
         raise RegistryError("registry must be a JSON object")
     _require_keys(value, {"schema_version", "kind", "templates"}, label="registry")
-    if value["schema_version"] != REGISTRY_SCHEMA_VERSION:
+    registry_schema_version = value["schema_version"]
+    if registry_schema_version not in SUPPORTED_REGISTRY_SCHEMA_VERSIONS:
         raise RegistryError("unsupported registry schema_version")
     if value["kind"] != "qcode-campaign-template-registry":
         raise RegistryError("unexpected registry kind")
@@ -620,6 +647,8 @@ def load_template_registry(
         "evolution_seed",
         "required_stage3_backend",
     }
+    if registry_schema_version == 2:
+        expected_fields = expected_fields | {"representation_contracts"}
     templates: dict[str, CampaignTemplate] = {}
     for index, row in enumerate(rows):
         label = f"templates[{index}]"
@@ -682,6 +711,26 @@ def load_template_registry(
         evolution_seed = _bound_file(
             repo, row["evolution_seed"], label=f"{label}.evolution_seed"
         )
+        representation_contracts: tuple[BoundFile, ...] = ()
+        if registry_schema_version == 2:
+            raw_contracts = row["representation_contracts"]
+            if not isinstance(raw_contracts, list):
+                raise RegistryError(
+                    f"{label}.representation_contracts must be an array"
+                )
+            representation_contracts = tuple(
+                _bound_file(
+                    repo,
+                    item,
+                    label=f"{label}.representation_contracts[{offset}]",
+                )
+                for offset, item in enumerate(raw_contracts)
+            )
+            contract_paths = [item.path for item in representation_contracts]
+            if len(set(contract_paths)) != len(contract_paths):
+                raise RegistryError(
+                    f"{label}.representation_contracts contains duplicates"
+                )
         backend = row["required_stage3_backend"]
         if backend is not None:
             backend = _string(backend, label=f"{label}.required_stage3_backend")
@@ -691,6 +740,7 @@ def load_template_registry(
                 repo,
                 base_pipeline=base_pipeline,
                 evolution_config=evolution_config,
+                representation_contracts=representation_contracts,
                 required_stage3_backend=backend,
             )
         template = CampaignTemplate(
@@ -718,6 +768,7 @@ def load_template_registry(
             base_pipeline=base_pipeline,
             evolution_config=evolution_config,
             evolution_seed=evolution_seed,
+            representation_contracts=representation_contracts,
             required_stage3_backend=backend,
             entry_sha256=_sha256(_canonical_bytes(row)),
         )
@@ -1538,7 +1589,11 @@ def materialize_child_pipeline(
         "idempotency_key": plan.idempotency_key,
     }
     metadata = {
-        "schema_version": PROVENANCE_SCHEMA_VERSION,
+        "schema_version": (
+            REPRESENTATION_CONTRACT_PROVENANCE_SCHEMA_VERSION
+            if template.representation_contracts
+            else PROVENANCE_SCHEMA_VERSION
+        ),
         "kind": "qcode-campaign-escalation-provenance",
         **lineage,
         "lineage_sha256": _sha256(_canonical_bytes(lineage)),
@@ -1553,6 +1608,11 @@ def materialize_child_pipeline(
         "materialized_pipeline_body_sha256": body_sha256,
         "plan_sha256": plan.plan_sha256,
     }
+    if template.representation_contracts:
+        metadata["representation_contracts"] = [
+            contract.serializable()
+            for contract in template.representation_contracts
+        ]
     provenance_sha256 = _sha256(_canonical_bytes(metadata))
     metadata["provenance_sha256"] = provenance_sha256
     pipeline["campaign_escalation"] = metadata
@@ -1636,12 +1696,18 @@ def verify_materialized_child_pipeline(
         "plan_sha256",
         "provenance_sha256",
     }
+    provenance_schema_version = metadata.get("schema_version")
+    if (
+        provenance_schema_version
+        == REPRESENTATION_CONTRACT_PROVENANCE_SCHEMA_VERSION
+    ):
+        expected_fields.add("representation_contracts")
     try:
         _require_keys(metadata, expected_fields, label="campaign_escalation")
     except RegistryError as exc:
         raise MaterializationError(str(exc)) from exc
     if (
-        metadata["schema_version"] != PROVENANCE_SCHEMA_VERSION
+        metadata["schema_version"] not in SUPPORTED_PROVENANCE_SCHEMA_VERSIONS
         or metadata["kind"] != "qcode-campaign-escalation-provenance"
     ):
         raise MaterializationError("unsupported campaign escalation provenance")
@@ -1713,6 +1779,18 @@ def verify_materialized_child_pipeline(
         "evolution_config": template.evolution_config.serializable(),
         "evolution_seed": template.evolution_seed.serializable(),
     }
+    if (
+        provenance_schema_version
+        == REPRESENTATION_CONTRACT_PROVENANCE_SCHEMA_VERSION
+    ):
+        comparisons["representation_contracts"] = [
+            contract.serializable()
+            for contract in template.representation_contracts
+        ]
+    elif template.representation_contracts:
+        raise MaterializationError(
+            "child provenance omits current hash-bound representation contracts"
+        )
     for field, expected in comparisons.items():
         if metadata[field] != expected:
             raise MaterializationError(
@@ -1724,6 +1802,12 @@ def verify_materialized_child_pipeline(
         _read_bound_file(repo, template.base_pipeline, label="child base pipeline")
         _read_bound_file(repo, template.evolution_config, label="child evolution config")
         _read_bound_file(repo, template.evolution_seed, label="child evolution seed")
+        for index, contract in enumerate(template.representation_contracts):
+            _read_bound_file(
+                repo,
+                contract,
+                label=f"child representation contract {index}",
+            )
     except RegistryError as exc:
         raise MaterializationError(str(exc)) from exc
     stage1 = value.get("stage1")
@@ -1739,6 +1823,16 @@ def verify_materialized_child_pipeline(
             raise MaterializationError(
                 f"materialized child stage1.{field} disagrees with template"
             )
+    declared_contracts = {
+        stage1.get("formal_audit_quota_contract"),
+        stage1.get("finite_search_domain_contract"),
+        stage1.get("dual_track_contract"),
+    }
+    bound_contracts = {item.path for item in template.representation_contracts}
+    if bound_contracts and declared_contracts != bound_contracts:
+        raise MaterializationError(
+            "materialized child does not consume every hash-bound representation contract"
+        )
     return {
         "pipeline_sha256": pipeline_sha256,
         "child_run_id": metadata["child_run_id"],
