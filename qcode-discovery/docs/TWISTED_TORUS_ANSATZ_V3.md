@@ -27,6 +27,9 @@ zero fitness, novelty, search-coverage, or discovery credit.
 before import: the mutable block cannot import, perform filesystem/network
 I/O, introspect Python internals, or add top-level execution.  Thus the blind
 boundary is enforced by evaluator code as well as stated in the prompt.
+The immutable prefix and suffix are byte-bound to the installed seed.  The
+mutable block remains one function: nested helpers are inlined, and direct
+calls are restricted to a deterministic allowlist.
 
 Generation-time reading is independently isolated.  Before each v3 round,
 `evolve/ansatz_v3_codex_view.py` creates a hash-bound, symlink-free view that

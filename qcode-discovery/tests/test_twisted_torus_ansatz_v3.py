@@ -189,6 +189,59 @@ def test_mutable_program_guard_blocks_anchor_io_and_imports():
         validate_ansatz_v3_program_source(import_source)
 
 
+def test_mutable_program_guard_rejects_nested_helpers_and_wrapper_changes():
+    seed = PROJECT / "evolve/seed_solution_twisted_torus_ansatz_v3.py"
+    source = seed.read_text(encoding="utf-8")
+    helper_source = source.replace(
+        '    """Propose complete sparse supports without privileged monomials."""',
+        '    """helper-based deterministic proposal"""\n'
+        '    def shifted(point, dx, dy):\n'
+        '        return (point[0] + dx, point[1] + dy)',
+    ).replace(
+        "    x_radius = max(1, min(ell, 8))",
+        "    x_radius = max(1, min(ell, 8))\n"
+        "    _probe = shifted((0, 0), x_radius, 0)",
+    )
+    with pytest.raises(AnsatzV3ProgramGuardError, match="nested functions"):
+        validate_ansatz_v3_program_source(helper_source)
+
+    wrapper_source = source.replace(
+        "MAX_TWISTED_POOL = 420",
+        'LEAK = open("evaluation/twisted_torus_published_anchors.v1.json")\n'
+        "MAX_TWISTED_POOL = 420",
+    )
+    with pytest.raises(AnsatzV3ProgramGuardError, match="immutable wrapper"):
+        validate_ansatz_v3_program_source(wrapper_source)
+
+    suffix_source = source.replace(
+        "def generate_candidates(ell: int, m: int) -> list[dict[str, Any]]:",
+        "WRAPPER_MUTATION = 1\n\n"
+        "def generate_candidates(ell: int, m: int) -> list[dict[str, Any]]:",
+    )
+    with pytest.raises(AnsatzV3ProgramGuardError, match="immutable wrapper"):
+        validate_ansatz_v3_program_source(suffix_source)
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        'print("leak")',
+        "dir()",
+        "type(ell)",
+        "license()",
+        "unknown_callable(ell)",
+    ],
+)
+def test_mutable_program_guard_rejects_unregistered_direct_calls(statement):
+    seed = PROJECT / "evolve/seed_solution_twisted_torus_ansatz_v3.py"
+    source = seed.read_text(encoding="utf-8").replace(
+        '    """Propose complete sparse supports without privileged monomials."""',
+        f'    """invalid direct call"""\n    {statement}',
+    )
+    with pytest.raises(AnsatzV3ProgramGuardError, match="forbidden function"):
+        validate_ansatz_v3_program_source(source)
+
+
 def test_v3_evaluator_applies_program_guard_before_import(tmp_path, monkeypatch):
     import evolve.openevolve_evaluator as evaluator_module
 
@@ -206,6 +259,17 @@ def test_v3_evaluator_applies_program_guard_before_import(tmp_path, monkeypatch)
     )
     with pytest.raises(AnsatzV3ProgramGuardError, match="forbidden"):
         evaluator_module._load_generate_candidates(str(candidate))
+
+
+def test_v3_production_prompt_states_mutable_syntax_contract():
+    import yaml
+
+    config = yaml.safe_load((
+        PROJECT / "evolve/config_twisted_torus_ansatz_v3.yaml"
+    ).read_text(encoding="utf-8"))
+    prompt = config["prompt"]["system_message"]
+    assert "nested `def` or `async def` helpers" in prompt
+    assert "outside `_generate_support_proposals`" in prompt
 
 
 def test_v3_codex_view_is_exact_allowlist_without_anchor_or_calibration(tmp_path):

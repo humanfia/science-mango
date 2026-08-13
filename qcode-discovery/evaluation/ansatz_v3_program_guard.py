@@ -18,22 +18,63 @@ from typing import Any
 EVOLVE_START = "# EVOLVE-BLOCK-START"
 EVOLVE_END = "# EVOLVE-BLOCK-END"
 MUTABLE_FUNCTION = "_generate_support_proposals"
+TRUSTED_SEED = (
+    Path(__file__).resolve().parent.parent
+    / "evolve/seed_solution_twisted_torus_ansatz_v3.py"
+)
 FORBIDDEN_NAMES = frozenset({
     "__builtins__",
     "__import__",
     "breakpoint",
     "compile",
+    "copyright",
+    "credits",
+    "dir",
     "eval",
     "exec",
+    "exit",
     "getattr",
     "globals",
     "help",
     "input",
+    "license",
     "locals",
     "memoryview",
     "open",
+    "print",
+    "quit",
     "setattr",
+    "type",
     "vars",
+})
+ALLOWED_DIRECT_CALLS = frozenset({
+    "abs",
+    "all",
+    "any",
+    "bool",
+    "dict",
+    "enumerate",
+    "filter",
+    "float",
+    "frozenset",
+    "gcd",
+    "int",
+    "iter",
+    "lcm",
+    "len",
+    "list",
+    "map",
+    "max",
+    "min",
+    "next",
+    "range",
+    "reversed",
+    "set",
+    "sorted",
+    "str",
+    "sum",
+    "tuple",
+    "zip",
 })
 ALLOWED_METHOD_CALLS = frozenset({
     "add",
@@ -74,10 +115,32 @@ def _marker_lines(source: str) -> tuple[int, int]:
     return starts[0], ends[0]
 
 
+def _immutable_envelope(source: str) -> tuple[str, str]:
+    """Return bytes-equivalent text outside the single mutable block."""
+
+    start, end = _marker_lines(source)
+    lines = source.splitlines(keepends=True)
+    return "".join(lines[:start]), "".join(lines[end - 1:])
+
+
+def _trusted_immutable_envelope() -> tuple[str, str]:
+    try:
+        trusted_source = TRUSTED_SEED.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise AnsatzV3ProgramGuardError(
+            f"cannot read trusted ansatz-v3 seed: {exc}"
+        ) from exc
+    return _immutable_envelope(trusted_source)
+
+
 def validate_ansatz_v3_program_source(source: str) -> dict[str, Any]:
     if not isinstance(source, str) or not source:
         raise AnsatzV3ProgramGuardError("ansatz-v3 source is empty")
     start, end = _marker_lines(source)
+    if _immutable_envelope(source) != _trusted_immutable_envelope():
+        raise AnsatzV3ProgramGuardError(
+            "ansatz-v3 immutable wrapper differs from the trusted seed"
+        )
     try:
         tree = ast.parse(source)
     except SyntaxError as exc:
@@ -135,7 +198,7 @@ def validate_ansatz_v3_program_source(source: str) -> dict[str, Any]:
         if isinstance(node, ast.Call):
             target = node.func
             if isinstance(target, ast.Name):
-                if target.id in FORBIDDEN_NAMES or target.id.startswith("__"):
+                if target.id not in ALLOWED_DIRECT_CALLS:
                     raise AnsatzV3ProgramGuardError(
                         f"mutable ansatz calls forbidden function: {target.id}"
                     )
@@ -157,6 +220,8 @@ def validate_ansatz_v3_program_source(source: str) -> dict[str, Any]:
         "imports_allowed": False,
         "filesystem_io_allowed": False,
         "network_io_allowed": False,
+        "immutable_wrapper_bound": True,
+        "direct_call_policy": "deterministic-allowlist-v1",
     }
 
 
