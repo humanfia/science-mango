@@ -310,7 +310,7 @@ def test_run_evolution_replays_and_emits_v3_codex_view_binding(
     for name, value in environment.items():
         monkeypatch.setenv(name, value)
 
-    identity, version, cwd, binding = (
+    identity, version, cwd, binding, manifest_identity = (
         launcher_module._resolve_codex_execution_binding()
     )
     assert version == "codex-test 1.0"
@@ -327,6 +327,10 @@ def test_run_evolution_replays_and_emits_v3_codex_view_binding(
             "filesystem_boundary"
         ],
     }
+    assert manifest_identity == launcher_module._file_identity(
+        view["manifest_path"],
+        "test ansatz-v3 sanitized Codex view manifest",
+    )
     backend = tmp_path / "backend.py"
     backend.write_text("backend\n", encoding="utf-8")
     invocation = {
@@ -355,6 +359,96 @@ def test_run_evolution_replays_and_emits_v3_codex_view_binding(
     )
     with pytest.raises(RuntimeError, match="environment changed"):
         launcher_module._ansatz_v3_codex_view_invocation_binding(cwd)
+
+
+def _v3_child_launch_inputs(tmp_path, monkeypatch):
+    view = materialize_sanitized_codex_view(PROJECT, tmp_path / "child-view")
+    monkeypatch.setattr(
+        launcher_module,
+        "ACTIVE_GEOMETRY_CONTRACT",
+        PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+    )
+    paths = {
+        name: tmp_path / name
+        for name in ("config.yaml", "seed.py", "evaluator.py", "context.md")
+    }
+    for name, path in paths.items():
+        path.write_text(name + "\n", encoding="utf-8")
+    backend = tmp_path / "codex_cli_llm.py"
+    backend.write_text("backend\n", encoding="utf-8")
+    executable = tmp_path / "codex-native"
+    executable.write_bytes(b"\x7fELFfake")
+    executable.chmod(0o700)
+    executable_identity = launcher_module._file_identity(
+        executable, "test Codex executable"
+    )
+    executable_identity["mode"] = 0o700
+    manifest_identity = launcher_module._file_identity(
+        view["manifest_path"], "test ansatz-v3 Codex view manifest"
+    )
+    invocation = {
+        "codex_cwd": view["view_path"],
+        "ansatz_v3_codex_view_manifest_path": view["manifest_path"],
+        "ansatz_v3_codex_view_manifest_sha256": view[
+            "manifest_file_sha256"
+        ],
+        "ansatz_v3_codex_view_source_fingerprint_sha256": view[
+            "source_fingerprint_sha256"
+        ],
+        "ansatz_v3_codex_filesystem_boundary": view[
+            "filesystem_boundary"
+        ],
+    }
+    dependencies = launcher_module._evaluator_dependency_identities()
+    return {
+        "config_path": paths["config.yaml"],
+        "seed_path": paths["seed.py"],
+        "evaluator_path": paths["evaluator.py"],
+        "context_path": paths["context.md"],
+        "context_identity": launcher_module._file_identity(
+            paths["context.md"], "test context"
+        ),
+        "dependency_identities": dependencies,
+        "backend_path": backend,
+        "codex_executable_identity": executable_identity,
+        "ansatz_v3_codex_view_manifest_identity": manifest_identity,
+        "invocation": invocation,
+    }
+
+
+def test_child_launch_binding_includes_exact_v3_view_manifest_identity(
+    tmp_path, monkeypatch
+):
+    launch = _v3_child_launch_inputs(tmp_path, monkeypatch)
+
+    identities = launcher_module._launch_input_identities(**launch)
+
+    assert identities["ansatz_v3_codex_view_manifest"] == launch[
+        "ansatz_v3_codex_view_manifest_identity"
+    ]
+    assert set(identities["ansatz_v3_codex_view_manifest"]) == {
+        "path",
+        "sha256",
+        "bytes",
+    }
+
+
+@pytest.mark.parametrize("tamper", ["missing_bytes", "hash", "path"])
+def test_child_launch_binding_rejects_v3_view_manifest_identity_tamper(
+    tmp_path, monkeypatch, tamper
+):
+    launch = _v3_child_launch_inputs(tmp_path, monkeypatch)
+    frozen = dict(launch["ansatz_v3_codex_view_manifest_identity"])
+    if tamper == "missing_bytes":
+        frozen.pop("bytes")
+    elif tamper == "hash":
+        frozen["sha256"] = "0" * 64
+    else:
+        frozen["path"] = str((tmp_path / "wrong-manifest.json").resolve())
+    launch["ansatz_v3_codex_view_manifest_identity"] = frozen
+
+    with pytest.raises(RuntimeError, match="manifest identity changed"):
+        launcher_module._launch_input_identities(**launch)
 
 
 def test_wrapper_interleaves_splits_across_q_and_never_injects_malformed_defaults():

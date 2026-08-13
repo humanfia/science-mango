@@ -6547,6 +6547,8 @@ def _launch_input_identities(
     negative_feedback_snapshot_identity: dict[str, Any] | None = None,
     negative_feedback_manifest_identity: dict[str, Any] | None = None,
     renderer_activation_identity: dict[str, Any] | None = None,
+    ansatz_v3_codex_view_manifest_identity: dict[str, Any] | None = None,
+    invocation: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     observed_context = _file_identity(
         context_path, "evolution humanize context"
@@ -6604,6 +6606,77 @@ def _launch_input_identities(
                 "Codex CLI native executable changed during the slice"
             )
         identities["codex_executable"] = dict(codex_executable_identity)
+    ansatz_v3_codex = (
+        ACTIVE_GEOMETRY_CONTRACT
+        == PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+        and codex_executable_identity is not None
+    )
+    if ansatz_v3_codex != (
+        ansatz_v3_codex_view_manifest_identity is not None
+    ):
+        raise RuntimeError(
+            "ansatz-v3 Codex view launch identity is incomplete"
+        )
+    if ansatz_v3_codex:
+        if not isinstance(invocation, dict):
+            raise RuntimeError(
+                "ansatz-v3 Codex view launch invocation is missing"
+            )
+        from evolve.ansatz_v3_codex_view import (
+            AnsatzV3CodexViewError,
+            validate_sanitized_codex_view,
+        )
+
+        codex_cwd = invocation.get("codex_cwd")
+        if not isinstance(codex_cwd, str):
+            raise RuntimeError("ansatz-v3 Codex view cwd is invalid")
+        try:
+            view = validate_sanitized_codex_view(
+                Path(PROJECT_ROOT),
+                Path(codex_cwd),
+            )
+        except (OSError, AnsatzV3CodexViewError) as exc:
+            raise RuntimeError(
+                f"ansatz-v3 Codex view changed during the slice: {exc}"
+            ) from exc
+        expected_invocation = {
+            "ansatz_v3_codex_view_manifest_path": view["manifest_path"],
+            "ansatz_v3_codex_view_manifest_sha256": view[
+                "manifest_file_sha256"
+            ],
+            "ansatz_v3_codex_view_source_fingerprint_sha256": view[
+                "source_fingerprint_sha256"
+            ],
+            "ansatz_v3_codex_filesystem_boundary": view[
+                "filesystem_boundary"
+            ],
+        }
+        if any(
+            invocation.get(name) != value
+            for name, value in expected_invocation.items()
+        ):
+            raise RuntimeError(
+                "ansatz-v3 Codex view invocation changed during the slice"
+            )
+        observed_manifest = _file_identity(
+            view["manifest_path"],
+            "ansatz-v3 sanitized Codex view manifest",
+        )
+        if (
+            observed_manifest != ansatz_v3_codex_view_manifest_identity
+            or observed_manifest.get("path")
+            != invocation["ansatz_v3_codex_view_manifest_path"]
+            or observed_manifest.get("sha256")
+            != invocation["ansatz_v3_codex_view_manifest_sha256"]
+        ):
+            raise RuntimeError(
+                "ansatz-v3 Codex view manifest identity changed during the slice"
+            )
+        identities["ansatz_v3_codex_view_manifest"] = observed_manifest
+    elif ansatz_v3_codex_view_manifest_identity is not None:
+        raise RuntimeError(
+            "non-v3 launch contains an ansatz-v3 Codex view identity"
+        )
     return identities
 
 
@@ -6743,7 +6816,13 @@ def _ansatz_v3_codex_view_invocation_binding(
 
 
 def _resolve_codex_execution_binding(
-) -> tuple[dict[str, Any], str, str, dict[str, str] | None]:
+) -> tuple[
+    dict[str, Any],
+    str,
+    str,
+    dict[str, str] | None,
+    dict[str, Any] | None,
+]:
     native_path = _resolve_native_codex_path(
         os.environ.get("QCODE_CODEX_BIN", "codex")
     )
@@ -6758,12 +6837,27 @@ def _resolve_codex_execution_binding(
         os.environ.get("QCODE_CODEX_CWD", str(project_root))
     ).resolve(strict=True)
     ansatz_v3_view_binding: dict[str, str] | None = None
+    ansatz_v3_view_manifest_identity: dict[str, Any] | None = None
     if ACTIVE_GEOMETRY_CONTRACT == (
         PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
     ):
         ansatz_v3_view_binding = _ansatz_v3_codex_view_invocation_binding(
             requested_cwd
         )
+        ansatz_v3_view_manifest_identity = _file_identity(
+            ansatz_v3_view_binding[
+                "ansatz_v3_codex_view_manifest_path"
+            ],
+            "ansatz-v3 sanitized Codex view manifest",
+        )
+        if ansatz_v3_view_manifest_identity["sha256"] != (
+            ansatz_v3_view_binding[
+                "ansatz_v3_codex_view_manifest_sha256"
+            ]
+        ):
+            raise RuntimeError(
+                "managed ansatz-v3 Codex view manifest identity changed"
+            )
     elif requested_cwd != project_root:
         raise RuntimeError(
             "managed Codex CLI cwd must be the qcode-discovery project root"
@@ -6783,7 +6877,13 @@ def _resolve_codex_execution_binding(
         raise RuntimeError("Codex CLI returned an invalid version identity")
     os.environ["QCODE_CODEX_BIN"] = str(native_path)
     os.environ["QCODE_CODEX_CWD"] = str(requested_cwd)
-    return identity, version, str(requested_cwd), ansatz_v3_view_binding
+    return (
+        identity,
+        version,
+        str(requested_cwd),
+        ansatz_v3_view_binding,
+        ansatz_v3_view_manifest_identity,
+    )
 
 
 def _validated_negative_feedback_binding(
@@ -7192,6 +7292,7 @@ def _write_slice_witness(
     candidate_start_offset: int,
     renderer_activation: dict[str, Any] | None = None,
     renderer_activation_identity: dict[str, Any] | None = None,
+    ansatz_v3_codex_view_manifest_identity: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if not observer.accounting_complete:
         raise RuntimeError("OpenEvolve slice accounting did not complete")
@@ -7269,6 +7370,8 @@ def _write_slice_witness(
             else None
         ),
         renderer_activation_identity,
+        ansatz_v3_codex_view_manifest_identity,
+        effective_invocation,
     )
     from evolve.openevolve_evaluator import candidate_log_range_identity
 
@@ -7396,6 +7499,7 @@ def _write_completion_marker(
     slice_witness: dict[str, Any],
     renderer_activation: dict[str, Any] | None = None,
     renderer_activation_identity: dict[str, Any] | None = None,
+    ansatz_v3_codex_view_manifest_identity: dict[str, Any] | None = None,
 ) -> None:
     effective_invocation = _validated_invocation_binding(
         invocation,
@@ -7438,6 +7542,8 @@ def _write_completion_marker(
             else None
         ),
         renderer_activation_identity,
+        ansatz_v3_codex_view_manifest_identity,
+        effective_invocation,
     )
     payload: dict[str, Any] = {
         "schema_version": EVOLUTION_COMPLETION_SCHEMA_VERSION,
@@ -8472,12 +8578,14 @@ def main():
         codex_cwd: str | None = None
         codex_executable_mode: int | None = None
         ansatz_v3_codex_view_binding: dict[str, str] | None = None
+        ansatz_v3_codex_view_manifest_identity: dict[str, Any] | None = None
         if managed_requested and args.codex_cli:
             (
                 codex_executable_identity,
                 codex_version,
                 codex_cwd,
                 ansatz_v3_codex_view_binding,
+                ansatz_v3_codex_view_manifest_identity,
             ) = _resolve_codex_execution_binding()
             codex_executable_mode = int(codex_executable_identity["mode"])
         config = _build_config(args, api_base, model_names)
@@ -8991,6 +9099,9 @@ def main():
                     if renderer_activation_binding is None
                     else renderer_activation_binding[1]
                 ),
+                ansatz_v3_codex_view_manifest_identity=(
+                    ansatz_v3_codex_view_manifest_identity
+                ),
             )
             _write_completion_marker(
                 args.completion_marker,
@@ -9017,6 +9128,9 @@ def main():
                     None
                     if renderer_activation_binding is None
                     else renderer_activation_binding[1]
+                ),
+                ansatz_v3_codex_view_manifest_identity=(
+                    ansatz_v3_codex_view_manifest_identity
                 ),
             )
 

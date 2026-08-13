@@ -3721,7 +3721,7 @@ def test_managed_codex_resolves_and_pins_native_binary(monkeypatch):
     monkeypatch.delenv("QCODE_CODEX_BIN", raising=False)
     monkeypatch.delenv("QCODE_CODEX_CWD", raising=False)
 
-    identity, version, cwd, view_binding = (
+    identity, version, cwd, view_binding, view_manifest_identity = (
         launcher._resolve_codex_execution_binding()
     )
 
@@ -3731,6 +3731,7 @@ def test_managed_codex_resolves_and_pins_native_binary(monkeypatch):
     assert version
     assert cwd == str(Path(launcher.PROJECT_ROOT).resolve())
     assert view_binding is None
+    assert view_manifest_identity is None
     assert os.environ["QCODE_CODEX_BIN"] == str(native_path)
     assert os.environ["QCODE_CODEX_CWD"] == cwd
 
@@ -3857,7 +3858,10 @@ def test_managed_inner_system_exit_zero_becomes_nonzero(tmp_path, monkeypatch):
     assert not (tmp_path / "witness.json").exists()
 
 
-def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
+@pytest.mark.parametrize("ansatz_v3_codex", [False, True])
+def test_witness_is_written_before_bound_marker(
+    tmp_path, monkeypatch, ansatz_v3_codex
+):
     observer = launcher._SliceObserver(0, 1, FakeResult)
     observer.accounting_complete = True
     observer.submission_attempts = [{
@@ -3912,6 +3916,9 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
     context = tmp_path / "context.md"
     for path in (config, seed, evaluator, context):
         path.write_text(path.name)
+    backend_path = None
+    codex_executable_identity = None
+    view_manifest_identity = None
     invocation = {
         "model_names": ["fake-model"],
         "reasoning_effort": "high",
@@ -3923,6 +3930,54 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
         "codex_cwd": None,
         "codex_executable_mode": None,
     }
+    if ansatz_v3_codex:
+        from evaluation.search_contract import (
+            PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+        )
+        from evolve.ansatz_v3_codex_view import (
+            materialize_sanitized_codex_view,
+        )
+
+        monkeypatch.setattr(
+            launcher,
+            "ACTIVE_GEOMETRY_CONTRACT",
+            PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT,
+        )
+        view = materialize_sanitized_codex_view(
+            Path(launcher.PROJECT_ROOT), tmp_path / "codex-view"
+        )
+        backend_path = tmp_path / "codex_cli_llm.py"
+        backend_path.write_text("backend\n")
+        executable = tmp_path / "codex-native"
+        executable.write_bytes(b"\x7fELFfake")
+        executable.chmod(0o700)
+        codex_executable_identity = launcher._file_identity(
+            executable, "test Codex executable"
+        )
+        codex_executable_identity["mode"] = 0o700
+        view_manifest_identity = launcher._file_identity(
+            view["manifest_path"], "test ansatz-v3 Codex view manifest"
+        )
+        invocation = {
+            **invocation,
+            "codex_cli": True,
+            "codex_version": "codex-test 1.0",
+            "codex_cwd": view["view_path"],
+            "codex_executable_mode": 0o700,
+            "search_geometry_contract": (
+                PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+            ),
+            "ansatz_v3_codex_view_manifest_path": view["manifest_path"],
+            "ansatz_v3_codex_view_manifest_sha256": view[
+                "manifest_file_sha256"
+            ],
+            "ansatz_v3_codex_view_source_fingerprint_sha256": view[
+                "source_fingerprint_sha256"
+            ],
+            "ansatz_v3_codex_filesystem_boundary": view[
+                "filesystem_boundary"
+            ],
+        }
     context_identity = launcher._file_identity(context, "test context")
     dependency_identities = launcher._evaluator_dependency_identities()
     witness_path = tmp_path / "slice-witness.json"
@@ -3942,11 +3997,12 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
         context_path=context,
         context_identity=context_identity,
         dependency_identities=dependency_identities,
-        backend_path=None,
-        codex_executable_identity=None,
+        backend_path=backend_path,
+        codex_executable_identity=codex_executable_identity,
         invocation=invocation,
         candidate_log_path=candidate_log,
         candidate_start_offset=0,
+        ansatz_v3_codex_view_manifest_identity=view_manifest_identity,
     )
     launcher._write_completion_marker(
         marker_path,
@@ -3959,11 +4015,12 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
         context_path=context,
         context_identity=context_identity,
         dependency_identities=dependency_identities,
-        backend_path=None,
-        codex_executable_identity=None,
+        backend_path=backend_path,
+        codex_executable_identity=codex_executable_identity,
         invocation=invocation,
         result_checkpoint=result,
         slice_witness=witness,
+        ansatz_v3_codex_view_manifest_identity=view_manifest_identity,
     )
 
     witness_payload = json.loads(witness_path.read_text())
@@ -4006,3 +4063,18 @@ def test_witness_is_written_before_bound_marker(tmp_path, monkeypatch):
             key = f"{name}_{field}"
             assert witness_payload[key] == identity[field]
             assert marker_payload[key] == identity[field]
+    for payload in (witness_payload, marker_payload):
+        if ansatz_v3_codex:
+            assert payload["ansatz_v3_codex_view_manifest_path"] == (
+                view_manifest_identity["path"]
+            )
+            assert payload["ansatz_v3_codex_view_manifest_sha256"] == (
+                view_manifest_identity["sha256"]
+            )
+            assert payload["ansatz_v3_codex_view_manifest_bytes"] == (
+                view_manifest_identity["bytes"]
+            )
+        else:
+            assert "ansatz_v3_codex_view_manifest_path" not in payload
+            assert "ansatz_v3_codex_view_manifest_sha256" not in payload
+            assert "ansatz_v3_codex_view_manifest_bytes" not in payload
