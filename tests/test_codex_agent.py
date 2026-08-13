@@ -58,6 +58,13 @@ class BuildArgvTest(unittest.TestCase):
         self.assertEqual(argv.index("--sandbox") + 1, argv.index("danger-full-access"))
         self.assertEqual(argv[-1], "PROMPT")
 
+    def test_stdin_prompt_argv_does_not_expose_prompt(self):
+        argv = _agent(model="m").build_argv(
+            "PRIVATE PROMPT", env_source={}, prompt_via_stdin=True,
+        )
+        self.assertEqual(argv[-1], "-")
+        self.assertNotIn("PRIVATE PROMPT", argv)
+
     def test_effort_rendered_when_set(self):
         argv = _agent(model="m", effort="xhigh").build_argv("P", env_source={})
         self.assertIn('model_reasoning_effort="xhigh"', argv)
@@ -473,6 +480,23 @@ class RunInteractiveTest(unittest.TestCase):
         self.assertEqual(os.path.basename(argv[0]), "codex")
         self.assertEqual(argv[-1], "P")
         self.assertEqual(run.call_args.kwargs["cwd"], cwd)
+
+
+class RunHeadlessWithoutLogTest(unittest.TestCase):
+    def test_prompt_is_piped_and_absent_from_argv(self):
+        with tempfile.TemporaryDirectory() as d:
+            cwd = Path(d)
+            with patch("subprocess.run") as run:
+                run.return_value.returncode = 0
+                succeeded = _agent(model="m").run(
+                    "PRIVATE PROMPT", cwd=cwd, log_base=None,
+                )
+        self.assertTrue(succeeded)
+        argv = run.call_args.args[0]
+        self.assertEqual(argv[-1], "-")
+        self.assertNotIn("PRIVATE PROMPT", argv)
+        self.assertEqual(run.call_args.kwargs["input"], "PRIVATE PROMPT")
+        self.assertIs(run.call_args.kwargs["text"], True)
 
 
 # ── codex --json → archon JSONL parser ────────────────────────────────

@@ -14,6 +14,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/install_answer_blind_runtime_wrappers.py"
 CAMPAIGN_SOURCE = ROOT / "scripts/run_answer_blind_gpt_campaign.py"
+ISOLATED_SOURCE = ROOT / "scripts/run_answer_blind_archon_isolated_campaign.py"
 SPEC = importlib.util.spec_from_file_location("answer_blind_runtime_installer", SCRIPT)
 assert SPEC and SPEC.loader
 INSTALLER = importlib.util.module_from_spec(SPEC)
@@ -146,6 +147,18 @@ class AnswerBlindRuntimeInstallerTests(unittest.TestCase):
             self.assertIn("PYTHONDONTWRITEBYTECODE=1", payload)
             self.assertNotIn(str(ROOT), payload)
 
+            isolated_module = (
+                runtime / "libexec/run_answer_blind_archon_isolated_campaign.py"
+            )
+            isolated_wrapper = runtime / "bin/answer-blind-archon-isolated-campaign"
+            self.assertEqual(isolated_module.read_bytes(), ISOLATED_SOURCE.read_bytes())
+            self.assertEqual(stat.S_IMODE(isolated_module.stat().st_mode), 0o444)
+            isolated_payload = isolated_wrapper.read_text(encoding="utf-8")
+            self.assertIn(
+                f"exec '{python}' -I -B '{isolated_module}' \"$@\"",
+                isolated_payload,
+            )
+
             # Both paths are ordinary files under runtime_root, so the
             # production recursive runtime inventory necessarily binds them.
             inventory_paths = {
@@ -155,6 +168,13 @@ class AnswerBlindRuntimeInstallerTests(unittest.TestCase):
             }
             self.assertIn("libexec/run_answer_blind_gpt_campaign.py", inventory_paths)
             self.assertIn("bin/answer-blind-gpt-campaign", inventory_paths)
+            self.assertIn(
+                "libexec/run_answer_blind_archon_isolated_campaign.py",
+                inventory_paths,
+            )
+            self.assertIn(
+                "bin/answer-blind-archon-isolated-campaign", inventory_paths,
+            )
             self.assertFalse(
                 any(
                     path.name in INSTALLER.PYTHON_CACHE_DIRS

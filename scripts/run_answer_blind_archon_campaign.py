@@ -304,6 +304,10 @@ class Config:
     lake_packages: Path | None = None
     archon_bin: str = "archon"
     max_iterations: int = 100
+    expected_items: int = EXPECTED_ITEMS
+    max_parallel: int = MAX_PARALLEL
+    reuse_lake_packages: bool = False
+    in_place_index: bool = False
 
     @property
     def workspace(self) -> Path:
@@ -319,10 +323,12 @@ class Config:
 
     @property
     def private_lake_packages(self) -> Path:
+        if self.reuse_lake_packages and self.lake_packages is not None:
+            return self.lake_packages
         return self.campaign_root / "lake-packages"
 
 
-def _target_ids(root: Path) -> tuple[str, ...]:
+def _target_ids(root: Path, *, expected_items: int = EXPECTED_ITEMS) -> tuple[str, ...]:
     try:
         manifest = json.loads((root / "isolation_manifest.json").read_text())
     except (OSError, json.JSONDecodeError) as exc:
@@ -330,10 +336,12 @@ def _target_ids(root: Path) -> tuple[str, ...]:
     ids = manifest.get("target_ids") if isinstance(manifest, dict) else None
     if (
         not isinstance(ids, list)
-        or len(ids) != EXPECTED_ITEMS
-        or len(set(map(str, ids))) != EXPECTED_ITEMS
+        or len(ids) != expected_items
+        or len(set(map(str, ids))) != expected_items
     ):
-        raise CampaignError("seed must declare exactly 32 unique target_ids")
+        raise CampaignError(
+            f"seed must declare exactly {expected_items} unique target_ids"
+        )
     return tuple(map(str, ids))
 
 
@@ -353,8 +361,10 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError("campaign root and seed must be disjoint")
     if root.exists() and (not root.is_dir() or any(root.iterdir())):
         raise CampaignError(f"campaign root must be absent or empty: {root}")
-    if config.max_iterations < 1:
-        raise CampaignError("max_iterations must be positive")
+    if config.max_iterations < 1 or config.expected_items < 1 or config.max_parallel < 1:
+        raise CampaignError("iteration, item, and parallel limits must be positive")
+    if config.max_parallel > config.expected_items:
+        raise CampaignError("max_parallel cannot exceed expected_items")
     try:
         _SEED.validate_seed(seed)
     except Exception as exc:
@@ -362,23 +372,35 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
     resolved = dataclasses.replace(
         config, campaign_root=root, seed_workspace=seed, lake_packages=packages
     )
-    return resolved, _target_ids(seed)
+    return resolved, _target_ids(seed, expected_items=config.expected_items)
 
 
 def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
     config = dataclasses.replace(config, campaign_root=config.campaign_root.resolve())
     if not config.workspace.is_dir() or not config.index_path.is_file():
         raise CampaignError(f"prepared workspace is missing: {config.workspace}")
-    if config.max_iterations < 1:
-        raise CampaignError("max_iterations must be positive")
-    ids = _target_ids(config.workspace)
-    _check_native_config(config.workspace)
+    if config.max_iterations < 1 or config.expected_items < 1 or config.max_parallel < 1:
+        raise CampaignError("iteration, item, and parallel limits must be positive")
+    if config.max_parallel > config.expected_items:
+        raise CampaignError("max_parallel cannot exceed expected_items")
+    ids = _target_ids(config.workspace, expected_items=config.expected_items)
+    _check_native_config(
+        config.workspace,
+        expected_items=config.expected_items,
+        max_parallel=config.max_parallel,
+    )
     _validate_native_markers(config.workspace, ids)
     _validate_crnt_project_index(config)
     return config, ids
 
 
-def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
+def _patch_native_config(
+    workspace: Path,
+    *,
+    max_iterations: int,
+    expected_items: int = EXPECTED_ITEMS,
+    max_parallel: int = MAX_PARALLEL,
+) -> None:
     path = workspace / ".archon/config.json"
     try:
         value = json.loads(path.read_text())
@@ -429,16 +451,16 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "model": "gpt-5.6-sol",
         "max_iterations": max_iterations,
         "parallel": True,
-        "max_parallel": MAX_PARALLEL,
-        "max_objectives": EXPECTED_ITEMS,
+        "max_parallel": max_parallel,
+        "max_objectives": expected_items,
         "formalization_review_gate": True,
         "proof_review_gate": True,
         # The numeric reporting certificate is enforced inside deterministic
         # Review preflight, so native answer-blind runs may not disable it.
         "deterministic_review": True,
-        "review_preflight_jobs": MAX_PARALLEL,
-        "parallel_target_review_jobs": MAX_PARALLEL,
-        "parallel_formalization_review_jobs": MAX_PARALLEL,
+        "review_preflight_jobs": max_parallel,
+        "parallel_target_review_jobs": max_parallel,
+        "parallel_formalization_review_jobs": max_parallel,
         # Formalization semantics are independently rederived by one bounded
         # problem-only reviewer per target.  The chemistry-native branch does
         # not expose the strict candidate/official source protocols. Proof
@@ -735,7 +757,13 @@ def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]
     return dict(sorted(counts.items()))
 
 
-def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
+def _check_native_config(
+    workspace: Path,
+    *,
+    preparation: bool = False,
+    expected_items: int = EXPECTED_ITEMS,
+    max_parallel: int = MAX_PARALLEL,
+) -> None:
     try:
         value = json.loads((workspace / ".archon/config.json").read_text())
         loop = value["loop"]
@@ -768,8 +796,10 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         "parallel_target_review_jobs",
         "parallel_formalization_review_jobs",
     ):
-        if loop.get(key) != MAX_PARALLEL:
+        if loop.get(key) != max_parallel:
             raise CampaignError(f"prepared config has unexpected {key}")
+    if loop.get("max_objectives") != expected_items:
+        raise CampaignError("prepared config has unexpected max_objectives")
 
 
 def _write_all(workspace: Path, ids: Sequence[str]) -> None:
@@ -787,25 +817,39 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
         _CONFIGURE.configure_answer_blind_workspace(
             config.workspace,
             variant="gpt",
-            max_objectives=EXPECTED_ITEMS,
-            max_parallel=MAX_PARALLEL,
+            max_objectives=config.expected_items,
+            max_parallel=config.max_parallel,
         )
     except Exception as exc:
         raise CampaignError(f"workspace preparation failed: {exc}") from exc
-    _patch_native_config(config.workspace, max_iterations=config.max_iterations)
+    _patch_native_config(
+        config.workspace,
+        max_iterations=config.max_iterations,
+        expected_items=config.expected_items,
+        max_parallel=config.max_parallel,
+    )
     _write_native_policy_files(config.workspace)
-    _check_native_config(config.workspace, preparation=True)
+    _check_native_config(
+        config.workspace,
+        preparation=True,
+        expected_items=config.expected_items,
+        max_parallel=config.max_parallel,
+    )
     # Lake may refresh package-local Git metadata even for an otherwise clean
     # build.  Give this campaign its own copy so the native workflow cannot
     # mutate (or be invalidated by) a shared cache.
-    try:
-        shutil.copytree(
-            config.lake_packages,
-            config.private_lake_packages,
-            symlinks=True,
-        )
-    except OSError as exc:
-        raise CampaignError(f"cannot create private Lake package copy: {exc}") from exc
+    if config.reuse_lake_packages:
+        if config.private_lake_packages.is_symlink() or not config.private_lake_packages.is_dir():
+            raise CampaignError("shared Lake package root must be a plain directory")
+    else:
+        try:
+            shutil.copytree(
+                config.lake_packages,
+                config.private_lake_packages,
+                symlinks=True,
+            )
+        except OSError as exc:
+            raise CampaignError(f"cannot create private Lake package copy: {exc}") from exc
     link = config.workspace / ".lake/packages"
     link.parent.mkdir(parents=True, exist_ok=True)
     link.symlink_to(config.private_lake_packages, target_is_directory=True)
@@ -830,8 +874,8 @@ def loop_command(config: Config, *, resume: bool) -> list[str]:
     command = [config.archon_bin, "loop", str(config.workspace)]
     command += ["--resume"] if resume else ["--from", "prover"]
     return command + [
-        "--parallel", "--max-parallel", str(MAX_PARALLEL),
-        "--max-objectives", str(EXPECTED_ITEMS),
+        "--parallel", "--max-parallel", str(config.max_parallel),
+        "--max-objectives", str(config.expected_items),
         "--max-iterations", str(config.max_iterations),
         "--review", "--formalization-review-gate", "--proof-review-gate",
         "--no-dashboard", "--no-blueprint-web",
@@ -969,8 +1013,8 @@ def native_summary(workspace: Path, ids: Sequence[str]) -> dict[str, Any]:
     build_ok, sorry_count = _latest_build(workspace)
     complete = (
         formal_exact and proof_exact
-        and formal.get("passed") == EXPECTED_ITEMS
-        and proof.get("solved") == EXPECTED_ITEMS
+        and formal.get("passed") == len(ids)
+        and proof.get("solved") == len(ids)
         and build_ok is True and sorry_count == 0
     )
     return {
@@ -983,6 +1027,15 @@ def native_summary(workspace: Path, ids: Sequence[str]) -> dict[str, Any]:
 
 
 def _write_index(config: Config, value: Mapping[str, Any]) -> None:
+    if config.in_place_index:
+        # A Landlock-confined per-target worker may have write authority to the
+        # exact pre-created state file but not to its parent directory.  The
+        # isolated full32 controller owns the atomic aggregate index.
+        with config.index_path.open("wb") as stream:
+            stream.write(_json_bytes(value))
+            stream.flush()
+            os.fsync(stream.fileno())
+        return
     temporary = config.index_path.with_name(".campaign.json.tmp")
     temporary.write_bytes(_json_bytes(value))
     os.replace(temporary, config.index_path)
@@ -996,7 +1049,7 @@ def _base_index(config: Config, ids: Sequence[str]) -> dict[str, Any]:
         "workspace": str(config.workspace),
         "row_count": len(ids),
         "bundle_sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
-        "max_parallel": MAX_PARALLEL,
+        "max_parallel": config.max_parallel,
         "status": "preparing",
         "updated_at": _utcnow(),
     }
@@ -1021,7 +1074,11 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
     _detach_strict_source_contract(config.workspace, ids)
     _validate_native_markers(config.workspace, ids)
     _activate_native_review_profile(config.workspace)
-    _check_native_config(config.workspace)
+    _check_native_config(
+        config.workspace,
+        expected_items=config.expected_items,
+        max_parallel=config.max_parallel,
+    )
     _validate_crnt_project_index(config)
     grounding = _run_initial_grounding(config, ids)
     index.update(
@@ -1115,6 +1172,18 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--lake-packages", type=Path)
     parser.add_argument("--archon-bin", default="archon")
     parser.add_argument("--max-iterations", type=int, default=100)
+    parser.add_argument("--expected-items", type=int, default=EXPECTED_ITEMS)
+    parser.add_argument("--max-parallel", type=int, default=MAX_PARALLEL)
+    parser.add_argument(
+        "--reuse-lake-packages",
+        action="store_true",
+        help="link an existing controller-owned read-only package snapshot",
+    )
+    parser.add_argument(
+        "--in-place-index",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument("--run", action="store_true", help="prepare and start the loop")
     actions.add_argument("--resume", action="store_true", help="resume the existing loop")
@@ -1130,6 +1199,10 @@ def main(argv: Iterable[str] | None = None) -> int:
         lake_packages=args.lake_packages,
         archon_bin=args.archon_bin,
         max_iterations=args.max_iterations,
+        expected_items=args.expected_items,
+        max_parallel=args.max_parallel,
+        reuse_lake_packages=args.reuse_lake_packages,
+        in_place_index=args.in_place_index,
     )
     try:
         if args.resume:

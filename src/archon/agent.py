@@ -1620,6 +1620,7 @@ def supervise_streamed_run(
     attempt: int = 1,
     role: str | None = None,
     on_idle_timeout=None,
+    stdin_data: str | None = None,
 ) -> SupervisionResult:
     """Spawn one streaming agent process and supervise it to completion.
 
@@ -1644,6 +1645,11 @@ def supervise_streamed_run(
     optional ``(idle_s, attempt) -> None`` callback fired just before the
     kill (used to stamp an ``idle_timeout`` row into the log).
 
+    ``stdin_data`` is an explicit initial payload for CLIs whose prompt must
+    not appear in the process argv.  The supervisor writes it to a private
+    pipe and closes the pipe immediately; when omitted, the historical
+    ``DEVNULL`` behaviour remains unchanged.
+
     Returns a :class:`SupervisionResult`; the caller maps it to a
     :class:`RunOutcome`.
     """
@@ -1657,6 +1663,7 @@ def supervise_streamed_run(
     idle_timeout_hit = False
 
     with open(stderr_dest, "a") as stderr_file:
+        agent_stdin = subprocess.PIPE if stdin_data is not None else subprocess.DEVNULL
         if parser_cmd is not None:
             agent_proc = subprocess.Popen(
                 agent_cmd,
@@ -1670,7 +1677,7 @@ def supervise_streamed_run(
                 # kills it (the subagent then reports "failed (0s)" / idle).
                 # DEVNULL hands it immediate EOF; the positional prompt runs.
                 # Harmless for claude -p, which doesn't read stdin either.
-                stdin=subprocess.DEVNULL,
+                stdin=agent_stdin,
                 stdout=subprocess.PIPE,
                 stderr=stderr_file,
                 cwd=cwd,
@@ -1683,18 +1690,36 @@ def supervise_streamed_run(
             )
             assert agent_proc.stdout is not None
             agent_proc.stdout.close()
+            if stdin_data is not None:
+                assert agent_proc.stdin is not None
+                try:
+                    agent_proc.stdin.write(stdin_data.encode())
+                except BrokenPipeError:
+                    # The normal supervision path below reports the child's
+                    # early exit; do not strand the parser or leak this FD.
+                    pass
+                finally:
+                    agent_proc.stdin.close()
             watched = parser_proc
         else:
             stdout_file = open(stdout_dest, "a")  # type: ignore[arg-type]
             agent_proc = subprocess.Popen(
                 agent_cmd,
-                stdin=subprocess.DEVNULL,  # see note above — codex blocks on inherited stdin
+                stdin=agent_stdin,
                 stdout=stdout_file,
                 stderr=stderr_file,
                 cwd=cwd,
                 env=env,
             )
             stdout_file.close()
+            if stdin_data is not None:
+                assert agent_proc.stdin is not None
+                try:
+                    agent_proc.stdin.write(stdin_data.encode())
+                except BrokenPipeError:
+                    pass
+                finally:
+                    agent_proc.stdin.close()
             parser_proc = None
             watched = agent_proc
 

@@ -88,6 +88,27 @@ class SuperviseStdinTest(unittest.TestCase):
         self.assertFalse(result.idle_timeout_hit)
         self.assertEqual(result.returncode, 0)
 
+    def test_parser_branch_can_feed_bounded_prompt_and_close_stdin(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            jsonl = tmp / "out.jsonl"
+            marker = tmp / "stdin.txt"
+            stderr = tmp / "stderr.log"
+            agent_cmd = [sys.executable, "-c", _agent_script(jsonl, marker)]
+            result = supervise_streamed_run(
+                agent_cmd,
+                cwd=tmp,
+                env=None,
+                jsonl_path=jsonl,
+                stderr_dest=str(stderr),
+                parser_cmd=[sys.executable, "-c", "import sys;[None for _ in sys.stdin]"],
+                stdin_data="private prompt",
+                idle_timeout_s=15,
+            )
+            self.assertEqual(result.returncode, 0)
+            self.assertFalse(result.idle_timeout_hit)
+            self.assertEqual(marker.read_text(), str(len("private prompt")))
+
 
 if __name__ == "__main__":
     unittest.main()

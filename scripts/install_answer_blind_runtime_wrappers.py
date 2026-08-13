@@ -359,6 +359,11 @@ def install(*, runtime_root: Path, materialize_python: bool = True) -> Path:
         "run_answer_blind_structured_solver.py",
         "run_answer_blind_chatgpt_login_proxy.py",
         "run_answer_blind_gpt_campaign.py",
+        "run_answer_blind_archon_campaign.py",
+        "run_answer_blind_archon_isolated_campaign.py",
+        "run_answer_blind_iteration.py",
+        "build_answer_blind_solver_seed.py",
+        "configure_answer_blind_workspace.py",
     )
     for source_name in structured_sources:
         source = Path(__file__).with_name(source_name)
@@ -454,6 +459,25 @@ def install(*, runtime_root: Path, materialize_python: bool = True) -> Path:
     campaign_temporary.chmod(0o755)
     os.replace(campaign_temporary, campaign)
     os.chown(campaign, 0, 0)
+    isolated_module = libexec / "run_answer_blind_archon_isolated_campaign.py"
+    isolated = bin_dir / "answer-blind-archon-isolated-campaign"
+    isolated_payload = (
+        f"#!{bin_dir / 'sh'}\n"
+        "set -eu\n"
+        "unset PYTHONHOME PYTHONPATH OPENAI_API_KEY OPENAI_ORG_ID "
+        "OPENAI_PROJECT_ID ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN "
+        "ANTHROPIC_BASE_URL HF_TOKEN HUGGING_FACE_HUB_TOKEN "
+        "LEANEXPLORE_API_KEY\n"
+        "export PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1\n"
+        f"exec '{python}' -I -B '{isolated_module}' \"$@\"\n"
+    ).encode("utf-8")
+    isolated_temporary = isolated.with_name(
+        ".answer-blind-archon-isolated-campaign.tmp"
+    )
+    isolated_temporary.write_bytes(isolated_payload)
+    isolated_temporary.chmod(0o755)
+    os.replace(isolated_temporary, isolated)
+    os.chown(isolated, 0, 0)
     _purge_python_caches(root)
     if any(
         path.name in PYTHON_CACHE_DIRS or path.suffix in {".pyc", ".pyo"}

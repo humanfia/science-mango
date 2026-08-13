@@ -671,19 +671,23 @@ class CodexAgent:
         extra_args: list[str] | None = None,
         env_source: dict[str, str] | None = None,
         lake_root: Path | str | None = None,
+        prompt_via_stdin: bool = False,
     ) -> list[str]:
         """Build the full ``codex exec`` argv (no subprocess spawned).
 
         ``codex exec --json --skip-git-repo-check [--ignore-user-config]
           [-m <model>] [-c model_reasoning_effort="<effort>"]
           [-o <last_message_path>] [gateway -c …] [mcp -c …]
-          --sandbox <sandbox> --ephemeral [extra] <prompt>``.
+          --sandbox <sandbox> --ephemeral [extra] <prompt-or-dash>``.
 
         Gateway ``-c`` flags are appended only when both ``base_url_env``
         and ``key_env`` resolve to set values; a *partial* gateway config
         raises :class:`PartialGatewayConfigError`. MCP ``-c mcp_servers.*``
         flags are appended only when the descriptor opts in
-        (``descriptor.mcp``). The prompt is always the final positional arg.
+        (``descriptor.mcp``). The prompt is the final positional arg by
+        default.  ``prompt_via_stdin`` instead renders a final ``-``; the
+        caller must feed the prompt to stdin.  This keeps problem text out of
+        cross-UID-readable ``/proc/<pid>/cmdline`` on shared hosts.
         """
         argv: list[str] = [
             _resolve_codex_bin(self.descriptor, env_source or os.environ),
@@ -720,7 +724,7 @@ class CodexAgent:
         argv += self._descriptor_extra_args()
         if extra_args:
             argv += list(extra_args)
-        argv.append(prompt)
+        argv.append("-" if prompt_via_stdin else prompt)
         return argv
 
     def build_interactive_argv(
@@ -1030,9 +1034,22 @@ class CodexAgent:
             import subprocess
 
             argv = self.build_argv(
-                prompt, extra_args=extra_args, env_source=env, lake_root=cwd,
+                prompt,
+                extra_args=extra_args,
+                env_source=env,
+                lake_root=cwd,
+                prompt_via_stdin=True,
             )
-            return subprocess.run(argv, cwd=cwd, env=env).returncode == 0
+            return (
+                subprocess.run(
+                    argv,
+                    cwd=cwd,
+                    env=env,
+                    input=prompt,
+                    text=True,
+                ).returncode
+                == 0
+            )
 
         if max_attempts < 1:
             max_attempts = 1
@@ -1170,6 +1187,7 @@ class CodexAgent:
             extra_args=extra_args,
             env_source=env,
             lake_root=cwd,
+            prompt_via_stdin=True,
         )
 
         parser_script = _CODEX_STREAM_PARSER.format(
@@ -1197,6 +1215,7 @@ class CodexAgent:
             on_idle_timeout=lambda idle_s, att: self._emit_idle_timeout(
                 jsonl, idle_s, att
             ),
+            stdin_data=prompt,
         )
 
         if result.cancelled:
