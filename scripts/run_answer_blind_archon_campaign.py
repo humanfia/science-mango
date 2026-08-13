@@ -255,7 +255,6 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
     for setting in (
         "features.code_mode=false",
         "features.code_mode.enabled=false",
-        "features.code_mode_host=false",
         "features.shell_snapshot=false",
         "features.shell_tool=true",
         "features.multi_agent=false",
@@ -378,7 +377,6 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         or harness.get("mcp") != []
         or "lean_lsp_mcp_bin" in harness
         or any(key in harness for key in ("base_url_env", "key_env"))
-        or "features.code_mode_host=false" not in (harness.get("extra_args") or [])
         or "features.shell_tool=true" not in (harness.get("extra_args") or [])
         or "features.multi_agent=false" not in (harness.get("extra_args") or [])
         or (loop.get("domain_profile") or {}).get("name")
