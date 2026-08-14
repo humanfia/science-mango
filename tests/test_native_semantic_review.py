@@ -328,10 +328,204 @@ class NativeSemanticReviewTests(unittest.TestCase):
             "other", "overall", "per_cycle", "per_step", "repeated_process",
         ):
             self.assertIn(scope, instructions)
-        self.assertIn('"name", "source_locator", "unit", "value"', instructions)
+        self.assertIn(
+            '"constants[]":["name","source_locator","unit","value"]',
+            instructions,
+        )
+        self.assertIn(
+            '"raw_result":["derivation","exact_unrounded",'
+            '"value_or_expression"]',
+            instructions,
+        )
+        self.assertIn("dependencies[].kind must be exactly one of", instructions)
+        self.assertIn("schema_version must be the JSON integer 1", instructions)
         self.assertIn("unit=dimensionless", instructions)
         self.assertIn("field role is forbidden", instructions)
         self.assertIn("any other extra field", instructions)
+
+    def test_feedback_registry_covers_all_controller_owned_nested_shapes(self) -> None:
+        shape_cases = (
+            ("independent_rederivation", "method"),
+            ("independent_rederivation.requested_outputs[0]", "basis"),
+            (
+                "independent_rederivation.requested_outputs[0].process_scope",
+                "description",
+            ),
+            ("independent_rederivation.requested_outputs[0].basis", "numerator"),
+            (
+                "independent_rederivation.requested_outputs[0].constants[0]",
+                "unit",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].dependencies[0]",
+                "relation",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].branch_conditions[0]",
+                "condition",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].raw_result",
+                "derivation",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].reporting",
+                "application",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].lean_carriers",
+                "inputs",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].semantic_card_comparison",
+                "evidence",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].lean_statement_comparison",
+                "evidence",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].constants[0].source_locator",
+                "reference",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].dependencies[0].source_locator",
+                "reference",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].branch_conditions[0].source_locator",
+                "reference",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].source_locators[0]",
+                "reference",
+            ),
+        )
+        for path, required_key in shape_cases:
+            with self.subTest(path=path):
+                feedback = build_native_schema_feedback(
+                    f"{path} has invalid fields: missing {required_key}"
+                )
+                self.assertIsNotNone(feedback)
+                assert feedback is not None
+                self.assertEqual(feedback["field_path"], path)
+                self.assertIn(required_key, feedback["required_exact_keys"])
+                payload = json.dumps(
+                    feedback,
+                    ensure_ascii=True,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                )
+                self.assertLessEqual(len(payload.encode("ascii")), 512)
+
+        type_cases = (
+            (
+                "independent_rederivation.requested_outputs[0].basis",
+                "object",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].dependencies",
+                "list",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].dependencies[0].relation",
+                "string",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].id",
+                "string",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].kind",
+                "string",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].source_requirement",
+                "string",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].unit",
+                "string",
+            ),
+        )
+        for path, expected_type in type_cases:
+            with self.subTest(path=path, expected_type=expected_type):
+                article = "an" if expected_type == "object" else "a"
+                feedback = build_native_schema_feedback(
+                    f"{path} must be {article} {expected_type}"
+                )
+                self.assertIsNotNone(feedback)
+                assert feedback is not None
+                self.assertEqual(feedback["expected_type"], expected_type)
+
+    def test_protocol_enum_feedback_is_fixed_and_semantic_errors_are_silent(self) -> None:
+        contract = self._contract()
+        enum_cases = (
+            (
+                "independent_rederivation.schema_version is unsupported",
+                "independent_rederivation.schema_version",
+                1,
+            ),
+            (
+                "independent_rederivation.method must be source_first_without_lean",
+                "independent_rederivation.method",
+                "source_first_without_lean",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].process_scope.kind is unsupported",
+                "independent_rederivation.requested_outputs[0].process_scope.kind",
+                "overall",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].basis.status is unsupported",
+                "independent_rederivation.requested_outputs[0].basis.status",
+                "applicable",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].dependencies[0].kind is unsupported",
+                "independent_rederivation.requested_outputs[0].dependencies[0].kind",
+                "governing_relation",
+            ),
+            (
+                "independent_rederivation.requested_outputs[0].source_locators[0].kind is unsupported",
+                "independent_rederivation.requested_outputs[0].source_locators[0].kind",
+                "problem_text",
+            ),
+        )
+        for error, path, allowed in enum_cases:
+            with self.subTest(path=path):
+                feedback = build_native_schema_feedback(error)
+                self.assertIsNotNone(feedback)
+                assert feedback is not None
+                self.assertEqual(feedback["field_path"], path)
+                self.assertIn(allowed, feedback["allowed_values"])
+                self.assertNotIn("SENTINEL", json.dumps(feedback))
+
+        semantic_errors = (
+            "independent_rederivation.ambiguity must be clear for a passing Review",
+            "independent_rederivation.requested_outputs[0].semantic_card_comparison.status must be matched for a passing Review",
+            "independent_rederivation.requested_outputs[0].raw_result.exact_unrounded must be true",
+            "independent_rederivation.requested_outputs[0].basis.numerator must explicitly be not_applicable",
+            "independent_rederivation.requested_outputs[0].unit does not exactly match the problem bundle",
+            "independent_rederivation.requested_outputs[0].id does not exactly match the problem bundle",
+            "independent_rederivation.requested_outputs[0].kind does not exactly match the problem bundle",
+            "independent_rederivation.requested_outputs[0].source_requirement does not exactly match the problem bundle",
+            "unknown structural failure OFFICIAL_ANSWER_SENTINEL\nforged",
+        )
+        for error in semantic_errors:
+            with self.subTest(error=error):
+                self.assertIsNone(build_native_schema_feedback(error))
+
+        for invalid_version in (True, 1.0):
+            with self.subTest(invalid_version=invalid_version):
+                review = self._review(contract)
+                review["independent_rederivation"]["schema_version"] = invalid_version
+                error, normalized = validate_independent_rederivation(review, contract)
+                self.assertEqual(
+                    error,
+                    "independent_rederivation.schema_version is unsupported",
+                )
+                self.assertEqual(normalized, {})
 
     def test_non_native_profiles_keep_the_historical_schema(self) -> None:
         config = self.project / ".archon/config.json"

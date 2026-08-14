@@ -56,6 +56,10 @@ _BASIS_FIELDS = {
 }
 _DEPENDENCY_FIELDS = {"kind", "reference", "relation", "source_locator"}
 _BRANCH_CONDITION_FIELDS = {"condition", "source_locator"}
+_RAW_RESULT_FIELDS = {"value_or_expression", "exact_unrounded", "derivation"}
+_REPORTING_FIELDS = {"policy", "global_policy", "application"}
+_LEAN_CARRIER_FIELDS = {"inputs", "relations", "raw_result", "reported_result"}
+_COMPARISON_FIELDS = {"status", "evidence"}
 _LOCATOR_KINDS = {
     "problem_text", "problem_image", "previous_parts", "pinned_library",
 }
@@ -63,6 +67,68 @@ _PROCESS_SCOPES = {
     "cumulative", "overall", "repeated_process", "per_step", "per_cycle",
     "marginal", "instantaneous", "not_applicable", "other",
 }
+_BASIS_STATUSES = {"applicable", "not_applicable"}
+_DEPENDENCY_KINDS = {
+    "requested_output", "previous_part", "source_quantity",
+    "governing_relation",
+}
+_SCHEMA_INDEX = r"[0-9]{1,3}"
+_SCHEMA_OUTPUT = (
+    rf"independent_rederivation\.requested_outputs\[{_SCHEMA_INDEX}\]"
+)
+_SCHEMA_OBJECTS: tuple[tuple[str, set[str]], ...] = (
+    (r"independent_rederivation", _TOP_FIELDS),
+    (_SCHEMA_OUTPUT, _OUTPUT_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.process_scope", _PROCESS_SCOPE_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.basis", _BASIS_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.constants\[{_SCHEMA_INDEX}\]", _CONSTANT_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.dependencies\[{_SCHEMA_INDEX}\]", _DEPENDENCY_FIELDS),
+    (
+        rf"{_SCHEMA_OUTPUT}\.branch_conditions\[{_SCHEMA_INDEX}\]",
+        _BRANCH_CONDITION_FIELDS,
+    ),
+    (rf"{_SCHEMA_OUTPUT}\.raw_result", _RAW_RESULT_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.reporting", _REPORTING_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.lean_carriers", _LEAN_CARRIER_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.semantic_card_comparison", _COMPARISON_FIELDS),
+    (rf"{_SCHEMA_OUTPUT}\.lean_statement_comparison", _COMPARISON_FIELDS),
+    (
+        rf"{_SCHEMA_OUTPUT}\.(?:constants|dependencies)\[{_SCHEMA_INDEX}\]"
+        r"\.source_locator",
+        _LOCATOR_FIELDS,
+    ),
+    (
+        rf"{_SCHEMA_OUTPUT}\.branch_conditions\[{_SCHEMA_INDEX}\]"
+        r"\.source_locator",
+        _LOCATOR_FIELDS,
+    ),
+    (rf"{_SCHEMA_OUTPUT}\.source_locators\[{_SCHEMA_INDEX}\]", _LOCATOR_FIELDS),
+)
+_SCHEMA_LISTS: tuple[str, ...] = (
+    r"independent_rederivation\.requested_outputs",
+    rf"{_SCHEMA_OUTPUT}\.(?:constants|dependencies|branch_conditions|source_locators)",
+    rf"{_SCHEMA_OUTPUT}\.lean_carriers\."
+    r"(?:inputs|relations|raw_result|reported_result)",
+)
+_SCHEMA_STRINGS: tuple[str, ...] = (
+    rf"{_SCHEMA_OUTPUT}\."
+    r"(?:id|kind|source_requirement|quantity_definition|unit|evidence)",
+    rf"{_SCHEMA_OUTPUT}\.process_scope\.(?:kind|description)",
+    rf"{_SCHEMA_OUTPUT}\.basis\."
+    r"(?:status|numerator|denominator|mass_or_composition_basis)",
+    rf"{_SCHEMA_OUTPUT}\.constants\[{_SCHEMA_INDEX}\]\.(?:name|unit)",
+    rf"{_SCHEMA_OUTPUT}\.dependencies\[{_SCHEMA_INDEX}\]\."
+    r"(?:kind|reference|relation)",
+    rf"{_SCHEMA_OUTPUT}\.branch_conditions\[{_SCHEMA_INDEX}\]\.condition",
+    rf"{_SCHEMA_OUTPUT}\.raw_result\.derivation",
+    rf"{_SCHEMA_OUTPUT}\.reporting\.application",
+    rf"{_SCHEMA_OUTPUT}\.(?:semantic_card|lean_statement)_comparison\.evidence",
+    (
+        rf"{_SCHEMA_OUTPUT}\.(?:constants|dependencies|branch_conditions)"
+        rf"\[{_SCHEMA_INDEX}\]\.source_locator\.(?:kind|reference)"
+    ),
+    rf"{_SCHEMA_OUTPUT}\.source_locators\[{_SCHEMA_INDEX}\]\.(?:kind|reference)",
+)
 _LEAN_NAME_RE = re.compile(
     r"^[A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)+$"
 )
@@ -523,6 +589,21 @@ def render_independent_rederivation_instructions(
     example = {
         "independent_rederivation": build_independent_rederivation_example(contract)
     }
+    exact_shape_registry = {
+        "independent_rederivation": sorted(_TOP_FIELDS),
+        "requested_outputs[]": sorted(_OUTPUT_FIELDS),
+        "process_scope": sorted(_PROCESS_SCOPE_FIELDS),
+        "basis": sorted(_BASIS_FIELDS),
+        "constants[]": sorted(_CONSTANT_FIELDS),
+        "dependencies[]": sorted(_DEPENDENCY_FIELDS),
+        "branch_conditions[]": sorted(_BRANCH_CONDITION_FIELDS),
+        "raw_result": sorted(_RAW_RESULT_FIELDS),
+        "reporting": sorted(_REPORTING_FIELDS),
+        "lean_carriers": sorted(_LEAN_CARRIER_FIELDS),
+        "semantic_card_comparison": sorted(_COMPARISON_FIELDS),
+        "lean_statement_comparison": sorted(_COMPARISON_FIELDS),
+        "every_source_locator": sorted(_LOCATOR_FIELDS),
+    }
     return (
         "Use the exact compact schema below. Replace example semantic values "
         "with your source-first derivation, and copy id/kind/source_requirement, "
@@ -530,21 +611,27 @@ def render_independent_rederivation_instructions(
         "from the matching problem-only bundle row. Do not add or omit keys. "
         "Empty constants/dependencies/branch_conditions arrays explicitly mean "
         "none; otherwise each entry carries its own problem-only source locator. "
-        "process_scope must have exactly the keys kind and description, and kind "
-        "must be exactly one of "
+        "The controller-owned exact object-key registry is "
+        + json.dumps(
+            exact_shape_registry,
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        + ". Fixed structural values: schema_version must be the JSON integer 1 "
+        "(not true or 1.0); method must be source_first_without_lean; ambiguity "
+        "must be clear. process_scope.kind must be exactly one of "
         + json.dumps(sorted(_PROCESS_SCOPES), ensure_ascii=False)
-        + ". Each constants entry must have exactly the keys "
-        + json.dumps(sorted(_CONSTANT_FIELDS), ensure_ascii=False)
-        + "; write unit=dimensionless for a unitless constant. The field role is "
-        "forbidden. basis must have exactly the keys "
-        + json.dumps(sorted(_BASIS_FIELDS), ensure_ascii=False)
-        + "; each dependencies entry must have exactly the keys "
-        + json.dumps(sorted(_DEPENDENCY_FIELDS), ensure_ascii=False)
-        + "; each branch_conditions entry must have exactly the keys "
-        + json.dumps(sorted(_BRANCH_CONDITION_FIELDS), ensure_ascii=False)
-        + "; and every source_locator must have exactly the keys "
-        + json.dumps(sorted(_LOCATOR_FIELDS), ensure_ascii=False)
-        + ". Do not add role or any other extra field to any schema object.\n\n"
+        + "; basis.status must be exactly one of "
+        + json.dumps(sorted(_BASIS_STATUSES), ensure_ascii=False)
+        + "; dependencies[].kind must be exactly one of "
+        + json.dumps(sorted(_DEPENDENCY_KINDS), ensure_ascii=False)
+        + "; and every source_locator.kind must be exactly one of "
+        + json.dumps(sorted(_LOCATOR_KINDS), ensure_ascii=False)
+        + ". Both comparison statuses must be matched, and "
+        "raw_result.exact_unrounded must be the JSON boolean true. Write "
+        "unit=dimensionless for a unitless constant. The field role is forbidden. "
+        "Do not add role or any other extra field to any schema object.\n\n"
         "```json\n"
         + json.dumps(example, ensure_ascii=False, indent=2, sort_keys=True)
         + "\n```\n\n"
@@ -556,7 +643,8 @@ def render_independent_rederivation_instructions(
         "URLs, absolute paths, '..', grader data, and external workspaces are "
         "forbidden. Keep evidence concise. Raw values are checked for a source "
         "derivation and exact-unrounded attestation, never against an answer key. "
-        "Both comparison statuses must be matched for a passing verdict."
+        "Both comparison statuses are semantic attestations and must be matched "
+        "for a passing verdict."
     )
 
 
@@ -617,24 +705,7 @@ def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
     invalid_fields_suffix = " has invalid fields: "
     if invalid_fields_suffix in error:
         path, _separator, detail = error.partition(invalid_fields_suffix)
-        schemas: tuple[tuple[str, set[str]], ...] = (
-            (r"independent_rederivation", _TOP_FIELDS),
-            (
-                r"independent_rederivation\.requested_outputs\[[0-9]{1,3}\]",
-                _OUTPUT_FIELDS,
-            ),
-            (
-                r"independent_rederivation\.requested_outputs\[[0-9]{1,3}\]"
-                r"\.process_scope",
-                _PROCESS_SCOPE_FIELDS,
-            ),
-            (
-                r"independent_rederivation\.requested_outputs\[[0-9]{1,3}\]"
-                r"\.constants\[[0-9]{1,3}\]",
-                _CONSTANT_FIELDS,
-            ),
-        )
-        for pattern, exact_keys in schemas:
+        for pattern, exact_keys in _SCHEMA_OBJECTS:
             if re.fullmatch(pattern, path) is None:
                 continue
             if detail.startswith("missing ") and "; unexpected " in detail:
@@ -652,18 +723,97 @@ def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
                 "required_exact_keys": sorted(exact_keys),
             }
 
-    scope_match = re.fullmatch(
-        r"(independent_rederivation\.requested_outputs\[[0-9]{1,3}\]"
-        r"\.process_scope\.kind) is unsupported",
-        error,
+    object_suffix = " must be an object"
+    if error.endswith(object_suffix):
+        path = error.removesuffix(object_suffix)
+        if any(re.fullmatch(pattern, path) for pattern, _keys in _SCHEMA_OBJECTS):
+            return {
+                "error_kind": "schema_validation",
+                "issue": "wrong_type",
+                "field_path": path,
+                "expected_type": "object",
+            }
+
+    list_suffix = " must be a list"
+    if error.endswith(list_suffix):
+        path = error.removesuffix(list_suffix)
+        if any(re.fullmatch(pattern, path) for pattern in _SCHEMA_LISTS):
+            return {
+                "error_kind": "schema_validation",
+                "issue": "wrong_type",
+                "field_path": path,
+                "expected_type": "list",
+            }
+
+    enum_rules: tuple[tuple[str, list[Any]], ...] = (
+        (
+            rf"{_SCHEMA_OUTPUT}\.process_scope\.kind",
+            sorted(_PROCESS_SCOPES),
+        ),
+        (rf"{_SCHEMA_OUTPUT}\.basis\.status", sorted(_BASIS_STATUSES)),
+        (
+            rf"{_SCHEMA_OUTPUT}\.dependencies\[{_SCHEMA_INDEX}\]\.kind",
+            sorted(_DEPENDENCY_KINDS),
+        ),
+        (
+            rf"{_SCHEMA_OUTPUT}\.(?:constants|dependencies|branch_conditions)"
+            rf"\[{_SCHEMA_INDEX}\]\.source_locator\.kind",
+            sorted(_LOCATOR_KINDS),
+        ),
+        (
+            rf"{_SCHEMA_OUTPUT}\.source_locators\[{_SCHEMA_INDEX}\]\.kind",
+            sorted(_LOCATOR_KINDS),
+        ),
     )
-    if scope_match is not None:
+    for suffix, issue in (
+        (" is unsupported", "unsupported_enum"),
+        (" must be a string", "wrong_type"),
+    ):
+        if not error.endswith(suffix):
+            continue
+        path = error.removesuffix(suffix)
+        for pattern, allowed_values in enum_rules:
+            if re.fullmatch(pattern, path) is None:
+                continue
+            feedback = {
+                "error_kind": "schema_validation",
+                "issue": issue,
+                "field_path": path,
+                "allowed_values": allowed_values,
+            }
+            if issue == "wrong_type":
+                feedback["expected_type"] = "string"
+            return feedback
+
+    if error == "independent_rederivation.schema_version is unsupported":
         return {
             "error_kind": "schema_validation",
-            "issue": "unsupported_enum",
-            "field_path": scope_match.group(1),
-            "allowed_values": sorted(_PROCESS_SCOPES),
+            "issue": "wrong_fixed_value",
+            "field_path": "independent_rederivation.schema_version",
+            "expected_type": "integer",
+            "allowed_values": [SCHEMA_VERSION],
         }
+    if error == (
+        "independent_rederivation.method must be source_first_without_lean"
+    ):
+        return {
+            "error_kind": "schema_validation",
+            "issue": "wrong_fixed_value",
+            "field_path": "independent_rederivation.method",
+            "expected_type": "string",
+            "allowed_values": ["source_first_without_lean"],
+        }
+
+    string_suffix = " must be a string"
+    if error.endswith(string_suffix):
+        path = error.removesuffix(string_suffix)
+        if any(re.fullmatch(pattern, path) for pattern in _SCHEMA_STRINGS):
+            return {
+                "error_kind": "schema_validation",
+                "issue": "wrong_type",
+                "field_path": path,
+                "expected_type": "string",
+            }
     return None
 
 
@@ -736,7 +886,7 @@ def _locators(
 
 
 def _comparison(value: Any, *, label: str) -> dict[str, str]:
-    raw = _exact_fields(value, {"status", "evidence"}, label=label)
+    raw = _exact_fields(value, _COMPARISON_FIELDS, label=label)
     status = _text(raw.get("status"), label=f"{label}.status")
     evidence = _text(raw.get("evidence"), label=f"{label}.evidence")
     if status != "matched":
@@ -804,7 +954,7 @@ def _validate_output(
         label=f"{label}.basis",
     )
     basis_status = _text(basis.get("status"), label=f"{label}.basis.status")
-    if basis_status not in {"applicable", "not_applicable"}:
+    if basis_status not in _BASIS_STATUSES:
         _error(f"{label}.basis.status is unsupported")
     for field in ("numerator", "denominator", "mass_or_composition_basis"):
         text = _text(basis.get(field), label=f"{label}.basis.{field}")
@@ -838,10 +988,7 @@ def _validate_output(
         )
         dependency_kind = _text(item_map.get("kind"), label=f"{item_label}.kind")
         reference = _text(item_map.get("reference"), label=f"{item_label}.reference")
-        if dependency_kind not in {
-            "requested_output", "previous_part", "source_quantity",
-            "governing_relation",
-        }:
+        if dependency_kind not in _DEPENDENCY_KINDS:
             _error(f"{item_label}.kind is unsupported")
         if dependency_kind == "requested_output" and reference not in all_output_ids:
             _error(f"{item_label}.reference is not a requested output id")
@@ -873,7 +1020,7 @@ def _validate_output(
 
     raw_result = _exact_fields(
         raw.get("raw_result"),
-        {"value_or_expression", "exact_unrounded", "derivation"},
+        _RAW_RESULT_FIELDS,
         label=f"{label}.raw_result",
     )
     _json_value(
@@ -885,7 +1032,7 @@ def _validate_output(
     _text(raw_result.get("derivation"), label=f"{label}.raw_result.derivation")
 
     reporting = _exact_fields(
-        raw.get("reporting"), {"policy", "global_policy", "application"},
+        raw.get("reporting"), _REPORTING_FIELDS,
         label=f"{label}.reporting",
     )
     if reporting.get("policy") != expected.get("reporting_policy"):
@@ -896,7 +1043,7 @@ def _validate_output(
 
     carriers = _exact_fields(
         raw.get("lean_carriers"),
-        {"inputs", "relations", "raw_result", "reported_result"},
+        _LEAN_CARRIER_FIELDS,
         label=f"{label}.lean_carriers",
     )
     for field in ("inputs", "relations", "raw_result", "reported_result"):
@@ -948,7 +1095,10 @@ def validate_independent_rederivation(
             _TOP_FIELDS,
             label="independent_rederivation",
         )
-        if raw.get("schema_version") != SCHEMA_VERSION:
+        if (
+            type(raw.get("schema_version")) is not int
+            or raw.get("schema_version") != SCHEMA_VERSION
+        ):
             _error("independent_rederivation.schema_version is unsupported")
         if raw.get("method") != "source_first_without_lean":
             _error("independent_rederivation.method must be source_first_without_lean")
@@ -962,10 +1112,19 @@ def validate_independent_rederivation(
             _error("independent_rederivation is not JSON serializable")
         if certificate_bytes > MAX_CERTIFICATE_BYTES:
             _error("independent_rederivation exceeds the compact certificate limit")
-        actual_outputs = raw.get("requested_outputs")
         expected_outputs = contract.get("requested_outputs")
-        if not isinstance(actual_outputs, list) or not isinstance(expected_outputs, list):
+        if not isinstance(expected_outputs, list):
             _error("independent_rederivation requested output inventory is invalid")
+        actual_outputs = _bounded_list(
+            raw.get("requested_outputs"),
+            label="independent_rederivation.requested_outputs",
+        )
+        for index, actual in enumerate(actual_outputs):
+            _exact_fields(
+                actual,
+                _OUTPUT_FIELDS,
+                label=f"independent_rederivation.requested_outputs[{index}]",
+            )
         expected_ids = [str(item.get("id") or "") for item in expected_outputs]
         actual_ids = [
             str(item.get("id") or "") if isinstance(item, Mapping) else ""

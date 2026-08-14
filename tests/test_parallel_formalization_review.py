@@ -194,6 +194,41 @@ def _native_project(root: Path) -> tuple[Path, dict]:
     return target, contract
 
 
+def _native_project_pair(root: Path) -> list[tuple[Path, dict]]:
+    first_target, _first_contract = _native_project(root)
+    bundle = root / "icho_2026_source/questions_only.jsonl"
+    first_row = json.loads(bundle.read_text(encoding="utf-8"))
+    second_row = json.loads(json.dumps(first_row))
+    second_row["id"] = "native_b"
+    second_row["question"] = "Use the second printed source relation."
+    second_target = root / "IChO2026Problems/problem_native_b.lean"
+    second_target.write_text("theorem nativeB : True := by sorry\n")
+    payload = (
+        json.dumps(first_row) + "\n" + json.dumps(second_row) + "\n"
+    ).encode("utf-8")
+    bundle.write_bytes(payload)
+    digest = hashlib.sha256(payload).hexdigest()
+    manifest_path = root / "isolation_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["blind_bundle"].update({
+        "row_count": 2,
+        "sha256": digest,
+        "size": len(payload),
+    })
+    manifest["blind_bundle_sha256"] = digest
+    manifest["target_ids"] = ["native_a", "native_b"]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    result = []
+    for target in (first_target, second_target):
+        contract = build_native_semantic_review_contract(
+            project_path=root,
+            target=target,
+        )
+        assert isinstance(contract, dict) and contract["valid"]
+        result.append((target, contract))
+    return result
+
+
 def _native_milestone(rel: str, contract: dict) -> dict:
     milestone = _milestone(rel)
     milestone["formalization_review"]["independent_rederivation"] = (
@@ -230,6 +265,16 @@ def _r10_invalid_native_milestone(
                 "reference": "shared_context",
             },
             "role": "PRIOR_DERIVATION_SENTINEL",
+        }]
+    elif defect == "unsupported_dependency":
+        output["dependencies"] = [{
+            "kind": "OFFICIAL_ANSWER_SENTINEL",
+            "reference": "printed relation",
+            "relation": "source quantity enters the governing relation",
+            "source_locator": {
+                "kind": "problem_text",
+                "reference": "shared_context",
+            },
         }]
     else:
         raise ValueError(f"unknown defect: {defect}")
@@ -302,7 +347,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIsNone(row)
             self.assertIn("must be matched", error)
 
-    def test_r10_schema_feedback_reaches_attempt_two_and_stays_schema_only(self):
+    def test_r10_r11_schema_feedback_reaches_attempt_two_and_stays_schema_only(self):
         cases = (
             (
                 "missing_unit",
@@ -318,6 +363,11 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "extra_role",
                 "independent_rederivation.requested_outputs[0].constants[0]",
                 '"source_locator"',
+            ),
+            (
+                "unsupported_dependency",
+                "independent_rederivation.requested_outputs[0].dependencies[0].kind",
+                '"governing_relation"',
             ),
         )
         for defect, expected_path, expected_contract in cases:
@@ -420,7 +470,11 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             def two_schema_failures_then_success(spec, **_kwargs):
                 prompts.append(spec.prompt)
                 if spec.attempt < 3:
-                    defect = "missing_unit" if spec.attempt == 1 else "unsupported_scope"
+                    defect = (
+                        "missing_unit"
+                        if spec.attempt == 1
+                        else "unsupported_dependency"
+                    )
                     invalid = _r10_invalid_native_milestone(
                         spec.rel, contract, defect,
                     )
@@ -475,6 +529,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIn('"required_exact_keys"', feedback_two)
             self.assertNotIn('"allowed_values"', feedback_two)
             self.assertIn('"allowed_values"', feedback_three)
+            self.assertIn("dependencies[0].kind", feedback_three)
             self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", feedback_three)
 
             transport_state = root / ".archon-transport"
@@ -533,6 +588,121 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "has invalid fields: missing unit",
                 transport_prompts[1],
             )
+
+    def test_schema_feedback_is_target_isolated_in_multi_target_retries(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target_contracts = _native_project_pair(root)
+            contracts = {
+                target.relative_to(root).as_posix(): contract
+                for target, contract in target_contracts
+            }
+            targets = [target for target, _contract in target_contracts]
+            rels = sorted(contracts)
+            schema_rel, semantic_rel = rels
+            state = root / ".archon"
+            iter_dir = state / "logs/iter-013"
+            iter_dir.mkdir(parents=True)
+            prompts: dict[str, list[str]] = {rel: [] for rel in rels}
+            executor_workers: list[int] = []
+
+            def tracking_executor(*, max_workers):
+                executor_workers.append(max_workers)
+                return ThreadPoolExecutor(max_workers=max_workers)
+
+            def isolated_retry_worker(spec, **_kwargs):
+                prompts[spec.rel].append(spec.prompt)
+                if spec.attempt == 1 and spec.rel == schema_rel:
+                    invalid = _r10_invalid_native_milestone(
+                        spec.rel,
+                        contracts[spec.rel],
+                        "unsupported_dependency",
+                    )
+                    output_dir = Path(spec.output_dir)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "milestones.jsonl").write_text(
+                        json.dumps(invalid) + "\n",
+                        encoding="utf-8",
+                    )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error="SCHEMA_TARGET_RAW_ERROR_SENTINEL",
+                    )
+                if spec.attempt == 1:
+                    invalid = _native_milestone(spec.rel, contracts[spec.rel])
+                    invalid["formalization_review"]["independent_rederivation"][
+                        "requested_outputs"
+                    ][0]["unit"] = "SEMANTIC_VALUE_SENTINEL"
+                    output_dir = Path(spec.output_dir)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "milestones.jsonl").write_text(
+                        json.dumps(invalid) + "\n",
+                        encoding="utf-8",
+                    )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error=(
+                            "dependencies[0].kind is unsupported; "
+                            "FORGED_RAW_ERROR_SENTINEL"
+                        ),
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_native_milestone(spec.rel, contracts[spec.rel]),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=13,
+                objectives=targets,
+                preflight={"targets": [
+                    {"file": rel, "compiles": True} for rel in rels
+                ]},
+                prior_gate_targets={},
+                requested_jobs=2,
+                max_attempts=2,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=isolated_retry_worker,
+                executor_factory=tracking_executor,
+                sleep_fn=lambda _seconds: None,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(executor_workers, [2, 1])
+            self.assertEqual([len(prompts[rel]) for rel in rels], [2, 2])
+            self.assertIn(
+                "CONTROLLER STRUCTURAL SCHEMA FEEDBACK",
+                prompts[schema_rel][1],
+            )
+            self.assertIn("dependencies[0].kind", prompts[schema_rel][1])
+            self.assertNotIn(
+                "SCHEMA_TARGET_RAW_ERROR_SENTINEL", prompts[schema_rel][1],
+            )
+            self.assertNotIn(
+                "CONTROLLER STRUCTURAL SCHEMA FEEDBACK",
+                prompts[semantic_rel][1],
+            )
+            self.assertNotIn(
+                "SEMANTIC_VALUE_SENTINEL", prompts[semantic_rel][1],
+            )
+            self.assertNotIn(
+                "FORGED_RAW_ERROR_SENTINEL", prompts[semantic_rel][1],
+            )
+            self.assertNotIn("dependencies[0].kind", prompts[semantic_rel][1])
 
     def test_blind_prompt_uses_blind_schema_and_freeze_protocol(self):
         with tempfile.TemporaryDirectory() as td:
