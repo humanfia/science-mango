@@ -17,6 +17,7 @@ from .formalization_review_gate import REVIEW_SCHEMA_VERSION
 from .native_semantic_review import (
     build_independent_rederivation_example,
     build_native_semantic_review_contract,
+    build_native_schema_feedback,
     render_independent_rederivation_instructions,
     render_native_problem_contract_prompt,
     validate_independent_rederivation,
@@ -50,6 +51,7 @@ _FAIL = {
 _NOT_APPLICABLE = {"not_applicable", "not applicable", "n/a", "na"}
 _BRIDGE_PASS = {"covered", "grounded", "encoded", "proved", "pass", "passed"}
 _BRIDGE_FAIL = {"blocked", "failed", "missing", "partial", "needs_redraft"}
+_SCHEMA_RETRY_MARKER = "CONTROLLER STRUCTURAL SCHEMA FEEDBACK"
 
 
 def _utcnow() -> str:
@@ -63,6 +65,31 @@ def _formalization_review(row: dict) -> dict | None:
         if isinstance(findings, dict):
             raw = findings.get("formalization_review")
     return raw if isinstance(raw, dict) else None
+
+
+def _append_schema_retry_feedback(prompt: str, feedback: dict) -> str:
+    """Append controller-generated schema feedback without rejected content."""
+    payload = json.dumps(
+        feedback, ensure_ascii=True, separators=(",", ":"), sort_keys=True,
+    )
+    try:
+        payload_bytes = payload.encode("ascii")
+    except UnicodeEncodeError:
+        return prompt
+    if len(payload_bytes) > 512 or any(ord(character) < 0x20 for character in payload):
+        return prompt
+    return prompt + f"""
+
+{_SCHEMA_RETRY_MARKER} (schema names only; no prior certificate content):
+{payload}
+
+This feedback is structural only. It neither corrects nor certifies any
+semantic claim. On this retry, rewrite exactly one complete milestone JSONL row,
+including the full formalization_review certificate. Do not emit a patch,
+fragment, explanation, or prior certificate text. Use only the allowed problem
+sources to determine all semantic values, and obey every exact-key and enum
+constraint above.
+"""
 
 
 def _validate_certificate(
@@ -683,6 +710,7 @@ def run_parallel_formalization_reviews(
     }
     pending = {rel: path for rel, path in targets}
     outcomes: dict[str, TargetReviewOutcome] = {}
+    schema_feedback: dict[str, dict] = {}
     rounds: list[dict] = []
     jobs = max(1, min(int(requested_jobs), len(pending) or 1))
     max_attempts = max(1, int(max_attempts))
@@ -710,19 +738,24 @@ def run_parallel_formalization_reviews(
                     target=target,
                 )
             )
+            prompt = build_target_formalization_review_prompt(
+                project_path=project_path,
+                state_dir=state_dir,
+                iter_dir=iter_dir,
+                iter_num=iter_num,
+                target=target,
+                output_dir=output_dir,
+                preflight=preflight_rows.get(rel, {}),
+                prior_gate_record=prior_gate_targets.get(rel),
+                source_contract=source_contract,
+            )
+            if rel in schema_feedback:
+                prompt = _append_schema_retry_feedback(
+                    prompt, schema_feedback[rel],
+                )
             specs.append(TargetReviewSpec(
                 rel=rel,
-                prompt=build_target_formalization_review_prompt(
-                    project_path=project_path,
-                    state_dir=state_dir,
-                    iter_dir=iter_dir,
-                    iter_num=iter_num,
-                    target=target,
-                    output_dir=output_dir,
-                    preflight=preflight_rows.get(rel, {}),
-                    prior_gate_record=prior_gate_targets.get(rel),
-                    source_contract=source_contract,
-                ),
+                prompt=prompt,
                 output_dir=str(output_dir),
                 log_base=str(output_dir / "agent"),
                 attempt=attempt,
@@ -746,8 +779,28 @@ def run_parallel_formalization_reviews(
                 )
             if outcome.milestone is None:
                 failed[spec.rel] = target
+                if outcome.runner_ok:
+                    try:
+                        native_contract = build_native_semantic_review_contract(
+                            project_path=project_path,
+                            target=target,
+                        )
+                        _row, validation_error = load_target_formalization_milestone(
+                            Path(spec.output_dir) / "milestones.jsonl",
+                            spec.rel,
+                            spec.source_contract,
+                            native_contract,
+                        )
+                        feedback = build_native_schema_feedback(validation_error)
+                    except Exception:
+                        feedback = None
+                    if feedback is None:
+                        schema_feedback.pop(spec.rel, None)
+                    else:
+                        schema_feedback[spec.rel] = feedback
             else:
                 outcomes[spec.rel] = outcome
+                schema_feedback.pop(spec.rel, None)
 
         if len(specs) == 1:
             spec = specs[0]

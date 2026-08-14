@@ -49,6 +49,13 @@ _OUTPUT_FIELDS = {
     "lean_statement_comparison", "source_locators", "evidence",
 }
 _LOCATOR_FIELDS = {"kind", "reference"}
+_PROCESS_SCOPE_FIELDS = {"kind", "description"}
+_CONSTANT_FIELDS = {"name", "value", "unit", "source_locator"}
+_BASIS_FIELDS = {
+    "status", "numerator", "denominator", "mass_or_composition_basis",
+}
+_DEPENDENCY_FIELDS = {"kind", "reference", "relation", "source_locator"}
+_BRANCH_CONDITION_FIELDS = {"condition", "source_locator"}
 _LOCATOR_KINDS = {
     "problem_text", "problem_image", "previous_parts", "pinned_library",
 }
@@ -522,7 +529,22 @@ def render_independent_rederivation_instructions(
         "unit, per-output reporting.policy, and reporting.global_policy exactly "
         "from the matching problem-only bundle row. Do not add or omit keys. "
         "Empty constants/dependencies/branch_conditions arrays explicitly mean "
-        "none; otherwise each entry carries its own problem-only source locator.\n\n"
+        "none; otherwise each entry carries its own problem-only source locator. "
+        "process_scope must have exactly the keys kind and description, and kind "
+        "must be exactly one of "
+        + json.dumps(sorted(_PROCESS_SCOPES), ensure_ascii=False)
+        + ". Each constants entry must have exactly the keys "
+        + json.dumps(sorted(_CONSTANT_FIELDS), ensure_ascii=False)
+        + "; write unit=dimensionless for a unitless constant. The field role is "
+        "forbidden. basis must have exactly the keys "
+        + json.dumps(sorted(_BASIS_FIELDS), ensure_ascii=False)
+        + "; each dependencies entry must have exactly the keys "
+        + json.dumps(sorted(_DEPENDENCY_FIELDS), ensure_ascii=False)
+        + "; each branch_conditions entry must have exactly the keys "
+        + json.dumps(sorted(_BRANCH_CONDITION_FIELDS), ensure_ascii=False)
+        + "; and every source_locator must have exactly the keys "
+        + json.dumps(sorted(_LOCATOR_FIELDS), ensure_ascii=False)
+        + ". Do not add role or any other extra field to any schema object.\n\n"
         "```json\n"
         + json.dumps(example, ensure_ascii=False, indent=2, sort_keys=True)
         + "\n```\n\n"
@@ -582,6 +604,67 @@ def _exact_fields(value: Any, expected: set[str], *, label: str) -> Mapping[str,
             details.append("unexpected " + ", ".join(extra))
         _error(f"{label} has invalid fields: {'; '.join(details)}")
     return value
+
+
+def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
+    """Return bounded schema-only retry feedback for a trusted validator error.
+
+    The rejected certificate and the raw error detail are deliberately not
+    returned.  Only paths with controller-owned exact-key/enum definitions are
+    recognized, so problem text, answer-shaped values, and prior derivations
+    cannot be reflected into a later model prompt.
+    """
+    invalid_fields_suffix = " has invalid fields: "
+    if invalid_fields_suffix in error:
+        path, _separator, detail = error.partition(invalid_fields_suffix)
+        schemas: tuple[tuple[str, set[str]], ...] = (
+            (r"independent_rederivation", _TOP_FIELDS),
+            (
+                r"independent_rederivation\.requested_outputs\[[0-9]{1,3}\]",
+                _OUTPUT_FIELDS,
+            ),
+            (
+                r"independent_rederivation\.requested_outputs\[[0-9]{1,3}\]"
+                r"\.process_scope",
+                _PROCESS_SCOPE_FIELDS,
+            ),
+            (
+                r"independent_rederivation\.requested_outputs\[[0-9]{1,3}\]"
+                r"\.constants\[[0-9]{1,3}\]",
+                _CONSTANT_FIELDS,
+            ),
+        )
+        for pattern, exact_keys in schemas:
+            if re.fullmatch(pattern, path) is None:
+                continue
+            if detail.startswith("missing ") and "; unexpected " in detail:
+                issue = "missing_and_unexpected_keys"
+            elif detail.startswith("missing "):
+                issue = "missing_required_keys"
+            elif detail.startswith("unexpected "):
+                issue = "unexpected_keys"
+            else:
+                return None
+            return {
+                "error_kind": "schema_validation",
+                "issue": issue,
+                "field_path": path,
+                "required_exact_keys": sorted(exact_keys),
+            }
+
+    scope_match = re.fullmatch(
+        r"(independent_rederivation\.requested_outputs\[[0-9]{1,3}\]"
+        r"\.process_scope\.kind) is unsupported",
+        error,
+    )
+    if scope_match is not None:
+        return {
+            "error_kind": "schema_validation",
+            "issue": "unsupported_enum",
+            "field_path": scope_match.group(1),
+            "allowed_values": sorted(_PROCESS_SCOPES),
+        }
+    return None
 
 
 def _text(value: Any, *, label: str, allow_empty: bool = False) -> str:
@@ -707,7 +790,7 @@ def _validate_output(
     _text(raw.get("quantity_definition"), label=f"{label}.quantity_definition")
 
     scope = _exact_fields(
-        raw.get("process_scope"), {"kind", "description"},
+        raw.get("process_scope"), _PROCESS_SCOPE_FIELDS,
         label=f"{label}.process_scope",
     )
     scope_kind = _text(scope.get("kind"), label=f"{label}.process_scope.kind")
@@ -717,7 +800,7 @@ def _validate_output(
 
     basis = _exact_fields(
         raw.get("basis"),
-        {"status", "numerator", "denominator", "mass_or_composition_basis"},
+        _BASIS_FIELDS,
         label=f"{label}.basis",
     )
     basis_status = _text(basis.get("status"), label=f"{label}.basis.status")
@@ -734,7 +817,7 @@ def _validate_output(
     for item_index, item in enumerate(constant_items):
         item_label = f"{label}.constants[{item_index}]"
         item_map = _exact_fields(
-            item, {"name", "value", "unit", "source_locator"}, label=item_label,
+            item, _CONSTANT_FIELDS, label=item_label,
         )
         _text(item_map.get("name"), label=f"{item_label}.name")
         _json_value(item_map.get("value"), label=f"{item_label}.value")
@@ -750,7 +833,7 @@ def _validate_output(
     for item_index, item in enumerate(dependency_items):
         item_label = f"{label}.dependencies[{item_index}]"
         item_map = _exact_fields(
-            item, {"kind", "reference", "relation", "source_locator"},
+            item, _DEPENDENCY_FIELDS,
             label=item_label,
         )
         dependency_kind = _text(item_map.get("kind"), label=f"{item_label}.kind")
@@ -774,7 +857,7 @@ def _validate_output(
     for item_index, item in enumerate(branch_items):
         item_label = f"{label}.branch_conditions[{item_index}]"
         item_map = _exact_fields(
-            item, {"condition", "source_locator"}, label=item_label,
+            item, _BRANCH_CONDITION_FIELDS, label=item_label,
         )
         _text(item_map.get("condition"), label=f"{item_label}.condition")
         _locator(
@@ -914,6 +997,7 @@ __all__ = [
     "NATIVE_PROFILE",
     "SCHEMA_VERSION",
     "build_independent_rederivation_example",
+    "build_native_schema_feedback",
     "build_native_semantic_review_contract",
     "render_independent_rederivation_instructions",
     "render_native_problem_contract_prompt",

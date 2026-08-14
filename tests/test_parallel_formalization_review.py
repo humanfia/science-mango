@@ -194,6 +194,49 @@ def _native_project(root: Path) -> tuple[Path, dict]:
     return target, contract
 
 
+def _native_milestone(rel: str, contract: dict) -> dict:
+    milestone = _milestone(rel)
+    milestone["formalization_review"]["independent_rederivation"] = (
+        build_independent_rederivation_example(contract)
+    )
+    return milestone
+
+
+def _r10_invalid_native_milestone(
+    rel: str, contract: dict, defect: str,
+) -> dict:
+    milestone = _native_milestone(rel, contract)
+    output = milestone["formalization_review"]["independent_rederivation"][
+        "requested_outputs"
+    ][0]
+    if defect == "missing_unit":
+        output["constants"] = [{
+            "name": "source factor",
+            "value": 1,
+            "source_locator": {
+                "kind": "problem_text",
+                "reference": "shared_context",
+            },
+        }]
+    elif defect == "unsupported_scope":
+        output["process_scope"]["kind"] = "OFFICIAL_ANSWER_SENTINEL"
+    elif defect == "extra_role":
+        output["constants"] = [{
+            "name": "source factor",
+            "value": 1,
+            "unit": "dimensionless",
+            "source_locator": {
+                "kind": "problem_text",
+                "reference": "shared_context",
+            },
+            "role": "PRIOR_DERIVATION_SENTINEL",
+        }]
+    else:
+        raise ValueError(f"unknown defect: {defect}")
+    output["raw_result"]["derivation"] = "PRIOR_DERIVATION_SENTINEL"
+    return milestone
+
+
 class ParallelFormalizationReviewTest(unittest.TestCase):
     def test_native_prompt_is_problem_only_source_first_and_target_scoped(self):
         with tempfile.TemporaryDirectory() as td:
@@ -258,6 +301,238 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             )
             self.assertIsNone(row)
             self.assertIn("must be matched", error)
+
+    def test_r10_schema_feedback_reaches_attempt_two_and_stays_schema_only(self):
+        cases = (
+            (
+                "missing_unit",
+                "independent_rederivation.requested_outputs[0].constants[0]",
+                '"unit"',
+            ),
+            (
+                "unsupported_scope",
+                "independent_rederivation.requested_outputs[0].process_scope.kind",
+                '"overall"',
+            ),
+            (
+                "extra_role",
+                "independent_rederivation.requested_outputs[0].constants[0]",
+                '"source_locator"',
+            ),
+        )
+        for defect, expected_path, expected_contract in cases:
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                target, contract = _native_project(root)
+                rel = target.relative_to(root).as_posix()
+                state = root / ".archon"
+                iter_dir = state / "logs/iter-010"
+                iter_dir.mkdir(parents=True)
+                prompts: list[str] = []
+                invalid = _r10_invalid_native_milestone(rel, contract, defect)
+
+                def forbidden_executor(**_kwargs):
+                    self.fail("single-target Review must not instantiate an executor")
+
+                def schema_then_success(spec, **_kwargs):
+                    prompts.append(spec.prompt)
+                    if spec.attempt == 1:
+                        output_dir = Path(spec.output_dir)
+                        output_dir.mkdir(parents=True, exist_ok=True)
+                        (output_dir / "milestones.jsonl").write_text(
+                            json.dumps(invalid) + "\n",
+                            encoding="utf-8",
+                        )
+                        return TargetReviewOutcome(
+                            rel=spec.rel,
+                            attempt=spec.attempt,
+                            runner_ok=True,
+                            milestone=None,
+                            error=(
+                                "TRANSPORT_TEXT_MUST_NOT_BE_FEEDBACK "
+                                "OFFICIAL_ANSWER_SENTINEL"
+                            ),
+                        )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=_native_milestone(spec.rel, contract),
+                    )
+
+                report = run_parallel_formalization_reviews(
+                    project_path=root,
+                    state_dir=state,
+                    iter_dir=iter_dir,
+                    iter_num=10,
+                    objectives=[target],
+                    preflight={
+                        "targets": [{"file": rel, "compiles": True}],
+                    },
+                    prior_gate_targets={},
+                    requested_jobs=8,
+                    max_attempts=2,
+                    backoff_sec=0,
+                    verbose_logs=False,
+                    model=None,
+                    backend=None,
+                    harness=None,
+                    worker_fn=schema_then_success,
+                    executor_factory=forbidden_executor,
+                    sleep_fn=lambda _seconds: None,
+                )
+
+                self.assertTrue(report["complete"])
+                self.assertEqual(len(prompts), 2)
+                self.assertNotIn("CONTROLLER STRUCTURAL SCHEMA FEEDBACK", prompts[0])
+                marker, separator, feedback = prompts[1].partition(
+                    "CONTROLLER STRUCTURAL SCHEMA FEEDBACK"
+                )
+                self.assertTrue(separator)
+                self.assertTrue(marker)
+                self.assertIn(expected_path, feedback)
+                self.assertIn(expected_contract, feedback)
+                self.assertIn("one complete milestone JSONL row", feedback)
+                self.assertIn("full formalization_review certificate", feedback)
+                payload = next(
+                    line for line in feedback.splitlines()
+                    if line.startswith("{")
+                )
+                self.assertLessEqual(len(payload.encode("ascii")), 512)
+                self.assertTrue(all(ord(character) >= 0x20 for character in payload))
+                self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", feedback)
+                self.assertNotIn("PRIOR_DERIVATION_SENTINEL", feedback)
+                self.assertNotIn("TRANSPORT_TEXT_MUST_NOT_BE_FEEDBACK", feedback)
+
+    def test_schema_feedback_refreshes_attempt_three_but_transport_cannot_create_it(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            rel = target.relative_to(root).as_posix()
+            state = root / ".archon"
+            iter_dir = state / "logs/iter-011"
+            iter_dir.mkdir(parents=True)
+            prompts: list[str] = []
+
+            def forbidden_executor(**_kwargs):
+                self.fail("single-target Review must not instantiate an executor")
+
+            def two_schema_failures_then_success(spec, **_kwargs):
+                prompts.append(spec.prompt)
+                if spec.attempt < 3:
+                    defect = "missing_unit" if spec.attempt == 1 else "unsupported_scope"
+                    invalid = _r10_invalid_native_milestone(
+                        spec.rel, contract, defect,
+                    )
+                    output_dir = Path(spec.output_dir)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "milestones.jsonl").write_text(
+                        json.dumps(invalid) + "\n",
+                        encoding="utf-8",
+                    )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error="untrusted worker text is ignored",
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_native_milestone(spec.rel, contract),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=11,
+                objectives=[target],
+                preflight={"targets": [{"file": rel, "compiles": True}]},
+                prior_gate_targets={},
+                requested_jobs=4,
+                max_attempts=3,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=two_schema_failures_then_success,
+                executor_factory=forbidden_executor,
+                sleep_fn=lambda _seconds: None,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(len(prompts), 3)
+            feedback_two = prompts[1].partition(
+                "CONTROLLER STRUCTURAL SCHEMA FEEDBACK"
+            )[2]
+            feedback_three = prompts[2].partition(
+                "CONTROLLER STRUCTURAL SCHEMA FEEDBACK"
+            )[2]
+            self.assertIn('"required_exact_keys"', feedback_two)
+            self.assertNotIn('"allowed_values"', feedback_two)
+            self.assertIn('"allowed_values"', feedback_three)
+            self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", feedback_three)
+
+            transport_state = root / ".archon-transport"
+            transport_iter = transport_state / "logs/iter-012"
+            transport_iter.mkdir(parents=True)
+            transport_prompts: list[str] = []
+
+            def transport_then_success(spec, **_kwargs):
+                transport_prompts.append(spec.prompt)
+                if spec.attempt == 1:
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=False,
+                        milestone=None,
+                        error=(
+                            "independent_rederivation.requested_outputs[0] "
+                            "has invalid fields: missing unit; "
+                            "OFFICIAL_ANSWER_SENTINEL"
+                        ),
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_native_milestone(spec.rel, contract),
+                )
+
+            transport_report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=transport_state,
+                iter_dir=transport_iter,
+                iter_num=12,
+                objectives=[target],
+                preflight={"targets": [{"file": rel, "compiles": True}]},
+                prior_gate_targets={},
+                requested_jobs=4,
+                max_attempts=2,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=transport_then_success,
+                executor_factory=forbidden_executor,
+                sleep_fn=lambda _seconds: None,
+            )
+            self.assertTrue(transport_report["complete"])
+            self.assertEqual(len(transport_prompts), 2)
+            self.assertNotIn(
+                "CONTROLLER STRUCTURAL SCHEMA FEEDBACK",
+                transport_prompts[1],
+            )
+            self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", transport_prompts[1])
+            self.assertNotIn(
+                "has invalid fields: missing unit",
+                transport_prompts[1],
+            )
 
     def test_blind_prompt_uses_blind_schema_and_freeze_protocol(self):
         with tempfile.TemporaryDirectory() as td:

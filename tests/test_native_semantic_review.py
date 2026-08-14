@@ -10,6 +10,7 @@ from pathlib import Path
 
 from archon.commands.loop.native_semantic_review import (
     BUNDLE_REL,
+    build_native_schema_feedback,
     build_native_semantic_review_contract,
     render_independent_rederivation_instructions,
     validate_independent_rederivation,
@@ -243,6 +244,94 @@ class NativeSemanticReviewTests(unittest.TestCase):
 
         self.assertEqual(error, "")
         self.assertEqual(normalized, parsed["independent_rederivation"])
+
+    def test_r10_schema_defects_are_strict_and_feedback_is_schema_only(self) -> None:
+        contract = self._contract()
+        missing_unit = self._review(contract)
+        missing_unit["independent_rederivation"]["requested_outputs"][0][
+            "constants"
+        ] = [{
+            "name": "source factor",
+            "value": 1,
+            "source_locator": {
+                "kind": "problem_text",
+                "reference": "shared_context",
+            },
+        }]
+
+        unsupported_scope = self._review(contract)
+        unsupported_scope["independent_rederivation"]["requested_outputs"][0][
+            "process_scope"
+        ]["kind"] = "OFFICIAL_ANSWER_SENTINEL"
+
+        extra_role = self._review(contract)
+        extra_role["independent_rederivation"]["requested_outputs"][0][
+            "constants"
+        ] = [{
+            "name": "source factor",
+            "value": 1,
+            "unit": "dimensionless",
+            "source_locator": {
+                "kind": "problem_text",
+                "reference": "shared_context",
+            },
+            "role": "PRIOR_DERIVATION_SENTINEL",
+        }]
+
+        cases = (
+            (
+                missing_unit,
+                "missing unit",
+                "independent_rederivation.requested_outputs[0].constants[0]",
+                "required_exact_keys",
+            ),
+            (
+                unsupported_scope,
+                "process_scope.kind is unsupported",
+                "independent_rederivation.requested_outputs[0].process_scope.kind",
+                "allowed_values",
+            ),
+            (
+                extra_role,
+                "unexpected role",
+                "independent_rederivation.requested_outputs[0].constants[0]",
+                "required_exact_keys",
+            ),
+        )
+        for review, expected_error, expected_path, contract_key in cases:
+            with self.subTest(expected_error=expected_error):
+                error, normalized = validate_independent_rederivation(review, contract)
+                feedback = build_native_schema_feedback(error)
+
+                self.assertIn(expected_error, error)
+                self.assertEqual(normalized, {})
+                self.assertIsInstance(feedback, dict)
+                self.assertEqual(feedback["field_path"], expected_path)
+                self.assertIn(contract_key, feedback)
+                rendered = json.dumps(feedback, sort_keys=True)
+                self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", rendered)
+                self.assertNotIn("PRIOR_DERIVATION_SENTINEL", rendered)
+
+        semantic_mismatch = self._review(contract)
+        semantic_mismatch["independent_rederivation"]["requested_outputs"][0][
+            "unit"
+        ] = "kg"
+        semantic_error, _normalized = validate_independent_rederivation(
+            semantic_mismatch, contract,
+        )
+        self.assertIn("does not exactly match", semantic_error)
+        self.assertIsNone(build_native_schema_feedback(semantic_error))
+
+        instructions = render_independent_rederivation_instructions(contract)
+        for scope in (
+            "cumulative", "instantaneous", "marginal", "not_applicable",
+            "other", "overall", "per_cycle", "per_step", "repeated_process",
+        ):
+            self.assertIn(scope, instructions)
+        self.assertIn('"name", "source_locator", "unit", "value"', instructions)
+        self.assertIn("unit=dimensionless", instructions)
+        self.assertIn("field role is forbidden", instructions)
+        self.assertIn("any other extra field", instructions)
 
     def test_non_native_profiles_keep_the_historical_schema(self) -> None:
         config = self.project / ".archon/config.json"
