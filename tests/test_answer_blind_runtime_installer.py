@@ -3,7 +3,9 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import os
+import shutil
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -15,6 +17,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/install_answer_blind_runtime_wrappers.py"
 CAMPAIGN_SOURCE = ROOT / "scripts/run_answer_blind_gpt_campaign.py"
 ISOLATED_SOURCE = ROOT / "scripts/run_answer_blind_archon_isolated_campaign.py"
+AXIOM_CHECKER_SOURCE = (
+    ROOT
+    / "src/archon/.archon-src/skills/lean4/lib/scripts/check_axioms_inline.sh"
+)
 SPEC = importlib.util.spec_from_file_location("answer_blind_runtime_installer", SCRIPT)
 assert SPEC and SPEC.loader
 INSTALLER = importlib.util.module_from_spec(SPEC)
@@ -56,6 +62,14 @@ class AnswerBlindRuntimeInstallerTests(unittest.TestCase):
 
         return resolve
 
+    def _which_with_real_host_tools(self, launcher: Path):
+        host_which = shutil.which
+
+        def resolve(name: str) -> str | None:
+            return str(launcher) if name == "codex" else host_which(name)
+
+        return resolve
+
     def test_controller_tools_fail_closed_when_standalone_host_is_missing(self) -> None:
         with tempfile.TemporaryDirectory(prefix="answer-blind-codex-pair-") as raw:
             base = Path(raw)
@@ -92,6 +106,157 @@ class AnswerBlindRuntimeInstallerTests(unittest.TestCase):
                 )
                 self.assertEqual(installed.stat().st_uid, 0)
                 self.assertEqual(stat.S_IMODE(installed.stat().st_mode), 0o555)
+
+    def test_axiom_checker_tools_are_exact_root_owned_0555_files(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="answer-blind-axiom-tools-") as raw:
+            base = Path(raw)
+            launcher, _codex, _host = self._standalone_release(base)
+            runtime = base / "runtime"
+            expected = {
+                name: hashlib.sha256(
+                    INSTALLER._resolve_trusted_system_executable(name).read_bytes()
+                ).hexdigest()
+                for name in INSTALLER.AXIOM_CHECKER_SYSTEM_TOOLS
+            }
+
+            with mock.patch.object(
+                INSTALLER.shutil, "which", side_effect=self._which(base, launcher)
+            ):
+                INSTALLER._copy_controller_tools(runtime)
+
+            self.assertEqual(
+                tuple(expected),
+                (
+                    "mktemp", "awk", "cat", "mv", "rm", "find", "realpath",
+                    "dirname", "basename", "sort", "cp", "grep", "head",
+                    "cut", "sed",
+                ),
+            )
+            for name, expected_sha in expected.items():
+                with self.subTest(tool=name):
+                    installed = runtime / "bin" / name
+                    metadata = installed.stat(follow_symlinks=False)
+                    self.assertTrue(stat.S_ISREG(metadata.st_mode))
+                    self.assertFalse(installed.is_symlink())
+                    self.assertEqual(metadata.st_uid, 0)
+                    self.assertEqual(stat.S_IMODE(metadata.st_mode), 0o555)
+                    self.assertEqual(
+                        hashlib.sha256(installed.read_bytes()).hexdigest(),
+                        expected_sha,
+                    )
+
+    def test_axiom_checker_runs_real_lean_with_runtime_only_system_tools(self) -> None:
+        host_lean = shutil.which("lean")
+        if host_lean is None:
+            self.skipTest("Lean is unavailable for the axiom-checker smoke test")
+        prefix_probe = subprocess.run(
+            [host_lean, "--print-prefix"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if prefix_probe.returncode != 0:
+            self.skipTest("Lean prefix probe failed")
+        lean_bin = Path(prefix_probe.stdout.strip()) / "bin"
+        if not (lean_bin / "lake").is_file() or not (lean_bin / "lean").is_file():
+            self.skipTest("Lean toolchain has no direct lake/lean pair")
+
+        with tempfile.TemporaryDirectory(prefix="answer-blind-axiom-smoke-") as raw:
+            base = Path(raw)
+            launcher, _codex, _host = self._standalone_release(base)
+            runtime = base / "runtime"
+            with mock.patch.object(
+                INSTALLER.shutil,
+                "which",
+                side_effect=self._which_with_real_host_tools(launcher),
+            ):
+                INSTALLER._copy_controller_tools(runtime)
+
+            project = base / "project"
+            project.mkdir()
+            source = project / "AxiomSmoke.lean"
+            original = "theorem smoke : True := by\n  trivial\n"
+            source.write_text(original, encoding="utf-8")
+            (project / "lakefile.toml").write_text(
+                'name = "AxiomSmoke"\n'
+                'version = "0.1.0"\n'
+                'defaultTargets = ["AxiomSmoke"]\n\n'
+                '[[lean_lib]]\n'
+                'name = "AxiomSmoke"\n',
+                encoding="utf-8",
+            )
+            home = base / "home"
+            temporary = base / "tmp"
+            home.mkdir()
+            temporary.mkdir()
+            runtime_bin = runtime / "bin"
+            restricted_path = os.pathsep.join((str(runtime_bin), str(lean_bin)))
+            environment = {
+                "HOME": str(home),
+                "TMPDIR": str(temporary),
+                "TMP": str(temporary),
+                "TEMP": str(temporary),
+                "PATH": restricted_path,
+                "LANG": "C.UTF-8",
+                "LC_ALL": "C.UTF-8",
+            }
+            self.assertNotIn("/usr/bin", restricted_path.split(os.pathsep))
+            self.assertNotIn("/bin", restricted_path.split(os.pathsep))
+
+            path_probe = subprocess.run(
+                [
+                    str(runtime_bin / "bash"),
+                    "-c",
+                    """
+set -euo pipefail
+runtime_bin=$1
+shift
+for name in "$@"; do
+    resolved=$(type -P "$name")
+    [[ "$resolved" == "$runtime_bin/$name" ]]
+done
+""",
+                    "axiom-tool-path-probe",
+                    str(runtime_bin),
+                    *INSTALLER.AXIOM_CHECKER_SYSTEM_TOOLS,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                env=environment,
+                timeout=10,
+            )
+            self.assertEqual(
+                path_probe.returncode,
+                0,
+                msg=f"stdout:\n{path_probe.stdout}\nstderr:\n{path_probe.stderr}",
+            )
+
+            result = subprocess.run(
+                [
+                    str(runtime_bin / "bash"),
+                    str(AXIOM_CHECKER_SOURCE),
+                    str(project),
+                    "--report-only",
+                ],
+                cwd=project,
+                check=False,
+                capture_output=True,
+                text=True,
+                env=environment,
+                timeout=30,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("Files checked: 1", result.stdout)
+            self.assertIn("Declarations checked: 1", result.stdout)
+            self.assertIn("All files use only standard axioms", result.stdout)
+            self.assertEqual(source.read_text(encoding="utf-8"), original)
+            self.assertFalse(source.with_suffix(".lean.axiom_check_backup").exists())
 
     def test_controller_tools_reject_codex_release_version_mismatch(self) -> None:
         with tempfile.TemporaryDirectory(prefix="answer-blind-codex-pair-") as raw:

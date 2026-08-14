@@ -348,6 +348,186 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIsNone(row)
             self.assertIn("contradicts", error)
 
+    def test_single_target_runs_synchronously_without_executor(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            iter_dir.mkdir(parents=True)
+            target = root / "A.lean"
+            target.write_text("theorem a : True := by sorry\n")
+
+            def forbidden_executor(**_kwargs):
+                self.fail("single-target Review must not instantiate an executor")
+
+            def successful_worker(spec, **_kwargs):
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=1,
+                objectives=[target],
+                preflight={"targets": [{"file": target.name, "compiles": True}]},
+                prior_gate_targets={},
+                requested_jobs=8,
+                max_attempts=1,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=successful_worker,
+                executor_factory=forbidden_executor,
+                sleep_fn=lambda _seconds: None,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["reviewed"], 1)
+            self.assertEqual(report["rounds"], [{
+                "attempt": 1,
+                "jobs": 1,
+                "submitted": 1,
+                "completed": 1,
+                "failed": 0,
+            }])
+
+    def test_single_target_worker_exception_uses_normal_retry_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-002"
+            iter_dir.mkdir(parents=True)
+            target = root / "A.lean"
+            target.write_text("theorem a : True := by sorry\n")
+            attempts: list[int] = []
+            sleeps: list[float] = []
+
+            def forbidden_executor(**_kwargs):
+                self.fail("single-target retry must not instantiate an executor")
+
+            def transient_worker(spec, **_kwargs):
+                attempts.append(spec.attempt)
+                if spec.attempt == 1:
+                    raise RuntimeError("transient worker failure")
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=2,
+                objectives=[target],
+                preflight={"targets": [{"file": target.name, "compiles": True}]},
+                prior_gate_targets={},
+                requested_jobs=8,
+                max_attempts=2,
+                backoff_sec=0.25,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=transient_worker,
+                executor_factory=forbidden_executor,
+                sleep_fn=sleeps.append,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(attempts, [1, 2])
+            self.assertEqual(sleeps, [0.25])
+            self.assertEqual(
+                [(item["jobs"], item["failed"]) for item in report["rounds"]],
+                [(1, 1), (1, 0)],
+            )
+
+    def test_multiple_targets_still_use_executor_after_backoff_to_one_job(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-003"
+            iter_dir.mkdir(parents=True)
+            targets = []
+            for name in ("A.lean", "B.lean"):
+                target = root / name
+                target.write_text("theorem a : True := by sorry\n")
+                targets.append(target)
+
+            calls: list[tuple[str, int]] = []
+            executor_workers: list[int] = []
+
+            def tracking_executor(*, max_workers):
+                executor_workers.append(max_workers)
+                return ThreadPoolExecutor(max_workers=max_workers)
+
+            def transient_worker(spec, **_kwargs):
+                calls.append((spec.rel, spec.attempt))
+                if spec.attempt == 1:
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=False,
+                        milestone=None,
+                        error="retry",
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=3,
+                objectives=targets,
+                preflight={
+                    "targets": [
+                        {"file": target.name, "compiles": True}
+                        for target in targets
+                    ],
+                },
+                prior_gate_targets={},
+                requested_jobs=2,
+                max_attempts=2,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=transient_worker,
+                executor_factory=tracking_executor,
+                sleep_fn=lambda _seconds: None,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["reviewed"], 2)
+            self.assertEqual(report["unresolved"], [])
+            self.assertEqual(executor_workers, [2, 1])
+            self.assertEqual(
+                sorted(calls),
+                [
+                    ("A.lean", 1), ("A.lean", 2),
+                    ("B.lean", 1), ("B.lean", 2),
+                ],
+            )
+            self.assertEqual(
+                [(item["jobs"], item["failed"]) for item in report["rounds"]],
+                [(2, 2), (1, 0)],
+            )
+
     def test_transient_failures_halve_concurrency_then_merge_once(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -361,6 +541,11 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 objectives.append(target)
 
             calls: dict[str, int] = {}
+            executor_workers: list[int] = []
+
+            def tracking_executor(*, max_workers):
+                executor_workers.append(max_workers)
+                return ThreadPoolExecutor(max_workers=max_workers)
 
             def fake_worker(spec, **_kwargs):
                 calls[spec.rel] = calls.get(spec.rel, 0) + 1
@@ -400,11 +585,12 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 backend=None,
                 harness=None,
                 worker_fn=fake_worker,
-                executor_factory=ThreadPoolExecutor,
+                executor_factory=tracking_executor,
                 sleep_fn=lambda _seconds: None,
             )
 
             self.assertTrue(report["complete"])
+            self.assertEqual(executor_workers, [4, 2])
             self.assertEqual(
                 [(item["jobs"], item["failed"]) for item in report["rounds"]],
                 [(4, 2), (2, 0)],

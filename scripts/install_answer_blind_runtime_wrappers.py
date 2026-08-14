@@ -31,6 +31,30 @@ CODEX_VERSION_RE = re.compile(
     re.MULTILINE,
 )
 
+# ``check_axioms_inline.sh`` runs inside the solver's restricted PATH.  This is
+# the complete external-command surface found by auditing that script; ``echo``
+# and ``pwd`` are Bash builtins, while ``lake`` comes from the sealed Lean
+# toolchain's bin directory.  Keep these as individual immutable files -- never
+# grant the solver either system bin directory itself.
+AXIOM_CHECKER_SYSTEM_TOOLS = (
+    "mktemp",
+    "awk",
+    "cat",
+    "mv",
+    "rm",
+    "find",
+    "realpath",
+    "dirname",
+    "basename",
+    "sort",
+    "cp",
+    "grep",
+    "head",
+    "cut",
+    "sed",
+)
+TRUSTED_SYSTEM_BIN_DIRS = (Path("/usr/bin"), Path("/bin"))
+
 
 def _inside(path: Path, root: Path) -> bool:
     try:
@@ -79,6 +103,61 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _validate_trusted_executable(path: Path) -> Path:
+    """Return one resolved, immutable root-owned executable or fail closed."""
+
+    resolved = path.resolve(strict=True)
+    metadata = resolved.stat(follow_symlinks=False)
+    mode = stat.S_IMODE(metadata.st_mode)
+    if not stat.S_ISREG(metadata.st_mode):
+        raise PermissionError(f"controller tool is not a regular file: {resolved}")
+    if metadata.st_uid != 0:
+        raise PermissionError(f"controller tool is not root-owned: {resolved}")
+    if mode & 0o022:
+        raise PermissionError(
+            f"controller tool is group/world-writable: {resolved}"
+        )
+    if mode & 0o111 == 0:
+        raise PermissionError(f"controller tool is not executable: {resolved}")
+    return resolved
+
+
+def _resolve_trusted_system_executable(name: str) -> Path:
+    """Resolve a named host tool only from fixed, root-owned system dirs."""
+
+    if re.fullmatch(r"[a-z][a-z0-9-]*", name) is None:
+        raise ValueError(f"invalid system tool name: {name!r}")
+
+    trusted_roots: list[Path] = []
+    for raw_root in TRUSTED_SYSTEM_BIN_DIRS:
+        try:
+            root = raw_root.resolve(strict=True)
+            metadata = root.stat(follow_symlinks=False)
+        except FileNotFoundError:
+            continue
+        if (
+            not stat.S_ISDIR(metadata.st_mode)
+            or metadata.st_uid != 0
+            or stat.S_IMODE(metadata.st_mode) & 0o022
+        ):
+            raise PermissionError(f"untrusted system tool directory: {raw_root}")
+        if root not in trusted_roots:
+            trusted_roots.append(root)
+
+    for raw_root in TRUSTED_SYSTEM_BIN_DIRS:
+        candidate = raw_root / name
+        try:
+            resolved = candidate.resolve(strict=True)
+        except FileNotFoundError:
+            continue
+        if not any(_inside(resolved, root) for root in trusted_roots):
+            raise PermissionError(
+                f"system tool resolves outside trusted bin directories: {candidate}"
+            )
+        return _validate_trusted_executable(resolved)
+    raise FileNotFoundError(f"required axiom-checker tool is unavailable: {name}")
 
 
 def _codex_version(binary: Path) -> str:
@@ -145,9 +224,17 @@ def _resolve_standalone_codex_pair() -> tuple[Path, Path, str]:
     return codex, host, version
 
 
-def _copy_verified_executable(source: Path, destination: Path) -> str:
+def _copy_verified_executable(
+    source: Path,
+    destination: Path,
+    *,
+    require_root_owned_source: bool = False,
+) -> str:
     """Atomically install one exact, immutable root-owned executable."""
 
+    source = source.resolve(strict=True)
+    if require_root_owned_source:
+        source = _validate_trusted_executable(source)
     before = _sha256(source)
     temporary = destination.with_name(f".{destination.name}.answer-blind.tmp")
     if temporary.exists() or temporary.is_symlink():
@@ -158,6 +245,8 @@ def _copy_verified_executable(source: Path, destination: Path) -> str:
         after = _sha256(source)
         if before != copied or before != after:
             raise RuntimeError(f"controller tool changed while copying: {source}")
+        if require_root_owned_source:
+            _validate_trusted_executable(source)
         os.chown(temporary, 0, 0)
         os.chmod(temporary, 0o555)
         os.replace(temporary, destination)
@@ -165,8 +254,12 @@ def _copy_verified_executable(source: Path, destination: Path) -> str:
         if temporary.exists() or temporary.is_symlink():
             temporary.unlink()
 
-    installed = destination.stat()
-    if installed.st_uid != 0 or stat.S_IMODE(installed.st_mode) != 0o555:
+    installed = destination.stat(follow_symlinks=False)
+    if (
+        not stat.S_ISREG(installed.st_mode)
+        or installed.st_uid != 0
+        or stat.S_IMODE(installed.st_mode) != 0o555
+    ):
         raise PermissionError(
             f"installed controller tool ownership/mode is invalid: {destination}"
         )
@@ -268,6 +361,8 @@ def _copy_controller_tools(root: Path) -> None:
         if not source:
             raise FileNotFoundError(f"required controller tool is unavailable: {name}")
         sources[name] = Path(source).resolve(strict=True)
+    for name in AXIOM_CHECKER_SYSTEM_TOOLS:
+        sources[name] = _resolve_trusted_system_executable(name)
     codex, codex_host, _codex_release_version = _resolve_standalone_codex_pair()
     sources["codex"] = codex
     sources["codex-code-mode-host"] = codex_host
@@ -275,7 +370,11 @@ def _copy_controller_tools(root: Path) -> None:
     bin_dir = root / "bin"
     bin_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
     for name, source in sources.items():
-        _copy_verified_executable(source, bin_dir / name)
+        _copy_verified_executable(
+            source,
+            bin_dir / name,
+            require_root_owned_source=name in AXIOM_CHECKER_SYSTEM_TOOLS,
+        )
     sh_link = bin_dir / "sh"
     temporary = bin_dir / ".sh.answer-blind.tmp"
     if temporary.exists() or temporary.is_symlink():

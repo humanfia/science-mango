@@ -729,35 +729,57 @@ def run_parallel_formalization_reviews(
                 source_contract=source_contract,
             ))
         failed: dict[str, Path] = {}
-        with executor_factory(max_workers=round_jobs) as pool:
-            futures = {
-                pool.submit(
-                    worker_fn,
+        def collect_outcome(
+            spec: TargetReviewSpec,
+            target: Path,
+            result_fn: Callable[[], TargetReviewOutcome],
+        ) -> None:
+            try:
+                outcome = result_fn()
+            except Exception as exc:
+                outcome = TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=attempt,
+                    runner_ok=False,
+                    milestone=None,
+                    error=f"{type(exc).__name__}: {exc}",
+                )
+            if outcome.milestone is None:
+                failed[spec.rel] = target
+            else:
+                outcomes[spec.rel] = outcome
+
+        if len(specs) == 1:
+            spec = specs[0]
+            collect_outcome(
+                spec,
+                pending[spec.rel],
+                lambda: worker_fn(
                     spec,
                     project_path=project_path,
                     verbose_logs=verbose_logs,
                     model=model,
                     backend=backend,
                     harness=harness,
-                ): (spec, pending[spec.rel])
-                for spec in specs
-            }
-            for future in as_completed(futures):
-                spec, target = futures[future]
-                try:
-                    outcome = future.result()
-                except Exception as exc:
-                    outcome = TargetReviewOutcome(
-                        rel=spec.rel,
-                        attempt=attempt,
-                        runner_ok=False,
-                        milestone=None,
-                        error=f"{type(exc).__name__}: {exc}",
-                    )
-                if outcome.milestone is None:
-                    failed[spec.rel] = target
-                else:
-                    outcomes[spec.rel] = outcome
+                ),
+            )
+        else:
+            with executor_factory(max_workers=round_jobs) as pool:
+                futures = {
+                    pool.submit(
+                        worker_fn,
+                        spec,
+                        project_path=project_path,
+                        verbose_logs=verbose_logs,
+                        model=model,
+                        backend=backend,
+                        harness=harness,
+                    ): (spec, pending[spec.rel])
+                    for spec in specs
+                }
+                for future in as_completed(futures):
+                    spec, target = futures[future]
+                    collect_outcome(spec, target, future.result)
         rounds.append({
             "attempt": attempt,
             "jobs": round_jobs,
