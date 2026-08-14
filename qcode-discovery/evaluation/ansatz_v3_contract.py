@@ -346,6 +346,25 @@ def replay_family_switch_artifacts(
             "fom_gt_12_excluded": True,
         })
     candidate_set_sha256 = _canonical_sha256(replayed)
+    formal_audit = {
+        "unfilled_slots": quota_binding["unfilled_slots"],
+        "volume_counts": dict(quota_binding["volume_counts"]),
+    }
+    if quota_contract.get("schema_version") == 2:
+        coverage = quota_binding.get("formal_audit_coverage")
+        if (
+            not isinstance(coverage, Mapping)
+            or not isinstance(
+                coverage.get("gate_satisfied_components"), Mapping
+            )
+            or coverage["gate_satisfied_components"].get(
+                "coverage_components_satisfied"
+            ) is not True
+        ):
+            raise ValueError(
+                "realized-domain formal-audit science coverage is incomplete"
+            )
+        formal_audit["formal_audit_coverage"] = dict(coverage)
     return {
         "realized_domain_manifest_path": str(manifest_path),
         "realized_domain_manifest_file_sha256": _sha256(manifest_path),
@@ -359,10 +378,7 @@ def replay_family_switch_artifacts(
         "total_unique_candidates": len(domain_keys),
         "candidates": replayed,
         "campaign": dict(manifest["state"]),
-        "formal_audit": {
-            "unfilled_slots": quota_binding["unfilled_slots"],
-            "volume_counts": dict(quota_binding["volume_counts"]),
-        },
+        "formal_audit": formal_audit,
     }
 
 
@@ -612,6 +628,22 @@ def family_switch_decision(
         and dict(audit) == dict(replay_audit)
     ):
         blockers.append("formal_audit_quota_incomplete")
+    if quota_contract.get("schema_version") == 2:
+        coverage = (
+            audit.get("formal_audit_coverage")
+            if isinstance(audit, Mapping)
+            else None
+        )
+        if (
+            not isinstance(coverage, Mapping)
+            or not isinstance(
+                coverage.get("gate_satisfied_components"), Mapping
+            )
+            or coverage["gate_satisfied_components"].get(
+                "coverage_components_satisfied"
+            ) is not True
+        ):
+            blockers.append("formal_audit_science_coverage_incomplete")
     if evidence.get("trusted_novel_wins") != 0:
         blockers.append("trusted_novel_win_requires_result_review_not_family_switch")
     if evidence.get("unresolved_items") not in ([], 0):

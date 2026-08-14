@@ -71,6 +71,27 @@ ANSATZ_V3_EVALUATOR_DEPENDENCIES = {
 }
 
 
+# A fresh science-strategy launch extends, rather than replaces, the original
+# ansatz-v3 dependency set.  Keeping these names in a separate conditional
+# mapping preserves the exact source-binding shape of already committed v1
+# transactions while ensuring policy-v5 parent and child processes freeze the
+# quota/domain bytes they actually execute.
+ANSATZ_V3_SCIENCE_STRATEGY_ID = "ansatz-v3-science-strategy-v2"
+ANSATZ_V3_SCIENCE_STRATEGY_ENV = "QCODE_ANSATZ_V3_SCIENCE_STRATEGY"
+ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD = (
+    "ansatz_v3_science_strategy"
+)
+ANSATZ_V3_SCIENCE_STRATEGY_DEPENDENCIES = {
+    "ansatz_v3_science_formal_audit_quota": (
+        "configs/twisted_torus_ansatz_v3.formal_audit_quota.v2.json"
+    ),
+    "ansatz_v3_science_finite_domain": (
+        "configs/"
+        "twisted_torus_ansatz_v3.finite_domain.science_strategy_v2.json"
+    ),
+}
+
+
 # Extra immutable inputs used only by the coset two-block evaluator.  Keep
 # this mapping shared by the launcher and Humanize transaction verifier: a
 # dependency present on just one side would either make a completed slice

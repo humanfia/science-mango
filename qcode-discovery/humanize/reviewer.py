@@ -71,6 +71,7 @@ _SEARCH_ACTION_SOURCES = (
     "trusted_exact_history",
     "candidate_diversity",
     "failure_direction_feedback",
+    "formal_audit_coverage",
 )
 _SEARCH_ACTION_VALUES = {
     "portfolio_role": frozenset(
@@ -1657,6 +1658,7 @@ def build_review_prompt(
     trusted_exact_wins: list[dict[str, Any]] | None = None,
     round_history: list[dict[str, Any]] | None = None,
     current_candidate_diversity: dict[str, Any] | None = None,
+    formal_audit_coverage: dict[str, Any] | None = None,
 ) -> str:
     """Build an evidence-only review prompt with explicit trust boundaries."""
     trusted_exact_history = trusted_exact_history or []
@@ -1825,6 +1827,12 @@ def build_review_prompt(
             "selection": "most_recent_12000_characters",
         },
     }
+    if formal_audit_coverage is not None:
+        if not isinstance(formal_audit_coverage, dict):
+            raise ValueError("formal audit coverage must be an object")
+        evidence["formal_audit_coverage"] = copy.deepcopy(
+            formal_audit_coverage
+        )
     _assert_advisory_coordinate_consistency(evidence)
     return f"""You are the independent reviewer in a Humanize-style RLCR loop for
 quantum error-correcting code discovery. Review the round evidence below. You
@@ -1856,6 +1864,9 @@ Trust boundary:
   section duplicates and the complete new/archive intersection. At most five
   stable overlap examples are shown.
 - A replayable low-weight witness may be used only as negative evidence.
+- formal_audit_coverage, when present, is replayed from the complete sequence
+  of hash-bound FILLED fresh audit slots. Use its exact deficits when issuing
+  an explore_undercovered action; free-form prose is not execution authority.
 - Positive distance credit requires trusted exact history or a formally
   certified lower bound; survival under BP/OSD is not such a bound.
 - Your review cannot upgrade any numerical claim. Only MILP certificates and

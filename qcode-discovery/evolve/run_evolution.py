@@ -99,6 +99,10 @@ if PROJECT_ROOT not in sys.path:
 
 from evolve.dependency_contract import (
     ANSATZ_V3_EVALUATOR_DEPENDENCIES,
+    ANSATZ_V3_SCIENCE_STRATEGY_DEPENDENCIES,
+    ANSATZ_V3_SCIENCE_STRATEGY_ENV,
+    ANSATZ_V3_SCIENCE_STRATEGY_ID,
+    ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD,
     COSET_EVALUATOR_DEPENDENCIES,
     LOCAL_EVALUATOR_DEPENDENCIES,
 )
@@ -419,11 +423,13 @@ SEARCH_REGIME_POLICY_PREFIX = "QCODE_SEARCH_REGIME_V1="
 SEARCH_REGIME_POLICY_V2_PREFIX = "QCODE_SEARCH_REGIME_V2="
 SEARCH_REGIME_POLICY_V3_PREFIX = "QCODE_SEARCH_REGIME_V3="
 SEARCH_REGIME_POLICY_V4_PREFIX = "QCODE_SEARCH_REGIME_V4="
+SEARCH_REGIME_POLICY_V5_PREFIX = "QCODE_SEARCH_REGIME_V5="
 SEARCH_REGIME_PREFIX_BY_POLICY_VERSION = {
     1: SEARCH_REGIME_POLICY_PREFIX,
     2: SEARCH_REGIME_POLICY_V2_PREFIX,
     3: SEARCH_REGIME_POLICY_V3_PREFIX,
     4: SEARCH_REGIME_POLICY_V4_PREFIX,
+    5: SEARCH_REGIME_POLICY_V5_PREFIX,
 }
 SEARCH_REGIME_V1_STATUSES = (
     "normal",
@@ -579,6 +585,23 @@ SUPPORTED_OPENEVOLVE_SHA256 = {
 STAGE1_EXCEPTION_PROVENANCE_FIELD = "qcode_exception_provenance"
 STAGE1_EXCEPTION_PROVENANCE_SCHEMA_VERSION = 1
 
+def _active_ansatz_v3_science_strategy() -> str | None:
+    """Return the exact managed strategy marker or fail closed."""
+
+    value = os.environ.get(ANSATZ_V3_SCIENCE_STRATEGY_ENV)
+    if value is None:
+        return None
+    if (
+        value != ANSATZ_V3_SCIENCE_STRATEGY_ID
+        or ACTIVE_GEOMETRY_CONTRACT
+        != PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
+    ):
+        raise RuntimeError(
+            "managed ansatz-v3 science-strategy environment is invalid"
+        )
+    return value
+
+
 def _active_evaluator_dependencies(
     evaluator_kind: str = EVALUATOR_KIND_DEFAULT,
 ) -> dict[str, str]:
@@ -588,6 +611,8 @@ def _active_evaluator_dependencies(
         PUBLISHED_VOLUME_ANSATZ_V3_GEOMETRY_CONTRACT
     ):
         dependencies.update(ANSATZ_V3_EVALUATOR_DEPENDENCIES)
+    if _active_ansatz_v3_science_strategy() is not None:
+        dependencies.update(ANSATZ_V3_SCIENCE_STRATEGY_DEPENDENCIES)
     if evaluator_kind == EVALUATOR_KIND_COSET_TWO_BLOCK:
         dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
     return dependencies
@@ -3536,6 +3561,7 @@ def _validated_search_regime(
     """Read the optional machine-authored mechanism search regime marker."""
 
     text = humanize_context or ""
+    science_strategy = _active_ansatz_v3_science_strategy()
     marker_specs = tuple(
         (version, prefix, prefix[:-1])
         for version, prefix in SEARCH_REGIME_PREFIX_BY_POLICY_VERSION.items()
@@ -3561,6 +3587,11 @@ def _validated_search_regime(
         version, prefix = exact[0]
         lines.append((version, line[len(prefix):]))
     if not lines:
+        if science_strategy is not None:
+            raise RuntimeError(
+                "managed science strategy requires a policy-v5 search "
+                "regime marker"
+            )
         return dict(DEFAULT_SEARCH_REGIME)
     if len(lines) != 1 or len(lines[0][1]) > 16_384:
         raise RuntimeError("humanize context has an invalid search regime marker")
@@ -3577,6 +3608,10 @@ def _validated_search_regime(
         return result
 
     policy_version, encoded = lines[0]
+    if (science_strategy is not None) != (policy_version == 5):
+        raise RuntimeError(
+            "policy-v5 search regime and science-strategy binding disagree"
+        )
     try:
         value = json.loads(
             encoded,
@@ -7070,6 +7105,9 @@ def _validated_invocation_binding(
     }
     if ansatz_v3_codex:
         expected_fields.update(ansatz_v3_view_fields)
+    science_strategy = _active_ansatz_v3_science_strategy()
+    if science_strategy is not None:
+        expected_fields.add(ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD)
     observed_fields = set(invocation)
     has_evaluator_kind = EVALUATOR_KIND_BINDING_FIELD in observed_fields
     has_action_catalog = (
@@ -7102,6 +7140,12 @@ def _validated_invocation_binding(
         )
     if observed_fields != expected_fields:
         raise RuntimeError("managed invocation binding fields are incomplete")
+    if science_strategy is not None and invocation.get(
+        ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD
+    ) != science_strategy:
+        raise RuntimeError(
+            "managed invocation science-strategy binding changed"
+        )
     if has_evaluator_kind:
         evaluator_kind = invocation[EVALUATOR_KIND_BINDING_FIELD]
         if evaluator_kind != EVALUATOR_KIND_COSET_TWO_BLOCK:
@@ -8729,6 +8773,11 @@ def main():
             )
         if ansatz_v3_codex_view_binding is not None:
             invocation_binding.update(ansatz_v3_codex_view_binding)
+        science_strategy = _active_ansatz_v3_science_strategy()
+        if science_strategy is not None:
+            invocation_binding[
+                ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD
+            ] = science_strategy
         backend_path = (
             Path(__file__).resolve().parent / "codex_cli_llm.py"
             if args.codex_cli

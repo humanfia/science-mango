@@ -898,7 +898,7 @@ def _validated_parent_machine_evidence(
         stop_on_change = config.get("stop_on_representation_change")
         if (
             isinstance(policy_version, bool)
-            or policy_version not in {2, 3, 4}
+            or policy_version not in {2, 3, 4, 5}
             or stop_on_change is not True
         ):
             raise ParentEvidenceError(
@@ -965,6 +965,7 @@ def _validated_parent_machine_evidence(
         canonical = {"round": summary["round"]}
         for field in (
             "sealed_exact_audit",
+            "sealed_scientific_progress",
             "candidate_diversity",
             "search_regime",
         ):

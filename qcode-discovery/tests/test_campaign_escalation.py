@@ -722,6 +722,55 @@ def test_representation_escalation_requires_atomic_policy_v2_handoff(
         )
 
 
+def test_policy_v5_handoff_is_authorized_and_binds_scientific_progress(
+    tmp_path,
+):
+    repo = _fixture_repo(tmp_path)
+    _set_regime(repo, "representation_change_required")
+    state_path = repo / "results/humanize/parent-run/state.json"
+    state = json.loads(state_path.read_text())
+    state["config"].update({
+        "search_regime_policy_version": 5,
+        "stop_on_representation_change": True,
+        "max_rounds": 12,
+    })
+    summary = state["rounds"][-1]
+    summary["search_regime_policy_version"] = 5
+    summary["trusted_win_total"] = 0
+    summary["sealed_scientific_progress"] = {
+        "progress_sha256": "1" * 64,
+        "test_bound_coordinate": 1,
+    }
+    state["trusted_win_count"] = 0
+    state["search_handoff_reason"] = "representation_change_required"
+    state["search_handoff_at_round"] = state["current_round"]
+    _write_json(state_path, state)
+
+    first = escalation_module._validated_parent_machine_evidence(
+        repo=repo,
+        parent_state_path=Path(
+            "results/humanize/parent-run/state.json"
+        ),
+        require_escalation_regime=True,
+    )
+    assert first.search_regime_policy_version == 5
+    assert first.stop_on_representation_change is True
+
+    state = json.loads(state_path.read_text())
+    state["rounds"][-1]["sealed_scientific_progress"][
+        "test_bound_coordinate"
+    ] = 2
+    _write_json(state_path, state)
+    second = escalation_module._validated_parent_machine_evidence(
+        repo=repo,
+        parent_state_path=Path(
+            "results/humanize/parent-run/state.json"
+        ),
+        require_escalation_regime=True,
+    )
+    assert second.machine_evidence_sha256 != first.machine_evidence_sha256
+
+
 def test_legacy_search_action_extra_is_not_structured_escalation_advice(tmp_path):
     repo = _fixture_repo(tmp_path)
     review_path = (

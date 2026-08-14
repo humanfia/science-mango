@@ -1891,7 +1891,7 @@ def test_committed_v2_batch_replays_legacy_selector_after_upgrade(tmp_path):
     transaction = json.loads(manifest_path.read_text())
     assert transaction["schema_version"] == 3
     assert transaction["protocol_version"] == 3
-    assert transaction["candidate_batch_policy_version"] == 6
+    assert transaction["candidate_batch_policy_version"] == 7
     bound_end = transaction["candidate_end_offset"]
 
     # Model the immutable protocol-v2 artifact produced before selector
@@ -1943,7 +1943,11 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
     state = flow.store.initialize(config.serializable())
     round_dir = flow.store.round_dir(1)
     transaction = flow._prepare_transaction(state, 1, round_dir)
-    assert flow._candidate_batch_policy_version(transaction) == 6
+    assert flow._candidate_batch_policy_version(transaction) == 7
+
+    historical_v6 = dict(transaction)
+    historical_v6["candidate_batch_policy_version"] = 6
+    assert flow._candidate_batch_policy_version(historical_v6) == 6
 
     historical_v5 = dict(transaction)
     historical_v5["candidate_batch_policy_version"] = 5
@@ -1978,7 +1982,7 @@ def test_candidate_batch_policy_is_required_by_protocol_v3(tmp_path):
         flow._candidate_batch_policy_version(invalid)
 
 
-@pytest.mark.parametrize("bound_policy", [2, 3, 4, 5, 6])
+@pytest.mark.parametrize("bound_policy", [2, 3, 4, 5, 6, 7])
 def test_pending_screen_uses_committed_candidate_batch_policy(
     tmp_path,
     monkeypatch,
@@ -3596,6 +3600,7 @@ def _write_bound_round_review(
     intent: str = "maintain",
     verdict: str = "continue",
     horizon_rounds: int = 1,
+    focus: list[dict] | None = None,
 ) -> tuple[dict, Path, dict]:
     round_dir = flow.store.round_dir(round_number)
     review_path = round_dir / "review.json"
@@ -3605,6 +3610,9 @@ def _write_bound_round_review(
         verdict=verdict,
         horizon_rounds=horizon_rounds,
     )
+    if focus is not None:
+        review["search_action"]["focus"] = copy.deepcopy(focus)
+        review = validate_review(review, require_current=True)
     atomic_write_json(review_path, review)
     summary = {
         "round": round_number,
@@ -3801,6 +3809,72 @@ def test_bound_executable_action_uses_real_verdict_and_enforces_horizon(
     assert rejected["review_binding"]["search_action"] == (
         rejected_review["search_action"]
     )
+
+
+def test_scientific_selector_focus_replays_only_bound_in_horizon_action(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    write_launch_inputs(repo)
+    flow = HumanizeFlow(
+        FlowConfig(repo_dir=repo, run_id="scientific-review-focus", milp_top=0),
+        reviewer=Reviewer(),
+    )
+    item = {
+        "dimension": "support_split_type",
+        "value": "2+3",
+        "direction": "increase",
+        "priority": "high",
+    }
+    summary, review_path, review = _write_bound_round_review(
+        flow,
+        1,
+        intent="explore_undercovered",
+        horizon_rounds=2,
+        focus=[item],
+    )
+    rounds_root = flow.store.root / "rounds"
+
+    projected = flow_module._scientific_selector_reviewer_focus(
+        [summary],
+        rounds_root=rounds_root,
+        target_round=2,
+    )
+    assert projected["source_round"] == 1
+    assert projected["artifact_sha256"] == summary["review_binding"][
+        "artifact_sha256"
+    ]
+    assert projected["focus"] == [item]
+    assert flow_module._scientific_selector_reviewer_focus(
+        [summary],
+        rounds_root=rounds_root,
+        target_round=4,
+    ) is None
+
+    rejected, _path, _review = _write_bound_round_review(
+        flow,
+        2,
+        intent="explore_undercovered",
+        verdict="reject_round",
+        horizon_rounds=2,
+        focus=[item],
+    )
+    assert flow_module._scientific_selector_reviewer_focus(
+        [rejected],
+        rounds_root=rounds_root,
+        target_round=3,
+    ) is None
+
+    tampered = copy.deepcopy(review)
+    tampered["search_action"]["focus"][0]["value"] = "3+2"
+    atomic_write_json(review_path, tampered)
+    with pytest.raises(RoundTransactionError):
+        flow_module._scientific_selector_reviewer_focus(
+            [summary],
+            rounds_root=rounds_root,
+            target_round=2,
+        )
 
 
 def test_policy_v2_context_projects_reviewer_to_closed_structured_action(

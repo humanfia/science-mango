@@ -21,6 +21,7 @@ from evaluation.formal_audit_quota import (  # noqa: E402
     candidate_audit_strata,
     load_quota_contract,
     validate_selection_report,
+    validate_selection_report_sequence,
 )
 from evaluation.search_contract import (  # noqa: E402
     PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID,
@@ -79,6 +80,31 @@ def _jsonl(path: Path, label: str) -> tuple[list[dict[str, Any]], dict[str, Any]
     }
 
 
+def _validate_filled_report_strata(
+    report: dict[str, Any],
+    audit_rows: list[dict[str, Any]],
+) -> None:
+    """Bind v2 quota coverage to the constructions actually audited."""
+
+    by_key: dict[str, list[dict[str, Any]]] = {}
+    for row in audit_rows:
+        by_key.setdefault(code_key(row), []).append(row)
+    for slot in report["slots"]:
+        if slot["status"] != "FILLED":
+            continue
+        rows = by_key.get(str(slot["candidate_key"]), [])
+        strata = [candidate_audit_strata(row) for row in rows]
+        if (
+            not rows
+            or any(item is None for item in strata)
+            or any(item != strata[0] for item in strata[1:])
+            or dict(slot["strata"]) != strata[0]
+        ):
+            raise ValueError(
+                "formal-audit quota strata disagree with audited evidence"
+            )
+
+
 def build_manifest(
     run_root: Path,
     *,
@@ -120,6 +146,7 @@ def build_manifest(
     unique: dict[str, dict[str, Any]] = {}
     source_batches = []
     quota_reports = []
+    validated_quota_reports: list[dict[str, Any]] = []
     volume_counts: Counter[str] = Counter()
     lattice_q_counts: Counter[str] = Counter()
     mechanism_counts: Counter[str] = Counter()
@@ -167,12 +194,26 @@ def build_manifest(
             _json_object(report_path, f"round {number} quota report"),
             contract=quota,
             round_number=number,
+            prior_reports=(
+                validated_quota_reports
+                if quota.get("schema_version") == 2
+                else None
+            ),
         )
-        quota_reports.append({
+        validated_quota_reports.append(report)
+        report_binding = {
             "path": str(report_path.resolve()),
             "sha256": _sha256(report_path),
             "report_sha256": report["report_sha256"],
-        })
+        }
+        if quota.get("schema_version") == 2:
+            audit_rows, audit_identity = _jsonl(
+                round_dir / "milp.jsonl",
+                f"round {number} formal-audit evidence",
+            )
+            _validate_filled_report_strata(report, audit_rows)
+            report_binding["formal_audit_results"] = audit_identity
+        quota_reports.append(report_binding)
         for slot in report["slots"]:
             if slot["status"] == "FILLED":
                 audit_volume_counts[str(slot["volume"])] += 1
@@ -186,6 +227,30 @@ def build_manifest(
         unfilled_slots == 0
         and dict(audit_volume_counts) == quota_expected
     )
+    formal_audit_coverage = None
+    if quota.get("schema_version") == 2:
+        validate_selection_report_sequence(
+            validated_quota_reports,
+            contract=quota,
+        )
+        formal_audit_coverage = validated_quota_reports[-1][
+            "formal_audit_coverage_after"
+        ]
+        quota_complete = bool(
+            quota_complete
+            and formal_audit_coverage["gate_satisfied_components"][
+                "coverage_components_satisfied"
+            ]
+        )
+    quota_binding = {
+        "path": quota["contract_path"],
+        "sha256": quota["contract_sha256"],
+        "complete": quota_complete,
+        "unfilled_slots": unfilled_slots,
+        "volume_counts": dict(sorted(audit_volume_counts.items())),
+    }
+    if formal_audit_coverage is not None:
+        quota_binding["formal_audit_coverage"] = formal_audit_coverage
     manifest = {
         "schema_version": 1,
         "kind": "qcode-ansatz-v3-realized-finite-domain",
@@ -204,13 +269,7 @@ def build_manifest(
             "path": finite["contract_path"],
             "sha256": finite["contract_sha256"],
         },
-        "formal_audit_quota": {
-            "path": quota["contract_path"],
-            "sha256": quota["contract_sha256"],
-            "complete": quota_complete,
-            "unfilled_slots": unfilled_slots,
-            "volume_counts": dict(sorted(audit_volume_counts.items())),
-        },
+        "formal_audit_quota": quota_binding,
         "source_batches": source_batches,
         "quota_reports": quota_reports,
         "total_unique_candidates": len(unique),

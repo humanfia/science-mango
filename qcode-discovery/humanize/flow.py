@@ -24,11 +24,16 @@ from collections.abc import Collection, Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, replace
+from fractions import Fraction
 from pathlib import Path
 from typing import Any, Callable, Iterator, Protocol
 
 from evolve.dependency_contract import (
     ANSATZ_V3_EVALUATOR_DEPENDENCIES,
+    ANSATZ_V3_SCIENCE_STRATEGY_DEPENDENCIES,
+    ANSATZ_V3_SCIENCE_STRATEGY_ENV,
+    ANSATZ_V3_SCIENCE_STRATEGY_ID,
+    ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD,
     COSET_EVALUATOR_DEPENDENCIES,
     LOCAL_EVALUATOR_DEPENDENCIES,
 )
@@ -53,6 +58,7 @@ from evaluation.search_contract import (
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
     TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
     classify_target_win,
     target_binding,
     validate_target_binding,
@@ -124,8 +130,9 @@ CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION = 3
 CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION = 4
 CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION = 5
 CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION = 6
+CANDIDATE_BATCH_POLICY_SCIENTIFIC_SELECTOR_VERSION = 7
 CANDIDATE_BATCH_POLICY_VERSION = (
-    CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION
+    CANDIDATE_BATCH_POLICY_SCIENTIFIC_SELECTOR_VERSION
 )
 CANDIDATE_BATCH_POLICY_VERSIONS = (
     CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
@@ -133,6 +140,7 @@ CANDIDATE_BATCH_POLICY_VERSIONS = (
     CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
     CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION,
     CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
+    CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION,
     CANDIDATE_BATCH_POLICY_VERSION,
 )
 SEARCH_DISTANCE_INTERVAL_PROOF_SCHEMA_VERSION = 1
@@ -141,19 +149,25 @@ SEARCH_DISTANCE_INTERVAL_PROOF_KIND = (
 )
 ROUND_CANDIDATE_DIVERSITY_SCHEMA_VERSION = 1
 SEALED_ROUND_EXACT_SCHEMA_VERSION = 1
+SEALED_SCIENTIFIC_PROGRESS_SCHEMA_VERSION = 1
+SEALED_SCIENTIFIC_PROGRESS_KIND = (
+    "qcode-humanize-sealed-scientific-progress"
+)
 SEARCH_REGIME_SCHEMA_VERSION = 1
 SEARCH_REGIME_KIND = "qcode-humanize-search-regime"
 SEARCH_REGIME_PREFIX = "QCODE_SEARCH_REGIME_V1="
 SEARCH_REGIME_V2_PREFIX = "QCODE_SEARCH_REGIME_V2="
 SEARCH_REGIME_V3_PREFIX = "QCODE_SEARCH_REGIME_V3="
 SEARCH_REGIME_V4_PREFIX = "QCODE_SEARCH_REGIME_V4="
-SEARCH_REGIME_POLICY_VERSIONS = (1, 2, 3, 4)
-SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS = frozenset({3, 4})
+SEARCH_REGIME_V5_PREFIX = "QCODE_SEARCH_REGIME_V5="
+SEARCH_REGIME_POLICY_VERSIONS = (1, 2, 3, 4, 5)
+SEARCH_REGIME_BUDGET_BOUND_POLICY_VERSIONS = frozenset({3, 4, 5})
 SEARCH_REGIME_PREFIX_BY_POLICY_VERSION = {
     1: SEARCH_REGIME_PREFIX,
     2: SEARCH_REGIME_V2_PREFIX,
     3: SEARCH_REGIME_V3_PREFIX,
     4: SEARCH_REGIME_V4_PREFIX,
+    5: SEARCH_REGIME_V5_PREFIX,
 }
 SEARCH_REGIME_V1_STATUSES = (
     "normal",
@@ -478,7 +492,10 @@ class FlowConfig:
     # Policy v3 keeps timeout/empty-exact rounds neutral and closes an exhausted
     # expansion budget with a representation-change handoff. Policy v4 also
     # closes a fully exhausted no-WIN budget when Stage-1 exact work is empty.
-    # Versions are never reinterpreted so sealed v1-v3 campaigns remain
+    # Policy v5 permits an earlier machine-only handoff only after its
+    # preregistered audit-coverage, trusted-negative, unresolved, and
+    # proven-FOM stagnation evidence all replays from sealed artifacts.
+    # Versions are never reinterpreted so sealed v1-v4 campaigns remain
     # byte-replayable.
     search_regime_policy_version: int = 1
     stop_on_representation_change: bool = False
@@ -606,22 +623,22 @@ class FlowConfig:
             not in SEARCH_REGIME_POLICY_VERSIONS
         ):
             raise ValueError(
-                "search_regime_policy_version must be 1, 2, 3, or 4"
+                "search_regime_policy_version must be 1, 2, 3, 4, or 5"
             )
         if not isinstance(self.stop_on_representation_change, bool):
             raise ValueError("stop_on_representation_change must be boolean")
-        if self.search_regime_policy_version in {2, 3, 4} and (
+        if self.search_regime_policy_version in {2, 3, 4, 5} and (
             self.search_representation_id is None
         ):
             raise ValueError(
-                "search regime policy v2/v3/v4 requires search_representation_id"
+                "search regime policy v2/v3/v4/v5 requires search_representation_id"
             )
         if (
             self.stop_on_representation_change
-            and self.search_regime_policy_version not in {2, 3, 4}
+            and self.search_regime_policy_version not in {2, 3, 4, 5}
         ):
             raise ValueError(
-                "stop_on_representation_change requires policy version 2, 3, or 4"
+                "stop_on_representation_change requires policy version 2, 3, 4, or 5"
             )
         if self.formal_audit_quota_contract is not None:
             if self.search_representation_id != (
@@ -633,11 +650,36 @@ class FlowConfig:
                 )
             from evaluation.formal_audit_quota import load_quota_contract
 
-            load_quota_contract(
+            loaded_quota_contract = load_quota_contract(
                 self.formal_audit_quota_contract,
                 representation_id=self.search_representation_id,
                 rounds=self.max_rounds,
                 slots_per_round=self.milp_top,
+            )
+            if (
+                self.search_regime_policy_version == 5
+                and loaded_quota_contract.get("schema_version") != 2
+            ):
+                raise ValueError(
+                    "search regime policy v5 requires formal-audit quota v2"
+                )
+            if (
+                loaded_quota_contract.get("schema_version") == 2
+                and self.search_regime_policy_version != 5
+            ):
+                raise ValueError(
+                    "formal-audit quota v2 requires search regime policy v5"
+                )
+        elif self.search_regime_policy_version == 5:
+            raise ValueError(
+                "search regime policy v5 requires a formal-audit quota"
+            )
+        if (
+            self.search_regime_policy_version == 5
+            and self.target_mode != TARGET_MODE_SCALAR
+        ):
+            raise ValueError(
+                "search regime policy v5 currently requires scalar FOM mode"
             )
         if self.search_representation_id == (
             PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
@@ -652,15 +694,39 @@ class FlowConfig:
         if self.search_representation_id == (
             PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
         ):
-            expected_contracts = {
-                "formal_audit_quota_contract": (
+            installed_quota_contracts = {
+                (
                     self.repo_dir
                     / "configs/twisted_torus_ansatz_v3.formal_audit_quota.v1.json"
                 ).resolve(),
-                "finite_search_domain_contract": (
+                (
+                    self.repo_dir
+                    / "configs/twisted_torus_ansatz_v3.formal_audit_quota.v2.json"
+                ).resolve(),
+            }
+            quota_path = Path(self.formal_audit_quota_contract).resolve()
+            if quota_path not in installed_quota_contracts:
+                raise ValueError(
+                    "published-volume ansatz-v3 requires an installed "
+                    "formal_audit_quota_contract"
+                )
+            installed_finite_contracts = {
+                (
                     self.repo_dir
                     / "configs/twisted_torus_ansatz_v3.finite_domain.v1.json"
                 ).resolve(),
+                (
+                    self.repo_dir
+                    / "configs/twisted_torus_ansatz_v3.finite_domain.science_strategy_v2.json"
+                ).resolve(),
+            }
+            finite_path = Path(self.finite_search_domain_contract).resolve()
+            if finite_path not in installed_finite_contracts:
+                raise ValueError(
+                    "published-volume ansatz-v3 requires an installed "
+                    "finite_search_domain_contract"
+                )
+            expected_contracts = {
                 "dual_track_contract": (
                     self.repo_dir
                     / "configs/twisted_torus_ansatz_v3.dual_track.v1.json"
@@ -674,12 +740,25 @@ class FlowConfig:
         if self.finite_search_domain_contract is not None:
             from evaluation.ansatz_v3_contract import load_finite_domain_contract
 
-            load_finite_domain_contract(
+            loaded_finite_contract = load_finite_domain_contract(
                 self.finite_search_domain_contract,
                 representation_id=self.search_representation_id,
                 rounds=self.max_rounds,
                 iterations_per_round=self.iterations_per_round,
             )
+            if self.formal_audit_quota_contract is not None:
+                declared_quota = Path(
+                    loaded_finite_contract["formal_audit_quota"]
+                )
+                if not declared_quota.is_absolute():
+                    declared_quota = self.repo_dir / declared_quota
+                if declared_quota.resolve() != Path(
+                    self.formal_audit_quota_contract
+                ).resolve():
+                    raise ValueError(
+                        "finite_search_domain_contract and "
+                        "formal_audit_quota_contract are incompatible"
+                    )
         if self.dual_track_contract is not None:
             from evaluation.ansatz_v3_dual_track import load_dual_track_contract
 
@@ -1620,6 +1699,8 @@ def _evolution_dependencies(config: FlowConfig) -> dict[str, str]:
         PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
     ):
         dependencies.update(ANSATZ_V3_EVALUATOR_DEPENDENCIES)
+        if config.search_regime_policy_version == 5:
+            dependencies.update(ANSATZ_V3_SCIENCE_STRATEGY_DEPENDENCIES)
     if _flow_evaluator_kind(config) == "coset-two-block":
         dependencies.update(COSET_EVALUATOR_DEPENDENCIES)
     return dependencies
@@ -2035,6 +2116,16 @@ def _fresh_invocation_binding(
     if geometry_contract is not None:
         invocation[SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD] = (
             geometry_contract
+        )
+    if config.search_regime_policy_version == 5:
+        if config.search_representation_id != (
+            PUBLISHED_VOLUME_ANSATZ_V3_REPRESENTATION_ID
+        ):
+            raise RoundTransactionError(
+                "science-strategy invocation requires ansatz-v3"
+            )
+        invocation[ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD] = (
+            ANSATZ_V3_SCIENCE_STRATEGY_ID
         )
     if (
         config.codex_cli
@@ -2464,6 +2555,8 @@ def _expected_evolution_invocation_fields(
         expected.add(SEARCH_GEOMETRY_CONTRACT_INVOCATION_FIELD)
     if _is_ansatz_v3_codex_invocation(config):
         expected.update(ANSATZ_V3_CODEX_VIEW_INVOCATION_FIELDS)
+    if config.search_regime_policy_version == 5:
+        expected.add(ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD)
     return expected
 
 
@@ -2554,6 +2647,12 @@ def _validate_invocation_binding(
     ):
         raise RoundTransactionError(
             "evolution search geometry contract binding changed"
+        )
+    if config.search_regime_policy_version == 5 and invocation.get(
+        ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD
+    ) != ANSATZ_V3_SCIENCE_STRATEGY_ID:
+        raise RoundTransactionError(
+            "evolution science-strategy binding changed"
         )
     if _flow_evaluator_kind(config) == "coset-two-block":
         catalog = launch_binding.get(
@@ -3141,6 +3240,426 @@ def _validate_sealed_round_exact_summary(
     return value
 
 
+def _validate_formal_audit_report_strata(
+    report: Mapping[str, Any],
+    rows: list[dict[str, Any]],
+) -> None:
+    """Bind FILLED report strata to same-round audited constructions."""
+
+    from evaluation.formal_audit_quota import candidate_audit_strata
+
+    round_rows_by_key: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        round_rows_by_key.setdefault(code_key(row), []).append(row)
+    for slot in report["slots"]:
+        if slot["status"] != "FILLED":
+            continue
+        key = str(slot["candidate_key"])
+        source_rows = round_rows_by_key.get(key, [])
+        if not source_rows:
+            raise RoundTransactionError(
+                "scientific progress is missing the FILLED candidate "
+                "from its source round"
+            )
+        replayed_strata = [candidate_audit_strata(row) for row in source_rows]
+        if (
+            any(strata is None for strata in replayed_strata)
+            or any(
+                strata != replayed_strata[0]
+                for strata in replayed_strata[1:]
+            )
+            or dict(slot["strata"]) != replayed_strata[0]
+        ):
+            raise RoundTransactionError(
+                "scientific progress formal-audit strata disagree "
+                "with the audited construction"
+            )
+
+
+def _build_sealed_scientific_progress(
+    *,
+    rounds_root: Path,
+    contract: Mapping[str, Any],
+    through_round: int,
+    target_mode: str = TARGET_MODE_SCALAR,
+) -> dict[str, Any]:
+    """Rebuild cumulative v5 progress from quota and formal-audit bytes.
+
+    BP/OSD telemetry is never read.  The only distance used for a positive
+    progress coordinate is a checkpoint-replayed exact/certified lower bound;
+    every transition-negative vote is a replayed formal audit outcome.
+    """
+
+    selected_target_mode = validate_target_mode(target_mode)
+    if contract.get("schema_version") != 2:
+        raise RoundTransactionError(
+            "scientific progress requires formal-audit quota schema v2"
+        )
+    reports = _validated_formal_audit_report_sequence(
+        rounds_root=rounds_root,
+        contract=contract,
+        through_round=through_round,
+    )
+    latest_by_key: dict[str, dict[str, Any]] = {}
+    milp_sources: list[dict[str, Any]] = []
+    for number in range(1, through_round + 1):
+        path = rounds_root / f"round-{number:03d}" / "milp.jsonl"
+        if path.is_symlink() or not path.is_file():
+            raise RoundTransactionError(
+                "scientific progress source MILP evidence is missing"
+            )
+        payload = path.read_bytes()
+        rows = _strict_jsonl_objects(
+            payload,
+            "scientific progress formal-audit evidence",
+        )
+        milp_sources.append({
+            "round": number,
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "bytes": len(payload),
+            "rows": len(rows),
+        })
+        for row in rows:
+            attempt = row.get("audit_attempt")
+            if (
+                not isinstance(attempt, Mapping)
+                or attempt.get("round") != number
+            ):
+                raise RoundTransactionError(
+                    "scientific progress audit is bound to the wrong round"
+                )
+            # Full checkpoint/source replay happens here.  A malformed row is
+            # a controller error, never an evidence-neutral UNKNOWN.
+            classify_evaluation(row)
+            key = code_key(row)
+            latest_by_key[key] = row
+        # Selection-report strata are scheduling metadata, not proof.  Bind
+        # them back to the construction actually audited in this round.
+        _validate_formal_audit_report_strata(reports[number - 1], rows)
+
+    filled_fresh_keys = {
+        str(slot["candidate_key"])
+        for report in reports
+        for slot in report["slots"]
+        if slot["status"] == "FILLED"
+    }
+    if not filled_fresh_keys.issubset(latest_by_key):
+        raise RoundTransactionError(
+            "scientific progress is missing a FILLED formal-audit result"
+        )
+
+    terminal_count = 0
+    target_negative_count = 0
+    unresolved_count = 0
+    fresh_terminal_negative_count = 0
+    best_proven: dict[str, Any] | None = None
+    best_distance_lower_bound = 0
+    minimum_target_gap: int | None = None
+    for key, row in sorted(latest_by_key.items()):
+        outcome = classify_evaluation(row)
+        if outcome.unresolved:
+            unresolved_count += 1
+        else:
+            terminal_count += 1
+        distance = None
+        proof_source = None
+        if outcome is AuditOutcome.EXACT:
+            distance = _positive_distance(row)
+            proof_source = "replayed-formal-exact-checkpoint"
+        elif _search_lower_bound_claim_priority(
+            row,
+            target_mode=selected_target_mode,
+        ) is not None:
+            distance = _replayable_search_lower_bound_for_audit(row)
+            if distance is not None:
+                proof_source = "replayed-two-sector-search-lower-bound"
+        if distance is not None:
+            n, k = row.get("n"), row.get("k")
+            if (
+                isinstance(n, bool)
+                or not isinstance(n, int)
+                or n < 1
+                or isinstance(k, bool)
+                or not isinstance(k, int)
+                or not 1 <= k <= n
+            ):
+                raise RoundTransactionError(
+                    "scientific progress has invalid proven parameters"
+                )
+            numerator = k * distance * distance
+            required_distance = int(
+                target_binding(n, k, selected_target_mode)[
+                    "required_distance"
+                ]
+            )
+            target_gap = max(0, required_distance - distance)
+            candidate = {
+                "candidate_key": key,
+                "numerator": numerator,
+                "denominator": n,
+                "distance_lower_bound": distance,
+                "proof_source": proof_source,
+                "target_gap": target_gap,
+            }
+            if best_proven is None or (
+                numerator * int(best_proven["denominator"])
+                > int(best_proven["numerator"]) * n
+            ):
+                best_proven = candidate
+            best_distance_lower_bound = max(
+                best_distance_lower_bound,
+                distance,
+            )
+            minimum_target_gap = (
+                target_gap
+                if minimum_target_gap is None
+                else min(minimum_target_gap, target_gap)
+            )
+
+        target_negative = outcome is AuditOutcome.THRESHOLD_REJECTED
+        if outcome is AuditOutcome.EXACT:
+            exact_distance = _positive_distance(row)
+            if exact_distance is None:
+                raise RoundTransactionError(
+                    "scientific progress exact audit lacks a distance"
+                )
+            try:
+                target_negative = not classify_target_win(
+                    int(row["n"]),
+                    int(row["k"]),
+                    exact_distance,
+                    selected_target_mode,
+                )["passed"]
+            except (KeyError, TypeError, ValueError) as exc:
+                raise RoundTransactionError(
+                    "scientific progress exact target replay failed"
+                ) from exc
+        if target_negative:
+            target_negative_count += 1
+            if key in filled_fresh_keys:
+                fresh_terminal_negative_count += 1
+
+    latest_report = reports[-1]
+    report_sources = [
+        {
+            "round": int(report["round"]),
+            "report_sha256": report["report_sha256"],
+            "filled_fresh_slots": int(report["filled_fresh_slots"]),
+        }
+        for report in reports
+    ]
+    unsigned = {
+        "schema_version": SEALED_SCIENTIFIC_PROGRESS_SCHEMA_VERSION,
+        "kind": SEALED_SCIENTIFIC_PROGRESS_KIND,
+        "through_round": through_round,
+        "target_mode": selected_target_mode,
+        "quota_contract_sha256": contract["contract_sha256"],
+        "milp_sources": milp_sources,
+        "quota_report_sources": report_sources,
+        "unique_audited_candidates": len(latest_by_key),
+        "filled_fresh_candidates": len(filled_fresh_keys),
+        "terminal_candidates": terminal_count,
+        "target_negative_candidates": target_negative_count,
+        "fresh_terminal_target_negative_candidates": (
+            fresh_terminal_negative_count
+        ),
+        "unresolved_candidates": unresolved_count,
+        "best_proven_fom": best_proven,
+        "best_distance_lower_bound": best_distance_lower_bound,
+        "minimum_target_gap": minimum_target_gap,
+        "formal_audit_coverage": copy.deepcopy(
+            latest_report["formal_audit_coverage_after"]
+        ),
+        "automatic_representation_switch_gate": copy.deepcopy(
+            contract["automatic_representation_switch_gate"]
+        ),
+        "bp_osd_positive_credit": False,
+    }
+    return {
+        **unsigned,
+        "progress_sha256": _canonical_payload_sha256(unsigned),
+    }
+
+
+def _validate_sealed_scientific_progress(
+    value: Any,
+    *,
+    round_number: int,
+    round_dir: Path | None = None,
+) -> dict[str, Any]:
+    expected_fields = {
+        "schema_version",
+        "kind",
+        "through_round",
+        "target_mode",
+        "quota_contract_sha256",
+        "milp_sources",
+        "quota_report_sources",
+        "unique_audited_candidates",
+        "filled_fresh_candidates",
+        "terminal_candidates",
+        "target_negative_candidates",
+        "fresh_terminal_target_negative_candidates",
+        "unresolved_candidates",
+        "best_proven_fom",
+        "best_distance_lower_bound",
+        "minimum_target_gap",
+        "formal_audit_coverage",
+        "automatic_representation_switch_gate",
+        "bp_osd_positive_credit",
+        "progress_sha256",
+    }
+    if not isinstance(value, dict) or set(value) != expected_fields:
+        raise RoundTransactionError(
+            "sealed scientific progress fields are invalid"
+        )
+    unsigned = dict(value)
+    claimed = unsigned.pop("progress_sha256", None)
+    if (
+        value["schema_version"]
+        != SEALED_SCIENTIFIC_PROGRESS_SCHEMA_VERSION
+        or value["kind"] != SEALED_SCIENTIFIC_PROGRESS_KIND
+        or value["through_round"] != round_number
+        or value["target_mode"] != TARGET_MODE_SCALAR
+        or value["bp_osd_positive_credit"] is not False
+        or not isinstance(claimed, str)
+        or re.fullmatch(r"[0-9a-f]{64}", claimed) is None
+        or claimed != _canonical_payload_sha256(unsigned)
+    ):
+        raise RoundTransactionError("sealed scientific progress is invalid")
+    for field in (
+        "unique_audited_candidates",
+        "filled_fresh_candidates",
+        "terminal_candidates",
+        "target_negative_candidates",
+        "fresh_terminal_target_negative_candidates",
+        "unresolved_candidates",
+        "best_distance_lower_bound",
+    ):
+        if type(value[field]) is not int or value[field] < 0:
+            raise RoundTransactionError(
+                "sealed scientific progress count is invalid"
+            )
+    minimum_target_gap = value["minimum_target_gap"]
+    if (
+        minimum_target_gap is not None
+        and (
+            type(minimum_target_gap) is not int
+            or minimum_target_gap < 0
+        )
+    ):
+        raise RoundTransactionError(
+            "sealed scientific progress target gap is invalid"
+        )
+    gate = value.get("automatic_representation_switch_gate")
+    gate_fields = {
+        "minimum_terminal_fresh_audits",
+        "stagnation_rounds",
+        "minimum_proven_fom_improvement",
+        "retain_family_if_lower_bound_at_least",
+        "retain_family_if_target_gap_at_most",
+        "minimum_distinct_lattice_q",
+        "minimum_algebraic_mechanism_audits",
+        "require_zero_unresolved",
+        "require_all_audited_target_negative",
+    }
+    coverage = value.get("formal_audit_coverage")
+    if (
+        not isinstance(value.get("quota_contract_sha256"), str)
+        or re.fullmatch(
+            r"[0-9a-f]{64}", value["quota_contract_sha256"]
+        )
+        is None
+        or not isinstance(gate, Mapping)
+        or set(gate) != gate_fields
+        or gate.get("require_zero_unresolved") is not True
+        or gate.get("require_all_audited_target_negative") is not True
+        or not isinstance(coverage, Mapping)
+        or coverage.get("basis")
+        != "validated-filled-fresh-formal-audit-slots"
+        or not isinstance(coverage.get("gate_satisfied_components"), Mapping)
+    ):
+        raise RoundTransactionError(
+            "sealed scientific progress gate is invalid"
+        )
+    if (
+        value["terminal_candidates"] > value["unique_audited_candidates"]
+        or value["target_negative_candidates"]
+        > value["terminal_candidates"]
+        or value["fresh_terminal_target_negative_candidates"]
+        > value["filled_fresh_candidates"]
+    ):
+        raise RoundTransactionError(
+            "sealed scientific progress counts disagree"
+        )
+    milp_sources = value.get("milp_sources")
+    report_sources = value.get("quota_report_sources")
+    if (
+        not isinstance(milp_sources, list)
+        or not isinstance(report_sources, list)
+        or len(milp_sources) != round_number
+        or len(report_sources) != round_number
+        or [row.get("round") for row in milp_sources]
+        != list(range(1, round_number + 1))
+        or [row.get("round") for row in report_sources]
+        != list(range(1, round_number + 1))
+    ):
+        raise RoundTransactionError(
+            "sealed scientific progress source prefix is invalid"
+        )
+    _scientific_progress_fom(value)
+    if (value["best_proven_fom"] is None) != (
+        value["best_distance_lower_bound"] == 0
+        and value["minimum_target_gap"] is None
+    ):
+        raise RoundTransactionError(
+            "sealed scientific progress proof coordinates disagree"
+        )
+    if round_dir is not None:
+        contract_path = None
+        report_path = round_dir / "formal-audit-quota-selection.json"
+        report = _read_json_object(
+            report_path,
+            "formal-audit quota selection report",
+        )
+        candidate_path = report.get("contract_path")
+        if isinstance(candidate_path, str):
+            contract_path = Path(candidate_path)
+        if contract_path is None:
+            raise RoundTransactionError(
+                "scientific progress quota contract path is missing"
+            )
+        installed_contract_path = (
+            Path(__file__).resolve().parents[1]
+            / "configs/"
+            "twisted_torus_ansatz_v3.formal_audit_quota.v2.json"
+        ).resolve()
+        if contract_path.resolve() != installed_contract_path:
+            raise RoundTransactionError(
+                "scientific progress quota contract is not the installed "
+                "policy-v5 contract"
+            )
+        from evaluation.formal_audit_quota import load_quota_contract
+
+        try:
+            contract = load_quota_contract(contract_path)
+        except ValueError as exc:
+            raise RoundTransactionError(
+                "scientific progress quota contract cannot be replayed"
+            ) from exc
+        expected = _build_sealed_scientific_progress(
+            rounds_root=round_dir.parent,
+            contract=contract,
+            through_round=round_number,
+            target_mode=value["target_mode"],
+        )
+        if value != expected:
+            raise RoundTransactionError(
+                "sealed scientific progress disagrees with source artifacts"
+            )
+    return value
+
+
 def _normal_search_regime(completed_rounds: int) -> dict[str, Any]:
     return {
         "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
@@ -3600,6 +4119,222 @@ def _advance_search_regime_v4(
     return regime
 
 
+def _scientific_progress_fom(
+    progress: Mapping[str, Any],
+) -> Fraction:
+    value = progress.get("best_proven_fom")
+    if value is None:
+        return Fraction(0, 1)
+    if (
+        not isinstance(value, Mapping)
+        or set(value)
+        != {
+            "candidate_key",
+            "numerator",
+            "denominator",
+            "distance_lower_bound",
+            "proof_source",
+            "target_gap",
+        }
+        or not isinstance(value.get("candidate_key"), str)
+        or type(value.get("numerator")) is not int
+        or value["numerator"] < 0
+        or type(value.get("denominator")) is not int
+        or value["denominator"] < 1
+        or type(value.get("distance_lower_bound")) is not int
+        or value["distance_lower_bound"] < 1
+        or value.get("proof_source") not in {
+            "replayed-formal-exact-checkpoint",
+            "replayed-two-sector-search-lower-bound",
+        }
+        or type(value.get("target_gap")) is not int
+        or value["target_gap"] < 0
+    ):
+        raise RoundTransactionError(
+            "scientific progress best proven FOM is invalid"
+        )
+    return Fraction(value["numerator"], value["denominator"])
+
+
+def _advance_search_regime_v5(
+    previous: dict[str, Any],
+    completed: list[dict[str, Any]],
+    *,
+    max_rounds: int,
+) -> dict[str, Any]:
+    """Trigger a fresh representation only from complete machine evidence.
+
+    This controller intentionally does not use Reviewer prose, BP/OSD upper
+    bounds, or UNKNOWN as evidence of stagnation.  Reviewer advice can steer
+    one audit slot, but the representation actuator requires the sealed quota
+    prefix, replayed target-negative formal outcomes, zero unresolved work,
+    and an exact-rational, replayed-proof FOM plateau.
+    """
+
+    if previous.get("status") == "representation_change_required":
+        return copy.deepcopy(previous)
+    latest = completed[-1]
+    trusted_win_total = latest.get("trusted_win_total")
+    if type(trusted_win_total) is not int or trusted_win_total < 0:
+        raise RoundTransactionError(
+            "search regime policy v5 requires trusted_win_total"
+        )
+    progress = latest.get("sealed_scientific_progress")
+    if not isinstance(progress, Mapping):
+        raise RoundTransactionError(
+            "search regime policy v5 requires sealed scientific progress"
+        )
+    if trusted_win_total > 0:
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "exploit",
+            "reason": "trusted_win_present",
+            "evidence": {
+                "basis": "sealed-scientific-selector-progress-v1",
+                "round": latest["round"],
+                "trusted_win_total": trusted_win_total,
+                "progress_sha256": progress["progress_sha256"],
+            },
+        }
+
+    gate = progress.get("automatic_representation_switch_gate")
+    coverage = progress.get("formal_audit_coverage")
+    coverage_gate = (
+        coverage.get("gate_satisfied_components")
+        if isinstance(coverage, Mapping)
+        else None
+    )
+    if not isinstance(gate, Mapping) or not isinstance(
+        coverage_gate, Mapping
+    ):
+        raise RoundTransactionError(
+            "search regime policy v5 gate evidence is malformed"
+        )
+    stagnation_rounds = gate.get("stagnation_rounds")
+    minimum_fresh = gate.get("minimum_terminal_fresh_audits")
+    threshold = gate.get("minimum_proven_fom_improvement")
+    retain_lower_bound = gate.get(
+        "retain_family_if_lower_bound_at_least"
+    )
+    retain_target_gap = gate.get("retain_family_if_target_gap_at_most")
+    if (
+        type(stagnation_rounds) is not int
+        or stagnation_rounds < 1
+        or type(minimum_fresh) is not int
+        or minimum_fresh < 1
+        or isinstance(threshold, bool)
+        or not isinstance(threshold, (int, float))
+        or float(threshold) < 0.0
+        or type(retain_lower_bound) is not int
+        or retain_lower_bound < 1
+        or type(retain_target_gap) is not int
+        or retain_target_gap < 0
+    ):
+        raise RoundTransactionError(
+            "search regime policy v5 gate parameters are invalid"
+        )
+
+    coverage_ready = bool(
+        coverage_gate.get("coverage_components_satisfied") is True
+        and int(progress["filled_fresh_candidates"]) >= minimum_fresh
+    )
+    outcomes_ready = bool(
+        int(progress["unresolved_candidates"]) == 0
+        and int(progress["target_negative_candidates"])
+        == int(progress["unique_audited_candidates"])
+        and int(progress["fresh_terminal_target_negative_candidates"])
+        == int(progress["filled_fresh_candidates"])
+    )
+    observed_target_gap = progress.get("minimum_target_gap")
+    strong_lower_bound_signal = bool(
+        int(progress["best_distance_lower_bound"])
+        >= retain_lower_bound
+    )
+    close_target_signal = bool(
+        type(observed_target_gap) is int
+        and observed_target_gap <= retain_target_gap
+    )
+    window_ready = len(completed) >= stagnation_rounds
+    improvement = None
+    window: list[dict[str, Any]] = []
+    if window_ready:
+        window = completed[-stagnation_rounds:]
+        progress_window = [
+            item.get("sealed_scientific_progress") for item in window
+        ]
+        if any(not isinstance(item, Mapping) for item in progress_window):
+            raise RoundTransactionError(
+                "search regime policy v5 progress window is incomplete"
+            )
+        start = _scientific_progress_fom(progress_window[0])
+        end = _scientific_progress_fom(progress_window[-1])
+        if end < start:
+            raise RoundTransactionError(
+                "sealed cumulative proven FOM decreased"
+            )
+        improvement = end - start
+    threshold_fraction = Fraction(str(threshold))
+    plateau = improvement is not None and improvement <= threshold_fraction
+
+    evidence = {
+        "basis": "sealed-scientific-selector-progress-v1",
+        "round": latest["round"],
+        "max_rounds": max_rounds,
+        "progress_sha256": progress["progress_sha256"],
+        "coverage_ready": coverage_ready,
+        "outcomes_ready": outcomes_ready,
+        "window_rounds": [item["round"] for item in window],
+        "proven_fom_improvement": (
+            None
+            if improvement is None
+            else {
+                "numerator": improvement.numerator,
+                "denominator": improvement.denominator,
+            }
+        ),
+        "maximum_improvement": str(threshold_fraction),
+        "reviewer_execution_authority": False,
+        "bp_osd_positive_credit": False,
+        "unknown_counts_as_stagnation": False,
+        "strong_lower_bound_signal": strong_lower_bound_signal,
+        "close_target_signal": close_target_signal,
+        "best_distance_lower_bound": int(
+            progress["best_distance_lower_bound"]
+        ),
+        "minimum_target_gap": observed_target_gap,
+    }
+    if strong_lower_bound_signal or close_target_signal:
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "expand_required",
+            "reason": "trusted_lower_bound_signal_requires_targeted_deep_proof",
+            "evidence": evidence,
+        }
+    if coverage_ready and outcomes_ready and plateau:
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "representation_change_required",
+            "reason": (
+                "trusted_formal_negative_plateau_after_preregistered_coverage"
+            ),
+            "evidence": evidence,
+        }
+    if window_ready and plateau:
+        return {
+            "schema_version": SEARCH_REGIME_SCHEMA_VERSION,
+            "kind": SEARCH_REGIME_KIND,
+            "status": "expand_required",
+            "reason": (
+                "trusted_plateau_requires_coverage_or_outcome_repair"
+            ),
+            "evidence": evidence,
+        }
+    return _normal_search_regime(len(completed))
+
+
 def _advance_search_regime(
     previous: dict[str, Any],
     completed: list[dict[str, Any]],
@@ -3635,6 +4370,20 @@ def _advance_search_regime(
                 "search regime policy v4 requires a positive max_rounds"
             )
         return _advance_search_regime_v4(
+            previous,
+            completed,
+            max_rounds=max_rounds,
+        )
+    if policy_version == 5:
+        if (
+            isinstance(max_rounds, bool)
+            or not isinstance(max_rounds, int)
+            or max_rounds < 1
+        ):
+            raise RoundTransactionError(
+                "search regime policy v5 requires a positive max_rounds"
+            )
+        return _advance_search_regime_v5(
             previous,
             completed,
             max_rounds=max_rounds,
@@ -3777,6 +4526,20 @@ def _replay_search_regime(
             _validate_search_oracle_feedback_summary(
                 summary["search_oracle_feedback"]
             )
+        if selected_policy_version == 5:
+            if "sealed_scientific_progress" not in summary:
+                raise RoundTransactionError(
+                    "search regime policy v5 round lacks scientific progress"
+                )
+            _validate_sealed_scientific_progress(
+                summary["sealed_scientific_progress"],
+                round_number=number,
+                round_dir=(
+                    None
+                    if rounds_root is None
+                    else rounds_root / f"round-{number:03d}"
+                ),
+            )
         completed.append(summary)
         regime = _advance_search_regime(
             regime,
@@ -3815,7 +4578,7 @@ def _validated_search_handoff(
             "search handoff has only one of reason/round markers"
         )
     if (
-        config.search_regime_policy_version not in {2, 3, 4}
+        config.search_regime_policy_version not in {2, 3, 4, 5}
         or not config.stop_on_representation_change
     ):
         raise RoundTransactionError(
@@ -5119,6 +5882,148 @@ def _bound_executable_search_action(
     return copy.deepcopy(action)
 
 
+_SCIENTIFIC_SELECTOR_REVIEWER_INTENTS = frozenset({
+    "diversify",
+    "explore_undercovered",
+})
+_SCIENTIFIC_SELECTOR_REVIEWER_DIMENSIONS = frozenset({
+    "algebraic_relation_type",
+    "support_split_type",
+})
+_SCIENTIFIC_SELECTOR_REVIEWER_PRIORITY = {
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+}
+
+
+def _scientific_selector_reviewer_focus(
+    rounds: Any,
+    *,
+    rounds_root: Path,
+    target_round: int,
+) -> dict[str, Any] | None:
+    """Project one authenticated reviewer action into a bounded tie-break.
+
+    Free-form rationale, stop advice, budgets, and representation-change
+    requests never enter the selector.  The newest accepted in-horizon action
+    may increase at most one fresh audit slot, and only over the two structural
+    enums recomputed by the machine selector.
+    """
+
+    if not isinstance(rounds, list):
+        raise RoundTransactionError("reviewer selector history must be a list")
+    for summary in reversed(rounds):
+        if not isinstance(summary, dict):
+            raise RoundTransactionError(
+                "reviewer selector history contains an invalid round"
+            )
+        action = _bound_executable_search_action(
+            summary,
+            rounds_root,
+            target_round,
+        )
+        if action is None or action.get("intent") not in (
+            _SCIENTIFIC_SELECTOR_REVIEWER_INTENTS
+        ):
+            continue
+        focus = [
+            copy.deepcopy(item)
+            for item in action.get("focus", [])
+            if isinstance(item, dict)
+            and item.get("dimension")
+            in _SCIENTIFIC_SELECTOR_REVIEWER_DIMENSIONS
+            and item.get("direction") == "increase"
+        ]
+        if not focus:
+            continue
+        binding = summary.get("review_binding")
+        if not isinstance(binding, dict):
+            raise RoundTransactionError(
+                "reviewer selector action has no artifact binding"
+            )
+        return {
+            "source_round": int(summary["round"]),
+            "artifact_sha256": binding["artifact_sha256"],
+            "action_sha256": _canonical_payload_sha256(action),
+            "intent": action["intent"],
+            "focus": focus,
+        }
+    return None
+
+
+def _scientific_selector_reviewer_score(
+    strata: Mapping[str, Any],
+    focus: Mapping[str, Any] | None,
+) -> int:
+    """Return a fixed enum-only reviewer boost; prose is never inspected."""
+
+    if focus is None:
+        return 0
+    best = 0
+    for item in focus.get("focus", []):
+        if not isinstance(item, Mapping):
+            continue
+        dimension = item.get("dimension")
+        if dimension == "support_split_type":
+            observed = strata.get("support_split")
+        elif dimension == "algebraic_relation_type":
+            observed = strata.get("algebraic_mechanism")
+        else:
+            continue
+        if observed == item.get("value"):
+            best = max(
+                best,
+                _SCIENTIFIC_SELECTOR_REVIEWER_PRIORITY.get(
+                    str(item.get("priority")),
+                    0,
+                ),
+            )
+    return best
+
+
+def _validated_formal_audit_report_sequence(
+    *,
+    rounds_root: Path,
+    contract: Mapping[str, Any],
+    through_round: int,
+) -> list[dict[str, Any]]:
+    """Replay the complete quota-report prefix used by selector policy v7."""
+
+    from evaluation.formal_audit_quota import validate_selection_report
+
+    if type(through_round) is not int or through_round < 0:
+        raise RoundTransactionError(
+            "formal-audit report prefix has an invalid terminal round"
+        )
+    reports: list[dict[str, Any]] = []
+    for number in range(1, through_round + 1):
+        path = (
+            rounds_root
+            / f"round-{number:03d}"
+            / "formal-audit-quota-selection.json"
+        )
+        report_value = _read_json_object(
+            path,
+            "formal-audit quota selection report",
+        )
+        if contract.get("schema_version") == 2:
+            report = validate_selection_report(
+                report_value,
+                contract=contract,
+                round_number=number,
+                prior_reports=reports,
+            )
+        else:
+            report = validate_selection_report(
+                report_value,
+                contract=contract,
+                round_number=number,
+            )
+        reports.append(report)
+    return reports
+
+
 def _seal_round_renderer_resolution(
     *,
     round_number: int,
@@ -5413,7 +6318,7 @@ def _freeze_round_context(
         / config.run_id
         / "bitlesson.md"
     )
-    prompt_safe_reviewer_v2 = config.search_regime_policy_version in {2, 3, 4}
+    prompt_safe_reviewer_v2 = config.search_regime_policy_version in {2, 3, 4, 5}
     # Policy-v2 contexts can produce executable evolved Python.  Reviewer
     # lessons and the accumulated BitLesson are deliberately retained on disk
     # for audit but cannot enter that prompt as free text.  Policy v1 keeps its
@@ -5607,7 +6512,7 @@ def _freeze_round_context(
         if oracle_advisory is not None:
             context_parts.append(oracle_advisory)
     regime_enabled = (
-        config.search_regime_policy_version in {2, 3, 4}
+        config.search_regime_policy_version in {2, 3, 4, 5}
         or state.get("search_regime") is not None
         or any(
             isinstance(summary, dict) and "sealed_exact_audit" in summary
@@ -8429,6 +9334,17 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         child_environment.pop(SEARCH_GEOMETRY_CONTRACT_ENV, None)
     else:
         child_environment[SEARCH_GEOMETRY_CONTRACT_ENV] = geometry_contract
+    science_strategy = invocation_binding.get(
+        ANSATZ_V3_SCIENCE_STRATEGY_INVOCATION_FIELD
+    )
+    if science_strategy is None:
+        child_environment.pop(ANSATZ_V3_SCIENCE_STRATEGY_ENV, None)
+    elif science_strategy == ANSATZ_V3_SCIENCE_STRATEGY_ID:
+        child_environment[ANSATZ_V3_SCIENCE_STRATEGY_ENV] = science_strategy
+    else:
+        raise RoundTransactionError(
+            "evolution science-strategy invocation is invalid"
+        )
     if invocation_binding["codex_cli"]:
         child_environment["QCODE_CODEX_BIN"] = launch_binding[
             "codex_executable"
@@ -10261,7 +11177,11 @@ def select_for_milp(
     target_mode: str = DEFAULT_TARGET_MODE,
     replay_structural_negatives: bool = True,
     formal_audit_slots: list[Mapping[str, int]] | None = None,
+    formal_audit_contract: Mapping[str, Any] | None = None,
+    prior_audit_reports: list[Mapping[str, Any]] | None = None,
     prior_audit_rows: list[Mapping[str, Any]] | None = None,
+    reviewer_selector_focus: Mapping[str, Any] | None = None,
+    negative_witness_risk_index: Any = None,
     verified_structural_digests: _VerifiedStructuralDigestIndex | None = None,
 ) -> list[dict[str, Any]]:
     """Select diverse candidates without rewarding BP upper-bound magnitude."""
@@ -10278,6 +11198,22 @@ def select_for_milp(
         raise TypeError("verified structural digests have an invalid type")
     if limit <= 0:
         return []
+    scientific_selector = (
+        policy_version
+        >= CANDIDATE_BATCH_POLICY_SCIENTIFIC_SELECTOR_VERSION
+        and formal_audit_contract is not None
+        and formal_audit_contract.get("schema_version") == 2
+    )
+    if not scientific_selector and any(
+        value is not None
+        for value in (
+            reviewer_selector_focus,
+            negative_witness_risk_index,
+        )
+    ):
+        raise ValueError(
+            "scientific selector context requires policy v7 and quota v2"
+        )
     if audited_digests and verified_structural_digests is not None:
         verified_structural_digests.require_current_runtime()
     archive_rows = [] if archive is None else archive.ranked()
@@ -10330,6 +11266,7 @@ def select_for_milp(
     structural_attempted_keys: set[str] = set()
     lower_bound_replay_limit = 4 * limit
     lower_bound_replay_attempts = 0
+    verified_lower_bound_by_identity: dict[int, int] = {}
     structural_negative_keys: set[str] = set()
     structural_nonnegative_keys: set[str] = set()
 
@@ -10447,6 +11384,7 @@ def select_for_milp(
                 unverified_claims.append(row)
                 continue
             verified_lower_bounds.append((row, replayed_lower_bound))
+            verified_lower_bound_by_identity[id(row)] = replayed_lower_bound
         verified_lower_bounds.sort(
             key=lambda item: _search_lower_bound_audit_priority(
                 item[0],
@@ -10468,10 +11406,13 @@ def select_for_milp(
     if formal_audit_slots is not None:
         from evaluation.formal_audit_quota import (
             assigned_candidate,
+            audited_filled_slot_counts,
             candidate_audit_strata,
+            observe_filled_slot_strata,
             observe_strata,
             strata_sets,
             stratum_novelty_key,
+            support_split_minimum_deficits,
         )
 
         if (
@@ -10486,15 +11427,22 @@ def select_for_milp(
         ):
             raise ValueError("formal-audit slots are malformed")
         observed = strata_sets(prior_audit_rows or [])
+        coverage_counts = (
+            audited_filled_slot_counts(
+                prior_audit_reports or [],
+                contract=formal_audit_contract,
+            )
+            if scientific_selector
+            else None
+        )
         ordered_pool = [*evidence_candidates, *quick_exploration]
         quick_identities = {id(row) for row in quick_exploration}
         selected_rows: list[dict[str, Any]] = []
         selected_ids: set[int] = set()
         quick_selected = 0
+        reviewer_slots_used = 0
         for slot in formal_audit_slots:
-            ranked_slot: list[
-                tuple[tuple[int, int, int, int], int, dict[str, Any], dict[str, Any]]
-            ] = []
+            ranked_slot: list[tuple[Any, int, dict[str, Any], dict[str, Any]]] = []
             for position, row in enumerate(ordered_pool):
                 if id(row) in selected_ids:
                     continue
@@ -10503,14 +11451,102 @@ def select_for_milp(
                 strata = candidate_audit_strata(row)
                 if strata is None or strata["published_volume"] != slot["volume"]:
                     continue
+                if scientific_selector:
+                    assert coverage_counts is not None
+                    deficits = support_split_minimum_deficits(
+                        formal_audit_contract,
+                        coverage_counts,
+                    )
+                    split_deficit = int(
+                        deficits.get(strata["support_split"], 0)
+                    )
+                    lattice_q = tuple(strata["lattice_q"])
+                    mechanism_count = int(
+                        coverage_counts["algebraic_mechanism"].get(
+                            strata["algebraic_mechanism"],
+                            0,
+                        )
+                    )
+                    lattice_q_count = int(
+                        coverage_counts["lattice_q"].get(lattice_q, 0)
+                    )
+                    reviewer_score = (
+                        0
+                        if reviewer_slots_used
+                        else _scientific_selector_reviewer_score(
+                            strata,
+                            reviewer_selector_focus,
+                        )
+                    )
+                    risk_key = (
+                        tuple(negative_witness_risk_index.priority_key(row))
+                        if negative_witness_risk_index is not None
+                        else ()
+                    )
+                    if negative_witness_risk_index is not None and (
+                        len(risk_key) != 12
+                        or any(type(value) is not int for value in risk_key)
+                        or any(value > 0 for value in risk_key)
+                    ):
+                        raise ValueError(
+                            "negative-witness selector priority is not "
+                            "a 12-component negative-only key"
+                        )
+                    evidence_key = candidate_evidence_priority(row)
+                    replayed_lower_bound = (
+                        verified_lower_bound_by_identity.get(id(row))
+                    )
+                    if evidence_key[0] > 0:
+                        proof_key = (
+                            2,
+                            float(evidence_key[1]),
+                            0.0,
+                            0.0,
+                            0.0,
+                        )
+                    elif replayed_lower_bound is not None:
+                        lower_priority = (
+                            _search_lower_bound_audit_priority(
+                                row,
+                                replayed_lower_bound,
+                                target_mode=selected_target_mode,
+                            )
+                        )
+                        if lower_priority is None:
+                            raise ValueError(
+                                "replayed lower bound has no audit priority"
+                            )
+                        proof_key = (
+                            1,
+                            float(lower_priority[0]),
+                            float(lower_priority[1]),
+                            float(lower_priority[2]),
+                            float(lower_priority[3]),
+                        )
+                    else:
+                        proof_key = (0, 0.0, 0.0, 0.0, 0.0)
+                    rank_key: Any = (
+                        int(split_deficit > 0),
+                        split_deficit,
+                        int(id(row) not in quick_identities),
+                        *proof_key,
+                        -lattice_q_count,
+                        -mechanism_count,
+                        reviewer_score,
+                        *risk_key,
+                        *stratum_novelty_key(strata, observed),
+                        evidence_key[2],
+                    )
+                else:
+                    rank_key = stratum_novelty_key(strata, observed)
                 ranked_slot.append((
-                    stratum_novelty_key(strata, observed),
+                    rank_key,
                     -position,
                     row,
                     strata,
                 ))
             ranked_slot.sort(key=lambda item: (item[0], item[1]), reverse=True)
-            for _novelty, _position, row, strata in ranked_slot:
+            for _rank, _position, row, strata in ranked_slot:
                 if has_replayed_structural_rejection(row):
                     continue
                 selected_rows.append(assigned_candidate(
@@ -10521,7 +11557,19 @@ def select_for_milp(
                 selected_ids.add(id(row))
                 if id(row) in quick_identities:
                     quick_selected += 1
+                if (
+                    scientific_selector
+                    and reviewer_slots_used == 0
+                    and _scientific_selector_reviewer_score(
+                        strata,
+                        reviewer_selector_focus,
+                    ) > 0
+                ):
+                    reviewer_slots_used = 1
                 observe_strata(strata, observed)
+                if scientific_selector:
+                    assert coverage_counts is not None
+                    observe_filled_slot_strata(coverage_counts, strata)
                 break
         return selected_rows
 
@@ -11230,6 +12278,10 @@ class HumanizeFlow:
         quota_contract: dict[str, Any] | None = None
         quota_slots: list[Mapping[str, int]] | None = None
         prior_audit_rows: list[Mapping[str, Any]] | None = None
+        prior_audit_reports: list[Mapping[str, Any]] | None = None
+        reviewer_selector_focus: Mapping[str, Any] | None = None
+        negative_witness_risk_index: Any = None
+        selector_context: dict[str, Any] | None = None
         quota_round = int(state.get("current_round", 0)) + 1
         if self.config.formal_audit_quota_contract is not None:
             from evaluation.formal_audit_quota import (
@@ -11247,6 +12299,57 @@ class HumanizeFlow:
             prior_audit_rows = self._read_canonical_evaluations(
                 recover_final_partial=False
             )
+            prior_audit_reports = _validated_formal_audit_report_sequence(
+                rounds_root=self.store.root / "rounds",
+                contract=quota_contract,
+                through_round=quota_round - 1,
+            )
+            if (
+                policy_version
+                >= CANDIDATE_BATCH_POLICY_SCIENTIFIC_SELECTOR_VERSION
+                and quota_contract.get("schema_version") == 2
+            ):
+                reviewer_selector_focus = (
+                    _scientific_selector_reviewer_focus(
+                        state.get("rounds", []),
+                        rounds_root=self.store.root / "rounds",
+                        target_round=quota_round,
+                    )
+                )
+                from humanize.scientific_selector import (
+                    NEGATIVE_WITNESS_POLICY_ID,
+                    build_negative_witness_risk_index,
+                )
+                from evaluation.formal_audit_quota import (
+                    build_selector_context,
+                )
+
+                negative_witness_risk_index = (
+                    build_negative_witness_risk_index(
+                        prior_audit_rows,
+                        target_mode=self.config.target_mode,
+                        representation_id=(
+                            self.config.search_representation_id or ""
+                        ),
+                    )
+                )
+                selector_context = build_selector_context(
+                    reviewer_focus=(
+                        None
+                        if reviewer_selector_focus is None
+                        else copy.deepcopy(reviewer_selector_focus)
+                    ),
+                    negative_witness_context=(
+                        negative_witness_risk_index.context()
+                    ),
+                )
+                if (
+                    selector_context["negative_witness_policy"]
+                    != NEGATIVE_WITNESS_POLICY_ID
+                ):
+                    raise RoundTransactionError(
+                        "scientific selector policy identifiers disagree"
+                    )
 
         # An unresolved solver call is evidence that the candidate needs more
         # budget, not permission to monopolize every future discovery round.
@@ -11296,7 +12399,11 @@ class HumanizeFlow:
                 if quota_slots is None
                 else quota_slots[:fresh_capacity]
             ),
+            formal_audit_contract=quota_contract,
+            prior_audit_reports=prior_audit_reports,
             prior_audit_rows=prior_audit_rows,
+            reviewer_selector_focus=reviewer_selector_focus,
+            negative_witness_risk_index=negative_witness_risk_index,
             verified_structural_digests=verified_structural_digests,
         )
 
@@ -11336,6 +12443,12 @@ class HumanizeFlow:
                     code_key(candidate) for candidate in retry_candidates
                 ],
                 candidate_key_fn=code_key,
+                prior_reports=(
+                    prior_audit_reports or []
+                    if quota_contract.get("schema_version") == 2
+                    else None
+                ),
+                selector_context=selector_context,
             )
             report_path = (
                 self.store.root
@@ -11352,11 +12465,19 @@ class HumanizeFlow:
                     report_path,
                     "formal-audit quota selection report",
                 )
-                validate_selection_report(
-                    existing,
-                    contract=quota_contract,
-                    round_number=quota_round,
-                )
+                if quota_contract.get("schema_version") == 2:
+                    validate_selection_report(
+                        existing,
+                        contract=quota_contract,
+                        round_number=quota_round,
+                        prior_reports=prior_audit_reports or [],
+                    )
+                else:
+                    validate_selection_report(
+                        existing,
+                        contract=quota_contract,
+                        round_number=quota_round,
+                    )
                 if existing != report:
                     raise AuditStateError(
                         "formal-audit quota selection changed during resume"
@@ -11500,8 +12621,9 @@ class HumanizeFlow:
         not carry this field.  Their batches were all derived with policy v1,
         so absence is the exact historical v1 encoding.  Protocol v3 requires
         an explicit binding and accepts immutable v2/v3 batches as well as
-        v4 witness-metadata-canonicalizing, v5 composite-provenance, and v6
-        lower-bound audit-funnel batches; deleting it cannot silently
+        v4 witness-metadata-canonicalizing, v5 composite-provenance, v6
+        lower-bound audit-funnel, and v7 scientific-selector batches;
+        deleting it cannot silently
         downgrade a transaction.
         """
 
@@ -11540,6 +12662,7 @@ class HumanizeFlow:
                 CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
                 CANDIDATE_BATCH_POLICY_WITNESS_METADATA_VERSION,
                 CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
+                CANDIDATE_BATCH_POLICY_AUDIT_FUNNEL_VERSION,
                 CANDIDATE_BATCH_POLICY_VERSION,
             }
         ):
@@ -14342,6 +15465,8 @@ class HumanizeFlow:
                 review_binding=review_binding,
             )
         formal_audit_quota_summary: dict[str, Any] | None = None
+        quota_contract_value: dict[str, Any] | None = None
+        quota_report_value: dict[str, Any] | None = None
         if self.config.formal_audit_quota_contract is not None:
             from evaluation.formal_audit_quota import (
                 load_quota_contract,
@@ -14355,14 +15480,31 @@ class HumanizeFlow:
                 slots_per_round=self.config.milp_top,
             )
             quota_path = round_dir / "formal-audit-quota-selection.json"
-            quota_report = validate_selection_report(
-                _read_json_object(
-                    quota_path,
-                    "formal-audit quota selection report",
-                ),
-                contract=quota_contract,
-                round_number=number,
+            quota_report_input = _read_json_object(
+                quota_path,
+                "formal-audit quota selection report",
             )
+            if quota_contract.get("schema_version") == 2:
+                quota_report = validate_selection_report(
+                    quota_report_input,
+                    contract=quota_contract,
+                    round_number=number,
+                    prior_reports=(
+                        _validated_formal_audit_report_sequence(
+                            rounds_root=round_dir.parent,
+                            contract=quota_contract,
+                            through_round=number - 1,
+                        )
+                    ),
+                )
+            else:
+                quota_report = validate_selection_report(
+                    quota_report_input,
+                    contract=quota_contract,
+                    round_number=number,
+                )
+            quota_contract_value = quota_contract
+            quota_report_value = quota_report
             audited_keys = {code_key(row) for row in audited}
             scheduled_keys = {
                 row["candidate_key"]
@@ -14388,6 +15530,34 @@ class HumanizeFlow:
                 "retry_slots": len(quota_report["retry_candidate_keys"]),
                 "volume_counts": dict(sorted(volume_counts.items())),
             }
+            if quota_contract.get("schema_version") == 2:
+                formal_audit_quota_summary.update({
+                    "schema_version": 2,
+                    "selector_context": copy.deepcopy(
+                        quota_report["selector_context"]
+                    ),
+                    "formal_audit_coverage_after": copy.deepcopy(
+                        quota_report["formal_audit_coverage_after"]
+                    ),
+                })
+        sealed_scientific_progress = None
+        if self.config.search_regime_policy_version == 5:
+            if (
+                quota_contract_value is None
+                or quota_contract_value.get("schema_version") != 2
+                or quota_report_value is None
+            ):
+                raise RoundTransactionError(
+                    "search regime policy v5 requires quota schema v2"
+                )
+            sealed_scientific_progress = (
+                _build_sealed_scientific_progress(
+                    rounds_root=round_dir.parent,
+                    contract=quota_contract_value,
+                    through_round=number,
+                    target_mode=self.config.target_mode,
+                )
+            )
         summary = {
             "round": number,
             "new_candidates": len(candidates),
@@ -14415,7 +15585,7 @@ class HumanizeFlow:
             "failure_direction_feedback": failure_direction_feedback,
             "sealed_exact_audit": sealed_exact_audit,
         }
-        if self.config.search_regime_policy_version in {2, 3, 4}:
+        if self.config.search_regime_policy_version in {2, 3, 4, 5}:
             summary["search_regime_policy_version"] = (
                 self.config.search_regime_policy_version
             )
@@ -14425,6 +15595,10 @@ class HumanizeFlow:
             summary["search_oracle_feedback"] = search_oracle_feedback
         if formal_audit_quota_summary is not None:
             summary["formal_audit_quota"] = formal_audit_quota_summary
+        if sealed_scientific_progress is not None:
+            summary["sealed_scientific_progress"] = (
+                sealed_scientific_progress
+            )
         if renderer_resolution_binding is not None:
             summary[COSET_RENDERER_RESOLUTION_SUMMARY_FIELD] = (
                 renderer_resolution_binding
@@ -14863,6 +16037,33 @@ class HumanizeFlow:
                 trusted_exact, trusted_wins = (
                     self._trusted_exact_audit_view(canonical_rows)
                 )
+                reviewer_formal_audit_coverage = None
+                if self.config.formal_audit_quota_contract is not None:
+                    from evaluation.formal_audit_quota import (
+                        load_quota_contract,
+                    )
+
+                    reviewer_quota_contract = load_quota_contract(
+                        self.config.formal_audit_quota_contract,
+                        representation_id=(
+                            self.config.search_representation_id
+                        ),
+                        rounds=self.config.max_rounds,
+                        slots_per_round=self.config.milp_top,
+                    )
+                    if reviewer_quota_contract.get("schema_version") == 2:
+                        reviewer_quota_reports = (
+                            _validated_formal_audit_report_sequence(
+                                rounds_root=round_dir.parent,
+                                contract=reviewer_quota_contract,
+                                through_round=number,
+                            )
+                        )
+                        reviewer_formal_audit_coverage = copy.deepcopy(
+                            reviewer_quota_reports[-1][
+                                "formal_audit_coverage_after"
+                            ]
+                        )
                 memory = self.store.memory_path.read_text() if self.store.memory_path.exists() else ""
                 prompt = build_review_prompt(
                     round_number=number,
@@ -14876,6 +16077,9 @@ class HumanizeFlow:
                     round_history=state.get("rounds", []),
                     current_candidate_diversity=(
                         current_candidate_diversity
+                    ),
+                    formal_audit_coverage=(
+                        reviewer_formal_audit_coverage
                     ),
                 )
                 (round_dir / "review-request.md").write_text(prompt)
@@ -14997,7 +16201,7 @@ class HumanizeFlow:
                 representation_handoff = bool(
                     not trusted_wins
                     and self.config.stop_on_representation_change
-                    and self.config.search_regime_policy_version in {2, 3, 4}
+                    and self.config.search_regime_policy_version in {2, 3, 4, 5}
                     and isinstance(final_state.get("search_regime"), dict)
                     and final_state["search_regime"].get("status")
                     == SEARCH_HANDOFF_REASON_REPRESENTATION_CHANGE
