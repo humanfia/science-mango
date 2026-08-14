@@ -172,15 +172,20 @@ def build_colored_tanner_graph(code):
     g = ig.Graph(n + rx + rz, directed=False)
     colors = [0] * n + [1] * rx + [2] * rz
 
-    edges = []
-    for r in range(rx):
-        for j in range(n):
-            if H_X[r, j] == 1:
-                edges.append((j, n + r))
-    for r in range(rz):
-        for j in range(n):
-            if H_Z[r, j] == 1:
-                edges.append((j, n + rx + r))
+    # ``np.argwhere`` yields C-order ``(row, column)`` coordinates, exactly
+    # matching the former nested ``for row`` / ``for column`` scan while
+    # avoiding Python work for every zero in these sparse check matrices.
+    # Preserve the edge insertion order because BLISS may use it to choose a
+    # concrete representative among automorphisms even though the canonical
+    # equivalence class itself is order-independent.
+    edges = [
+        (int(column), n + int(row))
+        for row, column in np.argwhere(H_X)
+    ]
+    edges.extend(
+        (int(column), n + rx + int(row))
+        for row, column in np.argwhere(H_Z)
+    )
     g.add_edges(edges)
 
     return g, colors
@@ -557,4 +562,3 @@ def replay_noncss_matrix_equivalence(code_a, code_b) -> dict:
         "verified": matrix_x_replayed and matrix_z_replayed,
     })
     return result
-

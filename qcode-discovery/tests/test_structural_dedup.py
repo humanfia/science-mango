@@ -1,8 +1,10 @@
 """Tests for the strict structural-novelty gate."""
 
 import json
+import os
 
 import evaluation.structural_dedup as structural_dedup
+import evaluation.tanner_equivalence as tanner_equivalence
 import pytest
 from evaluation.structural_dedup import (
     StructuralScreenCacheError,
@@ -26,6 +28,266 @@ def test_exact_gross_code_is_known():
     assert result["novel"] is False
     assert result["matched_reference"] == "Gross [[144,12,12]]"
     assert result["explicit_isomorphism"]["verified"] is True
+
+
+def test_structural_runtime_binds_single_thread_worker_environment():
+    runtime = structural_dedup.structural_screen_runtime_fingerprint()
+    assert runtime["payload"]["worker_native_thread_environment"] == {
+        name: "1"
+        for name in structural_dedup.STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+    }
+
+
+def test_structural_spawn_environment_restores_parent_on_error(monkeypatch):
+    first, *remaining = structural_dedup.STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+    monkeypatch.setenv(first, "17")
+    for name in remaining:
+        monkeypatch.delenv(name, raising=False)
+
+    with pytest.raises(RuntimeError, match="sentinel"):
+        with structural_dedup._structural_screen_spawn_environment():
+            assert all(
+                os.environ.get(name) == "1"
+                for name in structural_dedup.STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+            )
+            raise RuntimeError("sentinel")
+
+    assert os.environ.get(first) == "17"
+    assert all(name not in os.environ for name in remaining)
+
+
+def test_idle_worker_cohort_is_signalled_before_any_join():
+    processes = []
+    events = []
+
+    class FakeProcess:
+        def __init__(self, index):
+            self.index = index
+            self.alive = True
+            self.terminated = False
+            processes.append(self)
+
+        def is_alive(self):
+            return self.alive
+
+        def terminate(self):
+            self.terminated = True
+            events.append(("terminate", self.index))
+
+        def join(self, timeout):
+            assert timeout >= 0
+            assert all(process.terminated for process in processes)
+            events.append(("join", self.index))
+            self.alive = False
+
+        def kill(self):
+            events.append(("kill", self.index))
+            self.alive = False
+
+    class FakeConnection:
+        def __init__(self, index):
+            self.index = index
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+            events.append(("close", self.index))
+
+    workers = [
+        {
+            "process": FakeProcess(index),
+            "connection": FakeConnection(index),
+            "closed": False,
+        }
+        for index in range(4)
+    ]
+
+    structural_dedup._stop_annotation_workers(workers)
+
+    assert events[:4] == [("terminate", index) for index in range(4)]
+    assert all(not worker["process"].is_alive() for worker in workers)
+    assert all(worker["connection"].closed for worker in workers)
+    assert not any(kind == "kill" for kind, _index in events)
+
+
+def test_novelty_digest_reuses_one_bliss_canonicalization(monkeypatch):
+    candidate = structural_dedup._build_css_result(_cached_candidate())
+    canonical_hash = structural_dedup.canonical_hash
+    observed = []
+
+    def counted(code):
+        canonical = canonical_hash(code)
+        observed.append(canonical)
+        return canonical
+
+    monkeypatch.setattr(structural_dedup, "canonical_hash", counted)
+    monkeypatch.setattr(
+        structural_dedup,
+        "known_reference_registry",
+        lambda: (),
+    )
+    result = structural_dedup.check_css_code_structural_novelty(candidate)
+
+    assert result["checked"] is True
+    assert result["novel"] is True
+    assert len(observed) == 1
+    assert result["canonical_digest"] == (
+        structural_dedup._canonical_digest_from_hash(observed[0])
+    )
+
+
+def test_annotation_reuses_static_gate_code_for_novelty_and_logical_basis(
+    monkeypatch,
+):
+    original_build = structural_dedup.build_bb_code
+    builds = []
+
+    def counted_build(*args, **kwargs):
+        code = original_build(*args, **kwargs)
+        builds.append(code)
+        return code
+
+    monkeypatch.setattr(structural_dedup, "build_bb_code", counted_build)
+    monkeypatch.setattr(
+        structural_dedup,
+        "known_reference_registry",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "_code_parameters",
+        lambda _code: (_ for _ in ()).throw(
+            AssertionError("static n/k must be reused")
+        ),
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "_logical_basis_upper_bound_report",
+        lambda code: {"same_rebuilt_code": code is builds[0]},
+    )
+
+    annotated = structural_dedup.annotate_css_result(_cached_candidate())
+
+    assert annotated["static_eligibility"]["eligible"] is True
+    assert annotated["structural_novelty"]["novel"] is True
+    assert annotated["static_eligibility"]["logical_basis_upper_bound"] == {
+        "same_rebuilt_code": True,
+    }
+    assert len(builds) == 1
+
+
+def test_compact_annotation_reuses_one_authoritative_rebuild(monkeypatch):
+    row = {
+        "construction": {
+            "kind": "bb-v1",
+            "ell": 6,
+            "m": 6,
+            "A_terms": [[0, 0], [0, 1], [1, 0]],
+            "B_terms": [[0, 0], [0, 2], [2, 0]],
+        },
+        "n": 72,
+        "k": 8,
+    }
+    original_build = structural_dedup._build_css_result
+    builds = []
+
+    def counted_build(result):
+        code = original_build(result)
+        builds.append(code)
+        return code
+
+    monkeypatch.setattr(
+        structural_dedup,
+        "_build_css_result",
+        counted_build,
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "known_reference_registry",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "_logical_basis_upper_bound_report",
+        lambda code: {"same_rebuilt_code": code is builds[0]},
+    )
+
+    annotated = structural_dedup.annotate_css_result(row)
+
+    assert annotated["static_eligibility"]["eligible"] is True
+    assert annotated["structural_novelty"]["novel"] is True
+    assert annotated["static_eligibility"]["logical_basis_upper_bound"] == {
+        "same_rebuilt_code": True,
+    }
+    assert len(builds) == 1
+
+
+def _dense_reference_tanner_graph(code):
+    """Reproduce the pre-optimization row-major dense edge scan."""
+
+    igraph = tanner_equivalence._require_igraph()
+    matrix_x, matrix_z = tanner_equivalence._extract_check_matrices(code)
+    n = matrix_x.shape[1]
+    rows_x, rows_z = matrix_x.shape[0], matrix_z.shape[0]
+    graph = igraph.Graph(n + rows_x + rows_z, directed=False)
+    colors = [0] * n + [1] * rows_x + [2] * rows_z
+    edges = []
+    for row in range(rows_x):
+        for column in range(n):
+            if matrix_x[row, column] == 1:
+                edges.append((column, n + row))
+    for row in range(rows_z):
+        for column in range(n):
+            if matrix_z[row, column] == 1:
+                edges.append((column, n + rows_x + row))
+    graph.add_edges(edges)
+    return graph, colors
+
+
+def test_sparse_tanner_builder_preserves_edges_hash_and_concrete_mapping(
+    monkeypatch,
+):
+    base = structural_dedup._build_css_result(_cached_candidate())
+    shifted_row = _cached_candidate()
+    shifted_row["A_terms"] = [[1, 0], [1, 1], [2, 0]]
+    shifted_row["B_terms"] = [[1, 0], [1, 2], [3, 0]]
+    shifted = structural_dedup._build_css_result(shifted_row)
+
+    sparse_graph, sparse_colors = (
+        tanner_equivalence.build_colored_tanner_graph(base)
+    )
+    dense_graph, dense_colors = _dense_reference_tanner_graph(base)
+    assert sparse_colors == dense_colors
+    assert sparse_graph.get_edgelist() == dense_graph.get_edgelist()
+
+    sparse_hash = tanner_equivalence.canonical_hash(base)
+    sparse_mapping = tanner_equivalence.extract_full_vertex_isomorphism(
+        shifted,
+        base,
+    )
+    sparse_replay = structural_dedup.replay_css_isomorphism(
+        shifted,
+        base,
+        sparse_mapping,
+    )
+
+    monkeypatch.setattr(
+        tanner_equivalence,
+        "build_colored_tanner_graph",
+        _dense_reference_tanner_graph,
+    )
+    assert tanner_equivalence.canonical_hash(base) == sparse_hash
+    dense_mapping = tanner_equivalence.extract_full_vertex_isomorphism(
+        shifted,
+        base,
+    )
+    assert dense_mapping == sparse_mapping
+    assert structural_dedup.replay_css_isomorphism(
+        shifted,
+        base,
+        dense_mapping,
+    ) == sparse_replay
+    assert sparse_replay["verified"] is True
 
 
 def test_logical_basis_upper_bound_report_is_sealed_and_tamper_closed(
@@ -498,7 +760,18 @@ def test_annotation_worker_has_killable_hard_wall_timeout():
     assert unresolved[0]["kind"] in {"hard_timeout", "worker_exit"}
 
 
-def test_spawn_worker_completes_and_caches_real_structural_gate(tmp_path):
+def test_spawn_worker_completes_and_caches_real_structural_gate(
+    tmp_path,
+    monkeypatch,
+):
+    parent_values = {}
+    for index, name in enumerate(
+        structural_dedup.STRUCTURAL_SCREEN_NATIVE_THREAD_ENV,
+        start=2,
+    ):
+        value = str(index)
+        monkeypatch.setenv(name, value)
+        parent_values[name] = value
     gross = {
         "ell": 12,
         "m": 6,
@@ -519,6 +792,10 @@ def test_spawn_worker_completes_and_caches_real_structural_gate(tmp_path):
     assert rejected[0]["structural_rejection"] == "known_reference"
     entry = json.loads(next((tmp_path / "cache").rglob("*.json")).read_text())
     assert entry["status"] == "complete"
+    assert {
+        name: os.environ.get(name)
+        for name in structural_dedup.STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+    } == parent_values
 
 
 def test_bounded_screen_replays_real_within_pool_duplicate(tmp_path):

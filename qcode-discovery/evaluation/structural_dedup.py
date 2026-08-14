@@ -17,8 +17,10 @@ import os
 import platform
 import signal
 import tempfile
+import threading
 import time
 from collections import deque
+from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Mapping
@@ -61,6 +63,18 @@ _STRUCTURAL_SCREEN_PACKAGES = (
     "igraph",
     "python-igraph",
 )
+STRUCTURAL_SCREEN_NATIVE_THREAD_ENV = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "NUMBA_NUM_THREADS",
+    "GOTO_NUM_THREADS",
+)
+_STRUCTURAL_SCREEN_NATIVE_THREAD_VALUE = "1"
+_STRUCTURAL_SCREEN_SPAWN_ENV_LOCK = threading.Lock()
 
 
 class StructuralScreenCacheError(RuntimeError):
@@ -246,8 +260,57 @@ def structural_screen_runtime_fingerprint() -> dict[str, Any]:
         "sources": sources,
         "construction_source_fingerprint": construction_fingerprint,
         "packages": packages,
+        "worker_native_thread_environment": {
+            name: _STRUCTURAL_SCREEN_NATIVE_THREAD_VALUE
+            for name in STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+        },
     }
     return {"payload": payload, "sha256": _sha256_json(payload)}
+
+
+@contextmanager
+def _structural_screen_spawn_environment():
+    """Clamp native numeric threads before a spawned interpreter imports NumPy.
+
+    ``multiprocessing`` uses a fresh interpreter for these killable workers.
+    Setting the variables inside the worker target is too late because module
+    imports may already have initialized BLAS/OpenMP pools.  Hold a process-
+    local lock only across ``Process.start()`` so structural-screen spawners
+    cannot interleave their temporary overrides, then restore the controller's
+    exact environment immediately after the child inherited it.  Unrelated
+    code must not launch subprocesses concurrently with this private phase.
+    """
+
+    with _STRUCTURAL_SCREEN_SPAWN_ENV_LOCK:
+        previous = {
+            name: os.environ.get(name)
+            for name in STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+        }
+        try:
+            for name in STRUCTURAL_SCREEN_NATIVE_THREAD_ENV:
+                os.environ[name] = _STRUCTURAL_SCREEN_NATIVE_THREAD_VALUE
+            yield
+        finally:
+            for name, value in previous.items():
+                if value is None:
+                    os.environ.pop(name, None)
+                else:
+                    os.environ[name] = value
+
+
+def _require_structural_screen_native_thread_environment() -> None:
+    """Fail one retryable worker task if its inherited budget is incomplete."""
+
+    mismatched = {
+        name: os.environ.get(name)
+        for name in STRUCTURAL_SCREEN_NATIVE_THREAD_ENV
+        if os.environ.get(name) != _STRUCTURAL_SCREEN_NATIVE_THREAD_VALUE
+    }
+    if mismatched:
+        raise RuntimeError(
+            "structural-screen worker native thread budget is incomplete: "
+            f"{sorted(mismatched)}"
+        )
 
 
 def _annotation_payload(result: dict[str, Any]) -> dict[str, Any]:
@@ -829,6 +892,7 @@ def _structural_annotation_worker(connection) -> None:
         task_index, result = message
         connection.send(("started", task_index, None))
         try:
+            _require_structural_screen_native_thread_environment()
             annotation = _annotation_payload(result)
         except BaseException as exc:
             connection.send((
@@ -945,6 +1009,7 @@ def _structural_pair_worker(connection) -> None:
         task_index, task = message
         connection.send(("started", task_index, None))
         try:
+            _require_structural_screen_native_thread_environment()
             replay = _pair_replay_payload(task)
         except BaseException as exc:
             connection.send((
@@ -971,6 +1036,48 @@ def _stop_annotation_worker(process, connection) -> None:
             process.join(timeout=2.0)
     finally:
         connection.close()
+
+
+def _stop_annotation_workers(workers: list[dict[str, Any]]) -> None:
+    """Stop an idle worker cohort without paying one timeout per process."""
+
+    active = [worker for worker in workers if not worker.get("closed")]
+    if not active:
+        return
+    try:
+        # Signal the full cohort first.  Joining each process immediately after
+        # terminating it serialized native-runtime teardown in production.
+        for worker in active:
+            process = worker["process"]
+            if process.is_alive():
+                process.terminate()
+
+        terminate_deadline = time.monotonic() + 2.0
+        for worker in active:
+            process = worker["process"]
+            if process.is_alive():
+                process.join(timeout=max(
+                    0.0,
+                    terminate_deadline - time.monotonic(),
+                ))
+
+        survivors = [
+            worker["process"]
+            for worker in active
+            if worker["process"].is_alive()
+        ]
+        for process in survivors:
+            process.kill()
+        kill_deadline = time.monotonic() + 2.0
+        for process in survivors:
+            if process.is_alive():
+                process.join(timeout=max(
+                    0.0,
+                    kill_deadline - time.monotonic(),
+                ))
+    finally:
+        for worker in active:
+            worker["connection"].close()
 
 
 def _run_hard_wall_workers(
@@ -1015,7 +1122,8 @@ def _run_hard_wall_workers(
             args=(child_connection,),
             daemon=False,
         )
-        process.start()
+        with _structural_screen_spawn_environment():
+            process.start()
         child_connection.close()
         return {
             "process": process,
@@ -1148,12 +1256,7 @@ def _run_hard_wall_workers(
             if not made_progress:
                 time.sleep(0.02)
     finally:
-        for worker in workers:
-            if worker.get("closed"):
-                continue
-            _stop_annotation_worker(
-                worker["process"], worker["connection"]
-            )
+        _stop_annotation_workers(workers)
     return completed, unresolved
 
 
@@ -1273,9 +1376,9 @@ def _component_sizes(checks: np.ndarray) -> list[int]:
     return sorted(sizes, reverse=True)
 
 
-def check_css_static_eligibility(
+def _check_css_static_eligibility_with_code(
     ell, m, a_terms, b_terms, *, geometry=None, reported_n=None, reported_k=None,
-) -> dict:
+) -> tuple[dict[str, Any], Any | None]:
     """Run cheap, fail-closed challenge gates before BLISS or distance MILP.
 
     The code is rebuilt, then commutation, check weight, qubit degree, positive
@@ -1299,7 +1402,7 @@ def check_css_static_eligibility(
             "eligible": False,
             "checks": {"candidate_rebuild": False},
             "failures": [f"candidate_rebuild: {exc}"],
-        }
+        }, None
 
     stacked = np.vstack((hx, hz))
     component_sizes = _component_sizes(stacked)
@@ -1333,14 +1436,33 @@ def check_css_static_eligibility(
         "max_qubit_degree": max_qubit_degree,
         "tanner_components": len(component_sizes),
         "tanner_component_sizes": component_sizes,
-    }
+    }, code
 
 
-def check_css_result_static_eligibility(result: Mapping[str, Any]) -> dict:
-    """Run the static challenge gate on any supported CSS construction."""
+def check_css_static_eligibility(
+    ell, m, a_terms, b_terms, *, geometry=None, reported_n=None, reported_k=None,
+) -> dict:
+    """Run the public static challenge gate without exposing rebuilt state."""
+
+    report, _code = _check_css_static_eligibility_with_code(
+        ell,
+        m,
+        a_terms,
+        b_terms,
+        geometry=geometry,
+        reported_n=reported_n,
+        reported_k=reported_k,
+    )
+    return report
+
+
+def _check_css_result_static_eligibility_with_code(
+    result: Mapping[str, Any],
+) -> tuple[dict[str, Any], Any | None]:
+    """Run the static gate and retain its already-verified rebuilt code."""
 
     if not _has_compact_construction(result):
-        return check_css_static_eligibility(
+        return _check_css_static_eligibility_with_code(
             int(result["ell"]),
             int(result["m"]),
             result["A_terms"],
@@ -1359,7 +1481,7 @@ def check_css_result_static_eligibility(result: Mapping[str, Any]) -> dict:
             "eligible": False,
             "checks": {"candidate_rebuild": False},
             "failures": [f"candidate_rebuild: {exc}"],
-        }
+        }, None
     stacked = np.vstack((hx, hz))
     component_sizes = _component_sizes(stacked)
     max_row_weight = int(stacked.sum(axis=1).max(initial=0))
@@ -1395,17 +1517,30 @@ def check_css_result_static_eligibility(result: Mapping[str, Any]) -> dict:
         "max_qubit_degree": max_qubit_degree,
         "tanner_components": len(component_sizes),
         "tanner_component_sizes": component_sizes,
-    }
+    }, code
 
 
-def canonical_digest(code) -> str:
-    """Compact, stable digest of the BLISS canonical edge representation."""
-    canonical = canonical_hash(code)
+def check_css_result_static_eligibility(result: Mapping[str, Any]) -> dict:
+    """Run the static challenge gate on any supported CSS construction."""
+
+    report, _code = _check_css_result_static_eligibility_with_code(result)
+    return report
+
+
+def _canonical_digest_from_hash(canonical: tuple[tuple[int, int], ...]) -> str:
+    """Digest one already-computed BLISS canonical edge representation."""
+
     digest = hashlib.sha256()
     for left, right in canonical:
         digest.update(int(left).to_bytes(4, "little"))
         digest.update(int(right).to_bytes(4, "little"))
     return digest.hexdigest()
+
+
+def canonical_digest(code) -> str:
+    """Compact, stable digest of the BLISS canonical edge representation."""
+
+    return _canonical_digest_from_hash(canonical_hash(code))
 
 
 def replay_css_isomorphism(code_a, code_b, mapping) -> dict:
@@ -1451,6 +1586,7 @@ def known_reference_registry():
     for name, ell, m, a_terms, b_terms in KNOWN_CSS_REFERENCES:
         code = build_bb_code(ell, m, a_terms, b_terms)
         n, k = get_code_params_fast(code)
+        canonical = canonical_hash(code)
         registry.append({
             "name": name,
             "ell": ell,
@@ -1459,8 +1595,8 @@ def known_reference_registry():
             "B_terms": b_terms,
             "n": int(n),
             "k": int(k),
-            "canonical_hash": canonical_hash(code),
-            "canonical_digest": canonical_digest(code),
+            "canonical_hash": canonical,
+            "canonical_digest": _canonical_digest_from_hash(canonical),
             "code": code,
         })
     return tuple(registry)
@@ -1484,8 +1620,23 @@ def check_css_code_structural_novelty(candidate) -> dict:
     """Classify an arbitrary rebuilt CSS code by Tanner equivalence."""
 
     n, k = _code_parameters(candidate)
+    return _check_css_code_structural_novelty_with_parameters(
+        candidate,
+        n=n,
+        k=k,
+    )
+
+
+def _check_css_code_structural_novelty_with_parameters(
+    candidate,
+    *,
+    n: int,
+    k: int,
+) -> dict:
+    """Classify a code whose dimensions were verified by the static gate."""
+
     candidate_hash = canonical_hash(candidate)
-    candidate_digest = canonical_digest(candidate)
+    candidate_digest = _canonical_digest_from_hash(candidate_hash)
 
     for reference in known_reference_registry():
         if reference["n"] != n or reference["k"] != k:
@@ -1523,7 +1674,7 @@ def annotate_css_result(result: dict) -> dict:
     """Return a result copy carrying static and structural eligibility audits."""
     annotated = dict(result)
     annotated.pop(STRUCTURAL_PAIR_REPLAY_FIELD, None)
-    static = check_css_result_static_eligibility(result)
+    static, code = _check_css_result_static_eligibility_with_code(result)
     annotated["static_eligibility"] = static
     if not static["eligible"]:
         annotated["structural_novelty"] = {
@@ -1537,25 +1688,18 @@ def annotate_css_result(result: dict) -> dict:
         }
         annotated["structural_rejection"] = "static_ineligible"
         return annotated
-    code = None
-    if _has_compact_construction(result):
-        code = _build_css_result(result)
-        annotated["structural_novelty"] = check_css_code_structural_novelty(
-            code
+    if code is None:  # Defensive: eligible reports must retain their rebuild.
+        raise RuntimeError("eligible structural screen lost rebuilt CSS code")
+    annotated["structural_novelty"] = (
+        _check_css_code_structural_novelty_with_parameters(
+            code,
+            n=int(static["n"]),
+            k=int(static["k"]),
         )
-    else:
-        annotated["structural_novelty"] = check_css_structural_novelty(
-            int(result["ell"]),
-            int(result["m"]),
-            result["A_terms"],
-            result["B_terms"],
-            geometry=candidate_geometry(result),
-        )
+    )
     if not annotated["structural_novelty"]["novel"]:
         annotated["structural_rejection"] = "known_reference"
     else:
-        if code is None:
-            code = _build_css_result(result)
         static["logical_basis_upper_bound"] = (
             _logical_basis_upper_bound_report(code)
         )
