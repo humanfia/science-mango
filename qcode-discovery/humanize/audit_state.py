@@ -1620,13 +1620,18 @@ def _verified_structural_digest(
     return recomputed
 
 
-def authoritative_candidate_digest(row: Mapping[str, Any]) -> str:
-    """Return a definition-derived Tanner digest, ignoring report authority.
+def _authoritative_candidate_digest_inputs(
+    row: Mapping[str, Any],
+) -> tuple[
+    int,
+    int,
+    list[list[int]],
+    list[list[int]],
+    Mapping[str, Any] | None,
+    Any,
+]:
+    """Validate and normalize every input to the Tanner digest lookup."""
 
-    ``structural_novelty.canonical_digest`` may be absent on legacy rows or may
-    be stale/forged.  It is type-checked when present but never controls the
-    returned identity.
-    """
     ell = _strict_int(row.get("ell"), "ell", minimum=1)
     m = _strict_int(row.get("m"), "m", minimum=1)
     a_terms = _normalise_terms(row.get("A_terms"), "A_terms")
@@ -1636,6 +1641,46 @@ def authoritative_candidate_digest(row: Mapping[str, Any]) -> str:
     if novelty is not None and not isinstance(novelty, Mapping):
         raise AuditStateError("structural_novelty must be an object")
     reported = novelty.get("canonical_digest") if novelty else None
+    if reported is not None and (
+        not isinstance(reported, str) or not reported
+    ):
+        raise AuditStateError("canonical_digest must be a non-empty string")
+    return ell, m, a_terms, b_terms, geometry, reported
+
+
+def candidate_digest_definition_sha256(row: Mapping[str, Any]) -> str:
+    """Return a cheap, strict identity for authoritative digest reuse.
+
+    This is not the Tanner digest.  It binds an in-memory verified-screen
+    capability to the exact normalized construction that would otherwise be
+    rebuilt by :func:`authoritative_candidate_digest`.
+    """
+
+    ell, m, a_terms, b_terms, geometry, _reported = (
+        _authoritative_candidate_digest_inputs(row)
+    )
+    return _canonical_sha256(
+        {
+            "ell": ell,
+            "m": m,
+            "A_terms": a_terms,
+            "B_terms": b_terms,
+            "geometry": geometry,
+        },
+        "candidate digest definition",
+    )
+
+
+def authoritative_candidate_digest(row: Mapping[str, Any]) -> str:
+    """Return a definition-derived Tanner digest, ignoring report authority.
+
+    ``structural_novelty.canonical_digest`` may be absent on legacy rows or may
+    be stale/forged.  It is type-checked when present but never controls the
+    returned identity.
+    """
+    ell, m, a_terms, b_terms, geometry, reported = (
+        _authoritative_candidate_digest_inputs(row)
+    )
     digest = _verified_structural_digest(
         ell=ell,
         m=m,

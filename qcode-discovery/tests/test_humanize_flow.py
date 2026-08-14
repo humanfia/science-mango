@@ -4,6 +4,7 @@ import json
 import pytest
 
 import evaluation.evaluator as candidate_evaluator
+import evaluation.structural_dedup as structural_dedup
 import humanize.flow as flow_module
 import humanize.negative_evidence as negative_evidence
 from evaluation.coset_action_catalog import V2_CATALOG_ID, get_catalog
@@ -21,6 +22,7 @@ from evolve.coset_search_contract import (
     coset_support_orbit_bin,
 )
 from humanize.audit_state import (
+    AuditStateError,
     authoritative_candidate_digest,
     create_unresolved_entry,
 )
@@ -29,6 +31,7 @@ from humanize.flow import (
     CANDIDATE_BATCH_POLICY_COMPOSITE_PROVENANCE_VERSION,
     CANDIDATE_BATCH_POLICY_EVIDENCE_MERGE_VERSION,
     CANDIDATE_BATCH_POLICY_LEGACY_VERSION,
+    CANDIDATE_BATCH_POLICY_VERSIONS,
     FlowConfig,
     HumanizeFlow,
     RoundTransactionError,
@@ -65,6 +68,18 @@ def candidate(*, ell=6, m=6, k=12, d=6, fom=6.0, shift=0):
         "pattern_type": "swap",
         "term_count": 6,
     }
+
+
+def _verified_screen_candidate(**kwargs):
+    row = candidate(**kwargs)
+    digest = authoritative_candidate_digest(row)
+    row["static_eligibility"] = {"eligible": True}
+    row["structural_novelty"] = {
+        "checked": True,
+        "novel": True,
+        "canonical_digest": digest,
+    }
+    return row
 
 
 def _v3_archive_row(candidate_row, *, n=240, k=12):
@@ -1997,6 +2012,332 @@ def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
     assert select_for_milp(
         [row], archive, set(), 1, {digest}
     ) == []
+
+
+def _verified_digest_index(monkeypatch, rows):
+    runtime_sha256 = "a" * 64
+    monkeypatch.setattr(
+        structural_dedup,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": runtime_sha256},
+    )
+    return flow_module._VerifiedStructuralDigestIndex(
+        rows,
+        runtime_sha256_before_screen=runtime_sha256,
+    )
+
+
+@pytest.mark.parametrize(
+    "policy_version",
+    CANDIDATE_BATCH_POLICY_VERSIONS,
+)
+def test_verified_digest_reuse_preserves_selected_rows_for_every_policy(
+    monkeypatch,
+    policy_version,
+):
+    ordinary = _verified_screen_candidate(k=8, shift=1)
+    stronger = _verified_screen_candidate(k=10, shift=2)
+    quick = _verified_screen_candidate(k=4, d=0, fom=0.0, shift=3)
+    quick.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": 15,
+        "singleton_distance_upper_bound": 35,
+    })
+    rows = [ordinary, stronger, quick]
+    blocked = {"f" * 64}
+    baseline = select_for_milp(
+        rows,
+        None,
+        set(),
+        3,
+        blocked,
+        policy_version=policy_version,
+        replay_structural_negatives=False,
+    )
+    digest_index = _verified_digest_index(monkeypatch, rows)
+    reused = select_for_milp(
+        rows,
+        None,
+        set(),
+        3,
+        blocked,
+        policy_version=policy_version,
+        replay_structural_negatives=False,
+        verified_structural_digests=digest_index,
+    )
+
+    assert json.dumps(reused, sort_keys=True) == json.dumps(
+        baseline,
+        sort_keys=True,
+    )
+
+
+def test_verified_digest_hit_skips_canonical_rebuild(monkeypatch):
+    row = _verified_screen_candidate(k=8, shift=4)
+    digest_index = _verified_digest_index(monkeypatch, [row])
+
+    def unexpected_rebuild(_row):
+        raise AssertionError("verified digest hit rebuilt the Tanner graph")
+
+    monkeypatch.setattr(
+        flow_module,
+        "authoritative_candidate_digest",
+        unexpected_rebuild,
+    )
+
+    assert select_for_milp(
+        [row],
+        None,
+        set(),
+        1,
+        {"f" * 64},
+        verified_structural_digests=digest_index,
+    ) == [row]
+
+
+def test_flow_builds_verified_digest_sidecar_only_from_fresh_screen(
+    tmp_path,
+    monkeypatch,
+):
+    row = _verified_screen_candidate(k=8, shift=9)
+    runtime_sha256 = "a" * 64
+    monkeypatch.setattr(
+        structural_dedup,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": runtime_sha256},
+    )
+    monkeypatch.setattr(
+        structural_dedup,
+        "screen_css_results_with_deferred_cache",
+        lambda rows, **_kwargs: ([row], [], []),
+    )
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    source.write_text("")
+    flow = HumanizeFlow(
+        FlowConfig(
+            repo_dir=repo,
+            run_id="selector-digest-sidecar",
+            candidate_file=source,
+            milp_top=1,
+        ),
+        reviewer=FakeReviewer(),
+    )
+    monkeypatch.setattr(
+        flow,
+        "_validated_committed_candidate_history",
+        lambda: ((), []),
+    )
+    monkeypatch.setattr(
+        flow_module,
+        "authoritative_candidate_digest",
+        lambda _row: (_ for _ in ()).throw(
+            AssertionError("fresh verified screen did not supply digest")
+        ),
+    )
+    state = {
+        "current_round": 1,
+        "unresolved_candidates": {},
+        "audited_keys": [],
+        "audited_structural_digests": ["f" * 64],
+    }
+
+    assert flow._select_audit_candidates([row], state) == [row]
+
+
+def test_verified_digest_reuse_preserves_quota_assignment(monkeypatch):
+    rows = [
+        _verified_screen_candidate(k=8, shift=10),
+        _verified_screen_candidate(k=10, shift=11),
+    ]
+    slots = [{"slot_index": 0, "volume": 36}]
+    blocked = {"f" * 64}
+    baseline = select_for_milp(
+        rows,
+        None,
+        set(),
+        1,
+        blocked,
+        formal_audit_slots=slots,
+        prior_audit_rows=[],
+        replay_structural_negatives=False,
+    )
+    digest_index = _verified_digest_index(monkeypatch, rows)
+    reused = select_for_milp(
+        rows,
+        None,
+        set(),
+        1,
+        blocked,
+        formal_audit_slots=slots,
+        prior_audit_rows=[],
+        replay_structural_negatives=False,
+        verified_structural_digests=digest_index,
+    )
+
+    assert json.dumps(reused, sort_keys=True) == json.dumps(
+        baseline,
+        sort_keys=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["definition", "report", "reported_n", "invalid_n", "infinite_n"],
+)
+def test_verified_digest_mismatch_falls_back_to_authoritative_rebuild(
+    monkeypatch,
+    mutation,
+):
+    row = _verified_screen_candidate(k=8, shift=5)
+    digest_index = _verified_digest_index(monkeypatch, [row])
+    changed = copy.deepcopy(row)
+    if mutation == "definition":
+        changed["A_terms"][1][1] += 1
+    elif mutation == "report":
+        changed["structural_novelty"]["canonical_digest"] = "e" * 64
+    elif mutation == "reported_n":
+        changed["n"] += 2
+    elif mutation == "invalid_n":
+        changed["n"] = "not-an-integer"
+    else:
+        changed["n"] = float("inf")
+
+    calls = []
+    original = authoritative_candidate_digest
+
+    def tracked_rebuild(candidate_row):
+        calls.append(candidate_row)
+        return original(candidate_row)
+
+    monkeypatch.setattr(
+        flow_module,
+        "authoritative_candidate_digest",
+        tracked_rebuild,
+    )
+
+    assert select_for_milp(
+        [changed],
+        None,
+        set(),
+        1,
+        {"f" * 64},
+        verified_structural_digests=digest_index,
+    ) == [changed]
+    assert calls == [changed]
+
+
+def test_verified_digest_dual_representation_falls_back_to_legacy_rebuild(
+    monkeypatch,
+):
+    row = _verified_screen_candidate(k=8, shift=12)
+    row["construction"] = {
+        "kind": "bb-v1",
+        "ell": row["ell"],
+        "m": row["m"],
+        "A_terms": [[0, 0], [1, 0], [0, 2]],
+        "B_terms": [[0, 0], [0, 1], [3, 0]],
+    }
+    digest_index = _verified_digest_index(monkeypatch, [row])
+    calls = []
+    original = authoritative_candidate_digest
+
+    def tracked_rebuild(candidate_row):
+        calls.append(candidate_row)
+        return original(candidate_row)
+
+    monkeypatch.setattr(
+        flow_module,
+        "authoritative_candidate_digest",
+        tracked_rebuild,
+    )
+
+    assert select_for_milp(
+        [row],
+        None,
+        set(),
+        1,
+        {"f" * 64},
+        verified_structural_digests=digest_index,
+    ) == [row]
+    assert digest_index.entry_count == 0
+    assert calls == [row]
+
+
+def test_verified_digest_runtime_change_fails_closed(monkeypatch):
+    row = _verified_screen_candidate(k=8, shift=6)
+    digest_index = _verified_digest_index(monkeypatch, [row])
+    monkeypatch.setattr(
+        structural_dedup,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": "b" * 64},
+    )
+
+    with pytest.raises(AuditStateError, match="selector index is stale"):
+        select_for_milp(
+            [row],
+            None,
+            set(),
+            1,
+            {"f" * 64},
+            verified_structural_digests=digest_index,
+        )
+
+
+def test_verified_digest_index_rejects_runtime_change_during_screen(
+    monkeypatch,
+):
+    row = _verified_screen_candidate(k=8, shift=13)
+    monkeypatch.setattr(
+        structural_dedup,
+        "structural_screen_runtime_fingerprint",
+        lambda: {"sha256": "b" * 64},
+    )
+
+    with pytest.raises(AuditStateError, match="changed while building"):
+        flow_module._VerifiedStructuralDigestIndex(
+            [row],
+            runtime_sha256_before_screen="a" * 64,
+        )
+
+
+def test_quick_partition_evaluates_priority_once_per_survivor(monkeypatch):
+    ordinary = candidate(k=8, shift=7)
+    quick = candidate(k=4, d=0, fom=0.0, shift=8)
+    quick.update({
+        "stage": "quick_k_only",
+        "candidate_persistence_lane": "winner_capable_quick_exploration",
+        "winner_capable_parameters": True,
+        "minimum_winning_distance": 15,
+        "singleton_distance_upper_bound": 35,
+    })
+    original = flow_module._quick_exploration_priority
+    calls: dict[str, int] = {}
+
+    def tracked_priority(row):
+        key = code_key(row)
+        calls[key] = calls.get(key, 0) + 1
+        return original(row)
+
+    monkeypatch.setattr(
+        flow_module,
+        "_quick_exploration_priority",
+        tracked_priority,
+    )
+
+    selected = select_for_milp(
+        [ordinary, quick],
+        None,
+        set(),
+        2,
+        replay_structural_negatives=False,
+    )
+
+    assert selected == [ordinary, quick]
+    assert calls == {code_key(ordinary): 1, code_key(quick): 1}
 
 
 def test_unresolved_queue_reserves_one_lane_for_fresh_candidate(tmp_path):

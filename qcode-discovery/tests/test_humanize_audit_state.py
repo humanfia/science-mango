@@ -13,6 +13,7 @@ from humanize.audit_state import (
     AuditOutcome,
     AuditStateError,
     authoritative_candidate_digest,
+    candidate_digest_definition_sha256,
     classify_evaluation,
     create_unresolved_entry,
     is_fully_exact,
@@ -640,6 +641,36 @@ def test_missing_and_forged_reports_share_the_definition_derived_digest():
     assert missing_digest != "attacker-selected"
     assert len(missing_digest) == 64
     assert set(missing_digest) <= set("0123456789abcdef")
+
+
+def test_candidate_digest_definition_identity_is_strict_and_normalized():
+    row = candidate(shift=6, digest="reported-only")
+    reordered = copy.deepcopy(row)
+    reordered["A_terms"].reverse()
+    reordered["B_terms"].reverse()
+    assert candidate_digest_definition_sha256(row) == (
+        candidate_digest_definition_sha256(reordered)
+    )
+
+    twisted = copy.deepcopy(row)
+    twisted["geometry"] = {
+        "schema_version": 1,
+        "family": "twisted_torus",
+        "twist": 1,
+    }
+    assert candidate_digest_definition_sha256(row) != (
+        candidate_digest_definition_sha256(twisted)
+    )
+
+    malformed_report = copy.deepcopy(row)
+    malformed_report["structural_novelty"]["canonical_digest"] = ""
+    with pytest.raises(AuditStateError, match="non-empty string"):
+        candidate_digest_definition_sha256(malformed_report)
+
+    boolean_term = copy.deepcopy(row)
+    boolean_term["A_terms"][0][0] = True
+    with pytest.raises(AuditStateError, match="must be an integer"):
+        candidate_digest_definition_sha256(boolean_term)
 
 
 def test_legacy_row_without_novelty_persists_authoritative_retry_identity():

@@ -2025,7 +2025,7 @@ def test_pending_screen_uses_committed_candidate_batch_policy(
 
     def screen_with_bound_policy(rows, *, policy_version):
         observed_screen_policy_versions.append(policy_version)
-        return list(rows), [], list(rows)
+        return list(rows), [], list(rows), None
 
     def select_with_bound_policy(
         _candidates,
@@ -2033,14 +2033,16 @@ def test_pending_screen_uses_committed_candidate_batch_policy(
         *,
         screened_history=None,
         policy_version,
+        verified_structural_digests=None,
     ):
         assert screened_history == [source_row]
+        assert verified_structural_digests is None
         observed_select_policy_versions.append(policy_version)
         return []
 
     monkeypatch.setattr(
         flow,
-        "_screen_candidates_with_pool",
+        "_screen_candidates_with_pool_indexed",
         screen_with_bound_policy,
     )
     monkeypatch.setattr(

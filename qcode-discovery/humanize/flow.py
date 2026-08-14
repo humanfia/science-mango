@@ -63,6 +63,7 @@ from .audit_state import (
     AuditOutcome,
     AuditStateError,
     authoritative_candidate_digest,
+    candidate_digest_definition_sha256,
     classify_evaluation,
     is_fully_exact,
     rebuild_audit_state,
@@ -10112,6 +10113,143 @@ def _replayable_search_lower_bound_for_audit(
     return lower_bound if lower_bound >= 1 else None
 
 
+class _VerifiedStructuralDigestIndex:
+    """Ephemeral capability produced only by one verified structural screen.
+
+    The index is deliberately kept out of candidate rows and durable state.
+    Each entry is bound to both the strict authoritative digest definition and
+    the exact structural-screen input, while the whole index is bound to the
+    structural-screen runtime fingerprint.  Any mismatch falls back to the
+    existing independent Tanner canonicalization path.
+    """
+
+    __slots__ = ("_bindings", "_runtime_sha256")
+
+    def __init__(
+        self,
+        screened_rows: list[dict[str, Any]],
+        *,
+        runtime_sha256_before_screen: str,
+    ) -> None:
+        from evaluation.structural_dedup import (
+            StructuralScreenCacheError,
+            structural_screen_input_sha256,
+            structural_screen_runtime_fingerprint,
+        )
+
+        runtime_sha256_after_screen = (
+            structural_screen_runtime_fingerprint()["sha256"]
+        )
+        if runtime_sha256_after_screen != runtime_sha256_before_screen:
+            raise AuditStateError(
+                "structural-screen runtime changed while building selector index"
+            )
+        bindings: dict[tuple[str, str], str] = {}
+        invalid_bindings: set[tuple[str, str]] = set()
+        for row in screened_rows:
+            if isinstance(row.get("construction"), Mapping):
+                # The structural screen dispatches these rows through their
+                # construction schema, whereas authoritative_candidate_digest
+                # deliberately rebuilds the legacy BB fields.  Never use one
+                # representation as authority for the other.
+                continue
+            static = row.get("static_eligibility")
+            novelty = row.get("structural_novelty")
+            if (
+                not isinstance(static, Mapping)
+                or static.get("eligible") is not True
+                or not isinstance(novelty, Mapping)
+                or novelty.get("checked") is not True
+                or novelty.get("novel") is not True
+            ):
+                # A test double or a future non-BB screen may return a row
+                # outside this capability's closed schema.  Preserve the old
+                # selector semantics by withholding reuse for that row.
+                continue
+            digest = novelty.get("canonical_digest")
+            if (
+                not isinstance(digest, str)
+                or len(digest) != 64
+                or any(character not in "0123456789abcdef" for character in digest)
+            ):
+                continue
+            try:
+                binding = (
+                    candidate_digest_definition_sha256(row),
+                    structural_screen_input_sha256(row),
+                )
+            except (
+                AuditStateError,
+                KeyError,
+                OverflowError,
+                StructuralScreenCacheError,
+                TypeError,
+                ValueError,
+            ):
+                # Some non-BB construction rows do not use the legacy
+                # authoritative digest path.  Withhold the capability so the
+                # selector preserves its existing independent behavior.
+                continue
+            if binding in invalid_bindings:
+                continue
+            previous = bindings.get(binding)
+            if previous is not None and previous != digest:
+                bindings.pop(binding, None)
+                invalid_bindings.add(binding)
+                continue
+            bindings[binding] = digest
+        self._bindings = bindings
+        self._runtime_sha256 = runtime_sha256_after_screen
+
+    @property
+    def entry_count(self) -> int:
+        return len(self._bindings)
+
+    def require_current_runtime(self) -> None:
+        from evaluation.structural_dedup import (
+            structural_screen_runtime_fingerprint,
+        )
+
+        current = structural_screen_runtime_fingerprint()["sha256"]
+        if current != self._runtime_sha256:
+            raise AuditStateError(
+                "verified structural-screen selector index is stale"
+            )
+
+    def digest_for(self, row: dict[str, Any]) -> str | None:
+        from evaluation.structural_dedup import (
+            StructuralScreenCacheError,
+            structural_screen_input_sha256,
+        )
+
+        if isinstance(row.get("construction"), Mapping):
+            return None
+        try:
+            binding = (
+                candidate_digest_definition_sha256(row),
+                structural_screen_input_sha256(row),
+            )
+        except (
+            AuditStateError,
+            KeyError,
+            OverflowError,
+            StructuralScreenCacheError,
+            TypeError,
+            ValueError,
+        ):
+            return None
+        digest = self._bindings.get(binding)
+        if digest is None:
+            return None
+        novelty = row.get("structural_novelty")
+        if (
+            not isinstance(novelty, Mapping)
+            or novelty.get("canonical_digest") != digest
+        ):
+            return None
+        return digest
+
+
 def select_for_milp(
     new_elites: list[dict[str, Any]],
     archive: EliteArchive | None,
@@ -10124,19 +10262,33 @@ def select_for_milp(
     replay_structural_negatives: bool = True,
     formal_audit_slots: list[Mapping[str, int]] | None = None,
     prior_audit_rows: list[Mapping[str, Any]] | None = None,
+    verified_structural_digests: _VerifiedStructuralDigestIndex | None = None,
 ) -> list[dict[str, Any]]:
     """Select diverse candidates without rewarding BP upper-bound magnitude."""
     selected_target_mode = validate_target_mode(target_mode)
     if not isinstance(replay_structural_negatives, bool):
         raise ValueError("replay_structural_negatives must be boolean")
+    if (
+        verified_structural_digests is not None
+        and not isinstance(
+            verified_structural_digests,
+            _VerifiedStructuralDigestIndex,
+        )
+    ):
+        raise TypeError("verified structural digests have an invalid type")
     if limit <= 0:
         return []
+    if audited_digests and verified_structural_digests is not None:
+        verified_structural_digests.require_current_runtime()
     archive_rows = [] if archive is None else archive.ranked()
     pool = _deduplicate(
         new_elites + archive_rows,
         policy_version=policy_version,
     )
-    eligible = []
+    quick_ranked: list[
+        tuple[tuple[int, float, str], dict[str, Any]]
+    ] = []
+    evidence_candidates: list[dict[str, Any]] = []
     for row in pool:
         if code_key(row) in audited_keys:
             continue
@@ -10146,17 +10298,19 @@ def select_for_milp(
             continue
         if novelty and novelty.get("novel") is not True:
             continue
-        digest = (
-            authoritative_candidate_digest(row)
-            if audited_digests
-            else None
-        )
+        digest = None
+        if audited_digests:
+            if verified_structural_digests is not None:
+                digest = verified_structural_digests.digest_for(row)
+            if digest is None:
+                digest = authoritative_candidate_digest(row)
         if audited_digests and digest and digest in audited_digests:
             continue
+        quick_priority = _quick_exploration_priority(row)
         if (
             row.get("candidate_persistence_lane")
             == "winner_capable_quick_exploration"
-            and _quick_exploration_priority(row) is None
+            and quick_priority is None
         ):
             # A forged/partial marker is neither a valid exploration object
             # nor ordinary BP evidence; fail closed instead of laundering it
@@ -10166,16 +10320,12 @@ def select_for_milp(
             # Only internally exact rejection evidence crosses this boundary.
             # Scalar or unreplayed upper bounds remain eligible for audit.
             continue
-        eligible.append(row)
-
-    quick_exploration = [
-        row for row in eligible
-        if _quick_exploration_priority(row) is not None
-    ]
-    evidence_candidates = [
-        row for row in eligible
-        if row not in quick_exploration
-    ]
+        if quick_priority is None:
+            evidence_candidates.append(row)
+        else:
+            quick_ranked.append((quick_priority, row))
+    quick_ranked.sort(key=lambda item: item[0], reverse=True)
+    quick_exploration = [row for _priority, row in quick_ranked]
     structural_replay_limit = 4 * limit
     structural_attempted_keys: set[str] = set()
     lower_bound_replay_limit = 4 * limit
@@ -10315,11 +10465,6 @@ def select_for_milp(
             + [row for row, _lower_bound in verified_lower_bounds]
             + ordinary_candidates
         )
-    quick_exploration.sort(
-        key=lambda row: _quick_exploration_priority(row),
-        reverse=True,
-    )
-
     if formal_audit_slots is not None:
         from evaluation.formal_audit_quota import (
             assigned_candidate,
@@ -11056,6 +11201,9 @@ class HumanizeFlow:
         *,
         screened_history: list[dict[str, Any]] | None = None,
         policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
+        verified_structural_digests: (
+            _VerifiedStructuralDigestIndex | None
+        ) = None,
     ) -> list[dict[str, Any]]:
         if self.config.milp_top <= 0:
             return []
@@ -11070,11 +11218,13 @@ class HumanizeFlow:
             if entry.get("canonical_digest")
         )
         if screened_history is None:
-            screened_history, _rejected = (
-                self._replay_screened_candidate_pool(
-                    candidates,
-                    policy_version=policy_version,
-                )
+            (
+                screened_history,
+                _rejected,
+                verified_structural_digests,
+            ) = self._replay_screened_candidate_pool_indexed(
+                candidates,
+                policy_version=policy_version,
             )
 
         quota_contract: dict[str, Any] | None = None
@@ -11147,6 +11297,7 @@ class HumanizeFlow:
                 else quota_slots[:fresh_capacity]
             ),
             prior_audit_rows=prior_audit_rows,
+            verified_structural_digests=verified_structural_digests,
         )
 
         # Do not leave compute idle when the fresh pool is empty (including a
@@ -13745,17 +13896,28 @@ class HumanizeFlow:
             paths.append(self.evaluations_path.resolve())
         return tuple(paths)
 
-    def _replay_screened_candidate_pool(
+    def _replay_screened_candidate_pool_impl(
         self,
         current: list[dict[str, Any]],
         *,
         policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
-    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        build_digest_index: bool,
+    ) -> tuple[
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        _VerifiedStructuralDigestIndex | None,
+    ]:
         """Rebuild the eligible pool from bound history with verified cache."""
         from evaluation.structural_dedup import (
             screen_css_results_with_deferred_cache,
+            structural_screen_runtime_fingerprint,
         )
 
+        runtime_before = (
+            structural_screen_runtime_fingerprint()["sha256"]
+            if build_digest_index
+            else None
+        )
         _paths, historical = self._validated_committed_candidate_history()
         combined = _deduplicate(
             historical + current,
@@ -13778,7 +13940,57 @@ class HumanizeFlow:
                 candidates=unresolved,
                 max_total_workers=worker_budget,
             )
+        digest_index = (
+            _VerifiedStructuralDigestIndex(
+                kept,
+                runtime_sha256_before_screen=runtime_before,
+            )
+            if runtime_before is not None
+            else None
+        )
+        return kept, rejected, digest_index
+
+    def _replay_screened_candidate_pool(
+        self,
+        current: list[dict[str, Any]],
+        *,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Compatibility wrapper that does not retain selector sidecars."""
+
+        kept, rejected, _digest_index = (
+            self._replay_screened_candidate_pool_impl(
+                current,
+                policy_version=policy_version,
+                build_digest_index=False,
+            )
+        )
         return kept, rejected
+
+    def _replay_screened_candidate_pool_indexed(
+        self,
+        current: list[dict[str, Any]],
+        *,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
+    ) -> tuple[
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        _VerifiedStructuralDigestIndex,
+    ]:
+        """Replay screening and retain its verified digests in memory."""
+
+        kept, rejected, digest_index = (
+            self._replay_screened_candidate_pool_impl(
+                current,
+                policy_version=policy_version,
+                build_digest_index=True,
+            )
+        )
+        if digest_index is None:
+            raise AuditStateError(
+                "verified structural-screen selector index was not built"
+            )
+        return kept, rejected, digest_index
 
     def _screen_candidates_with_pool(
         self,
@@ -13805,6 +14017,31 @@ class HumanizeFlow:
         self.archive.replace(kept)
         accepted = [row for row in kept if code_key(row) in current_keys]
         return accepted, rejected, kept
+
+    def _screen_candidates_with_pool_indexed(
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        policy_version: int = CANDIDATE_BATCH_POLICY_VERSION,
+    ) -> tuple[
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        _VerifiedStructuralDigestIndex,
+    ]:
+        """Screen one pool and keep an ephemeral digest capability."""
+
+        current = _deduplicate(rows, policy_version=policy_version)
+        current_keys = {code_key(row) for row in current}
+        kept, rejected, digest_index = (
+            self._replay_screened_candidate_pool_indexed(
+                current,
+                policy_version=policy_version,
+            )
+        )
+        self.archive.replace(kept)
+        accepted = [row for row in kept if code_key(row) in current_keys]
+        return accepted, rejected, kept, digest_index
 
     def _screen_candidates(
         self,
@@ -14493,6 +14730,9 @@ class HumanizeFlow:
                     )
                 else:
                     screened_history: list[dict[str, Any]] | None = None
+                    verified_structural_digests: (
+                        _VerifiedStructuralDigestIndex | None
+                    ) = None
                     batch_policy_version = CANDIDATE_BATCH_POLICY_VERSION
                     if pending and phase not in {"screen", "audit"}:
                         raise RoundTransactionError(
@@ -14542,7 +14782,8 @@ class HumanizeFlow:
                             candidates,
                             rejected,
                             screened_history,
-                        ) = self._screen_candidates_with_pool(
+                            verified_structural_digests,
+                        ) = self._screen_candidates_with_pool_indexed(
                             candidates,
                             policy_version=batch_policy_version,
                         )
@@ -14567,6 +14808,9 @@ class HumanizeFlow:
                             state,
                             screened_history=screened_history,
                             policy_version=batch_policy_version,
+                            verified_structural_digests=(
+                                verified_structural_digests
+                            ),
                         )
                         self._write_jsonl(selected_path, selected)
                     else:
