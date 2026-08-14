@@ -5,6 +5,26 @@ thermodynamics, kinetics, stochastic chemistry, photochemistry, and selected
 chemical models. It is generated and checked through Archon's clean-room
 library campaign without importing legacy Chemistry or CRNT implementations.
 
+## Install and build
+
+Install [elan](https://github.com/leanprover/elan), then clone the release
+branch and enter this Lake project:
+
+```bash
+git clone --single-branch --branch ChemistryLib \
+  https://github.com/menik1126/chemlib.git
+cd chemlib/chemistrylib
+lake build
+lake env lean ChemistryLib.lean
+```
+
+The checked-in toolchain and manifest pin Lean, Mathlib, and Physlib. The first
+build fetches those dependencies; subsequent builds reuse `.lake/`.
+
+To consume ChemistryLib from another Lake project, use the repository's
+`chemistrylib` subdirectory as the Git dependency and import `ChemistryLib`.
+The repository-root README contains the exact `lakefile.toml` declaration.
+
 ## Release status
 
 All thirteen ordinary capability families in the declared campaign DAG are
@@ -33,8 +53,12 @@ legacy Chemistry/CRNT implementations are forbidden dependencies.
 
 ```bash
 lake build
-archon chemistry-rebuild validate . --build
+lake env lean ChemistryLib.lean
 ```
+
+The public release can be compiled without Archon. Maintainers with the
+separate generation controller can additionally replay the campaign-specific
+validation workflow.
 
 The reviewed CapabilityIR, module DAG, API lock, grounding policy, global-goal
 binding, and release certificate are published under `campaign/`. The release
