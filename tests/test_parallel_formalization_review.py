@@ -7,6 +7,7 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import archon.commands.loop.parallel_formalization_review as parallel_formalization_review
 from archon.commands.loop.parallel_formalization_review import (
     build_target_formalization_review_prompt,
     load_target_formalization_milestone,
@@ -448,13 +449,13 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                     line for line in feedback.splitlines()
                     if line.startswith("{")
                 )
-                self.assertLessEqual(len(payload.encode("ascii")), 512)
+                self.assertLessEqual(len(payload.encode("ascii")), 2_048)
                 self.assertTrue(all(ord(character) >= 0x20 for character in payload))
                 self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", feedback)
                 self.assertNotIn("PRIOR_DERIVATION_SENTINEL", feedback)
                 self.assertNotIn("TRANSPORT_TEXT_MUST_NOT_BE_FEEDBACK", feedback)
 
-    def test_schema_feedback_refreshes_attempt_three_but_transport_cannot_create_it(self):
+    def test_schema_feedback_accumulates_attempt_three_but_transport_cannot_create_it(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             target, contract = _native_project(root)
@@ -528,6 +529,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             )[2]
             self.assertIn('"required_exact_keys"', feedback_two)
             self.assertNotIn('"allowed_values"', feedback_two)
+            self.assertIn('"required_exact_keys"', feedback_three)
             self.assertIn('"allowed_values"', feedback_three)
             self.assertIn("dependencies[0].kind", feedback_three)
             self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", feedback_three)
@@ -589,10 +591,229 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 transport_prompts[1],
             )
 
+    def test_previous_then_pinned_feedback_is_deduplicated_and_accumulated(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            rel = target.relative_to(root).as_posix()
+            state = root / ".archon"
+            iter_dir = state / "logs/iter-014"
+            iter_dir.mkdir(parents=True)
+            prompts: list[str] = []
+
+            def forbidden_executor(**_kwargs):
+                self.fail("single-target Review must not instantiate an executor")
+
+            def previous_then_pinned_then_success(spec, **_kwargs):
+                prompts.append(spec.prompt)
+                if spec.attempt < 3:
+                    invalid = _native_milestone(spec.rel, contract)
+                    output = invalid["formalization_review"][
+                        "independent_rederivation"
+                    ]["requested_outputs"][0]
+                    if spec.attempt == 1:
+                        output["source_locators"] = [{
+                            "kind": "previous_parts",
+                            "reference": "999",
+                        }]
+                    else:
+                        output["source_locators"] = [{
+                            "kind": "pinned_library",
+                            "reference": "Project.Local.secret",
+                        }]
+                    output_dir = Path(spec.output_dir)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "milestones.jsonl").write_text(
+                        json.dumps(invalid) + "\n",
+                        encoding="utf-8",
+                    )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error="UNTRUSTED_RAW_LOCATOR_SENTINEL",
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_native_milestone(spec.rel, contract),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=14,
+                objectives=[target],
+                preflight={"targets": [{"file": rel, "compiles": True}]},
+                prior_gate_targets={},
+                requested_jobs=4,
+                max_attempts=3,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=previous_then_pinned_then_success,
+                executor_factory=forbidden_executor,
+                sleep_fn=lambda _seconds: None,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(len(prompts), 3)
+            self.assertNotIn("STRUCTURAL SCHEMA FEEDBACK", prompts[0])
+            self.assertIn(
+                "ASCII decimal zero-based index", prompts[1],
+            )
+            self.assertNotIn(
+                "safe fully-qualified existing declaration", prompts[1],
+            )
+            self.assertIn(
+                "ASCII decimal zero-based index", prompts[2],
+            )
+            self.assertIn(
+                "safe fully-qualified existing declaration", prompts[2],
+            )
+            self.assertEqual(
+                prompts[2].count("CONTROLLER STRUCTURAL SCHEMA FEEDBACK"), 1,
+            )
+            self.assertNotIn("Project.Local.secret", prompts[2])
+            self.assertNotIn("UNTRUSTED_RAW_LOCATOR_SENTINEL", prompts[2])
+
+        base = {
+            "error_kind": "schema_validation",
+            "issue": "wrong_type",
+            "field_path": "independent_rederivation.requested_outputs[0].id",
+            "expected_type": "string",
+        }
+        history = parallel_formalization_review._extend_schema_feedback_history(
+            [], base,
+        )
+        history = parallel_formalization_review._extend_schema_feedback_history(
+            history, dict(base),
+        )
+        self.assertEqual(len(history), 1)
+        for index in range(10):
+            item = dict(base)
+            item["field_path"] = (
+                f"independent_rederivation.requested_outputs[{index}].id"
+            )
+            history = parallel_formalization_review._extend_schema_feedback_history(
+                history, item,
+            )
+        self.assertLessEqual(len(history), 4)
+        rendered = parallel_formalization_review._append_schema_retry_feedback(
+            "base", history,
+        )
+        payload = next(
+            line for line in rendered.splitlines()
+            if line.startswith('{"feedback_history"')
+        )
+        self.assertLessEqual(len(payload.encode("ascii")), 2_048)
+        self.assertTrue(all(ord(character) >= 0x20 for character in payload))
+
+    def test_loaded_native_milestone_persists_previous_locator_canonical_form(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            contract["previous_parts_count"] = 1
+            contract["problem_evidence"]["previous_parts"] = [{
+                "question": "trusted prior question",
+            }]
+            rel = target.relative_to(root).as_posix()
+            milestone = _native_milestone(rel, contract)
+            milestone["formalization_review"]["independent_rederivation"][
+                "requested_outputs"
+            ][0]["source_locators"] = [{
+                "kind": "previous_parts",
+                "reference": "0",
+            }]
+            path = root / "milestones.jsonl"
+            path.write_text(json.dumps(milestone) + "\n", encoding="utf-8")
+
+            loaded, error = load_target_formalization_milestone(
+                path, rel, None, contract,
+            )
+
+            self.assertEqual(error, "")
+            self.assertIsNotNone(loaded)
+            assert loaded is not None
+            self.assertEqual(
+                loaded["formalization_review"]["independent_rederivation"][
+                    "requested_outputs"
+                ][0]["source_locators"][0]["reference"],
+                "previous_parts[0]",
+            )
+
+    def test_transport_failure_preserves_prior_safe_feedback(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            rel = target.relative_to(root).as_posix()
+            state = root / ".archon"
+            iter_dir = state / "logs/iter-015"
+            iter_dir.mkdir(parents=True)
+            prompts: list[str] = []
+
+            def worker(spec, **_kwargs):
+                prompts.append(spec.prompt)
+                if spec.attempt == 1:
+                    invalid = _r10_invalid_native_milestone(
+                        spec.rel, contract, "missing_unit",
+                    )
+                    output_dir = Path(spec.output_dir)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "milestones.jsonl").write_text(
+                        json.dumps(invalid) + "\n", encoding="utf-8",
+                    )
+                    return TargetReviewOutcome(
+                        rel=spec.rel, attempt=1, runner_ok=True,
+                        milestone=None, error="RAW_ONE",
+                    )
+                if spec.attempt == 2:
+                    return TargetReviewOutcome(
+                        rel=spec.rel, attempt=2, runner_ok=False,
+                        milestone=None, error="RAW_TRANSPORT_SENTINEL",
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel, attempt=3, runner_ok=True,
+                    milestone=_native_milestone(spec.rel, contract),
+                )
+
+            report = run_parallel_formalization_reviews(
+                project_path=root,
+                state_dir=state,
+                iter_dir=iter_dir,
+                iter_num=15,
+                objectives=[target],
+                preflight={"targets": [{"file": rel, "compiles": True}]},
+                prior_gate_targets={},
+                requested_jobs=1,
+                max_attempts=3,
+                backoff_sec=0,
+                verbose_logs=False,
+                model=None,
+                backend=None,
+                harness=None,
+                worker_fn=worker,
+                executor_factory=lambda **_kwargs: None,
+                sleep_fn=lambda _seconds: None,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertIn('"required_exact_keys"', prompts[1])
+            self.assertIn('"required_exact_keys"', prompts[2])
+            self.assertNotIn("RAW_TRANSPORT_SENTINEL", prompts[2])
+
     def test_r12_locator_and_size_failures_receive_safe_retry_feedback(self):
         cases = (
-            ("problem_text", "problem_text_contract_field"),
-            ("previous_parts", "previous_parts[zero_based_index][.field]"),
+            ("problem_text", "exact scalar root[#safe-fragment]"),
+            (
+                "previous_parts",
+                "ASCII decimal zero-based index or previous_parts[index][.field]",
+            ),
             ("output_size", '"max_bytes":8192'),
         )
         for defect, expected_feedback in cases:

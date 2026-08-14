@@ -52,6 +52,9 @@ _NOT_APPLICABLE = {"not_applicable", "not applicable", "n/a", "na"}
 _BRIDGE_PASS = {"covered", "grounded", "encoded", "proved", "pass", "passed"}
 _BRIDGE_FAIL = {"blocked", "failed", "missing", "partial", "needs_redraft"}
 _SCHEMA_RETRY_MARKER = "CONTROLLER STRUCTURAL SCHEMA FEEDBACK"
+_MAX_SCHEMA_FEEDBACK_ITEM_BYTES = 512
+_MAX_SCHEMA_FEEDBACK_ITEMS = 4
+_MAX_SCHEMA_FEEDBACK_TOTAL_BYTES = 2_048
 
 
 def _utcnow() -> str:
@@ -67,16 +70,66 @@ def _formalization_review(row: dict) -> dict | None:
     return raw if isinstance(raw, dict) else None
 
 
-def _append_schema_retry_feedback(prompt: str, feedback: dict) -> str:
-    """Append controller-generated schema feedback without rejected content."""
+def _canonical_schema_feedback(feedback: dict) -> str | None:
     payload = json.dumps(
         feedback, ensure_ascii=True, separators=(",", ":"), sort_keys=True,
     )
     try:
         payload_bytes = payload.encode("ascii")
     except UnicodeEncodeError:
+        return None
+    if (
+        len(payload_bytes) > _MAX_SCHEMA_FEEDBACK_ITEM_BYTES
+        or any(ord(character) < 0x20 for character in payload)
+    ):
+        return None
+    return payload
+
+
+def _extend_schema_feedback_history(
+    history: list[dict],
+    feedback: dict,
+) -> list[dict]:
+    """Append one safe structural item, preserving stable bounded history."""
+    current: list[dict] = []
+    seen: set[str] = set()
+    for item in [*history, feedback]:
+        if not isinstance(item, dict):
+            continue
+        canonical = _canonical_schema_feedback(item)
+        if canonical is None or canonical in seen:
+            continue
+        candidate = [*current, item]
+        aggregate = json.dumps(
+            {"feedback_history": candidate},
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        if (
+            len(current) >= _MAX_SCHEMA_FEEDBACK_ITEMS
+            or len(aggregate.encode("ascii")) > _MAX_SCHEMA_FEEDBACK_TOTAL_BYTES
+        ):
+            continue
+        current.append(item)
+        seen.add(canonical)
+    return current
+
+
+def _append_schema_retry_feedback(prompt: str, feedback: list[dict]) -> str:
+    """Append bounded controller feedback without rejected certificate content."""
+    history: list[dict] = []
+    for item in feedback:
+        history = _extend_schema_feedback_history(history, item)
+    if not history:
         return prompt
-    if len(payload_bytes) > 512 or any(ord(character) < 0x20 for character in payload):
+    payload = json.dumps(
+        {"feedback_history": history},
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    if len(payload.encode("ascii")) > _MAX_SCHEMA_FEEDBACK_TOTAL_BYTES:
         return prompt
     return prompt + f"""
 
@@ -177,11 +230,13 @@ def _validate_certificate(
     if source_error:
         return source_error
     if verdict in _PASS:
-        native_error, _normalized = validate_independent_rederivation(
+        native_error, normalized = validate_independent_rederivation(
             raw, native_semantic_contract,
         )
         if native_error:
             return native_error
+        if native_semantic_contract is not None:
+            raw["independent_rederivation"] = normalized
     return ""
 
 
@@ -711,7 +766,7 @@ def run_parallel_formalization_reviews(
     }
     pending = {rel: path for rel, path in targets}
     outcomes: dict[str, TargetReviewOutcome] = {}
-    schema_feedback: dict[str, dict] = {}
+    schema_feedback: dict[str, list[dict]] = {}
     rounds: list[dict] = []
     jobs = max(1, min(int(requested_jobs), len(pending) or 1))
     max_attempts = max(1, int(max_attempts))
@@ -799,10 +854,10 @@ def run_parallel_formalization_reviews(
                         )
                     except Exception:
                         feedback = None
-                    if feedback is None:
-                        schema_feedback.pop(spec.rel, None)
-                    else:
-                        schema_feedback[spec.rel] = feedback
+                    if feedback is not None:
+                        schema_feedback[spec.rel] = _extend_schema_feedback_history(
+                            schema_feedback.get(spec.rel, []), feedback,
+                        )
             else:
                 outcomes[spec.rel] = outcome
                 schema_feedback.pop(spec.rel, None)
