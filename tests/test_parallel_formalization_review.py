@@ -589,6 +589,106 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 transport_prompts[1],
             )
 
+    def test_r12_locator_and_size_failures_receive_safe_retry_feedback(self):
+        cases = (
+            ("problem_text", "problem_text_contract_field"),
+            ("previous_parts", "previous_parts[zero_based_index][.field]"),
+            ("output_size", '"max_bytes":8192'),
+        )
+        for defect, expected_feedback in cases:
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                target, contract = _native_project(root)
+                rel = target.relative_to(root).as_posix()
+                state = root / ".archon"
+                iter_dir = state / "logs/iter-012-r12"
+                iter_dir.mkdir(parents=True)
+                prompts: list[str] = []
+                invalid = _native_milestone(rel, contract)
+                output = invalid["formalization_review"][
+                    "independent_rederivation"
+                ]["requested_outputs"][0]
+                if defect == "problem_text":
+                    output["constants"] = [{
+                        "name": "source factor",
+                        "value": 1,
+                        "unit": "dimensionless",
+                        "source_locator": {
+                            "kind": "problem_text",
+                            "reference": "OFFICIAL_ANSWER_SENTINEL",
+                        },
+                    }]
+                elif defect == "previous_parts":
+                    output["dependencies"] = [{
+                        "kind": "previous_part",
+                        "reference": "source relation",
+                        "relation": "use the problem-only prior relation",
+                        "source_locator": {
+                            "kind": "previous_parts",
+                            "reference": "previous_parts[999].OFFICIAL_ANSWER_SENTINEL",
+                        },
+                    }]
+                elif defect == "output_size":
+                    output["evidence"] = "OFFICIAL_ANSWER_SENTINEL" * 400
+                else:  # pragma: no cover - guarded by the static cases above
+                    raise AssertionError(defect)
+
+                def forbidden_executor(**_kwargs):
+                    self.fail("single-target Review must not instantiate an executor")
+
+                def invalid_then_success(spec, **_kwargs):
+                    prompts.append(spec.prompt)
+                    if spec.attempt == 1:
+                        output_dir = Path(spec.output_dir)
+                        output_dir.mkdir(parents=True, exist_ok=True)
+                        (output_dir / "milestones.jsonl").write_text(
+                            json.dumps(invalid) + "\n",
+                            encoding="utf-8",
+                        )
+                        return TargetReviewOutcome(
+                            rel=spec.rel,
+                            attempt=spec.attempt,
+                            runner_ok=True,
+                            milestone=None,
+                            error="UNTRUSTED_RAW_ERROR_OFFICIAL_ANSWER_SENTINEL",
+                        )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=_native_milestone(spec.rel, contract),
+                    )
+
+                report = run_parallel_formalization_reviews(
+                    project_path=root,
+                    state_dir=state,
+                    iter_dir=iter_dir,
+                    iter_num=12,
+                    objectives=[target],
+                    preflight={"targets": [{"file": rel, "compiles": True}]},
+                    prior_gate_targets={},
+                    requested_jobs=4,
+                    max_attempts=2,
+                    backoff_sec=0,
+                    verbose_logs=False,
+                    model=None,
+                    backend=None,
+                    harness=None,
+                    worker_fn=invalid_then_success,
+                    executor_factory=forbidden_executor,
+                    sleep_fn=lambda _seconds: None,
+                )
+
+                self.assertTrue(report["complete"])
+                self.assertEqual(len(prompts), 2)
+                self.assertNotIn(
+                    "CONTROLLER STRUCTURAL SCHEMA FEEDBACK", prompts[0],
+                )
+                self.assertIn("CONTROLLER STRUCTURAL SCHEMA FEEDBACK", prompts[1])
+                self.assertIn(expected_feedback, prompts[1])
+                self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", prompts[1])
+                self.assertNotIn("UNTRUSTED_RAW_ERROR", prompts[1])
+
     def test_schema_feedback_is_target_isolated_in_multi_target_retries(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

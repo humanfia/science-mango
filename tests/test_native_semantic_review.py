@@ -527,6 +527,76 @@ class NativeSemanticReviewTests(unittest.TestCase):
                 )
                 self.assertEqual(normalized, {})
 
+    def test_locator_and_compact_size_feedback_is_static_and_non_reflecting(self) -> None:
+        output = "independent_rederivation.requested_outputs[0]"
+        locator = f"{output}.dependencies[0].source_locator"
+        cases = (
+            (
+                f"{locator}.reference contains an external or unsafe locator",
+                "safe_relative_problem_locator",
+                None,
+            ),
+            (
+                f"{locator} must reference an allowed problem image as path#region",
+                "exact_problem_image_path#region",
+                None,
+            ),
+            (
+                f"{locator} does not identify an available previous_parts entry",
+                "previous_parts[zero_based_index][.field]",
+                None,
+            ),
+            (
+                f"{locator} is not a pinned Mathlib/Physlib/CRNT declaration",
+                "fully_qualified_Mathlib_Physlib_CRNT_declaration",
+                None,
+            ),
+            (
+                f"{locator} does not identify a problem-only text field",
+                "problem_text_contract_field",
+                None,
+            ),
+            (
+                f"{output} exceeds the compact Review certificate limit",
+                None,
+                8 * 1024,
+            ),
+            (
+                "independent_rederivation exceeds the compact certificate limit",
+                None,
+                192 * 1024,
+            ),
+        )
+        for error, expected_format, max_bytes in cases:
+            with self.subTest(error=error):
+                feedback = build_native_schema_feedback(error)
+                self.assertIsNotNone(feedback)
+                assert feedback is not None
+                if expected_format is not None:
+                    self.assertEqual(feedback["expected_format"], expected_format)
+                if max_bytes is not None:
+                    self.assertEqual(feedback["max_bytes"], max_bytes)
+                payload = json.dumps(feedback, ensure_ascii=True, sort_keys=True)
+                self.assertLessEqual(len(payload.encode("ascii")), 512)
+                self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", payload)
+
+        reflected_or_unknown = (
+            f"{locator} does not identify a problem-only text field\n"
+            "OFFICIAL_ANSWER_SENTINEL",
+            "independent_rederivation.requested_outputs[0].unit does not "
+            "exactly match the problem bundle",
+            "other.path does not identify an available previous_parts entry",
+        )
+        for error in reflected_or_unknown:
+            with self.subTest(error=error):
+                self.assertIsNone(build_native_schema_feedback(error))
+
+        instructions = render_independent_rederivation_instructions(self._contract())
+        self.assertIn("problem_text reference must begin", instructions)
+        self.assertIn("requested_outputs[", instructions)
+        self.assertIn("8192 UTF-8 bytes", instructions)
+        self.assertIn("196608 UTF-8 bytes", instructions)
+
     def test_non_native_profiles_keep_the_historical_schema(self) -> None:
         config = self.project / ".archon/config.json"
         config.write_text(

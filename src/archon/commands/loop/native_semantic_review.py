@@ -76,6 +76,11 @@ _SCHEMA_INDEX = r"[0-9]{1,3}"
 _SCHEMA_OUTPUT = (
     rf"independent_rederivation\.requested_outputs\[{_SCHEMA_INDEX}\]"
 )
+_SCHEMA_LOCATOR = (
+    rf"{_SCHEMA_OUTPUT}\."
+    rf"(?:(?:constants|dependencies|branch_conditions)\[{_SCHEMA_INDEX}\]"
+    rf"\.source_locator|source_locators\[{_SCHEMA_INDEX}\])"
+)
 _SCHEMA_OBJECTS: tuple[tuple[str, set[str]], ...] = (
     (r"independent_rederivation", _TOP_FIELDS),
     (_SCHEMA_OUTPUT, _OUTPUT_FIELDS),
@@ -640,6 +645,16 @@ def render_independent_rederivation_instructions(
         "and pinned_library. A problem image reference is its exact allowed asset "
         "path plus #region; previous_parts uses an existing zero-based index; a "
         "pinned library reference is a fully-qualified Mathlib/Physlib/CRNT name. "
+        "A problem_text reference must begin with one of the controller-owned "
+        "roots "
+        + json.dumps(list(_TEXT_REFERENCE_PREFIXES), ensure_ascii=True)
+        + ". Locator references must use only facts already visible in the "
+        "problem-only contract; never invent a field, index, asset, or declaration. "
+        f"Keep each string at most {MAX_TEXT_CHARS} characters, each JSON value "
+        f"at most {MAX_JSON_VALUE_CHARS} characters, each list at most "
+        f"{MAX_ITEMS_PER_FIELD} items, each requested-output object at most "
+        f"{MAX_OUTPUT_BYTES} UTF-8 bytes, and the complete independent_rederivation "
+        f"at most {MAX_CERTIFICATE_BYTES} UTF-8 bytes. "
         "URLs, absolute paths, '..', grader data, and external workspaces are "
         "forbidden. Keep evidence concise. Raw values are checked for a source "
         "derivation and exact-unrounded attestation, never against an answer key. "
@@ -695,12 +710,13 @@ def _exact_fields(value: Any, expected: set[str], *, label: str) -> Mapping[str,
 
 
 def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
-    """Return bounded schema-only retry feedback for a trusted validator error.
+    """Return bounded structural retry feedback for a trusted validator error.
 
     The rejected certificate and the raw error detail are deliberately not
-    returned.  Only paths with controller-owned exact-key/enum definitions are
-    recognized, so problem text, answer-shaped values, and prior derivations
-    cannot be reflected into a later model prompt.
+    returned.  Only paths with controller-owned exact-key/enum definitions and
+    fixed, problem-independent locator/size grammars are recognized, so problem
+    text, answer-shaped values, locator values, and prior derivations cannot be
+    reflected into a later model prompt.
     """
     invalid_fields_suffix = " has invalid fields: "
     if invalid_fields_suffix in error:
@@ -814,6 +830,60 @@ def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
                 "field_path": path,
                 "expected_type": "string",
             }
+
+    locator_rules: tuple[tuple[str, str], ...] = (
+        (
+            " contains an external or unsafe locator",
+            "safe_relative_problem_locator",
+        ),
+        (
+            " must reference an allowed problem image as path#region",
+            "exact_problem_image_path#region",
+        ),
+        (
+            " does not identify an available previous_parts entry",
+            "previous_parts[zero_based_index][.field]",
+        ),
+        (
+            " is not a pinned Mathlib/Physlib/CRNT declaration",
+            "fully_qualified_Mathlib_Physlib_CRNT_declaration",
+        ),
+        (
+            " does not identify a problem-only text field",
+            "problem_text_contract_field",
+        ),
+    )
+    for suffix, expected_format in locator_rules:
+        if not error.endswith(suffix):
+            continue
+        path = error.removesuffix(suffix)
+        locator_path = path.removesuffix(".reference")
+        if re.fullmatch(_SCHEMA_LOCATOR, locator_path) is None:
+            return None
+        return {
+            "error_kind": "schema_validation",
+            "issue": "invalid_locator_binding",
+            "field_path": path,
+            "expected_format": expected_format,
+        }
+
+    output_size_suffix = " exceeds the compact Review certificate limit"
+    if error.endswith(output_size_suffix):
+        path = error.removesuffix(output_size_suffix)
+        if re.fullmatch(_SCHEMA_OUTPUT, path) is not None:
+            return {
+                "error_kind": "schema_validation",
+                "issue": "payload_too_large",
+                "field_path": path,
+                "max_bytes": MAX_OUTPUT_BYTES,
+            }
+    if error == "independent_rederivation exceeds the compact certificate limit":
+        return {
+            "error_kind": "schema_validation",
+            "issue": "payload_too_large",
+            "field_path": "independent_rederivation",
+            "max_bytes": MAX_CERTIFICATE_BYTES,
+        }
     return None
 
 

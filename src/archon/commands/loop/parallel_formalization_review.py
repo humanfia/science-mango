@@ -80,11 +80,12 @@ def _append_schema_retry_feedback(prompt: str, feedback: dict) -> str:
         return prompt
     return prompt + f"""
 
-{_SCHEMA_RETRY_MARKER} (schema names only; no prior certificate content):
+{_SCHEMA_RETRY_MARKER} (controller-owned formats only; no prior certificate content):
 {payload}
 
 This feedback is structural only. It neither corrects nor certifies any
-semantic claim. On this retry, rewrite exactly one complete milestone JSONL row,
+semantic claim or locator value.
+On this retry, rewrite exactly one complete milestone JSONL row,
 including the full formalization_review certificate. Do not emit a patch,
 fragment, explanation, or prior certificate text. Use only the allowed problem
 sources to determine all semantic values, and obey every exact-key and enum
@@ -791,7 +792,11 @@ def run_parallel_formalization_reviews(
                             spec.source_contract,
                             native_contract,
                         )
-                        feedback = build_native_schema_feedback(validation_error)
+                        feedback = (
+                            build_native_schema_feedback(validation_error)
+                            if native_contract is not None
+                            else None
+                        )
                     except Exception:
                         feedback = None
                     if feedback is None:
