@@ -2098,6 +2098,7 @@ def test_certificate_source_fingerprint_includes_audit_dependencies(
     project = tmp_path / "qcode"
     for path in (
         project / "scripts" / "audit_candidate_pool.py",
+        project / "scripts" / "stage2_structural_cache.py",
         project / "scripts" / "audit_direction_pool.py",
         project / "scripts" / "finalize_challenge.py",
         project / "scripts" / "screen_frontier_candidate.py",

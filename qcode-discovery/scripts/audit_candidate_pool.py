@@ -102,6 +102,7 @@ from evaluation.structural_dedup import (
     structural_screen_input_sha256,
     structural_screen_runtime_fingerprint,
 )
+from scripts.stage2_structural_cache import packed_structural_cache
 from humanize.audit_state import (
     AuditOutcome,
     AuditStateError,
@@ -1320,7 +1321,8 @@ def rank_candidate_files_with_structural_cache(
     """
 
     mode = validate_target_mode(target_mode)
-    records, sources = read_candidate_jsonl(paths)
+    input_paths = tuple(Path(path) for path in paths)
+    records, sources = read_candidate_jsonl(input_paths)
     prepared: list[dict[str, Any]] = []
     prepared_sources: list[str] = []
     css_rows: list[dict[str, Any]] = []
@@ -1420,16 +1422,23 @@ def rank_candidate_files_with_structural_cache(
         css_sources.append(source)
         css_reported.append((reported_n, reported_k))
 
-    kept, rejected, unresolved = screen_css_results_with_deferred_cache(
-        css_rows,
+    runtime_sha256 = structural_screen_runtime_fingerprint()["sha256"]
+    with packed_structural_cache(
         cache_dir=Path(structural_cache_dir),
-        max_workers=structural_max_workers,
-        hard_timeout=structural_hard_timeout,
-    )
+        runtime_sha256=runtime_sha256,
+        input_paths=input_paths,
+        stage1_aliases={},
+        enable_stage1_import=False,
+    ):
+        kept, rejected, unresolved = screen_css_results_with_deferred_cache(
+            css_rows,
+            cache_dir=Path(structural_cache_dir),
+            max_workers=structural_max_workers,
+            hard_timeout=structural_hard_timeout,
+        )
     annotated = [*kept, *rejected]
     completed_by_index: dict[int, dict[str, Any]] = {}
     completed_inputs: set[str] = set()
-    runtime_sha256 = structural_screen_runtime_fingerprint()["sha256"]
     for row in annotated:
         index = row.get("_stage2_structural_index")
         if (
@@ -1890,6 +1899,7 @@ def certificate_source_fingerprint() -> str:
 
     paths = {
         Path(__file__).resolve(),
+        PROJECT / "scripts" / "stage2_structural_cache.py",
         PROJECT / "scripts" / "audit_direction_pool.py",
         PROJECT / "scripts" / "finalize_challenge.py",
         # The typed sector-SAT verifier imports these helpers at replay time.
@@ -3224,6 +3234,7 @@ def _novelty_source_fingerprint() -> str:
 
     paths = {
         Path(__file__).resolve(),
+        PROJECT / "scripts" / "stage2_structural_cache.py",
         PROJECT / "evaluation" / "bb_code.py",
         PROJECT / "evaluation" / "geometry.py",
         PROJECT / "evaluation" / "registry.py",
