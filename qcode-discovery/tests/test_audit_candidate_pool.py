@@ -1787,6 +1787,255 @@ def test_stage2_hard_wall_rejects_source_stale_terminal_artifact(tmp_path):
     assert result["artifact_recovery"]["retryable"] is True
 
 
+def _basis_fastpath_ranked() -> dict:
+    witness = {
+        "side": "X",
+        "index": 0,
+        "dual_side": "Z",
+        "dual_index": 0,
+        "weight": 2,
+        "bits": [1, 1] + [0] * 70,
+    }
+    return {
+        **_construction(0),
+        "triage_identity": {
+            "canonical_digest": "2" * 64,
+            "digest_kind": "registry-canonical",
+        },
+        "static_eligibility": {
+            "checked": True,
+            "eligible": True,
+            "n": 72,
+            "k": 2,
+            "logical_basis_upper_bound": {
+                "schema_version": 1,
+                "kind": "qcode-logical-basis-upper-bound-v1",
+                "method": "replayed-minimum-symplectic-basis-row",
+                "available": True,
+                "upper_bound": 2,
+                "witness": witness,
+                "report_sha256": "3" * 64,
+            },
+        },
+    }
+
+
+def test_default_bb_audit_replays_basis_rejection_before_xor(
+    tmp_path,
+    monkeypatch,
+):
+    ranked = _basis_fastpath_ranked()
+    monkeypatch.setattr(
+        candidate_pool,
+        "replay_structural_logical_basis_rejection",
+        lambda row, *, target_mode: SimpleNamespace(
+            target_mode=target_mode,
+            n=72,
+            k=2,
+            upper_bound=2,
+            required_distance=21,
+        ),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "verify_bb_translation_symmetry",
+        lambda _candidate: pytest.fail(
+            "replayed basis rejection must bypass symmetry and XOR"
+        ),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solve_sector",
+        lambda _payload: pytest.fail(
+            "replayed basis rejection must bypass the sector solver"
+        ),
+    )
+
+    result = audit_candidate(
+        ranked,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert result["status"] == "REJECTED"
+    assert result["retry_required"] is False
+    assert result["distance_upper_bound"] == 2
+    assert result["threshold_rejection_proven"] is True
+    assert result["threshold_proof_source"] == (
+        "replayed-logical-basis-upper-bound"
+    )
+    assert result["completed_sectors"] == result["resumed_sectors"] == 0
+    evidence = result["logical_basis_upper_bound"]
+    unsigned = dict(evidence)
+    evidence_sha256 = unsigned.pop("evidence_sha256")
+    assert evidence_sha256 == candidate_pool._json_sha256(unsigned)
+    assert evidence["fresh_rebuild_verified"] is True
+    assert evidence["algebraic_replay_verified"] is True
+    assert evidence["witness"] == ranked[
+        "static_eligibility"
+    ]["logical_basis_upper_bound"]["witness"]
+
+
+def test_actual_twisted_torus_basis_witness_bypasses_xor(
+    tmp_path,
+    monkeypatch,
+):
+    bits = [int(index in {36, 39}) for index in range(72)]
+    witness = {
+        "side": "X",
+        "index": 3,
+        "dual_side": "Z",
+        "dual_index": 3,
+        "weight": 2,
+        "bits": bits,
+    }
+    report_payload = {
+        "schema_version": 1,
+        "kind": "qcode-logical-basis-upper-bound-v1",
+        "method": "replayed-minimum-symplectic-basis-row",
+        "available": True,
+        "upper_bound": 2,
+        "witness": witness,
+    }
+    ranked = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [0, 3]],
+        "B_terms": [[0, 2], [0, 5], [1, 0], [1, 3]],
+        "geometry": {
+            "schema_version": 1,
+            "family": "twisted_torus",
+            "twist": 1,
+        },
+        "n": 72,
+        "k": 36,
+        "required_distance": 5,
+        "triage_identity": {
+            "canonical_digest": "4" * 64,
+            "digest_kind": "registry-canonical",
+        },
+        "static_eligibility": {
+            "checked": True,
+            "eligible": True,
+            "n": 72,
+            "k": 36,
+            "logical_basis_upper_bound": {
+                **report_payload,
+                "report_sha256": candidate_pool._json_sha256(report_payload),
+            },
+        },
+    }
+    monkeypatch.setattr(
+        candidate_pool,
+        "verify_bb_translation_symmetry",
+        lambda _candidate: pytest.fail(
+            "real basis replay must bypass symmetry and XOR"
+        ),
+    )
+
+    result = audit_candidate(
+        ranked,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert result["status"] == "REJECTED"
+    assert result["distance_upper_bound"] == 2
+    assert result["logical_basis_upper_bound"]["witness"] == witness
+    assert result["logical_basis_upper_bound"]["fresh_rebuild_verified"] is True
+
+
+@pytest.mark.parametrize("hinted_upper", [21, 999, True, None])
+def test_nonrejecting_basis_hint_skips_fresh_replay(
+    monkeypatch,
+    hinted_upper,
+):
+    ranked = _basis_fastpath_ranked()
+    ranked["static_eligibility"]["logical_basis_upper_bound"][
+        "upper_bound"
+    ] = hinted_upper
+    monkeypatch.setattr(
+        candidate_pool,
+        "replay_structural_logical_basis_rejection",
+        lambda *_args, **_kwargs: pytest.fail(
+            "a non-rejecting scheduling hint must not rebuild the code"
+        ),
+    )
+
+    result = candidate_pool._replayed_structural_basis_rejection_result(
+        ranked,
+        _construction(0),
+        canonical_digest="2" * 64,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+
+    assert result is None
+
+
+@pytest.mark.parametrize("mismatched_replay", [False, True])
+def test_unavailable_or_mismatched_basis_replay_falls_through_to_xor(
+    tmp_path,
+    monkeypatch,
+    mismatched_replay,
+):
+    ranked = _basis_fastpath_ranked()
+    replayed = (
+        SimpleNamespace(
+            target_mode=TARGET_MODE_SCALAR,
+            n=999,
+            k=2,
+            upper_bound=2,
+            required_distance=21,
+        )
+        if mismatched_replay else None
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "replay_structural_logical_basis_rejection",
+        lambda _row, *, target_mode: replayed,
+    )
+    symmetry = {
+        "verified": True,
+        "orbit_representatives": [0, 36],
+    }
+    monkeypatch.setattr(
+        candidate_pool,
+        "verify_bb_translation_symmetry",
+        lambda _candidate: symmetry,
+    )
+    safe_sectors = [{
+        "sector": sector,
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "success": False,
+        "threshold_infeasible": True,
+        "status_name": "INFEASIBLE",
+        "max_weight": 20,
+        "objective": None,
+        "operator": None,
+        "anchor_indices": [0, 36],
+    } for sector in ("X", "Z")]
+    monkeypatch.setattr(
+        candidate_pool,
+        "load_replayable_sectors",
+        lambda *_args, **_kwargs: safe_sectors,
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solve_sector",
+        lambda _payload: pytest.fail(
+            "complete replayed XOR proof should not invoke the solver"
+        ),
+    )
+
+    result = audit_candidate(
+        ranked,
+        AuditConfig(state_dir=tmp_path, certify=False),
+    )
+
+    assert result["status"] == "THRESHOLD_PROVEN"
+    assert result["completed_sectors"] == 2
+    assert "logical_basis_upper_bound" not in result
+
+
 def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
     digest = "claim-sha256:" + "a" * 64
     ranked = {

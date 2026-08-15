@@ -5063,6 +5063,231 @@ def certify_candidate(
     return result
 
 
+@dataclass(frozen=True)
+class _StructuralLogicalBasisRejection:
+    target_mode: str
+    n: int
+    k: int
+    upper_bound: int
+    required_distance: int
+
+
+def replay_structural_logical_basis_rejection(
+    row: Mapping[str, Any],
+    *,
+    target_mode: str,
+) -> _StructuralLogicalBasisRejection | None:
+    """Freshly rebuild and replay one negative logical-basis witness.
+
+    This Stage-2 trust boundary intentionally lives in the audit script:
+    pipeline source provenance already binds this file, while changing
+    humanize/pipeline.py would invalidate the sealed Stage-1 run.
+    The stored report is never proof by itself.
+    """
+
+    from evaluation.construction import build_css_code_from_claim
+    from evaluation.distance_milp import (
+        get_code_matrices,
+        replay_css_direction_witness,
+        symplectic_weight_witness,
+    )
+
+    try:
+        mode = validate_target_mode(target_mode)
+        static = row.get("static_eligibility")
+        if (
+            not isinstance(static, Mapping)
+            or static.get("checked") is not True
+            or static.get("eligible") is not True
+        ):
+            return None
+        report = static.get("logical_basis_upper_bound")
+        if not isinstance(report, Mapping):
+            return None
+        report = dict(report)
+        _validate_logical_basis_upper_bound_report(report)
+        if report.get("available") is not True:
+            return None
+
+        code = build_css_code_from_claim(row)
+        rebuilt_n = int(code.num_qudits)
+        rebuilt_k = int(code.dimension)
+        row_n = row.get("n")
+        row_k = row.get("k")
+        static_n = static.get("n")
+        static_k = static.get("k")
+        if (
+            type(row_n) is not int
+            or type(row_k) is not int
+            or type(static_n) is not int
+            or type(static_k) is not int
+            or row_n != rebuilt_n
+            or row_k != rebuilt_k
+            or static_n != rebuilt_n
+            or static_k != rebuilt_k
+        ):
+            return None
+
+        stored_witness = report.get("witness")
+        fresh_witness = symplectic_weight_witness(code)
+        if (
+            not isinstance(stored_witness, Mapping)
+            or not isinstance(fresh_witness, Mapping)
+            or dict(stored_witness) != dict(fresh_witness)
+            or report.get("upper_bound") != fresh_witness.get("weight")
+        ):
+            return None
+
+        hx, hz, lx, lz = get_code_matrices(code)
+        side = stored_witness["side"]
+        index = stored_witness["index"]
+        dual_index = stored_witness["dual_index"]
+        weight = stored_witness["weight"]
+        bits = stored_witness["bits"]
+        if side == "X":
+            rows, checks, duals = lx, hz, lz
+        elif side == "Z":
+            rows, checks, duals = lz, hx, lx
+        else:
+            return None
+        if (
+            type(index) is not int
+            or index < 0
+            or index >= rows.shape[0]
+            or type(dual_index) is not int
+            or dual_index < 0
+            or dual_index >= duals.shape[0]
+        ):
+            return None
+        rebuilt_bits = [
+            int(value)
+            for value in np.asarray(rows[index], dtype=np.uint8).reshape(-1) % 2
+        ]
+        if rebuilt_bits != bits:
+            return None
+        replayed = replay_css_direction_witness(
+            checks,
+            duals[dual_index],
+            weight,
+            bits,
+        )
+        if replayed != bits:
+            return None
+
+        binding = target_binding(rebuilt_n, rebuilt_k, mode)
+        required = binding.get("required_distance")
+        upper_bound = report.get("upper_bound")
+        if (
+            type(required) is not int
+            or type(upper_bound) is not int
+            or required < 1
+            or upper_bound < 1
+            or upper_bound >= required
+        ):
+            return None
+        return _StructuralLogicalBasisRejection(
+            target_mode=mode,
+            n=rebuilt_n,
+            k=rebuilt_k,
+            upper_bound=upper_bound,
+            required_distance=required,
+        )
+    except Exception:
+        return None
+
+
+def _replayed_structural_basis_rejection_result(
+    ranked: Mapping[str, Any],
+    candidate: Mapping[str, Any],
+    *,
+    canonical_digest: str,
+    target_mode: str,
+) -> dict[str, Any] | None:
+    """Rebuild and replay a structural logical-basis rejection.
+
+    The ranked report is only a scheduling hint.  The replay helper rebuilds
+    the CSS code, recomputes the minimum symplectic-basis row, requires an
+    exact match with the sealed report, and checks the operator against the
+    rebuilt checks and an opposite logical row.  Any mismatch falls through
+    to the existing XOR audit.
+
+    The untrusted upper bound is first used only as a scheduling hint.  Rows
+    that cannot possibly reject the current target avoid an unnecessary
+    rebuild; a forged low hint still has to pass the complete replay below.
+    """
+
+    static = ranked.get("static_eligibility")
+    report = (
+        static.get("logical_basis_upper_bound")
+        if isinstance(static, Mapping) else None
+    )
+    hinted_upper = (
+        report.get("upper_bound") if isinstance(report, Mapping) else None
+    )
+    required_distance = candidate.get("required_distance")
+    if (
+        type(hinted_upper) is not int
+        or type(required_distance) is not int
+        or hinted_upper >= required_distance
+    ):
+        return None
+    rejection = replay_structural_logical_basis_rejection(
+        ranked,
+        target_mode=target_mode,
+    )
+    if rejection is None:
+        return None
+    if (
+        rejection.target_mode != target_mode
+        or rejection.n != int(candidate["n"])
+        or rejection.k != int(candidate["k"])
+        or rejection.required_distance != int(candidate["required_distance"])
+    ):
+        return None
+    witness = report.get("witness") if isinstance(report, Mapping) else None
+    report_sha256 = (
+        report.get("report_sha256") if isinstance(report, Mapping) else None
+    )
+    if not isinstance(witness, Mapping) or not isinstance(report_sha256, str):
+        return None
+    sealed_witness = {
+        "side": witness["side"],
+        "index": witness["index"],
+        "dual_side": witness["dual_side"],
+        "dual_index": witness["dual_index"],
+        "weight": witness["weight"],
+        "bits": list(witness["bits"]),
+    }
+    payload = {
+        "schema_version": 1,
+        "gate": "qldpc-stage2-replayed-logical-basis-rejection",
+        "canonical_digest": canonical_digest,
+        "target_mode": target_mode,
+        "n": rejection.n,
+        "k": rejection.k,
+        "required_distance": rejection.required_distance,
+        "upper_bound": rejection.upper_bound,
+        "source_report_sha256": report_sha256,
+        "witness": sealed_witness,
+        "fresh_rebuild_verified": True,
+        "algebraic_replay_verified": True,
+    }
+    return {
+        "canonical_digest": canonical_digest,
+        "status": "REJECTED",
+        "retry_required": False,
+        "completed_sectors": 0,
+        "resumed_sectors": 0,
+        "distance_upper_bound": rejection.upper_bound,
+        "threshold_rejection_proven": True,
+        "threshold_proof_source": "replayed-logical-basis-upper-bound",
+        "logical_basis_upper_bound": {
+            **payload,
+            "evidence_sha256": _json_sha256(payload),
+        },
+    }
+
+
 def audit_candidate(
     ranked: Mapping[str, Any],
     config: AuditConfig,
@@ -5078,6 +5303,12 @@ def audit_candidate(
 ) -> dict[str, Any]:
     """Run a resumable two-sector threshold audit for one ranked candidate."""
 
+    managed_default_audit = all(
+        component is None
+        for component in (
+            symmetry_checker, replay_loader, sector_solver, artifact_writer,
+        )
+    )
     symmetry_checker = (
         verify_bb_translation_symmetry
         if symmetry_checker is None else symmetry_checker
@@ -5125,6 +5356,16 @@ def audit_candidate(
             cache_path=paths["compact_low_weight"],
             two_block_cache_path=paths["compact_two_block"],
         )
+
+    if managed_default_audit:
+        basis_rejection = _replayed_structural_basis_rejection_result(
+            ranked,
+            candidate,
+            canonical_digest=canonical_digest,
+            target_mode=config.target_mode,
+        )
+        if basis_rejection is not None:
+            return basis_rejection
 
     symmetry = symmetry_checker(candidate)
     if symmetry.get("verified") is not True:
