@@ -16,9 +16,27 @@ import time
 import uuid
 from collections import deque
 from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
+
+# The proof CLI owns its worker budget. Prevent imported numerical runtimes
+# from silently multiplying every candidate process by a large native pool.
+# CP-SAT's explicit ``solver_workers`` remains unchanged. Library imports in
+# pytest are intentionally unaffected because this executes only for the CLI.
+STAGE2_NATIVE_THREAD_CAP_ENV = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "NUMBA_NUM_THREADS",
+    "GOTO_NUM_THREADS",
+)
+if __name__ == "__main__":
+    for _native_thread_environment_name in STAGE2_NATIVE_THREAD_CAP_ENV:
+        os.environ[_native_thread_environment_name] = "1"
 
 import numpy as np
 
@@ -138,6 +156,14 @@ RANKED_SNAPSHOT_CHUNK_ROWS = 128
 CERTIFIABLE_PROOF_STATUSES = frozenset({
     "THRESHOLD_PROVEN",
     "EXACT_PROVEN",
+})
+ADAPTIVE_STAGE2_POLICY_SCHEMA_VERSION = 1
+ADAPTIVE_STAGE2_CHEAP_TIMEOUT_CAP_S = 30.0
+ADAPTIVE_STAGE2_TERMINAL_STATUSES = frozenset({
+    "REJECTED",
+    "THRESHOLD_PROVEN",
+    "EXACT_PROVEN",
+    "UNSUPPORTED",
 })
 _TRUSTED_STAGE1_OUTCOME = "_trusted_stage1_outcome"
 _TRUSTED_SEARCH_ORACLE_REJECTION = "_trusted_search_oracle_rejection"
@@ -5455,6 +5481,249 @@ def audit_selected_candidates(
     )
 
 
+def _adaptive_stage2_candidate_digests(
+    candidates: Iterable[Mapping[str, Any]],
+) -> tuple[str, ...]:
+    """Return a unique, stable digest sequence for managed Stage 2 work."""
+
+    digests: list[str] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        identity = candidate.get("triage_identity")
+        if not isinstance(identity, Mapping):
+            identity = candidate_identity(candidate)
+        digest = identity.get("canonical_digest")
+        if not isinstance(digest, str) or not digest:
+            raise ValueError(
+                "adaptive Stage 2 candidate has no canonical digest"
+            )
+        if digest in seen:
+            raise ValueError(
+                f"duplicate adaptive Stage 2 candidate digest: {digest}"
+            )
+        seen.add(digest)
+        digests.append(digest)
+    return tuple(digests)
+
+
+def _validate_adaptive_stage2_results(
+    results: Iterable[Mapping[str, Any]],
+    expected_digests: tuple[str, ...],
+    *,
+    lane: str,
+) -> list[dict[str, Any]]:
+    """Require one managed machine result per candidate, in input order."""
+
+    normalized: list[dict[str, Any]] = []
+    for raw in results:
+        if not isinstance(raw, Mapping):
+            raise ValueError(f"{lane} Stage 2 result must be an object")
+        result = dict(raw)
+        digest = result.get("canonical_digest")
+        status = result.get("status")
+        retry_required = result.get("retry_required", False)
+        if not isinstance(digest, str) or not digest:
+            raise ValueError(
+                f"{lane} Stage 2 result has no canonical digest"
+            )
+        if not isinstance(status, str) or not status:
+            raise ValueError(f"{lane} Stage 2 result has no status")
+        if not isinstance(retry_required, bool):
+            raise ValueError(
+                f"{lane} Stage 2 retry_required must be boolean"
+            )
+        if status in ADAPTIVE_STAGE2_TERMINAL_STATUSES and retry_required:
+            raise ValueError(
+                f"terminal {lane} Stage 2 result cannot request retry"
+            )
+        normalized.append(result)
+    actual_digests = tuple(
+        str(result["canonical_digest"]) for result in normalized
+    )
+    if actual_digests != expected_digests:
+        raise ValueError(
+            f"{lane} Stage 2 results do not exactly match managed work: "
+            f"expected={expected_digests}, actual={actual_digests}"
+        )
+    return normalized
+
+
+def _adaptive_stage2_status_counts(
+    results: Iterable[Mapping[str, Any]],
+) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for result in results:
+        status = str(result["status"])
+        counts[status] = counts.get(status, 0) + 1
+    return counts
+
+
+def _adaptive_stage2_machine_policy(
+    config: AuditConfig,
+    *,
+    candidate_workers: int,
+    max_total_workers: int,
+) -> tuple[dict[str, Any], AuditConfig, int]:
+    """Derive a 12x1 cheap lane from the already-authorized strong lane."""
+
+    validate_worker_budget(
+        candidate_workers,
+        config.solver_workers,
+        max_total_workers,
+    )
+    cheap_candidate_workers = candidate_workers * config.solver_workers
+    cheap_timeout_s = min(
+        float(config.solver_timeout_s),
+        ADAPTIVE_STAGE2_CHEAP_TIMEOUT_CAP_S,
+    )
+    cheap_config = replace(
+        config,
+        solver_timeout_s=cheap_timeout_s,
+        solver_workers=1,
+        # An explicit strong-lane wall must not leak into the cheap lane.
+        candidate_hard_timeout_s=None,
+    )
+    validate_worker_budget(
+        cheap_candidate_workers,
+        cheap_config.solver_workers,
+        max_total_workers,
+    )
+    policy = {
+        "schema_version": ADAPTIVE_STAGE2_POLICY_SCHEMA_VERSION,
+        "cheap_timeout_policy_version": 1,
+        "gate": "qldpc-adaptive-stage2-evidence-funnel",
+        "cheap_lane": {
+            "candidate_workers": cheap_candidate_workers,
+            "solver_workers_per_candidate": 1,
+            "configured_solver_workers": cheap_candidate_workers,
+            "solver_timeout_s": cheap_timeout_s,
+            "candidate_hard_timeout_s": _candidate_hard_timeout(
+                cheap_config
+            ),
+        },
+        "strong_lane": {
+            "candidate_workers": candidate_workers,
+            "solver_workers_per_candidate": config.solver_workers,
+            "configured_solver_workers": (
+                candidate_workers * config.solver_workers
+            ),
+            "solver_timeout_s": float(config.solver_timeout_s),
+            "candidate_hard_timeout_s": _candidate_hard_timeout(config),
+        },
+        "max_total_workers": max_total_workers,
+        "phases_overlap": False,
+        "pool_truncation": False,
+        "retain_statuses": sorted(ADAPTIVE_STAGE2_TERMINAL_STATUSES),
+        "escalate_statuses": [
+            "ERROR",
+            "UNRESOLVED",
+            "retry_required=true",
+        ],
+        "terminal_retry_conflict": "fail_closed",
+        "unknown_semantics": "fail_closed",
+        "unknown_action": "escalate_to_strong_proof",
+        "bp_osd_positive_credit": False,
+        "cli_native_numeric_thread_caps": {
+            name: "1" for name in STAGE2_NATIVE_THREAD_CAP_ENV
+        },
+    }
+    return policy, cheap_config, cheap_candidate_workers
+
+
+def audit_selected_candidates_adaptive(
+    selected: list[dict[str, Any]],
+    config: AuditConfig,
+    *,
+    candidate_workers: int,
+    max_total_workers: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Run cheap verified-witness screening, then prove only unresolved rows.
+
+    Both lanes use the existing audit worker and artifact verifier. A cheap
+    timeout, exception, hard-wall interruption, or missing witness is never
+    positive evidence: it advances to the original strong lane. The finite
+    candidate pool is not truncated by this policy.
+    """
+
+    policy, cheap_config, cheap_workers = _adaptive_stage2_machine_policy(
+        config,
+        candidate_workers=candidate_workers,
+        max_total_workers=max_total_workers,
+    )
+    expected = _adaptive_stage2_candidate_digests(selected)
+    cheap_results = _validate_adaptive_stage2_results(
+        audit_selected_candidates(
+            selected,
+            cheap_config,
+            candidate_workers=cheap_workers,
+        ),
+        expected,
+        lane="cheap",
+    )
+    escalated_digests: list[str] = []
+    for result in cheap_results:
+        status = str(result["status"])
+        retry_required = result.get("retry_required") is True
+        if status in ADAPTIVE_STAGE2_TERMINAL_STATUSES:
+            continue
+        if status not in {"UNRESOLVED", "ERROR"} and not retry_required:
+            raise ValueError(
+                f"unsupported non-retryable cheap Stage 2 status: {status}"
+            )
+        escalated_digests.append(str(result["canonical_digest"]))
+
+    selected_by_digest = dict(zip(expected, selected, strict=True))
+    strong_selected = [
+        selected_by_digest[digest] for digest in escalated_digests
+    ]
+    strong_results = _validate_adaptive_stage2_results(
+        (
+            audit_selected_candidates(
+                strong_selected,
+                config,
+                candidate_workers=candidate_workers,
+            )
+            if strong_selected else []
+        ),
+        tuple(escalated_digests),
+        lane="strong",
+    )
+    strong_by_digest = {
+        str(result["canonical_digest"]): result
+        for result in strong_results
+    }
+    merged = [
+        strong_by_digest.get(str(result["canonical_digest"]), result)
+        for result in cheap_results
+    ]
+    merged = _validate_adaptive_stage2_results(
+        merged,
+        expected,
+        lane="merged",
+    )
+    diagnostics = {
+        "enabled": True,
+        "machine_policy": policy,
+        "adaptive_machine_policy_sha256": _json_sha256(policy),
+        "cheap_status_counts": _adaptive_stage2_status_counts(
+            cheap_results
+        ),
+        "strong_status_counts": _adaptive_stage2_status_counts(
+            strong_results
+        ),
+        "final_status_counts": _adaptive_stage2_status_counts(merged),
+        "retained_after_cheap": len(cheap_results) - len(strong_results),
+        "escalated_to_strong": len(strong_results),
+        "escalated_digests_sha256": _json_sha256({
+            "canonical_digests": escalated_digests,
+        }),
+        "unsupported_candidates_remain_globally_incomplete": sum(
+            result.get("status") == "UNSUPPORTED" for result in merged
+        ),
+    }
+    return merged, diagnostics
+
+
 def _certificate_phase_item(
     item: Mapping[str, Any],
 ) -> tuple[dict[str, Any], str]:
@@ -5799,6 +6068,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-workers", type=int, default=2)
     parser.add_argument("--solver-workers", type=int, default=4)
     parser.add_argument(
+        "--adaptive-stage2",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="screen verified witnesses at high concurrency before strong proof",
+    )
+    parser.add_argument(
         "--compact-low-weight-max-weight",
         type=int,
         default=4,
@@ -6022,11 +6297,26 @@ def main(argv: list[str] | None = None) -> int:
             args.hard_wall_termination_grace
         ),
     )
-    screening_results = audit_selected_candidates(
-        selected,
-        config,
-        candidate_workers=args.candidate_workers,
-    )
+    if args.adaptive_stage2:
+        screening_results, adaptive_stage2 = (
+            audit_selected_candidates_adaptive(
+                selected,
+                config,
+                candidate_workers=args.candidate_workers,
+                max_total_workers=args.max_total_workers,
+            )
+        )
+    else:
+        screening_results = audit_selected_candidates(
+            selected,
+            config,
+            candidate_workers=args.candidate_workers,
+        )
+        adaptive_stage2 = {
+            "enabled": False,
+            "unknown_semantics": "fail_closed",
+            "bp_osd_positive_credit": False,
+        }
     # Stage 2 is fully complete and durable before Stage 4 can consume CPU.
     atomic_write_jsonl(
         args.ranked_output,
@@ -6100,6 +6390,11 @@ def main(argv: list[str] | None = None) -> int:
                 "max_total_workers": args.max_total_workers,
             },
             "sector_audit": {
+                "mode": (
+                    "adaptive_two_lane"
+                    if args.adaptive_stage2
+                    else "single_strong_lane"
+                ),
                 "candidate_workers": args.candidate_workers,
                 "solver_workers_per_candidate": args.solver_workers,
                 "configured_solver_workers": (
@@ -6124,6 +6419,7 @@ def main(argv: list[str] | None = None) -> int:
         "compact_low_weight_max_weight": (
             args.compact_low_weight_max_weight
         ),
+        "adaptive_stage2": adaptive_stage2,
         "retry_required": retry_required,
         "status_counts": status_counts,
         "certified_wins": certified,

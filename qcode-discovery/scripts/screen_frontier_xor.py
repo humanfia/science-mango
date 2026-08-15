@@ -338,9 +338,14 @@ def load_replayable_sectors(
             continue
         bounded_proof = (
             threshold_only
+            and stored.get("formulation") == "css-sector-xor-cpsat-v1"
+            and stored.get("solver") == "ortools-cp-sat"
+            and stored.get("success") is False
             and stored.get("threshold_infeasible") is True
             and stored.get("status_name") == "INFEASIBLE"
             and int(stored.get("max_weight", -1)) == required - 1
+            and stored.get("operator") is None
+            and stored.get("objective") is None
         )
         if bounded_proof:
             stored["resumed_solver_proof"] = True

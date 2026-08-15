@@ -124,10 +124,14 @@ def test_stage2_single_worker_hard_wall_keeps_partial_checkpoint(
         ),
         "sector": {
             "sector": "X",
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "threshold_infeasible": True,
             "status_name": "INFEASIBLE",
             "max_weight": int(construction["required_distance"]) - 1,
             "operator": None,
+            "objective": None,
             "anchor_indices": symmetry["orbit_representatives"],
         },
     }

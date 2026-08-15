@@ -199,10 +199,14 @@ def test_xor_resume_recovers_completed_threshold_sector(tmp_path):
         candidate,
         [{
             "sector": "X",
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "status_name": "INFEASIBLE",
             "threshold_infeasible": True,
             "max_weight": 6,
             "operator": None,
+            "objective": None,
             "anchor_indices": [0, 36],
         }],
         threshold_only=True,
@@ -234,10 +238,14 @@ def test_xor_resume_discards_wrong_threshold(tmp_path):
         candidate,
         [{
             "sector": "Z",
+            "formulation": "css-sector-xor-cpsat-v1",
+            "solver": "ortools-cp-sat",
+            "success": False,
             "status_name": "INFEASIBLE",
             "threshold_infeasible": True,
             "max_weight": 5,
             "operator": None,
+            "objective": None,
         }],
         threshold_only=True,
         translation_symmetry=symmetry,
@@ -248,3 +256,52 @@ def test_xor_resume_discards_wrong_threshold(tmp_path):
         threshold_only=True,
         translation_symmetry=symmetry,
     ) == []
+
+
+def test_xor_resume_discards_malformed_threshold_claims(tmp_path):
+    candidate = {
+        "trial": 1,
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[3, 0], [0, 1], [0, 2]],
+        "B_terms": [[0, 3], [1, 0], [2, 0]],
+        "required_distance": 7,
+    }
+    symmetry = verify_bb_translation_symmetry(candidate)
+    valid = {
+        "sector": "X",
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "success": False,
+        "status_name": "INFEASIBLE",
+        "threshold_infeasible": True,
+        "max_weight": 6,
+        "operator": None,
+        "objective": None,
+        "anchor_indices": [0, 36],
+    }
+    mutations = (
+        ("formulation", "legacy-formulation"),
+        ("solver", "unbound-solver"),
+        ("success", True),
+        ("status_name", "UNKNOWN"),
+        ("threshold_infeasible", False),
+        ("objective", 6),
+    )
+
+    for index, (field, value) in enumerate(mutations):
+        output = tmp_path / f"malformed-{index}.json"
+        sector = {**valid, field: value}
+        write_artifact(
+            output,
+            candidate,
+            [sector],
+            threshold_only=True,
+            translation_symmetry=symmetry,
+        )
+        assert load_replayable_sectors(
+            output,
+            candidate,
+            threshold_only=True,
+            translation_symmetry=symmetry,
+        ) == [], field
