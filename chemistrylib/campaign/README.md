@@ -114,3 +114,12 @@ synthetic completion root. `global-goal-state.json` is the current public state
 snapshot: all thirteen ordinary families and the synthetic completion root are
 verified. The synthetic root is a separate aggregate state and is not counted
 as a fourteenth ordinary family.
+
+## AFPS2017 extension
+
+The independent AFPS2017 formalization and its four-family goal are published
+under [`afps2017/`](afps2017/). That namespaced bundle preserves the original
+campaign evidence files byte-for-byte, publishes the AFPS source
+grounding, exact family locks and bindings, append-only goal revision, aggregate
+external-pass certificates, and finalized synthetic-root certificate without
+mixing either campaign's evidence.
