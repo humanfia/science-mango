@@ -20,7 +20,7 @@ import sys
 import tempfile
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
@@ -420,14 +420,85 @@ def _apply_resources(policy: ResourcePolicy, selected: tuple[int, ...]) -> None:
         os.nice(policy.nice)
 
 
+_AUDIT_ENTRYPOINTS = (
+    "scripts/audit_candidate_pool.py",
+    "scripts/audit_direction_pool.py",
+)
+
+
+def _audit_entrypoint(argv: Sequence[str]) -> str | None:
+    for value in argv:
+        normalized = str(value).replace("\\", "/")
+        for entrypoint in _AUDIT_ENTRYPOINTS:
+            if normalized == entrypoint or normalized.endswith(f"/{entrypoint}"):
+                return entrypoint
+    return None
+
+
+def _deduplicate_audit_pool_processes(processes: Sequence[Any]) -> list[Any]:
+    """Mask duplicate multiprocessing argv without removing ancestry.
+
+    Spawned ProcessPoolExecutor workers retain the audit script's exact argv.
+    The legacy global budget scanner consequently treats every worker as
+    another full campaign.  Only mask a record when an ancestor in the same
+    process group has the same audit entrypoint, exact argv and cwd.  Keeping
+    the record itself preserves descendant coverage for standalone SAT/MIP
+    children.  Independent roots, differing commands and differing working
+    directories remain fully counted.
+    """
+
+    by_pid = {int(record.pid): record for record in processes}
+    masked: list[Any] = []
+    for record in processes:
+        entrypoint = _audit_entrypoint(record.argv)
+        duplicate = False
+        if entrypoint is not None:
+            signature = (
+                entrypoint,
+                tuple(record.argv),
+                record.cwd,
+                int(record.pgid),
+            )
+            seen: set[int] = set()
+            ancestor_pid = int(record.ppid)
+            while ancestor_pid > 0 and ancestor_pid not in seen:
+                seen.add(ancestor_pid)
+                ancestor = by_pid.get(ancestor_pid)
+                if ancestor is None:
+                    break
+                ancestor_entrypoint = _audit_entrypoint(ancestor.argv)
+                ancestor_signature = (
+                    ancestor_entrypoint,
+                    tuple(ancestor.argv),
+                    ancestor.cwd,
+                    int(ancestor.pgid),
+                )
+                if ancestor.state != "Z" and ancestor_signature == signature:
+                    duplicate = True
+                    break
+                ancestor_pid = int(ancestor.ppid)
+        masked.append(replace(record, argv=()) if duplicate else record)
+    return masked
+
+
 def _capacity_lease(
     policy: ResourcePolicy, capacity_affinity: Sequence[int] | None = None
 ) -> Any:
     # This lightweight import does not initialize the scientific array stack.
-    from evaluation.solver_budget import acquire_solver_budget, detect_cpu_budget
+    from evaluation.solver_budget import (
+        _read_processes,
+        acquire_solver_budget,
+        detect_cpu_budget,
+    )
 
     budget = detect_cpu_budget(affinity=capacity_affinity)
-    lease = acquire_solver_budget(policy.solver_slots, cpu_budget=budget)
+    processes = _deduplicate_audit_pool_processes(_read_processes())
+    lease = acquire_solver_budget(
+        policy.solver_slots,
+        cpu_budget=budget,
+        processes=processes,
+        current_pid=os.getpid(),
+    )
     free_before = (
         budget.capacity
         - lease.cooperative_slots_before

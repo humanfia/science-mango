@@ -304,6 +304,176 @@ def test_cancel_grace_must_cover_recorded_solver_cleanup(tmp_path):
     assert signals == []
 
 
+def _audit_process(
+    *,
+    pid: int,
+    ppid: int,
+    pgid: int,
+    state_dir: str,
+    cwd: str = "/repo",
+    state: str = "R",
+):
+    from evaluation.solver_budget import ProcessRecord
+
+    return ProcessRecord(
+        pid=pid,
+        ppid=ppid,
+        pgid=pgid,
+        state=state,
+        comm="python",
+        argv=(
+            "/venv/bin/python",
+            "-I",
+            "-B",
+            "/repo/scripts/audit_candidate_pool.py",
+            "candidates.jsonl",
+            "--state-dir",
+            state_dir,
+            "--candidate-workers",
+            "3",
+            "--solver-workers",
+            "4",
+        ),
+        cwd=cwd,
+    )
+
+
+def test_audit_pool_process_dedup_preserves_independent_campaigns_and_solvers():
+    from evaluation.solver_budget import (
+        ProcessRecord,
+        estimate_unmanaged_qcode_usage,
+    )
+
+    root = _audit_process(
+        pid=100,
+        ppid=1,
+        pgid=100,
+        state_dir="/run-a/solver-state",
+    )
+    workers = [
+        _audit_process(
+            pid=pid,
+            ppid=100,
+            pgid=100,
+            state_dir="/run-a/solver-state",
+        )
+        for pid in range(101, 113)
+    ]
+    other = _audit_process(
+        pid=200,
+        ppid=1,
+        pgid=200,
+        state_dir="/run-b/solver-state",
+    )
+    standalone = ProcessRecord(
+        pid=300,
+        ppid=1,
+        pgid=300,
+        state="R",
+        comm="cadical",
+        argv=("/usr/bin/cadical", "/root/qcode-discovery/proof.cnf"),
+        cwd="/root/qcode-discovery",
+    )
+
+    masked = cli._deduplicate_audit_pool_processes(
+        [root, *workers, other, standalone],
+    )
+    by_pid = {record.pid: record for record in masked}
+    assert by_pid[100].argv == root.argv
+    assert all(by_pid[pid].argv == () for pid in range(101, 113))
+    assert by_pid[200].argv == other.argv
+    assert by_pid[300].argv == standalone.argv
+
+    usage = estimate_unmanaged_qcode_usage(masked)
+    assert usage.workers == 25
+    assert [item["pid"] for item in usage.campaigns] == [100, 200]
+    assert [item["pid"] for item in usage.external_solvers] == [300]
+
+
+def test_zombie_audit_ancestor_does_not_hide_a_live_pool_child():
+    from evaluation.solver_budget import estimate_unmanaged_qcode_usage
+
+    zombie = _audit_process(
+        pid=100,
+        ppid=1,
+        pgid=100,
+        state_dir="/run-a/solver-state",
+        state="Z",
+    )
+    live_child = _audit_process(
+        pid=101,
+        ppid=100,
+        pgid=100,
+        state_dir="/run-a/solver-state",
+    )
+
+    masked = cli._deduplicate_audit_pool_processes([zombie, live_child])
+    by_pid = {record.pid: record for record in masked}
+    assert by_pid[101].argv == live_child.argv
+    usage = estimate_unmanaged_qcode_usage(masked)
+    assert usage.workers == 12
+    assert [item["pid"] for item in usage.campaigns] == [101]
+
+
+def test_capacity_lease_counts_one_multiprocessing_pool_once(monkeypatch):
+    from evaluation import solver_budget
+
+    root = _audit_process(
+        pid=100,
+        ppid=1,
+        pgid=100,
+        state_dir="/run-a/solver-state",
+    )
+    workers = [
+        _audit_process(
+            pid=pid,
+            ppid=100,
+            pgid=100,
+            state_dir="/run-a/solver-state",
+        )
+        for pid in range(101, 113)
+    ]
+    budget = SimpleNamespace(capacity=64)
+    captured = {}
+
+    def acquire(requested, *, cpu_budget, processes, current_pid):
+        usage = solver_budget.estimate_unmanaged_qcode_usage(
+            processes,
+            current_pid=current_pid,
+        )
+        captured.update(
+            requested=requested,
+            cpu_budget=cpu_budget,
+            processes=processes,
+            usage=usage,
+        )
+        return SimpleNamespace(
+            cooperative_slots_before=12,
+            unmanaged_usage=usage,
+            release=lambda: None,
+        )
+
+    monkeypatch.setattr(solver_budget, "_read_processes", lambda: [root, *workers])
+    monkeypatch.setattr(
+        solver_budget,
+        "detect_cpu_budget",
+        lambda *, affinity: budget,
+    )
+    monkeypatch.setattr(solver_budget, "acquire_solver_budget", acquire)
+
+    lease = cli._capacity_lease(
+        cli.ResourcePolicy(
+            solver_slots=1,
+            reserve_foreground_cpus=12,
+        ),
+        tuple(range(64)),
+    )
+    assert lease is not None
+    assert captured["requested"] == 1
+    assert captured["usage"].workers == 12
+    assert 64 - 12 - captured["usage"].workers - 1 >= 12
+
+
 def test_cli_has_no_top_level_scientific_import():
     source = Path(cli.__file__).read_text()
     prefix = source.split("def _run_scientific", 1)[0]
