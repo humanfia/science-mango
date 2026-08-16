@@ -97,6 +97,33 @@ def test_pool_termination_escalates_to_kill_and_reaps_worker(tmp_path):
     _assert_process_gone(pid)
 
 
+@pytest.mark.skipif(
+    not hasattr(os, "pidfd_open")
+    or not hasattr(signal, "pidfd_send_signal"),
+    reason="pidfd cleanup requires Linux pidfd support",
+)
+def test_pool_termination_ignores_stale_baseprocess_liveness(
+    tmp_path, monkeypatch,
+):
+    executor = ProcessPoolExecutor(max_workers=1)
+    executor.submit(_ignore_term_forever, str(tmp_path / "stale-worker.pid"))
+    deadline = time.monotonic() + 5
+    while not (tmp_path / "stale-worker.pid").exists():
+        assert time.monotonic() < deadline
+        time.sleep(0.01)
+    pid = int((tmp_path / "stale-worker.pid").read_text())
+    process = next(iter(executor._processes.values()))
+
+    # ProcessPoolExecutor's management thread may reap the child first. In
+    # that race multiprocessing can retain a stale positive is_alive() result;
+    # the kernel pidfd, rather than BaseProcess bookkeeping, is authoritative.
+    monkeypatch.setattr(process, "is_alive", lambda: True)
+    report = terminate_process_pool(executor, grace_s=0.05)
+
+    assert pid in report["forced_worker_pids"]
+    _assert_process_gone(pid)
+
+
 def test_stage2_single_worker_hard_wall_keeps_partial_checkpoint(
     tmp_path, monkeypatch,
 ):

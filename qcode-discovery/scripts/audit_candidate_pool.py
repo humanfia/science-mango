@@ -59,6 +59,7 @@ from evaluation.failure_disposition import (
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
     SUPPORTED_TARGET_MODES,
+    TARGET_MODE_SCALAR_INCLUSIVE,
     classify_target_win,
     minimum_target_distance,
     target_binding,
@@ -1087,6 +1088,16 @@ def _trusted_basis_promotion_key(
     if report.get("available") is not True or not isinstance(upper, int):
         return (3, 0)
     headroom = upper - required
+    if row.get("target_mode") == TARGET_MODE_SCALAR_INCLUSIVE:
+        if headroom == 0:
+            # Inclusive FOM targets turn U=R into the cheapest boundary win:
+            # the threshold search only has to exclude weights below R.
+            return (0, 0)
+        if headroom < 0:
+            # Keep exact witness rejections next so they can be rebuilt and
+            # removed cheaply without delaying the viable boundary lane.
+            return (1, headroom)
+        return (2, headroom)
     if headroom < 0:
         # A later audit must rebuild this witness before rejecting the row.
         return (0, headroom)
@@ -1130,6 +1141,22 @@ def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     # while the selection cursor can never cross a timed-out reconstruction.
     structural_lane = 1 if _is_structural_screen_unresolved(row) else 0
     basis_promotion = _trusted_basis_promotion_key(row)
+    if row.get("target_mode") == TARGET_MODE_SCALAR_INCLUSIVE:
+        # For the inclusive policy, the trusted basis relation is the primary
+        # cost funnel inside the live, structurally completed lane. In
+        # particular, a U=R boundary candidate must outrank U<R even when an
+        # advisory proof score makes the latter look stronger. Retryable
+        # structural rows remain behind every completed row, and trusted
+        # terminal rejections remain at the tail through the leading lanes.
+        return (
+            terminal_lane,
+            structural_lane,
+            *basis_promotion,
+            proof_key[0],
+            *proof_key[1:-2],
+            -estimated_fom,
+            *proof_key[-2:],
+        )
     return (
         terminal_lane,
         proof_key[0],

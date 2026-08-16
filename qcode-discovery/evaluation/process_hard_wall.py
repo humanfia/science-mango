@@ -11,6 +11,7 @@ from __future__ import annotations
 import multiprocessing
 import math
 import os
+import select
 import signal
 import traceback
 from concurrent.futures import ProcessPoolExecutor
@@ -727,38 +728,110 @@ def terminate_process_pool(
     if not isinstance(raw_processes, dict):
         raise RuntimeError("process executor does not expose managed workers")
     processes: list[BaseProcess] = list(raw_processes.values())
-    pids = [
-        int(process.pid)
-        for process in processes
-        if process.pid is not None
-    ]
-
+    workers: list[dict[str, Any]] = []
     for process in processes:
-        if process.is_alive():
-            process.terminate()
+        if process.pid is None:
+            continue
+        pid = int(process.pid)
+        start_time = linux_process_start_time(pid)
+        pidfd: int | None = None
+        if sys_platform_linux() and start_time is not None and hasattr(
+            os, "pidfd_open"
+        ):
+            try:
+                candidate_fd = os.pidfd_open(pid, 0)
+            except OSError:
+                candidate_fd = None
+            if candidate_fd is not None:
+                # Opening by numeric PID and signalling later must never cross
+                # a PID-reuse boundary. A pidfd is stable after opening, but
+                # compare /proc identities on both sides of the open so the
+                # descriptor is known to name this exact BaseProcess child.
+                if linux_process_start_time(pid) == start_time:
+                    pidfd = candidate_fd
+                else:
+                    os.close(candidate_fd)
+        workers.append({
+            "process": process,
+            "pid": pid,
+            "start_time": start_time,
+            "pidfd": pidfd,
+        })
+    pids = [int(worker["pid"]) for worker in workers]
 
-    deadline = _monotonic() + grace
-    for process in processes:
-        remaining = max(0.0, deadline - _monotonic())
-        process.join(timeout=remaining)
+    def worker_alive(worker: Mapping[str, Any]) -> bool:
+        descriptor = worker["pidfd"]
+        if descriptor is not None:
+            poller = select.poll()
+            poller.register(int(descriptor), select.POLLIN)
+            return not bool(poller.poll(0))
+        pid = int(worker["pid"])
+        start_time = worker["start_time"]
+        if sys_platform_linux() and start_time is not None:
+            # This also rejects a reused PID without signalling the new owner.
+            return linux_process_start_time(pid) == start_time
+        return bool(worker["process"].is_alive())
 
-    forced: list[int] = []
-    for process in processes:
-        if process.is_alive():
-            if process.pid is not None:
-                forced.append(int(process.pid))
-            process.kill()
+    def signal_worker(worker: Mapping[str, Any], *, force: bool) -> None:
+        if not worker_alive(worker):
+            return
+        descriptor = worker["pidfd"]
+        try:
+            if descriptor is not None and hasattr(signal, "pidfd_send_signal"):
+                signum = signal.SIGKILL if force else signal.SIGTERM
+                signal.pidfd_send_signal(int(descriptor), signum, None, 0)
+            else:
+                # Keep the portable multiprocessing fallback on platforms
+                # without Linux pidfds. BaseProcess owns the child identity
+                # there and implements the appropriate OS-specific signal.
+                process = worker["process"]
+                if force and hasattr(process, "kill"):
+                    process.kill()
+                else:
+                    process.terminate()
+        except ProcessLookupError:
+            return
 
-    kill_deadline = _monotonic() + grace
-    for process in processes:
-        remaining = max(0.0, kill_deadline - _monotonic())
-        process.join(timeout=remaining)
+    def wait_for_exit(deadline: float) -> None:
+        while any(worker_alive(worker) for worker in workers):
+            remaining = deadline - _monotonic()
+            if remaining <= 0:
+                return
+            _sleep(min(0.01, remaining))
 
-    lingering = [
-        int(process.pid)
-        for process in processes
-        if process.pid is not None and process.is_alive()
-    ]
+    try:
+        for worker in workers:
+            signal_worker(worker, force=False)
+        wait_for_exit(_monotonic() + grace)
+
+        forced = [
+            int(worker["pid"])
+            for worker in workers
+            if worker_alive(worker)
+        ]
+        forced_set = set(forced)
+        for worker in workers:
+            if int(worker["pid"]) in forced_set:
+                signal_worker(worker, force=True)
+        wait_for_exit(_monotonic() + grace)
+
+        lingering = [
+            int(worker["pid"])
+            for worker in workers
+            if worker_alive(worker)
+        ]
+        # Refresh BaseProcess bookkeeping only after the kernel says the exact
+        # pidfd has exited. ProcessPoolExecutor's management thread may have
+        # won the waitpid race; join(timeout=0) is therefore best-effort and
+        # its stale is_alive() result is deliberately not authoritative.
+        for worker in workers:
+            if int(worker["pid"]) not in lingering:
+                worker["process"].join(timeout=0)
+    finally:
+        for worker in workers:
+            descriptor = worker["pidfd"]
+            if descriptor is not None:
+                os.close(int(descriptor))
     # The processes are already reaped above, so this never waits on solver C
     # code.  It asks the executor's management thread to discard queued work.
     executor.shutdown(wait=False, cancel_futures=True)

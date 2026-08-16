@@ -18,6 +18,7 @@ from evaluation.final_gate import (
     validate_known_answer_artifact,
 )
 from evaluation.structural_dedup import check_css_structural_novelty
+from evaluation.target_policy import TARGET_MODE_SCALAR_INCLUSIVE
 
 
 def _baseline_artifact():
@@ -116,6 +117,28 @@ def test_explicit_scalar_target_uses_strict_integer_boundary():
     assert classify_target_win(72, 12, 9, TARGET_MODE_SCALAR)["passed"] is True
     assert minimum_target_distance(72, 12, TARGET_MODE_GIST) == 7
     assert minimum_target_distance(72, 12, TARGET_MODE_SCALAR) == 9
+
+
+def test_explicit_inclusive_target_preserves_fom_12_boundary():
+    binding = target_binding(144, 12, TARGET_MODE_SCALAR_INCLUSIVE)
+
+    assert classify_target_win(
+        144, 12, 11, TARGET_MODE_SCALAR_INCLUSIVE,
+    )["passed"] is False
+    assert classify_target_win(
+        144, 12, 12, TARGET_MODE_SCALAR_INCLUSIVE,
+    )["passed"] is True
+    assert minimum_target_distance(
+        144, 12, TARGET_MODE_SCALAR_INCLUSIVE,
+    ) == 12
+    assert binding["strict"] is False
+    assert binding["rejection_cutoff"] == 11
+    assert validate_target_binding(
+        binding,
+        n=144,
+        k=12,
+        mode=TARGET_MODE_SCALAR_INCLUSIVE,
+    ) == binding
 
 
 def test_target_binding_is_self_hashed_and_semantically_recomputed():

@@ -14,6 +14,7 @@ from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.target_policy import (
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_INCLUSIVE,
     target_binding,
 )
 from evaluation.selection_ledger import (
@@ -712,6 +713,113 @@ def test_basis_upper_bound_promotes_rejects_then_required_weight_near_misses():
         "required-weight",
         "headroom-two",
         "headroom-five",
+        "missing",
+    ]
+
+
+def _ranked_basis_row(
+    name: str,
+    upper: int | None,
+    *,
+    target_mode: str | None = None,
+    proof_score: dict | None = None,
+) -> dict:
+    row = {
+        **_construction(0),
+        "required_distance": 13,
+        "proof_score": proof_score or {
+            "status": "UNSCREENED",
+            "rejected": False,
+        },
+        "triage_identity": {
+            "canonical_digest": name,
+            "digest_kind": "registry-canonical",
+        },
+        "stage2_structural_screen": {"status": "COMPLETE"},
+        "static_eligibility": {"checked": True, "eligible": True},
+    }
+    if target_mode is not None:
+        row["target_mode"] = target_mode
+    if upper is not None:
+        body = {
+            "schema_version": 1,
+            "kind": "qcode-logical-basis-upper-bound-v1",
+            "method": "replayed-minimum-symplectic-basis-row",
+            "available": True,
+            "upper_bound": upper,
+            "witness": {
+                "side": "Z",
+                "index": 0,
+                "dual_side": "X",
+                "dual_index": 0,
+                "weight": upper,
+                "bits": [1] * upper,
+            },
+        }
+        row["static_eligibility"]["logical_basis_upper_bound"] = {
+            **body,
+            "report_sha256": candidate_pool._json_sha256(body),
+        }
+    return row
+
+
+@pytest.mark.parametrize("upper", [12, 13, 15, None])
+def test_explicit_strict_target_preserves_legacy_rank_key(upper):
+    legacy = _ranked_basis_row("same-candidate", upper)
+    strict = _ranked_basis_row(
+        "same-candidate",
+        upper,
+        target_mode=TARGET_MODE_SCALAR,
+    )
+
+    assert candidate_pool._ranked_selection_key(strict) == (
+        candidate_pool._ranked_selection_key(legacy)
+    )
+
+
+def test_inclusive_target_globally_prioritizes_basis_boundary():
+    weak_score = {"status": "UNSCREENED", "rejected": False}
+    strong_score = {
+        "status": "PROMISING",
+        "rejected": False,
+        "threshold_safe_directions": 8,
+        "min_dual_ratio": 1.0,
+        "terminal_dual_ratio": 1.0,
+        "coverage": 1.0,
+        "dual_coverage": 1.0,
+    }
+    ranked = sorted(
+        [
+            _ranked_basis_row(
+                "missing", None,
+                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                proof_score=strong_score,
+            ),
+            _ranked_basis_row(
+                "above-boundary", 15,
+                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                proof_score=strong_score,
+            ),
+            _ranked_basis_row(
+                "basis-reject", 12,
+                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                proof_score=strong_score,
+            ),
+            _ranked_basis_row(
+                "boundary", 13,
+                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                proof_score=weak_score,
+            ),
+        ],
+        key=candidate_pool._ranked_selection_key,
+    )
+
+    assert [
+        row["triage_identity"]["canonical_digest"] for row in ranked
+    ] == [
+        "boundary",
+        "basis-reject",
+        "above-boundary",
         "missing",
     ]
 

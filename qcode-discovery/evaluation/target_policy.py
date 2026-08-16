@@ -16,9 +16,12 @@ from typing import Any, Mapping
 
 TARGET_POLICY_SCHEMA_VERSION = 1
 TARGET_MODE_SCALAR = "scalar-fom-strict-v1"
+TARGET_MODE_SCALAR_INCLUSIVE = "scalar-fom-inclusive-v1"
 TARGET_MODE_GIST = "gist-pareto-challenge-v1"
 DEFAULT_TARGET_MODE = TARGET_MODE_GIST
-SUPPORTED_TARGET_MODES = frozenset({TARGET_MODE_SCALAR, TARGET_MODE_GIST})
+SUPPORTED_TARGET_MODES = frozenset(
+    {TARGET_MODE_SCALAR, TARGET_MODE_SCALAR_INCLUSIVE, TARGET_MODE_GIST}
+)
 
 FOM_NUMERATOR = 12
 FOM_DENOMINATOR = 1
@@ -93,8 +96,9 @@ def classify_target_win(
 ) -> dict[str, Any]:
     """Classify one distance under an explicit target policy.
 
-    The scalar decision deliberately uses the integer comparison
-    ``k*d*d > 12*n``.  The floating-point FOM is reporting metadata only and
+    Scalar decisions deliberately use integer comparisons.  The strict mode
+    checks ``k*d*d > 12*n`` and the separately versioned inclusive mode checks
+    ``k*d*d >= 12*n``.  The floating-point FOM is reporting metadata only and
     cannot change a boundary decision.
     """
 
@@ -107,11 +111,14 @@ def classify_target_win(
 
     lhs = k * d * d * FOM_DENOMINATOR
     rhs = FOM_NUMERATOR * n
-    passed = lhs > rhs
+    inclusive = mode == TARGET_MODE_SCALAR_INCLUSIVE
+    passed = lhs >= rhs if inclusive else lhs > rhs
     return {
         "passed": passed,
         "fom": k * d * d / n,
-        "reasons": ["fom_strictly_above_12"] if passed else [],
+        "reasons": [
+            "fom_at_least_12" if inclusive else "fom_strictly_above_12"
+        ] if passed else [],
     }
 
 
@@ -135,6 +142,14 @@ def minimum_target_distance(
     scalar_required = math.isqrt(scalar_cutoff_squared) + 1
     if mode == TARGET_MODE_SCALAR:
         return scalar_required
+    if mode == TARGET_MODE_SCALAR_INCLUSIVE:
+        # The losing side is k*d^2*denominator < numerator*n.  Subtracting
+        # one before integer division therefore gives its exact squared
+        # cutoff, including a boundary such as [[144,12,12]].
+        inclusive_cutoff_squared = (
+            FOM_NUMERATOR * n - 1
+        ) // (FOM_DENOMINATOR * k)
+        return math.isqrt(inclusive_cutoff_squared) + 1
     for distance in range(1, scalar_required + 1):
         if _classify_gist_win(n, k, distance)["passed"]:
             return distance
@@ -159,7 +174,7 @@ def target_binding(
         "k": k,
         "fom_numerator": FOM_NUMERATOR,
         "fom_denominator": FOM_DENOMINATOR,
-        "strict": True,
+        "strict": mode != TARGET_MODE_SCALAR_INCLUSIVE,
         "required_distance": required_distance,
         "rejection_cutoff": required_distance - 1,
     }
@@ -222,6 +237,7 @@ __all__ = [
     "SUPPORTED_TARGET_MODES",
     "TARGET_MODE_GIST",
     "TARGET_MODE_SCALAR",
+    "TARGET_MODE_SCALAR_INCLUSIVE",
     "TARGET_POLICY_SCHEMA_VERSION",
     "classify_target_win",
     "minimum_target_distance",
