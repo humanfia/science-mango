@@ -817,7 +817,22 @@ def start_background(args: argparse.Namespace, paths: ControlPaths) -> dict[str,
     process: subprocess.Popen[Any] | None = None
     try:
         read_fd, write_fd = os.pipe()
-        python = Path(args.python_executable).expanduser().resolve(strict=True)
+        # Preserve a virtual environment's interpreter entry point.  Resolving
+        # the symlink to the base interpreter changes ``sys.prefix`` and drops
+        # the venv's site-packages (the production venv is symlink-based).
+        python = Path(
+            os.path.abspath(os.fspath(Path(args.python_executable).expanduser()))
+        )
+        try:
+            python_info = python.stat()
+        except OSError as exc:
+            raise ValueError(
+                f"cannot inspect python executable {python}: {exc}"
+            ) from exc
+        if not stat.S_ISREG(python_info.st_mode) or not os.access(python, os.X_OK):
+            raise ValueError(
+                f"python executable must name an executable regular file: {python}"
+            )
         command = [
             str(python),
             "-m",

@@ -179,6 +179,8 @@ def test_start_is_shell_free_isolated_and_source_sealed(tmp_path, monkeypatch):
     ranked, summary = _sources(run)
     config = _config(tmp_path)
     paths = cli.control_paths(repo, "run-a", create=True)
+    python_link = tmp_path / "venv-python"
+    python_link.symlink_to(sys.executable)
     captured = {}
 
     class FakeProcess:
@@ -211,11 +213,12 @@ def test_start_is_shell_free_isolated_and_source_sealed(tmp_path, monkeypatch):
             "--summary-input",
             str(summary),
             "--python-executable",
-            sys.executable,
+            str(python_link),
         ]
     )
     record = cli.start_background(args, paths)
     assert isinstance(captured["command"], list)
+    assert captured["command"][0] == str(python_link.absolute())
     assert captured["kwargs"]["shell"] is False
     assert captured["kwargs"]["start_new_session"] is True
     assert record["pid"] == record["pgid"] == record["session_id"]
