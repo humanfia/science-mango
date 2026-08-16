@@ -57,7 +57,9 @@ from evaluation.selection_ledger import (
     SELECTION_LEDGER_SCHEMA_VERSION as SHARED_SELECTION_LEDGER_SCHEMA_VERSION,
     acknowledge_selection_page,
     canonical_sha256 as selection_canonical_sha256,
+    install_pending_page,
     is_sha256 as is_selection_sha256,
+    make_selection_page,
     new_selection_ledger,
     seal_selection_ledger,
     validate_scan_evidence,
@@ -115,6 +117,9 @@ STAGE3_BOUND_INSUFFICIENT_RESULT_CODE = (
 )
 STAGE3_EXACTNESS_GAP_RESULT_CODE = "STAGE3_EXACTNESS_GAP_RESULT"
 STAGE2_LEDGER_GENERATION_GATE = "qldpc-stage2-ledger-generation"
+STAGE2_PAGE_SCHEDULER_SCHEMA_VERSION = 1
+STAGE2_PAGE_SCHEDULER_GATE = "qldpc-stage2-adaptive-page-scheduler"
+STAGE2_PAGE_TRANSITION_GATE = "qldpc-stage2-page-size-transition"
 RECOVERABLE_PROOF_EXIT_CODES = frozenset({2})
 # PollSelector and several platform wait primitives store milliseconds in a
 # signed C integer.  Keep every individual communicate wait comfortably below
@@ -1111,6 +1116,7 @@ class PipelineConfig:
     target_mode: str = DEFAULT_TARGET_MODE
 
     stage2_top: int = 20
+    stage2_page_schedule: tuple[tuple[int, int | None], ...] = ()
     stage2_timeout: float = 300
     stage2_candidate_workers: int = 2
     stage2_solver_workers: int = 4
@@ -1273,6 +1279,48 @@ class PipelineConfig:
                 "stage2_top must be a positive integer so every proof page "
                 "can advance"
             )
+        if self.stage2_page_schedule:
+            previous_top = 0
+            final_index = len(self.stage2_page_schedule) - 1
+            for index, step in enumerate(self.stage2_page_schedule):
+                if not isinstance(step, tuple) or len(step) != 2:
+                    raise ValueError(
+                        "stage2_page_schedule entries must be "
+                        "(top, clean_pages) pairs"
+                    )
+                top, clean_pages = step
+                if (
+                    isinstance(top, bool)
+                    or not isinstance(top, int)
+                    or top < 1
+                ):
+                    raise ValueError(
+                        "stage2_page_schedule top values must be positive integers"
+                    )
+                if top <= previous_top:
+                    raise ValueError(
+                        "stage2_page_schedule top values must be strictly increasing"
+                    )
+                if index == final_index:
+                    if clean_pages is not None:
+                        raise ValueError(
+                            "the final stage2_page_schedule step must have "
+                            "null clean_pages"
+                        )
+                elif (
+                    isinstance(clean_pages, bool)
+                    or not isinstance(clean_pages, int)
+                    or clean_pages < 1
+                ):
+                    raise ValueError(
+                        "non-final stage2_page_schedule clean_pages must be "
+                        "positive integers"
+                    )
+                previous_top = top
+            if self.stage2_page_schedule[0][0] != self.stage2_top:
+                raise ValueError(
+                    "stage2_page_schedule must start at stage2_top"
+                )
         if (
             isinstance(self.stage3_top, bool)
             or not isinstance(self.stage3_top, int)
@@ -1386,6 +1434,10 @@ class PipelineConfig:
             ),
             "pipeline_dir": str(self.pipeline_dir) if self.pipeline_dir else None,
             "python_executable": self.python_executable,
+            "stage2_page_schedule": [
+                {"top": top, "clean_pages": clean_pages}
+                for top, clean_pages in self.stage2_page_schedule
+            ],
             "resume": self.resume,
             "target_mode": self.target_mode,
             "stage2_top": self.stage2_top,
@@ -1480,6 +1532,49 @@ class PipelineConfig:
                 DEFAULT_TARGET_MODE,
             )
         )
+        raw_page_schedule = pick(
+            "stage2_page_schedule",
+            "stage2",
+            "page_schedule",
+            (),
+        )
+        if raw_page_schedule is None:
+            raw_page_schedule = ()
+        if not isinstance(raw_page_schedule, (list, tuple)):
+            raise ValueError(
+                "stage2_page_schedule must be an array of objects"
+            )
+        parsed_page_schedule: list[tuple[int, int | None]] = []
+        for index, raw_step in enumerate(raw_page_schedule):
+            if not isinstance(raw_step, Mapping):
+                raise ValueError(
+                    "stage2_page_schedule entries must be objects"
+                )
+            unknown = set(raw_step) - {"top", "clean_pages"}
+            if unknown:
+                raise ValueError(
+                    "unknown stage2_page_schedule fields: "
+                    + ", ".join(sorted(unknown))
+                )
+            if "top" not in raw_step or "clean_pages" not in raw_step:
+                raise ValueError(
+                    "stage2_page_schedule entries require top and clean_pages"
+                )
+            top = parse_int(
+                f"stage2_page_schedule[{index}].top",
+                raw_step["top"],
+            )
+            raw_clean_pages = raw_step["clean_pages"]
+            clean_pages = (
+                None
+                if raw_clean_pages is None
+                else parse_int(
+                    f"stage2_page_schedule[{index}].clean_pages",
+                    raw_clean_pages,
+                )
+            )
+            parsed_page_schedule.append((top, clean_pages))
+        stage2_page_schedule = tuple(parsed_page_schedule)
 
         flow_section = value.get("flow_config", value.get("stage1"))
         flow_config: FlowConfig | None = None
@@ -1549,6 +1644,7 @@ class PipelineConfig:
             stage2_top=parse_int(
                 "stage2_top", pick("stage2_top", "stage2", "top", 20)
             ),
+            stage2_page_schedule=stage2_page_schedule,
             stage2_timeout=parse_float(
                 "stage2_timeout", pick("stage2_timeout", "stage2", "timeout", 300)
             ),
@@ -5609,8 +5705,881 @@ class FiveStagePipeline:
             )
         return max(1, math.ceil(scaled))
 
-    def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
+    def _stage2_page_policy(self) -> list[dict[str, Any]]:
+        return [
+            {"top": top, "clean_pages": clean_pages}
+            for top, clean_pages in self.config.stage2_page_schedule
+        ]
+
+    def _stage2_snapshot_manifest_path(self) -> Path:
+        ledger = self.paths.stage2_selection_ledger
+        return ledger.with_name(
+            f"{ledger.name}.ranked-snapshot.manifest.json"
+        )
+
+    def _stage2_snapshot_manifest(self) -> dict[str, Any]:
+        path = self._stage2_snapshot_manifest_path()
+        try:
+            raw = _read_regular_nofollow(path)
+            value = json.loads(raw)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 ranked snapshot manifest is unavailable or malformed",
+                stage="stage2_sector_audit",
+            ) from exc
+        if not isinstance(value, dict):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 ranked snapshot manifest must be an object",
+                stage="stage2_sector_audit",
+            )
+        unsigned = dict(value)
+        manifest_sha256 = unsigned.pop("manifest_sha256", None)
+        binding = value.get("binding")
+        identity = value.get("identity")
+        counts = value.get("counts")
+        if isinstance(binding, Mapping):
+            unsigned_binding = dict(binding)
+            binding_sha256 = unsigned_binding.pop("binding_sha256", None)
+        else:
+            unsigned_binding = {}
+            binding_sha256 = None
+        snapshot_rows = value.get("snapshot_rows")
+        eligible_rows = (
+            counts.get("eligible_candidates")
+            if isinstance(counts, Mapping)
+            else None
+        )
+        identity_fields = (
+            "binding_sha256",
+            "snapshot_sha256",
+            "offsets_sha256",
+            "chunk_index_sha256",
+            "counts_sha256",
+        )
+        if (
+            value.get("schema_version") != 1
+            or value.get("gate") != "qldpc-stage2-ranked-snapshot"
+            or not is_selection_sha256(manifest_sha256)
+            or manifest_sha256 != selection_canonical_sha256(unsigned)
+            or not isinstance(binding, Mapping)
+            or not is_selection_sha256(binding_sha256)
+            or binding_sha256
+            != selection_canonical_sha256(unsigned_binding)
+            or value.get("binding_sha256") != binding_sha256
+            or binding.get("target_mode") != self.config.target_mode
+            or not is_selection_sha256(binding.get("source_fingerprint"))
+            or not isinstance(binding.get("solver_runtime"), Mapping)
+            or not isinstance(identity, Mapping)
+            or any(
+                not is_selection_sha256(identity.get(field))
+                for field in identity_fields
+            )
+            or identity.get("binding_sha256") != binding_sha256
+            or isinstance(snapshot_rows, bool)
+            or not isinstance(snapshot_rows, int)
+            or snapshot_rows < 0
+            or isinstance(eligible_rows, bool)
+            or not isinstance(eligible_rows, int)
+            or not 0 <= eligible_rows <= snapshot_rows
+            or identity.get("rows") != snapshot_rows
+            or identity.get("eligible_rows") != eligible_rows
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 ranked snapshot manifest does not replay",
+                stage="stage2_sector_audit",
+            )
+        return value
+
+    def _stage2_binding_for_top(
+        self,
+        top: int,
+        manifest: Mapping[str, Any],
+    ) -> str:
+        binding = manifest.get("binding")
+        identity = manifest.get("identity")
+        if (
+            isinstance(top, bool)
+            or not isinstance(top, int)
+            or top < 1
+            or not isinstance(binding, Mapping)
+            or not isinstance(identity, Mapping)
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 adaptive page binding inputs are malformed",
+                stage="stage2_sector_audit",
+            )
+        return selection_canonical_sha256({
+            "schema_version": STAGE2_SELECTION_LEDGER_SCHEMA_VERSION,
+            "top": top,
+            "ranked": {"snapshot": dict(identity)},
+            "known_answer_sha256": _file_sha256(
+                self.config.known_answer_artifact
+            ),
+            "solver_runtime": binding["solver_runtime"],
+            "source_fingerprint": binding["source_fingerprint"],
+            "target_mode": self.config.target_mode,
+        })
+
+    @staticmethod
+    def _seal_stage2_page_scheduler(
+        *,
+        policy: Sequence[Mapping[str, Any]],
+        active_step: int,
+        step_started_completed_pages: int,
+        transitions: Sequence[Mapping[str, Any]],
+    ) -> dict[str, Any]:
+        normalized_policy = [dict(step) for step in policy]
+        payload = {
+            "schema_version": STAGE2_PAGE_SCHEDULER_SCHEMA_VERSION,
+            "gate": STAGE2_PAGE_SCHEDULER_GATE,
+            "policy": normalized_policy,
+            "policy_sha256": selection_canonical_sha256(normalized_policy),
+            "active_step": active_step,
+            "step_started_completed_pages": (
+                step_started_completed_pages
+            ),
+            "transitions": [dict(item) for item in transitions],
+        }
+        return {
+            **payload,
+            "state_sha256": selection_canonical_sha256(payload),
+        }
+
+    def _validate_stage2_page_scheduler(
+        self,
+        ledger: Mapping[str, Any],
+        manifest: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        raw = ledger.get("adaptive_page_scheduler")
+        if not isinstance(raw, Mapping):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 adaptive page scheduler is missing",
+                stage="stage2_sector_audit",
+            )
+        scheduler = dict(raw)
+        unsigned = dict(scheduler)
+        state_sha256 = unsigned.pop("state_sha256", None)
+        policy = scheduler.get("policy")
+        transitions = scheduler.get("transitions")
+        active_step = scheduler.get("active_step")
+        baseline = scheduler.get("step_started_completed_pages")
+        expected_policy = self._stage2_page_policy()
+        if (
+            scheduler.get("schema_version")
+            != STAGE2_PAGE_SCHEDULER_SCHEMA_VERSION
+            or scheduler.get("gate") != STAGE2_PAGE_SCHEDULER_GATE
+            or not is_selection_sha256(state_sha256)
+            or state_sha256 != selection_canonical_sha256(unsigned)
+            or policy != expected_policy
+            or scheduler.get("policy_sha256")
+            != selection_canonical_sha256(expected_policy)
+            or isinstance(active_step, bool)
+            or not isinstance(active_step, int)
+            or not 0 <= active_step < len(expected_policy)
+            or isinstance(baseline, bool)
+            or not isinstance(baseline, int)
+            or not 0 <= baseline <= ledger.get("completed_pages", -1)
+            or not isinstance(transitions, list)
+            or len(transitions) != active_step
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 adaptive page scheduler state is malformed",
+                stage="stage2_sector_audit",
+            )
+        previous_completed = 0
+        previous_transition_sha256 = scheduler["policy_sha256"]
+        for sequence, raw_transition in enumerate(transitions):
+            if not isinstance(raw_transition, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition is malformed",
+                    stage="stage2_sector_audit",
+                )
+            transition = dict(raw_transition)
+            unsigned_transition = dict(transition)
+            entry_sha256 = unsigned_transition.pop("entry_sha256", None)
+            required_clean = expected_policy[sequence]["clean_pages"]
+            archive_path_text = transition.get("archive_path")
+            archive_relative = (
+                Path(archive_path_text)
+                if isinstance(archive_path_text, str)
+                else None
+            )
+            clean_evidence = transition.get("clean_evidence")
+            clean_evidence_fields = {
+                "schema_version", "gate", "page_sha256",
+                "summary_sha256", "status_counts_sha256",
+                "completed_pages", "verified_at",
+            }
+            if (
+                transition.get("schema_version") != 1
+                or transition.get("gate") != STAGE2_PAGE_TRANSITION_GATE
+                or transition.get("sequence") != sequence
+                or transition.get("previous_transition_sha256")
+                != previous_transition_sha256
+                or transition.get("from_step") != sequence
+                or transition.get("to_step") != sequence + 1
+                or transition.get("from_top")
+                != expected_policy[sequence]["top"]
+                or transition.get("to_top")
+                != expected_policy[sequence + 1]["top"]
+                or not isinstance(required_clean, int)
+                or isinstance(transition.get("completed_pages"), bool)
+                or not isinstance(transition.get("completed_pages"), int)
+                or transition["completed_pages"]
+                < previous_completed + required_clean
+                or not is_selection_sha256(
+                    transition.get("from_binding_sha256")
+                )
+                or transition.get("from_binding_sha256")
+                != self._stage2_binding_for_top(
+                    expected_policy[sequence]["top"],
+                    manifest,
+                )
+                or not is_selection_sha256(
+                    transition.get("to_binding_sha256")
+                )
+                or transition.get("to_binding_sha256")
+                != self._stage2_binding_for_top(
+                    expected_policy[sequence + 1]["top"],
+                    manifest,
+                )
+                or transition.get("snapshot_identity_sha256")
+                != ledger.get("snapshot_identity_sha256")
+                or not is_selection_sha256(
+                    transition.get("archive_sha256")
+                )
+                or archive_relative is None
+                or archive_relative.is_absolute()
+                or len(archive_relative.parts) != 2
+                or archive_relative.parts[0]
+                != "selection-ledger-page-size-transitions"
+                or archive_relative.suffix != ".json"
+                or any(
+                    part in {"", ".", ".."}
+                    for part in archive_relative.parts
+                )
+                or not is_selection_sha256(
+                    transition.get("from_progress_sha256")
+                )
+                or not is_selection_sha256(
+                    transition.get("committed_digests_sha256")
+                )
+                or not is_selection_sha256(
+                    transition.get("from_last_ack_sha256")
+                )
+                or not is_selection_sha256(
+                    transition.get("to_last_ack_sha256")
+                )
+                or not is_selection_sha256(
+                    transition.get("from_last_page_sha256")
+                )
+                or not is_selection_sha256(
+                    transition.get("to_last_page_sha256")
+                )
+                or not isinstance(clean_evidence, Mapping)
+                or set(clean_evidence) != clean_evidence_fields
+                or clean_evidence.get("schema_version") != 1
+                or clean_evidence.get("gate")
+                != "qldpc-stage2-clean-page-evidence"
+                or clean_evidence.get("completed_pages")
+                != transition.get("completed_pages")
+                or not is_selection_sha256(
+                    clean_evidence.get("page_sha256")
+                )
+                or not is_selection_sha256(
+                    clean_evidence.get("summary_sha256")
+                )
+                or not is_selection_sha256(
+                    clean_evidence.get("status_counts_sha256")
+                )
+                or not isinstance(clean_evidence.get("verified_at"), str)
+                or not clean_evidence.get("verified_at")
+                or not is_selection_sha256(entry_sha256)
+                or entry_sha256
+                != selection_canonical_sha256(unsigned_transition)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition does not replay",
+                    stage="stage2_sector_audit",
+                )
+            archive_path = _reject_symlink_components(
+                self.paths.solver_state / archive_relative,
+                classification="UNSAFE_CONTROL_PATH",
+                label="Stage 2 page-size transition archive",
+            )
+            try:
+                archive_bytes = _read_regular_nofollow(archive_path)
+            except OSError as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition archive is unavailable",
+                    stage="stage2_sector_audit",
+                ) from exc
+            if hashlib.sha256(archive_bytes).hexdigest() != transition[
+                "archive_sha256"
+            ]:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition archive hash changed",
+                    stage="stage2_sector_audit",
+                )
+            try:
+                archived = json.loads(archive_bytes)
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition archive is malformed",
+                    stage="stage2_sector_audit",
+                ) from exc
+            if not isinstance(archived, Mapping):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition archive is not an object",
+                    stage="stage2_sector_audit",
+                )
+            archived = self._validated_stage2_selection_ledger(archived)
+            if (
+                archived.get("binding_sha256")
+                != transition["from_binding_sha256"]
+                or archived.get("progress_sha256")
+                != transition.get("from_progress_sha256")
+                or archived.get("cursor") != transition.get("cursor")
+                or archived.get("completed_pages")
+                != transition["completed_pages"]
+                or selection_canonical_sha256(
+                    archived.get("committed_digests")
+                )
+                != transition.get("committed_digests_sha256")
+                or archived.get("last_ack_sha256")
+                != transition.get("from_last_ack_sha256")
+                or archived.get("last_acknowledged_page_sha256")
+                != transition.get("from_last_page_sha256")
+                or clean_evidence.get("page_sha256")
+                != archived.get("last_acknowledged_page_sha256")
+                or clean_evidence.get("status_counts_sha256")
+                != selection_canonical_sha256({
+                    "REJECTED": len(
+                        archived["ack_chain"][-1]["page"][
+                            "selected_digests"
+                        ]
+                    )
+                })
+                or (
+                    sequence > 0
+                    and (
+                        archived["ack_chain"][
+                            transitions[sequence - 1]["completed_pages"] - 1
+                        ]["ack_sha256"]
+                        != transitions[sequence - 1]["to_last_ack_sha256"]
+                        or archived["ack_chain"][
+                            transitions[sequence - 1]["completed_pages"] - 1
+                        ]["page_sha256"]
+                        != transitions[sequence - 1]["to_last_page_sha256"]
+                    )
+                )
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 page-size transition archive identity differs",
+                    stage="stage2_sector_audit",
+                )
+            previous_completed = transition["completed_pages"]
+            previous_transition_sha256 = entry_sha256
+        if (
+            baseline != previous_completed
+            or ledger.get("binding_sha256")
+            != self._stage2_binding_for_top(
+                expected_policy[active_step]["top"],
+                manifest,
+            )
+            or (
+                transitions
+                and transitions[-1].get("to_binding_sha256")
+                != ledger.get("binding_sha256")
+            )
+            or (
+                transitions
+                and (
+                    ledger["ack_chain"][
+                        transitions[-1]["completed_pages"] - 1
+                    ]["ack_sha256"]
+                    != transitions[-1].get("to_last_ack_sha256")
+                    or ledger["ack_chain"][
+                        transitions[-1]["completed_pages"] - 1
+                    ]["page_sha256"]
+                    != transitions[-1].get("to_last_page_sha256")
+                )
+            )
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 adaptive page scheduler binding is inconsistent",
+                stage="stage2_sector_audit",
+            )
+        return scheduler
+
+    def _effective_stage2_top(self) -> int:
+        if not self.config.stage2_page_schedule:
+            return self.config.stage2_top
+        if not self.paths.stage2_selection_ledger.is_file():
+            return self.config.stage2_top
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
+        scheduler = ledger.get("adaptive_page_scheduler")
+        if scheduler is None:
+            return self.config.stage2_top
+        manifest = self._stage2_snapshot_manifest()
+        normalized = self._validate_stage2_page_scheduler(
+            ledger,
+            manifest,
+        )
+        return int(normalized["policy"][normalized["active_step"]]["top"])
+
+    def _stage2_clean_page_evidence(
+        self,
+        ledger: Mapping[str, Any],
+        *,
+        baseline: int,
+    ) -> dict[str, Any] | None:
+        completed_pages = ledger.get("completed_pages")
+        ack_chain = ledger.get("ack_chain")
+        if (
+            isinstance(completed_pages, bool)
+            or not isinstance(completed_pages, int)
+            or completed_pages <= baseline
+            or not isinstance(ack_chain, list)
+            or any(
+                not isinstance(ack, Mapping)
+                or ack.get("disposition") != "COMPLETED"
+                for ack in ack_chain[baseline:]
+            )
+            or not ack_chain
+            or not self.paths.stage2_summary.is_file()
+        ):
+            return None
+        pagination = self.state.get("stage2_pagination")
+        if isinstance(pagination, Mapping) and any(
+            pagination.get(field)
+            for field in (
+                "paginated_persistent_incompleteness",
+                "global_input_incompleteness",
+                "coverage_gap_incompleteness",
+            )
+        ):
+            return None
+        summary = _read_json_object(self.paths.stage2_summary)
+        last_ack = ack_chain[-1]
+        page = last_ack.get("page")
+        selected = (
+            page.get("selected_digests")
+            if isinstance(page, Mapping)
+            else None
+        )
+        status_counts = summary.get("status_counts")
+        if (
+            not isinstance(page, Mapping)
+            or summary.get("selection_page") != dict(page)
+            or summary.get("selection_exhausted") is not False
+            or summary.get("retry_required") is not False
+            or summary.get("certified_wins") != 0
+            or summary.get("certificate_operational_errors") != 0
+            or summary.get("canonicalization_errors") != 0
+            or summary.get("structural_unresolved_candidates") != 0
+            or not isinstance(selected, list)
+            or not selected
+            or summary.get("selected_candidates") != len(selected)
+            or status_counts != {"REJECTED": len(selected)}
+        ):
+            return None
+        return {
+            "schema_version": 1,
+            "gate": "qldpc-stage2-clean-page-evidence",
+            "page_sha256": page.get("page_sha256"),
+            "summary_sha256": _file_sha256(self.paths.stage2_summary),
+            "status_counts_sha256": selection_canonical_sha256(
+                status_counts
+            ),
+            "completed_pages": completed_pages,
+            "verified_at": utc_now(),
+        }
+
+    def _archive_stage2_page_transition(
+        self,
+        ledger_bytes: bytes,
+        *,
+        completed_pages: int,
+        from_top: int,
+        to_top: int,
+    ) -> tuple[str, str]:
+        digest = hashlib.sha256(ledger_bytes).hexdigest()
+        relative = (
+            Path("selection-ledger-page-size-transitions")
+            / (
+                f"pages-{completed_pages:06d}-{from_top}-to-{to_top}-"
+                f"{digest[:16]}.json"
+            )
+        )
+        path = _reject_symlink_components(
+            self.paths.solver_state / relative,
+            classification="UNSAFE_CONTROL_PATH",
+            label="Stage 2 page-size transition archive",
+        )
+        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        if path.exists() or path.is_symlink():
+            try:
+                existing = _read_regular_nofollow(path)
+            except OSError as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "existing Stage 2 page-size archive is unsafe",
+                    stage="stage2_sector_audit",
+                ) from exc
+            if existing != ledger_bytes:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "existing Stage 2 page-size archive differs",
+                    stage="stage2_sector_audit",
+                )
+        else:
+            try:
+                text = ledger_bytes.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "Stage 2 selection ledger is not UTF-8 JSON",
+                    stage="stage2_sector_audit",
+                ) from exc
+            _atomic_write_text(path, text)
+        if _file_sha256(path) != digest:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 page-size archive hash does not replay",
+                stage="stage2_sector_audit",
+            )
+        return relative.as_posix(), digest
+
+    def _mirror_stage2_page_scheduler(
+        self,
+        ledger: Mapping[str, Any],
+        scheduler: Mapping[str, Any],
+    ) -> None:
+        active_step = int(scheduler["active_step"])
+        policy = scheduler["policy"]
+        self.state.setdefault("stage2_pagination", {}).update({
+            "binding_sha256": ledger["binding_sha256"],
+            "cursor": ledger["cursor"],
+            "completed_pages": ledger["completed_pages"],
+            "adaptive_page_scheduler": {
+                "schema_version": scheduler["schema_version"],
+                "gate": scheduler["gate"],
+                "policy_sha256": scheduler["policy_sha256"],
+                "active_step": active_step,
+                "active_top": policy[active_step]["top"],
+                "step_started_completed_pages": scheduler[
+                    "step_started_completed_pages"
+                ],
+                "transitions": len(scheduler["transitions"]),
+                "state_sha256": scheduler["state_sha256"],
+            },
+        })
+        self._write_state()
+
+    def _rebind_stage2_ack_chain(
+        self,
+        ledger: Mapping[str, Any],
+        manifest: Mapping[str, Any],
+        scheduler: Mapping[str, Any],
+        *,
+        clean_evidence: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        active_step = int(scheduler["active_step"])
+        next_step = active_step + 1
+        policy = scheduler["policy"]
+        from_top = int(policy[active_step]["top"])
+        to_top = int(policy[next_step]["top"])
+        if (
+            ledger.get("pending") is not None
+            or ledger.get("deferred_pages") != []
+            or ledger.get("cursor") >= ledger.get("eligible_rows", -1)
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 page-size transition is not at a clean boundary",
+                stage="stage2_sector_audit",
+            )
+        old_bytes = _read_regular_nofollow(
+            self.paths.stage2_selection_ledger
+        )
+        try:
+            parsed_old = json.loads(old_bytes)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection ledger changed before transition",
+                stage="stage2_sector_audit",
+            ) from exc
+        if parsed_old != dict(ledger):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 selection ledger changed before transition",
+                stage="stage2_sector_audit",
+            )
+        archive_path, archive_sha256 = (
+            self._archive_stage2_page_transition(
+                old_bytes,
+                completed_pages=int(ledger["completed_pages"]),
+                from_top=from_top,
+                to_top=to_top,
+            )
+        )
+        new_binding = self._stage2_binding_for_top(to_top, manifest)
+        proof_config_sha256 = ledger.get("proof_config_sha256")
+        rebound = new_selection_ledger(
+            binding_sha256=new_binding,
+            snapshot_identity_sha256_value=ledger[
+                "snapshot_identity_sha256"
+            ],
+            snapshot_rows=ledger["snapshot_rows"],
+            eligible_rows=ledger["eligible_rows"],
+            generation=ledger["generation"],
+            generation_history=ledger["generation_history"],
+            proof_config_sha256=(
+                proof_config_sha256
+                if isinstance(proof_config_sha256, str)
+                else None
+            ),
+        )
+        for raw_ack in ledger["ack_chain"]:
+            if (
+                not isinstance(raw_ack, Mapping)
+                or raw_ack.get("disposition") != "COMPLETED"
+                or not isinstance(raw_ack.get("page"), Mapping)
+            ):
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "only completed Stage 2 pages may change page size",
+                    stage="stage2_sector_audit",
+                )
+            old_page = raw_ack["page"]
+            selected = list(old_page["selected_digests"])
+            if len(selected) > to_top:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "historical Stage 2 page exceeds its new page capacity",
+                    stage="stage2_sector_audit",
+                )
+            new_page = make_selection_page(
+                binding_sha256=new_binding,
+                snapshot_identity_sha256_value=ledger[
+                    "snapshot_identity_sha256"
+                ],
+                page_sequence=rebound["completed_pages"],
+                previous_ack_sha256=rebound["last_ack_sha256"],
+                start_index=old_page["start_index"],
+                next_index=old_page["next_index"],
+                selected_digests=selected,
+                scan_evidence=old_page["scan_evidence"],
+            )
+            rebound = install_pending_page(rebound, new_page)
+            rebound = acknowledge_selection_page(
+                rebound,
+                new_page,
+                disposition="COMPLETED",
+            )
+        if (
+            rebound["cursor"] != ledger["cursor"]
+            or rebound["committed_digests"]
+            != ledger["committed_digests"]
+            or rebound["completed_pages"] != ledger["completed_pages"]
+            or rebound["pending"] is not None
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 page-size transition changed committed progress",
+                stage="stage2_sector_audit",
+            )
+        old_last_page = ledger.get("last_acknowledged_page_sha256")
+        if rebound["ack_chain"]:
+            rebound["last_acknowledged_page_sha256"] = rebound[
+                "ack_chain"
+            ][-1]["page_sha256"]
+        if "last_acknowledged_at" in ledger:
+            rebound["last_acknowledged_at"] = ledger[
+                "last_acknowledged_at"
+            ]
+        transitions = list(scheduler["transitions"])
+        transition_payload = {
+            "schema_version": 1,
+            "gate": STAGE2_PAGE_TRANSITION_GATE,
+            "sequence": len(transitions),
+            "previous_transition_sha256": (
+                transitions[-1]["entry_sha256"]
+                if transitions
+                else scheduler["policy_sha256"]
+            ),
+            "from_step": active_step,
+            "to_step": next_step,
+            "from_top": from_top,
+            "to_top": to_top,
+            "from_binding_sha256": ledger["binding_sha256"],
+            "to_binding_sha256": new_binding,
+            "snapshot_identity_sha256": ledger[
+                "snapshot_identity_sha256"
+            ],
+            "cursor": ledger["cursor"],
+            "completed_pages": ledger["completed_pages"],
+            "committed_digests_sha256": selection_canonical_sha256(
+                ledger["committed_digests"]
+            ),
+            "from_progress_sha256": ledger["progress_sha256"],
+            "from_last_ack_sha256": ledger["last_ack_sha256"],
+            "to_last_ack_sha256": rebound["last_ack_sha256"],
+            "from_last_page_sha256": old_last_page,
+            "to_last_page_sha256": rebound.get(
+                "last_acknowledged_page_sha256"
+            ),
+            "archive_path": archive_path,
+            "archive_sha256": archive_sha256,
+            "clean_evidence": dict(clean_evidence),
+            "reason": "CLEAN_NO_WIN_PAGE_QUOTA_REACHED",
+            "transitioned_at": utc_now(),
+        }
+        transition = {
+            **transition_payload,
+            "entry_sha256": selection_canonical_sha256(
+                transition_payload
+            ),
+        }
+        next_scheduler = self._seal_stage2_page_scheduler(
+            policy=policy,
+            active_step=next_step,
+            step_started_completed_pages=ledger["completed_pages"],
+            transitions=[*transitions, transition],
+        )
+        rebound["adaptive_page_scheduler"] = next_scheduler
+        rebound = seal_selection_ledger(rebound)
+        rebound = self._validated_stage2_selection_ledger(rebound)
+        self._validate_stage2_page_scheduler(rebound, manifest)
+        atomic_write_json(self.paths.stage2_selection_ledger, rebound)
+        self._ensure_solver_state_tree_safe()
+        self._mirror_stage2_page_scheduler(rebound, next_scheduler)
+        return rebound
+
+    def _prepare_stage2_page_scheduler(self) -> int:
+        policy = self._stage2_page_policy()
+        if not policy:
+            return self.config.stage2_top
+        if not self.paths.stage2_selection_ledger.is_file():
+            return self.config.stage2_top
+        self._ensure_solver_state_tree_safe()
+        ledger = self._validated_stage2_selection_ledger(
+            _read_json_object(self.paths.stage2_selection_ledger)
+        )
+        manifest = self._stage2_snapshot_manifest()
+        identity = manifest["identity"]
+        if (
+            selection_canonical_sha256(identity)
+            != ledger["snapshot_identity_sha256"]
+            or identity.get("rows") != ledger["snapshot_rows"]
+            or identity.get("eligible_rows") != ledger["eligible_rows"]
+        ):
+            raise PipelineError(
+                "OUTPUT_INVALID",
+                "Stage 2 snapshot manifest differs from its selection ledger",
+                stage="stage2_sector_audit",
+            )
+        raw_scheduler = ledger.get("adaptive_page_scheduler")
+        adopted = raw_scheduler is None
+        if adopted:
+            expected_binding = self._stage2_binding_for_top(
+                int(policy[0]["top"]),
+                manifest,
+            )
+            if ledger["binding_sha256"] != expected_binding:
+                raise PipelineError(
+                    "OUTPUT_INVALID",
+                    "legacy Stage 2 ledger does not match schedule step zero",
+                    stage="stage2_sector_audit",
+                )
+            scheduler = self._seal_stage2_page_scheduler(
+                policy=policy,
+                active_step=0,
+                step_started_completed_pages=0,
+                transitions=[],
+            )
+        else:
+            scheduler = self._validate_stage2_page_scheduler(
+                ledger,
+                manifest,
+            )
+        active_step = int(scheduler["active_step"])
+        active_top = int(policy[active_step]["top"])
+        clean_pages = policy[active_step]["clean_pages"]
+        can_consider_transition = bool(
+            clean_pages is not None
+            and active_step + 1 < len(policy)
+            and ledger["pending"] is None
+            and ledger["deferred_pages"] == []
+            and ledger["cursor"] < ledger["eligible_rows"]
+            and self.state.get("status") != "COMPLETED_WIN"
+            and ledger["completed_pages"]
+            - scheduler["step_started_completed_pages"]
+            >= clean_pages
+        )
+        clean_evidence = (
+            self._stage2_clean_page_evidence(
+                ledger,
+                baseline=scheduler["step_started_completed_pages"],
+            )
+            if can_consider_transition
+            else None
+        )
+        if clean_evidence is not None:
+            rebound = self._rebind_stage2_ack_chain(
+                ledger,
+                manifest,
+                scheduler,
+                clean_evidence=clean_evidence,
+            )
+            rebound_scheduler = rebound["adaptive_page_scheduler"]
+            return int(
+                rebound_scheduler["policy"][
+                    rebound_scheduler["active_step"]
+                ]["top"]
+            )
+        if adopted:
+            ledger = dict(ledger)
+            ledger["adaptive_page_scheduler"] = scheduler
+            ledger = seal_selection_ledger(ledger)
+            ledger = self._validated_stage2_selection_ledger(ledger)
+            atomic_write_json(self.paths.stage2_selection_ledger, ledger)
+            self._ensure_solver_state_tree_safe()
+        self._mirror_stage2_page_scheduler(ledger, scheduler)
+        return active_top
+
+    def _stage2_command(
+        self,
+        candidates: Sequence[Path],
+        *,
+        top: int | None = None,
+    ) -> list[str]:
         resume_proof_state = self.config.resume or self._proof_retry_resume
+        effective_top = self._effective_stage2_top() if top is None else top
+        if (
+            isinstance(effective_top, bool)
+            or not isinstance(effective_top, int)
+            or effective_top < 1
+        ):
+            raise PipelineError("OUTPUT_INVALID", "Stage 2 top is invalid")
         command = [
             self.config.python_executable,
             "-I",
@@ -5618,7 +6587,7 @@ class FiveStagePipeline:
             str(self.config.repo_dir / "scripts" / "audit_candidate_pool.py"),
             *map(str, candidates),
             "--top",
-            str(self.config.stage2_top),
+            str(effective_top),
             "--target-mode",
             self.config.target_mode,
             "--state-dir",
@@ -9896,6 +10865,35 @@ class FiveStagePipeline:
         if not proof_config_changed and not environment_changed:
             return False
 
+        reset_binding_sha256 = ledger["binding_sha256"]
+        reset_page_scheduler: dict[str, Any] | None = None
+        if self.config.stage2_page_schedule:
+            manifest = self._stage2_snapshot_manifest()
+            raw_scheduler = ledger.get("adaptive_page_scheduler")
+            if raw_scheduler is not None:
+                self._validate_stage2_page_scheduler(ledger, manifest)
+            else:
+                expected_step_zero_binding = self._stage2_binding_for_top(
+                    self.config.stage2_page_schedule[0][0],
+                    manifest,
+                )
+                if ledger["binding_sha256"] != expected_step_zero_binding:
+                    raise PipelineError(
+                        "OUTPUT_INVALID",
+                        "deferred Stage 2 ledger lacks its adaptive scheduler",
+                        stage="stage2_sector_audit",
+                    )
+            reset_binding_sha256 = self._stage2_binding_for_top(
+                self.config.stage2_page_schedule[0][0],
+                manifest,
+            )
+            reset_page_scheduler = self._seal_stage2_page_scheduler(
+                policy=self._stage2_page_policy(),
+                active_step=0,
+                step_started_completed_pages=0,
+                transitions=[],
+            )
+
         generation = ledger.get("generation", 0)
         history = ledger.get("generation_history", [])
         if (
@@ -9956,6 +10954,7 @@ class FiveStagePipeline:
             "gate": STAGE2_LEDGER_GENERATION_GATE,
             "generation": generation,
             "binding_sha256": ledger.get("binding_sha256"),
+            "replacement_binding_sha256": reset_binding_sha256,
             "proof_config_sha256": previous_proof_config_sha256,
             "environment_binding_sha256": sorted(
                 deferred_environments
@@ -9985,7 +10984,7 @@ class FiveStagePipeline:
             "entry_sha256": _canonical_sha256(history_payload),
         }
         reset_ledger = new_selection_ledger(
-            binding_sha256=ledger["binding_sha256"],
+            binding_sha256=reset_binding_sha256,
             snapshot_identity_sha256_value=ledger[
                 "snapshot_identity_sha256"
             ],
@@ -9995,12 +10994,27 @@ class FiveStagePipeline:
             proof_config_sha256=current_proof_config_sha256,
             generation_history=[*history, history_entry],
         )
+        if reset_page_scheduler is not None:
+            reset_ledger["adaptive_page_scheduler"] = reset_page_scheduler
+            reset_ledger = seal_selection_ledger(reset_ledger)
+        reset_ledger = self._validated_stage2_selection_ledger(reset_ledger)
+        if reset_page_scheduler is not None:
+            self._validate_stage2_page_scheduler(reset_ledger, manifest)
         # Generation archive is durable before this single transaction point.
         atomic_write_json(
             self.paths.stage2_selection_ledger, reset_ledger
         )
         self._ensure_solver_state_tree_safe()
         pagination = self.state.setdefault("stage2_pagination", {})
+        for stale_key in (
+            "pending_page_sha256",
+            "last_page_sha256",
+            "terminal_pending",
+            "no_progress",
+            "detected_at",
+            "last_advanced_at",
+        ):
+            pagination.pop(stale_key, None)
         pagination.update(
             {
                 "generation": generation + 1,
@@ -10008,6 +11022,9 @@ class FiveStagePipeline:
                 "completed_pages": 0,
                 "deferred_pages": 0,
                 "selection_exhausted": False,
+                "paginated_persistent_incompleteness": [],
+                "global_input_incompleteness": [],
+                "coverage_gap_incompleteness": [],
                 "proof_config_sha256": current_proof_config_sha256,
                 "previous_proof_config_sha256": (
                     previous_proof_config_sha256
@@ -10022,6 +11039,18 @@ class FiveStagePipeline:
                 "generation_archive": archive_relative.as_posix(),
             }
         )
+        if reset_page_scheduler is not None:
+            pagination["binding_sha256"] = reset_binding_sha256
+            pagination["adaptive_page_scheduler"] = {
+                "schema_version": reset_page_scheduler["schema_version"],
+                "gate": reset_page_scheduler["gate"],
+                "policy_sha256": reset_page_scheduler["policy_sha256"],
+                "active_step": 0,
+                "active_top": reset_page_scheduler["policy"][0]["top"],
+                "step_started_completed_pages": 0,
+                "transitions": 0,
+                "state_sha256": reset_page_scheduler["state_sha256"],
+            }
         self._write_state()
         return True
 
@@ -10147,7 +11176,11 @@ class FiveStagePipeline:
             self._audit_source_provenance()
             self._strict_source_provenance()
 
-            stage2_command = self._stage2_command(candidates)
+            effective_stage2_top = self._effective_stage2_top()
+            stage2_command = self._stage2_command(
+                candidates,
+                top=effective_stage2_top,
+            )
             # Capture once. audit_candidate_pool.py owns this transaction and
             # may advance pending/cursor while the machine is running.
             stage2_selection_ledger_prestate_sha256 = (
@@ -10166,7 +11199,7 @@ class FiveStagePipeline:
                 )
             stage2_static_config = {
                 "target_mode": self.config.target_mode,
-                "top": self.config.stage2_top,
+                "top": effective_stage2_top,
                 "timeout": self._scaled_proof_timeout(
                     self.config.stage2_timeout
                 ),
@@ -10683,10 +11716,14 @@ class FiveStagePipeline:
 
         with self._exclusive_lock():
             self._load_or_initialize_state()
+            generation_rotated = False
             try:
-                self._rotate_deferred_generation_for_budget_change()
+                generation_rotated = (
+                    self._rotate_deferred_generation_for_budget_change()
+                )
                 if self._restore_completed_deferred_scan():
                     return self.state
+                self._prepare_stage2_page_scheduler()
             except PipelineError as exc:
                 return self._record_failure(exc)
             # max_attempts=1 is the explicit compatibility/diagnostic mode:
@@ -10695,6 +11732,10 @@ class FiveStagePipeline:
                 state: dict[str, Any] = {}
                 automatic_pass = 0
                 while True:
+                    try:
+                        self._prepare_stage2_page_scheduler()
+                    except PipelineError as exc:
+                        return self._record_failure(exc)
                     automatic_pass += 1
                     state = self._run_locked()
                     if state.get("status") != "INCOMPLETE":
@@ -10732,10 +11773,14 @@ class FiveStagePipeline:
             # machine, so a killed process can resume the same prepared budget.
             self._load_or_initialize_state()
             controller = self._load_proof_retry_controller()
-            force_fresh_page = False
+            force_fresh_page = generation_rotated
             state: dict[str, Any] = {}
             automatic_pass = 0
             while True:
+                try:
+                    self._prepare_stage2_page_scheduler()
+                except PipelineError as exc:
+                    return self._record_failure(exc)
                 automatic_pass += 1
                 scheduler_before = self._proof_scheduler_signature(controller)
                 active: dict[str, Any] | None = None

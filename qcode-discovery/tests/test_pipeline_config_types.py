@@ -268,3 +268,111 @@ def test_pipeline_rejects_unknown_stage3_backend(
             candidate_inputs=(tmp_path / "candidates.jsonl",),
             stage3_backend=backend,  # type: ignore[arg-type]
         )
+
+_ADAPTIVE_PAGE_SCHEDULE_JSON = [
+    {"top": 96, "clean_pages": 4},
+    {"top": 192, "clean_pages": 1},
+    {"top": 1024, "clean_pages": 1},
+    {"top": 4096, "clean_pages": None},
+]
+_ADAPTIVE_PAGE_SCHEDULE = (
+    (96, 4),
+    (192, 1),
+    (1024, 1),
+    (4096, None),
+)
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {
+            "stage2": {
+                "top": 96,
+                "page_schedule": _ADAPTIVE_PAGE_SCHEDULE_JSON,
+            }
+        },
+        {
+            "stage2_top": 96,
+            "stage2_page_schedule": _ADAPTIVE_PAGE_SCHEDULE_JSON,
+        },
+    ],
+)
+def test_pipeline_json_parses_adaptive_stage2_page_schedule(
+    tmp_path: Path,
+    values: dict,
+):
+    config = _load_config(tmp_path, values)
+
+    assert config.stage2_top == 96
+    assert config.stage2_page_schedule == _ADAPTIVE_PAGE_SCHEDULE
+    assert config.serializable()["stage2_page_schedule"] == (
+        _ADAPTIVE_PAGE_SCHEDULE_JSON
+    )
+
+
+def test_pipeline_json_preserves_numeric_string_page_schedule_compatibility(
+    tmp_path: Path,
+):
+    config = _load_config(
+        tmp_path,
+        {
+            "stage2": {
+                "top": "96",
+                "page_schedule": [
+                    {"top": "96", "clean_pages": "4"},
+                    {"top": "4096", "clean_pages": None},
+                ],
+            }
+        },
+    )
+
+    assert config.stage2_page_schedule == ((96, 4), (4096, None))
+
+
+def test_empty_stage2_page_schedule_keeps_fixed_page_compatibility(
+    tmp_path: Path,
+):
+    config = _load_config(tmp_path, {"stage2": {"top": 17}})
+
+    assert config.stage2_page_schedule == ()
+    assert config.serializable()["stage2_page_schedule"] == []
+
+
+@pytest.mark.parametrize(
+    "schedule",
+    [
+        [{"top": True, "clean_pages": 1}, {"top": 4096, "clean_pages": None}],
+        [{"top": 96, "clean_pages": True}, {"top": 4096, "clean_pages": None}],
+        [{"top": 96}],
+        [{"top": 96, "clean_pages": 1, "unexpected": 2}],
+        [{"top": 95, "clean_pages": 1}, {"top": 4096, "clean_pages": None}],
+        [{"top": 96, "clean_pages": 1}, {"top": 96, "clean_pages": None}],
+        [{"top": 96, "clean_pages": 1}, {"top": 95, "clean_pages": None}],
+        [{"top": 96, "clean_pages": None}, {"top": 4096, "clean_pages": None}],
+        [{"top": 96, "clean_pages": 0}, {"top": 4096, "clean_pages": None}],
+        [{"top": 96, "clean_pages": -1}, {"top": 4096, "clean_pages": None}],
+        [{"top": 96, "clean_pages": 1}, {"top": 4096, "clean_pages": 1}],
+    ],
+)
+def test_pipeline_json_rejects_invalid_adaptive_stage2_page_schedule(
+    tmp_path: Path,
+    schedule: object,
+):
+    with pytest.raises(ValueError, match="stage2_page_schedule"):
+        _load_config(
+            tmp_path,
+            {"stage2": {"top": 96, "page_schedule": schedule}},
+        )
+
+
+@pytest.mark.parametrize("schedule", [{}, "96,4096", True])
+def test_pipeline_json_rejects_non_list_stage2_page_schedule(
+    tmp_path: Path,
+    schedule: object,
+):
+    with pytest.raises(ValueError, match="stage2_page_schedule"):
+        _load_config(
+            tmp_path,
+            {"stage2": {"top": 96, "page_schedule": schedule}},
+        )

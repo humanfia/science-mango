@@ -23,11 +23,14 @@ from evaluation.proof_runtime import (
     proof_runtime_fingerprint,
 )
 from evaluation.selection_ledger import (
+    SELECTION_LEDGER_SCHEMA_VERSION,
+    canonical_sha256 as selection_canonical_sha256,
     install_pending_page,
     make_scan_evidence,
     make_selection_page,
     new_selection_ledger,
     seal_selection_ledger,
+    snapshot_identity_sha256,
 )
 from evaluation.target_policy import TARGET_MODE_SCALAR
 from humanize.flow import (
@@ -145,12 +148,14 @@ class ScenarioRunner:
         stage2: list[dict] | None = None,
         stage3: list[dict] | None = None,
         strict: list[dict] | None = None,
+        adaptive_snapshot: bool = False,
     ):
         self.plans = {
             "stage2": stage2 or [_plan()],
             "stage3": stage3 or [_plan()],
             "strict": strict or [_plan()],
         }
+        self.adaptive_snapshot = adaptive_snapshot
         self.calls: list[tuple[str, list[str]]] = []
         self.counts: Counter[str] = Counter()
 
@@ -240,14 +245,22 @@ class ScenarioRunner:
                     "structural_unresolved_candidates"
                 ]
                 summary["unique_candidates"] = len(results)
+                if self.adaptive_snapshot:
+                    summary["certified_wins"] = sum(
+                        result.get("certificate", {}).get(
+                            "certificate_passed"
+                        ) is True
+                        and result.get("certificate", {}).get(
+                            "verification_passed"
+                        ) is True
+                        for result in results
+                    )
                 if plan["selection_page"] is not None:
                     start_index, next_index = plan["selection_page"]
                     selected_digests = [
                         str(result["canonical_digest"])
                         for result in results
                     ]
-                    binding = "a" * 64
-                    snapshot_identity = "b" * 64
                     terminal_ends = [
                         int(candidate["selection_page"][1])
                         for candidate in self.plans["stage2"]
@@ -276,6 +289,89 @@ class ScenarioRunner:
                         if configured_snapshot_rows
                         else eligible_rows
                     )
+                    if self.adaptive_snapshot:
+                        target_mode = command[
+                            command.index("--target-mode") + 1
+                        ]
+                        solver_runtime = {"test_runtime": "stable"}
+                        source_fingerprint = "c" * 64
+                        unsigned_snapshot_binding = {
+                            "schema_version": 1,
+                            "target_mode": target_mode,
+                            "source_fingerprint": source_fingerprint,
+                            "solver_runtime": solver_runtime,
+                        }
+                        snapshot_binding_sha256 = (
+                            selection_canonical_sha256(
+                                unsigned_snapshot_binding
+                            )
+                        )
+                        snapshot_binding = {
+                            **unsigned_snapshot_binding,
+                            "binding_sha256": snapshot_binding_sha256,
+                        }
+                        identity = {
+                            "binding_sha256": snapshot_binding_sha256,
+                            "snapshot_sha256": "d" * 64,
+                            "offsets_sha256": "e" * 64,
+                            "chunk_index_sha256": "f" * 64,
+                            "counts_sha256": "1" * 64,
+                            "chunk_rows": 128,
+                            "rows": snapshot_rows,
+                            "eligible_rows": eligible_rows,
+                        }
+                        snapshot_identity = snapshot_identity_sha256(
+                            identity
+                        )
+                        manifest_payload = {
+                            "schema_version": 1,
+                            "gate": "qldpc-stage2-ranked-snapshot",
+                            "binding": snapshot_binding,
+                            "binding_sha256": snapshot_binding_sha256,
+                            "identity": identity,
+                            "snapshot_rows": snapshot_rows,
+                            "counts": {
+                                "eligible_candidates": eligible_rows,
+                            },
+                        }
+                        manifest = {
+                            **manifest_payload,
+                            "manifest_sha256": (
+                                selection_canonical_sha256(
+                                    manifest_payload
+                                )
+                            ),
+                        }
+                        ledger_path = _argument(
+                            command, "--selection-ledger"
+                        )
+                        _write_json(
+                            ledger_path.with_name(
+                                f"{ledger_path.name}.ranked-snapshot."
+                                "manifest.json"
+                            ),
+                            manifest,
+                        )
+                        top = int(command[command.index("--top") + 1])
+                        binding = selection_canonical_sha256({
+                            "schema_version": (
+                                SELECTION_LEDGER_SCHEMA_VERSION
+                            ),
+                            "top": top,
+                            "ranked": {"snapshot": identity},
+                            "known_answer_sha256": hashlib.sha256(
+                                _argument(
+                                    command,
+                                    "--known-answer-artifact",
+                                ).read_bytes()
+                            ).hexdigest(),
+                            "solver_runtime": solver_runtime,
+                            "source_fingerprint": source_fingerprint,
+                            "target_mode": target_mode,
+                        })
+                    else:
+                        binding = "a" * 64
+                        snapshot_identity = "b" * 64
                     ledger_path = _argument(command, "--selection-ledger")
                     if ledger_path.is_file():
                         ledger = json.loads(ledger_path.read_text())
@@ -7023,3 +7119,792 @@ def test_sector_sat_replay_contract_counts_anchor_cube_solver_decisions():
         certificate,
         replay_checks={"xz_sector_isometry": True},
     ) is None
+
+_ADAPTIVE_STAGE2_PAGE_SCHEDULE = (
+    (96, 4),
+    (192, 1),
+    (1024, 1),
+    (4096, None),
+)
+
+
+def _adaptive_stage2_config(
+    config: PipelineConfig,
+    *,
+    schedule: tuple[tuple[int, int | None], ...] = (
+        _ADAPTIVE_STAGE2_PAGE_SCHEDULE
+    ),
+) -> PipelineConfig:
+    return replace(
+        config,
+        stage2_top=schedule[0][0],
+        stage2_page_schedule=schedule,
+        stage_review=False,
+    )
+
+
+def _stage2_tops(runner: ScenarioRunner) -> list[int]:
+    return [
+        int(command[command.index("--top") + 1])
+        for command in runner.commands("stage2")
+    ]
+
+
+def _adaptive_rejection_plans(count: int) -> list[dict]:
+    return [
+        _plan(
+            [{
+                "canonical_digest": f"adaptive-rejected-{index}",
+                "status": "REJECTED",
+            }],
+            selection_exhausted=False,
+            selection_page=(index, index + 1),
+        )
+        for index in range(count)
+    ]
+
+
+def test_adaptive_stage2_resigns_ack_chain_across_all_page_sizes(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _adaptive_stage2_config(
+        _config(repo, candidates, run_id="adaptive-page-size-chain")
+    )
+    winner, _ = _certificate(config, "adaptive-page-size-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            *_adaptive_rejection_plans(6),
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(6, 7),
+            ),
+        ],
+        adaptive_snapshot=True,
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [
+        96,
+        96,
+        96,
+        96,
+        192,
+        1024,
+        4096,
+    ]
+    assert runner.counts == {"stage2": 7, "strict": 1}
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 6
+    assert ledger["completed_pages"] == 6
+    assert ledger["committed_digests"] == [
+        f"adaptive-rejected-{index}" for index in range(6)
+    ]
+    assert ledger["pending"]["selected_digests"] == [
+        "adaptive-page-size-winner"
+    ]
+    expected_previous = ledger["genesis_sha256"]
+    for sequence, acknowledgement in enumerate(ledger["ack_chain"]):
+        assert acknowledgement["sequence"] == sequence
+        assert acknowledgement["previous_ack_sha256"] == expected_previous
+        expected_previous = acknowledgement["ack_sha256"]
+    assert ledger["last_ack_sha256"] == expected_previous
+    scheduler = ledger["adaptive_page_scheduler"]
+    assert scheduler["active_step"] == 3
+    assert scheduler["step_started_completed_pages"] == 6
+    assert [
+        (transition["from_top"], transition["to_top"])
+        for transition in scheduler["transitions"]
+    ] == [(96, 192), (192, 1024), (1024, 4096)]
+    for transition in scheduler["transitions"]:
+        archive = config.root / "solver-state" / transition["archive_path"]
+        assert hashlib.sha256(archive.read_bytes()).hexdigest() == (
+            transition["archive_sha256"]
+        )
+
+
+def test_adaptive_stage2_win_stops_before_page_size_transition(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _adaptive_stage2_config(
+        _config(repo, candidates, run_id="adaptive-first-page-win")
+    )
+    winner, _ = _certificate(config, "adaptive-first-page-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            )
+        ],
+        adaptive_snapshot=True,
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [96]
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 0
+    assert ledger["ack_chain"] == []
+    assert ledger["pending"]["selected_digests"] == [
+        "adaptive-first-page-winner"
+    ]
+    scheduler = ledger.get("adaptive_page_scheduler")
+    assert scheduler is None or scheduler["active_step"] == 0
+
+
+@pytest.mark.parametrize("status", ["UNRESOLVED", "ERROR"])
+def test_adaptive_stage2_unresolved_or_error_does_not_increase_top(
+    tmp_path,
+    status,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _adaptive_stage2_config(
+        _config(repo, candidates, run_id=f"adaptive-hold-{status.lower()}"),
+        schedule=((96, 1), (192, None)),
+    )
+    result = {
+        "canonical_digest": f"adaptive-{status.lower()}",
+        "status": status,
+    }
+    if status == "ERROR":
+        result["retry_required"] = True
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [result],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            )
+        ],
+        stage3=(
+            [_plan([result], selection_exhausted=False)]
+            if status == "UNRESOLVED"
+            else None
+        ),
+        adaptive_snapshot=True,
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] in {"INCOMPLETE", "FAILED"}
+    assert _stage2_tops(runner) == [96]
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["cursor"] == 0
+    assert ledger["ack_chain"] == []
+    scheduler = ledger.get("adaptive_page_scheduler")
+    assert scheduler is None or scheduler["active_step"] == 0
+
+
+def test_adaptive_stage2_deferred_page_does_not_increase_top(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _adaptive_stage2_config(
+        replace(
+            _config(repo, candidates, run_id="adaptive-deferred-holds-top"),
+            proof_retry_max_attempts=2,
+            proof_retry_backoff_seconds=0,
+        ),
+        schedule=((96, 1), (192, None)),
+    )
+    unresolved = {
+        "canonical_digest": "adaptive-deferred",
+        "status": "UNRESOLVED",
+    }
+    winner, _ = _certificate(config, "adaptive-after-deferred-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+        adaptive_snapshot=True,
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [96, 96, 96]
+    ledger = json.loads(
+        (
+            config.root
+            / "solver-state"
+            / "stage2-selection-ledger.json"
+        ).read_text()
+    )
+    assert ledger["ack_chain"][0]["disposition"] == "DEFERRED"
+    scheduler = ledger.get("adaptive_page_scheduler")
+    assert scheduler is None or scheduler["active_step"] == 0
+
+
+def test_adaptive_stage2_pending_page_replays_with_original_top(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    config = _adaptive_stage2_config(
+        _config(repo, candidates, run_id="adaptive-pending-top"),
+        schedule=((96, 1), (192, None)),
+    )
+    winner, _ = _certificate(config, "adaptive-pending-winner")
+    underlying = ScenarioRunner(
+        stage2=[
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+        ],
+        adaptive_snapshot=True,
+    )
+    interrupted = False
+
+    def interrupt_after_pending_install(command, *, cwd):
+        nonlocal interrupted
+        completed = underlying(command, cwd=cwd)
+        if (
+            _stage_script(command) == "audit_candidate_pool.py"
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+        return completed
+
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=interrupt_after_pending_install,
+            reviewer=RecordingReviewer(),
+        ).run()
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    pending_before_resume = json.loads(
+        ledger_path.read_text()
+    )["pending"]
+
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=interrupt_after_pending_install,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(underlying) == [96, 96]
+    assert json.loads(ledger_path.read_text())["pending"] == (
+        pending_before_resume
+    )
+
+
+def test_adaptive_stage2_page_transitions_do_not_rerun_stage1(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    (repo / "humanize" / "flow.py").write_text("# fake flow\n")
+    (repo / "humanize" / "reviewer.py").write_text("# fake reviewer\n")
+    (repo / "main.py").write_text("# fake main\n")
+    evolve = repo / "evolve"
+    evolve.mkdir()
+    (evolve / "engine.py").write_text("# fake evolution engine\n")
+    run_id = "adaptive-stage1-once"
+    config = PipelineConfig(
+        repo_dir=repo,
+        run_id=run_id,
+        flow_config=FlowConfig(
+            repo_dir=repo,
+            run_id=run_id,
+            candidate_file=candidates,
+        ),
+        stage2_top=96,
+        stage2_page_schedule=(
+            (96, 1),
+            (192, 1),
+            (1024, 1),
+            (4096, None),
+        ),
+        stage_review=False,
+        proof_retry_max_attempts=1,
+    )
+    flow_calls = []
+
+    class SearchFlow:
+        pipeline_candidate_inputs = (candidates,)
+
+        def __init__(self, received):
+            self.received = received
+
+        def run(self):
+            flow_calls.append(self.received.run_id)
+            return {
+                "status": "search-complete",
+                "candidate_inputs": [str(candidates)],
+            }
+
+    winner, _ = _certificate(config, "adaptive-stage1-once-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            *_adaptive_rejection_plans(3),
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(3, 4),
+            ),
+        ],
+        adaptive_snapshot=True,
+    )
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        flow_factory=SearchFlow,
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [96, 192, 1024, 4096]
+    assert flow_calls == [run_id]
+    assert state["stages"]["stage1_search"]["attempt"] == 1
+
+def _two_step_adaptive_scenario(tmp_path, run_id):
+    repo, candidates = _repo(tmp_path)
+    config = _adaptive_stage2_config(
+        _config(repo, candidates, run_id=run_id),
+        schedule=((96, 1), (192, None)),
+    )
+    rejected = {
+        "canonical_digest": f"{run_id}-rejected",
+        "status": "REJECTED",
+    }
+    winner, _ = _certificate(config, f"{run_id}-winner")
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [rejected],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(1, 2),
+            ),
+        ],
+        adaptive_snapshot=True,
+    )
+    return config, runner, rejected["canonical_digest"]
+
+
+def test_adaptive_stage2_transition_recovers_after_archive_crash(
+    tmp_path,
+    monkeypatch,
+):
+    config, runner, rejected_digest = _two_step_adaptive_scenario(
+        tmp_path,
+        "adaptive-archive-crash",
+    )
+    original = pipeline_module._atomic_write_text
+    interrupted = False
+
+    def interrupt_after_archive(path, text):
+        nonlocal interrupted
+        original(path, text)
+        if (
+            path.parent.name
+            == "selection-ledger-page-size-transitions"
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(
+        pipeline_module,
+        "_atomic_write_text",
+        interrupt_after_archive,
+    )
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+        ).run()
+
+    transition_root = (
+        config.root
+        / "solver-state"
+        / "selection-ledger-page-size-transitions"
+    )
+    archives = list(transition_root.glob("*.json"))
+    assert len(archives) == 1
+    archive_sha256 = hashlib.sha256(archives[0].read_bytes()).hexdigest()
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    before_resume = json.loads(ledger_path.read_text())
+    assert before_resume["cursor"] == 1
+    assert before_resume["committed_digests"] == [rejected_digest]
+
+    monkeypatch.setattr(pipeline_module, "_atomic_write_text", original)
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [96, 192]
+    assert list(transition_root.glob("*.json")) == archives
+    assert hashlib.sha256(archives[0].read_bytes()).hexdigest() == (
+        archive_sha256
+    )
+    ledger = json.loads(ledger_path.read_text())
+    assert ledger["cursor"] == 1
+    assert ledger["committed_digests"] == [rejected_digest]
+    assert len(ledger["ack_chain"]) == 1
+    assert len(ledger["adaptive_page_scheduler"]["transitions"]) == 1
+
+
+def test_adaptive_stage2_transition_recovers_after_ledger_crash(
+    tmp_path,
+    monkeypatch,
+):
+    config, runner, rejected_digest = _two_step_adaptive_scenario(
+        tmp_path,
+        "adaptive-ledger-crash",
+    )
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    original = pipeline_module.atomic_write_json
+    interrupted = False
+
+    def interrupt_after_rebound_ledger(path, value):
+        nonlocal interrupted
+        original(path, value)
+        scheduler = value.get("adaptive_page_scheduler")
+        if (
+            path == ledger_path
+            and isinstance(scheduler, dict)
+            and scheduler.get("active_step") == 1
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(
+        pipeline_module,
+        "atomic_write_json",
+        interrupt_after_rebound_ledger,
+    )
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=runner,
+            reviewer=RecordingReviewer(),
+        ).run()
+
+    committed = json.loads(ledger_path.read_text())
+    assert committed["cursor"] == 1
+    assert committed["committed_digests"] == [rejected_digest]
+    assert committed["adaptive_page_scheduler"]["active_step"] == 1
+    assert len(committed["adaptive_page_scheduler"]["transitions"]) == 1
+
+    monkeypatch.setattr(pipeline_module, "atomic_write_json", original)
+    resumed = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert resumed["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [96, 192]
+    replayed = json.loads(ledger_path.read_text())
+    assert replayed["cursor"] == committed["cursor"]
+    assert replayed["committed_digests"] == committed[
+        "committed_digests"
+    ]
+    assert replayed["ack_chain"] == committed["ack_chain"]
+    assert replayed["adaptive_page_scheduler"] == committed[
+        "adaptive_page_scheduler"
+    ]
+
+
+def _interrupt_two_step_scenario_after_transition(config, runner):
+    interrupted = False
+
+    def stop_before_rebound_page(command, *, cwd):
+        nonlocal interrupted
+        if (
+            _stage_script(command) == "audit_candidate_pool.py"
+            and int(command[command.index("--top") + 1]) == 192
+            and not interrupted
+        ):
+            interrupted = True
+            raise KeyboardInterrupt
+        return runner(command, cwd=cwd)
+
+    with pytest.raises(KeyboardInterrupt):
+        FiveStagePipeline(
+            config,
+            command_runner=stop_before_rebound_page,
+            reviewer=RecordingReviewer(),
+        ).run()
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ["illegal_top", "from_binding", "archive_path"],
+)
+def test_adaptive_stage2_transition_tamper_is_fail_closed(
+    tmp_path,
+    tamper,
+):
+    config, runner, _ = _two_step_adaptive_scenario(
+        tmp_path,
+        f"adaptive-transition-tamper-{tamper}",
+    )
+    _interrupt_two_step_scenario_after_transition(config, runner)
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    ledger = json.loads(ledger_path.read_text())
+    scheduler = ledger["adaptive_page_scheduler"]
+    transition = scheduler["transitions"][0]
+    if tamper == "illegal_top":
+        transition["to_top"] = 4096
+    elif tamper == "from_binding":
+        transition["from_binding_sha256"] = "8" * 64
+    else:
+        transition["archive_path"] = (
+            "selection-ledger-page-size-transitions/../escape.json"
+        )
+    unsigned_transition = dict(transition)
+    unsigned_transition.pop("entry_sha256")
+    transition["entry_sha256"] = selection_canonical_sha256(
+        unsigned_transition
+    )
+    unsigned_scheduler = dict(scheduler)
+    unsigned_scheduler.pop("state_sha256")
+    scheduler["state_sha256"] = selection_canonical_sha256(
+        unsigned_scheduler
+    )
+    _write_json(ledger_path, seal_selection_ledger(ledger))
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "OUTPUT_INVALID"
+    assert _stage2_tops(runner) == [96]
+
+
+def test_adaptive_stage2_snapshot_manifest_binding_mismatch_fails_closed(
+    tmp_path,
+):
+    config, runner, _ = _two_step_adaptive_scenario(
+        tmp_path,
+        "adaptive-manifest-tamper",
+    )
+    _interrupt_two_step_scenario_after_transition(config, runner)
+    ledger_path = (
+        config.root / "solver-state" / "stage2-selection-ledger.json"
+    )
+    manifest_path = ledger_path.with_name(
+        f"{ledger_path.name}.ranked-snapshot.manifest.json"
+    )
+    manifest = json.loads(manifest_path.read_text())
+    binding = dict(manifest["binding"])
+    binding.pop("binding_sha256")
+    binding["source_fingerprint"] = "9" * 64
+    replacement_binding = selection_canonical_sha256(binding)
+    manifest["binding"] = {
+        **binding,
+        "binding_sha256": replacement_binding,
+    }
+    manifest["binding_sha256"] = replacement_binding
+    manifest["identity"]["binding_sha256"] = replacement_binding
+    unsigned_manifest = dict(manifest)
+    unsigned_manifest.pop("manifest_sha256")
+    manifest["manifest_sha256"] = selection_canonical_sha256(
+        unsigned_manifest
+    )
+    _write_json(manifest_path, manifest)
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "OUTPUT_INVALID"
+    assert _stage2_tops(runner) == [96]
+
+
+def test_adaptive_deferred_generation_rotation_resets_to_first_step(
+    tmp_path,
+):
+    repo, candidates = _repo(tmp_path)
+    first_config = _adaptive_stage2_config(
+        replace(
+            _config(
+                repo,
+                candidates,
+                run_id="adaptive-deferred-generation-rotation",
+            ),
+            proof_retry_max_attempts=2,
+            proof_retry_backoff_seconds=0,
+            stage2_timeout=100,
+        ),
+        schedule=((96, 1), (192, None)),
+    )
+    rejected_digest = "adaptive-generation-rejected"
+    deferred_digest = "adaptive-generation-deferred"
+    rejected = {
+        "canonical_digest": rejected_digest,
+        "status": "REJECTED",
+    }
+    unresolved = {
+        "canonical_digest": deferred_digest,
+        "status": "UNRESOLVED",
+    }
+    winner, _ = _certificate(
+        first_config,
+        "adaptive-generation-reset-winner",
+    )
+    runner = ScenarioRunner(
+        stage2=[
+            _plan(
+                [rejected],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+            _plan(
+                [unresolved],
+                selection_exhausted=True,
+                selection_page=(1, 2),
+            ),
+            _plan(
+                [winner],
+                selection_exhausted=False,
+                selection_page=(0, 1),
+            ),
+        ],
+        stage3=[_plan([unresolved]), _plan([unresolved])],
+        adaptive_snapshot=True,
+    )
+
+    first_state = FiveStagePipeline(
+        first_config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert first_state["status"] == "INCOMPLETE"
+    assert _stage2_tops(runner) == [96, 192, 192]
+    ledger_path = (
+        first_config.root
+        / "solver-state"
+        / "stage2-selection-ledger.json"
+    )
+    first_ledger = json.loads(ledger_path.read_text())
+    first_scheduler = first_ledger["adaptive_page_scheduler"]
+    assert first_ledger["generation"] == 0
+    assert first_ledger["cursor"] == 2
+    assert first_ledger["pending"] is None
+    assert first_ledger["committed_digests"] == [
+        rejected_digest,
+        deferred_digest,
+    ]
+    assert first_ledger["ack_chain"][-1]["disposition"] == "DEFERRED"
+    assert first_scheduler["active_step"] == 1
+    assert len(first_scheduler["transitions"]) == 1
+    step_zero_binding = first_scheduler["transitions"][0][
+        "from_binding_sha256"
+    ]
+
+    second_config = replace(first_config, stage2_timeout=400)
+    second_state = FiveStagePipeline(
+        second_config,
+        command_runner=runner,
+        reviewer=RecordingReviewer(),
+        sleeper=lambda _seconds: None,
+    ).run()
+
+    assert second_state["status"] == "COMPLETED_WIN"
+    assert _stage2_tops(runner) == [96, 192, 192, 96]
+    second_ledger = json.loads(ledger_path.read_text())
+    second_scheduler = second_ledger["adaptive_page_scheduler"]
+    assert second_ledger["generation"] == first_ledger["generation"] + 1
+    assert second_ledger["cursor"] == 0
+    assert second_ledger["binding_sha256"] == step_zero_binding
+    assert second_ledger["committed_digests"] == []
+    assert second_ledger["deferred_pages"] == []
+    assert second_ledger["pending"]["start_index"] == 0
+    assert second_ledger["pending"]["selected_digests"] == [
+        "adaptive-generation-reset-winner"
+    ]
+    assert second_scheduler["active_step"] == 0
+    assert second_scheduler["step_started_completed_pages"] == 0
+    assert second_scheduler["transitions"] == []
