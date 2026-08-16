@@ -109,6 +109,43 @@ class BuildArgvTest(unittest.TestCase):
 # ── codex binary resolution ──────────────────────────────────────────
 
 
+class CodexLoggingTest(unittest.TestCase):
+    def test_non_verbose_failure_preserves_stderr(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            log_base = root / "codex-failure"
+            agent = _agent(model="m")
+            command = [
+                sys.executable,
+                "-c",
+                (
+                    "import sys; "
+                    "print('STDERR_SENTINEL', file=sys.stderr); "
+                    "raise SystemExit(17)"
+                ),
+            ]
+            with (
+                patch.object(agent, "build_env", return_value=os.environ.copy()),
+                patch.object(agent, "_announce"),
+                patch.object(agent, "build_argv", return_value=command),
+            ):
+                ok = agent.run(
+                    "P",
+                    cwd=root,
+                    log_base=log_base,
+                    verbose_logs=False,
+                    idle_timeout_s=None,
+                    max_attempts=1,
+                )
+
+            self.assertFalse(ok)
+            self.assertIn(
+                "STDERR_SENTINEL",
+                Path(f"{log_base}.raw.log").read_text(encoding="utf-8"),
+            )
+            self.assertFalse(Path(f"{log_base}.codex-raw.jsonl").exists())
+
+
 class ResolveCodexBinTest(unittest.TestCase):
     def _desc(self, **raw):
         return HarnessDescriptor(name="codex", runner="codex", raw=raw)

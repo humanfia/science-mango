@@ -2241,7 +2241,10 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
                                 )
                         else:
                             pending_formalization.add(work.rel)
-                            settled_targets.add(work.rel)
+                            if full_pipeline:
+                                unresolved[work.rel] = "; ".join(errors)
+                            else:
+                                settled_targets.add(work.rel)
                             log.error(
                                 f"Immediate formalizer incomplete: {work.rel}; "
                                 f"{'; '.join(errors)}"
@@ -2406,7 +2409,7 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
                                 )
                             else:
                                 pending_formalization.add(work.rel)
-                                settled_targets.add(work.rel)
+                                unresolved[work.rel] = error
                                 write_meta(self.iter_meta, **{
                                     f"pipelineFormalizationReviews.{work.slug}.status": "error",
                                     f"pipelineFormalizationReviews.{work.slug}.error": error,
@@ -2600,7 +2603,10 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
         complete = (
             not unresolved
             and (
-                len(settled_targets) == file_count
+                (
+                    not pending_formalization
+                    and len(settled_targets) == file_count
+                )
                 if full_pipeline else len(outcomes) == file_count
             )
         )
@@ -2608,12 +2614,6 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
             self.state_dir / "proof-journal" / "sessions"
             / f"session_{self.iter_num}"
         )
-        if complete:
-            write_parallel_review_session(
-                session_dir=session_dir,
-                iter_num=self.iter_num,
-                outcomes=outcomes,
-            )
         gate_events_applied = False
         proof_gate_result = {
             "solved": [],
@@ -2630,46 +2630,6 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
             "reviewed": [],
         }
         if complete and full_pipeline:
-            for event in gate_events:
-                if event["kind"] == "proof":
-                    update = apply_target_proof_review(
-                        state_dir=self.state_dir,
-                        project_path=self.project_path,
-                        target=event["target"],
-                        milestone=event["milestone"],
-                        iter_num=self.iter_num,
-                        max_iterations=proof_max_iterations,
-                        event_id=event["event_id"],
-                        expected_source_contract=event["source_contract"],
-                    )
-                    if update.route == "needs_redraft":
-                        reopen_formalization_targets(
-                            state_dir=self.state_dir,
-                            project_path=self.project_path,
-                            progress_file=self.state_dir / "PROGRESS.md",
-                            redrafts={
-                                update.rel: {
-                                    "reason": update.reason,
-                                    "redraft_kind": update.redraft_kind,
-                                    "pipeline_event_id": event["event_id"],
-                                }
-                            },
-                            iter_num=self.iter_num,
-                            max_iterations=formalization_max_iterations,
-                            route_progress=False,
-                            enforce_budget=True,
-                        )
-                else:
-                    apply_target_formalization_review(
-                        state_dir=self.state_dir,
-                        project_path=self.project_path,
-                        target=event["target"],
-                        milestone=event["milestone"],
-                        iter_num=self.iter_num,
-                        max_iterations=formalization_max_iterations,
-                        event_id=event["event_id"],
-                        expected_source_contract=event["source_contract"],
-                    )
             gate_events_applied = True
 
             proof_state = load_proof_review_state(self.state_dir)
@@ -2685,6 +2645,36 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
                 formalization_records
                 if isinstance(formalization_records, dict) else {}
             )
+            for event in gate_events:
+                records = (
+                    proof_records
+                    if event["kind"] == "proof"
+                    else formalization_records
+                )
+                record = records.get(event["rel"])
+                history_key = (
+                    "history"
+                    if event["kind"] == "proof"
+                    else "review_events"
+                )
+                history = (
+                    record.get(history_key)
+                    if isinstance(record, dict)
+                    else None
+                )
+                history = history if isinstance(history, list) else []
+                matches = sum(
+                    isinstance(entry, dict)
+                    and entry.get("event_id") == event["event_id"]
+                    for entry in history
+                )
+                if matches != 1:
+                    unresolved[event["rel"]] = (
+                        "durable target Review gate event mismatch: "
+                        f"{event['event_id']} persisted {matches} time(s)"
+                    )
+                    gate_events_applied = False
+
             for rel in target_rels:
                 proof_was_reviewed = any(
                     event["kind"] == "proof" and event["rel"] == rel
@@ -2716,12 +2706,28 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
                     for event in gate_events
                 ):
                     formalization_gate_result["reviewed"].append(rel)
-                if (
+                if formalization_status == "retry" or (
                     proof_status == "needs_redraft"
-                    and formalization_status == "retry"
+                    and formalization_status != "review_exhausted"
                 ):
                     pending_formalization.add(rel)
 
+        # Publish a consumable Review session only after the read-only durable
+        # gate audit confirms that no target remains pending.
+        if full_pipeline:
+            settled_targets.difference_update(pending_formalization)
+            complete = (
+                complete
+                and not unresolved
+                and not pending_formalization
+                and len(settled_targets) == file_count
+            )
+        if complete:
+            write_parallel_review_session(
+                session_dir=session_dir,
+                iter_num=self.iter_num,
+                outcomes=outcomes,
+            )
 
         checks = [preflight_rows[rel] for rel in sorted(preflight_rows)]
         preflight = {
@@ -2876,10 +2882,16 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
                 f"Immediate redrafts materialized: {len(materialized_redrafts)}"
             )
         if failed_redrafts:
-            log.warn(
-                f"Immediate redrafts incomplete: {len(failed_redrafts)}; "
-                "normal autoformalize fallback remains enabled"
-            )
+            if full_pipeline:
+                log.warn(
+                    f"Immediate redrafts incomplete: {len(failed_redrafts)}; "
+                    "target lifecycle remains incomplete and fail-closed"
+                )
+            else:
+                log.warn(
+                    f"Immediate redrafts incomplete: {len(failed_redrafts)}; "
+                    "normal autoformalize fallback remains enabled"
+                )
 
         if failed:
             log.warn(f"{failed}/{file_count} prover(s) had errors")

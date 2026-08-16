@@ -773,6 +773,12 @@ def native_problem_image_args(
             )
         seen.add(str(path))
         args.extend(("--image", str(path)))
+    # Codex 0.147 declares ``--image <FILE>...`` as variadic. Without an
+    # explicit option terminator, Codex consumes Archon's final positional
+    # prompt as one more image and exits with "No prompt provided via stdin".
+    # CodexAgent appends the prompt after these extra args, so terminate image
+    # option parsing here while keeping the prompt as the final argv item.
+    args.append("--")
     return args
 
 

@@ -844,6 +844,21 @@ def load_pipelined_review_report(
 
     proof_expected = expected
     if str(report.get("pipeline_mode") or "") == "target_lifecycle":
+        raw_pending = report.get("pending_formalization_targets", [])
+        if not isinstance(raw_pending, list):
+            return None, (
+                "target lifecycle report pending_formalization_targets "
+                "is not a list"
+            )
+        pending = sorted({
+            str(item).lstrip("./") for item in raw_pending
+            if str(item).strip()
+        })
+        if pending:
+            return None, (
+                "target lifecycle report is complete but still has pending "
+                f"formalization targets: {pending!r}"
+            )
         raw_settled = report.get("settled_target_files")
         if not isinstance(raw_settled, list):
             return None, "target lifecycle report settled_target_files is not a list"

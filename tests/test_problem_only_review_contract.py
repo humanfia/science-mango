@@ -8,6 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from archon.agents.codex import CodexAgent
+
 from archon.commands.loop.parallel_formalization_review import (
     _run_formalization_review_worker,
     build_target_formalization_review_prompt,
@@ -230,7 +232,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 target=self.target,
                 harness=codex,
             ),
-            ["--image", str((self.project / self.image_rel).resolve())],
+            ["--image", str((self.project / self.image_rel).resolve()), "--"],
         )
         with self.assertRaisesRegex(
             ProblemOnlyReviewContractError, "Codex --image capable",
@@ -251,6 +253,25 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 target=self.target,
                 harness=codex,
             )
+
+    def test_native_image_args_keep_codex_prompt_positional(self) -> None:
+        harness = HarnessDescriptor(name="codex", runner="codex")
+        extra_args = native_problem_image_args(
+            project_path=self.project,
+            target=self.target,
+            harness=harness,
+        )
+        prompt = "PROMPT_SENTINEL"
+        argv = CodexAgent(descriptor=harness, role="prover").build_argv(
+            prompt,
+            extra_args=extra_args,
+            env_source={},
+            lake_root=str(self.project),
+        )
+        self.assertEqual(argv[-4:], [
+            "--image", str((self.project / self.image_rel).resolve()),
+            "--", prompt,
+        ])
 
     def _source_audit(self, contract: dict) -> dict:
         passed = {"status": "passed", "evidence": "bound evidence checked"}
@@ -696,7 +717,11 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 runner.run.assert_called_once()
                 self.assertEqual(
                     runner.run.call_args.kwargs["extra_args"],
-                    ["--image", str((self.project / self.image_rel).resolve())],
+                    [
+                        "--image",
+                        str((self.project / self.image_rel).resolve()),
+                        "--",
+                    ],
                 )
                 self.assertTrue(outcome.runner_ok)
                 self.assertIsNone(outcome.milestone)
@@ -1054,9 +1079,18 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 encoding="utf-8",
             )
         )
-        self.assertTrue(report["complete"])
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["settled_target_files"], [])
+        self.assertEqual(report["unresolved"], [self.rel])
+        self.assertEqual(report["pending_formalization_targets"], [self.rel])
+        self.assertFalse(report["gate_events_applied"])
         self.assertEqual(report["proof_review_target_files"], [])
         self.assertEqual(report["reviewed"], 0)
+        self.assertIn(
+            "did not update its task result",
+            report["errors"][self.rel],
+        )
         self.assertTrue(report["formalizer_results"][self.rel]["changed"])
         self.assertFalse(
             report["formalizer_results"][self.rel]["task_result_updated"],
@@ -1065,7 +1099,23 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.state / "proof-journal" / "sessions" / "session_1"
             / "milestones.jsonl"
         )
-        self.assertEqual(session.read_text(encoding="utf-8"), "")
+        self.assertFalse(session.exists())
+        proof_gate = json.loads(
+            (self.state / "proof-review-gate.json").read_text(
+                encoding="utf-8",
+            )
+        )
+        formal_gate = json.loads(
+            (self.state / "formalization-review-gate.json").read_text(
+                encoding="utf-8",
+            )
+        )
+        self.assertEqual(
+            proof_gate["targets"][self.rel]["status"], "needs_redraft",
+        )
+        self.assertEqual(
+            formal_gate["targets"][self.rel]["status"], "retry",
+        )
 
     def test_durable_native_session_rejects_stale_source_and_preflight(self) -> None:
         contract = self._contract()
@@ -1128,6 +1178,21 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         self.assertEqual(error, "")
         self.assertIsNotNone(loaded)
 
+        report["pending_formalization_targets"] = [self.rel]
+        write_pipelined_review_report(iter_dir=self.iter_dir, report=report)
+        loaded, error = load_pipelined_review_report(
+            project_path=self.project,
+            state_dir=self.state,
+            iter_dir=self.iter_dir,
+            iter_num=1,
+            objectives=[self.target],
+        )
+        self.assertIsNone(loaded)
+        self.assertIn(
+            "still has pending formalization targets",
+            error,
+        )
+        report["pending_formalization_targets"] = []
         self.target.write_text(
             self.lean_source + "-- stale candidate\n", encoding="utf-8",
         )
