@@ -10,6 +10,7 @@ from __future__ import annotations
 import fcntl
 import hashlib
 import json
+import math
 import os
 import re
 import signal
@@ -34,6 +35,25 @@ SUCCESSFUL_TERMINAL_STATUSES = frozenset(
 )
 ESCALATION_PARENT_STATUSES = frozenset({"COMPLETED_NO_WIN", "INCOMPLETE"})
 _RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}")
+
+
+def _validated_stage2_hard_wall_termination_grace(
+    value: float | None,
+) -> float | None:
+    """Validate one operational-only Stage 2 cleanup override."""
+
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        raise ValueError(
+            "stage2_hard_wall_termination_grace must not be boolean"
+        )
+    grace = float(value)
+    if not math.isfinite(grace) or grace <= 0:
+        raise ValueError(
+            "stage2_hard_wall_termination_grace must be positive and finite"
+        )
+    return grace
 
 
 class ProcessControlError(RuntimeError):
@@ -659,6 +679,44 @@ def _pending_escalation_parent_result(paths: ControlPaths) -> dict[str, Any] | N
     return recovered
 
 
+def _run_pipeline_with_stage2_cleanup_override(
+    config: Any,
+    *,
+    run_pipeline: Callable[[Any], dict[str, Any]],
+    pipeline_type: type[Any],
+    stage2_hard_wall_termination_grace: float | None,
+) -> dict[str, Any]:
+    """Run with an explicit, command-bound Stage 2 cleanup override.
+
+    This process-control policy changes only how long the Stage 2 worker
+    waits for a terminated child to be reaped. It is intentionally kept out
+    of the scientific ``PipelineConfig`` so resuming with a safer cleanup
+    window cannot invalidate Stage 1 or the Stage 2 selection ledger.
+    """
+
+    grace = _validated_stage2_hard_wall_termination_grace(
+        stage2_hard_wall_termination_grace
+    )
+    if grace is None:
+        return run_pipeline(config)
+    grace_text = format(grace, ".17g")
+
+    class Stage2CleanupOverridePipeline(pipeline_type):
+        def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
+            command = list(super()._stage2_command(candidates))
+            if "--hard-wall-termination-grace" in command:
+                raise ProcessControlError(
+                    "Stage 2 command already declares hard-wall termination grace"
+                )
+            return [
+                *command,
+                "--hard-wall-termination-grace",
+                grace_text,
+            ]
+
+    return Stage2CleanupOverridePipeline(config).run()
+
+
 def execute_pipeline(
     *,
     repo_dir: Path,
@@ -673,6 +731,7 @@ def execute_pipeline(
     stage_review: bool | None = None,
     reviewer_model: str | None = None,
     reviewer_effort: str | None = None,
+    stage2_hard_wall_termination_grace: float | None = None,
 ) -> dict[str, Any]:
     """Run the core pipeline while holding a lock and refreshing metadata."""
     identity: dict[str, Any] | None = None
@@ -713,7 +772,7 @@ def execute_pipeline(
         try:
             # Importing the scientific pipeline is intentionally delayed until
             # the lock, process identity, and output paths are established.
-            from .pipeline import PipelineConfig, run_pipeline
+            from .pipeline import FiveStagePipeline, PipelineConfig, run_pipeline
             from .escalation import verify_materialized_child_pipeline
 
             policy_snapshot = _capture_durable_escalation_policy(
@@ -747,7 +806,14 @@ def execute_pipeline(
             )
             result = _pending_escalation_parent_result(paths)
             if result is None:
-                result = run_pipeline(config)
+                result = _run_pipeline_with_stage2_cleanup_override(
+                    config,
+                    run_pipeline=run_pipeline,
+                    pipeline_type=FiveStagePipeline,
+                    stage2_hard_wall_termination_grace=(
+                        stage2_hard_wall_termination_grace
+                    ),
+                )
             if not isinstance(result, dict):
                 raise ProcessControlError("run_pipeline must return a JSON object")
             escalation = reconcile_completed_campaign_escalation(
@@ -811,6 +877,7 @@ def start_background(
     stage_review: bool | None = None,
     reviewer_model: str | None = None,
     reviewer_effort: str | None = None,
+    stage2_hard_wall_termination_grace: float | None = None,
     expected_config_sha256: str | None = None,
     popen_factory: Callable[..., subprocess.Popen[Any]] = subprocess.Popen,
     identity_reader: Callable[[int], dict[str, Any] | None] = read_proc_identity,
@@ -818,6 +885,9 @@ def start_background(
     """Start one detached worker and return its durable process record."""
     repo = resolve_repo_dir(repo_dir)
     config = resolve_config_path(config_path)
+    termination_grace = _validated_stage2_hard_wall_termination_grace(
+        stage2_hard_wall_termination_grace
+    )
     launch_config_sha256 = hashlib.sha256(config.read_bytes()).hexdigest()
     if (
         expected_config_sha256 is not None
@@ -855,6 +925,11 @@ def start_background(
             command.extend(["--reviewer-model", reviewer_model])
         if reviewer_effort is not None:
             command.extend(["--reviewer-effort", reviewer_effort])
+        if termination_grace is not None:
+            command.extend([
+                "--stage2-hard-wall-termination-grace",
+                format(termination_grace, ".17g"),
+            ])
         log_fd = os.open(
             paths.log,
             os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0),
@@ -939,6 +1014,7 @@ def run_foreground(
     stage_review: bool | None = None,
     reviewer_model: str | None = None,
     reviewer_effort: str | None = None,
+    stage2_hard_wall_termination_grace: float | None = None,
 ) -> dict[str, Any]:
     repo = resolve_repo_dir(repo_dir)
     config = resolve_config_path(config_path)
@@ -957,6 +1033,9 @@ def run_foreground(
         stage_review=stage_review,
         reviewer_model=reviewer_model,
         reviewer_effort=reviewer_effort,
+        stage2_hard_wall_termination_grace=(
+            stage2_hard_wall_termination_grace
+        ),
     )
 
 

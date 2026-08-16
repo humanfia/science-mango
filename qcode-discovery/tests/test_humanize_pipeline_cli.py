@@ -107,6 +107,7 @@ def test_background_start_uses_isolated_session_and_inherited_lock(
         config_path=config,
         run_id="detached",
         python_executable="/usr/bin/python3",
+        stage2_hard_wall_termination_grace=30.0,
         popen_factory=fake_popen,
         identity_reader=lambda _pid: _identity(),
     )
@@ -129,6 +130,13 @@ def test_background_start_uses_isolated_session_and_inherited_lock(
     lock_fd = int(captured["command"][captured["command"].index("--lock-fd") + 1])
     assert start_fd >= 0
     assert {start_fd, lock_fd} == set(kwargs["pass_fds"])
+    assert captured["command"].count(
+        "--stage2-hard-wall-termination-grace"
+    ) == 1
+    grace_index = captured["command"].index(
+        "--stage2-hard-wall-termination-grace"
+    )
+    assert captured["command"][grace_index + 1] == "30"
     assert record["isolated_session"] is True
     assert record["pgid"] == record["pid"] == record["session_id"]
     stored = json.loads(
@@ -140,6 +148,102 @@ def test_background_start_uses_isolated_session_and_inherited_lock(
     assert stored["config_sha256"] == hashlib.sha256(
         config.read_bytes()
     ).hexdigest()
+
+
+@pytest.mark.parametrize("value", [True, 0, -1, float("inf"), float("nan")])
+def test_stage2_cleanup_grace_rejects_invalid_values(value):
+    with pytest.raises(
+        ValueError,
+        match="stage2_hard_wall_termination_grace",
+    ):
+        process_control._validated_stage2_hard_wall_termination_grace(value)
+
+
+def test_stage2_cleanup_override_changes_only_stage2_command():
+    baseline_calls = []
+
+    class FakePipeline:
+        def __init__(self, config):
+            self.config = config
+
+        def _stage2_command(self, candidates):
+            return ["audit", *candidates]
+
+        def _stage3_command(self):
+            return ["direction-audit"]
+
+        def run(self):
+            return {
+                "stage2": self._stage2_command(("candidate.jsonl",)),
+                "stage3": self._stage3_command(),
+            }
+
+    def baseline(config):
+        baseline_calls.append(config)
+        return {"baseline": config}
+
+    assert process_control._run_pipeline_with_stage2_cleanup_override(
+        "plain-config",
+        run_pipeline=baseline,
+        pipeline_type=FakePipeline,
+        stage2_hard_wall_termination_grace=None,
+    ) == {"baseline": "plain-config"}
+    assert baseline_calls == ["plain-config"]
+
+    result = process_control._run_pipeline_with_stage2_cleanup_override(
+        "grace-config",
+        run_pipeline=baseline,
+        pipeline_type=FakePipeline,
+        stage2_hard_wall_termination_grace=30.0,
+    )
+    assert result == {
+        "stage2": [
+            "audit",
+            "candidate.jsonl",
+            "--hard-wall-termination-grace",
+            "30",
+        ],
+        "stage3": ["direction-audit"],
+    }
+    assert baseline_calls == ["plain-config"]
+    assert FakePipeline("after")._stage2_command(("candidate.jsonl",)) == [
+        "audit",
+        "candidate.jsonl",
+    ]
+
+
+def test_stage2_cleanup_override_rejects_duplicate_audit_flag():
+    class DuplicatePipeline:
+        def __init__(self, _config):
+            pass
+
+        def _stage2_command(self, _candidates):
+            return ["audit", "--hard-wall-termination-grace", "5"]
+
+        def run(self):
+            self._stage2_command(())
+            return {"status": "unexpected"}
+
+    with pytest.raises(
+        process_control.ProcessControlError,
+        match="already declares hard-wall termination grace",
+    ):
+        process_control._run_pipeline_with_stage2_cleanup_override(
+            "config",
+            run_pipeline=lambda _config: {"status": "baseline"},
+            pipeline_type=DuplicatePipeline,
+            stage2_hard_wall_termination_grace=30.0,
+        )
+
+
+def test_pipeline_cli_parses_stage2_cleanup_grace_for_public_and_worker_paths():
+    for command in ("run", "start", "_worker"):
+        argv = [command, "--config", "pipeline.json"]
+        if command == "_worker":
+            argv.extend(["--lock-fd", "3", "--start-fd", "4"])
+        argv.extend(["--stage2-hard-wall-termination-grace", "30"])
+        parsed = pipeline_cli.build_parser().parse_args(argv)
+        assert parsed.stage2_hard_wall_termination_grace == pytest.approx(30.0)
 
 
 def test_durable_policy_snapshot_allows_operational_config_changes_only(tmp_path):

@@ -72,6 +72,14 @@ def _add_launch_arguments(parser: argparse.ArgumentParser) -> None:
         help="safe run id; defaults to the top-level run_id in the JSON config",
     )
     _add_review_arguments(parser)
+    parser.add_argument(
+        "--stage2-hard-wall-termination-grace",
+        type=float,
+        help=(
+            "operational-only seconds to wait after terminating Stage 2 "
+            "hard-wall workers; the actual Stage 2 command records the value"
+        ),
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -168,6 +176,9 @@ def _run_command(args: argparse.Namespace) -> int:
             stage_review=args.stage_review,
             reviewer_model=args.reviewer_model,
             reviewer_effort=args.reviewer_effort,
+            stage2_hard_wall_termination_grace=getattr(
+                args, "stage2_hard_wall_termination_grace", None
+            ),
         )
     finally:
         signal.signal(signal.SIGTERM, previous_sigterm)
@@ -187,6 +198,9 @@ def _start_command(args: argparse.Namespace) -> int:
         stage_review=args.stage_review,
         reviewer_model=args.reviewer_model,
         reviewer_effort=args.reviewer_effort,
+        stage2_hard_wall_termination_grace=getattr(
+            args, "stage2_hard_wall_termination_grace", None
+        ),
     )
     _print_json(
         {
@@ -269,6 +283,9 @@ def _worker_command(args: argparse.Namespace) -> int:
             stage_review=args.stage_review,
             reviewer_model=args.reviewer_model,
             reviewer_effort=args.reviewer_effort,
+            stage2_hard_wall_termination_grace=getattr(
+                args, "stage2_hard_wall_termination_grace", None
+            ),
         )
     except BaseException:
         traceback.print_exc()
