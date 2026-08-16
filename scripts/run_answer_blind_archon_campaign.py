@@ -51,8 +51,12 @@ NATIVE_AGENTS = """# Answer-Blind Native Archon Instructions
 Use only the problem statement, problem images, local Lean libraries, and
 artifacts created in this workspace. Never seek or read an official answer,
 solution, rubric, marking scheme, grader output, prior run, or another solver's
-workspace. Web/search/browser tools are disabled. If answer-bearing material is
-visible, stop and report it without using it.
+workspace. Web/search/browser tools are disabled. Everything inside the sealed
+problem bundle and its problem PDF/images is student-visible problem input,
+including printed fallback values. A fallback for one part may be used only for
+the later part(s) that the problem explicitly authorizes; it may not justify or
+select the answer to the part it replaces. If answer-bearing material outside
+the sealed problem inputs is visible, stop and report it without using it.
 
 Do not edit the question bundle, source reports, problem PDF/images,
 `isolation_manifest.json`, `.archon/config.json`, or this file. During a
@@ -72,6 +76,9 @@ This run provides the model only the problem-only bundle, its referenced problem
 assets, and local Lean libraries. `official_answer_seen = false`. It does not
 claim operating-system network isolation; the harness disables web, search,
 browser, plugins, and apps, and the solver must not seek answer-bearing material.
+Printed fallback values inside those problem assets are exam-visible inputs;
+they are admissible only for the downstream parts explicitly named by the
+problem, never as evidence for the upstream result they replace.
 
 Archon performs the normal chemistry workflow in one workspace: create faithful
 Lean statements, run formalization Review, fill proofs, run proof Review, then
@@ -157,7 +164,10 @@ invocation. During prover, audit the exact Lean proof and emit the requested
 proof Review route. Accept proved target-local helper lemmas when they derive
 the required bridge from pinned foundations; route a missing foundational
 bridge to `needs_redraft` so grounding and formalization are rebuilt on the next
-iteration. Never request a dependency install or update. Write exactly one
+iteration. Treat an exam-visible fallback as evidence only for downstream parts
+that explicitly authorize it; require an independent derivation for the part
+whose missing result the fallback replaces. Never request a dependency install
+or update. Write exactly one
 JSONL row for every listed objective: no omissions, duplicates, or extra
 targets. Also write the requested summary, recommendations, and PROJECT_STATUS
 files. Do not modify Lean files and never seek an official answer, solution,
@@ -200,6 +210,7 @@ class Config:
     archon_bin: str = "archon"
     max_iterations: int = 100
     max_parallel: int = DEFAULT_MAX_PARALLEL
+    target_lifecycle: bool = False
 
     @property
     def workspace(self) -> Path:
@@ -257,6 +268,8 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError(
             f"max_parallel must be between 1 and {EXPECTED_ITEMS}"
         )
+    if type(config.target_lifecycle) is not bool:
+        raise CampaignError("target_lifecycle must be a boolean")
     try:
         _SEED.validate_seed(seed)
     except Exception as exc:
@@ -279,15 +292,22 @@ def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError(
             f"max_parallel must be between 1 and {EXPECTED_ITEMS}"
         )
+    if type(config.target_lifecycle) is not bool:
+        raise CampaignError("target_lifecycle must be a boolean")
     ids = _target_ids(config.workspace)
-    _check_native_config(config.workspace, max_parallel=config.max_parallel)
+    _check_native_config(
+        config.workspace,
+        max_parallel=config.max_parallel,
+        target_lifecycle=config.target_lifecycle,
+    )
     _validate_native_markers(config.workspace, ids)
     _validate_crnt_project_index(config)
     return config, ids
 
 
 def _patch_native_config(
-    workspace: Path, *, max_iterations: int, max_parallel: int
+    workspace: Path, *, max_iterations: int, max_parallel: int,
+    target_lifecycle: bool,
 ) -> None:
     path = workspace / ".archon/config.json"
     try:
@@ -346,14 +366,12 @@ def _patch_native_config(
         "review_preflight_jobs": max_parallel,
         "parallel_target_review_jobs": max_parallel,
         "parallel_formalization_review_jobs": max_parallel,
-        # Keep the semantic gates, but use Archon's ordinary Review agent.
-        # The strict target-scoped reviewers implement the removed
-        # candidate/seal protocol and are intentionally not part of this
-        # problem-input-level workflow. Deterministic Lean preflight remains
-        # bounded through review_preflight_jobs.
-        "parallel_formalization_review": False,
-        "parallel_target_review": False,
-        "pipeline_target_review": False,
+        # The historical r6 behavior remains the default.  The explicit
+        # target-lifecycle mode reuses Archon's existing per-target Review
+        # scheduler and handoff schema without adding another controller.
+        "parallel_formalization_review": target_lifecycle,
+        "parallel_target_review": target_lifecycle,
+        "pipeline_target_review": target_lifecycle,
     })
     shared = loop.get("shared_infrastructure")
     if isinstance(shared, dict):
@@ -645,16 +663,27 @@ def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]
 
 def _check_native_config(
     workspace: Path, *, max_parallel: int = DEFAULT_MAX_PARALLEL,
+    target_lifecycle: bool = False,
     preparation: bool = False,
 ) -> None:
     try:
         value = json.loads((workspace / ".archon/config.json").read_text())
         loop = value["loop"]
         harness = value["harnesses"]["answer-blind-gpt"]
+        blind = value["answer_blind"]
+        blind_isolation = blind["isolation"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
         raise CampaignError("prepared Archon config is invalid") from exc
     if (
-        harness.get("runner") != "codex"
+        not isinstance(blind, dict)
+        or not isinstance(blind_isolation, dict)
+        or blind.get("authority") != "problem-only"
+        or blind.get("official_answer_seen") is not False
+        or blind.get("phase") != "solve"
+        or blind.get("protocol") != "icho-answer-blind-v1"
+        or blind_isolation.get("filesystem_answer_blind") is not True
+        or blind_isolation.get("network_answer_blind") is not False
+        or harness.get("runner") != "codex"
         or harness.get("sandbox") != "danger-full-access"
         or harness.get("lean_explore_backend") != "hosted"
         or harness.get("mcp") != []
@@ -667,11 +696,17 @@ def _check_native_config(
         or (loop.get("domain_profile") or {}).get("lean_search_packages")
         != list(LEAN_SEARCH_PACKAGES)
         or (loop.get("shared_infrastructure") or {}).get("enabled") is not False
-        or loop.get("parallel_formalization_review") is not False
-        or loop.get("parallel_target_review") is not False
-        or loop.get("pipeline_target_review") is not False
     ):
         raise CampaignError("prepared harness is not native non-root Codex")
+    lifecycle_flags = (
+        loop.get("parallel_formalization_review"),
+        loop.get("parallel_target_review"),
+        loop.get("pipeline_target_review"),
+    )
+    if any(value is not target_lifecycle for value in lifecycle_flags):
+        raise CampaignError(
+            "--target-lifecycle must match the prepared workspace config"
+        )
     for key in (
         "max_parallel",
         "review_preflight_jobs",
@@ -706,11 +741,13 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
         config.workspace,
         max_iterations=config.max_iterations,
         max_parallel=config.max_parallel,
+        target_lifecycle=config.target_lifecycle,
     )
     _write_native_policy_files(config.workspace)
     _check_native_config(
         config.workspace,
         max_parallel=config.max_parallel,
+        target_lifecycle=config.target_lifecycle,
         preparation=True,
     )
     # Lake may refresh package-local Git metadata even for an otherwise clean
@@ -915,6 +952,7 @@ def _base_index(config: Config, ids: Sequence[str]) -> dict[str, Any]:
         "row_count": len(ids),
         "bundle_sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
         "max_parallel": config.max_parallel,
+        "target_lifecycle": config.target_lifecycle,
         "status": "preparing",
         "updated_at": _utcnow(),
     }
@@ -939,7 +977,11 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
     _detach_strict_source_contract(config.workspace, ids)
     _validate_native_markers(config.workspace, ids)
     _activate_native_review_profile(config.workspace)
-    _check_native_config(config.workspace, max_parallel=config.max_parallel)
+    _check_native_config(
+        config.workspace,
+        max_parallel=config.max_parallel,
+        target_lifecycle=config.target_lifecycle,
+    )
     _validate_crnt_project_index(config)
     grounding = _run_initial_grounding(config, ids)
     index.update(
@@ -992,6 +1034,18 @@ def resume_campaign(config: Config) -> dict[str, Any]:
             "--max-parallel must match the prepared campaign value "
             f"({index.get('max_parallel')})"
         )
+    receipt_target_lifecycle = index.get("target_lifecycle", False)
+    if type(receipt_target_lifecycle) is not bool:
+        raise CampaignError("campaign.json has invalid target_lifecycle")
+    if receipt_target_lifecycle is not config.target_lifecycle:
+        raise CampaignError(
+            "--target-lifecycle must match the prepared campaign value "
+            f"({receipt_target_lifecycle})"
+        )
+    # Receipts produced by the original r6 controller predate this explicit
+    # mode marker.  Their workspace config already proves the historical False
+    # mode, so normalize the in-memory receipt and persist it with this resume.
+    index["target_lifecycle"] = receipt_target_lifecycle
     validate_physics_metadata(config.workspace, ids)
     native = native_summary(config.workspace, ids)
     if native["complete"]:
@@ -1047,6 +1101,14 @@ def _parser() -> argparse.ArgumentParser:
             f"(1-{EXPECTED_ITEMS}, default: {DEFAULT_MAX_PARALLEL})"
         ),
     )
+    parser.add_argument(
+        "--target-lifecycle",
+        action="store_true",
+        help=(
+            "opt in to Archon's per-target formalize/review/prove/review lifecycle; "
+            "repeat this flag on resume"
+        ),
+    )
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument("--run", action="store_true", help="prepare and start the loop")
     actions.add_argument("--resume", action="store_true", help="resume the existing loop")
@@ -1063,6 +1125,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         archon_bin=args.archon_bin,
         max_iterations=args.max_iterations,
         max_parallel=args.max_parallel,
+        target_lifecycle=args.target_lifecycle,
     )
     try:
         if args.resume:

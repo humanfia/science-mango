@@ -16,13 +16,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from .problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+    resolve_target_review_source_contract,
+    stored_review_provenance_matches_current,
+    validate_native_review_source_certificate,
+)
 from .review_source_contract import (
-    build_review_source_contract,
     normalized_review_source_certificate,
     provenance_from_review,
     source_assessment_from_review,
-    stored_provenance_matches_current,
-    validate_review_source_certificate,
 )
 from .shared_infrastructure import register_shared_infrastructure_request
 
@@ -261,6 +264,7 @@ def _source_validated_proof_review_decision(
     *,
     project_path: Path,
     target: Path,
+    expected_source_contract: Mapping[str, Any] | None = None,
 ) -> tuple[str, str, str, str, bool]:
     decision = _proof_review_decision(row)
     # A missing target-bound Review row is an output failure, not evidence of
@@ -270,25 +274,46 @@ def _source_validated_proof_review_decision(
     if not isinstance(row, dict):
         return decision
     route, reason, evidence, _redraft_kind, _explicit = decision
-    expected = build_review_source_contract(
-        project_path=project_path,
-        target=target,
-    )
+    try:
+        expected = (
+            expected_source_contract
+            if expected_source_contract is not None
+            else resolve_target_review_source_contract(
+                project_path=project_path,
+                target=target,
+                preflight=None,
+            )
+        )
+    except ProblemOnlyReviewContractError as exc:
+        error = str(exc)
+        return (
+            "needs_redraft",
+            f"problem-only source contract validation failed: {error}",
+            evidence or error,
+            "other_modeling_defect",
+            True,
+        )
     raw: Any = row.get("proof_review") if isinstance(row, dict) else None
     if raw is None and isinstance(row, dict):
         findings = row.get("findings")
         if isinstance(findings, dict):
             raw = findings.get("proof_review")
-    error = validate_review_source_certificate(
+    error = validate_native_review_source_certificate(
         raw if isinstance(raw, dict) else {},
         expected,
         passing=route == "solved",
     )
     if not error:
         return decision
+    label = (
+        "problem-only source contract validation failed"
+        if isinstance(expected, Mapping)
+        and expected.get("contract_kind") == "native_problem_input_only"
+        else "official source contract validation failed"
+    )
     return (
         "needs_redraft",
-        f"official source contract validation failed: {error}",
+        f"{label}: {error}",
         evidence or error,
         "other_modeling_defect",
         True,
@@ -662,6 +687,7 @@ def apply_target_proof_review(
     iter_num: int,
     max_iterations: int,
     event_id: str,
+    expected_source_contract: Mapping[str, Any] | None = None,
 ) -> TargetProofReviewUpdate:
     """Apply one proof Review event exactly once without routing PROGRESS.
 
@@ -718,6 +744,7 @@ def apply_target_proof_review(
             milestone,
             project_path=project_path,
             target=target,
+            expected_source_contract=expected_source_contract,
         )
     )
     try:
@@ -963,10 +990,11 @@ def _invalidate_stale_solved_records(
     for rel, raw_record in list(records.items()):
         if not isinstance(raw_record, dict) or raw_record.get("status") != "solved":
             continue
-        fresh, reason = stored_provenance_matches_current(
+        fresh, reason = stored_review_provenance_matches_current(
             project_path=project_path,
             target=project_path / rel,
             provenance=raw_record.get("source_contract"),
+            bind_candidate=True,
         )
         if fresh:
             continue

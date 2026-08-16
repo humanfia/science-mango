@@ -12,6 +12,7 @@ from archon.commands.loop.phases.review import (
 )
 from archon.commands.loop.formalization_review_gate import (
     apply_formalization_review,
+    apply_target_formalization_review,
     enforce_progress_review_gate,
     load_gate_state,
 )
@@ -19,6 +20,9 @@ from archon.commands.loop import formalization_review_gate
 from archon.commands.loop.review_source_contract import (
     build_review_source_contract,
     source_contract_provenance,
+)
+from archon.commands.loop.problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
 )
 from archon.state import read_stage
 
@@ -222,6 +226,141 @@ class FormalizationReviewGateTests(unittest.TestCase):
             reviewed_objectives=[self.target],
             max_iterations=3,
             blockers=blockers,
+        )
+
+    def test_forged_native_batch_milestone_fails_closed(self):
+        expected = {"contract_kind": "native_problem_input_only"}
+        with mock.patch.object(
+            formalization_review_gate,
+            "resolve_target_review_source_contract",
+            return_value=expected,
+        ):
+            result = self._review(1, "passed")
+
+        self.assertEqual(result.passed, ())
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertIn("source_contract provenance is missing", record["reason"])
+
+    def test_forged_native_immediate_milestone_fails_closed(self):
+        milestone = {
+            "status": "solved",
+            "target": {"file": "Problems/p.lean", "theorem": "p"},
+            "formalization_review": self._passing_certificate(),
+        }
+
+        update = apply_target_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=milestone,
+            iter_num=1,
+            max_iterations=3,
+            event_id="pipeline:1:Problems/p.lean:formalization:1",
+            expected_source_contract={
+                "contract_kind": "native_problem_input_only",
+            },
+        )
+
+        self.assertFalse(update.passed)
+        self.assertEqual(update.status, "retry")
+        self.assertIn("source_contract provenance is missing", update.reason)
+
+    def test_bad_native_source_target_does_not_collapse_batch(self):
+        good = self.project / "Problems" / "good.lean"
+        good.write_text("theorem good : True := by sorry\n", encoding="utf-8")
+        session = self.state / "proof-journal" / "sessions" / "session_1"
+        session.mkdir(parents=True)
+        rows = [
+            {
+                "status": "solved",
+                "target": {"file": "Problems/p.lean", "theorem": "p"},
+                "formalization_review": self._passing_certificate(),
+            },
+            {
+                "status": "solved",
+                "target": {"file": "Problems/good.lean", "theorem": "good"},
+                "formalization_review": self._passing_certificate(),
+            },
+        ]
+        (session / "milestones.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in rows),
+            encoding="utf-8",
+        )
+
+        def resolve(*, target, **_kwargs):
+            if target.name == "p.lean":
+                raise ProblemOnlyReviewContractError("sealed report is invalid")
+            return {}
+
+        with mock.patch.object(
+            formalization_review_gate,
+            "resolve_target_review_source_contract",
+            side_effect=resolve,
+        ):
+            result = apply_formalization_review(
+                state_dir=self.state,
+                project_path=self.project,
+                progress_file=self.progress,
+                session_dir=session,
+                iter_num=1,
+                reviewed_objectives=[self.target, good],
+                max_iterations=3,
+            )
+
+        self.assertEqual(result.passed, ("Problems/good.lean",))
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        records = load_gate_state(self.state)["targets"]
+        self.assertIn(
+            "problem-only source contract validation failed",
+            records["Problems/p.lean"]["reason"],
+        )
+        self.assertEqual(records["Problems/good.lean"]["status"], "passed")
+
+    def test_native_formalization_freshness_ignores_proof_body_hash(self):
+        provenance = {
+            "contract_kind": "native_problem_input_only",
+            "candidate_sha256": "old-formalization-candidate",
+        }
+        state = {
+            "version": 2,
+            "max_iterations": 3,
+            "targets": {
+                "Problems/p.lean": {
+                    "status": "passed",
+                    "reviews": 1,
+                    "certificate": {"source_contract": provenance},
+                },
+            },
+        }
+
+        with (
+            mock.patch.object(
+                formalization_review_gate,
+                "load_domain_profile",
+                return_value=SimpleNamespace(name="chemistry-native"),
+            ),
+            mock.patch.object(
+                formalization_review_gate,
+                "stored_review_provenance_matches_current",
+                return_value=(True, ""),
+            ) as freshness,
+        ):
+            current = formalization_review_gate._invalidate_stale_passes(
+                state_dir=self.state,
+                project_path=self.project,
+                state=state,
+            )
+
+        self.assertEqual(
+            current["targets"]["Problems/p.lean"]["status"],
+            "passed",
+        )
+        freshness.assert_called_once_with(
+            project_path=self.project,
+            target=self.target,
+            provenance=provenance,
+            bind_candidate=False,
         )
 
     def test_failed_review_retries_then_exhausts_on_third_attempt(self):

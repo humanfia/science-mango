@@ -17,6 +17,7 @@ import time
 from collections import deque
 from concurrent.futures import (
     FIRST_COMPLETED,
+    Future,
     ProcessPoolExecutor,
     ThreadPoolExecutor,
     as_completed,
@@ -76,7 +77,10 @@ from ..proof_review_gate import (
     proof_review_decision,
 )
 from ..review_preflight import check_review_target
-from ..review_source_contract import build_review_source_contract
+from ..problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+    resolve_target_review_source_contract,
+)
 from ..resume import PROVER_CONTINUE, persist_session_id, pick_resume_session
 from ..sorry_count import file_open_sorry_count
 from ..utils import file_slug, relpath
@@ -331,6 +335,49 @@ class _PipelineWork:
     cycle: int = 0
     baseline_sha256: str = ""
     result_fingerprints: tuple[tuple[str, str], ...] = ()
+    source_contract: dict | None = None
+
+
+def _pipeline_cycle(value: object) -> int:
+    """Return one persisted positive lifecycle cycle, or zero if malformed."""
+    if isinstance(value, int) and not isinstance(value, bool):
+        cycle = value
+    elif isinstance(value, str) and value.isascii() and value.isdigit():
+        try:
+            cycle = int(value)
+        except ValueError:
+            return 0
+        if str(cycle) != value:
+            return 0
+    else:
+        return 0
+    return cycle if cycle > 0 else 0
+
+
+def _latest_pipeline_event_cycle(
+    record: dict,
+    *,
+    history_key: str,
+    iter_num: int,
+    rel: str,
+    kind: str,
+) -> int:
+    """Recover the latest current-iteration cycle already consumed by a gate."""
+    history = record.get(history_key)
+    if not isinstance(history, list):
+        return 0
+    prefix = f"pipeline:{iter_num}:{rel}:{kind}:"
+    latest = 0
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        event_id = str(entry.get("event_id") or "")
+        if not event_id.startswith(prefix):
+            continue
+        suffix = event_id[len(prefix):]
+        if suffix.isdigit():
+            latest = max(latest, _pipeline_cycle(suffix))
+    return latest
 
 
 class SerialProverRunner:
@@ -906,8 +953,8 @@ class ParallelProverRunner:
 
         pending_provers: deque[tuple[Path, int]] = deque()
         pending_initial_formalizers: deque[tuple[Path, int]] = deque()
-        resumed_completed: list[tuple[Path, str, str]] = []
-        resumed_formalized: list[tuple[Path, str, str]] = []
+        resumed_completed: list[tuple[Path, str, str, int]] = []
+        resumed_formalized: list[tuple[Path, str, str, int]] = []
         proof_cycles: dict[str, int] = {}
         formalization_cycles: dict[str, int] = {}
         shadow_proof_attempts: dict[str, int] = {}
@@ -917,8 +964,6 @@ class ParallelProverRunner:
         for target in sorry_files:
             rel = relpath(target, self.project_path)
             slug = file_slug(rel)
-            proof_cycles[rel] = 0 if initial_formalization else 1
-            formalization_cycles[rel] = 1 if initial_formalization else 0
             prior_proof = prior_targets.get(rel)
             prior_proof = prior_proof if isinstance(prior_proof, dict) else {}
             shadow_proof_attempts[rel] = int(prior_proof.get("attempts") or 0)
@@ -927,6 +972,57 @@ class ParallelProverRunner:
             prior_formalization = (
                 prior_formalization
                 if isinstance(prior_formalization, dict) else {}
+            )
+            if self.resume_enabled:
+                restored_proof_cycle = max(
+                    _pipeline_cycle(
+                        read_meta(
+                            self.iter_meta, f"provers.{slug}.cycle",
+                        )
+                    ),
+                    _pipeline_cycle(
+                        read_meta(
+                            self.iter_meta, f"pipelineReviews.{slug}.cycle",
+                        )
+                    ),
+                    _latest_pipeline_event_cycle(
+                        prior_proof,
+                        history_key="history",
+                        iter_num=self.iter_num,
+                        rel=rel,
+                        kind="proof",
+                    ),
+                )
+                restored_formalization_cycle = max(
+                    _pipeline_cycle(
+                        read_meta(
+                            self.iter_meta, f"pipelineFormalizers.{slug}.cycle",
+                        )
+                    ),
+                    _pipeline_cycle(
+                        read_meta(
+                            self.iter_meta,
+                            f"pipelineFormalizationReviews.{slug}.cycle",
+                        )
+                    ),
+                    _latest_pipeline_event_cycle(
+                        prior_formalization,
+                        history_key="review_events",
+                        iter_num=self.iter_num,
+                        rel=rel,
+                        kind="formalization",
+                    ),
+                )
+            else:
+                restored_proof_cycle = 0
+                restored_formalization_cycle = 0
+            proof_cycles[rel] = max(
+                0 if initial_formalization else 1,
+                restored_proof_cycle,
+            )
+            formalization_cycles[rel] = max(
+                1 if initial_formalization else 0,
+                restored_formalization_cycle,
             )
             shadow_formalization_reviews[rel] = int(
                 prior_formalization.get("reviews") or 0
@@ -960,18 +1056,27 @@ class ParallelProverRunner:
                     or prior_status == "materialized"
                     or legacy_materialized
                 ):
-                    resumed_formalized.append((target, rel, slug))
+                    resumed_formalized.append((
+                        target,
+                        rel,
+                        slug,
+                        formalization_cycles[rel],
+                    ))
                 else:
-                    pending_initial_formalizers.append((target, 1))
+                    pending_initial_formalizers.append((
+                        target, formalization_cycles[rel],
+                    ))
                 continue
             prior_status = (
                 read_meta(self.iter_meta, f"provers.{slug}.status")
                 if self.resume_enabled else None
             )
             if prior_status == "done":
-                resumed_completed.append((target, rel, slug))
+                resumed_completed.append((
+                    target, rel, slug, proof_cycles[rel],
+                ))
             else:
-                pending_provers.append((target, 1))
+                pending_provers.append((target, proof_cycles[rel]))
         review_queue: list[
             tuple[float, int, Path, str, str, int, int]
         ] = []
@@ -1101,14 +1206,14 @@ class ParallelProverRunner:
             with ThreadPoolExecutor(max_workers=preflight_jobs) as check_pool:
                 checks = {
                     check_pool.submit(run_preflight, target, rel): (
-                        target, rel, slug,
+                        target, rel, slug, cycle,
                     )
-                    for target, rel, slug in resumed_completed
+                    for target, rel, slug, cycle in resumed_completed
                 }
                 for future in as_completed(checks):
-                    target, rel, slug = checks[future]
+                    target, rel, slug, cycle = checks[future]
                     preflight_rows[rel] = future.result()
-                    enqueue_review(target, rel, slug, 1, 1)
+                    enqueue_review(target, rel, slug, 1, cycle)
 
         def submit_prover(pool, target: Path, cycle: int) -> None:
             rel = relpath(target, self.project_path)
@@ -1185,38 +1290,50 @@ class ParallelProverRunner:
                 self.iter_dir / "review-targets" / slug
                 / f"cycle-{cycle}" / f"attempt-{attempt}"
             )
-            source_contract = build_review_source_contract(
-                project_path=self.project_path,
-                target=target,
-            )
-            prompt = build_target_review_prompt(
-                project_path=self.project_path,
-                state_dir=self.state_dir,
-                iter_dir=self.iter_dir,
-                iter_num=self.iter_num,
-                target=target,
-                output_dir=output_dir,
-                preflight=preflight_rows.get(rel, {}),
-                prior_gate_record=shadow_proof_records.get(rel) or None,
-                source_contract=source_contract,
-            )
-            spec = TargetReviewSpec(
-                rel=rel,
-                prompt=prompt,
-                output_dir=str(output_dir),
-                log_base=str(output_dir / "agent"),
-                attempt=attempt,
-                source_contract=source_contract,
-            )
-            future = pool.submit(
-                self.review_worker,
-                spec,
-                project_path=self.project_path,
-                verbose_logs=self.verbose_logs,
-                model=self.model,
-                backend=self.backend,
-                harness=config.harness or self.harness,
-            )
+            source_contract = None
+            try:
+                source_contract = resolve_target_review_source_contract(
+                    project_path=self.project_path,
+                    target=target,
+                    preflight=preflight_rows.get(rel, {}),
+                )
+                prompt = build_target_review_prompt(
+                    project_path=self.project_path,
+                    state_dir=self.state_dir,
+                    iter_dir=self.iter_dir,
+                    iter_num=self.iter_num,
+                    target=target,
+                    output_dir=output_dir,
+                    preflight=preflight_rows.get(rel, {}),
+                    prior_gate_record=shadow_proof_records.get(rel) or None,
+                    source_contract=source_contract,
+                )
+                spec = TargetReviewSpec(
+                    rel=rel,
+                    prompt=prompt,
+                    output_dir=str(output_dir),
+                    log_base=str(output_dir / "agent"),
+                    attempt=attempt,
+                    source_contract=source_contract,
+                )
+                future = pool.submit(
+                    self.review_worker,
+                    spec,
+                    project_path=self.project_path,
+                    verbose_logs=self.verbose_logs,
+                    model=self.model,
+                    backend=self.backend,
+                    harness=config.harness or self.harness,
+                )
+            except ProblemOnlyReviewContractError as exc:
+                future = Future()
+                future.set_result(TargetReviewOutcome(
+                    rel=rel,
+                    attempt=attempt,
+                    runner_ok=False,
+                    milestone=None,
+                    error=f"{type(exc).__name__}: {exc}",
+                ))
             futures[future] = _PipelineWork(
                 kind="review",
                 target=target,
@@ -1224,6 +1341,7 @@ class ParallelProverRunner:
                 slug=slug,
                 attempt=attempt,
                 cycle=cycle,
+                source_contract=source_contract,
             )
             active_reviews += 1
             stats = review_rounds.setdefault(
@@ -1453,38 +1571,50 @@ class ParallelProverRunner:
                 self.iter_dir / "formalization-review-targets" / slug
                 / f"cycle-{cycle}" / f"attempt-{attempt}"
             )
-            source_contract = build_review_source_contract(
-                project_path=self.project_path,
-                target=target,
-            )
-            prompt = build_target_formalization_review_prompt(
-                project_path=self.project_path,
-                state_dir=self.state_dir,
-                iter_dir=self.iter_dir,
-                iter_num=self.iter_num,
-                target=target,
-                output_dir=output_dir,
-                preflight=preflight_rows.get(rel, {}),
-                prior_gate_record=shadow_formalization_records.get(rel),
-                source_contract=source_contract,
-            )
-            spec = TargetReviewSpec(
-                rel=rel,
-                prompt=prompt,
-                output_dir=str(output_dir),
-                log_base=str(output_dir / "agent"),
-                attempt=attempt,
-                source_contract=source_contract,
-            )
-            future = pool.submit(
-                self.formalization_review_worker,
-                spec,
-                project_path=self.project_path,
-                verbose_logs=self.verbose_logs,
-                model=self.model,
-                backend=self.backend,
-                harness=config.harness or self.harness,
-            )
+            source_contract = None
+            try:
+                source_contract = resolve_target_review_source_contract(
+                    project_path=self.project_path,
+                    target=target,
+                    preflight=preflight_rows.get(rel, {}),
+                )
+                prompt = build_target_formalization_review_prompt(
+                    project_path=self.project_path,
+                    state_dir=self.state_dir,
+                    iter_dir=self.iter_dir,
+                    iter_num=self.iter_num,
+                    target=target,
+                    output_dir=output_dir,
+                    preflight=preflight_rows.get(rel, {}),
+                    prior_gate_record=shadow_formalization_records.get(rel),
+                    source_contract=source_contract,
+                )
+                spec = TargetReviewSpec(
+                    rel=rel,
+                    prompt=prompt,
+                    output_dir=str(output_dir),
+                    log_base=str(output_dir / "agent"),
+                    attempt=attempt,
+                    source_contract=source_contract,
+                )
+                future = pool.submit(
+                    self.formalization_review_worker,
+                    spec,
+                    project_path=self.project_path,
+                    verbose_logs=self.verbose_logs,
+                    model=self.model,
+                    backend=self.backend,
+                    harness=config.harness or self.harness,
+                )
+            except ProblemOnlyReviewContractError as exc:
+                future = Future()
+                future.set_result(TargetReviewOutcome(
+                    rel=rel,
+                    attempt=attempt,
+                    runner_ok=False,
+                    milestone=None,
+                    error=f"{type(exc).__name__}: {exc}",
+                ))
             futures[future] = _PipelineWork(
                 kind="formalization_review",
                 target=target,
@@ -1492,6 +1622,7 @@ class ParallelProverRunner:
                 slug=slug,
                 attempt=attempt,
                 cycle=cycle,
+                source_contract=source_contract,
             )
             active_reviews += 1
             key = (cycle, attempt)
@@ -1526,15 +1657,15 @@ class ParallelProverRunner:
             with ThreadPoolExecutor(max_workers=preflight_jobs) as check_pool:
                 checks = {
                     check_pool.submit(run_preflight, target, rel): (
-                        target, rel, slug,
+                        target, rel, slug, cycle,
                     )
-                    for target, rel, slug in resumed_formalized
+                    for target, rel, slug, cycle in resumed_formalized
                 }
                 for future in as_completed(checks):
-                    target, rel, slug = checks[future]
+                    target, rel, slug, cycle = checks[future]
                     preflight_rows[rel] = future.result()
                     enqueue_formalization_review(
-                        target, rel, slug, 1, 1,
+                        target, rel, slug, cycle, 1,
                     )
 
         def fill_slots(pool) -> None:
@@ -1677,6 +1808,8 @@ class ParallelProverRunner:
                         changed = bool(
                             digest and digest != work.baseline_sha256
                         )
+                        if full_pipeline and changed:
+                            outcomes.pop(work.rel, None)
                         postflight = run_preflight(work.target, work.rel)
                         compiles = bool(postflight.get("compiles"))
                         before_results = dict(work.result_fingerprints)
@@ -1797,6 +1930,7 @@ class ParallelProverRunner:
                                 "rel": work.rel,
                                 "cycle": work.cycle,
                                 "milestone": outcome.milestone,
+                                "source_contract": work.source_contract,
                             })
                             write_meta(self.iter_meta, **{
                                 f"pipelineFormalizationReviews.{work.slug}.status": (
@@ -1964,6 +2098,7 @@ class ParallelProverRunner:
                                 "rel": work.rel,
                                 "cycle": work.cycle,
                                 "milestone": outcome.milestone,
+                                "source_contract": work.source_contract,
                             })
                         write_meta(self.iter_meta, **{
                             f"pipelineReviews.{work.slug}.status": "done",
@@ -2108,6 +2243,7 @@ class ParallelProverRunner:
                         iter_num=self.iter_num,
                         max_iterations=proof_max_iterations,
                         event_id=event["event_id"],
+                        expected_source_contract=event["source_contract"],
                     )
                     if update.route == "needs_redraft":
                         reopen_formalization_targets(
@@ -2135,6 +2271,7 @@ class ParallelProverRunner:
                         iter_num=self.iter_num,
                         max_iterations=formalization_max_iterations,
                         event_id=event["event_id"],
+                        expected_source_contract=event["source_contract"],
                     )
             gate_events_applied = True
 

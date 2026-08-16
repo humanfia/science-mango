@@ -23,7 +23,7 @@ class LakeError(RuntimeError):
             f"lake {' '.join(args)} exited with code {returncode}\n"
             f"stdout: {stdout.strip()}\nstderr: {stderr.strip()}"
         )
-        self.args = args
+        self.command = list(args)
         self.stdout = stdout
         self.stderr = stderr
         self.returncode = returncode

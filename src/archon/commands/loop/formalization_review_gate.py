@@ -23,13 +23,17 @@ from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.state import parse_objective_files
 from archon.state.progress import write_stage
 
+from .problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+    resolve_target_review_source_contract,
+    stored_review_provenance_matches_current,
+    validate_native_review_source_certificate,
+)
 from .review_source_contract import (
-    build_review_source_contract,
     provenance_from_review,
     normalized_review_source_certificate,
     source_assessment_from_review,
     stored_provenance_matches_current,
-    validate_review_source_certificate,
 )
 from .sorry_count import file_open_sorry_count
 
@@ -222,7 +226,7 @@ def _validate_structured_review(
         "blind_review_certificate": normalized_review_source_certificate(raw),
         **source_assessment_from_review(raw),
     }
-    source_error = validate_review_source_certificate(
+    source_error = validate_native_review_source_certificate(
         raw,
         expected_source_contract,
         passing=True,
@@ -269,6 +273,22 @@ def _decision_from_milestone(
         # decision remains failed, so preserve the complete payload rather
         # than replacing it with an empty object.
         certificate = dict(raw) if isinstance(raw, dict) else {}
+        if (
+            isinstance(expected_source_contract, Mapping)
+            and expected_source_contract.get("contract_kind")
+            == "native_problem_input_only"
+        ):
+            source_error = validate_native_review_source_certificate(
+                raw if isinstance(raw, dict) else {},
+                expected_source_contract,
+                passing=False,
+            )
+            if source_error:
+                return (
+                    "failed",
+                    f"problem-only source contract validation failed: {source_error}",
+                    certificate,
+                )
         return "failed", reason or "formalization Review failed", certificate
 
     legacy = str(item.get("status") or "").strip().lower()
@@ -328,10 +348,19 @@ def _load_milestone_decisions(
         rel = _milestone_target_file(item, project_path)
         if not rel:
             continue
-        source_contract = build_review_source_contract(
-            project_path=project_path,
-            target=project_path / rel,
-        )
+        try:
+            source_contract = resolve_target_review_source_contract(
+                project_path=project_path,
+                target=project_path / rel,
+                preflight=None,
+            )
+        except ProblemOnlyReviewContractError as exc:
+            decisions.setdefault(rel, []).append((
+                "failed",
+                f"problem-only source contract validation failed: {exc}",
+                {},
+            ))
+            continue
         decisions.setdefault(rel, []).append(
             _decision_from_milestone(item, source_contract)
         )
@@ -834,6 +863,7 @@ def apply_target_formalization_review(
     iter_num: int,
     max_iterations: int,
     event_id: str,
+    expected_source_contract: Mapping[str, Any] | None = None,
 ) -> TargetFormalizationReviewUpdate:
     """Apply one semantic formalization verdict without routing PROGRESS.
 
@@ -879,13 +909,23 @@ def apply_target_formalization_review(
         certificate: dict[str, Any] = {}
         decision = "failed"
     else:
-        source_contract = build_review_source_contract(
-            project_path=project_path,
-            target=target,
-        )
-        decision, reason, certificate = _decision_from_milestone(
-            milestone, source_contract,
-        )
+        try:
+            source_contract = (
+                expected_source_contract
+                if expected_source_contract is not None
+                else resolve_target_review_source_contract(
+                    project_path=project_path,
+                    target=target,
+                    preflight=None,
+                )
+            )
+            decision, reason, certificate = _decision_from_milestone(
+                milestone, source_contract,
+            )
+        except ProblemOnlyReviewContractError as exc:
+            decision = "failed"
+            reason = f"problem-only source contract validation failed: {exc}"
+            certificate = {}
         reviews += 1
         if decision == "passed":
             status = "passed"
@@ -968,7 +1008,8 @@ def _invalidate_stale_passes(
     state: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
     """Reopen chemistry passes whose bound Lean/source inputs changed."""
-    if state is None or load_domain_profile(project_path).name != "chemistry":
+    profile_name = load_domain_profile(project_path).name
+    if state is None or profile_name not in {"chemistry", "chemistry-native"}:
         return state
     targets = state.get("targets")
     if not isinstance(targets, dict):
@@ -980,11 +1021,23 @@ def _invalidate_stale_passes(
         provenance = _certificate_source_provenance(
             raw_record.get("certificate")
         )
-        fresh, reason = stored_provenance_matches_current(
-            project_path=project_path,
-            target=project_path / rel,
-            provenance=provenance,
-        )
+        if profile_name == "chemistry-native":
+            # Formalization Review binds problem/source semantics and the
+            # statement candidate at review time. A later prover is expected
+            # to replace `sorry` proof bodies, so durable dispatch freshness
+            # must not revoke a valid formalization pass for proof-only edits.
+            fresh, reason = stored_review_provenance_matches_current(
+                project_path=project_path,
+                target=project_path / rel,
+                provenance=provenance,
+                bind_candidate=False,
+            )
+        else:
+            fresh, reason = stored_provenance_matches_current(
+                project_path=project_path,
+                target=project_path / rel,
+                provenance=provenance,
+            )
         if fresh:
             continue
         reopen_history = raw_record.get("reopen_history")

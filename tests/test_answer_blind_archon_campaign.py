@@ -125,6 +125,16 @@ class NativeArchonCampaignTests(unittest.TestCase):
         state.mkdir()
         (state / "config.json").write_text(
             json.dumps({
+                "answer_blind": {
+                    "authority": "problem-only",
+                    "official_answer_seen": False,
+                    "phase": "solve",
+                    "protocol": "icho-answer-blind-v1",
+                    "isolation": {
+                        "filesystem_answer_blind": True,
+                        "network_answer_blind": False,
+                    },
+                },
                 "loop": {
                     "max_parallel": 32,
                     "review_preflight_jobs": 32,
@@ -431,6 +441,13 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertNotIn("lean-lsp mcp", text.lower())
         self.assertIn("formalization Review", agents)
         self.assertIn("create a candidate JSON", formalize)
+        self.assertIn("student-visible problem input", agents)
+        self.assertIn("may be used only for", agents)
+        self.assertIn("may not justify", agents)
+        self.assertIn("exam-visible inputs", protocol)
+        self.assertIn("never as evidence for the upstream result", protocol)
+        self.assertIn("exam-visible fallback", review)
+        self.assertIn("require an independent derivation", review)
         self.assertEqual(
             json.loads((workspace / ".mcp.json").read_text()),
             {"mcpServers": {}},
@@ -441,6 +458,14 @@ class NativeArchonCampaignTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(RUNNER.CampaignError, "native non-root Codex"):
             RUNNER._check_native_config(workspace, preparation=True)
+        value["harnesses"]["answer-blind-gpt"]["sandbox"] = "danger-full-access"
+        value.pop("answer_blind")
+        (workspace / ".archon/config.json").write_text(
+            json.dumps(value), encoding="utf-8"
+        )
+        with self.assertRaisesRegex(RUNNER.CampaignError, "config is invalid"):
+            RUNNER._check_native_config(workspace, preparation=True)
+
 
     def test_default_fresh_run_prepares_without_starting_loop(self) -> None:
         commands: list[list[str]] = []
@@ -466,6 +491,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
         index = json.loads((self.config.campaign_root / "campaign.json").read_text())
         self.assertEqual(index["row_count"], 32)
         self.assertEqual(index["max_parallel"], 4)
+        self.assertIs(index["target_lifecycle"], False)
         self.assertEqual(index["grounding"], {"complete": 32})
         final_config = json.loads(
             (self.config.campaign_root / "workspace/.archon/config.json").read_text()
@@ -874,6 +900,165 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 self.assertEqual(result["status"], "failed")
                 self.assertFalse(result["native"]["complete"])
                 self.assertEqual(result["native"]["proof_review"][status], 1)
+
+    def test_target_lifecycle_cli_is_explicit_opt_in(self) -> None:
+        parser = RUNNER._parser()
+        default = parser.parse_args([
+            "--campaign-root", str(self.base / "default-lifecycle"),
+            "--dry-run",
+        ])
+        enabled = parser.parse_args([
+            "--campaign-root", str(self.base / "target-lifecycle"),
+            "--target-lifecycle",
+            "--dry-run",
+        ])
+
+        self.assertIs(default.target_lifecycle, False)
+        self.assertIs(enabled.target_lifecycle, True)
+        self.assertIn("--target-lifecycle", parser.format_help())
+        self.assertIn("repeat this", parser.format_help())
+        self.assertIn("flag on resume", parser.format_help())
+        with mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+            parser.parse_args([
+                "--campaign-root", str(self.base / "invalid-lifecycle"),
+                "--target-lifecycle=false",
+            ])
+        with self.assertRaisesRegex(
+            RUNNER.CampaignError, "target_lifecycle must be a boolean"
+        ):
+            RUNNER._fresh_config(dataclasses.replace(
+                self.config,
+                campaign_root=self.base / "non-bool-lifecycle",
+                target_lifecycle=1,
+            ))
+
+    def test_legacy_default_receipt_is_normalized_on_resume(self) -> None:
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "legacy-default-receipt",
+        )
+        self._prepare_only(config)
+        index_path = config.index_path
+        index = json.loads(index_path.read_text())
+        del index["target_lifecycle"]
+        index_path.write_text(json.dumps(index), encoding="utf-8")
+
+        resume_config = RUNNER.Config(
+            campaign_root=config.campaign_root,
+            archon_bin=config.archon_bin,
+            max_iterations=config.max_iterations,
+        )
+
+        def fake_resume(
+            _command: list[str], *, config: RUNNER.Config
+        ) -> tuple[int, float]:
+            self._write_success_state(config.workspace)
+            return 0, 0.25
+
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+            mock.patch.object(RUNNER, "_run", side_effect=fake_resume),
+        ):
+            result = RUNNER.resume_campaign(resume_config)
+
+        self.assertEqual(result["status"], "succeeded")
+        self.assertIs(result["target_lifecycle"], False)
+        persisted = json.loads(index_path.read_text())
+        self.assertIs(persisted["target_lifecycle"], False)
+
+    def test_target_lifecycle_opt_in_is_configured_and_resume_is_fail_closed(self) -> None:
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "target-lifecycle-enabled",
+            max_parallel=7,
+            target_lifecycle=True,
+        )
+        self._prepare_only(config)
+
+        native_config = json.loads(
+            (config.workspace / ".archon/config.json").read_text()
+        )
+        loop = native_config["loop"]
+        for key in (
+            "parallel_formalization_review",
+            "parallel_target_review",
+            "pipeline_target_review",
+        ):
+            self.assertIs(loop[key], True)
+        for key in (
+            "review_preflight_jobs",
+            "parallel_target_review_jobs",
+            "parallel_formalization_review_jobs",
+        ):
+            self.assertEqual(loop[key], 7)
+
+        index_path = config.index_path
+        index = json.loads(index_path.read_text())
+        self.assertIs(index["target_lifecycle"], True)
+
+        forgotten_flag = RUNNER.Config(
+            campaign_root=config.campaign_root,
+            archon_bin=config.archon_bin,
+            max_iterations=config.max_iterations,
+            max_parallel=config.max_parallel,
+        )
+        with (
+            mock.patch.object(RUNNER, "_run") as run,
+            self.assertRaisesRegex(
+                RUNNER.CampaignError, "--target-lifecycle must match"
+            ),
+        ):
+            RUNNER.resume_campaign(forgotten_flag)
+        run.assert_not_called()
+
+        matching_resume = dataclasses.replace(
+            forgotten_flag,
+            target_lifecycle=True,
+        )
+        index["target_lifecycle"] = "true"
+        index_path.write_text(json.dumps(index), encoding="utf-8")
+        with (
+            mock.patch.object(RUNNER, "_run") as run,
+            self.assertRaisesRegex(
+                RUNNER.CampaignError, "invalid target_lifecycle"
+            ),
+        ):
+            RUNNER.resume_campaign(matching_resume)
+        run.assert_not_called()
+
+        index["target_lifecycle"] = False
+        index_path.write_text(json.dumps(index), encoding="utf-8")
+        with (
+            mock.patch.object(RUNNER, "_run") as run,
+            self.assertRaisesRegex(
+                RUNNER.CampaignError, "prepared campaign value"
+            ),
+        ):
+            RUNNER.resume_campaign(matching_resume)
+        run.assert_not_called()
+
+        index["target_lifecycle"] = True
+        index_path.write_text(json.dumps(index), encoding="utf-8")
+        seen: list[list[str]] = []
+
+        def fake_resume(
+            command: list[str], *, config: RUNNER.Config
+        ) -> tuple[int, float]:
+            seen.append(command)
+            self._write_success_state(config.workspace)
+            return 0, 0.25
+
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+            mock.patch.object(RUNNER, "_run", side_effect=fake_resume),
+        ):
+            result = RUNNER.resume_campaign(matching_resume)
+
+        self.assertEqual(result["status"], "succeeded")
+        self.assertIs(result["target_lifecycle"], True)
+        self.assertEqual(len(seen), 1)
+        self.assertIn("--from", seen[0])
+        self.assertNotIn("--resume", seen[0])
 
     def test_max_parallel_32_propagates_to_config_command_and_receipt(self) -> None:
         config = dataclasses.replace(

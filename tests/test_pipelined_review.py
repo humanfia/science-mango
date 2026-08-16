@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 from archon.commands.loop.formalization_review_gate import (
     apply_target_formalization_review,
+    reopen_formalization_targets,
 )
 from archon.commands.loop.parallel_review import (
     PipelinedTargetReviewConfig,
@@ -24,7 +25,10 @@ from archon.commands.loop.parallel_review import (
 from archon.commands.loop.phases.prover import ProverPhase
 from archon.commands.loop.phases.review import ReviewPhase
 from archon.commands.loop.proof_review_gate import apply_target_proof_review
-from archon.commands.loop.prover.runners import ParallelProverRunner
+from archon.commands.loop.prover.runners import (
+    ParallelProverRunner,
+    _pipeline_cycle,
+)
 
 
 def _milestone(rel: str) -> dict:
@@ -257,6 +261,20 @@ class PipelinedReviewTest(unittest.TestCase):
             formalizer_worker=formalizer_worker,
             preflight_checker=_preflight,
         )
+
+    def test_pipeline_cycle_parser_is_fail_closed(self):
+        cases = (
+            (2, 2),
+            ("2", 2),
+            (True, 0),
+            (2.9, 0),
+            ("02", 0),
+            (" 2", 0),
+            ("2.0", 0),
+        )
+        for value, expected in cases:
+            with self.subTest(value=value):
+                self.assertEqual(_pipeline_cycle(value), expected)
 
     def test_review_starts_before_slow_peer_prover_finishes_and_shares_cap(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1345,6 +1363,149 @@ class PipelinedReviewTest(unittest.TestCase):
             )
             self.assertTrue(report["complete"])
             self.assertEqual(report["target_files"], ["A.lean", "B.lean"])
+
+    def test_resume_restores_lifecycle_cycles_without_event_collision(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (state / "PROGRESS.md").write_text(
+                "# Progress\n\n## Current Objectives\n\n"
+                "- **`A.lean`** — resume.\n",
+                encoding="utf-8",
+            )
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a (h_initial : True) : True := by sorry\n",
+                encoding="utf-8",
+            )
+
+            apply_target_formalization_review(
+                state_dir=state,
+                project_path=root,
+                target=target,
+                milestone=_formalization_milestone("A.lean"),
+                iter_num=1,
+                max_iterations=3,
+                event_id="pipeline:1:A.lean:formalization:1",
+            )
+            redraft = _redraft_milestone("A.lean")
+            apply_target_proof_review(
+                state_dir=state,
+                project_path=root,
+                target=target,
+                milestone=redraft,
+                iter_num=1,
+                max_iterations=3,
+                event_id="pipeline:1:A.lean:proof:1",
+            )
+            reopen_formalization_targets(
+                state_dir=state,
+                project_path=root,
+                progress_file=state / "PROGRESS.md",
+                redrafts={
+                    "A.lean": {
+                        "reason": "the theorem assumes the requested conclusion",
+                        "redraft_kind": "answer_as_assumption",
+                        "pipeline_event_id": "pipeline:1:A.lean:proof:1",
+                    }
+                },
+                iter_num=1,
+                max_iterations=3,
+                route_progress=False,
+                enforce_budget=True,
+            )
+
+            target.write_text(
+                "theorem a (h_redraft : True) : True := by sorry\n",
+                encoding="utf-8",
+            )
+            (state / "task_results" / "A.lean.md").write_text(
+                "# Redraft 2\n", encoding="utf-8",
+            )
+            (iter_dir / "meta.json").write_text(json.dumps({
+                "pipelineFormalizers": {
+                    "A": {"status": "materialized", "cycle": 2},
+                },
+                # Omit pipelineReviews.cycle: proof cycle 1 must also be
+                # recoverable from the existing proof gate history.
+                "pipelineReviews": {"A": {"status": "done"}},
+            }), encoding="utf-8")
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=_process_prover,
+                review_worker=_process_review,
+                formalizer_worker=lambda *_args, **_kwargs: self.fail(
+                    "materialized resume lane reran the formalizer"
+                ),
+                formalization_review_worker=_process_formalization_review,
+                max_parallel=1,
+                resume_enabled=True,
+                full_pipeline=True,
+                stage="autoformalize",
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="work",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.persist_session_id"
+                ),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                [event["event_id"] for event in report["gate_events"]],
+                [
+                    "pipeline:1:A.lean:formalization:2",
+                    "pipeline:1:A.lean:proof:2",
+                ],
+            )
+            formalization_gate = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            proof_gate = json.loads(
+                (state / "proof-review-gate.json").read_text(encoding="utf-8")
+            )
+            formalization_record = formalization_gate["targets"]["A.lean"]
+            self.assertEqual(formalization_record["status"], "passed")
+            self.assertEqual(
+                [event["event_id"] for event in formalization_record["review_events"]],
+                [
+                    "pipeline:1:A.lean:formalization:1",
+                    "pipeline:1:A.lean:formalization:2",
+                ],
+            )
+            proof_record = proof_gate["targets"]["A.lean"]
+            self.assertEqual(proof_record["status"], "solved")
+            self.assertEqual(proof_record["attempts"], 1)
+            self.assertEqual(
+                [
+                    event["event_id"] for event in proof_record["history"]
+                    if event.get("event_id")
+                ],
+                [
+                    "pipeline:1:A.lean:proof:1",
+                    "pipeline:1:A.lean:proof:2",
+                ],
+            )
 
     def test_review_phase_consumes_autoformalize_lifecycle_once(self):
         with tempfile.TemporaryDirectory() as td:
