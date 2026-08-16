@@ -875,6 +875,111 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 self.assertFalse(result["native"]["complete"])
                 self.assertEqual(result["native"]["proof_review"][status], 1)
 
+    def test_max_parallel_32_propagates_to_config_command_and_receipt(self) -> None:
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "parallel-32",
+            max_parallel=32,
+        )
+        commands: list[list[str]] = []
+
+        def fake_run(command: list[str], *, config: RUNNER.Config) -> tuple[int, float]:
+            commands.append(command)
+            self._write_physics_metadata(config.workspace)
+            return 0, 0.25
+
+        patches = self._prepare_patches()
+        with (
+            patches[0], patches[1], patches[2],
+            self._grounding_patch(),
+            mock.patch.object(RUNNER, "_run", side_effect=fake_run),
+        ):
+            result = RUNNER.run_fresh(config, start_loop=False)
+
+        self.assertEqual(result["status"], "prepared")
+        self.assertEqual(result["max_parallel"], 32)
+        native_config = json.loads(
+            (config.workspace / ".archon/config.json").read_text()
+        )
+        for key in (
+            "max_parallel",
+            "review_preflight_jobs",
+            "parallel_target_review_jobs",
+            "parallel_formalization_review_jobs",
+        ):
+            self.assertEqual(native_config["loop"][key], 32)
+
+        loop = RUNNER.loop_command(config, resume=False)
+        self.assertEqual(loop[loop.index("--max-parallel") + 1], "32")
+        parsed = RUNNER._parser().parse_args([
+            "--campaign-root", str(self.base / "cli"),
+            "--max-parallel", "32",
+            "--dry-run",
+        ])
+        self.assertEqual(parsed.max_parallel, 32)
+
+        with self.assertRaisesRegex(
+            RUNNER.CampaignError, "unexpected max_parallel"
+        ):
+            RUNNER.resume_campaign(
+                RUNNER.Config(campaign_root=config.campaign_root)
+            )
+
+        resume_commands: list[list[str]] = []
+
+        def fake_resume(
+            command: list[str], *, config: RUNNER.Config
+        ) -> tuple[int, float]:
+            resume_commands.append(command)
+            self._write_success_state(config.workspace)
+            return 0, 0.25
+
+        matching_resume = RUNNER.Config(
+            campaign_root=config.campaign_root,
+            archon_bin=config.archon_bin,
+            max_iterations=config.max_iterations,
+            max_parallel=32,
+        )
+        with (
+            mock.patch.object(RUNNER.os, "geteuid", return_value=1000),
+            mock.patch.object(RUNNER, "_run", side_effect=fake_resume),
+        ):
+            resumed = RUNNER.resume_campaign(matching_resume)
+
+        self.assertEqual(resumed["status"], "succeeded")
+        self.assertEqual(len(resume_commands), 1)
+        resumed_loop = resume_commands[0]
+        self.assertEqual(
+            resumed_loop[resumed_loop.index("--max-parallel") + 1], "32"
+        )
+        self.assertIn("--from", resumed_loop)
+        self.assertNotIn("--resume", resumed_loop)
+
+        index_path = config.index_path
+        tampered_index = json.loads(index_path.read_text())
+        tampered_index["max_parallel"] = 31
+        index_path.write_text(json.dumps(tampered_index), encoding="utf-8")
+        with (
+            mock.patch.object(RUNNER, "_run") as run,
+            self.assertRaisesRegex(
+                RUNNER.CampaignError, "prepared campaign value"
+            ),
+        ):
+            RUNNER.resume_campaign(matching_resume)
+        run.assert_not_called()
+
+        for value in (0, 33, True, 2.5):
+            with self.subTest(value=value), self.assertRaisesRegex(
+                RUNNER.CampaignError, "between 1 and 32"
+            ):
+                RUNNER._fresh_config(
+                    dataclasses.replace(
+                        self.config,
+                        campaign_root=self.base / f"invalid-parallel-{value}",
+                        max_parallel=value,
+                    )
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

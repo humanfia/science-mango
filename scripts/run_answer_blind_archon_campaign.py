@@ -2,9 +2,10 @@
 """Thin full32 answer-blind entry point for Archon's native workflow.
 
 One fresh workspace is prepared from the sanitized seed.  The only model-facing
-command is ``archon loop``; Archon schedules all 32 targets (four at a time) and
-owns formalization, both Review gates, proof construction, and final Lake build.
-Without ``--run`` the script prepares the workspace but does not start the loop.
+command is ``archon loop``; Archon schedules all 32 targets at the configured
+parallelism and owns formalization, both Review gates, proof construction, and
+final Lake build.  Without ``--run`` the script prepares the workspace but does
+not start the loop.
 """
 
 from __future__ import annotations
@@ -36,7 +37,7 @@ from archon.commands.tooling.project_lean_index import build_project_index
 SCHEMA_VERSION = 1
 PIPELINE = "archon-native-answer-blind-full32"
 EXPECTED_ITEMS = 32
-MAX_PARALLEL = 4
+DEFAULT_MAX_PARALLEL = 4
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
 SOURCE_REPORT_MARKER = "% archon:source-report "
 PHYSICS_MARKER = "% archon:physics"
@@ -141,9 +142,9 @@ Plan only from the problem-only blueprint, current Lean files, deterministic
 Lean diagnostics, current target grounding reports, and the preceding Archon
 Review. Missing problem-specific bridges may be target-local proved helpers;
 missing foundational bridges must be routed through `needs_redraft`, never a
-dependency update. Keep the current target set small enough for the configured
-four prover lanes. Never seek an official answer, solution, rubric, grader
-output, prior run, or another solver's work.
+dependency update. Keep the current target set within the configured prover
+lanes. Never seek an official answer, solution, rubric, grader output, prior
+run, or another solver's work.
 """
 
 NATIVE_REVIEW_GUIDE = """# Native answer-blind Review
@@ -198,6 +199,7 @@ class Config:
     lake_packages: Path | None = None
     archon_bin: str = "archon"
     max_iterations: int = 100
+    max_parallel: int = DEFAULT_MAX_PARALLEL
 
     @property
     def workspace(self) -> Path:
@@ -249,6 +251,12 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError(f"campaign root must be absent or empty: {root}")
     if config.max_iterations < 1:
         raise CampaignError("max_iterations must be positive")
+    if type(config.max_parallel) is not int or not (
+        1 <= config.max_parallel <= EXPECTED_ITEMS
+    ):
+        raise CampaignError(
+            f"max_parallel must be between 1 and {EXPECTED_ITEMS}"
+        )
     try:
         _SEED.validate_seed(seed)
     except Exception as exc:
@@ -265,14 +273,22 @@ def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError(f"prepared workspace is missing: {config.workspace}")
     if config.max_iterations < 1:
         raise CampaignError("max_iterations must be positive")
+    if type(config.max_parallel) is not int or not (
+        1 <= config.max_parallel <= EXPECTED_ITEMS
+    ):
+        raise CampaignError(
+            f"max_parallel must be between 1 and {EXPECTED_ITEMS}"
+        )
     ids = _target_ids(config.workspace)
-    _check_native_config(config.workspace)
+    _check_native_config(config.workspace, max_parallel=config.max_parallel)
     _validate_native_markers(config.workspace, ids)
     _validate_crnt_project_index(config)
     return config, ids
 
 
-def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
+def _patch_native_config(
+    workspace: Path, *, max_iterations: int, max_parallel: int
+) -> None:
     path = workspace / ".archon/config.json"
     try:
         value = json.loads(path.read_text())
@@ -323,18 +339,18 @@ def _patch_native_config(workspace: Path, *, max_iterations: int) -> None:
         "model": "gpt-5.6-sol",
         "max_iterations": max_iterations,
         "parallel": True,
-        "max_parallel": MAX_PARALLEL,
+        "max_parallel": max_parallel,
         "max_objectives": EXPECTED_ITEMS,
         "formalization_review_gate": True,
         "proof_review_gate": True,
-        "review_preflight_jobs": MAX_PARALLEL,
-        "parallel_target_review_jobs": MAX_PARALLEL,
-        "parallel_formalization_review_jobs": MAX_PARALLEL,
+        "review_preflight_jobs": max_parallel,
+        "parallel_target_review_jobs": max_parallel,
+        "parallel_formalization_review_jobs": max_parallel,
         # Keep the semantic gates, but use Archon's ordinary Review agent.
         # The strict target-scoped reviewers implement the removed
         # candidate/seal protocol and are intentionally not part of this
         # problem-input-level workflow. Deterministic Lean preflight remains
-        # four-way through review_preflight_jobs.
+        # bounded through review_preflight_jobs.
         "parallel_formalization_review": False,
         "parallel_target_review": False,
         "pipeline_target_review": False,
@@ -627,7 +643,10 @@ def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]
     return dict(sorted(counts.items()))
 
 
-def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
+def _check_native_config(
+    workspace: Path, *, max_parallel: int = DEFAULT_MAX_PARALLEL,
+    preparation: bool = False,
+) -> None:
     try:
         value = json.loads((workspace / ".archon/config.json").read_text())
         loop = value["loop"]
@@ -659,7 +678,7 @@ def _check_native_config(workspace: Path, *, preparation: bool = False) -> None:
         "parallel_target_review_jobs",
         "parallel_formalization_review_jobs",
     ):
-        if loop.get(key) != MAX_PARALLEL:
+        if loop.get(key) != max_parallel:
             raise CampaignError(f"prepared config has unexpected {key}")
 
 
@@ -679,13 +698,21 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
             config.workspace,
             variant="gpt",
             max_objectives=EXPECTED_ITEMS,
-            max_parallel=MAX_PARALLEL,
+            max_parallel=config.max_parallel,
         )
     except Exception as exc:
         raise CampaignError(f"workspace preparation failed: {exc}") from exc
-    _patch_native_config(config.workspace, max_iterations=config.max_iterations)
+    _patch_native_config(
+        config.workspace,
+        max_iterations=config.max_iterations,
+        max_parallel=config.max_parallel,
+    )
     _write_native_policy_files(config.workspace)
-    _check_native_config(config.workspace, preparation=True)
+    _check_native_config(
+        config.workspace,
+        max_parallel=config.max_parallel,
+        preparation=True,
+    )
     # Lake may refresh package-local Git metadata even for an otherwise clean
     # build.  Give this campaign its own copy so the native workflow cannot
     # mutate (or be invalidated by) a shared cache.
@@ -721,7 +748,7 @@ def loop_command(config: Config, *, resume: bool) -> list[str]:
     command = [config.archon_bin, "loop", str(config.workspace)]
     command += ["--resume"] if resume else ["--from", "prover"]
     return command + [
-        "--parallel", "--max-parallel", str(MAX_PARALLEL),
+        "--parallel", "--max-parallel", str(config.max_parallel),
         "--max-objectives", str(EXPECTED_ITEMS),
         "--max-iterations", str(config.max_iterations),
         "--review", "--formalization-review-gate", "--proof-review-gate",
@@ -887,7 +914,7 @@ def _base_index(config: Config, ids: Sequence[str]) -> dict[str, Any]:
         "workspace": str(config.workspace),
         "row_count": len(ids),
         "bundle_sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
-        "max_parallel": MAX_PARALLEL,
+        "max_parallel": config.max_parallel,
         "status": "preparing",
         "updated_at": _utcnow(),
     }
@@ -912,7 +939,7 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
     _detach_strict_source_contract(config.workspace, ids)
     _validate_native_markers(config.workspace, ids)
     _activate_native_review_profile(config.workspace)
-    _check_native_config(config.workspace)
+    _check_native_config(config.workspace, max_parallel=config.max_parallel)
     _validate_crnt_project_index(config)
     grounding = _run_initial_grounding(config, ids)
     index.update(
@@ -960,6 +987,11 @@ def resume_campaign(config: Config) -> dict[str, Any]:
         raise CampaignError("invalid campaign.json") from exc
     if index.get("pipeline") != PIPELINE:
         raise CampaignError("campaign.json belongs to a different pipeline")
+    if index.get("max_parallel") != config.max_parallel:
+        raise CampaignError(
+            "--max-parallel must match the prepared campaign value "
+            f"({index.get('max_parallel')})"
+        )
     validate_physics_metadata(config.workspace, ids)
     native = native_summary(config.workspace, ids)
     if native["complete"]:
@@ -1006,6 +1038,15 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--lake-packages", type=Path)
     parser.add_argument("--archon-bin", default="archon")
     parser.add_argument("--max-iterations", type=int, default=100)
+    parser.add_argument(
+        "--max-parallel",
+        type=int,
+        default=DEFAULT_MAX_PARALLEL,
+        help=(
+            "maximum concurrent Archon lanes; repeat the prepared value on resume "
+            f"(1-{EXPECTED_ITEMS}, default: {DEFAULT_MAX_PARALLEL})"
+        ),
+    )
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument("--run", action="store_true", help="prepare and start the loop")
     actions.add_argument("--resume", action="store_true", help="resume the existing loop")
@@ -1021,6 +1062,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         lake_packages=args.lake_packages,
         archon_bin=args.archon_bin,
         max_iterations=args.max_iterations,
+        max_parallel=args.max_parallel,
     )
     try:
         if args.resume:
