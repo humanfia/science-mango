@@ -27,10 +27,12 @@ from archon.commands.loop.parallel_review import (
     write_parallel_review_session,
     write_pipelined_review_report,
 )
+from archon.commands.tooling.project_config import HarnessDescriptor
 from archon.commands.loop.prover.runners import ParallelProverRunner
 from archon.commands.loop.problem_only_review_contract import (
     NATIVE_CONTRACT_KIND,
     ProblemOnlyReviewContractError,
+    native_problem_image_args,
     native_source_contract_provenance,
     resolve_target_review_source_contract,
     validate_native_review_source_certificate,
@@ -218,6 +220,37 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             target=self.target,
             preflight=self.preflight,
         )
+
+    def test_native_problem_images_are_verified_before_candidate_exists(self) -> None:
+        codex = HarnessDescriptor(name="codex", runner="codex")
+        self.target.unlink()
+        self.assertEqual(
+            native_problem_image_args(
+                project_path=self.project,
+                target=self.target,
+                harness=codex,
+            ),
+            ["--image", str((self.project / self.image_rel).resolve())],
+        )
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "Codex --image capable",
+        ):
+            native_problem_image_args(
+                project_path=self.project,
+                target=self.target,
+                harness=HarnessDescriptor(
+                    name="claude", runner="claude-code",
+                ),
+            )
+        (self.project / self.image_rel).write_bytes(b"drift")
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "does not match|stale or duplicated",
+        ):
+            native_problem_image_args(
+                project_path=self.project,
+                target=self.target,
+                harness=codex,
+            )
 
     def _source_audit(self, contract: dict) -> dict:
         passed = {"status": "passed", "evidence": "bound evidence checked"}
@@ -650,6 +683,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                     attempt=1,
                     source_contract=contract,
                 )
+                harness = HarnessDescriptor(name="codex", runner="codex")
                 with patch(patch_path, return_value=runner):
                     outcome = worker(
                         spec,
@@ -657,9 +691,13 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                         verbose_logs=False,
                         model=None,
                         backend=None,
-                        harness=None,
+                        harness=harness,
                     )
                 runner.run.assert_called_once()
+                self.assertEqual(
+                    runner.run.call_args.kwargs["extra_args"],
+                    ["--image", str((self.project / self.image_rel).resolve())],
+                )
                 self.assertTrue(outcome.runner_ok)
                 self.assertIsNone(outcome.milestone)
                 self.assertIn("changed after contract creation", outcome.error)

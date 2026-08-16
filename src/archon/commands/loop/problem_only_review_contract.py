@@ -164,7 +164,7 @@ def _safe_project_file(project_path: Path, raw: str, *, label: str) -> Path:
     return resolved
 
 
-def _target_file(project_path: Path, target: Path) -> tuple[Path, str]:
+def _target_locator(project_path: Path, target: Path) -> tuple[Path, str]:
     root = project_path.resolve()
     lexical = Path(target).absolute()
     try:
@@ -173,6 +173,34 @@ def _target_file(project_path: Path, target: Path) -> tuple[Path, str]:
         raise ProblemOnlyReviewContractError(
             "Lean candidate is outside the project"
         ) from exc
+    relative = Path(rel)
+    if relative.suffix != ".lean" or relative.name in {"", ".", ".."}:
+        raise ProblemOnlyReviewContractError(
+            "Lean candidate must be a project-relative .lean target"
+        )
+    cursor = root
+    for part in relative.parts[:-1]:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise ProblemOnlyReviewContractError(
+                f"Lean candidate may not traverse a symlink: {rel}"
+            )
+    try:
+        cursor.resolve(strict=True).relative_to(root)
+    except (OSError, ValueError) as exc:
+        raise ProblemOnlyReviewContractError(
+            f"Lean candidate parent is missing or outside the project: {rel}"
+        ) from exc
+    if lexical.is_symlink():
+        raise ProblemOnlyReviewContractError(
+            f"Lean candidate may not be a symlink: {rel}"
+        )
+    return lexical, rel
+
+
+def _target_file(project_path: Path, target: Path) -> tuple[Path, str]:
+    root = project_path.resolve()
+    _lexical, rel = _target_locator(root, target)
     return _safe_project_file(root, rel, label="Lean candidate"), rel
 
 
@@ -586,9 +614,13 @@ def _build_native_contract(
     project_path: Path,
     target: Path,
     preflight: Mapping[str, Any] | None,
+    require_candidate: bool = True,
 ) -> dict[str, Any]:
     project_path = project_path.resolve()
-    target_path, rel = _target_file(project_path, target)
+    if require_candidate:
+        target_path, rel = _target_file(project_path, target)
+    else:
+        target_path, rel = _target_locator(project_path, target)
     if not target_path.stem.startswith("problem_"):
         raise ProblemOnlyReviewContractError(
             "native Lean candidate name does not identify a problem record"
@@ -652,7 +684,10 @@ def _build_native_contract(
         "source_report": report_path.relative_to(project_path).as_posix(),
         "source_report_sha256": _sha256_bytes(report_payload),
         "candidate": rel,
-        "candidate_sha256": _sha256_bytes(target_path.read_bytes()),
+        "candidate_sha256": (
+            _sha256_bytes(target_path.read_bytes())
+            if require_candidate else None
+        ),
         "preflight_sha256": (
             _value_sha256(preflight_row) if preflight_row is not None else None
         ),
@@ -675,6 +710,70 @@ def _build_native_contract(
         "preflight": preflight_row,
         "errors": [],
     }
+
+
+def native_problem_image_args(
+    *,
+    project_path: Path,
+    target: Path,
+    harness: Any,
+    source_contract: Mapping[str, Any] | None = None,
+) -> list[str]:
+    """Return hash-verified Codex ``--image`` arguments for one target.
+
+    Native problem-only prompts must receive pixels, not merely image path and
+    digest text. Image inventory is rebuilt from the sealed questions-only
+    bundle before a candidate exists, or reused from a fully validated Review
+    contract. A native campaign fails before model launch when its selected
+    harness cannot attach images.
+    """
+    root = project_path.resolve()
+    mode = _explicit_answer_blind_mode(root)
+    if source_contract is not None:
+        if not is_native_problem_only_contract(source_contract):
+            if mode == "native":
+                raise ProblemOnlyReviewContractError(
+                    "native problem image attachment has no valid source contract"
+                )
+            return []
+        images = source_contract.get("images")
+    elif mode == "native":
+        images = _build_native_contract(
+            project_path=root,
+            target=target,
+            preflight=None,
+            require_candidate=False,
+        ).get("images")
+    else:
+        return []
+    if not isinstance(images, list) or not images:
+        raise ProblemOnlyReviewContractError(
+            "native problem image inventory is missing"
+        )
+    if getattr(harness, "runner", None) != "codex":
+        raise ProblemOnlyReviewContractError(
+            "native problem images require a Codex --image capable harness"
+        )
+    args: list[str] = []
+    seen: set[str] = set()
+    for index, item in enumerate(images, start=1):
+        if not isinstance(item, Mapping):
+            raise ProblemOnlyReviewContractError(
+                f"native problem image {index} is not an object"
+            )
+        path = _safe_project_file(
+            root,
+            item.get("path"),
+            label=f"native problem image {index}",
+        )
+        digest = _sha256_bytes(path.read_bytes())
+        if item.get("sha256") != digest or str(path) in seen:
+            raise ProblemOnlyReviewContractError(
+                f"native problem image {index} is stale or duplicated"
+            )
+        seen.add(str(path))
+        args.extend(("--image", str(path)))
+    return args
 
 
 def is_native_problem_only_contract(contract: Mapping[str, Any] | None) -> bool:

@@ -18,6 +18,7 @@ from .parallel_review import TargetReviewOutcome, TargetReviewSpec
 from .problem_only_review_contract import (
     ProblemOnlyReviewContractError,
     is_native_problem_only_contract,
+    native_problem_image_args,
     native_source_contract_provenance,
     render_native_source_contract_prompt,
     resolve_target_review_source_contract,
@@ -576,6 +577,12 @@ def _run_formalization_review_worker(
             error=contract_error,
         )
     try:
+        image_args = native_problem_image_args(
+            project_path=project_path,
+            target=project_path / spec.rel,
+            harness=harness,
+            source_contract=spec.source_contract,
+        )
         runner_ok = build_runner(
             role="review", model=model, descriptor=harness, backend=backend,
         ).run(
@@ -583,6 +590,7 @@ def _run_formalization_review_worker(
             cwd=project_path,
             log_base=Path(spec.log_base),
             verbose_logs=verbose_logs,
+            extra_args=image_args,
         )
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
