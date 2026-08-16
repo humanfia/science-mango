@@ -166,15 +166,21 @@ def test_stage2_cleanup_override_changes_only_stage2_command():
         def __init__(self, config):
             self.config = config
 
-        def _stage2_command(self, candidates):
-            return ["audit", *candidates]
+        def _stage2_command(self, candidates, *, top=None):
+            command = ["audit", *candidates]
+            if top is None:
+                return command
+            return [*command, "--top", str(top)]
 
         def _stage3_command(self):
             return ["direction-audit"]
 
         def run(self):
             return {
-                "stage2": self._stage2_command(("candidate.jsonl",)),
+                "stage2": self._stage2_command(
+                    ("candidate.jsonl",),
+                    top=1024,
+                ),
                 "stage3": self._stage3_command(),
             }
 
@@ -200,6 +206,8 @@ def test_stage2_cleanup_override_changes_only_stage2_command():
         "stage2": [
             "audit",
             "candidate.jsonl",
+            "--top",
+            "1024",
             "--hard-wall-termination-grace",
             "30",
         ],
@@ -217,7 +225,7 @@ def test_stage2_cleanup_override_rejects_duplicate_audit_flag():
         def __init__(self, _config):
             pass
 
-        def _stage2_command(self, _candidates):
+        def _stage2_command(self, _candidates, *, top=None):
             return ["audit", "--hard-wall-termination-grace", "5"]
 
         def run(self):

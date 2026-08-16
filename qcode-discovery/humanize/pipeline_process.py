@@ -702,8 +702,13 @@ def _run_pipeline_with_stage2_cleanup_override(
     grace_text = format(grace, ".17g")
 
     class Stage2CleanupOverridePipeline(pipeline_type):
-        def _stage2_command(self, candidates: Sequence[Path]) -> list[str]:
-            command = list(super()._stage2_command(candidates))
+        def _stage2_command(
+            self,
+            candidates: Sequence[Path],
+            *,
+            top: int | None = None,
+        ) -> list[str]:
+            command = list(super()._stage2_command(candidates, top=top))
             if "--hard-wall-termination-grace" in command:
                 raise ProcessControlError(
                     "Stage 2 command already declares hard-wall termination grace"
