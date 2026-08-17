@@ -75,6 +75,7 @@ from evaluation.process_hard_wall import (
 from evaluation.proof_runtime import (
     SOLVER_RUNTIME_PACKAGES,
     proof_runtime_fingerprint,
+    proof_runtime_fingerprints_equivalent,
 )
 from evaluation.proof_triage import (
     candidate_identity,
@@ -190,6 +191,10 @@ class NoveltyReplayError(RuntimeError):
 
 class StructuralSelectionDeferredError(RuntimeError):
     """The snapshot row remains retryable and must retain its cursor position."""
+
+
+class RankedSnapshotMigrationRequired(RuntimeError):
+    """A progressed selection ledger forbids in-place snapshot replacement."""
 
 
 @dataclass(frozen=True)
@@ -2639,6 +2644,191 @@ def _load_json_object(path: Path) -> dict[str, Any] | None:
     return value if isinstance(value, dict) else None
 
 
+@dataclass(frozen=True)
+class _SelectionLedgerToken:
+    exists: bool
+    stat: tuple[int, ...] | None
+    sha256: str | None
+
+
+@dataclass(frozen=True)
+class _StableSelectionLedger:
+    token: _SelectionLedgerToken
+    value: dict[str, Any] | None
+
+
+def _selection_ledger_stat_token(
+    metadata: os.stat_result,
+) -> tuple[int, ...]:
+    return (
+        int(metadata.st_mode),
+        int(metadata.st_dev),
+        int(metadata.st_ino),
+        int(metadata.st_nlink),
+        int(metadata.st_uid),
+        int(metadata.st_gid),
+        int(metadata.st_size),
+        int(metadata.st_mtime_ns),
+        int(metadata.st_ctime_ns),
+    )
+
+
+def _read_stable_selection_ledger(path: Path) -> _StableSelectionLedger:
+    """Read one regular ledger through a stable final nofollow descriptor."""
+
+    flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except FileNotFoundError:
+        return _StableSelectionLedger(
+            token=_SelectionLedgerToken(False, None, None),
+            value=None,
+        )
+    except OSError as exc:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger cannot be "
+            "opened as a regular nofollow file"
+        ) from exc
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            raise RankedSnapshotMigrationRequired(
+                "ranked snapshot migration required: selection ledger is not "
+                "a regular file"
+            )
+        chunks: list[bytes] = []
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        after = os.fstat(descriptor)
+    except OSError as exc:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger could not "
+            "be read stably"
+        ) from exc
+    finally:
+        os.close(descriptor)
+    before_token = _selection_ledger_stat_token(before)
+    after_token = _selection_ledger_stat_token(after)
+    payload = b"".join(chunks)
+    if before_token != after_token or len(payload) != after.st_size:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger changed "
+            "during read"
+        )
+    try:
+        path_metadata = path.lstat()
+    except OSError as exc:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger changed "
+            "during read"
+        ) from exc
+    if (
+        not stat.S_ISREG(path_metadata.st_mode)
+        or _selection_ledger_stat_token(path_metadata) != after_token
+    ):
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger path changed "
+            "during read"
+        )
+    try:
+        value = json.loads(payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: existing selection ledger "
+            "is not valid UTF-8 JSON"
+        ) from exc
+    if not isinstance(value, dict):
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: existing selection ledger "
+            "is not a JSON object"
+        )
+    return _StableSelectionLedger(
+        token=_SelectionLedgerToken(
+            True,
+            after_token,
+            hashlib.sha256(payload).hexdigest(),
+        ),
+        value=value,
+    )
+
+
+def _validate_self_bound_selection_ledger(
+    value: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate a ledger against the identity sealed inside that ledger."""
+
+    try:
+        return validate_selection_ledger(
+            value,
+            binding_sha256=value.get("binding_sha256"),
+            snapshot_identity_sha256_value=value.get(
+                "snapshot_identity_sha256"
+            ),
+            snapshot_rows=value.get("snapshot_rows"),
+            eligible_rows=value.get("eligible_rows"),
+        )
+    except (TypeError, ValueError) as exc:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: existing selection ledger "
+            "is invalid"
+        ) from exc
+
+
+def _selection_ledger_has_durable_state(value: Mapping[str, Any]) -> bool:
+    """Treat only the exact canonical generation-zero genesis as empty."""
+
+    canonical = new_selection_ledger(
+        binding_sha256=value["binding_sha256"],
+        snapshot_identity_sha256_value=value["snapshot_identity_sha256"],
+        snapshot_rows=value["snapshot_rows"],
+        eligible_rows=value["eligible_rows"],
+        generation=0,
+        generation_history=[],
+    )
+    return dict(value) != canonical
+
+
+def _guard_snapshot_rebuild_ledger(
+    path: Path,
+) -> _SelectionLedgerToken:
+    """Return an exact token only when the ledger is absent or strict genesis."""
+
+    stable = _read_stable_selection_ledger(path)
+    if stable.value is None:
+        return stable.token
+    validated = _validate_self_bound_selection_ledger(stable.value)
+    if _selection_ledger_has_durable_state(validated):
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger contains "
+            "durable state"
+        )
+    return stable.token
+
+
+def _recheck_snapshot_rebuild_ledger(
+    path: Path,
+    expected_token: _SelectionLedgerToken,
+) -> None:
+    """Perform the final ledger token/state check before snapshot replacement."""
+
+    stable = _read_stable_selection_ledger(path)
+    if stable.token != expected_token:
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger changed "
+            "while ranking"
+        )
+    if stable.value is not None and _selection_ledger_has_durable_state(
+        _validate_self_bound_selection_ledger(stable.value)
+    ):
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: selection ledger gained "
+            "durable state while ranking"
+        )
+
+
 def _ranked_snapshot_paths(ledger_path: Path) -> tuple[Path, Path, Path]:
     """Return fixed cache paths derived only from the trusted ledger path."""
 
@@ -2781,12 +2971,19 @@ def _binding_dependencies_unchanged(
     ):
         return False
     try:
-        return bool(
+        if (
             binding.get("source_fingerprint")
-            == certificate_source_fingerprint()
-            and binding.get("solver_runtime") == solver_runtime_fingerprint()
+            != certificate_source_fingerprint()
+        ):
+            return False
+        expected_runtime = binding.get("solver_runtime")
+        current_runtime = solver_runtime_fingerprint()
+        return bool(
+            proof_runtime_fingerprints_equivalent(
+                expected_runtime, current_runtime
+            )
         )
-    except OSError:
+    except (OSError, TypeError, ValueError):
         return False
 
 
@@ -3102,6 +3299,7 @@ def _write_ranked_snapshot(
     ranked: list[dict[str, Any]],
     counts: Mapping[str, int],
     *,
+    expected_ledger_token: _SelectionLedgerToken,
     target_mode: str = DEFAULT_TARGET_MODE,
 ) -> RankedSnapshot:
     """Commit snapshot/index bytes first and their validating manifest last."""
@@ -3156,6 +3354,7 @@ def _write_ranked_snapshot(
                 offsets_payload[offsets_start:offsets_end],
             ).hexdigest(),
         })
+    _recheck_snapshot_rebuild_ledger(ledger_path, expected_ledger_token)
     _atomic_write_bytes(snapshot_path, snapshot_payload)
     _atomic_write_bytes(offsets_path, offsets_payload)
 
@@ -3240,6 +3439,8 @@ def prepare_ranked_snapshot(
     if cached is not None:
         return cached, True
 
+    ledger_token = _guard_snapshot_rebuild_ledger(ledger_path)
+
     binding = _ranked_snapshot_binding(input_paths, target_mode=mode)
     if structural_cache_dir is None:
         # Preserve the deployed one-argument ranking hook in the default
@@ -3276,6 +3477,7 @@ def prepare_ranked_snapshot(
             binding,
             ranked,
             counts,
+            expected_ledger_token=ledger_token,
             target_mode=mode,
         ),
         False,
@@ -4426,6 +4628,38 @@ def select_audit_candidates(
     return selected, stats
 
 
+def _require_snapshot_live_dependencies(
+    snapshot: RankedSnapshot,
+    *,
+    target_mode: str,
+) -> None:
+    """Fail before ledger writes when a snapshot dependency is no longer live."""
+
+    raw_inputs = snapshot.binding.get("inputs")
+    if (
+        not isinstance(raw_inputs, list)
+        or any(
+            not isinstance(item, Mapping)
+            or not isinstance(item.get("path"), str)
+            for item in raw_inputs
+        )
+        or snapshot.binding.get("target_mode")
+        != validate_target_mode(target_mode)
+    ):
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: snapshot binding is invalid"
+        )
+    input_paths = tuple(Path(item["path"]) for item in raw_inputs)
+    if not _binding_dependencies_unchanged(
+        snapshot.binding,
+        input_paths,
+    ):
+        raise RankedSnapshotMigrationRequired(
+            "ranked snapshot migration required: live snapshot dependencies "
+            "changed"
+        )
+
+
 def _selection_binding(
     ranked: Iterable[Mapping[str, Any]],
     *,
@@ -4433,6 +4667,7 @@ def _selection_binding(
     known_answer_artifact: Path,
     ranked_snapshot_identity: Mapping[str, Any] | None = None,
     ranked_size: int | None = None,
+    ranked_snapshot_binding: Mapping[str, Any] | None = None,
     target_mode: str = DEFAULT_TARGET_MODE,
 ) -> str:
     """Bind a cursor to every input that can alter candidate selection."""
@@ -4462,13 +4697,32 @@ def _selection_binding(
         ):
             raise ValueError("ranked snapshot identity is malformed")
         ranked_binding = {"snapshot": identity}
+    if ranked_snapshot_binding is None:
+        bound_solver_runtime = solver_runtime_fingerprint()
+        bound_source_fingerprint = certificate_source_fingerprint()
+    else:
+        snapshot_binding = dict(ranked_snapshot_binding)
+        if (
+            ranked_snapshot_identity is None
+            or snapshot_binding.get("binding_sha256")
+            != dict(ranked_snapshot_identity).get("binding_sha256")
+            or snapshot_binding.get("target_mode")
+            != validate_target_mode(target_mode)
+            or "solver_runtime" not in snapshot_binding
+            or "source_fingerprint" not in snapshot_binding
+        ):
+            raise ValueError(
+                "ranked snapshot selection binding is inconsistent"
+            )
+        bound_solver_runtime = snapshot_binding["solver_runtime"]
+        bound_source_fingerprint = snapshot_binding["source_fingerprint"]
     return _json_sha256({
         "schema_version": SELECTION_LEDGER_SCHEMA_VERSION,
         "top": top,
         "ranked": ranked_binding,
         "known_answer_sha256": _file_sha256(known_answer_artifact),
-        "solver_runtime": solver_runtime_fingerprint(),
-        "source_fingerprint": certificate_source_fingerprint(),
+        "solver_runtime": bound_solver_runtime,
+        "source_fingerprint": bound_source_fingerprint,
         "target_mode": validate_target_mode(target_mode),
     })
 
@@ -4496,20 +4750,21 @@ def _load_selection_ledger(
     snapshot_rows: int,
     eligible_rows: int,
 ) -> dict[str, Any]:
-    """Load a cursor fail-closed; stale bindings safely restart at rank zero."""
+    """Load a cursor without silently discarding self-validated progress.
 
-    if path.is_symlink():
-        raise ValueError("selection ledger may not be a symlink")
-    value = _load_json_object(path)
-    if value is None:
+    Only a sealed, replayable, empty stale ledger may restart at rank zero.
+    """
+
+    stable = _read_stable_selection_ledger(path)
+    if stable.value is None:
         return _new_selection_ledger(
             binding_sha256,
             snapshot_identity_sha256_value=snapshot_identity_sha256_value,
             snapshot_rows=snapshot_rows,
             eligible_rows=eligible_rows,
         )
-    # Old schema and stale snapshot bindings are never trusted. Restarting at
-    # rank zero is safe and lets pre-v2 runs resume without inheriting a cursor.
+    value = _validate_self_bound_selection_ledger(stable.value)
+    # A stale binding may only reset if it is the exact canonical genesis.
     if (
         value.get("schema_version") != SELECTION_LEDGER_SCHEMA_VERSION
         or value.get("gate") != SELECTION_LEDGER_GATE
@@ -4519,6 +4774,11 @@ def _load_selection_ledger(
         or value.get("snapshot_rows") != snapshot_rows
         or value.get("eligible_rows") != eligible_rows
     ):
+        if _selection_ledger_has_durable_state(value):
+            raise RankedSnapshotMigrationRequired(
+                "ranked snapshot migration required: stale selection ledger "
+                "contains durable state"
+            )
         return _new_selection_ledger(
             binding_sha256,
             snapshot_identity_sha256_value=snapshot_identity_sha256_value,
@@ -4640,12 +4900,17 @@ def _prepare_snapshot_selection_page(
 ]:
     """Create or replay one pending page directly from an immutable snapshot."""
 
+    _require_snapshot_live_dependencies(
+        snapshot,
+        target_mode=target_mode,
+    )
     binding_sha256 = _selection_binding(
         (),
         top=top,
         known_answer_artifact=known_answer_artifact,
         ranked_snapshot_identity=snapshot.identity,
         ranked_size=snapshot.rows,
+        ranked_snapshot_binding=snapshot.binding,
         target_mode=target_mode,
     )
     ranked_identity_sha256 = snapshot_identity_sha256(snapshot.identity)
@@ -4667,6 +4932,10 @@ def _prepare_snapshot_selection_page(
         start_index=start_index,
         seen_digests=ledger["committed_digests"],
         canonicalizer=canonicalizer,
+    )
+    _require_snapshot_live_dependencies(
+        snapshot,
+        target_mode=target_mode,
     )
     if (
         not selected
@@ -4706,6 +4975,10 @@ def _prepare_snapshot_selection_page(
     if pending is not None and dict(pending) != page:
         raise ValueError("pending selection page no longer replays exactly")
     ledger = install_pending_page(ledger, page)
+    _require_snapshot_live_dependencies(
+        snapshot,
+        target_mode=target_mode,
+    )
     atomic_write_json(ledger_path, ledger)
     return selected, stats, page, ledger
 
@@ -6487,6 +6760,10 @@ def main(argv: list[str] | None = None) -> int:
             ranked = []
             counts = dict(ranked_snapshot.counts)
             ranked_snapshot_identity = dict(ranked_snapshot.identity)
+    except RankedSnapshotMigrationRequired as exc:
+        parser.error(
+            f"RANKED_SNAPSHOT_MIGRATION_REQUIRED: {exc}"
+        )
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
 
@@ -6529,6 +6806,10 @@ def main(argv: list[str] | None = None) -> int:
             # the current page's unresolved rows; the immutable snapshot and
             # ledger own the global pool and cursor.
             ranked = list(selected)
+    except RankedSnapshotMigrationRequired as exc:
+        parser.error(
+            f"RANKED_SNAPSHOT_MIGRATION_REQUIRED: {exc}"
+        )
     except (OSError, TypeError, ValueError) as exc:
         parser.error(str(exc))
     selected_digests = {

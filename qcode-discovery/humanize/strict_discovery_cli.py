@@ -796,7 +796,10 @@ def _ranked_wins(path: Path) -> list[dict[str, Any]]:
                 audit.get("certificate") if isinstance(audit, Mapping) else None
             )
             if (
-                isinstance(audit, Mapping)
+                isinstance(row, Mapping)
+                and row.get("campaign_selected") is True
+                and isinstance(audit, Mapping)
+                and _is_sha256(audit.get("canonical_digest"))
                 and audit.get("status") == "THRESHOLD_PROVEN"
                 and isinstance(certificate, Mapping)
                 and certificate.get("attempted") is True
@@ -804,6 +807,7 @@ def _ranked_wins(path: Path) -> list[dict[str, Any]]:
                 and certificate.get("certificate_passed") is True
                 and certificate.get("verification_attempted") is True
                 and certificate.get("verification_passed") is True
+                and _is_sha256(certificate.get("certificate_sha256"))
             ):
                 wins.append({
                     "canonical_digest": audit.get("canonical_digest"),
@@ -868,6 +872,7 @@ def _complete_unresolved_batch(
         return False, False, {}
     counts: dict[str, int] = {}
     audited = 0
+    audited_digests: list[str] = []
     selected_rows = 0
     if ranked_path.is_symlink() or not ranked_path.is_file():
         return False, False, {}
@@ -880,15 +885,21 @@ def _complete_unresolved_batch(
                     f"ranked output row {line_number} is malformed"
                 ) from exc
             if not isinstance(row, Mapping) or row.get("campaign_selected") is not True:
-                continue
+                return False, False, {}
             selected_rows += 1
             audit = row.get("campaign_audit")
-            if not isinstance(audit, Mapping):
+            digest = audit.get("canonical_digest") if isinstance(audit, Mapping) else None
+            if (
+                not isinstance(audit, Mapping)
+                or not _is_sha256(digest)
+                or digest in audited_digests
+            ):
                 return False, False, {}
+            audited_digests.append(str(digest))
             status = str(audit.get("status"))
             counts[status] = counts.get(status, 0) + 1
             audited += 1
-    allowed = {"REJECTED", "UNRESOLVED"}
+    allowed = {"REJECTED", "UNRESOLVED", "THRESHOLD_PROVEN"}
     complete = (
         selected_rows == selected
         and audited == selected
@@ -897,6 +908,82 @@ def _complete_unresolved_batch(
     )
     has_unresolved = counts.get("UNRESOLVED", 0) > 0
     return complete, has_unresolved, counts
+
+def _ranked_audited_digests(path: Path) -> list[str] | None:
+    if path.is_symlink() or not path.is_file():
+        return None
+    digests: list[str] = []
+    with path.open("r", encoding="utf-8") as stream:
+        for line in stream:
+            row = json.loads(line)
+            audit = row.get("campaign_audit") if isinstance(row, Mapping) else None
+            digest = audit.get("canonical_digest") if isinstance(audit, Mapping) else None
+            if (
+                not isinstance(row, Mapping)
+                or row.get("campaign_selected") is not True
+                or not _is_sha256(digest)
+                or digest in digests
+            ):
+                return None
+            digests.append(str(digest))
+    return digests
+
+
+def _is_ordered_subsequence(values: Sequence[str], source: Sequence[str]) -> bool:
+    position = 0
+    for value in values:
+        while position < len(source) and source[position] != value:
+            position += 1
+        if position == len(source):
+            return False
+        position += 1
+    return True
+
+
+def _completed_batch_ledger_matches(
+    path: Path,
+    *,
+    input_digests: Sequence[str],
+    audited_digests: Sequence[str],
+) -> bool:
+    if (
+        path.is_symlink()
+        or not path.is_file()
+        or len(set(input_digests)) != len(input_digests)
+        or len(set(audited_digests)) != len(audited_digests)
+        or not _is_ordered_subsequence(audited_digests, input_digests)
+    ):
+        return False
+    try:
+        ledger = _read_json(path, label="strict discovery batch selection ledger")
+        from evaluation.selection_ledger import validate_selection_ledger
+
+        validated = validate_selection_ledger(
+            ledger,
+            binding_sha256=str(ledger.get("binding_sha256")),
+            snapshot_identity_sha256_value=str(
+                ledger.get("snapshot_identity_sha256")
+            ),
+            snapshot_rows=ledger.get("snapshot_rows"),
+            eligible_rows=ledger.get("eligible_rows"),
+        )
+    except (OSError, TypeError, ValueError):
+        return False
+    ack_selected = [
+        str(digest)
+        for ack in validated.get("ack_chain", [])
+        if isinstance(ack, Mapping)
+        for digest in ack.get("page", {}).get("selected_digests", [])
+    ]
+    return bool(
+        validated.get("pending") is None
+        and validated.get("snapshot_rows") == len(input_digests)
+        and validated.get("eligible_rows") == len(input_digests)
+        and validated.get("cursor") == len(input_digests)
+        and validated.get("committed_digests") == list(audited_digests)
+        and ack_selected == list(audited_digests)
+    )
+
 
 def _native_thread_limits() -> None:
     for name in _NATIVE_THREAD_ENV:
@@ -937,6 +1024,14 @@ def run_discovery(
 ) -> dict[str, Any]:
     """Run/resume disjoint progressive batches and return sealed progress."""
 
+    if paths.root.name == SIDECAR_NAME:
+        from .strict_discovery_migration import load_successor_lineage
+
+        lineage = load_successor_lineage(paths)
+        if lineage is not None:
+            raise StrictDiscoveryError(
+                "predecessor discovery is immutable; use its successor lineage"
+            )
     config = config.validate()
     manifest, source_path, source = load_portfolio_manifest(
         portfolio_manifest,
@@ -949,7 +1044,14 @@ def run_discovery(
         if live_source_validator is None
         else live_source_validator
     )
-    paths.batches.mkdir(parents=True, exist_ok=True)
+    successor_batch_directory: Callable[[Any, int | None], Path] | None = None
+    if paths.root.name == SIDECAR_NAME:
+        paths.batches.mkdir(parents=True, exist_ok=True)
+    else:
+        from .strict_discovery_migration import prepare_successor_batch_directory
+
+        successor_batch_directory = prepare_successor_batch_directory
+        successor_batch_directory(paths, None)
     progress = _load_progress(paths.progress)
     config_sha = _sha256(config.as_dict())
     if progress is None:
@@ -983,6 +1085,48 @@ def run_discovery(
             return "INCOMPLETE"
         return "EXHAUSTED"
 
+    def checked_live_source(
+        candidate_digests: Sequence[str],
+        *,
+        phase: str,
+    ) -> tuple[dict[str, Any], list[str]]:
+        requested = list(candidate_digests)
+        if (
+            any(not _is_sha256(value) for value in requested)
+            or len(set(requested)) != len(requested)
+        ):
+            raise StrictDiscoveryError(
+                "live Stage 2 candidate digest list is invalid"
+            )
+        observed = validator(
+            manifest,
+            paths=paths,
+            candidate_digests=requested,
+        )
+        if not isinstance(observed, Mapping):
+            raise StrictDiscoveryError("live Stage 2 source check is malformed")
+        blocked_raw = observed.get("blocked_digests")
+        if (
+            not isinstance(blocked_raw, list)
+            or any(not _is_sha256(value) for value in blocked_raw)
+            or len(set(blocked_raw)) != len(blocked_raw)
+            or not set(blocked_raw).issubset(set(requested))
+            or not isinstance(observed.get("overlap"), bool)
+            or observed.get("overlap") is not bool(blocked_raw)
+        ):
+            raise StrictDiscoveryError(
+                "live Stage 2 overlap evidence is malformed"
+            )
+        blocked = list(blocked_raw)
+        result = dict(observed)
+        result.update({
+            "checked_candidates": len(requested),
+            "overlap": bool(blocked),
+            "blocked_digests": blocked,
+            "fence_phase": phase,
+        })
+        return result, blocked
+
     while not stop_requested():
         batch_index = len(progress["batches"])
         limit = (
@@ -999,7 +1143,11 @@ def run_discovery(
             if not isinstance(active_raw, Mapping):
                 raise StrictDiscoveryError("sealed active batch is malformed")
             active = dict(active_raw)
-            batch_root = paths.batches / f"batch-{batch_index:04d}"
+            batch_root = (
+                successor_batch_directory(paths, batch_index)
+                if successor_batch_directory is not None
+                else paths.batches / f"batch-{batch_index:04d}"
+            )
             expected_input = (batch_root / "input.jsonl").resolve()
             input_path = _confined_regular_path(
                 str(active.get("input_path")),
@@ -1083,22 +1231,11 @@ def run_discovery(
             remaining_digests = [
                 str(item["canonical_digest"]) for item in items[start_row:]
             ]
-            live_source = validator(
-                manifest,
-                paths=paths,
-                candidate_digests=remaining_digests,
+            live_source, blocked_raw = checked_live_source(
+                remaining_digests,
+                phase="selection",
             )
-            if not isinstance(live_source, Mapping):
-                raise StrictDiscoveryError("live Stage 2 source check is malformed")
-            blocked_raw = live_source.get("blocked_digests", [])
-            if (
-                not isinstance(blocked_raw, list)
-                or any(not _is_sha256(value) for value in blocked_raw)
-            ):
-                raise StrictDiscoveryError("live Stage 2 blocked digest list is malformed")
             blocked = set(blocked_raw)
-            if not blocked.issubset(set(remaining_digests)):
-                raise StrictDiscoveryError("live Stage 2 reported an unknown blocked candidate")
 
             source_rows: list[int] = []
             selected_ranks: list[int] = []
@@ -1137,8 +1274,13 @@ def run_discovery(
                 })
                 return progress
 
-            batch_root = paths.batches / f"batch-{batch_index:04d}"
-            batch_root.mkdir(parents=True, exist_ok=True)
+            batch_root = (
+                successor_batch_directory(paths, batch_index)
+                if successor_batch_directory is not None
+                else paths.batches / f"batch-{batch_index:04d}"
+            )
+            if successor_batch_directory is None:
+                batch_root.mkdir(parents=True, exist_ok=True)
             input_path = batch_root / "input.jsonl"
             count = _write_selected_batch(
                 source_path,
@@ -1175,6 +1317,31 @@ def run_discovery(
                 "skipped_foreground_owned_sha256": _sha256(skipped),
             }
 
+        launch_source, launch_blocked = checked_live_source(
+            selected_digests,
+            phase="pre-launch",
+        )
+        active = dict(active)
+        for stale in ("ownership_conflict", "last_failed_at", "last_returncode"):
+            active.pop(stale, None)
+        active["launch_live_source"] = launch_source
+        if launch_blocked:
+            failed_active = {
+                **active,
+                "ownership_conflict": {
+                    "phase": "pre-launch",
+                    "blocked_digests": launch_blocked,
+                    "live_source": launch_source,
+                },
+                "last_failed_at": time.time(),
+            }
+            return _write_progress(paths.progress, {
+                **progress,
+                "status": "FAILED",
+                "active_batch": failed_active,
+                "updated_at": time.time(),
+            })
+
         active = {**active, "attempts": int(active.get("attempts", 0)) + 1}
         progress = _write_progress(paths.progress, {
             **progress,
@@ -1184,6 +1351,28 @@ def run_discovery(
         })
         completed = run_command(argv, cwd=paths.repo, shell=False, check=False)
         returncode = int(getattr(completed, "returncode", completed))
+        post_source, post_blocked = checked_live_source(
+            selected_digests,
+            phase="post-run",
+        )
+        if post_blocked:
+            failed_active = {
+                **active,
+                "post_live_source": post_source,
+                "ownership_conflict": {
+                    "phase": "post-run",
+                    "blocked_digests": post_blocked,
+                    "live_source": post_source,
+                },
+                "last_returncode": returncode,
+                "last_failed_at": time.time(),
+            }
+            return _write_progress(paths.progress, {
+                **progress,
+                "status": "FAILED",
+                "active_batch": failed_active,
+                "updated_at": time.time(),
+            })
         ranked_output = batch_root / "ranked.jsonl"
         wins = _ranked_wins(ranked_output)
         summary_output = batch_root / "summary.json"
@@ -1196,6 +1385,7 @@ def run_discovery(
         )
         batch = {
             **active,
+            "post_live_source": post_source,
             "ranked_output": str(ranked_output),
             "summary_output": str(summary_output),
             "disposition": (
@@ -1208,7 +1398,18 @@ def run_discovery(
             "wins": wins,
             "completed_at": time.time(),
         }
-        if not wins and not complete_no_error:
+        audited_digests = _ranked_audited_digests(ranked_output)
+        complete_semantics = bool(
+            complete_no_error
+            and deferred_statuses.get("THRESHOLD_PROVEN", 0) == len(wins)
+            and audited_digests is not None
+            and _completed_batch_ledger_matches(
+                batch_root / "selection-ledger.json",
+                input_digests=selected_digests,
+                audited_digests=audited_digests,
+            )
+        )
+        if not complete_semantics:
             failed_active = {
                 **active,
                 "last_returncode": returncode,
@@ -1260,6 +1461,43 @@ def _config_from_args(args: argparse.Namespace) -> DiscoveryConfig:
     return config.validate()
 
 
+def _successor_execution_context(
+    paths: SidecarPaths,
+    args: argparse.Namespace,
+    *,
+    verify_large_files: bool,
+) -> tuple[SidecarPaths, Mapping[str, Any] | None, Callable[..., dict[str, Any]] | None]:
+    migration_path = getattr(args, "successor_migration", None)
+    from .strict_discovery_migration import (
+        load_successor_lineage,
+        load_successor_migration,
+        successor_live_source_validator,
+        successor_sidecar_paths,
+    )
+
+    lineage = load_successor_lineage(paths)
+    if migration_path is None:
+        if lineage is not None:
+            raise StrictDiscoveryError(
+                "predecessor discovery is immutable after migration; "
+                "resume with --successor-migration "
+                + str(lineage["certificate"])
+            )
+        return paths, None, None
+
+    certificate = load_successor_migration(
+        migration_path,
+        paths=paths,
+        portfolio_manifest=args.portfolio_manifest,
+        verify_large_files=verify_large_files,
+    )
+    return (
+        successor_sidecar_paths(paths, certificate),
+        certificate,
+        successor_live_source_validator(certificate),
+    )
+
+
 def _execute_worker(
     args: argparse.Namespace,
     paths: SidecarPaths,
@@ -1292,6 +1530,11 @@ def _execute_worker(
     heartbeat = None
     identity: Mapping[str, Any] | None = None
     try:
+        paths, successor, successor_validator = _successor_execution_context(
+            paths,
+            args,
+            verify_large_files=True,
+        )
         config = _config_from_args(args)
         _native_thread_limits()
         capacity_affinity, selected = _select_cpus(config)
@@ -1322,6 +1565,12 @@ def _execute_worker(
             or starting.get("portfolio_manifest_sha256")
             != portfolio_manifest_sha256
             or starting.get("cli_source_sha256") != _CLI_SOURCE_SHA256
+            or starting.get("successor_migration_sha256")
+            != (
+                successor.get("migration_sha256")
+                if isinstance(successor, Mapping)
+                else None
+            )
         ):
             raise StrictDiscoveryError("worker inputs differ from the launch record")
         record = {
@@ -1340,6 +1589,16 @@ def _execute_worker(
             "portfolio_manifest": str(portfolio_path),
             "portfolio_manifest_sha256": portfolio_manifest_sha256,
             "portfolio_sha256": portfolio.get("portfolio_sha256"),
+            "successor_migration": (
+                str(Path(args.successor_migration).expanduser().resolve())
+                if successor is not None
+                else None
+            ),
+            "successor_migration_sha256": (
+                successor.get("migration_sha256")
+                if isinstance(successor, Mapping)
+                else None
+            ),
             "cli_source_sha256": _assert_cli_source_unchanged(),
             "command": list(sys.argv),
             "resources": {
@@ -1411,6 +1670,7 @@ def _execute_worker(
             config=config,
             python_executable=args.python_executable,
             stop_requested=stop_event.is_set,
+            live_source_validator=successor_validator,
         )
         terminal = "cancelled" if stop_event.is_set() else (
             "completed"
@@ -1455,15 +1715,24 @@ def _execute_worker(
 
 def start_background(args: argparse.Namespace, paths: SidecarPaths) -> dict[str, Any]:
     control = _install_control_namespace()
-    config = _config_from_args(args)
-    config_path = Path(args.config).expanduser().resolve(strict=True)
-    portfolio, source_path, portfolio_source = load_portfolio_manifest(
-        args.portfolio_manifest,
-        paths=paths,
-        ranked_input=args.ranked_input,
-    )
-    portfolio_path = Path(portfolio_source["portfolio_manifest_path"])
     lock_fd = control._acquire_lock(paths.lock)
+    try:
+        paths, successor, _ = _successor_execution_context(
+            paths,
+            args,
+            verify_large_files=True,
+        )
+        config = _config_from_args(args)
+        config_path = Path(args.config).expanduser().resolve(strict=True)
+        portfolio, source_path, portfolio_source = load_portfolio_manifest(
+            args.portfolio_manifest,
+            paths=paths,
+            ranked_input=args.ranked_input,
+        )
+        portfolio_path = Path(portfolio_source["portfolio_manifest_path"])
+    except BaseException:
+        os.close(lock_fd)
+        raise
     read_fd = write_fd = log_fd = -1
     process: subprocess.Popen[Any] | None = None
     try:
@@ -1482,6 +1751,11 @@ def start_background(args: argparse.Namespace, paths: SidecarPaths) -> dict[str,
             "--lock-fd", str(lock_fd),
             "--start-fd", str(read_fd),
         ]
+        if successor is not None:
+            command.extend([
+                "--successor-migration",
+                str(Path(args.successor_migration).expanduser().resolve()),
+            ])
         if args.cpu_list is not None:
             command.extend(["--cpu-list", args.cpu_list])
         if args.nice is not None:
@@ -1533,6 +1807,16 @@ def start_background(args: argparse.Namespace, paths: SidecarPaths) -> dict[str,
                 "portfolio_manifest_file_sha256"
             ],
             "portfolio_sha256": portfolio.get("portfolio_sha256"),
+            "successor_migration": (
+                str(Path(args.successor_migration).expanduser().resolve())
+                if successor is not None
+                else None
+            ),
+            "successor_migration_sha256": (
+                successor.get("migration_sha256")
+                if isinstance(successor, Mapping)
+                else None
+            ),
             "cli_source_sha256": _assert_cli_source_unchanged(),
             "command": command,
             "resources": {
@@ -1573,6 +1857,34 @@ def start_background(args: argparse.Namespace, paths: SidecarPaths) -> dict[str,
 
 def status_report(args: argparse.Namespace, paths: SidecarPaths) -> dict[str, Any]:
     control = _install_control_namespace()
+    base_paths = paths
+    lineage: Mapping[str, Any] | None = None
+    try:
+        from .strict_discovery_migration import (
+            load_successor_lineage,
+            load_successor_migration,
+            successor_sidecar_paths,
+        )
+
+        lineage = load_successor_lineage(base_paths)
+        if lineage is not None:
+            certificate = load_successor_migration(
+                str(lineage["certificate"]),
+                paths=base_paths,
+                portfolio_manifest=str(lineage["portfolio_manifest"]),
+                verify_large_files=False,
+            )
+            paths = successor_sidecar_paths(base_paths, certificate)
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {
+            "status": "invalid-successor-lineage",
+            "alive": False,
+            "identity_reason": str(exc),
+            "process": control.read_process_record(base_paths.process),
+            "progress": None,
+            "root": str(base_paths.root),
+            "lineage": lineage,
+        }
     record = control.read_process_record(paths.process)
     alive, reason = (
         control.process_matches(record)
@@ -1595,7 +1907,9 @@ def status_report(args: argparse.Namespace, paths: SidecarPaths) -> dict[str, An
         "process": record,
         "progress": progress,
         "root": str(paths.root),
+        "lineage": lineage,
     }
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1615,6 +1929,7 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--python-executable", default=sys.executable)
             command.add_argument("--cpu-list")
             command.add_argument("--nice", type=int)
+            command.add_argument("--successor-migration", type=Path)
 
     run = subparsers.add_parser("run")
     common(run, worker=True)
@@ -1625,6 +1940,13 @@ def build_parser() -> argparse.ArgumentParser:
     cancel = subparsers.add_parser("cancel")
     common(cancel)
     cancel.add_argument("--grace-seconds", type=float, default=180.0)
+    migrate = subparsers.add_parser("migrate-successor")
+    common(migrate)
+    migrate.add_argument("--portfolio-manifest", type=Path, required=True)
+    migrate.add_argument("--new-snapshot-manifest", type=Path, required=True)
+    migrate.add_argument(
+        "--identity-rebase-certificate", type=Path, required=True
+    )
     worker = subparsers.add_parser("_worker", help=argparse.SUPPRESS)
     common(worker, worker=True)
     worker.add_argument("--lock-fd", type=int, required=True)
@@ -1635,7 +1957,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     try:
         args = build_parser().parse_args(argv)
-        create = args.command in {"run", "start", "_worker"}
+        create = args.command in {"run", "start", "_worker", "migrate-successor"}
         paths = sidecar_paths(args.repo_dir, args.run_id, create=create)
         if args.command == "run":
             result = _execute_worker(args, paths)
@@ -1652,6 +1974,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.command == "cancel":
             control = _install_control_namespace()
             result = control.cancel_worker(args, paths)
+        elif args.command == "migrate-successor":
+            from .strict_discovery_migration import create_successor_migration
+
+            control = _install_control_namespace()
+            lock_fd = control._acquire_lock(paths.lock)
+            try:
+                result = create_successor_migration(
+                    paths=paths,
+                    portfolio_manifest=args.portfolio_manifest,
+                    new_snapshot_manifest=args.new_snapshot_manifest,
+                    identity_rebase_certificate=args.identity_rebase_certificate,
+                )
+            finally:
+                os.close(lock_fd)
         elif args.command == "_worker":
             result = _execute_worker(
                 args,

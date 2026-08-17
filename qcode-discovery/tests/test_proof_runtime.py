@@ -26,6 +26,7 @@ from evaluation.proof_runtime import (
     SOLVER_RUNTIME_PACKAGES,
     probe_python_runtime,
     proof_runtime_fingerprint,
+    proof_runtime_fingerprints_equivalent,
     validate_proof_runtime_fingerprint,
 )
 
@@ -275,6 +276,46 @@ def test_runtime_schema_one_is_rejected(
         validate_proof_runtime_fingerprint(legacy)
 
     assert PROOF_RUNTIME_SCHEMA_VERSION != 1
+
+
+def test_runtime_equivalence_ignores_only_executable_ctime(
+    local_runtime: dict[str, object],
+) -> None:
+    restored = copy.deepcopy(local_runtime)
+    restored["interpreter"]["executable_file"]["ctime_ns"] += 1
+
+    assert proof_runtime_fingerprints_equivalent(local_runtime, restored)
+
+
+@pytest.mark.parametrize(
+    "field_path",
+    (
+        ("interpreter", "executable_file", "mtime_ns"),
+        ("interpreter", "invocation_lstat", "ctime_ns"),
+        ("interpreter", "invocation_lstat", "mtime_ns"),
+    ),
+)
+def test_runtime_equivalence_keeps_every_other_file_field_strict(
+    local_runtime: dict[str, object],
+    field_path: tuple[str, ...],
+) -> None:
+    changed = copy.deepcopy(local_runtime)
+    value = changed
+    for name in field_path[:-1]:
+        value = value[name]
+    value[field_path[-1]] += 1
+
+    assert not proof_runtime_fingerprints_equivalent(local_runtime, changed)
+
+
+def test_runtime_equivalence_validates_both_inputs(
+    local_runtime: dict[str, object],
+) -> None:
+    malformed = copy.deepcopy(local_runtime)
+    malformed["interpreter"]["executable_file"].pop("ctime_ns")
+
+    with pytest.raises(ValueError, match="file identity is malformed"):
+        proof_runtime_fingerprints_equivalent(local_runtime, malformed)
 
 
 @pytest.mark.parametrize("package", sorted(NEW_PROOF_PACKAGES))

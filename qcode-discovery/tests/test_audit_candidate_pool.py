@@ -566,6 +566,16 @@ def _snapshot_counts(count: int) -> dict[str, int]:
     }
 
 
+_SNAPSHOT_SOLVER_RUNTIME = None
+
+
+def _snapshot_solver_runtime():
+    global _SNAPSHOT_SOLVER_RUNTIME
+    if _SNAPSHOT_SOLVER_RUNTIME is None:
+        _SNAPSHOT_SOLVER_RUNTIME = proof_runtime_fingerprint()
+    return _SNAPSHOT_SOLVER_RUNTIME
+
+
 def _snapshot_canonicalizer(row):
     return {
         **row,
@@ -3366,7 +3376,7 @@ def test_ranked_snapshot_reuses_ranked_pool_without_reranking(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
 
     first, first_cache_hit = candidate_pool.prepare_ranked_snapshot(
@@ -3383,6 +3393,584 @@ def test_ranked_snapshot_reuses_ranked_pool_without_reranking(
     assert first.identity == second.identity
     assert first.rows == second.rows == 3
     assert len(calls) == 1
+
+
+def test_ranked_snapshot_reuses_executable_ctime_and_selection_uses_snapshot_binding(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(2)
+    rank_calls = 0
+    source_version = ["source-v1"]
+    runtime = [proof_runtime_fingerprint()]
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: source_version[0],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        lambda: runtime[0],
+    )
+
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    _, _, first_page, _ = candidate_pool._prepare_snapshot_selection_page(
+        snapshot,
+        top=1,
+        ledger_path=ledger_path,
+        known_answer_artifact=tmp_path / "known.json",
+        canonicalizer=_snapshot_canonicalizer,
+    )
+
+    runtime[0] = json.loads(json.dumps(runtime[0]))
+    runtime[0]["interpreter"]["executable_file"]["ctime_ns"] += 1
+    replayed_snapshot, cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    assert cache_hit is True
+    assert rank_calls == 1
+
+    ledger_before = ledger_path.read_bytes()
+    _, _, replayed_page, _ = (
+        candidate_pool._prepare_snapshot_selection_page(
+            replayed_snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+    )
+    assert replayed_page == first_page
+    assert ledger_path.read_bytes() == ledger_before
+
+    source_version[0] = "source-v2"
+    live_binding = candidate_pool._selection_binding(
+        (),
+        top=1,
+        known_answer_artifact=tmp_path / "known.json",
+        ranked_snapshot_identity=replayed_snapshot.identity,
+        ranked_size=replayed_snapshot.rows,
+    )
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="live snapshot dependencies changed",
+    ):
+        candidate_pool._prepare_snapshot_selection_page(
+            replayed_snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=_snapshot_canonicalizer,
+        )
+
+    assert live_binding != first_page["binding_sha256"]
+    assert ledger_path.read_bytes() == ledger_before
+
+
+def test_snapshot_selection_source_mutation_fails_before_ledger_write(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(2)
+    source_version = ["source-v1"]
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: (rows, _snapshot_counts(len(rows))),
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: source_version[0],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        _snapshot_solver_runtime,
+    )
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    assert not ledger_path.exists()
+
+    def mutate_source(row):
+        source_version[0] = "source-v2"
+        return _snapshot_canonicalizer(row)
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="live snapshot dependencies changed",
+    ):
+        candidate_pool._prepare_snapshot_selection_page(
+            snapshot,
+            top=1,
+            ledger_path=ledger_path,
+            known_answer_artifact=tmp_path / "known.json",
+            canonicalizer=mutate_source,
+        )
+
+    assert not ledger_path.exists()
+
+
+@pytest.mark.parametrize("ledger_progress", ("pending", "completed"))
+def test_ranked_snapshot_dependency_mismatch_preserves_progressed_generation(
+    tmp_path,
+    monkeypatch,
+    ledger_progress,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(2)
+    rank_calls = 0
+    source_version = ["source-v1"]
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: source_version[0],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        _snapshot_solver_runtime,
+    )
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    _, _, page, ledger = candidate_pool._prepare_snapshot_selection_page(
+        snapshot,
+        top=1,
+        ledger_path=ledger_path,
+        known_answer_artifact=tmp_path / "known.json",
+        canonicalizer=_snapshot_canonicalizer,
+    )
+    if ledger_progress == "completed":
+        ledger = acknowledge_selection_page(
+            ledger,
+            page,
+            disposition="COMPLETED",
+        )
+        candidate_pool.atomic_write_json(ledger_path, ledger)
+
+    protected_paths = (
+        snapshot.snapshot_path,
+        snapshot.offsets_path,
+        snapshot.manifest_path,
+        ledger_path,
+    )
+    protected_bytes = {
+        path: path.read_bytes()
+        for path in protected_paths
+    }
+    source_version[0] = "source-v2"
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="migration required",
+    ):
+        candidate_pool.prepare_ranked_snapshot(
+            [candidate_input],
+            ledger_path=ledger_path,
+        )
+
+    assert rank_calls == 1
+    assert {
+        path: path.read_bytes()
+        for path in protected_paths
+    } == protected_bytes
+
+
+def test_ranked_snapshot_dependency_mismatch_can_rebuild_with_empty_ledger(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(2)
+    rank_calls = 0
+    source_version = ["source-v1"]
+
+    def ranker(paths):
+        nonlocal rank_calls
+        rank_calls += 1
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: source_version[0],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        _snapshot_solver_runtime,
+    )
+    first, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    empty_ledger = new_selection_ledger(
+        binding_sha256="e" * 64,
+        snapshot_identity_sha256_value=(
+            candidate_pool.snapshot_identity_sha256(first.identity)
+        ),
+        snapshot_rows=first.rows,
+        eligible_rows=first.eligible_rows,
+    )
+    candidate_pool.atomic_write_json(ledger_path, empty_ledger)
+    ledger_bytes = ledger_path.read_bytes()
+    source_version[0] = "source-v2"
+
+    rebuilt, cache_hit = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+
+    assert cache_hit is False
+    assert rank_calls == 2
+    assert rebuilt.identity != first.identity
+    assert ledger_path.read_bytes() == ledger_bytes
+
+
+def test_existing_invalid_selection_ledger_never_becomes_genesis(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    ledger_path.write_text("{\"schema_version\":")
+    ledger_bytes = ledger_path.read_bytes()
+    rank_calls = []
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: rank_calls.append(tuple(paths)),
+    )
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="not valid UTF-8 JSON",
+    ):
+        candidate_pool.prepare_ranked_snapshot(
+            [candidate_input],
+            ledger_path=ledger_path,
+        )
+
+    assert rank_calls == []
+    assert ledger_path.read_bytes() == ledger_bytes
+
+
+def test_selection_ledger_final_symlink_never_becomes_genesis(
+    tmp_path,
+    monkeypatch,
+):
+    target = tmp_path / "target.json"
+    candidate_pool.atomic_write_json(
+        target,
+        new_selection_ledger(
+            binding_sha256="a" * 64,
+            snapshot_identity_sha256_value="b" * 64,
+            snapshot_rows=1,
+            eligible_rows=1,
+        ),
+    )
+    ledger_path = tmp_path / "selection.json"
+    ledger_path.symlink_to(target)
+    rank_calls = []
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: rank_calls.append(tuple(paths)),
+    )
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="regular nofollow file",
+    ):
+        candidate_pool.prepare_ranked_snapshot(
+            [tmp_path / "candidates.jsonl"],
+            ledger_path=ledger_path,
+        )
+
+    assert rank_calls == []
+    assert ledger_path.is_symlink()
+
+
+@pytest.mark.parametrize("failure_phase", ("prepare", "selection"))
+def test_cli_classifies_ranked_snapshot_migration_required(
+    tmp_path,
+    monkeypatch,
+    capsys,
+    failure_phase,
+):
+    def raise_migration(*args, **kwargs):
+        raise candidate_pool.RankedSnapshotMigrationRequired(
+            "test migration boundary"
+        )
+
+    if failure_phase == "prepare":
+        monkeypatch.setattr(
+            candidate_pool,
+            "prepare_ranked_snapshot",
+            raise_migration,
+        )
+    else:
+        snapshot = SimpleNamespace(counts={}, identity={})
+        monkeypatch.setattr(
+            candidate_pool,
+            "prepare_ranked_snapshot",
+            lambda *args, **kwargs: (snapshot, False),
+        )
+        monkeypatch.setattr(
+            candidate_pool,
+            "_prepare_snapshot_selection_page",
+            raise_migration,
+        )
+
+    with pytest.raises(SystemExit) as raised:
+        candidate_pool.main([
+            str(tmp_path / "candidates.jsonl"),
+            "--state-dir",
+            str(tmp_path / "state"),
+            "--ranked-output",
+            str(tmp_path / "ranked.jsonl"),
+            "--summary-output",
+            str(tmp_path / "summary.json"),
+            "--selection-ledger",
+            str(tmp_path / "selection.json"),
+        ])
+
+    assert raised.value.code == 2
+    assert (
+        "RANKED_SNAPSHOT_MIGRATION_REQUIRED: "
+        "test migration boundary"
+    ) in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "durable_kind",
+    (
+        "generation",
+        "history",
+        "deferred",
+        "scheduler",
+        "proof_config",
+        "extra",
+    ),
+)
+def test_only_strict_generation_zero_genesis_allows_snapshot_rebuild(
+    tmp_path,
+    monkeypatch,
+    durable_kind,
+):
+    ledger_path = tmp_path / "selection.json"
+    binding = "a" * 64
+    identity = "b" * 64
+    kwargs = {
+        "binding_sha256": binding,
+        "snapshot_identity_sha256_value": identity,
+        "snapshot_rows": 1,
+        "eligible_rows": 1,
+    }
+    if durable_kind == "generation":
+        ledger = new_selection_ledger(**kwargs, generation=1)
+    elif durable_kind == "history":
+        ledger = new_selection_ledger(
+            **kwargs,
+            generation_history=[{"kind": "preserved-history"}],
+        )
+    elif durable_kind == "proof_config":
+        ledger = new_selection_ledger(
+            **kwargs,
+            proof_config_sha256="c" * 64,
+        )
+    else:
+        ledger = new_selection_ledger(**kwargs)
+        if durable_kind == "deferred":
+            scan = make_scan_evidence(
+                snapshot_identity_sha256_value=identity,
+                start_index=0,
+                next_index=1,
+                snapshot_rows=1,
+                eligible_rows=1,
+                selection_exhausted=True,
+            )
+            page = make_selection_page(
+                binding_sha256=binding,
+                snapshot_identity_sha256_value=identity,
+                page_sequence=0,
+                previous_ack_sha256=ledger["last_ack_sha256"],
+                start_index=0,
+                next_index=1,
+                selected_digests=["candidate"],
+                scan_evidence=scan,
+            )
+            ledger = install_pending_page(ledger, page)
+            entry_payload = {"kind": "preserved-deferred"}
+            ledger = acknowledge_selection_page(
+                ledger,
+                page,
+                disposition="DEFERRED",
+                deferred_entry={
+                    **entry_payload,
+                    "entry_sha256": candidate_pool._json_sha256(
+                        entry_payload
+                    ),
+                },
+            )
+        elif durable_kind == "scheduler":
+            ledger["adaptive_page_scheduler"] = {"preserved": True}
+            ledger = seal_selection_ledger(ledger)
+        else:
+            ledger["future_extension"] = {"preserved": True}
+            ledger = seal_selection_ledger(ledger)
+    candidate_pool.atomic_write_json(ledger_path, ledger)
+    rank_calls = []
+    monkeypatch.setattr(
+        candidate_pool,
+        "rank_candidate_files",
+        lambda paths: rank_calls.append(tuple(paths)),
+    )
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="contains durable state",
+    ):
+        candidate_pool.prepare_ranked_snapshot(
+            [tmp_path / "candidates.jsonl"],
+            ledger_path=ledger_path,
+        )
+
+    assert rank_calls == []
+
+
+def test_rank_hook_cannot_publish_snapshot_over_new_pending_ledger(
+    tmp_path,
+    monkeypatch,
+):
+    candidate_input = tmp_path / "candidates.jsonl"
+    candidate_input.write_text("{}\n")
+    ledger_path = tmp_path / "selection.json"
+    rows = _ranked_snapshot_rows(2)
+    source_version = ["source-v1"]
+    rank_calls = 0
+    empty_ledger = None
+    installed_pending = None
+
+    def ranker(paths):
+        nonlocal rank_calls, installed_pending
+        rank_calls += 1
+        if rank_calls == 2:
+            assert empty_ledger is not None
+            scan = make_scan_evidence(
+                snapshot_identity_sha256_value=empty_ledger[
+                    "snapshot_identity_sha256"
+                ],
+                start_index=0,
+                next_index=1,
+                snapshot_rows=empty_ledger["snapshot_rows"],
+                eligible_rows=empty_ledger["eligible_rows"],
+                selection_exhausted=False,
+            )
+            page = make_selection_page(
+                binding_sha256=empty_ledger["binding_sha256"],
+                snapshot_identity_sha256_value=empty_ledger[
+                    "snapshot_identity_sha256"
+                ],
+                page_sequence=0,
+                previous_ack_sha256=empty_ledger["last_ack_sha256"],
+                start_index=0,
+                next_index=1,
+                selected_digests=["rank-hook-candidate"],
+                scan_evidence=scan,
+            )
+            installed_pending = install_pending_page(empty_ledger, page)
+            candidate_pool.atomic_write_json(
+                ledger_path,
+                installed_pending,
+            )
+        return rows, _snapshot_counts(len(rows))
+
+    monkeypatch.setattr(candidate_pool, "rank_candidate_files", ranker)
+    monkeypatch.setattr(
+        candidate_pool,
+        "certificate_source_fingerprint",
+        lambda: source_version[0],
+    )
+    monkeypatch.setattr(
+        candidate_pool,
+        "solver_runtime_fingerprint",
+        _snapshot_solver_runtime,
+    )
+    snapshot, _ = candidate_pool.prepare_ranked_snapshot(
+        [candidate_input],
+        ledger_path=ledger_path,
+    )
+    empty_ledger = new_selection_ledger(
+        binding_sha256="e" * 64,
+        snapshot_identity_sha256_value=(
+            candidate_pool.snapshot_identity_sha256(snapshot.identity)
+        ),
+        snapshot_rows=snapshot.rows,
+        eligible_rows=snapshot.eligible_rows,
+    )
+    candidate_pool.atomic_write_json(ledger_path, empty_ledger)
+    protected_paths = (
+        snapshot.snapshot_path,
+        snapshot.offsets_path,
+        snapshot.manifest_path,
+    )
+    protected_bytes = {
+        path: path.read_bytes()
+        for path in protected_paths
+    }
+    source_version[0] = "source-v2"
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="selection ledger changed while ranking",
+    ):
+        candidate_pool.prepare_ranked_snapshot(
+            [candidate_input],
+            ledger_path=ledger_path,
+        )
+
+    assert rank_calls == 2
+    assert json.loads(ledger_path.read_text()) == installed_pending
+    assert {
+        path: path.read_bytes()
+        for path in protected_paths
+    } == protected_bytes
 
 
 def test_ranked_snapshot_target_mode_is_a_cache_dependency(
@@ -3408,7 +3996,7 @@ def test_ranked_snapshot_target_mode_is_a_cache_dependency(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
 
     candidate_pool.prepare_ranked_snapshot(
@@ -3446,7 +4034,7 @@ def test_ranked_snapshot_page_decodes_only_rows_needed(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
         [candidate_input],
@@ -3500,7 +4088,7 @@ def test_ranked_snapshot_ledger_paginates_without_reranking(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     snapshot, first_cache_hit = candidate_pool.prepare_ranked_snapshot(
         [candidate_input],
@@ -3579,7 +4167,7 @@ def test_structural_unresolved_tail_retries_without_rotating_snapshot_or_cursor(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, cache_hit = candidate_pool.prepare_ranked_snapshot(
@@ -3698,7 +4286,7 @@ def test_empty_nonterminal_page_commits_only_to_next_unresolved_barrier(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
@@ -3799,7 +4387,7 @@ def test_ranked_snapshot_detects_same_stat_in_place_tampering(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
         [candidate_input],
@@ -3856,7 +4444,7 @@ def test_ranked_snapshot_invalidates_changed_input_and_source(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     candidate_pool.prepare_ranked_snapshot(
@@ -3914,7 +4502,7 @@ def test_ranked_snapshot_manifest_field_tamper_rebuilds_fail_closed(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
@@ -3957,7 +4545,7 @@ def test_ranked_snapshot_eligible_count_forgery_fails_boundary_replay(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
@@ -4019,7 +4607,7 @@ def test_ranked_snapshot_replays_real_eligible_terminal_boundary(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
 
@@ -4057,7 +4645,7 @@ def test_zero_row_snapshot_emits_only_trusted_terminal_root_page(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, cache_hit = candidate_pool.prepare_ranked_snapshot(
@@ -4085,7 +4673,7 @@ def test_zero_row_snapshot_emits_only_trusted_terminal_root_page(
     assert ledger["pending"] == page
 
 
-def test_legacy_selection_ledger_restarts_at_zero_without_trusting_cursor(
+def test_legacy_selection_ledger_requires_explicit_migration(
     tmp_path,
     monkeypatch,
 ):
@@ -4105,14 +4693,14 @@ def test_legacy_selection_ledger_restarts_at_zero_without_trusting_cursor(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
         [candidate_input],
         ledger_path=ledger_path,
     )
-    first, _, first_page, _ = (
+    _, _, first_page, _ = (
         candidate_pool._prepare_snapshot_selection_page(
             snapshot,
             top=1,
@@ -4121,7 +4709,7 @@ def test_legacy_selection_ledger_restarts_at_zero_without_trusting_cursor(
             canonicalizer=_snapshot_canonicalizer,
         )
     )
-    candidate_pool.atomic_write_json(ledger_path, {
+    forged = {
         "schema_version": 1,
         "gate": "qldpc-stage2-selection-ledger",
         "binding_sha256": first_page["binding_sha256"],
@@ -4129,9 +4717,14 @@ def test_legacy_selection_ledger_restarts_at_zero_without_trusting_cursor(
         "committed_digests": ["forged-skip"],
         "completed_pages": 99,
         "pending": None,
-    })
+    }
+    candidate_pool.atomic_write_json(ledger_path, forged)
+    ledger_bytes = ledger_path.read_bytes()
 
-    replay, _, replay_page, replay_ledger = (
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="existing selection ledger is invalid",
+    ):
         candidate_pool._prepare_snapshot_selection_page(
             snapshot,
             top=1,
@@ -4139,13 +4732,84 @@ def test_legacy_selection_ledger_restarts_at_zero_without_trusting_cursor(
             known_answer_artifact=tmp_path / "known.json",
             canonicalizer=_snapshot_canonicalizer,
         )
+
+    assert ledger_path.read_bytes() == ledger_bytes
+
+
+def test_stale_sealed_selection_ledger_progress_requires_migration(tmp_path):
+    ledger_path = tmp_path / "selection.json"
+    old_binding = "a" * 64
+    old_snapshot = "b" * 64
+    ledger = new_selection_ledger(
+        binding_sha256=old_binding,
+        snapshot_identity_sha256_value=old_snapshot,
+        snapshot_rows=2,
+        eligible_rows=2,
+    )
+    scan = make_scan_evidence(
+        snapshot_identity_sha256_value=old_snapshot,
+        start_index=0,
+        next_index=1,
+        snapshot_rows=2,
+        eligible_rows=2,
+        selection_exhausted=False,
+    )
+    page = make_selection_page(
+        binding_sha256=old_binding,
+        snapshot_identity_sha256_value=old_snapshot,
+        page_sequence=0,
+        previous_ack_sha256=ledger["last_ack_sha256"],
+        start_index=0,
+        next_index=1,
+        selected_digests=["candidate"],
+        scan_evidence=scan,
+    )
+    candidate_pool.atomic_write_json(
+        ledger_path,
+        install_pending_page(ledger, page),
+    )
+    ledger_bytes = ledger_path.read_bytes()
+
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="stale selection ledger",
+    ):
+        candidate_pool._load_selection_ledger(
+            ledger_path,
+            binding_sha256="c" * 64,
+            snapshot_identity_sha256_value="d" * 64,
+            snapshot_rows=3,
+            eligible_rows=3,
+        )
+
+    assert ledger_path.read_bytes() == ledger_bytes
+
+
+def test_stale_sealed_empty_selection_ledger_can_restart(tmp_path):
+    ledger_path = tmp_path / "selection.json"
+    candidate_pool.atomic_write_json(
+        ledger_path,
+        new_selection_ledger(
+            binding_sha256="a" * 64,
+            snapshot_identity_sha256_value="b" * 64,
+            snapshot_rows=2,
+            eligible_rows=2,
+        ),
     )
 
-    assert replay[0]["source"] == first[0]["source"]
-    assert replay_page["start_index"] == 0
-    assert replay_ledger["schema_version"] == 2
-    assert replay_ledger["cursor"] == 0
-    assert replay_ledger["committed_digests"] == []
+    restarted = candidate_pool._load_selection_ledger(
+        ledger_path,
+        binding_sha256="c" * 64,
+        snapshot_identity_sha256_value="d" * 64,
+        snapshot_rows=3,
+        eligible_rows=3,
+    )
+
+    assert restarted["binding_sha256"] == "c" * 64
+    assert restarted["snapshot_identity_sha256"] == "d" * 64
+    assert restarted["cursor"] == restarted["completed_pages"] == 0
+    assert restarted["committed_digests"] == []
+    assert restarted["pending"] is None
 
 
 @pytest.mark.parametrize("forgery", ("cursor", "committed"))
@@ -4170,7 +4834,7 @@ def test_selection_ledger_ack_chain_rejects_forged_progress(
     monkeypatch.setattr(
         candidate_pool,
         "solver_runtime_fingerprint",
-        lambda: {"runtime": "test"},
+        _snapshot_solver_runtime,
     )
     ledger_path = tmp_path / "selection.json"
     snapshot, _ = candidate_pool.prepare_ranked_snapshot(
@@ -4200,7 +4864,10 @@ def test_selection_ledger_ack_chain_rejects_forged_progress(
         seal_selection_ledger(ledger),
     )
 
-    with pytest.raises(ValueError, match="selection ledger replay"):
+    with pytest.raises(
+        candidate_pool.RankedSnapshotMigrationRequired,
+        match="existing selection ledger is invalid",
+    ):
         candidate_pool._prepare_snapshot_selection_page(
             snapshot,
             top=1,

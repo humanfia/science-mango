@@ -1321,6 +1321,26 @@ def validate_proof_runtime_fingerprint(
     return core
 
 
+def proof_runtime_fingerprints_equivalent(
+    first: Mapping[str, Any],
+    second: Mapping[str, Any],
+) -> bool:
+    """Compare validated runtimes while ignoring only executable ctime.
+
+    Copying or restoring the same interpreter executable can change its inode
+    change timestamp without changing the executable, its invocation, or any
+    proof dependency.  That timestamp is therefore unsuitable as a cache
+    invalidator.  Every other field remains part of the exact comparison,
+    including ``invocation_lstat.ctime_ns`` and all package file identities.
+    """
+
+    normalized_first = validate_proof_runtime_fingerprint(first)
+    normalized_second = validate_proof_runtime_fingerprint(second)
+    normalized_first["interpreter"]["executable_file"]["ctime_ns"] = 0
+    normalized_second["interpreter"]["executable_file"]["ctime_ns"] = 0
+    return normalized_first == normalized_second
+
+
 @dataclass(frozen=True)
 class _ProbeProcessIdentity:
     pid: int
@@ -1915,6 +1935,7 @@ __all__ = [
     "known_answer_environment",
     "probe_python_runtime",
     "proof_runtime_fingerprint",
+    "proof_runtime_fingerprints_equivalent",
     "resolve_python_executable",
     "validate_proof_runtime_fingerprint",
 ]

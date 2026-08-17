@@ -8,6 +8,13 @@ from types import SimpleNamespace
 
 import pytest
 
+from evaluation.selection_ledger import (
+    acknowledge_selection_page,
+    install_pending_page,
+    make_scan_evidence,
+    make_selection_page,
+    new_selection_ledger,
+)
 from humanize import strict_discovery_cli as cli
 
 
@@ -35,7 +42,13 @@ def _paths(tmp_path: Path) -> cli.SidecarPaths:
 def _jsonl(path: Path, rows: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        "".join(json.dumps({"rank": index}) + "\n" for index in range(rows)),
+        "".join(
+            json.dumps({
+                "rank": index,
+                "canonical_digest": f"{index + 1:064x}",
+            }) + "\n"
+            for index in range(rows)
+        ),
         encoding="utf-8",
     )
 
@@ -133,6 +146,7 @@ def _no_live_overlap(monkeypatch: pytest.MonkeyPatch) -> None:
         "validate_live_portfolio_source",
         lambda *args, **kwargs: {
             "overlap": False,
+            "blocked_digests": [],
             "check_scope": "test",
         },
     )
@@ -150,6 +164,12 @@ def _write_complete_no_win(
     count = int(_value(argv, "--top"))
     values = statuses or ["REJECTED"] * count
     assert len(values) == count
+    input_rows = [
+        json.loads(line)
+        for line in Path(argv[2]).read_text(encoding="utf-8").splitlines()
+    ]
+    digests = [str(row["canonical_digest"]) for row in input_rows]
+    assert len(digests) == count
     ranked = Path(_value(argv, "--ranked-output"))
     summary = Path(_value(argv, "--summary-output"))
     ranked.parent.mkdir(parents=True, exist_ok=True)
@@ -158,11 +178,11 @@ def _write_complete_no_win(
             json.dumps({
                 "campaign_selected": True,
                 "campaign_audit": {
-                    "canonical_digest": f"{index + 1:064x}",
+                    "canonical_digest": digest,
                     "status": status,
                 },
             }) + "\n"
-            for index, status in enumerate(values)
+            for digest, status in zip(digests, values, strict=True)
         ),
         encoding="utf-8",
     )
@@ -180,6 +200,69 @@ def _write_complete_no_win(
             "selection_exhausted": True,
             "certificate_operational_errors": 0,
         }),
+        encoding="utf-8",
+    )
+    ledger_path = Path(_value(argv, "--selection-ledger"))
+    binding = "b" * 64
+    identity = "d" * 64
+    ledger = new_selection_ledger(
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=identity,
+        snapshot_rows=count,
+        eligible_rows=count,
+    )
+    scan = make_scan_evidence(
+        snapshot_identity_sha256_value=identity,
+        start_index=0,
+        next_index=count,
+        snapshot_rows=count,
+        eligible_rows=count,
+        selection_exhausted=True,
+    )
+    page = make_selection_page(
+        binding_sha256=binding,
+        snapshot_identity_sha256_value=identity,
+        page_sequence=0,
+        previous_ack_sha256=str(ledger["last_ack_sha256"]),
+        start_index=0,
+        next_index=count,
+        selected_digests=digests,
+        scan_evidence=scan,
+    )
+    ledger = acknowledge_selection_page(
+        install_pending_page(ledger, page),
+        page,
+        disposition="COMPLETED",
+    )
+    ledger_path.write_text(json.dumps(ledger) + "\n", encoding="utf-8")
+
+
+def _write_complete_win(
+    argv: list[str],
+    *,
+    digest: str | None = None,
+    certificate_sha256: str = "c" * 64,
+) -> None:
+    count = int(_value(argv, "--top"))
+    _write_complete_no_win(
+        argv,
+        statuses=["THRESHOLD_PROVEN", *(["REJECTED"] * (count - 1))],
+    )
+    ranked = Path(_value(argv, "--ranked-output"))
+    rows = [json.loads(line) for line in ranked.read_text().splitlines()]
+    rows[0]["campaign_audit"].update({
+        "canonical_digest": digest or rows[0]["campaign_audit"]["canonical_digest"],
+        "certificate": {
+            "attempted": True,
+            "certificate_exact": True,
+            "certificate_passed": True,
+            "verification_attempted": True,
+            "verification_passed": True,
+            "certificate_sha256": certificate_sha256,
+        },
+    })
+    ranked.write_text(
+        "".join(json.dumps(row) + "\n" for row in rows),
         encoding="utf-8",
     )
 
@@ -227,23 +310,7 @@ def test_progressive_100_then_400_stops_on_proof_even_exit_two(tmp_path: Path) -
         if len(calls) == 1:
             _write_complete_no_win(argv)
             return SimpleNamespace(returncode=0)
-        ranked.write_text(
-            json.dumps({
-                "campaign_audit": {
-                    "canonical_digest": "a" * 64,
-                    "status": "THRESHOLD_PROVEN",
-                    "certificate": {
-                        "attempted": True,
-                        "certificate_exact": True,
-                        "certificate_passed": True,
-                        "verification_attempted": True,
-                        "verification_passed": True,
-                        "certificate_sha256": "c" * 64,
-                    },
-                }
-            }) + "\n",
-            encoding="utf-8",
-        )
+        _write_complete_win(argv)
         return SimpleNamespace(returncode=2)
 
     result = cli.run_discovery(
@@ -307,44 +374,9 @@ def test_complete_unresolved_exit_two_is_deferred_and_widens(tmp_path: Path) -> 
     _jsonl(source, 2)
 
     def unresolved(argv: list[str], **_: object) -> SimpleNamespace:
-        ranked = Path(_value(argv, "--ranked-output"))
-        summary = Path(_value(argv, "--summary-output"))
-        rows = [
-            {
-                "campaign_selected": True,
-                "campaign_audit": {
-                    "canonical_digest": "a" * 64,
-                    "status": "REJECTED",
-                },
-            },
-            {
-                "campaign_selected": True,
-                "campaign_audit": {
-                    "canonical_digest": "b" * 64,
-                    "status": "UNRESOLVED",
-                },
-            },
-        ]
-        ranked.write_text(
-            "".join(json.dumps(row) + "\n" for row in rows),
-            encoding="utf-8",
+        _write_complete_no_win(
+            argv, statuses=["REJECTED", "UNRESOLVED"],
         )
-        summary.write_text(json.dumps({
-            "schema_version": 1,
-            "gate": "qldpc-proof-oriented-candidate-pool",
-            "target_mode": cli.TARGET_MODE,
-            "selected_candidates": 2,
-            "top": 2,
-            "canonical_duplicates_skipped": 0,
-            "known_codes_skipped": 0,
-            "unsupported_candidates_skipped": 0,
-            "canonicalization_errors": 0,
-            "structural_unresolved_candidates": 0,
-            "unscanned_eligible_candidates": 0,
-            "selection_exhausted": True,
-            "certificate_operational_errors": 0,
-            "status_counts": {"REJECTED": 1, "UNRESOLVED": 1},
-        }), encoding="utf-8")
         return SimpleNamespace(returncode=2)
 
     result = cli.run_discovery(
@@ -367,7 +399,10 @@ def test_complete_unresolved_exit_two_is_deferred_and_widens(tmp_path: Path) -> 
     summary = paths.root / "all-rejected-summary.json"
     ranked.write_text(json.dumps({
         "campaign_selected": True,
-        "campaign_audit": {"status": "REJECTED"},
+        "campaign_audit": {
+            "canonical_digest": "a" * 64,
+            "status": "REJECTED",
+        },
     }) + "\n", encoding="utf-8")
     summary.write_text(json.dumps({
         "target_mode": cli.TARGET_MODE,
@@ -567,9 +602,12 @@ def test_overlap_is_skipped_and_second_batch_is_backfilled(tmp_path: Path) -> No
     def live_check(*args: object, **kwargs: object) -> dict[str, object]:
         nonlocal checks
         checks += 1
+        requested = set(kwargs["candidate_digests"])
+        owned = set(blocked) if checks >= 4 else set()
+        overlap = sorted(requested.intersection(owned))
         return {
-            "overlap": checks == 2,
-            "blocked_digests": blocked if checks == 2 else [],
+            "overlap": bool(overlap),
+            "blocked_digests": overlap,
             "check_scope": "test",
         }
 
@@ -579,21 +617,7 @@ def test_overlap_is_skipped_and_second_batch_is_backfilled(tmp_path: Path) -> No
         if calls == 1:
             _write_complete_no_win(argv)
             return SimpleNamespace(returncode=0)
-        ranked = Path(_value(argv, "--ranked-output"))
-        ranked.write_text(json.dumps({
-            "campaign_audit": {
-                "canonical_digest": "a" * 64,
-                "status": "THRESHOLD_PROVEN",
-                "certificate": {
-                    "attempted": True,
-                    "certificate_exact": True,
-                    "certificate_passed": True,
-                    "verification_attempted": True,
-                    "verification_passed": True,
-                    "certificate_sha256": "b" * 64,
-                },
-            },
-        }) + "\n", encoding="utf-8")
+        _write_complete_win(argv, certificate_sha256="b" * 64)
         return SimpleNamespace(returncode=2)
 
     result = cli.run_discovery(
@@ -617,7 +641,7 @@ def test_overlap_is_skipped_and_second_batch_is_backfilled(tmp_path: Path) -> No
     assert second["skipped_foreground_owned_sha256"] == cli._sha256(blocked)
 
 
-def test_failed_active_batch_replays_without_live_refilter(
+def test_failed_active_batch_replays_with_live_refencing(
     tmp_path: Path,
 ) -> None:
     paths = _paths(tmp_path)
@@ -629,8 +653,6 @@ def test_failed_active_batch_replays_without_live_refilter(
     def live_check(*args: object, **kwargs: object) -> dict[str, object]:
         nonlocal checks
         checks += 1
-        if checks > 1:
-            raise AssertionError("sealed active batch must not be re-filtered")
         return {"overlap": False, "blocked_digests": [], "check_scope": "test"}
 
     failed = cli.run_discovery(
@@ -658,7 +680,7 @@ def test_failed_active_batch_replays_without_live_refilter(
         live_source_validator=live_check,
     )
     completed = resumed["batches"][0]
-    assert checks == 1
+    assert checks == 5
     assert identity == (batch_input.stat().st_ino, completed["input_sha256"])
     for field in (
         "selected_source_rows",
@@ -804,7 +826,10 @@ def test_known_registry_skip_is_only_accepted_when_exactly_accounted(
     summary = paths.root / "known-skip-summary.json"
     ranked.write_text(json.dumps({
         "campaign_selected": True,
-        "campaign_audit": {"status": "REJECTED"},
+        "campaign_audit": {
+            "canonical_digest": "a" * 64,
+            "status": "REJECTED",
+        },
     }) + "\n", encoding="utf-8")
     base = {
         "target_mode": cli.TARGET_MODE,
@@ -870,3 +895,140 @@ def test_portfolio_producer_and_authority_tampering_fail_closed(
     monkeypatch.setattr(cli, "_CLI_SOURCE_SHA256", "0" * 64)
     with pytest.raises(cli.StrictDiscoveryError, match="CLI source changed"):
         cli.load_portfolio_manifest(manifest_path, paths=paths)
+
+
+
+def test_prelaunch_overlap_fails_without_invoking_backend(tmp_path: Path) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 2)
+    manifest_path = _portfolio_manifest(paths, source)
+    manifest = json.loads(manifest_path.read_text())
+    blocked = manifest["items"][0]["canonical_digest"]
+    checks = 0
+    backend_called = False
+
+    def live_check(*args: object, **kwargs: object) -> dict[str, object]:
+        nonlocal checks
+        checks += 1
+        requested = set(kwargs["candidate_digests"])
+        overlap = [blocked] if checks == 2 and blocked in requested else []
+        return {
+            "overlap": bool(overlap),
+            "blocked_digests": overlap,
+            "check_scope": "test",
+        }
+
+    def backend(*args: object, **kwargs: object) -> SimpleNamespace:
+        nonlocal backend_called
+        backend_called = True
+        return SimpleNamespace(returncode=0)
+
+    result = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=manifest_path,
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=backend,
+        live_source_validator=live_check,
+    )
+    assert result["status"] == "FAILED"
+    assert result["next_row"] == 0
+    assert result["batches"] == []
+    assert result["active_batch"]["ownership_conflict"]["phase"] == "pre-launch"
+    assert backend_called is False
+
+
+def test_postrun_overlap_fails_without_committing_batch(tmp_path: Path) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 2)
+    manifest_path = _portfolio_manifest(paths, source)
+    manifest = json.loads(manifest_path.read_text())
+    blocked = manifest["items"][0]["canonical_digest"]
+    checks = 0
+
+    def live_check(*args: object, **kwargs: object) -> dict[str, object]:
+        nonlocal checks
+        checks += 1
+        requested = set(kwargs["candidate_digests"])
+        overlap = [blocked] if checks == 3 and blocked in requested else []
+        return {
+            "overlap": bool(overlap),
+            "blocked_digests": overlap,
+            "check_scope": "test",
+        }
+
+    def backend(argv: list[str], **_: object) -> SimpleNamespace:
+        _write_complete_no_win(argv)
+        return SimpleNamespace(returncode=0)
+
+    result = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=manifest_path,
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=backend,
+        live_source_validator=live_check,
+    )
+    assert result["status"] == "FAILED"
+    assert result["next_row"] == 0
+    assert result["batches"] == []
+    conflict = result["active_batch"]["ownership_conflict"]
+    assert conflict["phase"] == "post-run"
+    assert conflict["blocked_digests"] == [blocked]
+
+@pytest.mark.parametrize(
+    "tamper",
+    ["nonselected", "digest", "summary", "missing_ledger", "ledger_digest"],
+)
+def test_runtime_rejects_proof_before_progress_when_batch_evidence_diverges(
+    tmp_path: Path,
+    tamper: str,
+) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 1)
+
+    def backend(argv: list[str], **_: object) -> SimpleNamespace:
+        _write_complete_win(argv)
+        ranked = Path(_value(argv, "--ranked-output"))
+        summary = Path(_value(argv, "--summary-output"))
+        ledger = Path(_value(argv, "--selection-ledger"))
+        if tamper in {"nonselected", "digest"}:
+            rows = [json.loads(line) for line in ranked.read_text().splitlines()]
+            if tamper == "nonselected":
+                rows[0]["campaign_selected"] = False
+            else:
+                rows[0]["campaign_audit"]["canonical_digest"] = "f" * 64
+            ranked.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+        elif tamper == "summary":
+            value = json.loads(summary.read_text())
+            value["selected_candidates"] = 0
+            summary.write_text(json.dumps(value) + "\n", encoding="utf-8")
+        elif tamper == "missing_ledger":
+            ledger.unlink()
+        else:
+            value = json.loads(ledger.read_text())
+            value["committed_digests"] = ["f" * 64]
+            unsigned = dict(value)
+            unsigned.pop("progress_sha256", None)
+            value["progress_sha256"] = cli._sha256(unsigned)
+            ledger.write_text(json.dumps(value) + "\n", encoding="utf-8")
+        return SimpleNamespace(returncode=2)
+
+    result = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=_portfolio_manifest(paths, source),
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=backend,
+    )
+    assert result["status"] == "FAILED"
+    assert result["wins"] == []
+    assert result["next_row"] == 0
+    assert result["batches"] == []
+    assert result["active_batch"]["manifest_start_row"] == 0
