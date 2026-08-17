@@ -233,6 +233,117 @@ def _read_json(path: Path, *, label: str) -> dict[str, Any]:
     return value
 
 
+def _confined_directory_fd(
+    path: Path,
+    *,
+    run_root: Path,
+    label: str,
+    create: bool = False,
+) -> int:
+    from .strict_discovery_migration import (
+        StrictDiscoveryMigrationError,
+        _open_confined_directory,
+    )
+
+    try:
+        confined, descriptor = _open_confined_directory(
+            path,
+            run_root=run_root,
+            label=label,
+            create=create,
+        )
+    except (OSError, StrictDiscoveryMigrationError) as exc:
+        raise StrictDiscoveryError(
+            f"{label} must be a confined directory with no symlink ancestors"
+        ) from exc
+    if confined != Path(os.path.abspath(path)):
+        os.close(descriptor)
+        raise StrictDiscoveryError(f"{label} path is not canonical")
+    return descriptor
+
+
+def _descriptor_bytes(
+    descriptor: int,
+    *,
+    label: str,
+) -> tuple[bytes, tuple[int, ...]]:
+    before = os.fstat(descriptor)
+    if not stat.S_ISREG(before.st_mode):
+        raise ValueError(f"{label} must be a regular non-symlink file")
+    chunks: list[bytes] = []
+    while True:
+        chunk = os.read(descriptor, 1024 * 1024)
+        if not chunk:
+            break
+        chunks.append(chunk)
+    after = os.fstat(descriptor)
+    token = (
+        int(after.st_dev),
+        int(after.st_ino),
+        int(after.st_mode),
+        int(after.st_nlink),
+        int(after.st_size),
+        int(after.st_mtime_ns),
+        int(after.st_ctime_ns),
+    )
+    before_token = (
+        int(before.st_dev),
+        int(before.st_ino),
+        int(before.st_mode),
+        int(before.st_nlink),
+        int(before.st_size),
+        int(before.st_mtime_ns),
+        int(before.st_ctime_ns),
+    )
+    payload = b"".join(chunks)
+    if before_token != token or len(payload) != after.st_size:
+        raise ValueError(f"{label} changed while reading")
+    return payload, token
+
+
+def _stable_file_bytes(
+    path: Path,
+    *,
+    run_root: Path,
+    label: str,
+) -> tuple[bytes, tuple[int, ...]]:
+    parent_fd = _confined_directory_fd(
+        path.parent,
+        run_root=run_root,
+        label=f"{label} directory",
+    )
+    descriptor = -1
+    try:
+        descriptor = os.open(
+            path.name,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+            dir_fd=parent_fd,
+        )
+        return _descriptor_bytes(descriptor, label=label)
+    except OSError as exc:
+        raise ValueError(f"{label} is not a readable regular file") from exc
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        os.close(parent_fd)
+
+
+def _prepare_batch_directory(
+    path: Path,
+    *,
+    run_root: Path,
+    label: str,
+) -> Path:
+    descriptor = _confined_directory_fd(
+        path,
+        run_root=run_root,
+        label=label,
+        create=True,
+    )
+    os.close(descriptor)
+    return path
+
+
 def _atomic_write(path: Path, payload: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
@@ -258,6 +369,74 @@ def _atomic_write(path: Path, payload: bytes) -> None:
 
 def _atomic_write_json(path: Path, value: Mapping[str, Any]) -> None:
     _atomic_write(path, _canonical_bytes(dict(value)) + b"\n")
+
+
+def _atomic_cas_write_json(
+    path: Path,
+    value: Mapping[str, Any],
+    *,
+    run_root: Path,
+    expected_token: tuple[int, ...],
+    expected_payload_sha256: str,
+) -> None:
+    payload = _canonical_bytes(dict(value)) + b"\n"
+    temporary = f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+    parent_fd = _confined_directory_fd(
+        path.parent,
+        run_root=run_root,
+        label="strict discovery batch selection ledger directory",
+    )
+    temporary_fd = -1
+    current_fd = -1
+    try:
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
+        temporary_fd = os.open(
+            temporary,
+            flags,
+            0o600,
+            dir_fd=parent_fd,
+        )
+        written = 0
+        while written < len(payload):
+            written += os.write(temporary_fd, payload[written:])
+        os.fsync(temporary_fd)
+        os.close(temporary_fd)
+        temporary_fd = -1
+        current_fd = os.open(
+            path.name,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+            dir_fd=parent_fd,
+        )
+        current, current_token = _descriptor_bytes(
+            current_fd,
+            label="strict discovery batch selection ledger",
+        )
+        os.close(current_fd)
+        current_fd = -1
+        if (
+            current_token != expected_token
+            or hashlib.sha256(current).hexdigest() != expected_payload_sha256
+        ):
+            raise StrictDiscoveryError(
+                "strict discovery batch selection ledger changed before ACK"
+            )
+        os.replace(
+            temporary,
+            path.name,
+            src_dir_fd=parent_fd,
+            dst_dir_fd=parent_fd,
+        )
+        os.fsync(parent_fd)
+    finally:
+        if temporary_fd >= 0:
+            os.close(temporary_fd)
+        if current_fd >= 0:
+            os.close(current_fd)
+        try:
+            os.unlink(temporary, dir_fd=parent_fd)
+        except FileNotFoundError:
+            pass
+        os.close(parent_fd)
 
 
 def parse_cpu_list(value: Any) -> tuple[int, ...]:
@@ -929,60 +1108,224 @@ def _ranked_audited_digests(path: Path) -> list[str] | None:
     return digests
 
 
-def _is_ordered_subsequence(values: Sequence[str], source: Sequence[str]) -> bool:
-    position = 0
-    for value in values:
-        while position < len(source) and source[position] != value:
-            position += 1
-        if position == len(source):
-            return False
-        position += 1
-    return True
+def _load_validated_batch_ledger(
+    path: Path,
+    *,
+    run_root: Path,
+) -> tuple[dict[str, Any], tuple[int, ...], str]:
+    payload, token = _stable_file_bytes(
+        path,
+        run_root=run_root,
+        label="strict discovery batch selection ledger",
+    )
+    try:
+        ledger = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(
+            "strict discovery batch selection ledger is malformed JSON"
+        ) from exc
+    if not isinstance(ledger, Mapping):
+        raise ValueError("strict discovery batch selection ledger must be an object")
+    from evaluation.selection_ledger import validate_selection_ledger
+
+    validated = validate_selection_ledger(
+        ledger,
+        binding_sha256=str(ledger.get("binding_sha256")),
+        snapshot_identity_sha256_value=str(
+            ledger.get("snapshot_identity_sha256")
+        ),
+        snapshot_rows=ledger.get("snapshot_rows"),
+        eligible_rows=ledger.get("eligible_rows"),
+    )
+    return validated, token, hashlib.sha256(payload).hexdigest()
 
 
-def _completed_batch_ledger_matches(
+def _batch_ledger_state(
     path: Path,
     *,
     input_digests: Sequence[str],
     audited_digests: Sequence[str],
-) -> bool:
+    selection_page: Mapping[str, Any],
+    run_root: Path,
+) -> tuple[str, dict[str, Any], tuple[int, ...], str] | None:
+    input_values = list(input_digests)
+    audited_values = list(audited_digests)
     if (
-        path.is_symlink()
-        or not path.is_file()
-        or len(set(input_digests)) != len(input_digests)
-        or len(set(audited_digests)) != len(audited_digests)
-        or not _is_ordered_subsequence(audited_digests, input_digests)
+        len(set(input_values)) != len(input_values)
+        or len(set(audited_values)) != len(audited_values)
+        or not set(audited_values).issubset(set(input_values))
+        or selection_page.get("selected_digests") != audited_values
+        or selection_page.get("start_index") != 0
+        or selection_page.get("next_index") != len(input_values)
+        or not isinstance(selection_page.get("scan_evidence"), Mapping)
+        or selection_page["scan_evidence"].get("selection_exhausted") is not True
     ):
-        return False
+        return None
     try:
-        ledger = _read_json(path, label="strict discovery batch selection ledger")
-        from evaluation.selection_ledger import validate_selection_ledger
+        validated, token, payload_sha256 = _load_validated_batch_ledger(
+            path,
+            run_root=run_root,
+        )
+    except (OSError, TypeError, ValueError):
+        return None
+    if (
+        validated.get("snapshot_rows") != len(input_values)
+        or validated.get("eligible_rows") != len(input_values)
+        or validated.get("generation") != 0
+        or validated.get("generation_history") != []
+        or validated.get("deferred_pages") != []
+    ):
+        return None
+    pending = validated.get("pending")
+    ack_chain = validated.get("ack_chain")
+    if (
+        pending == dict(selection_page)
+        and validated.get("cursor") == 0
+        and validated.get("completed_pages") == 0
+        and validated.get("committed_digests") == []
+        and ack_chain == []
+    ):
+        return "PENDING", validated, token, payload_sha256
+    if (
+        pending is not None
+        or validated.get("cursor") != len(input_values)
+        or validated.get("completed_pages") != 1
+        or validated.get("committed_digests") != audited_values
+        or not isinstance(ack_chain, list)
+        or len(ack_chain) != 1
+    ):
+        return None
+    ack = ack_chain[0]
+    if (
+        not isinstance(ack, Mapping)
+        or ack.get("sequence") != 0
+        or ack.get("disposition") != "COMPLETED"
+        or ack.get("deferred_entry_sha256") is not None
+        or ack.get("page") != dict(selection_page)
+        or ack.get("page_sha256") != selection_page.get("page_sha256")
+        or validated.get("last_ack_sha256") != ack.get("ack_sha256")
+    ):
+        return None
+    return "ACKED", validated, token, payload_sha256
 
-        validated = validate_selection_ledger(
-            ledger,
-            binding_sha256=str(ledger.get("binding_sha256")),
-            snapshot_identity_sha256_value=str(
-                ledger.get("snapshot_identity_sha256")
-            ),
-            snapshot_rows=ledger.get("snapshot_rows"),
-            eligible_rows=ledger.get("eligible_rows"),
+
+def _acknowledge_pending_batch_ledger(
+    path: Path,
+    *,
+    input_digests: Sequence[str],
+    audited_digests: Sequence[str],
+    selection_page: Mapping[str, Any],
+    run_root: Path,
+) -> dict[str, Any]:
+    state = _batch_ledger_state(
+        path,
+        input_digests=input_digests,
+        audited_digests=audited_digests,
+        selection_page=selection_page,
+        run_root=run_root,
+    )
+    if state is None or state[0] != "PENDING":
+        raise StrictDiscoveryError(
+            "strict discovery batch selection ledger is not the exact pending page"
+        )
+    _, ledger, token, payload_sha256 = state
+    from evaluation.selection_ledger import acknowledge_selection_page
+
+    acknowledged = acknowledge_selection_page(
+        ledger,
+        selection_page,
+        disposition="COMPLETED",
+    )
+    _atomic_cas_write_json(
+        path,
+        acknowledged,
+        run_root=run_root,
+        expected_token=token,
+        expected_payload_sha256=payload_sha256,
+    )
+    replayed = _batch_ledger_state(
+        path,
+        input_digests=input_digests,
+        audited_digests=audited_digests,
+        selection_page=selection_page,
+        run_root=run_root,
+    )
+    if replayed is None or replayed[0] != "ACKED":
+        raise StrictDiscoveryError(
+            "strict discovery batch selection ACK did not replay"
+        )
+    return replayed[1]
+
+def _completed_batch_evidence(
+    batch_root: Path,
+    *,
+    expected_rows: int,
+    input_digests: Sequence[str],
+    run_root: Path,
+) -> dict[str, Any] | None:
+    ranked_output = batch_root / "ranked.jsonl"
+    summary_output = batch_root / "summary.json"
+    try:
+        complete, has_unresolved, status_counts = _complete_unresolved_batch(
+            ranked_output,
+            summary_output,
+            expected_rows=expected_rows,
+        )
+        if not complete:
+            return None
+        audited_digests = _ranked_audited_digests(ranked_output)
+        summary = _read_json(
+            summary_output,
+            label="strict discovery batch summary",
+        )
+        selection_page = summary.get("selection_page")
+        wins = _ranked_wins(ranked_output)
+        if (
+            audited_digests is None
+            or not isinstance(selection_page, Mapping)
+            or status_counts.get("THRESHOLD_PROVEN", 0) != len(wins)
+        ):
+            return None
+        ledger_state = _batch_ledger_state(
+            batch_root / "selection-ledger.json",
+            input_digests=input_digests,
+            audited_digests=audited_digests,
+            selection_page=selection_page,
+            run_root=run_root,
+        )
+        if ledger_state is None:
+            return None
+    except (OSError, TypeError, ValueError):
+        return None
+    return {
+        "ranked_output": ranked_output,
+        "summary_output": summary_output,
+        "selection_page": dict(selection_page),
+        "audited_digests": audited_digests,
+        "wins": wins,
+        "has_unresolved": has_unresolved,
+        "status_counts": status_counts,
+        "ledger_state": ledger_state[0],
+    }
+
+
+def _batch_ledger_allows_retry(path: Path, *, run_root: Path) -> bool:
+    if not path.exists():
+        return True
+    try:
+        ledger, _, _ = _load_validated_batch_ledger(
+            path,
+            run_root=run_root,
         )
     except (OSError, TypeError, ValueError):
         return False
-    ack_selected = [
-        str(digest)
-        for ack in validated.get("ack_chain", [])
-        if isinstance(ack, Mapping)
-        for digest in ack.get("page", {}).get("selected_digests", [])
-    ]
     return bool(
-        validated.get("pending") is None
-        and validated.get("snapshot_rows") == len(input_digests)
-        and validated.get("eligible_rows") == len(input_digests)
-        and validated.get("cursor") == len(input_digests)
-        and validated.get("committed_digests") == list(audited_digests)
-        and ack_selected == list(audited_digests)
+        ledger.get("cursor") == 0
+        and ledger.get("completed_pages") == 0
+        and ledger.get("committed_digests") == []
+        and ledger.get("ack_chain") == []
     )
+
 
 
 def _native_thread_limits() -> None:
@@ -1046,7 +1389,11 @@ def run_discovery(
     )
     successor_batch_directory: Callable[[Any, int | None], Path] | None = None
     if paths.root.name == SIDECAR_NAME:
-        paths.batches.mkdir(parents=True, exist_ok=True)
+        _prepare_batch_directory(
+            paths.batches,
+            run_root=paths.run_root,
+            label="strict discovery batches",
+        )
     else:
         from .strict_discovery_migration import prepare_successor_batch_directory
 
@@ -1148,6 +1495,12 @@ def run_discovery(
                 if successor_batch_directory is not None
                 else paths.batches / f"batch-{batch_index:04d}"
             )
+            if successor_batch_directory is None:
+                _prepare_batch_directory(
+                    batch_root,
+                    run_root=paths.run_root,
+                    label=f"strict discovery active batch {batch_index}",
+                )
             expected_input = (batch_root / "input.jsonl").resolve()
             input_path = _confined_regular_path(
                 str(active.get("input_path")),
@@ -1280,7 +1633,11 @@ def run_discovery(
                 else paths.batches / f"batch-{batch_index:04d}"
             )
             if successor_batch_directory is None:
-                batch_root.mkdir(parents=True, exist_ok=True)
+                _prepare_batch_directory(
+                    batch_root,
+                    run_root=paths.run_root,
+                    label=f"strict discovery batch {batch_index}",
+                )
             input_path = batch_root / "input.jsonl"
             count = _write_selected_batch(
                 source_path,
@@ -1317,22 +1674,37 @@ def run_discovery(
                 "skipped_foreground_owned_sha256": _sha256(skipped),
             }
 
-        launch_source, launch_blocked = checked_live_source(
-            selected_digests,
-            phase="pre-launch",
-        )
         active = dict(active)
-        for stale in ("ownership_conflict", "last_failed_at", "last_returncode"):
-            active.pop(stale, None)
-        active["launch_live_source"] = launch_source
-        if launch_blocked:
+        ledger_path = batch_root / "selection-ledger.json"
+        recorded_returncode = active.get("last_returncode")
+        if isinstance(recorded_returncode, bool) or (
+            recorded_returncode is not None
+            and not isinstance(recorded_returncode, int)
+        ):
+            raise StrictDiscoveryError(
+                "sealed active batch return code is malformed"
+            )
+        completion = (
+            _completed_batch_evidence(
+                batch_root,
+                expected_rows=count,
+                input_digests=selected_digests,
+                run_root=paths.run_root,
+            )
+            if isinstance(recorded_returncode, int)
+            else None
+        )
+        if (
+            isinstance(recorded_returncode, int)
+            and completion is None
+            and not _batch_ledger_allows_retry(
+                ledger_path,
+                run_root=paths.run_root,
+            )
+        ):
             failed_active = {
                 **active,
-                "ownership_conflict": {
-                    "phase": "pre-launch",
-                    "blocked_digests": launch_blocked,
-                    "live_source": launch_source,
-                },
+                "completion_failure": "durable ledger cannot be safely retried",
                 "last_failed_at": time.time(),
             }
             return _write_progress(paths.progress, {
@@ -1342,15 +1714,82 @@ def run_discovery(
                 "updated_at": time.time(),
             })
 
-        active = {**active, "attempts": int(active.get("attempts", 0)) + 1}
-        progress = _write_progress(paths.progress, {
-            **progress,
-            "status": "RUNNING",
-            "active_batch": active,
-            "updated_at": time.time(),
-        })
-        completed = run_command(argv, cwd=paths.repo, shell=False, check=False)
-        returncode = int(getattr(completed, "returncode", completed))
+        if completion is None:
+            for stale in (
+                "backend_completed_at",
+                "completion_failure",
+                "last_failed_at",
+                "last_returncode",
+                "ownership_conflict",
+                "post_live_source",
+                "precommit_live_source",
+            ):
+                active.pop(stale, None)
+            launch_source, launch_blocked = checked_live_source(
+                selected_digests,
+                phase="pre-launch",
+            )
+            active["launch_live_source"] = launch_source
+            if launch_blocked:
+                failed_active = {
+                    **active,
+                    "ownership_conflict": {
+                        "phase": "pre-launch",
+                        "blocked_digests": launch_blocked,
+                        "live_source": launch_source,
+                    },
+                    "last_failed_at": time.time(),
+                }
+                return _write_progress(paths.progress, {
+                    **progress,
+                    "status": "FAILED",
+                    "active_batch": failed_active,
+                    "updated_at": time.time(),
+                })
+            active = {
+                **active,
+                "attempts": int(active.get("attempts", 0)) + 1,
+            }
+            progress = _write_progress(paths.progress, {
+                **progress,
+                "status": "RUNNING",
+                "active_batch": active,
+                "updated_at": time.time(),
+            })
+            completed = run_command(argv, cwd=paths.repo, shell=False, check=False)
+            returncode = int(getattr(completed, "returncode", completed))
+            active = {
+                **active,
+                "last_returncode": returncode,
+                "backend_completed_at": time.time(),
+            }
+            progress = _write_progress(paths.progress, {
+                **progress,
+                "status": "RUNNING",
+                "active_batch": active,
+                "updated_at": time.time(),
+            })
+            completion = _completed_batch_evidence(
+                batch_root,
+                expected_rows=count,
+                input_digests=selected_digests,
+                run_root=paths.run_root,
+            )
+            if completion is None:
+                failed_active = {
+                    **active,
+                    "completion_failure": "backend evidence is incomplete or inconsistent",
+                    "last_failed_at": time.time(),
+                }
+                return _write_progress(paths.progress, {
+                    **progress,
+                    "status": "FAILED",
+                    "active_batch": failed_active,
+                    "updated_at": time.time(),
+                })
+        else:
+            returncode = int(recorded_returncode)
+
         post_source, post_blocked = checked_live_source(
             selected_digests,
             phase="post-run",
@@ -1364,7 +1803,6 @@ def run_discovery(
                     "blocked_digests": post_blocked,
                     "live_source": post_source,
                 },
-                "last_returncode": returncode,
                 "last_failed_at": time.time(),
             }
             return _write_progress(paths.progress, {
@@ -1373,54 +1811,77 @@ def run_discovery(
                 "active_batch": failed_active,
                 "updated_at": time.time(),
             })
-        ranked_output = batch_root / "ranked.jsonl"
-        wins = _ranked_wins(ranked_output)
-        summary_output = batch_root / "summary.json"
-        complete_no_error, has_unresolved, deferred_statuses = (
-            _complete_unresolved_batch(
-                ranked_output,
-                summary_output,
-                expected_rows=count,
+
+        if completion["ledger_state"] == "PENDING":
+            _acknowledge_pending_batch_ledger(
+                ledger_path,
+                input_digests=selected_digests,
+                audited_digests=completion["audited_digests"],
+                selection_page=completion["selection_page"],
+                run_root=paths.run_root,
             )
+            completion = _completed_batch_evidence(
+                batch_root,
+                expected_rows=count,
+                input_digests=selected_digests,
+                run_root=paths.run_root,
+            )
+        if completion is None or completion["ledger_state"] != "ACKED":
+            raise StrictDiscoveryError(
+                "strict discovery batch selection ACK is not durable"
+            )
+
+        precommit_source, precommit_blocked = checked_live_source(
+            selected_digests,
+            phase="pre-commit",
         )
+        if precommit_blocked:
+            failed_active = {
+                **active,
+                "post_live_source": post_source,
+                "precommit_live_source": precommit_source,
+                "ownership_conflict": {
+                    "phase": "pre-commit",
+                    "blocked_digests": precommit_blocked,
+                    "live_source": precommit_source,
+                },
+                "last_failed_at": time.time(),
+            }
+            return _write_progress(paths.progress, {
+                **progress,
+                "status": "FAILED",
+                "active_batch": failed_active,
+                "updated_at": time.time(),
+            })
+
+        batch_active = dict(active)
+        for transient in (
+            "backend_completed_at",
+            "completion_failure",
+            "last_failed_at",
+            "last_returncode",
+            "ownership_conflict",
+            "post_live_source",
+            "precommit_live_source",
+        ):
+            batch_active.pop(transient, None)
+        wins = completion["wins"]
         batch = {
-            **active,
+            **batch_active,
             "post_live_source": post_source,
-            "ranked_output": str(ranked_output),
-            "summary_output": str(summary_output),
+            "precommit_live_source": precommit_source,
+            "ranked_output": str(completion["ranked_output"]),
+            "summary_output": str(completion["summary_output"]),
             "disposition": (
                 "PROVEN"
                 if wins
-                else ("DEFERRED" if has_unresolved else "COMPLETED")
+                else ("DEFERRED" if completion["has_unresolved"] else "COMPLETED")
             ),
-            "status_counts": deferred_statuses,
+            "status_counts": completion["status_counts"],
             "returncode": returncode,
             "wins": wins,
             "completed_at": time.time(),
         }
-        audited_digests = _ranked_audited_digests(ranked_output)
-        complete_semantics = bool(
-            complete_no_error
-            and deferred_statuses.get("THRESHOLD_PROVEN", 0) == len(wins)
-            and audited_digests is not None
-            and _completed_batch_ledger_matches(
-                batch_root / "selection-ledger.json",
-                input_digests=selected_digests,
-                audited_digests=audited_digests,
-            )
-        )
-        if not complete_semantics:
-            failed_active = {
-                **active,
-                "last_returncode": returncode,
-                "last_failed_at": time.time(),
-            }
-            return _write_progress(paths.progress, {
-                **progress,
-                "status": "FAILED",
-                "active_batch": failed_active,
-                "updated_at": time.time(),
-            })
         status = "STRICT_THRESHOLD_PROVEN" if wins else "RUNNING"
         updated = dict(progress)
         updated.pop("active_batch", None)

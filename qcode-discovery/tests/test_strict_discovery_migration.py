@@ -372,19 +372,6 @@ def _complete_no_win(argv: list[str]) -> None:
         ),
         encoding="utf-8",
     )
-    _write_json(summary, {
-        "target_mode": cli.TARGET_MODE,
-        "selected_candidates": count,
-        "top": count,
-        "canonical_duplicates_skipped": 0,
-        "known_codes_skipped": 0,
-        "unsupported_candidates_skipped": 0,
-        "canonicalization_errors": 0,
-        "structural_unresolved_candidates": 0,
-        "unscanned_eligible_candidates": 0,
-        "selection_exhausted": True,
-        "certificate_operational_errors": 0,
-    })
     ledger_path = Path(argv[argv.index("--selection-ledger") + 1])
     binding = "5" * 64
     identity = "6" * 64
@@ -412,12 +399,22 @@ def _complete_no_win(argv: list[str]) -> None:
         selected_digests=digests,
         scan_evidence=scan,
     )
-    ledger = acknowledge_selection_page(
-        install_pending_page(ledger, page),
-        page,
-        disposition="COMPLETED",
-    )
+    ledger = install_pending_page(ledger, page)
     _write_json(ledger_path, ledger)
+    _write_json(summary, {
+        "target_mode": cli.TARGET_MODE,
+        "selected_candidates": count,
+        "top": count,
+        "canonical_duplicates_skipped": 0,
+        "known_codes_skipped": 0,
+        "unsupported_candidates_skipped": 0,
+        "canonicalization_errors": 0,
+        "structural_unresolved_candidates": 0,
+        "unscanned_eligible_candidates": 0,
+        "selection_exhausted": True,
+        "certificate_operational_errors": 0,
+        "selection_page": page,
+    })
 
 
 def _complete_win(argv: list[str]) -> None:

@@ -9,7 +9,6 @@ from types import SimpleNamespace
 import pytest
 
 from evaluation.selection_ledger import (
-    acknowledge_selection_page,
     install_pending_page,
     make_scan_evidence,
     make_selection_page,
@@ -160,16 +159,22 @@ def _write_complete_no_win(
     argv: list[str],
     *,
     statuses: list[str] | None = None,
+    skipped_known: int = 0,
+    reverse_selected: bool = False,
 ) -> None:
     count = int(_value(argv, "--top"))
-    values = statuses or ["REJECTED"] * count
-    assert len(values) == count
     input_rows = [
         json.loads(line)
         for line in Path(argv[2]).read_text(encoding="utf-8").splitlines()
     ]
-    digests = [str(row["canonical_digest"]) for row in input_rows]
-    assert len(digests) == count
+    input_digests = [str(row["canonical_digest"]) for row in input_rows]
+    assert len(input_digests) == count
+    assert 0 <= skipped_known <= count
+    digests = input_digests[skipped_known:]
+    if reverse_selected:
+        digests = list(reversed(digests))
+    values = statuses or ["REJECTED"] * len(digests)
+    assert len(values) == len(digests)
     ranked = Path(_value(argv, "--ranked-output"))
     summary = Path(_value(argv, "--summary-output"))
     ranked.parent.mkdir(parents=True, exist_ok=True)
@@ -184,22 +189,6 @@ def _write_complete_no_win(
             }) + "\n"
             for digest, status in zip(digests, values, strict=True)
         ),
-        encoding="utf-8",
-    )
-    summary.write_text(
-        json.dumps({
-            "target_mode": cli.TARGET_MODE,
-            "selected_candidates": count,
-            "top": count,
-            "canonical_duplicates_skipped": 0,
-            "known_codes_skipped": 0,
-            "unsupported_candidates_skipped": 0,
-            "canonicalization_errors": 0,
-            "structural_unresolved_candidates": 0,
-            "unscanned_eligible_candidates": 0,
-            "selection_exhausted": True,
-            "certificate_operational_errors": 0,
-        }),
         encoding="utf-8",
     )
     ledger_path = Path(_value(argv, "--selection-ledger"))
@@ -229,12 +218,25 @@ def _write_complete_no_win(
         selected_digests=digests,
         scan_evidence=scan,
     )
-    ledger = acknowledge_selection_page(
-        install_pending_page(ledger, page),
-        page,
-        disposition="COMPLETED",
-    )
+    ledger = install_pending_page(ledger, page)
     ledger_path.write_text(json.dumps(ledger) + "\n", encoding="utf-8")
+    summary.write_text(
+        json.dumps({
+            "target_mode": cli.TARGET_MODE,
+            "selected_candidates": len(digests),
+            "top": count,
+            "canonical_duplicates_skipped": 0,
+            "known_codes_skipped": skipped_known,
+            "unsupported_candidates_skipped": 0,
+            "canonicalization_errors": 0,
+            "structural_unresolved_candidates": 0,
+            "unscanned_eligible_candidates": 0,
+            "selection_exhausted": True,
+            "certificate_operational_errors": 0,
+            "selection_page": page,
+        }),
+        encoding="utf-8",
+    )
 
 
 def _write_complete_win(
@@ -1032,3 +1034,256 @@ def test_runtime_rejects_proof_before_progress_when_batch_evidence_diverges(
     assert result["next_row"] == 0
     assert result["batches"] == []
     assert result["active_batch"]["manifest_start_row"] == 0
+
+
+def test_parent_acknowledges_real_pending_page_with_known_skip_and_rerank(
+    tmp_path: Path,
+) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 100)
+    calls = 0
+
+    def backend(argv: list[str], **_: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        _write_complete_no_win(
+            argv,
+            skipped_known=3,
+            reverse_selected=True,
+        )
+        return SimpleNamespace(returncode=0)
+
+    result = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=_portfolio_manifest(paths, source),
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=backend,
+    )
+    assert calls == 1
+    assert result["status"] == "EXHAUSTED"
+    assert result["next_row"] == 100
+    assert result["batches"][0]["status_counts"] == {"REJECTED": 97}
+    batch_root = paths.batches / "batch-0000"
+    summary = json.loads((batch_root / "summary.json").read_text())
+    ledger = json.loads((batch_root / "selection-ledger.json").read_text())
+    page_digests = summary["selection_page"]["selected_digests"]
+    assert len(page_digests) == 97
+    assert page_digests[0] == f"{100:064x}"
+    assert page_digests[-1] == f"{4:064x}"
+    assert ledger["pending"] is None
+    assert ledger["cursor"] == 100
+    assert ledger["completed_pages"] == 1
+    assert ledger["committed_digests"] == page_digests
+    assert ledger["ack_chain"][0]["disposition"] == "COMPLETED"
+    assert ledger["ack_chain"][0]["page"] == summary["selection_page"]
+
+
+def test_crash_after_artifacts_before_ack_resumes_without_backend_rerun(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 5)
+    manifest = _portfolio_manifest(paths, source)
+    calls = 0
+
+    def backend(argv: list[str], **_: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        _write_complete_no_win(argv)
+        return SimpleNamespace(returncode=0)
+
+    original_ack = cli._acknowledge_pending_batch_ledger
+    monkeypatch.setattr(
+        cli,
+        "_acknowledge_pending_batch_ledger",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            RuntimeError("crash before ACK")
+        ),
+    )
+    with pytest.raises(RuntimeError, match="crash before ACK"):
+        cli.run_discovery(
+            paths=paths,
+            portfolio_manifest=manifest,
+            ranked_input=source,
+            config=cli.DiscoveryConfig(),
+            run_command=backend,
+        )
+    progress = cli._load_progress(paths.progress)
+    assert progress is not None
+    assert progress["active_batch"]["last_returncode"] == 0
+    ledger_path = paths.batches / "batch-0000" / "selection-ledger.json"
+    assert json.loads(ledger_path.read_text())["pending"] is not None
+
+    monkeypatch.setattr(cli, "_acknowledge_pending_batch_ledger", original_ack)
+
+    def forbidden_backend(*args: object, **kwargs: object) -> SimpleNamespace:
+        raise AssertionError("completed backend must not be rerun")
+
+    resumed = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=manifest,
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=forbidden_backend,
+    )
+    assert calls == 1
+    assert resumed["status"] == "EXHAUSTED"
+    ledger = json.loads(ledger_path.read_text())
+    assert ledger["pending"] is None
+    assert ledger["completed_pages"] == 1
+
+
+def test_crash_after_ack_before_progress_resumes_without_backend_rerun(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 5)
+    manifest = _portfolio_manifest(paths, source)
+    calls = 0
+
+    def backend(argv: list[str], **_: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        _write_complete_no_win(argv)
+        return SimpleNamespace(returncode=0)
+
+    original_write = cli._write_progress
+    crashed = False
+
+    def crash_before_batch_progress(
+        path: Path,
+        value: dict[str, object],
+    ) -> dict[str, object]:
+        nonlocal crashed
+        if value.get("batches") and "active_batch" not in value and not crashed:
+            crashed = True
+            raise RuntimeError("crash before strict progress commit")
+        return original_write(path, value)
+
+    monkeypatch.setattr(cli, "_write_progress", crash_before_batch_progress)
+    with pytest.raises(RuntimeError, match="crash before strict progress commit"):
+        cli.run_discovery(
+            paths=paths,
+            portfolio_manifest=manifest,
+            ranked_input=source,
+            config=cli.DiscoveryConfig(),
+            run_command=backend,
+        )
+    ledger_path = paths.batches / "batch-0000" / "selection-ledger.json"
+    ledger = json.loads(ledger_path.read_text())
+    assert ledger["pending"] is None
+    assert ledger["completed_pages"] == 1
+
+    def forbidden_backend(*args: object, **kwargs: object) -> SimpleNamespace:
+        raise AssertionError("ACKed backend must not be rerun")
+
+    resumed = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=manifest,
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=forbidden_backend,
+    )
+    assert calls == 1
+    assert resumed["status"] == "EXHAUSTED"
+    assert len(json.loads(ledger_path.read_text())["ack_chain"]) == 1
+
+
+def test_precommit_overlap_keeps_acked_batch_recoverable_without_rerun(
+    tmp_path: Path,
+) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 5)
+    manifest = _portfolio_manifest(paths, source)
+    checks = 0
+    calls = 0
+
+    def live_check(*args: object, **kwargs: object) -> dict[str, object]:
+        nonlocal checks
+        checks += 1
+        requested = list(kwargs["candidate_digests"])
+        blocked = requested[:1] if checks == 4 else []
+        return {
+            "overlap": bool(blocked),
+            "blocked_digests": blocked,
+            "check_scope": "test",
+        }
+
+    def backend(argv: list[str], **_: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        _write_complete_no_win(argv)
+        return SimpleNamespace(returncode=0)
+
+    failed = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=manifest,
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=backend,
+        live_source_validator=live_check,
+    )
+    assert failed["status"] == "FAILED"
+    ledger_path = paths.batches / "batch-0000" / "selection-ledger.json"
+    assert json.loads(ledger_path.read_text())["completed_pages"] == 1
+
+    resumed = cli.run_discovery(
+        paths=paths,
+        portfolio_manifest=manifest,
+        ranked_input=source,
+        config=cli.DiscoveryConfig(),
+        run_command=lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("ACKed backend must not be rerun")
+        ),
+        live_source_validator=live_check,
+    )
+    assert calls == 1
+    assert resumed["status"] == "EXHAUSTED"
+    assert resumed["next_row"] == 5
+
+
+def test_preplaced_batch_ancestor_symlink_fails_before_backend_or_ack(
+    tmp_path: Path,
+) -> None:
+    paths = _paths(tmp_path)
+    source = paths.run_root / "ranked-input.jsonl"
+    _jsonl(source, 5)
+    manifest = _portfolio_manifest(paths, source)
+    paths.batches.mkdir(parents=True)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (paths.batches / "batch-0000").symlink_to(
+        outside,
+        target_is_directory=True,
+    )
+    calls = 0
+
+    def forbidden_backend(*args: object, **kwargs: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        raise AssertionError("backend must not run through a batch symlink")
+
+    with pytest.raises(
+        cli.StrictDiscoveryError,
+        match="no symlink ancestors",
+    ):
+        cli.run_discovery(
+            paths=paths,
+            portfolio_manifest=manifest,
+            ranked_input=source,
+            config=cli.DiscoveryConfig(),
+            run_command=forbidden_backend,
+        )
+    assert calls == 0
+    assert list(outside.iterdir()) == []
+    progress = cli._load_progress(paths.progress)
+    assert progress is not None
+    assert progress["next_row"] == 0
+    assert progress["batches"] == []
