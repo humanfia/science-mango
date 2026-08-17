@@ -18,6 +18,7 @@ from archon.commands.loop.formalization_review_gate import (
 from archon.commands.loop.parallel_review import (
     PipelinedTargetReviewConfig,
     TargetReviewOutcome,
+    load_target_milestone,
     load_pipelined_review_report,
     write_parallel_review_session,
     write_pipelined_review_report,
@@ -82,6 +83,27 @@ def _retry_proof_milestone(rel: str) -> dict:
     row["findings"]["blocker"] = "remaining tactic and lemma search"
     row["next_steps"] = "retry the proof without changing the statement"
     return row
+
+
+def _validated_review_outcome(spec, row: dict) -> TargetReviewOutcome:
+    output_dir = Path(spec.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    milestone_path = output_dir / "milestones.jsonl"
+    milestone_path.write_text(
+        json.dumps(row) + "\n", encoding="utf-8",
+    )
+    milestone, error = load_target_milestone(
+        milestone_path,
+        spec.rel,
+        final_attempt=spec.final_attempt,
+    )
+    return TargetReviewOutcome(
+        rel=spec.rel,
+        attempt=spec.attempt,
+        runner_ok=True,
+        milestone=milestone,
+        error=error,
+    )
 
 
 def _formalization_milestone(rel: str, *, passed: bool = True) -> dict:
@@ -392,6 +414,7 @@ class PipelinedReviewTest(unittest.TestCase):
             order: list[str] = []
             lock = threading.Lock()
             formalizer_prompts: list[str] = []
+            review_attempts: list[tuple[int, bool]] = []
 
             def record(event: str) -> None:
                 with lock:
@@ -407,18 +430,20 @@ class PipelinedReviewTest(unittest.TestCase):
 
             def fake_review(spec, **_kwargs):
                 record(f"review-{Path(spec.rel).stem}:start")
-                milestone = (
-                    _redraft_milestone(spec.rel)
-                    if spec.rel == "A.lean"
-                    else _milestone(spec.rel)
-                )
+                if spec.rel == "A.lean":
+                    milestone = _redraft_milestone(spec.rel)
+                    milestone["status"] = "partial"
+                    review_attempts.append((spec.attempt, spec.final_attempt))
+                    outcome = _validated_review_outcome(spec, milestone)
+                else:
+                    outcome = TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=_milestone(spec.rel),
+                    )
                 record(f"review-{Path(spec.rel).stem}:end")
-                return TargetReviewOutcome(
-                    rel=spec.rel,
-                    attempt=spec.attempt,
-                    runner_ok=True,
-                    milestone=milestone,
-                )
+                return outcome
 
             def fake_formalizer(*args, **_kwargs):
                 formalizer_prompts.append(args[0])
@@ -461,6 +486,10 @@ class PipelinedReviewTest(unittest.TestCase):
                 order.index("prover-B:end"),
             )
             self.assertEqual(len(formalizer_prompts), 1)
+            self.assertEqual(
+                review_attempts,
+                [(1, False), (2, False), (3, True)],
+            )
             self.assertIn("global PROGRESS stage intentionally remains", formalizer_prompts[0])
             self.assertIn("the theorem assumes the requested conclusion", formalizer_prompts[0])
             report = json.loads(
@@ -474,6 +503,66 @@ class PipelinedReviewTest(unittest.TestCase):
             self.assertEqual(handoff["lean_sha256"], hashlib.sha256(
                 targets[0].read_bytes()
             ).hexdigest())
+
+    def test_partial_needs_redraft_can_self_correct_on_attempt_three(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            attempts: list[tuple[int, bool]] = []
+
+            def fake_prover(*_args, **_kwargs):
+                return True
+
+            def fake_review(spec, **_kwargs):
+                attempts.append((spec.attempt, spec.final_attempt))
+                if spec.attempt == 3:
+                    milestone = _milestone(spec.rel)
+                else:
+                    milestone = _redraft_milestone(spec.rel)
+                    milestone["status"] = "partial"
+                return _validated_review_outcome(spec, milestone)
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=fake_prover,
+                review_worker=fake_review,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners.build_parallel_prover_prompt",
+                    return_value="work",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(
+                attempts,
+                [(1, False), (2, False), (3, True)],
+            )
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["formalizers"]["requested"], 0)
+            self.assertEqual(
+                report["proof_review_target_files"], ["A.lean"],
+            )
 
     def test_transient_review_failure_retries_without_new_proof_attempt(self):
         with tempfile.TemporaryDirectory() as td:

@@ -470,6 +470,9 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 prior_gate_record=prior,
                 source_contract=contract,
             )
+        self.assertIn(
+            "needs_redraft -> blocked (never partial)", proof_prompt,
+        )
 
         for prompt in (proof_prompt, formal_prompt):
             self.assertIn("NATIVE PROBLEM-INPUT-ONLY CONTRACT", prompt)
@@ -508,6 +511,37 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             validate_native_review_source_certificate(
                 audit, contract, passing=True,
             ),
+        )
+
+    def test_final_redraft_normalization_revalidates_source_certificate(self) -> None:
+        contract = self._contract()
+        row = self._proof_milestone(contract)
+        row["status"] = "partial"
+        row["proof_review"].update({
+            "route": "needs_redraft",
+            "reason": "the theorem is underdetermined",
+            "evidence": "the source does not fix the required convention",
+            "redraft_kind": "underdetermined_contract",
+        })
+        row["proof_review"]["source_contract"]["candidate_sha256"] = "0" * 64
+        milestone_path = self.output_root / "final-redraft.jsonl"
+        milestone_path.parent.mkdir(parents=True, exist_ok=True)
+        milestone_path.write_text(
+            json.dumps(row) + "\n",
+            encoding="utf-8",
+        )
+
+        milestone, error = load_target_milestone(
+            milestone_path,
+            self.rel,
+            contract,
+            final_attempt=True,
+        )
+
+        self.assertIsNone(milestone)
+        self.assertIn(
+            "source_contract does not match native problem-only evidence",
+            error,
         )
 
     def test_answer_bearing_keys_and_ambiguous_reports_fail_closed(self) -> None:

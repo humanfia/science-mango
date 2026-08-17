@@ -2110,6 +2110,11 @@ def build_review_prompt(
             }
             ```
 
+            The top-level milestone status is route-specific: `solved` ->
+            `solved`; `retry_proof` -> `partial` or `blocked`;
+            `needs_redraft` -> `blocked` (never `partial`); and
+            `blocked_infrastructure` -> `blocked`.
+
             Route by root cause, not merely by the last Lean error:
 
             - `solved`: the exact faithful contract compiles with no active
@@ -2144,8 +2149,7 @@ def build_review_prompt(
             A compiling but unfaithful/underdetermined theorem is never
             `solved` or `retry_proof`. A tactic failure does not by itself
             justify statement redraft. Keep top-level milestone status
-            consistent: `solved` only for route `solved`; use `partial` or
-            `blocked` otherwise.
+            consistent with the route-specific mapping above.
         """)
 
     return dedent(f"""\

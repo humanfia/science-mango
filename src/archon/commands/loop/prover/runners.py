@@ -1683,6 +1683,7 @@ in the assigned target with a kernel-checked proof. Do not leave `sorry`,
                     log_base=str(output_dir / "agent"),
                     attempt=attempt,
                     source_contract=source_contract,
+                    final_attempt=attempt == max_attempts,
                 )
                 future = pool.submit(
                     self.review_worker,

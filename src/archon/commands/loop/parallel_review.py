@@ -40,6 +40,9 @@ from .shared_infrastructure import load_shared_infrastructure_policy
 
 PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
 PIPELINED_REVIEW_SCHEMA_VERSION = 1
+_NEEDS_REDRAFT_PARTIAL_STATUS_ERROR = (
+    "proof_review route=needs_redraft requires milestone status=blocked"
+)
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,7 @@ class TargetReviewSpec:
     log_base: str
     attempt: int
     source_contract: dict | None = None
+    final_attempt: bool = False
 
 
 @dataclass(frozen=True)
@@ -118,8 +122,10 @@ def _validate_proof_review_route(
         return "proof_review route=solved requires milestone status=solved"
     if route != "solved" and status == "solved":
         return f"proof_review route={route} contradicts milestone status=solved"
-    if route in {"needs_redraft", "blocked_infrastructure"} and status != "blocked":
-        return f"proof_review route={route} requires milestone status=blocked"
+    if route == "needs_redraft" and status != "blocked":
+        return _NEEDS_REDRAFT_PARTIAL_STATUS_ERROR
+    if route == "blocked_infrastructure" and status != "blocked":
+        return "proof_review route=blocked_infrastructure requires milestone status=blocked"
     if route == "retry_proof" and status not in {"partial", "blocked"}:
         return "proof_review route=retry_proof requires status=partial|blocked"
     source_error = validate_native_review_source_certificate(
@@ -143,6 +149,8 @@ def load_target_milestone(
     path: Path,
     expected_rel: str,
     expected_source_contract: dict | None = None,
+    *,
+    final_attempt: bool = False,
 ) -> tuple[dict | None, str]:
     """Load exactly one well-formed milestone for ``expected_rel``."""
     try:
@@ -171,6 +179,21 @@ def load_target_milestone(
         route_error = _validate_proof_review_route(
             row, status, expected_source_contract,
         )
+        if (
+            final_attempt
+            and status == "partial"
+            and route_error == _NEEDS_REDRAFT_PARTIAL_STATUS_ERROR
+        ):
+            # Preserve strict retries on earlier attempts so a Reviewer can
+            # self-correct. At exhaustion only, copy the otherwise valid
+            # needs_redraft verdict to its canonical top-level status and run
+            # the complete route/source validation again before accepting it.
+            normalized_row = {**row, "status": "blocked"}
+            route_error = _validate_proof_review_route(
+                normalized_row, "blocked", expected_source_contract,
+            )
+            if not route_error:
+                row = normalized_row
         if route_error:
             return None, route_error
         rows.append(row)
@@ -305,6 +328,10 @@ Use needs_redraft for a wrong, weakened, underdetermined, or answer-shaped
 contract, a missing output/branch/uncertainty, or a missing modeling bridge.
 Use blocked_infrastructure only for an unavailable external capability; never
 request an install or dependency update. A target-local helper is retry_proof.
+
+The top-level status is route-specific: solved -> solved; retry_proof ->
+partial or blocked; needs_redraft -> blocked (never partial); and
+blocked_infrastructure -> blocked.
 
 Use status=solved only when all five checks pass and route=solved. Missing or
 ambiguous evidence fails closed. Also write a <=12-line summary to {summary}.
@@ -644,6 +671,7 @@ def _run_review_worker(
         output_dir / "milestones.jsonl",
         spec.rel,
         spec.source_contract,
+        final_attempt=(spec.final_attempt and runner_ok and not error),
     )
     if validation_error:
         error = "; ".join(x for x in (error, validation_error) if x)
@@ -1006,6 +1034,7 @@ def run_parallel_target_reviews(
                 log_base=str(attempt_dir / "agent"),
                 attempt=attempt,
                 source_contract=source_contract,
+                final_attempt=attempt == max_attempts,
             ))
         with executor_factory(max_workers=round_jobs) as pool:
             futures = {

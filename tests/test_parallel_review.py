@@ -5,13 +5,17 @@ import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from archon.commands.loop.parallel_review import (
+    TargetReviewSpec,
     TargetReviewOutcome,
+    _run_review_worker,
     build_target_review_prompt,
     load_target_milestone,
     run_parallel_target_reviews,
 )
+from archon.commands.loop.proof_review_gate import proof_review_decision
 
 
 def _blind_contract(rel: str) -> dict:
@@ -79,6 +83,18 @@ def _milestone(rel: str, status: str = "solved") -> dict:
         "session": {"id": "session_1", "model": "test"},
         "next_steps": "",
     }
+
+
+def _partial_needs_redraft_milestone(rel: str) -> dict:
+    row = _milestone(rel, "partial")
+    row["proof_review"] = {
+        "schema_version": 1,
+        "route": "needs_redraft",
+        "reason": "the theorem is underdetermined",
+        "evidence": "the source does not fix the required convention",
+        "redraft_kind": "underdetermined_contract",
+    }
+    return row
 
 
 class ParallelReviewTest(unittest.TestCase):
@@ -159,6 +175,139 @@ class ParallelReviewTest(unittest.TestCase):
             row, error = load_target_milestone(path, "A.lean")
             self.assertIsNone(row)
             self.assertIn("routing certificate is missing", error)
+
+    def test_partial_needs_redraft_normalizes_only_on_final_attempt(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "milestones.jsonl"
+            candidate = _partial_needs_redraft_milestone("A.lean")
+            path.write_text(json.dumps(candidate) + "\n", encoding="utf-8")
+
+            row, error = load_target_milestone(path, "A.lean")
+            self.assertIsNone(row)
+            self.assertEqual(
+                error,
+                "proof_review route=needs_redraft requires milestone status=blocked",
+            )
+
+            row, error = load_target_milestone(
+                path, "A.lean", final_attempt=True,
+            )
+            self.assertEqual(error, "")
+            self.assertEqual(row["status"], "blocked")
+            self.assertEqual(proof_review_decision(row)[0], "needs_redraft")
+            persisted = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(persisted["status"], "partial")
+
+    def test_worker_does_not_normalize_failed_or_errored_runner(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            cases = (
+                ("runner_false", False, None, ""),
+                (
+                    "runner_error",
+                    None,
+                    RuntimeError("runner exploded"),
+                    "RuntimeError: runner exploded",
+                ),
+            )
+            for name, return_value, side_effect, expected_runner_error in cases:
+                with self.subTest(name=name):
+                    output = root / name
+                    output.mkdir()
+                    milestone_path = output / "milestones.jsonl"
+                    milestone_path.write_text(
+                        json.dumps(
+                            _partial_needs_redraft_milestone("A.lean")
+                        ) + "\n",
+                        encoding="utf-8",
+                    )
+                    runner = Mock()
+                    runner.run.return_value = return_value
+                    runner.run.side_effect = side_effect
+                    spec = TargetReviewSpec(
+                        rel="A.lean",
+                        prompt="bounded prompt",
+                        output_dir=str(output),
+                        log_base=str(output / "agent"),
+                        attempt=3,
+                        final_attempt=True,
+                    )
+
+                    with patch(
+                        "archon.commands.loop.parallel_review.build_runner",
+                        return_value=runner,
+                    ):
+                        outcome = _run_review_worker(
+                            spec,
+                            project_path=root,
+                            verbose_logs=False,
+                            model=None,
+                            backend=None,
+                            harness=None,
+                        )
+
+                    self.assertFalse(outcome.runner_ok)
+                    self.assertIsNone(outcome.milestone)
+                    self.assertIn(
+                        "proof_review route=needs_redraft requires "
+                        "milestone status=blocked",
+                        outcome.error,
+                    )
+                    if expected_runner_error:
+                        self.assertIn(expected_runner_error, outcome.error)
+                    persisted = json.loads(
+                        milestone_path.read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(persisted["status"], "partial")
+
+    def test_partial_solved_remains_invalid_on_final_attempt(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "milestones.jsonl"
+            candidate = _milestone("A.lean", "partial")
+            candidate["proof_review"]["route"] = "solved"
+            path.write_text(json.dumps(candidate) + "\n", encoding="utf-8")
+
+            row, error = load_target_milestone(
+                path, "A.lean", final_attempt=True,
+            )
+            self.assertIsNone(row)
+            self.assertEqual(
+                error,
+                "proof_review route=solved requires milestone status=solved",
+            )
+
+    def test_final_attempt_rejects_missing_or_malformed_proof_review(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "milestones.jsonl"
+            cases = (
+                ("missing", None, "routing certificate is missing"),
+                (
+                    "malformed",
+                    {
+                        "schema_version": 1,
+                        "route": "needs_redraft",
+                        "reason": "",
+                        "evidence": "contract evidence",
+                        "redraft_kind": "underdetermined_contract",
+                    },
+                    "proof_review reason is missing",
+                ),
+            )
+            for name, certificate, expected_error in cases:
+                with self.subTest(name=name):
+                    candidate = _milestone("A.lean", "partial")
+                    if certificate is None:
+                        candidate.pop("proof_review")
+                    else:
+                        candidate["proof_review"] = certificate
+                    path.write_text(
+                        json.dumps(candidate) + "\n", encoding="utf-8",
+                    )
+                    row, error = load_target_milestone(
+                        path, "A.lean", final_attempt=True,
+                    )
+                    self.assertIsNone(row)
+                    self.assertIn(expected_error, error)
 
     def test_failure_round_halves_concurrency_then_aggregates(self):
         with tempfile.TemporaryDirectory() as td:
