@@ -356,6 +356,79 @@ def test_accepted_evidence_path_escape_fails_closed(initialized):
         deep.validate_queue(paths.queue)
 
 
+def test_reclaim_incomplete_advances_slice_without_deleting_history(initialized):
+    paths, _config, _queue = initialized
+    first_claim = deep.claim_units(
+        paths, limit=1, worker_id="first-worker", now=20.0,
+    )[0]
+    completed = deep.complete_unit(
+        paths,
+        worker_id="first-worker",
+        result=_result_for_claim(first_claim, deep.INCOMPLETE),
+        now=21.0,
+    )
+    completed_unit = completed["candidates"][0]["lanes"][0]["units"][0]
+    accepted_reference = copy.deepcopy(completed_unit["evidence"])
+    accepted_path = Path(accepted_reference["path"])
+    accepted_bytes = accepted_path.read_bytes()
+    completed_snapshot = paths.journal / (
+        f"revision-{completed['revision']:08d}-{completed['queue_sha256']}.json"
+    )
+    snapshot_bytes = completed_snapshot.read_bytes()
+
+    archived = deep.validate_queue(completed_snapshot)
+    archived_unit = archived["candidates"][0]["lanes"][0]["units"][0]
+    assert archived_unit["status"] == deep.INCOMPLETE
+    assert archived_unit["evidence"] == accepted_reference
+
+    reclaimed = deep.claim_units(
+        paths, limit=1, worker_id="next-worker", now=22.0,
+    )[0]
+    reclaimed_unit = reclaimed["unit"]
+    assert reclaimed_unit["unit_id"] == first_claim["unit"]["unit_id"]
+    assert reclaimed_unit["status"] == deep.RUNNING
+    assert reclaimed_unit["evidence"] is None
+    assert reclaimed_unit["slice_index"] == first_claim["unit"]["slice_index"] + 1
+    assert reclaimed_unit["retry_same_slice"] is False
+    assert reclaimed_unit["attempt"] == first_claim["unit"]["attempt"] + 1
+
+    live = deep.validate_queue(paths.queue)
+    live_unit = live["candidates"][0]["lanes"][0]["units"][0]
+    assert live_unit["status"] == deep.RUNNING
+    assert live_unit["evidence"] is None
+    assert accepted_path.read_bytes() == accepted_bytes
+    assert completed_snapshot.read_bytes() == snapshot_bytes
+    assert deep._validate_result(json.loads(accepted_bytes))["status"] == deep.INCOMPLETE
+    assert deep.validate_queue(completed_snapshot)["queue_sha256"] == completed["queue_sha256"]
+
+
+def test_validator_rejects_stale_evidence_on_reclaimed_running_unit(initialized):
+    paths, _config, _queue = initialized
+    first_claim = deep.claim_units(
+        paths, limit=1, worker_id="first-worker", now=20.0,
+    )[0]
+    completed = deep.complete_unit(
+        paths,
+        worker_id="first-worker",
+        result=_result_for_claim(first_claim, deep.INCOMPLETE),
+        now=21.0,
+    )
+    stale_reference = copy.deepcopy(
+        completed["candidates"][0]["lanes"][0]["units"][0]["evidence"]
+    )
+    deep.claim_units(paths, limit=1, worker_id="next-worker", now=22.0)
+
+    stale_queue = copy.deepcopy(deep.validate_queue(paths.queue))
+    stale_unit = stale_queue["candidates"][0]["lanes"][0]["units"][0]
+    assert stale_unit["status"] == deep.RUNNING
+    assert stale_unit["evidence"] is None
+    stale_unit["evidence"] = stale_reference
+    deep._atomic_write_json(paths.queue, deep._seal_queue(stale_queue))
+
+    with pytest.raises(ValueError, match="evidence does not match its queue unit"):
+        deep.validate_queue(paths.queue)
+
+
 def test_crash_recovery_clears_claim_and_retries_same_slice(initialized):
     paths, _config, _queue = initialized
     claims = deep.claim_units(paths, limit=2, worker_id="dead", now=20.0)

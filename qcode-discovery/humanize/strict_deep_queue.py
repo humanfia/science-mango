@@ -1354,6 +1354,11 @@ def claim_units(
             if unit["status"] == INCOMPLETE and not unit["retry_same_slice"]:
                 unit["slice_index"] += 1
             unit["retry_same_slice"] = False
+            # Immutable evidence remains in the journal, but it cannot
+            # describe the newly claimed RUNNING attempt. Clear the live
+            # reference before changing status so strict validation cannot
+            # confuse stale INCOMPLETE evidence with the new claim.
+            unit["evidence"] = None
             unit["status"] = RUNNING
             unit["attempt"] += 1
             unit["claim_token"] = uuid.uuid4().hex
