@@ -21,10 +21,28 @@ from collections.abc import Mapping
 from typing import Any
 
 
-SEMANTIC_DAG_SCHEMA_VERSION = 1
+SEMANTIC_DAG_SCHEMA_VERSION = 2
 SEMANTIC_DAG_AUTHORITY = "controller"
 
 _ALLOWED_AUDIT_REQUIREMENTS = {"image_component_accounting"}
+_ALLOWED_EDGE_KINDS = {
+    "connection_support",
+    "discharges",
+    "inventory_support",
+    "output_dependency",
+    "source_support",
+    "stoichiometric_support",
+}
+_SEMANTIC_DAG_FIELDS = {
+    "schema_version",
+    "authority",
+    "evaluation_mode",
+    "record_id",
+    "nodes",
+    "edges",
+}
+_SOURCE_IMAGE_NODE_FIELDS = {"id", "kind", "path", "sha256"}
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class SemanticDagError(ValueError):
@@ -137,6 +155,29 @@ def _previous_part_node(raw: Any, index: int) -> dict[str, Any]:
     }
 
 
+def _source_image_node(raw: Any, index: int) -> dict[str, Any]:
+    if not isinstance(raw, Mapping) or set(raw) != {"path", "sha256"}:
+        raise SemanticDagError(
+            f"source_images[{index}] must contain exactly path and sha256"
+        )
+    path = _nonempty_string(
+        raw.get("path"), label=f"source_images[{index}].path"
+    )
+    digest = _nonempty_string(
+        raw.get("sha256"), label=f"source_images[{index}].sha256"
+    )
+    if not _SHA256_RE.fullmatch(digest):
+        raise SemanticDagError(
+            f"source_images[{index}].sha256 must be a lowercase SHA-256 digest"
+        )
+    return {
+        "id": f"source_image:{index}",
+        "kind": "source_image",
+        "path": path,
+        "sha256": digest,
+    }
+
+
 def _requested_output_nodes(
     raw: Any, index: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -201,11 +242,82 @@ def _requested_output_nodes(
     }
     if audit_requirements:
         output["audit_requirements"] = list(audit_requirements)
+    dependencies = raw.get("depends_on_output_ids", [])
+    if (
+        not isinstance(dependencies, list)
+        or ("depends_on_output_ids" in raw and not dependencies)
+        or not all(
+            isinstance(dependency, str) and dependency.strip()
+            for dependency in dependencies
+        )
+    ):
+        raise SemanticDagError(
+            f"requested_outputs[{index}].depends_on_output_ids is invalid"
+        )
+    dependencies = [dependency.strip() for dependency in dependencies]
+    if len(set(dependencies)) != len(dependencies):
+        raise SemanticDagError(
+            f"requested_outputs[{index}].depends_on_output_ids is invalid"
+        )
+    if dependencies:
+        output["depends_on_output_ids"] = dependencies
     return derive, output
 
 
+def _validate_output_dependencies(outputs: list[dict[str, Any]]) -> None:
+    positions = {
+        output["output_id"]: index for index, output in enumerate(outputs)
+    }
+    dependencies_by_id: dict[str, list[str]] = {}
+    for index, output in enumerate(outputs):
+        output_id = output["output_id"]
+        dependencies = output.get("depends_on_output_ids", [])
+        for dependency in dependencies:
+            if dependency not in positions:
+                raise SemanticDagError(
+                    f"requested_outputs[{index}].depends_on_output_ids "
+                    f"references unknown output id {dependency!r}"
+                )
+            if dependency == output_id:
+                raise SemanticDagError(
+                    f"requested_outputs[{index}].depends_on_output_ids "
+                    "contains a self dependency"
+                )
+        dependencies_by_id[output_id] = list(dependencies)
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(output_id: str) -> None:
+        if output_id in visiting:
+            raise SemanticDagError(
+                "requested_outputs.depends_on_output_ids contains a cycle"
+            )
+        if output_id in visited:
+            return
+        visiting.add(output_id)
+        for dependency in dependencies_by_id[output_id]:
+            visit(dependency)
+        visiting.remove(output_id)
+        visited.add(output_id)
+
+    for output_id in dependencies_by_id:
+        visit(output_id)
+
+    for index, output in enumerate(outputs):
+        for dependency in output.get("depends_on_output_ids", []):
+            if positions[dependency] >= index:
+                raise SemanticDagError(
+                    f"requested_outputs[{index}].depends_on_output_ids must "
+                    "reference only earlier requested outputs"
+                )
+
+
 def build_semantic_dag(
-    *, record_id: str, problem_evidence: Mapping[str, Any],
+    *,
+    record_id: str,
+    problem_evidence: Mapping[str, Any],
+    source_images: list[Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Build a deterministic DAG from validated problem-only evidence.
 
@@ -257,6 +369,18 @@ def build_semantic_dag(
         nodes.append(node)
         input_ids.append(node["id"])
 
+    raw_source_images = [] if source_images is None else source_images
+    if not isinstance(raw_source_images, list):
+        raise SemanticDagError("source_images must be a list")
+    source_image_paths: set[str] = set()
+    for index, raw in enumerate(raw_source_images):
+        node = _source_image_node(raw, index)
+        if node["path"] in source_image_paths:
+            raise SemanticDagError("source_images contains a duplicate path")
+        source_image_paths.add(node["path"])
+        nodes.append(node)
+        input_ids.append(node["id"])
+
     requested = problem_evidence.get("requested_outputs")
     if not isinstance(requested, list) or not requested:
         raise SemanticDagError(
@@ -272,16 +396,83 @@ def build_semantic_dag(
         output_ids.add(output["output_id"])
         derivations.append(derive)
         outputs.append(output)
+    _validate_output_dependencies(outputs)
+
+    audit_nodes_by_output: dict[str, tuple[str, str, str]] = {}
+    for output in outputs:
+        requirements = output.get("audit_requirements", [])
+        if "image_component_accounting" not in requirements:
+            continue
+        if not raw_source_images:
+            raise SemanticDagError(
+                "image_component_accounting requires at least one source image"
+            )
+        output_id = output["output_id"]
+        inventory_id = f"component_inventory:{output_id}"
+        graph_id = f"connection_graph:{output_id}"
+        balance_id = f"stoichiometric_balance:{output_id}"
+        nodes.extend([
+            {
+                "id": inventory_id,
+                "kind": "component_inventory",
+                "output_id": output_id,
+                "state": "open",
+            },
+            {
+                "id": graph_id,
+                "kind": "connection_graph",
+                "output_id": output_id,
+                "state": "open",
+            },
+            {
+                "id": balance_id,
+                "kind": "stoichiometric_balance",
+                "output_id": output_id,
+                "state": "open",
+            },
+        ])
+        audit_nodes_by_output[output_id] = (
+            inventory_id, graph_id, balance_id,
+        )
     nodes.extend(derivations)
     nodes.extend(outputs)
 
+    outputs_by_id = {output["output_id"]: output for output in outputs}
     edges: list[dict[str, str]] = []
     for derive in derivations:
+        audit_nodes = audit_nodes_by_output.get(derive["output_id"])
+        source_target = audit_nodes[0] if audit_nodes else derive["id"]
         for source_id in input_ids:
             edges.append({
                 "from": source_id,
-                "to": derive["id"],
+                "to": source_target,
                 "kind": "source_support",
+            })
+        if audit_nodes:
+            inventory_id, graph_id, balance_id = audit_nodes
+            edges.extend([
+                {
+                    "from": inventory_id,
+                    "to": graph_id,
+                    "kind": "inventory_support",
+                },
+                {
+                    "from": graph_id,
+                    "to": balance_id,
+                    "kind": "connection_support",
+                },
+                {
+                    "from": balance_id,
+                    "to": derive["id"],
+                    "kind": "stoichiometric_support",
+                },
+            ])
+        output = outputs_by_id[derive["output_id"]]
+        for dependency in output.get("depends_on_output_ids", []):
+            edges.append({
+                "from": f"output:{dependency}",
+                "to": derive["id"],
+                "kind": "output_dependency",
             })
         edges.append({
             "from": derive["id"],
@@ -300,7 +491,7 @@ def build_semantic_dag(
 
 
 def semantic_dag_provenance(dag: Mapping[str, Any]) -> dict[str, Any]:
-    """Return the compact controller-owned summary bound by Review."""
+    """Validate the complete graph and return its controller-owned summary."""
     if not isinstance(dag, Mapping):
         raise SemanticDagError("semantic DAG must be an object")
     forbidden = _answer_bearing_paths(dag, path="semantic_dag")
@@ -309,6 +500,8 @@ def semantic_dag_provenance(dag: Mapping[str, Any]) -> dict[str, Any]:
             "semantic DAG contains answer-bearing field(s): "
             + ", ".join(forbidden)
         )
+    if set(dag) != _SEMANTIC_DAG_FIELDS:
+        raise SemanticDagError("semantic DAG header fields are invalid")
     nodes = dag.get("nodes")
     edges = dag.get("edges")
     if (
@@ -319,20 +512,39 @@ def semantic_dag_provenance(dag: Mapping[str, Any]) -> dict[str, Any]:
         or not isinstance(edges, list)
     ):
         raise SemanticDagError("semantic DAG header is invalid")
+    _nonempty_string(dag.get("record_id"), label="semantic DAG record_id")
+
     kinds: dict[str, int] = {}
     output_ids: list[str] = []
+    output_id_set: set[str] = set()
     previous_source_ids: list[str] = []
-    for node in nodes:
+    node_ids: set[str] = set()
+    source_image_paths: set[str] = set()
+    for index, node in enumerate(nodes):
         if not isinstance(node, Mapping):
-            raise SemanticDagError("semantic DAG node is not an object")
-        kind = _nonempty_string(node.get("kind"), label="semantic DAG node kind")
+            raise SemanticDagError(
+                f"semantic DAG node {index} is not an object"
+            )
+        node_id = _nonempty_string(
+            node.get("id"), label=f"semantic DAG node {index} id"
+        )
+        if node_id in node_ids:
+            raise SemanticDagError("semantic DAG contains a duplicate node id")
+        node_ids.add(node_id)
+        kind = _nonempty_string(
+            node.get("kind"), label=f"semantic DAG node {index} kind"
+        )
         kinds[kind] = kinds.get(kind, 0) + 1
         if kind == "requested_output":
-            output_ids.append(
-                _nonempty_string(
-                    node.get("output_id"), label="semantic DAG output_id"
-                )
+            output_id = _nonempty_string(
+                node.get("output_id"), label="semantic DAG output_id"
             )
+            if output_id in output_id_set:
+                raise SemanticDagError(
+                    "semantic DAG contains a duplicate requested output id"
+                )
+            output_id_set.add(output_id)
+            output_ids.append(output_id)
         elif kind == "previous_part_prerequisite":
             previous_source_ids.append(
                 _nonempty_string(
@@ -340,6 +552,88 @@ def semantic_dag_provenance(dag: Mapping[str, Any]) -> dict[str, Any]:
                     label="semantic DAG previous source_id",
                 )
             )
+        elif kind == "source_image":
+            if set(node) != _SOURCE_IMAGE_NODE_FIELDS:
+                raise SemanticDagError(
+                    "semantic DAG source_image fields are invalid"
+                )
+            path = _nonempty_string(
+                node.get("path"), label="semantic DAG source_image path"
+            )
+            digest = _nonempty_string(
+                node.get("sha256"), label="semantic DAG source_image sha256"
+            )
+            if not _SHA256_RE.fullmatch(digest):
+                raise SemanticDagError(
+                    "semantic DAG source_image sha256 is invalid"
+                )
+            if path in source_image_paths:
+                raise SemanticDagError(
+                    "semantic DAG contains a duplicate source_image path"
+                )
+            source_image_paths.add(path)
+
+    adjacency: dict[str, list[str]] = {
+        node_id: [] for node_id in node_ids
+    }
+    indegree = {node_id: 0 for node_id in node_ids}
+    seen_edges: set[tuple[str, str, str]] = set()
+    seen_directed_pairs: set[tuple[str, str]] = set()
+    for index, edge in enumerate(edges):
+        if not isinstance(edge, Mapping) or set(edge) != {"from", "to", "kind"}:
+            raise SemanticDagError(
+                f"semantic DAG edge {index} fields are invalid"
+            )
+        source = _nonempty_string(
+            edge.get("from"), label=f"semantic DAG edge {index} from"
+        )
+        target = _nonempty_string(
+            edge.get("to"), label=f"semantic DAG edge {index} to"
+        )
+        kind = _nonempty_string(
+            edge.get("kind"), label=f"semantic DAG edge {index} kind"
+        )
+        if kind not in _ALLOWED_EDGE_KINDS:
+            raise SemanticDagError(
+                f"semantic DAG edge {index} kind is invalid"
+            )
+        if source not in node_ids or target not in node_ids:
+            raise SemanticDagError(
+                f"semantic DAG edge {index} has a dangling endpoint"
+            )
+        if source == target:
+            raise SemanticDagError(
+                f"semantic DAG edge {index} is a self edge"
+            )
+        triple = (source, target, kind)
+        if triple in seen_edges:
+            raise SemanticDagError("semantic DAG contains a duplicate edge")
+        seen_edges.add(triple)
+        directed_pair = (source, target)
+        if directed_pair in seen_directed_pairs:
+            raise SemanticDagError(
+                "semantic DAG contains a duplicate directed edge"
+            )
+        seen_directed_pairs.add(directed_pair)
+        adjacency[source].append(target)
+        indegree[target] += 1
+
+    queue = [
+        node_id for node_id in node_ids if indegree[node_id] == 0
+    ]
+    visited_count = 0
+    queue_index = 0
+    while queue_index < len(queue):
+        source = queue[queue_index]
+        queue_index += 1
+        visited_count += 1
+        for target in adjacency[source]:
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                queue.append(target)
+    if visited_count != len(node_ids):
+        raise SemanticDagError("semantic DAG contains a directed cycle")
+
     return {
         "schema_version": SEMANTIC_DAG_SCHEMA_VERSION,
         "authority": SEMANTIC_DAG_AUTHORITY,
@@ -371,16 +665,26 @@ def render_solver_semantic_dag_prompt(
         "run (or use only its declared fallback policy), discharge every "
         "derivation_obligation, and expose one Lean carrier for every "
         "requested_output. The states open, requires_blind_derivation, and "
-        "unresolved are obligations, never source conclusions. For each "
-        "requested_output whose immutable audit_requirements contains "
-        "image_component_accounting, inspect the bound images before doing "
-        "arithmetic: first trace a connected whole-product topology across "
-        "every bound image, including repeated units, terminal fragments, "
-        "caps/adducts, assembly edges, and every bracket/connector/cross-"
-        "boundary bond. A printed formula can be a residue rather than the "
-        "whole product. Only after all outgoing bonds and the preceding-page "
-        "unit pattern are resolved may the component ledger, combined formula "
-        "or quantity, and Lean carrier be recorded. "
+        "unresolved are obligations, never source conclusions. Follow every "
+        "output_dependency edge in order: derive its antecedent output first "
+        "and use that exact derived carrier in the dependent derivation. For "
+        "each requested_output whose immutable audit_requirements contains "
+        "image_component_accounting, inspect every source_image node before "
+        "doing arithmetic. On the first draft, complete the semantic chain in "
+        "this order: (1) component_inventory records every visually distinct "
+        "building-block identity and formula; (2) connection_graph records "
+        "connection degree, functional-group ports, their LCM/multiplicity "
+        "match, and a connected whole-product topology across repeated units, "
+        "terminal fragments, caps/adducts, and every bracket/connector/cross-"
+        "boundary bond and the preceding-page unit pattern; (3) "
+        "stoichiometric_balance records the number and type of connections, "
+        "the exact count of eliminated small molecules, and the unreduced "
+        "whole-product formula or quantity; (4) record the GCD or other "
+        "normalization. Only after this component ledger is complete may the "
+        "derivation_obligation be discharged and the requested output "
+        "calculated. A printed formula can be a residue "
+        "rather than the whole product. Every source_image path/digest is "
+        "controller-bound evidence, not a solved value. "
         "This opt-in obligation is mandatory and cannot be marked "
         "not_applicable.\n"
     )

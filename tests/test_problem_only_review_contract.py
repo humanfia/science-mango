@@ -1162,6 +1162,34 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "",
         )
 
+        repeat_cell = json.loads(json.dumps(review))
+        repeat_accounting = repeat_cell["requested_outputs"][0][
+            "composition_accounting"
+        ]
+        repeat_accounting["product_nodes"][0]["node_kind"] = "building_block"
+        repeat_accounting["product_nodes"][1]["node_kind"] = "building_block"
+        repeat_accounting["boundary_checks"][0][
+            "boundary_kind"
+        ] = "repeat_cell_boundary"
+        self.assertEqual(
+            validate_native_review_source_certificate(
+                repeat_cell, contract, passing=True,
+            ),
+            "",
+        )
+
+        missing_building_block = json.loads(json.dumps(repeat_cell))
+        missing_accounting = missing_building_block["requested_outputs"][0][
+            "composition_accounting"
+        ]
+        missing_accounting["product_nodes"].pop(1)
+        self.assertIn(
+            "at least two non-adduct product nodes",
+            validate_native_review_source_certificate(
+                missing_building_block, contract, passing=True,
+            ),
+        )
+
         old_single_bracket = json.loads(json.dumps(review))
         old_accounting = old_single_bracket["requested_outputs"][0][
             "composition_accounting"
@@ -1338,14 +1366,70 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         ]
         self._materialize_workspace()
         contract = self._contract()
+        nodes = {
+            node["id"]: node for node in contract["semantic_dag"]["nodes"]
+        }
+        self.assertEqual(
+            {
+                "path": nodes["source_image:0"]["path"],
+                "sha256": nodes["source_image:0"]["sha256"],
+            },
+            contract["images"][0],
+        )
+        self.assertEqual(
+            nodes["component_inventory:value"]["kind"],
+            "component_inventory",
+        )
+        self.assertEqual(
+            nodes["connection_graph:value"]["kind"], "connection_graph",
+        )
+        self.assertEqual(
+            nodes["stoichiometric_balance:value"]["kind"],
+            "stoichiometric_balance",
+        )
+        dag_edges = {
+            (edge["from"], edge["to"], edge["kind"])
+            for edge in contract["semantic_dag"]["edges"]
+        }
+        self.assertTrue({
+            (
+                "source_image:0",
+                "component_inventory:value",
+                "source_support",
+            ),
+            (
+                "component_inventory:value",
+                "connection_graph:value",
+                "inventory_support",
+            ),
+            (
+                "connection_graph:value",
+                "stoichiometric_balance:value",
+                "connection_support",
+            ),
+            (
+                "stoichiometric_balance:value",
+                "derive:value",
+                "stoichiometric_support",
+            ),
+        }.issubset(dag_edges))
+
         shared = render_native_composition_accounting_prompt(contract)
         self.assertIn("MANDATORY IMAGE COMPONENT ACCOUNTING", shared)
         self.assertIn('"value"', shared)
+        self.assertIn("functional-group ports by LCM", shared)
+        self.assertIn("eliminated small molecules", shared)
+        self.assertIn("unreduced whole-product formula/quantity", shared)
+        self.assertIn("GCD/normalization", shared)
         self.assertIn("not_applicable is forbidden", shared)
         formalizer_prompt = _native_formalizer_semantic_dag_block(
             project_path=self.project, target=self.target,
         )
         self.assertIn("MANDATORY WHOLE-PRODUCT IMAGE TOPOLOGY", formalizer_prompt)
+        self.assertIn("On the first draft", formalizer_prompt)
+        self.assertIn("functional-group ports using their LCM", formalizer_prompt)
+        self.assertIn("unreduced whole-product formula", formalizer_prompt)
+        self.assertIn("GCD/normalization", formalizer_prompt)
         self.assertIn("NEVER add composition_accounting", formalizer_prompt)
 
         proof_prompt = build_target_review_prompt(

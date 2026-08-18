@@ -66,6 +66,7 @@ _COMPOSITION_PRODUCT_NODE_FIELDS = {
     "multiplicity",
 }
 _COMPOSITION_PRODUCT_NODE_KINDS = {
+    "building_block",
     "repeat_unit",
     "terminal_fragment",
     "cap",
@@ -97,6 +98,7 @@ _COMPOSITION_BOUNDARY_KINDS = {
     "bracket",
     "connector",
     "cross_boundary_bond",
+    "repeat_cell_boundary",
 }
 _COMPOSITION_BOUNDARY_DISPOSITIONS = {
     "included_in_node",
@@ -849,6 +851,7 @@ def _build_native_contract(
         semantic_dag = build_semantic_dag(
             record_id=record_id,
             problem_evidence=evidence,
+            source_images=images,
         )
         semantic_provenance = semantic_dag_provenance(semantic_dag)
     except SemanticDagError as exc:
@@ -1154,7 +1157,9 @@ def render_native_composition_accounting_prompt(
         }],
         "boundary_checks": [{
             "boundary_id": "<stable lowercase id>",
-            "boundary_kind": "bracket|connector|cross_boundary_bond",
+            "boundary_kind": (
+                "bracket|repeat_cell_boundary|connector|cross_boundary_bond"
+            ),
             "source_path": "<exact bound image path>",
             "source_locator": "<precise visual locator>",
             "disposition": "<one fixed allowed disposition>",
@@ -1179,14 +1184,20 @@ def render_native_composition_accounting_prompt(
         "- Exact opt-in output ids: "
         + json.dumps(output_ids, ensure_ascii=False)
         + "\n- For each id, inspect every bound image first and independently "
-        "trace the whole product topology before making a component/formula "
-        "ledger or doing arithmetic. A printed formula label may denote only "
+        "reconstruct the whole product topology before accepting the candidate "
+        "formula or quantity. Inventory every distinct building-block identity "
+        "and formula; balance connection degree and functional-group ports by "
+        "LCM; count connections and eliminated small molecules; derive the "
+        "unreduced whole-product formula/quantity; and audit GCD/normalization "
+        "before doing final arithmetic. A printed formula label may denote only "
         "a residue: never assume it is the whole product until every outgoing "
-        "bond from its bracket/box, every connector and cross-boundary bond, "
+        "bond from its bracket/box or repeat-cell boundary, every connector "
+        "and cross-boundary bond, "
         "and the preceding-page unit pattern have been traced across all "
         "bound images. Record whole visibly repeated units, terminal "
         "fragments, caps, and adducts as product_nodes; then connect them with "
-        "assembly_edges. Add one boundary_check for every visible bracket, "
+        "assembly_edges. Add one boundary_check for every visible bracket or "
+        "repeat-cell boundary, "
         "connector, and cross-boundary bond. Only after this topology is "
         "complete may components, assembly_expression, and the combined "
         "formula/quantity be recombined. In that requested_outputs certificate "
@@ -1251,11 +1262,18 @@ def render_native_formalizer_composition_accounting_prompt(
         "MANDATORY WHOLE-PRODUCT IMAGE TOPOLOGY (Formalizer obligation):\n"
         "- Exact opt-in output ids: "
         + json.dumps(output_ids, ensure_ascii=False)
-        + "\n- Before arithmetic, inspect every bound image and trace the whole "
-        "assembled product. Treat printed formula labels as possible residues, "
-        "not automatically as complete products. Record product nodes, their "
+        + "\n- On the first draft and before arithmetic, inspect every bound "
+        "image and trace the whole assembled product. First identify every "
+        "visually distinct building block and its formula; then balance "
+        "connection degree and functional-group ports using their LCM; count "
+        "every connection and eliminated small molecule; write the unreduced "
+        "whole-product formula or quantity; and record its GCD/normalization. "
+        "Only after those stages may you calculate the opt-in requested output. "
+        "Treat printed formula labels as possible residues, not automatically "
+        "as complete products. Record product nodes, their "
         "positive integer multiplicities, assembly edges, every visible "
-        "bracket/connector/cross-boundary bond, a component-to-node ledger, "
+        "bracket/repeat-cell boundary/connector/cross-boundary bond, a "
+        "component-to-node ledger, "
         "and the final recombination in the assigned Lean file and task report. "
         "Every product node must appear exactly once in that ledger with the "
         "same multiplicity. If any boundary or multiplicity is ambiguous, keep "
@@ -1712,14 +1730,16 @@ def _validate_native_composition_accounting(
             has_ambiguous_boundary or boundary_status == "ambiguous"
         )
     if (
-        "bracket" not in seen_boundary_kinds
+        not seen_boundary_kinds.intersection(
+            {"bracket", "repeat_cell_boundary"}
+        )
         or not seen_boundary_kinds.intersection(
             {"connector", "cross_boundary_bond"}
         )
     ):
         return (
             f"requested output {index} boundary_checks do not trace both "
-            "brackets and outgoing connections"
+            "a bracket/repeat-cell boundary and outgoing connections"
         )
 
     status = str(accounting.get("status") or "").strip().lower()

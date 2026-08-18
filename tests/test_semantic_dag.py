@@ -53,6 +53,10 @@ class SemanticDagTest(unittest.TestCase):
             "measurement_policy": {"tolerance": "source_derived"},
             "candidate_domain_policy": {"bounds": "source_derived"},
         }
+        self.source_images = [{
+            "path": "icho_2026_source/image/problem-page.png",
+            "sha256": "a" * 64,
+        }]
 
     def _dag(self) -> dict:
         return build_semantic_dag(
@@ -132,7 +136,9 @@ class SemanticDagTest(unittest.TestCase):
             "image_component_accounting"
         ]
         dag = build_semantic_dag(
-            record_id="item_a2", problem_evidence=evidence,
+            record_id="item_a2",
+            problem_evidence=evidence,
+            source_images=self.source_images,
         )
         output = next(
             node for node in dag["nodes"] if node["id"] == "output:formula"
@@ -156,6 +162,172 @@ class SemanticDagTest(unittest.TestCase):
                 with self.assertRaisesRegex(SemanticDagError, "invalid"):
                     build_semantic_dag(
                         record_id="item_a2", problem_evidence=bad,
+                    )
+
+    def test_source_image_component_chain_and_output_dependency(self) -> None:
+        evidence = copy.deepcopy(self.evidence)
+        evidence["requested_outputs"][0]["audit_requirements"] = [
+            "image_component_accounting"
+        ]
+        evidence["requested_outputs"][1]["depends_on_output_ids"] = ["formula"]
+        dag = build_semantic_dag(
+            record_id="item_a2",
+            problem_evidence=evidence,
+            source_images=self.source_images,
+        )
+        nodes = {node["id"]: node for node in dag["nodes"]}
+        self.assertEqual(
+            nodes["source_image:0"],
+            {
+                "id": "source_image:0",
+                "kind": "source_image",
+                **self.source_images[0],
+            },
+        )
+        for node_id, kind in (
+            ("component_inventory:formula", "component_inventory"),
+            ("connection_graph:formula", "connection_graph"),
+            ("stoichiometric_balance:formula", "stoichiometric_balance"),
+        ):
+            self.assertEqual(nodes[node_id]["kind"], kind)
+            self.assertEqual(nodes[node_id]["output_id"], "formula")
+
+        edges = {
+            (edge["from"], edge["to"], edge["kind"])
+            for edge in dag["edges"]
+        }
+        self.assertTrue({
+            (
+                "source_image:0",
+                "component_inventory:formula",
+                "source_support",
+            ),
+            (
+                "component_inventory:formula",
+                "connection_graph:formula",
+                "inventory_support",
+            ),
+            (
+                "connection_graph:formula",
+                "stoichiometric_balance:formula",
+                "connection_support",
+            ),
+            (
+                "stoichiometric_balance:formula",
+                "derive:formula",
+                "stoichiometric_support",
+            ),
+            ("derive:formula", "output:formula", "discharges"),
+            ("output:formula", "derive:count", "output_dependency"),
+            ("derive:count", "output:count", "discharges"),
+        }.issubset(edges))
+        self.assertNotIn(
+            ("source_image:0", "derive:formula", "source_support"), edges,
+        )
+        self.assertEqual(
+            nodes["output:count"]["depends_on_output_ids"], ["formula"],
+        )
+        kinds = semantic_dag_provenance(dag)["node_kind_counts"]
+        self.assertEqual(kinds["source_image"], 1)
+        self.assertEqual(kinds["component_inventory"], 1)
+        self.assertEqual(kinds["connection_graph"], 1)
+        self.assertEqual(kinds["stoichiometric_balance"], 1)
+
+        prompt = render_solver_semantic_dag_prompt(
+            dag, semantic_dag_provenance(dag),
+        )
+        for phrase in (
+            "building-block identity and formula",
+            "functional-group ports",
+            "LCM/multiplicity",
+            "eliminated small molecules",
+            "unreduced whole-product formula or quantity",
+            "GCD",
+            "output_dependency",
+        ):
+            self.assertIn(phrase, prompt)
+
+    def test_output_dependencies_fail_closed(self) -> None:
+        variants: list[tuple[str, dict, str]] = []
+
+        unknown = copy.deepcopy(self.evidence)
+        unknown["requested_outputs"][1]["depends_on_output_ids"] = ["missing"]
+        variants.append(("unknown", unknown, "unknown output id"))
+
+        self_dependency = copy.deepcopy(self.evidence)
+        self_dependency["requested_outputs"][1]["depends_on_output_ids"] = [
+            "count"
+        ]
+        variants.append(("self", self_dependency, "self dependency"))
+
+        forward = copy.deepcopy(self.evidence)
+        forward["requested_outputs"][0]["depends_on_output_ids"] = ["count"]
+        variants.append(("forward", forward, "only earlier"))
+
+        cycle = copy.deepcopy(self.evidence)
+        cycle["requested_outputs"][0]["depends_on_output_ids"] = ["count"]
+        cycle["requested_outputs"][1]["depends_on_output_ids"] = ["formula"]
+        variants.append(("cycle", cycle, "contains a cycle"))
+
+        empty = copy.deepcopy(self.evidence)
+        empty["requested_outputs"][1]["depends_on_output_ids"] = []
+        variants.append(("empty", empty, "is invalid"))
+
+        duplicate = copy.deepcopy(self.evidence)
+        duplicate["requested_outputs"][1]["depends_on_output_ids"] = [
+            "formula", " formula ",
+        ]
+        variants.append(("duplicate", duplicate, "is invalid"))
+
+        for name, evidence, message in variants:
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(SemanticDagError, message):
+                    build_semantic_dag(
+                        record_id="item_a2", problem_evidence=evidence,
+                    )
+
+    def test_source_images_are_strict_and_required_for_image_audit(self) -> None:
+        evidence = copy.deepcopy(self.evidence)
+        evidence["requested_outputs"][0]["audit_requirements"] = [
+            "image_component_accounting"
+        ]
+        with self.assertRaisesRegex(
+            SemanticDagError, "requires at least one source image",
+        ):
+            build_semantic_dag(
+                record_id="item_a2", problem_evidence=evidence,
+            )
+
+        for name, images, message in (
+            (
+                "bad_digest",
+                [{"path": "page.png", "sha256": "bad"}],
+                "lowercase SHA-256",
+            ),
+            (
+                "extra_field",
+                [{
+                    "path": "page.png",
+                    "sha256": "a" * 64,
+                    "value": "unbound",
+                }],
+                "exactly path and sha256",
+            ),
+            (
+                "duplicate_path",
+                [
+                    {"path": "page.png", "sha256": "a" * 64},
+                    {"path": "page.png", "sha256": "b" * 64},
+                ],
+                "duplicate path",
+            ),
+        ):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(SemanticDagError, message):
+                    build_semantic_dag(
+                        record_id="item_a2",
+                        problem_evidence=self.evidence,
+                        source_images=images,
                     )
 
     def test_answer_bearing_fields_fail_closed(self) -> None:
@@ -193,6 +365,116 @@ class SemanticDagTest(unittest.TestCase):
             SemanticDagError, "answer-bearing field",
         ):
             render_solver_semantic_dag_prompt(leaky)
+
+    def test_provenance_rejects_malformed_graphs(self) -> None:
+        base = self._dag()
+        variants: list[tuple[str, dict, str]] = []
+
+        duplicate_node = copy.deepcopy(base)
+        duplicate_node["nodes"].append(
+            copy.deepcopy(duplicate_node["nodes"][0])
+        )
+        variants.append(("duplicate_node", duplicate_node, "duplicate node id"))
+
+        dangling = copy.deepcopy(base)
+        dangling["edges"][0]["from"] = "missing:node"
+        variants.append(("dangling", dangling, "dangling endpoint"))
+
+        duplicate_edge = copy.deepcopy(base)
+        duplicate_edge["edges"].append(
+            copy.deepcopy(duplicate_edge["edges"][0])
+        )
+        variants.append(("duplicate_edge", duplicate_edge, "duplicate edge"))
+
+        duplicate_pair = copy.deepcopy(base)
+        same_pair = copy.deepcopy(duplicate_pair["edges"][0])
+        same_pair["kind"] = "discharges"
+        duplicate_pair["edges"].append(same_pair)
+        variants.append(
+            ("duplicate_pair", duplicate_pair, "duplicate directed edge")
+        )
+
+        self_edge = copy.deepcopy(base)
+        self_edge["edges"][0]["to"] = self_edge["edges"][0]["from"]
+        variants.append(("self_edge", self_edge, "self edge"))
+
+        cycle = copy.deepcopy(base)
+        cycle["edges"].append({
+            "from": "output:formula",
+            "to": "source:question",
+            "kind": "output_dependency",
+        })
+        variants.append(("cycle", cycle, "directed cycle"))
+
+        bad_edge_fields = copy.deepcopy(base)
+        bad_edge_fields["edges"][0]["extra"] = "unbound"
+        variants.append(("edge_fields", bad_edge_fields, "fields are invalid"))
+
+        bad_edge_kind = copy.deepcopy(base)
+        bad_edge_kind["edges"][0]["kind"] = "invented"
+        variants.append(("edge_kind", bad_edge_kind, "kind is invalid"))
+
+        duplicate_output = copy.deepcopy(base)
+        output_count = next(
+            node
+            for node in duplicate_output["nodes"]
+            if node["id"] == "output:count"
+        )
+        output_count["output_id"] = "formula"
+        variants.append(
+            ("duplicate_output", duplicate_output, "duplicate requested output")
+        )
+
+        extra_header = copy.deepcopy(base)
+        extra_header["extra"] = "unbound"
+        variants.append(("header", extra_header, "header fields are invalid"))
+
+        for name, dag, message in variants:
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(SemanticDagError, message):
+                    semantic_dag_provenance(dag)
+
+    def test_provenance_revalidates_source_image_nodes(self) -> None:
+        base = build_semantic_dag(
+            record_id="item_a2",
+            problem_evidence=self.evidence,
+            source_images=self.source_images,
+        )
+        mutated_digest = copy.deepcopy(base)
+        source_image = next(
+            node
+            for node in mutated_digest["nodes"]
+            if node["kind"] == "source_image"
+        )
+        source_image["sha256"] = "A" * 64
+        with self.assertRaisesRegex(
+            SemanticDagError, "source_image sha256 is invalid",
+        ):
+            semantic_dag_provenance(mutated_digest)
+
+        extra_field = copy.deepcopy(base)
+        source_image = next(
+            node
+            for node in extra_field["nodes"]
+            if node["kind"] == "source_image"
+        )
+        source_image["extra"] = "unbound"
+        with self.assertRaisesRegex(
+            SemanticDagError, "source_image fields are invalid",
+        ):
+            semantic_dag_provenance(extra_field)
+
+        duplicate_path = copy.deepcopy(base)
+        duplicate_path["nodes"].append({
+            "id": "source_image:1",
+            "kind": "source_image",
+            "path": self.source_images[0]["path"],
+            "sha256": "b" * 64,
+        })
+        with self.assertRaisesRegex(
+            SemanticDagError, "duplicate source_image path",
+        ):
+            semantic_dag_provenance(duplicate_path)
 
     def test_native_formalizer_block_uses_fresh_controller_contract(self) -> None:
         dag = self._dag()

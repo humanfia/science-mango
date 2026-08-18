@@ -44,6 +44,7 @@ def _numeric_output(
     unit: str,
     *,
     decimal_places: int | None = None,
+    depends_on_output_ids: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     precision = (
         {
@@ -58,13 +59,16 @@ def _numeric_output(
             "source": "uniform_blind_evaluation_default",
         }
     )
-    return {
+    output = {
         "id": output_id,
         "source_requirement": source_requirement,
         "kind": "numeric",
         "unit": unit,
         "reporting_policy": precision,
     }
+    if depends_on_output_ids:
+        output["depends_on_output_ids"] = list(depends_on_output_ids)
+    return output
 
 
 def _exact_output(
@@ -74,6 +78,7 @@ def _exact_output(
     unit: str = "",
     *,
     audit_requirements: tuple[str, ...] = (),
+    depends_on_output_ids: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     output = {
         "id": output_id,
@@ -87,6 +92,8 @@ def _exact_output(
     }
     if audit_requirements:
         output["audit_requirements"] = list(audit_requirements)
+    if depends_on_output_ids:
+        output["depends_on_output_ids"] = list(depends_on_output_ids)
     return output
 
 
@@ -117,8 +124,19 @@ REQUESTED_OUTPUTS: dict[str, tuple[dict[str, Any], ...]] = {
         _numeric_output("oscillation_period", "period of oscillations tau", "s"),
     ),
     "icho_2026_t3_a1": (
-        _exact_output("cof1_empirical_formula", "empirical formula of COF-1", "formula"),
-        _numeric_output("cof1_carbon_mass_percent", "carbon mass percentage in COF-1", "%", decimal_places=2),
+        _exact_output(
+            "cof1_empirical_formula",
+            "empirical formula of COF-1",
+            "formula",
+            audit_requirements=("image_component_accounting",),
+        ),
+        _numeric_output(
+            "cof1_carbon_mass_percent",
+            "carbon mass percentage in COF-1",
+            "%",
+            decimal_places=2,
+            depends_on_output_ids=("cof1_empirical_formula",),
+        ),
     ),
     "icho_2026_t3_a2": (
         _numeric_output("cof2_internal_diameter", "internal honeycomb diameter d of COF-2", "angstrom"),

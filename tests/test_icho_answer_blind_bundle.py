@@ -264,7 +264,7 @@ class IchoAnswerBlindBundleTests(unittest.TestCase):
             {"kind": "exact_integer", "source": "problem_output_type"},
         )
 
-    def test_image_component_accounting_is_opt_in_only_for_t9_a7(self):
+    def test_image_component_accounting_and_output_dependencies_are_opt_in(self):
         opted_in = {
             (target_id, output["id"])
             for target_id, outputs in MODULE.REQUESTED_OUTPUTS.items()
@@ -274,15 +274,33 @@ class IchoAnswerBlindBundleTests(unittest.TestCase):
         self.assertEqual(
             opted_in,
             {
+                ("icho_2026_t3_a1", "cof1_empirical_formula"),
                 ("icho_2026_t9_a7", "first_fragment_mz"),
                 ("icho_2026_t9_a7", "second_fragment_mz"),
             },
         )
-        for output in MODULE.REQUESTED_OUTPUTS["icho_2026_t9_a7"]:
+        for target_id, output_id in opted_in:
+            output = next(
+                item
+                for item in MODULE.REQUESTED_OUTPUTS[target_id]
+                if item["id"] == output_id
+            )
             self.assertEqual(
                 output["audit_requirements"],
                 ["image_component_accounting"],
             )
+
+        t3_outputs = MODULE.REQUESTED_OUTPUTS["icho_2026_t3_a1"]
+        self.assertNotIn("depends_on_output_ids", t3_outputs[0])
+        self.assertEqual(
+            t3_outputs[1]["depends_on_output_ids"],
+            ["cof1_empirical_formula"],
+        )
+        self.assertNotIn("audit_requirements", t3_outputs[1])
+        self.assertTrue(all(
+            "depends_on_output_ids" not in output
+            for output in MODULE.REQUESTED_OUTPUTS["icho_2026_t9_a7"]
+        ))
 
     def test_requested_output_inventory_matches_real_theory_inventory(self):
         inventory = (
