@@ -37,6 +37,11 @@ from evaluation.certificate import (
 )
 from evaluation.challenge_gate import evaluate_challenge_gate
 from evaluation.distance_milp import get_code_matrices
+from evaluation.distance_distqldpc import (
+    DISTQLDPC_CARDINALITY_MODES,
+    verify_distqldpc_exact_evidence,
+    verify_distqldpc_lower_evidence,
+)
 from evaluation.distance_sat import (
     SAT_ENCODINGS,
     SAT_EVIDENCE_KIND,
@@ -872,6 +877,84 @@ def _completed_partition_count(
     )
 
 
+def _stored_distqldpc_lower(
+    records: Any,
+    *,
+    max_weight: int,
+    hx: np.ndarray,
+    hz: np.ndarray,
+    lx: np.ndarray,
+    lz: np.ndarray,
+    expected_checkpoint_base: Mapping[str, Any],
+    require_lower: bool = True,
+    allow_empty: bool = False,
+) -> list[dict[str, Any]] | None:
+    """Replay one or more consistent full-distance MaxCDCL lower decisions."""
+
+    if not isinstance(records, list):
+        return None
+    if not records:
+        return [] if allow_empty else None
+    recovered: list[dict[str, Any]] = []
+    seen_modes: set[str] = set()
+    exact_distances: set[int] = set()
+    for raw in records:
+        if not isinstance(raw, Mapping):
+            return None
+        wrapper = dict(raw)
+        mode = wrapper.get("cardinality_mode")
+        evidence = wrapper.get("solver_evidence")
+        checkpoint_identity = wrapper.get("checkpoint_identity")
+        if (
+            not isinstance(mode, str)
+            or mode not in DISTQLDPC_CARDINALITY_MODES
+            or mode in seen_modes
+            or not isinstance(evidence, Mapping)
+            or not isinstance(checkpoint_identity, Mapping)
+            or wrapper.get("sector") != "XZ"
+            or wrapper.get("partition_index") is not None
+            or wrapper.get("anchor_cube") is not None
+        ):
+            return None
+        expected_identity = {
+            **dict(expected_checkpoint_base),
+            "cardinality_mode": mode,
+        }
+        if dict(checkpoint_identity) != expected_identity:
+            return None
+        try:
+            verifier = (
+                verify_distqldpc_lower_evidence
+                if require_lower
+                else verify_distqldpc_exact_evidence
+            )
+            failures = verifier(
+                evidence,
+                hx,
+                hz,
+                lx,
+                lz,
+                max_weight=max_weight,
+                cardinality_mode=mode,
+                expected_checkpoint_identity=expected_identity,
+            )
+        except (TypeError, ValueError):
+            return None
+        distance = evidence.get("exact_distance")
+        if (
+            failures
+            or isinstance(distance, bool)
+            or not isinstance(distance, int)
+        ):
+            return None
+        seen_modes.add(mode)
+        exact_distances.add(distance)
+        recovered.append(wrapper)
+    if len(exact_distances) != 1:
+        return None
+    return recovered
+
+
 def _stored_lower(
     request: Mapping[str, Any],
     *,
@@ -1166,8 +1249,29 @@ def claim_from_sector_sat_artifact(
     lower_threshold = int(raw_lower_threshold)
     request = {
         "coverage_mode": mode,
+        "requested_coverage_mode": artifact.get(
+            "requested_coverage_mode", mode,
+        ),
+        "requested_lower_backend": artifact.get(
+            "requested_lower_backend", "pysat",
+        ),
+        "lower_bound_backend": artifact.get("lower_bound_backend", "pysat"),
         "lower_bound_threshold": lower_threshold,
         "lower_bound_decisions": artifact.get("lower_bound_decisions"),
+        "distqldpc_exact_distances": artifact.get(
+            "distqldpc_exact_distances",
+        ),
+        "distqldpc_exact_decisions": artifact.get(
+            "distqldpc_exact_decisions",
+        ),
+        "distqldpc_lower_decisions": artifact.get(
+            "distqldpc_lower_decisions",
+        ),
+        "distqldpc_conflict": artifact.get("distqldpc_conflict", False),
+        "distqldpc_conflict_details": artifact.get(
+            "distqldpc_conflict_details",
+        ),
+        "low_witnesses": artifact.get("low_witnesses"),
         "upper_witness": artifact.get("upper_witness"),
         "translation_symmetry": artifact.get("translation_symmetry"),
         "construction_symmetry": artifact.get("construction_symmetry"),
@@ -1175,6 +1279,16 @@ def claim_from_sector_sat_artifact(
         "xz_sector_isometry": artifact.get("xz_sector_isometry"),
         "anchor_cover_cubes": artifact.get("anchor_cover_cubes"),
     }
+    if request["lower_bound_backend"] == "distqldpc":
+        compact = isinstance(claim.get("construction"), Mapping)
+        request["use_translation_anchors"] = bool(
+            not compact
+            and isinstance(request.get("translation_symmetry"), Mapping)
+        )
+        request["use_construction_anchors"] = bool(
+            compact
+            and isinstance(request.get("construction_symmetry"), Mapping)
+        )
     xz_sector_isometry, proof_sectors = _xz_isometry_context(
         request,
         claim,
@@ -1193,19 +1307,135 @@ def claim_from_sector_sat_artifact(
         request.get("anchor_cover_cubes"),
         anchors=anchors,
     )
-    lower = _stored_lower(
-        request,
-        mode=str(mode),
-        k=k,
-        max_weight=lower_threshold,
-        hx=hx,
-        hz=hz,
-        lx=lx,
-        lz=lz,
-        expected_anchors=anchors,
-        sectors=proof_sectors,
-        anchor_cover_cubes=anchor_cover_cubes,
-    )
+    requested_lower_backend = request["requested_lower_backend"]
+    lower_backend = request["lower_bound_backend"]
+    if requested_lower_backend not in {"pysat", "distqldpc"}:
+        raise ValueError("Stage 3 requested lower backend is invalid")
+    if lower_backend not in {"pysat", "distqldpc"}:
+        raise ValueError("Stage 3 effective lower backend is invalid")
+    if requested_lower_backend == "pysat" and lower_backend != "pysat":
+        raise ValueError("Stage 3 lower backend changed without being requested")
+    distqldpc_distance: int | None = None
+    distqldpc_exact: list[dict[str, Any]] = []
+    distqldpc_all_lower: list[dict[str, Any]] = []
+    if requested_lower_backend == "distqldpc":
+        requested_mode = request["requested_coverage_mode"]
+        if (
+            requested_mode not in SUPPORTED_MODES
+            or request.get("distqldpc_conflict") is not False
+            or (
+                request.get("distqldpc_conflict_details") is not None
+                and request.get("distqldpc_conflict_details") != []
+            )
+            or request.get("low_witnesses") != []
+        ):
+            raise ValueError("Stage 3 DistQLDPC lower metadata is inconsistent")
+        construction_report = request.get("construction_symmetry")
+        isometry_report = request.get("xz_sector_isometry")
+        checkpoint_base = {
+            "stage3_gate": STAGE3_GATE,
+            "candidate_digest": claim.get("canonical_digest"),
+            "target_mode": claim.get("target_mode"),
+            "target_binding_sha256": (
+                claim.get("target", {}).get("binding_sha256")
+                if isinstance(claim.get("target"), Mapping)
+                else None
+            ),
+            "phase": "lower-distqldpc",
+            "lower_backend": "distqldpc",
+            "coverage_mode": requested_mode,
+            "logical_detector_sha256": detector["report_sha256"],
+            "translation_symmetry": request.get("translation_symmetry"),
+            "construction_symmetry_sha256": (
+                construction_report.get("report_sha256")
+                if isinstance(construction_report, Mapping)
+                else None
+            ),
+            "xz_sector_isometry_sha256": (
+                isometry_report.get("report_sha256")
+                if isinstance(isometry_report, Mapping)
+                else None
+            ),
+        }
+        distqldpc_exact = _stored_distqldpc_lower(
+            request.get("distqldpc_exact_decisions"),
+            max_weight=required - 1,
+            hx=hx,
+            hz=hz,
+            lx=lx,
+            lz=lz,
+            expected_checkpoint_base=checkpoint_base,
+            require_lower=False,
+            allow_empty=True,
+        )
+        distqldpc_all_lower = _stored_distqldpc_lower(
+            request.get("distqldpc_lower_decisions"),
+            max_weight=required - 1,
+            hx=hx,
+            hz=hz,
+            lx=lx,
+            lz=lz,
+            expected_checkpoint_base=checkpoint_base,
+            allow_empty=True,
+        )
+        replayed_distances = (
+            []
+            if distqldpc_exact is None
+            else sorted({
+                int(item["solver_evidence"]["exact_distance"])
+                for item in distqldpc_exact
+            })
+        )
+        replayed_lower = (
+            []
+            if distqldpc_exact is None
+            else [
+                item
+                for item in distqldpc_exact
+                if int(item["solver_evidence"]["exact_distance"])
+                > required - 1
+            ]
+        )
+        if (
+            distqldpc_exact is None
+            or distqldpc_all_lower is None
+            or len(replayed_distances) > 1
+            or request.get("distqldpc_exact_distances") != replayed_distances
+            or distqldpc_all_lower != replayed_lower
+        ):
+            raise ValueError("Stage 3 DistQLDPC evidence replay is inconsistent")
+        if replayed_distances:
+            distqldpc_distance = replayed_distances[0]
+
+    if lower_backend == "distqldpc":
+        requested_mode = request["requested_coverage_mode"]
+        selected_lower = request.get("lower_bound_decisions")
+        if (
+            requested_lower_backend != "distqldpc"
+            or mode != GLOBAL_MODE
+            or anchor_cover_cubes is not None
+            or lower_threshold != required - 1
+            or not isinstance(selected_lower, list)
+            or len(selected_lower) != 1
+            or not isinstance(selected_lower[0], Mapping)
+            or dict(selected_lower[0]) not in distqldpc_all_lower
+        ):
+            raise ValueError("Stage 3 DistQLDPC lower evidence is incomplete")
+        lower = [dict(selected_lower[0])]
+    else:
+        lower = _stored_lower(
+            request,
+            mode=str(mode),
+            k=k,
+            max_weight=lower_threshold,
+            hx=hx,
+            hz=hz,
+            lx=lx,
+            lz=lz,
+            expected_anchors=anchors,
+            sectors=proof_sectors,
+            anchor_cover_cubes=anchor_cover_cubes,
+        )
     witness = request["upper_witness"]
     witness_valid = bool(
         isinstance(witness, Mapping)
@@ -1221,22 +1451,44 @@ def claim_from_sector_sat_artifact(
     )
     if lower is None:
         raise ValueError("Stage 3 sector-SAT lower evidence is incomplete")
-    expected_solver_decisions = len(_expected_solver_decisions(
-        str(mode),
-        k,
-        proof_sectors,
-        anchor_cover_cubes,
-    ))
-    expected_partitions = len(_expected_decisions(str(mode), k, proof_sectors))
-    if anchor_cover_cubes is not None and (
+    if (
+        requested_lower_backend == "distqldpc"
+        and lower_backend == "pysat"
+        and distqldpc_distance is not None
+        and distqldpc_distance <= lower_threshold
+    ):
+        raise ValueError(
+            "DistQLDPC exact distance contradicts the PySAT lower proof"
+        )
+    expected_solver_decisions = (
+        1
+        if lower_backend == "distqldpc"
+        else len(_expected_solver_decisions(
+            str(mode), k, proof_sectors, anchor_cover_cubes,
+        ))
+    )
+    expected_partitions = (
+        1
+        if lower_backend == "distqldpc"
+        else len(_expected_decisions(str(mode), k, proof_sectors))
+    )
+    counters_required = (
+        lower_backend == "distqldpc" or anchor_cover_cubes is not None
+    )
+    if counters_required and (
         artifact.get("expected_lower_decisions") != expected_solver_decisions
         or artifact.get("completed_lower_decisions") != expected_solver_decisions
         or artifact.get("expected_lower_partitions") != expected_partitions
         or artifact.get("completed_lower_partitions") != expected_partitions
     ):
-        raise ValueError("Stage 3 anchor-cover counters are incomplete")
+        raise ValueError("Stage 3 lower-bound counters are incomplete")
     if artifact.get("status") == "EXACT_PROVEN" and (
-        lower_threshold != required - 1 or not witness_valid
+        lower_threshold != required - 1
+        or not witness_valid
+        or (
+            distqldpc_distance is not None
+            and distqldpc_distance != required
+        )
     ):
         raise ValueError(
             "EXACT_PROVEN Stage 3 artifact lacks the R-1 lower/R witness pair",
@@ -1275,6 +1527,16 @@ def claim_from_sector_sat_artifact(
             if str(sector) in escalation_by_sector:
                 raise ValueError("duplicate Stage 3 upper UNSAT sector decision")
             escalation_by_sector[str(sector)] = wrapper
+
+    if (
+        requested_lower_backend == "distqldpc"
+        and distqldpc_distance is not None
+        and set(escalation_by_sector) == set(proof_sectors)
+        and distqldpc_distance <= required
+    ):
+        raise ValueError(
+            "DistQLDPC exact distance contradicts the PySAT upper UNSAT proof"
+        )
 
     request["lower_bound_decisions"] = lower
     request["lower_bound_threshold"] = lower_threshold

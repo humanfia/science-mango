@@ -16,9 +16,11 @@ import pytest
 import humanize.pipeline as pipeline_module
 from evaluation.process_hard_wall import (
     IsolatedCallOutcome,
+    IsolatedCallStartupTimeout,
     run_isolated_call,
 )
 from humanize.pipeline import default_command_runner
+from scripts import audit_direction_pool as direction_pool
 from scripts import finalize_challenge as finalizer
 from scripts.audit_direction_pool import (
     direction_state_path,
@@ -191,8 +193,8 @@ def test_stage3_submit_wall_retains_progress_and_runs_peer(
         direction_workers=1,
         threshold_only=True,
         resume=True,
-        candidate_hard_timeout=5.0,
-        termination_grace=0.05,
+        candidate_hard_timeout=1.0,
+        termination_grace=0.5,
         screener=stage3_hang_or_complete,
     )
 
@@ -215,7 +217,25 @@ def test_stage3_submit_wall_retains_progress_and_runs_peer(
     )
 
 
-def test_stage3_startup_timeout_is_retryable_unresolved(tmp_path):
+def test_stage3_startup_timeout_is_retryable_unresolved(
+    tmp_path,
+    monkeypatch,
+):
+    def fail_startup(*_args, **_kwargs):
+        raise IsolatedCallStartupTimeout(
+            "synthetic isolated-worker startup timeout",
+            timeout_s=0.001,
+            hard_wall={
+                "timed_out": True,
+                "startup_timed_out": True,
+            },
+        )
+
+    monkeypatch.setattr(
+        direction_pool,
+        "start_isolated_call",
+        fail_startup,
+    )
     results = screen_selected_candidates(
         [("startup-timeout", _candidate("peer-candidate"))],
         tmp_path / "state",

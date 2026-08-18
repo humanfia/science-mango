@@ -1330,6 +1330,311 @@ def test_final_gate_recognizes_only_the_typed_sector_proof(tmp_path, monkeypatch
     ) is False
 
 
+def test_stage3_handoff_replays_distqldpc_global_lower_fail_closed(
+    monkeypatch,
+):
+    _patch_problem(monkeypatch)
+    claim = _claim()
+    candidate = {
+        key: value for key, value in claim.items() if key != REQUEST_FIELD
+    }
+    _, hx, hz, lx, lz = _problem()
+    detector = verify_css_logical_detectors(hx, hz, lx, lz)
+    mode = "default"
+    checkpoint_identity = {
+        "stage3_gate": STAGE3_GATE,
+        "candidate_digest": "digest",
+        "target_mode": None,
+        "target_binding_sha256": None,
+        "phase": "lower-distqldpc",
+        "lower_backend": "distqldpc",
+        "cardinality_mode": mode,
+        "coverage_mode": "global",
+        "logical_detector_sha256": detector["report_sha256"],
+        "translation_symmetry": None,
+        "construction_symmetry_sha256": None,
+        "xz_sector_isometry_sha256": None,
+    }
+    evidence = {
+        "outcome": "exact",
+        "decision_complete": True,
+        "threshold_infeasible": True,
+        "retryable": False,
+        "exact_distance": 2,
+    }
+    wrapper = {
+        "sector": "XZ",
+        "partition_index": None,
+        "anchor_cube": None,
+        "cardinality_mode": mode,
+        "checkpoint_identity": checkpoint_identity,
+        "solver_evidence": evidence,
+    }
+    artifact = {
+        "schema_version": 1,
+        "gate": STAGE3_GATE,
+        "status": "EXACT_PROVEN",
+        "candidate": candidate,
+        "required_distance": 2,
+        "coverage_mode": "global",
+        "requested_coverage_mode": "global",
+        "requested_lower_backend": "distqldpc",
+        "lower_bound_backend": "distqldpc",
+        "lower_bound_threshold": 1,
+        "translation_symmetry": None,
+        "construction_symmetry": None,
+        "logical_detector": detector,
+        "xz_sector_isometry": None,
+        "anchor_cover_cubes": None,
+        "expected_lower_decisions": 1,
+        "completed_lower_decisions": 1,
+        "expected_lower_partitions": 1,
+        "completed_lower_partitions": 1,
+        "lower_bound_decisions": [wrapper],
+        "distqldpc_exact_distances": [2],
+        "distqldpc_exact_decisions": [wrapper],
+        "distqldpc_lower_decisions": [wrapper],
+        "distqldpc_conflict": False,
+        "distqldpc_conflict_details": None,
+        "low_witnesses": [],
+        "upper_witness": {
+            "sector": "Z",
+            "partition_index": None,
+            "solver_evidence": _fake_solver(
+                hx,
+                lx,
+                max_weight=2,
+                sector="Z",
+            ),
+        },
+        "units": [],
+    }
+    artifact["artifact_sha256"] = sector_certificate._canonical_sha256(
+        artifact,
+    )
+
+    observed = {}
+    replayed_modes = []
+
+    def replay(_evidence, *_matrices, **kwargs):
+        observed.update(kwargs)
+        replayed_modes.append(kwargs["cardinality_mode"])
+        return []
+
+    monkeypatch.setattr(
+        sector_certificate,
+        "verify_distqldpc_lower_evidence",
+        replay,
+    )
+    monkeypatch.setattr(
+        sector_certificate,
+        "verify_distqldpc_exact_evidence",
+        replay,
+    )
+    handed_off = claim_from_sector_sat_artifact(artifact)
+    request = handed_off[REQUEST_FIELD]
+    assert request["lower_bound_backend"] == "distqldpc"
+    assert request["lower_bound_decisions"] == [wrapper]
+    assert observed["cardinality_mode"] == mode
+    assert observed["expected_checkpoint_identity"] == checkpoint_identity
+
+    conflict = deepcopy(artifact)
+    conflict["distqldpc_conflict"] = True
+    conflict["artifact_sha256"] = sector_certificate._canonical_sha256(
+        conflict, omit="artifact_sha256",
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(conflict)
+
+    contradiction = deepcopy(artifact)
+    contradiction["lower_bound_decisions"][0]["solver_evidence"][
+        "exact_distance"
+    ] = 3
+    contradiction["distqldpc_lower_decisions"] = deepcopy(
+        contradiction["lower_bound_decisions"],
+    )
+    contradiction["distqldpc_exact_decisions"] = deepcopy(
+        contradiction["lower_bound_decisions"],
+    )
+    contradiction["distqldpc_exact_distances"] = [3]
+    contradiction["artifact_sha256"] = sector_certificate._canonical_sha256(
+        contradiction, omit="artifact_sha256",
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(contradiction)
+
+    hidden_conflict = deepcopy(artifact)
+    second_wrapper = deepcopy(wrapper)
+    second_wrapper["cardinality_mode"] = "mto"
+    second_wrapper["checkpoint_identity"]["cardinality_mode"] = "mto"
+    second_wrapper["solver_evidence"]["exact_distance"] = 3
+    hidden_conflict["distqldpc_exact_decisions"] = [
+        deepcopy(wrapper),
+        second_wrapper,
+    ]
+    # A malicious/stale producer must not hide the second exact value in its
+    # summary fields and then rely on its freshly sealed outer artifact hash.
+    hidden_conflict["distqldpc_exact_distances"] = [2]
+    hidden_conflict["distqldpc_conflict"] = False
+    hidden_conflict["distqldpc_conflict_details"] = None
+    hidden_conflict["artifact_sha256"] = sector_certificate._canonical_sha256(
+        hidden_conflict, omit="artifact_sha256",
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(hidden_conflict)
+
+    pysat_lower = [
+        {
+            "sector": "X",
+            "partition_index": None,
+            "anchor_cube": None,
+            "solver_evidence": _fake_solver(
+                hz,
+                lz,
+                max_weight=1,
+                sector="X",
+            ),
+        },
+        {
+            "sector": "Z",
+            "partition_index": None,
+            "anchor_cube": None,
+            "solver_evidence": _fake_solver(
+                hx,
+                lx,
+                max_weight=1,
+                sector="Z",
+            ),
+        },
+    ]
+    fallback = deepcopy(artifact)
+    fallback["lower_bound_backend"] = "pysat"
+    fallback["expected_lower_decisions"] = 2
+    fallback["completed_lower_decisions"] = 2
+    fallback["expected_lower_partitions"] = 2
+    fallback["completed_lower_partitions"] = 2
+    fallback["lower_bound_decisions"] = pysat_lower
+    fallback["distqldpc_exact_distances"] = []
+    fallback["distqldpc_exact_decisions"] = []
+    fallback["distqldpc_lower_decisions"] = []
+    fallback["artifact_sha256"] = sector_certificate._canonical_sha256(
+        fallback, omit="artifact_sha256",
+    )
+    handed_off = claim_from_sector_sat_artifact(fallback)
+    assert handed_off[REQUEST_FIELD]["lower_bound_backend"] == "pysat"
+
+    fallback_conflict = deepcopy(fallback)
+    fallback_conflict["distqldpc_conflict"] = True
+    fallback_conflict["distqldpc_conflict_details"] = {
+        "reasons": ["producer observed a backend contradiction"],
+    }
+    fallback_conflict["artifact_sha256"] = sector_certificate._canonical_sha256(
+        fallback_conflict, omit="artifact_sha256",
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(fallback_conflict)
+
+    fallback_low_witness = deepcopy(fallback)
+    fallback_low_witness["status"] = "THRESHOLD_PROVEN"
+    fallback_low_witness["upper_witness"] = None
+    fallback_low_witness["low_witnesses"] = [{
+        "sector": "X",
+        "partition_index": None,
+        "producer_claimed_objective": 1,
+    }]
+    fallback_low_witness["artifact_sha256"] = (
+        sector_certificate._canonical_sha256(
+            fallback_low_witness, omit="artifact_sha256",
+        )
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(fallback_low_witness)
+
+    fallback_hidden_conflict = deepcopy(fallback)
+    fallback_hidden_conflict["distqldpc_exact_decisions"] = [
+        deepcopy(wrapper),
+        deepcopy(second_wrapper),
+    ]
+    fallback_hidden_conflict["distqldpc_exact_distances"] = [2]
+    fallback_hidden_conflict["distqldpc_conflict"] = False
+    fallback_hidden_conflict["distqldpc_conflict_details"] = None
+    fallback_hidden_conflict["artifact_sha256"] = (
+        sector_certificate._canonical_sha256(
+            fallback_hidden_conflict, omit="artifact_sha256",
+        )
+    )
+    replayed_modes.clear()
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(fallback_hidden_conflict)
+    assert replayed_modes == ["default", "mto"]
+
+    # Even a self-consistent single external exact result cannot contradict a
+    # separately replayed PySAT lower proof or upper witness.
+    fallback_lower_conflict = deepcopy(fallback)
+    below_lower = deepcopy(wrapper)
+    below_lower["solver_evidence"]["exact_distance"] = 1
+    fallback_lower_conflict["status"] = "THRESHOLD_PROVEN"
+    fallback_lower_conflict["upper_witness"] = None
+    fallback_lower_conflict["distqldpc_exact_distances"] = [1]
+    fallback_lower_conflict["distqldpc_exact_decisions"] = [below_lower]
+    fallback_lower_conflict["distqldpc_lower_decisions"] = []
+    fallback_lower_conflict["artifact_sha256"] = (
+        sector_certificate._canonical_sha256(
+            fallback_lower_conflict, omit="artifact_sha256",
+        )
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(fallback_lower_conflict)
+
+    fallback_witness_conflict = deepcopy(fallback)
+    fallback_witness_conflict["distqldpc_exact_distances"] = [3]
+    fallback_witness_conflict["distqldpc_exact_decisions"] = [
+        deepcopy(second_wrapper),
+    ]
+    fallback_witness_conflict["distqldpc_lower_decisions"] = [
+        deepcopy(second_wrapper),
+    ]
+    fallback_witness_conflict["artifact_sha256"] = (
+        sector_certificate._canonical_sha256(
+            fallback_witness_conflict, omit="artifact_sha256",
+        )
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(fallback_witness_conflict)
+
+    upper_unsat_units = []
+    for item in pysat_lower:
+        upper_unsat = deepcopy(item["solver_evidence"])
+        upper_unsat["max_weight"] = 2
+        upper_unsat["evidence_sha256"] = sector_certificate._canonical_sha256(
+            upper_unsat, omit="evidence_sha256",
+        )
+        upper_unsat_units.append({
+            "phase": "upper",
+            "sector": item["sector"],
+            "partition_index": None,
+            "solver_evidence": upper_unsat,
+        })
+    fallback_upper_unsat_conflict = deepcopy(fallback)
+    fallback_upper_unsat_conflict["status"] = "THRESHOLD_PROVEN"
+    fallback_upper_unsat_conflict["upper_witness"] = None
+    fallback_upper_unsat_conflict["distqldpc_exact_distances"] = [2]
+    fallback_upper_unsat_conflict["distqldpc_exact_decisions"] = [
+        deepcopy(wrapper),
+    ]
+    fallback_upper_unsat_conflict["distqldpc_lower_decisions"] = [
+        deepcopy(wrapper),
+    ]
+    fallback_upper_unsat_conflict["units"] = upper_unsat_units
+    fallback_upper_unsat_conflict["artifact_sha256"] = (
+        sector_certificate._canonical_sha256(
+            fallback_upper_unsat_conflict, omit="artifact_sha256",
+        )
+    )
+    with np.testing.assert_raises(ValueError):
+        claim_from_sector_sat_artifact(fallback_upper_unsat_conflict)
+
+
 def test_typed_stage3_handoff_preserves_exact_sector_evidence(monkeypatch):
     _patch_problem(monkeypatch)
     claim = _claim()

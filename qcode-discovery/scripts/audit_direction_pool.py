@@ -23,7 +23,10 @@ from scripts.screen_frontier_candidate import (
     build_candidate_code,
     screen_candidate,
 )
-from scripts.screen_frontier_sat import screen_sat_candidate
+from scripts.screen_frontier_sat import (
+    SAT_CANDIDATE_DEADLINE_SLACK_S,
+    screen_sat_candidate,
+)
 from scripts.screen_frontier_twobga import (
     TWOBGA_STAGE3_BACKEND,
     screen_twobga_candidate,
@@ -33,6 +36,12 @@ from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.distance_sat import (
     SAT_ENCODINGS,
     enforce_sat_native_thread_budget,
+)
+from evaluation.distance_distqldpc import (
+    DEFAULT_DISTQLDPC_EXE,
+    DISTQLDPC_CARDINALITY_MODES,
+    DistQLDPCBackendUnavailable,
+    inspect_distqldpc_binary,
 )
 from evaluation.twobga_subsystem import derive_twobga_subsystem_problem
 from evaluation.solver_budget import (
@@ -65,7 +74,10 @@ STAGE3_BACKENDS = frozenset({
 })
 DEFAULT_STAGE3_BACKEND = "legacy-directions"
 DEFAULT_SAT_CARDINALITY_ENCODING = "kmtotalizer"
+SAT_LOWER_BACKENDS = frozenset({"pysat", "distqldpc"})
+DEFAULT_SAT_LOWER_BACKEND = "pysat"
 RECOVERABLE_INCOMPLETE_EXIT_CODE = 2
+CANDIDATE_OUTER_WALL_SLACK_S = 5.0
 CONSTRUCTION_FIELDS = (
     "source", "trial", "ansatz", "construction", "geometry", "ell", "m", "A_terms", "B_terms",
     "C_terms", "D_terms", "n", "k", "required_distance",
@@ -534,6 +546,8 @@ def _screen_one(
     backend: str = DEFAULT_STAGE3_BACKEND,
     sat_cardinality_encoding: str = DEFAULT_SAT_CARDINALITY_ENCODING,
     sat_incremental_conflict_budget: int | None = None,
+    sat_lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
+    sat_distqldpc_exe: Path | str = DEFAULT_DISTQLDPC_EXE,
     screener: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     path = artifact_state_path(state_dir, digest, backend)
@@ -572,6 +586,19 @@ def _screen_one(
             screener_kwargs["incremental_conflict_budget"] = (
                 sat_incremental_conflict_budget
             )
+        if backend == "sat-sectors":
+            if sat_lower_backend not in SAT_LOWER_BACKENDS:
+                raise ValueError(
+                    f"unsupported SAT lower backend: {sat_lower_backend}"
+                )
+            screener_kwargs.update({
+                "lower_backend": sat_lower_backend,
+                "distqldpc_exe": Path(sat_distqldpc_exe),
+            })
+        elif sat_lower_backend != DEFAULT_SAT_LOWER_BACKEND:
+            raise ValueError(
+                "non-default SAT lower backend requires backend=sat-sectors"
+            )
         artifact = selected_screener(candidate, **screener_kwargs)
         result = {
             "canonical_digest": digest,
@@ -588,6 +615,15 @@ def _screen_one(
                     else {
                         "sat_incremental_conflict_budget": (
                             sat_incremental_conflict_budget
+                        ),
+                        "sat_lower_backend": sat_lower_backend,
+                        "sat_distqldpc_exe": (
+                            str(
+                                Path(sat_distqldpc_exe)
+                                .expanduser()
+                                .resolve()
+                            )
+                            if sat_lower_backend == "distqldpc" else None
                         ),
                     }
                 ),
@@ -611,7 +647,7 @@ def _screen_one(
 
 
 def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
-    if len(payload) not in {10, 11, 12, 13}:
+    if len(payload) not in {10, 11, 12, 13, 14, 15}:
         raise ValueError("invalid Stage 3 screen-worker payload")
     (
         digest,
@@ -636,7 +672,17 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
         else DEFAULT_SAT_CARDINALITY_ENCODING
     )
     sat_incremental_conflict_budget = (
-        int(payload[12]) if len(payload) == 13 else None
+        int(payload[12])
+        if len(payload) >= 13 and payload[12] is not None
+        else None
+    )
+    sat_lower_backend = (
+        str(payload[13]) if len(payload) >= 14
+        else DEFAULT_SAT_LOWER_BACKEND
+    )
+    sat_distqldpc_exe = (
+        Path(payload[14]) if len(payload) >= 15
+        else DEFAULT_DISTQLDPC_EXE
     )
     return _screen_one(
         digest,
@@ -652,7 +698,23 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
         backend=backend,
         sat_cardinality_encoding=sat_cardinality_encoding,
         sat_incremental_conflict_budget=sat_incremental_conflict_budget,
+        sat_lower_backend=sat_lower_backend,
+        sat_distqldpc_exe=sat_distqldpc_exe,
     )
+
+
+def _configured_expected_proof_units(
+    candidate: Mapping[str, Any],
+    backend: str,
+    sat_lower_backend: str,
+) -> int:
+    expected = _expected_proof_units(candidate, backend)
+    if (
+        backend == "sat-sectors"
+        and sat_lower_backend == "distqldpc"
+    ):
+        expected += len(DISTQLDPC_CARDINALITY_MODES)
+    return expected
 
 
 def _candidate_wall_timeout(
@@ -663,23 +725,37 @@ def _candidate_wall_timeout(
     direction_hard_timeout: float | None,
     candidate_hard_timeout: float | None,
     backend: str = DEFAULT_STAGE3_BACKEND,
+    sat_lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
+    termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
 ) -> float:
     """Bound setup, replay, every direction, and worker cleanup from submit."""
+    grace = float(termination_grace)
+    if not math.isfinite(grace) or grace < 0:
+        raise ValueError("termination_grace must be finite and nonnegative")
+    outer_margin = grace + CANDIDATE_OUTER_WALL_SLACK_S
 
-    expected = _expected_proof_units(candidate, backend)
+    expected = _configured_expected_proof_units(
+        candidate, backend, sat_lower_backend,
+    )
     if candidate_hard_timeout is not None:
-        return positive_wall_timeout(
+        inner_candidate_wall = positive_wall_timeout(
             candidate_hard_timeout,
             "candidate hard timeout",
         )
-    per_direction = positive_wall_timeout(
-        timeout + 5.0
-        if direction_hard_timeout is None
-        else direction_hard_timeout,
+        return inner_candidate_wall + outer_margin
+    unit_timeout = positive_wall_timeout(
+        timeout if direction_hard_timeout is None else direction_hard_timeout,
         "direction hard timeout",
     )
+    waves = math.ceil(expected / direction_workers)
+    per_wave_margin = max(SAT_CANDIDATE_DEADLINE_SLACK_S, grace)
+    inner_default_wall = (
+        waves * (unit_timeout + per_wave_margin)
+        + grace
+        + SAT_CANDIDATE_DEADLINE_SLACK_S
+    )
     return positive_wall_timeout(
-        math.ceil(expected / direction_workers) * per_direction + 5.0,
+        inner_default_wall + outer_margin,
         "candidate hard timeout",
     )
 
@@ -700,11 +776,14 @@ def _hard_wall_result(
     *,
     timeout_s: float,
     backend: str = DEFAULT_STAGE3_BACKEND,
+    sat_lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
 ) -> dict[str, Any]:
     """Recover durable progress after killing exactly one candidate session."""
 
     artifact = _load_partial_artifact(path)
-    expected = _expected_proof_units(candidate, backend)
+    expected = _configured_expected_proof_units(
+        candidate, backend, sat_lower_backend,
+    )
     completed = 0
     if artifact is not None:
         raw_completed = artifact.get(
@@ -767,6 +846,8 @@ def screen_selected_candidates(
     backend: str = DEFAULT_STAGE3_BACKEND,
     sat_cardinality_encoding: str = DEFAULT_SAT_CARDINALITY_ENCODING,
     sat_incremental_conflict_budget: int | None = None,
+    sat_lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
+    sat_distqldpc_exe: Path | str = DEFAULT_DISTQLDPC_EXE,
     screener: Callable[..., dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     if candidate_workers < 1:
@@ -794,6 +875,15 @@ def screen_selected_candidates(
             "sat_incremental_conflict_budget requires a positive integer "
             "and backend=sat-sectors"
         )
+    if sat_lower_backend not in SAT_LOWER_BACKENDS:
+        raise ValueError(f"unsupported SAT lower backend: {sat_lower_backend}")
+    if (
+        backend != "sat-sectors"
+        and sat_lower_backend != DEFAULT_SAT_LOWER_BACKEND
+    ):
+        raise ValueError(
+            "non-default SAT lower backend requires backend=sat-sectors"
+        )
     grace = positive_wall_timeout(
         termination_grace,
         "hard-wall termination grace",
@@ -817,6 +907,8 @@ def screen_selected_candidates(
                     direction_hard_timeout=direction_hard_timeout,
                     candidate_hard_timeout=candidate_hard_timeout,
                     backend=backend,
+                    sat_lower_backend=sat_lower_backend,
+                    termination_grace=grace,
                 )
                 handle = start_isolated_call(
                     _screen_one,
@@ -836,6 +928,8 @@ def screen_selected_candidates(
                         "sat_incremental_conflict_budget": (
                             sat_incremental_conflict_budget
                         ),
+                        "sat_lower_backend": sat_lower_backend,
+                        "sat_distqldpc_exe": Path(sat_distqldpc_exe),
                         "screener": screener,
                     },
                     timeout_s=wall_timeout,
@@ -853,6 +947,7 @@ def screen_selected_candidates(
                     ),
                     timeout_s=wall_timeout,
                     backend=backend,
+                    sat_lower_backend=sat_lower_backend,
                 )
                 continue
             except Exception as exc:
@@ -892,6 +987,7 @@ def screen_selected_candidates(
                         ),
                         timeout_s=wall_timeout,
                         backend=backend,
+                        sat_lower_backend=sat_lower_backend,
                     )
                 else:
                     results[digest] = {
@@ -923,6 +1019,7 @@ def screen_selected_candidates(
                     outcome,
                     timeout_s=wall_timeout,
                     backend=backend,
+                    sat_lower_backend=sat_lower_backend,
                 )
             else:
                 result = {
@@ -1075,6 +1172,25 @@ def build_parser() -> argparse.ArgumentParser:
             "serialized across a hard wall or process restart"
         ),
     )
+    parser.add_argument(
+        "--sat-lower-backend",
+        choices=sorted(SAT_LOWER_BACKENDS),
+        default=DEFAULT_SAT_LOWER_BACKEND,
+        help=(
+            "lower-bound engine for sat-sectors; distqldpc runs the pinned "
+            "official MaxCDCL full-distance portfolio while retaining "
+            "PySAT proof units as fallback"
+        ),
+    )
+    parser.add_argument(
+        "--sat-distqldpc-exe",
+        type=Path,
+        default=DEFAULT_DISTQLDPC_EXE,
+        help=(
+            "explicit path to the pinned official DistQLDPC executable "
+            f"(default: {DEFAULT_DISTQLDPC_EXE})"
+        ),
+    )
     parser.add_argument("--exact", action="store_true")
     parser.add_argument(
         "--resume", action=argparse.BooleanOptionalAction, default=True,
@@ -1129,6 +1245,26 @@ def main(argv: list[str] | None = None) -> int:
             "--sat-incremental-conflict-budget requires a positive integer "
             "and --backend sat-sectors"
         )
+    distqldpc_backend_identity: dict[str, Any] | None = None
+    if (
+        args.sat_lower_backend != DEFAULT_SAT_LOWER_BACKEND
+        and args.backend != "sat-sectors"
+    ):
+        parser.error(
+            "--sat-lower-backend distqldpc requires --backend sat-sectors"
+        )
+    if args.certify and args.sat_lower_backend == "distqldpc":
+        parser.error(
+            "--sat-lower-backend distqldpc currently supports Stage 3 only; "
+            "use --no-certify"
+        )
+    if args.sat_lower_backend == "distqldpc":
+        try:
+            distqldpc_backend_identity = inspect_distqldpc_binary(
+                args.sat_distqldpc_exe
+            )
+        except DistQLDPCBackendUnavailable as exc:
+            parser.error(str(exc))
     for name in (
         "certificate_timeout_per_logical",
         "certificate_total_timeout",
@@ -1243,6 +1379,8 @@ def main(argv: list[str] | None = None) -> int:
             sat_incremental_conflict_budget=(
                 args.sat_incremental_conflict_budget
             ),
+            sat_lower_backend=args.sat_lower_backend,
+            sat_distqldpc_exe=args.sat_distqldpc_exe,
         )
         atomic_write_jsonl(
             args.ranked_output,
@@ -1345,8 +1483,19 @@ def main(argv: list[str] | None = None) -> int:
             if args.backend == "sat-sectors"
             else None
         ),
+        "sat_lower_backend": (
+            args.sat_lower_backend
+            if args.backend == "sat-sectors"
+            else None
+        ),
+        "sat_distqldpc_backend": distqldpc_backend_identity,
         "proof_unit_semantics": (
-            "first-nonzero-sector-partitions-plus-xz-upper-witness"
+            (
+                "distqldpc-maxcdcl-cardinality-portfolio-full-distance-lower-"
+                "plus-pysat-sector-fallback-and-xz-upper-witness"
+                if args.sat_lower_backend == "distqldpc"
+                else "first-nonzero-sector-partitions-plus-xz-upper-witness"
+            )
             if args.backend == "sat-sectors"
             else (
                 "rank-defect-gated-dressed-subsystem-xz-plus-original-upper"

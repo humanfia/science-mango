@@ -419,7 +419,7 @@ def test_sat_stage3_uses_independent_state_and_budgets_all_proof_units(
         direction_hard_timeout=None,
         candidate_hard_timeout=None,
         backend="sat-sectors",
-    ) == 95
+    ) == 102
     assert _candidate_wall_timeout(
         candidate,
         timeout=10,
@@ -427,7 +427,35 @@ def test_sat_stage3_uses_independent_state_and_budgets_all_proof_units(
         direction_hard_timeout=None,
         candidate_hard_timeout=None,
         backend="legacy-directions",
-    ) == 80
+    ) == 87
+
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=5,
+        direction_hard_timeout=None,
+        candidate_hard_timeout=None,
+        backend="sat-sectors",
+        termination_grace=7,
+    ) == 126
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=5,
+        direction_hard_timeout=None,
+        candidate_hard_timeout=None,
+        backend="legacy-directions",
+        termination_grace=7,
+    ) == 109
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=5,
+        direction_hard_timeout=12,
+        candidate_hard_timeout=None,
+        backend="sat-sectors",
+        termination_grace=7,
+    ) == 138
 
     captured.clear()
     overridden = _screen_one(
@@ -444,6 +472,70 @@ def test_sat_stage3_uses_independent_state_and_budgets_all_proof_units(
     )
     assert captured["kwargs"]["cardinality_encoding"] == "native-minicard"
     assert overridden["sat_cardinality_encoding"] == "native-minicard"
+
+
+def test_distqldpc_lower_backend_is_forwarded_to_sat_screen(tmp_path):
+    candidate = _candidate()
+    captured = {}
+    executable = tmp_path / "distqldpc"
+
+    def fake_sat_screen(_candidate, *, output, **kwargs):
+        captured["output"] = output
+        captured["kwargs"] = kwargs
+        return {
+            "status": "UNRESOLVED",
+            "terminal_units": 1,
+            "expected_units": 31,
+        }
+
+    result = _screen_one(
+        "digest-72",
+        candidate,
+        tmp_path,
+        timeout=10,
+        direction_workers=6,
+        threshold_only=False,
+        resume=True,
+        backend="sat-sectors",
+        sat_lower_backend="distqldpc",
+        sat_distqldpc_exe=executable,
+        screener=fake_sat_screen,
+    )
+
+    assert captured["kwargs"]["lower_backend"] == "distqldpc"
+    assert captured["kwargs"]["distqldpc_exe"] == executable
+    assert result["sat_lower_backend"] == "distqldpc"
+    assert result["sat_distqldpc_exe"] == str(executable.resolve())
+    assert result["completed_proof_units"] == 1
+    assert result["expected_proof_units"] == 31
+
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=6,
+        direction_hard_timeout=None,
+        candidate_hard_timeout=None,
+        backend="sat-sectors",
+        sat_lower_backend="distqldpc",
+    ) == 102
+    assert _candidate_wall_timeout(
+        candidate,
+        timeout=10,
+        direction_workers=6,
+        direction_hard_timeout=None,
+        candidate_hard_timeout=120,
+        backend="sat-sectors",
+        sat_lower_backend="distqldpc",
+        termination_grace=3,
+    ) == 128
+
+
+    with pytest.raises(ValueError, match="requires backend=sat-sectors"):
+        screen_selected_candidates(
+            [], tmp_path, timeout=1, candidate_workers=1,
+            direction_workers=1, threshold_only=True, resume=True,
+            backend="legacy-directions", sat_lower_backend="distqldpc",
+        )
 
 
 def test_sat_unit_reduction_requires_fresh_geometry_isometry_replay():
@@ -589,6 +681,70 @@ def test_stage3_sat_cardinality_cli_override_is_forwarded(
     assert summary["sat_cardinality_encoding"] == "native-minicard"
     assert summary["sat_incremental_conflict_budget"] == 25000
     assert summary["retry_required"] is True
+
+
+def test_stage3_distqldpc_cli_preflights_and_records_backend(
+    tmp_path, monkeypatch,
+):
+    candidate = _candidate()
+    ranked_input = tmp_path / "ranked.jsonl"
+    ranked_output = tmp_path / "audited.jsonl"
+    summary_output = tmp_path / "summary.json"
+    executable = tmp_path / "distqldpc"
+    ranked_input.write_text(json.dumps({
+        **candidate,
+        "triage_identity": {"canonical_digest": "digest-72"},
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }) + "\n")
+    captured = {}
+    backend_identity = {
+        "distribution": "DistQLDPC",
+        "binary_sha256": "b" * 64,
+        "resolved_path": str(executable),
+    }
+
+    def fake_screen_selected(*_args, **kwargs):
+        captured.update(kwargs)
+        return [{
+            "canonical_digest": "digest-72",
+            "backend": kwargs["backend"],
+            "status": "UNRESOLVED",
+            "artifact_path": str(tmp_path / "sat.json"),
+        }]
+
+    monkeypatch.setattr(
+        direction_pool,
+        "inspect_distqldpc_binary",
+        lambda path: (
+            backend_identity
+            if path == executable
+            else pytest.fail("unexpected DistQLDPC executable")
+        ),
+    )
+    monkeypatch.setattr(
+        direction_pool,
+        "screen_selected_candidates",
+        fake_screen_selected,
+    )
+
+    assert direction_pool.main([
+        str(ranked_input),
+        "--state-dir", str(tmp_path / "state"),
+        "--ranked-output", str(ranked_output),
+        "--summary-output", str(summary_output),
+        "--backend", "sat-sectors",
+        "--sat-lower-backend", "distqldpc",
+        "--sat-distqldpc-exe", str(executable),
+    ]) == direction_pool.RECOVERABLE_INCOMPLETE_EXIT_CODE
+
+    summary = json.loads(summary_output.read_text())
+    assert captured["sat_lower_backend"] == "distqldpc"
+    assert captured["sat_distqldpc_exe"] == executable
+    assert summary["sat_lower_backend"] == "distqldpc"
+    assert summary["sat_distqldpc_backend"] == backend_identity
+    assert summary["proof_unit_semantics"].startswith(
+        "distqldpc-maxcdcl-cardinality-portfolio"
+    )
 
 
 def test_stage3_cli_returns_recoverable_nonzero_when_selection_is_truncated(

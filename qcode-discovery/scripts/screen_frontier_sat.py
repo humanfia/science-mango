@@ -20,6 +20,15 @@ import numpy as np
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.css_logical_detector import verify_css_logical_detectors
 from evaluation.distance_milp import get_code_matrices
+from evaluation.distance_distqldpc import (
+    DEFAULT_DISTQLDPC_EXE,
+    DISTQLDPC_CARDINALITY_MODES,
+    DISTQLDPC_EVIDENCE_KIND,
+    DISTQLDPC_TERMINAL_OUTCOMES,
+    solve_css_distance_distqldpc_lower,
+    verify_distqldpc_exact_evidence,
+    verify_distqldpc_lower_evidence,
+)
 from evaluation.geometry import candidate_geometry
 from evaluation.distance_sat import (
     SAT_AUTO_SOLVERS,
@@ -41,6 +50,9 @@ from scripts.screen_frontier_xor import verify_bb_translation_symmetry
 SAT_STAGE3_GATE = "qldpc-frontier-sat-sector-exact-screen"
 SAT_STAGE3_SCHEMA_VERSION = 1
 SAT_COVERAGE_MODES = frozenset({"global", "first-nonzero"})
+SAT_LOWER_BACKENDS = frozenset({"pysat", "distqldpc"})
+DEFAULT_SAT_LOWER_BACKEND = "pysat"
+DISTQLDPC_PHASE_PREFIX = "lower-distqldpc-"
 SAT_PORTFOLIO_POLICY_V1 = "lower-fair-solver-encoding-portfolio-v1"
 SAT_PORTFOLIO_POLICY = "lower-fair-diversity-first-portfolio-v2"
 SAT_COMPATIBLE_PORTFOLIO_POLICIES = frozenset({
@@ -473,12 +485,73 @@ def _unit_key(
     return f"{phase}-{sector}-{suffix}"
 
 
+def _distqldpc_phase(cardinality_mode: str) -> str:
+    if cardinality_mode not in DISTQLDPC_CARDINALITY_MODES:
+        raise ValueError("unsupported DistQLDPC cardinality mode")
+    return f"{DISTQLDPC_PHASE_PREFIX}{cardinality_mode}"
+
+
+def _distqldpc_mode_from_phase(phase: Any) -> str | None:
+    if not isinstance(phase, str) or not phase.startswith(DISTQLDPC_PHASE_PREFIX):
+        return None
+    mode = phase[len(DISTQLDPC_PHASE_PREFIX):]
+    return mode if mode in DISTQLDPC_CARDINALITY_MODES else None
+
+
+def distqldpc_stage3_checkpoint_identity(
+    candidate: Mapping[str, Any],
+    *,
+    cardinality_mode: str,
+    coverage_mode: str,
+    logical_detector: Mapping[str, Any],
+    translation_symmetry: Mapping[str, Any] | None,
+    construction_symmetry: Mapping[str, Any] | None,
+    xz_sector_isometry: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    """Bind one external global-lower lane to this exact Stage-3 request."""
+
+    if cardinality_mode not in DISTQLDPC_CARDINALITY_MODES:
+        raise ValueError("unsupported DistQLDPC cardinality mode")
+    if coverage_mode not in SAT_COVERAGE_MODES:
+        raise ValueError("unsupported Stage-3 coverage mode")
+    target = candidate.get("target")
+    return {
+        "stage3_gate": SAT_STAGE3_GATE,
+        "candidate_digest": candidate["canonical_digest"],
+        "target_mode": candidate.get("target_mode"),
+        "target_binding_sha256": (
+            target.get("binding_sha256") if isinstance(target, Mapping) else None
+        ),
+        "phase": "lower-distqldpc",
+        "lower_backend": "distqldpc",
+        "cardinality_mode": cardinality_mode,
+        "coverage_mode": coverage_mode,
+        "logical_detector_sha256": logical_detector["report_sha256"],
+        "translation_symmetry": (
+            None if translation_symmetry is None else dict(translation_symmetry)
+        ),
+        "construction_symmetry_sha256": (
+            None
+            if construction_symmetry is None
+            else construction_symmetry.get("report_sha256")
+        ),
+        "xz_sector_isometry_sha256": (
+            None
+            if xz_sector_isometry is None
+            else xz_sector_isometry.get("report_sha256")
+        ),
+    }
+
+
 def _proof_plan(
     mode: str,
     k: int,
     sectors: tuple[str, ...] = ("X", "Z"),
     anchor_cover_cubes: list[Mapping[str, Any]] | None = None,
+    lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
 ) -> list[tuple[str, str, int | None, int | None]]:
+    if lower_backend not in SAT_LOWER_BACKENDS:
+        raise ValueError("unsupported Stage-3 lower backend")
     partitions: tuple[int | None, ...] = (
         (None,) if mode == "global" else tuple(range(k))
     )
@@ -509,7 +582,13 @@ def _proof_plan(
     # an immediately replayable rejection; a weight-R witness completes the
     # exact proof once every lower unit is UNSAT.
     upper = [("upper", sector, None, None) for sector in sectors]
-    return global_lower + lower + upper
+    external = (
+        [(_distqldpc_phase(cardinality_mode), "XZ", None, None)
+         for cardinality_mode in DISTQLDPC_CARDINALITY_MODES]
+        if lower_backend == "distqldpc"
+        else []
+    )
+    return external + global_lower + lower + upper
 
 
 def _artifact(
@@ -526,9 +605,22 @@ def _artifact(
     xz_sector_isometry: Mapping[str, Any] | None = None,
     proof_sectors: tuple[str, ...] = ("X", "Z"),
     anchor_cover_cubes: list[Mapping[str, Any]] | None = None,
+    lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
+    hx: np.ndarray | None = None,
+    hz: np.ndarray | None = None,
+    lx: np.ndarray | None = None,
+    lz: np.ndarray | None = None,
 ) -> dict[str, Any]:
     required = int(candidate["required_distance"])
     k = int(candidate["k"])
+    if lower_backend not in SAT_LOWER_BACKENDS:
+        raise ValueError("unsupported Stage-3 lower backend")
+    if lower_backend == "distqldpc" and any(
+        matrix is None for matrix in (hx, hz, lx, lz)
+    ):
+        raise ValueError(
+            "DistQLDPC artifact replay requires all CSS matrices"
+        )
     if proof_sectors not in {("X",), ("X", "Z")}:
         raise ValueError("proof_sectors must be canonical X or complete X/Z")
     if proof_sectors == ("X",) and not (
@@ -592,6 +684,7 @@ def _artifact(
     upper_unsat: list[dict[str, Any]] = []
     low_witnesses: list[dict[str, Any]] = []
     exact_witnesses: list[dict[str, Any]] = []
+    distqldpc_exact: list[dict[str, Any]] = []
     terminal = 0
     retryable = 0
     for key in sorted(units):
@@ -604,7 +697,9 @@ def _artifact(
         # solve_css_sector_sat has rebound/replayed its checkpoint this run.
         if unit.get("checkpoint_replay_pending") is True:
             continue
-        if evidence.get("outcome") in {"sat", "unsat"}:
+        if evidence.get("outcome") in (
+            SAT_TERMINAL_OUTCOMES | DISTQLDPC_TERMINAL_OUTCOMES
+        ):
             terminal += 1
         elif evidence.get("retryable") is True:
             retryable += 1
@@ -612,6 +707,47 @@ def _artifact(
         sector = unit.get("sector")
         partition = unit.get("partition_index")
         unit_cube = unit.get("anchor_cube")
+        external_mode = _distqldpc_mode_from_phase(phase)
+        if external_mode is not None:
+            if not (
+                lower_backend == "distqldpc"
+                and sector == "XZ"
+                and partition is None
+                and unit_cube is None
+            ):
+                continue
+            assert hx is not None and hz is not None
+            assert lx is not None and lz is not None
+            checkpoint_identity = distqldpc_stage3_checkpoint_identity(
+                candidate,
+                cardinality_mode=external_mode,
+                coverage_mode=mode,
+                logical_detector=logical_detector,
+                translation_symmetry=translation_symmetry,
+                construction_symmetry=construction_symmetry,
+                xz_sector_isometry=xz_sector_isometry,
+            )
+            failures = verify_distqldpc_exact_evidence(
+                evidence,
+                hx,
+                hz,
+                lx,
+                lz,
+                max_weight=required - 1,
+                cardinality_mode=external_mode,
+                expected_checkpoint_identity=checkpoint_identity,
+            )
+            if not failures:
+                distqldpc_exact.append({
+                    "unit_id": key,
+                    "sector": "XZ",
+                    "partition_index": None,
+                    "anchor_cube": None,
+                    "cardinality_mode": external_mode,
+                    "checkpoint_identity": checkpoint_identity,
+                    "solver_evidence": dict(evidence),
+                })
+            continue
         if phase == "lower" and _complete_unsat(evidence, required - 1):
             cube_valid = False
             cube_hash: str | None = None
@@ -738,37 +874,139 @@ def _artifact(
     }
     upper_unsat_complete = set(upper_unsat_by_sector) == set(proof_sectors)
     exact_witness = exact_witnesses[0] if exact_witnesses else None
-    if low_witnesses:
+    external_distances = sorted({
+        int(item["solver_evidence"]["exact_distance"])
+        for item in distqldpc_exact
+    })
+    external_conflict_reasons: list[str] = []
+    if len(external_distances) > 1:
+        external_conflict_reasons.append(
+            "validated DistQLDPC lanes report different exact distances"
+        )
+    upper_witness_weight = (
+        exact_witness["solver_evidence"].get("objective")
+        if exact_witness is not None
+        else None
+    )
+    if (
+        isinstance(upper_witness_weight, int)
+        and not isinstance(upper_witness_weight, bool)
+        and any(
+            distance != upper_witness_weight
+            for distance in external_distances
+        )
+    ):
+        external_conflict_reasons.append(
+            "DistQLDPC exact distance disagrees with replayed upper witness"
+        )
+    pysat_lower_complete = lower_complete or global_lower_complete
+    if pysat_lower_complete and any(
+        distance <= required - 1 for distance in external_distances
+    ):
+        external_conflict_reasons.append(
+            "DistQLDPC exact distance contradicts completed PySAT lower proof"
+        )
+    if upper_unsat_complete and any(
+        distance <= required for distance in external_distances
+    ):
+        external_conflict_reasons.append(
+            "DistQLDPC exact distance contradicts completed PySAT upper UNSAT"
+        )
+    low_witness_weights = [
+        int(item["solver_evidence"]["objective"])
+        for item in low_witnesses
+    ]
+    if low_witness_weights and any(
+        distance > min(low_witness_weights)
+        for distance in external_distances
+    ):
+        external_conflict_reasons.append(
+            "DistQLDPC exact distance exceeds a replayed lower-weight witness"
+        )
+    distqldpc_conflict = bool(external_conflict_reasons)
+    distqldpc_lower: list[dict[str, Any]] = []
+    if not distqldpc_conflict:
+        assert hx is not None or lower_backend != "distqldpc"
+        assert hz is not None or lower_backend != "distqldpc"
+        assert lx is not None or lower_backend != "distqldpc"
+        assert lz is not None or lower_backend != "distqldpc"
+        for wrapper in distqldpc_exact:
+            if not verify_distqldpc_lower_evidence(
+                wrapper["solver_evidence"],
+                hx,
+                hz,
+                lx,
+                lz,
+                max_weight=required - 1,
+                cardinality_mode=wrapper["cardinality_mode"],
+                expected_checkpoint_identity=wrapper["checkpoint_identity"],
+            ):
+                distqldpc_lower.append(wrapper)
+    external_lower_complete = bool(distqldpc_lower)
+    external_effective = (
+        min(
+            distqldpc_lower,
+            key=lambda item: DISTQLDPC_CARDINALITY_MODES.index(
+                item["cardinality_mode"]
+            ),
+        )
+        if external_lower_complete
+        else None
+    )
+    lower_route_complete = bool(
+        external_lower_complete or lower_complete or global_lower_complete
+    )
+    if distqldpc_conflict:
+        status = "UNRESOLVED"
+    elif low_witnesses:
         status = "REJECTED"
-    elif (lower_complete or global_lower_complete) and exact_witness is not None:
+    elif lower_route_complete and exact_witness is not None:
         status = "EXACT_PROVEN"
-    elif lower_complete or global_lower_complete or upper_unsat_complete:
+    elif lower_route_complete or upper_unsat_complete:
         status = "THRESHOLD_PROVEN"
     else:
         status = "UNRESOLVED"
-    global_route_complete = upper_unsat_complete or global_lower_complete
+    global_route_complete = bool(
+        not distqldpc_conflict
+        and (upper_unsat_complete
+             or external_lower_complete
+             or global_lower_complete)
+    )
     effective_mode = "global" if global_route_complete else mode
-    if upper_unsat_complete:
+    if distqldpc_conflict:
+        effective_lower = []
+        lower_bound_backend = "pysat"
+    elif upper_unsat_complete:
         effective_lower = [
             upper_unsat_by_sector[sector] for sector in proof_sectors
         ]
+        lower_bound_backend = "pysat"
+    elif external_effective is not None:
+        effective_lower = [external_effective]
+        lower_bound_backend = "distqldpc"
     elif global_lower_complete:
         effective_lower = [
             global_lower_by_sector[sector] for sector in proof_sectors
         ]
+        lower_bound_backend = "pysat"
     else:
         effective_lower = lower
+        lower_bound_backend = "pysat"
     lower_bound_threshold = required if upper_unsat_complete else required - 1
     effective_expected_lower = (
-        len(proof_sectors) if global_route_complete else expected_lower
+        1
+        if external_effective is not None and not upper_unsat_complete
+        else (len(proof_sectors) if global_route_complete else expected_lower)
     )
     effective_expected_partitions = (
-        len(proof_sectors)
-        if global_route_complete
-        else expected_lower_partitions
+        1
+        if external_effective is not None and not upper_unsat_complete
+        else (
+            len(proof_sectors) if global_route_complete else expected_lower_partitions
+        )
     )
     effective_completed_partitions = (
-        len(proof_sectors)
+        len(effective_lower)
         if global_route_complete
         else len(completed_partition_keys)
     )
@@ -786,6 +1024,8 @@ def _artifact(
         "required_distance": required,
         "coverage_mode": effective_mode,
         "requested_coverage_mode": mode,
+        "requested_lower_backend": lower_backend,
+        "lower_bound_backend": lower_bound_backend,
         "anchor_cover_cubes": None if global_route_complete else requested_cubes,
         "requested_anchor_cover_cubes": requested_cubes,
         "lower_bound_threshold": lower_bound_threshold,
@@ -819,6 +1059,19 @@ def _artifact(
         "expected_lower_partitions": effective_expected_partitions,
         "completed_lower_partitions": effective_completed_partitions,
         "lower_bound_decisions": effective_lower,
+        "distqldpc_exact_distances": external_distances,
+        "distqldpc_exact_decisions": distqldpc_exact,
+        "distqldpc_lower_decisions": distqldpc_lower,
+        "distqldpc_conflict": distqldpc_conflict,
+        "distqldpc_conflict_details": (
+            None
+            if not distqldpc_conflict
+            else {
+                "reasons": external_conflict_reasons,
+                "exact_distances": external_distances,
+                "upper_witness_weight": upper_witness_weight,
+            }
+        ),
         "stage3_requested_lower_decisions": lower,
         "global_lower_decisions": global_lower,
         "upper_unsat_decisions": upper_unsat,
@@ -985,6 +1238,11 @@ def _attempt_record(
     conflict_budget = execution.get("incremental_conflict_budget")
     if conflict_budget is None:
         conflict_budget = execution.get("conflict_budget_per_slice")
+    if evidence.get("evidence_kind") == DISTQLDPC_EVIDENCE_KIND:
+        # Attempt history is scheduler metadata.  The external evidence keeps
+        # its own exact process policy/argv binding and remains independently
+        # replayed; this compatibility envelope records it as one spawned run.
+        execution_policy, conflict_budget = SAT_ONE_SHOT_POLICY, None
     record: dict[str, Any] = {
         "schema_version": SAT_ATTEMPT_SCHEMA_VERSION,
         "portfolio_policy": portfolio_policy,
@@ -1073,9 +1331,22 @@ def _resume_units(
     construction_symmetry: Mapping[str, Any] | None = None,
     logical_detector: Mapping[str, Any],
     xz_sector_isometry: Mapping[str, Any] | None,
+    lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
+    hx: np.ndarray | None = None,
+    hz: np.ndarray | None = None,
+    lx: np.ndarray | None = None,
+    lz: np.ndarray | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Load only an intact, identity-matching partial Stage-3 artifact."""
 
+    if lower_backend not in SAT_LOWER_BACKENDS:
+        raise ValueError("unsupported Stage-3 lower backend")
+    if lower_backend == "distqldpc" and any(
+        matrix is None for matrix in (hx, hz, lx, lz)
+    ):
+        raise ValueError(
+            "DistQLDPC resume replay requires all CSS matrices"
+        )
     try:
         value = json.loads(output.read_text(encoding="utf-8"))
     except (FileNotFoundError, OSError, UnicodeError, json.JSONDecodeError):
@@ -1143,11 +1414,53 @@ def _resume_units(
         ):
             continue
         evidence = dict(raw["solver_evidence"])
-        if not _evidence_matches_anchor_cube(evidence, expected_cube):
-            continue
+        external_mode = _distqldpc_mode_from_phase(phase)
+        if external_mode is None:
+            if not _evidence_matches_anchor_cube(evidence, expected_cube):
+                continue
+        else:
+            if not (
+                lower_backend == "distqldpc"
+                and sector == "XZ"
+                and partition is None
+                and expected_cube is None
+                and evidence.get("outcome") in DISTQLDPC_TERMINAL_OUTCOMES
+            ):
+                continue
+            assert hx is not None and hz is not None
+            assert lx is not None and lz is not None
+            checkpoint_identity = distqldpc_stage3_checkpoint_identity(
+                candidate,
+                cardinality_mode=external_mode,
+                coverage_mode=mode,
+                logical_detector=logical_detector,
+                translation_symmetry=translation_symmetry,
+                construction_symmetry=construction_symmetry,
+                xz_sector_isometry=xz_sector_isometry,
+            )
+            if verify_distqldpc_lower_evidence(
+                evidence,
+                hx,
+                hz,
+                lx,
+                lz,
+                max_weight=int(candidate["required_distance"]) - 1,
+                cardinality_mode=external_mode,
+                expected_checkpoint_identity=checkpoint_identity,
+            ):
+                continue
         attempts = raw.get("attempts")
         if attempts is None:
-            normalized_attempts = [_legacy_attempt(evidence, expected_cube)]
+            normalized_attempts = [
+                _attempt_record(
+                    evidence,
+                    attempt_index=0,
+                    requested_solver=f"distqldpc-{external_mode}",
+                    requested_encoding=f"maxcdcl-{external_mode}",
+                )
+                if external_mode is not None
+                else _legacy_attempt(evidence, expected_cube)
+            ]
         elif isinstance(attempts, list) and all(
             isinstance(item, Mapping) and _attempt_valid(item)
             and item.get("anchor_cube") == expected_cube
@@ -1175,6 +1488,7 @@ def _resume_units(
             "attempts": normalized_attempts,
             "checkpoint_replay_pending": (
                 evidence.get("outcome") in SAT_TERMINAL_OUTCOMES
+                | DISTQLDPC_TERMINAL_OUTCOMES
             ),
         }
     return resumed
@@ -1212,7 +1526,7 @@ def _next_attempt(
         unit.get("solver_evidence") if isinstance(unit, Mapping) else None
     )
     if isinstance(evidence, Mapping) and evidence.get("outcome") in (
-        SAT_TERMINAL_OUTCOMES
+        SAT_TERMINAL_OUTCOMES | DISTQLDPC_TERMINAL_OUTCOMES
     ):
         backend = evidence.get("backend")
         solver_name = (
@@ -1332,6 +1646,55 @@ def _checkpoint_path(state_dir: Path, key: str, attempt_index: int) -> Path:
     return state_dir / f"{key}.attempt-{attempt_index:03d}.json"
 
 
+def _distqldpc_fair_job_order(
+    jobs: list[tuple[Any, ...]],
+    *,
+    workers: int,
+) -> list[tuple[Any, ...]]:
+    """Reserve one first-wave slot for an independent PySAT lower lane.
+
+    Checkpoint replays remain first.  At most ``workers - 1`` new external
+    lanes precede the first PySAT lower job, so five workers start four MaxCDCL
+    searches plus one independent fallback after a fast replay frees its slot.
+    Six workers without replays still start all five external modes plus PySAT.
+    """
+
+    if isinstance(workers, bool) or not isinstance(workers, int) or workers < 1:
+        raise ValueError("workers must be a positive integer")
+    replays = [job for job in jobs if bool(job[3])]
+    new_jobs = [job for job in jobs if not bool(job[3])]
+    external = [
+        job for job in new_jobs
+        if _distqldpc_mode_from_phase(job[0][0]) is not None
+    ]
+    non_external = [
+        job for job in new_jobs
+        if _distqldpc_mode_from_phase(job[0][0]) is None
+    ]
+    fallback = next(
+        (
+            job for job in non_external
+            if job[0][0] in {"lower-global", "lower"}
+        ),
+        None,
+    )
+    if fallback is None:
+        return replays + external + non_external
+    external_prefix_count = min(len(external), max(0, workers - 1))
+    external_prefix = external[:external_prefix_count]
+    external_tail = external[external_prefix_count:]
+    remaining_non_external = [
+        job for job in non_external if job is not fallback
+    ]
+    return (
+        replays
+        + external_prefix
+        + [fallback]
+        + external_tail
+        + remaining_non_external
+    )
+
+
 def screen_sat_candidate(
     candidate: dict[str, Any],
     *,
@@ -1347,6 +1710,8 @@ def screen_sat_candidate(
     cardinality_encoding: str = "seqcounter",
     solver: str = "auto",
     incremental_conflict_budget: int | None = None,
+    lower_backend: str = DEFAULT_SAT_LOWER_BACKEND,
+    distqldpc_exe: Path | str = DEFAULT_DISTQLDPC_EXE,
 ) -> dict[str, Any]:
     """Run X/Z lower partitions and exact-weight witness searches."""
 
@@ -1354,6 +1719,8 @@ def screen_sat_candidate(
     screen_started = time.monotonic()
     if coverage_mode not in SAT_COVERAGE_MODES:
         raise ValueError("coverage_mode must be global or first-nonzero")
+    if lower_backend not in SAT_LOWER_BACKENDS:
+        raise ValueError("lower_backend must be pysat or distqldpc")
     if isinstance(workers, bool) or not isinstance(workers, int) or workers < 1:
         raise ValueError("workers must be a positive integer")
     unit_timeout = float(timeout if hard_timeout is None else hard_timeout)
@@ -1450,6 +1817,7 @@ def screen_sat_candidate(
         k,
         proof_sectors,
         anchor_cover_cubes,
+        lower_backend,
     )
     portfolio = _portfolio_configs(solver, cardinality_encoding)
     execution_policy = (
@@ -1478,6 +1846,11 @@ def screen_sat_candidate(
             construction_symmetry=generic_symmetry,
             logical_detector=detector,
             xz_sector_isometry=stored_isometry,
+            lower_backend=lower_backend,
+            hx=hx,
+            hz=hz,
+            lx=lx,
+            lz=lz,
         )
         if resume else {}
     )
@@ -1499,38 +1872,51 @@ def screen_sat_candidate(
             if cube_index is None
             else anchor_cover_cubes[cube_index]
         )
-        checks, logicals, _ = _sector_matrices(sector, hx, hz, lx, lz)
         max_weight = int(candidate["required_distance"]) - (phase != "upper")
         key = _unit_key(phase, sector, partition, anchor_cube)
         remaining = max(0.001, work_deadline - time.monotonic())
         attempt_timeout = min(unit_timeout, remaining)
-        evidence = solve_css_sector_sat(
-            checks,
-            logicals,
-            max_weight=max_weight,
-            timeout=attempt_timeout,
-            workers=1,
-            seed=attempt_index,
-            partition_index=partition,
-            anchor_indices=anchors,
-            zero_anchor_indices=(
-                None
-                if anchor_cube is None
-                else tuple(anchor_cube["zero_anchor_indices"])
-            ),
-            one_anchor_index=(
-                None if anchor_cube is None else anchor_cube["one_anchor_index"]
-            ),
-            anchor_cube_sha256=(
-                None if anchor_cube is None else anchor_cube["cube_sha256"]
-            ),
-            sector=sector,
-            cardinality_encoding=config["cardinality_encoding"],
-            solver=config["solver"],
-            incremental_conflict_budget=incremental_conflict_budget,
-            checkpoint_path=_checkpoint_path(state_dir, key, attempt_index),
-            resume=resume,
-            checkpoint_identity={
+        external_mode = _distqldpc_mode_from_phase(phase)
+        if external_mode is not None:
+            if not (
+                lower_backend == "distqldpc"
+                and sector == "XZ"
+                and partition is None
+                and anchor_cube is None
+            ):
+                raise ValueError("invalid DistQLDPC Stage-3 unit specification")
+            checkpoint_identity = distqldpc_stage3_checkpoint_identity(
+                candidate,
+                cardinality_mode=external_mode,
+                coverage_mode=coverage_mode,
+                logical_detector=detector,
+                translation_symmetry=symmetry,
+                construction_symmetry=generic_symmetry,
+                xz_sector_isometry=stored_isometry,
+            )
+            evidence = solve_css_distance_distqldpc_lower(
+                hx,
+                hz,
+                lx,
+                lz,
+                max_weight=max_weight,
+                timeout=attempt_timeout,
+                binary=distqldpc_exe,
+                cardinality_mode=external_mode,
+                checkpoint_path=_checkpoint_path(
+                    state_dir, key, attempt_index,
+                ),
+                progress_path=state_dir / f"{key}.progress.json",
+                checkpoint_identity=checkpoint_identity,
+                resume=resume,
+                cancel_event=cancellation,
+                termination_grace_s=grace,
+            )
+        else:
+            checks, logicals, _ = _sector_matrices(
+                sector, hx, hz, lx, lz,
+            )
+            checkpoint_identity = {
                 "stage3_gate": SAT_STAGE3_GATE,
                 "candidate_digest": candidate["canonical_digest"],
                 "target_mode": candidate.get("target_mode"),
@@ -1556,27 +1942,62 @@ def screen_sat_candidate(
                 **({} if anchor_cube is None else {
                     "anchor_cube_sha256": anchor_cube["cube_sha256"],
                 }),
-            },
-            cancel_event=cancellation,
-            termination_grace_s=grace,
-        )
-        if evidence.get("outcome") == "sat":
-            failures = verify_css_threshold_sat_witness(
-                evidence, checks, logicals,
+            }
+            evidence = solve_css_sector_sat(
+                checks,
+                logicals,
+                max_weight=max_weight,
+                timeout=attempt_timeout,
+                workers=1,
+                seed=attempt_index,
+                partition_index=partition,
+                anchor_indices=anchors,
+                zero_anchor_indices=(
+                    None
+                    if anchor_cube is None
+                    else tuple(anchor_cube["zero_anchor_indices"])
+                ),
+                one_anchor_index=(
+                    None
+                    if anchor_cube is None
+                    else anchor_cube["one_anchor_index"]
+                ),
+                anchor_cube_sha256=(
+                    None
+                    if anchor_cube is None
+                    else anchor_cube["cube_sha256"]
+                ),
+                sector=sector,
+                cardinality_encoding=config["cardinality_encoding"],
+                solver=config["solver"],
+                incremental_conflict_budget=incremental_conflict_budget,
+                checkpoint_path=_checkpoint_path(
+                    state_dir, key, attempt_index,
+                ),
+                resume=resume,
+                checkpoint_identity=checkpoint_identity,
+                cancel_event=cancellation,
+                termination_grace_s=grace,
             )
-            if failures:
-                evidence = {
-                    **evidence,
-                    "outcome": "solver_error",
-                    "decision_complete": False,
-                    "threshold_infeasible": False,
-                    "retryable": True,
-                    "message": "witness replay failed: " + "; ".join(failures),
-                }
-                evidence["evidence_sha256"] = _canonical_sha256(
-                    evidence,
-                    omit="evidence_sha256",
+            if evidence.get("outcome") == "sat":
+                failures = verify_css_threshold_sat_witness(
+                    evidence, checks, logicals,
                 )
+                if failures:
+                    evidence = {
+                        **evidence,
+                        "outcome": "solver_error",
+                        "decision_complete": False,
+                        "threshold_infeasible": False,
+                        "retryable": True,
+                        "message": (
+                            "witness replay failed: " + "; ".join(failures)
+                        ),
+                    }
+                    evidence["evidence_sha256"] = _canonical_sha256(
+                        evidence,
+                        omit="evidence_sha256",
+                    )
         previous = units.get(key)
         attempts = (
             [dict(item) for item in previous.get("attempts", [])]
@@ -1640,6 +2061,11 @@ def screen_sat_candidate(
             xz_sector_isometry=stored_isometry,
             proof_sectors=proof_sectors,
             anchor_cover_cubes=anchor_cover_cubes,
+            lower_backend=lower_backend,
+            hx=hx,
+            hz=hz,
+            lx=lx,
+            lz=lz,
         )
         _atomic_write_json(output, value)
         return value
@@ -1660,19 +2086,30 @@ def screen_sat_candidate(
             None if cube_index is None else anchor_cover_cubes[cube_index]
         )
         key = _unit_key(phase, sector, partition, cube)
-        unit_portfolio = portfolio
-        if phase == "lower":
-            unit_portfolio = _portfolio_for_lower_unit(
-                portfolio,
-                lower_unit_ordinal,
-            )
-            lower_unit_ordinal += 1
+        external_mode = _distqldpc_mode_from_phase(phase)
+        if external_mode is not None:
+            unit_portfolio = [{
+                "solver": f"distqldpc-{external_mode}",
+                "cardinality_encoding": f"maxcdcl-{external_mode}",
+            }]
+            unit_execution_policy = SAT_ONE_SHOT_POLICY
+            unit_conflict_budget = None
+        else:
+            unit_portfolio = portfolio
+            unit_execution_policy = execution_policy
+            unit_conflict_budget = incremental_conflict_budget
+            if phase == "lower":
+                unit_portfolio = _portfolio_for_lower_unit(
+                    portfolio,
+                    lower_unit_ordinal,
+                )
+                lower_unit_ordinal += 1
         selected = _next_attempt(
             units.get(key),
             portfolio=unit_portfolio,
             hard_timeout_s=unit_timeout,
-            execution_policy=execution_policy,
-            incremental_conflict_budget=incremental_conflict_budget,
+            execution_policy=unit_execution_policy,
+            incremental_conflict_budget=unit_conflict_budget,
         )
         if selected is None:
             exhausted_units.append(key)
@@ -1680,10 +2117,10 @@ def screen_sat_candidate(
         attempt_index, config, checkpoint_replay = selected
         jobs.append((spec, attempt_index, config, checkpoint_replay))
 
-    # Replay terminal checkpoints first.  New lower units then precede lower
-    # retries, with X/Z already interleaved by _proof_plan; upper witness work
-    # follows all lower-bound work.  This prevents an exact-witness search
-    # from monopolizing a scarce lower-bound worker.
+    # Replay terminal checkpoints first.  Five independent MaxCDCL encodings
+    # lead new work, followed by PySAT global/partition fallbacks and upper
+    # witness searches.  With six workers this admits all external lanes plus
+    # one independent PySAT lower lane without nested solver portfolios.
     def job_priority(job: tuple[Any, ...]) -> tuple[int, int, int]:
         spec, _attempt_index, _config, replay = job
         phase, _sector, _partition, cube_index = spec
@@ -1697,13 +2134,24 @@ def screen_sat_candidate(
             and isinstance(previous.get("attempts"), list)
             else 0
         )
-        phase_priority = 0 if phase == "lower-global" else (1 if phase == "lower" else 2)
+        if _distqldpc_mode_from_phase(phase) is not None:
+            phase_priority = 0
+        elif phase == "lower-global":
+            phase_priority = 1
+        elif phase == "lower":
+            phase_priority = 2
+        else:
+            phase_priority = 3
         return (0 if replay else 1, phase_priority, attempt_count)
 
     jobs.sort(key=job_priority)
+    if lower_backend == "distqldpc":
+        jobs = _distqldpc_fair_job_order(jobs, workers=workers)
     if candidate_budget is None:
+        waves = math.ceil(max(1, len(jobs)) / workers)
+        per_wave_margin = max(SAT_CANDIDATE_DEADLINE_SLACK_S, grace)
         candidate_budget = (
-            math.ceil(max(1, len(jobs)) / workers) * unit_timeout
+            waves * (unit_timeout + per_wave_margin)
             + grace
             + SAT_CANDIDATE_DEADLINE_SLACK_S
         )
@@ -1772,7 +2220,8 @@ def screen_sat_candidate(
                 terminal = artifact["status"] in {
                     "REJECTED", "THRESHOLD_PROVEN", "EXACT_PROVEN",
                 }
-                if terminal:
+                fatal_conflict = artifact.get("distqldpc_conflict") is True
+                if terminal or fatal_conflict:
                     cancellation.set()
                     queue.clear()
                 elif not cancellation.is_set() and queue:
@@ -1791,9 +2240,12 @@ def screen_sat_candidate(
 
 
 __all__ = [
+    "DEFAULT_SAT_LOWER_BACKEND",
+    "DISTQLDPC_PHASE_PREFIX",
     "SAT_ANCHOR_CUBE_SCHEMA_VERSION",
     "SAT_CANDIDATE_DEADLINE_SLACK_S",
     "SAT_COMPATIBLE_PORTFOLIO_POLICIES",
+    "SAT_LOWER_BACKENDS",
     "SAT_COVERAGE_MODES",
     "SAT_DIVERSITY_WARMUP_WIDTH",
     "SAT_PORTFOLIO_POLICY",
@@ -1802,5 +2254,6 @@ __all__ = [
     "SAT_STAGE3_SCHEMA_VERSION",
     "build_anchor_cover_cubes",
     "screen_sat_candidate",
+    "distqldpc_stage3_checkpoint_identity",
     "verify_css_logical_detectors",
 ]
