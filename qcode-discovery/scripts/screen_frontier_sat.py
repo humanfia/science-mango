@@ -25,6 +25,8 @@ from evaluation.distance_sat import (
     SAT_AUTO_SOLVERS,
     SAT_EVIDENCE_KIND,
     SAT_EVIDENCE_SCHEMA_VERSION,
+    SAT_INCREMENTAL_POLICY,
+    SAT_INCREMENTAL_SOLVERS,
     SAT_TERMINAL_OUTCOMES,
     solve_css_sector_sat,
     verify_css_threshold_sat_witness,
@@ -48,6 +50,11 @@ SAT_COMPATIBLE_PORTFOLIO_POLICIES = frozenset({
 SAT_DIVERSITY_WARMUP_WIDTH = 4
 SAT_CANDIDATE_DEADLINE_SLACK_S = 5.0
 SAT_ATTEMPT_SCHEMA_VERSION = 1
+SAT_ONE_SHOT_POLICY = "one-shot-spawn-v1"
+SAT_EXECUTION_POLICIES = frozenset({
+    SAT_ONE_SHOT_POLICY,
+    SAT_INCREMENTAL_POLICY,
+})
 SAT_ANCHOR_CUBE_SCHEMA_VERSION = 1
 GENERIC_SYMMETRY_SCHEMA_VERSION = 1
 GENERIC_SYMMETRY_GATE = "qldpc-generic-css-construction-symmetry-replay"
@@ -962,6 +969,22 @@ def _attempt_record(
     resolved_solver = (
         backend.get("solver") if isinstance(backend, Mapping) else None
     )
+    instance = evidence.get("instance")
+    execution = (
+        instance.get("solver_execution")
+        if isinstance(instance, Mapping)
+        else None
+    )
+    if not isinstance(execution, Mapping):
+        execution = evidence.get("incremental_solver")
+    if not isinstance(execution, Mapping):
+        execution = {}
+    execution_policy = str(
+        execution.get("policy", SAT_ONE_SHOT_POLICY),
+    )
+    conflict_budget = execution.get("incremental_conflict_budget")
+    if conflict_budget is None:
+        conflict_budget = execution.get("conflict_budget_per_slice")
     record: dict[str, Any] = {
         "schema_version": SAT_ATTEMPT_SCHEMA_VERSION,
         "portfolio_policy": portfolio_policy,
@@ -969,6 +992,8 @@ def _attempt_record(
         "requested_solver": str(requested_solver),
         "resolved_solver": resolved_solver,
         "cardinality_encoding": str(requested_encoding),
+        "execution_policy": execution_policy,
+        "incremental_conflict_budget": conflict_budget,
         "hard_timeout_s": evidence.get("hard_timeout_s"),
         "random_seed": evidence.get("random_seed"),
         "outcome": evidence.get("outcome"),
@@ -987,10 +1012,27 @@ def _attempt_record(
 
 def _attempt_valid(record: Mapping[str, Any]) -> bool:
     try:
+        execution_policy = record.get(
+            "execution_policy", SAT_ONE_SHOT_POLICY,
+        )
+        conflict_budget = record.get("incremental_conflict_budget")
+        execution_valid = bool(
+            execution_policy in SAT_EXECUTION_POLICIES
+            and (
+                (execution_policy == SAT_ONE_SHOT_POLICY and conflict_budget is None)
+                or (
+                    execution_policy == SAT_INCREMENTAL_POLICY
+                    and isinstance(conflict_budget, int)
+                    and not isinstance(conflict_budget, bool)
+                    and conflict_budget > 0
+                )
+            )
+        )
         return bool(
             record.get("schema_version") == SAT_ATTEMPT_SCHEMA_VERSION
             and record.get("portfolio_policy")
             in SAT_COMPATIBLE_PORTFOLIO_POLICIES
+            and execution_valid
             and record.get("attempt_sha256")
             == _canonical_sha256(record, omit="attempt_sha256")
         )
@@ -1143,9 +1185,24 @@ def _next_attempt(
     *,
     portfolio: list[dict[str, str]],
     hard_timeout_s: float,
+    execution_policy: str = SAT_ONE_SHOT_POLICY,
+    incremental_conflict_budget: int | None = None,
 ) -> tuple[int, dict[str, str], bool] | None:
     """Choose a non-identical retry, or a terminal checkpoint replay."""
 
+    if execution_policy not in SAT_EXECUTION_POLICIES:
+        raise ValueError("unsupported SAT execution policy")
+    if execution_policy == SAT_ONE_SHOT_POLICY:
+        if incremental_conflict_budget is not None:
+            raise ValueError("one-shot SAT execution cannot use a conflict budget")
+    elif (
+        isinstance(incremental_conflict_budget, bool)
+        or not isinstance(incremental_conflict_budget, int)
+        or incremental_conflict_budget < 1
+    ):
+        raise ValueError(
+            "persistent SAT execution requires a positive conflict budget"
+        )
     attempts = (
         list(unit.get("attempts", []))
         if isinstance(unit, Mapping) and isinstance(unit.get("attempts"), list)
@@ -1180,7 +1237,9 @@ def _next_attempt(
             "cardinality_encoding": encoding,
         }, True
 
-    history: dict[tuple[str, str], list[tuple[Any, float]]] = {}
+    history: dict[
+        tuple[str, str, str, int | None], list[tuple[Any, float]]
+    ] = {}
     for attempt in attempts:
         outcome = attempt.get("outcome")
         if outcome == "cancelled":
@@ -1189,14 +1248,34 @@ def _next_attempt(
             "requested_solver",
         )
         encoding = attempt.get("cardinality_encoding")
+        attempt_policy = attempt.get(
+            "execution_policy", SAT_ONE_SHOT_POLICY,
+        )
+        attempt_conflict_budget = attempt.get("incremental_conflict_budget")
+        if attempt_policy == SAT_ONE_SHOT_POLICY:
+            attempt_conflict_budget = None
+        elif (
+            isinstance(attempt_conflict_budget, bool)
+            or not isinstance(attempt_conflict_budget, int)
+            or attempt_conflict_budget < 1
+        ):
+            continue
+        else:
+            attempt_conflict_budget = int(attempt_conflict_budget)
         try:
             old_budget = float(attempt.get("hard_timeout_s"))
         except (TypeError, ValueError):
             old_budget = hard_timeout_s
         if not math.isfinite(old_budget) or old_budget <= 0:
             old_budget = hard_timeout_s
-        if isinstance(solver_name, str) and isinstance(encoding, str):
-            history.setdefault((solver_name, encoding), []).append(
+        if (
+            isinstance(solver_name, str)
+            and isinstance(encoding, str)
+            and attempt_policy in SAT_EXECUTION_POLICIES
+        ):
+            history.setdefault(
+                (solver_name, encoding, attempt_policy, attempt_conflict_budget), [],
+            ).append(
                 (outcome, old_budget),
             )
     next_index = max(
@@ -1208,10 +1287,14 @@ def _next_attempt(
     warmup = portfolio[:warmup_width]
     tail = portfolio[warmup_width:]
 
-    def untried(signature: tuple[str, str]) -> bool:
+    def untried(
+        signature: tuple[str, str, str, int | None],
+    ) -> bool:
         return signature not in history
 
-    def budget_upgrade(signature: tuple[str, str]) -> bool:
+    def budget_upgrade(
+        signature: tuple[str, str, str, int | None],
+    ) -> bool:
         records = history.get(signature, [])
         return bool(
             records
@@ -1230,7 +1313,12 @@ def _next_attempt(
         (tail, budget_upgrade),
     ):
         for config in configs:
-            signature = (config["solver"], config["cardinality_encoding"])
+            signature = (
+                config["solver"],
+                config["cardinality_encoding"],
+                execution_policy,
+                incremental_conflict_budget,
+            )
             if predicate(signature):
                 return next_index, dict(config), False
     return None
@@ -1258,6 +1346,7 @@ def screen_sat_candidate(
     coverage_mode: str = "first-nonzero",
     cardinality_encoding: str = "seqcounter",
     solver: str = "auto",
+    incremental_conflict_budget: int | None = None,
 ) -> dict[str, Any]:
     """Run X/Z lower partitions and exact-weight witness searches."""
 
@@ -1270,6 +1359,17 @@ def screen_sat_candidate(
     unit_timeout = float(timeout if hard_timeout is None else hard_timeout)
     if not math.isfinite(unit_timeout) or unit_timeout <= 0:
         raise ValueError("SAT unit timeout must be positive and finite")
+    if (
+        isinstance(incremental_conflict_budget, bool)
+        or (
+            incremental_conflict_budget is not None
+            and (
+                not isinstance(incremental_conflict_budget, int)
+                or incremental_conflict_budget < 1
+            )
+        )
+    ):
+        raise ValueError("incremental_conflict_budget must be a positive integer")
     grace = float(termination_grace)
     if not math.isfinite(grace) or grace < 0:
         raise ValueError("termination_grace must be finite and nonnegative")
@@ -1352,6 +1452,18 @@ def screen_sat_candidate(
         anchor_cover_cubes,
     )
     portfolio = _portfolio_configs(solver, cardinality_encoding)
+    execution_policy = (
+        SAT_ONE_SHOT_POLICY
+        if incremental_conflict_budget is None
+        else SAT_INCREMENTAL_POLICY
+    )
+    if incremental_conflict_budget is not None:
+        portfolio = [
+            config for config in portfolio
+            if config["solver"] in SAT_INCREMENTAL_SOLVERS
+        ]
+        if not portfolio:
+            raise ValueError("no safe incremental SAT solver remains in the portfolio")
     state_dir = output.parent / "sat-units" / hashlib.sha256(
         str(candidate["canonical_digest"]).encode(),
     ).hexdigest()
@@ -1415,6 +1527,7 @@ def screen_sat_candidate(
             sector=sector,
             cardinality_encoding=config["cardinality_encoding"],
             solver=config["solver"],
+            incremental_conflict_budget=incremental_conflict_budget,
             checkpoint_path=_checkpoint_path(state_dir, key, attempt_index),
             resume=resume,
             checkpoint_identity={
@@ -1558,6 +1671,8 @@ def screen_sat_candidate(
             units.get(key),
             portfolio=unit_portfolio,
             hard_timeout_s=unit_timeout,
+            execution_policy=execution_policy,
+            incremental_conflict_budget=incremental_conflict_budget,
         )
         if selected is None:
             exhausted_units.append(key)

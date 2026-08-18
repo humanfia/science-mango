@@ -3,13 +3,40 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 from itertools import product
+import os
+from pathlib import Path
 import threading
+import time
 
 import numpy as np
 import pytest
 
 import evaluation.distance_sat as distance_sat
+
+
+def _progress_until_stopped_worker(
+    connection,
+    _expected_parent_pid,
+    *worker_args,
+):
+    stop_event = worker_args[7]
+    sequence = 0
+    try:
+        while not stop_event.is_set():
+            connection.send((
+                "progress",
+                {
+                    "event": "test-progress",
+                    "worker_pid": os.getpid(),
+                    "sequence": sequence,
+                },
+            ))
+            sequence += 1
+            time.sleep(0.01)
+    finally:
+        connection.close()
 
 
 def _operator_assignments(cnf: dict, operator: tuple[int, ...]):
@@ -323,14 +350,19 @@ def _migrated_test_bindings():
         "native_thread_environment": {
             variable: "1" for variable in distance_sat.SAT_NATIVE_THREAD_ENV
         },
+        "solver_execution": {
+            "policy": distance_sat.SAT_INCREMENTAL_POLICY,
+            "incremental_conflict_budget": 25000,
+        },
     }
     current["binding_sha256"] = distance_sat._canonical_sha256(current)
     old = deepcopy(current)
-    old["source_sha256"] = next(iter(
-        distance_sat._COMPATIBLE_SOURCE_SHA256,
-    ))
+    old["source_sha256"] = (
+        "9715c55e55b41aa08023c356863ccf06aee5c2170f6cba77986c66cfdad33f80"
+    )
     old["checkpoint_identity"].pop("xz_sector_isometry_sha256")
     old["native_thread_environment"].pop("NUMBA_NUM_THREADS")
+    old.pop("solver_execution")
     old.pop("binding_sha256")
     old["binding_sha256"] = distance_sat._canonical_sha256(old)
     return old, current
@@ -393,6 +425,57 @@ def test_source_migration_replays_sat_witness_but_never_bare_unsat(tmp_path):
         checks=checks,
         logicals=logicals,
     ) is None
+
+
+@pytest.mark.skipif(
+    not distance_sat.pysat_available(),
+    reason="optional python-sat backend is not installed",
+)
+def test_allowlisted_kissat_sat_replays_before_incremental_capability_check(
+    tmp_path,
+):
+    checks = np.zeros((0, 2), dtype=np.uint8)
+    logicals = np.eye(2, dtype=np.uint8)
+    checkpoint = tmp_path / "kissat-sat.json"
+    original = distance_sat.solve_css_threshold_sat(
+        checks,
+        logicals,
+        max_weight=1,
+        sector="X",
+        hard_timeout_s=20,
+        solver="kissat404",
+        partition_index=0,
+        checkpoint_path=checkpoint,
+    )
+    assert original["outcome"] == "sat"
+
+    stored = json.loads(checkpoint.read_text(encoding="utf-8"))
+    instance = dict(stored["instance"])
+    instance["source_sha256"] = (
+        "9715c55e55b41aa08023c356863ccf06aee5c2170f6cba77986c66cfdad33f80"
+    )
+    instance.pop("solver_execution")
+    instance.pop("binding_sha256")
+    instance["binding_sha256"] = distance_sat._canonical_sha256(instance)
+    stored["instance"] = instance
+    stored.pop("evidence_sha256")
+    stored["evidence_sha256"] = distance_sat._canonical_sha256(stored)
+    distance_sat._atomic_write_json(checkpoint, stored)
+
+    replayed = distance_sat.solve_css_threshold_sat(
+        checks,
+        logicals,
+        max_weight=1,
+        sector="X",
+        hard_timeout_s=20,
+        solver="kissat404",
+        incremental_conflict_budget=1,
+        partition_index=0,
+        checkpoint_path=checkpoint,
+        resume=True,
+    )
+    assert replayed["outcome"] == "sat"
+    assert replayed["resumed"] is True
 
 
 def _composition_evidence(
@@ -566,6 +649,232 @@ def test_exact_composition_rejects_unbound_or_anchored_evidence():
     )
     assert result["exact"] is False
     assert any("code-aware typed" in item for item in result["failures"])
+
+
+@pytest.mark.skipif(
+    not distance_sat.pysat_available(),
+    reason="optional python-sat backend is not installed",
+)
+def test_incremental_inprocess_reuses_solver_and_unknown_is_only_progress(
+    monkeypatch,
+):
+    import pysat.solvers
+
+    class FakeSolver:
+        instances = []
+
+        def __init__(self, **_kwargs):
+            self.budgets = []
+            self.calls = 0
+            self.__class__.instances.append(self)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def supports_atmost(self):
+            return False
+
+        def conf_budget(self, budget):
+            self.budgets.append(budget)
+
+        def solve_limited(self):
+            self.calls += 1
+            return (None, None, False)[self.calls - 1]
+
+        def accum_stats(self):
+            return {"conflicts": self.calls * 7, "decisions": self.calls}
+
+        def get_model(self):
+            return None
+
+        def time(self):
+            return 0.01 * self.calls
+
+    monkeypatch.setattr(pysat.solvers, "Solver", FakeSolver)
+    progress = []
+    evidence = distance_sat._solve_inprocess(
+        np.zeros((0, 2), dtype=np.uint8),
+        np.eye(2, dtype=np.uint8),
+        max_weight=0,
+        sector="X",
+        encoding="seqcounter",
+        solver_name="cadical195",
+        partition_index=0,
+        anchor_indices=(),
+        zero_anchor_indices=(),
+        one_anchor_index=None,
+        anchor_cube_sha256=None,
+        incremental_conflict_budget=7,
+        progress_callback=progress.append,
+    )
+
+    assert len(FakeSolver.instances) == 1
+    assert FakeSolver.instances[0].budgets == [7, 7, 7]
+    assert evidence["outcome"] == "unsat"
+    assert evidence["decision_complete"] is True
+    assert evidence["incremental_solver"] == {
+        "policy": distance_sat.SAT_INCREMENTAL_POLICY,
+        "conflict_budget_per_slice": 7,
+        "solve_calls": 3,
+        "unknown_slices": 2,
+        "solver_object_reused": True,
+        "solver_stats": {"conflicts": 21, "decisions": 3},
+    }
+    assert [item["event"] for item in progress] == [
+        "solver_ready",
+        "conflict_slice_complete",
+        "conflict_slice_complete",
+    ]
+
+
+@pytest.mark.skipif(
+    not distance_sat.pysat_available(),
+    reason="optional python-sat backend is not installed",
+)
+def test_incremental_kissat_is_rejected_before_native_second_solve():
+    evidence = distance_sat.solve_css_threshold_sat(
+        np.zeros((0, 2), dtype=np.uint8),
+        np.eye(2, dtype=np.uint8),
+        max_weight=0,
+        sector="X",
+        hard_timeout_s=20,
+        solver="kissat404",
+        incremental_conflict_budget=1,
+        partition_index=0,
+    )
+    assert evidence["outcome"] == "backend_unavailable"
+    assert evidence["decision_complete"] is False
+    assert evidence["retryable"] is True
+    assert "does not support safe repeated limited solves" in evidence["message"]
+
+
+@pytest.mark.skipif(
+    not distance_sat.pysat_available(),
+    reason="optional python-sat backend is not installed",
+)
+def test_incremental_child_persists_progress_but_only_terminal_checkpoint(
+    tmp_path,
+):
+    checks = np.zeros((0, 2), dtype=np.uint8)
+    logicals = np.eye(2, dtype=np.uint8)
+    terminal_path = tmp_path / "terminal.json"
+    progress_path = tmp_path / "progress.json"
+    evidence = distance_sat.solve_css_threshold_sat(
+        checks,
+        logicals,
+        max_weight=0,
+        sector="X",
+        hard_timeout_s=20,
+        solver="cadical195",
+        incremental_conflict_budget=1,
+        partition_index=0,
+        checkpoint_path=terminal_path,
+        progress_path=progress_path,
+    )
+
+    assert evidence["outcome"] == "unsat"
+    assert evidence["decision_complete"] is True
+    assert evidence["incremental_solver"]["policy"] == (
+        distance_sat.SAT_INCREMENTAL_POLICY
+    )
+    assert evidence["incremental_solver"]["solve_calls"] >= 1
+    assert terminal_path.exists()
+    progress = json.loads(progress_path.read_text())
+    assert progress["evidence_kind"] == distance_sat.SAT_PROGRESS_KIND
+    assert progress["outcome"] == "running"
+    assert progress["decision_complete"] is False
+    unsigned = dict(progress)
+    expected_hash = unsigned.pop("progress_sha256")
+    assert expected_hash == distance_sat._canonical_sha256(unsigned)
+    assert distance_sat._load_terminal_checkpoint(
+        progress_path,
+        binding=evidence["instance"],
+        checks=checks,
+        logicals=logicals,
+    ) is None
+
+
+@pytest.mark.skipif(
+    not distance_sat.pysat_available(),
+    reason="optional python-sat backend is not installed",
+)
+def test_progress_path_must_not_alias_terminal_checkpoint(tmp_path):
+    shared_path = tmp_path / "shared.json"
+    with pytest.raises(ValueError, match="progress_path must differ"):
+        distance_sat.solve_css_threshold_sat(
+            np.zeros((0, 2), dtype=np.uint8),
+            np.eye(2, dtype=np.uint8),
+            max_weight=0,
+            sector="X",
+            hard_timeout_s=20,
+            solver="cadical195",
+            incremental_conflict_budget=1,
+            checkpoint_path=shared_path,
+            progress_path=shared_path,
+        )
+
+
+@pytest.mark.skipif(
+    not distance_sat.pysat_available(),
+    reason="optional python-sat backend is not installed",
+)
+def test_incremental_hard_wall_keeps_progress_nonterminal_and_reaps_child(
+    monkeypatch,
+    tmp_path,
+):
+    monkeypatch.setattr(
+        distance_sat,
+        "_solver_worker",
+        _progress_until_stopped_worker,
+    )
+    terminal_path = tmp_path / "terminal.json"
+    progress_path = tmp_path / "progress.json"
+    writes = []
+    atomic_write = distance_sat._atomic_write_json
+
+    def tracked_write(path, value):
+        writes.append(Path(path))
+        atomic_write(path, value)
+
+    monkeypatch.setattr(distance_sat, "_atomic_write_json", tracked_write)
+    evidence = distance_sat.solve_css_threshold_sat(
+        np.zeros((0, 2), dtype=np.uint8),
+        np.eye(2, dtype=np.uint8),
+        max_weight=0,
+        sector="X",
+        hard_timeout_s=1.0,
+        termination_grace_s=1.0,
+        solver="cadical195",
+        incremental_conflict_budget=1,
+        checkpoint_path=terminal_path,
+        progress_path=progress_path,
+    )
+
+    assert evidence["outcome"] == "hard_timeout"
+    assert evidence["decision_complete"] is False
+    assert evidence["threshold_infeasible"] is False
+    assert evidence["incremental_progress"]["sequence"] >= 2
+    assert not terminal_path.exists()
+    assert progress_path.exists()
+    assert 1 <= writes.count(progress_path) <= 2
+    worker_pid = int(evidence["incremental_progress"]["worker_pid"])
+    assert not Path(f"/proc/{worker_pid}").exists()
+
+
+@pytest.mark.parametrize("budget", (0, -1, True, 1.5))
+def test_incremental_conflict_budget_must_be_positive_integer(budget):
+    with pytest.raises(ValueError, match="incremental_conflict_budget"):
+        distance_sat.solve_css_threshold_sat(
+            np.zeros((0, 2), dtype=np.uint8),
+            np.eye(2, dtype=np.uint8),
+            max_weight=0,
+            sector="X",
+            hard_timeout_s=20,
+            incremental_conflict_budget=budget,
+        )
 
 
 def test_missing_optional_backend_is_explicit_and_retryable():

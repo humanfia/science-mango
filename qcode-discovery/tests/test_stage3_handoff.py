@@ -397,6 +397,7 @@ def test_sat_stage3_uses_independent_state_and_budgets_all_proof_units(
         threshold_only=False,
         resume=True,
         backend="sat-sectors",
+        sat_incremental_conflict_budget=25000,
         screener=fake_sat_screen,
     )
 
@@ -405,9 +406,11 @@ def test_sat_stage3_uses_independent_state_and_budgets_all_proof_units(
     )
     assert captured["output"] == expected_path
     assert captured["kwargs"]["cardinality_encoding"] == "kmtotalizer"
+    assert captured["kwargs"]["incremental_conflict_budget"] == 25000
     assert expected_path.parent.name == "sat-sectors"
     assert result["backend"] == "sat-sectors"
     assert result["sat_cardinality_encoding"] == "kmtotalizer"
+    assert result["sat_incremental_conflict_budget"] == 25000
     assert result["expected_proof_units"] == 26
     assert _candidate_wall_timeout(
         candidate,
@@ -578,10 +581,13 @@ def test_stage3_sat_cardinality_cli_override_is_forwarded(
         "--summary-output", str(summary_output),
         "--backend", "sat-sectors",
         "--sat-cardinality-encoding", "native-minicard",
+        "--sat-incremental-conflict-budget", "25000",
     ]) == direction_pool.RECOVERABLE_INCOMPLETE_EXIT_CODE
     summary = json.loads(summary_output.read_text())
     assert captured["sat_cardinality_encoding"] == "native-minicard"
+    assert captured["sat_incremental_conflict_budget"] == 25000
     assert summary["sat_cardinality_encoding"] == "native-minicard"
+    assert summary["sat_incremental_conflict_budget"] == 25000
     assert summary["retry_required"] is True
 
 

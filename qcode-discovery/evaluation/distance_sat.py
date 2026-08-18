@@ -13,9 +13,12 @@ normal qcode installation can import this module without python-sat, while
 ``qcode-discovery[sat]`` enables the backend.
 
 The solver runs in a spawned child process.  The parent enforces a hard wall
-timeout and kills the child before returning ``hard_timeout``.  Terminal SAT
-and UNSAT decisions can be stored as one atomic, identity-bound checkpoint;
-timeouts and errors are never reused.
+timeout and kills the child before returning ``hard_timeout``.  An opt-in
+incremental mode keeps one supported PySAT solver object alive and repeatedly
+uses conflict-limited calls.  UNKNOWN slices are progress only: learned
+clauses remain live in that process, while only terminal SAT/UNSAT decisions
+can be stored as an identity-bound checkpoint.  Timeouts and errors are never
+reused as mathematical evidence.
 
 This module does not claim that a bare solver UNSAT string is independently
 checkable proof logging.  A publication certificate should either rerun the
@@ -38,14 +41,17 @@ import time
 import traceback
 from ctypes import CDLL, c_int, c_ulong, get_errno
 from pathlib import Path
-from typing import Any, Literal, Mapping, Sequence
+from typing import Any, Callable, Literal, Mapping, Sequence
 
 import numpy as np
 
 
 SAT_EVIDENCE_KIND = "qcode-css-threshold-sat-evidence"
 SAT_EVIDENCE_SCHEMA_VERSION = 1
+SAT_PROGRESS_KIND = "qcode-css-threshold-sat-progress"
+SAT_PROGRESS_SCHEMA_VERSION = 1
 SAT_FORMULATION = "css-global-logical-threshold-cnf-v1"
+SAT_INCREMENTAL_POLICY = "same-process-conflict-slices-v1"
 SAT_ENCODINGS = frozenset({
     "kmtotalizer",
     "native-minicard",
@@ -60,6 +66,7 @@ SAT_RETRYABLE_OUTCOMES = frozenset({
     "solver_error",
     "worker_exit",
 })
+SAT_PROGRESS_MIN_WRITE_INTERVAL_S = 5.0
 SAT_NATIVE_THREAD_ENV = (
     "OMP_NUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -82,6 +89,18 @@ _AUTO_SOLVERS = (
 # is part of scheduling policy, not mathematical evidence: every terminal
 # result remains bound to the concrete selected backend in ``instance``.
 SAT_AUTO_SOLVERS = _AUTO_SOLVERS
+# Kissat deliberately aborts the process when solve is called a second time.
+# These installed PySAT engines were exercised with repeated
+# ``conf_budget`` + ``solve_limited`` calls and retain a live learned database.
+SAT_INCREMENTAL_SOLVERS = frozenset({
+    "cadical153",
+    "cadical195",
+    "cadical300",
+    "glucose4",
+    "glucose42",
+    "minicard",
+    "minisat22",
+})
 _FORMULATION_REVISION = "xor-chain-global-or-pysat-cardinality-v1"
 _ANCHOR_CUBE_FORMULATION = "anchor-or-first-nonzero-unit-clauses-v1"
 # The first deployed sector-SAT campaign wrote two useful weight-24 terminal
@@ -91,6 +110,10 @@ _ANCHOR_CUBE_FORMULATION = "anchor-or-first-nonzero-unit-clauses-v1"
 # than silently discarded; no arbitrary historical source is accepted.
 _COMPATIBLE_SOURCE_SHA256 = frozenset({
     "f30a0f016fff8a358bb5d387c510e26053f3b500502162dbb0b7d4a9c3be0553",
+    # diversity-first-v2 immediately before the runtime-only persistent
+    # solver protocol was added.  Only replay-verified SAT witnesses may
+    # cross this source migration; bare UNSAT is rejected below.
+    "9715c55e55b41aa08023c356863ccf06aee5c2170f6cba77986c66cfdad33f80",
 })
 try:
     _SOURCE_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -668,6 +691,7 @@ def _instance_binding(
     sector: str,
     encoding: str,
     solver_name: str,
+    incremental_conflict_budget: int | None = None,
     checkpoint_identity: Mapping[str, Any] | str | None,
     partition_index: int | None,
     anchor_indices: Sequence[int],
@@ -695,6 +719,14 @@ def _instance_binding(
             "distribution": "python-sat",
             "version": _package_version("python-sat"),
             "solver": solver_name,
+        },
+        "solver_execution": {
+            "policy": (
+                "one-shot-spawn-v1"
+                if incremental_conflict_budget is None
+                else SAT_INCREMENTAL_POLICY
+            ),
+            "incremental_conflict_budget": incremental_conflict_budget,
         },
         "checkpoint_identity": (
             None if checkpoint_identity is None else _canonical_json(checkpoint_identity)
@@ -797,6 +829,15 @@ def _checkpoint_binding_matches(
     ):
         return False
     migrated_current = dict(current_unsigned)
+    # The predecessor predates an explicit execution-policy binding.  This
+    # source migration is safe only for replay-verified SAT witnesses; bare
+    # UNSAT is separately required to match the exact current instance.
+    if "solver_execution" not in stored_unsigned:
+        execution = migrated_current.get("solver_execution")
+        if isinstance(execution, Mapping) and execution.get("policy") in {
+            "one-shot-spawn-v1", SAT_INCREMENTAL_POLICY,
+        }:
+            migrated_current.pop("solver_execution")
     stored_environment = stored_unsigned.get("native_thread_environment")
     current_environment = current_unsigned.get("native_thread_environment")
     if (
@@ -890,6 +931,22 @@ def _set_parent_death_signal(expected_parent_pid: int) -> None:
         os.kill(os.getpid(), signal.SIGKILL)
 
 
+def _safe_solver_stats(solver: Any) -> dict[str, int]:
+    """Return JSON-safe cumulative counters without trusting their presence."""
+
+    try:
+        raw = solver.accum_stats()
+    except (AttributeError, NotImplementedError, RuntimeError):
+        return {}
+    if not isinstance(raw, Mapping):
+        return {}
+    return {
+        str(key): int(value)
+        for key, value in raw.items()
+        if isinstance(value, int) and not isinstance(value, bool)
+    }
+
+
 def _solve_inprocess(
     checks: np.ndarray,
     logicals: np.ndarray,
@@ -903,6 +960,9 @@ def _solve_inprocess(
     zero_anchor_indices: Sequence[int],
     one_anchor_index: int | None,
     anchor_cube_sha256: str | None,
+    incremental_conflict_budget: int | None = None,
+    progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    stop_requested: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
     from pysat.solvers import Solver
 
@@ -920,6 +980,15 @@ def _solve_inprocess(
         anchor_cube_sha256=anchor_cube_sha256,
     )
     built_s = time.monotonic() - started
+    incremental = incremental_conflict_budget is not None
+    if incremental and solver_name not in SAT_INCREMENTAL_SOLVERS:
+        raise SatBackendUnavailable(
+            f"solver {solver_name} does not support safe repeated limited solves"
+        )
+    solve_calls = 0
+    unknown_slices = 0
+    solver_stats: dict[str, int] = {}
+    stopped = False
     solve_started = time.monotonic()
     with Solver(
         name=solver_name,
@@ -936,14 +1005,59 @@ def _solve_inprocess(
                 native_atmost["literals"],
                 native_atmost["bound"],
             )
-        satisfiable = solver.solve()
-        model = solver.get_model() if satisfiable else None
+        if progress_callback is not None:
+            progress_callback({
+                "event": "solver_ready",
+                "policy": (
+                    SAT_INCREMENTAL_POLICY if incremental else "one-shot-spawn-v1"
+                ),
+                "conflict_budget_per_slice": incremental_conflict_budget,
+                "solve_calls": 0,
+                "unknown_slices": 0,
+                "solver_stats": {},
+                "cnf_sha256": cnf["cnf_sha256"],
+                "num_variables": cnf["num_variables"],
+                "num_clauses": cnf["num_clauses"],
+                "elapsed_s": time.monotonic() - started,
+            })
+        if not incremental:
+            satisfiable = solver.solve()
+            solve_calls = 1
+        else:
+            satisfiable = None
+            while True:
+                if stop_requested is not None and stop_requested():
+                    stopped = True
+                    break
+                # PySAT resets the next-call budget after every solve.  Reset
+                # it explicitly while retaining this same live Solver object.
+                solver.conf_budget(int(incremental_conflict_budget))
+                satisfiable = solver.solve_limited()
+                solve_calls += 1
+                solver_stats = _safe_solver_stats(solver)
+                if satisfiable is not None:
+                    break
+                unknown_slices += 1
+                if progress_callback is not None:
+                    progress_callback({
+                        "event": "conflict_slice_complete",
+                        "policy": SAT_INCREMENTAL_POLICY,
+                        "conflict_budget_per_slice": incremental_conflict_budget,
+                        "solve_calls": solve_calls,
+                        "unknown_slices": unknown_slices,
+                        "solver_stats": solver_stats,
+                        "cnf_sha256": cnf["cnf_sha256"],
+                        "elapsed_s": time.monotonic() - started,
+                    })
+        model = solver.get_model() if satisfiable is True else None
         solver_time = float(solver.time())
+        if not solver_stats:
+            solver_stats = _safe_solver_stats(solver)
     solve_s = time.monotonic() - solve_started
     operator = None
     objective = None
     syndrome = None
-    if satisfiable:
+    if satisfiable is True:
         positive = {int(literal) for literal in model or () if int(literal) > 0}
         vector = np.fromiter(
             (int(variable in positive) for variable in cnf["operator_variables"]),
@@ -954,10 +1068,17 @@ def _solve_inprocess(
         objective = int(vector.sum())
         syndrome = ((logicals @ vector) & 1).astype(int).tolist()
     return {
-        "outcome": "sat" if satisfiable else "unsat",
-        "decision_complete": True,
-        "threshold_infeasible": not satisfiable,
-        "success": bool(satisfiable),
+        "outcome": (
+            "cancelled" if stopped else ("sat" if satisfiable is True else "unsat")
+        ),
+        "decision_complete": satisfiable is not None,
+        "threshold_infeasible": satisfiable is False,
+        "success": satisfiable is True,
+        "retryable": satisfiable is None,
+        "message": (
+            "persistent SAT worker stopped between conflict slices"
+            if stopped else None
+        ),
         "operator": operator,
         "objective": objective,
         "logical_syndrome": syndrome,
@@ -976,6 +1097,16 @@ def _solve_inprocess(
                 "anchor_unit_clauses_sha256",
             )
         },
+        "incremental_solver": {
+            "policy": (
+                SAT_INCREMENTAL_POLICY if incremental else "one-shot-spawn-v1"
+            ),
+            "conflict_budget_per_slice": incremental_conflict_budget,
+            "solve_calls": solve_calls,
+            "unknown_slices": unknown_slices,
+            "solver_object_reused": bool(unknown_slices),
+            "solver_stats": solver_stats,
+        },
         "build_time_s": built_s,
         "solve_time_s": solve_s,
         "solver_reported_time_s": solver_time,
@@ -992,6 +1123,8 @@ def _solver_worker(
     sector: str,
     encoding: str,
     solver_name: str,
+    incremental_conflict_budget: int | None,
+    stop_event: Any,
     partition_index: int | None,
     anchor_indices: Sequence[int],
     zero_anchor_indices: Sequence[int],
@@ -1007,6 +1140,11 @@ def _solver_worker(
             sector=sector,
             encoding=encoding,
             solver_name=solver_name,
+            incremental_conflict_budget=incremental_conflict_budget,
+            progress_callback=(
+                lambda progress: connection.send(("progress", progress))
+            ),
+            stop_requested=stop_event.is_set,
             partition_index=partition_index,
             anchor_indices=anchor_indices,
             zero_anchor_indices=zero_anchor_indices,
@@ -1061,6 +1199,47 @@ def _seal_evidence(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _progress_evidence(
+    *,
+    binding: Mapping[str, Any],
+    hard_timeout_s: float,
+    progress: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Create non-terminal, self-hashed telemetry bound to one SAT instance."""
+
+    result = _base_evidence(binding=binding, hard_timeout_s=hard_timeout_s)
+    result.update({
+        "schema_version": SAT_PROGRESS_SCHEMA_VERSION,
+        "evidence_kind": SAT_PROGRESS_KIND,
+        "outcome": "running",
+        "decision_complete": False,
+        "threshold_infeasible": False,
+        "success": False,
+        "retryable": True,
+        "progress": _canonical_json(progress),
+    })
+    unsigned = dict(result)
+    result["progress_sha256"] = _canonical_sha256(unsigned)
+    return result
+
+
+def _persist_progress(
+    path: Path | None,
+    *,
+    binding: Mapping[str, Any],
+    hard_timeout_s: float,
+    progress: Mapping[str, Any],
+) -> dict[str, Any]:
+    record = _progress_evidence(
+        binding=binding,
+        hard_timeout_s=hard_timeout_s,
+        progress=progress,
+    )
+    if path is not None:
+        _atomic_write_json(path, record)
+    return record
+
+
 def _stop_solver_process(
     process: multiprocessing.Process,
     *,
@@ -1087,7 +1266,9 @@ def solve_css_threshold_sat(
     hard_timeout_s: float,
     cardinality_encoding: str = "seqcounter",
     solver: str = "auto",
+    incremental_conflict_budget: int | None = None,
     checkpoint_path: Path | str | None = None,
+    progress_path: Path | str | None = None,
     resume: bool = False,
     checkpoint_identity: Mapping[str, Any] | str | None = None,
     partition_index: int | None = None,
@@ -1110,6 +1291,17 @@ def solve_css_threshold_sat(
     hard_timeout = float(hard_timeout_s)
     if not math.isfinite(hard_timeout) or hard_timeout <= 0:
         raise ValueError("hard_timeout_s must be a positive finite number")
+    if (
+        isinstance(incremental_conflict_budget, bool)
+        or (
+            incremental_conflict_budget is not None
+            and (
+                not isinstance(incremental_conflict_budget, int)
+                or incremental_conflict_budget < 1
+            )
+        )
+    ):
+        raise ValueError("incremental_conflict_budget must be a positive integer")
     termination_grace = float(termination_grace_s)
     if not math.isfinite(termination_grace) or termination_grace < 0:
         raise ValueError("termination_grace_s must be finite and nonnegative")
@@ -1148,6 +1340,14 @@ def solve_css_threshold_sat(
                 "distribution": "python-sat",
                 "version": _package_version("python-sat"),
                 "solver": str(solver),
+            },
+            "solver_execution": {
+                "policy": (
+                    "one-shot-spawn-v1"
+                    if incremental_conflict_budget is None
+                    else SAT_INCREMENTAL_POLICY
+                ),
+                "incremental_conflict_budget": incremental_conflict_budget,
             },
             "partition_index": partition,
             "anchor_indices": list(anchors),
@@ -1191,6 +1391,7 @@ def solve_css_threshold_sat(
         sector=sector,
         encoding=encoding,
         solver_name=solver_name,
+        incremental_conflict_budget=incremental_conflict_budget,
         checkpoint_identity=checkpoint_identity,
         partition_index=partition,
         anchor_indices=anchors,
@@ -1203,6 +1404,21 @@ def solve_css_threshold_sat(
         key: value for key, value in binding.items() if key != "binding_sha256"
     })
     checkpoint = Path(checkpoint_path) if checkpoint_path is not None else None
+    progress_checkpoint = (
+        Path(progress_path)
+        if progress_path is not None
+        else (
+            None
+            if checkpoint is None
+            else checkpoint.with_name(checkpoint.name + ".progress.json")
+        )
+    )
+    if (
+        checkpoint is not None
+        and progress_checkpoint is not None
+        and checkpoint.resolve() == progress_checkpoint.resolve()
+    ):
+        raise ValueError("progress_path must differ from checkpoint_path")
     if checkpoint is not None and resume:
         reused = _load_terminal_checkpoint(
             checkpoint,
@@ -1212,6 +1428,26 @@ def solve_css_threshold_sat(
         )
         if reused is not None:
             return reused
+    if (
+        incremental_conflict_budget is not None
+        and solver_name not in SAT_INCREMENTAL_SOLVERS
+    ):
+        result = _base_evidence(binding=binding, hard_timeout_s=hard_timeout)
+        result.update({
+            "outcome": "backend_unavailable",
+            "decision_complete": False,
+            "threshold_infeasible": False,
+            "success": False,
+            "retryable": True,
+            "message": (
+                f"solver {solver_name} does not support safe repeated limited solves"
+            ),
+            "operator": None,
+            "objective": None,
+            "logical_syndrome": None,
+            "elapsed_s": time.monotonic() - started,
+        })
+        return _seal_evidence(result)
 
     if cancel_event is not None and cancel_event.is_set():
         result = _base_evidence(binding=binding, hard_timeout_s=hard_timeout)
@@ -1231,6 +1467,7 @@ def solve_css_threshold_sat(
 
     context = multiprocessing.get_context("spawn")
     parent, child = context.Pipe(duplex=False)
+    stop_event = context.Event()
     process = context.Process(
         target=_solver_worker,
         args=(
@@ -1242,6 +1479,8 @@ def solve_css_threshold_sat(
             sector,
             encoding,
             solver_name,
+            incremental_conflict_budget,
+            stop_event,
             partition,
             anchors,
             zero_anchors,
@@ -1255,6 +1494,9 @@ def solve_css_threshold_sat(
     child.close()
     message: tuple[Any, ...] | None = None
     interrupted_outcome: str | None = None
+    last_progress: dict[str, Any] | None = None
+    last_progress_record: dict[str, Any] | None = None
+    last_progress_persisted_at = -math.inf
     try:
         deadline = started + hard_timeout
         while message is None:
@@ -1267,15 +1509,62 @@ def solve_css_threshold_sat(
                 break
             if parent.poll(min(remaining, 0.1)):
                 try:
-                    message = parent.recv()
+                    received = parent.recv()
                 except (EOFError, OSError):
-                    message = None
                     if not process.is_alive():
                         break
+                    continue
+                if (
+                    isinstance(received, tuple)
+                    and len(received) == 2
+                    and received[0] == "progress"
+                    and isinstance(received[1], Mapping)
+                ):
+                    last_progress = dict(received[1])
+                    progress_now = time.monotonic()
+                    if (
+                        progress_checkpoint is None
+                        or (
+                            progress_now - last_progress_persisted_at
+                            >= SAT_PROGRESS_MIN_WRITE_INTERVAL_S
+                        )
+                    ):
+                        last_progress_record = _persist_progress(
+                            progress_checkpoint,
+                            binding=binding,
+                            hard_timeout_s=hard_timeout,
+                            progress=last_progress,
+                        )
+                        last_progress_persisted_at = progress_now
+                    continue
+                message = received
         if interrupted_outcome is not None:
+            # Ask a limited-solve worker to stop at its next cooperative yield.
+            # The fixed deadline is never extended by progress messages.
+            stop_event.set()
+            cleanup_deadline = time.monotonic() + termination_grace
+            while process.is_alive() and time.monotonic() < cleanup_deadline:
+                if not parent.poll(
+                    min(0.05, max(0.0, cleanup_deadline - time.monotonic()))
+                ):
+                    continue
+                try:
+                    received = parent.recv()
+                except (EOFError, OSError):
+                    break
+                if (
+                    isinstance(received, tuple)
+                    and len(received) == 2
+                    and received[0] == "progress"
+                    and isinstance(received[1], Mapping)
+                ):
+                    last_progress = dict(received[1])
+                else:
+                    message = received
+                    break
             _stop_solver_process(
                 process,
-                termination_grace_s=termination_grace,
+                termination_grace_s=max(0.0, cleanup_deadline - time.monotonic()),
             )
     finally:
         parent.close()
@@ -1288,6 +1577,13 @@ def solve_css_threshold_sat(
             )
         process.close()
 
+    if last_progress is not None:
+        last_progress_record = _persist_progress(
+            progress_checkpoint,
+            binding=binding,
+            hard_timeout_s=hard_timeout,
+            progress=last_progress,
+        )
     result = _base_evidence(binding=binding, hard_timeout_s=hard_timeout)
     if interrupted_outcome is not None:
         result.update({
@@ -1317,10 +1613,19 @@ def solve_css_threshold_sat(
             "objective": None,
             "logical_syndrome": None,
         })
-    elif message[0] == "result" and isinstance(message[1], dict):
+    elif (
+        isinstance(message, tuple)
+        and len(message) == 2
+        and message[0] == "result"
+        and isinstance(message[1], dict)
+    ):
         result.update(message[1])
-        result["retryable"] = False
-    elif message[0] == "error":
+        result["retryable"] = result.get("outcome") not in SAT_TERMINAL_OUTCOMES
+    elif (
+        isinstance(message, tuple)
+        and len(message) == 4
+        and message[0] == "error"
+    ):
         result.update({
             "outcome": "solver_error",
             "decision_complete": False,
@@ -1345,6 +1650,14 @@ def solve_css_threshold_sat(
             "objective": None,
             "logical_syndrome": None,
         })
+    if last_progress is not None:
+        result["incremental_progress"] = last_progress
+    if last_progress_record is not None:
+        result["progress_checkpoint_sha256"] = last_progress_record[
+            "progress_sha256"
+        ]
+        if progress_checkpoint is not None:
+            result["progress_checkpoint_path"] = str(progress_checkpoint)
     result["elapsed_s"] = time.monotonic() - started
 
     if result.get("outcome") == "sat":
@@ -1380,7 +1693,9 @@ def solve_css_sector_sat(
     sector: Literal["X", "Z"] | str = "Z",
     cardinality_encoding: str = "seqcounter",
     solver: str = "auto",
+    incremental_conflict_budget: int | None = None,
     checkpoint_path: Path | str | None = None,
+    progress_path: Path | str | None = None,
     resume: bool = False,
     checkpoint_identity: Mapping[str, Any] | str | None = None,
     cancel_event: Any | None = None,
@@ -1405,7 +1720,9 @@ def solve_css_sector_sat(
         hard_timeout_s=timeout,
         cardinality_encoding=cardinality_encoding,
         solver=solver,
+        incremental_conflict_budget=incremental_conflict_budget,
         checkpoint_path=checkpoint_path,
+        progress_path=progress_path,
         resume=resume,
         checkpoint_identity=checkpoint_identity,
         partition_index=partition_index,

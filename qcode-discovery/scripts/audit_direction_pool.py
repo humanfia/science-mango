@@ -533,6 +533,7 @@ def _screen_one(
     termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
     backend: str = DEFAULT_STAGE3_BACKEND,
     sat_cardinality_encoding: str = DEFAULT_SAT_CARDINALITY_ENCODING,
+    sat_incremental_conflict_budget: int | None = None,
     screener: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     path = artifact_state_path(state_dir, digest, backend)
@@ -563,6 +564,14 @@ def _screen_one(
             screener_kwargs["cardinality_encoding"] = (
                 sat_cardinality_encoding
             )
+        if sat_incremental_conflict_budget is not None:
+            if backend != "sat-sectors":
+                raise ValueError(
+                    "incremental SAT conflict slices require backend=sat-sectors"
+                )
+            screener_kwargs["incremental_conflict_budget"] = (
+                sat_incremental_conflict_budget
+            )
         artifact = selected_screener(candidate, **screener_kwargs)
         result = {
             "canonical_digest": digest,
@@ -573,6 +582,15 @@ def _screen_one(
         if backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}:
             result.update({
                 "sat_cardinality_encoding": sat_cardinality_encoding,
+                **(
+                    {}
+                    if backend != "sat-sectors"
+                    else {
+                        "sat_incremental_conflict_budget": (
+                            sat_incremental_conflict_budget
+                        ),
+                    }
+                ),
                 "completed_proof_units": artifact["terminal_units"],
                 "expected_proof_units": artifact["expected_units"],
             })
@@ -593,7 +611,7 @@ def _screen_one(
 
 
 def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
-    if len(payload) not in {10, 11, 12}:
+    if len(payload) not in {10, 11, 12, 13}:
         raise ValueError("invalid Stage 3 screen-worker payload")
     (
         digest,
@@ -614,8 +632,11 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
     )
     sat_cardinality_encoding = (
         str(payload[11])
-        if len(payload) == 12
+        if len(payload) >= 12
         else DEFAULT_SAT_CARDINALITY_ENCODING
+    )
+    sat_incremental_conflict_budget = (
+        int(payload[12]) if len(payload) == 13 else None
     )
     return _screen_one(
         digest,
@@ -630,6 +651,7 @@ def _screen_worker(payload: tuple[Any, ...]) -> dict[str, Any]:
         termination_grace=termination_grace,
         backend=backend,
         sat_cardinality_encoding=sat_cardinality_encoding,
+        sat_incremental_conflict_budget=sat_incremental_conflict_budget,
     )
 
 
@@ -744,6 +766,7 @@ def screen_selected_candidates(
     termination_grace: float = DEFAULT_TERMINATION_GRACE_S,
     backend: str = DEFAULT_STAGE3_BACKEND,
     sat_cardinality_encoding: str = DEFAULT_SAT_CARDINALITY_ENCODING,
+    sat_incremental_conflict_budget: int | None = None,
     screener: Callable[..., dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     if candidate_workers < 1:
@@ -755,6 +778,21 @@ def screen_selected_candidates(
         raise ValueError(
             "unsupported SAT cardinality encoding: "
             f"{sat_cardinality_encoding}"
+        )
+    if (
+        isinstance(sat_incremental_conflict_budget, bool)
+        or (
+            sat_incremental_conflict_budget is not None
+            and (
+                not isinstance(sat_incremental_conflict_budget, int)
+                or sat_incremental_conflict_budget < 1
+                or backend != "sat-sectors"
+            )
+        )
+    ):
+        raise ValueError(
+            "sat_incremental_conflict_budget requires a positive integer "
+            "and backend=sat-sectors"
         )
     grace = positive_wall_timeout(
         termination_grace,
@@ -794,6 +832,9 @@ def screen_selected_candidates(
                         "backend": backend,
                         "sat_cardinality_encoding": (
                             sat_cardinality_encoding
+                        ),
+                        "sat_incremental_conflict_budget": (
+                            sat_incremental_conflict_budget
                         ),
                         "screener": screener,
                     },
@@ -1024,6 +1065,16 @@ def build_parser() -> argparse.ArgumentParser:
             f"(default: {DEFAULT_SAT_CARDINALITY_ENCODING})"
         ),
     )
+    parser.add_argument(
+        "--sat-incremental-conflict-budget",
+        type=int,
+        help=(
+            "keep each supported PySAT solver alive and cooperatively yield "
+            "after this many conflicts inside one child process; the fixed "
+            "direction hard wall remains, and learned clauses are not "
+            "serialized across a hard wall or process restart"
+        ),
+    )
     parser.add_argument("--exact", action="store_true")
     parser.add_argument(
         "--resume", action=argparse.BooleanOptionalAction, default=True,
@@ -1067,6 +1118,17 @@ def main(argv: list[str] | None = None) -> int:
         or args.timeout <= 0
     ):
         parser.error("top must be nonnegative and timeout must be positive")
+    if (
+        args.sat_incremental_conflict_budget is not None
+        and (
+            args.sat_incremental_conflict_budget < 1
+            or args.backend != "sat-sectors"
+        )
+    ):
+        parser.error(
+            "--sat-incremental-conflict-budget requires a positive integer "
+            "and --backend sat-sectors"
+        )
     for name in (
         "certificate_timeout_per_logical",
         "certificate_total_timeout",
@@ -1178,6 +1240,9 @@ def main(argv: list[str] | None = None) -> int:
             termination_grace=args.hard_wall_termination_grace,
             backend=args.backend,
             sat_cardinality_encoding=args.sat_cardinality_encoding,
+            sat_incremental_conflict_budget=(
+                args.sat_incremental_conflict_budget
+            ),
         )
         atomic_write_jsonl(
             args.ranked_output,
@@ -1273,6 +1338,11 @@ def main(argv: list[str] | None = None) -> int:
         "sat_cardinality_encoding": (
             args.sat_cardinality_encoding
             if args.backend in {"sat-sectors", TWOBGA_STAGE3_BACKEND}
+            else None
+        ),
+        "sat_incremental_conflict_budget": (
+            args.sat_incremental_conflict_budget
+            if args.backend == "sat-sectors"
             else None
         ),
         "proof_unit_semantics": (

@@ -197,6 +197,8 @@ def _timeout_attempt(
     budget=3600.0,
     outcome="hard_timeout",
     policy=sat_screen.SAT_PORTFOLIO_POLICY,
+    execution_policy=sat_screen.SAT_ONE_SHOT_POLICY,
+    conflict_budget=None,
 ):
     evidence = {
         "outcome": outcome,
@@ -205,6 +207,12 @@ def _timeout_attempt(
         "backend": {"solver": config["solver"]},
         "cardinality_encoding": config["cardinality_encoding"],
         "elapsed_s": budget,
+        "instance": {
+            "solver_execution": {
+                "policy": execution_policy,
+                "incremental_conflict_budget": conflict_budget,
+            },
+        },
     }
     return sat_screen._attempt_record(
         evidence,
@@ -270,6 +278,59 @@ def test_current_v1_history_uses_new_solver_before_larger_budget_retry():
         hard_timeout_s=7200.0,
     )
     assert selected == (2, portfolio[1], False)
+
+
+def test_persistent_execution_is_a_distinct_retry_lane_and_is_tamper_checked():
+    portfolio = sat_screen._portfolio_configs("auto", "kmtotalizer")
+    one_shot = _timeout_attempt(portfolio[0], 0)
+    unit = {
+        "solver_evidence": {"outcome": "hard_timeout"},
+        "attempts": [one_shot],
+    }
+
+    assert sat_screen._next_attempt(
+        unit,
+        portfolio=portfolio,
+        hard_timeout_s=3600.0,
+        execution_policy=sat_screen.SAT_INCREMENTAL_POLICY,
+        incremental_conflict_budget=25000,
+    ) == (1, portfolio[0], False)
+
+    persistent = _timeout_attempt(
+        portfolio[0],
+        1,
+        execution_policy=sat_screen.SAT_INCREMENTAL_POLICY,
+        conflict_budget=25000,
+    )
+    assert persistent["execution_policy"] == sat_screen.SAT_INCREMENTAL_POLICY
+    assert persistent["incremental_conflict_budget"] == 25000
+    assert sat_screen._attempt_valid(persistent)
+
+    persistent_unit = {
+        "solver_evidence": {"outcome": "hard_timeout"},
+        "attempts": [persistent],
+    }
+    assert sat_screen._next_attempt(
+        persistent_unit,
+        portfolio=portfolio,
+        hard_timeout_s=3600.0,
+        execution_policy=sat_screen.SAT_INCREMENTAL_POLICY,
+        incremental_conflict_budget=25000,
+    ) == (2, portfolio[1], False)
+    assert sat_screen._next_attempt(
+        persistent_unit,
+        portfolio=portfolio,
+        hard_timeout_s=3600.0,
+        execution_policy=sat_screen.SAT_INCREMENTAL_POLICY,
+        incremental_conflict_budget=50000,
+    ) == (2, portfolio[0], False)
+
+    tampered = dict(persistent)
+    tampered["incremental_conflict_budget"] = None
+    tampered["attempt_sha256"] = sat_screen._canonical_sha256(
+        tampered, omit="attempt_sha256",
+    )
+    assert not sat_screen._attempt_valid(tampered)
 
 
 def test_diversity_warmup_precedes_budget_upgrade_and_ignores_cancelled():
