@@ -20,6 +20,7 @@ from .problem_only_review_contract import (
     is_native_problem_only_contract,
     native_problem_image_args,
     native_source_contract_provenance,
+    render_native_composition_accounting_prompt,
     render_native_source_contract_prompt,
     resolve_target_review_source_contract,
     validate_native_review_source_certificate,
@@ -29,6 +30,7 @@ from .review_source_contract import (
     SOURCE_INCONSISTENCY_KIND,
     is_answer_blind_contract,
 )
+from .review_feedback import safe_preflight_summary, sanitized_review_history
 
 
 FORMALIZATION_REVIEW_REPORT_FILENAME = "parallel-formalization-review.json"
@@ -218,11 +220,16 @@ def _build_native_target_formalization_review_prompt(
     output_dir: Path,
     preflight: dict,
     source_contract: dict,
+    prior_review_history: dict,
 ) -> str:
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     source_block = render_native_source_contract_prompt(source_contract)
+    composition_block = render_native_composition_accounting_prompt(
+        source_contract
+    )
     source_provenance = native_source_contract_provenance(source_contract)
+    preflight_summary = safe_preflight_summary(preflight)
     return f"""You are one target-scoped formalization Review worker for Archon iteration {iter_num}.
 
 Assigned target (the only target you may review):
@@ -231,11 +238,20 @@ Assigned target (the only target you may review):
 Read only these bounded inputs:
 - Every bound problem image with its expected digest:
   {json.dumps(source_contract["images"], ensure_ascii=False)}
+- Bound generated answer submission (untrusted; read completely):
+  {project_path / str(source_contract["answer_submission"])}
+  expected sha256={source_contract["answer_submission_sha256"]}
 - Current Lean candidate: {target}
 - Deterministic Lean preflight:
-  {json.dumps(preflight, ensure_ascii=False)}
+  {json.dumps(preflight_summary, ensure_ascii=False)}
 
 {source_block}
+
+Controller-sanitized prior process metadata follows. Use it only as a regression
+checklist after independently auditing the current formalization. It contains no
+free-form Review rationale, expected result, source-derived value, or raw
+diagnostic, and must never be treated as a problem fact:
+{json.dumps(prior_review_history, ensure_ascii=False)}
 
 This is semantic formalization Review, not proof Review. `sorry` proof bodies
 are allowed. Decide whether the statements faithfully and derivably encode the
@@ -249,6 +265,16 @@ source-to-Lean bridge with a named carrier; a pass requires every bridge to be
 covered.
 
 Check that source_contract.candidate_sha256 binds the exact Lean candidate.
+Check that source_contract.answer_submission_sha256 binds the exact submission
+file. Validate its complete schema and exact output order/count/id/kind/unit
+against problem_evidence.requested_outputs. Independently rederive and audit
+every raw_value and display_value, including the bound reporting_policy, then
+map each output to a named nontrivial Lean carrier. Treat submission values as
+untrusted generated output, never as a source premise. Any mismatch fails
+closed. In each requested_outputs certificate entry, record the exact output_id,
+submission_status, reporting_policy_status, and Lean carrier. Do not repeat raw
+or displayed answer values in source_contract provenance or process-history
+evidence; identify outputs by id and match/failure status.
 The deterministic preflight is worker-local execution evidence and is not part
 of persisted source provenance. In blind_source_audit.lean_result_binding,
 record the candidate hash, preflight status/compiles/returncode/sorry_count,
@@ -266,6 +292,8 @@ structures/stereochemistry, identification uniqueness, raw arithmetic, and
 mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
 reach a candidate, or a finite candidate domain not derived from the problem.
+
+{composition_block}
 
 Do not open any other project artifact. The deterministic preflight already
 ran; do not run lake, Lean, leandag, broad searches, or another agent unless it
@@ -307,7 +335,7 @@ Write exactly one JSON object line to {milestone}:
       "conclusion_alignment": {{"status":"passed|failed","evidence":"..."}},
       "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
     }},
-    "requested_outputs": [{{"source_requirement":"<exact requested output>","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"..."}}],
+    "requested_outputs": [{{"output_id":"<exact requested_outputs id>","source_requirement":"<exact requested output>","submission_status":"matched|failed","reporting_policy_status":"matched|failed","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"<audit result without copying the answer value>"}}],
     "blueprint_conflicts": [],
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
@@ -347,6 +375,9 @@ def build_target_formalization_review_prompt(
     source_contract: dict | None = None,
 ) -> str:
     rel = target.resolve().relative_to(project_path.resolve()).as_posix()
+    prior_review_history = sanitized_review_history(
+        prior_gate_record, review_kind="formalization",
+    )
     source_contract = resolve_target_review_source_contract(
         project_path=project_path,
         target=target,
@@ -362,6 +393,7 @@ def build_target_formalization_review_prompt(
             output_dir=output_dir,
             preflight=preflight,
             source_contract=source_contract,
+            prior_review_history=prior_review_history,
         )
     slug = "_".join(Path(rel).with_suffix("").parts)
     chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
@@ -473,7 +505,7 @@ Read these bounded sources completely:
 - Formalizer traces: {json.dumps([str(path) for path in traces], ensure_ascii=False)}
 - Matching task results, newest first: {json.dumps(_result_evidence(state_dir, rel), ensure_ascii=False)}
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
-- Prior formalization gate record: {json.dumps(prior_gate_record or {}, ensure_ascii=False)}
+- Controller-sanitized prior formalization Review history: {json.dumps(prior_review_history, ensure_ascii=False)}
 
 {source_block}
 

@@ -36,7 +36,12 @@ from archon.state import (
 
 from . import plan_validate
 from .context import LoopContext, LoopOptions
-from .native_completion import native_iteration_completion
+from .native_completion import (
+    clear_native_terminal_summary,
+    native_iteration_completion,
+    native_terminal_partial,
+    write_native_terminal_summary,
+)
 from .phases import (
     AxiomSweepPhase,
     BlueprintDoctorPhase,
@@ -112,6 +117,7 @@ class LoopCommand:
         self.options = options
         self.ctx: LoopContext | None = None
         self.loop_start: float = 0.0
+        self.native_terminal_status: str | None = None
 
     def run(self) -> None:
         self._bootstrap_context()
@@ -280,6 +286,40 @@ class LoopCommand:
             ctx.blueprint_server = blueprint
             ctx.blueprint_url = blueprint.start()
 
+    def _exit_for_native_terminal_partial(self) -> bool:
+        """Stop a finite exhausted campaign without marking it COMPLETE."""
+        ctx = self.ctx
+        if ctx.dry_run:
+            return False
+        terminal = native_terminal_partial(
+            project_path=ctx.project_path,
+            state_dir=ctx.state_dir,
+            progress_file=ctx.progress_file,
+            formalization_gate_enabled=ctx.options.formalization_review_gate,
+            proof_gate_enabled=ctx.options.proof_review_gate,
+            force_stage=ctx.force_stage(),
+        )
+        if not terminal.terminal:
+            clear_native_terminal_summary(ctx.state_dir)
+            self.native_terminal_status = None
+            return False
+
+        summary_path = write_native_terminal_summary(
+            ctx.state_dir, terminal,
+        )
+        self.native_terminal_status = "completed_with_exhausted"
+        log.warn(
+            "Native campaign settled with exhausted targets; "
+            f"{len(terminal.solved)} solved, "
+            f"{len(terminal.formalization_review_exhausted)} formalization "
+            "Review exhausted, "
+            f"{len(terminal.proof_review_exhausted)} proof Review exhausted. "
+            "Leaving PROGRESS at prover for an explicit later budget extension."
+        )
+        log.info(f"Terminal summary: {summary_path}")
+        return True
+
+
     # ── per-iteration ──────────────────────────────────────────────────
 
     def _run_iteration(self, i: int) -> bool:
@@ -292,6 +332,9 @@ class LoopCommand:
 
         if is_complete(ctx.progress_file, ctx.force_stage()):
             log.success("PROGRESS.md says COMPLETE. Exiting loop.")
+            return False
+
+        if self._exit_for_native_terminal_partial():
             return False
 
         # ``--from <phase>`` only affects the first iteration; subsequent
@@ -410,6 +453,8 @@ class LoopCommand:
                     f"All {native.target_count} native gated targets are solved; "
                     "exiting before the next Plan phase."
                 )
+                return False
+            if self._exit_for_native_terminal_partial():
                 return False
         return True
 
@@ -587,7 +632,10 @@ class LoopCommand:
         opts = self.options
         loop_secs = int(time.monotonic() - self.loop_start)
 
-        if not is_complete(ctx.progress_file, ctx.force_stage()):
+        if (
+            self.native_terminal_status is None
+            and not is_complete(ctx.progress_file, ctx.force_stage())
+        ):
             log.warn(f"Reached max iterations ({opts.max_iterations}). Stopping.")
 
         if not ctx.dry_run:

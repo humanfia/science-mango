@@ -264,6 +264,26 @@ class IchoAnswerBlindBundleTests(unittest.TestCase):
             {"kind": "exact_integer", "source": "problem_output_type"},
         )
 
+    def test_image_component_accounting_is_opt_in_only_for_t9_a7(self):
+        opted_in = {
+            (target_id, output["id"])
+            for target_id, outputs in MODULE.REQUESTED_OUTPUTS.items()
+            for output in outputs
+            if "audit_requirements" in output
+        }
+        self.assertEqual(
+            opted_in,
+            {
+                ("icho_2026_t9_a7", "first_fragment_mz"),
+                ("icho_2026_t9_a7", "second_fragment_mz"),
+            },
+        )
+        for output in MODULE.REQUESTED_OUTPUTS["icho_2026_t9_a7"]:
+            self.assertEqual(
+                output["audit_requirements"],
+                ["image_component_accounting"],
+            )
+
     def test_requested_output_inventory_matches_real_theory_inventory(self):
         inventory = (
             Path(__file__).resolve().parents[1]

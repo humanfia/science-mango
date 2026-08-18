@@ -275,6 +275,70 @@ class NativeArchonCampaignTests(unittest.TestCase):
             "finalize": {"lake": {"ok": True}},
         }), encoding="utf-8")
 
+    def test_explicit_nine_target_scope_is_prepared_and_bound(self) -> None:
+        original_ids = self.ids
+        subset = original_ids[:9]
+        try:
+            self.ids = subset
+            (self.seed / "isolation_manifest.json").write_text(
+                json.dumps({"target_ids": list(subset)}), encoding="utf-8"
+            )
+            bundle = self.seed / "icho_2026_source/questions_only.jsonl"
+            bundle.write_text(
+                "".join(
+                    json.dumps({
+                        "id": record_id,
+                        "evaluation_mode": "answer-blind",
+                        "official_answer_seen": False,
+                        "question": f"Question {record_id}",
+                    }) + "\n"
+                    for record_id in subset
+                ),
+                encoding="utf-8",
+            )
+            config = dataclasses.replace(
+                self.config,
+                campaign_root=self.base / "campaign-nine",
+                expected_items=9,
+                max_parallel=9,
+            )
+            self._prepare_only(config)
+
+            index = json.loads(config.index_path.read_text(encoding="utf-8"))
+            self.assertEqual(index["row_count"], 9)
+            native = json.loads(
+                (config.workspace / ".archon/config.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(native["loop"]["max_objectives"], 9)
+            self.assertEqual(native["loop"]["max_parallel"], 9)
+            imports = (
+                config.workspace / "IChO2026Problems/All.lean"
+            ).read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(imports), 9)
+            loop = RUNNER.loop_command(config, resume=False)
+            self.assertEqual(loop[loop.index("--max-objectives") + 1], "9")
+            parsed = RUNNER._parser().parse_args([
+                "--campaign-root", str(self.base / "cli-nine"),
+                "--expected-items", "9",
+                "--max-parallel", "9",
+                "--dry-run",
+            ])
+            self.assertEqual(parsed.expected_items, 9)
+            self._write_success_state(config.workspace)
+            self.assertTrue(RUNNER.native_summary(
+                config.workspace, subset
+            )["complete"])
+
+
+            with self.assertRaisesRegex(
+                RUNNER.CampaignError, "exactly 8 unique target_ids"
+            ):
+                RUNNER._target_ids(self.seed, expected_items=8)
+        finally:
+            self.ids = original_ids
+
     def test_commands_are_one_native_full32_pipeline(self) -> None:
         physics = RUNNER.physics_command(self.config)
         first_loop = RUNNER.loop_command(self.config, resume=False)
@@ -288,6 +352,19 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("prover", first_loop)
         self.assertIn("--max-parallel", first_loop)
         self.assertEqual(first_loop[first_loop.index("--max-parallel") + 1], "4")
+        self.assertEqual(
+            first_loop[first_loop.index("--max-iterations") + 1], "17"
+        )
+        self.assertEqual(
+            first_loop[
+                first_loop.index("--formalization-review-max-iterations") + 1
+            ],
+            "10",
+        )
+        self.assertEqual(
+            first_loop[first_loop.index("--proof-review-max-iterations") + 1],
+            "10",
+        )
         self.assertIn("--formalization-review-gate", first_loop)
         self.assertIn("--proof-review-gate", first_loop)
         self.assertNotIn("--no-finalize", first_loop)
@@ -316,6 +393,10 @@ class NativeArchonCampaignTests(unittest.TestCase):
 
         self.assertEqual(code, 0)
         environment = run.call_args.kwargs["env"]
+        self.assertEqual(
+            Path(environment["PATH"].split(RUNNER.os.pathsep)[0]),
+            Path(shutil.which("archon")).resolve().parent,
+        )
         self.assertEqual(environment["GIT_CONFIG_COUNT"], "3")
         self.assertEqual(
             [environment[f"GIT_CONFIG_KEY_{index}"] for index in range(3)],
@@ -335,6 +416,53 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 for index in range(3)
             )
         )
+
+    def test_loop_pins_exact_archon_and_smoke_checks_constant_service(self) -> None:
+        config = RUNNER.Config(
+            campaign_root=self.base / "pinned-archon",
+            archon_bin="/runtime/bin/archon",
+        )
+        config.workspace.mkdir(parents=True)
+        (config.private_lake_packages / "package" / ".git").mkdir(parents=True)
+        smoke_payload = json.dumps({
+            "dataset_version": RUNNER.DATASET_VERSION,
+            "dataset_sha256": RUNNER.DATASET_SHA256,
+        })
+        with mock.patch.object(RUNNER.subprocess, "run") as run:
+            run.side_effect = [
+                SimpleNamespace(returncode=0, stdout=smoke_payload),
+                SimpleNamespace(returncode=0),
+            ]
+            code, _seconds = RUNNER._run(
+                ["/runtime/bin/archon", "loop", str(config.workspace)],
+                config=config,
+            )
+
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            run.call_args_list[0].args[0],
+            [
+                "/runtime/bin/archon",
+                "chemistry-constant",
+                "atomic_weight",
+                "C",
+            ],
+        )
+        for call in run.call_args_list:
+            environment = call.kwargs["env"]
+            self.assertEqual(
+                environment["PATH"].split(RUNNER.os.pathsep)[0],
+                "/runtime/bin",
+            )
+
+        with mock.patch.object(RUNNER.subprocess, "run") as run:
+            run.return_value = SimpleNamespace(returncode=0, stdout="{}")
+            code, _seconds = RUNNER._run(
+                ["/runtime/bin/archon", "loop", str(config.workspace)],
+                config=config,
+            )
+        self.assertEqual(code, 126)
+        run.assert_called_once()
 
     def test_run_rejects_empty_private_git_package_set(self) -> None:
         config = RUNNER.Config(campaign_root=self.base / "empty-packages")
@@ -410,6 +538,10 @@ class NativeArchonCampaignTests(unittest.TestCase):
             "parallel_formalization_review_jobs",
         ):
             self.assertEqual(loop[key], 4)
+        self.assertEqual(loop["review_preflight_timeout_sec"], 3600)
+        self.assertEqual(loop["max_iterations"], 17)
+        self.assertEqual(loop["formalization_review_max_iterations"], 10)
+        self.assertEqual(loop["proof_review_max_iterations"], 10)
         self.assertTrue((workspace / ".lake/packages").is_symlink())
         self.assertEqual(
             (workspace / ".lake/packages").resolve(),
@@ -440,7 +572,26 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertNotIn("freeze gates", text.lower())
             self.assertNotIn("lean-lsp mcp", text.lower())
         self.assertIn("formalization Review", agents)
-        self.assertIn("create a candidate JSON", formalize)
+        self.assertIn("must not run or access the answer\nfreeze", agents)
+        self.assertIn("trusted external\ncontroller", agents)
+        self.assertIn("cannot read or write the external freeze", protocol)
+        self.assertIn("trusted root/controller", protocol)
+        self.assertIn("before official-answer\nreveal or scoring", protocol)
+        for text in (formalize, review):
+            normalized = " ".join(text.split())
+            self.assertIn(
+                '"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>',
+                normalized,
+            )
+            self.assertIn("illustrative, not an allowlist", normalized)
+            self.assertIn("source uncertainty could change", normalized)
+            self.assertNotIn("`archon chemistry-constant", text)
+        self.assertIn(
+            ".archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json",
+            formalize,
+        )
+        self.assertIn("display_value", formalize)
+        self.assertIn("Do not create any other candidate/answer JSON", formalize)
         self.assertIn("student-visible problem input", agents)
         self.assertIn("may be used only for", agents)
         self.assertIn("may not justify", agents)
@@ -457,14 +608,24 @@ class NativeArchonCampaignTests(unittest.TestCase):
             json.dumps(value), encoding="utf-8"
         )
         with self.assertRaisesRegex(RUNNER.CampaignError, "native non-root Codex"):
-            RUNNER._check_native_config(workspace, preparation=True)
+            RUNNER._check_native_config(
+                workspace,
+                max_iterations=self.config.max_iterations,
+                review_max_iterations=self.config.review_max_iterations,
+                preparation=True,
+            )
         value["harnesses"]["answer-blind-gpt"]["sandbox"] = "danger-full-access"
         value.pop("answer_blind")
         (workspace / ".archon/config.json").write_text(
             json.dumps(value), encoding="utf-8"
         )
         with self.assertRaisesRegex(RUNNER.CampaignError, "config is invalid"):
-            RUNNER._check_native_config(workspace, preparation=True)
+            RUNNER._check_native_config(
+                workspace,
+                max_iterations=self.config.max_iterations,
+                review_max_iterations=self.config.review_max_iterations,
+                preparation=True,
+            )
 
 
     def test_default_fresh_run_prepares_without_starting_loop(self) -> None:
@@ -489,6 +650,8 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertEqual(len(commands), 1)
         self.assertEqual(commands[0][1], "physics-formalize")
         index = json.loads((self.config.campaign_root / "campaign.json").read_text())
+        self.assertEqual(index["max_iterations"], 17)
+        self.assertEqual(index["review_max_iterations"], 10)
         self.assertEqual(index["row_count"], 32)
         self.assertEqual(index["max_parallel"], 4)
         self.assertIs(index["target_lifecycle"], False)
@@ -572,7 +735,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 RUNNER._run_initial_grounding(config, self.ids)
 
     def test_resume_fails_closed_on_config_marker_or_crnt_index_tampering(self) -> None:
-        for anomaly in ("config", "marker", "index", "manifest", "checkout"):
+        for anomaly in ("config", "timeout", "marker", "index", "manifest", "checkout"):
             with self.subTest(anomaly=anomaly):
                 fresh = dataclasses.replace(
                     self.config,
@@ -586,6 +749,11 @@ class NativeArchonCampaignTests(unittest.TestCase):
                     payload["loop"]["domain_profile"]["lean_search_packages"] = [
                         "Mathlib", "Physlib", "WrongPackage",
                     ]
+                    path.write_text(json.dumps(payload), encoding="utf-8")
+                elif anomaly == "timeout":
+                    path = workspace / ".archon/config.json"
+                    payload = json.loads(path.read_text())
+                    payload["loop"]["review_preflight_timeout_sec"] = 300
                     path.write_text(json.dumps(payload), encoding="utf-8")
                 elif anomaly == "marker":
                     path = next((workspace / "blueprint/src/chapters").glob("*.tex"))
@@ -901,6 +1069,134 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 self.assertFalse(result["native"]["complete"])
                 self.assertEqual(result["native"]["proof_review"][status], 1)
 
+    def test_review_budget_propagates_and_resume_fails_closed(self) -> None:
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "review-budget-three",
+            max_iterations=5,
+            review_max_iterations=3,
+        )
+        self._prepare_only(config)
+
+        native_path = config.workspace / ".archon/config.json"
+        native = json.loads(native_path.read_text(encoding="utf-8"))
+        loop_config = native["loop"]
+        self.assertEqual(loop_config["max_iterations"], 5)
+        self.assertEqual(loop_config["formalization_review_max_iterations"], 3)
+        self.assertEqual(loop_config["proof_review_max_iterations"], 3)
+
+        command = RUNNER.loop_command(config, resume=False)
+        self.assertEqual(command[command.index("--max-iterations") + 1], "5")
+        self.assertEqual(
+            command[
+                command.index("--formalization-review-max-iterations") + 1
+            ],
+            "3",
+        )
+        self.assertEqual(
+            command[command.index("--proof-review-max-iterations") + 1], "3"
+        )
+
+        index_path = config.index_path
+        original_index = json.loads(index_path.read_text(encoding="utf-8"))
+        self.assertEqual(original_index["max_iterations"], 5)
+        self.assertEqual(original_index["review_max_iterations"], 3)
+
+        forgotten = RUNNER.Config(
+            campaign_root=config.campaign_root,
+            archon_bin=config.archon_bin,
+            max_iterations=config.max_iterations,
+        )
+        with (
+            mock.patch.object(RUNNER, "_run") as run,
+            self.assertRaisesRegex(
+                RUNNER.CampaignError,
+                "unexpected formalization_review_max_iterations",
+            ),
+        ):
+            RUNNER.resume_campaign(forgotten)
+        run.assert_not_called()
+
+        matching = dataclasses.replace(
+            forgotten, review_max_iterations=config.review_max_iterations
+        )
+        for key in (
+            "max_iterations",
+            "formalization_review_max_iterations",
+            "proof_review_max_iterations",
+        ):
+            with self.subTest(native_key=key):
+                tampered_native = json.loads(json.dumps(native))
+                tampered_native["loop"][key] += 1
+                native_path.write_text(
+                    json.dumps(tampered_native), encoding="utf-8"
+                )
+                with self.assertRaisesRegex(
+                    RUNNER.CampaignError, f"unexpected {key}"
+                ):
+                    RUNNER._resume_config(matching)
+        native_path.write_text(json.dumps(native), encoding="utf-8")
+
+        for field, value in (
+            ("max_iterations", None),
+            ("max_iterations", 6),
+            ("review_max_iterations", None),
+            ("review_max_iterations", 4),
+        ):
+            with self.subTest(receipt_field=field, receipt_value=value):
+                tampered = dict(original_index)
+                if value is None:
+                    tampered.pop(field)
+                else:
+                    tampered[field] = value
+                index_path.write_text(json.dumps(tampered), encoding="utf-8")
+                with (
+                    mock.patch.object(RUNNER, "_run") as run,
+                    self.assertRaisesRegex(
+                        RUNNER.CampaignError, "prepared campaign value"
+                    ),
+                ):
+                    RUNNER.resume_campaign(matching)
+                run.assert_not_called()
+        index_path.write_text(json.dumps(original_index), encoding="utf-8")
+
+        parser = RUNNER._parser()
+        defaults = parser.parse_args([
+            "--campaign-root", str(self.base / "review-default"), "--dry-run",
+        ])
+        explicit = parser.parse_args([
+            "--campaign-root", str(self.base / "review-explicit"),
+            "--review-max-iterations", "3", "--dry-run",
+        ])
+        self.assertEqual(defaults.review_max_iterations, 10)
+        self.assertEqual(explicit.review_max_iterations, 3)
+        self.assertIn("--review-max-iterations", parser.format_help())
+        self.assertIn("repeat the prepared value on resume", parser.format_help())
+
+    def test_iteration_budgets_reject_zero_and_bool_fresh_and_resume(self) -> None:
+        prepared = dataclasses.replace(
+            self.config, campaign_root=self.base / "valid-budget-for-resume"
+        )
+        self._prepare_only(prepared)
+        for field in ("max_iterations", "review_max_iterations"):
+            for value in (0, True):
+                with self.subTest(phase="fresh", field=field, value=value):
+                    invalid = dataclasses.replace(
+                        self.config,
+                        campaign_root=self.base / f"invalid-{field}-{value}",
+                        **{field: value},
+                    )
+                    with self.assertRaisesRegex(
+                        RUNNER.CampaignError, f"{field} must be a positive integer"
+                    ):
+                        RUNNER._fresh_config(invalid)
+                with self.subTest(phase="resume", field=field, value=value):
+                    invalid = dataclasses.replace(prepared, **{field: value})
+                    with self.assertRaisesRegex(
+                        RUNNER.CampaignError, f"{field} must be a positive integer"
+                    ):
+                        RUNNER._resume_config(invalid)
+
     def test_target_lifecycle_cli_is_explicit_opt_in(self) -> None:
         parser = RUNNER._parser()
         default = parser.parse_args([
@@ -1107,7 +1403,11 @@ class NativeArchonCampaignTests(unittest.TestCase):
             RUNNER.CampaignError, "unexpected max_parallel"
         ):
             RUNNER.resume_campaign(
-                RUNNER.Config(campaign_root=config.campaign_root)
+                RUNNER.Config(
+                    campaign_root=config.campaign_root,
+                    max_iterations=config.max_iterations,
+                    review_max_iterations=config.review_max_iterations,
+                )
             )
 
         resume_commands: list[list[str]] = []

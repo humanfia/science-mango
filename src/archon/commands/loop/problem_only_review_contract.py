@@ -18,6 +18,12 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from ..chemistry_constant import DATASET_SHA256, DATASET_VERSION
+from .answer_submission import (
+    AnswerSubmissionError,
+    answer_submission_relative_path,
+    validate_answer_submission,
+)
 from .review_source_contract import (
     build_review_source_contract,
     is_answer_blind_contract,
@@ -26,13 +32,92 @@ from .review_source_contract import (
     stored_provenance_matches_current,
     validate_review_source_certificate,
 )
+from .semantic_dag import (
+    SemanticDagError,
+    build_semantic_dag,
+    render_solver_semantic_dag_prompt,
+    semantic_dag_provenance,
+)
 
 
 NATIVE_CONTRACT_KIND = "native_problem_input_only"
 NATIVE_CONTRACT_SCHEMA_VERSION = 1
+_IMAGE_COMPONENT_ACCOUNTING = "image_component_accounting"
+_ALLOWED_AUDIT_REQUIREMENTS = {_IMAGE_COMPONENT_ACCOUNTING}
+_COMPOSITION_ACCOUNTING_FIELDS = {
+    "source_images",
+    "product_nodes",
+    "assembly_edges",
+    "boundary_checks",
+    "components",
+    "assembly_expression",
+    "combined_formula_or_quantity",
+    "lean_carrier",
+    "status",
+    "evidence",
+}
+_COMPOSITION_SOURCE_IMAGE_FIELDS = {"path", "sha256"}
+_COMPOSITION_PRODUCT_NODE_FIELDS = {
+    "node_id",
+    "node_kind",
+    "formula_or_descriptor",
+    "source_path",
+    "source_locator",
+    "multiplicity",
+}
+_COMPOSITION_PRODUCT_NODE_KINDS = {
+    "repeat_unit",
+    "terminal_fragment",
+    "cap",
+    "adduct",
+}
+_COMPOSITION_ASSEMBLY_EDGE_FIELDS = {
+    "edge_id",
+    "from_node_id",
+    "to_node_id",
+    "relation",
+    "multiplicity",
+}
+_COMPOSITION_ASSEMBLY_RELATIONS = {
+    "covalent_bond",
+    "repeat_link",
+    "terminal_attachment",
+    "adduct_association",
+}
+_COMPOSITION_BOUNDARY_CHECK_FIELDS = {
+    "boundary_id",
+    "boundary_kind",
+    "source_path",
+    "source_locator",
+    "disposition",
+    "assembly_edge_id",
+    "status",
+}
+_COMPOSITION_BOUNDARY_KINDS = {
+    "bracket",
+    "connector",
+    "cross_boundary_bond",
+}
+_COMPOSITION_BOUNDARY_DISPOSITIONS = {
+    "included_in_node",
+    "represented_by_edge",
+    "product_terminus",
+    "excluded_with_source_basis",
+    "ambiguous",
+}
+_COMPOSITION_COMPONENT_FIELDS = {
+    "product_node_id",
+    "label", "formula_or_descriptor", "multiplicity", "role",
+}
+_COMPOSITION_COMPONENT_ROLES = {
+    "core", "repeat_unit", "linker", "substituent", "terminal_group",
+    "guest", "adduct", "leaving_group", "product_fragment",
+}
 _BLIND_PROTOCOL = "icho-answer-blind-v1"
 _SEED_PROTOCOL = "icho-problem-only-solver-seed-v1"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_COMPOSITION_ID_RE = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
+_MAX_ANSWER_SUBMISSION_BYTES = 1024 * 1024
 _PREFLIGHT_FIELDS = {
     "file",
     "status",
@@ -440,6 +525,20 @@ def _validate_problem_row(row: Mapping[str, Any], record_id: str) -> None:
             )
         output_id = item.get("id")
         requirement = item.get("source_requirement")
+        audit_requirements = item.get("audit_requirements")
+        if audit_requirements is not None and (
+            not isinstance(audit_requirements, list)
+            or not audit_requirements
+            or not all(isinstance(value, str) for value in audit_requirements)
+            or len(set(audit_requirements)) != len(audit_requirements)
+            or any(
+                value not in _ALLOWED_AUDIT_REQUIREMENTS
+                for value in audit_requirements
+            )
+        ):
+            raise ProblemOnlyReviewContractError(
+                f"questions-only requested output {index} has invalid audit_requirements"
+            )
         if (
             not isinstance(output_id, str)
             or not output_id
@@ -468,6 +567,74 @@ def _validate_problem_row(row: Mapping[str, Any], record_id: str) -> None:
             "questions-only record contains answer-bearing field(s): "
             + ", ".join(forbidden)
         )
+
+
+def _validated_answer_submission_binding(
+    project_path: Path,
+    *,
+    row: Mapping[str, Any],
+    record_id: str,
+) -> tuple[str, str]:
+    """Validate one generated answer artifact, retaining no answer values."""
+
+    rel = answer_submission_relative_path(record_id).as_posix()
+    path = _safe_project_file(
+        project_path, rel, label="target answer submission",
+    )
+    metadata = path.stat()
+    if metadata.st_nlink != 1 or metadata.st_size > _MAX_ANSWER_SUBMISSION_BYTES:
+        raise ProblemOnlyReviewContractError(
+            "target answer submission must be a bounded single-linked file"
+        )
+    payload = path.read_bytes()
+    if len(payload) > _MAX_ANSWER_SUBMISSION_BYTES:
+        raise ProblemOnlyReviewContractError(
+            "target answer submission exceeds the size limit"
+        )
+    submission = _strict_json_bytes(
+        payload, label="target answer submission",
+    )
+    try:
+        validate_answer_submission(
+            submission, row=row, target_id=record_id,
+        )
+    except AnswerSubmissionError as exc:
+        raise ProblemOnlyReviewContractError(
+            f"target answer submission is invalid: {exc}"
+        ) from exc
+    return rel, _sha256_bytes(payload)
+
+
+def validate_native_answer_submission_current(
+    *, project_path: Path, target: Path,
+) -> tuple[dict[str, str] | None, str]:
+    """Validate a worker sidecar without retaining or returning answer values."""
+
+    root = project_path.resolve()
+    try:
+        if _explicit_answer_blind_mode(root) != "native":
+            raise ProblemOnlyReviewContractError(
+                "answer submission validation requires native blind mode"
+            )
+        target_path, _rel = _target_locator(root, target)
+        if not target_path.stem.startswith("problem_"):
+            raise ProblemOnlyReviewContractError(
+                "native Lean candidate name does not identify a problem record"
+            )
+        record_id = target_path.stem.removeprefix("problem_")
+        _bundle_path, _bundle_payload, _manifest, rows = _load_bundle(root)
+        row = rows.get(record_id)
+        if row is None:
+            raise ProblemOnlyReviewContractError(
+                "Lean candidate has no unique questions-only record"
+            )
+        _validate_problem_row(row, record_id)
+        rel, digest = _validated_answer_submission_binding(
+            root, row=row, record_id=record_id,
+        )
+        return {"path": rel, "sha256": digest}, ""
+    except (ProblemOnlyReviewContractError, AnswerSubmissionError) as exc:
+        return None, str(exc)
 
 
 def _matching_source_report(
@@ -615,6 +782,7 @@ def _build_native_contract(
     target: Path,
     preflight: Mapping[str, Any] | None,
     require_candidate: bool = True,
+    include_answer_submission: bool = True,
 ) -> dict[str, Any]:
     project_path = project_path.resolve()
     if require_candidate:
@@ -637,6 +805,15 @@ def _build_native_contract(
         )
     _validate_problem_row(row, record_id)
     record_sha256 = _sha256_bytes(_canonical_json_bytes(row))
+    submission_binding: dict[str, str] = {}
+    if include_answer_submission:
+        submission_rel, submission_sha256 = _validated_answer_submission_binding(
+            project_path, row=row, record_id=record_id,
+        )
+        submission_binding = {
+            "answer_submission": submission_rel,
+            "answer_submission_sha256": submission_sha256,
+        }
     report_path, report, report_payload = _matching_source_report(
         project_path, target_path.stem,
     )
@@ -661,12 +838,23 @@ def _build_native_contract(
     evidence = {
         "question": str(row["question"]).strip(),
         "current_question": str(row["current_question"]).strip(),
+        "shared_context": str(row.get("shared_context") or "").strip(),
         "previous_parts": row["previous_parts"],
         "requested_outputs": row["requested_outputs"],
         "reporting_policy": row["reporting_policy"],
         "measurement_policy": row["measurement_policy"],
         "candidate_domain_policy": row["candidate_domain_policy"],
     }
+    try:
+        semantic_dag = build_semantic_dag(
+            record_id=record_id,
+            problem_evidence=evidence,
+        )
+        semantic_provenance = semantic_dag_provenance(semantic_dag)
+    except SemanticDagError as exc:
+        raise ProblemOnlyReviewContractError(
+            f"problem-side semantic DAG is invalid: {exc}"
+        ) from exc
     return {
         "schema_version": NATIVE_CONTRACT_SCHEMA_VERSION,
         "contract_kind": NATIVE_CONTRACT_KIND,
@@ -681,6 +869,11 @@ def _build_native_contract(
         "source_bundle_sha256": _sha256_bytes(bundle_payload),
         "source_record_id": record_id,
         "source_record_sha256": record_sha256,
+        **submission_binding,
+        "chemistry_constant_dataset": {
+            "version": DATASET_VERSION,
+            "sha256": DATASET_SHA256,
+        },
         "source_report": report_path.relative_to(project_path).as_posix(),
         "source_report_sha256": _sha256_bytes(report_payload),
         "candidate": rel,
@@ -692,6 +885,7 @@ def _build_native_contract(
             _value_sha256(preflight_row) if preflight_row is not None else None
         ),
         "question_sha256": _value_sha256(evidence["question"]),
+        "shared_context_sha256": _value_sha256(evidence["shared_context"]),
         "previous_parts_sha256": _value_sha256(evidence["previous_parts"]),
         "requested_outputs_sha256": _value_sha256(
             evidence["requested_outputs"]
@@ -707,6 +901,8 @@ def _build_native_contract(
         ),
         "images": images,
         "problem_evidence": evidence,
+        "semantic_dag": semantic_dag,
+        "semantic_dag_provenance": semantic_provenance,
         "preflight": preflight_row,
         "errors": [],
     }
@@ -743,6 +939,7 @@ def native_problem_image_args(
             target=target,
             preflight=None,
             require_candidate=False,
+            include_answer_submission=False,
         ).get("images")
     else:
         return []
@@ -784,6 +981,24 @@ def native_problem_image_args(
 
 def is_native_problem_only_contract(contract: Mapping[str, Any] | None) -> bool:
     return bool(contract) and contract.get("contract_kind") == NATIVE_CONTRACT_KIND
+
+
+def resolve_native_formalizer_source_contract(
+    *, project_path: Path, target: Path,
+) -> dict[str, Any]:
+    """Build source/DAG input before a Formalizer has written its answer."""
+
+    if _explicit_answer_blind_mode(project_path.resolve()) != "native":
+        raise ProblemOnlyReviewContractError(
+            "native Formalizer contract requires chemistry-native blind mode"
+        )
+    return _build_native_contract(
+        project_path=project_path,
+        target=target,
+        preflight=None,
+        require_candidate=False,
+        include_answer_submission=False,
+    )
 
 
 def resolve_target_review_source_contract(
@@ -845,11 +1060,15 @@ def native_source_contract_provenance(
         "source_bundle_sha256",
         "source_record_id",
         "source_record_sha256",
+        "answer_submission",
+        "answer_submission_sha256",
+        "chemistry_constant_dataset",
         "source_report",
         "source_report_sha256",
         "candidate",
         "candidate_sha256",
         "question_sha256",
+        "shared_context_sha256",
         "previous_parts_sha256",
         "requested_outputs_sha256",
         "reporting_policy_sha256",
@@ -857,7 +1076,309 @@ def native_source_contract_provenance(
         "candidate_domain_policy_sha256",
         "images",
     )
-    return {key: contract.get(key) for key in keys}
+    provenance = {key: contract.get(key) for key in keys}
+    provenance["semantic_dag"] = contract.get("semantic_dag_provenance")
+    return provenance
+
+
+def render_native_formalizer_semantic_dag_prompt(
+    contract: Mapping[str, Any],
+) -> str:
+    """Render only the controller DAG block used by native Formalizers."""
+    if not is_native_problem_only_contract(contract):
+        return ""
+    dag = contract.get("semantic_dag")
+    provenance = contract.get("semantic_dag_provenance")
+    if not isinstance(dag, Mapping) or not isinstance(provenance, Mapping):
+        raise ProblemOnlyReviewContractError(
+            "native problem-only contract has no semantic DAG"
+        )
+    try:
+        return render_solver_semantic_dag_prompt(dag, provenance)
+    except SemanticDagError as exc:
+        raise ProblemOnlyReviewContractError(
+            f"native problem-only semantic DAG is stale: {exc}"
+        ) from exc
+
+
+def render_native_composition_accounting_prompt(
+    contract: Mapping[str, Any],
+) -> str:
+    """Render the controller-selected image component ledger obligation."""
+
+    if not is_native_problem_only_contract(contract):
+        return ""
+    evidence = contract.get("problem_evidence")
+    requested_outputs = (
+        evidence.get("requested_outputs")
+        if isinstance(evidence, Mapping)
+        else None
+    )
+    if not isinstance(requested_outputs, list):
+        raise ProblemOnlyReviewContractError(
+            "native contract has no requested output inventory"
+        )
+    output_ids = [
+        output.get("id")
+        for output in requested_outputs
+        if isinstance(output, Mapping)
+        and isinstance(output.get("audit_requirements"), list)
+        and _IMAGE_COMPONENT_ACCOUNTING
+        in output.get("audit_requirements", [])
+    ]
+    if not output_ids:
+        return ""
+    if not all(isinstance(output_id, str) and output_id for output_id in output_ids):
+        raise ProblemOnlyReviewContractError(
+            "native component accounting output id is invalid"
+        )
+    template = {
+        "source_images": [{
+            "path": "<exact bound source_contract image path>",
+            "sha256": "<its exact bound digest>",
+        }],
+        "product_nodes": [{
+            "node_id": "<stable lowercase id>",
+            "node_kind": "<one fixed allowed kind>",
+            "formula_or_descriptor": "<whole visual unit/fragment descriptor>",
+            "source_path": "<exact bound image path>",
+            "source_locator": "<bracket/box/bond/region locator>",
+            "multiplicity": "<positive JSON integer>",
+        }],
+        "assembly_edges": [{
+            "edge_id": "<stable lowercase id>",
+            "from_node_id": "<existing product node id>",
+            "to_node_id": "<different existing product node id>",
+            "relation": "<one fixed allowed relation>",
+            "multiplicity": "<positive JSON integer>",
+        }],
+        "boundary_checks": [{
+            "boundary_id": "<stable lowercase id>",
+            "boundary_kind": "bracket|connector|cross_boundary_bond",
+            "source_path": "<exact bound image path>",
+            "source_locator": "<precise visual locator>",
+            "disposition": "<one fixed allowed disposition>",
+            "assembly_edge_id": "<represented edge id or none>",
+            "status": "resolved|ambiguous",
+        }],
+        "components": [{
+            "label": "<source-local component label>",
+            "formula_or_descriptor": "<formula or visual descriptor>",
+            "multiplicity": "<positive JSON integer>",
+            "role": "<one fixed allowed role>",
+            "product_node_id": "<existing product node id>",
+        }],
+        "assembly_expression": "<complete component assembly before arithmetic>",
+        "combined_formula_or_quantity": "<independently recombined result>",
+        "lean_carrier": "<same carrier as the parent requested output>",
+        "status": "matched|failed",
+        "evidence": "<independent visual recount and consistency audit>",
+    }
+    return (
+        "MANDATORY IMAGE COMPONENT ACCOUNTING (controller-selected):\n"
+        "- Exact opt-in output ids: "
+        + json.dumps(output_ids, ensure_ascii=False)
+        + "\n- For each id, inspect every bound image first and independently "
+        "trace the whole product topology before making a component/formula "
+        "ledger or doing arithmetic. A printed formula label may denote only "
+        "a residue: never assume it is the whole product until every outgoing "
+        "bond from its bracket/box, every connector and cross-boundary bond, "
+        "and the preceding-page unit pattern have been traced across all "
+        "bound images. Record whole visibly repeated units, terminal "
+        "fragments, caps, and adducts as product_nodes; then connect them with "
+        "assembly_edges. Add one boundary_check for every visible bracket, "
+        "connector, and cross-boundary bond. Only after this topology is "
+        "complete may components, assembly_expression, and the combined "
+        "formula/quantity be recombined. In that requested_outputs certificate "
+        "entry include "
+        "composition_accounting with exactly this shape: "
+        + json.dumps(template, ensure_ascii=False, sort_keys=True)
+        + "\n- Allowed product node kinds: "
+        + json.dumps(sorted(_COMPOSITION_PRODUCT_NODE_KINDS))
+        + "; allowed assembly relations: "
+        + json.dumps(sorted(_COMPOSITION_ASSEMBLY_RELATIONS))
+        + "; allowed boundary dispositions: "
+        + json.dumps(sorted(_COMPOSITION_BOUNDARY_DISPOSITIONS))
+        + "\n- Allowed component roles: "
+        + json.dumps(sorted(_COMPOSITION_COMPONENT_ROLES))
+        + ". source_images must exactly cover all bound path/digest pairs, "
+        "and product_nodes must cover all bound image paths. IDs must be "
+        "unique stable lowercase tokens, references valid, multiplicities "
+        "positive JSON integers, and the complete node graph connected. At "
+        "least two non-adduct product nodes and an edge between non-adduct "
+        "nodes are mandatory. A represented_by_edge boundary must name that "
+        "edge; every other resolved disposition must use assembly_edge_id="
+        "none. A passing/matched audit may contain no ambiguous boundary. "
+        "Use status=matched only after the independent recount, assembly, "
+        "combined formula/quantity, submitted output, and Lean carrier all "
+        "agree. Otherwise use failed and a failing route. not_applicable is "
+        "forbidden. Omit composition_accounting from non-opt-in outputs."
+    )
+
+
+def render_native_formalizer_composition_accounting_prompt(
+    contract: Mapping[str, Any],
+) -> str:
+    """Render the Formalizer obligation without Review-certificate syntax."""
+
+    if not is_native_problem_only_contract(contract):
+        return ""
+    evidence = contract.get("problem_evidence")
+    requested_outputs = (
+        evidence.get("requested_outputs")
+        if isinstance(evidence, Mapping)
+        else None
+    )
+    if not isinstance(requested_outputs, list):
+        raise ProblemOnlyReviewContractError(
+            "native contract has no requested output inventory"
+        )
+    output_ids = [
+        output.get("id")
+        for output in requested_outputs
+        if isinstance(output, Mapping)
+        and isinstance(output.get("audit_requirements"), list)
+        and _IMAGE_COMPONENT_ACCOUNTING
+        in output.get("audit_requirements", [])
+    ]
+    if not output_ids:
+        return ""
+    if not all(isinstance(output_id, str) and output_id for output_id in output_ids):
+        raise ProblemOnlyReviewContractError(
+            "native component accounting output id is invalid"
+        )
+    return (
+        "MANDATORY WHOLE-PRODUCT IMAGE TOPOLOGY (Formalizer obligation):\n"
+        "- Exact opt-in output ids: "
+        + json.dumps(output_ids, ensure_ascii=False)
+        + "\n- Before arithmetic, inspect every bound image and trace the whole "
+        "assembled product. Treat printed formula labels as possible residues, "
+        "not automatically as complete products. Record product nodes, their "
+        "positive integer multiplicities, assembly edges, every visible "
+        "bracket/connector/cross-boundary bond, a component-to-node ledger, "
+        "and the final recombination in the assigned Lean file and task report. "
+        "Every product node must appear exactly once in that ledger with the "
+        "same multiplicity. If any boundary or multiplicity is ambiguous, keep "
+        "the output blocked instead of using a single-fragment shortcut.\n"
+        "- The structured composition_accounting object belongs only to the "
+        "Review certificate. NEVER add composition_accounting, topology, nodes, "
+        "edges, ledgers, or any other field to the target .answer.json. That "
+        "file must retain exactly the separately stated five-field output "
+        "schema."
+    )
+
+
+def render_native_formalizer_answer_submission_prompt(
+    contract: Mapping[str, Any],
+) -> str:
+    """Render the exact answer artifact contract without candidate values."""
+
+    if not is_native_problem_only_contract(contract):
+        return ""
+    record_id = contract.get("source_record_id")
+    evidence = contract.get("problem_evidence")
+    requested_outputs = (
+        evidence.get("requested_outputs")
+        if isinstance(evidence, Mapping)
+        else None
+    )
+    if not isinstance(record_id, str) or not isinstance(requested_outputs, list):
+        raise ProblemOnlyReviewContractError(
+            "native Formalizer contract has no requested output inventory"
+        )
+    output_contracts: list[dict[str, Any]] = []
+    output_template: list[dict[str, Any]] = []
+    for index, output in enumerate(requested_outputs, start=1):
+        if not isinstance(output, Mapping):
+            raise ProblemOnlyReviewContractError(
+                f"native requested output {index} is not an object"
+            )
+        output_id = output.get("id")
+        kind = output.get("kind")
+        unit = output.get("unit")
+        if not (
+            isinstance(output_id, str)
+            and isinstance(kind, str)
+            and isinstance(unit, str)
+        ):
+            raise ProblemOnlyReviewContractError(
+                f"native requested output {index} has an invalid answer contract"
+            )
+        output_contracts.append({
+            "id": output_id,
+            "kind": kind,
+            "unit": unit,
+            "reporting_policy": output.get("reporting_policy"),
+        })
+        output_template.append({
+            "id": output_id,
+            "kind": kind,
+            "raw_value": "<replace with exact scalar derivation>",
+            "display_value": "<replace with final displayed string>",
+            "unit": unit,
+        })
+    answer_path = answer_submission_relative_path(record_id).as_posix()
+    template = {
+        "schema_version": 1,
+        "id": record_id,
+        "official_answer_seen": False,
+        "outputs": output_template,
+    }
+    return (
+        "TARGET ANSWER SUBMISSION CONTRACT (generated output, not source evidence):\n"
+        f"- Exact path: {answer_path}\n"
+        "- Exact requested output contracts: "
+        + json.dumps(output_contracts, ensure_ascii=False, sort_keys=True)
+        + "\n- Required JSON shape: "
+        + json.dumps(template, ensure_ascii=False, sort_keys=True)
+        + "\nOverwrite this exact file on every formalization/redraft. Preserve output "
+        "order/id/kind/unit exactly; raw_value is a finite JSON number or "
+        "non-empty exact symbolic string and display_value is always a non-empty "
+        "JSON string produced by the bound reporting_policy. For numeric output, "
+        "prefer ASCII decimal/e notation such as 7.03e12; a bounded `× 10^n` "
+        "display is accepted, but never use Unicode superscript digits or add "
+        "fields outside the exact schema. Do not create any other "
+        "answer/candidate file."
+    )
+
+
+def render_native_chemistry_constant_policy(
+    contract: Mapping[str, Any],
+) -> str:
+    """Render the closed-world constant lookup policy bound by the controller."""
+
+    dataset = contract.get("chemistry_constant_dataset")
+    expected = {"version": DATASET_VERSION, "sha256": DATASET_SHA256}
+    if not is_native_problem_only_contract(contract) or dataset != expected:
+        raise ProblemOnlyReviewContractError(
+            "native Review contract has no approved chemistry constant dataset"
+        )
+    return f"""APPROVED OFFLINE CHEMISTRY CONSTANT POLICY:
+- The only allowed general-knowledge lookup is the version-pinned, network-free
+  structured CLI. Its allowed dataset is version={DATASET_VERSION},
+  sha256={DATASET_SHA256}.
+- Query grammar (angle-bracket names are placeholders, not literal tokens):
+  `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`, or
+  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`.
+- These grammar lines and any examples are illustrative, not an allowlist. Any
+  single element, canonical isotope, chemical formula, or template id supported
+  by this pinned CLI dataset is permitted. Do not infer that an unshown element
+  or formula is unavailable.
+- Pass exactly one element, isotope, formula, or registered template id. Never
+  pass a problem id, question/source text, URL, or search phrase. Do not use web
+  search or any other external knowledge service.
+- A Reviewer must verify each used lookup through the same
+  `"$ARCHON_CLI_BIN"` grammar and check the returned dataset version/hash against
+  the bound values above; the few tokens printed in a prompt are never the full
+  supported inventory.
+- Problem-stipulated values override the dataset. A pinned nominal value may be
+  used for an olympiad-style central answer when the problem asks for one, but
+  still check whether source uncertainty could change the required reported
+  digits or classification. A generic reaction template is not evidence that
+  this problem instantiates it; require separate classification from bound
+  problem evidence or trusted general chemistry."""
 
 
 def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
@@ -868,6 +1389,18 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         raise ProblemOnlyReviewContractError(
             "native problem-only contract has no problem evidence"
         )
+    submission = contract.get("answer_submission")
+    submission_sha256 = contract.get("answer_submission_sha256")
+    if (
+        not isinstance(submission, str)
+        or not submission
+        or not _SHA256_RE.fullmatch(str(submission_sha256 or ""))
+    ):
+        raise ProblemOnlyReviewContractError(
+            "native problem-only contract has no answer submission binding"
+        )
+    semantic_block = render_native_formalizer_semantic_dag_prompt(contract)
+    constant_policy = render_native_chemistry_constant_policy(contract)
     return (
         "NATIVE PROBLEM-INPUT-ONLY CONTRACT (immutable evidence):\n"
         "- Authority: problem-only\n"
@@ -880,13 +1413,26 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         )
         + "\n- Problem evidence: "
         + json.dumps(evidence, ensure_ascii=False, sort_keys=True)
+        + "\n- Bounded generated answer submission (untrusted; read completely): "
+        + submission
+        + " (sha256="
+        + str(submission_sha256)
+        + ")"
         + "\nThe source bundle/report locators and digests above are validation "
         "metadata only; do not open those files. Treat only the inline problem "
         "evidence and listed problem images as source facts. Treat the current "
-        "Lean candidate as untrusted output to audit. Do not open any unlisted "
-        "project artifact. Every requested output, reporting rule, tolerance, "
-        "and candidate-domain restriction must be derived from the bound "
-        "problem evidence. Missing or ambiguous evidence fails closed.\n"
+        "Lean candidate and bound answer submission as untrusted generated "
+        "outputs to audit, never as problem facts. Open the answer submission "
+        "but no other unlisted project artifact. Independently rederive and "
+        "audit every submission raw_value and display_value against its exact "
+        "requested output id/kind/unit/reporting_policy and named Lean carrier. "
+        "Do not copy raw/display answer values into source_contract provenance "
+        "or controller process history. Every requested output, reporting rule, "
+        "tolerance, and candidate-domain restriction must be derived from the "
+        "bound problem evidence. Missing or ambiguous evidence fails closed.\n"
+        + constant_policy
+        + "\n"
+        + semantic_block
     )
 
 
@@ -923,6 +1469,349 @@ def _legacy_shadow_contract(contract: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _validate_native_composition_accounting(
+    item: Mapping[str, Any],
+    expected: Mapping[str, Any],
+    contract: Mapping[str, Any],
+    *,
+    index: int,
+    passing: bool,
+) -> str:
+    """Validate the opt-in whole-product topology and component ledger."""
+
+    requirements = expected.get("audit_requirements")
+    required = (
+        isinstance(requirements, list)
+        and _IMAGE_COMPONENT_ACCOUNTING in requirements
+    )
+    if not required:
+        if "composition_accounting" in item:
+            return (
+                f"requested output {index} has unbound composition_accounting"
+            )
+        return ""
+
+    accounting = item.get("composition_accounting")
+    if not isinstance(accounting, Mapping):
+        return f"requested output {index} has no component accounting audit"
+    if set(accounting) != _COMPOSITION_ACCOUNTING_FIELDS:
+        return (
+            f"requested output {index} component accounting fields are invalid"
+        )
+
+    bound_images = contract.get("images")
+    if not isinstance(bound_images, list) or not bound_images:
+        return "native source contract images are missing"
+    bound_by_path: dict[str, str] = {}
+    for image in bound_images:
+        if not isinstance(image, Mapping):
+            return "native source contract image is invalid"
+        path = image.get("path")
+        digest = image.get("sha256")
+        if (
+            not isinstance(path, str)
+            or not path
+            or not isinstance(digest, str)
+            or not _SHA256_RE.fullmatch(digest)
+            or path in bound_by_path
+        ):
+            return "native source contract image is invalid"
+        bound_by_path[path] = digest
+
+    source_images = accounting.get("source_images")
+    if not isinstance(source_images, list) or not source_images:
+        return f"requested output {index} component source_images are missing"
+    seen_images: set[str] = set()
+    for source_image in source_images:
+        if (
+            not isinstance(source_image, Mapping)
+            or set(source_image) != _COMPOSITION_SOURCE_IMAGE_FIELDS
+        ):
+            return f"requested output {index} component source image is invalid"
+        path = source_image.get("path")
+        digest = source_image.get("sha256")
+        if (
+            not isinstance(path, str)
+            or path in seen_images
+            or bound_by_path.get(path) != digest
+        ):
+            return (
+                f"requested output {index} component source image is not "
+                "bound problem evidence"
+            )
+        seen_images.add(path)
+    if seen_images != set(bound_by_path):
+        return (
+            f"requested output {index} component source_images do not cover "
+            "every bound image"
+        )
+
+    product_nodes = accounting.get("product_nodes")
+    if not isinstance(product_nodes, list) or not product_nodes:
+        return f"requested output {index} product_nodes are missing"
+    nodes_by_id: dict[str, str] = {}
+    node_multiplicities: dict[str, int] = {}
+    node_image_paths: set[str] = set()
+    non_adduct_nodes: set[str] = set()
+    for node in product_nodes:
+        if (
+            not isinstance(node, Mapping)
+            or set(node) != _COMPOSITION_PRODUCT_NODE_FIELDS
+        ):
+            return f"requested output {index} has an invalid product node"
+        node_id = node.get("node_id")
+        node_kind = node.get("node_kind")
+        descriptor = node.get("formula_or_descriptor")
+        source_path = node.get("source_path")
+        source_locator = node.get("source_locator")
+        multiplicity = node.get("multiplicity")
+        if (
+            not isinstance(node_id, str)
+            or not _COMPOSITION_ID_RE.fullmatch(node_id)
+            or node_id == "none"
+            or node_id in nodes_by_id
+            or not isinstance(node_kind, str)
+            or node_kind not in _COMPOSITION_PRODUCT_NODE_KINDS
+            or not isinstance(descriptor, str)
+            or not descriptor.strip()
+            or not isinstance(source_path, str)
+            or source_path not in bound_by_path
+            or not isinstance(source_locator, str)
+            or not source_locator.strip()
+            or isinstance(multiplicity, bool)
+            or not isinstance(multiplicity, int)
+            or not 1 <= multiplicity <= 1_000_000
+        ):
+            return f"requested output {index} has an invalid product node"
+        nodes_by_id[node_id] = node_kind
+        node_multiplicities[node_id] = multiplicity
+        node_image_paths.add(source_path)
+        if node_kind != "adduct":
+            non_adduct_nodes.add(node_id)
+    if node_image_paths != set(bound_by_path):
+        return (
+            f"requested output {index} product_nodes do not cover every "
+            "bound image"
+        )
+    if len(non_adduct_nodes) < 2:
+        return (
+            f"requested output {index} needs at least two non-adduct "
+            "product nodes"
+        )
+
+    assembly_edges = accounting.get("assembly_edges")
+    if not isinstance(assembly_edges, list) or not assembly_edges:
+        return f"requested output {index} assembly_edges are missing"
+    edges_by_id: set[str] = set()
+    adjacency = {node_id: set() for node_id in nodes_by_id}
+    has_non_adduct_edge = False
+    for edge in assembly_edges:
+        if (
+            not isinstance(edge, Mapping)
+            or set(edge) != _COMPOSITION_ASSEMBLY_EDGE_FIELDS
+        ):
+            return f"requested output {index} has an invalid assembly edge"
+        edge_id = edge.get("edge_id")
+        from_id = edge.get("from_node_id")
+        to_id = edge.get("to_node_id")
+        relation = edge.get("relation")
+        multiplicity = edge.get("multiplicity")
+        if (
+            not isinstance(edge_id, str)
+            or not _COMPOSITION_ID_RE.fullmatch(edge_id)
+            or edge_id == "none"
+            or edge_id in edges_by_id
+            or not isinstance(from_id, str)
+            or from_id not in nodes_by_id
+            or not isinstance(to_id, str)
+            or to_id not in nodes_by_id
+            or from_id == to_id
+            or not isinstance(relation, str)
+            or relation not in _COMPOSITION_ASSEMBLY_RELATIONS
+            or isinstance(multiplicity, bool)
+            or not isinstance(multiplicity, int)
+            or not 1 <= multiplicity <= 1_000_000
+        ):
+            return f"requested output {index} has an invalid assembly edge"
+        edges_by_id.add(edge_id)
+        adjacency[from_id].add(to_id)
+        adjacency[to_id].add(from_id)
+        if from_id in non_adduct_nodes and to_id in non_adduct_nodes:
+            has_non_adduct_edge = True
+    if not has_non_adduct_edge:
+        return (
+            f"requested output {index} needs an edge between non-adduct "
+            "product nodes"
+        )
+    pending = [next(iter(nodes_by_id))]
+    visited: set[str] = set()
+    while pending:
+        node_id = pending.pop()
+        if node_id in visited:
+            continue
+        visited.add(node_id)
+        pending.extend(adjacency[node_id] - visited)
+    if visited != set(nodes_by_id):
+        return f"requested output {index} product topology is disconnected"
+
+    boundary_checks = accounting.get("boundary_checks")
+    if not isinstance(boundary_checks, list) or not boundary_checks:
+        return f"requested output {index} boundary_checks are missing"
+    seen_boundaries: set[str] = set()
+    seen_boundary_kinds: set[str] = set()
+    has_ambiguous_boundary = False
+    for boundary in boundary_checks:
+        if (
+            not isinstance(boundary, Mapping)
+            or set(boundary) != _COMPOSITION_BOUNDARY_CHECK_FIELDS
+        ):
+            return f"requested output {index} has an invalid boundary check"
+        boundary_id = boundary.get("boundary_id")
+        boundary_kind = boundary.get("boundary_kind")
+        source_path = boundary.get("source_path")
+        source_locator = boundary.get("source_locator")
+        disposition = boundary.get("disposition")
+        edge_id = boundary.get("assembly_edge_id")
+        boundary_status = boundary.get("status")
+        if (
+            not isinstance(boundary_id, str)
+            or not _COMPOSITION_ID_RE.fullmatch(boundary_id)
+            or boundary_id == "none"
+            or boundary_id in seen_boundaries
+            or not isinstance(boundary_kind, str)
+            or boundary_kind not in _COMPOSITION_BOUNDARY_KINDS
+            or not isinstance(source_path, str)
+            or source_path not in bound_by_path
+            or not isinstance(source_locator, str)
+            or not source_locator.strip()
+            or not isinstance(disposition, str)
+            or disposition not in _COMPOSITION_BOUNDARY_DISPOSITIONS
+            or not isinstance(boundary_status, str)
+            or boundary_status not in {"resolved", "ambiguous"}
+        ):
+            return f"requested output {index} has an invalid boundary check"
+        if disposition == "represented_by_edge":
+            if not isinstance(edge_id, str) or edge_id not in edges_by_id:
+                return (
+                    f"requested output {index} boundary check has an invalid "
+                    "assembly edge reference"
+                )
+        elif edge_id != "none":
+            return (
+                f"requested output {index} boundary check has an invalid "
+                "assembly edge disposition"
+            )
+        if (boundary_status == "ambiguous") != (disposition == "ambiguous"):
+            return (
+                f"requested output {index} boundary status and disposition "
+                "are inconsistent"
+            )
+        seen_boundaries.add(boundary_id)
+        seen_boundary_kinds.add(boundary_kind)
+        has_ambiguous_boundary = (
+            has_ambiguous_boundary or boundary_status == "ambiguous"
+        )
+    if (
+        "bracket" not in seen_boundary_kinds
+        or not seen_boundary_kinds.intersection(
+            {"connector", "cross_boundary_bond"}
+        )
+    ):
+        return (
+            f"requested output {index} boundary_checks do not trace both "
+            "brackets and outgoing connections"
+        )
+
+    status = str(accounting.get("status") or "").strip().lower()
+    if status not in {"matched", "failed"}:
+        return f"requested output {index} component accounting status is invalid"
+    if has_ambiguous_boundary and (passing or status == "matched"):
+        return (
+            f"passing or matched requested output {index} leaves an "
+            "ambiguous product boundary"
+        )
+    if not str(accounting.get("evidence") or "").strip():
+        return f"requested output {index} component accounting has no evidence"
+    outer_carrier = item.get("lean_carrier")
+    if (
+        not isinstance(accounting.get("lean_carrier"), str)
+        or not str(accounting.get("lean_carrier")).strip()
+        or accounting.get("lean_carrier") != outer_carrier
+    ):
+        return (
+            f"requested output {index} component accounting Lean carrier is "
+            "missing or mismatched"
+        )
+
+    components = accounting.get("components")
+    if not isinstance(components, list):
+        return f"requested output {index} components must be a list"
+    seen_labels: set[str] = set()
+    covered_component_nodes: set[str] = set()
+    for component in components:
+        if (
+            not isinstance(component, Mapping)
+            or set(component) != _COMPOSITION_COMPONENT_FIELDS
+        ):
+            return f"requested output {index} has an invalid component entry"
+        product_node_id = component.get("product_node_id")
+        label = component.get("label")
+        descriptor = component.get("formula_or_descriptor")
+        multiplicity = component.get("multiplicity")
+        role = component.get("role")
+        if (
+            not isinstance(product_node_id, str)
+            or product_node_id not in nodes_by_id
+            or product_node_id in covered_component_nodes
+            or not isinstance(label, str)
+            or not label.strip()
+            or label in seen_labels
+            or not isinstance(descriptor, str)
+            or not descriptor.strip()
+            or isinstance(multiplicity, bool)
+            or not isinstance(multiplicity, int)
+            or not 1 <= multiplicity <= 1_000_000
+            or multiplicity != node_multiplicities[product_node_id]
+            or not isinstance(role, str)
+            or role not in _COMPOSITION_COMPONENT_ROLES
+        ):
+            return f"requested output {index} has an invalid component entry"
+        covered_component_nodes.add(product_node_id)
+        seen_labels.add(label)
+
+    assembly = accounting.get("assembly_expression")
+    combined = accounting.get("combined_formula_or_quantity")
+    if not isinstance(assembly, str) or not isinstance(combined, str):
+        return f"requested output {index} component accounting is incomplete"
+    if status == "matched" and (
+        not components or not assembly.strip() or not combined.strip()
+    ):
+        return f"requested output {index} matched component accounting is incomplete"
+    if status == "matched" and covered_component_nodes != set(nodes_by_id):
+        return (
+            f"requested output {index} matched components do not exactly "
+            "cover product_nodes"
+        )
+    if status == "matched" and any(
+        re.search(
+            rf"(?<![a-z0-9_-]){re.escape(node_id)}(?![a-z0-9_-])",
+            assembly,
+        )
+        is None
+        for node_id in nodes_by_id
+    ):
+        return (
+            f"requested output {index} assembly_expression omits a product "
+            "node id"
+        )
+    if passing and status != "matched":
+        return (
+            f"passing verdict leaves requested output {index} component "
+            "accounting unmatched"
+        )
+    return ""
+
+
 def _validate_native_requested_outputs(
     review: Mapping[str, Any],
     contract: Mapping[str, Any],
@@ -940,35 +1829,74 @@ def _validate_native_requested_outputs(
         return "native source contract requested_outputs are missing"
     if not isinstance(actual_outputs, list):
         return "requested_outputs must exactly cover the bound problem outputs"
-    expected_requirements = [
-        item.get("source_requirement")
+    expected_by_id = {
+        item.get("id"): item
+        for item in expected_outputs
+        if isinstance(item, Mapping) and isinstance(item.get("id"), str)
+    }
+    expected_ids = [
+        item.get("id")
         for item in expected_outputs
         if isinstance(item, Mapping)
     ]
     if (
-        len(expected_requirements) != len(expected_outputs)
-        or len(set(expected_requirements)) != len(expected_requirements)
+        len(expected_by_id) != len(expected_outputs)
         or len(actual_outputs) != len(expected_outputs)
     ):
         return "requested_outputs do not exactly cover the bound problem outputs"
-    actual_requirements: list[Any] = []
+    actual_ids: list[str] = []
     for index, item in enumerate(actual_outputs, start=1):
         if not isinstance(item, Mapping):
             return f"requested output {index} is not an object"
+        output_id = item.get("output_id")
+        if not isinstance(output_id, str):
+            return (
+                f"requested output {index} output_id is not bound problem evidence"
+            )
+        expected = expected_by_id.get(output_id)
+        if expected is None:
+            return f"requested output {index} output_id is not bound problem evidence"
+        actual_ids.append(output_id)
         requirement = item.get("source_requirement")
-        actual_requirements.append(requirement)
-        if requirement not in expected_requirements:
+        if requirement != expected.get("source_requirement"):
             return (
                 f"requested output {index} source_requirement is not bound "
                 "problem evidence"
             )
-        if passing and str(item.get("status") or "").strip().lower() != "covered":
+        status = str(item.get("status") or "").strip().lower()
+        submission_status = str(
+            item.get("submission_status") or ""
+        ).strip().lower()
+        reporting_status = str(
+            item.get("reporting_policy_status") or ""
+        ).strip().lower()
+        if status not in {"covered", "blocked"}:
+            return f"requested output {index} has an invalid status"
+        if submission_status not in {"matched", "failed"}:
+            return f"requested output {index} has no answer submission audit"
+        if reporting_status not in {"matched", "failed"}:
+            return f"requested output {index} has no reporting policy audit"
+        if not str(item.get("lean_carrier") or "").strip():
+            return f"requested output {index} has no Lean carrier"
+        if not str(item.get("evidence") or "").strip():
+            return f"requested output {index} has no audit evidence"
+        composition_error = _validate_native_composition_accounting(
+            item,
+            expected,
+            contract,
+            index=index,
+            passing=passing,
+        )
+        if composition_error:
+            return composition_error
+        if passing and status != "covered":
             return f"passing verdict leaves requested output {index} uncovered"
-    if (
-        len(set(actual_requirements)) != len(actual_requirements)
-        or set(actual_requirements) != set(expected_requirements)
-    ):
-        return "requested_outputs do not exactly cover the bound problem outputs"
+        if passing and submission_status != "matched":
+            return f"passing verdict leaves requested output {index} submission unmatched"
+        if passing and reporting_status != "matched":
+            return f"passing verdict leaves requested output {index} reporting unmatched"
+    if actual_ids != expected_ids:
+        return "requested_outputs do not preserve bound problem output order"
     return ""
 
 

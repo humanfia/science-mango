@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import signal
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -10,6 +12,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .deterministic_plan import fast_open_sorry_count
+
+_PROCESS_GROUP_TERM_GRACE_SEC = 1.0
 
 
 @dataclass(frozen=True)
@@ -30,6 +34,39 @@ def _relative(path: Path, project_path: Path) -> str:
         return str(path)
 
 
+def _signal_process_group(process: subprocess.Popen[str], sig: signal.Signals) -> None:
+    """Signal the isolated preflight process group if it still exists."""
+    try:
+        os.killpg(process.pid, sig)
+    except ProcessLookupError:
+        pass
+
+
+def _reap_timed_out_process_group(
+    process: subprocess.Popen[str],
+) -> tuple[str, str]:
+    """Terminate a timed-out preflight tree, escalating once, and reap it."""
+    _signal_process_group(process, signal.SIGTERM)
+    stdout = ""
+    stderr = ""
+    try:
+        stdout, stderr = process.communicate(
+            timeout=_PROCESS_GROUP_TERM_GRACE_SEC
+        )
+    except subprocess.TimeoutExpired:
+        pass
+    finally:
+        # ``communicate`` only proves that the outer ``lake`` process exited
+        # and its captured pipes reached EOF.  A descendant can close or
+        # redirect those pipes, survive SIGTERM in the original process group,
+        # and otherwise become an orphan after the leader is reaped.  Always
+        # escalate the original PGID after the grace attempt; an empty group is
+        # harmlessly ignored by ``_signal_process_group``.
+        _signal_process_group(process, signal.SIGKILL)
+    final_stdout, final_stderr = process.communicate()
+    return final_stdout or stdout or "", final_stderr or stderr or ""
+
+
 def _check_target(
     project_path: Path,
     target: Path,
@@ -43,30 +80,44 @@ def _check_target(
             rel, "missing", False, None, sorry_count, 0.0, "target file is missing"
         )
     start = time.monotonic()
+    process: subprocess.Popen[str] | None = None
     try:
-        result = subprocess.run(
+        process = subprocess.Popen(
             ["lake", "env", "lean", rel],
             cwd=project_path,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=timeout_sec,
+            start_new_session=True,
         )
+        stdout, stderr = process.communicate(timeout=timeout_sec)
         duration = time.monotonic() - start
-        diagnostics = ((result.stdout or "") + (result.stderr or "")).strip()
+        diagnostics = ((stdout or "") + (stderr or "")).strip()
         if len(diagnostics) > 4000:
             diagnostics = diagnostics[:4000].rstrip() + "\n... [truncated]"
         return ReviewPreflightCheck(
             rel,
-            "passed" if result.returncode == 0 else "failed",
-            result.returncode == 0,
-            result.returncode,
+            "passed" if process.returncode == 0 else "failed",
+            process.returncode == 0,
+            process.returncode,
             sorry_count,
             round(duration, 3),
             diagnostics,
         )
     except subprocess.TimeoutExpired as exc:
+        stdout, stderr = (
+            _reap_timed_out_process_group(process)
+            if process is not None
+            else ("", "")
+        )
         duration = time.monotonic() - start
-        diagnostics = str(exc.stderr or exc.stdout or "direct Lean check timed out")
+        diagnostics = str(
+            stderr
+            or stdout
+            or exc.stderr
+            or exc.stdout
+            or "direct Lean check timed out"
+        )
         return ReviewPreflightCheck(
             rel, "timeout", False, None, sorry_count, round(duration, 3),
             diagnostics[:4000],
@@ -82,7 +133,7 @@ def check_review_target(
     *,
     project_path: Path,
     target: Path,
-    timeout_sec: int = 300,
+    timeout_sec: int = 3600,
 ) -> dict:
     """Run the deterministic Review preflight for one completed target."""
     return asdict(
@@ -97,7 +148,7 @@ def run_parallel_review_preflight(
     iter_dir: Path,
     iter_num: int,
     jobs: int,
-    timeout_sec: int = 300,
+    timeout_sec: int = 3600,
 ) -> dict:
     """Run direct Lean checks concurrently and write stable JSON/Markdown."""
     ordered = list(dict.fromkeys(path.resolve() for path in objectives))

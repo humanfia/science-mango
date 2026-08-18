@@ -30,14 +30,26 @@ from archon.commands.loop.parallel_review import (
     write_pipelined_review_report,
 )
 from archon.commands.tooling.project_config import HarnessDescriptor
-from archon.commands.loop.prover.runners import ParallelProverRunner
+from archon.commands.loop.prover.runners import (
+    ParallelProverRunner,
+    _native_formalizer_semantic_dag_block,
+)
+from archon.commands.loop.answer_submission import answer_submission_path
+from archon.commands.loop.review_source_contract import (
+    normalized_review_source_certificate,
+)
 from archon.commands.loop.problem_only_review_contract import (
     NATIVE_CONTRACT_KIND,
     ProblemOnlyReviewContractError,
+    _validate_native_composition_accounting,
     native_problem_image_args,
     native_source_contract_provenance,
+    render_native_composition_accounting_prompt,
+    render_native_formalizer_answer_submission_prompt,
+    resolve_native_formalizer_source_contract,
     resolve_target_review_source_contract,
     validate_native_review_source_certificate,
+    validate_review_source_contract_current,
 )
 
 
@@ -94,6 +106,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 "kind": "integer",
                 "source_requirement": "the independently derived value",
                 "reporting_policy": {"kind": "exact_integer"},
+                "unit": "",
             }],
             "problem_assets": [{
                 "kind": "problem_page",
@@ -215,6 +228,32 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             json.dumps(config),
             encoding="utf-8",
         )
+        raw_values = {
+            "integer": "7",
+            "numeric": "7/2",
+            "formula": "H2O",
+            "classification": "class-A",
+            "finite_set": "{A, B}",
+        }
+        outputs = []
+        for output in self.row["requested_outputs"]:
+            raw_value = raw_values.get(output["kind"], "derived-value")
+            outputs.append({
+                "id": output["id"],
+                "kind": output["kind"],
+                "raw_value": raw_value,
+                "display_value": str(raw_value),
+                "unit": output["unit"],
+            })
+        answer = {
+            "schema_version": 1,
+            "id": self.row["id"],
+            "official_answer_seen": False,
+            "outputs": outputs,
+        }
+        answer_path = answer_submission_path(self.project, self.row["id"])
+        answer_path.parent.mkdir(parents=True, exist_ok=True)
+        answer_path.write_text(json.dumps(answer), encoding="utf-8")
 
     def _contract(self) -> dict:
         return resolve_target_review_source_contract(
@@ -297,12 +336,18 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                     "bridge_completeness",
                 )
             },
-            "requested_outputs": [{
-                "source_requirement": "the independently derived value",
-                "lean_carrier": "item_a",
-                "status": "covered",
-                "evidence": "the declaration carries the requested value",
-            }],
+            "requested_outputs": [
+                {
+                    "output_id": output["id"],
+                    "source_requirement": output["source_requirement"],
+                    "submission_status": "matched",
+                    "reporting_policy_status": "matched",
+                    "lean_carrier": f"item_a_{output['id']}",
+                    "status": "covered",
+                    "evidence": "submission, reporting rule, and carrier agree",
+                }
+                for output in contract["problem_evidence"]["requested_outputs"]
+            ],
             "blueprint_conflicts": [],
             "image_audit": [{
                 "path": image["path"],
@@ -395,7 +440,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "next_steps": "",
         }
 
-    def test_contract_hash_binds_only_native_problem_inputs(self) -> None:
+    def test_contract_binds_problem_candidate_answer_and_constant_dataset(self) -> None:
         contract = self._contract()
         self.assertEqual(contract["contract_kind"], NATIVE_CONTRACT_KIND)
         self.assertEqual(contract["authority"], "problem-only")
@@ -406,6 +451,15 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         )
         self.assertEqual(len(contract["preflight_sha256"]), 64)
         self.assertEqual(contract["images"][0]["path"], self.image_rel)
+        answer_path = answer_submission_path(self.project, self.row["id"])
+        self.assertEqual(
+            contract["answer_submission"],
+            answer_path.relative_to(self.project).as_posix(),
+        )
+        self.assertEqual(
+            contract["answer_submission_sha256"], _sha256(answer_path.read_bytes()),
+        )
+        self.assertEqual(len(contract["chemistry_constant_dataset"]["sha256"]), 64)
         for forbidden in (
             "blueprint",
             "trace",
@@ -415,7 +469,60 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, contract)
 
+    def test_initial_formalizer_contract_needs_no_answer_or_candidate(self) -> None:
+        answer_submission_path(self.project, self.row["id"]).unlink()
+        self.target.unlink()
+        contract = resolve_native_formalizer_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+        prompt = render_native_formalizer_answer_submission_prompt(contract)
+        self.assertIn(
+            ".archon/task_results/IChO2026Problems_problem_item_a.answer.json",
+            prompt,
+        )
+        self.assertIn('"id": "value"', prompt)
+        self.assertIn('"display_value": "<replace with final displayed string>"', prompt)
+        self.target.write_text(self.lean_source, encoding="utf-8")
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "answer submission",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight=self.preflight,
+            )
+
+    def test_answer_submission_change_invalidates_review_contract(self) -> None:
+        contract = self._contract()
+        path = answer_submission_path(self.project, self.row["id"])
+        answer = json.loads(path.read_text(encoding="utf-8"))
+        answer["outputs"][0]["display_value"] = "8"
+        path.write_text(json.dumps(answer), encoding="utf-8")
+        self.assertIn(
+            "changed after contract creation",
+            validate_review_source_contract_current(
+                project_path=self.project,
+                contract=contract,
+            ),
+        )
+        self.assertNotEqual(
+            contract["answer_submission_sha256"],
+            self._contract()["answer_submission_sha256"],
+        )
+
+    def test_review_contract_rejects_non_string_display_value(self) -> None:
+        path = answer_submission_path(self.project, self.row["id"])
+        answer = json.loads(path.read_text(encoding="utf-8"))
+        answer["outputs"][0]["display_value"] = 7
+        path.write_text(json.dumps(answer), encoding="utf-8")
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "display_value.*JSON string",
+        ):
+            self._contract()
+
     def test_native_prompts_do_not_read_or_render_legacy_artifacts(self) -> None:
+        self.preflight["diagnostics"] = "RAW_PREFLIGHT_DIAGNOSTIC_SECRET"
         contract = self._contract()
         slug = "IChO2026Problems_problem_item_a"
         artifacts = (
@@ -430,7 +537,41 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 f"LEGACY_ARTIFACT_SECRET_{index}",
                 encoding="utf-8",
             )
-        prior = {"sentinel": "PRIOR_GATE_SECRET"}
+        prior = {
+            "status": "retry",
+            "attempts": 1,
+            "reason": "RAW_TOP_LEVEL_REASON_SECRET",
+            "evidence": "RAW_TOP_LEVEL_EVIDENCE_SECRET",
+            "history": [{
+                "event_id": "proof-event-1",
+                "iter": 1,
+                "route": "retry_proof",
+                "resulting_status": "retry",
+                "attempt": 1,
+                "reason": "RAW_PROOF_REASON_SECRET",
+                "evidence": "RAW_PROOF_EVIDENCE_SECRET",
+                "redraft_kind": "not_applicable",
+                "result_spec": {
+                    "kind": "integer",
+                    "status": "derived",
+                    "value": "RESULT_SPEC_SECRET",
+                },
+            }],
+            "review_events": [{
+                "event_id": "formalization-event-1",
+                "iter": 1,
+                "decision": "failed",
+                "resulting_status": "retry",
+                "attempt": 1,
+                "reason": "RAW_FORMALIZATION_REASON_SECRET",
+                "certificate": {
+                    "result_spec": {"value": "FORMAL_RESULT_SPEC_SECRET"},
+                },
+            }],
+            "certificate": {
+                "result_spec": {"value": "TOP_LEVEL_RESULT_SPEC_SECRET"},
+            },
+        }
 
         with patch(
             "archon.commands.loop.parallel_review.load_domain_profile",
@@ -473,14 +614,39 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         self.assertIn(
             "needs_redraft -> blocked (never partial)", proof_prompt,
         )
+        self.assertIn('"route": "retry_proof"', proof_prompt)
+        self.assertIn('"decision": "failed"', formal_prompt)
+        self.assertNotIn("proof-event-1", proof_prompt)
+        self.assertNotIn("formalization-event-1", formal_prompt)
 
         for prompt in (proof_prompt, formal_prompt):
             self.assertIn("NATIVE PROBLEM-INPUT-ONLY CONTRACT", prompt)
             self.assertIn("candidate_sha256", prompt)
+            self.assertIn(
+                '"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>',
+                prompt,
+            )
+            self.assertIn("illustrative, not an allowlist", prompt)
+            self.assertIn("Reviewer must verify each used lookup", prompt)
+            self.assertIn("Problem-stipulated values override", prompt)
+            self.assertIn("source uncertainty could change", prompt)
+            self.assertNotIn("`archon chemistry-constant", prompt)
             self.assertNotIn("preflight_sha256", prompt)
             self.assertIn("printed fallback", prompt)
             self.assertIn("never use a later fallback backward", prompt)
-            self.assertNotIn("PRIOR_GATE_SECRET", prompt)
+            for secret in (
+                "RAW_TOP_LEVEL_REASON_SECRET",
+                "RAW_TOP_LEVEL_EVIDENCE_SECRET",
+                "RAW_PROOF_REASON_SECRET",
+                "RAW_PROOF_EVIDENCE_SECRET",
+                "RAW_FORMALIZATION_REASON_SECRET",
+                "RESULT_SPEC_SECRET",
+                "FORMAL_RESULT_SPEC_SECRET",
+                "TOP_LEVEL_RESULT_SPEC_SECRET",
+                "RAW_PREFLIGHT_DIAGNOSTIC_SECRET",
+            ):
+                self.assertNotIn(secret, prompt)
+            self.assertNotIn('"result_spec":', prompt)
             self.assertNotIn(str(self.project / self.report_rel), prompt)
             self.assertNotIn("Bound problem-side source report", prompt)
             for artifact in artifacts:
@@ -510,6 +676,16 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "does not match native problem-only evidence",
             validate_native_review_source_certificate(
                 audit, contract, passing=True,
+            ),
+        )
+        semantic_audit = json.loads(json.dumps(self._source_audit(contract)))
+        semantic_audit["source_contract"]["semantic_dag"]["sha256"] = (
+            "f" * 64
+        )
+        self.assertIn(
+            "does not match native problem-only evidence",
+            validate_native_review_source_certificate(
+                semantic_audit, contract, passing=True,
             ),
         )
 
@@ -636,6 +812,39 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             supplied_contract=supplied,
         )
         self.assertIs(resolved, supplied)
+
+    def test_milestone_loaders_fail_closed_on_unhashable_output_id(
+        self,
+    ) -> None:
+        contract = self._contract()
+        cases = (
+            (
+                "proof",
+                load_target_milestone,
+                self._proof_milestone,
+                "proof_review",
+            ),
+            (
+                "formalization",
+                load_target_formalization_milestone,
+                self._formalization_milestone,
+                "formalization_review",
+            ),
+        )
+        for name, loader, make_row, review_key in cases:
+            with self.subTest(name=name):
+                path = self.output_root / name / "malformed.jsonl"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                row = make_row(contract)
+                row[review_key]["requested_outputs"][0]["output_id"] = []
+                path.write_text(
+                    json.dumps(row) + "\n", encoding="utf-8",
+                )
+                loaded, error = loader(path, self.rel, contract)
+                self.assertIsNone(loaded)
+                self.assertIn(
+                    "output_id is not bound problem evidence", error,
+                )
 
     def test_pre_worker_input_drift_ignores_valid_stale_milestone(self) -> None:
         cases = (
@@ -768,16 +977,11 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "kind": "integer",
             "source_requirement": "the independently derived second value",
             "reporting_policy": {"kind": "exact_integer"},
+            "unit": "",
         })
         self._materialize_workspace()
         contract = self._contract()
         audit = self._source_audit(contract)
-        audit["requested_outputs"].append({
-            "source_requirement": "the independently derived second value",
-            "lean_carrier": "item_a_second",
-            "status": "covered",
-            "evidence": "the second declaration carries the value",
-        })
         self.assertEqual(
             validate_native_review_source_certificate(
                 audit, contract, passing=True,
@@ -800,6 +1004,22 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         blocked = json.loads(json.dumps(audit))
         blocked["requested_outputs"][1]["status"] = "blocked"
         variants["blocked"] = blocked
+        submission_failed = json.loads(json.dumps(audit))
+        submission_failed["requested_outputs"][1][
+            "submission_status"
+        ] = "failed"
+        variants["submission_failed"] = submission_failed
+        reporting_failed = json.loads(json.dumps(audit))
+        reporting_failed["requested_outputs"][1][
+            "reporting_policy_status"
+        ] = "failed"
+        variants["reporting_failed"] = reporting_failed
+        swapped = json.loads(json.dumps(audit))
+        swapped["requested_outputs"].reverse()
+        variants["swapped"] = swapped
+        unhashable_output_id = json.loads(json.dumps(audit))
+        unhashable_output_id["requested_outputs"][0]["output_id"] = []
+        variants["unhashable_output_id"] = unhashable_output_id
         for name, review in variants.items():
             with self.subTest(name=name):
                 self.assertNotEqual(
@@ -808,6 +1028,386 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                     ),
                     "",
                 )
+
+    def test_opt_in_component_accounting_is_bound_and_fail_closed(self) -> None:
+        output_contract = self.row["requested_outputs"][0]
+        output_contract["audit_requirements"] = [
+            "image_component_accounting"
+        ]
+        self._materialize_workspace()
+        contract = self._contract()
+        review = self._source_audit(contract)
+        output = review["requested_outputs"][0]
+
+        missing_error = validate_native_review_source_certificate(
+            review, contract, passing=True,
+        )
+        self.assertIn("no component accounting audit", missing_error)
+
+        image = contract["images"][0]
+        output["composition_accounting"] = {
+            "source_images": [{
+                "path": image["path"],
+                "sha256": image["sha256"],
+            }],
+            "product_nodes": [
+                {
+                    "node_id": "repeat_core",
+                    "node_kind": "repeat_unit",
+                    "formula_or_descriptor": "whole bracketed repeat unit",
+                    "source_path": image["path"],
+                    "source_locator": "left bracketed unit pattern",
+                    "multiplicity": 2,
+                },
+                {
+                    "node_id": "terminal_fragment",
+                    "node_kind": "terminal_fragment",
+                    "formula_or_descriptor": "whole terminal fragment",
+                    "source_path": image["path"],
+                    "source_locator": "right terminal fragment",
+                    "multiplicity": 1,
+                },
+                {
+                    "node_id": "sodium_adduct",
+                    "node_kind": "adduct",
+                    "formula_or_descriptor": "sodium adduct",
+                    "source_path": image["path"],
+                    "source_locator": "requested ion annotation",
+                    "multiplicity": 1,
+                },
+            ],
+            "assembly_edges": [
+                {
+                    "edge_id": "repeat_to_terminal",
+                    "from_node_id": "repeat_core",
+                    "to_node_id": "terminal_fragment",
+                    "relation": "covalent_bond",
+                    "multiplicity": 1,
+                },
+                {
+                    "edge_id": "terminal_to_adduct",
+                    "from_node_id": "terminal_fragment",
+                    "to_node_id": "sodium_adduct",
+                    "relation": "adduct_association",
+                    "multiplicity": 1,
+                },
+            ],
+            "boundary_checks": [
+                {
+                    "boundary_id": "repeat_bracket",
+                    "boundary_kind": "bracket",
+                    "source_path": image["path"],
+                    "source_locator": "left repeat bracket",
+                    "disposition": "included_in_node",
+                    "assembly_edge_id": "none",
+                    "status": "resolved",
+                },
+                {
+                    "boundary_id": "outgoing_bond",
+                    "boundary_kind": "cross_boundary_bond",
+                    "source_path": image["path"],
+                    "source_locator": "bond leaving repeat bracket",
+                    "disposition": "represented_by_edge",
+                    "assembly_edge_id": "repeat_to_terminal",
+                    "status": "resolved",
+                },
+            ],
+            "components": [
+                {
+                    "product_node_id": "repeat_core",
+                    "label": "diagram repeat unit",
+                    "formula_or_descriptor": "source-labelled unit A",
+                    "multiplicity": 2,
+                    "role": "repeat_unit",
+                },
+                {
+                    "product_node_id": "terminal_fragment",
+                    "label": "terminal fragment",
+                    "formula_or_descriptor": "source-labelled terminal",
+                    "multiplicity": 1,
+                    "role": "terminal_group",
+                },
+                {
+                    "product_node_id": "sodium_adduct",
+                    "label": "ion adduct",
+                    "formula_or_descriptor": "source-requested ion",
+                    "multiplicity": 1,
+                    "role": "adduct",
+                },
+            ],
+            "assembly_expression": (
+                "2 * repeat_core + terminal_fragment + "
+                "sodium_adduct"
+            ),
+            "combined_formula_or_quantity": "independently combined carrier",
+            "lean_carrier": output["lean_carrier"],
+            "status": "matched",
+            "evidence": "all visual components were independently recounted",
+        }
+        self.assertEqual(
+            validate_native_review_source_certificate(
+                review, contract, passing=True,
+            ),
+            "",
+        )
+        normalized = normalized_review_source_certificate(review)
+        self.assertEqual(
+            normalized["requested_outputs"][0]["composition_accounting"],
+            output["composition_accounting"],
+        )
+        self.assertEqual(
+            validate_native_review_source_certificate(
+                normalized, contract, passing=True,
+            ),
+            "",
+        )
+
+        old_single_bracket = json.loads(json.dumps(review))
+        old_accounting = old_single_bracket["requested_outputs"][0][
+            "composition_accounting"
+        ]
+        old_accounting["product_nodes"] = [
+            old_accounting["product_nodes"][0],
+            old_accounting["product_nodes"][2],
+        ]
+        old_accounting["assembly_edges"] = [{
+            "edge_id": "bracket_to_sodium",
+            "from_node_id": "repeat_core",
+            "to_node_id": "sodium_adduct",
+            "relation": "adduct_association",
+            "multiplicity": 1,
+        }]
+        old_accounting["boundary_checks"] = [
+            {
+                "boundary_id": "repeat_bracket",
+                "boundary_kind": "bracket",
+                "source_path": image["path"],
+                "source_locator": "single printed bracket",
+                "disposition": "included_in_node",
+                "assembly_edge_id": "none",
+                "status": "resolved",
+            },
+            {
+                "boundary_id": "claimed_outgoing_bond",
+                "boundary_kind": "cross_boundary_bond",
+                "source_path": image["path"],
+                "source_locator": "claimed bracket-to-adduct connection",
+                "disposition": "represented_by_edge",
+                "assembly_edge_id": "bracket_to_sodium",
+                "status": "resolved",
+            },
+        ]
+        old_accounting["components"] = [
+            old_accounting["components"][0],
+            old_accounting["components"][2],
+        ]
+        old_accounting["assembly_expression"] = "single bracket residue + Na"
+        self.assertIn(
+            "at least two non-adduct product nodes",
+            validate_native_review_source_certificate(
+                old_single_bracket, contract, passing=True,
+            ),
+        )
+
+        variants: dict[str, dict] = {}
+        failed = json.loads(json.dumps(review))
+        failed["requested_outputs"][0]["composition_accounting"][
+            "status"
+        ] = "failed"
+        variants["failed"] = failed
+        empty = json.loads(json.dumps(review))
+        empty["requested_outputs"][0]["composition_accounting"][
+            "components"
+        ] = []
+        variants["empty"] = empty
+        bad_role = json.loads(json.dumps(review))
+        bad_role["requested_outputs"][0]["composition_accounting"][
+            "components"
+        ][0]["role"] = "invented_role"
+        variants["bad_role"] = bad_role
+        bad_multiplicity = json.loads(json.dumps(review))
+        bad_multiplicity["requested_outputs"][0]["composition_accounting"][
+            "components"
+        ][0]["multiplicity"] = "2"
+        variants["bad_multiplicity"] = bad_multiplicity
+        unbound_image = json.loads(json.dumps(review))
+        unbound_image["requested_outputs"][0]["composition_accounting"][
+            "source_images"
+        ][0]["path"] = "unbound.png"
+        variants["unbound_image"] = unbound_image
+        mismatched_carrier = json.loads(json.dumps(review))
+        mismatched_carrier["requested_outputs"][0][
+            "composition_accounting"
+        ]["lean_carrier"] = "different_carrier"
+        variants["mismatched_carrier"] = mismatched_carrier
+        extra_field = json.loads(json.dumps(review))
+        extra_field["requested_outputs"][0]["composition_accounting"][
+            "derived_value"
+        ] = "unbound"
+        variants["extra_field"] = extra_field
+        duplicate_node = json.loads(json.dumps(review))
+        duplicate_node["requested_outputs"][0]["composition_accounting"][
+            "product_nodes"
+        ][1]["node_id"] = "repeat_core"
+        variants["duplicate_node"] = duplicate_node
+        bad_node_multiplicity = json.loads(json.dumps(review))
+        bad_node_multiplicity["requested_outputs"][0][
+            "composition_accounting"
+        ]["product_nodes"][0]["multiplicity"] = 0
+        variants["bad_node_multiplicity"] = bad_node_multiplicity
+        bad_edge_ref = json.loads(json.dumps(review))
+        bad_edge_ref["requested_outputs"][0]["composition_accounting"][
+            "assembly_edges"
+        ][0]["to_node_id"] = "missing_node"
+        variants["bad_edge_ref"] = bad_edge_ref
+        bad_edge_multiplicity = json.loads(json.dumps(review))
+        bad_edge_multiplicity["requested_outputs"][0][
+            "composition_accounting"
+        ]["assembly_edges"][0]["multiplicity"] = True
+        variants["bad_edge_multiplicity"] = bad_edge_multiplicity
+        disconnected = json.loads(json.dumps(review))
+        disconnected["requested_outputs"][0]["composition_accounting"][
+            "assembly_edges"
+        ].pop()
+        variants["disconnected"] = disconnected
+        ambiguous = json.loads(json.dumps(review))
+        ambiguous_boundary = ambiguous["requested_outputs"][0][
+            "composition_accounting"
+        ]["boundary_checks"][1]
+        ambiguous_boundary["disposition"] = "ambiguous"
+        ambiguous_boundary["assembly_edge_id"] = "none"
+        ambiguous_boundary["status"] = "ambiguous"
+        variants["ambiguous"] = ambiguous
+        duplicate_boundary = json.loads(json.dumps(review))
+        duplicate_boundary["requested_outputs"][0][
+            "composition_accounting"
+        ]["boundary_checks"][1]["boundary_id"] = "repeat_bracket"
+        variants["duplicate_boundary"] = duplicate_boundary
+        omitted_component = json.loads(json.dumps(review))
+        omitted_component["requested_outputs"][0][
+            "composition_accounting"
+        ]["components"].pop(1)
+        variants["omitted_component"] = omitted_component
+        mismatched_component_multiplicity = json.loads(json.dumps(review))
+        mismatched_component_multiplicity["requested_outputs"][0][
+            "composition_accounting"
+        ]["components"][0]["multiplicity"] = 1
+        variants[
+            "mismatched_component_multiplicity"
+        ] = mismatched_component_multiplicity
+        bad_component_ref = json.loads(json.dumps(review))
+        bad_component_ref["requested_outputs"][0][
+            "composition_accounting"
+        ]["components"][1]["product_node_id"] = "missing_node"
+        variants["bad_component_ref"] = bad_component_ref
+        assembly_omits_node = json.loads(json.dumps(review))
+        assembly_omits_node["requested_outputs"][0][
+            "composition_accounting"
+        ]["assembly_expression"] = "repeat_core + sodium_adduct"
+        variants["assembly_omits_node"] = assembly_omits_node
+        for name, variant in variants.items():
+            with self.subTest(name=name):
+                self.assertNotEqual(
+                    validate_native_review_source_certificate(
+                        variant, contract, passing=True,
+                    ),
+                    "",
+                )
+
+        expanded_contract = json.loads(json.dumps(contract))
+        expanded_contract["images"].append({
+            "path": "icho_2026_source/image/preceding-page.png",
+            "sha256": "e" * 64,
+        })
+        self.assertIn(
+            "source_images do not cover every bound image",
+            _validate_native_composition_accounting(
+                review["requested_outputs"][0],
+                contract["problem_evidence"]["requested_outputs"][0],
+                expanded_contract,
+                index=1,
+                passing=True,
+            ),
+        )
+
+    def test_component_accounting_marker_and_prompts_are_controller_bound(
+        self,
+    ) -> None:
+        self.row["requested_outputs"][0]["audit_requirements"] = [
+            "image_component_accounting"
+        ]
+        self._materialize_workspace()
+        contract = self._contract()
+        shared = render_native_composition_accounting_prompt(contract)
+        self.assertIn("MANDATORY IMAGE COMPONENT ACCOUNTING", shared)
+        self.assertIn('"value"', shared)
+        self.assertIn("not_applicable is forbidden", shared)
+        formalizer_prompt = _native_formalizer_semantic_dag_block(
+            project_path=self.project, target=self.target,
+        )
+        self.assertIn("MANDATORY WHOLE-PRODUCT IMAGE TOPOLOGY", formalizer_prompt)
+        self.assertIn("NEVER add composition_accounting", formalizer_prompt)
+
+        proof_prompt = build_target_review_prompt(
+            project_path=self.project,
+            state_dir=self.state,
+            iter_dir=self.iter_dir,
+            iter_num=1,
+            target=self.target,
+            output_dir=self.output_root / "component-proof",
+            preflight=self.preflight,
+            prior_gate_record={},
+            source_contract=contract,
+        )
+        formal_prompt = build_target_formalization_review_prompt(
+            project_path=self.project,
+            state_dir=self.state,
+            iter_dir=self.iter_dir,
+            iter_num=1,
+            target=self.target,
+            output_dir=self.output_root / "component-formalization",
+            preflight=self.preflight,
+            prior_gate_record={},
+            source_contract=contract,
+        )
+        for prompt in (proof_prompt, formal_prompt):
+            self.assertIn("MANDATORY IMAGE COMPONENT ACCOUNTING", prompt)
+            self.assertIn("composition_accounting", prompt)
+            self.assertIn("source_images must exactly cover all bound", prompt)
+            self.assertIn("product_nodes", prompt)
+            self.assertIn("printed formula label may denote only", prompt)
+            self.assertIn("preceding-page unit pattern", prompt)
+            self.assertIn("complete node graph connected", prompt)
+
+    def test_unknown_or_empty_component_audit_marker_is_rejected(self) -> None:
+        for marker in ([], ["unknown"], ["image_component_accounting"] * 2):
+            with self.subTest(marker=marker):
+                self.row["requested_outputs"][0]["audit_requirements"] = marker
+                self._materialize_workspace()
+                with self.assertRaisesRegex(
+                    ProblemOnlyReviewContractError, "audit_requirements",
+                ):
+                    self._contract()
+
+    def test_unbound_component_accounting_is_rejected(self) -> None:
+        contract = self._contract()
+        review = self._source_audit(contract)
+        output = review["requested_outputs"][0]
+        output["composition_accounting"] = {
+            "source_images": [],
+            "components": [],
+            "assembly_expression": "",
+            "combined_formula_or_quantity": "",
+            "lean_carrier": output["lean_carrier"],
+            "status": "failed",
+            "evidence": "not controller selected",
+        }
+        self.assertIn(
+            "unbound composition_accounting",
+            validate_native_review_source_certificate(
+                review, contract, passing=False,
+            ),
+        )
 
     def test_source_report_pollution_and_nonfinite_evidence_fail_closed(self) -> None:
         report_path = self.project / self.report_rel
@@ -918,6 +1518,10 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         (self.iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
         formal_contracts: list[dict] = []
         proof_contracts: list[dict] = []
+        formalizer_prompts: list[str] = []
+        answer_path = answer_submission_path(self.project, self.row["id"])
+        answer_payload = answer_path.read_text(encoding="utf-8")
+        answer_path.unlink()
 
         def preflight_checker(*, project_path, target, timeout_sec):
             del project_path, timeout_sec
@@ -928,11 +1532,13 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             }
 
         def formalizer(*_args, **_kwargs):
+            formalizer_prompts.append(_args[0])
             self.target.write_text(
                 "theorem item_a : True := by sorry\n", encoding="utf-8",
             )
             result = self.state / "task_results" / "problem_item_a.lean.md"
             result.write_text("# Native redraft\n", encoding="utf-8")
+            answer_path.write_text(answer_payload, encoding="utf-8")
             return True
 
         def formal_review(spec, **_kwargs):
@@ -1000,6 +1606,11 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         ):
             runner._run_fanout([self.target], file_modes={})
 
+        self.assertEqual(len(formalizer_prompts), 1)
+        self.assertIn("CONTROLLER SEMANTIC DAG", formalizer_prompts[0])
+        self.assertIn('"requested_output_ids": ["value"]', formalizer_prompts[0])
+        self.assertIn("TARGET ANSWER SUBMISSION CONTRACT", formalizer_prompts[0])
+        self.assertIn("IChO2026Problems_problem_item_a.answer.json", formalizer_prompts[0])
         self.assertEqual(len(formal_contracts), 1)
         self.assertEqual(len(proof_contracts), 1)
         self.assertNotEqual(
@@ -1013,6 +1624,9 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         )
         self.assertTrue(report["complete"])
         self.assertTrue(report["gate_events_applied"])
+        self.assertTrue(
+            report["formalizer_results"][self.rel]["answer_submission_valid"]
+        )
         self.assertEqual(
             [event["kind"] for event in report["gate_events"]],
             ["formalization", "proof"],

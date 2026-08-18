@@ -399,6 +399,28 @@ class StructuredIndependentReviewTests(unittest.TestCase):
             artifact["request_response_chain_sha256"],
         )
 
+    def test_source_first_immediately_persists_records_commitment(
+        self,
+    ) -> None:
+        calls, exchange = self._exchange("gpt")
+        precommit = REVIEW.run_source_first(
+            controller_dir=self.controller, bundle_path=self.bundle,
+            asset_root=self.assets, variant="gpt", run_id=self.run_id,
+            scope_ids=[self.record_id], exchange_call=exchange,
+        )
+        path = self.controller / "gpt-source-first-records.json"
+        records = json.loads(path.read_text())
+        self.assertEqual(precommit["status"], "accepted")
+        self.assertEqual(records["phase"], "independent_source_first_records")
+        self.assertEqual(records["run_id"], self.run_id)
+        self.assertEqual(records["scope_ids"], [self.record_id])
+        self.assertEqual(records["records"][0]["id"], self.record_id)
+        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o400)
+        self.assertEqual(len(calls), 1)
+        self.assertFalse(
+            (self.workspace / ".archon/source-first-records.json").exists()
+        )
+
     def test_artifact_submit_rejects_solver_precommit_mismatch(self) -> None:
         _calls, exchange = self._exchange("gpt")
         REVIEW.run_source_first(
@@ -420,6 +442,43 @@ class StructuredIndependentReviewTests(unittest.TestCase):
                 variant="gpt", run_id=self.run_id,
                 scope_ids=[self.record_id], exchange_call=exchange,
             )
+
+    def test_artifact_submit_rejects_tampered_persisted_source_records(self) -> None:
+        calls, exchange = self._exchange("gpt")
+        REVIEW.run_source_first(
+            controller_dir=self.controller, bundle_path=self.bundle,
+            asset_root=self.assets, variant="gpt", run_id=self.run_id,
+            scope_ids=[self.record_id], exchange_call=exchange,
+        )
+        precommit = self.controller / "gpt-source-first-precommit.json"
+        solver = self._solver_receipt(variant="gpt", precommit=precommit)
+        records_path = self.controller / "gpt-source-first-records.json"
+        self.assertTrue(records_path.is_file())
+        records = json.loads(records_path.read_text(encoding="utf-8"))
+        records["run_id"] = "tampered-run"
+        os.chmod(records_path, 0o600)
+        records_path.write_bytes(REVIEW._pretty(records))
+        os.chmod(records_path, 0o400)
+
+        with self.assertRaises(REVIEW.ReviewControllerError):
+            REVIEW.run_artifact_submit(
+                workspace=self.workspace, controller_dir=self.controller,
+                bundle_path=self.bundle, source_first_precommit=precommit,
+                solver_aggregate=solver, dependency_root=self.dependency,
+                variant="gpt", run_id=self.run_id,
+                scope_ids=[self.record_id], exchange_call=exchange,
+            )
+
+        self.assertEqual(len(calls), 1)
+        self.assertFalse(
+            (self.controller / "gpt-artifact-review-submission.json").exists()
+        )
+        self.assertFalse(
+            (self.workspace / ".archon/formalization-review-gate.json").exists()
+        )
+        self.assertFalse(
+            (self.workspace / ".archon/proof-review-gate.json").exists()
+        )
 
     def test_source_first_rejects_empty_records_without_precommit(self) -> None:
         _calls, _good_exchange = self._exchange("gpt")

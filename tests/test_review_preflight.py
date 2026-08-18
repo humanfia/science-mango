@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import json
+import signal
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 from archon.commands.loop.formalization_review_gate import STATE_VERSION
 from archon.commands.loop.phases.review import ReviewPhase
 from archon.commands.loop.review_preflight import (
+    check_review_target,
     deterministic_review_prompt_prefix,
     run_parallel_review_preflight,
     write_deterministic_review_pack,
@@ -26,17 +29,21 @@ class ReviewPreflightTest(unittest.TestCase):
             a.write_text("theorem a : True := by trivial\n", encoding="utf-8")
             b.write_text("theorem b : True := by sorry\n", encoding="utf-8")
 
-            def fake_run(command, **kwargs):
+            popen_kwargs = []
+
+            def fake_popen(command, **kwargs):
                 failed = command[-1] == "B.lean"
+                popen_kwargs.append(kwargs)
+                stdout = "" if not failed else "B.lean:1: error: failed"
                 return SimpleNamespace(
+                    pid=1234,
                     returncode=1 if failed else 0,
-                    stdout="" if not failed else "B.lean:1: error: failed",
-                    stderr="",
+                    communicate=Mock(return_value=(stdout, "")),
                 )
 
             with patch(
-                "archon.commands.loop.review_preflight.subprocess.run",
-                side_effect=fake_run,
+                "archon.commands.loop.review_preflight.subprocess.Popen",
+                side_effect=fake_popen,
             ):
                 result = run_parallel_review_preflight(
                     project_path=root,
@@ -46,6 +53,11 @@ class ReviewPreflightTest(unittest.TestCase):
                     jobs=2,
                 )
 
+            self.assertEqual(len(popen_kwargs), 2)
+            for options in popen_kwargs:
+                self.assertTrue(options["start_new_session"])
+                self.assertIs(options["stdout"], subprocess.PIPE)
+                self.assertIs(options["stderr"], subprocess.PIPE)
             self.assertEqual(result["summary"], {
                 "total": 2, "passed": 1, "failed": 1,
             })
@@ -60,6 +72,110 @@ class ReviewPreflightTest(unittest.TestCase):
             self.assertIn(
                 "B.lean:1: error",
                 (iter_dir / "review-preflight.md").read_text(encoding="utf-8"),
+            )
+
+    def test_timeout_terminates_and_reaps_process_group(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by trivial\n",
+                encoding="utf-8",
+            )
+
+            process = SimpleNamespace(
+                pid=4321,
+                returncode=None,
+                communicate=Mock(
+                    side_effect=[
+                        subprocess.TimeoutExpired(
+                            ["lake"], 7, output="partial stdout"
+                        ),
+                        subprocess.TimeoutExpired(["lake"], 0.01),
+                        ("final stdout", "final stderr"),
+                    ]
+                ),
+            )
+
+            with (
+                patch(
+                    "archon.commands.loop.review_preflight.subprocess.Popen",
+                    return_value=process,
+                ) as popen,
+                patch(
+                    "archon.commands.loop.review_preflight.os.killpg"
+                ) as killpg,
+                patch(
+                    "archon.commands.loop.review_preflight."
+                    "_PROCESS_GROUP_TERM_GRACE_SEC",
+                    0.01,
+                ),
+            ):
+                result = check_review_target(
+                    project_path=root, target=target, timeout_sec=7
+                )
+
+            self.assertEqual(result["status"], "timeout")
+            self.assertFalse(result["compiles"])
+            self.assertIsNone(result["returncode"])
+            self.assertEqual(result["diagnostics"], "final stderr")
+            self.assertTrue(popen.call_args.kwargs["start_new_session"])
+            self.assertEqual(
+                process.communicate.call_args_list,
+                [call(timeout=7), call(timeout=0.01), call()],
+            )
+            self.assertEqual(
+                killpg.call_args_list,
+                [call(4321, signal.SIGTERM), call(4321, signal.SIGKILL)],
+            )
+
+    def test_timeout_kills_group_after_leader_exits_during_grace(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by trivial\n",
+                encoding="utf-8",
+            )
+
+            process = SimpleNamespace(
+                pid=4321,
+                returncode=-signal.SIGTERM,
+                communicate=Mock(
+                    side_effect=[
+                        subprocess.TimeoutExpired(
+                            ["lake"], 7, output="partial stdout"
+                        ),
+                        ("grace stdout", "grace stderr"),
+                        ("final stdout", "final stderr"),
+                    ]
+                ),
+            )
+
+            with (
+                patch(
+                    "archon.commands.loop.review_preflight.subprocess.Popen",
+                    return_value=process,
+                ),
+                patch(
+                    "archon.commands.loop.review_preflight.os.killpg"
+                ) as killpg,
+            ):
+                result = check_review_target(
+                    project_path=root,
+                    target=target,
+                    timeout_sec=7,
+                )
+
+            self.assertEqual(result["status"], "timeout")
+            self.assertEqual(result["diagnostics"], "final stderr")
+            self.assertEqual(
+                process.communicate.call_args_list,
+                [call(timeout=7), call(timeout=1.0), call()],
+            )
+            self.assertEqual(
+                killpg.call_args_list,
+                [call(4321, signal.SIGTERM), call(4321, signal.SIGKILL)],
             )
 
     def test_candidate_pack_and_prompt_are_bounded(self):

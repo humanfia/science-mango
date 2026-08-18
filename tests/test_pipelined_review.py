@@ -28,6 +28,7 @@ from archon.commands.loop.phases.review import ReviewPhase
 from archon.commands.loop.proof_review_gate import apply_target_proof_review
 from archon.commands.loop.prover.runners import (
     ParallelProverRunner,
+    _answer_submission_repair_handoff,
     _pipeline_cycle,
 )
 
@@ -298,6 +299,114 @@ class PipelinedReviewTest(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertEqual(_pipeline_cycle(value), expected)
 
+    def test_invalid_native_answer_sidecar_gets_one_bounded_repair(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "problem_item_a.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            prompts: list[str] = []
+
+            def fake_formalizer(prompt, *_args, **_kwargs):
+                prompts.append(prompt)
+                if len(prompts) == 1:
+                    target.write_text(
+                        "theorem a (h : True) : True := by sorry\n",
+                        encoding="utf-8",
+                    )
+                    report = (
+                        state / "task_results" / "problem_item_a.lean.md"
+                    )
+                    report.write_text("# materialized\n", encoding="utf-8")
+                return True
+
+            raw_error = (
+                "target answer submission is invalid: submission "
+                "item_a/value.display_value must be a finite decimal or "
+                "scientific value; RAW_VALUE_SECRET"
+            )
+            validations = iter((
+                (None, "target answer submission is missing"),
+                (None, raw_error),
+                ({"path": "answer.json", "sha256": "a" * 64}, ""),
+            ))
+            runner = self._runner(
+                root=root, state=state, iter_dir=iter_dir,
+                prover_worker=_process_prover, review_worker=_process_review,
+                formalizer_worker=fake_formalizer,
+                formalization_review_worker=_process_formalization_review,
+                max_parallel=1, full_pipeline=True,
+                formalization_max_iterations=3, stage="autoformalize",
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "native_problem_only_enabled", return_value=True,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "validate_native_answer_submission_current",
+                    side_effect=lambda **_kwargs: next(validations),
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "_native_formalizer_semantic_dag_block",
+                    return_value="CONTRACT",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_target_review_source_contract",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_formalization_review_prompt",
+                    return_value="formal-review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_review_prompt", return_value="proof-review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt", return_value="work",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(len(prompts), 2)
+            self.assertIn("numeric_display_syntax", prompts[1])
+            self.assertIn("repair_answer_submission_contract", prompts[1])
+            self.assertNotIn("RAW_VALUE_SECRET", prompts[1])
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            history = report["formalizer_history"]["problem_item_a.lean"]
+            self.assertEqual(len(history), 2)
+            self.assertFalse(history[0]["answer_submission_valid"])
+            self.assertTrue(history[1]["answer_submission_repair"])
+
+    def test_answer_submission_repair_handoff_never_echoes_raw_error(self):
+        handoff = _answer_submission_repair_handoff(
+            "output 0 has invalid fields EXPECTED_1299_SECRET"
+        )
+        encoded = json.dumps(handoff, sort_keys=True)
+        self.assertIn("invalid_output_fields", encoded)
+        self.assertNotIn("EXPECTED_1299_SECRET", encoded)
+
     def test_review_starts_before_slow_peer_prover_finishes_and_shares_cap(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -491,7 +600,17 @@ class PipelinedReviewTest(unittest.TestCase):
                 [(1, False), (2, False), (3, True)],
             )
             self.assertIn("global PROGRESS stage intentionally remains", formalizer_prompts[0])
-            self.assertIn("the theorem assumes the requested conclusion", formalizer_prompts[0])
+            self.assertIn("controller-sanitized repair task", formalizer_prompts[0])
+            self.assertIn("needs_redraft", formalizer_prompts[0])
+            self.assertIn(
+                hashlib.sha256(
+                    b"theorem a : True := by sorry\n"
+                ).hexdigest(),
+                formalizer_prompts[0],
+            )
+            self.assertNotIn(
+                "the theorem assumes the requested conclusion", formalizer_prompts[0]
+            )
             report = json.loads(
                 (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
             )
@@ -931,6 +1050,21 @@ class PipelinedReviewTest(unittest.TestCase):
                 {"targets": {}},
                 {
                     "targets": {
+                        "A.lean": {"status": "retry", "attempts": 0},
+                    },
+                },
+                {
+                    "targets": {
+                        "A.lean": {
+                            "status": "solved",
+                            "history": [{
+                                "event_id": "pipeline:1:A.lean:proof:1",
+                            }],
+                        },
+                    },
+                },
+                {
+                    "targets": {
                         "A.lean": {
                             "status": "solved",
                             "history": [{
@@ -942,6 +1076,19 @@ class PipelinedReviewTest(unittest.TestCase):
             ])
             formalization_states = iter([
                 {"targets": {}},
+                {
+                    "targets": {
+                        "A.lean": {
+                            "status": "passed",
+                            "reviews": 1,
+                            "review_events": [{
+                                "event_id":
+                                    "pipeline:1:A.lean:formalization:1",
+                                "decision": "passed",
+                            }],
+                        },
+                    },
+                },
                 {
                     "targets": {
                         "A.lean": {
@@ -1052,6 +1199,7 @@ class PipelinedReviewTest(unittest.TestCase):
                 proof_review_calls = 0
                 formalizer_calls = 0
                 formalization_review_calls: list[bool] = []
+                formalizer_prompts: list[str] = []
 
                 def fake_prover(*_args, **_kwargs):
                     nonlocal prover_calls
@@ -1064,7 +1212,7 @@ class PipelinedReviewTest(unittest.TestCase):
                     if proof_review_calls > 1:
                         self.assertIn('"attempts": 0', spec.prompt)
                         self.assertIn(
-                            "formalization redraft passed", spec.prompt
+                            "formalization_redraft_passed", spec.prompt
                         )
                     milestone = (
                         _redraft_milestone(spec.rel)
@@ -1081,6 +1229,7 @@ class PipelinedReviewTest(unittest.TestCase):
                 def fake_formalizer(*_args, **_kwargs):
                     nonlocal formalizer_calls
                     formalizer_calls += 1
+                    formalizer_prompts.append(_args[0])
                     target.write_text(
                         f"theorem a (h_law_{formalizer_calls} : True) : "
                         "True := by sorry\n",
@@ -1094,9 +1243,11 @@ class PipelinedReviewTest(unittest.TestCase):
 
                 def fake_formalization_review(spec, **_kwargs):
                     if not formalization_review_calls:
-                        self.assertIn('"status": "retry"', spec.prompt)
-                        self.assertIn(
-                            "proof Review redraft", spec.prompt
+                        self.assertIn('"current_status": "retry"', spec.prompt)
+                        self.assertIn('"reopened_by": "proof_review"', spec.prompt)
+                        self.assertNotIn(
+                            "the theorem assumes the requested conclusion",
+                            spec.prompt,
                         )
                     passed = formalization_verdicts[
                         len(formalization_review_calls)
@@ -1160,6 +1311,29 @@ class PipelinedReviewTest(unittest.TestCase):
                 self.assertEqual(prover_calls, expected_provers)
                 self.assertEqual(proof_review_calls, expected_provers)
                 self.assertEqual(formalizer_calls, len(formalization_verdicts))
+                self.assertEqual(
+                    len(formalizer_prompts), len(formalization_verdicts)
+                )
+                self.assertIn("needs_redraft", formalizer_prompts[0])
+                self.assertNotIn(
+                    "the theorem assumes the requested conclusion",
+                    formalizer_prompts[0],
+                )
+                for prior_cycle, prompt in enumerate(
+                    formalizer_prompts[1:], start=1
+                ):
+                    self.assertIn("formalization_review_failed", prompt)
+                    self.assertIn(
+                        hashlib.sha256(
+                            f"theorem a (h_law_{prior_cycle} : True) : "
+                            "True := by sorry\n".encode()
+                        ).hexdigest(),
+                        prompt,
+                    )
+                    self.assertNotIn(
+                        "the contract omits a source constraint",
+                        prompt,
+                    )
                 self.assertEqual(
                     formalization_review_calls, formalization_verdicts
                 )
@@ -1658,10 +1832,13 @@ class PipelinedReviewTest(unittest.TestCase):
             target.write_text("theorem a : True := by sorry\n", encoding="utf-8")
             prover_calls = 0
             review_calls = 0
+            prover_prompts: list[str] = []
+            prior_records: list[dict] = []
 
-            def fake_prover(*_args, **_kwargs):
+            def fake_prover(prompt, *_args, **_kwargs):
                 nonlocal prover_calls
                 prover_calls += 1
+                prover_prompts.append(prompt)
                 return True
 
             def fake_review(spec, **_kwargs):
@@ -1671,12 +1848,28 @@ class PipelinedReviewTest(unittest.TestCase):
                     _retry_proof_milestone(spec.rel)
                     if review_calls == 1 else _milestone(spec.rel)
                 )
+                if review_calls == 1:
+                    milestone["proof_review"]["reason"] = (
+                        "RAW_RETRY_REASON_SECRET"
+                    )
+                    milestone["proof_review"]["evidence"] = (
+                        "RAW_RETRY_EVIDENCE_SECRET"
+                    )
+                    milestone["proof_review"]["result_spec"] = {
+                        "value": "RETRY_RESULT_SPEC_SECRET",
+                    }
                 return TargetReviewOutcome(
                     rel=spec.rel,
                     attempt=spec.attempt,
                     runner_ok=True,
                     milestone=milestone,
                 )
+
+            def capture_review_prompt(**kwargs):
+                prior_records.append(json.loads(json.dumps(
+                    kwargs.get("prior_gate_record") or {}
+                )))
+                return "review"
 
             runner = self._runner(
                 root=root,
@@ -1693,6 +1886,11 @@ class PipelinedReviewTest(unittest.TestCase):
                     "build_parallel_prover_prompt",
                     return_value="work",
                 ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_review_prompt",
+                    side_effect=capture_review_prompt,
+                ),
                 patch("archon.commands.loop.prover.runners.snapshot_baseline"),
                 patch(
                     "archon.commands.loop.prover.runners.pick_resume_session",
@@ -1706,6 +1904,34 @@ class PipelinedReviewTest(unittest.TestCase):
 
             self.assertEqual(prover_calls, 2)
             self.assertEqual(review_calls, 2)
+            self.assertEqual(len(prior_records), 2)
+            self.assertEqual(prior_records[0], {})
+            history = prior_records[1].get("history")
+            self.assertIsInstance(history, list)
+            self.assertEqual(len(history), 1)
+            self.assertEqual(history[0]["route"], "retry_proof")
+            self.assertEqual(history[0]["attempt"], 1)
+            self.assertEqual(
+                history[0]["event_id"],
+                "pipeline:1:A.lean:proof:1",
+            )
+
+            self.assertEqual(len(prover_prompts), 2)
+            self.assertNotIn("retry_proof", prover_prompts[0])
+            self.assertIn("proof Review", prover_prompts[1])
+            self.assertIn(
+                hashlib.sha256(b"theorem a : True := by sorry\n").hexdigest(),
+                prover_prompts[1],
+            )
+            self.assertIn("retry_proof", prover_prompts[1])
+            for secret in (
+                "RAW_RETRY_REASON_SECRET",
+                "RAW_RETRY_EVIDENCE_SECRET",
+                "RETRY_RESULT_SPEC_SECRET",
+            ):
+                self.assertNotIn(secret, prover_prompts[1])
+            self.assertNotIn('"result_spec":', prover_prompts[1])
+
             report = json.loads(
                 (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
             )
@@ -2104,6 +2330,16 @@ class PipelinedReviewTest(unittest.TestCase):
 
             def formalizer(*_args, **_kwargs):
                 calls["formalizer"] += 1
+                prompt = _args[0]
+                self.assertIn("controller-sanitized repair task", prompt)
+                self.assertIn("needs_redraft", prompt)
+                self.assertIn(
+                    hashlib.sha256(
+                        b"theorem a (h_initial : True) : True := by sorry\n"
+                    ).hexdigest(),
+                    prompt,
+                )
+                self.assertNotIn("the theorem assumes the requested conclusion", prompt)
                 record = json.loads(
                     (state / "formalization-review-gate.json").read_text(
                         encoding="utf-8"
@@ -2202,6 +2438,22 @@ class PipelinedReviewTest(unittest.TestCase):
                 ],
             )
             self.assertEqual(proof["status"], "solved")
+            for key in (
+                "reopened_by", "redraft_kind", "certificate_revoked_at",
+            ):
+                self.assertNotIn(key, formal)
+            transition = next(
+                event
+                for event in proof["repair_events"]
+                if event.get("transition") == "formalization_redraft_passed"
+            )
+            self.assertEqual(
+                transition["candidate_sha256"],
+                hashlib.sha256(
+                    b"theorem a (h_law : True) : True := by sorry\n"
+                ).hexdigest(),
+            )
+            self.assertEqual(transition["failed_check_ids"], [])
             self.assertEqual(
                 [row["event_id"] for row in proof["history"]
                  if row.get("event_id")],

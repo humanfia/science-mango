@@ -280,7 +280,7 @@ class ProverPhase(Phase):
                     "parallel_target_review_backoff_sec", 5,
                 ))),
                 preflight_timeout_sec=max(1, int(loop_cfg.get(
-                    "review_preflight_timeout_sec", 300,
+                    "review_preflight_timeout_sec", 3600,
                 ))),
                 harness=ctx.harness_descriptor_for("review"),
                 formalizer_harness=ctx.harness_descriptor_for("prover"),

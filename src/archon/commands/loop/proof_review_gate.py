@@ -8,6 +8,7 @@ statement/modeling redraft or a genuine infrastructure blocker.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import stat
@@ -27,6 +28,7 @@ from .review_source_contract import (
     provenance_from_review,
     source_assessment_from_review,
 )
+from .review_feedback import build_feedback_event, build_repair_task
 from .shared_infrastructure import register_shared_infrastructure_request
 
 
@@ -688,6 +690,7 @@ def apply_target_proof_review(
     max_iterations: int,
     event_id: str,
     expected_source_contract: Mapping[str, Any] | None = None,
+    preflight: Mapping[str, Any] | None = None,
 ) -> TargetProofReviewUpdate:
     """Apply one proof Review event exactly once without routing PROGRESS.
 
@@ -764,6 +767,31 @@ def apply_target_proof_review(
     else:
         status = "retry"
 
+    source_provenance = _milestone_source_provenance(milestone)
+    raw_certificate = milestone.get("proof_review")
+    if not isinstance(raw_certificate, dict):
+        findings = milestone.get("findings")
+        raw_certificate = (
+            findings.get("proof_review") if isinstance(findings, dict) else None
+        )
+    blind_certificate = normalized_review_source_certificate(raw_certificate)
+    candidate_sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
+    feedback_event = build_feedback_event(
+        review_kind="proof",
+        candidate_sha256=candidate_sha256,
+        event_id=event_id,
+        iteration=iter_num,
+        attempt=attempts,
+        resulting_status=status,
+        certificate=blind_certificate,
+        route=route,
+        redraft_kind=redraft_kind,
+        preflight=preflight,
+    )
+    repair_events = previous.get("repair_events")
+    repair_events = list(repair_events) if isinstance(repair_events, list) else []
+    repair_events.append(feedback_event)
+
     history.append({
         "event_id": event_id,
         "iter": iter_num,
@@ -791,7 +819,7 @@ def apply_target_proof_review(
                 iter_num=iter_num,
             )
         )
-    targets[rel] = {
+    next_record = {
         **previous,
         "status": status,
         "attempts": attempts,
@@ -801,22 +829,24 @@ def apply_target_proof_review(
         "redraft_kind": redraft_kind,
         "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
         "proof_review_route": route,
-        "source_contract": _milestone_source_provenance(milestone),
-        "blind_review_certificate": normalized_review_source_certificate(
-            milestone.get("proof_review")
-            if isinstance(milestone.get("proof_review"), dict)
-            else (
-                milestone.get("findings", {}).get("proof_review")
-                if isinstance(milestone.get("findings"), dict)
-                else None
-            )
-        ),
+        "candidate_sha256": candidate_sha256,
+        "source_contract": source_provenance,
+        "blind_review_certificate": blind_certificate,
         **_milestone_source_assessment(milestone),
         "infrastructure_request": infrastructure_request,
         "infrastructure_request_error": infrastructure_request_error,
         "history": history[-50:],
+        "repair_events": repair_events[-20:],
         "updated_at": _utcnow(),
     }
+    next_record["repair_handoff"] = build_repair_task(
+        next_record,
+        review_kind="proof",
+        worker_stage=("formalization" if route == "needs_redraft" else "proof"),
+        candidate_sha256=candidate_sha256,
+        preflight=preflight,
+    )
+    targets[rel] = next_record
     state = {
         **state,
         "version": STATE_VERSION,
@@ -864,6 +894,28 @@ def reset_proof_review_targets_after_redraft(
             "prior_attempts": int(record.get("attempts") or 0),
             "reviewed_at": _utcnow(),
         })
+        target = state_dir.parent / rel
+        if not target.is_file():
+            continue
+        candidate_sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
+        repair_events = record.get("repair_events")
+        repair_events = (
+            list(repair_events) if isinstance(repair_events, list) else []
+        )
+        repair_events.append(build_feedback_event(
+            review_kind="proof",
+            candidate_sha256=candidate_sha256,
+            event_id=(
+                f"pipeline:{iter_num}:{rel}:formalization-redraft-passed"
+            ),
+            iteration=iter_num,
+            attempt=0,
+            resulting_status="retry",
+            certificate={},
+            route="retry_proof",
+            redraft_kind="not_applicable",
+            transition="formalization_redraft_passed",
+        ))
         records[rel] = {
             **record,
             "status": "retry",
@@ -874,6 +926,12 @@ def reset_proof_review_targets_after_redraft(
             ),
             "evidence": "",
             "redraft_kind": "not_applicable",
+            "proof_review_route": "retry_proof",
+            "blind_review_certificate": {},
+            "candidate_sha256": candidate_sha256,
+            "source_contract": None,
+            "repair_events": repair_events[-20:],
+            "repair_handoff": {},
             "redraft_resolved_iter": iter_num,
             "history": history[-50:],
             "updated_at": _utcnow(),

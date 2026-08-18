@@ -111,6 +111,7 @@ from archon.commands.qcode_humanize import qcode_humanize  # noqa: E402
 from archon.commands.dag import dag  # noqa: E402
 from archon.commands.extract import extract, merge  # noqa: E402
 from archon.commands.dag.gaps_entry import dag_carve_plan, dag_gaps, dag_graph, dag_query  # noqa: E402
+from archon.commands.chemistry_constant import chemistry_constant  # noqa: E402
 
 app.command()(init)
 app.command()(dag)
@@ -121,6 +122,7 @@ app.command("dag-gaps", hidden=True)(dag_gaps)
 app.command("dag-graph", hidden=True)(dag_graph)
 app.command("dag-query", hidden=True)(dag_query)
 app.command("dag-carve-plan", hidden=True)(dag_carve_plan)
+app.command("chemistry-constant", hidden=True)(chemistry_constant)
 from archon.commands.loop.blueprint_doctor import blueprint_doctor_cli  # noqa: E402
 app.command("blueprint-doctor")(blueprint_doctor_cli)
 from archon.commands.tooling.protect import protect_check_cli  # noqa: E402

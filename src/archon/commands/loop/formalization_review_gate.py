@@ -35,6 +35,7 @@ from .review_source_contract import (
     source_assessment_from_review,
     stored_provenance_matches_current,
 )
+from .review_feedback import build_feedback_event, build_repair_task
 from .sorry_count import file_open_sorry_count
 
 
@@ -864,6 +865,7 @@ def apply_target_formalization_review(
     max_iterations: int,
     event_id: str,
     expected_source_contract: Mapping[str, Any] | None = None,
+    preflight: Mapping[str, Any] | None = None,
 ) -> TargetFormalizationReviewUpdate:
     """Apply one semantic formalization verdict without routing PROGRESS.
 
@@ -934,6 +936,22 @@ def apply_target_formalization_review(
         else:
             status = "retry"
 
+    candidate_sha256 = _file_sha256(target)
+    feedback_event = build_feedback_event(
+        review_kind="formalization",
+        candidate_sha256=candidate_sha256,
+        event_id=event_id,
+        iteration=iter_num,
+        attempt=reviews,
+        resulting_status=status,
+        certificate=certificate,
+        decision=decision,
+        preflight=preflight,
+    )
+    repair_events = old.get("repair_events")
+    repair_events = list(repair_events) if isinstance(repair_events, list) else []
+    repair_events.append(feedback_event)
+
     events.append({
         "event_id": event_id,
         "iter": iter_num,
@@ -951,9 +969,16 @@ def apply_target_formalization_review(
         "reason": reason,
         "updated_at": _utcnow(),
         "review_schema_version": REVIEW_SCHEMA_VERSION,
+        "candidate_sha256": candidate_sha256,
         "certificate": certificate,
         "review_events": events[-50:],
+        "repair_events": repair_events[-20:],
     }
+    # A fresh formalization verdict supersedes transient proof-redraft routing
+    # flags.  Keeping them live makes crash/resume select the older proof
+    # certificate instead of this newer semantic Review.
+    for stale_key in ("reopened_by", "certificate_revoked_at", "redraft_kind"):
+        next_record.pop(stale_key, None)
     materialized = old.get("materialized_redraft")
     if isinstance(materialized, dict):
         next_record["materialized_redraft"] = {
@@ -961,6 +986,13 @@ def apply_target_formalization_review(
             "status": "reviewed",
             "reviewed_iter": iter_num,
         }
+    next_record["repair_handoff"] = build_repair_task(
+        next_record,
+        review_kind="formalization",
+        worker_stage="formalization",
+        candidate_sha256=candidate_sha256,
+        preflight=preflight,
+    )
     targets[rel] = next_record
     data["last_review_iter"] = iter_num
     data["updated_at"] = _utcnow()

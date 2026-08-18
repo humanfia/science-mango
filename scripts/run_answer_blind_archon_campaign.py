@@ -2,7 +2,7 @@
 """Thin full32 answer-blind entry point for Archon's native workflow.
 
 One fresh workspace is prepared from the sanitized seed.  The only model-facing
-command is ``archon loop``; Archon schedules all 32 targets at the configured
+command is ``archon loop``; Archon schedules all prepared targets at the configured
 parallelism and owns formalization, both Review gates, proof construction, and
 final Lake build.  Without ``--run`` the script prepares the workspace but does
 not start the loop.
@@ -27,6 +27,7 @@ import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
+from archon.commands.chemistry_constant import DATASET_SHA256, DATASET_VERSION
 from archon.commands.loop.physics_grounding import (
     _report_name as grounding_report_name,
     run_physics_grounding,
@@ -38,6 +39,7 @@ SCHEMA_VERSION = 1
 PIPELINE = "archon-native-answer-blind-full32"
 EXPECTED_ITEMS = 32
 DEFAULT_MAX_PARALLEL = 4
+REVIEW_PREFLIGHT_TIMEOUT_SEC = 3600
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
 SOURCE_REPORT_MARKER = "% archon:source-report "
 PHYSICS_MARKER = "% archon:physics"
@@ -60,14 +62,17 @@ the sealed problem inputs is visible, stop and report it without using it.
 
 Do not edit the question bundle, source reports, problem PDF/images,
 `isolation_manifest.json`, `.archon/config.json`, or this file. During a
-target-scoped prover task, edit only the assigned Lean file and its task-result
-report. Preserve the quantities, units, hypotheses, requested outputs, and
+target-scoped prover task, edit only the assigned Lean file, its task-result
+report, and the exact target-scoped answer submission required by the active
+Formalizer/Prover mode. Preserve the quantities, units, hypotheses, requested outputs, and
 chemical alternatives stated in the problem; do not replace the goal with a
 tautology or unsupported premise.
 
 Archon's native acceptance path is: formalization, formalization Review, proof,
-proof Review, and final Lake build. There is no separate seal/freeze protocol in
-this run.
+proof Review, and final Lake build. The solver must not run or access the answer
+freeze. After its dedicated UID/process group is quiescent, a trusted external
+controller freezes the answer submissions before any official-answer reveal or
+scoring.
 """
 
 NATIVE_PROTOCOL = """# Answer-Blind Native Archon Protocol
@@ -82,8 +87,10 @@ problem, never as evidence for the upstream result they replace.
 
 Archon performs the normal chemistry workflow in one workspace: create faithful
 Lean statements, run formalization Review, fill proofs, run proof Review, then
-run the final Lake build. No external answer-blind controller, seal, or freeze
-step is part of this simplified run.
+run the final Lake build. The solver cannot read or write the external freeze.
+Only the trusted root/controller, after confirming the dedicated solver
+UID/process group is quiescent, freezes submissions before official-answer
+reveal or scoring.
 """
 
 NATIVE_FORMALIZE_MODE = """---
@@ -113,8 +120,56 @@ solve the proof.
 - If the searched libraries do not provide a problem-specific bridge, state
   and prove a target-local helper from available foundations. Do not install,
   update, fetch, or replace Lake dependencies.
-- Edit only the assigned Lean file and its `.archon/task_results` report. Do not
-  create a candidate JSON, edit the problem sources, or edit another target.
+- For routine atomic weights, isotope masses, formula molar masses, or a
+  registered generic reaction schema, use only the version-pinned offline CLI.
+  Query grammar (angle-bracket names are placeholders, not literal tokens):
+  `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`, or
+  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`.
+  These grammar lines and any examples are illustrative, not an allowlist: any
+  single element, canonical isotope, formula, or template id supported by this
+  pinned CLI dataset is permitted. Do not infer that an unshown token is
+  unavailable. Pass exactly one such token—never a problem id, question/source
+  text, URL, or search phrase. The command performs no network access and
+  returns a dataset version/hash that must be preserved as provenance.
+  Problem-stipulated values take precedence. A pinned nominal value may be used
+  for an olympiad-style central answer when requested, but check whether source
+  uncertainty could change the required reported digits or classification. A
+  returned reaction template is not evidence that the current problem
+  instantiates it; establish that classification separately from problem
+  evidence or trusted general chemistry.
+- For assigned `IChO2026Problems/problem_<TARGET_ID>.lean`, atomically overwrite
+  `.archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json` on
+  every formalization and redraft. It is generated output, never source
+  evidence, and must have exactly this schema:
+  ```json
+  {
+    "schema_version": 1,
+    "id": "<TARGET_ID>",
+    "official_answer_seen": false,
+    "outputs": [
+      {
+        "id": "<exact requested_outputs id>",
+        "kind": "<exact requested_outputs kind>",
+        "raw_value": "<finite number or non-empty exact symbolic string>",
+        "display_value": "<required non-empty displayed string>",
+        "unit": "<exact requested_outputs unit>"
+      }
+    ]
+  }
+  ```
+  Preserve the requested output order/count/id/kind/unit exactly. Apply each
+  requested output's reporting_policy to `display_value`; it is always a JSON
+  string, including for integer/numeric outputs. Keep exact, unrounded
+  arithmetic in `raw_value` when applicable. For numeric outputs prefer ASCII
+  decimal/e notation such as `7.03e12`; never use Unicode superscript digits.
+  Do not add `composition_accounting`, topology, ledger, or any other field to
+  this exact answer JSON schema; image-accounting details belong in Lean/task
+  reports and Review certificates only.
+- Edit only the assigned Lean file, its `.archon/task_results` report, and that
+  exact `.answer.json`. Do not create any other candidate/answer JSON, edit the
+  problem sources, or edit another target.
 - If official answers, solutions, rubrics, grader data, or prior-run answers are
   visible, stop and report an answer-blind violation without reading them.
 """
@@ -138,8 +193,19 @@ problem-specific bridge may be synthesized as a proved target-local helper. If
 a foundational bridge cannot be derived from the pinned libraries and source
 hypotheses, report `needs_redraft` so the next iteration can re-ground and
 rebuild the formalization; do not weaken it. Never install, update, fetch, or
-replace Lake dependencies. Edit only the assigned Lean file and its task-result
-report. Never seek or use an official answer, solution, rubric, grader output,
+replace Lake dependencies.
+
+Before returning, verify the exact target-scoped `.answer.json` required by the
+Formalizer mode still matches requested_outputs, reporting_policy, and the
+reviewed Lean result carriers. It is part of the reviewed statement contract:
+never invent or revise its answer merely to make a proof work. If it is missing,
+invalid, or stale, recreate/refresh it only by unambiguous transcription from
+the already reviewed Lean carriers, preserving the same answer semantics. If
+that is impossible, report `needs_redraft`; do not guess. `display_value` must
+remain a JSON string. Edit only the assigned Lean file, task-result report, and
+that exact answer file; do not create another candidate/answer artifact.
+
+Never seek or use an official answer, solution, rubric, grader output,
 prior run, or another solver's work.
 """
 
@@ -172,6 +238,31 @@ JSONL row for every listed objective: no omissions, duplicates, or extra
 targets. Also write the requested summary, recommendations, and PROJECT_STATUS
 files. Do not modify Lean files and never seek an official answer, solution,
 rubric, grader output, prior run, or another solver's work.
+
+For each target, read only its explicitly bound `.answer.json` as untrusted
+generated output. Re-derive every raw/display value independently, then audit
+the exact output order/id/kind/unit/reporting_policy and its named Lean carrier.
+Record match/failure status by output id without copying raw answer values into
+source provenance or controller history.
+
+The only permitted general-knowledge lookup is the pinned offline structured
+CLI. Query grammar (angle-bracket names are placeholders, not literal tokens):
+`"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
+`"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
+`"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`, or
+`"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`.
+These grammar lines and any examples are illustrative, not an allowlist: any
+single element, canonical isotope, formula, or template id supported by this
+pinned CLI dataset is permitted. Do not infer that an unshown token is
+unavailable. Never pass a problem id, question text, URL, or search phrase.
+The Reviewer must verify each used lookup through the same `"$ARCHON_CLI_BIN"`
+grammar and check its returned dataset version/hash against the bound source
+contract; prompt examples never define the supported inventory.
+Problem-stipulated values override the dataset. A pinned nominal value may be
+used for an olympiad-style central answer when requested, but check whether
+source uncertainty could change the required reported digits or classification.
+A generic reaction template does not establish that the current problem
+instantiates it.
 """
 
 
@@ -209,7 +300,9 @@ class Config:
     lake_packages: Path | None = None
     archon_bin: str = "archon"
     max_iterations: int = 100
+    review_max_iterations: int = 10
     max_parallel: int = DEFAULT_MAX_PARALLEL
+    expected_items: int = EXPECTED_ITEMS
     target_lifecycle: bool = False
 
     @property
@@ -229,7 +322,7 @@ class Config:
         return self.campaign_root / "lake-packages"
 
 
-def _target_ids(root: Path) -> tuple[str, ...]:
+def _target_ids(root: Path, *, expected_items: int = EXPECTED_ITEMS) -> tuple[str, ...]:
     try:
         manifest = json.loads((root / "isolation_manifest.json").read_text())
     except (OSError, json.JSONDecodeError) as exc:
@@ -237,10 +330,12 @@ def _target_ids(root: Path) -> tuple[str, ...]:
     ids = manifest.get("target_ids") if isinstance(manifest, dict) else None
     if (
         not isinstance(ids, list)
-        or len(ids) != EXPECTED_ITEMS
-        or len(set(map(str, ids))) != EXPECTED_ITEMS
+        or len(ids) != expected_items
+        or len(set(map(str, ids))) != expected_items
     ):
-        raise CampaignError("seed must declare exactly 32 unique target_ids")
+        raise CampaignError(
+            f"seed must declare exactly {expected_items} unique target_ids"
+        )
     return tuple(map(str, ids))
 
 
@@ -260,13 +355,20 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError("campaign root and seed must be disjoint")
     if root.exists() and (not root.is_dir() or any(root.iterdir())):
         raise CampaignError(f"campaign root must be absent or empty: {root}")
-    if config.max_iterations < 1:
-        raise CampaignError("max_iterations must be positive")
+    if type(config.max_iterations) is not int or config.max_iterations < 1:
+        raise CampaignError("max_iterations must be a positive integer")
+    if (
+        type(config.review_max_iterations) is not int
+        or config.review_max_iterations < 1
+    ):
+        raise CampaignError("review_max_iterations must be a positive integer")
+    if type(config.expected_items) is not int or config.expected_items < 1:
+        raise CampaignError("expected_items must be a positive integer")
     if type(config.max_parallel) is not int or not (
-        1 <= config.max_parallel <= EXPECTED_ITEMS
+        1 <= config.max_parallel <= config.expected_items
     ):
         raise CampaignError(
-            f"max_parallel must be between 1 and {EXPECTED_ITEMS}"
+            f"max_parallel must be between 1 and {config.expected_items}"
         )
     if type(config.target_lifecycle) is not bool:
         raise CampaignError("target_lifecycle must be a boolean")
@@ -277,27 +379,37 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
     resolved = dataclasses.replace(
         config, campaign_root=root, seed_workspace=seed, lake_packages=packages
     )
-    return resolved, _target_ids(seed)
+    return resolved, _target_ids(seed, expected_items=config.expected_items)
 
 
 def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
     config = dataclasses.replace(config, campaign_root=config.campaign_root.resolve())
     if not config.workspace.is_dir() or not config.index_path.is_file():
         raise CampaignError(f"prepared workspace is missing: {config.workspace}")
-    if config.max_iterations < 1:
-        raise CampaignError("max_iterations must be positive")
+    if type(config.max_iterations) is not int or config.max_iterations < 1:
+        raise CampaignError("max_iterations must be a positive integer")
+    if (
+        type(config.review_max_iterations) is not int
+        or config.review_max_iterations < 1
+    ):
+        raise CampaignError("review_max_iterations must be a positive integer")
+    if type(config.expected_items) is not int or config.expected_items < 1:
+        raise CampaignError("expected_items must be a positive integer")
     if type(config.max_parallel) is not int or not (
-        1 <= config.max_parallel <= EXPECTED_ITEMS
+        1 <= config.max_parallel <= config.expected_items
     ):
         raise CampaignError(
-            f"max_parallel must be between 1 and {EXPECTED_ITEMS}"
+            f"max_parallel must be between 1 and {config.expected_items}"
         )
     if type(config.target_lifecycle) is not bool:
         raise CampaignError("target_lifecycle must be a boolean")
-    ids = _target_ids(config.workspace)
+    ids = _target_ids(config.workspace, expected_items=config.expected_items)
     _check_native_config(
         config.workspace,
+        max_iterations=config.max_iterations,
+        review_max_iterations=config.review_max_iterations,
         max_parallel=config.max_parallel,
+        max_objectives=config.expected_items,
         target_lifecycle=config.target_lifecycle,
     )
     _validate_native_markers(config.workspace, ids)
@@ -306,8 +418,10 @@ def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
 
 
 def _patch_native_config(
-    workspace: Path, *, max_iterations: int, max_parallel: int,
+    workspace: Path, *, max_iterations: int, review_max_iterations: int,
+    max_parallel: int,
     target_lifecycle: bool,
+    max_objectives: int = EXPECTED_ITEMS,
 ) -> None:
     path = workspace / ".archon/config.json"
     try:
@@ -358,12 +472,15 @@ def _patch_native_config(
         "harness": "answer-blind-gpt",
         "model": "gpt-5.6-sol",
         "max_iterations": max_iterations,
+        "formalization_review_max_iterations": review_max_iterations,
+        "proof_review_max_iterations": review_max_iterations,
         "parallel": True,
         "max_parallel": max_parallel,
-        "max_objectives": EXPECTED_ITEMS,
+        "max_objectives": max_objectives,
         "formalization_review_gate": True,
         "proof_review_gate": True,
         "review_preflight_jobs": max_parallel,
+        "review_preflight_timeout_sec": REVIEW_PREFLIGHT_TIMEOUT_SEC,
         "parallel_target_review_jobs": max_parallel,
         "parallel_formalization_review_jobs": max_parallel,
         # The historical r6 behavior remains the default.  The explicit
@@ -613,7 +730,7 @@ def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]
             raise CampaignError(f"initial grounding returned a duplicate target: {lean_file}")
         actual[lean_file] = report
     if set(actual) != expected:
-        raise CampaignError("initial grounding did not cover the exact blind full32 set")
+        raise CampaignError("initial grounding did not cover the exact blind target set")
     counts = collections.Counter()
     task_results = (config.workspace / ".archon/task_results").resolve()
     for lean_file, report in actual.items():
@@ -662,7 +779,10 @@ def _run_initial_grounding(config: Config, ids: Sequence[str]) -> dict[str, int]
 
 
 def _check_native_config(
-    workspace: Path, *, max_parallel: int = DEFAULT_MAX_PARALLEL,
+    workspace: Path, *, max_iterations: int = 100,
+    review_max_iterations: int = 10,
+    max_parallel: int = DEFAULT_MAX_PARALLEL,
+    max_objectives: int = EXPECTED_ITEMS,
     target_lifecycle: bool = False,
     preparation: bool = False,
 ) -> None:
@@ -698,6 +818,23 @@ def _check_native_config(
         or (loop.get("shared_infrastructure") or {}).get("enabled") is not False
     ):
         raise CampaignError("prepared harness is not native non-root Codex")
+    if loop.get("review_preflight_timeout_sec") != REVIEW_PREFLIGHT_TIMEOUT_SEC:
+        raise CampaignError(
+            "prepared config has unexpected review_preflight_timeout_sec"
+        )
+    configured_max_iterations = loop.get("max_iterations")
+    if (
+        type(configured_max_iterations) is not int
+        or configured_max_iterations != max_iterations
+    ):
+        raise CampaignError("prepared config has unexpected max_iterations")
+    for key in (
+        "formalization_review_max_iterations",
+        "proof_review_max_iterations",
+    ):
+        configured = loop.get(key)
+        if type(configured) is not int or configured != review_max_iterations:
+            raise CampaignError(f"prepared config has unexpected {key}")
     lifecycle_flags = (
         loop.get("parallel_formalization_review"),
         loop.get("parallel_target_review"),
@@ -707,6 +844,8 @@ def _check_native_config(
         raise CampaignError(
             "--target-lifecycle must match the prepared workspace config"
         )
+    if loop.get("max_objectives") != max_objectives:
+        raise CampaignError("prepared config has unexpected max_objectives")
     for key in (
         "max_parallel",
         "review_preflight_jobs",
@@ -732,7 +871,7 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
         _CONFIGURE.configure_answer_blind_workspace(
             config.workspace,
             variant="gpt",
-            max_objectives=EXPECTED_ITEMS,
+            max_objectives=len(ids),
             max_parallel=config.max_parallel,
         )
     except Exception as exc:
@@ -740,13 +879,18 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     _patch_native_config(
         config.workspace,
         max_iterations=config.max_iterations,
+        review_max_iterations=config.review_max_iterations,
         max_parallel=config.max_parallel,
+        max_objectives=len(ids),
         target_lifecycle=config.target_lifecycle,
     )
     _write_native_policy_files(config.workspace)
     _check_native_config(
         config.workspace,
+        max_iterations=config.max_iterations,
+        review_max_iterations=config.review_max_iterations,
         max_parallel=config.max_parallel,
+        max_objectives=len(ids),
         target_lifecycle=config.target_lifecycle,
         preparation=True,
     )
@@ -786,8 +930,11 @@ def loop_command(config: Config, *, resume: bool) -> list[str]:
     command += ["--resume"] if resume else ["--from", "prover"]
     return command + [
         "--parallel", "--max-parallel", str(config.max_parallel),
-        "--max-objectives", str(EXPECTED_ITEMS),
+        "--max-objectives", str(config.expected_items),
         "--max-iterations", str(config.max_iterations),
+        "--formalization-review-max-iterations",
+        str(config.review_max_iterations),
+        "--proof-review-max-iterations", str(config.review_max_iterations),
         "--review", "--formalization-review-gate", "--proof-review-gate",
         "--no-dashboard", "--no-blueprint-web",
     ]
@@ -817,6 +964,34 @@ def _private_git_packages(config: Config) -> tuple[Path, ...]:
     return tuple(packages)
 
 
+def _resolved_archon_bin(config: Config, environment: Mapping[str, str]) -> Path:
+    raw = Path(config.archon_bin)
+    if raw.is_absolute() or raw.parent != Path("."):
+        return raw.absolute()
+    located = shutil.which(config.archon_bin, path=environment.get("PATH"))
+    if not located:
+        raise CampaignError(
+            f"cannot resolve configured Archon binary: {config.archon_bin}"
+        )
+    return Path(located).resolve()
+
+
+def _valid_chemistry_constant_smoke(
+    result: subprocess.CompletedProcess,
+) -> bool:
+    if result.returncode != 0:
+        return False
+    try:
+        payload = json.loads(result.stdout)
+    except (TypeError, json.JSONDecodeError):
+        return False
+    return bool(
+        isinstance(payload, Mapping)
+        and payload.get("dataset_version") == DATASET_VERSION
+        and payload.get("dataset_sha256") == DATASET_SHA256
+    )
+
+
 def _run(command: Sequence[str], *, config: Config) -> tuple[int, float]:
     started = time.monotonic()
     # The campaign-local dependency checkout is controller-owned and read-only.
@@ -826,6 +1001,9 @@ def _run(command: Sequence[str], *, config: Config) -> tuple[int, float]:
     # directories in this campaign. Git does not expand safe.directory globs.
     safe_directories = (config.workspace, *_private_git_packages(config))
     environment = os.environ.copy()
+    archon_bin = _resolved_archon_bin(config, environment)
+    old_path = environment.get("PATH", "")
+    environment["PATH"] = str(archon_bin.parent) + os.pathsep + old_path
     environment["GIT_CONFIG_COUNT"] = str(len(safe_directories))
     for index, path in enumerate(safe_directories):
         environment[f"GIT_CONFIG_KEY_{index}"] = "safe.directory"
@@ -834,6 +1012,27 @@ def _run(command: Sequence[str], *, config: Config) -> tuple[int, float]:
         log.write(f"\n[{_utcnow()}] $ {shlex.join(command)}\n")
         log.flush()
         try:
+            if len(command) > 1 and command[1] == "loop":
+                smoke = subprocess.run(
+                    [
+                        str(archon_bin),
+                        "chemistry-constant",
+                        "atomic_weight",
+                        "C",
+                    ],
+                    cwd=config.workspace,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    env=environment,
+                    timeout=30,
+                )
+                if not _valid_chemistry_constant_smoke(smoke):
+                    log.write(
+                        "configured Archon binary failed the pinned offline "
+                        "chemistry-constant smoke check\n"
+                    )
+                    return 126, time.monotonic() - started
             result = subprocess.run(
                 list(command), cwd=config.workspace, stdout=log,
                 stderr=subprocess.STDOUT, text=True, check=False,
@@ -871,7 +1070,7 @@ def validate_physics_metadata(workspace: Path, ids: Sequence[str]) -> None:
         or {str(row.get("rel_lean")) for row in records if isinstance(row, dict)}
         != set(_targets(ids))
     ):
-        raise CampaignError("physics-formalize did not prepare the exact blind full32 set")
+        raise CampaignError("physics-formalize did not prepare the exact blind target set")
 
 
 def _gate_counts(path: Path, expected: set[str]) -> tuple[dict[str, int], bool]:
@@ -924,8 +1123,8 @@ def native_summary(workspace: Path, ids: Sequence[str]) -> dict[str, Any]:
     build_ok, sorry_count = _latest_build(workspace)
     complete = (
         formal_exact and proof_exact
-        and formal.get("passed") == EXPECTED_ITEMS
-        and proof.get("solved") == EXPECTED_ITEMS
+        and formal.get("passed") == len(expected)
+        and proof.get("solved") == len(expected)
         and build_ok is True and sorry_count == 0
     )
     return {
@@ -951,6 +1150,8 @@ def _base_index(config: Config, ids: Sequence[str]) -> dict[str, Any]:
         "workspace": str(config.workspace),
         "row_count": len(ids),
         "bundle_sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
+        "max_iterations": config.max_iterations,
+        "review_max_iterations": config.review_max_iterations,
         "max_parallel": config.max_parallel,
         "target_lifecycle": config.target_lifecycle,
         "status": "preparing",
@@ -979,7 +1180,10 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
     _activate_native_review_profile(config.workspace)
     _check_native_config(
         config.workspace,
+        max_iterations=config.max_iterations,
+        review_max_iterations=config.review_max_iterations,
         max_parallel=config.max_parallel,
+        max_objectives=config.expected_items,
         target_lifecycle=config.target_lifecycle,
     )
     _validate_crnt_project_index(config)
@@ -1029,6 +1233,24 @@ def resume_campaign(config: Config) -> dict[str, Any]:
         raise CampaignError("invalid campaign.json") from exc
     if index.get("pipeline") != PIPELINE:
         raise CampaignError("campaign.json belongs to a different pipeline")
+    receipt_max_iterations = index.get("max_iterations")
+    if (
+        type(receipt_max_iterations) is not int
+        or receipt_max_iterations != config.max_iterations
+    ):
+        raise CampaignError(
+            "--max-iterations must match the prepared campaign value "
+            f"({receipt_max_iterations})"
+        )
+    receipt_review_max_iterations = index.get("review_max_iterations")
+    if (
+        type(receipt_review_max_iterations) is not int
+        or receipt_review_max_iterations != config.review_max_iterations
+    ):
+        raise CampaignError(
+            "--review-max-iterations must match the prepared campaign value "
+            f"({receipt_review_max_iterations})"
+        )
     if index.get("max_parallel") != config.max_parallel:
         raise CampaignError(
             "--max-parallel must match the prepared campaign value "
@@ -1093,12 +1315,28 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--archon-bin", default="archon")
     parser.add_argument("--max-iterations", type=int, default=100)
     parser.add_argument(
+        "--review-max-iterations",
+        type=int,
+        default=10,
+        help=(
+            "maximum attempts within each formalization/proof Review cycle; "
+            "repeat the prepared value on resume (default: 10)"
+        ),
+    )
+    parser.add_argument(
+        "--expected-items",
+        type=int,
+        default=EXPECTED_ITEMS,
+        help=("exact number of target IDs required in the seed; repeat the "
+              "prepared value on resume (default: 32)"),
+    )
+    parser.add_argument(
         "--max-parallel",
         type=int,
         default=DEFAULT_MAX_PARALLEL,
         help=(
             "maximum concurrent Archon lanes; repeat the prepared value on resume "
-            f"(1-{EXPECTED_ITEMS}, default: {DEFAULT_MAX_PARALLEL})"
+            f"(at most --expected-items, default: {DEFAULT_MAX_PARALLEL})"
         ),
     )
     parser.add_argument(
@@ -1124,7 +1362,9 @@ def main(argv: Iterable[str] | None = None) -> int:
         lake_packages=args.lake_packages,
         archon_bin=args.archon_bin,
         max_iterations=args.max_iterations,
+        review_max_iterations=args.review_max_iterations,
         max_parallel=args.max_parallel,
+        expected_items=args.expected_items,
         target_lifecycle=args.target_lifecycle,
     )
     try:

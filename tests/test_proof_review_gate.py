@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -148,6 +149,12 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         self.assertIn(
             "problem-only source contract validation failed",
             update.reason,
+        )
+        record = load_proof_review_state(self.state)["targets"]["Problems/p.lean"]
+        candidate_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        self.assertEqual(record["candidate_sha256"], candidate_sha256)
+        self.assertEqual(
+            record["repair_events"][-1]["candidate_sha256"], candidate_sha256
         )
 
     def test_bad_native_source_target_does_not_collapse_batch(self):
@@ -599,6 +606,16 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         self.assertEqual(proof_record["status"], "retry")
         self.assertEqual(proof_record["attempts"], 0)
         self.assertEqual(proof_record["redraft_resolved_iter"], 3)
+        candidate_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        self.assertEqual(proof_record["candidate_sha256"], candidate_sha256)
+        self.assertIsNone(proof_record["source_contract"])
+        transition = proof_record["repair_events"][-1]
+        self.assertEqual(
+            transition["transition"], "formalization_redraft_passed"
+        )
+        self.assertEqual(transition["candidate_sha256"], candidate_sha256)
+        self.assertEqual(transition["failed_check_ids"], [])
+        self.assertEqual(proof_record["repair_handoff"], {})
         formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
         self.assertEqual(
             formal_record["reopen_history"][-1]["previous_certificate"],
