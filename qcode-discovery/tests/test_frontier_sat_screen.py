@@ -190,48 +190,136 @@ def test_proof_plan_prioritizes_fair_interleaved_lower_units():
     ]
 
 
-def test_resume_portfolio_does_not_repeat_same_timeout_configuration():
-    portfolio = sat_screen._portfolio_configs("auto", "seqcounter")
-    assert portfolio[:4] == [
-        {"solver": "cadical195", "cardinality_encoding": "seqcounter"},
-        {"solver": "cadical195", "cardinality_encoding": "kmtotalizer"},
-        {"solver": "minicard", "cardinality_encoding": "native-minicard"},
-        {"solver": "cadical195", "cardinality_encoding": "totalizer"},
-    ]
-    timeout = {
-        "outcome": "hard_timeout",
+def _timeout_attempt(
+    config,
+    attempt_index,
+    *,
+    budget=3600.0,
+    outcome="hard_timeout",
+    policy=sat_screen.SAT_PORTFOLIO_POLICY,
+):
+    evidence = {
+        "outcome": outcome,
         "decision_complete": False,
-        "hard_timeout_s": 3600.0,
-        "backend": {"solver": "cadical195"},
-        "cardinality_encoding": "seqcounter",
-        "elapsed_s": 3600.0,
+        "hard_timeout_s": budget,
+        "backend": {"solver": config["solver"]},
+        "cardinality_encoding": config["cardinality_encoding"],
+        "elapsed_s": budget,
     }
-    attempt = sat_screen._legacy_attempt(timeout)
-    unit = {"solver_evidence": timeout, "attempts": [attempt]}
-
-    selected = sat_screen._next_attempt(
-        unit,
-        portfolio=portfolio,
-        hard_timeout_s=3600.0,
+    return sat_screen._attempt_record(
+        evidence,
+        attempt_index=attempt_index,
+        requested_solver=config["solver"],
+        requested_encoding=config["cardinality_encoding"],
+        portfolio_policy=policy,
     )
-    assert selected is not None
-    attempt_index, config, checkpoint_replay = selected
-    assert attempt_index == 1
-    assert config == {
-        "solver": "cadical195",
-        "cardinality_encoding": "kmtotalizer",
-    }
-    assert checkpoint_replay is False
 
-    # A larger budget is meaningful progress and may revisit the preferred
-    # configuration instead of declaring the finite portfolio exhausted.
-    selected_larger = sat_screen._next_attempt(
+
+def test_auto_portfolio_starts_with_four_heterogeneous_lanes():
+    seqcounter = sat_screen._portfolio_configs("auto", "seqcounter")
+    assert seqcounter[:4] == [
+        {"solver": "cadical195", "cardinality_encoding": "seqcounter"},
+        {"solver": "kissat404", "cardinality_encoding": "totalizer"},
+        {"solver": "glucose42", "cardinality_encoding": "kmtotalizer"},
+        {"solver": "minicard", "cardinality_encoding": "native-minicard"},
+    ]
+    kmtotalizer = sat_screen._portfolio_configs("auto", "kmtotalizer")
+    assert kmtotalizer[:4] == [
+        {"solver": "cadical195", "cardinality_encoding": "kmtotalizer"},
+        {"solver": "kissat404", "cardinality_encoding": "seqcounter"},
+        {"solver": "glucose42", "cardinality_encoding": "totalizer"},
+        {"solver": "minicard", "cardinality_encoding": "native-minicard"},
+    ]
+
+
+def test_lower_units_rotate_only_the_bounded_diversity_warmup():
+    portfolio = sat_screen._portfolio_configs("auto", "kmtotalizer")
+    rotated = [
+        sat_screen._portfolio_for_lower_unit(portfolio, ordinal)
+        for ordinal in range(4)
+    ]
+    assert [lane[0] for lane in rotated] == portfolio[:4]
+    assert all(lane[4:] == portfolio[4:] for lane in rotated)
+
+
+def test_current_v1_history_uses_new_solver_before_larger_budget_retry():
+    portfolio = sat_screen._portfolio_configs("auto", "kmtotalizer")
+    old_seqcounter = {
+        "solver": "cadical195",
+        "cardinality_encoding": "seqcounter",
+    }
+    attempts = [
+        _timeout_attempt(
+            portfolio[0],
+            0,
+            policy=sat_screen.SAT_PORTFOLIO_POLICY_V1,
+        ),
+        _timeout_attempt(
+            old_seqcounter,
+            1,
+            policy=sat_screen.SAT_PORTFOLIO_POLICY_V1,
+        ),
+    ]
+    unit = {
+        "solver_evidence": {"outcome": "hard_timeout"},
+        "attempts": attempts,
+    }
+    selected = sat_screen._next_attempt(
         unit,
         portfolio=portfolio,
         hard_timeout_s=7200.0,
     )
-    assert selected_larger is not None
-    assert selected_larger[1] == portfolio[0]
+    assert selected == (2, portfolio[1], False)
+
+
+def test_diversity_warmup_precedes_budget_upgrade_and_ignores_cancelled():
+    portfolio = sat_screen._portfolio_configs("auto", "seqcounter")
+    first_attempt = _timeout_attempt(portfolio[0], 0)
+    unit = {
+        "solver_evidence": {"outcome": "hard_timeout"},
+        "attempts": [first_attempt],
+    }
+    assert sat_screen._next_attempt(
+        unit,
+        portfolio=portfolio,
+        hard_timeout_s=3600.0,
+    ) == (1, portfolio[1], False)
+    assert sat_screen._next_attempt(
+        unit,
+        portfolio=portfolio,
+        hard_timeout_s=7200.0,
+    ) == (1, portfolio[1], False)
+
+    warmup_attempts = [
+        _timeout_attempt(config, index)
+        for index, config in enumerate(portfolio[:4])
+    ]
+    warmup_unit = {
+        "solver_evidence": {"outcome": "hard_timeout"},
+        "attempts": warmup_attempts,
+    }
+    assert sat_screen._next_attempt(
+        warmup_unit,
+        portfolio=portfolio,
+        hard_timeout_s=7200.0,
+    ) == (4, portfolio[0], False)
+    assert sat_screen._next_attempt(
+        warmup_unit,
+        portfolio=portfolio,
+        hard_timeout_s=3600.0,
+    ) == (4, portfolio[4], False)
+
+    cancelled_unit = {
+        "solver_evidence": {"outcome": "cancelled"},
+        "attempts": [
+            _timeout_attempt(portfolio[0], 0, outcome="cancelled"),
+        ],
+    }
+    assert sat_screen._next_attempt(
+        cancelled_unit,
+        portfolio=portfolio,
+        hard_timeout_s=3600.0,
+    ) == (1, portfolio[0], False)
 
 
 def test_isometry_reduces_complete_proof_to_canonical_sector():
@@ -259,21 +347,46 @@ def test_isometry_reduces_complete_proof_to_canonical_sector():
     assert artifact["completed_lower_decisions"] == 1
 
 
-def test_attempt_record_is_self_hashed_and_tamper_evident():
+def test_attempt_record_is_self_hashed_policy_compatible_and_tamper_evident():
+    evidence = {
+        "outcome": "hard_timeout",
+        "hard_timeout_s": 1.0,
+        "backend": {"solver": "cadical195"},
+        "cardinality_encoding": "totalizer",
+        "elapsed_s": 1.0,
+    }
     record = sat_screen._attempt_record(
-        {
-            "outcome": "hard_timeout",
-            "hard_timeout_s": 1.0,
-            "backend": {"solver": "cadical195"},
-            "elapsed_s": 1.0,
-        },
+        evidence,
         attempt_index=3,
         requested_solver="cadical195",
         requested_encoding="totalizer",
     )
+    assert record["portfolio_policy"] == sat_screen.SAT_PORTFOLIO_POLICY
     assert sat_screen._attempt_valid(record)
-    record["outcome"] = "unsat"
-    assert not sat_screen._attempt_valid(record)
+
+    v1 = dict(record)
+    v1["portfolio_policy"] = sat_screen.SAT_PORTFOLIO_POLICY_V1
+    v1["attempt_sha256"] = sat_screen._canonical_sha256(
+        v1,
+        omit="attempt_sha256",
+    )
+    assert sat_screen._attempt_valid(v1)
+
+    legacy = sat_screen._legacy_attempt(evidence)
+    assert legacy["portfolio_policy"] == sat_screen.SAT_PORTFOLIO_POLICY_V1
+    assert sat_screen._attempt_valid(legacy)
+
+    tampered = dict(record)
+    tampered["outcome"] = "unsat"
+    assert not sat_screen._attempt_valid(tampered)
+
+    unknown = dict(record)
+    unknown["portfolio_policy"] = "untrusted-portfolio-v999"
+    unknown["attempt_sha256"] = sat_screen._canonical_sha256(
+        unknown,
+        omit="attempt_sha256",
+    )
+    assert not sat_screen._attempt_valid(unknown)
 
 
 def test_anchor_cover_cube_schema_is_disjoint_and_exhaustive():
@@ -296,6 +409,46 @@ def test_anchor_cover_cube_schema_is_disjoint_and_exhaustive():
         == sat_screen._canonical_sha256(cube, omit="cube_sha256")
         for cube in cubes
     )
+
+
+def test_anchor_bound_timeout_resumes_without_relaxing_terminal_cnf_gate():
+    cube = sat_screen.build_anchor_cover_cubes((0, 105))[0]
+    clauses = [[cube["one_anchor_index"] + 1]]
+    instance = {
+        "anchor_constraint_formulation": (
+            "anchor-or-first-nonzero-unit-clauses-v1"
+        ),
+        "anchor_indices": cube["anchor_indices"],
+        "zero_anchor_indices": cube["zero_anchor_indices"],
+        "one_anchor_index": cube["one_anchor_index"],
+        "anchor_cube_sha256": cube["cube_sha256"],
+        "anchor_unit_clauses": clauses,
+        "anchor_unit_clauses_sha256": sat_screen._canonical_sha256(clauses),
+    }
+    instance["binding_sha256"] = sat_screen._canonical_sha256(instance)
+    timeout = {
+        "outcome": "hard_timeout",
+        "decision_complete": False,
+        "zero_anchor_indices": cube["zero_anchor_indices"],
+        "one_anchor_index": cube["one_anchor_index"],
+        "anchor_cube_sha256": cube["cube_sha256"],
+        "instance": instance,
+        "cnf": None,
+    }
+    assert sat_screen._evidence_matches_anchor_cube(timeout, cube)
+
+    terminal_without_cnf = {
+        **timeout,
+        "outcome": "unsat",
+        "decision_complete": True,
+    }
+    assert not sat_screen._evidence_matches_anchor_cube(
+        terminal_without_cnf,
+        cube,
+    )
+
+    tampered = {**timeout, "instance": {**instance, "one_anchor_index": 105}}
+    assert not sat_screen._evidence_matches_anchor_cube(tampered, cube)
 
 
 def test_artifact_only_completes_partition_after_every_cube_unsat():
@@ -585,8 +738,8 @@ def test_screen_resume_rotates_hard_timeout_portfolio_end_to_end(
         resume=True,
     )
     assert calls == [
-        ("cadical195", "kmtotalizer"),
-        ("cadical195", "kmtotalizer"),
+        ("kissat404", "totalizer"),
+        ("kissat404", "totalizer"),
     ]
     assert second["portfolio_attempts"] == 4
     assert all(len(unit["attempts"]) == 2 for unit in second["units"])

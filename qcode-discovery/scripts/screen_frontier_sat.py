@@ -39,7 +39,14 @@ from scripts.screen_frontier_xor import verify_bb_translation_symmetry
 SAT_STAGE3_GATE = "qldpc-frontier-sat-sector-exact-screen"
 SAT_STAGE3_SCHEMA_VERSION = 1
 SAT_COVERAGE_MODES = frozenset({"global", "first-nonzero"})
-SAT_PORTFOLIO_POLICY = "lower-fair-solver-encoding-portfolio-v1"
+SAT_PORTFOLIO_POLICY_V1 = "lower-fair-solver-encoding-portfolio-v1"
+SAT_PORTFOLIO_POLICY = "lower-fair-diversity-first-portfolio-v2"
+SAT_COMPATIBLE_PORTFOLIO_POLICIES = frozenset({
+    SAT_PORTFOLIO_POLICY_V1,
+    SAT_PORTFOLIO_POLICY,
+})
+SAT_DIVERSITY_WARMUP_WIDTH = 4
+SAT_CANDIDATE_DEADLINE_SLACK_S = 5.0
 SAT_ATTEMPT_SCHEMA_VERSION = 1
 SAT_ANCHOR_CUBE_SCHEMA_VERSION = 1
 GENERIC_SYMMETRY_SCHEMA_VERSION = 1
@@ -402,6 +409,20 @@ def _evidence_matches_anchor_cube(
     clauses = [[-(int(index) + 1)] for index in zero_anchors]
     clauses.append([one_anchor + 1])
     cnf = evidence.get("cnf")
+    cnf_binding_valid = bool(
+        isinstance(cnf, Mapping)
+        and cnf.get("anchor_unit_clauses_sha256")
+        == _canonical_sha256(clauses)
+    )
+    # A hard timeout has no terminal CNF decision to promote and older solver
+    # evidence omitted the redundant CNF summary.  Its fully self-hashed
+    # instance is still safe scheduler history.  SAT/UNSAT terminal evidence
+    # remains fail-closed unless the CNF binding is present.
+    nonterminal_instance_only = bool(
+        cnf is None
+        and evidence.get("outcome") in {"hard_timeout", "cancelled"}
+        and evidence.get("decision_complete") is False
+    )
     binding_hash_valid = False
     if isinstance(instance, Mapping):
         unsigned_instance = dict(instance)
@@ -427,9 +448,7 @@ def _evidence_matches_anchor_cube(
         and instance.get("anchor_unit_clauses") == clauses
         and instance.get("anchor_unit_clauses_sha256")
         == _canonical_sha256(clauses)
-        and isinstance(cnf, Mapping)
-        and cnf.get("anchor_unit_clauses_sha256")
-        == _canonical_sha256(clauses)
+        and (cnf_binding_valid or nonterminal_instance_only)
     )
 
 
@@ -815,7 +834,7 @@ def _portfolio_configs(
     requested_solver: str,
     requested_encoding: str,
 ) -> list[dict[str, str]]:
-    """Return distinct solver/encoding attempts in deterministic order."""
+    """Return a bounded diversity warmup followed by exhaustive fallbacks."""
 
     normalized_solver = str(requested_solver).lower()
     normalized_encoding = str(requested_encoding).lower()
@@ -835,11 +854,38 @@ def _portfolio_configs(
         if normalized_solver == "auto"
         else [normalized_solver]
     )
-    # First vary the cardinality mechanism on the preferred solver.  Native
-    # MiniCard is a distinct solver/encoding pair and is never sent to another
-    # backend.  Remaining CDCL engines are fallback lanes for the three CNF
-    # encodings.
+    # The auto lane begins with four genuinely different solver/encoding
+    # families.  This prevents a larger timeout tier from spending every
+    # worker on the same CaDiCaL formulation before trying a different search
+    # tree.  The finite exhaustive tail remains available after the warmup.
     pairs: list[tuple[str, str]] = []
+    if normalized_solver == "auto":
+        alternate_encodings = {
+            "seqcounter": ("totalizer", "kmtotalizer"),
+            "kmtotalizer": ("seqcounter", "totalizer"),
+            "totalizer": ("seqcounter", "kmtotalizer"),
+            "native-minicard": (
+                "seqcounter", "totalizer", "kmtotalizer",
+            ),
+        }[normalized_encoding]
+        if normalized_encoding == "native-minicard":
+            pairs.extend([
+                ("minicard", "native-minicard"),
+                (solver_names[0], alternate_encodings[0]),
+                ("kissat404", alternate_encodings[1]),
+                ("glucose42", alternate_encodings[2]),
+            ])
+        else:
+            pairs.extend([
+                (solver_names[0], normalized_encoding),
+                ("kissat404", alternate_encodings[0]),
+                ("glucose42", alternate_encodings[1]),
+                ("minicard", "native-minicard"),
+            ])
+
+    # Native MiniCard is a distinct solver/encoding pair and is never sent to
+    # another backend.  Every legal CDCL/encoding pair is retained in the
+    # deterministic tail, with duplicates removed below.
     for encoding in encoding_order:
         if encoding == "native-minicard":
             if normalized_solver in {"auto", "minicard"}:
@@ -855,6 +901,23 @@ def _portfolio_configs(
         {"solver": solver_name, "cardinality_encoding": encoding}
         for solver_name, encoding in dict.fromkeys(pairs)
     ]
+
+
+def _portfolio_for_lower_unit(
+    portfolio: list[dict[str, str]],
+    lower_unit_ordinal: int,
+) -> list[dict[str, str]]:
+    """Rotate only the bounded warmup across independent lower units."""
+
+    if lower_unit_ordinal < 0:
+        raise ValueError("lower_unit_ordinal must be nonnegative")
+    width = min(SAT_DIVERSITY_WARMUP_WIDTH, len(portfolio))
+    if width < 2:
+        return [dict(config) for config in portfolio]
+    offset = lower_unit_ordinal % width
+    warmup = portfolio[:width]
+    rotated = warmup[offset:] + warmup[:offset]
+    return [dict(config) for config in rotated + portfolio[width:]]
 
 
 def build_anchor_cover_cubes(anchor_indices: tuple[int, ...]) -> list[dict[str, Any]]:
@@ -891,14 +954,17 @@ def _attempt_record(
     requested_solver: str,
     requested_encoding: str,
     anchor_cube: Mapping[str, Any] | None = None,
+    portfolio_policy: str = SAT_PORTFOLIO_POLICY,
 ) -> dict[str, Any]:
+    if portfolio_policy not in SAT_COMPATIBLE_PORTFOLIO_POLICIES:
+        raise ValueError("unsupported SAT portfolio policy")
     backend = evidence.get("backend")
     resolved_solver = (
         backend.get("solver") if isinstance(backend, Mapping) else None
     )
     record: dict[str, Any] = {
         "schema_version": SAT_ATTEMPT_SCHEMA_VERSION,
-        "portfolio_policy": SAT_PORTFOLIO_POLICY,
+        "portfolio_policy": portfolio_policy,
         "attempt_index": int(attempt_index),
         "requested_solver": str(requested_solver),
         "resolved_solver": resolved_solver,
@@ -923,7 +989,8 @@ def _attempt_valid(record: Mapping[str, Any]) -> bool:
     try:
         return bool(
             record.get("schema_version") == SAT_ATTEMPT_SCHEMA_VERSION
-            and record.get("portfolio_policy") == SAT_PORTFOLIO_POLICY
+            and record.get("portfolio_policy")
+            in SAT_COMPATIBLE_PORTFOLIO_POLICIES
             and record.get("attempt_sha256")
             == _canonical_sha256(record, omit="attempt_sha256")
         )
@@ -949,6 +1016,7 @@ def _legacy_attempt(
             evidence.get("cardinality_encoding", "seqcounter"),
         ),
         anchor_cube=anchor_cube,
+        portfolio_policy=SAT_PORTFOLIO_POLICY_V1,
     )
 
 
@@ -1112,7 +1180,7 @@ def _next_attempt(
             "cardinality_encoding": encoding,
         }, True
 
-    exhausted: set[tuple[str, str]] = set()
+    history: dict[tuple[str, str], list[tuple[Any, float]]] = {}
     for attempt in attempts:
         outcome = attempt.get("outcome")
         if outcome == "cancelled":
@@ -1125,23 +1193,46 @@ def _next_attempt(
             old_budget = float(attempt.get("hard_timeout_s"))
         except (TypeError, ValueError):
             old_budget = hard_timeout_s
-        if (
-            isinstance(solver_name, str)
-            and isinstance(encoding, str)
-            and (
-                outcome != "hard_timeout"
-                or old_budget >= hard_timeout_s
+        if not math.isfinite(old_budget) or old_budget <= 0:
+            old_budget = hard_timeout_s
+        if isinstance(solver_name, str) and isinstance(encoding, str):
+            history.setdefault((solver_name, encoding), []).append(
+                (outcome, old_budget),
             )
-        ):
-            exhausted.add((solver_name, encoding))
     next_index = max(
         (int(item.get("attempt_index", -1)) for item in attempts),
         default=-1,
     ) + 1
-    for config in portfolio:
-        signature = (config["solver"], config["cardinality_encoding"])
-        if signature not in exhausted:
-            return next_index, dict(config), False
+
+    warmup_width = min(SAT_DIVERSITY_WARMUP_WIDTH, len(portfolio))
+    warmup = portfolio[:warmup_width]
+    tail = portfolio[warmup_width:]
+
+    def untried(signature: tuple[str, str]) -> bool:
+        return signature not in history
+
+    def budget_upgrade(signature: tuple[str, str]) -> bool:
+        records = history.get(signature, [])
+        return bool(
+            records
+            and all(outcome == "hard_timeout" for outcome, _ in records)
+            and max(budget for _, budget in records) < hard_timeout_s
+        )
+
+    # Complete a small heterogeneous warmup before spending a larger budget
+    # on the same search tree.  Once bounded diversity has been sampled, a new
+    # timeout tier may revisit its strongest lanes; the exhaustive tail is the
+    # final same-tier/fallback reservoir.
+    for configs, predicate in (
+        (warmup, untried),
+        (warmup, budget_upgrade),
+        (tail, untried),
+        (tail, budget_upgrade),
+    ):
+        for config in configs:
+            signature = (config["solver"], config["cardinality_encoding"])
+            if predicate(signature):
+                return next_index, dict(config), False
     return None
 
 
@@ -1449,15 +1540,23 @@ def screen_sat_candidate(
         ]
     ] = []
     exhausted_units: list[str] = []
+    lower_unit_ordinal = 0
     for spec in plan:
         phase, sector, partition, cube_index = spec
         cube = (
             None if cube_index is None else anchor_cover_cubes[cube_index]
         )
         key = _unit_key(phase, sector, partition, cube)
+        unit_portfolio = portfolio
+        if phase == "lower":
+            unit_portfolio = _portfolio_for_lower_unit(
+                portfolio,
+                lower_unit_ordinal,
+            )
+            lower_unit_ordinal += 1
         selected = _next_attempt(
             units.get(key),
-            portfolio=portfolio,
+            portfolio=unit_portfolio,
             hard_timeout_s=unit_timeout,
         )
         if selected is None:
@@ -1489,7 +1588,9 @@ def screen_sat_candidate(
     jobs.sort(key=job_priority)
     if candidate_budget is None:
         candidate_budget = (
-            math.ceil(max(1, len(jobs)) / workers) * unit_timeout + grace + 1.0
+            math.ceil(max(1, len(jobs)) / workers) * unit_timeout
+            + grace
+            + SAT_CANDIDATE_DEADLINE_SLACK_S
         )
     candidate_deadline = screen_started + candidate_budget
     work_deadline = max(screen_started, candidate_deadline - grace)
@@ -1576,8 +1677,12 @@ def screen_sat_candidate(
 
 __all__ = [
     "SAT_ANCHOR_CUBE_SCHEMA_VERSION",
+    "SAT_CANDIDATE_DEADLINE_SLACK_S",
+    "SAT_COMPATIBLE_PORTFOLIO_POLICIES",
     "SAT_COVERAGE_MODES",
+    "SAT_DIVERSITY_WARMUP_WIDTH",
     "SAT_PORTFOLIO_POLICY",
+    "SAT_PORTFOLIO_POLICY_V1",
     "SAT_STAGE3_GATE",
     "SAT_STAGE3_SCHEMA_VERSION",
     "build_anchor_cover_cubes",
