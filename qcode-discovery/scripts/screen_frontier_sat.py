@@ -2177,10 +2177,27 @@ def screen_sat_candidate(
     queue = deque(jobs)
     executor = ThreadPoolExecutor(max_workers=min(workers, len(jobs)))
     active: dict[Any, tuple[Any, ...]] = {}
-    try:
-        while queue and len(active) < workers and time.monotonic() < work_deadline:
+    replays_remaining = sum(bool(job[3]) for job in jobs)
+
+    def submit_available_jobs() -> None:
+        """Fill free slots without crossing an unfinished replay barrier."""
+
+        while (
+            queue
+            and len(active) < workers
+            and time.monotonic() < work_deadline
+        ):
+            next_job = queue[0]
+            if replays_remaining > 0 and not bool(next_job[3]):
+                # A terminal checkpoint is an untrusted scheduling hint until
+                # every replay has returned and write_progress() has recomputed
+                # their joint aggregate.  Replay jobs are a stable queue prefix.
+                break
             job = queue.popleft()
             active[executor.submit(solve_unit, job)] = job
+
+    try:
+        submit_available_jobs()
         while active:
             remaining = work_deadline - time.monotonic()
             if remaining <= 0:
@@ -2213,20 +2230,27 @@ def screen_sat_candidate(
             if not done:
                 continue
             for future in done:
-                active.pop(future)
+                completed_job = active.pop(future)
                 key, result, _was_replayed = future.result()
                 units[key] = result
-                artifact = write_progress()
-                terminal = artifact["status"] in {
-                    "REJECTED", "THRESHOLD_PROVEN", "EXACT_PROVEN",
-                }
-                fatal_conflict = artifact.get("distqldpc_conflict") is True
-                if terminal or fatal_conflict:
-                    cancellation.set()
-                    queue.clear()
-                elif not cancellation.is_set() and queue:
-                    next_job = queue.popleft()
-                    active[executor.submit(solve_unit, next_job)] = next_job
+                if bool(completed_job[3]):
+                    replays_remaining -= 1
+            artifact = write_progress()
+            if replays_remaining > 0:
+                # Partial replay results may already look terminal.  Drain every
+                # queued/active replay first so an upper witness or conflicting
+                # exact lane cannot be hidden by an early threshold result.
+                submit_available_jobs()
+                continue
+            terminal = artifact["status"] in {
+                "REJECTED", "THRESHOLD_PROVEN", "EXACT_PROVEN",
+            }
+            fatal_conflict = artifact.get("distqldpc_conflict") is True
+            if terminal or fatal_conflict:
+                cancellation.set()
+                queue.clear()
+            elif not cancellation.is_set():
+                submit_available_jobs()
         if cancellation.is_set():
             # Futures already running observe the event and reap their own SAT
             # children.  No queued job is submitted after the terminal fact or
