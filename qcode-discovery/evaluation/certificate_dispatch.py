@@ -16,6 +16,7 @@ from evaluation.matrix_certificate import (
 )
 from evaluation.matrix_certificate import (
     build_matrix_css_certificate,
+    is_fom13_top_level_bb_claim,
     verify_matrix_css_certificate,
 )
 from evaluation.noncss_certificate import (
@@ -92,6 +93,12 @@ def builder_for_claim(claim: dict[str, Any]) -> Builder:
         return build_matrix_css_certificate
     if claim.get(SECTOR_SAT_REQUEST_FIELD) is not None:
         return build_sector_sat_certificate
+    # A plain legacy-shaped BB claim under the FOM13 campaign still needs the
+    # policy-aware matrix certificate. Typed sector/2BGA requests above keep
+    # their stronger dedicated routes, while historical target modes retain
+    # their legacy dispatch.
+    if is_fom13_top_level_bb_claim(claim):
+        return build_matrix_css_certificate
     if claim.get("H_X") is not None or claim.get("hx") is not None:
         return build_matrix_css_certificate
     if (

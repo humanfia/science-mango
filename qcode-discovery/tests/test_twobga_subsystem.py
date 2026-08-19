@@ -6,15 +6,36 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from evaluation.admissibility_policy import css_w6_admissibility_binding
 from evaluation.bb_code import build_bb_code
 from evaluation.distance_milp import get_code_matrices
 from evaluation.distance_sat import SAT_EVIDENCE_KIND, SAT_EVIDENCE_SCHEMA_VERSION
+from evaluation.target_policy import TARGET_MODE_SCALAR_13_INCLUSIVE
 from evaluation.twobga_subsystem import (
     derive_twobga_subsystem_problem,
     gf2_nullspace,
     gf2_rank,
 )
 from scripts import screen_frontier_twobga as twobga_screen
+
+
+def test_twobga_checkpoint_identity_requires_fom13_css_w6_policy():
+    legacy = {"canonical_digest": "legacy"}
+    assert twobga_screen._admissibility_checkpoint_fields(legacy) == {}
+
+    with pytest.raises(ValueError, match="lacks CSS weight-6 policy"):
+        twobga_screen._admissibility_checkpoint_fields(
+            {**legacy, "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE},
+        )
+
+    binding = css_w6_admissibility_binding()
+    assert twobga_screen._admissibility_checkpoint_fields(
+        {
+            **legacy,
+            "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+            "admissibility": binding,
+        },
+    ) == {"admissibility_binding_sha256": binding["binding_sha256"]}
 
 
 def _candidate(ell, m, a_terms, b_terms, *, digest="candidate"):

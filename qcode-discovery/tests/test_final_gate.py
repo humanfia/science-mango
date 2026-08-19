@@ -4,6 +4,9 @@ import hashlib
 import json
 
 import pytest
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+)
 
 from evaluation.final_gate import (
     TARGET_MODE_GIST,
@@ -18,7 +21,10 @@ from evaluation.final_gate import (
     validate_known_answer_artifact,
 )
 from evaluation.structural_dedup import check_css_structural_novelty
-from evaluation.target_policy import TARGET_MODE_SCALAR_INCLUSIVE
+from evaluation.target_policy import (
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
+    TARGET_MODE_SCALAR_INCLUSIVE,
+)
 
 
 def _baseline_artifact():
@@ -190,3 +196,178 @@ def test_final_gate_rejects_partial_milp(tmp_path):
     result = evaluate_final_gate(candidate, known_answer_artifact=path)
     assert result["accepted"] is False
     assert result["checks"]["all_2k_milp_directions_optimal"] is False
+
+
+def test_targetless_final_gate_keeps_legacy_check_shape(tmp_path, monkeypatch):
+    path = tmp_path / "known.json"
+    path.write_text(json.dumps(_baseline_artifact()))
+    candidate = _candidate()
+    candidate["structural_novelty"]["registry_sha256"] = "fixture-registry"
+    monkeypatch.setattr(
+        "evaluation.final_gate.check_code_novelty",
+        lambda _code, *, code_type: {
+            "novel": True,
+            "registry_sha256": "fixture-registry",
+        },
+    )
+    result = evaluate_final_gate(candidate, known_answer_artifact=path)
+
+    assert result["accepted"] is True
+    assert "target" not in result
+    assert set(result["checks"]) == {
+        "known_answer_gate",
+        "candidate_rebuild",
+        "css_commutation",
+        "weight_and_degree_at_most_6",
+        "connected_tanner_graph",
+        "reported_n_matches",
+        "reported_k_matches",
+        "qldpc_k_crosscheck",
+        "positive_reported_distance",
+        "all_2k_milp_directions_optimal",
+        "structural_audit_present",
+        "structural_audit_reproduced",
+        "expanded_registry_novel",
+        "challenge_win",
+        "reported_fom_matches",
+    }
+
+
+def test_explicit_fom12_target_keeps_legacy_result_shape(tmp_path):
+    path = tmp_path / "known.json"
+    path.write_text(json.dumps(_baseline_artifact()))
+    legacy = evaluate_final_gate(_candidate(), known_answer_artifact=path)
+    candidate = _candidate()
+    candidate.update({
+        "target_mode": TARGET_MODE_SCALAR_INCLUSIVE,
+        "target": target_binding(72, 8, TARGET_MODE_SCALAR_INCLUSIVE),
+    })
+
+    replayed = evaluate_final_gate(candidate, known_answer_artifact=path)
+
+    assert replayed["accepted"] == legacy["accepted"]
+    assert replayed["checks"] == legacy["checks"]
+    assert replayed["win"] == legacy["win"]
+    assert "target" not in replayed
+    assert "target_css_w6_admissibility" not in replayed["checks"]
+
+
+def test_fom13_final_gate_uses_selected_mode_not_legacy_classifier(
+    tmp_path,
+    monkeypatch,
+):
+    path = tmp_path / "known.json"
+    path.write_text(json.dumps(_baseline_artifact()))
+    candidate = _candidate()
+    candidate.update({
+        "d": 10,
+        "fom": 8 * 10 * 10 / 72,
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target_binding(
+            72,
+            8,
+            TARGET_MODE_SCALAR_13_INCLUSIVE,
+        ),
+        "admissibility": css_w6_admissibility_binding(),
+    })
+    assert classify_target_win(
+        72,
+        8,
+        10,
+        TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )["passed"] is False
+
+    legacy_calls = []
+
+    def synthetic_legacy_win(n, k, d):
+        legacy_calls.append((n, k, d))
+        return {
+            "passed": True,
+            "fom": k * d * d / n,
+            "reasons": ["synthetic_legacy_win"],
+        }
+
+    monkeypatch.setattr(
+        "evaluation.final_gate.classify_win",
+        synthetic_legacy_win,
+    )
+    result = evaluate_final_gate(candidate, known_answer_artifact=path)
+
+    assert legacy_calls == []
+    assert result["accepted"] is False
+    assert result["checks"]["challenge_win"] is False
+    assert result["checks"]["reported_fom_matches"] is True
+    assert result["checks"]["target_css_w6_admissibility"] is True
+    assert result["target"] == candidate["target"]
+
+
+def test_final_gate_requires_fom13_css_w6_policy_binding(
+    tmp_path,
+    monkeypatch,
+):
+    path = tmp_path / "known.json"
+    path.write_text(json.dumps(_baseline_artifact()))
+    candidate = _candidate()
+    candidate.update({
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target_binding(
+            72,
+            8,
+            TARGET_MODE_SCALAR_13_INCLUSIVE,
+        ),
+    })
+    candidate["structural_novelty"]["registry_sha256"] = "fixture-registry"
+    monkeypatch.setattr(
+        "evaluation.final_gate.check_code_novelty",
+        lambda _code, *, code_type: {
+            "novel": True,
+            "registry_sha256": "fixture-registry",
+        },
+    )
+
+    missing = evaluate_final_gate(candidate, known_answer_artifact=path)
+    assert missing["accepted"] is False
+    assert missing["checks"]["target_css_w6_admissibility"] is False
+
+    candidate["admissibility"] = css_w6_admissibility_binding()
+    replayed = evaluate_final_gate(candidate, known_answer_artifact=path)
+    assert replayed["checks"]["target_css_w6_admissibility"] is True
+    assert replayed["candidate"]["admissibility"] == (
+        css_w6_admissibility_binding()
+    )
+    assert replayed["candidate"]["admissibility_report"]["passed"] is True
+    assert (
+        replayed["candidate"]["admissibility_report"]
+        ["max_check_row_weight"] <= 6
+    )
+
+    target_only = dict(candidate)
+    target_only.pop("target_mode")
+    replayed_target_only = evaluate_final_gate(
+        target_only,
+        known_answer_artifact=path,
+    )
+    assert (
+        replayed_target_only["checks"]["target_css_w6_admissibility"]
+        is True
+    )
+    assert replayed_target_only["accepted"] is True
+    assert replayed_target_only["target"] == candidate["target"]
+
+    conflicting = dict(candidate)
+    conflicting["target_mode"] = TARGET_MODE_SCALAR_INCLUSIVE
+    rejected = evaluate_final_gate(conflicting, known_answer_artifact=path)
+    assert rejected["accepted"] is False
+    assert rejected["checks"]["challenge_win"] is False
+    assert rejected["checks"]["target_css_w6_admissibility"] is False
+
+    orphaned_hash = _candidate()
+    orphaned_hash["target_binding_sha256"] = candidate["target"][
+        "binding_sha256"
+    ]
+    rejected_orphan = evaluate_final_gate(
+        orphaned_hash,
+        known_answer_artifact=path,
+    )
+    assert rejected_orphan["accepted"] is False
+    assert rejected_orphan["checks"]["challenge_win"] is False

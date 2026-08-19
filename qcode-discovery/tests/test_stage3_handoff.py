@@ -7,6 +7,9 @@ import json
 import numpy as np
 import pytest
 
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+)
 import scripts.audit_candidate_pool as candidate_pool
 import scripts.audit_direction_pool as direction_pool
 from evaluation.certificate import _direction_specs, pack_vector
@@ -129,14 +132,24 @@ def test_stage3_handoff_copies_and_validates_scalar_target():
 
 
 def test_stage3_handoff_accepts_authoritative_fom13_target():
-    target = target_binding(210, 10, TARGET_MODE_SCALAR_13_INCLUSIVE)
+    target = target_binding(72, 12, TARGET_MODE_SCALAR_13_INCLUSIVE)
+    admissibility = css_w6_admissibility_binding()
     row = {
         **_candidate(),
-        "n": 210,
-        "k": 10,
         "required_distance": target["required_distance"],
         "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
         "target": target,
+        "admissibility": admissibility,
+        "static_eligibility": {
+            "checked": True,
+            "eligible": True,
+            "max_row_weight": 6,
+            "max_qubit_degree": 6,
+            "checks": {
+                "candidate_rebuild": True,
+                "weight_and_degree_at_most_6": True,
+            },
+        },
         "campaign_audit": {"status": "UNRESOLVED"},
     }
 
@@ -147,7 +160,30 @@ def test_stage3_handoff_accepts_authoritative_fom13_target():
 
     assert candidate["target_mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE
     assert candidate["target"] == target
-    assert candidate["required_distance"] == 17
+    assert candidate["required_distance"] == 9
+    assert candidate["admissibility"] == admissibility
+
+    code = build_candidate_code(candidate)
+    replay = validate_candidate_parameters(candidate, code)
+    assert replay["admissibility"]["passed"] is True
+    assert replay["admissibility"]["max_check_row_weight"] == 6
+
+    with pytest.raises(ValueError, match="admissibility binding"):
+        candidate_from_stage2(
+            {key: value for key, value in row.items() if key != "admissibility"},
+            target_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+        )
+    with pytest.raises(ValueError, match="weight-6 eligibility"):
+        candidate_from_stage2(
+            {
+                **row,
+                "static_eligibility": {
+                    **row["static_eligibility"],
+                    "max_row_weight": 7,
+                },
+            },
+            target_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+        )
 
 
 def test_stage3_legacy_handoff_is_explicitly_bound_to_gist():

@@ -27,6 +27,10 @@ from typing import Any, Callable, Mapping
 
 import numpy as np
 
+from evaluation.admissibility_policy import (
+    require_css_w6_admissibility,
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.bb_code import build_bb_code
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.certificate import (
@@ -61,6 +65,7 @@ from evaluation.geometry import candidate_geometry
 from evaluation.registry import check_code_novelty
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     classify_target_win,
     validate_target_binding,
     validate_target_mode,
@@ -293,6 +298,42 @@ def _target_metadata_matches(
             or (not require_binding_sha256 and stored_binding_sha256 is None)
         )
     )
+
+
+def _claim_admissibility_context(
+    claim: Mapping[str, Any],
+    *,
+    selected_mode: str,
+    hx: np.ndarray,
+    hz: np.ndarray,
+) -> dict[str, Any] | None:
+    if selected_mode != TARGET_MODE_SCALAR_13_INCLUSIVE:
+        return None
+    binding = validate_css_w6_admissibility_binding(
+        claim.get("admissibility"),
+    )
+    report = require_css_w6_admissibility(hx, hz)
+    if report["policy_binding_sha256"] != binding["binding_sha256"]:
+        raise ValueError("CSS weight-6 report is not bound to the claim policy")
+    return report
+
+
+def _admissibility_checkpoint_fields(
+    claim: Mapping[str, Any],
+) -> dict[str, str]:
+    raw = claim.get("admissibility")
+    if raw is None:
+        target = claim.get("target")
+        mode = claim.get("target_mode")
+        if mode is None and isinstance(target, Mapping):
+            mode = target.get("mode")
+        if mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+            raise ValueError("FOM13 checkpoint lacks CSS weight-6 policy")
+        return {}
+    binding = validate_css_w6_admissibility_binding(raw)
+    return {
+        "admissibility_binding_sha256": binding["binding_sha256"],
+    }
 
 
 def _matrices(claim: Mapping[str, Any]) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -1223,6 +1264,12 @@ def claim_from_sector_sat_artifact(
         n=n,
         k=k,
     )
+    admissibility_report = _claim_admissibility_context(
+        claim,
+        selected_mode=selected_mode,
+        hx=hx,
+        hz=hz,
+    )
     artifact_target_valid = _target_metadata_matches(
         artifact,
         selected_target,
@@ -1343,6 +1390,7 @@ def claim_from_sector_sat_artifact(
                 if isinstance(claim.get("target"), Mapping)
                 else None
             ),
+            **_admissibility_checkpoint_fields(claim),
             "phase": "lower-distqldpc",
             "lower_backend": "distqldpc",
             "coverage_mode": requested_mode,
@@ -1565,6 +1613,9 @@ def claim_from_sector_sat_artifact(
     request["anchor_cover_cubes"] = anchor_cover_cubes
     request["stage3_artifact_sha256"] = _canonical_sha256(artifact)
     request["stage3_status"] = artifact.get("status")
+    if admissibility_report is not None:
+        request["admissibility"] = dict(claim["admissibility"])
+        request["admissibility_report"] = admissibility_report
     claim[REQUEST_FIELD] = request
     return claim
 
@@ -1654,6 +1705,23 @@ def build_sector_sat_certificate(
         k=k,
     )
     claimed_required = clean_claim.get("required_distance", required)
+    admissibility_report = _claim_admissibility_context(
+        clean_claim,
+        selected_mode=selected_mode,
+        hx=hx,
+        hz=hz,
+    )
+    if admissibility_report is not None and (
+        (
+            request.get("admissibility") is not None
+            and request.get("admissibility") != clean_claim["admissibility"]
+        )
+        or (
+            request.get("admissibility_report") is not None
+            and request.get("admissibility_report") != admissibility_report
+        )
+    ):
+        raise ValueError("sector request CSS weight-6 replay is inconsistent")
     if (
         isinstance(claimed_required, bool)
         or not isinstance(claimed_required, int)
@@ -1783,6 +1851,7 @@ def build_sector_sat_certificate(
                     if selected_target is None
                     else selected_target["binding_sha256"]
                 ),
+                **_admissibility_checkpoint_fields(clean_claim),
                 "required_distance": required,
                 "max_weight": initial_threshold,
                 "partition_index": partition,
@@ -1952,6 +2021,7 @@ def build_sector_sat_certificate(
                         if selected_target is None
                         else selected_target["binding_sha256"]
                     ),
+                    **_admissibility_checkpoint_fields(clean_claim),
                     "required_distance": required,
                     "max_weight": threshold,
                     **(
@@ -2289,6 +2359,12 @@ def verify_sector_sat_certificate(
             n=n,
             k=k,
         )
+        _claim_admissibility_context(
+            claim,
+            selected_mode=selected_mode,
+            hx=hx,
+            hz=hz,
+        )
         proof = claim["exact_distance_proof"]
         if not isinstance(proof, dict):
             raise TypeError("exact_distance_proof must be an object")
@@ -2601,6 +2677,7 @@ def verify_sector_sat_certificate(
                         if selected_target is None
                         else selected_target["binding_sha256"]
                     ),
+                    **_admissibility_checkpoint_fields(claim),
                     "required_distance": required,
                     "partition_index": partition,
                     "anchor_cube_sha256": (

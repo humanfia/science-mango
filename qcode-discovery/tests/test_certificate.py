@@ -27,6 +27,7 @@ from evaluation.certificate import (
 from evaluation.distance_milp import get_code_matrices
 from evaluation.failure_disposition import terminal_candidate_rejection
 from evaluation.target_policy import (
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
     classify_target_win,
@@ -400,6 +401,39 @@ def test_build_checkpoint_survives_interruption_and_resumes(
     tampered["target_mode"] = TARGET_MODE_GIST
     assert tampered["certificate_sha256"] != _certificate_sha256(tampered)
     assert terminal_candidate_rejection(certificate) is True
+
+
+def test_fom13_legacy_css_builder_routes_before_direction_planning(
+    monkeypatch,
+):
+    selected_target = target_binding(
+        8,
+        2,
+        TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )
+    planned = False
+
+    def record_planning(_code):
+        nonlocal planned
+        planned = True
+        raise AssertionError("direction planning reached")
+
+    monkeypatch.setattr(
+        certificate_module,
+        "_direction_specs",
+        record_planning,
+    )
+    with pytest.raises(ValueError, match="weight-policy-aware"):
+        build_css_certificate(
+            {
+                **_tiny_claim(),
+                "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+                "target": selected_target,
+                "required_distance": selected_target["required_distance"],
+            },
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    assert planned is False
 
 
 def test_css_builder_and_verifier_recompute_explicit_target():

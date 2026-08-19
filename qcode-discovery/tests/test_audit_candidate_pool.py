@@ -9,7 +9,12 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 import scripts.audit_candidate_pool as candidate_pool
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+)
 from evaluation.certificate import _certificate_sha256
+from evaluation.certificate_dispatch import builder_for_claim
+from evaluation.matrix_certificate import build_matrix_css_certificate
 from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.target_policy import (
     TARGET_MODE_GIST,
@@ -157,10 +162,81 @@ def test_stage2_rebinds_old_target_to_authoritative_fom13_policy():
     assert rebound["target"] == target_binding(
         210, 10, TARGET_MODE_SCALAR_13_INCLUSIVE,
     )
+    assert rebound["admissibility"] == css_w6_admissibility_binding()
     assert rebound["input_target_advisory"]["evidence"] == {
         "target": stale,
         "target_mode": TARGET_MODE_SCALAR_INCLUSIVE,
     }
+
+
+def test_stage2_fom13_plain_bb_certification_routes_to_matrix_builder():
+    digest = "a" * 64
+    target = target_binding(210, 42, TARGET_MODE_SCALAR_13_INCLUSIVE)
+    row = {
+        "ell": 15,
+        "m": 7,
+        "A_terms": [[1, 1], [2, 5], [11, 4], [13, 2]],
+        "B_terms": [[4, 6], [13, 5]],
+        "n": 210,
+        "k": 42,
+        "required_distance": 9,
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target,
+        "admissibility": css_w6_admissibility_binding(),
+        "canonical_digest": digest,
+    }
+
+    claim, observed_digest = candidate_pool._certificate_phase_item(row)
+    assert observed_digest == digest
+    assert claim["target"] == target
+    assert claim["admissibility"] == css_w6_admissibility_binding()
+    assert builder_for_claim(claim) is build_matrix_css_certificate
+
+
+def test_stage3_generic_fom13_plain_bb_routes_to_matrix_builder(
+    monkeypatch,
+):
+    digest = "b" * 64
+    target = target_binding(210, 42, TARGET_MODE_SCALAR_13_INCLUSIVE)
+    candidate = {
+        "ell": 15,
+        "m": 7,
+        "A_terms": [[1, 1], [2, 5], [11, 4], [13, 2]],
+        "B_terms": [[4, 6], [13, 5]],
+        "n": 210,
+        "k": 42,
+        "required_distance": 9,
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target,
+        "admissibility": css_w6_admissibility_binding(),
+        "canonical_digest": digest,
+    }
+    artifact = {
+        "gate": candidate_pool.STAGE3_GATE,
+        "status": "THRESHOLD_PROVEN",
+        "threshold_only": True,
+        "canonical_digest": digest,
+    }
+    handed_off = []
+
+    def unwrap(value):
+        handed_off.append(value)
+        return candidate
+
+    monkeypatch.setattr(
+        candidate_pool,
+        "claim_from_certifiable_stage3_artifact",
+        unwrap,
+    )
+    claim, observed_digest = candidate_pool._certificate_phase_item(
+        artifact,
+    )
+
+    assert handed_off == [artifact]
+    assert observed_digest == digest
+    assert claim["target"] == target
+    assert claim["admissibility"] == css_w6_admissibility_binding()
+    assert builder_for_claim(claim) is build_matrix_css_certificate
 
 
 def _compact_oracle_evidence(outcome: str, max_weight: int) -> dict:

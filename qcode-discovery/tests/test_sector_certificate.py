@@ -6,9 +6,13 @@ from copy import deepcopy
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 import evaluation.final_gate as final_gate
 import evaluation.sector_certificate as sector_certificate
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+)
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.final_gate import _typed_exact_sector_check
 from evaluation.certificate import pack_vector
@@ -30,6 +34,7 @@ from evaluation.sector_certificate import (
 from evaluation.target_policy import (
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     target_binding,
 )
 from scripts.screen_frontier_sat import (
@@ -45,6 +50,59 @@ def _problem():
     lz = np.asarray([[1, 1, 0, 0]], dtype=np.uint8)
     code = SimpleNamespace(num_qudits=4, dimension=1)
     return code, hx, hz, lx, lz
+
+
+def test_fom13_sector_handoff_replays_css_w6_admissibility():
+    _code, hx, hz, _lx, _lz = _problem()
+    claim = {"admissibility": css_w6_admissibility_binding()}
+
+    report = sector_certificate._claim_admissibility_context(
+        claim,
+        selected_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+        hx=hx,
+        hz=hz,
+    )
+    assert report is not None
+    assert report["passed"] is True
+    assert report["max_check_row_weight"] == 4
+
+    with pytest.raises(ValueError, match="admissibility binding"):
+        sector_certificate._claim_admissibility_context(
+            {},
+            selected_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+            hx=hx,
+            hz=hz,
+        )
+    with pytest.raises(ValueError, match="row weight exceeds"):
+        sector_certificate._claim_admissibility_context(
+            claim,
+            selected_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+            hx=np.ones((1, 7), dtype=np.uint8),
+            hz=np.zeros((1, 7), dtype=np.uint8),
+        )
+
+    assert sector_certificate._claim_admissibility_context(
+        {},
+        selected_mode=TARGET_MODE_SCALAR,
+        hx=hx,
+        hz=hz,
+    ) is None
+
+
+def test_sector_checkpoint_identity_requires_fom13_css_w6_policy():
+    assert sector_certificate._admissibility_checkpoint_fields({}) == {}
+    with pytest.raises(ValueError, match="lacks CSS weight-6 policy"):
+        sector_certificate._admissibility_checkpoint_fields(
+            {"target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE},
+        )
+
+    binding = css_w6_admissibility_binding()
+    assert sector_certificate._admissibility_checkpoint_fields(
+        {
+            "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+            "admissibility": binding,
+        },
+    ) == {"admissibility_binding_sha256": binding["binding_sha256"]}
 
 
 def _fake_solver(

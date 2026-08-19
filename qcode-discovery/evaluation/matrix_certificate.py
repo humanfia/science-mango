@@ -13,6 +13,10 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from evaluation.admissibility_policy import (
+    require_css_w6_admissibility,
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.certificate import (
     FORMULATION,
     _certificate_sha256,
@@ -45,6 +49,7 @@ from evaluation.matrix_io import build_css_from_matrices, css_parameters, pack_m
 from evaluation.registry import check_code_novelty
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     classify_target_win,
     target_binding,
     validate_target_binding,
@@ -89,13 +94,35 @@ def _normalized_construction_claim(
     )
 
 
+def is_fom13_top_level_bb_claim(claim: Mapping[str, Any]) -> bool:
+    """Identify a legacy-shaped BB claim that needs the policy-aware path."""
+
+    target = claim.get("target")
+    mode_hints = [claim.get("target_mode")]
+    if isinstance(target, Mapping):
+        mode_hints.extend((target.get("mode"), target.get("target_mode")))
+    return bool(
+        TARGET_MODE_SCALAR_13_INCLUSIVE in mode_hints
+        and all(
+            field in claim
+            for field in ("ell", "m", "A_terms", "B_terms")
+        )
+        and not claim.get("C_terms")
+        and not claim.get("D_terms")
+        and claim.get("symplectic_stabilizer") is None
+    )
+
+
 def _rebuild_claim(
     claim: Mapping[str, Any],
 ) -> tuple[Any, np.ndarray, np.ndarray, dict[str, Any] | None, Any, Any]:
     """Rebuild matrices from the authoritative construction when available."""
 
     construction = claim.get("construction")
-    if isinstance(construction, Mapping):
+    if (
+        isinstance(construction, Mapping)
+        or is_fom13_top_level_bb_claim(claim)
+    ):
         from evaluation.construction import build_css_code_from_claim
 
         normalized, identity, source_fingerprint = (
@@ -179,6 +206,50 @@ def _claim_target_binding(
         k=k,
         mode=supplied_mode,
     )
+
+
+def _claim_admissibility_context(
+    claim: Mapping[str, Any],
+    *,
+    target: Mapping[str, Any],
+    hx: np.ndarray,
+    hz: np.ndarray,
+) -> dict[str, Any] | None:
+    if target["mode"] != TARGET_MODE_SCALAR_13_INCLUSIVE:
+        return None
+    binding = validate_css_w6_admissibility_binding(
+        claim.get("admissibility"),
+    )
+    report = require_css_w6_admissibility(hx, hz)
+    if report["policy_binding_sha256"] != binding["binding_sha256"]:
+        raise ValueError("CSS weight-6 report is not bound to the claim policy")
+    stored_report = claim.get("admissibility_report")
+    if stored_report is not None and stored_report != report:
+        raise ValueError("stored CSS weight-6 report does not replay")
+    source_path = Path(__file__).with_name("admissibility_policy.py")
+    return {
+        "binding": binding,
+        "report": report,
+        "policy_source_sha256": _file_sha256(source_path),
+    }
+
+
+def _admissibility_checkpoint_fields(
+    context: Mapping[str, Any] | None,
+) -> dict[str, str]:
+    if context is None:
+        return {}
+    return {
+        "admissibility_binding_sha256": context["binding"][
+            "binding_sha256"
+        ],
+        "admissibility_report_sha256": context["report"][
+            "report_sha256"
+        ],
+        "admissibility_policy_source_sha256": context[
+            "policy_source_sha256"
+        ],
+    }
 
 
 def _static_gate(
@@ -285,6 +356,12 @@ def build_matrix_css_certificate(
     if k <= 0:
         raise ValueError("generic CSS claim must encode at least one logical qubit")
     selected_target = _claim_target_binding(claim, n=n, k=k)
+    admissibility_context = _claim_admissibility_context(
+        claim,
+        target=selected_target,
+        hx=hx,
+        hz=hz,
+    )
 
     specs = _direction_specs(code)
     matrix_sha256 = {
@@ -303,6 +380,7 @@ def build_matrix_css_certificate(
         "matrix_sha256": matrix_sha256,
         "target": selected_target,
         "target_binding_sha256": selected_target["binding_sha256"],
+        **_admissibility_checkpoint_fields(admissibility_context),
         "known_answer_sha256": _file_sha256(known_answer_artifact),
         "solver": _solver_environment(),
         "implementation": _implementation_binding(),
@@ -454,6 +532,12 @@ def build_matrix_css_certificate(
         "final_gate": gate,
         "passed": passed,
     }
+    if admissibility_context is not None:
+        certificate["claim"].update({
+            "admissibility": admissibility_context["binding"],
+            "admissibility_report": admissibility_context["report"],
+        })
+        certificate["admissibility"] = admissibility_context
     if normalized_construction is not None:
         certificate["claim"]["construction"] = dict(
             normalized_construction["construction"]
@@ -513,6 +597,18 @@ def verify_matrix_css_certificate(
         ) = _rebuild_claim(claim)
         n, k = css_parameters(hx, hz)
         selected_target = _claim_target_binding(claim, n=n, k=k)
+        admissibility_context = _claim_admissibility_context(
+            claim,
+            target=selected_target,
+            hx=hx,
+            hz=hz,
+        )
+        if admissibility_context is not None:
+            if certificate.get("admissibility") != admissibility_context:
+                raise ValueError(
+                    "certificate CSS weight-6 policy context does not replay"
+                )
+            checks["admissibility"] = True
         has_certificate_target = bool(
             "target" in certificate
             or "target_mode" in certificate
@@ -596,6 +692,7 @@ def verify_matrix_css_certificate(
         "matrix_sha256": certificate.get("matrix_sha256"),
         "target": selected_target,
         "target_binding_sha256": selected_target["binding_sha256"],
+        **_admissibility_checkpoint_fields(admissibility_context),
         "known_answer_sha256": _file_sha256(known_answer_artifact),
         "solver": _solver_environment(),
         "implementation": _implementation_binding(),

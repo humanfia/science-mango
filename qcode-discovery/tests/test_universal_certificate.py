@@ -5,12 +5,16 @@ from pathlib import Path
 import pytest
 
 import evaluation.matrix_certificate as matrix_certificate_module
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+)
 import evaluation.noncss_certificate as noncss_certificate_module
 from evaluation.failure_disposition import (
     _TERMINAL_GATE_SHAPES,
     terminal_candidate_rejection,
 )
 from evaluation.matrix_certificate import (
+    _rebuild_claim,
     build_matrix_css_certificate,
     verify_matrix_css_certificate,
 )
@@ -21,6 +25,7 @@ from evaluation.noncss_certificate import (
 from evaluation.target_policy import (
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     target_binding,
 )
 
@@ -34,6 +39,101 @@ def _generic_css_claim():
         "H_X": ["1111"],
         "H_Z": ["1100", "0011"],
     }
+
+
+def test_fom13_top_level_bb_rebuilds_as_authoritative_construction():
+    claim = {
+        "ell": 2,
+        "m": 3,
+        "A_terms": [[1, 0], [0, 0]],
+        "B_terms": [[1, 1], [0, 1]],
+        "geometry": {
+            "schema_version": 1,
+            "family": "twisted_torus",
+            "twist": 1,
+        },
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+    }
+    code, hx, hz, normalized, identity, source = _rebuild_claim(claim)
+
+    assert normalized == {
+        "construction": {
+            "ell": 2,
+            "m": 3,
+            "A_terms": [[0, 0], [1, 0]],
+            "B_terms": [[0, 1], [1, 1]],
+            "geometry": {
+                "schema_version": 1,
+                "family": "twisted_torus",
+                "twist": 1,
+            },
+        },
+    }
+    assert identity == {"kind": "bb-v1", **normalized["construction"]}
+    assert int(code.num_qudits) == hx.shape[1] == hz.shape[1]
+    assert isinstance(source, str) and len(source) == 64
+
+
+def test_fom13_top_level_bb_conflicts_stop_before_direction_planning(
+    monkeypatch,
+):
+    seed = {
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[0, 0], [1, 0], [0, 1]],
+        "B_terms": [[0, 0], [2, 0], [0, 2]],
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+    }
+    code, hx, hz, _, _, _ = _rebuild_claim(seed)
+    selected_target = target_binding(
+        int(code.num_qudits),
+        int(code.dimension),
+        TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )
+    planned = False
+
+    def record_planning(_code):
+        nonlocal planned
+        planned = True
+        raise AssertionError("direction planning reached")
+
+    monkeypatch.setattr(
+        matrix_certificate_module,
+        "_direction_specs",
+        record_planning,
+    )
+
+    conflicting_aliases = {
+        **seed,
+        "target_mode": TARGET_MODE_GIST,
+        "target": selected_target,
+        "admissibility": css_w6_admissibility_binding(),
+    }
+    with pytest.raises(ValueError, match="mode does not match"):
+        build_matrix_css_certificate(
+            conflicting_aliases,
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    assert planned is False
+
+    claimed_hx = hx.tolist()
+    claimed_hx.append(hx[0].tolist())
+    forged_witness = {
+        **seed,
+        "target": selected_target,
+        "admissibility": css_w6_admissibility_binding(),
+        "H_X": claimed_hx,
+        "H_Z": hz.tolist(),
+    }
+    with pytest.raises(
+        ValueError,
+        match="packed matrices do not match reconstructed construction",
+    ):
+        build_matrix_css_certificate(
+            forged_witness,
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    assert planned is False
 
 
 def _five_qubit_claim():
@@ -114,6 +214,134 @@ def test_matrix_checkpoint_and_certificate_bind_explicit_target(tmp_path):
     assert certificate["claim"]["target"] == claim["target"]
     assert certificate["target_binding_sha256"] == binding_sha256
     assert certificate["final_gate"]["target_gate"]["mode"] == TARGET_MODE_SCALAR
+
+
+def test_matrix_fom13_policy_is_checked_before_direction_planning(
+    monkeypatch,
+):
+    claim = {
+        **_generic_css_claim(),
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target_binding(
+            4,
+            1,
+            TARGET_MODE_SCALAR_13_INCLUSIVE,
+        ),
+    }
+
+    planned = False
+
+    def record_planning(_code):
+        nonlocal planned
+        planned = True
+        raise AssertionError("direction planning reached")
+
+    monkeypatch.setattr(
+        matrix_certificate_module,
+        "_direction_specs",
+        record_planning,
+    )
+    with pytest.raises(ValueError, match="admissibility binding"):
+        build_matrix_css_certificate(
+            claim,
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    assert planned is False
+
+    claim["admissibility"] = css_w6_admissibility_binding()
+    with pytest.raises(AssertionError, match="direction planning reached"):
+        build_matrix_css_certificate(
+            claim,
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    assert planned is True
+
+
+@pytest.mark.parametrize(
+    ("hx_rows", "error"),
+    [
+        (["1111111"], "row weight exceeds"),
+        (["1000000"] * 7, "qubit check degree exceeds"),
+    ],
+)
+def test_matrix_fom13_locality_violation_stops_before_planning(
+    monkeypatch,
+    hx_rows,
+    error,
+):
+    claim = {
+        "source": "invalid-locality [[7,6]]",
+        "H_X": hx_rows,
+        "H_Z": ["0000000"],
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target_binding(
+            7,
+            6,
+            TARGET_MODE_SCALAR_13_INCLUSIVE,
+        ),
+        "admissibility": css_w6_admissibility_binding(),
+    }
+    planned = False
+
+    def record_planning(_code):
+        nonlocal planned
+        planned = True
+        raise AssertionError("direction planning reached")
+
+    monkeypatch.setattr(
+        matrix_certificate_module,
+        "_direction_specs",
+        record_planning,
+    )
+    with pytest.raises(ValueError, match=error):
+        build_matrix_css_certificate(
+            claim,
+            known_answer_artifact=KNOWN_ANSWER,
+        )
+    assert planned is False
+
+
+def test_matrix_fom13_verifier_rejects_missing_policy_context_before_planning(
+    monkeypatch,
+):
+    selected_target = target_binding(
+        4,
+        1,
+        TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )
+    certificate = {
+        "schema_version": matrix_certificate_module.SCHEMA_VERSION,
+        "certificate_type": matrix_certificate_module.CERTIFICATE_TYPE,
+        "formulation": matrix_certificate_module.FORMULATION,
+        "claim": {
+            **_generic_css_claim(),
+            "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+            "target": selected_target,
+            "admissibility": css_w6_admissibility_binding(),
+        },
+    }
+    planned = False
+
+    def record_planning(_code):
+        nonlocal planned
+        planned = True
+        raise AssertionError("direction planning reached")
+
+    monkeypatch.setattr(
+        matrix_certificate_module,
+        "_direction_specs",
+        record_planning,
+    )
+    replay = verify_matrix_css_certificate(
+        certificate,
+        known_answer_artifact=KNOWN_ANSWER,
+        rerun_milp=True,
+    )
+
+    assert replay["passed"] is False
+    assert replay["replay_complete"] is False
+    assert "policy context does not replay" in replay["failures"][0]
+    assert planned is False
 
 
 def test_scalar_certificate_uses_selected_target_and_reports_gist_compatibility(

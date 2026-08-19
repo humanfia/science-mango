@@ -49,6 +49,11 @@ from evaluation.bb_code import (
 )
 from evaluation.certificate import _certificate_sha256
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+    require_css_w6_admissibility,
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.failure_disposition import (
     CERTIFICATE_CACHE_SCHEMA_VERSION,
     contradiction_disposition,
@@ -59,6 +64,7 @@ from evaluation.failure_disposition import (
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
     SUPPORTED_TARGET_MODES,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     classify_target_win,
     is_inclusive_scalar_target_mode,
     minimum_target_distance,
@@ -268,6 +274,28 @@ def _bind_authoritative_target(
     updated["target_mode"] = mode
     updated["target"] = dict(validated)
     updated["required_distance"] = required
+    supplied_admissibility = updated.pop("admissibility", None)
+    if mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+        canonical_admissibility = css_w6_admissibility_binding()
+        if (
+            supplied_admissibility is not None
+            and supplied_admissibility != canonical_admissibility
+        ):
+            updated["input_admissibility_advisory"] = {
+                "trusted": False,
+                "reason": (
+                    "input hardware policy was replaced by the FOM13 "
+                    "campaign admissibility contract"
+                ),
+                "evidence": supplied_admissibility,
+            }
+        updated["admissibility"] = canonical_admissibility
+    elif supplied_admissibility is not None:
+        updated["input_admissibility_advisory"] = {
+            "trusted": False,
+            "reason": "input hardware policy is not live in this target lane",
+            "evidence": supplied_admissibility,
+        }
     return updated
 
 
@@ -309,6 +337,10 @@ def _validate_bound_target_for_audit(
     )
     if updated.get("required_distance") != canonical["required_distance"]:
         raise ValueError("candidate required_distance does not match its target")
+    if mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+        updated["admissibility"] = validate_css_w6_admissibility_binding(
+            updated.get("admissibility"),
+        )
     updated["target_mode"] = mode
     updated["target"] = canonical
     return updated
@@ -2052,6 +2084,7 @@ def _construction_candidate(
         "required_distance",
         "target_mode",
         "target",
+        "admissibility",
         "max_row_weight",
         "max_qubit_degree",
         "tanner_components",
@@ -2430,6 +2463,9 @@ def _audit_compact_low_weight_candidate(
     if len(matrices) != 4:
         raise ValueError("compact CSS matrix replay did not return four matrices")
     typed_matrices = (matrices[0], matrices[1], matrices[2], matrices[3])
+    if candidate.get("target_mode") == TARGET_MODE_SCALAR_13_INCLUSIVE:
+        validate_css_w6_admissibility_binding(candidate.get("admissibility"))
+        require_css_w6_admissibility(typed_matrices[0], typed_matrices[1])
     basis_witness = symplectic_weight_witness(code)
     if basis_witness is not None:
         basis_payload = {
@@ -5630,6 +5666,31 @@ def audit_candidate(
     paths = state_paths(config.state_dir, canonical_digest)
 
     try:
+        if config.target_mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+            validate_css_w6_admissibility_binding(
+                ranked.get("admissibility"),
+            )
+            static = ranked.get("static_eligibility")
+            checks = (
+                static.get("checks")
+                if isinstance(static, Mapping) else None
+            )
+            if (
+                not isinstance(static, Mapping)
+                or static.get("checked") is not True
+                or static.get("eligible") is not True
+                or not isinstance(checks, Mapping)
+                or checks.get("candidate_rebuild") is not True
+                or checks.get("weight_and_degree_at_most_6") is not True
+                or type(static.get("max_row_weight")) is not int
+                or static["max_row_weight"] > 6
+                or type(static.get("max_qubit_degree")) is not int
+                or static["max_qubit_degree"] > 6
+            ):
+                raise ValueError(
+                    "FOM13 candidate lacks cache-bound CSS weight-6 "
+                    "static eligibility"
+                )
         candidate = _construction_candidate(ranked, canonical_digest)
         candidate = _validate_bound_target_for_audit(
             candidate,

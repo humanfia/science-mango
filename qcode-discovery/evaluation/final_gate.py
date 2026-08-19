@@ -26,6 +26,10 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from evaluation.admissibility_policy import (
+    require_css_w6_admissibility,
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.bb_sector_isometry import verify_bb_xz_sector_isometry
 from evaluation.bb_code import build_bb_code, validate_terms
 from evaluation.geometry import candidate_geometry
@@ -42,6 +46,7 @@ from evaluation.target_policy import (
     SUPPORTED_TARGET_MODES,
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     classify_target_win,
     minimum_target_distance,
     target_binding,
@@ -411,6 +416,13 @@ def _typed_exact_sector_check(
                 target_mode,
             )["passed"] is True
             reported_required = row.get("required_distance")
+            if target_mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+                binding = validate_css_w6_admissibility_binding(
+                    row.get("admissibility"),
+                )
+                report = require_css_w6_admissibility(hx, hz)
+                if report["policy_binding_sha256"] != binding["binding_sha256"]:
+                    return False
         if selected_target is None:
             reported_required = row.get(
                 "required_distance",
@@ -732,6 +744,45 @@ def minimum_winning_distance(n: int, k: int) -> int:
     raise ValueError(f"no winning distance exists for n={n}, k={k}")
 
 
+def _resolve_explicit_target(
+    row: Mapping[str, Any],
+    *,
+    n: int,
+    k: int,
+) -> dict[str, Any] | None:
+    """Validate an explicit target without changing legacy target-less rows."""
+
+    supplied_mode = row.get("target_mode")
+    if "target" not in row:
+        if row.get("target_binding_sha256") is not None:
+            raise ValueError("target binding hash requires a target descriptor")
+        if (
+            supplied_mode is not None
+            and validate_target_mode(supplied_mode) != DEFAULT_TARGET_MODE
+        ):
+            raise ValueError("non-legacy target mode requires a target binding")
+        return None
+    selected = validate_target_binding(
+        row.get("target"),
+        n=n,
+        k=k,
+        mode=supplied_mode,
+    )
+    reported_required = row.get("required_distance")
+    if (
+        reported_required is not None
+        and reported_required != selected["required_distance"]
+    ):
+        raise ValueError("required_distance does not match the target binding")
+    reported_sha256 = row.get("target_binding_sha256")
+    if (
+        reported_sha256 is not None
+        and reported_sha256 != selected["binding_sha256"]
+    ):
+        raise ValueError("top-level target binding SHA-256 mismatch")
+    return selected
+
+
 def evaluate_final_gate(
     row: dict[str, Any],
     *,
@@ -814,6 +865,18 @@ def evaluate_final_gate(
     max_qubit_degree = int(stacked.sum(axis=0).max(initial=0))
     connected, components = _connected(stacked)
 
+    target_resolution_failed = False
+    try:
+        selected_target = _resolve_explicit_target(row, n=n, k=k)
+    except (TypeError, ValueError):
+        selected_target = None
+        target_resolution_failed = True
+    target = row.get("target")
+    target_hints = [row.get("target_mode")]
+    if isinstance(target, Mapping):
+        target_hints.extend((target.get("mode"), target.get("target_mode")))
+    fom13_declared = TARGET_MODE_SCALAR_13_INCLUSIVE in target_hints
+
     checks.update({
         "css_commutation": int(np.count_nonzero((hx @ hz.T) & 1)) == 0,
         "weight_and_degree_at_most_6": max_row_weight <= 6 and max_qubit_degree <= 6,
@@ -822,6 +885,27 @@ def evaluate_final_gate(
         "reported_k_matches": int(row.get("k", -1)) == k,
         "qldpc_k_crosscheck": int(code.dimension) == k,
     })
+
+    admissibility_binding = None
+    admissibility_report = None
+    if fom13_declared:
+        try:
+            if (
+                selected_target is None
+                or selected_target["mode"]
+                != TARGET_MODE_SCALAR_13_INCLUSIVE
+            ):
+                raise ValueError("FOM13 target binding did not replay")
+            admissibility_binding = validate_css_w6_admissibility_binding(
+                row.get("admissibility"),
+            )
+            admissibility_report = require_css_w6_admissibility(hx, hz)
+            checks["target_css_w6_admissibility"] = bool(
+                admissibility_report["policy_binding_sha256"]
+                == admissibility_binding["binding_sha256"]
+            )
+        except (TypeError, ValueError):
+            checks["target_css_w6_admissibility"] = False
 
     d = int(row.get("d", 0) or 0)
     checks["positive_reported_distance"] = d > 0
@@ -880,7 +964,20 @@ def evaluate_final_gate(
         and reported_audit.get("registry_sha256") == expanded_audit.get("registry_sha256")
     )
 
-    win = classify_win(n, k, d)
+    if target_resolution_failed:
+        compatibility = classify_win(n, k, d)
+        win = {
+            "passed": False,
+            "fom": compatibility["fom"],
+            "reasons": [],
+        }
+    elif (
+        selected_target is not None
+        and selected_target["mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE
+    ):
+        win = classify_target_win(n, k, d, selected_target["mode"])
+    else:
+        win = classify_win(n, k, d)
     checks["challenge_win"] = win["passed"]
     reported_fom = row.get("fom")
     checks["reported_fom_matches"] = bool(
@@ -912,6 +1009,14 @@ def evaluate_final_gate(
         "expanded_structural_novelty": expanded_audit,
         "win": win,
     })
+    if admissibility_report is not None:
+        result["candidate"]["admissibility"] = admissibility_binding
+        result["candidate"]["admissibility_report"] = admissibility_report
+    if (
+        selected_target is not None
+        and selected_target["mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE
+    ):
+        result["target"] = selected_target
     if compact_construction:
         result["candidate"].update({
             "construction": construction,

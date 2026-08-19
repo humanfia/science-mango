@@ -10,6 +10,14 @@ from evaluation.certificate_dispatch import (
 )
 from evaluation.matrix_certificate import build_matrix_css_certificate
 from evaluation.noncss_certificate import build_noncss_certificate
+from evaluation.sector_certificate import (
+    REQUEST_FIELD as SECTOR_SAT_REQUEST_FIELD,
+    build_sector_sat_certificate,
+)
+from evaluation.target_policy import (
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
+    TARGET_MODE_SCALAR_INCLUSIVE,
+)
 from evaluation.twobga_certificate import build_twobga_certificate
 from scripts.screen_frontier_twobga import TWOBGA_REQUEST_FIELD
 
@@ -29,6 +37,51 @@ def test_builder_dispatches_every_claim_shape():
         is build_noncss_certificate
     )
     assert builder_for_claim({TWOBGA_REQUEST_FIELD: {}}) is build_twobga_certificate
+
+
+def test_fom13_plain_bb_dispatches_to_policy_aware_matrix_certificate():
+    claim = {
+        "ell": 2,
+        "m": 3,
+        "A_terms": [[0, 0], [1, 0]],
+        "B_terms": [[0, 1], [1, 1]],
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+    }
+    assert builder_for_claim(claim) is build_matrix_css_certificate
+    assert builder_for_claim({
+        **claim,
+        "target_mode": TARGET_MODE_SCALAR_INCLUSIVE,
+    }) is build_css_certificate
+    assert builder_for_claim({
+        **claim,
+        SECTOR_SAT_REQUEST_FIELD: {},
+    }) is build_sector_sat_certificate
+    assert builder_for_claim({
+        **claim,
+        TWOBGA_REQUEST_FIELD: {},
+    }) is build_twobga_certificate
+
+    nested_target_only = dict(claim)
+    nested_target_only.pop("target_mode")
+    nested_target_only["target"] = {
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+    }
+    assert builder_for_claim(nested_target_only) is build_matrix_css_certificate
+
+    conflicting_aliases = {
+        **claim,
+        "target_mode": TARGET_MODE_SCALAR_INCLUSIVE,
+        "target": {"mode": TARGET_MODE_SCALAR_13_INCLUSIVE},
+    }
+    assert builder_for_claim(conflicting_aliases) is build_matrix_css_certificate
+    assert builder_for_claim({
+        **claim,
+        "C_terms": [[0, 0]],
+    }) is build_noncss_certificate
+    assert builder_for_claim({
+        **claim,
+        "symplectic_stabilizer": [],
+    }) is build_noncss_certificate
 
 
 def test_verifier_dispatch_is_fail_closed():

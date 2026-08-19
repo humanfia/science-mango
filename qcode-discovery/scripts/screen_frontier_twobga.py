@@ -22,6 +22,9 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from evaluation.admissibility_policy import (
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.distance_milp import get_code_matrices
 from evaluation.geometry import candidate_geometry, geometry_identity
 from evaluation.distance_sat import (
@@ -31,6 +34,7 @@ from evaluation.distance_sat import (
     solve_css_sector_sat,
     verify_css_threshold_sat_witness,
 )
+from evaluation.target_policy import TARGET_MODE_SCALAR_13_INCLUSIVE
 from evaluation.twobga_subsystem import derive_twobga_subsystem_problem
 from scripts.screen_frontier_candidate import (
     build_candidate_code,
@@ -62,6 +66,24 @@ def _canonical_sha256(value: Any, *, omit: str | None = None) -> str:
         allow_nan=False,
     ).encode()
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _admissibility_checkpoint_fields(
+    candidate: Mapping[str, Any],
+) -> dict[str, str]:
+    raw = candidate.get("admissibility")
+    if raw is None:
+        target = candidate.get("target")
+        mode = candidate.get("target_mode")
+        if mode is None and isinstance(target, Mapping):
+            mode = target.get("mode")
+        if mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+            raise ValueError("FOM13 checkpoint lacks CSS weight-6 policy")
+        return {}
+    binding = validate_css_w6_admissibility_binding(raw)
+    return {
+        "admissibility_binding_sha256": binding["binding_sha256"],
+    }
 
 
 def _atomic_write_json(path: Path, value: Mapping[str, Any]) -> None:
@@ -768,6 +790,7 @@ def screen_twobga_candidate(
             checkpoint_identity={
                 "stage3_gate": TWOBGA_STAGE3_GATE,
                 "candidate_digest": digest,
+                **_admissibility_checkpoint_fields(candidate),
                 "theorem_report_sha256": problem.report["report_sha256"],
                 "original_logical_detector_sha256": original_detector[
                     "report_sha256"

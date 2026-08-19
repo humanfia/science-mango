@@ -18,7 +18,12 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from evaluation.admissibility_policy import (
+    require_css_w6_admissibility,
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.bb_code import build_bb_code
+from evaluation.distance_milp import get_code_matrices
 from evaluation.geometry import candidate_geometry
 from evaluation.certificate import (
     FORMULATION as CSS_EXACT_FORMULATION,
@@ -32,6 +37,7 @@ from evaluation.certificate import (
 )
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     target_binding,
     validate_target_binding,
     validate_target_mode,
@@ -122,7 +128,7 @@ def build_candidate_code(claim: dict[str, Any]):
 
 def validate_candidate_parameters(
     candidate: Mapping[str, Any], code: Any,
-) -> dict[str, int]:
+) -> dict[str, Any]:
     """Rebuild and bind the claimed n/k/threshold before any solver work."""
     values: dict[str, int] = {}
     for name in ("n", "k", "required_distance"):
@@ -169,6 +175,13 @@ def validate_candidate_parameters(
             f"required_distance={required} does not match target threshold "
             f"{expected_required} for rebuilt [[{rebuilt_n},{rebuilt_k}]]",
         )
+    admissibility_report = None
+    if mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+        validate_css_w6_admissibility_binding(
+            candidate.get("admissibility"),
+        )
+        hx, hz, _lx, _lz = get_code_matrices(code)
+        admissibility_report = require_css_w6_admissibility(hx, hz)
     if candidate.get("C_terms") or candidate.get("D_terms"):
         actual_directions = len(get_symplectic_logicals(code))
     else:
@@ -179,12 +192,15 @@ def validate_candidate_parameters(
             "reconstructed logical basis does not contain exactly 2k "
             f"directions ({actual_directions} != {expected})",
         )
-    return {
+    reconstructed: dict[str, Any] = {
         "n": rebuilt_n,
         "k": rebuilt_k,
         "required_distance": required,
         "expected_directions": expected,
     }
+    if admissibility_report is not None:
+        reconstructed["admissibility"] = admissibility_report
+    return reconstructed
 
 
 _WORKER_CLAIM: dict[str, Any] | None = None

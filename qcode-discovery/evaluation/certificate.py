@@ -38,6 +38,7 @@ from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.registry import check_code_novelty
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     classify_target_win,
     target_binding,
     validate_target_binding,
@@ -851,6 +852,11 @@ def build_css_certificate(
     n = int(code.num_qudits)
     k = n - _rank_f2(hx) - _rank_f2(hz)
     selected_target = _claim_target_binding(claim, n=n, k=k)
+    if selected_target["mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE:
+        raise ValueError(
+            "FOM13 CSS claims require a weight-policy-aware matrix, sector, "
+            "or two-block certificate"
+        )
 
     specs = _direction_specs(code)
     matrix_sha256 = {"hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz)}
@@ -1100,6 +1106,11 @@ def verify_css_certificate(
         n = int(code.num_qudits)
         k = n - _rank_f2(hx) - _rank_f2(hz)
         selected_target = _claim_target_binding(claim, n=n, k=k)
+        if selected_target["mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE:
+            raise ValueError(
+                "FOM13 CSS claims require a weight-policy-aware matrix, "
+                "sector, or two-block certificate"
+            )
         # Builder input may omit a target and thereby select the historical
         # gist policy.  A certificate may not omit the resulting canonical
         # descriptor: deleting all target fields and recomputing the unkeyed

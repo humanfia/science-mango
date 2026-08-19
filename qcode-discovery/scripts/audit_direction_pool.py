@@ -56,10 +56,14 @@ from evaluation.process_hard_wall import (
     positive_wall_timeout,
     start_isolated_call,
 )
+from evaluation.admissibility_policy import (
+    validate_css_w6_admissibility_binding,
+)
 from evaluation.geometry import candidate_geometry
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
     SUPPORTED_TARGET_MODES,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     target_binding,
     validate_target_binding,
     validate_target_mode,
@@ -82,6 +86,7 @@ CONSTRUCTION_FIELDS = (
     "source", "trial", "ansatz", "construction", "geometry", "ell", "m", "A_terms", "B_terms",
     "C_terms", "D_terms", "n", "k", "required_distance",
     "target_mode", "target",
+    "admissibility",
     "max_row_weight", "max_qubit_degree", "tanner_components", "novelty",
     "canonical_digest",
 )
@@ -215,6 +220,29 @@ def candidate_from_stage2(
         )
     if candidate["required_distance"] != canonical_target["required_distance"]:
         raise ValueError("Stage 2 required_distance does not match its target")
+    if mode == TARGET_MODE_SCALAR_13_INCLUSIVE:
+        candidate["admissibility"] = validate_css_w6_admissibility_binding(
+            candidate.get("admissibility"),
+        )
+        static = row.get("static_eligibility")
+        checks = (
+            static.get("checks") if isinstance(static, Mapping) else None
+        )
+        if (
+            not isinstance(static, Mapping)
+            or static.get("checked") is not True
+            or static.get("eligible") is not True
+            or not isinstance(checks, Mapping)
+            or checks.get("candidate_rebuild") is not True
+            or checks.get("weight_and_degree_at_most_6") is not True
+            or type(static.get("max_row_weight")) is not int
+            or static["max_row_weight"] > 6
+            or type(static.get("max_qubit_degree")) is not int
+            or static["max_qubit_degree"] > 6
+        ):
+            raise ValueError(
+                "Stage 2 FOM13 row lacks verified CSS weight-6 eligibility"
+            )
     candidate["target_mode"] = mode
     candidate["target"] = canonical_target
     return candidate

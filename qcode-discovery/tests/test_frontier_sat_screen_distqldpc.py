@@ -11,8 +11,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from evaluation.admissibility_policy import (
+    css_w6_admissibility_binding,
+)
 from evaluation import distance_distqldpc as dist
 from evaluation.distance_sat import SAT_EVIDENCE_KIND, SAT_EVIDENCE_SCHEMA_VERSION
+from evaluation.target_policy import TARGET_MODE_SCALAR_13_INCLUSIVE
 from scripts import screen_frontier_sat as screen
 
 
@@ -32,6 +36,26 @@ def _candidate() -> dict:
         "required_distance": 3,
         "canonical_digest": "distqldpc-screen-test",
     }
+
+
+def test_distqldpc_checkpoint_identity_binds_optional_css_w6_policy():
+    legacy = _candidate()
+    assert screen._admissibility_checkpoint_fields(legacy) == {}
+    with pytest.raises(ValueError, match="lacks CSS weight-6 policy"):
+        screen._admissibility_checkpoint_fields(
+            {**legacy, "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE},
+        )
+
+    binding = css_w6_admissibility_binding()
+    candidate = {**legacy, "admissibility": binding}
+    assert screen._admissibility_checkpoint_fields(candidate) == {
+        "admissibility_binding_sha256": binding["binding_sha256"],
+    }
+
+    with pytest.raises(ValueError, match="missing or stale"):
+        screen._admissibility_checkpoint_fields(
+            {**legacy, "admissibility": {**binding, "maximum": 7}},
+        )
 
 
 def _write_portfolio_solver(tmp_path: Path) -> tuple[Path, str]:
