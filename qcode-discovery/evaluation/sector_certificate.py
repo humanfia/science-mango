@@ -1129,6 +1129,8 @@ def _coverage_context(
         if isinstance(item, Mapping)
         and isinstance(item.get("solver_evidence"), Mapping)
     }
+    # An empty tuple denotes an unanchored global proof, not an anchor set.
+    used_anchors.discard(())
     compact = isinstance(claim.get("construction"), Mapping)
     translation_flag = request.get("use_translation_anchors") is True
     construction_flag = request.get("use_construction_anchors") is True

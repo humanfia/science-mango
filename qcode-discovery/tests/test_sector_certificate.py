@@ -1438,6 +1438,54 @@ def test_stage3_handoff_replays_distqldpc_global_lower_fail_closed(
     assert observed["cardinality_mode"] == mode
     assert observed["expected_checkpoint_identity"] == checkpoint_identity
 
+    anchors = (0,)
+    symmetry = {
+        "verified": True,
+        "orbit_representatives": list(anchors),
+        "report_sha256": "b" * 64,
+    }
+    monkeypatch.setattr(
+        "scripts.screen_frontier_xor.verify_bb_translation_symmetry",
+        lambda _claim: symmetry,
+    )
+    anchored = deepcopy(artifact)
+    anchored["translation_symmetry"] = symmetry
+    for field in (
+        "lower_bound_decisions",
+        "distqldpc_exact_decisions",
+        "distqldpc_lower_decisions",
+    ):
+        anchored[field][0]["checkpoint_identity"][
+            "translation_symmetry"
+        ] = symmetry
+    anchored["upper_witness"]["solver_evidence"] = _fake_solver(
+        hx,
+        lx,
+        max_weight=2,
+        sector="Z",
+        anchor_indices=anchors,
+    )
+    anchored["artifact_sha256"] = sector_certificate._canonical_sha256(
+        anchored, omit="artifact_sha256",
+    )
+    anchored_request = claim_from_sector_sat_artifact(anchored)[REQUEST_FIELD]
+    assert "anchor_indices" not in anchored_request[
+        "lower_bound_decisions"
+    ][0]["solver_evidence"]
+    assert anchored_request["upper_witness"]["solver_evidence"][
+        "anchor_indices"
+    ] == list(anchors)
+
+    wrong_anchor = deepcopy(anchored)
+    wrong_anchor["lower_bound_decisions"][0]["solver_evidence"][
+        "anchor_indices"
+    ] = [1]
+    wrong_anchor["artifact_sha256"] = sector_certificate._canonical_sha256(
+        wrong_anchor, omit="artifact_sha256",
+    )
+    with np.testing.assert_raises_regex(ValueError, "verified orbit anchors"):
+        claim_from_sector_sat_artifact(wrong_anchor)
+
     conflict = deepcopy(artifact)
     conflict["distqldpc_conflict"] = True
     conflict["artifact_sha256"] = sector_certificate._canonical_sha256(
