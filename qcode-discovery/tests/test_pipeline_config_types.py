@@ -6,7 +6,11 @@ from pathlib import Path
 import pytest
 
 from humanize.pipeline import PipelineConfig
-from evaluation.target_policy import TARGET_MODE_GIST, TARGET_MODE_SCALAR
+from evaluation.target_policy import (
+    TARGET_MODE_GIST,
+    TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
+)
 
 
 def _load_config(tmp_path: Path, values: dict) -> PipelineConfig:
@@ -171,6 +175,16 @@ def test_pipeline_json_accepts_explicit_scalar_target(
     values: dict,
 ):
     assert _load_config(tmp_path, values).target_mode == TARGET_MODE_SCALAR
+
+
+def test_pipeline_json_accepts_fom13_existing_input_target(tmp_path: Path):
+    config = _load_config(
+        tmp_path, {"target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE},
+    )
+    assert config.target_mode == TARGET_MODE_SCALAR_13_INCLUSIVE
+    assert config.serializable()["target_mode"] == (
+        TARGET_MODE_SCALAR_13_INCLUSIVE
+    )
 
 
 def test_pipeline_propagates_scalar_target_into_humanize_stage1(

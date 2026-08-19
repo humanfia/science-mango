@@ -13,6 +13,7 @@ from evaluation.certificate import _direction_specs, pack_vector
 from evaluation.target_policy import (
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     target_binding,
 )
 from scripts.audit_direction_pool import (
@@ -125,6 +126,28 @@ def test_stage3_handoff_copies_and_validates_scalar_target():
         )
     with pytest.raises(ValueError, match="target_mode"):
         candidate_from_stage2(row, target_mode=TARGET_MODE_GIST)
+
+
+def test_stage3_handoff_accepts_authoritative_fom13_target():
+    target = target_binding(210, 10, TARGET_MODE_SCALAR_13_INCLUSIVE)
+    row = {
+        **_candidate(),
+        "n": 210,
+        "k": 10,
+        "required_distance": target["required_distance"],
+        "target_mode": TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "target": target,
+        "campaign_audit": {"status": "UNRESOLVED"},
+    }
+
+    candidate = candidate_from_stage2(
+        row,
+        target_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )
+
+    assert candidate["target_mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE
+    assert candidate["target"] == target
+    assert candidate["required_distance"] == 17
 
 
 def test_stage3_legacy_handoff_is_explicitly_bound_to_gist():

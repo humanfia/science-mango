@@ -17,15 +17,25 @@ from typing import Any, Mapping
 TARGET_POLICY_SCHEMA_VERSION = 1
 TARGET_MODE_SCALAR = "scalar-fom-strict-v1"
 TARGET_MODE_SCALAR_INCLUSIVE = "scalar-fom-inclusive-v1"
+TARGET_MODE_SCALAR_13_INCLUSIVE = "scalar-fom-13-inclusive-v1"
 TARGET_MODE_GIST = "gist-pareto-challenge-v1"
 DEFAULT_TARGET_MODE = TARGET_MODE_GIST
-SUPPORTED_TARGET_MODES = frozenset(
-    {TARGET_MODE_SCALAR, TARGET_MODE_SCALAR_INCLUSIVE, TARGET_MODE_GIST}
-)
 
 FOM_NUMERATOR = 12
 FOM_DENOMINATOR = 1
 FOM_THRESHOLD = FOM_NUMERATOR / FOM_DENOMINATOR
+_SCALAR_TARGET_POLICIES: dict[str, tuple[int, int, bool, str]] = {
+    TARGET_MODE_SCALAR: (
+        FOM_NUMERATOR, FOM_DENOMINATOR, False, "fom_strictly_above_12",
+    ),
+    TARGET_MODE_SCALAR_INCLUSIVE: (
+        FOM_NUMERATOR, FOM_DENOMINATOR, True, "fom_at_least_12",
+    ),
+    TARGET_MODE_SCALAR_13_INCLUSIVE: (13, 1, True, "fom_at_least_13"),
+}
+SUPPORTED_TARGET_MODES = frozenset(
+    {TARGET_MODE_GIST, *_SCALAR_TARGET_POLICIES}
+)
 KNOWN_PARETO_REFERENCES = (
     (72, 12, 6),
     (90, 8, 10),
@@ -69,6 +79,14 @@ def validate_target_mode(mode: Any) -> str:
     return mode
 
 
+def is_inclusive_scalar_target_mode(mode: Any) -> bool:
+    """Return whether ``mode`` is a supported inclusive scalar policy."""
+
+    selected = validate_target_mode(mode)
+    policy = _SCALAR_TARGET_POLICIES.get(selected)
+    return policy is not None and policy[2]
+
+
 def _classify_gist_win(n: int, k: int, d: int) -> dict[str, Any]:
     """Implement the historical challenge gist exactly."""
 
@@ -96,9 +114,8 @@ def classify_target_win(
 ) -> dict[str, Any]:
     """Classify one distance under an explicit target policy.
 
-    Scalar decisions deliberately use integer comparisons.  The strict mode
-    checks ``k*d*d > 12*n`` and the separately versioned inclusive mode checks
-    ``k*d*d >= 12*n``.  The floating-point FOM is reporting metadata only and
+    Scalar decisions deliberately use integer comparisons under the selected
+    versioned policy. The floating-point FOM is reporting metadata only and
     cannot change a boundary decision.
     """
 
@@ -109,16 +126,14 @@ def classify_target_win(
     if mode == TARGET_MODE_GIST:
         return _classify_gist_win(n, k, d)
 
-    lhs = k * d * d * FOM_DENOMINATOR
-    rhs = FOM_NUMERATOR * n
-    inclusive = mode == TARGET_MODE_SCALAR_INCLUSIVE
+    numerator, denominator, inclusive, reason = _SCALAR_TARGET_POLICIES[mode]
+    lhs = k * d * d * denominator
+    rhs = numerator * n
     passed = lhs >= rhs if inclusive else lhs > rhs
     return {
         "passed": passed,
         "fom": k * d * d / n,
-        "reasons": [
-            "fom_at_least_12" if inclusive else "fom_strictly_above_12"
-        ] if passed else [],
+        "reasons": [reason] if passed else [],
     }
 
 
@@ -138,18 +153,18 @@ def minimum_target_distance(
     n = _positive_int("n", n)
     k = _positive_int("k", k)
     mode = validate_target_mode(mode)
+    if mode != TARGET_MODE_GIST:
+        numerator, denominator, inclusive, _reason = (
+            _SCALAR_TARGET_POLICIES[mode]
+        )
+        # Equality loses for a strict target and wins for an inclusive target.
+        # Subtract one only in the latter case before deriving the exact
+        # integer squared cutoff.
+        losing_numerator = numerator * n - (1 if inclusive else 0)
+        cutoff_squared = losing_numerator // (denominator * k)
+        return math.isqrt(cutoff_squared) + 1
     scalar_cutoff_squared = (FOM_NUMERATOR * n) // (FOM_DENOMINATOR * k)
     scalar_required = math.isqrt(scalar_cutoff_squared) + 1
-    if mode == TARGET_MODE_SCALAR:
-        return scalar_required
-    if mode == TARGET_MODE_SCALAR_INCLUSIVE:
-        # The losing side is k*d^2*denominator < numerator*n.  Subtracting
-        # one before integer division therefore gives its exact squared
-        # cutoff, including a boundary such as [[144,12,12]].
-        inclusive_cutoff_squared = (
-            FOM_NUMERATOR * n - 1
-        ) // (FOM_DENOMINATOR * k)
-        return math.isqrt(inclusive_cutoff_squared) + 1
     for distance in range(1, scalar_required + 1):
         if _classify_gist_win(n, k, distance)["passed"]:
             return distance
@@ -167,14 +182,21 @@ def target_binding(
     k = _positive_int("k", k)
     mode = validate_target_mode(mode)
     required_distance = minimum_target_distance(n, k, mode)
+    if mode == TARGET_MODE_GIST:
+        numerator, denominator, strict = FOM_NUMERATOR, FOM_DENOMINATOR, True
+    else:
+        numerator, denominator, inclusive, _reason = (
+            _SCALAR_TARGET_POLICIES[mode]
+        )
+        strict = not inclusive
     binding: dict[str, Any] = {
         "schema_version": TARGET_POLICY_SCHEMA_VERSION,
         "mode": mode,
         "n": n,
         "k": k,
-        "fom_numerator": FOM_NUMERATOR,
-        "fom_denominator": FOM_DENOMINATOR,
-        "strict": mode != TARGET_MODE_SCALAR_INCLUSIVE,
+        "fom_numerator": numerator,
+        "fom_denominator": denominator,
+        "strict": strict,
         "required_distance": required_distance,
         "rejection_cutoff": required_distance - 1,
     }
@@ -237,9 +259,11 @@ __all__ = [
     "SUPPORTED_TARGET_MODES",
     "TARGET_MODE_GIST",
     "TARGET_MODE_SCALAR",
+    "TARGET_MODE_SCALAR_13_INCLUSIVE",
     "TARGET_MODE_SCALAR_INCLUSIVE",
     "TARGET_POLICY_SCHEMA_VERSION",
     "classify_target_win",
+    "is_inclusive_scalar_target_mode",
     "minimum_target_distance",
     "target_binding",
     "validate_target_binding",

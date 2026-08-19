@@ -14,6 +14,7 @@ from evaluation.proof_runtime import proof_runtime_fingerprint
 from evaluation.target_policy import (
     TARGET_MODE_GIST,
     TARGET_MODE_SCALAR,
+    TARGET_MODE_SCALAR_13_INCLUSIVE,
     TARGET_MODE_SCALAR_INCLUSIVE,
     target_binding,
 )
@@ -134,6 +135,31 @@ def test_stage2_replaces_input_target_after_authoritative_geometry():
     assert rebound["input_target_advisory"]["evidence"] == {
         "target": stale,
         "target_mode": TARGET_MODE_GIST,
+    }
+
+
+def test_stage2_rebinds_old_target_to_authoritative_fom13_policy():
+    stale = target_binding(210, 10, TARGET_MODE_SCALAR_INCLUSIVE)
+    rebound = candidate_pool._bind_authoritative_target(
+        {
+            "n": 210,
+            "k": 10,
+            "target_mode": TARGET_MODE_SCALAR_INCLUSIVE,
+            "target": stale,
+        },
+        n=210,
+        k=10,
+        target_mode=TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )
+
+    assert rebound["target_mode"] == TARGET_MODE_SCALAR_13_INCLUSIVE
+    assert rebound["required_distance"] == 17
+    assert rebound["target"] == target_binding(
+        210, 10, TARGET_MODE_SCALAR_13_INCLUSIVE,
+    )
+    assert rebound["input_target_advisory"]["evidence"] == {
+        "target": stale,
+        "target_mode": TARGET_MODE_SCALAR_INCLUSIVE,
     }
 
 
@@ -787,7 +813,11 @@ def test_explicit_strict_target_preserves_legacy_rank_key(upper):
     )
 
 
-def test_inclusive_target_globally_prioritizes_basis_boundary():
+@pytest.mark.parametrize(
+    "target_mode",
+    [TARGET_MODE_SCALAR_INCLUSIVE, TARGET_MODE_SCALAR_13_INCLUSIVE],
+)
+def test_inclusive_target_globally_prioritizes_basis_boundary(target_mode):
     weak_score = {"status": "UNSCREENED", "rejected": False}
     strong_score = {
         "status": "PROMISING",
@@ -802,22 +832,22 @@ def test_inclusive_target_globally_prioritizes_basis_boundary():
         [
             _ranked_basis_row(
                 "missing", None,
-                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                target_mode=target_mode,
                 proof_score=strong_score,
             ),
             _ranked_basis_row(
                 "above-boundary", 15,
-                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                target_mode=target_mode,
                 proof_score=strong_score,
             ),
             _ranked_basis_row(
                 "basis-reject", 12,
-                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                target_mode=target_mode,
                 proof_score=strong_score,
             ),
             _ranked_basis_row(
                 "boundary", 13,
-                target_mode=TARGET_MODE_SCALAR_INCLUSIVE,
+                target_mode=target_mode,
                 proof_score=weak_score,
             ),
         ],
@@ -832,6 +862,22 @@ def test_inclusive_target_globally_prioritizes_basis_boundary():
         "above-boundary",
         "missing",
     ]
+
+
+def test_stage2_cli_accepts_fom13_target_mode(tmp_path):
+    args = candidate_pool.build_parser().parse_args([
+        "candidates.jsonl",
+        "--target-mode",
+        TARGET_MODE_SCALAR_13_INCLUSIVE,
+        "--state-dir",
+        str(tmp_path / "state"),
+        "--ranked-output",
+        str(tmp_path / "ranked.jsonl"),
+        "--summary-output",
+        str(tmp_path / "summary.json"),
+    ])
+
+    assert args.target_mode == TARGET_MODE_SCALAR_13_INCLUSIVE
 
 
 def test_ranked_snapshot_rejects_rejected_score_without_trusted_marker():

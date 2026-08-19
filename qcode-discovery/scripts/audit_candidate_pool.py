@@ -59,8 +59,8 @@ from evaluation.failure_disposition import (
 from evaluation.target_policy import (
     DEFAULT_TARGET_MODE,
     SUPPORTED_TARGET_MODES,
-    TARGET_MODE_SCALAR_INCLUSIVE,
     classify_target_win,
+    is_inclusive_scalar_target_mode,
     minimum_target_distance,
     target_binding,
     validate_target_binding,
@@ -1093,7 +1093,9 @@ def _trusted_basis_promotion_key(
     if report.get("available") is not True or not isinstance(upper, int):
         return (3, 0)
     headroom = upper - required
-    if row.get("target_mode") == TARGET_MODE_SCALAR_INCLUSIVE:
+    if is_inclusive_scalar_target_mode(
+        row.get("target_mode", DEFAULT_TARGET_MODE),
+    ):
         if headroom == 0:
             # Inclusive FOM targets turn U=R into the cheapest boundary win:
             # the threshold search only has to exclude weights below R.
@@ -1146,7 +1148,9 @@ def _ranked_selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     # while the selection cursor can never cross a timed-out reconstruction.
     structural_lane = 1 if _is_structural_screen_unresolved(row) else 0
     basis_promotion = _trusted_basis_promotion_key(row)
-    if row.get("target_mode") == TARGET_MODE_SCALAR_INCLUSIVE:
+    if is_inclusive_scalar_target_mode(
+        row.get("target_mode", DEFAULT_TARGET_MODE),
+    ):
         # For the inclusive policy, the trusted basis relation is the primary
         # cost funnel inside the live, structurally completed lane. In
         # particular, a U=R boundary candidate must outrank U<R even when an
