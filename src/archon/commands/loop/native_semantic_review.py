@@ -36,6 +36,7 @@ BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
 MANIFEST_REL = Path("isolation_manifest.json")
 SEED_PROTOCOL = "icho-problem-only-solver-seed-v1"
 NATIVE_PROFILE = "chemistry-native"
+_PROBLEM_IMAGE_PREFIX = "icho_2026_source/image/"
 MAX_BUNDLE_BYTES = 16 * 1024 * 1024
 MAX_BUNDLE_RECORDS = 4096
 MAX_TEXT_CHARS = 1_600
@@ -1777,6 +1778,8 @@ def _locator(
         _error(f"{label}.kind is unsupported")
     if kind == "problem_image":
         asset, marker, region = reference.partition("#")
+        if asset.startswith(_PROBLEM_IMAGE_PREFIX):
+            asset = asset[len(_PROBLEM_IMAGE_PREFIX):]
         allowed_assets = {
             str(item.get("path") or "")
             for item in contract.get("image_assets") or []
@@ -1784,12 +1787,14 @@ def _locator(
         }
         if (
             not marker
+            or not asset
             or _LOCATOR_FRAGMENT_RE.fullmatch(region) is None
             or asset not in allowed_assets
         ):
             _error(
                 f"{label}.reference must reference an allowed problem image as path#region"
             )
+        reference = f"{asset}#{region}"
     elif kind == "previous_parts":
         bare_match = _BARE_PREVIOUS_PART_RE.fullmatch(reference)
         match = _PREVIOUS_PART_RE.fullmatch(reference)

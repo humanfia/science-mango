@@ -732,6 +732,51 @@ class NativeSemanticReviewTests(unittest.TestCase):
                 self.assertTrue(error)
                 self.assertEqual(normalized, {})
 
+    def test_problem_image_bundle_prefix_is_a_canonicalized_alias(self) -> None:
+        contract = self._contract()
+        normalized_references = []
+        for reference in (
+            "page.png#table-1",
+            "icho_2026_source/image/page.png#table-1",
+        ):
+            with self.subTest(reference=reference):
+                review = self._review(contract)
+                review["independent_rederivation"]["requested_outputs"][0][
+                    "source_locators"
+                ] = [{"kind": "problem_image", "reference": reference}]
+
+                error, normalized = validate_independent_rederivation(review, contract)
+
+                self.assertEqual(error, "")
+                normalized_references.append(
+                    normalized["requested_outputs"][0]["source_locators"][0][
+                        "reference"
+                    ]
+                )
+
+        self.assertEqual(normalized_references, ["page.png#table-1"] * 2)
+
+    def test_problem_image_bundle_prefix_remains_exact_and_fail_closed(self) -> None:
+        contract = self._contract()
+        for reference in (
+            "icho_2026_source/image/wrong.png#region",
+            "other/image/page.png#region",
+            "icho_2026_source/image/nested/page.png#region",
+            "icho_2026_source/image/icho_2026_source/image/page.png#region",
+            "icho_2026_source/image/../page.png#region",
+            "/icho_2026_source/image/page.png#region",
+        ):
+            with self.subTest(reference=reference):
+                review = self._review(contract)
+                review["independent_rederivation"]["requested_outputs"][0][
+                    "source_locators"
+                ] = [{"kind": "problem_image", "reference": reference}]
+
+                error, normalized = validate_independent_rederivation(review, contract)
+
+                self.assertIn(".reference", error)
+                self.assertEqual(normalized, {})
+
     def test_previous_parts_bare_decimal_is_range_checked_and_canonicalized(self) -> None:
         contract = self._contract()
         for reference, expected in (
