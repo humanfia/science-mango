@@ -1545,6 +1545,148 @@ class PipelinedReviewTest(unittest.TestCase):
             self.assertEqual(captured["max_parallel"], 28)
             self.assertFalse(captured["dry_run"])
 
+    def test_resume_autoformalize_gate_preserves_only_live_lanes(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            iter_dir.mkdir(parents=True)
+            names = (
+                "retry", "passed_unproved",
+                "formal_exhausted", "proof_retry",
+                "proof_terminal",
+            )
+            targets = {name: root / f"{name}.lean" for name in names}
+            for name, target in targets.items():
+                target.write_text(
+                    f"theorem {name} : True := by sorry\n",
+                    encoding="utf-8",
+                )
+            progress = state / "PROGRESS.md"
+            progress.write_text(
+                "# Progress\n\n## Current Stage\n\nautoformalize\n\n"
+                "## Current Objectives\n\n"
+                + "".join(
+                    f"- **`{target.name}`** — resume lane.\n"
+                    for target in targets.values()
+                ),
+                encoding="utf-8",
+            )
+            (state / "config.json").write_text(json.dumps({
+                "loop": {
+                    "pipeline_target_review": True,
+                    "deterministic_review": True,
+                    "parallel_target_review": True,
+                    "parallel_formalization_review": True,
+                }
+            }), encoding="utf-8")
+
+            for name, verdicts in {
+                "retry": (False,),
+                "passed_unproved": (True,),
+                "formal_exhausted": (False, False, False),
+                "proof_retry": (True,),
+                "proof_terminal": (True,),
+            }.items():
+                for cycle, passed in enumerate(verdicts, start=1):
+                    apply_target_formalization_review(
+                        state_dir=state,
+                        project_path=root,
+                        target=targets[name],
+                        milestone=_formalization_milestone(
+                            f"{name}.lean", passed=passed,
+                        ),
+                        iter_num=1,
+                        max_iterations=3,
+                        event_id=(
+                            f"pipeline:1:{name}.lean:formalization:{cycle}"
+                        ),
+                    )
+            apply_target_proof_review(
+                state_dir=state,
+                project_path=root,
+                target=targets["proof_retry"],
+                milestone=_retry_proof_milestone("proof_retry.lean"),
+                iter_num=1,
+                max_iterations=3,
+                event_id="pipeline:1:proof_retry.lean:proof:1",
+            )
+            apply_target_proof_review(
+                state_dir=state,
+                project_path=root,
+                target=targets["proof_terminal"],
+                milestone=_milestone("proof_terminal.lean"),
+                iter_num=1,
+                max_iterations=3,
+                event_id="pipeline:1:proof_terminal.lean:proof:1",
+            )
+
+            dispatched_progress: list[str] = []
+
+            class FakeRunner:
+                def __init__(self, **_kwargs):
+                    pass
+
+                def run(self, *, dry_run: bool):
+                    del dry_run
+                    dispatched_progress.append(
+                        progress.read_text(encoding="utf-8")
+                    )
+
+            options = SimpleNamespace(
+                parallel=True,
+                multilane_preview=False,
+                multilane_execute=False,
+                no_review=False,
+                proof_review_gate=True,
+                formalization_review_gate=True,
+                formalization_review_max_iterations=3,
+                proof_review_max_iterations=3,
+                max_parallel=4,
+                max_objectives=4,
+                block_on_blocked_deps=False,
+                debug_feedback=False,
+            )
+            ctx = SimpleNamespace(
+                project_name="project",
+                project_path=root,
+                state_dir=state,
+                progress_file=progress,
+                current_stage="autoformalize",
+                iter_dir=iter_dir,
+                iter_meta=iter_dir / "meta.json",
+                iter_num=1,
+                options=options,
+                verbose_logs=False,
+                model="test",
+                dashboard_url=None,
+                blueprint_url=None,
+                backend=None,
+                resume_phase="prover",
+                dry_run=False,
+                harness_descriptor_for=lambda _role: None,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.phases.prover.ParallelProverRunner",
+                    FakeRunner,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "_restrict_progress_to_pending_shared_modules",
+                    return_value=False,
+                ),
+            ):
+                ProverPhase(ctx)._dispatch()
+
+            self.assertEqual(len(dispatched_progress), 1)
+            routed = dispatched_progress[0]
+            self.assertIn("retry.lean", routed)
+            self.assertIn("passed_unproved.lean", routed)
+            self.assertIn("proof_retry.lean", routed)
+            self.assertNotIn("formal_exhausted.lean", routed)
+            self.assertNotIn("proof_terminal.lean", routed)
+
     def test_autoformalize_targets_run_independent_full_lifecycles(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

@@ -503,6 +503,19 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertEqual(kept, [self.target])
         self.assertEqual(dropped, [])
 
+    def test_passed_target_stays_filtered_from_fresh_autoformalize(self):
+        self._review(1, "passed")
+        kept, dropped = enforce_progress_review_gate(
+            progress_file=self.progress,
+            state_dir=self.state,
+            project_path=self.project,
+            stage="autoformalize",
+            enabled=True,
+        )
+
+        self.assertEqual(kept, [])
+        self.assertEqual(dropped, [(self.target, "passed")])
+
     def test_chemistry_modes_survive_retry_pass_and_gate_rewrite(self):
         self._set_chemistry_profile()
 

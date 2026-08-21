@@ -1112,6 +1112,7 @@ def filter_objectives_for_review_gate(
     project_path: Path,
     stage: str,
     enabled: bool,
+    autoformalize_prover_targets: Iterable[str] = (),
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     """Apply the persisted gate before any formalizer/prover dispatch."""
     items = list(objectives)
@@ -1124,6 +1125,7 @@ def filter_objectives_for_review_gate(
     )
     canonical = stage.strip().lower()
     targets = state.get("targets", {}) if state else {}
+    resume_prover_targets = set(autoformalize_prover_targets)
     shared_paths: set[str] = set()
     if canonical.startswith(("prover", "polish")):
         # Shared infrastructure is a prerequisite build objective, not a
@@ -1147,7 +1149,9 @@ def filter_objectives_for_review_gate(
         record = targets.get(rel) if rel else None
         status = str(record.get("status") or "") if isinstance(record, dict) else ""
         if canonical.startswith("autoformalize"):
-            if status in {"passed", "review_exhausted"}:
+            if status == "passed" and rel in resume_prover_targets:
+                kept.append(path)
+            elif status in {"passed", "review_exhausted"}:
                 dropped.append((path, status))
             else:
                 kept.append(path)
@@ -1229,6 +1233,7 @@ def enforce_progress_review_gate(
     project_path: Path,
     stage: str,
     enabled: bool,
+    autoformalize_prover_targets: Iterable[str] = (),
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     """Filter PROGRESS objectives in place before a worker can dispatch."""
     objectives = parse_objective_files(progress_file, project_path)
@@ -1238,6 +1243,7 @@ def enforce_progress_review_gate(
         project_path=project_path,
         stage=stage,
         enabled=enabled,
+        autoformalize_prover_targets=autoformalize_prover_targets,
     )
     if not dropped:
         return kept, dropped
