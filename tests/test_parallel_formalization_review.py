@@ -142,6 +142,20 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "candidate_domain_provenance", "lean_result_binding",
             ):
                 self.assertIn(name, prompt)
+            for marker in (
+                "source-first arrow certificate",
+                "state the arrowhead\ndirection",
+                "enumerate all precursors at the tail",
+                "identify the product at the head",
+                "trace a\ndistinctive scaffold or motif",
+                "Cross-check\nthat scaffold against every adjacent product",
+                "expand every chemical abbreviation",
+                "terminal or capping group",
+                "complete elemental formula",
+                "Mark its\nattachment boundary",
+                "count\nevery atom exactly once",
+            ):
+                self.assertIn(marker, prompt)
             self.assertNotIn('"official_answer_alignment"', prompt)
             self.assertNotIn('"source_inconsistency"', prompt)
 

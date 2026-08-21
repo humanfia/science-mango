@@ -651,6 +651,17 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "before comparing it with the submission or Lean carrier",
             "candidate's formula or prose is never a substitute",
             "fail closed instead of copying",
+            "source-first arrow certificate",
+            "state the arrowhead\ndirection",
+            "enumerate all precursors at the tail",
+            "identify the product at the head",
+            "trace a\ndistinctive scaffold or motif",
+            "Cross-check\nthat scaffold against every adjacent product",
+            "expand every chemical abbreviation",
+            "terminal or capping group",
+            "complete elemental formula",
+            "Mark its\nattachment boundary",
+            "count\nevery atom exactly once",
         ):
             self.assertIn(marker, formal_prompt)
 

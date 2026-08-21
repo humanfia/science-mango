@@ -57,6 +57,21 @@ _NOT_APPLICABLE = {"not_applicable", "not applicable", "n/a", "na"}
 _BRIDGE_PASS = {"covered", "grounded", "encoded", "proved", "pass", "passed"}
 _BRIDGE_FAIL = {"blocked", "failed", "missing", "partial", "needs_redraft"}
 
+_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL = """For every depicted reaction arrow,
+write a source-first arrow certificate before using it: state the arrowhead
+direction, enumerate all precursors at the tail (including reagents placed
+above or below the shaft), identify the product at the head, and trace a
+distinctive scaffold or motif from each precursor into that product. Cross-check
+that scaffold against every adjacent product so panel proximity or an opposing
+arrow cannot silently swap the reaction assignment.
+
+Before constructing any atom ledger, expand every chemical abbreviation and
+terminal or capping group into its complete elemental formula. Mark its
+attachment boundary and state whether each boundary atom belongs to the group,
+belongs to the adjacent residue, is shared, or is removed during coupling; count
+every atom exactly once. Do not inherit a familiar abbreviation's net formula
+or attachment semantics from the candidate."""
+
 
 def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -313,6 +328,8 @@ visual recount. If any relevant panel, legend mapping, node multiplicity,
 connection, or atom balance remains unresolved, fail closed instead of copying
 the candidate's interpretation.
 
+{_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
+
 For chemistry, enumerate every requested output; inspect every listed image;
 check chemical identity, formula/molar-mass consistency, conservation, units,
 structures/stereochemistry, identification uniqueness, raw arithmetic, and
@@ -564,6 +581,8 @@ and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
 
 {chemistry_protocol}
+
+{_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
 
 The deterministic preflight already ran. Do not run lake, Lean, leandag, broad
 searches, or other agents unless preflight reports timeout/error. Do not edit
