@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import signal
 import subprocess
 import tempfile
 import time
@@ -16,6 +18,8 @@ from .numeric_reporting_guard import (
     finalized_guard_evidence,
     prepare_numeric_reporting_guard,
 )
+
+_PROCESS_GROUP_TERM_GRACE_SEC = 1.0
 
 
 @dataclass(frozen=True)
@@ -35,6 +39,32 @@ def _relative(path: Path, project_path: Path) -> str:
         return path.resolve().relative_to(project_path.resolve()).as_posix()
     except ValueError:
         return str(path)
+
+def _signal_process_group(process: subprocess.Popen[str], sig: signal.Signals) -> None:
+    """Signal the isolated preflight process group if it still exists."""
+    try:
+        os.killpg(process.pid, sig)
+    except ProcessLookupError:
+        pass
+
+
+def _reap_timed_out_process_group(
+    process: subprocess.Popen[str],
+) -> tuple[str, str]:
+    """Terminate a timed-out preflight tree, escalating once, and reap it."""
+    _signal_process_group(process, signal.SIGTERM)
+    stdout = ""
+    stderr = ""
+    try:
+        stdout, stderr = process.communicate(
+            timeout=_PROCESS_GROUP_TERM_GRACE_SEC
+        )
+    except subprocess.TimeoutExpired:
+        pass
+    finally:
+        _signal_process_group(process, signal.SIGKILL)
+    final_stdout, final_stderr = process.communicate()
+    return final_stdout or stdout or "", final_stderr or stderr or ""
 
 
 def _check_target(
@@ -57,14 +87,25 @@ def _check_target(
         )
     start = time.monotonic()
 
+    process: subprocess.Popen[str] | None = None
+
     def invoke(source: Path) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(
-            ["lake", "env", "lean", str(source)],
+        nonlocal process
+        command = ["lake", "env", "lean", str(source)]
+        process = subprocess.Popen(
+            command,
             cwd=project_path,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=timeout_sec,
+            start_new_session=True,
         )
+        stdout, stderr = process.communicate(timeout=timeout_sec)
+        result = subprocess.CompletedProcess(
+            command, process.returncode, stdout, stderr,
+        )
+        process = None
+        return result
 
     try:
         source_bytes = target.read_bytes()
@@ -141,8 +182,16 @@ def _check_target(
             reporting,
         )
     except subprocess.TimeoutExpired as exc:
+        stdout, stderr = (
+            _reap_timed_out_process_group(process)
+            if process is not None
+            else ("", "")
+        )
         duration = time.monotonic() - start
-        diagnostics = str(exc.stderr or exc.stdout or "direct Lean check timed out")
+        diagnostics = str(
+            stderr or stdout or exc.stderr or exc.stdout
+            or "direct Lean check timed out"
+        )
         reporting = reporting_guard.evidence()
         if reporting_guard.status == "ready":
             reporting.update(
@@ -181,7 +230,7 @@ def check_review_target(
     *,
     project_path: Path,
     target: Path,
-    timeout_sec: int = 300,
+    timeout_sec: int = 3600,
 ) -> dict:
     """Run the deterministic Review preflight for one completed target."""
     return asdict(
@@ -196,7 +245,7 @@ def run_parallel_review_preflight(
     iter_dir: Path,
     iter_num: int,
     jobs: int,
-    timeout_sec: int = 300,
+    timeout_sec: int = 3600,
 ) -> dict:
     """Run direct Lean checks concurrently and write stable JSON/Markdown."""
     ordered = list(dict.fromkeys(path.resolve() for path in objectives))

@@ -44,6 +44,21 @@ _CHECK_AXIOMS_SCRIPT = (
 )
 
 
+class CleanupSafetyTest(unittest.TestCase):
+    def test_backup_restore_is_explicitly_noninteractive(self):
+        script = _CHECK_AXIOMS_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn(
+            'mv -f -- "$original.axiom_check_backup" "$original"',
+            script,
+        )
+        self.assertIn('mv -f -- "$BACKUP_FILE" "$FILE"', script)
+        self.assertNotIn(
+            'mv "$original.axiom_check_backup" "$original"',
+            script,
+        )
+        self.assertNotIn('mv "$BACKUP_FILE" "$FILE"', script)
+
+
 class FindingParseTest(unittest.TestCase):
     def test_parses_decls_and_strips_ansi(self):
         raw = (
@@ -265,6 +280,7 @@ class ParallelSweepTest(unittest.TestCase):
             source = root / "A.lean"
             original = "theorem a : True := by trivial\n"
             source.write_text(original)
+            source.chmod(0o444)
             scratch = root / ".archon" / "tmp" / "axiom-sweep"
             observed_probes: list[Path] = []
 
@@ -273,6 +289,8 @@ class ParallelSweepTest(unittest.TestCase):
                 observed_probes.append(probe)
                 self.assertNotEqual(probe.resolve(), source.resolve())
                 self.assertEqual(probe.read_text(), original)
+                self.assertTrue(probe.stat().st_mode & 0o200)
+                self.assertIs(_kwargs.get("stdin"), subprocess.DEVNULL)
                 probe.write_text("mutated disposable probe\n")
                 return SimpleNamespace(
                     returncode=0,
@@ -297,6 +315,7 @@ class ParallelSweepTest(unittest.TestCase):
             self.assertIsNotNone(report)
             self.assertTrue(report.ran)
             self.assertEqual(source.read_text(), original)
+            self.assertEqual(source.stat().st_mode & 0o777, 0o444)
             self.assertEqual(report.target_files, ["A.lean"])
             self.assertEqual(report.findings[0].file, "A.lean")
             self.assertTrue(report.findings[0].is_sorry)

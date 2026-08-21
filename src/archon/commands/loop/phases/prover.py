@@ -8,9 +8,12 @@ from archon import log
 from archon.commands.tooling.iteration import commit_phase
 from archon.commands.tooling.project_config import load_project_config
 from archon.multilane.config import multilane_config_from_simple
-from archon.state import write_meta
+from archon.state import parse_objective_files, write_meta
 
-from ..formalization_review_gate import enforce_progress_review_gate
+from ..formalization_review_gate import (
+    _relative_file,
+    enforce_progress_review_gate,
+)
 from ..proof_review_gate import filter_objectives_for_proof_review_gate
 from ..lane_round import LaneRoundExecutor, LaneRoundPreviewRunner
 from ..parallel_review import PipelinedTargetReviewConfig
@@ -119,14 +122,57 @@ class ProverPhase(Phase):
         else:
             self._run_serial()
 
+    def _resume_autoformalize_prover_targets(self) -> set[str]:
+        """Return formal passes eligible to resume in their proof lane."""
+
+        ctx = self.ctx
+        if not (
+            self._resume_enabled()
+            and bool(ctx.options.parallel)
+            and not bool(getattr(ctx.options, "multilane_preview", False))
+            and not bool(getattr(ctx.options, "multilane_execute", False))
+            and ctx.current_stage.strip().lower().startswith("autoformalize")
+            and bool(ctx.options.formalization_review_gate)
+            and bool(getattr(ctx.options, "proof_review_gate", False))
+            and not bool(getattr(ctx.options, "no_review", False))
+        ):
+            return set()
+
+        loop_cfg = load_project_config(ctx.project_path).loop_section()
+        if not all(
+            bool(loop_cfg.get(key, False))
+            for key in (
+                "pipeline_target_review",
+                "deterministic_review",
+                "parallel_target_review",
+                "parallel_formalization_review",
+            )
+        ):
+            return set()
+
+        proof_eligible, _ = filter_objectives_for_proof_review_gate(
+            parse_objective_files(ctx.progress_file, ctx.project_path),
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+            enabled=True,
+            stage="prover",
+        )
+        return {
+            rel
+            for path in proof_eligible
+            if (rel := _relative_file(str(path), ctx.project_path))
+        }
+
     def _review_gate_allows_dispatch(self) -> bool:
         ctx = self.ctx
+        resume_prover_targets = self._resume_autoformalize_prover_targets()
         kept, dropped = enforce_progress_review_gate(
             progress_file=ctx.progress_file,
             state_dir=ctx.state_dir,
             project_path=ctx.project_path,
             stage=ctx.current_stage,
             enabled=ctx.options.formalization_review_gate,
+            autoformalize_prover_targets=resume_prover_targets,
         )
         proof_kept, proof_dropped = filter_objectives_for_proof_review_gate(
             kept,
@@ -280,7 +326,7 @@ class ProverPhase(Phase):
                     "parallel_target_review_backoff_sec", 5,
                 ))),
                 preflight_timeout_sec=max(1, int(loop_cfg.get(
-                    "review_preflight_timeout_sec", 300,
+                    "review_preflight_timeout_sec", 3600,
                 ))),
                 harness=ctx.harness_descriptor_for("review"),
                 formalizer_harness=ctx.harness_descriptor_for("prover"),

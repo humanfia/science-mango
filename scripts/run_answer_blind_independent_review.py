@@ -635,6 +635,13 @@ def run_source_first(
         raise ReviewControllerError(
             "source-first response failed semantic validation"
         ) from exc
+    # Persist the already validated Pass-A evidence DAG before the solver is
+    # allowed to start. Keep the answer-bearing commitment in the root-owned
+    # controller directory: the post-solver independent Review can reuse it,
+    # while the Formalizer/Prover workspace never sees result_spec values.
+    source_records_path = controller / f"{variant}-source-first-records.json"
+    _atomic_root_file(source_records_path, _pretty(source_records))
+
     precommit = {
         "schema_version": SCHEMA_VERSION, "protocol": PROTOCOL,
         "phase": "structured_source_first_precommit",
@@ -1079,7 +1086,22 @@ def _build_source_records(
     except Exception as exc:
         raise ReviewControllerError("source-first model records are invalid") from exc
     output = controller / f"{variant}-source-first-records.json"
-    _atomic_root_file(output, _pretty(commitment))
+    payload = _pretty(commitment)
+    if output.exists() or output.is_symlink():
+        try:
+            matches = (
+                not output.is_symlink()
+                and output.is_file()
+                and output.read_bytes() == payload
+            )
+        except OSError as exc:
+            raise ReviewControllerError(
+                "cannot read persisted pre-solver source-first records"
+            ) from exc
+        if not matches:
+            _fail("pre-solver source-first records differ from reconstructed records")
+    else:
+        _atomic_root_file(output, payload)
     return output, commitment
 
 

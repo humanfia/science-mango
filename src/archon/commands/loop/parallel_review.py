@@ -19,18 +19,37 @@ from .proof_review_gate import (
     PROOF_REVIEW_SCHEMA_VERSION,
     REDRAFT_KINDS,
 )
+from .problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+    materialize_controller_review_provenance,
+    is_native_problem_only_contract,
+    native_problem_only_enabled,
+    native_problem_image_args,
+    native_source_contract_provenance,
+    render_native_composition_accounting_prompt,
+    render_native_source_contract_prompt,
+    resolve_target_review_source_contract,
+    validate_native_passing_preflight,
+    validate_native_pipelined_preflight,
+    validate_native_review_source_certificate,
+    validate_review_source_contract_current,
+)
 from .review_source_contract import (
     SOURCE_INCONSISTENCY_KIND,
-    build_review_source_contract,
     is_answer_blind_contract,
-    render_source_contract_prompt,
-    source_contract_provenance,
-    validate_review_source_certificate,
+)
+from .review_feedback import (
+    render_validation_retry_feedback,
+    safe_preflight_summary,
+    sanitized_review_history,
 )
 from .shared_infrastructure import load_shared_infrastructure_policy
 
 PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
 PIPELINED_REVIEW_SCHEMA_VERSION = 1
+_NEEDS_REDRAFT_PARTIAL_STATUS_ERROR = (
+    "proof_review route=needs_redraft requires milestone status=blocked"
+)
 
 
 @dataclass(frozen=True)
@@ -41,6 +60,7 @@ class TargetReviewSpec:
     log_base: str
     attempt: int
     source_contract: dict | None = None
+    final_attempt: bool = False
 
 
 @dataclass(frozen=True)
@@ -50,6 +70,7 @@ class TargetReviewOutcome:
     runner_ok: bool
     milestone: dict | None
     error: str = ""
+    validation_error: str = ""
 
 
 @dataclass(frozen=True)
@@ -59,7 +80,7 @@ class PipelinedTargetReviewConfig:
     requested_jobs: int
     max_attempts: int = 3
     backoff_sec: float = 5.0
-    preflight_timeout_sec: int = 300
+    preflight_timeout_sec: int = 3600
     harness: HarnessDescriptor | None = None
     formalizer_harness: HarnessDescriptor | None = None
     formalization_review_enabled: bool = False
@@ -109,17 +130,26 @@ def _validate_proof_review_route(
         return "proof_review route=solved requires milestone status=solved"
     if route != "solved" and status == "solved":
         return f"proof_review route={route} contradicts milestone status=solved"
-    if route in {"needs_redraft", "blocked_infrastructure"} and status != "blocked":
-        return f"proof_review route={route} requires milestone status=blocked"
+    if route == "needs_redraft" and status != "blocked":
+        return _NEEDS_REDRAFT_PARTIAL_STATUS_ERROR
+    if route == "blocked_infrastructure" and status != "blocked":
+        return "proof_review route=blocked_infrastructure requires milestone status=blocked"
     if route == "retry_proof" and status not in {"partial", "blocked"}:
         return "proof_review route=retry_proof requires status=partial|blocked"
-    source_error = validate_review_source_certificate(
+    source_error = validate_native_review_source_certificate(
         raw,
         expected_source_contract,
         passing=route == "solved",
     )
     if source_error:
         return source_error
+    if route == "solved":
+        preflight_error = validate_native_passing_preflight(
+            expected_source_contract,
+            require_zero_sorries=True,
+        )
+        if preflight_error:
+            return preflight_error
     return ""
 
 
@@ -127,6 +157,8 @@ def load_target_milestone(
     path: Path,
     expected_rel: str,
     expected_source_contract: dict | None = None,
+    *,
+    final_attempt: bool = False,
 ) -> tuple[dict | None, str]:
     """Load exactly one well-formed milestone for ``expected_rel``."""
     try:
@@ -155,12 +187,196 @@ def load_target_milestone(
         route_error = _validate_proof_review_route(
             row, status, expected_source_contract,
         )
+        if (
+            final_attempt
+            and status == "partial"
+            and route_error == _NEEDS_REDRAFT_PARTIAL_STATUS_ERROR
+        ):
+            # Preserve strict retries on earlier attempts so a Reviewer can
+            # self-correct. At exhaustion only, copy the otherwise valid
+            # needs_redraft verdict to its canonical top-level status and run
+            # the complete route/source validation again before accepting it.
+            normalized_row = {**row, "status": "blocked"}
+            route_error = _validate_proof_review_route(
+                normalized_row, "blocked", expected_source_contract,
+            )
+            if not route_error:
+                row = normalized_row
         if route_error:
             return None, route_error
         rows.append(row)
     if len(rows) != 1:
         return None, f"expected exactly one milestone row, found {len(rows)}"
     return rows[0], ""
+
+
+def _build_native_target_review_prompt(
+    *,
+    project_path: Path,
+    iter_num: int,
+    target: Path,
+    rel: str,
+    output_dir: Path,
+    preflight: dict,
+    source_contract: dict,
+    prior_review_history: dict,
+    retry_validation_error: str,
+) -> str:
+    milestone = output_dir / "milestones.jsonl"
+    summary = output_dir / "summary.md"
+    source_block = render_native_source_contract_prompt(source_contract)
+    composition_block = render_native_composition_accounting_prompt(
+        source_contract
+    )
+    source_provenance = native_source_contract_provenance(source_contract)
+    preflight_summary = safe_preflight_summary(preflight)
+    retry_feedback = render_validation_retry_feedback(
+        retry_validation_error
+    )
+    return f"""You are one target-scoped proof Review worker for Archon iteration {iter_num}.
+
+Assigned target (the only target you may review):
+  {rel}
+
+Read only these bounded inputs:
+- Every bound problem image with its expected digest:
+  {json.dumps(source_contract["images"], ensure_ascii=False)}
+- Bound generated answer submission (untrusted; read completely):
+  {project_path / str(source_contract["answer_submission"])}
+  expected sha256={source_contract["answer_submission_sha256"]}
+- Current Lean candidate: {target}
+- Deterministic Lean preflight:
+  {json.dumps(preflight_summary, ensure_ascii=False)}
+
+{source_block}
+
+Controller-sanitized prior process metadata follows. Use it only as a regression
+checklist after independently auditing the current candidate. It contains no
+free-form Review rationale, expected result, source-derived value, or raw
+diagnostic, and must never be treated as a problem fact:
+{json.dumps(prior_review_history, ensure_ascii=False)}
+
+{retry_feedback}
+
+Audit the current Lean candidate only against the bound problem evidence and
+images. Treat the candidate as untrusted generated output. Re-derive every
+requested output, reporting rule, tolerance, branch, and candidate-domain
+restriction from that evidence; missing or ambiguous semantics require a
+failing route.
+
+Check that source_contract.candidate_sha256 binds the exact Lean candidate.
+Check that source_contract.answer_submission_sha256 binds the exact submission
+file. Validate its complete schema and exact output order/count/id/kind/unit
+against problem_evidence.requested_outputs. Independently rederive and audit
+every raw_value and display_value, including the bound reporting_policy, then
+map each output to a named nontrivial Lean carrier in the reviewed statement and
+proof. Treat submission values as untrusted generated output, never as a source
+premise. Any mismatch fails closed. In each requested_outputs certificate entry,
+record the exact output_id, submission_status, reporting_policy_status, and Lean
+carrier. Do not repeat raw or displayed answer values in source_contract
+provenance or process-history evidence; identify outputs by id and status.
+The deterministic preflight is worker-local execution evidence and is not part
+of persisted source provenance. In blind_source_audit.lean_result_binding,
+record the candidate hash, preflight status/compiles/returncode/sorry_count,
+and the nontrivial Lean declarations carrying every requested result.
+
+The complete student-visible problem, including any printed fallback, is
+legitimate problem input. A fallback may be used only where the problem wording
+permits it; never use a later fallback backward to establish the upstream
+subpart whose result it mirrors. Derive each upstream requested output
+independently from its givens.
+
+For chemistry, enumerate every requested output; inspect every listed image;
+check chemical identity, formula/molar-mass consistency, conservation, units,
+structures/stereochemistry, identification uniqueness, raw arithmetic, and
+mechanical significant-figure rules. Reject answer-shaped definitions,
+preselected witness tables, post-hoc tolerances, staged rounding chosen to
+reach a candidate, or a finite candidate domain not derived from the problem.
+
+{composition_block}
+
+Review the actual theorem contract and proof for:
+1. direct Lean compilation and zero active sorry/admit/axiom laundering,
+2. signature preservation and no weakened/trivialized statement,
+3. faithful chemistry semantics relative to the bound problem evidence,
+4. honest use of every binder, hypothesis, side condition, convention, bound,
+   and requested conclusion,
+5. whether the bound Lean candidate and deterministic preflight support the
+   claimed proof.
+
+Do not open any other project artifact. The deterministic preflight already
+ran; do not run lake, Lean, leandag, broad searches, or another agent unless it
+reports timeout/error. Write only:
+- {milestone}
+- {summary}
+Do not edit any input, configuration, journal, gate, or shared state file.
+
+Write exactly one JSON object line to {milestone}. Required shape:
+{{
+  "timestamp": "{_utcnow()}",
+  "target": {{"file": "{rel}", "theorem": "<reviewed declaration>"}},
+  "status": "solved|partial|blocked|not_started",
+  "proof_review": {{
+    "schema_version": {PROOF_REVIEW_SCHEMA_VERSION},
+    "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
+    "reason": "<specific root cause>",
+    "evidence": "<Lean goal/error plus contract evidence>",
+    "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect",
+    "infrastructure_request": null,
+    "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
+    "blind_source_audit": {{
+      "answer_independence": {{"status":"passed|failed","evidence":"<why only bound problem inputs influenced the audit>"}},
+      "raw_derivation": {{"status":"passed|failed","evidence":"<end-to-end unrounded/symbolic derivation carrier>"}},
+      "reporting_rule_source": {{"status":"passed|failed","evidence":"<problem-stated or predeclared mechanical reporting rule>"}},
+      "tolerance_provenance": {{"status":"passed|failed","evidence":"<measurement/rounding derivation for every tolerance>"}},
+      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem-derived domain or explicit underdetermination>"}},
+      "lean_result_binding": {{"status":"passed|failed","evidence":"<candidate_sha256, deterministic preflight results, and nontrivial Lean result carriers>"}}
+    }},
+    "contract_audit": {{
+      "statement_scope": {{"status":"passed|failed","evidence":"..."}},
+      "hypothesis_derivability": {{"status":"passed|failed","evidence":"..."}},
+      "conclusion_alignment": {{"status":"passed|failed","evidence":"..."}},
+      "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
+    }},
+    "requested_outputs": [{{"output_id":"<exact requested_outputs id>","source_requirement":"<exact requested output>","submission_status":"matched|failed","reporting_policy_status":"matched|failed","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"<audit result without copying the answer value>"}}],
+    "blueprint_conflicts": [],
+    "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
+    "chemistry_checks": {{
+      "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "numerical_reporting": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "structure_stereochemistry": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "identification_uniqueness": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "answer_smuggling": {{"status":"passed|failed|not_applicable","evidence":"..."}}
+    }}
+  }},
+  "attempts": [{{"attempt": 1, "strategy": "review", "code_tried": "",
+    "lean_error": "", "goal_before": "", "goal_after": "",
+    "result": "success|partial|failed", "insight": "<specific evidence>"}}],
+  "findings": {{"blocker": "<empty iff solved>",
+    "verification": "<concise semantic and proof audit>",
+    "key_lemmas_used": []}},
+  "session": {{"id": "session_{iter_num}", "model": "parallel-review"}},
+  "next_steps": "<empty iff solved; otherwise exact repair>"
+}}
+
+Classify root cause, not just the last Lean error. Use retry_proof only for a
+faithful and derivable contract whose remaining issue is proof construction.
+Use needs_redraft for a wrong, weakened, underdetermined, or answer-shaped
+contract, a missing output/branch/uncertainty, or a missing modeling bridge.
+Use blocked_infrastructure only for an unavailable external capability; never
+request an install or dependency update. A target-local helper is retry_proof.
+
+The top-level status is route-specific: solved -> solved; retry_proof ->
+partial or blocked; needs_redraft -> blocked (never partial); and
+blocked_infrastructure -> blocked.
+
+Use status=solved only when all five checks pass and route=solved. Missing or
+ambiguous evidence fails closed. Also write a <=12-line summary to {summary}.
+Return only after both files are durable on disk.
+"""
 
 
 def build_target_review_prompt(
@@ -174,8 +390,30 @@ def build_target_review_prompt(
     preflight: dict,
     prior_gate_record: dict | None,
     source_contract: dict | None = None,
+    retry_validation_error: str = "",
 ) -> str:
     rel = target.resolve().relative_to(project_path.resolve()).as_posix()
+    prior_review_history = sanitized_review_history(
+        prior_gate_record, review_kind="proof",
+    )
+    source_contract = resolve_target_review_source_contract(
+        project_path=project_path,
+        target=target,
+        preflight=preflight,
+        supplied_contract=source_contract,
+    )
+    if is_native_problem_only_contract(source_contract):
+        return _build_native_target_review_prompt(
+            project_path=project_path,
+            iter_num=iter_num,
+            target=target,
+            rel=rel,
+            output_dir=output_dir,
+            preflight=preflight,
+            source_contract=source_contract,
+            prior_review_history=prior_review_history,
+            retry_validation_error=retry_validation_error,
+        )
     slug = "_".join(Path(rel).with_suffix("").parts)
     chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
     prover_log = iter_dir / "provers" / f"{slug}.jsonl"
@@ -201,13 +439,11 @@ def build_target_review_prompt(
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
-    source_contract = source_contract or build_review_source_contract(
-        project_path=project_path,
-        target=target,
-        profile=profile,
+    source_block = render_native_source_contract_prompt(source_contract)
+    retry_feedback = render_validation_retry_feedback(
+        retry_validation_error
     )
-    source_block = render_source_contract_prompt(source_contract)
-    source_provenance = source_contract_provenance(source_contract)
+    source_provenance = native_source_contract_provenance(source_contract)
     answer_blind = is_answer_blind_contract(source_contract)
     if answer_blind:
         candidate_source_line = (
@@ -321,7 +557,9 @@ Read these bounded sources completely:
 - Matching prover task results, newest first:
   {json.dumps(result_evidence, ensure_ascii=False)}
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
-- Prior proof Review record: {json.dumps(prior_gate_record or {}, ensure_ascii=False)}
+- Controller-sanitized prior proof Review history: {json.dumps(prior_review_history, ensure_ascii=False)}
+
+{retry_feedback}
 
 {source_block}
 
@@ -439,7 +677,24 @@ def _run_review_worker(
     output_dir.mkdir(parents=True, exist_ok=True)
     runner_ok = False
     error = ""
+    contract_error = validate_review_source_contract_current(
+        project_path=project_path, contract=spec.source_contract,
+    )
+    if contract_error:
+        return TargetReviewOutcome(
+            rel=spec.rel,
+            attempt=spec.attempt,
+            runner_ok=False,
+            milestone=None,
+            error=contract_error,
+        )
     try:
+        image_args = native_problem_image_args(
+            project_path=project_path,
+            target=project_path / spec.rel,
+            harness=harness,
+            source_contract=spec.source_contract,
+        )
         runner_ok = build_runner(
             role="review", model=model, descriptor=harness, backend=backend,
         ).run(
@@ -447,13 +702,40 @@ def _run_review_worker(
             cwd=project_path,
             log_base=Path(spec.log_base),
             verbose_logs=verbose_logs,
+            extra_args=image_args,
         )
     except Exception as exc:  # worker isolation; parent decides whether to retry
         error = f"{type(exc).__name__}: {exc}"
+    contract_error = validate_review_source_contract_current(
+        project_path=project_path, contract=spec.source_contract,
+    )
+    if contract_error:
+        error = "; ".join(part for part in (error, contract_error) if part)
+        return TargetReviewOutcome(
+            rel=spec.rel,
+            attempt=spec.attempt,
+            runner_ok=runner_ok,
+            milestone=None,
+            error=error,
+        )
+    milestone_path = output_dir / "milestones.jsonl"
+    if runner_ok and not error:
+        binding_error = materialize_controller_review_provenance(
+            path=milestone_path,
+            expected_rel=spec.rel,
+            expected_contract=spec.source_contract,
+            review_field="proof_review",
+        )
+        if binding_error:
+            return TargetReviewOutcome(
+                rel=spec.rel, attempt=spec.attempt, runner_ok=runner_ok,
+                milestone=None, error=binding_error,
+            )
     milestone, validation_error = load_target_milestone(
-        output_dir / "milestones.jsonl",
+        milestone_path,
         spec.rel,
         spec.source_contract,
+        final_attempt=(spec.final_attempt and runner_ok and not error),
     )
     if validation_error:
         error = "; ".join(x for x in (error, validation_error) if x)
@@ -463,6 +745,7 @@ def _run_review_worker(
         runner_ok=runner_ok,
         milestone=milestone,
         error=error,
+        validation_error=validation_error,
     )
 
 
@@ -522,8 +805,16 @@ def validate_parallel_review_session(
     *,
     session_dir: Path,
     expected_rels: list[str],
+    project_path: Path | None = None,
 ) -> str:
     """Validate the durable aggregate before Review consumes it."""
+    native = False
+    if project_path is not None:
+        try:
+            native = native_problem_only_enabled(project_path)
+        except ProblemOnlyReviewContractError as exc:
+            return str(exc)
+
     milestone_path = session_dir / "milestones.jsonl"
     try:
         lines = milestone_path.read_text(
@@ -553,7 +844,17 @@ def validate_parallel_review_session(
         status = str(row.get("status") or "").strip().lower()
         if status not in {"solved", "partial", "blocked", "not_started"}:
             return f"unsupported pipelined Review status {status!r}"
-        route_error = _validate_proof_review_route(row, status)
+        expected_contract = None
+        if native and project_path is not None:
+            try:
+                expected_contract = resolve_target_review_source_contract(
+                    project_path=project_path,
+                    target=project_path / rel,
+                    preflight=None,
+                )
+            except ProblemOnlyReviewContractError as exc:
+                return f"{rel}: {exc}"
+        route_error = _validate_proof_review_route(row, status, expected_contract)
         if route_error:
             return f"{rel}: {route_error}"
         rows[rel] = row
@@ -636,6 +937,21 @@ def load_pipelined_review_report(
 
     proof_expected = expected
     if str(report.get("pipeline_mode") or "") == "target_lifecycle":
+        raw_pending = report.get("pending_formalization_targets", [])
+        if not isinstance(raw_pending, list):
+            return None, (
+                "target lifecycle report pending_formalization_targets "
+                "is not a list"
+            )
+        pending = sorted({
+            str(item).lstrip("./") for item in raw_pending
+            if str(item).strip()
+        })
+        if pending:
+            return None, (
+                "target lifecycle report is complete but still has pending "
+                f"formalization targets: {pending!r}"
+            )
         raw_settled = report.get("settled_target_files")
         if not isinstance(raw_settled, list):
             return None, "target lifecycle report settled_target_files is not a list"
@@ -664,6 +980,48 @@ def load_pipelined_review_report(
     error = validate_parallel_review_session(
         session_dir=session_dir,
         expected_rels=proof_expected,
+        project_path=project_path,
+    )
+    if error:
+        return None, error
+    solved_rels: list[str] = []
+    try:
+        native = native_problem_only_enabled(project_path)
+    except ProblemOnlyReviewContractError as exc:
+        return None, str(exc)
+    if native:
+        try:
+            session_lines = (session_dir / "milestones.jsonl").read_text(
+                encoding="utf-8", errors="ignore",
+            ).splitlines()
+            for line in session_lines:
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if not isinstance(row, dict):
+                    return None, "pipelined Review milestone row is not an object"
+                proof_review = row.get("proof_review")
+                if proof_review is None:
+                    findings = row.get("findings")
+                    if isinstance(findings, dict):
+                        proof_review = findings.get("proof_review")
+                if not isinstance(proof_review, dict) or (
+                    str(proof_review.get("route") or "").strip().lower()
+                    != "solved"
+                ):
+                    continue
+                target = row.get("target")
+                if not isinstance(target, dict):
+                    return None, "pipelined Review milestone target is missing"
+                solved_rels.append(
+                    str(target.get("file") or "").lstrip("./")
+                )
+        except (OSError, json.JSONDecodeError) as exc:
+            return None, f"cannot revalidate pipelined Review session: {exc}"
+    error = validate_native_pipelined_preflight(
+        project_path=project_path, preflight=report.get("preflight"),
+        expected_rels=expected, solved_rels=solved_rels,
+        expected_iteration=iter_num,
     )
     if error:
         return None, error
@@ -701,6 +1059,7 @@ def run_parallel_target_reviews(
     }
     pending = {rel: path for rel, path in targets}
     outcomes: dict[str, TargetReviewOutcome] = {}
+    validation_feedback: dict[str, str] = {}
     rounds: list[dict] = []
     jobs = max(1, min(int(requested_jobs), len(pending) or 1))
     max_attempts = max(1, int(max_attempts))
@@ -710,24 +1069,33 @@ def run_parallel_target_reviews(
             break
         round_jobs = min(jobs, len(pending))
         specs: list[TargetReviewSpec] = []
+        failed: dict[str, Path] = {}
         for rel, target in sorted(pending.items()):
             slug = "_".join(Path(rel).with_suffix("").parts)
             attempt_dir = iter_dir / "review-targets" / slug / f"attempt-{attempt}"
-            source_contract = build_review_source_contract(
-                project_path=project_path,
-                target=target,
-            )
-            prompt = build_target_review_prompt(
-                project_path=project_path,
-                state_dir=state_dir,
-                iter_dir=iter_dir,
-                iter_num=iter_num,
-                target=target,
-                output_dir=attempt_dir,
-                preflight=preflight_rows.get(rel, {}),
-                prior_gate_record=prior_gate_targets.get(rel),
-                source_contract=source_contract,
-            )
+            try:
+                source_contract = resolve_target_review_source_contract(
+                    project_path=project_path,
+                    target=target,
+                    preflight=preflight_rows.get(rel, {}),
+                )
+                prompt = build_target_review_prompt(
+                    project_path=project_path,
+                    state_dir=state_dir,
+                    iter_dir=iter_dir,
+                    iter_num=iter_num,
+                    target=target,
+                    output_dir=attempt_dir,
+                    preflight=preflight_rows.get(rel, {}),
+                    prior_gate_record=prior_gate_targets.get(rel),
+                    source_contract=source_contract,
+                    retry_validation_error=validation_feedback.get(
+                        rel, ""
+                    ),
+                )
+            except ProblemOnlyReviewContractError:
+                failed[rel] = target
+                continue
             specs.append(TargetReviewSpec(
                 rel=rel,
                 prompt=prompt,
@@ -735,8 +1103,8 @@ def run_parallel_target_reviews(
                 log_base=str(attempt_dir / "agent"),
                 attempt=attempt,
                 source_contract=source_contract,
+                final_attempt=attempt == max_attempts,
             ))
-        failed: dict[str, Path] = {}
         with executor_factory(max_workers=round_jobs) as pool:
             futures = {
                 pool.submit(
@@ -761,13 +1129,18 @@ def run_parallel_target_reviews(
                     )
                 if outcome.milestone is None:
                     failed[spec.rel] = target
+                    if outcome.validation_error:
+                        validation_feedback[spec.rel] = (
+                            outcome.validation_error
+                        )
                 else:
                     outcomes[spec.rel] = outcome
+                    validation_feedback.pop(spec.rel, None)
         rounds.append({
             "attempt": attempt,
             "jobs": round_jobs,
             "submitted": len(specs),
-            "completed": len(specs) - len(failed),
+            "completed": len(pending) - len(failed),
             "failed": len(failed),
         })
         pending = failed

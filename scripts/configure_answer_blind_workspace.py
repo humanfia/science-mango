@@ -511,7 +511,7 @@ def build_archon_config(
             },
             "deterministic_review": True,
             "review_preflight_jobs": parallel,
-            "review_preflight_timeout_sec": 300,
+            "review_preflight_timeout_sec": 3600,
             "parallel_target_review": True,
             "pipeline_target_review": False,
             "parallel_target_review_jobs": parallel,

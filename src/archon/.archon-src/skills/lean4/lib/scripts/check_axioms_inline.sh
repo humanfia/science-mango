@@ -45,7 +45,7 @@ cleanup() {
         local original
         original=$(cat "$marker")
         if [[ -f "$original.axiom_check_backup" ]]; then
-            mv "$original.axiom_check_backup" "$original"
+            mv -f -- "$original.axiom_check_backup" "$original"
         fi
         rm -f "$marker"
     done
@@ -378,7 +378,7 @@ check_file() {
     local cleanup_done=false
     cleanup_file() {
         if [[ "$cleanup_done" == false && -f "$BACKUP_FILE" ]]; then
-            mv "$BACKUP_FILE" "$FILE"
+            mv -f -- "$BACKUP_FILE" "$FILE"
             cleanup_done=true
             rm -f "$MARKER_FILE"
         fi

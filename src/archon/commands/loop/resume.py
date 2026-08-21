@@ -260,10 +260,13 @@ def detect_last_interrupted_phase(iter_meta: Path | None) -> str | None:
     """Pick the phase to resume by inspecting the prior iter's meta.json.
 
     Walks plan → prover → review and returns the first phase whose
-    ``<phase>.status`` is not ``"done"`` — that's the one that crashed
-    or was interrupted. Returns ``None`` when every phase is marked
-    ``"done"`` (the iteration completed cleanly; the caller should
-    decide whether to redo from the start or skip the iteration).
+    ``<phase>.status`` is neither ``"done"`` nor ``"skipped"`` — that's
+    the one that crashed or was interrupted. ``"skipped"`` is written
+    when an explicit ``--from`` intentionally bypasses an earlier phase;
+    treating it as interrupted would send the next ``--resume`` backwards
+    and could overwrite the live objective queue. Returns ``None`` when
+    every phase is terminal (the iteration completed cleanly; the caller
+    should decide whether to redo from the start or skip the iteration).
 
     Falls back to ``"plan"`` when the meta.json is missing or unreadable
     — typical for a brand-new project where ``--resume`` was passed
@@ -282,6 +285,6 @@ def detect_last_interrupted_phase(iter_meta: Path | None) -> str | None:
         if not isinstance(section, dict):
             # No status block yet → this phase never started → resume here.
             return phase
-        if section.get("status") != "done":
+        if section.get("status") not in {"done", "skipped"}:
             return phase
     return None

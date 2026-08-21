@@ -605,7 +605,7 @@ class ReviewPhase(Phase):
                 )
             )
             timeout_sec = int(
-                loop_cfg.get("review_preflight_timeout_sec", 300)
+                loop_cfg.get("review_preflight_timeout_sec", 3600)
             )
             preflight = run_parallel_review_preflight(
                 project_path=ctx.project_path,

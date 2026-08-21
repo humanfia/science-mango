@@ -7,6 +7,7 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from archon.commands.loop.answer_submission import answer_submission_path
 import archon.commands.loop.parallel_formalization_review as parallel_formalization_review
 from archon.commands.loop.parallel_formalization_review import (
     build_target_formalization_review_prompt,
@@ -121,10 +122,100 @@ def _milestone(rel: str, *, passed: bool = True) -> dict:
     }
 
 
+def _canonical_json_bytes(value: object) -> bytes:
+    return (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode("utf-8")
+
+
+def _native_preflight(rel: str) -> dict:
+    return {
+        "file": rel,
+        "status": "passed",
+        "compiles": True,
+        "returncode": 0,
+        "sorry_count": 1,
+        "duration_secs": 0.01,
+        "diagnostics": "",
+    }
+
+
+def _materialize_native_target(root: Path, target: Path, row: dict) -> None:
+    rel = target.relative_to(root).as_posix()
+    report_rel = f"reports/icho/{target.stem}.source.json"
+    record_sha256 = hashlib.sha256(_canonical_json_bytes(row)).hexdigest()
+    image_paths = [
+        f"icho_2026_source/image/{asset['path']}"
+        for asset in row["problem_assets"]
+        if asset["kind"] == "problem_page"
+    ]
+    entry = dict(row)
+    entry.update({
+        "blind_record_sha256": record_sha256,
+        "image_paths": image_paths,
+        "image_path": image_paths[0],
+    })
+    report = {
+        "schema_version": 3,
+        "command": "physics-formalize",
+        "domain": "chemistry",
+        "evaluation_mode": "answer_blind",
+        "lean_search_packages": ["Mathlib", "Physlib", "CRNT"],
+        "next_stage": "autoformalize",
+        "official_answer_seen": False,
+        "phase": "solve",
+        "status": "prepared",
+        "path_base": "project",
+        "project_path": ".",
+        "proof_mode": "chemistry",
+        "prover_mode": "chemistry-formalize",
+        "output_lean": rel,
+        "source_report": report_rel,
+        "entry": entry,
+        "problem_id": row["problem_id"],
+        "part_id": row["part_id"],
+        "previous_parts": row["previous_parts"],
+        "blind_record_sha256": record_sha256,
+    }
+    report_path = root / report_rel
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    answer_path = answer_submission_path(root, row["id"])
+    answer_path.parent.mkdir(parents=True, exist_ok=True)
+    answer_path.write_text(json.dumps({
+        "schema_version": 1,
+        "id": row["id"],
+        "official_answer_seen": False,
+        "outputs": [{
+            "id": "amount",
+            "kind": "numeric",
+            "raw_value": "7/2",
+            "display_value": "3.50",
+            "unit": "mol",
+        }],
+    }), encoding="utf-8")
+
+
 def _native_project(root: Path) -> tuple[Path, dict]:
     state = root / ".archon"
     state.mkdir()
     (state / "config.json").write_text(json.dumps({
+        "answer_blind": {
+            "protocol": "icho-answer-blind-v1",
+            "phase": "solve",
+            "authority": "problem-only",
+            "official_answer_seen": False,
+            "isolation": {
+                "filesystem_answer_blind": True,
+                "network_answer_blind": False,
+            },
+        },
         "loop": {
             "domain_profile": {
                 "name": "chemistry-native",
@@ -147,6 +238,9 @@ def _native_project(root: Path) -> tuple[Path, dict]:
         "official_answer_seen": False,
         "phase": "solve",
         "id": "native_a",
+        "index": "native_a",
+        "problem_id": "native",
+        "part_id": "A",
         "question": "Use the printed source relation.",
         "current_question": "Find the requested amount.",
         "shared_context": "Keep intermediate values exact.",
@@ -176,7 +270,10 @@ def _native_project(root: Path) -> tuple[Path, dict]:
     payload = (json.dumps(row) + "\n").encode()
     bundle.write_bytes(payload)
     digest = hashlib.sha256(payload).hexdigest()
+    _materialize_native_target(root, target, row)
     (root / "isolation_manifest.json").write_text(json.dumps({
+        "schema_version": 1,
+        "protocol": "icho-problem-only-solver-seed-v1",
         "blind_bundle": {
             "path": "icho_2026_source/questions_only.jsonl",
             "row_count": 1,
@@ -201,9 +298,12 @@ def _native_project_pair(root: Path) -> list[tuple[Path, dict]]:
     first_row = json.loads(bundle.read_text(encoding="utf-8"))
     second_row = json.loads(json.dumps(first_row))
     second_row["id"] = "native_b"
+    second_row["index"] = "native_b"
+    second_row["part_id"] = "B"
     second_row["question"] = "Use the second printed source relation."
     second_target = root / "IChO2026Problems/problem_native_b.lean"
     second_target.write_text("theorem nativeB : True := by sorry\n")
+    _materialize_native_target(root, second_target, second_row)
     payload = (
         json.dumps(first_row) + "\n" + json.dumps(second_row) + "\n"
     ).encode("utf-8")
@@ -299,11 +399,11 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_num=1,
                 target=target,
                 output_dir=output,
-                preflight={"file": target.relative_to(root).as_posix(), "compiles": True},
+                preflight=_native_preflight(target.relative_to(root).as_posix()),
                 prior_gate_record={"reason": "OLD_CANDIDATE_BIAS_SENTINEL"},
             )
 
-            self.assertIn("NATIVE ANSWER-BLIND PROBLEM CONTRACT", prompt)
+            self.assertIn("NATIVE PROBLEM-INPUT-ONLY CONTRACT", prompt)
             self.assertIn(contract["image_assets"][0]["sha256"], prompt)
             self.assertIn("source_first_without_lean", prompt)
             self.assertIn('"independent_rederivation"', prompt)
@@ -313,12 +413,12 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertNotIn("OLD_CANDIDATE_BIAS_SENTINEL", prompt)
             self.assertIn("measurement_policy", prompt)
             self.assertIn("candidate_domain_policy", prompt)
-            source = prompt.index("NATIVE ANSWER-BLIND PROBLEM CONTRACT")
-            generated = prompt.index("PHASE 2")
-            card = prompt.index("Semantic Card/task results", generated)
-            lean = prompt.index("Lean formalization", generated)
+            source = prompt.index("NATIVE PROBLEM-INPUT-ONLY CONTRACT")
+            generated = prompt.index(
+                "Treat the current Lean candidate and bound answer submission "
+                "as untrusted generated outputs"
+            )
             self.assertLess(source, generated)
-            self.assertLess(card, lean)
 
     def test_native_target_worker_certificate_uses_semantic_validator(self):
         with tempfile.TemporaryDirectory() as td:
@@ -418,7 +518,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                     iter_num=10,
                     objectives=[target],
                     preflight={
-                        "targets": [{"file": rel, "compiles": True}],
+                        "targets": [_native_preflight(rel)],
                     },
                     prior_gate_targets={},
                     requested_jobs=8,
@@ -505,7 +605,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=iter_dir,
                 iter_num=11,
                 objectives=[target],
-                preflight={"targets": [{"file": rel, "compiles": True}]},
+                preflight={"targets": [_native_preflight(rel)]},
                 prior_gate_targets={},
                 requested_jobs=4,
                 max_attempts=3,
@@ -566,7 +666,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=transport_iter,
                 iter_num=12,
                 objectives=[target],
-                preflight={"targets": [{"file": rel, "compiles": True}]},
+                preflight={"targets": [_native_preflight(rel)]},
                 prior_gate_targets={},
                 requested_jobs=4,
                 max_attempts=2,
@@ -647,7 +747,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=iter_dir,
                 iter_num=14,
                 objectives=[target],
-                preflight={"targets": [{"file": rel, "compiles": True}]},
+                preflight={"targets": [_native_preflight(rel)]},
                 prior_gate_targets={},
                 requested_jobs=4,
                 max_attempts=3,
@@ -788,7 +888,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=iter_dir,
                 iter_num=15,
                 objectives=[target],
-                preflight={"targets": [{"file": rel, "compiles": True}]},
+                preflight={"targets": [_native_preflight(rel)]},
                 prior_gate_targets={},
                 requested_jobs=1,
                 max_attempts=3,
@@ -886,7 +986,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                     iter_dir=iter_dir,
                     iter_num=12,
                     objectives=[target],
-                    preflight={"targets": [{"file": rel, "compiles": True}]},
+                    preflight={"targets": [_native_preflight(rel)]},
                     prior_gate_targets={},
                     requested_jobs=4,
                     max_attempts=2,
@@ -987,7 +1087,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_num=13,
                 objectives=targets,
                 preflight={"targets": [
-                    {"file": rel, "compiles": True} for rel in rels
+                    _native_preflight(rel) for rel in rels
                 ]},
                 prior_gate_targets={},
                 requested_jobs=2,
@@ -1051,6 +1151,20 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "candidate_domain_provenance", "lean_result_binding",
             ):
                 self.assertIn(name, prompt)
+            for marker in (
+                "source-first arrow certificate",
+                "state the arrowhead\ndirection",
+                "enumerate all precursors at the tail",
+                "identify the product at the head",
+                "trace a\ndistinctive scaffold or motif",
+                "Cross-check\nthat scaffold against every adjacent product",
+                "expand every chemical abbreviation",
+                "terminal or capping group",
+                "complete elemental formula",
+                "Mark its\nattachment boundary",
+                "count\nevery atom exactly once",
+            ):
+                self.assertIn(marker, prompt)
             self.assertNotIn('"official_answer_alignment"', prompt)
             self.assertNotIn('"source_inconsistency"', prompt)
 
@@ -1312,10 +1426,25 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             def tracking_executor(*, max_workers):
                 executor_workers.append(max_workers)
                 return ThreadPoolExecutor(max_workers=max_workers)
+            prompts: dict[tuple[str, int], str] = {}
+            validation_error = (
+                "source_contract does not match native problem-only evidence: "
+                "source_record_sha256 actual length 60, expected 64"
+            )
 
             def fake_worker(spec, **_kwargs):
                 calls[spec.rel] = calls.get(spec.rel, 0) + 1
-                if spec.rel in {"B.lean", "D.lean"} and spec.attempt == 1:
+                prompts[(spec.rel, spec.attempt)] = spec.prompt
+                if spec.rel == "B.lean" and spec.attempt == 1:
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error=validation_error,
+                        validation_error=validation_error,
+                    )
+                if spec.rel == "D.lean" and spec.attempt == 1:
                     return TargetReviewOutcome(
                         rel=spec.rel,
                         attempt=spec.attempt,
@@ -1367,6 +1496,13 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "C.lean": 1,
                 "D.lean": 2,
             })
+            self.assertNotIn(validation_error, prompts[("B.lean", 1)])
+            self.assertIn(validation_error, prompts[("B.lean", 2)])
+            self.assertIn(
+                "CONTROLLER SEALED-VALIDATOR RETRY FEEDBACK",
+                prompts[("B.lean", 2)],
+            )
+            self.assertNotIn(validation_error, prompts[("D.lean", 2)])
             session = state / "proof-journal" / "sessions" / "session_2"
             rows = [
                 json.loads(line)

@@ -1196,10 +1196,9 @@ class CodexAgent:
             jsonl=jsonl,
             model=self.model,
         )
-        # codex's human-readable logs go to stderr; keep them only when
-        # verbose (mirrors ClaudeAgent), separate from the codex JSON which
-        # is piped through the parser on stdout.
-        stderr_dest = f"{log_base}.raw.log" if verbose_logs else os.devnull
+        # Always preserve the small human-readable stderr diagnostic stream.
+        # ``verbose_logs`` still only controls the full raw JSON event mirror.
+        stderr_dest = f"{log_base}.raw.log"
 
         result = supervise_streamed_run(
             argv,

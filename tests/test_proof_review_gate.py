@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -15,11 +16,15 @@ from archon.commands.loop.formalization_review_gate import (
 )
 from archon.commands.loop.proof_review_gate import (
     apply_proof_review,
+    apply_target_proof_review,
     filter_objectives_for_proof_review_gate,
     load_proof_review_state,
     reopen_exhausted_proof_review_targets,
 )
 from archon.commands.loop import proof_review_gate
+from archon.commands.loop.problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+)
 from archon.state import parse_objective_files, read_stage
 
 
@@ -100,6 +105,143 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
             iter_num=iteration,
             reviewed_objectives=[self.target],
             max_iterations=maximum,
+        )
+
+    def test_forged_native_batch_milestone_fails_closed(self):
+        session = self._proof_session(1, route="solved", status="solved")
+        with mock.patch.object(
+            proof_review_gate,
+            "resolve_target_review_source_contract",
+            return_value={"contract_kind": "native_problem_input_only"},
+        ):
+            result = self._apply_proof(1, session)
+
+        self.assertEqual(result.solved, ())
+        self.assertEqual(result.needs_redraft, ("Problems/p.lean",))
+        record = load_proof_review_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertIn(
+            "problem-only source contract validation failed",
+            record["reason"],
+        )
+        self.assertIn("source_contract provenance is missing", record["reason"])
+
+    def test_forged_native_immediate_milestone_fails_closed(self):
+        session = self._proof_session(1, route="solved", status="solved")
+        milestone = json.loads(
+            (session / "milestones.jsonl").read_text(encoding="utf-8")
+        )
+
+        update = apply_target_proof_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=milestone,
+            iter_num=1,
+            max_iterations=3,
+            event_id="pipeline:1:Problems/p.lean:proof:1",
+            expected_source_contract={
+                "contract_kind": "native_problem_input_only",
+            },
+        )
+
+        self.assertEqual(update.status, "needs_redraft")
+        self.assertEqual(update.route, "needs_redraft")
+        self.assertIn(
+            "problem-only source contract validation failed",
+            update.reason,
+        )
+        record = load_proof_review_state(self.state)["targets"]["Problems/p.lean"]
+        candidate_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        self.assertEqual(record["candidate_sha256"], candidate_sha256)
+        self.assertEqual(
+            record["repair_events"][-1]["candidate_sha256"], candidate_sha256
+        )
+
+    def test_bad_native_source_target_does_not_collapse_batch(self):
+        session = self._proof_session(1, route="solved", status="solved")
+        good = self.project / "Problems" / "good.lean"
+        good.write_text("theorem good : True := by trivial\n", encoding="utf-8")
+        good_row = {
+            "status": "solved",
+            "target": {"file": "Problems/good.lean", "theorem": "good"},
+            "proof_review": {
+                "schema_version": 1,
+                "route": "solved",
+                "reason": "proof and theorem contract audited",
+                "evidence": "the target compiles without sorry",
+                "redraft_kind": "not_applicable",
+            },
+        }
+        milestone_path = session / "milestones.jsonl"
+        milestone_path.write_text(
+            milestone_path.read_text(encoding="utf-8")
+            + json.dumps(good_row)
+            + "\n",
+            encoding="utf-8",
+        )
+
+        def resolve(*, target, **_kwargs):
+            if target.name == "p.lean":
+                raise ProblemOnlyReviewContractError("sealed report is invalid")
+            return {}
+
+        with mock.patch.object(
+            proof_review_gate,
+            "resolve_target_review_source_contract",
+            side_effect=resolve,
+        ):
+            result = apply_proof_review(
+                state_dir=self.state,
+                project_path=self.project,
+                session_dir=session,
+                iter_num=1,
+                reviewed_objectives=[self.target, good],
+                max_iterations=3,
+            )
+
+        self.assertEqual(result.solved, ("Problems/good.lean",))
+        self.assertEqual(result.needs_redraft, ("Problems/p.lean",))
+        records = load_proof_review_state(self.state)["targets"]
+        self.assertEqual(records["Problems/good.lean"]["status"], "solved")
+        self.assertIn(
+            "problem-only source contract validation failed",
+            records["Problems/p.lean"]["reason"],
+        )
+
+    def test_native_proof_freshness_binds_candidate_hash(self):
+        provenance = {
+            "contract_kind": "native_problem_input_only",
+            "candidate_sha256": "old-solved-candidate",
+        }
+        state = {
+            "version": 2,
+            "max_iterations": 3,
+            "targets": {
+                "Problems/p.lean": {
+                    "status": "solved",
+                    "attempts": 1,
+                    "source_contract": provenance,
+                },
+            },
+        }
+
+        with mock.patch.object(
+            proof_review_gate,
+            "stored_review_provenance_matches_current",
+            return_value=(False, "candidate_sha256 changed"),
+        ) as freshness:
+            current = proof_review_gate._invalidate_stale_solved_records(
+                state_dir=self.state,
+                project_path=self.project,
+                state=state,
+            )
+
+        self.assertEqual(current["targets"]["Problems/p.lean"]["status"], "retry")
+        freshness.assert_called_once_with(
+            project_path=self.project,
+            target=self.target,
+            provenance=provenance,
+            bind_candidate=True,
         )
 
     @staticmethod
@@ -464,6 +606,16 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         self.assertEqual(proof_record["status"], "retry")
         self.assertEqual(proof_record["attempts"], 0)
         self.assertEqual(proof_record["redraft_resolved_iter"], 3)
+        candidate_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        self.assertEqual(proof_record["candidate_sha256"], candidate_sha256)
+        self.assertIsNone(proof_record["source_contract"])
+        transition = proof_record["repair_events"][-1]
+        self.assertEqual(
+            transition["transition"], "formalization_redraft_passed"
+        )
+        self.assertEqual(transition["candidate_sha256"], candidate_sha256)
+        self.assertEqual(transition["failed_check_ids"], [])
+        self.assertEqual(proof_record["repair_handoff"], {})
         formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
         self.assertEqual(
             formal_record["reopen_history"][-1]["previous_certificate"],

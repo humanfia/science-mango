@@ -157,9 +157,11 @@ def _run_isolated_axiom_check(
         ) as temp_dir:
             probe = Path(temp_dir) / source.name
             shutil.copy2(source, probe)
+            probe.chmod(probe.stat().st_mode | 0o200)
             result = subprocess.run(
                 ["bash", str(script), str(probe), "--report-only"],
                 cwd=project_path,
+                stdin=subprocess.DEVNULL,
                 capture_output=True,
                 text=True,
                 timeout=timeout_s,

@@ -67,6 +67,20 @@ GENERATED_PROTECTED_FILES = (
     "ANSWER_BLIND_PROTOCOL.md",
 )
 
+SOLVER_VISIBLE_PROTECTED_TREES = (
+    "reports",
+    ".archon/physics-formalize",
+    ".archon/prover-modes",
+    ".archon/subagents",
+    ".archon/prompts",
+)
+
+# The CRNT/LeanExplore index is campaign-generated rather than part of every
+# legacy seed. If its parent exists, the exact file is mandatory and protected.
+CONDITIONAL_SOLVER_VISIBLE_PROTECTED_FILES = (
+    ".archon/lean-explore/project-index.json",
+)
+
 LAUNCH_AUTHORIZATION_FIELDS = {
     "schema_version", "protocol", "phase", "variant", "run_id", "workspace",
     "runtime_root", "dependency_root", "system_inventory",
@@ -715,41 +729,75 @@ def _seed_payload(workspace: Path) -> dict[str, str]:
     return payload
 
 
-def _protected_inventory(workspace: Path) -> dict[str, str]:
-    """Inventory immutable solver-visible authority and runtime policy files."""
-
+def _protected_relative_files(workspace: Path) -> set[str]:
     payload = _seed_payload(workspace)
     protected = set(payload)
     protected.update(GENERATED_PROTECTED_FILES)
     protected.update(
         path.relative_to(workspace).as_posix()
-        for root in (
-            workspace / "reports",
-            workspace / ".archon/physics-formalize",
-            workspace / ".archon/prover-modes",
-            workspace / ".archon/subagents",
-        )
+        for relative in SOLVER_VISIBLE_PROTECTED_TREES
+        for root in (workspace.joinpath(*PurePosixPath(relative).parts),)
         if root.is_dir()
         for path in root.rglob("*")
         if path.is_file() and not path.is_symlink()
     )
+    for relative in CONDITIONAL_SOLVER_VISIBLE_PROTECTED_FILES:
+        path = workspace.joinpath(*PurePosixPath(relative).parts)
+        if path.exists() or path.parent.exists():
+            protected.add(relative)
     # The generated umbrella is fixed and delegates all mutable imports to a
     # file below IChO2026Problems/, whose directory is solver-owned.
     protected.add("IChO2026Problems.lean")
+    return protected
+
+
+def _protected_inventory(
+    workspace: Path, *, solver_gid: int | None = None,
+) -> dict[str, str]:
+    """Inventory immutable solver-visible authority and runtime policy files."""
+
     result: dict[str, str] = {}
-    for relative in sorted(protected):
+    for relative in sorted(_protected_relative_files(workspace)):
         path = workspace.joinpath(*PurePosixPath(relative).parts)
         if path.is_symlink() or not path.is_file():
             _fail(f"protected workspace file is missing or unsafe: {relative}")
         metadata = path.stat()
         if metadata.st_uid != 0 or stat.S_IMODE(metadata.st_mode) & 0o022:
             _fail(f"protected workspace file is not root-owned read-only: {relative}")
+        if solver_gid is not None and (
+            metadata.st_gid != solver_gid
+            or not stat.S_IMODE(metadata.st_mode) & stat.S_IRGRP
+        ):
+            _fail(f"protected workspace file is not solver-group-readable: {relative}")
+        if solver_gid is not None:
+            parent = path.parent
+            while True:
+                parent_metadata = parent.stat()
+                parent_mode = stat.S_IMODE(parent_metadata.st_mode)
+                traversable = bool(parent_mode & stat.S_IXOTH) or bool(
+                    parent_metadata.st_gid == solver_gid
+                    and parent_mode & stat.S_IXGRP
+                )
+                if (
+                    parent_metadata.st_uid != 0
+                    or parent_mode & 0o022
+                    or not traversable
+                ):
+                    _fail(
+                        "protected workspace parent is not root-owned "
+                        f"solver-traversable: {parent.relative_to(workspace) or '.'}"
+                    )
+                if parent == workspace:
+                    break
+                parent = parent.parent
         result[relative] = _sha256_file(path)
     return result
 
 
-def _protected_receipt(workspace: Path) -> dict[str, Any]:
-    files = _protected_inventory(workspace)
+def _protected_receipt(
+    workspace: Path, *, solver_gid: int | None = None,
+) -> dict[str, Any]:
+    files = _protected_inventory(workspace, solver_gid=solver_gid)
     return {"files": files, "aggregate_sha256": _hash_index(files)}
 
 
@@ -783,6 +831,35 @@ def _make_root_readonly(path: Path) -> None:
         else:
             mode |= 0o400
         os.chmod(entry, mode, follow_symlinks=False)
+
+
+def _make_solver_visible_protected_files_readable(
+    workspace: Path, identity: SolverIdentity,
+) -> None:
+    """Expose immutable inputs to only root and the dedicated solver group."""
+
+    directories: set[Path] = set()
+    for relative in _protected_relative_files(workspace):
+        path = workspace.joinpath(*PurePosixPath(relative).parts)
+        if path.is_symlink() or not path.is_file():
+            _fail(f"protected workspace file is missing or unsafe: {relative}")
+        metadata = path.stat(follow_symlinks=False)
+        os.chown(path, 0, identity.gid, follow_symlinks=False)
+        os.chmod(
+            path,
+            0o550 if stat.S_IMODE(metadata.st_mode) & 0o111 else 0o640,
+            follow_symlinks=False,
+        )
+        parent = path.parent
+        while parent != workspace:
+            directories.add(parent)
+            parent = parent.parent
+
+    for directory in sorted(directories, key=lambda item: len(item.parts)):
+        if directory.is_symlink() or not directory.is_dir():
+            _fail(f"protected workspace parent is unsafe: {directory}")
+        os.chown(directory, 0, identity.gid, follow_symlinks=False)
+        os.chmod(directory, 0o750, follow_symlinks=False)
 
 
 def harden_solver_workspace(
@@ -825,6 +902,10 @@ def harden_solver_workspace(
     else:
         packages.symlink_to(dependency, target_is_directory=True)
     os.lchown(packages, 0, 0)
+
+    # Trusted preparation commonly runs under umask 077. Normalize immutable
+    # solver-visible inputs so non-root can read them without gaining writes.
+    _make_solver_visible_protected_files_readable(root, identity)
 
     for relative in MUTABLE_WORKSPACE_DIRS:
         _ensure_owned_dir(
@@ -895,7 +976,7 @@ def harden_solver_workspace(
             allow_credentials=label == "private home",
         )
 
-    protected = _protected_receipt(root)
+    protected = _protected_receipt(root, solver_gid=identity.gid)
     return {
         "workspace": str(root),
         "uid": identity.uid,
@@ -2480,7 +2561,7 @@ def run_solver_iteration(
 
     # Ownership and protected hashes are checked before any model process is
     # created.  The same bytes are checked again after every descendant dies.
-    protected_before = _protected_receipt(project)
+    protected_before = _protected_receipt(project, solver_gid=identity.gid)
     dependency_files = _inventory_tree(dependency)
     dependency_digest = _hash_index(dependency_files)
     runtime_files = _inventory_tree(runtime, exclude_roots=(dependency,))
@@ -2605,7 +2686,7 @@ def run_solver_iteration(
     )
     _probe_model_broker(broker_receipt_path, expected_sha256=broker_receipt_sha)
 
-    protected_after = _protected_receipt(project)
+    protected_after = _protected_receipt(project, solver_gid=identity.gid)
     protected_unchanged = protected_before == protected_after
     # Root-only trees should be invariant too.  Re-inventorying catches host
     # drift and configuration mistakes even though the solver cannot write
@@ -3450,7 +3531,9 @@ def finalize_solver_run(
         if aggregate.get(field) is not True:
             _fail(f"solver invocation aggregate does not pass {field}")
     latest = _load_json(Path(receipt_specs[-1]["path"]), label="latest solver receipt")
-    if latest.get("protected_after") != _protected_receipt(project):
+    if latest.get("protected_after") != _protected_receipt(
+        project, solver_gid=solver.gid
+    ):
         _fail("workspace protected inventory drifted after the last solver invocation")
 
     bundle, scope = _bundle_scope(project, scope_ids)

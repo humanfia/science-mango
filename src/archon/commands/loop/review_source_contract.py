@@ -1292,6 +1292,172 @@ def _status_and_evidence(value: Any) -> tuple[str, str]:
     )
 
 
+def _normalized_requested_output_review(
+    item: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Normalize one already-validated output audit without dropping it."""
+
+    normalized: dict[str, Any] = {
+        key: str(item.get(key) or "").strip().lower()
+        if key == "status"
+        else str(item.get(key) or "").strip()
+        for key in ("source_requirement", "lean_carrier", "status", "evidence")
+    }
+    for key in (
+        "output_id", "submission_status", "reporting_policy_status",
+    ):
+        if key in item:
+            value = str(item.get(key) or "").strip()
+            normalized[key] = value.lower() if key.endswith("status") else value
+
+    raw_accounting = item.get("composition_accounting")
+    if not isinstance(raw_accounting, Mapping):
+        return normalized
+
+    source_images: list[dict[str, str]] = []
+    raw_images = raw_accounting.get("source_images")
+    if isinstance(raw_images, list):
+        for image in raw_images:
+            if not isinstance(image, Mapping):
+                continue
+            source_images.append({
+                "path": str(image.get("path") or "").strip(),
+                "sha256": str(
+                    image.get("sha256") or ""
+                ).strip().lower(),
+            })
+
+    product_nodes: list[dict[str, Any]] = []
+    raw_nodes = raw_accounting.get("product_nodes")
+    if isinstance(raw_nodes, list):
+        for node in raw_nodes:
+            if not isinstance(node, Mapping):
+                continue
+            multiplicity = node.get("multiplicity")
+            product_nodes.append({
+                "node_id": str(node.get("node_id") or "").strip().lower(),
+                "node_kind": str(
+                    node.get("node_kind") or ""
+                ).strip().lower(),
+                "formula_or_descriptor": str(
+                    node.get("formula_or_descriptor") or ""
+                ).strip(),
+                "source_path": str(
+                    node.get("source_path") or ""
+                ).strip(),
+                "source_locator": str(
+                    node.get("source_locator") or ""
+                ).strip(),
+                "multiplicity": (
+                    multiplicity
+                    if isinstance(multiplicity, int)
+                    and not isinstance(multiplicity, bool)
+                    else None
+                ),
+            })
+
+    assembly_edges: list[dict[str, Any]] = []
+    raw_edges = raw_accounting.get("assembly_edges")
+    if isinstance(raw_edges, list):
+        for edge in raw_edges:
+            if not isinstance(edge, Mapping):
+                continue
+            multiplicity = edge.get("multiplicity")
+            assembly_edges.append({
+                "edge_id": str(edge.get("edge_id") or "").strip().lower(),
+                "from_node_id": str(
+                    edge.get("from_node_id") or ""
+                ).strip().lower(),
+                "to_node_id": str(
+                    edge.get("to_node_id") or ""
+                ).strip().lower(),
+                "relation": str(
+                    edge.get("relation") or ""
+                ).strip().lower(),
+                "multiplicity": (
+                    multiplicity
+                    if isinstance(multiplicity, int)
+                    and not isinstance(multiplicity, bool)
+                    else None
+                ),
+            })
+
+    boundary_checks: list[dict[str, str]] = []
+    raw_boundaries = raw_accounting.get("boundary_checks")
+    if isinstance(raw_boundaries, list):
+        for boundary in raw_boundaries:
+            if not isinstance(boundary, Mapping):
+                continue
+            boundary_checks.append({
+                "boundary_id": str(
+                    boundary.get("boundary_id") or ""
+                ).strip().lower(),
+                "boundary_kind": str(
+                    boundary.get("boundary_kind") or ""
+                ).strip().lower(),
+                "source_path": str(
+                    boundary.get("source_path") or ""
+                ).strip(),
+                "source_locator": str(
+                    boundary.get("source_locator") or ""
+                ).strip(),
+                "disposition": str(
+                    boundary.get("disposition") or ""
+                ).strip().lower(),
+                "assembly_edge_id": str(
+                    boundary.get("assembly_edge_id") or ""
+                ).strip().lower(),
+                "status": str(
+                    boundary.get("status") or ""
+                ).strip().lower(),
+            })
+    components: list[dict[str, Any]] = []
+    raw_components = raw_accounting.get("components")
+    if isinstance(raw_components, list):
+        for component in raw_components:
+            if not isinstance(component, Mapping):
+                continue
+            multiplicity = component.get("multiplicity")
+            components.append({
+                "product_node_id": str(
+                    component.get("product_node_id") or ""
+                ).strip().lower(),
+                "label": str(component.get("label") or "").strip(),
+                "formula_or_descriptor": str(
+                    component.get("formula_or_descriptor") or ""
+                ).strip(),
+                "multiplicity": (
+                    multiplicity
+                    if isinstance(multiplicity, int)
+                    and not isinstance(multiplicity, bool)
+                    else None
+                ),
+                "role": str(component.get("role") or "").strip().lower(),
+            })
+
+    normalized["composition_accounting"] = {
+        "source_images": source_images,
+        "product_nodes": product_nodes,
+        "assembly_edges": assembly_edges,
+        "boundary_checks": boundary_checks,
+        "components": components,
+        "assembly_expression": str(
+            raw_accounting.get("assembly_expression") or ""
+        ).strip(),
+        "combined_formula_or_quantity": str(
+            raw_accounting.get("combined_formula_or_quantity") or ""
+        ).strip(),
+        "lean_carrier": str(
+            raw_accounting.get("lean_carrier") or ""
+        ).strip(),
+        "status": str(
+            raw_accounting.get("status") or ""
+        ).strip().lower(),
+        "evidence": str(raw_accounting.get("evidence") or "").strip(),
+    }
+    return normalized
+
+
 def normalized_review_source_certificate(review: Any) -> dict[str, Any]:
     """Persist the complete, strict source-audit evidence needed at freeze."""
     if not isinstance(review, Mapping):
@@ -1308,18 +1474,13 @@ def normalized_review_source_certificate(review: Any) -> dict[str, Any]:
             for check in checks
         }
 
-    requested: list[dict[str, str]] = []
+    requested: list[dict[str, Any]] = []
     raw_requested = review.get("requested_outputs")
     if isinstance(raw_requested, list):
         for item in raw_requested:
             if not isinstance(item, Mapping):
                 continue
-            requested.append({
-                key: str(item.get(key) or "").strip().lower()
-                if key == "status"
-                else str(item.get(key) or "").strip()
-                for key in ("source_requirement", "lean_carrier", "status", "evidence")
-            })
+            requested.append(_normalized_requested_output_review(item))
 
     conflicts: list[dict[str, str]] = []
     raw_conflicts = review.get("blueprint_conflicts")

@@ -161,6 +161,7 @@ class AnswerBlindWorkspaceConfigTests(unittest.TestCase):
             )
             self.assertEqual(loop["max_objectives"], 7)
             self.assertEqual(loop["max_parallel"], 3)
+            self.assertEqual(loop["review_preflight_timeout_sec"], 3600)
             for enabled in (
                 "formalization_review_gate",
                 "proof_review_gate",

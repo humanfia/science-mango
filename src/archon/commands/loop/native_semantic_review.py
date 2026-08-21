@@ -34,6 +34,7 @@ from archon.commands.tooling.domain_profile import load_domain_profile
 SCHEMA_VERSION = 1
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
 MANIFEST_REL = Path("isolation_manifest.json")
+SEED_PROTOCOL = "icho-problem-only-solver-seed-v1"
 NATIVE_PROFILE = "chemistry-native"
 MAX_BUNDLE_BYTES = 16 * 1024 * 1024
 MAX_BUNDLE_RECORDS = 4096
@@ -986,7 +987,17 @@ def _load_isolation_manifest(
     ):
         _error("isolation manifest does not bind the exact problem-only bundle")
     row_ids = sorted(str(row.get("id") or "") for row in rows)
-    if value.get("target_ids") != row_ids:
+    target_ids = value.get("target_ids")
+    if target_ids is None:
+        if (
+            value.get("schema_version") != 1
+            or value.get("protocol") != SEED_PROTOCOL
+        ):
+            _error(
+                "isolation manifest without target_ids is not a canonical "
+                "problem-only solver seed"
+            )
+    elif target_ids != row_ids:
         _error("isolation manifest target_ids do not match the problem-only bundle")
     assets = value.get("assets")
     if not isinstance(assets, Mapping) or not assets:
@@ -1024,13 +1035,13 @@ def _record_assets(
 ) -> tuple[dict[str, str], ...]:
     listed_images: list[str] = []
     images = row.get("images")
-    if isinstance(images, list):
+    if images is not None:
+        if not isinstance(images, list):
+            _error("problem row images is not a list")
         for value in images:
             path = _safe_asset_path(value)
             if path:
                 listed_images.append(path)
-    else:
-        _error("problem row images is not a list")
     assets: dict[str, str] = {}
     records = row.get("problem_assets")
     if isinstance(records, list):
@@ -1046,6 +1057,8 @@ def _record_assets(
                 if prior is not None and prior != digest:
                     _error(f"problem image {path!r} has inconsistent hashes")
                 assets[path] = digest
+    if images is None:
+        listed_images = list(assets)
     if listed_images != list(assets) or not assets:
         _error("problem row images do not exactly match hashed problem_page assets")
     bound: list[dict[str, str]] = []

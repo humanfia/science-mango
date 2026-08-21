@@ -53,6 +53,76 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
 7. Compile the assigned file. Stop only when it elaborates with expected
    `sorry` warnings and no name/import/type errors.
 
+## Trusted offline chemistry reference
+
+When the problem does not print a routine atomic weight or isotope mass, use
+the closed, version-pinned CLI instead of inventing a value or declaring the
+problem underdetermined:
+
+```text
+"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>
+"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>
+"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>
+"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>
+```
+
+Angle-bracket names above are grammar placeholders, not literal tokens. These
+grammar lines and any examples are illustrative, not an allowlist: any single
+element, canonical isotope, chemical formula, or template id supported by the
+pinned CLI dataset is permitted. Do not infer that an unshown element or
+formula is unavailable.
+
+The command accepts exactly one enumerated operation and one corresponding
+token. Never send a problem id, question text, source text, URL, search phrase,
+or other free text. It performs no network access and returns machine-readable
+JSON bound to `ciaaw-abridged-2024+ame2020-subset+archon-templates-v1` and its
+data SHA-256. Record that version/hash in the candidate-domain derivation when
+used. A Reviewer must verify every used lookup through the same
+`"$ARCHON_CLI_BIN"` grammar and check that returned version/hash against the
+pinned dataset; prompt examples never define the supported inventory.
+
+Problem-stipulated values override the pinned dataset. A pinned nominal value
+may be used for an olympiad-style central
+answer when requested, but check whether source uncertainty could change the
+required reported digits or classification. Do not substitute standard weights
+when the problem explicitly requests integer mass numbers or a named isotope.
+A reaction-template result is only a generic semantic contract: it never
+establishes that the current reaction is an instance. Supply problem evidence
+or a trusted general classification rule before using its stoichiometry or
+retention consequences.
+
+## Opt-in image component accounting
+
+When a controller semantic-DAG `requested_output` node contains
+`audit_requirements: ["image_component_accounting"]`, perform this audit before
+any formula, mass, charge, count, or other quantitative calculation for that
+output. The marker is controller-owned and cannot be declared not applicable.
+
+1. Inspect every bound source image relevant to the output and identify the
+   complete assembled object, not merely the formula printed beside one unit.
+2. Make an explicit component ledger. For each visually distinct component,
+   record a source-local label, a formula or unambiguous visual descriptor, a
+   positive integer multiplicity, and exactly one role from `core`,
+   `repeat_unit`, `linker`, `substituent`, `terminal_group`, `guest`, `adduct`,
+   `leaving_group`, or `product_fragment`.
+3. Write the full assembly expression, including every repeated unit,
+   linker/substituent/terminal or extra group, and ion/adduct. Recombine it into
+   one formula or quantity before doing downstream arithmetic.
+4. Give the assembly and recombination named, nontrivial Lean carriers and
+   record the ledger and inspected image paths in the assigned task result.
+   Cross-check that carrier independently against the submitted output.
+
+The structured `composition_accounting` object is written only by Reviewers in
+their Review certificate. Never add that object, topology nodes/edges, ledger,
+or any extra field to the target `.answer.json`; its output entries keep exactly
+`id`, `kind`, `raw_value`, `display_value`, and `unit`. For numeric display use
+plain decimal or ASCII `e` notation (for example `7.03e12`), not superscript
+digits.
+
+If a component, multiplicity, attachment, or added group is unreadable or
+ambiguous, report the output as blocked instead of silently using a single-unit
+shortcut. Outputs without this exact controller marker keep the normal workflow.
+
 ## Chemistry modeling rules
 
 - Preserve conservation equations, stoichiometric coefficients, charge,
@@ -63,8 +133,10 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
   numerically when that is the source's abstraction; do not erase species,
   phase, reaction, or sample identity when it affects the conclusion.
 - Empirical constants and chemical facts are not mathematical axioms supplied
-  by Lean. Use sourced data from the problem, a verified library declaration,
-  or an explicit hypothesis. Never invent atomic masses, equilibrium
+  by Lean. Use sourced data from the problem, a result from the trusted offline
+  chemistry reference above, a verified library declaration, or an explicit
+  hypothesis. Preserve the reference version and data hash as provenance when
+  using the offline table. Never invent atomic masses, equilibrium
   constants, spectra, colors, structures, or reaction products.
 - Encode a governing relation strongly enough to derive the target. An opaque
   `Prop` with no equations, inequalities, or elimination theorem is not an

@@ -151,7 +151,7 @@ def default_config() -> dict[str, Any]:
                 "Parallel direct Lean checks before deterministic Review."
             ),
             'review_preflight_jobs': 16,
-            'review_preflight_timeout_sec': 300,
+            'review_preflight_timeout_sec': 3600,
             '_parallel_target_review_help': (
                 "If true during proof Review, run one isolated Reviewer per "
                 "target with bounded concurrency, retry infrastructure "

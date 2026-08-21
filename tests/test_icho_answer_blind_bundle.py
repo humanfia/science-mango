@@ -264,6 +264,64 @@ class IchoAnswerBlindBundleTests(unittest.TestCase):
             {"kind": "exact_integer", "source": "problem_output_type"},
         )
 
+    def test_image_component_accounting_is_opt_in_only_for_t9_a7(self):
+        opted_in = {
+            (target_id, output["id"])
+            for target_id, outputs in MODULE.REQUESTED_OUTPUTS.items()
+            for output in outputs
+            if "audit_requirements" in output
+        }
+        self.assertEqual(
+            opted_in,
+            {
+                ("icho_2026_t9_a7", "first_fragment_mz"),
+                ("icho_2026_t9_a7", "second_fragment_mz"),
+            },
+        )
+        for output in MODULE.REQUESTED_OUTPUTS["icho_2026_t9_a7"]:
+            self.assertEqual(
+                output["audit_requirements"],
+                ["image_component_accounting"],
+            )
+
+    def test_t5_a4_controller_bundle_binds_dependency_fragment_page(self):
+        repo = Path(__file__).resolve().parents[1]
+        source = repo / "icho_2026_source"
+        inventory = (
+            repo
+            / "icho_2026_run"
+            / "references"
+            / "icho_2026_theory_ready.jsonl"
+        )
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            blind_output = root / "blind.jsonl"
+            MODULE.build_bundles(
+                input_jsonl=inventory,
+                blind_output=blind_output,
+                grader_output=root / "grader.jsonl",
+                image_root=source / "image",
+                problem_pdf=source / "raw" / "theory_problem.pdf",
+                solution_pdf=source / "raw" / "theory_solution.pdf",
+                expected_count=1,
+                target_ids=["icho_2026_t5_a4"],
+            )
+
+            blind = json.loads(blind_output.read_text(encoding="utf-8"))
+            self.assertEqual(
+                blind["images"],
+                ["T5_page-3.png", "T5_page-2.png", "T5_page-1.png"],
+            )
+            self.assertEqual(
+                [
+                    asset["path"]
+                    for asset in blind["problem_assets"]
+                    if asset["kind"] == "problem_page"
+                ],
+                blind["images"],
+            )
+            MODULE._assert_solver_safe(blind)
+
     def test_requested_output_inventory_matches_real_theory_inventory(self):
         inventory = (
             Path(__file__).resolve().parents[1]

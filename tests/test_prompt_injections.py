@@ -437,6 +437,9 @@ class BuildReviewPromptPhysicsTest(unittest.TestCase):
         self.assertIn("revoke the old", prompt)
         self.assertIn("missing", prompt)
         self.assertIn("mathematical bridge normally means `needs_redraft`", prompt)
+        self.assertIn(
+            "`needs_redraft` -> `blocked` (never `partial`)", prompt,
+        )
 
     def test_non_physics_project_does_not_inject_review_checklist(self):
         (self.root / "blueprint" / "src" / "chapters" / "Phys.tex").write_text(

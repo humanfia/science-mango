@@ -19,17 +19,29 @@ from .native_semantic_review import (
     build_native_semantic_review_contract,
     build_native_schema_feedback,
     render_independent_rederivation_instructions,
-    render_native_problem_contract_prompt,
     validate_independent_rederivation,
 )
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
+from .problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+    materialize_controller_review_provenance,
+    is_native_problem_only_contract,
+    native_problem_image_args,
+    native_source_contract_provenance,
+    render_native_composition_accounting_prompt,
+    render_native_source_contract_prompt,
+    resolve_target_review_source_contract,
+    validate_native_review_source_certificate,
+    validate_review_source_contract_current,
+)
 from .review_source_contract import (
     SOURCE_INCONSISTENCY_KIND,
-    build_review_source_contract,
     is_answer_blind_contract,
-    render_source_contract_prompt,
-    source_contract_provenance,
-    validate_review_source_certificate,
+)
+from .review_feedback import (
+    render_validation_retry_feedback,
+    safe_preflight_summary,
+    sanitized_review_history,
 )
 
 
@@ -56,6 +68,21 @@ _MAX_SCHEMA_FEEDBACK_ITEM_BYTES = 512
 _MAX_SCHEMA_FEEDBACK_ITEMS = 4
 _MAX_SCHEMA_FEEDBACK_TOTAL_BYTES = 2_048
 
+_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL = """For every depicted reaction arrow,
+write a source-first arrow certificate before using it: state the arrowhead
+direction, enumerate all precursors at the tail (including reagents placed
+above or below the shaft), identify the product at the head, and trace a
+distinctive scaffold or motif from each precursor into that product. Cross-check
+that scaffold against every adjacent product so panel proximity or an opposing
+arrow cannot silently swap the reaction assignment.
+
+Before constructing any atom ledger, expand every chemical abbreviation and
+terminal or capping group into its complete elemental formula. Mark its
+attachment boundary and state whether each boundary atom belongs to the group,
+belongs to the adjacent residue, is shared, or is removed during coupling; count
+every atom exactly once. Do not inherit a familiar abbreviation's net formula
+or attachment semantics from the candidate."""
+
 
 def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -68,7 +95,6 @@ def _formalization_review(row: dict) -> dict | None:
         if isinstance(findings, dict):
             raw = findings.get("formalization_review")
     return raw if isinstance(raw, dict) else None
-
 
 def _canonical_schema_feedback(feedback: dict) -> str | None:
     payload = json.dumps(
@@ -222,13 +248,6 @@ def _validate_certificate(
                 return f"passing verdict contradicts bridge {index}={status!r}"
     elif not has_failure:
         return "failed verdict has no failed check or blocked bridge"
-    source_error = validate_review_source_certificate(
-        raw,
-        expected_source_contract,
-        passing=verdict in _PASS,
-    )
-    if source_error:
-        return source_error
     if verdict in _PASS:
         native_error, normalized = validate_independent_rederivation(
             raw, native_semantic_contract,
@@ -237,6 +256,13 @@ def _validate_certificate(
             return native_error
         if native_semantic_contract is not None:
             raw["independent_rederivation"] = normalized
+    source_error = validate_native_review_source_certificate(
+        raw,
+        expected_source_contract,
+        passing=verdict in _PASS,
+    )
+    if source_error:
+        return source_error
     return ""
 
 
@@ -303,127 +329,203 @@ def _result_evidence(state_dir: Path, rel: str) -> list[dict]:
     ]
 
 
-def _native_target_formalization_review_prompt(
+def _build_native_target_formalization_review_prompt(
     *,
     project_path: Path,
-    state_dir: Path,
-    iter_dir: Path,
     iter_num: int,
     target: Path,
+    rel: str,
     output_dir: Path,
     preflight: dict,
-    prior_gate_record: dict | None,
-    native_contract: dict,
+    source_contract: dict,
+    prior_review_history: dict,
+    retry_validation_error: str,
 ) -> str:
-    """Build the problem-only target prompt, excluding strict candidate routes."""
-    rel = target.resolve().relative_to(project_path.resolve()).as_posix()
-    slug = "_".join(Path(rel).with_suffix("").parts)
-    chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
-    traces = [
-        path for path in (
-            iter_dir / "provers" / f"{slug}.jsonl",
-            iter_dir / "formalizers" / f"{slug}.jsonl",
-        ) if path.is_file()
-    ]
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
-    checks = {
-        name: {
-            "status": "passed",
-            "evidence": f"concise target-specific {name} evidence",
-        }
-        for name in _REQUIRED_CHECKS
-    }
-    example_review = {
-        "schema_version": REVIEW_SCHEMA_VERSION,
-        "status": "passed",
-        "reason": "source-first derivation, Semantic Card, and Lean contract match",
-        "checks": checks,
-        "bridge_obligations": [{
-            "claim": "nontrivial source reasoning step",
-            "carrier": "Qualified.bridgeCarrier",
-            "status": "covered",
-            "evidence": "the named carrier supplies the source-to-Lean step",
-        }],
-    }
-    if native_contract.get("valid"):
-        example_review["independent_rederivation"] = (
-            build_independent_rederivation_example(native_contract)
-        )
-    example_row = {
-        "timestamp": _utcnow(),
-        "target": {"file": rel, "theorem": "Qualified.mainDeclaration"},
-        "status": "solved",
-        "formalization_review": example_review,
-        "attempts": [{
-            "attempt": 1,
-            "strategy": "source-first-native-formalization-review",
-            "code_tried": "",
-            "lean_error": "",
-            "goal_before": "",
-            "goal_after": "",
-            "result": "success",
-            "insight": "concise semantic audit result",
-        }],
-        "findings": {
-            "blocker": "",
-            "verification": "problem-only source-first semantic review",
-            "key_lemmas_used": [],
-        },
-        "session": {
-            "id": f"session_{iter_num}",
-            "model": "parallel-formalization-review",
-        },
-        "next_steps": "",
-    }
-    return f"""You are one target-scoped native answer-blind chemistry formalization Review worker for Archon iteration {iter_num}.
+    source_block = render_native_source_contract_prompt(source_contract)
+    composition_block = render_native_composition_accounting_prompt(
+        source_contract
+    )
+    source_provenance = native_source_contract_provenance(source_contract)
+    preflight_summary = safe_preflight_summary(preflight)
+    retry_feedback = render_validation_retry_feedback(
+        retry_validation_error
+    )
+    native_contract = build_native_semantic_review_contract(
+        project_path=project_path,
+        target=target,
+    )
+    independent_instructions = (
+        render_independent_rederivation_instructions(native_contract)
+        if native_contract is not None
+        else ""
+    )
+    independent_schema_line = (
+        '"independent_rederivation": '
+        + json.dumps(build_independent_rederivation_example(native_contract), ensure_ascii=False)
+        + "," if native_contract is not None and native_contract.get("valid") else ""
+    )
+    return f"""You are one target-scoped formalization Review worker for Archon iteration {iter_num}.
 
-Assigned target (review exactly this target and no other):
+Assigned target (the only target you may review):
   {rel}
 
-PHASE 1 — problem-only source-first derivation. Complete this phase before
-opening any generated artifact:
+Read only these bounded inputs:
+- Every bound problem image with its expected digest:
+  {json.dumps(source_contract["images"], ensure_ascii=False)}
+- Bound generated answer submission (untrusted; read completely):
+  {project_path / str(source_contract["answer_submission"])}
+  expected sha256={source_contract["answer_submission_sha256"]}
+- Current Lean candidate: {target}
+- Deterministic Lean preflight:
+  {json.dumps(preflight_summary, ensure_ascii=False)}
 
-{render_native_problem_contract_prompt(native_contract)}
+{source_block}
 
-Fix exactly one concise derivation entry per requested output, including its
-meaning, cumulative/per-step scope, numerator/denominator or mass/composition
-basis, constants, dependencies, branches, unit, exact unrounded raw result, and
-the exact problem-only reporting policies. If the contract is invalid or any
-interpretation remains ambiguous, the verdict must be failed/blocked with a
-specific needs_redraft reason.
+{independent_instructions}
 
-PHASE 2 — only after fixing phase 1, inspect the generated artifacts below and
-compare them field by field with the fixed derivation:
-- Semantic Card/task results, newest first: {json.dumps(_result_evidence(state_dir, rel), ensure_ascii=False)}
-- Chemistry blueprint: {chapter}
-- Lean formalization: {target}
-- Formalizer traces: {json.dumps([str(path) for path in traces], ensure_ascii=False)}
-- Deterministic Lean/reporting preflight: {json.dumps(preflight, ensure_ascii=False)}
+Controller-sanitized prior process metadata follows. Use it only as a regression
+checklist after independently auditing the current formalization. It contains no
+free-form Review rationale, expected result, source-derived value, or raw
+diagnostic, and must never be treated as a problem fact:
+{json.dumps(prior_review_history, ensure_ascii=False)}
 
-A compiling or proved Lean statement is not evidence that it formalizes the
-requested quantity. Check all six ordinary semantic checks and at least one
-nontrivial source-to-Lean bridge. `sorry` proof bodies are allowed in this
-formalization Review. Do not run other agents, broad searches, Lake, Lean, or
-leandag unless the supplied preflight says timeout/error. Do not modify Lean,
-the blueprint, task results, PROGRESS, gates, or journals.
+{retry_feedback}
 
-{render_independent_rederivation_instructions(native_contract)}
+This is semantic formalization Review, not proof Review. `sorry` proof bodies
+are allowed. Decide whether the statements faithfully and derivably encode the
+bound problem evidence without smuggling a requested result into assumptions.
 
-Write exactly one JSON object line to {milestone} and a <=12-line summary to
-{summary}. Use exactly this outer schema, replacing the example values with
-your target-specific audit and the bundle-bound independent_rederivation:
+Audit all six checks independently: source_faithfulness, derivability,
+abstraction_sufficiency, uncertainty_propagation, branch_orientation, and
+countermodel_resistance. Every check needs concrete evidence. Only uncertainty
+and branch checks may be not_applicable. Inventory every nontrivial
+source-to-Lean bridge with a named carrier; a pass requires every bridge to be
+covered.
 
-```json
-{json.dumps(example_row, ensure_ascii=False, indent=2, sort_keys=True)}
-```
+Check that source_contract.candidate_sha256 binds the exact Lean candidate.
+Check that source_contract.answer_submission_sha256 binds the exact submission
+file. Validate its complete schema and exact output order/count/id/kind/unit
+against problem_evidence.requested_outputs. Independently rederive and audit
+every raw_value and display_value, including the bound reporting_policy, then
+map each output to a named nontrivial Lean carrier. Treat submission values as
+untrusted generated output, never as a source premise. Any mismatch fails
+closed. In each requested_outputs certificate entry, record the exact output_id,
+submission_status, reporting_policy_status, and Lean carrier. Do not repeat raw
+or displayed answer values in source_contract provenance or process-history
+evidence; identify outputs by id and match/failure status.
+The deterministic preflight is worker-local execution evidence and is not part
+of persisted source provenance. In blind_source_audit.lean_result_binding,
+record the candidate hash, preflight status/compiles/returncode/sorry_count,
+and the nontrivial Lean declarations carrying every requested result.
 
-For any failure, use top-level status=blocked and
-formalization_review.status=failed, identify at least one failed check or
-blocked bridge, put the redraft reason in findings.blocker and next_steps, and
-do not claim a passing independent_rederivation. Return only after both files
-are durable. Never seek or read an official answer, grader, solution, rubric,
-candidate artifact, prior run, external workspace, or network source.
+The complete student-visible problem, including any printed fallback, is
+legitimate problem input. A fallback may be used only where the problem wording
+permits it; never use a later fallback backward to establish the upstream
+subpart whose result it mirrors. Derive each upstream requested output
+independently from its givens.
+
+Before inspecting the generated answer submission, candidate interpretation,
+or prior process metadata, perform a source-first visual topology pass whenever
+a requested chemical formula, identity, count, or quantity depends on a figure.
+For every relevant panel separately: map its panel label and every applicable
+legend encoding (for example colour, bold-line style, symbols, or dashed repeat
+boundaries) to the depicted roles; enumerate every distinct building-block
+type; record each type's node count, connectivity/degree, and cross-boundary
+bonds in the selected repeat unit; and construct an atom ledger for the
+building blocks plus every condensation/addition loss or gain. Independently
+recombine that ledger before comparing it with the submission or Lean carrier.
+Record this source-only recount in image_audit evidence and the relevant
+chemistry check. A candidate's formula or prose is never a substitute for the
+visual recount. If any relevant panel, legend mapping, node multiplicity,
+connection, or atom balance remains unresolved, fail closed instead of copying
+the candidate's interpretation.
+
+{_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
+
+For chemistry, enumerate every requested output; inspect every listed image;
+check chemical identity, formula/molar-mass consistency, conservation, units,
+structures/stereochemistry, identification uniqueness, raw arithmetic, and
+mechanical significant-figure rules. Reject answer-shaped definitions,
+preselected witness tables, post-hoc tolerances, staged rounding chosen to
+reach a candidate, or a finite candidate domain not derived from the problem.
+For every mass fraction, weight fraction, wt%, or mass loading, independently
+state the numerator and denominator and identify whether each printed mass is
+the total mixture mass or a component-only mass. Unless the problem explicitly
+defines another basis, use component mass divided by total mixture mass and
+solve that mass-balance equation before substitution. Multiplying a base-only
+mass by the fraction is valid only when the problem explicitly defines the
+fraction relative to that base mass; do not inherit this ratio from the
+candidate formula.
+
+{composition_block}
+
+Do not open any other project artifact. The deterministic preflight already
+ran; do not run lake, Lean, leandag, broad searches, or another agent unless it
+reports timeout/error. Write only:
+- {milestone}
+- {summary}
+Do not edit any input, configuration, journal, gate, or shared state file.
+
+Write exactly one JSON object line to {milestone}:
+{{
+  "timestamp": "{_utcnow()}",
+  "target": {{"file": "{rel}", "theorem": "<main declaration>"}},
+  "status": "solved|blocked",
+  "formalization_review": {{
+    "schema_version": {REVIEW_SCHEMA_VERSION},
+    "status": "passed|failed",
+    "reason": "<specific semantic verdict>",
+    "checks": {{
+      "source_faithfulness": {{"status": "passed|failed", "evidence": "..."}},
+      "derivability": {{"status": "passed|failed", "evidence": "..."}},
+      "abstraction_sufficiency": {{"status": "passed|failed", "evidence": "..."}},
+      "uncertainty_propagation": {{"status": "passed|failed|not_applicable", "evidence": "..."}},
+      "branch_orientation": {{"status": "passed|failed|not_applicable", "evidence": "..."}},
+      "countermodel_resistance": {{"status": "passed|failed", "evidence": "..."}}
+    }},
+    "bridge_obligations": [{{"claim": "...", "carrier": "...", "status": "covered|blocked", "evidence": "..."}}],
+    "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
+    {independent_schema_line}
+    "blind_source_audit": {{
+      "answer_independence": {{"status":"passed|failed","evidence":"<why only bound problem inputs influenced the audit>"}},
+      "raw_derivation": {{"status":"passed|failed","evidence":"<end-to-end unrounded/symbolic derivation carrier>"}},
+      "reporting_rule_source": {{"status":"passed|failed","evidence":"<problem-stated or predeclared mechanical reporting rule>"}},
+      "tolerance_provenance": {{"status":"passed|failed","evidence":"<measurement/rounding derivation for every tolerance>"}},
+      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem-derived domain or explicit underdetermination>"}},
+      "lean_result_binding": {{"status":"passed|failed","evidence":"<candidate_sha256, deterministic preflight results, and nontrivial Lean result carriers>"}}
+    }},
+    "contract_audit": {{
+      "statement_scope": {{"status":"passed|failed","evidence":"..."}},
+      "hypothesis_derivability": {{"status":"passed|failed","evidence":"..."}},
+      "conclusion_alignment": {{"status":"passed|failed","evidence":"..."}},
+      "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
+    }},
+    "requested_outputs": [{{"output_id":"<exact requested_outputs id>","source_requirement":"<exact requested output>","submission_status":"matched|failed","reporting_policy_status":"matched|failed","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"<audit result without copying the answer value>"}}],
+    "blueprint_conflicts": [],
+    "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
+    "chemistry_checks": {{
+      "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "numerical_reporting": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "structure_stereochemistry": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "identification_uniqueness": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "answer_smuggling": {{"status":"passed|failed|not_applicable","evidence":"..."}}
+    }}
+  }},
+  "attempts": [{{"attempt": 1, "strategy": "formalization-review", "code_tried": "", "lean_error": "", "goal_before": "", "goal_after": "", "result": "success|failed", "insight": "..."}}],
+  "findings": {{"blocker": "<empty iff passed>", "verification": "...", "key_lemmas_used": []}},
+  "session": {{"id": "session_{iter_num}", "model": "parallel-formalization-review"}},
+  "next_steps": "<empty iff passed; exact redraft otherwise>"
+}}
+
+Use top-level status=solved only with formalization_review.status=passed;
+otherwise use status=blocked. A failed verdict must identify at least one failed
+check or blocked bridge. Missing or ambiguous evidence fails closed. Also write
+a <=12-line summary to {summary}. Return only after both files are durable.
 """
 
 
@@ -438,8 +540,30 @@ def build_target_formalization_review_prompt(
     preflight: dict,
     prior_gate_record: dict | None,
     source_contract: dict | None = None,
+    retry_validation_error: str = "",
 ) -> str:
     rel = target.resolve().relative_to(project_path.resolve()).as_posix()
+    prior_review_history = sanitized_review_history(
+        prior_gate_record, review_kind="formalization",
+    )
+    source_contract = resolve_target_review_source_contract(
+        project_path=project_path,
+        target=target,
+        preflight=preflight,
+        supplied_contract=source_contract,
+    )
+    if is_native_problem_only_contract(source_contract):
+        return _build_native_target_formalization_review_prompt(
+            project_path=project_path,
+            iter_num=iter_num,
+            target=target,
+            rel=rel,
+            output_dir=output_dir,
+            preflight=preflight,
+            source_contract=source_contract,
+            prior_review_history=prior_review_history,
+            retry_validation_error=retry_validation_error,
+        )
     slug = "_".join(Path(rel).with_suffix("").parts)
     chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
     traces = [
@@ -451,29 +575,11 @@ def build_target_formalization_review_prompt(
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
-    native_contract = build_native_semantic_review_contract(
-        project_path=project_path,
-        target=target,
+    source_block = render_native_source_contract_prompt(source_contract)
+    retry_feedback = render_validation_retry_feedback(
+        retry_validation_error
     )
-    if native_contract is not None:
-        return _native_target_formalization_review_prompt(
-            project_path=project_path,
-            state_dir=state_dir,
-            iter_dir=iter_dir,
-            iter_num=iter_num,
-            target=target,
-            output_dir=output_dir,
-            preflight=preflight,
-            prior_gate_record=prior_gate_record,
-            native_contract=native_contract,
-        )
-    source_contract = source_contract or build_review_source_contract(
-        project_path=project_path,
-        target=target,
-        profile=profile,
-    )
-    source_block = render_source_contract_prompt(source_contract)
-    source_provenance = source_contract_provenance(source_contract)
+    source_provenance = native_source_contract_provenance(source_contract)
     answer_blind = is_answer_blind_contract(source_contract)
     if answer_blind:
         candidate_source_line = (
@@ -571,7 +677,9 @@ Read these bounded sources completely:
 - Formalizer traces: {json.dumps([str(path) for path in traces], ensure_ascii=False)}
 - Matching task results, newest first: {json.dumps(_result_evidence(state_dir, rel), ensure_ascii=False)}
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
-- Prior formalization gate record: {json.dumps(prior_gate_record or {}, ensure_ascii=False)}
+- Controller-sanitized prior formalization Review history: {json.dumps(prior_review_history, ensure_ascii=False)}
+
+{retry_feedback}
 
 {source_block}
 
@@ -588,6 +696,8 @@ and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
 
 {chemistry_protocol}
+
+{_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
 
 The deterministic preflight already ran. Do not run lake, Lean, leandag, broad
 searches, or other agents unless preflight reports timeout/error. Do not edit
@@ -663,7 +773,24 @@ def _run_formalization_review_worker(
     output_dir.mkdir(parents=True, exist_ok=True)
     runner_ok = False
     error = ""
+    contract_error = validate_review_source_contract_current(
+        project_path=project_path, contract=spec.source_contract,
+    )
+    if contract_error:
+        return TargetReviewOutcome(
+            rel=spec.rel,
+            attempt=spec.attempt,
+            runner_ok=False,
+            milestone=None,
+            error=contract_error,
+        )
     try:
+        image_args = native_problem_image_args(
+            project_path=project_path,
+            target=project_path / spec.rel,
+            harness=harness,
+            source_contract=spec.source_contract,
+        )
         runner_ok = build_runner(
             role="review", model=model, descriptor=harness, backend=backend,
         ).run(
@@ -671,11 +798,37 @@ def _run_formalization_review_worker(
             cwd=project_path,
             log_base=Path(spec.log_base),
             verbose_logs=verbose_logs,
+            extra_args=image_args,
         )
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
+    contract_error = validate_review_source_contract_current(
+        project_path=project_path, contract=spec.source_contract,
+    )
+    if contract_error:
+        error = "; ".join(part for part in (error, contract_error) if part)
+        return TargetReviewOutcome(
+            rel=spec.rel,
+            attempt=spec.attempt,
+            runner_ok=runner_ok,
+            milestone=None,
+            error=error,
+        )
+    milestone_path = output_dir / "milestones.jsonl"
+    if runner_ok and not error:
+        binding_error = materialize_controller_review_provenance(
+            path=milestone_path,
+            expected_rel=spec.rel,
+            expected_contract=spec.source_contract,
+            review_field="formalization_review",
+        )
+        if binding_error:
+            return TargetReviewOutcome(
+                rel=spec.rel, attempt=spec.attempt, runner_ok=runner_ok,
+                milestone=None, error=binding_error,
+            )
     milestone, validation_error = load_target_formalization_milestone(
-        output_dir / "milestones.jsonl",
+        milestone_path,
         spec.rel,
         spec.source_contract,
         build_native_semantic_review_contract(
@@ -691,6 +844,7 @@ def _run_formalization_review_worker(
         runner_ok=runner_ok,
         milestone=milestone,
         error=error,
+        validation_error=validation_error,
     )
 
 
@@ -766,6 +920,7 @@ def run_parallel_formalization_reviews(
     }
     pending = {rel: path for rel, path in targets}
     outcomes: dict[str, TargetReviewOutcome] = {}
+    validation_feedback: dict[str, str] = {}
     schema_feedback: dict[str, list[dict]] = {}
     rounds: list[dict] = []
     jobs = max(1, min(int(requested_jobs), len(pending) or 1))
@@ -776,39 +931,40 @@ def run_parallel_formalization_reviews(
             break
         round_jobs = min(jobs, len(pending))
         specs: list[TargetReviewSpec] = []
+        failed: dict[str, Path] = {}
         for rel, target in sorted(pending.items()):
             slug = "_".join(Path(rel).with_suffix("").parts)
             output_dir = (
                 iter_dir / "formalization-review-targets" / slug
                 / f"attempt-{attempt}"
             )
-            native_contract = build_native_semantic_review_contract(
-                project_path=project_path,
-                target=target,
-            )
-            source_contract = (
-                None
-                if native_contract is not None
-                else build_review_source_contract(
+            try:
+                source_contract = resolve_target_review_source_contract(
                     project_path=project_path,
                     target=target,
+                    preflight=preflight_rows.get(rel, {}),
                 )
-            )
-            prompt = build_target_formalization_review_prompt(
-                project_path=project_path,
-                state_dir=state_dir,
-                iter_dir=iter_dir,
-                iter_num=iter_num,
-                target=target,
-                output_dir=output_dir,
-                preflight=preflight_rows.get(rel, {}),
-                prior_gate_record=prior_gate_targets.get(rel),
-                source_contract=source_contract,
-            )
-            if rel in schema_feedback:
-                prompt = _append_schema_retry_feedback(
-                    prompt, schema_feedback[rel],
+                prompt = build_target_formalization_review_prompt(
+                    project_path=project_path,
+                    state_dir=state_dir,
+                    iter_dir=iter_dir,
+                    iter_num=iter_num,
+                    target=target,
+                    output_dir=output_dir,
+                    preflight=preflight_rows.get(rel, {}),
+                    prior_gate_record=prior_gate_targets.get(rel),
+                    source_contract=source_contract,
+                    retry_validation_error=validation_feedback.get(
+                        rel, ""
+                    ),
                 )
+                if rel in schema_feedback:
+                    prompt = _append_schema_retry_feedback(
+                        prompt, schema_feedback[rel],
+                    )
+            except ProblemOnlyReviewContractError:
+                failed[rel] = target
+                continue
             specs.append(TargetReviewSpec(
                 rel=rel,
                 prompt=prompt,
@@ -817,7 +973,6 @@ def run_parallel_formalization_reviews(
                 attempt=attempt,
                 source_contract=source_contract,
             ))
-        failed: dict[str, Path] = {}
         def collect_outcome(
             spec: TargetReviewSpec,
             target: Path,
@@ -835,6 +990,8 @@ def run_parallel_formalization_reviews(
                 )
             if outcome.milestone is None:
                 failed[spec.rel] = target
+                if outcome.validation_error:
+                    validation_feedback[spec.rel] = outcome.validation_error
                 if outcome.runner_ok:
                     try:
                         native_contract = build_native_semantic_review_contract(
@@ -860,6 +1017,7 @@ def run_parallel_formalization_reviews(
                         )
             else:
                 outcomes[spec.rel] = outcome
+                validation_feedback.pop(spec.rel, None)
                 schema_feedback.pop(spec.rel, None)
 
         if len(specs) == 1:
@@ -876,7 +1034,7 @@ def run_parallel_formalization_reviews(
                     harness=harness,
                 ),
             )
-        else:
+        elif specs:
             with executor_factory(max_workers=round_jobs) as pool:
                 futures = {
                     pool.submit(
@@ -897,7 +1055,7 @@ def run_parallel_formalization_reviews(
             "attempt": attempt,
             "jobs": round_jobs,
             "submitted": len(specs),
-            "completed": len(specs) - len(failed),
+            "completed": len(pending) - len(failed),
             "failed": len(failed),
         })
         pending = failed

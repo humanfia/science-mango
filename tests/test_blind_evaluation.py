@@ -2619,23 +2619,45 @@ class BlindEvaluationTest(unittest.TestCase):
             expected_grader_sha256=self._sha256(grader),
         )
 
+    @staticmethod
+    def _grading_override(
+        official_answer: str,
+        *,
+        canonical_answer: str = "1.93 %",
+        accepted_legacy_answers: list[str] | None = None,
+    ) -> dict[str, object]:
+        return {
+            "schema_version": 1,
+            "official_answer_sha256": hashlib.sha256(
+                official_answer.encode("utf-8")
+            ).hexdigest(),
+            "reason_code": "official_intermediate_rounding",
+            "canonical_answer": canonical_answer,
+            "accepted_legacy_answers": (
+                ["1.94 %"]
+                if accepted_legacy_answers is None
+                else accepted_legacy_answers
+            ),
+        }
+
     def _write_grader(
         self,
         root: Path,
         fixture: dict[str, object],
         *,
         official_answer: str = "7.04e12 J/day",
+        grading_override: dict[str, object] | None = None,
     ) -> Path:
         path = root / "external-grader.jsonl"
+        row = {
+            "id": fixture["id"],
+            "blind_record_sha256": fixture["blind_hash"],
+            "official_answer": official_answer,
+        }
+        if grading_override is not None:
+            row["grading_override"] = grading_override
         path.write_text(
-            json.dumps(
-                {
-                    "id": fixture["id"],
-                    "blind_record_sha256": fixture["blind_hash"],
-                    "official_answer": official_answer,
-                }
-            )
-            + "\n",
+            json.dumps(row) + "\n",
             encoding="utf-8",
         )
         return path
@@ -4348,7 +4370,278 @@ class BlindEvaluationTest(unittest.TestCase):
                 output=root / "grade.json",
             )
             self.assertEqual(grade["results"][0]["result"], "manual_review")
+            self.assertIn(
+                "rounding_sensitive", grade["results"][0]["reason"]
+            )
             self.assertNotIn("canonical_rounding_match", grade["summary"])
+
+    def test_grade_marks_adjacent_reporting_quanta_rounding_sensitive(self):
+        candidate = {
+            "result_kind": "numeric",
+            "raw_result": {
+                "value": "7.034394597164468e12",
+                "unit": "J day^-1",
+            },
+            "reported_result": {
+                "value": "7.03e12",
+                "text": "7.03e12 J day^-1",
+                "unit": "J day^-1",
+                "precision": {
+                    "kind": "significant_figures",
+                    "digits": 3,
+                },
+            },
+        }
+
+        for official_answer in (
+            "7.04e12 J day^-1",
+            "7.04 × 10^12 J day^-1",
+        ):
+            with self.subTest(official_answer=official_answer):
+                result, reason = blind._grade_one(candidate, official_answer)
+                self.assertEqual(result, "manual_review")
+                self.assertIn("rounding_sensitive", reason)
+                self.assertIn("scientifically equivalent", reason)
+
+    def test_grade_does_not_mark_unrelated_numeric_mismatches_rounding_sensitive(self):
+        candidate = {
+            "result_kind": "numeric",
+            "reported_result": {
+                "value": "12.34",
+                "unit": "kg",
+                "precision": {"kind": "decimal_places", "digits": 2},
+            },
+        }
+
+        for official_answer in (
+            "12.36 kg",
+            "12.35 s",
+            "12.35 mkg",
+            "12.35",
+            "12.35 kg at 20 C",
+        ):
+            with self.subTest(official_answer=official_answer):
+                result, reason = blind._grade_one(candidate, official_answer)
+                self.assertEqual(result, "manual_review")
+                self.assertNotIn("rounding_sensitive", reason)
+
+    def test_grade_does_not_hide_material_mass_fraction_error_as_rounding(self):
+        candidate = {
+            "result_kind": "numeric",
+            "reported_result": {
+                "value": "1.86",
+                "unit": "%",
+                "precision": {
+                    "kind": "significant_figures",
+                    "digits": 3,
+                },
+            },
+        }
+
+        result, reason = blind._grade_one(candidate, "1.94 %")
+
+        self.assertEqual(result, "manual_review")
+        self.assertNotIn("rounding_sensitive", reason)
+
+    def test_grade_uses_both_reporting_quanta_for_rounding_sensitivity(self):
+        candidate = {
+            "result_kind": "numeric",
+            "reported_result": {
+                "value": "1.2",
+                "unit": "mol",
+                "precision": {"kind": "decimal_places", "digits": 1},
+            },
+        }
+
+        touching_result, touching_reason = blind._grade_one(
+            candidate, "1.25 mol"
+        )
+        separate_result, separate_reason = blind._grade_one(
+            candidate, "1.26 mol"
+        )
+
+        self.assertEqual(touching_result, "manual_review")
+        self.assertIn("rounding_sensitive", touching_reason)
+        self.assertEqual(separate_result, "manual_review")
+        self.assertNotIn("rounding_sensitive", separate_reason)
+
+    def test_grading_override_handles_multi_number_prose_without_tolerance(self):
+        official_answer = (
+            "m_cat = 3.95e-4 g; E_photon = 5.1e-19 J; "
+            "r_photon = 9.8e16 s^-1; phi = 1.94 %."
+        )
+        override = self._grading_override(official_answer)
+
+        def candidate(value: str, *, unit: str = "%", text: str | None = None):
+            return {
+                "result_kind": "numeric",
+                "reported_result": {
+                    "value": value,
+                    "text": text or f"{value} {unit}",
+                    "unit": unit,
+                    "precision": {
+                        "kind": "significant_figures",
+                        "digits": 3,
+                    },
+                },
+            }
+
+        unassisted_result, unassisted_reason = blind._grade_one(
+            candidate("1.93"), official_answer
+        )
+        self.assertEqual(unassisted_result, "manual_review")
+        self.assertNotIn("rounding_sensitive", unassisted_reason)
+
+        canonical_result, canonical_reason = blind._grade_one(
+            candidate("1.93"), official_answer, grading_override=override
+        )
+        legacy_result, legacy_reason = blind._grade_one(
+            candidate("1.94"), official_answer, grading_override=override
+        )
+        self.assertEqual(canonical_result, "exact_match")
+        self.assertIn("canonical_answer", canonical_reason)
+        self.assertEqual(legacy_result, "exact_match")
+        self.assertIn("accepted_legacy_answer", legacy_reason)
+
+        for rejected in ("1.86", "1.92", "1.95"):
+            with self.subTest(rejected=rejected):
+                result, reason = blind._grade_one(
+                    candidate(rejected),
+                    official_answer,
+                    grading_override=override,
+                )
+                self.assertEqual(result, "manual_review")
+                self.assertNotIn("grading_override", reason)
+
+    def test_grading_override_ignores_free_form_text_and_requires_matching_unit(self):
+        official_answer = "1.93 %"
+        override = self._grading_override(official_answer)
+        for value in ("1.93", "1.94"):
+            with self.subTest(value=value):
+                candidate = {
+                    "result_kind": "numeric",
+                    "reported_result": {
+                        "value": value,
+                        "text": f"{value} %",
+                        "unit": "mol",
+                        "precision": {
+                            "kind": "significant_figures",
+                            "digits": 3,
+                        },
+                    },
+                }
+                result, reason = blind._grade_one(
+                    candidate,
+                    official_answer,
+                    grading_override=override,
+                )
+                self.assertEqual(result, "manual_review")
+                self.assertNotIn("grading_override", reason)
+
+    def test_grading_override_schema_is_strict_and_hash_bound(self):
+        official_answer = (
+            "m_cat = 3.95e-4 g; E_photon = 5.1e-19 J; phi = 1.94 %."
+        )
+        candidate = {"result_kind": "numeric"}
+        valid = self._grading_override(official_answer)
+        validated = blind._validated_grading_override(
+            valid,
+            official_answer=official_answer,
+            candidate=candidate,
+            record_id="icho_2026_t8_a6",
+        )
+        self.assertEqual(validated, valid)
+
+        malformed: list[tuple[str, dict[str, object], str]] = []
+
+        unknown = dict(valid)
+        unknown["unexpected"] = True
+        malformed.append(("unknown", unknown, "unexpected unexpected"))
+
+        wrong_hash = dict(valid)
+        wrong_hash["official_answer_sha256"] = "0" * 64
+        malformed.append(("wrong hash", wrong_hash, "does not bind official_answer"))
+
+        missing = dict(valid)
+        missing.pop("canonical_answer")
+        malformed.append(("missing", missing, "missing canonical_answer"))
+
+        bad_version = dict(valid)
+        bad_version["schema_version"] = True
+        malformed.append(("bad version", bad_version, "schema_version must equal 1"))
+
+        empty_list = dict(valid)
+        empty_list["accepted_legacy_answers"] = []
+        malformed.append(("empty list", empty_list, "must be a non-empty list"))
+
+        empty_alias = dict(valid)
+        empty_alias["accepted_legacy_answers"] = ["  "]
+        malformed.append(("empty alias", empty_alias, "must be a non-empty string"))
+
+        duplicate = dict(valid)
+        duplicate["accepted_legacy_answers"] = ["1.94 %", "  1.94   %  "]
+        malformed.append(("duplicate", duplicate, "contains a duplicate alias"))
+
+        too_many = dict(valid)
+        too_many["accepted_legacy_answers"] = [
+            f"{index}.00 %"
+            for index in range(blind._MAX_GRADING_OVERRIDE_ALIASES + 1)
+        ]
+        malformed.append(("too many", too_many, "exceeds 8 aliases"))
+
+        for label, value, error in malformed:
+            with self.subTest(label=label):
+                with self.assertRaisesRegex(blind.BlindEvaluationError, error):
+                    blind._validated_grading_override(
+                        value,
+                        official_answer=official_answer,
+                        candidate=candidate,
+                        record_id="icho_2026_t8_a6",
+                    )
+
+        with self.assertRaisesRegex(
+            blind.BlindEvaluationError, "only valid for a numeric candidate"
+        ):
+            blind._validated_grading_override(
+                valid,
+                official_answer=official_answer,
+                candidate={"result_kind": "symbolic"},
+                record_id="icho_2026_t8_a6",
+            )
+
+    def test_grade_accepts_hash_bound_legacy_override_end_to_end(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            fixture = self._make_project(root)
+            manifest_path = root / "freeze.json"
+            self._freeze(fixture, manifest_path)
+            official_answer = (
+                "raw value 7.034394597164468e12 J/day; "
+                "official display 7.03e12 J/day"
+            )
+            override = self._grading_override(
+                official_answer,
+                canonical_answer="7.03e12 J/day",
+                accepted_legacy_answers=["7.04e12 J/day"],
+            )
+            grader = self._write_grader(
+                root,
+                fixture,
+                official_answer=official_answer,
+                grading_override=override,
+            )
+
+            grade = self._grade(
+                fixture,
+                manifest=manifest_path,
+                grader=grader,
+                output=root / "grade.json",
+            )
+
+            self.assertEqual(grade["results"][0]["result"], "exact_match")
+            self.assertIn(
+                "accepted_legacy_answer", grade["results"][0]["reason"]
+            )
 
     def test_cli_exposes_phase_separated_controller_commands(self):
         runner = CliRunner()

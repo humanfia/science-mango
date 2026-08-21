@@ -259,6 +259,100 @@ class CleanSnapshotTests(unittest.TestCase):
             MODULE._inventory_tree(root)
 
 
+@unittest.skipUnless(os.geteuid() == 0, "root required for ownership hardening")
+class HardenReadabilityTests(unittest.TestCase):
+    def test_umask_077_inputs_are_readable_but_not_solver_writable(self) -> None:
+        identity = MODULE.SolverIdentity("test-solver", 65534, 65534)
+        with tempfile.TemporaryDirectory(prefix="answer-blind-harden-") as td:
+            base = Path(td)
+            base.chmod(0o755)
+            workspace = base / "workspace"
+            dependency = base / "dependency"
+            old_umask = os.umask(0o077)
+            try:
+                dependency.mkdir()
+                (dependency / "Mathlib.olean").write_bytes(b"dependency")
+                files = {
+                    "source/input.txt": b"problem",
+                    "reports/source/input.source.json": b"{}\n",
+                    ".archon/physics-formalize/latest.json": b"{}\n",
+                    ".archon/prover-modes/physics.md": b"mode\n",
+                    ".archon/subagents/reviewer.md": b"reviewer\n",
+                    ".archon/prompts/plan.md": b"plan\n",
+                    ".archon/prompts/review.md": b"review\n",
+                    ".archon/lean-explore/project-index.json": b"{}\n",
+                    ".archon/config.json": b"{}\n",
+                    ".archon/AGENTS.md": b"agents\n",
+                    ".mcp.json": b"{}\n",
+                    "ANSWER_BLIND_PROTOCOL.md": b"protocol\n",
+                    "IChO2026Problems.lean": b"import IChO2026Problems.All\n",
+                }
+                for relative, content in files.items():
+                    path = workspace / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(content)
+                (workspace / "isolation_manifest.json").write_text(json.dumps({
+                    "protocol": "icho-problem-only-solver-seed-v1",
+                    "payload_files": {"source/input.txt": "0" * 64},
+                }))
+            finally:
+                os.umask(old_umask)
+
+            result = MODULE.harden_solver_workspace(
+                workspace=workspace,
+                identity=identity,
+                dependency_root=dependency,
+                private_home=base / "solver-home",
+                private_tmp=base / "solver-tmp",
+                variant="gpt",
+                run_id="harden-readability-test",
+            )
+            protected = result["protected"]["files"]
+            self.assertIn(".archon/lean-explore/project-index.json", protected)
+            self.assertIn(".archon/prompts/plan.md", protected)
+            for relative in protected:
+                metadata = (workspace / relative).stat()
+                self.assertEqual((metadata.st_uid, metadata.st_gid), (0, identity.gid))
+                self.assertTrue(stat.S_IMODE(metadata.st_mode) & stat.S_IRGRP)
+                self.assertFalse(stat.S_IMODE(metadata.st_mode) & 0o022)
+            for relative in (
+                "reports", ".archon/physics-formalize",
+                ".archon/prover-modes", ".archon/subagents",
+                ".archon/prompts", ".archon/lean-explore",
+            ):
+                metadata = (workspace / relative).stat()
+                self.assertEqual((metadata.st_uid, metadata.st_gid), (0, identity.gid))
+                self.assertEqual(stat.S_IMODE(metadata.st_mode), 0o750)
+
+            pid = os.fork()
+            if pid == 0:
+                try:
+                    os.setgroups([])
+                    os.setgid(identity.gid)
+                    os.setuid(identity.uid)
+                    for relative in protected:
+                        (workspace / relative).read_bytes()
+                    for forbidden in (
+                        workspace / ".archon/prompts/plan.md",
+                        workspace / "reports/forbidden",
+                    ):
+                        try:
+                            forbidden.write_bytes(b"bad")
+                        except PermissionError:
+                            continue
+                        os._exit(2)
+                except Exception:
+                    os._exit(1)
+                os._exit(0)
+            _waited, status = os.waitpid(pid, 0)
+            self.assertEqual(os.waitstatus_to_exitcode(status), 0)
+
+            index = workspace / ".archon/lean-explore/project-index.json"
+            index.chmod(0o600)
+            with self.assertRaisesRegex(MODULE.ControllerError, "solver-group-readable"):
+                MODULE._protected_receipt(workspace, solver_gid=identity.gid)
+
+
 class SchemaTests(unittest.TestCase):
     def test_protocol_is_shared_with_model_broker(self) -> None:
         broker_script = ROOT / "scripts/run_answer_blind_model_broker.py"

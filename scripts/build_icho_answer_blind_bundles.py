@@ -72,8 +72,10 @@ def _exact_output(
     source_requirement: str,
     kind: str,
     unit: str = "",
+    *,
+    audit_requirements: tuple[str, ...] = (),
 ) -> dict[str, Any]:
-    return {
+    output = {
         "id": output_id,
         "source_requirement": source_requirement,
         "kind": kind,
@@ -83,6 +85,9 @@ def _exact_output(
             "source": "problem_output_type",
         },
     }
+    if audit_requirements:
+        output["audit_requirements"] = list(audit_requirements)
+    return output
 
 
 # The output identities and counts below are a transcription of the official
@@ -198,8 +203,20 @@ REQUESTED_OUTPUTS: dict[str, tuple[dict[str, Any], ...]] = {
         _exact_output("dimer_isomer_count", "number of beta-CD dimer isomers", "integer"),
     ),
     "icho_2026_t9_a7": (
-        _exact_output("first_fragment_mz", "m/z of the first degradation-product sodium adduct", "integer", "m/z"),
-        _exact_output("second_fragment_mz", "m/z of the second degradation-product sodium adduct", "integer", "m/z"),
+        _exact_output(
+            "first_fragment_mz",
+            "m/z of the first degradation-product sodium adduct",
+            "integer",
+            "m/z",
+            audit_requirements=("image_component_accounting",),
+        ),
+        _exact_output(
+            "second_fragment_mz",
+            "m/z of the second degradation-product sodium adduct",
+            "integer",
+            "m/z",
+            audit_requirements=("image_component_accounting",),
+        ),
     ),
     "icho_2026_t9_a9": (
         _exact_output("arrangement_count", "number of functional-group arrangements", "integer"),

@@ -27,14 +27,19 @@ from .native_semantic_review import (
     build_native_semantic_review_contract,
     validate_independent_rederivation,
 )
+from .problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+    resolve_target_review_source_contract,
+    stored_review_provenance_matches_current,
+    validate_native_review_source_certificate,
+)
 from .review_source_contract import (
-    build_review_source_contract,
     provenance_from_review,
     normalized_review_source_certificate,
     source_assessment_from_review,
     stored_provenance_matches_current,
-    validate_review_source_certificate,
 )
+from .review_feedback import build_feedback_event, build_repair_task
 from .sorry_count import file_open_sorry_count
 
 
@@ -227,7 +232,7 @@ def _validate_structured_review(
         "blind_review_certificate": normalized_review_source_certificate(raw),
         **source_assessment_from_review(raw),
     }
-    source_error = validate_review_source_certificate(
+    source_error = validate_native_review_source_certificate(
         raw,
         expected_source_contract,
         passing=True,
@@ -282,6 +287,22 @@ def _decision_from_milestone(
         # decision remains failed, so preserve the complete payload rather
         # than replacing it with an empty object.
         certificate = dict(raw) if isinstance(raw, dict) else {}
+        if (
+            isinstance(expected_source_contract, Mapping)
+            and expected_source_contract.get("contract_kind")
+            == "native_problem_input_only"
+        ):
+            source_error = validate_native_review_source_certificate(
+                raw if isinstance(raw, dict) else {},
+                expected_source_contract,
+                passing=False,
+            )
+            if source_error:
+                return (
+                    "failed",
+                    f"problem-only source contract validation failed: {source_error}",
+                    certificate,
+                )
         return "failed", reason or "formalization Review failed", certificate
 
     legacy = str(item.get("status") or "").strip().lower()
@@ -345,14 +366,19 @@ def _load_milestone_decisions(
             project_path=project_path,
             target=project_path / rel,
         )
-        source_contract = (
-            None
-            if native_semantic_contract is not None
-            else build_review_source_contract(
+        try:
+            source_contract = resolve_target_review_source_contract(
                 project_path=project_path,
                 target=project_path / rel,
+                preflight=None,
             )
-        )
+        except ProblemOnlyReviewContractError as exc:
+            decisions.setdefault(rel, []).append((
+                "failed",
+                f"problem-only source contract validation failed: {exc}",
+                {},
+            ))
+            continue
         decisions.setdefault(rel, []).append(
             _decision_from_milestone(
                 item, source_contract, native_semantic_contract,
@@ -857,6 +883,8 @@ def apply_target_formalization_review(
     iter_num: int,
     max_iterations: int,
     event_id: str,
+    expected_source_contract: Mapping[str, Any] | None = None,
+    preflight: Mapping[str, Any] | None = None,
 ) -> TargetFormalizationReviewUpdate:
     """Apply one semantic formalization verdict without routing PROGRESS.
 
@@ -893,6 +921,7 @@ def apply_target_formalization_review(
             )
 
     reviews = int(old.get("reviews") or 0)
+    source_contract = expected_source_contract
     if reviews >= max_iterations:
         status = "review_exhausted"
         reason = (
@@ -906,17 +935,23 @@ def apply_target_formalization_review(
             project_path=project_path,
             target=target,
         )
-        source_contract = (
-            None
-            if native_semantic_contract is not None
-            else build_review_source_contract(
-                project_path=project_path,
-                target=target,
+        try:
+            source_contract = (
+                expected_source_contract
+                if expected_source_contract is not None
+                else resolve_target_review_source_contract(
+                    project_path=project_path,
+                    target=target,
+                    preflight=None,
+                )
             )
-        )
-        decision, reason, certificate = _decision_from_milestone(
-            milestone, source_contract, native_semantic_contract,
-        )
+            decision, reason, certificate = _decision_from_milestone(
+                milestone, source_contract, native_semantic_contract,
+            )
+        except ProblemOnlyReviewContractError as exc:
+            decision = "failed"
+            reason = f"problem-only source contract validation failed: {exc}"
+            certificate = {}
         reviews += 1
         if decision == "passed":
             status = "passed"
@@ -924,6 +959,22 @@ def apply_target_formalization_review(
             status = "review_exhausted"
         else:
             status = "retry"
+
+    candidate_sha256 = _file_sha256(target)
+    feedback_event = build_feedback_event(
+        review_kind="formalization",
+        candidate_sha256=candidate_sha256,
+        event_id=event_id,
+        iteration=iter_num,
+        attempt=reviews,
+        resulting_status=status,
+        certificate=certificate,
+        decision=decision,
+        preflight=preflight,
+    )
+    repair_events = old.get("repair_events")
+    repair_events = list(repair_events) if isinstance(repair_events, list) else []
+    repair_events.append(feedback_event)
 
     events.append({
         "event_id": event_id,
@@ -942,9 +993,16 @@ def apply_target_formalization_review(
         "reason": reason,
         "updated_at": _utcnow(),
         "review_schema_version": REVIEW_SCHEMA_VERSION,
+        "candidate_sha256": candidate_sha256,
         "certificate": certificate,
         "review_events": events[-50:],
+        "repair_events": repair_events[-20:],
     }
+    # A fresh formalization verdict supersedes transient proof-redraft routing
+    # flags.  Keeping them live makes crash/resume select the older proof
+    # certificate instead of this newer semantic Review.
+    for stale_key in ("reopened_by", "certificate_revoked_at", "redraft_kind"):
+        next_record.pop(stale_key, None)
     materialized = old.get("materialized_redraft")
     if isinstance(materialized, dict):
         next_record["materialized_redraft"] = {
@@ -952,6 +1010,14 @@ def apply_target_formalization_review(
             "status": "reviewed",
             "reviewed_iter": iter_num,
         }
+    next_record["repair_handoff"] = build_repair_task(
+        next_record,
+        review_kind="formalization",
+        worker_stage="formalization",
+        candidate_sha256=candidate_sha256,
+        preflight=preflight,
+        expected_source_contract=source_contract,
+    )
     targets[rel] = next_record
     data["last_review_iter"] = iter_num
     data["updated_at"] = _utcnow()
@@ -999,7 +1065,8 @@ def _invalidate_stale_passes(
     state: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
     """Reopen chemistry passes whose bound Lean/source inputs changed."""
-    if state is None or load_domain_profile(project_path).name != "chemistry":
+    profile_name = load_domain_profile(project_path).name
+    if state is None or profile_name not in {"chemistry", "chemistry-native"}:
         return state
     targets = state.get("targets")
     if not isinstance(targets, dict):
@@ -1011,11 +1078,23 @@ def _invalidate_stale_passes(
         provenance = _certificate_source_provenance(
             raw_record.get("certificate")
         )
-        fresh, reason = stored_provenance_matches_current(
-            project_path=project_path,
-            target=project_path / rel,
-            provenance=provenance,
-        )
+        if profile_name == "chemistry-native":
+            # Formalization Review binds problem/source semantics and the
+            # statement candidate at review time. A later prover is expected
+            # to replace `sorry` proof bodies, so durable dispatch freshness
+            # must not revoke a valid formalization pass for proof-only edits.
+            fresh, reason = stored_review_provenance_matches_current(
+                project_path=project_path,
+                target=project_path / rel,
+                provenance=provenance,
+                bind_candidate=False,
+            )
+        else:
+            fresh, reason = stored_provenance_matches_current(
+                project_path=project_path,
+                target=project_path / rel,
+                provenance=provenance,
+            )
         if fresh:
             continue
         reopen_history = raw_record.get("reopen_history")
@@ -1058,6 +1137,7 @@ def filter_objectives_for_review_gate(
     project_path: Path,
     stage: str,
     enabled: bool,
+    autoformalize_prover_targets: Iterable[str] = (),
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     """Apply the persisted gate before any formalizer/prover dispatch."""
     items = list(objectives)
@@ -1070,6 +1150,7 @@ def filter_objectives_for_review_gate(
     )
     canonical = stage.strip().lower()
     targets = state.get("targets", {}) if state else {}
+    resume_prover_targets = set(autoformalize_prover_targets)
     shared_paths: set[str] = set()
     if canonical.startswith(("prover", "polish")):
         # Shared infrastructure is a prerequisite build objective, not a
@@ -1093,7 +1174,9 @@ def filter_objectives_for_review_gate(
         record = targets.get(rel) if rel else None
         status = str(record.get("status") or "") if isinstance(record, dict) else ""
         if canonical.startswith("autoformalize"):
-            if status in {"passed", "review_exhausted"}:
+            if status == "passed" and rel in resume_prover_targets:
+                kept.append(path)
+            elif status in {"passed", "review_exhausted"}:
                 dropped.append((path, status))
             else:
                 kept.append(path)
@@ -1175,6 +1258,7 @@ def enforce_progress_review_gate(
     project_path: Path,
     stage: str,
     enabled: bool,
+    autoformalize_prover_targets: Iterable[str] = (),
 ) -> tuple[list[Path], list[tuple[Path, str]]]:
     """Filter PROGRESS objectives in place before a worker can dispatch."""
     objectives = parse_objective_files(progress_file, project_path)
@@ -1184,6 +1268,7 @@ def enforce_progress_review_gate(
         project_path=project_path,
         stage=stage,
         enabled=enabled,
+        autoformalize_prover_targets=autoformalize_prover_targets,
     )
     if not dropped:
         return kept, dropped
