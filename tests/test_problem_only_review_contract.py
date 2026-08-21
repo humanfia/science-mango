@@ -485,6 +485,13 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         )
         self.assertIn('"id": "value"', prompt)
         self.assertIn('"display_value": "<replace with final displayed string>"', prompt)
+        self.assertIn("perform a source-first visual recount", prompt)
+        self.assertIn("every relevant panel and legend separately", prompt)
+        self.assertIn("enumerate all distinct building-block types", prompt)
+        self.assertIn("balance every condensation/addition loss or gain", prompt)
+        self.assertIn("state the numerator and denominator", prompt)
+        self.assertIn("component mass divided by total mixture mass", prompt)
+        self.assertIn("solve that mass-balance equation before substitution", prompt)
         self.target.write_text(self.lean_source, encoding="utf-8")
         with self.assertRaisesRegex(
             ProblemOnlyReviewContractError, "answer submission",

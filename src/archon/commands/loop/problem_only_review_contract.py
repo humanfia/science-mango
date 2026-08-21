@@ -1496,7 +1496,20 @@ def render_native_formalizer_answer_submission_prompt(
         "prefer ASCII decimal/e notation such as 7.03e12; a bounded `× 10^n` "
         "display is accepted, but never use Unicode superscript digits or add "
         "fields outside the exact schema. Do not create any other "
-        "answer/candidate file."
+        "answer/candidate file.\n"
+        "Before deriving any figure-dependent chemical formula, identity, or "
+        "count, perform a source-first visual recount: handle every relevant "
+        "panel and legend separately; enumerate all distinct building-block "
+        "types, node counts, connectivity/degrees, and cross-boundary bonds; "
+        "then balance every condensation/addition loss or gain before comparing "
+        "with an existing candidate. If the topology remains ambiguous, keep "
+        "the result blocked instead of reusing the prior interpretation.\n"
+        "For every mass fraction, weight fraction, wt%, or mass loading, state "
+        "the numerator and denominator and distinguish total-mixture mass from "
+        "component-only or support/base mass. Unless the problem explicitly "
+        "defines another basis, use component mass divided by total mixture "
+        "mass and solve that mass-balance equation before substitution; do not "
+        "inherit a base-mass ratio from an existing candidate."
     )
 
 
