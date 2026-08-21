@@ -9335,12 +9335,44 @@ def _one_decimal(value: object) -> Decimal | None:
         return None
 
 
+def _official_display_decimal(value: object) -> tuple[Decimal, Decimal] | None:
+    """Parse one displayed answer number, ignoring exponents inside its unit."""
+    text = _scientific_text(unicodedata.normalize("NFKC", str(value)))
+    if len(text) > _MAX_NUMERIC_TEXT_LENGTH:
+        return None
+    matches = []
+    for match in _NUMBER_RE.finditer(text):
+        prefix = text[: match.start()].rstrip()
+        if re.search(r"[A-Za-zα-ω)]\s*(?:\^|\*\*)$", prefix):
+            continue
+        matches.append(match.group())
+    if len(matches) != 1:
+        return None
+    try:
+        parsed = Decimal(matches[0])
+        if not parsed.is_finite():
+            return None
+        exponent = parsed.as_tuple().exponent
+        if (
+            not isinstance(exponent, int)
+            or abs(exponent) > _MAX_NUMERIC_EXPONENT_ABS
+        ):
+            return None
+        quantum = Decimal(1).scaleb(exponent)
+    except (InvalidOperation, OverflowError, ValueError):
+        return None
+    if not quantum.is_finite() or quantum <= 0:
+        return None
+    return parsed, quantum
+
+
 def _unit_compatible(candidate_unit: object, official: str) -> bool | None:
     if candidate_unit is None or not str(candidate_unit).strip():
         return True
     expected = _normalize_text(candidate_unit).replace(" ", "")
     normalized_official = _normalize_text(official).replace(" ", "")
-    if expected in normalized_official:
+    unit_pattern = rf"(?<![a-zα-ω]){re.escape(expected)}(?![a-zα-ω])"
+    if re.search(unit_pattern, normalized_official):
         return True
     # A bare official number has no evidence either way; keep it manual rather
     # than declaring a dimensional conflict.
@@ -9392,6 +9424,46 @@ def _rounding_quantum(precision: object, reported: Decimal) -> Decimal | None:
     return None
 
 
+def _rounding_sensitive_numeric_match(
+    candidate: Mapping[str, Any], official_answer: str
+) -> bool:
+    """Detect compatible numeric displays whose rounding cells touch or overlap."""
+    reported = candidate.get("reported_result")
+    if not isinstance(reported, Mapping):
+        return False
+    candidate_value = _one_decimal(reported.get("value"))
+    official_display = _official_display_decimal(official_answer)
+    if (
+        candidate_value is None
+        or not candidate_value.is_finite()
+        or official_display is None
+    ):
+        return False
+    official_value, official_quantum = official_display
+    if candidate_value == official_value:
+        return False
+    if _unit_compatible(reported.get("unit"), official_answer) is not True:
+        return False
+
+    try:
+        candidate_quantum = _rounding_quantum(
+            reported.get("precision"), candidate_value
+        )
+    except (InvalidOperation, OverflowError, ValueError):
+        return False
+    if (
+        candidate_quantum is None
+        or not candidate_quantum.is_finite()
+        or candidate_quantum <= 0
+        or not official_quantum.is_finite()
+        or official_quantum <= 0
+    ):
+        return False
+
+    delta = abs(candidate_value - official_value)
+    return 2 * delta <= candidate_quantum + official_quantum
+
+
 def _grade_one(candidate: Mapping[str, Any], official_answer: str) -> tuple[str, str]:
     if candidate.get("result_kind") == "underdetermined":
         return "underdetermined", "solver froze a proved underdetermined result"
@@ -9401,6 +9473,14 @@ def _grade_one(candidate: Mapping[str, Any], official_answer: str) -> tuple[str,
         return "exact_match", "normalized reported result matches the official answer"
 
     if candidate.get("result_kind") == "numeric":
+        if _rounding_sensitive_numeric_match(candidate, official_answer):
+            return (
+                "manual_review",
+                "rounding_sensitive: compatible-unit numeric reports have adjacent "
+                "or overlapping reporting cells; this is consistent with a "
+                "scientifically equivalent rounding-path difference, pending "
+                "independent review",
+            )
         return (
             "manual_review",
             "the grader has no precommitted structured numeric key; only a whole-string exact match is automatic",

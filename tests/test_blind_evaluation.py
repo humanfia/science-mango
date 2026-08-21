@@ -4348,7 +4348,100 @@ class BlindEvaluationTest(unittest.TestCase):
                 output=root / "grade.json",
             )
             self.assertEqual(grade["results"][0]["result"], "manual_review")
+            self.assertIn(
+                "rounding_sensitive", grade["results"][0]["reason"]
+            )
             self.assertNotIn("canonical_rounding_match", grade["summary"])
+
+    def test_grade_marks_adjacent_reporting_quanta_rounding_sensitive(self):
+        candidate = {
+            "result_kind": "numeric",
+            "raw_result": {
+                "value": "7.034394597164468e12",
+                "unit": "J day^-1",
+            },
+            "reported_result": {
+                "value": "7.03e12",
+                "text": "7.03e12 J day^-1",
+                "unit": "J day^-1",
+                "precision": {
+                    "kind": "significant_figures",
+                    "digits": 3,
+                },
+            },
+        }
+
+        for official_answer in (
+            "7.04e12 J day^-1",
+            "7.04 × 10^12 J day^-1",
+        ):
+            with self.subTest(official_answer=official_answer):
+                result, reason = blind._grade_one(candidate, official_answer)
+                self.assertEqual(result, "manual_review")
+                self.assertIn("rounding_sensitive", reason)
+                self.assertIn("scientifically equivalent", reason)
+
+    def test_grade_does_not_mark_unrelated_numeric_mismatches_rounding_sensitive(self):
+        candidate = {
+            "result_kind": "numeric",
+            "reported_result": {
+                "value": "12.34",
+                "unit": "kg",
+                "precision": {"kind": "decimal_places", "digits": 2},
+            },
+        }
+
+        for official_answer in (
+            "12.36 kg",
+            "12.35 s",
+            "12.35 mkg",
+            "12.35",
+            "12.35 kg at 20 C",
+        ):
+            with self.subTest(official_answer=official_answer):
+                result, reason = blind._grade_one(candidate, official_answer)
+                self.assertEqual(result, "manual_review")
+                self.assertNotIn("rounding_sensitive", reason)
+
+    def test_grade_does_not_hide_material_mass_fraction_error_as_rounding(self):
+        candidate = {
+            "result_kind": "numeric",
+            "reported_result": {
+                "value": "1.86",
+                "unit": "%",
+                "precision": {
+                    "kind": "significant_figures",
+                    "digits": 3,
+                },
+            },
+        }
+
+        result, reason = blind._grade_one(candidate, "1.94 %")
+
+        self.assertEqual(result, "manual_review")
+        self.assertNotIn("rounding_sensitive", reason)
+
+    def test_grade_uses_both_reporting_quanta_for_rounding_sensitivity(self):
+        candidate = {
+            "result_kind": "numeric",
+            "reported_result": {
+                "value": "1.2",
+                "unit": "mol",
+                "precision": {"kind": "decimal_places", "digits": 1},
+            },
+        }
+
+        touching_result, touching_reason = blind._grade_one(
+            candidate, "1.25 mol"
+        )
+        separate_result, separate_reason = blind._grade_one(
+            candidate, "1.26 mol"
+        )
+
+        self.assertEqual(touching_result, "manual_review")
+        self.assertIn("rounding_sensitive", touching_reason)
+        self.assertEqual(separate_result, "manual_review")
+        self.assertNotIn("rounding_sensitive", separate_reason)
 
     def test_cli_exposes_phase_separated_controller_commands(self):
         runner = CliRunner()
