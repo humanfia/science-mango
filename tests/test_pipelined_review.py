@@ -231,6 +231,11 @@ def _preflight(*, project_path: Path, target: Path, timeout_sec: int) -> dict:
         "sorry_count": 0,
         "duration_secs": 0.01,
         "diagnostics": "",
+        "numeric_reporting": {
+            "active": False,
+            "status": "not_applicable",
+            "reason": "domain profile is not chemistry-native",
+        },
     }
 
 
@@ -298,6 +303,77 @@ class PipelinedReviewTest(unittest.TestCase):
         for value, expected in cases:
             with self.subTest(value=value):
                 self.assertEqual(_pipeline_cycle(value), expected)
+
+    def test_preflight_exception_has_numeric_reporting_evidence(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n",
+                encoding="utf-8",
+            )
+            observed: list[dict] = []
+
+            def failed_preflight(**_kwargs):
+                raise RuntimeError("preflight exploded")
+
+            def capture_contract(**kwargs):
+                observed.append(kwargs["preflight"])
+                return None
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=_process_prover,
+                review_worker=_process_review,
+                max_parallel=1,
+                max_attempts=1,
+            )
+            runner.preflight_checker = failed_preflight
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_target_review_source_contract",
+                    side_effect=capture_contract,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_review_prompt",
+                    return_value="review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="prove",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertTrue(observed)
+            self.assertEqual(
+                observed[0]["numeric_reporting"],
+                {
+                    "active": False,
+                    "status": "error",
+                    "reason": "RuntimeError: preflight exploded",
+                },
+            )
+            self.assertEqual(
+                observed[0]["diagnostics"],
+                "RuntimeError: preflight exploded",
+            )
 
     def test_invalid_native_answer_sidecar_gets_one_bounded_repair(self):
         with tempfile.TemporaryDirectory() as td:

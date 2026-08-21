@@ -15,6 +15,7 @@ from archon.commands.loop.native_semantic_review import (
     build_independent_rederivation_example,
     build_native_semantic_review_contract,
 )
+from archon.commands.loop.review_preflight import check_review_target
 from archon.commands.loop.formalization_review_gate import (
     apply_target_formalization_review,
     load_gate_state,
@@ -152,6 +153,15 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "sorry_count": 0,
             "duration_secs": 0.01,
             "diagnostics": "",
+            "numeric_reporting": {
+                "active": True,
+                "status": "not_applicable",
+                "reason": "target has no numeric requested outputs",
+                "numeric_outputs": 0,
+                "lean_source_sha256": _sha256(self.lean_source.encode()),
+                "bundle_sha256": _sha256(_json_bytes(self.row)),
+                "certificates": [],
+            },
         }
         self._materialize_workspace()
 
@@ -217,6 +227,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 "size": len(bundle_payload),
             },
             "blind_bundle_sha256": _sha256(bundle_payload),
+            "target_ids": [self.row["id"]],
             "assets": {self.image_rel: _sha256(self.image_bytes)},
         }
         (self.project / "isolation_manifest.json").write_text(
@@ -268,6 +279,10 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         answer_path = answer_submission_path(self.project, self.row["id"])
         answer_path.parent.mkdir(parents=True, exist_ok=True)
         answer_path.write_text(json.dumps(answer), encoding="utf-8")
+        reporting = self.preflight["numeric_reporting"]
+        if "lean_source_sha256" in reporting:
+            reporting["lean_source_sha256"] = _sha256(self.target.read_bytes())
+            reporting["bundle_sha256"] = _sha256(bundle_payload)
 
     def _contract(self) -> dict:
         return resolve_target_review_source_contract(
@@ -509,6 +524,44 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "blind_candidate_record",
         ):
             self.assertNotIn(forbidden, contract)
+
+    def test_review_preflight_producer_flows_into_native_contract(self) -> None:
+        process = Mock()
+        process.returncode = 0
+        process.communicate.return_value = ("", "")
+        with patch(
+            "archon.commands.loop.review_preflight.subprocess.Popen",
+            return_value=process,
+        ):
+            preflight = check_review_target(
+                project_path=self.project,
+                target=self.target,
+                timeout_sec=30,
+            )
+
+        self.assertEqual(
+            set(preflight),
+            {
+                "file",
+                "status",
+                "compiles",
+                "returncode",
+                "sorry_count",
+                "duration_secs",
+                "diagnostics",
+                "numeric_reporting",
+            },
+        )
+        self.assertEqual(
+            preflight["numeric_reporting"]["status"],
+            "not_applicable",
+        )
+        contract = resolve_target_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+            preflight=preflight,
+        )
+        self.assertEqual(contract["preflight"], preflight)
 
     def test_initial_formalizer_contract_needs_no_answer_or_candidate(self) -> None:
         answer_submission_path(self.project, self.row["id"]).unlink()
@@ -1134,6 +1187,193 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 project_path=self.project,
                 target=self.target,
                 preflight=incomplete,
+            )
+
+        incomplete = dict(self.preflight)
+        incomplete.pop("numeric_reporting")
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "missing or ambiguous fields",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight=incomplete,
+            )
+
+        malformed = {
+            **self.preflight,
+            "numeric_reporting": {
+                "active": "yes",
+                "status": "passed",
+                "reason": "not trusted",
+            },
+        }
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "numeric_reporting status is invalid",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight=malformed,
+            )
+
+    def test_numeric_reporting_evidence_is_preserved_strict_and_bounded(
+        self,
+    ) -> None:
+        evidence = {
+            "active": True,
+            "status": "passed",
+            "reason": "trusted numeric reporting checks passed",
+            "numeric_outputs": 1,
+            "lean_source_sha256": self.preflight[
+                "numeric_reporting"
+            ]["lean_source_sha256"],
+            "bundle_sha256": self.preflight[
+                "numeric_reporting"
+            ]["bundle_sha256"],
+            "certificates": [{
+                "output_id": "value",
+                "reporting_policy_kind": "significant_figures",
+                "reporting_policy_digits": 3,
+                "reported_value": "7",
+                "reporting_quantum": "1/100",
+                "raw_declaration": "Example.rawValue",
+                "reporting_declaration": "Example.reportingProof",
+            }],
+            "lean_probe_passed": True,
+        }
+        contract = resolve_target_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+            preflight={**self.preflight, "numeric_reporting": evidence},
+        )
+        self.assertEqual(contract["preflight"]["numeric_reporting"], evidence)
+
+        bad_evidence = {**evidence, "unexpected": True}
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError,
+            "numeric_reporting fields are ambiguous",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight={
+                    **self.preflight,
+                    "numeric_reporting": bad_evidence,
+                },
+            )
+
+        oversized = {
+            **self.preflight["numeric_reporting"],
+            "reason": "x" * 4097,
+        }
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "numeric_reporting status is invalid",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight={**self.preflight, "numeric_reporting": oversized},
+            )
+
+        too_many = {
+            **self.preflight["numeric_reporting"],
+            "numeric_outputs": 257,
+        }
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError, "numeric_reporting evidence is invalid",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight={**self.preflight, "numeric_reporting": too_many},
+            )
+
+        long_certificate = {
+            **evidence,
+            "certificates": [{
+                **evidence["certificates"][0],
+                "raw_declaration": "x" * 4097,
+            }],
+        }
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError,
+            "numeric_reporting evidence is invalid",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight={
+                    **self.preflight,
+                    "numeric_reporting": long_certificate,
+                },
+            )
+
+    def test_compile_success_numeric_reporting_failure_is_unambiguous(
+        self,
+    ) -> None:
+        reporting_failure = {
+            "active": True,
+            "status": "failed",
+            "reason": "Lean rejected the reporting probe",
+            "numeric_outputs": 1,
+            "lean_source_sha256": self.preflight[
+                "numeric_reporting"
+            ]["lean_source_sha256"],
+            "bundle_sha256": self.preflight[
+                "numeric_reporting"
+            ]["bundle_sha256"],
+            "certificates": [{
+                "output_id": "value",
+                "reporting_policy_kind": "significant_figures",
+                "reporting_policy_digits": 3,
+                "reported_value": "7",
+                "reporting_quantum": "1/100",
+                "raw_declaration": "Example.rawValue",
+                "reporting_declaration": "Example.reportingProof",
+            }],
+            "lean_probe_passed": False,
+        }
+        failed = {
+            **self.preflight,
+            "status": "failed",
+            "compiles": True,
+            "returncode": 0,
+            "numeric_reporting": reporting_failure,
+        }
+        contract = resolve_target_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+            preflight=failed,
+        )
+        self.assertEqual(contract["preflight"], failed)
+
+        contradictory = {
+            **failed,
+            "numeric_reporting": {
+                **reporting_failure,
+                "active": False,
+            },
+        }
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError,
+            "numeric_reporting is contradictory",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight=contradictory,
+            )
+
+        timeout = {**failed, "status": "timeout"}
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError,
+            "deterministic Lean preflight status is contradictory",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight=timeout,
             )
 
     def test_config_symlink_is_rejected_but_legacy_supplied_contract_remains(self) -> None:
@@ -1889,6 +2129,10 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             return {
                 **self.preflight,
                 "sorry_count": source.count("sorry"),
+                "numeric_reporting": {
+                    **self.preflight["numeric_reporting"],
+                    "lean_source_sha256": _sha256(source.encode()),
+                },
             }
 
         def formalizer(*_args, **_kwargs):

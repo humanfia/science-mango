@@ -51,7 +51,8 @@ _CERTIFICATE_FIELDS = {
     "raw_declaration",
     "reporting_declaration",
 }
-_MAX_CERTIFICATE_LENGTH = 4096
+MAX_NUMERIC_REPORTING_REASON_LENGTH = 4096
+MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES = 4096
 _MAX_NUMBER_LENGTH = 256
 _MAX_COEFFICIENT_DIGITS = 192
 _MAX_EXPONENT_ABS = 1000
@@ -436,7 +437,7 @@ def _parse_certificates(source: str) -> tuple[dict[str, Any], ...]:
                 "numeric reporting certificate marker must occupy one Lean line"
             )
         payload = match.group("payload")
-        if len(payload) > _MAX_CERTIFICATE_LENGTH:
+        if len(payload) > MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES:
             raise NumericReportingGuardError(
                 "numeric reporting certificate is too large"
             )
@@ -579,6 +580,9 @@ def prepare_numeric_reporting_guard(
             status="not_applicable",
             reason="domain profile is not chemistry-native",
         )
+    lean_source_sha256 = ""
+    bundle_digest = ""
+    numeric_outputs = 0
     try:
         if source_bytes is None:
             source_bytes = target.read_bytes()
@@ -586,9 +590,11 @@ def prepare_numeric_reporting_guard(
             raise NumericReportingGuardError(
                 "numeric target source must be supplied as immutable bytes"
             )
+        lean_source_sha256 = _sha256(source_bytes)
         source = source_bytes.decode("utf-8")
         row, bundle_digest = _problem_row(project_path, target)
         policies = _numeric_output_policies(row)
+        numeric_outputs = len(policies)
         raw_certificates = _parse_certificates(source)
         if not policies:
             if raw_certificates:
@@ -599,7 +605,7 @@ def prepare_numeric_reporting_guard(
                 active=True,
                 status="not_applicable",
                 reason="target has no numeric requested outputs",
-                lean_source_sha256=_sha256(source_bytes),
+                lean_source_sha256=lean_source_sha256,
                 bundle_sha256=bundle_digest,
             )
         certificates = tuple(
@@ -637,8 +643,8 @@ def prepare_numeric_reporting_guard(
             active=True,
             status="ready",
             reason="static reporting certificate checks passed; Lean proof pending",
-            numeric_outputs=len(policies),
-            lean_source_sha256=_sha256(source_bytes),
+            numeric_outputs=numeric_outputs,
+            lean_source_sha256=lean_source_sha256,
             bundle_sha256=bundle_digest,
             certificates=ordered,
             probe_suffix=_probe_suffix(ordered),
@@ -647,7 +653,10 @@ def prepare_numeric_reporting_guard(
         return NumericReportingGuard(
             active=True,
             status="failed",
-            reason=str(exc),
+            reason=str(exc)[:MAX_NUMERIC_REPORTING_REASON_LENGTH],
+            numeric_outputs=numeric_outputs,
+            lean_source_sha256=lean_source_sha256,
+            bundle_sha256=bundle_digest,
         )
 
 

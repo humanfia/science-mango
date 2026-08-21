@@ -134,7 +134,7 @@ def _canonical_json_bytes(value: object) -> bytes:
     ).encode("utf-8")
 
 
-def _native_preflight(rel: str) -> dict:
+def _native_preflight(root: Path, rel: str) -> dict:
     return {
         "file": rel,
         "status": "passed",
@@ -143,6 +143,28 @@ def _native_preflight(rel: str) -> dict:
         "sorry_count": 1,
         "duration_secs": 0.01,
         "diagnostics": "",
+        "numeric_reporting": {
+            "active": True,
+            "status": "passed",
+            "reason": "trusted numeric reporting checks passed",
+            "numeric_outputs": 1,
+            "lean_source_sha256": hashlib.sha256(
+                (root / rel).read_bytes()
+            ).hexdigest(),
+            "bundle_sha256": hashlib.sha256(
+                (root / "icho_2026_source/questions_only.jsonl").read_bytes()
+            ).hexdigest(),
+            "certificates": [{
+                "output_id": "amount",
+                "reporting_policy_kind": "significant_figures",
+                "reporting_policy_digits": 3,
+                "reported_value": "1",
+                "reporting_quantum": "1/100",
+                "raw_declaration": "Example.rawAmount",
+                "reporting_declaration": "Example.reportingProof",
+            }],
+            "lean_probe_passed": True,
+        },
     }
 
 
@@ -399,7 +421,9 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_num=1,
                 target=target,
                 output_dir=output,
-                preflight=_native_preflight(target.relative_to(root).as_posix()),
+                preflight=_native_preflight(
+                    root, target.relative_to(root).as_posix(),
+                ),
                 prior_gate_record={"reason": "OLD_CANDIDATE_BIAS_SENTINEL"},
             )
 
@@ -518,7 +542,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                     iter_num=10,
                     objectives=[target],
                     preflight={
-                        "targets": [_native_preflight(rel)],
+                        "targets": [_native_preflight(root, rel)],
                     },
                     prior_gate_targets={},
                     requested_jobs=8,
@@ -605,7 +629,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=iter_dir,
                 iter_num=11,
                 objectives=[target],
-                preflight={"targets": [_native_preflight(rel)]},
+                preflight={"targets": [_native_preflight(root, rel)]},
                 prior_gate_targets={},
                 requested_jobs=4,
                 max_attempts=3,
@@ -666,7 +690,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=transport_iter,
                 iter_num=12,
                 objectives=[target],
-                preflight={"targets": [_native_preflight(rel)]},
+                preflight={"targets": [_native_preflight(root, rel)]},
                 prior_gate_targets={},
                 requested_jobs=4,
                 max_attempts=2,
@@ -747,7 +771,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=iter_dir,
                 iter_num=14,
                 objectives=[target],
-                preflight={"targets": [_native_preflight(rel)]},
+                preflight={"targets": [_native_preflight(root, rel)]},
                 prior_gate_targets={},
                 requested_jobs=4,
                 max_attempts=3,
@@ -888,7 +912,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_dir=iter_dir,
                 iter_num=15,
                 objectives=[target],
-                preflight={"targets": [_native_preflight(rel)]},
+                preflight={"targets": [_native_preflight(root, rel)]},
                 prior_gate_targets={},
                 requested_jobs=1,
                 max_attempts=3,
@@ -986,7 +1010,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                     iter_dir=iter_dir,
                     iter_num=12,
                     objectives=[target],
-                    preflight={"targets": [_native_preflight(rel)]},
+                    preflight={"targets": [_native_preflight(root, rel)]},
                     prior_gate_targets={},
                     requested_jobs=4,
                     max_attempts=2,
@@ -1087,7 +1111,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 iter_num=13,
                 objectives=targets,
                 preflight={"targets": [
-                    _native_preflight(rel) for rel in rels
+                    _native_preflight(root, rel) for rel in rels
                 ]},
                 prior_gate_targets={},
                 requested_jobs=2,

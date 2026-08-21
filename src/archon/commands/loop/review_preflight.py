@@ -15,6 +15,7 @@ from pathlib import Path
 
 from .deterministic_plan import fast_open_sorry_count
 from .numeric_reporting_guard import (
+    MAX_NUMERIC_REPORTING_REASON_LENGTH,
     finalized_guard_evidence,
     prepare_numeric_reporting_guard,
 )
@@ -212,7 +213,9 @@ def _check_target(
             else {
                 "active": True,
                 "status": "failed",
-                "reason": f"numeric target could not be read: {exc}",
+                "reason": (
+                    f"numeric target could not be read: {exc}"
+                )[:MAX_NUMERIC_REPORTING_REASON_LENGTH],
             }
         )
         if reporting.get("status") == "ready":
@@ -265,6 +268,9 @@ def run_parallel_review_preflight(
             try:
                 by_path[path] = future.result()
             except Exception as exc:
+                reason = (
+                    f"{type(exc).__name__}: {exc}"
+                )[:MAX_NUMERIC_REPORTING_REASON_LENGTH]
                 by_path[path] = ReviewPreflightCheck(
                     _relative(path, project_path),
                     "error",
@@ -272,11 +278,11 @@ def run_parallel_review_preflight(
                     None,
                     fast_open_sorry_count(path),
                     0.0,
-                    str(exc),
+                    reason,
                     {
                         "active": False,
                         "status": "error",
-                        "reason": str(exc),
+                        "reason": reason,
                     },
                 )
     checks = [by_path[path] for path in ordered]

@@ -78,6 +78,7 @@ from ..proof_review_gate import (
     proof_review_decision,
     reset_proof_review_targets_after_redraft,
 )
+from ..numeric_reporting_guard import MAX_NUMERIC_REPORTING_REASON_LENGTH
 from ..review_preflight import check_review_target
 from ..review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
@@ -1600,6 +1601,9 @@ class ParallelProverRunner:
                     timeout_sec=config.preflight_timeout_sec,
                 )
             except Exception as exc:
+                reason = (
+                    f"{type(exc).__name__}: {exc}"
+                )[:MAX_NUMERIC_REPORTING_REASON_LENGTH]
                 return {
                     "file": rel,
                     "status": "error",
@@ -1607,7 +1611,12 @@ class ParallelProverRunner:
                     "returncode": None,
                     "sorry_count": None,
                     "duration_secs": 0.0,
-                    "diagnostics": f"{type(exc).__name__}: {exc}",
+                    "diagnostics": reason,
+                    "numeric_reporting": {
+                        "active": False,
+                        "status": "error",
+                        "reason": reason,
+                    },
                 }
 
         if resumed_terminal_proofs:

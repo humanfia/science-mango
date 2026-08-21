@@ -26,6 +26,10 @@ from .answer_submission import (
     answer_submission_relative_path,
     validate_answer_submission,
 )
+from .numeric_reporting_guard import (
+    MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES,
+    MAX_NUMERIC_REPORTING_REASON_LENGTH,
+)
 from .review_source_contract import (
     build_review_source_contract,
     is_answer_blind_contract,
@@ -120,6 +124,7 @@ _SEED_PROTOCOL = "icho-problem-only-solver-seed-v1"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _COMPOSITION_ID_RE = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 _MAX_ANSWER_SUBMISSION_BYTES = 1024 * 1024
+_MAX_NUMERIC_REPORTING_CERTIFICATES = 256
 _PREFLIGHT_FIELDS = {
     "file",
     "status",
@@ -128,8 +133,22 @@ _PREFLIGHT_FIELDS = {
     "sorry_count",
     "duration_secs",
     "diagnostics",
+    "numeric_reporting",
 }
 _PREFLIGHT_STATUSES = {"passed", "failed", "timeout", "error", "missing"}
+_NUMERIC_REPORTING_CORE_FIELDS = {"active", "status", "reason"}
+_NUMERIC_REPORTING_EVIDENCE_FIELDS = _NUMERIC_REPORTING_CORE_FIELDS | {
+    "numeric_outputs",
+    "lean_source_sha256",
+    "bundle_sha256",
+    "certificates",
+}
+_NUMERIC_REPORTING_FINAL_FIELDS = _NUMERIC_REPORTING_EVIDENCE_FIELDS | {
+    "lean_probe_passed",
+}
+_NUMERIC_REPORTING_STATUSES = {
+    "passed", "failed", "blocked", "not_applicable", "error",
+}
 _GENERATED_ENTRY_FIELDS = {
     "blind_record_sha256",
     "image_path",
@@ -372,7 +391,158 @@ def _explicit_answer_blind_mode(project_path: Path) -> str | None:
     return "native" if profile_name == "chemistry-native" else "strict"
 
 
-def _validate_preflight(preflight: Mapping[str, Any], rel: str) -> dict[str, Any]:
+def _validate_numeric_reporting(
+    value: Any,
+    *,
+    expected_lean_sha256: str | None,
+    expected_bundle_sha256: str | None,
+) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight numeric_reporting is missing"
+        )
+    fields = set(value)
+    if fields not in (
+        _NUMERIC_REPORTING_CORE_FIELDS,
+        _NUMERIC_REPORTING_EVIDENCE_FIELDS,
+        _NUMERIC_REPORTING_FINAL_FIELDS,
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight numeric_reporting fields are ambiguous"
+        )
+    result = dict(value)
+    active = result.get("active")
+    status = result.get("status")
+    reason = result.get("reason")
+    if (
+        not isinstance(active, bool)
+        or status not in _NUMERIC_REPORTING_STATUSES
+        or not isinstance(reason, str)
+        or not reason.strip()
+        or len(reason) > MAX_NUMERIC_REPORTING_REASON_LENGTH
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight numeric_reporting status is invalid"
+        )
+    if fields == _NUMERIC_REPORTING_CORE_FIELDS:
+        if (
+            (active is False and status in {"error", "not_applicable"})
+            or (active is True and status == "failed")
+        ):
+            return result
+        raise ProblemOnlyReviewContractError(
+            "compact numeric_reporting evidence is contradictory"
+        )
+
+    count = result.get("numeric_outputs")
+    certificates = result.get("certificates")
+    lean_sha = result.get("lean_source_sha256")
+    bundle_sha = result.get("bundle_sha256")
+    try:
+        certificate_payloads = [
+            _canonical_json_bytes(dict(item))
+            for item in certificates
+            if isinstance(item, Mapping)
+        ] if isinstance(certificates, list) else []
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight numeric_reporting certificate is invalid"
+        ) from exc
+    for index, payload in enumerate(certificate_payloads, start=1):
+        _strict_json_bytes(
+            payload, label=f"numeric_reporting certificate {index}",
+        )
+    if (
+        isinstance(count, bool)
+        or not isinstance(count, int)
+        or not 0 <= count <= _MAX_NUMERIC_REPORTING_CERTIFICATES
+        or not isinstance(certificates, list)
+        or len(certificates) > count
+        or len(certificate_payloads) != len(certificates)
+        or any(
+            len(payload) > MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES
+            for payload in certificate_payloads
+        )
+        or not isinstance(lean_sha, str)
+        or bool(lean_sha) != bool(_SHA256_RE.fullmatch(lean_sha))
+        or not isinstance(bundle_sha, str)
+        or bool(bundle_sha) != bool(_SHA256_RE.fullmatch(bundle_sha))
+        or (
+            lean_sha
+            and expected_lean_sha256 is not None
+            and lean_sha != expected_lean_sha256
+        )
+        or (
+            bundle_sha
+            and expected_bundle_sha256 is not None
+            and bundle_sha != expected_bundle_sha256
+        )
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight numeric_reporting evidence is invalid"
+        )
+    probe_present = "lean_probe_passed" in result
+    probe = result.get("lean_probe_passed")
+    bound = bool(lean_sha and bundle_sha)
+    complete = count > 0 and len(certificates) == count
+    valid = (
+        (
+            active is False
+            and status == "not_applicable"
+            and count == 0
+            and not certificates
+            and not probe_present
+            and not lean_sha
+            and not bundle_sha
+        )
+        or (
+            active is True
+            and status == "not_applicable"
+            and count == 0
+            and not certificates
+            and not probe_present
+            and bound
+        )
+        or (
+            active is True
+            and status == "passed"
+            and complete
+            and probe_present
+            and probe is True
+            and bound
+        )
+        or (
+            active is True
+            and status == "blocked"
+            and complete
+            and probe_present
+            and probe is None
+            and bound
+        )
+        or (
+            active is True
+            and status == "failed"
+            and bound
+            and (
+                not probe_present
+                or (complete and probe is False)
+            )
+        )
+    )
+    if not valid:
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight numeric_reporting is contradictory"
+        )
+    return result
+
+
+def _validate_preflight(
+    preflight: Mapping[str, Any],
+    rel: str,
+    *,
+    expected_lean_sha256: str | None = None,
+    expected_bundle_sha256: str | None = None,
+) -> dict[str, Any]:
     if not isinstance(preflight, Mapping):
         raise ProblemOnlyReviewContractError(
             "deterministic Lean preflight is missing"
@@ -395,19 +565,26 @@ def _validate_preflight(preflight: Mapping[str, Any], rel: str) -> dict[str, Any
         raise ProblemOnlyReviewContractError(
             "deterministic Lean preflight status is invalid"
         )
-    if status == "passed" and (compiles is not True or returncode != 0):
-        raise ProblemOnlyReviewContractError(
-            "passing deterministic Lean preflight is contradictory"
-        )
-    if status != "passed" and compiles is not False:
-        raise ProblemOnlyReviewContractError(
-            "failing deterministic Lean preflight is contradictory"
-        )
     if returncode is not None and (
         isinstance(returncode, bool) or not isinstance(returncode, int)
     ):
         raise ProblemOnlyReviewContractError(
             "deterministic Lean preflight returncode is invalid"
+        )
+    if compiles is not (returncode == 0):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight compile result is contradictory"
+        )
+    if (
+        (status == "passed" and compiles is not True)
+        or (status == "failed" and returncode is None)
+        or (
+            status in {"timeout", "error", "missing"}
+            and returncode is not None
+        )
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight status is contradictory"
         )
     if sorry_count is not None and (
         isinstance(sorry_count, bool)
@@ -426,6 +603,31 @@ def _validate_preflight(preflight: Mapping[str, Any], rel: str) -> dict[str, Any
     ):
         raise ProblemOnlyReviewContractError(
             "deterministic Lean preflight diagnostics are invalid"
+        )
+    result["numeric_reporting"] = _validate_numeric_reporting(
+        result.get("numeric_reporting"),
+        expected_lean_sha256=expected_lean_sha256,
+        expected_bundle_sha256=expected_bundle_sha256,
+    )
+    reporting = result["numeric_reporting"]
+    if status == "passed" and (
+        reporting["active"] is not True
+        or reporting["status"] not in {"passed", "not_applicable"}
+    ):
+        raise ProblemOnlyReviewContractError(
+            "passing deterministic Lean preflight has invalid numeric_reporting"
+        )
+    if reporting["status"] == "passed" and status != "passed":
+        raise ProblemOnlyReviewContractError(
+            "passing numeric_reporting contradicts failed Lean preflight"
+        )
+    if status != "passed" and compiles is True and (
+        status != "failed"
+        or reporting["active"] is not True
+        or reporting["status"] != "failed"
+    ):
+        raise ProblemOnlyReviewContractError(
+            "numeric-reporting failure preflight is contradictory"
         )
     return result
 
@@ -796,10 +998,20 @@ def _build_native_contract(
             "native Lean candidate name does not identify a problem record"
         )
     record_id = target_path.stem.removeprefix("problem_")
-    preflight_row = (
-        _validate_preflight(preflight, rel) if preflight is not None else None
+    candidate_sha256 = (
+        _sha256_bytes(target_path.read_bytes()) if require_candidate else None
     )
     bundle_path, bundle_payload, manifest, rows = _load_bundle(project_path)
+    bundle_sha256 = _sha256_bytes(bundle_payload)
+    preflight_row = (
+        _validate_preflight(
+            preflight,
+            rel,
+            expected_lean_sha256=candidate_sha256,
+            expected_bundle_sha256=bundle_sha256,
+        )
+        if preflight is not None else None
+    )
     row = rows.get(record_id)
     if row is None:
         raise ProblemOnlyReviewContractError(
@@ -868,7 +1080,7 @@ def _build_native_contract(
         "authority": "problem-only",
         "target": rel,
         "source_bundle": bundle_path.relative_to(project_path).as_posix(),
-        "source_bundle_sha256": _sha256_bytes(bundle_payload),
+        "source_bundle_sha256": bundle_sha256,
         "source_record_id": record_id,
         "source_record_sha256": record_sha256,
         **submission_binding,
@@ -879,10 +1091,7 @@ def _build_native_contract(
         "source_report": report_path.relative_to(project_path).as_posix(),
         "source_report_sha256": _sha256_bytes(report_payload),
         "candidate": rel,
-        "candidate_sha256": (
-            _sha256_bytes(target_path.read_bytes())
-            if require_candidate else None
-        ),
+        "candidate_sha256": candidate_sha256,
         "preflight_sha256": (
             _value_sha256(preflight_row) if preflight_row is not None else None
         ),
@@ -2094,7 +2303,12 @@ def validate_native_passing_preflight(
         return ""
     candidate = str(contract.get("candidate") or "")
     try:
-        row = _validate_preflight(raw, candidate)
+        row = _validate_preflight(
+            raw,
+            candidate,
+            expected_lean_sha256=contract.get("candidate_sha256"),
+            expected_bundle_sha256=contract.get("source_bundle_sha256"),
+        )
     except ProblemOnlyReviewContractError as exc:
         return str(exc)
     if (
@@ -2186,6 +2400,8 @@ def validate_review_source_contract_current(
         target = _safe_project_file(
             project_path, candidate, label="Lean candidate",
         )
+        if _sha256_bytes(target.read_bytes()) != contract.get("candidate_sha256"):
+            return "native problem-only Review inputs changed after contract creation"
         fresh = _build_native_contract(
             project_path=project_path,
             target=target,
@@ -2251,6 +2467,10 @@ def validate_native_pipelined_preflight(
     try:
         if not native_problem_only_enabled(project_path):
             return ""
+        _bundle_path, bundle_payload, _manifest, _rows = _load_bundle(
+            project_path
+        )
+        bundle_sha256 = _sha256_bytes(bundle_payload)
     except ProblemOnlyReviewContractError as exc:
         return str(exc)
     if not isinstance(preflight, Mapping):
@@ -2284,7 +2504,15 @@ def validate_native_pipelined_preflight(
         if not rel or rel in rows:
             return "native pipelined Review preflight has duplicate/missing target"
         try:
-            rows[rel] = _validate_preflight(raw, rel)
+            target = _safe_project_file(
+                project_path, rel, label="Lean candidate",
+            )
+            rows[rel] = _validate_preflight(
+                raw,
+                rel,
+                expected_lean_sha256=_sha256_bytes(target.read_bytes()),
+                expected_bundle_sha256=bundle_sha256,
+            )
         except ProblemOnlyReviewContractError as exc:
             return str(exc)
     expected = sorted(set(expected_rels))
@@ -2294,7 +2522,7 @@ def validate_native_pipelined_preflight(
             f"expected={expected!r}, actual={sorted(rows)!r}"
         )
     summary = preflight.get("summary")
-    passed = sum(row["compiles"] is True for row in rows.values())
+    passed = sum(row["status"] == "passed" for row in rows.values())
     expected_summary = {
         "total": len(rows),
         "passed": passed,
