@@ -284,6 +284,44 @@ class IchoAnswerBlindBundleTests(unittest.TestCase):
                 ["image_component_accounting"],
             )
 
+    def test_t5_a4_controller_bundle_binds_dependency_fragment_page(self):
+        repo = Path(__file__).resolve().parents[1]
+        source = repo / "icho_2026_source"
+        inventory = (
+            repo
+            / "icho_2026_run"
+            / "references"
+            / "icho_2026_theory_ready.jsonl"
+        )
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            blind_output = root / "blind.jsonl"
+            MODULE.build_bundles(
+                input_jsonl=inventory,
+                blind_output=blind_output,
+                grader_output=root / "grader.jsonl",
+                image_root=source / "image",
+                problem_pdf=source / "raw" / "theory_problem.pdf",
+                solution_pdf=source / "raw" / "theory_solution.pdf",
+                expected_count=1,
+                target_ids=["icho_2026_t5_a4"],
+            )
+
+            blind = json.loads(blind_output.read_text(encoding="utf-8"))
+            self.assertEqual(
+                blind["images"],
+                ["T5_page-3.png", "T5_page-2.png", "T5_page-1.png"],
+            )
+            self.assertEqual(
+                [
+                    asset["path"]
+                    for asset in blind["problem_assets"]
+                    if asset["kind"] == "problem_page"
+                ],
+                blind["images"],
+            )
+            MODULE._assert_solver_safe(blind)
+
     def test_requested_output_inventory_matches_real_theory_inventory(self):
         inventory = (
             Path(__file__).resolve().parents[1]

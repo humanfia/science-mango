@@ -762,6 +762,66 @@ def image_names_for(spec: dict[str, Any], part: dict[str, Any]) -> list[str]:
     return list(dict.fromkeys(names))
 
 
+def close_dependency_source_images(parts: list[dict[str, Any]]) -> None:
+    """Add the source pages needed to reconstruct every prior-part dependency.
+
+    A target already carries its current page and the immediately preceding
+    setup page.  A dependency contributes its own current page plus any
+    explicitly curated non-adjacent problem pages.  The contribution is
+    transitive, deterministic, and keeps the target's primary
+    page first.  This is intentionally metadata-driven: it neither scans the
+    PDF nor guesses pages from problem prose.
+    """
+
+    by_part: dict[str, dict[str, Any]] = {}
+    for part in parts:
+        part_id = str(part.get("source_part_id") or "")
+        if not part_id or part_id in by_part:
+            raise ValueError(f"Invalid or duplicate source_part_id: {part_id!r}")
+        by_part[part_id] = part
+
+    spec_by_paper = {str(spec["paper"]): spec for spec in PAPERS}
+    visiting: set[str] = set()
+    cache: dict[str, tuple[str, ...]] = {}
+
+    def dependency_evidence(part_id: str) -> tuple[str, ...]:
+        cached = cache.get(part_id)
+        if cached is not None:
+            return cached
+        if part_id in visiting:
+            raise ValueError(f"Cyclic source dependency at {part_id}")
+        part = by_part.get(part_id)
+        if part is None:
+            raise ValueError(f"Missing source dependency: {part_id}")
+        paper = str(part.get("paper") or "")
+        spec = spec_by_paper.get(paper)
+        if spec is None:
+            raise ValueError(f"Unknown paper for {part_id}: {paper!r}")
+
+        question_start, _question_end = spec["question_pages"]
+        local_page = int(part["source_page"]) - int(question_start) + 1
+        names = [f"{paper}_page-{local_page}.png"]
+        names.extend(
+            f"{paper}_page-{extra_page}.png"
+            for extra_page in EXTRA_QUESTION_LOCAL_PAGES.get(part_id, ())
+        )
+        visiting.add(part_id)
+        for dependency_id in part.get("dependencies", ()):
+            if dependency_id not in by_part:
+                raise ValueError(f"{part_id} references missing {dependency_id}")
+            names.extend(dependency_evidence(str(dependency_id)))
+        visiting.remove(part_id)
+        result = tuple(dict.fromkeys(names))
+        cache[part_id] = result
+        return result
+
+    for part in parts:
+        images = list(part["images"])
+        for dependency_id in part.get("dependencies", ()):
+            images.extend(dependency_evidence(str(dependency_id)))
+        part["images"] = list(dict.fromkeys(images))
+
+
 def build_parts() -> list[dict[str, Any]]:
     theory_problem_pages = read_pages(TEXT / "theory_problem.txt")
     theory_solution_pages = read_pages(TEXT / "theory_solution.txt")
@@ -805,6 +865,7 @@ def build_parts() -> list[dict[str, Any]]:
 
     if len(parts) != 95:
         raise ValueError(f"Expected 95 IChO subquestions, found {len(parts)}")
+    close_dependency_source_images(parts)
     return parts
 
 
