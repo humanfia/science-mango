@@ -143,6 +143,7 @@ def _check_target(
                 original = invoke(Path(rel))
                 if original.returncode == 0:
                     lean_probe_passed = False
+                    result = original
                 else:
                     result = original
         else:

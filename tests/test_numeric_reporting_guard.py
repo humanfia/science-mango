@@ -7,7 +7,7 @@ import unittest
 from fractions import Fraction
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from archon.commands.loop.numeric_reporting_guard import (
     NumericReportingGuardError,
@@ -263,17 +263,21 @@ class NumericReportingGuardTest(unittest.TestCase):
         self._write_problem()
         calls: list[str] = []
 
-        def fake_run(command, **kwargs):
+        def fake_popen(command, **kwargs):
             probe = Path(command[-1])
             text = probe.read_text(encoding="utf-8")
             calls.append(text)
             self.assertIn("archon:numeric-reporting-certificate", text)
             self.assertIn("_root_.Example.reportingProof", text)
-            return SimpleNamespace(returncode=0, stdout="", stderr="")
+            return SimpleNamespace(
+                pid=1234,
+                returncode=0,
+                communicate=Mock(return_value=("", "")),
+            )
 
         with patch(
-            "archon.commands.loop.review_preflight.subprocess.run",
-            side_effect=fake_run,
+            "archon.commands.loop.review_preflight.subprocess.Popen",
+            side_effect=fake_popen,
         ):
             result = check_review_target(
                 project_path=self.project, target=self.target,
@@ -282,6 +286,42 @@ class NumericReportingGuardTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertTrue(result["compiles"])
         self.assertEqual(result["numeric_reporting"]["status"], "passed")
+
+    def test_failed_probe_with_compiling_original_keeps_compile_success(self):
+        self._write_problem()
+        calls: list[list[str]] = []
+
+        def fake_popen(command, **kwargs):
+            calls.append(command)
+            probe_failed = Path(command[-1]).is_absolute()
+            return SimpleNamespace(
+                pid=1234,
+                returncode=1 if probe_failed else 0,
+                communicate=Mock(return_value=(
+                    "probe rejected" if probe_failed else "original compiled",
+                    "",
+                )),
+            )
+
+        with patch(
+            "archon.commands.loop.review_preflight.subprocess.Popen",
+            side_effect=fake_popen,
+        ):
+            result = check_review_target(
+                project_path=self.project, target=self.target,
+            )
+
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(
+            calls[1][-1],
+            "IChO2026Problems/problem_synthetic_case.lean",
+        )
+        self.assertEqual(result["status"], "failed")
+        self.assertTrue(result["compiles"])
+        self.assertEqual(result["returncode"], 0)
+        self.assertEqual(result["diagnostics"], "original compiled")
+        self.assertEqual(result["numeric_reporting"]["status"], "failed")
+        self.assertFalse(result["numeric_reporting"]["lean_probe_passed"])
 
     def test_failed_guard_becomes_formalization_and_proof_blocker(self):
         preflight = {
