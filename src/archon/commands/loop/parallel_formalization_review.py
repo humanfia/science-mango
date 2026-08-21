@@ -303,6 +303,14 @@ structures/stereochemistry, identification uniqueness, raw arithmetic, and
 mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
 reach a candidate, or a finite candidate domain not derived from the problem.
+For every mass fraction, weight fraction, wt%, or mass loading, independently
+state the numerator and denominator and identify whether each printed mass is
+the total mixture mass or a component-only mass. Unless the problem explicitly
+defines another basis, use component mass divided by total mixture mass and
+solve that mass-balance equation before substitution. Multiplying a base-only
+mass by the fraction is valid only when the problem explicitly defines the
+fraction relative to that base mass; do not inherit this ratio from the
+candidate formula.
 
 {composition_block}
 

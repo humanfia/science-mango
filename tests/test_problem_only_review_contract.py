@@ -618,6 +618,19 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         )
         self.assertIn('"route": "retry_proof"', proof_prompt)
         self.assertIn('"decision": "failed"', formal_prompt)
+        self.assertIn(
+            "independently\nstate the numerator and denominator",
+            formal_prompt,
+        )
+        self.assertIn(
+            "component mass divided by total mixture mass",
+            formal_prompt,
+        )
+        self.assertIn(
+            "valid only when the problem explicitly defines the\n"
+            "fraction relative to that base mass",
+            formal_prompt,
+        )
         self.assertNotIn("proof-event-1", proof_prompt)
         self.assertNotIn("formalization-event-1", formal_prompt)
 
