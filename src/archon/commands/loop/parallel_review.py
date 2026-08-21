@@ -21,6 +21,7 @@ from .proof_review_gate import (
 )
 from .problem_only_review_contract import (
     ProblemOnlyReviewContractError,
+    materialize_controller_review_provenance,
     is_native_problem_only_contract,
     native_problem_only_enabled,
     native_problem_image_args,
@@ -37,7 +38,11 @@ from .review_source_contract import (
     SOURCE_INCONSISTENCY_KIND,
     is_answer_blind_contract,
 )
-from .review_feedback import safe_preflight_summary, sanitized_review_history
+from .review_feedback import (
+    render_validation_retry_feedback,
+    safe_preflight_summary,
+    sanitized_review_history,
+)
 from .shared_infrastructure import load_shared_infrastructure_policy
 
 PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
@@ -65,6 +70,7 @@ class TargetReviewOutcome:
     runner_ok: bool
     milestone: dict | None
     error: str = ""
+    validation_error: str = ""
 
 
 @dataclass(frozen=True)
@@ -214,6 +220,7 @@ def _build_native_target_review_prompt(
     preflight: dict,
     source_contract: dict,
     prior_review_history: dict,
+    retry_validation_error: str,
 ) -> str:
     milestone = output_dir / "milestones.jsonl"
     summary = output_dir / "summary.md"
@@ -223,6 +230,9 @@ def _build_native_target_review_prompt(
     )
     source_provenance = native_source_contract_provenance(source_contract)
     preflight_summary = safe_preflight_summary(preflight)
+    retry_feedback = render_validation_retry_feedback(
+        retry_validation_error
+    )
     return f"""You are one target-scoped proof Review worker for Archon iteration {iter_num}.
 
 Assigned target (the only target you may review):
@@ -245,6 +255,8 @@ checklist after independently auditing the current candidate. It contains no
 free-form Review rationale, expected result, source-derived value, or raw
 diagnostic, and must never be treated as a problem fact:
 {json.dumps(prior_review_history, ensure_ascii=False)}
+
+{retry_feedback}
 
 Audit the current Lean candidate only against the bound problem evidence and
 images. Treat the candidate as untrusted generated output. Re-derive every
@@ -378,6 +390,7 @@ def build_target_review_prompt(
     preflight: dict,
     prior_gate_record: dict | None,
     source_contract: dict | None = None,
+    retry_validation_error: str = "",
 ) -> str:
     rel = target.resolve().relative_to(project_path.resolve()).as_posix()
     prior_review_history = sanitized_review_history(
@@ -399,6 +412,7 @@ def build_target_review_prompt(
             preflight=preflight,
             source_contract=source_contract,
             prior_review_history=prior_review_history,
+            retry_validation_error=retry_validation_error,
         )
     slug = "_".join(Path(rel).with_suffix("").parts)
     chapter = project_path / "blueprint" / "src" / "chapters" / f"{slug}.tex"
@@ -426,6 +440,9 @@ def build_target_review_prompt(
     summary = output_dir / "summary.md"
     profile = load_domain_profile(project_path)
     source_block = render_native_source_contract_prompt(source_contract)
+    retry_feedback = render_validation_retry_feedback(
+        retry_validation_error
+    )
     source_provenance = native_source_contract_provenance(source_contract)
     answer_blind = is_answer_blind_contract(source_contract)
     if answer_blind:
@@ -541,6 +558,8 @@ Read these bounded sources completely:
   {json.dumps(result_evidence, ensure_ascii=False)}
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
 - Controller-sanitized prior proof Review history: {json.dumps(prior_review_history, ensure_ascii=False)}
+
+{retry_feedback}
 
 {source_block}
 
@@ -699,8 +718,21 @@ def _run_review_worker(
             milestone=None,
             error=error,
         )
+    milestone_path = output_dir / "milestones.jsonl"
+    if runner_ok and not error:
+        binding_error = materialize_controller_review_provenance(
+            path=milestone_path,
+            expected_rel=spec.rel,
+            expected_contract=spec.source_contract,
+            review_field="proof_review",
+        )
+        if binding_error:
+            return TargetReviewOutcome(
+                rel=spec.rel, attempt=spec.attempt, runner_ok=runner_ok,
+                milestone=None, error=binding_error,
+            )
     milestone, validation_error = load_target_milestone(
-        output_dir / "milestones.jsonl",
+        milestone_path,
         spec.rel,
         spec.source_contract,
         final_attempt=(spec.final_attempt and runner_ok and not error),
@@ -713,6 +745,7 @@ def _run_review_worker(
         runner_ok=runner_ok,
         milestone=milestone,
         error=error,
+        validation_error=validation_error,
     )
 
 
@@ -1026,6 +1059,7 @@ def run_parallel_target_reviews(
     }
     pending = {rel: path for rel, path in targets}
     outcomes: dict[str, TargetReviewOutcome] = {}
+    validation_feedback: dict[str, str] = {}
     rounds: list[dict] = []
     jobs = max(1, min(int(requested_jobs), len(pending) or 1))
     max_attempts = max(1, int(max_attempts))
@@ -1055,6 +1089,9 @@ def run_parallel_target_reviews(
                     preflight=preflight_rows.get(rel, {}),
                     prior_gate_record=prior_gate_targets.get(rel),
                     source_contract=source_contract,
+                    retry_validation_error=validation_feedback.get(
+                        rel, ""
+                    ),
                 )
             except ProblemOnlyReviewContractError:
                 failed[rel] = target
@@ -1092,8 +1129,13 @@ def run_parallel_target_reviews(
                     )
                 if outcome.milestone is None:
                     failed[spec.rel] = target
+                    if outcome.validation_error:
+                        validation_feedback[spec.rel] = (
+                            outcome.validation_error
+                        )
                 else:
                     outcomes[spec.rel] = outcome
+                    validation_feedback.pop(spec.rel, None)
         rounds.append({
             "attempt": attempt,
             "jobs": round_jobs,

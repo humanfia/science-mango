@@ -218,10 +218,25 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 objectives.append(target)
 
             calls: dict[str, int] = {}
+            prompts: dict[tuple[str, int], str] = {}
+            validation_error = (
+                "source_contract does not match native problem-only evidence: "
+                "source_record_sha256 actual length 60, expected 64"
+            )
 
             def fake_worker(spec, **_kwargs):
                 calls[spec.rel] = calls.get(spec.rel, 0) + 1
-                if spec.rel in {"B.lean", "D.lean"} and spec.attempt == 1:
+                prompts[(spec.rel, spec.attempt)] = spec.prompt
+                if spec.rel == "B.lean" and spec.attempt == 1:
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error=validation_error,
+                        validation_error=validation_error,
+                    )
+                if spec.rel == "D.lean" and spec.attempt == 1:
                     return TargetReviewOutcome(
                         rel=spec.rel,
                         attempt=spec.attempt,
@@ -272,6 +287,13 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "C.lean": 1,
                 "D.lean": 2,
             })
+            self.assertNotIn(validation_error, prompts[("B.lean", 1)])
+            self.assertIn(validation_error, prompts[("B.lean", 2)])
+            self.assertIn(
+                "CONTROLLER SEALED-VALIDATOR RETRY FEEDBACK",
+                prompts[("B.lean", 2)],
+            )
+            self.assertNotIn(validation_error, prompts[("D.lean", 2)])
             session = state / "proof-journal" / "sessions" / "session_2"
             rows = [
                 json.loads(line)

@@ -694,6 +694,11 @@ class PipelinedReviewTest(unittest.TestCase):
             target = root / "A.lean"
             target.write_text("theorem a : True := by sorry\n", encoding="utf-8")
             review_attempts: list[int] = []
+            review_prompts: list[str] = []
+            validation_error = (
+                "requested output 1 assembly_expression omits a product "
+                'node id; missing=["terminal_fragment"]'
+            )
             prover_calls = 0
 
             def fake_prover(*_args, **_kwargs):
@@ -703,13 +708,15 @@ class PipelinedReviewTest(unittest.TestCase):
 
             def fake_review(spec, **_kwargs):
                 review_attempts.append(spec.attempt)
+                review_prompts.append(spec.prompt)
                 if spec.attempt == 1:
                     return TargetReviewOutcome(
                         rel=spec.rel,
                         attempt=spec.attempt,
-                        runner_ok=False,
+                        runner_ok=True,
                         milestone=None,
-                        error="transient 429",
+                        error=validation_error,
+                        validation_error=validation_error,
                     )
                 return TargetReviewOutcome(
                     rel=spec.rel,
@@ -746,6 +753,12 @@ class PipelinedReviewTest(unittest.TestCase):
 
             self.assertEqual(prover_calls, 1)
             self.assertEqual(review_attempts, [1, 2])
+            self.assertNotIn(validation_error, review_prompts[0])
+            self.assertIn(json.dumps(validation_error), review_prompts[1])
+            self.assertIn(
+                "CONTROLLER SEALED-VALIDATOR RETRY FEEDBACK",
+                review_prompts[1],
+            )
             report = json.loads(
                 (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
             )
@@ -947,7 +960,7 @@ class PipelinedReviewTest(unittest.TestCase):
             self.assertFalse(failure["task_result_updated"])
             self.assertIn("did not update its task result", failure["error"])
 
-    def test_full_pipeline_review_harness_failure_is_incomplete(self):
+    def test_full_pipeline_formalization_retry_receives_validator_error(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             state = root / ".archon"
@@ -960,15 +973,22 @@ class PipelinedReviewTest(unittest.TestCase):
                 "theorem a : True := by sorry\n", encoding="utf-8",
             )
             review_attempts: list[int] = []
+            review_prompts: list[str] = []
+            validation_error = (
+                "source_contract does not match native problem-only evidence: "
+                "source_record_sha256 actual length 60, expected 64"
+            )
 
             def failing_formalization_review(spec, **_kwargs):
                 review_attempts.append(spec.attempt)
+                review_prompts.append(spec.prompt)
                 return TargetReviewOutcome(
                     rel=spec.rel,
                     attempt=spec.attempt,
-                    runner_ok=False,
+                    runner_ok=True,
                     milestone=None,
-                    error="review harness exited before milestone",
+                    error=validation_error,
+                    validation_error=validation_error,
                 )
 
             runner = self._runner(
@@ -1014,11 +1034,17 @@ class PipelinedReviewTest(unittest.TestCase):
             )
             self.assertEqual(report["unresolved"], ["A.lean"])
             self.assertIn(
-                "exited before milestone",
+                validation_error,
                 report["errors"]["A.lean"],
             )
             self.assertFalse(report["gate_events_applied"])
             self.assertEqual(review_attempts, [1, 2, 3])
+            self.assertNotIn(validation_error, review_prompts[0])
+            for prompt in review_prompts[1:]:
+                self.assertIn(validation_error, prompt)
+                self.assertIn(
+                    "CONTROLLER SEALED-VALIDATOR RETRY FEEDBACK", prompt,
+                )
             session = (
                 state / "proof-journal" / "sessions" / "session_1"
                 / "milestones.jsonl"

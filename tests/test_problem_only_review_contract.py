@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import stat
 import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
@@ -42,6 +43,7 @@ from archon.commands.loop.problem_only_review_contract import (
     NATIVE_CONTRACT_KIND,
     ProblemOnlyReviewContractError,
     _validate_native_composition_accounting,
+    materialize_controller_review_provenance,
     native_problem_image_args,
     native_source_contract_provenance,
     render_native_composition_accounting_prompt,
@@ -678,6 +680,18 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 audit, contract, passing=True,
             ),
         )
+        truncated_audit = json.loads(json.dumps(self._source_audit(contract)))
+        source_sha = truncated_audit["source_contract"][
+            "source_record_sha256"
+        ]
+        truncated_audit["source_contract"]["source_record_sha256"] = (
+            source_sha[:-4]
+        )
+        truncated_error = validate_native_review_source_certificate(
+            truncated_audit, contract, passing=True,
+        )
+        self.assertIn("source_record_sha256", truncated_error)
+        self.assertIn("length 60, expected 64", truncated_error)
         semantic_audit = json.loads(json.dumps(self._source_audit(contract)))
         semantic_audit["source_contract"]["semantic_dag"]["sha256"] = (
             "f" * 64
@@ -688,6 +702,122 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 semantic_audit, contract, passing=True,
             ),
         )
+
+    def test_controller_materializes_only_provenance_and_preserves_metadata(
+        self,
+    ) -> None:
+        contract = self._contract()
+        expected = native_source_contract_provenance(contract)
+        cases = (
+            (
+                "proof",
+                self._proof_milestone,
+                "proof_review",
+                load_target_milestone,
+            ),
+            (
+                "formalization",
+                self._formalization_milestone,
+                "formalization_review",
+                load_target_formalization_milestone,
+            ),
+        )
+        for name, make_row, review_field, loader in cases:
+            with self.subTest(name=name):
+                path = self.output_root / name / "milestones.jsonl"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                row = make_row(contract)
+                row[review_field]["source_contract"][
+                    "source_record_sha256"
+                ] = expected["source_record_sha256"][:-4]
+                semantic_before = dict(row[review_field])
+                semantic_before.pop("source_contract")
+                path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+                path.chmod(0o640)
+                before = path.stat()
+                loaded, validation_error = loader(path, self.rel, contract)
+                self.assertIsNone(loaded)
+                self.assertIn("length 60, expected 64", validation_error)
+
+                self.assertEqual(
+                    materialize_controller_review_provenance(
+                        path=path,
+                        expected_rel=self.rel,
+                        expected_contract=contract,
+                        review_field=review_field,
+                    ),
+                    "",
+                )
+                after = path.stat()
+                self.assertEqual(
+                    stat.S_IMODE(after.st_mode),
+                    stat.S_IMODE(before.st_mode),
+                )
+                self.assertEqual(after.st_uid, before.st_uid)
+                self.assertEqual(after.st_gid, before.st_gid)
+                fixed = json.loads(path.read_text(encoding="utf-8"))
+                self.assertEqual(fixed[review_field]["source_contract"], expected)
+                semantic_after = dict(fixed[review_field])
+                semantic_after.pop("source_contract")
+                self.assertEqual(semantic_after, semantic_before)
+                loaded, validation_error = loader(path, self.rel, contract)
+                self.assertIsNotNone(loaded)
+                self.assertEqual(validation_error, "")
+
+                stable_bytes = path.read_bytes()
+                stable_inode = path.stat().st_ino
+                self.assertEqual(
+                    materialize_controller_review_provenance(
+                        path=path,
+                        expected_rel=self.rel,
+                        expected_contract=contract,
+                        review_field=review_field,
+                    ),
+                    "",
+                )
+                self.assertEqual(path.read_bytes(), stable_bytes)
+                self.assertEqual(path.stat().st_ino, stable_inode)
+
+    def test_controller_provenance_temp_and_symlink_fail_closed(self) -> None:
+        contract = self._contract()
+        expected = native_source_contract_provenance(contract)
+        for kind in ("existing_file", "symlink"):
+            with self.subTest(kind=kind):
+                path = self.output_root / kind / "milestones.jsonl"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                row = self._proof_milestone(contract)
+                row["proof_review"]["source_contract"][
+                    "source_record_sha256"
+                ] = expected["source_record_sha256"][:-4]
+                path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+                before = path.read_bytes()
+                tmp = path.with_suffix(path.suffix + ".controller.tmp")
+                if kind == "existing_file":
+                    tmp.write_text("do not replace\n", encoding="utf-8")
+                else:
+                    tmp.symlink_to(path.parent / "absent")
+                error = materialize_controller_review_provenance(
+                    path=path,
+                    expected_rel=self.rel,
+                    expected_contract=contract,
+                    review_field="proof_review",
+                )
+                self.assertIn("cannot persist", error)
+                self.assertEqual(path.read_bytes(), before)
+                self.assertTrue(tmp.exists() or tmp.is_symlink())
+
+        real = self.output_root / "real-milestone.jsonl"
+        real.write_text("{}\n", encoding="utf-8")
+        linked = self.output_root / "linked-milestone.jsonl"
+        linked.symlink_to(real)
+        error = materialize_controller_review_provenance(
+            path=linked,
+            expected_rel=self.rel,
+            expected_contract=contract,
+            review_field="proof_review",
+        )
+        self.assertIn("regular file, not a symlink", error)
+        self.assertEqual(real.read_text(encoding="utf-8"), "{}\n")
 
     def test_final_redraft_normalization_revalidates_source_certificate(self) -> None:
         contract = self._contract()
@@ -1305,6 +1435,12 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "composition_accounting"
         ]["assembly_expression"] = "repeat_core + sodium_adduct"
         variants["assembly_omits_node"] = assembly_omits_node
+        missing_node_error = validate_native_review_source_certificate(
+            assembly_omits_node, contract, passing=True,
+        )
+        self.assertIn(
+            'missing=["terminal_fragment"]', missing_node_error,
+        )
         for name, variant in variants.items():
             with self.subTest(name=name):
                 self.assertNotEqual(
@@ -1378,6 +1514,11 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertIn("printed formula label may denote only", prompt)
             self.assertIn("preceding-page unit pattern", prompt)
             self.assertIn("complete node graph connected", prompt)
+            self.assertIn(
+                "assembly_expression must contain every "
+                "product_nodes[].node_id verbatim",
+                prompt,
+            )
 
     def test_unknown_or_empty_component_audit_marker_is_rejected(self) -> None:
         for marker in ([], ["unknown"], ["image_component_accounting"] * 2):

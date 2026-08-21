@@ -1455,6 +1455,8 @@ class ParallelProverRunner:
         settled_targets: set[str] = set()
         unresolved: dict[str, str] = {}
         review_rounds: dict[int, dict[str, int]] = {}
+        proof_review_validation_feedback: dict[tuple[str, int], str] = {}
+        formalization_review_validation_feedback: dict[tuple[str, int], str] = {}
         settled_targets.update(resumed_terminal_formalizations)
         for target, rel, cycle, decision in restored_formal_events:
             gate_events.append({
@@ -1781,6 +1783,9 @@ required action while preserving the accepted statement.
                     preflight=preflight_rows.get(rel, {}),
                     prior_gate_record=shadow_proof_records.get(rel) or None,
                     source_contract=source_contract,
+                    retry_validation_error=proof_review_validation_feedback.get(
+                        (rel, cycle), ""
+                    ),
                 )
                 spec = TargetReviewSpec(
                     rel=rel,
@@ -2084,6 +2089,11 @@ required action while preserving the accepted statement.
                     preflight=preflight_rows.get(rel, {}),
                     prior_gate_record=shadow_formalization_records.get(rel),
                     source_contract=source_contract,
+                    retry_validation_error=(
+                        formalization_review_validation_feedback.get(
+                            (rel, cycle), ""
+                        )
+                    ),
                 )
                 spec = TargetReviewSpec(
                     rel=rel,
@@ -2483,6 +2493,9 @@ required action while preserving the accepted statement.
                             and outcome.rel == work.rel
                             and outcome.milestone is not None
                         ):
+                            formalization_review_validation_feedback.pop(
+                                (work.rel, work.cycle), None
+                            )
                             stats["completed"] += 1
                             decision, reason, certificate = (
                                 formalization_review_decision(outcome.milestone)
@@ -2607,6 +2620,13 @@ required action while preserving the accepted statement.
                                 if isinstance(outcome, TargetReviewOutcome)
                                 else "invalid formalization Review worker outcome"
                             )
+                            if (
+                                isinstance(outcome, TargetReviewOutcome)
+                                and outcome.validation_error
+                            ):
+                                formalization_review_validation_feedback[
+                                    (work.rel, work.cycle)
+                                ] = outcome.validation_error
                             if work.attempt < formalization_max_attempts:
                                 enqueue_formalization_review(
                                     work.target,
@@ -2650,6 +2670,9 @@ required action while preserving the accepted statement.
                         and outcome.rel == work.rel
                         and outcome.milestone is not None
                     ):
+                        proof_review_validation_feedback.pop(
+                            (work.rel, work.cycle), None
+                        )
                         outcomes[work.rel] = outcome
                         stats["completed"] += 1
                         certificate = outcome.milestone.get("proof_review")
@@ -2825,6 +2848,13 @@ required action while preserving the accepted statement.
                             if isinstance(outcome, TargetReviewOutcome)
                             else "invalid Review worker outcome"
                         )
+                        if (
+                            isinstance(outcome, TargetReviewOutcome)
+                            and outcome.validation_error
+                        ):
+                            proof_review_validation_feedback[
+                                (work.rel, work.cycle)
+                            ] = outcome.validation_error
                         if work.attempt < max_attempts:
                             write_meta(self.iter_meta, **{
                                 f"pipelineReviews.{work.slug}.status": "retrying",

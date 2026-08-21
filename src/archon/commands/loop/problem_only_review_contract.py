@@ -13,7 +13,9 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
+import stat
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -1081,6 +1083,159 @@ def native_source_contract_provenance(
     return provenance
 
 
+def materialize_controller_review_provenance(
+    *,
+    path: Path,
+    expected_rel: str,
+    expected_contract: Mapping[str, Any] | None,
+    review_field: str,
+) -> str:
+    """Persist the native source binding without changing Review semantics.
+
+    Source provenance is wholly controller-derived. Asking a model to
+    reproduce long digests made an otherwise valid certificate vulnerable to
+    transcription errors. Keep every verdict and audit field model-owned, but
+    replace this one deterministic object before the sealed loader runs.
+    Malformed or out-of-scope milestones are deliberately left untouched so
+    the existing validator still rejects them.
+    """
+    if not is_native_problem_only_contract(expected_contract):
+        return ""
+    if review_field not in {"proof_review", "formalization_review"}:
+        return f"unsupported Review provenance field {review_field!r}"
+    try:
+        original_lstat = path.lstat()
+    except FileNotFoundError:
+        return ""
+    except OSError as exc:
+        return f"cannot bind controller-owned Review provenance: {exc}"
+    if not stat.S_ISREG(original_lstat.st_mode):
+        return "Review milestone must be a regular file, not a symlink"
+    source_fd = -1
+    try:
+        source_fd = os.open(
+            path,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+        )
+        source_stat = os.fstat(source_fd)
+        if (
+            source_stat.st_dev != original_lstat.st_dev
+            or source_stat.st_ino != original_lstat.st_ino
+            or not stat.S_ISREG(source_stat.st_mode)
+        ):
+            return "Review milestone changed while binding provenance"
+        with os.fdopen(source_fd, "rb") as source:
+            source_fd = -1
+            source_bytes = source.read()
+        lines = source_bytes.decode("utf-8", errors="strict").splitlines()
+    except UnicodeDecodeError as exc:
+        return f"cannot bind controller-owned Review provenance: {exc}"
+    except OSError as exc:
+        return f"cannot bind controller-owned Review provenance: {exc}"
+    finally:
+        if source_fd >= 0:
+            os.close(source_fd)
+    payloads = [line for line in lines if line.strip()]
+    if len(payloads) != 1:
+        return ""
+    try:
+        row = json.loads(
+            payloads[0],
+            object_pairs_hook=_strict_pairs,
+            parse_constant=_reject_json_constant,
+        )
+    except (json.JSONDecodeError, ValueError):
+        return ""
+    if not isinstance(row, dict):
+        return ""
+    target = row.get("target")
+    review = row.get(review_field)
+    if (
+        not isinstance(target, Mapping)
+        or str(target.get("file") or "").lstrip("./") != expected_rel
+        or not isinstance(review, Mapping)
+    ):
+        return ""
+    expected = native_source_contract_provenance(expected_contract)
+    if review.get("source_contract") == expected:
+        return ""
+    bound_review = dict(review)
+    bound_review["source_contract"] = expected
+    bound_row = dict(row)
+    bound_row[review_field] = bound_review
+    tmp = path.with_suffix(path.suffix + ".controller.tmp")
+    replacement = (
+        json.dumps(bound_row, ensure_ascii=False, separators=(",", ":"))
+        + "\n"
+    ).encode("utf-8")
+    tmp_fd = -1
+    tmp_created = False
+    try:
+        tmp_fd = os.open(
+            tmp,
+            os.O_WRONLY
+            | os.O_CREAT
+            | os.O_EXCL
+            | os.O_CLOEXEC
+            | os.O_NOFOLLOW,
+            0o600,
+        )
+        tmp_created = True
+        initial_tmp_stat = os.fstat(tmp_fd)
+        if (
+            initial_tmp_stat.st_uid != original_lstat.st_uid
+            or initial_tmp_stat.st_gid != original_lstat.st_gid
+        ):
+            os.fchown(tmp_fd, original_lstat.st_uid, original_lstat.st_gid)
+        os.fchmod(tmp_fd, stat.S_IMODE(original_lstat.st_mode))
+        with os.fdopen(tmp_fd, "wb") as destination:
+            tmp_fd = -1
+            destination.write(replacement)
+            destination.flush()
+            os.fsync(destination.fileno())
+        replacement_stat = tmp.lstat()
+        if (
+            not stat.S_ISREG(replacement_stat.st_mode)
+            or replacement_stat.st_uid != original_lstat.st_uid
+            or replacement_stat.st_gid != original_lstat.st_gid
+            or stat.S_IMODE(replacement_stat.st_mode)
+            != stat.S_IMODE(original_lstat.st_mode)
+        ):
+            return "controller-owned Review provenance replacement metadata changed"
+        current_lstat = path.lstat()
+        if (
+            current_lstat.st_dev != original_lstat.st_dev
+            or current_lstat.st_ino != original_lstat.st_ino
+            or current_lstat.st_uid != original_lstat.st_uid
+            or current_lstat.st_gid != original_lstat.st_gid
+            or stat.S_IMODE(current_lstat.st_mode)
+            != stat.S_IMODE(original_lstat.st_mode)
+            or not stat.S_ISREG(current_lstat.st_mode)
+        ):
+            return "Review milestone changed while binding provenance"
+        os.replace(tmp, path)
+        tmp_created = False
+        directory_fd = os.open(
+            path.parent,
+            os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0),
+        )
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except OSError as exc:
+        return f"cannot persist controller-owned Review provenance: {exc}"
+    finally:
+        if tmp_fd >= 0:
+            os.close(tmp_fd)
+        if tmp_created:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
+    return ""
+
+
 def render_native_formalizer_semantic_dag_prompt(
     contract: Mapping[str, Any],
 ) -> str:
@@ -1202,8 +1357,11 @@ def render_native_composition_accounting_prompt(
         + "\n- Allowed component roles: "
         + json.dumps(sorted(_COMPOSITION_COMPONENT_ROLES))
         + ". source_images must exactly cover all bound path/digest pairs, "
-        "and product_nodes must cover all bound image paths. IDs must be "
-        "unique stable lowercase tokens, references valid, multiplicities "
+        "and product_nodes must cover all bound image paths. "
+        "assembly_expression must contain every product_nodes[].node_id "
+        "verbatim as a standalone token; labels or formulas alone do not "
+        "satisfy this requirement. IDs must be unique stable lowercase "
+        "tokens, references valid, multiplicities "
         "positive JSON integers, and the complete node graph connected. At "
         "least two non-adduct product nodes and an edge between non-adduct "
         "nodes are mandatory. A represented_by_edge boundary must name that "
@@ -1405,7 +1563,8 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         "NATIVE PROBLEM-INPUT-ONLY CONTRACT (immutable evidence):\n"
         "- Authority: problem-only\n"
         "- Evaluation mode: answer_blind\n"
-        "- Required persisted provenance (echo exactly): "
+        "- Required persisted provenance (controller-owned exact JSON; echo "
+        "value-for-value and never reconstruct or abbreviate any digest): "
         + json.dumps(
             native_source_contract_provenance(contract),
             ensure_ascii=False,
@@ -1418,8 +1577,12 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         + " (sha256="
         + str(submission_sha256)
         + ")"
-        + "\nThe source bundle/report locators and digests above are validation "
-        "metadata only; do not open those files. Treat only the inline problem "
+        + "\nThe controller will deterministically materialize and revalidate "
+        "this source_contract object after the worker returns. All verdicts, "
+        "audits, requested-output evidence, and composition accounting remain "
+        "Reviewer-owned and are never auto-repaired. The source bundle/report "
+        "locators and digests above are validation metadata only; do not open "
+        "those files. Treat only the inline problem "
         "evidence and listed problem images as source facts. Treat the current "
         "Lean candidate and bound answer submission as untrusted generated "
         "outputs to audit, never as problem facts. Open the answer submission "
@@ -1792,17 +1955,20 @@ def _validate_native_composition_accounting(
             f"requested output {index} matched components do not exactly "
             "cover product_nodes"
         )
-    if status == "matched" and any(
-        re.search(
+    missing_assembly_node_ids = [
+        node_id
+        for node_id in nodes_by_id
+        if re.search(
             rf"(?<![a-z0-9_-]){re.escape(node_id)}(?![a-z0-9_-])",
             assembly,
         )
         is None
-        for node_id in nodes_by_id
-    ):
+    ]
+    if status == "matched" and missing_assembly_node_ids:
         return (
             f"requested output {index} assembly_expression omits a product "
-            "node id"
+            "node id; missing="
+            + json.dumps(missing_assembly_node_ids, ensure_ascii=False)
         )
     if passing and status != "matched":
         return (
@@ -1944,6 +2110,34 @@ def validate_native_review_source_certificate(
     if not isinstance(actual, Mapping):
         return "source_contract provenance is missing"
     if dict(actual) != expected:
+        actual_fields = set(actual)
+        expected_fields = set(expected)
+        if actual_fields != expected_fields:
+            return (
+                "source_contract does not match native problem-only evidence: "
+                f"fields missing={sorted(expected_fields - actual_fields)!r}, "
+                f"extra={sorted(actual_fields - expected_fields)!r}"
+            )
+        for key, expected_value in expected.items():
+            actual_value = actual.get(key)
+            if actual_value == expected_value:
+                continue
+            if (
+                key.endswith("sha256")
+                and isinstance(expected_value, str)
+                and isinstance(actual_value, str)
+            ):
+                return (
+                    "source_contract does not match native problem-only "
+                    f"evidence: {key} expected={expected_value!r} "
+                    f"actual={actual_value!r} "
+                    f"(length {len(actual_value)}, expected "
+                    f"{len(expected_value)})"
+                )
+            return (
+                "source_contract does not match native problem-only evidence: "
+                f"{key} differs"
+            )
         return "source_contract does not match native problem-only evidence"
     if passing:
         preflight_error = validate_native_passing_preflight(

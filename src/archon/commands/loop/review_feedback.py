@@ -9,6 +9,7 @@ containing only validated enum values, indices, counters, and content hashes.
 
 from __future__ import annotations
 
+import json
 import math
 import re
 from collections.abc import Mapping
@@ -145,6 +146,27 @@ _REDRAFT_ACTIONS = {
     "underdetermined_contract": "represent_missing_degrees_of_freedom_honestly",
     "wrong_or_weakened_target": "restore_every_requested_output_and_constraint",
 }
+
+
+def render_validation_retry_feedback(error: str) -> str:
+    """Render an exact, controller-originated validator error for one retry.
+
+    Callers must pass only the sealed milestone loader's deterministic error,
+    never a model diagnostic or free-form Review rationale.
+    """
+    error = str(error or "").strip()
+    if not error:
+        return ""
+    return (
+        "CONTROLLER SEALED-VALIDATOR RETRY FEEDBACK:\n"
+        "- The previous Review milestone was rejected.\n"
+        "- Exact validator error (JSON string): "
+        + json.dumps(error, ensure_ascii=False)
+        + "\n- Re-audit the current candidate independently, then write a "
+        "fresh complete certificate that fixes this exact schema/evidence "
+        "defect. Do not edit the Lean candidate, omit required fields, weaken "
+        "the verdict, or use this process error as a problem fact.\n"
+    )
 
 
 def _token(value: Any, allowed: set[str]) -> str:
