@@ -329,9 +329,16 @@ Your assigned file: {rel}
 The global PROGRESS stage intentionally remains `prover` until the batch's
 atomic Review aggregation finishes. Ignore that stage for task routing: the
 controller-sanitized repair task below authorizes an immediate, target-only
-`autoformalize` redraft. It deliberately omits free-form Review evidence and
-all expected-result data; use only its status codes, failed-check identifiers,
-hash binding, and fixed repair actions.
+`autoformalize` redraft. It omits all official-answer, grader, expected-value,
+and requested-output value fields. Normally it contains only status codes,
+failed-check identifiers, hash binding, and fixed repair actions.
+
+For a failed native problem-only formalization Review, it may additionally
+contain `source_bound_review`: a size-bounded projection of the already
+validated certificate's diagnosis and blocked source-to-Lean bridges, bound to
+the current candidate and problem-source hashes. Treat it as a repair
+checklist, recheck it against the bound problem evidence, and never treat it as
+an official answer or as a premise that bypasses the source derivation.
 
 {certificate}
 

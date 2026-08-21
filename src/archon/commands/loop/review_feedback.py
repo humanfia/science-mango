@@ -1,14 +1,18 @@
 """Answer-safe Review history and repair hand-offs.
 
 Review certificates intentionally retain rich free-form evidence for controller
-auditing.  That evidence must not be copied back into answer-blind model prompts:
-it may contain a derived result, an expected value, or other answer-bearing text.
-This module projects durable gate records onto a small controller-owned schema
-containing only validated enum values, indices, counters, and content hashes.
+auditing.  Evidence is omitted from model prompts by default because it may
+contain a derived result, an expected value, or other answer-bearing text.  The
+only exception is a bounded formalization-redraft projection from a native
+problem-only certificate that is answer-blind, source-hash-bound, candidate-
+hash-bound, and free of official-answer/grader fields.  This module otherwise
+projects durable gate records onto a small controller-owned schema containing
+only validated enum values, indices, counters, and content hashes.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -18,6 +22,12 @@ from typing import Any
 
 FEEDBACK_SCHEMA_VERSION = 1
 _MAX_EVENTS = 20
+_MAX_SOURCE_BOUND_CERTIFICATE_BYTES = 256 * 1024
+_MAX_SOURCE_BOUND_HANDOFF_BYTES = 24 * 1024
+_MAX_SOURCE_BOUND_REASON_BYTES = 1_600
+_MAX_SOURCE_BOUND_EVIDENCE_BYTES = 2_048
+_MAX_SOURCE_BOUND_CLAIM_BYTES = 1_200
+_MAX_SOURCE_BOUND_CARRIER_BYTES = 800
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_INDEXED_CHECK_RE = re.compile(
     r"^(?P<group>requested_outputs|bridge_obligations|image_audit)"
@@ -148,6 +158,38 @@ _REDRAFT_ACTIONS = {
 }
 
 
+_SOURCE_BOUND_HASH_FIELDS = (
+    "source_bundle_sha256",
+    "source_record_sha256",
+    "answer_submission_sha256",
+    "question_sha256",
+    "requested_outputs_sha256",
+)
+_FORBIDDEN_SOURCE_BOUND_KEYS = {
+    "accepted_legacy_answers",
+    "canonical_answer",
+    "display_value",
+    "expected_answer",
+    "expected_result",
+    "expected_value",
+    "grader",
+    "grading_override",
+    "official_answer",
+    "official_answer_alignment",
+    "official_answer_sha256",
+    "official_solution",
+    "raw_value",
+    "result_spec",
+    "source_inconsistency",
+}
+_BRIDGE_PASS_STATUSES = {
+    "covered", "encoded", "grounded", "pass", "passed", "proved",
+}
+_BRIDGE_FAIL_STATUSES = {
+    "blocked", "failed", "missing", "needs_redraft", "partial",
+}
+
+
 def render_validation_retry_feedback(error: str) -> str:
     """Render an exact, controller-originated validator error for one retry.
 
@@ -261,6 +303,223 @@ def _candidate_sha256(record: Mapping[str, Any], explicit: str = "") -> str:
     if current and stored and current != stored:
         raise ValueError("repair feedback candidate SHA-256 does not match gate record")
     return current or stored
+
+
+def _canonical_json_bytes(value: Any) -> bytes | None:
+    try:
+        return json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    except (OverflowError, TypeError, ValueError):
+        return None
+
+
+def _bounded_source_text(value: Any, *, maximum_bytes: int) -> str:
+    if not isinstance(value, str):
+        return ""
+    text = value.strip()
+    if not text:
+        return ""
+    try:
+        encoded = text.encode("utf-8")
+    except UnicodeError:
+        return ""
+    if len(encoded) > maximum_bytes:
+        return ""
+    if any(ord(char) < 32 and char not in "\n\r\t" for char in text):
+        return ""
+    return text
+
+
+def _contains_forbidden_source_bound_key(value: Any) -> bool:
+    """Reject answer/grader-bearing extensions before projecting any text."""
+    pending = [value]
+    visited = 0
+    while pending:
+        current = pending.pop()
+        visited += 1
+        if visited > 10_000:
+            return True
+        if isinstance(current, Mapping):
+            for key, item in current.items():
+                normalized = (
+                    str(key).strip().lower().replace("-", "_").replace(" ", "_")
+                )
+                if normalized in _FORBIDDEN_SOURCE_BOUND_KEYS:
+                    return True
+                pending.append(item)
+        elif isinstance(current, list):
+            pending.extend(current)
+    return False
+
+
+def _formal_review_status(value: Any) -> str:
+    return str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _source_bound_formalization_review(
+    certificate: Mapping[str, Any],
+    *,
+    candidate_sha256: str,
+) -> dict[str, Any]:
+    """Project a narrow, hash-bound problem-only diagnosis for redrafting.
+
+    This is the sole free-text exception in repair feedback.  It accepts only a
+    failed native answer-blind certificate bound to the current candidate and
+    problem hashes.  It never projects requested-output entries, generated
+    values, grader fields, official-answer fields, or arbitrary certificate
+    extensions.
+    """
+    certificate_bytes = _canonical_json_bytes(certificate)
+    if (
+        certificate_bytes is None
+        or len(certificate_bytes) > _MAX_SOURCE_BOUND_CERTIFICATE_BYTES
+        or _contains_forbidden_source_bound_key(certificate)
+        or certificate.get("schema_version") != 2
+        or _formal_review_status(certificate.get("status"))
+        not in {"blocked", "fail", "failed", "needs_redraft", "partial", "rejected"}
+    ):
+        return {}
+
+    source_contract = certificate.get("source_contract")
+    if not isinstance(source_contract, Mapping):
+        return {}
+    official_answer_seen = source_contract.get("official_answer_seen")
+    if (
+        source_contract.get("schema_version") != 1
+        or source_contract.get("contract_kind") != "native_problem_input_only"
+        or source_contract.get("authority") != "problem-only"
+        or source_contract.get("evaluation_mode") != "answer_blind"
+        or source_contract.get("candidate_sha256") != candidate_sha256
+        or (
+            official_answer_seen is not None
+            and official_answer_seen is not False
+        )
+    ):
+        return {}
+    for field in ("target", "source_bundle", "source_record_id", "candidate"):
+        if not _bounded_source_text(
+            source_contract.get(field), maximum_bytes=_MAX_SOURCE_BOUND_CLAIM_BYTES
+        ):
+            return {}
+    source_binding: dict[str, str] = {"candidate_sha256": candidate_sha256}
+    for field in _SOURCE_BOUND_HASH_FIELDS:
+        digest = str(source_contract.get(field) or "").strip().lower()
+        if not _SHA256_RE.fullmatch(digest):
+            return {}
+        source_binding[field] = digest
+
+    blind_audit = certificate.get("blind_source_audit")
+    if not isinstance(blind_audit, Mapping):
+        return {}
+    independence = blind_audit.get("answer_independence")
+    if not isinstance(independence, Mapping):
+        return {}
+    if (
+        _check_status_token(independence.get("status")) != "passed"
+        or not _bounded_source_text(
+            independence.get("evidence"),
+            maximum_bytes=_MAX_SOURCE_BOUND_EVIDENCE_BYTES,
+        )
+    ):
+        return {}
+
+    reason = _bounded_source_text(
+        certificate.get("reason"), maximum_bytes=_MAX_SOURCE_BOUND_REASON_BYTES,
+    )
+    checks = certificate.get("checks")
+    if not reason or not isinstance(checks, Mapping):
+        return {}
+    failed_checks: list[dict[str, str]] = []
+    for name in _CHECK_GROUPS["checks"]:
+        check = checks.get(name)
+        if not isinstance(check, Mapping):
+            return {}
+        status = _formal_review_status(check.get("status"))
+        evidence = _bounded_source_text(
+            check.get("evidence") or check.get("reason"),
+            maximum_bytes=_MAX_SOURCE_BOUND_EVIDENCE_BYTES,
+        )
+        if not evidence:
+            return {}
+        if status in {"pass", "passed", "approved", "review_passing"}:
+            pass
+        elif status in {
+            "fail", "failed", "blocked", "partial", "needs_redraft", "rejected",
+        }:
+            failed_checks.append({
+                "check_id": f"checks.{name}",
+                "evidence": evidence,
+            })
+        elif (
+            status in {"n/a", "na", "not_applicable"}
+            and name in {"uncertainty_propagation", "branch_orientation"}
+        ):
+            pass
+        else:
+            return {}
+
+    bridges = certificate.get("bridge_obligations")
+    if not isinstance(bridges, list) or not bridges or len(bridges) > 16:
+        return {}
+    repair_actions: list[dict[str, str]] = []
+    for index, bridge in enumerate(bridges):
+        if not isinstance(bridge, Mapping):
+            return {}
+        status = _formal_review_status(bridge.get("status"))
+        claim = _bounded_source_text(
+            bridge.get("claim") or bridge.get("source_claim"),
+            maximum_bytes=_MAX_SOURCE_BOUND_CLAIM_BYTES,
+        )
+        carrier = _bounded_source_text(
+            bridge.get("carrier") or bridge.get("lean_carrier"),
+            maximum_bytes=_MAX_SOURCE_BOUND_CARRIER_BYTES,
+        )
+        evidence = _bounded_source_text(
+            bridge.get("evidence") or bridge.get("reason"),
+            maximum_bytes=_MAX_SOURCE_BOUND_EVIDENCE_BYTES,
+        )
+        if (
+            not claim
+            or not carrier
+            or not evidence
+            or status not in _BRIDGE_PASS_STATUSES | _BRIDGE_FAIL_STATUSES
+        ):
+            return {}
+        if status in _BRIDGE_FAIL_STATUSES:
+            repair_actions.append({
+                "check_id": f"bridge_obligations[{index}]",
+                "source_claim": claim,
+                "current_carrier": carrier,
+                "evidence": evidence,
+            })
+    if not failed_checks and not repair_actions:
+        return {}
+
+    source_contract_bytes = _canonical_json_bytes(source_contract)
+    if source_contract_bytes is None:
+        return {}
+    result = {
+        "certificate_sha256": hashlib.sha256(certificate_bytes).hexdigest(),
+        "source_contract_sha256": hashlib.sha256(
+            source_contract_bytes
+        ).hexdigest(),
+        "source_binding": source_binding,
+        "reason": reason,
+        "failed_checks": failed_checks,
+        "repair_actions": repair_actions,
+    }
+    result_bytes = _canonical_json_bytes(result)
+    if (
+        result_bytes is None
+        or len(result_bytes) > _MAX_SOURCE_BOUND_HANDOFF_BYTES
+    ):
+        return {}
+    return result
 
 
 def _certificate(record: Mapping[str, Any], review_kind: str) -> Mapping[str, Any]:
@@ -752,7 +1011,10 @@ def build_repair_task(
         preflight_repair = True
         reason_codes.append("deterministic_preflight_unavailable")
         actions.append("rerun_deterministic_preflight")
-    if (safe_preflight.get("sorry_count") or 0) > 0:
+    if (
+        worker_stage == "proof"
+        and (safe_preflight.get("sorry_count") or 0) > 0
+    ):
         preflight_repair = True
         reason_codes.append("open_proof_holes")
         actions.append("close_all_open_proof_holes")
@@ -782,4 +1044,16 @@ def build_repair_task(
     }
     if safe_preflight:
         task["preflight"] = safe_preflight
+    if (
+        review_kind == "formalization"
+        and worker_stage == "formalization"
+        and record_bound
+        and review_repair
+    ):
+        source_bound_review = _source_bound_formalization_review(
+            _certificate(record, review_kind),
+            candidate_sha256=digest,
+        )
+        if source_bound_review:
+            task["source_bound_review"] = source_bound_review
     return task

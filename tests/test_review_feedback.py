@@ -11,6 +11,80 @@ from archon.commands.loop.review_feedback import (
 )
 
 
+def _source_bound_formalization_certificate(
+    candidate_sha256: str,
+) -> dict:
+    passed = {"status": "passed", "evidence": "source-bound check passed"}
+    return {
+        "schema_version": 2,
+        "status": "failed",
+        "reason": "PANEL_SWAP_DIAGNOSIS",
+        "checks": {
+            "source_faithfulness": {
+                "status": "failed",
+                "evidence": "PANEL_LABEL_AND_TOPOLOGY_EVIDENCE",
+            },
+            "derivability": {
+                "status": "failed",
+                "evidence": "SOURCE_FIRST_COMPONENT_LEDGER_EVIDENCE",
+            },
+            "abstraction_sufficiency": dict(passed),
+            "uncertainty_propagation": {
+                "status": "not_applicable",
+                "evidence": "no source uncertainty applies",
+            },
+            "branch_orientation": {
+                "status": "not_applicable",
+                "evidence": "no algebraic branch applies",
+            },
+            "countermodel_resistance": dict(passed),
+        },
+        "bridge_obligations": [{
+            "claim": "SOURCE_BOUND_REPAIR_CLAIM",
+            "carrier": "CURRENT_WRONG_CARRIER",
+            "status": "blocked",
+            "evidence": "SOURCE_TO_LEAN_BRIDGE_DIAGNOSIS",
+        }],
+        "source_contract": {
+            "schema_version": 1,
+            "contract_kind": "native_problem_input_only",
+            "authority": "problem-only",
+            "evaluation_mode": "answer_blind",
+            "target": "IChO2026Problems/A.lean",
+            "source_bundle": "icho_2026_source/questions_only.jsonl",
+            "source_record_id": "problem_a",
+            "candidate": "IChO2026Problems/A.lean",
+            "candidate_sha256": candidate_sha256,
+            "source_bundle_sha256": "1" * 64,
+            "source_record_sha256": "2" * 64,
+            "answer_submission_sha256": "3" * 64,
+            "question_sha256": "4" * 64,
+            "requested_outputs_sha256": "5" * 64,
+        },
+        "blind_source_audit": {
+            "answer_independence": {
+                "status": "passed",
+                "evidence": "ANSWER_INDEPENDENCE_ATTESTATION_SECRET",
+            },
+            "raw_derivation": {
+                "status": "passed",
+                "evidence": "UNPROJECTED_RAW_DERIVATION_SECRET",
+            },
+        },
+        "requested_outputs": [{
+            "source_requirement": "UNPROJECTED_REQUESTED_OUTPUT_SECRET",
+            "status": "blocked",
+            "evidence": "UNPROJECTED_OUTPUT_EVIDENCE_SECRET",
+        }],
+        "chemistry_checks": {
+            "chemical_semantics": {
+                "status": "failed",
+                "evidence": "UNPROJECTED_CHEMISTRY_SECRET",
+            },
+        },
+    }
+
+
 class ReviewFeedbackTest(unittest.TestCase):
     def test_proof_feedback_is_structured_and_answer_free(self) -> None:
         digest = "a" * 64
@@ -434,6 +508,200 @@ class ReviewFeedbackTest(unittest.TestCase):
             ),
             {},
         )
+
+
+    def test_formalization_redraft_gets_only_bound_review_diagnosis(self) -> None:
+        digest = "6" * 64
+        certificate = _source_bound_formalization_certificate(digest)
+        event = build_feedback_event(
+            review_kind="formalization",
+            candidate_sha256=digest,
+            event_id="formalization-event-1",
+            iteration=1,
+            attempt=1,
+            resulting_status="retry",
+            certificate=certificate,
+            decision="failed",
+            preflight={
+                "status": "passed",
+                "compiles": True,
+                "returncode": 0,
+                "sorry_count": 8,
+            },
+        )
+        record = {
+            "status": "retry",
+            "candidate_sha256": digest,
+            "certificate": certificate,
+            "repair_events": [event],
+        }
+
+        task = build_repair_task(
+            record,
+            review_kind="formalization",
+            worker_stage="formalization",
+            candidate_sha256=digest,
+        )
+
+        review = task["source_bound_review"]
+        self.assertEqual(review["source_binding"]["candidate_sha256"], digest)
+        self.assertEqual(
+            review["source_binding"]["source_record_sha256"], "2" * 64
+        )
+        self.assertRegex(review["certificate_sha256"], r"^[0-9a-f]{64}$")
+        self.assertRegex(review["source_contract_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(review["reason"], "PANEL_SWAP_DIAGNOSIS")
+        self.assertEqual(
+            [item["check_id"] for item in review["failed_checks"]],
+            ["checks.source_faithfulness", "checks.derivability"],
+        )
+        self.assertEqual(
+            review["repair_actions"][0],
+            {
+                "check_id": "bridge_obligations[0]",
+                "source_claim": "SOURCE_BOUND_REPAIR_CLAIM",
+                "current_carrier": "CURRENT_WRONG_CARRIER",
+                "evidence": "SOURCE_TO_LEAN_BRIDGE_DIAGNOSIS",
+            },
+        )
+        self.assertNotIn("open_proof_holes", task["reason_codes"])
+        self.assertNotIn("close_all_open_proof_holes", task["required_actions"])
+        payload = json.dumps(task)
+        for secret in (
+            "ANSWER_INDEPENDENCE_ATTESTATION_SECRET",
+            "UNPROJECTED_RAW_DERIVATION_SECRET",
+            "UNPROJECTED_REQUESTED_OUTPUT_SECRET",
+            "UNPROJECTED_OUTPUT_EVIDENCE_SECRET",
+            "UNPROJECTED_CHEMISTRY_SECRET",
+        ):
+            self.assertNotIn(secret, payload)
+        self.assertLessEqual(
+            len(json.dumps(review, ensure_ascii=False).encode("utf-8")),
+            24 * 1024,
+        )
+
+    def test_source_bound_review_projection_fails_closed(self) -> None:
+        digest = "7" * 64
+        cases: list[tuple[str, dict]] = []
+
+        missing_binding = _source_bound_formalization_certificate(digest)
+        missing_binding["source_contract"].pop("source_record_sha256")
+        cases.append(("missing source hash", missing_binding))
+
+        stale_candidate = _source_bound_formalization_certificate(digest)
+        stale_candidate["source_contract"]["candidate_sha256"] = "8" * 64
+        cases.append(("stale candidate", stale_candidate))
+
+        independence_failed = _source_bound_formalization_certificate(digest)
+        independence_failed["blind_source_audit"]["answer_independence"][
+            "status"
+        ] = "failed"
+        cases.append(("answer independence failed", independence_failed))
+
+        forbidden_value = _source_bound_formalization_certificate(digest)
+        forbidden_value["requested_outputs"][0][
+            "display_value"
+        ] = "OFFICIAL_VALUE_SECRET"
+        cases.append(("forbidden expected-value field", forbidden_value))
+
+        malformed_official_seen = _source_bound_formalization_certificate(digest)
+        malformed_official_seen["source_contract"]["official_answer_seen"] = []
+        cases.append(("malformed official answer flag", malformed_official_seen))
+
+        nonfinite_extension = _source_bound_formalization_certificate(digest)
+        nonfinite_extension["unselected_metric"] = float("nan")
+        cases.append(("nonfinite certificate extension", nonfinite_extension))
+
+        oversized_field = _source_bound_formalization_certificate(digest)
+        oversized_field["checks"]["source_faithfulness"]["evidence"] = (
+            "x" * 2_049
+        )
+        cases.append(("oversized evidence", oversized_field))
+
+        oversized_certificate = _source_bound_formalization_certificate(digest)
+        oversized_certificate["unselected_notes"] = "x" * (256 * 1024)
+        cases.append(("oversized certificate", oversized_certificate))
+
+        oversized_handoff = _source_bound_formalization_certificate(digest)
+        oversized_handoff["bridge_obligations"] = [
+            {
+                "claim": "c" * 1_200,
+                "carrier": "k" * 800,
+                "status": "blocked",
+                "evidence": "e" * 2_048,
+            }
+            for _ in range(16)
+        ]
+        cases.append(("oversized projected handoff", oversized_handoff))
+
+        for label, certificate in cases:
+            with self.subTest(label=label):
+                event = build_feedback_event(
+                    review_kind="formalization",
+                    candidate_sha256=digest,
+                    event_id=f"formalization-{label.replace(' ', '-')}",
+                    iteration=1,
+                    attempt=1,
+                    resulting_status="retry",
+                    certificate=certificate,
+                    decision="failed",
+                )
+                record = {
+                    "status": "retry",
+                    "candidate_sha256": digest,
+                    "certificate": certificate,
+                    "repair_events": [event],
+                }
+                task = build_repair_task(
+                    record,
+                    review_kind="formalization",
+                    worker_stage="formalization",
+                    candidate_sha256=digest,
+                )
+                self.assertNotIn("source_bound_review", task)
+                self.assertNotIn("OFFICIAL_VALUE_SECRET", json.dumps(task))
+
+    def test_open_sorry_action_is_proof_worker_only(self) -> None:
+        digest = "9" * 64
+        certificate = {
+            "contract_audit": {
+                "bridge_completeness": {
+                    "status": "failed",
+                    "evidence": "PROOF_REVIEW_EVIDENCE_SECRET",
+                },
+            },
+        }
+        event = build_feedback_event(
+            review_kind="proof",
+            candidate_sha256=digest,
+            event_id="proof-open-sorry",
+            iteration=1,
+            attempt=1,
+            resulting_status="retry",
+            certificate=certificate,
+            route="retry_proof",
+            redraft_kind="not_applicable",
+            preflight={
+                "status": "passed",
+                "compiles": True,
+                "returncode": 0,
+                "sorry_count": 2,
+            },
+        )
+        record = {
+            "status": "retry",
+            "candidate_sha256": digest,
+            "proof_review_route": "retry_proof",
+            "repair_events": [event],
+        }
+        task = build_repair_task(
+            record,
+            review_kind="proof",
+            worker_stage="proof",
+            candidate_sha256=digest,
+        )
+        self.assertIn("open_proof_holes", task["reason_codes"])
+        self.assertIn("close_all_open_proof_holes", task["required_actions"])
 
 
 if __name__ == "__main__":
