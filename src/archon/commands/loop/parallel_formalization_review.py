@@ -297,6 +297,22 @@ permits it; never use a later fallback backward to establish the upstream
 subpart whose result it mirrors. Derive each upstream requested output
 independently from its givens.
 
+Before inspecting the generated answer submission, candidate interpretation,
+or prior process metadata, perform a source-first visual topology pass whenever
+a requested chemical formula, identity, count, or quantity depends on a figure.
+For every relevant panel separately: map its panel label and every applicable
+legend encoding (for example colour, bold-line style, symbols, or dashed repeat
+boundaries) to the depicted roles; enumerate every distinct building-block
+type; record each type's node count, connectivity/degree, and cross-boundary
+bonds in the selected repeat unit; and construct an atom ledger for the
+building blocks plus every condensation/addition loss or gain. Independently
+recombine that ledger before comparing it with the submission or Lean carrier.
+Record this source-only recount in image_audit evidence and the relevant
+chemistry check. A candidate's formula or prose is never a substitute for the
+visual recount. If any relevant panel, legend mapping, node multiplicity,
+connection, or atom balance remains unresolved, fail closed instead of copying
+the candidate's interpretation.
+
 For chemistry, enumerate every requested output; inspect every listed image;
 check chemical identity, formula/molar-mass consistency, conservation, units,
 structures/stereochemistry, identification uniqueness, raw arithmetic, and

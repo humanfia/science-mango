@@ -633,6 +633,19 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         )
         self.assertNotIn("proof-event-1", proof_prompt)
         self.assertNotIn("formalization-event-1", formal_prompt)
+        for marker in (
+            "source-first visual topology pass",
+            "For every relevant panel separately",
+            "legend encoding",
+            "enumerate every distinct building-block",
+            "node count, connectivity/degree",
+            "construct an atom ledger",
+            "condensation/addition loss or gain",
+            "before comparing it with the submission or Lean carrier",
+            "candidate's formula or prose is never a substitute",
+            "fail closed instead of copying",
+        ):
+            self.assertIn(marker, formal_prompt)
 
         for prompt in (proof_prompt, formal_prompt):
             self.assertIn("NATIVE PROBLEM-INPUT-ONLY CONTRACT", prompt)
