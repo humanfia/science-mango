@@ -470,6 +470,15 @@ GRADE_RESULTS = {
     "underdetermined",
     "manual_review",
 }
+_GRADING_OVERRIDE_FIELDS = {
+    "schema_version",
+    "official_answer_sha256",
+    "reason_code",
+    "canonical_answer",
+    "accepted_legacy_answers",
+}
+_MAX_GRADING_OVERRIDE_ALIASES = 8
+_MAX_GRADING_OVERRIDE_REASON_CODE_LENGTH = 128
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -9296,6 +9305,91 @@ def _normalize_text(value: object) -> str:
     return text.strip(" .;,")
 
 
+def _validated_grading_override(
+    value: object,
+    *,
+    official_answer: str,
+    candidate: Mapping[str, Any],
+    record_id: str,
+) -> dict[str, Any]:
+    """Validate one controller-owned, exact-display grading override."""
+    label = f"grader {record_id}.grading_override"
+    if not isinstance(value, Mapping):
+        _fail(f"{label} must be an object")
+    _strict_fields(value, _GRADING_OVERRIDE_FIELDS, label=label)
+
+    schema_version = value.get("schema_version")
+    if type(schema_version) is not int or schema_version != 1:
+        _fail(f"{label}.schema_version must equal 1")
+
+    bound_hash = _require_sha256(
+        value.get("official_answer_sha256"),
+        field=f"{label}.official_answer_sha256",
+    )
+    actual_hash = _sha256_bytes(official_answer.encode("utf-8"))
+    if bound_hash != actual_hash:
+        _fail(f"{label}.official_answer_sha256 does not bind official_answer")
+
+    reason_code = _require_nonempty_string(
+        value.get("reason_code"), field=f"{label}.reason_code"
+    )
+    if (
+        len(reason_code) > _MAX_GRADING_OVERRIDE_REASON_CODE_LENGTH
+        or _SAFE_ID_RE.fullmatch(reason_code) is None
+    ):
+        _fail(f"{label}.reason_code must be a bounded safe identifier")
+
+    canonical_answer = _require_nonempty_string(
+        value.get("canonical_answer"), field=f"{label}.canonical_answer"
+    )
+    if len(canonical_answer) > _MAX_NUMERIC_TEXT_LENGTH:
+        _fail(f"{label}.canonical_answer exceeds the text limit")
+    canonical_normalized = _normalize_text(canonical_answer)
+    if not canonical_normalized:
+        _fail(f"{label}.canonical_answer is empty after normalization")
+
+    raw_aliases = value.get("accepted_legacy_answers")
+    if not isinstance(raw_aliases, list) or not raw_aliases:
+        _fail(f"{label}.accepted_legacy_answers must be a non-empty list")
+    if len(raw_aliases) > _MAX_GRADING_OVERRIDE_ALIASES:
+        _fail(
+            f"{label}.accepted_legacy_answers exceeds "
+            f"{_MAX_GRADING_OVERRIDE_ALIASES} aliases"
+        )
+
+    aliases: list[str] = []
+    normalized_answers = {canonical_normalized}
+    for index, raw_alias in enumerate(raw_aliases):
+        alias = _require_nonempty_string(
+            raw_alias,
+            field=f"{label}.accepted_legacy_answers[{index}]",
+        )
+        if len(alias) > _MAX_NUMERIC_TEXT_LENGTH:
+            _fail(
+                f"{label}.accepted_legacy_answers[{index}] exceeds the text limit"
+            )
+        normalized = _normalize_text(alias)
+        if not normalized:
+            _fail(
+                f"{label}.accepted_legacy_answers[{index}] is empty after normalization"
+            )
+        if normalized in normalized_answers:
+            _fail(f"{label}.accepted_legacy_answers contains a duplicate alias")
+        normalized_answers.add(normalized)
+        aliases.append(alias)
+
+    if candidate.get("result_kind") != "numeric":
+        _fail(f"{label} is only valid for a numeric candidate")
+
+    return {
+        "schema_version": 1,
+        "official_answer_sha256": bound_hash,
+        "reason_code": reason_code,
+        "canonical_answer": canonical_answer,
+        "accepted_legacy_answers": aliases,
+    }
+
+
 def _display_variants(candidate: Mapping[str, Any]) -> set[str]:
     reported = candidate.get("reported_result")
     if not isinstance(reported, Mapping):
@@ -9311,6 +9405,21 @@ def _display_variants(candidate: Mapping[str, Any]) -> set[str]:
         if isinstance(unit, str) and unit.strip():
             variants.add(_normalize_text(f"{value} {unit}"))
     return {item for item in variants if item}
+
+
+def _structured_display_variants(candidate: Mapping[str, Any]) -> set[str]:
+    """Return only value/unit displays; never trust free-form reported text."""
+    reported = candidate.get("reported_result")
+    if not isinstance(reported, Mapping):
+        return set()
+    value = reported.get("value")
+    if value is None or not str(value).strip():
+        return set()
+    variants = {_normalize_text(value)}
+    unit = reported.get("unit")
+    if isinstance(unit, str) and unit.strip():
+        variants.add(_normalize_text(f"{value} {unit}"))
+    return variants
 
 
 def _scientific_text(text: str) -> str:
@@ -9464,12 +9573,41 @@ def _rounding_sensitive_numeric_match(
     return 2 * delta <= candidate_quantum + official_quantum
 
 
-def _grade_one(candidate: Mapping[str, Any], official_answer: str) -> tuple[str, str]:
+def _grade_one(
+    candidate: Mapping[str, Any],
+    official_answer: str,
+    *,
+    grading_override: Mapping[str, Any] | None = None,
+) -> tuple[str, str]:
     if candidate.get("result_kind") == "underdetermined":
         return "underdetermined", "solver froze a proved underdetermined result"
 
+    if candidate.get("result_kind") == "numeric" and grading_override is not None:
+        display_variants = _structured_display_variants(candidate)
+        canonical = _normalize_text(grading_override["canonical_answer"])
+        reason_code = grading_override["reason_code"]
+        if canonical in display_variants:
+            return (
+                "exact_match",
+                "grading_override canonical_answer matches the normalized "
+                f"reported value and unit ({reason_code})",
+            )
+        legacy = {
+            _normalize_text(answer)
+            for answer in grading_override["accepted_legacy_answers"]
+        }
+        if display_variants & legacy:
+            return (
+                "exact_match",
+                "grading_override accepted_legacy_answer matches the normalized "
+                f"reported value and unit ({reason_code})",
+            )
+
     official_normalized = _normalize_text(official_answer)
-    if official_normalized in _display_variants(candidate):
+    if (
+        grading_override is None
+        and official_normalized in _display_variants(candidate)
+    ):
         return "exact_match", "normalized reported result matches the official answer"
 
     if candidate.get("result_kind") == "numeric":
@@ -9561,6 +9699,7 @@ def grade_blind_evaluation(
     )
     expected_by_id = {record["id"]: record for record in records}
     grader_by_id: dict[str, dict[str, Any]] = {}
+    grading_overrides: dict[str, dict[str, Any]] = {}
     for row in grader_rows:
         record_id = _require_nonempty_string(row.get("id"), field="grader row id")
         if record_id in grader_by_id:
@@ -9572,7 +9711,17 @@ def grade_blind_evaluation(
         )
         if blind_hash != expected_by_id[record_id]["blind_record_sha256"]:
             _fail(f"grader blind_record_sha256 does not bind to the freeze: {record_id}")
-        _require_nonempty_string(row.get("official_answer"), field=f"grader {record_id}.official_answer")
+        _require_nonempty_string(
+            row.get("official_answer"), field=f"grader {record_id}.official_answer"
+        )
+        official_answer = str(row["official_answer"])
+        if "grading_override" in row:
+            grading_overrides[record_id] = _validated_grading_override(
+                row["grading_override"],
+                official_answer=official_answer,
+                candidate=expected_by_id[record_id]["candidate"],
+                record_id=record_id,
+            )
         grader_by_id[record_id] = row
     missing = sorted(set(expected_by_id) - set(grader_by_id))
     if missing:
@@ -9583,7 +9732,11 @@ def grade_blind_evaluation(
         record = expected_by_id[record_id]
         row = grader_by_id[record_id]
         official_answer = str(row["official_answer"])
-        result, reason = _grade_one(record["candidate"], official_answer)
+        result, reason = _grade_one(
+            record["candidate"],
+            official_answer,
+            grading_override=grading_overrides.get(record_id),
+        )
         if result not in GRADE_RESULTS:  # pragma: no cover - internal invariant
             _fail(f"internal unsupported grade result: {result}")
         results.append(
