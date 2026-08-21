@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import json
 import unittest
+from unittest.mock import patch
 
 from archon.commands.loop.review_feedback import (
+    MAX_REPAIR_TASK_PROMPT_BYTES,
+    bound_repair_task,
     build_feedback_event,
     build_repair_task,
+    render_repair_task,
     sanitized_review_history,
     safe_preflight_summary,
 )
@@ -536,12 +540,28 @@ class ReviewFeedbackTest(unittest.TestCase):
             "repair_events": [event],
         }
 
-        task = build_repair_task(
+        unbound = build_repair_task(
             record,
             review_kind="formalization",
             worker_stage="formalization",
             candidate_sha256=digest,
         )
+        self.assertNotIn("source_bound_review", unbound)
+
+        with patch(
+            "archon.commands.loop.review_feedback."
+            "validate_native_review_source_certificate",
+            return_value="",
+        ):
+            task = build_repair_task(
+                record,
+                review_kind="formalization",
+                worker_stage="formalization",
+                candidate_sha256=digest,
+                expected_source_contract={
+                    "contract_kind": "native_problem_input_only",
+                },
+            )
 
         review = task["source_bound_review"]
         self.assertEqual(review["source_binding"]["candidate_sha256"], digest)
@@ -551,10 +571,6 @@ class ReviewFeedbackTest(unittest.TestCase):
         self.assertRegex(review["certificate_sha256"], r"^[0-9a-f]{64}$")
         self.assertRegex(review["source_contract_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(review["reason"], "PANEL_SWAP_DIAGNOSIS")
-        self.assertEqual(
-            [item["check_id"] for item in review["failed_checks"]],
-            ["checks.source_faithfulness", "checks.derivability"],
-        )
         self.assertEqual(
             review["repair_actions"][0],
             {
@@ -622,18 +638,6 @@ class ReviewFeedbackTest(unittest.TestCase):
         oversized_certificate["unselected_notes"] = "x" * (256 * 1024)
         cases.append(("oversized certificate", oversized_certificate))
 
-        oversized_handoff = _source_bound_formalization_certificate(digest)
-        oversized_handoff["bridge_obligations"] = [
-            {
-                "claim": "c" * 1_200,
-                "carrier": "k" * 800,
-                "status": "blocked",
-                "evidence": "e" * 2_048,
-            }
-            for _ in range(16)
-        ]
-        cases.append(("oversized projected handoff", oversized_handoff))
-
         for label, certificate in cases:
             with self.subTest(label=label):
                 event = build_feedback_event(
@@ -652,14 +656,131 @@ class ReviewFeedbackTest(unittest.TestCase):
                     "certificate": certificate,
                     "repair_events": [event],
                 }
-                task = build_repair_task(
+                with patch(
+                    "archon.commands.loop.review_feedback."
+                    "validate_native_review_source_certificate",
+                    return_value="",
+                ):
+                    task = build_repair_task(
+                        record,
+                        review_kind="formalization",
+                        worker_stage="formalization",
+                        candidate_sha256=digest,
+                        expected_source_contract={
+                            "contract_kind": "native_problem_input_only",
+                        },
+                    )
+                self.assertNotIn("source_bound_review", task)
+                self.assertNotIn("OFFICIAL_VALUE_SECRET", json.dumps(task))
+
+    def test_many_bridges_are_validated_and_blocked_first_byte_bounded(
+        self,
+    ) -> None:
+        digest = "8" * 64
+
+        def repair_task(certificate: dict) -> dict:
+            event = build_feedback_event(
+                review_kind="formalization",
+                candidate_sha256=digest,
+                event_id="formalization-many-bridges",
+                iteration=1,
+                attempt=1,
+                resulting_status="retry",
+                certificate=certificate,
+                decision="failed",
+            )
+            record = {
+                "status": "retry",
+                "candidate_sha256": digest,
+                "certificate": certificate,
+                "repair_events": [event],
+            }
+            with patch(
+                "archon.commands.loop.review_feedback."
+                "validate_native_review_source_certificate",
+                return_value="",
+            ):
+                return build_repair_task(
                     record,
                     review_kind="formalization",
                     worker_stage="formalization",
                     candidate_sha256=digest,
+                    expected_source_contract={
+                        "contract_kind": "native_problem_input_only",
+                    },
                 )
-                self.assertNotIn("source_bound_review", task)
-                self.assertNotIn("OFFICIAL_VALUE_SECRET", json.dumps(task))
+
+        cycle_three_shape = _source_bound_formalization_certificate(digest)
+        cycle_three_shape["bridge_obligations"] = [
+            {
+                "claim": f"anonymized source claim {index}",
+                "carrier": f"anonymized_carrier_{index}",
+                "status": (
+                    "failed"
+                    if index == 0
+                    else "blocked"
+                    if index >= 15
+                    else "covered"
+                ),
+                "evidence": f"anonymized source evidence {index}",
+            }
+            for index in range(21)
+        ]
+        task = repair_task(cycle_three_shape)
+        review = task["source_bound_review"]
+        projection = review["repair_action_projection"]
+        self.assertEqual(projection["bridge_obligations_count"], 21)
+        self.assertEqual(projection["failed_bridge_count"], 7)
+        self.assertEqual(projection["retained_count"], 7)
+        self.assertFalse(projection["truncated"])
+        self.assertRegex(
+            projection["bridge_obligations_sha256"], r"^[0-9a-f]{64}$"
+        )
+        self.assertEqual(
+            review["repair_actions"][0]["check_id"],
+            "bridge_obligations[15]",
+        )
+        self.assertEqual(
+            review["repair_actions"][-1]["check_id"],
+            "bridge_obligations[0]",
+        )
+
+        invalid_late_bridge = json.loads(json.dumps(cycle_three_shape))
+        invalid_late_bridge["bridge_obligations"][20]["evidence"] = (
+            "x" * 2_049
+        )
+        invalid_task = repair_task(invalid_late_bridge)
+        self.assertNotIn("source_bound_review", invalid_task)
+
+        oversized = _source_bound_formalization_certificate(digest)
+        oversized["bridge_obligations"] = [
+            {
+                "claim": f"{index}:" + "c" * 1_190,
+                "carrier": f"{index}:" + "k" * 790,
+                "status": "blocked",
+                "evidence": f"{index}:" + "e" * 2_038,
+            }
+            for index in range(21)
+        ]
+        bounded_task = repair_task(oversized)
+        bounded_review = bounded_task["source_bound_review"]
+        bounded_projection = bounded_review["repair_action_projection"]
+        self.assertEqual(bounded_projection["bridge_obligations_count"], 21)
+        self.assertEqual(bounded_projection["failed_bridge_count"], 21)
+        self.assertLess(bounded_projection["retained_count"], 21)
+        self.assertTrue(bounded_projection["truncated"])
+        self.assertEqual(
+            bounded_review["repair_actions"][0]["check_id"],
+            "bridge_obligations[0]",
+        )
+        self.assertEqual(
+            bounded_projection["retained_count"],
+            len(bounded_review["repair_actions"]),
+        )
+        self.assertLessEqual(
+            len(render_repair_task(bounded_task).encode("utf-8")),
+            MAX_REPAIR_TASK_PROMPT_BYTES,
+        )
 
     def test_open_sorry_action_is_proof_worker_only(self) -> None:
         digest = "9" * 64
@@ -702,6 +823,105 @@ class ReviewFeedbackTest(unittest.TestCase):
         )
         self.assertIn("open_proof_holes", task["reason_codes"])
         self.assertIn("close_all_open_proof_holes", task["required_actions"])
+
+        proof_to_formalization = build_repair_task(
+            record,
+            review_kind="proof",
+            worker_stage="formalization",
+            candidate_sha256=digest,
+        )
+        self.assertNotIn(
+            "open_proof_holes", proof_to_formalization["reason_codes"]
+        )
+        self.assertNotIn(
+            "close_all_open_proof_holes",
+            proof_to_formalization["required_actions"],
+        )
+
+        formal_certificate = _source_bound_formalization_certificate(digest)
+        formal_event = build_feedback_event(
+            review_kind="formalization",
+            candidate_sha256=digest,
+            event_id="formalization-open-sorry",
+            iteration=1,
+            attempt=1,
+            resulting_status="retry",
+            certificate=formal_certificate,
+            decision="failed",
+            preflight={
+                "status": "passed",
+                "compiles": True,
+                "returncode": 0,
+                "sorry_count": 2,
+            },
+        )
+        formal_record = {
+            "status": "retry",
+            "candidate_sha256": digest,
+            "certificate": formal_certificate,
+            "repair_events": [formal_event],
+        }
+        expected_contract = {
+            "contract_kind": "native_problem_input_only",
+        }
+        with patch(
+            "archon.commands.loop.review_feedback."
+            "validate_native_review_source_certificate",
+            return_value="",
+        ):
+            formal_to_formalization = build_repair_task(
+                formal_record,
+                review_kind="formalization",
+                worker_stage="formalization",
+                candidate_sha256=digest,
+                expected_source_contract=expected_contract,
+            )
+            formal_to_proof = build_repair_task(
+                formal_record,
+                review_kind="formalization",
+                worker_stage="proof",
+                candidate_sha256=digest,
+                expected_source_contract=expected_contract,
+            )
+        self.assertIn("source_bound_review", formal_to_formalization)
+        self.assertNotIn(
+            "open_proof_holes", formal_to_formalization["reason_codes"]
+        )
+        self.assertNotIn(
+            "close_all_open_proof_holes",
+            formal_to_formalization["required_actions"],
+        )
+        self.assertNotIn("source_bound_review", formal_to_proof)
+        self.assertIn("open_proof_holes", formal_to_proof["reason_codes"])
+        self.assertIn(
+            "close_all_open_proof_holes", formal_to_proof["required_actions"]
+        )
+
+    def test_repair_task_uses_exact_bounded_renderer(self) -> None:
+        task = {
+            "schema_version": 1,
+            "history": {
+                "events": [
+                    {"event_id": str(index), "reason_codes": ["x" * 200]}
+                    for index in range(20)
+                ],
+            },
+            "source_bound_review": {
+                "repair_actions": [
+                    {"check_id": str(index), "evidence": "é" * 200}
+                    for index in range(20)
+                ],
+            },
+        }
+        bounded = bound_repair_task(task, maximum_bytes=512)
+        rendered = render_repair_task(bounded)
+        self.assertEqual(json.loads(rendered), bounded)
+        self.assertLessEqual(len(rendered.encode("utf-8")), 512)
+        self.assertEqual(
+            bound_repair_task(task, maximum_bytes=1),
+            {},
+        )
+        self.assertEqual(MAX_REPAIR_TASK_PROMPT_BYTES, 24 * 1024)
 
 
 if __name__ == "__main__":

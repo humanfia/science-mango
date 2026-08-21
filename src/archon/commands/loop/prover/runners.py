@@ -79,7 +79,12 @@ from ..proof_review_gate import (
     reset_proof_review_targets_after_redraft,
 )
 from ..review_preflight import check_review_target
-from ..review_feedback import build_repair_task
+from ..review_feedback import (
+    MAX_REPAIR_TASK_PROMPT_BYTES,
+    bound_repair_task,
+    build_repair_task,
+    render_repair_task,
+)
 from ..problem_only_review_contract import (
     ProblemOnlyReviewContractError,
     native_problem_image_args,
@@ -317,8 +322,7 @@ def build_immediate_redraft_prompt(
     semantic_block = _native_formalizer_semantic_dag_block(
         project_path=project_path, target=target,
     )
-    certificate = json.dumps(review_certificate, ensure_ascii=False, indent=2)
-    return f"""{base_prompt}
+    prompt_prefix = f"""{base_prompt}
 
 {semantic_block}
 
@@ -340,7 +344,8 @@ the current candidate and problem-source hashes. Treat it as a repair
 checklist, recheck it against the bound problem evidence, and never treat it as
 an official answer or as a premise that bypasses the source derivation.
 
-{certificate}
+"""
+    prompt_suffix = f"""
 
 Repair every listed defect class in the theorem contract, not just the last
 proof error. You may change unprotected statements in `{rel}` and
@@ -352,6 +357,18 @@ PROGRESS.md, gate files, AUTO_NOTES.md, blueprint files, or any other Lean file.
 Return only after the
 assigned Lean file compiles and the redraft evidence is durable on disk.
 """
+    prompt_overhead = (
+        len(prompt_prefix.encode("utf-8"))
+        + len(prompt_suffix.encode("utf-8"))
+    )
+    task = bound_repair_task(
+        review_certificate,
+        maximum_bytes=MAX_REPAIR_TASK_PROMPT_BYTES - prompt_overhead,
+    )
+    prompt = prompt_prefix + render_repair_task(task) + prompt_suffix
+    if len(prompt.encode("utf-8")) > MAX_REPAIR_TASK_PROMPT_BYTES:
+        raise ValueError("immediate redraft prompt exceeds 24 KiB")
+    return prompt
 
 
 def _run_single_prover(
@@ -1398,12 +1415,25 @@ class ParallelProverRunner:
                             )
                             handoff_label = "proof Review"
                         else:
+                            try:
+                                expected_source_contract = (
+                                    resolve_target_review_source_contract(
+                                        project_path=self.project_path,
+                                        target=target,
+                                        preflight=None,
+                                    )
+                                )
+                            except ProblemOnlyReviewContractError:
+                                expected_source_contract = None
                             handoff = build_repair_task(
                                 prior_formalization,
                                 review_kind="formalization",
                                 worker_stage="formalization",
                                 candidate_sha256=_target_sha256(target),
                                 discard_stale_record=True,
+                                expected_source_contract=(
+                                    expected_source_contract
+                                ),
                             )
                             handoff_label = "formalization Review"
                         resumed_redrafts.append((
@@ -2608,6 +2638,9 @@ required action while preserving the accepted statement.
                                     worker_stage="formalization",
                                     candidate_sha256=_target_sha256(work.target),
                                     preflight=preflight_rows.get(work.rel),
+                                    expected_source_contract=(
+                                        work.source_contract
+                                    ),
                                 )
                                 formalizer_queue.append((
                                     work.target,

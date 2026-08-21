@@ -902,6 +902,7 @@ def apply_target_formalization_review(
             )
 
     reviews = int(old.get("reviews") or 0)
+    source_contract = expected_source_contract
     if reviews >= max_iterations:
         status = "review_exhausted"
         reason = (
@@ -992,6 +993,7 @@ def apply_target_formalization_review(
         worker_stage="formalization",
         candidate_sha256=candidate_sha256,
         preflight=preflight,
+        expected_source_contract=source_contract,
     )
     targets[rel] = next_record
     data["last_review_iter"] = iter_num

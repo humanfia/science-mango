@@ -11,6 +11,14 @@ from unittest.mock import Mock, patch
 
 from archon.agents.codex import CodexAgent
 
+from archon.commands.loop.formalization_review_gate import (
+    apply_target_formalization_review,
+    load_gate_state,
+)
+from archon.commands.loop.review_feedback import (
+    build_feedback_event,
+    build_repair_task,
+)
 from archon.commands.loop.parallel_formalization_review import (
     _run_formalization_review_worker,
     build_target_formalization_review_prompt,
@@ -442,6 +450,24 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "next_steps": "",
         }
 
+    def _failed_formalization_milestone(self, contract: dict) -> dict:
+        row = self._formalization_milestone(contract)
+        row["status"] = "blocked"
+        review = row["formalization_review"]
+        review["status"] = "failed"
+        review["reason"] = "PANEL_SWAP_SOURCE_DIAGNOSIS"
+        review["checks"]["source_faithfulness"] = {
+            "status": "failed",
+            "evidence": "panel B3 was substituted for source panel A2",
+        }
+        review["bridge_obligations"][0] = {
+            "claim": "source panel B3 plus source panel A2",
+            "carrier": "item_a_wrong_panel_ledger",
+            "status": "blocked",
+            "evidence": "the current carrier swaps the two source panels",
+        }
+        return row
+
     def test_contract_binds_problem_candidate_answer_and_constant_dataset(self) -> None:
         contract = self._contract()
         self.assertEqual(contract["contract_kind"], NATIVE_CONTRACT_KIND)
@@ -745,6 +771,142 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             validate_native_review_source_certificate(
                 semantic_audit, contract, passing=True,
             ),
+        )
+
+    def test_redraft_diagnosis_requires_exact_source_and_output_binding(
+        self,
+    ) -> None:
+        contract = self._contract()
+        milestone = self._failed_formalization_milestone(contract)
+        certificate = milestone["formalization_review"]
+        digest = contract["candidate_sha256"]
+        self.assertEqual(
+            validate_native_review_source_certificate(
+                certificate, contract, passing=False,
+            ),
+            "",
+        )
+
+        def repair_task(review: dict) -> dict:
+            event = build_feedback_event(
+                review_kind="formalization",
+                candidate_sha256=digest,
+                event_id="native-formalization-failed",
+                iteration=1,
+                attempt=1,
+                resulting_status="retry",
+                certificate=review,
+                decision="failed",
+                preflight=self.preflight,
+            )
+            return build_repair_task(
+                {
+                    "status": "retry",
+                    "candidate_sha256": digest,
+                    "certificate": review,
+                    "repair_events": [event],
+                },
+                review_kind="formalization",
+                worker_stage="formalization",
+                candidate_sha256=digest,
+                preflight=self.preflight,
+                expected_source_contract=contract,
+            )
+
+        valid_task = repair_task(certificate)
+        source_review = valid_task["source_bound_review"]
+        self.assertEqual(
+            source_review["reason"], "PANEL_SWAP_SOURCE_DIAGNOSIS"
+        )
+        self.assertEqual(
+            source_review["repair_actions"][0]["source_claim"],
+            "source panel B3 plus source panel A2",
+        )
+        valid_payload = json.dumps(valid_task, ensure_ascii=False)
+        for forbidden in (
+            "raw_value",
+            "display_value",
+            "source_requirement",
+            "the independently derived value",
+        ):
+            self.assertNotIn(forbidden, valid_payload)
+
+        wrong_hash = json.loads(json.dumps(certificate))
+        original_hash = wrong_hash["source_contract"][
+            "source_record_sha256"
+        ]
+        wrong_hash["source_contract"]["source_record_sha256"] = (
+            "0" * 64 if original_hash != "0" * 64 else "1" * 64
+        )
+        self.assertIn(
+            "does not match native problem-only evidence",
+            validate_native_review_source_certificate(
+                wrong_hash, contract, passing=False,
+            ),
+        )
+        wrong_hash_task = repair_task(wrong_hash)
+        self.assertNotIn("source_bound_review", wrong_hash_task)
+        self.assertNotIn(
+            "PANEL_SWAP_SOURCE_DIAGNOSIS",
+            json.dumps(wrong_hash_task, ensure_ascii=False),
+        )
+
+        wrong_output = json.loads(json.dumps(certificate))
+        wrong_output["requested_outputs"][0]["output_id"] = (
+            "unbound-output"
+        )
+        self.assertIn(
+            "output_id is not bound problem evidence",
+            validate_native_review_source_certificate(
+                wrong_output, contract, passing=False,
+            ),
+        )
+        wrong_output_task = repair_task(wrong_output)
+        self.assertNotIn("source_bound_review", wrong_output_task)
+        self.assertNotIn(
+            "PANEL_SWAP_SOURCE_DIAGNOSIS",
+            json.dumps(wrong_output_task, ensure_ascii=False),
+        )
+
+    def test_gate_audits_bad_contract_without_forwarding_diagnosis(self) -> None:
+        contract = self._contract()
+        milestone = self._failed_formalization_milestone(contract)
+        certificate = milestone["formalization_review"]
+        original_hash = certificate["source_contract"][
+            "source_record_sha256"
+        ]
+        bad_hash = "0" * 64 if original_hash != "0" * 64 else "1" * 64
+        certificate["source_contract"]["source_record_sha256"] = bad_hash
+
+        update = apply_target_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=milestone,
+            iter_num=1,
+            max_iterations=2,
+            event_id="native:formalization:bad-source-contract",
+            expected_source_contract=contract,
+            preflight=self.preflight,
+        )
+        self.assertEqual(update.status, "retry")
+        record = load_gate_state(self.state)["targets"][self.rel]
+        self.assertEqual(
+            record["certificate"]["source_contract"]["source_record_sha256"],
+            bad_hash,
+        )
+        self.assertEqual(
+            record["certificate"]["reason"],
+            "PANEL_SWAP_SOURCE_DIAGNOSIS",
+        )
+        handoff = record["repair_handoff"]
+        self.assertNotIn("source_bound_review", handoff)
+        handoff_payload = json.dumps(handoff, ensure_ascii=False)
+        self.assertNotIn(bad_hash, handoff_payload)
+        self.assertNotIn('"source_contract"', handoff_payload)
+        self.assertNotIn(
+            "PANEL_SWAP_SOURCE_DIAGNOSIS",
+            handoff_payload,
         )
 
     def test_controller_materializes_only_provenance_and_preserves_metadata(

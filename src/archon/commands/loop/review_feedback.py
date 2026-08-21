@@ -19,8 +19,14 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
+from .problem_only_review_contract import (
+    is_native_problem_only_contract,
+    validate_native_review_source_certificate,
+)
+
 
 FEEDBACK_SCHEMA_VERSION = 1
+MAX_REPAIR_TASK_PROMPT_BYTES = 24 * 1024
 _MAX_EVENTS = 20
 _MAX_SOURCE_BOUND_CERTIFICATE_BYTES = 256 * 1024
 _MAX_SOURCE_BOUND_HANDOFF_BYTES = 24 * 1024
@@ -365,6 +371,7 @@ def _source_bound_formalization_review(
     certificate: Mapping[str, Any],
     *,
     candidate_sha256: str,
+    expected_source_contract: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     """Project a narrow, hash-bound problem-only diagnosis for redrafting.
 
@@ -383,6 +390,19 @@ def _source_bound_formalization_review(
         or _formal_review_status(certificate.get("status"))
         not in {"blocked", "fail", "failed", "needs_redraft", "partial", "rejected"}
     ):
+        return {}
+
+    if not is_native_problem_only_contract(expected_source_contract):
+        return {}
+    try:
+        source_error = validate_native_review_source_certificate(
+            certificate,
+            expected_source_contract,
+            passing=False,
+        )
+    except (TypeError, ValueError):
+        return {}
+    if source_error:
         return {}
 
     source_contract = certificate.get("source_contract")
@@ -434,7 +454,7 @@ def _source_bound_formalization_review(
     checks = certificate.get("checks")
     if not reason or not isinstance(checks, Mapping):
         return {}
-    failed_checks: list[dict[str, str]] = []
+    has_failed_check = False
     for name in _CHECK_GROUPS["checks"]:
         check = checks.get(name)
         if not isinstance(check, Mapping):
@@ -451,10 +471,7 @@ def _source_bound_formalization_review(
         elif status in {
             "fail", "failed", "blocked", "partial", "needs_redraft", "rejected",
         }:
-            failed_checks.append({
-                "check_id": f"checks.{name}",
-                "evidence": evidence,
-            })
+            has_failed_check = True
         elif (
             status in {"n/a", "na", "not_applicable"}
             and name in {"uncertainty_propagation", "branch_orientation"}
@@ -464,9 +481,12 @@ def _source_bound_formalization_review(
             return {}
 
     bridges = certificate.get("bridge_obligations")
-    if not isinstance(bridges, list) or not bridges or len(bridges) > 16:
+    if not isinstance(bridges, list) or not bridges:
         return {}
-    repair_actions: list[dict[str, str]] = []
+    bridges_bytes = _canonical_json_bytes(bridges)
+    if bridges_bytes is None:
+        return {}
+    repair_action_candidates: list[tuple[int, int, dict[str, str]]] = []
     for index, bridge in enumerate(bridges):
         if not isinstance(bridge, Mapping):
             return {}
@@ -491,14 +511,19 @@ def _source_bound_formalization_review(
         ):
             return {}
         if status in _BRIDGE_FAIL_STATUSES:
-            repair_actions.append({
-                "check_id": f"bridge_obligations[{index}]",
-                "source_claim": claim,
-                "current_carrier": carrier,
-                "evidence": evidence,
-            })
-    if not failed_checks and not repair_actions:
+            repair_action_candidates.append((
+                0 if status == "blocked" else 1,
+                index,
+                {
+                    "check_id": f"bridge_obligations[{index}]",
+                    "source_claim": claim,
+                    "current_carrier": carrier,
+                    "evidence": evidence,
+                },
+            ))
+    if not has_failed_check and not repair_action_candidates:
         return {}
+    repair_action_candidates.sort(key=lambda item: (item[0], item[1]))
 
     source_contract_bytes = _canonical_json_bytes(source_contract)
     if source_contract_bytes is None:
@@ -510,14 +535,98 @@ def _source_bound_formalization_review(
         ).hexdigest(),
         "source_binding": source_binding,
         "reason": reason,
-        "failed_checks": failed_checks,
-        "repair_actions": repair_actions,
+        "repair_action_projection": {
+            "bridge_obligations_count": len(bridges),
+            "failed_bridge_count": len(repair_action_candidates),
+            "retained_count": 0,
+            "truncated": bool(repair_action_candidates),
+            "bridge_obligations_sha256": hashlib.sha256(
+                bridges_bytes
+            ).hexdigest(),
+        },
+        "repair_actions": [],
     }
-    result_bytes = _canonical_json_bytes(result)
+    base_bytes = _canonical_json_bytes(result)
+    if base_bytes is None or len(base_bytes) > _MAX_SOURCE_BOUND_HANDOFF_BYTES:
+        return {}
+
+    retained: list[dict[str, str]] = []
+    failed_count = len(repair_action_candidates)
+    for _priority, _index, action in repair_action_candidates:
+        trial_actions = [*retained, action]
+        trial = {
+            **result,
+            "repair_action_projection": {
+                **result["repair_action_projection"],
+                "retained_count": len(trial_actions),
+                "truncated": len(trial_actions) < failed_count,
+            },
+            "repair_actions": trial_actions,
+        }
+        trial_bytes = _canonical_json_bytes(trial)
+        if (
+            trial_bytes is None
+            or len(trial_bytes) > _MAX_SOURCE_BOUND_HANDOFF_BYTES
+        ):
+            break
+        retained = trial_actions
+        result = trial
+    return result
+
+
+def render_repair_task(task: Mapping[str, Any]) -> str:
+    """Render exactly the JSON embedded in a repair-worker prompt."""
+    payload = _canonical_json_bytes(task)
+    if payload is None:
+        raise ValueError("repair task must be finite JSON")
+    return payload.decode("utf-8")
+
+
+def bound_repair_task(
+    task: Mapping[str, Any],
+    *,
+    maximum_bytes: int = MAX_REPAIR_TASK_PROMPT_BYTES,
+) -> dict[str, Any]:
+    """Fit a repair task to its actual prompt rendering, fail closed."""
     if (
-        result_bytes is None
-        or len(result_bytes) > _MAX_SOURCE_BOUND_HANDOFF_BYTES
+        isinstance(maximum_bytes, bool)
+        or not isinstance(maximum_bytes, int)
+        or maximum_bytes < 2
     ):
+        return {}
+    try:
+        result = json.loads(render_repair_task(task))
+    except (json.JSONDecodeError, ValueError):
+        return {}
+    if not isinstance(result, dict):
+        return {}
+
+    while len(render_repair_task(result).encode("utf-8")) > maximum_bytes:
+        history = result.get("history")
+        events = history.get("events") if isinstance(history, dict) else None
+        if isinstance(events, list) and events:
+            history["events"] = events[1:]
+            continue
+
+        source_review = result.get("source_bound_review")
+        actions = (
+            source_review.get("repair_actions")
+            if isinstance(source_review, dict)
+            else None
+        )
+        if isinstance(actions, list) and actions:
+            actions.pop()
+            projection = source_review.get("repair_action_projection")
+            if isinstance(projection, dict):
+                projection["retained_count"] = len(actions)
+                projection["truncated"] = True
+            continue
+        if "source_bound_review" in result:
+            result.pop("source_bound_review", None)
+            continue
+        if "history" in result:
+            result.pop("history", None)
+            continue
         return {}
     return result
 
@@ -897,6 +1006,7 @@ def build_repair_task(
     candidate_sha256: str = "",
     preflight: Mapping[str, Any] | None = None,
     discard_stale_record: bool = False,
+    expected_source_contract: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the answer-safe feedback shown to the next repair worker."""
     if review_kind not in {"proof", "formalization"}:
@@ -1053,7 +1163,8 @@ def build_repair_task(
         source_bound_review = _source_bound_formalization_review(
             _certificate(record, review_kind),
             candidate_sha256=digest,
+            expected_source_contract=expected_source_contract,
         )
         if source_bound_review:
             task["source_bound_review"] = source_bound_review
-    return task
+    return bound_repair_task(task)

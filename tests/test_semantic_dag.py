@@ -277,6 +277,73 @@ class SemanticDagTest(unittest.TestCase):
         self.assertIn("SEMANTIC DAG SENTINEL", prompt)
         self.assertIn('"failed_check_ids"', prompt)
 
+    def test_immediate_redraft_prompt_enforces_real_utf8_boundary(self) -> None:
+        oversized_task = {
+            "failed_check_ids": ["coverage"],
+            "history": {
+                "events": [
+                    {"event_id": str(index), "codes": ["历史" * 200]}
+                    for index in range(20)
+                ],
+            },
+            "source_bound_review": {
+                "reason": "panel topology mismatch",
+                "repair_actions": [
+                    {
+                        "check_id": f"repair-{index}",
+                        "evidence": "证据" * 120,
+                    }
+                    for index in range(20)
+                ],
+            },
+        }
+        with (
+            patch(
+                "archon.commands.loop.prover.runners."
+                "select_prover_mode_for_target",
+                return_value="chemistry-formalize",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners._load_mode_content",
+                return_value=None,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_parallel_prover_prompt",
+                return_value="B" * 20_000,
+            ) as base_prompt,
+            patch(
+                "archon.commands.loop.prover.runners."
+                "_native_formalizer_semantic_dag_block",
+                return_value="SEMANTIC DAG SENTINEL",
+            ),
+        ):
+            prompt = build_immediate_redraft_prompt(
+                project_name="project",
+                project_path=Path("/project"),
+                state_dir=Path("/project/.archon"),
+                iter_num=1,
+                target=Path("/project/Problem.lean"),
+                review_certificate=oversized_task,
+                debug_feedback=False,
+            )
+            self.assertLessEqual(len(prompt.encode("utf-8")), 24 * 1024)
+            self.assertNotIn("__ARCHON_CONTROLLER_REPAIR_TASK_JSON__", prompt)
+            self.assertIn("repair-0", prompt)
+            self.assertNotIn("repair-19", prompt)
+
+            base_prompt.return_value = "B" * (24 * 1024)
+            with self.assertRaisesRegex(ValueError, "exceeds 24 KiB"):
+                build_immediate_redraft_prompt(
+                    project_name="project",
+                    project_path=Path("/project"),
+                    state_dir=Path("/project/.archon"),
+                    iter_num=1,
+                    target=Path("/project/Problem.lean"),
+                    review_certificate=oversized_task,
+                    debug_feedback=False,
+                )
+
 
 if __name__ == "__main__":
     unittest.main()
