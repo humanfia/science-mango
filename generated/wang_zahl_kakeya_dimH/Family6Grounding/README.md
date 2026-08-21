@@ -18,3 +18,19 @@ Two geometric inputs remain explicit and unproved here:
 
 Thus this checkpoint is a conditional reduction, not a completed Family 6
 proof. Build it with `lake build Family6Grounding`.
+
+The second generic checkpoint adds independently audited primitives for:
+
+- projective-sine triangle inequalities and same-/cross-certificate frame
+  comparisons;
+- canonical certified incidence with derived, nonempty member semantics;
+- the exact comparison-one slab frame-spread estimate;
+- a uniform-member-volume route to the `gamma = 1` concentration count; and
+- a minimal canonical Frostman constant and unit-ambient scalar bridge.
+
+These are generic reductions and scalar/geometric primitives. The
+`CanonicalChoicePlankTangentCoverageV3` chain and the actual completion/dynamic
+endpoint chain are deliberately not included in this checkpoint. In
+particular, these additions do not make the Family 6 conclusion unconditional:
+the incidence data and the stated concentration or coherence budgets must
+still be constructed in any application.
