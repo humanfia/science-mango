@@ -474,6 +474,15 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "does not establish that the current reaction instantiates",
                 " ".join(prompt.split()),
             )
+            normalized_chemistry = " ".join(prompt.split())
+            for marker in (
+                "`contest_interpretation` receipt is not a paper",
+                "every required activation cue is bound to an exact problem locator",
+                "different-substrate cue fails closed",
+                "does not identify the specific reagent",
+                "identity to be derived independently from the problem measurements",
+            ):
+                self.assertIn(marker, normalized_chemistry)
 
     def test_native_target_worker_certificate_uses_semantic_validator(self):
         with tempfile.TemporaryDirectory() as td:

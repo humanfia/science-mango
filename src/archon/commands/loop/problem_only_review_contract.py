@@ -1725,7 +1725,7 @@ def render_native_formalizer_answer_submission_prompt(
 def render_native_chemistry_constant_policy(
     contract: Mapping[str, Any],
 ) -> str:
-    """Render the closed-world constant lookup policy bound by the controller."""
+    """Render the closed-world chemistry registry policy bound by the controller."""
 
     dataset = contract.get("chemistry_constant_dataset")
     expected = {"version": DATASET_VERSION, "sha256": DATASET_SHA256}
@@ -1733,32 +1733,44 @@ def render_native_chemistry_constant_policy(
         raise ProblemOnlyReviewContractError(
             "native Review contract has no approved chemistry constant dataset"
         )
-    return f"""APPROVED OFFLINE CHEMISTRY CONSTANT POLICY:
-- The only allowed general-knowledge lookup is the version-pinned, network-free
+    return f"""APPROVED OFFLINE CHEMISTRY REGISTRY POLICY:
+- The only allowed auxiliary chemistry lookup is the version-pinned, network-free
   structured CLI. Its allowed dataset is version={DATASET_VERSION},
   sha256={DATASET_SHA256}.
 - Query grammar (angle-bracket names are placeholders, not literal tokens):
   `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
   `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
-  `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`, or
-  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`.
+  `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`, or
+  `"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`.
 - These grammar lines and any examples are illustrative, not an allowlist. Any
-  single element, canonical isotope, chemical formula, or template id supported
-  by this pinned CLI dataset is permitted. Do not infer that an unshown element
-  or formula is unavailable.
-- Pass exactly one element, isotope, formula, or registered template id. Never
-  pass a problem id, question/source text, URL, or search phrase. Do not use web
-  search or any other external knowledge service.
+  single element, canonical isotope, chemical formula, template id, or
+  contest-policy id supported by this pinned CLI dataset is permitted. Do not
+  infer that an unshown element or formula is unavailable.
+- Pass exactly one element, isotope, formula, registered template id, or
+  registered contest-policy id. Never pass a problem id, question/source text,
+  URL, or search phrase. Do not use web search or any other external knowledge
+  service.
 - A Reviewer must verify each used lookup through the same
-  `"$ARCHON_CLI_BIN"` grammar and check the returned dataset version/hash against
-  the bound values above; the few tokens printed in a prompt are never the full
-  supported inventory.
+  `"$ARCHON_CLI_BIN"` grammar. Check the returned dataset version/hash against
+  the controller-bound values above, then check record_sha256 against the
+  candidate-cited receipt after rerunning its exact operation and argument. The
+  few tokens printed in a prompt are never the full supported inventory.
+- A contest_interpretation receipt is a contest-semantics policy, not a paper,
+  empirical chemistry fact, or universal inverse-classification theorem.
+  Accept it only after binding every required activation cue to an exact
+  problem-text locator, confirming there is no problem-stated override, and
+  checking the exact dataset_sha256 and record_sha256. Missing, ambiguous, or
+  different-substrate cues fail closed. Use only the returned domain, template,
+  stoichiometry, and retention scope. The policy does not identify the specific
+  reagent; derive that identity from source measurements and pinned constants.
 - Problem-stipulated values override the dataset. A pinned nominal value may be
   used for an olympiad-style central answer when the problem asks for one, but
   still check whether source uncertainty could change the required reported
   digits or classification. A generic reaction template is not evidence that
   this problem instantiates it; require separate classification from bound
-  problem evidence or trusted general chemistry."""
+  problem evidence, trusted general chemistry, or a qualifying exact
+  contest_interpretation receipt."""
 
 
 def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:

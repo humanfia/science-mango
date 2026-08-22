@@ -59,6 +59,7 @@ from archon.commands.loop.problem_only_review_contract import (
     materialize_controller_review_provenance,
     native_problem_image_args,
     native_source_contract_provenance,
+    render_native_chemistry_constant_policy,
     render_native_composition_accounting_prompt,
     render_native_formalizer_answer_submission_prompt,
     resolve_native_formalizer_source_contract,
@@ -524,6 +525,21 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "blind_candidate_record",
         ):
             self.assertNotIn(forbidden, contract)
+
+    def test_chemistry_registry_policy_bounds_contest_interpretation(self) -> None:
+        prompt = " ".join(
+            render_native_chemistry_constant_policy(self._contract()).split()
+        )
+        for marker in (
+            "contest_interpretation <POLICY_ID>",
+            "contest-semantics policy, not a paper",
+            "exact problem-text locator",
+            "no problem-stated override",
+            "Missing, ambiguous, or different-substrate cues fail closed",
+            "does not identify the specific reagent",
+            "derive that identity from source measurements",
+        ):
+            self.assertIn(marker, prompt)
 
     def test_review_preflight_producer_flows_into_native_contract(self) -> None:
         process = Mock()

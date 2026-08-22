@@ -61,7 +61,18 @@ whose origin is verified in a configured sealed pinned library. Reject a bridge
 that merely cites or renames a candidate-declared chemistry law. A generic
 reaction_template receipt grounds only the returned schema; it does not establish
 that the current reaction instantiates that schema, nor does it identify a
-chemical family or finite candidate domain."""
+chemical family or finite candidate domain.
+
+A `contest_interpretation` receipt is not a paper, empirical chemistry fact, or
+universal inverse-classification theorem. Accept it only when every required
+activation cue is bound to an exact problem locator, no problem-stated override
+applies, and the independently repeated lookup matches both `dataset_sha256` and
+`record_sha256`. Use only the returned domain, template, stoichiometry, and
+retention scope. A missing, ambiguous, contradicted, or different-substrate cue
+fails closed. The policy does not identify the specific reagent; require that
+identity to be derived independently from the problem measurements and pinned
+constants.
+"""
 
 
 @dataclass(frozen=True)

@@ -64,20 +64,23 @@ problem underdetermined:
 "$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>
 "$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>
 "$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>
+"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>
 ```
 
 Angle-bracket names above are grammar placeholders, not literal tokens. These
 grammar lines and any examples are illustrative, not an allowlist: any single
-element, canonical isotope, chemical formula, or template id supported by the
-pinned CLI dataset is permitted. Do not infer that an unshown element or
-formula is unavailable.
+element, canonical isotope, chemical formula, template id, or contest-policy
+id supported by the pinned CLI dataset is permitted. Do not infer that an
+unshown element or formula is unavailable.
 
 The command accepts exactly one enumerated operation and one corresponding
 token. Never send a problem id, question text, source text, URL, search phrase,
 or other free text. It performs no network access and returns machine-readable
-JSON bound to `ciaaw-abridged-2024+ame2020-subset+archon-templates-v1` and its
-data SHA-256. Each successful lookup also carries `record_sha256`, which binds
-the exact operation, query, result, source metadata, and dataset identity.
+JSON bound to
+`ciaaw-abridged-2024+ame2020-subset+archon-templates-v1+contest-interpretation-v1`
+and its data SHA-256. Each successful lookup also carries `record_sha256`,
+which binds the exact operation, query, result, source metadata, and dataset
+identity.
 Record both hashes in the candidate-domain derivation when used. A Reviewer
 must verify every used lookup through the same
 `"$ARCHON_CLI_BIN"` grammar and check that returned version/hash against the
@@ -92,6 +95,18 @@ is verified in a configured sealed pinned library. A proved local wrapper is
 acceptable only when its proof reduces to those authorities; its name alone is
 not provenance.
 
+An accepted `contest_interpretation` receipt is a versioned contest-language
+policy, not a paper, empirical chemistry fact, or universal inverse
+classification theorem. Before using one, list every required activation cue
+from the returned record and bind each cue to an exact problem-text locator.
+Check the exact `dataset_sha256` and `record_sha256`; the policy id or a local
+wrapper name is insufficient. Apply only the candidate domain, reaction
+template, stoichiometry, and retention stated by that record. Problem wording
+always overrides the policy. If any cue is missing, ambiguous, on a different
+substrate, or contradicted by the problem, fail closed. The policy does not
+identify the specific reagent: prove that identity independently from the
+problem measurements and pinned constants.
+
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central
 answer when requested, but check whether source uncertainty could change the
@@ -99,8 +114,9 @@ required reported digits or classification. Do not substitute standard weights
 when the problem explicitly requests integer mass numbers or a named isotope.
 A reaction-template result is only a generic semantic contract: it never
 establishes that the current reaction is an instance. Supply problem evidence
-or a trusted general classification rule before using its stoichiometry or
-retention consequences.
+or a trusted general classification rule, or a qualifying exact
+`contest_interpretation` receipt with all activation cues, before using its
+stoichiometry or retention consequences.
 
 ## Opt-in image component accounting
 

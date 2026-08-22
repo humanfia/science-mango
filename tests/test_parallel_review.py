@@ -131,6 +131,15 @@ class ParallelReviewTest(unittest.TestCase):
                 "does not establish that the current reaction instantiates",
                 " ".join(prompt.split()),
             )
+            normalized_chemistry = " ".join(prompt.split())
+            for marker in (
+                "`contest_interpretation` receipt is not a paper",
+                "every required activation cue is bound to an exact problem locator",
+                "different-substrate cue fails closed",
+                "does not identify the specific reagent",
+                "identity to be derived independently from the problem measurements",
+            ):
+                self.assertIn(marker, normalized_chemistry)
 
     def test_target_prompt_isolated_and_forbids_shared_writes(self):
         with tempfile.TemporaryDirectory() as td:

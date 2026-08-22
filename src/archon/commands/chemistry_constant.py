@@ -8,7 +8,10 @@ solver's dependency on general chemistry constants auditable.
 Atomic weights are the CIAAW 2024 abridged standard atomic weights.  Isotope
 masses are a small, explicit AME2020 subset; an absent nuclide fails closed.
 The reaction-template registry contains generic schemas, never problem
-instances or candidate answers.
+instances or candidate answers.  The contest-interpretation registry contains
+explicitly labelled language policies, not empirical chemistry laws; every
+policy requires independent problem-text cues before it may instantiate a
+generic schema.
 """
 
 from __future__ import annotations
@@ -25,7 +28,10 @@ import typer
 
 
 SCHEMA_VERSION = 1
-DATASET_VERSION = "ciaaw-abridged-2024+ame2020-subset+archon-templates-v1"
+DATASET_VERSION = (
+    "ciaaw-abridged-2024+ame2020-subset+archon-templates-v1"
+    "+contest-interpretation-v1"
+)
 MAX_ARGUMENT_CHARS = 128
 MAX_GROUP_DEPTH = 4
 MAX_ATOM_COUNT = 1_000_000
@@ -44,6 +50,12 @@ _AME_SOURCE = {
 _TEMPLATE_SOURCE = {
     "id": "Archon_Generic_Chemistry_Reaction_Templates_v1",
     "edition": "1",
+}
+_CONTEST_INTERPRETATION_SOURCE = {
+    "id": "Archon_Chemistry_Contest_Interpretations_v1",
+    "edition": "1",
+    "authority_kind": "contest_semantics_policy",
+    "empirical_claim": False,
 }
 
 # symbol -> (atomic number, abridged standard atomic weight, uncertainty)
@@ -187,6 +199,56 @@ _REACTION_TEMPLATES: dict[str, dict[str, object]] = {
 }
 
 
+# These records state a bounded contest-language convention.  They are not
+# empirical inverse-classification theorems: use requires all printed cues and
+# a source locator, and the policy never determines a particular reagent.
+_CONTEST_INTERPRETATIONS: dict[str, dict[str, object]] = {
+    "analogous_halogen_addition": {
+        "policy_version": 1,
+        "authority_kind": "contest_semantics_policy",
+        "empirical_claim": False,
+        "scope": {
+            "domain": "olympiad_chemistry",
+            "task_kind": "molecular_reagent_identification",
+        },
+        "source_cues": {
+            "benchmark_reagent_reference": (
+                "molecular_formula_or_elemental_halogen_name_in_addition_context"
+            ),
+            "same_unsaturated_substrate": True,
+            "comparison_wording_any_of": ["same_way", "similar_way", "analogous_way"],
+            "quantitative_addition_or_adduct_context": True,
+            "molecular_formula_of_unknown_requested": True,
+        },
+        "interpretation": {
+            "reaction_template_id": "binary_two_fragment_electrophilic_addition",
+            "site_kind": "two_center_unsaturated_site",
+            "same_site_as_benchmark": True,
+            "sites_consumed_per_event": 1,
+            "unknown_reagent_kind": "neutral_diatomic_halogen_or_interhalogen",
+            "ordinary_olympiad_element_domain": ["F", "Cl", "Br", "I"],
+            "atoms_per_reagent_molecule": 2,
+            "charge": 0,
+            "same_element_allowed": True,
+            "different_elements_allowed": True,
+            "reagent_molecules_per_site": 1,
+            "addends_delivered_per_site": 2,
+            "all_reagent_addends_retained_in_product": True,
+        },
+        "admission_policy": {
+            "automatic_problem_instantiation": False,
+            "requires_exact_problem_text_locator": True,
+            "requires_all_source_cues": True,
+            "requires_no_contrary_problem_statement": True,
+            "problem_wording_overrides_policy": True,
+            "missing_or_ambiguous_cue": "fail_closed",
+            "does_not_identify_specific_reagent": True,
+            "not_a_universal_inverse_chemistry_claim": True,
+        },
+    },
+}
+
+
 class ChemistryConstantError(ValueError):
     """A query is outside the closed, structured reference vocabulary."""
 
@@ -196,6 +258,7 @@ class ChemistryConstantOperation(str, Enum):
     isotope_mass = "isotope_mass"
     molar_mass = "molar_mass"
     reaction_template = "reaction_template"
+    contest_interpretation = "contest_interpretation"
 
 
 def _canonical_json(value: object) -> bytes:
@@ -211,10 +274,16 @@ def _canonical_json(value: object) -> bytes:
 _DATASET_PAYLOAD = {
     "schema_version": SCHEMA_VERSION,
     "dataset_version": DATASET_VERSION,
-    "sources": [_CIAAW_SOURCE, _AME_SOURCE, _TEMPLATE_SOURCE],
+    "sources": [
+        _CIAAW_SOURCE,
+        _AME_SOURCE,
+        _TEMPLATE_SOURCE,
+        _CONTEST_INTERPRETATION_SOURCE,
+    ],
     "atomic_weights": _ATOMIC_WEIGHTS,
     "isotope_masses": _ISOTOPE_MASSES,
     "reaction_templates": _REACTION_TEMPLATES,
+    "contest_interpretations": _CONTEST_INTERPRETATIONS,
 }
 DATASET_SHA256 = hashlib.sha256(_canonical_json(_DATASET_PAYLOAD)).hexdigest()
 
@@ -456,6 +525,24 @@ def reaction_template(template: str) -> dict[str, object]:
     })
 
 
+def contest_interpretation(policy: str) -> dict[str, object]:
+    """Return one bounded contest-language policy without choosing an answer."""
+
+    policy_id = _validate_argument(policy, label="policy")
+    if _TEMPLATE_ID.fullmatch(policy_id) is None:
+        _fail("policy must be one lowercase registry identifier")
+    record = _CONTEST_INTERPRETATIONS.get(policy_id)
+    if record is None:
+        _fail("contest interpretation is not present in the pinned registry")
+    detached = json.loads(_canonical_json(record))
+    return _with_record_receipt({
+        **_base_result(ChemistryConstantOperation.contest_interpretation),
+        "query": {"policy": policy_id},
+        "result": {"id": policy_id, **detached},
+        "source": dict(_CONTEST_INTERPRETATION_SOURCE),
+    })
+
+
 def query_chemistry_constant(request: Mapping[str, object]) -> dict[str, object]:
     """Dispatch one strict ``{operation, argument}`` request.
 
@@ -482,6 +569,7 @@ def query_chemistry_constant(request: Mapping[str, object]) -> dict[str, object]
         ChemistryConstantOperation.isotope_mass: isotope_mass,
         ChemistryConstantOperation.molar_mass: molar_mass,
         ChemistryConstantOperation.reaction_template: reaction_template,
+        ChemistryConstantOperation.contest_interpretation: contest_interpretation,
     }
     return dispatch[operation](argument)
 
@@ -489,11 +577,17 @@ def query_chemistry_constant(request: Mapping[str, object]) -> dict[str, object]
 def chemistry_constant(
     operation: ChemistryConstantOperation = typer.Argument(
         ...,
-        help="atomic_weight | isotope_mass | molar_mass | reaction_template",
+        help=(
+            "atomic_weight | isotope_mass | molar_mass | reaction_template | "
+            "contest_interpretation"
+        ),
     ),
     argument: str = typer.Argument(
         ...,
-        help="One element symbol, isotope, formula, or registered template id.",
+        help=(
+            "One element symbol, isotope, formula, registered template id, or "
+            "registered contest-policy id."
+        ),
     ),
 ) -> None:
     """Emit one version-pinned offline chemistry reference result as JSON."""
