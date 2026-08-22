@@ -68,6 +68,18 @@ _MAX_SCHEMA_FEEDBACK_ITEM_BYTES = 512
 _MAX_SCHEMA_FEEDBACK_ITEMS = 4
 _MAX_SCHEMA_FEEDBACK_TOTAL_BYTES = 2_048
 
+_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL = """Trace every non-mathematical chemistry
+bridge to its ultimate authority. A candidate-local `axiom`, `def`, `theorem`,
+structure field, predicate, or fully-qualified name is not a trusted rule merely
+because the candidate compiles or uses it in a proof. Count a local carrier only
+when its decisive implication reduces to an exact problem locator, an offline
+lookup with matching dataset_sha256 and record_sha256, or an exact declaration
+whose origin is verified in a configured sealed pinned library. Reject a bridge
+that merely cites or renames a candidate-declared chemistry law. A generic
+reaction_template receipt grounds only the returned schema; it does not establish
+that the current reaction instantiates that schema, nor does it identify a
+chemical family or finite candidate domain."""
+
 _CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL = """For every depicted reaction arrow,
 write a source-first arrow certificate before using it: state the arrowhead
 direction, enumerate all precursors at the tail (including reagents placed
@@ -458,6 +470,8 @@ visual recount. If any relevant panel, legend mapping, node multiplicity,
 connection, or atom balance remains unresolved, fail closed instead of copying
 the candidate's interpretation.
 
+{_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
+
 {_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
 
 For chemistry, enumerate every requested output; inspect every listed image;
@@ -712,6 +726,8 @@ and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
 
 {chemistry_protocol}
+
+{_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
 {_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
 

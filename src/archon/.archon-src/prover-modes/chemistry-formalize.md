@@ -76,10 +76,21 @@ The command accepts exactly one enumerated operation and one corresponding
 token. Never send a problem id, question text, source text, URL, search phrase,
 or other free text. It performs no network access and returns machine-readable
 JSON bound to `ciaaw-abridged-2024+ame2020-subset+archon-templates-v1` and its
-data SHA-256. Record that version/hash in the candidate-domain derivation when
-used. A Reviewer must verify every used lookup through the same
+data SHA-256. Each successful lookup also carries `record_sha256`, which binds
+the exact operation, query, result, source metadata, and dataset identity.
+Record both hashes in the candidate-domain derivation when used. A Reviewer
+must verify every used lookup through the same
 `"$ARCHON_CLI_BIN"` grammar and check that returned version/hash against the
 pinned dataset; prompt examples never define the supported inventory.
+
+A candidate-local `axiom`, `def`, `theorem`, structure field, or predicate is
+never a trusted chemistry rule merely because it has a plausible name, is
+fully qualified, or compiles. It may encode a bridge only after the decisive
+chemical implication is derived from an exact problem locator, an exact
+offline lookup receipt within its stated scope, or a declaration whose origin
+is verified in a configured sealed pinned library. A proved local wrapper is
+acceptable only when its proof reduces to those authorities; its name alone is
+not provenance.
 
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central

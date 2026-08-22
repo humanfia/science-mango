@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 from pathlib import Path
 
@@ -54,6 +55,32 @@ def test_isotope_mass_uses_canonical_allowlisted_nuclide() -> None:
     assert chemistry.isotope_mass("C-12")["result"]["value"] == (
         "12.000000000000"
     )
+
+
+def test_each_lookup_has_a_stable_exact_record_receipt() -> None:
+    lookups = (
+        chemistry.atomic_weight("Br"),
+        chemistry.isotope_mass("Br-79"),
+        chemistry.molar_mass("H2O"),
+        chemistry.reaction_template("binary_two_fragment_electrophilic_addition"),
+    )
+    receipts: set[str] = set()
+    for lookup in lookups:
+        receipt = lookup["record_sha256"]
+        unsigned = dict(lookup)
+        del unsigned["record_sha256"]
+        expected = hashlib.sha256(
+            json.dumps(
+                unsigned,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        assert receipt == expected
+        receipts.add(receipt)
+    assert len(receipts) == len(lookups)
 
 
 def test_molar_mass_parses_formula_groups_and_hydrates_without_float() -> None:
@@ -196,6 +223,10 @@ def test_chemistry_formalizer_sees_strict_offline_query_contract() -> None:
         "reaction_template <TEMPLATE_ID>",
         "grammar placeholders, not literal tokens",
         "illustrative, not an allowlist",
+        "record_sha256",
+        "candidate-local `axiom`",
+        "name alone is not provenance",
+        "configured sealed pinned library",
         "Reviewer must verify every used lookup",
         "source uncertainty could change",
         "Problem-stipulated values override",

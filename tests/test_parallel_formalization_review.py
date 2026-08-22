@@ -468,6 +468,12 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "as untrusted generated outputs"
             )
             self.assertLess(source, generated)
+            self.assertIn("candidate-local `axiom`", prompt)
+            self.assertIn("matching dataset_sha256 and record_sha256", prompt)
+            self.assertIn(
+                "does not establish that the current reaction instantiates",
+                " ".join(prompt.split()),
+            )
 
     def test_native_target_worker_certificate_uses_semantic_validator(self):
         with tempfile.TemporaryDirectory() as td:

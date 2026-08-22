@@ -51,6 +51,18 @@ _NEEDS_REDRAFT_PARTIAL_STATUS_ERROR = (
     "proof_review route=needs_redraft requires milestone status=blocked"
 )
 
+_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL = """Trace every non-mathematical chemistry
+bridge to its ultimate authority. A candidate-local `axiom`, `def`, `theorem`,
+structure field, predicate, or fully-qualified name is not a trusted rule merely
+because the candidate compiles or uses it in a proof. Count a local carrier only
+when its decisive implication reduces to an exact problem locator, an offline
+lookup with matching dataset_sha256 and record_sha256, or an exact declaration
+whose origin is verified in a configured sealed pinned library. Reject a bridge
+that merely cites or renames a candidate-declared chemistry law. A generic
+reaction_template receipt grounds only the returned schema; it does not establish
+that the current reaction instantiates that schema, nor does it identify a
+chemical family or finite candidate domain."""
+
 
 @dataclass(frozen=True)
 class TargetReviewSpec:
@@ -292,6 +304,8 @@ structures/stereochemistry, identification uniqueness, raw arithmetic, and
 mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
 reach a candidate, or a finite candidate domain not derived from the problem.
+
+{_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
 {composition_block}
 
@@ -573,6 +587,8 @@ Review the actual theorem contract and proof for:
    the claimed proof.
 
 {chemistry_protocol}
+
+{_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
 Task-result layouts can be nested or flattened. Prefer the newest matching
 artifact whose contents agree with this iteration's trace. Do not fail a target

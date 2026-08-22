@@ -125,6 +125,12 @@ class ParallelReviewTest(unittest.TestCase):
                 self.assertIn(name, prompt)
             self.assertNotIn('"official_answer_alignment"', prompt)
             self.assertNotIn('"source_inconsistency"', prompt)
+            self.assertIn("candidate-local `axiom`", prompt)
+            self.assertIn("matching dataset_sha256 and record_sha256", prompt)
+            self.assertIn(
+                "does not establish that the current reaction instantiates",
+                " ".join(prompt.split()),
+            )
 
     def test_target_prompt_isolated_and_forbids_shared_writes(self):
         with tempfile.TemporaryDirectory() as td:

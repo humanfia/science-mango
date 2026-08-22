@@ -248,6 +248,14 @@ def _base_result(operation: ChemistryConstantOperation) -> dict[str, object]:
     }
 
 
+def _with_record_receipt(payload: dict[str, object]) -> dict[str, object]:
+    """Bind one exact lookup result without changing the pinned dataset hash."""
+
+    result = dict(payload)
+    result["record_sha256"] = hashlib.sha256(_canonical_json(payload)).hexdigest()
+    return result
+
+
 def atomic_weight(element: str) -> dict[str, object]:
     """Return one CIAAW abridged standard atomic weight by element symbol."""
 
@@ -258,7 +266,7 @@ def atomic_weight(element: str) -> dict[str, object]:
     if record is None:
         _fail("element has no standard atomic weight in the pinned dataset")
     atomic_number, value, uncertainty = record
-    return {
+    return _with_record_receipt({
         **_base_result(ChemistryConstantOperation.atomic_weight),
         "query": {"element": symbol},
         "result": {
@@ -270,7 +278,7 @@ def atomic_weight(element: str) -> dict[str, object]:
             "unit": "1",
         },
         "source": dict(_CIAAW_SOURCE),
-    }
+    })
 
 
 def isotope_mass(isotope: str) -> dict[str, object]:
@@ -284,7 +292,7 @@ def isotope_mass(isotope: str) -> dict[str, object]:
     if record is None:
         _fail("isotope is not present in the pinned isotope allowlist")
     atomic_number, value, uncertainty = record
-    return {
+    return _with_record_receipt({
         **_base_result(ChemistryConstantOperation.isotope_mass),
         "query": {"isotope": nuclide},
         "result": {
@@ -297,7 +305,7 @@ def isotope_mass(isotope: str) -> dict[str, object]:
             "unit": "Da",
         },
         "source": dict(_AME_SOURCE),
-    }
+    })
 
 
 class _FormulaParser:
@@ -412,7 +420,7 @@ def molar_mass(formula: str) -> dict[str, object]:
     ordered = dict(
         sorted(composition.items(), key=lambda item: _ATOMIC_WEIGHTS[item[0]][0])
     )
-    return {
+    return _with_record_receipt({
         **_base_result(ChemistryConstantOperation.molar_mass),
         "query": {"formula": text},
         "result": {
@@ -425,7 +433,7 @@ def molar_mass(formula: str) -> dict[str, object]:
             "unit": "g mol^-1",
         },
         "source": dict(_CIAAW_SOURCE),
-    }
+    })
 
 
 def reaction_template(template: str) -> dict[str, object]:
@@ -440,12 +448,12 @@ def reaction_template(template: str) -> dict[str, object]:
     # JSON round-tripping provides a detached object without admitting an
     # arbitrary deep-copy/data-loader dependency into this pure module.
     detached = json.loads(_canonical_json(record))
-    return {
+    return _with_record_receipt({
         **_base_result(ChemistryConstantOperation.reaction_template),
         "query": {"template": template_id},
         "result": {"id": template_id, **detached},
         "source": dict(_TEMPLATE_SOURCE),
-    }
+    })
 
 
 def query_chemistry_constant(request: Mapping[str, object]) -> dict[str, object]:
