@@ -437,6 +437,31 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertNotIn("OLD_CANDIDATE_BIAS_SENTINEL", prompt)
             self.assertIn("measurement_policy", prompt)
             self.assertIn("candidate_domain_policy", prompt)
+            source_first_rules = prompt.index(
+                "Before opening any generated answer submission"
+            )
+            generated_input = prompt.index(
+                "- Bound generated answer submission"
+            )
+            self.assertLess(source_first_rules, generated_input)
+            normalized_prompt = " ".join(prompt.split())
+            for marker in (
+                '"Suggest", "propose", or "give a possible"',
+                "one source-compatible witness",
+                "do not demand or let the candidate claim global uniqueness",
+                '"Determine" or "calculate"',
+                'Require uniqueness only for "unique" or "uniquely"',
+                'exhaustive coverage only for "all", "every"',
+                "source-only stock-flow ledger",
+                "cumulative fresh input",
+                "cumulative output",
+                "ending inventory",
+                "exact denominator",
+                "time/cycle horizon",
+                "same-initial-cohort interpretation",
+                "cumulative-new-feed interpretation",
+            ):
+                self.assertIn(marker, normalized_prompt)
             source = prompt.index("NATIVE PROBLEM-INPUT-ONLY CONTRACT")
             generated = prompt.index(
                 "Treat the current Lean candidate and bound answer submission "

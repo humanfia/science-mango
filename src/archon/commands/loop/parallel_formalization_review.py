@@ -371,6 +371,22 @@ def _build_native_target_formalization_review_prompt(
 Assigned target (the only target you may review):
   {rel}
 
+Before opening any generated answer submission, Lean candidate, or prior
+process metadata, freeze these interpretations from the problem source alone:
+- Infer the requested quantifier from the problem's own verb. "Suggest",
+  "propose", or "give a possible" asks for one source-compatible witness per
+  requested item; do not demand or let the candidate claim global uniqueness
+  or all solutions. "Determine" or "calculate" asks for the requested quantity
+  under the stated constraints and is underdetermined if they select no single
+  result. Require uniqueness only for "unique" or "uniquely", and exhaustive
+  coverage only for "all", "every", or an equivalent instruction to list them.
+- For any dynamic recycle, fresh-feed, or overall-yield quantity, first write a
+  source-only stock-flow ledger with the cumulative fresh input, cumulative
+  output, ending inventory, exact denominator, and time/cycle horizon. Compare
+  the same-initial-cohort interpretation with the cumulative-new-feed
+  interpretation and justify from the source which one applies.
+Only after fixing both audits may you compare them with generated artifacts.
+
 Read only these bounded inputs:
 - Every bound problem image with its expected digest:
   {json.dumps(source_contract["images"], ensure_ascii=False)}
