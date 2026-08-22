@@ -1249,6 +1249,7 @@ class ParallelProverRunner:
                             state_dir=self.state_dir,
                             targets=(rel,),
                             iter_num=self.iter_num,
+                            formalization_records={rel: prior_formalization},
                         )
                         refreshed_proof = load_proof_review_state(
                             self.state_dir

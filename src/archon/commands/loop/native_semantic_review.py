@@ -1930,7 +1930,12 @@ def _validate_output(
     raw = _exact_fields(raw_value, _OUTPUT_FIELDS, label=label)
     try:
         output_bytes = len(
-            json.dumps(raw, ensure_ascii=False, sort_keys=True).encode("utf-8")
+            json.dumps(
+                raw,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
         )
     except (TypeError, ValueError):
         _error(f"{label} is not JSON serializable")

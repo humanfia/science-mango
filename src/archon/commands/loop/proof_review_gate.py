@@ -662,6 +662,11 @@ def apply_proof_review(
                     iter_num=iter_num,
                 )
             )
+        target = project_path / rel
+        candidate_sha256 = (
+            hashlib.sha256(target.read_bytes()).hexdigest()
+            if target.is_file() else ""
+        )
         targets[rel] = {
             **previous,
             "status": status,
@@ -672,6 +677,7 @@ def apply_proof_review(
             "redraft_kind": redraft_kind,
             "proof_review_schema_version": PROOF_REVIEW_SCHEMA_VERSION,
             "proof_review_route": route,
+            "candidate_sha256": candidate_sha256,
             "source_contract": _milestone_source_provenance(row),
             "blind_review_certificate": normalized_review_source_certificate(
                 (
@@ -904,13 +910,37 @@ def apply_target_proof_review(
     )
 
 
+def formalization_redraft_candidate_is_fresh(
+    *,
+    state_dir: Path,
+    target_rel: str,
+    candidate_sha256: str,
+) -> bool:
+    """Require a changed candidate while a proof redraft remains unresolved."""
+    state = load_proof_review_state(state_dir)
+    records = state.get("targets")
+    record = records.get(target_rel) if isinstance(records, Mapping) else None
+    if not isinstance(record, Mapping) or record.get("status") != "needs_redraft":
+        return True
+    rejected_sha256 = str(record.get("candidate_sha256") or "").strip().lower()
+    current_sha256 = str(candidate_sha256 or "").strip().lower()
+    return (
+        len(rejected_sha256) == 64
+        and set(rejected_sha256) <= set("0123456789abcdef")
+        and len(current_sha256) == 64
+        and set(current_sha256) <= set("0123456789abcdef")
+        and current_sha256 != rejected_sha256
+    )
+
+
 def reset_proof_review_targets_after_redraft(
     *,
     state_dir: Path,
     targets: Iterable[str],
     iter_num: int,
+    formalization_records: Mapping[str, Mapping[str, Any]],
 ) -> tuple[str, ...]:
-    """Re-enable proof Review only after a requested redraft passes its gate."""
+    """Re-enable proof Review only after a fresh, hash-bound redraft passes."""
     state = load_proof_review_state(state_dir)
     records = state.get("targets")
     if not isinstance(records, dict):
@@ -921,6 +951,39 @@ def reset_proof_review_targets_after_redraft(
         record = records.get(rel)
         if not isinstance(record, dict) or record.get("status") != "needs_redraft":
             continue
+        target = state_dir.parent / rel
+        if not target.is_file():
+            continue
+        candidate_sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
+        rejected_sha256 = str(record.get("candidate_sha256") or "").strip().lower()
+        formalization = formalization_records.get(rel)
+        if not isinstance(formalization, Mapping):
+            continue
+        certificate = formalization.get("certificate")
+        certificate_sha256 = (
+            str(certificate.get("candidate_sha256") or "").strip().lower()
+            if isinstance(certificate, Mapping) else ""
+        )
+        top_level_sha256 = str(
+            formalization.get("candidate_sha256") or ""
+        ).strip().lower()
+        valid_digests = all(
+            len(digest) == 64 and set(digest) <= set("0123456789abcdef")
+            for digest in (
+                rejected_sha256,
+                candidate_sha256,
+                top_level_sha256,
+                certificate_sha256,
+            )
+        )
+        if (
+            not valid_digests
+            or candidate_sha256 == rejected_sha256
+            or formalization.get("status") != "passed"
+            or top_level_sha256 != candidate_sha256
+            or certificate_sha256 != candidate_sha256
+        ):
+            continue
         history = record.get("history")
         history = list(history) if isinstance(history, list) else []
         history.append({
@@ -929,10 +992,6 @@ def reset_proof_review_targets_after_redraft(
             "prior_attempts": int(record.get("attempts") or 0),
             "reviewed_at": _utcnow(),
         })
-        target = state_dir.parent / rel
-        if not target.is_file():
-            continue
-        candidate_sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
         repair_events = record.get("repair_events")
         repair_events = (
             list(repair_events) if isinstance(repair_events, list) else []

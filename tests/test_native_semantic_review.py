@@ -236,6 +236,47 @@ class NativeSemanticReviewTests(unittest.TestCase):
             ["out_1", "out_2"],
         )
 
+    def test_per_output_budget_uses_canonical_compact_json(self) -> None:
+        contract = self._contract()
+        review = self._review(contract)
+        output = review["independent_rederivation"]["requested_outputs"][0]
+        carriers = output["lean_carriers"]
+        carriers["inputs"] = ["A.a"]
+
+        def compact_size(value: object) -> int:
+            return len(json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8"))
+
+        initial_size = compact_size(output)
+        padding = native_semantic_review.MAX_OUTPUT_BYTES - initial_size
+        self.assertGreater(padding, 0)
+        carriers["inputs"] = ["A." + "a" * (padding + 1)]
+
+        self.assertEqual(
+            compact_size(output), native_semantic_review.MAX_OUTPUT_BYTES,
+        )
+        self.assertGreater(
+            len(json.dumps(
+                output, ensure_ascii=False, sort_keys=True,
+            ).encode("utf-8")),
+            native_semantic_review.MAX_OUTPUT_BYTES,
+        )
+        error, normalized = validate_independent_rederivation(review, contract)
+        self.assertEqual(error, "")
+        self.assertEqual(normalized, review["independent_rederivation"])
+
+        carriers["inputs"][0] += "a"
+        error, normalized = validate_independent_rederivation(review, contract)
+        self.assertEqual(
+            error,
+            "independent_rederivation.requested_outputs[0] exceeds the compact Review certificate limit",
+        )
+        self.assertEqual(normalized, {})
+
     def test_prompt_example_parses_and_passes_the_same_validator(self) -> None:
         contract = self._contract()
         instructions = render_independent_rederivation_instructions(contract)

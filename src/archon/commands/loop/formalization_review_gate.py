@@ -742,6 +742,10 @@ def apply_formalization_review(
 ) -> GateResult:
     """Persist one autoformalization Review and route the next stage."""
     max_iterations = max(1, int(max_iterations))
+    from .proof_review_gate import (
+        formalization_redraft_candidate_is_fresh,
+        reset_proof_review_targets_after_redraft,
+    )
     data = load_gate_state(state_dir) or _initial_state(max_iterations)
     data["max_iterations"] = max_iterations
     targets: dict[str, Any] = data.setdefault("targets", {})
@@ -779,6 +783,30 @@ def apply_formalization_review(
 
         old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
         reviews = int(old.get("reviews") or 0)
+        candidate_sha256 = _file_sha256(project_path / rel)
+        if (
+            decision == "passed"
+            and not formalization_redraft_candidate_is_fresh(
+                state_dir=state_dir,
+                target_rel=rel,
+                candidate_sha256=candidate_sha256,
+            )
+        ):
+            # A fallback Review of the rejected bytes is not a redraft. Keep
+            # the proof-requested quarantine and its revoked certificate live.
+            if old.get("status") not in {"retry", "review_exhausted"}:
+                targets[rel] = {
+                    **old,
+                    "status": (
+                        "review_exhausted" if reviews >= max_iterations else "retry"
+                    ),
+                    "reason": "proof Review redraft remains unresolved; candidate is unchanged",
+                    "certificate": {},
+                    "candidate_sha256": candidate_sha256,
+                    "reopened_by": "proof_review",
+                    "updated_at": _utcnow(),
+                }
+            continue
         if (
             reviews < max_iterations
             and int(old.get("last_review_iter") or -1) != iter_num
@@ -790,6 +818,7 @@ def apply_formalization_review(
             status = "review_exhausted"
         else:
             status = "retry"
+        certificate = {**certificate, "candidate_sha256": candidate_sha256}
         next_record = {
             **old,
             "status": status,
@@ -798,8 +827,14 @@ def apply_formalization_review(
             "reason": reason,
             "updated_at": _utcnow(),
             "review_schema_version": REVIEW_SCHEMA_VERSION,
+            "candidate_sha256": candidate_sha256,
             "certificate": certificate,
         }
+        if status == "passed":
+            for stale_key in (
+                "reopened_by", "certificate_revoked_at", "redraft_kind",
+            ):
+                next_record.pop(stale_key, None)
         materialized = old.get("materialized_redraft")
         if isinstance(materialized, dict):
             next_record["materialized_redraft"] = {
@@ -824,12 +859,11 @@ def apply_formalization_review(
     # formalization pass. Import locally to keep the two persisted gates
     # independently loadable.
     if passed:
-        from .proof_review_gate import reset_proof_review_targets_after_redraft
-
         reset_proof_review_targets_after_redraft(
             state_dir=state_dir,
             targets=passed,
             iter_num=iter_num,
+            formalization_records={rel: targets[rel] for rel in passed},
         )
 
     if retry:
@@ -920,6 +954,11 @@ def apply_target_formalization_review(
                 applied=False,
             )
 
+    from .proof_review_gate import (
+        formalization_redraft_candidate_is_fresh,
+        reset_proof_review_targets_after_redraft,
+    )
+    candidate_sha256 = _file_sha256(target)
     reviews = int(old.get("reviews") or 0)
     source_contract = expected_source_contract
     if reviews >= max_iterations:
@@ -952,6 +991,43 @@ def apply_target_formalization_review(
             decision = "failed"
             reason = f"problem-only source contract validation failed: {exc}"
             certificate = {}
+        if (
+            decision == "passed"
+            and not formalization_redraft_candidate_is_fresh(
+                state_dir=state_dir,
+                target_rel=rel,
+                candidate_sha256=candidate_sha256,
+            )
+        ):
+            status = str(old.get("status") or "retry")
+            quarantine_reason = (
+                str(old.get("reason") or "")
+                or "proof Review redraft remains unresolved; candidate is unchanged"
+            )
+            if status not in {"retry", "review_exhausted"}:
+                status = (
+                    "review_exhausted" if reviews >= max_iterations else "retry"
+                )
+                targets[rel] = {
+                    **old,
+                    "status": status,
+                    "reason": quarantine_reason,
+                    "certificate": {},
+                    "candidate_sha256": candidate_sha256,
+                    "reopened_by": "proof_review",
+                    "updated_at": _utcnow(),
+                }
+                data["updated_at"] = _utcnow()
+                _write_state(state_dir, data)
+                _write_report(state_dir, data)
+            return TargetFormalizationReviewUpdate(
+                rel=rel,
+                status=status,
+                reviews=reviews,
+                reason=quarantine_reason,
+                passed=False,
+                applied=False,
+            )
         reviews += 1
         if decision == "passed":
             status = "passed"
@@ -960,7 +1036,7 @@ def apply_target_formalization_review(
         else:
             status = "retry"
 
-    candidate_sha256 = _file_sha256(target)
+    certificate = {**certificate, "candidate_sha256": candidate_sha256}
     feedback_event = build_feedback_event(
         review_kind="formalization",
         candidate_sha256=candidate_sha256,
@@ -1001,7 +1077,11 @@ def apply_target_formalization_review(
     # A fresh formalization verdict supersedes transient proof-redraft routing
     # flags.  Keeping them live makes crash/resume select the older proof
     # certificate instead of this newer semantic Review.
-    for stale_key in ("reopened_by", "certificate_revoked_at", "redraft_kind"):
+    stale_keys = (
+        ("reopened_by", "certificate_revoked_at", "redraft_kind")
+        if status == "passed" else ()
+    )
+    for stale_key in stale_keys:
         next_record.pop(stale_key, None)
     materialized = old.get("materialized_redraft")
     if isinstance(materialized, dict):
@@ -1025,12 +1105,11 @@ def apply_target_formalization_review(
     _write_report(state_dir, data)
 
     if status == "passed":
-        from .proof_review_gate import reset_proof_review_targets_after_redraft
-
         reset_proof_review_targets_after_redraft(
             state_dir=state_dir,
             targets=(rel,),
             iter_num=iter_num,
+            formalization_records={rel: next_record},
         )
 
     return TargetFormalizationReviewUpdate(

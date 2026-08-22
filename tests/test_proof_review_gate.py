@@ -20,6 +20,7 @@ from archon.commands.loop.proof_review_gate import (
     filter_objectives_for_proof_review_gate,
     load_proof_review_state,
     reopen_exhausted_proof_review_targets,
+    reset_proof_review_targets_after_redraft,
 )
 from archon.commands.loop import proof_review_gate
 from archon.commands.loop.problem_only_review_contract import (
@@ -553,6 +554,87 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         record = load_proof_review_state(self.state)["targets"]["Problems/p.lean"]
         self.assertEqual(record["status"], "blocked_infrastructure")
 
+    def test_same_candidate_fallback_pass_preserves_proof_redraft_quarantine(self):
+        self._write_progress("autoformalize")
+        self._apply_formalization(1)
+        proof_session = self._proof_session(
+            2,
+            route="needs_redraft",
+            status="blocked",
+            redraft_kind="missing_foundational_bridge",
+        )
+        self._apply_proof(2, proof_session)
+        proof_record = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={"Problems/p.lean": proof_record},
+            iter_num=2,
+            max_iterations=3,
+        )
+
+        fallback = self._apply_formalization(3)
+
+        self.assertEqual(fallback.passed, ())
+        self.assertEqual(fallback.retry, ("Problems/p.lean",))
+        formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(formal_record["status"], "retry")
+        self.assertEqual(formal_record["certificate"], {})
+        self.assertEqual(formal_record["reopened_by"], "proof_review")
+        unchanged_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        self.assertEqual(proof_record["candidate_sha256"], unchanged_sha256)
+        proof_after = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        self.assertEqual(proof_after["status"], "needs_redraft")
+        self.assertNotIn("redraft_resolved_iter", proof_after)
+
+    def test_redraft_reset_rejects_certificate_or_top_level_hash_mismatch(self):
+        proof_session = self._proof_session(
+            1,
+            route="needs_redraft",
+            status="blocked",
+            redraft_kind="missing_foundational_bridge",
+        )
+        self._apply_proof(1, proof_session)
+        self.target.write_text(
+            "theorem p : True := by trivial\n", encoding="utf-8",
+        )
+        redrafted_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        mismatched_sha256 = "0" * 64
+        self.assertNotEqual(redrafted_sha256, mismatched_sha256)
+
+        records = (
+            {
+                "status": "passed",
+                "candidate_sha256": mismatched_sha256,
+                "certificate": {"candidate_sha256": redrafted_sha256},
+            },
+            {
+                "status": "passed",
+                "candidate_sha256": redrafted_sha256,
+                "certificate": {"candidate_sha256": mismatched_sha256},
+            },
+        )
+        for formalization_record in records:
+            with self.subTest(record=formalization_record):
+                reset = reset_proof_review_targets_after_redraft(
+                    state_dir=self.state,
+                    targets=("Problems/p.lean",),
+                    iter_num=2,
+                    formalization_records={
+                        "Problems/p.lean": formalization_record,
+                    },
+                )
+                self.assertEqual(reset, ())
+                proof_record = load_proof_review_state(self.state)["targets"][
+                    "Problems/p.lean"
+                ]
+                self.assertEqual(proof_record["status"], "needs_redraft")
+
     def test_redraft_revokes_certificate_then_fresh_pass_resets_proof_budget(self):
         self._write_progress("autoformalize")
         initial = self._apply_formalization(1)
@@ -600,6 +682,12 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         self.assertIn("physics-formalize", self.progress.read_text(encoding="utf-8"))
         self.assertEqual(proof_result.needs_redraft, ("Problems/p.lean",))
 
+        rejected_sha256 = proof_record["candidate_sha256"]
+        self.target.write_text(
+            "theorem p : True := by trivial\n", encoding="utf-8",
+        )
+        redrafted_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        self.assertNotEqual(redrafted_sha256, rejected_sha256)
         repassed = self._apply_formalization(3)
         self.assertEqual(repassed.passed, ("Problems/p.lean",))
         proof_record = load_proof_review_state(self.state)["targets"]["Problems/p.lean"]
@@ -617,6 +705,10 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
         self.assertEqual(transition["failed_check_ids"], [])
         self.assertEqual(proof_record["repair_handoff"], {})
         formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(formal_record["candidate_sha256"], redrafted_sha256)
+        self.assertEqual(
+            formal_record["certificate"]["candidate_sha256"], redrafted_sha256,
+        )
         self.assertEqual(
             formal_record["reopen_history"][-1]["previous_certificate"],
             old_certificate,
