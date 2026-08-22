@@ -177,13 +177,15 @@ solve the proof.
 - If the searched libraries do not provide a problem-specific bridge, state
   and prove a target-local helper from available foundations. Do not install,
   update, fetch, or replace Lake dependencies.
-- For routine atomic weights, isotope masses, formula molar masses, or a
-  registered generic reaction schema, use only the version-pinned offline CLI.
+- For routine atomic weights, isotope masses, formula molar masses, a
+  registered generic reaction schema, or a controller-pinned contest
+  interpretation, use only the version-pinned offline CLI.
   Query grammar (angle-bracket names are placeholders, not literal tokens):
   `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
   `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
-  `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`, or
-  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`.
+  `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`, or
+  `"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`.
   These grammar lines and any examples are illustrative, not an allowlist: any
   single element, canonical isotope, formula, or template id supported by this
   pinned CLI dataset is permitted. Do not infer that an unshown token is
@@ -196,6 +198,15 @@ solve the proof.
   returned reaction template is not evidence that the current problem
   instantiates it; establish that classification separately from problem
   evidence or trusted general chemistry.
+  A returned contest interpretation is a non-empirical contest-semantics
+  policy, not a paper or universal chemical law. Use it only when every
+  required cue is bound to an exact problem locator and no problem-statement
+  override applies; a missing or ambiguous cue or a different substrate must
+  fail closed. It authorizes only the returned domain, template,
+  stoichiometry, and retention scope and does not identify the specific
+  reagent. Derive that identity independently from the problem measurements
+  and separately receipted constants, preserving both `dataset_sha256` and
+  `record_sha256`.
 - For assigned `IChO2026Problems/problem_<TARGET_ID>.lean`, atomically overwrite
   `.archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json` on
   every formalization and redraft. It is generated output, never source
@@ -354,8 +365,9 @@ The only permitted general-knowledge lookup is the pinned offline structured
 CLI. Query grammar (angle-bracket names are placeholders, not literal tokens):
 `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
 `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
-`"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`, or
-`"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`.
+`"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`,
+`"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`, or
+`"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`.
 These grammar lines and any examples are illustrative, not an allowlist: any
 single element, canonical isotope, formula, or template id supported by this
 pinned CLI dataset is permitted. Do not infer that an unshown token is
@@ -368,6 +380,15 @@ used for an olympiad-style central answer when requested, but check whether
 source uncertainty could change the required reported digits or classification.
 A generic reaction template does not establish that the current problem
 instantiates it.
+A contest interpretation receipt is a non-empirical contest-semantics policy,
+not a paper or universal chemical law. Accept it only after binding every
+required cue to an exact problem locator, confirming that no problem-statement
+override applies, and rerunning the exact operation and argument to verify both
+`dataset_sha256` and `record_sha256`. A missing or ambiguous cue or a different
+substrate must fail closed. The receipt authorizes only its returned domain,
+template, stoichiometry, and retention scope; it does not identify the specific
+reagent, which must still follow independently from the problem measurements
+and separately receipted constants.
 """
 
 

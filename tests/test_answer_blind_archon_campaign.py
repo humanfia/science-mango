@@ -606,8 +606,18 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 '"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>',
                 normalized,
             )
+            self.assertIn(
+                '"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation '
+                '<POLICY_ID>',
+                normalized,
+            )
             self.assertIn("illustrative, not an allowlist", normalized)
             self.assertIn("source uncertainty could change", normalized)
+            self.assertIn("non-empirical contest-semantics policy", normalized)
+            self.assertIn("every required cue", normalized)
+            self.assertIn("exact problem locator", normalized)
+            self.assertIn("does not identify the specific reagent", normalized)
+            self.assertIn("must fail closed", normalized)
             self.assertNotIn("`archon chemistry-constant", text)
         self.assertIn(
             ".archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json",
