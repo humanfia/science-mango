@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Low-memory proof-carrying runner for the paper400 Dic5 base CNF.
 
-This add-only policy variant is byte-derived from the independently audited
-v2 runner.  Its only resource-policy relaxation is a 4 GiB minimum raw cgroup
-headroom at stage launch; proof, process-supervision, and publication rules
-remain unchanged.
+This policy variant is byte-derived from the independently audited v2 runner.
+It has no raw cgroup-headroom admission floor; effective-headroom, pressure,
+OOM, proof, process-supervision, and publication rules remain unchanged.
+
 
 This module is intentionally stdlib-only at supervisor import time.  The
 scientific final_v13 builder is loaded only by short-lived, isolated helper
@@ -49,7 +49,7 @@ from typing import Any, Iterable, Mapping, Sequence
 
 
 SCHEMA_VERSION = 2
-GATE = "paper400-dic5-standalone-proof-carrying-base-v2-lowmem4g"
+GATE = "paper400-dic5-standalone-proof-carrying-base-v2-no-raw-admission"
 AUTHORITY_PRODUCTION = "PRODUCTION"
 AUTHORITY_TEST_ONLY = "TEST_ONLY"
 
@@ -231,7 +231,7 @@ JSON_MAX_BYTES = 128 << 20
 RESOURCE_CPU_INTERVALS = 3
 RESOURCE_CPU_INTERVAL_S = 2.0
 RESOURCE_MAX_BUSY_PERCENT = 60.0
-RESOURCE_MIN_RAW_HEADROOM = 4 << 30
+RESOURCE_MIN_RAW_HEADROOM = 0
 RESOURCE_MIN_EFFECTIVE_HEADROOM = 16 << 30
 RESOURCE_MAX_EFFECTIVE_FRACTION = 0.75
 RESOURCE_MAX_MEMORY_PSI_FULL_AVG10 = 1.0

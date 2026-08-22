@@ -25,9 +25,9 @@ SPEC.loader.exec_module(proof)
 
 def test_lowmem_policy_identity_is_explicit_and_original_is_preserved() -> None:
     original = SOURCE.with_name("run_paper400_dic5_w6_standalone_proof_v2.py")
-    assert proof.RESOURCE_MIN_RAW_HEADROOM == 4 << 30
+    assert proof.RESOURCE_MIN_RAW_HEADROOM == 0
     assert proof.RESOURCE_MIN_EFFECTIVE_HEADROOM == 16 << 30
-    assert proof.GATE.endswith("-v2-lowmem4g")
+    assert proof.GATE.endswith("-v2-no-raw-admission")
     assert proof.RUNNER_RELATIVE_PATH.endswith("_v2_lowmem4g.py")
     assert hashlib.sha256(original.read_bytes()).hexdigest() == (
         "1034c232eae3bd131e988771673e2c4890c869658c8b380d9703a99d154c99cb"
@@ -671,7 +671,7 @@ def _resource_record_with_raw_headroom(raw_headroom: int) -> dict:
     record.pop("record_sha256")
     maximum = 256 << 30
     current = maximum - raw_headroom
-    reclaimable = 64 << 30
+    reclaimable = 65 << 30
     effective_current = current - reclaimable
     effective_headroom = maximum - effective_current
     memory_safe = bool(
@@ -695,9 +695,9 @@ def _resource_record_with_raw_headroom(raw_headroom: int) -> dict:
     return proof.seal(record)
 
 
-def test_lowmem_raw_headroom_boundary_is_exact_and_replayable() -> None:
-    at_floor = _resource_record_with_raw_headroom(4 << 30)
-    below_floor = _resource_record_with_raw_headroom((4 << 30) - 1)
+def test_no_raw_admission_boundary_is_exact_and_replayable() -> None:
+    at_floor = _resource_record_with_raw_headroom(0)
+    below_floor = _resource_record_with_raw_headroom(-1)
     assert proof._validate_resource_record(at_floor, required_cap=0)
     assert at_floor["passed"] is True
     assert not proof._validate_resource_record(below_floor, required_cap=0)
