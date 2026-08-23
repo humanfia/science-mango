@@ -25,6 +25,7 @@ SPEC.loader.exec_module(proof)
 
 def test_lowmem_policy_identity_is_explicit_and_original_is_preserved() -> None:
     original = SOURCE.with_name("run_paper400_dic5_w6_standalone_proof_v2.py")
+    assert proof.SOLVER_TIMEOUT_S == 86_400
     assert proof.RESOURCE_MIN_RAW_HEADROOM == 0
     assert proof.RESOURCE_MIN_EFFECTIVE_HEADROOM == 16 << 30
     assert proof.GATE.endswith("-v2-no-raw-admission")
@@ -556,7 +557,7 @@ def test_solver_invocation_rejects_numeric_aliases(
         "argv_roles": [
             "sealed-loader-memfd", "--inhibit-cache", "--library-path",
             "private-runtime-dirfd", "--argv0", "cadical-rel-1.9.5",
-            "sealed-cadical195-memfd", "-q", "-t", "43200",
+            "sealed-cadical195-memfd", "-q", "-t", "86400",
             "sealed-base-dimacs-memfd", "private-o_excl-binary-drat-fd",
         ],
         "actual_argv_sha256": proof.canonical_sha256(argv),
@@ -762,6 +763,7 @@ def test_static_builder_fixed_fields_cannot_survive_deep_reconstruction(
         authority=proof.AUTHORITY_PRODUCTION,
     )
     assert canonical["base"]["maximum_excluded_weight"] == 18
+    assert canonical["resource_policy"]["solver_timeout_s"] == 86_400
     for mutate in (
         lambda value: value["base"].__setitem__("maximum_excluded_weight", 17),
         lambda value: value.__setitem__("schema_version", True),

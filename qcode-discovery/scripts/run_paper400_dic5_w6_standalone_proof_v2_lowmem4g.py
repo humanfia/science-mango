@@ -4,6 +4,7 @@
 This policy variant is byte-derived from the independently audited v2 runner.
 It has no raw cgroup-headroom admission floor; effective-headroom, pressure,
 OOM, proof, process-supervision, and publication rules remain unchanged.
+The standalone solver budget is fixed at 86,400 seconds.
 
 
 This module is intentionally stdlib-only at supervisor import time.  The
@@ -204,7 +205,7 @@ EXPECTED_BASE_NUM_VARIABLES = 2_955
 EXPECTED_BASE_NUM_CLAUSES = 12_022
 EXPECTED_BASE_DIMACS_BYTES = 203_044
 
-SOLVER_TIMEOUT_S = 43_200
+SOLVER_TIMEOUT_S = 86_400
 CHECKER_TIMEOUT_S = 604_800
 PREPARE_TIMEOUT_S = 3_600
 TERM_GRACE_S = 30
@@ -3058,7 +3059,7 @@ def solve_root(
             "argv_roles": [
                 "sealed-loader-memfd", "--inhibit-cache", "--library-path",
                 "private-runtime-dirfd", "--argv0", "cadical-rel-1.9.5",
-                "sealed-cadical195-memfd", "-q", "-t", "43200",
+                "sealed-cadical195-memfd", "-q", "-t", "86400",
                 "sealed-base-dimacs-memfd", "private-o_excl-binary-drat-fd",
             ],
             "actual_argv_sha256": canonical_sha256(argv),
@@ -3522,7 +3523,7 @@ def _validate_solver_invocation(
     expected_roles = [
         "sealed-loader-memfd", "--inhibit-cache", "--library-path",
         "private-runtime-dirfd", "--argv0", "cadical-rel-1.9.5",
-        "sealed-cadical195-memfd", "-q", "-t", "43200",
+        "sealed-cadical195-memfd", "-q", "-t", "86400",
         "sealed-base-dimacs-memfd", "private-o_excl-binary-drat-fd",
     ]
     if (
