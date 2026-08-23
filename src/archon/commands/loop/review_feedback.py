@@ -156,7 +156,7 @@ _REQUIRED_GROUPS = {
 _REDRAFT_ACTIONS = {
     "answer_as_assumption": "remove_answer_shaped_assumptions",
     "branch_ambiguous": "encode_and_justify_the_selected_branch",
-    "missing_foundational_bridge": "add_explicit_source_to_model_bridges",
+    "missing_foundational_bridge": "remove_unnecessary_ungrounded_dependency_or_add_explicit_source_to_model_bridges",
     "missing_uncertainty": "encode_required_uncertainty_propagation",
     "other_modeling_defect": "repair_the_model_contract",
     "underdetermined_contract": "represent_missing_degrees_of_freedom_honestly",

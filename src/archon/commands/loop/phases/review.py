@@ -885,6 +885,7 @@ class ReviewPhase(Phase):
                             3,
                         ),
                         completed_redrafts=completed_redrafts,
+                        enforce_budget=True,
                     )
                     ctx.current_stage = read_stage(ctx.progress_file)
                     log.warn(

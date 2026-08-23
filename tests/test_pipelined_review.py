@@ -1461,6 +1461,137 @@ class PipelinedReviewTest(unittest.TestCase):
                     + (["proof"] if formalization_verdicts[-1] else []),
                 )
 
+    def test_proof_redraft_requeues_after_three_prior_formalization_reviews(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+
+            for cycle in (1, 2, 3):
+                update = apply_target_formalization_review(
+                    state_dir=state,
+                    project_path=root,
+                    target=target,
+                    milestone=_formalization_milestone("A.lean"),
+                    iter_num=0,
+                    max_iterations=3,
+                    event_id=f"pipeline:0:A.lean:formalization:{cycle}",
+                )
+                self.assertTrue(update.passed)
+                self.assertEqual(update.reviews, cycle)
+
+            prover_calls = 0
+            proof_review_calls = 0
+            formalizer_calls = 0
+            formalization_review_calls = 0
+
+            def fake_prover(*_args, **_kwargs):
+                nonlocal prover_calls
+                prover_calls += 1
+                return True
+
+            def fake_proof_review(spec, **_kwargs):
+                nonlocal proof_review_calls
+                proof_review_calls += 1
+                milestone = (
+                    _redraft_milestone(spec.rel)
+                    if proof_review_calls == 1
+                    else _milestone(spec.rel)
+                )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=milestone,
+                )
+
+            def fake_formalizer(*_args, **_kwargs):
+                nonlocal formalizer_calls
+                formalizer_calls += 1
+                target.write_text(
+                    "theorem a (h_grounded : True) : True := by sorry\n",
+                    encoding="utf-8",
+                )
+                (state / "task_results" / "A.lean.md").write_text(
+                    "# Fresh proof-triggered redraft\n", encoding="utf-8"
+                )
+                return True
+
+            def fake_formalization_review(spec, **_kwargs):
+                nonlocal formalization_review_calls
+                formalization_review_calls += 1
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_formalization_milestone(spec.rel),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=fake_prover,
+                review_worker=fake_proof_review,
+                formalizer_worker=fake_formalizer,
+                formalization_review_worker=fake_formalization_review,
+                max_parallel=1,
+                full_pipeline=True,
+                formalization_max_iterations=3,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="work",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.snapshot_baseline"
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners.persist_session_id"
+                ),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            formalization_gate = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            proof_gate = json.loads(
+                (state / "proof-review-gate.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(prover_calls, 2)
+            self.assertEqual(proof_review_calls, 2)
+            self.assertEqual(formalizer_calls, 1)
+            self.assertEqual(formalization_review_calls, 1)
+            formal_record = formalization_gate["targets"]["A.lean"]
+            self.assertEqual(formal_record["status"], "passed")
+            self.assertEqual(formal_record["reviews"], 4)
+            self.assertEqual(
+                formal_record["proof_redraft_resubmission"]["status"],
+                "reviewed",
+            )
+            self.assertEqual(
+                proof_gate["targets"]["A.lean"]["status"], "solved"
+            )
+
     def test_two_proof_redrafts_do_not_regress_final_gate_state(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -2280,15 +2411,18 @@ class PipelinedReviewTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            apply_target_formalization_review(
-                state_dir=state,
-                project_path=root,
-                target=target,
-                milestone=_formalization_milestone("A.lean"),
-                iter_num=1,
-                max_iterations=3,
-                event_id="pipeline:1:A.lean:formalization:1",
-            )
+            for cycle in (1, 2, 3):
+                update = apply_target_formalization_review(
+                    state_dir=state,
+                    project_path=root,
+                    target=target,
+                    milestone=_formalization_milestone("A.lean"),
+                    iter_num=1,
+                    max_iterations=3,
+                    event_id=f"pipeline:1:A.lean:formalization:{cycle}",
+                )
+                self.assertTrue(update.passed)
+                self.assertEqual(update.reviews, cycle)
             redraft = _redraft_milestone("A.lean")
             apply_target_proof_review(
                 state_dir=state,
@@ -2325,7 +2459,7 @@ class PipelinedReviewTest(unittest.TestCase):
             )
             (iter_dir / "meta.json").write_text(json.dumps({
                 "pipelineFormalizers": {
-                    "A": {"status": "materialized", "cycle": 2},
+                    "A": {"status": "materialized", "cycle": 4},
                 },
                 # Omit pipelineReviews.cycle: proof cycle 1 must also be
                 # recoverable from the existing proof gate history.
@@ -2370,8 +2504,8 @@ class PipelinedReviewTest(unittest.TestCase):
             self.assertEqual(
                 [event["event_id"] for event in report["gate_events"]],
                 [
-                    "pipeline:1:A.lean:formalization:1",
-                    "pipeline:1:A.lean:formalization:2",
+                    "pipeline:1:A.lean:formalization:3",
+                    "pipeline:1:A.lean:formalization:4",
                     "pipeline:1:A.lean:proof:2",
                 ],
             )
@@ -2391,7 +2525,14 @@ class PipelinedReviewTest(unittest.TestCase):
                 [
                     "pipeline:1:A.lean:formalization:1",
                     "pipeline:1:A.lean:formalization:2",
+                    "pipeline:1:A.lean:formalization:3",
+                    "pipeline:1:A.lean:formalization:4",
                 ],
+            )
+            self.assertEqual(formalization_record["reviews"], 4)
+            self.assertEqual(
+                formalization_record["proof_redraft_resubmission"]["status"],
+                "reviewed",
             )
             proof_record = proof_gate["targets"]["A.lean"]
             self.assertEqual(proof_record["status"], "solved")

@@ -47,6 +47,8 @@ STATE_FILENAME = "formalization-review-gate.json"
 REPORT_FILENAME = "FORMALIZATION_REVIEW_GATE.md"
 STATE_VERSION = 2
 REVIEW_SCHEMA_VERSION = 2
+PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION = 1
+PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS = 1
 
 _PASS_WORDS = {"pass", "passed", "approved", "review-passing", "review_passing"}
 _FAIL_WORDS = {
@@ -119,6 +121,132 @@ def _file_sha256(path: Path) -> str:
         return hashlib.sha256(path.read_bytes()).hexdigest()
     except OSError:
         return ""
+
+
+def _valid_sha256(value: Any) -> str:
+    digest = str(value or "").strip().lower()
+    if len(digest) != 64 or not set(digest) <= set("0123456789abcdef"):
+        return ""
+    return digest
+
+
+def effective_formalization_review_limit(
+    record: Mapping[str, Any] | None,
+    base_max_iterations: int,
+) -> int:
+    """Return the target-local Review ceiling, including one sealed bonus."""
+    base_limit = max(1, int(base_max_iterations))
+    if not isinstance(record, Mapping):
+        return base_limit
+    request = record.get("proof_redraft_resubmission")
+    if not isinstance(request, Mapping):
+        return base_limit
+    try:
+        schema_version = int(request.get("schema_version") or 0)
+        request_base = int(request.get("base_max_reviews") or 0)
+        request_limit = int(request.get("max_total_reviews") or 0)
+    except (TypeError, ValueError):
+        return base_limit
+    status = str(request.get("status") or "")
+    rejected_sha256 = _valid_sha256(
+        request.get("rejected_candidate_sha256")
+    )
+    if (
+        schema_version != PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION
+        or request_base != base_limit
+        or request_limit != (
+            base_limit + PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS
+        )
+        or status not in {"pending", "reviewed"}
+        or not str(request.get("request_id") or "").strip()
+        or not rejected_sha256
+    ):
+        return base_limit
+    if (
+        status == "reviewed"
+        and not _valid_sha256(request.get("reviewed_candidate_sha256"))
+    ):
+        return base_limit
+    return request_limit
+
+
+def _authoritative_proof_redraft_resubmission(
+    *,
+    state_dir: Path,
+    rel: str,
+    candidate_sha256: str,
+    requested_event_id: str,
+    iter_num: int,
+    base_max_iterations: int,
+) -> dict[str, Any] | None:
+    """Mint one overflow Review only from the durable Proof Review gate."""
+    from .proof_review_gate import load_proof_review_state
+
+    proof_state = load_proof_review_state(state_dir)
+    records = proof_state.get("targets")
+    record = records.get(rel) if isinstance(records, Mapping) else None
+    if not isinstance(record, Mapping) or record.get("status") != "needs_redraft":
+        return None
+    rejected_sha256 = _valid_sha256(record.get("candidate_sha256"))
+    if not rejected_sha256 or rejected_sha256 != _valid_sha256(candidate_sha256):
+        return None
+
+    authoritative_event_id = ""
+    history = record.get("history")
+    if isinstance(history, list):
+        for entry in reversed(history):
+            if not isinstance(entry, Mapping):
+                continue
+            if (
+                entry.get("route") == "needs_redraft"
+                and entry.get("resulting_status") == "needs_redraft"
+            ):
+                authoritative_event_id = str(entry.get("event_id") or "").strip()
+                break
+    if (
+        requested_event_id
+        and authoritative_event_id
+        and requested_event_id != authoritative_event_id
+    ):
+        return None
+    request_id = (
+        authoritative_event_id
+        or requested_event_id
+        or f"batch:{iter_num}:{rel}:{rejected_sha256}"
+    )
+    return {
+        "schema_version": PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION,
+        "request_id": request_id,
+        "rejected_candidate_sha256": rejected_sha256,
+        "base_max_reviews": base_max_iterations,
+        "max_total_reviews": (
+            base_max_iterations + PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS
+        ),
+        "created_iter": iter_num,
+        "status": "pending",
+    }
+
+
+def _mark_proof_redraft_resubmission_reviewed(
+    record: Mapping[str, Any],
+    *,
+    candidate_sha256: str,
+    event_id: str,
+    iter_num: int,
+) -> dict[str, Any] | None:
+    request = record.get("proof_redraft_resubmission")
+    if not isinstance(request, Mapping) or request.get("status") != "pending":
+        return dict(request) if isinstance(request, Mapping) else None
+    digest = _valid_sha256(candidate_sha256)
+    if not digest:
+        return None
+    return {
+        **request,
+        "status": "reviewed",
+        "reviewed_candidate_sha256": digest,
+        "review_event_id": event_id,
+        "reviewed_iter": iter_num,
+    }
 
 
 def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
@@ -565,9 +693,12 @@ def _write_report(state_dir: Path, data: dict[str, Any]) -> None:
             lines.append("- None")
         for rel, record in entries:
             reason = str(record.get("reason") or "").replace("\n", " ")
+            review_limit = effective_formalization_review_limit(
+                record, int(data.get("max_iterations") or 1),
+            )
             lines.append(
                 f"- `{rel}` — reviews {record.get('reviews', 0)}/"
-                f"{data.get('max_iterations', 0)}; {reason}"
+                f"{review_limit}; {reason}"
             )
         lines.append("")
     (state_dir / REPORT_FILENAME).write_text("\n".join(lines), encoding="utf-8")
@@ -620,7 +751,6 @@ def reopen_formalization_targets(
             proof_record.get("redraft_kind") or "other_modeling_defect"
         ).strip()
         prior_reviews = int(old.get("reviews") or 0)
-        budget_exhausted = enforce_budget and prior_reviews >= max_iterations
         pipeline_event_id = str(
             proof_record.get("pipeline_event_id") or ""
         ).strip()
@@ -631,6 +761,28 @@ def reopen_formalization_targets(
             objective_details[rel] = (redraft_kind, reason[:800])
             reopened.append(rel)
             continue
+        review_limit = effective_formalization_review_limit(
+            old, max_iterations,
+        )
+        resubmission = None
+        if (
+            enforce_budget
+            and prior_reviews == max_iterations
+            and review_limit == max_iterations
+            and old.get("status") == "passed"
+            and "proof_redraft_resubmission" not in old
+        ):
+            resubmission = _authoritative_proof_redraft_resubmission(
+                state_dir=state_dir,
+                rel=rel,
+                candidate_sha256=_file_sha256(project_path / rel),
+                requested_event_id=pipeline_event_id,
+                iter_num=iter_num,
+                base_max_iterations=max_iterations,
+            )
+            if resubmission is not None:
+                review_limit = int(resubmission["max_total_reviews"])
+        budget_exhausted = enforce_budget and prior_reviews >= review_limit
         reopen_history.append({
             "reopened_at": _utcnow(),
             "proof_review_iter": iter_num,
@@ -647,7 +799,7 @@ def reopen_formalization_targets(
             "reason": (
                 "proof Review requested redraft, but maximum formalization "
                 f"Review attempts were already reached ({prior_reviews}/"
-                f"{max_iterations}): {reason}"
+                f"{review_limit}): {reason}"
                 if budget_exhausted
                 else f"proof Review requested redraft: {reason}"
             ),
@@ -661,6 +813,8 @@ def reopen_formalization_targets(
             "redraft_kind": redraft_kind,
             "reopen_history": reopen_history[-20:],
         }
+        if resubmission is not None:
+            next_record["proof_redraft_resubmission"] = resubmission
         # A target-scoped formalizer may already have materialized this
         # redraft while peer provers/Reviewers were still running. Carry a
         # hash-bound hand-off into the gate so the next autoformalize phase
@@ -783,22 +937,28 @@ def apply_formalization_review(
 
         old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
         reviews = int(old.get("reviews") or 0)
+        review_limit = effective_formalization_review_limit(
+            old, max_iterations,
+        )
+        if int(old.get("last_review_iter") or -1) == iter_num:
+            # Batch Review has no target-scoped event id. Replaying the same
+            # outer iteration must preserve the first durable verdict rather
+            # than reinterpret a later milestone and flip gate state.
+            continue
+
         candidate_sha256 = _file_sha256(project_path / rel)
-        if (
-            decision == "passed"
-            and not formalization_redraft_candidate_is_fresh(
-                state_dir=state_dir,
-                target_rel=rel,
-                candidate_sha256=candidate_sha256,
-            )
+        if not formalization_redraft_candidate_is_fresh(
+            state_dir=state_dir,
+            target_rel=rel,
+            candidate_sha256=candidate_sha256,
         ):
-            # A fallback Review of the rejected bytes is not a redraft. Keep
-            # the proof-requested quarantine and its revoked certificate live.
+            # Reviewing the rejected bytes is not a redraft and cannot consume
+            # the sole proof-triggered resubmission.
             if old.get("status") not in {"retry", "review_exhausted"}:
                 targets[rel] = {
                     **old,
                     "status": (
-                        "review_exhausted" if reviews >= max_iterations else "retry"
+                        "review_exhausted" if reviews >= review_limit else "retry"
                     ),
                     "reason": "proof Review redraft remains unresolved; candidate is unchanged",
                     "certificate": {},
@@ -807,14 +967,21 @@ def apply_formalization_review(
                     "updated_at": _utcnow(),
                 }
             continue
-        if (
-            reviews < max_iterations
-            and int(old.get("last_review_iter") or -1) != iter_num
-        ):
+
+        review_consumed = False
+        if reviews >= review_limit:
+            decision = "failed"
+            reason = (
+                "maximum formalization Review attempts already reached "
+                f"({reviews}/{review_limit})"
+            )
+            certificate = {}
+        else:
             reviews += 1
+            review_consumed = True
         if decision == "passed":
             status = "passed"
-        elif reviews >= max_iterations:
+        elif reviews >= review_limit:
             status = "review_exhausted"
         else:
             status = "retry"
@@ -830,6 +997,15 @@ def apply_formalization_review(
             "candidate_sha256": candidate_sha256,
             "certificate": certificate,
         }
+        if review_consumed:
+            reviewed_request = _mark_proof_redraft_resubmission_reviewed(
+                old,
+                candidate_sha256=candidate_sha256,
+                event_id=f"batch:{iter_num}:{rel}:formalization",
+                iter_num=iter_num,
+            )
+            if reviewed_request is not None:
+                next_record["proof_redraft_resubmission"] = reviewed_request
         if status == "passed":
             for stale_key in (
                 "reopened_by", "certificate_revoked_at", "redraft_kind",
@@ -874,7 +1050,9 @@ def apply_formalization_review(
         write_stage(progress_file, "autoformalize")
         _replace_objectives(progress_file, [
             f"- **`{rel}`** — Redraft after failed formalization Review "
-            f"({targets[rel]['reviews']}/{max_iterations} used). "
+            f"({targets[rel]['reviews']}/"
+            f"{effective_formalization_review_limit(targets[rel], max_iterations)} "
+            "used). "
             f"[prover-mode: {formalize_mode}]"
             for rel in retry
         ])
@@ -960,12 +1138,16 @@ def apply_target_formalization_review(
     )
     candidate_sha256 = _file_sha256(target)
     reviews = int(old.get("reviews") or 0)
+    review_limit = effective_formalization_review_limit(
+        old, max_iterations,
+    )
+    review_consumed = False
     source_contract = expected_source_contract
-    if reviews >= max_iterations:
+    if reviews >= review_limit:
         status = "review_exhausted"
         reason = (
             f"maximum formalization Review attempts already reached "
-            f"({reviews}/{max_iterations})"
+            f"({reviews}/{review_limit})"
         )
         certificate: dict[str, Any] = {}
         decision = "failed"
@@ -991,13 +1173,10 @@ def apply_target_formalization_review(
             decision = "failed"
             reason = f"problem-only source contract validation failed: {exc}"
             certificate = {}
-        if (
-            decision == "passed"
-            and not formalization_redraft_candidate_is_fresh(
-                state_dir=state_dir,
-                target_rel=rel,
-                candidate_sha256=candidate_sha256,
-            )
+        if not formalization_redraft_candidate_is_fresh(
+            state_dir=state_dir,
+            target_rel=rel,
+            candidate_sha256=candidate_sha256,
         ):
             status = str(old.get("status") or "retry")
             quarantine_reason = (
@@ -1006,7 +1185,7 @@ def apply_target_formalization_review(
             )
             if status not in {"retry", "review_exhausted"}:
                 status = (
-                    "review_exhausted" if reviews >= max_iterations else "retry"
+                    "review_exhausted" if reviews >= review_limit else "retry"
                 )
                 targets[rel] = {
                     **old,
@@ -1029,9 +1208,10 @@ def apply_target_formalization_review(
                 applied=False,
             )
         reviews += 1
+        review_consumed = True
         if decision == "passed":
             status = "passed"
-        elif reviews >= max_iterations:
+        elif reviews >= review_limit:
             status = "review_exhausted"
         else:
             status = "retry"
@@ -1074,6 +1254,15 @@ def apply_target_formalization_review(
         "review_events": events[-50:],
         "repair_events": repair_events[-20:],
     }
+    if review_consumed:
+        reviewed_request = _mark_proof_redraft_resubmission_reviewed(
+            old,
+            candidate_sha256=candidate_sha256,
+            event_id=event_id,
+            iter_num=iter_num,
+        )
+        if reviewed_request is not None:
+            next_record["proof_redraft_resubmission"] = reviewed_request
     # A fresh formalization verdict supersedes transient proof-redraft routing
     # flags.  Keeping them live makes crash/resume select the older proof
     # certificate instead of this newer semantic Review.

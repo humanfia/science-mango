@@ -295,6 +295,64 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
             max_iterations=3,
         )
 
+    def _apply_target_redraft(self, iteration: int, event_id: str):
+        session = self._proof_session(
+            iteration,
+            route="needs_redraft",
+            status="blocked",
+            redraft_kind="missing_foundational_bridge",
+        )
+        milestone = json.loads(
+            (session / "milestones.jsonl").read_text(encoding="utf-8")
+        )
+        return apply_target_proof_review(
+            state_dir=self.state,
+            project_path=self.project,
+            target=self.target,
+            milestone=milestone,
+            iter_num=iteration,
+            max_iterations=3,
+            event_id=event_id,
+            expected_source_contract={},
+        )
+
+    def _assert_bonus_request_rejected(
+        self,
+        *,
+        requested_event_id: str,
+        mutate_candidate: bool,
+    ) -> None:
+        self._write_progress("autoformalize")
+        for iteration in (1, 2, 3):
+            self._apply_formalization(iteration)
+        proof_event_id = "pipeline:4:Problems/p.lean:proof:1"
+        self._apply_target_redraft(4, proof_event_id)
+        if mutate_candidate:
+            self.target.write_text(
+                "theorem p (h_changed : True) : True := by sorry\n",
+                encoding="utf-8",
+            )
+
+        reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={
+                "Problems/p.lean": {
+                    "reason": "proof Review requested a source-model redraft",
+                    "redraft_kind": "missing_foundational_bridge",
+                    "pipeline_event_id": requested_event_id,
+                }
+            },
+            iter_num=4,
+            max_iterations=3,
+            enforce_budget=True,
+        )
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(record["status"], "review_exhausted")
+        self.assertEqual(record["reviews"], 3)
+        self.assertNotIn("proof_redraft_resubmission", record)
+
     def test_legacy_string_target_is_consumed_like_object_target(self):
         session = self._proof_session(
             1,
@@ -714,6 +772,242 @@ class ProofReviewRoutingGateTest(unittest.TestCase):
             old_certificate,
         )
         self.assertEqual(read_stage(self.progress), "prover")
+
+    def test_proof_redraft_after_base_review_budget_gets_one_fresh_attempt(self):
+        self._write_progress("autoformalize")
+        for iteration in (1, 2, 3):
+            result = self._apply_formalization(iteration)
+            self.assertEqual(result.passed, ("Problems/p.lean",))
+
+        proof_event_id = "pipeline:4:Problems/p.lean:proof:1"
+        self._apply_target_redraft(4, proof_event_id)
+        proof_record = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        self.assertIn(
+            "remove_unnecessary_ungrounded_dependency_or_add_explicit_source_to_model_bridges",
+            proof_record["repair_handoff"]["required_actions"],
+        )
+
+        reopened = reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={
+                "Problems/p.lean": {
+                    **proof_record,
+                    "pipeline_event_id": proof_event_id,
+                }
+            },
+            iter_num=4,
+            max_iterations=3,
+            enforce_budget=True,
+        )
+
+        self.assertEqual(reopened, ("Problems/p.lean",))
+        formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(formal_record["status"], "retry")
+        self.assertEqual(formal_record["reviews"], 3)
+        request = formal_record["proof_redraft_resubmission"]
+        self.assertEqual(request["status"], "pending")
+        self.assertEqual(request["base_max_reviews"], 3)
+        self.assertEqual(request["max_total_reviews"], 4)
+        self.assertEqual(request["request_id"], proof_event_id)
+        self.assertEqual(
+            request["rejected_candidate_sha256"],
+            proof_record["candidate_sha256"],
+        )
+
+        history_length = len(formal_record["reopen_history"])
+        replayed = reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={
+                "Problems/p.lean": {
+                    **proof_record,
+                    "pipeline_event_id": proof_event_id,
+                }
+            },
+            iter_num=4,
+            max_iterations=3,
+            enforce_budget=True,
+        )
+        self.assertEqual(replayed, ("Problems/p.lean",))
+        replay_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(replay_record["proof_redraft_resubmission"], request)
+        self.assertEqual(len(replay_record["reopen_history"]), history_length)
+
+        # Reviewing the rejected bytes is not a redraft and must not consume
+        # the sole post-proof opportunity.
+        unchanged = self._apply_formalization(5)
+        self.assertEqual(unchanged.passed, ())
+        formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(formal_record["reviews"], 3)
+        self.assertEqual(
+            formal_record["proof_redraft_resubmission"]["status"], "pending"
+        )
+
+        self.target.write_text(
+            "theorem p : True := by trivial\n", encoding="utf-8",
+        )
+        fresh = self._apply_formalization(6)
+        self.assertEqual(fresh.passed, ("Problems/p.lean",))
+        formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(formal_record["status"], "passed")
+        self.assertEqual(formal_record["reviews"], 4)
+        self.assertEqual(
+            formal_record["proof_redraft_resubmission"]["status"], "reviewed"
+        )
+        self.assertEqual(
+            formal_record["proof_redraft_resubmission"][
+                "reviewed_candidate_sha256"
+            ],
+            hashlib.sha256(self.target.read_bytes()).hexdigest(),
+        )
+        proof_after = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        self.assertEqual(proof_after["status"], "retry")
+        self.assertEqual(proof_after["attempts"], 0)
+
+        # A later, legitimate Proof Review redraft cannot mint a second bonus.
+        second_event_id = "pipeline:7:Problems/p.lean:proof:1"
+        self._apply_target_redraft(7, second_event_id)
+        second_proof = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={
+                "Problems/p.lean": {
+                    **second_proof,
+                    "pipeline_event_id": second_event_id,
+                }
+            },
+            iter_num=7,
+            max_iterations=3,
+            enforce_budget=True,
+        )
+        final_formal = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(final_formal["status"], "review_exhausted")
+        self.assertEqual(final_formal["reviews"], 4)
+        self.assertEqual(
+            final_formal["proof_redraft_resubmission"]["max_total_reviews"], 4
+        )
+
+    def test_bonus_rejects_non_authoritative_proof_event(self):
+        self._assert_bonus_request_rejected(
+            requested_event_id="pipeline:4:Problems/p.lean:proof:forged",
+            mutate_candidate=False,
+        )
+
+    def test_bonus_rejects_candidate_changed_after_proof_review(self):
+        self._assert_bonus_request_rejected(
+            requested_event_id="pipeline:4:Problems/p.lean:proof:1",
+            mutate_candidate=True,
+        )
+
+    def test_failed_proof_redraft_bonus_review_exhausts_without_loop(self):
+        self._write_progress("autoformalize")
+        for iteration in (1, 2, 3):
+            self._apply_formalization(iteration)
+
+        proof_event_id = "pipeline:4:Problems/p.lean:proof:1"
+        self._apply_target_redraft(4, proof_event_id)
+        proof_record = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={
+                "Problems/p.lean": {
+                    **proof_record,
+                    "pipeline_event_id": proof_event_id,
+                }
+            },
+            iter_num=4,
+            max_iterations=3,
+            enforce_budget=True,
+        )
+        self.target.write_text(
+            "theorem p (h_grounded : True) : True := by sorry\n",
+            encoding="utf-8",
+        )
+
+        session = self.state / "proof-journal" / "sessions" / "session_5"
+        session.mkdir(parents=True)
+        row = {
+            "status": "blocked",
+            "target": {"file": "Problems/p.lean", "theorem": "p"},
+            "formalization_review": {
+                "status": "failed",
+                "reason": "the new source bridge is still insufficient",
+            },
+        }
+        (session / "milestones.jsonl").write_text(
+            json.dumps(row) + "\n", encoding="utf-8",
+        )
+        result = apply_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            session_dir=session,
+            iter_num=5,
+            reviewed_objectives=[self.target],
+            max_iterations=3,
+        )
+
+        self.assertEqual(result.retry, ())
+        self.assertEqual(result.exhausted, ("Problems/p.lean",))
+        formal_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(formal_record["status"], "review_exhausted")
+        self.assertEqual(formal_record["reviews"], 4)
+        self.assertEqual(
+            formal_record["proof_redraft_resubmission"]["status"], "reviewed"
+        )
+        proof_after = load_proof_review_state(self.state)["targets"][
+            "Problems/p.lean"
+        ]
+        self.assertEqual(proof_after["status"], "needs_redraft")
+
+        # A passing milestone replayed in the same batch iteration cannot
+        # overwrite the first durable failed verdict.
+        row["status"] = "solved"
+        row["formalization_review"] = self._passing_formalization_review()
+        (session / "milestones.jsonl").write_text(
+            json.dumps(row) + "\n", encoding="utf-8",
+        )
+        replay = apply_formalization_review(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            session_dir=session,
+            iter_num=5,
+            reviewed_objectives=[self.target],
+            max_iterations=3,
+        )
+        self.assertEqual(replay.exhausted, ("Problems/p.lean",))
+        replay_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(replay_record["status"], "review_exhausted")
+        self.assertEqual(replay_record["reviews"], 4)
+
+        # Replaying the original Proof event also cannot reopen the target.
+        reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={"Problems/p.lean": {"pipeline_event_id": proof_event_id}},
+            iter_num=6,
+            max_iterations=3,
+            enforce_budget=True,
+        )
+        final_record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        self.assertEqual(final_record["status"], "review_exhausted")
 
     def test_chemistry_proof_review_redraft_restores_chemistry_formalizer(self):
         (self.state / "config.json").write_text(

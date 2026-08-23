@@ -867,7 +867,7 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertIn("semantic Review passed", record["reason"])
         self.assertIn("current answer is assumed by the contract", record["reason"])
 
-    def test_legacy_string_target_replay_preserves_review_count(self):
+    def test_legacy_string_target_replay_preserves_first_verdict(self):
         (self.state / "formalization-review-gate.json").write_text(
             json.dumps({
                 "version": 2,
@@ -904,12 +904,12 @@ class FormalizationReviewGateTests(unittest.TestCase):
             max_iterations=3,
         )
 
-        self.assertEqual(result.passed, ("Problems/p.lean",))
+        self.assertEqual(result.retry, ("Problems/p.lean",))
         state = load_gate_state(self.state)
         record = state["targets"]["Problems/p.lean"]
         self.assertEqual(record["reviews"], 2)
-        self.assertEqual(record["status"], "passed")
-        self.assertEqual(len(record["certificate"]["milestones"]), 1)
+        self.assertEqual(record["status"], "retry")
+        self.assertEqual(record["certificate"], {})
 
     def test_bare_pass_without_structured_checks_fails_closed(self):
         result = self._review(

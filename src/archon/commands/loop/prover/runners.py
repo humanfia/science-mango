@@ -53,6 +53,7 @@ from archon.state import (
 
 from ..formalization_review_gate import (
     apply_target_formalization_review,
+    effective_formalization_review_limit,
     filter_materialized_redrafts_for_dispatch,
     formalization_review_decision,
     load_gate_state as load_formalization_review_state,
@@ -2483,7 +2484,10 @@ required action while preserving the accepted statement.
                                     and compiles
                                     and result_updated
                                     and shadow_formalization_reviews[work.rel]
-                                    < formalization_max_iterations
+                                    < effective_formalization_review_limit(
+                                        shadow_formalization_records.get(work.rel),
+                                        formalization_max_iterations,
+                                    )
                                 )
                                 if can_repair_answer:
                                     queued_answer_repair = True
@@ -2595,10 +2599,15 @@ required action while preserving the accepted statement.
                                     reason
                                 ),
                             })
+                            review_limit = (
+                                effective_formalization_review_limit(
+                                    refreshed_formal,
+                                    formalization_max_iterations,
+                                )
+                            )
                             log.success(
                                 "Formalization Review finished: "
-                                f"{work.rel} ({status}, {reviews}/"
-                                f"{formalization_max_iterations})"
+                                f"{work.rel} ({status}, {reviews}/{review_limit})"
                             )
                             if status == "passed":
                                 pending_formalization.discard(work.rel)
@@ -2822,22 +2831,24 @@ required action while preserving the accepted statement.
                         })
                         log.success(f"Proof Review finished: {work.rel} ({route})")
                         if route == "needs_redraft":
+                            refreshed_formal = (
+                                load_formalization_review_state(
+                                    self.state_dir
+                                ) or {}
+                            ).get("targets", {}).get(work.rel, {})
+                            if not isinstance(refreshed_formal, dict):
+                                refreshed_formal = {}
+                            shadow_formalization_records[work.rel] = dict(
+                                refreshed_formal
+                            )
+                            shadow_formalization_reviews[work.rel] = int(
+                                refreshed_formal.get("reviews") or 0
+                            )
                             budget_available = (
                                 not full_pipeline
-                                or shadow_formalization_reviews[work.rel]
-                                < formalization_max_iterations
+                                or refreshed_formal.get("status") == "retry"
                             )
                             if budget_available:
-                                refreshed_formal = (
-                                    load_formalization_review_state(
-                                        self.state_dir
-                                    ) or {}
-                                ).get("targets", {}).get(work.rel, {})
-                                if not isinstance(refreshed_formal, dict):
-                                    refreshed_formal = {}
-                                shadow_formalization_records[work.rel] = dict(
-                                    refreshed_formal
-                                )
                                 pending_formalization.add(work.rel)
                                 next_cycle = formalization_cycles[work.rel] + 1
                                 formalization_cycles[work.rel] = next_cycle
