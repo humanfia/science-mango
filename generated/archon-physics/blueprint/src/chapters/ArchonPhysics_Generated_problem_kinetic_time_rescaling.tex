@@ -1,0 +1,47 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean
+% archon:source-report reports/thermalization/problem_kinetic_time_rescaling.source.json
+
+\chapter{Generated conditional kinetic rescaling}
+\label{ch:ArchonPhysics_Generated_problem_kinetic_time_rescaling}
+
+The theorem concerns a supplied effective ODE and a supplied uniqueness hypothesis. It neither derives a kinetic equation from the microscopic lattice nor proves a microscopic thermalization law. The named conjecture below is only its current, input-dependent formula and is not an asymptotic theorem.
+
+\begin{definition}[Effective kinetic model]
+\label{def:kinetic:model}
+\lean{ArchonPhysics.Generated.KineticTimeRescaling.EffectiveKineticModel}
+A model contains a coupling-independent collision map $C:X\to X$.
+\end{definition}
+\begin{proof}This record packages precisely the raw collision operator.\end{proof}
+
+\begin{definition}[Kinetic solution]
+\label{def:kinetic:solution}
+\lean{ArchonPhysics.Generated.KineticTimeRescaling.SolvesKineticEquation}
+\uses{def:kinetic:model}
+$D$ solves the effective equation when $D(0)=D_0$ and $D'(t)=g^2C(D(t))$.
+\end{definition}
+\begin{proof}Both initial-value and derivative conditions are included in the predicate.\end{proof}
+
+\begin{definition}[State-event first hit]
+\label{def:kinetic:first-hit}
+\lean{ArchonPhysics.Generated.KineticTimeRescaling.firstHittingTime}
+For an event $P$ and trajectory $D$, take the ENNReal infimum of positive $t$ with $P(D(t))$.
+\end{definition}
+\begin{proof}The real-valued trajectory is evaluated at the real part of the ENNReal time.\end{proof}
+
+\begin{definition}[Current microscopic formula placeholder]
+\label{def:kinetic:microscopic-conjecture}
+\lean{ArchonPhysics.Generated.KineticTimeRescaling.microscopicEquilibrationTimeScalingConjecture}
+For every $(\lambda,\varepsilon,n)$ satisfying the displayed guards, the current predicate permits a positive coefficient $C$ for an exact inverse-square expression. Its quantifier placement permits $C$ to depend on all inputs; it is therefore not the desired fixed-prefactor asymptotic law.
+\end{definition}
+\begin{proof}This is an unproved named proposition only; no use of it occurs in the theorem.\end{proof}
+
+\begin{theorem}[Conditional effective solution and hitting-time rescaling]
+\label{thm:physics:kinetic_time_rescaling:target}
+\lean{ArchonPhysics.Generated.KineticTimeRescaling.kinetic_time_rescaling_physics_formalization_target}
+\uses{def:kinetic:model, def:kinetic:solution, def:kinetic:first-hit}
+For $g\ne0$, two solutions of the same initial-value problem and an explicit uniqueness principle satisfy $D_g(t)=D_1(g^2t)$; their compatible state-event first hits differ by the inverse ENNReal factor associated to $g^2$.
+\end{theorem}
+\begin{proof}
+Reparameterize the unit-coupling solution by $g^2t$ and apply the chain rule; it satisfies the $g$ equation and same initial condition. Uniqueness gives the trajectory identity. Map the positive event-time set through multiplication by the positive ENNReal factor $g^2$ and transport its infimum through the resulting order isomorphism.
+\end{proof}

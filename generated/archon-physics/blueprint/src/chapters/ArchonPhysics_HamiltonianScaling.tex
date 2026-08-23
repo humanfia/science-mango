@@ -1,0 +1,153 @@
+% archon:physics
+
+\chapter{Finite Hamiltonian rescaling}
+\label{ch:ArchonPhysics_HamiltonianScaling}
+
+This clean-room module formalizes only the finite-dimensional algebra of the
+periodic polynomial Hamiltonian.  The configuration carrier is the lattice
+configuration supplied by Chapter~\ref{ch:ArchonPhysics_Lattice}; position and
+momentum are its named scalar coordinate projections in fixed units.  The
+energy-density parameter $\epsilon$ is positive and dimensionless after this
+fixed choice of energy unit.  No statement below asserts a kinetic equation,
+thermalization, a global Hamiltonian flow, or an equilibration time law.
+
+\begin{definition}\leanok
+[Hamilton-equation predicate]
+\label{def:hamiltonian:satisfies-equations}
+\lean{ArchonPhysics.HamiltonianScaling.SatisfiesHamiltonEquations}
+For a Hamiltonian $H(t,p,q)$ and momentum and position paths $p,q$, this
+predicate means that the Physlib Hamilton-equation residual is zero.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is a named wrapper around the supplied classical-mechanics residual, so
+that the API records its physical role rather than treating the condition as an
+unexplained scalar equation.
+\end{proof}
+
+\begin{theorem}\leanok
+[Hamilton-equation residual characterization]
+\label{thm:hamiltonian:satisfies-iff}
+\lean{ArchonPhysics.HamiltonianScaling.satisfiesHamiltonEquations_iff}
+\uses{def:hamiltonian:satisfies-equations}
+The named predicate holds exactly when
+$\operatorname{hamiltonEqOp}(H,p,q)=0$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the wrapper defining the predicate.  Both sides are the same residual
+equation.
+\end{proof}
+
+\begin{definition}\leanok
+[Configuration rescaling]
+\label{def:hamiltonian:rescale-configuration}
+\lean{ArchonPhysics.HamiltonianScaling.rescaleConfiguration}
+\uses{def:lattice:configuration}
+For an energy-density scale $\epsilon$, rescale every coordinate of a lattice
+configuration by $\sqrt{\epsilon}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+The rescaling is the pointwise map $q_i\mapsto\sqrt{\epsilon}\,q_i$.
+\end{proof}
+
+\begin{definition}\leanok
+[Effective nonlinear coupling]
+\label{def:hamiltonian:effective-coupling}
+\lean{ArchonPhysics.HamiltonianScaling.effectiveCoupling}
+For polynomial order $n$, define
+$g(\lambda,\epsilon,n)=\lambda\epsilon^{((n: \mathbb R)-2)/2}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the scalar coupling induced by extracting one factor of $\epsilon$
+from the degree-$n$ interaction energy.
+\end{proof}
+
+\begin{definition}\leanok
+[Finite periodic Hamiltonian]
+\label{def:hamiltonian:lattice-hamiltonian}
+\lean{ArchonPhysics.HamiltonianScaling.latticeHamiltonian}
+\uses{def:lattice:mass, def:lattice:forward-difference}
+For a positive mass profile $m$, set
+\[
+ H_{m,n,\lambda}(p,q)=\sum_i\left(
+ \frac{p_i^2}{2m_i}+\frac{(Dq)_i^2}{2}
+ +\frac{\lambda}{n}(Dq)_i^n\right).
+\]
+The first term is kinetic energy, the second is the harmonic bond energy, and
+the final term is the degree-$n$ nearest-neighbour interaction energy.
+\end{definition}
+\begin{proof}
+
+\leanok
+The locked Hamiltonian is this finite sum over cyclic sites; it uses the
+positive mass field and the periodic forward-difference operator from the
+lattice API.
+\end{proof}
+
+\begin{theorem}\leanok
+[Rescaling data specification]
+\label{thm:hamiltonian:rescaling-data}
+\lean{ArchonPhysics.HamiltonianScaling.rescalingData_spec}
+\uses{def:hamiltonian:lattice-hamiltonian,
+      def:hamiltonian:rescale-configuration,
+      def:hamiltonian:effective-coupling}
+The Hamiltonian has the displayed finite-sum formula, configuration rescaling
+is pointwise multiplication by $\sqrt\epsilon$, and the effective coupling is
+$\lambda\epsilon^{((n:\mathbb R)-2)/2}$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Each of the three conjuncts unfolds one of the locked definitions.  The
+Hamiltonian formula uses the periodic forward difference from the preceding
+definition.
+\end{proof}
+
+\begin{theorem}\leanok
+[Finite Hamiltonian rescaling]
+\label{thm:hamiltonian:lattice-rescale}
+\lean{ArchonPhysics.HamiltonianScaling.latticeHamiltonian_rescale}
+\uses{thm:hamiltonian:rescaling-data}
+For $n\ge3$ and $\epsilon>0$,
+\[
+ H_{m,n,\lambda}(\sqrt\epsilon\,p,\sqrt\epsilon\,q)
+ =\epsilon\,H_{m,n,g(\lambda,\epsilon,n)}(p,q).
+\]
+\end{theorem}
+\begin{proof}
+
+\leanok
+Expand the finite sum.  Pointwise linearity of the forward difference gives
+$D(\sqrt\epsilon q)=\sqrt\epsilon Dq$.  The kinetic and harmonic squares
+each contribute $\epsilon$.  For the interaction, positivity of $\epsilon$
+identifies $(\sqrt\epsilon)^n$ with
+$\epsilon\epsilon^{(n-2)/2}$, so its remaining coefficient is exactly $g$.
+Sum these termwise identities over the finite cyclic site set.
+\end{proof}
+
+\begin{theorem}\leanok
+[Inverse-square effective-coupling identity]
+\label{thm:hamiltonian:effective-coupling-inv-sq}
+\lean{ArchonPhysics.HamiltonianScaling.effectiveCoupling_inv_sq}
+\uses{def:hamiltonian:effective-coupling}
+For $n\ge3$, $\epsilon>0$, and $\lambda\ne0$,
+\[
+ g(\lambda,\epsilon,n)^{-2}
+ =\lambda^{-2}\epsilon^{-(n-2)}.
+\]
+\end{theorem}
+\begin{proof}
+
+\leanok
+The positive base permits the usual real-power laws.  Invert the product
+$\lambda\epsilon^{(n-2)/2}$ and square it; the two half-exponents add to
+$n-2$.  The hypotheses make both inverse factors defined in the intended
+nonzero sense.
+\end{proof}

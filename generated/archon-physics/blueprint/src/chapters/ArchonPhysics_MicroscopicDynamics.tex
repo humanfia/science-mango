@@ -1,0 +1,336 @@
+% archon:physics
+% archon:covers ArchonPhysics/MicroscopicDynamics.lean
+
+\chapter{Finite microscopic Hamiltonian dynamics}
+\label{ch:ArchonPhysics_MicroscopicDynamics}
+
+This chapter fixes the deterministic finite periodic chain associated with the
+Hamiltonian of Chapter~\ref{ch:ArchonPhysics_HamiltonianScaling}.  Its phase
+space is ordered as position--momentum pairs $(q,p)$.  The main analytic result
+is Picard--Lindelof existence on a nontrivial time interval together with
+uniqueness only as a germ at the initial time.  The conservation theorems are
+conditional: the concrete ODE must hold at every point of the unoriented
+interval between the two endpoints.  In particular, the global-solution object
+below is only a predicate; this chapter proves no global existence, random or
+thermodynamic limit, kinetic limit, equilibration, or thermalization theorem.
+
+\begin{definition}\leanok
+[Position--momentum phase space]
+\label{def:microscopic:phase-space}
+\lean{ArchonPhysics.MicroscopicDynamics.PhaseSpace}
+\uses{def:lattice:configuration}
+For a periodic chain with $N$ sites, set
+\[
+  \mathcal P_N=\operatorname{Configuration}_N\times
+  \operatorname{Configuration}_N,
+\]
+with a state written $z=(q,p)$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the product type of two finite real lattice configurations, with the
+first projection designated as position and the second as momentum.
+\end{proof}
+
+\begin{definition}\leanok
+[Single-bond interaction potential]
+\label{def:microscopic:interaction-potential}
+\lean{ArchonPhysics.MicroscopicDynamics.interactionPotential}
+For degree $n\in\mathbb N$ and coupling $\lambda\in\mathbb R$, define
+\[
+  V_{n,\lambda}(x)=\frac{x^2}{2}+\frac{\lambda}{n}x^n.
+\]
+The Lean expression is total for every natural $n$; derivative results below
+use the guard $1\le n$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the polynomial bond energy occurring termwise in the locked finite
+Hamiltonian.
+\end{proof}
+
+\begin{definition}\leanok
+[Single-bond interaction force]
+\label{def:microscopic:interaction-force}
+\lean{ArchonPhysics.MicroscopicDynamics.interactionForce}
+Define the polynomial expression
+\[
+  F_{n,\lambda}(x)=x+\lambda x^{n-1},
+\]
+where subtraction in the exponent is natural-number subtraction.  For
+$1\le n$, this is the derivative of $V_{n,\lambda}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is a definition for all natural degrees.  The degree guard needed to
+identify it with the derivative is imposed by the energy-conservation theorem.
+\end{proof}
+
+\begin{definition}\leanok
+[Periodic nearest-neighbour lattice force]
+\label{def:microscopic:lattice-force}
+\lean{ArchonPhysics.MicroscopicDynamics.latticeForce}
+\uses{def:microscopic:interaction-force,
+      def:lattice:forward-difference}
+For a configuration $q$, define the force at site $i$ by applying the periodic
+forward difference to the shifted bond-force field.  Equivalently, it is the
+outgoing bond force minus the incoming bond force.
+\end{definition}
+\begin{proof}
+
+\leanok
+The definition is
+$D\bigl(i\mapsto F_{n,\lambda}((Dq)_{i-1})\bigr)$ on the cyclic site set.
+\end{proof}
+
+\begin{definition}\leanok
+[Microscopic Hamiltonian vector field]
+\label{def:microscopic:vector-field}
+\lean{ArchonPhysics.MicroscopicDynamics.microscopicVectorField}
+\uses{def:microscopic:phase-space, def:microscopic:lattice-force,
+      def:lattice:mass-actions}
+For a positive mass profile $m$, set
+\[
+  X_{m,n,\lambda}(q,p)
+   =\bigl(M^{-1}p,\,\operatorname{latticeForce}_{n,\lambda}(q)\bigr).
+\]
+Thus the two components encode $\dot q=M^{-1}p$ and the finite periodic force
+law for $\dot p$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the ordered pair of the inverse-mass action and the lattice force.
+\end{proof}
+
+\begin{definition}\leanok
+[Classical solution at a time]
+\label{def:microscopic:classical-solution-at}
+\lean{ArchonPhysics.MicroscopicDynamics.IsClassicalSolutionAt}
+\uses{def:microscopic:vector-field}
+A path $z:\mathbb R\to\mathcal P_N$ is a classical solution at time $t$ when
+\[
+  z'(t)=X_{m,n,\lambda}(z(t))
+\]
+in the Fr\'echet-derivative sense encoded by \texttt{HasDerivAt}.
+\end{definition}
+\begin{proof}
+
+\leanok
+This predicate is exactly the displayed vector-valued derivative equation at
+the specified time.
+\end{proof}
+
+\begin{definition}\leanok
+[Global classical-solution predicate]
+\label{def:microscopic:global-classical-solution}
+\lean{ArchonPhysics.MicroscopicDynamics.IsGlobalClassicalSolution}
+\uses{def:microscopic:classical-solution-at}
+A path is called a global classical solution when the classical ODE predicate
+holds at every real time.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is universal quantification of the pointwise solution predicate over
+$\mathbb R$.  It does not assert that any such path exists.
+\end{proof}
+
+\begin{definition}\leanok
+[Hamiltonian energy on phase space]
+\label{def:microscopic:hamiltonian-energy}
+\lean{ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy}
+\uses{def:microscopic:phase-space,
+      def:hamiltonian:lattice-hamiltonian}
+For $z=(q,p)$, define
+\[
+  E_{m,n,\lambda}(z)=H_{m,n,\lambda}(p,q).
+\]
+The argument reversal records that phase space is ordered $(q,p)$ whereas the
+previous Hamiltonian API is ordered $(p,q)$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Evaluate the existing finite lattice Hamiltonian on the momentum and position
+projections in that order.
+\end{proof}
+
+\begin{definition}\leanok
+[Total canonical momentum]
+\label{def:microscopic:total-momentum}
+\lean{ArchonPhysics.MicroscopicDynamics.totalMomentum}
+\uses{def:microscopic:phase-space}
+For $z=(q,p)$, define the total canonical momentum by
+\[
+  P(z)=\sum_{i\in\mathbb Z/N\mathbb Z}p_i.
+\]
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the finite sum of the momentum component over all cyclic sites.
+\end{proof}
+
+\begin{theorem}\leanok
+[Pointwise lattice-force expansion]
+\label{thm:microscopic:lattice-force-apply}
+\lean{ArchonPhysics.MicroscopicDynamics.latticeForce_apply}
+\uses{def:microscopic:lattice-force,
+      def:microscopic:interaction-force}
+For every site $i$,
+\[
+ \operatorname{latticeForce}_{n,\lambda}(q)_i
+ =F_{n,\lambda}((Dq)_i)-F_{n,\lambda}((Dq)_{i-1}).
+\]
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the two periodic forward differences in the lattice-force definition.
+\end{proof}
+
+\begin{theorem}\leanok
+[Cancellation of internal forces]
+\label{thm:microscopic:sum-lattice-force}
+\lean{ArchonPhysics.MicroscopicDynamics.sum_latticeForce}
+\uses{def:microscopic:lattice-force,
+      thm:lattice:sum-forward-difference}
+For a nonempty finite periodic chain,
+\[
+  \sum_i \operatorname{latticeForce}_{n,\lambda}(q)_i=0.
+\]
+\end{theorem}
+\begin{proof}
+
+\leanok
+The force is a periodic forward difference, whose finite sum telescopes to
+zero on the cyclic site set.
+\end{proof}
+
+\begin{theorem}\leanok
+[Continuous differentiability of the vector field]
+\label{thm:microscopic:vector-field-contdiff}
+\lean{ArchonPhysics.MicroscopicDynamics.microscopicVectorField_contDiff}
+\uses{def:microscopic:vector-field,
+      def:microscopic:interaction-force,
+      def:microscopic:lattice-force}
+For a nonempty finite chain, $X_{m,n,\lambda}$ is continuously differentiable
+of order one for every natural degree $n$ and every real coupling $\lambda$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+After expanding inverse-mass action and periodic differences, every coordinate
+of the finite-dimensional vector field is a polynomial expression composed
+with linear coordinate maps.  Such a map is $C^1$.
+\end{proof}
+
+\begin{theorem}\leanok
+[Existence and uniqueness of a local solution germ]
+\label{thm:microscopic:local-solution-germ}
+\lean{ArchonPhysics.MicroscopicDynamics.exists_unique_local_solution_germ}
+\uses{def:microscopic:phase-space, def:microscopic:vector-field,
+      thm:microscopic:vector-field-contdiff}
+For every initial time $t_0$ and state $z_0$, there are $\varepsilon>0$ and a
+path $z:\mathbb R\to\mathcal P_N$ with $z(t_0)=z_0$ that solves the ODE in the
+within-derivative sense on
+$[t_0-\varepsilon,t_0+\varepsilon]$.  If another path $y$ has the same initial
+value and satisfies the ordinary derivative equation throughout the open
+interval, then $z$ and $y$ agree eventually in a neighbourhood of $t_0$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+The $C^1$ vector field is locally Lipschitz, so finite-dimensional
+Picard--Lindelof gives a solution on a nontrivial closed interval.  Continuity
+keeps both candidate paths in a common local closed ball near $t_0$; local ODE
+uniqueness then identifies their germs.  The conclusion is deliberately local
+and does not extend the solution to all real times.
+\end{proof}
+
+\begin{theorem}\leanok
+[Pointwise conservation law for total momentum]
+\label{thm:microscopic:momentum-derivative-zero}
+\lean{ArchonPhysics.MicroscopicDynamics.totalMomentum_hasDerivAt_zero_at}
+\uses{def:microscopic:classical-solution-at,
+      def:microscopic:total-momentum,
+      thm:microscopic:sum-lattice-force}
+Whenever $z$ satisfies the microscopic ODE at $t$, the scalar path
+$s\mapsto P(z(s))$ has derivative zero at $t$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Differentiate the finite sum of momentum coordinates.  The ODE replaces each
+coordinate derivative by the lattice force, and the internal-force sum
+cancels by periodicity.
+\end{proof}
+
+\begin{theorem}\leanok
+[Pointwise conservation law for Hamiltonian energy]
+\label{thm:microscopic:energy-derivative-zero}
+\lean{ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_hasDerivAt_zero_at}
+\uses{def:microscopic:interaction-potential,
+      def:microscopic:interaction-force,
+      def:microscopic:classical-solution-at,
+      def:microscopic:hamiltonian-energy,
+      thm:microscopic:lattice-force-apply}
+Assume $1\le n$.  Whenever $z$ satisfies the microscopic ODE at $t$, the
+scalar path $s\mapsto E_{m,n,\lambda}(z(s))$ has derivative zero at $t$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Differentiate kinetic and bond-potential energies site by site.  Positivity of
+each mass justifies the inverse-mass algebra, and $1\le n$ identifies the
+potential derivative with $F_{n,\lambda}$.  The kinetic power and bond power
+cancel after a cyclic index shift, leaving derivative zero.
+\end{proof}
+
+\begin{theorem}\leanok
+[Conditional energy conservation between endpoints]
+\label{thm:microscopic:energy-endpoints}
+\lean{ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_eq_of_forall_mem_uIcc}
+\uses{def:microscopic:classical-solution-at,
+      def:microscopic:hamiltonian-energy,
+      thm:microscopic:energy-derivative-zero}
+Assume $1\le n$.  If $z$ satisfies the microscopic ODE at every
+$u\in\operatorname{uIcc}(s,t)$, then
+\[
+  E_{m,n,\lambda}(z(s))=E_{m,n,\lambda}(z(t)).
+\]
+\end{theorem}
+\begin{proof}
+
+\leanok
+The preceding theorem gives zero within-derivative throughout the unoriented
+closed interval.  The mean-value bound on this convex interval makes the
+endpoint difference have norm at most zero.  This is conditional conservation;
+it does not supply a solution spanning arbitrary prescribed endpoints.
+\end{proof}
+
+\begin{theorem}\leanok
+[Conditional momentum conservation between endpoints]
+\label{thm:microscopic:momentum-endpoints}
+\lean{ArchonPhysics.MicroscopicDynamics.totalMomentum_eq_of_forall_mem_uIcc}
+\uses{def:microscopic:classical-solution-at,
+      def:microscopic:total-momentum,
+      thm:microscopic:momentum-derivative-zero}
+If $z$ satisfies the microscopic ODE at every
+$u\in\operatorname{uIcc}(s,t)$, then
+\[
+  P(z(s))=P(z(t)).
+\]
+\end{theorem}
+\begin{proof}
+
+\leanok
+Total momentum has zero within-derivative throughout the convex unoriented
+interval.  The corresponding mean-value bound forces equality at its two
+endpoints.  As above, the theorem assumes rather than constructs a path on the
+whole interval.
+\end{proof}

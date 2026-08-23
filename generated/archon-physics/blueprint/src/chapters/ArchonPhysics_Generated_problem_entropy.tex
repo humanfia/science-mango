@@ -1,0 +1,55 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_entropy.lean
+% archon:source-report reports/thermalization/problem_entropy.source.json
+
+\chapter{Finite spectral-entropy observables}
+\label{ch:ArchonPhysics_Generated_problem_entropy}
+
+All declarations below are project-local finite diagnostics. They record no claim that the nonlinear lattice thermalizes.
+
+\begin{definition}[Zero-safe entropy summand]
+\label{def:entropy:summand}
+\lean{ArchonPhysics.Generated.Entropy.entropySummand}
+For a real number $x$, set $h(x)=0$ when $x=0$ and otherwise set $h(x)=-x\log x$. This fixes $0\log 0=0$.
+\end{definition}
+\begin{proof}This piecewise definition makes a zero modal weight contribute zero.\end{proof}
+
+\begin{definition}[Spectral entropy]
+\label{def:entropy:spectral}
+\lean{ArchonPhysics.Generated.Entropy.spectralEntropy}
+\uses{def:entropy:summand}
+For a finite index type and real weight vector $w$, set $S(w)=\sum_kh(w_k)$.
+\end{definition}
+\begin{proof}Apply the preceding zero-safe summand pointwise and take the finite sum.\end{proof}
+
+\begin{definition}[Entropy deficit]
+\label{def:entropy:deficit}
+\lean{ArchonPhysics.Generated.Entropy.entropyDeficit}
+\uses{def:entropy:spectral}
+The deficit from uniform entropy is $\log|\iota|-S(w)$.
+\end{definition}
+\begin{proof}This is a diagnostic definition; no comparison inequality is asserted.\end{proof}
+
+\begin{definition}[Participation number]
+\label{def:entropy:participation}
+\lean{ArchonPhysics.Generated.Entropy.participationNumber}
+Set $P(w)=(\sum_kw_k^2)^{-1}$, using Lean's total inverse at the zero vector.
+\end{definition}
+\begin{proof}This is the finite inverse-participation formula.\end{proof}
+
+\begin{definition}[Uniform weights]
+\label{def:entropy:uniform}
+\lean{ArchonPhysics.Generated.Entropy.uniformWeight}
+Assign every index in a finite type $\iota$ the weight $|\iota|^{-1}$.
+\end{definition}
+\begin{proof}This is the constant finite-vector definition.\end{proof}
+
+\begin{theorem}[Entropy is nonnegative and uniform weights attain its finite value]
+\label{thm:physics:entropy:target}
+\lean{ArchonPhysics.Generated.Entropy.entropy_physics_formalization_target}
+\uses{def:entropy:summand, def:entropy:spectral, def:entropy:uniform}
+Let $\iota$ be finite and nonempty. If $w_k\ge0$ and $\sum_kw_k=1$, then $S(w)\ge0$ and $S(\operatorname{uniformWeight})=\log|\iota|$.
+\end{theorem}
+\begin{proof}
+Normalization and nonnegativity give $w_k\le1$. Thus $\log w_k\le0$ away from zero, so every $-w_k\log w_k$ is nonnegative; the zero case is by definition. Sum the inequalities. For uniform weights, nonemptiness makes $|\iota|$ positive; substitute $1/|\iota|$, use $\log(x^{-1})=-\log x$, and evaluate the constant finite sum.
+\end{proof}

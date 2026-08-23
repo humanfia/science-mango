@@ -1,0 +1,63 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean
+% archon:source-report reports/thermalization/problem_equipartition.source.json
+
+\chapter{Finite modal-energy equipartition diagnostic}
+\label{ch:ArchonPhysics_Generated_problem_equipartition}
+
+The physical window domain is $0\le\mu<1$ and $T>0$. The present total Lean functions deliberately remain defined outside it; the theorem concerns normalized finite energy data and asserts no trajectory convergence.
+
+\begin{definition}[Nonnegative modal energies]
+\label{def:equip:modal-energies}
+\lean{ArchonPhysics.Generated.Equipartition.ModalEnergies}
+A modal-energy record has a real vector $e$ and certificates $e_k\ge0$.
+\end{definition}
+\begin{proof}This structure stores the finite positivity invariant.\end{proof}
+
+\begin{definition}[Late window average]
+\label{def:equip:late-window}
+\lean{ArchonPhysics.Generated.Equipartition.lateWindowAverage}
+For $E(t,k)$, define $((1-\mu)T)^{-1}\int_{\mu T}^{T}E(t,k)\,dt$.
+\end{definition}
+\begin{proof}The formula is total; its physical use is restricted to the stated admissible window.\end{proof}
+
+\begin{definition}[Total monitored energy]
+\label{def:equip:total-energy}
+\lean{ArchonPhysics.Generated.Equipartition.totalEnergy}
+Set $E_{\rm tot}=\sum_ke_k$ for a finite energy vector.
+\end{definition}
+\begin{proof}This finite sum is the normalization denominator.\end{proof}
+
+\begin{definition}[Normalized modal weight]
+\label{def:equip:normalized-weight}
+\lean{ArchonPhysics.Generated.Equipartition.normalizedWeight}
+\uses{def:equip:total-energy}
+Set $w_k=e_k/E_{\rm tot}$; it is physically a probability weight only when $E_{\rm tot}\ne0$.
+\end{definition}
+\begin{proof}This is pointwise division by the preceding sum.\end{proof}
+
+\begin{definition}[Distance from equal sharing]
+\label{def:equip:distance}
+\lean{ArchonPhysics.Generated.Equipartition.equipartitionDistance}
+\uses{def:equip:normalized-weight}
+Define $d(e)=\sum_k|w_k-|\iota|^{-1}|$.
+\end{definition}
+\begin{proof}This is the finite $\ell^1$ distance from uniform weights.\end{proof}
+
+\begin{definition}[Approximate equipartition]
+\label{def:equip:approximate}
+\lean{ArchonPhysics.Generated.Equipartition.ApproximatelyEquipartitioned}
+\uses{def:equip:distance}
+At tolerance $\delta$, approximate equipartition means $d(e)\le\delta$.
+\end{definition}
+\begin{proof}This diagnostic includes no occurrence or ergodicity claim.\end{proof}
+
+\begin{theorem}[Finite normalized weights have distance at most two]
+\label{thm:physics:equipartition:target}
+\lean{ArchonPhysics.Generated.Equipartition.equipartition_physics_formalization_target}
+\uses{def:equip:modal-energies, def:equip:total-energy, def:equip:normalized-weight, def:equip:distance}
+For a nonempty finite set of nonnegative energies with nonzero total, the weights sum to one, $d(e)\ge0$, and $d(e)\le2$.
+\end{theorem}
+\begin{proof}
+The denominator is positive, so weights are nonnegative. Distribute division over the finite sum to obtain $\sum_kw_k=1$. Absolute values are nonnegative. Finally $|w_k-u_k|\le w_k+u_k$ for $u_k=|\iota|^{-1}$; summing gives $1+1=2$.
+\end{proof}

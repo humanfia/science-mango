@@ -1,0 +1,17 @@
+import ArchonPhysicsConsumers.Thermalization.problem_entropy
+import ArchonPhysicsConsumers.Thermalization.problem_equipartition
+import ArchonPhysicsConsumers.Thermalization.problem_finite_periodic
+import ArchonPhysicsConsumers.Thermalization.problem_hamiltonian_scaling
+import ArchonPhysicsConsumers.Thermalization.problem_harmonic_operator
+import ArchonPhysicsConsumers.Thermalization.problem_hitting_time
+import ArchonPhysicsConsumers.Thermalization.problem_kinetic_time_rescaling
+import ArchonPhysicsConsumers.Thermalization.problem_mass_matrix
+import ArchonPhysicsConsumers.Thermalization.problem_microscopic_dynamics
+
+/-!
+# ArchonPhysics consumer acceptance suite
+
+These source-grounded thermalization targets are consumers of the local
+`ArchonPhysics` library. They are not part of its public API.
+-/
+

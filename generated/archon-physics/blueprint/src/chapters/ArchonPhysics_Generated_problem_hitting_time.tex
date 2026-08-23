@@ -1,0 +1,39 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean
+% archon:source-report reports/thermalization/problem_hitting_time.source.json
+
+\chapter{Generated extended-real hitting-time interface}
+\label{ch:ArchonPhysics_Generated_problem_hitting_time}
+
+This generic interface treats a predicate on extended nonnegative times. It does not assert an equipartition event occurs or that an infimum is attained.
+
+\begin{definition}[Positive event times]
+\label{def:hitting:times}
+\lean{ArchonPhysics.Generated.HittingTime.equilibrationTimes}
+For a predicate $P$, take the set of $t>0$ with $P(t)$.
+\end{definition}
+\begin{proof}This is a set comprehension with a strict-positive-time guard.\end{proof}
+
+\begin{definition}[First hitting infimum]
+\label{def:hitting:time}
+\lean{ArchonPhysics.Generated.HittingTime.equilibrationHittingTime}
+\uses{def:hitting:times}
+Define the first hitting time as the extended-real infimum of positive event times.
+\end{definition}
+\begin{proof}The ENNReal infimum gives $\top$ for an empty set.\end{proof}
+
+\begin{definition}[Persistence on a closed interval]
+\label{def:hitting:persistence}
+\lean{ArchonPhysics.Generated.HittingTime.PersistsFor}
+$P$ persists from $t$ for duration $\delta$ if it holds at every $s$ with $t\le s\le t+\delta$.
+\end{definition}
+\begin{proof}This is the universal interval predicate.\end{proof}
+
+\begin{theorem}[An event time bounds its first hitting infimum]
+\label{thm:physics:hitting_time:target}
+\lean{ArchonPhysics.Generated.HittingTime.hitting_time_physics_formalization_target}
+\uses{def:hitting:times, def:hitting:time}
+If $t$ belongs to the positive event-time set, then its infimum is at most $t$ and $P(t)$ holds.
+\end{theorem}
+\begin{proof}Membership supplies both $t>0$ and $P(t)$. The defining property of an infimum yields $\inf\operatorname{Times}(P)\le t$. No statement identifies the infimum itself as an event time.
+\end{proof}

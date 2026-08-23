@@ -1,0 +1,57 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean
+% archon:source-report reports/thermalization/problem_mass_matrix.source.json
+
+\chapter{Generated finite mass operators}
+\label{ch:ArchonPhysics_Generated_problem_mass_matrix}
+
+These finite diagonal operators retain only deterministic strict positivity. The API-locked Lattice module is the route that will supply the periodic-site and square-root-action interface to consumers.
+
+\begin{definition}[Positive masses]
+\label{def:mass:positive-masses}
+\lean{ArchonPhysics.Generated.MassMatrix.PositiveMasses}
+At each $\operatorname{Fin}N$ site, record a real mass $m_i>0$.
+\end{definition}
+\begin{proof}The record stores the field and its pointwise strict positivity proof.\end{proof}
+
+\begin{definition}[Mass operator]
+\label{def:mass:operator}
+\lean{ArchonPhysics.Generated.MassMatrix.massOperator}
+\uses{def:mass:positive-masses}
+Set $(Mx)_i=m_ix_i$.
+\end{definition}
+\begin{proof}This is pointwise multiplication by the mass field.\end{proof}
+
+\begin{definition}[Inverse mass operator]
+\label{def:mass:inverse-operator}
+\lean{ArchonPhysics.Generated.MassMatrix.inverseMassOperator}
+\uses{def:mass:positive-masses}
+Set $(M^{-1}x)_i=m_i^{-1}x_i$.
+\end{definition}
+\begin{proof}This is pointwise multiplication by the inverse mass.\end{proof}
+
+\begin{definition}[Kinetic form]
+\label{def:mass:kinetic}
+\lean{ArchonPhysics.Generated.MassMatrix.kineticQuadraticForm}
+\uses{def:mass:positive-masses}
+Set $K_m(p)=\sum_ip_i^2/(2m_i)$.
+\end{definition}
+\begin{proof}This is the finite positive-mass kinetic formula.\end{proof}
+
+\begin{definition}[Mass-weighted coordinate]
+\label{def:mass:weighted-coordinate}
+\lean{ArchonPhysics.Generated.MassMatrix.massWeightedCoordinate}
+\uses{def:mass:positive-masses}
+Set $(M^{1/2}q)_i=\sqrt{m_i}\,q_i$.
+\end{definition}
+\begin{proof}This is the pointwise mass-weighting change of coordinates.\end{proof}
+
+\begin{theorem}[Inverse cancellation and kinetic nonnegativity]
+\label{thm:physics:mass_matrix:target}
+\lean{ArchonPhysics.Generated.MassMatrix.mass_matrix_physics_formalization_target}
+\uses{def:mass:operator, def:mass:inverse-operator, def:mass:kinetic}
+For positive masses, $M^{-1}(Mq)=q$ pointwise and $K_m(p)\ge0$.
+\end{theorem}
+\begin{proof}
+Strict positivity gives $m_i\ne0$, so $(m_i)^{-1}(m_iq_i)=q_i$. Each kinetic summand has nonnegative square numerator and positive denominator $2m_i$; sum the termwise inequalities.
+\end{proof}

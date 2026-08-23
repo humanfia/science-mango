@@ -1,0 +1,307 @@
+% archon:physics
+% archon:covers ArchonPhysics/HarmonicModes.lean
+
+\chapter{Finite harmonic normal modes}
+\label{ch:ArchonPhysics_HarmonicModes}
+
+For a finite positive-mass periodic lattice, this chapter records the
+mass-weighted harmonic operator and its finite-dimensional normal-mode data.
+All scalar occurrences below are named fixed-unit projections: a normal
+coordinate $a$, its velocity projection $v$, and a frequency-square
+$\omega^2$ are represented by \texttt{Real} only after choosing the project
+units.  Thus they are not untyped stand-ins for a full physical state.  The
+chapter proves finite spectral and oscillator facts only; it does not claim
+Anderson localization, mixing, or thermalization.
+
+\begin{definition}\leanok
+[Periodic difference matrix]
+\label{def:harmonic:difference-matrix}
+\lean{ArchonPhysics.HarmonicModes.differenceMatrix}
+\uses{def:lattice:site}
+The matrix $D$ is the linear operator on site configurations satisfying
+$(Dq)_i=q_{i+1}-q_i$.
+\end{definition}
+\begin{proof}
+
+\leanok
+The matrix is defined entrywise as the coefficient matrix of the periodic
+forward-difference map.
+\end{proof}
+
+\begin{theorem}\leanok
+[Difference matrix realizes the bond difference]
+\label{thm:harmonic:difference-matrix-mulvec}
+\lean{ArchonPhysics.HarmonicModes.differenceMatrix_mulVec}
+\uses{def:harmonic:difference-matrix, def:lattice:forward-difference}
+For every configuration $q$, matrix multiplication gives $Dq$ equal to the
+locked periodic forward difference.
+\end{theorem}
+\begin{proof}
+
+\leanok
+At each site the row of $D$ has coefficient $-1$ at $i$ and $1$ at $i+1$.
+The finite matrix-vector sum therefore reduces to $q_{i+1}-q_i$.
+\end{proof}
+
+\begin{definition}\leanok
+[Mass-weighted difference]
+\label{def:harmonic:mass-weighted-difference}
+\lean{ArchonPhysics.HarmonicModes.massWeightedDifferenceMatrix}
+\uses{def:harmonic:difference-matrix, def:lattice:mass-actions}
+For a positive mass profile $m$, set $B=D M^{-1/2}$, where the diagonal
+entry at site $i$ is $(\sqrt{m_i})^{-1}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Compose the periodic difference matrix with the diagonal inverse-square-root
+mass action supplied by the lattice API.
+\end{proof}
+
+\begin{definition}\leanok
+[Mass-weighted harmonic matrix]
+\label{def:harmonic:mass-weighted-harmonic-matrix}
+\lean{ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix}
+\uses{def:harmonic:mass-weighted-difference}
+Define the real symmetric dynamical matrix by $\Phi=B^{\mathsf T}B$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the Gram matrix of the mass-weighted bond-difference operator.
+\end{proof}
+
+\begin{theorem}\leanok
+[Gram factorization]
+\label{thm:harmonic:gram-factorization}
+\lean{ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_eq_transpose_mul_self}
+\uses{def:harmonic:mass-weighted-harmonic-matrix,
+      def:harmonic:mass-weighted-difference}
+The dynamical matrix is exactly $B^{\mathsf T}B$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the defining Gram-matrix expression.
+\end{proof}
+
+\begin{theorem}\leanok
+[Nonnegative harmonic operator]
+\label{thm:harmonic:matrix-pos-semidef}
+\lean{ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_posSemidef}
+\uses{thm:harmonic:gram-factorization}
+The matrix $\Phi$ is positive semidefinite.
+\end{theorem}
+\begin{proof}
+
+\leanok
+For every real vector $x$, $x^{\mathsf T}\Phi x=(Bx)^{\mathsf T}(Bx)$ is a
+sum of squares and hence is nonnegative.
+\end{proof}
+
+\begin{definition}\leanok
+[Fixed-unit modal energy]
+\label{def:harmonic:modal-energy-api}
+\lean{ArchonPhysics.HarmonicModes.modalEnergy}
+For a fixed-unit frequency-square $\omega^2$, coordinate projection $a$, and
+velocity projection $v$, define $E_{\omega^2}(a,v)=(v^2+\omega^2a^2)/2$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the scalar energy of one projected harmonic degree of freedom in the
+chosen mass and energy units.
+\end{proof}
+
+\begin{theorem}\leanok
+[Conservation of fixed-unit modal energy]
+\label{thm:harmonic:modal-energy-conserved-api}
+\lean{ArchonPhysics.HarmonicModes.modalEnergy_conserved}
+\uses{def:harmonic:modal-energy-api}
+If $a'=v$ and $v'=-\omega^2a$, then $E_{\omega^2}(a(t),v(t))$ equals its value
+at time zero for every $t$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Differentiate the numerator: $2vv'+2\omega^2aa'$
+equals $2v(-\omega^2a)+2\omega^2av=0$.  A function with zero derivative on
+$\mathbb R$ is constant, so evaluate the resulting identity at $0$.
+\end{proof}
+
+\begin{theorem}\leanok
+[Nonnegative modal energy]
+\label{thm:harmonic:modal-energy-nonneg-api}
+\lean{ArchonPhysics.HarmonicModes.modalEnergy_nonneg}
+\uses{def:harmonic:modal-energy-api}
+If the frequency-square projection is nonnegative, then the modal energy is
+nonnegative.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Both $v^2$ and $\omega^2a^2$ are nonnegative; division by $2$ preserves the
+order.
+\end{proof}
+
+\begin{definition}\leanok
+[Mode frequency square]
+\label{def:harmonic:mode-frequency-sq}
+\lean{ArchonPhysics.HarmonicModes.modeFrequencySq}
+\uses{def:harmonic:mass-weighted-harmonic-matrix}
+For each normal-mode index $k$, $\omega_k^2$ is the eigenvalue of $\Phi$
+associated with that mode.
+\end{definition}
+\begin{proof}
+
+\leanok
+Finite-dimensional real spectral data assign one eigenvalue to each vector of
+an orthonormal eigenbasis.
+\end{proof}
+
+\begin{theorem}\leanok
+[Nonnegative frequency squares]
+\label{thm:harmonic:mode-frequency-sq-nonneg}
+\lean{ArchonPhysics.HarmonicModes.modeFrequencySq_nonneg}
+\uses{def:harmonic:mode-frequency-sq, thm:harmonic:matrix-pos-semidef}
+Every mode frequency square is nonnegative.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Apply positive semidefiniteness to a unit eigenvector.  Its quadratic form is
+its eigenvalue, so that eigenvalue is nonnegative.
+\end{proof}
+
+\begin{definition}\leanok
+[Normal-mode basis]
+\label{def:harmonic:normal-mode-basis}
+\lean{ArchonPhysics.HarmonicModes.normalModeBasis}
+\uses{def:harmonic:mass-weighted-harmonic-matrix}
+Choose an orthonormal real eigenbasis of the finite symmetric matrix $\Phi$.
+\end{definition}
+\begin{proof}
+
+\leanok
+The real finite-dimensional spectral theorem diagonalizes a symmetric matrix
+by an orthonormal basis.
+\end{proof}
+
+\begin{theorem}\leanok
+[Normal-mode eigen-equation]
+\label{thm:harmonic:normal-mode-eigenvector}
+\lean{ArchonPhysics.HarmonicModes.normalMode_eigenvector}
+\uses{def:harmonic:normal-mode-basis, def:harmonic:mode-frequency-sq}
+For every index $k$, $\Phi u^k=\omega_k^2u^k$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+This is the eigenvector equation supplied by the selected spectral basis and
+the corresponding eigenvalue definition.
+\end{proof}
+
+\begin{definition}\leanok
+[Positive-frequency Physlib oscillator]
+\label{def:harmonic:positive-mode-oscillator}
+\lean{ArchonPhysics.HarmonicModes.positiveModeOscillator}
+For a positive fixed-unit frequency $\omega$, construct the Physlib harmonic
+oscillator with mass $1$ and spring constant $\omega^2$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Instantiate the supplied oscillator structure with the stated positive
+parameters.
+\end{proof}
+
+\begin{theorem}\leanok
+[Positive-mode oscillator parameters]
+\label{thm:harmonic:positive-mode-oscillator-spec}
+\lean{ArchonPhysics.HarmonicModes.positiveModeOscillator_spec}
+\uses{def:harmonic:positive-mode-oscillator}
+The constructed oscillator has mass $1$ and spring constant $\omega^2$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the constructor and read off its two fields.
+\end{proof}
+
+\begin{theorem}\leanok
+[Physlib positive-mode energy conservation]
+\label{thm:harmonic:positive-mode-energy-conserved}
+\lean{ArchonPhysics.HarmonicModes.positiveMode_energy_conserved}
+\uses{def:harmonic:positive-mode-oscillator}
+For a smooth trajectory satisfying that oscillator's equation of motion, its
+Physlib energy at $t$ equals its energy at time zero.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Apply the Physlib harmonic-oscillator energy-conservation theorem to the
+constructed mass-one, positive-spring oscillator.
+\end{proof}
+
+\begin{definition}\leanok
+[Translation mode]
+\label{def:harmonic:translation-mode}
+\lean{ArchonPhysics.HarmonicModes.translationMode}
+\uses{def:lattice:mass}
+Define the mass-weighted translation vector by $r_i=\sqrt{m_i}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the pointwise square-root mass profile, expressed in the fixed lattice
+coordinate units.
+\end{proof}
+
+\begin{theorem}\leanok
+[Translation zero mode]
+\label{thm:harmonic:translation-mode-is-zero}
+\lean{ArchonPhysics.HarmonicModes.translationMode_is_zero}
+\uses{def:harmonic:translation-mode,
+      def:harmonic:mass-weighted-harmonic-matrix}
+The mass-weighted harmonic matrix sends the translation vector to zero.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Multiplying $r$ by $M^{-1/2}$ gives the constant vector $1$.  Its periodic
+forward difference is zero, hence $Br=0$ and $B^{\mathsf T}Br=0$.
+\end{proof}
+
+\begin{theorem}\leanok
+[Translation mode is nonzero]
+\label{thm:harmonic:translation-mode-ne-zero}
+\lean{ArchonPhysics.HarmonicModes.translationMode_ne_zero}
+\uses{def:harmonic:translation-mode, thm:lattice:mass-pos}
+The translation vector is nonzero whenever the finite site type is nonempty.
+\end{theorem}
+\begin{proof}
+
+\leanok
+At any site, strict positivity of $m_i$ makes $\sqrt{m_i}$ strictly positive,
+so the vector has a nonzero component.
+\end{proof}
+
+\begin{theorem}\leanok
+[Harmonic data specification]
+\label{thm:harmonic:data-spec}
+\lean{ArchonPhysics.HarmonicModes.harmonicData_spec}
+\uses{def:harmonic:difference-matrix,
+      def:harmonic:mass-weighted-difference,
+      def:harmonic:translation-mode,
+      def:harmonic:modal-energy-api}
+The mass-weighted difference has the stated diagonal factorization, the
+translation vector has components $\sqrt{m_i}$, and the fixed-unit scalar
+modal energy has its displayed formula.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the three transparent definitions.  The matrix equality is the
+definition of $DM^{-1/2}$, and the remaining two conjuncts are pointwise
+definitional identities.
+\end{proof}

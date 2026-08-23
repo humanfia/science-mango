@@ -1,0 +1,152 @@
+% archon:physics
+% archon:covers ArchonPhysics/KineticRescaling.lean
+
+\chapter{Conditional kinetic time rescaling}
+\label{ch:ArchonPhysics_KineticRescaling}
+
+This chapter concerns an effective kinetic evolution only.  The collision map
+is an arbitrary time-independent map on a real normed state space, and the
+equation is assumed through the named solution predicate.  Nothing here derives
+that equation from the finite lattice, asserts a microscopic equilibration law,
+or asserts that a threshold event is attained.
+
+\begin{definition}\leanok
+[Effective kinetic solution]
+\label{def:kinetic:solves}
+\lean{ArchonPhysics.KineticRescaling.SolvesKineticEquation}
+For a collision map $C$, coupling $g$, initial state $x_0$, and path $D$, say
+that $D$ solves the effective kinetic equation when $D(0)=x_0$ and
+\[
+  D'(t)=g^2 C(D(t))
+\]
+at every real time.
+\end{definition}
+\begin{proof}
+
+
+\leanok
+This is the definition of the conditional effective-model solution predicate.
+It makes existence, uniqueness, and all properties of $C$ explicit external
+hypotheses rather than consequences of the finite lattice model.
+\end{proof}
+
+\begin{theorem}\leanok
+[Solution-predicate characterization]
+\label{thm:kinetic:solution-iff}
+\lean{ArchonPhysics.KineticRescaling.solvesKineticEquation_iff}
+\uses{def:kinetic:solves}
+The named predicate holds exactly when the initial-value equality and the
+displayed derivative equality both hold.
+\end{theorem}
+\begin{proof}
+
+
+\leanok
+Unfold the definition.  Its two conjuncts are precisely the initial condition
+and the pointwise differentiability equation.
+\end{proof}
+
+\begin{theorem}\leanok
+[Rescaling a unique effective solution]
+\label{thm:kinetic:solution-rescale}
+\lean{ArchonPhysics.KineticRescaling.kineticSolution_rescale}
+\uses{def:kinetic:solves, thm:kinetic:solution-iff}
+% SOURCE: roadmap \S7, Target A (read from references/Thermal_physics_README.md)
+% SOURCE QUOTE: "If a collision operator `C` is independent of `g` and
+%
+% ```math
+% \partial_t D_g(t)=g^2 C(D_g(t)),
+% ```
+%
+% then uniqueness implies `D_g(t)=D_1(g²t)`."
+\textit{Source: roadmap \S7, Target A.}
+If $D_1$ solves the equation at coupling $1$, $D_g$ solves it at coupling $g$,
+and solutions at coupling $g$ with the given initial state are unique, then
+\[
+  D_g(t)=D_1(g^2t)
+\]
+for every real $t$.
+\end{theorem}
+% SOURCE QUOTE PROOF: No proof is supplied in the cited roadmap; the following
+% is a project-local formal elaboration of its conditional implication.
+\begin{proof}
+
+
+\leanok
+Put $E(t)=D_1(g^2t)$.  The chain rule and the coupling-one equation give
+$E'(t)=g^2C(E(t))$, while $E(0)=D_1(0)$ is the stated initial state.  Thus
+$E$ is another solution at coupling $g$.  The supplied uniqueness hypothesis
+identifies $D_g$ with $E$.  This is conditional on the effective equation and
+does not infer it from microscopic dynamics.
+\end{proof}
+
+\begin{definition}\leanok
+[First state-event hitting time]
+\label{def:kinetic:first-state-hit}
+\lean{ArchonPhysics.KineticRescaling.firstStateHittingTime}
+\uses{def:hitting:first-time}
+For a state predicate $P$ and real-time trajectory $D$, define
+\[
+ \tau_P(D)=\inf\{t\in\overline{\mathbb R}_{\geq0}
+       \mid 0<t\ \text{and}\ P(D(t.\operatorname{toReal}))\}.
+\]
+The extended-real convention gives $\top$ when no strictly positive event time
+exists.
+\end{definition}
+\begin{proof}
+
+
+\leanok
+This is the extended-nonnegative infimum of strictly positive sampled state
+event times.  It deliberately does not turn an infimum into an event time.
+\end{proof}
+
+\begin{theorem}\leanok
+[First state-event infimum formula]
+\label{thm:kinetic:first-state-hit-sinf}
+\lean{ArchonPhysics.KineticRescaling.firstStateHittingTime_eq_sInf}
+\uses{def:hitting:first-time, def:kinetic:first-state-hit}
+The first state-event hitting time is exactly the displayed extended-real
+infimum.
+\end{theorem}
+\begin{proof}
+
+
+\leanok
+Unfold the transparent definition.  No nonemptiness or attainment premise is
+introduced by this equality.
+\end{proof}
+
+\begin{theorem}\leanok
+[Transported state-event hitting times]
+\label{thm:kinetic:first-state-hit-rescale}
+\lean{ArchonPhysics.KineticRescaling.firstStateHittingTime_rescale}
+\uses{def:kinetic:first-state-hit, thm:kinetic:first-state-hit-sinf}
+% SOURCE: roadmap \S7, Target A (read from references/Thermal_physics_README.md)
+% SOURCE QUOTE: "Consequently, any compatible first hitting time satisfies the
+% exact identity
+%
+% ```math
+% T_g(δ)=g^{-2}T_1(δ).
+% ```"
+\textit{Source: roadmap \S7, Target A.}
+If $g\ne0$ and $D_g(t)=D_1(g^2t)$ at every real time, then
+\[
+ \tau_P(D_g)=\bigl(\operatorname{toNNReal}(g^2)\bigr)^{-1}\tau_P(D_1).
+\]
+\end{theorem}
+% SOURCE QUOTE PROOF: No proof is supplied in the cited roadmap; the following
+% is a project-local order-theoretic elaboration preserving non-attainment.
+\begin{proof}
+
+
+\leanok
+Let $a=\operatorname{toNNReal}(g^2)$.  Since $g\ne0$, $a$ is positive and
+finite, so multiplication by $a$ is an order automorphism of extended
+nonnegative time, with inverse multiplication by $a^{-1}$.  The trajectory
+identity transports a positive event time $t$ for $D_g$ to the positive event
+time $at$ for $D_1$, and conversely.  This remains true at $\top$, whose real
+projection is $0$ and which is fixed by multiplication by a positive finite
+scalar.  Hence the two event-time sets are inverse scalar images.  Taking
+their infima gives the formula, without choosing or assuming an attained hit.
+\end{proof}

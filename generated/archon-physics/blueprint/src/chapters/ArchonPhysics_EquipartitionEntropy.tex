@@ -1,0 +1,277 @@
+% archon:physics
+% archon:covers ArchonPhysics/EquipartitionEntropy.lean
+
+\chapter{Finite late-window equipartition and entropy diagnostics}
+\label{ch:ArchonPhysics_EquipartitionEntropy}
+
+This chapter formalizes finite diagnostic observables, not a thermalization
+theorem.  A value of \texttt{Real} used as $t$ or $T$ is a time coordinate in
+a fixed project time unit; $E(t,k)$ is the scalar projection of the $k$th
+modal energy in a fixed energy unit.  The window fraction $\mu$, normalized
+weights, tolerance $\delta$, entropy, and participation number are
+dimensionless.  Physical use is restricted to $0\leq\mu<1$, $T>0$, and a
+nonzero total window energy.  Thus no bare real scalar is being used as an
+unexplained physical state, and no convergence, recurrence, or microscopic
+kinetic assertion is made.
+
+\begin{definition}\leanok
+[Late-window modal energy]
+\label{def:thermal:late-window-average}
+\lean{ArchonPhysics.EquipartitionEntropy.lateWindowAverage}
+For a fixed-unit modal-energy projection $E$, define
+\[
+ \overline E_k^{(\mu)}(T)=((1-\mu)T)^{-1}\int_{\mu T}^{T}E(t,k)\,dt.
+\]
+\end{definition}
+\begin{proof}
+
+\leanok
+The formula is a total scalar definition.  On the stated physical domain the
+denominator is a positive duration, so this is the usual time average over
+the late fraction of the observation interval.
+\end{proof}
+
+\begin{theorem}\leanok
+[Nonnegative late-window energies]
+\label{thm:thermal:late-window-nonneg}
+\lean{ArchonPhysics.EquipartitionEntropy.lateWindowAverage_nonneg}
+\uses{def:thermal:late-window-average}
+If $0\leq\mu<1$, $T>0$, and every projected modal energy $E(t,k)$ is
+nonnegative, then $\overline E_k^{(\mu)}(T)\geq0$ for every $k$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+The interval integral of a nonnegative real-valued function is nonnegative.
+Since $(1-\mu)T>0$, multiplication by its reciprocal preserves that order.
+\end{proof}
+
+\begin{definition}\leanok
+[Total monitored weight]
+\label{def:thermal:total-weight}
+\lean{ArchonPhysics.EquipartitionEntropy.totalWeight}
+For a finite monitored mode set, define $W(w)=\sum_k w_k$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the finite sum of the dimensionless mode weights, or of energy
+projections before their normalization.
+\end{proof}
+
+\begin{definition}\leanok
+[Normalized modal weights]
+\label{def:thermal:normalized-weights}
+\lean{ArchonPhysics.EquipartitionEntropy.normalizedWeights}
+\uses{def:thermal:total-weight}
+Set $\widehat w_k=w_k/W(w)$, using Lean's total division outside the physical
+domain $W(w)>0$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Divide every component by the preceding finite total.  The positivity
+condition needed for a probability interpretation is carried by the theorems
+which use this definition.
+\end{proof}
+
+\begin{theorem}\leanok
+[Window and normalization formulae]
+\label{thm:thermal:window-weights-spec}
+\lean{ArchonPhysics.EquipartitionEntropy.windowWeights_spec}
+\uses{def:thermal:late-window-average, def:thermal:total-weight,
+      def:thermal:normalized-weights}
+The late-window average, total weight, and normalized weights equal their
+displayed integral, finite-sum, and quotient formulae.
+\end{theorem}
+\begin{proof}
+
+\leanok
+All three conjuncts are the transparent definitions, evaluated pointwise in
+the index in the third conjunct.
+\end{proof}
+
+\begin{theorem}\leanok
+[Normalized weights sum to one]
+\label{thm:thermal:sum-normalized-weights}
+\lean{ArchonPhysics.EquipartitionEntropy.sum_normalizedWeights}
+\uses{def:thermal:total-weight, def:thermal:normalized-weights}
+If $W(w)>0$, then $\sum_k\widehat w_k=1$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Distribute division by the nonzero scalar $W(w)$ over the finite sum.  The
+numerator is $W(w)$ by definition, and cancellation yields one.
+\end{proof}
+
+\begin{definition}\leanok
+[Uniform finite weights]
+\label{def:thermal:uniform-weights}
+\lean{ArchonPhysics.EquipartitionEntropy.uniformWeights}
+For a finite mode set, assign $u_k=|\iota|^{-1}$ to every mode.
+\end{definition}
+\begin{proof}
+
+\leanok
+This constant dimensionless vector is the equal-sharing reference; its
+probability interpretation uses the separately assumed nonemptiness of the
+mode set.
+\end{proof}
+
+\begin{definition}\leanok
+[Finite $\ell^1$ diagnostic]
+\label{def:thermal:l1-distance}
+\lean{ArchonPhysics.EquipartitionEntropy.l1Distance}
+For two finite weight vectors, define $d_1(w,u)=\sum_k|w_k-u_k|$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the finite, dimensionless $\ell^1$ distance used by the
+equipartition criterion.
+\end{proof}
+
+\begin{theorem}\leanok
+[Normalized weights are within two of uniform]
+\label{thm:thermal:l1-normalized-uniform-le-two}
+\lean{ArchonPhysics.EquipartitionEntropy.l1Distance_normalized_uniform_le_two}
+\uses{def:thermal:total-weight, def:thermal:normalized-weights,
+      def:thermal:uniform-weights, def:thermal:l1-distance,
+      thm:thermal:sum-normalized-weights}
+For a nonempty finite mode set and nonnegative weights of positive total,
+$d_1(\widehat w,u)\leq2$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Every normalized component and every uniform component is nonnegative.
+The triangle inequality gives $|\widehat w_k-u_k|\leq\widehat w_k+u_k$.
+Sum this inequality; both finite sums are one, so the right hand side is two.
+\end{proof}
+
+\begin{definition}\leanok
+[Approximate late-window equipartition]
+\label{def:thermal:approx-equipartition}
+\lean{ArchonPhysics.EquipartitionEntropy.ApproxEquipartition}
+\uses{def:thermal:late-window-average, def:thermal:total-weight,
+      def:thermal:normalized-weights, def:thermal:uniform-weights,
+      def:thermal:l1-distance}
+At $0\leq\mu<1$, $T>0$, tolerance $\delta$, and positive total window
+energy, require $d_1(\widehat{\overline E^{(\mu)}(T)},u)\leq\delta$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the source-aligned finite observation criterion.  It is a predicate
+at a chosen finite time window and does not assert that the predicate ever
+holds or persists.
+\end{proof}
+
+\begin{theorem}\leanok
+[Equipartition diagnostic specification]
+\label{thm:thermal:equipartition-spec}
+\lean{ArchonPhysics.EquipartitionEntropy.equipartition_spec}
+\uses{def:thermal:uniform-weights, def:thermal:l1-distance,
+      def:thermal:approx-equipartition}
+The uniform vector has every component $|\iota|^{-1}$, the distance expands
+as its finite absolute-value sum, and approximate equipartition is equivalent
+to the stated admissibility, positivity, and distance conditions.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the three definitions.  The nonempty finite index set makes the
+uniform reference well defined as an equal-sharing probability vector; the
+remaining conjunct is precisely the defining criterion.
+\end{proof}
+
+\begin{definition}\leanok
+[Spectral entropy]
+\label{def:thermal:spectral-entropy}
+\lean{ArchonPhysics.EquipartitionEntropy.spectralEntropy}
+Define $S(w)=\sum_k\operatorname{negMulLog}(w_k)$, where the Mathlib
+summand implements the zero-safe convention $0\log0=0$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Take the finite sum of the standard zero-safe entropy summand.  The input
+weights are dimensionless, hence so is the entropy diagnostic.
+\end{proof}
+
+\begin{definition}\leanok
+[Entropy deficit]
+\label{def:thermal:entropy-deficit}
+\lean{ArchonPhysics.EquipartitionEntropy.entropyDeficit}
+\uses{def:thermal:spectral-entropy}
+Set $\Delta S(w)=\log|\iota|-S(w)$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the dimensionless deficit from the maximum entropy of an equally
+weighted finite set.
+\end{proof}
+
+\begin{definition}\leanok
+[Entropy participation number]
+\label{def:thermal:participation-number}
+\lean{ArchonPhysics.EquipartitionEntropy.participationNumber}
+\uses{def:thermal:spectral-entropy}
+Set $P(w)=\exp(S(w))$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Exponentiating the dimensionless spectral entropy gives the usual effective
+number-of-active-modes diagnostic.
+\end{proof}
+
+\begin{theorem}\leanok
+[Entropy diagnostic formulae]
+\label{thm:thermal:entropy-diagnostics-spec}
+\lean{ArchonPhysics.EquipartitionEntropy.entropyDiagnostics_spec}
+\uses{def:thermal:spectral-entropy, def:thermal:entropy-deficit,
+      def:thermal:participation-number}
+Spectral entropy is its finite zero-safe sum, and the deficit and participation
+number equal $\log|\iota|-S(w)$ and $\exp(S(w))$, respectively.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Each conjunct follows by unfolding the corresponding transparent definition.
+\end{proof}
+
+\begin{theorem}\leanok
+[Entropy bounds for normalized nonnegative weights]
+\label{thm:thermal:spectral-entropy-bounds}
+\lean{ArchonPhysics.EquipartitionEntropy.spectralEntropy_bounds}
+\uses{def:thermal:total-weight, def:thermal:spectral-entropy}
+For a nonempty finite set of nonnegative weights with total one,
+$0\leq S(w)\leq\log|\iota|$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Nonnegativity and total one imply $0\leq w_k\leq1$.  Thus every zero-safe
+term $-w_k\log w_k$ is nonnegative, proving the lower bound after summing.
+For the upper bound, apply the finite Gibbs (equivalently Jensen) inequality
+to the probability vector and the uniform distribution: its relative entropy
+to uniform is nonnegative, which rearranges to $S(w)\leq\log|\iota|$.
+\end{proof}
+
+\begin{theorem}\leanok
+[Uniform weights attain maximum entropy]
+\label{thm:thermal:spectral-entropy-uniform}
+\lean{ArchonPhysics.EquipartitionEntropy.spectralEntropy_uniform}
+\uses{def:thermal:uniform-weights, def:thermal:spectral-entropy}
+For a nonempty finite mode set, $S(u)=\log|\iota|$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Substitute $u_k=|\iota|^{-1}$ into every summand.  Since the cardinality is
+positive, $- |\iota|^{-1}\log(|\iota|^{-1})=|\iota|^{-1}\log|\iota|$;
+summing the constant value over $|\iota|$ indices yields $\log|\iota|$.
+\end{proof}

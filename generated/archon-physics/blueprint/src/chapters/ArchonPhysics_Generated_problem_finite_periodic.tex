@@ -1,0 +1,65 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_finite_periodic.lean
+% archon:source-report reports/thermalization/problem_finite_periodic.source.json
+
+\chapter{Generated finite periodic lattice}
+\label{ch:ArchonPhysics_Generated_problem_finite_periodic}
+
+These project-local finite definitions capture periodicity and positive site masses only; they claim neither localization nor thermalization.
+
+\begin{definition}[Periodic site]
+\label{def:finite-periodic:site}
+\lean{ArchonPhysics.Generated.FinitePeriodic.Site}
+The sites of an $N$-periodic chain are $\mathbb Z/N\mathbb Z$.
+\end{definition}
+\begin{proof}This is the finite cyclic index type.\end{proof}
+
+\begin{definition}[Real lattice field]
+\label{def:finite-periodic:field}
+\lean{ArchonPhysics.Generated.FinitePeriodic.Field}
+\uses{def:finite-periodic:site}
+A field is a real-valued function on periodic sites.
+\end{definition}
+\begin{proof}It is the common position, momentum, and mass carrier type.\end{proof}
+
+\begin{definition}[Finite positive-mass lattice]
+\label{def:finite-periodic:lattice}
+\lean{ArchonPhysics.Generated.FinitePeriodic.Lattice}
+\uses{def:finite-periodic:field}
+The record contains a positive size, position, momentum, mass, and pointwise strict mass positivity.
+\end{definition}
+\begin{proof}Its fields encode the finite model data.\end{proof}
+
+\begin{definition}[Forward difference]
+\label{def:finite-periodic:forward-difference}
+\lean{ArchonPhysics.Generated.FinitePeriodic.forwardDifference}
+\uses{def:finite-periodic:field, def:finite-periodic:site}
+Set $(Dq)_i=q_{i+1}-q_i$ with cyclic addition.
+\end{definition}
+\begin{proof}This is the nearest-neighbour cyclic difference.\end{proof}
+
+\begin{definition}[Total forward difference]
+\label{def:finite-periodic:total-forward-difference}
+\lean{ArchonPhysics.Generated.FinitePeriodic.totalForwardDifference}
+\uses{def:finite-periodic:forward-difference}
+For nonzero $N$, sum $(Dq)_i$ over all periodic sites.
+\end{definition}
+\begin{proof}The nonzero-size instance supplies the intended finite cyclic sum.\end{proof}
+
+\begin{definition}[Kinetic quadratic form]
+\label{def:finite-periodic:kinetic}
+\lean{ArchonPhysics.Generated.FinitePeriodic.kineticQuadraticForm}
+\uses{def:finite-periodic:field, def:finite-periodic:site}
+Define $\sum_ip_i^2/(2m_i)$ for arbitrary real site fields.
+\end{definition}
+\begin{proof}The total formula requires a separate positivity premise before being called nonnegative.\end{proof}
+
+\begin{theorem}[Positive masses and cyclic telescoping]
+\label{thm:physics:finite_periodic:target}
+\lean{ArchonPhysics.Generated.FinitePeriodic.finite_periodic_physics_formalization_target}
+\uses{def:finite-periodic:lattice, def:finite-periodic:total-forward-difference}
+For a finite positive-mass lattice with nonzero size, every mass is positive and $\sum_i(Dq)_i=0$.
+\end{theorem}
+\begin{proof}
+The first assertion is a record field. Distribute the sum of $q_{i+1}-q_i$; translation by one is a bijection of $\mathbb Z/N\mathbb Z$, so the shifted and unshifted sums cancel.
+\end{proof}

@@ -1,0 +1,143 @@
+% archon:physics
+% archon:covers ArchonPhysics/Lattice.lean
+
+\chapter{API-locked finite lattice infrastructure}
+\label{ch:ArchonPhysics_Lattice}
+
+This project-local API is a finite periodic random-mass lattice interface. It separates deterministic mass algebra from probability laws and asserts neither localization, thermalization, nor a kinetic limit.
+
+\begin{definition}\leanok
+[Sites]
+\label{def:lattice:site}
+\lean{ArchonPhysics.Lattice.Site}
+For $N$, the site type is $\mathbb Z/N\mathbb Z$.
+\end{definition}
+\begin{proof}\leanok
+This is the locked cyclic finite index.\end{proof}
+
+\begin{definition}\leanok
+[Configurations]
+\label{def:lattice:configuration}
+\lean{ArchonPhysics.Lattice.Configuration}
+\uses{def:lattice:site}
+A configuration is a real-valued function on the sites.
+\end{definition}
+\begin{proof}\leanok
+This is the shared carrier for position, momentum, and mass fields.\end{proof}
+
+\begin{theorem}\leanok
+[Site/configuration representation]
+\label{thm:lattice:site-configuration}
+\lean{ArchonPhysics.Lattice.siteConfiguration_spec}
+\uses{def:lattice:site, def:lattice:configuration}
+For every $N$, sites and configurations are exactly $\mathbb Z/N\mathbb Z$ and $(\mathbb Z/N\mathbb Z\to\mathbb R)$.
+\end{theorem}
+\begin{proof}\leanok
+Unfold the two locked aliases.\end{proof}
+
+\begin{definition}\leanok
+[Strictly positive masses]
+\label{def:lattice:positive-mass-config}
+\lean{ArchonPhysics.Lattice.PositiveMassConfig}
+\uses{def:lattice:configuration}
+A mass configuration has exactly a field $m$ and a proof $m_i>0$ at every site.
+\end{definition}
+\begin{proof}\leanok
+The structure records deterministic positivity and no random law.\end{proof}
+
+\begin{definition}[Mass projection]
+\label{def:lattice:mass}
+\lean{ArchonPhysics.Lattice.PositiveMassConfig.mass}
+\uses{def:lattice:positive-mass-config}
+The mass projection returns $i\mapsto m_i$.
+\end{definition}
+\begin{proof}This is the public mass field.\end{proof}
+
+\begin{theorem}[Mass positivity]
+\label{thm:lattice:mass-pos}
+\lean{ArchonPhysics.Lattice.PositiveMassConfig.mass_pos}
+\uses{def:lattice:mass}
+Each projected mass is strictly positive.
+\end{theorem}
+\begin{proof}This is the positivity certificate stored by the mass configuration.\end{proof}
+
+\begin{definition}[Locked mass constructor]
+\label{def:lattice:positive-mass-mk}
+\lean{ArchonPhysics.Lattice.PositiveMassConfig.mk}
+\uses{def:lattice:positive-mass-config}
+From a field and a pointwise strict-positivity proof, construct the locked mass record.
+\end{definition}
+\begin{proof}Package precisely the supplied configuration and certificate.\end{proof}
+
+\begin{definition}\leanok
+[Forward difference]
+\label{def:lattice:forward-difference}
+\lean{ArchonPhysics.Lattice.forwardDifference}
+\uses{def:lattice:configuration, def:lattice:site}
+Set $(Dq)_i=q_{i+1}-q_i$ on cyclic sites.
+\end{definition}
+\begin{proof}\leanok
+This is the transparent nearest-neighbour definition.\end{proof}
+
+\begin{theorem}\leanok
+[Forward-difference formula]
+\label{thm:lattice:forward-difference-apply}
+\lean{ArchonPhysics.Lattice.forwardDifference_apply}
+\uses{def:lattice:forward-difference}
+The forward difference at $i$ is exactly $q_{i+1}-q_i$.
+\end{theorem}
+\begin{proof}\leanok
+Unfold the defining formula.\end{proof}
+
+\begin{definition}\leanok
+[Mass actions]
+\label{def:lattice:mass-actions}
+\lean{ArchonPhysics.Lattice.massAction}
+\lean{ArchonPhysics.Lattice.inverseMassAction}
+\lean{ArchonPhysics.Lattice.sqrtMassAction}
+\lean{ArchonPhysics.Lattice.inverseSqrtMassAction}
+\uses{def:lattice:mass}
+The actions multiply pointwise by $m_i$, $m_i^{-1}$, $\sqrt{m_i}$, and $(\sqrt{m_i})^{-1}$.
+\end{definition}
+\begin{proof}\leanok
+Each is a transparent pointwise map from the public mass field.\end{proof}
+
+\begin{definition}\leanok
+[Kinetic energy]
+\label{def:lattice:kinetic-energy}
+\lean{ArchonPhysics.Lattice.kineticEnergy}
+\uses{def:lattice:mass}
+For nonzero $N$, set $K_m(p)=\sum_ip_i^2/(2m_i)$.
+\end{definition}
+\begin{proof}\leanok
+This is the locked finite kinetic quadratic form.\end{proof}
+
+\begin{theorem}\leanok
+[Mass algebra specification]
+\label{thm:lattice:mass-algebra}
+\lean{ArchonPhysics.Lattice.massAlgebra_spec}
+\uses{def:lattice:mass-actions, def:lattice:kinetic-energy}
+The four actions have the stated pointwise formulas, and kinetic energy is the displayed finite sum.
+\end{theorem}
+\begin{proof}\leanok
+Unfold the transparent pointwise definitions and the finite kinetic sum; all five equalities are definitional.\end{proof}
+
+\begin{theorem}\leanok
+[Nonnegative kinetic energy]
+\label{thm:lattice:kinetic-nonneg}
+\lean{ArchonPhysics.Lattice.kineticEnergy_nonneg}
+\uses{def:lattice:kinetic-energy, thm:lattice:mass-pos}
+For a positive mass configuration, $K_m(p)\ge0$.
+\end{theorem}
+\begin{proof}\leanok
+Each square is nonnegative and each denominator $2m_i$ is positive; sum the nonnegative terms.\end{proof}
+
+\begin{theorem}\leanok
+[Cyclic sum of differences]
+\label{thm:lattice:sum-forward-difference}
+\lean{ArchonPhysics.Lattice.sum_forwardDifference}
+\uses{def:lattice:forward-difference}
+For nonzero $N$, $\sum_i(Dq)_i=0$.
+\end{theorem}
+\begin{proof}\leanok
+Translation by one permutes $\mathbb Z/N\mathbb Z$, so distributing the finite sum of $q_{i+1}-q_i$ produces two equal sums whose difference is zero.\end{proof}

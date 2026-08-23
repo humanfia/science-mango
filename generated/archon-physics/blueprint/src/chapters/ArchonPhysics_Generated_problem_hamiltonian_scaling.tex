@@ -1,0 +1,65 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean
+% archon:source-report reports/thermalization/problem_hamiltonian_scaling.source.json
+
+\chapter{Generated algebraic Hamiltonian rescaling}
+\label{ch:ArchonPhysics_Generated_problem_hamiltonian_scaling}
+
+These are finite algebraic formulas. Their inverse-coupling identity is not a thermalization-time theorem, and odd polynomial interactions imply no global coercivity here.
+
+\begin{definition}[Sites and fields]
+\label{def:scaling:site}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.Site}
+The periodic sites are $\mathbb Z/N\mathbb Z$.
+\end{definition}
+\begin{proof}This is the cyclic finite index alias.\end{proof}
+
+\begin{definition}[Real fields]
+\label{def:scaling:field}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.Field}
+\uses{def:scaling:site}
+A field is a real function on periodic sites.
+\end{definition}
+\begin{proof}It is the carrier for mass, position, and momentum.\end{proof}
+
+\begin{definition}[Forward difference]
+\label{def:scaling:forward-difference}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.forwardDifference}
+\uses{def:scaling:field, def:scaling:site}
+Set $(Dq)_i=q_{i+1}-q_i$.
+\end{definition}
+\begin{proof}This is the transparent periodic nearest-neighbour formula.\end{proof}
+
+\begin{definition}[Finite polynomial Hamiltonian]
+\label{def:scaling:hamiltonian}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.hamiltonian}
+\uses{def:scaling:forward-difference}
+For nonzero $N$, define $H=\sum_i[p_i^2/(2m_i)+(Dq_i)^2/2+(\lambda/n)(Dq_i)^n]$.
+\end{definition}
+\begin{proof}This is a total algebraic expression; positive mass is supplied later as a theorem hypothesis.\end{proof}
+
+\begin{definition}[Field rescaling]
+\label{def:scaling:rescale-field}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.rescaleField}
+\uses{def:scaling:field}
+Set $q\mapsto\sqrt\varepsilon\,q$ pointwise.
+\end{definition}
+\begin{proof}This is the prescribed positive-energy change of variables.\end{proof}
+
+\begin{definition}[Effective coupling]
+\label{def:scaling:effective-coupling}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.effectiveCoupling}
+Set $g=\lambda\varepsilon^{(n-2)/2}$ using real powers.
+\end{definition}
+\begin{proof}This is a definition, not a kinetic or microscopic law.\end{proof}
+
+\begin{theorem}[Exact finite algebraic rescaling]
+\label{thm:physics:hamiltonian_scaling:target}
+\lean{ArchonPhysics.Generated.HamiltonianScaling.hamiltonian_scaling_physics_formalization_target}
+\uses{def:scaling:hamiltonian, def:scaling:rescale-field, def:scaling:effective-coupling}
+For $m_i>0$, $\varepsilon>0$, $n\ge3$, and $\lambda\ne0$,
+$H(m,\sqrt\varepsilon q,\sqrt\varepsilon p;\lambda,n)=\varepsilon H(m,q,p;g,n)$ and $g^{-2}=\lambda^{-2}\varepsilon^{-(n-2)}$.
+\end{theorem}
+\begin{proof}
+Distribute the rescaling through the difference. The quadratic terms gain $\varepsilon$ using $(\sqrt\varepsilon)^2=\varepsilon$; the degree-$n$ term gains $\varepsilon^{n/2}=\varepsilon\varepsilon^{(n-2)/2}$. Sum termwise. The inverse-square identity follows by real-power addition, negation, and the nonzero coupling hypothesis.
+\end{proof}

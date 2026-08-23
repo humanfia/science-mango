@@ -1,0 +1,132 @@
+{
+  "modules": [
+    {
+      "module_path": "ArchonPhysics/Lattice.lean",
+      "layer": 0,
+      "depends_on": [],
+      "capabilities": ["lattice.periodic_chain", "lattice.forward_difference", "lattice.positive_mass_config", "lattice.mass_actions"],
+      "public_api": [
+        {"name": "ArchonPhysics.Lattice.PeriodicChain", "kind": "structure", "signature": "ℕ → Type"},
+        {"name": "ArchonPhysics.Lattice.PeriodicChain.Site", "kind": "def", "signature": "{N : ℕ} → PeriodicChain N → Type"},
+        {"name": "ArchonPhysics.Lattice.forwardDifference", "kind": "def", "signature": "{N : ℕ} → (chain : PeriodicChain N) → (chain.Site → ℝ) → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.Lattice.sum_forwardDifference", "kind": "theorem", "signature": "{N : ℕ} → (chain : PeriodicChain N) → (q : chain.Site → ℝ) → ∑ i, forwardDifference chain q i = 0"},
+        {"name": "ArchonPhysics.Lattice.PositiveMassConfig", "kind": "structure", "signature": "{N : ℕ} → (chain : PeriodicChain N) → Type"},
+        {"name": "ArchonPhysics.Lattice.siteMass", "kind": "def", "signature": "{N : ℕ} → {chain : PeriodicChain N} → PositiveMassConfig chain → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.Lattice.massWeight", "kind": "def", "signature": "{N : ℕ} → {chain : PeriodicChain N} → (masses : PositiveMassConfig chain) → (chain.Site → ℝ) → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.Lattice.inverseMassWeight", "kind": "def", "signature": "{N : ℕ} → {chain : PeriodicChain N} → (masses : PositiveMassConfig chain) → (chain.Site → ℝ) → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.Lattice.massWeight_inverseMassWeight", "kind": "theorem", "signature": "{N : ℕ} → {chain : PeriodicChain N} → (masses : PositiveMassConfig chain) → (q : chain.Site → ℝ) → massWeight masses (inverseMassWeight masses q) = q"},
+        {"name": "ArchonPhysics.Lattice.kineticEnergy", "kind": "def", "signature": "{N : ℕ} → {chain : PeriodicChain N} → PositiveMassConfig chain → (chain.Site → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.Lattice.kineticEnergy_nonnegative", "kind": "theorem", "signature": "{N : ℕ} → {chain : PeriodicChain N} → (masses : PositiveMassConfig chain) → (p : chain.Site → ℝ) → 0 ≤ kineticEnergy masses p"}
+      ]
+    },
+    {
+      "module_path": "ArchonPhysics/HamiltonianScaling.lean",
+      "layer": 1,
+      "depends_on": ["ArchonPhysics/Lattice.lean"],
+      "capabilities": ["hamiltonian.polynomial_chain_energy", "hamiltonian.positive_energy_rescaling", "hamiltonian.effective_coupling_inverse_square", "hamiltonian.mass_time_rescaling"],
+      "public_api": [
+        {"name": "ArchonPhysics.HamiltonianScaling.PolynomialChainParameters", "kind": "structure", "signature": "{N : ℕ} → (chain : Lattice.PeriodicChain N) → Lattice.PositiveMassConfig chain → Type"},
+        {"name": "ArchonPhysics.HamiltonianScaling.PolynomialChainParameters.degree", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → PolynomialChainParameters chain masses → ℕ"},
+        {"name": "ArchonPhysics.HamiltonianScaling.PolynomialChainParameters.coupling", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → PolynomialChainParameters chain masses → ℝ"},
+        {"name": "ArchonPhysics.HamiltonianScaling.latticeHamiltonian", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → PolynomialChainParameters chain masses → (chain.Site → ℝ) → (chain.Site → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.HamiltonianScaling.effectiveCoupling", "kind": "def", "signature": "ℝ → ℝ → ℕ → ℝ"},
+        {"name": "ArchonPhysics.HamiltonianScaling.rescaledHamiltonian", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → PolynomialChainParameters chain masses → ℝ → (chain.Site → ℝ) → (chain.Site → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.HamiltonianScaling.massNormalizedCoordinates", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → (masses : Lattice.PositiveMassConfig chain) → (chain.Site → ℝ) → (chain.Site → ℝ) → (chain.Site → ℝ) × (chain.Site → ℝ)"},
+        {"name": "ArchonPhysics.HamiltonianScaling.effectiveTime", "kind": "def", "signature": "ℝ → ℝ → ℝ"},
+        {"name": "ArchonPhysics.HamiltonianScaling.effectiveTime_eq", "kind": "theorem", "signature": "(g t : ℝ) → effectiveTime g t = g ^ 2 * t"},
+        {"name": "ArchonPhysics.HamiltonianScaling.positiveEnergyRescaling", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : PolynomialChainParameters chain masses) → (ε : ℝ) → (Q P : chain.Site → ℝ) → 0 < ε → latticeHamiltonian params (fun i => Real.sqrt ε * Q i) (fun i => Real.sqrt ε * P i) = ε * rescaledHamiltonian params (effectiveCoupling params.coupling ε params.degree) Q P"},
+        {"name": "ArchonPhysics.HamiltonianScaling.effectiveCoupling_inv_sq", "kind": "theorem", "signature": "(λ ε : ℝ) → (n : ℕ) → λ ≠ 0 → 0 < ε → (effectiveCoupling λ ε n)⁻¹ ^ 2 = λ⁻¹ ^ 2 * Real.rpow ε (2 - (n : ℝ))"}
+      ]
+    },
+    {
+      "module_path": "ArchonPhysics/HarmonicModes.lean",
+      "layer": 1,
+      "depends_on": ["ArchonPhysics/Lattice.lean"],
+      "capabilities": ["modes.mass_weighted_harmonic_operator", "modes.finite_normal_mode_interface", "modes.modal_energy_conservation"],
+      "public_api": [
+        {"name": "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix", "kind": "def", "signature": "{N : ℕ} → (chain : Lattice.PeriodicChain N) → Lattice.PositiveMassConfig chain → Matrix chain.Site chain.Site ℝ"},
+        {"name": "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_isHermitian", "kind": "theorem", "signature": "{N : ℕ} → (chain : Lattice.PeriodicChain N) → (masses : Lattice.PositiveMassConfig chain) → (massWeightedHarmonicMatrix chain masses).IsHermitian"},
+        {"name": "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_posSemidef", "kind": "theorem", "signature": "{N : ℕ} → (chain : Lattice.PeriodicChain N) → (masses : Lattice.PositiveMassConfig chain) → Matrix.PosSemidef (massWeightedHarmonicMatrix chain masses)"},
+        {"name": "ArchonPhysics.HarmonicModes.translationMode_zero", "kind": "theorem", "signature": "{N : ℕ} → (chain : Lattice.PeriodicChain N) → (masses : Lattice.PositiveMassConfig chain) → (massWeightedHarmonicMatrix chain masses).mulVec (fun _ => 1) = 0"},
+        {"name": "ArchonPhysics.HarmonicModes.NormalModeData", "kind": "structure", "signature": "{N : ℕ} → (chain : Lattice.PeriodicChain N) → Lattice.PositiveMassConfig chain → Type"},
+        {"name": "ArchonPhysics.HarmonicModes.NormalModeData.Mode", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → NormalModeData chain masses → Type"},
+        {"name": "ArchonPhysics.HarmonicModes.modeFrequencySq", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (modes : NormalModeData chain masses) → modes.Mode → ℝ"},
+        {"name": "ArchonPhysics.HarmonicModes.modalEnergy", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (modes : NormalModeData chain masses) → (modes.Mode → ℝ) → (modes.Mode → ℝ) → modes.Mode → ℝ"},
+        {"name": "ArchonPhysics.HarmonicModes.HarmonicModeTrajectory", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (modes : NormalModeData chain masses) → (ℝ → modes.Mode → ℝ) → (ℝ → modes.Mode → ℝ) → Prop"},
+        {"name": "ArchonPhysics.HarmonicModes.modalEnergy_conserved", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (modes : NormalModeData chain masses) → (Q P : ℝ → modes.Mode → ℝ) → HarmonicModeTrajectory modes Q P → ∀ k s t, modalEnergy modes (Q s) (P s) k = modalEnergy modes (Q t) (P t) k"}
+      ]
+    },
+    {
+      "module_path": "ArchonPhysics/EquipartitionEntropy.lean",
+      "layer": 2,
+      "depends_on": ["ArchonPhysics/HarmonicModes.lean"],
+      "capabilities": ["thermal.late_window_weights", "thermal.approximate_equipartition", "entropy.finite_spectral_entropy"],
+      "public_api": [
+        {"name": "ArchonPhysics.EquipartitionEntropy.lateWindowAverage", "kind": "def", "signature": "ℝ → ℝ → (ℝ → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.lateWindowAverage_nonnegative", "kind": "theorem", "signature": "(μ T : ℝ) → (f : ℝ → ℝ) → 0 ≤ μ → μ < 1 → 0 < T → (∀ t, 0 ≤ f t) → 0 ≤ lateWindowAverage μ T f"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.normalizedWeights", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → (energy : ι → ℝ) → 0 < ∑ i, energy i → ι → ℝ"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.normalizedWeights_nonnegative", "kind": "theorem", "signature": "{ι : Type} → [Fintype ι] → (energy : ι → ℝ) → (hE : 0 < ∑ i, energy i) → (∀ i, 0 ≤ energy i) → ∀ i, 0 ≤ normalizedWeights energy hE i"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.sum_normalizedWeights", "kind": "theorem", "signature": "{ι : Type} → [Fintype ι] → (energy : ι → ℝ) → (hE : 0 < ∑ i, energy i) → ∑ i, normalizedWeights energy hE i = 1"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.uniformWeights", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → ι → ℝ"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.sum_uniformWeights", "kind": "theorem", "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → ∑ i, uniformWeights i = 1"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.l1Distance", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → (ι → ℝ) → (ι → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.ApproxEquipartition", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (ι → ℝ) → ℝ → Prop"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.spectralEntropy", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → (ι → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.spectralEntropy_nonnegative", "kind": "theorem", "signature": "{ι : Type} → [Fintype ι] → (w : ι → ℝ) → (∀ i, 0 ≤ w i) → ∑ i, w i = 1 → 0 ≤ spectralEntropy w"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.spectralEntropy_uniform", "kind": "theorem", "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → spectralEntropy uniformWeights = Real.log (Fintype.card ι)"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.entropyDeficit", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (ι → ℝ) → ℝ"},
+        {"name": "ArchonPhysics.EquipartitionEntropy.participationNumber", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → (ι → ℝ) → ℝ"}
+      ]
+    },
+    {
+      "module_path": "ArchonPhysics/HittingTime.lean",
+      "layer": 3,
+      "depends_on": ["ArchonPhysics/EquipartitionEntropy.lean"],
+      "capabilities": ["hitting.continuous_time", "hitting.persistence"],
+      "public_api": [
+        {"name": "ArchonPhysics.HittingTime.continuousHittingTime", "kind": "def", "signature": "(ℝ → Prop) → ENNReal"},
+        {"name": "ArchonPhysics.HittingTime.empty_continuousHittingTime", "kind": "theorem", "signature": "continuousHittingTime (fun _ => False) = ⊤"},
+        {"name": "ArchonPhysics.HittingTime.continuousHittingTime_mono", "kind": "theorem", "signature": "(P Q : ℝ → Prop) → (∀ t, P t → Q t) → continuousHittingTime Q ≤ continuousHittingTime P"},
+        {"name": "ArchonPhysics.HittingTime.not_event_before_continuousHittingTime", "kind": "theorem", "signature": "(P : ℝ → Prop) → {t : ℝ} → 0 ≤ t → ENNReal.ofReal t < continuousHittingTime P → ¬ P t"},
+        {"name": "ArchonPhysics.HittingTime.approxEquipartitionEvent", "kind": "def", "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (ℝ → ι → ℝ) → ℝ → ℝ → Prop"},
+        {"name": "ArchonPhysics.HittingTime.PersistentAfter", "kind": "def", "signature": "(ℝ → Prop) → ℝ → Prop"},
+        {"name": "ArchonPhysics.HittingTime.persistenceTime", "kind": "def", "signature": "(ℝ → Prop) → ENNReal"},
+        {"name": "ArchonPhysics.HittingTime.empty_persistenceTime", "kind": "theorem", "signature": "persistenceTime (fun _ => False) = ⊤"}
+      ]
+    },
+    {
+      "module_path": "ArchonPhysics/KineticRescaling.lean",
+      "layer": 4,
+      "depends_on": ["ArchonPhysics/HamiltonianScaling.lean", "ArchonPhysics/HittingTime.lean"],
+      "capabilities": ["kinetic.effective_solution_rescaling", "kinetic.hitting_time_transport", "kinetic.microscopic_scaling_conjecture"],
+      "public_api": [
+        {"name": "ArchonPhysics.KineticRescaling.KineticSolution", "kind": "def", "signature": "{E : Type} → [NormedAddCommGroup E] → [NormedSpace ℝ E] → (E → E) → ℝ → E → (ℝ → E) → Prop"},
+        {"name": "ArchonPhysics.KineticRescaling.KineticUnique", "kind": "def", "signature": "{E : Type} → [NormedAddCommGroup E] → [NormedSpace ℝ E] → (E → E) → ℝ → E → Prop"},
+        {"name": "ArchonPhysics.KineticRescaling.rescaledKineticSolution", "kind": "theorem", "signature": "{E : Type} → [NormedAddCommGroup E] → [NormedSpace ℝ E] → (collision : E → E) → (g : ℝ) → (initial : E) → (D₁ Dg : ℝ → E) → KineticSolution collision 1 initial D₁ → KineticSolution collision g initial Dg → KineticUnique collision g initial → ∀ t, Dg t = D₁ (HamiltonianScaling.effectiveTime g t)"},
+        {"name": "ArchonPhysics.KineticRescaling.kineticHittingTime_rescale", "kind": "theorem", "signature": "(g : ℝ) → g ≠ 0 → (P₁ Pg : ℝ → Prop) → (∀ t, Pg t ↔ P₁ (HamiltonianScaling.effectiveTime g t)) → HittingTime.continuousHittingTime Pg = (ENNReal.ofReal (g ^ 2))⁻¹ * HittingTime.continuousHittingTime P₁"},
+        {"name": "ArchonPhysics.KineticRescaling.MicroscopicScalingConjecture", "kind": "def", "signature": "ℝ → (ℝ → Prop) → (ℝ → Prop) → Prop"}
+      ]
+    },
+    {
+      "module_path": "ArchonPhysics/MicroscopicDynamics.lean",
+      "layer": 2,
+      "depends_on": ["ArchonPhysics/Lattice.lean", "ArchonPhysics/HamiltonianScaling.lean"],
+      "capabilities": ["microscopic.finite_hamiltonian_vector_field", "microscopic.local_ivp", "microscopic.conservation_laws"],
+      "public_api": [
+        {"name": "ArchonPhysics.MicroscopicDynamics.PhasePoint", "kind": "structure", "signature": "{N : ℕ} → Lattice.PeriodicChain N → Type"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.PhasePoint.position", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → PhasePoint chain → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.PhasePoint.momentum", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → PhasePoint chain → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.interactionForce", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → HamiltonianScaling.PolynomialChainParameters chain masses → (chain.Site → ℝ) → chain.Site → ℝ"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.microscopicVectorField", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → HamiltonianScaling.PolynomialChainParameters chain masses → PhasePoint chain → PhasePoint chain"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.MicroscopicTrajectory", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → HamiltonianScaling.PolynomialChainParameters chain masses → Set ℝ → (ℝ → PhasePoint chain) → Prop"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.microscopicTrajectory_iff_hamiltonEqOp", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : HamiltonianScaling.PolynomialChainParameters chain masses) → (x : ℝ → PhasePoint chain) → MicroscopicTrajectory params Set.univ x ↔ ClassicalMechanics.hamiltonEqOp (fun _ p q => HamiltonianScaling.latticeHamiltonian params q p) (fun t => (x t).momentum) (fun t => (x t).position) = 0"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.microscopicVectorField_polynomial", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : HamiltonianScaling.PolynomialChainParameters chain masses) → ContDiff ℝ ⊤ (microscopicVectorField params)"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.localMicroscopicIVP", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : HamiltonianScaling.PolynomialChainParameters chain masses) → (x₀ : PhasePoint chain) → ∃ (δ : ℝ) (x : ℝ → PhasePoint chain), 0 < δ ∧ x 0 = x₀ ∧ MicroscopicTrajectory params (Set.Ioo (-δ) δ) x"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.localMicroscopicIVP_unique", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : HamiltonianScaling.PolynomialChainParameters chain masses) → (δ : ℝ) → (x y : ℝ → PhasePoint chain) → 0 < δ → MicroscopicTrajectory params (Set.Ioo (-δ) δ) x → MicroscopicTrajectory params (Set.Ioo (-δ) δ) y → x 0 = y 0 → ∀ t, t ∈ Set.Ioo (-δ) δ → x t = y t"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.totalMomentum", "kind": "def", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → PhasePoint chain → ℝ"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_conserved", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : HamiltonianScaling.PolynomialChainParameters chain masses) → (I : Set ℝ) → (x : ℝ → PhasePoint chain) → MicroscopicTrajectory params I x → ∀ s t, s ∈ I → t ∈ I → HamiltonianScaling.latticeHamiltonian params (x s).position (x s).momentum = HamiltonianScaling.latticeHamiltonian params (x t).position (x t).momentum"},
+        {"name": "ArchonPhysics.MicroscopicDynamics.totalMomentum_conserved", "kind": "theorem", "signature": "{N : ℕ} → {chain : Lattice.PeriodicChain N} → {masses : Lattice.PositiveMassConfig chain} → (params : HamiltonianScaling.PolynomialChainParameters chain masses) → (I : Set ℝ) → (x : ℝ → PhasePoint chain) → MicroscopicTrajectory params I x → ∀ s t, s ∈ I → t ∈ I → totalMomentum (x s) = totalMomentum (x t)"}
+      ]
+    }
+  ]
+}

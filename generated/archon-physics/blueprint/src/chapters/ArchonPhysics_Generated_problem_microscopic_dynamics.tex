@@ -1,0 +1,57 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_microscopic_dynamics.lean
+
+\chapter{Generated finite microscopic-dynamics acceptance target}
+\label{ch:ArchonPhysics_Generated_problem_microscopic_dynamics}
+
+This consumer checks that the local \texttt{ArchonPhysics} dependency exposes
+one coherent finite-dimensional interface: a $C^1$ microscopic vector field,
+a unique local solution germ through each initial state, and conditional
+energy--momentum conservation on any segment on which the concrete ODE is
+already known to hold.  It asserts no global existence, random-disorder or
+thermodynamic limit, kinetic limit, equilibration, or thermalization law.
+
+\begin{definition}\leanok
+[Unique local solution-germ property]
+\label{def:microscopic-consumer:unique-local-solution-germ}
+\lean{ArchonPhysics.Generated.MicroscopicDynamics.HasUniqueLocalSolutionGerm}
+\uses{def:microscopic:phase-space, def:microscopic:vector-field}
+For fixed $m,n,\lambda$, this property says that every initial pair $(t_0,z_0)$
+admits $\varepsilon>0$ and a path solving the microscopic vector ODE in the
+within-derivative sense on
+$[t_0-\varepsilon,t_0+\varepsilon]$.  Any other path with the same initial
+value and the ordinary derivative equation on the open interval agrees with
+it as a germ at $t_0$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This definition restates exactly the quantified local existence and eventual
+uniqueness interface expected from the generated dependency.  It contains no
+claim of continuation beyond the local interval.
+\end{proof}
+
+\begin{theorem}\leanok
+[Finite microscopic-dynamics formalization target]
+\label{thm:physics:microscopic_dynamics:target}
+\lean{ArchonPhysics.Generated.MicroscopicDynamics.microscopic_dynamics_physics_formalization_target}
+\uses{def:microscopic-consumer:unique-local-solution-germ,
+      thm:microscopic:vector-field-contdiff,
+      thm:microscopic:local-solution-germ,
+      thm:microscopic:energy-endpoints,
+      thm:microscopic:momentum-endpoints}
+For a nonempty finite periodic chain and $1\le n$, the microscopic vector field
+is $C^1$ and has the unique local solution-germ property.  Moreover, for every
+path $z$ and endpoints $s,t$, if the concrete ODE holds at every point of
+$\operatorname{uIcc}(s,t)$, then both Hamiltonian energy and total momentum
+agree at $s$ and $t$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Use continuous differentiability and local Picard--Lindelof existence from the
+microscopic-dynamics dependency.  Under the separately supplied whole-segment
+ODE hypothesis, apply its conditional endpoint conservation theorems for
+energy and momentum.  Neither this hypothesis nor the local solution theorem
+provides a global trajectory, a kinetic limit, or thermalization.
+\end{proof}

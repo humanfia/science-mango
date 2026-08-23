@@ -1,0 +1,78 @@
+% archon:physics
+% archon:covers ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean
+% archon:source-report reports/thermalization/problem_harmonic_operator.source.json
+
+\chapter{Generated finite harmonic operator}
+\label{ch:ArchonPhysics_Generated_problem_harmonic_operator}
+
+The current normal-mode record is intentionally only a minimal translation-zero-mode interface: it does not yet state eigenvector equations, orthogonality, completeness, or modal-energy conservation. Those missing contracts are supplied by the API-locked library route, not silently inferred here.
+
+\begin{definition}[Finite field]
+\label{def:harmonic:field}
+\lean{ArchonPhysics.Generated.HarmonicOperator.Field}
+A field is a real vector indexed by $\operatorname{Fin}N$.
+\end{definition}
+\begin{proof}This is the finite matrix-vector carrier.\end{proof}
+
+\begin{definition}[Inverse square-root mass]
+\label{def:harmonic:inverse-sqrt-mass}
+\lean{ArchonPhysics.Generated.HarmonicOperator.inverseSqrtMass}
+\uses{def:harmonic:field}
+Set $r_i=(\sqrt{m_i})^{-1}$ pointwise.
+\end{definition}
+\begin{proof}This is the diagonal factor used in the displayed matrix.\end{proof}
+
+\begin{definition}[Dynamical matrix]
+\label{def:harmonic:matrix}
+\lean{ArchonPhysics.Generated.HarmonicOperator.dynamicalMatrix}
+\uses{def:harmonic:inverse-sqrt-mass}
+Set $\Phi=\operatorname{diag}(r)D^\mathsf TD\operatorname{diag}(r)$.
+\end{definition}
+\begin{proof}This is the transparent finite matrix product.\end{proof}
+
+\begin{definition}[Self-adjoint predicate]
+\label{def:harmonic:self-adjoint}
+\lean{ArchonPhysics.Generated.HarmonicOperator.IsSelfAdjoint}
+A real matrix is self-adjoint when its transpose equals itself.
+\end{definition}
+\begin{proof}This is the real finite-dimensional definition.\end{proof}
+
+\begin{definition}[Positive-semidefinite predicate]
+\label{def:harmonic:positive-semidefinite}
+\lean{ArchonPhysics.Generated.HarmonicOperator.IsPositiveSemidefinite}
+For every real vector $x$, require $0\le x^\mathsf T A x$.
+\end{definition}
+\begin{proof}The quadratic form is represented by dot product and matrix-vector multiplication.\end{proof}
+
+\begin{definition}[Minimal zero-mode interface]
+\label{def:harmonic:normal-mode-interface}
+\lean{ArchonPhysics.Generated.HarmonicOperator.NormalModeDiagonalization}
+\uses{def:harmonic:field, def:harmonic:matrix}
+The record stores proposed frequencies and modes together with one translation vector satisfying $A\,v=0$.
+\end{definition}
+\begin{proof}This is exactly the current weak interface; it is not claimed to diagonalize $A$.\end{proof}
+
+\begin{definition}[Harmonic flow]
+\label{def:harmonic:flow}
+\lean{ArchonPhysics.Generated.HarmonicOperator.HarmonicFlow}
+\uses{def:harmonic:field}
+A flow has fields $q(t),p(t)$ satisfying $q'=p$ and $p'=-Aq$.
+\end{definition}
+\begin{proof}The derivative equations are part of the record assumptions.\end{proof}
+
+\begin{definition}[Scalar modal energy]
+\label{def:harmonic:modal-energy}
+\lean{ArchonPhysics.Generated.HarmonicOperator.modalEnergy}
+Set $E(\omega^2,q,p)=(p^2+\omega^2q^2)/2$.
+\end{definition}
+\begin{proof}This is the finite scalar oscillator-energy formula.\end{proof}
+
+\begin{theorem}[The finite Gram operator is symmetric and nonnegative]
+\label{thm:physics:harmonic_operator:target}
+\lean{ArchonPhysics.Generated.HarmonicOperator.harmonic_operator_physics_formalization_target}
+\uses{def:harmonic:matrix, def:harmonic:self-adjoint, def:harmonic:positive-semidefinite}
+For positive masses and any finite real matrix $D$, the displayed dynamical matrix is self-adjoint and positive semidefinite.
+\end{theorem}
+\begin{proof}
+Transpose the diagonal factors and use their symmetry to obtain $\Phi^\mathsf T=\Phi$. Write $B=D\operatorname{diag}(r)$; then $\Phi=B^\mathsf TB$. Hence $x^\mathsf T\Phi x=\lVert Bx\rVert^2\ge0$.
+\end{proof}

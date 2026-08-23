@@ -1,0 +1,959 @@
+{
+  "capabilities": [
+    {
+      "capability_id": "hamiltonian.physlib_equations_adapter",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean"
+      ],
+      "depends_on": [],
+      "description": "Thin public bridge to the exact admitted Physlib Hamilton-equation operator.",
+      "empirical_inputs": [],
+      "laws": [
+        "SatisfiesHamiltonEquations is exactly the zero set of ClassicalMechanics.hamiltonEqOp.",
+        "The admitted upstream `hamiltonEqOp_eq_zero_iff_hamiltons_equations` exposes the two derivative equations."
+      ],
+      "semantic_tags": [
+        "faithful-grounding",
+        "hamilton-equations",
+        "physlib-adapter"
+      ],
+      "source_refs": [
+        "physlib:ClassicalMechanics.HamiltonsEquations@846bc6814ee141aa945d7385646b6e45385e635e",
+        "wang2019v2:arXiv1903.09502v2:p1:eq1"
+      ]
+    },
+    {
+      "capability_id": "harmonic.modal_energy_physlib_bridge",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean"
+      ],
+      "depends_on": [],
+      "description": "Formula-locked local modal energy plus a thin positive-frequency bridge to admitted Physlib.",
+      "empirical_inputs": [],
+      "laws": [
+        "A strictly positive-frequency mode maps to the Physlib oscillator with mass 1 and spring constant omega^2 and inherits its energy-conservation theorem.",
+        "Explicit derivative hypotheses imply scalar modal-energy conservation.",
+        "Scalar modal energy is exactly (v^2 + omegaSq*a^2)/2 and is nonnegative for a nonnegative frequency square."
+      ],
+      "semantic_tags": [
+        "conditional",
+        "energy-conservation",
+        "faithful-grounding",
+        "physlib-adapter"
+      ],
+      "source_refs": [
+        "physlib:ClassicalMechanics.HarmonicOscillator.Basic@846bc6814ee141aa945d7385646b6e45385e635e",
+        "wang2019v2:arXiv1903.09502v2:p2:eqs2-3"
+      ]
+    },
+    {
+      "capability_id": "hitting.first_time",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean"
+      ],
+      "depends_on": [],
+      "description": "Formula-locked generic order-theoretic first-hit interface with the zero-time edge case excluded.",
+      "empirical_inputs": [],
+      "laws": [
+        "If 0 < t is strictly before the first hit then the event is false at t; no infimum-attainment claim is made.",
+        "The empty event hits at top, event inclusion reverses first-hit order, and every member bounds the infimum from above.",
+        "hittingTimes is exactly the set of strictly positive event times and firstHittingTime is exactly its ENNReal infimum."
+      ],
+      "semantic_tags": [
+        "ENNReal",
+        "continuous-time",
+        "hitting-time",
+        "strict-positive-time"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p4:operational-xi-threshold"
+      ]
+    },
+    {
+      "capability_id": "hitting.persistence",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean"
+      ],
+      "depends_on": [],
+      "description": "Formula-locked duration-indexed persistence, kept generic rather than tied to one equipartition threshold.",
+      "empirical_inputs": [
+        "persistence duration L"
+      ],
+      "laws": [
+        "PersistsFor A t L is exactly universal holding throughout the closed interval [t,t+L].",
+        "The interface makes no infimum-attainment claim.",
+        "persistenceTimes is exactly the set of strictly positive starts satisfying that duration-L event, and persistenceTime is exactly its ENNReal infimum."
+      ],
+      "semantic_tags": [
+        "ENNReal",
+        "duration",
+        "persistence",
+        "strict-positive-time"
+      ],
+      "source_refs": [
+        "roadmap:references/Thermal_physics_README.md:s6",
+        "wang2019v2:arXiv1903.09502v2:p4:operational-xi-threshold"
+      ]
+    },
+    {
+      "capability_id": "kinetic.effective_solution_rescaling",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean"
+      ],
+      "depends_on": [],
+      "description": "Exact conditional rescaling for an explicitly supplied effective kinetic collision map and IVP only.",
+      "empirical_inputs": [
+        "collision operator"
+      ],
+      "laws": [
+        "Given unit-coupling and coupling-g solutions with the same initial value, an explicit ordinary IVP uniqueness hypothesis yields Dg(t) = D1(g²t).",
+        "SolvesKineticEquation takes a raw collision map, includes the common initial condition, and is exactly the derivative equation D' = g² C(D)."
+      ],
+      "semantic_tags": [
+        "conditional",
+        "effective-model",
+        "initial-value",
+        "kinetic-ode"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p3:kinetic-equation-lambda-squared"
+      ]
+    },
+    {
+      "capability_id": "lattice.mass_weighting",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean"
+      ],
+      "depends_on": [],
+      "description": "Formula-locked pointwise mass algebra and its finite nonnegative kinetic quadratic form.",
+      "empirical_inputs": [],
+      "laws": [
+        "Mass, inverse-mass, square-root, and inverse-square-root actions are locked to their pointwise formulas in m.mass.",
+        "The finite kinetic energy is exactly the sum of p_i^2/(2m_i).",
+        "The finite kinetic energy is nonnegative."
+      ],
+      "semantic_tags": [
+        "energy",
+        "mass-action",
+        "positivity"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p2:eqs2-3"
+      ]
+    },
+    {
+      "capability_id": "lattice.periodic_positive_mass",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_finite_periodic.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean"
+      ],
+      "depends_on": [],
+      "description": "Minimal finite periodic lattice and constructor-locked deterministic strictly-positive mass realization.",
+      "empirical_inputs": [],
+      "laws": [
+        "For [NeZero N], the periodic forward difference sums exactly to zero.",
+        "PositiveMassConfig has exactly the public mass field and its pointwise strict-positivity proof; its generated constructor is locked, and no random-mass probability law is asserted.",
+        "siteConfiguration_spec locks Site N exactly to ZMod N and Configuration N exactly to the real-valued field Site N → Real."
+      ],
+      "semantic_tags": [
+        "deterministic-mass",
+        "finite",
+        "lattice",
+        "periodic"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p1:eq1",
+        "wang2019v2:arXiv1903.09502v2:p2:eqs2-3"
+      ]
+    },
+    {
+      "capability_id": "thermal.approx_equipartition",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean"
+      ],
+      "depends_on": [],
+      "description": "A formula-locked diagnostic predicate that asserts neither ergodicity nor eventual occurrence.",
+      "empirical_inputs": [
+        "L1 tolerance delta"
+      ],
+      "laws": [
+        "ApproxEquipartition is exactly the conjunction 0 ≤ mu < 1, T > 0, positive total averaged weight, and L1 distance to uniform at most delta.",
+        "For normalized nonnegative weights on a nonempty finite type, the L1 distance to uniform is at most two.",
+        "Uniform weights are exactly card^-1 and L1 distance is exactly the finite sum of absolute pointwise differences."
+      ],
+      "semantic_tags": [
+        "criterion",
+        "equipartition",
+        "l1-distance"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:pp3-4:modal-energy-window-mu-2/3"
+      ]
+    },
+    {
+      "capability_id": "thermal.late_window_weights",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean"
+      ],
+      "depends_on": [],
+      "description": "Formula-locked generic finite observable normalization, independent of any occurrence claim.",
+      "empirical_inputs": [
+        "window endpoint T",
+        "window fraction mu"
+      ],
+      "laws": [
+        "Under 0 ≤ mu < 1 and T > 0, pointwise nonnegative observables have nonnegative late-window averages; normalized-weight nonnegativity follows directly from the exact division formula, and the public sum theorem gives total one.",
+        "lateWindowAverage is exactly the normalized interval integral over [mu*T,T].",
+        "totalWeight is exactly the finite sum and normalizedWeights is exactly division by that total."
+      ],
+      "semantic_tags": [
+        "finite-simplex",
+        "late-window",
+        "thermal-observable"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:pp3-4:modal-energy-window-mu-2/3"
+      ]
+    },
+    {
+      "capability_id": "thermal.spectral_entropy",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_entropy.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean"
+      ],
+      "depends_on": [],
+      "description": "Formula-locked finite entropy diagnostics with explicit simplex hypotheses and no thermalization conclusion.",
+      "empirical_inputs": [],
+      "laws": [
+        "For nonnegative normalized weights, entropy lies between zero and log(card), and uniform weights attain log(card).",
+        "entropyDeficit is exactly log(card) minus entropy and participationNumber is exactly exp(entropy).",
+        "spectralEntropy is exactly the finite sum of Mathlib Real.negMulLog terms, including the total-at-zero convention."
+      ],
+      "semantic_tags": [
+        "entropy",
+        "finite",
+        "negMulLog",
+        "participation"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:pp3-4:spectral-entropy-xi"
+      ]
+    },
+    {
+      "capability_id": "hamiltonian.polynomial_energy_scaling",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean"
+      ],
+      "depends_on": [
+        "lattice.mass_weighting",
+        "lattice.periodic_positive_mass"
+      ],
+      "description": "Formula-locked exact finite-dimensional Hamiltonian rescaling without a dynamical thermalization conclusion.",
+      "empirical_inputs": [
+        "coupling lambda",
+        "degree n"
+      ],
+      "laws": [
+        "For 3 ≤ n and epsilon > 0, scaling p and q by sqrt epsilon factors out epsilon and replaces lambda by the effective coupling; for nonzero lambda, its inverse-square identity is algebraic only.",
+        "The configuration rescaling is pointwise multiplication by sqrt epsilon, and the effective coupling is lambda times epsilon^((n-2)/2).",
+        "The finite Hamiltonian is formula-locked to the sum of kinetic, harmonic-difference, and degree-n interaction energy."
+      ],
+      "semantic_tags": [
+        "algebraic-only",
+        "hamiltonian",
+        "polynomial",
+        "rescaling"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p1:eq1-and-rescaling"
+      ]
+    },
+    {
+      "capability_id": "harmonic.mass_weighted_operator",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean"
+      ],
+      "depends_on": [
+        "lattice.mass_weighting",
+        "lattice.periodic_positive_mass"
+      ],
+      "description": "Formula-locked finite Mathlib matrix realization of the mass-weighted harmonic operator.",
+      "empirical_inputs": [],
+      "laws": [
+        "The periodic difference matrix acts as forwardDifference.",
+        "The resulting operator is positive semidefinite.",
+        "The weighted difference matrix is exactly the difference matrix times diagonal inverse square-root mass, and the harmonic matrix is B transpose times B."
+      ],
+      "semantic_tags": [
+        "harmonic",
+        "mass-weighted",
+        "matrix",
+        "positive-semidefinite"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p2:eqs2-3"
+      ]
+    },
+    {
+      "capability_id": "harmonic.normal_modes",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean"
+      ],
+      "depends_on": [
+        "lattice.mass_weighting",
+        "lattice.periodic_positive_mass"
+      ],
+      "description": "Formula-locked transparent finite normal modes; no localization or infinite-volume claim.",
+      "empirical_inputs": [],
+      "laws": [
+        "Every exposed basis vector satisfies the operator eigen-equation and every frequency square is nonnegative.",
+        "Mode frequencies and the orthonormal mode basis are direct wrappers around Mathlib Hermitian spectral data.",
+        "The translation vector is exactly the pointwise square root of mass and is a nonzero zero mode."
+      ],
+      "semantic_tags": [
+        "finite-spectrum",
+        "normal-modes",
+        "translation-zero-mode"
+      ],
+      "source_refs": [
+        "roadmap:references/Thermal_physics_README.md:s3-and-s8-weak",
+        "wang2019v2:arXiv1903.09502v2:p2:eqs2-3"
+      ]
+    },
+    {
+      "capability_id": "kinetic.hitting_time_rescaling",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean"
+      ],
+      "depends_on": [
+        "hitting.first_time"
+      ],
+      "description": "Formula-locked compatible first-hit scaling downstream of a proved effective-trajectory identity.",
+      "empirical_inputs": [],
+      "laws": [
+        "For nonzero g and an explicitly transported trajectory, the state-event hitting time scales by the inverse of g².",
+        "The theorem operates on ENNReal infima and does not assume a hit is attained.",
+        "firstStateHittingTime is exactly the ENNReal infimum of strictly positive times whose toReal state satisfies the event."
+      ],
+      "semantic_tags": [
+        "conditional",
+        "effective-model",
+        "hitting-time",
+        "rescaling"
+      ],
+      "source_refs": [
+        "wang2019v2:arXiv1903.09502v2:p3:kinetic-equation-lambda-squared"
+      ]
+    },
+    {
+      "capability_id": "microscopic.finite_local_hamiltonian_dynamics",
+      "consumers": [
+        "ArchonPhysicsConsumers/Thermalization/problem_microscopic_dynamics.lean"
+      ],
+      "depends_on": [
+        "hamiltonian.polynomial_energy_scaling",
+        "lattice.mass_weighting",
+        "lattice.periodic_positive_mass"
+      ],
+      "description": "Explicit finite-N Hamiltonian dynamics, local solution-germ well-posedness, and conditional finite-interval conservation only.",
+      "empirical_inputs": [
+        "coupling lambda",
+        "degree n"
+      ],
+      "laws": [
+        "Along an explicit solution, Hamiltonian energy and total canonical momentum have zero derivative; endpoint equality is asserted only when the solution is defined throughout the unoriented interval between those endpoints.",
+        "For 1 ≤ n, the interaction force is the derivative of the polynomial bond potential occurring in the locked lattice Hamiltonian.",
+        "No global existence, maximal flow, microscopic-to-kinetic limit, equipartition, or thermalization conclusion is asserted.",
+        "PhaseSpace N is exactly the position-momentum product of two locked lattice configurations, and the microscopic vector field uses inverse-mass velocity together with the explicit periodic nearest-neighbour force.",
+        "The finite vector field is continuously differentiable, and every finite initial phase point admits a nontrivial local solution whose solution germ is unique."
+      ],
+      "semantic_tags": [
+        "conservation",
+        "finite-dimensional",
+        "hamiltonian",
+        "local-ivp",
+        "microscopic"
+      ],
+      "source_refs": [
+        "Mathlib.Analysis.ODE.ExistUnique:local-existence-and-uniqueness",
+        "roadmap:references/Thermal_physics_README.md:ss2.1,8-9,12",
+        "wang2019v2:arXiv1903.09502v2:p1:eq1"
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "capabilities": [
+        "thermal.approx_equipartition",
+        "thermal.late_window_weights",
+        "thermal.spectral_entropy"
+      ],
+      "depends_on": [],
+      "layer": 0,
+      "module_path": "ArchonPhysics/EquipartitionEntropy.lean",
+      "public_api": [
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.ApproxEquipartition",
+          "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (Real → ι → Real) → Real → Real → Real → Prop"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.entropyDeficit",
+          "signature": "{ι : Type} → [Fintype ι] → (ι → Real) → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.entropyDiagnostics_spec",
+          "signature": "{ι : Type} → [Fintype ι] → (w : ι → Real) → spectralEntropy w = ∑ i, Real.negMulLog (w i) ∧ entropyDeficit w = Real.log (Fintype.card ι) - spectralEntropy w ∧ participationNumber w = Real.exp (spectralEntropy w)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.equipartition_spec",
+          "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (E : Real → ι → Real) → (mu delta T : Real) → (w u : ι → Real) → (∀ i : ι, uniformWeights i = ((Fintype.card ι : Real))⁻¹) ∧ l1Distance w u = (∑ i : ι, |w i - u i|) ∧ (ApproxEquipartition E mu delta T ↔ 0 ≤ mu ∧ mu < 1 ∧ 0 < T ∧ 0 < totalWeight (lateWindowAverage E mu T) ∧ l1Distance (normalizedWeights (lateWindowAverage E mu T)) (uniformWeights : ι → Real) ≤ delta)"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.l1Distance",
+          "signature": "{ι : Type} → [Fintype ι] → (ι → Real) → (ι → Real) → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.l1Distance_normalized_uniform_le_two",
+          "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (w : ι → Real) → (∀ i, 0 ≤ w i) → 0 < totalWeight w → l1Distance (normalizedWeights w) (uniformWeights : ι → Real) ≤ 2"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.lateWindowAverage",
+          "signature": "{ι : Type} → (Real → ι → Real) → Real → Real → ι → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.lateWindowAverage_nonneg",
+          "signature": "{ι : Type} → (E : Real → ι → Real) → (mu T : Real) → 0 ≤ mu → mu < 1 → 0 < T → (∀ t i, 0 ≤ E t i) → ∀ i, 0 ≤ lateWindowAverage E mu T i"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.normalizedWeights",
+          "signature": "{ι : Type} → [Fintype ι] → (ι → Real) → ι → Real"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.participationNumber",
+          "signature": "{ι : Type} → [Fintype ι] → (ι → Real) → Real"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.spectralEntropy",
+          "signature": "{ι : Type} → [Fintype ι] → (ι → Real) → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.spectralEntropy_bounds",
+          "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → (w : ι → Real) → (∀ i, 0 ≤ w i) → totalWeight w = 1 → 0 ≤ spectralEntropy w ∧ spectralEntropy w ≤ Real.log (Fintype.card ι)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.spectralEntropy_uniform",
+          "signature": "{ι : Type} → [Fintype ι] → [Nonempty ι] → spectralEntropy (uniformWeights : ι → Real) = Real.log (Fintype.card ι)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.sum_normalizedWeights",
+          "signature": "{ι : Type} → [Fintype ι] → (w : ι → Real) → 0 < totalWeight w → ∑ i, normalizedWeights w i = 1"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.totalWeight",
+          "signature": "{ι : Type} → [Fintype ι] → (ι → Real) → Real"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.EquipartitionEntropy.uniformWeights",
+          "signature": "{ι : Type} → [Fintype ι] → ι → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.EquipartitionEntropy.windowWeights_spec",
+          "signature": "{ι : Type} → [Fintype ι] → (E : Real → ι → Real) → (mu T : Real) → (w : ι → Real) → (∀ i, lateWindowAverage E mu T i = ((1 - mu) * T)⁻¹ * ∫ t in mu * T..T, E t i) ∧ totalWeight w = ∑ i, w i ∧ (∀ i, normalizedWeights w i = w i / totalWeight w)"
+        }
+      ]
+    },
+    {
+      "capabilities": [
+        "hitting.first_time",
+        "hitting.persistence"
+      ],
+      "depends_on": [],
+      "layer": 0,
+      "module_path": "ArchonPhysics/HittingTime.lean",
+      "public_api": [
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HittingTime.PersistsFor",
+          "signature": "(ENNReal → Prop) → ENNReal → ENNReal → Prop"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HittingTime.firstHittingTime",
+          "signature": "(ENNReal → Prop) → ENNReal"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HittingTime.firstHittingTime_empty",
+          "signature": "firstHittingTime (fun _ : ENNReal => False) = ⊤"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HittingTime.firstHittingTime_le_of_mem",
+          "signature": "(A : ENNReal → Prop) → {t : ENNReal} → t ∈ hittingTimes A → firstHittingTime A ≤ t"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HittingTime.firstHittingTime_mono",
+          "signature": "(A B : ENNReal → Prop) → (∀ t, A t → B t) → firstHittingTime B ≤ firstHittingTime A"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HittingTime.hittingTimes",
+          "signature": "(ENNReal → Prop) → Set ENNReal"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HittingTime.hitting_spec",
+          "signature": "(A : ENNReal → Prop) → hittingTimes A = {t | 0 < t ∧ A t} ∧ firstHittingTime A = sInf (hittingTimes A)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HittingTime.not_event_before_firstHittingTime",
+          "signature": "(A : ENNReal → Prop) → (t : ENNReal) → 0 < t → t < firstHittingTime A → ¬ A t"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HittingTime.persistenceTime",
+          "signature": "(ENNReal → Prop) → ENNReal → ENNReal"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HittingTime.persistenceTimes",
+          "signature": "(ENNReal → Prop) → ENNReal → Set ENNReal"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HittingTime.persistence_spec",
+          "signature": "(A : ENNReal → Prop) → (t L : ENNReal) → (PersistsFor A t L ↔ ∀ s, t ≤ s → s ≤ t + L → A s) ∧ persistenceTimes A L = {u | 0 < u ∧ PersistsFor A u L} ∧ persistenceTime A L = sInf (persistenceTimes A L)"
+        }
+      ]
+    },
+    {
+      "capabilities": [
+        "lattice.mass_weighting",
+        "lattice.periodic_positive_mass"
+      ],
+      "depends_on": [],
+      "layer": 0,
+      "module_path": "ArchonPhysics/Lattice.lean",
+      "public_api": [
+        {
+          "kind": "abbrev",
+          "name": "ArchonPhysics.Lattice.Configuration",
+          "signature": "Nat → Type"
+        },
+        {
+          "kind": "structure",
+          "name": "ArchonPhysics.Lattice.PositiveMassConfig",
+          "signature": "Nat → Type"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.PositiveMassConfig.mass",
+          "signature": "{N : Nat} → PositiveMassConfig N → Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.Lattice.PositiveMassConfig.mass_pos",
+          "signature": "{N : Nat} → (self : PositiveMassConfig N) → (i : Site N) → 0 < self.mass i"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.PositiveMassConfig.mk",
+          "signature": "{N : Nat} → (mass : Configuration N) → (mass_pos : ∀ i : Site N, 0 < mass i) → PositiveMassConfig N"
+        },
+        {
+          "kind": "abbrev",
+          "name": "ArchonPhysics.Lattice.Site",
+          "signature": "Nat → Type"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.forwardDifference",
+          "signature": "{N : Nat} → Configuration N → Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.Lattice.forwardDifference_apply",
+          "signature": "{N : Nat} → (q : Configuration N) → (i : Site N) → forwardDifference q i = q (i + 1) - q i"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.inverseMassAction",
+          "signature": "{N : Nat} → PositiveMassConfig N → Configuration N → Configuration N"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.inverseSqrtMassAction",
+          "signature": "{N : Nat} → PositiveMassConfig N → Configuration N → Configuration N"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.kineticEnergy",
+          "signature": "{N : Nat} → [NeZero N] → PositiveMassConfig N → Configuration N → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.Lattice.kineticEnergy_nonneg",
+          "signature": "{N : Nat} → [NeZero N] → (m : PositiveMassConfig N) → (p : Configuration N) → 0 ≤ kineticEnergy m p"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.massAction",
+          "signature": "{N : Nat} → PositiveMassConfig N → Configuration N → Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.Lattice.massAlgebra_spec",
+          "signature": "{N : Nat} → [NeZero N] → (m : PositiveMassConfig N) → (∀ (p : Configuration N) (i : Site N), massAction m p i = m.mass i * p i) ∧ (∀ (p : Configuration N) (i : Site N), inverseMassAction m p i = (m.mass i)⁻¹ * p i) ∧ (∀ (p : Configuration N) (i : Site N), sqrtMassAction m p i = Real.sqrt (m.mass i) * p i) ∧ (∀ (p : Configuration N) (i : Site N), inverseSqrtMassAction m p i = (Real.sqrt (m.mass i))⁻¹ * p i) ∧ (∀ p : Configuration N, kineticEnergy m p = ∑ i, p i ^ 2 / (2 * m.mass i))"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.Lattice.siteConfiguration_spec",
+          "signature": "(N : Nat) → Site N = ZMod N ∧ Configuration N = (Site N → Real)"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.Lattice.sqrtMassAction",
+          "signature": "{N : Nat} → PositiveMassConfig N → Configuration N → Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.Lattice.sum_forwardDifference",
+          "signature": "{N : Nat} → [NeZero N] → (q : Configuration N) → ∑ i, forwardDifference q i = 0"
+        }
+      ]
+    },
+    {
+      "capabilities": [
+        "hamiltonian.physlib_equations_adapter",
+        "hamiltonian.polynomial_energy_scaling"
+      ],
+      "depends_on": [
+        "ArchonPhysics/Lattice.lean"
+      ],
+      "layer": 1,
+      "module_path": "ArchonPhysics/HamiltonianScaling.lean",
+      "public_api": [
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HamiltonianScaling.SatisfiesHamiltonEquations",
+          "signature": "{X : Type} → [NormedAddCommGroup X] → [InnerProductSpace Real X] → [CompleteSpace X] → (Time → X → X → Real) → (Time → X) → (Time → X) → Prop"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HamiltonianScaling.effectiveCoupling",
+          "signature": "Real → Real → Nat → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HamiltonianScaling.effectiveCoupling_inv_sq",
+          "signature": "(lambda epsilon : Real) → (n : Nat) → 3 ≤ n → 0 < epsilon → lambda ≠ 0 → (effectiveCoupling lambda epsilon n)⁻¹ ^ 2 = lambda⁻¹ ^ 2 * epsilon ^ (-((n - 2 : Nat) : Int))"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HamiltonianScaling.latticeHamiltonian",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Nat → Real → Lattice.Configuration N → Lattice.Configuration N → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HamiltonianScaling.latticeHamiltonian_rescale",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → 3 ≤ n → (lambda epsilon : Real) → 0 < epsilon → (p q : Lattice.Configuration N) → latticeHamiltonian m n lambda (rescaleConfiguration epsilon p) (rescaleConfiguration epsilon q) = epsilon * latticeHamiltonian m n (effectiveCoupling lambda epsilon n) p q"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HamiltonianScaling.rescaleConfiguration",
+          "signature": "{N : Nat} → Real → Lattice.Configuration N → Lattice.Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HamiltonianScaling.rescalingData_spec",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda epsilon : Real) → (p q : Lattice.Configuration N) → latticeHamiltonian m n lambda p q = (∑ i : Lattice.Site N, (p i ^ 2 / (2 * m.mass i) + Lattice.forwardDifference (N := N) q i ^ 2 / 2 + (lambda / (n : Real)) * Lattice.forwardDifference (N := N) q i ^ n)) ∧ (∀ i : Lattice.Site N, rescaleConfiguration (N := N) epsilon q i = Real.sqrt epsilon * q i) ∧ effectiveCoupling lambda epsilon n = lambda * Real.rpow epsilon (((n : Real) - 2) / 2)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HamiltonianScaling.satisfiesHamiltonEquations_iff",
+          "signature": "{X : Type} → [NormedAddCommGroup X] → [InnerProductSpace Real X] → [CompleteSpace X] → (H : Time → X → X → Real) → (p q : Time → X) → SatisfiesHamiltonEquations H p q ↔ ClassicalMechanics.hamiltonEqOp H p q = 0"
+        }
+      ]
+    },
+    {
+      "capabilities": [
+        "harmonic.mass_weighted_operator",
+        "harmonic.modal_energy_physlib_bridge",
+        "harmonic.normal_modes"
+      ],
+      "depends_on": [
+        "ArchonPhysics/Lattice.lean"
+      ],
+      "layer": 1,
+      "module_path": "ArchonPhysics/HarmonicModes.lean",
+      "public_api": [
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.differenceMatrix",
+          "signature": "{N : Nat} → Matrix (Lattice.Site N) (Lattice.Site N) Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.differenceMatrix_mulVec",
+          "signature": "{N : Nat} → [NeZero N] → (q : Lattice.Configuration N) → Matrix.mulVec differenceMatrix q = Lattice.forwardDifference q"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.harmonicData_spec",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (omegaSq a v : Real) → massWeightedDifferenceMatrix m = differenceMatrix * Matrix.diagonal (fun i => (Real.sqrt (m.mass i))⁻¹) ∧ (∀ i, translationMode m i = Real.sqrt (m.mass i)) ∧ modalEnergy omegaSq a v = (v ^ 2 + omegaSq * a ^ 2) / 2"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.massWeightedDifferenceMatrix",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Matrix (Lattice.Site N) (Lattice.Site N) Real"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Matrix (Lattice.Site N) (Lattice.Site N) Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_eq_transpose_mul_self",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → massWeightedHarmonicMatrix m = Matrix.transpose (massWeightedDifferenceMatrix m) * massWeightedDifferenceMatrix m"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_posSemidef",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → Matrix.PosSemidef (massWeightedHarmonicMatrix m)"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.modalEnergy",
+          "signature": "Real → Real → Real → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.modalEnergy_conserved",
+          "signature": "(omegaSq : Real) → (a v : Real → Real) → (∀ t, HasDerivAt a (v t) t) → (∀ t, HasDerivAt v (-omegaSq * a t) t) → ∀ t, modalEnergy omegaSq (a t) (v t) = modalEnergy omegaSq (a 0) (v 0)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.modalEnergy_nonneg",
+          "signature": "(omegaSq a v : Real) → 0 ≤ omegaSq → 0 ≤ modalEnergy omegaSq a v"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.modeFrequencySq",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Lattice.Site N → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.modeFrequencySq_nonneg",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (k : Lattice.Site N) → 0 ≤ modeFrequencySq m k"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.normalModeBasis",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → OrthonormalBasis (Lattice.Site N) Real (EuclideanSpace Real (Lattice.Site N))"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.normalMode_eigenvector",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (k : Lattice.Site N) → Matrix.mulVec (massWeightedHarmonicMatrix m) ⇑(normalModeBasis m k) = modeFrequencySq m k • ⇑(normalModeBasis m k)"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.positiveModeOscillator",
+          "signature": "(omega : Real) → 0 < omega → ClassicalMechanics.HarmonicOscillator"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.positiveModeOscillator_spec",
+          "signature": "(omega : Real) → (homega : 0 < omega) → (positiveModeOscillator omega homega).m = 1 ∧ (positiveModeOscillator omega homega).k = omega ^ 2"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.positiveMode_energy_conserved",
+          "signature": "(omega : Real) → (homega : 0 < omega) → (x : Time → EuclideanSpace Real (Fin 1)) → ContDiff Real (↑⊤) x → (positiveModeOscillator omega homega).EquationOfMotion x → (t : Time) → (positiveModeOscillator omega homega).energy x t = (positiveModeOscillator omega homega).energy x 0"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.HarmonicModes.translationMode",
+          "signature": "{N : Nat} → Lattice.PositiveMassConfig N → Lattice.Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.translationMode_is_zero",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → Matrix.mulVec (massWeightedHarmonicMatrix m) (translationMode m) = 0"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.HarmonicModes.translationMode_ne_zero",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → translationMode m ≠ 0"
+        }
+      ]
+    },
+    {
+      "capabilities": [
+        "kinetic.effective_solution_rescaling",
+        "kinetic.hitting_time_rescaling"
+      ],
+      "depends_on": [
+        "ArchonPhysics/HittingTime.lean"
+      ],
+      "layer": 1,
+      "module_path": "ArchonPhysics/KineticRescaling.lean",
+      "public_api": [
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.KineticRescaling.SolvesKineticEquation",
+          "signature": "{X : Type} → [NormedAddCommGroup X] → [NormedSpace Real X] → (X → X) → Real → X → (Real → X) → Prop"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.KineticRescaling.firstStateHittingTime",
+          "signature": "{X : Type} → (X → Prop) → (Real → X) → ENNReal"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.KineticRescaling.firstStateHittingTime_eq_sInf",
+          "signature": "{X : Type} → (P : X → Prop) → (D : Real → X) → firstStateHittingTime P D = sInf {t : ENNReal | 0 < t ∧ P (D t.toReal)}"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.KineticRescaling.firstStateHittingTime_rescale",
+          "signature": "{X : Type} → (g : Real) → g ≠ 0 → (D1 Dg : Real → X) → (P : X → Prop) → (∀ t, Dg t = D1 (g ^ 2 * t)) → firstStateHittingTime P Dg = (Real.toNNReal (g ^ 2) : ENNReal)⁻¹ * firstStateHittingTime P D1"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.KineticRescaling.kineticSolution_rescale",
+          "signature": "{X : Type} → [NormedAddCommGroup X] → [NormedSpace Real X] → (collision : X → X) → (g : Real) → (initial : X) → (D1 Dg : Real → X) → SolvesKineticEquation collision 1 initial D1 → SolvesKineticEquation collision g initial Dg → (∀ D E : Real → X, SolvesKineticEquation collision g initial D → SolvesKineticEquation collision g initial E → D = E) → Dg = fun t => D1 (g ^ 2 * t)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.KineticRescaling.solvesKineticEquation_iff",
+          "signature": "{X : Type} → [NormedAddCommGroup X] → [NormedSpace Real X] → (collision : X → X) → (g : Real) → (initial : X) → (D : Real → X) → SolvesKineticEquation collision g initial D ↔ D 0 = initial ∧ ∀ t, HasDerivAt D (g ^ 2 • collision (D t)) t"
+        }
+      ]
+    },
+    {
+      "capabilities": [
+        "microscopic.finite_local_hamiltonian_dynamics"
+      ],
+      "depends_on": [
+        "ArchonPhysics/HamiltonianScaling.lean"
+      ],
+      "layer": 2,
+      "module_path": "ArchonPhysics/MicroscopicDynamics.lean",
+      "public_api": [
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.IsClassicalSolutionAt",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Nat → Real → (Real → PhaseSpace N) → Real → Prop"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.IsGlobalClassicalSolution",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Nat → Real → (Real → PhaseSpace N) → Prop"
+        },
+        {
+          "kind": "abbrev",
+          "name": "ArchonPhysics.MicroscopicDynamics.PhaseSpace",
+          "signature": "Nat → Type"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.exists_unique_local_solution_germ",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda : Real) → (t₀ : Real) → (z₀ : PhaseSpace N) → ∃ ε : Real, 0 < ε ∧ ∃ z : Real → PhaseSpace N, z t₀ = z₀ ∧ (∀ t ∈ Set.Icc (t₀ - ε) (t₀ + ε), HasDerivWithinAt z (microscopicVectorField m n lambda (z t)) (Set.Icc (t₀ - ε) (t₀ + ε)) t) ∧ ∀ y : Real → PhaseSpace N, y t₀ = z₀ → (∀ t ∈ Set.Ioo (t₀ - ε) (t₀ + ε), HasDerivAt y (microscopicVectorField m n lambda (y t)) t) → z =ᶠ[nhds t₀] y"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy",
+          "signature": "{N : Nat} → [NeZero N] → Lattice.PositiveMassConfig N → Nat → Real → PhaseSpace N → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_eq_of_forall_mem_uIcc",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda : Real) → 1 ≤ n → (z : Real → PhaseSpace N) → (s t : Real) → (∀ u ∈ Set.uIcc s t, IsClassicalSolutionAt m n lambda z u) → hamiltonianEnergy m n lambda (z s) = hamiltonianEnergy m n lambda (z t)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_hasDerivAt_zero_at",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda : Real) → 1 ≤ n → (z : Real → PhaseSpace N) → (t : Real) → IsClassicalSolutionAt m n lambda z t → HasDerivAt (fun s => hamiltonianEnergy m n lambda (z s)) 0 t"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.interactionForce",
+          "signature": "(n : Nat) → (lambda x : Real) → Real"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.interactionPotential",
+          "signature": "(n : Nat) → (lambda x : Real) → Real"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.latticeForce",
+          "signature": "{N : Nat} → (n : Nat) → (lambda : Real) → Lattice.Configuration N → Lattice.Configuration N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.latticeForce_apply",
+          "signature": "{N : Nat} → (n : Nat) → (lambda : Real) → (q : Lattice.Configuration N) → (i : Lattice.Site N) → latticeForce n lambda q i = interactionForce n lambda (Lattice.forwardDifference q i) - interactionForce n lambda (Lattice.forwardDifference q (i - 1))"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.microscopicVectorField",
+          "signature": "{N : Nat} → Lattice.PositiveMassConfig N → Nat → Real → PhaseSpace N → PhaseSpace N"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.microscopicVectorField_contDiff",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda : Real) → ContDiff Real 1 (microscopicVectorField m n lambda)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.sum_latticeForce",
+          "signature": "{N : Nat} → [NeZero N] → (n : Nat) → (lambda : Real) → (q : Lattice.Configuration N) → ∑ i, latticeForce n lambda q i = 0"
+        },
+        {
+          "kind": "def",
+          "name": "ArchonPhysics.MicroscopicDynamics.totalMomentum",
+          "signature": "{N : Nat} → [NeZero N] → PhaseSpace N → Real"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.totalMomentum_eq_of_forall_mem_uIcc",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda : Real) → (z : Real → PhaseSpace N) → (s t : Real) → (∀ u ∈ Set.uIcc s t, IsClassicalSolutionAt m n lambda z u) → totalMomentum (z s) = totalMomentum (z t)"
+        },
+        {
+          "kind": "theorem",
+          "name": "ArchonPhysics.MicroscopicDynamics.totalMomentum_hasDerivAt_zero_at",
+          "signature": "{N : Nat} → [NeZero N] → (m : Lattice.PositiveMassConfig N) → (n : Nat) → (lambda : Real) → (z : Real → PhaseSpace N) → (t : Real) → IsClassicalSolutionAt m n lambda z t → HasDerivAt (fun s => totalMomentum (z s)) 0 t"
+        }
+      ]
+    }
+  ]
+}

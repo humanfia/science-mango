@@ -1,0 +1,174 @@
+% archon:physics
+% archon:covers ArchonPhysics/HittingTime.lean
+
+\chapter{Generic positive-time hitting and persistence interfaces}
+\label{ch:ArchonPhysics_HittingTime}
+
+This clean-room interface accepts an arbitrary event predicate on extended
+nonnegative time.  It is the order-theoretic layer below a concrete
+equipartition observable: it never asserts that an event occurs, that an
+infimum is attained, or that the predicate is measurable or continuous.  The
+strict positivity guard excludes a zero-time observation.  These choices match
+the operational definitions in the project roadmap, Section~6, while keeping
+the library reusable for any event predicate.
+
+\begin{definition}\leanok
+[Strictly positive hitting times]
+\label{def:hitting:times}
+\lean{ArchonPhysics.HittingTime.hittingTimes}
+For an event $A:\overline{\mathbb R}_{\geq0}\to\mathrm{Prop}$, let
+\[
+  H(A)=\{t\mid 0<t\mathbin{\wedge}A(t)\}.
+\]
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the set comprehension of positive times at which the supplied event
+holds.  It is a definition and makes no existence assertion.
+\end{proof}
+
+\begin{definition}\leanok
+[First hitting time]
+\label{def:hitting:first-time}
+\lean{ArchonPhysics.HittingTime.firstHittingTime}
+\uses{def:hitting:times}
+Define $\tau(A)=\inf H(A)$ in the complete order of extended nonnegative
+reals.  Thus an empty event set has value $\top$.
+\end{definition}
+\begin{proof}
+
+\leanok
+Take the complete-lattice infimum of the preceding set.  The convention for
+the infimum of an empty subset is the top element, so no separate convention
+or attainment hypothesis is required.
+\end{proof}
+
+\begin{theorem}\leanok
+[Hitting-time defining formulae]
+\label{thm:hitting:spec}
+\lean{ArchonPhysics.HittingTime.hitting_spec}
+\uses{def:hitting:times, def:hitting:first-time}
+The hitting-time set is exactly $H(A)$ and $\tau(A)=\inf H(A)$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Both conjuncts follow by unfolding the two transparent definitions.
+\end{proof}
+
+\begin{theorem}\leanok
+[The empty event has infinite first hit]
+\label{thm:hitting:empty}
+\lean{ArchonPhysics.HittingTime.firstHittingTime_empty}
+\uses{def:hitting:times, def:hitting:first-time}
+For the identically false event, $\tau(A)=\top$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+The positive hitting-time set is empty.  Its infimum in the extended
+nonnegative reals is $\top$.
+\end{proof}
+
+\begin{theorem}\leanok
+[Every hit bounds the first hit]
+\label{thm:hitting:le-of-mem}
+\lean{ArchonPhysics.HittingTime.firstHittingTime_le_of_mem}
+\uses{def:hitting:times, def:hitting:first-time}
+If $t\in H(A)$, then $\tau(A)\leq t$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+An infimum is below every member of the set of which it is the infimum.
+\end{proof}
+
+\begin{theorem}\leanok
+[Event inclusion reverses first-hit order]
+\label{thm:hitting:mono}
+\lean{ArchonPhysics.HittingTime.firstHittingTime_mono}
+\uses{def:hitting:times, def:hitting:first-time}
+If $A(t)$ implies $B(t)$ for every $t$, then $\tau(B)\leq\tau(A)$.
+\end{theorem}
+\begin{proof}
+
+\leanok
+The implication gives $H(A)\subseteq H(B)$.  Taking the infimum of a larger
+set can only decrease it, which proves the stated reverse order.
+\end{proof}
+
+\begin{theorem}\leanok
+[No positive event strictly before the infimum]
+\label{thm:hitting:not-event-before}
+\lean{ArchonPhysics.HittingTime.not_event_before_firstHittingTime}
+\uses{def:hitting:times, def:hitting:first-time, thm:hitting:le-of-mem}
+If $0<t<\tau(A)$, then $A(t)$ is false.
+\end{theorem}
+\begin{proof}
+
+\leanok
+If $A(t)$ held, strict positivity would put $t$ in $H(A)$; the preceding
+bound would give $\tau(A)\leq t$, contradicting $t<\tau(A)$.  This is only a
+pre-hit exclusion and does not claim that $A(\tau(A))$ holds.
+\end{proof}
+
+\begin{definition}\leanok
+[Closed-interval persistence]
+\label{def:hitting:persists-for}
+\lean{ArchonPhysics.HittingTime.PersistsFor}
+Say that $A$ persists from $t$ for duration $L$ when it holds for every
+$s\in[t,t+L]$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the universal predicate over the closed extended-time interval.  It
+does not require any regularity of $A$.
+\end{proof}
+
+\begin{definition}\leanok
+[Positive persistence starts]
+\label{def:hitting:persistence-times}
+\lean{ArchonPhysics.HittingTime.persistenceTimes}
+\uses{def:hitting:persists-for}
+Let $P(A,L)=\{u\mid0<u\mathbin{\wedge}\operatorname{PersistsFor}(A,u,L)\}$.
+\end{definition}
+\begin{proof}
+
+\leanok
+This is the same strict-positive-time guard applied to the duration-indexed
+persistence predicate.
+\end{proof}
+
+\begin{definition}\leanok
+[Persistence-time infimum]
+\label{def:hitting:persistence-time}
+\lean{ArchonPhysics.HittingTime.persistenceTime}
+\uses{def:hitting:persistence-times}
+Define $\tau_{\rm pers}(A,L)=\inf P(A,L)$, again allowing $\top$ when no
+such start exists.
+\end{definition}
+\begin{proof}
+
+\leanok
+Take the extended-nonnegative infimum of the preceding set; completeness also
+covers the empty case without an occurrence or attainment assumption.
+\end{proof}
+
+\begin{theorem}\leanok
+[Persistence defining formulae]
+\label{thm:hitting:persistence-spec}
+\lean{ArchonPhysics.HittingTime.persistence_spec}
+\uses{def:hitting:persists-for, def:hitting:persistence-times,
+      def:hitting:persistence-time}
+Persistence is precisely universal holding on $[t,t+L]$; its start set and
+time are respectively $P(A,L)$ and its infimum.
+\end{theorem}
+\begin{proof}
+
+\leanok
+Unfold the three definitions.  The first conjunct exposes the closed-interval
+predicate, and the remaining conjuncts expose the set comprehension and its
+infimum.
+\end{proof}

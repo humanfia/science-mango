@@ -1,0 +1,552 @@
+{
+  "version": 1,
+  "modules": {
+    "ArchonPhysics/EquipartitionEntropy.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/EquipartitionEntropy.lean",
+      "declarations": [
+        "ArchonPhysics.EquipartitionEntropy.ApproxEquipartition",
+        "ArchonPhysics.EquipartitionEntropy.entropyDeficit",
+        "ArchonPhysics.EquipartitionEntropy.entropyDiagnostics_spec",
+        "ArchonPhysics.EquipartitionEntropy.equipartition_spec",
+        "ArchonPhysics.EquipartitionEntropy.l1Distance",
+        "ArchonPhysics.EquipartitionEntropy.l1Distance_normalized_uniform_le_two",
+        "ArchonPhysics.EquipartitionEntropy.lateWindowAverage",
+        "ArchonPhysics.EquipartitionEntropy.lateWindowAverage_nonneg",
+        "ArchonPhysics.EquipartitionEntropy.normalizedWeights",
+        "ArchonPhysics.EquipartitionEntropy.participationNumber",
+        "ArchonPhysics.EquipartitionEntropy.spectralEntropy",
+        "ArchonPhysics.EquipartitionEntropy.spectralEntropy_bounds",
+        "ArchonPhysics.EquipartitionEntropy.spectralEntropy_uniform",
+        "ArchonPhysics.EquipartitionEntropy.sum_normalizedWeights",
+        "ArchonPhysics.EquipartitionEntropy.totalWeight",
+        "ArchonPhysics.EquipartitionEntropy.uniformWeights",
+        "ArchonPhysics.EquipartitionEntropy.windowWeights_spec"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_entropy.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean"
+      ],
+      "depends_on": [],
+      "capability_ids": [
+        "thermal.approx_equipartition",
+        "thermal.late_window_weights",
+        "thermal.spectral_entropy"
+      ],
+      "spec_hash": "e58ff3b3d66c6de10648be8bacea289ac0439ca47657d3527770013c0e68852a",
+      "api_hash": "c051526afb14784b320311742cb61f09cb1a39427048fea0b49f12869b12c3cf",
+      "reason": "locked ArchonPhysics capability thermal.spectral_entropy: For nonnegative normalized weights, entropy lies between zero and log(card), and uniform weights attain log(card).; entropyDeficit is exactly log(card) minus entropy and participationNumber is exactly exp(entropy).; spectralEntropy is exactly the finite sum of Mathlib Real.negMulLog terms, including the total-at-zero convention.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=wang2019v2:arXiv1903.09502v2:pp3-4:spectral-entropy-xi",
+      "requested_iter": 1,
+      "requested_epoch": 1787468099.4211223,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean": 1,
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean": 1,
+        "ArchonPhysicsConsumers/Thermalization/problem_entropy.lean": 1
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean": 1787468099.4211223,
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean": 1787468099.4037018,
+        "ArchonPhysicsConsumers/Thermalization/problem_entropy.lean": 1787468099.4155743
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_entropy.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 4,
+          "barrel_build_iter": 4,
+          "module_sha256": "347659a4b9be8eda18dbbfd8d20db479541e91bed65e8cf75d23149d63a888c4",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.EquipartitionEntropy",
+          "consumer_mtime_ns": 1787435491224077422,
+          "consumer_size": 2201,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:54:01.563905Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 4,
+          "barrel_build_iter": 4,
+          "module_sha256": "347659a4b9be8eda18dbbfd8d20db479541e91bed65e8cf75d23149d63a888c4",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.EquipartitionEntropy",
+          "consumer_mtime_ns": 1787435754076635741,
+          "consumer_size": 4199,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:54:36.885131Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 5,
+          "barrel_build_iter": 5,
+          "module_sha256": "347659a4b9be8eda18dbbfd8d20db479541e91bed65e8cf75d23149d63a888c4",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.EquipartitionEntropy",
+          "consumer_mtime_ns": 1787435754073635700,
+          "consumer_size": 1205,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T08:03:07.609489Z"
+        }
+      },
+      "resolved_iter": 5,
+      "verified_iter": 4,
+      "axiom_sweep_iter": 4,
+      "verified_sha256": "347659a4b9be8eda18dbbfd8d20db479541e91bed65e8cf75d23149d63a888c4",
+      "verified_contract_sha256": "f2b2a4ea6a2e69c8fb739f66e03ca70af482504b368ff59930dcc5a0bea54320",
+      "updated_at": "2026-08-23T08:03:07.609576Z"
+    },
+    "ArchonPhysics/HittingTime.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/HittingTime.lean",
+      "declarations": [
+        "ArchonPhysics.HittingTime.PersistsFor",
+        "ArchonPhysics.HittingTime.firstHittingTime",
+        "ArchonPhysics.HittingTime.firstHittingTime_empty",
+        "ArchonPhysics.HittingTime.firstHittingTime_le_of_mem",
+        "ArchonPhysics.HittingTime.firstHittingTime_mono",
+        "ArchonPhysics.HittingTime.hittingTimes",
+        "ArchonPhysics.HittingTime.hitting_spec",
+        "ArchonPhysics.HittingTime.not_event_before_firstHittingTime",
+        "ArchonPhysics.HittingTime.persistenceTime",
+        "ArchonPhysics.HittingTime.persistenceTimes",
+        "ArchonPhysics.HittingTime.persistence_spec"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean"
+      ],
+      "depends_on": [],
+      "capability_ids": [
+        "hitting.first_time",
+        "hitting.persistence"
+      ],
+      "spec_hash": "f67747463fe72e21e8d13ad2425dc957c3ea48cb55415046df88f857d02c1cb8",
+      "api_hash": "0597f9833c5cd04ee698f3a74ea849412cc6b8304aa1dacd4f0099b8a3696fc6",
+      "reason": "locked ArchonPhysics capability hitting.persistence: PersistsFor A t L is exactly universal holding throughout the closed interval [t,t+L].; The interface makes no infimum-attainment claim.; persistenceTimes is exactly the set of strictly positive starts satisfying that duration-L event, and persistenceTime is exactly its ENNReal infimum.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=roadmap:references/Thermal_physics_README.md:s6,wang2019v2:arXiv1903.09502v2:p4:operational-xi-threshold",
+      "requested_iter": 1,
+      "requested_epoch": 1787468099.4415858,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean": 1,
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean": 1
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean": 1787468099.4415858,
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean": 1787468099.4339645
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hitting_time.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 5,
+          "barrel_build_iter": 5,
+          "module_sha256": "49419e73426a1219717c984abc62d4cb35b9c3f0f6544723ec2d443a99675cc2",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.HittingTime",
+          "consumer_mtime_ns": 1787435754073635700,
+          "consumer_size": 1205,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T08:03:07.609531Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 6,
+          "barrel_build_iter": 6,
+          "module_sha256": "49419e73426a1219717c984abc62d4cb35b9c3f0f6544723ec2d443a99675cc2",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.HittingTime",
+          "consumer_mtime_ns": 1787435491240077639,
+          "consumer_size": 4112,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T08:11:01.838290Z"
+        }
+      },
+      "resolved_iter": 6,
+      "verified_iter": 5,
+      "axiom_sweep_iter": 5,
+      "verified_sha256": "49419e73426a1219717c984abc62d4cb35b9c3f0f6544723ec2d443a99675cc2",
+      "verified_contract_sha256": "12b4f4bb02b4376addf3a80ede651da671cf0da8c5d4fba03063e35aa6ea2ba2",
+      "updated_at": "2026-08-23T08:11:01.838423Z"
+    },
+    "ArchonPhysics/Lattice.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/Lattice.lean",
+      "declarations": [
+        "ArchonPhysics.Lattice.Configuration",
+        "ArchonPhysics.Lattice.PositiveMassConfig",
+        "ArchonPhysics.Lattice.PositiveMassConfig.mass",
+        "ArchonPhysics.Lattice.PositiveMassConfig.mass_pos",
+        "ArchonPhysics.Lattice.PositiveMassConfig.mk",
+        "ArchonPhysics.Lattice.Site",
+        "ArchonPhysics.Lattice.forwardDifference",
+        "ArchonPhysics.Lattice.forwardDifference_apply",
+        "ArchonPhysics.Lattice.inverseMassAction",
+        "ArchonPhysics.Lattice.inverseSqrtMassAction",
+        "ArchonPhysics.Lattice.kineticEnergy",
+        "ArchonPhysics.Lattice.kineticEnergy_nonneg",
+        "ArchonPhysics.Lattice.massAction",
+        "ArchonPhysics.Lattice.massAlgebra_spec",
+        "ArchonPhysics.Lattice.siteConfiguration_spec",
+        "ArchonPhysics.Lattice.sqrtMassAction",
+        "ArchonPhysics.Lattice.sum_forwardDifference"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_finite_periodic.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean"
+      ],
+      "depends_on": [],
+      "capability_ids": [
+        "lattice.mass_weighting",
+        "lattice.periodic_positive_mass"
+      ],
+      "spec_hash": "bb49784ddf08ec136e217ccea550953b4fd9179392b6dc26444dde8b665343fb",
+      "api_hash": "3a99ee08064a598aa620872ca3ef70ebc99f7bfa6835935d42bea4c924ad9f70",
+      "reason": "locked ArchonPhysics capability lattice.periodic_positive_mass: For [NeZero N], the periodic forward difference sums exactly to zero.; PositiveMassConfig has exactly the public mass field and its pointwise strict-positivity proof; its generated constructor is locked, and no random-mass probability law is asserted.; siteConfiguration_spec locks Site N exactly to ZMod N and Configuration N exactly to the real-valued field Site N → Real.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=wang2019v2:arXiv1903.09502v2:p1:eq1,wang2019v2:arXiv1903.09502v2:p2:eqs2-3",
+      "requested_iter": 1,
+      "requested_epoch": 1787468099.5002987,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean": 1,
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean": 1,
+        "ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean": 1,
+        "ArchonPhysicsConsumers/Thermalization/problem_finite_periodic.lean": 1
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean": 1787468099.4505475,
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean": 1787468099.4873774,
+        "ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean": 1787468099.5002987,
+        "ArchonPhysicsConsumers/Thermalization/problem_finite_periodic.lean": 1787468099.476852
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_finite_periodic.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 1,
+          "barrel_build_iter": 1,
+          "module_sha256": "004fc025d60441680bef6866f68a0c266fa7c7f316868719276f92eb6e802dcd",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.Lattice",
+          "consumer_mtime_ns": 1787435491230077504,
+          "consumer_size": 1969,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:13:20.137441Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_mass_matrix.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 1,
+          "barrel_build_iter": 1,
+          "module_sha256": "004fc025d60441680bef6866f68a0c266fa7c7f316868719276f92eb6e802dcd",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.Lattice",
+          "consumer_mtime_ns": 1787435491243077680,
+          "consumer_size": 1735,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:13:58.789778Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 2,
+          "barrel_build_iter": 2,
+          "module_sha256": "004fc025d60441680bef6866f68a0c266fa7c7f316868719276f92eb6e802dcd",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.Lattice",
+          "consumer_mtime_ns": 1787435491233077544,
+          "consumer_size": 3758,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:27:00.294647Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 3,
+          "barrel_build_iter": 3,
+          "module_sha256": "004fc025d60441680bef6866f68a0c266fa7c7f316868719276f92eb6e802dcd",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.Lattice",
+          "consumer_mtime_ns": 1787435491235077571,
+          "consumer_size": 2854,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:42:18.152561Z"
+        }
+      },
+      "resolved_iter": 3,
+      "verified_iter": 1,
+      "axiom_sweep_iter": 1,
+      "verified_sha256": "004fc025d60441680bef6866f68a0c266fa7c7f316868719276f92eb6e802dcd",
+      "verified_contract_sha256": "731ec3847be00800d7aeadcfcfc51576449aa7edd5dc22ea549c0ac25f5df907",
+      "updated_at": "2026-08-23T07:42:18.152697Z"
+    },
+    "ArchonPhysics/HamiltonianScaling.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/HamiltonianScaling.lean",
+      "declarations": [
+        "ArchonPhysics.HamiltonianScaling.SatisfiesHamiltonEquations",
+        "ArchonPhysics.HamiltonianScaling.effectiveCoupling",
+        "ArchonPhysics.HamiltonianScaling.effectiveCoupling_inv_sq",
+        "ArchonPhysics.HamiltonianScaling.latticeHamiltonian",
+        "ArchonPhysics.HamiltonianScaling.latticeHamiltonian_rescale",
+        "ArchonPhysics.HamiltonianScaling.rescaleConfiguration",
+        "ArchonPhysics.HamiltonianScaling.rescalingData_spec",
+        "ArchonPhysics.HamiltonianScaling.satisfiesHamiltonEquations_iff"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean"
+      ],
+      "depends_on": [
+        "ArchonPhysics/Lattice.lean"
+      ],
+      "capability_ids": [
+        "hamiltonian.physlib_equations_adapter",
+        "hamiltonian.polynomial_energy_scaling"
+      ],
+      "spec_hash": "5d593d20b71db7af40d8daecc3e49d9790c1665585d7a18038b8eb6cbabf57c0",
+      "api_hash": "0471cdd6ad37e2b11618b2b9be09ba1907de91729ac5cd28a063868f1a477f3d",
+      "reason": "locked ArchonPhysics capability hamiltonian.polynomial_energy_scaling: For 3 ≤ n and epsilon > 0, scaling p and q by sqrt epsilon factors out epsilon and replaces lambda by the effective coupling; for nonzero lambda, its inverse-square identity is algebraic only.; The configuration rescaling is pointwise multiplication by sqrt epsilon, and the effective coupling is lambda times epsilon^((n-2)/2).; The finite Hamiltonian is formula-locked to the sum of kinetic, harmonic-difference, and degree-n interaction energy.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=wang2019v2:arXiv1903.09502v2:p1:eq1-and-rescaling",
+      "requested_iter": 2,
+      "requested_epoch": 1787469238.806548,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean": 2
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean": 1787469238.806548
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_hamiltonian_scaling.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 2,
+          "barrel_build_iter": 2,
+          "module_sha256": "45bdee0649b49a5a2a3fdd4945ed6bf45499eb7d3fb378b837dd71c77beb56cc",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.HamiltonianScaling",
+          "consumer_mtime_ns": 1787435491233077544,
+          "consumer_size": 3758,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:27:00.294696Z"
+        }
+      },
+      "resolved_iter": 2,
+      "verified_iter": 2,
+      "axiom_sweep_iter": 2,
+      "verified_sha256": "45bdee0649b49a5a2a3fdd4945ed6bf45499eb7d3fb378b837dd71c77beb56cc",
+      "verified_contract_sha256": "40847f134b47ff9793f8c8e377e7571233d1c58e56d3c9f3b254639e4dbe7422",
+      "updated_at": "2026-08-23T07:27:00.294737Z"
+    },
+    "ArchonPhysics/HarmonicModes.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/HarmonicModes.lean",
+      "declarations": [
+        "ArchonPhysics.HarmonicModes.differenceMatrix",
+        "ArchonPhysics.HarmonicModes.differenceMatrix_mulVec",
+        "ArchonPhysics.HarmonicModes.harmonicData_spec",
+        "ArchonPhysics.HarmonicModes.massWeightedDifferenceMatrix",
+        "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix",
+        "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_eq_transpose_mul_self",
+        "ArchonPhysics.HarmonicModes.massWeightedHarmonicMatrix_posSemidef",
+        "ArchonPhysics.HarmonicModes.modalEnergy",
+        "ArchonPhysics.HarmonicModes.modalEnergy_conserved",
+        "ArchonPhysics.HarmonicModes.modalEnergy_nonneg",
+        "ArchonPhysics.HarmonicModes.modeFrequencySq",
+        "ArchonPhysics.HarmonicModes.modeFrequencySq_nonneg",
+        "ArchonPhysics.HarmonicModes.normalModeBasis",
+        "ArchonPhysics.HarmonicModes.normalMode_eigenvector",
+        "ArchonPhysics.HarmonicModes.positiveModeOscillator",
+        "ArchonPhysics.HarmonicModes.positiveModeOscillator_spec",
+        "ArchonPhysics.HarmonicModes.positiveMode_energy_conserved",
+        "ArchonPhysics.HarmonicModes.translationMode",
+        "ArchonPhysics.HarmonicModes.translationMode_is_zero",
+        "ArchonPhysics.HarmonicModes.translationMode_ne_zero"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean",
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean"
+      ],
+      "depends_on": [
+        "ArchonPhysics/Lattice.lean"
+      ],
+      "capability_ids": [
+        "harmonic.mass_weighted_operator",
+        "harmonic.modal_energy_physlib_bridge",
+        "harmonic.normal_modes"
+      ],
+      "spec_hash": "a031a637139ad4fba3097ca48c28ed4239761a76a5724acbda7a1034dfde9ada",
+      "api_hash": "19e33f8ec905f74fc8d69b70e40d80c11db8994a523c6d68bfefc2a9350480cf",
+      "reason": "locked ArchonPhysics capability harmonic.normal_modes: Every exposed basis vector satisfies the operator eigen-equation and every frequency square is nonnegative.; Mode frequencies and the orthonormal mode basis are direct wrappers around Mathlib Hermitian spectral data.; The translation vector is exactly the pointwise square root of mass and is a nonzero zero mode.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=roadmap:references/Thermal_physics_README.md:s3-and-s8-weak,wang2019v2:arXiv1903.09502v2:p2:eqs2-3",
+      "requested_iter": 2,
+      "requested_epoch": 1787469238.832425,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean": 2,
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean": 2
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean": 1787469238.832425,
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean": 1787469238.8279378
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_harmonic_operator.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 3,
+          "barrel_build_iter": 3,
+          "module_sha256": "7a5f6cff3aa57da7fc1226176985cc7985e583032466b62ae28d75bb52d53532",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.HarmonicModes",
+          "consumer_mtime_ns": 1787435491235077571,
+          "consumer_size": 2854,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:42:18.152617Z"
+        },
+        "ArchonPhysicsConsumers/Thermalization/problem_equipartition.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 4,
+          "barrel_build_iter": 4,
+          "module_sha256": "7a5f6cff3aa57da7fc1226176985cc7985e583032466b62ae28d75bb52d53532",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.HarmonicModes",
+          "consumer_mtime_ns": 1787435754076635741,
+          "consumer_size": 4199,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T07:54:36.885173Z"
+        }
+      },
+      "resolved_iter": 4,
+      "verified_iter": 3,
+      "axiom_sweep_iter": 3,
+      "verified_sha256": "7a5f6cff3aa57da7fc1226176985cc7985e583032466b62ae28d75bb52d53532",
+      "verified_contract_sha256": "875e19073c5a9b059de33ce3c1c64eb94f933a0a666172bb5e0622cdf9fb3520",
+      "updated_at": "2026-08-23T07:54:36.885258Z"
+    },
+    "ArchonPhysics/MicroscopicDynamics.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/MicroscopicDynamics.lean",
+      "declarations": [
+        "ArchonPhysics.MicroscopicDynamics.IsClassicalSolutionAt",
+        "ArchonPhysics.MicroscopicDynamics.IsGlobalClassicalSolution",
+        "ArchonPhysics.MicroscopicDynamics.PhaseSpace",
+        "ArchonPhysics.MicroscopicDynamics.exists_unique_local_solution_germ",
+        "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy",
+        "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_eq_of_forall_mem_uIcc",
+        "ArchonPhysics.MicroscopicDynamics.hamiltonianEnergy_hasDerivAt_zero_at",
+        "ArchonPhysics.MicroscopicDynamics.interactionForce",
+        "ArchonPhysics.MicroscopicDynamics.interactionPotential",
+        "ArchonPhysics.MicroscopicDynamics.latticeForce",
+        "ArchonPhysics.MicroscopicDynamics.latticeForce_apply",
+        "ArchonPhysics.MicroscopicDynamics.microscopicVectorField",
+        "ArchonPhysics.MicroscopicDynamics.microscopicVectorField_contDiff",
+        "ArchonPhysics.MicroscopicDynamics.sum_latticeForce",
+        "ArchonPhysics.MicroscopicDynamics.totalMomentum",
+        "ArchonPhysics.MicroscopicDynamics.totalMomentum_eq_of_forall_mem_uIcc",
+        "ArchonPhysics.MicroscopicDynamics.totalMomentum_hasDerivAt_zero_at"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_microscopic_dynamics.lean"
+      ],
+      "depends_on": [
+        "ArchonPhysics/HamiltonianScaling.lean"
+      ],
+      "capability_ids": [
+        "microscopic.finite_local_hamiltonian_dynamics"
+      ],
+      "spec_hash": "7674fb8290835c946221b76477709a663320c9bd25b77d40787eb08bece6199b",
+      "api_hash": "f58e3c454f44b06120fc87141925253a26d222d0b4cb1f631273258aef35ed8e",
+      "reason": "locked ArchonPhysics capability microscopic.finite_local_hamiltonian_dynamics: Along an explicit solution, Hamiltonian energy and total canonical momentum have zero derivative; endpoint equality is asserted only when the solution is defined throughout the unoriented interval between those endpoints.; For 1 ≤ n, the interaction force is the derivative of the polynomial bond potential occurring in the locked lattice Hamiltonian.; No global existence, maximal flow, microscopic-to-kinetic limit, equipartition, or thermalization conclusion is asserted.; PhaseSpace N is exactly the position-momentum product of two locked lattice configurations, and the microscopic vector field uses inverse-mass velocity together with the explicit periodic nearest-neighbour force.; The finite vector field is continuously differentiable, and every finite initial phase point admits a nontrivial local solution whose solution germ is unique.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=Mathlib.Analysis.ODE.ExistUnique:local-existence-and-uniqueness,roadmap:references/Thermal_physics_README.md:ss2.1,8-9,12,wang2019v2:arXiv1903.09502v2:p1:eq1",
+      "requested_iter": 3,
+      "requested_epoch": 1787470020.3015866,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_microscopic_dynamics.lean": 3
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_microscopic_dynamics.lean": 1787470020.3015866
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_microscopic_dynamics.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 7,
+          "barrel_build_iter": 7,
+          "module_sha256": "8c998d1fce05af2551580bd910a42b364799875f95ebac230ee7b16990bc7036",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.MicroscopicDynamics",
+          "consumer_mtime_ns": 1787475179729712786,
+          "consumer_size": 2286,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T09:11:30.180773Z"
+        }
+      },
+      "resolved_iter": 7,
+      "verified_iter": 7,
+      "axiom_sweep_iter": 7,
+      "verified_sha256": "8c998d1fce05af2551580bd910a42b364799875f95ebac230ee7b16990bc7036",
+      "verified_contract_sha256": "6876faefc3c4eab6a5f8b415eaab32453ca12620b4ac2781a49185b0f8df4390",
+      "updated_at": "2026-08-23T09:11:30.180836Z"
+    },
+    "ArchonPhysics/KineticRescaling.lean": {
+      "status": "resolved",
+      "module": "ArchonPhysics/KineticRescaling.lean",
+      "declarations": [
+        "ArchonPhysics.KineticRescaling.SolvesKineticEquation",
+        "ArchonPhysics.KineticRescaling.firstStateHittingTime",
+        "ArchonPhysics.KineticRescaling.firstStateHittingTime_eq_sInf",
+        "ArchonPhysics.KineticRescaling.firstStateHittingTime_rescale",
+        "ArchonPhysics.KineticRescaling.kineticSolution_rescale",
+        "ArchonPhysics.KineticRescaling.solvesKineticEquation_iff"
+      ],
+      "dependents": [
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean"
+      ],
+      "depends_on": [
+        "ArchonPhysics/HittingTime.lean"
+      ],
+      "capability_ids": [
+        "kinetic.effective_solution_rescaling",
+        "kinetic.hitting_time_rescaling"
+      ],
+      "spec_hash": "09aee11b3689ab9c50e72d783f1d7585d22ba3c07cb870fdb1fd0723af149a8d",
+      "api_hash": "ef800405c559910b2a20437fa1a233de1b73392b9c4136c95f15ab6e1270a0d9",
+      "reason": "locked ArchonPhysics capability kinetic.hitting_time_rescaling: For nonzero g and an explicitly transported trajectory, the state-event hitting time scales by the inverse of g².; The theorem operates on ENNReal infima and does not assume a hit is attained.; firstStateHittingTime is exactly the ENNReal infimum of strictly positive times whose toReal state satisfies the event.",
+      "evidence": ".archon/physics-rebuild/library-plan.locked.json sources=wang2019v2:arXiv1903.09502v2:p3:kinetic-equation-lambda-squared",
+      "requested_iter": 6,
+      "requested_epoch": 1787472187.6316743,
+      "consumer_request_iters": {
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean": 6
+      },
+      "consumer_request_epochs": {
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean": 1787472187.6316743
+      },
+      "consumer_migrations": {
+        "ArchonPhysicsConsumers/Thermalization/problem_kinetic_time_rescaling.lean": {
+          "status": "resolved",
+          "evidence_kind": "opaque_consumer_via_barrel",
+          "build_iter": 6,
+          "barrel_build_iter": 6,
+          "module_sha256": "102a5b8507bd650240be26120d854182a8ea1e20de67e9d1dcb2537676d264df",
+          "entrypoint_path": "ArchonPhysics.lean",
+          "module_import": "ArchonPhysics.KineticRescaling",
+          "consumer_mtime_ns": 1787435491240077639,
+          "consumer_size": 4112,
+          "exact_lean_status": "passed",
+          "updated_at": "2026-08-23T08:11:01.838358Z"
+        }
+      },
+      "resolved_iter": 6,
+      "verified_iter": 6,
+      "axiom_sweep_iter": 6,
+      "verified_sha256": "102a5b8507bd650240be26120d854182a8ea1e20de67e9d1dcb2537676d264df",
+      "verified_contract_sha256": "2ed98ee93b9a45868f0374dda827d1eb29dffceb93d307e2127f97e8728ec500",
+      "updated_at": "2026-08-23T08:11:01.838446Z"
+    }
+  },
+  "updated_at": "2026-08-23T09:11:30.180900Z"
+}
