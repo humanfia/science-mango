@@ -65,19 +65,41 @@ problem underdetermined:
 "$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>
 "$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>
 "$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>
+"$ARCHON_CLI_BIN" chemistry-constant empirical_rule <RULE_ID>
 ```
 
-Angle-bracket names above are grammar placeholders, not literal tokens. These
-grammar lines and any examples are illustrative, not an allowlist: any single
-element, canonical isotope, chemical formula, template id, or contest-policy
-id supported by the pinned CLI dataset is permitted. Do not infer that an
-unshown element or formula is unavailable.
+Angle-bracket names above are grammar placeholders, not literal tokens. For
+`atomic_weight`, `isotope_mass`, and `molar_mass` only, these grammar lines and
+examples are illustrative, not an allowlist: any structurally valid element,
+canonical isotope, or chemical formula supported by the pinned CLI dataset is
+permitted. Do not infer that an unshown element or formula is unavailable.
+
+`reaction_template` has the exact `TEMPLATE_ID` allowlist:
+
+- `binary_two_fragment_electrophilic_addition`
+
+`contest_interpretation` has the exact `POLICY_ID` allowlist:
+
+- `analogous_halogen_addition`
+
+`empirical_rule` has the exact allowed `RULE_ID` inventory:
+
+- `aqueous_feiii_phenol_colored_complex`
+- `closed_candidate_feiii_phenol_filter`
+- `hexamethylbenzene_cold_kmno4_to_mellitic_acid`
+- `mellite_ideal_stoichiometry`
+- `mellitic_acid_benzoyl_chloride_to_c12o9`
+
+This five-ID list is an exact allowlist; the template/policy lists are exact
+allowlists too. All three are the full supported registries. Never guess,
+enumerate, or probe other rule ids,
+policy ids, or template ids. An unlisted id must fail closed.
 
 The command accepts exactly one enumerated operation and one corresponding
 token. Never send a problem id, question text, source text, URL, search phrase,
 or other free text. It performs no network access and returns machine-readable
 JSON bound to
-`ciaaw-abridged-2024+ame2020-subset+archon-templates-v1+contest-interpretation-v1`
+`ciaaw-abridged-2024+ame2020-subset+archon-templates-v1+contest-interpretation-v1+trusted-empirical-rules-v1`
 and its data SHA-256. Each successful lookup also carries `record_sha256`,
 which binds the exact operation, query, result, source metadata, and dataset
 identity.
@@ -106,6 +128,26 @@ always overrides the policy. If any cue is missing, ambiguous, on a different
 substrate, or contradicted by the problem, fail closed. The policy does not
 identify the specific reagent: prove that identity independently from the
 problem measurements and pinned constants.
+
+An accepted `empirical_rule` receipt grounds only the returned claim under the
+returned `authority_kind`, within every returned `applicability_conditions`
+entry, and outside every returned `exclusions` entry. For
+`peer_reviewed_literature`, treat it only as a source-scoped literature claim,
+never beyond the cited substrate, reagent, or conditions. For
+`contest_semantics_policy`, treat it as a bounded contest policy—not a paper or
+universal empirical law—and require the complete source-supplied finite
+candidate set, full structural-feature audit, and explicit interference
+exclusions that the returned record requires. `automatic_problem_instantiation`
+must be false; bind each applicability condition to exact problem evidence and
+never turn a literature claim into an inverse classification or the bounded
+policy into an open-world rule. When using one, preserve and cite
+`dataset_sha256`, `record_sha256`, `base_dataset_sha256`,
+`pinned_rule_record_sha256`, `empirical_registry_manifest_sha256`, and the
+returned `source.url`, `source.doi`, `source.locator`, and
+`source.content_sha256`, together with the approved review metadata. The
+Reviewer must rerun that exact operation and allowed id and compare every one
+of those values. A missing or mismatched hash, locator, approval, condition, or
+scope—or a different substrate or reagent—must fail closed.
 
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central

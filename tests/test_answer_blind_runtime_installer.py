@@ -70,6 +70,61 @@ class AnswerBlindRuntimeInstallerTests(unittest.TestCase):
 
         return resolve
 
+    def _run_axiom_checker_fixture(
+        self,
+        output: str,
+        *,
+        report_only: bool,
+    ) -> subprocess.CompletedProcess[str]:
+        host_bash = shutil.which("bash")
+        if host_bash is None:
+            self.skipTest("bash is unavailable for the axiom-checker fixture")
+
+        with tempfile.TemporaryDirectory(prefix="answer-blind-axiom-fixture-") as raw:
+            base = Path(raw)
+            fake_bin = base / "bin"
+            fake_bin.mkdir()
+            fake_lake = fake_bin / "lake"
+            fake_lake.write_text(
+                "#!/bin/sh\n"
+                "printf '%s' \"${AXIOM_FIXTURE_OUTPUT-}\"\n",
+                encoding="utf-8",
+            )
+            fake_lake.chmod(0o755)
+
+            project = base / "project"
+            project.mkdir()
+            source = project / "Fixture.lean"
+            original = "theorem fixtureDecl : True := by\n  trivial\n"
+            source.write_text(original, encoding="utf-8")
+            environment = os.environ.copy()
+            environment["PATH"] = os.pathsep.join(
+                (str(fake_bin), environment.get("PATH", ""))
+            )
+            environment["AXIOM_FIXTURE_OUTPUT"] = output
+            command = [
+                host_bash,
+                str(AXIOM_CHECKER_SOURCE),
+                str(source),
+                "--verbose",
+            ]
+            if report_only:
+                command.append("--report-only")
+
+            result = subprocess.run(
+                command,
+                cwd=project,
+                check=False,
+                capture_output=True,
+                text=True,
+                env=environment,
+                timeout=10,
+            )
+
+            self.assertEqual(source.read_text(encoding="utf-8"), original)
+            self.assertFalse(source.with_suffix(".lean.axiom_check_backup").exists())
+            return result
+
     def test_controller_tools_fail_closed_when_standalone_host_is_missing(self) -> None:
         with tempfile.TemporaryDirectory(prefix="answer-blind-codex-pair-") as raw:
             base = Path(raw)
@@ -176,7 +231,28 @@ class AnswerBlindRuntimeInstallerTests(unittest.TestCase):
             project = base / "project"
             project.mkdir()
             source = project / "AxiomSmoke.lean"
-            original = "theorem smoke : True := by\n  trivial\n"
+            original = (
+                "import Std.Tactic\n\n"
+                "axiom propextTrap : True\n\n"
+                "axiom extraordinarilyLongCustomAxiomAlpha : True\n"
+                "axiom extraordinarilyLongCustomAxiomBeta : True\n"
+                "axiom extraordinarilyLongCustomAxiomGamma : True\n"
+                "axiom extraordinarilyLongCustomAxiomDelta : True\n\n"
+                "theorem smoke : True := by\n"
+                "  trivial\n\n"
+                "noncomputable section\n\n"
+                "def standardSmoke {α : Type} (h : Nonempty α) "
+                "{p q : Prop} (hpq : p ↔ q) : { _a : α // p = q } :=\n"
+                "  ⟨Classical.choice h, propext hpq⟩\n\n"
+                "theorem customSmoke : True := propextTrap\n\n"
+                "theorem wrappedSmoke : True ∧ True ∧ True ∧ True :=\n"
+                "  ⟨extraordinarilyLongCustomAxiomAlpha, "
+                "extraordinarilyLongCustomAxiomBeta, "
+                "extraordinarilyLongCustomAxiomGamma, "
+                "extraordinarilyLongCustomAxiomDelta⟩\n\n"
+                "theorem nativeSmoke : (37 : Nat) = 37 := by\n"
+                "  native_decide\n"
+            )
             source.write_text(original, encoding="utf-8")
             (project / "lakefile.toml").write_text(
                 'name = "AxiomSmoke"\n'
@@ -238,6 +314,7 @@ done
                     str(runtime_bin / "bash"),
                     str(AXIOM_CHECKER_SOURCE),
                     str(project),
+                    "--verbose",
                     "--report-only",
                 ],
                 cwd=project,
@@ -253,10 +330,94 @@ done
                 msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
             self.assertIn("Files checked: 1", result.stdout)
-            self.assertIn("Declarations checked: 1", result.stdout)
-            self.assertIn("All files use only standard axioms", result.stdout)
+            self.assertIn("Declarations checked: 5", result.stdout)
+            self.assertIn(
+                "customSmoke uses non-standard axiom: propextTrap",
+                result.stdout,
+            )
+            self.assertIn(
+                "nativeSmoke uses non-standard axiom: Lean.ofReduceBool",
+                result.stdout,
+            )
+            self.assertIn(
+                "nativeSmoke uses non-standard axiom: Lean.trustCompiler",
+                result.stdout,
+            )
+            self.assertNotIn(
+                "standardSmoke uses non-standard axiom",
+                result.stdout,
+            )
+            for axiom in (
+                "extraordinarilyLongCustomAxiomAlpha",
+                "extraordinarilyLongCustomAxiomBeta",
+                "extraordinarilyLongCustomAxiomGamma",
+                "extraordinarilyLongCustomAxiomDelta",
+            ):
+                with self.subTest(wrapped_axiom=axiom):
+                    self.assertIn(
+                        f"wrappedSmoke uses non-standard axiom: {axiom}",
+                        result.stdout,
+                    )
+            self.assertIn("Files with non-standard axioms: 1", result.stdout)
+            self.assertIn("Total non-standard axiom usages: 7", result.stdout)
             self.assertEqual(source.read_text(encoding="utf-8"), original)
             self.assertFalse(source.with_suffix(".lean.axiom_check_backup").exists())
+
+    def test_axiom_checker_parses_multiline_lean_431_fixture(self) -> None:
+        result = self._run_axiom_checker_fixture(
+            "'fixtureDecl' depends on axioms: [propext,\n"
+            " Classical.choice,\n"
+            " Custom.ax]\n",
+            report_only=True,
+        )
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn(
+            "fixtureDecl uses non-standard axiom: Custom.ax",
+            result.stdout,
+        )
+        self.assertNotIn(
+            "fixtureDecl uses non-standard axiom: propext",
+            result.stdout,
+        )
+        self.assertNotIn(
+            "fixtureDecl uses non-standard axiom: Classical.choice",
+            result.stdout,
+        )
+        self.assertIn("Total non-standard axiom usages: 1", result.stdout)
+
+    def test_axiom_checker_fails_closed_on_unrecognized_output(self) -> None:
+        result = self._run_axiom_checker_fixture(
+            "Lean axiom output format drifted\n",
+            report_only=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "Error: no recognizable #print axioms results",
+            result.stderr,
+        )
+        self.assertIn("Files with errors: 1", result.stdout)
+        self.assertNotIn("All files use only standard axioms", result.stdout)
+
+    def test_axiom_checker_fails_closed_on_unterminated_bracket_list(self) -> None:
+        result = self._run_axiom_checker_fixture(
+            "'fixtureDecl' depends on axioms: [propext,\n"
+            " Classical.choice,\n",
+            report_only=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "Error: unterminated #print axioms bracket list",
+            result.stderr,
+        )
+        self.assertIn("Files with errors: 1", result.stdout)
+        self.assertNotIn("All files use only standard axioms", result.stdout)
 
     def test_controller_tools_reject_codex_release_version_mismatch(self) -> None:
         with tempfile.TemporaryDirectory(prefix="answer-blind-codex-pair-") as raw:

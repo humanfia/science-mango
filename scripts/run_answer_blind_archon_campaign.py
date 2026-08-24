@@ -178,20 +178,34 @@ solve the proof.
   and prove a target-local helper from available foundations. Do not install,
   update, fetch, or replace Lake dependencies.
 - For routine atomic weights, isotope masses, formula molar masses, a
-  registered generic reaction schema, or a controller-pinned contest
-  interpretation, use only the version-pinned offline CLI.
+  registered generic reaction schema, a controller-pinned contest
+  interpretation, or an exact allowlisted reviewed rule, use only the offline CLI.
   Query grammar (angle-bracket names are placeholders, not literal tokens):
   `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
   `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
   `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`,
-  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`, or
-  `"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`.
-  These grammar lines and any examples are illustrative, not an allowlist: any
-  single element, canonical isotope, formula, or template id supported by this
-  pinned CLI dataset is permitted. Do not infer that an unshown token is
-  unavailable. Pass exactly one such token—never a problem id, question/source
-  text, URL, or search phrase. The command performs no network access and
-  returns a dataset version/hash that must be preserved as provenance.
+  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`, or
+  `"$ARCHON_CLI_BIN" chemistry-constant empirical_rule <RULE_ID>`.
+  For `atomic_weight`, `isotope_mass`, and `molar_mass` only, these grammar lines
+  and examples are illustrative, not an allowlist: any structurally valid
+  element, canonical isotope, or formula supported by this dataset is permitted.
+  The exact `TEMPLATE_ID` allowlist is:
+  `binary_two_fragment_electrophilic_addition`.
+  The exact `POLICY_ID` allowlist is:
+  `analogous_halogen_addition`.
+  For `empirical_rule`, the exact allowed `RULE_ID` values are:
+  `aqueous_feiii_phenol_colored_complex`,
+  `closed_candidate_feiii_phenol_filter`,
+  `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
+  `mellite_ideal_stoichiometry`, and
+  `mellitic_acid_benzoyl_chloride_to_c12o9`.
+  This five-ID list is an exact allowlist; the template and policy lists are
+  exact allowlists too, and all three lists are complete. Never guess, enumerate,
+  or probe any other registry id; an unlisted id fails closed. Pass exactly one
+  allowed token—never a problem id, question/source text, URL, or search phrase.
+  The command performs no network access and returns a dataset version/hash that
+  must be preserved as provenance.
   Problem-stipulated values take precedence. A pinned nominal value may be used
   for an olympiad-style central answer when requested, but check whether source
   uncertainty could change the required reported digits or classification. A
@@ -207,6 +221,24 @@ solve the proof.
   reagent. Derive that identity independently from the problem measurements
   and separately receipted constants, preserving both `dataset_sha256` and
   `record_sha256`.
+  An `empirical_rule` receipt grounds only the returned claim under its returned
+  `authority_kind`, inside every returned applicability condition, and outside
+  every returned exclusion. For `peer_reviewed_literature`, use it only as a
+  source-scoped literature claim, never beyond its cited substrate, reagent, or
+  conditions. For `contest_semantics_policy`, use it only as a bounded policy,
+  not a paper or universal empirical law, and require the complete source-
+  supplied finite candidate set, full structural-feature audit, and explicit
+  interference exclusions required by the record. The returned
+  `automatic_problem_instantiation` must be false; never turn a literature claim
+  into an inverse classification or the bounded policy into an open-world rule.
+  When used, preserve `dataset_sha256`, `record_sha256`,
+  `base_dataset_sha256`, `pinned_rule_record_sha256`,
+  `empirical_registry_manifest_sha256`, and returned `source.url`, `source.doi`,
+  `source.locator`, `source.content_sha256`, plus the approved review metadata.
+  A Reviewer must rerun the exact operation and allowed id and compare all those
+  values. A missing or mismatched hash, source locator, approval, applicability
+  condition, or scope—or a different substrate or reagent—must fail closed.
+
 - For assigned `IChO2026Problems/problem_<TARGET_ID>.lean`, atomically overwrite
   `.archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json` on
   every formalization and redraft. It is generated output, never source
@@ -366,15 +398,30 @@ CLI. Query grammar (angle-bracket names are placeholders, not literal tokens):
 `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
 `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
 `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`,
-`"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`, or
-`"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`.
-These grammar lines and any examples are illustrative, not an allowlist: any
-single element, canonical isotope, formula, or template id supported by this
-pinned CLI dataset is permitted. Do not infer that an unshown token is
-unavailable. Never pass a problem id, question text, URL, or search phrase.
-The Reviewer must verify each used lookup through the same `"$ARCHON_CLI_BIN"`
-grammar and check its returned dataset version/hash against the bound source
-contract; prompt examples never define the supported inventory.
+`"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`,
+`"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`, or
+`"$ARCHON_CLI_BIN" chemistry-constant empirical_rule <RULE_ID>`.
+For `atomic_weight`, `isotope_mass`, and `molar_mass` only, these grammar lines
+and examples are illustrative, not an allowlist: any structurally valid element,
+canonical isotope, or formula supported by this dataset is permitted.
+The exact `TEMPLATE_ID` allowlist is:
+`binary_two_fragment_electrophilic_addition`.
+The exact `POLICY_ID` allowlist is:
+`analogous_halogen_addition`.
+For `empirical_rule`, the exact allowed `RULE_ID` values are:
+`aqueous_feiii_phenol_colored_complex`,
+`closed_candidate_feiii_phenol_filter`,
+`hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
+`mellite_ideal_stoichiometry`, and
+`mellitic_acid_benzoyl_chloride_to_c12o9`.
+This five-ID list is an exact allowlist; the template and policy lists are exact
+allowlists too, and all three lists are complete. Never guess, enumerate, or
+probe any other registry id; an unlisted id fails closed. Never pass a problem
+id, question text, URL, or search phrase. The Reviewer must verify each used
+lookup through the same `"$ARCHON_CLI_BIN"` grammar and check its returned
+dataset version/hash against the bound source contract. The exact TEMPLATE_ID,
+POLICY_ID, and RULE_ID lists above are the full supported registries; no other
+identifier may be probed.
 Problem-stipulated values override the dataset. A pinned nominal value may be
 used for an olympiad-style central answer when requested, but check whether
 source uncertainty could change the required reported digits or classification.
@@ -389,6 +436,24 @@ substrate must fail closed. The receipt authorizes only its returned domain,
 template, stoichiometry, and retention scope; it does not identify the specific
 reagent, which must still follow independently from the problem measurements
 and separately receipted constants.
+An `empirical_rule` receipt grounds only the returned claim under its returned
+`authority_kind`, inside every returned applicability condition, and outside
+every returned exclusion. For `peer_reviewed_literature`, accept it only as a
+source-scoped literature claim, never beyond the cited substrate, reagent, or
+conditions. For `contest_semantics_policy`, accept it only as a bounded contest
+policy, not a paper or universal empirical law, and require the complete
+source-supplied finite candidate set, full structural-feature audit, and
+explicit interference exclusions required by the record. The returned
+`automatic_problem_instantiation` must be false. Never turn a literature claim
+into an inverse classification or the bounded policy into an open-world rule.
+The Reviewer must preserve and compare `dataset_sha256`, `record_sha256`,
+`base_dataset_sha256`, `pinned_rule_record_sha256`,
+`empirical_registry_manifest_sha256`, returned `source.url`, `source.doi`,
+`source.locator`, `source.content_sha256`, and the approved review metadata
+after rerunning the exact operation and allowed id. A missing or mismatched
+hash, source locator, approval, applicability condition, or scope—or a different
+substrate or reagent—must fail closed.
+
 """
 
 

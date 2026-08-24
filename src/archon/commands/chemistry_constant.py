@@ -1,9 +1,10 @@
 """Version-pinned, offline chemistry reference queries.
 
 This module is deliberately a closed-world data service.  It accepts only a
-small structured query vocabulary, reads no files or environment variables,
-and has no network/process API.  The returned data version and digest make a
-solver's dependency on general chemistry constants auditable.
+small structured query vocabulary, reads only its sealed packaged registry
+resource (never user/workspace files or environment variables), and has no
+network/process API.  The returned data version and digest make a solver's
+dependency on general chemistry constants auditable.
 
 Atomic weights are the CIAAW 2024 abridged standard atomic weights.  Isotope
 masses are a small, explicit AME2020 subset; an absent nuclide fails closed.
@@ -20,6 +21,7 @@ from collections import Counter
 from decimal import Decimal
 from enum import Enum
 import hashlib
+from importlib import resources
 import json
 import re
 from typing import Mapping, NoReturn
@@ -28,10 +30,11 @@ import typer
 
 
 SCHEMA_VERSION = 1
-DATASET_VERSION = (
+BASE_DATASET_VERSION = (
     "ciaaw-abridged-2024+ame2020-subset+archon-templates-v1"
     "+contest-interpretation-v1"
 )
+DATASET_VERSION = BASE_DATASET_VERSION + "+trusted-empirical-rules-v1"
 MAX_ARGUMENT_CHARS = 128
 MAX_GROUP_DEPTH = 4
 MAX_ATOM_COUNT = 1_000_000
@@ -248,6 +251,9 @@ _CONTEST_INTERPRETATIONS: dict[str, dict[str, object]] = {
     },
 }
 
+REACTION_TEMPLATE_IDS = tuple(sorted(_REACTION_TEMPLATES))
+CONTEST_INTERPRETATION_IDS = tuple(sorted(_CONTEST_INTERPRETATIONS))
+
 
 class ChemistryConstantError(ValueError):
     """A query is outside the closed, structured reference vocabulary."""
@@ -259,6 +265,7 @@ class ChemistryConstantOperation(str, Enum):
     molar_mass = "molar_mass"
     reaction_template = "reaction_template"
     contest_interpretation = "contest_interpretation"
+    empirical_rule = "empirical_rule"
 
 
 def _canonical_json(value: object) -> bytes:
@@ -271,9 +278,9 @@ def _canonical_json(value: object) -> bytes:
     ).encode("utf-8")
 
 
-_DATASET_PAYLOAD = {
+_BASE_DATASET_PAYLOAD = {
     "schema_version": SCHEMA_VERSION,
-    "dataset_version": DATASET_VERSION,
+    "dataset_version": BASE_DATASET_VERSION,
     "sources": [
         _CIAAW_SOURCE,
         _AME_SOURCE,
@@ -284,6 +291,151 @@ _DATASET_PAYLOAD = {
     "isotope_masses": _ISOTOPE_MASSES,
     "reaction_templates": _REACTION_TEMPLATES,
     "contest_interpretations": _CONTEST_INTERPRETATIONS,
+}
+BASE_DATASET_SHA256 = hashlib.sha256(
+    _canonical_json(_BASE_DATASET_PAYLOAD)
+).hexdigest()
+
+
+def _strict_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise RuntimeError(f"duplicate empirical-registry field: {key}")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> NoReturn:
+    raise ValueError(f"non-finite JSON constant: {value}")
+
+
+def _load_empirical_registry() -> dict[str, object]:
+    """Load and verify the sealed, packaged empirical-rule snapshot."""
+
+    resource = resources.files("archon").joinpath(
+        ".archon-src", "chemistry-registry", "empirical-rules-v1.json"
+    )
+    try:
+        payload = json.loads(
+            resource.read_text(encoding="utf-8"),
+            object_pairs_hook=_strict_json_object,
+            parse_constant=_reject_json_constant,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError("invalid packaged empirical chemistry registry") from exc
+    if not isinstance(payload, dict) or set(payload) != {"manifest", "records"}:
+        raise RuntimeError("empirical registry must contain manifest and records")
+    manifest = payload["manifest"]
+    records = payload["records"]
+    if not isinstance(manifest, dict) or set(manifest) != {
+        "base_dataset_sha256",
+        "manifest_sha256",
+        "manifest_type",
+        "record_count",
+        "records",
+        "schema_version",
+    }:
+        raise RuntimeError("invalid empirical registry manifest")
+    unsigned_manifest = dict(manifest)
+    manifest_sha256 = unsigned_manifest.pop("manifest_sha256")
+    if (
+        manifest.get("schema_version") != 1
+        or manifest.get("manifest_type") != "trusted_chemistry_registry"
+        or manifest.get("base_dataset_sha256") != BASE_DATASET_SHA256
+        or not isinstance(manifest_sha256, str)
+        or hashlib.sha256(_canonical_json(unsigned_manifest)).hexdigest()
+        != manifest_sha256
+        or not isinstance(records, list)
+        or manifest.get("record_count") != len(records)
+    ):
+        raise RuntimeError("empirical registry manifest verification failed")
+
+    entries: list[dict[str, object]] = []
+    seen: set[str] = set()
+    rule_id_pattern = re.compile(r"^[a-z][a-z0-9_]{2,95}$", flags=re.ASCII)
+    digest_pattern = re.compile(r"^[0-9a-f]{64}$", flags=re.ASCII)
+    for record in records:
+        if not isinstance(record, dict) or set(record) != {
+            "base_dataset_sha256",
+            "record_sha256",
+            "record_type",
+            "review",
+            "rule",
+            "runtime_network_access",
+            "schema_version",
+            "source",
+        }:
+            raise RuntimeError("invalid empirical rule record")
+        unsigned_record = dict(record)
+        record_sha256 = unsigned_record.pop("record_sha256")
+        rule = record.get("rule")
+        source = record.get("source")
+        review = record.get("review")
+        if (
+            record.get("schema_version") != 1
+            or record.get("record_type") != "trusted_chemistry_rule"
+            or record.get("base_dataset_sha256") != BASE_DATASET_SHA256
+            or record.get("runtime_network_access") is not False
+            or not isinstance(record_sha256, str)
+            or digest_pattern.fullmatch(record_sha256) is None
+            or hashlib.sha256(_canonical_json(unsigned_record)).hexdigest()
+            != record_sha256
+            or not isinstance(rule, dict)
+            or set(rule) != {
+                "applicability_conditions",
+                "authority_kind",
+                "automatic_problem_instantiation",
+                "claim",
+                "exclusions",
+                "rule_id",
+                "rule_version",
+            }
+            or rule.get("automatic_problem_instantiation") is not False
+            or not isinstance(source, dict)
+            or set(source) != {"content_sha256", "doi", "locator", "url"}
+            or not isinstance(source.get("content_sha256"), str)
+            or digest_pattern.fullmatch(source["content_sha256"]) is None
+            or not isinstance(review, dict)
+            or review.get("status") != "approved"
+            or review.get("approval_scope") != "rule_and_source"
+        ):
+            raise RuntimeError("empirical rule verification failed")
+        rule_id = rule.get("rule_id")
+        rule_version = rule.get("rule_version")
+        if (
+            not isinstance(rule_id, str)
+            or rule_id_pattern.fullmatch(rule_id) is None
+            or rule_id in seen
+            or type(rule_version) is not int
+        ):
+            raise RuntimeError("invalid or duplicate empirical rule id")
+        seen.add(rule_id)
+        entries.append(
+            {
+                "record_sha256": record_sha256,
+                "rule_id": rule_id,
+                "rule_version": rule_version,
+            }
+        )
+    if entries != manifest.get("records") or [
+        entry["rule_id"] for entry in entries
+    ] != sorted(seen):
+        raise RuntimeError("empirical registry index does not match records")
+    return payload
+
+
+_EMPIRICAL_REGISTRY = _load_empirical_registry()
+_EMPIRICAL_RULES = {
+    record["rule"]["rule_id"]: record
+    for record in _EMPIRICAL_REGISTRY["records"]
+}
+EMPIRICAL_RULE_IDS = tuple(sorted(_EMPIRICAL_RULES))
+
+_DATASET_PAYLOAD = {
+    **_BASE_DATASET_PAYLOAD,
+    "dataset_version": DATASET_VERSION,
+    "empirical_registry": _EMPIRICAL_REGISTRY,
 }
 DATASET_SHA256 = hashlib.sha256(_canonical_json(_DATASET_PAYLOAD)).hexdigest()
 
@@ -543,6 +695,31 @@ def contest_interpretation(policy: str) -> dict[str, object]:
     })
 
 
+def empirical_rule(rule: str) -> dict[str, object]:
+    """Return one reviewed literature rule or bounded policy without instantiation."""
+
+    rule_id = _validate_argument(rule, label="rule")
+    if _TEMPLATE_ID.fullmatch(rule_id) is None:
+        _fail("rule must be one lowercase registry identifier")
+    record = _EMPIRICAL_RULES.get(rule_id)
+    if record is None:
+        _fail("empirical rule is not present in the pinned registry")
+    detached = json.loads(_canonical_json(record))
+    pinned_record_sha256 = detached.pop("record_sha256")
+    return _with_record_receipt({
+        **_base_result(ChemistryConstantOperation.empirical_rule),
+        "query": {"rule": rule_id},
+        "result": detached["rule"],
+        "source": detached["source"],
+        "approval": detached["review"],
+        "pinned_rule_record_sha256": pinned_record_sha256,
+        "empirical_registry_manifest_sha256": _EMPIRICAL_REGISTRY["manifest"][
+            "manifest_sha256"
+        ],
+        "base_dataset_sha256": BASE_DATASET_SHA256,
+    })
+
+
 def query_chemistry_constant(request: Mapping[str, object]) -> dict[str, object]:
     """Dispatch one strict ``{operation, argument}`` request.
 
@@ -570,6 +747,7 @@ def query_chemistry_constant(request: Mapping[str, object]) -> dict[str, object]
         ChemistryConstantOperation.molar_mass: molar_mass,
         ChemistryConstantOperation.reaction_template: reaction_template,
         ChemistryConstantOperation.contest_interpretation: contest_interpretation,
+        ChemistryConstantOperation.empirical_rule: empirical_rule,
     }
     return dispatch[operation](argument)
 
@@ -579,14 +757,14 @@ def chemistry_constant(
         ...,
         help=(
             "atomic_weight | isotope_mass | molar_mass | reaction_template | "
-            "contest_interpretation"
+            "contest_interpretation | empirical_rule"
         ),
     ),
     argument: str = typer.Argument(
         ...,
         help=(
             "One element symbol, isotope, formula, registered template id, or "
-            "registered contest-policy id."
+            "registered contest-policy/empirical-rule id."
         ),
     ),
 ) -> None:

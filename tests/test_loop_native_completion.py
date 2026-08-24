@@ -12,8 +12,11 @@ from unittest.mock import patch
 from archon.commands.loop.command import LoopCommand
 from archon.commands.loop.formalization_review_gate import STATE_VERSION
 from archon.commands.loop.native_completion import (
+    NativeTerminalState,
+    clear_native_terminal_summary,
     native_iteration_completion,
     native_terminal_partial,
+    write_native_terminal_summary,
 )
 from archon.commands.loop.phases.base import PhaseResult
 from archon.state import read_stage
@@ -31,6 +34,46 @@ class _DonePhase:
 
 
 class NativeLoopCompletionTest(unittest.TestCase):
+    def test_terminal_writer_uses_precreated_inode_when_parent_is_sealed(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            state = Path(td) / ".archon"
+            state.mkdir()
+            path = state / "native-terminal.json"
+            path.write_text("{}\n", encoding="utf-8")
+            inode = path.stat().st_ino
+            result = NativeTerminalState(
+                terminal=True,
+                reason="settled",
+                target_count=2,
+                solved=("Problems/A.lean",),
+                formalization_review_exhausted=("Problems/B.lean",),
+            )
+
+            with patch.object(
+                Path,
+                "write_bytes",
+                side_effect=PermissionError("controller-owned parent"),
+            ):
+                self.assertEqual(write_native_terminal_summary(state, result), path)
+
+            self.assertEqual(path.stat().st_ino, inode)
+            self.assertEqual(
+                json.loads(path.read_text(encoding="utf-8"))["status"],
+                "completed_with_exhausted",
+            )
+            self.assertFalse(path.with_suffix(".json.tmp").exists())
+
+            with patch.object(
+                Path,
+                "unlink",
+                side_effect=PermissionError("controller-owned parent"),
+            ):
+                clear_native_terminal_summary(state)
+            self.assertEqual(path.stat().st_ino, inode)
+            self.assertEqual(path.read_bytes(), b"")
+
     def _state(self, root: Path, *, count: int = 32) -> tuple[Path, Path, Path]:
         state = root / ".archon"
         logs = state / "logs" / "iter-003"

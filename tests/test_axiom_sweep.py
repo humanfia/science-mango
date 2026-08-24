@@ -95,7 +95,10 @@ class DeclarationExtractionRegressionTest(unittest.TestCase):
                 "awk '\n"
                 "  /AUTO_AXIOM_CHECK_MARKER_DO_NOT_COMMIT/ { active = 1; next }\n"
                 "  active && /^#print axioms / { print }\n"
-                "' \"$probe\" > \"$AXIOM_CAPTURE\"\n",
+                "' \"$probe\" > \"$AXIOM_CAPTURE\"\n"
+                "awk '{ decl = $0; sub(/^#print axioms /, \"\", decl); "
+                "printf \"%c%s%c does not depend on any axioms\\n\", "
+                "39, decl, 39 }' \"$AXIOM_CAPTURE\"\n",
                 encoding="utf-8",
             )
             fake_lake.chmod(0o755)

@@ -9,6 +9,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from archon.commands.chemistry_constant import (
+    CONTEST_INTERPRETATION_IDS,
+    EMPIRICAL_RULE_IDS,
+    REACTION_TEMPLATE_IDS,
+)
 from archon.agents.codex import CodexAgent
 
 from archon.commands.loop.native_semantic_review import (
@@ -538,8 +543,39 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "Missing, ambiguous, or different-substrate cues fail closed",
             "does not identify the specific reagent",
             "derive that identity from source measurements",
+            "exact TEMPLATE_ID allowlist",
+            "binary_two_fragment_electrophilic_addition",
+            "exact POLICY_ID allowlist",
+            "analogous_halogen_addition",
+            "full supported registries",
+            "no other identifier may be probed",
+            "empirical_rule <RULE_ID>",
+            "exact five-ID allowlist",
+            "Never guess, enumerate, or probe",
+            "unlisted id fails closed",
+            "`authority_kind`",
+            "peer_reviewed_literature",
+            "contest_semantics_policy",
+            "bounded policy—not a paper or universal empirical law",
+            "complete source-supplied finite candidate set",
+            "automatic_problem_instantiation",
+            "bounded policy into an open-world rule",
+            "base_dataset_sha256",
+            "pinned_rule_record_sha256",
+            "empirical_registry_manifest_sha256",
+            "source.content_sha256",
+            "approved review metadata",
         ):
             self.assertIn(marker, prompt)
+        for rule_id in EMPIRICAL_RULE_IDS:
+            self.assertEqual(prompt.count(rule_id), 1)
+        for template_id in REACTION_TEMPLATE_IDS:
+            self.assertEqual(prompt.count(template_id), 1)
+        for policy_id in CONTEST_INTERPRETATION_IDS:
+            self.assertEqual(prompt.count(policy_id), 1)
+        self.assertNotIn("symmetry_guided_benzylic_oxidation", prompt)
+        self.assertNotIn("benzylic_oxidation_permanganate", prompt)
+
 
     def test_review_preflight_producer_flows_into_native_contract(self) -> None:
         process = Mock()
@@ -782,8 +818,25 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             )
             self.assertIn("illustrative, not an allowlist", prompt)
             self.assertIn("Reviewer must verify each used lookup", prompt)
+            self.assertIn("exact TEMPLATE_ID allowlist", prompt)
+            self.assertIn("binary_two_fragment_electrophilic_addition", prompt)
+            self.assertIn("exact POLICY_ID allowlist", prompt)
+            self.assertIn("analogous_halogen_addition", prompt)
+            self.assertIn("empirical_rule <RULE_ID>", prompt)
+            self.assertIn("exact five-ID allowlist", prompt)
+            self.assertIn("source.content_sha256", prompt)
+            self.assertIn("bounded policy", prompt)
+            self.assertIn("a paper or universal empirical law", prompt)
+            for rule_id in EMPIRICAL_RULE_IDS:
+                self.assertEqual(prompt.count(rule_id), 1)
             self.assertIn("Problem-stipulated values override", prompt)
             self.assertIn("source uncertainty could change", prompt)
+            for template_id in REACTION_TEMPLATE_IDS:
+                self.assertEqual(prompt.count(template_id), 1)
+            for policy_id in CONTEST_INTERPRETATION_IDS:
+                self.assertEqual(prompt.count(policy_id), 1)
+            self.assertNotIn("symmetry_guided_benzylic_oxidation", prompt)
+            self.assertNotIn("benzylic_oxidation_permanganate", prompt)
             self.assertNotIn("`archon chemistry-constant", prompt)
             self.assertNotIn("preflight_sha256", prompt)
             self.assertIn("printed fallback", prompt)

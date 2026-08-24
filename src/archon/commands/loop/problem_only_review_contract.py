@@ -20,7 +20,13 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from ..chemistry_constant import DATASET_SHA256, DATASET_VERSION
+from ..chemistry_constant import (
+    CONTEST_INTERPRETATION_IDS,
+    DATASET_SHA256,
+    DATASET_VERSION,
+    EMPIRICAL_RULE_IDS,
+    REACTION_TEMPLATE_IDS,
+)
 from .answer_submission import (
     AnswerSubmissionError,
     answer_submission_relative_path,
@@ -1733,6 +1739,14 @@ def render_native_chemistry_constant_policy(
         raise ProblemOnlyReviewContractError(
             "native Review contract has no approved chemistry constant dataset"
         )
+    empirical_ids = ", ".join(f"`{rule_id}`" for rule_id in EMPIRICAL_RULE_IDS)
+    contest_policy_ids = ", ".join(
+        f"`{policy_id}`" for policy_id in CONTEST_INTERPRETATION_IDS
+    )
+    reaction_template_ids = ", ".join(
+        f"`{template_id}`" for template_id in REACTION_TEMPLATE_IDS
+    )
+
     return f"""APPROVED OFFLINE CHEMISTRY REGISTRY POLICY:
 - The only allowed auxiliary chemistry lookup is the version-pinned, network-free
   structured CLI. Its allowed dataset is version={DATASET_VERSION},
@@ -1741,21 +1755,31 @@ def render_native_chemistry_constant_policy(
   `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
   `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
   `"$ARCHON_CLI_BIN" chemistry-constant molar_mass <FORMULA>`,
-  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`, or
-  `"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`.
-- These grammar lines and any examples are illustrative, not an allowlist. Any
-  single element, canonical isotope, chemical formula, template id, or
-  contest-policy id supported by this pinned CLI dataset is permitted. Do not
-  infer that an unshown element or formula is unavailable.
-- Pass exactly one element, isotope, formula, registered template id, or
-  registered contest-policy id. Never pass a problem id, question/source text,
-  URL, or search phrase. Do not use web search or any other external knowledge
-  service.
+  `"$ARCHON_CLI_BIN" chemistry-constant reaction_template <TEMPLATE_ID>`,
+  `"$ARCHON_CLI_BIN" chemistry-constant contest_interpretation <POLICY_ID>`, or
+  `"$ARCHON_CLI_BIN" chemistry-constant empirical_rule <RULE_ID>`.
+- For `atomic_weight`, `isotope_mass`, and `molar_mass` only, these grammar
+  lines and examples are illustrative, not an allowlist. Any structurally valid
+  element, canonical isotope, or chemical formula supported by this dataset is
+  permitted. Do not infer that an unshown element or formula is unavailable.
+- `reaction_template` has the exact TEMPLATE_ID allowlist:
+  {reaction_template_ids}.
+- `contest_interpretation` has the exact POLICY_ID allowlist:
+  {contest_policy_ids}.
+- `empirical_rule` is an exact five-ID allowlist. Its allowed RULE_ID values are:
+  {empirical_ids}.
+- These three registry lists are the full supported inventory. Never guess,
+  enumerate, or probe another registry id. An unlisted id fails closed.
+- Pass exactly one element, isotope, formula, registered template id,
+  registered contest-policy id, or exact allowlisted empirical-rule id. Never
+  pass a problem id, question/source text, URL, or search phrase. Do not use web
+  search or any other external knowledge service.
 - A Reviewer must verify each used lookup through the same
   `"$ARCHON_CLI_BIN"` grammar. Check the returned dataset version/hash against
   the controller-bound values above, then check record_sha256 against the
-  candidate-cited receipt after rerunning its exact operation and argument. The
-  few tokens printed in a prompt are never the full supported inventory.
+  candidate-cited receipt after rerunning its exact operation and argument.
+  The exact TEMPLATE_ID, POLICY_ID, and RULE_ID lists above are the full
+  supported registries; no other identifier may be probed.
 - A contest_interpretation receipt is a contest-semantics policy, not a paper,
   empirical chemistry fact, or universal inverse-classification theorem.
   Accept it only after binding every required activation cue to an exact
@@ -1764,6 +1788,23 @@ def render_native_chemistry_constant_policy(
   different-substrate cues fail closed. Use only the returned domain, template,
   stoichiometry, and retention scope. The policy does not identify the specific
   reagent; derive that identity from source measurements and pinned constants.
+- An empirical_rule receipt grounds only its returned claim under the returned
+  `authority_kind`, inside every returned applicability condition, and outside
+  every returned exclusion. For `peer_reviewed_literature`, treat it only as a
+  source-scoped literature claim, never beyond the cited substrate, reagent, or
+  conditions. For `contest_semantics_policy`, treat it as a bounded policy—not
+  a paper or universal empirical law—and require the complete source-supplied
+  finite candidate set, full structural-feature audit, and explicit interference
+  exclusions required by the returned record. `automatic_problem_instantiation`
+  must be false. Never turn a literature claim into an inverse classification or
+  the bounded policy into an open-world rule. Preserve `dataset_sha256`,
+  `record_sha256`, `base_dataset_sha256`, `pinned_rule_record_sha256`,
+  `empirical_registry_manifest_sha256`, `source.url`, `source.doi`,
+  `source.locator`, `source.content_sha256`, and the approved review metadata.
+  A Reviewer must rerun the exact operation and allowed id and compare all those
+  values. A missing or mismatched hash, source locator, approval, applicability
+  condition, or scope—or a different substrate or reagent—fails closed.
+
 - Problem-stipulated values override the dataset. A pinned nominal value may be
   used for an olympiad-style central answer when the problem asks for one, but
   still check whether source uncertainty could change the required reported

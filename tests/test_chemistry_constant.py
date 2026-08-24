@@ -18,14 +18,34 @@ FORMALIZER_MODE = (
     / "src/archon/.archon-src/prover-modes/chemistry-formalize.md"
 )
 
+EXPECTED_EMPIRICAL_RULE_IDS = (
+    "aqueous_feiii_phenol_colored_complex",
+    "closed_candidate_feiii_phenol_filter",
+    "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
+    "mellite_ideal_stoichiometry",
+    "mellitic_acid_benzoyl_chloride_to_c12o9",
+)
+
 
 def test_dataset_digest_and_atomic_weight_are_version_pinned() -> None:
-    assert chemistry.DATASET_VERSION == (
+    assert chemistry.BASE_DATASET_VERSION == (
         "ciaaw-abridged-2024+ame2020-subset+archon-templates-v1"
         "+contest-interpretation-v1"
     )
-    assert chemistry.DATASET_SHA256 == (
+    assert chemistry.BASE_DATASET_SHA256 == (
         "3f9ac23f3515cf263275c244772de895c5402fb59a12061aa81c65ede91c094f"
+    )
+    assert chemistry.DATASET_VERSION == (
+        chemistry.BASE_DATASET_VERSION + "+trusted-empirical-rules-v1"
+    )
+    assert chemistry.DATASET_SHA256 == (
+        "e5756593b1792be2acabd7da323d11d58d7884742fdd0949bf901c09e7cafd80"
+    )
+    assert chemistry.REACTION_TEMPLATE_IDS == (
+        "binary_two_fragment_electrophilic_addition",
+    )
+    assert chemistry.CONTEST_INTERPRETATION_IDS == (
+        "analogous_halogen_addition",
     )
     result = chemistry.atomic_weight("C")
     assert result["runtime_network_access"] is False
@@ -65,6 +85,7 @@ def test_each_lookup_has_a_stable_exact_record_receipt() -> None:
         chemistry.molar_mass("H2O"),
         chemistry.reaction_template("binary_two_fragment_electrophilic_addition"),
         chemistry.contest_interpretation("analogous_halogen_addition"),
+        chemistry.empirical_rule("closed_candidate_feiii_phenol_filter"),
     )
     receipts: set[str] = set()
     for lookup in lookups:
@@ -132,7 +153,7 @@ def test_contest_interpretation_is_bounded_policy_not_empirical_answer() -> None
     lookup = chemistry.contest_interpretation("analogous_halogen_addition")
     policy = lookup["result"]
     assert lookup["record_sha256"] == (
-        "0eae4e05cd841f16d00ca474eab8eb9158e1c208be357eddfc1320f8f203ac82"
+        "7e027f0a11a3bc71bf588b5c99184d2404f6fdf1f54d5c3a3325c3c5222e1610"
     )
     assert lookup["operation"] == "contest_interpretation"
     assert lookup["runtime_network_access"] is False
@@ -202,6 +223,69 @@ def test_contest_interpretation_is_bounded_policy_not_empirical_answer() -> None
     )
 
 
+def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> None:
+    assert chemistry.EMPIRICAL_RULE_IDS == EXPECTED_EMPIRICAL_RULE_IDS
+    authority_kinds: set[str] = set()
+    for rule_id in EXPECTED_EMPIRICAL_RULE_IDS:
+        lookup = chemistry.empirical_rule(rule_id)
+        rule = lookup["result"]
+        source = lookup["source"]
+        approval = lookup["approval"]
+        assert lookup["query"] == {"rule": rule_id}
+        assert lookup["operation"] == "empirical_rule"
+        assert lookup["runtime_network_access"] is False
+        assert lookup["dataset_sha256"] == chemistry.DATASET_SHA256
+        assert lookup["base_dataset_sha256"] == chemistry.BASE_DATASET_SHA256
+        assert lookup["empirical_registry_manifest_sha256"] == (
+            "2447cf40d06232fa140dae329ab357b0b41e973c4ec2d1ad60264c9951e459fe"
+        )
+        for digest in (
+            lookup["record_sha256"],
+            lookup["pinned_rule_record_sha256"],
+            lookup["empirical_registry_manifest_sha256"],
+            source["content_sha256"],
+        ):
+            assert len(digest) == 64
+            assert set(digest) <= set("0123456789abcdef")
+        assert set(source) == {"content_sha256", "doi", "locator", "url"}
+        assert type(source["url"]) is str and source["url"].startswith("https://")
+        assert type(source["doi"]) is str and source["doi"].startswith("10.")
+        assert type(source["locator"]) is str and source["locator"]
+        assert set(approval) == {
+            "approval_scope",
+            "approved_at",
+            "reviewer_id",
+            "status",
+        }
+        assert approval["status"] == "approved"
+        assert approval["approval_scope"] == "rule_and_source"
+        assert rule["rule_id"] == rule_id
+        assert rule["automatic_problem_instantiation"] is False
+        assert rule["applicability_conditions"]
+        assert rule["exclusions"]
+        authority_kinds.add(rule["authority_kind"])
+
+    assert authority_kinds == {
+        "contest_semantics_policy",
+        "peer_reviewed_literature",
+    }
+    bounded = chemistry.empirical_rule("closed_candidate_feiii_phenol_filter")
+    assert bounded["pinned_rule_record_sha256"] == (
+        "a557ad414f8d8e902c5ba2909db4dba67ffc8aaa6982448170fd27d8218e3ace"
+    )
+    assert bounded["source"]["content_sha256"] == (
+        "31b0a37ddab2aba737a30d94dbd514b0a5831ac61451631a2b73dd7164148286"
+    )
+    assert bounded["result"]["authority_kind"] == "contest_semantics_policy"
+    assert any(
+        "not a universal" in exclusion.casefold()
+        for exclusion in bounded["result"]["exclusions"]
+    )
+    serialized = json.dumps(bounded, ensure_ascii=False).casefold()
+    for forbidden in ("t1-a3", "icho_", "official_answer"):
+        assert forbidden not in serialized
+
+
 @pytest.mark.parametrize(
     ("function", "argument"),
     [
@@ -225,6 +309,11 @@ def test_contest_interpretation_is_bounded_policy_not_empirical_answer() -> None
         (chemistry.contest_interpretation, "IBr"),
         (chemistry.contest_interpretation, "similar way"),
         (chemistry.contest_interpretation, "unregistered_policy"),
+        (chemistry.reaction_template, "benzylic_oxidation_permanganate"),
+        (chemistry.contest_interpretation, "symmetry_guided_benzylic_oxidation"),
+        (chemistry.empirical_rule, "benzylic_oxidation_permanganate"),
+        (chemistry.empirical_rule, "T1-A3"),
+        (chemistry.empirical_rule, "https://example.test/rule"),
     ],
 )
 def test_query_arguments_fail_closed_on_names_questions_and_free_text(
@@ -295,12 +384,31 @@ def test_cli_emits_one_json_result_and_rejects_extra_input() -> None:
     policy_payload = json.loads(policy_success.stdout)
     assert policy_payload["query"] == {"policy": "analogous_halogen_addition"}
     assert policy_payload["result"]["empirical_claim"] is False
+    rule_success = runner.invoke(
+        app,
+        [
+            "chemistry-constant",
+            "empirical_rule",
+            "closed_candidate_feiii_phenol_filter",
+        ],
+    )
+    assert rule_success.exit_code == 0, rule_success.output
+    rule_payload = json.loads(rule_success.stdout)
+    assert rule_payload["query"] == {
+        "rule": "closed_candidate_feiii_phenol_filter"
+    }
+    assert rule_payload["result"]["authority_kind"] == "contest_semantics_policy"
+    assert rule_payload["source"]["content_sha256"] == (
+        "31b0a37ddab2aba737a30d94dbd514b0a5831ac61451631a2b73dd7164148286"
+    )
+
 
     for arguments in (
         ["chemistry-constant", "atomic_weight", "T5-A4"],
         ["chemistry-constant", "atomic_weight", "C", "question text"],
         ["chemistry-constant", "web_search", "C"],
         ["chemistry-constant", "contest_interpretation", "IBr"],
+        ["chemistry-constant", "empirical_rule", "benzylic_oxidation_permanganate"],
     ):
         rejected = runner.invoke(app, arguments)
         assert rejected.exit_code != 0
@@ -318,6 +426,29 @@ def test_chemistry_formalizer_sees_strict_offline_query_contract() -> None:
         "grammar placeholders, not literal tokens",
         "contest_interpretation <POLICY_ID>",
         "illustrative, not an allowlist",
+        "empirical_rule <RULE_ID>",
+        "exact `TEMPLATE_ID` allowlist",
+        "binary_two_fragment_electrophilic_addition",
+        "exact `POLICY_ID` allowlist",
+        "analogous_halogen_addition",
+        "full supported registries",
+        "exact allowed `RULE_ID` inventory",
+        "five-ID list is an exact allowlist",
+        "Never guess, enumerate, or probe other rule ids",
+        "unlisted id must fail closed",
+        "peer_reviewed_literature",
+        "contest_semantics_policy",
+        "bounded contest policy—not a paper or universal empirical law",
+        "complete source-supplied finite candidate set",
+        "automatic_problem_instantiation",
+        "bounded policy into an open-world rule",
+        "base_dataset_sha256",
+        "pinned_rule_record_sha256",
+        "empirical_registry_manifest_sha256",
+        "source.url",
+        "source.doi",
+        "source.locator",
+        "source.content_sha256",
         "record_sha256",
         "candidate-local `axiom`",
         "name alone is not provenance",
@@ -340,3 +471,9 @@ def test_chemistry_formalizer_sees_strict_offline_query_contract() -> None:
         assert phrase in mode
 
     assert "archon chemistry-constant" not in mode
+    for rule_id in EXPECTED_EMPIRICAL_RULE_IDS:
+        assert mode.count(rule_id) == 1
+    assert "benzylic_oxidation_permanganate" not in mode
+    assert mode.count("binary_two_fragment_electrophilic_addition") == 1
+    assert mode.count("analogous_halogen_addition") == 1
+    assert "symmetry_guided_benzylic_oxidation" not in mode

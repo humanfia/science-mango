@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -284,6 +286,25 @@ def native_terminal_summary(result: NativeTerminalState) -> dict[str, Any]:
     }
 
 
+def _overwrite_precreated_regular_inode(path: Path, payload: bytes) -> None:
+    """Safely update one pre-created state inode under a sealed parent."""
+
+    metadata = path.lstat()
+    if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+        raise PermissionError("native terminal state is not one regular inode")
+    flags = os.O_WRONLY | os.O_TRUNC | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        with os.fdopen(descriptor, "wb", closefd=False) as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+    finally:
+        os.close(descriptor)
+
+
 def write_native_terminal_summary(
     state_dir: Path, result: NativeTerminalState,
 ) -> Path:
@@ -305,17 +326,28 @@ def write_native_terminal_summary(
         pass
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_bytes(payload)
-    temporary.replace(path)
+    try:
+        temporary.write_bytes(payload)
+        temporary.replace(path)
+    except PermissionError:
+        # Answer-blind workspaces seal `.archon/` but pre-create this exact
+        # state inode as solver-writable. Match the two Review-gate writers:
+        # only fall back when no temporary inode could be created.
+        if temporary.exists() or temporary.is_symlink():
+            raise
+        _overwrite_precreated_regular_inode(path, payload)
     return path
 
 
 def clear_native_terminal_summary(state_dir: Path) -> None:
-    """Remove a terminal snapshot after a gate is explicitly reopened."""
+    """Remove, or safely empty, a terminal snapshot after a gate is reopened."""
+    path = state_dir / NATIVE_TERMINAL_FILENAME
     try:
-        (state_dir / NATIVE_TERMINAL_FILENAME).unlink()
+        path.unlink()
     except FileNotFoundError:
         pass
+    except PermissionError:
+        _overwrite_precreated_regular_inode(path, b"")
 
 
 def native_iteration_completion(

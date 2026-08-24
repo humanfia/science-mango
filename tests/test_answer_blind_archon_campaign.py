@@ -600,6 +600,13 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("cannot read or write the external freeze", protocol)
         self.assertIn("trusted root/controller", protocol)
         self.assertIn("before official-answer\nreveal or scoring", protocol)
+        empirical_rule_ids = (
+            "aqueous_feiii_phenol_colored_complex",
+            "closed_candidate_feiii_phenol_filter",
+            "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
+            "mellite_ideal_stoichiometry",
+            "mellitic_acid_benzoyl_chloride_to_c12o9",
+        )
         for text in (formalize, review):
             normalized = " ".join(text.split())
             self.assertIn(
@@ -611,6 +618,34 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 '<POLICY_ID>',
                 normalized,
             )
+            self.assertIn(
+                '"$ARCHON_CLI_BIN" chemistry-constant empirical_rule <RULE_ID>',
+                normalized,
+            )
+            self.assertIn("exact `TEMPLATE_ID` allowlist", normalized)
+            self.assertEqual(
+                normalized.count("binary_two_fragment_electrophilic_addition"),
+                1,
+            )
+            self.assertIn("exact `POLICY_ID` allowlist", normalized)
+            self.assertEqual(normalized.count("analogous_halogen_addition"), 1)
+            self.assertIn("five-ID list is an exact allowlist", normalized)
+            self.assertIn("Never guess, enumerate, or probe", normalized)
+            self.assertIn("unlisted id fails closed", normalized)
+            self.assertIn("peer_reviewed_literature", normalized)
+            self.assertIn("contest_semantics_policy", normalized)
+            self.assertIn("bounded policy", normalized)
+            self.assertIn("not a paper or universal empirical law", normalized)
+            self.assertIn("automatic_problem_instantiation", normalized)
+            self.assertIn("bounded policy into an open-world rule", normalized)
+            self.assertIn("base_dataset_sha256", normalized)
+            self.assertIn("pinned_rule_record_sha256", normalized)
+            self.assertIn("empirical_registry_manifest_sha256", normalized)
+            self.assertNotIn("symmetry_guided_benzylic_oxidation", normalized)
+            self.assertIn("source.content_sha256", normalized)
+            for rule_id in empirical_rule_ids:
+                self.assertEqual(normalized.count(rule_id), 1)
+            self.assertNotIn("benzylic_oxidation_permanganate", normalized)
             self.assertIn("illustrative, not an allowlist", normalized)
             self.assertIn("source uncertainty could change", normalized)
             self.assertIn("non-empirical contest-semantics policy", normalized)
