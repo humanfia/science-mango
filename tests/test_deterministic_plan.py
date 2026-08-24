@@ -130,6 +130,71 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
             self.assertEqual([item.relative_path for item in selected], ["A.lean", "B.lean"])
             self.assertEqual(skipped, [])
 
+    def test_autoformalize_selects_only_controller_retry(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, chapters = self._project(root)
+            (state / "config.json").write_text(
+                json.dumps({
+                    "loop": {
+                        "domain_profile": {
+                            "name": "chemistry-native",
+                            "enforce_classical_physics_modeling": False,
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            self._target(
+                root, chapters, "Retry.lean",
+                "theorem retry : True := by trivial\n",
+            )
+            self._target(
+                root, chapters, "Passed.lean",
+                "theorem passed : True := by sorry\n",
+            )
+            self._target(
+                root, chapters, "Exhausted.lean",
+                "theorem exhausted : True := by sorry\n",
+            )
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "max_iterations": 3,
+                    "targets": {
+                        "Retry.lean": {
+                            "status": "retry",
+                            "reviews": 1,
+                            "last_review_iter": 1,
+                            "reason": "missing source bridge",
+                        },
+                        "Passed.lean": {"status": "passed"},
+                        "Exhausted.lean": {
+                            "status": "review_exhausted",
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+
+            candidates = select_deterministic_candidates(
+                project_path=root,
+                state_dir=state,
+                stage="autoformalize",
+                limit=3,
+                formalization_gate_enabled=True,
+                proof_gate_enabled=True,
+            )
+
+            self.assertEqual(
+                [item.relative_path for item in candidates], ["Retry.lean"],
+            )
+            self.assertEqual(candidates[0].sorry_count, 0)
+            self.assertEqual(candidates[0].proof_status, "formalization_retry")
+            self.assertEqual(candidates[0].proof_attempts, 1)
+            self.assertEqual(candidates[0].prover_mode, "chemistry-formalize")
+            self.assertIn("blueprint as immutable", candidates[0].objective_task)
+
     def test_chemistry_profile_keeps_chemistry_mode_in_deterministic_prover(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

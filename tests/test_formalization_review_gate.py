@@ -466,6 +466,47 @@ class FormalizationReviewGateTests(unittest.TestCase):
             blockers=blockers,
         )
 
+    def test_batch_failure_persists_candidate_bound_repair_handoff(self):
+        result = self._review(
+            1,
+            "failed",
+            formalization_review={
+                "schema_version": 2,
+                "status": "failed",
+                "reason": "source bridge is missing",
+                "checks": {
+                    "source_faithfulness": {
+                        "status": "failed",
+                        "evidence": "the source bridge is only a premise",
+                    },
+                },
+                "bridge_obligations": [{
+                    "claim": "source relation",
+                    "carrier": "unconstrained local predicate",
+                    "status": "blocked",
+                    "evidence": "no authority derives the carrier",
+                }],
+            },
+        )
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        record = load_gate_state(self.state)["targets"]["Problems/p.lean"]
+        digest = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        event = record["repair_events"][-1]
+        self.assertEqual(event["event_id"], "batch:1:Problems/p.lean:formalization")
+        self.assertEqual(event["decision"], "failed")
+        self.assertEqual(event["candidate_sha256"], digest)
+        handoff = record["repair_handoff"]
+        self.assertEqual(
+            handoff["kind"], "controller_sanitized_review_repair",
+        )
+        self.assertEqual(handoff["review_kind"], "formalization")
+        self.assertEqual(handoff["worker_stage"], "formalization")
+        self.assertEqual(handoff["candidate_sha256"], digest)
+        self.assertIn(
+            "checks.source_faithfulness", handoff["failed_check_ids"],
+        )
+
     def test_forged_native_batch_milestone_fails_closed(self):
         expected = {"contract_kind": "native_problem_input_only"}
         with mock.patch.object(
@@ -758,6 +799,55 @@ class FormalizationReviewGateTests(unittest.TestCase):
             stored["milestones"][0]["independent_rederivation"],
             review["independent_rederivation"],
         )
+
+    def test_native_batch_failure_preserves_source_bound_repair_actions(self):
+        contract = self._set_native_profile_and_bundle()
+        review = self._passing_certificate()
+        review.update(self._native_source_audit())
+        review.update({
+            "schema_version": 2,
+            "status": "failed",
+            "reason": "the source relation is only assumed",
+        })
+        review["checks"]["source_faithfulness"] = {
+            "status": "failed",
+            "evidence": "the source relation is an unconstrained premise",
+        }
+        review["bridge_obligations"][0].update({
+            "status": "blocked",
+            "evidence": "no source-grounded carrier derives this relation",
+        })
+        review["independent_rederivation"] = (
+            build_independent_rederivation_example(contract)
+        )
+
+        result = self._review(1, "failed", formalization_review=review)
+
+        rel = self.target.relative_to(self.project).as_posix()
+        self.assertEqual(result.retry, (rel,))
+        record = load_gate_state(self.state)["targets"][rel]
+        source_review = record["repair_handoff"]["source_bound_review"]
+        projection = source_review["repair_action_projection"]
+        self.assertEqual(projection["failed_bridge_count"], 1)
+        self.assertEqual(projection["retained_count"], 1)
+        self.assertFalse(projection["truncated"])
+        self.assertEqual(
+            source_review["repair_actions"][0]["check_id"],
+            "bridge_obligations[0]",
+        )
+        provenance = native_source_contract_provenance(
+            self.native_source_contract,
+        )
+        for field in (
+            "source_bundle_sha256",
+            "source_record_sha256",
+            "answer_submission_sha256",
+            "question_sha256",
+            "requested_outputs_sha256",
+        ):
+            self.assertEqual(
+                source_review["source_binding"][field], provenance[field],
+            )
 
     def test_native_mismatched_comparison_cannot_pass_batch_gate(self):
         contract = self._set_native_profile_and_bundle()

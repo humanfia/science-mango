@@ -1,4 +1,4 @@
-"""Deterministic objective selection for bounded prover-stage planning.
+"""Deterministic objective selection for bounded retry/prover planning.
 
 The planner is useful for proof strategy, but it should not spend tens of
 minutes rediscovering which files are eligible for dispatch.  This module
@@ -133,9 +133,77 @@ def select_deterministic_candidates(
 ) -> list[DeterministicCandidate]:
     """Select a stable, Review-safe prover frontier with retries first."""
     canonical = stage.strip().lower()
-    if not canonical.startswith(("prover", "polish")) or limit <= 0:
+    autoformalize = canonical.startswith("autoformalize")
+    prover_stage = canonical.startswith(("prover", "polish"))
+    if limit <= 0 or not (autoformalize or prover_stage):
+        return []
+    if autoformalize and not formalization_gate_enabled:
         return []
     domain_profile = load_domain_profile(project_path)
+
+    if autoformalize:
+        # A shared-infrastructure build/migration is a prerequisite hold, not
+        # a statement-redraft target. Leave that routing to the full planner.
+        if pending_shared_infrastructure_objectives(
+            state_dir=state_dir, project_path=project_path,
+        ):
+            return []
+        formal_state = load_gate_state(state_dir) or {}
+        raw_targets = formal_state.get("targets", {})
+        formal_targets = raw_targets if isinstance(raw_targets, dict) else {}
+        chapters_by_rel = _chapter_lookup(project_path)
+        ranked: list[
+            tuple[tuple[int, int, str], Path, str, dict[str, Any]]
+        ] = []
+        root = project_path.resolve()
+        for raw_rel, raw_record in formal_targets.items():
+            record = raw_record if isinstance(raw_record, dict) else {}
+            if record.get("status") != "retry":
+                continue
+            raw_path = Path(str(raw_rel))
+            path = (
+                raw_path if raw_path.is_absolute() else root / raw_path
+            ).resolve()
+            try:
+                rel = path.relative_to(root).as_posix()
+            except ValueError:
+                continue
+            if not rel.endswith(".lean") or not path.is_file():
+                continue
+            try:
+                reviews = max(0, int(record.get("reviews") or 0))
+                last_iter = int(record.get("last_review_iter") or -1)
+            except (TypeError, ValueError):
+                continue
+            ranked.append(((reviews, last_iter, rel), path, rel, record))
+        candidates: list[DeterministicCandidate] = []
+        for _rank, path, rel, record in sorted(
+            ranked, key=lambda item: item[0],
+        ):
+            chapter = chapters_by_rel.get(rel)
+            sorry_count = fast_open_sorry_count(path)
+            if sorry_count is None:
+                continue
+            candidates.append(DeterministicCandidate(
+                path=path,
+                relative_path=rel,
+                sorry_count=sorry_count,
+                proof_status="formalization_retry",
+                proof_attempts=max(0, int(record.get("reviews") or 0)),
+                proof_reason=str(record.get("reason") or ""),
+                chapter=chapter,
+                physics=False,
+                prover_mode=domain_profile.mode_for_stage("autoformalize"),
+                objective_task=(
+                    "mandatory formalization-Review retry; redraft only the "
+                    "assigned Lean/answer/task-result from the persisted "
+                    "repair hand-off while treating blueprint as immutable "
+                    "evidence"
+                ),
+            ))
+            if len(candidates) >= limit:
+                break
+        return candidates
 
     # Shared project-local infrastructure is a prerequisite frontier, not a
     # theorem corpus target.  It bypasses the per-problem formalization gate
@@ -377,7 +445,7 @@ def write_deterministic_candidate_pack(
             f"## {index}. `{candidate.relative_path}`",
             "",
             f"- Open placeholders: {candidate.sorry_count}",
-            f"- Proof Review: {candidate.proof_status}; attempts={candidate.proof_attempts}",
+            f"- Review state: {candidate.proof_status}; attempts={candidate.proof_attempts}",
             f"- Review reason: {candidate.proof_reason or '(none)' }",
             f"- Blueprint: `{chapter_rel}`",
             "",
@@ -431,13 +499,26 @@ def deterministic_plan_prompt_prefix(
         "task_pending/task_done.",
         "Make one bounded pass over the supplied excerpts. Write a concise, "
         f"actionable per-target proof strategy to `{plan_sidecar}`.",
-        "You may edit only the listed blueprint chapters when an excerpt has "
-        "a concrete strategy defect; do not edit Lean source files in Plan.",
-        "Preserve every source hypothesis, side condition, and requested conclusion; "
-        "do not weaken theorem statements.",
-        "Finish immediately after the bounded plan sidecar and any necessary "
-        "listed-chapter corrections are written.",
     ]
+    if stage.strip().lower().startswith("autoformalize"):
+        blocks.extend([
+            "Blueprint excerpts are immutable evidence in this retry. Do not "
+            "edit blueprint or Lean files in Plan and do not defer the target "
+            "because blueprint files are read-only.",
+            "The target formalizer will receive the persisted Review repair "
+            "hand-off and may update only its assigned Lean, answer, and "
+            "task-result artifacts.",
+            "Finish immediately after writing the bounded plan sidecar.",
+        ])
+    else:
+        blocks.extend([
+            "You may edit only the listed blueprint chapters when an excerpt "
+            "has a concrete strategy defect; do not edit Lean source files in Plan.",
+            "Preserve every source hypothesis, side condition, and requested "
+            "conclusion; do not weaken theorem statements.",
+            "Finish immediately after the bounded plan sidecar and any necessary "
+            "listed-chapter corrections are written.",
+        ])
     if hints:
         blocks.extend(["", "## User hints", hints])
     if notes:

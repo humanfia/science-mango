@@ -986,6 +986,33 @@ def apply_formalization_review(
         else:
             status = "retry"
         certificate = {**certificate, "candidate_sha256": candidate_sha256}
+        raw_milestones = certificate.get("milestones")
+        repair_certificate: Mapping[str, Any] = certificate
+        if (
+            isinstance(raw_milestones, list)
+            and len(raw_milestones) == 1
+            and isinstance(raw_milestones[0], Mapping)
+        ):
+            # The batch gate stores an aggregate wrapper for auditability, but
+            # repair feedback must use the validated target certificate inside
+            # it or source-bound bridge findings are silently lost.
+            repair_certificate = raw_milestones[0]
+        batch_event_id = f"batch:{iter_num}:{rel}:formalization"
+        feedback_event = build_feedback_event(
+            review_kind="formalization",
+            candidate_sha256=candidate_sha256,
+            event_id=batch_event_id,
+            iteration=iter_num,
+            attempt=reviews,
+            resulting_status=status,
+            certificate=repair_certificate,
+            decision=decision,
+        )
+        repair_events = old.get("repair_events")
+        repair_events = (
+            list(repair_events) if isinstance(repair_events, list) else []
+        )
+        repair_events.append(feedback_event)
         next_record = {
             **old,
             "status": status,
@@ -996,12 +1023,13 @@ def apply_formalization_review(
             "review_schema_version": REVIEW_SCHEMA_VERSION,
             "candidate_sha256": candidate_sha256,
             "certificate": certificate,
+            "repair_events": repair_events[-20:],
         }
         if review_consumed:
             reviewed_request = _mark_proof_redraft_resubmission_reviewed(
                 old,
                 candidate_sha256=candidate_sha256,
-                event_id=f"batch:{iter_num}:{rel}:formalization",
+                event_id=batch_event_id,
                 iter_num=iter_num,
             )
             if reviewed_request is not None:
@@ -1018,6 +1046,25 @@ def apply_formalization_review(
                 "status": "reviewed",
                 "reviewed_iter": iter_num,
             }
+        try:
+            expected_source_contract = resolve_target_review_source_contract(
+                project_path=project_path,
+                target=project_path / rel,
+                preflight=None,
+            )
+        except ProblemOnlyReviewContractError:
+            expected_source_contract = None
+        repair_record = {
+            **next_record,
+            "certificate": repair_certificate,
+        }
+        next_record["repair_handoff"] = build_repair_task(
+            repair_record,
+            review_kind="formalization",
+            worker_stage="formalization",
+            candidate_sha256=candidate_sha256,
+            expected_source_contract=expected_source_contract,
+        )
         targets[rel] = next_record
 
     data["last_review_iter"] = iter_num

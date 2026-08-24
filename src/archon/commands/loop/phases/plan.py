@@ -298,13 +298,18 @@ class PlanPhase(Phase):
         if pack_iter_dir is None and ctx.dry_run:
             pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
             pack_iter_dir.mkdir(parents=True, exist_ok=True)
+        deterministic_stage = (
+            starting_stage.strip().lower().startswith(("prover", "polish"))
+            or (
+                starting_stage.strip().lower().startswith("autoformalize")
+                and bool(ctx.options.formalization_review_gate)
+            )
+        )
         if (
             deterministic_enabled
             and not missing_shared_modules
             and not pending_shared_migrations
-            and starting_stage.strip().lower().startswith(
-                ("prover", "polish")
-            )
+            and deterministic_stage
         ):
             deterministic_candidates = select_deterministic_candidates(
                 project_path=ctx.project_path,
@@ -334,7 +339,7 @@ class PlanPhase(Phase):
                 log.info(
                     "Deterministic Plan selected "
                     f"{len(deterministic_candidates)} Review-safe objective(s); "
-                    "the plan agent is restricted to this bounded set."
+                    "the controller will dispatch only this bounded set."
                 )
                 if not ctx.dry_run and ctx.iter_meta is not None:
                     write_meta(ctx.iter_meta, **{
@@ -411,10 +416,24 @@ class PlanPhase(Phase):
         plan_prompt = _maybe_compress_plan_prompt(
             ctx, plan_prompt, force=bool(deterministic_candidate_pack)
         )
+        skip_retry_model_planner = bool(
+            deterministic_candidates
+            and all(
+                item.proof_status == "formalization_retry"
+                for item in deterministic_candidates
+            )
+            and not (captured_hints or "").strip()
+            and not (captured_auto_notes or "").strip()
+        )
 
         if ctx.dry_run:
             log.step("[dry-run] Plan prompt:")
             print(plan_prompt)
+        elif skip_retry_model_planner:
+            log.info(
+                "Formalization Review retry frontier is controller-owned; "
+                "skipping the redundant model planner."
+            )
         else:
             plan_log = ctx.iter_dir / "plan"
             resume_sid = pick_resume_session(

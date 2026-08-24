@@ -86,6 +86,7 @@ from ..review_preflight import check_review_target
 from ..review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
     bound_repair_task,
+    build_feedback_event,
     build_repair_task,
     render_repair_task,
 )
@@ -331,6 +332,77 @@ def _answer_submission_repair_handoff(error: str) -> dict[str, object]:
         "failed_check_ids": ["answer_submission_contract"],
         "actions": ["repair_answer_submission_contract"],
     }
+
+
+def _durable_formalization_retry_handoff(
+    record: Mapping[str, object],
+    *,
+    candidate_sha256: str,
+    expected_source_contract: Mapping[str, object] | None,
+) -> dict[str, object]:
+    """Rebuild one retry hand-off through the strict sanitizer boundary.
+
+    Gate files are mutable lifecycle state, so a persisted ``repair_handoff``
+    is never inserted into a prompt directly. The controller reconstructs it
+    from allowlisted certificate fields and candidate-bound status instead.
+    This also upgrades pre-handoff batch records without trusting free text.
+    """
+    gate_digest = str(record.get("candidate_sha256") or "").strip().lower()
+    if gate_digest != candidate_sha256:
+        return {}
+    raw_certificate = record.get("certificate")
+    certificate: Mapping[str, object] = (
+        raw_certificate if isinstance(raw_certificate, Mapping) else {}
+    )
+    raw_milestones = certificate.get("milestones")
+    if (
+        isinstance(raw_milestones, list)
+        and len(raw_milestones) == 1
+        and isinstance(raw_milestones[0], Mapping)
+    ):
+        certificate = raw_milestones[0]
+
+    reviews_value = record.get("reviews")
+    reviews = (
+        reviews_value
+        if isinstance(reviews_value, int)
+        and not isinstance(reviews_value, bool)
+        and reviews_value >= 0
+        else 0
+    )
+    iter_value = record.get("last_review_iter")
+    iteration = (
+        iter_value
+        if isinstance(iter_value, int)
+        and not isinstance(iter_value, bool)
+        and iter_value >= 0
+        else 0
+    )
+    feedback_event = build_feedback_event(
+        review_kind="formalization",
+        candidate_sha256=candidate_sha256,
+        event_id=f"durable:{iteration}:formalization:{reviews}",
+        iteration=iteration,
+        attempt=reviews,
+        resulting_status="retry",
+        certificate=certificate,
+        decision="failed",
+    )
+    raw_events = record.get("repair_events")
+    repair_events = list(raw_events) if isinstance(raw_events, list) else []
+    repair_record = {
+        **record,
+        "certificate": certificate,
+        "repair_events": [*repair_events, feedback_event][-20:],
+    }
+    return build_repair_task(
+        repair_record,
+        review_kind="formalization",
+        worker_stage="formalization",
+        candidate_sha256=candidate_sha256,
+        discard_stale_record=True,
+        expected_source_contract=expected_source_contract,
+    )
 
 
 def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
@@ -1592,6 +1664,51 @@ class ParallelProverRunner:
                             target, max(1, proof_cycles[rel]),
                         ))
                     continue
+                if formal_status == "retry" and not formal_event_cycle:
+                    # A durable retry from an earlier outer iteration is not a
+                    # fresh target. Preserve its controller-owned Review
+                    # hand-off even though this process is not resuming the
+                    # prior iteration session.
+                    next_cycle = max(
+                        formalization_cycles[rel],
+                        _pipeline_cycle(
+                            prior_formalization.get("reviews")
+                        ) + 1,
+                        1,
+                    )
+                    formalization_cycles[rel] = next_cycle
+                    if prior_formalization.get("reopened_by") == "proof_review":
+                        handoff = build_repair_task(
+                            prior_proof,
+                            review_kind="proof",
+                            worker_stage="formalization",
+                            candidate_sha256=_target_sha256(target),
+                            discard_stale_record=True,
+                        )
+                        handoff_label = "proof Review"
+                    else:
+                        current_digest = _target_sha256(target)
+                        try:
+                            expected_source_contract = (
+                                resolve_target_review_source_contract(
+                                    project_path=self.project_path,
+                                    target=target,
+                                    preflight=None,
+                                )
+                            )
+                        except ProblemOnlyReviewContractError:
+                            expected_source_contract = None
+                        handoff = _durable_formalization_retry_handoff(
+                            prior_formalization,
+                            candidate_sha256=current_digest,
+                            expected_source_contract=expected_source_contract,
+                        )
+                        handoff_label = "formalization Review"
+                    resumed_redrafts.append((
+                        target, rel, slug, next_cycle,
+                        handoff, handoff_label,
+                    ))
+                    continue
                 if (
                     self.resume_enabled
                     and formal_event_cycle
@@ -2293,6 +2410,7 @@ required action while preserving the accepted statement.
                 f"pipelineFormalizers.{slug}.status": "running",
                 f"pipelineFormalizers.{slug}.reviewAttempt": cycle,
                 f"pipelineFormalizers.{slug}.cycle": cycle,
+                f"pipelineFormalizers.{slug}.origin": "review-redraft",
             })
             cycle_label = f" (cycle {cycle})" if cycle > 1 else ""
             log.step(f"Starting immediate formalizer for {rel}{cycle_label}")

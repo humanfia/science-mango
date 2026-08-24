@@ -12,6 +12,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from archon.commands.loop.formalization_review_gate import (
+    apply_formalization_review,
     apply_target_formalization_review,
     reopen_formalization_targets,
 )
@@ -258,6 +259,7 @@ class PipelinedReviewTest(unittest.TestCase):
         formalization_review_worker=_process_formalization_review,
         formalization_max_iterations: int = 3,
         stage: str = "prover",
+        iter_num: int = 1,
     ) -> ParallelProverRunner:
         return ParallelProverRunner(
             project_name="project",
@@ -266,7 +268,7 @@ class PipelinedReviewTest(unittest.TestCase):
             stage=stage,
             iter_dir=iter_dir,
             iter_meta=iter_dir / "meta.json",
-            iter_num=1,
+            iter_num=iter_num,
             max_parallel=max_parallel,
             max_objectives=10,
             block_on_blocked_deps=False,
@@ -2804,6 +2806,155 @@ class PipelinedReviewTest(unittest.TestCase):
                 [row.get("decision") for row in report["gate_events"]
                  if row["kind"] == "formalization"],
                 ["passed"],
+            )
+
+    def test_new_iteration_formalization_retry_uses_bound_handoff(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-002"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            original = b"theorem a (h_answer : True) : True := by sorry\n"
+            target.write_bytes(original)
+            original_digest = hashlib.sha256(original).hexdigest()
+            progress = state / "PROGRESS.md"
+            progress.write_text(
+                "# Progress\n\n## Current Stage\n\nautoformalize\n\n"
+                "## Current Objectives\n\n- **`A.lean`** — retry.\n",
+                encoding="utf-8",
+            )
+            session = state / "proof-journal" / "sessions" / "session_1"
+            session.mkdir(parents=True)
+            (session / "milestones.jsonl").write_text(
+                json.dumps(_formalization_milestone("A.lean", passed=False))
+                + "\n",
+                encoding="utf-8",
+            )
+            apply_formalization_review(
+                state_dir=state,
+                project_path=root,
+                progress_file=progress,
+                session_dir=session,
+                iter_num=1,
+                reviewed_objectives=[target],
+                max_iterations=3,
+            )
+            gate_path = state / "formalization-review-gate.json"
+            legacy_gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            legacy_record = legacy_gate["targets"]["A.lean"]
+            legacy_record.pop("repair_events", None)
+            legacy_record["repair_handoff"]["expected_answer"] = "INJECTED"
+            gate_path.write_text(json.dumps(legacy_gate), encoding="utf-8")
+            prompts: list[str] = []
+            calls = {
+                "formalizer": 0,
+                "formalization_review": 0,
+                "prover": 0,
+                "proof_review": 0,
+            }
+
+            def formalizer(prompt, *_args, **_kwargs):
+                calls["formalizer"] += 1
+                prompts.append(prompt)
+                target.write_text(
+                    "theorem a : True := by trivial\n", encoding="utf-8",
+                )
+                (state / "task_results" / "A.lean.md").write_text(
+                    "# Review redraft\n\nRemoved the answer-shaped premise.\n",
+                    encoding="utf-8",
+                )
+                return True
+
+            def formalization_review(spec, **_kwargs):
+                calls["formalization_review"] += 1
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_formalization_milestone(spec.rel),
+                )
+
+            def prover(*_args, **_kwargs):
+                calls["prover"] += 1
+                return True
+
+            def proof_review(spec, **_kwargs):
+                calls["proof_review"] += 1
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=prover,
+                review_worker=proof_review,
+                formalizer_worker=formalizer,
+                formalization_review_worker=formalization_review,
+                max_parallel=1,
+                resume_enabled=False,
+                full_pipeline=True,
+                stage="autoformalize",
+                iter_num=2,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="fresh base prompt",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(calls["formalizer"], 1)
+            self.assertEqual(calls["formalization_review"], 1)
+            self.assertEqual(calls["proof_review"], 1)
+            self.assertEqual(len(prompts), 1)
+            prompt = prompts[0]
+            self.assertIn(
+                "Immediate formalization Review redraft hand-off", prompt,
+            )
+            self.assertIn("controller-sanitized repair task", prompt)
+            self.assertIn("controller_sanitized_review_repair", prompt)
+            self.assertIn("source_faithfulness", prompt)
+            self.assertIn(original_digest, prompt)
+            self.assertNotIn("INJECTED", prompt)
+            self.assertNotIn("expected_answer", prompt)
+            self.assertIn(
+                "PROGRESS.md, gate files, AUTO_NOTES.md, blueprint files",
+                prompt,
+            )
+            meta = json.loads(
+                (iter_dir / "meta.json").read_text(encoding="utf-8")
+            )
+            formalizer_meta = meta["pipelineFormalizers"]["A"]
+            self.assertEqual(formalizer_meta["origin"], "review-redraft")
+            self.assertEqual(formalizer_meta["cycle"], 2)
+            gate = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8",
+                )
+            )["targets"]["A.lean"]
+            self.assertEqual(
+                [event["event_id"] for event in gate["review_events"]],
+                ["pipeline:2:A.lean:formalization:2"],
+            )
+            self.assertEqual(
+                [event["event_id"] for event in gate["repair_events"]],
+                ["pipeline:2:A.lean:formalization:2"],
             )
 
     def test_resume_replays_durable_needs_redraft_before_model_dispatch(self):
