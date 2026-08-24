@@ -388,6 +388,75 @@ class NativeSemanticReviewTests(unittest.TestCase):
         self.assertIn("field role is forbidden", instructions)
         self.assertIn("any other extra field", instructions)
 
+    def test_blueprint_conflict_schema_feedback_is_full_and_schema_only(self):
+        required_keys = [
+            "blueprint_or_lean_claim",
+            "evidence",
+            "source_claim",
+            "status",
+        ]
+        allowed_statuses = [
+            "failed",
+            "resolved_in_favor_of_problem_source",
+            "unresolved",
+        ]
+        cases = (
+            (
+                "blueprint conflict 1 is not an object",
+                "wrong_type",
+                None,
+            ),
+            (
+                "blueprint conflict 2 is missing source_claim",
+                "missing_required_keys",
+                "source_claim",
+            ),
+            (
+                "blueprint conflict 3 is missing blueprint_or_lean_claim",
+                "missing_required_keys",
+                "blueprint_or_lean_claim",
+            ),
+            (
+                "blueprint conflict 4 has invalid status",
+                "unsupported_enum",
+                None,
+            ),
+        )
+        for error, issue, missing_key in cases:
+            with self.subTest(error=error):
+                feedback = build_native_schema_feedback(error)
+                self.assertIsInstance(feedback, dict)
+                self.assertEqual(feedback["issue"], issue)
+                self.assertEqual(feedback["required_exact_keys"], required_keys)
+                self.assertEqual(
+                    feedback["enum_constraints"]["status"],
+                    allowed_statuses,
+                )
+                if missing_key is None:
+                    self.assertNotIn("missing_required_key", feedback)
+                else:
+                    self.assertEqual(
+                        feedback["missing_required_key"], missing_key,
+                    )
+
+        list_feedback = build_native_schema_feedback(
+            "blueprint_conflicts must be a list"
+        )
+        self.assertEqual(
+            list_feedback["item_contract"]["required_exact_keys"],
+            required_keys,
+        )
+        self.assertEqual(
+            list_feedback["item_contract"]["enum_constraints"]["status"],
+            allowed_statuses,
+        )
+        for unsafe_error in (
+            "blueprint conflict 1 is missing EXPECTED_ANSWER_SENTINEL",
+            "blueprint conflict 1000 is missing source_claim",
+            "blueprint conflict 1 copies RAW_CLAIM_SENTINEL",
+        ):
+            self.assertIsNone(build_native_schema_feedback(unsafe_error))
+
     def test_feedback_registry_covers_all_controller_owned_nested_shapes(self) -> None:
         shape_cases = (
             ("independent_rederivation", "method"),

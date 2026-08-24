@@ -66,6 +66,20 @@ _OUTPUT_FIELDS = {
     "lean_carriers", "semantic_card_comparison",
     "lean_statement_comparison", "source_locators", "evidence",
 }
+_BLUEPRINT_CONFLICT_FIELDS = {
+    "source_claim", "blueprint_or_lean_claim", "status", "evidence",
+}
+_BLUEPRINT_CONFLICT_STATUSES = {
+    "resolved_in_favor_of_problem_source", "unresolved", "failed",
+}
+_BLUEPRINT_CONFLICT_ERROR_RE = re.compile(
+    r"blueprint conflict (?P<index>[1-9][0-9]{0,2}) "
+    r"(?:"
+    r"(?P<wrong_type>is not an object)"
+    r"|is missing (?P<missing>source_claim|blueprint_or_lean_claim|status|evidence)"
+    r"|(?P<invalid_status>has invalid status)"
+    r")"
+)
 _LOCATOR_FIELDS = {"kind", "reference"}
 _PROCESS_SCOPE_FIELDS = {"kind", "description"}
 _CONSTANT_FIELDS = {"name", "value", "unit", "source_locator"}
@@ -1516,6 +1530,47 @@ def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
     text, answer-shaped values, locator values, and prior derivations cannot be
     reflected into a later model prompt.
     """
+    if error == "blueprint_conflicts must be a list":
+        return {
+            "error_kind": "schema_validation",
+            "issue": "wrong_type",
+            "field_path": "blueprint_conflicts",
+            "expected_type": "list",
+            "item_contract": {
+                "expected_type": "object",
+                "required_exact_keys": sorted(_BLUEPRINT_CONFLICT_FIELDS),
+                "enum_constraints": {
+                    "status": sorted(_BLUEPRINT_CONFLICT_STATUSES),
+                },
+            },
+        }
+
+    blueprint_match = _BLUEPRINT_CONFLICT_ERROR_RE.fullmatch(error)
+    if blueprint_match is not None:
+        if blueprint_match.group("wrong_type") is not None:
+            issue = "wrong_type"
+        elif blueprint_match.group("missing") is not None:
+            issue = "missing_required_keys"
+        else:
+            issue = "unsupported_enum"
+        feedback: dict[str, Any] = {
+            "error_kind": "schema_validation",
+            "issue": issue,
+            "field_path": (
+                "blueprint_conflicts["
+                f"{int(blueprint_match.group('index')) - 1}]"
+            ),
+            "expected_type": "object",
+            "required_exact_keys": sorted(_BLUEPRINT_CONFLICT_FIELDS),
+            "enum_constraints": {
+                "status": sorted(_BLUEPRINT_CONFLICT_STATUSES),
+            },
+        }
+        missing = blueprint_match.group("missing")
+        if missing is not None:
+            feedback["missing_required_key"] = missing
+        return feedback
+
     invalid_fields_suffix = " has invalid fields: "
     if invalid_fields_suffix in error:
         path, _separator, detail = error.partition(invalid_fields_suffix)

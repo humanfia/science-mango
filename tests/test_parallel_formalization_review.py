@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest import mock
 
 from archon.commands.loop.answer_submission import answer_submission_path
 import archon.commands.loop.parallel_formalization_review as parallel_formalization_review
@@ -484,6 +485,25 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             ):
                 self.assertIn(marker, normalized_chemistry)
 
+            blueprint_schema = next(
+                line.strip() for line in prompt.splitlines()
+                if '"blueprint_conflicts"' in line
+            )
+            self.assertIn(
+                '"blueprint_conflicts": [{"source_claim":"...",'
+                '"blueprint_or_lean_claim":"...","status":'
+                '"resolved_in_favor_of_problem_source|unresolved|failed",'
+                '"evidence":"..."}]',
+                blueprint_schema,
+            )
+            for alias in ("carrier", "claim", "conflict", "lean_claim"):
+                self.assertNotIn(f'"{alias}"', blueprint_schema)
+            self.assertIn(
+                "`blueprint_conflicts` may be `[]` only when there is no "
+                "source conflict",
+                prompt,
+            )
+
     def test_native_target_worker_certificate_uses_semantic_validator(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -618,6 +638,109 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 self.assertNotIn("OFFICIAL_ANSWER_SENTINEL", feedback)
                 self.assertNotIn("PRIOR_DERIVATION_SENTINEL", feedback)
                 self.assertNotIn("TRANSPORT_TEXT_MUST_NOT_BE_FEEDBACK", feedback)
+
+    def test_blueprint_conflict_retry_feedback_projects_full_schema_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target, contract = _native_project(root)
+            rel = target.relative_to(root).as_posix()
+            state = root / ".archon"
+            iter_dir = state / "logs/iter-012"
+            iter_dir.mkdir(parents=True)
+            prompts: list[str] = []
+            rejected = {
+                "formalization_review": {
+                    "blueprint_conflicts": [{
+                        "carrier": "RAW_CARRIER_SENTINEL",
+                        "claim": (
+                            "RAW_CLAIM_SENTINEL "
+                            "https://attacker.invalid/answer"
+                        ),
+                        "evidence": "EXPECTED_ANSWER_SENTINEL",
+                    }],
+                },
+            }
+
+            def forbidden_executor(**_kwargs):
+                self.fail("single-target Review must not instantiate an executor")
+
+            def schema_then_success(spec, **_kwargs):
+                prompts.append(spec.prompt)
+                if spec.attempt == 1:
+                    output_dir = Path(spec.output_dir)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "milestones.jsonl").write_text(
+                        json.dumps(rejected) + "\n",
+                        encoding="utf-8",
+                    )
+                    return TargetReviewOutcome(
+                        rel=spec.rel,
+                        attempt=spec.attempt,
+                        runner_ok=True,
+                        milestone=None,
+                        error="RAW_TRANSPORT_SENTINEL",
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_native_milestone(spec.rel, contract),
+                )
+
+            with mock.patch.object(
+                parallel_formalization_review,
+                "load_target_formalization_milestone",
+                return_value=(
+                    None,
+                    "blueprint conflict 1 is missing source_claim",
+                ),
+            ):
+                report = run_parallel_formalization_reviews(
+                    project_path=root,
+                    state_dir=state,
+                    iter_dir=iter_dir,
+                    iter_num=12,
+                    objectives=[target],
+                    preflight={"targets": [_native_preflight(root, rel)]},
+                    prior_gate_targets={},
+                    requested_jobs=4,
+                    max_attempts=2,
+                    backoff_sec=0,
+                    verbose_logs=False,
+                    model=None,
+                    backend=None,
+                    harness=None,
+                    worker_fn=schema_then_success,
+                    executor_factory=forbidden_executor,
+                    sleep_fn=lambda _seconds: None,
+                )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(len(prompts), 2)
+            feedback = prompts[1].partition(
+                "CONTROLLER STRUCTURAL SCHEMA FEEDBACK"
+            )[2]
+            payload = json.loads(next(
+                line for line in feedback.splitlines()
+                if line.startswith("{")
+            ))
+            item = payload["feedback_history"][0]
+            self.assertEqual(
+                item["required_exact_keys"],
+                ["blueprint_or_lean_claim", "evidence", "source_claim", "status"],
+            )
+            self.assertEqual(
+                item["enum_constraints"]["status"],
+                ["failed", "resolved_in_favor_of_problem_source", "unresolved"],
+            )
+            for sentinel in (
+                "RAW_CARRIER_SENTINEL",
+                "RAW_CLAIM_SENTINEL",
+                "EXPECTED_ANSWER_SENTINEL",
+                "RAW_TRANSPORT_SENTINEL",
+                "attacker.invalid",
+            ):
+                self.assertNotIn(sentinel, feedback)
 
     def test_schema_feedback_accumulates_attempt_three_but_transport_cannot_create_it(self):
         with tempfile.TemporaryDirectory() as td:

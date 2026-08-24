@@ -576,7 +576,7 @@ Write exactly one JSON object line to {milestone}:
       "bridge_completeness": {{"status":"passed|failed","evidence":"..."}}
     }},
     "requested_outputs": [{{"output_id":"<exact requested_outputs id>","source_requirement":"<exact requested output>","submission_status":"matched|failed","reporting_policy_status":"matched|failed","lean_carrier":"<declaration or missing>","status":"covered|blocked","evidence":"<audit result without copying the answer value>"}}],
-    "blueprint_conflicts": [],
+    "blueprint_conflicts": [{{"source_claim":"...","blueprint_or_lean_claim":"...","status":"resolved_in_favor_of_problem_source|unresolved|failed","evidence":"..."}}],
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
       "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
@@ -594,6 +594,11 @@ Write exactly one JSON object line to {milestone}:
   "session": {{"id": "session_{iter_num}", "model": "parallel-formalization-review"}},
   "next_steps": "<empty iff passed; exact redraft otherwise>"
 }}
+
+`blueprint_conflicts` may be `[]` only when there is no source conflict. Every
+nonempty item must be an object with exactly `source_claim`,
+`blueprint_or_lean_claim`, `status`, and `evidence`; do not use aliases such as
+`carrier`, `claim`, `conflict`, or `lean_claim`.
 
 Use top-level status=solved only with formalization_review.status=passed;
 otherwise use status=blocked. A failed verdict must identify at least one failed
