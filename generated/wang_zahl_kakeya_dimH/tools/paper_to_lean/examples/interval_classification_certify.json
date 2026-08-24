@@ -1,0 +1,43 @@
+{
+  "source": {
+    "path": "source_fixture.tex",
+    "start_regex": "^BEGIN_INTERVAL_CLASSIFICATION$",
+    "end_regex": "^END_INTERVAL_CLASSIFICATION$",
+    "locator": "local extraction smoke fixture",
+    "expected_sha256": "b2fa47923045ea8fa705a181ba632683605fddbc6b32081000a931c15dbcd9c7"
+  },
+  "model": {
+    "name": "orderedIntervals_classification_safe",
+    "namespace": "PaperToLeanIntervalClassificationSafe",
+    "variables": ["a", "b", "c", "d"],
+    "constraints": [
+      {"op": "lt", "args": ["a", "b"]},
+      {"op": "lt", "args": ["c", "d"]}
+    ],
+    "claim": {
+      "op": "or",
+      "args": [
+        {"op": "le", "args": ["b", "c"]},
+        {"op": "le", "args": ["d", "a"]},
+        {"op": "and", "args": [
+          {"op": "lt", "args": ["a", "c"]},
+          {"op": "lt", "args": ["c", "b"]},
+          {"op": "lt", "args": ["b", "d"]}
+        ]},
+        {"op": "and", "args": [
+          {"op": "lt", "args": ["c", "a"]},
+          {"op": "lt", "args": ["a", "d"]},
+          {"op": "lt", "args": ["d", "b"]}
+        ]},
+        {"op": "and", "args": [
+          {"op": "le", "args": ["a", "c"]},
+          {"op": "le", "args": ["d", "b"]}
+        ]},
+        {"op": "and", "args": [
+          {"op": "le", "args": ["c", "a"]},
+          {"op": "le", "args": ["b", "d"]}
+        ]}
+      ]
+    }
+  }
+}
