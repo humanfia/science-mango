@@ -744,6 +744,7 @@ _SEALED_WORKSPACE_PATHS = (
     "reports/icho_2026",
     "lakefile.toml",
     "lake-manifest.json",
+    ".lake/package-overrides.json",
     "lean-toolchain",
     "archon-protected.yaml",
     "IChO2026Chem.lean",

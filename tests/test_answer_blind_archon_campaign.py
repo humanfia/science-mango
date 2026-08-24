@@ -497,6 +497,75 @@ class NativeArchonCampaignTests(unittest.TestCase):
                     RUNNER._run(["archon", "--help"], config=config)
                 run.assert_not_called()
 
+    def test_crnt_metadata_probe_uses_pipe_eof(self) -> None:
+        checkout = self.packages / "crnt-lean"
+        with mock.patch.object(RUNNER.subprocess, "run") as run:
+            run.return_value = SimpleNamespace(stdout="pinned-value\n")
+            value = RUNNER._crnt_git_value(checkout, "rev-parse", "HEAD")
+
+        self.assertEqual(value, "pinned-value")
+        self.assertIs(run.call_args.kwargs["stdin"], subprocess.PIPE)
+        self.assertTrue(run.call_args.kwargs["check"])
+        self.assertEqual(
+            run.call_args.kwargs["env"]["GIT_CONFIG_GLOBAL"],
+            str(checkout / ".git/config"),
+        )
+        self.assertEqual(
+            run.call_args.args[0][-2:],
+            ["rev-parse", "HEAD"],
+        )
+
+    def test_reused_packages_get_exact_local_path_overrides(self) -> None:
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "reused-packages",
+            reuse_lake_packages=True,
+        )
+        validate_patch, copy_patch, configure_patch = self._prepare_patches()
+        with validate_patch, copy_patch, configure_patch:
+            config, ids = RUNNER._fresh_config(config)
+            RUNNER.prepare_workspace(config, ids)
+
+        override_path = config.workspace / RUNNER.PACKAGE_OVERRIDES_REL
+        self.assertFalse(override_path.is_symlink())
+        self.assertEqual(
+            json.loads(override_path.read_text(encoding="utf-8")),
+            {
+                "schemaVersion": "1.2.0",
+                "packages": [{
+                    "dir": ".lake/packages/crnt-lean",
+                    "inherited": False,
+                    "name": "crnt-lean",
+                    "scope": "",
+                    "type": "path",
+                }],
+            },
+        )
+        self.assertEqual(
+            (config.workspace / ".lake/packages").resolve(),
+            self.packages.resolve(),
+        )
+
+    def test_reused_package_overrides_fail_closed_on_snapshot_drift(self) -> None:
+        (self.packages / "unlisted-package").mkdir()
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "drifted-packages",
+            reuse_lake_packages=True,
+        )
+        validate_patch, copy_patch, configure_patch = self._prepare_patches()
+        with (
+            validate_patch,
+            copy_patch,
+            configure_patch,
+            self.assertRaisesRegex(
+                RUNNER.CampaignError,
+                "snapshot does not exactly match the manifest",
+            ),
+        ):
+            config, ids = RUNNER._fresh_config(config)
+            RUNNER.prepare_workspace(config, ids)
+
     def test_prepare_uses_shared_helpers_and_patches_native_codex(self) -> None:
         with self._prepare_patches()[0] as validate, self._prepare_patches()[1] as copy, self._prepare_patches()[2] as configure:
             config, ids = RUNNER._fresh_config(self.config)
@@ -549,6 +618,9 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertEqual(
             (workspace / ".lake/packages").resolve(),
             config.private_lake_packages,
+        )
+        self.assertFalse(
+            (workspace / RUNNER.PACKAGE_OVERRIDES_REL).exists(),
         )
         self.assertTrue(config.private_lake_packages.is_dir())
         crnt_index = json.loads(

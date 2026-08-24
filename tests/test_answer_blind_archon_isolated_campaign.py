@@ -105,6 +105,10 @@ class IsolatedCampaignTests(unittest.TestCase):
         self.assertTrue(native.reuse_lake_packages)
         self.assertTrue(native.in_place_index)
         command = RUNNER.NATIVE.loop_command(native, resume=False)
+        self.assertIn(
+            ".lake/package-overrides.json",
+            RUNNER._SEALED_WORKSPACE_PATHS,
+        )
         self.assertEqual(command[command.index("--max-parallel") + 1], "1")
         self.assertEqual(command[command.index("--max-objectives") + 1], "1")
 
@@ -164,15 +168,24 @@ class IsolatedCampaignTests(unittest.TestCase):
         runtime.mkdir()
         allowed_file = self.base / "ld.so"
         allowed_file.write_text("loader", encoding="utf-8")
-        with mock.patch.object(
-            RUNNER.ITERATION,
-            "_system_readonly_inventory",
-            return_value=((allowed_file,), {str(allowed_file): "0" * 64}),
+        with (
+            mock.patch.object(
+                RUNNER.ITERATION,
+                "_system_readonly_inventory",
+                return_value=((allowed_file,), {str(allowed_file): "0" * 64}),
+            ),
+            mock.patch.object(
+                RUNNER, "_system_read_write_paths",
+                return_value=(Path("/dev/null"),),
+            ),
         ):
             paths = RUNNER._system_read_paths(runtime)
         self.assertIn(allowed_file, paths)
         self.assertNotIn(Path("/dev/null"), paths)
-        self.assertEqual(RUNNER._system_read_write_paths(), (Path("/dev/null"),))
+        self.assertEqual(
+            RUNNER._LANDLOCK_READ_WRITE_DEVICE_FILES,
+            ("/dev/null",),
+        )
         for raw in ("/dev/zero", "/dev/random", "/dev/urandom"):
             if Path(raw).exists():
                 self.assertIn(Path(raw).resolve(strict=True), paths)
@@ -697,10 +710,13 @@ class RealLandlockIsolationTests(unittest.TestCase):
                 [str(runtime_git), "rev-parse", "HEAD"], cwd=checkout, text=True,
             ).strip()
             (peer / "value").write_text("peer", encoding="utf-8")
+            try:
+                read_write = RUNNER._system_read_write_paths()
+            except RUNNER.CampaignError as exc:
+                self.skipTest(f"host has no safe writable /dev/null: {exc}")
             read_only = (
                 runtime, checkout, *RUNNER._system_read_paths(runtime),
             )
-            read_write = RUNNER._system_read_write_paths()
 
             for path in sorted(root.rglob("*"), key=lambda item: len(item.parts), reverse=True):
                 if path.is_symlink():

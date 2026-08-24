@@ -293,7 +293,7 @@ class ParallelSweepTest(unittest.TestCase):
                 self.assertNotEqual(probe.resolve(), source.resolve())
                 self.assertEqual(probe.read_text(), original)
                 self.assertTrue(probe.stat().st_mode & 0o200)
-                self.assertIs(_kwargs.get("stdin"), subprocess.DEVNULL)
+                self.assertIs(_kwargs.get("stdin"), subprocess.PIPE)
                 probe.write_text("mutated disposable probe\n")
                 return SimpleNamespace(
                     returncode=0,

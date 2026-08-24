@@ -50,6 +50,7 @@ CHEMISTRY_MARKER = "% archon:chemistry"
 LEAN_SEARCH_PACKAGES = ("Mathlib", "Physlib", "CRNT")
 CRNT_PACKAGE_REL = Path("crnt-lean")
 CRNT_INDEX_REL = Path(".archon/lean-explore/project-index.json")
+PACKAGE_OVERRIDES_REL = Path(".lake/package-overrides.json")
 
 NATIVE_AGENTS = """# Answer-Blind Native Archon Instructions
 
@@ -836,14 +837,22 @@ def _crnt_manifest_pin(config: Config) -> tuple[str, str]:
 
 
 def _crnt_git_value(root: Path, *arguments: str) -> str:
+    controller_config = root / ".git/config"
+    if controller_config.is_symlink() or not controller_config.is_file():
+        raise CampaignError("private CRNT checkout metadata is invalid")
     environment = os.environ.copy()
     environment["GIT_CONFIG_NOSYSTEM"] = "1"
-    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    # Do not use /dev/null as the empty global config sentinel. Git may open it
+    # read-write while sanitizing standard descriptors, which is unavailable
+    # in a read-only sealed runtime. Reusing the exact controller-owned checkout
+    # config is deterministic; Git also loads it normally as the local config.
+    environment["GIT_CONFIG_GLOBAL"] = str(controller_config)
     try:
         result = subprocess.run(
             ["git", "-c", f"safe.directory={root}", *arguments],
             cwd=root,
             env=environment,
+            stdin=subprocess.PIPE,
             check=True,
             capture_output=True,
             text=True,
@@ -1085,6 +1094,101 @@ def _write_all(workspace: Path, ids: Sequence[str]) -> None:
     path.write_text("".join(f"import {item}\n" for item in imports))
 
 
+def _shared_package_path_overrides(config: Config) -> list[dict[str, Any]]:
+    """Map a sealed shared Lake snapshot to local, read-only dependencies.
+
+    Lake probes Git metadata while loading a Git manifest, even when every
+    pinned revision is already present. An isolated solver must not be able to
+    refresh or delete the controller-owned dependency snapshot. Path
+    overrides make that contract explicit: Lake may read the exact manifest
+    package directories, but it never treats them as mutable Git checkouts.
+    """
+    try:
+        manifest = json.loads(
+            (config.workspace / "lake-manifest.json").read_text(encoding="utf-8")
+        )
+        packages = manifest["packages"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise CampaignError("workspace lake-manifest.json is invalid") from exc
+    if not isinstance(manifest, dict) or not isinstance(packages, list) or not packages:
+        raise CampaignError("workspace lake-manifest.json has no packages")
+    packages_dir = manifest.get("packagesDir", ".lake/packages")
+    if packages_dir != ".lake/packages":
+        raise CampaignError("workspace Lake package directory is not canonical")
+
+    root = config.private_lake_packages
+    if root.is_symlink() or not root.is_dir():
+        raise CampaignError("shared Lake package root must be a plain directory")
+    entries: list[tuple[str, dict[str, Any]]] = []
+    expected_names: set[str] = set()
+    for row in packages:
+        if not isinstance(row, dict) or row.get("type") != "git":
+            raise CampaignError("shared Lake manifest must contain only Git packages")
+        encoded_name = row.get("name")
+        if not isinstance(encoded_name, str):
+            raise CampaignError("shared Lake manifest has an invalid package name")
+        name = encoded_name.strip()
+        if name.startswith("«") and name.endswith("»"):
+            name = name[1:-1]
+        if (
+            not name
+            or name in {".", ".."}
+            or Path(name).name != name
+            or "/" in name
+            or "\\" in name
+            or name in expected_names
+        ):
+            raise CampaignError("shared Lake manifest has an unsafe package name")
+        package = root / name
+        if package.is_symlink() or not package.is_dir():
+            raise CampaignError(f"shared Lake package is missing or unsafe: {package}")
+        expected_names.add(name)
+        override: dict[str, Any] = {
+            "name": encoded_name,
+            "scope": str(row.get("scope") or ""),
+            "type": "path",
+            "dir": f".lake/packages/{name}",
+            "inherited": bool(row.get("inherited", False)),
+        }
+        for field in ("configFile", "manifestFile"):
+            if field in row:
+                override[field] = row[field]
+        entries.append((name, override))
+
+    try:
+        actual_names = {
+            path.name
+            for path in root.iterdir()
+            if not path.name.startswith(".")
+        }
+    except OSError as exc:
+        raise CampaignError("cannot enumerate shared Lake package root") from exc
+    if actual_names != expected_names:
+        raise CampaignError(
+            "shared Lake package snapshot does not exactly match the manifest"
+        )
+    return [entry for _name, entry in sorted(entries)]
+
+
+def _write_shared_package_path_overrides(config: Config) -> None:
+    path = config.workspace / PACKAGE_OVERRIDES_REL
+    if path.exists() or path.is_symlink():
+        raise CampaignError("workspace carries a pre-existing Lake package override")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "1.2.0",
+                "packages": _shared_package_path_overrides(config),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            indent=2,
+        ) + "\n",
+        encoding="utf-8",
+    )
+
+
 def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     assert config.seed_workspace is not None and config.lake_packages is not None
     config.campaign_root.mkdir(parents=True, exist_ok=True)
@@ -1134,6 +1238,8 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     link = config.workspace / ".lake/packages"
     link.parent.mkdir(parents=True, exist_ok=True)
     link.symlink_to(config.private_lake_packages, target_is_directory=True)
+    if config.reuse_lake_packages:
+        _write_shared_package_path_overrides(config)
     _write_all(config.workspace, ids)
     _build_crnt_project_index(config)
 

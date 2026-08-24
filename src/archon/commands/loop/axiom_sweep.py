@@ -161,7 +161,12 @@ def _run_isolated_axiom_check(
             result = subprocess.run(
                 ["bash", str(script), str(probe), "--report-only"],
                 cwd=project_path,
-                stdin=subprocess.DEVNULL,
+                # `subprocess.DEVNULL` opens `/dev/null` read-write even
+                # though this checker only needs EOF. Some sealed runtimes
+                # deliberately expose the device read-only. A private pipe
+                # provides the same immediate EOF without widening the
+                # filesystem allowlist.
+                stdin=subprocess.PIPE,
                 capture_output=True,
                 text=True,
                 timeout=timeout_s,
