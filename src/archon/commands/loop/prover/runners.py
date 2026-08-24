@@ -137,6 +137,7 @@ class _ImmediateRedraftPromptError(ValueError):
 
 
 _MAX_SEALED_MODE_BYTES = 32 * 1024
+MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES = 128 * 1024
 
 
 def _sealed_mode_reference(
@@ -563,15 +564,25 @@ assigned Lean file compiles and the redraft evidence is durable on disk.
         len(prompt_prefix.encode("utf-8"))
         + len(prompt_suffix.encode("utf-8"))
     )
+    available_task_bytes = (
+        MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES - prompt_overhead
+    )
+    if available_task_bytes < 2:
+        raise _ImmediateRedraftPromptError(
+            "immediate redraft fixed prompt exceeds 128 KiB"
+        )
     task = bound_repair_task(
         review_certificate,
-        maximum_bytes=MAX_REPAIR_TASK_PROMPT_BYTES - prompt_overhead,
+        maximum_bytes=min(
+            MAX_REPAIR_TASK_PROMPT_BYTES,
+            available_task_bytes,
+        ),
     )
     _validate_complete_repair_projection(review_certificate, task)
     prompt = prompt_prefix + render_repair_task(task) + prompt_suffix
-    if len(prompt.encode("utf-8")) > MAX_REPAIR_TASK_PROMPT_BYTES:
+    if len(prompt.encode("utf-8")) > MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES:
         raise _ImmediateRedraftPromptError(
-            "immediate redraft prompt exceeds 24 KiB"
+            "immediate redraft prompt exceeds 128 KiB"
         )
     return prompt
 

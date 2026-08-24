@@ -12,14 +12,17 @@ from archon.commands.loop.problem_only_review_contract import (
     render_native_formalizer_semantic_dag_prompt,
 )
 from archon.commands.loop.prover.runners import (
+    MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES,
     _ImmediateRedraftPromptError,
     _native_formalizer_semantic_dag_block,
     _sealed_mode_reference,
     build_immediate_redraft_prompt,
 )
 from archon.commands.loop.review_feedback import (
+    MAX_REPAIR_TASK_PROMPT_BYTES,
     build_feedback_event,
     build_repair_task,
+    render_repair_task,
 )
 from archon.commands.loop.semantic_dag import (
     SemanticDagError,
@@ -78,6 +81,129 @@ def _source_bound_repair_task(
             "repair_actions": [] if truncated else [action],
         },
     }
+
+
+def _a6_cycle_three_repair_task() -> dict:
+    """Reproduce the accepted 8,700-byte A6 cycle-three hand-off shape."""
+    digest = "a" * 64
+    failed_check_ids = [
+        "blind_source_audit.candidate_domain_provenance",
+        "blind_source_audit.raw_derivation",
+        "blind_source_audit.tolerance_provenance",
+        "bridge_obligations[10]",
+        "bridge_obligations[12]",
+        "bridge_obligations[13]",
+        "bridge_obligations[15]",
+        "bridge_obligations[16]",
+        "bridge_obligations[2]",
+        "bridge_obligations[3]",
+        "bridge_obligations[5]",
+        "bridge_obligations[7]",
+        "bridge_obligations[8]",
+        "checks.abstraction_sufficiency",
+        "checks.countermodel_resistance",
+        "checks.derivability",
+        "checks.source_faithfulness",
+        "checks.uncertainty_propagation",
+        "chemistry_checks.answer_smuggling",
+        "chemistry_checks.chemical_semantics",
+        "chemistry_checks.conservation_laws",
+        "chemistry_checks.identification_uniqueness",
+        "chemistry_checks.structure_stereochemistry",
+        "contract_audit.bridge_completeness",
+        "contract_audit.hypothesis_derivability",
+        "contract_audit.statement_scope",
+        "requested_outputs[0]",
+        "requested_outputs[1]",
+    ]
+    bridge_indices = [2, 3, 5, 7, 8, 10, 12, 13, 15, 16]
+    repair_actions = [
+        {
+            "check_id": f"bridge_obligations[{index}]",
+            "source_claim": (
+                f"Source-ground the complete chemistry bridge {index}; "
+                + "c" * 64
+            ),
+            "current_carrier": (
+                f"current_answer_blind_carrier_{index}_" + "k" * 36
+            ),
+            "evidence": (
+                f"Independent source audit blocker {index}: " + "e" * 150
+            ),
+        }
+        for index in bridge_indices
+    ]
+    task = {
+        "schema_version": 1,
+        "kind": "controller_sanitized_review_repair",
+        "review_kind": "formalization",
+        "worker_stage": "formalization",
+        "candidate_sha256": digest,
+        "reason_codes": [
+            "failed_structured_checks",
+            "failed_source_bound_bridges",
+        ],
+        "failed_check_ids": failed_check_ids,
+        "required_actions": [
+            "repair_the_statement_or_model_then_revalidate",
+        ],
+        "preflight": {
+            "status": "passed",
+            "compiles": True,
+            "returncode": 0,
+            "sorry_count": 17,
+            "duration_bucket": "under_60s",
+        },
+        "history": {
+            "schema_version": 1,
+            "review_kind": "formalization",
+            "current_status": "retry",
+            "reviews": 2,
+            "events": [{
+                "schema_version": 1,
+                "review_kind": "formalization",
+                "candidate_sha256": digest,
+                "iteration": 1,
+                "attempt": 2,
+                "decision": "failed",
+                "resulting_status": "retry",
+                "failed_check_ids": failed_check_ids,
+                "preflight": {
+                    "status": "passed",
+                    "compiles": True,
+                    "returncode": 0,
+                    "sorry_count": 17,
+                },
+            }],
+        },
+        "source_bound_review": {
+            "certificate_sha256": "b" * 64,
+            "source_contract_sha256": "c" * 64,
+            "source_binding": {
+                "candidate_sha256": digest,
+                "source_bundle_sha256": "1" * 64,
+                "source_record_sha256": "2" * 64,
+                "answer_submission_sha256": "3" * 64,
+                "question_sha256": "4" * 64,
+                "requested_outputs_sha256": "5" * 64,
+            },
+            "reason": "r" * 455,
+            "repair_action_projection": {
+                "bridge_obligations_count": 17,
+                "failed_bridge_count": 10,
+                "retained_count": 10,
+                "truncated": False,
+                "bridge_obligations_sha256": "d" * 64,
+            },
+            "repair_actions": repair_actions,
+        },
+    }
+    padding = 8_700 - len(render_repair_task(task).encode("utf-8"))
+    if padding < 0:
+        raise AssertionError("cycle-three fixture exceeded its observed size")
+    repair_actions[-1]["evidence"] += "p" * padding
+    assert len(render_repair_task(task).encode("utf-8")) == 8_700
+    return task
 
 
 class SemanticDagTest(unittest.TestCase):
@@ -605,7 +731,7 @@ class SemanticDagTest(unittest.TestCase):
                 handoff_label="formalization Review",
             )
 
-        self.assertLessEqual(len(prompt.encode("utf-8")), 24 * 1024)
+        self.assertLessEqual(len(prompt.encode("utf-8")), MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES)
         self.assertIn(
             "/project/.archon/prover-modes/chemistry-formalize.md", prompt,
         )
@@ -624,6 +750,70 @@ class SemanticDagTest(unittest.TestCase):
             self.assertIn(f'"check_id":"bridge_obligations[{index}]"', prompt)
         self.assertNotIn("controller_audit_padding", prompt)
         self.assertNotIn(".archon/prompts/prover-autoformalize.md", prompt)
+
+    def test_immediate_redraft_prompt_keeps_a6_cycle_three_feedback(
+        self,
+    ) -> None:
+        repair_task = _a6_cycle_three_repair_task()
+        self.assertEqual(MAX_REPAIR_TASK_PROMPT_BYTES, 24 * 1024)
+        self.assertEqual(MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES, 128 * 1024)
+        rendered_task = render_repair_task(repair_task)
+        self.assertEqual(len(rendered_task.encode("utf-8")), 8_700)
+        self.assertLess(
+            len(rendered_task.encode("utf-8")),
+            MAX_REPAIR_TASK_PROMPT_BYTES,
+        )
+
+        with (
+            patch(
+                "archon.commands.loop.prover.runners."
+                "select_prover_mode_for_target",
+                return_value="chemistry-formalize",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners._sealed_mode_reference",
+                return_value="SEALED MODE REFERENCE",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_parallel_prover_prompt",
+                return_value="B" * 2_200,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "_native_formalizer_semantic_dag_block",
+                return_value="S" * 12_095,
+            ),
+        ):
+            prompt = build_immediate_redraft_prompt(
+                project_name="project",
+                project_path=Path("/project"),
+                state_dir=Path("/project/.archon"),
+                iter_num=1,
+                target=Path("/project/Problem.lean"),
+                review_certificate=repair_task,
+                debug_feedback=False,
+                handoff_label="formalization Review",
+            )
+
+        prompt_bytes = len(prompt.encode("utf-8"))
+        self.assertGreater(prompt_bytes, MAX_REPAIR_TASK_PROMPT_BYTES)
+        self.assertLess(prompt_bytes, MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES)
+        source_review = repair_task["source_bound_review"]
+        projection = source_review["repair_action_projection"]
+        self.assertEqual(projection["failed_bridge_count"], 10)
+        self.assertEqual(projection["retained_count"], 10)
+        self.assertFalse(projection["truncated"])
+        self.assertEqual(len(source_review["repair_actions"]), 10)
+        self.assertIn('"attempt":2', prompt)
+        self.assertIn('"candidate_sha256":"' + "a" * 64 + '"', prompt)
+        self.assertIn('"certificate_sha256":"' + "b" * 64 + '"', prompt)
+        for index in [2, 3, 5, 7, 8, 10, 12, 13, 15, 16]:
+            self.assertIn(
+                f'"check_id":"bridge_obligations[{index}]"',
+                prompt,
+            )
+
 
     def test_immediate_redraft_prompt_only_drops_old_history_events(self) -> None:
         oversized_task = {
@@ -665,7 +855,7 @@ class SemanticDagTest(unittest.TestCase):
                 review_certificate=oversized_task,
                 debug_feedback=False,
             )
-        self.assertLessEqual(len(prompt.encode("utf-8")), 24 * 1024)
+        self.assertLessEqual(len(prompt.encode("utf-8")), MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES)
         self.assertIn("\"failed_check_ids\":[\"coverage\"]", prompt)
         self.assertIn("\"event_id\":\"19\"", prompt)
         self.assertNotIn("\"event_id\":\"0\"", prompt)
@@ -745,7 +935,7 @@ class SemanticDagTest(unittest.TestCase):
                     iter_num=1,
                     target=Path("/project/Problem.lean"),
                     review_certificate=_source_bound_repair_task(
-                        evidence_size=2_048,
+                        evidence_size=MAX_REPAIR_TASK_PROMPT_BYTES,
                     ),
                     debug_feedback=False,
                 )
@@ -773,12 +963,16 @@ class SemanticDagTest(unittest.TestCase):
             patch(
                 "archon.commands.loop.prover.runners."
                 "build_parallel_prover_prompt",
-                return_value="B" * (24 * 1024),
+                return_value="BASE",
             ),
             patch(
                 "archon.commands.loop.prover.runners."
                 "_native_formalizer_semantic_dag_block",
                 return_value="",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners.bound_repair_task",
+                return_value={},
             ),
         ):
             with self.assertRaisesRegex(
@@ -794,6 +988,45 @@ class SemanticDagTest(unittest.TestCase):
                     review_certificate=repair_task,
                     debug_feedback=False,
                 )
+
+    def test_immediate_redraft_prompt_rejects_over_128_kib(self) -> None:
+        with (
+            patch(
+                "archon.commands.loop.prover.runners."
+                "select_prover_mode_for_target",
+                return_value="chemistry-formalize",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners._sealed_mode_reference",
+                return_value="SEALED MODE REFERENCE",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_parallel_prover_prompt",
+                return_value="B" * MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "_native_formalizer_semantic_dag_block",
+                return_value="",
+            ),
+        ):
+            with self.assertRaisesRegex(
+                _ImmediateRedraftPromptError,
+                "exceeds 128 KiB",
+            ):
+                build_immediate_redraft_prompt(
+                    project_name="project",
+                    project_path=Path("/project"),
+                    state_dir=Path("/project/.archon"),
+                    iter_num=1,
+                    target=Path("/project/Problem.lean"),
+                    review_certificate={
+                        "failed_check_ids": ["coverage"],
+                    },
+                    debug_feedback=False,
+                )
+
 
 
 if __name__ == "__main__":

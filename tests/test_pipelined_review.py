@@ -1070,7 +1070,7 @@ class PipelinedReviewTest(unittest.TestCase):
                     "archon.commands.loop.prover.runners."
                     "build_immediate_redraft_prompt",
                     side_effect=_ImmediateRedraftPromptError(
-                        "immediate redraft prompt exceeds 24 KiB"
+                        "immediate redraft prompt exceeds 128 KiB"
                     ),
                 ),
                 patch("archon.commands.loop.prover.runners.snapshot_baseline"),
@@ -1091,7 +1091,7 @@ class PipelinedReviewTest(unittest.TestCase):
             failure = report["formalizer_results"]["A.lean"]
             self.assertIn(
                 "safe immediate redraft prompt rejection: immediate redraft "
-                "prompt exceeds 24 KiB",
+                "prompt exceeds 128 KiB",
                 failure["error"],
             )
 
@@ -1134,7 +1134,7 @@ class PipelinedReviewTest(unittest.TestCase):
             def prompt_builder(**kwargs):
                 if kwargs["target"].name == "A.lean":
                     raise _ImmediateRedraftPromptError(
-                        "immediate redraft prompt exceeds 24 KiB"
+                        "immediate redraft prompt exceeds 128 KiB"
                     )
                 return "valid target-local redraft prompt"
 
@@ -1177,7 +1177,7 @@ class PipelinedReviewTest(unittest.TestCase):
             self.assertEqual(report["unresolved"], ["A.lean"])
             self.assertIn(
                 "safe immediate redraft prompt rejection: immediate redraft "
-                "prompt exceeds 24 KiB",
+                "prompt exceeds 128 KiB",
                 report["errors"]["A.lean"],
             )
             proof_gate = json.loads(
