@@ -339,4 +339,4 @@ def test_actual_final_v13_zero_solver_static_binding(
         "passed": 21, "failed": 0,
         "test_file": "tests/test_paper400_dic5_optimized_cnf_final_v13_final2.py",
     }
-    assert manifest["resource_estimate"]["recommended_initial_parallelism"] == 2
+    assert manifest["resource_estimate"]["recommended_initial_parallelism"] == 4

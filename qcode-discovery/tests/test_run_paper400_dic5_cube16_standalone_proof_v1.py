@@ -107,45 +107,45 @@ def test_source_binding_fixes_cube_aggregate_v2_and_optimized_hashes() -> None:
     )
 
 
-def test_two_worker_capacity_formulas_are_exact_and_type_strict() -> None:
+def test_four_worker_capacity_formulas_are_exact_and_type_strict() -> None:
     cap = 1 << 40
-    value = runner.two_worker_capacity_requirement(cap)
+    value = runner.four_worker_capacity_requirement(cap)
     assert value == {
-        "parallel_workers": 2,
+        "parallel_workers": 4,
         "per_worker_output_cap_bytes": cap,
-        "shared_output_cap_bytes": 2 * cap,
-        "shared_disk_required_bytes": 2 * cap + (128 << 30),
-        "shared_raw_headroom_bytes": 16 << 30,
-        "shared_effective_headroom_bytes": 32 << 30,
+        "shared_output_cap_bytes": 4 * cap,
+        "shared_disk_required_bytes": 4 * cap + (128 << 30),
+        "shared_raw_headroom_bytes": 0,
+        "shared_effective_headroom_bytes": 64 << 30,
     }
     with pytest.raises(runner.CubeProofRunnerError):
-        runner.two_worker_capacity_requirement(True)
+        runner.four_worker_capacity_requirement(True)
     with pytest.raises(runner.CubeProofRunnerError):
-        runner.two_worker_capacity_requirement(-1)
+        runner.four_worker_capacity_requirement(-1)
 
 
-def test_campaign_local_caps_fit_two_workers_without_mutating_pinned_v2() -> None:
-    assert runner.PROOF_MAX_BYTES == 192 << 30
-    assert runner.LRAT_MAX_BYTES == 192 << 30
+def test_campaign_local_caps_fit_four_workers_without_mutating_pinned_v2() -> None:
+    assert runner.PROOF_MAX_BYTES == 128 << 30
+    assert runner.LRAT_MAX_BYTES == 128 << 30
     assert runner.v2.PROOF_MAX_BYTES == 1 << 40
     assert runner.v2.LRAT_MAX_BYTES == 1 << 40
     expected = {
-        "parallel_workers": 2,
-        "per_worker_output_cap_bytes": 192 << 30,
-        "shared_output_cap_bytes": 384 << 30,
-        "shared_disk_required_bytes": 512 << 30,
-        "shared_raw_headroom_bytes": 16 << 30,
-        "shared_effective_headroom_bytes": 32 << 30,
+        "parallel_workers": 4,
+        "per_worker_output_cap_bytes": 128 << 30,
+        "shared_output_cap_bytes": 512 << 30,
+        "shared_disk_required_bytes": 640 << 30,
+        "shared_raw_headroom_bytes": 0,
+        "shared_effective_headroom_bytes": 64 << 30,
     }
-    assert runner.two_worker_capacity_requirement(
+    assert runner.four_worker_capacity_requirement(
         runner.PROOF_MAX_BYTES,
     ) == expected
-    assert runner.two_worker_capacity_requirement(
+    assert runner.four_worker_capacity_requirement(
         runner.LRAT_MAX_BYTES,
     ) == expected
 
 
-def test_two_worker_gate_rejects_individually_safe_but_shared_unsafe(
+def test_four_worker_gate_rejects_individually_safe_but_shared_unsafe(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     cap = 1 << 40
@@ -157,21 +157,21 @@ def test_two_worker_gate_rejects_individually_safe_but_shared_unsafe(
     monkeypatch.setattr(
         runner.v2, "_resource_gate", lambda root, output_cap: individual_only,
     )
-    with pytest.raises(runner.CubeProofRunnerError, match="two-worker"):
-        runner._two_worker_resource_gate(Path("/unused"), output_cap=cap)
+    with pytest.raises(runner.CubeProofRunnerError, match="four-worker"):
+        runner._four_worker_resource_gate(Path("/unused"), output_cap=cap)
 
     shared_safe = dict(individual_only)
     shared_safe.update({
-        "raw_headroom_bytes": 16 << 30,
-        "effective_headroom_bytes": 32 << 30,
-        "filesystem_bavail_bytes": 2 * cap + (128 << 30),
+        "raw_headroom_bytes": 9 << 30,
+        "effective_headroom_bytes": 64 << 30,
+        "filesystem_bavail_bytes": 4 * cap + (128 << 30),
     })
     monkeypatch.setattr(
         runner.v2, "_resource_gate", lambda root, output_cap: shared_safe,
     )
-    replay = runner._two_worker_resource_gate(Path("/unused"), output_cap=cap)
+    replay = runner._four_worker_resource_gate(Path("/unused"), output_cap=cap)
     assert replay["passed"] is True
-    assert replay["global_slot_limit_required_by_coordinator"] == 2
+    assert replay["global_slot_limit_required_by_coordinator"] == 4
 
 
 def test_per_cube_certificate_matches_strict_aggregate_schema_and_no_global_claim(

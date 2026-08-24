@@ -695,7 +695,7 @@ def build_coverage_manifest(
         ),
         "planning_rss_reservation_per_worker_bytes": 1 << 30,
         "planning_rss_reservation_is_proof": False,
-        "recommended_initial_parallelism": 2,
+        "recommended_initial_parallelism": 4,
         "fresh_runtime_resource_gate_required": True,
         "warning": (
             "SAT search memory is data-dependent and cannot be certified from "

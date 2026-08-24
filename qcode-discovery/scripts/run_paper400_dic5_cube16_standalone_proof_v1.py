@@ -54,10 +54,10 @@ EXPECTED_V2_SHA256 = (
     "1034c232eae3bd131e988771673e2c4890c869658c8b380d9703a99d154c99cb"
 )
 EXPECTED_CUBE_SHA256 = (
-    "fb2495e1c7acbcd32e2fffc3d4126c48b9042ec1375913bb5e753beb22b4e3c5"
+    "6498fbaf2bc2e816351eb265d944683f484005772101f55145cd79cc302add07"
 )
 EXPECTED_AGGREGATE_SHA256 = (
-    "56990cca72921e7b491d493ac28900e98d4aabdadf641c731f46417be6c5961e"
+    "dc1c17b1c81a0841621b2bab5ad3e05d5d8cb7f70903ef825ed58895baff709e"
 )
 EXPECTED_OPTIMIZED_SHA256 = (
     "5f55709382a7f6d2087199440d9e53351114e0a32129eaabc584464409ce6ee2"
@@ -139,18 +139,18 @@ EXPECTED_SOLVER_NAME = "cadical195"
 EXPECTED_SOLVER_VERSION = "1.9.5"
 
 # The pinned v2 safety layer permits proofs up to 1 TiB.  That upper bound is
-# intentionally not the admission budget for this two-worker cube campaign:
-# reserving it twice would require 2 TiB plus the 128 GiB safety margin and
-# would reject the audited production filesystem before either worker starts.
+# intentionally not the admission budget for this four-worker cube campaign:
+# four 128 GiB outputs plus the 128 GiB safety margin require 640 GiB and
+# shared raw accumulation is explicitly waived while the base v2 gate remains.
 # Keep the inherited process/filesystem hardening, but apply a campaign-local
 # cap based on the 28 GiB monolithic 24-hour proof observed for this formula.
-PROOF_MAX_BYTES = 192 << 30
-LRAT_MAX_BYTES = 192 << 30
+PROOF_MAX_BYTES = 128 << 30
+LRAT_MAX_BYTES = 128 << 30
 
-INITIAL_PARALLELISM = 2
+INITIAL_PARALLELISM = 4
 PER_WORKER_PLANNING_RSS_BYTES = 1 << 30
-TWO_WORKER_RAW_HEADROOM_BYTES = 2 * v2.RESOURCE_MIN_RAW_HEADROOM
-TWO_WORKER_EFFECTIVE_HEADROOM_BYTES = 2 * v2.RESOURCE_MIN_EFFECTIVE_HEADROOM
+FOUR_WORKER_RAW_HEADROOM_BYTES = 0
+FOUR_WORKER_EFFECTIVE_HEADROOM_BYTES = 4 * v2.RESOURCE_MIN_EFFECTIVE_HEADROOM
 
 STATIC_COVER = Path("static/cover-manifest.json")
 STATIC_DIMACS = Path("static/cube.cnf")
@@ -292,8 +292,8 @@ def _artifact_reference(record: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def two_worker_capacity_requirement(output_cap: int) -> dict[str, int]:
-    """Return the shared admission budget for two concurrent output writers."""
+def four_worker_capacity_requirement(output_cap: int) -> dict[str, int]:
+    """Return the shared admission budget for four concurrent output writers."""
 
     if type(output_cap) is not int or output_cap < 0:
         raise CubeProofRunnerError("output cap must be a nonnegative integer")
@@ -304,14 +304,14 @@ def two_worker_capacity_requirement(output_cap: int) -> dict[str, int]:
         "shared_disk_required_bytes": (
             INITIAL_PARALLELISM * output_cap + v2.DISK_RESERVE_MARGIN_BYTES
         ),
-        "shared_raw_headroom_bytes": TWO_WORKER_RAW_HEADROOM_BYTES,
-        "shared_effective_headroom_bytes": TWO_WORKER_EFFECTIVE_HEADROOM_BYTES,
+        "shared_raw_headroom_bytes": FOUR_WORKER_RAW_HEADROOM_BYTES,
+        "shared_effective_headroom_bytes": FOUR_WORKER_EFFECTIVE_HEADROOM_BYTES,
     }
 
 
-def _two_worker_resource_gate(root: Path, *, output_cap: int) -> dict[str, Any]:
+def _four_worker_resource_gate(root: Path, *, output_cap: int) -> dict[str, Any]:
     base_gate = v2._resource_gate(root, output_cap=output_cap)
-    required = two_worker_capacity_requirement(output_cap)
+    required = four_worker_capacity_requirement(output_cap)
     raw = base_gate.get("raw_headroom_bytes")
     effective = base_gate.get("effective_headroom_bytes")
     memory_unbounded = raw is None and effective is None
@@ -328,7 +328,7 @@ def _two_worker_resource_gate(root: Path, *, output_cap: int) -> dict[str, Any]:
     )
     result = seal({
         "schema_version": SCHEMA_VERSION,
-        "kind": "paper400-cube16-two-worker-resource-gate-v1",
+        "kind": "paper400-cube16-four-worker-resource-gate-v1",
         "base_v2_gate": base_gate,
         "requirements": required,
         "shared_memory_safe": shared_memory_safe,
@@ -338,7 +338,7 @@ def _two_worker_resource_gate(root: Path, *, output_cap: int) -> dict[str, Any]:
         "passed": bool(shared_memory_safe and shared_disk_safe),
     })
     if result["passed"] is not True:
-        raise CubeProofRunnerError(f"two-worker resource gate failed: {result}")
+        raise CubeProofRunnerError(f"four-worker resource gate failed: {result}")
     return result
 
 
@@ -381,7 +381,7 @@ def _toolchain_binding() -> dict[str, Any]:
     return record
 
 
-def _validate_two_worker_gate_record(value: Any, *, output_cap: int) -> bool:
+def _validate_four_worker_gate_record(value: Any, *, output_cap: int) -> bool:
     fields = {
         "schema_version", "kind", "base_v2_gate", "requirements",
         "shared_memory_safe", "shared_disk_safe",
@@ -394,14 +394,14 @@ def _validate_two_worker_gate_record(value: Any, *, output_cap: int) -> bool:
         or not selfhash_valid(value)
         or type(value.get("schema_version")) is not int
         or value["schema_version"] != SCHEMA_VERSION
-        or value.get("kind") != "paper400-cube16-two-worker-resource-gate-v1"
+        or value.get("kind") != "paper400-cube16-four-worker-resource-gate-v1"
         or not v2._validate_resource_record(
             value.get("base_v2_gate"), required_cap=output_cap,
         )
     ):
         return False
     base = value["base_v2_gate"]
-    required = two_worker_capacity_requirement(output_cap)
+    required = four_worker_capacity_requirement(output_cap)
     raw = base.get("raw_headroom_bytes")
     effective = base.get("effective_headroom_bytes")
     expected_memory = bool(
@@ -1096,8 +1096,8 @@ def _static_value(
             "lrat_max_bytes": LRAT_MAX_BYTES,
             "disk_reserve_margin_bytes": v2.DISK_RESERVE_MARGIN_BYTES,
             "initial_parallelism": INITIAL_PARALLELISM,
-            "two_worker_solve": two_worker_capacity_requirement(PROOF_MAX_BYTES),
-            "two_worker_lrat": two_worker_capacity_requirement(LRAT_MAX_BYTES),
+            "four_worker_solve": four_worker_capacity_requirement(PROOF_MAX_BYTES),
+            "four_worker_lrat": four_worker_capacity_requirement(LRAT_MAX_BYTES),
             "planning_rss_per_worker_bytes": PER_WORKER_PLANNING_RSS_BYTES,
             "planning_rss_is_proof": False,
             "fresh_gate_before_solver": True,
@@ -1264,7 +1264,7 @@ def solve_root(
     static = _validate_static(target, fresh_source_and_tools=True)
     if (target / SOLVE_CLAIM).exists() or (target / RAW_COMMIT).exists():
         raise CubeProofRunnerError("solve stage already claimed or committed")
-    gate = _two_worker_resource_gate(target, output_cap=PROOF_MAX_BYTES)
+    gate = _four_worker_resource_gate(target, output_cap=PROOF_MAX_BYTES)
     root_before = v2._root_identity(target)
     claim = v2._create_claim(target, SOLVE_CLAIM, "cube-solve")
     claim_record = v2._physical_record(
@@ -1477,7 +1477,7 @@ def _validate_raw(root: Path, *, fresh_source_and_tools: bool) -> dict[str, Any]
     snapshot = raw.get("resource_snapshot_after")
     source_tcb = static["static"]["toolchain_binding"].get("dynamic_elf_tcb")
     if (
-        not _validate_two_worker_gate_record(gate, output_cap=PROOF_MAX_BYTES)
+        not _validate_four_worker_gate_record(gate, output_cap=PROOF_MAX_BYTES)
         or not v2._validate_resource_snapshot(snapshot)
         or not v2.json_type_equal(
             raw.get("oom_event_delta"),
@@ -1706,7 +1706,7 @@ def verify_root(
         raise CubeProofRunnerError("verify requires strict RAW_UNSAT")
     if (target / VERIFY_CLAIM).exists() or (target / DRAT_COMMIT).exists():
         raise CubeProofRunnerError("verify stage already claimed or committed")
-    gate = _two_worker_resource_gate(target, output_cap=LRAT_MAX_BYTES)
+    gate = _four_worker_resource_gate(target, output_cap=LRAT_MAX_BYTES)
     root_before = v2._root_identity(target)
     claim = v2._create_claim(target, VERIFY_CLAIM, "cube-verify")
     claim_record = v2._physical_record(
@@ -1757,7 +1757,7 @@ def verify_root(
     v2._atomic_publish_json(target / "state", DRAT_COMMIT.name, drat_record)
     if not drat_passed:
         return drat_record
-    lrat_gate = _two_worker_resource_gate(target, output_cap=LRAT_MAX_BYTES)
+    lrat_gate = _four_worker_resource_gate(target, output_cap=LRAT_MAX_BYTES)
     lrat_fd, private_name = v2._create_private_output(
         target / "artifacts", LRAT_ARTIFACT.name,
     )
@@ -2028,7 +2028,7 @@ def finalize_root(
         or (target / FINAL_COMMIT).exists()
     ):
         raise CubeProofRunnerError("finalize stage already claimed or committed")
-    gate = _two_worker_resource_gate(target, output_cap=0)
+    gate = _four_worker_resource_gate(target, output_cap=0)
     root_before = v2._root_identity(target)
     claim = v2._create_claim(target, FINALIZE_CLAIM, "cube-finalize")
     fresh = _fresh_proof_replay(target, chain)
@@ -2259,6 +2259,6 @@ __all__ = [
     "STATE_LRAT", "STATE_RAW_UNSAT", "STATE_SAT", "STATE_UNRESOLVED",
     "build_parser", "canonical_bytes", "canonical_sha256", "finalize_root",
     "main", "preflight_only", "prepare_root", "seal", "selfhash_valid",
-    "solve_root", "two_worker_capacity_requirement", "validate_final_root",
+    "solve_root", "four_worker_capacity_requirement", "validate_final_root",
     "verify_root",
 ]
