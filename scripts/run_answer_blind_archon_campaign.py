@@ -194,15 +194,23 @@ solve the proof.
   `binary_two_fragment_electrophilic_addition`.
   The exact `POLICY_ID` allowlist is:
   `analogous_halogen_addition`.
-  For `empirical_rule`, the exact allowed `RULE_ID` values are:
+  For `empirical_rule`, the exact baseline `RULE_ID` values usable without
+  runtime activation are:
   `aqueous_feiii_phenol_colored_complex`,
   `closed_candidate_feiii_phenol_filter`,
   `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
   `mellite_ideal_stoichiometry`, and
   `mellitic_acid_benzoyl_chloride_to_c12o9`.
-  This five-ID list is an exact allowlist; the template and policy lists are
-  exact allowlists too, and all three lists are complete. Never guess, enumerate,
-  or probe any other registry id; an unlisted id fails closed. Pass exactly one
+  The dormant Reviewer-requestable bridge IDs are:
+  `closed_domain_mellite_terminal_residue_candidate_filter` and
+  `mellitic_acid_p2o5_heating_forms_some_trianhydride`.
+  This five-ID baseline list is an exact allowlist without activation. Dormant
+  records may be returned by the CLI but are not active evidence in an initial
+  formalization or ordinary lookup. Use one only when the current immediate-
+  redraft prompt contains its complete controller-built receipt bound to this
+  exact target and candidate. A bare ID, lookup, candidate citation, or Reviewer
+  paraphrase never activates it. Never guess, enumerate, or probe any other
+  registry id; an unlisted id fails closed. Pass exactly one
   allowed token—never a problem id, question/source text, URL, or search phrase.
   The command performs no network access and returns a dataset version/hash that
   must be preserved as provenance.
@@ -221,7 +229,9 @@ solve the proof.
   reagent. Derive that identity independently from the problem measurements
   and separately receipted constants, preserving both `dataset_sha256` and
   `record_sha256`.
-  An `empirical_rule` receipt grounds only the returned claim under its returned
+  A baseline `empirical_rule` receipt, or a dormant rule carried by a complete
+  current controller activation receipt, grounds only the returned claim under
+  its returned
   `authority_kind`, inside every returned applicability condition, and outside
   every returned exclusion. For `peer_reviewed_literature`, use it only as a
   source-scoped literature claim, never beyond its cited substrate, reagent, or
@@ -408,15 +418,23 @@ The exact `TEMPLATE_ID` allowlist is:
 `binary_two_fragment_electrophilic_addition`.
 The exact `POLICY_ID` allowlist is:
 `analogous_halogen_addition`.
-For `empirical_rule`, the exact allowed `RULE_ID` values are:
+For `empirical_rule`, the exact baseline `RULE_ID` values usable without
+runtime activation are:
 `aqueous_feiii_phenol_colored_complex`,
 `closed_candidate_feiii_phenol_filter`,
 `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
 `mellite_ideal_stoichiometry`, and
 `mellitic_acid_benzoyl_chloride_to_c12o9`.
-This five-ID list is an exact allowlist; the template and policy lists are exact
-allowlists too, and all three lists are complete. Never guess, enumerate, or
-probe any other registry id; an unlisted id fails closed. Never pass a problem
+The dormant Reviewer-requestable bridge IDs are:
+`closed_domain_mellite_terminal_residue_candidate_filter` and
+`mellitic_acid_p2o5_heating_forms_some_trianhydride`.
+This five-ID baseline list is an exact allowlist without activation. An ordinary lookup of a dormant rule is not evidence. A formalization Reviewer may request only one
+exact dormant ID for one corresponding blocked bridge; it may not supply rule
+text, source, URL, hash, or claim. Accept a dormant rule only through a complete
+controller-built activation or next-Review context receipt bound to the exact
+target and candidate, after checking every rule/source/review hash, applicability
+condition, and exclusion. Never guess, enumerate, or probe any other registry
+id; an unlisted id fails closed. Never pass a problem
 id, question text, URL, or search phrase. The Reviewer must verify each used
 lookup through the same `"$ARCHON_CLI_BIN"` grammar and check its returned
 dataset version/hash against the bound source contract. The exact TEMPLATE_ID,
@@ -436,7 +454,9 @@ substrate must fail closed. The receipt authorizes only its returned domain,
 template, stoichiometry, and retention scope; it does not identify the specific
 reagent, which must still follow independently from the problem measurements
 and separately receipted constants.
-An `empirical_rule` receipt grounds only the returned claim under its returned
+A baseline `empirical_rule` receipt, or a dormant rule carried by a complete
+current controller activation/context receipt, grounds only the returned claim
+under its returned
 `authority_kind`, inside every returned applicability condition, and outside
 every returned exclusion. For `peer_reviewed_literature`, accept it only as a
 source-scoped literature claim, never beyond the cited substrate, reagent, or

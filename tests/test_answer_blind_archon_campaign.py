@@ -603,9 +603,11 @@ class NativeArchonCampaignTests(unittest.TestCase):
         empirical_rule_ids = (
             "aqueous_feiii_phenol_colored_complex",
             "closed_candidate_feiii_phenol_filter",
+            "closed_domain_mellite_terminal_residue_candidate_filter",
             "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
             "mellite_ideal_stoichiometry",
             "mellitic_acid_benzoyl_chloride_to_c12o9",
+            "mellitic_acid_p2o5_heating_forms_some_trianhydride",
         )
         for text in (formalize, review):
             normalized = " ".join(text.split())
@@ -629,7 +631,13 @@ class NativeArchonCampaignTests(unittest.TestCase):
             )
             self.assertIn("exact `POLICY_ID` allowlist", normalized)
             self.assertEqual(normalized.count("analogous_halogen_addition"), 1)
-            self.assertIn("five-ID list is an exact allowlist", normalized)
+            self.assertIn(
+                "five-ID baseline list is an exact allowlist", normalized
+            )
+            self.assertIn("dormant Reviewer-requestable bridge IDs", normalized)
+            self.assertIn("ordinary lookup", normalized)
+            self.assertIn("controller-built", normalized)
+            self.assertIn("exact target and candidate", normalized)
             self.assertIn("Never guess, enumerate, or probe", normalized)
             self.assertIn("unlisted id fails closed", normalized)
             self.assertIn("peer_reviewed_literature", normalized)

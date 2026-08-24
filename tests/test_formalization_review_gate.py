@@ -809,6 +809,12 @@ class FormalizationReviewGateTests(unittest.TestCase):
             "status": "failed",
             "reason": "the source relation is only assumed",
         })
+        review["trusted_bridge_requests"] = [{
+            "bridge_obligation_index": 0,
+            "rule_id": (
+                "mellitic_acid_p2o5_heating_forms_some_trianhydride"
+            ),
+        }]
         review["checks"]["source_faithfulness"] = {
             "status": "failed",
             "evidence": "the source relation is an unconstrained premise",
@@ -827,6 +833,26 @@ class FormalizationReviewGateTests(unittest.TestCase):
         self.assertEqual(result.retry, (rel,))
         record = load_gate_state(self.state)["targets"][rel]
         source_review = record["repair_handoff"]["source_bound_review"]
+        activation_projection = source_review["trusted_bridge_activations"]
+        self.assertTrue(activation_projection["complete"])
+        self.assertEqual(activation_projection["requested_count"], 1)
+        self.assertEqual(activation_projection["activated_count"], 1)
+        activation_receipt = activation_projection["receipts"][0]
+        self.assertEqual(
+            activation_receipt["rule"]["rule_id"],
+            "mellitic_acid_p2o5_heating_forms_some_trianhydride",
+        )
+        self.assertEqual(activation_receipt["target"]["file"], rel)
+        self.assertEqual(
+            activation_receipt["target"]["candidate_sha256"],
+            record["candidate_sha256"],
+        )
+        self.assertEqual(
+            record["certificate"]["milestones"][0][
+                "trusted_bridge_requests"
+            ],
+            review["trusted_bridge_requests"],
+        )
         projection = source_review["repair_action_projection"]
         self.assertEqual(projection["failed_bridge_count"], 1)
         self.assertEqual(projection["retained_count"], 1)

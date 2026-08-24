@@ -21,10 +21,11 @@ from pathlib import Path
 from typing import Any
 
 from ..chemistry_constant import (
+    BASELINE_EMPIRICAL_RULE_IDS,
     CONTEST_INTERPRETATION_IDS,
+    DORMANT_RUNTIME_BRIDGE_IDS,
     DATASET_SHA256,
     DATASET_VERSION,
-    EMPIRICAL_RULE_IDS,
     REACTION_TEMPLATE_IDS,
 )
 from .answer_submission import (
@@ -1739,7 +1740,12 @@ def render_native_chemistry_constant_policy(
         raise ProblemOnlyReviewContractError(
             "native Review contract has no approved chemistry constant dataset"
         )
-    empirical_ids = ", ".join(f"`{rule_id}`" for rule_id in EMPIRICAL_RULE_IDS)
+    empirical_ids = ", ".join(
+        f"`{rule_id}`" for rule_id in BASELINE_EMPIRICAL_RULE_IDS
+    )
+    dormant_empirical_ids = ", ".join(
+        f"`{rule_id}`" for rule_id in DORMANT_RUNTIME_BRIDGE_IDS
+    )
     contest_policy_ids = ", ".join(
         f"`{policy_id}`" for policy_id in CONTEST_INTERPRETATION_IDS
     )
@@ -1766,10 +1772,19 @@ def render_native_chemistry_constant_policy(
   {reaction_template_ids}.
 - `contest_interpretation` has the exact POLICY_ID allowlist:
   {contest_policy_ids}.
-- `empirical_rule` is an exact five-ID allowlist. Its allowed RULE_ID values are:
+- `empirical_rule` has an exact five-ID allowlist: the exact allowed RULE_ID
+  inventory available without runtime activation is:
   {empirical_ids}.
-- These three registry lists are the full supported inventory. Never guess,
-  enumerate, or probe another registry id. An unlisted id fails closed.
+- Dormant Reviewer-requestable bridge IDs are:
+  {dormant_empirical_ids}. They may be returned by the sealed CLI but are not
+  active evidence in an initial formalization or ordinary lookup. A dormant
+  rule may be used only when the current immediate-redraft prompt contains its
+  complete controller-built activation receipt bound to this exact target and
+  candidate. A bare id, lookup receipt, candidate citation, or Reviewer text
+  never activates it.
+- These are the full supported registries at lookup level: the template,
+  policy, baseline, and dormant lists form the complete inventory. Never guess, enumerate, or probe another registry id. An
+  unlisted id fails closed.
 - Pass exactly one element, isotope, formula, registered template id,
   registered contest-policy id, or exact allowlisted empirical-rule id. Never
   pass a problem id, question/source text, URL, or search phrase. Do not use web
@@ -1778,8 +1793,10 @@ def render_native_chemistry_constant_policy(
   `"$ARCHON_CLI_BIN"` grammar. Check the returned dataset version/hash against
   the controller-bound values above, then check record_sha256 against the
   candidate-cited receipt after rerunning its exact operation and argument.
-  The exact TEMPLATE_ID, POLICY_ID, and RULE_ID lists above are the full
-  supported registries; no other identifier may be probed.
+  The exact TEMPLATE_ID, POLICY_ID, baseline RULE_ID, and dormant RULE_ID lists
+  above are the full lookup inventory; no other identifier may be probed. A
+  dormant lookup is not usable evidence without the exact target- and
+  candidate-bound controller activation receipt in the current hand-off.
 - A contest_interpretation receipt is a contest-semantics policy, not a paper,
   empirical chemistry fact, or universal inverse-classification theorem.
   Accept it only after binding every required activation cue to an exact
@@ -1788,7 +1805,9 @@ def render_native_chemistry_constant_policy(
   different-substrate cues fail closed. Use only the returned domain, template,
   stoichiometry, and retention scope. The policy does not identify the specific
   reagent; derive that identity from source measurements and pinned constants.
-- An empirical_rule receipt grounds only its returned claim under the returned
+- A baseline empirical_rule receipt, or a dormant rule carried by a complete
+  current controller activation receipt, grounds only its returned claim under
+  the returned
   `authority_kind`, inside every returned applicability condition, and outside
   every returned exclusion. For `peer_reviewed_literature`, treat it only as a
   source-scoped literature claim, never beyond the cited substrate, reagent, or

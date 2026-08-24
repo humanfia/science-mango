@@ -82,7 +82,8 @@ permitted. Do not infer that an unshown element or formula is unavailable.
 
 - `analogous_halogen_addition`
 
-`empirical_rule` has the exact allowed `RULE_ID` inventory:
+`empirical_rule` has the exact allowed `RULE_ID` inventory for baseline
+rules usable without runtime activation:
 
 - `aqueous_feiii_phenol_colored_complex`
 - `closed_candidate_feiii_phenol_filter`
@@ -90,10 +91,20 @@ permitted. Do not infer that an unshown element or formula is unavailable.
 - `mellite_ideal_stoichiometry`
 - `mellitic_acid_benzoyl_chloride_to_c12o9`
 
-This five-ID list is an exact allowlist; the template/policy lists are exact
-allowlists too. All three are the full supported registries. Never guess,
-enumerate, or probe other rule ids,
-policy ids, or template ids. An unlisted id must fail closed.
+Dormant Reviewer-requestable bridge IDs are:
+
+- `closed_domain_mellite_terminal_residue_candidate_filter`
+- `mellitic_acid_p2o5_heating_forms_some_trianhydride`
+
+This five-ID list is an exact allowlist for baseline rules. The dormant records
+may be returned by the sealed CLI, but they are not active
+evidence in an initial formalization or from an ordinary lookup. Use one only
+when this exact immediate-redraft prompt contains its complete controller-built
+activation receipt bound to the assigned target and current candidate. A bare
+rule id, lookup receipt, candidate citation, or Reviewer paraphrase never
+activates it. At lookup level these are the full supported registries: the baseline, dormant,
+template, and policy lists form the complete inventory. Never guess, enumerate, or probe other rule ids, policy ids,
+or template ids. An unlisted id must fail closed.
 
 The command accepts exactly one enumerated operation and one corresponding
 token. Never send a problem id, question text, source text, URL, search phrase,
@@ -129,7 +140,8 @@ substrate, or contradicted by the problem, fail closed. The policy does not
 identify the specific reagent: prove that identity independently from the
 problem measurements and pinned constants.
 
-An accepted `empirical_rule` receipt grounds only the returned claim under the
+An accepted baseline `empirical_rule` receipt, or a dormant rule carried by a
+complete current controller activation receipt, grounds only the returned claim under the
 returned `authority_kind`, within every returned `applicability_conditions`
 entry, and outside every returned `exclusions` entry. For
 `peer_reviewed_literature`, treat it only as a source-scoped literature claim,

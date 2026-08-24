@@ -431,6 +431,15 @@ _EMPIRICAL_RULES = {
     for record in _EMPIRICAL_REGISTRY["records"]
 }
 EMPIRICAL_RULE_IDS = tuple(sorted(_EMPIRICAL_RULES))
+DORMANT_RUNTIME_BRIDGE_IDS = (
+    "closed_domain_mellite_terminal_residue_candidate_filter",
+    "mellitic_acid_p2o5_heating_forms_some_trianhydride",
+)
+BASELINE_EMPIRICAL_RULE_IDS = tuple(
+    rule_id
+    for rule_id in EMPIRICAL_RULE_IDS
+    if rule_id not in DORMANT_RUNTIME_BRIDGE_IDS
+)
 
 _DATASET_PAYLOAD = {
     **_BASE_DATASET_PAYLOAD,

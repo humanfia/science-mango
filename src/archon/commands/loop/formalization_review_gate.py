@@ -40,6 +40,7 @@ from .review_source_contract import (
     stored_provenance_matches_current,
 )
 from .review_feedback import build_feedback_event, build_repair_task
+from .trusted_bridge_activation import validate_trusted_bridge_requests
 from .sorry_count import file_open_sorry_count
 
 
@@ -396,6 +397,9 @@ def _decision_from_milestone(
     if isinstance(raw, dict):
         status = str(raw.get("status") or raw.get("verdict") or "").strip().lower()
         reason = str(raw.get("reason") or "").strip()
+        request_error = validate_trusted_bridge_requests(raw)
+        if request_error:
+            return "failed", request_error, {}
     elif raw is not None:
         status = str(raw).strip().lower()
 
@@ -1064,6 +1068,7 @@ def apply_formalization_review(
             worker_stage="formalization",
             candidate_sha256=candidate_sha256,
             expected_source_contract=expected_source_contract,
+            target_rel=rel,
         )
         targets[rel] = next_record
 
@@ -1333,6 +1338,7 @@ def apply_target_formalization_review(
         candidate_sha256=candidate_sha256,
         preflight=preflight,
         expected_source_contract=source_contract,
+        target_rel=rel,
     )
     targets[rel] = next_record
     data["last_review_iter"] = iter_num

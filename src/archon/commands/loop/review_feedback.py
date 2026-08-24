@@ -23,6 +23,9 @@ from .problem_only_review_contract import (
     is_native_problem_only_contract,
     validate_native_review_source_certificate,
 )
+from .trusted_bridge_activation import (
+    build_trusted_bridge_activation_projection,
+)
 
 
 FEEDBACK_SCHEMA_VERSION = 1
@@ -1007,6 +1010,7 @@ def build_repair_task(
     preflight: Mapping[str, Any] | None = None,
     discard_stale_record: bool = False,
     expected_source_contract: Mapping[str, Any] | None = None,
+    target_rel: str = "",
 ) -> dict[str, Any]:
     """Build the answer-safe feedback shown to the next repair worker."""
     if review_kind not in {"proof", "formalization"}:
@@ -1166,5 +1170,17 @@ def build_repair_task(
             expected_source_contract=expected_source_contract,
         )
         if source_bound_review:
+            activation_projection = (
+                build_trusted_bridge_activation_projection(
+                    _certificate(record, review_kind),
+                    target_rel=target_rel,
+                    candidate_sha256=digest,
+                    expected_source_contract=expected_source_contract,
+                )
+            )
+            if activation_projection:
+                source_bound_review["trusted_bridge_activations"] = (
+                    activation_projection
+                )
             task["source_bound_review"] = source_bound_review
     return bound_repair_task(task)

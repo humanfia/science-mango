@@ -339,6 +339,7 @@ def _durable_formalization_retry_handoff(
     *,
     candidate_sha256: str,
     expected_source_contract: Mapping[str, object] | None,
+    target_rel: str,
 ) -> dict[str, object]:
     """Rebuild one retry hand-off through the strict sanitizer boundary.
 
@@ -402,6 +403,7 @@ def _durable_formalization_retry_handoff(
         candidate_sha256=candidate_sha256,
         discard_stale_record=True,
         expected_source_contract=expected_source_contract,
+        target_rel=target_rel,
     )
 
 
@@ -557,6 +559,60 @@ def _validate_complete_repair_projection(
                 _INCOMPLETE_REPAIR_FEEDBACK_ERROR
             )
 
+    for source_review in (original_source, bounded_source):
+        activation = source_review.get("trusted_bridge_activations")
+        if activation is None:
+            continue
+        if (
+            not isinstance(activation, Mapping)
+            or set(activation) != {
+                "schema_version", "requested_count", "activated_count",
+                "complete", "requests_sha256", "receipts",
+            }
+            or activation.get("schema_version") != 1
+            or type(activation.get("requested_count")) is not int
+            or activation.get("requested_count") <= 0
+            or activation.get("activated_count")
+            != activation.get("requested_count")
+            or activation.get("complete") is not True
+            or not isinstance(activation.get("receipts"), list)
+            or len(activation["receipts"])
+            != activation.get("requested_count")
+        ):
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
+        for receipt in activation["receipts"]:
+            if not isinstance(receipt, Mapping):
+                raise _ImmediateRedraftPromptError(
+                    _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+                )
+            unsigned = dict(receipt)
+            receipt_sha256 = unsigned.pop("activation_receipt_sha256", "")
+            target_binding = receipt.get("target")
+            rule = receipt.get("rule")
+            if (
+                receipt.get("schema_version") != 1
+                or receipt.get("kind")
+                != "controller_trusted_bridge_activation"
+                or not isinstance(target_binding, Mapping)
+                or target_binding.get("candidate_sha256")
+                != original_task.get("candidate_sha256")
+                or not isinstance(rule, Mapping)
+                or rule.get("automatic_problem_instantiation") is not False
+                or not isinstance(rule.get("applicability_conditions"), list)
+                or not rule.get("applicability_conditions")
+                or not isinstance(rule.get("exclusions"), list)
+                or not isinstance(receipt_sha256, str)
+                or hashlib.sha256(json.dumps(
+                    unsigned, ensure_ascii=False, sort_keys=True,
+                    separators=(",", ":"), allow_nan=False,
+                ).encode("utf-8")).hexdigest() != receipt_sha256
+            ):
+                raise _ImmediateRedraftPromptError(
+                    _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+                )
+
     if bounded_source != original_source:
         raise _ImmediateRedraftPromptError(
             _INCOMPLETE_REPAIR_FEEDBACK_ERROR
@@ -618,6 +674,13 @@ validated certificate's diagnosis and blocked source-to-Lean bridges, bound to
 the current candidate and problem-source hashes. Treat it as a repair
 checklist, recheck it against the bound problem evidence, and never treat it as
 an official answer or as a premise that bypasses the source derivation.
+
+When `source_bound_review.trusted_bridge_activations` is present, only its
+complete controller-built receipt activates the embedded sealed rule for this
+exact target and candidate, and only for this redraft. Check every listed
+applicability condition and exclusion before using the rule. A bare rule ID,
+normal empirical-rule lookup, candidate citation, or Reviewer paraphrase is not
+an activation and must not be used as evidence.
 
 """
     prompt_suffix = f"""
@@ -1702,6 +1765,7 @@ class ParallelProverRunner:
                             prior_formalization,
                             candidate_sha256=current_digest,
                             expected_source_contract=expected_source_contract,
+                            target_rel=rel,
                         )
                         handoff_label = "formalization Review"
                     resumed_redrafts.append((
@@ -1768,6 +1832,7 @@ class ParallelProverRunner:
                                 expected_source_contract=(
                                     expected_source_contract
                                 ),
+                                target_rel=rel,
                             )
                             handoff_label = "formalization Review"
                         resumed_redrafts.append((
@@ -3017,6 +3082,7 @@ required action while preserving the accepted statement.
                                     expected_source_contract=(
                                         work.source_contract
                                     ),
+                                    target_rel=work.rel,
                                 )
                                 formalizer_queue.append((
                                     work.target,

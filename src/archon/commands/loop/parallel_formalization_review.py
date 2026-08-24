@@ -43,6 +43,10 @@ from .review_feedback import (
     safe_preflight_summary,
     sanitized_review_history,
 )
+from .trusted_bridge_activation import (
+    build_trusted_bridge_review_context,
+    validate_trusted_bridge_requests,
+)
 
 
 FORMALIZATION_REVIEW_REPORT_FILENAME = "parallel-formalization-review.json"
@@ -105,6 +109,23 @@ attachment boundary and state whether each boundary atom belongs to the group,
 belongs to the adjacent residue, is shared, or is removed during coupling; count
 every atom exactly once. Do not inherit a familiar abbreviation's net formula
 or attachment semantics from the candidate."""
+
+_DORMANT_TRUSTED_BRIDGE_PROTOCOL = """The bound offline registry policy lists
+the exact dormant controller-pinned bridge IDs. Those identifiers are request
+tokens only; their rule text is not active evidence.
+
+If and only if this failed Review has a blocked bridge whose missing authority
+is exactly one of those dormant rules, request the minimum one rule by adding
+one `trusted_bridge_requests` entry with exactly `bridge_obligation_index` and
+`rule_id`. Each blocked bridge may request at most one rule; a rule ID may occur
+at most once. Never supply a claim, source, URL, locator, hash, applicability
+condition, exclusion, or paraphrase in that request. Use an empty list when no
+activation is needed. A passing verdict or covered bridge cannot request a
+rule. The controller will reject unknown IDs and will independently rebuild a
+complete target- and candidate-bound activation receipt from its sealed catalog
+for only the next target-local redraft. A normal empirical-rule lookup or a
+candidate-local citation is not an activation receipt and does not activate a
+dormant rule."""
 
 
 def _utcnow() -> str:
@@ -257,6 +278,10 @@ def _validate_certificate(
             return f"bridge obligation {index} has unsupported status {status!r}"
         if status in _BRIDGE_FAIL:
             has_failure = True
+
+    request_error = validate_trusted_bridge_requests(raw)
+    if request_error:
+        return request_error
 
     if verdict in _PASS:
         for name in _REQUIRED_CHECKS:
@@ -425,9 +450,13 @@ Read only these bounded inputs:
 {independent_instructions}
 
 Controller-sanitized prior process metadata follows. Use it only as a regression
-checklist after independently auditing the current formalization. It contains no
-free-form Review rationale, expected result, source-derived value, or raw
-diagnostic, and must never be treated as a problem fact:
+checklist after independently auditing the current formalization. Apart from an
+optional `trusted_bridge_activation_review_context` rebuilt from the sealed
+catalog, it contains no free-form Review rationale, expected result,
+source-derived value, or raw diagnostic. The optional context is evidence only
+when its context/activation receipts, exact target, current-candidate binding,
+rule/source/review hashes, applicability conditions, and exclusions all check
+out. A bare rule ID or ordinary empirical lookup is never equivalent to it:
 {json.dumps(prior_review_history, ensure_ascii=False)}
 
 {retry_feedback}
@@ -483,6 +512,8 @@ the candidate's interpretation.
 
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
+{_DORMANT_TRUSTED_BRIDGE_PROTOCOL}
+
 {_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
 
 For chemistry, enumerate every requested output; inspect every listed image;
@@ -527,6 +558,7 @@ Write exactly one JSON object line to {milestone}:
       "countermodel_resistance": {{"status": "passed|failed", "evidence": "..."}}
     }},
     "bridge_obligations": [{{"claim": "...", "carrier": "...", "status": "covered|blocked", "evidence": "..."}}],
+    "trusted_bridge_requests": [{{"bridge_obligation_index": 0, "rule_id": "<exact dormant ID>"}}],
     "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
     {independent_schema_line}
     "blind_source_audit": {{
@@ -593,6 +625,21 @@ def build_target_formalization_review_prompt(
         preflight=preflight,
         supplied_contract=source_contract,
     )
+    activation_review_context = build_trusted_bridge_review_context(
+        prior_gate_record,
+        target_rel=rel,
+        current_candidate_sha256=str(
+            source_contract.get("candidate_sha256") or ""
+        ),
+        expected_source_contract=source_contract,
+    )
+    if activation_review_context:
+        prior_review_history = {
+            **prior_review_history,
+            "trusted_bridge_activation_review_context": (
+                activation_review_context
+            ),
+        }
     if is_native_problem_only_contract(source_contract):
         return _build_native_target_formalization_review_prompt(
             project_path=project_path,
@@ -719,6 +766,11 @@ Read these bounded sources completely:
 - Matching task results, newest first: {json.dumps(_result_evidence(state_dir, rel), ensure_ascii=False)}
 - Deterministic Lean preflight: {json.dumps(preflight, ensure_ascii=False)}
 - Controller-sanitized prior formalization Review history: {json.dumps(prior_review_history, ensure_ascii=False)}
+  If it contains `trusted_bridge_activation_review_context`, accept a dormant
+  rule only after checking the complete context/activation receipt hashes, exact
+  target and current-candidate binding, sealed rule/source/review bindings, every
+  applicability condition, and every exclusion. A bare ID or ordinary lookup is
+  not an activation.
 
 {retry_feedback}
 
@@ -739,6 +791,8 @@ Lean bridge with a named carrier; a pass requires every bridge to be covered.
 {chemistry_protocol}
 
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
+
+{_DORMANT_TRUSTED_BRIDGE_PROTOCOL}
 
 {_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL}
 
@@ -767,6 +821,7 @@ Write exactly one JSON object line to {milestone}:
       "countermodel_resistance": {{"status": "passed|failed", "evidence": "..."}}
     }},
     "bridge_obligations": [{{"claim": "...", "carrier": "...", "status": "covered|blocked", "evidence": "..."}}],
+    "trusted_bridge_requests": [{{"bridge_obligation_index": 0, "rule_id": "<exact dormant ID>"}}],
     "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
 {source_audit_schema}
     "contract_audit": {{
