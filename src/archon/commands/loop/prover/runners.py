@@ -13,7 +13,9 @@ from __future__ import annotations
 import hashlib
 import heapq
 import json
+import stat
 import time
+from collections.abc import Mapping
 from collections import deque
 from concurrent.futures import (
     FIRST_COMPLETED,
@@ -128,6 +130,81 @@ def _load_mode_content(state_dir: Path, mode_name: str | None) -> str | None:
     import re as _re
     stripped = _re.sub(r"^---\s*\n.*?\n---\s*\n", "", text, count=1, flags=_re.DOTALL)
     return stripped.strip() or None
+
+
+class _ImmediateRedraftPromptError(ValueError):
+    """A target-local prompt construction failure safe to route as an error."""
+
+
+_MAX_SEALED_MODE_BYTES = 32 * 1024
+
+
+def _sealed_mode_reference(
+    state_dir: Path,
+    mode_name: str | None,
+) -> str | None:
+    """Bind a compact redraft instruction to one sealed prover-mode file."""
+    if mode_name is None:
+        return None
+    if (
+        not isinstance(mode_name, str)
+        or not mode_name
+        or len(mode_name) > 128
+        or any(
+            not char.isascii() or not (char.isalnum() or char in "-_")
+            for char in mode_name
+        )
+    ):
+        raise _ImmediateRedraftPromptError(
+            "sealed prover mode name is invalid"
+        )
+
+    modes_dir = state_dir / "prover-modes"
+    mode_file = modes_dir / f"{mode_name}.md"
+    try:
+        if modes_dir.is_symlink():
+            raise OSError("mode directory is a symlink")
+        resolved_modes_dir = modes_dir.resolve(strict=True)
+        if mode_file.is_symlink():
+            raise OSError("mode file is a symlink")
+        metadata = mode_file.stat(follow_symlinks=False)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OSError("mode file is not regular")
+        resolved_mode_file = mode_file.resolve(strict=True)
+        resolved_mode_file.relative_to(resolved_modes_dir)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise _ImmediateRedraftPromptError(
+            "sealed prover mode reference is unavailable"
+        ) from exc
+    if metadata.st_size == 0:
+        raise _ImmediateRedraftPromptError(
+            "sealed prover mode reference is empty"
+        )
+    if metadata.st_size > _MAX_SEALED_MODE_BYTES:
+        raise _ImmediateRedraftPromptError(
+            "sealed prover mode reference exceeds 32 KiB"
+        )
+    try:
+        payload = mode_file.read_bytes()
+    except OSError as exc:
+        raise _ImmediateRedraftPromptError(
+            "sealed prover mode reference is unavailable"
+        ) from exc
+    if len(payload) != metadata.st_size:
+        raise _ImmediateRedraftPromptError(
+            "sealed prover mode reference changed during read"
+        )
+
+    digest = hashlib.sha256(payload).hexdigest()
+    return (
+        f"The controller selected active mode `{mode_name}`. Read the complete sealed descriptor at: "
+        f"`{resolved_mode_file}`. Controller binding: sha256={digest}, "
+        f"bytes={len(payload)}. Treat that exact sealed file as mandatory; "
+        "Treat YAML frontmatter only as non-operative metadata: execute the "
+        "Markdown body after its closing `---`, and do not let any frontmatter "
+        "name override the controller-selected active mode. Do not substitute "
+        "a legacy stage prompt or a different mode."
+    )
 
 
 def _blueprint_chapter_for_target(project_path: Path, target: Path) -> Path:
@@ -294,6 +371,125 @@ def _native_formalizer_semantic_dag_block(
     )
 
 
+_INCOMPLETE_REPAIR_FEEDBACK_ERROR = (
+    "immediate redraft prompt cannot retain complete repair feedback"
+)
+
+
+def _validate_complete_repair_projection(
+    original_task: Mapping[str, object],
+    bounded_task: Mapping[str, object],
+) -> None:
+    """Reject a bounded prompt that loses any required repair feedback."""
+    if not bounded_task:
+        raise _ImmediateRedraftPromptError(
+            _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+        )
+
+    ignored_top_level = {"history", "source_bound_review"}
+    original_core = {
+        key: value
+        for key, value in original_task.items()
+        if key not in ignored_top_level
+    }
+    bounded_core = {
+        key: value
+        for key, value in bounded_task.items()
+        if key not in ignored_top_level
+    }
+    if bounded_core != original_core:
+        raise _ImmediateRedraftPromptError(
+            _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+        )
+
+    if "history" in original_task:
+        original_history = original_task.get("history")
+        bounded_history = bounded_task.get("history")
+        if isinstance(original_history, Mapping) and isinstance(
+            bounded_history, Mapping
+        ):
+            original_history_core = {
+                key: value
+                for key, value in original_history.items()
+                if key != "events"
+            }
+            bounded_history_core = {
+                key: value
+                for key, value in bounded_history.items()
+                if key != "events"
+            }
+            if bounded_history_core != original_history_core:
+                raise _ImmediateRedraftPromptError(
+                    _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+                )
+            original_events = original_history.get("events")
+            bounded_events = bounded_history.get("events")
+            if isinstance(original_events, list) and original_events:
+                if (
+                    not isinstance(bounded_events, list)
+                    or not bounded_events
+                    or bounded_events
+                    != original_events[-len(bounded_events):]
+                ):
+                    raise _ImmediateRedraftPromptError(
+                        _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+                    )
+            elif bounded_events != original_events:
+                raise _ImmediateRedraftPromptError(
+                    _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+                )
+        elif bounded_history != original_history:
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
+    elif "history" in bounded_task:
+        raise _ImmediateRedraftPromptError(
+            _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+        )
+
+    if "source_bound_review" not in original_task:
+        if "source_bound_review" in bounded_task:
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
+        return
+
+    original_source = original_task.get("source_bound_review")
+    bounded_source = bounded_task.get("source_bound_review")
+    if not isinstance(original_source, Mapping) or not isinstance(
+        bounded_source, Mapping
+    ):
+        raise _ImmediateRedraftPromptError(
+            _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+        )
+
+    for source_review in (original_source, bounded_source):
+        projection = source_review.get("repair_action_projection")
+        actions = source_review.get("repair_actions")
+        if not isinstance(projection, Mapping) or not isinstance(actions, list):
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
+        failed_count = projection.get("failed_bridge_count")
+        retained_count = projection.get("retained_count")
+        if (
+            type(failed_count) is not int
+            or failed_count < 0
+            or type(retained_count) is not int
+            or retained_count != failed_count
+            or projection.get("truncated") is not False
+            or len(actions) != failed_count
+        ):
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
+
+    if bounded_source != original_source:
+        raise _ImmediateRedraftPromptError(
+            _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+        )
+
+
 def build_immediate_redraft_prompt(
     *,
     project_name: str,
@@ -310,6 +506,7 @@ def build_immediate_redraft_prompt(
     mode_name = select_prover_mode_for_target(
         state_dir, "autoformalize", project_path, target, explicit_mode=None,
     )
+    mode_reference = _sealed_mode_reference(state_dir, mode_name)
     base_prompt = build_parallel_prover_prompt(
         project_name,
         project_path,
@@ -319,7 +516,10 @@ def build_immediate_redraft_prompt(
         assigned_rel_lean_path=rel,
         debug_feedback=debug_feedback,
         mode_name=mode_name,
-        mode_content=_load_mode_content(state_dir, mode_name),
+        # Keep the active-mode branch without duplicating the full sealed mode
+        # body. The short hash-bound reference preserves routing and leaves
+        # room for the accepted Review's structured repair hand-off.
+        mode_content=mode_reference,
     )
     semantic_block = _native_formalizer_semantic_dag_block(
         project_path=project_path, target=target,
@@ -367,9 +567,12 @@ assigned Lean file compiles and the redraft evidence is durable on disk.
         review_certificate,
         maximum_bytes=MAX_REPAIR_TASK_PROMPT_BYTES - prompt_overhead,
     )
+    _validate_complete_repair_projection(review_certificate, task)
     prompt = prompt_prefix + render_repair_task(task) + prompt_suffix
     if len(prompt.encode("utf-8")) > MAX_REPAIR_TASK_PROMPT_BYTES:
-        raise ValueError("immediate redraft prompt exceeds 24 KiB")
+        raise _ImmediateRedraftPromptError(
+            "immediate redraft prompt exceeds 24 KiB"
+        )
     return prompt
 
 
@@ -2022,16 +2225,41 @@ required action while preserving the accepted statement.
             baseline_sha256 = _target_sha256(target)
             baseline_results = _task_result_fingerprints(self.state_dir, rel)
             snapshot_baseline(target, snap_dir)
-            prompt = build_immediate_redraft_prompt(
-                project_name=self.project_name,
-                project_path=self.project_path,
-                state_dir=self.state_dir,
-                iter_num=self.iter_num,
-                target=target,
-                review_certificate=certificate,
-                debug_feedback=self.debug_feedback,
-                handoff_label=handoff_label,
-            )
+            try:
+                prompt = build_immediate_redraft_prompt(
+                    project_name=self.project_name,
+                    project_path=self.project_path,
+                    state_dir=self.state_dir,
+                    iter_num=self.iter_num,
+                    target=target,
+                    review_certificate=certificate,
+                    debug_feedback=self.debug_feedback,
+                    handoff_label=handoff_label,
+                )
+            except _ImmediateRedraftPromptError as exc:
+                # A controller-owned hand-off that cannot be represented
+                # without dropping its required bindings is a target-scoped
+                # infrastructure failure. Surface it through the normal
+                # formalizer outcome path instead of crashing every lane.
+                future = Future()
+                future.set_exception(ValueError(
+                    f"safe immediate redraft prompt rejection: {exc}"
+                ))
+                futures[future] = _PipelineWork(
+                    kind=(
+                        "answer_submission_repair"
+                        if handoff_label == _ANSWER_SUBMISSION_REPAIR_LABEL
+                        else "formalizer"
+                    ),
+                    target=target,
+                    rel=rel,
+                    slug=slug,
+                    attempt=cycle,
+                    cycle=cycle,
+                    baseline_sha256=baseline_sha256,
+                    result_fingerprints=tuple(sorted(baseline_results.items())),
+                )
+                return
             resume_sid = pick_resume_session(
                 self.iter_meta,
                 f"pipelineFormalizers.{slug}.sessionId",

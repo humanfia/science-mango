@@ -28,6 +28,7 @@ from archon.commands.loop.phases.review import ReviewPhase
 from archon.commands.loop.proof_review_gate import apply_target_proof_review
 from archon.commands.loop.prover.runners import (
     ParallelProverRunner,
+    _ImmediateRedraftPromptError,
     _answer_submission_repair_handoff,
     _pipeline_cycle,
 )
@@ -1035,6 +1036,157 @@ class PipelinedReviewTest(unittest.TestCase):
             failure = report["formalizer_results"]["A.lean"]
             self.assertFalse(failure["task_result_updated"])
             self.assertIn("did not update its task result", failure["error"])
+
+    def test_redraft_prompt_size_error_is_target_scoped(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            formalizer_calls = 0
+
+            def unexpected_formalizer(*_args, **_kwargs):
+                nonlocal formalizer_calls
+                formalizer_calls += 1
+                return True
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=_process_prover,
+                review_worker=_process_redraft_review,
+                formalizer_worker=unexpected_formalizer,
+                max_parallel=1,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_immediate_redraft_prompt",
+                    side_effect=_ImmediateRedraftPromptError(
+                        "immediate redraft prompt exceeds 24 KiB"
+                    ),
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(formalizer_calls, 0)
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["formalizers"]["failed"], 1)
+            failure = report["formalizer_results"]["A.lean"]
+            self.assertIn(
+                "safe immediate redraft prompt rejection: immediate redraft "
+                "prompt exceeds 24 KiB",
+                failure["error"],
+            )
+
+    def test_redraft_prompt_error_does_not_block_a_solved_peer(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            targets = [root / "A.lean", root / "B.lean"]
+            for target in targets:
+                target.write_text(
+                    f"theorem {target.stem.lower()} : True := by sorry\n",
+                    encoding="utf-8",
+                )
+            proof_reviews: list[str] = []
+            formalizer_calls = 0
+
+            def proof_review(spec, **_kwargs):
+                proof_reviews.append(spec.rel)
+                milestone = (
+                    _redraft_milestone(spec.rel)
+                    if spec.rel == "A.lean"
+                    else _milestone(spec.rel)
+                )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=milestone,
+                )
+
+            def unexpected_formalizer(*_args, **_kwargs):
+                nonlocal formalizer_calls
+                formalizer_calls += 1
+                return True
+
+            def prompt_builder(**kwargs):
+                if kwargs["target"].name == "A.lean":
+                    raise _ImmediateRedraftPromptError(
+                        "immediate redraft prompt exceeds 24 KiB"
+                    )
+                return "valid target-local redraft prompt"
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=_process_prover,
+                review_worker=proof_review,
+                formalizer_worker=unexpected_formalizer,
+                max_parallel=2,
+                full_pipeline=True,
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_immediate_redraft_prompt",
+                    side_effect=prompt_builder,
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout(targets, file_modes={})
+
+            self.assertEqual(sorted(proof_reviews), ["A.lean", "B.lean"])
+            self.assertEqual(formalizer_calls, 0)
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+            )
+            self.assertFalse(report["complete"])
+            self.assertEqual(report["status"], "incomplete")
+            self.assertEqual(report["settled_target_files"], ["B.lean"])
+            self.assertEqual(
+                report["pending_formalization_targets"], ["A.lean"],
+            )
+            self.assertEqual(report["unresolved"], ["A.lean"])
+            self.assertIn(
+                "safe immediate redraft prompt rejection: immediate redraft "
+                "prompt exceeds 24 KiB",
+                report["errors"]["A.lean"],
+            )
+            proof_gate = json.loads(
+                (state / "proof-review-gate.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(proof_gate["targets"]["B.lean"]["status"], "solved")
+            self.assertEqual(
+                proof_gate["targets"]["A.lean"]["status"], "needs_redraft",
+            )
 
     def test_full_pipeline_formalization_retry_receives_validator_error(self):
         with tempfile.TemporaryDirectory() as td:
