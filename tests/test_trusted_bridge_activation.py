@@ -20,8 +20,9 @@ from archon.commands.loop.review_feedback import build_repair_task
 
 TARGET = "Problems/problem_a.lean"
 CANDIDATE_SHA256 = "1" * 64
-RULE_ID = "mellitic_acid_p2o5_heating_forms_some_trianhydride"
+RULE_ID = "directed_reaction_omitted_protocol_candidate_filter"
 SECOND_RULE_ID = "closed_domain_mellite_terminal_residue_candidate_filter"
+REFERENCE_ONLY_RULE_ID = "mellitic_acid_p2o5_heating_forms_some_trianhydride"
 
 
 def _certificate(*, requests: list[dict] | None = None) -> dict:
@@ -172,6 +173,7 @@ def _enable_unit_catalog(monkeypatch: pytest.MonkeyPatch) -> None:
         "failed_bridge",
         "unknown_id",
         "baseline_id",
+        "reference_only_id",
         "extra_claim",
         "extra_url",
         "duplicate_rule",
@@ -191,6 +193,10 @@ def test_request_schema_is_exact_failed_blocked_and_minimal(mutation: str) -> No
     elif mutation == "baseline_id":
         certificate["trusted_bridge_requests"][0]["rule_id"] = (
             "mellite_ideal_stoichiometry"
+        )
+    elif mutation == "reference_only_id":
+        certificate["trusted_bridge_requests"][0]["rule_id"] = (
+            REFERENCE_ONLY_RULE_ID
         )
     elif mutation == "extra_claim":
         certificate["trusted_bridge_requests"][0]["claim"] = "INJECTED"
@@ -247,6 +253,11 @@ def test_parallel_certificate_validator_and_prompt_expose_only_id_requests() -> 
     assert SECOND_RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert "exact dormant" in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert "Never supply a claim, source, URL" in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
+    normalized_protocol = " ".join(_DORMANT_TRUSTED_BRIDGE_PROTOCOL.split())
+    assert "if even one lacks exact evidence" in normalized_protocol
+    assert "Receipt completeness never establishes applicability" in (
+        normalized_protocol
+    )
 
 
 @pytest.mark.parametrize(
@@ -333,6 +344,20 @@ def test_catalog_rejects_nonunique_or_mismatched_manifest_entry(
     assert activation._validated_catalog_lookup(RULE_ID) is None
 
 
+
+def test_reference_only_rule_cannot_receive_controller_activation() -> None:
+    certificate = _certificate(requests=[_request(REFERENCE_ONLY_RULE_ID)])
+
+    assert activation.validate_trusted_bridge_requests(certificate)
+    assert activation._validated_catalog_lookup(REFERENCE_ONLY_RULE_ID) is None
+    assert activation.build_trusted_bridge_activation_projection(
+        certificate,
+        target_rel=TARGET,
+        candidate_sha256=CANDIDATE_SHA256,
+        expected_source_contract=_contract(),
+    ) == {}
+
+
 def test_unrequested_dormant_rule_is_not_activated(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -374,6 +399,14 @@ def test_controller_rebuilds_complete_catalog_receipt_not_reviewer_text(
     assert receipt["rule"]["exclusions"] == ["CATALOG_EXCLUSION"]
     assert receipt["source"]["url"] == "https://example.test/paper"
     assert receipt["review"]["status"] == "approved"
+    assert receipt["applicability"] == {
+        "status": "not_evaluated_by_controller",
+        "condition_semantics": "all_required_fail_closed",
+        "required_condition_count": len(
+            receipt["rule"]["applicability_conditions"]
+        ),
+        "complete_receipt_does_not_establish_conditions": True,
+    }
     assert set(receipt["catalog_binding"]) == {
         "base_dataset_sha256",
         "dataset_sha256",
@@ -489,6 +522,17 @@ def test_repair_handoff_injects_activation_inside_complete_source_projection(
     ] = []
     with pytest.raises(_ImmediateRedraftPromptError):
         _validate_complete_repair_projection(task, incomplete)
+
+    false_applicability = deepcopy(task)
+    receipt = false_applicability["source_bound_review"][
+        "trusted_bridge_activations"
+    ]["receipts"][0]
+    receipt["applicability"]["status"] = "satisfied"
+    unsigned = dict(receipt)
+    unsigned.pop("activation_receipt_sha256")
+    receipt["activation_receipt_sha256"] = _sha256(unsigned)
+    with pytest.raises(_ImmediateRedraftPromptError):
+        _validate_complete_repair_projection(task, false_applicability)
 
 
 @pytest.mark.parametrize("batch_wrapper", [False, True])
@@ -620,12 +664,12 @@ def test_initial_or_non_review_redraft_has_no_activation_context(
     ("rule_id", "pinned_sha256"),
     [
         (
-            "mellitic_acid_p2o5_heating_forms_some_trianhydride",
-            "3b7cdcf821c3e9a5dd9afa3619055d24128848437b7c52d0af517b61c64c5e1a",
+            "directed_reaction_omitted_protocol_candidate_filter",
+            "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d",
         ),
         (
             "closed_domain_mellite_terminal_residue_candidate_filter",
-            "cdb1daf3b0e543ce4e17e399324a2fb3d05c13a2cb896fd692b0d74f9db940f6",
+            "b1720156ef1b5e8e0c169a12cfe0179fe95bcba91841e53a5a8b6fba91b73308",
         ),
     ],
 )
@@ -731,6 +775,12 @@ def test_real_sealed_lookup_flows_through_receipt_redraft_and_next_review(
     assert lookup["result"]["claim"] in prompt
     assert lookup["source"]["locator"] in prompt
     assert "normal empirical-rule lookup" in prompt
+    normalized_prompt = " ".join(prompt.split())
+    assert "if even one lacks exact evidence" in normalized_prompt
+    assert "Receipt completeness never establishes applicability" in (
+        normalized_prompt
+    )
+    assert "not_evaluated_by_controller" in prompt
 
     current_candidate_sha256 = "0" * 64
     context = activation.build_trusted_bridge_review_context(

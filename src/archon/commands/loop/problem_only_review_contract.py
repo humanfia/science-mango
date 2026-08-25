@@ -27,6 +27,7 @@ from ..chemistry_constant import (
     DATASET_SHA256,
     DATASET_VERSION,
     REACTION_TEMPLATE_IDS,
+    REFERENCE_ONLY_EMPIRICAL_RULE_IDS,
 )
 from .answer_submission import (
     AnswerSubmissionError,
@@ -1743,6 +1744,9 @@ def render_native_chemistry_constant_policy(
     empirical_ids = ", ".join(
         f"`{rule_id}`" for rule_id in BASELINE_EMPIRICAL_RULE_IDS
     )
+    reference_only_empirical_ids = ", ".join(
+        f"`{rule_id}`" for rule_id in REFERENCE_ONLY_EMPIRICAL_RULE_IDS
+    )
     dormant_empirical_ids = ", ".join(
         f"`{rule_id}`" for rule_id in DORMANT_RUNTIME_BRIDGE_IDS
     )
@@ -1775,16 +1779,30 @@ def render_native_chemistry_constant_policy(
 - `empirical_rule` has an exact five-ID allowlist: the exact allowed RULE_ID
   inventory available without runtime activation is:
   {empirical_ids}.
+- Reference-only empirical-rule IDs are:
+  {reference_only_empirical_ids}. A reference-only lookup is never baseline
+  evidence and cannot receive a controller activation receipt. It may be
+  inspected as source-scoped literature context for candidate enumeration.
+  Its returned claim may be cited only when independent problem evidence
+  supplies every exact returned applicability condition; the lookup itself
+  proves none of those conditions. Never borrow a missing protocol condition
+  from literature. When a condition is absent, the record may nominate a
+  candidate for a closed audit but is non-premise context and cannot ground a
+  source-to-Lean bridge about the current reaction.
 - Dormant Reviewer-requestable bridge IDs are:
   {dormant_empirical_ids}. They may be returned by the sealed CLI but are not
   active evidence in an initial formalization or ordinary lookup. A dormant
   rule may be used only when the current immediate-redraft prompt contains its
   complete controller-built activation receipt bound to this exact target and
   candidate. A bare id, lookup receipt, candidate citation, or Reviewer text
-  never activates it.
+  never activates it. All applicability conditions are conjunctive and
+  source-bound: if even one lacks exact evidence, the rule is inapplicable and
+  the target must remain blocked. Receipt completeness never establishes
+  applicability.
 - These are the full supported registries at lookup level: the template,
-  policy, baseline, and dormant lists form the complete inventory. Never guess, enumerate, or probe another registry id. An
-  unlisted id fails closed.
+  policy, baseline, reference-only, and dormant lists form the complete
+  inventory. Never guess, enumerate, or probe another registry id. An unlisted
+  id fails closed.
 - Pass exactly one element, isotope, formula, registered template id,
   registered contest-policy id, or exact allowlisted empirical-rule id. Never
   pass a problem id, question/source text, URL, or search phrase. Do not use web
@@ -1793,10 +1811,12 @@ def render_native_chemistry_constant_policy(
   `"$ARCHON_CLI_BIN"` grammar. Check the returned dataset version/hash against
   the controller-bound values above, then check record_sha256 against the
   candidate-cited receipt after rerunning its exact operation and argument.
-  The exact TEMPLATE_ID, POLICY_ID, baseline RULE_ID, and dormant RULE_ID lists
-  above are the full lookup inventory; no other identifier may be probed. A
-  dormant lookup is not usable evidence without the exact target- and
-  candidate-bound controller activation receipt in the current hand-off.
+  The exact TEMPLATE_ID, POLICY_ID, baseline RULE_ID, reference-only RULE_ID,
+  and dormant RULE_ID lists above are the full lookup inventory; no other
+  identifier may be probed. A dormant lookup is not usable evidence without
+  the exact target- and candidate-bound controller activation receipt in the
+  current hand-off. A reference-only lookup never becomes active merely
+  because it is cited by a candidate or Reviewer.
 - A contest_interpretation receipt is a contest-semantics policy, not a paper,
   empirical chemistry fact, or universal inverse-classification theorem.
   Accept it only after binding every required activation cue to an exact
@@ -1823,6 +1843,13 @@ def render_native_chemistry_constant_policy(
   A Reviewer must rerun the exact operation and allowed id and compare all those
   values. A missing or mismatched hash, source locator, approval, applicability
   condition, or scope—or a different substrate or reagent—fails closed.
+
+- A reference-only empirical_rule receipt is not covered by the baseline or
+  dormant grounding permission above. Its exact returned claim may be cited
+  only after independent problem evidence establishes every returned
+  applicability condition. Otherwise it may provide literature context for
+  enumerating a candidate, but it cannot fill an omitted condition or ground a
+  source-to-Lean bridge about the current reaction.
 
 - Problem-stipulated values override the dataset. A pinned nominal value may be
   used for an olympiad-style central answer when the problem asks for one, but

@@ -125,7 +125,9 @@ rule. The controller will reject unknown IDs and will independently rebuild a
 complete target- and candidate-bound activation receipt from its sealed catalog
 for only the next target-local redraft. A normal empirical-rule lookup or a
 candidate-local citation is not an activation receipt and does not activate a
-dormant rule."""
+dormant rule. All applicability conditions are conjunctive and source-bound: if
+even one lacks exact evidence, the rule is inapplicable and the target must
+remain blocked. Receipt completeness never establishes applicability."""
 
 
 def _utcnow() -> str:

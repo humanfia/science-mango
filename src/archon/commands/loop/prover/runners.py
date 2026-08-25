@@ -591,6 +591,7 @@ def _validate_complete_repair_projection(
             receipt_sha256 = unsigned.pop("activation_receipt_sha256", "")
             target_binding = receipt.get("target")
             rule = receipt.get("rule")
+            applicability = receipt.get("applicability")
             if (
                 receipt.get("schema_version") != 1
                 or receipt.get("kind")
@@ -603,6 +604,24 @@ def _validate_complete_repair_projection(
                 or not isinstance(rule.get("applicability_conditions"), list)
                 or not rule.get("applicability_conditions")
                 or not isinstance(rule.get("exclusions"), list)
+                or not isinstance(applicability, Mapping)
+                or applicability.get("status")
+                != "not_evaluated_by_controller"
+                or applicability.get("condition_semantics")
+                != "all_required_fail_closed"
+                or applicability.get("required_condition_count")
+                != len(rule["applicability_conditions"])
+                or type(applicability.get("required_condition_count")) is not int
+                or applicability["required_condition_count"] <= 0
+                or applicability.get(
+                    "complete_receipt_does_not_establish_conditions"
+                ) is not True
+                or set(applicability) != {
+                    "status",
+                    "condition_semantics",
+                    "required_condition_count",
+                    "complete_receipt_does_not_establish_conditions",
+                }
                 or not isinstance(receipt_sha256, str)
                 or hashlib.sha256(json.dumps(
                     unsigned, ensure_ascii=False, sort_keys=True,
@@ -677,9 +696,12 @@ an official answer or as a premise that bypasses the source derivation.
 
 When `source_bound_review.trusted_bridge_activations` is present, only its
 complete controller-built receipt activates the embedded sealed rule for this
-exact target and candidate, and only for this redraft. Check every listed
-applicability condition and exclusion before using the rule. A bare rule ID,
-normal empirical-rule lookup, candidate citation, or Reviewer paraphrase is not
+exact target and candidate, and only for this redraft. All applicability
+conditions are conjunctive and source-bound: if even one lacks exact evidence,
+the rule is inapplicable and the target must remain blocked. Receipt completeness
+never establishes applicability. Check every listed exclusion before using the
+rule. A bare rule ID, normal empirical-rule lookup, candidate citation, or
+Reviewer paraphrase is not
 an activation and must not be used as evidence.
 
 """

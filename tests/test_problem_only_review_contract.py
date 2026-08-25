@@ -551,6 +551,12 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "no other identifier may be probed",
             "empirical_rule <RULE_ID>",
             "exact five-ID allowlist",
+            "Reference-only empirical-rule IDs",
+            "never baseline evidence",
+            "cannot receive a controller activation receipt",
+            "Never borrow a missing protocol condition",
+            "if even one lacks exact evidence",
+            "Receipt completeness never establishes applicability",
             "Dormant Reviewer-requestable bridge IDs",
             "ordinary lookup",
             "complete controller-built activation receipt",
@@ -827,6 +833,18 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertIn("analogous_halogen_addition", prompt)
             self.assertIn("empirical_rule <RULE_ID>", prompt)
             self.assertIn("exact five-ID allowlist", prompt)
+            self.assertIn("Reference-only empirical-rule IDs", prompt)
+            self.assertIn(
+                "cannot receive a controller activation receipt", prompt
+            )
+            self.assertIn(
+                "Never borrow a missing protocol condition", prompt
+            )
+            self.assertIn("if even one lacks exact evidence", prompt)
+            self.assertIn(
+                "Receipt completeness never establishes applicability",
+                " ".join(prompt.split()),
+            )
             self.assertIn("source.content_sha256", prompt)
             self.assertIn("bounded policy", prompt)
             self.assertIn("a paper or universal empirical law", prompt)

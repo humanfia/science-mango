@@ -433,12 +433,16 @@ _EMPIRICAL_RULES = {
 EMPIRICAL_RULE_IDS = tuple(sorted(_EMPIRICAL_RULES))
 DORMANT_RUNTIME_BRIDGE_IDS = (
     "closed_domain_mellite_terminal_residue_candidate_filter",
+    "directed_reaction_omitted_protocol_candidate_filter",
+)
+REFERENCE_ONLY_EMPIRICAL_RULE_IDS = (
     "mellitic_acid_p2o5_heating_forms_some_trianhydride",
 )
 BASELINE_EMPIRICAL_RULE_IDS = tuple(
     rule_id
     for rule_id in EMPIRICAL_RULE_IDS
     if rule_id not in DORMANT_RUNTIME_BRIDGE_IDS
+    and rule_id not in REFERENCE_ONLY_EMPIRICAL_RULE_IDS
 )
 
 _DATASET_PAYLOAD = {

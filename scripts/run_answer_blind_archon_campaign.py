@@ -202,16 +202,28 @@ solve the proof.
   `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
   `mellite_ideal_stoichiometry`, and
   `mellitic_acid_benzoyl_chloride_to_c12o9`.
+  The Reference-only empirical-rule IDs are:
+  `mellitic_acid_p2o5_heating_forms_some_trianhydride`.
+  A reference-only record is never baseline evidence and cannot receive a
+  controller activation receipt. Its claim may be cited only when independent
+  problem evidence supplies every exact applicability condition; the lookup
+  itself proves none. Never borrow a missing protocol condition from literature.
+  When a condition is absent, the record may nominate a closed-audit candidate
+  but remains non-premise context for the current reaction.
   The dormant Reviewer-requestable bridge IDs are:
   `closed_domain_mellite_terminal_residue_candidate_filter` and
-  `mellitic_acid_p2o5_heating_forms_some_trianhydride`.
+  `directed_reaction_omitted_protocol_candidate_filter`.
   This five-ID baseline list is an exact allowlist without activation. Dormant
   records may be returned by the CLI but are not active evidence in an initial
   formalization or ordinary lookup. Use one only when the current immediate-
   redraft prompt contains its complete controller-built receipt bound to this
   exact target and candidate. A bare ID, lookup, candidate citation, or Reviewer
-  paraphrase never activates it. Never guess, enumerate, or probe any other
-  registry id; an unlisted id fails closed. Pass exactly one
+  paraphrase never activates it. All applicability conditions are conjunctive
+  and source-bound: if even one lacks exact evidence, the rule is inapplicable
+  and the target must remain blocked. Receipt completeness never establishes
+  applicability. The baseline, reference-only, and dormant
+  lists are the full empirical-rule inventory. Never guess, enumerate, or probe
+  any other registry id; an unlisted id fails closed. Pass exactly one
   allowed token—never a problem id, question/source text, URL, or search phrase.
   The command performs no network access and returns a dataset version/hash that
   must be preserved as provenance.
@@ -249,6 +261,11 @@ solve the proof.
   A Reviewer must rerun the exact operation and allowed id and compare all those
   values. A missing or mismatched hash, source locator, approval, applicability
   condition, or scope—or a different substrate or reagent—must fail closed.
+  A reference-only `empirical_rule` receipt is not covered by that baseline or
+  dormant grounding permission. Its exact returned claim may be cited only
+  after independent problem evidence establishes every applicability condition.
+  Otherwise it cannot fill an omitted condition or ground a source-to-Lean
+  bridge about the current reaction.
 
 - For assigned `IChO2026Problems/problem_<TARGET_ID>.lean`, atomically overwrite
   `.archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json` on
@@ -426,16 +443,28 @@ runtime activation are:
 `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
 `mellite_ideal_stoichiometry`, and
 `mellitic_acid_benzoyl_chloride_to_c12o9`.
+The Reference-only empirical-rule IDs are:
+`mellitic_acid_p2o5_heating_forms_some_trianhydride`.
+A reference-only record is never baseline evidence and cannot receive a
+controller activation receipt. Its claim may be cited only when independent
+problem evidence supplies every exact applicability condition; the lookup
+itself proves none. Never borrow a missing protocol condition from literature.
+When a condition is absent, it may nominate a closed-audit candidate but
+remains non-premise context for the current reaction.
 The dormant Reviewer-requestable bridge IDs are:
 `closed_domain_mellite_terminal_residue_candidate_filter` and
-`mellitic_acid_p2o5_heating_forms_some_trianhydride`.
+`directed_reaction_omitted_protocol_candidate_filter`.
 This five-ID baseline list is an exact allowlist without activation. An ordinary lookup of a dormant rule is not evidence. A formalization Reviewer may request only one
 exact dormant ID for one corresponding blocked bridge; it may not supply rule
 text, source, URL, hash, or claim. Accept a dormant rule only through a complete
 controller-built activation or next-Review context receipt bound to the exact
 target and candidate, after checking every rule/source/review hash, applicability
-condition, and exclusion. Never guess, enumerate, or probe any other registry
-id; an unlisted id fails closed. Never pass a problem
+condition, and exclusion. All applicability conditions are conjunctive and
+source-bound: if even one lacks exact evidence, the rule is inapplicable and the
+target must remain blocked. Receipt completeness never establishes
+applicability. The baseline, reference-only, and dormant lists are
+the full empirical-rule inventory. Never guess, enumerate, or probe any other
+registry id; an unlisted id fails closed. Never pass a problem
 id, question text, URL, or search phrase. The Reviewer must verify each used
 lookup through the same `"$ARCHON_CLI_BIN"` grammar and check its returned
 dataset version/hash against the bound source contract. The exact TEMPLATE_ID,
@@ -474,6 +503,11 @@ The Reviewer must preserve and compare `dataset_sha256`, `record_sha256`,
 after rerunning the exact operation and allowed id. A missing or mismatched
 hash, source locator, approval, applicability condition, or scope—or a different
 substrate or reagent—must fail closed.
+A reference-only `empirical_rule` receipt is not covered by that baseline or
+dormant grounding permission. Its exact returned claim may be cited only after
+independent problem evidence establishes every applicability condition.
+Otherwise it cannot fill an omitted condition or ground a source-to-Lean bridge
+about the current reaction.
 
 """
 

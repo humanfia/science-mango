@@ -22,6 +22,7 @@ EXPECTED_EMPIRICAL_RULE_IDS = (
     "aqueous_feiii_phenol_colored_complex",
     "closed_candidate_feiii_phenol_filter",
     "closed_domain_mellite_terminal_residue_candidate_filter",
+    "directed_reaction_omitted_protocol_candidate_filter",
     "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
     "mellite_ideal_stoichiometry",
     "mellitic_acid_benzoyl_chloride_to_c12o9",
@@ -41,7 +42,7 @@ def test_dataset_digest_and_atomic_weight_are_version_pinned() -> None:
         chemistry.BASE_DATASET_VERSION + "+trusted-empirical-rules-v1"
     )
     assert chemistry.DATASET_SHA256 == (
-        "c78d4b2d859195f692874a2a6547216d3748fa4659c190531a73acc15cfabf1a"
+        "cd405359fa087f214b0f088f3b262b0fe20a9b4575166cd235fd44f204552a2f"
     )
     assert chemistry.REACTION_TEMPLATE_IDS == (
         "binary_two_fragment_electrophilic_addition",
@@ -155,7 +156,7 @@ def test_contest_interpretation_is_bounded_policy_not_empirical_answer() -> None
     lookup = chemistry.contest_interpretation("analogous_halogen_addition")
     policy = lookup["result"]
     assert lookup["record_sha256"] == (
-        "f50956bdd17a984bbc103df8686f705ae791fa155235c39390137c0dd31d3473"
+        "76739f522bb2f62e04a1ec472ba74f7dbbaad19705c10ba7f7db6e93c7a7d777"
     )
     assert lookup["operation"] == "contest_interpretation"
     assert lookup["runtime_network_access"] is False
@@ -239,7 +240,7 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
         assert lookup["dataset_sha256"] == chemistry.DATASET_SHA256
         assert lookup["base_dataset_sha256"] == chemistry.BASE_DATASET_SHA256
         assert lookup["empirical_registry_manifest_sha256"] == (
-            "9a8243a90ece51b7f9f22851aa0ea8b41db2ce7c4585c38399d407c0322541cb"
+            "e1b98e8fd930c251afeb3dcd210557237cc10ddf3a52ad6a8ca296fe1a06817f"
         )
         for digest in (
             lookup["record_sha256"],
@@ -293,6 +294,35 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
         assert forbidden not in serialized
 
 
+
+def test_empirical_rule_partitions_are_exact_disjoint_and_complete() -> None:
+    assert chemistry.BASELINE_EMPIRICAL_RULE_IDS == (
+        "aqueous_feiii_phenol_colored_complex",
+        "closed_candidate_feiii_phenol_filter",
+        "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
+        "mellite_ideal_stoichiometry",
+        "mellitic_acid_benzoyl_chloride_to_c12o9",
+    )
+    assert chemistry.REFERENCE_ONLY_EMPIRICAL_RULE_IDS == (
+        "mellitic_acid_p2o5_heating_forms_some_trianhydride",
+    )
+    assert chemistry.DORMANT_RUNTIME_BRIDGE_IDS == (
+        "closed_domain_mellite_terminal_residue_candidate_filter",
+        "directed_reaction_omitted_protocol_candidate_filter",
+    )
+    partitions = (
+        set(chemistry.BASELINE_EMPIRICAL_RULE_IDS),
+        set(chemistry.REFERENCE_ONLY_EMPIRICAL_RULE_IDS),
+        set(chemistry.DORMANT_RUNTIME_BRIDGE_IDS),
+    )
+    assert all(
+        not left.intersection(right)
+        for index, left in enumerate(partitions)
+        for right in partitions[index + 1 :]
+    )
+    assert set().union(*partitions) == set(chemistry.EMPIRICAL_RULE_IDS)
+
+
 def test_mellitic_acid_p2o5_rule_is_partial_and_cannot_ground_tga_residue() -> None:
     rule_id = "mellitic_acid_p2o5_heating_forms_some_trianhydride"
     lookup = chemistry.empirical_rule(rule_id)
@@ -333,6 +363,9 @@ def test_mellitic_acid_p2o5_rule_is_partial_and_cannot_ground_tga_residue() -> N
     ):
         assert required_boundary in exclusions
     assert "al2o3" not in json.dumps(lookup, ensure_ascii=False).casefold()
+    assert rule_id in chemistry.REFERENCE_ONLY_EMPIRICAL_RULE_IDS
+    assert rule_id not in chemistry.DORMANT_RUNTIME_BRIDGE_IDS
+    assert rule_id not in chemistry.BASELINE_EMPIRICAL_RULE_IDS
 
     assert not any(
         "open_air" in registered or "thermal_residue" in registered
@@ -346,18 +379,91 @@ def test_mellitic_acid_p2o5_rule_is_partial_and_cannot_ground_tga_residue() -> N
             chemistry.empirical_rule(unsupported_rule_id)
 
 
+def test_directed_reaction_omitted_protocol_policy_is_strictly_bounded() -> None:
+    rule_id = "directed_reaction_omitted_protocol_candidate_filter"
+    lookup = chemistry.empirical_rule(rule_id)
+
+    assert lookup["record_sha256"] == (
+        "e26dd359e15994fad029afaa9fe4b9d2fd2099ef387ca7749707a7b17f6286b7"
+    )
+    assert lookup["pinned_rule_record_sha256"] == (
+        "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d"
+    )
+    assert lookup["source"]["content_sha256"] == (
+        "6076dbf045427d68c6cdda3d5632223a69b5d14fd7304f5cb50ce4519d3aefde"
+    )
+    assert lookup["source"]["doi"] == "10.1039/9781847557889"
+    assert "section 2.12.1" in lookup["source"]["locator"]
+    assert lookup["result"]["rule_version"] == 1
+    assert lookup["result"]["authority_kind"] == "contest_semantics_policy"
+    assert lookup["result"]["automatic_problem_instantiation"] is False
+
+    claim = lookup["result"]["claim"].casefold()
+    for required in (
+        "explicitly closed source-bounded candidate set",
+        "explicit directed statement",
+        "non-exclusive positive constraint",
+        "protocol details are omitted",
+    ):
+        assert required in claim
+
+    conditions = " ".join(
+        lookup["result"]["applicability_conditions"]
+    ).casefold()
+    for required in (
+        "exact input-source locator",
+        "same clause",
+        "direction is source-stated",
+        "every omitted detail is recorded as unknown",
+        "independently established from source-bounded evidence",
+        "composition and symmetry",
+        "finite, explicitly closed candidate set",
+        "derived without this policy",
+        "independently satisfies its own exact substrate, reagent, and protocol",
+    ):
+        assert required in conditions
+
+    exclusions = " ".join(lookup["result"]["exclusions"]).casefold()
+    for required in (
+        "does not infer heating",
+        "temperature, time, pressure, solvent, atmosphere",
+        "yield, conversion extent, completeness",
+        "sole or principal product",
+        "extra conditions may not supply an omitted source condition",
+        "neither identifies any reactant, reagent, or product",
+        "reverse implication",
+        "open-world classification",
+        "thermal-decomposition inference",
+        "terminal-residue inference",
+        "does not establish this bounded contest policy",
+    ):
+        assert required in exclusions
+
+    serialized = json.dumps(lookup, ensure_ascii=False).casefold()
+    for forbidden in (
+        "c12o9",
+        "al2o3",
+        "mellitic",
+        "t1-a6",
+        "icho_",
+        "official_answer",
+        "expected_answer",
+    ):
+        assert forbidden not in serialized
+
+
 def test_closed_domain_mellite_terminal_residue_policy_is_strictly_bounded() -> None:
     rule_id = "closed_domain_mellite_terminal_residue_candidate_filter"
     lookup = chemistry.empirical_rule(rule_id)
 
     assert lookup["record_sha256"] == (
-        "c536a858931b0ef83671140ebb9ed87e8f8c3f791c9f743dba526872fc1fa61f"
+        "c459f192e81d6e90418f8c66fcc6e51e5b8e3f7569aa171665e249fccd2bdc24"
     )
     assert lookup["pinned_rule_record_sha256"] == (
-        "cdb1daf3b0e543ce4e17e399324a2fb3d05c13a2cb896fd692b0d74f9db940f6"
+        "b1720156ef1b5e8e0c169a12cfe0179fe95bcba91841e53a5a8b6fba91b73308"
     )
     assert lookup["empirical_registry_manifest_sha256"] == (
-        "9a8243a90ece51b7f9f22851aa0ea8b41db2ce7c4585c38399d407c0322541cb"
+        "e1b98e8fd930c251afeb3dcd210557237cc10ddf3a52ad6a8ca296fe1a06817f"
     )
     assert lookup["source"] == {
         "content_sha256": (
@@ -377,52 +483,71 @@ def test_closed_domain_mellite_terminal_residue_policy_is_strictly_bounded() -> 
     }
 
     rule = lookup["result"]
+    assert rule["rule_version"] == 2
     assert rule["authority_kind"] == "contest_semantics_policy"
     assert rule["automatic_problem_instantiation"] is False
     assert rule["claim"] == (
-        "Within an explicitly closed problem domain satisfying every listed "
-        "condition, a neutral integer formula candidate composed only of "
-        "trivalent aluminium and divalent oxygen may be retained as a "
-        "terminal-residue candidate when it passes the complete atom, charge, "
-        "and measured-mass interval audit."
+        "Within an explicitly closed source-bounded domain satisfying every "
+        "listed condition, the source's conjunctive named-final cue may be "
+        "used only to retain a primitive neutral terminal-residue formula "
+        "candidate that passes the complete atom, charge, and measured-mass "
+        "interval audit."
     )
     conditions = " ".join(rule["applicability_conditions"]).casefold()
     for required_cue in (
-        "independently established as ideal stoichiometric mellite",
-        "mellite_ideal_stoichiometry receipt",
-        "problem source explicitly states thermogravimetric heating in open air",
-        "final residue mass that remains stable at higher temperatures",
-        "affirmatively establishes complete conversion to a terminal phase",
-        "only nonvolatile elements available to the terminal residue",
-        "every possible counterion, dopant, container, or atmosphere contribution",
-        "every charge-neutral integer formula",
-        "trivalent aluminium and divalent oxygen",
-        "atom, charge, and measured-mass intervals",
+        "one exact input-source locator",
+        "thermogravimetric analysis",
+        "unambiguous stated atmosphere",
+        "later mass-loss event",
+        "names the ensuing mass as final",
+        "named single compound",
+        "mass remains constant at higher temperatures",
+        "bounded terminal-product stipulation",
+        "current source bundle",
+        "controller-authenticated fallback",
+        "transparently rederives",
+        "bound prior-part sources",
+        "prior-part question or label",
+        "every earlier mass-loss stage",
+        "source-led mass ledger",
+        "identity and completeness are established independently",
+        "treccani source is used only as qualitative corroboration",
+        "finite closed candidate audit",
+        "primitive neutral integer terminal-residue formula",
+        "independently established element and oxidation-state domain",
+        "atom, charge, and every measured-mass interval",
         "pinned constants and source uncertainties",
-        "treccani mellite source is used only as qualitative corroboration",
-        "infusible alumina residue in a blowpipe test",
+        "every possible counterion, dopant, container, reagent",
+        "mere failure to mention one is insufficient",
     ):
         assert required_cue in conditions
 
     exclusions = " ".join(rule["exclusions"]).casefold()
     for required_boundary in (
-        "not a paper or a universal empirical calcination law",
+        "not a paper or universal empirical calcination law",
         "does not identify an open-world residue",
-        "missing or ambiguous",
-        "does not itself establish open-air thermogravimetric conditions",
+        "bare stable plateau",
+        "ambiguous or unstated atmosphere",
+        "not expressly called final",
+        "not expressly named as a single compound",
+        "activation receipt proves catalog integrity",
+        "does not prove that any named-final cue",
+        "does not establish the identity or completeness of any earlier dehydration",
+        "does not establish thermogravimetric conditions",
         "complete conversion",
         "quantitative recovery",
         "temperature-time program",
-        "specific calcination or thermogravimetric temperature",
+        "specific temperature",
         "duration, yield, purity, phase, or polymorph",
         "mass agreement alone",
-        "ambiguous-atmosphere trace",
+        "missing constituents, oxidation states, candidate closure",
     ):
         assert required_boundary in exclusions
 
     serialized = json.dumps(lookup, ensure_ascii=False).casefold()
     for forbidden_value in (
         "al2o3",
+        "c12o9",
         "szöőr",
         "t1-a6",
         "icho_",
@@ -452,6 +577,7 @@ def test_closed_domain_mellite_terminal_residue_policy_is_strictly_bounded() -> 
             "target_id",
         }
     )
+
 
 
 @pytest.mark.parametrize(
@@ -602,6 +728,12 @@ def test_chemistry_formalizer_sees_strict_offline_query_contract() -> None:
         "full supported registries",
         "exact allowed `RULE_ID` inventory",
         "five-ID list is an exact allowlist",
+        "Reference-only empirical-rule IDs",
+        "cannot receive a controller activation receipt",
+        "Never borrow a missing protocol condition",
+        "if even one lacks exact evidence",
+        "Receipt completeness never establishes applicability",
+        "non-premise context",
         "Dormant Reviewer-requestable bridge IDs",
         "ordinary lookup",
         "complete controller-built",

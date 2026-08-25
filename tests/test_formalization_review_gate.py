@@ -812,7 +812,7 @@ class FormalizationReviewGateTests(unittest.TestCase):
         review["trusted_bridge_requests"] = [{
             "bridge_obligation_index": 0,
             "rule_id": (
-                "mellitic_acid_p2o5_heating_forms_some_trianhydride"
+                "directed_reaction_omitted_protocol_candidate_filter"
             ),
         }]
         review["checks"]["source_faithfulness"] = {
@@ -840,7 +840,7 @@ class FormalizationReviewGateTests(unittest.TestCase):
         activation_receipt = activation_projection["receipts"][0]
         self.assertEqual(
             activation_receipt["rule"]["rule_id"],
-            "mellitic_acid_p2o5_heating_forms_some_trianhydride",
+            "directed_reaction_omitted_protocol_candidate_filter",
         )
         self.assertEqual(activation_receipt["target"]["file"], rel)
         self.assertEqual(

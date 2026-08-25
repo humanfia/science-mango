@@ -676,6 +676,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
             "aqueous_feiii_phenol_colored_complex",
             "closed_candidate_feiii_phenol_filter",
             "closed_domain_mellite_terminal_residue_candidate_filter",
+            "directed_reaction_omitted_protocol_candidate_filter",
             "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
             "mellite_ideal_stoichiometry",
             "mellitic_acid_benzoyl_chloride_to_c12o9",
@@ -706,7 +707,19 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertIn(
                 "five-ID baseline list is an exact allowlist", normalized
             )
+            self.assertIn("Reference-only empirical-rule IDs", normalized)
+            self.assertIn(
+                "cannot receive a controller activation receipt", normalized
+            )
+            self.assertIn(
+                "Never borrow a missing protocol condition", normalized
+            )
             self.assertIn("dormant Reviewer-requestable bridge IDs", normalized)
+            self.assertIn("if even one lacks exact evidence", normalized)
+            self.assertIn(
+                "Receipt completeness never establishes applicability",
+                normalized,
+            )
             self.assertIn("ordinary lookup", normalized)
             self.assertIn("controller-built", normalized)
             self.assertIn("exact target and candidate", normalized)

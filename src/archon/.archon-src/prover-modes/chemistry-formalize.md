@@ -91,10 +91,23 @@ rules usable without runtime activation:
 - `mellite_ideal_stoichiometry`
 - `mellitic_acid_benzoyl_chloride_to_c12o9`
 
+Reference-only empirical-rule IDs are:
+
+- `mellitic_acid_p2o5_heating_forms_some_trianhydride`
+
+This record is never baseline evidence and cannot receive a controller
+activation receipt. It may be inspected as source-scoped literature context
+for candidate enumeration. Its returned claim may be cited only when
+independent problem evidence supplies every returned applicability condition;
+the lookup itself proves none of those conditions. Never borrow a missing
+protocol condition from literature. When a condition is absent, the record may
+nominate a candidate for a closed audit but is non-premise context and cannot
+ground a source-to-Lean bridge about the current reaction.
+
 Dormant Reviewer-requestable bridge IDs are:
 
 - `closed_domain_mellite_terminal_residue_candidate_filter`
-- `mellitic_acid_p2o5_heating_forms_some_trianhydride`
+- `directed_reaction_omitted_protocol_candidate_filter`
 
 This five-ID list is an exact allowlist for baseline rules. The dormant records
 may be returned by the sealed CLI, but they are not active
@@ -102,9 +115,12 @@ evidence in an initial formalization or from an ordinary lookup. Use one only
 when this exact immediate-redraft prompt contains its complete controller-built
 activation receipt bound to the assigned target and current candidate. A bare
 rule id, lookup receipt, candidate citation, or Reviewer paraphrase never
-activates it. At lookup level these are the full supported registries: the baseline, dormant,
-template, and policy lists form the complete inventory. Never guess, enumerate, or probe other rule ids, policy ids,
-or template ids. An unlisted id must fail closed.
+activates it. All applicability conditions are conjunctive and source-bound: if
+even one lacks exact evidence, the rule is inapplicable and the target must
+remain blocked. Receipt completeness never establishes applicability. At lookup level these are the full supported registries: the
+baseline, reference-only, dormant, template, and policy lists form the complete
+inventory. Never guess, enumerate, or probe other rule ids, policy ids, or
+template ids. An unlisted id must fail closed.
 
 The command accepts exactly one enumerated operation and one corresponding
 token. Never send a problem id, question text, source text, URL, search phrase,
@@ -160,6 +176,13 @@ returned `source.url`, `source.doi`, `source.locator`, and
 Reviewer must rerun that exact operation and allowed id and compare every one
 of those values. A missing or mismatched hash, locator, approval, condition, or
 scope—or a different substrate or reagent—must fail closed.
+
+A reference-only `empirical_rule` receipt is not covered by the baseline or
+dormant grounding permission above. Its exact returned claim may be cited only
+after independent problem evidence establishes every returned applicability
+condition. Otherwise it may provide literature context for enumerating a
+candidate, but it cannot fill an omitted condition or ground a source-to-Lean
+bridge about the current reaction.
 
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central

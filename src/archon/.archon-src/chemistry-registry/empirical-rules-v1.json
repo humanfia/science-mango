@@ -1,9 +1,8 @@
 {
   "manifest": {
     "base_dataset_sha256": "3f9ac23f3515cf263275c244772de895c5402fb59a12061aa81c65ede91c094f",
-    "manifest_sha256": "9a8243a90ece51b7f9f22851aa0ea8b41db2ce7c4585c38399d407c0322541cb",
     "manifest_type": "trusted_chemistry_registry",
-    "record_count": 7,
+    "record_count": 8,
     "records": [
       {
         "record_sha256": "6485cda7ae7d9289f5046b238be831dd3fd55e7dc81ae87310390a8f7db68d22",
@@ -16,8 +15,13 @@
         "rule_version": 1
       },
       {
-        "record_sha256": "cdb1daf3b0e543ce4e17e399324a2fb3d05c13a2cb896fd692b0d74f9db940f6",
+        "record_sha256": "b1720156ef1b5e8e0c169a12cfe0179fe95bcba91841e53a5a8b6fba91b73308",
         "rule_id": "closed_domain_mellite_terminal_residue_candidate_filter",
+        "rule_version": 2
+      },
+      {
+        "record_sha256": "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d",
+        "rule_id": "directed_reaction_omitted_protocol_candidate_filter",
         "rule_version": 1
       },
       {
@@ -41,7 +45,8 @@
         "rule_version": 1
       }
     ],
-    "schema_version": 1
+    "schema_version": 1,
+    "manifest_sha256": "e1b98e8fd930c251afeb3dcd210557237cc10ddf3a52ad6a8ca296fe1a06817f"
   },
   "records": [
     {
@@ -122,44 +127,89 @@
     },
     {
       "base_dataset_sha256": "3f9ac23f3515cf263275c244772de895c5402fb59a12061aa81c65ede91c094f",
-      "record_sha256": "cdb1daf3b0e543ce4e17e399324a2fb3d05c13a2cb896fd692b0d74f9db940f6",
       "record_type": "trusted_chemistry_rule",
       "review": {
         "approval_scope": "rule_and_source",
-        "approved_at": "2026-08-24T10:30:00Z",
+        "approved_at": "2026-08-25T00:00:00Z",
         "reviewer_id": "trusted-worktree-curator-v1",
         "status": "approved"
       },
       "rule": {
         "applicability_conditions": [
-          "The material has been independently established as ideal stoichiometric mellite using a separately pinned mellite_ideal_stoichiometry receipt.",
-          "The problem source explicitly states thermogravimetric heating in open air and a final residue mass that remains stable at higher temperatures, with an exact source locator recorded for each cue.",
-          "A source-bound derivation from the problem data, separately pinned qualitative evidence, and the complete candidate audit affirmatively establishes complete conversion to a terminal phase; mass stability alone is insufficient.",
-          "The problem source or an independently source-bound derivation establishes that aluminium and oxygen are the only nonvolatile elements available to the terminal residue; every possible counterion, dopant, container, or atmosphere contribution has been affirmatively excluded.",
-          "A closed candidate audit enumerates every charge-neutral integer formula composed only of trivalent aluminium and divalent oxygen and checks each candidate against atom, charge, and measured-mass intervals using pinned constants and source uncertainties.",
-          "The separately pinned Treccani Mellite source is used only as qualitative corroboration that established mellite can leave an infusible alumina residue in a blowpipe test."
+          "One exact input-source locator binds all of these cues to the same observation: thermogravimetric analysis, an unambiguous stated atmosphere, a later mass-loss event, wording that names the ensuing mass as final, a named single compound assigned to that mass, and a statement that its mass remains constant at higher temperatures.",
+          "The conjunctive named-final cue is accepted only as a bounded terminal-product stipulation under explicit closed contest semantics; a plateau, stable mass, or high-temperature constancy without every cue in the preceding condition is insufficient.",
+          "The current source bundle either contains a controller-authenticated fallback for each prior-part conclusion or the redraft transparently rederives the starting material's metal identity and charge, the organic anion's identity and charge, and the stoichiometric salt core from bound prior-part sources; this policy identifies none of them, and a prior-part question or label, material name, or occurrence alone establishes none of them.",
+          "Every earlier mass-loss stage is represented in a source-led mass ledger. If an earlier stage is used to identify a volatile component or unchanged intermediate, that identity and completeness are established independently; the conjunctive named-final cue supplies neither.",
+          "The pinned Treccani source is used only as qualitative corroboration that a source-led starting candidate within its exact material scope can leave the residue class described there; it is not used as a thermogravimetric record or as a quantitative conversion premise.",
+          "A finite closed candidate audit enumerates every primitive neutral integer terminal-residue formula compatible with the independently established element and oxidation-state domain, then checks atom, charge, and every measured-mass interval using pinned constants and source uncertainties.",
+          "Every possible counterion, dopant, container, reagent, and alternative atmosphere contribution is affirmatively excluded by source-bounded evidence or an explicit closed-domain stipulation; mere failure to mention one is insufficient."
         ],
         "authority_kind": "contest_semantics_policy",
         "automatic_problem_instantiation": false,
-        "claim": "Within an explicitly closed problem domain satisfying every listed condition, a neutral integer formula candidate composed only of trivalent aluminium and divalent oxygen may be retained as a terminal-residue candidate when it passes the complete atom, charge, and measured-mass interval audit.",
+        "claim": "Within an explicitly closed source-bounded domain satisfying every listed condition, the source's conjunctive named-final cue may be used only to retain a primitive neutral terminal-residue formula candidate that passes the complete atom, charge, and measured-mass interval audit.",
         "exclusions": [
-          "This bounded policy is not a paper or a universal empirical calcination law.",
-          "It does not identify an open-world residue and does not authorize inference when any activation cue, candidate, ledger entry, or uncertainty bound is missing or ambiguous.",
-          "The Treccani blowpipe observation does not itself establish open-air thermogravimetric conditions, complete conversion, quantitative recovery, or a temperature-time program.",
-          "It does not authorize any specific calcination or thermogravimetric temperature, duration, yield, purity, phase, or polymorph.",
-          "It does not authorize selection from mass agreement alone, and no ambiguous-atmosphere trace may be used as evidence for an open-air cue."
+          "This policy is not a paper or universal empirical calcination law and does not identify an open-world residue.",
+          "A bare stable plateau, an ambiguous or unstated atmosphere, a mass not expressly called final, or a residue not expressly named as a single compound cannot activate the policy.",
+          "An activation receipt proves catalog integrity and redraft availability only; it does not prove that any named-final cue or other applicability condition is present.",
+          "The named-final cue does not establish the identity or completeness of any earlier dehydration, decomposition, oxidation, or volatilization step.",
+          "The Treccani observation does not establish thermogravimetric conditions, complete conversion, quantitative recovery, or a temperature-time program.",
+          "It does not authorize any specific temperature, duration, yield, purity, phase, or polymorph.",
+          "It does not authorize selection from mass agreement alone or supply missing constituents, oxidation states, candidate closure, uncertainty bounds, or exclusions."
         ],
         "rule_id": "closed_domain_mellite_terminal_residue_candidate_filter",
+        "rule_version": 2
+      },
+      "runtime_network_access": false,
+      "schema_version": 1,
+      "source": {
+        "doi": null,
+        "locator": "Piazza, Mellite, Enciclopedia Italiana (1934), sentence reporting that mellite burns in a blowpipe test and leaves an infusible alumina residue. Normalized Italian sentence SHA-256: 5b58d1ef840834a81224de8487fde93c4f09ef2ed4643f70f0e530cdc76357a5.",
+        "url": "https://www.treccani.it/enciclopedia/mellite_%28Enciclopedia-Italiana%29/",
+        "content_sha256": "e70b86d5caf6a3ddc2de272796dabece6197d5e3f6e396ece643188e680bcb2e"
+      },
+      "record_sha256": "b1720156ef1b5e8e0c169a12cfe0179fe95bcba91841e53a5a8b6fba91b73308"
+    },
+    {
+      "base_dataset_sha256": "3f9ac23f3515cf263275c244772de895c5402fb59a12061aa81c65ede91c094f",
+      "record_type": "trusted_chemistry_rule",
+      "review": {
+        "approval_scope": "rule_and_source",
+        "approved_at": "2026-08-25T00:00:00Z",
+        "reviewer_id": "trusted-worktree-curator-v1",
+        "status": "approved"
+      },
+      "rule": {
+        "applicability_conditions": [
+          "An exact input-source locator binds one explicit directed reaction statement in which a source-named reactant, source-named reagent, and source-named product role occur in the same clause; the direction is source-stated rather than solver-supplied.",
+          "The source omits one or more protocol details, and every omitted detail is recorded as unknown rather than inferred.",
+          "The identities of the reactant and reagent and the role of the product are each independently established from source-bounded evidence; this policy identifies none of them.",
+          "Every independent source constraint on the product, including composition and symmetry when supplied, is represented before candidate filtering.",
+          "A finite, explicitly closed candidate set is derived without this policy and completely audited against the directed statement and every independent source constraint.",
+          "Any empirical transformation rule used alongside this policy independently satisfies its own exact substrate, reagent, and protocol applicability conditions."
+        ],
+        "authority_kind": "contest_semantics_policy",
+        "automatic_problem_instantiation": false,
+        "claim": "Within an explicitly closed source-bounded candidate set satisfying every listed condition, an explicit directed statement that a named reactant reacts with a named reagent to give a named product role may be used only as a non-exclusive positive constraint for retaining compatible candidates when protocol details are omitted.",
+        "exclusions": [
+          "This policy does not infer heating, temperature, time, pressure, solvent, atmosphere, catalyst, concentration, workup, or apparatus from a missing protocol.",
+          "It does not establish yield, conversion extent, completeness, purity, isolation, mass balance, or sole or principal product status.",
+          "A literature transformation with extra conditions may not supply an omitted source condition or be treated as applicable merely because its substrate and reagent resemble the source clause.",
+          "The policy neither identifies any reactant, reagent, or product nor selects a candidate from composition, symmetry, or mass agreement alone.",
+          "It does not authorize a reverse implication, an open-world classification, a thermal-decomposition inference, or a terminal-residue inference.",
+          "The IUPAC source establishes only directional reactant-to-product semantics for a chemical reaction equation; it does not establish this bounded contest policy or any omitted protocol detail."
+        ],
+        "rule_id": "directed_reaction_omitted_protocol_candidate_filter",
         "rule_version": 1
       },
       "runtime_network_access": false,
       "schema_version": 1,
       "source": {
-        "content_sha256": "e70b86d5caf6a3ddc2de272796dabece6197d5e3f6e396ece643188e680bcb2e",
-        "doi": null,
-        "locator": "Piazza, Mellite, Enciclopedia Italiana (1934), sentence reporting that mellite burns in a blowpipe test and leaves an infusible alumina residue. Normalized Italian sentence SHA-256: 5b58d1ef840834a81224de8487fde93c4f09ef2ed4643f70f0e530cdc76357a5.",
-        "url": "https://www.treccani.it/enciclopedia/mellite_%28Enciclopedia-Italiana%29/"
-      }
+        "doi": "10.1039/9781847557889",
+        "locator": "IUPAC Green Book, 3rd ed., 2nd printing (2008), section 2.12.1, printed p. 68, Equations for chemical reactions: the reactant and product sides are connected by an arrow whose rightward form denotes the net forward reaction. The source does not supply omitted experimental conditions.",
+        "url": "https://iupac.qmul.ac.uk/bibliog/GreenBook3rd2pt2008.pdf",
+        "content_sha256": "6076dbf045427d68c6cdda3d5632223a69b5d14fd7304f5cb50ce4519d3aefde"
+      },
+      "record_sha256": "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d"
     },
     {
       "base_dataset_sha256": "3f9ac23f3515cf263275c244772de895c5402fb59a12061aa81c65ede91c094f",

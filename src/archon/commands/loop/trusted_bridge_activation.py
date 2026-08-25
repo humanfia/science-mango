@@ -384,6 +384,14 @@ def build_trusted_bridge_activation_projection(
                 "source_content_sha256": lookup["source"]["content_sha256"],
             },
             "problem_source_binding": source_binding,
+            "applicability": {
+                "status": "not_evaluated_by_controller",
+                "condition_semantics": "all_required_fail_closed",
+                "required_condition_count": len(
+                    lookup["result"]["applicability_conditions"]
+                ),
+                "complete_receipt_does_not_establish_conditions": True,
+            },
             "scope": "next_target_local_formalization_redraft_only",
         }
         receipts.append({
