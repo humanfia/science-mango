@@ -75,7 +75,11 @@ The checkpoint contains real producers for:
   to a fixed constant while retaining the widened first-divergence loss,
   maximal no-common-`100`-container strong refinement, its unconditional
   WZ2 two-fold noncontainment consequence and packaged terminal tube family,
-  with the stronger half-volume-overlap notion isolated as a local seam, and
+  and a direct WZ2-only coefficient bridge giving lossless tube-image
+  cardinality, near-fibre transfer, same-scale cover-parent fibres of size at
+  most one, the full `13^3*coverCount` cap, selected-card retention, and
+  nonemptiness; the stronger half-volume-overlap notion is therefore isolated
+  only for later results that genuinely inspect intersection measure, and
   a pre-motion universal packing-support hull catalogue reducing every
   subsequently selected prefix fibre to all convex tests, followed by a
   supplied-plan joint selector whose one-layer, multiscale, and hierarchy
@@ -130,9 +134,11 @@ supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
 any dimension-only improvement of the widened cross-parent source
-bound requires extra cross-parent rigidity/separation; discharging the local
-WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
-implication from no-common-`100` containment is false); controlling the now-
+bound requires extra cross-parent rigidity/separation; supplying half-volume
+overlap only for later measure-intersection consumers (the global implication
+from no-common-`100` containment is false), plus a terminal same-scale cover,
+half-scale direction parallelism, and the count/cardinality bounds consumed by
+the new WZ2-only selected-family endpoint; controlling the now-
 automatic reverse parent-normalizer loss by the target branching/sibling-
 rigidity budget (an exact N-to-one merger rules this out from parent
 compatibility alone); supplying
