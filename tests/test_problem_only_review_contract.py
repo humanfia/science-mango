@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from archon.commands.chemistry_constant import (
+    BASELINE_EMPIRICAL_RULE_IDS,
     CONTEST_INTERPRETATION_IDS,
     EMPIRICAL_RULE_IDS,
     REACTION_TEMPLATE_IDS,
@@ -550,7 +551,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "full supported registries",
             "no other identifier may be probed",
             "empirical_rule <RULE_ID>",
-            "exact five-ID allowlist",
+            f"exact {len(BASELINE_EMPIRICAL_RULE_IDS)}-ID allowlist",
             "Reference-only empirical-rule IDs",
             "never baseline evidence",
             "cannot receive a controller activation receipt",
@@ -832,7 +833,10 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertIn("exact POLICY_ID allowlist", prompt)
             self.assertIn("analogous_halogen_addition", prompt)
             self.assertIn("empirical_rule <RULE_ID>", prompt)
-            self.assertIn("exact five-ID allowlist", prompt)
+            self.assertIn(
+                f"exact {len(BASELINE_EMPIRICAL_RULE_IDS)}-ID allowlist",
+                prompt,
+            )
             self.assertIn("Reference-only empirical-rule IDs", prompt)
             self.assertIn(
                 "cannot receive a controller activation receipt", prompt

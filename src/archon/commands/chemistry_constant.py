@@ -432,6 +432,7 @@ _EMPIRICAL_RULES = {
 }
 EMPIRICAL_RULE_IDS = tuple(sorted(_EMPIRICAL_RULES))
 DORMANT_RUNTIME_BRIDGE_IDS = (
+    "closed_candidate_feiii_phenol_filter",
     "closed_domain_mellite_terminal_residue_candidate_filter",
     "directed_reaction_omitted_protocol_candidate_filter",
 )

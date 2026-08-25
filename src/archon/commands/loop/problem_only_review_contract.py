@@ -1757,6 +1757,8 @@ def render_native_chemistry_constant_policy(
         f"`{template_id}`" for template_id in REACTION_TEMPLATE_IDS
     )
 
+    baseline_count = len(BASELINE_EMPIRICAL_RULE_IDS)
+
     return f"""APPROVED OFFLINE CHEMISTRY REGISTRY POLICY:
 - The only allowed auxiliary chemistry lookup is the version-pinned, network-free
   structured CLI. Its allowed dataset is version={DATASET_VERSION},
@@ -1776,7 +1778,7 @@ def render_native_chemistry_constant_policy(
   {reaction_template_ids}.
 - `contest_interpretation` has the exact POLICY_ID allowlist:
   {contest_policy_ids}.
-- `empirical_rule` has an exact five-ID allowlist: the exact allowed RULE_ID
+- `empirical_rule` has an exact {baseline_count}-ID allowlist: the exact allowed RULE_ID
   inventory available without runtime activation is:
   {empirical_ids}.
 - Reference-only empirical-rule IDs are:

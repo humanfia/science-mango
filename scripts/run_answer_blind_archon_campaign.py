@@ -198,7 +198,6 @@ solve the proof.
   For `empirical_rule`, the exact baseline `RULE_ID` values usable without
   runtime activation are:
   `aqueous_feiii_phenol_colored_complex`,
-  `closed_candidate_feiii_phenol_filter`,
   `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
   `mellite_ideal_stoichiometry`, and
   `mellitic_acid_benzoyl_chloride_to_c12o9`.
@@ -211,9 +210,10 @@ solve the proof.
   When a condition is absent, the record may nominate a closed-audit candidate
   but remains non-premise context for the current reaction.
   The dormant Reviewer-requestable bridge IDs are:
-  `closed_domain_mellite_terminal_residue_candidate_filter` and
+  `closed_candidate_feiii_phenol_filter`,
+  `closed_domain_mellite_terminal_residue_candidate_filter`, and
   `directed_reaction_omitted_protocol_candidate_filter`.
-  This five-ID baseline list is an exact allowlist without activation. Dormant
+  This four-ID baseline list is an exact allowlist without activation. Dormant
   records may be returned by the CLI but are not active evidence in an initial
   formalization or ordinary lookup. Use one only when the current immediate-
   redraft prompt contains its complete controller-built receipt bound to this
@@ -439,7 +439,6 @@ The exact `POLICY_ID` allowlist is:
 For `empirical_rule`, the exact baseline `RULE_ID` values usable without
 runtime activation are:
 `aqueous_feiii_phenol_colored_complex`,
-`closed_candidate_feiii_phenol_filter`,
 `hexamethylbenzene_cold_kmno4_to_mellitic_acid`,
 `mellite_ideal_stoichiometry`, and
 `mellitic_acid_benzoyl_chloride_to_c12o9`.
@@ -452,9 +451,10 @@ itself proves none. Never borrow a missing protocol condition from literature.
 When a condition is absent, it may nominate a closed-audit candidate but
 remains non-premise context for the current reaction.
 The dormant Reviewer-requestable bridge IDs are:
-`closed_domain_mellite_terminal_residue_candidate_filter` and
+`closed_candidate_feiii_phenol_filter`,
+`closed_domain_mellite_terminal_residue_candidate_filter`, and
 `directed_reaction_omitted_protocol_candidate_filter`.
-This five-ID baseline list is an exact allowlist without activation. An ordinary lookup of a dormant rule is not evidence. A formalization Reviewer may request only one
+This four-ID baseline list is an exact allowlist without activation. An ordinary lookup of a dormant rule is not evidence. A formalization Reviewer may request only one
 exact dormant ID for one corresponding blocked bridge; it may not supply rule
 text, source, URL, hash, or claim. Accept a dormant rule only through a complete
 controller-built activation or next-Review context receipt bound to the exact

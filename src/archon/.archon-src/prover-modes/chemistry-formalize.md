@@ -86,7 +86,6 @@ permitted. Do not infer that an unshown element or formula is unavailable.
 rules usable without runtime activation:
 
 - `aqueous_feiii_phenol_colored_complex`
-- `closed_candidate_feiii_phenol_filter`
 - `hexamethylbenzene_cold_kmno4_to_mellitic_acid`
 - `mellite_ideal_stoichiometry`
 - `mellitic_acid_benzoyl_chloride_to_c12o9`
@@ -106,10 +105,11 @@ ground a source-to-Lean bridge about the current reaction.
 
 Dormant Reviewer-requestable bridge IDs are:
 
+- `closed_candidate_feiii_phenol_filter`
 - `closed_domain_mellite_terminal_residue_candidate_filter`
 - `directed_reaction_omitted_protocol_candidate_filter`
 
-This five-ID list is an exact allowlist for baseline rules. The dormant records
+This four-ID list is an exact allowlist for baseline rules. The dormant records
 may be returned by the sealed CLI, but they are not active
 evidence in an initial formalization or from an ordinary lookup. Use one only
 when this exact immediate-redraft prompt contains its complete controller-built

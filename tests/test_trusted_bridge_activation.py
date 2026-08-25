@@ -23,6 +23,7 @@ CANDIDATE_SHA256 = "1" * 64
 RULE_ID = "directed_reaction_omitted_protocol_candidate_filter"
 SECOND_RULE_ID = "closed_domain_mellite_terminal_residue_candidate_filter"
 REFERENCE_ONLY_RULE_ID = "mellitic_acid_p2o5_heating_forms_some_trianhydride"
+A3_RULE_ID = "closed_candidate_feiii_phenol_filter"
 
 
 def _certificate(*, requests: list[dict] | None = None) -> dict:
@@ -251,6 +252,7 @@ def test_parallel_certificate_validator_and_prompt_expose_only_id_requests() -> 
     assert _validate_certificate(row) == ""
     assert RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert SECOND_RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
+    assert A3_RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert "exact dormant" in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert "Never supply a claim, source, URL" in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     normalized_protocol = " ".join(_DORMANT_TRUSTED_BRIDGE_PROTOCOL.split())
@@ -358,11 +360,112 @@ def test_reference_only_rule_cannot_receive_controller_activation() -> None:
     ) == {}
 
 
+@pytest.mark.parametrize(
+    ("section", "index"),
+    [
+        *[("applicability_conditions", index) for index in range(7)],
+        *[("exclusions", index) for index in range(9)],
+    ],
+)
+def test_a3_seal_rejects_removal_of_each_policy_entry(
+    section: str,
+    index: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lookup = deepcopy(
+        activation.chemistry_constant.empirical_rule(A3_RULE_ID)
+    )
+    entries = lookup["result"][section]
+    assert len(entries) > index
+    del entries[index]
+    _rehash_lookup(lookup)
+    monkeypatch.setattr(
+        activation.chemistry_constant,
+        "empirical_rule",
+        lambda _rule_id: deepcopy(lookup),
+    )
+
+    assert activation._validated_catalog_lookup(A3_RULE_ID) is None
+
+
+@pytest.mark.parametrize(
+    "boundary",
+    [
+        "exact-carbon-count",
+        "positive aqueous iron(III)",
+        "problem authors explicitly label",
+        "complete source-bound structure",
+        "unactivated aliphatic alcohol",
+        "saturated ether",
+        "hydrocarbon",
+        "simple non-chelating monoketone",
+        "beta-dicarbonyl or enol",
+        "hydroxamate",
+        "catecholate-like group",
+        "other explicitly iron-binding ligand",
+        "unclassified functionality",
+        "incompatible pH",
+        "strong ligand",
+        "precipitation branch",
+        "alternative reagent",
+        "nonselective branch",
+        "does not require or infer unstated test details",
+    ],
+)
+def test_a3_seal_rejects_removal_of_each_fixed_boundary(
+    boundary: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lookup = deepcopy(
+        activation.chemistry_constant.empirical_rule(A3_RULE_ID)
+    )
+    conditions = lookup["result"]["applicability_conditions"]
+    matching = [
+        index for index, condition in enumerate(conditions)
+        if boundary in condition
+    ]
+    assert len(matching) == 1
+    index = matching[0]
+    conditions[index] = conditions[index].replace(
+        boundary,
+        "REMOVED_REQUIRED_BOUNDARY",
+    )
+    _rehash_lookup(lookup)
+    monkeypatch.setattr(
+        activation.chemistry_constant,
+        "empirical_rule",
+        lambda _rule_id: deepcopy(lookup),
+    )
+
+    assert activation._validated_catalog_lookup(A3_RULE_ID) is None
+
+
 def test_unrequested_dormant_rule_is_not_activated(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _enable_unit_catalog(monkeypatch)
 
+    projection = activation.build_trusted_bridge_activation_projection(
+        _certificate(),
+        target_rel=TARGET,
+        candidate_sha256=CANDIDATE_SHA256,
+        expected_source_contract=_contract(),
+    )
+
+    assert projection == {}
+
+
+def test_a3_dormant_lookup_alone_does_not_activate() -> None:
+    assert A3_RULE_ID in activation.DORMANT_RUNTIME_BRIDGE_IDS
+    assert (
+        A3_RULE_ID
+        not in activation.chemistry_constant.BASELINE_EMPIRICAL_RULE_IDS
+    )
+    lookup = activation._validated_catalog_lookup(A3_RULE_ID)
+
+    assert lookup is not None
+    assert lookup["query"] == {"rule": A3_RULE_ID}
+    assert lookup["result"]["rule_version"] == 2
     projection = activation.build_trusted_bridge_activation_projection(
         _certificate(),
         target_rel=TARGET,
@@ -663,6 +766,10 @@ def test_initial_or_non_review_redraft_has_no_activation_context(
 @pytest.mark.parametrize(
     ("rule_id", "pinned_sha256"),
     [
+        (
+            "closed_candidate_feiii_phenol_filter",
+            "ec6cff1cee7889c97ad67a0f5c9a33d1462a67ea6f14a01dc1087cd10e67e7be",
+        ),
         (
             "directed_reaction_omitted_protocol_candidate_filter",
             "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d",

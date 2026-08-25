@@ -705,7 +705,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertIn("exact `POLICY_ID` allowlist", normalized)
             self.assertEqual(normalized.count("analogous_halogen_addition"), 1)
             self.assertIn(
-                "five-ID baseline list is an exact allowlist", normalized
+                "four-ID baseline list is an exact allowlist", normalized
             )
             self.assertIn("Reference-only empirical-rule IDs", normalized)
             self.assertIn(

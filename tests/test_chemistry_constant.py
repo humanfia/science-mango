@@ -42,7 +42,7 @@ def test_dataset_digest_and_atomic_weight_are_version_pinned() -> None:
         chemistry.BASE_DATASET_VERSION + "+trusted-empirical-rules-v1"
     )
     assert chemistry.DATASET_SHA256 == (
-        "cd405359fa087f214b0f088f3b262b0fe20a9b4575166cd235fd44f204552a2f"
+        "6c5b5693698bb4f871d92889801080ef5b50a4342acd79e1881a578bc228d71d"
     )
     assert chemistry.REACTION_TEMPLATE_IDS == (
         "binary_two_fragment_electrophilic_addition",
@@ -156,7 +156,7 @@ def test_contest_interpretation_is_bounded_policy_not_empirical_answer() -> None
     lookup = chemistry.contest_interpretation("analogous_halogen_addition")
     policy = lookup["result"]
     assert lookup["record_sha256"] == (
-        "76739f522bb2f62e04a1ec472ba74f7dbbaad19705c10ba7f7db6e93c7a7d777"
+        "88237b93c886b5101c9d01b4cedecc79a64b19d87f4c8930679002bb80492911"
     )
     assert lookup["operation"] == "contest_interpretation"
     assert lookup["runtime_network_access"] is False
@@ -240,7 +240,7 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
         assert lookup["dataset_sha256"] == chemistry.DATASET_SHA256
         assert lookup["base_dataset_sha256"] == chemistry.BASE_DATASET_SHA256
         assert lookup["empirical_registry_manifest_sha256"] == (
-            "e1b98e8fd930c251afeb3dcd210557237cc10ddf3a52ad6a8ca296fe1a06817f"
+            "3e601284303874283cf0b8a08b06db1653fc037b82360b0ef5385c8bec832dc0"
         )
         for digest in (
             lookup["record_sha256"],
@@ -279,12 +279,62 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
     }
     bounded = chemistry.empirical_rule("closed_candidate_feiii_phenol_filter")
     assert bounded["pinned_rule_record_sha256"] == (
-        "a557ad414f8d8e902c5ba2909db4dba67ffc8aaa6982448170fd27d8218e3ace"
+        "ec6cff1cee7889c97ad67a0f5c9a33d1462a67ea6f14a01dc1087cd10e67e7be"
     )
     assert bounded["source"]["content_sha256"] == (
         "31b0a37ddab2aba737a30d94dbd514b0a5831ac61451631a2b73dd7164148286"
     )
     assert bounded["result"]["authority_kind"] == "contest_semantics_policy"
+    assert bounded["record_sha256"] == (
+        "730d52d5dbafadff8fc6bf12a9bbe594ee282b70e76a9015cd4da6b49d2b8cd5"
+    )
+    assert bounded["result"]["rule_version"] == 2
+    assert chemistry.BASELINE_EMPIRICAL_RULE_IDS == (
+        "aqueous_feiii_phenol_colored_complex",
+        "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
+        "mellite_ideal_stoichiometry",
+        "mellitic_acid_benzoyl_chloride_to_c12o9",
+    )
+    assert chemistry.DORMANT_RUNTIME_BRIDGE_IDS == (
+        "closed_candidate_feiii_phenol_filter",
+        "closed_domain_mellite_terminal_residue_candidate_filter",
+        "mellitic_acid_p2o5_heating_forms_some_trianhydride",
+    )
+    conditions = " ".join(
+        bounded["result"]["applicability_conditions"]
+    ).casefold()
+    for required_condition in (
+        "independently source-bound exact-carbon-count",
+        "positive aqueous iron(iii)",
+        "problem authors explicitly label",
+        "complete source-bound structure",
+        "unactivated aliphatic alcohol",
+        "saturated ether",
+        "hydrocarbon",
+        "simple non-chelating monoketone",
+        "beta-dicarbonyl or enol",
+        "hydroxamate",
+        "catecholate-like",
+        "explicitly iron-binding ligand",
+        "unclassified functionality",
+        "incompatible ph",
+        "strong ligand",
+        "precipitation branch",
+        "alternative reagent",
+        "nonselective branch",
+        "does not require or infer unstated test details",
+        "solver-created category",
+    ):
+        assert required_condition in conditions
+    exclusions = " ".join(bounded["result"]["exclusions"]).casefold()
+    for required_exclusion in (
+        "required source-stated cue or required audit is missing",
+        "fixed whitelist cannot be expanded",
+        "failure to find an interferent",
+        "unclassified response-relevant functionality",
+        "does not infer unstated ph",
+    ):
+        assert required_exclusion in exclusions
     assert any(
         "not a universal" in exclusion.casefold()
         for exclusion in bounded["result"]["exclusions"]
@@ -457,13 +507,13 @@ def test_closed_domain_mellite_terminal_residue_policy_is_strictly_bounded() -> 
     lookup = chemistry.empirical_rule(rule_id)
 
     assert lookup["record_sha256"] == (
-        "c459f192e81d6e90418f8c66fcc6e51e5b8e3f7569aa171665e249fccd2bdc24"
+        "db55dee7aee6811f4cae4d81b7e944002414828fb8f6124cd47831ba8f693de3"
     )
     assert lookup["pinned_rule_record_sha256"] == (
         "b1720156ef1b5e8e0c169a12cfe0179fe95bcba91841e53a5a8b6fba91b73308"
     )
     assert lookup["empirical_registry_manifest_sha256"] == (
-        "e1b98e8fd930c251afeb3dcd210557237cc10ddf3a52ad6a8ca296fe1a06817f"
+        "3e601284303874283cf0b8a08b06db1653fc037b82360b0ef5385c8bec832dc0"
     )
     assert lookup["source"] == {
         "content_sha256": (
@@ -727,7 +777,7 @@ def test_chemistry_formalizer_sees_strict_offline_query_contract() -> None:
         "analogous_halogen_addition",
         "full supported registries",
         "exact allowed `RULE_ID` inventory",
-        "five-ID list is an exact allowlist",
+        "four-ID list is an exact allowlist",
         "Reference-only empirical-rule IDs",
         "cannot receive a controller activation receipt",
         "Never borrow a missing protocol condition",
