@@ -68,8 +68,10 @@ The checkpoint contains real producers for:
   WZ2 two-fold noncontainment consequence and packaged terminal tube family,
   with the stronger half-volume-overlap notion isolated as a local seam, and
   a pre-motion universal packing-support hull catalogue reducing every
-  subsequently selected prefix fibre to all convex tests, with only the
-  selector's packing-certificate/plan coherence left upstream, and automatic
+  subsequently selected prefix fibre to all convex tests, followed by a
+  supplied-plan joint selector whose one-layer, multiscale, and hierarchy
+  outputs retain exact packing-certificate coherence and directly discharge
+  the prefix all-convex endpoint, and automatic
   common-`100T` plus WZ-separated source geometry on every actual selected
   collision cell, connected to a WZ2 endpoint with coefficient
   `16*siteCount*C_WZ` and no convex-test-dependent ceiling;
@@ -116,9 +118,8 @@ instantiating the remaining explicit hierarchy radius/branching scalar checks;
 any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; discharging the local
 WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
-implication from no-common-`100` containment is false), and making the
-selector consume a supplied packing plan or certify equality with it; and
-arbitrary-radius interpolation for the translation construction; supplying
+implication from no-common-`100` containment is false); arbitrary-radius
+interpolation for the translation construction; supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 `siteCount` by a dimension-only constant upstream
