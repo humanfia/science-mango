@@ -11,7 +11,8 @@ The checkpoint contains real producers for:
   adjacent-scale mass decomposition, finite dividing-scales stopping,
   explicit exponent-product budgets, finite bad-scale search, rooted finite
   refinement trees, nested-cover mass localization, and finite-node threshold
-  transfer;
+  transfer, literal parent-fiber ratio normalization, and genuine fiber-concentration
+  control;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values;
@@ -29,7 +30,8 @@ The checkpoint contains real producers for:
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
-  fixed-chart tube/shading containment, and translated shading-union covariance.
+  fixed-chart tube/shading containment, translated shading-union covariance,
+  actual product-indexed shading copies, and ambient shear volume preservation.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -37,11 +39,11 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: the local parent-fiber mass, capturing-thickening,
+Honest residual work remains: the capturing-thickening, corrected loss-exponent,
 loss-exponent, and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
 hierarchy/telescope and finite search; the remaining multiscale balance/load
 integration for the concrete translation net; WZ2 chart-cardinality retention,
-actual translated-family reindexing/density/Wolff provenance, and later
+translated-copy density/Wolff provenance, and later
 projection geometry; and the final multiscale assembly.  No full Sticky
 conclusion or equivalent callback is included here.
