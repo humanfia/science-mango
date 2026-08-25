@@ -54,8 +54,10 @@ The checkpoint contains real producers for:
   geometry and WZ separation with one explicit collision-unit inequality, its
   unconditional source-derived ratio bound `20000` and exact packing-constant
   threshold, canonical first-divergence/common-prefix child, parent, and
-  local-occurrence routing, and cancellation-aware suffix decomposition giving
-  explicit widened cross-parent containment without a same-parent premise;
+  local-occurrence routing, cancellation-aware suffix decomposition giving
+  explicit widened cross-parent containment without a same-parent premise,
+  and its finite per-layer/union counting reduction to internally computed
+  widened partner constants;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -71,7 +73,9 @@ The checkpoint contains real producers for:
   and the explicit uniform tube-volume cap, followed by automatic positive
   volume/full-span John-288 certification, a fixed coordinate-one window,
   and absorption of the tube `delta^2` scale into the arbitrary convex-test
-  volume with the exact local-count residual retained.
+  volume with the exact local-count residual retained, plus a quantitative
+  affine-shear distorted-tube adapter yielding inradius `delta/(1+|d|)`, all
+  John side lower bounds, and a surviving longitudinal scale.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -85,12 +89,12 @@ pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
 instantiating the remaining explicit hierarchy radius/branching scalar checks
 and the packing-constant threshold (or safely padding that upper-bound
-constant), a packing/cardinality bound for the now-grounded widened
-cross-parent collision relation, terminal dedup and essentially-distinct
+constant), a dimension/scale-only bound for the internally computed widened
+cross-parent partner constants, terminal dedup and essentially-distinct
 refinement, all-convex-test reduction, and
 arbitrary-radius interpolation for the translation construction; removing
-the explicit WZ2 spacing/source-window/John-radius residual (including a
-quantitative distorted-tube inradius adapter for nonzero shear copies) to
+the explicit WZ2 spacing/source-window/John-radius residual by connecting the
+now-grounded distorted-tube side bounds and quantitative source separation to
 obtain a uniform Katz--Tao constant, later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
