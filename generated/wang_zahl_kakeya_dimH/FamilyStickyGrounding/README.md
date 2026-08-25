@@ -135,6 +135,17 @@ The checkpoint contains real producers for:
   comparison plus literal no-further-split produce the recovered V2 witness,
   while finite cardinality supplies the adjacent comparison.  The former
   relevant-node route remains an independently verified finite fallback.  The
+  recursive layer now has an actual buffered-radius insertion preserving every
+  old coordinate and both endpoints, a generic bounded successor engine with
+  proof-relevant reachability, an explicit hierarchy branching envelope for
+  the actual global product, and a conditional hierarchy stopping driver.  The
+  driver maintains the envelope on every interval, invokes its analytic
+  successor only below the stage bound, keeps the last-stage no-bad fact as a
+  separate input, proves `next = none` exactly when no literal bad scale exists,
+  and connects its computed terminal state to the recovered V2 endpoint.  It
+  explicitly does not construct or identify the new `BufferedChainFamily` with
+  the coherent cover, current scales, original fine family, or old hierarchy.
+  The
   legacy total diagnostic assumes neither
   global caps nor parent collapse: it decides `AllStepsLarge`, the literal
   global/adjacent numerical comparisons, and relevant-node search, returning a
@@ -294,18 +305,25 @@ scan before this snapshot.  The aggregate target is:
     lake build FamilyStickyGrounding
 
 Honest residual work remains.  The two-parameter stopping repair is now
-formalized through the final `Sticky or recovered witness` dichotomy.  On the
-direct paper-shaped route, the non-large branch has exactly two hierarchy-level
-residuals at the selected interval: the actual global-product upper bound and
-the literal terminal no-further-split invariant.  Producing those invariants by
-the recursive splitting construction is the remaining stopping argument.  The
-adjacent comparison is automatic from finite cardinality and an explicit
-small-`delta` threshold.  The relevant-node/no-bad route remains a finite
-localization fallback, with its contained-mass input stated separately.  Both
-direct residuals use the original `eta`, so the recursive stopping construction
-is independent of the later `targetExponent` choice.  For a theorem that forces
-one specific outcome, the genuine all-large branch must additionally be
-excluded or consumed.
+formalized through the final `Sticky or recovered witness` dichotomy, and the
+finite recursive control flow itself is proved.  The direct hierarchy driver
+is conditional on three source-level facts not present in the current APIs: a
+concrete binding of each `BufferedChainFamily` to the coherent cover, current
+scale sequence, and original fine family; a below-bound bad-scale refinement
+which constructs the new hierarchy/test-body chains and preserves the global
+envelope on every interval; and the factor-count/exponent argument excluding a
+bad scale at the last allowed stage.  The all-interval invariant is essential:
+after insertion the first non-large interval can move to a later old interval.
+Existing code has no reverse `StickyScaleCover -> AdjacentTubeStep` constructor,
+no hierarchy/test-body prepend or segment operation, and no bridge from the
+strict coarse-value deficit to the new branching/dimensional/endpoint envelope.
+The adjacent comparison at the final selected interval is automatic from finite
+cardinality and an explicit small-`delta` threshold.  The relevant-node/no-bad
+route remains a finite localization fallback, with its contained-mass input
+stated separately.  The direct residuals use the original `eta`, so the
+recursive stopping construction is independent of the later `targetExponent`
+choice.  For a theorem that forces one specific outcome, the genuine all-large
+branch must additionally be excluded or consumed.
 The current all-large Sticky constants are finite and explicit but still depend
 on the source-family cardinality and `delta`, rather than only on dimension.
 Raw product/adjacent bounds, global allocation structures, and the global
