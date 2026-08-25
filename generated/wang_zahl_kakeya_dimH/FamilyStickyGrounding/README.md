@@ -23,8 +23,8 @@ The checkpoint contains real producers for:
   with its cover, nonemptiness, and basic packing-incidence bounds;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
-  volume-preservation, the ambient restricted-integral adapter, and the literal
-  fixed-vertical-chart nonzero-coordinate producer.
+  volume-preservation, the ambient restricted-integral adapter, literal
+  fixed-chart tube/shading containment, and translated shading-union covariance.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -37,6 +37,6 @@ loss-exponent, and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
 hierarchy/telescope and finite search; the remaining multiscale balance/load
 integration for the concrete translation net; WZ2 chart-cardinality retention,
-translated-shading covariance, and later projection geometry; and the final
-multiscale assembly.  No full Sticky conclusion or equivalent callback is
-included here.
+actual translated-family reindexing/density/Wolff provenance, and later
+projection geometry; and the final multiscale assembly.  No full Sticky
+conclusion or equivalent callback is included here.
