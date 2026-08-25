@@ -324,33 +324,43 @@ insertion consumes one separated factor and the canonical counted driver cannot
 remain bad at stage `N`.  Exact one-step cancellation reduces each genuinely
 new child envelope to one bound on
 `activeFine.card * terminalBodyVolume / terminalTubeVolume`, together with its
-exponent balance.  A child that remains non-large still needs this substantive
-analytic input; a large child is skipped.  For the canonical automatic body the
-input is now generated from the explicit bound `finiteConstant / theta^2` as
-soon as the relevant profile value is greater than two and `theta` lies below
-the corresponding positive threshold.  The strict bad-scale deficit identifies
-the lower-child normalized coarse value, but does not alone establish those
-small-scale/profile premises.  A top-endpoint/cardinality obstruction proves
-that the former all-interval invariant was genuinely too strong.  The weaker
-relevant-interval invariant is sufficient at `firstNonLargeStep`, canonical
-before/after equality maintains it automatically on every untouched interval,
-and the relevant counted driver reaches literal terminal no-split within the
-separated-factor budget.
+exponent balance.  A large child is skipped; for every non-large child the
+canonical automatic body now generates the substantive analytic input from the
+explicit bound `finiteConstant / theta^2`.  A finite recursive minimum fixes one
+positive theta cap for all stages below `N`, while the literal depth-two seed
+`1, cap, delta` makes its top interval large and caps the remaining endpoint.
+The cap is carried in the counted state and is preserved by every canonical
+insertion, so the recursion no longer accepts a global child-successor callback.
+A top-endpoint/cardinality obstruction still explains why the former
+all-interval invariant was too strong: only non-large intervals are capped.
+The relevant counted driver reaches literal terminal no-split within the
+separated-factor budget while retaining the global-product bound at the exact
+first non-large interval.
 
 The adjacent comparison at the final selected interval is automatic from finite
-cardinality and an explicit small-`delta` threshold.  The relevant-node/no-bad
-route remains a finite localization fallback, with its contained-mass input
-stated separately.  The direct residuals use the original `eta`, so the
-recursive stopping construction is independent of the later `targetExponent`
-choice.  For a theorem that forces one specific outcome, the genuine all-large
-branch must additionally be excluded or consumed.
+cardinality.  A second finite recursive minimum covers every possible terminal
+stage, and its minimum with the capped-seed constraint is one positive
+precomputed `delta` threshold.  The recovered endpoint consumes the counted
+terminal no-split and global-product outputs directly.  For the identity cover,
+the all-large branch is consumed by the automatic Sticky theorem, yielding a
+literal `Sticky or recovered two-exponent witness` dichotomy.  The public fully
+automatic endpoint no longer accepts a successor, initial state, cap, stage
+window, terminal-stage room, terminal adjacent bound, `N > 0`, or a separate
+`delta < 1` premise.  Its remaining honest inputs are positivity of `delta` and
+the gap, monotonicity with `2 < eta 0`, the separated-factor budget,
+`eta N < targetExponent`, nonemptiness of the refined fine family, and the
+single total delta-threshold inequality.  The relevant-node/no-bad route remains
+an independently verified finite localization fallback.
+
+The direct residuals use the original `eta`, so the recursive stopping
+construction remains independent of the later `targetExponent` choice.
 The current all-large Sticky constants are finite and explicit but still depend
 on the source-family cardinality and `delta`, rather than only on dimension.
 Raw product/adjacent bounds, global allocation structures, and the global
-finite-node certificate are no longer required.  The strict room remains an
-explicit input; after it is supplied, the half-room allocation, witness
-construction, finite `K`, and loss absorption are automatic, as are first-step
-selection and the derived scale and profile.
+finite-node certificate are no longer required.  Only the fixed bound-stage
+room `eta N < targetExponent` remains; terminal-stage room, witness construction,
+finite `K`, loss absorption, first-step selection, and the derived scale and
+profile are automatic.
 The first failed relevant node and all earlier successful checks are computed;
 empty active-coarse and below-cutoff root data give sharp obstructions to
 manufacturing the repaired V2 node lower bounds automatically.
