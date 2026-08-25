@@ -79,7 +79,9 @@ The checkpoint contains real producers for:
   window budgets and optional separated-shear ceiling budgets, plus a
   quantitative affine-shear distorted-tube adapter yielding inradius
   `delta/(1+|d|)`, all John side lower bounds, and a surviving longitudinal
-  scale.
+  scale, followed by elimination of the certificate-dependent John radius
+  into the explicit cap `288^3*(1+|d|)^2*volume(K)/delta^2` and an expanded
+  ceiling budget.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -97,8 +99,8 @@ constant); any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; terminal dedup and
 essentially-distinct refinement, all-convex-test reduction, and
 arbitrary-radius interpolation for the translation construction; removing
-the explicit WZ2 spacing/John-radius residual by connecting the now-grounded
-distorted-tube side bounds and quantitative source-shear separation to obtain
+the explicit WZ2 spacing/source-shear residual by connecting the now-grounded
+volume-normalized radius cap to the internal source budgets in order to obtain
 a uniform Katz--Tao constant (full WZ separation alone does not imply that
 projected shear gap), later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
