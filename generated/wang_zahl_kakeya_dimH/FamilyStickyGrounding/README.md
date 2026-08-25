@@ -90,7 +90,12 @@ The checkpoint contains real producers for:
   adjacent unit cap and is threaded through both the recovered endpoint and
   its finite search.  For the canonical selected identity cover the actual
   adjacent cardinality is exactly the selected-source cardinality, proving this
-  collapse is not automatic.  A relevant-node refinement now checks
+  collapse is not automatic.  More generally, finite cardinality bounds the
+  actual adjacent value by the original index cardinality; first-non-large
+  longness and an explicit small-`delta` threshold absorb this into the exact
+  required endpoint-ratio power.  This supplies the adjacent numerical budget
+  without cardinality one or parent collapse and assembles the selected budget
+  from only the exact global comparison.  A relevant-node refinement now checks
   only tree nodes at or below the buffered upper cutoff, exactly the nodes that
   the locator can return.  Literal positive-volume contained-mass selections
   produce those checks and, together with the actual unit caps, reach the
@@ -256,10 +261,11 @@ scan before this snapshot.  The aggregate target is:
 
 Honest residual work remains: to eliminate the total diagnostic’s failure
 branches and force a recovered dividing witness, proving the first non-large
-interval’s actual global and adjacent comparisons (factorwise caps and
-parent-image collapse are sufficient but not necessary), its relevant-node
-literal contained-mass inequalities, and the explicit small-delta threshold,
-then excluding the genuine all-large branch.  Raw product/adjacent bounds,
+interval’s exact global product comparison (factorwise caps are sufficient but
+not necessary), its relevant-node literal contained-mass inequalities, and the
+combined explicit small-delta threshold, then excluding the genuine all-large
+branch.  The adjacent comparison is automatic from finite cardinality and
+first-non-large longness under its threshold.  Raw product/adjacent bounds,
 global allocation structures, and the global finite-node certificate are no
 longer required, while first-step selection, budget search, stage/scale/profile,
 witness construction, finite `K`, room, and loss absorption are automatic.
