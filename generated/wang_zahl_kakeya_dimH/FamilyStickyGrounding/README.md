@@ -62,7 +62,11 @@ The checkpoint contains real producers for:
   Its upstream closure now derives the one-based stage range and positive
   scales, upgrades primitive global/adjacent analytic allocations to the
   required exponent budgets, and obtains the reserved quadratic profile from
-  monotonicity plus `2 <= eta 0`;
+  monotonicity plus `2 <= eta 0`.  A finite-node producer computes the first
+  non-large interval and returns either the global certificate or an actual
+  failed node; in the general dividing branch it bypasses the global
+  certificate entirely, using only that first interval’s local node checks to
+  construct the constant-bearing witness and recovered small-delta endpoint;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -203,13 +207,14 @@ scan before this snapshot.  The aggregate target is:
     lake build FamilyStickyGrounding
 
 Honest residual work remains: instantiating the primitive global/adjacent
-analytic allocations, the dividing branch’s finite-node certificate, and the
-explicit small-delta threshold, then excluding the genuine all-large branch
-when a direct dividing witness is needed; stage range, scale positivity,
-quadratic profile, exponent-budget packaging, witness construction, stage
-provenance, finite `K`, room, and exponent-loss absorption are now automatic,
-while sharp obstructions show that the certificate and failed numeric
-allocations cannot be recovered from the hierarchy alone;
+analytic allocations, the first non-large interval’s local tree-node
+inequalities, and the explicit small-delta threshold, then excluding the
+genuine all-large branch when a direct dividing witness is needed; the global
+finite-node certificate is no longer required, while first-step selection,
+stage range, scale positivity, quadratic profile, exponent-budget packaging,
+witness construction, stage provenance, finite `K`, room, and exponent-loss
+absorption are automatic.  Sharp failed-node and numeric obstructions explain
+the remaining analytic inputs;
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
