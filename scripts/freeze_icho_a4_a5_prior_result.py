@@ -1206,19 +1206,44 @@ def lean_declaration_types(
             "Lean declaration type check failed: "
             f"rc={completed.returncode} stderr={completed.stderr[-2000:].strip()}"
         )
-    remaining = [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+    lines = completed.stdout.splitlines()
     result: dict[str, str] = {}
-    for declaration in declarations:
-        prefix = f"{declaration} : "
-        matches = [line for line in remaining if line.startswith(prefix)]
-        if len(matches) != 1:
+    cursor = 0
+
+    def header_index(line: str) -> int | None:
+        for index, expected in enumerate(declarations):
+            prefix = f"{expected} :"
+            if line == prefix or line.startswith(prefix + " "):
+                return index
+        return None
+
+    for expected_index, declaration in enumerate(declarations):
+        if cursor >= len(lines) or header_index(lines[cursor]) != expected_index:
             _fail(f"Lean did not print one exact type for {declaration}")
-        expected_type = matches[0][len(prefix):].strip()
+        prefix = f"{declaration} :"
+        header = lines[cursor]
+        cursor += 1
+        inline_type = header[len(prefix):]
+        type_parts: list[str] = []
+        if inline_type:
+            normalized = " ".join(inline_type.split())
+            if not normalized:
+                _fail(f"Lean printed an invalid type for {declaration}")
+            type_parts.append(normalized)
+        while cursor < len(lines) and header_index(lines[cursor]) is None:
+            continuation = lines[cursor]
+            if not continuation or not continuation[0].isspace():
+                _fail("Lean type-check output contained unexpected lines")
+            normalized = " ".join(continuation.split())
+            if not normalized:
+                _fail(f"Lean printed an invalid type for {declaration}")
+            type_parts.append(normalized)
+            cursor += 1
+        expected_type = " ".join(type_parts)
         if not expected_type or len(expected_type.encode("utf-8")) > _MAX_TYPE_BYTES:
             _fail(f"Lean printed an invalid type for {declaration}")
         result[declaration] = expected_type
-        remaining.remove(matches[0])
-    if remaining:
+    if cursor != len(lines):
         _fail("Lean type-check output contained unexpected lines")
     return result
 

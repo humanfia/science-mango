@@ -721,6 +721,94 @@ class FreezeIchoA4A5PriorResultTest(unittest.TestCase):
         self.assertNotIn(b"set_option pp.width", seen_source[0])
         self.assertNotIn(b"import IChO2026Problems", seen_source[0])
 
+    def test_production_type_checker_parses_strict_multiline_type_block(self) -> None:
+        declarations = ["Example.first", "Example.second"]
+        payload = b"namespace Example\ndef first := 1\ndef second := 2\nend Example\n"
+        completed = SimpleNamespace(
+            returncode=0,
+            stdout=(
+                "Example.first : Nat\n"
+                "Example.second :\n"
+                "  Very.Long.Type\n"
+                "    (List   Nat)\n"
+            ),
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory(prefix="freezer-lean-multiline-") as raw:
+            workspace = Path(raw)
+            target = "IChO2026Problems/problem_icho_2026_t1_a4.lean"
+            target_path = workspace / target
+            target_path.parent.mkdir(parents=True)
+            target_path.write_bytes(payload)
+            with mock.patch.object(FREEZER.subprocess, "run", return_value=completed):
+                result = FREEZER.lean_declaration_types(
+                    workspace, target, sha(payload), declarations,
+                    lake_bin=Path("/controller/bin/lake"), timeout_seconds=17,
+                )
+        self.assertEqual(result, {
+            "Example.first": "Nat",
+            "Example.second": "Very.Long.Type (List Nat)",
+        })
+
+    def test_production_type_checker_parses_inline_then_continuation(self) -> None:
+        declarations = ["Example.first", "Example.second"]
+        payload = b"def fixture := 1\n"
+        completed = SimpleNamespace(
+            returncode=0,
+            stdout=(
+                "Example.first : FirstPart\n"
+                "  ContinuedPart\n"
+                "Example.second : Nat\n"
+            ),
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory(
+            prefix="freezer-lean-inline-continuation-"
+        ) as raw:
+            workspace = Path(raw)
+            target = "IChO2026Problems/problem_icho_2026_t1_a4.lean"
+            target_path = workspace / target
+            target_path.parent.mkdir(parents=True)
+            target_path.write_bytes(payload)
+            with mock.patch.object(FREEZER.subprocess, "run", return_value=completed):
+                result = FREEZER.lean_declaration_types(
+                    workspace, target, sha(payload), declarations,
+                    lake_bin=Path("/controller/bin/lake"), timeout_seconds=17,
+                )
+        self.assertEqual(result, {
+            "Example.first": "FirstPart ContinuedPart",
+            "Example.second": "Nat",
+        })
+
+    def test_production_type_checker_rejects_non_block_output(self) -> None:
+        declarations = ["Example.first", "Example.second"]
+        payload = b"def fixture := 1\n"
+        invalid_outputs = {
+            "warning": "warning: drift\nExample.first : Nat\nExample.second : Nat\n",
+            "extra": "Example.first : Nat\nextra output\nExample.second : Nat\n",
+            "duplicate": "Example.first : Nat\nExample.first : Nat\nExample.second : Nat\n",
+            "missing": "Example.first : Nat\n",
+            "out_of_order": "Example.second : Nat\nExample.first : Nat\n",
+            "empty": "Example.first :\nExample.second : Nat\n",
+        }
+        for label, stdout in invalid_outputs.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory(
+                prefix="freezer-lean-invalid-"
+            ) as raw:
+                workspace = Path(raw)
+                target = "IChO2026Problems/problem_icho_2026_t1_a4.lean"
+                target_path = workspace / target
+                target_path.parent.mkdir(parents=True)
+                target_path.write_bytes(payload)
+                completed = SimpleNamespace(returncode=0, stdout=stdout, stderr="")
+                with mock.patch.object(
+                    FREEZER.subprocess, "run", return_value=completed
+                ), self.assertRaises(FREEZER.FreezePriorResultError):
+                    FREEZER.lean_declaration_types(
+                        workspace, target, sha(payload), declarations,
+                        lake_bin=Path("/controller/bin/lake"), timeout_seconds=17,
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()
