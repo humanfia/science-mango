@@ -87,7 +87,10 @@ The checkpoint contains real producers for:
   scale, followed by elimination of the certificate-dependent John radius
   into the explicit cap `288^3*(1+|d|)^2*volume(K)/delta^2` and an expanded
   ceiling budget, then complete removal of caller-supplied source-window
-  premises through finite-cardinality and separated-shear endpoints.
+  premises through finite-cardinality and separated-shear endpoints, and
+  replacement of the full source-cardinality factor by the fixed common-
+  neighbour WZ packing constant whenever all source tubes share one literal
+  `100T` container and satisfy pairwise WZ endpoint separation.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -105,10 +108,11 @@ bound requires extra cross-parent rigidity/separation; eliminating the
 same-path source multiplicity, bridging no-common-`100`-container separation
 to the paper's essentially-distinct predicate, and pre-enumerating the
 post-motion finite hull tests before random selection; and
-arbitrary-radius interpolation for the translation construction; turning
-the remaining explicit WZ2 copy/source ceiling factors (or finite source
-cardinality) into a uniform Katz--Tao constant (full WZ separation alone
-does not imply the projected shear gap needed for the sharper endpoint);
+arbitrary-radius interpolation for the translation construction; producing
+the common-`100T` containment and full WZ pairwise separation upstream, and
+turning the remaining explicit WZ2 copy-grid ceiling factor into a uniform
+Katz--Tao constant (full WZ separation alone does not imply the projected
+shear gap needed for the sharper endpoint);
 later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
