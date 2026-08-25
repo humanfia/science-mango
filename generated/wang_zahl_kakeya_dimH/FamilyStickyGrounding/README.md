@@ -102,9 +102,13 @@ The checkpoint contains real producers for:
   fixed-vertical WZL3 provenance), and level-zero fixed-`2` chart occupied
   graph-`C` floor buckets have explicit finite losses and selected-subfamily
   half-bucket geometry.  A two-point obstruction shows that one such bucket is
-  generally a proper subfamily, so only an additional selected-equals-source
-  proof promotes it to the existing whole-family terminal coefficient cap; the
-  old large-card cover route is formally impossible.  The stronger
+  generally a proper subfamily; instead of promoting it to the whole source, a
+  recursive restriction rebuilds every true parent-image hierarchy level while
+  preserving constructor kind, branching factor, buffer, and effective radius.
+  Its `Path*selected` embedding transports the exact source-card loss, reruns
+  strong selection on the selected occurrences, and reaches the generic WZ2
+  full coefficient cap.  The old large-card cover route is formally impossible.
+  The stronger
   half-volume-overlap notion is therefore isolated only for later results that
   genuinely inspect intersection measure, and a pre-motion universal
   packing-support hull catalogue reducing every
@@ -182,10 +186,11 @@ turning the global cross-parent rigidity certificate’s automatically generated
 hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
 requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
-from no-common-`100` containment is false); reinserting the formally selected
-chart/bucket subtype into the hierarchy while carrying its exact cardinality
-or weight loss (a single bucket is generally a proper subfamily and cannot be
-promoted to the whole refined source automatically); instantiating the
+from no-common-`100` containment is false); transporting the old joint output
+across the now-complete selected hierarchy still needs per-layer path
+embedding, omega compatibility, active-test inclusion, and load/collision
+transport (a `Fin 1` to `Fin 2` obstruction rules out an automatic cast);
+instantiating the
 selected-image sibling producer's lower-occurrence embedding and parent-
 equivalence with the concrete nested hierarchy, and bounding its automatic
 loss `card(Index 0)` by a dimension-only constant (finite obstructions show
