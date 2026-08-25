@@ -195,6 +195,62 @@ class IsolatedCampaignTests(unittest.TestCase):
         self.assertNotIn(Path("/usr/bin/git"), paths)
         self.assertNotIn(Path("/dev/tty"), paths)
 
+    def test_system_read_write_paths_requires_canonical_dev_null(self) -> None:
+        canonical = mock.Mock(
+            st_mode=stat.S_IFCHR | 0o666,
+            st_rdev=os.makedev(1, 3),
+            st_uid=0,
+            st_gid=0,
+        )
+        unsafe = {
+            "regular-file": mock.Mock(
+                st_mode=stat.S_IFREG | 0o666,
+                st_rdev=os.makedev(1, 3),
+                st_uid=0,
+                st_gid=0,
+            ),
+            "wrong-device": mock.Mock(
+                st_mode=stat.S_IFCHR | 0o666,
+                st_rdev=os.makedev(1, 5),
+                st_uid=0,
+                st_gid=0,
+            ),
+            "wrong-mode": mock.Mock(
+                st_mode=stat.S_IFCHR | 0o644,
+                st_rdev=os.makedev(1, 3),
+                st_uid=0,
+                st_gid=0,
+            ),
+            "wrong-uid": mock.Mock(
+                st_mode=stat.S_IFCHR | 0o666,
+                st_rdev=os.makedev(1, 3),
+                st_uid=1,
+                st_gid=0,
+            ),
+            "wrong-gid": mock.Mock(
+                st_mode=stat.S_IFCHR | 0o666,
+                st_rdev=os.makedev(1, 3),
+                st_uid=0,
+                st_gid=1,
+            ),
+        }
+        with (
+            mock.patch.object(Path, "resolve", return_value=Path("/dev/null")),
+            mock.patch.object(Path, "stat", return_value=canonical),
+        ):
+            self.assertEqual(
+                RUNNER._system_read_write_paths(),
+                (Path("/dev/null"),),
+            )
+        for label, metadata in unsafe.items():
+            with (
+                self.subTest(label=label),
+                mock.patch.object(Path, "resolve", return_value=Path("/dev/null")),
+                mock.patch.object(Path, "stat", return_value=metadata),
+                self.assertRaisesRegex(RUNNER.CampaignError, "unsafe"),
+            ):
+                RUNNER._system_read_write_paths()
+
     def test_codex_home_rejects_hardlinked_auth(self) -> None:
         template = self.config.codex_home_template
         template.mkdir(parents=True)

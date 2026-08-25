@@ -1101,7 +1101,13 @@ def _system_read_write_paths() -> tuple[Path, ...]:
             metadata = resolved.stat()
         except OSError as exc:
             raise CampaignError(f"required writable device is unavailable: {raw}") from exc
-        if not stat.S_ISCHR(metadata.st_mode) or metadata.st_uid != 0:
+        if (
+            not stat.S_ISCHR(metadata.st_mode)
+            or metadata.st_rdev != os.makedev(1, 3)
+            or metadata.st_uid != 0
+            or metadata.st_gid != 0
+            or stat.S_IMODE(metadata.st_mode) != 0o666
+        ):
             raise CampaignError(f"required writable device is unsafe: {resolved}")
         devices.append(resolved)
     return tuple(dict.fromkeys(devices))
