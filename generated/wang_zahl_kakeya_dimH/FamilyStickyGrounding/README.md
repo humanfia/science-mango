@@ -11,8 +11,13 @@ The checkpoint contains real producers for:
   adjacent-scale mass decomposition, finite dividing-scales stopping,
   explicit exponent-product budgets, finite bad-scale search, rooted finite
   refinement trees, nested-cover mass localization, and finite-node threshold
-  transfer, literal parent-fiber ratio normalization, and genuine
-  fiber-concentration control, plus strict-scale loss localization with a
+  transfer, literal parent-fiber ratio normalization, genuine
+  fiber-concentration control, a canonical arbitrary-radius locator with
+  coherent adjacent covers, and conditional arbitrary-radius Frostman,
+  Katz--Tao, and Sticky transfer whose same-test fibre bound is automatic via
+  subtype embedding, together with a sharp finite-merger obstruction isolating
+  the genuinely necessary reverse parent-normalizer comparison, plus
+  strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
   tree transfer, a finite-candidate strict-separation producer recovering the
@@ -121,8 +126,10 @@ instantiating the remaining explicit hierarchy radius/branching scalar checks;
 any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; discharging the local
 WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
-implication from no-common-`100` containment is false); arbitrary-radius
-interpolation for the translation construction; supplying
+implication from no-common-`100` containment is false); supplying the reverse
+parent-normalizer comparison required by the now-formalized arbitrary-radius
+transfer (parent compatibility alone is ruled out by a finite-merger
+obstruction); supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 `siteCount` by a dimension-only constant upstream (the current arbitrary
