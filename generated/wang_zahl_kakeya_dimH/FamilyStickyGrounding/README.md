@@ -91,6 +91,10 @@ The checkpoint contains real producers for:
   fixed-grid endpoint `16*gridConstant*C_WZ`; injectivity of the positive-
   spacing shear grid and a formal unboundedness obstruction show that the
   certificate `siteCount <= gridConstant` genuinely must come from upstream;
+- a callback-free final-assembly data certificate on one hierarchy and one
+  supplied joint output, exposing the actual-loss arbitrary-radius Sticky,
+  prefix all-convex Katz--Tao, terminal WZ cardinal/load, and selected
+  collision-cell WZ2 conclusions through a single coherent object;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -147,7 +151,9 @@ actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 `siteCount` by a dimension-only constant upstream (the current arbitrary
 `siteCount` API formally has no uniform cap)
 (full WZ separation alone does not imply the projected shear gap needed for
-the sharper endpoint);
-later projection geometry,
-and the final multiscale assembly.  No full Sticky conclusion or equivalent
-callback is included here.
+the sharper endpoint); proving the radius alignment, active-index reindexing,
+body equality, and carrier-parent coherence that identify an
+`upperEndpointCover` with hierarchy prefix/collision/terminal families, then
+their coverage, summation, shading, and projection transport.  These are the
+non-numerical inputs still separating the data-bearing assembly certificate
+from a full Sticky conclusion; no final callback is included here.
