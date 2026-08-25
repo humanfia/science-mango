@@ -52,9 +52,13 @@ The checkpoint contains real producers for:
   strict exponent room automatically selects the positive half-room loss and
   reaches the literal witness, while a zero-exponent obstruction proves that
   `K > 1` cannot be absorbed there.  A stage-preserving actual stopping producer
-  repairs the old existential output's lost provenance, derives finite `K` and
+  repairs the old existential output’s lost provenance, derives finite `K` and
   positive witness scale, and returns the target room together with
-  `AllStepsLarge` or the recovered literal witness directly from the real run;
+  `AllStepsLarge` or the recovered literal witness directly from the real run.
+  Its upstream closure now derives the one-based stage range and positive
+  scales, upgrades primitive global/adjacent analytic allocations to the
+  required exponent budgets, and obtains the reserved quadratic profile from
+  monotonicity plus `2 <= eta 0`;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -191,12 +195,14 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: instantiating the actual stopping endpoint's
-stage-range, reserved-profile global/adjacent exponent budgets, finite-node
-certificate, quadratic condition, and explicit small-delta threshold, then
-excluding the genuine all-large branch when a direct dividing witness is
-needed; witness construction, stage provenance, scale positivity, finite `K`,
-room, and exponent-loss absorption are now automatic;
+Honest residual work remains: instantiating the primitive global/adjacent
+analytic allocations, the dividing branch’s finite-node certificate, and the
+explicit small-delta threshold, then excluding the genuine all-large branch
+when a direct dividing witness is needed; stage range, scale positivity,
+quadratic profile, exponent-budget packaging, witness construction, stage
+provenance, finite `K`, room, and exponent-loss absorption are now automatic,
+while sharp obstructions show that the certificate and failed numeric
+allocations cannot be recovered from the hierarchy alone;
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
