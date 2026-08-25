@@ -33,7 +33,9 @@ The checkpoint contains real producers for:
   dividing witness without discarding `K`, followed by lawful exponent-loss
   absorption that lowers only the middle exponent under the pointwise
   `K <= (theta/rho)^loss` condition, with uniform endpoint-gap and small-delta
-  producers plus a monotone lowered-profile literal adapter;
+  producers plus a monotone lowered-profile literal adapter, and an explicit
+  tail-reserved profile whose automatic adjacent gap pays the loss and exactly
+  recovers the original target exponent at the stopping stage;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -149,10 +151,11 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: instantiating the new exponent-loss budget and
-profile gap at the target parameters (the adapter preserves `K` and pays an
-explicit middle-exponent loss; finite separation alone is formally ruled out
-for `K > 1`, `eta <= 2`);
+Honest residual work remains: instantiating the small-delta exponent-loss
+budget and the room `eta(stage) + loss <= epsilon` at the target parameters
+(the tail reserve now supplies the profile gap automatically, while the
+adapter preserves `K` and pays an explicit middle-exponent loss; finite
+separation alone is formally ruled out for `K > 1`, `eta <= 2`);
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
