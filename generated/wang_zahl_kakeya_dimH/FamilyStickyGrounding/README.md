@@ -101,6 +101,10 @@ The checkpoint contains real producers for:
   allocations forget to this smaller certificate.  Its exact search, strict
   failure exclusion, and legal dimensional-loss deformation show why these
   quantitative estimates cannot be manufactured from the bare hierarchy.
+  A combined producer derives all positivity side conditions, pays the
+  adjacent-card and recovered losses with one explicit minimum threshold, and
+  reaches the recovered witness from only that selected global certificate and
+  relevant-node checks; its residual search has no numerical-failure branch.
   A relevant-node refinement now checks
   only tree nodes at or below the buffered upper cutoff, exactly the nodes that
   the locator can return.  Literal positive-volume contained-mass selections
