@@ -87,7 +87,10 @@ The checkpoint contains real producers for:
   subsequently selected prefix fibre to all convex tests, followed by a
   supplied-plan joint selector whose one-layer, multiscale, and hierarchy
   outputs retain exact packing-certificate coherence and directly discharge
-  the prefix all-convex endpoint, and automatic
+  the prefix all-convex endpoint, plus a two-stage, radius-aligned,
+  body-preserving endpoint-to-effective-to-supplied-prefix bridge that fills
+  every discrete Katz--Tao endpoint and constructs the all-large bounds while
+  leaving the independent fine-fibre Frostman datum explicit, and automatic
   common-`100T` plus WZ-separated source geometry on every actual selected
   collision cell, connected to a WZ2 endpoint with coefficient
   `16*siteCount*C_WZ` and no convex-test-dependent ceiling, and a certified
@@ -154,9 +157,9 @@ actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 `siteCount` by a dimension-only constant upstream (the current arbitrary
 `siteCount` API formally has no uniform cap)
 (full WZ separation alone does not imply the projected shear gap needed for
-the sharper endpoint); proving the radius alignment, active-index reindexing,
-body equality, and carrier-parent coherence that identify an
-`upperEndpointCover` with hierarchy prefix/collision/terminal families, then
+the sharper endpoint); instantiating the now-formalized radius-aligned,
+body-preserving endpoint-to-effective-to-supplied-prefix embeddings and the
+separate fine-fibre normalizer/Frostman identification, then
 their coverage, summation, shading, and projection transport.  These are the
 non-numerical inputs still separating the data-bearing assembly certificate
 from a full Sticky conclusion; no final callback is included here.
