@@ -4898,6 +4898,7 @@ def _structured_review_response_schema(*, source_first: bool) -> dict[str, Any]:
         chemistry_checks = exact({
             name: audit for name in (
                 "chemical_semantics", "formula_mass_consistency",
+                "staged_species_domain",
                 "conservation_laws", "units_dimensions", "numerical_reporting",
                 "structure_stereochemistry", "identification_uniqueness",
                 "answer_smuggling",

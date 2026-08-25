@@ -252,6 +252,7 @@ class ReviewSourceContractTest(unittest.TestCase):
     def _chemistry_checks(*, numerical: str = "passed") -> dict:
         statuses = {
             "chemical_semantics": "passed",
+            "staged_species_domain": "passed",
             "formula_mass_consistency": "passed",
             "conservation_laws": "passed",
             "units_dimensions": "passed",
@@ -1006,6 +1007,58 @@ class ReviewSourceContractTest(unittest.TestCase):
                         audit, contract, passing=True,
                     ),
                 )
+
+    def test_staged_species_domain_check_is_required_and_na_fails_closed(self):
+        contract = build_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+        )
+
+        missing = self._source_audit(contract)
+        del missing["chemistry_checks"]["staged_species_domain"]
+        self.assertIn(
+            "chemistry check staged_species_domain",
+            validate_review_source_certificate(missing, contract, passing=True),
+        )
+
+        ungrounded_na = self._source_audit(contract)
+        ungrounded_na["chemistry_checks"]["staged_species_domain"] = {
+            "status": "not_applicable",
+            "evidence": "no staged chemistry was discussed",
+        }
+        self.assertIn(
+            "may be not_applicable only for a non-staged transformation",
+            validate_review_source_certificate(
+                ungrounded_na, contract, passing=True,
+            ),
+        )
+
+        forged_token = self._source_audit(contract)
+        forged_token["chemistry_checks"]["staged_species_domain"] = {
+            "status": "not_applicable",
+            "evidence": "not_staged_transformation_fake",
+        }
+        self.assertIn(
+            "may be not_applicable only for a non-staged transformation",
+            validate_review_source_certificate(
+                forged_token, contract, passing=True,
+            ),
+        )
+
+        explicit_non_staged = self._source_audit(contract)
+        explicit_non_staged["chemistry_checks"]["staged_species_domain"] = {
+            "status": "not_applicable",
+            "evidence": (
+                "not_staged_transformation: this target contains no material "
+                "transformation stages"
+            ),
+        }
+        self.assertEqual(
+            validate_review_source_certificate(
+                explicit_non_staged, contract, passing=True,
+            ),
+            "",
+        )
 
     def test_missing_source_or_image_can_never_receive_a_pass(self):
         self.report.unlink()

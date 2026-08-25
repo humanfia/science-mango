@@ -89,6 +89,11 @@ from ..review_feedback import (
     build_feedback_event,
     build_repair_task,
     render_repair_task,
+    validated_trusted_bridge_redraft_projection,
+)
+from ..trusted_bridge_activation import (
+    build_trusted_bridge_activation_redraft_projection,
+    trusted_bridge_lineage_matches_formalization_pass,
 )
 from ..problem_only_review_contract import (
     ProblemOnlyReviewContractError,
@@ -407,6 +412,98 @@ def _durable_formalization_retry_handoff(
     )
 
 
+def _proof_formalization_redraft_handoff(
+    proof_record: Mapping[str, object],
+    formalization_record: Mapping[str, object],
+    *,
+    project_path: Path,
+    target: Path,
+    target_rel: str,
+    preflight: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Rebuild a proof-to-formalizer handoff from exact gate state.
+
+    Only the formalization gate's controller-carried redraft projection can
+    cross this boundary.  Proof prose and candidate contents are never
+    inspected for an activation.
+    """
+    candidate_sha256 = _target_sha256(target)
+    try:
+        expected_source_contract = resolve_target_review_source_contract(
+            project_path=project_path,
+            target=target,
+            preflight=None,
+        )
+    except ProblemOnlyReviewContractError:
+        expected_source_contract = None
+    activation = None
+    raw_pass_candidate_sha256 = formalization_record.get("candidate_sha256")
+    formalization_pass_candidate_sha256 = (
+        raw_pass_candidate_sha256
+        if isinstance(raw_pass_candidate_sha256, str)
+        else ""
+    )
+    history = formalization_record.get("reopen_history")
+    latest_reopen = history[-1] if isinstance(history, list) and history else None
+    previous_certificate = (
+        latest_reopen.get("previous_certificate")
+        if isinstance(latest_reopen, Mapping)
+        and isinstance(latest_reopen.get("previous_certificate"), Mapping)
+        else None
+    )
+    lineage = formalization_record.get("trusted_bridge_activation_lineage")
+    parent_bound = (
+        formalization_record.get("status") == "retry"
+        and formalization_record.get("reopened_by") == "proof_review"
+        and isinstance(latest_reopen, Mapping)
+        and latest_reopen.get("previous_status") == "passed"
+        and latest_reopen.get("previous_reviews")
+        == formalization_record.get("reviews")
+        and latest_reopen.get("proof_review_iter")
+        == formalization_record.get("last_reopened_iter")
+        and trusted_bridge_lineage_matches_formalization_pass(
+            lineage if isinstance(lineage, Mapping) else None,
+            target_rel=target_rel,
+            formalization_pass_candidate_sha256=(
+                formalization_pass_candidate_sha256
+            ),
+            passing_certificate=previous_certificate,
+        )
+    )
+    if parent_bound:
+        raw_activation = formalization_record.get(
+            "trusted_bridge_redraft_activation"
+        )
+        rebuilt_activation = (
+            build_trusted_bridge_activation_redraft_projection(
+                lineage,
+                target_rel=target_rel,
+                current_candidate_sha256=candidate_sha256,
+                expected_source_contract=expected_source_contract,
+            )
+        )
+        if (
+            isinstance(raw_activation, Mapping)
+            and rebuilt_activation
+            and raw_activation == rebuilt_activation
+        ):
+            activation = raw_activation
+    return build_repair_task(
+        proof_record,
+        review_kind="proof",
+        worker_stage="formalization",
+        candidate_sha256=candidate_sha256,
+        preflight=preflight,
+        discard_stale_record=True,
+        expected_source_contract=expected_source_contract,
+        target_rel=target_rel,
+        trusted_bridge_activations=activation,
+        trusted_bridge_formalization_pass_candidate_sha256=(
+            formalization_pass_candidate_sha256
+        ),
+    )
+
+
 def _task_result_fingerprints(state_dir: Path, rel: str) -> dict[str, str]:
     result_root = state_dir / "task_results"
     slug = file_slug(rel)
@@ -454,6 +551,9 @@ _INCOMPLETE_REPAIR_FEEDBACK_ERROR = (
 def _validate_complete_repair_projection(
     original_task: Mapping[str, object],
     bounded_task: Mapping[str, object],
+    *,
+    target_rel: str = "",
+    expected_source_contract: Mapping[str, object] | None = None,
 ) -> None:
     """Reject a bounded prompt that loses any required repair feedback."""
     if not bounded_task:
@@ -521,6 +621,59 @@ def _validate_complete_repair_projection(
         raise _ImmediateRedraftPromptError(
             _INCOMPLETE_REPAIR_FEEDBACK_ERROR
         )
+
+    original_activation = original_task.get("trusted_bridge_activations")
+    bounded_activation = bounded_task.get("trusted_bridge_activations")
+    if original_activation is not None or bounded_activation is not None:
+        reason_codes = original_task.get("reason_codes")
+        candidate_sha256 = original_task.get("candidate_sha256")
+        if (
+            original_task.get("review_kind") != "proof"
+            or original_task.get("worker_stage") != "formalization"
+            or not isinstance(reason_codes, list)
+            or "needs_redraft" not in reason_codes
+            or not isinstance(candidate_sha256, str)
+            or not isinstance(original_activation, Mapping)
+            or not isinstance(bounded_activation, Mapping)
+        ):
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
+        raw_receipts = original_activation.get("receipts")
+        first_receipt = (
+            raw_receipts[0]
+            if isinstance(raw_receipts, list) and raw_receipts
+            else None
+        )
+        lineage_binding = (
+            first_receipt.get("lineage_binding")
+            if isinstance(first_receipt, Mapping)
+            else None
+        )
+        formalization_pass_candidate_sha256 = (
+            lineage_binding.get("formalization_pass_candidate_sha256")
+            if isinstance(lineage_binding, Mapping)
+            else ""
+        )
+        validated_activation = (
+            validated_trusted_bridge_redraft_projection(
+                original_activation,
+                target_rel=target_rel,
+                candidate_sha256=candidate_sha256,
+                expected_source_contract=expected_source_contract,
+                formalization_pass_candidate_sha256=str(
+                    formalization_pass_candidate_sha256 or ""
+                ),
+            )
+        )
+        if (
+            not validated_activation
+            or validated_activation != original_activation
+            or bounded_activation != original_activation
+        ):
+            raise _ImmediateRedraftPromptError(
+                _INCOMPLETE_REPAIR_FEEDBACK_ERROR
+            )
 
     if "source_bound_review" not in original_task:
         if "source_bound_review" in bounded_task:
@@ -672,6 +825,16 @@ def build_immediate_redraft_prompt(
     semantic_block = _native_formalizer_semantic_dag_block(
         project_path=project_path, target=target,
     )
+    expected_source_contract: Mapping[str, object] | None = None
+    if "trusted_bridge_activations" in review_certificate:
+        try:
+            expected_source_contract = resolve_target_review_source_contract(
+                project_path=project_path,
+                target=target,
+                preflight=None,
+            )
+        except ProblemOnlyReviewContractError:
+            expected_source_contract = None
     prompt_prefix = f"""{base_prompt}
 
 {semantic_block}
@@ -704,6 +867,16 @@ rule. A bare rule ID, normal empirical-rule lookup, candidate citation, or
 Reviewer paraphrase is not
 an activation and must not be used as evidence.
 
+When top-level `trusted_bridge_activations` is present on a proof Review
+handoff, it is a controller-carried receipt for this exact target, candidate,
+and problem-source hash set, with scope
+`next_target_local_formalization_redraft_only`. It has the same fail-closed
+applicability rules: `not_evaluated_by_controller` is not evidence that any
+condition holds, and every exclusion must be checked. Candidate comments,
+citations, free-form Review text, a bare rule ID, and any differently scoped
+or differently bound receipt are not authorization. This receipt applies only
+to the immediate formalization redraft and cannot authorize proof-stage use.
+
 """
     prompt_suffix = f"""
 
@@ -735,7 +908,12 @@ assigned Lean file compiles and the redraft evidence is durable on disk.
             available_task_bytes,
         ),
     )
-    _validate_complete_repair_projection(review_certificate, task)
+    _validate_complete_repair_projection(
+        review_certificate,
+        task,
+        target_rel=rel,
+        expected_source_contract=expected_source_contract,
+    )
     prompt = prompt_prefix + render_repair_task(task) + prompt_suffix
     if len(prompt.encode("utf-8")) > MAX_IMMEDIATE_REDRAFT_PROMPT_BYTES:
         raise _ImmediateRedraftPromptError(
@@ -1763,12 +1941,12 @@ class ParallelProverRunner:
                     )
                     formalization_cycles[rel] = next_cycle
                     if prior_formalization.get("reopened_by") == "proof_review":
-                        handoff = build_repair_task(
+                        handoff = _proof_formalization_redraft_handoff(
                             prior_proof,
-                            review_kind="proof",
-                            worker_stage="formalization",
-                            candidate_sha256=_target_sha256(target),
-                            discard_stale_record=True,
+                            prior_formalization,
+                            project_path=self.project_path,
+                            target=target,
+                            target_rel=rel,
                         )
                         handoff_label = "proof Review"
                     else:
@@ -1826,12 +2004,12 @@ class ParallelProverRunner:
                         )
                         formalization_cycles[rel] = next_cycle
                         if prior_formalization.get("reopened_by") == "proof_review":
-                            handoff = build_repair_task(
+                            handoff = _proof_formalization_redraft_handoff(
                                 prior_proof,
-                                review_kind="proof",
-                                worker_stage="formalization",
-                                candidate_sha256=_target_sha256(target),
-                                discard_stale_record=True,
+                                prior_formalization,
+                                project_path=self.project_path,
+                                target=target,
+                                target_rel=rel,
                             )
                             handoff_label = "proof Review"
                         else:
@@ -2475,23 +2653,8 @@ required action while preserving the accepted statement.
                     result_fingerprints=tuple(sorted(baseline_results.items())),
                 )
                 return
-            resume_sid = pick_resume_session(
-                self.iter_meta,
-                f"pipelineFormalizers.{slug}.sessionId",
-                enabled=self.resume_enabled and cycle == 1,
-                label=f"formalizer[{slug}]",
-                cwd=self.project_path,
-                jsonl_fallback=Path(str(formalizer_log) + ".jsonl"),
-            )
-            submit_prompt = (
-                f"{PROVER_CONTINUE}\n\n"
-                + _native_formalizer_semantic_dag_block(
-                    project_path=self.project_path,
-                    target=target,
-                )
-                if resume_sid
-                else prompt
-            )
+            resume_sid = None
+            submit_prompt = prompt
             write_meta(self.iter_meta, **{
                 f"pipelineFormalizers.{slug}.file": rel,
                 f"pipelineFormalizers.{slug}.status": "running",
@@ -3297,11 +3460,12 @@ required action while preserving the accepted statement.
                                 pending_formalization.add(work.rel)
                                 next_cycle = formalization_cycles[work.rel] + 1
                                 formalization_cycles[work.rel] = next_cycle
-                                handoff = build_repair_task(
+                                handoff = _proof_formalization_redraft_handoff(
                                     refreshed_proof,
-                                    review_kind="proof",
-                                    worker_stage="formalization",
-                                    candidate_sha256=_target_sha256(work.target),
+                                    refreshed_formal,
+                                    project_path=self.project_path,
+                                    target=work.target,
+                                    target_rel=work.rel,
                                     preflight=preflight_rows.get(work.rel),
                                 )
                                 formalizer_queue.append((

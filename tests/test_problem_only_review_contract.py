@@ -395,6 +395,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 name: dict(passed)
                 for name in (
                     "chemical_semantics",
+                    "staged_species_domain",
                     "formula_mass_consistency",
                     "conservation_laws",
                     "units_dimensions",
@@ -585,6 +586,40 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertEqual(prompt.count(policy_id), 1)
         self.assertNotIn("symmetry_guided_benzylic_oxidation", prompt)
         self.assertNotIn("benzylic_oxidation_permanganate", prompt)
+
+    def test_chemistry_policy_requires_finite_staged_species_domain(self) -> None:
+        prompt = " ".join(
+            render_native_chemistry_constant_policy(self._contract()).split()
+        )
+        for marker in (
+            "MANDATORY FINITE STAGED-SPECIES DOMAIN",
+            "finite, source-derived species domain",
+            (
+                "every permitted solid input and output, volatile output, and "
+                "external input"
+            ),
+            "Every atom or mass flow must be species-typed",
+            "catch-all material-flow variables are forbidden",
+            "every element in every admitted species an exact problem locator",
+            "source-authorized external input for that same stage",
+            "not an input to a later experiment",
+            "unconstrained `Bool`/`Prop` fields",
+            "complete atom, charge, mass, and measured-interval ledgers",
+            "Scalar mass equality alone is not chemical feasibility",
+            "terminal-residue or terminal-candidate rule only after",
+            "at least two fully species-typed, source-grounded, balanced models",
+            "numerical slack and freely chosen flags are not countermodels",
+            "`chemistry_checks.staged_species_domain`",
+            "exact token `not_staged_transformation`",
+        ):
+            self.assertIn(marker, prompt)
+
+        formalizer_prompt = " ".join(
+            _native_formalizer_semantic_dag_block(
+                project_path=self.project, target=self.target,
+            ).split()
+        )
+        self.assertIn("MANDATORY FINITE STAGED-SPECIES DOMAIN", formalizer_prompt)
 
 
     def test_review_preflight_producer_flows_into_native_contract(self) -> None:

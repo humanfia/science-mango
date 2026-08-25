@@ -15,8 +15,10 @@ from archon.commands.loop.answer_submission import answer_submission_path
 from archon.commands.loop.formalization_review_gate import (
     apply_formalization_review,
     apply_target_formalization_review,
+    effective_formalization_review_limit,
     enforce_progress_review_gate,
     load_gate_state,
+    reopen_formalization_targets,
 )
 from archon.commands.loop.native_semantic_review import (
     build_independent_rederivation_example,
@@ -328,6 +330,7 @@ class FormalizationReviewGateTests(unittest.TestCase):
                 name: dict(passed)
                 for name in (
                     "chemical_semantics",
+                    "staged_species_domain",
                     "formula_mass_consistency",
                     "conservation_laws",
                     "units_dimensions",
@@ -380,7 +383,8 @@ class FormalizationReviewGateTests(unittest.TestCase):
             "chemistry_checks": {
                 name: {"status": "passed", "evidence": f"{name} audited"}
                 for name in (
-                    "chemical_semantics", "formula_mass_consistency",
+                    "chemical_semantics", "staged_species_domain",
+                    "formula_mass_consistency",
                     "conservation_laws", "units_dimensions",
                     "numerical_reporting", "structure_stereochemistry",
                     "identification_uniqueness", "answer_smuggling",
@@ -642,6 +646,124 @@ class FormalizationReviewGateTests(unittest.TestCase):
             bind_candidate=False,
         )
 
+    def test_source_change_clears_trusted_receipt_lifecycle(self):
+        digest = "a" * 64
+        state = {
+            "version": 2,
+            "max_iterations": 3,
+            "targets": {
+                "Problems/p.lean": {
+                    "status": "retry",
+                    "reviews": 3,
+                    "certificate": {"source_contract": {"old": "binding"}},
+                    "trusted_bridge_resubmission": {
+                        "schema_version": 1,
+                        "request_id": "old-source",
+                        "rejected_candidate_sha256": digest,
+                        "requests_sha256": "b" * 64,
+                        "base_max_reviews": 3,
+                        "max_total_reviews": 4,
+                        "status": "pending",
+                    },
+                    "proof_redraft_resubmission": {"sentinel": True},
+                    "trusted_bridge_activation_lineage": {"sentinel": True},
+                    "trusted_bridge_redraft_activation": {"sentinel": True},
+                    "repair_handoff": {"sentinel": True},
+                    "materialized_redraft": {"sentinel": True},
+                },
+            },
+        }
+        with (
+            mock.patch.object(
+                formalization_review_gate,
+                "load_domain_profile",
+                return_value=SimpleNamespace(name="chemistry-native"),
+            ),
+            mock.patch.object(
+                formalization_review_gate,
+                "stored_review_provenance_matches_current",
+                return_value=(False, "source hash changed"),
+            ),
+        ):
+            current = formalization_review_gate._invalidate_stale_passes(
+                state_dir=self.state,
+                project_path=self.project,
+                state=state,
+            )
+
+        record = current["targets"]["Problems/p.lean"]
+        self.assertEqual(record["status"], "retry")
+        self.assertEqual(record["reviews"], 0)
+        for field in (
+            "proof_redraft_resubmission",
+            "trusted_bridge_resubmission",
+            "trusted_bridge_activation_lineage",
+            "trusted_bridge_redraft_activation",
+            "repair_handoff",
+            "materialized_redraft",
+        ):
+            self.assertNotIn(field, record)
+        self.assertEqual(effective_formalization_review_limit(record, 3), 3)
+
+    def test_proof_reopen_uses_bound_previous_certificate_for_freshness(self):
+        provenance = {
+            "contract_kind": "native_problem_input_only",
+            "source_bundle_sha256": "a" * 64,
+        }
+        state = {
+            "version": 2,
+            "max_iterations": 3,
+            "targets": {
+                "Problems/p.lean": {
+                    "status": "retry",
+                    "reviews": 3,
+                    "candidate_sha256": "b" * 64,
+                    "certificate": {},
+                    "reopened_by": "proof_review",
+                    "last_reopened_iter": 4,
+                    "reopen_history": [{
+                        "proof_review_iter": 4,
+                        "previous_status": "passed",
+                        "previous_reviews": 3,
+                        "previous_certificate": {
+                            "candidate_sha256": "b" * 64,
+                            "source_contract": provenance,
+                        },
+                    }],
+                    "proof_redraft_resubmission": {"sentinel": True},
+                    "trusted_bridge_redraft_activation": {"sentinel": True},
+                },
+            },
+        }
+        with (
+            mock.patch.object(
+                formalization_review_gate,
+                "load_domain_profile",
+                return_value=SimpleNamespace(name="chemistry-native"),
+            ),
+            mock.patch.object(
+                formalization_review_gate,
+                "stored_review_provenance_matches_current",
+                return_value=(True, ""),
+            ) as freshness,
+        ):
+            current = formalization_review_gate._invalidate_stale_passes(
+                state_dir=self.state,
+                project_path=self.project,
+                state=state,
+            )
+
+        record = current["targets"]["Problems/p.lean"]
+        self.assertEqual(record["status"], "retry")
+        self.assertIn("proof_redraft_resubmission", record)
+        self.assertIn("trusted_bridge_redraft_activation", record)
+        freshness.assert_called_once_with(
+            project_path=self.project,
+            target=self.target,
+            provenance=provenance,
+            bind_candidate=False,
+        )
+
     def test_failed_review_retries_then_exhausts_on_third_attempt(self):
         first = self._review(1, "failed")
         self.assertEqual(first.retry, ("Problems/p.lean",))
@@ -874,6 +996,176 @@ class FormalizationReviewGateTests(unittest.TestCase):
             self.assertEqual(
                 source_review["source_binding"][field], provenance[field],
             )
+
+    def test_final_cycle_trusted_bridge_request_gets_one_fresh_review(self):
+        contract = self._set_native_profile_and_bundle()
+        self._review(1, "failed")
+        self._review(2, "failed")
+
+        failed = self._passing_certificate()
+        failed.update(self._native_source_audit())
+        failed.update({
+            "schema_version": 2,
+            "status": "failed",
+            "reason": "the source relation is only assumed",
+            "trusted_bridge_requests": [{
+                "bridge_obligation_index": 0,
+                "rule_id": (
+                    "directed_reaction_omitted_protocol_candidate_filter"
+                ),
+            }],
+            "independent_rederivation": (
+                build_independent_rederivation_example(contract)
+            ),
+        })
+        failed["checks"]["source_faithfulness"] = {
+            "status": "failed",
+            "evidence": "the source relation is an unconstrained premise",
+        }
+        failed["bridge_obligations"][0].update({
+            "status": "blocked",
+            "evidence": "no source-grounded carrier derives this relation",
+        })
+
+        third = self._review(3, "failed", formalization_review=failed)
+
+        rel = self.target.relative_to(self.project).as_posix()
+        self.assertEqual(third.retry, (rel,))
+        record = load_gate_state(self.state)["targets"][rel]
+        request = record["trusted_bridge_resubmission"]
+        self.assertEqual(record["reviews"], 3)
+        self.assertEqual(request["status"], "pending")
+        self.assertEqual(request["max_total_reviews"], 4)
+
+        unchanged_pass = self._passing_certificate()
+        unchanged_pass.update(self._native_source_audit())
+        unchanged_pass["independent_rederivation"] = (
+            build_independent_rederivation_example(contract)
+        )
+        replay = self._review(
+            4, "passed", formalization_review=unchanged_pass,
+        )
+        self.assertEqual(replay.retry, (rel,))
+        self.assertEqual(
+            load_gate_state(self.state)["targets"][rel]["reviews"], 3,
+        )
+
+        self.target.write_text(
+            self.target.read_text(encoding="utf-8") + "\n-- trusted redraft\n",
+            encoding="utf-8",
+        )
+        self.native_source_contract = resolve_target_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+            preflight=None,
+        )
+        passing = self._passing_certificate()
+        passing.update(self._native_source_audit())
+        passing["independent_rederivation"] = (
+            build_independent_rederivation_example(contract)
+        )
+
+        fourth = self._review(5, "passed", formalization_review=passing)
+
+        self.assertEqual(fourth.passed, (rel,))
+        record = load_gate_state(self.state)["targets"][rel]
+        self.assertEqual(record["reviews"], 4)
+        self.assertEqual(
+            record["trusted_bridge_resubmission"]["status"], "reviewed",
+        )
+        self.assertEqual(
+            record["trusted_bridge_resubmission"][
+                "reviewed_candidate_sha256"
+            ],
+            record["candidate_sha256"],
+        )
+        self.assertIn("trusted_bridge_activation_lineage", record)
+
+        proof_event_id = "pipeline:6:Problems/p.lean:proof:1"
+        self.target.write_text(
+            self.target.read_text(encoding="utf-8") + "\n-- proof-filled H2\n",
+            encoding="utf-8",
+        )
+        proof_sha256 = hashlib.sha256(self.target.read_bytes()).hexdigest()
+        (self.state / "proof-review-gate.json").write_text(
+            json.dumps({
+                "version": 2,
+                "targets": {
+                    rel: {
+                        "status": "needs_redraft",
+                        "candidate_sha256": proof_sha256,
+                        "history": [{
+                            "route": "needs_redraft",
+                            "resulting_status": "needs_redraft",
+                            "event_id": proof_event_id,
+                        }],
+                    },
+                },
+            }),
+            encoding="utf-8",
+        )
+        reopened = reopen_formalization_targets(
+            state_dir=self.state,
+            project_path=self.project,
+            progress_file=self.progress,
+            redrafts={
+                rel: {
+                    "reason": "proof Review requires statement redraft",
+                    "redraft_kind": "missing_foundational_bridge",
+                    "pipeline_event_id": proof_event_id,
+                },
+            },
+            iter_num=6,
+            max_iterations=3,
+            route_progress=False,
+            enforce_budget=True,
+        )
+
+        self.assertEqual(reopened, (rel,))
+        record = load_gate_state(self.state)["targets"][rel]
+        self.assertEqual(record["status"], "retry")
+        self.assertEqual(record["reviews"], 4)
+        self.assertEqual(effective_formalization_review_limit(record, 3), 5)
+        proof_request = record["proof_redraft_resubmission"]
+        trusted_request = record["trusted_bridge_resubmission"]
+        self.assertEqual(proof_request["base_max_reviews"], 4)
+        self.assertEqual(proof_request["max_total_reviews"], 5)
+        self.assertEqual(
+            proof_request["parent_trusted_bridge_request_id"],
+            trusted_request["request_id"],
+        )
+        self.assertIn("trusted_bridge_redraft_activation", record)
+
+        for field, forged_value in (
+            ("parent_trusted_bridge_request_id", "forged-event"),
+            ("parent_trusted_bridge_requests_sha256", "c" * 64),
+            ("parent_trusted_bridge_reviewed_candidate_sha256", "d" * 64),
+        ):
+            with self.subTest(field=field):
+                forged = json.loads(json.dumps(record))
+                forged["proof_redraft_resubmission"][field] = forged_value
+                self.assertEqual(
+                    effective_formalization_review_limit(forged, 3), 4,
+                )
+
+    def test_overflow_routes_never_stack(self):
+        digest = "a" * 64
+        shared = {
+            "schema_version": 1,
+            "request_id": "event",
+            "rejected_candidate_sha256": digest,
+            "base_max_reviews": 3,
+            "max_total_reviews": 4,
+            "status": "pending",
+        }
+        record = {
+            "proof_redraft_resubmission": dict(shared),
+            "trusted_bridge_resubmission": {
+                **shared,
+                "requests_sha256": "b" * 64,
+            },
+        }
+        self.assertEqual(effective_formalization_review_limit(record, 3), 4)
 
     def test_native_mismatched_comparison_cannot_pass_batch_gate(self):
         contract = self._set_native_profile_and_bundle()

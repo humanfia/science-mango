@@ -1853,6 +1853,41 @@ def render_native_chemistry_constant_policy(
   enumerating a candidate, but it cannot fill an omitted condition or ground a
   source-to-Lean bridge about the current reaction.
 
+- MANDATORY FINITE STAGED-SPECIES DOMAIN: whenever a requested result depends
+  on one or more staged material transformations (including heating, drying,
+  decomposition, precipitation, reaction, or workup), establish a finite,
+  source-derived species domain before using mass agreement or any terminal
+  product/residue rule. For each stage, enumerate every permitted solid input
+  and output, volatile output, and external input by chemical identity/formula
+  and phase. Every atom or mass flow must be species-typed. Anonymous `other`,
+  `residual`, `ejected`, `untracked`, or catch-all material-flow variables are
+  forbidden.
+- Give every element in every admitted species an exact problem locator, an
+  independently rederived prior-part carrier, or a valid pinned/activated
+  authority. An element may enter a stage only through the enumerated initial
+  material or an enumerated, source-authorized external input for that same
+  stage. A reagent used in a separate earlier analysis or workup is not an
+  input to a later experiment unless the problem explicitly carries it
+  forward.
+- Do not encode source qualitative or empirical facts as unconstrained
+  `Bool`/`Prop` fields (for example identity, industrial use, symmetry,
+  stability, or reaction completion) that a witness can set arbitrarily. Each
+  decisive predicate needs a source locator/receipt and a nontrivial carrier,
+  or must be eliminated by the finite candidate audit.
+- For every stage, expose named Lean carriers for the complete atom, charge,
+  mass, and measured-interval ledgers, including every admitted species and
+  external input. Scalar mass equality alone is not chemical feasibility.
+  Apply a terminal-residue or terminal-candidate rule only after the species
+  domain is closed and every stage ledger passes. A claimed countermodel or
+  underdetermination result requires at least two fully species-typed,
+  source-grounded, balanced models; numerical slack and freely chosen flags
+  are not countermodels.
+- Every Review certificate must include
+  `chemistry_checks.staged_species_domain`, with `passed` or `failed` status
+  and evidence naming the domain, stages, and ledger carriers. Use
+  `not_applicable` only when the target has no staged material transformation;
+  that evidence must include the exact token `not_staged_transformation`.
+
 - Problem-stipulated values override the dataset. A pinned nominal value may be
   used for an olympiad-style central answer when the problem asks for one, but
   still check whether source uncertainty could change the required reported

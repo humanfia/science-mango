@@ -482,6 +482,10 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "different-substrate cue fails closed",
                 "does not identify the specific reagent",
                 "identity to be derived independently from the problem measurements",
+                '"staged_species_domain"',
+                "allowed solid inputs/outputs, volatile outputs, and external inputs",
+                "Reject anonymous or catch-all material streams",
+                "not_staged_transformation",
             ):
                 self.assertIn(marker, normalized_chemistry)
 

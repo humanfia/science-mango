@@ -85,6 +85,10 @@ def _source_bound_formalization_certificate(
                 "status": "failed",
                 "evidence": "UNPROJECTED_CHEMISTRY_SECRET",
             },
+            "staged_species_domain": {
+                "status": "failed",
+                "evidence": "UNPROJECTED_STAGED_SPECIES_SECRET",
+            },
         },
     }
 
@@ -563,6 +567,9 @@ class ReviewFeedbackTest(unittest.TestCase):
                 },
             )
 
+        self.assertIn(
+            "chemistry_checks.staged_species_domain", task["failed_check_ids"],
+        )
         review = task["source_bound_review"]
         self.assertEqual(review["source_binding"]["candidate_sha256"], digest)
         self.assertEqual(
@@ -589,6 +596,7 @@ class ReviewFeedbackTest(unittest.TestCase):
             "UNPROJECTED_REQUESTED_OUTPUT_SECRET",
             "UNPROJECTED_OUTPUT_EVIDENCE_SECRET",
             "UNPROJECTED_CHEMISTRY_SECRET",
+            "UNPROJECTED_STAGED_SPECIES_SECRET",
         ):
             self.assertNotIn(secret, payload)
         self.assertLessEqual(

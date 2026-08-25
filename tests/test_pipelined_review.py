@@ -3019,6 +3019,7 @@ class PipelinedReviewTest(unittest.TestCase):
             def formalizer(*_args, **_kwargs):
                 calls["formalizer"] += 1
                 prompt = _args[0]
+                self.assertIsNone(_args[7])
                 self.assertIn("controller-sanitized repair task", prompt)
                 self.assertIn("needs_redraft", prompt)
                 self.assertIn(
@@ -3095,7 +3096,7 @@ class PipelinedReviewTest(unittest.TestCase):
                 patch("archon.commands.loop.prover.runners.snapshot_baseline"),
                 patch(
                     "archon.commands.loop.prover.runners.pick_resume_session",
-                    return_value=None,
+                    return_value="STALE_FORMALIZER_SESSION_MUST_NOT_RESUME",
                 ),
                 patch(
                     "archon.commands.loop.prover.runners.persist_session_id"

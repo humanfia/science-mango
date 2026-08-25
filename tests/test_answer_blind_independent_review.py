@@ -214,7 +214,8 @@ class StructuredIndependentReviewTests(unittest.TestCase):
             "image_audit": [{"inspected": True, "evidence": "page inspected"}],
             "chemistry_checks": {
                 name: dict(audit) for name in (
-                    "chemical_semantics", "formula_mass_consistency",
+                    "chemical_semantics", "staged_species_domain",
+                    "formula_mass_consistency",
                     "conservation_laws", "units_dimensions", "numerical_reporting",
                     "structure_stereochemistry", "identification_uniqueness",
                     "answer_smuggling",

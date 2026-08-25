@@ -24,6 +24,7 @@ from .problem_only_review_contract import (
     validate_native_review_source_certificate,
 )
 from .trusted_bridge_activation import (
+    _validate_activation_projection,
     build_trusted_bridge_activation_projection,
 )
 
@@ -126,6 +127,7 @@ _CHECK_GROUPS: dict[str, tuple[str, ...]] = {
     ),
     "chemistry_checks": (
         "chemical_semantics",
+        "staged_species_domain",
         "formula_mass_consistency",
         "conservation_laws",
         "units_dimensions",
@@ -173,6 +175,9 @@ _SOURCE_BOUND_HASH_FIELDS = (
     "answer_submission_sha256",
     "question_sha256",
     "requested_outputs_sha256",
+)
+_TRUSTED_BRIDGE_REDRAFT_SCOPE = (
+    "next_target_local_formalization_redraft_only"
 )
 _FORBIDDEN_SOURCE_BOUND_KEYS = {
     "accepted_legacy_answers",
@@ -325,6 +330,103 @@ def _canonical_json_bytes(value: Any) -> bytes | None:
         ).encode("utf-8")
     except (OverflowError, TypeError, ValueError):
         return None
+
+
+def validated_trusted_bridge_redraft_projection(
+    value: Mapping[str, Any] | None,
+    *,
+    target_rel: str,
+    candidate_sha256: str,
+    expected_source_contract: Mapping[str, Any] | None,
+    formalization_pass_candidate_sha256: str,
+) -> dict[str, Any]:
+    """Return one exact controller-carried proof-redraft receipt or ``{}``.
+
+    The receipt is an explicit gate input.  This function never derives one
+    from Review prose, candidate comments, citations, or rule identifiers.
+    """
+    if (
+        not isinstance(value, Mapping)
+        or not target_rel
+        or not is_native_problem_only_contract(expected_source_contract)
+        or expected_source_contract.get("target") != target_rel
+        or expected_source_contract.get("candidate") != target_rel
+    ):
+        return {}
+    try:
+        digest = _normalize_sha256(
+            candidate_sha256, field="candidate_sha256"
+        )
+        pass_digest = _normalize_sha256(
+            formalization_pass_candidate_sha256,
+            field="formalization_pass_candidate_sha256",
+        )
+    except ValueError:
+        return {}
+    if (
+        not digest
+        or not pass_digest
+        or expected_source_contract.get("candidate_sha256") != digest
+    ):
+        return {}
+
+    source_binding: dict[str, str] = {}
+    for field in _SOURCE_BOUND_HASH_FIELDS:
+        try:
+            source_digest = _normalize_sha256(
+                expected_source_contract.get(field), field=field
+            )
+        except ValueError:
+            return {}
+        if not source_digest:
+            return {}
+        source_binding[field] = source_digest
+
+    receipts = value.get("receipts")
+    if not isinstance(receipts, list) or not receipts:
+        return {}
+    first_receipt = receipts[0]
+    first_lineage = (
+        first_receipt.get("lineage_binding")
+        if isinstance(first_receipt, Mapping)
+        else None
+    )
+    if not isinstance(first_lineage, Mapping):
+        return {}
+    formalization_pass_sha256 = first_lineage.get(
+        "formalization_pass_candidate_sha256"
+    )
+    activation_input_sha256 = first_lineage.get(
+        "activation_input_candidate_sha256"
+    )
+    if (
+        formalization_pass_sha256 != pass_digest
+        or not isinstance(activation_input_sha256, str)
+        or _SHA256_RE.fullmatch(activation_input_sha256) is None
+        or activation_input_sha256 == digest
+        or activation_input_sha256 == pass_digest
+        or any(
+            not isinstance(receipt, Mapping)
+            or receipt.get("lineage_binding") != first_lineage
+            for receipt in receipts
+        )
+    ):
+        return {}
+
+    validated = _validate_activation_projection(
+        value,
+        target_rel=target_rel,
+        candidate_sha256=digest,
+        expected_scope=_TRUSTED_BRIDGE_REDRAFT_SCOPE,
+        expected_source_binding=source_binding,
+        require_lineage_binding=True,
+        formalization_pass_candidate_sha256=pass_digest,
+    )
+    payload = _canonical_json_bytes(value) if validated is not None else None
+    if payload is None:
+        return {}
+    copied = json.loads(payload)
+    return copied if isinstance(copied, dict) else {}
 
 
 def _bounded_source_text(value: Any, *, maximum_bytes: int) -> str:
@@ -1011,6 +1113,8 @@ def build_repair_task(
     discard_stale_record: bool = False,
     expected_source_contract: Mapping[str, Any] | None = None,
     target_rel: str = "",
+    trusted_bridge_activations: Mapping[str, Any] | None = None,
+    trusted_bridge_formalization_pass_candidate_sha256: str = "",
 ) -> dict[str, Any]:
     """Build the answer-safe feedback shown to the next repair worker."""
     if review_kind not in {"proof", "formalization"}:
@@ -1158,6 +1262,24 @@ def build_repair_task(
     }
     if safe_preflight:
         task["preflight"] = safe_preflight
+    if (
+        review_kind == "proof"
+        and worker_stage == "formalization"
+        and record_bound
+        and route == "needs_redraft"
+        and resulting_status == "needs_redraft"
+    ):
+        activation_projection = validated_trusted_bridge_redraft_projection(
+            trusted_bridge_activations,
+            target_rel=target_rel,
+            candidate_sha256=digest,
+            expected_source_contract=expected_source_contract,
+            formalization_pass_candidate_sha256=(
+                trusted_bridge_formalization_pass_candidate_sha256
+            ),
+        )
+        if activation_projection:
+            task["trusted_bridge_activations"] = activation_projection
     if (
         review_kind == "formalization"
         and worker_stage == "formalization"

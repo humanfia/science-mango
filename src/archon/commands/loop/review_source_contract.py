@@ -37,6 +37,7 @@ _SOURCE_REPORT_RE = re.compile(
 )
 _CHEMISTRY_CHECKS = (
     "chemical_semantics",
+    "staged_species_domain",
     "formula_mass_consistency",
     "conservation_laws",
     "units_dimensions",
@@ -44,6 +45,12 @@ _CHEMISTRY_CHECKS = (
     "structure_stereochemistry",
     "identification_uniqueness",
     "answer_smuggling",
+)
+_STAGED_SPECIES_DOMAIN_CHECK = "staged_species_domain"
+_NON_STAGED_TRANSFORMATION_EVIDENCE_TOKEN = "not_staged_transformation"
+_NON_STAGED_TRANSFORMATION_EVIDENCE_RE = re.compile(
+    rf"(?<![a-z0-9_]){re.escape(_NON_STAGED_TRANSFORMATION_EVIDENCE_TOKEN)}"
+    r"(?![a-z0-9_])", flags=re.ASCII,
 )
 _INDEPENDENT_SOURCE_CHECKS = (
     "requested_outputs",
@@ -1804,6 +1811,17 @@ def validate_review_source_certificate(
             return f"chemistry check {name} has unsupported status {check_status!r}"
         if not check_evidence:
             return f"chemistry check {name} evidence is missing"
+        if (
+            name == _STAGED_SPECIES_DOMAIN_CHECK
+            and check_status in _NOT_APPLICABLE
+            and _NON_STAGED_TRANSFORMATION_EVIDENCE_RE.search(
+                check_evidence.casefold()) is None
+        ):
+            return (
+                "chemistry check staged_species_domain may be not_applicable "
+                "only for a non-staged transformation; evidence must include "
+                "not_staged_transformation"
+            )
         chemistry_failed = chemistry_failed or check_status in _FAIL
     if passing and chemistry_failed:
         return "passing verdict contradicts a failed chemistry check"

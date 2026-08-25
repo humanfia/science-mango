@@ -40,7 +40,13 @@ from .review_source_contract import (
     stored_provenance_matches_current,
 )
 from .review_feedback import build_feedback_event, build_repair_task
-from .trusted_bridge_activation import validate_trusted_bridge_requests
+from .trusted_bridge_activation import (
+    build_trusted_bridge_activation_lineage,
+    build_trusted_bridge_activation_projection,
+    build_trusted_bridge_activation_redraft_projection,
+    validate_trusted_bridge_requests,
+    trusted_bridge_lineage_matches_formalization_pass,
+)
 from .sorry_count import file_open_sorry_count
 
 
@@ -50,6 +56,8 @@ STATE_VERSION = 2
 REVIEW_SCHEMA_VERSION = 2
 PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION = 1
 PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS = 1
+TRUSTED_BRIDGE_RESUBMISSION_SCHEMA_VERSION = 1
+TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS = 1
 
 _PASS_WORDS = {"pass", "passed", "approved", "review-passing", "review_passing"}
 _FAIL_WORDS = {
@@ -139,36 +147,180 @@ def effective_formalization_review_limit(
     base_limit = max(1, int(base_max_iterations))
     if not isinstance(record, Mapping):
         return base_limit
-    request = record.get("proof_redraft_resubmission")
+    return _validated_review_overflow_limit(record, base_limit)
+
+
+def _valid_review_overflow_request(
+    request: object,
+    *,
+    expected_schema: int,
+    expected_base: int,
+    expected_limit: int,
+    required_hashes: tuple[str, ...] = (),
+) -> bool:
     if not isinstance(request, Mapping):
-        return base_limit
+        return False
     try:
         schema_version = int(request.get("schema_version") or 0)
         request_base = int(request.get("base_max_reviews") or 0)
         request_limit = int(request.get("max_total_reviews") or 0)
     except (TypeError, ValueError):
-        return base_limit
+        return False
     status = str(request.get("status") or "")
-    rejected_sha256 = _valid_sha256(
-        request.get("rejected_candidate_sha256")
-    )
-    if (
-        schema_version != PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION
-        or request_base != base_limit
-        or request_limit != (
-            base_limit + PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS
+    return bool(
+        schema_version == expected_schema
+        and request_base == expected_base
+        and request_limit == expected_limit
+        and status in {"pending", "reviewed"}
+        and str(request.get("request_id") or "").strip()
+        and _valid_sha256(request.get("rejected_candidate_sha256"))
+        and all(_valid_sha256(request.get(name)) for name in required_hashes)
+        and (
+            status != "reviewed"
+            or (
+                _valid_sha256(request.get("reviewed_candidate_sha256"))
+                and _valid_sha256(request.get("reviewed_candidate_sha256"))
+                != _valid_sha256(request.get("rejected_candidate_sha256"))
+            )
         )
-        or status not in {"pending", "reviewed"}
-        or not str(request.get("request_id") or "").strip()
-        or not rejected_sha256
-    ):
-        return base_limit
+    )
+
+
+def _validated_review_overflow_limit(
+    record: Mapping[str, Any],
+    base_limit: int,
+) -> int:
+    trusted = record.get("trusted_bridge_resubmission")
+    trusted_valid = _valid_review_overflow_request(
+        trusted,
+        expected_schema=TRUSTED_BRIDGE_RESUBMISSION_SCHEMA_VERSION,
+        expected_base=base_limit,
+        expected_limit=base_limit + TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS,
+        required_hashes=("requests_sha256",),
+    )
+    proof = record.get("proof_redraft_resubmission")
+    proof_valid = _valid_review_overflow_request(
+        proof,
+        expected_schema=PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION,
+        expected_base=base_limit,
+        expected_limit=base_limit + PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS,
+    )
+    chained_proof_valid = (
+        trusted_valid
+        and isinstance(trusted, Mapping)
+        and trusted.get("status") == "reviewed"
+        and _valid_review_overflow_request(
+            proof,
+            expected_schema=PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION,
+            expected_base=base_limit + TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS,
+            expected_limit=(
+                base_limit
+                + TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS
+                + PROOF_REDRAFT_FORMALIZATION_REVIEW_BONUS
+            ),
+            required_hashes=(
+                "parent_trusted_bridge_requests_sha256",
+                "parent_trusted_bridge_reviewed_candidate_sha256",
+            ),
+        )
+        and isinstance(proof, Mapping)
+        and proof.get("parent_trusted_bridge_request_id")
+        == trusted.get("request_id")
+        and proof.get("parent_trusted_bridge_requests_sha256")
+        == trusted.get("requests_sha256")
+        and proof.get("parent_trusted_bridge_reviewed_candidate_sha256")
+        == trusted.get("reviewed_candidate_sha256")
+    )
+    if chained_proof_valid:
+        return base_limit + 2
+    if proof_valid or trusted_valid:
+        return base_limit + 1
+    return base_limit
+
+
+def _trusted_bridge_redraft_is_fresh(
+    record: Mapping[str, Any] | None,
+    candidate_sha256: str,
+) -> bool:
+    """Do not consume a final-cycle bridge bonus on unchanged bytes."""
+    if not isinstance(record, Mapping):
+        return True
+    request = record.get("trusted_bridge_resubmission")
+    if not isinstance(request, Mapping) or request.get("status") != "pending":
+        return True
+    rejected = _valid_sha256(request.get("rejected_candidate_sha256"))
+    current = _valid_sha256(candidate_sha256)
+    return bool(rejected and current and rejected != current)
+
+
+def _trusted_bridge_resubmission(
+    *,
+    record: Mapping[str, Any],
+    certificate: Mapping[str, Any],
+    target_rel: str,
+    candidate_sha256: str,
+    expected_source_contract: Mapping[str, Any] | None,
+    event_id: str,
+    iter_num: int,
+    base_max_iterations: int,
+) -> dict[str, Any] | None:
+    """Mint exactly one extra Review from a complete final-cycle request."""
     if (
-        status == "reviewed"
-        and not _valid_sha256(request.get("reviewed_candidate_sha256"))
+        "proof_redraft_resubmission" in record
+        or "trusted_bridge_resubmission" in record
     ):
-        return base_limit
-    return request_limit
+        return None
+    activation = build_trusted_bridge_activation_projection(
+        certificate,
+        target_rel=target_rel,
+        candidate_sha256=candidate_sha256,
+        expected_source_contract=expected_source_contract,
+    )
+    if not activation or activation.get("complete") is not True:
+        return None
+    requests_sha256 = _valid_sha256(activation.get("requests_sha256"))
+    rejected_sha256 = _valid_sha256(candidate_sha256)
+    request_id = str(event_id or "").strip()
+    if not requests_sha256 or not rejected_sha256 or not request_id:
+        return None
+    return {
+        "schema_version": TRUSTED_BRIDGE_RESUBMISSION_SCHEMA_VERSION,
+        "request_id": request_id,
+        "rejected_candidate_sha256": rejected_sha256,
+        "requests_sha256": requests_sha256,
+        "base_max_reviews": base_max_iterations,
+        "max_total_reviews": (
+            base_max_iterations + TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS
+        ),
+        "created_iter": iter_num,
+        "status": "pending",
+    }
+
+
+def _mark_trusted_bridge_resubmission_reviewed(
+    record: Mapping[str, Any],
+    *,
+    candidate_sha256: str,
+    event_id: str,
+    iter_num: int,
+) -> dict[str, Any] | None:
+    request = record.get("trusted_bridge_resubmission")
+    if not isinstance(request, Mapping):
+        return None
+    if request.get("status") != "pending":
+        return dict(request)
+    digest = _valid_sha256(candidate_sha256)
+    if not digest or digest == _valid_sha256(
+        request.get("rejected_candidate_sha256")
+    ):
+        return None
+    return {
+        **request,
+        "status": "reviewed",
+        "reviewed_candidate_sha256": digest,
+        "review_event_id": event_id,
+        "reviewed_iter": iter_num,
+    }
 
 
 def _authoritative_proof_redraft_resubmission(
@@ -179,6 +331,7 @@ def _authoritative_proof_redraft_resubmission(
     requested_event_id: str,
     iter_num: int,
     base_max_iterations: int,
+    parent_trusted_bridge_resubmission: Mapping[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     """Mint one overflow Review only from the durable Proof Review gate."""
     from .proof_review_gate import load_proof_review_state
@@ -215,7 +368,7 @@ def _authoritative_proof_redraft_resubmission(
         or requested_event_id
         or f"batch:{iter_num}:{rel}:{rejected_sha256}"
     )
-    return {
+    request = {
         "schema_version": PROOF_REDRAFT_RESUBMISSION_SCHEMA_VERSION,
         "request_id": request_id,
         "rejected_candidate_sha256": rejected_sha256,
@@ -227,6 +380,42 @@ def _authoritative_proof_redraft_resubmission(
         "status": "pending",
     }
 
+    if parent_trusted_bridge_resubmission is None:
+        return request
+    parent = parent_trusted_bridge_resubmission
+    if (
+        base_max_iterations <= 1
+        or not _valid_review_overflow_request(
+            parent,
+            expected_schema=TRUSTED_BRIDGE_RESUBMISSION_SCHEMA_VERSION,
+            expected_base=(
+                base_max_iterations - TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS
+            ),
+            expected_limit=base_max_iterations,
+            required_hashes=("requests_sha256",),
+        )
+        or parent.get("status") != "reviewed"
+    ):
+        return None
+    parent_request_id = str(parent.get("request_id") or "").strip()
+    parent_requests_sha256 = _valid_sha256(parent.get("requests_sha256"))
+    parent_reviewed_sha256 = _valid_sha256(
+        parent.get("reviewed_candidate_sha256")
+    )
+    if (
+        not parent_request_id
+        or not parent_requests_sha256
+        or not parent_reviewed_sha256
+    ):
+        return None
+    request.update({
+        "parent_trusted_bridge_request_id": parent_request_id,
+        "parent_trusted_bridge_requests_sha256": parent_requests_sha256,
+        "parent_trusted_bridge_reviewed_candidate_sha256": (
+            parent_reviewed_sha256
+        ),
+    })
+    return request
 
 def _mark_proof_redraft_resubmission_reviewed(
     record: Mapping[str, Any],
@@ -768,24 +957,106 @@ def reopen_formalization_targets(
         review_limit = effective_formalization_review_limit(
             old, max_iterations,
         )
-        resubmission = None
-        if (
-            enforce_budget
-            and prior_reviews == max_iterations
-            and review_limit == max_iterations
-            and old.get("status") == "passed"
-            and "proof_redraft_resubmission" not in old
-        ):
-            resubmission = _authoritative_proof_redraft_resubmission(
+        current_candidate_sha256 = _file_sha256(project_path / rel)
+        proof_authority = None
+        if enforce_budget and old.get("status") == "passed":
+            proof_authority = _authoritative_proof_redraft_resubmission(
                 state_dir=state_dir,
                 rel=rel,
-                candidate_sha256=_file_sha256(project_path / rel),
+                candidate_sha256=current_candidate_sha256,
                 requested_event_id=pipeline_event_id,
                 iter_num=iter_num,
                 base_max_iterations=max_iterations,
             )
-            if resubmission is not None:
-                review_limit = int(resubmission["max_total_reviews"])
+        trusted_redraft_activation: dict[str, Any] = {}
+        lineage = old.get("trusted_bridge_activation_lineage")
+        lineage_bound = trusted_bridge_lineage_matches_formalization_pass(
+            lineage if isinstance(lineage, Mapping) else None,
+            target_rel=rel,
+            formalization_pass_candidate_sha256=old.get("candidate_sha256"),
+            passing_certificate=(
+                old.get("certificate")
+                if isinstance(old.get("certificate"), Mapping)
+                else None
+            ),
+        )
+        if proof_authority is not None and lineage_bound:
+            try:
+                source_contract = resolve_target_review_source_contract(
+                    project_path=project_path,
+                    target=project_path / rel,
+                    preflight=None,
+                )
+            except ProblemOnlyReviewContractError:
+                source_contract = None
+            trusted_redraft_activation = (
+                build_trusted_bridge_activation_redraft_projection(
+                    lineage,
+                    target_rel=rel,
+                    current_candidate_sha256=current_candidate_sha256,
+                    expected_source_contract=source_contract,
+                )
+            )
+        trusted_parent = old.get("trusted_bridge_resubmission")
+        lineage_target = (
+            lineage.get("target") if isinstance(lineage, Mapping) else None
+        )
+        lineage_context = (
+            lineage.get("activation_review_context")
+            if isinstance(lineage, Mapping)
+            else None
+        )
+        lineage_activation = (
+            lineage_context.get("trusted_bridge_activations")
+            if isinstance(lineage_context, Mapping)
+            else None
+        )
+        if (
+            proof_authority is not None
+            and prior_reviews == review_limit
+            and review_limit
+            == max_iterations + TRUSTED_BRIDGE_FORMALIZATION_REVIEW_BONUS
+            and "proof_redraft_resubmission" not in old
+            and trusted_redraft_activation
+            and _valid_review_overflow_request(
+                trusted_parent,
+                expected_schema=TRUSTED_BRIDGE_RESUBMISSION_SCHEMA_VERSION,
+                expected_base=max_iterations,
+                expected_limit=review_limit,
+                required_hashes=("requests_sha256",),
+            )
+            and isinstance(trusted_parent, Mapping)
+            and trusted_parent.get("status") == "reviewed"
+            and trusted_parent.get("reviewed_candidate_sha256")
+            == old.get("candidate_sha256")
+            and isinstance(lineage_target, Mapping)
+            and trusted_parent.get("rejected_candidate_sha256")
+            == lineage_target.get("activation_input_candidate_sha256")
+            and isinstance(lineage_activation, Mapping)
+            and trusted_parent.get("requests_sha256")
+            == lineage_activation.get("requests_sha256")
+            and trusted_parent.get("requests_sha256")
+            == trusted_redraft_activation.get("requests_sha256")
+        ):
+            chained_authority = _authoritative_proof_redraft_resubmission(
+                state_dir=state_dir,
+                rel=rel,
+                candidate_sha256=current_candidate_sha256,
+                requested_event_id=pipeline_event_id,
+                iter_num=iter_num,
+                base_max_iterations=review_limit,
+                parent_trusted_bridge_resubmission=trusted_parent,
+            )
+            if chained_authority is not None:
+                proof_authority = chained_authority
+        resubmission = None
+        if (
+            proof_authority is not None
+            and prior_reviews == review_limit
+            and "proof_redraft_resubmission" not in old
+        ):
+            resubmission = proof_authority
+            review_limit = int(resubmission["max_total_reviews"])
         budget_exhausted = enforce_budget and prior_reviews >= review_limit
         reopen_history.append({
             "reopened_at": _utcnow(),
@@ -819,6 +1090,12 @@ def reopen_formalization_targets(
         }
         if resubmission is not None:
             next_record["proof_redraft_resubmission"] = resubmission
+        if trusted_redraft_activation and not budget_exhausted:
+            next_record["trusted_bridge_redraft_activation"] = (
+                trusted_redraft_activation
+            )
+        else:
+            next_record.pop("trusted_bridge_redraft_activation", None)
         # A target-scoped formalizer may already have materialized this
         # redraft while peer provers/Reviewers were still running. Carry a
         # hash-bound hand-off into the gate so the next autoformalize phase
@@ -951,26 +1228,55 @@ def apply_formalization_review(
             continue
 
         candidate_sha256 = _file_sha256(project_path / rel)
-        if not formalization_redraft_candidate_is_fresh(
+        try:
+            expected_source_contract = resolve_target_review_source_contract(
+                project_path=project_path,
+                target=project_path / rel,
+                preflight=None,
+            )
+        except ProblemOnlyReviewContractError:
+            expected_source_contract = None
+        proof_redraft_fresh = formalization_redraft_candidate_is_fresh(
             state_dir=state_dir,
             target_rel=rel,
             candidate_sha256=candidate_sha256,
-        ):
+        )
+        bridge_redraft_fresh = _trusted_bridge_redraft_is_fresh(
+            old, candidate_sha256,
+        )
+        if not proof_redraft_fresh or not bridge_redraft_fresh:
             # Reviewing the rejected bytes is not a redraft and cannot consume
-            # the sole proof-triggered resubmission.
+            # either one-shot resubmission.
+            unchanged_reason = (
+                "proof Review redraft remains unresolved; candidate is unchanged"
+                if not proof_redraft_fresh
+                else "trusted bridge redraft remains unresolved; candidate is unchanged"
+            )
             if old.get("status") not in {"retry", "review_exhausted"}:
                 targets[rel] = {
                     **old,
                     "status": (
                         "review_exhausted" if reviews >= review_limit else "retry"
                     ),
-                    "reason": "proof Review redraft remains unresolved; candidate is unchanged",
+                    "reason": unchanged_reason,
                     "certificate": {},
                     "candidate_sha256": candidate_sha256,
-                    "reopened_by": "proof_review",
+                    "reopened_by": old.get("reopened_by"),
                     "updated_at": _utcnow(),
                 }
             continue
+
+        raw_milestones = certificate.get("milestones")
+        repair_certificate: Mapping[str, Any] = certificate
+        if (
+            isinstance(raw_milestones, list)
+            and len(raw_milestones) == 1
+            and isinstance(raw_milestones[0], Mapping)
+        ):
+            # Keep the aggregate for audit, but use the validated target row
+            # for source-bound repair and activation decisions.
+            repair_certificate = raw_milestones[0]
+        batch_event_id = f"batch:{iter_num}:{rel}:formalization"
 
         review_consumed = False
         if reviews >= review_limit:
@@ -983,6 +1289,26 @@ def apply_formalization_review(
         else:
             reviews += 1
             review_consumed = True
+        trusted_resubmission = None
+        if (
+            review_consumed
+            and decision == "failed"
+            and not target_blockers
+            and reviews == max_iterations
+            and review_limit == max_iterations
+        ):
+            trusted_resubmission = _trusted_bridge_resubmission(
+                record=old,
+                certificate=repair_certificate,
+                target_rel=rel,
+                candidate_sha256=candidate_sha256,
+                expected_source_contract=expected_source_contract,
+                event_id=batch_event_id,
+                iter_num=iter_num,
+                base_max_iterations=max_iterations,
+            )
+            if trusted_resubmission is not None:
+                review_limit = int(trusted_resubmission["max_total_reviews"])
         if decision == "passed":
             status = "passed"
         elif reviews >= review_limit:
@@ -990,18 +1316,6 @@ def apply_formalization_review(
         else:
             status = "retry"
         certificate = {**certificate, "candidate_sha256": candidate_sha256}
-        raw_milestones = certificate.get("milestones")
-        repair_certificate: Mapping[str, Any] = certificate
-        if (
-            isinstance(raw_milestones, list)
-            and len(raw_milestones) == 1
-            and isinstance(raw_milestones[0], Mapping)
-        ):
-            # The batch gate stores an aggregate wrapper for auditability, but
-            # repair feedback must use the validated target certificate inside
-            # it or source-bound bridge findings are silently lost.
-            repair_certificate = raw_milestones[0]
-        batch_event_id = f"batch:{iter_num}:{rel}:formalization"
         feedback_event = build_feedback_event(
             review_kind="formalization",
             candidate_sha256=candidate_sha256,
@@ -1029,6 +1343,8 @@ def apply_formalization_review(
             "certificate": certificate,
             "repair_events": repair_events[-20:],
         }
+        if trusted_resubmission is not None:
+            next_record["trusted_bridge_resubmission"] = trusted_resubmission
         if review_consumed:
             reviewed_request = _mark_proof_redraft_resubmission_reviewed(
                 old,
@@ -1038,11 +1354,36 @@ def apply_formalization_review(
             )
             if reviewed_request is not None:
                 next_record["proof_redraft_resubmission"] = reviewed_request
+            reviewed_bridge_request = (
+                _mark_trusted_bridge_resubmission_reviewed(
+                    old,
+                    candidate_sha256=candidate_sha256,
+                    event_id=batch_event_id,
+                    iter_num=iter_num,
+                )
+            )
+            if reviewed_bridge_request is not None:
+                next_record["trusted_bridge_resubmission"] = reviewed_bridge_request
+        next_record.pop("trusted_bridge_redraft_activation", None)
         if status == "passed":
             for stale_key in (
                 "reopened_by", "certificate_revoked_at", "redraft_kind",
             ):
                 next_record.pop(stale_key, None)
+            lineage = build_trusted_bridge_activation_lineage(
+                old,
+                target_rel=rel,
+                current_candidate_sha256=candidate_sha256,
+                expected_source_contract=expected_source_contract,
+                passing_certificate=repair_certificate,
+            )
+            if lineage:
+                next_record["trusted_bridge_activation_lineage"] = lineage
+            else:
+                next_record.pop("trusted_bridge_activation_lineage", None)
+        else:
+            # A lineage authorizes one immediately audited transition only.
+            next_record.pop("trusted_bridge_activation_lineage", None)
         materialized = old.get("materialized_redraft")
         if isinstance(materialized, dict):
             next_record["materialized_redraft"] = {
@@ -1050,14 +1391,6 @@ def apply_formalization_review(
                 "status": "reviewed",
                 "reviewed_iter": iter_num,
             }
-        try:
-            expected_source_contract = resolve_target_review_source_contract(
-                project_path=project_path,
-                target=project_path / rel,
-                preflight=None,
-            )
-        except ProblemOnlyReviewContractError:
-            expected_source_contract = None
         repair_record = {
             **next_record,
             "certificate": repair_certificate,
@@ -1194,6 +1527,7 @@ def apply_target_formalization_review(
         old, max_iterations,
     )
     review_consumed = False
+    trusted_resubmission = None
     source_contract = expected_source_contract
     if reviews >= review_limit:
         status = "review_exhausted"
@@ -1225,15 +1559,23 @@ def apply_target_formalization_review(
             decision = "failed"
             reason = f"problem-only source contract validation failed: {exc}"
             certificate = {}
-        if not formalization_redraft_candidate_is_fresh(
+        proof_redraft_fresh = formalization_redraft_candidate_is_fresh(
             state_dir=state_dir,
             target_rel=rel,
             candidate_sha256=candidate_sha256,
-        ):
+        )
+        bridge_redraft_fresh = _trusted_bridge_redraft_is_fresh(
+            old, candidate_sha256,
+        )
+        if not proof_redraft_fresh or not bridge_redraft_fresh:
             status = str(old.get("status") or "retry")
             quarantine_reason = (
                 str(old.get("reason") or "")
-                or "proof Review redraft remains unresolved; candidate is unchanged"
+                or (
+                    "proof Review redraft remains unresolved; candidate is unchanged"
+                    if not proof_redraft_fresh
+                    else "trusted bridge redraft remains unresolved; candidate is unchanged"
+                )
             )
             if status not in {"retry", "review_exhausted"}:
                 status = (
@@ -1245,7 +1587,7 @@ def apply_target_formalization_review(
                     "reason": quarantine_reason,
                     "certificate": {},
                     "candidate_sha256": candidate_sha256,
-                    "reopened_by": "proof_review",
+                    "reopened_by": old.get("reopened_by"),
                     "updated_at": _utcnow(),
                 }
                 data["updated_at"] = _utcnow()
@@ -1261,6 +1603,23 @@ def apply_target_formalization_review(
             )
         reviews += 1
         review_consumed = True
+        if (
+            decision == "failed"
+            and reviews == max_iterations
+            and review_limit == max_iterations
+        ):
+            trusted_resubmission = _trusted_bridge_resubmission(
+                record=old,
+                certificate=certificate,
+                target_rel=rel,
+                candidate_sha256=candidate_sha256,
+                expected_source_contract=source_contract,
+                event_id=event_id,
+                iter_num=iter_num,
+                base_max_iterations=max_iterations,
+            )
+            if trusted_resubmission is not None:
+                review_limit = int(trusted_resubmission["max_total_reviews"])
         if decision == "passed":
             status = "passed"
         elif reviews >= review_limit:
@@ -1306,6 +1665,8 @@ def apply_target_formalization_review(
         "review_events": events[-50:],
         "repair_events": repair_events[-20:],
     }
+    if trusted_resubmission is not None:
+        next_record["trusted_bridge_resubmission"] = trusted_resubmission
     if review_consumed:
         reviewed_request = _mark_proof_redraft_resubmission_reviewed(
             old,
@@ -1315,6 +1676,15 @@ def apply_target_formalization_review(
         )
         if reviewed_request is not None:
             next_record["proof_redraft_resubmission"] = reviewed_request
+        reviewed_bridge_request = _mark_trusted_bridge_resubmission_reviewed(
+            old,
+            candidate_sha256=candidate_sha256,
+            event_id=event_id,
+            iter_num=iter_num,
+        )
+        if reviewed_bridge_request is not None:
+            next_record["trusted_bridge_resubmission"] = reviewed_bridge_request
+    next_record.pop("trusted_bridge_redraft_activation", None)
     # A fresh formalization verdict supersedes transient proof-redraft routing
     # flags.  Keeping them live makes crash/resume select the older proof
     # certificate instead of this newer semantic Review.
@@ -1324,6 +1694,20 @@ def apply_target_formalization_review(
     )
     for stale_key in stale_keys:
         next_record.pop(stale_key, None)
+    if status == "passed":
+        lineage = build_trusted_bridge_activation_lineage(
+            old,
+            target_rel=rel,
+            current_candidate_sha256=candidate_sha256,
+            expected_source_contract=source_contract,
+            passing_certificate=certificate,
+        )
+        if lineage:
+            next_record["trusted_bridge_activation_lineage"] = lineage
+        else:
+            next_record.pop("trusted_bridge_activation_lineage", None)
+    else:
+        next_record.pop("trusted_bridge_activation_lineage", None)
     materialized = old.get("materialized_redraft")
     if isinstance(materialized, dict):
         next_record["materialized_redraft"] = {
@@ -1379,6 +1763,35 @@ def _certificate_source_provenance(certificate: Any) -> dict[str, Any] | None:
     return None
 
 
+def _record_source_provenance(
+    record: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Recover the still-authoritative source binding after a proof reopen."""
+    provenance = _certificate_source_provenance(record.get("certificate"))
+    if provenance is not None:
+        return provenance
+    if record.get("reopened_by") != "proof_review":
+        return None
+    history = record.get("reopen_history")
+    latest = history[-1] if isinstance(history, list) and history else None
+    previous_certificate = (
+        latest.get("previous_certificate")
+        if isinstance(latest, Mapping)
+        else None
+    )
+    if (
+        not isinstance(latest, Mapping)
+        or latest.get("previous_status") != "passed"
+        or latest.get("previous_reviews") != record.get("reviews")
+        or latest.get("proof_review_iter") != record.get("last_reopened_iter")
+        or not isinstance(previous_certificate, Mapping)
+        or previous_certificate.get("candidate_sha256")
+        != record.get("candidate_sha256")
+    ):
+        return None
+    return _certificate_source_provenance(previous_certificate)
+
+
 def _invalidate_stale_passes(
     *,
     state_dir: Path,
@@ -1393,12 +1806,24 @@ def _invalidate_stale_passes(
     if not isinstance(targets, dict):
         return state
     changed = False
+    transient_fields = (
+        "proof_redraft_resubmission",
+        "trusted_bridge_resubmission",
+        "trusted_bridge_activation_lineage",
+        "trusted_bridge_redraft_activation",
+        "repair_handoff",
+        "materialized_redraft",
+    )
     for rel, raw_record in list(targets.items()):
-        if not isinstance(raw_record, dict) or raw_record.get("status") != "passed":
+        if not isinstance(raw_record, dict):
             continue
-        provenance = _certificate_source_provenance(
-            raw_record.get("certificate")
-        )
+        if raw_record.get("status") != "passed":
+            if (
+                profile_name != "chemistry-native"
+                or not any(field in raw_record for field in transient_fields)
+            ):
+                continue
+        provenance = _record_source_provenance(raw_record)
         if profile_name == "chemistry-native":
             # Formalization Review binds problem/source semantics and the
             # statement candidate at review time. A later prover is expected
@@ -1425,13 +1850,13 @@ def _invalidate_stale_passes(
         reopen_history.append({
             "reopened_at": _utcnow(),
             "reopened_by": "source_contract_freshness",
-            "previous_status": "passed",
+            "previous_status": raw_record.get("status"),
             "previous_reviews": int(raw_record.get("reviews") or 0),
             "previous_reason": raw_record.get("reason"),
             "previous_certificate": raw_record.get("certificate"),
             "reason": reason,
         })
-        targets[rel] = {
+        next_record = {
             **raw_record,
             "status": "retry",
             "reviews": 0,
@@ -1442,6 +1867,9 @@ def _invalidate_stale_passes(
             "reopen_history": reopen_history[-20:],
             "updated_at": _utcnow(),
         }
+        for transient_field in transient_fields:
+            next_record.pop(transient_field, None)
+        targets[rel] = next_record
         changed = True
     if changed:
         state["targets"] = targets

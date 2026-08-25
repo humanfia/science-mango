@@ -110,6 +110,16 @@ belongs to the adjacent residue, is shared, or is removed during coupling; count
 every atom exactly once. Do not inherit a familiar abbreviation's net formula
 or attachment semantics from the candidate."""
 
+_STAGED_SPECIES_DOMAIN_PROTOCOL = """For every staged material transformation,
+the `staged_species_domain` check is mandatory. Passing evidence must enumerate
+each stage's allowed solid inputs/outputs, volatile outputs, and external inputs;
+bind every admitted element to a problem locator or valid authority; and name
+the atom, charge, mass, and measured-interval ledger carriers. Reject anonymous
+or catch-all material streams, freely chosen empirical Bool/Prop fields, and
+terminal-residue reasoning applied before that finite domain is closed. Use
+`not_applicable` only when there is no staged material transformation, and then
+include the exact evidence token `not_staged_transformation`."""
+
 _DORMANT_TRUSTED_BRIDGE_PROTOCOL = """The bound offline registry policy lists
 the exact dormant controller-pinned bridge IDs. Those identifiers are request
 tokens only; their rule text is not active evidence.
@@ -512,6 +522,8 @@ visual recount. If any relevant panel, legend mapping, node multiplicity,
 connection, or atom balance remains unresolved, fail closed instead of copying
 the candidate's interpretation.
 
+{_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
 {_DORMANT_TRUSTED_BRIDGE_PROTOCOL}
@@ -582,6 +594,7 @@ Write exactly one JSON object line to {milestone}:
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
       "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "staged_species_domain": {{"status":"passed|failed|not_applicable","evidence":"<stages, finite species, source locators, and ledger carriers; or exact token not_staged_transformation>"}},
       "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},
@@ -795,6 +808,8 @@ countermodel_resistance. Every check needs concrete evidence. Only uncertainty
 and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
 
+{_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
 {chemistry_protocol}
 
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
@@ -843,6 +858,7 @@ Write exactly one JSON object line to {milestone}:
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
       "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "staged_species_domain": {{"status":"passed|failed|not_applicable","evidence":"<stages, finite species, source locators, and ledger carriers; or exact token not_staged_transformation>"}},
       "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},

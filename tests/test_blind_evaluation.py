@@ -714,6 +714,7 @@ class BlindEvaluationTest(unittest.TestCase):
                 name: passed_check(f"audited {name}")
                 for name in (
                     "chemical_semantics",
+                    "staged_species_domain",
                     "formula_mass_consistency",
                     "conservation_laws",
                     "units_dimensions",

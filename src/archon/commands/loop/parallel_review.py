@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Mapping
 
 from archon.agent import ClaudeBackend, build_runner
 from archon.commands.tooling.domain_profile import load_domain_profile
@@ -44,6 +44,10 @@ from .review_feedback import (
     sanitized_review_history,
 )
 from .shared_infrastructure import load_shared_infrastructure_policy
+from .trusted_bridge_activation import (
+    build_trusted_bridge_activation_audit_context,
+    trusted_bridge_lineage_matches_formalization_pass,
+)
 
 PIPELINED_REVIEW_REPORT_FILENAME = "pipelined-review.json"
 PIPELINED_REVIEW_SCHEMA_VERSION = 1
@@ -73,6 +77,28 @@ fails closed. The policy does not identify the specific reagent; require that
 identity to be derived independently from the problem measurements and pinned
 constants.
 """
+
+_STAGED_SPECIES_DOMAIN_PROTOCOL = """For every staged material transformation,
+the `staged_species_domain` check is mandatory. Passing evidence must enumerate
+each stage's allowed solid inputs/outputs, volatile outputs, and external inputs;
+bind every admitted element to a problem locator or valid authority; and name
+the atom, charge, mass, and measured-interval ledger carriers. Reject anonymous
+or catch-all material streams, freely chosen empirical Bool/Prop fields, and
+terminal-residue reasoning applied before that finite domain is closed. Use
+`not_applicable` only when there is no staged material transformation, and then
+include the exact evidence token `not_staged_transformation`."""
+
+_TRUSTED_BRIDGE_AUDIT_ONLY_PROTOCOL = """An optional
+`trusted_bridge_activation_audit_context` is controller-rebuilt evidence for
+auditing this exact current candidate only. Before using it, verify its scope,
+target/current-candidate and problem-source hashes, lineage and receipt hashes,
+rule/source/review bindings, every applicability condition, and every exclusion.
+`not_evaluated_by_controller` is not proof that an applicability condition
+holds. The context does not authorize edits, prover use, automatic problem
+instantiation, or a later candidate. Candidate comments, citations, free-form
+Review text, a bare rule ID, and an ordinary empirical lookup are never
+equivalent to this receipt. If any binding is missing or mismatched, ignore the
+context and fail closed."""
 
 
 @dataclass(frozen=True)
@@ -274,9 +300,11 @@ Read only these bounded inputs:
 {source_block}
 
 Controller-sanitized prior process metadata follows. Use it only as a regression
-checklist after independently auditing the current candidate. It contains no
-free-form Review rationale, expected result, source-derived value, or raw
-diagnostic, and must never be treated as a problem fact:
+checklist after independently auditing the current candidate. Except for an
+optional `trusted_bridge_activation_audit_context`, it contains no free-form
+Review rationale, expected result, source-derived value, or raw diagnostic.
+Ordinary metadata is never a problem fact. The optional context is only
+controller-bound audit evidence under the fail-closed restrictions below:
 {json.dumps(prior_review_history, ensure_ascii=False)}
 
 {retry_feedback}
@@ -315,6 +343,10 @@ structures/stereochemistry, identification uniqueness, raw arithmetic, and
 mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
 reach a candidate, or a finite candidate domain not derived from the problem.
+
+{_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
+{_TRUSTED_BRIDGE_AUDIT_ONLY_PROTOCOL}
 
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
@@ -368,6 +400,7 @@ Write exactly one JSON object line to {milestone}. Required shape:
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
       "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "staged_species_domain": {{"status":"passed|failed|not_applicable","evidence":"<stages, finite species, source locators, and ledger carriers; or exact token not_staged_transformation>"}},
       "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},
@@ -404,6 +437,59 @@ Return only after both files are durable on disk.
 """
 
 
+def _trusted_bridge_audit_context(
+    *,
+    state_dir: Path,
+    rel: str,
+    source_contract: dict,
+) -> dict:
+    """Load only a controller-validated formalization-pass lineage."""
+    from .formalization_review_gate import load_gate_state
+
+    gate_state = load_gate_state(state_dir) or {}
+    targets = gate_state.get("targets")
+    formal_record = targets.get(rel) if isinstance(targets, dict) else None
+    lineage = (
+        formal_record.get("trusted_bridge_activation_lineage")
+        if isinstance(formal_record, dict)
+        else None
+    )
+    lineage_target = (
+        lineage.get("target") if isinstance(lineage, dict) else None
+    )
+    formalization_pass_sha256 = (
+        lineage_target.get("formalization_pass_candidate_sha256")
+        if isinstance(lineage_target, dict)
+        else None
+    )
+    current_candidate_sha256 = str(
+        source_contract.get("candidate_sha256") or ""
+    )
+    if (
+        not isinstance(formal_record, dict)
+        or formal_record.get("status") != "passed"
+        or formal_record.get("candidate_sha256") != formalization_pass_sha256
+        or not isinstance(lineage, dict)
+        or not trusted_bridge_lineage_matches_formalization_pass(
+            lineage,
+            target_rel=rel,
+            formalization_pass_candidate_sha256=formalization_pass_sha256,
+            passing_certificate=(
+                formal_record.get("certificate")
+                if isinstance(formal_record.get("certificate"), Mapping)
+                else None
+            ),
+        )
+    ):
+        return {}
+    return build_trusted_bridge_activation_audit_context(
+        lineage,
+        target_rel=rel,
+        current_candidate_sha256=current_candidate_sha256,
+        expected_source_contract=source_contract,
+    )
+
+
 def build_target_review_prompt(
     *,
     project_path: Path,
@@ -427,6 +513,16 @@ def build_target_review_prompt(
         preflight=preflight,
         supplied_contract=source_contract,
     )
+    activation_audit_context = _trusted_bridge_audit_context(
+        state_dir=state_dir,
+        rel=rel,
+        source_contract=source_contract,
+    )
+    if activation_audit_context:
+        prior_review_history = {
+            **prior_review_history,
+            "trusted_bridge_activation_audit_context": activation_audit_context,
+        }
     if is_native_problem_only_contract(source_contract):
         return _build_native_target_review_prompt(
             project_path=project_path,
@@ -599,6 +695,10 @@ Review the actual theorem contract and proof for:
 
 {chemistry_protocol}
 
+{_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
+{_TRUSTED_BRIDGE_AUDIT_ONLY_PROTOCOL}
+
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
 Task-result layouts can be nested or flattened. Prefer the newest matching
@@ -645,6 +745,7 @@ Write exactly one JSON object line to {milestone}. Required shape:
     "image_audit": [{{"path":"<exact source_contract path>","sha256":"<exact digest>","inspected":true,"evidence":"<relevant visual facts or access failure; use false when unreadable>"}}],
     "chemistry_checks": {{
       "chemical_semantics": {{"status":"passed|failed|not_applicable","evidence":"..."}},
+      "staged_species_domain": {{"status":"passed|failed|not_applicable","evidence":"<stages, finite species, source locators, and ledger carriers; or exact token not_staged_transformation>"}},
       "formula_mass_consistency": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "conservation_laws": {{"status":"passed|failed|not_applicable","evidence":"..."}},
       "units_dimensions": {{"status":"passed|failed|not_applicable","evidence":"..."}},

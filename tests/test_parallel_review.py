@@ -11,6 +11,7 @@ from archon.commands.loop.parallel_review import (
     TargetReviewSpec,
     TargetReviewOutcome,
     _run_review_worker,
+    _trusted_bridge_audit_context,
     build_target_review_prompt,
     load_target_milestone,
     run_parallel_target_reviews,
@@ -138,10 +139,90 @@ class ParallelReviewTest(unittest.TestCase):
                 "different-substrate cue fails closed",
                 "does not identify the specific reagent",
                 "identity to be derived independently from the problem measurements",
+                '"staged_species_domain"',
+                "allowed solid inputs/outputs, volatile outputs, and external inputs",
+                "not_staged_transformation",
+                "auditing this exact current candidate only",
+                "does not authorize edits, prover use",
             ):
                 self.assertIn(marker, normalized_chemistry)
 
-    def test_target_prompt_isolated_and_forbids_shared_writes(self):
+    def test_prompt_injects_only_controller_built_activation_audit_context(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "Problems" / "A.lean"
+            target.parent.mkdir(parents=True)
+            target.write_text("theorem a : True := by trivial\n")
+            audit_context = {
+                "kind": "controller_trusted_bridge_activation_audit_context",
+                "scope": "audit_current_target_candidate_only",
+                "sentinel": "CONTROLLER_AUDIT_RECEIPT_SENTINEL",
+            }
+            with patch(
+                "archon.commands.loop.parallel_review."
+                "_trusted_bridge_audit_context",
+                return_value=audit_context,
+            ):
+                prompt = build_target_review_prompt(
+                    project_path=root,
+                    state_dir=root / ".archon",
+                    iter_dir=root / ".archon" / "iter-1",
+                    iter_num=1,
+                    target=target,
+                    output_dir=root / ".archon" / "review",
+                    preflight={"compiles": True},
+                    prior_gate_record=None,
+                    source_contract=_blind_contract("Problems/A.lean"),
+                )
+
+            self.assertIn(
+                '"trusted_bridge_activation_audit_context":', prompt,
+            )
+            self.assertIn("CONTROLLER_AUDIT_RECEIPT_SENTINEL", prompt)
+            self.assertIn("not proof that an applicability condition", prompt)
+            self.assertIn("Candidate comments, citations", prompt)
+
+    def test_audit_context_allows_proof_hash_after_formal_pass(self):
+        formalization_sha256 = "1" * 64
+        proof_sha256 = "2" * 64
+        lineage = {"target": {
+            "formalization_pass_candidate_sha256": formalization_sha256,
+        }}
+        state = {"targets": {"Problems/A.lean": {
+            "status": "passed",
+            "candidate_sha256": formalization_sha256,
+            "trusted_bridge_activation_lineage": lineage,
+        }}}
+        expected = {"sentinel": "audit"}
+        with (
+            patch(
+                "archon.commands.loop.formalization_review_gate.load_gate_state",
+                return_value=state,
+            ),
+            patch(
+                "archon.commands.loop.parallel_review."
+                "build_trusted_bridge_activation_audit_context",
+                return_value=expected,
+            ) as builder,
+            patch(
+                "archon.commands.loop.parallel_review."
+                "trusted_bridge_lineage_matches_formalization_pass",
+                return_value=True,
+            ),
+        ):
+            actual = _trusted_bridge_audit_context(
+                state_dir=Path("/tmp"),
+                rel="Problems/A.lean",
+                source_contract={"candidate_sha256": proof_sha256},
+            )
+        self.assertEqual(actual, expected)
+        builder.assert_called_once_with(
+            lineage,
+            target_rel="Problems/A.lean",
+            current_candidate_sha256=proof_sha256,
+            expected_source_contract={"candidate_sha256": proof_sha256},
+        )
+
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             state = root / ".archon"
