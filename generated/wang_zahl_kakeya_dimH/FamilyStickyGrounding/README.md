@@ -361,6 +361,32 @@ finite-node certificate are no longer required.  Only the fixed bound-stage
 room `eta N < targetExponent` remains; terminal-stage room, witness construction,
 finite `K`, loss absorption, first-step selection, and the derived scale and
 profile are automatic.
+
+A concrete feasibility wrapper fixes `N = 5`, `gapEpsilon = 1/2`,
+`eta = 3`, and `targetExponent = 4`; all numerical premises then reduce to one
+strictly positive total threshold.  Its stronger final outcome retains the
+literal `AllStepsLarge` certificate of the automatic terminal chain in the
+Sticky branch.  Positive hierarchy depth supplies refined-family nonemptiness
+at `H.effectiveFamily 0`, and a final multiscale assembly certificate
+additionally supplies the required positive initial radius, so those adapters
+expose only the concrete threshold comparison.  This concrete choice is a
+formal feasibility witness, not yet the paper small-exponent parameter
+translation.
+
+The concrete threshold still depends essentially on the full finite index
+cardinality.  For `Fin n` it is formally bounded above by
+`(100*n^2 + 250*n + 1)^(-2)`; hence it falls below every positive scale as `n`
+grows, and there is no positive cardinality-independent threshold valid for
+all finite index types.  Thus direction packing alone cannot turn the current
+global-card endpoint into the paper-level uniform `delta_0`.  A separate local
+refactor now replaces the terminal global cardinality by the maximum of the
+lower-interval `activeFine.card` and the terminal refined-active card, and
+replaces the adjacent global cardinality by the interval-local
+`activeCoarse.card` or `activeFine.card`.  These local quantities are never
+worse than the old global bound, but a genuine local packing or concentration
+theorem is still needed to control them with sufficiently mild scale
+dependence.
+
 The first failed relevant node and all earlier successful checks are computed;
 empty active-coarse and below-cutoff root data give sharp obstructions to
 manufacturing the repaired V2 node lower bounds automatically.
