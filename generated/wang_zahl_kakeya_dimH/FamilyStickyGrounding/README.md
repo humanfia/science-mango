@@ -54,12 +54,14 @@ The checkpoint contains real producers for:
   occurrence count, total-radius containment, common-prefix fiber load, and
   stagewise child/parent containment, local exact-carrier deduplication with
   an explicit collision multiplicity, automatic actual collision-test
-  geometry from the hierarchy fibres with one explicit branching scalar
-  condition, an end-to-end joint-certificate wrapper from hierarchy source
-  geometry and WZ separation with one explicit collision-unit inequality, its
-  unconditional source-derived ratio bound `20000`, an explicit `100 x 100`
-  parameter grid proving the opaque product packing constant is at least
-  `10000` and hence closing that threshold, canonical first-divergence child,
+  geometry from the hierarchy fibres, endpoint-derived closure of all child
+  positivity and radius cutoffs, and an isolated genuine branching/scale-gap
+  condition (or stronger quadratic budget), with a sharp equal-scale
+  obstruction to deriving it from radius monotonicity; an end-to-end
+  joint-certificate wrapper from hierarchy source geometry and WZ separation,
+  whose collision thresholds are discharged by the unconditional source ratio
+  `20000` and an explicit `100 x 100` parameter grid proving the opaque product
+  packing constant is at least `10000`, canonical first-divergence child,
   parent, common-prefix, and
   local-occurrence routing, cancellation-aware suffix decomposition giving
   explicit widened cross-parent containment without a same-parent premise,
@@ -122,7 +124,9 @@ Honest residual work remains: connecting the new constant-bearing dividing
 witness through the target exponent/interpolation endpoint (or supplying the
 pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
-instantiating the remaining explicit hierarchy radius/branching scalar checks;
+supplying the genuine hierarchy branching/scale-gap budget (all radius checks
+are now endpoint-derived, while an equal-scale counterexample rules out
+automatic branching closure);
 any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; discharging the local
 WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
