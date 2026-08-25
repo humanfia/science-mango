@@ -23,9 +23,12 @@ The checkpoint contains real producers for:
   constant arbitrary-radius Sticky bound, followed by a parent-square and
   occurrence-code producer: the hierarchy branching supremum is automatic,
   while actual tube-volume bounds turn a `cardLoss` occurrence code into
-  `siblingMassLoss = 16*cardLoss`; exact N-to-one merging, noncommuting parent
-  maps, and a two-sibling unbounded occurrence obstruction isolate the genuine
-  remaining certificates, plus
+  `siblingMassLoss = 16*cardLoss`.  A selected-nested upstream now constructs
+  the parent square from the real hierarchy parent-image recursion, derives the
+  occurrence code automatically with loss `card(Index 0)`, and reaches the
+  actual reverse-loss and arbitrary-radius endpoints; finite obstructions show
+  that parent reflection and a dimension-only cap on this loss remain genuine,
+  plus
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -182,10 +185,11 @@ overlap only for later measure-intersection consumers (the global implication
 from no-common-`100` containment is false); reinserting the formally selected
 chart/bucket subtype into the hierarchy while carrying its exact cardinality
 or weight loss (a single bucket is generally a proper subfamily and cannot be
-promoted to the whole refined source automatically); constructing the concrete
-`ParentSquareIdentification` and `SiblingOccurrenceCode` from the selected
-nested hierarchy (the current body embeddings and one-step branching fields
-do not imply either certificate);
+promoted to the whole refined source automatically); instantiating the
+selected-image sibling producer's lower-occurrence embedding and parent-
+equivalence with the concrete nested hierarchy, and bounding its automatic
+loss `card(Index 0)` by a dimension-only constant (finite obstructions show
+that reflection and this cardinality cap are not automatic);
 supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
