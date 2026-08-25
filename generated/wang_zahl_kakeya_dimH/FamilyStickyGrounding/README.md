@@ -159,7 +159,13 @@ The checkpoint contains real producers for:
   WZ separation restricts losslessly, so any actual selected certificate and
   the existing selector receive multiplicity, fibre, cardinality, weighted,
   and strong-representative WZ endpoints with no old output, coupling,
-  repetition embedding, or omega compatibility.  Only old-carrier-sum
+  repetition embedding, or omega compatibility.  The selector’s collision-unit
+  scale is now automatic for the actual selected geometry: hierarchy joint
+  numerics are geometry-independent, restrict without loss, and are supplied
+  from the scalar certificate plus the unconditional `20000` packing threshold.
+  This gives both existence and a concrete intrinsic selected certificate,
+  retaining only the independent levelwise WZ-separation input.  Only
+  old-carrier-sum
   comparisons retain coupling; sharp reverse-repetition, bound-shrink, and
   one-unit obstructions explain why.  The old
   large-card cover route is formally impossible.  The stronger
@@ -249,9 +255,10 @@ turning the global cross-parent rigidity certificate’s automatically generated
 hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
 requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
-from no-common-`100` containment is false); supplying the selected
-hierarchy’s genuine `HierarchyParentCollisionUnitScale` input to the existing
-intrinsic certificate selector; every resulting selected certificate then gets
+from no-common-`100` containment is false); supplying the independent
+`HierarchyLevelWZSeparationData` used by the intrinsic certificate selector;
+its selected `HierarchyParentCollisionUnitScale` is now automatic from the
+scalar certificate.  Every resulting selected certificate then gets
 its own multiplicity/fibre/card/weighted/strong WZ endpoints without an old
 output, repetition embedding, omega compatibility, or coupling validity.  Only
 when a conclusion must use the old output’s carrier sum/RHS does one still need
