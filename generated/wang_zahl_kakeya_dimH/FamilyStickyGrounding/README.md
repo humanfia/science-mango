@@ -73,9 +73,11 @@ The checkpoint contains real producers for:
   and the explicit uniform tube-volume cap, followed by automatic positive
   volume/full-span John-288 certification, a fixed coordinate-one window,
   and absorption of the tube `delta^2` scale into the arbitrary convex-test
-  volume with the exact local-count residual retained, plus a quantitative
-  affine-shear distorted-tube adapter yielding inradius `delta/(1+|d|)`, all
-  John side lower bounds, and a surviving longitudinal scale.
+  volume with the exact local-count residual retained, automatic finite-source
+  window budgets and optional separated-shear ceiling budgets, plus a
+  quantitative affine-shear distorted-tube adapter yielding inradius
+  `delta/(1+|d|)`, all John side lower bounds, and a surviving longitudinal
+  scale.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -93,8 +95,9 @@ constant), a dimension/scale-only bound for the internally computed widened
 cross-parent partner constants, terminal dedup and essentially-distinct
 refinement, all-convex-test reduction, and
 arbitrary-radius interpolation for the translation construction; removing
-the explicit WZ2 spacing/source-window/John-radius residual by connecting the
-now-grounded distorted-tube side bounds and quantitative source separation to
-obtain a uniform Katz--Tao constant, later projection geometry,
+the explicit WZ2 spacing/John-radius residual by connecting the now-grounded
+distorted-tube side bounds and quantitative source-shear separation to obtain
+a uniform Katz--Tao constant (full WZ separation alone does not imply that
+projected shear gap), later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
