@@ -144,13 +144,16 @@ The checkpoint contains real producers for:
   omega coherence into dependent path, prefix/composed, analytic/collision,
   and terminal-load compatibility, while its actual binding rebuilds hierarchy
   geometry and active parent/test embeddings directly.  A coupled producer
-  now reuses the old packing centers and canonical omega prefix, making omega
-  compatibility definitional and constructing the selected layer/output,
-  hierarchy certificate, transport, and no-extra-loss terminal WZ endpoint
-  from selected repetition bounds and its actual analytic/collision validity.
-  Strict reverse-repetition and bound-shrink obstructions isolate why those
-  remaining validity fields do not follow from an independent old output.  The
-  old
+  reuses the old packing centers and canonical omega prefix, making omega
+  compatibility definitional and constructing selected output/certificate,
+  transport, and an old-RHS terminal WZ endpoint from selected validity.  A
+  direct selected consumer goes further whenever an intrinsic RHS is enough:
+  WZ separation restricts losslessly, so any actual selected certificate and
+  the existing selector receive multiplicity, fibre, cardinality, weighted,
+  and strong-representative WZ endpoints with no old output, coupling,
+  repetition embedding, or omega compatibility.  Only old-carrier-sum
+  comparisons retain coupling; sharp reverse-repetition, bound-shrink, and
+  one-unit obstructions explain why.  The old
   large-card cover route is formally impossible.  The stronger
   half-volume-overlap notion is therefore isolated only for later results that
   genuinely inspect intersection measure, and a pre-motion universal
@@ -233,14 +236,16 @@ turning the global cross-parent rigidity certificate’s automatically generated
 hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
 requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
-from no-common-`100` containment is false); for independently rebuilt random
-outputs, supplying per-layer literal `jointRepetitions` monotonicity and omega
-compatibility, or, for the coupled-prefix producer, supplying selected
-repetition positivity/monotonicity and actual analytic/collision validity;
-packing centers, omega compatibility, selected outputs/certificate, hierarchy
-geometry, active embeddings, Fin/path/FinalIndex/carrier transport, and the
-terminal WZ consumer are then automatic.  Strict reverse-cardinality and
-bound-shrink obstructions rule out unconditional coupling;
+from no-common-`100` containment is false); supplying the selected
+hierarchy’s genuine `HierarchyParentCollisionUnitScale` input to the existing
+intrinsic certificate selector; every resulting selected certificate then gets
+its own multiplicity/fibre/card/weighted/strong WZ endpoints without an old
+output, repetition embedding, omega compatibility, or coupling validity.  Only
+when a conclusion must use the old output’s carrier sum/RHS does one still need
+independent repetition/omega coherence or the coupled-prefix producer’s selected
+repetition and analytic/collision validity; strict reverse-cardinality,
+bound-shrink, and one-unit old-load obstructions rule out unconditional
+comparison;
 instantiating the selected-restriction binding’s raw lower/upper coordinate maps
 and restricted-parent commutation, plus the exact level-zero compatibility
 `4*R1+r0 <= 100*r0` (or the sufficient `R1 <= 20*r0`); canonical parent-cell
