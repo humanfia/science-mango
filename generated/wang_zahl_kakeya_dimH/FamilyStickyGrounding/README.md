@@ -94,12 +94,17 @@ The checkpoint contains real producers for:
   cardinality, near-fibre transfer, same-scale cover-parent fibres of size at
   most one, the full `13^3*coverCount` cap, selected-card retention, and an
   automatic identity same-scale cover of provably minimal count; positive
-  depth gives selected-family nonemptiness directly, while a level-zero fixed
-  chart and graph-`C` half-bucket generate the terminal half-scale parallelism
-  and full coefficient cap, and the old large-card cover route is formally
-  impossible; the stronger half-volume-overlap notion is therefore isolated
-  only for later results that genuinely inspect intersection measure, and
-  a pre-motion universal packing-support hull catalogue reducing every
+  depth gives selected-family nonemptiness directly.  An actual three-coordinate
+  chart selector retains cardinality and weight with loss `3` (or loss `1` from
+  fixed-vertical WZL3 provenance), and level-zero fixed-`2` chart occupied
+  graph-`C` floor buckets have explicit finite losses and selected-subfamily
+  half-bucket geometry.  A two-point obstruction shows that one such bucket is
+  generally a proper subfamily, so only an additional selected-equals-source
+  proof promotes it to the existing whole-family terminal coefficient cap; the
+  old large-card cover route is formally impossible.  The stronger
+  half-volume-overlap notion is therefore isolated only for later results that
+  genuinely inspect intersection measure, and a pre-motion universal
+  packing-support hull catalogue reducing every
   subsequently selected prefix fibre to all convex tests, followed by a
   supplied-plan joint selector whose one-layer, multiscale, and hierarchy
   outputs retain exact packing-certificate coherence and directly discharge
@@ -171,10 +176,10 @@ turning the global cross-parent rigidity certificate’s automatically generated
 hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
 requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
-from no-common-`100` containment is false), plus the level-zero source fixed
-chart and graph-`C` half-bucket consumed by the terminal full coefficient cap
-(the cover and selected-family nonemptiness are automatic, while the old
-large-card premise is formally impossible); constructing the concrete
+from no-common-`100` containment is false); reinserting the formally selected
+chart/bucket subtype into the hierarchy while carrying its exact cardinality
+or weight loss (a single bucket is generally a proper subfamily and cannot be
+promoted to the whole refined source automatically); constructing the concrete
 `ParentSquareIdentification` and `SiblingOccurrenceCode` from the selected
 nested hierarchy (the current body embeddings and one-step branching fields
 do not imply either certificate);
