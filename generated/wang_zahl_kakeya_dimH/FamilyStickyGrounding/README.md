@@ -104,7 +104,10 @@ The checkpoint contains real producers for:
 - a callback-free final-assembly data certificate on one hierarchy and one
   supplied joint output, exposing the actual-loss arbitrary-radius Sticky,
   prefix all-convex Katz--Tao, terminal WZ cardinal/load, and selected
-  collision-cell WZ2 conclusions through a single coherent object;
+  collision-cell WZ2 conclusions through a single coherent object, followed
+  by a terminal extension on that same joint output which packages the exact
+  source chart/bucket datum and automatically exposes the identity cover,
+  its minimal count, terminal nonemptiness, and the full coefficient cap;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
