@@ -76,7 +76,13 @@ The checkpoint contains real producers for:
   structures: two decidable ENNReal comparisons suffice.  Actual unit-cap
   producers discharge them from factorwise local/endpoint caps with combined
   product at most one and from `activeCoarse.card <= 1`, respectively, and feed
-  the recovered endpoint directly.  A legal dimensional-loss scaling and a
+  the recovered endpoint directly.  A relevant-node refinement now checks
+  only tree nodes at or below the buffered upper cutoff, exactly the nodes that
+  the locator can return.  Literal positive-volume contained-mass selections
+  produce those checks and, together with the actual unit caps, reach the
+  recovered witness; a decidable search otherwise returns the first relevant
+  deficit, all earlier successful checks, and its exact actual-bad versus
+  below-lower-cutoff classification.  A legal dimensional-loss scaling and a
   repeated-positive-tube cover prove both unit caps are genuinely nonautomatic;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
@@ -224,13 +230,17 @@ scan before this snapshot.  The aggregate target is:
 
 Honest residual work remains: supplying the first non-large interval’s actual
 factorwise global caps (whose cap product is at most one), proving its adjacent
-active coarse set has cardinality at most one, its local tree-node inequalities,
-and the explicit small-delta threshold, then excluding the genuine all-large
+active coarse set has cardinality at most one, its relevant-node literal
+contained-mass inequalities, and the explicit small-delta threshold, then
+excluding the genuine all-large
 branch when a direct dividing witness is needed; raw product/adjacent bounds,
 global allocation structures, and the global finite-node certificate are no
 longer required, while first-step selection, budget search, stage/scale/profile,
 witness construction, finite `K`, room, and loss absorption are automatic.
-Sharp failed-node, scaling, repeated-tube, and strict-budget obstructions explain
+The first failed relevant node and all earlier successful checks are now
+computed; empty active-coarse data gives a sharp actual obstruction to deriving
+the remaining node lower bounds automatically.  Scaling, repeated-tube, and
+strict-budget obstructions explain
 the remaining analytic inputs;
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
