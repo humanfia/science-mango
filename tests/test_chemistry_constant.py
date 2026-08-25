@@ -298,6 +298,9 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
     assert chemistry.DORMANT_RUNTIME_BRIDGE_IDS == (
         "closed_candidate_feiii_phenol_filter",
         "closed_domain_mellite_terminal_residue_candidate_filter",
+        "directed_reaction_omitted_protocol_candidate_filter",
+    )
+    assert chemistry.REFERENCE_ONLY_EMPIRICAL_RULE_IDS == (
         "mellitic_acid_p2o5_heating_forms_some_trianhydride",
     )
     conditions = " ".join(
@@ -348,7 +351,6 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
 def test_empirical_rule_partitions_are_exact_disjoint_and_complete() -> None:
     assert chemistry.BASELINE_EMPIRICAL_RULE_IDS == (
         "aqueous_feiii_phenol_colored_complex",
-        "closed_candidate_feiii_phenol_filter",
         "hexamethylbenzene_cold_kmno4_to_mellitic_acid",
         "mellite_ideal_stoichiometry",
         "mellitic_acid_benzoyl_chloride_to_c12o9",
@@ -357,6 +359,7 @@ def test_empirical_rule_partitions_are_exact_disjoint_and_complete() -> None:
         "mellitic_acid_p2o5_heating_forms_some_trianhydride",
     )
     assert chemistry.DORMANT_RUNTIME_BRIDGE_IDS == (
+        "closed_candidate_feiii_phenol_filter",
         "closed_domain_mellite_terminal_residue_candidate_filter",
         "directed_reaction_omitted_protocol_candidate_filter",
     )
@@ -434,7 +437,7 @@ def test_directed_reaction_omitted_protocol_policy_is_strictly_bounded() -> None
     lookup = chemistry.empirical_rule(rule_id)
 
     assert lookup["record_sha256"] == (
-        "e26dd359e15994fad029afaa9fe4b9d2fd2099ef387ca7749707a7b17f6286b7"
+        "4c6d23a051b600029f3e20973f5ea60200fb0d3f76c78498af68c0822ec9ef72"
     )
     assert lookup["pinned_rule_record_sha256"] == (
         "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d"
