@@ -129,9 +129,13 @@ The checkpoint contains real producers for:
   exact `gapEpsilon^2 * halfRoom(targetExponent)` absorption threshold,
   automatic adjacent-card composition from selected global estimates, and a
   top-level identity certificate that retains `AllStepsLarge` together with
-  Sticky on the left or returns a recovered literal witness.  The selected
-  global estimates and relevant-node bounds remain
-  explicit honest analytic inputs.  The legacy total diagnostic assumes neither
+  Sticky on the left or returns a recovered literal witness.  A paper-shaped
+  terminal-no-split endpoint now bypasses the localization tree, relevant-node
+  certificates, and constant absorption: the exact selected global-product
+  comparison plus literal no-further-split produce the recovered V2 witness,
+  while finite cardinality supplies the adjacent comparison.  The former
+  relevant-node route remains an independently verified finite fallback.  The
+  legacy total diagnostic assumes neither
   global caps nor parent collapse: it decides `AllStepsLarge`, the literal
   global/adjacent numerical comparisons, and relevant-node search, returning a
   recovered witness or the exact numerical/relevant-node failure.  A legal
@@ -290,20 +294,25 @@ scan before this snapshot.  The aggregate target is:
     lake build FamilyStickyGrounding
 
 Honest residual work remains.  The two-parameter stopping repair is now
-formalized through the final `Sticky or recovered witness` dichotomy.  Closing
-its non-large branch from the actual hierarchy still requires the first
-non-large interval’s selected pointwise global exponent estimates and balance
-(which produce the exact comparison; factorwise caps are sufficient but not
-necessary) and the relevant-node no-bad/contained-mass input.  The combined
-small-delta threshold and adjacent comparison are automatic parameter choices
-once those inputs are supplied.  For a theorem that forces one specific
-outcome, the genuine all-large branch must additionally be excluded or consumed.
+formalized through the final `Sticky or recovered witness` dichotomy.  On the
+direct paper-shaped route, the non-large branch has exactly two hierarchy-level
+residuals at the selected interval: the actual global-product upper bound and
+the literal terminal no-further-split invariant.  Producing those invariants by
+the recursive splitting construction is the remaining stopping argument.  The
+adjacent comparison is automatic from finite cardinality and an explicit
+small-`delta` threshold.  The relevant-node/no-bad route remains a finite
+localization fallback, with its contained-mass input stated separately.  Both
+direct residuals use the original `eta`, so the recursive stopping construction
+is independent of the later `targetExponent` choice.  For a theorem that forces
+one specific outcome, the genuine all-large branch must additionally be
+excluded or consumed.
 The current all-large Sticky constants are finite and explicit but still depend
 on the source-family cardinality and `delta`, rather than only on dimension.
-Raw product/adjacent bounds,
-global allocation structures, and the global finite-node certificate are no
-longer required, while first-step selection, budget search, stage/scale/profile,
-witness construction, finite `K`, room, and loss absorption are automatic.
+Raw product/adjacent bounds, global allocation structures, and the global
+finite-node certificate are no longer required.  The strict room remains an
+explicit input; after it is supplied, the half-room allocation, witness
+construction, finite `K`, and loss absorption are automatic, as are first-step
+selection and the derived scale and profile.
 The first failed relevant node and all earlier successful checks are computed;
 empty active-coarse and below-cutoff root data give sharp obstructions to
 manufacturing the repaired V2 node lower bounds automatically.

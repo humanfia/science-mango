@@ -1,5 +1,6 @@
 import FamilyStickyGrounding.FamilyStickyScaleChainTwoParameterLocalizationV2
 import FamilyStickyGrounding.FamilyStickyScaleChainSelectedGlobalAdjacentRecoveredProducerV1
+import FamilyStickyGrounding.FamilyStickyScaleChainTwoExponentStoppingCoreV2
 
 set_option autoImplicit false
 set_option warningAsError true
@@ -30,6 +31,7 @@ open FamilyStickyScaleChainFirstNonLargeRelevantNodeProducerV1
 open FamilyStickyScaleChainFirstNonLargeAdjacentCardBudgetProducerV1
 open FamilyStickyScaleChainSelectedGlobalExponentProducerV1
 open FamilyStickyScaleChainTwoParameterLocalizationV2
+open FamilyStickyScaleChainTwoExponentStoppingCoreV2
 
 noncomputable section
 
@@ -186,12 +188,12 @@ theorem delta_le_actualRecoveredThresholdV2_of_le_combined
 
 /-! ## Recovered endpoint from selected numerical inputs -/
 
-/-- A non-large gap step produces a V1 literal dividing witness with the
+/-- A non-large gap step produces a V2 target-room dividing witness with the
 recovered target profile.  The hypothesis `2 <= eta stage` is the minimal
 lower-exponent input required by the quadratic localization estimate; strict
 room alone cannot imply it.  There is deliberately no hypothesis comparing
 `eta stage` with `gapEpsilon`. -/
-theorem exists_recoveredLiteralWitnessV2_of_selectedNumericalBudgets
+theorem exists_twoExponentRecoveredLiteralWitnessV2_of_selectedNumericalBudgets
     (C : CoherentStickyMultiscaleCover fine)
     (R : IntervalRootedRefinementScaleTree S)
     (B : BufferedChainFamily outerDepth chainDepth)
@@ -212,8 +214,8 @@ theorem exists_recoveredLiteralWitnessV2_of_selectedNumericalBudgets
     (delta_pos : 0 < delta)
     (delta_le : delta <= actualRecoveredThresholdV2
       eta stage gapEpsilon targetExponent iota) :
-    Nonempty (KatzTaoDividingWitness delta N gapEpsilon
-      (recoveredProfileV2 eta stage targetExponent)) := by
+    Nonempty (TwoExponentKatzTaoDividingWitness delta N gapEpsilon
+      targetExponent (recoveredProfileV2 eta stage targetExponent)) := by
   let W : KatzTaoConstantDividingWitness delta N gapEpsilon
       (reserveTailLoss eta stage (halfRoom eta stage targetExponent))
       (actualStrictLocalizationConstant iota) :=
@@ -237,10 +239,66 @@ theorem exists_recoveredLiteralWitnessV2_of_selectedNumericalBudgets
     smallDeltaExponentLossBudget_of_le_threshold
       (actualStrictLocalizationConstant_ne_top iota)
       gap_pos (halfRoom_pos strict_room) delta_pos delta_le
-  have endpoint :=
-    exists_literalWitness_for_recoveredReservedProfile
-      W W_stage delta_pos tau_pos loss_budget
-  simpa [recoveredProfileV2] using endpoint
+  let endpointBudget : EndpointScaleGapExponentLossBudget W
+      (halfRoom eta stage targetExponent) :=
+    loss_budget.toEndpointScaleGapExponentLossBudget delta_pos
+  let bufferedBudget : BufferedExponentLossBudget W
+      (halfRoom eta stage targetExponent) :=
+    endpointBudget.toBufferedExponentLossBudget tau_pos
+  let E :=
+    FamilyStickyScaleChainConstantExponentLossEndpointV1.KatzTaoConstantDividingWitness.toExponentLossWitness
+      W tau_pos (halfRoom eta stage targetExponent) bufferedBudget
+  have E_stage : E.original.stage = stage := by
+    change W.stage = stage
+    exact W_stage
+  have room : TargetExponentRoom
+      (lowerStoppingExponent
+        (reserveTailLoss eta stage (halfRoom eta stage targetExponent))
+        E.original.stage (halfRoom eta stage targetExponent))
+      E.original.stage targetExponent := by
+    constructor
+    rw [lowerStoppingExponent_at, E_stage, reserveTailLoss_at]
+    dsimp [halfRoom]
+    linarith
+  let V2 : TwoExponentKatzTaoDividingWitness delta N gapEpsilon
+      targetExponent
+      (lowerStoppingExponent
+        (reserveTailLoss eta stage (halfRoom eta stage targetExponent))
+        E.original.stage (halfRoom eta stage targetExponent)) := {
+    toKatzTaoDividingWitness :=
+      FamilyStickyScaleChainConstantExponentLossEndpointV1.KatzTaoExponentLossDividingWitness.toLiteralDividingWitness E
+    targetRoom := room }
+  exact ⟨by
+    simpa only [E_stage, recoveredProfileV2, recoveredReservedProfile] using V2⟩
+
+/-- Compatibility projection to the existing V1 literal-witness API. -/
+theorem exists_recoveredLiteralWitnessV2_of_selectedNumericalBudgets
+    (C : CoherentStickyMultiscaleCover fine)
+    (R : IntervalRootedRefinementScaleTree S)
+    (B : BufferedChainFamily outerDepth chainDepth)
+    (stage : Nat) (stage_pos : 1 <= stage) (stage_le : stage <= N)
+    (two_le_eta_stage : (2 : Real) <= eta stage)
+    (strict_room : eta stage < targetExponent)
+    (not_all_large : Not (S.AllStepsLarge gapEpsilon))
+    (budgets : SelectedNumericalBudgets B
+      (C.toActualIntervalCovers S)
+      (selectedProfileV2 eta stage targetExponent) stage
+      (firstNonLargeStep S gapEpsilon not_all_large))
+    (V : VerifiedRelevantStepNodeLowerBounds
+      (epsilon := gapEpsilon)
+      (profile := selectedProfileV2 eta stage targetExponent)
+      (stage := stage) (C.toActualIntervalCovers S) R
+      (firstNonLargeStep S gapEpsilon not_all_large))
+    (gap_pos : 0 < gapEpsilon)
+    (delta_pos : 0 < delta)
+    (delta_le : delta <= actualRecoveredThresholdV2
+      eta stage gapEpsilon targetExponent iota) :
+    Nonempty (KatzTaoDividingWitness delta N gapEpsilon
+      (recoveredProfileV2 eta stage targetExponent)) := by
+  rcases exists_twoExponentRecoveredLiteralWitnessV2_of_selectedNumericalBudgets
+      C R B stage stage_pos stage_le two_le_eta_stage strict_room
+      not_all_large budgets V gap_pos delta_pos delta_le with ⟨W⟩
+  exact ⟨W.toV1⟩
 
 /-! ## Fully automatic adjacent budget from selected global estimates -/
 
@@ -258,7 +316,7 @@ theorem selectedProfileV2_pred_pos_of_stoppingData
 /-- Pointwise selected global estimates plus the common small-delta bound
 automatically supply the adjacent budget, then invoke the two-parameter
 recovered endpoint above. -/
-theorem exists_recoveredLiteralWitnessV2_of_selectedGlobalEstimates
+theorem exists_twoExponentRecoveredLiteralWitnessV2_of_selectedGlobalEstimates
     (C : CoherentStickyMultiscaleCover fine)
     (R : IntervalRootedRefinementScaleTree S)
     (B : BufferedChainFamily outerDepth chainDepth)
@@ -279,8 +337,8 @@ theorem exists_recoveredLiteralWitnessV2_of_selectedGlobalEstimates
     (delta_pos : 0 < delta)
     (delta_le : delta <= selectedGlobalAdjacentRecoveredThresholdV2
       eta stage gapEpsilon targetExponent iota) :
-    Nonempty (KatzTaoDividingWitness delta N gapEpsilon
-      (recoveredProfileV2 eta stage targetExponent)) := by
+    Nonempty (TwoExponentKatzTaoDividingWitness delta N gapEpsilon
+      targetExponent (recoveredProfileV2 eta stage targetExponent)) := by
   have two_le_eta_stage : (2 : Real) <= eta stage :=
     two_le_zero.trans (eta_monotone (Nat.zero_le stage))
   have profile_pred_pos :
@@ -304,13 +362,44 @@ theorem exists_recoveredLiteralWitnessV2_of_selectedGlobalEstimates
       not_all_large gap_pos profile_pred_pos delta_pos
       (delta_le_adjacentThresholdV2_of_le_combined delta_le)
       global_budget
-  exact exists_recoveredLiteralWitnessV2_of_selectedNumericalBudgets
+  exact exists_twoExponentRecoveredLiteralWitnessV2_of_selectedNumericalBudgets
     C R B stage stage_pos stage_le two_le_eta_stage strict_room
     not_all_large budgets V gap_pos delta_pos
     (delta_le_actualRecoveredThresholdV2_of_le_combined delta_le)
 
+/-- Compatibility projection of the selected-global producer to V1. -/
+theorem exists_recoveredLiteralWitnessV2_of_selectedGlobalEstimates
+    (C : CoherentStickyMultiscaleCover fine)
+    (R : IntervalRootedRefinementScaleTree S)
+    (B : BufferedChainFamily outerDepth chainDepth)
+    (stage : Nat) (stage_pos : 1 <= stage) (stage_le : stage <= N)
+    (eta_monotone : Monotone eta)
+    (two_le_zero : (2 : Real) <= eta 0)
+    (strict_room : eta stage < targetExponent)
+    (not_all_large : Not (S.AllStepsLarge gapEpsilon))
+    (globalEstimates : SelectedGlobalExponentEstimates B S
+      (selectedProfileV2 eta stage targetExponent) stage
+      (firstNonLargeStep S gapEpsilon not_all_large))
+    (V : VerifiedRelevantStepNodeLowerBounds
+      (epsilon := gapEpsilon)
+      (profile := selectedProfileV2 eta stage targetExponent)
+      (stage := stage) (C.toActualIntervalCovers S) R
+      (firstNonLargeStep S gapEpsilon not_all_large))
+    (gap_pos : 0 < gapEpsilon)
+    (delta_pos : 0 < delta)
+    (delta_le : delta <= selectedGlobalAdjacentRecoveredThresholdV2
+      eta stage gapEpsilon targetExponent iota) :
+    Nonempty (KatzTaoDividingWitness delta N gapEpsilon
+      (recoveredProfileV2 eta stage targetExponent)) := by
+  rcases exists_twoExponentRecoveredLiteralWitnessV2_of_selectedGlobalEstimates
+      C R B stage stage_pos stage_le eta_monotone two_le_zero strict_room
+      not_all_large globalEstimates V gap_pos delta_pos delta_le with ⟨W⟩
+  exact ⟨W.toV1⟩
+
 #print axioms actualRecoveredThresholdV2_le_one
+#print axioms exists_twoExponentRecoveredLiteralWitnessV2_of_selectedNumericalBudgets
 #print axioms exists_recoveredLiteralWitnessV2_of_selectedNumericalBudgets
+#print axioms exists_twoExponentRecoveredLiteralWitnessV2_of_selectedGlobalEstimates
 #print axioms exists_recoveredLiteralWitnessV2_of_selectedGlobalEstimates
 
 end
