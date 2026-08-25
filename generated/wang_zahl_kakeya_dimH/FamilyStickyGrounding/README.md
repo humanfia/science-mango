@@ -82,7 +82,11 @@ The checkpoint contains real producers for:
   structures: two decidable ENNReal comparisons suffice.  Actual unit-cap
   producers discharge them from factorwise local/endpoint caps with combined
   product at most one and from `activeCoarse.card <= 1`, respectively, and feed
-  the recovered endpoint directly.  A relevant-node refinement now checks
+  the recovered endpoint directly.  Parent-image collapse now produces the
+  adjacent unit cap and is threaded through both the recovered endpoint and
+  its finite search.  For the canonical selected identity cover the actual
+  adjacent cardinality is exactly the selected-source cardinality, proving this
+  collapse is not automatic.  A relevant-node refinement now checks
   only tree nodes at or below the buffered upper cutoff, exactly the nodes that
   the locator can return.  Literal positive-volume contained-mass selections
   produce those checks and, together with the actual unit caps, reach the
@@ -243,11 +247,12 @@ scan before this snapshot.  The aggregate target is:
     lake build FamilyStickyGrounding
 
 Honest residual work remains: supplying the first non-large interval’s actual
-factorwise global caps (whose cap product is at most one), proving its adjacent
-active coarse set has cardinality at most one, its relevant-node literal
-contained-mass inequalities, and the explicit small-delta threshold, then
-excluding the genuine all-large
-branch when a direct dividing witness is needed; raw product/adjacent bounds,
+factorwise global caps (whose cap product is at most one), supplying its actual
+active parent-image collapse (which automatically gives adjacent cardinality at
+most one), its relevant-node literal contained-mass inequalities, and the
+explicit small-delta threshold, then
+excluding the genuine all-large branch when a direct dividing witness is
+needed; raw product/adjacent bounds,
 global allocation structures, and the global finite-node certificate are no
 longer required, while first-step selection, budget search, stage/scale/profile,
 witness construction, finite `K`, room, and loss absorption are automatic.
