@@ -27,7 +27,10 @@ The checkpoint contains real producers for:
   `K <= separation^(eta - 2)`, the sharp obstruction showing separation
   cannot absorb `K > 1` when `eta <= 2`, and a constant-bearing
   no-bad/stopping/Delta-max endpoint carrying the actual loss to a finite
-  dividing witness without discarding `K`;
+  dividing witness without discarding `K`, followed by lawful exponent-loss
+  absorption that lowers only the middle exponent under the pointwise
+  `K <= (theta/rho)^loss` condition, with uniform endpoint-gap and small-delta
+  producers plus a monotone lowered-profile literal adapter;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -130,10 +133,10 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: connecting the new constant-bearing dividing
-witness through the target exponent/interpolation endpoint (or supplying the
-pointwise constant-removal condition required by the old literal interface;
-finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
+Honest residual work remains: instantiating the new exponent-loss budget and
+profile gap at the target parameters (the adapter preserves `K` and pays an
+explicit middle-exponent loss; finite separation alone is formally ruled out
+for `K > 1`, `eta <= 2`);
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
