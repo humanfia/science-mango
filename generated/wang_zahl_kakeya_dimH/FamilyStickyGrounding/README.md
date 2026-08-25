@@ -80,8 +80,12 @@ The checkpoint contains real producers for:
   WZ2 two-fold noncontainment consequence and packaged terminal tube family,
   and a direct WZ2-only coefficient bridge giving lossless tube-image
   cardinality, near-fibre transfer, same-scale cover-parent fibres of size at
-  most one, the full `13^3*coverCount` cap, selected-card retention, and
-  nonemptiness; the stronger half-volume-overlap notion is therefore isolated
+  most one, the full `13^3*coverCount` cap, selected-card retention, and an
+  automatic identity same-scale cover of provably minimal count; positive
+  depth gives selected-family nonemptiness directly, while a level-zero fixed
+  chart and graph-`C` half-bucket generate the terminal half-scale parallelism
+  and full coefficient cap, and the old large-card cover route is formally
+  impossible; the stronger half-volume-overlap notion is therefore isolated
   only for later results that genuinely inspect intersection measure, and
   a pre-motion universal packing-support hull catalogue reducing every
   subsequently selected prefix fibre to all convex tests, followed by a
@@ -146,9 +150,10 @@ automatic branching closure);
 any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
-from no-common-`100` containment is false), plus a terminal same-scale cover,
-half-scale direction parallelism, and the count/cardinality bounds consumed by
-the new WZ2-only selected-family endpoint; controlling the now-
+from no-common-`100` containment is false), plus the level-zero source fixed
+chart and graph-`C` half-bucket consumed by the terminal full coefficient cap
+(the cover and selected-family nonemptiness are automatic, while the old
+large-card premise is formally impossible); controlling the now-
 automatic reverse parent-normalizer loss by the target branching/sibling-
 rigidity budget (an exact N-to-one merger rules this out from parent
 compatibility alone); supplying
