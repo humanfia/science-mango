@@ -95,7 +95,13 @@ The checkpoint contains real producers for:
   longness and an explicit small-`delta` threshold absorb this into the exact
   required endpoint-ratio power.  This supplies the adjacent numerical budget
   without cardinality one or parent collapse and assembles the selected budget
-  from only the exact global comparison.  A relevant-node refinement now checks
+  from only the exact global comparison.  A selected global exponent producer
+  obtains that comparison from pointwise local-factor and endpoint powers plus
+  a one-sided exponent balance at just the chosen interval; old all-interval
+  allocations forget to this smaller certificate.  Its exact search, strict
+  failure exclusion, and legal dimensional-loss deformation show why these
+  quantitative estimates cannot be manufactured from the bare hierarchy.
+  A relevant-node refinement now checks
   only tree nodes at or below the buffered upper cutoff, exactly the nodes that
   the locator can return.  Literal positive-volume contained-mass selections
   produce those checks and, together with the actual unit caps, reach the
@@ -261,8 +267,9 @@ scan before this snapshot.  The aggregate target is:
 
 Honest residual work remains: to eliminate the total diagnostic’s failure
 branches and force a recovered dividing witness, proving the first non-large
-interval’s exact global product comparison (factorwise caps are sufficient but
-not necessary), its relevant-node literal contained-mass inequalities, and the
+interval’s selected pointwise global exponent estimates and balance (which
+produce the exact comparison; factorwise caps are sufficient but not
+necessary), its relevant-node literal contained-mass inequalities, and the
 combined explicit small-delta threshold, then excluding the genuine all-large
 branch.  The adjacent comparison is automatic from finite cardinality and
 first-non-large longness under its threshold.  Raw product/adjacent bounds,
