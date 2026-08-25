@@ -12,8 +12,8 @@ The checkpoint contains real producers for:
   explicit exponent-product budgets, finite bad-scale search, rooted finite
   refinement trees, nested-cover mass localization, and finite-node threshold
   transfer, literal parent-fiber ratio normalization, and genuine
-  fiber-concentration
-  control;
+  fiber-concentration control, plus strict-scale loss localization with a
+  reflexive equal-scale branch;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values;
@@ -30,7 +30,9 @@ The checkpoint contains real producers for:
   all-parent layer data/numerics, multiscale vector composition, common-prefix
   load invariance, actual fixed-test expectation bounds, shared-vector selection
   simultaneously good for all parents, and dependent multiscale witness
-  composition;
+  composition, actual hierarchy-to-random source assembly, and a shared-motion
+  certificate for occurrence count, total-radius containment, common-prefix
+  fiber load, and stagewise child/parent containment;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -43,11 +45,13 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: the capturing-thickening and actual strict
+Honest residual work remains: the capturing-thickening, actual strict
 loss-exponent, and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
-hierarchy/telescope and finite search; the hierarchy adapter and source-geometry
-integration for the concrete translation net; WZ2 chart-cardinality retention,
+hierarchy/telescope and finite search; the actual hierarchy
+test/side/branching-mean producers, distinctness/deduplication, all-convex-test
+reduction, and arbitrary-radius interpolation for the translation construction;
+WZ2 chart-cardinality retention,
 translated-copy density/Wolff provenance, and later
 projection geometry; and the final multiscale assembly.  No full Sticky
 conclusion or equivalent callback is included here.
