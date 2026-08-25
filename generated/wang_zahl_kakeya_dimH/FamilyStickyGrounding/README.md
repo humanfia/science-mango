@@ -122,8 +122,16 @@ The checkpoint contains real producers for:
   relevant-node theorem is retained only as a diagnostic, not as a nontrivial
   analytic closure.  A finite identity-cover producer closes the reachable
   all-large branch directly to arbitrary-radius Sticky with explicit Frostman
-  and Katz--Tao constants and no `top`-valued loss.  A total diagnostic now
-  assumes neither
+  and Katz--Tao constants and no `top`-valued loss.  A corrected V2 now splits
+  the two roles: `gapEpsilon` alone controls large/long/buffered geometry, while
+  an independent `targetExponent` controls profile room.  It provides an
+  off-diagonal finite stopping core, gap-nonnegative actual localization, the
+  exact `gapEpsilon^2 * halfRoom(targetExponent)` absorption threshold,
+  automatic adjacent-card composition from selected global estimates, and a
+  top-level identity certificate that retains `AllStepsLarge` together with
+  Sticky on the left or returns a recovered literal witness.  The selected
+  global estimates and relevant-node bounds remain
+  explicit honest analytic inputs.  The legacy total diagnostic assumes neither
   global caps nor parent collapse: it decides `AllStepsLarge`, the literal
   global/adjacent numerical comparisons, and relevant-node search, returning a
   recovered witness or the exact numerical/relevant-node failure.  A legal
@@ -281,18 +289,18 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains.  The highest-priority repair is a two-parameter
-stopping API: a small geometric `gapEpsilon` must control `IsLarge`, `IsLong`,
-buffered cutoffs, and the `gapEpsilon^2` absorption, while an independent
-`targetExponent` must control profile room and the reserved loss.  In that
-meaningful small-gap regime the dividing branch is reachable again, and at the
-first non-large interval it still needs the selected pointwise global exponent
-estimates and balance (which produce the exact comparison; factorwise caps are
-sufficient but not necessary), the relevant-node no-bad/contained-mass input,
-and the combined explicit small-delta threshold, followed by exclusion of the
-genuine all-large branch.  The adjacent comparison is automatic from finite
-cardinality and first-non-large longness under its corrected threshold.  Raw
-product/adjacent bounds,
+Honest residual work remains.  The two-parameter stopping repair is now
+formalized through the final `Sticky or recovered witness` dichotomy.  Closing
+its non-large branch from the actual hierarchy still requires the first
+non-large interval’s selected pointwise global exponent estimates and balance
+(which produce the exact comparison; factorwise caps are sufficient but not
+necessary) and the relevant-node no-bad/contained-mass input.  The combined
+small-delta threshold and adjacent comparison are automatic parameter choices
+once those inputs are supplied.  For a theorem that forces one specific
+outcome, the genuine all-large branch must additionally be excluded or consumed.
+The current all-large Sticky constants are finite and explicit but still depend
+on the source-family cardinality and `delta`, rather than only on dimension.
+Raw product/adjacent bounds,
 global allocation structures, and the global finite-node certificate are no
 longer required, while first-step selection, budget search, stage/scale/profile,
 witness construction, finite `K`, room, and loss absorption are automatic.
