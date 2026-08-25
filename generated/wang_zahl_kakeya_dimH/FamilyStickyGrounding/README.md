@@ -111,7 +111,19 @@ The checkpoint contains real producers for:
   produce those checks and, together with the actual unit caps, reach the
   recovered witness; a decidable search otherwise returns the first relevant
   deficit, all earlier successful checks, and its exact actual-bad versus
-  below-lower-cutoff classification.  A total diagnostic now assumes neither
+  below-lower-cutoff classification.  The cutoff phase is sharp at exponent
+  one: above it every relevant failure is an actual bad scale, while at or
+  below it a strict interval can put the root below the lower cutoff.  This
+  exposes a parameter degeneracy in the current V1 API: the same `epsilon` is
+  used both for the geometric scale gap and for the target/profile room.
+  Standard room forces `epsilon > 2`, while `delta <= tau <= theta <= 1` makes
+  every interval automatically large as soon as `epsilon >= 1`.  Consequently
+  the V1 first-non-large/recovered branch is unreachable; its vacuous
+  relevant-node theorem is retained only as a diagnostic, not as a nontrivial
+  analytic closure.  A finite identity-cover producer closes the reachable
+  all-large branch directly to arbitrary-radius Sticky with explicit Frostman
+  and Katz--Tao constants and no `top`-valued loss.  A total diagnostic now
+  assumes neither
   global caps nor parent collapse: it decides `AllStepsLarge`, the literal
   global/adjacent numerical comparisons, and relevant-node search, returning a
   recovered witness or the exact numerical/relevant-node failure.  A legal
@@ -269,20 +281,25 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: to eliminate the total diagnostic’s failure
-branches and force a recovered dividing witness, proving the first non-large
-interval’s selected pointwise global exponent estimates and balance (which
-produce the exact comparison; factorwise caps are sufficient but not
-necessary), its relevant-node literal contained-mass inequalities, and the
-combined explicit small-delta threshold, then excluding the genuine all-large
-branch.  The adjacent comparison is automatic from finite cardinality and
-first-non-large longness under its threshold.  Raw product/adjacent bounds,
+Honest residual work remains.  The highest-priority repair is a two-parameter
+stopping API: a small geometric `gapEpsilon` must control `IsLarge`, `IsLong`,
+buffered cutoffs, and the `gapEpsilon^2` absorption, while an independent
+`targetExponent` must control profile room and the reserved loss.  In that
+meaningful small-gap regime the dividing branch is reachable again, and at the
+first non-large interval it still needs the selected pointwise global exponent
+estimates and balance (which produce the exact comparison; factorwise caps are
+sufficient but not necessary), the relevant-node no-bad/contained-mass input,
+and the combined explicit small-delta threshold, followed by exclusion of the
+genuine all-large branch.  The adjacent comparison is automatic from finite
+cardinality and first-non-large longness under its corrected threshold.  Raw
+product/adjacent bounds,
 global allocation structures, and the global finite-node certificate are no
 longer required, while first-step selection, budget search, stage/scale/profile,
 witness construction, finite `K`, room, and loss absorption are automatic.
-The first failed relevant node and all earlier successful checks are now
-computed; empty active-coarse data gives a sharp actual obstruction to deriving
-the remaining node lower bounds automatically.  Scaling, repeated-tube, and
+The first failed relevant node and all earlier successful checks are computed;
+empty active-coarse and below-cutoff root data give sharp obstructions to
+manufacturing the repaired V2 node lower bounds automatically.
+Scaling, repeated-tube, and
 strict-budget obstructions explain
 the remaining analytic inputs;
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
