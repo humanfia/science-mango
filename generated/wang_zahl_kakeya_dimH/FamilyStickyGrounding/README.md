@@ -33,10 +33,13 @@ The checkpoint contains real producers for:
   nondegeneracy, explicit shared-local point, balance, and feasibility bounds,
   all-parent layer data/numerics, multiscale vector composition, common-prefix
   load invariance, actual fixed-test expectation bounds, shared-vector selection
-  simultaneously good for all parents, and dependent multiscale witness
-  composition, actual hierarchy-to-random source assembly, and a shared-motion
-  certificate for occurrence count, total-radius containment, common-prefix
-  fiber load, and stagewise child/parent containment;
+  simultaneously good for all parents, dependent multiscale witness composition,
+  direct WZ endpoint-parameter and common-neighbour packing bounds, one shared
+  outcome satisfying both analytic and collision events with a joint repetition
+  count, dependent multiscale prefix/collision/radius certificates, actual
+  hierarchy-to-random source assembly, and a shared-motion certificate for
+  occurrence count, total-radius containment, common-prefix fiber load, and
+  stagewise child/parent containment;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -57,7 +60,8 @@ scan before this snapshot.  The aggregate target is:
 Honest residual work remains: the actual strict
 loss-exponent and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
-hierarchy/telescope and finite search; the actual hierarchy
+hierarchy/telescope and finite search; the clean hierarchy-level joint
+collision adapter and the actual hierarchy
 test/side/branching-mean producers, distinctness/deduplication, all-convex-test
 reduction, and arbitrary-radius interpolation for the translation construction;
 the ambient convex-test-to-parameter-window bridge needed to turn WZ2
