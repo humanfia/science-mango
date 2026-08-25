@@ -118,10 +118,10 @@ The checkpoint contains real producers for:
   active-fine-to-parent and endpoint-to-prefix shading transport with exact
   body-union and arbitrary-projection preservation, explicit fibre-card mass
   loss, exact density under range exhaustion, and a quantitative denominator
-  bridge which, from endpoint nonemptiness, automatically pays volume loss
-  `16*card PrefixIndex` on the stored final joint output; a sharp
-  empty-to-positive obstruction shows that nonemptiness or a direct denominator
-  bound cannot be removed, and automatic
+  bridge.  Positive hierarchy depth automatically makes every endpoint index
+  nonempty and hence pays volume loss `16*card PrefixIndex` on the stored final
+  joint output; a sharp empty-to-positive obstruction explains why this
+  nonemptiness step is essential, and automatic
   common-`100T` plus WZ-separated source geometry on every actual selected
   collision cell, connected to a WZ2 endpoint with coefficient
   `16*siteCount*C_WZ` and no convex-test-dependent ceiling, and a certified
@@ -199,10 +199,10 @@ actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 the sharper endpoint); instantiating the now-formalized radius-aligned,
 body-preserving endpoint-to-effective-to-supplied-prefix embeddings and the
 separate fine-fibre normalizer/Frostman identification; supplied-prefix
-denominator overhead is now automatic with loss `16*card PrefixIndex` once
-each required endpoint index is nonempty (a sharp obstruction shows that
-nonemptiness or a direct bound is necessary), while reverse mass still needs a
-parent-fibre-card bound; coverage, summation, shading, and projection transport
+denominator overhead and every required endpoint nonemptiness proof are now
+automatic from `A.depth_pos`, with loss `16*card PrefixIndex`, while reverse
+mass still needs a parent-fibre-card bound; coverage, summation, shading, and
+projection transport
 itself is now formalized.  These are the
 non-numerical inputs still separating the data-bearing assembly certificate
 from a full Sticky conclusion; no final callback is included here.
