@@ -92,8 +92,12 @@ The checkpoint contains real producers for:
   produce those checks and, together with the actual unit caps, reach the
   recovered witness; a decidable search otherwise returns the first relevant
   deficit, all earlier successful checks, and its exact actual-bad versus
-  below-lower-cutoff classification.  A legal dimensional-loss scaling and a
-  repeated-positive-tube cover prove both unit caps are genuinely nonautomatic;
+  below-lower-cutoff classification.  A total diagnostic now assumes neither
+  global caps nor parent collapse: it decides `AllStepsLarge`, the literal
+  global/adjacent numerical comparisons, and relevant-node search, returning a
+  recovered witness or the exact numerical/relevant-node failure.  A legal
+  dimensional-loss scaling and a repeated-positive-tube cover prove both unit
+  caps are genuinely nonautomatic;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -246,13 +250,12 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: supplying the first non-large interval’s actual
-factorwise global caps (whose cap product is at most one), supplying its actual
-active parent-image collapse (which automatically gives adjacent cardinality at
-most one), its relevant-node literal contained-mass inequalities, and the
-explicit small-delta threshold, then
-excluding the genuine all-large branch when a direct dividing witness is
-needed; raw product/adjacent bounds,
+Honest residual work remains: to eliminate the total diagnostic’s failure
+branches and force a recovered dividing witness, proving the first non-large
+interval’s actual global and adjacent comparisons (factorwise caps and
+parent-image collapse are sufficient but not necessary), its relevant-node
+literal contained-mass inequalities, and the explicit small-delta threshold,
+then excluding the genuine all-large branch.  Raw product/adjacent bounds,
 global allocation structures, and the global finite-node certificate are no
 longer required, while first-step selection, budget search, stage/scale/profile,
 witness construction, finite `K`, room, and loss absorption are automatic.
