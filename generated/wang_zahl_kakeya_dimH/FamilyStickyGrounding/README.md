@@ -44,7 +44,9 @@ The checkpoint contains real producers for:
   actual product-indexed shading copies, ambient shear volume preservation,
   affine ConvexFamily/Shading transport, exact copy-density preservation,
   single-copy Katz--Tao invariance, the honest copy-cardinality multi-copy
-  bound, and certified-source chart-cardinality retention.
+  bound, certified-source chart-cardinality retention, reduced-parameter
+  cluster/window reduction, and explicit finite shear-grid local
+  nonconcentration.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -58,6 +60,7 @@ transfer; exponent interpolation beyond the grounded buffered
 hierarchy/telescope and finite search; the actual hierarchy
 test/side/branching-mean producers, distinctness/deduplication, all-convex-test
 reduction, and arbitrary-radius interpolation for the translation construction;
-WZ2 translated-copy spacing/nonconcentration for a uniform Katz--Tao
-constant, later projection geometry, and the final multiscale assembly.  No full
+the ambient convex-test-to-parameter-window bridge needed to turn WZ2
+shear-grid nonconcentration into a uniform Katz--Tao constant, later projection
+geometry, and the final multiscale assembly.  No full
 Sticky conclusion or equivalent callback is included here.
