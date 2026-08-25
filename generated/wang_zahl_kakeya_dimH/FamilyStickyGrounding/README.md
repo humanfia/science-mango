@@ -64,8 +64,11 @@ The checkpoint contains real producers for:
   dimension-only bound from fibrewise WZ separation alone, global exact-carrier
   representatives whose same-path loss is reduced by level-zero WZ packing
   to a fixed constant while retaining the widened first-divergence loss,
-  maximal no-common-`100`-container strong refinement, and a canonical finite
-  hull catalogue reducing each selected prefix fibre to all convex tests;
+  maximal no-common-`100`-container strong refinement, its unconditional
+  WZ2 two-fold noncontainment consequence and packaged terminal tube family,
+  with the stronger half-volume-overlap notion isolated as a local seam, and
+  a canonical finite hull catalogue reducing each selected prefix fibre to
+  all convex tests;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -105,9 +108,9 @@ pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
 instantiating the remaining explicit hierarchy radius/branching scalar checks;
 any dimension-only improvement of the widened cross-parent source
-bound requires extra cross-parent rigidity/separation; bridging no-common-
-`100`-container separation to the paper's essentially-distinct predicate,
-and pre-enumerating the
+bound requires extra cross-parent rigidity/separation; discharging the local
+WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
+implication from no-common-`100` containment is false), and pre-enumerating the
 post-motion finite hull tests before random selection; and
 arbitrary-radius interpolation for the translation construction; producing
 the common-`100T` containment and full WZ pairwise separation upstream, and
