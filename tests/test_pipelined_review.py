@@ -33,6 +33,9 @@ from archon.commands.loop.prover.runners import (
     _answer_submission_repair_handoff,
     _pipeline_cycle,
 )
+from archon.commands.loop.problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+)
 
 
 def _milestone(rel: str) -> dict:
@@ -293,6 +296,67 @@ class PipelinedReviewTest(unittest.TestCase):
             preflight_checker=_preflight,
         )
 
+    def test_a6_missing_prior_receipt_fails_before_any_worker(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = (
+                root
+                / "IChO2026Problems"
+                / "icho_2026_t1_a6.lean"
+            )
+            target.parent.mkdir()
+            target.write_text(
+                "theorem a6 : True := by sorry\n",
+                encoding="utf-8",
+            )
+            worker_calls: list[str] = []
+
+            def forbidden_worker(*_args, **_kwargs):
+                worker_calls.append("called")
+                return True
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=forbidden_worker,
+                review_worker=forbidden_worker,
+                formalizer_worker=forbidden_worker,
+                formalization_review_worker=forbidden_worker,
+                full_pipeline=True,
+                stage="autoformalize",
+            )
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "native_problem_only_enabled",
+                    return_value=True,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_native_formalizer_source_contract",
+                    side_effect=ProblemOnlyReviewContractError(
+                        "required certified prior-result context is missing"
+                    ),
+                ) as resolve_contract,
+                self.assertRaisesRegex(
+                    ProblemOnlyReviewContractError,
+                    "required certified prior-result context is missing",
+                ),
+            ):
+                runner._run_pipelined_fanout([target])
+
+            resolve_contract.assert_called_once_with(
+                project_path=root,
+                target=target,
+            )
+            self.assertEqual(worker_calls, [])
+
     def test_pipeline_cycle_parser_is_fail_closed(self):
         cases = (
             (2, 2),
@@ -427,6 +491,11 @@ class PipelinedReviewTest(unittest.TestCase):
                 patch(
                     "archon.commands.loop.prover.runners."
                     "native_problem_only_enabled", return_value=True,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_native_formalizer_source_contract",
+                    return_value={},
                 ),
                 patch(
                     "archon.commands.loop.prover.runners."

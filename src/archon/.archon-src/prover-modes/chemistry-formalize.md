@@ -105,6 +105,7 @@ ground a source-to-Lean bridge about the current reaction.
 
 Dormant Reviewer-requestable bridge IDs are:
 
+- `closed_candidate_cryolite_aluminum_production_filter`
 - `closed_candidate_feiii_phenol_filter`
 - `closed_domain_mellite_terminal_residue_candidate_filter`
 - `directed_reaction_omitted_protocol_candidate_filter`

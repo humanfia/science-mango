@@ -28,9 +28,15 @@ RULE_ID = "directed_reaction_omitted_protocol_candidate_filter"
 SECOND_RULE_ID = "closed_domain_mellite_terminal_residue_candidate_filter"
 REFERENCE_ONLY_RULE_ID = "mellitic_acid_p2o5_heating_forms_some_trianhydride"
 A3_RULE_ID = "closed_candidate_feiii_phenol_filter"
+A4_RULE_ID = "closed_candidate_cryolite_aluminum_production_filter"
+ANSWER_SUBMISSION = ".archon/task_results/Problems_problem_a.answer.json"
 
 
-def _certificate(*, requests: list[dict] | None = None) -> dict:
+def _certificate(
+    *,
+    requests: list[dict] | None = None,
+    answer_submission_sha256: str = "4" * 64,
+) -> dict:
     return {
         "schema_version": 2,
         "status": "failed",
@@ -64,6 +70,8 @@ def _certificate(*, requests: list[dict] | None = None) -> dict:
             "target": TARGET,
             "candidate": TARGET,
             "candidate_sha256": CANDIDATE_SHA256,
+            "answer_submission": ANSWER_SUBMISSION,
+            "answer_submission_sha256": answer_submission_sha256,
         },
     }
 
@@ -107,15 +115,21 @@ def _rehash_lookup(lookup: dict) -> None:
     lookup["record_sha256"] = _sha256(unsigned)
 
 
-def _contract(*, target: str = TARGET, candidate: str = CANDIDATE_SHA256) -> dict:
+def _contract(
+    *,
+    target: str = TARGET,
+    candidate: str = CANDIDATE_SHA256,
+    answer_submission_sha256: str = "4" * 64,
+) -> dict:
     return {
         "contract_kind": "native_problem_input_only",
         "target": target,
         "candidate": target,
         "candidate_sha256": candidate,
+        "answer_submission": ANSWER_SUBMISSION,
         "source_bundle_sha256": "2" * 64,
         "source_record_sha256": "3" * 64,
-        "answer_submission_sha256": "4" * 64,
+        "answer_submission_sha256": answer_submission_sha256,
         "question_sha256": "5" * 64,
         "requested_outputs_sha256": "6" * 64,
     }
@@ -257,6 +271,7 @@ def test_parallel_certificate_validator_and_prompt_expose_only_id_requests() -> 
     assert RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert SECOND_RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert A3_RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
+    assert A4_RULE_ID not in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert "exact dormant" in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     assert "Never supply a claim, source, URL" in _DORMANT_TRUSTED_BRIDGE_PROTOCOL
     normalized_protocol = " ".join(_DORMANT_TRUSTED_BRIDGE_PROTOCOL.split())
@@ -470,6 +485,32 @@ def test_a3_dormant_lookup_alone_does_not_activate() -> None:
     assert lookup is not None
     assert lookup["query"] == {"rule": A3_RULE_ID}
     assert lookup["result"]["rule_version"] == 2
+    projection = activation.build_trusted_bridge_activation_projection(
+        _certificate(),
+        target_rel=TARGET,
+        candidate_sha256=CANDIDATE_SHA256,
+        expected_source_contract=_contract(),
+    )
+
+    assert projection == {}
+
+
+def test_a4_dormant_lookup_alone_does_not_activate() -> None:
+    assert A4_RULE_ID in activation.DORMANT_RUNTIME_BRIDGE_IDS
+    assert (
+        A4_RULE_ID
+        not in activation.chemistry_constant.BASELINE_EMPIRICAL_RULE_IDS
+    )
+    assert (
+        A4_RULE_ID
+        not in activation.chemistry_constant.REFERENCE_ONLY_EMPIRICAL_RULE_IDS
+    )
+    lookup = activation._validated_catalog_lookup(A4_RULE_ID)
+
+    assert lookup is not None
+    assert lookup["query"] == {"rule": A4_RULE_ID}
+    assert lookup["result"]["rule_version"] == 1
+    assert lookup["result"]["automatic_problem_instantiation"] is False
     projection = activation.build_trusted_bridge_activation_projection(
         _certificate(),
         target_rel=TARGET,
@@ -771,6 +812,10 @@ def test_initial_or_non_review_redraft_has_no_activation_context(
     ("rule_id", "pinned_sha256"),
     [
         (
+            "closed_candidate_cryolite_aluminum_production_filter",
+            "29206c5777d9931cbf7928cb6399ecf416a1185e657a5f77954ec376ec9cf18b",
+        ),
+        (
             "closed_candidate_feiii_phenol_filter",
             "ec6cff1cee7889c97ad67a0f5c9a33d1462a67ea6f14a01dc1087cd10e67e7be",
         ),
@@ -908,8 +953,16 @@ def test_real_sealed_lookup_flows_through_receipt_redraft_and_next_review(
         current_candidate_sha256
     )
 
-def _passing_certificate(candidate_sha256: str) -> dict:
-    certificate = _certificate()
+
+def _passing_certificate(
+    candidate_sha256: str,
+    *,
+    answer_submission_sha256: str = "4" * 64,
+) -> dict:
+    certificate = _certificate(
+        answer_submission_sha256=answer_submission_sha256,
+    )
+    certificate["candidate_sha256"] = candidate_sha256
     certificate["status"] = "passed"
     certificate["reason"] = "all formalization checks passed"
     certificate["trusted_bridge_requests"] = []
@@ -924,15 +977,26 @@ def _mint_lineage(
     monkeypatch: pytest.MonkeyPatch,
     *,
     pass_candidate_sha256: str = "0" * 64,
+    activation_answer_sha256: str = "4" * 64,
+    pass_answer_sha256: str = "4" * 64,
 ) -> dict:
     _enable_unit_catalog(monkeypatch)
-    record = _retry_gate_record(_certificate(requests=[_request()]))
+    record = _retry_gate_record(_certificate(
+        requests=[_request()],
+        answer_submission_sha256=activation_answer_sha256,
+    ))
     return activation.build_trusted_bridge_activation_lineage(
         record,
         target_rel=TARGET,
         current_candidate_sha256=pass_candidate_sha256,
-        expected_source_contract=_contract(candidate=pass_candidate_sha256),
-        passing_certificate=_passing_certificate(pass_candidate_sha256),
+        expected_source_contract=_contract(
+            candidate=pass_candidate_sha256,
+            answer_submission_sha256=pass_answer_sha256,
+        ),
+        passing_certificate=_passing_certificate(
+            pass_candidate_sha256,
+            answer_submission_sha256=pass_answer_sha256,
+        ),
     )
 
 
@@ -954,12 +1018,17 @@ def _rehash_lineage(lineage: dict) -> None:
 def test_activation_lineage_survives_proof_hash_and_one_redraft_cycle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    activation_answer_sha256 = "4" * 64
+    formalization_answer_sha256 = "a" * 64
+    redraft_answer_sha256 = "b" * 64
     formalization_sha256 = "0" * 64
     proof_sha256 = "d" * 64
     redraft_sha256 = "e" * 64
     lineage = _mint_lineage(
         monkeypatch,
         pass_candidate_sha256=formalization_sha256,
+        activation_answer_sha256=activation_answer_sha256,
+        pass_answer_sha256=formalization_answer_sha256,
     )
 
     assert lineage["target"] == {
@@ -967,29 +1036,61 @@ def test_activation_lineage_survives_proof_hash_and_one_redraft_cycle(
         "activation_input_candidate_sha256": CANDIDATE_SHA256,
         "formalization_pass_candidate_sha256": formalization_sha256,
     }
+    input_receipt = lineage["activation_review_context"][
+        "trusted_bridge_activations"
+    ]["receipts"][0]
+    assert input_receipt["problem_source_binding"][
+        "answer_submission_sha256"
+    ] == activation_answer_sha256
+    assert lineage["problem_source_binding"][
+        "answer_submission_sha256"
+    ] == formalization_answer_sha256
     audit_context = activation.build_trusted_bridge_activation_audit_context(
         lineage,
         target_rel=TARGET,
         current_candidate_sha256=proof_sha256,
-        expected_source_contract=_contract(candidate=proof_sha256),
+        expected_source_contract=_contract(
+            candidate=proof_sha256,
+            answer_submission_sha256=formalization_answer_sha256,
+        ),
     )
     audit_receipt = audit_context["trusted_bridge_activations"]["receipts"][0]
     assert audit_context["target"]["current_candidate_sha256"] == proof_sha256
     assert audit_receipt["target"]["candidate_sha256"] == proof_sha256
+    assert audit_receipt["problem_source_binding"][
+        "answer_submission_sha256"
+    ] == formalization_answer_sha256
     assert audit_receipt["scope"] == "audit_current_target_candidate_only"
     assert audit_receipt["applicability"]["status"] == (
         "not_evaluated_by_controller"
     )
     assert audit_receipt["rule"]["automatic_problem_instantiation"] is False
+    assert activation.build_trusted_bridge_activation_audit_context(
+        lineage,
+        target_rel=TARGET,
+        current_candidate_sha256=proof_sha256,
+        expected_source_contract=_contract(
+            candidate=proof_sha256,
+            answer_submission_sha256=redraft_answer_sha256,
+        ),
+    ) == {}
 
     redraft_projection = (
         activation.build_trusted_bridge_activation_redraft_projection(
             lineage,
             target_rel=TARGET,
             current_candidate_sha256=proof_sha256,
-            expected_source_contract=_contract(candidate=proof_sha256),
+            expected_source_contract=_contract(
+                candidate=proof_sha256,
+                answer_submission_sha256=formalization_answer_sha256,
+            ),
         )
     )
+    projection_receipt = redraft_projection["receipts"][0]
+    assert projection_receipt["target"]["candidate_sha256"] == proof_sha256
+    assert projection_receipt["problem_source_binding"][
+        "answer_submission_sha256"
+    ] == formalization_answer_sha256
     reopened = {
         "status": "retry",
         "reopened_by": "proof_review",
@@ -1001,9 +1102,10 @@ def test_activation_lineage_survives_proof_hash_and_one_redraft_cycle(
             "previous_status": "passed",
             "previous_reviews": 1,
             "proof_review_iter": 4,
-            "previous_certificate": {
-                "candidate_sha256": formalization_sha256,
-            },
+            "previous_certificate": _passing_certificate(
+                formalization_sha256,
+                answer_submission_sha256=formalization_answer_sha256,
+            ),
         }],
         "trusted_bridge_activation_lineage": lineage,
         "trusted_bridge_redraft_activation": redraft_projection,
@@ -1012,13 +1114,19 @@ def test_activation_lineage_survives_proof_hash_and_one_redraft_cycle(
         reopened,
         target_rel=TARGET,
         current_candidate_sha256=redraft_sha256,
-        expected_source_contract=_contract(candidate=redraft_sha256),
+        expected_source_contract=_contract(
+            candidate=redraft_sha256,
+            answer_submission_sha256=redraft_answer_sha256,
+        ),
     )
     assert next_context["target"] == {
         "file": TARGET,
         "activation_input_candidate_sha256": proof_sha256,
         "current_candidate_sha256": redraft_sha256,
     }
+    assert next_context["trusted_bridge_activations"]["receipts"][0][
+        "problem_source_binding"
+    ]["answer_submission_sha256"] == formalization_answer_sha256
     forged_reopen = deepcopy(reopened)
     forged_receipt = forged_reopen["trusted_bridge_redraft_activation"][
         "receipts"
@@ -1031,25 +1139,148 @@ def test_activation_lineage_survives_proof_hash_and_one_redraft_cycle(
         forged_reopen,
         target_rel=TARGET,
         current_candidate_sha256=redraft_sha256,
-        expected_source_contract=_contract(candidate=redraft_sha256),
+        expected_source_contract=_contract(
+            candidate=redraft_sha256,
+            answer_submission_sha256=redraft_answer_sha256,
+        ),
     ) == {}
 
     next_lineage = activation.build_trusted_bridge_activation_lineage(
         reopened,
         target_rel=TARGET,
         current_candidate_sha256=redraft_sha256,
-        expected_source_contract=_contract(candidate=redraft_sha256),
-        passing_certificate=_passing_certificate(redraft_sha256),
+        expected_source_contract=_contract(
+            candidate=redraft_sha256,
+            answer_submission_sha256=redraft_answer_sha256,
+        ),
+        passing_certificate=_passing_certificate(
+            redraft_sha256,
+            answer_submission_sha256=redraft_answer_sha256,
+        ),
     )
     assert next_lineage["target"]["formalization_pass_candidate_sha256"] == (
         redraft_sha256
     )
-    assert activation.build_trusted_bridge_activation_audit_context(
+    assert next_lineage["problem_source_binding"][
+        "answer_submission_sha256"
+    ] == redraft_answer_sha256
+    next_audit = activation.build_trusted_bridge_activation_audit_context(
         next_lineage,
         target_rel=TARGET,
         current_candidate_sha256="f" * 64,
-        expected_source_contract=_contract(candidate="f" * 64),
+        expected_source_contract=_contract(
+            candidate="f" * 64,
+            answer_submission_sha256=redraft_answer_sha256,
+        ),
     )
+    assert next_audit["trusted_bridge_activations"]["receipts"][0][
+        "target"
+    ]["candidate_sha256"] == "f" * 64
+    assert next_audit["trusted_bridge_activations"]["receipts"][0][
+        "problem_source_binding"
+    ]["answer_submission_sha256"] == redraft_answer_sha256
+
+
+def test_activation_lineage_mint_fails_closed_when_self_validation_rejects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _enable_unit_catalog(monkeypatch)
+    monkeypatch.setattr(
+        activation,
+        "_validate_activation_lineage",
+        lambda *_args, **_kwargs: None,
+    )
+
+    assert activation.build_trusted_bridge_activation_lineage(
+        _retry_gate_record(_certificate(requests=[_request()])),
+        target_rel=TARGET,
+        current_candidate_sha256="0" * 64,
+        expected_source_contract=_contract(candidate="0" * 64),
+        passing_certificate=_passing_certificate("0" * 64),
+    ) == {}
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "source_bundle_sha256",
+        "source_record_sha256",
+        "question_sha256",
+        "requested_outputs_sha256",
+    ],
+)
+def test_activation_lineage_rejects_immutable_source_drift_across_redraft(
+    field: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    activation_answer_sha256 = "4" * 64
+    formalization_answer_sha256 = "a" * 64
+    redraft_answer_sha256 = "b" * 64
+    formalization_sha256 = "0" * 64
+    proof_sha256 = "d" * 64
+    redraft_sha256 = "e" * 64
+    pristine = _mint_lineage(
+        monkeypatch,
+        pass_candidate_sha256=formalization_sha256,
+        activation_answer_sha256=activation_answer_sha256,
+        pass_answer_sha256=formalization_answer_sha256,
+    )
+
+    forged = deepcopy(pristine)
+    input_receipt = forged["activation_review_context"][
+        "trusted_bridge_activations"
+    ]["receipts"][0]
+    input_receipt["problem_source_binding"][field] = "f" * 64
+    _rehash_lineage(forged)
+    assert activation.build_trusted_bridge_activation_audit_context(
+        forged,
+        target_rel=TARGET,
+        current_candidate_sha256=proof_sha256,
+        expected_source_contract=_contract(
+            candidate=proof_sha256,
+            answer_submission_sha256=formalization_answer_sha256,
+        ),
+    ) == {}
+
+    projection = activation.build_trusted_bridge_activation_redraft_projection(
+        pristine,
+        target_rel=TARGET,
+        current_candidate_sha256=proof_sha256,
+        expected_source_contract=_contract(
+            candidate=proof_sha256,
+            answer_submission_sha256=formalization_answer_sha256,
+        ),
+    )
+    reopened = {
+        "status": "retry",
+        "reopened_by": "proof_review",
+        "reviews": 1,
+        "last_reopened_iter": 4,
+        "candidate_sha256": formalization_sha256,
+        "certificate": {},
+        "reopen_history": [{
+            "previous_status": "passed",
+            "previous_reviews": 1,
+            "proof_review_iter": 4,
+            "previous_certificate": _passing_certificate(
+                formalization_sha256,
+                answer_submission_sha256=formalization_answer_sha256,
+            ),
+        }],
+        "trusted_bridge_activation_lineage": pristine,
+        "trusted_bridge_redraft_activation": projection,
+    }
+    current_contract = _contract(
+        candidate=redraft_sha256,
+        answer_submission_sha256=redraft_answer_sha256,
+    )
+    current_contract[field] = "f" * 64
+    assert activation.build_trusted_bridge_review_context(
+        reopened,
+        target_rel=TARGET,
+        current_candidate_sha256=redraft_sha256,
+        expected_source_contract=current_contract,
+    ) == {}
 
 
 def test_proof_redraft_validator_separates_formal_pass_from_current_hash(

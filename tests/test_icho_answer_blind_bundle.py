@@ -336,6 +336,114 @@ class IchoAnswerBlindBundleTests(unittest.TestCase):
         }
         self.assertEqual(set(MODULE.REQUESTED_OUTPUTS), ids)
 
+    def test_dependency_producer_outputs_do_not_expand_scored_inventory(self):
+        self.assertEqual(
+            set(MODULE.DEPENDENCY_REQUESTED_OUTPUTS),
+            {"icho_2026_t1_a4", "icho_2026_t1_a5"},
+        )
+        self.assertTrue(
+            set(MODULE.REQUESTED_OUTPUTS).isdisjoint(
+                MODULE.DEPENDENCY_REQUESTED_OUTPUTS
+            )
+        )
+        self.assertEqual(
+            [
+                output["id"]
+                for output in MODULE.DEPENDENCY_REQUESTED_OUTPUTS[
+                    "icho_2026_t1_a4"
+                ]
+            ],
+            ["metal_q_identity", "hydrated_c_formula", "compound_d_formula"],
+        )
+        self.assertEqual(
+            [
+                output["id"]
+                for output in MODULE.DEPENDENCY_REQUESTED_OUTPUTS[
+                    "icho_2026_t1_a5"
+                ]
+            ],
+            [
+                "compound_e_structure",
+                "compound_f_structure",
+                "compound_g_structure",
+            ],
+        )
+
+    def test_dependency_producer_is_enabled_by_controller_selection(self):
+        with tempfile.TemporaryDirectory() as raw:
+            paths = self._fixture(Path(raw))
+            row = json.loads(paths["input"].read_text(encoding="utf-8"))
+            row["id"] = "icho_2026_t1_a4"
+            row["index"] = "icho_2026_t1_a4"
+            row["formalization_ready"] = False
+            paths["input"].write_text(
+                json.dumps(row, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            MODULE.build_bundles(
+                input_jsonl=paths["input"],
+                blind_output=paths["blind"],
+                grader_output=paths["grader"],
+                image_root=paths["images"],
+                problem_pdf=paths["problem_pdf"],
+                solution_pdf=paths["solution_pdf"],
+                expected_count=1,
+                target_ids=["icho_2026_t1_a4"],
+            )
+            blind = json.loads(
+                paths["blind"].read_text(encoding="utf-8")
+            )
+            self.assertTrue(blind["formalization_ready"])
+
+    def test_dependency_producer_requires_explicit_controller_selection(self):
+        with tempfile.TemporaryDirectory() as raw:
+            paths = self._fixture(Path(raw))
+            row = json.loads(paths["input"].read_text(encoding="utf-8"))
+            row["id"] = "icho_2026_t1_a4"
+            row["index"] = "icho_2026_t1_a4"
+            paths["input"].write_text(
+                json.dumps(row, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "explicit target_ids"):
+                MODULE.build_bundles(
+                    input_jsonl=paths["input"],
+                    blind_output=paths["blind"],
+                    grader_output=paths["grader"],
+                    image_root=paths["images"],
+                    problem_pdf=paths["problem_pdf"],
+                    solution_pdf=paths["solution_pdf"],
+                    expected_count=1,
+                )
+
+    def test_scored_32_mode_rejects_dependency_substitution(self):
+        with tempfile.TemporaryDirectory() as raw:
+            paths = self._fixture(Path(raw))
+            source = json.loads(paths["input"].read_text(encoding="utf-8"))
+            selected_ids = list(MODULE.REQUESTED_OUTPUTS)
+            selected_ids[-1] = "icho_2026_t1_a4"
+            rows = []
+            for identifier in selected_ids:
+                row = dict(source)
+                row["id"] = identifier
+                row["index"] = identifier
+                rows.append(row)
+            paths["input"].write_text(
+                "".join(json.dumps(row) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "scored inventory"):
+                MODULE.build_bundles(
+                    input_jsonl=paths["input"],
+                    blind_output=paths["blind"],
+                    grader_output=paths["grader"],
+                    image_root=paths["images"],
+                    problem_pdf=paths["problem_pdf"],
+                    solution_pdf=paths["solution_pdf"],
+                    expected_count=32,
+                    target_ids=selected_ids,
+                )
+
     def test_problem_only_output_contract_corrections_are_pinned(self):
         stacking = MODULE.REQUESTED_OUTPUTS["icho_2026_t3_a6"]
         self.assertEqual(

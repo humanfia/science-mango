@@ -30,6 +30,11 @@ from typing import Any, Mapping
 
 from archon.commands.tooling.domain_profile import load_domain_profile
 
+from .certified_prior_result_context import (
+    CertifiedPriorResultContextError,
+    canonical_value_sha256,
+    load_certified_prior_result_context,
+)
 
 SCHEMA_VERSION = 1
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
@@ -94,6 +99,7 @@ _LEAN_CARRIER_FIELDS = {"inputs", "relations", "raw_result", "reported_result"}
 _COMPARISON_FIELDS = {"status", "evidence"}
 _LOCATOR_KINDS = {
     "problem_text", "problem_image", "previous_parts", "pinned_library",
+    "certified_prior_result",
 }
 _PROCESS_SCOPES = {
     "cumulative", "overall", "repeated_process", "per_step", "per_cycle",
@@ -177,6 +183,10 @@ _PREVIOUS_PART_RE = re.compile(
     r"(?P<suffix>(?:\.[A-Za-z_][A-Za-z0-9_-]*)*)$"
 )
 _BARE_PREVIOUS_PART_RE = re.compile(r"^[0-9]+$")
+_CERTIFIED_PRIOR_RESULT_RE = re.compile(
+    r"^certified_prior_result\.producers\[(?P<producer>[0-9]+)\]"
+    r"\.typed_exports\[(?P<export>[0-9]+)\]$"
+)
 _PINNED_PROBE_RESULT_RE = re.compile(
     r"ARCHON_PINNED_ORIGIN\|"
     r"(?P<name>[A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)+)\|"
@@ -205,6 +215,10 @@ _PINNED_PACKAGES: dict[str, tuple[str, str]] = {
 }
 _PREVIOUS_PART_FORMAT = (
     "ASCII decimal zero-based index or previous_parts[index][.field]"
+)
+_CERTIFIED_PRIOR_RESULT_FORMAT = (
+    "certified_prior_result.producers[existing_index]."
+    "typed_exports[existing_index]"
 )
 _PINNED_LIBRARY_FORMAT = (
     "safe fully-qualified existing declaration from a configured pinned library"
@@ -1216,6 +1230,18 @@ def build_native_semantic_review_contract(
         previous_parts = row.get("previous_parts")
         if not isinstance(previous_parts, list):
             _error(f"bundle {record_id} previous_parts is not a list")
+        try:
+            certified_prior_result = load_certified_prior_result_context(
+                project_path=root,
+                consumer_record_id=record_id,
+                consumer_target_rel=target_rel,
+                source_bundle_sha256=_sha256(bundle_path),
+                source_record_sha256=canonical_value_sha256(row),
+                previous_parts=previous_parts,
+                trusted_controller_uid=0,
+            )
+        except CertifiedPriorResultContextError as exc:
+            _error(str(exc))
         image_assets = _record_assets(
             row,
             project_path=root,
@@ -1232,6 +1258,7 @@ def build_native_semantic_review_contract(
             "manifest_sha256": manifest_sha256,
             "image_assets": list(image_assets),
             "previous_parts_count": len(previous_parts),
+            "certified_prior_result": certified_prior_result,
             "pinned_library_packages": list(pinned_library_packages),
             # Controller-only resolver input. Prompt rendering deliberately
             # projects a fixed public subset and never exposes this path.
@@ -1436,13 +1463,18 @@ def render_independent_rederivation_instructions(
         + "\n```\n\n"
         "Every requested output must appear exactly once and in bundle order. "
         "Allowed locator kinds are problem_text, problem_image, previous_parts, "
-        "and pinned_library. A problem image reference is its exact allowed asset "
+        "pinned_library, and certified_prior_result. A problem image reference "
+        "is its exact allowed asset "
         "path plus one #safe-fragment; the controller validates attachment/path "
         "binding and fragment syntax, not the fragment's semantic region. A "
-        "previous_parts reference may be either a bare "
-        "ASCII-decimal zero-based index such as 0, which the controller "
-        "canonicalizes to previous_parts[0], or the canonical "
-        "previous_parts[index][.field] form; the index must exist. A pinned "
+        "previous_parts reference is allowed only as the source_locator of a "
+        "dependencies[] item whose kind is previous_part. It identifies only "
+        "the prior question/source_id/part_id/dependency_policy, never its answer "
+        "or conclusion; a bare index canonicalizes to its .question field. Only "
+        "a certified_prior_result locator of the exact form "
+        "certified_prior_result.producers[i].typed_exports[j] may establish a "
+        "prior-part conclusion, and only when that exact export exists in the "
+        "controller-bound context. A pinned "
         "library reference must be a safe fully-qualified Lean declaration "
         "whose defining module is verified in one of the configured sealed "
         "packages "
@@ -1482,6 +1514,10 @@ def render_native_problem_contract_prompt(contract: Mapping[str, Any]) -> str:
             "NATIVE PROBLEM-ONLY CONTRACT IS INVALID: "
             + json.dumps(contract.get("errors") or [], ensure_ascii=False)
         )
+    binding = contract.get("certified_prior_result")
+    certified_context = (
+        binding.get("context") if isinstance(binding, Mapping) else None
+    )
     payload = {
         "record_id": contract.get("record_id"),
         "target": contract.get("target"),
@@ -1493,13 +1529,17 @@ def render_native_problem_contract_prompt(contract: Mapping[str, Any]) -> str:
         "requested_outputs": contract.get("requested_outputs"),
         "reporting_policy": contract.get("reporting_policy"),
         "problem_images": contract.get("image_assets"),
+        "certified_prior_result": certified_context,
     }
     return (
-        "NATIVE ANSWER-BLIND PROBLEM CONTRACT (only source of problem facts):\n"
+        "NATIVE ANSWER-BLIND PROBLEM CONTRACT (closed source authority):\n"
         + json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
         + "\nOpen and inspect every listed problem image from the workspace's "
         "icho_2026_source/image directory. First fix an independent derivation "
-        "using only this problem contract, those images, and pinned general laws. "
+        "using only this problem contract, those images, pinned general laws, "
+        "and exact typed exports in certified_prior_result. The questions-only "
+        "previous_parts entries state dependency questions and policy only; "
+        "they never state a result. "
         "Do not inspect the Semantic Card, Lean target, task results, blueprint, "
         "or traces until that derivation is fixed. Never seek or read an official "
         "answer, grader, solution, rubric, candidate artifact, or prior run."
@@ -1698,6 +1738,14 @@ def build_native_schema_feedback(error: str) -> dict[str, Any] | None:
             _PREVIOUS_PART_FORMAT,
         ),
         (
+            " is an uncertified previous_parts conclusion",
+            _CERTIFIED_PRIOR_RESULT_FORMAT,
+        ),
+        (
+            " does not identify a certified prior-result export",
+            _CERTIFIED_PRIOR_RESULT_FORMAT,
+        ),
+        (
             " is not a pinned Mathlib/Physlib/CRNT declaration",
             _PINNED_LIBRARY_FORMAT,
         ),
@@ -1851,6 +1899,10 @@ def _locator(
             )
         reference = f"{asset}#{region}"
     elif kind == "previous_parts":
+        if ".dependencies[" not in label:
+            _error(
+                f"{label}.reference is an uncertified previous_parts conclusion"
+            )
         bare_match = _BARE_PREVIOUS_PART_RE.fullmatch(reference)
         match = _PREVIOUS_PART_RE.fullmatch(reference)
         index_text = (
@@ -1873,6 +1925,14 @@ def _locator(
                 f"{label}.reference does not identify an available previous_parts entry"
             )
         suffix = match.group("suffix") if match is not None else ""
+        if not suffix:
+            suffix = ".question"
+        if suffix not in {
+            ".source_id", ".part_id", ".question", ".dependency_policy",
+        }:
+            _error(
+                f"{label}.reference is an uncertified previous_parts conclusion"
+            )
         previous_parts = (
             contract.get("problem_evidence", {}).get("previous_parts")
             if isinstance(contract.get("problem_evidence"), Mapping)
@@ -1890,6 +1950,53 @@ def _locator(
                 f"{label}.reference does not identify an available previous_parts entry"
             )
         reference = f"previous_parts[{index}]{suffix}"
+    elif kind == "certified_prior_result":
+        match = _CERTIFIED_PRIOR_RESULT_RE.fullmatch(reference)
+        binding = contract.get("certified_prior_result")
+        context = (
+            binding.get("context")
+            if isinstance(binding, Mapping)
+            else None
+        )
+        producers = (
+            context.get("producers")
+            if isinstance(context, Mapping)
+            else None
+        )
+        if match is None or not isinstance(producers, list):
+            _error(
+                f"{label}.reference does not identify a certified prior-result export"
+            )
+        producer_index = int(match.group("producer"))
+        export_index = int(match.group("export"))
+        producer = (
+            producers[producer_index]
+            if producer_index < len(producers)
+            else None
+        )
+        producer_source_id = (
+            producer.get("source_id") if isinstance(producer, Mapping) else None
+        )
+        exports = (
+            producer.get("typed_exports")
+            if isinstance(producer, Mapping)
+            else None
+        )
+        export = (
+            exports[export_index]
+            if isinstance(exports, list) and export_index < len(exports)
+            else None
+        )
+        if (
+            not isinstance(producer_source_id, str)
+            or not isinstance(export, Mapping)
+            or not str(export.get("export_id") or "").startswith(
+                f"certified_prior_result:{producer_source_id}:"
+            )
+        ):
+            _error(
+                f"{label}.reference does not identify a certified prior-result export"
+            )
     elif kind == "pinned_library":
         verified = contract.get("_verified_pinned_library_declarations")
         if (
@@ -2063,6 +2170,14 @@ def _validate_output(
             item_map.get("source_locator"),
             label=f"{item_label}.source_locator", contract=contract,
         )
+        if (
+            normalized_locator["kind"] == "previous_parts"
+            and dependency_kind != "previous_part"
+        ):
+            _error(
+                f"{item_label}.source_locator is an uncertified "
+                "previous_parts conclusion"
+            )
         if isinstance(item, dict):
             item["source_locator"] = normalized_locator
 

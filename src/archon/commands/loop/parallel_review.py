@@ -334,8 +334,15 @@ and the nontrivial Lean declarations carrying every requested result.
 The complete student-visible problem, including any printed fallback, is
 legitimate problem input. A fallback may be used only where the problem wording
 permits it; never use a later fallback backward to establish the upstream
-subpart whose result it mirrors. Derive each upstream requested output
-independently from its givens.
+subpart whose result it mirrors. A questions-only `previous_parts` entry gives
+only the prior question and dependency policy; it never establishes a result.
+Derive each upstream requested output independently unless the source-contract
+block contains a complete CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY. In that
+case, recheck its context/receipt hashes, producer hard-green gates, linked
+validation-lineage and campaign inventory, consumer bundle/previous_parts
+binding, and every used Lean declaration/type/payload hash. You may then use
+only the exact typed exports it lists. Any absent, stale, unlisted, differently
+typed, or extrapolated prior fact fails closed.
 
 For chemistry, enumerate every requested output; inspect every listed image;
 check chemical identity, formula/molar-mass consistency, conservation, units,

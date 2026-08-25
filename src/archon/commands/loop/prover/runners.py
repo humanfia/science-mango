@@ -99,6 +99,7 @@ from ..problem_only_review_contract import (
     ProblemOnlyReviewContractError,
     native_problem_image_args,
     native_problem_only_enabled,
+    render_native_certified_prior_result_prompt,
     render_native_chemistry_constant_policy,
     render_native_formalizer_composition_accounting_prompt,
     render_native_formalizer_answer_submission_prompt,
@@ -535,6 +536,7 @@ def _native_formalizer_semantic_dag_block(
         block
         for block in (
             render_native_chemistry_constant_policy(contract),
+            render_native_certified_prior_result_prompt(contract),
             render_native_formalizer_semantic_dag_prompt(contract),
             render_native_formalizer_composition_accounting_prompt(contract),
             render_native_formalizer_answer_submission_prompt(contract),
@@ -1610,6 +1612,16 @@ class ParallelProverRunner:
                 "autoformalize target lifecycle requires immediate "
                 "formalization Review"
             )
+        if initial_formalization and native_answer_required:
+            # Validate every controller-certified prior-result dependency before
+            # launching any model.  In particular, A6 must not race or silently
+            # inline an uncertified A4/A5 conclusion when its frozen context is
+            # absent, stale, or bound to another validation lineage.
+            for target in sorry_files:
+                resolve_native_formalizer_source_contract(
+                    project_path=self.project_path,
+                    target=target,
+                )
         formalization_max_attempts = max(
             1, int(config.formalization_review_max_attempts),
         )

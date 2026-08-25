@@ -21,6 +21,7 @@ import os
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -36,6 +37,10 @@ from archon.commands.loop.native_semantic_review import (
     render_independent_rederivation_instructions,
 )
 from archon.commands.tooling.project_lean_index import build_project_index
+from archon.commands.loop.prior_result_dependency import (
+    load_prior_result_dependency_context_checked,
+    prior_result_dependency_relative_path,
+)
 
 
 SCHEMA_VERSION = 1
@@ -51,6 +56,7 @@ LEAN_SEARCH_PACKAGES = ("Mathlib", "Physlib", "CRNT")
 CRNT_PACKAGE_REL = Path("crnt-lean")
 CRNT_INDEX_REL = Path(".archon/lean-explore/project-index.json")
 PACKAGE_OVERRIDES_REL = Path(".lake/package-overrides.json")
+TRUSTED_PRIOR_RESULT_CONSUMER_ID = "icho_2026_t1_a6"
 
 NATIVE_AGENTS = """# Answer-Blind Native Archon Instructions
 
@@ -210,6 +216,7 @@ solve the proof.
   When a condition is absent, the record may nominate a closed-audit candidate
   but remains non-premise context for the current reaction.
   The dormant Reviewer-requestable bridge IDs are:
+  `closed_candidate_cryolite_aluminum_production_filter`,
   `closed_candidate_feiii_phenol_filter`,
   `closed_domain_mellite_terminal_residue_candidate_filter`, and
   `directed_reaction_omitted_protocol_candidate_filter`.
@@ -451,6 +458,7 @@ itself proves none. Never borrow a missing protocol condition from literature.
 When a condition is absent, it may nominate a closed-audit candidate but
 remains non-premise context for the current reaction.
 The dormant Reviewer-requestable bridge IDs are:
+`closed_candidate_cryolite_aluminum_production_filter`,
 `closed_candidate_feiii_phenol_filter`,
 `closed_domain_mellite_terminal_residue_candidate_filter`, and
 `directed_reaction_omitted_protocol_candidate_filter`.
@@ -552,6 +560,7 @@ class Config:
     target_lifecycle: bool = False
     reuse_lake_packages: bool = False
     in_place_index: bool = False
+    trusted_prior_result_receipt: Path | None = None
 
     @property
     def workspace(self) -> Path:
@@ -1223,6 +1232,146 @@ def _write_shared_package_path_overrides(config: Config) -> None:
     )
 
 
+def _install_trusted_prior_result_receipt(
+    workspace: Path,
+    source_path: Path | None,
+    *,
+    controller_uid: int,
+) -> dict[str, Any]:
+    """Install one controller-owned, immutable A4/A5-to-A6 receipt."""
+
+    if source_path is None:
+        return {}
+    if (
+        type(controller_uid) is not int
+        or controller_uid < 0
+        or os.geteuid() != controller_uid
+    ):
+        raise CampaignError(
+            "trusted prior-result receipt installation requires the "
+            "designated controller UID"
+        )
+    try:
+        root = workspace.resolve(strict=True)
+        root_metadata = root.lstat()
+    except OSError as exc:
+        raise CampaignError("prepared workspace is unavailable") from exc
+    if (
+        not root.is_dir()
+        or root_metadata.st_uid != controller_uid
+        or root_metadata.st_mode & 0o022
+    ):
+        raise CampaignError(
+            "prepared workspace is not controller-owned read-only data"
+        )
+
+    source = source_path.absolute()
+    try:
+        before = source.lstat()
+    except OSError as exc:
+        raise CampaignError("trusted prior-result receipt is missing") from exc
+    if (
+        source.is_symlink()
+        or not source.is_file()
+        or before.st_nlink != 1
+        or before.st_uid != controller_uid
+        or before.st_mode & 0o222
+    ):
+        raise CampaignError(
+            "trusted prior-result receipt source is not controller-owned "
+            "immutable data"
+        )
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0)
+    descriptor = -1
+    try:
+        descriptor = os.open(source, flags)
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or metadata.st_uid != controller_uid
+            or metadata.st_mode & 0o222
+            or (metadata.st_dev, metadata.st_ino)
+            != (before.st_dev, before.st_ino)
+        ):
+            raise CampaignError(
+                "trusted prior-result receipt source changed during validation"
+            )
+        payload = b""
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            payload += chunk
+    except OSError as exc:
+        raise CampaignError("cannot read trusted prior-result receipt") from exc
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+    relative = prior_result_dependency_relative_path(
+        TRUSTED_PRIOR_RESULT_CONSUMER_ID
+    )
+    destination = root / relative
+    if source.resolve() == destination or destination.exists() or destination.is_symlink():
+        raise CampaignError(
+            "prepared workspace already contains the A6 prior-result receipt"
+        )
+    for directory in (root / ".archon", destination.parent):
+        try:
+            directory.mkdir(mode=0o755, exist_ok=True)
+            metadata = directory.lstat()
+            if (
+                stat.S_ISLNK(metadata.st_mode)
+                or not stat.S_ISDIR(metadata.st_mode)
+                or metadata.st_uid != controller_uid
+            ):
+                raise CampaignError(
+                    "A6 receipt directory is not controller-owned"
+                )
+            directory.chmod(0o755)
+        except OSError as exc:
+            raise CampaignError(
+                "cannot prepare the controller-owned A6 receipt directory"
+            ) from exc
+
+    output_flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    output_flags |= getattr(os, "O_CLOEXEC", 0)
+    output_flags |= getattr(os, "O_NOFOLLOW", 0)
+    output_descriptor = -1
+    try:
+        output_descriptor = os.open(destination, output_flags, 0o400)
+        view = memoryview(payload)
+        while view:
+            written = os.write(output_descriptor, view)
+            view = view[written:]
+        os.fchmod(output_descriptor, 0o444)
+        os.fsync(output_descriptor)
+    except OSError as exc:
+        if destination.exists() and not destination.is_symlink():
+            destination.unlink()
+        raise CampaignError(
+            "cannot install the controller-owned A6 receipt"
+        ) from exc
+    finally:
+        if output_descriptor >= 0:
+            os.close(output_descriptor)
+
+    receipt, reason = load_prior_result_dependency_context_checked(
+        root,
+        TRUSTED_PRIOR_RESULT_CONSUMER_ID,
+        controller_uid=controller_uid,
+    )
+    if reason:
+        destination.unlink()
+        raise CampaignError(
+            "installed A6 prior-result receipt failed checked readback: "
+            + reason
+        )
+    return receipt
+
+
 def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     assert config.seed_workspace is not None and config.lake_packages is not None
     config.campaign_root.mkdir(parents=True, exist_ok=True)
@@ -1537,6 +1686,18 @@ def _base_index(config: Config, ids: Sequence[str]) -> dict[str, Any]:
 def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
     config, ids = _fresh_config(config)
     prepare_workspace(config, ids)
+    if (
+        config.trusted_prior_result_receipt is not None
+        and TRUSTED_PRIOR_RESULT_CONSUMER_ID not in ids
+    ):
+        raise CampaignError(
+            "trusted prior-result receipt requires the A6 consumer target"
+        )
+    _install_trusted_prior_result_receipt(
+        config.workspace,
+        config.trusted_prior_result_receipt,
+        controller_uid=0,
+    )
     index = _base_index(config, ids)
     _write_index(config, index)
     code, seconds = _run(physics_command(config), config=config)
@@ -1688,6 +1849,14 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed-workspace", type=Path)
     parser.add_argument("--lake-packages", type=Path)
     parser.add_argument("--archon-bin", default="archon")
+    parser.add_argument(
+        "--trusted-prior-result-receipt",
+        type=Path,
+        help=(
+            "install one controller-owned read-only A4/A5 receipt for A6 "
+            "before physics-formalize"
+        ),
+    )
     parser.add_argument("--max-iterations", type=int, default=100)
     parser.add_argument(
         "--review-max-iterations",
@@ -1753,6 +1922,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         target_lifecycle=args.target_lifecycle,
         reuse_lake_packages=args.reuse_lake_packages,
         in_place_index=args.in_place_index,
+        trusted_prior_result_receipt=args.trusted_prior_result_receipt,
     )
     try:
         if args.resume:

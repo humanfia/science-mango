@@ -486,6 +486,10 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "allowed solid inputs/outputs, volatile outputs, and external inputs",
                 "Reject anonymous or catch-all material streams",
                 "not_staged_transformation",
+                "inner activation-input candidate and answer hash intentionally "
+                "belong to the already reviewed parent hop",
+                "Different candidate or answer hashes between those two hops "
+                "are expected",
             ):
                 self.assertIn(marker, normalized_chemistry)
 
@@ -956,13 +960,15 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertEqual(len(prompts), 3)
             self.assertNotIn("STRUCTURAL SCHEMA FEEDBACK", prompts[0])
             self.assertIn(
-                "ASCII decimal zero-based index", prompts[1],
+                "certified_prior_result.producers[existing_index]."
+                "typed_exports[existing_index]", prompts[1],
             )
             self.assertNotIn(
                 "safe fully-qualified existing declaration", prompts[1],
             )
             self.assertIn(
-                "ASCII decimal zero-based index", prompts[2],
+                "certified_prior_result.producers[existing_index]."
+                "typed_exports[existing_index]", prompts[2],
             )
             self.assertIn(
                 "safe fully-qualified existing declaration", prompts[2],
@@ -1005,7 +1011,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
         self.assertLessEqual(len(payload.encode("ascii")), 2_048)
         self.assertTrue(all(ord(character) >= 0x20 for character in payload))
 
-    def test_loaded_native_milestone_persists_previous_locator_canonical_form(self):
+    def test_loaded_native_milestone_rejects_previous_part_as_a_conclusion(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             target, contract = _native_project(root)
@@ -1028,15 +1034,10 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 path, rel, None, contract,
             )
 
-            self.assertEqual(error, "")
-            self.assertIsNotNone(loaded)
-            assert loaded is not None
-            self.assertEqual(
-                loaded["formalization_review"]["independent_rederivation"][
-                    "requested_outputs"
-                ][0]["source_locators"][0]["reference"],
-                "previous_parts[0]",
+            self.assertIn(
+                "uncertified previous_parts conclusion", error,
             )
+            self.assertIsNone(loaded)
 
     def test_transport_failure_preserves_prior_safe_feedback(self):
         with tempfile.TemporaryDirectory() as td:

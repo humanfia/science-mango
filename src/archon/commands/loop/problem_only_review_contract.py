@@ -34,6 +34,11 @@ from .answer_submission import (
     answer_submission_relative_path,
     validate_answer_submission,
 )
+from .certified_prior_result_context import (
+    CertifiedPriorResultContextError,
+    load_certified_prior_result_context,
+    render_certified_prior_result_prompt,
+)
 from .numeric_reporting_guard import (
     MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES,
     MAX_NUMERIC_REPORTING_REASON_LENGTH,
@@ -1068,6 +1073,18 @@ def _build_native_contract(
         "candidate_domain_policy": row["candidate_domain_policy"],
     }
     try:
+        certified_prior_result = load_certified_prior_result_context(
+            project_path=project_path,
+            consumer_record_id=record_id,
+            consumer_target_rel=rel,
+            source_bundle_sha256=bundle_sha256,
+            source_record_sha256=record_sha256,
+            previous_parts=row["previous_parts"],
+            trusted_controller_uid=0,
+        )
+    except CertifiedPriorResultContextError as exc:
+        raise ProblemOnlyReviewContractError(str(exc)) from exc
+    try:
         semantic_dag = build_semantic_dag(
             record_id=record_id,
             problem_evidence=evidence,
@@ -1118,6 +1135,12 @@ def _build_native_contract(
         "candidate_domain_policy_sha256": _value_sha256(
             evidence["candidate_domain_policy"]
         ),
+        "certified_prior_result_path": certified_prior_result.get("path"),
+        "certified_prior_result_sha256": certified_prior_result.get("sha256"),
+        "certified_prior_result_context_receipt_sha256": (
+            certified_prior_result.get("context_receipt_sha256")
+        ),
+        "certified_prior_result": certified_prior_result,
         "images": images,
         "problem_evidence": evidence,
         "semantic_dag": semantic_dag,
@@ -1293,6 +1316,9 @@ def native_source_contract_provenance(
         "reporting_policy_sha256",
         "measurement_policy_sha256",
         "candidate_domain_policy_sha256",
+        "certified_prior_result_path",
+        "certified_prior_result_sha256",
+        "certified_prior_result_context_receipt_sha256",
         "images",
     )
     provenance = {key: contract.get(key) for key in keys}
@@ -1897,6 +1923,38 @@ def render_native_chemistry_constant_policy(
   contest_interpretation receipt."""
 
 
+def render_native_certified_prior_result_prompt(
+    contract: Mapping[str, Any],
+) -> str:
+    """Render only a self-valid controller-certified typed dependency context."""
+
+    if not is_native_problem_only_contract(contract):
+        return ""
+    try:
+        rendered = render_certified_prior_result_prompt(
+            contract.get("certified_prior_result")
+        )
+    except CertifiedPriorResultContextError as exc:
+        raise ProblemOnlyReviewContractError(str(exc)) from exc
+    if not rendered:
+        return ""
+    return (
+        "CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY (typed, closed scope):\n"
+        + rendered
+        + "\nOnly the exact typed exports in this self-hashed context may be "
+        "used as prior-part conclusions. Recheck every receipt hash, producer "
+        "hard-green status, validation-lineage binding, Lean declaration/type "
+        "hash, payload hash, and consumer binding. The questions-only "
+        "previous_parts objects remain dependency questions/policy only and "
+        "never establish an answer. Missing, stale, unmatched, or unlisted "
+        "facts fail closed; do not extrapolate beyond an export's exact type."
+        " For A6, a verified typed export may serve as the controller-"
+        "authenticated prior-part fallback for "
+        "closed_domain_mellite_terminal_residue_candidate_filter; the receipt "
+        "alone does not prove any other applicability premise of that rule."
+    )
+
+
 def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
     if not is_native_problem_only_contract(contract):
         return render_source_contract_prompt(contract)
@@ -1917,6 +1975,7 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         )
     semantic_block = render_native_formalizer_semantic_dag_prompt(contract)
     constant_policy = render_native_chemistry_constant_policy(contract)
+    prior_result_block = render_native_certified_prior_result_prompt(contract)
     return (
         "NATIVE PROBLEM-INPUT-ONLY CONTRACT (immutable evidence):\n"
         "- Authority: problem-only\n"
@@ -1950,7 +2009,11 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         "Do not copy raw/display answer values into source_contract provenance "
         "or controller process history. Every requested output, reporting rule, "
         "tolerance, and candidate-domain restriction must be derived from the "
-        "bound problem evidence. Missing or ambiguous evidence fails closed.\n"
+        "bound problem evidence or an exact typed export in the controller-"
+        "certified prior-result context. Missing or ambiguous evidence fails "
+        "closed.\n"
+        + prior_result_block
+        + ("\n" if prior_result_block else "")
         + constant_policy
         + "\n"
         + semantic_block

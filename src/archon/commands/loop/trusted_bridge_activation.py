@@ -47,6 +47,11 @@ _SOURCE_BINDING_HASH_FIELDS = (
     "question_sha256",
     "requested_outputs_sha256",
 )
+_IMMUTABLE_SOURCE_BINDING_HASH_FIELDS = tuple(
+    field
+    for field in _SOURCE_BINDING_HASH_FIELDS
+    if field != "answer_submission_sha256"
+)
 
 
 def _canonical_json_bytes(value: object) -> bytes:
@@ -57,6 +62,19 @@ def _canonical_json_bytes(value: object) -> bytes:
         separators=(",", ":"),
         allow_nan=False,
     ).encode("utf-8")
+
+
+def _immutable_source_bindings_match(
+    left: Mapping[str, Any] | None,
+    right: Mapping[str, Any] | None,
+) -> bool:
+    """Match problem inputs while allowing a reviewed answer-file rewrite."""
+    if not isinstance(left, Mapping) or not isinstance(right, Mapping):
+        return False
+    return all(
+        left.get(field) == right.get(field)
+        for field in _IMMUTABLE_SOURCE_BINDING_HASH_FIELDS
+    )
 
 
 def _status(value: object) -> str:
@@ -875,12 +893,24 @@ def build_trusted_bridge_activation_lineage(
         },
         "scope": _LINEAGE_SCOPE,
     }
-    return {
+    lineage = {
         **unsigned_lineage,
         "lineage_receipt_sha256": hashlib.sha256(
             _canonical_json_bytes(unsigned_lineage)
         ).hexdigest(),
     }
+    # Never persist a controller-minted lineage that its consumers cannot
+    # validate.  The activation-input receipt and this passing candidate are
+    # distinct redraft hops, so their answer submissions may differ, but every
+    # hop remains exactly bound and the problem inputs must remain immutable.
+    if _validate_activation_lineage(
+        lineage,
+        target_rel=target_rel,
+        current_candidate_sha256=current_candidate_sha256,
+        expected_source_contract=expected_source_contract,
+    ) is None:
+        return {}
+    return lineage
 
 
 def _validate_activation_lineage(
@@ -1010,10 +1040,8 @@ def _validate_activation_lineage(
     if validated is None:
         return None
     if any(
-        any(
-            receipt["problem_source_binding"][field]
-            != source_binding[field]
-            for field in _SOURCE_BINDING_HASH_FIELDS
+        not _immutable_source_bindings_match(
+            receipt["problem_source_binding"], source_binding,
         )
         or (prior_lineage_binding is not None and
             receipt.get("lineage_binding") != prior_lineage_binding)
@@ -1204,12 +1232,12 @@ def _build_reopened_trusted_bridge_review_context(
         != prior_candidate_sha256
     ):
         return {}
-    source_binding = _source_binding_from_contract(
+    current_source_binding = _source_binding_from_contract(
         expected_source_contract,
         target_rel=target_rel,
         candidate_sha256=current_candidate_sha256,
     )
-    if source_binding is None:
+    if current_source_binding is None:
         return {}
     receipts = projection.get("receipts")
     if not isinstance(receipts, list) or not receipts:
@@ -1230,24 +1258,64 @@ def _build_reopened_trusted_bridge_review_context(
         or activation_input_sha256 == current_candidate_sha256
     ):
         return {}
+    raw_parent_lineage = record.get("trusted_bridge_activation_lineage")
+    parent_source_binding = (
+        raw_parent_lineage.get("problem_source_binding")
+        if isinstance(raw_parent_lineage, Mapping)
+        else None
+    )
+    parent_certificate = _single_certificate(previous_certificate)
+    parent_certificate_source = (
+        parent_certificate.get("source_contract")
+        if isinstance(parent_certificate, Mapping)
+        else None
+    )
+    parent_answer_sha256 = (
+        parent_certificate_source.get("answer_submission_sha256")
+        if isinstance(parent_certificate_source, Mapping)
+        else None
+    )
+    if (
+        not _immutable_source_bindings_match(
+            parent_source_binding, current_source_binding,
+        )
+        or not isinstance(parent_answer_sha256, str)
+        or _SHA256_RE.fullmatch(parent_answer_sha256) is None
+        or not trusted_bridge_lineage_matches_formalization_pass(
+            raw_parent_lineage
+            if isinstance(raw_parent_lineage, Mapping) else None,
+            target_rel=target_rel,
+            formalization_pass_candidate_sha256=prior_candidate_sha256,
+            passing_certificate=previous_certificate,
+        )
+    ):
+        return {}
+
+    # Validate the parent and the proof-redraft projection against the exact
+    # candidate/answer pair that owned them.  The current candidate and answer
+    # are a new redraft output; only their immutable problem hashes may be
+    # compared before the fresh Formalization Review decides whether they pass.
+    parent_contract = dict(expected_source_contract or {})
+    parent_contract["candidate_sha256"] = prior_candidate_sha256
+    parent_contract["answer_submission_sha256"] = parent_answer_sha256
+    parent = _validate_activation_lineage(
+        raw_parent_lineage,
+        target_rel=target_rel,
+        current_candidate_sha256=prior_candidate_sha256,
+        expected_source_contract=parent_contract,
+    )
+    if parent is None:
+        return {}
     validated = _validate_activation_projection(
         projection,
         target_rel=target_rel,
         candidate_sha256=activation_input_sha256,
         expected_scope=_FORMALIZATION_REDRAFT_SCOPE,
-        expected_source_binding=source_binding,
+        expected_source_binding=parent_source_binding,
         require_lineage_binding=True,
         formalization_pass_candidate_sha256=prior_candidate_sha256,
     )
     if validated is None:
-        return {}
-    parent = _validate_activation_lineage(
-        record.get("trusted_bridge_activation_lineage"),
-        target_rel=target_rel,
-        current_candidate_sha256=current_candidate_sha256,
-        expected_source_contract=expected_source_contract,
-    )
-    if parent is None:
         return {}
     parent_lineage = parent[0]
     parent_target = parent_lineage["target"]

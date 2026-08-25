@@ -468,7 +468,14 @@ catalog, it contains no free-form Review rationale, expected result,
 source-derived value, or raw diagnostic. The optional context is evidence only
 when its context/activation receipts, exact target, current-candidate binding,
 rule/source/review hashes, applicability conditions, and exclusions all check
-out. A bare rule ID or ordinary empirical lookup is never equivalent to it:
+out. For a proof-reopened redraft, audit each lifecycle hop against its own
+binding: the inner activation-input candidate and answer hash intentionally
+belong to the already reviewed parent hop, while the outer
+target.current_candidate_sha256 and the current source contract bind the fresh
+redraft. Different candidate or answer hashes between those two hops are
+expected and are not by themselves stale; all immutable problem-source hashes
+must still agree and every receipt/self-hash must validate. A bare rule ID or
+ordinary empirical lookup is never equivalent to the complete context:
 {json.dumps(prior_review_history, ensure_ascii=False)}
 
 {retry_feedback}
@@ -503,8 +510,15 @@ and the nontrivial Lean declarations carrying every requested result.
 The complete student-visible problem, including any printed fallback, is
 legitimate problem input. A fallback may be used only where the problem wording
 permits it; never use a later fallback backward to establish the upstream
-subpart whose result it mirrors. Derive each upstream requested output
-independently from its givens.
+subpart whose result it mirrors. A questions-only `previous_parts` entry gives
+only the prior question and dependency policy; it never establishes a result.
+Derive each upstream requested output independently unless the source-contract
+block contains a complete CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY. In that
+case, recheck its context/receipt hashes, producer hard-green gates, linked
+validation-lineage and campaign inventory, consumer bundle/previous_parts
+binding, and every used Lean declaration/type/payload hash. You may then use
+only the exact typed exports it lists. Any absent, stale, unlisted, differently
+typed, or extrapolated prior fact fails closed.
 
 Before inspecting the generated answer submission, candidate interpretation,
 or prior process metadata, perform a source-first visual topology pass whenever
@@ -789,8 +803,14 @@ Read these bounded sources completely:
   If it contains `trusted_bridge_activation_review_context`, accept a dormant
   rule only after checking the complete context/activation receipt hashes, exact
   target and current-candidate binding, sealed rule/source/review bindings, every
-  applicability condition, and every exclusion. A bare ID or ordinary lookup is
-  not an activation.
+  applicability condition, and every exclusion. For a proof-reopened redraft,
+  validate each lifecycle hop against its own binding: the inner
+  activation-input candidate and answer hash belong to the reviewed parent hop;
+  the outer target.current_candidate_sha256 and current source contract bind the
+  fresh redraft. Different candidate or answer hashes across those hops are
+  expected, not sufficient evidence of staleness. Immutable problem-source
+  hashes must still agree and every receipt/self-hash must validate. A bare ID
+  or ordinary lookup is not an activation.
 
 {retry_feedback}
 

@@ -223,6 +223,23 @@ REQUESTED_OUTPUTS: dict[str, tuple[dict[str, Any], ...]] = {
     ),
 }
 
+# These two rows are controller-selected dependency producers, not members of
+# the scored 32-target inventory above. Keeping their contracts separate
+# prevents a validation run from silently changing the committed full-scope
+# target set while still allowing A6 to consume hard-green, typed results.
+DEPENDENCY_REQUESTED_OUTPUTS: dict[str, tuple[dict[str, Any], ...]] = {
+    "icho_2026_t1_a4": (
+        _exact_output("metal_q_identity", "identity of metal Q", "classification"),
+        _exact_output("hydrated_c_formula", "chemical formula of C · xH2O", "formula"),
+        _exact_output("compound_d_formula", "chemical formula of compound D", "formula"),
+    ),
+    "icho_2026_t1_a5": (
+        _exact_output("compound_e_structure", "structure of compound E", "classification"),
+        _exact_output("compound_f_structure", "structure of acid F", "classification"),
+        _exact_output("compound_g_structure", "structure of compound G", "classification"),
+    ),
+}
+
 
 def _json_bytes(value: Any) -> bytes:
     return (
@@ -365,7 +382,10 @@ def _blind_row(
     )
     current_question = str(row.get("current_question") or "").strip()
     shared_context = str(row.get("shared_context") or row.get("context") or "").strip()
-    requested_template = REQUESTED_OUTPUTS.get(identifier)
+    requested_template = (
+        REQUESTED_OUTPUTS.get(identifier)
+        or DEPENDENCY_REQUESTED_OUTPUTS.get(identifier)
+    )
     if not requested_template:
         raise ValueError(f"{identifier}: no pre-solve requested-output contract")
     # Round-trip through JSON to avoid sharing mutable nested policy objects
@@ -398,7 +418,10 @@ def _blind_row(
         "points": row.get("points"),
         "paper": str(row.get("paper") or ""),
         "kind": str(row.get("kind") or "theory"),
-        "formalization_ready": bool(row.get("formalization_ready", True)),
+        "formalization_ready": (
+            identifier in DEPENDENCY_REQUESTED_OUTPUTS
+            or bool(row.get("formalization_ready", True))
+        ),
         "image": images[0],
         "images": images,
         "previous_parts": _sanitized_previous_parts(row),
@@ -496,6 +519,7 @@ def build_bundles(
     target_ids: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     rows = _read_jsonl(input_jsonl)
+    dependency_selection_is_explicit = target_ids is not None
     if target_ids is not None:
         requested = [str(identifier).strip() for identifier in target_ids]
         if not requested or any(not identifier for identifier in requested):
@@ -518,6 +542,24 @@ def build_bundles(
         rows = [by_id[identifier] for identifier in requested]
     if expected_count > 0 and len(rows) != expected_count:
         raise ValueError(f"expected {expected_count} rows, found {len(rows)}")
+    selected_ids = [
+        str(row.get("id") or row.get("index") or "").strip() for row in rows
+    ]
+    selected_dependency_ids = sorted(
+        set(selected_ids) & set(DEPENDENCY_REQUESTED_OUTPUTS)
+    )
+    if selected_dependency_ids and not dependency_selection_is_explicit:
+        raise ValueError(
+            "dependency producer IDs require explicit target_ids: "
+            f"{selected_dependency_ids}"
+        )
+    if expected_count == len(REQUESTED_OUTPUTS) and (
+        len(selected_ids) != len(REQUESTED_OUTPUTS)
+        or set(selected_ids) != set(REQUESTED_OUTPUTS)
+    ):
+        raise ValueError(
+            "32-target scored inventory must exactly match REQUESTED_OUTPUTS"
+        )
     blind_rows: list[dict[str, Any]] = []
     grader_rows: list[dict[str, Any]] = []
     seen: set[str] = set()

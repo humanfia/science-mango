@@ -3,7 +3,9 @@ from __future__ import annotations
 import dataclasses
 import importlib.util
 import json
+import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -546,6 +548,98 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.packages.resolve(),
         )
 
+
+    def test_installs_one_controller_owned_a6_receipt_at_fixed_path(self) -> None:
+        workspace = self.base / "receipt-workspace"
+        (workspace / ".archon").mkdir(parents=True)
+        source = self.base / "trusted-a6-receipt.json"
+        payload = b'{"controller_receipt":"test-only"}\n'
+        source.write_bytes(payload)
+        source.chmod(0o444)
+        loaded = {"receipt_sha256": "c" * 64}
+
+        with mock.patch.object(
+            RUNNER,
+            "load_prior_result_dependency_context_checked",
+            return_value=(loaded, ""),
+        ) as checked_loader:
+            installed = RUNNER._install_trusted_prior_result_receipt(
+                workspace,
+                source,
+                controller_uid=os.geteuid(),
+            )
+
+        destination = (
+            workspace
+            / ".archon/prior-result-dependencies/icho_2026_t1_a6.json"
+        )
+        metadata = destination.lstat()
+        self.assertEqual(installed, loaded)
+        self.assertEqual(destination.read_bytes(), payload)
+        self.assertEqual(stat.S_IMODE(metadata.st_mode), 0o444)
+        self.assertEqual(metadata.st_nlink, 1)
+        self.assertEqual(
+            stat.S_IMODE((workspace / ".archon").stat().st_mode),
+            0o755,
+        )
+        self.assertEqual(
+            stat.S_IMODE(destination.parent.stat().st_mode),
+            0o755,
+        )
+        checked_loader.assert_called_once_with(
+            workspace.resolve(),
+            "icho_2026_t1_a6",
+            controller_uid=os.geteuid(),
+        )
+
+    def test_fresh_campaign_installs_receipt_before_physics(self) -> None:
+        source = self.base / "trusted-a6-receipt.json"
+        source.write_text("{}\n", encoding="utf-8")
+        source.chmod(0o444)
+        config = dataclasses.replace(
+            self.config,
+            trusted_prior_result_receipt=source,
+        )
+        events: list[str] = []
+
+        def prepare(_config, _ids):
+            events.append("prepare")
+
+        def install(workspace, receipt, *, controller_uid):
+            self.assertEqual(workspace, config.workspace)
+            self.assertEqual(receipt, source)
+            self.assertEqual(controller_uid, 0)
+            events.append("install")
+            return {"receipt_sha256": "c" * 64}
+
+        def run(command, *, config):
+            del command, config
+            events.append("physics")
+            return 1, 0.0
+
+        with (
+            mock.patch.object(
+                RUNNER,
+                "_fresh_config",
+                return_value=(
+                    config,
+                    (RUNNER.TRUSTED_PRIOR_RESULT_CONSUMER_ID,),
+                ),
+            ),
+            mock.patch.object(RUNNER, "prepare_workspace", side_effect=prepare),
+            mock.patch.object(
+                RUNNER,
+                "_install_trusted_prior_result_receipt",
+                side_effect=install,
+            ),
+            mock.patch.object(RUNNER, "_base_index", return_value={}),
+            mock.patch.object(RUNNER, "_write_index"),
+            mock.patch.object(RUNNER, "_run", side_effect=run),
+        ):
+            result = RUNNER.run_fresh(config, start_loop=False)
+
+        self.assertEqual(events, ["prepare", "install", "physics"])
+        self.assertEqual(result["status"], "failed")
     def test_reused_package_overrides_fail_closed_on_snapshot_drift(self) -> None:
         (self.packages / "unlisted-package").mkdir()
         config = dataclasses.replace(
@@ -674,6 +768,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("before official-answer\nreveal or scoring", protocol)
         empirical_rule_ids = (
             "aqueous_feiii_phenol_colored_complex",
+            "closed_candidate_cryolite_aluminum_production_filter",
             "closed_candidate_feiii_phenol_filter",
             "closed_domain_mellite_terminal_residue_candidate_filter",
             "directed_reaction_omitted_protocol_candidate_filter",

@@ -808,9 +808,19 @@ class NativeSemanticReviewTests(unittest.TestCase):
         ] = [
             {"kind": "problem_text", "reference": "question#sentence-1"},
             {"kind": "problem_image", "reference": "page.png#table-1"},
-            {"kind": "previous_parts", "reference": "previous_parts[0].question"},
             {"kind": "pinned_library", "reference": "Real.hasDerivAt_exp"},
         ]
+        allowed["independent_rederivation"]["requested_outputs"][0][
+            "dependencies"
+        ] = [{
+            "kind": "previous_part",
+            "reference": "prior",
+            "relation": "the prior question defines the dependency only",
+            "source_locator": {
+                "kind": "previous_parts",
+                "reference": "previous_parts[0].question",
+            },
+        }]
         with mock.patch.object(
             native_semantic_review,
             "_verified_pinned_library_declarations",
@@ -890,24 +900,32 @@ class NativeSemanticReviewTests(unittest.TestCase):
     def test_previous_parts_bare_decimal_is_range_checked_and_canonicalized(self) -> None:
         contract = self._contract()
         for reference, expected in (
-            ("0", "previous_parts[0]"),
-            ("00", "previous_parts[0]"),
-            ("previous_parts[0]", "previous_parts[0]"),
+            ("0", "previous_parts[0].question"),
+            ("00", "previous_parts[0].question"),
+            ("previous_parts[0]", "previous_parts[0].question"),
             ("previous_parts[0].question", "previous_parts[0].question"),
         ):
             with self.subTest(reference=reference):
                 review = self._review(contract)
                 review["independent_rederivation"]["requested_outputs"][0][
-                    "source_locators"
-                ] = [{"kind": "previous_parts", "reference": reference}]
+                    "dependencies"
+                ] = [{
+                    "kind": "previous_part",
+                    "reference": "prior",
+                    "relation": "depends on the prior question",
+                    "source_locator": {
+                        "kind": "previous_parts",
+                        "reference": reference,
+                    },
+                }]
 
                 error, normalized = validate_independent_rederivation(review, contract)
 
                 self.assertEqual(error, "")
                 self.assertEqual(
-                    normalized["requested_outputs"][0]["source_locators"][0][
-                        "reference"
-                    ],
+                    normalized["requested_outputs"][0]["dependencies"][0][
+                        "source_locator"
+                    ]["reference"],
                     expected,
                 )
 
@@ -925,18 +943,99 @@ class NativeSemanticReviewTests(unittest.TestCase):
             with self.subTest(rejected=reference):
                 review = self._review(contract)
                 review["independent_rederivation"]["requested_outputs"][0][
-                    "source_locators"
-                ] = [{"kind": "previous_parts", "reference": reference}]
+                    "dependencies"
+                ] = [{
+                    "kind": "previous_part",
+                    "reference": "prior",
+                    "relation": "depends on the prior question",
+                    "source_locator": {
+                        "kind": "previous_parts",
+                        "reference": reference,
+                    },
+                }]
 
                 error, normalized = validate_independent_rederivation(review, contract)
                 feedback = build_native_schema_feedback(error)
 
-                self.assertIn("available previous_parts entry", error)
+                self.assertTrue(error)
                 self.assertEqual(normalized, {})
                 self.assertIsNotNone(feedback)
                 assert feedback is not None
                 self.assertTrue(feedback["field_path"].endswith(".reference"))
                 self.assertNotIn(reference, json.dumps(feedback, ensure_ascii=True))
+
+        direct_conclusion = self._review(contract)
+        direct_conclusion["independent_rederivation"]["requested_outputs"][0][
+            "source_locators"
+        ] = [{
+            "kind": "previous_parts",
+            "reference": "previous_parts[0].question",
+        }]
+        error, normalized = validate_independent_rederivation(
+            direct_conclusion, contract,
+        )
+        self.assertIn("uncertified previous_parts conclusion", error)
+        self.assertEqual(normalized, {})
+
+    def test_certified_locator_is_bound_to_the_exact_producer_export(self) -> None:
+        contract = self._contract()
+        contract["certified_prior_result"] = {
+            "context": {
+                "producers": [{
+                    "source_id": "icho_2026_t1_a4",
+                    "typed_exports": [{
+                        "export_id": (
+                            "certified_prior_result:"
+                            "icho_2026_t1_a4:metal_q_identity"
+                        ),
+                    }],
+                }],
+            },
+        }
+        review = self._review(contract)
+        review["independent_rederivation"]["requested_outputs"][0][
+            "source_locators"
+        ] = [{
+            "kind": "certified_prior_result",
+            "reference": (
+                "certified_prior_result.producers[0].typed_exports[0]"
+            ),
+        }]
+
+        error, normalized = validate_independent_rederivation(review, contract)
+
+        self.assertEqual(error, "")
+        self.assertTrue(normalized)
+
+        for reference in (
+            "certified_prior_result.producers[1].typed_exports[0]",
+            "certified_prior_result.producers[0].typed_exports[1]",
+        ):
+            with self.subTest(reference=reference):
+                invalid = self._review(contract)
+                invalid["independent_rederivation"]["requested_outputs"][0][
+                    "source_locators"
+                ] = [{
+                    "kind": "certified_prior_result",
+                    "reference": reference,
+                }]
+                error, normalized = validate_independent_rederivation(
+                    invalid, contract,
+                )
+                self.assertIn("certified prior-result export", error)
+                self.assertEqual(normalized, {})
+
+        wrong_producer = copy.deepcopy(contract)
+        wrong_producer["certified_prior_result"]["context"]["producers"][0][
+            "typed_exports"
+        ][0]["export_id"] = (
+            "certified_prior_result:icho_2026_t1_a5:metal_q_identity"
+        )
+        error, normalized = validate_independent_rederivation(
+            copy.deepcopy(review), wrong_producer,
+        )
+        self.assertIn("certified prior-result export", error)
+        self.assertEqual(normalized, {})
 
     def test_problem_text_locator_resolves_exact_contract_fields(self) -> None:
         contract = self._contract()

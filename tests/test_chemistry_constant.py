@@ -20,6 +20,7 @@ FORMALIZER_MODE = (
 
 EXPECTED_EMPIRICAL_RULE_IDS = (
     "aqueous_feiii_phenol_colored_complex",
+    "closed_candidate_cryolite_aluminum_production_filter",
     "closed_candidate_feiii_phenol_filter",
     "closed_domain_mellite_terminal_residue_candidate_filter",
     "directed_reaction_omitted_protocol_candidate_filter",
@@ -42,7 +43,7 @@ def test_dataset_digest_and_atomic_weight_are_version_pinned() -> None:
         chemistry.BASE_DATASET_VERSION + "+trusted-empirical-rules-v1"
     )
     assert chemistry.DATASET_SHA256 == (
-        "6c5b5693698bb4f871d92889801080ef5b50a4342acd79e1881a578bc228d71d"
+        "11a02c1d207b810d28bc105970081324cb892592539f6d9a9e1d340a475983d5"
     )
     assert chemistry.REACTION_TEMPLATE_IDS == (
         "binary_two_fragment_electrophilic_addition",
@@ -156,7 +157,7 @@ def test_contest_interpretation_is_bounded_policy_not_empirical_answer() -> None
     lookup = chemistry.contest_interpretation("analogous_halogen_addition")
     policy = lookup["result"]
     assert lookup["record_sha256"] == (
-        "88237b93c886b5101c9d01b4cedecc79a64b19d87f4c8930679002bb80492911"
+        "15887cce8fd742825ce406fccd5cc7a2daeb54d417361a7d7a7423a4313458c5"
     )
     assert lookup["operation"] == "contest_interpretation"
     assert lookup["runtime_network_access"] is False
@@ -240,7 +241,7 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
         assert lookup["dataset_sha256"] == chemistry.DATASET_SHA256
         assert lookup["base_dataset_sha256"] == chemistry.BASE_DATASET_SHA256
         assert lookup["empirical_registry_manifest_sha256"] == (
-            "3e601284303874283cf0b8a08b06db1653fc037b82360b0ef5385c8bec832dc0"
+            "801783bce40546c54633e6292f62aee68706a2bc4bd359dda70085321ed49808"
         )
         for digest in (
             lookup["record_sha256"],
@@ -252,7 +253,10 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
             assert set(digest) <= set("0123456789abcdef")
         assert set(source) == {"content_sha256", "doi", "locator", "url"}
         assert type(source["url"]) is str and source["url"].startswith("https://")
-        if rule_id == "closed_domain_mellite_terminal_residue_candidate_filter":
+        if rule_id in {
+            "closed_candidate_cryolite_aluminum_production_filter",
+            "closed_domain_mellite_terminal_residue_candidate_filter",
+        }:
             assert source["doi"] is None
         else:
             assert type(source["doi"]) is str and source["doi"].startswith(
@@ -286,7 +290,7 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
     )
     assert bounded["result"]["authority_kind"] == "contest_semantics_policy"
     assert bounded["record_sha256"] == (
-        "730d52d5dbafadff8fc6bf12a9bbe594ee282b70e76a9015cd4da6b49d2b8cd5"
+        "7bde306cee9131528fe53492c38f7402aa7c69949feb88ea2f2df316981e53fa"
     )
     assert bounded["result"]["rule_version"] == 2
     assert chemistry.BASELINE_EMPIRICAL_RULE_IDS == (
@@ -296,6 +300,7 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
         "mellitic_acid_benzoyl_chloride_to_c12o9",
     )
     assert chemistry.DORMANT_RUNTIME_BRIDGE_IDS == (
+        "closed_candidate_cryolite_aluminum_production_filter",
         "closed_candidate_feiii_phenol_filter",
         "closed_domain_mellite_terminal_residue_candidate_filter",
         "directed_reaction_omitted_protocol_candidate_filter",
@@ -347,6 +352,87 @@ def test_empirical_rule_inventory_is_exact_reviewed_and_source_hash_bound() -> N
         assert forbidden not in serialized
 
 
+def test_cryolite_aluminum_filter_is_source_pinned_and_fail_closed() -> None:
+    rule_id = "closed_candidate_cryolite_aluminum_production_filter"
+    lookup = chemistry.empirical_rule(rule_id)
+
+    assert lookup["dataset_sha256"] == (
+        "11a02c1d207b810d28bc105970081324cb892592539f6d9a9e1d340a475983d5"
+    )
+    assert lookup["empirical_registry_manifest_sha256"] == (
+        "801783bce40546c54633e6292f62aee68706a2bc4bd359dda70085321ed49808"
+    )
+    assert lookup["pinned_rule_record_sha256"] == (
+        "29206c5777d9931cbf7928cb6399ecf416a1185e657a5f77954ec376ec9cf18b"
+    )
+    assert lookup["record_sha256"] == (
+        "4c114ab6c81ba7be955f63ed5aaad2705f190ba51e7eb45bfb7fa40f80fe3c19"
+    )
+    assert lookup["source"] == {
+        "content_sha256": (
+            "f4ef5bbaf71ebdf7facaa5db53fe8c100098fae1bb3aa850c5641baff2b668de"
+        ),
+        "doi": None,
+        "locator": (
+            "U.S. EPA AP-42, Fifth Edition, Volume I, Section 12.1.2.2, "
+            "printed pages 12.1-1 to 12.1-2: the Hall-Heroult process "
+            "produces aluminum metal, and molten cryolite (Na3AlF6) "
+            "functions as the electrolyte and solvent for alumina."
+        ),
+        "url": (
+            "https://www.epa.gov/sites/production/files/2020-11/"
+            "documents/c12s01.pdf"
+        ),
+    }
+    rule = lookup["result"]
+    assert rule["authority_kind"] == "contest_semantics_policy"
+    assert rule["automatic_problem_instantiation"] is False
+    assert rule_id in chemistry.DORMANT_RUNTIME_BRIDGE_IDS
+    assert rule_id not in chemistry.BASELINE_EMPIRICAL_RULE_IDS
+    assert rule_id not in chemistry.REFERENCE_ONLY_EMPIRICAL_RULE_IDS
+
+    conditions = " ".join(rule["applicability_conditions"]).casefold()
+    for required in (
+        "one exact input-source locator",
+        "32.85% sodium",
+        "12.85% q",
+        "source-first staged-species audit",
+        "anonymous material streams",
+        "complete element domain exactly na, q, and f",
+        "only external sodium-bearing input",
+        "only to nominate",
+        "not treated as an exhaustive inventory",
+        "controller-pinned atomic weights and their uncertainties",
+        "complete unrounded molar mass",
+        "two-decimal mass intervals",
+        "without candidate-shaped tolerances or staged rounding",
+        "finite positive-integer hydrate audit",
+        "if another candidate passes",
+        "solver-created rather than source-bound",
+        "open-world absence assumption",
+    ):
+        assert required in conditions
+
+    exclusions = " ".join(rule["exclusions"]).casefold()
+    for required in (
+        "not the universal inverse",
+        "does not identify an open-world unknown",
+        "does not make it the aluminum-bearing feedstock",
+        "sole bath component",
+        "nonstoichiometric cryolite",
+        "neither the identity or formula of c",
+        "mass agreement alone cannot select",
+        "secondary-aluminum processing",
+        "aluminum-chloride electrolysis",
+        "any second passing candidate",
+        "fail closed",
+    ):
+        assert required in exclusions
+    serialized = json.dumps(lookup, ensure_ascii=False).casefold()
+    for forbidden in ("t1-a4", "icho_", "official_answer"):
+        assert forbidden not in serialized
+
+
 
 def test_empirical_rule_partitions_are_exact_disjoint_and_complete() -> None:
     assert chemistry.BASELINE_EMPIRICAL_RULE_IDS == (
@@ -359,6 +445,7 @@ def test_empirical_rule_partitions_are_exact_disjoint_and_complete() -> None:
         "mellitic_acid_p2o5_heating_forms_some_trianhydride",
     )
     assert chemistry.DORMANT_RUNTIME_BRIDGE_IDS == (
+        "closed_candidate_cryolite_aluminum_production_filter",
         "closed_candidate_feiii_phenol_filter",
         "closed_domain_mellite_terminal_residue_candidate_filter",
         "directed_reaction_omitted_protocol_candidate_filter",
@@ -437,7 +524,7 @@ def test_directed_reaction_omitted_protocol_policy_is_strictly_bounded() -> None
     lookup = chemistry.empirical_rule(rule_id)
 
     assert lookup["record_sha256"] == (
-        "4c6d23a051b600029f3e20973f5ea60200fb0d3f76c78498af68c0822ec9ef72"
+        "214892efb2b8909704437c02ea078401f3361ac1f11afa2c7cfc5a486ad36155"
     )
     assert lookup["pinned_rule_record_sha256"] == (
         "95b269e7749a26345fbc62a57b37412f5c71ff985d4a7929f088024bdef1309d"
@@ -510,13 +597,13 @@ def test_closed_domain_mellite_terminal_residue_policy_is_strictly_bounded() -> 
     lookup = chemistry.empirical_rule(rule_id)
 
     assert lookup["record_sha256"] == (
-        "db55dee7aee6811f4cae4d81b7e944002414828fb8f6124cd47831ba8f693de3"
+        "0932fc3aec5465dfcc7177c99055ebcfe0c2545ec79f87ef3756e36baf6b517b"
     )
     assert lookup["pinned_rule_record_sha256"] == (
         "b1720156ef1b5e8e0c169a12cfe0179fe95bcba91841e53a5a8b6fba91b73308"
     )
     assert lookup["empirical_registry_manifest_sha256"] == (
-        "3e601284303874283cf0b8a08b06db1653fc037b82360b0ef5385c8bec832dc0"
+        "801783bce40546c54633e6292f62aee68706a2bc4bd359dda70085321ed49808"
     )
     assert lookup["source"] == {
         "content_sha256": (
