@@ -26,9 +26,12 @@ The checkpoint contains real producers for:
   `siblingMassLoss = 16*cardLoss`.  A selected-nested upstream now constructs
   the parent square from the real hierarchy parent-image recursion, derives the
   occurrence code automatically with loss `card(Index 0)`, and reaches the
-  actual reverse-loss and arbitrary-radius endpoints; finite obstructions show
-  that parent reflection and a dimension-only cap on this loss remain genuine,
-  plus
+  actual reverse-loss and arbitrary-radius endpoints.  A real collision-cell
+  capture then embeds the active level-zero source into one hierarchy cell and
+  uses common-`100T` WZ packing to replace this by a dimension-only loss, giving
+  `siblingMassLoss = 16*commonHundredNeighbourPackingConstant` and the same
+  reverse/Sticky endpoint; a cross-parent obstruction shows why the one-cell
+  capture remains genuine, plus
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -194,11 +197,10 @@ from no-common-`100` containment is false); transporting the old joint output
 across the now-complete selected hierarchy still needs per-layer path
 embedding, omega compatibility, active-test inclusion, and load/collision
 transport (a `Fin 1` to `Fin 2` obstruction rules out an automatic cast);
-instantiating the
-selected-image sibling producer's lower-occurrence embedding and parent-
-equivalence with the concrete nested hierarchy, and bounding its automatic
-loss `card(Index 0)` by a dimension-only constant (finite obstructions show
-that reflection and this cardinality cap are not automatic);
+instantiating the selected-image sibling producer's lower-occurrence embedding
+and parent-equivalence with the concrete nested hierarchy, and producing a
+single actual hierarchy-collision-cell capture or a parentwise decomposition
+(a cross-parent obstruction shows that one-cell capture is not automatic);
 supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
