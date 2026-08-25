@@ -69,7 +69,9 @@ The checkpoint contains real producers for:
   with the stronger half-volume-overlap notion isolated as a local seam, and
   a pre-motion universal packing-support hull catalogue reducing every
   subsequently selected prefix fibre to all convex tests, with only the
-  selector's packing-certificate/plan coherence left upstream;
+  selector's packing-certificate/plan coherence left upstream, and automatic
+  common-`100T` plus WZ-separated source geometry on every actual selected
+  collision cell, connected to the fixed-source-factor WZ2 endpoint;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -115,9 +117,10 @@ bound requires extra cross-parent rigidity/separation; discharging the local
 WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
 implication from no-common-`100` containment is false), and making the
 selector consume a supplied packing plan or certify equality with it; and
-arbitrary-radius interpolation for the translation construction; producing
-the common-`100T` containment and full WZ pairwise separation upstream, and
-bounding the remaining WZ2 `siteCount` by a dimension-only constant upstream
+arbitrary-radius interpolation for the translation construction; supplying
+the adjacent radius upper ratio only if a whole parent fibre (rather than an
+actual local collision cell) must feed WZ2, and bounding the remaining WZ2
+`siteCount` by a dimension-only constant upstream
 (full WZ separation alone does not imply the projected shear gap needed for
 the sharper endpoint);
 later projection geometry,
