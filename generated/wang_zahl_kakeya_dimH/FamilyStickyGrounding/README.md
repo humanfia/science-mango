@@ -57,7 +57,9 @@ The checkpoint contains real producers for:
   local-occurrence routing, cancellation-aware suffix decomposition giving
   explicit widened cross-parent containment without a same-parent premise,
   and its finite per-layer/union counting reduction to internally computed
-  widened partner constants;
+  widened partner constants, with an explicit suffix-repetition, parent-count,
+  and branching-product source bound and a sharp obstruction to deriving a
+  dimension-only bound from fibrewise WZ separation alone;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -91,9 +93,9 @@ pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
 instantiating the remaining explicit hierarchy radius/branching scalar checks
 and the packing-constant threshold (or safely padding that upper-bound
-constant), a dimension/scale-only bound for the internally computed widened
-cross-parent partner constants, terminal dedup and essentially-distinct
-refinement, all-convex-test reduction, and
+constant); any dimension-only improvement of the widened cross-parent source
+bound requires extra cross-parent rigidity/separation; terminal dedup and
+essentially-distinct refinement, all-convex-test reduction, and
 arbitrary-radius interpolation for the translation construction; removing
 the explicit WZ2 spacing/John-radius residual by connecting the now-grounded
 distorted-tube side bounds and quantitative source-shear separation to obtain
