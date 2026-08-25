@@ -71,7 +71,8 @@ The checkpoint contains real producers for:
   subsequently selected prefix fibre to all convex tests, with only the
   selector's packing-certificate/plan coherence left upstream, and automatic
   common-`100T` plus WZ-separated source geometry on every actual selected
-  collision cell, connected to the fixed-source-factor WZ2 endpoint;
+  collision cell, connected to a WZ2 endpoint with coefficient
+  `16*siteCount*C_WZ` and no convex-test-dependent ceiling;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
