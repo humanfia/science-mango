@@ -11,7 +11,8 @@ The checkpoint contains real producers for:
   adjacent-scale mass decomposition, finite dividing-scales stopping,
   explicit exponent-product budgets, finite bad-scale search, rooted finite
   refinement trees, nested-cover mass localization, and finite-node threshold
-  transfer, literal parent-fiber ratio normalization, and genuine fiber-concentration
+  transfer, literal parent-fiber ratio normalization, and genuine
+  fiber-concentration
   control;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
@@ -25,8 +26,9 @@ The checkpoint contains real producers for:
   shared maximal-separated motion-ball net with its cover, nonemptiness, and
   local packing-incidence bounds, together with actual finite tube/test input
   data, box-certified tests, canonical repetition/tail choices, source-scale
-  nondegeneracy, and explicit shared-local point, balance, and feasibility
-  bounds;
+  nondegeneracy, explicit shared-local point, balance, and feasibility bounds,
+  all-parent layer data/numerics, multiscale vector composition, common-prefix
+  load invariance, and actual fixed-test expectation bounds;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -39,10 +41,10 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: the capturing-thickening, corrected loss-exponent,
+Honest residual work remains: the capturing-thickening, corrected
 loss-exponent, and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
-hierarchy/telescope and finite search; the remaining multiscale balance/load
+hierarchy/telescope and finite search; the all-parent random selection and hierarchy
 integration for the concrete translation net; WZ2 chart-cardinality retention,
 translated-copy density/Wolff provenance, and later
 projection geometry; and the final multiscale assembly.  No full Sticky
