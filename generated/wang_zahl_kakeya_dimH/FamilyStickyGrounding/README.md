@@ -37,7 +37,12 @@ The checkpoint contains real producers for:
   proves the two recursive level-index descriptions equal and constructs the
   lower embedding, parent equivalence/square, real candidates, and repetition
   zero from raw commuting coordinates; its sole collision input is uniform
-  coverage of each parent fibre by the canonical base-child cell, plus
+  coverage of each parent fibre by the canonical base-child cell.  Actual
+  hierarchy containment now produces that coverage from
+  `4*R1+r0 <= 100*r0` (in particular `R1 <= 20*r0`), while random-motion
+  geometry supplies positivity and half-radius side conditions; formal
+  orientation and finite obstructions show its absolute radius bounds alone
+  cannot supply this reverse adjacent-scale ratio, plus
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -233,12 +238,14 @@ embeddings, Fin/path/FinalIndex/carrier transport, and the terminal WZ consumer
 are now automatic, while a strict reverse-cardinality obstruction rules out an
 unconditional cast;
 instantiating the selected-restriction binding’s raw lower/upper coordinate maps
-and restricted-parent commutation, plus uniform canonical level-zero parent-cell
-coverage; the occurrence embedding, parent equivalence/square, real candidates,
-repetition, and `parentCount*commonHundredNeighbourPackingConstant` endpoint are
-now automatic, while a dimension-only loss still needs a parent subtype
-embedding into `Fin K` (independent-cover and pointwise-cell obstructions show
-why these remaining inputs and the global parent cap are not automatic);
+and restricted-parent commutation, plus the exact level-zero compatibility
+`4*R1+r0 <= 100*r0` (or the sufficient `R1 <= 20*r0`); canonical parent-cell
+coverage, positivity/half side conditions, occurrence embedding, parent
+equivalence/square, real candidates, repetition, and the
+`parentCount*commonHundredNeighbourPackingConstant` endpoint are now automatic.
+A dimension-only loss still needs a parent subtype embedding into `Fin K`;
+independent-cover, reversed-radius, and pointwise-cell obstructions explain why
+the remaining coordinate/ratio inputs and global parent cap are not automatic;
 supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
