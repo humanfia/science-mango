@@ -51,9 +51,11 @@ The checkpoint contains real producers for:
   an explicit collision multiplicity, automatic actual collision-test
   geometry from the hierarchy fibres with one explicit branching scalar
   condition, an end-to-end joint-certificate wrapper from hierarchy source
-  geometry, WZ separation, and one explicit collision-unit inequality, and
-  canonical first-divergence/common-prefix child, parent, and local-occurrence
-  routing up to its precisely isolated geometry endpoint;
+  geometry and WZ separation with one explicit collision-unit inequality, its
+  unconditional source-derived ratio bound `20000` and exact packing-constant
+  threshold, canonical first-divergence/common-prefix child, parent, and
+  local-occurrence routing, and cancellation-aware suffix decomposition giving
+  explicit widened cross-parent containment without a same-parent premise;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -66,7 +68,10 @@ The checkpoint contains real producers for:
   actual ambient convex-test coordinate containment to a local shear window,
   the resulting local-copy/local-source-budget count, and its conversion to
   an actual translated-family `containedMass` bound via volume preservation
-  and the explicit uniform tube-volume cap.
+  and the explicit uniform tube-volume cap, followed by automatic positive
+  volume/full-span John-288 certification, a fixed coordinate-one window,
+  and absorption of the tube `delta^2` scale into the arbitrary convex-test
+  volume with the exact local-count residual retained.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -78,13 +83,14 @@ Honest residual work remains: connecting the new constant-bearing dividing
 witness through the target exponent/interpolation endpoint (or supplying the
 pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
-instantiating the remaining explicit hierarchy radius/branching
-scalar checks, the geometric endpoint of the now-grounded
-first-divergence/common-prefix routing of global terminal collisions into the
-proved local layer/parent collision
-classes, essentially-distinct refinement, all-convex-test reduction, and
-arbitrary-radius interpolation for the translation construction; comparing
-the now-grounded local WZ2 contained-mass cap with the arbitrary convex-test
-volume to obtain a uniform Katz--Tao constant, later projection geometry,
+instantiating the remaining explicit hierarchy radius/branching scalar checks
+and the packing-constant threshold (or safely padding that upper-bound
+constant), a packing/cardinality bound for the now-grounded widened
+cross-parent collision relation, terminal dedup and essentially-distinct
+refinement, all-convex-test reduction, and
+arbitrary-radius interpolation for the translation construction; removing
+the explicit WZ2 spacing/source-window/John-radius residual (including a
+quantitative distorted-tube inradius adapter for nonzero shear copies) to
+obtain a uniform Katz--Tao constant, later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
