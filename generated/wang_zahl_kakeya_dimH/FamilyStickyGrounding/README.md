@@ -27,11 +27,13 @@ The checkpoint contains real producers for:
   the parent square from the real hierarchy parent-image recursion, derives the
   occurrence code automatically with loss `card(Index 0)`, and reaches the
   actual reverse-loss and arbitrary-radius endpoints.  A real collision-cell
-  capture then embeds the active level-zero source into one hierarchy cell and
-  uses common-`100T` WZ packing to replace this by a dimension-only loss, giving
-  `siblingMassLoss = 16*commonHundredNeighbourPackingConstant` and the same
-  reverse/Sticky endpoint; a cross-parent obstruction shows why the one-cell
-  capture remains genuine, plus
+  capture embeds an active level-zero fibre into one hierarchy cell and applies
+  common-`100T` WZ packing.  Parentwise aggregation removes the single-cell
+  condition and gives loss
+  `parentCount*commonHundredNeighbourPackingConstant`; an optional parent
+  subtype embedding into `Fin K` replaces this by `K` in the reverse/Sticky
+  endpoint, while arbitrarily many singleton parents prove that such a global
+  parent-count cap is not automatic, plus
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -208,9 +210,10 @@ compatibility, and active-test/parent inclusions (path, load/collision, and
 terminal consumers are then automatic, while a finite cardinality obstruction
 rules out an unconditional cast);
 instantiating the selected-image sibling producer's lower-occurrence embedding
-and parent-equivalence with the concrete nested hierarchy, and producing a
-single actual hierarchy-collision-cell capture or a parentwise decomposition
-(a cross-parent obstruction shows that one-cell capture is not automatic);
+and parent-equivalence with the concrete nested hierarchy, plus actual
+collision-cell captures for each active parent; aggregation is automatic, but
+a dimension-only loss still needs a parent subtype embedding into `Fin K`
+(singleton-parent obstructions show this cap is not automatic);
 supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
