@@ -142,13 +142,15 @@ The checkpoint contains real producers for:
   strong selection on the selected occurrences, and reaches the generic WZ2
   full coefficient cap.  A semantic transport layer turns repetition and
   omega coherence into dependent path, prefix/composed, analytic/collision,
-  and terminal-load compatibility.  Its actual selected-output binding now
-  rebuilds the hierarchy geometry and active parent/test embeddings directly;
-  only literal per-layer `jointRepetitions` monotonicity and compatibility of
-  the independently selected omega remain, after which canonical Fin/path and
-  FinalIndex embeddings feed the old terminal WZ endpoint with no extra loss.
-  A strict reverse-cardinality obstruction rules out unconditional transport
-  after repetitions are rebuilt.  The old
+  and terminal-load compatibility, while its actual binding rebuilds hierarchy
+  geometry and active parent/test embeddings directly.  A coupled producer
+  now reuses the old packing centers and canonical omega prefix, making omega
+  compatibility definitional and constructing the selected layer/output,
+  hierarchy certificate, transport, and no-extra-loss terminal WZ endpoint
+  from selected repetition bounds and its actual analytic/collision validity.
+  Strict reverse-repetition and bound-shrink obstructions isolate why those
+  remaining validity fields do not follow from an independent old output.  The
+  old
   large-card cover route is formally impossible.  The stronger
   half-volume-overlap notion is therefore isolated only for later results that
   genuinely inspect intersection measure, and a pre-motion universal
@@ -232,11 +234,13 @@ hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
 requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
 from no-common-`100` containment is false); for independently rebuilt random
-outputs, supplying only per-layer literal `jointRepetitions` monotonicity and
-omega compatibility; selected hierarchy geometry, active parent/test
-embeddings, Fin/path/FinalIndex/carrier transport, and the terminal WZ consumer
-are now automatic, while a strict reverse-cardinality obstruction rules out an
-unconditional cast;
+outputs, supplying per-layer literal `jointRepetitions` monotonicity and omega
+compatibility, or, for the coupled-prefix producer, supplying selected
+repetition positivity/monotonicity and actual analytic/collision validity;
+packing centers, omega compatibility, selected outputs/certificate, hierarchy
+geometry, active embeddings, Fin/path/FinalIndex/carrier transport, and the
+terminal WZ consumer are then automatic.  Strict reverse-cardinality and
+bound-shrink obstructions rule out unconditional coupling;
 instantiating the selected-restriction binding’s raw lower/upper coordinate maps
 and restricted-parent commutation, plus the exact level-zero compatibility
 `4*R1+r0 <= 100*r0` (or the sufficient `R1 <= 20*r0`); canonical parent-cell
