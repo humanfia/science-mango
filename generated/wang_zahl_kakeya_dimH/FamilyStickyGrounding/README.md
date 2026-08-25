@@ -62,7 +62,8 @@ The checkpoint contains real producers for:
   widened partner constants, with an explicit suffix-repetition, parent-count,
   and branching-product source bound and a sharp obstruction to deriving a
   dimension-only bound from fibrewise WZ separation alone, global exact-carrier
-  representatives with explicit same-path-plus-widened multiplicity loss,
+  representatives whose same-path loss is reduced by level-zero WZ packing
+  to a fixed constant while retaining the widened first-divergence loss,
   maximal no-common-`100`-container strong refinement, and a canonical finite
   hull catalogue reducing each selected prefix fibre to all convex tests;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
@@ -104,9 +105,9 @@ pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
 instantiating the remaining explicit hierarchy radius/branching scalar checks;
 any dimension-only improvement of the widened cross-parent source
-bound requires extra cross-parent rigidity/separation; eliminating the
-same-path source multiplicity, bridging no-common-`100`-container separation
-to the paper's essentially-distinct predicate, and pre-enumerating the
+bound requires extra cross-parent rigidity/separation; bridging no-common-
+`100`-container separation to the paper's essentially-distinct predicate,
+and pre-enumerating the
 post-motion finite hull tests before random selection; and
 arbitrary-radius interpolation for the translation construction; producing
 the common-`100T` containment and full WZ pairwise separation upstream, and
