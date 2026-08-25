@@ -17,8 +17,11 @@ The checkpoint contains real producers for:
   Katz--Tao, and Sticky transfer whose same-test fibre bound is automatic via
   subtype embedding, followed by an actual finite-fibre `iSup` producer for
   the reverse parent-normalizer loss and a direct arbitrary-radius Sticky
-  endpoint; an exact N-to-one merger obstruction isolates the need for
-  branching/sibling rigidity only when a uniform loss bound is required, plus
+  endpoint, then an exact upper-fibre decomposition into lower sibling fibres,
+  a hierarchy sibling code and relative-mass rigidity endpoint proving
+  `actualLoss <= branchingBound*siblingMassLoss`, and the corresponding fixed-
+  constant arbitrary-radius Sticky bound; exact N-to-one merging and a two-
+  sibling unbounded mass-ratio obstruction isolate both genuine inputs, plus
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -160,10 +163,10 @@ overlap only for later measure-intersection consumers (the global implication
 from no-common-`100` containment is false), plus the level-zero source fixed
 chart and graph-`C` half-bucket consumed by the terminal full coefficient cap
 (the cover and selected-family nonemptiness are automatic, while the old
-large-card premise is formally impossible); controlling the now-
-automatic reverse parent-normalizer loss by the target branching/sibling-
-rigidity budget (an exact N-to-one merger rules this out from parent
-compatibility alone); supplying
+large-card premise is formally impossible); instantiating the parent-preserving
+hierarchy sibling embedding and uniform sibling-mass comparability consumed by
+the proved `branchingBound*siblingMassLoss` reverse-normalizer endpoint;
+supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 `siteCount` by a dimension-only constant upstream (the current arbitrary
