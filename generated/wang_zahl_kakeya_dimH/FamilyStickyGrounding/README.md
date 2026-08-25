@@ -67,8 +67,9 @@ The checkpoint contains real producers for:
   maximal no-common-`100`-container strong refinement, its unconditional
   WZ2 two-fold noncontainment consequence and packaged terminal tube family,
   with the stronger half-volume-overlap notion isolated as a local seam, and
-  a canonical finite hull catalogue reducing each selected prefix fibre to
-  all convex tests;
+  a pre-motion universal packing-support hull catalogue reducing every
+  subsequently selected prefix fibre to all convex tests, with only the
+  selector's packing-certificate/plan coherence left upstream;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -94,7 +95,9 @@ The checkpoint contains real producers for:
   premises through finite-cardinality and separated-shear endpoints, and
   replacement of the full source-cardinality factor by the fixed common-
   neighbour WZ packing constant whenever all source tubes share one literal
-  `100T` container and satisfy pairwise WZ endpoint separation.
+  `100T` container and satisfy pairwise WZ endpoint separation, followed by
+  elimination of the convex-test-dependent copy ceiling in favour of the
+  declared finite `siteCount`.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -110,13 +113,13 @@ instantiating the remaining explicit hierarchy radius/branching scalar checks;
 any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; discharging the local
 WZ2-to-half-volume-overlap seam from additional terminal geometry (the global
-implication from no-common-`100` containment is false), and pre-enumerating the
-post-motion finite hull tests before random selection; and
+implication from no-common-`100` containment is false), and making the
+selector consume a supplied packing plan or certify equality with it; and
 arbitrary-radius interpolation for the translation construction; producing
 the common-`100T` containment and full WZ pairwise separation upstream, and
-turning the remaining explicit WZ2 copy-grid ceiling factor into a uniform
-Katz--Tao constant (full WZ separation alone does not imply the projected
-shear gap needed for the sharper endpoint);
+bounding the remaining WZ2 `siteCount` by a dimension-only constant upstream
+(full WZ separation alone does not imply the projected shear gap needed for
+the sharper endpoint);
 later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
