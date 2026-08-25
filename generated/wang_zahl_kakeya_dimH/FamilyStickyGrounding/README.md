@@ -43,7 +43,7 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: the capturing-thickening, corrected
+Honest residual work remains: the capturing-thickening and actual strict
 loss-exponent, and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
 hierarchy/telescope and finite search; the hierarchy adapter and source-geometry
