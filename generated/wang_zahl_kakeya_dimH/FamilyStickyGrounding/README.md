@@ -127,12 +127,15 @@ The checkpoint contains real producers for:
   preserving constructor kind, branching factor, buffer, and effective radius.
   Its `Path*selected` embedding transports the exact source-card loss, reruns
   strong selection on the selected occurrences, and reaches the generic WZ2
-  full coefficient cap.  A semantic transport layer turns coordinate
-  repetition embeddings, omega compatibility, and active-set inclusions into
-  the dependent path embedding, prefix/composed compatibility, analytic and
-  collision load monotonicity, and the selected terminal WZ weighted-load
-  bound; source-only restriction is automatic, while a finite obstruction rules
-  out unconditional transport after repetitions are rebuilt.  The old
+  full coefficient cap.  A semantic transport layer turns repetition and
+  omega coherence into dependent path, prefix/composed, analytic/collision,
+  and terminal-load compatibility.  Its actual selected-output binding now
+  rebuilds the hierarchy geometry and active parent/test embeddings directly;
+  only literal per-layer `jointRepetitions` monotonicity and compatibility of
+  the independently selected omega remain, after which canonical Fin/path and
+  FinalIndex embeddings feed the old terminal WZ endpoint with no extra loss.
+  A strict reverse-cardinality obstruction rules out unconditional transport
+  after repetitions are rebuilt.  The old
   large-card cover route is formally impossible.  The stronger
   half-volume-overlap notion is therefore isolated only for later results that
   genuinely inspect intersection measure, and a pre-motion universal
@@ -214,11 +217,12 @@ turning the global cross-parent rigidity certificate’s automatically generated
 hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
 requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
-from no-common-`100` containment is false); for genuinely rebuilt repetitions,
-instantiating the semantic transport's per-layer repetition injections, omega
-compatibility, and active-test/parent inclusions (path, load/collision, and
-terminal consumers are then automatic, while a finite cardinality obstruction
-rules out an unconditional cast);
+from no-common-`100` containment is false); for independently rebuilt random
+outputs, supplying only per-layer literal `jointRepetitions` monotonicity and
+omega compatibility; selected hierarchy geometry, active parent/test
+embeddings, Fin/path/FinalIndex/carrier transport, and the terminal WZ consumer
+are now automatic, while a strict reverse-cardinality obstruction rules out an
+unconditional cast;
 instantiating the selected-restriction binding’s raw lower/upper coordinate maps
 and restricted-parent commutation, plus uniform canonical level-zero parent-cell
 coverage; the occurrence embedding, parent equivalence/square, real candidates,
