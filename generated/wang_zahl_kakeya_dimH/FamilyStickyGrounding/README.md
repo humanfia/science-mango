@@ -16,7 +16,11 @@ The checkpoint contains real producers for:
   reflexive equal-scale branch;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
-  volume-ratio telescoping, and actual adjacent/middle scale values;
+  volume-ratio telescoping, and actual adjacent/middle scale values, together
+  with an actual dimension-three John certificate from captured positive-radius
+  tubes, direct side-width lower bounds, closed-thickening frame-box growth,
+  the explicit two-transverse-scale captured-tube loss, and automatic
+  capturing-thickening/coherent-local-geometry producers;
 - finite and test-dependent Chernoff/union bounds, exact three-dimensional ball
   scaling, translation incidence double counting, literal tube and convex-body
   translation invariance, finite-family concentration bounds, axial test-box
@@ -48,8 +52,8 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: the capturing-thickening, actual strict
-loss-exponent, and finite-node lower-bound producers needed by the new tree
+Honest residual work remains: the actual strict
+loss-exponent and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
 hierarchy/telescope and finite search; the actual hierarchy
 test/side/branching-mean producers, distinctness/deduplication, all-convex-test
