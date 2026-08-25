@@ -52,8 +52,10 @@ The checkpoint contains real producers for:
   geometry from the hierarchy fibres with one explicit branching scalar
   condition, an end-to-end joint-certificate wrapper from hierarchy source
   geometry and WZ separation with one explicit collision-unit inequality, its
-  unconditional source-derived ratio bound `20000` and exact packing-constant
-  threshold, canonical first-divergence/common-prefix child, parent, and
+  unconditional source-derived ratio bound `20000`, an explicit `100 x 100`
+  parameter grid proving the opaque product packing constant is at least
+  `10000` and hence closing that threshold, canonical first-divergence child,
+  parent, common-prefix, and
   local-occurrence routing, cancellation-aware suffix decomposition giving
   explicit widened cross-parent containment without a same-parent premise,
   and its finite per-layer/union counting reduction to internally computed
@@ -81,7 +83,8 @@ The checkpoint contains real producers for:
   `delta/(1+|d|)`, all John side lower bounds, and a surviving longitudinal
   scale, followed by elimination of the certificate-dependent John radius
   into the explicit cap `288^3*(1+|d|)^2*volume(K)/delta^2` and an expanded
-  ceiling budget.
+  ceiling budget, then complete removal of caller-supplied source-window
+  premises through finite-cardinality and separated-shear endpoints.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -93,15 +96,13 @@ Honest residual work remains: connecting the new constant-bearing dividing
 witness through the target exponent/interpolation endpoint (or supplying the
 pointwise constant-removal condition required by the old literal interface;
 finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
-instantiating the remaining explicit hierarchy radius/branching scalar checks
-and the packing-constant threshold (or safely padding that upper-bound
-constant); any dimension-only improvement of the widened cross-parent source
+instantiating the remaining explicit hierarchy radius/branching scalar checks;
+any dimension-only improvement of the widened cross-parent source
 bound requires extra cross-parent rigidity/separation; terminal dedup and
 essentially-distinct refinement, all-convex-test reduction, and
-arbitrary-radius interpolation for the translation construction; removing
-the explicit WZ2 spacing/source-shear residual by connecting the now-grounded
-volume-normalized radius cap to the internal source budgets in order to obtain
-a uniform Katz--Tao constant (full WZ separation alone does not imply that
-projected shear gap), later projection geometry,
+arbitrary-radius interpolation for the translation construction; turning
+the remaining explicit WZ2 copy/source ceiling factors (or finite source
+cardinality) into a uniform Katz--Tao constant (full WZ separation alone
+does not imply the projected shear gap needed for the sharper endpoint); later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
