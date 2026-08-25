@@ -715,6 +715,10 @@ class FreezeIchoA4A5PriorResultTest(unittest.TestCase):
         self.assertEqual(len(seen_source), 1)
         self.assertTrue(seen_source[0].startswith(payload))
         self.assertIn(b"#check Example.first", seen_source[0])
+        self.assertIn(
+            b"set_option format.width 1000000 in", seen_source[0]
+        )
+        self.assertNotIn(b"set_option pp.width", seen_source[0])
         self.assertNotIn(b"import IChO2026Problems", seen_source[0])
 
 

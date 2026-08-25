@@ -1156,7 +1156,7 @@ def lean_declaration_types(
         commands.extend([
             "set_option pp.universes true in",
             "set_option pp.explicit true in",
-            "set_option pp.width 1000000 in",
+            "set_option format.width 1000000 in",
             f"#check {declaration}",
         ])
     suffix = ("\n".join(commands) + "\n").encode("utf-8")
