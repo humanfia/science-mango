@@ -19,8 +19,10 @@ The checkpoint contains real producers for:
   scaling, translation incidence double counting, literal tube and convex-body
   translation invariance, finite-family concentration bounds, axial test-box
   thickening, paper-tail numerics, dense and multi-box lattice point-counting,
-  single-load bounds, and a canonical shared maximal-separated motion-ball net
-  with its cover, nonemptiness, and basic packing-incidence bounds;
+  actual grid realization and balance, motion-radius tube containment, FrameBox
+  certificate extraction, automatic paper single-load bounds, and a canonical
+  shared maximal-separated motion-ball net with its cover, nonemptiness, and
+  local packing-incidence bounds;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
