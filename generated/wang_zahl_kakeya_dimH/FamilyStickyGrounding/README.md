@@ -14,8 +14,11 @@ The checkpoint contains real producers for:
   transfer, literal parent-fiber ratio normalization, and genuine
   fiber-concentration control, plus strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
-  `K * (rho / sigma)^2` captured-box loss, and constant/exponent-gap
-  finite-node tree transfer;
+  `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
+  tree transfer, a finite-candidate strict-separation producer recovering the
+  literal constant-one terminal interface when `2 < eta` and
+  `K <= separation^(eta - 2)`, and the sharp obstruction showing separation
+  cannot absorb `K > 1` when `eta <= 2`;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -42,8 +45,11 @@ The checkpoint contains real producers for:
   hierarchy-to-random source assembly, clean levelwise WZ separation and
   collision/joint hierarchy certificates, a shared-motion certificate for
   occurrence count, total-radius containment, common-prefix fiber load, and
-  stagewise child/parent containment, and local exact-carrier deduplication
-  with an explicit collision multiplicity;
+  stagewise child/parent containment, local exact-carrier deduplication with
+  an explicit collision multiplicity, automatic actual collision-test
+  geometry from the hierarchy fibres with one explicit branching scalar
+  condition, and canonical first-divergence/common-prefix child, parent, and
+  local-occurrence routing up to its precisely isolated geometry endpoint;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -64,12 +70,14 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: absorbing the explicit
-`K * (rho / sigma)^(2 - eta)` strict-loss factor through genuine scale
-separation or exponent slack, and exponent interpolation beyond the grounded
-buffered hierarchy/telescope and finite search; the actual hierarchy
-test/side/branching-mean producers, a first-divergence/common-prefix routing
-of global terminal collisions into the proved local layer/parent collision
+Honest residual work remains: improving the actual quadratic loss or changing
+the exponent design in the target small-`eta` regime (the finite-separation
+route is now formally ruled out for `K > 1` and `eta <= 2`), and exponent
+interpolation beyond the grounded buffered hierarchy/telescope and finite
+search; instantiating the remaining explicit hierarchy radius/branching
+scalar checks, the geometric endpoint of the now-grounded
+first-divergence/common-prefix routing of global terminal collisions into the
+proved local layer/parent collision
 classes, essentially-distinct refinement, all-convex-test reduction, and
 arbitrary-radius interpolation for the translation construction; comparing
 the now-grounded local WZ2 contained-mass cap with the arbitrary convex-test
