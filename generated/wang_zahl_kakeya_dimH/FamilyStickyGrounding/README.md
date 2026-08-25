@@ -102,7 +102,11 @@ The checkpoint contains real producers for:
   the prefix all-convex endpoint, plus a two-stage, radius-aligned,
   body-preserving endpoint-to-effective-to-supplied-prefix bridge that fills
   every discrete Katz--Tao endpoint and constructs the all-large bounds while
-  leaving the independent fine-fibre Frostman datum explicit, and automatic
+  leaving the independent fine-fibre Frostman datum explicit, followed by
+  active-fine-to-parent and endpoint-to-prefix shading transport with exact
+  body-union and arbitrary-projection preservation, explicit fibre-card mass
+  loss, exact density under range exhaustion, and a sharp non-surjective
+  denominator obstruction, and automatic
   common-`100T` plus WZ-separated source geometry on every actual selected
   collision cell, connected to a WZ2 endpoint with coefficient
   `16*siteCount*C_WZ` and no convex-test-dependent ceiling, and a certified
@@ -177,7 +181,9 @@ actual local collision cell) must feed WZ2, and bounding the remaining WZ2
 (full WZ separation alone does not imply the projected shear gap needed for
 the sharper endpoint); instantiating the now-formalized radius-aligned,
 body-preserving endpoint-to-effective-to-supplied-prefix embeddings and the
-separate fine-fibre normalizer/Frostman identification, then
-their coverage, summation, shading, and projection transport.  These are the
+separate fine-fibre normalizer/Frostman identification, plus either endpoint
+range exhaustion or a quantitative supplied-prefix denominator overhead (and
+a parent-fibre-card bound when reverse mass is needed); coverage, summation,
+shading, and projection transport itself is now formalized.  These are the
 non-numerical inputs still separating the data-bearing assembly certificate
 from a full Sticky conclusion; no final callback is included here.
