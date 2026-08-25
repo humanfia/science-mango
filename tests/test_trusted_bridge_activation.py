@@ -474,6 +474,66 @@ def test_unrequested_dormant_rule_is_not_activated(
     assert projection == {}
 
 
+def test_repeat_request_reissues_for_current_candidate_and_bridge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _enable_unit_catalog(monkeypatch)
+    first = activation.build_trusted_bridge_activation_projection(
+        _certificate(requests=[_request(index=0)]),
+        target_rel=TARGET,
+        candidate_sha256=CANDIDATE_SHA256,
+        expected_source_contract=_contract(),
+    )
+
+    second_candidate = "d" * 64
+    second_answer = "e" * 64
+    second_certificate = _certificate(
+        requests=[_request(index=1)],
+        answer_submission_sha256=second_answer,
+    )
+    second_certificate["source_contract"]["candidate_sha256"] = (
+        second_candidate
+    )
+    second_certificate["bridge_obligations"].append({
+        "claim": "CURRENT_REDRAFT_BRIDGE",
+        "carrier": "Current.bridge",
+        "status": "blocked",
+        "evidence": "the fresh bridge still needs the sealed rule",
+    })
+    second = activation.build_trusted_bridge_activation_projection(
+        second_certificate,
+        target_rel=TARGET,
+        candidate_sha256=second_candidate,
+        expected_source_contract=_contract(
+            candidate=second_candidate,
+            answer_submission_sha256=second_answer,
+        ),
+    )
+
+    first_receipt = first["receipts"][0]
+    second_receipt = second["receipts"][0]
+    assert first_receipt["bridge_obligation_index"] == 0
+    assert second_receipt["bridge_obligation_index"] == 1
+    assert first_receipt["target"]["candidate_sha256"] == CANDIDATE_SHA256
+    assert second_receipt["target"]["candidate_sha256"] == second_candidate
+    assert first_receipt["rule"]["rule_id"] == RULE_ID
+    assert second_receipt["rule"]["rule_id"] == RULE_ID
+    assert (
+        first_receipt["activation_receipt_sha256"]
+        != second_receipt["activation_receipt_sha256"]
+    )
+
+    third_candidate = "f" * 64
+    third_certificate = _certificate(requests=[])
+    third_certificate["source_contract"]["candidate_sha256"] = third_candidate
+    assert activation.build_trusted_bridge_activation_projection(
+        third_certificate,
+        target_rel=TARGET,
+        candidate_sha256=third_candidate,
+        expected_source_contract=_contract(candidate=third_candidate),
+    ) == {}
+
+
 def test_a3_dormant_lookup_alone_does_not_activate() -> None:
     assert A3_RULE_ID in activation.DORMANT_RUNTIME_BRIDGE_IDS
     assert (

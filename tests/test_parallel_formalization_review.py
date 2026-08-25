@@ -1357,6 +1357,16 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "count\nevery atom exactly once",
             ):
                 self.assertIn(marker, prompt)
+            normalized = " ".join(prompt.lower().split())
+            for marker in (
+                "sealed catalog approval is reusable and never needs another "
+                "user approval",
+                "repeat the same exact rule id at the current blocked bridge",
+                "automatically issue a fresh receipt for the next redraft",
+                "an activation certifies only the pinned source rule and never "
+                "proves that rule's applicability",
+            ):
+                self.assertIn(marker, normalized)
             self.assertNotIn('"official_answer_alignment"', prompt)
             self.assertNotIn('"source_inconsistency"', prompt)
 
@@ -1393,6 +1403,16 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIn("`sorry` proof bodies are", prompt)
             self.assertIn("Do not edit", prompt)
             self.assertIn("PROGRESS.md", prompt)
+            normalized = " ".join(prompt.lower().split())
+            for marker in (
+                "sealed catalog approval is reusable and never needs another "
+                "user approval",
+                "repeat the same exact rule id at the current blocked bridge",
+                "automatically issue a fresh receipt for the next redraft",
+                "an activation certifies only the pinned source rule and never "
+                "proves that rule's applicability",
+            ):
+                self.assertIn(marker, normalized)
             self.assertIn(str(output / "milestones.jsonl"), prompt)
             self.assertIn("countermodel_resistance", prompt)
 

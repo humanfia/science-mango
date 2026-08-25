@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from archon.commands.loop.review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
+    SOURCE_CLOSURE_REPAIR_ACTION,
     bound_repair_task,
     build_feedback_event,
     build_repair_task,
@@ -903,6 +904,225 @@ class ReviewFeedbackTest(unittest.TestCase):
         self.assertIn("open_proof_holes", formal_to_proof["reason_codes"])
         self.assertIn(
             "close_all_open_proof_holes", formal_to_proof["required_actions"]
+        )
+
+    def test_failed_semantic_checks_project_answer_free_repair_actions(
+        self,
+    ) -> None:
+        digest = "9" * 64
+        passed = {"status": "passed", "evidence": "SAFE_PASS_EVIDENCE"}
+        checks = {
+            name: dict(passed)
+            for name in (
+                "source_faithfulness", "derivability",
+                "abstraction_sufficiency", "uncertainty_propagation",
+                "branch_orientation", "countermodel_resistance",
+            )
+        }
+        blind_source_audit = {
+            name: dict(passed)
+            for name in (
+                "answer_independence", "raw_derivation",
+                "reporting_rule_source", "tolerance_provenance",
+                "candidate_domain_provenance", "lean_result_binding",
+            )
+        }
+        contract_audit = {
+            name: dict(passed)
+            for name in (
+                "statement_scope", "hypothesis_derivability",
+                "conclusion_alignment", "bridge_completeness",
+            )
+        }
+        chemistry_checks = {
+            name: dict(passed)
+            for name in (
+                "chemical_semantics", "staged_species_domain",
+                "formula_mass_consistency", "conservation_laws",
+                "units_dimensions", "numerical_reporting",
+                "structure_stereochemistry", "identification_uniqueness",
+                "answer_smuggling",
+            )
+        }
+        failure_evidence = {
+            "candidate_domain_provenance": "CANDIDATE_VALUE_SENTINEL",
+            "staged_species_domain": "STAGED_VALUE_SENTINEL",
+            "conservation_laws": "LEDGER_VALUE_SENTINEL",
+            "identification_uniqueness": "UNIQUE_VALUE_SENTINEL",
+            "answer_smuggling": "SMUGGLED_VALUE_SENTINEL",
+        }
+        blind_source_audit["candidate_domain_provenance"] = {
+            "status": "failed",
+            "evidence": failure_evidence["candidate_domain_provenance"],
+        }
+        for name in (
+            "staged_species_domain", "conservation_laws",
+            "identification_uniqueness", "answer_smuggling",
+        ):
+            chemistry_checks[name] = {
+                "status": "failed",
+                "evidence": failure_evidence[name],
+            }
+        certificate = {
+            "checks": checks,
+            "blind_source_audit": blind_source_audit,
+            "contract_audit": contract_audit,
+            "chemistry_checks": chemistry_checks,
+        }
+        event = build_feedback_event(
+            review_kind="formalization",
+            candidate_sha256=digest,
+            event_id="formalization-semantic-actions",
+            iteration=1,
+            attempt=1,
+            resulting_status="retry",
+            certificate=certificate,
+            decision="failed",
+        )
+        record = {
+            "status": "retry",
+            "candidate_sha256": digest,
+            "certificate": certificate,
+            "repair_events": [event],
+        }
+        formalization_task = build_repair_task(
+            record,
+            review_kind="formalization",
+            worker_stage="formalization",
+            candidate_sha256=digest,
+        )
+        expected_actions = (
+            SOURCE_CLOSURE_REPAIR_ACTION,
+            "derive_a_source_bounded_finite_domain_or_encode_explicit_"
+            "underdetermination_before_reusing_generated_outputs",
+            "for_staged_transformations_enumerate_source_authorized_species_"
+            "phases_and_streams_otherwise_certify_not_staged_transformation",
+            "for_each_applicable_stage_construct_atom_charge_mass_and_measured_"
+            "interval_ledgers",
+            "honor_the_source_quantifier_and_require_exhaustive_uniqueness_only_"
+            "when_the_requested_identification_requires_it",
+            "remove_answer_shaped_singleton_domains_and_preselected_witnesses",
+        )
+        for action in expected_actions:
+            self.assertIn(action, formalization_task["required_actions"])
+            self.assertEqual(
+                formalization_task["required_actions"].count(action), 1,
+            )
+        payload = json.dumps(formalization_task)
+        for sentinel in failure_evidence.values():
+            self.assertNotIn(sentinel, payload)
+
+        proof_task = build_repair_task(
+            record,
+            review_kind="formalization",
+            worker_stage="proof",
+            candidate_sha256=digest,
+        )
+        for action in expected_actions:
+            self.assertNotIn(action, proof_task["required_actions"])
+
+        independent_certificate = {
+            "checks": checks,
+            "independent_source_audit": {
+                name: (
+                    {
+                        "status": "failed",
+                        "evidence": "DOMAIN_INVARIANT_VALUE_SENTINEL",
+                    }
+                    if name == "domain_invariants" else dict(passed)
+                )
+                for name in (
+                    "requested_outputs", "official_answer",
+                    "image_grounding", "domain_invariants",
+                    "reporting_convention", "adversarial_counterexample",
+                )
+            },
+            "contract_audit": contract_audit,
+            "chemistry_checks": {
+                name: dict(passed) for name in chemistry_checks
+            },
+        }
+        independent_event = build_feedback_event(
+            review_kind="formalization",
+            candidate_sha256=digest,
+            event_id="formalization-domain-invariants",
+            iteration=1,
+            attempt=1,
+            resulting_status="retry",
+            certificate=independent_certificate,
+            decision="failed",
+        )
+        independent_task = build_repair_task(
+            {
+                "status": "retry",
+                "candidate_sha256": digest,
+                "certificate": independent_certificate,
+                "repair_events": [independent_event],
+            },
+            review_kind="formalization",
+            worker_stage="formalization",
+            candidate_sha256=digest,
+        )
+        self.assertIn(
+            "independent_source_audit.domain_invariants",
+            independent_task["failed_check_ids"],
+        )
+        self.assertEqual(
+            independent_task["required_actions"].count(
+                SOURCE_CLOSURE_REPAIR_ACTION
+            ),
+            1,
+        )
+        self.assertNotIn(
+            "DOMAIN_INVARIANT_VALUE_SENTINEL",
+            json.dumps(independent_task),
+        )
+
+        units_certificate = json.loads(json.dumps(certificate))
+        for group_name in (
+            "checks", "blind_source_audit", "contract_audit",
+            "chemistry_checks",
+        ):
+            for check in units_certificate[group_name].values():
+                check.update({
+                    "status": "passed",
+                    "evidence": "SAFE_UNRELATED_PASS_EVIDENCE",
+                })
+        units_certificate["chemistry_checks"]["units_dimensions"] = {
+            "status": "failed",
+            "evidence": "UNITS_ONLY_VALUE_SENTINEL",
+        }
+        units_event = build_feedback_event(
+            review_kind="formalization",
+            candidate_sha256=digest,
+            event_id="formalization-units-only",
+            iteration=1,
+            attempt=1,
+            resulting_status="retry",
+            certificate=units_certificate,
+            decision="failed",
+        )
+        units_task = build_repair_task(
+            {
+                "status": "retry",
+                "candidate_sha256": digest,
+                "certificate": units_certificate,
+                "repair_events": [units_event],
+            },
+            review_kind="formalization",
+            worker_stage="formalization",
+            candidate_sha256=digest,
+        )
+        self.assertEqual(
+            units_task["failed_check_ids"],
+            ["chemistry_checks.units_dimensions"],
+        )
+        self.assertNotIn(
+            SOURCE_CLOSURE_REPAIR_ACTION,
+            units_task["required_actions"],
+        )
+        self.assertNotIn(
+            "UNITS_ONLY_VALUE_SENTINEL", json.dumps(units_task),
         )
 
     def test_repair_task_uses_exact_bounded_renderer(self) -> None:

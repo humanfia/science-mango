@@ -169,6 +169,48 @@ _REDRAFT_ACTIONS = {
 }
 
 
+SOURCE_CLOSURE_REPAIR_ACTION = (
+    "execute_source_closure_decision_protocol"
+)
+
+
+_CHECK_REPAIR_ACTIONS = {
+    "blind_source_audit.candidate_domain_provenance": (
+        "derive_a_source_bounded_finite_domain_or_encode_explicit_"
+        "underdetermination_before_reusing_generated_outputs"
+    ),
+    "independent_source_audit.domain_invariants": (
+        "derive_a_source_bounded_finite_domain_or_encode_explicit_"
+        "underdetermination_before_reusing_generated_outputs"
+    ),
+    "chemistry_checks.staged_species_domain": (
+        "for_staged_transformations_enumerate_source_authorized_species_"
+        "phases_and_streams_otherwise_certify_not_staged_transformation"
+    ),
+    "chemistry_checks.conservation_laws": (
+        "for_each_applicable_stage_construct_atom_charge_mass_and_measured_"
+        "interval_ledgers"
+    ),
+    "chemistry_checks.identification_uniqueness": (
+        "honor_the_source_quantifier_and_require_exhaustive_uniqueness_only_"
+        "when_the_requested_identification_requires_it"
+    ),
+    "chemistry_checks.answer_smuggling": (
+        "remove_answer_shaped_singleton_domains_and_preselected_witnesses"
+    ),
+}
+
+
+def _fixed_check_repair_actions(check_ids: list[str]) -> list[str]:
+    """Project failed semantic checks onto fixed answer-free repair actions."""
+    actions = list(dict.fromkeys(
+        _CHECK_REPAIR_ACTIONS[check_id]
+        for check_id in sorted(set(check_ids))
+        if check_id in _CHECK_REPAIR_ACTIONS
+    ))
+    return [SOURCE_CLOSURE_REPAIR_ACTION, *actions] if actions else []
+
+
 _SOURCE_BOUND_HASH_FIELDS = (
     "source_bundle_sha256",
     "source_record_sha256",
@@ -1238,6 +1280,8 @@ def build_repair_task(
         actions.append("close_all_open_proof_holes")
     if failed and review_repair:
         reason_codes.append("failed_structured_checks")
+        if worker_stage == "formalization":
+            actions.extend(_fixed_check_repair_actions(failed))
 
     meaningful = review_repair or preflight_repair
     if not meaningful:

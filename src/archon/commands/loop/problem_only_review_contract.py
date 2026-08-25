@@ -1888,6 +1888,13 @@ def render_native_chemistry_constant_policy(
   and phase. Every atom or mass flow must be species-typed. Anonymous `other`,
   `residual`, `ejected`, `untracked`, or catch-all material-flow variables are
   forbidden.
+- Enumerate only species, formulas, phases, and streams authorized by an exact
+  source locator, a strict derivation, or an applicable pinned authority. A
+  missing identity, formula, phase, or stream is a closure failure that must
+  remain blocked, never permission to invent an entry or declare a stream
+  empty. Model-local constructors and hypotheses cannot establish closure or
+  support identification. A source-bounded symbolic domain is allowed instead
+  of an explicit list only with a finite, exhaustive theorem.
 - Give every element in every admitted species an exact problem locator, an
   independently rederived prior-part carrier, or a valid pinned/activated
   authority. An element may enter a stage only through the enumerated initial
@@ -1905,9 +1912,10 @@ def render_native_chemistry_constant_policy(
   external input. Scalar mass equality alone is not chemical feasibility.
   Apply a terminal-residue or terminal-candidate rule only after the species
   domain is closed and every stage ledger passes. A claimed countermodel or
-  underdetermination result requires at least two fully species-typed,
+  affirmative non-uniqueness result requires at least two fully species-typed,
   source-grounded, balanced models; numerical slack and freely chosen flags
-  are not countermodels.
+  are not countermodels. An unknown or unclosed domain must remain blocked and
+  does not require fabricated countermodels.
 - Every Review certificate must include
   `chemistry_checks.staged_species_domain`, with `passed` or `failed` status
   and evidence naming the domain, stages, and ledger carriers. Use

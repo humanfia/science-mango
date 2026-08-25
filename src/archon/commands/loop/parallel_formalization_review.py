@@ -130,14 +130,23 @@ one `trusted_bridge_requests` entry with exactly `bridge_obligation_index` and
 `rule_id`. Each blocked bridge may request at most one rule; a rule ID may occur
 at most once. Never supply a claim, source, URL, locator, hash, applicability
 condition, exclusion, or paraphrase in that request. Use an empty list when no
-activation is needed. A passing verdict or covered bridge cannot request a
-rule. The controller will reject unknown IDs and will independently rebuild a
-complete target- and candidate-bound activation receipt from its sealed catalog
-for only the next target-local redraft. A normal empirical-rule lookup or a
-candidate-local citation is not an activation receipt and does not activate a
-dormant rule. All applicability conditions are conjunctive and source-bound: if
-even one lacks exact evidence, the rule is inapplicable and the target must
-remain blocked. Receipt completeness never establishes applicability."""
+activation is needed for the next redraft. Sealed catalog approval is reusable
+and never needs another user approval, but each activation is candidate- and
+bridge-bound. Therefore, when an already activated rule is still needed after
+this candidate fails, repeat the same exact rule ID at the current blocked
+bridge; the controller will automatically issue a fresh receipt for the next
+redraft. If the rule is no longer needed or its source-bound conditions are
+impossible to establish, use an empty list. A passing verdict or covered bridge
+cannot request a rule. The controller will reject unknown IDs and will
+independently rebuild a complete target- and candidate-bound activation receipt
+from its sealed catalog for only the next target-local redraft. A normal
+empirical-rule lookup or a candidate-local citation is not an activation receipt
+and does not activate a dormant rule. An activation certifies only the pinned
+source rule and never proves that rule's applicability. All applicability
+conditions are conjunctive and source-bound: if even one lacks exact evidence,
+block the candidate and identify every unmet condition. A fresh candidate must
+establish a fresh application witness; it cannot reuse an older candidate's
+witness. Receipt completeness never establishes applicability."""
 
 
 def _utcnow() -> str:

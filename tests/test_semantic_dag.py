@@ -20,6 +20,7 @@ from archon.commands.loop.prover.runners import (
 )
 from archon.commands.loop.review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
+    SOURCE_CLOSURE_REPAIR_ACTION,
     build_feedback_event,
     build_repair_task,
     render_repair_task,
@@ -559,6 +560,9 @@ class SemanticDagTest(unittest.TestCase):
             )
         self.assertIn("SEMANTIC DAG SENTINEL", prompt)
         self.assertIn('"failed_check_ids"', prompt)
+        self.assertNotIn(
+            "Mandatory source-closure repair decision procedure", prompt,
+        )
 
     def test_immediate_redraft_prompt_keeps_large_accepted_feedback(self) -> None:
         digest = "a" * 64
@@ -818,6 +822,7 @@ class SemanticDagTest(unittest.TestCase):
     def test_immediate_redraft_prompt_only_drops_old_history_events(self) -> None:
         oversized_task = {
             "failed_check_ids": ["coverage"],
+            "required_actions": [SOURCE_CLOSURE_REPAIR_ACTION],
             "history": {
                 "events": [
                     {"event_id": str(index), "codes": ["历史" * 200]}
@@ -859,6 +864,24 @@ class SemanticDagTest(unittest.TestCase):
         self.assertIn("\"failed_check_ids\":[\"coverage\"]", prompt)
         self.assertIn("\"event_id\":\"19\"", prompt)
         self.assertNotIn("\"event_id\":\"0\"", prompt)
+        normalized_prompt = " ".join(prompt.split())
+        for marker in (
+            "Mandatory source-closure repair decision procedure",
+            "suggest/propose/possible-witness task",
+            "Freeze the admissible domain before reusing any nominee",
+            "source-bounded symbolic domain",
+            "baseline pinned authority",
+            "current activation receipt",
+            "source is genuinely underdetermined",
+            "`not_staged_transformation`",
+            "never invent it or silently declare it empty",
+            "Apply one uniform set of source-derived constraints",
+            "every source-supplied measured-interval ledger",
+            "exactly one candidate survives the uniform audit",
+            "must remain explicitly blocked/underdetermined",
+            "receipt cannot by itself close a candidate domain",
+        ):
+            self.assertIn(marker, normalized_prompt)
 
     def test_immediate_redraft_prompt_rejects_truncated_source_feedback(
         self,

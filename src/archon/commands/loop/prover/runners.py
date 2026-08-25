@@ -85,6 +85,7 @@ from ..numeric_reporting_guard import MAX_NUMERIC_REPORTING_REASON_LENGTH
 from ..review_preflight import check_review_target
 from ..review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
+    SOURCE_CLOSURE_REPAIR_ACTION,
     bound_repair_task,
     build_feedback_event,
     build_repair_task,
@@ -880,7 +881,58 @@ or differently bound receipt are not authorization. This receipt applies only
 to the immediate formalization redraft and cannot authorize proof-stage use.
 
 """
+    required_actions = review_certificate.get("required_actions")
+    source_closure_protocol = (
+        """
+
+## Mandatory source-closure repair decision procedure
+
+Use this procedure only for failed identification, finite-domain, or staged-
+transformation checks. First honor the exact source quantifier. A
+suggest/propose/possible-witness task does not authorize global uniqueness;
+remove any stronger theorem and prove only the requested witness obligation.
+Treat every current nominee, generated output, and candidate-local universe as
+untrusted while rebuilding the model source-first.
+
+1. Freeze the admissible domain before reusing any nominee. Derive either an
+   explicit finite enumeration or a source-bounded symbolic domain with a
+   finite exhaustive theorem solely from bound problem evidence, certified
+   prior-result carriers, baseline pinned authority, or dormant authority
+   carried by a current activation receipt whose applicability has been proved
+   for this candidate. If the source is genuinely
+   underdetermined, encode that source-grounded boundary instead of forcing a
+   closed identification domain. For every applicable material stage, record
+   each admitted solid, volatile output, external input, and phase with its
+   exact locator or receipt. A missing identity, formula, phase, or stream means
+   the domain/stage is not closed; never invent it or silently declare it empty.
+   If no staged transformation exists, certify the exact
+   `not_staged_transformation` case instead of inventing a stage ledger.
+2. Apply one uniform set of source-derived constraints, every applicable atom,
+   charge, and mass ledger, and every source-supplied measured-interval ledger
+   to every member of that frozen domain. A singleton equality, answer-shaped
+   constructor, candidate-specific predicate, freely chosen Bool/Prop, or
+   model-selected stream/phase cannot establish admissibility, closure, or
+   uniqueness.
+3. When the source actually requests identification, claim it only when every
+   relevant domain and stage is closed and exactly one candidate survives the
+   uniform audit. An affirmative
+   non-uniqueness claim needs two fully species-typed, source-grounded, balanced
+   models. Zero survivors, an unknown survivor count, or any unclosed domain or
+   stage must remain explicitly blocked/underdetermined; do not fabricate a
+   nominee or countermodel.
+4. A trusted-rule receipt certifies only its pinned source and stated scope.
+   Prove every applicability condition and exclusion for the current candidate
+   before using it. The receipt cannot by itself close a candidate domain,
+   supply an omitted species/phase/stream, or turn a model-local hypothesis into
+   an identification premise.
+"""
+        if isinstance(required_actions, list)
+        and SOURCE_CLOSURE_REPAIR_ACTION in required_actions
+        else ""
+    )
     prompt_suffix = f"""
+
+{source_closure_protocol}
 
 Repair every listed defect class in the theorem contract, not just the last
 proof error. You may change unprotected statements in `{rel}` and
