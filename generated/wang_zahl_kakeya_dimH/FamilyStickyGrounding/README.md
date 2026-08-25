@@ -72,8 +72,11 @@ The checkpoint contains real producers for:
   explicit widened cross-parent containment without a same-parent premise,
   and its finite per-layer/union counting reduction to internally computed
   widened partner constants, with an explicit suffix-repetition, parent-count,
-  and branching-product source bound and a sharp obstruction to deriving a
-  dimension-only bound from fibrewise WZ separation alone, global exact-carrier
+  and branching-product source bound, layerwise and global injective rigidity
+  certificates whose global Sigma code sharpens the terminal fibre loss to
+  `C_WZ + K` without a depth factor, an automatic hierarchy-dependent
+  `K = sum sourceBound` producer, and a repeated-singleton obstruction to a
+  dimension-only `K` from WZ/first-divergence/path data alone, global exact-carrier
   representatives whose same-path loss is reduced by level-zero WZ packing
   to a fixed constant while retaining the widened first-divergence loss,
   maximal no-common-`100`-container strong refinement, its unconditional
@@ -150,8 +153,9 @@ for `K > 1`, `eta <= 2`);
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
-any dimension-only improvement of the widened cross-parent source
-bound requires extra cross-parent rigidity/separation; supplying half-volume
+turning the global cross-parent rigidity certificate’s automatically generated
+hierarchy-dependent `K = sum sourceBound` into a dimension-only constant
+requires extra cross-parent rigidity/separation; supplying half-volume
 overlap only for later measure-intersection consumers (the global implication
 from no-common-`100` containment is false), plus the level-zero source fixed
 chart and graph-`C` half-bucket consumed by the terminal full coefficient cap
