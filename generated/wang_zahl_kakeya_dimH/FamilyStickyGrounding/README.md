@@ -135,17 +135,19 @@ The checkpoint contains real producers for:
   comparison plus literal no-further-split produce the recovered V2 witness,
   while finite cardinality supplies the adjacent comparison.  The former
   relevant-node route remains an independently verified finite fallback.  The
-  recursive layer now has an actual buffered-radius insertion preserving every
-  old coordinate and both endpoints, a generic bounded successor engine with
-  proof-relevant reachability, an explicit hierarchy branching envelope for
-  the actual global product, and a conditional hierarchy stopping driver.  The
-  driver maintains the envelope on every interval, invokes its analytic
-  successor only below the stage bound, keeps the last-stage no-bad fact as a
-  separate input, proves `next = none` exactly when no literal bad scale exists,
-  and connects its computed terminal state to the recovered V2 endpoint.  It
-  explicitly does not construct or identify the new `BufferedChainFamily` with
-  the coherent cover, current scales, original fine family, or old hierarchy.
-  The
+  recursive layer now realizes every current interval by the exact coherent
+  depth-one hierarchy of its scale endpoints, with canonical buffered test
+  bodies and a real `StickyScaleCover -> AdjacentTubeStep` bridge.  Bad-radius
+  insertion preserves all untouched bodies, terminal concentrations, and full
+  envelopes by equality.  An exact ratio telescope and separated-factor
+  invariant remove the former last-stage no-bad input, while a canonical-only
+  counted driver provides bounded reachability and literal terminal no-split.
+  One-step cancellation leaves a normalized-terminal power bound only for
+  each new child that remains non-large; an already-large child creates no
+  analytic successor obligation.  For the canonical automatic terminal body,
+  an explicit finite-cardinality volume upper bound now produces that power
+  bound whenever the endpoint radius is below a displayed small-scale
+  threshold and the local profile exponent is strictly larger than two.  The
   legacy total diagnostic assumes neither
   global caps nor parent collapse: it decides `AllStepsLarge`, the literal
   global/adjacent numerical comparisons, and relevant-node search, returning a
@@ -304,19 +306,37 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains.  The two-parameter stopping repair is now
-formalized through the final `Sticky or recovered witness` dichotomy, and the
-finite recursive control flow itself is proved.  The direct hierarchy driver
-is conditional on three source-level facts not present in the current APIs: a
-concrete binding of each `BufferedChainFamily` to the coherent cover, current
-scale sequence, and original fine family; a below-bound bad-scale refinement
-which constructs the new hierarchy/test-body chains and preserves the global
-envelope on every interval; and the factor-count/exponent argument excluding a
-bad scale at the last allowed stage.  The all-interval invariant is essential:
-after insertion the first non-large interval can move to a later old interval.
-Existing code has no reverse `StickyScaleCover -> AdjacentTubeStep` constructor,
-no hierarchy/test-body prepend or segment operation, and no bridge from the
-strict coarse-value deficit to the new branching/dimensional/endpoint envelope.
+Honest residual work remains.  The two-parameter stopping repair is formalized
+through the final `Sticky or recovered witness` dichotomy, and the direct
+canonical depth-one route now has concrete structural data.  Every adjacent
+interval is bound to the coherent Sticky cover through an exact
+`StickyScaleCover -> CoarseTubePartition -> AdjacentTubeStep` bridge; a finite
+scale sequence produces coherent depth-one hierarchies and canonical buffered
+test-body chains; and insertion transports every untouched body, terminal
+concentration, and hierarchy envelope by equality.  A separate explicit
+volume-dominating frame-box producer also gives positive canonical test bodies
+with terminal concentration at most one.
+
+The former last-stage `NoBadAtStageBound` premise is eliminated by the exact
+ratio telescope and separated-factor invariant.  Under the explicit hypotheses
+`0 < delta < 1`, `0 < gapEpsilon`, and `1 < gapEpsilon^2 * N`, every bad
+insertion consumes one separated factor and the canonical counted driver cannot
+remain bad at stage `N`.  Exact one-step cancellation reduces each genuinely
+new child envelope to one bound on
+`activeFine.card * terminalBodyVolume / terminalTubeVolume`, together with its
+exponent balance.  A child that remains non-large still needs this substantive
+analytic input; a large child is skipped.  For the canonical automatic body the
+input is now generated from the explicit bound `finiteConstant / theta^2` as
+soon as the relevant profile value is greater than two and `theta` lies below
+the corresponding positive threshold.  The strict bad-scale deficit identifies
+the lower-child normalized coarse value, but does not alone establish those
+small-scale/profile premises.  A top-endpoint/cardinality obstruction proves
+that the former all-interval invariant was genuinely too strong.  The weaker
+relevant-interval invariant is sufficient at `firstNonLargeStep`, canonical
+before/after equality maintains it automatically on every untouched interval,
+and the relevant counted driver reaches literal terminal no-split within the
+separated-factor budget.
+
 The adjacent comparison at the final selected interval is automatic from finite
 cardinality and an explicit small-`delta` threshold.  The relevant-node/no-bad
 route remains a finite localization fallback, with its contained-mass input
