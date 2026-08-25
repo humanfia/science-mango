@@ -20,8 +20,12 @@ The checkpoint contains real producers for:
   endpoint, then an exact upper-fibre decomposition into lower sibling fibres,
   a hierarchy sibling code and relative-mass rigidity endpoint proving
   `actualLoss <= branchingBound*siblingMassLoss`, and the corresponding fixed-
-  constant arbitrary-radius Sticky bound; exact N-to-one merging and a two-
-  sibling unbounded mass-ratio obstruction isolate both genuine inputs, plus
+  constant arbitrary-radius Sticky bound, followed by a parent-square and
+  occurrence-code producer: the hierarchy branching supremum is automatic,
+  while actual tube-volume bounds turn a `cardLoss` occurrence code into
+  `siblingMassLoss = 16*cardLoss`; exact N-to-one merging, noncommuting parent
+  maps, and a two-sibling unbounded occurrence obstruction isolate the genuine
+  remaining certificates, plus
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -170,9 +174,10 @@ overlap only for later measure-intersection consumers (the global implication
 from no-common-`100` containment is false), plus the level-zero source fixed
 chart and graph-`C` half-bucket consumed by the terminal full coefficient cap
 (the cover and selected-family nonemptiness are automatic, while the old
-large-card premise is formally impossible); instantiating the parent-preserving
-hierarchy sibling embedding and uniform sibling-mass comparability consumed by
-the proved `branchingBound*siblingMassLoss` reverse-normalizer endpoint;
+large-card premise is formally impossible); constructing the concrete
+`ParentSquareIdentification` and `SiblingOccurrenceCode` from the selected
+nested hierarchy (the current body embeddings and one-step branching fields
+do not imply either certificate);
 supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
