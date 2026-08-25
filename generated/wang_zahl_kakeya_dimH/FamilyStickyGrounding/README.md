@@ -54,7 +54,9 @@ The checkpoint contains real producers for:
   bound, certified-source chart-cardinality retention, reduced-parameter
   cluster/window reduction, explicit finite shear-grid local nonconcentration,
   actual ambient convex-test coordinate containment to a local shear window,
-  and the resulting local-copy/local-source-budget count.
+  the resulting local-copy/local-source-budget count, and its conversion to
+  an actual translated-family `containedMass` bound via volume preservation
+  and the explicit uniform tube-volume cap.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -69,8 +71,8 @@ buffered hierarchy/telescope and finite search; the actual hierarchy
 test/side/branching-mean producers, a first-divergence/common-prefix routing
 of global terminal collisions into the proved local layer/parent collision
 classes, essentially-distinct refinement, all-convex-test reduction, and
-arbitrary-radius interpolation for the translation construction; converting
-the ambient coordinate-window width and local source budget into the
-volume-normalized uniform WZ2 Katz--Tao constant, later projection geometry,
+arbitrary-radius interpolation for the translation construction; comparing
+the now-grounded local WZ2 contained-mass cap with the arbitrary convex-test
+volume to obtain a uniform Katz--Tao constant, later projection geometry,
 and the final multiscale assembly.  No full Sticky conclusion or equivalent
 callback is included here.
