@@ -49,7 +49,10 @@ The checkpoint contains real producers for:
   the threshold `(K.toNNReal+1)^(-1/a)` now produces the small-delta budget;
   strict exponent room automatically selects the positive half-room loss and
   reaches the literal witness, while a zero-exponent obstruction proves that
-  `K > 1` cannot be absorbed there;
+  `K > 1` cannot be absorbed there.  A stage-preserving actual stopping producer
+  repairs the old existential output's lost provenance, derives finite `K` and
+  positive witness scale, and returns the target room together with
+  `AllStepsLarge` or the recovered literal witness directly from the real run;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -186,11 +189,12 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: instantiating the existing constant-bearing
-reserved-profile witness at the target parameters and checking its explicit
-small-delta threshold; finite `K`, strict room, the half-room loss, the budget,
-and the resulting literal witness are now produced automatically (the
-zero-exponent case cannot absorb `K > 1`);
+Honest residual work remains: instantiating the actual stopping endpoint's
+stage-range, reserved-profile global/adjacent exponent budgets, finite-node
+certificate, quadratic condition, and explicit small-delta threshold, then
+excluding the genuine all-large branch when a direct dividing witness is
+needed; witness construction, stage provenance, scale positivity, finite `K`,
+room, and exponent-loss absorption are now automatic;
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
