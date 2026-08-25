@@ -48,7 +48,11 @@ The checkpoint contains real producers for:
   the complete selected-restriction coordinates and reaches the actual
   reverse-normalizer and arbitrary-radius Sticky endpoints under the exact
   `SelectedAncestorInjective` seam; a two-to-one parent merger proves this seam
-  is not automatic.  The checkpoint also contains
+  is not automatic.  Independently, the upper and intermediate identity-cover
+  fibres are definitionally identical, so a direct normalizer proves actual
+  reverse loss at most one and reaches the selected arbitrary-radius Sticky
+  endpoint without ancestor injectivity, random-motion, WZ, collision-cell, or
+  hierarchy-coordinate inputs.  The checkpoint also contains
   strict-scale loss localization with a
   reflexive equal-scale branch, the actual explicit
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
@@ -284,16 +288,19 @@ independent repetition/omega coherence or the coupled-prefix producer’s select
 repetition and analytic/collision validity; strict reverse-cardinality,
 bound-shrink, and one-unit old-load obstructions rule out unconditional
 comparison;
-supplying `SelectedAncestorInjective` for the canonical selected identity cover,
-plus the exact level-zero compatibility
-`4*R1+r0 <= 100*r0` (or the sufficient `R1 <= 20*r0`); canonical parent-cell
-coverage, raw coordinates and parent commutation, positivity/half side
-conditions, occurrence embedding, parent equivalence/square, real candidates,
-repetition, and the `parentCount*commonHundredNeighbourPackingConstant`
-reverse/Sticky endpoint construction are then automatic.
-A dimension-only loss still needs a parent subtype embedding into `Fin K`;
-ancestor-merger, reversed-radius, and pointwise-cell obstructions explain why
-the remaining ancestor/ratio inputs and global parent cap are not automatic;
+for the separate collision-cell/coordinate route, supplying the exact level-zero
+compatibility `4*R1+r0 <= 100*r0` (or the sufficient `R1 <= 20*r0`); canonical
+parent-cell coverage, raw coordinates and parent commutation, positivity/half
+side conditions, occurrence embedding, parent equivalence/square, real
+candidates, repetition, and the
+`parentCount*commonHundredNeighbourPackingConstant` reverse/Sticky endpoint
+construction are then automatic.  The direct selected identity reverse/Sticky
+route no longer needs `SelectedAncestorInjective` or this compatibility, but
+still needs its local interval geometry and discrete all-large endpoint
+estimates.  A dimension-only loss still needs a parent subtype embedding into
+`Fin K`; ancestor-merger, reversed-radius, and pointwise-cell obstructions
+explain why the separate coordinate/collision inputs and global parent cap are
+not automatic;
 supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
