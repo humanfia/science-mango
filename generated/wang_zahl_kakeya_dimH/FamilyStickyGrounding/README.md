@@ -13,7 +13,9 @@ The checkpoint contains real producers for:
   refinement trees, nested-cover mass localization, and finite-node threshold
   transfer, literal parent-fiber ratio normalization, and genuine
   fiber-concentration control, plus strict-scale loss localization with a
-  reflexive equal-scale branch;
+  reflexive equal-scale branch, the actual explicit
+  `K * (rho / sigma)^2` captured-box loss, and constant/exponent-gap
+  finite-node tree transfer;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -37,9 +39,11 @@ The checkpoint contains real producers for:
   direct WZ endpoint-parameter and common-neighbour packing bounds, one shared
   outcome satisfying both analytic and collision events with a joint repetition
   count, dependent multiscale prefix/collision/radius certificates, actual
-  hierarchy-to-random source assembly, and a shared-motion certificate for
+  hierarchy-to-random source assembly, clean levelwise WZ separation and
+  collision/joint hierarchy certificates, a shared-motion certificate for
   occurrence count, total-radius containment, common-prefix fiber load, and
-  stagewise child/parent containment;
+  stagewise child/parent containment, and local exact-carrier deduplication
+  with an explicit collision multiplicity;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -48,8 +52,9 @@ The checkpoint contains real producers for:
   affine ConvexFamily/Shading transport, exact copy-density preservation,
   single-copy Katz--Tao invariance, the honest copy-cardinality multi-copy
   bound, certified-source chart-cardinality retention, reduced-parameter
-  cluster/window reduction, and explicit finite shear-grid local
-  nonconcentration.
+  cluster/window reduction, explicit finite shear-grid local nonconcentration,
+  actual ambient convex-test coordinate containment to a local shear window,
+  and the resulting local-copy/local-source-budget count.
 
 Every included source module had a canonical and minimal-import Lean check with
 zero warnings, only the standard three axioms, and an empty forbidden-token
@@ -57,14 +62,15 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: the actual strict
-loss-exponent and finite-node lower-bound producers needed by the new tree
-transfer; exponent interpolation beyond the grounded buffered
-hierarchy/telescope and finite search; the clean hierarchy-level joint
-collision adapter and the actual hierarchy
-test/side/branching-mean producers, distinctness/deduplication, all-convex-test
-reduction, and arbitrary-radius interpolation for the translation construction;
-the ambient convex-test-to-parameter-window bridge needed to turn WZ2
-shear-grid nonconcentration into a uniform Katz--Tao constant, later projection
-geometry, and the final multiscale assembly.  No full
-Sticky conclusion or equivalent callback is included here.
+Honest residual work remains: absorbing the explicit
+`K * (rho / sigma)^(2 - eta)` strict-loss factor through genuine scale
+separation or exponent slack, and exponent interpolation beyond the grounded
+buffered hierarchy/telescope and finite search; the actual hierarchy
+test/side/branching-mean producers, a first-divergence/common-prefix routing
+of global terminal collisions into the proved local layer/parent collision
+classes, essentially-distinct refinement, all-convex-test reduction, and
+arbitrary-radius interpolation for the translation construction; converting
+the ambient coordinate-window width and local source budget into the
+volume-normalized uniform WZ2 Katz--Tao constant, later projection geometry,
+and the final multiscale assembly.  No full Sticky conclusion or equivalent
+callback is included here.
