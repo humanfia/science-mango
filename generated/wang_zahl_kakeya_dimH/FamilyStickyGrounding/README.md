@@ -17,8 +17,10 @@ The checkpoint contains real producers for:
   `K * (rho / sigma)^2` captured-box loss, constant/exponent-gap finite-node
   tree transfer, a finite-candidate strict-separation producer recovering the
   literal constant-one terminal interface when `2 < eta` and
-  `K <= separation^(eta - 2)`, and the sharp obstruction showing separation
-  cannot absorb `K > 1` when `eta <= 2`;
+  `K <= separation^(eta - 2)`, the sharp obstruction showing separation
+  cannot absorb `K > 1` when `eta <= 2`, and a constant-bearing
+  no-bad/stopping/Delta-max endpoint carrying the actual loss to a finite
+  dividing witness without discarding `K`;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -48,8 +50,10 @@ The checkpoint contains real producers for:
   stagewise child/parent containment, local exact-carrier deduplication with
   an explicit collision multiplicity, automatic actual collision-test
   geometry from the hierarchy fibres with one explicit branching scalar
-  condition, and canonical first-divergence/common-prefix child, parent, and
-  local-occurrence routing up to its precisely isolated geometry endpoint;
+  condition, an end-to-end joint-certificate wrapper from hierarchy source
+  geometry, WZ separation, and one explicit collision-unit inequality, and
+  canonical first-divergence/common-prefix child, parent, and local-occurrence
+  routing up to its precisely isolated geometry endpoint;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -70,11 +74,11 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: improving the actual quadratic loss or changing
-the exponent design in the target small-`eta` regime (the finite-separation
-route is now formally ruled out for `K > 1` and `eta <= 2`), and exponent
-interpolation beyond the grounded buffered hierarchy/telescope and finite
-search; instantiating the remaining explicit hierarchy radius/branching
+Honest residual work remains: connecting the new constant-bearing dividing
+witness through the target exponent/interpolation endpoint (or supplying the
+pointwise constant-removal condition required by the old literal interface;
+finite separation alone is formally ruled out for `K > 1`, `eta <= 2`);
+instantiating the remaining explicit hierarchy radius/branching
 scalar checks, the geometric endpoint of the now-grounded
 first-divergence/common-prefix routing of global terminal collisions into the
 proved local layer/parent collision
