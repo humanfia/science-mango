@@ -74,7 +74,10 @@ The checkpoint contains real producers for:
   the prefix all-convex endpoint, and automatic
   common-`100T` plus WZ-separated source geometry on every actual selected
   collision cell, connected to a WZ2 endpoint with coefficient
-  `16*siteCount*C_WZ` and no convex-test-dependent ceiling;
+  `16*siteCount*C_WZ` and no convex-test-dependent ceiling, and a certified
+  fixed-grid endpoint `16*gridConstant*C_WZ`; injectivity of the positive-
+  spacing shear grid and a formal unboundedness obstruction show that the
+  certificate `siteCount <= gridConstant` genuinely must come from upstream;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -122,7 +125,8 @@ implication from no-common-`100` containment is false); arbitrary-radius
 interpolation for the translation construction; supplying
 the adjacent radius upper ratio only if a whole parent fibre (rather than an
 actual local collision cell) must feed WZ2, and bounding the remaining WZ2
-`siteCount` by a dimension-only constant upstream
+`siteCount` by a dimension-only constant upstream (the current arbitrary
+`siteCount` API formally has no uniform cap)
 (full WZ separation alone does not imply the projected shear gap needed for
 the sharper endpoint);
 later projection geometry,
