@@ -28,7 +28,9 @@ The checkpoint contains real producers for:
   data, box-certified tests, canonical repetition/tail choices, source-scale
   nondegeneracy, explicit shared-local point, balance, and feasibility bounds,
   all-parent layer data/numerics, multiscale vector composition, common-prefix
-  load invariance, and actual fixed-test expectation bounds;
+  load invariance, actual fixed-test expectation bounds, shared-vector selection
+  simultaneously good for all parents, and dependent multiscale witness
+  composition;
 - the first correctly sourced WZ2 popularity, Shading double-counting, twisted
   projection, slice-Tonelli, level-set retention, twisted-shear
   volume-preservation, the ambient restricted-integral adapter, literal
@@ -44,7 +46,7 @@ scan before this snapshot.  The aggregate target is:
 Honest residual work remains: the capturing-thickening, corrected
 loss-exponent, and finite-node lower-bound producers needed by the new tree
 transfer; exponent interpolation beyond the grounded buffered
-hierarchy/telescope and finite search; the all-parent random selection and hierarchy
+hierarchy/telescope and finite search; the hierarchy adapter and source-geometry
 integration for the concrete translation net; WZ2 chart-cardinality retention,
 translated-copy density/Wolff provenance, and later
 projection geometry; and the final multiscale assembly.  No full Sticky
