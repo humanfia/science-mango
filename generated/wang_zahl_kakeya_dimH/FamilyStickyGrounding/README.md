@@ -42,7 +42,11 @@ The checkpoint contains real producers for:
   `K <= (theta/rho)^loss` condition, with uniform endpoint-gap and small-delta
   producers plus a monotone lowered-profile literal adapter, and an explicit
   tail-reserved profile whose automatic adjacent gap pays the loss and exactly
-  recovers the original target exponent at the stopping stage;
+  recovers the original target exponent at the stopping stage.  For finite `K`,
+  the threshold `(K.toNNReal+1)^(-1/a)` now produces the small-delta budget;
+  strict exponent room automatically selects the positive half-room loss and
+  reaches the literal witness, while a zero-exponent obstruction proves that
+  `K > 1` cannot be absorbed there;
 - actual thickened test-body geometry, normalized cross inequalities,
   recursively buffered hierarchy covers, normalized test-body telescoping,
   volume-ratio telescoping, and actual adjacent/middle scale values, together
@@ -174,11 +178,11 @@ scan before this snapshot.  The aggregate target is:
 
     lake build FamilyStickyGrounding
 
-Honest residual work remains: instantiating the small-delta exponent-loss
-budget and the room `eta(stage) + loss <= epsilon` at the target parameters
-(the tail reserve now supplies the profile gap automatically, while the
-adapter preserves `K` and pays an explicit middle-exponent loss; finite
-separation alone is formally ruled out for `K > 1`, `eta <= 2`);
+Honest residual work remains: instantiating the existing constant-bearing
+reserved-profile witness at the target parameters and checking its explicit
+small-delta threshold; finite `K`, strict room, the half-room loss, the budget,
+and the resulting literal witness are now produced automatically (the
+zero-exponent case cannot absorb `K > 1`);
 supplying the genuine hierarchy branching/scale-gap budget (all radius checks
 are now endpoint-derived, while an equal-scale counterexample rules out
 automatic branching closure);
