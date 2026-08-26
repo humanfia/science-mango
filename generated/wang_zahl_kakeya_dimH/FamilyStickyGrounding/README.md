@@ -417,6 +417,28 @@ count times a dimension-controlled packing constant (or an explicit parent-loss
 bound), so an additional parent-count estimate is required before it can be
 called dimension-only; the Sticky-branch loss also remains ambient-card based.
 
+An explicit `LevelZeroParentCode` now propagates through the fully automatic
+WZ endpoint: its local-card parameter is
+`parentLoss * commonHundredNeighbourPackingConstant`, and the public
+radius-compatible endpoint still exposes no seed budget, positive-delta proof,
+or refined-nonempty proof.  Matching final-assembly wrappers substitute the
+certificate's actual joint output, positive depth, and level-WZ data while
+honestly retaining the independent radius compatibility and numerical inputs.
+These wrappers connect the stopping API to the data-bearing assembly object;
+they are not the missing Section 7 analytic Sticky theorem.
+
+There is also a conditional dimension-only local threshold from a concrete
+global geometric input.  Restricting the actual level-one effective family to
+the true level-zero active-parent subtype and requiring that family to lie in
+one literal shared `100`-tube container lets level-one WZ separation prove
+`levelZeroParentCount <= commonHundredNeighbourPackingConstant`.  Combining
+this with the per-parent collision-cell packing gives the fixed local-card
+parameter `commonHundredNeighbourPackingConstant^2`.  The shared-parent
+container is not derivable from the current hierarchy interfaces: without a
+global confinement condition, parent tubes may be translated arbitrarily far
+apart.  Thus only this local-card parameter and its delta threshold are
+dimension-only; the existing Sticky-branch ambient-card loss remains unchanged.
+
 The first failed relevant node and all earlier successful checks are computed;
 empty active-coarse and below-cutoff root data give sharp obstructions to
 manufacturing the repaired V2 node lower bounds automatically.
