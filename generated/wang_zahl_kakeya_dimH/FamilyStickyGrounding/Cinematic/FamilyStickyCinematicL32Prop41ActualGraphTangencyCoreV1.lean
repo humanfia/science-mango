@@ -1,5 +1,5 @@
 import FamilyStickyGrounding.Cinematic.FamilyStickyCinematicL32RolleBridgeV1
-import Submission.Kakeya.ConvexGeometry.Tube
+import FamilyStickyGrounding.FamilyStickyWZ2TubeCarrierCoordinateAdapterV1
 
 set_option autoImplicit false
 
@@ -14,10 +14,10 @@ open FamilyStickyCinematicL32RolleBridgeV1
 /-!
 # Clean actual cinematic graph and tangency core
 
-This is the measure-free part of `FamilyStickyCinematicL32RectangleTangencyV1`.
-It records only the explicit graph formula and the elementary common-strip
-triangle inequality needed by the PYZ/Jordan path.  In particular it has no
-dependency on WZ2 slicing, popularity, or measure theory.
+This records only the explicit graph formula and the elementary common-strip
+triangle inequality needed by the PYZ/Jordan path.  Actual-tube coordinates
+are reused from the canonical coordinate adapter so their names have one
+definition across the combined Family7 development.
 -/
 
 /-- The vertical `R`-neighborhood of a scalar graph over `I`. -/
@@ -52,8 +52,7 @@ theorem common_strip_tangency_forces_value_sublevel
     _ <= R + R := add_le_add hgAt hkAt
     _ = 2 * R := by ring
 
-/-- First coordinate of the actual Wang--Zahl cinematic curve, written
-directly so this core does not import the WZ2 projection/measure stack. -/
+/-- First coordinate of the actual Wang--Zahl cinematic curve. -/
 def cinematicTraceValue
     (f : Real -> Real) (a b c d t : Real) : Real :=
   a + c * t + f t * (b + d * t)
@@ -94,26 +93,6 @@ theorem common_strip_tangency_forces_trace_sublevel
   exact hvalue theta htheta
 
 end FamilyStickyCinematicL32RectangleTangencyV1
-
-namespace FamilyStickyWZ2TubeCarrierCoordinateAdapterV1
-
-open Submission.Kakeya.ConvexGeometry
-
-/-! The four height-graph coordinates of an actual project tube. -/
-
-def tubeGraphC {delta : NNReal} (T : Tube delta) : Real :=
-  T.axis.direction 0 / T.axis.direction 2
-
-def tubeGraphD {delta : NNReal} (T : Tube delta) : Real :=
-  T.axis.direction 1 / T.axis.direction 2
-
-def tubeGraphA {delta : NNReal} (T : Tube delta) : Real :=
-  T.axis.base 0 - tubeGraphC T * T.axis.base 2
-
-def tubeGraphB {delta : NNReal} (T : Tube delta) : Real :=
-  T.axis.base 1 - tubeGraphD T * T.axis.base 2
-
-end FamilyStickyWZ2TubeCarrierCoordinateAdapterV1
 
 #print axioms FamilyStickyCinematicL32RectangleTangencyV1.cinematicTraceValue_sub_eq_traceFunction
 #print axioms FamilyStickyCinematicL32RectangleTangencyV1.common_strip_tangency_forces_trace_sublevel
