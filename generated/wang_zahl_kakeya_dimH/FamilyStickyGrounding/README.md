@@ -392,13 +392,30 @@ The canonical insertion recursion now preserves a fixed local-card budget
 child has no larger active-fine cardinality, and the before/after intervals are
 unchanged.  This yields a counted fixed-`n` driver, a uniform adjacent threshold,
 and a fully automatic fixed-local-card endpoint whose single delta threshold
-depends on `n` rather than on the ambient finite index type.  Its sole remaining
-local-card input is the honest seed certificate
-`NonLargeLocalCardBudget ... n` for the automatically generated capped seed.
-The identity cover can preserve equality throughout the recursion, so the
-recursive machinery cannot manufacture a smaller seed budget by itself.  This
-is therefore an interface for a future packing/concentration theorem, not yet
-such a theorem and not yet a cardinality-uniform positive delta threshold.
+depends on `n` rather than on the ambient finite index type.
+
+The generated capped seed no longer needs a public seed certificate.  For every
+coherent cover, each adjacent active-fine cardinality is at most the original
+active refined-family cardinality; for the identity cover this is an equality.
+Consequently, choosing `n = fine.refinement.refined.card` automatically proves
+`NonLargeLocalCardBudget` and gives a fully automatic exact-refined-card
+endpoint.  This removes ambient `Fintype.card` from the local threshold, but the
+threshold still depends on the actual active refined family.  The identity
+equality also shows why the recursion alone cannot produce a smaller uniform
+budget, so this is not a cardinality-independent positive delta threshold.
+
+Two hierarchy adapters now give honest alternatives to the exact refined-card
+budget.  The structural adapter uses the layer parent count times the prefix
+branching product.  The WZ adapter injects each level-zero parent fibre into its
+actual collision cell, applies the common hundred-neighbour packing constant
+under `HierarchyLevelWZSeparationData`, and sums over the real parent partition.
+Canonical coverage, and in particular level-zero radius compatibility, produces
+the required collision-cell capture.  The preferred WZ-packed hierarchy
+endpoint therefore exposes neither a seed budget, a separate positive-delta
+proof, nor a refined-nonempty proof.  Its bound is still the level-zero parent
+count times a dimension-controlled packing constant (or an explicit parent-loss
+bound), so an additional parent-count estimate is required before it can be
+called dimension-only; the Sticky-branch loss also remains ambient-card based.
 
 The first failed relevant node and all earlier successful checks are computed;
 empty active-coarse and below-cutoff root data give sharp obstructions to
