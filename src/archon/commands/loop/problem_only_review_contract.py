@@ -2070,6 +2070,26 @@ def render_native_chemistry_constant_policy(
   observation and each outcome-decisive balanced ledger uniformly. Do not add a
   candidate-named singleton, freely chosen exclusion flags, or an exhaustive
   catalogue of hypothetical interferences merely to declare closure.
+- Treat the source as an explicit closed contest-model stipulation for a
+  formula-only thermogravimetric identification when the same bound problem
+  context states all of these cues: one stoichiometric sample/cohort; the
+  relevant temperature stages and atmosphere; a named single final compound
+  with a stable final plateau; and an instruction to determine concrete
+  formulae from those TGA data. In that narrow scope, a candidate-independent
+  staged domain constructed before selection from the independently derived
+  salt core, whole-number waters where a clean low-temperature loss is
+  interpreted, the stated atmosphere, ordinary charge/valence bounds, and any
+  applicable qualitative residue-class authority counts as independently
+  established when every source mass interval and used conservation relation
+  is applied uniformly and leaves a unique candidate. Do not demand separate
+  quantitative-yield or recovery evidence, or affirmative enumeration and
+  exclusion of unstated containers, contamination, trace atmosphere components,
+  or hypothetical byproducts. Do not make a stricter dormant bridge or its
+  stronger applicability conditions a passing prerequisite unless the candidate
+  actually claims those stronger facts. This convention cannot establish yield,
+  purity, a complete mechanism, or open-world uniqueness; a real
+  source-grounded alternative, answer-shaped singleton, free `Bool`/`Prop`,
+  or opaque predicate still fails.
 - Use `qualitative_named_transform_only` only when an explicit source arrow or
   named-final cue is a non-exclusive compatibility constraint for an
   identify/draw/give-structure output. Bind the named reactant, reagent,
