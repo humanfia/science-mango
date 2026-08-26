@@ -516,7 +516,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "every required activation cue is bound to an exact problem locator",
                 "different-substrate cue fails closed",
                 "does not identify the specific reagent",
-                "identity to be derived independently from the problem measurements",
+                "when reagent identity is requested or used decisively",
                 "not answer smuggling merely because it is defined as the output carrier",
                 "injected into a premise, singleton/answer-shaped domain, opaque predicate",
                 "explicit problem arrow or named-final cue is itself the authority",
@@ -531,13 +531,28 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 '"staged_species_domain"',
                 "quantitative_material_stage",
                 "qualitative_named_transform_only",
-                "Only that class must enumerate all allowed solid inputs/outputs",
-                "allowed solid inputs/outputs, volatile outputs, and external inputs",
-                "complete atom, charge, mass, and measured-interval ledger carriers",
+                "requested conclusion claims a complete stage balance",
+                "derivation actually depends on the corresponding species, atom, charge, mass, phase",
+                "A requested coefficient or quantity derived directly under a source-stated idealization",
+                "Only the conservation dimensions actually used by the conclusion are mandatory",
+                "complete combined species/atom/charge/mass/phase ledger only when",
                 "non-exclusive compatibility constraint for an identify/draw/give-structure output",
                 "Keep omitted protocol details, coefficients, phases, byproducts, and streams unknown",
-                "Reject anonymous/catch-all streams",
+                "record unrelated omissions as evidence-only limitations",
+                "anonymous/catch-all streams or premature terminal-residue reasoning that could change the requested output",
                 "not_staged_transformation",
+                "Use requested-output materiality as the hard-fail boundary",
+                "missing or wrong output/value/unit/branch/scope",
+                "vacuous, disconnected carrier",
+                "concrete source-compatible countermodel",
+                "broader generic `fails closed`, bridge-completeness, candidate-domain",
+                "source-signaled approximation",
+                "source-indicated dominant/slow leg",
+                "Missing literature that is not needed for the derivation",
+                "evidence-only, not a hard failure",
+                "Do not block a bridge or request a dormant rule",
+                "A preceding subpart is not automatically a dependency",
+                "follow the actual source-stated and Lean dataflow",
                 "inner activation-input candidate and answer hash intentionally "
                 "belong to the already reviewed parent hop",
                 "Different candidate or answer hashes between those two hops "
@@ -550,7 +565,7 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 normalized_chemistry,
             )
             self.assertIn(
-                "problem or auditable chemistry evidence supporting the candidate domain",
+                "provenance for an output-decisive domain, or why no domain is decisive",
                 normalized_chemistry,
             )
 
@@ -1456,6 +1471,15 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIn("PROGRESS.md", prompt)
             self.assertIn(str(output / "milestones.jsonl"), prompt)
             self.assertIn("countermodel_resistance", prompt)
+            normalized_prompt = " ".join(prompt.split())
+            for marker in (
+                "Use requested-output materiality as the hard-fail boundary",
+                "missing or wrong output/value/unit/branch/scope",
+                "source-indicated dominant/slow leg",
+                "Missing literature that is not needed for the derivation",
+                "complete combined species/atom/charge/mass/phase ledger only when",
+            ):
+                self.assertIn(marker, normalized_prompt)
 
             self.assertIn(str(flat_result), prompt)
 

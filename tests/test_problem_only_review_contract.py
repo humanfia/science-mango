@@ -60,10 +60,12 @@ from archon.commands.loop.review_source_contract import (
 )
 from archon.commands.loop.problem_only_review_contract import (
     NATIVE_CONTRACT_KIND,
+    NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
     ProblemOnlyReviewContractError,
     _validate_native_composition_accounting,
     materialize_controller_review_provenance,
     native_problem_image_args,
+    numeric_reporting_marker_repair_reason,
     native_source_contract_provenance,
     render_native_chemistry_constant_policy,
     render_native_certified_prior_result_prompt,
@@ -72,6 +74,7 @@ from archon.commands.loop.problem_only_review_contract import (
     resolve_native_formalizer_source_contract,
     resolve_target_review_source_contract,
     validate_native_answer_submission_current,
+    validate_native_passing_preflight,
     validate_native_resolved_answer_submission_current,
     validate_native_review_source_certificate,
     validate_review_source_contract_current,
@@ -606,11 +609,16 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "STAGED-TRANSFORMATION CLASSIFICATION",
             "`quantitative_material_stage`",
             "`qualitative_named_transform_only`",
-            "Use `quantitative_material_stage` whenever the conclusion depends on yield",
-            "finite, source-derived species domain",
-            "every permitted solid input/output, volatile output, and external input",
-            "Every atom or mass flow must be species-typed",
-            "catch-all streams are forbidden",
+            "Use `quantitative_material_stage` only when the requested conclusion claims",
+            "actual derivation consumes the corresponding species, atom, charge, mass, phase",
+            "source-stated contest idealization",
+            "graph cut or skeleton projection",
+            "source-indicated kinetic dominant/slow leg",
+            "require only the conservation dimensions actually used",
+            "finite, source-derived domain needed by those ledgers",
+            "complete combined species/atom/charge/mass/phase/interval ledger",
+            "Within an outcome-decisive ledger",
+            "catch-all streams remain forbidden",
             "Use `qualitative_named_transform_only` only when an explicit source arrow",
             "non-exclusive compatibility constraint for an identify/draw/give-structure output",
             "Keep omitted protocol details, coefficients, phases, byproducts, and streams unknown",
@@ -621,17 +629,24 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "open-world chemical universe is finite or globally exhaustive",
             "reject answer smuggling",
             "unconstrained `Bool`/`Prop` fields",
-            "For every `quantitative_material_stage`, expose named Lean carriers",
-            "complete atom, charge, mass, and measured-interval ledgers",
-            "Scalar mass equality alone is not chemical feasibility",
-            "terminal-residue or terminal-candidate rule only after",
-            "at least two fully species-typed, source-grounded, balanced models",
+            "Expose named Lean carriers for each conservation ledger actually used",
+            "scalar mass equality alone cannot establish atom- or charge-level feasibility",
+            "terminal-residue or terminal-candidate rule only when a source-stated contest model",
+            "ledgers actually used by the rule pass",
+            "balanced on every outcome-decisive dimension",
             "numerical slack and freely chosen flags are not countermodels",
             "`chemistry_checks.staged_species_domain`",
             "A qualitative pass must include the exact token `qualitative_named_transform_only`",
             "exact token `not_staged_transformation`",
         ):
             self.assertIn(marker, prompt)
+        for overbroad in (
+            "Use `quantitative_material_stage` whenever",
+            "every permitted solid input/output, volatile output, and external input",
+            "complete atom, charge, mass, and measured-interval ledgers",
+            "species domain is closed and every stage ledger passes",
+        ):
+            self.assertNotIn(overbroad, prompt)
         self.assertNotIn("MANDATORY FINITE STAGED-SPECIES DOMAIN", prompt)
 
         formalizer_prompt = " ".join(
@@ -1620,6 +1635,46 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 target=self.target,
                 preflight=timeout,
             )
+
+    def test_missing_marker_exception_is_semantic_only_and_proof_stays_strict(
+        self,
+    ) -> None:
+        contract = self._contract()
+        contract["problem_evidence"]["requested_outputs"][0]["kind"] = "numeric"
+        reporting = contract["preflight"]["numeric_reporting"]
+        marker_preflight = {
+            **contract["preflight"],
+            "status": "failed",
+            "compiles": True,
+            "returncode": 0,
+            "numeric_reporting": {
+                **reporting,
+                "status": "failed",
+                "reason": NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+                "numeric_outputs": 1,
+                "certificates": [],
+            },
+        }
+        contract["preflight"] = marker_preflight
+
+        self.assertEqual(
+            numeric_reporting_marker_repair_reason(contract),
+            NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+        )
+        self.assertEqual(
+            validate_native_passing_preflight(
+                contract,
+                require_zero_sorries=False,
+                allow_numeric_reporting_marker_repair=True,
+            ),
+            "",
+        )
+        self.assertIn(
+            "successful deterministic Lean preflight",
+            validate_native_passing_preflight(
+                contract, require_zero_sorries=True,
+            ),
+        )
 
     def test_config_symlink_is_rejected_but_legacy_supplied_contract_remains(self) -> None:
         config_path = self.state / "config.json"

@@ -181,6 +181,12 @@ _NUMERIC_REPORTING_FINAL_FIELDS = _NUMERIC_REPORTING_EVIDENCE_FIELDS | {
 _NUMERIC_REPORTING_STATUSES = {
     "passed", "failed", "blocked", "not_applicable", "error",
 }
+NUMERIC_REPORTING_MARKER_MISSING_REPAIR = (
+    "compiled Lean target is missing the required "
+    "archon:numeric-reporting-certificate marker; add exactly one valid "
+    "certificate line for each numeric requested output, then rerun "
+    "deterministic preflight"
+)
 _GENERATED_ENTRY_FIELDS = {
     "blind_record_sha256",
     "image_path",
@@ -2040,26 +2046,34 @@ def render_native_chemistry_constant_policy(
 - STAGED-TRANSFORMATION CLASSIFICATION: before auditing a depicted or stated
   transformation, classify how the requested output uses it as either
   `quantitative_material_stage` or `qualitative_named_transform_only`.
-- Use `quantitative_material_stage` whenever the conclusion depends on yield,
-  completeness, sole-product or absence claims, stage coefficients or phase
-  amounts, cross-stage atom/mass balance, loss/residue amount, or an omitted
-  stream being empty. For this class, establish a finite, source-derived
-  species domain and enumerate every permitted solid input/output, volatile
-  output, and external input by identity/formula and phase. Every atom or mass
-  flow must be species-typed; anonymous `other`, `residual`, `ejected`,
-  `untracked`, or catch-all streams are forbidden. Give every admitted element
-  an exact problem locator, independently rederived prior carrier, or valid
-  pinned/activated authority.
+- Use `quantitative_material_stage` only when the requested conclusion claims
+  a complete stage balance, yield/completeness, sole-product/absence,
+  cross-stage loss/residue, an omitted stream to be empty, or when its actual
+  derivation consumes the corresponding species, atom, charge, mass, phase,
+  or measured-interval conservation. A source-stated contest idealization, a
+  graph cut or skeleton projection, or a coefficient/quantity obtained from a
+  source-indicated kinetic dominant/slow leg does not by itself trigger every
+  possible material ledger.
+- For a `quantitative_material_stage`, require only the conservation dimensions
+  actually used to decide the requested output. Establish the finite,
+  source-derived domain needed by those ledgers; enumerate the relevant
+  inputs, outputs, and external streams; and bind every admitted element.
+  Require a complete combined species/atom/charge/mass/phase/interval ledger
+  only when the conclusion claims that complete balance or actually depends
+  on every one of those dimensions. Within an outcome-decisive ledger,
+  anonymous `other`, `residual`, `ejected`, `untracked`, or catch-all streams
+  remain forbidden.
 - Use `qualitative_named_transform_only` only when an explicit source arrow or
   named-final cue is a non-exclusive compatibility constraint for an
   identify/draw/give-structure output. Bind the named reactant, reagent,
   product role, direction, exact source locator, and every applicable trusted
   rule. Keep omitted protocol details, coefficients, phases, byproducts, and
   streams unknown. This class may check the candidate's own formula, charge,
-  valence, structure, primitive stoichiometry, pinned-weight interval, and
-  compatibility, but it may not claim yield, completeness, sole-product
-  status, absence of material, or a quantitative stage balance. It does not
-  require inventing or exhaustively enumerating omitted streams and byproducts.
+  valence, structure, graph/skeleton projection, primitive stoichiometry,
+  pinned-weight interval, and compatibility, but it may not claim yield,
+  completeness, sole-product status, absence of material, or a quantitative
+  stage balance. It does not require inventing or exhaustively enumerating
+  omitted streams and byproducts.
 - For source verbs identify, draw, or give a structure without `unique`, `all`,
   `every`, or equivalent exhaustive wording, a concrete evidence-supported
   witness is the requested output; do not require a proof that the open-world
@@ -2075,19 +2089,19 @@ def render_native_chemistry_constant_policy(
   stability, or reaction completion) that a witness can set arbitrarily. Each
   decisive predicate needs a source locator/receipt and a nontrivial carrier,
   or must be eliminated by an actually used, provenance-bound candidate audit.
-- For every `quantitative_material_stage`, expose named Lean carriers for the
-  complete atom, charge, mass, and measured-interval ledgers, including every
-  admitted species and external input. Scalar mass equality alone is not
-  chemical feasibility.
-  Apply a terminal-residue or terminal-candidate rule only after the species
-  domain is closed and every stage ledger passes. A claimed countermodel or
-  underdetermination result requires at least two fully species-typed,
-  source-grounded, balanced models; numerical slack and freely chosen flags
-  are not countermodels.
+- Expose named Lean carriers for each conservation ledger actually used by a
+  `quantitative_material_stage`; scalar mass equality alone cannot establish
+  atom- or charge-level feasibility when those dimensions are decisive.
+  Apply a terminal-residue or terminal-candidate rule only when a source-stated
+  contest model makes that rule output-decisive, and only after the relevant
+  species domain is closed and the ledgers actually used by the rule pass. A
+  claimed countermodel or underdetermination result requires at least two
+  source-grounded models typed and balanced on every outcome-decisive
+  dimension; numerical slack and freely chosen flags are not countermodels.
 - Every Review certificate must include
   `chemistry_checks.staged_species_domain`, with `passed` or `failed` status
   and evidence naming the selected classification. Quantitative evidence names
-  the domain, stages, and ledger carriers. A qualitative pass must include the
+  the domain, stages, and actually used ledger carriers. A qualitative pass must include the
   exact token `qualitative_named_transform_only` and name the source-arrow and
   compatibility carriers. Use `not_applicable` only when the target has no
   staged material transformation; that evidence must include the exact token
@@ -2694,6 +2708,7 @@ def validate_native_passing_preflight(
     contract: Mapping[str, Any] | None,
     *,
     require_zero_sorries: bool,
+    allow_numeric_reporting_marker_repair: bool = False,
 ) -> str:
     """Validate worker-local deterministic evidence for a passing verdict."""
     if not is_native_problem_only_contract(contract):
@@ -2714,6 +2729,15 @@ def validate_native_passing_preflight(
     except ProblemOnlyReviewContractError as exc:
         return str(exc)
     if (
+        allow_numeric_reporting_marker_repair
+        and numeric_reporting_marker_repair_reason(contract, preflight=row)
+    ):
+        # A semantic formalization certificate may be checked independently
+        # of a comment-only certificate repair.  The formalization gate still
+        # refuses to pass the target and routes the exact mechanical fix.
+        # Proof Review calls this validator again without the exception.
+        return ""
+    if (
         row.get("status") != "passed"
         or row.get("compiles") is not True
         or row.get("returncode") != 0
@@ -2722,6 +2746,56 @@ def validate_native_passing_preflight(
     if require_zero_sorries and row.get("sorry_count") != 0:
         return "solved proof Review requires deterministic sorry_count=0"
     return ""
+
+
+def numeric_reporting_marker_repair_reason(
+    contract: Mapping[str, Any] | None,
+    *,
+    preflight: Mapping[str, Any] | None = None,
+) -> str:
+    """Return a fixed repair reason for a source-bound marker-only failure.
+
+    This deliberately does not classify bad values, policies, declaration
+    bindings, Lean probe failures, or ordinary compilation failures as
+    mechanical.  No new evidence field or trust path is introduced.
+    """
+    if not is_native_problem_only_contract(contract):
+        return ""
+    row = preflight if isinstance(preflight, Mapping) else contract.get(
+        "preflight"
+    )
+    if not isinstance(row, Mapping):
+        return ""
+    reporting = row.get("numeric_reporting")
+    evidence = contract.get("problem_evidence")
+    requested = (
+        evidence.get("requested_outputs")
+        if isinstance(evidence, Mapping) else None
+    )
+    numeric_count = (
+        sum(
+            1 for output in requested
+            if isinstance(output, Mapping) and output.get("kind") == "numeric"
+        )
+        if isinstance(requested, list) else 0
+    )
+    if not isinstance(reporting, Mapping):
+        return ""
+    reason = reporting.get("reason")
+    if (
+        numeric_count < 1
+        or reporting.get("numeric_outputs") != numeric_count
+        or row.get("status") != "failed"
+        or row.get("compiles") is not True
+        or row.get("returncode") != 0
+        or reporting.get("active") is not True
+        or reporting.get("status") != "failed"
+        or reporting.get("certificates") != []
+        or "lean_probe_passed" in reporting
+        or reason != NUMERIC_REPORTING_MARKER_MISSING_REPAIR
+    ):
+        return ""
+    return str(reason)
 
 
 def validate_native_review_source_certificate(
@@ -2772,6 +2846,7 @@ def validate_native_review_source_certificate(
         preflight_error = validate_native_passing_preflight(
             expected_contract,
             require_zero_sorries=False,
+            allow_numeric_reporting_marker_repair=True,
         )
         if preflight_error:
             return preflight_error

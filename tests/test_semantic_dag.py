@@ -295,6 +295,85 @@ class SemanticDagTest(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, serialized)
 
+    def test_explicit_prior_reference_excludes_unrelated_context(self) -> None:
+        evidence = copy.deepcopy(self.evidence)
+        evidence["current_question"] = (
+            "Using the value from 2.4, determine both requested quantities."
+        )
+        evidence["previous_parts"] = [
+            {
+                "source_id": "item_p2_q4",
+                "part_id": "P2-Q4",
+                "question": "Determine the upstream value.",
+                "dependency_policy": "derive_in_blind_run",
+            },
+            {
+                "source_id": "item_p2_q8",
+                "part_id": "P2-Q8",
+                "question": "Determine an unrelated neighboring value.",
+                "dependency_policy": "derive_in_blind_run",
+            },
+        ]
+
+        dag = build_semantic_dag(
+            record_id="item_p2_q9", problem_evidence=evidence,
+        )
+        provenance = semantic_dag_provenance(dag)
+        self.assertEqual(
+            provenance["previous_part_source_ids"], ["item_p2_q4"],
+        )
+        self.assertFalse(
+            any(node["id"] == "previous:1" for node in dag["nodes"])
+        )
+        self.assertFalse(
+            any(edge["from"] == "previous:1" for edge in dag["edges"])
+        )
+
+        leaky = copy.deepcopy(evidence)
+        leaky["previous_parts"][1]["answer"] = "SECRET"
+        with self.assertRaisesRegex(SemanticDagError, "answer-bearing field"):
+            build_semantic_dag(
+                record_id="item_p2_q9", problem_evidence=leaky,
+            )
+
+    def test_fragment_reference_does_not_narrow_curated_data_flow(self) -> None:
+        evidence = copy.deepcopy(self.evidence)
+        evidence["current_question"] = (
+            "Determine the molecular formula of the fatty acid (RCOOH), if "
+            "the non-ionised form of PL1 contains 255 bonds in total. If you "
+            "were unable to find the structural formula of PL1, you can use "
+            "a-d fragments from 5.1."
+        )
+        evidence["previous_parts"] = [
+            {
+                "source_id": "item_t5_a1",
+                "part_id": "T5-A1",
+                "question": "Determine the a-d fragment inventory.",
+                "dependency_policy": "derive_in_blind_run",
+            },
+            {
+                "source_id": "item_t5_a2",
+                "part_id": "T5-A2",
+                "question": "Determine the structural formula of PL1.",
+                "dependency_policy": "derive_in_blind_run",
+            },
+        ]
+
+        dag = build_semantic_dag(
+            record_id="item_t5_a3", problem_evidence=evidence,
+        )
+        self.assertEqual(
+            semantic_dag_provenance(dag)["previous_part_source_ids"],
+            ["item_t5_a1", "item_t5_a2"],
+        )
+        for output_id in ("formula", "count"):
+            incoming = {
+                edge["from"]
+                for edge in dag["edges"]
+                if edge["to"] == f"derive:{output_id}"
+            }
+            self.assertTrue({"previous:0", "previous:1"} <= incoming)
+
     def test_hash_changes_with_source_facts_or_output_contract(self) -> None:
         original = semantic_dag_provenance(self._dag())["sha256"]
         changed_fact = copy.deepcopy(self.evidence)

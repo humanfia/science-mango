@@ -73,8 +73,38 @@ _MAX_SCHEMA_FEEDBACK_ITEM_BYTES = 512
 _MAX_SCHEMA_FEEDBACK_ITEMS = 4
 _MAX_SCHEMA_FEEDBACK_TOTAL_BYTES = 2_048
 
-_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL = """Trace every non-mathematical chemistry
-bridge to its ultimate authority. A candidate-local `axiom`, `def`, `theorem`,
+_CHEMISTRY_DECISIVE_DEFECT_PROTOCOL = """Use requested-output materiality as
+the hard-fail boundary. Mark the Review failed only for a semantic defect that
+can change, erase, or make underdetermined a requested output: a missing or
+wrong output/value/unit/branch/scope; answer smuggling or a vacuous,
+disconnected carrier; a contradiction in the problem-facing statement; or a
+concrete source-compatible countermodel, under the same stated assumptions,
+that changes the output. Name the affected output and the causal defect in the
+failure evidence. An imagined alternative outside the source-stated model is
+not such a countermodel.
+
+Apply any broader generic `fails closed`, bridge-completeness, candidate-domain,
+or staged-ledger wording elsewhere in this prompt only to a premise or carrier
+that is outcome-decisive under this boundary.
+
+Accept an explicit contest idealization, source-signaled approximation, or
+source-indicated dominant/slow leg within its stated scope. Audit that the Lean
+claim does not exceed the scope and that the approximation is applied to the
+right branch or stage; do not demand an open-world chemistry model merely to
+replace that declared contest model.
+
+Missing literature that is not needed for the derivation, omitted irrelevant
+species/byproducts/phases, absence of a complete open-world reaction closure,
+or failure to prove a stronger unrequested theorem is evidence-only, not a
+hard failure. Record the limitation and why it cannot affect the requested
+output while leaving the applicable check passed (or not_applicable where the
+schema permits). Do not block a bridge or request a dormant rule for such a
+non-decisive limitation."""
+
+
+_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL = """Trace every outcome-decisive
+non-mathematical chemistry bridge to its ultimate authority. A
+candidate-local `axiom`, `def`, `theorem`,
 structure field, predicate, or fully-qualified name is not a trusted rule merely
 because the candidate compiles or uses it in a proof. Count a local carrier only
 when its decisive implication reduces to an exact problem locator, an offline
@@ -91,9 +121,10 @@ activation cue is bound to an exact problem locator, no problem-stated override
 applies, and the independently repeated lookup matches both `dataset_sha256` and
 `record_sha256`. Use only the returned domain, template, stoichiometry, and
 retention scope. A missing, ambiguous, contradicted, or different-substrate cue
-fails closed. The policy does not identify the specific reagent; require that
-identity to be derived independently from the problem measurements and pinned
-constants.
+fails closed when that receipt is needed for the requested output. The policy
+does not identify the specific reagent; when reagent identity is requested or
+used decisively, require it to be derived independently from the problem
+measurements and pinned constants.
 
 For `qualitative_named_transform_only`, an explicit problem arrow or named-final
 cue is itself the authority only for its named tail/reagent/head roles, direction,
@@ -126,8 +157,9 @@ concrete witness, audit the problem-and-authority evidence chain and do not fail
 solely because no global candidate universe was asserted.
 """
 
-_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL = """For every depicted reaction arrow,
-write a source-first arrow certificate before using it: state the arrowhead
+_CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL = """For every depicted reaction arrow
+used to derive a requested output, write a source-first arrow certificate before
+using it: state the arrowhead
 direction, enumerate all precursors at the tail (including reagents placed
 above or below the shaft), identify the product at the head, and trace a
 distinctive scaffold or motif from each precursor into that product. Cross-check
@@ -142,15 +174,21 @@ every atom exactly once. Do not inherit a familiar abbreviation's net formula
 or attachment semantics from the candidate."""
 
 _STAGED_SPECIES_DOMAIN_PROTOCOL = """For every depicted or stated
-transformation, the `staged_species_domain` check is mandatory, but first
-classify the requested output's use as `quantitative_material_stage` or
-`qualitative_named_transform_only`. The quantitative class applies when the
-conclusion needs yield, completeness, sole-product/absence, coefficients or
-phase amounts, cross-stage balance, loss/residue, or an omitted stream to be
-empty. Only that class must enumerate all allowed solid inputs/outputs,
-volatile outputs, and external inputs; bind every admitted element; and name
-complete atom, charge, mass, and measured-interval ledger carriers. Reject
-anonymous/catch-all streams and premature terminal-residue reasoning there.
+transformation used to derive a requested output, audit `staged_species_domain`
+and classify the output's actual use as `quantitative_material_stage` or
+`qualitative_named_transform_only`. The quantitative class applies only when
+the requested conclusion claims a complete stage balance, yield/completeness,
+sole-product/absence, cross-stage loss/residue, an omitted stream to be empty,
+or when its derivation actually depends on the corresponding species, atom,
+charge, mass, phase, or measured-interval conservation. A requested coefficient
+or quantity derived directly under a source-stated idealization does not by
+itself trigger every possible ledger. Only the conservation dimensions actually
+used by the conclusion are mandatory; require the complete combined
+species/atom/charge/mass/phase ledger only when the conclusion claims that
+complete balance or depends on all of it. In that scope enumerate the allowed
+inputs/outputs and external streams needed by the balance, bind the admitted
+elements, and reject anonymous/catch-all streams or premature terminal-residue
+reasoning that could change the requested output.
 
 The qualitative class is allowed for an explicit source arrow or named-final
 cue used only as a non-exclusive compatibility constraint for an
@@ -162,8 +200,11 @@ Keep omitted protocol details, coefficients, phases, byproducts, and streams
 unknown; do not invent them and do not fail solely because they are omitted.
 This class cannot support yield, completeness, sole-product/absence, or a
 quantitative stage balance. Passing evidence must include the exact token
-`qualitative_named_transform_only`. Use `not_applicable` only when there is no
-staged material transformation, with exact token `not_staged_transformation`."""
+`qualitative_named_transform_only`. For any other scoped calculation, audit
+only the stage facts and conservation dimensions on which its requested output
+depends and record unrelated omissions as evidence-only limitations. Use
+`not_applicable` only when there is no staged material transformation relevant
+to a requested output, with exact token `not_staged_transformation`."""
 
 _DORMANT_TRUSTED_BRIDGE_PROTOCOL = """The bound offline registry policy lists
 the exact dormant controller-pinned bridge IDs. Those identifiers are request
@@ -557,9 +598,12 @@ bound problem evidence without smuggling a requested result into assumptions.
 Audit all six checks independently: source_faithfulness, derivability,
 abstraction_sufficiency, uncertainty_propagation, branch_orientation, and
 countermodel_resistance. Every check needs concrete evidence. Only uncertainty
-and branch checks may be not_applicable. Inventory every nontrivial
-source-to-Lean bridge with a named carrier; a pass requires every bridge to be
-covered.
+and branch checks may be not_applicable. Inventory every outcome-decisive
+source-to-Lean bridge with a named carrier; a pass requires every such bridge
+to be covered. Do not manufacture a bridge obligation for background chemistry
+that the requested output does not use.
+
+{_CHEMISTRY_DECISIVE_DEFECT_PROTOCOL}
 
 Check that source_contract.candidate_sha256 binds the exact Lean candidate.
 Check that source_contract.answer_submission_sha256 binds the exact submission
@@ -582,9 +626,12 @@ legitimate problem input. A fallback may be used only where the problem wording
 permits it; never use a later fallback backward to establish the upstream
 subpart whose result it mirrors. A questions-only `previous_parts` entry gives
 only the prior question and dependency policy; it never establishes a result.
-Derive each upstream requested output independently unless the source-contract
-block contains a complete CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY. In that
-case, recheck its context/receipt hashes, producer hard-green gates, linked
+A preceding subpart is not automatically a dependency: follow the actual
+source-stated and Lean dataflow into the current requested output, and do not
+fail for an unused prior result merely because it appears earlier. Independently
+derive each upstream result that is actually used unless the source-contract
+block contains a complete CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY for it.
+In that case, recheck its context/receipt hashes, producer hard-green gates, linked
 validation-lineage and campaign inventory, consumer bundle/previous_parts
 binding, and every used Lean declaration/type/payload hash. You may then use
 only the exact typed exports it lists. Any absent, stale, unlisted, differently
@@ -623,8 +670,8 @@ candidate satisfies every decisive constraint; require global uniqueness or
 exhaustive coverage only when the source asks for unique, all, every, or
 equivalent. Check raw arithmetic and mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
-reach a candidate, or a finite candidate domain not justified by the problem
-or auditable chemical evidence.
+reach a candidate, or an unjustified finite candidate domain used decisively
+for uniqueness, exhaustiveness, or elimination.
 For every mass fraction, weight fraction, wt%, or mass loading, independently
 state the numerator and denominator and identify whether each printed mass is
 the total mixture mass or a component-only mass. Unless the problem explicitly
@@ -669,7 +716,7 @@ Write exactly one JSON object line to {milestone}:
       "raw_derivation": {{"status":"passed|failed","evidence":"<end-to-end unrounded/symbolic derivation carrier>"}},
       "reporting_rule_source": {{"status":"passed|failed","evidence":"<problem-stated or predeclared mechanical reporting rule>"}},
       "tolerance_provenance": {{"status":"passed|failed","evidence":"<measurement/rounding derivation for every tolerance>"}},
-      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem or auditable chemistry evidence supporting the candidate domain>"}},
+      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<provenance for an output-decisive domain, or why no domain is decisive>"}},
       "lean_result_binding": {{"status":"passed|failed","evidence":"<candidate_sha256, deterministic preflight results, and nontrivial Lean result carriers>"}}
     }},
     "contract_audit": {{
@@ -790,8 +837,10 @@ def build_target_formalization_review_prompt(
    itself prints a fallback; no previous certificate is bound in this run. Generated interpretations
    are untrusted and no answer-bearing source may be opened or searched.
 2. Audit the independently derived candidate and its raw end-to-end derivation.
-   The reporting rule, tolerance, and candidate domain must each be justified
-   from the problem or a predeclared mechanical rule, never selected afterward.
+   The reporting rule and tolerance, when applicable, must be justified from
+   the problem or a predeclared mechanical rule, never selected afterward. A
+   candidate domain needs provenance when it is used decisively for uniqueness,
+   exhaustiveness, or eliminating alternatives.
 3. Require the symbolic specification, candidate, reporting rule, Lean carrier,
    and hashes to be frozen before any later reveal, comparison, or scoring.
 Read the solve candidate JSON and require schema_version=1, id and
@@ -805,13 +854,14 @@ multi-output or mixed-output subquestion, require a problem-specific symbolic
 conjunction/structure and map every requested output to its exact field or
 conjunct; reject a scalar record that omits any requested output.
 Both the blind source audit and contract audit must pass. Missing provenance
-fails closed."""
+for a premise decisive to the requested output fails closed."""
         chemistry_protocol = """For chemistry, enumerate every problem-requested
 output; inspect every problem image; check chemical identity, formula/molar-mass
 consistency, conservation, units, structures/stereochemistry, and identification
 uniqueness. Specifically look for answer-shaped definitions, preselected witness
 tables, post-hoc tolerances, staged rounding chosen to reach a candidate, and
-candidate domains not justified by the problem or auditable chemical evidence.
+candidate domains used decisively without problem or auditable chemical
+evidence.
 Do not consult an official
 answer, worked solution, marking scheme, rubric, answer key, or visible run."""
         source_audit_schema = """    \"blind_source_audit\": {
@@ -819,7 +869,7 @@ answer, worked solution, marking scheme, rubric, answer key, or visible run."""
       \"raw_derivation\": {\"status\":\"passed|failed\",\"evidence\":\"<end-to-end unrounded/symbolic derivation carrier>\"},
       \"reporting_rule_source\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-stated or predeclared mechanical reporting rule>\"},
       \"tolerance_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<measurement/rounding derivation for every tolerance>\"},
-      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<problem or auditable chemistry evidence supporting the candidate domain>\"},
+      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<provenance for an output-decisive domain, or why no domain is decisive>\"},
       \"lean_result_binding\": {\"status\":\"passed|failed\",\"evidence\":\"<payload hash, exact type hash, and nontrivial Lean result carrier>\"}
     },"""
         alignment_schema = ""
@@ -903,8 +953,12 @@ source without smuggling the requested answer into assumptions.
 Audit all six checks independently: source_faithfulness, derivability,
 abstraction_sufficiency, uncertainty_propagation, branch_orientation, and
 countermodel_resistance. Every check needs concrete evidence. Only uncertainty
-and branch checks may be not_applicable. Inventory every nontrivial source-to-
-Lean bridge with a named carrier; a pass requires every bridge to be covered.
+and branch checks may be not_applicable. Inventory every outcome-decisive
+source-to-Lean bridge with a named carrier; a pass requires every such bridge
+to be covered. Do not manufacture a bridge obligation for background chemistry
+that the requested output does not use.
+
+{_CHEMISTRY_DECISIVE_DEFECT_PROTOCOL}
 
 {_STAGED_SPECIES_DOMAIN_PROTOCOL}
 

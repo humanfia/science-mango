@@ -4,7 +4,8 @@ This module deliberately does not try to solve a problem or infer chemistry.
 It turns the already validated problem-side evidence into a small dependency
 skeleton that makes two obligations explicit:
 
-* prior subparts are inputs that still have to be derived in the blind run;
+* source-referenced prior subparts are inputs that still have to be derived in
+  the blind run;
 * every requested output must be connected to the bound source facts.
 
 The controller builds the object, hashes its canonical JSON representation,
@@ -137,6 +138,59 @@ def _previous_part_node(raw: Any, index: int) -> dict[str, Any]:
     }
 
 
+def _mentions_previous_part(text: str, node: Mapping[str, Any]) -> bool:
+    """Return whether task text explicitly names one previous-part node."""
+    folded = text.casefold()
+    for field in ("source_id", "part_id"):
+        identifier = str(node.get(field) or "").strip().casefold()
+        if identifier and re.search(
+            rf"(?<![A-Za-z0-9]){re.escape(identifier)}"
+            r"(?![A-Za-z0-9])",
+            folded,
+        ):
+            return True
+
+    # Olympiad statements commonly cite T4-A4 as "4.4".  Require a direct
+    # result cue so an unrelated decimal or a reference to source fragments is
+    # not treated as narrowing the declared prior-part data flow.
+    part_id = str(node.get("part_id") or "")
+    numbers = re.findall(r"[A-Za-z]*([0-9]+)", part_id)
+    if len(numbers) < 2:
+        return False
+    dotted = re.compile(
+        rf"(?<![0-9.]){re.escape(numbers[-2])}\s*\.\s*"
+        rf"{re.escape(numbers[-1])}(?![0-9.])"
+    )
+    for match in dotted.finditer(text):
+        prefix = text[max(0, match.start() - 48):match.start()]
+        if re.search(
+            r"\b(?:answer|result|value)\b"
+            r"[^.\n!?;:]{0,32}\b(?:for|from|in|of|to)\b"
+            r"(?:\s+(?:part|question|subquestion))?\s*$",
+            prefix,
+            flags=re.IGNORECASE,
+        ):
+            return True
+    return False
+
+
+def _required_previous_part_nodes(
+    nodes: list[dict[str, Any]], *, task_texts: list[str],
+) -> list[dict[str, Any]]:
+    """Keep explicit prior references without promoting adjacent context.
+
+    previous_parts remains the source contract's data-flow declaration when
+    the task does not enumerate a prior part.  When the task does name one or
+    more entries, that explicit subset is authoritative.
+    """
+    referenced = [
+        node
+        for node in nodes
+        if any(_mentions_previous_part(text, node) for text in task_texts)
+    ]
+    return referenced or nodes
+
+
 def _requested_output_nodes(
     raw: Any, index: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -249,13 +303,13 @@ def build_semantic_dag(
     if not isinstance(previous, list):
         raise SemanticDagError("problem_evidence.previous_parts must be a list")
     previous_source_ids: set[str] = set()
+    previous_nodes: list[dict[str, Any]] = []
     for index, raw in enumerate(previous):
         node = _previous_part_node(raw, index)
         if node["source_id"] in previous_source_ids:
             raise SemanticDagError("previous_parts contains duplicate source_id")
         previous_source_ids.add(node["source_id"])
-        nodes.append(node)
-        input_ids.append(node["id"])
+        previous_nodes.append(node)
 
     requested = problem_evidence.get("requested_outputs")
     if not isinstance(requested, list) or not requested:
@@ -272,6 +326,14 @@ def build_semantic_dag(
         output_ids.add(output["output_id"])
         derivations.append(derive)
         outputs.append(output)
+    task_texts = [str(problem_evidence["current_question"])] + [
+        str(derive["source_requirement"]) for derive in derivations
+    ]
+    required_previous = _required_previous_part_nodes(
+        previous_nodes, task_texts=task_texts,
+    )
+    nodes.extend(required_previous)
+    input_ids.extend(node["id"] for node in required_previous)
     nodes.extend(derivations)
     nodes.extend(outputs)
 

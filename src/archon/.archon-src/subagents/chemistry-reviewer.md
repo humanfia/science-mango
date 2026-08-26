@@ -33,9 +33,11 @@ task-result evidence. Write only your assigned review report.
 2. Read every `entry.image_paths` item, falling back to `entry.image_path` for
    older reports. Verify that facts from tables, structures, plots, spectra,
    schemes, and apparatus are neither omitted nor inferred from an unseen page.
-3. Audit LeanExplore grounding. The report must show searches using the exact
+3. Audit LeanExplore grounding for declarations or external rules that the
+   requested output actually uses. The report must show searches using the exact
    configured `lean_search_packages`; grounded Mathlib, Physlib, chemistry-
    library, and project-local names must exist with compatible signatures.
+   Missing unrelated literature is an evidence limitation, not a blocker.
 4. Build an assumption/target split:
    - governing mathematical/chemical relations;
    - source-supplied empirical data and image readouts;
@@ -44,11 +46,13 @@ task-result evidence. Write only your assigned review report.
 5. Reject answer smuggling. The current target must not already appear in a
    premise, record field, local definition, opaque `...Law`/`Valid...`
    predicate, or selected branch that the main theorem merely unfolds.
-6. Check derivability. Every nontrivial source-to-target step needs a named
-   carrier exposing usable equations, inequalities, functions, bounds, or an
-   elimination theorem. Apply a countermodel sanity check to local predicates:
-   if they can be interpreted arbitrarily while the premises stay true and the
-   conclusion false, the contract is underdetermined.
+6. Check derivability. Every outcome-decisive source-to-target step needs a
+   named carrier exposing usable equations, inequalities, functions, bounds, or
+   an elimination theorem. Apply a countermodel sanity check to local predicates:
+   fail only when a concrete source-compatible interpretation under the same
+   stated assumptions keeps the premises true and changes or falsifies a
+   requested output. An imagined model outside the source-stated scope is not a
+   blocking countermodel.
 7. Check chemistry fidelity where applicable:
    - species/sample/reaction/phase identity is not erased;
    - stoichiometry, mass/atom/charge conservation, and coefficient signs;
@@ -56,20 +60,31 @@ task-result evidence. Write only your assigned review report.
    - units or dimensional roles and significant/error bounds;
    - equilibrium, kinetics, thermodynamics, electrochemistry, spectroscopy,
      stereochemistry, and structure claims retain their source conditions;
-   - empirical facts are sourced, verified library facts, or explicit inputs,
-     never fabricated by the formalizer.
-8. Check previous-part policy. Natural-language prerequisites may become
-   explicit hypotheses, but forbidden generated-problem imports are blockers.
+   - empirical facts used by the output are sourced, verified library facts, or
+     explicit inputs, never fabricated by the formalizer.
+   Require a complete species/atom/charge/mass/phase ledger only when the
+   conclusion claims a complete stage balance or its derivation depends on those
+   conservation dimensions. Otherwise audit only the stage facts and ledgers
+   actually used, and record unrelated omitted species, phases, or byproducts as
+   non-blocking evidence. Accept an explicit contest idealization,
+   source-signaled approximation, or source-indicated dominant/slow leg within
+   its stated scope; fail if the conclusion exceeds that scope or uses the wrong
+   branch/stage.
+8. Check previous-part policy by actual dataflow. A preceding part is not a
+   dependency merely because it appears earlier. Natural-language prerequisites
+   actually used may become explicit hypotheses, but forbidden generated-problem
+   imports are blockers.
 9. At proof stage, confirm signature preservation, direct Lean compilation,
    zero active `sorry`/`admit`, and no axiom laundering or trivialized proof.
 10. In answer-blind mode, separately audit:
     - a raw, unrounded end-to-end derivation;
     - the source of the final reporting/rounding rule;
     - mechanical provenance for every tolerance or uncertainty interval;
-    - provenance and completeness of every candidate domain;
-    - proof that any previous-part value was rederived inline or was explicitly
-      printed as a fallback in the current problem (no prior certificate is
-      controller-bound in this run).
+    - provenance and completeness of each candidate domain used decisively for
+      uniqueness, exhaustiveness, or eliminating alternatives;
+    - proof that any previous-part value actually used by the current output was
+      rederived inline or was explicitly printed as a fallback in the current
+      problem (no prior certificate is controller-bound in this run).
     Read `blind_candidates/<entry.id>.json` as an untrusted generated artifact;
     verify its source hash, raw/reported values, provenance fields, and Lean
     declarations agree with the report and theorem contract. Recompute each
@@ -94,17 +109,30 @@ task-result evidence. Write only your assigned review report.
 
 ## Severity and routing
 
-Classify as must-fix-this-iteration:
+Use requested-output materiality as the hard-fail boundary. Classify as
+must-fix-this-iteration only when the defect can change, erase, or make
+underdetermined a requested output:
 
-- missing requested output or source/image datum needed by the output;
+- missing or wrong requested output/value/unit/branch/scope, or a source/image
+  datum needed by that output;
 - current answer copied into an assumption or definition;
 - `True`, reflexive, disconnected-existence, or unrelated numeric substitute;
-- underdetermined opaque relation or missing foundational bridge;
-- invented empirical chemistry fact;
+- underdetermined opaque relation or missing outcome-decisive bridge;
+- invented empirical chemistry fact used to derive the output;
 - dropped units/error/branch/species conditions that change the claim;
 - post-hoc tolerances, unannounced intermediate rounding, or candidate-domain
-  bounds without problem/derived provenance;
+  bounds used decisively without problem/derived provenance;
+- a contradiction in the problem-facing statement, or a concrete
+  source-compatible countermodel under the same stated assumptions that changes
+  the requested output;
 - proof-stage signature weakening, active placeholder, or new axiom.
+
+Do not fail solely for missing literature unused by the derivation, incomplete
+open-world reaction closure, irrelevant omitted species/byproducts/phases, or a
+stronger theorem that was not requested. Record the limitation and why it cannot
+affect the requested output in evidence while keeping the applicable check
+passed (or N/A where allowed). Do not create an infrastructure or bridge request
+for such a non-decisive limitation.
 
 Use `needs_redraft` for a defective theorem contract, `retry_proof` for a sound
 contract with a failed proof, and `blocked_infrastructure` only when the exact

@@ -17,6 +17,7 @@ from archon.commands.loop.numeric_reporting_guard import (
     prepare_numeric_reporting_guard,
 )
 from archon.commands.loop.proof_review_gate import apply_proof_review
+from archon.commands.loop.problem_only_review_contract import NUMERIC_REPORTING_MARKER_MISSING_REPAIR
 from archon.commands.loop.review_preflight import check_review_target
 
 
@@ -287,6 +288,32 @@ class NumericReportingGuardTest(unittest.TestCase):
         self.assertTrue(result["compiles"])
         self.assertEqual(result["numeric_reporting"]["status"], "passed")
 
+    def test_compiling_target_without_marker_gets_fixed_mechanical_route(self):
+        self._write_problem(
+            source="def Example.rawValue : ℝ := 1\n",
+        )
+        process = Mock()
+        process.pid = 1234
+        process.returncode = 0
+        process.communicate.return_value = ("", "")
+
+        with patch(
+            "archon.commands.loop.review_preflight.subprocess.Popen",
+            return_value=process,
+        ):
+            result = check_review_target(
+                project_path=self.project, target=self.target,
+            )
+
+        self.assertEqual(result["status"], "failed")
+        self.assertTrue(result["compiles"])
+        self.assertEqual(result["returncode"], 0)
+        reporting = result["numeric_reporting"]
+        self.assertEqual(
+            reporting["reason"], NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+        )
+        self.assertNotIn("lean_probe_passed", reporting)
+
     def test_failed_probe_with_compiling_original_keeps_compile_success(self):
         self._write_problem()
         calls: list[list[str]] = []
@@ -322,6 +349,10 @@ class NumericReportingGuardTest(unittest.TestCase):
         self.assertEqual(result["diagnostics"], "original compiled")
         self.assertEqual(result["numeric_reporting"]["status"], "failed")
         self.assertFalse(result["numeric_reporting"]["lean_probe_passed"])
+        self.assertNotEqual(
+            result["numeric_reporting"]["reason"],
+            NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+        )
 
     def test_failed_guard_becomes_formalization_and_proof_blocker(self):
         preflight = {
