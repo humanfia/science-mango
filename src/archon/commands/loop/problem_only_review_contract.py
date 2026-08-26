@@ -2063,6 +2063,13 @@ def render_native_chemistry_constant_policy(
   on every one of those dimensions. Within an outcome-decisive ledger,
   anonymous `other`, `residual`, `ejected`, `untracked`, or catch-all streams
   remain forbidden.
+- For a source-bounded contest identification that explicitly asks for a
+  concrete result from stated staged observations, derive the smallest finite
+  domain before filtering from stated or certified-prior constituents, named
+  external inputs, and ordinary charge/valence bounds. Apply every stated
+  observation and each outcome-decisive balanced ledger uniformly. Do not add a
+  candidate-named singleton, freely chosen exclusion flags, or an exhaustive
+  catalogue of hypothetical interferences merely to declare closure.
 - Use `qualitative_named_transform_only` only when an explicit source arrow or
   named-final cue is a non-exclusive compatibility constraint for an
   identify/draw/give-structure output. Bind the named reactant, reagent,
@@ -2097,7 +2104,11 @@ def render_native_chemistry_constant_policy(
   species domain is closed and the ledgers actually used by the rule pass. A
   claimed countermodel or underdetermination result requires at least two
   source-grounded models typed and balanced on every outcome-decisive
-  dimension; numerical slack and freely chosen flags are not countermodels.
+  dimension. Ground every extra outcome-changing species or pathway in an
+  exact problem locator, activated target-bound literature within its scope, or
+  an established ordinary chemical law. An invented atom-balanced side reaction
+  or volatile stream is not a countermodel; numerical slack and freely chosen
+  flags are not countermodels.
 - Every Review certificate must include
   `chemistry_checks.staged_species_domain`, with `passed` or `failed` status
   and evidence naming the selected classification. Quantitative evidence names
@@ -2107,13 +2118,17 @@ def render_native_chemistry_constant_policy(
   staged material transformation; that evidence must include the exact token
   `not_staged_transformation`.
 
-- Problem-stipulated values override the dataset. A pinned nominal value may be
-  used for an olympiad-style central answer when the problem asks for one, but
-  still check whether source uncertainty could change the required reported
-  digits or classification. A generic reaction template is not evidence that
-  this problem instantiates it; require separate classification from bound
-  problem evidence, trusted general chemistry, or a qualifying exact
-  contest_interpretation receipt."""
+- Problem-stipulated constants override the dataset and are exact as printed
+  unless the problem calls them measured. For an ordinary olympiad
+  central-value calculation, treat a pinned registry nominal constant as the exact
+  conventional input. Registry uncertainty metadata alone is not a source
+  measurement and must not create an interval-stability hard gate. Still check
+  whether source-declared uncertainty could change the required reported digits
+  or classification, and propagate any uncertainty, range, or robustness that
+  the problem explicitly requests or the candidate claims. A generic reaction
+  template is not evidence that this problem instantiates it; require separate
+  classification from bound problem evidence, trusted general chemistry, or a
+  qualifying exact contest_interpretation receipt."""
 
 
 def render_native_certified_prior_result_prompt(

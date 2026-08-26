@@ -639,6 +639,18 @@ class SemanticDagTest(unittest.TestCase):
             )
         self.assertIn("SEMANTIC DAG SENTINEL", prompt)
         self.assertIn('"failed_check_ids"', prompt)
+        normalized_prompt = " ".join(prompt.split())
+        for marker in (
+            "smallest finite domain before filtering",
+            "stated or certified-prior constituents",
+            "named external inputs",
+            "candidate-named singleton",
+            "exhaustive catalogue of hypothetical interferences",
+            "invented atom-balanced side reaction or volatile stream",
+            "activated target-bound literature within its scope",
+            "established ordinary chemical law",
+        ):
+            self.assertIn(marker, normalized_prompt)
         self.assertNotIn(
             "Mandatory source-closure repair decision procedure", prompt,
         )

@@ -619,6 +619,11 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "complete combined species/atom/charge/mass/phase/interval ledger",
             "Within an outcome-decisive ledger",
             "catch-all streams remain forbidden",
+            "smallest finite domain before filtering",
+            "stated or certified-prior constituents",
+            "named external inputs",
+            "candidate-named singleton",
+            "exhaustive catalogue of hypothetical interferences",
             "Use `qualitative_named_transform_only` only when an explicit source arrow",
             "non-exclusive compatibility constraint for an identify/draw/give-structure output",
             "Keep omitted protocol details, coefficients, phases, byproducts, and streams unknown",
@@ -634,6 +639,9 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "terminal-residue or terminal-candidate rule only when a source-stated contest model",
             "ledgers actually used by the rule pass",
             "balanced on every outcome-decisive dimension",
+            "activated target-bound literature within its scope",
+            "established ordinary chemical law",
+            "invented atom-balanced side reaction or volatile stream",
             "numerical slack and freely chosen flags are not countermodels",
             "`chemistry_checks.staged_species_domain`",
             "A qualitative pass must include the exact token `qualitative_named_transform_only`",
@@ -1020,8 +1028,26 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertIn("a paper or universal empirical law", prompt)
             for rule_id in EMPIRICAL_RULE_IDS:
                 self.assertEqual(prompt.count(rule_id), 1)
-            self.assertIn("Problem-stipulated values override", prompt)
-            self.assertIn("source uncertainty could change", prompt)
+            self.assertIn(
+                "Problem-stipulated constants override", normalized_prompt
+            )
+            self.assertIn("exact as printed", normalized_prompt)
+            self.assertIn(
+                "ordinary olympiad central-value calculation", normalized_prompt
+            )
+            self.assertIn("pinned registry nominal constant", normalized_prompt)
+            self.assertIn(
+                "Registry uncertainty metadata alone is not a source measurement",
+                normalized_prompt,
+            )
+            self.assertIn(
+                "must not create an interval-stability hard gate", normalized_prompt
+            )
+            self.assertIn("source-declared uncertainty could change", normalized_prompt)
+            self.assertIn(
+                "problem explicitly requests or the candidate claims",
+                normalized_prompt,
+            )
             for template_id in REACTION_TEMPLATE_IDS:
                 self.assertEqual(prompt.count(template_id), 1)
             for policy_id in CONTEST_INTERPRETATION_IDS:

@@ -53,6 +53,18 @@ task-result evidence. Write only your assigned review report.
    stated assumptions keeps the premises true and changes or falsifies a
    requested output. An imagined model outside the source-stated scope is not a
    blocking countermodel.
+   For a source-bounded contest identification that explicitly asks for a
+   concrete result from stated staged observations, accept the intended bounded
+   inverse-problem scope when the candidate derives its smallest finite domain
+   before filtering from stated or certified-prior constituents, named external
+   inputs, and ordinary charge/valence bounds, then applies the source observations
+   and outcome-decisive balanced ledgers uniformly. This does not weaken answer-
+   smuggling checks: a candidate-named singleton, freely chosen exclusion flag,
+   opaque predicate, or reflexive result still fails.
+   A blocking countermodel in that scope must ground every extra outcome-changing
+   species or pathway in an exact problem locator, activated target-bound
+   literature within its scope, or an established ordinary chemical law. A merely
+   invented atom-balanced side reaction or volatile stream is not source-compatible.
 7. Check chemistry fidelity where applicable:
    - species/sample/reaction/phase identity is not erased;
    - stoichiometry, mass/atom/charge conservation, and coefficient signs;

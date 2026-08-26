@@ -890,6 +890,16 @@ replace proof bodies invalidated by those statement changes with explicit
 contract as blocked. Do not continue proving the old contract. Keep the file
 compiling, update only the assigned task-result report, and do not edit
 PROGRESS.md, gate files, AUTO_NOTES.md, blueprint files, or any other Lean file.
+For a source-bounded contest identification repair, derive the smallest finite
+domain before filtering from stated or certified-prior constituents, named
+external inputs, and ordinary charge/valence bounds, then apply the stated
+observations and outcome-decisive balanced ledgers uniformly. Do not add a
+candidate-named singleton, free exclusion flags, or an exhaustive catalogue of
+hypothetical interferences merely to declare closure. Do not replace a concrete
+answer with underdetermination based only on an invented atom-balanced side
+reaction or volatile stream; any blocking alternative must be grounded in the
+problem, activated target-bound literature within its scope, or an established
+ordinary chemical law.
 Return only after the
 assigned Lean file compiles and the redraft evidence is durable on disk.
 """

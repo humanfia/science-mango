@@ -83,6 +83,19 @@ that changes the output. Name the affected output and the causal defect in the
 failure evidence. An imagined alternative outside the source-stated model is
 not such a countermodel.
 
+For a source-bounded contest identification that explicitly asks for a concrete
+result from stated staged observations, accept the intended bounded
+inverse-problem scope when the candidate derives its smallest finite domain before
+filtering from stated or certified-prior constituents, named external inputs,
+and ordinary charge/valence bounds, then applies the source observations and
+outcome-decisive balanced ledgers uniformly. This does not weaken answer-
+smuggling checks: a candidate-named singleton, freely chosen exclusion flag,
+opaque predicate, or reflexive result still fails. A blocking countermodel in
+that scope must ground every extra outcome-changing species or pathway in an
+exact problem locator, activated target-bound literature within its scope, or
+an established ordinary chemical law. A merely invented atom-balanced side
+reaction or volatile stream is not source-compatible.
+
 Apply any broader generic `fails closed`, bridge-completeness, candidate-domain,
 or staged-ledger wording elsewhere in this prompt only to a premise or carrier
 that is outcome-decisive under this boundary.

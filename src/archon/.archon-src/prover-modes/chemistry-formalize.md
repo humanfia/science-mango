@@ -174,13 +174,14 @@ claim under the returned `authority_kind`, within every returned
 never beyond the cited substrate, reagent, or conditions. For
 `contest_semantics_policy`, treat it as a bounded contest policy—not a paper or
 universal empirical law. Keep `SourceFact` distinct from
-`AuthorizedCandidate`. A current activation may construct a finite candidate
-domain only when the rule explicitly authorizes it, each nominee has an exact
-pinned `CandidateOrigin`, and a complete permitted-authority manifest records
-every considered record and its source-bound include/exclude reason. Freeze
-that domain before filtering. The receipt and manifest may nominate and filter
-only. Even listing every permitted registry record is authority-inventory
-complete, not proof that the problem's admissible domain is exhaustive.
+`AuthorizedCandidate`. Derive the smallest finite candidate domain before
+filtering from exact problem constituents, certified-prior exports, named
+external inputs, ordinary charge/valence bounds, and, when used, an applicable
+rule's exact candidate scope. Record the origins of those domain-forming facts.
+Do not create a candidate-named singleton, free `Bool`/`Prop` exclusion fields,
+or an exhaustive catalogue of hypothetical interferences merely to declare
+closure. A receipt may nominate and filter only; it does not by itself prove
+that the problem's admissible domain is exhaustive.
 Apply every independent problem constraint and every returned exclusion
 uniformly. A determinate identification is allowed when the Reviewer confirms
 that the candidate domain is justified by problem evidence or auditable
@@ -211,9 +212,11 @@ Before auditing any depicted or stated transformation, classify its use as
 quantitative class whenever the conclusion needs a yield, completeness,
 sole-product or absence claim, coefficient or phase amount, cross-stage atom or
 mass balance, loss/residue amount, or an omitted stream to be empty. Enumerate
-every permitted species, formula, phase, volatile output, and external input;
-expose complete atom, charge, mass, and measured-interval ledgers; and forbid
-anonymous or catch-all material streams.
+the finite species, formula, phase, volatile-output, and named-external-input
+domain actually used by the requested result; expose the outcome-decisive atom,
+charge, mass, phase, and measured-interval ledgers; and forbid anonymous or
+catch-all material streams. Do not enumerate unrelated hypothetical
+interferences.
 
 Use `qualitative_named_transform_only` only for an explicit source arrow or
 exact named-final cue acting as a non-exclusive compatibility constraint for an
@@ -235,7 +238,12 @@ says unique, all, every, or equivalent. A named output carrier is not answer
 smuggling merely because it names the candidate; reject it when the candidate is
 injected into a premise, singleton/answer-shaped domain, opaque predicate, or
 reflexive theorem. Fail closed when a real conflicting candidate remains or a
-decisive bridge lacks an applicable trusted source.
+decisive bridge lacks an applicable trusted source. A claimed conflicting
+candidate must ground every extra outcome-changing species or pathway in an
+exact problem locator, activated target-bound literature within its scope, or
+an established ordinary chemical law. Do not replace a concrete source-bounded
+answer with underdetermination based only on an invented atom-balanced side
+reaction or volatile stream.
 
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central
