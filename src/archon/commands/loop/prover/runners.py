@@ -887,8 +887,17 @@ Repair every listed defect class in the theorem contract, not just the last
 proof error. You may change unprotected statements in `{rel}` and
 replace proof bodies invalidated by those statement changes with explicit
 `by sorry` stubs. Never violate `archon-protected.yaml`; report a protected
-contract as blocked. Do not continue proving the old contract. Keep the file
-compiling, update only the assigned task-result report, and do not edit
+contract as blocked. Do not continue proving the old contract.
+Treat a semantic redraft as one atomic target update: when it changes the
+Lean/result semantics, also overwrite the exact
+`blind_candidates/<entry.id>.json` required by the active sealed answer-blind
+mode. Synchronize its raw/reported results, all provenance fields, Lean
+declarations, and both `lean_result_contracts`; use the existing trusted helper
+to regenerate each payload hash, normalized expected type, and expected-type
+hash. Never leave a pre-redraft candidate/hash snapshot beside new Lean or
+task-report semantics.
+Keep the file compiling, update only the assigned task-result report and the
+exact target-generated artifact required by the active mode, and do not edit
 PROGRESS.md, gate files, AUTO_NOTES.md, blueprint files, or any other Lean file.
 For a source-bounded contest identification repair, derive the smallest finite
 domain before filtering from stated or certified-prior constituents, named

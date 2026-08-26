@@ -1427,6 +1427,15 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "candidate_domain_provenance", "lean_result_binding",
             ):
                 self.assertIn(name, prompt)
+            normalized_prompt = " ".join(prompt.split())
+            for marker in (
+                "one current semantic snapshot",
+                "pre-redraft snapshot",
+                "block it as `needs_redraft`",
+                "Internally self-consistent candidate hashes do not excuse",
+                "Do not repair the candidate yourself",
+            ):
+                self.assertIn(marker, normalized_prompt)
             for marker in (
                 "source-first arrow certificate",
                 "state the arrowhead\ndirection",

@@ -862,6 +862,14 @@ declarations equal the reviewed theorem, and all three provenance fields are
 present. Recompute both lean_result_contracts payload and normalized exact-type
 hashes; reject a carrier of True or an unrelated tautology. Treat it as
 generated evidence, never as a source of problem facts.
+Treat the candidate, current Lean file, and newest matching task result as one
+current semantic snapshot. If a redraft changed any requested-output/result
+semantics, raw/reported value, provenance claim, or Lean declaration while the
+candidate or either result-contract hash still describes the pre-redraft
+snapshot, block it as `needs_redraft`. Internally self-consistent candidate
+hashes do not excuse a mismatch with the current Lean/report semantics, and a
+compiling Lean file alone cannot pass this check. Do not repair the candidate
+yourself.
 Numeric candidates are valid only for a single scalar requested output. For a
 multi-output or mixed-output subquestion, require a problem-specific symbolic
 conjunction/structure and map every requested output to its exact field or

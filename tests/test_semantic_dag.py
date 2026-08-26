@@ -649,6 +649,12 @@ class SemanticDagTest(unittest.TestCase):
             "invented atom-balanced side reaction or volatile stream",
             "activated target-bound literature within its scope",
             "established ordinary chemical law",
+            "one atomic target update",
+            "blind_candidates/<entry.id>.json",
+            "all provenance fields",
+            "both `lean_result_contracts`",
+            "pre-redraft candidate/hash snapshot",
+            "exact target-generated artifact required by the active mode",
         ):
             self.assertIn(marker, normalized_prompt)
         self.assertNotIn(
