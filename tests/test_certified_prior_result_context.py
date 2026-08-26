@@ -61,6 +61,21 @@ class CertifiedPriorResultContextTest(unittest.TestCase):
         ):
             self._load("icho_2026_t1_a6")
 
+    def test_nonconsumer_does_not_read_a_foreign_receipt_that_exists(
+        self,
+    ) -> None:
+        receipt_path = self._write_a6_context()
+
+        with mock.patch(
+            "archon.commands.loop.certified_prior_result_context."
+            "load_prior_result_dependency_context_checked",
+            side_effect=AssertionError("foreign receipt must not be read"),
+        ) as checked_loader:
+            self.assertEqual(self._load("icho_2026_t1_a3"), {})
+
+        checked_loader.assert_not_called()
+        self.assertTrue(receipt_path.is_file())
+
     def test_a6_binds_the_final_core_producers_receipt_shape(self) -> None:
         receipt = {
             "consumer": {

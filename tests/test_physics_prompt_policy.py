@@ -164,3 +164,22 @@ def test_chemistry_answer_blind_policy_requires_raw_derivation_and_provenance():
         "post-hoc tolerances",
     ]:
         assert phrase in reviewer
+
+
+def test_chemistry_formalizer_scopes_shared_prior_receipts_to_current_target():
+    formalize = CHEMISTRY_FORMALIZE_MODE.read_text(encoding="utf-8")
+
+    for phrase in [
+        "Never enumerate, glob, search, or open that directory",
+        "an unlisted receipt path/name is not answer exposure",
+        "is not an integrity failure",
+        "CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY",
+        "injected inline",
+        "for this assigned target",
+        "use that inline typed context",
+        "do not open its on-disk receipt",
+        "actually read or delivered",
+        "stop and report",
+        "an integrity failure without using it",
+    ]:
+        assert phrase in formalize

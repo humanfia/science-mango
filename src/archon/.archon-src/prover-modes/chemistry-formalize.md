@@ -23,8 +23,16 @@ proof bodies. This pass formalizes the problem; it does not solve proofs.
    If the report declares `evaluation_mode: answer_blind`, treat that mode as
    a hard integrity boundary: no official answer, marking scheme, solution
    image/PDF, explanation, old formalization, or grader artifact is an
-   admissible input. If any such artifact is visible, stop and report an
-   integrity failure without reading or using it.
+   admissible input. In a shared workspace, controller-owned sealed receipts
+   for other targets may exist under `.archon/prior-result-dependencies/`.
+   Never enumerate, glob, search, or open that directory. Mere visibility of
+   the directory or an unlisted receipt path/name is not answer exposure and
+   is not an integrity failure. A prior result is admissible only when a
+   complete `CONTROLLER-CERTIFIED PRIOR-RESULT DEPENDENCY` is injected inline
+   into the prompt for this assigned target; use that inline typed context and
+   do not open its on-disk receipt. If answer-bearing content from any other
+   target's receipt or artifact is actually read or delivered, stop and report
+   an integrity failure without using it.
 2. Read every path in `entry.image_paths` (or the legacy `entry.image_path`).
    Images may carry different pages of a table, molecular structure, spectrum,
    graph, apparatus, or reaction scheme. Do not silently use only the first.
